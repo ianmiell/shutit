@@ -1,0 +1,104 @@
+#Copyright (C) 2014 OpenBet Limited
+#
+#Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+#
+#The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+#
+#THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+################################################################################
+## Default core config file for ShutIt.
+#  If this file is in the core of ShutIt it should only
+#  ever be changed by the maintainer/BDFL.
+#  If it's been copied into a module, then the maintainer
+#  of that module only should be changing it.
+#  If you are a developer on SI or the module, change the
+#  config specific to your run (ie configs/<hostname>_<username>.cnf)
+#  
+#  Submit a pull request to the maintainer if you want the
+#  default.cnf changed.
+################################################################################
+
+# Details relating to the container you are building itself
+[container]
+# Root password for the container - replace with your chosen password
+# If left blank, you will be prompted for a password
+password:YOUR_CONTAINER_PASSWORD
+# Hostname for the container - replace with your chosen container name
+hostname:YOUR_CONTAINER_HOSTNAME
+force_repo_work:no
+locale:en_US.UTF-8
+# ports to expose, eg 
+# ports:2222:22 8080:80
+# will expose the container's port 22 and port 80 to the 
+# host's 2222 and 8080 respectively. Not setting up 
+# port 22 will cause problems.
+ports:2222:22
+# Name to give the container. Empty means "let docker default a name".
+name:containernameoverrideme
+# Whether to remove the container when finished.
+rm:yes
+
+# Information specific to the host on which the build runs.
+[host]
+# Folder with files you want to copy from in your build.
+# Often a good idea to have a central folder for this per host
+# in your /path/to/shutit/configs/`hostname`_`username`.cnf
+resources_dir:
+# Docker executable on your host machine
+docker_executable:sudo docker
+# dns arguments to containers (can be left blank)
+dns:
+# Your host machine username and password - replace with your chosen names
+username:YOUR_USERNAME
+# Password for the username above on the host
+# If left blank, you will be prompted for a password
+password:YOUR_PASSWORD
+# Log file - will be set to 0600 perms, and defaults to /tmp/<YOUR_USERNAME>_shutit_log_<timestamp>
+# A timestamp will be added to the end of the filename.
+logfile:
+
+# Repository information
+[repository]
+# Whether to honour any of the other configs in this section (eg tag and/or push to server)
+do_repository_work:no
+# User on registry to namespace repo - can be set to blank if not default repo
+user:
+#Must be set if do_repository_work is true/yes and user is not blank
+#password:YOUR_REGISTRY_PASSWORD_OR_BLANK
+#Must be set if do_repository_work is true/yes and user is not blank
+#email:YOUR_REGISTRY_PASSWORD_OR_BLANK
+# Whether to push to the server
+push:no
+# Whether to tar up the docker image
+tar:no
+# repository server - must be overridden if you want to push this
+# make blank if you want this to be sent to the main docker index on docker.io
+server:repository_server_overrideme
+# tag name
+name:repository_name_overrideme
+# Whether to suffix the date to the tag
+suffix_date:no
+# Suffix format (default is date YYYYmmdd_HHmmss)
+suffix_format:%Y%m%d_%H%m%s
+
+# Root setup script
+# Each module should set these in a config
+[com.ian.miell.setup]
+# Whether to build this module
+build:yes
+
+# Aspects of build process
+[build]
+# Whether to be interactive at key points (eg end of module build)
+interactive:no
+build_log:no
+# options: msg   = message at end if there was a ret code error from a command
+#          error = throw error if there was a ret code error from a command
+action_on_ret_code:msg
+# Run container in privileged mode
+privileged:no
+# lxc-conf arg, eg
+#lxc_conf:lxc.aa_profile=unconfined
+lxc_conf:
+
