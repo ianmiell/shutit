@@ -122,8 +122,8 @@ create\_skeleton.sh:
     - mount point for container during build. Files too big to be part of
       source control can be  or read from here. Can be controlled through
       cnf files ([host]/resources_dir:directory); it's suggested you set
-      this in /path/to/shutit/configs/`hostname`_`username`.cnf to 
-      /path/to/shutit/resources
+      this in ```/path/to/shutit/configs/`hostname`_`username`.cnf``` to 
+      ```/path/to/shutit/resources```
 - configs
     - default configuration files are placed here
 
@@ -133,7 +133,7 @@ The following files are also created, defaulted, and automatically sourced
 ```
 configs/defaults.cnf               - 
 configs/build.cnf                  - 
-configs/`hostname`\_`whoami`.cnf        - 
+configs/`hostname`_`whoami`.cnf    - 
 configs/README.md                  - README for filling out if required
 resources/README.md                - README for filling out if required
 run.sh                             - Script to run modules built with build.sh
