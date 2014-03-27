@@ -115,18 +115,22 @@ large.
 Within each module directory the following directories are placed as part of
 create\_skeleton.sh:
 
-test      - should contain test\_`hostname`.sh executables which exit with a 
+- test
+    - should contain ```test_`hostname`.sh``` executables which exit with a 
             code of 0 if all is ok.
-resources - mount point for container during build. Files too big to be part of
-            source control can be  or read from here. Can be controlled through
-            cnf files ([host]/resources_dir:directory); it's suggested you set
-            this in /path/to/shutit/configs/`hostname`_`username`.cnf to 
-            /path/to/shutit/resources
-configs   - default configuration files are placed here
+- resources
+    - mount point for container during build. Files too big to be part of
+      source control can be  or read from here. Can be controlled through
+      cnf files ([host]/resources_dir:directory); it's suggested you set
+      this in /path/to/shutit/configs/`hostname`_`username`.cnf to 
+      /path/to/shutit/resources
+- configs
+    - default configuration files are placed here
 
 The following files are also created, defaulted, and automatically sourced
 (where applicable):
 
+```
 configs/defaults.cnf               - 
 configs/build.cnf                  - 
 configs/`hostname`\_`whoami`.cnf        - 
@@ -134,6 +138,7 @@ configs/README.md                  - README for filling out if required
 resources/README.md                - README for filling out if required
 run.sh                             - Script to run modules built with build.sh
 build.sh                           - Script to build the module
+```
 
 Configuration
 --------
@@ -153,9 +158,9 @@ Known Issues
 --------------
 Since a core technology used in this application is pexpect, unusual shell
 prompts and escape sequences have been known to cause problems.
-Use util.handle\_login() and util.handle\_revert\_prompt() functions to help
+Use ```util.handle_login()``` and ```util.handle_revert_prompt()``` functions to help
 manage this.
-Use of COMMAND\_PROMPT with echo -ne has been seen to cause problems with
+Use of ```COMMAND_PROMPT``` with ```echo -ne``` has been seen to cause problems with
 overwriting of shells and pexpect patterns.
 
 
