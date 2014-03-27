@@ -101,8 +101,6 @@ If you are a sysadmin looking for something to manage dynamic, moving target sys
 stick with chef/puppet. If you're a programmer who wants to manage a bunch of 
 existing scripts in a painless way, keep on reading.
 
----
-
 Directory Structure
 --------
 Each module directory should contain modules that are grouped together somehow
