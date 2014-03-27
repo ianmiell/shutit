@@ -1,8 +1,6 @@
 ShutIt
 ===============
 
----
-
 REALLY QUICK START
 ------------------
 
@@ -13,8 +11,18 @@ REALLY QUICK START
 
 and follow instructions.
 
----
 
+REALLY QUICK OVERVIEW
+---------------------
+You'll be interested in this if you:
+
+- Want to take your scripts and turn them into stateless containers quickly,
+without needing to learn or maintain a configuration management solution.
+
+- Are a programmer who wants to highly configurable containers for
+differing use cases and environments.
+
+- Find dockerfiles a great idea, but limiting in practise.
 
 Overview
 --------
@@ -52,6 +60,7 @@ ShutIt works in the following way:
      - get_file_perms
      - get_distro_info
      - package_installed (determine whether package is already installed)
+     - loads more to come
 
 If you have an existing bash script it is relatively trivial to port to this 
 to get going with docker and start shipping containers (see create\_skeleton.sh
@@ -128,17 +137,19 @@ resources/README.md                - README for filling out if required
 run.sh                             - Script to run modules built with build.sh
 build.sh                           - Script to build the module
 
----
-
 Configuration
 --------
 See config files (in configs dirs) for guidance on setting config.
 
 Tests
 --------
-Run pushd bin; ./test.sh; popd
+Run 
 
----
+ ```
+ pushd bin
+ ./test.sh
+ popd
+ ```
 
 Known Issues
 --------------
