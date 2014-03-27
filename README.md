@@ -6,10 +6,10 @@ ShutIt
 REALLY QUICK START
 ------------------
 
- ```
- cd bin
- ./create_skeleton.sh <new_directory (absolute path)> <new module name>
- ```
+```
+cd bin
+./create_skeleton.sh <new_directory (absolute path)> <new module name>
+```
 
 and follow instructions.
 
@@ -24,7 +24,7 @@ without needing to learn or maintain a configuration management solution.
 - Are a programmer who wants to highly configurable containers for
 differing use cases and environments.
 
-- Find dockerfiles a great idea, but limiting in practise.
+- Find dockerfiles a great idea, but limiting in practice.
 
 Overview
 --------
@@ -150,11 +150,11 @@ Tests
 --------
 Run 
 
- ```
- pushd bin
- ./test.sh
- popd
- ```
+```
+pushd bin
+./test.sh
+popd
+```
 
 Known Issues
 --------------
