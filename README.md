@@ -21,7 +21,7 @@ You'll be interested in this if you:
 - Want to take your scripts and turn them into stateless containers quickly,
 without needing to learn or maintain a configuration management solution.
 
-- Are a programmer who wants to highly configurable containers for
+- Are a programmer who wants highly configurable containers for
 differing use cases and environments.
 
 - Find dockerfiles a great idea, but limiting in practice.
