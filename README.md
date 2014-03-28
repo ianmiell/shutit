@@ -28,7 +28,7 @@ differing use cases and environments.
 
 - Want to build stateless containers for production.
 
-- Are interested in "phoenix deployment".
+- Are interested in "phoenix deployment" using Docker.
 
 Overview
 --------
@@ -122,7 +122,9 @@ scope is for the user to decide, but it's best that each module doesn't get too
 large.
 
 Within each module directory the following directories are placed as part of
-```create_skeleton.sh```:
+```
+create_skeleton.sh
+```
 
 - test
     - should contain ```test_`hostname`.sh``` executables which exit with a 
