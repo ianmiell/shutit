@@ -122,27 +122,32 @@ scope is for the user to decide, but it's best that each module doesn't get too
 large.
 
 Within each module directory the following directories are placed as part of
-create\_skeleton.sh:
+```create_skeleton.sh```:
 
 - test
     - should contain ```test_`hostname`.sh``` executables which exit with a 
             code of 0 if all is ok.
 - resources
     - mount point for container during build. Files too big to be part of
-      source control can be  or read from here. Can be controlled through
-      cnf files ([host]/resources_dir:directory); it's suggested you set
-      this in ```/path/to/shutit/configs/`hostname`_`username`.cnf``` to 
-      ```/path/to/shutit/resources```
+         source control can be  or read from here. Can be controlled through
+         cnf files ([host]/resources_dir:directory)
+         - it's suggested you set this in
+             ```/path/to/shutit/configs/`hostname`_`username`.cnf``` to 
+             ```/path/to/shutit/resources```.
 - configs
-    - default configuration files are placed here
+    - default configuration files are placed here.
 
-The following files are also created, defaulted, and automatically sourced
-(where applicable):
+These config files are also created, defaulted, and automatically sourced:
 
 ```
 configs/defaults.cnf               - 
 configs/build.cnf                  - 
 configs/`hostname`_`whoami`.cnf    - 
+```
+
+And these files are also automatically created:
+
+```
 configs/README.md                  - README for filling out if required
 resources/README.md                - README for filling out if required
 run.sh                             - Script to run modules built with build.sh
