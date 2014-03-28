@@ -26,17 +26,22 @@ differing use cases and environments.
 
 - Find dockerfiles a great idea, but limiting in practice.
 
+- Want to build stateless containers for production.
+
+- Are interested in "phoenix deployment".
+
 Overview
 --------
-While evaluating Docker for my corp I reached a point where using Dockerfiles
-was somewhat painful or verbose for complex and/or long and/or configurable
-interactions. So we wrote our own for our purposes.
+While evaluating Docker for my corp (openbet.com) I reached a point where
+using Dockerfiles was somewhat painful or verbose for complex and/or long and/or
+configurable interactions. So we wrote our own for our purposes.
 
 ShutIt works in the following way:
 
 - It runs a docker container (base image configurable)
 - Within this container it runs through configurable set of modules (each with
-  a globally unique module id) that runs in a defined order with a standard lifecycle:
+  a globally unique module id) that runs in a defined order with a standard
+  lifecycle:
      - dependency checking
      - conflict checking
      - remove configured modules
@@ -73,7 +78,8 @@ As a by-product of this design, you can use it in a similar way to chef/puppet
 specific module), but it's not designed for this purpose and probably won't 
 be as useful for moving target systems.
 
-Chef/Puppet were suggested as alternatives, but for several reasons I didn't go with them:
+Chef/Puppet were suggested as alternatives, but for several reasons I didn't go
+with them:
 
 - I had to deliver something useful, and fast (spare time evaluation), so 
   taking time out to learn chef was not an option
@@ -93,22 +99,23 @@ Chef/Puppet were suggested as alternatives, but for several reasons I didn't go 
 
 It is designed to:
 
-- create static containers in as deterministic and predictable way as manageable
+- create static containers in as deterministic and predictable way as
+  manageable
 - handle complex inputs and outputs
 - easy to learn
 - easy to convert existing shell scripts
 - have (limited) functionality for rebuilding specific modules
 
-If you are a sysadmin looking for something to manage dynamic, moving target systems
-stick with chef/puppet. If you're a programmer who wants to manage a bunch of 
-existing scripts in a painless way, keep on reading.
+If you are a sysadmin looking for something to manage dynamic, moving target
+systems stick with chef/puppet. If you're a programmer who wants to manage a
+bunch of existing scripts in a painless way, keep on reading.
 
 Directory Structure
 --------
 Each module directory should contain modules that are grouped together somehow
 and all/most often built as an atomic unit.
-This grouping is left to the user to decide, but generally speaking a module will
-have one relatively simple .py file.
+This grouping is left to the user to decide, but generally speaking a module
+will have one relatively simple .py file.
 
 Each module .py file should represent a single unit of build. Again, this unit's
 scope is for the user to decide, but it's best that each module doesn't get too
@@ -160,15 +167,14 @@ Known Issues
 --------------
 Since a core technology used in this application is pexpect, unusual shell
 prompts and escape sequences have been known to cause problems.
-Use ```util.handle_login()``` and ```util.handle_revert_prompt()``` functions to help
-manage this.
-Use of ```COMMAND_PROMPT``` with ```echo -ne``` has been seen to cause problems with
-overwriting of shells and pexpect patterns.
+Use ```util.handle_login()``` and ```util.handle_revert_prompt()``` functions to
+help manage this.
+Use of ```COMMAND_PROMPT``` with ```echo -ne``` has been seen to cause problems
+with overwriting of shells and pexpect patterns.
 
 
 Licence
 ------------
-
 The MIT License (MIT)
 
 Copyright (C) 2014 OpenBet Limited
