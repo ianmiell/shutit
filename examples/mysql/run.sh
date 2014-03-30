@@ -1,2 +1,2 @@
 # Example for running
-docker run -t -i mysql /bin/bash
+sudo docker run -t -i myrepo/mysql /bin/bash
