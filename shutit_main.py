@@ -193,7 +193,7 @@ if config_dict['build']['tutorial']:
 		print_input=False)
 for k in shutit_map_list:
 	if k == 0: continue
-	util.log(util.red('considering for check_ready (will it be built?): ' + shutit_map.get(k).module_id))
+	util.log(util.red('considering check_ready (is it ready to be built?): ' + shutit_map.get(k).module_id))
 	if config_dict[shutit_map.get(k).module_id]['build'] and not shutit_map.get(k).is_installed(config_dict):
 		util.log(util.red('checking whether module is ready to build: ' + shutit_map.get(k).module_id))
 		if not shutit_map.get(k).check_ready(config_dict):
@@ -208,7 +208,7 @@ if config_dict['build']['tutorial']:
 	util.pause_point(util.get_pexpect_child('container_child'),'\nNow removing any modules that need removing',print_input=False)
 for k in shutit_map_list:
 	if k == 0: continue
-	util.log(util.red('considering for removal: ' + shutit_map.get(k).module_id))
+	util.log(util.red('considering whether to remove: ' + shutit_map.get(k).module_id))
 	if config_dict[shutit_map.get(k).module_id]['remove']:
 		util.log(util.red('removing: ' + shutit_map.get(k).module_id))
 		if not shutit_map.get(k).remove(config_dict):
@@ -221,7 +221,7 @@ if config_dict['build']['tutorial']:
 for k in shutit_map_list:
 	if k == 0: continue
 	module = shutit_map.get(k)
-	util.log(util.red('considering for build: ' + module.module_id))
+	util.log(util.red('considering whether to build: ' + module.module_id))
 	if config_dict[module.module_id]['build']:
 		if not module.is_installed(config_dict):
 			util.log(util.red('building: ' + module.module_id + ' with run order: ' + str(module.run_order)))

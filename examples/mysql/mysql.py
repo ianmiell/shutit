@@ -20,8 +20,8 @@ class mysql(ShutItModule):
 		expect = config_dict['expect_prompts']['mysql_tmp_prompt']
 		root_pass = config_dict['com.ian.miell.mysql.mysql']['root_password']
 		# From the perfmon doc set the mysql root password non-interactively
-		util.send_and_expect(container_child,"""debconf-set-selections <<< 'mysql-server mysql-server/root_password password {0}'""".format(root_pass),expect)
-		util.send_and_expect(container_child,"""sudo debconf-set-selections <<< 'mysql-server mysql-server/root_password_again password {0}'""".format(root_pass),expect)
+		util.send_and_expect(container_child,"""debconf-set-selections <<< 'mysql-server mysql-server/root_password password {0}'""".format(root_pass),expect,record_command=False)
+		util.send_and_expect(container_child,"""sudo debconf-set-selections <<< 'mysql-server mysql-server/root_password_again password {0}'""".format(root_pass),expect,record_command=False)
 		util.send_and_expect(container_child,'apt-get install -qq -y mysql-server libmysqlclient-dev',expect)
 		util.send_and_expect(container_child,'mysqld &',expect)
 		util.send_and_expect(container_child,'sleep 2',expect)
@@ -40,10 +40,10 @@ class mysql(ShutItModule):
 		res = util.send_and_expect(container_child,"""echo "grant all privileges on *.* to '""" + config_dict['com.ian.miell.mysql.mysql']['mysql_user'] + """'@'%';" | mysql -p""",['assword',expect],check_exit=False)
 		if res == 0:
 			util.send_and_expect(container_child,root_pass,expect)
-		res = util.send_and_expect(container_child,"""echo "set password for """ + config_dict['com.ian.miell.mysql.mysql']['mysql_user'] + """@'localhost'  = password('""" + config_dict['com.ian.miell.mysql.mysql']['mysql_user_password'] + """')" | mysql -p""",['assword',expect],check_exit=False)
+		res = util.send_and_expect(container_child,"""echo "set password for """ + config_dict['com.ian.miell.mysql.mysql']['mysql_user'] + """@'localhost'  = password('""" + config_dict['com.ian.miell.mysql.mysql']['mysql_user_password'] + """')" | mysql -p""",['assword',expect],check_exit=False,record_command=False)
 		if res == 0:
 			util.send_and_expect(container_child,root_pass,expect)
-		res = util.send_and_expect(container_child,"""echo "set password for """ + config_dict['com.ian.miell.mysql.mysql']['mysql_user'] + """@'%'  = password('""" + config_dict['com.ian.miell.mysql.mysql']['mysql_user_password'] + """')" | mysql -p""",['assword',expect],check_exit=False)
+		res = util.send_and_expect(container_child,"""echo "set password for """ + config_dict['com.ian.miell.mysql.mysql']['mysql_user'] + """@'%'  = password('""" + config_dict['com.ian.miell.mysql.mysql']['mysql_user_password'] + """')" | mysql -p""",['assword',expect],check_exit=False,record_command=False)
 		if res == 0:
 			util.send_and_expect(container_child,root_pass,expect)
 		res = util.add_line_to_file(container_child,'nohup mysqld &','/root/start_mysql.sh',expect)
@@ -101,13 +101,13 @@ class mysql(ShutItModule):
 
 	def test(self,config_dict):
 		container_child = util.get_pexpect_child('container_child')
-		util.send_and_expect(container_child,'mysql -u' + config_dict['com.ian.miell.mysql.mysql']['mysql_user'] + ' -p' + config_dict['com.ian.miell.mysql.mysql']['mysql_user_password'],'mysql>',check_exit=False)
+		util.send_and_expect(container_child,'mysql -u' + config_dict['com.ian.miell.mysql.mysql']['mysql_user'] + ' -p' + config_dict['com.ian.miell.mysql.mysql']['mysql_user_password'],'mysql>',check_exit=False,record_command=False)
 		util.send_and_expect(container_child,'\q',config_dict['expect_prompts']['root_prompt'])
-		util.send_and_expect(container_child,'mysql -u' + config_dict['com.ian.miell.mysql.mysql']['mysql_user'] + ' -hlocalhost -p' + config_dict['com.ian.miell.mysql.mysql']['mysql_user_password'],'mysql>',check_exit=False)
+		util.send_and_expect(container_child,'mysql -u' + config_dict['com.ian.miell.mysql.mysql']['mysql_user'] + ' -hlocalhost -p' + config_dict['com.ian.miell.mysql.mysql']['mysql_user_password'],'mysql>',check_exit=False,record_command=False)
 		util.send_and_expect(container_child,'\q',config_dict['expect_prompts']['root_prompt'])
-		util.send_and_expect(container_child,'mysql -u' + config_dict['com.ian.miell.mysql.mysql']['mysql_user'] + ' -hlocalhost -p' + config_dict['com.ian.miell.mysql.mysql']['mysql_user_password'],'mysql>',check_exit=False)
+		util.send_and_expect(container_child,'mysql -u' + config_dict['com.ian.miell.mysql.mysql']['mysql_user'] + ' -hlocalhost -p' + config_dict['com.ian.miell.mysql.mysql']['mysql_user_password'],'mysql>',check_exit=False,record_command=False)
 		util.send_and_expect(container_child,'\q',config_dict['expect_prompts']['root_prompt'])
-		util.send_and_expect(container_child,'mysql -uroot -p' + config_dict['com.ian.miell.mysql.mysql']['root_password'],'mysql>',check_exit=False)
+		util.send_and_expect(container_child,'mysql -uroot -p' + config_dict['com.ian.miell.mysql.mysql']['root_password'],'mysql>',check_exit=False,record_command=False)
 		util.send_and_expect(container_child,'\q',config_dict['expect_prompts']['root_prompt'])
 		return True
 
