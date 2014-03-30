@@ -24,4 +24,4 @@ SOFTWARE.
 MYSQL example
 =============
 
-To build, run build.sh
+To build, run ```build.sh```
