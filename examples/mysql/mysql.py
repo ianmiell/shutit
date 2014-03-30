@@ -143,7 +143,7 @@ class mysql(ShutItModule):
 		return True
 
 if not util.module_exists('com.ian.miell.mysql.mysql'):
-	obj = mysql('com.ian.miell.mysql.mysql',1037228939.0)
+	obj = mysql('com.ian.miell.mysql.mysql',0.318)
 	obj.add_dependency('com.ian.miell.setup')
 	util.get_shutit_modules().add(obj)
 	ShutItModule.register(mysql)

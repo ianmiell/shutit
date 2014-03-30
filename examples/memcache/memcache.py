@@ -63,7 +63,7 @@ class memcache(ShutItModule):
 
 
 if not util.module_exists('com.ian.miell.memcache.memcache'):
-	obj = memcache('com.ian.miell.memcache.memcache',1003189494.50000)
+	obj = memcache('com.ian.miell.memcache.memcache',0.317)
 	obj.add_dependency('com.ian.miell.setup')
 	util.get_shutit_modules().add(obj)
 	ShutItModule.register(memcache)

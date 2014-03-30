@@ -77,7 +77,7 @@ class casperjs(ShutItModule):
 		return True
 
 if not util.module_exists('com.ian.miell.casperjs.casperjs'):
-	obj = casperjs('com.ian.miell.casperjs.casperjs',1003189494.112)
+	obj = casperjs('com.ian.miell.casperjs.casperjs',0.314)
 	util.get_shutit_modules().add(obj)
 	ShutItModule.register(casperjs)
 
