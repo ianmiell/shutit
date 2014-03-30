@@ -59,7 +59,7 @@ class composer(ShutItModule):
 		return True
 
 if not util.module_exists('com.ian.miell.composer.composer'):
-	obj = composer('com.ian.miell.composer.composer',1003189494.79000)
+	obj = composer('com.ian.miell.composer.composer',0.315)
 	obj.add_dependency('com.ian.miell.setup')
 	util.get_shutit_modules().add(obj)
 	ShutItModule.register(composer)
