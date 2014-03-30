@@ -696,6 +696,9 @@ def get_shutit_modules():
 
 # Helper function to get preceding integer
 # eg com.openbet == 1003189494
+# >>> import binascii
+# >>> abs(binascii.crc32('com.ian.miell'))
+# 1037228939
 def get_hash(string):
 	return abs(binascii.crc32(string))
 

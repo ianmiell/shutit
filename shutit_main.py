@@ -128,7 +128,7 @@ for k in shutit_map_list:
 		m.build(config_dict)
 # Once we have all the modules and the children set up, then we can look at dependencies.
 if not _core_module:
-	util.fail('No module with run_order 0 specified!')
+	util.fail('No module with run_order=0 specified! This is required.')
 _core_module = None
 # Finished build core module
 

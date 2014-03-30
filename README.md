@@ -30,6 +30,16 @@ differing use cases and environments.
 
 - Are interested in "phoenix deployment" using Docker.
 
+I WANT TO SEE EXAMPLES
+----------------------
+See in ```examples/*```
+eg
+```
+cd examples/mysql
+./build.sh
+./run.sh
+```
+
 Overview
 --------
 While evaluating Docker for my corp (openbet.com) I reached a point where
@@ -170,12 +180,22 @@ pushd bin
 popd
 ```
 
+TODO
+----
+- Remove requirement to ssh in to container (which exists to prevent accidental
+blatting of the host)
+- Improve configuration automation (eg auto-building of required modules)
+- Orchestration of containers
+- Improve visualization of 
+- Reference scripts
+
 Known Issues
 --------------
-Since a core technology used in this application is pexpect, unusual shell
+Since a core technology used in this application is pexpect - and a typical
+usage pattern is to expect the prompt to return - unusual shell
 prompts and escape sequences have been known to cause problems.
-Use ```util.handle_login()``` and ```util.handle_revert_prompt()``` functions to
-help manage this.
+Use ```util.handle_login()``` and ```util.handle_revert_prompt()``` functions
+to help manage this.
 Use of ```COMMAND_PROMPT``` with ```echo -ne``` has been seen to cause problems
 with overwriting of shells and pexpect patterns.
 
@@ -186,9 +206,21 @@ The MIT License (MIT)
 
 Copyright (C) 2014 OpenBet Limited
 
-Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+Permission is hereby granted, free of charge, to any person obtaining a copy of
+this software and associated documentation files (the "Software"), to deal in 
+the Software without restriction, including without limitation the rights to
+use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies 
+of the Software, and to permit persons to whom the Software is furnished to do
+so, subject to the following conditions:
 
-The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR 
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL 
+THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER 
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
 
