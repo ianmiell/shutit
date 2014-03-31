@@ -51,7 +51,6 @@ class vnc(ShutItModule):
 		while True:
 			res = util.send_and_expect(container_child,send,['Unpacking','Setting up',config_dict['expect_prompts']['root_prompt']],timeout=9999,check_exit=False)
 			if res == 2:
-				util.handle_revert_prompt(container_child,config_dict,config_dict['expect_prompts']['root_prompt'])
 				break
 			elif res == 0 or res == 1:
 				send = ''
@@ -99,7 +98,7 @@ END""",'/root/start_vnc.sh',config_dict['expect_prompts']['root_prompt'])
 		return True
 
 if not util.module_exists('com.ian.miell.vnc.vnc'):
-	obj = vnc('com.ian.miell.vnc.vnc',1003189494.100100)
+	obj = vnc('com.ian.miell.vnc.vnc',0.322)
 	util.get_shutit_modules().add(obj)
 	ShutItModule.register(vnc)
 
