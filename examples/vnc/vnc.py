@@ -47,16 +47,20 @@ class vnc(ShutItModule):
 		util.install(container_child,config_dict,'xserver-xorg',config_dict['expect_prompts']['root_prompt'])
 		util.install(container_child,config_dict,'vnc4server',config_dict['expect_prompts']['root_prompt'],timeout=10000)
 		util.install(container_child,config_dict,'novnc',config_dict['expect_prompts']['root_prompt'],timeout=10000)
-		send = 'apt-get install -qq -y --no-install-recommends ubuntu-desktop'
+		send = 'apt-get install -qq -y --no-install-recommends ubuntu-desktop > /tmp/ubuntu-desktop && rm -f /tmp/ubuntu-desktop'
 		while True:
 			res = util.send_and_expect(container_child,send,['Unpacking','Setting up',config_dict['expect_prompts']['root_prompt']],timeout=9999,check_exit=False)
 			if res == 2:
 				break
 			elif res == 0 or res == 1:
 				send = ''
-		if util.send_and_expect(container_child,'vncserver',['assword',config_dict['expect_prompts']['root_prompt']],check_exit=False) == 0:
-			if util.send_and_expect(container_child,config_dict['com.ian.miell.vnc.vnc']['password'],[config_dict['expect_prompts']['root_prompt'],'erify'],check_exit=False) == 1:
-				util.send_and_expect(container_child,config_dict['com.ian.miell.vnc.vnc']['password'],config_dict['expect_prompts']['root_prompt'])
+		send = 'vncserver'
+		while True:
+			res = util.send_and_expect(container_child,send,['assword','erify',config_dict['expect_prompts']['root_prompt']],check_exit=False,fail_on_empty_before=False)
+			if res == 0 or res == 1:
+				send = config_dict['com.ian.miell.vnc.vnc']['password']
+			elif res == 2:
+				break
 		util.add_line_to_file(container_child,'# start vnc','/root/start_vnc.sh',config_dict['expect_prompts']['root_prompt'])
 		util.add_line_to_file(container_child,'rm -rf /tmp/.X*','/root/start_vnc.sh',config_dict['expect_prompts']['root_prompt'])
 		util.add_line_to_file(container_child,"""vncserver << END
