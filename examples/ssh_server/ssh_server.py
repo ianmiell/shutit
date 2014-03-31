@@ -82,7 +82,7 @@ class ssh_server(ShutItModule):
 
 
 if not util.module_exists('com.ian.miell.ssh_server.ssh_server'):
-	obj = ssh_server('com.ian.miell.ssh_server.ssh_server',1003189494.30000)
+	obj = ssh_server('com.ian.miell.ssh_server.ssh_server',0.321)
 	obj.add_dependency('com.ian.miell.setup')
 	util.get_shutit_modules().add(obj)
 	ShutItModule.register(ssh_server)
