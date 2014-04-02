@@ -2,11 +2,23 @@
 
 #Copyright (C) 2014 OpenBet Limited
 #
-#Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+#Permission is hereby granted, free of charge, to any person obtaining a copy 
+#of this software and associated documentation files (the "Software"), to deal
+#in the Software without restriction, including without limitation the rights
+#to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+#copies of the Software, and to permit persons to whom the Software is
+#furnished to do so, subject to the following conditions:
 #
-#The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+#The above copyright notice and this permission notice shall be included in
+#all copies or substantial portions of the Software.
 #
-#THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+#THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+#IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+#FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+#AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+#LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+#OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+#SOFTWARE.
 
 set -e
 
@@ -43,16 +55,18 @@ then
 fi
 
 # TODO: make patch
-DIR=$1
+SKELETON_DIR=$1
 MODULE_NAME=$2
 SHUTIT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/.."
 
-mkdir -p ${DIR}
-mkdir -p ${DIR}/configs
-mkdir -p ${DIR}/resources
-mkdir -p ${DIR}/bin
-touch ${DIR}/README.md
-cat >> ${DIR}/README.md << END
+mkdir -p ${SKELETON_DIR}
+mkdir -p ${SKELETON_DIR}/configs
+mkdir -p ${SKELETON_DIR}/resources
+mkdir -p ${SKELETON_DIR}/bin
+# Copy self to new directory.
+cp ${BASH_SOURCE[0]} ${SKELETON_DIR}/bin
+touch ${SKELETON_DIR}/README.md
+cat >> ${SKELETON_DIR}/README.md << END
 #The MIT License (MIT)
 #
 #Copyright (C) 2014 OpenBet Limited
@@ -77,8 +91,8 @@ cat >> ${DIR}/README.md << END
 
 ${MODULE_NAME}: description of module directory in here
 END
-touch ${DIR}/build.sh
-cat >> ${DIR}/build.sh << END
+touch ${SKELETON_DIR}/build.sh
+cat >> ${SKELETON_DIR}/build.sh << END
 #!/bin/bash
 #The MIT License (MIT)
 #
@@ -104,9 +118,9 @@ cat >> ${DIR}/build.sh << END
 
 python ${SHUTIT_DIR}/shutit_main.py
 END
-chmod +x ${DIR}/build.sh
-touch ${DIR}/resources/README.md
-cat >> ${DIR}/resources/README.md << END
+chmod +x ${SKELETON_DIR}/build.sh
+touch ${SKELETON_DIR}/resources/README.md
+cat >> ${SKELETON_DIR}/resources/README.md << END
 #The MIT License (MIT)
 #
 #Copyright (C) 2014 OpenBet Limited
@@ -129,10 +143,10 @@ cat >> ${DIR}/resources/README.md << END
 #OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 #SOFTWARE.
 
-${MODULE_NAME}: resources required in this directory, eg gzips or text files.\nNote that the .gitignore file in the ${DIR} directory should exclude these files from being added to git repos (usually due to size), but can be added if forced with 'git add --force <file>'.
+${MODULE_NAME}: resources required in this directory, eg gzips or text files.\nNote that the .gitignore file in the ${SKELETON_DIR} directory should exclude these files from being added to git repos (usually due to size), but can be added if forced with 'git add --force <file>'.
 END
-touch ${DIR}/bin/README.md
-cat ${DIR}/bin/README.md << END
+touch ${SKELETON_DIR}/bin/README.md
+cat ${SKELETON_DIR}/bin/README.md << END
 #The MIT License (MIT)
 #
 #Copyright (C) 2014 OpenBet Limited
@@ -158,13 +172,13 @@ cat ${DIR}/bin/README.md << END
 ${MODULE_NAME}: test.sh to run as part of tests in this directory
 END
 # Module template
-cp ../docs/shutit_module_template.py ${DIR}/${MODULE_NAME}.py
-perl -p -i -e "s/template/${MODULE_NAME}/g" ${DIR}/${MODULE_NAME}.py
-perl -p -i -e "s/GLOBALLY_UNIQUE_STRING/'com.mycorp.${MODULE_NAME}'/g" ${DIR}/${MODULE_NAME}.py
-perl -p -i -e "s/FLOAT/1000.00/" ${DIR}/${MODULE_NAME}.py
+cp ../docs/shutit_module_template.py ${SKELETON_DIR}/${MODULE_NAME}.py
+perl -p -i -e "s/template/${MODULE_NAME}/g" ${SKELETON_DIR}/${MODULE_NAME}.py
+perl -p -i -e "s/GLOBALLY_UNIQUE_STRING/'com.mycorp.${MODULE_NAME}'/g" ${SKELETON_DIR}/${MODULE_NAME}.py
+perl -p -i -e "s/FLOAT/1000.00/" ${SKELETON_DIR}/${MODULE_NAME}.py
 # Configs
 # Setup base config for the new module
-cat >> ${DIR}/configs/defaults.cnf << END
+cat >> ${SKELETON_DIR}/configs/defaults.cnf << END
 #The MIT License (MIT)
 #
 #Copyright (C) 2014 OpenBet Limited
@@ -199,7 +213,7 @@ action_on_ret_code:error
 # Defaults as at creation time, hashed out by default:
 END
 # Setup base config for the new module
-cat >> ${DIR}/configs/build.cnf << END
+cat >> ${SKELETON_DIR}/configs/build.cnf << END
 # When this module is the one being built, which modules should be built along with it by default?
 # This feeds into automated testing of each module.
 [com.mycorp.${MODULE_NAME}]
@@ -214,13 +228,13 @@ then
 	read _ignored
 	SBSI="/tmp/shutit_bash_script_include_`date +%N`"
 	egrep -v '^[\s]*$' $3 | grep -v '^#!' | sed "s/^/\t\tutil.send_and_expect(container_child,\"/;s/$/\",config_dict['container_child']['root_prompt'])/" > ${SBSI}
-	sed "25r ${SBSI}" ${DIR}/${MODULE_NAME}.py > ${DIR}/${MODULE_NAME}.py.new
-	mv ${DIR}/${MODULE_NAME}.py.new ${DIR}/${MODULE_NAME}.py
+	sed "25r ${SBSI}" ${SKELETON_DIR}/${MODULE_NAME}.py > ${SKELETON_DIR}/${MODULE_NAME}.py.new
+	mv ${SKELETON_DIR}/${MODULE_NAME}.py.new ${SKELETON_DIR}/${MODULE_NAME}.py
 fi
 
 
 
-cat > ${DIR}/bin/test.sh << END
+cat > ${SKELETON_DIR}/bin/test.sh << END
 #!/bin/bash
 # Test the building of this module
 set -e
@@ -260,7 +274,7 @@ echo "Container's hostname"
 read container_hostname
 echo "Password (for container)"
 read -s pw_container
-cat > ${DIR}/configs/`hostname`_`whoami`.cnf << END
+cat > ${SKELETON_DIR}/configs/`hostname`_`whoami`.cnf << END
 #The MIT License (MIT)
 #
 #Copyright (C) 2014 OpenBet Limited
@@ -308,12 +322,12 @@ repository_server:
 # Whether to push to the server
 repository_name:${MODULE_NAME}
 END
-chmod 0600 ${DIR}/configs/defaults.cnf
-chmod 0600 ${DIR}/configs/build.cnf
-chmod 0600 ${DIR}/configs/`hostname`_`whoami`.cnf
-chmod +x ${DIR}/bin/test.sh
+chmod 0600 ${SKELETON_DIR}/configs/defaults.cnf
+chmod 0600 ${SKELETON_DIR}/configs/build.cnf
+chmod 0600 ${SKELETON_DIR}/configs/`hostname`_`whoami`.cnf
+chmod +x ${SKELETON_DIR}/bin/test.sh
 
-pushd ${DIR}
+pushd ${SKELETON_DIR}
 if [[ ! `git status` ]]
 then
 	git init
@@ -322,8 +336,8 @@ fi
 popd
 
 # Run file
-touch ${DIR}/run.sh
-cat > ${DIR}/run.sh << END
+touch ${SKELETON_DIR}/run.sh
+cat > ${SKELETON_DIR}/run.sh << END
 #The MIT License (MIT)
 #
 #Copyright (C) 2014 OpenBet Limited
@@ -349,12 +363,12 @@ cat > ${DIR}/run.sh << END
 # Example for running
 docker run -t -i ${MODULE_NAME} /bin/bash
 END
-chmod +x ${DIR}/run.sh
+chmod +x ${SKELETON_DIR}/run.sh
 
 echo "================================================================================"
 echo "Run:"
 echo ""
-echo "    cd ${DIR}; python ${SHUTIT_DIR}/shutit_main.py --tutorial"
+echo "    cd ${SKELETON_DIR}; python ${SHUTIT_DIR}/shutit_main.py --tutorial"
 echo ""
 echo "And follow the instructions in the output."
 echo ""
