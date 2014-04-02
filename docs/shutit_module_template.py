@@ -35,7 +35,7 @@ class template(ShutItModule):
 	def build(self,config_dict):
 		container_child = util.get_pexpect_child('container_child') # Let's get the container child object from pexpect.
 		root_prompt_expect = config_dict['expect_prompts']['root_prompt'] # Set the string we expect to see once commands are done.
-		# Line number 28 should be the next one (so bash scripts can be inserted properly)
+		# Line number 39 should be the next one (so bash scripts can be inserted properly)
 
 		# DELETE THIS SECTION WHEN UNDERSTOOD - BEGIN
 		util.send_and_expect(container_child,'touch /tmp/deleteme',root_prompt_expect)
