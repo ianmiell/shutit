@@ -26,17 +26,18 @@ mysql_user:prince
 mysql_user_password:underthecherrymoon
 root_password:purple_rain
 
-# Repository information
-[repository]
-# Whether to honour any of the other configs in this section (eg tag and/or push to server)
-do_repository_work:yes
-# Whether to push to the server
-push:no
-# Whether to tar up the docker image
-tar:yes
-# repository server - must be overridden if you want to push this
-# make blank if you want this to be sent to the main docker index on docker.io
-server:myrepo
-# tag name
-name:mysql
+# Uncomment to tag/tar/push repo
+## Repository information
+#[repository]
+## Whether to honour any of the other configs in this section (eg tag and/or push to server)
+#do_repository_work:yes
+## Whether to push to the server
+#push:no
+## Whether to tar up the docker image
+#tar:yes
+## repository server - must be overridden if you want to push this
+## make blank if you want this to be sent to the main docker index on docker.io
+#server:myrepo
+## tag name
+#name:mysql
 
