@@ -24,7 +24,7 @@ for d in `ls ../ | grep -vw bin`
 do
 	sudo docker kill containernameoverrideme
 	sudo docker rm containernameoverrideme
-	pushd ../$d/test
+	pushd ../$d/bin
 	./test.sh
 	popd
 done

@@ -50,7 +50,7 @@ SHUTIT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/.."
 mkdir -p ${DIR}
 mkdir -p ${DIR}/configs
 mkdir -p ${DIR}/resources
-mkdir -p ${DIR}/test
+mkdir -p ${DIR}/bin
 touch ${DIR}/README.md
 cat >> ${DIR}/README.md << END
 #The MIT License (MIT)
@@ -131,8 +131,8 @@ cat >> ${DIR}/resources/README.md << END
 
 ${MODULE_NAME}: resources required in this directory, eg gzips or text files.\nNote that the .gitignore file in the ${DIR} directory should exclude these files from being added to git repos (usually due to size), but can be added if forced with 'git add --force <file>'.
 END
-touch ${DIR}/test/README.md
-cat ${DIR}/test/README.md << END
+touch ${DIR}/bin/README.md
+cat ${DIR}/bin/README.md << END
 #The MIT License (MIT)
 #
 #Copyright (C) 2014 OpenBet Limited
@@ -220,7 +220,7 @@ fi
 
 
 
-cat > ${DIR}/test/test.sh << END
+cat > ${DIR}/bin/test.sh << END
 #!/bin/bash
 # Test the building of this module
 set -e
@@ -311,7 +311,7 @@ END
 chmod 0600 ${DIR}/configs/defaults.cnf
 chmod 0600 ${DIR}/configs/build.cnf
 chmod 0600 ${DIR}/configs/`hostname`_`whoami`.cnf
-chmod +x ${DIR}/test/test.sh
+chmod +x ${DIR}/bin/test.sh
 
 pushd ${DIR}
 if [[ ! `git status` ]]
