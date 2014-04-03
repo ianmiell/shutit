@@ -256,7 +256,7 @@ for k in shutit_map_list:
 				# Stop all before we tag to avoid file changing errors, and clean up pid files etc..
 				stop_all(shutit_map_list,config_dict,module.run_order)
 				util.do_repository_work(config_dict,
-					config_dict['expect_prompts']['real_user_prompt'],
+					config_dict['expect_prompts']['base_prompt'],
 					str(module.module_id),
 					repo_suffix=str(module.run_order),
 					password=config_dict['host']['password'],
@@ -305,7 +305,7 @@ for k in shutit_map_list:
 			util.fail(shutit_map.get(k).module_id + ' failed on finalize',child=util.get_pexpect_child('container_child'))
 
 # Tag and push etc
-util.do_repository_work(config_dict,config_dict['expect_prompts']['real_user_prompt'],config_dict['repository']['name'],docker_executable=config_dict['host']['docker_executable'],password=config_dict['host']['password'])
+util.do_repository_work(config_dict,config_dict['expect_prompts']['base_prompt'],config_dict['repository']['name'],docker_executable=config_dict['host']['docker_executable'],password=config_dict['host']['password'])
 # Final exits
 host_child = util.get_pexpect_child('host_child')
 host_child.sendline('exit') # Exit raw bash
@@ -325,7 +325,7 @@ if config_dict[shutit_map.get(0).module_id]['do_repo_work']:
 		util.pause_point(util.get_pexpect_child('host_child'),'\nDoing final committing/tagging on the overall container and creating the artifact.',print_input=False)
 	util.log(util.red('doing repo work: ' + shutit_map.get(0).module_id + ' with run order: ' + str(shutit_map.get(0.0).run_order)))
 	util.do_repository_work(config_dict,
-		config_dict['expect_prompts']['real_user_prompt'],
+		config_dict['expect_prompts']['base_prompt'],
 		str(shutit_map.get(0.0).run_order),
 		password=config_dict['host']['password'],
 		docker_executable=config_dict['host']['docker_executable'])
