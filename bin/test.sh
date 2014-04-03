@@ -56,7 +56,7 @@ echo "Testing skeleton build"
 # Do basic test of create_skeleton (can't do complete as may require specific config)
 NEWDIR=/tmp/shutit_testing_`hostname`_`whoami`_`date -I`_`date +%N`
 ./create_skeleton.sh ${NEWDIR} testing
-pushd ${NEWDIR}/test
+pushd ${NEWDIR}/bin
 touch ${SHUTIT_DIR}/test/configs/`hostname`_`whoami`.cnf
 chmod 0600 ${SHUTIT_DIR}/test/configs/`hostname`_`whoami`.cnf
 ./test.sh ${SHUTIT_DIR} || failure "1.0 ${NEWDIR}"
@@ -67,7 +67,7 @@ rm -rf ${NEWDIR}
 # General tests
 for d in `ls ../test | grep -v configs`
 do
-	pushd ${SHUTIT_DIR}/test/$d/test
+	pushd ${SHUTIT_DIR}/test/$d/bin
 	echo "PWD: `pwd`"
 	# Just in case only just git cloned/updated
 	touch ../configs/`hostname`_`whoami`.cnf
@@ -79,7 +79,7 @@ done
 
 # TODO: full/quick cycle?
 # Examples tests
-pushd  ${SHUTIT_DIR}/examples/test
+pushd  ${SHUTIT_DIR}/examples/bin
 ./test.sh
 popd
 

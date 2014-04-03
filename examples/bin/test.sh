@@ -20,7 +20,8 @@
 #LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 #OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 #SOFTWARE.
-for d in `ls ../ | grep -vw bin`
+dirs=`ls ../ | grep -vw bin | grep -v README`
+for d in $dirs
 do
 	sudo docker kill containernameoverrideme
 	sudo docker rm containernameoverrideme

@@ -120,7 +120,7 @@ class mysql(ShutItModule):
 		if install_type == 'apt':
 			util.send_and_expect(container_child,'apt-get -qq -y autoremove',config_dict['expect_prompts']['root_prompt'])
 			util.send_and_expect(container_child,'apt-get -qq -y autoclean',config_dict['expect_prompts']['root_prompt'])
-		util.send_and_expect(container_child,'find / -iname \'mysql*\'',config_dict['expect_prompts']['root_prompt'])
+		util.send_and_expect(container_child,'find / -iname \'mysql*\' | xargs rm -rf',config_dict['expect_prompts']['root_prompt'])
 		util.send_and_expect(container_child,'rm /root/start_mysql.sh',config_dict['expect_prompts']['root_prompt'])
 		util.send_and_expect(container_child,'rm /root/stop_mysql.sh',config_dict['expect_prompts']['root_prompt'])
 		return True
