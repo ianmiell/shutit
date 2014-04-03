@@ -180,6 +180,11 @@ pushd bin
 popd
 ```
 
+Dependencies
+--------------
+- python 2.7+ (or you can install the various python libraries required)
+
+
 TODO
 ----
 - Remove requirement to ssh in to container (which exists to prevent accidental
