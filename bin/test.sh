@@ -53,7 +53,6 @@ popd
 rm -rf ${NEWDIR}
 
 # General tests
-
 for d in `ls ../test | grep -v configs`
 do
 	pushd ${SHUTIT_DIR}/test/$d/test
@@ -65,6 +64,12 @@ do
 	cleanup
 	popd
 done
+
+# TODO: full/quick cycle?
+# Examples tests
+pushd  ${SHUTIT_DIR}/examples/test
+./test.sh
+popd
 
 
 # OK

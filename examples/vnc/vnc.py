@@ -56,7 +56,7 @@ class vnc(ShutItModule):
 				send = ''
 		send = 'vncserver'
 		while True:
-			res = util.send_and_expect(container_child,send,['assword','erify',config_dict['expect_prompts']['root_prompt']],check_exit=False,fail_on_empty_before=False)
+			res = util.send_and_expect(container_child,send,['assword','erify',config_dict['expect_prompts']['root_prompt']],check_exit=False,fail_on_empty_before=False,record_command=False)
 			if res == 0 or res == 1:
 				send = config_dict['com.ian.miell.vnc.vnc']['password']
 			elif res == 2:
