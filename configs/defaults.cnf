@@ -31,9 +31,8 @@ locale:en_US.UTF-8
 # ports to expose, eg 
 # ports:2222:22 8080:80
 # will expose the container's port 22 and port 80 to the 
-# host's 2222 and 8080 respectively. Not setting up 
-# port 22 will cause problems.
-ports:2222:22
+# host's 2222 and 8080 respectively.
+ports:
 # Name to give the container. Empty means "let docker default a name".
 name:containernameoverrideme
 # Whether to remove the container when finished.
