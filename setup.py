@@ -24,13 +24,11 @@
 from shutit_module import ShutItModule
 import pexpect
 import fdpexpect
-import subprocess
 import sys
 import util
 import time
 import re
 import shutit_global
-import random
 
 import pty
 import os
@@ -58,7 +56,7 @@ class setup(ShutItModule):
 	def is_installed(self,config_dict):
 		return False
 
-	def bootstrap(self,config_dict):
+	def build(self,config_dict):
 		# Kick off container within host machine
 		port_arg = ''
 		privileged_arg = ''
@@ -93,39 +91,39 @@ class setup(ShutItModule):
 			] if arg != ''
 		]
 		if config_dict['build']['tutorial']:
-			util.pause_point(None,'\n\nAbout to start container. Ports mapped will be: ' + port_arg + ' (from\n\n[host]\nports:<value>\n\nconfig, building on the configurable base image passed in in:\n\n\t--image <image>\n\nor config:\n\n\t[container]\n\tdocker_image:<image>)\n\nBase image in this case is:\n\n\t' + config_dict['container']['docker_image'] + '\n\n',print_input=False)
+			util.pause_point(None,'\n\nAbout to start container. ' +
+				'Ports mapped will be: ' + port_arg +
+				' (from\n\n[host]\nports:<value>\n\nconfig, building on the ' +
+				'configurable base image passed in in:\n\n\t--image <image>\n' +
+				'\nor config:\n\n\t[container]\n\tdocker_image:<image>)\n\nBase' +
+				'image in this case is:\n\n\t' + config_dict['container']['docker_image'] +
+				'\n\n',print_input=False)
 			util.pause_point(None,'Command being run is:\n\n' + ' '.join(docker_command),print_input=False)
 
-		# http://stackoverflow.com/questions/373639/running-interactive-commands-in-paramiko
-		# http://stackoverflow.com/questions/13041732/ssh-password-through-python-subprocess
-		# http://stackoverflow.com/questions/1939107/python-libraries-for-ssh-handling
-		# http://stackoverflow.com/questions/11272536/how-to-obtain-pseudo-terminal-master-file-descriptor-from-inside-ssh-session
-		# http://stackoverflow.com/questions/4022600/python-pty-fork-how-does-it-work
+		# Fork off a pty specially for docker. This protects us from modules
+		# killing the bash process they're executing in and ending up running
+		# on the host itself
 		def docker_start(cmd_list):
-			print cmd_list
-			try:
-				(child_pid, fd) = pty.fork()
-			except OSError as e:
-				print str(e)
-
-			# NOTE - unlike OS fork, in pty fork we MUST read from the fd variable
-			#        somewhere in the parent process: if we don't - child process will
-			#        never be spawned
-
+			# http://stackoverflow.com/questions/373639/running-interactive-commands-in-paramiko
+			# http://stackoverflow.com/questions/13041732/ssh-password-through-python-subprocess
+			# http://stackoverflow.com/questions/1939107/python-libraries-for-ssh-handling
+			# http://stackoverflow.com/questions/11272536/how-to-obtain-pseudo-terminal-master-file-descriptor-from-inside-ssh-session
+			# http://stackoverflow.com/questions/4022600/python-pty-fork-how-does-it-work
+			(child_pid, fd) = pty.fork()
 			if child_pid == 0:
-				# Need to flush sys.stdout and files here
-
-				# The first of these arguments is the name of the new program
-				os.execvp(cmd_list[0], cmd_list)
+				# The first item of the list in the second argument is the name
+				# of the new program
+				try:
+					os.execvp(cmd_list[0], cmd_list)
+				except OSError:
+					print "Failed to exec docker"
+					sys.exit(1)
 			else:
 				return fd
 		container_fd = docker_start(docker_command)
 		container_child = fdpexpect.fdspawn(container_fd)
 		if container_child.expect(['assword',config_dict['expect_prompts']['base_prompt']],9999) == 0:
 			util.send_and_expect(container_child,config_dict['host']['password'],config_dict['expect_prompts']['base_prompt'],timeout=9999,check_exit=False)
-
-		# This line appears to be redundant.
-		#container_child.expect(config_dict['expect_prompts']['base_prompt'],timeout=9999)
 
 		# Get the cid
 		time.sleep(1) # cidfile creation is sometimes slow...
@@ -142,7 +140,7 @@ class setup(ShutItModule):
 		host_child.logfile = container_child.logfile = sys.stdout
 		host_child.maxread = container_child.maxread = 2000
 		host_child.searchwindowsize = container_child.searchwindowsize = 1024
-		# Set up prompts and let the user do some things before the build
+		# Set up prompts and let the user do things before the build
 		util.setup_prompt(host_child,config_dict,'SHUTIT_PROMPT_REAL_USER#','real_user_prompt')
 		util.pause_point(container_child,'Anything you want to do to the container before the build starts?')
 		util.setup_prompt(container_child,config_dict,'SHUTIT_PROMPT_PRE_BUILD#','pre_build')
@@ -150,12 +148,6 @@ class setup(ShutItModule):
 		util.setup_prompt(container_child,config_dict,'SHUTIT_PROMPT_ROOT_PROMPT#','root_prompt')
 		util.send_and_expect(container_child,'export DEBIAN_FRONTEND=noninteractive',config_dict['expect_prompts']['root_prompt'],check_exit=False)
 
-
-
-	def build(self,config_dict):
-		self.bootstrap(config_dict)
-		host_child = util.get_pexpect_child('host_child')
-		container_child = util.get_pexpect_child('container_child')
 		return True
 
 	def start(self,config_dict):
