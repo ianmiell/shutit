@@ -43,7 +43,9 @@ class mysql(ShutItModule):
 		# From the perfmon doc set the mysql root password non-interactively
 		util.send_and_expect(container_child,"""debconf-set-selections <<< 'mysql-server mysql-server/root_password password {0}'""".format(root_pass),expect,record_command=False)
 		util.send_and_expect(container_child,"""sudo debconf-set-selections <<< 'mysql-server mysql-server/root_password_again password {0}'""".format(root_pass),expect,record_command=False)
-		util.send_and_expect(container_child,'apt-get install -qq -y mysql-server libmysqlclient-dev',expect)
+		util.install(container_child,config_dict,'mysql-common',expect)
+		util.install(container_child,config_dict,'mysql-server',expect)
+		util.install(container_child,config_dict,'libmysqlclient-dev',expect)
 		util.send_and_expect(container_child,'mysqld &',expect)
 		util.send_and_expect(container_child,'sleep 2',expect)
 		util.send_and_expect(container_child,'mysql_install_db --user=mysql --basedir=/usr --datadir=/var/mysql/database',expect)
@@ -107,14 +109,17 @@ class mysql(ShutItModule):
 
 	def remove(self,config_dict):
 		container_child = util.get_pexpect_child('container_child')
-		util.send_and_expect(container_child,'apt-get -qq -y purge mysql-server libmysqlclient-dev mysql-common',config_dict['expect_prompts']['root_prompt'])
+		util.remove(container_child,config_dict,'libmysqlclient-dev',config_dict['expect_prompts']['root_prompt'])
+		util.remove(container_child,config_dict,'mysql-common',config_dict['expect_prompts']['root_prompt'])
 		util.send_and_expect(container_child,'/root/stop_mysql.sh',config_dict['expect_prompts']['root_prompt'])
 		#http://stackoverflow.com/questions/10853004/removing-mysql-5-5-completely et al
 		util.send_and_expect(container_child,'rm -rf /var/lib/mysql',config_dict['expect_prompts']['root_prompt'])
 		util.send_and_expect(container_child,'rm -rf /etc/mysql',config_dict['expect_prompts']['root_prompt'])
 		util.send_and_expect(container_child,'deluser mysql',config_dict['expect_prompts']['root_prompt'])
-		util.send_and_expect(container_child,'apt-get -qq -y autoremove',config_dict['expect_prompts']['root_prompt'])
-		util.send_and_expect(container_child,'apt-get -qq -y autoclean',config_dict['expect_prompts']['root_prompt'])
+		install_type = config_dict['container']['install_type']
+		if install_type == 'apt':
+			util.send_and_expect(container_child,'apt-get -qq -y autoremove',config_dict['expect_prompts']['root_prompt'])
+			util.send_and_expect(container_child,'apt-get -qq -y autoclean',config_dict['expect_prompts']['root_prompt'])
 		util.send_and_expect(container_child,'find / -iname \'mysql*\'',config_dict['expect_prompts']['root_prompt'])
 		util.send_and_expect(container_child,'rm /root/start_mysql.sh',config_dict['expect_prompts']['root_prompt'])
 		util.send_and_expect(container_child,'rm /root/stop_mysql.sh',config_dict['expect_prompts']['root_prompt'])
