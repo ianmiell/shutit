@@ -77,6 +77,12 @@ do
 	popd
 done
 
+# TODO: full/quick cycle?
+# Examples tests
+pushd  ${SHUTIT_DIR}/examples/test
+./test.sh
+popd
+
 
 # OK
 echo "================================================================================"
