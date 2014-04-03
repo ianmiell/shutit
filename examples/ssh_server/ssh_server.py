@@ -34,7 +34,7 @@ class ssh_server(ShutItModule):
 
 	def build(self,config_dict):
 		container_child = util.get_pexpect_child('container_child')
-		util.send_and_expect(container_child,'apt-get install -qq -y openssh-server',config_dict['expect_prompts']['root_prompt'])
+		util.install(container_child,config_dict,'openssh-server',config_dict['expect_prompts']['root_prompt'])
 		util.send_and_expect(container_child,'mkdir -p /var/run/sshd',config_dict['expect_prompts']['root_prompt'])
 		util.send_and_expect(container_child,'chmod 700 /var/run/sshd',config_dict['expect_prompts']['root_prompt'])
 		# Set up root bashrcs once

@@ -98,7 +98,8 @@ class setup(ShutItModule):
 		time.sleep(1) # cidfile creation is sometimes slow...
 		cid = open(config_dict['build']['cidfile']).read()
 		if cid == '' or re.match('^[a-z0-9]+$', cid) == None:
-			util.fail('Could not get container_id - quitting. Check whether other containers are running\nwhich clash eg on port allocation or name, preventing startup.')
+			# TODO: dynamic container name there
+			util.fail('Could not get container_id - quitting. Check whether other containers are running\nwhich clash eg on port allocation or name, preventing startup.\nYou might want to try running: sudo docker kill containernameoverrideme; sudo docker rm containernameoverrideme')
 		config_dict['container']['container_id'] = cid
 		util.pause_point(control,'Anything you want to do to the container before the build starts?')
 		util.setup_prompt(control,config_dict,'SHUTIT_PROMPT_PRE_SSH#','pre_ssh')

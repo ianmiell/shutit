@@ -31,7 +31,8 @@ import pexpect
 class vnc(ShutItModule):
 
 	def check_ready(self,config_dict):
-		return True
+		# Only apt-based systems are supported support atm
+		return config_dict['container']['install_type'] == 'apt'
 
 	def is_installed(self,config_dict):
 		return False
@@ -41,13 +42,16 @@ class vnc(ShutItModule):
 		container_child = util.get_pexpect_child('container_child')
 		util.send_and_expect(container_child,'echo "deb http://archive.ubuntu.com/ubuntu precise main universe multiverse" > /etc/apt/sources.list',config_dict['expect_prompts']['root_prompt'])
 		util.add_line_to_file(container_child,'deb http://archive.ubuntu.com/ubuntu/ precise-updates main restricted','/etc/apt/sources.list',config_dict['expect_prompts']['root_prompt'])
-		util.send_and_expect(container_child,'apt-get update -qq',config_dict['expect_prompts']['root_prompt'],timeout=10000)
+		install_type = config_dict['container']['install_type']
+		if install_type == 'apt':
+			util.send_and_expect(container_child,'apt-get update -qq',config_dict['expect_prompts']['root_prompt'],timeout=10000)
 		util.install(container_child,config_dict,'gnome-terminal',config_dict['expect_prompts']['root_prompt'])
 		util.install(container_child,config_dict,'openjdk-6-jre',config_dict['expect_prompts']['root_prompt'])
 		util.install(container_child,config_dict,'xserver-xorg',config_dict['expect_prompts']['root_prompt'])
 		util.install(container_child,config_dict,'vnc4server',config_dict['expect_prompts']['root_prompt'],timeout=10000)
 		util.install(container_child,config_dict,'novnc',config_dict['expect_prompts']['root_prompt'],timeout=10000)
-		send = 'apt-get install -qq -y --no-install-recommends ubuntu-desktop > /tmp/ubuntu-desktop && rm -f /tmp/ubuntu-desktop'
+		if install_type == 'apt':
+			send = 'apt-get install -qq -y --no-install-recommends ubuntu-desktop > /tmp/ubuntu-desktop && rm -f /tmp/ubuntu-desktop'
 		while True:
 			res = util.send_and_expect(container_child,send,['Unpacking','Setting up',config_dict['expect_prompts']['root_prompt']],timeout=9999,check_exit=False)
 			if res == 2:
