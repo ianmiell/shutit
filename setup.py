@@ -58,19 +58,19 @@ class setup(ShutItModule):
 
 	def build(self,config_dict):
 		# Kick off container within host machine
-		port_arg = ''
+		port_args = []
 		privileged_arg = ''
 		lxc_conf_arg = ''
 		ports_list = config_dict['container']['ports'].split()
 		for portmap in ports_list:
-			port_arg = port_arg + '-p=' + portmap
+			port_args.append('-p=' + portmap)
 		if config_dict['build']['privileged']:
 			privileged_arg = '-privileged'
 		if config_dict['build']['lxc_conf'] != '':
 			lxc_conf_arg = '-lxc-conf=' + config_dict['build']['lxc_conf']
 		config_dict['build']['cidfile'] = '/tmp/' + config_dict['host']['username'] + '_cidfile_' + config_dict['build']['build_id']
 		if config_dict['container']['name'] != '':
-			name_arg = '-name ' + config_dict['container']['name']
+			name_arg = '-name=' + config_dict['container']['name']
 		else:
 			name_arg = ''
 		docker_command = config_dict['host']['docker_executable'].split(' ') + [
@@ -82,8 +82,8 @@ class setup(ShutItModule):
 				name_arg,
 				'-v=' + config_dict['host']['resources_dir'] + ':/resources',
 				'-h=' + config_dict['container']['hostname'],
-				config_dict['host']['dns'],
-				port_arg,
+				config_dict['host']['dns']
+				] + port_args + [
 				'-t',
 				'-i',
 				config_dict['container']['docker_image'],
@@ -92,7 +92,7 @@ class setup(ShutItModule):
 		]
 		if config_dict['build']['tutorial']:
 			util.pause_point(None,'\n\nAbout to start container. ' +
-				'Ports mapped will be: ' + port_arg +
+				'Ports mapped will be: ' + ', '.join(port_args) +
 				' (from\n\n[host]\nports:<value>\n\nconfig, building on the ' +
 				'configurable base image passed in in:\n\n\t--image <image>\n' +
 				'\nor config:\n\n\t[container]\n\tdocker_image:<image>)\n\nBase' +
