@@ -187,8 +187,6 @@ Dependencies
 
 TODO
 ----
-- Remove requirement to ssh in to container (which exists to prevent accidental
-blatting of the host)
 - Improve configuration automation (eg auto-building of required modules)
 - Orchestration of containers
 - Improve visualization of 
