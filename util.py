@@ -520,7 +520,7 @@ def do_repository_work(config_dict,expect,repo_name,repo_suffix='',docker_execut
 		if res == 1:
 			send_and_expect(child,config_dict['host']['password'],expect,check_exit=False,record_command=False)
 		send_and_expect(child,'echo $SHUTIT_TMP_VAR && unset SHUTIT_TMP_VAR',expect,check_exit=False,record_command=False)
-		image_id = child.before.split('\r\n')[1]
+		image_id = child.after.split('\r\n')[1]
 		if config_dict['repository']['suffix_date']:
 			suffix_date = time.strftime(config_dict['repository']['suffix_format'])
 			repository = repository + '_' + suffix_date
