@@ -658,14 +658,6 @@ def add_to_bashrc(child,line,expect):
 	res = add_line_to_file(child,line,'/etc/profile',expect)
 	return res
 
-# Set a ssh child in the global dictionary by key.
-def add_ssh_session(ss):
-	shutit_global.ssh_sessions.append(ss)
-
-# Get a pexpect child in the global dictionary by key.
-def stop_ssh_sessions():
-	_ = [os.close(ss) for ss in shutit_global.ssh_sessions]
-
 # Set a pexpect child in the global dictionary by key.
 def set_pexpect_child(key,child):
 	shutit_global.pexpect_children.update({key:child})
