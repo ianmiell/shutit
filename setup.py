@@ -130,8 +130,7 @@ class setup(ShutItModule):
 		time.sleep(1) # cidfile creation is sometimes slow...
 		cid = open(config_dict['build']['cidfile']).read()
 		if cid == '' or re.match('^[a-z0-9]+$', cid) == None:
-			# TODO: dynamic container name there
-			util.fail('Could not get container_id - quitting. Check whether other containers are running\nwhich clash eg on port allocation or name, preventing startup.\nYou might want to try running: sudo docker kill containernameoverrideme; sudo docker rm containernameoverrideme')
+			util.fail('Could not get container_id - quitting. Check whether other containers are running\nwhich clash eg on port allocation or name, preventing startup.\nYou might want to try running: sudo docker kill ' + config_dict['container']['name'] + '; sudo docker rm ' + config_dict['container']['name'])
 		config_dict['container']['container_id'] = cid
 		# Now let's have a host_child
 		host_child = pexpect.spawn('/bin/bash')
