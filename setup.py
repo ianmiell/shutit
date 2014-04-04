@@ -122,7 +122,8 @@ class setup(ShutItModule):
 				return fd
 		container_fd = docker_start(docker_command)
 		container_child = fdpexpect.fdspawn(container_fd)
-		if container_child.expect(['assword',config_dict['container']['hostname']]) == 0:
+		# Long timeout in case we are downloading an image.
+		if container_child.expect(['assword',config_dict['container']['hostname']],9999) == 0:
 			util.send_and_expect(container_child,config_dict['host']['password'],config_dict['expect_prompts']['base_prompt'],timeout=9999,check_exit=False)
 
 		# Get the cid

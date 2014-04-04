@@ -31,8 +31,7 @@ class mysql(ShutItModule):
 
 	def is_installed(self,config_dict):
 		container_child = util.get_pexpect_child('container_child')
-		res = util.file_exists(container_child,'/root/start_mysql.sh',config_dict['expect_prompts']['root_prompt'])
-		return res
+		return util.file_exists(container_child,'/root/start_mysql.sh',config_dict['expect_prompts']['root_prompt'])
 
 	def build(self,config_dict):
 		container_child = util.get_pexpect_child('container_child')
@@ -115,7 +114,7 @@ class mysql(ShutItModule):
 		#http://stackoverflow.com/questions/10853004/removing-mysql-5-5-completely et al
 		util.send_and_expect(container_child,'rm -rf /var/lib/mysql',config_dict['expect_prompts']['root_prompt'])
 		util.send_and_expect(container_child,'rm -rf /etc/mysql',config_dict['expect_prompts']['root_prompt'])
-		util.send_and_expect(container_child,'deluser mysql',config_dict['expect_prompts']['root_prompt'])
+		util.send_and_expect(container_child,'deluser mysql',config_dict['expect_prompts']['root_prompt'],check_exit=False)
 		install_type = config_dict['container']['install_type']
 		if install_type == 'apt':
 			util.send_and_expect(container_child,'apt-get -qq -y autoremove',config_dict['expect_prompts']['root_prompt'])

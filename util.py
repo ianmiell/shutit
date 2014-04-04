@@ -89,8 +89,9 @@ def reverse_yellow(msg): return colour('7;33', msg)
 # check_exit                 - Whether the check the shell exit code of the command. If the exit value was non-zero an error is thrown. (default=True)
 # config_dict                - config_dict variable (default=shutit_global.config_dict)
 # fail_on_empty_before       - If debug is set, fail on empty before match (default=True)
-# record_command             - Whether to record the command for output at end (default=True
-def send_and_expect(child,send,expect,timeout=3600,check_exit=True,config_dict=None,fail_on_empty_before=True,record_command=True):
+# record_command             - Whether to record the command for output at end (default=True)
+# exit_values                - Array of acceptable exit values (default [0])
+def send_and_expect(child,send,expect,timeout=3600,check_exit=True,config_dict=None,fail_on_empty_before=True,record_command=True,exit_values=[0]):
 	if config_dict is None: config_dict = shutit_global.config_dict
 	if config_dict['build']['debug']:
 		log('================================================================================')
@@ -117,7 +118,7 @@ def send_and_expect(child,send,expect,timeout=3600,check_exit=True,config_dict=N
 		child.sendline('echo EXIT_CODE:$?')
 		child.expect(expect,timeout)
 		res = get_re_from_child(child.before,'^EXIT_CODE:([0-9][0-9]?[0-9]?)$')
-		if res != '0' or res == None:
+		if res in exit_values or res == None:
 			if res == None:
 				res = str(res)
 			log(red('child.after: \n' + child.after + '\n'))
