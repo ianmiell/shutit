@@ -189,8 +189,7 @@ TODO
 ----
 - Improve configuration automation (eg auto-building of required modules)
 - Orchestration of containers
-- Improve visualization of 
-- Reference scripts
+- Improve visualization of dependencies
 
 Known Issues
 --------------
