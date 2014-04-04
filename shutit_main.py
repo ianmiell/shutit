@@ -334,5 +334,4 @@ util.log(util.red(util.build_report('Module: N/A (END)')),prefix=False,force_std
 
 # TODO: make this output dynamic
 if config_dict['build']['tutorial']:
-	# TODO: dynamic container name below
-	util.log(util.red('\nThe build is complete. You should now have a container called containernameoverrideme and a new image if you chose to commit it.\n\nLook and play with the following files from the newly-created module directory to dig deeper:\n\n\tconfigs/default.cnf\n\t*.py\n\nYou can rebuild at any time by running the supplied ./build.sh and run with the supplied ./run.sh.\n\nThere\'s a default test runner in bin/test.sh\n\nYou can inspect the details of the build in the container\'s /root/shutit_build directory.'),force_stdout=True)
+	util.log(util.red('\nThe build is complete. You should now have a container called ' + config_dict['container']['name'] + ' and a new image if you chose to commit it.\n\nLook and play with the following files from the newly-created module directory to dig deeper:\n\n\tconfigs/default.cnf\n\t*.py\n\nYou can rebuild at any time by running the supplied ./build.sh and run with the supplied ./run.sh.\n\nThere\'s a default test runner in bin/test.sh\n\nYou can inspect the details of the build in the container\'s /root/shutit_build directory.'),force_stdout=True)
