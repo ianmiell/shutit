@@ -22,11 +22,16 @@
 #SOFTWARE.
 set -e
 [ "x$DOCKER" != "x" ] || DOCKER="sudo docker"
+
+function cleanup() {
+	$DOCKER kill containernameoverrideme >/dev/null 2>&1 || /bin/true
+	$DOCKER rm containernameoverrideme >/dev/null 2>&1 || /bin/true
+}
+
 dirs=`ls ../ | grep -vw bin | grep -v README`
 for d in $dirs
 do
-	$DOCKER kill containernameoverrideme
-	$DOCKER rm containernameoverrideme
+	cleanup
 	pushd ../$d/bin
 	./test.sh
 	popd
