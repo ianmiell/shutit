@@ -22,36 +22,54 @@
 
 set -e
 
+function usage {
+	cat > /dev/stdout << END
+$0 PATH MODULE_NAME [SCRIPT]
+
+PATH        - absolute path to new directory for module
+MODULE_NAME - name for your module
+SCRIPT      - pre-existing shell script to integrate into module
+END
+exit
+}
+
+usage
+
 if [[ $0 != create_skeleton.sh ]] && [[ $0 != ./create_skeleton.sh ]]
 then
-	echo
-	echo "Must be run from bin dir like:"
-	echo
-	echo "	create_skeleton.sh <absolute_directory_name> <module_name> [<shell script to integrate>]"
-	echo
-	echo "or"
-	echo
-	echo "	./create_skeleton.sh <absolute_directory_name> <module_name> [<shell script to integrate>]"
-	exit
+	cat > /dev/stdout << END
+Must be run from bin dir like:
+
+	create_skeleton.sh <absolute_directory_name> <module_name> [<shell script to integrate>]
+
+or
+
+	./create_skeleton.sh <absolute_directory_name> <module_name> [<shell script to integrate>]
+END
+	sleep 2
+	usage
 fi
 
 
 if [[ x$1 == "x" ]] || [[ $(echo $1 | head -c 1) != "/" ]]
 then
 	echo "Must supply a directory and it must be absolute"
-	exit
+	sleep 2
+	usage
 fi
 
 if [[ -a $1 ]]
 then
 	echo "$1 already exists"
-	exit
+	sleep 2
+	usage
 fi
 
 if [[ x$2 == "x" ]]
 then
 	echo "Must supply a name for your module, eg mymodulename"
-	exit
+	sleep 2
+	usage
 fi
 
 # TODO: make patch
