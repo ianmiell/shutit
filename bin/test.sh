@@ -24,6 +24,12 @@ set -e
 
 [ "x$DOCKER" != "x" ] || DOCKER="sudo docker"
 
+# Check we can use docker
+if ! $DOCKER info >/dev/null 2>&1; then
+	echo "Failed to run docker! - used command \"$DOCKER info\" to check"
+	false
+fi
+
 function failure() {
 	echo "============================================"
 	echo "FAILED"
