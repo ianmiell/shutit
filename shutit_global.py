@@ -29,6 +29,7 @@ import sets
 
 def init(): 
 	global pexpect_children
+	global ssh_sessions
 	global shutit_modules
 	global shutit_main_dir
 	global config_dict
@@ -36,6 +37,7 @@ def init():
 	global shutit_command_history
 
 	pexpect_children = {}
+	ssh_sessions     = []
 	shutit_modules   = sets.Set([])
 	shutit_command_history = []
 	# Store the root directory of this application.
