@@ -20,4 +20,4 @@
 #OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 #SOFTWARE.
 set -e
-python ../../shutit_main.py --shutit_module_path ..
+python ../../shutit_main.py
