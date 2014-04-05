@@ -239,11 +239,16 @@ END
 # Include bash script
 if [[ x${3} != "x" ]]
 then
-	echo "Please note that your bash script in ${3} should be a simple set of one-liners that return to the prompt."
-	echo "Anything fancy with ifs, backslashes etc need to be handled more carefully (see README). Hit return to continue."
+	cat > /dev/stdout << END
+================================================================================
+Please note that your bash script in ${3} should be a simple set of one-liners
+that return to the prompt. Anything fancy with ifs, backslashes or other
+multi-line commands need to be handled more carefully. Hit return to continue.
+================================================================================
+END
 	read _ignored
 	SBSI="/tmp/shutit_bash_script_include_`date +%N`"
-	egrep -v '^[\s]*$' $3 | grep -v '^#!' | sed "s/^/\t\tutil.send_and_expect(container_child,\"/;s/$/\",config_dict['container_child']['root_prompt'])/" > ${SBSI}
+	egrep -v '^[\s]*$' $3 | grep -v '^#' | sed "s/^/\t\tutil.send_and_expect(container_child,\"/;s/$/\",root_prompt_expect)/" > ${SBSI}
 	sed "39r ${SBSI}" ${SKELETON_DIR}/${MODULE_NAME}.py > ${SKELETON_DIR}/${MODULE_NAME}.py.new
 	mv ${SKELETON_DIR}/${MODULE_NAME}.py.new ${SKELETON_DIR}/${MODULE_NAME}.py
 fi
