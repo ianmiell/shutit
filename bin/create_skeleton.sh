@@ -354,7 +354,7 @@ chmod 0600 ${SKELETON_DIR}/configs/`hostname`_`whoami`.cnf
 chmod +x ${SKELETON_DIR}/bin/test.sh
 
 pushd ${SKELETON_DIR}
-if [[ ! `git status` ]]
+if ! git status >/dev/null 2>&1
 then
 	git init
 	cp ${SHUTIT_DIR}/.gitignore .gitignore

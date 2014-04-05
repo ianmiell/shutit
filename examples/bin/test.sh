@@ -20,11 +20,18 @@
 #LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 #OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 #SOFTWARE.
+set -e
+[ "x$DOCKER" != "x" ] || DOCKER="sudo docker"
+
+function cleanup() {
+	$DOCKER kill containernameoverrideme >/dev/null 2>&1 || /bin/true
+	$DOCKER rm containernameoverrideme >/dev/null 2>&1 || /bin/true
+}
+
 dirs=`ls ../ | grep -vw bin | grep -v README`
 for d in $dirs
 do
-	sudo docker kill containernameoverrideme
-	sudo docker rm containernameoverrideme
+	cleanup
 	pushd ../$d/bin
 	./test.sh
 	popd

@@ -22,6 +22,14 @@
 
 set -e
 
+[ "x$DOCKER" != "x" ] || DOCKER="sudo docker"
+
+# Check we can use docker
+if ! $DOCKER info >/dev/null 2>&1; then
+	echo "Failed to run docker! - used command \"$DOCKER info\" to check"
+	false
+fi
+
 function failure() {
 	echo "============================================"
 	echo "FAILED"
@@ -31,8 +39,8 @@ function failure() {
 }
 
 function cleanup() {
-	sudo docker kill containernameoverrideme || /bin/true
-	sudo docker rm containernameoverrideme || /bin/true
+	$DOCKER kill containernameoverrideme >/dev/null 2>&1 || /bin/true
+	$DOCKER rm containernameoverrideme >/dev/null 2>&1 || /bin/true
 }
 
 SHUTIT_DIR="`pwd`/.."
@@ -48,8 +56,7 @@ then
 	exit 1
 fi
 
-chmod 0600 ${SHUTIT_DIR}/configs/defaults.cnf
-chmod 0600 ${SHUTIT_DIR}/test/*/configs/*.cnf
+find ${SHUTIT_DIR} -name '*.cnf' | grep '/configs/[^/]*.cnf' | xargs chmod 600
 
 cleanup
 echo "Testing skeleton build"
