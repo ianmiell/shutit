@@ -39,8 +39,8 @@ function failure() {
 }
 
 function cleanup() {
-	$DOCKER kill containernameoverrideme || /bin/true
-	$DOCKER rm containernameoverrideme || /bin/true
+	$DOCKER kill containernameoverrideme >/dev/null 2>&1 || /bin/true
+	$DOCKER rm containernameoverrideme >/dev/null 2>&1 || /bin/true
 }
 
 SHUTIT_DIR="`pwd`/.."
