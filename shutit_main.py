@@ -310,6 +310,8 @@ util.do_repository_work(config_dict,config_dict['expect_prompts']['base_prompt']
 host_child = util.get_pexpect_child('host_child')
 host_child.sendline('exit') # Exit raw bash
 time.sleep(0.3)
+util.stop_ssh_sessions()
+time.sleep(0.3)
 
 # TODO: not entirely sure why we do this below. I doubt it even works as we've
 # terminated host_child above. However, I suspect there was some subtle
