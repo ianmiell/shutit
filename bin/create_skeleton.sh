@@ -248,7 +248,12 @@ multi-line commands need to be handled more carefully. Hit return to continue.
 END
 	read _ignored
 	SBSI="/tmp/shutit_bash_script_include_`date +%N`"
-	egrep -v '^[\s]*$' $3 | grep -v '^#' | sed "s/^/\t\tutil.send_and_expect(container_child,\"/;s/$/\",root_prompt_expect)/" > ${SBSI}
+	# egrep removes leading space
+	# grep removes comments
+	# sed1 ensures no confusion with double quotes
+	# sed2 replaces script lines with shutit code
+	# sed3 uses treble quotes for simpler escaping of strings
+	egrep -v '^[\s]*$' $3 | grep -v '^#' | sed "s/\"$/\" /;s/^/\t\tutil.send_and_expect(container_child,\"\"\"/;s/$/\"\"\",root_prompt_expect)/" > ${SBSI}
 	sed "39r ${SBSI}" ${SKELETON_DIR}/${MODULE_NAME}.py > ${SKELETON_DIR}/${MODULE_NAME}.py.new
 	mv ${SKELETON_DIR}/${MODULE_NAME}.py.new ${SKELETON_DIR}/${MODULE_NAME}.py
 fi
