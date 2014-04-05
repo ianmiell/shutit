@@ -21,4 +21,4 @@
 #OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 #SOFTWARE.
 set -e
-python /space/git/shutit/bin/../shutit_main.py --shutit_module_path .:../vnc
+python ../../shutit_main.py --shutit_module_path .:../vnc
