@@ -33,8 +33,6 @@ END
 exit
 }
 
-usage
-
 if [[ $0 != create_skeleton.sh ]] && [[ $0 != ./create_skeleton.sh ]]
 then
 	cat > /dev/stdout << END
