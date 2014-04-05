@@ -244,7 +244,7 @@ then
 	read _ignored
 	SBSI="/tmp/shutit_bash_script_include_`date +%N`"
 	egrep -v '^[\s]*$' $3 | grep -v '^#!' | sed "s/^/\t\tutil.send_and_expect(container_child,\"/;s/$/\",config_dict['container_child']['root_prompt'])/" > ${SBSI}
-	sed "25r ${SBSI}" ${SKELETON_DIR}/${MODULE_NAME}.py > ${SKELETON_DIR}/${MODULE_NAME}.py.new
+	sed "39r ${SBSI}" ${SKELETON_DIR}/${MODULE_NAME}.py > ${SKELETON_DIR}/${MODULE_NAME}.py.new
 	mv ${SKELETON_DIR}/${MODULE_NAME}.py.new ${SKELETON_DIR}/${MODULE_NAME}.py
 fi
 
