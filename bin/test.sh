@@ -55,7 +55,7 @@ cleanup
 echo "Testing skeleton build"
 # Do basic test of create_skeleton (can't do complete as may require specific config)
 NEWDIR=/tmp/shutit_testing_`hostname`_`whoami`_`date -I`_`date +%N`
-./create_skeleton.sh ${NEWDIR} testing
+./create_skeleton.sh ${NEWDIR} testing ${SHUTIT_DIR}/docs/example.sh
 pushd ${NEWDIR}/bin
 touch ${SHUTIT_DIR}/test/configs/`hostname`_`whoami`.cnf
 chmod 0600 ${SHUTIT_DIR}/test/configs/`hostname`_`whoami`.cnf

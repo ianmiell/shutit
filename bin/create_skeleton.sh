@@ -266,7 +266,7 @@ cat > ${SKELETON_DIR}/bin/test.sh << END
 set -e
 if [[ \$0 != test.sh ]] && [[ \$0 != ./test.sh ]] && [[ \$0 != create_skeleton.sh ]] && [[ \$0 != ./create_skeleton.sh ]]
 then
-        echo
+        echo 
         echo "Called as: \$0"
 	echo "Must be run from test dir like:"
         echo
