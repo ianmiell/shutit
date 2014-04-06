@@ -18,11 +18,15 @@
       <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_red_aa0000.png" alt="Fork me on GitHub">
     </a>
     <div class='jumbotron'>
+      <div>
       <h1>ShutIt</h1>
       <p>Configuration management for the future.</p>
+      </div>
     </div>
     <div class='row'>
-      <div class='col-md-12'>
+      <div class='col-md-1'></div>
+      <div class='col-md-10'>
+        <p><h1>Why?</h1></p>
 	<p class='lead'>Interested in Docker? Find Dockerfiles limiting?</p>
 	<p class='lead'>Are you a programmer annoyed by the obfuscation and indirection Chef/Puppet/Ansible brings to a simple series of commands?</p>
 	<p class='lead'>Interested in stable stateless deployments?</p>
@@ -40,13 +44,16 @@
           <li>Util functions for common tasks (that work across distros)</li>
         </ul>
       </div>
+      <div class='col-md-1'></div>
     </div>
     <div class='row'>
-      <div class="col-md-12">
+      <div class='col-md-1'></div>
+      <div class="col-md-10">
         <section>
           <h3>Step 1: Get the source</h3>
 	  <pre data-language='shell'>
 git clone https://github.com/ianmiell/shutit/git
+          </pre>
         </section>
         <section>
           <h3>Step 2: Create a new module</h3>
@@ -54,7 +61,7 @@ git clone https://github.com/ianmiell/shutit/git
 cd shutit/bin
 ./create_skeleton /home/username/shutit_modules/shutit_module shutit_module
 cd /home/username/shutit_modules/play
-</pre>
+          </pre>
           <p>Folder structure:</p>
           <ul>
             <li><p><strong>/bin</strong> - scripts for this module <em>(see example below)</em></p></li>
@@ -78,13 +85,56 @@ cd /home/username/shutit_modules/play
 │   └── README.md
 └── run.sh
 	  </pre>
-        </section>
-
+	</section>
+       </div>
+      <div class='col-md-1'></div>
+     </div>
+    <div class='row'>
+      <div class='col-md-1'></div>
+      <div class="col-md-10">
         <section>
           <h3>Step 3: Modify the default module</h3>
-          <p>The default module contains </p>
-	  <pre data-language='generic'>
-</pre>
-        </section>
+          <p>The default module contains examples of many common tasks when installing, eg</p>
+          <ul>
+	    <li>util.install - installs packages based on distro (eg 'passwd' install)</li>
+	    <li>password handling - automate the inputting of passwords (eg 'passwd' install)</li>
+	    <li>config to set up apps - (eg 'passwd' install)</li>
+	    <li>add line to file - automate the input-ing of passwords</li>
+	    <li>util.pause_point - to allow you to stop during a build and inspect before continuing</li>
+	    <li>handle logins/logouts - to make for safer automated interactions with eg unexpected prompts</li>
+	    <li>pull resources in and out of the container - for objects too big for source control</li>
+	  </ul>
+	  <p>It also gives a simple example of each part of the build lifecycle. <strong>Add a package to install.</strong></p>
+	  <p><strong>Running the module requires that in your shutit_module.py:</strong></p>
+          <ul>
+	    <li><strong>GLOBALLY_UNIQUE_STRING</strong> is replaced with a python string that is not likely to clash, eg <strong>'com.mydomain.mysubmodule.myref'</strong> (including quotes)</li>
+	    <li><strong>FLOAT</strong> is replaced with a unique decimal value that is not clashing with any other modules, and defines the order in which they are built, eg <strong>3.141</strong></li>
+          </ul>
+	  <p><strong>Do the above and save the file</strong></p>
+	</section>
+      </div>
+    </div> 
+    <div class='row'>
+      <div class='col-md-1'></div>
+      <div class="col-md-10">
+          <h3>Step 4: Build your module</h3>
+	  <pre data-language='shell'>
+		TODO
+	  </pre>
+          <p></p>
+      </div>
+      <div class='col-md-1'></div>
+    </div>
+    <div class='row'>
+      <div class='col-md-1'></div>
+      <div class="col-md-10">
+          <h3>Step 5: Run your module</h3>
+	  <pre data-language='shell'>
+		TODO
+	  </pre>
+          <p></p>
+      </div>
+      <div class='col-md-1'></div>
+    </div>
   </body>
 </html>
