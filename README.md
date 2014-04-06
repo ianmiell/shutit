@@ -1,7 +1,7 @@
 ShutIt
 ===============
+Complex Docker Deployments Made Simple
 
-"Tame Your Build Proc-Mess" - a tool for building and maintaining Docker deployments
 
 REALLY QUICK START
 ------------------
