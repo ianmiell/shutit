@@ -66,6 +66,8 @@ def is_built(config_dict,shutit_module_obj):
 
 shutit_map = {}
 util.parse_args()
+util.load_configs()
+util.load_shutit_modules()
 config_dict = shutit_global.config_dict
 
 # Check for duplicate module details.

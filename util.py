@@ -304,6 +304,9 @@ def parse_args():
 	config_dict['build']['debug']    = args.debug
 	config_dict['build']['tutorial'] = args.tutorial
 	config_dict['build']['command_pause'] = float(args.pause)
+	config_dict['build']['extra_configs'] = args.config
+	config_dict['build']['show_config_only'] = args.sc
+	config_dict['container']['docker_image'] = args.image_tag
 	# Get module paths
 	config_dict['host']['shutit_module_paths'] = args.shutit_module_path.split(':')
 	if '.' not in config_dict['host']['shutit_module_paths']:
@@ -311,6 +314,7 @@ def parse_args():
 			log('Working directory path not included, adding...')
 			time.sleep(1)
 		config_dict['host']['shutit_module_paths'].append('.')
+	# Finished parsing args, tutorial stuff
 	if config_dict['build']['tutorial']:
 		print textwrap.dedent("""\
 			================================================================================
@@ -406,7 +410,9 @@ def parse_args():
 			================================================================================
 			""")
 		pause_point(None,'')
-	# CONFIGS BEGIN
+
+def load_configs():
+	config_dict = shutit_global.config_dict
 	# Get root default config file
 	default_config_file = os.path.join(shutit_global.shutit_main_dir, 'configs/defaults.cnf')
 	configs = [default_config_file]
@@ -424,19 +430,13 @@ def parse_args():
 	# Add the local build.cnf
 	configs.append('configs/build.cnf')
 	# Get passed-in config(s)
-	for config_file_name in args.config:
+	for config_file_name in config_dict['build']['extra_configs']:
 		run_config_file = os.path.expanduser(config_file_name)
 		if not os.path.isfile(run_config_file):
 			fail('Did not recognise ' + run_config_file + ' as a file - do you need to touch ' + run_config_file + '?')
 		configs.append(run_config_file)
-	# CONFIGS DONE
-
-	if config_dict['build']['debug']:
-		log('ShutIt module paths now: ')
-		log(config_dict['host']['shutit_module_paths'])
-		time.sleep(1)
 	# Image to use to start off. The script should be idempotent, so running it on an already built image should be ok, and is advised to reduce diff space required.
-	if config_dict['build']['tutorial'] or args.sc:
+	if config_dict['build']['tutorial'] or config_dict['build']['show_config_only']:
 		msg = ''
 		for c in configs:
 			msg = msg + '\t\n' + c
@@ -444,21 +444,24 @@ def parse_args():
 		if config_dict['build']['tutorial']:
 			pause_point(None,'\n' + msg + '\n\nLooking at config files in the above order (even if they do not exist - you may want to create them).\n\nIf you get a "Port already in use:" error, run:\n\n\tdocker ps -a | grep -w <port> | awk \'{print $1}\' | xargs docker kill\nor\n\tsudo docker ps -a | grep -w <port> | awk \'{print $1}\' | xargs sudo docker kill\n',print_input=False)
 	config_dict['config_parser'] = get_configs(configs)
-	config_dict['container']['docker_image'] = args.image_tag
-	# LOAD MODULES BEGIN
-	for shutit_module_path in config_dict['host']['shutit_module_paths']:
-		load_all_from_path(shutit_module_path)
-	# LOAD MODULES DONE
 	# Now get base config
 	get_base_config(config_dict)
-	if args.sc:
+	if config_dict['build']['show_config_only']:
 		log(print_config(config_dict),force_stdout=True)
 		sys.exit()
+
+def load_shutit_modules():
+	config_dict = shutit_global.config_dict
+	if config_dict['build']['debug']:
+		log('ShutIt module paths now: ')
+		log(config_dict['host']['shutit_module_paths'])
+		time.sleep(1)
+	for shutit_module_path in config_dict['host']['shutit_module_paths']:
+		load_all_from_path(shutit_module_path)
 	# Have we got anything to process?
 	if len(shutit_global.shutit_modules) < 2 :
 		log(shutit_global.shutit_modules)
-		fail('No ShutIt modules in path: ' + args.shutit_module_path + '. Check your --shutit_module_path setting.')
-	return config_dict
+		fail('No ShutIt modules in path: ' + ':'.join(config_dict['host']['shutit_module_paths']) + '. Check your --shutit_module_path setting.')
 
 def print_config(config_dict):
 	s = ''
