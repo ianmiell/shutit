@@ -669,16 +669,6 @@ def get_pexpect_child(key):
 
 # dynamically import files within the same directory (in the end, the path)
 #http://stackoverflow.com/questions/301134/dynamic-module-import-in-python
-def load_from_path(path):
-	if os.path.abspath(path) == shutit_global.shutit_main_dir:
-		return
-	if os.path.exists(path):
-		for f in os.listdir(path):
-			filepath = os.path.join(path, f)
-			mod_name,file_ext = os.path.splitext(os.path.split(filepath)[-1])
-			if file_ext.lower() == '.py':
-				imp.load_source(mod_name, filepath)
-
 def load_all_from_path(path):
 	if os.path.abspath(path) == shutit_global.shutit_main_dir:
 		return
