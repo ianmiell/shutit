@@ -287,7 +287,8 @@ def get_real_user(config_dict):
 	return username
 
 # Returns the config dict
-def parse_args(config_dict=shutit_global.config_dict):
+def parse_args():
+	config_dict = shutit_global.config_dict
 	config_dict['host']['real_user_id'] = pexpect.run('id -u ' + config_dict['host']['real_user']).strip()
 	parser = argparse.ArgumentParser(description='Setup base OpenBet system')
 	parser.add_argument('--config', help='Config file for setup config. Must be with perms 0600. Multiple arguments allowed; config files considered in order.',default=[], action='append')
