@@ -220,7 +220,7 @@ def get_base_config(config_dict):
 	# It's important that these have '.*' in them at the start, so that the matched data is reliablly 'after' in the
 	# child object. Use these where possible to make things more consistent.
 	# Attempt to capture any starting prompt (when starting)
-	config_dict['expect_prompts']['base_prompt']             = '\r\n.*[@#]'
+	config_dict['expect_prompts']['base_prompt']             = '\r\n.*[@#$]'
 	config_dict['expect_prompts']['real_user_prompt']        = '\r\n.*?' + config_dict['host']['real_user'] + '@.*:'
 	# END Standard expects
 
