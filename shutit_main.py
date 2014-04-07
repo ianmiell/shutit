@@ -29,6 +29,7 @@ import util
 import shutit_global
 import setup
 import time
+import sys
 import decimal
 
 # Stop all apps less than the supplied run_order
@@ -65,8 +66,15 @@ def is_built(config_dict,shutit_module_obj):
 
 
 shutit_map = {}
-util.parse_args()
 config_dict = shutit_global.config_dict
+util.parse_args(config_dict)
+cfg_parser = util.load_configs(config_dict)
+# Now get base config
+util.get_base_config(config_dict, cfg_parser)
+if config_dict['build']['show_config_only']:
+	util.log(util.print_config(config_dict),force_stdout=True)
+	sys.exit()
+util.load_shutit_modules(config_dict)
 
 # Check for duplicate module details.
 # Set up common config.
@@ -238,7 +246,7 @@ for k in shutit_map_list:
 	if config_dict[module.module_id]['build']:
 		if not module.is_installed(config_dict):
 			util.log(util.red('building: ' + module.module_id + ' with run order: ' + str(module.run_order)))
-			shutit_global.config_dict['build']['report'] = shutit_global.config_dict['build']['report'] + '\nBuilding: ' + module.module_id + ' with run order: ' + str(module.run_order)
+			config_dict['build']['report'] = config_dict['build']['report'] + '\nBuilding: ' + module.module_id + ' with run order: ' + str(module.run_order)
 			if not module.build(config_dict):
 				util.log(util.red('building: ' + module.module_id + ' with run order: ' + str(module.run_order)))
 				util.fail(module.module_id + ' failed on build',child=util.get_pexpect_child('container_child'))
@@ -247,7 +255,7 @@ for k in shutit_map_list:
 			if not module.cleanup(config_dict):
 				util.log(util.red('cleaning up: ' + module.module_id + ' with run order: ' + str(module.run_order)))
 				util.fail(module.module_id + ' failed on cleanup',child=util.get_pexpect_child('container_child'))
-			shutit_global.config_dict['build']['report'] = shutit_global.config_dict['build']['report'] + '\nCompleted module: ' + module.module_id
+			config_dict['build']['report'] = config_dict['build']['report'] + '\nCompleted module: ' + module.module_id
 			if config_dict[module.module_id]['do_repo_work'] or config_dict['build']['interactive']:
 				util.log(util.red(util.build_report('Module:' + module.module_id)))
 			if (config_dict[module.module_id]['do_repo_work'] or

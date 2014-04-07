@@ -182,8 +182,8 @@ def issue_warning(msg,wait):
 
 # Manage config settings, returning a dict representing the settings
 # that have been sanity-checked.
-def get_base_config(config_dict):
-	cp = config_dict['config_parser']
+def get_base_config(config_dict, cfg_parser):
+	config_dict['config_parser'] = cp = cfg_parser
 	# BEGIN Read from config files
 	config_dict['build']['interactive']                   = cp.getboolean('build','interactive')
 	config_dict['build']['action_on_ret_code']            = cp.get('build','action_on_ret_code')
@@ -287,7 +287,7 @@ def get_real_user(config_dict):
 	return username
 
 # Returns the config dict
-def parse_args(config_dict=shutit_global.config_dict):
+def parse_args(config_dict):
 	config_dict['host']['real_user_id'] = pexpect.run('id -u ' + config_dict['host']['real_user']).strip()
 	parser = argparse.ArgumentParser(description='Setup base OpenBet system')
 	parser.add_argument('--config', help='Config file for setup config. Must be with perms 0600. Multiple arguments allowed; config files considered in order.',default=[], action='append')
@@ -303,6 +303,9 @@ def parse_args(config_dict=shutit_global.config_dict):
 	config_dict['build']['debug']    = args.debug
 	config_dict['build']['tutorial'] = args.tutorial
 	config_dict['build']['command_pause'] = float(args.pause)
+	config_dict['build']['extra_configs'] = args.config
+	config_dict['build']['show_config_only'] = args.sc
+	config_dict['container']['docker_image'] = args.image_tag
 	# Get module paths
 	config_dict['host']['shutit_module_paths'] = args.shutit_module_path.split(':')
 	if '.' not in config_dict['host']['shutit_module_paths']:
@@ -310,6 +313,7 @@ def parse_args(config_dict=shutit_global.config_dict):
 			log('Working directory path not included, adding...')
 			time.sleep(1)
 		config_dict['host']['shutit_module_paths'].append('.')
+	# Finished parsing args, tutorial stuff
 	if config_dict['build']['tutorial']:
 		print textwrap.dedent("""\
 			================================================================================
@@ -405,7 +409,8 @@ def parse_args(config_dict=shutit_global.config_dict):
 			================================================================================
 			""")
 		pause_point(None,'')
-	# CONFIGS BEGIN
+
+def load_configs(config_dict):
 	# Get root default config file
 	default_config_file = os.path.join(shutit_global.shutit_main_dir, 'configs/defaults.cnf')
 	configs = [default_config_file]
@@ -417,47 +422,47 @@ def parse_args(config_dict=shutit_global.config_dict):
 					if f == 'defaults.cnf':
 						configs.append(root + '/' + f)
 	# Add the shutit global host- and user-specific config file.
-	configs.append(os.path.join(shutit_global.shutit_main_dir, 'configs/' + socket.gethostname() + '_' + config_dict['host']['real_user'] + '.cnf'))
+	configs.append(os.path.join(shutit_global.shutit_main_dir,
+		'configs/' + socket.gethostname() + '_' + config_dict['host']['real_user'] + '.cnf'))
 	# Then local host- and user-specific config file in this module.
 	configs.append('configs/' + socket.gethostname() + '_' + config_dict['host']['real_user'] + '.cnf')
 	# Add the local build.cnf
 	configs.append('configs/build.cnf')
 	# Get passed-in config(s)
-	for config_file_name in args.config:
+	for config_file_name in config_dict['build']['extra_configs']:
 		run_config_file = os.path.expanduser(config_file_name)
 		if not os.path.isfile(run_config_file):
-			fail('Did not recognise ' + run_config_file + ' as a file - do you need to touch ' + run_config_file + '?')
+			fail('Did not recognise ' + run_config_file +
+					' as a file - do you need to touch ' + run_config_file + '?')
 		configs.append(run_config_file)
-	# CONFIGS DONE
-
-	if config_dict['build']['debug']:
-		log('ShutIt module paths now: ')
-		log(config_dict['host']['shutit_module_paths'])
-		time.sleep(1)
-	# Image to use to start off. The script should be idempotent, so running it on an already built image should be ok, and is advised to reduce diff space required.
-	if config_dict['build']['tutorial'] or args.sc:
+	# Image to use to start off. The script should be idempotent, so running it
+	# on an already built image should be ok, and is advised to reduce diff space required.
+	if config_dict['build']['tutorial'] or config_dict['build']['show_config_only']:
 		msg = ''
 		for c in configs:
 			msg = msg + '\t\n' + c
 			log('\t' + c)
 		if config_dict['build']['tutorial']:
-			pause_point(None,'\n' + msg + '\n\nLooking at config files in the above order (even if they do not exist - you may want to create them).\n\nIf you get a "Port already in use:" error, run:\n\n\tdocker ps -a | grep -w <port> | awk \'{print $1}\' | xargs docker kill\nor\n\tsudo docker ps -a | grep -w <port> | awk \'{print $1}\' | xargs sudo docker kill\n',print_input=False)
-	config_dict['config_parser'] = get_configs(configs)
-	config_dict['container']['docker_image'] = args.image_tag
-	# LOAD MODULES BEGIN
+			pause_point(None,'\n' + msg + '\n\nLooking at config files in the '
+				'above order (even if they do not exist - you may want to '
+				'create them).\n\nIf you get a "Port already in use:" error, '
+				'run:\n\n\tdocker ps -a | grep -w <port> | awk \'{print $1}\' '
+				'| xargs docker kill\nor\n\tsudo docker ps -a | grep -w <port> '
+				'| awk \'{print $1}\' | xargs sudo docker kill\n',
+				print_input=False)
+	return get_configs(configs)
+
+def load_shutit_modules(config_dict):
+	if config_dict['build']['debug']:
+		log('ShutIt module paths now: ')
+		log(config_dict['host']['shutit_module_paths'])
+		time.sleep(1)
 	for shutit_module_path in config_dict['host']['shutit_module_paths']:
 		load_all_from_path(shutit_module_path)
-	# LOAD MODULES DONE
-	# Now get base config
-	get_base_config(config_dict)
-	if args.sc:
-		log(print_config(config_dict),force_stdout=True)
-		sys.exit()
 	# Have we got anything to process?
 	if len(shutit_global.shutit_modules) < 2 :
 		log(shutit_global.shutit_modules)
-		fail('No ShutIt modules in path: ' + args.shutit_module_path + '. Check your --shutit_module_path setting.')
-	return config_dict
+		fail('No ShutIt modules in path: ' + ':'.join(config_dict['host']['shutit_module_paths']) + '. Check your --shutit_module_path setting.')
 
 def print_config(config_dict):
 	s = ''
@@ -669,16 +674,6 @@ def get_pexpect_child(key):
 
 # dynamically import files within the same directory (in the end, the path)
 #http://stackoverflow.com/questions/301134/dynamic-module-import-in-python
-def load_from_path(path):
-	if os.path.abspath(path) == shutit_global.shutit_main_dir:
-		return
-	if os.path.exists(path):
-		for f in os.listdir(path):
-			filepath = os.path.join(path, f)
-			mod_name,file_ext = os.path.splitext(os.path.split(filepath)[-1])
-			if file_ext.lower() == '.py':
-				imp.load_source(mod_name, filepath)
-
 def load_all_from_path(path):
 	if os.path.abspath(path) == shutit_global.shutit_main_dir:
 		return

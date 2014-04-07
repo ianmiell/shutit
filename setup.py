@@ -28,7 +28,6 @@ import sys
 import util
 import time
 import re
-import shutit_global
 
 import pty
 import os
@@ -172,7 +171,7 @@ class setup(ShutItModule):
 		container_child = util.get_pexpect_child('container_child')
 		# Put build info into the container
 		util.send_and_expect(container_child,'mkdir -p /root/shutit_build',config_dict['expect_prompts']['root_prompt'])
-		logfile = '/root/shutit_build/shutit_buildlog_' + shutit_global.config_dict['build']['build_id']
+		logfile = '/root/shutit_build/shutit_buildlog_' + config_dict['build']['build_id']
 		util.send_and_expect(container_child,'touch ' + logfile,config_dict['expect_prompts']['root_prompt'])
 		print_conf = 'cat > ' + logfile + """ << LOGFILEEND
 """ + util.print_config(config_dict) + """
