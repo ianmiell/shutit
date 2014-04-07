@@ -25,7 +25,7 @@
 # If left blank, you will be prompted for a password
 password:YOUR_CONTAINER_PASSWORD
 # Hostname for the container - replace with your chosen container name
-hostname:YOUR_CONTAINER_HOSTNAME
+hostname:
 force_repo_work:no
 locale:en_US.UTF-8
 # space separated list of ports to expose
