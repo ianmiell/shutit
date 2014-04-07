@@ -182,8 +182,8 @@ def issue_warning(msg,wait):
 
 # Manage config settings, returning a dict representing the settings
 # that have been sanity-checked.
-def get_base_config(config_dict):
-	cp = config_dict['config_parser']
+def get_base_config(config_dict, cfg_parser):
+	config_dict['config_parser'] = cp = cfg_parser
 	# BEGIN Read from config files
 	config_dict['build']['interactive']                   = cp.getboolean('build','interactive')
 	config_dict['build']['action_on_ret_code']            = cp.get('build','action_on_ret_code')
@@ -287,8 +287,7 @@ def get_real_user(config_dict):
 	return username
 
 # Returns the config dict
-def parse_args():
-	config_dict = shutit_global.config_dict
+def parse_args(config_dict):
 	config_dict['host']['real_user_id'] = pexpect.run('id -u ' + config_dict['host']['real_user']).strip()
 	parser = argparse.ArgumentParser(description='Setup base OpenBet system')
 	parser.add_argument('--config', help='Config file for setup config. Must be with perms 0600. Multiple arguments allowed; config files considered in order.',default=[], action='append')
@@ -411,8 +410,7 @@ def parse_args():
 			""")
 		pause_point(None,'')
 
-def load_configs():
-	config_dict = shutit_global.config_dict
+def load_configs(config_dict):
 	# Get root default config file
 	default_config_file = os.path.join(shutit_global.shutit_main_dir, 'configs/defaults.cnf')
 	configs = [default_config_file]
@@ -452,15 +450,14 @@ def load_configs():
 				'| xargs docker kill\nor\n\tsudo docker ps -a | grep -w <port> '
 				'| awk \'{print $1}\' | xargs sudo docker kill\n',
 				print_input=False)
-	config_dict['config_parser'] = get_configs(configs)
 	# Now get base config
 	get_base_config(config_dict)
 	if config_dict['build']['show_config_only']:
 		log(print_config(config_dict),force_stdout=True)
 		sys.exit()
+	return get_configs(configs)
 
-def load_shutit_modules():
-	config_dict = shutit_global.config_dict
+def load_shutit_modules(config_dict):
 	if config_dict['build']['debug']:
 		log('ShutIt module paths now: ')
 		log(config_dict['host']['shutit_module_paths'])
