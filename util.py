@@ -424,7 +424,8 @@ def load_configs():
 					if f == 'defaults.cnf':
 						configs.append(root + '/' + f)
 	# Add the shutit global host- and user-specific config file.
-	configs.append(os.path.join(shutit_global.shutit_main_dir, 'configs/' + socket.gethostname() + '_' + config_dict['host']['real_user'] + '.cnf'))
+	configs.append(os.path.join(shutit_global.shutit_main_dir,
+		'configs/' + socket.gethostname() + '_' + config_dict['host']['real_user'] + '.cnf'))
 	# Then local host- and user-specific config file in this module.
 	configs.append('configs/' + socket.gethostname() + '_' + config_dict['host']['real_user'] + '.cnf')
 	# Add the local build.cnf
@@ -433,16 +434,24 @@ def load_configs():
 	for config_file_name in config_dict['build']['extra_configs']:
 		run_config_file = os.path.expanduser(config_file_name)
 		if not os.path.isfile(run_config_file):
-			fail('Did not recognise ' + run_config_file + ' as a file - do you need to touch ' + run_config_file + '?')
+			fail('Did not recognise ' + run_config_file +
+					' as a file - do you need to touch ' + run_config_file + '?')
 		configs.append(run_config_file)
-	# Image to use to start off. The script should be idempotent, so running it on an already built image should be ok, and is advised to reduce diff space required.
+	# Image to use to start off. The script should be idempotent, so running it
+	# on an already built image should be ok, and is advised to reduce diff space required.
 	if config_dict['build']['tutorial'] or config_dict['build']['show_config_only']:
 		msg = ''
 		for c in configs:
 			msg = msg + '\t\n' + c
 			log('\t' + c)
 		if config_dict['build']['tutorial']:
-			pause_point(None,'\n' + msg + '\n\nLooking at config files in the above order (even if they do not exist - you may want to create them).\n\nIf you get a "Port already in use:" error, run:\n\n\tdocker ps -a | grep -w <port> | awk \'{print $1}\' | xargs docker kill\nor\n\tsudo docker ps -a | grep -w <port> | awk \'{print $1}\' | xargs sudo docker kill\n',print_input=False)
+			pause_point(None,'\n' + msg + '\n\nLooking at config files in the '
+				'above order (even if they do not exist - you may want to '
+				'create them).\n\nIf you get a "Port already in use:" error, '
+				'run:\n\n\tdocker ps -a | grep -w <port> | awk \'{print $1}\' '
+				'| xargs docker kill\nor\n\tsudo docker ps -a | grep -w <port> '
+				'| awk \'{print $1}\' | xargs sudo docker kill\n',
+				print_input=False)
 	config_dict['config_parser'] = get_configs(configs)
 	# Now get base config
 	get_base_config(config_dict)
