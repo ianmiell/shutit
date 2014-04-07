@@ -29,6 +29,7 @@ import util
 import shutit_global
 import setup
 import time
+import sys
 import decimal
 
 # Stop all apps less than the supplied run_order
@@ -68,7 +69,11 @@ shutit_map = {}
 config_dict = shutit_global.config_dict
 util.parse_args(config_dict)
 cfg_parser = util.load_configs(config_dict)
+# Now get base config
 util.get_base_config(config_dict, cfg_parser)
+if config_dict['build']['show_config_only']:
+	util.log(util.print_config(config_dict),force_stdout=True)
+	sys.exit()
 util.load_shutit_modules(config_dict)
 
 # Check for duplicate module details.

@@ -450,10 +450,6 @@ def load_configs(config_dict):
 				'| xargs docker kill\nor\n\tsudo docker ps -a | grep -w <port> '
 				'| awk \'{print $1}\' | xargs sudo docker kill\n',
 				print_input=False)
-	# Now get base config
-	if config_dict['build']['show_config_only']:
-		log(print_config(config_dict),force_stdout=True)
-		sys.exit()
 	return get_configs(configs)
 
 def load_shutit_modules(config_dict):
