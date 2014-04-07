@@ -61,32 +61,38 @@ class setup(ShutItModule):
 		control.maxread          = 2000
 		control.searchwindowsize = 1024
 		# Kick off container within host machine
-		port_arg = ''
+		port_arg       = ''
 		privileged_arg = ''
-		lxc_conf_arg = ''
+		lxc_conf_arg   = ''
+		dns_arg        = ''
 		ports_list = config_dict['container']['ports'].split()
 		for portmap in ports_list:
-			port_arg = port_arg + '-p ' + portmap
+			port_arg = port_arg + ' -p ' + portmap
 		if config_dict['build']['privileged']:
-			privileged_arg = '-privileged'
+			privileged_arg = ' -privileged'
 		if config_dict['build']['lxc_conf'] != '':
-			lxc_conf_arg = '-lxc-conf=' + config_dict['build']['lxc_conf']
+			lxc_conf_arg = ' -lxc-conf=' + config_dict['build']['lxc_conf']
+		if config_dict['host']['dns'] != '':
+			dns_arg = ' ' + config_dict['host']['dns']
 		config_dict['build']['cidfile'] = '/tmp/' + config_dict['host']['username'] + '_cidfile_' + config_dict['build']['build_id']
 		if config_dict['container']['name'] != '':
-			name_arg = '-name=' + config_dict['container']['name']
+			name_arg = ' -name=' + config_dict['container']['name']
 		else:
 			name_arg = ''
 		docker_command = (config_dict['host']['docker_executable'] +
 				' run -cidfile=' + config_dict['build']['cidfile'] +
-				' ' + privileged_arg +
-				' ' + lxc_conf_arg + 
-				' ' + name_arg +
+				privileged_arg +
+				lxc_conf_arg + 
+				name_arg +
 				' -v=' + config_dict['host']['resources_dir'] + ':/resources' +
 				' -h=' + config_dict['container']['hostname'] +
-				' ' + config_dict['host']['dns'] +
-				' ' + port_arg +
-				' -t -i ' + config_dict['container']['docker_image'] +
+				dns_arg +
+				port_arg +
+				' -t ' + 
+				' -i ' +
+				config_dict['container']['docker_image'] +
 				' /bin/bash')
+		# TODO: get the container name and put into container/name
 		if config_dict['build']['tutorial']:
 			util.pause_point(None,'\n\nAbout to start container. Ports mapped will be: ' + port_arg + ' (from\n\n[host]\nports:<value>\n\nconfig, building on the configurable base image passed in in:\n\n\t--image <image>\n\nor config:\n\n\t[container]\n\tdocker_image:<image>)\n\nBase image in this case is:\n\n\t' + config_dict['container']['docker_image'] + '\n\n',print_input=False)
 			util.pause_point(None,'Command being run is:\n\n' + docker_command,print_input=False)
