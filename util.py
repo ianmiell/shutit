@@ -451,7 +451,6 @@ def load_configs(config_dict):
 				'| awk \'{print $1}\' | xargs sudo docker kill\n',
 				print_input=False)
 	# Now get base config
-	get_base_config(config_dict)
 	if config_dict['build']['show_config_only']:
 		log(print_config(config_dict),force_stdout=True)
 		sys.exit()

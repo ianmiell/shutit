@@ -68,6 +68,7 @@ shutit_map = {}
 config_dict = shutit_global.config_dict
 util.parse_args(config_dict)
 cfg_parser = util.load_configs(config_dict)
+util.get_base_config(config_dict, cfg_parser)
 util.load_shutit_modules(config_dict)
 
 # Check for duplicate module details.
