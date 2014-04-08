@@ -36,6 +36,7 @@ import socket
 import binascii
 import random
 import textwrap
+import tempfile
 
 # TODO: Manage exits of containers on error
 def fail(msg,child=None):
@@ -291,6 +292,7 @@ def parse_args(config_dict):
 	config_dict['host']['real_user_id'] = pexpect.run('id -u ' + config_dict['host']['real_user']).strip()
 	parser = argparse.ArgumentParser(description='Setup base OpenBet system')
 	parser.add_argument('--config', help='Config file for setup config. Must be with perms 0600. Multiple arguments allowed; config files considered in order.',default=[], action='append')
+	parser.add_argument('-s', '--set', help='Override a config item, e.g. "-s container rm no". Can be specified multiple times.', default=[], action='append', nargs=3, metavar=('SEC','KEY','VAL'))
 	parser.add_argument('--image_tag', help='Build container using specified image - if there is a symbolic reference, please use that, eg localhost.localdomain:5000/myref',default=config_dict['container']['docker_image_default'])
 	parser.add_argument('--shutit_module_path', default='.',help='List of shutit module paths, separated by colons. ShutIt registers modules by running all .py files in these directories.')
 	parser.add_argument('--pause',help='Pause between commands to avoid race conditions.',default='0.5')
@@ -305,6 +307,7 @@ def parse_args(config_dict):
 	config_dict['build']['command_pause'] = float(args.pause)
 	config_dict['build']['extra_configs'] = args.config
 	config_dict['build']['show_config_only'] = args.sc
+	config_dict['build']['config_overrides'] = args.set
 	config_dict['container']['docker_image'] = args.image_tag
 	# Get module paths
 	config_dict['host']['shutit_module_paths'] = args.shutit_module_path.split(':')
@@ -450,6 +453,20 @@ def load_configs(config_dict):
 				'| xargs docker kill\nor\n\tsudo docker ps -a | grep -w <port> '
 				'| awk \'{print $1}\' | xargs sudo docker kill\n',
 				print_input=False)
+
+	# Interpret any config overrides, write to a file and add them to the
+	# list of configs to be interpreted
+	if config_dict['build']['config_overrides']:
+		override_cp = ConfigParser.ConfigParser(None)
+		for o_sec, o_key, o_val in config_dict['build']['config_overrides']:
+			if not override_cp.has_section(o_sec):
+				override_cp.add_section(o_sec)
+			override_cp.set(o_sec, o_key, o_val)
+		fd, name = tempfile.mkstemp()
+		os.write(fd, print_config({ "config_parser": override_cp }))
+		os.close(fd)
+		configs.append(name)
+
 	return get_configs(configs)
 
 def load_shutit_modules(config_dict):
