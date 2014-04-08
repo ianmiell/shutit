@@ -521,7 +521,7 @@ def do_repository_work(config_dict,expect,repo_name,repo_suffix='',docker_execut
 			repository = repository_server + repository_user + repo_name
 			repository_tar = repository_user_tar + repo_name
 		# Slight pause due to race conditions seen.
-		time.sleep(0.3)
+		#time.sleep(0.3)
 		res = send_and_expect(child,'SHUTIT_TMP_VAR=`' + docker_executable + ' commit ' + config_dict['container']['container_id'] + '`',[expect,'assword'],timeout=99999,check_exit=False)
 		if res == 1:
 			send_and_expect(child,config_dict['host']['password'],expect,check_exit=False,record_command=False)
@@ -782,13 +782,13 @@ def get_distro_info(child,outer_expect,config_dict):
 	if config_dict['container']['install_type'] == 'apt':
 		config_dict['expect_prompts']['real_user_prompt']        = '\r\n.*?' + config_dict['host']['real_user'] + '@.*:'
 		send_and_expect(child,'export DEBIAN_FRONTEND=noninteractive',config_dict['expect_prompts']['tmp_prompt'])
-		send_and_expect(child,'apt-get update',config_dict['expect_prompts']['tmp_prompt'],timeout=9999,check_exit=False)
+		#send_and_expect(child,'apt-get update',config_dict['expect_prompts']['tmp_prompt'],timeout=9999,check_exit=False)
 		send_and_expect(child,'dpkg-divert --local --rename --add /sbin/initctl',config_dict['expect_prompts']['tmp_prompt'])
 		send_and_expect(child,'ln -f -s /bin/true /sbin/initctl',config_dict['expect_prompts']['tmp_prompt'])
 	elif config_dict['container']['install_type'] == 'yum':
 		config_dict['expect_prompts']['real_user_prompt']        = '\r\n.*?' + config_dict['host']['real_user'] + '@.*:'
 		install(child,config_dict,'passwd',config_dict['expect_prompts']['tmp_prompt'])
-		send_and_expect(child,'yum update -y',config_dict['expect_prompts']['tmp_prompt'],timeout=9999)
+		#send_and_expect(child,'yum update -y',config_dict['expect_prompts']['tmp_prompt'],timeout=9999)
 	handle_revert_prompt(child,outer_expect,'tmp_prompt')
 
 def set_password(child,config_dict,expect,password):
