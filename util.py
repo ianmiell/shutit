@@ -36,6 +36,7 @@ import socket
 import binascii
 import random
 import textwrap
+import tempfile
 
 # TODO: Manage exits of containers on error
 def fail(msg,child=None):
@@ -289,15 +290,54 @@ def get_real_user(config_dict):
 # Returns the config dict
 def parse_args(config_dict):
 	config_dict['host']['real_user_id'] = pexpect.run('id -u ' + config_dict['host']['real_user']).strip()
+
 	parser = argparse.ArgumentParser(description='Setup base OpenBet system')
 	parser.add_argument('--config', help='Config file for setup config. Must be with perms 0600. Multiple arguments allowed; config files considered in order.',default=[], action='append')
+	parser.add_argument('-s', '--set', help='Override a config item, e.g. "-s container rm no". Can be specified multiple times.', default=[], action='append', nargs=3, metavar=('SEC','KEY','VAL'))
 	parser.add_argument('--image_tag', help='Build container using specified image - if there is a symbolic reference, please use that, eg localhost.localdomain:5000/myref',default=config_dict['container']['docker_image_default'])
 	parser.add_argument('--shutit_module_path', default='.',help='List of shutit module paths, separated by colons. ShutIt registers modules by running all .py files in these directories.')
 	parser.add_argument('--pause',help='Pause between commands to avoid race conditions.',default='0.5')
 	parser.add_argument('--sc',help='Show the config computed and quit',default=False,const=True,action='store_const')
 	parser.add_argument('--debug',help='Show debug. Implies [build]/interactive config settings set, even if set to "no".',default=False,const=True,action='store_const')
 	parser.add_argument('--tutorial',help='Show tutorial info. Implies [build]/interactive config setting set, even if set to "no".',default=False,const=True,action='store_const')
-	args = parser.parse_args()
+
+	args_list = sys.argv[1:]
+	# Load command line options from the environment (if set)
+	# Behaves like GREP_OPTIONS
+	# - space seperated list of arguments
+	# - backslash before a spaces escapes the space seperation
+	# - backslash before a backslash is interpreted as a single backslash
+	# - all other backslashes are treated literally
+	# e.g. ' a\ b c\\ \\d \\\e\' becomes '', 'a b', 'c\', '\d', '\\e\'
+	if os.environ.get('SHUTIT_OPTIONS', None):
+		env_args = os.environ.get('SHUTIT_OPTIONS')
+		# Split escaped backslashes
+		env_args_split = re.split(r'(\\\\)', env_args)
+		# Split non-escaped spaces
+		env_args_split = [re.split(r'(?<!\\)( )', item) for item in env_args_split]
+		# Flatten
+		env_args_split = [item for sublist in env_args_split for item in sublist]
+		# Split escaped spaces
+		env_args_split = [re.split(r'(\\ )', item) for item in env_args_split]
+		# Flatten
+		env_args_split = [item for sublist in env_args_split for item in sublist]
+		# Trim empty strings
+		env_args_split = [item for item in env_args_split if item != '']
+		# We know we don't have to deal with an empty env argument string
+		env_args_list = ['']
+		# Interpret all of the escape sequences
+		for item in env_args_split:
+			if item == ' ':
+				env_args_list.append('')
+			elif item == '\\ ':
+				env_args_list[-1] = env_args_list[-1] + ' '
+			elif item == '\\\\':
+				env_args_list[-1] = env_args_list[-1] + '\\'
+			else:
+				env_args_list[-1] = env_args_list[-1] + item
+		args_list = env_args_list + args_list
+
+	args = parser.parse_args(args_list)
 	# Get these early for this part of the build.
 	# These should never be config arguments, since they are needed before config is passed in.
 	config_dict['build']['debug']    = args.debug
@@ -305,6 +345,7 @@ def parse_args(config_dict):
 	config_dict['build']['command_pause'] = float(args.pause)
 	config_dict['build']['extra_configs'] = args.config
 	config_dict['build']['show_config_only'] = args.sc
+	config_dict['build']['config_overrides'] = args.set
 	config_dict['container']['docker_image'] = args.image_tag
 	# Get module paths
 	config_dict['host']['shutit_module_paths'] = args.shutit_module_path.split(':')
@@ -450,6 +491,20 @@ def load_configs(config_dict):
 				'| xargs docker kill\nor\n\tsudo docker ps -a | grep -w <port> '
 				'| awk \'{print $1}\' | xargs sudo docker kill\n',
 				print_input=False)
+
+	# Interpret any config overrides, write to a file and add them to the
+	# list of configs to be interpreted
+	if config_dict['build']['config_overrides']:
+		override_cp = ConfigParser.ConfigParser(None)
+		for o_sec, o_key, o_val in config_dict['build']['config_overrides']:
+			if not override_cp.has_section(o_sec):
+				override_cp.add_section(o_sec)
+			override_cp.set(o_sec, o_key, o_val)
+		fd, name = tempfile.mkstemp()
+		os.write(fd, print_config({ "config_parser": override_cp }))
+		os.close(fd)
+		configs.append(name)
+
 	return get_configs(configs)
 
 def load_shutit_modules(config_dict):
