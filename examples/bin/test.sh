@@ -24,9 +24,16 @@ set -e
 [ "x$DOCKER" != "x" ] || DOCKER="sudo docker"
 
 function cleanup() {
-	$DOCKER kill containernameoverrideme >/dev/null 2>&1 || /bin/true
-	$DOCKER rm containernameoverrideme >/dev/null 2>&1 || /bin/true
+	CONTAINERS=$(docker ps -a | grep shutit_test_container_ | awk '{print $1}')
+	if [ "x$1" = "xhard" ]; then
+		$DOCKER kill $CONTAINERS >/dev/null 2>&1 || /bin/true
+	fi
+	$DOCKER rm $CONTAINERS >/dev/null 2>&1 || /bin/true
 }
+
+# Set up a random container name for tests to use
+CNAME=shutit_test_container_$(dd if=/dev/urandom bs=256 count=1 2>/dev/null | md5sum | awk '{print $1}')
+export SHUTIT_OPTIONS="-s container name $CNAME"
 
 dirs=`ls ../ | grep -vw bin | grep -v README`
 for d in $dirs
