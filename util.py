@@ -818,13 +818,13 @@ def get_distro_info(child,outer_expect,config_dict):
 	if config_dict['container']['install_type'] == 'apt':
 		config_dict['expect_prompts']['real_user_prompt']        = '\r\n.*?' + config_dict['host']['real_user'] + '@.*:'
 		send_and_expect(child,'export DEBIAN_FRONTEND=noninteractive',config_dict['expect_prompts']['tmp_prompt'])
-		#send_and_expect(child,'apt-get update',config_dict['expect_prompts']['tmp_prompt'],timeout=9999,check_exit=False)
+		send_and_expect(child,'apt-get update',config_dict['expect_prompts']['tmp_prompt'],timeout=9999,check_exit=False)
 		send_and_expect(child,'dpkg-divert --local --rename --add /sbin/initctl',config_dict['expect_prompts']['tmp_prompt'])
 		send_and_expect(child,'ln -f -s /bin/true /sbin/initctl',config_dict['expect_prompts']['tmp_prompt'])
 	elif config_dict['container']['install_type'] == 'yum':
 		config_dict['expect_prompts']['real_user_prompt']        = '\r\n.*?' + config_dict['host']['real_user'] + '@.*:'
 		install(child,config_dict,'passwd',config_dict['expect_prompts']['tmp_prompt'])
-		#send_and_expect(child,'yum update -y',config_dict['expect_prompts']['tmp_prompt'],timeout=9999)
+		send_and_expect(child,'yum update -y',config_dict['expect_prompts']['tmp_prompt'],timeout=9999)
 	handle_revert_prompt(child,outer_expect,'tmp_prompt')
 
 def set_password(child,config_dict,expect,password):
