@@ -33,7 +33,6 @@ locale:en_US.UTF-8
 # host's 2222 and 8080
 ports:
 # Name to give the container. Empty means "let docker default a name".
-#name:containernameoverrideme
 name:
 # Whether to remove the container when finished.
 rm:yes

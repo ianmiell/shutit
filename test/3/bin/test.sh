@@ -13,6 +13,9 @@ then
         echo "Must supply path to shutit directory"
         exit 1
 fi
+# Set up a random container name for tests to use
+CNAME=shutit_test_container_$(dd if=/dev/urandom bs=256 count=1 2>/dev/null | md5sum | awk '{print $1}')
+export SHUTIT_OPTIONS="-s container name $CNAME"
 
 # sshd problems with fedora and ssh - need to check up on pexcpssh.py
 #cd ..
