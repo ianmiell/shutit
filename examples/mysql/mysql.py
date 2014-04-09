@@ -40,6 +40,7 @@ class mysql(ShutItModule):
 		expect = config_dict['expect_prompts']['mysql_tmp_prompt']
 		root_pass = config_dict['com.ian.miell.mysql.mysql']['root_password']
 		# From the perfmon doc set the mysql root password non-interactively
+		util.send_and_expect(container_child,"apt-get update",expect,record_command=False)
 		util.send_and_expect(container_child,"""debconf-set-selections <<< 'mysql-server mysql-server/root_password password {0}'""".format(root_pass),expect,record_command=False)
 		util.send_and_expect(container_child,"""sudo debconf-set-selections <<< 'mysql-server mysql-server/root_password_again password {0}'""".format(root_pass),expect,record_command=False)
 		util.install(container_child,config_dict,'mysql-common',expect)
