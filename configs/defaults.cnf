@@ -25,16 +25,14 @@
 # If left blank, you will be prompted for a password
 password:YOUR_CONTAINER_PASSWORD
 # Hostname for the container - replace with your chosen container name
-hostname:YOUR_CONTAINER_HOSTNAME
+hostname:
 force_repo_work:no
 locale:en_US.UTF-8
-# ports to expose, eg 
-# ports:2222:22 8080:80
-# will expose the container's port 22 and port 80 to the 
-# host's 2222 and 8080 respectively.
+# space separated list of ports to expose
+# e.g. "ports:2222:22 8080:80" would expose container ports 22 and 80 as the
+# host's 2222 and 8080
 ports:
 # Name to give the container. Empty means "let docker default a name".
-#name:containernameoverrideme
 name:
 # Whether to remove the container when finished.
 rm:yes
@@ -47,7 +45,7 @@ rm:yes
 resources_dir:
 # Docker executable on your host machine
 docker_executable:sudo docker
-# dns arguments to containers (can be left blank)
+# space separated list of dns servers to use
 dns:
 # Your host machine username and password - replace with your chosen names
 username:YOUR_USERNAME
