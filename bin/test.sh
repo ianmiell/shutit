@@ -89,8 +89,9 @@ done
 # TODO: full/quick cycle?
 # Examples tests
 pushd  ${SHUTIT_DIR}/examples/bin
-./test.sh
+./test.sh || failure "3.0.examples"
 popd
+cleanup
 
 
 # OK
