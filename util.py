@@ -308,14 +308,33 @@ def parse_args(config_dict):
 	# - backslash before a spaces escapes the space seperation
 	# - backslash before a backslash is interpreted as a single backslash
 	# - all other backslashes are treated literally
-	# e.g. literal string ' a\ b c\\ \\d \e\' becomes '', 'a b', 'c\ \d', '\e\'
+	# e.g. ' a\ b c\\ \\d \\\e\' becomes '', 'a b', 'c\', '\d', '\\e\'
 	if os.environ.get('SHUTIT_OPTIONS', None):
 		env_args = os.environ.get('SHUTIT_OPTIONS')
-		env_args_list = re.split(r'(?<!\\) ', env_args)
-		env_args_list = [
-			re.sub(r'(?<!\\)\\ ', ' ', s).replace('\\\\', '\\')
-			for s in env_args_list
-		]
+		# Split escaped backslashes
+		env_args_split = re.split(r'(\\\\)', env_args)
+		# Split non-escaped spaces
+		env_args_split = [re.split(r'(?<!\\)( )', item) for item in env_args_split]
+		# Flatten
+		env_args_split = [item for sublist in env_args_split for item in sublist]
+		# Split escaped spaces
+		env_args_split = [re.split(r'(\\ )', item) for item in env_args_split]
+		# Flatten
+		env_args_split = [item for sublist in env_args_split for item in sublist]
+		# Trim empty strings
+		env_args_split = [item for item in env_args_split if item != '']
+		# We know we don't have to deal with an empty env argument string
+		env_args_list = ['']
+		# Interpret all of the escape sequences
+		for item in env_args_split:
+			if item == ' ':
+				env_args_list.append('')
+			elif item == '\\ ':
+				env_args_list[-1] = env_args_list[-1] + ' '
+			elif item == '\\\\':
+				env_args_list[-1] = env_args_list[-1] + '\\'
+			else:
+				env_args_list[-1] = env_args_list[-1] + item
 		args_list = env_args_list + args_list
 
 	args = parser.parse_args(args_list)
