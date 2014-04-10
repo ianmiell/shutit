@@ -31,16 +31,19 @@ function cleanup() {
 	$DOCKER rm $CONTAINERS >/dev/null 2>&1 || /bin/true
 }
 
-# Set up a random container name for tests to use
-CNAME=shutit_test_container_$(dd if=/dev/urandom bs=256 count=1 2>/dev/null | md5sum | awk '{print $1}')
-export SHUTIT_OPTIONS="-s container name $CNAME"
 
+PIDS=""
 dirs=`ls ../ | grep -vw bin | grep -v README`
 for d in $dirs
 do
 	cleanup
 	pushd ../$d/bin
-	./test.sh
+	# Set up a random container name for tests to use
+	CNAME=shutit_test_container_$(dd if=/dev/urandom bs=256 count=1 2>/dev/null | md5sum | awk '{print $1}')
+	export SHUTIT_OPTIONS="-s container name $CNAME"
+	./test.sh &
+	PIDS="$PIDS $!"
 	popd
 done
 
+wait $PIDS
