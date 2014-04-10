@@ -92,6 +92,7 @@ class setup(ShutItModule):
 		for dns in dns_list:
 			dns_args.append('-dns=' + dns)
 
+		# TODO: configurable restrictions of allowed/tested base images
 		docker_command = config_dict['host']['docker_executable'].split(' ') + [
 			arg for arg in [
 				'run',
