@@ -133,6 +133,12 @@ cat >> ${SKELETON_DIR}/build.sh << END
 #SOFTWARE.
 
 python ${SHUTIT_DIR}/shutit_main.py
+# Display config
+#python ${SHUTIT_DIR}/shutit_main.py --sc
+# Debug
+#python ${SHUTIT_DIR}/shutit_main.py --debug
+# Tutorial
+#python ${SHUTIT_DIR}/shutit_main.py --tutorial
 END
 chmod +x ${SKELETON_DIR}/build.sh
 touch ${SKELETON_DIR}/resources/README.md
