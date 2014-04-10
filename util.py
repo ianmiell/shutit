@@ -258,6 +258,9 @@ def get_base_config(config_dict, cfg_parser):
 	if config_dict['host']['password'][:5] == 'YOUR_':
 		warn = '# Found ' + config_dict['host']['password'] + ' in your config, you may want to quit and override, eg put the following into your\n# ' + shutit_global.cwd + '/configs/' + socket.gethostname() + '_' + config_dict['host']['real_user'] + '.cnf file: (create if necessary)\n[host]\npassword:mypassword'
 		issue_warning(warn,2)
+	# Incompatible with do_repository_work
+	if config_dict['container']['rm'] != '' and config_dict['repository']['do_repository_work']:
+		fail("Can't have [container]/rm non-empty and [repository]/do_repository_work:yes/true")
 	if warn != '' and not config_dict['build']['tutorial']:
 		issue_warning('Showing computed config. This can also be done by calling --sc:',2)
 		log(red(print_config(config_dict)),force_stdout=True)

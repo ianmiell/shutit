@@ -228,8 +228,11 @@ cat >> ${SKELETON_DIR}/configs/defaults.cnf << END
 example:astring
 example_bool:yes
 
-[container]
-rm:false
+[build]
+# Let's error on exit code problem until we want to switch this off.
+action_on_ret_code:error
+
+# Defaults as at creation time, hashed out by default:
 END
 # Setup base config for the new module
 cat >> ${SKELETON_DIR}/configs/build.cnf << END
