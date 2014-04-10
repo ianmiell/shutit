@@ -95,7 +95,9 @@ do
 	popd
 done
 
-wait $PIDS || failure "2.0"
+for P in $PIDS; do
+	wait $P
+done
 
 # Examples tests
 pushd  ${SHUTIT_DIR}/examples/bin

@@ -93,7 +93,7 @@ interactive:no
 build_log:no
 # options: msg   = message at end if there was a ret code error from a command
 #          error = throw error if there was a ret code error from a command
-action_on_ret_code:msg
+action_on_ret_code:error
 # Run container in privileged mode
 privileged:no
 # lxc-conf arg, eg
