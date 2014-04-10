@@ -57,36 +57,52 @@ class setup(ShutItModule):
 
 	def build(self,config_dict):
 		# Kick off container within host machine
-		port_args = ''
+
+		# Always-required options
+		config_dict['build']['cidfile'] = '/tmp/' + config_dict['host']['username'] + '_cidfile_' + config_dict['build']['build_id']
+		cidfile_arg = '--cidfile=' + config_dict['build']['cidfile']
+
+		# Singly specified options
 		privileged_arg = ''
 		lxc_conf_arg   = ''
-		dns_arg        = ''
-		ports_list = config_dict['container']['ports'].split()
-		for portmap in ports_list:
-			port_args.append('-p=' + portmap)
+		name_arg       = ''
+		hostname_arg   = ''
+		volume_arg     = ''
+		rm_arg         = ''
 		if config_dict['build']['privileged']:
 			privileged_arg = '--privileged=true'
 		if config_dict['build']['lxc_conf'] != '':
 			lxc_conf_arg = '--lxc-conf=' + config_dict['build']['lxc_conf']
-		if config_dict['host']['dns'] != '':
-			dns_arg = ' ' + config_dict['host']['dns']
-		config_dict['build']['cidfile'] = '/tmp/' + config_dict['host']['username'] + '_cidfile_' + config_dict['build']['build_id']
 		if config_dict['container']['name'] != '':
 			name_arg = '--name=' + config_dict['container']['name']
-		else:
-			name_arg = ''
-		# TODO: get the container name and put into container/name
+		if config_dict['container']['hostname'] != '':
+			hostname_arg = '-h=' + config_dict['container']['hostname']
+		if config_dict['host']['resources_dir'] != '':
+			volume_arg = '-v=' + config_dict['host']['resources_dir'] + ':/resources'
+		if config_dict['container']['rm'] != '':
+			rm_arg = '--rm=true'
+
+		# Multiply specified options
+		port_args = []
+		dns_args = []
+		ports_list = config_dict['container']['ports'].strip().split()
+		dns_list = config_dict['host']['dns'].strip().split()
+		for portmap in ports_list:
+			port_args.append('-p=' + portmap)
+		for dns in dns_list:
+			dns_args.append('-dns=' + dns)
+
 		docker_command = config_dict['host']['docker_executable'].split(' ') + [
 			arg for arg in [
 				'run',
-				'--cidfile=' + config_dict['build']['cidfile'],
+				cidfile_arg,
 				privileged_arg,
 				lxc_conf_arg,
 				name_arg,
-				'-v=' + config_dict['host']['resources_dir'] + ':/resources',
-				'-h=' + config_dict['container']['hostname'],
-				config_dict['host']['dns'],
-				port_args,
+				hostname_arg,
+				volume_arg,
+				rm_arg,
+				] + port_args + dns_args + [
 				'-t',
 				'-i',
 				config_dict['container']['docker_image'],
@@ -101,6 +117,7 @@ class setup(ShutItModule):
 				'\nor config:\n\n\t[container]\n\tdocker_image:<image>)\n\nBase' +
 				'image in this case is:\n\n\t' + config_dict['container']['docker_image'] +
 				'\n\n',print_input=False)
+		if config_dict['build']['debug']:
 			util.pause_point(None,'Command being run is:\n\n' + ' '.join(docker_command),print_input=False)
 
 		# Fork off a pty specially for docker. This protects us from modules

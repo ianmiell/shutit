@@ -35,15 +35,22 @@ function failure() {
 	echo "FAILED"
 	echo "$1"
 	echo "============================================"
+	cleanup hard
 	exit 1
 }
 
 function cleanup() {
-	$DOCKER kill containernameoverrideme >/dev/null 2>&1 || /bin/true
-	$DOCKER rm containernameoverrideme >/dev/null 2>&1 || /bin/true
-	$DOCKER kill deleteme >/dev/null 2>&1 || /bin/true
-	$DOCKER rm deleteme >/dev/null 2>&1 || /bin/true
+	CONTAINERS=$($DOCKER ps -a | grep shutit_test_container_ | awk '{print $1}')
+	if [ "x$1" = "xhard" ]; then
+		$DOCKER kill $CONTAINERS >/dev/null 2>&1 || /bin/true
+	fi
+	$DOCKER rm $CONTAINERS >/dev/null 2>&1 || /bin/true
 }
+
+# Set up a random container name for tests to use
+# This is a fallback, any tests runnable on their own should include the below
+CNAME=shutit_test_container_$(dd if=/dev/urandom bs=256 count=1 2>/dev/null | md5sum | awk '{print $1}')
+export SHUTIT_OPTIONS="-s container name $CNAME"
 
 SHUTIT_DIR="`pwd`/.."
 if [[ $0 != test.sh ]] && [[ $0 != ./test.sh ]]
@@ -73,6 +80,7 @@ cleanup
 popd
 rm -rf ${NEWDIR}
 
+PIDS=""
 # General tests
 for d in `ls ../test | grep -v configs`
 do
@@ -81,17 +89,19 @@ do
 	# Just in case only just git cloned/updated
 	touch ../configs/`hostname`_`whoami`.cnf
 	chmod 0600 ../configs/`hostname`_`whoami`.cnf
-	./test.sh ${SHUTIT_DIR} || failure "2.0.`pwd`"
+	./test.sh ${SHUTIT_DIR} &
+	PIDS="$PIDS $!"
 	cleanup
 	popd
 done
 
-# TODO: full/quick cycle?
+wait $PIDS || failure "2.0"
+
 # Examples tests
 pushd  ${SHUTIT_DIR}/examples/bin
-./test.sh
+./test.sh || failure "3.0.examples"
 popd
-
+cleanup
 
 # OK
 echo "================================================================================"
