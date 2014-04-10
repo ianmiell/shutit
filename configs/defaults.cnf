@@ -42,7 +42,7 @@ rm:yes
 # Folder with files you want to copy from in your build.
 # Often a good idea to have a central folder for this per host
 # in your /path/to/shutit/configs/`hostname`_`username`.cnf
-resources_dir:
+resources_dir:resources
 # Docker executable on your host machine
 docker_executable:sudo docker
 # space separated list of dns servers to use

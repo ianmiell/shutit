@@ -68,6 +68,7 @@ class setup(ShutItModule):
 		name_arg       = ''
 		hostname_arg   = ''
 		volume_arg     = ''
+		rm_arg         = ''
 		if config_dict['build']['privileged']:
 			privileged_arg = '--privileged=true'
 		if config_dict['build']['lxc_conf'] != '':
@@ -78,6 +79,8 @@ class setup(ShutItModule):
 			hostname_arg = '-h=' + config_dict['container']['hostname']
 		if config_dict['host']['resources_dir'] != '':
 			volume_arg = '-v=' + config_dict['host']['resources_dir'] + ':/resources'
+		if config_dict['container']['rm'] != '':
+			rm_arg = '--rm=true'
 
 		# Multiply specified options
 		port_args = []
@@ -98,6 +101,7 @@ class setup(ShutItModule):
 				name_arg,
 				hostname_arg,
 				volume_arg,
+				rm_arg,
 				] + port_args + dns_args + [
 				'-t',
 				'-i',
@@ -113,6 +117,7 @@ class setup(ShutItModule):
 				'\nor config:\n\n\t[container]\n\tdocker_image:<image>)\n\nBase' +
 				'image in this case is:\n\n\t' + config_dict['container']['docker_image'] +
 				'\n\n',print_input=False)
+		if config_dict['build']['debug']:
 			util.pause_point(None,'Command being run is:\n\n' + ' '.join(docker_command),print_input=False)
 
 		# Fork off a pty specially for docker. This protects us from modules

@@ -80,6 +80,7 @@ cleanup
 popd
 rm -rf ${NEWDIR}
 
+PIDS=""
 # General tests
 for d in `ls ../test | grep -v configs`
 do
@@ -88,18 +89,19 @@ do
 	# Just in case only just git cloned/updated
 	touch ../configs/`hostname`_`whoami`.cnf
 	chmod 0600 ../configs/`hostname`_`whoami`.cnf
-	./test.sh ${SHUTIT_DIR} || failure "2.0.`pwd`"
+	./test.sh ${SHUTIT_DIR} &
+	PIDS="$PIDS $!"
 	cleanup
 	popd
 done
 
-# TODO: full/quick cycle?
+wait $PIDS || failure "2.0"
+
 # Examples tests
 pushd  ${SHUTIT_DIR}/examples/bin
 ./test.sh || failure "3.0.examples"
 popd
 cleanup
-
 
 # OK
 echo "================================================================================"
