@@ -40,7 +40,7 @@ function failure() {
 }
 
 function cleanup() {
-	CONTAINERS=$(docker ps -a | grep shutit_test_container_ | awk '{print $1}')
+	CONTAINERS=$($DOCKER ps -a | grep shutit_test_container_ | awk '{print $1}')
 	if [ "x$1" = "xhard" ]; then
 		$DOCKER kill $CONTAINERS >/dev/null 2>&1 || /bin/true
 	fi
