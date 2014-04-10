@@ -46,4 +46,10 @@ do
 	popd
 done
 
-wait $PIDS
+for P in $PIDS; do
+	echo "PIDS: $PIDS"
+	echo "WAITING ON: $P"
+	wait $P
+	echo "PIDS: $PIDS"
+	echo "FINISHED: $P"
+done
