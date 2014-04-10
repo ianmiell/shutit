@@ -510,7 +510,7 @@ def load_shutit_modules(config_dict):
 		log(config_dict['host']['shutit_module_paths'])
 		time.sleep(1)
 	for shutit_module_path in config_dict['host']['shutit_module_paths']:
-		load_all_from_path(shutit_module_path)
+		load_all_from_path(shutit_module_path,config_dict)
 	# Have we got anything to process?
 	if len(shutit_global.shutit_modules) < 2 :
 		log(shutit_global.shutit_modules)
@@ -726,7 +726,7 @@ def get_pexpect_child(key):
 
 # dynamically import files within the same directory (in the end, the path)
 #http://stackoverflow.com/questions/301134/dynamic-module-import-in-python
-def load_all_from_path(path):
+def load_all_from_path(path,config_dict):
 	if os.path.abspath(path) == shutit_global.shutit_main_dir:
 		return
 	if os.path.exists(path):
@@ -734,6 +734,8 @@ def load_all_from_path(path):
 			for f in files:
 				mod_name,file_ext = os.path.splitext(os.path.split(f)[-1])
 				if file_ext.lower() == '.py':
+					if config_dict['build']['debug']:
+						log('Loading source for: ' + mod_name,os.path.join(root,f))
 					imp.load_source(mod_name,os.path.join(root,f))
 
 def module_exists(module_id):
