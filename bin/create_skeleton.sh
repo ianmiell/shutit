@@ -334,11 +334,15 @@ cat > ${SKELETON_DIR}/configs/`hostname`_`whoami`.cnf << END
 password:${pw_container}
 # The container you create will have this hostname during the build.
 hostname:${container_hostname}
+# Whether to remove the container when finished.
+rm:no
+
 [host]
 # Your username on the host
 username:`whoami`
 # Your password on the host (set to empty if not required, ie "password:")
 password:${pw_host}
+
 [repository]
 do_repository_work:yes
 # If switched on, will push to docker_io

@@ -190,6 +190,7 @@ def get_base_config(config_dict, cfg_parser):
 	config_dict['build']['action_on_ret_code']            = cp.get('build','action_on_ret_code')
 	config_dict['build']['privileged']                    = cp.getboolean('build','privileged')
 	config_dict['build']['lxc_conf']                      = cp.get('build','lxc_conf')
+	config_dict['build']['allowed_images']                = cp.get('build','allowed_images')
 	config_dict['container']['password']                  = cp.get('container','password')
 	config_dict['container']['hostname']                  = cp.get('container','hostname')
 	config_dict['container']['force_repo_work']           = cp.getboolean('container','force_repo_work')
@@ -258,14 +259,19 @@ def get_base_config(config_dict, cfg_parser):
 	if config_dict['host']['password'][:5] == 'YOUR_':
 		warn = '# Found ' + config_dict['host']['password'] + ' in your config, you may want to quit and override, eg put the following into your\n# ' + shutit_global.cwd + '/configs/' + socket.gethostname() + '_' + config_dict['host']['real_user'] + '.cnf file: (create if necessary)\n[host]\npassword:mypassword'
 		issue_warning(warn,2)
-	# Incompatible with do_repository_work
-	if config_dict['container']['rm'] != '' and config_dict['repository']['do_repository_work']:
-		fail("Can't have [container]/rm non-empty and [repository]/do_repository_work:yes/true")
+	# END warnings
+	# FAILS begins
+	# rm is incompatible with do_repository_work
+	if config_dict['container']['rm'] and config_dict['repository']['do_repository_work']:
+		fail("Can't have [container]/rm and [repository]/do_repository_work set to true")
 	if warn != '' and not config_dict['build']['tutorial']:
 		issue_warning('Showing computed config. This can also be done by calling --sc:',2)
 		log(red(print_config(config_dict)),force_stdout=True)
 		time.sleep(1)
-	# END warnings
+	# If build/allowed_images doesn't contain container/docker_image
+	if config_dict['build']['allowed_images'] != 'any' and config_dict['container']['docker_image'] not in config_dict['build']['allowed_images']:
+		fail('Allowed images for this build are: ' + config_dict['build']['allowed_images'] + ' but the configured image is: ' + config_dict['container']['docker_image'])
+	# FAILS ends
 	if config_dict['host']['password'] == '':
 		import getpass
 		config_dict['host']['password'] = getpass.getpass(prompt='Input your host machine password: ')
@@ -814,12 +820,11 @@ def package_installed(child,config_dict,package,expect):
 		return False
 
 
-# Should always return, even if distro couldn't be determined.
+# Fails if distro could not be determined.
 # Should be called with the container is started up.
 def get_distro_info(child,outer_expect,config_dict):
-	# Default to apt/ubuntu
-	config_dict['container']['install_type']      = 'apt'
-	config_dict['container']['distro']            = 'ubuntu'
+	config_dict['container']['install_type']      = ''
+	config_dict['container']['distro']            = ''
 	config_dict['container']['distro_version']    = ''
 	install_type_map = {'ubuntu':'apt','debian':'apt','red hat':'yum','centos':'yum','fedora':'yum'}
 	handle_login(child,config_dict,'tmp_prompt')
@@ -844,6 +849,8 @@ def get_distro_info(child,outer_expect,config_dict):
 		config_dict['expect_prompts']['real_user_prompt']        = '\r\n.*?' + config_dict['host']['real_user'] + '@.*:'
 		install(child,config_dict,'passwd',config_dict['expect_prompts']['tmp_prompt'])
 		send_and_expect(child,'yum update -y',config_dict['expect_prompts']['tmp_prompt'],timeout=9999)
+	if config_dict['container']['install_type'] == '' or config_dict['container']['distro'] == '':
+		fail('Could not determine Linux distro information. Please inform maintainers.')
 	handle_revert_prompt(child,outer_expect,'tmp_prompt')
 
 def set_password(child,config_dict,expect,password):
