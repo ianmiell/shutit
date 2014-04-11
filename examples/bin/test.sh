@@ -33,6 +33,7 @@ function cleanup() {
 
 
 PIDS=""
+SHUTIT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/.."
 dirs=`ls ../ | grep -vw bin | grep -v README`
 for d in $dirs
 do
@@ -43,9 +44,9 @@ do
 	export SHUTIT_OPTIONS="-s container name $CNAME"
 	if [ x$SHUTIT_PARALLEL_BUILD = 'x' ]
 	then
-		./test.sh "`pwd`/.."
+		./test.sh "${SHUTIT_DIR}/.."
 	else
-		./test.sh "`pwd`/.." &
+		./test.sh "${SHUTIT_DIR}/.." &
 		PIDS="$PIDS $!"
 	fi
 	popd
