@@ -81,6 +81,8 @@ cleanup
 popd
 rm -rf ${NEWDIR}
 
+exit
+
 PIDS=""
 # General tests
 for d in `ls ../test | grep -v configs`
