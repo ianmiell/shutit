@@ -71,8 +71,8 @@ class vnc(ShutItModule):
 """ + config_dict['com.ian.miell.vnc.vnc']['password'] + """
 """ + config_dict['com.ian.miell.vnc.vnc']['password'] + """
 END""",'/root/start_vnc.sh',config_dict['expect_prompts']['root_prompt'])
-		util.add_line_to_file(container_child,'echo "Did you expose ports 5901 and 6080?"','/root/start_vnc.sh',config_dict['expect_prompts']['root_prompt'])
-		util.add_line_to_file(container_child,'echo "If so, then vnclient localhost:1 should work."','/root/start_vnc.sh',config_dict['expect_prompts']['root_prompt'])
+		util.add_line_to_file(container_child,'echo "Did you expose ports 5901 and 6080?"','/root/start_vnc.sh',config_dict['expect_prompts']['root_prompt'],match_regexp='echo .Did you expose ports 5901 and 6080..')
+		util.add_line_to_file(container_child,'echo "If so, then vnclient localhost:1 should work."','/root/start_vnc.sh',config_dict['expect_prompts']['root_prompt'],match_regexp='echo .If so, then vnclient localhost:1 should work..')
 		util.add_line_to_file(container_child,'# stop vnc','/root/stop_vnc.sh',config_dict['expect_prompts']['root_prompt'])
 		util.add_line_to_file(container_child,"""ps -ef | grep vncserver | grep -v grep | awk '{print $2}' | xargs kill""",'/root/stop_vnc.sh',config_dict['expect_prompts']['root_prompt'])
 		util.add_line_to_file(container_child,'sleep 10','/root/stop_vnc.sh',config_dict['expect_prompts']['root_prompt'])
