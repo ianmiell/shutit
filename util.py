@@ -143,9 +143,8 @@ def send_and_expect(child,send,expect,timeout=3600,check_exit=True,config_dict=N
 					break
 		if ok_to_record:
 			shutit_global.shutit_command_history.append(send)
-	# Don't really care about these
-	#else:
-	#	shutit_global.shutit_command_history.append('#redacted command')
+	else:
+		shutit_global.shutit_command_history.append('#redacted command')
 	return expect_res
 
 
@@ -658,7 +657,7 @@ def get_file_perms(child,filename,expect):
 #                string without bash interpretation
 def add_line_to_file(child,line,filename,expect,match_regexp=None,truncate=False,force=False,literal=False):
 	# assume we're going to add it
-	res          = '0'
+	res = '0'
 	bad_chars    = '"'
 	tmp_filename = '/tmp/' + str(random.getrandbits(32))
 	if match_regexp == None and re.match('.*[' + bad_chars + '].*',line) != None:
@@ -818,9 +817,9 @@ def remove(child,config_dict,package,expect,options=None):
 # Return True if we can be sure the package is installed.
 def package_installed(child,config_dict,package,expect):
 	if config_dict['container']['install_type'] == 'apt':
-		send_and_expect(child,"""dpkg -l | awk '{print $2}' | grep "^""" + package + """$" | wc -l""",expect,exit_values=[0,1],record_command=False)
+		send_and_expect(child,"""dpkg -l | awk '{print $2}' | grep "^""" + package + """$" | wc -l""",expect,check_exit=False,record_command=False)
 	elif config_dict['container']['install_type'] == 'yum':
-		send_and_expect(child,"""yum list installed | awk '{print $1}' | grep "^""" + package + """$" | wc -l""",expect,exit_values[0,1],record_command=False)
+		send_and_expect(child,"""yum list installed | awk '{print $1}' | grep "^""" + package + """$" | wc -l""",expect,check_exit=False,record_command=False)
 	else:
 		return False
 	if get_re_from_child(child.before,'^([0-9]+)$') != '0':
@@ -893,7 +892,7 @@ def _reset_prompt(child,config_dict,expect):
 
 # Determine whether a user_id for a user is available
 def is_user_id_available(child,user_id,expect):
-	send_and_expect(child,'cut -d: -f3 /etc/paswd | grep -w ^' + user_id + '$ | wc -l',expect,exit_values=[0,1],record_command=False)
+	send_and_expect(child,'cut -d: -f3 /etc/paswd | grep -w ^' + user_id + '$ | wc -l',expect,check_exit=False,record_command=False)
 	if get_re_from_child(child.before,'^([0-9]+)$') == '1':
 		return False
 	else:
