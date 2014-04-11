@@ -90,7 +90,7 @@ do
 	# Just in case only just git cloned/updated
 	touch ../configs/`hostname`_`whoami`.cnf
 	chmod 0600 ../configs/`hostname`_`whoami`.cnf
-	if [ x$SHUTIT_PARALLEL_BUILD = 'x']
+	if [ x$SHUTIT_PARALLEL_BUILD = 'x' ]
 	then
 		./test.sh
 	else
@@ -101,7 +101,7 @@ do
 	popd
 done
 
-if [ x$SHUTIT_PARALLEL_BUILD != 'x']
+if [ x$SHUTIT_PARALLEL_BUILD != 'x' ]
 then
 	for P in $PIDS; do
 		echo "PIDS: $PIDS"
