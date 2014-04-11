@@ -80,7 +80,7 @@ class setup(ShutItModule):
 		if config_dict['host']['resources_dir'] != '':
 			volume_arg = '-v=' + config_dict['host']['resources_dir'] + ':/resources'
 		# Incompatible with do_repository_work
-		if config_dict['container']['rm'] != '':
+		if config_dict['container']['rm']:
 			rm_arg = '--rm=true'
 
 		# Multiply specified options
