@@ -22,7 +22,7 @@
 #SOFTWARE.
 
 set -e
-if [ x\$1 = 'x' ]
+if [ x$1 = 'x' ]
 then
         echo "Must supply path to shutit directory"
         exit 1
