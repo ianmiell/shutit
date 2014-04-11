@@ -79,7 +79,8 @@ class setup(ShutItModule):
 			hostname_arg = '-h=' + config_dict['container']['hostname']
 		if config_dict['host']['resources_dir'] != '':
 			volume_arg = '-v=' + config_dict['host']['resources_dir'] + ':/resources'
-		if config_dict['container']['rm'] != '':
+		# Incompatible with do_repository_work
+		if config_dict['container']['rm']:
 			rm_arg = '--rm=true'
 
 		# Multiply specified options
@@ -92,6 +93,7 @@ class setup(ShutItModule):
 		for dns in dns_list:
 			dns_args.append('-dns=' + dns)
 
+		# TODO: configurable restrictions of allowed/tested base images
 		docker_command = config_dict['host']['docker_executable'].split(' ') + [
 			arg for arg in [
 				'run',

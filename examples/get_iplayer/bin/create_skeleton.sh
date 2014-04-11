@@ -228,8 +228,11 @@ cat >> ${SKELETON_DIR}/configs/defaults.cnf << END
 example:astring
 example_bool:yes
 
-[container]
-rm:false
+[build]
+# Let's error on exit code problem until we want to switch this off.
+action_on_ret_code:error
+
+# Defaults as at creation time, hashed out by default:
 END
 # Setup base config for the new module
 cat >> ${SKELETON_DIR}/configs/build.cnf << END
@@ -334,15 +337,11 @@ cat > ${SKELETON_DIR}/configs/`hostname`_`whoami`.cnf << END
 password:${pw_container}
 # The container you create will have this hostname during the build.
 hostname:${container_hostname}
-# Whether to remove the container when finished.
-rm:no
-
 [host]
 # Your username on the host
 username:`whoami`
 # Your password on the host (set to empty if not required, ie "password:")
 password:${pw_host}
-
 [repository]
 do_repository_work:yes
 # If switched on, will push to docker_io

@@ -42,7 +42,8 @@ class template(ShutItModule):
 		util.send_and_expect(container_child,'touch /tmp/container_touched.sh',root_prompt_expect)
 		util.add_line_to_file(container_child,'#This line should only appear once in the file','/tmp/container_touched.sh',root_prompt_expect)
 		util.add_line_to_file(container_child,'#This line should only appear once in the file','/tmp/container_touched.sh',root_prompt_expect)
-		util.add_line_to_file(container_child,'echo "hello container"','/tmp/container_touched.sh',root_prompt_expect)
+		# We add the match_regexp because the string has a quote in it.
+		util.add_line_to_file(container_child,'echo "hello container"','/tmp/container_touched.sh',root_prompt_expect,match_regexp='echo .hello container.')
 		util.add_line_to_file(container_child,'sleep 10000000 &','/tmp/container_touched.sh',root_prompt_expect)
 		util.send_and_expect(container_child,'chmod +x /tmp/container_touched.sh',root_prompt_expect)
 		# Make sure passwd is installed
