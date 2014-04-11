@@ -47,6 +47,7 @@ function cleanup() {
 	$DOCKER rm $CONTAINERS >/dev/null 2>&1 || /bin/true
 }
 
+SHUTIT_PARALLEL_BUILD=
 # Set up a random container name for tests to use
 # This is a fallback, any tests runnable on their own should include the below
 CNAME=shutit_test_container_$(dd if=/dev/urandom bs=256 count=1 2>/dev/null | md5sum | awk '{print $1}')
@@ -89,19 +90,27 @@ do
 	# Just in case only just git cloned/updated
 	touch ../configs/`hostname`_`whoami`.cnf
 	chmod 0600 ../configs/`hostname`_`whoami`.cnf
-	./test.sh ${SHUTIT_DIR} &
-	PIDS="$PIDS $!"
+	if [ x$SHUTIT_PARALLEL_BUILD = 'x']
+	then
+		./test.sh
+	else
+		./test.sh ${SHUTIT_DIR} &
+		PIDS="$PIDS $!"
+	fi
 	cleanup
 	popd
 done
 
-for P in $PIDS; do
-	echo "PIDS: $PIDS"
-	echo "WAITING ON: $P"
-	wait $P
-	echo "PIDS: $PIDS"
-	echo "FINISHED: $P"
-done
+if [ x$SHUTIT_PARALLEL_BUILD != 'x']
+then
+	for P in $PIDS; do
+		echo "PIDS: $PIDS"
+		echo "WAITING ON: $P"
+		wait $P
+		echo "PIDS: $PIDS"
+		echo "FINISHED: $P"
+	done
+fi
 
 # Examples tests
 pushd  ${SHUTIT_DIR}/examples/bin
