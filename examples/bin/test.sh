@@ -41,15 +41,23 @@ do
 	# Set up a random container name for tests to use
 	CNAME=shutit_test_container_$(dd if=/dev/urandom bs=256 count=1 2>/dev/null | md5sum | awk '{print $1}')
 	export SHUTIT_OPTIONS="-s container name $CNAME"
-	./test.sh &
-	PIDS="$PIDS $!"
+	if [ x$SHUTIT_PARALLEL_BUILD = 'x' ]
+	then
+		./test.sh "`pwd`/.."
+	else
+		./test.sh "`pwd`/.." &
+		PIDS="$PIDS $!"
+	fi
 	popd
 done
 
-for P in $PIDS; do
-	echo "PIDS: $PIDS"
-	echo "WAITING ON: $P"
-	wait $P
-	echo "PIDS: $PIDS"
-	echo "FINISHED: $P"
-done
+if [ x$SHUTIT_PARALLEL_BUILD != 'x' ]
+then
+	for P in $PIDS; do
+		echo "PIDS: $PIDS"
+		echo "WAITING ON: $P"
+		wait $P
+		echo "PIDS: $PIDS"
+		echo "FINISHED: $P"
+	done
+fi
