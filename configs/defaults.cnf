@@ -93,10 +93,13 @@ interactive:no
 build_log:no
 # options: msg   = message at end if there was a ret code error from a command
 #          error = throw error if there was a ret code error from a command
-action_on_ret_code:msg
+action_on_ret_code:error
 # Run container in privileged mode
 privileged:no
 # lxc-conf arg, eg
 #lxc_conf:lxc.aa_profile=unconfined
 lxc_conf:
-
+# Allowed images, eg 'ubuntu:12.10'. These are matched against 
+# 'any' is a special value meaning any image is ok, and is the default.
+# It's recommended this is locked down as far as possible.
+allowed_images:any

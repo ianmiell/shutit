@@ -95,7 +95,13 @@ do
 	popd
 done
 
-wait $PIDS || failure "2.0"
+for P in $PIDS; do
+	echo "PIDS: $PIDS"
+	echo "WAITING ON: $P"
+	wait $P
+	echo "PIDS: $PIDS"
+	echo "FINISHED: $P"
+done
 
 # Examples tests
 pushd  ${SHUTIT_DIR}/examples/bin
