@@ -661,8 +661,8 @@ def add_line_to_file(child,line,filename,expect,match_regexp=None,truncate=False
 	res          = '0'
 	bad_chars    = '"'
 	tmp_filename = '/tmp/' + str(random.getrandbits(32))
-	if match_regexp == None and re.match('[' + bad_chars + ']',line) != None:
-		fail('Passed problematic character to add_line_to_file. Please avoid using the following chars in the line: ' + bad_chars + '\nor supply a match_regexp argument.')
+	if match_regexp == None and re.match('.*[' + bad_chars + '].*',line) != None:
+		fail('Passed problematic character to add_line_to_file.\nPlease avoid using the following chars: ' + bad_chars + '\nor supply a match_regexp argument.\nThe line was:\n' + line)
 	# truncate file if requested, or if the file doesn't exist
 	if truncate:
 		send_and_expect(child,'cat > ' + filename + ' <<< ""',expect,check_exit=False)
@@ -672,14 +672,14 @@ def add_line_to_file(child,line,filename,expect,match_regexp=None,truncate=False
 	elif not force:
 		if literal:
 			if match_regexp == None:
-				send_and_expect(child,"""grep -w '^""" + line + """$' """ + filename + ' ' + tmp_filename,expect,exit_values=[0,1],record_command=False)
+				send_and_expect(child,"""grep -w '^""" + line + """$' """ + filename + ' > ' + tmp_filename,expect,exit_values=[0,1],record_command=False)
 			else:
-				send_and_expect(child,"""grep -w '^""" + match_regexp + """$' """ + filename + ' ' + tmp_filename,expect,exit_values=[0,1],record_command=False)
+				send_and_expect(child,"""grep -w '^""" + match_regexp + """$' """ + filename + ' > ' + tmp_filename,expect,exit_values=[0,1],record_command=False)
 		else:
 			if match_regexp == None:
-				send_and_expect(child,'grep -w "^' + line + '$" ' + filename + ' ' + tmp_filename,expect,exit_values=[0,1],record_command=False)
+				send_and_expect(child,'grep -w "^' + line + '$" ' + filename + ' > ' + tmp_filename,expect,exit_values=[0,1],record_command=False)
 			else:
-				send_and_expect(child,'grep -w "^' + match_regexp + '$" ' + filename + ' ' + tmp_filename,expect,exit_values=[0.1],record_command=False)
+				send_and_expect(child,'grep -w "^' + match_regexp + '$" ' + filename + ' > ' + tmp_filename,expect,exit_values=[0.1],record_command=False)
 		send_and_expect(child,'wc -l ' + tmp_filename,expect,exit_values=[0.1],record_command=False)
 		send_and_expect(child,'rm -f ' + tmp_filename,expect,exit_values=[0.1],record_command=False)
 		res = get_re_from_child(child.before,'^([0-9]+)$')
