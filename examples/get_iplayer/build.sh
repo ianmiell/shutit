@@ -20,8 +20,8 @@
 #LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 #OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 #SOFTWARE.
-
-python /space/git/shutit/bin/../shutit_main.py
+set -e
+python ../../shutit_main.py
 # Display config
 #python /space/git/shutit/bin/../shutit_main.py --sc
 # Debug
