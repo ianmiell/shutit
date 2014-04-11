@@ -92,7 +92,7 @@ do
 	chmod 0600 ../configs/`hostname`_`whoami`.cnf
 	if [ x$SHUTIT_PARALLEL_BUILD = 'x' ]
 	then
-		./test.sh
+		./test.sh ${SHUTIT_DIR}
 	else
 		./test.sh ${SHUTIT_DIR} &
 		PIDS="$PIDS $!"
