@@ -319,14 +319,6 @@ host_child = util.get_pexpect_child('host_child')
 host_child.sendline('exit') # Exit raw bash
 time.sleep(0.3)
 
-# TODO: not entirely sure why we do this below. I doubt it even works as we've
-# terminated host_child above. However, I suspect there was some subtle
-# behaviour intended here, so I need Ian's input. - not sure what the confusion is?
-# Additionally, I suspect that
-# a) we shouldn't even be using expect prompts - why not just use subprocess? no prob with that - IM
-# b) the host child and ssh session termination above should be in finalize of
-#    the setup module - I moved them out to give visibility of do_repo_work - right - IM
-
 # Finally, do repo work on the core module.
 if config_dict[shutit_map.get(0).module_id]['do_repo_work']:
 	if config_dict['build']['tutorial']:

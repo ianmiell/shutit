@@ -42,10 +42,6 @@ import os
 # container_child - pexpect-spawned child created to create the container
 # host_child      - pexpect spawned child living on the host container
 
-# Possibly useful for time/date requirements
-#[root@localhost ~]# rm /etc/localtime; ln -s /usr/share/zoneinfo/Europe/London /etc/localtime
-#[root@localhost ~]# date --set="27 JUN 2013 23:05:00"
-
 class setup(ShutItModule):
 
 	def check_ready(self,config_dict):
@@ -93,7 +89,6 @@ class setup(ShutItModule):
 		for dns in dns_list:
 			dns_args.append('-dns=' + dns)
 
-		# TODO: configurable restrictions of allowed/tested base images
 		docker_command = config_dict['host']['docker_executable'].split(' ') + [
 			arg for arg in [
 				'run',
@@ -167,7 +162,6 @@ class setup(ShutItModule):
 		util.get_distro_info(container_child,config_dict['expect_prompts']['pre_build'],config_dict)
 		util.setup_prompt(container_child,config_dict,'SHUTIT_PROMPT_ROOT_PROMPT#','root_prompt')
 		util.send_and_expect(container_child,'export DEBIAN_FRONTEND=noninteractive',config_dict['expect_prompts']['root_prompt'],check_exit=False)
-
 		return True
 
 	def start(self,config_dict):
