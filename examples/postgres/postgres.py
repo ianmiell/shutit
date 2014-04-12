@@ -37,7 +37,7 @@ class postgres(ShutItModule):
 		util.install(container_child,config_dict,'postgresql',config_dict['expect_prompts']['root_prompt'])
 		res = util.add_line_to_file(container_child,'# postgres','/root/start_postgres.sh',config_dict['expect_prompts']['root_prompt'])
 		if res:
-			util.add_line_to_file(container_child,'echo "Setting shmmax for postgres"','/root/start_postgres.sh',config_dict['expect_prompts']['root_prompt'],force=True)
+			util.add_line_to_file(container_child,"echo 'Setting shmmax for postgres'",'/root/start_postgres.sh',config_dict['expect_prompts']['root_prompt'],force=True)
 			util.add_line_to_file(container_child,'sysctl -w kernel.shmmax=268435456','/root/start_postgres.sh',config_dict['expect_prompts']['root_prompt'],force=True)
 			util.add_line_to_file(container_child,'service postgresql start','/root/start_postgres.sh',config_dict['expect_prompts']['root_prompt'],force=True)
 		util.send_and_expect(container_child,"""cat > /root/stop_postgres.sh <<< 'service postgresql stop'""",config_dict['expect_prompts']['root_prompt'])
