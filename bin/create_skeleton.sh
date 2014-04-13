@@ -246,7 +246,9 @@ then
 ================================================================================
 Please note that your bash script in ${3} should be a simple set of one-liners
 that return to the prompt. Anything fancy with ifs, backslashes or other
-multi-line commands need to be handled more carefully. Hit return to continue.
+multi-line commands need to be handled more carefully.
+================================================================================
+Hit return to continue.
 ================================================================================
 END
 	read _ignored
