@@ -344,7 +344,7 @@ username:`whoami`
 password:${pw_host}
 
 [repository]
-do_repository_work:yes
+do_repository_work:no
 # If switched on, will push to docker_io
 push:no
 repository_server:
