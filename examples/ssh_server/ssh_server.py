@@ -53,9 +53,6 @@ class ssh_server(ShutItModule):
 		util.add_line_to_file(container_child,'start-stop-daemon --stop --quiet --oknodo --pidfile /var/run/sshd.pid','/root/stop_ssh.sh',config_dict['expect_prompts']['root_prompt'])
 		util.send_and_expect(container_child,'chmod +x /root/start_ssh.sh',config_dict['expect_prompts']['root_prompt'])
 		util.send_and_expect(container_child,'chmod +x /root/stop_ssh.sh',config_dict['expect_prompts']['root_prompt'])
-		util.send_and_expect(container_child,'passwd','Enter new',check_exit=False)
-		util.send_and_expect(container_child,config_dict['container']['password'],'Retype new',check_exit=False)
-		util.send_and_expect(container_child,config_dict['container']['password'],config_dict['expect_prompts']['root_prompt'])
 		return True
 
 	def start(self,config_dict):
@@ -82,7 +79,7 @@ class ssh_server(ShutItModule):
 
 
 if not util.module_exists('shutit.tk.ssh_server.ssh_server'):
-	obj = ssh_server('shutit.tk.ssh_server.ssh_server',0.321)
+	obj = ssh_server('shutit.tk.ssh_server.ssh_server',0.321,'OpenSSH server ShutIt module')
 	obj.add_dependency('shutit.tk.setup')
 	util.get_shutit_modules().add(obj)
 	ShutItModule.register(ssh_server)

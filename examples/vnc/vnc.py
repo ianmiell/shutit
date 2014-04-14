@@ -106,7 +106,7 @@ END""",'/root/start_vnc.sh',config_dict['expect_prompts']['root_prompt'])
 		return True
 
 if not util.module_exists('shutit.tk.vnc.vnc'):
-	obj = vnc('shutit.tk.vnc.vnc',0.322)
+	obj = vnc('shutit.tk.vnc.vnc',0.322,'VNC ShutIt module. Contains instructions for use within /root/start_vnc.sh output.')
 	util.get_shutit_modules().add(obj)
 	ShutItModule.register(vnc)
 

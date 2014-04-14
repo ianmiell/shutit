@@ -74,7 +74,7 @@ class phantomjs(ShutItModule):
 		return True
 
 if not util.module_exists('shutit.tk.phantomjs.phantomjs'):
-	obj = phantomjs('shutit.tk.phantomjs.phantomjs',0.319)
+	obj = phantomjs('shutit.tk.phantomjs.phantomjs',0.319,'ShutIt phantomjs module. See http://phantomjs.org/')
 	util.get_shutit_modules().add(obj)
 	ShutItModule.register(phantomjs)
 

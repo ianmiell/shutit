@@ -597,7 +597,7 @@ def do_repository_work(config_dict,expect,repo_name,repo_suffix='',docker_execut
 			fail('failed to commit with cmd: ' + cmd + ' could not determine image id')
 		else:
 			if config_dict['repository']['server'] == '' and len(repository) > 30:
-				fail("""repository name: '""" + repository + """' too long""")
+				fail("""repository name: '""" + repository + """' too long. If using suffix_date consider shortening""")
 			send_and_expect(child,cmd,expect,check_exit=False)
 			if config_dict['repository']['tar'] == True:
 				if config_dict['build']['tutorial']:

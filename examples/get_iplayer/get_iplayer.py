@@ -83,7 +83,7 @@ class get_iplayer(ShutItModule):
 
 
 if not util.module_exists('shutit.tk.get_iplayer.get_iplayer'):
-	obj = get_iplayer('shutit.tk.get_iplayer.get_iplayer',0.324)
+	obj = get_iplayer('shutit.tk.get_iplayer.get_iplayer',0.324,'iPlayer downloader. See http://www.infradead.org/get_iplayer/html/get_iplayer.html')
 	obj.add_dependency('shutit.tk.setup')
 	util.get_shutit_modules().add(obj)
 	ShutItModule.register(get_iplayer)
