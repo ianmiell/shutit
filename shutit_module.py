@@ -51,7 +51,7 @@ class ShutItModule:
 	########################################################################
 	# Constructor
 	########################################################################
-	def __init__(self,module_id,run_order):
+	def __init__(self,module_id,run_order,description=''):
 		# Module id for the module (a string).
 		# Following the Java standard is recommended, eg 'com.bigcorp.project.alpha.mymodule'
 		# Duplicate module ids are rejected if within the configured shutit_module_path.
@@ -78,6 +78,7 @@ class ShutItModule:
 		self.depends_on     = []
 		# module ids this is known to conflict with.
 		self.conflicts_with = []
+		self.description = description
 
 
 	########################################################################

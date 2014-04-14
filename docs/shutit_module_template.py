@@ -22,20 +22,45 @@ import util
 
 class template(ShutItModule):
 
+	# check_ready
+	# 
+	# Check whether we are ready to build this module.
+	# 
+	# This is called before the build, to ensure modules have 
+	# their requirements in place (eg files required to be mounted 
+	# in /resources). Checking whether the build will happen (and
+	# therefore whether the check should take place) will be 
+	# determined by the framework.
+	# 
+	# Should return True if it ready, else False.
 	def check_ready(self,config_dict):
 		container_child = util.get_pexpect_child('container_child')
 		root_prompt_expect = config_dict['expect_prompts']['root_prompt']
 		return util.file_exists(container_child,'/resources/README.md',root_prompt_expect)
 
+	# is_installed
+	#
+	# Determines whether the module has been built in this container
+	# already.
+	#
+	# Should return True if it is certain it's there, else False.
 	def is_installed(self,config_dict):
 		container_child = util.get_pexpect_child('container_child')
 		root_prompt_expect = config_dict['expect_prompts']['root_prompt']
 		return util.file_exists(container_child,'/tmp/container_touched.sh',root_prompt_expect) and util.file_exists(container_child,'/tmp/README.md',root_prompt_expect)
 
+	# build
+	#
+	# Run the build part of the module, which should ensure the module
+	# has been set up.
+	# If is_installed determines that the module is already there,
+	# this is not run.
+	#
+	# Should return True if it has succeeded in building, else False.
 	def build(self,config_dict):
 		container_child = util.get_pexpect_child('container_child') # Let's get the container child object from pexpect.
 		root_prompt_expect = config_dict['expect_prompts']['root_prompt'] # Set the string we expect to see once commands are done.
-		# Line number 39 should be the next one (so bash scripts can be inserted properly)
+		# Line number 64 should be the next one (so bash scripts can be inserted properly)
 
 		# DELETE THIS SECTION WHEN UNDERSTOOD - BEGIN
 		util.send_and_expect(container_child,'touch /tmp/deleteme',root_prompt_expect)
@@ -110,6 +135,10 @@ class template(ShutItModule):
 		# DELETE THIS SECTION WHEN UNDERSTOOD - DONE
 		return True
 
+	# start
+	#
+	# Run when module should be installed (is_installed() or configured to build is true)
+	# Run after repo work.
 	def start(self,config_dict):
 		container_child = util.get_pexpect_child('container_child')
 		root_prompt_expect = config_dict['expect_prompts']['root_prompt']
@@ -118,6 +147,10 @@ class template(ShutItModule):
 		util.send_and_expect(container_child,'sh /tmp/container_touched.sh',root_prompt_expect)
 		return True
 
+	# stop
+	#
+	# Run when module should be stopped.
+	# Run before repo work, and before finalize is called.
 	def stop(self,config_dict):
 		container_child = util.get_pexpect_child('container_child')
 		root_prompt_expect = config_dict['expect_prompts']['root_prompt']
@@ -125,12 +158,20 @@ class template(ShutItModule):
 		util.send_and_expect(container_child,"""ps -ef | grep -v grep | grep container_touched.sh | awk '{print $1}' | sed 's/\([0-9][0-9]*\)/kill \\1/' | sh""",root_prompt_expect)
 		return True
 
+	# cleanup
+	#
+	# Cleanup the module, ie clear up stuff not needed for the rest of the build, eg tar files removed, apt-get cleans.
+	# Should return True if all is OK, else False.
+	# Note that this is only run if the build phase was actually run.
 	def cleanup(self,config_dict):
 		container_child = util.get_pexpect_child('container_child')
 		root_prompt_expect = config_dict['expect_prompts']['root_prompt']
 		util.send_and_expect(container_child,'rm -f /tmp/deleteme',root_prompt_expect)
 		return True
 
+	# finalize
+	#
+	# Finalize the module, ie do things that need doing before we exit.
 	def finalize(self,config_dict):
 		container_child = util.get_pexpect_child('container_child')
 		root_prompt_expect = config_dict['expect_prompts']['root_prompt']
@@ -138,6 +179,10 @@ class template(ShutItModule):
 		util.send_and_expect(container_child,'updatedb',root_prompt_expect)
 		return True
 
+	# remove
+	# 
+	# Remove the module, which should ensure the module has been deleted 
+	# from the system.
 	def remove(self,config_dict):
 		container_child = util.get_pexpect_child('container_child')
 		root_prompt_expect = config_dict['expect_prompts']['root_prompt']
@@ -146,12 +191,20 @@ class template(ShutItModule):
 		# TODO: remove the installed apps DEPENDS on install tracking being available.
 		return True
 
+	# test
+	#
+	# Test the module is OK.
+	# Should return True if all is OK, else False.
+	# This is run regardless of whether the module is installed or not.
 	def test(self,config_dict):
 		container_child = util.get_pexpect_child('container_child')
 		root_prompt_expect = config_dict['expect_prompts']['root_prompt']
 		# Check the packages we need are installed.
 		return util.package_installed(container_child,config_dict,'mlocate',root_prompt_expect) and util.package_installed(container_child,config_dict,'passwd',root_prompt_expect)
 
+	# get_config
+	#
+	# each object can handle config here
 	def get_config(self,config_dict):
 		cp = config_dict['config_parser']
 		# Bring the example config into the config dictionary.

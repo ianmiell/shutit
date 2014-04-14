@@ -63,7 +63,7 @@ class memcache(ShutItModule):
 
 
 if not util.module_exists('shutit.tk.memcache.memcache'):
-	obj = memcache('shutit.tk.memcache.memcache',0.317)
+	obj = memcache('shutit.tk.memcache.memcache',0.317,'ShutIt memcache module')
 	obj.add_dependency('shutit.tk.setup')
 	util.get_shutit_modules().add(obj)
 	ShutItModule.register(memcache)

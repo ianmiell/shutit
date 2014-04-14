@@ -205,7 +205,7 @@ BUILDREPEND"""
 		return True
 
 if not util.module_exists('shutit.tk.setup'):
-	obj = setup('shutit.tk.setup',0.0)
+	obj = setup('shutit.tk.setup',0.0,'Core ShutIt setup')
 	util.get_shutit_modules().add(obj)
 	ShutItModule.register(setup)
 

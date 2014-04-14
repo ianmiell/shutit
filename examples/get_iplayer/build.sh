@@ -28,3 +28,6 @@ python ../../shutit_main.py
 #python /space/git/shutit/bin/../shutit_main.py --debug
 # Tutorial
 #python /space/git/shutit/bin/../shutit_main.py --tutorial
+# Push command line example
+#python ../../shutit_main.py -s repository do_repository_work yes -s repository push yes -s repository server "" -s repository name get_iplayer -s repository user imiell -s repository suffix_date yes -s repository password XXX -s repository email ian.miell@gmail.com -s repository suffix_format '%Y%m%d'
+
