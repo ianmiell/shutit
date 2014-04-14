@@ -76,8 +76,8 @@ class casperjs(ShutItModule):
 		cp = config_dict['config_parser']
 		return True
 
-if not util.module_exists('com.ian.miell.casperjs.casperjs'):
-	obj = casperjs('com.ian.miell.casperjs.casperjs',0.314)
+if not util.module_exists('shutit.tk.casperjs.casperjs'):
+	obj = casperjs('shutit.tk.casperjs.casperjs',0.314)
 	util.get_shutit_modules().add(obj)
 	ShutItModule.register(casperjs)
 

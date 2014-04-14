@@ -20,5 +20,5 @@
 #OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 #SOFTWARE.
 
-[com.ian.miell.git_server.git_server]
+[shutit.tk.git_server.git_server]
 build:yes

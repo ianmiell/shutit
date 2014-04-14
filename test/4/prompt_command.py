@@ -51,9 +51,9 @@ END""",root_prompt_expect)
 	def get_config(self,config_dict):
 		return True
 
-if not util.module_exists('com.ian.miell.prompt_command'):
-	obj = prompt_command('com.ian.miell.prompt_command',1000.00)
-	obj.add_dependency('com.ian.miell.setup')
+if not util.module_exists('shutit.tk.prompt_command'):
+	obj = prompt_command('shutit.tk.prompt_command',1000.00)
+	obj.add_dependency('shutit.tk.setup')
 	util.get_shutit_modules().add(obj)
 	ShutItModule.register(prompt_command)
 

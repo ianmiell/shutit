@@ -560,8 +560,8 @@ def pause_point(child,msg,print_input=True,expect='',config_dict=None,force=Fals
 
 # Commit, tag, push, tar etc..
 # expect must be a string
-def do_repository_work(config_dict,expect,repo_name,repo_suffix='',docker_executable='docker',password=None):
-	if config_dict['repository']['do_repository_work']:
+def do_repository_work(config_dict,expect,repo_name,repo_suffix='',docker_executable='docker',password=None,force=False):
+	if config_dict['repository']['do_repository_work'] or force:
 		child = get_pexpect_child('host_child')
 		repository_server = config_dict['repository']['server']
 		if repository_server != '':
@@ -768,8 +768,8 @@ def get_shutit_modules():
 # Helper function to get preceding integer
 # eg com.openbet == 1003189494
 # >>> import binascii
-# >>> abs(binascii.crc32('com.ian.miell'))
-# 1037228939
+# >>> abs(binascii.crc32('shutit.tk'))
+# 782914092
 def get_hash(string):
 	return abs(binascii.crc32(string))
 

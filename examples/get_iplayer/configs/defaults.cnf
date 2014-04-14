@@ -21,7 +21,3 @@
 #SOFTWARE.
 
 # Base config for the module. This contains standard defaults.
-[com.mycorp.get_iplayer]
-example:astring
-example_bool:yes
-

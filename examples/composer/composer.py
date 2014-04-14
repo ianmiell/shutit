@@ -58,9 +58,9 @@ class composer(ShutItModule):
 	def get_config(self,config_dict):
 		return True
 
-if not util.module_exists('com.ian.miell.composer.composer'):
-	obj = composer('com.ian.miell.composer.composer',0.315)
-	obj.add_dependency('com.ian.miell.setup')
+if not util.module_exists('shutit.tk.composer.composer'):
+	obj = composer('shutit.tk.composer.composer',0.315)
+	obj.add_dependency('shutit.tk.setup')
 	util.get_shutit_modules().add(obj)
 	ShutItModule.register(composer)
 

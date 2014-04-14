@@ -268,7 +268,8 @@ for k in shutit_map_list:
 					str(module.module_id),
 					repo_suffix=str(module.run_order),
 					password=config_dict['host']['password'],
-					docker_executable=config_dict['host']['docker_executable'])
+					docker_executable=config_dict['host']['docker_executable'],
+					force=True)
 				# Start all before we tag to ensure services are up as expected.
 				start_all(shutit_map_list,config_dict,module.run_order)
 			if (config_dict['build']['interactive'] and

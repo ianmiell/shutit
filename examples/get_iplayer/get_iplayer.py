@@ -82,9 +82,9 @@ class get_iplayer(ShutItModule):
 		return True
 
 
-if not util.module_exists('com.ian.miell.get_iplayer.get_iplayer'):
-	obj = get_iplayer('com.ian.miell.get_iplayer.get_iplayer',0.324)
-	obj.add_dependency('com.ian.miell.setup')
+if not util.module_exists('shutit.tk.get_iplayer.get_iplayer'):
+	obj = get_iplayer('shutit.tk.get_iplayer.get_iplayer',0.324)
+	obj.add_dependency('shutit.tk.setup')
 	util.get_shutit_modules().add(obj)
 	ShutItModule.register(get_iplayer)
 

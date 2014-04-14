@@ -204,8 +204,8 @@ BUILDREPEND"""
 		cp = config_dict['config_parser']
 		return True
 
-if not util.module_exists('com.ian.miell.setup'):
-	obj = setup('com.ian.miell.setup',0.0)
+if not util.module_exists('shutit.tk.setup'):
+	obj = setup('shutit.tk.setup',0.0)
 	util.get_shutit_modules().add(obj)
 	ShutItModule.register(setup)
 

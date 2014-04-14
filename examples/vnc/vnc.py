@@ -62,14 +62,14 @@ class vnc(ShutItModule):
 		while True:
 			res = util.send_and_expect(container_child,send,['assword','erify',config_dict['expect_prompts']['root_prompt']],check_exit=False,fail_on_empty_before=False,record_command=False)
 			if res == 0 or res == 1:
-				send = config_dict['com.ian.miell.vnc.vnc']['password']
+				send = config_dict['shutit.tk.vnc.vnc']['password']
 			elif res == 2:
 				break
 		util.add_line_to_file(container_child,'# start vnc','/root/start_vnc.sh',config_dict['expect_prompts']['root_prompt'])
 		util.add_line_to_file(container_child,'rm -rf /tmp/.X*','/root/start_vnc.sh',config_dict['expect_prompts']['root_prompt'])
 		util.add_line_to_file(container_child,"""vncserver << END
-""" + config_dict['com.ian.miell.vnc.vnc']['password'] + """
-""" + config_dict['com.ian.miell.vnc.vnc']['password'] + """
+""" + config_dict['shutit.tk.vnc.vnc']['password'] + """
+""" + config_dict['shutit.tk.vnc.vnc']['password'] + """
 END""",'/root/start_vnc.sh',config_dict['expect_prompts']['root_prompt'])
 		util.add_line_to_file(container_child,'echo "Did you expose ports 5901 and 6080?"','/root/start_vnc.sh',config_dict['expect_prompts']['root_prompt'],match_regexp='echo .Did you expose ports 5901 and 6080..')
 		util.add_line_to_file(container_child,'echo "If so, then vnclient localhost:1 should work."','/root/start_vnc.sh',config_dict['expect_prompts']['root_prompt'],match_regexp='echo .If so, then vnclient localhost:1 should work..')
@@ -102,11 +102,11 @@ END""",'/root/start_vnc.sh',config_dict['expect_prompts']['root_prompt'])
 
 	def get_config(self,config_dict):
 		cp = config_dict['config_parser']
-		config_dict['com.ian.miell.vnc.vnc']['password'] = cp.get('com.ian.miell.vnc.vnc','password')
+		config_dict['shutit.tk.vnc.vnc']['password'] = cp.get('shutit.tk.vnc.vnc','password')
 		return True
 
-if not util.module_exists('com.ian.miell.vnc.vnc'):
-	obj = vnc('com.ian.miell.vnc.vnc',0.322)
+if not util.module_exists('shutit.tk.vnc.vnc'):
+	obj = vnc('shutit.tk.vnc.vnc',0.322)
 	util.get_shutit_modules().add(obj)
 	ShutItModule.register(vnc)
 
