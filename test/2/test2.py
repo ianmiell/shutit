@@ -52,9 +52,9 @@ class test2(ShutItModule):
 		cp = config_dict['config_parser']
 		return True
 
-if not util.module_exists('com.ian.miell.test.test2'):
-	obj = test2('com.ian.miell.test.test2',2)
-	obj.add_dependency('com.ian.miell.setup')
+if not util.module_exists('shutit.tk.test.test2'):
+	obj = test2('shutit.tk.test.test2',2)
+	obj.add_dependency('shutit.tk.setup')
 	util.get_shutit_modules().add(obj)
 	ShutItModule.register(test2)
 

@@ -20,13 +20,3 @@
 #OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 #SOFTWARE.
 
-# Base config for the module. This contains standard defaults.
-[com.mycorp.jenkins]
-example:astring
-example_bool:yes
-
-[build]
-# Let's error on exit code problem until we want to switch this off.
-action_on_ret_code:error
-
-# Defaults as at creation time, hashed out by default:

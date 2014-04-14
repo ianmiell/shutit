@@ -73,8 +73,8 @@ class phantomjs(ShutItModule):
 	def get_config(self,config_dict):
 		return True
 
-if not util.module_exists('com.ian.miell.phantomjs.phantomjs'):
-	obj = phantomjs('com.ian.miell.phantomjs.phantomjs',0.319)
+if not util.module_exists('shutit.tk.phantomjs.phantomjs'):
+	obj = phantomjs('shutit.tk.phantomjs.phantomjs',0.319)
 	util.get_shutit_modules().add(obj)
 	ShutItModule.register(phantomjs)
 

@@ -82,7 +82,7 @@ suffix_format:%Y%m%d_%H%m%s
 
 # Root setup script
 # Each module should set these in a config
-[com.ian.miell.setup]
+[shutit.tk.setup]
 # Whether to build this module
 build:yes
 

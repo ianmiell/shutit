@@ -22,7 +22,7 @@
 
 # When this module is the one being built, which modules should be built along with it by default?
 # This feeds into automated testing of each module.
-[com.ian.miell.jenkins.jenkins]
+[shutit.tk.jenkins.jenkins]
 build:yes
-[com.ian.miell.vnc.vnc]
+[shutit.tk.vnc.vnc]
 build:yes

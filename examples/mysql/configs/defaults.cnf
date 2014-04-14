@@ -21,7 +21,7 @@
 #SOFTWARE.
 
 
-[com.ian.miell.mysql.mysql]
+[shutit.tk.mysql.mysql]
 mysql_user:prince
 mysql_user_password:underthecherrymoon
 root_password:purple_rain

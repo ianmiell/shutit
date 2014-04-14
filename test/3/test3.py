@@ -48,10 +48,10 @@ class test3(ShutItModule):
 		return True
 
 
-if not util.module_exists('com.ian.miell.test.test3'):
-	obj = test3('com.ian.miell.test.test3',3)
-	obj.add_dependency('com.ian.miell.setup')
-	obj.add_dependency('com.ian.miell.test.test2')
+if not util.module_exists('shutit.tk.test.test3'):
+	obj = test3('shutit.tk.test.test3',3)
+	obj.add_dependency('shutit.tk.setup')
+	obj.add_dependency('shutit.tk.test.test2')
 	util.get_shutit_modules().add(obj)
 	ShutItModule.register(test3)
 

@@ -69,10 +69,10 @@ class jenkins(ShutItModule):
 		return True
 
 
-if not util.module_exists('com.ian.miell.jenkins'):
-	obj = jenkins('com.ian.miell.jenkins.jenkins',0.323)
-	obj.add_dependency('com.ian.miell.setup')
-	obj.add_dependency('com.ian.miell.vnc.vnc')
+if not util.module_exists('shutit.tk.jenkins'):
+	obj = jenkins('shutit.tk.jenkins.jenkins',0.323)
+	obj.add_dependency('shutit.tk.setup')
+	obj.add_dependency('shutit.tk.vnc.vnc')
 	util.get_shutit_modules().add(obj)
 	ShutItModule.register(jenkins)
 

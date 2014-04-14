@@ -64,8 +64,8 @@ class git_server(ShutItModule):
 		return True
 
 
-if not util.module_exists('com.ian.miell.git_server.git_server'):
-	obj = git_server('com.ian.miell.git_server.git_server',0.316)
+if not util.module_exists('shutit.tk.git_server.git_server'):
+	obj = git_server('shutit.tk.git_server.git_server',0.316)
 	util.get_shutit_modules().add(obj)
 	ShutItModule.register(git_server)
 
