@@ -92,7 +92,7 @@ def reverse_yellow(msg): return colour('7;33', msg)
 # fail_on_empty_before       - If debug is set, fail on empty before match (default=True)
 # record_command             - Whether to record the command for output at end (default=True)
 # exit_values                - Array of acceptable exit values (default [0])
-def send_and_expect(child,send,expect,timeout=3600,check_exit=True,config_dict=None,fail_on_empty_before=True,record_command=True,exit_values=[0]):
+def send_and_expect(child,send,expect,timeout=3600,check_exit=True,config_dict=None,fail_on_empty_before=True,record_command=True,exit_values=['0']):
 	if config_dict is None: config_dict = shutit_global.config_dict
 	if config_dict['build']['debug']:
 		log('================================================================================')
@@ -119,12 +119,13 @@ def send_and_expect(child,send,expect,timeout=3600,check_exit=True,config_dict=N
 		child.sendline('echo EXIT_CODE:$?')
 		child.expect(expect,timeout)
 		res = get_re_from_child(child.before,'^EXIT_CODE:([0-9][0-9]?[0-9]?)$')
-		if res in exit_values or res == None:
+		#print 'RES', str(res), ' ', str(exit_values), ' ', str(res in exit_values)
+		if res not in exit_values or res == None:
 			if res == None:
 				res = str(res)
 			log(red('child.after: \n' + child.after + '\n'))
 			log(red('Exit value from command+\n' + send + '\nwas:\n' + res))
-			msg = '\nWARNING: command:\n' + send + '\nreturned non-zero exit code: ' + res + '\nIf this is expected, pass in check_exit=False into the send_and_expect function call.\nIf you want to error on these errors, set the config:\n[build]\naction_on_ret_code:error'
+			msg = '\nWARNING: command:\n' + send + '\nreturned unaccepted exit code: ' + res + '\nIf this is expected, pass in check_exit=False or an exit_values array into the send_and_expect function call.\nIf you want to error on these errors, set the config:\n[build]\naction_on_ret_code:error'
 			config_dict['build']['report'] = config_dict['build']['report'] + msg
 			if config_dict['build']['action_on_ret_code'] == 'error':
 				pause_point(child,msg + '\n\nPause point on exit_code != 0. CTRL-C to quit',force=True)
@@ -671,21 +672,22 @@ def add_line_to_file(child,line,filename,expect,match_regexp=None,truncate=False
 	elif not force:
 		if literal:
 			if match_regexp == None:
-				send_and_expect(child,"""grep -w '^""" + line + """$' """ + filename + ' > ' + tmp_filename,expect,exit_values=[0,1],record_command=False)
+				send_and_expect(child,"""grep -w '^""" + line + """$' """ + filename + ' > ' + tmp_filename,expect,exit_values=['0','1'],record_command=False)
 			else:
-				send_and_expect(child,"""grep -w '^""" + match_regexp + """$' """ + filename + ' > ' + tmp_filename,expect,exit_values=[0,1],record_command=False)
+				send_and_expect(child,"""grep -w '^""" + match_regexp + """$' """ + filename + ' > ' + tmp_filename,expect,exit_values=['0','1'],record_command=False)
 		else:
 			if match_regexp == None:
-				send_and_expect(child,'grep -w "^' + line + '$" ' + filename + ' > ' + tmp_filename,expect,exit_values=[0,1],record_command=False)
+				send_and_expect(child,'grep -w "^' + line + '$" ' + filename + ' > ' + tmp_filename,expect,exit_values=['0','1'],record_command=False)
 			else:
-				send_and_expect(child,'grep -w "^' + match_regexp + '$" ' + filename + ' > ' + tmp_filename,expect,exit_values=[0.1],record_command=False)
-		send_and_expect(child,'wc -l ' + tmp_filename,expect,exit_values=[0.1],record_command=False)
-		send_and_expect(child,'rm -f ' + tmp_filename,expect,exit_values=[0.1],record_command=False)
+				send_and_expect(child,'grep -w "^' + match_regexp + '$" ' + filename + ' > ' + tmp_filename,expect,exit_values=['0','1'],record_command=False)
+		send_and_expect(child,'cat ' + tmp_filename + ' | wc -l',expect,exit_values=['0','1'],record_command=False,check_exit=False)
 		res = get_re_from_child(child.before,'^([0-9]+)$')
 	if res == '0' or force:
 		send_and_expect(child,'cat >> ' + filename + """ <<< '""" + line + """'""",expect,check_exit=False)
+		send_and_expect(child,'rm -f ' + tmp_filename,expect,exit_values=['0','1'],record_command=False)
 		return True
 	else:
+		send_and_expect(child,'rm -f ' + tmp_filename,expect,exit_values=['0','1'],record_command=False)
 		return False
 
 # Get regular expression from lines
@@ -791,7 +793,7 @@ def install(child,config_dict,package,expect,options=None,timeout=3600):
 	else:
 		# Not handled
 		return False
-	send_and_expect(child,'%s %s %s' % (cmd,opts,package),expect,check_exit=False,timeout=timeout)
+	send_and_expect(child,'%s %s %s' % (cmd,opts,package),expect,timeout=timeout)
 	return True
 
 # Distro-independent remove function.
