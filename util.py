@@ -298,7 +298,7 @@ def get_real_user(config_dict):
 def parse_args(config_dict):
 	config_dict['host']['real_user_id'] = pexpect.run('id -u ' + config_dict['host']['real_user']).strip()
 
-	parser = argparse.ArgumentParser(description='Setup base OpenBet system')
+	parser = argparse.ArgumentParser(description='ShutIt - a tool for managing complex Docker deployments')
 	parser.add_argument('--config', help='Config file for setup config. Must be with perms 0600. Multiple arguments allowed; config files considered in order.',default=[], action='append')
 	parser.add_argument('-s', '--set', help='Override a config item, e.g. "-s container rm no". Can be specified multiple times.', default=[], action='append', nargs=3, metavar=('SEC','KEY','VAL'))
 	parser.add_argument('--image_tag', help='Build container using specified image - if there is a symbolic reference, please use that, eg localhost.localdomain:5000/myref',default=config_dict['container']['docker_image_default'])
