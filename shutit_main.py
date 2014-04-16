@@ -254,6 +254,7 @@ for k in shutit_map_list:
 	module = shutit_map.get(k)
 	util.log(util.red('considering whether to build: ' + module.module_id))
 	if config_dict[module.module_id]['build']:
+		print module.is_installed(config_dict)
 		if not module.is_installed(config_dict):
 			util.log(util.red('building: ' + module.module_id + ' with run order: ' + str(module.run_order)))
 			config_dict['build']['report'] = config_dict['build']['report'] + '\nBuilding: ' + module.module_id + ' with run order: ' + str(module.run_order)
