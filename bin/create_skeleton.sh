@@ -348,7 +348,7 @@ username:`whoami`
 password:${pw_host}
 
 [repository]
-do_repository_work:no
+do_repository_work:yes
 # If switched on, will push to docker_io
 push:no
 repository_server:
@@ -357,7 +357,7 @@ repository_server:
 #Must be set if do_repository_work is true/yes and user is not blank
 #email:YOUR_REGISTRY_PASSWORD_OR_BLANK
 # Whether to push to the server
-repository_name:${MODULE_NAME}
+name:${MODULE_NAME}
 END
 chmod 0600 ${SKELETON_DIR}/configs/defaults.cnf
 chmod 0600 ${SKELETON_DIR}/configs/build.cnf
