@@ -305,6 +305,7 @@ def parse_args(config_dict):
 	parser.add_argument('--shutit_module_path', default='.',help='List of shutit module paths, separated by colons. ShutIt registers modules by running all .py files in these directories.')
 	parser.add_argument('--pause',help='Pause between commands to avoid race conditions.',default='0.5')
 	parser.add_argument('--sc',help='Show the config computed and quit',default=False,const=True,action='store_const')
+	parser.add_argument('--depgraph',help='Show dependency graph and quit',default=False,const=True,action='store_const')
 	parser.add_argument('--debug',help='Show debug. Implies [build]/interactive config settings set, even if set to "no".',default=False,const=True,action='store_const')
 	parser.add_argument('--tutorial',help='Show tutorial info. Implies [build]/interactive config setting set, even if set to "no".',default=False,const=True,action='store_const')
 
@@ -352,6 +353,7 @@ def parse_args(config_dict):
 	config_dict['build']['command_pause'] = float(args.pause)
 	config_dict['build']['extra_configs'] = args.config
 	config_dict['build']['show_config_only'] = args.sc
+	config_dict['build']['show_depgraph_only'] = args.depgraph
 	config_dict['build']['config_overrides'] = args.set
 	config_dict['container']['docker_image'] = args.image_tag
 	# Get module paths
