@@ -38,7 +38,8 @@ class phantomjs(ShutItModule):
 		container_child = util.get_pexpect_child('container_child')
 		util.send_and_expect(container_child,'pushd /opt',config_dict['expect_prompts']['root_prompt'])
 		# TODO: latest version?
-		util.send_and_expect(container_child,'wget https://phantomjs.googlecode.com/files/phantomjs-1.9.0-linux-x86_64.tar.bz2',config_dict['expect_prompts']['root_prompt'])
+		util.install(container_child,config_dict,'curl',config_dict['expect_prompts']['root_prompt'])
+		util.send_and_expect(container_child,'curl --insecure https://phantomjs.googlecode.com/files/phantomjs-1.9.0-linux-x86_64.tar.bz2 > phantomjs-1.9.0-linux-x86_64.tar.bz2',config_dict['expect_prompts']['root_prompt'])
 		util.send_and_expect(container_child,'bunzip2 phantomjs-1.9.0-linux-x86_64.tar.bz2',config_dict['expect_prompts']['root_prompt'])
 		util.send_and_expect(container_child,'tar -xvf phantomjs-1.9.0-linux-x86_64.tar',config_dict['expect_prompts']['root_prompt'])
 		util.send_and_expect(container_child,'ln -s phantomjs-1.9.0-linux-x86_64 phantomjs',config_dict['expect_prompts']['root_prompt'],check_exit=False)
