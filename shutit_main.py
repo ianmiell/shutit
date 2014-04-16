@@ -156,6 +156,7 @@ _core_module = None
 # Once we have all the modules, then we can look at dependencies.
 # Dependency validation begins.
 util.log(util.red('PHASE: dependencies'))
+digraph = 'digraph {\n'
 if config_dict['build']['tutorial']:
 	util.pause_point(util.get_pexpect_child('container_child'),'\nNow checking for dependencies between modules',print_input=False)
 to_build = [
@@ -167,6 +168,7 @@ to_build = [
 for depender in to_build:
 	for dependee in depender.depends_on:
 		dependee_obj = shutit_map.get(dependee)
+		digraph = digraph + depender.module_id.replace('.','_') + '->' + dependee_obj.module_id.replace('.','_') + ';\n'
 		# If the module id isn't there, there's a problem.
 		if dependee_obj == None:
 			util.log(util.red(util.print_modules(shutit_map,shutit_map_list,config_dict)))
@@ -190,6 +192,10 @@ for depender in to_build:
 				'is configured: "build:yes" or is already built ' +
 				'but dependee module_id: [' + dependee_obj.module_id + '] ' +
 				'is not configured: "build:yes"')
+digraph = digraph + '\n}'
+# dot digraph > digraph.dot
+# dot -Tps digraph.dot -o outfile.ps
+print digraph
 # Now consider conflicts
 util.log(util.red('PHASE: conflicts'))
 if config_dict['build']['tutorial']:
