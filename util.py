@@ -653,7 +653,6 @@ def get_file_perms(child,filename,expect):
 # force the remainder.
 #
 # match_regexp - if supplied, a regexp to look for in the file instead of the line itself, handy if the line has awkward characters in it.
-#                TODO: better solution for this, eg read file in and find match
 # force        - always write the line to the file
 # truncate     - truncate or create the file before doing anything else
 # literal      - if true, then simply grep for the exact
