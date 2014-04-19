@@ -79,8 +79,8 @@ mkdir -p ${SKELETON_DIR}
 mkdir -p ${SKELETON_DIR}/configs
 mkdir -p ${SKELETON_DIR}/resources
 mkdir -p ${SKELETON_DIR}/bin
-# Copy self to new directory.
-cp ${BASH_SOURCE[0]} ${SKELETON_DIR}/bin
+## Copy self to new directory.
+#cp ${BASH_SOURCE[0]} ${SKELETON_DIR}/bin
 touch ${SKELETON_DIR}/README.md
 cat >> ${SKELETON_DIR}/README.md << END
 ${MODULE_NAME}: description of module directory in here
@@ -100,10 +100,6 @@ chmod +x ${SKELETON_DIR}/build.sh
 touch ${SKELETON_DIR}/resources/README.md
 cat >> ${SKELETON_DIR}/resources/README.md << END
 ${MODULE_NAME}: resources required in this directory, eg gzips or text files.\nNote that the .gitignore file in the ${SKELETON_DIR} directory should exclude these files from being added to git repos (usually due to size), but can be added if forced with 'git add --force <file>'.
-END
-touch ${SKELETON_DIR}/bin/README.md
-cat ${SKELETON_DIR}/bin/README.md << END
-${MODULE_NAME}: test.sh to run as part of tests in this directory
 END
 # Module template
 cp ../docs/shutit_module_template.py ${SKELETON_DIR}/${MODULE_NAME}.py
