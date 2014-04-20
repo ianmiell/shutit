@@ -64,7 +64,8 @@ An example folder structure:
 ```
 
 ### Step 3: Modify the default module ###
-The default module contains examples of many common tasks when installing, eg
+
+The default module contains examples of many common tasks when installing, e.g.
  - util.install                               - installs packages based on distro (eg 'passwd' install in shutit_module.py)
  - password handling                          - automate the inputting of passwords (eg 'passwd' install in shutit_module.py)
  - config to set up apps                      - (eg 'passwd' install in shutit_module.py)
@@ -141,13 +142,13 @@ You are now in your bespoke container!
 
 Let's add mysql to the container build. Change this in your **shutit_module.py:**
 
-```sh
+```python
 obj.add_dependency('shutit.tk.setup')
 ```
 
 to:
 
-```sh
+```python
 obj.add_dependency('shutit.tk.setup')
 obj.add_dependency('shutit.tk.mysql.mysql')
 ```
@@ -160,7 +161,7 @@ python /tmp/a/shutit/bin/../shutit_main.py --shutit_module_path /your/path/to/sh
 
 And change the **configs/build.sh**, adding
 
-```sh
+``
 [shutit.tk.mysql.mysql]
 build:yes
 ```
