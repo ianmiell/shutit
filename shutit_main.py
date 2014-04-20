@@ -146,18 +146,17 @@ if not _core_module:
 _core_module = None
 # Finished build core module
 
-# Once we have all the modules, then we can look at dependencies.
-# Dependency validation begins.
-util.log(util.red('PHASE: dependencies'))
-if config_dict['build']['show_depgraph_only']:
-	digraph = 'digraph depgraph {\n'
-if config_dict['build']['tutorial']:
-	util.pause_point(util.get_pexpect_child('container_child'),'\nNow checking for dependencies between modules',print_input=False)
 to_build = [
 	shutit_map[mid] for mid in shutit_map
 	if mid in config_dict and config_dict[mid]['build']
 ]
-for depender in to_build:
+
+# Once we have all the modules, then we can look at dependencies.
+# Dependency validation begins.
+util.log(util.red('PHASE: dependencies'))
+if config_dict['build']['tutorial']:
+	util.pause_point(util.get_pexpect_child('container_child'),'\nNow checking for dependencies between modules',print_input=False)
+def check_dependees_exist(depender, shutit_map):
 	for dependee_id in depender.depends_on:
 		dependee = shutit_map.get(dependee_id)
 		# If the module id isn't there, there's a problem.
@@ -167,7 +166,7 @@ for depender in to_build:
 				'\nCheck your --shutit_module_path setting and ensure that ' +
 				'all modules configured to be built are in that path setting, ' +
 				'eg "--shutit_module_path /path/to/other/module/:." See also help.')
-for depender in to_build:
+def check_dependees_build(depender, shutit_map):
 	depender_is_installed = depender.is_installed(config_dict)
 	for dependee_id in depender.depends_on:
 		dependee = shutit_map.get(dependee_id)
@@ -179,8 +178,7 @@ for depender in to_build:
 				'is configured: "build:yes" or is already built ' +
 				'but dependee module_id: [' + dependee_id + '] ' +
 				'is not configured: "build:yes"')
-# Sanity checking now we have everything we're going to build
-for depender in to_build:
+def check_dependees_order(depender, shutit_map):
 	for dependee_id in depender.depends_on:
 		dependee = shutit_map.get(dependee_id)
 		# If it depends on a module id, then the module id should be higher up in the run order.
@@ -191,13 +189,20 @@ for depender in to_build:
 				'depends on dependee module_id: ' + dependee_id +
 				' (run order: ' + str(dependee.run_order) + ') ' +
 				'but the latter is configured to run after the former')
-# Build dep graph
-for depender in to_build:
+def make_dep_graph(depender):
+	digraph = ''
 	for dependee_id in depender.depends_on:
 		if config_dict['build']['show_depgraph_only']:
 			digraph = digraph + '"' + depender.module_id + '"->"' + dependee_id + '";\n'
+	return digraph
+# Do dep checking
+[check_dependees_exist(module, shutit_map) for module in to_build]
+[check_dependees_build(module, shutit_map) for module in to_build]
+[check_dependees_order(module, shutit_map) for module in to_build]
 # Show dependency graph
 if config_dict['build']['show_depgraph_only']:
+	digraph = 'digraph depgraph {\n'
+	digraph = digraph + '\n'.join([make_dep_graph(module) for module in to_build])
 	digraph = digraph + '\n}'
 	util.log('\n',digraph,force_stdout=True)
 	sys.exit()
