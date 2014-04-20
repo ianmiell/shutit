@@ -25,7 +25,6 @@ import os
 import socket
 import time
 import util
-import sets
 
 def init(): 
 	global pexpect_children
@@ -36,7 +35,7 @@ def init():
 	global shutit_command_history
 
 	pexpect_children = {}
-	shutit_modules   = sets.Set([])
+	shutit_modules   = set()
 	shutit_command_history = []
 	# Store the root directory of this application.
 	# http://stackoverflow.com/questions/5137497/find-current-directory-and-files-directory
