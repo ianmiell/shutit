@@ -30,7 +30,10 @@ import shutit_global
 import setup
 import time
 import sys
-import decimal
+
+# Sort a list of module ids by run_order
+def run_order_modules(shutit_map_list):
+	shutit_map_list.sort(key=lambda mid: shutit_map[mid].run_order)
 
 # Stop all apps less than the supplied run_order
 # run_order of -1 means 'stop everything'
@@ -38,27 +41,27 @@ def stop_all(shutit_map_list,config_dict,run_order):
 	if config_dict['build']['tutorial']:
 		util.pause_point(util.get_pexpect_child('container_child'),'\nRunning stop on all modules',print_input=False)
 	# sort them to it's stopped in reverse order)
-	shutit_map_list.sort()
+	run_order_modules(shutit_map_list)
 	shutit_map_list.reverse()
-	for k in shutit_map_list:
-		if run_order == -1 or k <= run_order:
-			shutit_module_obj = shutit_map.get(k)
+	for mid in shutit_map_list:
+		shutit_module_obj = shutit_map.get(mid)
+		if run_order == -1 or shutit_module_obj.run_order <= run_order:
 			if is_built(config_dict,shutit_module_obj):
 				if not shutit_module_obj.stop(config_dict):
-					util.fail('failed to stop: ' + shutit_module_obj.module_id,child=util.get_pexpect_child('container_child'))
+					util.fail('failed to stop: ' + mid,child=util.get_pexpect_child('container_child'))
 
 # Start all apps less than the supplied run_order
 def start_all(shutit_map_list,config_dict,run_order):
 	if config_dict['build']['tutorial']:
 		util.pause_point(util.get_pexpect_child('container_child'),'\nRunning start on all modules',print_input=False)
 	# sort them to they're started in order)
-	shutit_map_list.sort()
-	for k in shutit_map_list:
-		if k <= run_order:
-			shutit_module_obj = shutit_map.get(k)
+	run_order_modules(shutit_map_list)
+	for mid in shutit_map_list:
+		shutit_module_obj = shutit_map.get(k)
+		if shutit_module_obj.run_order <= run_order:
 			if is_built(config_dict,shutit_module_obj):
 				if not shutit_module_obj.start(config_dict):
-					util.fail('failed to start: ' + shutit_module_obj.module_id,child=util.get_pexpect_child('container_child'))
+					util.fail('failed to start: ' + mid,child=util.get_pexpect_child('container_child'))
 
 # Returns true if this module is configured to be built, or if it is already installed.
 def is_built(config_dict,shutit_module_obj):
@@ -100,18 +103,12 @@ for m in util.get_shutit_modules():
 			util.fail('Duplicate module ids! ' + m.module_id + ' for ' + m.module_id + ' and ' + n.module_id)
 		if m.run_order == n.run_order:
 			util.fail('Duplicate run order! ' + str(m.run_order) + ' for ' + m.module_id + ' and ' + n.module_id)
-	# map the module id and the run_order to the object
-	# Since one should be an integer and one a string they should not overlap.
+	# map the module id to the object
 	shutit_map.update({m.module_id:m})
-	shutit_map.update({m.run_order:m})
 
-shutit_map_list = []
-# We only want the decimals in this list
-for i in shutit_map.keys():
-	if isinstance(i,decimal.Decimal):
-		shutit_map_list.append(i)
-# Now sort the list by decimal order
-shutit_map_list.sort()
+shutit_map_list = shutit_map.keys()
+# Now sort the list by run order
+run_order_modules(shutit_map_list)
 
 # Begin config collection
 for k in shutit_map_list:
@@ -162,9 +159,7 @@ if config_dict['build']['tutorial']:
 	util.pause_point(util.get_pexpect_child('container_child'),'\nNow checking for dependencies between modules',print_input=False)
 to_build = [
 	shutit_map[mid] for mid in shutit_map
-	if isinstance(mid, str) and # filter out run orders
-		mid in config_dict and
-		config_dict[mid]['build']
+	if mid in config_dict and config_dict[mid]['build']
 ]
 for depender in to_build:
 	depender_is_installed = depender.is_installed(config_dict)
@@ -223,36 +218,38 @@ if config_dict['build']['tutorial']:
 	util.pause_point(util.get_pexpect_child('container_child'),
 		'\nNow checking whether we are ready to build modules configured to be built',
 		print_input=False)
-for k in shutit_map_list:
-	if k == 0: continue
-	util.log(util.red('considering check_ready (is it ready to be built?): ' + shutit_map.get(k).module_id))
-	if config_dict[shutit_map.get(k).module_id]['build'] and not shutit_map.get(k).is_installed(config_dict):
-		util.log(util.red('checking whether module is ready to build: ' + shutit_map.get(k).module_id))
-		if not shutit_map.get(k).check_ready(config_dict):
+for mid in shutit_map_list:
+	m = shutit_map.get(mid)
+	if m.run_order == 0: continue
+	util.log(util.red('considering check_ready (is it ready to be built?): ' + mid))
+	if config_dict[mid]['build'] and not m.is_installed(config_dict):
+		util.log(util.red('checking whether module is ready to build: ' + mid))
+		if not m.check_ready(config_dict):
 			util.log(util.red(util.print_modules(shutit_map,shutit_map_list,config_dict)))
-			util.fail(shutit_map.get(k).module_id + ' not ready to install',child=util.get_pexpect_child('container_child'))
+			util.fail(mid + ' not ready to install',child=util.get_pexpect_child('container_child'))
 # Dependency validation done.
 
 # Now get the run_order keys in order and go.
-shutit_map_list.sort()
+run_order_modules(shutit_map_list)
 util.log(util.red('PHASE: remove'))
 if config_dict['build']['tutorial']:
 	util.pause_point(util.get_pexpect_child('container_child'),'\nNow removing any modules that need removing',print_input=False)
-for k in shutit_map_list:
-	if k == 0: continue
-	util.log(util.red('considering whether to remove: ' + shutit_map.get(k).module_id))
-	if config_dict[shutit_map.get(k).module_id]['remove']:
-		util.log(util.red('removing: ' + shutit_map.get(k).module_id))
-		if not shutit_map.get(k).remove(config_dict):
+for mid in shutit_map_list:
+	m = shutit_map.get(mid)
+	if m.run_order == 0: continue
+	util.log(util.red('considering whether to remove: ' + mid))
+	if config_dict[mid]['remove']:
+		util.log(util.red('removing: ' + mid))
+		if not m.remove(config_dict):
 			util.log(util.red(util.print_modules(shutit_map,shutit_map_list,config_dict)))
-			util.fail(shutit_map.get(k).module_id + ' failed on remove',child=util.get_pexpect_child('container_child'))
+			util.fail(mid + ' failed on remove',child=util.get_pexpect_child('container_child'))
 shutit_map_list.sort()
 util.log(util.red('PHASE: build, cleanup, repository work'))
 if config_dict['build']['tutorial']:
 	util.pause_point(util.get_pexpect_child('container_child'),'\nNow building any modules that need building',print_input=False)
-for k in shutit_map_list:
-	if k == 0: continue
-	module = shutit_map.get(k)
+for mid in shutit_map_list:
+	module = shutit_map.get(mid)
+	if module.run_order == 0: continue
 	util.log(util.red('considering whether to build: ' + module.module_id))
 	if config_dict[module.module_id]['build']:
 		print module.is_installed(config_dict)
@@ -288,13 +285,13 @@ for k in shutit_map_list:
 					raw_input(util.red('\n\nDo you want to stop debug and/or interactive mode? (input y/n)\n' )) == 'y'):
 				config_dict['build']['interactive'] = False
 				config_dict['build']['debug'] = False
-	if is_built(config_dict,shutit_map.get(k)):
+	if is_built(config_dict,module):
 		util.log('Starting module')
 		if not module.start(config_dict):
 			util.fail(module.module_id + ' failed on start',child=util.get_pexpect_child('container_child'))
 
 # Test in reverse order
-shutit_map_list.sort()
+run_order_modules(shutit_map_list)
 shutit_map_list.reverse()
 util.log(util.red('PHASE: test'))
 if config_dict['build']['tutorial']:
@@ -314,16 +311,16 @@ if config_dict['build']['tutorial']:
 stop_all(shutit_map_list,config_dict,-1)
 
 # Finalize in reverse order
-shutit_map_list.sort()
+run_order_modules(shutit_map_list)
 shutit_map_list.reverse()
 util.log(util.red('PHASE: finalize'))
 if config_dict['build']['tutorial']:
 	util.pause_point(util.get_pexpect_child('container_child'),'\nNow doing finalize phase, which we do when all builds are complete and modules are stopped',print_input=False)
-for k in shutit_map_list:
+for mid in shutit_map_list:
 	# Only finalize if it's thought to be installed.
-	if is_built(config_dict,shutit_map.get(k)):
-		if not shutit_map.get(k).finalize(config_dict):
-			util.fail(shutit_map.get(k).module_id + ' failed on finalize',child=util.get_pexpect_child('container_child'))
+	if is_built(config_dict,shutit_map.get(mid)):
+		if not shutit_map.get(mid).finalize(config_dict):
+			util.fail(mid + ' failed on finalize',child=util.get_pexpect_child('container_child'))
 
 # Tag and push etc
 util.do_repository_work(config_dict,config_dict['expect_prompts']['base_prompt'],config_dict['repository']['name'],docker_executable=config_dict['host']['docker_executable'],password=config_dict['host']['password'])
@@ -333,13 +330,17 @@ host_child.sendline('exit') # Exit raw bash
 time.sleep(0.3)
 
 # Finally, do repo work on the core module.
-if config_dict[shutit_map.get(0).module_id]['do_repo_work']:
+for module in shutit_map.values():
+	if module.run_order == 0:
+		core_module = module
+		break
+if config_dict[core_module.module_id]['do_repo_work']:
 	if config_dict['build']['tutorial']:
 		util.pause_point(util.get_pexpect_child('host_child'),'\nDoing final committing/tagging on the overall container and creating the artifact.',print_input=False)
-	util.log(util.red('doing repo work: ' + shutit_map.get(0).module_id + ' with run order: ' + str(shutit_map.get(0.0).run_order)))
+	util.log(util.red('doing repo work: ' + core_module.module_id + ' with run order: ' + str(core_module.run_order)))
 	util.do_repository_work(config_dict,
 		config_dict['expect_prompts']['base_prompt'],
-		str(shutit_map.get(0.0).run_order),
+		str(core_module.run_order),
 		password=config_dict['host']['password'],
 		docker_executable=config_dict['host']['docker_executable'])
 
