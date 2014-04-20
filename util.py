@@ -283,17 +283,6 @@ def get_base_config(config_dict, cfg_parser):
 	if config_dict['build']['action_on_ret_code'] != 'msg' and config_dict['build']['action_on_ret_code'] != 'error':
 		fail('[build]\naction_on_ret_code:\nshould be set to "msg" or "error"')
 
-def get_real_user(config_dict):
-	username = os.environ['LOGNAME']
-	if username == 'root':
-		fail('You cannot be root to run this script')
-	try:
-		# Get the real username
-		config_dict['host']['real_user'] = os.environ['SUDO_USER']
-	except:
-		config_dict['host']['real_user'] = username
-	return username
-
 # Returns the config dict
 def parse_args(config_dict):
 	config_dict['host']['real_user_id'] = pexpect.run('id -u ' + config_dict['host']['real_user']).strip()
