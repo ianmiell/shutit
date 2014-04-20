@@ -17,6 +17,7 @@ Interested in stable stateless deployments?
 Join us!
 
 ## Features ##
+
  - Easy to use
  - Deterministic builds
  - Outputs include a series of shell commands you can port to other CM tools
@@ -41,6 +42,7 @@ cd /home/username/shutit_modules/shutit_module
 ```
 
 Folder structure:
+
  - **/bin** - scripts for this module *(see example below)*
  - **/configs** - config for your module *(see example below)*
  - **/resources** - files needed that are too big for source control *(see example below)*
@@ -66,6 +68,7 @@ An example folder structure:
 ### Step 3: Modify the default module ###
 
 The default module contains examples of many common tasks when installing, e.g.
+
  - util.install                               - installs packages based on distro (eg 'passwd' install in shutit_module.py)
  - password handling                          - automate the inputting of passwords (eg 'passwd' install in shutit_module.py)
  - config to set up apps                      - (eg 'passwd' install in shutit_module.py)
