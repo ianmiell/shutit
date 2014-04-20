@@ -896,11 +896,11 @@ def setup_prompt(child,config_dict,prefix,prompt_name):
 	child.expect(config_dict['expect_prompts'][prompt_name])
 
 
-def print_modules(shutit_map,shutit_map_list,config_dict):
+def print_modules(shutit_map,shutit_id_list,config_dict):
 	s = ''
 	s = s + 'Modules: \n'
 	s = s + '\tRun order\tBuild\tRemove\tModule ID\n'
-	for mid in shutit_map_list:
+	for mid in shutit_id_list:
 		s = s + ('\t' + str(shutit_map.get(mid).run_order) + '\t\t' +
 			str(config_dict[mid]['build']) + '\t' +
 			str(config_dict[mid]['remove']) + '\t' +
