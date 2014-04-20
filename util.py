@@ -114,7 +114,9 @@ def send_and_expect(child,send,expect,timeout=3600,check_exit=True,config_dict=N
 		check_exit = False
 		for prompt in config_dict['expect_prompts']:
 			if prompt == expect:
-				_reset_prompt(child,config_dict,expect)
+				# Reset prompt
+				handle_login(child,config_dict,'reset_tmp_prompt')
+				handle_revert_prompt(child,expect,'reset_tmp_prompt')
 	if check_exit == True:
 		child.sendline('echo EXIT_CODE:$?')
 		child.expect(expect,timeout)
@@ -875,10 +877,6 @@ def handle_login(child,config_dict,prompt_name):
 
 def handle_revert_prompt(child,expect,prompt_name):
 	send_and_expect(child,"""PS1="${SHUTIT_BACKUP_PS1_""" + prompt_name + """}" && unset SHUTIT_PROMPT_COMMAND_BACKUP_""" + prompt_name + """ && unset SHUTIT_BACKUP_PS1_""" + prompt_name,expect,check_exit=False,record_command=False,fail_on_empty_before=False)
-
-def _reset_prompt(child,config_dict,expect):
-	handle_login(child,config_dict,'reset_tmp_prompt')
-	handle_revert_prompt(child,expect,'reset_tmp_prompt')
 
 
 
