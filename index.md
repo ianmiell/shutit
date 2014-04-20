@@ -3,7 +3,8 @@ layout: default
 markdown: 1
 ---
 # ShutIt #
-### Configuration management for the future. ###
+
+Configuration management for the future.
 
 ## Why? ##
 
@@ -31,7 +32,8 @@ Join us!
 git clone https://github.com/ianmiell/shutit
 ```
 
-###Step 2: Create a new module
+### Step 2: Create a new module ###
+
 ```sh
 cd shutit/bin
 ./create_skeleton.sh /home/username/shutit_modules/shutit_module shutit_module
@@ -44,6 +46,7 @@ Folder structure:
  - **/resources** - files needed that are too big for source control *(see example below)*
 
 An example folder structure:
+
 ```sh
 ./shutit_module
 ├──  bin
@@ -71,6 +74,7 @@ The default module contains examples of many common tasks when installing, eg
  - pull resources in and out of the container - for objects too big for source control
 
 It also gives a simple example of each part of the build lifecycle. **Add a package to install to shutit_module.py**
+
 ```sh
 # Make sure passwd is installed
 util.install(container_child,config_dict,'passwd',root_prompt_expect)
@@ -87,6 +91,7 @@ util.install(container_child,config_dict,'your chosen package here',root_prompt_
  - **float** is a unique decimal value that is not clashing with any other modules, and defines the order in which they are built
 
 **Change the above and save the file**
+
 ```sh
 $ grep -rnwl com.mycorp.shutit_module *
 configs/build.cnf
@@ -97,6 +102,7 @@ configs/defaults.cnf
 **Replace references to com.mycorp.shutit_module with your chosen string in the above files**
 
 ### Step 4: Build your module ###
+
 ```sh
 $ ./build.sh
 ERROR!
@@ -106,11 +112,13 @@ chmod 0600 [...]/defaults.cnf
 ```
 
 **Secure your files:**
+
 ```sh
 chmod 0600 configs/defaults.cnf
 ```
 
 **Build module:**
+
 ```sh
 $ ./build.sh
 SHUTIT_BACKUP_PS1=$PS1 && unset PROMPT_COMMAND && PS1="SHUTIT_PROMPT_REAL_USER#195886238"
@@ -121,6 +129,7 @@ PT_PRE_BUILD#1454501189"& unset PROMPT_COMMAND && PS1="SHUTIT_PROM
 ```
 
 ### Step 5: Run your module ###
+
 ```sh
 $ ./run.sh
 root@138ed0fd3728:/#
@@ -129,23 +138,28 @@ root@138ed0fd3728:/#
 You are now in your bespoke container!
 
 ### Step 6: Mix and match ###
+
 Let's add mysql to the container build. Change this in your **shutit_module.py:**
+
 ```sh
 obj.add_dependency('shutit.tk.setup')
 ```
 
 to:
+
 ```sh
 obj.add_dependency('shutit.tk.setup')
 obj.add_dependency('shutit.tk.mysql.mysql')
 ```
 
 And change the **build.sh**
+
 ```sh
 python /tmp/a/shutit/bin/../shutit_main.py --shutit_module_path /your/path/to/shutit/example/mysql
 ```
 
 And change the **configs/build.sh**, adding
+
 ```sh
 [shutit.tk.mysql.mysql]
 build:yes
