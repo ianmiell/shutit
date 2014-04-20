@@ -26,7 +26,7 @@ import socket
 import time
 import util
 
-def init(): 
+def init():
 	global pexpect_children
 	global shutit_modules
 	global shutit_main_dir
@@ -41,7 +41,7 @@ def init():
 	# http://stackoverflow.com/questions/5137497/find-current-directory-and-files-directory
 	shutit_main_dir = os.path.abspath(os.path.dirname(__file__))
 	cwd = os.getcwd()
-	
+
 	config_dict = {}
 	config_dict['build']                = {}
 	config_dict['build']['interactive'] = True # Default to true until we know otherwise
@@ -54,7 +54,7 @@ def init():
 	config_dict['repository']           = {}
 	config_dict['expect_prompts']       = {}
 	config_dict['users']                = {}
-	
+
 	username = os.environ['LOGNAME']
 	if username == 'root':
 		util.fail('You cannot be root to run this script')
@@ -62,7 +62,7 @@ def init():
 		# Get the real username
 		config_dict['host']['real_user'] = os.environ['SUDO_USER']
 	except:
-	        config_dict['host']['real_user'] = username
+		config_dict['host']['real_user'] = username
 	config_dict['build']['build_id']    = socket.gethostname() + '_' + config_dict['host']['real_user'] + '_' + str(time.time())
 
 init()
