@@ -58,11 +58,8 @@ def init():
 	username = os.environ['LOGNAME']
 	if username == 'root':
 		util.fail('You cannot be root to run this script')
-	try:
-		# Get the real username
-		config_dict['host']['real_user'] = os.environ['SUDO_USER']
-	except:
-		config_dict['host']['real_user'] = username
-	config_dict['build']['build_id']    = socket.gethostname() + '_' + config_dict['host']['real_user'] + '_' + str(time.time())
+	# Get the real username
+	config_dict['host']['real_user'] = os.environ.get('SUDO_USER', username)
+	config_dict['build']['build_id'] = socket.gethostname() + '_' + config_dict['host']['real_user'] + '_' + str(time.time())
 
 init()
