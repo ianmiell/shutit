@@ -167,6 +167,7 @@ to_build = [
 		config_dict[mid]['build']
 ]
 for depender in to_build:
+	depender_is_installed = depender.is_installed(config_dict)
 	for dependee in depender.depends_on:
 		dependee_obj = shutit_map.get(dependee)
 		if config_dict['build']['show_depgraph_only']:
@@ -187,7 +188,7 @@ for depender in to_build:
 				' (run order: ' + str(dependee_obj.run_order) + ') ' +
 				'but the latter is configured to run after the former')
 		# If depender is installed or will be installed, so must the dependee
-		if ((config_dict[depender.module_id]['build'] or depender.is_installed(config_dict)) and not
+		if ((config_dict[depender.module_id]['build'] or depender_is_installed) and not
 				config_dict[dependee_obj.module_id]['build'] and not dependee_obj.is_installed(config_dict)):
 			util.log(util.red(util.print_modules(shutit_map,shutit_map_list,config_dict)))
 			util.fail('depender module id: [' + depender.module_id + '] ' +
