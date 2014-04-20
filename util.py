@@ -309,7 +309,7 @@ def parse_args(config_dict):
 	# - all other backslashes are treated literally
 	# e.g. ' a\ b c\\ \\d \\\e\' becomes '', 'a b', 'c\', '\d', '\\e\'
 	if os.environ.get('SHUTIT_OPTIONS', None):
-		env_args = os.environ.get('SHUTIT_OPTIONS')
+		env_args = os.environ['SHUTIT_OPTIONS']
 		# Split escaped backslashes
 		env_args_split = re.split(r'(\\\\)', env_args)
 		# Split non-escaped spaces
@@ -731,7 +731,7 @@ def set_pexpect_child(key,child):
 
 # Get a pexpect child in the global dictionary by key.
 def get_pexpect_child(key):
-	return shutit_global.pexpect_children.get(key)
+	return shutit_global.pexpect_children[key]
 
 # dynamically import files within the same directory (in the end, the path)
 #http://stackoverflow.com/questions/301134/dynamic-module-import-in-python
@@ -901,7 +901,7 @@ def print_modules(shutit_map,shutit_id_list,config_dict):
 	s = s + 'Modules: \n'
 	s = s + '\tRun order\tBuild\tRemove\tModule ID\n'
 	for mid in shutit_id_list:
-		s = s + ('\t' + str(shutit_map.get(mid).run_order) + '\t\t' +
+		s = s + ('\t' + str(shutit_map[mid].run_order) + '\t\t' +
 			str(config_dict[mid]['build']) + '\t' +
 			str(config_dict[mid]['remove']) + '\t' +
 			mid + '\n')
