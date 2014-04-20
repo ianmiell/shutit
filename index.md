@@ -164,7 +164,7 @@ python /tmp/a/shutit/bin/../shutit_main.py --shutit_module_path /your/path/to/sh
 
 And change the **configs/build.sh**, adding
 
-``
+```
 [shutit.tk.mysql.mysql]
 build:yes
 ```
