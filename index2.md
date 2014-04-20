@@ -27,13 +27,80 @@ Join us!
  - Util functions for common tasks (that work across distros)
 
 ### Step 1: Get the source ###
-```shell
+```sh
 git clone https://github.com/ianmiell/shutit
 ```
 
 ###Step 2: Create a new module
-```shell
+```sh
 cd shutit/bin
 ./create_skeleton.sh /home/username/shutit_modules/shutit_module shutit_module
 cd /home/username/shutit_modules/shutit_module
+```
+
+Folder structure:
+ - **/bin** - scripts for this module *(see example below)*
+ - **/configs** - config for your module *(see example below)*
+ - **/resources** - files needed that are too big for source control *(see example below)*
+
+An example folder structure:
+```sh
+./shutit_module
+├──  bin
+│   ├── create_skeleton.sh
+│   ├── README.md
+│   └── test.sh
+├── build.sh
+├── configs
+│   ├── build.cnf
+│   └── defaults.cnf
+├── README.md
+├── resources
+│   └── README.md
+└── run.sh
+```
+
+### Step 3: Modify the default module ###
+The default module contains examples of many common tasks when installing, eg
+ - util.install                               - installs packages based on distro (eg 'passwd' install in shutit_module.py)
+ - password handling                          - automate the inputting of passwords (eg 'passwd' install in shutit_module.py)
+ - config to set up apps                      - (eg 'passwd' install in shutit_module.py)
+ - add line to file                           - automate the input-ing of passwords
+ - util.pause_point                           - to allow you to stop during a build and inspect before continuing
+ - handle logins/logouts                      - to make for safer automated interactions with eg unexpected prompts
+ - pull resources in and out of the container - for objects too big for source control
+
+It also gives a simple example of each part of the build lifecycle. **Add a package to install to shutit_module.py**
+```sh
+# Make sure passwd is installed
+util.install(container_child,config_dict,'passwd',root_prompt_expect)
+# Install mlocate
+util.install(container_child,config_dict,'mlocate',root_prompt_expect)
+
+# Install added by you
+util.install(container_child,config_dict,'your chosen package here',root_prompt_expect)
+```
+
+**Running the module requires that in your shutit_module.py, shutit_module(string,float) is set:**
+
+ - **string** is a python string that is not likely to clash, eg **'com.mydomain.mysubmodule.myref'** (including quotes)
+ - **float** is a unique decimal value that is not clashing with any other modules, and defines the order in which they are built
+
+**Change the above and save the file**
+```sh
+$ grep -rnwl com.mycorp.shutit_module *
+configs/build.cnf
+configs/defaults.cnf
+[...]
+```
+
+**Replace references to com.mycorp.shutit_module with your chosen string in the above files**
+
+### Step 4: Build your module ###
+```sh
+$ ./build.sh
+ERROR!
+Files are not secure, mode should be 0600. Run the following commands to correct:
+
+chmod 0600 [...]/defaults.cnf
 ```
