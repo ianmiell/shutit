@@ -104,3 +104,51 @@ Files are not secure, mode should be 0600. Run the following commands to correct
 
 chmod 0600 [...]/defaults.cnf
 ```
+
+**Secure your files:**
+```sh
+chmod 0600 configs/defaults.cnf
+```
+
+**Build module:**
+```sh
+$ ./build.sh
+SHUTIT_BACKUP_PS1=$PS1 && unset PROMPT_COMMAND && PS1="SHUTIT_PROMPT_REAL_USER#195886238"
+SHUTIT_BACKUP_PS1=$PS1 && unset PROMPT_COMMAND && PS1="SHUTIT_PROMPT_REAL_USER#195886238"
+set PROMPT_COMMAND && PS1="SHUTIT_PROMPT_REAL_USER#195886238"CKUP_PS1=$PS1 && un 
+SHUTIT_PROMPT_REAL_USER#195886238SHUTIT_BACKUP_PS1=$PS1 && unset PROMPT_COMMAND && PS1="SHUTIT_PROMPT_PRE_BUILD#1454501189"
+PT_PRE_BUILD#1454501189"& unset PROMPT_COMMAND && PS1="SHUTIT_PROM
+```
+
+### Step 5: Run your module ###
+```sh
+$ ./run.sh
+root@138ed0fd3728:/#
+```
+
+You are now in your bespoke container!
+
+### Step 6: Mix and match ###
+Let's add mysql to the container build. Change this in your **shutit_module.py:**
+```sh
+obj.add_dependency('shutit.tk.setup')
+```
+
+to:
+```sh
+obj.add_dependency('shutit.tk.setup')
+obj.add_dependency('shutit.tk.mysql.mysql')
+```
+
+And change the **build.sh**
+```sh
+python /tmp/a/shutit/bin/../shutit_main.py --shutit_module_path /your/path/to/shutit/example/mysql
+```
+
+And change the **configs/build.sh**, adding
+```sh
+[shutit.tk.mysql.mysql]
+build:yes
+```
+
+Rebuild and re-run to get the same container with mysql installed.
