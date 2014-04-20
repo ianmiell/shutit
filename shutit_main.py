@@ -31,9 +31,9 @@ import setup
 import time
 import sys
 
-# Sort a list of module ids by run_order
+# Sort a list of module ids by run_order, doesn't modify original list
 def run_order_modules(shutit_id_list):
-	shutit_id_list.sort(key=lambda mid: shutit_map[mid].run_order)
+	return sorted(shutit_id_list, key=lambda mid: shutit_map[mid].run_order)
 
 # Stop all apps less than the supplied run_order
 # run_order of -1 means 'stop everything'
@@ -41,9 +41,7 @@ def stop_all(shutit_id_list,config_dict,run_order):
 	if config_dict['build']['tutorial']:
 		util.pause_point(util.get_pexpect_child('container_child'),'\nRunning stop on all modules',print_input=False)
 	# sort them to it's stopped in reverse order)
-	run_order_modules(shutit_id_list)
-	shutit_id_list.reverse()
-	for mid in shutit_id_list:
+	for mid in reversed(run_order_modules(shutit_id_list)):
 		shutit_module_obj = shutit_map.get(mid)
 		if run_order == -1 or shutit_module_obj.run_order <= run_order:
 			if is_built(config_dict,shutit_module_obj):
@@ -55,8 +53,7 @@ def start_all(shutit_id_list,config_dict,run_order):
 	if config_dict['build']['tutorial']:
 		util.pause_point(util.get_pexpect_child('container_child'),'\nRunning start on all modules',print_input=False)
 	# sort them to they're started in order)
-	run_order_modules(shutit_id_list)
-	for mid in shutit_id_list:
+	for mid in run_order_modules(shutit_id_list):
 		shutit_module_obj = shutit_map.get(k)
 		if shutit_module_obj.run_order <= run_order:
 			if is_built(config_dict,shutit_module_obj):
@@ -108,7 +105,7 @@ for m in util.get_shutit_modules():
 
 shutit_id_list = shutit_map.keys()
 # Now sort the list by run order
-run_order_modules(shutit_id_list)
+shutit_id_list = run_order_modules(shutit_id_list)
 
 # Begin config collection
 for k in shutit_id_list:
@@ -230,7 +227,7 @@ for mid in shutit_id_list:
 # Dependency validation done.
 
 # Now get the run_order keys in order and go.
-run_order_modules(shutit_id_list)
+shutit_id_list = run_order_modules(shutit_id_list)
 util.log(util.red('PHASE: remove'))
 if config_dict['build']['tutorial']:
 	util.pause_point(util.get_pexpect_child('container_child'),'\nNow removing any modules that need removing',print_input=False)
@@ -243,7 +240,7 @@ for mid in shutit_id_list:
 		if not m.remove(config_dict):
 			util.log(util.red(util.print_modules(shutit_map,shutit_id_list,config_dict)))
 			util.fail(mid + ' failed on remove',child=util.get_pexpect_child('container_child'))
-shutit_id_list.sort()
+shutit_id_list = run_order_modules(shutit_id_list)
 util.log(util.red('PHASE: build, cleanup, repository work'))
 if config_dict['build']['tutorial']:
 	util.pause_point(util.get_pexpect_child('container_child'),'\nNow building any modules that need building',print_input=False)
@@ -291,8 +288,7 @@ for mid in shutit_id_list:
 			util.fail(module.module_id + ' failed on start',child=util.get_pexpect_child('container_child'))
 
 # Test in reverse order
-run_order_modules(shutit_id_list)
-shutit_id_list.reverse()
+shutit_id_list = reversed(run_order_modules(shutit_id_list))
 util.log(util.red('PHASE: test'))
 if config_dict['build']['tutorial']:
 	util.pause_point(util.get_pexpect_child('container_child'),'\nNow doing test phase',print_input=False)
@@ -311,8 +307,7 @@ if config_dict['build']['tutorial']:
 stop_all(shutit_id_list,config_dict,-1)
 
 # Finalize in reverse order
-run_order_modules(shutit_id_list)
-shutit_id_list.reverse()
+shutit_id_list = reversed(run_order_modules(shutit_id_list))
 util.log(util.red('PHASE: finalize'))
 if config_dict['build']['tutorial']:
 	util.pause_point(util.get_pexpect_child('container_child'),'\nNow doing finalize phase, which we do when all builds are complete and modules are stopped',print_input=False)
