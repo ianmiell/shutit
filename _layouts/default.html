@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+  {% include head.html %}
+
+  <body>
+    <header>
+      <div class="inner">
+        <h1>Shutit</h1>
+        <h2>&quot;Tame Your Build Proc-Mess&quot; - a tool for building and maintaining Docker deployments</h2>
+        <a href="https://github.com/aidanhs/shutit" class="button"><small>View project on</small>GitHub</a>
+      </div>
+    </header>
+
+    <div id="content-wrapper">
+      <div class="inner clearfix">
+        <section id="main-content">
+          {% if page.markdown == 1 %}
+            {{ content | markdownify }}
+          {% else %}
+            {{ content }}
+          {% endif %}
+        </section>
+      </div>
+    </div>
+
+  </body>
+</html>

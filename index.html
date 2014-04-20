@@ -1,83 +1,177 @@
-<!DOCTYPE html>
-<html>
-  <head>
-    <meta charset='utf-8'>
-    <meta http-equiv="X-UA-Compatible" content="chrome=1">
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-    <link href='https://fonts.googleapis.com/css?family=Architects+Daughter' rel='stylesheet' type='text/css'>
-    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen" />
-    <link rel="stylesheet" type="text/css" href="stylesheets/pygment_trac.css" media="screen" />
-    <link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print" />
-
-    <!--[if lt IE 9]>
-    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
-    <![endif]-->
-
-    <title>Shutit by aidanhs</title>
-  </head>
-
-  <body>
-    <header>
-      <div class="inner">
-        <h1>Shutit</h1>
-        <h2>&quot;Tame Your Build Proc-Mess&quot; - a tool for building and maintaining Docker deployments</h2>
-        <a href="https://github.com/aidanhs/shutit" class="button"><small>View project on</small>GitHub</a>
+---
+layout: default
+markdown: 0
+---
+<a href="https://github.com/ianmiell/shutit/fork">
+  <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_red_aa0000.png" alt="Fork me on GitHub">
+</a>
+<div class='jumbotron'>
+  <div>
+  <h1>ShutIt</h1>
+  <p>Configuration management for the future.</p>
+  </div>
+</div>
+<div class='row'>
+  <div class='col-md-1'></div>
+  <div class='col-md-10'>
+    <p><h1>Why?</h1></p>
+    <p class='lead'>Interested in Docker? Find Dockerfiles limiting?</p>
+    <p class='lead'>Are you a programmer annoyed by the obfuscation and indirection Chef/Puppet/Ansible brings to a simple series of commands?</p>
+    <p class='lead'>Interested in stable stateless deployments?</p>
+    <p class='lead'>Join us!</p>
+        <h1>Features</h1>
+        <ul>
+          <li>Easy to use</li>
+          <li>Deterministic builds</li>
+          <li>Outputs include a series of shell commands you can port to other CM tools</li>
+          <li>Automate your pushing and deployment in one place</li>
+          <li>Shell-based (minimal learning curve)</li>
+          <li>Implement your own tests of modules that are automatically run</li>
+          <li>Use your python skills to make it work the way you want</li>
+          <li>Extensive debugging tools to make reproducible builds easier</li>
+          <li>Util functions for common tasks (that work across distros)</li>
+        </ul>
       </div>
-    </header>
-
-    <div id="content-wrapper">
-      <div class="inner clearfix">
-        <section id="main-content">
-          <h3>
-<a name="welcome-to-github-pages" class="anchor" href="#welcome-to-github-pages"><span class="octicon octicon-link"></span></a>Welcome to GitHub Pages.</h3>
-
-<p>This automatic page generator is the easiest way to create beautiful pages for all of your projects. Author your page content here using GitHub Flavored Markdown, select a template crafted by a designer, and publish. After your page is generated, you can check out the new branch:</p>
-
-<pre><code>$ cd your_repo_root/repo_name
-$ git fetch origin
-$ git checkout gh-pages
-</code></pre>
-
-<p>If you're using the GitHub for Mac, simply sync your repository and you'll see the new branch.</p>
-
-<h3>
-<a name="designer-templates" class="anchor" href="#designer-templates"><span class="octicon octicon-link"></span></a>Designer Templates</h3>
-
-<p>We've crafted some handsome templates for you to use. Go ahead and continue to layouts to browse through them. You can easily go back to edit your page before publishing. After publishing your page, you can revisit the page generator and switch to another theme. Your Page content will be preserved if it remained markdown format.</p>
-
-<h3>
-<a name="rather-drive-stick" class="anchor" href="#rather-drive-stick"><span class="octicon octicon-link"></span></a>Rather Drive Stick?</h3>
-
-<p>If you prefer to not use the automatic generator, push a branch named <code>gh-pages</code> to your repository to create a page manually. In addition to supporting regular HTML content, GitHub Pages support Jekyll, a simple, blog aware static site generator written by our own Tom Preston-Werner. Jekyll makes it easy to create site-wide headers and footers without having to copy them across every page. It also offers intelligent blog support and other advanced templating features.</p>
-
-<h3>
-<a name="authors-and-contributors" class="anchor" href="#authors-and-contributors"><span class="octicon octicon-link"></span></a>Authors and Contributors</h3>
-
-<p>You can <a href="https://github.com/blog/821" class="user-mention">@mention</a> a GitHub username to generate a link to their profile. The resulting <code>&lt;a&gt;</code> element will link to the contributor's GitHub Profile. For example: In 2007, Chris Wanstrath (<a href="https://github.com/defunkt" class="user-mention">@defunkt</a>), PJ Hyett (<a href="https://github.com/pjhyett" class="user-mention">@pjhyett</a>), and Tom Preston-Werner (<a href="https://github.com/mojombo" class="user-mention">@mojombo</a>) founded GitHub.</p>
-
-<h3>
-<a name="support-or-contact" class="anchor" href="#support-or-contact"><span class="octicon octicon-link"></span></a>Support or Contact</h3>
-
-<p>Having trouble with Pages? Check out the documentation at <a href="http://help.github.com/pages">http://help.github.com/pages</a> or contact <a href="mailto:support@github.com">support@github.com</a> and we’ll help you sort it out.</p>
-        </section>
-
-        <aside id="sidebar">
-          <a href="https://github.com/aidanhs/shutit/zipball/master" class="button">
-            <small>Download</small>
-            .zip file
-          </a>
-          <a href="https://github.com/aidanhs/shutit/tarball/master" class="button">
-            <small>Download</small>
-            .tar.gz file
-          </a>
-
-          <p class="repo-owner"><a href="https://github.com/aidanhs/shutit"></a> is maintained by <a href="https://github.com/aidanhs">aidanhs</a>.</p>
-
-          <p>This page was generated by <a href="https://pages.github.com">GitHub Pages</a> using the Architect theme by <a href="https://twitter.com/jasonlong">Jason Long</a>.</p>
-        </aside>
-      </div>
+      <div class='col-md-1'></div>
     </div>
+    <div class='row'>
+      <div class='col-md-1'></div>
+      <div class="col-md-10">
+        <section>
+          <h3>Step 1: Get the source</h3>
+          <pre data-language='shell'>
+git clone https://github.com/ianmiell/shutit</pre>
+        </section>
+        <section>
+          <h3>Step 2: Create a new module</h3>
+          <pre data-language='shell'>
+cd shutit/bin
+./create_skeleton.sh /home/username/shutit_modules/shutit_module shutit_module
+cd /home/username/shutit_modules/shutit_module</pre>
+          <p>Folder structure:</p>
+          <ul>
+            <li><p><strong>/bin</strong> - scripts for this module <em>(see example below)</em></p></li>
+            <li><p><strong>/configs</strong> - config for your module <em>(see example below)</em></p></li>
+            <li><p><strong>/resources</strong> - files needed that are too big for source control <em>(see example below)</em></p></li>
+          </ul>
+          <br />
+          <p>An example folder structure:</p>
+          <pre data-language='shell'>
+./shutit_module
+├──  bin
+│   ├── create_skeleton.sh
+│   ├── README.md
+│   └── test.sh
+├── build.sh
+├── configs
+│   ├── build.cnf
+│   └── defaults.cnf
+├── README.md
+├── resources
+│   └── README.md
+└── run.sh</pre>
+</section>
+       </div>
+      <div class='col-md-1'></div>
+     </div>
+    <div class='row'>
+      <div class='col-md-1'></div>
+      <div class="col-md-10">
+        <section>
+          <h3>Step 3: Modify the default module</h3>
+          <p>The default module contains examples of many common tasks when installing, eg</p>
+          <ul>
+            <li>util.install                               - installs packages based on distro (eg 'passwd' install in shutit_module.py)</li>
+            <li>password handling                          - automate the inputting of passwords (eg 'passwd' install in shutit_module.py)</li>
+            <li>config to set up apps                      - (eg 'passwd' install in shutit_module.py)</li>
+            <li>add line to file                           - automate the input-ing of passwords</li>
+            <li>util.pause_point                           - to allow you to stop during a build and inspect before continuing</li>
+            <li>handle logins/logouts                      - to make for safer automated interactions with eg unexpected prompts</li>
+            <li>pull resources in and out of the container - for objects too big for source control</li>
+          </ul>
+          <p>It also gives a simple example of each part of the build lifecycle. <strong>Add a package to install to shutit_module.py</strong></p>
+          <pre data-language='shell'>
+                # Make sure passwd is installed
+                util.install(container_child,config_dict,'passwd',root_prompt_expect)
+                # Install mlocate
+    util.install(container_child,config_dict,'mlocate',root_prompt_expect)
 
-  
-  </body>
-</html>
+    # Install added by you
+    util.install(container_child,config_dict,'your chosen package here',root_prompt_expect)
+          </pre>
+          <p><strong>Running the module requires that in your shutit_module.py, shutit_module(string,float) is set:</strong></p>
+          <ul>
+            <li><strong>string</strong> is a python string that is not likely to clash, eg <strong>'com.mydomain.mysubmodule.myref'</strong> (including quotes)</li>
+            <li><strong>float</strong> is a unique decimal value that is not clashing with any other modules, and defines the order in which they are built</li>
+          </ul>
+          <p><strong>Change the above and save the file</strong></p>
+          <pre data-language='shell'>
+$ grep -rnwl com.mycorp.shutit_module *
+configs/build.cnf
+configs/defaults.cnf
+[...]</pre>
+          <p><strong>Replace references to com.mycorp.shutit_module with your chosen string in the above files</strong></p>
+        </section>
+      </div>
+    </div> 
+    <div class='row'>
+      <div class='col-md-1'></div>
+      <div class="col-md-10">
+          <h3>Step 4: Build your module</h3>
+      <pre data-language='shell'>
+$ ./build.sh
+ERROR!
+Files are not secure, mode should be 0600. Run the following commands to correct:
+
+chmod 0600 [...]/defaults.cnf</pre>
+    <p><strong>Secure your files:</strong></p>
+    <pre data-language='shell'>
+chmod 0600 configs/defaults.cnf</pre>
+    <p><strong>Build module:</strong></p>
+    <pre data-language='shell'>
+$ ./build.sh
+SHUTIT_BACKUP_PS1=$PS1 && unset PROMPT_COMMAND && PS1="SHUTIT_PROMPT_REAL_USER#195886238"
+SHUTIT_BACKUP_PS1=$PS1 && unset PROMPT_COMMAND && PS1="SHUTIT_PROMPT_REAL_USER#195886238"
+set PROMPT_COMMAND && PS1="SHUTIT_PROMPT_REAL_USER#195886238"CKUP_PS1=$PS1 && un 
+SHUTIT_PROMPT_REAL_USER#195886238SHUTIT_BACKUP_PS1=$PS1 && unset PROMPT_COMMAND && PS1="SHUTIT_PROMPT_PRE_BUILD#1454501189"
+PT_PRE_BUILD#1454501189"& unset PROMPT_COMMAND && PS1="SHUTIT_PROM</pre>
+      </div>
+      <div class='col-md-1'></div>
+    </div>
+    <div class='row'>
+      <div class='col-md-1'></div>
+      <div class="col-md-10">
+          <h3>Step 5: Run your module</h3>
+      <pre data-language='shell'>
+$ ./run.sh
+root@138ed0fd3728:/#
+</pre>
+          <p>You are now in your bespoke container!</p>
+      </div>
+      <div class='col-md-1'></div>
+    </div>
+    <div class='row'>
+      <div class='col-md-1'></div>
+      <div class="col-md-10">
+    <h3>Step 6: Mix and match</h3>
+    <p>Let's add mysql to the container build. Change this in your <strong>shutit_module.py:</strong></p>
+    <pre data-language='shell'>
+        obj.add_dependency('shutit.tk.setup')
+    </pre>
+          <p>to:</p>
+          <pre data-language='shell'>
+        obj.add_dependency('shutit.tk.setup')
+        obj.add_dependency('shutit.tk.mysql.mysql')
+          </pre>
+          <p>And change the <strong>build.sh</strong></p>
+          <pre data-language='shell'>
+python /tmp/a/shutit/bin/../shutit_main.py --shutit_module_path /your/path/to/shutit/example/mysql
+          </pre>
+          <p>And change the <strong>configs/build.sh</strong>, adding</p>
+          <pre data-language='shell'>
+[shutit.tk.mysql.mysql]
+build:yes
+          </pre>
+          <p>Rebuild and re-run to get the same container with mysql installed.</p>
+      </div>
+      <div class='col-md-1'></div>
