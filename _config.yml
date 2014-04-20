@@ -3,3 +3,4 @@ name: shutit.tk
 url: http://shutit.tk
 
 markdown: redcarpet
+pygments: true
