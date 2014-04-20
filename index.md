@@ -47,7 +47,7 @@ Folder structure:
 
 An example folder structure:
 
-```sh
+```
 ./shutit_module
 ├──  bin
 │   ├── create_skeleton.sh
@@ -75,7 +75,7 @@ The default module contains examples of many common tasks when installing, eg
 
 It also gives a simple example of each part of the build lifecycle. **Add a package to install to shutit_module.py**
 
-```sh
+```python
 # Make sure passwd is installed
 util.install(container_child,config_dict,'passwd',root_prompt_expect)
 # Install mlocate
