@@ -4,3 +4,6 @@ url: http://shutit.tk
 
 markdown: redcarpet
 pygments: true
+
+# Some useful details
+# https://help.github.com/articles/repository-metadata-on-github-pages
