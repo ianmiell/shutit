@@ -109,9 +109,17 @@ shutit_id_list = run_order_modules(shutit_id_list)
 
 # Begin config collection
 for mid in shutit_id_list:
-	util.get_config(config_dict,mid,'build',False,boolean=True)
+	# Default to None so we can interpret as ifneeded
+	util.get_config(config_dict,mid,'build',None,boolean=True)
 	util.get_config(config_dict,mid,'remove',False,boolean=True)
 	util.get_config(config_dict,mid,'do_repo_work',False,boolean=True)
+	# ifneeded will (by default) only take effect if 'build' is not specified
+	# It can, however, be forced to a value, but this should be unusual
+	if config_dict[mid]['build'] is None:
+		util.get_config(config_dict,mid,'build_ifneeded',True,boolean=True)
+		config_dict[mid]['build'] = False
+	else:
+		util.get_config(config_dict,mid,'build_ifneeded',False,boolean=True)
 
 for mid in shutit_id_list:
 	m = shutit_map[mid]
@@ -156,6 +164,14 @@ to_build = [
 util.log(util.red('PHASE: dependencies'))
 if config_dict['build']['tutorial']:
 	util.pause_point(util.get_pexpect_child('container_child'),'\nNow checking for dependencies between modules',print_input=False)
+def resolve_dependencies(depender, shutit_map, to_build):
+	for dependee_id in depender.depends_on:
+		dependee = shutit_map.get(dependee_id)
+		# Don't care if module doesn't exist, we check this later
+		if (dependee and dependee not in to_build
+				and config_dict[dependee_id]['build_ifneeded']):
+			to_build.append(dependee)
+			config_dict[dependee_id]['build'] = True
 def check_dependees_exist(depender, shutit_map):
 	for dependee_id in depender.depends_on:
 		dependee = shutit_map.get(dependee_id)
@@ -195,7 +211,9 @@ def make_dep_graph(depender):
 		if config_dict['build']['show_depgraph_only']:
 			digraph = digraph + '"' + depender.module_id + '"->"' + dependee_id + '";\n'
 	return digraph
-# Do dep checking
+# Add any deps we may need by extending to_build
+[resolve_dependencies(module, shutit_map, to_build) for module in to_build]
+# Dep checking
 [check_dependees_exist(module, shutit_map) for module in to_build]
 [check_dependees_build(module, shutit_map) for module in to_build]
 [check_dependees_order(module, shutit_map) for module in to_build]
