@@ -156,16 +156,13 @@ def get_config(config_dict,module_id,option,default,boolean=False):
 		config_dict[module_id] = {}
 	if not config_dict['config_parser'].has_section(module_id):
 		config_dict['config_parser'].add_section(module_id)
-	if boolean:
-		if config_dict['config_parser'].has_option(module_id,option):
+	if config_dict['config_parser'].has_option(module_id,option):
+		if boolean:
 			config_dict[module_id][option] = config_dict['config_parser'].getboolean(module_id,option)
 		else:
-			config_dict[module_id][option] = default
-	else:
-		if config_dict['config_parser'].has_option(module_id,option):
 			config_dict[module_id][option] = config_dict['config_parser'].get(module_id,option)
-		else:
-			config_dict[module_id][option] = default
+	else:
+		config_dict[module_id][option] = default
 
 def get_configs(configs):
 	cp = ConfigParser.ConfigParser(None)
