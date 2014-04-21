@@ -114,7 +114,9 @@ def send_and_expect(child,send,expect,timeout=3600,check_exit=True,config_dict=N
 		check_exit = False
 		for prompt in config_dict['expect_prompts']:
 			if prompt == expect:
-				_reset_prompt(child,config_dict,expect)
+				# Reset prompt
+				handle_login(child,config_dict,'reset_tmp_prompt')
+				handle_revert_prompt(child,expect,'reset_tmp_prompt')
 	if check_exit == True:
 		child.sendline('echo EXIT_CODE:$?')
 		child.expect(expect,timeout)
@@ -283,17 +285,6 @@ def get_base_config(config_dict, cfg_parser):
 	if config_dict['build']['action_on_ret_code'] != 'msg' and config_dict['build']['action_on_ret_code'] != 'error':
 		fail('[build]\naction_on_ret_code:\nshould be set to "msg" or "error"')
 
-def get_real_user(config_dict):
-	username = os.environ['LOGNAME']
-	if username == 'root':
-		fail('You cannot be root to run this script')
-	try:
-		# Get the real username
-		config_dict['host']['real_user'] = os.environ['SUDO_USER']
-	except:
-		config_dict['host']['real_user'] = username
-	return username
-
 # Returns the config dict
 def parse_args(config_dict):
 	config_dict['host']['real_user_id'] = pexpect.run('id -u ' + config_dict['host']['real_user']).strip()
@@ -318,7 +309,7 @@ def parse_args(config_dict):
 	# - all other backslashes are treated literally
 	# e.g. ' a\ b c\\ \\d \\\e\' becomes '', 'a b', 'c\', '\d', '\\e\'
 	if os.environ.get('SHUTIT_OPTIONS', None):
-		env_args = os.environ.get('SHUTIT_OPTIONS')
+		env_args = os.environ['SHUTIT_OPTIONS']
 		# Split escaped backslashes
 		env_args_split = re.split(r'(\\\\)', env_args)
 		# Split non-escaped spaces
@@ -740,7 +731,7 @@ def set_pexpect_child(key,child):
 
 # Get a pexpect child in the global dictionary by key.
 def get_pexpect_child(key):
-	return shutit_global.pexpect_children.get(key)
+	return shutit_global.pexpect_children[key]
 
 # dynamically import files within the same directory (in the end, the path)
 #http://stackoverflow.com/questions/301134/dynamic-module-import-in-python
@@ -887,10 +878,6 @@ def handle_login(child,config_dict,prompt_name):
 def handle_revert_prompt(child,expect,prompt_name):
 	send_and_expect(child,"""PS1="${SHUTIT_BACKUP_PS1_""" + prompt_name + """}" && unset SHUTIT_PROMPT_COMMAND_BACKUP_""" + prompt_name + """ && unset SHUTIT_BACKUP_PS1_""" + prompt_name,expect,check_exit=False,record_command=False,fail_on_empty_before=False)
 
-def _reset_prompt(child,config_dict,expect):
-	handle_login(child,config_dict,'reset_tmp_prompt')
-	handle_revert_prompt(child,expect,'reset_tmp_prompt')
-
 
 
 # Determine whether a user_id for a user is available
@@ -909,15 +896,15 @@ def setup_prompt(child,config_dict,prefix,prompt_name):
 	child.expect(config_dict['expect_prompts'][prompt_name])
 
 
-def print_modules(shutit_map,shutit_map_list,config_dict):
+def print_modules(shutit_map,shutit_id_list,config_dict):
 	s = ''
 	s = s + 'Modules: \n'
 	s = s + '\tRun order\tBuild\tRemove\tModule ID\n'
-	for k in shutit_map_list:
-		s = s + ('\t' + str(shutit_map.get(k).run_order) + '\t\t' +
-			str(config_dict[shutit_map.get(k).module_id]['build']) + '\t' +
-			str(config_dict[shutit_map.get(k).module_id]['remove']) + '\t' +
-			shutit_map.get(k).module_id + '\n')
+	for mid in shutit_id_list:
+		s = s + ('\t' + str(shutit_map[mid].run_order) + '\t\t' +
+			str(config_dict[mid]['build']) + '\t' +
+			str(config_dict[mid]['remove']) + '\t' +
+			mid + '\n')
 	return s
 
 # Build report
