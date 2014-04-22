@@ -284,7 +284,6 @@ for mid in shutit_id_list:
 		util.log(util.red('building: ' + module.module_id + ' with run order: ' + str(module.run_order)))
 		config_dict['build']['report'] = config_dict['build']['report'] + '\nBuilding: ' + module.module_id + ' with run order: ' + str(module.run_order)
 		if not module.build(config_dict):
-			util.log(util.red('building: ' + module.module_id + ' with run order: ' + str(module.run_order)))
 			util.fail(module.module_id + ' failed on build',child=util.get_pexpect_child('container_child'))
 		if config_dict['build']['interactive']:
 			util.pause_point(util.get_pexpect_child('container_child'),'\nPausing to allow inspect of build for: ' + module.module_id,print_input=True)
