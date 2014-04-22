@@ -20,6 +20,7 @@ class test5_1(ShutItModule):
 
 	def build(self,config_dict):
 		container_child = util.get_pexpect_child('container_child')
+		util.send_and_expect(container_child,'touch /tmp/test5_1',config_dict['expect_prompts']['root_prompt'])
 		return True
 
 	def start(self,config_dict):
