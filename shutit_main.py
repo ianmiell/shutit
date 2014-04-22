@@ -41,7 +41,7 @@ def stop_all(shutit_id_list,config_dict,run_order):
 	if config_dict['build']['tutorial']:
 		util.pause_point(util.get_pexpect_child('container_child'),'\nRunning stop on all modules',print_input=False)
 	# sort them to it's stopped in reverse order)
-	for mid in reversed(run_order_modules(shutit_id_list)):
+	for mid in list(reversed(run_order_modules(shutit_id_list))):
 		shutit_module_obj = shutit_map[mid]
 		if run_order == -1 or shutit_module_obj.run_order <= run_order:
 			if is_built(config_dict,shutit_module_obj):
@@ -317,7 +317,7 @@ for mid in shutit_id_list:
 			util.fail(module.module_id + ' failed on start',child=util.get_pexpect_child('container_child'))
 
 # Test in reverse order
-shutit_id_list = reversed(run_order_modules(shutit_id_list))
+shutit_id_list = list(reversed(run_order_modules(shutit_id_list)))
 util.log(util.red('PHASE: test'))
 if config_dict['build']['tutorial']:
 	util.pause_point(util.get_pexpect_child('container_child'),'\nNow doing test phase',print_input=False)
@@ -336,7 +336,7 @@ if config_dict['build']['tutorial']:
 stop_all(shutit_id_list,config_dict,-1)
 
 # Finalize in reverse order
-shutit_id_list = reversed(run_order_modules(shutit_id_list))
+shutit_id_list = list(reversed(run_order_modules(shutit_id_list)))
 util.log(util.red('PHASE: finalize'))
 if config_dict['build']['tutorial']:
 	util.pause_point(util.get_pexpect_child('container_child'),'\nNow doing finalize phase, which we do when all builds are complete and modules are stopped',print_input=False)

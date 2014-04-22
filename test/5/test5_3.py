@@ -40,7 +40,7 @@ class test5_3(ShutItModule):
 
 	def test(self,config_dict):
 		container_child = util.get_pexpect_child('container_child')
-		return True
+		return util.file_exists(container_child,'/tmp/test5_1',config_dict['expect_prompts']['root_prompt'])
 
 	def get_config(self,config_dict):
 		cp = config_dict['config_parser']
