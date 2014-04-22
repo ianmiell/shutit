@@ -109,9 +109,17 @@ shutit_id_list = run_order_modules(shutit_id_list)
 
 # Begin config collection
 for mid in shutit_id_list:
-	util.get_config(config_dict,mid,'build',False,boolean=True)
+	# Default to None so we can interpret as ifneeded
+	util.get_config(config_dict,mid,'build',None,boolean=True)
 	util.get_config(config_dict,mid,'remove',False,boolean=True)
 	util.get_config(config_dict,mid,'do_repo_work',False,boolean=True)
+	# ifneeded will (by default) only take effect if 'build' is not specified
+	# It can, however, be forced to a value, but this should be unusual
+	if config_dict[mid]['build'] is None:
+		util.get_config(config_dict,mid,'build_ifneeded',True,boolean=True)
+		config_dict[mid]['build'] = False
+	else:
+		util.get_config(config_dict,mid,'build_ifneeded',False,boolean=True)
 
 for mid in shutit_id_list:
 	m = shutit_map[mid]
@@ -146,48 +154,73 @@ if not _core_module:
 _core_module = None
 # Finished build core module
 
-# Once we have all the modules, then we can look at dependencies.
-# Dependency validation begins.
-util.log(util.red('PHASE: dependencies'))
-if config_dict['build']['show_depgraph_only']:
-	digraph = 'digraph depgraph {\n'
-if config_dict['build']['tutorial']:
-	util.pause_point(util.get_pexpect_child('container_child'),'\nNow checking for dependencies between modules',print_input=False)
 to_build = [
 	shutit_map[mid] for mid in shutit_map
 	if mid in config_dict and config_dict[mid]['build']
 ]
-for depender in to_build:
-	depender_is_installed = depender.is_installed(config_dict)
-	for dependee in depender.depends_on:
-		dependee_obj = shutit_map.get(dependee)
-		if config_dict['build']['show_depgraph_only']:
-			digraph = digraph + '"' + depender.module_id + '"->"' + dependee_obj.module_id + '";\n'
+
+# Once we have all the modules, then we can look at dependencies.
+# Dependency validation begins.
+util.log(util.red('PHASE: dependencies'))
+if config_dict['build']['tutorial']:
+	util.pause_point(util.get_pexpect_child('container_child'),'\nNow checking for dependencies between modules',print_input=False)
+def resolve_dependencies(depender, shutit_map, to_build):
+	for dependee_id in depender.depends_on:
+		dependee = shutit_map.get(dependee_id)
+		# Don't care if module doesn't exist, we check this later
+		if (dependee and dependee not in to_build
+				and config_dict[dependee_id]['build_ifneeded']):
+			to_build.append(dependee)
+			config_dict[dependee_id]['build'] = True
+def check_dependees_exist(depender, shutit_map):
+	for dependee_id in depender.depends_on:
+		dependee = shutit_map.get(dependee_id)
 		# If the module id isn't there, there's a problem.
-		if dependee_obj == None:
+		if dependee == None:
 			util.log(util.red(util.print_modules(shutit_map,shutit_id_list,config_dict)))
-			util.fail(dependee + ' module not found in paths: ' + str(config_dict['host']['shutit_module_paths']) +
+			util.fail(dependee_id + ' module not found in paths: ' + str(config_dict['host']['shutit_module_paths']) +
 				'\nCheck your --shutit_module_path setting and ensure that ' +
 				'all modules configured to be built are in that path setting, ' +
 				'eg "--shutit_module_path /path/to/other/module/:." See also help.')
-		# If it depends on a module id, then the module id should be higher up in the run order.
-		if dependee_obj.run_order > depender.run_order:
-			util.log(util.red(util.print_modules(shutit_map,shutit_id_list,config_dict)))
-			util.fail('depender module id: ' + depender.module_id +
-				' (run order: ' + str(depender.run_order) + ') ' +
-				'depends on dependee module_id: ' + dependee_obj.module_id +
-				' (run order: ' + str(dependee_obj.run_order) + ') ' +
-				'but the latter is configured to run after the former')
+def check_dependees_build(depender, shutit_map):
+	depender_is_installed = depender.is_installed(config_dict)
+	for dependee_id in depender.depends_on:
+		dependee = shutit_map.get(dependee_id)
 		# If depender is installed or will be installed, so must the dependee
 		if ((config_dict[depender.module_id]['build'] or depender_is_installed) and not
-				config_dict[dependee_obj.module_id]['build'] and not dependee_obj.is_installed(config_dict)):
+				config_dict[dependee.module_id]['build'] and not dependee.is_installed(config_dict)):
 			util.log(util.red(util.print_modules(shutit_map,shutit_id_list,config_dict)))
 			util.fail('depender module id: [' + depender.module_id + '] ' +
 				'is configured: "build:yes" or is already built ' +
-				'but dependee module_id: [' + dependee_obj.module_id + '] ' +
+				'but dependee module_id: [' + dependee_id + '] ' +
 				'is not configured: "build:yes"')
+def check_dependees_order(depender, shutit_map):
+	for dependee_id in depender.depends_on:
+		dependee = shutit_map.get(dependee_id)
+		# If it depends on a module id, then the module id should be higher up in the run order.
+		if dependee.run_order > depender.run_order:
+			util.log(util.red(util.print_modules(shutit_map,shutit_id_list,config_dict)))
+			util.fail('depender module id: ' + depender.module_id +
+				' (run order: ' + str(depender.run_order) + ') ' +
+				'depends on dependee module_id: ' + dependee_id +
+				' (run order: ' + str(dependee.run_order) + ') ' +
+				'but the latter is configured to run after the former')
+def make_dep_graph(depender):
+	digraph = ''
+	for dependee_id in depender.depends_on:
+		if config_dict['build']['show_depgraph_only']:
+			digraph = digraph + '"' + depender.module_id + '"->"' + dependee_id + '";\n'
+	return digraph
+# Add any deps we may need by extending to_build
+[resolve_dependencies(module, shutit_map, to_build) for module in to_build]
+# Dep checking
+[check_dependees_exist(module, shutit_map) for module in to_build]
+[check_dependees_build(module, shutit_map) for module in to_build]
+[check_dependees_order(module, shutit_map) for module in to_build]
 # Show dependency graph
 if config_dict['build']['show_depgraph_only']:
+	digraph = 'digraph depgraph {\n'
+	digraph = digraph + '\n'.join([make_dep_graph(module) for module in to_build])
 	digraph = digraph + '\n}'
 	util.log('\n',digraph,force_stdout=True)
 	sys.exit()
@@ -247,40 +280,37 @@ for mid in shutit_id_list:
 	module = shutit_map[mid]
 	if module.run_order == 0: continue
 	util.log(util.red('considering whether to build: ' + module.module_id))
-	if config_dict[module.module_id]['build']:
-		print module.is_installed(config_dict)
-		if not module.is_installed(config_dict):
-			util.log(util.red('building: ' + module.module_id + ' with run order: ' + str(module.run_order)))
-			config_dict['build']['report'] = config_dict['build']['report'] + '\nBuilding: ' + module.module_id + ' with run order: ' + str(module.run_order)
-			if not module.build(config_dict):
-				util.log(util.red('building: ' + module.module_id + ' with run order: ' + str(module.run_order)))
-				util.fail(module.module_id + ' failed on build',child=util.get_pexpect_child('container_child'))
-			if config_dict['build']['interactive']:
-				util.pause_point(util.get_pexpect_child('container_child'),'\nPausing to allow inspect of build for: ' + module.module_id,print_input=True)
-			if not module.cleanup(config_dict):
-				util.log(util.red('cleaning up: ' + module.module_id + ' with run order: ' + str(module.run_order)))
-				util.fail(module.module_id + ' failed on cleanup',child=util.get_pexpect_child('container_child'))
-			config_dict['build']['report'] = config_dict['build']['report'] + '\nCompleted module: ' + module.module_id
-			if config_dict[module.module_id]['do_repo_work'] or config_dict['build']['interactive']:
-				util.log(util.red(util.build_report('Module:' + module.module_id)))
-			if (config_dict[module.module_id]['do_repo_work'] or
-					(config_dict['build']['interactive'] and raw_input(util.red('\n\nDo you want to save state now we\'re at the ' + 'end of this module? (' + module.module_id + ') (input y/n)\n' )) == 'y')):
-				util.log(module.module_id + ' configured to be tagged, doing repository work')
-				# Stop all before we tag to avoid file changing errors, and clean up pid files etc..
-				stop_all(shutit_id_list,config_dict,module.run_order)
-				util.do_repository_work(config_dict,
-					config_dict['expect_prompts']['base_prompt'],
-					str(module.module_id),
-					repo_suffix=str(module.run_order),
-					password=config_dict['host']['password'],
-					docker_executable=config_dict['host']['docker_executable'],
-					force=True)
-				# Start all before we tag to ensure services are up as expected.
-				start_all(shutit_id_list,config_dict,module.run_order)
-			if (config_dict['build']['interactive'] and
-					raw_input(util.red('\n\nDo you want to stop debug and/or interactive mode? (input y/n)\n' )) == 'y'):
-				config_dict['build']['interactive'] = False
-				config_dict['build']['debug'] = False
+	if config_dict[module.module_id]['build'] and not module.is_installed(config_dict):
+		util.log(util.red('building: ' + module.module_id + ' with run order: ' + str(module.run_order)))
+		config_dict['build']['report'] = config_dict['build']['report'] + '\nBuilding: ' + module.module_id + ' with run order: ' + str(module.run_order)
+		if not module.build(config_dict):
+			util.fail(module.module_id + ' failed on build',child=util.get_pexpect_child('container_child'))
+		if config_dict['build']['interactive']:
+			util.pause_point(util.get_pexpect_child('container_child'),'\nPausing to allow inspect of build for: ' + module.module_id,print_input=True)
+		if not module.cleanup(config_dict):
+			util.log(util.red('cleaning up: ' + module.module_id + ' with run order: ' + str(module.run_order)))
+			util.fail(module.module_id + ' failed on cleanup',child=util.get_pexpect_child('container_child'))
+		config_dict['build']['report'] = config_dict['build']['report'] + '\nCompleted module: ' + module.module_id
+		if config_dict[module.module_id]['do_repo_work'] or config_dict['build']['interactive']:
+			util.log(util.red(util.build_report('Module:' + module.module_id)))
+		if (config_dict[module.module_id]['do_repo_work'] or
+				(config_dict['build']['interactive'] and raw_input(util.red('\n\nDo you want to save state now we\'re at the ' + 'end of this module? (' + module.module_id + ') (input y/n)\n' )) == 'y')):
+			util.log(module.module_id + ' configured to be tagged, doing repository work')
+			# Stop all before we tag to avoid file changing errors, and clean up pid files etc..
+			stop_all(shutit_id_list,config_dict,module.run_order)
+			util.do_repository_work(config_dict,
+				config_dict['expect_prompts']['base_prompt'],
+				str(module.module_id),
+				repo_suffix=str(module.run_order),
+				password=config_dict['host']['password'],
+				docker_executable=config_dict['host']['docker_executable'],
+				force=True)
+			# Start all before we tag to ensure services are up as expected.
+			start_all(shutit_id_list,config_dict,module.run_order)
+		if (config_dict['build']['interactive'] and
+				raw_input(util.red('\n\nDo you want to stop debug and/or interactive mode? (input y/n)\n' )) == 'y'):
+			config_dict['build']['interactive'] = False
+			config_dict['build']['debug'] = False
 	if is_built(config_dict,module):
 		util.log('Starting module')
 		if not module.start(config_dict):
