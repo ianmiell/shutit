@@ -78,7 +78,7 @@ name:repository_name_overrideme
 # Whether to suffix the date to the tag
 suffix_date:no
 # Suffix format (default is date YYYYmmdd_HHmmss)
-suffix_format:%Y%m%d_%H%m%s
+suffix_format:%Y%m%d_%H%M%S
 
 # Root setup script
 # Each module should set these in a config
