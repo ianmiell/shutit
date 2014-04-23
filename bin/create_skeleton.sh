@@ -124,6 +124,21 @@ cat >> ${SKELETON_DIR}/configs/build.cnf << END
 [com.mycorp.${MODULE_NAME}]
 build:yes
 END
+# Setup base config for the new module
+cat >> ${SKELETON_DIR}/configs/push.cnf << END
+[repository]
+do_repository_work:yes
+user:REPLACEME
+push:yes
+tar:no
+server:REPLACEME
+name:$MODULE_NAME
+suffix_date:yes
+suffix_format:%Y%m%d_%H%M%S
+
+[container]
+rm:false
+END
 
 # Include bash script
 if [[ x${3} != "x" ]]
@@ -225,6 +240,7 @@ name:${MODULE_NAME}
 END
 chmod 0600 ${SKELETON_DIR}/configs/defaults.cnf
 chmod 0600 ${SKELETON_DIR}/configs/build.cnf
+chmod 0600 ${SKELETON_DIR}/configs/push.cnf
 chmod 0600 ${SKELETON_DIR}/configs/`hostname`_`whoami`.cnf
 chmod +x ${SKELETON_DIR}/bin/test.sh
 
