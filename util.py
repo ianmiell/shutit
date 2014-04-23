@@ -211,8 +211,9 @@ def get_base_config(config_dict, cfg_parser):
 	config_dict['repository']['do_repository_work']       = cp.getboolean('repository','do_repository_work')
 	config_dict['repository']['suffix_date']              = cp.getboolean('repository','suffix_date')
 	config_dict['repository']['suffix_format']            = cp.get('repository','suffix_format')
+	# We need this here as it's referenced even when do_repository_work is False.
+	config_dict['repository']['user']                     = cp.get('repository','user')
 	if config_dict['repository']['do_repository_work'] == True:
-		config_dict['repository']['user']                     = cp.get('repository','user')
 		if config_dict['repository']['user'] != '':
 			config_dict['repository']['password']                 = cp.get('repository','password')
 			config_dict['repository']['email']                    = cp.get('repository','email')

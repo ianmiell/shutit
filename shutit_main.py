@@ -126,13 +126,6 @@ for mid in shutit_id_list:
 	if not m.get_config(config_dict):
 		util.fail(mid + ' failed on get_config')
 
-if config_dict['build']['debug']:
-	util.log(util.red('Modules configured to be built (in order) are: '))
-	for mid in shutit_id_list:
-		m = shutit_map[mid]
-		if config_dict[mid]['build']:
-			util.log(util.red(mid + '\t' + str(m.run_order)))
-	util.log(util.red('\n'))
 # Finished config collection
 
 
@@ -224,6 +217,14 @@ if config_dict['build']['show_depgraph_only']:
 	digraph = digraph + '\n}'
 	util.log('\n',digraph,force_stdout=True)
 	sys.exit()
+
+if config_dict['build']['debug']:
+	util.log(util.red('Modules configured to be built (in order) are: '))
+	for mid in shutit_id_list:
+		m = shutit_map[mid]
+		if config_dict[mid]['build']:
+			util.log(util.red(mid + '\t' + str(m.run_order)))
+	util.log(util.red('\n'))
 
 # Now consider conflicts
 util.log(util.red('PHASE: conflicts'))
