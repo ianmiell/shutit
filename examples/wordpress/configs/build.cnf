@@ -22,5 +22,3 @@
 
 [shutit.tk.wordpress.wordpress]
 build:yes
-[shutit.tk.mysql.mysql]
-build:yes
