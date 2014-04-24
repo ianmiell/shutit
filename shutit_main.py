@@ -112,7 +112,7 @@ for mid in shutit_id_list:
 	# Default to None so we can interpret as ifneeded
 	util.get_config(config_dict,mid,'build',None,boolean=True)
 	util.get_config(config_dict,mid,'remove',False,boolean=True)
-	util.get_config(config_dict,mid,'do_repo_work',False,boolean=True)
+	util.get_config(config_dict,mid,'do_repository_work',False,boolean=True)
 	# ifneeded will (by default) only take effect if 'build' is not specified
 	# It can, however, be forced to a value, but this should be unusual
 	if config_dict[mid]['build'] is None:
@@ -292,9 +292,9 @@ for mid in shutit_id_list:
 			util.log(util.red('cleaning up: ' + module.module_id + ' with run order: ' + str(module.run_order)))
 			util.fail(module.module_id + ' failed on cleanup',child=util.get_pexpect_child('container_child'))
 		config_dict['build']['report'] = config_dict['build']['report'] + '\nCompleted module: ' + module.module_id
-		if config_dict[module.module_id]['do_repo_work'] or config_dict['build']['interactive']:
+		if config_dict[module.module_id]['do_repository_work'] or config_dict['build']['interactive']:
 			util.log(util.red(util.build_report('Module:' + module.module_id)))
-		if (config_dict[module.module_id]['do_repo_work'] or
+		if (config_dict[module.module_id]['do_repository_work'] or
 				(config_dict['build']['interactive'] and raw_input(util.red('\n\nDo you want to save state now we\'re at the ' + 'end of this module? (' + module.module_id + ') (input y/n)\n' )) == 'y')):
 			util.log(module.module_id + ' configured to be tagged, doing repository work')
 			# Stop all before we tag to avoid file changing errors, and clean up pid files etc..
@@ -359,7 +359,7 @@ for module in shutit_map.values():
 	if module.run_order == 0:
 		core_module = module
 		break
-if config_dict[core_module.module_id]['do_repo_work']:
+if config_dict[core_module.module_id]['do_repository_work']:
 	if config_dict['build']['tutorial']:
 		util.pause_point(util.get_pexpect_child('host_child'),'\nDoing final committing/tagging on the overall container and creating the artifact.',print_input=False)
 	util.log(util.red('doing repo work: ' + core_module.module_id + ' with run order: ' + str(core_module.run_order)))
