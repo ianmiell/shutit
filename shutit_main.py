@@ -215,7 +215,7 @@ if config_dict['build']['show_depgraph_only']:
 	digraph = 'digraph depgraph {\n'
 	digraph = digraph + '\n'.join([make_dep_graph(module) for module in to_build])
 	digraph = digraph + '\n}'
-	util.log('\n',digraph,force_stdout=True)
+	util.log(digraph,force_stdout=True)
 	sys.exit()
 
 if config_dict['build']['debug']:
