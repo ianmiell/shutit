@@ -25,6 +25,14 @@
 set -o errexit
 set -o nounset
 
+# Variables
+NEWDIR=/tmp/shutit_testing_$(hostname)_$(whoami)_$(date -I)_$(date +%N)
+CNAME=shutit_test_container_$(dd if=/dev/urandom bs=256 count=1 2>/dev/null | md5sum | awk '{print $1}')
+SHUTIT_DIR="$(pwd)/.."
+# Off for now
+SHUTIT_PARALLEL_BUILD=
+readonly SHUTIT_PARALLEL_BUILD CNAME NEWDIR SHUTIT_DIR
+export SHUTIT_OPTIONS="-s container name $CNAME"
 
 # Check we can use docker
 if ! $DOCKER info >/dev/null 2>&1; then
@@ -42,20 +50,16 @@ function failure() {
 }
 
 function cleanup() {
-	CONTAINERS=$($DOCKER ps -a | grep shutit_test_container_ | awk '{print $1}')
+	local CONTAINERS=$($DOCKER ps -a | grep shutit_test_container_ | awk '{print $1}')
 	if [ "x$1" = "xhard" ]; then
 		$DOCKER kill $CONTAINERS >/dev/null 2>&1 || /bin/true
 	fi
 	$DOCKER rm $CONTAINERS >/dev/null 2>&1 || /bin/true
 }
 
-SHUTIT_PARALLEL_BUILD=
 # Set up a random container name for tests to use
 # This is a fallback, any tests runnable on their own should include the below
-CNAME=shutit_test_container_$(dd if=/dev/urandom bs=256 count=1 2>/dev/null | md5sum | awk '{print $1}')
-export SHUTIT_OPTIONS="-s container name $CNAME"
 
-SHUTIT_DIR="$(pwd)/.."
 if [[ $0 != test.sh ]] && [[ $0 != ./test.sh ]]
 then
 	echo "Must be run from bin dir of ShutIt"
@@ -72,9 +76,6 @@ find ${SHUTIT_DIR} -name '*.cnf' | grep '/configs/[^/]*.cnf' | xargs chmod 600
 
 cleanup nothard
 echo "Testing skeleton build"
-# Do basic test of create_skeleton (can't do complete as may require specific config)
-NEWDIR=/tmp/shutit_testing_$(hostname)_$(whoami)_$(date -I)_$(date +%N)
-readonly NEWDIR
 ./create_skeleton.sh ${NEWDIR} testing ${SHUTIT_DIR}/docs/example.sh
 pushd ${NEWDIR}/bin
 touch ${SHUTIT_DIR}/test/configs/$(hostname)_$(whoami).cnf
