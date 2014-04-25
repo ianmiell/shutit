@@ -51,7 +51,7 @@ or
 
 	./create_skeleton.sh <absolute_directory_name> <module_name> [<shell script to integrate>]
 END
-	sleep 2
+	sleep 1
 	usage
 fi
 
@@ -59,21 +59,21 @@ fi
 if [[ x$SKELETON_DIR == "x" ]] || [[ $(echo $SKELETON_DIR | head -c 1) != "/" ]]
 then
 	echo "Must supply a directory and it must be absolute"
-	sleep 2
+	sleep 1
 	usage
 fi
 
 if [[ -a $SKELETON_DIR ]]
 then
 	echo "$SKELETON_DIR already exists"
-	sleep 2
+	sleep 1
 	usage
 fi
 
 if [[ x$MODULE_NAME == "x" ]]
 then
 	echo "Must supply a name for your module, eg mymodulename"
-	sleep 2
+	sleep 1
 	usage
 fi
 
