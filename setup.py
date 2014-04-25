@@ -114,8 +114,8 @@ class setup(ShutItModule):
 				'\nor config:\n\n\t[container]\n\tdocker_image:<image>)\n\nBase' +
 				'image in this case is:\n\n\t' + config_dict['container']['docker_image'] +
 				'\n\n',print_input=False)
-		util.log(None,'\n\nCommand being run is:\n\n' + ' '.join(docker_command),force_stdout=True)
-		util.log(None,'\n\nThis may download the image, please be patient',force_stdout=True)
+		util.log('\n\nCommand being run is:\n\n' + ' '.join(docker_command),force_stdout=True,prefix=False)
+		util.log('\n\nThis may download the image, please be patient\n\n',force_stdout=True,prefix=False)
 		# Fork off a pty specially for docker. This protects us from modules
 		# killing the bash process they're executing in and ending up running
 		# on the host itself
