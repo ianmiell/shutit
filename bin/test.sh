@@ -20,9 +20,11 @@
 #OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 #SOFTWARE.
 
-set -e
-
 [ "x$DOCKER" != "x" ] || DOCKER="sudo docker"
+
+set -o errexit
+set -o nounset
+
 
 # Check we can use docker
 if ! $DOCKER info >/dev/null 2>&1; then
@@ -53,14 +55,14 @@ SHUTIT_PARALLEL_BUILD=
 CNAME=shutit_test_container_$(dd if=/dev/urandom bs=256 count=1 2>/dev/null | md5sum | awk '{print $1}')
 export SHUTIT_OPTIONS="-s container name $CNAME"
 
-SHUTIT_DIR="`pwd`/.."
+SHUTIT_DIR="$(pwd)/.."
 if [[ $0 != test.sh ]] && [[ $0 != ./test.sh ]]
 then
 	echo "Must be run from bin dir of ShutIt"
 	exit 1
 fi
 
-if [[ "`sed -n '63p' ../docs/shutit_module_template.py`" != "		# Line number 64 should be the next one (so bash scripts can be inserted properly)" ]]
+if [[ "$(sed -n '63p' ../docs/shutit_module_template.py)" != "		# Line number 64 should be the next one (so bash scripts can be inserted properly)" ]]
 then
 	echo "Line 63 of ../docs/shutit_module_template.py should be as per bin/test.sh specifies"
 	exit 1
@@ -68,28 +70,29 @@ fi
 
 find ${SHUTIT_DIR} -name '*.cnf' | grep '/configs/[^/]*.cnf' | xargs chmod 600
 
-cleanup
+cleanup nothard
 echo "Testing skeleton build"
 # Do basic test of create_skeleton (can't do complete as may require specific config)
-NEWDIR=/tmp/shutit_testing_`hostname`_`whoami`_`date -I`_`date +%N`
+NEWDIR=/tmp/shutit_testing_$(hostname)_$(whoami)_$(date -I)_$(date +%N)
+readonly NEWDIR
 ./create_skeleton.sh ${NEWDIR} testing ${SHUTIT_DIR}/docs/example.sh
 pushd ${NEWDIR}/bin
-touch ${SHUTIT_DIR}/test/configs/`hostname`_`whoami`.cnf
-chmod 0600 ${SHUTIT_DIR}/test/configs/`hostname`_`whoami`.cnf
+touch ${SHUTIT_DIR}/test/configs/$(hostname)_$(whoami).cnf
+chmod 0600 ${SHUTIT_DIR}/test/configs/$(hostname)_$(whoami).cnf
 ./test.sh ${SHUTIT_DIR} || failure "1.0 ${NEWDIR}"
-cleanup
+cleanup nothard
 popd
 rm -rf ${NEWDIR}
 
 PIDS=""
 # General tests
-for d in `ls ../test | grep -v configs`
+for d in $(ls ../test | grep -v configs)
 do
 	pushd ${SHUTIT_DIR}/test/$d/bin
-	echo "PWD: `pwd`"
+	echo "PWD: $(pwd)"
 	# Just in case only just git cloned/updated
-	touch ../configs/`hostname`_`whoami`.cnf
-	chmod 0600 ../configs/`hostname`_`whoami`.cnf
+	touch ../configs/$(hostname)_$(whoami).cnf
+	chmod 0600 ../configs/$(hostname)_$(whoami).cnf
 	if [ x$SHUTIT_PARALLEL_BUILD = 'x' ]
 	then
 		./test.sh ${SHUTIT_DIR}
@@ -97,17 +100,17 @@ do
 		./test.sh ${SHUTIT_DIR} &
 		PIDS="$PIDS $!"
 	fi
-	cleanup
+	cleanup nothard
 	popd
 done
 
+readonly PIDS
 if [ x$SHUTIT_PARALLEL_BUILD != 'x' ]
 then
+	echo "PIDS: $PIDS"
 	for P in $PIDS; do
-		echo "PIDS: $PIDS"
 		echo "WAITING ON: $P"
 		wait $P
-		echo "PIDS: $PIDS"
 		echo "FINISHED: $P"
 	done
 fi
@@ -116,7 +119,7 @@ fi
 pushd  ${SHUTIT_DIR}/examples/bin
 ./test.sh || failure "3.0.examples"
 popd
-cleanup
+cleanup nothard
 
 # OK
 echo "================================================================================"

@@ -20,7 +20,14 @@
 #OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 #SOFTWARE.
 
-set -e
+SKELETON_DIR=$1
+MODULE_NAME=$2
+SHUTIT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/.."
+INCLUDE_SCRIPT=$3
+readonly SKELETON_DIR MODULE_NAME SHUTIT_DIR INCLUDE_SCRIPT
+
+set -o errexit
+set -o nounset
 
 function usage {
 	cat > /dev/stdout << END
@@ -49,31 +56,27 @@ END
 fi
 
 
-if [[ x$1 == "x" ]] || [[ $(echo $1 | head -c 1) != "/" ]]
+if [[ x$SKELETON_DIR == "x" ]] || [[ $(echo $SKELETON_DIR | head -c 1) != "/" ]]
 then
 	echo "Must supply a directory and it must be absolute"
 	sleep 2
 	usage
 fi
 
-if [[ -a $1 ]]
+if [[ -a $SKELETON_DIR ]]
 then
-	echo "$1 already exists"
+	echo "$SKELETON_DIR already exists"
 	sleep 2
 	usage
 fi
 
-if [[ x$2 == "x" ]]
+if [[ x$MODULE_NAME == "x" ]]
 then
 	echo "Must supply a name for your module, eg mymodulename"
 	sleep 2
 	usage
 fi
 
-# TODO: make patch
-SKELETON_DIR=$1
-MODULE_NAME=$2
-SHUTIT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/.."
 
 mkdir -p ${SKELETON_DIR}
 mkdir -p ${SKELETON_DIR}/configs
@@ -141,12 +144,12 @@ rm:false
 END
 
 # Include bash script
-if [[ x${3} != "x" ]]
+if [[ x${INCLUDE_SCRIPT} != "x" ]]
 then
 	cat > /dev/stdout << END
 ================================================================================
 Please note that your bash script in:
-${3}
+${INCLUDE_SCRIPT}
 should be a simple set of one-liners
 that return to the prompt. Anything fancy with ifs, backslashes or other
 multi-line commands need to be handled more carefully.
@@ -155,27 +158,27 @@ Hit return to continue.
 ================================================================================
 END
 	read _ignored
-	SBSI="/tmp/shutit_bash_script_include_`date +%N`"
+	SBSI="/tmp/shutit_bash_script_include_$(date +%N)"
 	# egrep removes leading space
 	# grep removes comments
 	# sed1 ensures no confusion with double quotes
 	# sed2 replaces script lines with shutit code
 	# sed3 uses treble quotes for simpler escaping of strings
-	egrep -v '^[\s]*$' $3 | grep -v '^#' | sed "s/\"$/\" /;s/^/\t\tutil.send_and_expect(container_child,\"\"\"/;s/$/\"\"\",root_prompt_expect)/" > ${SBSI}
+	egrep -v '^[\s]*$' $INCLUDE_SCRIPT | grep -v '^#' | sed "s/\"$/\" /;s/^/\t\tutil.send_and_expect(container_child,\"\"\"/;s/$/\"\"\",root_prompt_expect)/" > ${SBSI}
 	sed "64r ${SBSI}" ${SKELETON_DIR}/${MODULE_NAME}.py > ${SKELETON_DIR}/${MODULE_NAME}.py.new
 	mv ${SKELETON_DIR}/${MODULE_NAME}.py.new ${SKELETON_DIR}/${MODULE_NAME}.py
 fi
 
 
 
-cat > ${SKELETON_DIR}/bin/test.sh << END
+cat > ${SKELETON_DIR}/bin/test.sh << 'END'
 #!/bin/bash
 # Test the building of this module
 set -e
-if [[ \$0 != test.sh ]] && [[ \$0 != ./test.sh ]] && [[ \$0 != create_skeleton.sh ]] && [[ \$0 != ./create_skeleton.sh ]]
+if [[ $0 != test.sh ]] && [[ $0 != ./test.sh ]] && [[ $0 != create_skeleton.sh ]] && [[ $0 != ./create_skeleton.sh ]]
 then
         echo 
-        echo "Called as: \$0"
+        echo "Called as: $0"
 	echo "Must be run from test dir like:"
         echo
         echo "  test.sh <path_to_shutit_dir>"
@@ -185,14 +188,14 @@ then
         echo "  ./test.sh <path_to_shutit_dir>"
         exit
 fi
-if [ x\$1 = 'x' ]
+if [ x$1 = 'x' ]
 then
 	echo "Must supply path to core ShutIt directory"
 	exit 1
 fi
 cd ..
 ./build.sh
-if [[ \$? -eq 0 ]]
+if [[ $? -eq 0 ]]
 then
 	cd -
 	exit 0
@@ -202,13 +205,13 @@ else
 fi
 END
 # Hostname config
-echo "Password (for host (`hostname`))"
+echo "Password (for host ($(hostname)))"
 read -s pw_host
 echo "Container's hostname"
 read container_hostname
 echo "Password (for container)"
 read -s pw_container
-cat > ${SKELETON_DIR}/configs/`hostname`_`whoami`.cnf << END
+cat > ${SKELETON_DIR}/configs/$(hostname)_$(whoami).cnf << END
 # Put hostname- and user-specific config in this file.
 # This file must always have perms 0600 for shutit to run.
 
@@ -222,7 +225,7 @@ rm:no
 
 [host]
 # Your username on the host
-username:`whoami`
+username:$(whoami)
 # Your password on the host (set to empty if not required, ie "password:")
 password:${pw_host}
 
@@ -241,7 +244,7 @@ END
 chmod 0600 ${SKELETON_DIR}/configs/defaults.cnf
 chmod 0600 ${SKELETON_DIR}/configs/build.cnf
 chmod 0600 ${SKELETON_DIR}/configs/push.cnf
-chmod 0600 ${SKELETON_DIR}/configs/`hostname`_`whoami`.cnf
+chmod 0600 ${SKELETON_DIR}/configs/$(hostname)_$(whoami).cnf
 chmod +x ${SKELETON_DIR}/bin/test.sh
 
 pushd ${SKELETON_DIR}
