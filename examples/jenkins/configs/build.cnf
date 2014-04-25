@@ -24,5 +24,3 @@
 # This feeds into automated testing of each module.
 [shutit.tk.jenkins.jenkins]
 build:yes
-[shutit.tk.vnc.vnc]
-build:yes
