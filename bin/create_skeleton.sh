@@ -131,10 +131,10 @@ END
 cat >> ${SKELETON_DIR}/configs/push.cnf << END
 [repository]
 do_repository_work:yes
-user:REPLACEME
+user:$(whoami)
 push:yes
 tar:no
-server:REPLACEME
+server:REMOVE_ME_FOR_DOCKER_INDEX
 name:$MODULE_NAME
 suffix_date:yes
 suffix_format:%Y%m%d_%H%M%S
