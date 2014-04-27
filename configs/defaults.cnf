@@ -35,7 +35,7 @@ ports:
 # Name to give the container. Empty means "let docker default a name".
 name:
 # Whether to remove the container when finished.
-rm:yes
+rm:no
 
 # Information specific to the host on which the build runs.
 [host]
