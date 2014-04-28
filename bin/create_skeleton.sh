@@ -128,9 +128,6 @@ cat >> ${SKELETON_DIR}/configs/defaults.cnf << END
 [com.mycorp.${MODULE_NAME}]
 example:astring
 example_bool:yes
-
-[container]
-rm:false
 END
 # Setup base config for the new module
 cat >> ${SKELETON_DIR}/configs/build.cnf << END

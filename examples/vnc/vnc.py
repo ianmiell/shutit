@@ -35,7 +35,8 @@ class vnc(ShutItModule):
 		return config_dict['container']['install_type'] == 'apt'
 
 	def is_installed(self,config_dict):
-		return False
+		container_child = util.get_pexpect_child('container_child')
+		return util.file_exists(container_child,'/root/start_vnc.sh',config_dict['expect_prompts']['root_prompt'])
 
 	def build(self,config_dict):
 		# TODO: distr-independence

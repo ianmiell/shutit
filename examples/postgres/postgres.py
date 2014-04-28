@@ -30,7 +30,9 @@ class postgres(ShutItModule):
 		return True
 
 	def is_installed(self,config_dict):
-		return False
+		container_child = util.get_pexpect_child('container_child')
+		return util.file_exists(container_child,'/root/start_postgres.sh',config_dict['expect_prompts']['root_prompt'])
+
 
 	def build(self,config_dict):
 		container_child = util.get_pexpect_child('container_child')
