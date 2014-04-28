@@ -20,7 +20,7 @@ then
 	exit 1
 fi
 cd ..
-./build.sh
+./test_build.sh
 if [[ $? -eq 0 ]]
 then
 	cd -

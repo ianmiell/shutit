@@ -88,10 +88,10 @@ touch ${SKELETON_DIR}/README.md
 cat >> ${SKELETON_DIR}/README.md << END
 ${MODULE_NAME}: description of module directory in here
 END
-touch ${SKELETON_DIR}/build.sh
-cat >> ${SKELETON_DIR}/build.sh << END
+touch ${SKELETON_DIR}/test_build.sh
+cat >> ${SKELETON_DIR}/test_build.sh << END
 set -e
-python ${SHUTIT_DIR}/shutit_main.py
+python ${SHUTIT_DIR}/shutit_main.py -s container rm yes
 # Display config
 #python ${SHUTIT_DIR}/shutit_main.py --sc
 # Debug
@@ -99,7 +99,19 @@ python ${SHUTIT_DIR}/shutit_main.py
 # Tutorial
 #python ${SHUTIT_DIR}/shutit_main.py --tutorial
 END
-chmod +x ${SKELETON_DIR}/build.sh
+chmod +x ${SKELETON_DIR}/test_build.sh
+touch ${SKELETON_DIR}/build_and_push.sh
+cat >> ${SKELETON_DIR}/build_and_push.sh << END
+set -e
+python ${SHUTIT_DIR}/shutit_main.py --config configs/push.cnf
+# Display config
+#python ${SHUTIT_DIR}/shutit_main.py --sc
+# Debug
+#python ${SHUTIT_DIR}/shutit_main.py --debug
+# Tutorial
+#python ${SHUTIT_DIR}/shutit_main.py --tutorial
+END
+chmod +x ${SKELETON_DIR}/build_and_push.sh
 touch ${SKELETON_DIR}/resources/README.md
 cat >> ${SKELETON_DIR}/resources/README.md << END
 ${MODULE_NAME}: resources required in this directory, eg gzips or text files.\nNote that the .gitignore file in the ${SKELETON_DIR} directory should exclude these files from being added to git repos (usually due to size), but can be added if forced with 'git add --force <file>'.
@@ -194,7 +206,7 @@ then
 	exit 1
 fi
 cd ..
-./build.sh
+./test_build.sh
 if [[ $? -eq 0 ]]
 then
 	cd -
@@ -230,7 +242,7 @@ username:$(whoami)
 password:${pw_host}
 
 [repository]
-do_repository_work:yes
+do_repository_work:no
 # If switched on, will push to docker_io
 push:no
 repository_server:
