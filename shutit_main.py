@@ -55,7 +55,7 @@ def start_all(shutit_id_list,config_dict,run_order):
 	# sort them to they're started in order)
 	for mid in run_order_modules(shutit_id_list):
 		shutit_module_obj = shutit_map[mid]
-		if shutit_module_obj.run_order <= run_order:
+		if run_order == -1 or shutit_module_obj.run_order <= run_order:
 			if is_built(config_dict,shutit_module_obj):
 				if not shutit_module_obj.start(config_dict):
 					util.fail('failed to start: ' + mid,child=util.get_pexpect_child('container_child'))
@@ -326,8 +326,8 @@ def do_build(config_dict, shutit_map):
 	util.log(util.red('PHASE: test'))
 	if config_dict['build']['tutorial']:
 		util.pause_point(util.get_pexpect_child('container_child'),'\nNow doing test phase',print_input=False)
-	stop_all(shutit_id_list,config_dict,module.run_order)
-	start_all(shutit_id_list,config_dict,module.run_order)
+	stop_all(shutit_id_list,config_dict,-1)
+	start_all(shutit_id_list,config_dict,-1)
 	for mid in shutit_id_list:
 		# Only test if it's thought to be installed.
 		if is_built(config_dict,shutit_map[mid]):
