@@ -64,70 +64,73 @@ def start_all(shutit_id_list,config_dict,run_order):
 def is_built(config_dict,shutit_module_obj):
 	return config_dict[shutit_module_obj.module_id]['build'] or shutit_module_obj.is_installed(config_dict)
 
+def shutit_init(config_dict):
+	shutit_map = {}
+	util.parse_args(config_dict)
+	cfg_parser = util.load_configs(config_dict)
+	# Now get base config
+	util.get_base_config(config_dict, cfg_parser)
+	if config_dict['build']['show_config_only']:
+		util.log(util.print_config(config_dict),force_stdout=True)
+		sys.exit()
+	util.load_shutit_modules(config_dict)
+	init_shutit_map(config_dict, shutit_map)
+	return shutit_map
 
-shutit_map = {}
-config_dict = shutit_global.config_dict
-util.parse_args(config_dict)
-cfg_parser = util.load_configs(config_dict)
-# Now get base config
-util.get_base_config(config_dict, cfg_parser)
-if config_dict['build']['show_config_only']:
-	util.log(util.print_config(config_dict),force_stdout=True)
-	sys.exit()
-util.load_shutit_modules(config_dict)
+def init_shutit_map(config_dict, shutit_map):
+	# Check for duplicate module details.
+	# Set up common config.
+	# Set up map of modules.
+	util.log(util.red('PHASE: base setup'))
+	if config_dict['build']['tutorial']:
+		util.pause_point(util.get_pexpect_child('container_child'),
+			'\nChecking to see whether there are duplicate module ids or run orders in the visible modules.',
+			print_input=False)
+		util.log(util.get_pexpect_child('container_child'),'\nModules I see are:\n',force_stdout=True)
+		for m in util.get_shutit_modules():
+			util.log(util.red(m.module_id),force_stdout=True)
+		util.log('\n',force_stdout=True)
+		util.pause_point(util.get_pexpect_child('container_child'),'',print_input=False)
 
-# Check for duplicate module details.
-# Set up common config.
-# Set up map of modules.
-util.log(util.red('PHASE: base setup'))
-if config_dict['build']['tutorial']:
-	util.pause_point(util.get_pexpect_child('container_child'),
-		'\nChecking to see whether there are duplicate module ids or run orders in the visible modules.',
-		print_input=False)
-	util.log(util.get_pexpect_child('container_child'),'\nModules I see are:\n',force_stdout=True)
 	for m in util.get_shutit_modules():
-		util.log(util.red(m.module_id),force_stdout=True)
-	util.log('\n',force_stdout=True)
-	util.pause_point(util.get_pexpect_child('container_child'),'',print_input=False)
+		assert isinstance(m, ShutItModule)
+		# module_id should be unique
+		for n in util.get_shutit_modules():
+			if n == m:
+				continue
+			if m.module_id == n.module_id:
+				util.fail('Duplicate module ids! ' + m.module_id + ' for ' + m.module_id + ' and ' + n.module_id)
+			if m.run_order == n.run_order:
+				util.fail('Duplicate run order! ' + str(m.run_order) + ' for ' + m.module_id + ' and ' + n.module_id)
+		# map the module id to the object
+		shutit_map.update({m.module_id:m})
 
-for m in util.get_shutit_modules():
-	assert isinstance(m, ShutItModule)
-	# module_id should be unique
-	for n in util.get_shutit_modules():
-		if n == m:
-			continue
-		if m.module_id == n.module_id:
-			util.fail('Duplicate module ids! ' + m.module_id + ' for ' + m.module_id + ' and ' + n.module_id)
-		if m.run_order == n.run_order:
-			util.fail('Duplicate run order! ' + str(m.run_order) + ' for ' + m.module_id + ' and ' + n.module_id)
-	# map the module id to the object
-	shutit_map.update({m.module_id:m})
+def config_collection(config_dict, shutit_map, shutit_id_list):
+	shutit_id_list = run_order_modules(shutit_id_list)
+	for mid in shutit_id_list:
+		# Default to None so we can interpret as ifneeded
+		util.get_config(config_dict,mid,'build',None,boolean=True)
+		util.get_config(config_dict,mid,'remove',False,boolean=True)
+		util.get_config(config_dict,mid,'do_repository_work',False,boolean=True)
+		# ifneeded will (by default) only take effect if 'build' is not specified
+		# It can, however, be forced to a value, but this should be unusual
+		if config_dict[mid]['build'] is None:
+			util.get_config(config_dict,mid,'build_ifneeded',True,boolean=True)
+			config_dict[mid]['build'] = False
+		else:
+			util.get_config(config_dict,mid,'build_ifneeded',False,boolean=True)
 
+	for mid in shutit_id_list:
+		m = shutit_map[mid]
+		if not m.get_config(config_dict):
+			util.fail(mid + ' failed on get_config')
+
+	# Finished config collection
+
+config_dict = shutit_global.config_dict
+shutit_map = shutit_init(config_dict)
 shutit_id_list = shutit_map.keys()
-# Now sort the list by run order
-shutit_id_list = run_order_modules(shutit_id_list)
-
-# Begin config collection
-for mid in shutit_id_list:
-	# Default to None so we can interpret as ifneeded
-	util.get_config(config_dict,mid,'build',None,boolean=True)
-	util.get_config(config_dict,mid,'remove',False,boolean=True)
-	util.get_config(config_dict,mid,'do_repository_work',False,boolean=True)
-	# ifneeded will (by default) only take effect if 'build' is not specified
-	# It can, however, be forced to a value, but this should be unusual
-	if config_dict[mid]['build'] is None:
-		util.get_config(config_dict,mid,'build_ifneeded',True,boolean=True)
-		config_dict[mid]['build'] = False
-	else:
-		util.get_config(config_dict,mid,'build_ifneeded',False,boolean=True)
-
-for mid in shutit_id_list:
-	m = shutit_map[mid]
-	if not m.get_config(config_dict):
-		util.fail(mid + ' failed on get_config')
-
-# Finished config collection
-
+config_collection(config_dict, shutit_map, shutit_id_list)
 
 # Begin build core module
 _core_module = False
