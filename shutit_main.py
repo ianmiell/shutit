@@ -321,6 +321,7 @@ def do_build(config_dict, shutit_map):
 			if not module.start(config_dict):
 				util.fail(module.module_id + ' failed on start',child=util.get_pexpect_child('container_child'))
 
+def do_test(config_dict, shutit_map):
 	# Test in reverse order
 	shutit_id_list = list(reversed(run_order_modules(shutit_id_list)))
 	util.log(util.red('PHASE: test'))
@@ -393,6 +394,7 @@ check_ready(config_dict, shutit_map)
 
 do_remove(config_dict, shutit_map)
 do_build(config_dict, shutit_map)
+do_test(config_dict, shutit_map)
 do_finalize(config_dict, shutit_map)
 
 tag_and_push(config_dict, shutit_map)
