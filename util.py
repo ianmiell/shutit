@@ -302,7 +302,7 @@ def parse_args(config_dict):
 	# Load command line options from the environment (if set)
 	# Behaves like GREP_OPTIONS
 	# - space seperated list of arguments
-	# - backslash before a spaces escapes the space seperation
+	# - backslash before a spaces escapes the space separation
 	# - backslash before a backslash is interpreted as a single backslash
 	# - all other backslashes are treated literally
 	# e.g. ' a\ b c\\ \\d \\\e\' becomes '', 'a b', 'c\', '\d', '\\e\'
@@ -573,6 +573,8 @@ def do_repository_work(config_dict,expect,repo_name,repo_suffix='',docker_execut
 		else:
 			repository = repository_server + repository_user + repo_name
 			repository_tar = repository_user_tar + repo_name
+		# Only lower case accepted
+		repository = repository.lower()
 		# Slight pause due to race conditions seen.
 		#time.sleep(0.3)
 		res = send_and_expect(child,'SHUTIT_TMP_VAR=`' + docker_executable + ' commit ' + config_dict['container']['container_id'] + '`',[expect,'assword'],timeout=99999,check_exit=False)
