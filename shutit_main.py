@@ -37,7 +37,7 @@ def run_order_modules(shutit_map, shutit_id_list):
 
 # Stop all apps less than the supplied run_order
 # run_order of -1 means 'stop everything'
-def stop_all(shutit_map,shutit_id_list,config_dict,run_order):
+def stop_all(config_dict, shutit_map, shutit_id_list, run_order):
 	if config_dict['build']['tutorial']:
 		util.pause_point(util.get_pexpect_child('container_child'),'\nRunning stop on all modules',print_input=False)
 	# sort them to it's stopped in reverse order)
@@ -49,7 +49,7 @@ def stop_all(shutit_map,shutit_id_list,config_dict,run_order):
 					util.fail('failed to stop: ' + mid,child=util.get_pexpect_child('container_child'))
 
 # Start all apps less than the supplied run_order
-def start_all(shutit_map,shutit_id_list,config_dict,run_order):
+def start_all(config_dict, shutit_map, shutit_id_list, run_order):
 	if config_dict['build']['tutorial']:
 		util.pause_point(util.get_pexpect_child('container_child'),'\nRunning start on all modules',print_input=False)
 	# sort them to they're started in order)
@@ -148,7 +148,7 @@ def build_core_module(config_dict, shutit_map, shutit_id_list):
 
 # Once we have all the modules, then we can look at dependencies.
 # Dependency validation begins.
-def resolve_dependencies(config_dict, depender, shutit_map, to_build):
+def resolve_dependencies(config_dict, shutit_map, to_build, depender):
 	for dependee_id in depender.depends_on:
 		dependee = shutit_map.get(dependee_id)
 		# Don't care if module doesn't exist, we check this later
@@ -156,7 +156,7 @@ def resolve_dependencies(config_dict, depender, shutit_map, to_build):
 				and config_dict[dependee_id]['build_ifneeded']):
 			to_build.append(dependee)
 			config_dict[dependee_id]['build'] = True
-def check_dependees_exist(config_dict, depender, shutit_map, shutit_id_list):
+def check_dependees_exist(config_dict, shutit_map, shutit_id_list, depender):
 	for dependee_id in depender.depends_on:
 		dependee = shutit_map.get(dependee_id)
 		# If the module id isn't there, there's a problem.
@@ -166,7 +166,7 @@ def check_dependees_exist(config_dict, depender, shutit_map, shutit_id_list):
 				'\nCheck your --shutit_module_path setting and ensure that ' +
 				'all modules configured to be built are in that path setting, ' +
 				'eg "--shutit_module_path /path/to/other/module/:." See also help.')
-def check_dependees_build(config_dict, depender, shutit_map, shutit_id_list):
+def check_dependees_build(config_dict, shutit_map, shutit_id_list, depender):
 	depender_is_installed = depender.is_installed(config_dict)
 	for dependee_id in depender.depends_on:
 		dependee = shutit_map.get(dependee_id)
@@ -178,7 +178,7 @@ def check_dependees_build(config_dict, depender, shutit_map, shutit_id_list):
 				'is configured: "build:yes" or is already built ' +
 				'but dependee module_id: [' + dependee_id + '] ' +
 				'is not configured: "build:yes"')
-def check_dependees_order(config_dict, depender, shutit_map, shutit_id_list):
+def check_dependees_order(config_dict, shutit_map, shutit_id_list, depender):
 	for dependee_id in depender.depends_on:
 		dependee = shutit_map.get(dependee_id)
 		# If it depends on a module id, then the module id should be higher up in the run order.
@@ -201,11 +201,11 @@ def check_deps(config_dict, shutit_map, to_build, shutit_id_list):
 	if config_dict['build']['tutorial']:
 		util.pause_point(util.get_pexpect_child('container_child'),'\nNow checking for dependencies between modules',print_input=False)
 	# Add any deps we may need by extending to_build
-	[resolve_dependencies(config_dict, module, shutit_map, to_build) for module in to_build]
+	[resolve_dependencies(config_dict, shutit_map, to_build, module) for module in to_build]
 	# Dep checking
-	[check_dependees_exist(config_dict, module, shutit_map, shutit_id_list) for module in to_build]
-	[check_dependees_build(config_dict, module, shutit_map, shutit_id_list) for module in to_build]
-	[check_dependees_order(config_dict, module, shutit_map, shutit_id_list) for module in to_build]
+	[check_dependees_exist(config_dict, shutit_map, shutit_id_list, module) for module in to_build]
+	[check_dependees_build(config_dict, shutit_map, shutit_id_list, module) for module in to_build]
+	[check_dependees_order(config_dict, shutit_map, shutit_id_list, module) for module in to_build]
 	# Show dependency graph
 	if config_dict['build']['show_depgraph_only']:
 		digraph = 'digraph depgraph {\n'
@@ -290,7 +290,7 @@ def build_module(config_dict, shutit_map, shutit_id_list, module):
 			(config_dict['build']['interactive'] and raw_input(util.red('\n\nDo you want to save state now we\'re at the ' + 'end of this module? (' + module.module_id + ') (input y/n)\n' )) == 'y')):
 		util.log(module.module_id + ' configured to be tagged, doing repository work')
 		# Stop all before we tag to avoid file changing errors, and clean up pid files etc..
-		stop_all(shutit_map,shutit_id_list,config_dict,module.run_order)
+		stop_all(config_dict, shutit_map, shutit_id_list, module.run_order)
 		util.do_repository_work(config_dict,
 			config_dict['expect_prompts']['base_prompt'],
 			str(module.module_id),
@@ -299,7 +299,7 @@ def build_module(config_dict, shutit_map, shutit_id_list, module):
 			docker_executable=config_dict['host']['docker_executable'],
 			force=True)
 		# Start all before we tag to ensure services are up as expected.
-		start_all(shutit_map,shutit_id_list,config_dict,module.run_order)
+		start_all(config_dict, shutit_map, shutit_id_list, module.run_order)
 	if (config_dict['build']['interactive'] and
 			raw_input(util.red('\n\nDo you want to stop debug and/or interactive mode? (input y/n)\n' )) == 'y'):
 		config_dict['build']['interactive'] = False
@@ -327,8 +327,8 @@ def do_test(config_dict, shutit_map, shutit_id_list):
 	util.log(util.red('PHASE: test'))
 	if config_dict['build']['tutorial']:
 		util.pause_point(util.get_pexpect_child('container_child'),'\nNow doing test phase',print_input=False)
-	stop_all(shutit_map,shutit_id_list,config_dict,-1)
-	start_all(shutit_map,shutit_id_list,config_dict,-1)
+	stop_all(config_dict, shutit_map, shutit_id_list,-1)
+	start_all(config_dict, shutit_map, shutit_id_list, -1)
 	for mid in shutit_id_list:
 		# Only test if it's thought to be installed.
 		if is_built(config_dict,shutit_map[mid]):
@@ -340,7 +340,7 @@ def do_finalize(config_dict, shutit_map, shutit_id_list):
 	# Stop all the modules
 	if config_dict['build']['tutorial']:
 		util.pause_point(util.get_pexpect_child('container_child'),'\nStopping all modules before finalize phase',print_input=False)
-	stop_all(shutit_map,shutit_id_list,config_dict,-1)
+	stop_all(config_dict, shutit_map, shutit_id_list, -1)
 	# Finalize in reverse order
 	shutit_id_list = list(reversed(run_order_modules(shutit_map,shutit_id_list)))
 	util.log(util.red('PHASE: finalize'))
