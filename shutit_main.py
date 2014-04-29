@@ -146,22 +146,8 @@ def build_core_module(config_dict, shutit_map, shutit_id_list):
 	_core_module = None
 	# Finished build core module
 
-config_dict = shutit_global.config_dict
-shutit_map = shutit_init(config_dict)
-shutit_id_list = shutit_map.keys()
-config_collection(config_dict, shutit_map, shutit_id_list)
-build_core_module(config_dict, shutit_map, shutit_id_list)
-
-to_build = [
-	shutit_map[mid] for mid in shutit_map
-	if mid in config_dict and config_dict[mid]['build']
-]
-
 # Once we have all the modules, then we can look at dependencies.
 # Dependency validation begins.
-util.log(util.red('PHASE: dependencies'))
-if config_dict['build']['tutorial']:
-	util.pause_point(util.get_pexpect_child('container_child'),'\nNow checking for dependencies between modules',print_input=False)
 def resolve_dependencies(depender, shutit_map, to_build):
 	for dependee_id in depender.depends_on:
 		dependee = shutit_map.get(dependee_id)
@@ -209,27 +195,45 @@ def make_dep_graph(depender):
 		if config_dict['build']['show_depgraph_only']:
 			digraph = digraph + '"' + depender.module_id + '"->"' + dependee_id + '";\n'
 	return digraph
-# Add any deps we may need by extending to_build
-[resolve_dependencies(module, shutit_map, to_build) for module in to_build]
-# Dep checking
-[check_dependees_exist(module, shutit_map) for module in to_build]
-[check_dependees_build(module, shutit_map) for module in to_build]
-[check_dependees_order(module, shutit_map) for module in to_build]
-# Show dependency graph
-if config_dict['build']['show_depgraph_only']:
-	digraph = 'digraph depgraph {\n'
-	digraph = digraph + '\n'.join([make_dep_graph(module) for module in to_build])
-	digraph = digraph + '\n}'
-	util.log(digraph,force_stdout=True)
-	sys.exit()
 
-if config_dict['build']['debug']:
-	util.log(util.red('Modules configured to be built (in order) are: '))
-	for mid in shutit_id_list:
-		m = shutit_map[mid]
-		if config_dict[mid]['build']:
-			util.log(util.red(mid + '\t' + str(m.run_order)))
-	util.log(util.red('\n'))
+def check_deps(config_dict, shutit_map, to_build):
+	util.log(util.red('PHASE: dependencies'))
+	if config_dict['build']['tutorial']:
+		util.pause_point(util.get_pexpect_child('container_child'),'\nNow checking for dependencies between modules',print_input=False)
+	# Add any deps we may need by extending to_build
+	[resolve_dependencies(module, shutit_map, to_build) for module in to_build]
+	# Dep checking
+	[check_dependees_exist(module, shutit_map) for module in to_build]
+	[check_dependees_build(module, shutit_map) for module in to_build]
+	[check_dependees_order(module, shutit_map) for module in to_build]
+	# Show dependency graph
+	if config_dict['build']['show_depgraph_only']:
+		digraph = 'digraph depgraph {\n'
+		digraph = digraph + '\n'.join([make_dep_graph(module) for module in to_build])
+		digraph = digraph + '\n}'
+		util.log(digraph,force_stdout=True)
+		sys.exit()
+
+	if config_dict['build']['debug']:
+		util.log(util.red('Modules configured to be built (in order) are: '))
+		for mid in shutit_id_list:
+			m = shutit_map[mid]
+			if config_dict[mid]['build']:
+				util.log(util.red(mid + '\t' + str(m.run_order)))
+		util.log(util.red('\n'))
+
+config_dict = shutit_global.config_dict
+shutit_map = shutit_init(config_dict)
+shutit_id_list = shutit_map.keys()
+config_collection(config_dict, shutit_map, shutit_id_list)
+build_core_module(config_dict, shutit_map, shutit_id_list)
+
+to_build = [
+	shutit_map[mid] for mid in shutit_map
+	if mid in config_dict and config_dict[mid]['build']
+]
+
+check_deps(config_dict, shutit_map, to_build)
 
 # Now consider conflicts
 util.log(util.red('PHASE: conflicts'))
