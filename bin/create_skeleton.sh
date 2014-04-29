@@ -141,6 +141,8 @@ cat >> ${SKELETON_DIR}/configs/push.cnf << END
 [repository]
 do_repository_work:yes
 user:$(whoami)
+password:YOUR_REGISTRY_PASSWORD_OR_BLANK
+email:YOUR_REGISTRY_EMAIL_OR_BLANK
 push:yes
 tar:no
 server:REMOVE_ME_FOR_DOCKER_INDEX
@@ -244,9 +246,9 @@ do_repository_work:no
 push:no
 repository_server:
 #Must be set if do_repository_work is true/yes and user is not blank
-#password:YOUR_REGISTRY_PASSWORD_OR_BLANK
+password:YOUR_REGISTRY_PASSWORD_OR_BLANK
 #Must be set if do_repository_work is true/yes and user is not blank
-#email:YOUR_REGISTRY_PASSWORD_OR_BLANK
+email:YOUR_REGISTRY_EMAIL_OR_BLANK
 # Whether to push to the server
 name:${MODULE_NAME}
 END
