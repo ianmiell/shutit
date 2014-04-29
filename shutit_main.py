@@ -273,6 +273,38 @@ def do_remove(config_dict, shutit_map):
 				util.log(util.red(util.print_modules(shutit_map,shutit_id_list,config_dict)))
 				util.fail(mid + ' failed on remove',child=util.get_pexpect_child('container_child'))
 
+def build_module(config_dict, shutit_id_list, module):
+	util.log(util.red('building: ' + module.module_id + ' with run order: ' + str(module.run_order)))
+	config_dict['build']['report'] = config_dict['build']['report'] + '\nBuilding: ' + module.module_id + ' with run order: ' + str(module.run_order)
+	if not module.build(config_dict):
+		util.fail(module.module_id + ' failed on build',child=util.get_pexpect_child('container_child'))
+	if config_dict['build']['interactive']:
+		util.pause_point(util.get_pexpect_child('container_child'),'\nPausing to allow inspect of build for: ' + module.module_id,print_input=True)
+	if not module.cleanup(config_dict):
+		util.log(util.red('cleaning up: ' + module.module_id + ' with run order: ' + str(module.run_order)))
+		util.fail(module.module_id + ' failed on cleanup',child=util.get_pexpect_child('container_child'))
+	config_dict['build']['report'] = config_dict['build']['report'] + '\nCompleted module: ' + module.module_id
+	if config_dict[module.module_id]['do_repository_work'] or config_dict['build']['interactive']:
+		util.log(util.red(util.build_report('Module:' + module.module_id)))
+	if (config_dict[module.module_id]['do_repository_work'] or
+			(config_dict['build']['interactive'] and raw_input(util.red('\n\nDo you want to save state now we\'re at the ' + 'end of this module? (' + module.module_id + ') (input y/n)\n' )) == 'y')):
+		util.log(module.module_id + ' configured to be tagged, doing repository work')
+		# Stop all before we tag to avoid file changing errors, and clean up pid files etc..
+		stop_all(shutit_id_list,config_dict,module.run_order)
+		util.do_repository_work(config_dict,
+			config_dict['expect_prompts']['base_prompt'],
+			str(module.module_id),
+			repo_suffix=str(module.run_order),
+			password=config_dict['host']['password'],
+			docker_executable=config_dict['host']['docker_executable'],
+			force=True)
+		# Start all before we tag to ensure services are up as expected.
+		start_all(shutit_id_list,config_dict,module.run_order)
+	if (config_dict['build']['interactive'] and
+			raw_input(util.red('\n\nDo you want to stop debug and/or interactive mode? (input y/n)\n' )) == 'y'):
+		config_dict['build']['interactive'] = False
+		config_dict['build']['debug'] = False
+
 def do_build(config_dict, shutit_map):
 	shutit_id_list = run_order_modules(shutit_id_list)
 	util.log(util.red('PHASE: build, cleanup, repository work'))
@@ -283,36 +315,7 @@ def do_build(config_dict, shutit_map):
 		if module.run_order == 0: continue
 		util.log(util.red('considering whether to build: ' + module.module_id))
 		if config_dict[module.module_id]['build'] and not module.is_installed(config_dict):
-			util.log(util.red('building: ' + module.module_id + ' with run order: ' + str(module.run_order)))
-			config_dict['build']['report'] = config_dict['build']['report'] + '\nBuilding: ' + module.module_id + ' with run order: ' + str(module.run_order)
-			if not module.build(config_dict):
-				util.fail(module.module_id + ' failed on build',child=util.get_pexpect_child('container_child'))
-			if config_dict['build']['interactive']:
-				util.pause_point(util.get_pexpect_child('container_child'),'\nPausing to allow inspect of build for: ' + module.module_id,print_input=True)
-			if not module.cleanup(config_dict):
-				util.log(util.red('cleaning up: ' + module.module_id + ' with run order: ' + str(module.run_order)))
-				util.fail(module.module_id + ' failed on cleanup',child=util.get_pexpect_child('container_child'))
-			config_dict['build']['report'] = config_dict['build']['report'] + '\nCompleted module: ' + module.module_id
-			if config_dict[module.module_id]['do_repository_work'] or config_dict['build']['interactive']:
-				util.log(util.red(util.build_report('Module:' + module.module_id)))
-			if (config_dict[module.module_id]['do_repository_work'] or
-					(config_dict['build']['interactive'] and raw_input(util.red('\n\nDo you want to save state now we\'re at the ' + 'end of this module? (' + module.module_id + ') (input y/n)\n' )) == 'y')):
-				util.log(module.module_id + ' configured to be tagged, doing repository work')
-				# Stop all before we tag to avoid file changing errors, and clean up pid files etc..
-				stop_all(shutit_id_list,config_dict,module.run_order)
-				util.do_repository_work(config_dict,
-					config_dict['expect_prompts']['base_prompt'],
-					str(module.module_id),
-					repo_suffix=str(module.run_order),
-					password=config_dict['host']['password'],
-					docker_executable=config_dict['host']['docker_executable'],
-					force=True)
-				# Start all before we tag to ensure services are up as expected.
-				start_all(shutit_id_list,config_dict,module.run_order)
-			if (config_dict['build']['interactive'] and
-					raw_input(util.red('\n\nDo you want to stop debug and/or interactive mode? (input y/n)\n' )) == 'y'):
-				config_dict['build']['interactive'] = False
-				config_dict['build']['debug'] = False
+			build_module(config_dict, shutit_id_list, module)
 		if is_built(config_dict,module):
 			util.log('Starting module')
 			if not module.start(config_dict):
