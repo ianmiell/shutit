@@ -337,6 +337,40 @@ def do_build(config_dict, shutit_map):
 		util.pause_point(util.get_pexpect_child('container_child'),'\nStopping all modules before finalize phase',print_input=False)
 	stop_all(shutit_id_list,config_dict,-1)
 
+def do_finalize(config_dict, shutit_map):
+	# Finalize in reverse order
+	shutit_id_list = list(reversed(run_order_modules(shutit_id_list)))
+	util.log(util.red('PHASE: finalize'))
+	if config_dict['build']['tutorial']:
+		util.pause_point(util.get_pexpect_child('container_child'),'\nNow doing finalize phase, which we do when all builds are complete and modules are stopped',print_input=False)
+	for mid in shutit_id_list:
+		# Only finalize if it's thought to be installed.
+		if is_built(config_dict,shutit_map[mid]):
+			if not shutit_map[mid].finalize(config_dict):
+				util.fail(mid + ' failed on finalize',child=util.get_pexpect_child('container_child'))
+
+def tag_and_push(config_dict, shutit_map):
+	# Tag and push etc
+	util.do_repository_work(config_dict,config_dict['expect_prompts']['base_prompt'],config_dict['repository']['name'],docker_executable=config_dict['host']['docker_executable'],password=config_dict['host']['password'])
+	# Final exits
+	host_child = util.get_pexpect_child('host_child')
+	host_child.sendline('exit') # Exit raw bash
+	time.sleep(0.3)
+
+	# Finally, do repo work on the core module.
+	for module in shutit_map.values():
+		if module.run_order == 0:
+			core_module = module
+			break
+	if config_dict[core_module.module_id]['do_repository_work']:
+		if config_dict['build']['tutorial']:
+			util.pause_point(util.get_pexpect_child('host_child'),'\nDoing final committing/tagging on the overall container and creating the artifact.',print_input=False)
+		util.log(util.red('doing repo work: ' + core_module.module_id + ' with run order: ' + str(core_module.run_order)))
+		util.do_repository_work(config_dict,
+			config_dict['expect_prompts']['base_prompt'],
+			str(core_module.run_order),
+			password=config_dict['host']['password'],
+			docker_executable=config_dict['host']['docker_executable'])
 
 config_dict = shutit_global.config_dict
 shutit_map = shutit_init(config_dict)
@@ -357,39 +391,9 @@ check_ready(config_dict, shutit_map)
 
 do_remove(config_dict, shutit_map)
 do_build(config_dict, shutit_map)
+do_finalize(config_dict, shutit_map)
 
-# Finalize in reverse order
-shutit_id_list = list(reversed(run_order_modules(shutit_id_list)))
-util.log(util.red('PHASE: finalize'))
-if config_dict['build']['tutorial']:
-	util.pause_point(util.get_pexpect_child('container_child'),'\nNow doing finalize phase, which we do when all builds are complete and modules are stopped',print_input=False)
-for mid in shutit_id_list:
-	# Only finalize if it's thought to be installed.
-	if is_built(config_dict,shutit_map[mid]):
-		if not shutit_map[mid].finalize(config_dict):
-			util.fail(mid + ' failed on finalize',child=util.get_pexpect_child('container_child'))
-
-# Tag and push etc
-util.do_repository_work(config_dict,config_dict['expect_prompts']['base_prompt'],config_dict['repository']['name'],docker_executable=config_dict['host']['docker_executable'],password=config_dict['host']['password'])
-# Final exits
-host_child = util.get_pexpect_child('host_child')
-host_child.sendline('exit') # Exit raw bash
-time.sleep(0.3)
-
-# Finally, do repo work on the core module.
-for module in shutit_map.values():
-	if module.run_order == 0:
-		core_module = module
-		break
-if config_dict[core_module.module_id]['do_repository_work']:
-	if config_dict['build']['tutorial']:
-		util.pause_point(util.get_pexpect_child('host_child'),'\nDoing final committing/tagging on the overall container and creating the artifact.',print_input=False)
-	util.log(util.red('doing repo work: ' + core_module.module_id + ' with run order: ' + str(core_module.run_order)))
-	util.do_repository_work(config_dict,
-		config_dict['expect_prompts']['base_prompt'],
-		str(core_module.run_order),
-		password=config_dict['host']['password'],
-		docker_executable=config_dict['host']['docker_executable'])
+tag_and_push(config_dict, shutit_map)
 
 util.log(util.red(util.build_report('Module: N/A (END)')),prefix=False,force_stdout=True)
 
