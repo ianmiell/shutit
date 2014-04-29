@@ -375,31 +375,35 @@ def tag_and_push(config_dict, shutit_map):
 			password=config_dict['host']['password'],
 			docker_executable=config_dict['host']['docker_executable'])
 
-config_dict = shutit_global.config_dict
-shutit_map = shutit_init(config_dict)
-shutit_id_list = shutit_map.keys()
-config_collection(config_dict, shutit_map, shutit_id_list)
-build_core_module(config_dict, shutit_map, shutit_id_list)
+def shutit_main():
+	config_dict = shutit_global.config_dict
+	shutit_map = shutit_init(config_dict)
+	shutit_id_list = shutit_map.keys()
+	config_collection(config_dict, shutit_map, shutit_id_list)
+	build_core_module(config_dict, shutit_map, shutit_id_list)
 
-to_build = [
-	shutit_map[mid] for mid in shutit_map
-	if mid in config_dict and config_dict[mid]['build']
-]
+	to_build = [
+		shutit_map[mid] for mid in shutit_map
+		if mid in config_dict and config_dict[mid]['build']
+	]
 
-check_deps(config_dict, shutit_map, to_build, shutit_id_list)
-check_conflicts(config_dict, shutit_map, to_build, shutit_id_list)
-check_ready(config_dict, shutit_map, shutit_id_list)
+	check_deps(config_dict, shutit_map, to_build, shutit_id_list)
+	check_conflicts(config_dict, shutit_map, to_build, shutit_id_list)
+	check_ready(config_dict, shutit_map, shutit_id_list)
 
-# Dependency validation done.
+	# Dependency validation done.
 
-do_remove(config_dict, shutit_map, shutit_id_list)
-do_build(config_dict, shutit_map, shutit_id_list)
-do_test(config_dict, shutit_map, shutit_id_list)
-do_finalize(config_dict, shutit_map, shutit_id_list)
+	do_remove(config_dict, shutit_map, shutit_id_list)
+	do_build(config_dict, shutit_map, shutit_id_list)
+	do_test(config_dict, shutit_map, shutit_id_list)
+	do_finalize(config_dict, shutit_map, shutit_id_list)
 
-tag_and_push(config_dict, shutit_map)
+	tag_and_push(config_dict, shutit_map)
 
-util.log(util.red(util.build_report('Module: N/A (END)')),prefix=False,force_stdout=True)
+	util.log(util.red(util.build_report('Module: N/A (END)')),prefix=False,force_stdout=True)
 
-if config_dict['build']['tutorial']:
-	util.log(util.red('\nThe build is complete. You should now have a container called ' + config_dict['container']['name'] + ' and a new image if you chose to commit it.\n\nLook and play with the following files from the newly-created module directory to dig deeper:\n\n\tconfigs/default.cnf\n\t*.py\n\nYou can rebuild at any time by running the supplied ./build.sh and run with the supplied ./run.sh.\n\nThere\'s a default test runner in bin/test.sh\n\nYou can inspect the details of the build in the container\'s /root/shutit_build directory.'),force_stdout=True)
+	if config_dict['build']['tutorial']:
+		util.log(util.red('\nThe build is complete. You should now have a container called ' + config_dict['container']['name'] + ' and a new image if you chose to commit it.\n\nLook and play with the following files from the newly-created module directory to dig deeper:\n\n\tconfigs/default.cnf\n\t*.py\n\nYou can rebuild at any time by running the supplied ./build.sh and run with the supplied ./run.sh.\n\nThere\'s a default test runner in bin/test.sh\n\nYou can inspect the details of the build in the container\'s /root/shutit_build directory.'),force_stdout=True)
+
+if __name__ == '__main__':
+	shutit_main()
