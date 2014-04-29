@@ -156,7 +156,7 @@ def resolve_dependencies(depender, shutit_map, to_build):
 				and config_dict[dependee_id]['build_ifneeded']):
 			to_build.append(dependee)
 			config_dict[dependee_id]['build'] = True
-def check_dependees_exist(depender, shutit_map):
+def check_dependees_exist(depender, shutit_map, shutit_id_list):
 	for dependee_id in depender.depends_on:
 		dependee = shutit_map.get(dependee_id)
 		# If the module id isn't there, there's a problem.
@@ -166,7 +166,7 @@ def check_dependees_exist(depender, shutit_map):
 				'\nCheck your --shutit_module_path setting and ensure that ' +
 				'all modules configured to be built are in that path setting, ' +
 				'eg "--shutit_module_path /path/to/other/module/:." See also help.')
-def check_dependees_build(depender, shutit_map):
+def check_dependees_build(depender, shutit_map, shutit_id_list):
 	depender_is_installed = depender.is_installed(config_dict)
 	for dependee_id in depender.depends_on:
 		dependee = shutit_map.get(dependee_id)
@@ -178,7 +178,7 @@ def check_dependees_build(depender, shutit_map):
 				'is configured: "build:yes" or is already built ' +
 				'but dependee module_id: [' + dependee_id + '] ' +
 				'is not configured: "build:yes"')
-def check_dependees_order(depender, shutit_map):
+def check_dependees_order(depender, shutit_map, shutit_id_list):
 	for dependee_id in depender.depends_on:
 		dependee = shutit_map.get(dependee_id)
 		# If it depends on a module id, then the module id should be higher up in the run order.
@@ -196,16 +196,16 @@ def make_dep_graph(depender):
 			digraph = digraph + '"' + depender.module_id + '"->"' + dependee_id + '";\n'
 	return digraph
 
-def check_deps(config_dict, shutit_map, to_build):
+def check_deps(config_dict, shutit_map, to_build, shutit_id_list):
 	util.log(util.red('PHASE: dependencies'))
 	if config_dict['build']['tutorial']:
 		util.pause_point(util.get_pexpect_child('container_child'),'\nNow checking for dependencies between modules',print_input=False)
 	# Add any deps we may need by extending to_build
 	[resolve_dependencies(module, shutit_map, to_build) for module in to_build]
 	# Dep checking
-	[check_dependees_exist(module, shutit_map) for module in to_build]
-	[check_dependees_build(module, shutit_map) for module in to_build]
-	[check_dependees_order(module, shutit_map) for module in to_build]
+	[check_dependees_exist(module, shutit_map, shutit_id_list) for module in to_build]
+	[check_dependees_build(module, shutit_map, shutit_id_list) for module in to_build]
+	[check_dependees_order(module, shutit_map, shutit_id_list) for module in to_build]
 	# Show dependency graph
 	if config_dict['build']['show_depgraph_only']:
 		digraph = 'digraph depgraph {\n'
@@ -222,7 +222,7 @@ def check_deps(config_dict, shutit_map, to_build):
 				util.log(util.red(mid + '\t' + str(m.run_order)))
 		util.log(util.red('\n'))
 
-def check_conflicts(config_dict, shutit_map, to_build):
+def check_conflicts(config_dict, shutit_map, to_build, shutit_id_list):
 	# Now consider conflicts
 	util.log(util.red('PHASE: conflicts'))
 	if config_dict['build']['tutorial']:
@@ -240,7 +240,7 @@ def check_conflicts(config_dict, shutit_map, to_build):
 					' is configured to be built or is already built but ' +
 					'conflicts with module_id: ' + conflictee_obj.module_id)
 
-def check_ready(config_dict, shutit_map):
+def check_ready(config_dict, shutit_map, shutit_id_list):
 	util.log(util.red('PHASE: check_ready'))
 	if config_dict['build']['tutorial']:
 		util.pause_point(util.get_pexpect_child('container_child'),
@@ -257,7 +257,7 @@ def check_ready(config_dict, shutit_map):
 				util.fail(mid + ' not ready to install',child=util.get_pexpect_child('container_child'))
 
 
-def do_remove(config_dict, shutit_map):
+def do_remove(config_dict, shutit_map, shutit_id_list):
 	# Now get the run_order keys in order and go.
 	shutit_id_list = run_order_modules(shutit_id_list)
 	util.log(util.red('PHASE: remove'))
@@ -305,7 +305,7 @@ def build_module(config_dict, shutit_id_list, module):
 		config_dict['build']['interactive'] = False
 		config_dict['build']['debug'] = False
 
-def do_build(config_dict, shutit_map):
+def do_build(config_dict, shutit_map, shutit_id_list):
 	shutit_id_list = run_order_modules(shutit_id_list)
 	util.log(util.red('PHASE: build, cleanup, repository work'))
 	if config_dict['build']['tutorial']:
@@ -321,7 +321,7 @@ def do_build(config_dict, shutit_map):
 			if not module.start(config_dict):
 				util.fail(module.module_id + ' failed on start',child=util.get_pexpect_child('container_child'))
 
-def do_test(config_dict, shutit_map):
+def do_test(config_dict, shutit_map, shutit_id_list):
 	# Test in reverse order
 	shutit_id_list = list(reversed(run_order_modules(shutit_id_list)))
 	util.log(util.red('PHASE: test'))
@@ -336,7 +336,7 @@ def do_test(config_dict, shutit_map):
 			if not shutit_map[mid].test(config_dict):
 				util.fail(mid + ' failed on test',child=util.get_pexpect_child('container_child'))
 
-def do_finalize(config_dict, shutit_map):
+def do_finalize(config_dict, shutit_map, shutit_id_list):
 	# Stop all the modules
 	if config_dict['build']['tutorial']:
 		util.pause_point(util.get_pexpect_child('container_child'),'\nStopping all modules before finalize phase',print_input=False)
@@ -386,16 +386,16 @@ to_build = [
 	if mid in config_dict and config_dict[mid]['build']
 ]
 
-check_deps(config_dict, shutit_map, to_build)
-check_conflicts(config_dict, shutit_map, to_build)
-check_ready(config_dict, shutit_map)
+check_deps(config_dict, shutit_map, to_build, shutit_id_list)
+check_conflicts(config_dict, shutit_map, to_build, shutit_id_list)
+check_ready(config_dict, shutit_map, shutit_id_list)
 
 # Dependency validation done.
 
-do_remove(config_dict, shutit_map)
-do_build(config_dict, shutit_map)
-do_test(config_dict, shutit_map)
-do_finalize(config_dict, shutit_map)
+do_remove(config_dict, shutit_map, shutit_id_list)
+do_build(config_dict, shutit_map, shutit_id_list)
+do_test(config_dict, shutit_map, shutit_id_list)
+do_finalize(config_dict, shutit_map, shutit_id_list)
 
 tag_and_push(config_dict, shutit_map)
 
