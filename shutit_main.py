@@ -222,6 +222,24 @@ def check_deps(config_dict, shutit_map, to_build):
 				util.log(util.red(mid + '\t' + str(m.run_order)))
 		util.log(util.red('\n'))
 
+def check_conflicts(config_dict, shutit_map, to_build):
+	# Now consider conflicts
+	util.log(util.red('PHASE: conflicts'))
+	if config_dict['build']['tutorial']:
+		util.pause_point(util.get_pexpect_child('container_child'),'\nNow checking for conflicts between modules',print_input=False)
+	for conflicter in to_build:
+		for conflictee in conflicter.conflicts_with:
+			# If the module id isn't there, there's no problem.
+			conflictee_obj = shutit_map.get(conflictee)
+			if conflictee_obj == None:
+				continue
+			if ((config_dict[conflicter.module_id]['build'] or conflicter.is_installed(config_dict)) and
+					(config_dict[conflictee_obj.module_id]['build'] or conflictee_obj.is_installed(config_dict))):
+				util.log(util.red(util.print_modules(shutit_map,shutit_id_list,config_dict)))
+				util.fail('conflicter module id: ' + conflicter.module_id +
+					' is configured to be built or is already built but ' +
+					'conflicts with module_id: ' + conflictee_obj.module_id)
+
 config_dict = shutit_global.config_dict
 shutit_map = shutit_init(config_dict)
 shutit_id_list = shutit_map.keys()
@@ -234,23 +252,7 @@ to_build = [
 ]
 
 check_deps(config_dict, shutit_map, to_build)
-
-# Now consider conflicts
-util.log(util.red('PHASE: conflicts'))
-if config_dict['build']['tutorial']:
-	util.pause_point(util.get_pexpect_child('container_child'),'\nNow checking for conflicts between modules',print_input=False)
-for conflicter in to_build:
-	for conflictee in conflicter.conflicts_with:
-		# If the module id isn't there, there's no problem.
-		conflictee_obj = shutit_map.get(conflictee)
-		if conflictee_obj == None:
-			continue
-		if ((config_dict[conflicter.module_id]['build'] or conflicter.is_installed(config_dict)) and
-				(config_dict[conflictee_obj.module_id]['build'] or conflictee_obj.is_installed(config_dict))):
-			util.log(util.red(util.print_modules(shutit_map,shutit_id_list,config_dict)))
-			util.fail('conflicter module id: ' + conflicter.module_id +
-				' is configured to be built or is already built but ' +
-				'conflicts with module_id: ' + conflictee_obj.module_id)
+check_conflicts(config_dict, shutit_map, to_build)
 
 util.log(util.red('PHASE: check_ready'))
 if config_dict['build']['tutorial']:
