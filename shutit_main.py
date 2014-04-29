@@ -256,6 +256,23 @@ def check_ready(config_dict, shutit_map):
 				util.log(util.red(util.print_modules(shutit_map,shutit_id_list,config_dict)))
 				util.fail(mid + ' not ready to install',child=util.get_pexpect_child('container_child'))
 
+
+def do_remove(config_dict, shutit_map):
+	# Now get the run_order keys in order and go.
+	shutit_id_list = run_order_modules(shutit_id_list)
+	util.log(util.red('PHASE: remove'))
+	if config_dict['build']['tutorial']:
+		util.pause_point(util.get_pexpect_child('container_child'),'\nNow removing any modules that need removing',print_input=False)
+	for mid in shutit_id_list:
+		m = shutit_map[mid]
+		if m.run_order == 0: continue
+		util.log(util.red('considering whether to remove: ' + mid))
+		if config_dict[mid]['remove']:
+			util.log(util.red('removing: ' + mid))
+			if not m.remove(config_dict):
+				util.log(util.red(util.print_modules(shutit_map,shutit_id_list,config_dict)))
+				util.fail(mid + ' failed on remove',child=util.get_pexpect_child('container_child'))
+
 config_dict = shutit_global.config_dict
 shutit_map = shutit_init(config_dict)
 shutit_id_list = shutit_map.keys()
@@ -273,20 +290,8 @@ check_ready(config_dict, shutit_map)
 
 # Dependency validation done.
 
-# Now get the run_order keys in order and go.
-shutit_id_list = run_order_modules(shutit_id_list)
-util.log(util.red('PHASE: remove'))
-if config_dict['build']['tutorial']:
-	util.pause_point(util.get_pexpect_child('container_child'),'\nNow removing any modules that need removing',print_input=False)
-for mid in shutit_id_list:
-	m = shutit_map[mid]
-	if m.run_order == 0: continue
-	util.log(util.red('considering whether to remove: ' + mid))
-	if config_dict[mid]['remove']:
-		util.log(util.red('removing: ' + mid))
-		if not m.remove(config_dict):
-			util.log(util.red(util.print_modules(shutit_map,shutit_id_list,config_dict)))
-			util.fail(mid + ' failed on remove',child=util.get_pexpect_child('container_child'))
+do_remove(config_dict, shutit_map)
+
 shutit_id_list = run_order_modules(shutit_id_list)
 util.log(util.red('PHASE: build, cleanup, repository work'))
 if config_dict['build']['tutorial']:
