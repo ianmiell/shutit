@@ -335,12 +335,11 @@ def do_build(config_dict, shutit_map):
 			if not shutit_map[mid].test(config_dict):
 				util.fail(mid + ' failed on test',child=util.get_pexpect_child('container_child'))
 
+def do_finalize(config_dict, shutit_map):
 	# Stop all the modules
 	if config_dict['build']['tutorial']:
 		util.pause_point(util.get_pexpect_child('container_child'),'\nStopping all modules before finalize phase',print_input=False)
 	stop_all(shutit_id_list,config_dict,-1)
-
-def do_finalize(config_dict, shutit_map):
 	# Finalize in reverse order
 	shutit_id_list = list(reversed(run_order_modules(shutit_id_list)))
 	util.log(util.red('PHASE: finalize'))
