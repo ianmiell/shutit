@@ -240,6 +240,22 @@ def check_conflicts(config_dict, shutit_map, to_build):
 					' is configured to be built or is already built but ' +
 					'conflicts with module_id: ' + conflictee_obj.module_id)
 
+def check_ready(config_dict, shutit_map):
+	util.log(util.red('PHASE: check_ready'))
+	if config_dict['build']['tutorial']:
+		util.pause_point(util.get_pexpect_child('container_child'),
+			'\nNow checking whether we are ready to build modules configured to be built',
+			print_input=False)
+	for mid in shutit_id_list:
+		m = shutit_map[mid]
+		if m.run_order == 0: continue
+		util.log(util.red('considering check_ready (is it ready to be built?): ' + mid))
+		if config_dict[mid]['build'] and not m.is_installed(config_dict):
+			util.log(util.red('checking whether module is ready to build: ' + mid))
+			if not m.check_ready(config_dict):
+				util.log(util.red(util.print_modules(shutit_map,shutit_id_list,config_dict)))
+				util.fail(mid + ' not ready to install',child=util.get_pexpect_child('container_child'))
+
 config_dict = shutit_global.config_dict
 shutit_map = shutit_init(config_dict)
 shutit_id_list = shutit_map.keys()
@@ -253,21 +269,8 @@ to_build = [
 
 check_deps(config_dict, shutit_map, to_build)
 check_conflicts(config_dict, shutit_map, to_build)
+check_ready(config_dict, shutit_map)
 
-util.log(util.red('PHASE: check_ready'))
-if config_dict['build']['tutorial']:
-	util.pause_point(util.get_pexpect_child('container_child'),
-		'\nNow checking whether we are ready to build modules configured to be built',
-		print_input=False)
-for mid in shutit_id_list:
-	m = shutit_map[mid]
-	if m.run_order == 0: continue
-	util.log(util.red('considering check_ready (is it ready to be built?): ' + mid))
-	if config_dict[mid]['build'] and not m.is_installed(config_dict):
-		util.log(util.red('checking whether module is ready to build: ' + mid))
-		if not m.check_ready(config_dict):
-			util.log(util.red(util.print_modules(shutit_map,shutit_id_list,config_dict)))
-			util.fail(mid + ' not ready to install',child=util.get_pexpect_child('container_child'))
 # Dependency validation done.
 
 # Now get the run_order keys in order and go.
