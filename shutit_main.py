@@ -127,28 +127,30 @@ def config_collection(config_dict, shutit_map, shutit_id_list):
 
 	# Finished config collection
 
+def build_core_module(config_dict, shutit_map, shutit_id_list):
+	# Begin build core module
+	_core_module = False
+	for mid in shutit_id_list:
+		# Let's go. Run 0 every time, this should set up the container in pexpect.
+		m = shutit_map[mid]
+		if m.run_order == 0:
+			if config_dict['build']['tutorial']:
+				util.pause_point(util.get_pexpect_child('container_child'),
+					'\nRunning build on the core module (' + shutit_global.shutit_main_dir + '/setup.py)',
+					print_input=False)
+			_core_module = True
+			m.build(config_dict)
+	# Once we have all the modules and the children set up, then we can look at dependencies.
+	if not _core_module:
+		util.fail('No module with run_order=0 specified! This is required.')
+	_core_module = None
+	# Finished build core module
+
 config_dict = shutit_global.config_dict
 shutit_map = shutit_init(config_dict)
 shutit_id_list = shutit_map.keys()
 config_collection(config_dict, shutit_map, shutit_id_list)
-
-# Begin build core module
-_core_module = False
-for mid in shutit_id_list:
-	# Let's go. Run 0 every time, this should set up the container in pexpect.
-	m = shutit_map[mid]
-	if m.run_order == 0:
-		if config_dict['build']['tutorial']:
-			util.pause_point(util.get_pexpect_child('container_child'),
-				'\nRunning build on the core module (' + shutit_global.shutit_main_dir + '/setup.py)',
-				print_input=False)
-		_core_module = True
-		m.build(config_dict)
-# Once we have all the modules and the children set up, then we can look at dependencies.
-if not _core_module:
-	util.fail('No module with run_order=0 specified! This is required.')
-_core_module = None
-# Finished build core module
+build_core_module(config_dict, shutit_map, shutit_id_list)
 
 to_build = [
 	shutit_map[mid] for mid in shutit_map
