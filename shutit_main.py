@@ -196,11 +196,16 @@ def make_dep_graph(config_dict, depender):
 			digraph = digraph + '"' + depender.module_id + '"->"' + dependee_id + '";\n'
 	return digraph
 
-def check_deps(config_dict, shutit_map, to_build, shutit_id_list):
+def check_deps(config_dict, shutit_map, shutit_id_list):
 	util.log(util.red('PHASE: dependencies'))
 	if config_dict['build']['tutorial']:
 		util.pause_point(util.get_pexpect_child('container_child'),'\nNow checking for dependencies between modules',print_input=False)
-	# Add any deps we may need by extending to_build
+	# Get modules we're going to build
+	to_build = [
+		shutit_map[mid] for mid in shutit_map
+		if mid in config_dict and config_dict[mid]['build']
+	]
+	# Add any deps we may need by extending to_build and altering config_dict
 	[resolve_dependencies(config_dict, shutit_map, to_build, module) for module in to_build]
 	# Dep checking
 	[check_dependees_exist(config_dict, shutit_map, shutit_id_list, module) for module in to_build]
@@ -222,12 +227,15 @@ def check_deps(config_dict, shutit_map, to_build, shutit_id_list):
 				util.log(util.red(mid + '\t' + str(m.run_order)))
 		util.log(util.red('\n'))
 
-def check_conflicts(config_dict, shutit_map, to_build, shutit_id_list):
+def check_conflicts(config_dict, shutit_map, shutit_id_list):
 	# Now consider conflicts
 	util.log(util.red('PHASE: conflicts'))
 	if config_dict['build']['tutorial']:
 		util.pause_point(util.get_pexpect_child('container_child'),'\nNow checking for conflicts between modules',print_input=False)
-	for conflicter in to_build:
+	for mid in shutit_id_list:
+		if not config_dict[mid]['build']:
+			continue
+		conflicter = shutit_map[mid]
 		for conflictee in conflicter.conflicts_with:
 			# If the module id isn't there, there's no problem.
 			conflictee_obj = shutit_map.get(conflictee)
@@ -382,13 +390,8 @@ def shutit_main():
 	config_collection(config_dict, shutit_map, shutit_id_list)
 	build_core_module(config_dict, shutit_map, shutit_id_list)
 
-	to_build = [
-		shutit_map[mid] for mid in shutit_map
-		if mid in config_dict and config_dict[mid]['build']
-	]
-
-	check_deps(config_dict, shutit_map, to_build, shutit_id_list)
-	check_conflicts(config_dict, shutit_map, to_build, shutit_id_list)
+	check_deps(config_dict, shutit_map, shutit_id_list)
+	check_conflicts(config_dict, shutit_map, shutit_id_list)
 	check_ready(config_dict, shutit_map, shutit_id_list)
 
 	# Dependency validation done.
