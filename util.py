@@ -594,25 +594,25 @@ def do_repository_work(config_dict,expect,repo_name,repo_suffix='',docker_execut
 
 	if image_id == None:
 		fail('failed to commit with cmd: ' + cmd + ' could not determine image id')
-	else:
-		if config_dict['repository']['server'] == '' and len(repository) > 30:
-			fail("""repository name: '""" + repository + """' too long. If using suffix_date consider shortening""")
-		send_and_expect(child,cmd,expect,check_exit=False)
-		if config_dict['repository']['tar'] == True:
-			if config_dict['build']['tutorial']:
-				pause_point(child,'We are now exporting the container to a bzipped tar file, as configured in \n[repository]\ntar:yes',print_input=False)
-			bzfile = config_dict['host']['resources_dir'] + '/' + repository_tar + '.tar.bz2'
-			log('\nDepositing bzip2 of exported container into ' + bzfile)
-			res = send_and_expect(child,docker_executable + ' export ' + config_dict['container']['container_id'] + ' | bzip2 - > ' + bzfile,[expect,'assword'],timeout=99999)
-			log(red('\nDeposited bzip2 of exported container into ' + bzfile))
-			log(red('\nRun:\n\nbunzip2 -c ' + bzfile + ' | sudo docker import -\n\nto get this imported into docker.'))
-			config_dict['build']['report'] = config_dict['build']['report'] + '\nDeposited bzip2 of exported container into ' + bzfile
-			config_dict['build']['report'] = config_dict['build']['report'] + '\nRun:\n\nbunzip2 -c ' + bzfile + ' | sudo docker import -\n\nto get this imported into docker.'
-			if res == 1:
-				send_and_expect(child,password,expect,record_command=False)
-		if config_dict['repository']['push'] == True:
-			push_repository(child,repository,config_dict,docker_executable,expect)
-			config_dict['build']['report'] = config_dict['build']['report'] + 'Pushed repository: ' + repository
+	if config_dict['repository']['server'] == '' and len(repository) > 30:
+		fail("""repository name: '""" + repository + """' too long. If using suffix_date consider shortening""")
+
+	send_and_expect(child,cmd,expect,check_exit=False)
+	if config_dict['repository']['tar'] == True:
+		if config_dict['build']['tutorial']:
+			pause_point(child,'We are now exporting the container to a bzipped tar file, as configured in \n[repository]\ntar:yes',print_input=False)
+		bzfile = config_dict['host']['resources_dir'] + '/' + repository_tar + '.tar.bz2'
+		log('\nDepositing bzip2 of exported container into ' + bzfile)
+		res = send_and_expect(child,docker_executable + ' export ' + config_dict['container']['container_id'] + ' | bzip2 - > ' + bzfile,[expect,'assword'],timeout=99999)
+		log(red('\nDeposited bzip2 of exported container into ' + bzfile))
+		log(red('\nRun:\n\nbunzip2 -c ' + bzfile + ' | sudo docker import -\n\nto get this imported into docker.'))
+		config_dict['build']['report'] = config_dict['build']['report'] + '\nDeposited bzip2 of exported container into ' + bzfile
+		config_dict['build']['report'] = config_dict['build']['report'] + '\nRun:\n\nbunzip2 -c ' + bzfile + ' | sudo docker import -\n\nto get this imported into docker.'
+		if res == 1:
+			send_and_expect(child,password,expect,record_command=False)
+	if config_dict['repository']['push'] == True:
+		push_repository(child,repository,config_dict,docker_executable,expect)
+		config_dict['build']['report'] = config_dict['build']['report'] + 'Pushed repository: ' + repository
 
 
 # Return True if file exists, else False
