@@ -322,7 +322,7 @@ def do_build(config_dict, shutit_map, shutit_id_list):
 		module = shutit_map[mid]
 		if module.run_order == 0: continue
 		util.log(util.red('considering whether to build: ' + module.module_id))
-		if config_dict[module.module_id]['build'] and not module.is_installed(config_dict):
+		if config_dict[module.module_id]['build']:
 			if module.is_installed(config_dict):
 				config_dict['build']['report'] = config_dict['build']['report'] + '\nBuilt already: ' + module.module_id + ' with run order: ' + str(module.run_order)
 			else:
