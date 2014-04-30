@@ -365,7 +365,12 @@ def do_finalize(config_dict, shutit_map, shutit_id_list):
 
 def tag_and_push(config_dict, shutit_map):
 	# Tag and push etc
-	util.do_repository_work(config_dict,config_dict['expect_prompts']['base_prompt'],config_dict['repository']['name'],docker_executable=config_dict['host']['docker_executable'],password=config_dict['host']['password'])
+	util.do_repository_work(
+		config_dict,
+		config_dict['expect_prompts']['base_prompt'],
+		config_dict['repository']['name'],
+		docker_executable=config_dict['host']['docker_executable'],
+		password=config_dict['host']['password'])
 	# Final exits
 	host_child = util.get_pexpect_child('host_child')
 	host_child.sendline('exit') # Exit raw bash
@@ -379,11 +384,12 @@ def tag_and_push(config_dict, shutit_map):
 		if config_dict['build']['tutorial']:
 			util.pause_point(util.get_pexpect_child('host_child'),'\nDoing final committing/tagging on the overall container and creating the artifact.',print_input=False)
 		util.log(util.red('doing repo work: ' + core_module.module_id + ' with run order: ' + str(core_module.run_order)))
-		util.do_repository_work(config_dict,
+		util.do_repository_work(
+			config_dict,
 			config_dict['expect_prompts']['base_prompt'],
 			str(core_module.run_order),
-			password=config_dict['host']['password'],
-			docker_executable=config_dict['host']['docker_executable'])
+			docker_executable=config_dict['host']['docker_executable'],
+			password=config_dict['host']['password'])
 
 def shutit_main():
 	config_dict = shutit_global.config_dict
