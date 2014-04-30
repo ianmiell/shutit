@@ -563,22 +563,24 @@ def do_repository_work(config_dict,expect,repo_name,repo_suffix='',docker_execut
 	else:
 		repository_server = ''
 
-	if user:
-		repository_user = user + '/'
-		repository_user_tar = user + '_'
-	else:
-		repository_user = ''
-		repository_user_tar = ''
-
-	if repo_suffix and repo_name:
-		repository = repository_server + repository_user + repo_name + '_' + repo_suffix
-		repository_tar = repository_user_tar + repo_name + '_' + repo_suffix
-	elif repo_suffix and not repo_name:
-		repository = repository_server + repository_user + repo_suffix
-		repository_tar = repository_user_tar + repo_suffix
-	else:
-		repository = repository_server + repository_user + repo_name
-		repository_tar = repository_user_tar + repo_name
+	if user and repo_suffix and repo_name:
+		repository = repository_server + user + '/' + repo_name + '_' + repo_suffix
+		repository_tar = user + '_' + repo_name + '_' + repo_suffix
+	elif not user and repo_suffix and repo_name:
+		repository = repository_server + repo_name + '_' + repo_suffix
+		repository_tar = repo_name + '_' + repo_suffix
+	elif user and repo_suffix and not repo_name:
+		repository = repository_server + user + '/' + repo_suffix
+		repository_tar = user + '_' + repo_suffix
+	elif not user and repo_suffix and not repo_name:
+		repository = repository_server + repo_suffix
+		repository_tar = repo_suffix
+	elif user:
+		repository = repository_server + user + '/' + repo_name
+		repository_tar = user + '_' + repo_name
+	elif not user:
+		repository = repository_server + repo_name
+		repository_tar = repo_name
 
 	# Only lower case accepted
 	repository = repository.lower()
