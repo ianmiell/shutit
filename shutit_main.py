@@ -306,7 +306,7 @@ def build_module(config_dict, shutit_map, shutit_id_list, module):
 			password=config_dict['host']['password'],
 			docker_executable=config_dict['host']['docker_executable'],
 			force=True)
-		# Start all before we tag to ensure services are up as expected.
+		# Start all after we tag to ensure services are up as expected.
 		start_all(config_dict, shutit_map, shutit_id_list, module.run_order)
 	if (config_dict['build']['interactive'] and
 			raw_input(util.red('\n\nDo you want to stop debug and/or interactive mode? (input y/n)\n' )) == 'y'):
@@ -334,12 +334,12 @@ def do_build(config_dict, shutit_map, shutit_id_list):
 
 def do_test(config_dict, shutit_map, shutit_id_list):
 	# Test in reverse order
-	shutit_id_list = list(reversed(run_order_modules(shutit_map, shutit_id_list)))
 	util.log(util.red('PHASE: test'))
 	if config_dict['build']['tutorial']:
 		util.pause_point(util.get_pexpect_child('container_child'),'\nNow doing test phase',print_input=False)
 	stop_all(config_dict, shutit_map, shutit_id_list,-1)
 	start_all(config_dict, shutit_map, shutit_id_list, -1)
+	shutit_id_list = list(reversed(run_order_modules(shutit_map, shutit_id_list)))
 	for mid in shutit_id_list:
 		# Only test if it's thought to be installed.
 		if is_built(config_dict,shutit_map[mid]):
