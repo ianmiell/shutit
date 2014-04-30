@@ -363,7 +363,7 @@ def do_finalize(config_dict, shutit_map, shutit_id_list):
 			if not shutit_map[mid].finalize(config_dict):
 				util.fail(mid + ' failed on finalize',child=util.get_pexpect_child('container_child'))
 
-def tag_and_push(config_dict, shutit_map):
+def tag_and_push(config_dict):
 	if config_dict['build']['tutorial']:
 		util.pause_point(util.get_pexpect_child('host_child'),'\nDoing final committing/tagging on the overall container and creating the artifact.',print_input=False)
 	# Tag and push etc
@@ -396,7 +396,7 @@ def shutit_main():
 	do_test(config_dict, shutit_map, shutit_id_list)
 	do_finalize(config_dict, shutit_map, shutit_id_list)
 
-	tag_and_push(config_dict, shutit_map)
+	tag_and_push(config_dict)
 
 	util.log(util.red(util.build_report('Module: N/A (END)')),prefix=False,force_stdout=True)
 
