@@ -558,22 +558,22 @@ def do_repository_work(config_dict,expect,repo_name,repo_suffix='',docker_execut
 	server = config_dict['repository']['server']
 	user = config_dict['repository']['user']
 
-	if server != '':
+	if server:
 		repository_server = server + '/'
 	else:
 		repository_server = ''
 
-	if user != '':
+	if user:
 		repository_user = user + '/'
 		repository_user_tar = user + '_'
 	else:
 		repository_user = ''
 		repository_user_tar = ''
 
-	if repo_suffix != '' and repo_name != '':
+	if repo_suffix and repo_name:
 		repository = repository_server + repository_user + repo_name + '_' + repo_suffix
 		repository_tar = repository_user_tar + repo_name + '_' + repo_suffix
-	elif repo_suffix != '' and repo_name == '':
+	elif repo_suffix and not repo_name:
 		repository = repository_server + repository_user + repo_suffix
 		repository_tar = repository_user_tar + repo_suffix
 	else:
