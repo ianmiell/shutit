@@ -556,14 +556,17 @@ def do_repository_work(config_dict,expect,repo_name,repo_suffix='',docker_execut
 		return
 	child = get_pexpect_child('host_child')
 	repository_server = config_dict['repository']['server']
+
 	if repository_server != '':
 		repository_server = repository_server + '/'
+
 	if config_dict['repository']['user'] != '':
 		repository_user = config_dict['repository']['user'] + '/'
 		repository_user_tar = config_dict['repository']['user'] + '_'
 	else:
 		repository_user = ''
 		repository_user_tar = ''
+
 	if repo_suffix != '' and repo_name != '':
 		repository = repository_server + repository_user + repo_name + '_' + repo_suffix
 		repository_tar = repository_user_tar + repo_name + '_' + repo_suffix
@@ -573,6 +576,7 @@ def do_repository_work(config_dict,expect,repo_name,repo_suffix='',docker_execut
 	else:
 		repository = repository_server + repository_user + repo_name
 		repository_tar = repository_user_tar + repo_name
+
 	# Only lower case accepted
 	repository = repository.lower()
 	# Slight pause due to race conditions seen.
@@ -587,6 +591,7 @@ def do_repository_work(config_dict,expect,repo_name,repo_suffix='',docker_execut
 		repository = repository + '_' + suffix_date
 		repository_tar = repository_tar + '_' + suffix_date
 	cmd = docker_executable + ' tag ' + image_id + ' ' + repository
+
 	if image_id == None:
 		fail('failed to commit with cmd: ' + cmd + ' could not determine image id')
 	else:
