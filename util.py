@@ -555,14 +555,17 @@ def do_repository_work(config_dict,expect,repo_name,repo_suffix='',docker_execut
 	if not (config_dict['repository']['do_repository_work'] or force):
 		return
 	child = get_pexpect_child('host_child')
-	repository_server = config_dict['repository']['server']
+	server = config_dict['repository']['server']
+	user = config_dict['repository']['user']
 
-	if repository_server != '':
-		repository_server = repository_server + '/'
+	if server != '':
+		repository_server = server + '/'
+	else:
+		repository_server = ''
 
-	if config_dict['repository']['user'] != '':
-		repository_user = config_dict['repository']['user'] + '/'
-		repository_user_tar = config_dict['repository']['user'] + '_'
+	if user != '':
+		repository_user = user + '/'
+		repository_user_tar = user + '_'
 	else:
 		repository_user = ''
 		repository_user_tar = ''
@@ -593,7 +596,7 @@ def do_repository_work(config_dict,expect,repo_name,repo_suffix='',docker_execut
 
 	if image_id == None:
 		fail('failed to commit to ' + repository + ', could not determine image id')
-	if config_dict['repository']['server'] == '' and len(repository) > 30:
+	if server == '' and len(repository) > 30:
 		fail("""repository name: '""" + repository + """' too long. If using suffix_date consider shortening""")
 
 	cmd = docker_executable + ' tag ' + image_id + ' ' + repository
