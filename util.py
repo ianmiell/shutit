@@ -557,6 +557,8 @@ def do_repository_work(config_dict,expect,repo_name,repo_suffix='',docker_execut
 	child = get_pexpect_child('host_child')
 	server = config_dict['repository']['server']
 	user = config_dict['repository']['user']
+	repository = ''
+	repository_tar = ''
 
 	if server and user and repo_suffix and repo_name:
 		repository = '%s/%s/%s_%s' % (server, user, repo_name, repo_suffix)
@@ -595,6 +597,11 @@ def do_repository_work(config_dict,expect,repo_name,repo_suffix='',docker_execut
 		repository = '%s' % (repo_name,)
 		repository_tar = '%s' % (repo_name,)
 
+	if not repository:
+		fail('Could not form valid repository name')
+	if config_dict['repository']['tar'] and not repository_tar:
+		fail('Could not form valid tar name')
+
 	# Only lower case accepted
 	repository = repository.lower()
 	# Slight pause due to race conditions seen.
@@ -616,7 +623,7 @@ def do_repository_work(config_dict,expect,repo_name,repo_suffix='',docker_execut
 
 	cmd = docker_executable + ' tag ' + image_id + ' ' + repository
 	send_and_expect(child,cmd,expect,check_exit=False)
-	if config_dict['repository']['tar'] == True:
+	if config_dict['repository']['tar']:
 		if config_dict['build']['tutorial']:
 			pause_point(child,'We are now exporting the container to a bzipped tar file, as configured in \n[repository]\ntar:yes',print_input=False)
 		bzfile = config_dict['host']['resources_dir'] + '/' + repository_tar + '.tar.bz2'
