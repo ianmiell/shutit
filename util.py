@@ -559,41 +559,41 @@ def do_repository_work(config_dict,expect,repo_name,repo_suffix='',docker_execut
 	user = config_dict['repository']['user']
 
 	if server and user and repo_suffix and repo_name:
-		repository = server + '/' + user + '/' + repo_name + '_' + repo_suffix
-		repository_tar = user + '_' + repo_name + '_' + repo_suffix
+		repository = '%s/%s/%s_%s' % (server, user, repo_name, repo_suffix)
+		repository_tar = '%s_%s_%s' % (user, repo_name, repo_suffix)
 	if not server and user and repo_suffix and repo_name:
-		repository = user + '/' + repo_name + '_' + repo_suffix
-		repository_tar = user + '_' + repo_name + '_' + repo_suffix
+		repository = '%s/%s_%s' % (user, repo_name, repo_suffix)
+		repository_tar = '%s_%s_%s' % (user, repo_name, repo_suffix)
 	elif server and not user and repo_suffix and repo_name:
-		repository = server + '/' + repo_name + '_' + repo_suffix
-		repository_tar = repo_name + '_' + repo_suffix
+		repository = '%s/%s_%s' % (server, repo_name, repo_suffix)
+		repository_tar = '%s_%s' % (repo_name, repo_suffix)
 	elif not server and not user and repo_suffix and repo_name:
-		repository = repo_name + '_' + repo_suffix
-		repository_tar = repo_name + '_' + repo_suffix
+		repository = '%s_%s' % (repo_name, repo_suffix)
+		repository_tar = '%s_%s' % (repo_name, repo_suffix)
 	elif server and user and repo_suffix and not repo_name:
-		repository = server + '/' + user + '/' + repo_suffix
-		repository_tar = user + '_' + repo_suffix
+		repository = '%s/%s/%s' % (server, user, repo_suffix)
+		repository_tar = '%s_%s' % (user, repo_suffix)
 	elif not server and user and repo_suffix and not repo_name:
-		repository = user + '/' + repo_suffix
-		repository_tar = user + '_' + repo_suffix
+		repository = '%s/%s' % (user, repo_suffix)
+		repository_tar = '%s_%s' % (user, repo_suffix)
 	elif server and not user and repo_suffix and not repo_name:
-		repository = server + '/' + repo_suffix
-		repository_tar = repo_suffix
+		repository = '%s/%s' % (server, repo_suffix)
+		repository_tar = '%s' % (repo_suffix,)
 	elif not server and not user and repo_suffix and not repo_name:
-		repository = repo_suffix
-		repository_tar = repo_suffix
+		repository = '%s' % (repo_suffix,)
+		repository_tar = '%s' % (repo_suffix,)
 	elif server and user:
-		repository = server + '/' + user + '/' + repo_name
-		repository_tar = user + '_' + repo_name
+		repository = '%s/%s/%s' % (server, user, repo_name)
+		repository_tar = '%s_%s' % (user, repo_name)
 	elif not server and user:
-		repository = user + '/' + repo_name
-		repository_tar = user + '_' + repo_name
+		repository = '%s/%s' % (user, repo_name)
+		repository_tar = '%s_%s' % (user, repo_name)
 	elif server and not user:
-		repository = server + '/' + repo_name
-		repository_tar = repo_name
+		repository = '%s/%s' % (server, repo_name)
+		repository_tar = '%s' % (repo_name,)
 	elif not server and not user:
-		repository = repo_name
-		repository_tar = repo_name
+		repository = '%s' % (repo_name,)
+		repository_tar = '%s' % (repo_name,)
 
 	# Only lower case accepted
 	repository = repository.lower()
