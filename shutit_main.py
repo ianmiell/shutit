@@ -267,7 +267,7 @@ def check_ready(config_dict, shutit_map, shutit_id_list):
 
 def do_remove(config_dict, shutit_map, shutit_id_list):
 	# Now get the run_order keys in order and go.
-	shutit_id_list = run_order_modules(config_dict, shutit_id_list)
+	shutit_id_list = run_order_modules(shutit_map, shutit_id_list)
 	util.log(util.red('PHASE: remove'))
 	if config_dict['build']['tutorial']:
 		util.pause_point(util.get_pexpect_child('container_child'),'\nNow removing any modules that need removing',print_input=False)
