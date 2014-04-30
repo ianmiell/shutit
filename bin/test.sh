@@ -20,7 +20,10 @@
 #OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 #SOFTWARE.
 
+TESTS=$1
+
 [ "x$DOCKER" != "x" ] || DOCKER="sudo docker"
+[ "x$TESTS" != "x" ] || TEST="basic"
 
 set -o errexit
 set -o nounset
@@ -117,10 +120,13 @@ then
 fi
 
 # Examples tests
-pushd  ${SHUTIT_DIR}/examples/bin
-./test.sh || failure "3.0.examples"
-popd
-cleanup nothard
+if [[ $TESTS != 'basic' ]]
+then
+	pushd  ${SHUTIT_DIR}/examples/bin
+	./test.sh || failure "3.0.examples"
+	popd
+	cleanup nothard
+fi
 
 # OK
 echo "================================================================================"

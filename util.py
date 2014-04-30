@@ -601,10 +601,13 @@ def do_repository_work(config_dict,expect,repo_name,repo_suffix='',docker_execut
 				res = send_and_expect(child,docker_executable + ' export ' + config_dict['container']['container_id'] + ' | bzip2 - > ' + bzfile,[expect,'assword'],timeout=99999)
 				log(red('\nDeposited bzip2 of exported container into ' + bzfile))
 				log(red('\nRun:\n\nbunzip2 -c ' + bzfile + ' | sudo docker import -\n\nto get this imported into docker.'))
+				config_dict['build']['report'] = config_dict['build']['report'] + '\nDeposited bzip2 of exported container into ' + bzfile
+				config_dict['build']['report'] = config_dict['build']['report'] + '\nRun:\n\nbunzip2 -c ' + bzfile + ' | sudo docker import -\n\nto get this imported into docker.'
 				if res == 1:
 					send_and_expect(child,password,expect,record_command=False)
 			if config_dict['repository']['push'] == True:
 				push_repository(child,repository,config_dict,docker_executable,expect)
+				config_dict['build']['report'] = config_dict['build']['report'] + 'Pushed repository: ' + repository
 
 
 # Return True if file exists, else False
