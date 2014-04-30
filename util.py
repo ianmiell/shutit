@@ -590,13 +590,13 @@ def do_repository_work(config_dict,expect,repo_name,repo_suffix='',docker_execut
 		suffix_date = time.strftime(config_dict['repository']['suffix_format'])
 		repository = repository + '_' + suffix_date
 		repository_tar = repository_tar + '_' + suffix_date
-	cmd = docker_executable + ' tag ' + image_id + ' ' + repository
 
 	if image_id == None:
-		fail('failed to commit with cmd: ' + cmd + ' could not determine image id')
+		fail('failed to commit to ' + repository + ', could not determine image id')
 	if config_dict['repository']['server'] == '' and len(repository) > 30:
 		fail("""repository name: '""" + repository + """' too long. If using suffix_date consider shortening""")
 
+	cmd = docker_executable + ' tag ' + image_id + ' ' + repository
 	send_and_expect(child,cmd,expect,check_exit=False)
 	if config_dict['repository']['tar'] == True:
 		if config_dict['build']['tutorial']:
