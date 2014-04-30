@@ -364,6 +364,8 @@ def do_finalize(config_dict, shutit_map, shutit_id_list):
 				util.fail(mid + ' failed on finalize',child=util.get_pexpect_child('container_child'))
 
 def tag_and_push(config_dict, shutit_map):
+	if config_dict['build']['tutorial']:
+		util.pause_point(util.get_pexpect_child('host_child'),'\nDoing final committing/tagging on the overall container and creating the artifact.',print_input=False)
 	# Tag and push etc
 	util.do_repository_work(
 		config_dict,
@@ -375,21 +377,6 @@ def tag_and_push(config_dict, shutit_map):
 	host_child = util.get_pexpect_child('host_child')
 	host_child.sendline('exit') # Exit raw bash
 	time.sleep(0.3)
-	# Finally, do repo work on the core module.
-	for module in shutit_map.values():
-		if module.run_order == 0:
-			core_module = module
-			break
-	if config_dict[core_module.module_id]['do_repository_work']:
-		if config_dict['build']['tutorial']:
-			util.pause_point(util.get_pexpect_child('host_child'),'\nDoing final committing/tagging on the overall container and creating the artifact.',print_input=False)
-		util.log(util.red('doing repo work: ' + core_module.module_id + ' with run order: ' + str(core_module.run_order)))
-		util.do_repository_work(
-			config_dict,
-			config_dict['expect_prompts']['base_prompt'],
-			str(core_module.run_order),
-			docker_executable=config_dict['host']['docker_executable'],
-			password=config_dict['host']['password'])
 
 def shutit_main():
 	config_dict = shutit_global.config_dict
