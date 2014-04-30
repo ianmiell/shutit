@@ -33,7 +33,6 @@ import imp
 import shutit_global
 import pexpect
 import socket
-import binascii
 import random
 import textwrap
 import tempfile
@@ -761,15 +760,6 @@ def module_exists(module_id):
 # Helper function to get global without importing it.
 def get_shutit_modules():
 	return shutit_global.shutit_modules
-
-
-# Helper function to get preceding integer
-# eg com.openbet == 1003189494
-# >>> import binascii
-# >>> abs(binascii.crc32('shutit.tk'))
-# 782914092
-def get_hash(string):
-	return abs(binascii.crc32(string))
 
 
 # Distro-independent install function.
