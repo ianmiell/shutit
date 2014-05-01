@@ -92,18 +92,15 @@ def init_shutit_map(config_dict, shutit_map):
 		util.log('\n',force_stdout=True)
 		util.pause_point(util.get_pexpect_child('container_child'),'',print_input=False)
 
+	run_orders = {}
 	for m in util.get_shutit_modules():
 		assert isinstance(m, ShutItModule)
-		# module_id should be unique
-		for n in util.get_shutit_modules():
-			if n == m:
-				continue
-			if m.module_id == n.module_id:
-				util.fail('Duplicate module ids! ' + m.module_id + ' for ' + m.module_id + ' and ' + n.module_id)
-			if m.run_order == n.run_order:
-				util.fail('Duplicate run order! ' + str(m.run_order) + ' for ' + m.module_id + ' and ' + n.module_id)
-		# map the module id to the object
-		shutit_map.update({m.module_id:m})
+		if m.module_id in shutit_map:
+			util.fail('Duplicated module id: ' + m.module_id)
+		if m.run_order in run_orders:
+			util.fail('Duplicate run order: ' + str(m.run_order) + ' for ' +
+				m.module_id + ' and ' + run_orders[m.run_order].module_id)
+		shutit_map[m.module_id] = run_orders[m.run_order] = m
 
 def config_collection(config_dict, shutit_map, shutit_id_list):
 	shutit_id_list = run_order_modules(shutit_map, shutit_id_list)
