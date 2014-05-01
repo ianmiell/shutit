@@ -272,7 +272,7 @@ def get_base_config(config_dict, cfg_parser):
 		time.sleep(1)
 	# If build/allowed_images doesn't contain container/docker_image
 	if 'any' not in config_dict['build']['allowed_images'] and config_dict['container']['docker_image'] not in config_dict['build']['allowed_images']:
-		fail('Allowed images for this build are: ' + config_dict['build']['allowed_images'] + ' but the configured image is: ' + config_dict['container']['docker_image'])
+		fail('Allowed images for this build are: ' + str(config_dict['build']['allowed_images']) + ' but the configured image is: ' + config_dict['container']['docker_image'])
 	# FAILS ends
 	if config_dict['host']['password'] == '':
 		import getpass

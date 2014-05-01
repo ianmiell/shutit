@@ -99,7 +99,9 @@ privileged:no
 # lxc-conf arg, eg
 #lxc_conf:lxc.aa_profile=unconfined
 lxc_conf:
-# Allowed images list, eg ['ubuntu:12.10']. These are matched against 
+# Allowed images json-list, eg ["ubuntu:12.04"], each matched on
+# an OR basis with the image base.
 # 'any' is a special value meaning any image is ok, and is the default.
 # It's recommended this is locked down as far as possible.
+# NB each image must be in double quotes.
 allowed_images:["any"]
