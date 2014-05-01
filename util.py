@@ -568,13 +568,21 @@ def do_repository_work(config_dict,expect,repo_name,docker_executable='docker',p
 	else:
 		repository = repository_tar = ''
 
-	if server and repository:
-		repository = '%s/%s' % (server, repository)
-
 	if not repository:
 		fail('Could not form valid repository name')
 	if config_dict['repository']['tar'] and not repository_tar:
 		fail('Could not form valid tar name')
+
+	if server:
+		repository = '%s/%s' % (server, repository)
+
+	if config_dict['repository']['suffix_date']:
+		suffix_date = time.strftime(config_dict['repository']['suffix_format'])
+		repository = '%s_%s' % (repository, suffix_date)
+		repository_tar = '%s_%s' % (repository_tar, suffix_date)
+
+	if server == '' and len(repository) > 30:
+		fail("""repository name: '""" + repository + """' too long. If using suffix_date consider shortening""")
 
 	# Only lower case accepted
 	repository = repository.lower()
@@ -585,15 +593,9 @@ def do_repository_work(config_dict,expect,repo_name,docker_executable='docker',p
 		send_and_expect(child,config_dict['host']['password'],expect,check_exit=False,record_command=False)
 	send_and_expect(child,'echo $SHUTIT_TMP_VAR && unset SHUTIT_TMP_VAR',expect,check_exit=False,record_command=False)
 	image_id = child.after.split('\r\n')[1]
-	if config_dict['repository']['suffix_date']:
-		suffix_date = time.strftime(config_dict['repository']['suffix_format'])
-		repository = repository + '_' + suffix_date
-		repository_tar = repository_tar + '_' + suffix_date
 
-	if image_id == None:
+	if not image_id:
 		fail('failed to commit to ' + repository + ', could not determine image id')
-	if server == '' and len(repository) > 30:
-		fail("""repository name: '""" + repository + """' too long. If using suffix_date consider shortening""")
 
 	cmd = docker_executable + ' tag ' + image_id + ' ' + repository
 	send_and_expect(child,cmd,expect,check_exit=False)
