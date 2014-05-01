@@ -164,12 +164,10 @@ def check_dependees_exist(config_dict, shutit_map, depender):
 				'all modules configured to be built are in that path setting, ' +
 				'eg "--shutit_module_path /path/to/other/module/:." See also help.')
 def check_dependees_build(config_dict, shutit_map, depender):
-	depender_is_installed = depender.is_installed(config_dict)
 	for dependee_id in depender.depends_on:
 		dependee = shutit_map.get(dependee_id)
 		# If depender is installed or will be installed, so must the dependee
-		if ((config_dict[depender.module_id]['build'] or depender_is_installed) and not
-				config_dict[dependee.module_id]['build'] and not dependee.is_installed(config_dict)):
+		if not (config_dict[dependee.module_id]['build'] or dependee.is_installed(config_dict)):
 			return ('depender module id: [' + depender.module_id + '] ' +
 				'is configured: "build:yes" or is already built ' +
 				'but dependee module_id: [' + dependee_id + '] ' +
