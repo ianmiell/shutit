@@ -578,12 +578,6 @@ def do_repository_work(config_dict,expect,repo_name,docker_executable='docker',p
 	elif not server and user and not repo_name:
 		repository = '%s/%s' % (user, repo_name)
 		repository_tar = '%s_%s' % (user, repo_name)
-	elif server and not user and not repo_name:
-		repository = '%s/%s' % (server, repo_name)
-		repository_tar = '%s' % (repo_name,)
-	elif not server and not user and not repo_name:
-		repository = '%s' % (repo_name,)
-		repository_tar = '%s' % (repo_name,)
 
 	if not repository:
 		fail('Could not form valid repository name')
