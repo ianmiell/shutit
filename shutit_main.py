@@ -200,19 +200,17 @@ def check_deps(config_dict, shutit_map, shutit_id_list):
 	]
 	# Add any deps we may need by extending to_build and altering config_dict
 	[resolve_dependencies(config_dict, shutit_map, to_build, module) for module in to_build]
+
 	# Dep checking
-	errs = [
-		err for err in
-		[check_dependees_exist(config_dict, shutit_map, module) for module in to_build] +
-		[check_dependees_build(config_dict, shutit_map, module) for module in to_build] +
-		[check_dependees_order(config_dict, shutit_map, module) for module in to_build]
-		if err
-	]
-	if len(errs) > 0:
-		util.log(util.red(util.print_modules(shutit_map,shutit_id_list,config_dict)))
-		for err in errs:
-			util.log(util.red(err))
-		util.fail('Found some errors')
+	def err_checker(generator):
+		for err in generator:
+			if not err: continue
+			util.log(util.red(util.print_modules(shutit_map,shutit_id_list,config_dict)))
+			util.fail(err)
+	err_checker((check_dependees_exist(config_dict, shutit_map, module) for module in to_build))
+	err_checker((check_dependees_build(config_dict, shutit_map, module) for module in to_build))
+	err_checker((check_dependees_order(config_dict, shutit_map, module) for module in to_build))
+
 	# Show dependency graph
 	if config_dict['build']['show_depgraph_only']:
 		digraph = 'digraph depgraph {\n'
