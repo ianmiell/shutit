@@ -36,6 +36,7 @@ import socket
 import random
 import textwrap
 import tempfile
+import binascii
 
 # TODO: Manage exits of containers on error
 def fail(msg,child=None):
@@ -931,3 +932,13 @@ def build_report(msg=''):
 	s = s + '# BUILD REPORT FOR BUILD END ' + shutit_global.config_dict['build']['build_id'] + '\n'
 	s = s + '################################################################################\n'
 	return s
+
+# Helper function to get preceding integer
+# eg com.openbet == 1003189494
+# >>> import binascii
+# >>> abs(binascii.crc32('shutit.tk'))
+# 782914092
+#
+# Not in use, but recommended means of determining run order integer part.
+def get_hash(string):
+	return abs(binascii.crc32(string))
