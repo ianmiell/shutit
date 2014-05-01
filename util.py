@@ -557,21 +557,19 @@ def do_repository_work(config_dict,expect,repo_name,docker_executable='docker',p
 	child = get_pexpect_child('host_child')
 	server = config_dict['repository']['server']
 	user = config_dict['repository']['user']
-	repository = ''
-	repository_tar = ''
 
 	if user and repo_name:
 		repository = '%s/%s' % (user, repo_name)
 		repository_tar = '%s_%s' % (user, repo_name)
 	elif user:
-		repository = '%s' % (user,)
-		repository_tar = '%s' % (user,)
+		repository = repository_tar = user
 	elif repo_name:
-		repository = '%s' % (repo_name,)
-		repository_tar = '%s' % (repo_name,)
+		repository = repository_tar = repo_name
+	else:
+		repository = repository_tar = ''
 
 	if server and repository:
-		repository = server + '/' + repository
+		repository = '%s/%s' % (server, repository)
 
 	if not repository:
 		fail('Could not form valid repository name')
