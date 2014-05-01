@@ -105,3 +105,4 @@ lxc_conf:
 # It's recommended this is locked down as far as possible.
 # NB each image must be in double quotes.
 allowed_images:["any"]
+
