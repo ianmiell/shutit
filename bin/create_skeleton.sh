@@ -135,6 +135,13 @@ cat >> ${SKELETON_DIR}/configs/build.cnf << END
 # This feeds into automated testing of each module.
 [com.mycorp.${MODULE_NAME}]
 build:yes
+
+# Aspects of build process
+[build]
+# Allowed images, eg 'ubuntu:12.10'. These are matched against 
+# 'any' is a special value meaning any image is ok, and is the default.
+# It's recommended this is locked down as far as possible.
+allowed_images:any
 END
 # Setup base config for the new module
 cat >> ${SKELETON_DIR}/configs/push.cnf << END
@@ -148,7 +155,7 @@ tar:no
 server:REMOVE_ME_FOR_DOCKER_INDEX
 name:$MODULE_NAME
 suffix_date:yes
-suffix_format:%Y%m%d_%H%M%S
+suffix_format:%s
 
 [container]
 rm:false

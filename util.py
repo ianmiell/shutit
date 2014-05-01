@@ -33,10 +33,10 @@ import imp
 import shutit_global
 import pexpect
 import socket
-import binascii
 import random
 import textwrap
 import tempfile
+import binascii
 
 # TODO: Manage exits of containers on error
 def fail(msg,child=None):
@@ -552,62 +552,69 @@ def pause_point(child,msg,print_input=True,expect='',config_dict=None,force=Fals
 
 # Commit, tag, push, tar etc..
 # expect must be a string
-def do_repository_work(config_dict,expect,repo_name,repo_suffix='',docker_executable='docker',password=None,force=False):
-	if config_dict['repository']['do_repository_work'] or force:
-		child = get_pexpect_child('host_child')
-		repository_server = config_dict['repository']['server']
-		if repository_server != '':
-			repository_server = repository_server + '/'
-		if config_dict['repository']['user'] != '':
-			repository_user = config_dict['repository']['user'] + '/'
-			repository_user_tar = config_dict['repository']['user'] + '_'
-		else:
-			repository_user = ''
-			repository_user_tar = ''
-		if repo_suffix != '' and repo_name != '':
-			repository = repository_server + repository_user + repo_name + '_' + repo_suffix
-			repository_tar = repository_user_tar + repo_name + '_' + repo_suffix
-		elif repo_suffix != '' and repo_name == '':
-			repository = repository_server + repository_user + repo_suffix
-			repository_tar = repository_user_tar + repo_suffix
-		else:
-			repository = repository_server + repository_user + repo_name
-			repository_tar = repository_user_tar + repo_name
-		# Only lower case accepted
-		repository = repository.lower()
-		# Slight pause due to race conditions seen.
-		#time.sleep(0.3)
-		res = send_and_expect(child,'SHUTIT_TMP_VAR=`' + docker_executable + ' commit ' + config_dict['container']['container_id'] + '`',[expect,'assword'],timeout=99999,check_exit=False)
+def do_repository_work(config_dict,expect,repo_name,docker_executable='docker',password=None,force=False):
+	if not (config_dict['repository']['do_repository_work'] or force):
+		return
+	child = get_pexpect_child('host_child')
+	server = config_dict['repository']['server']
+	user = config_dict['repository']['user']
+
+	if user and repo_name:
+		repository = '%s/%s' % (user, repo_name)
+		repository_tar = '%s_%s' % (user, repo_name)
+	elif user:
+		repository = repository_tar = user
+	elif repo_name:
+		repository = repository_tar = repo_name
+	else:
+		repository = repository_tar = ''
+
+	if not repository:
+		fail('Could not form valid repository name')
+	if config_dict['repository']['tar'] and not repository_tar:
+		fail('Could not form valid tar name')
+
+	if server:
+		repository = '%s/%s' % (server, repository)
+
+	if config_dict['repository']['suffix_date']:
+		suffix_date = time.strftime(config_dict['repository']['suffix_format'])
+		repository = '%s_%s' % (repository, suffix_date)
+		repository_tar = '%s_%s' % (repository_tar, suffix_date)
+
+	if server == '' and len(repository) > 30:
+		fail("""repository name: '""" + repository + """' too long. If using suffix_date consider shortening""")
+
+	# Only lower case accepted
+	repository = repository.lower()
+	# Slight pause due to race conditions seen.
+	#time.sleep(0.3)
+	res = send_and_expect(child,'SHUTIT_TMP_VAR=`' + docker_executable + ' commit ' + config_dict['container']['container_id'] + '`',[expect,'assword'],timeout=99999,check_exit=False)
+	if res == 1:
+		send_and_expect(child,config_dict['host']['password'],expect,check_exit=False,record_command=False)
+	send_and_expect(child,'echo $SHUTIT_TMP_VAR && unset SHUTIT_TMP_VAR',expect,check_exit=False,record_command=False)
+	image_id = child.after.split('\r\n')[1]
+
+	if not image_id:
+		fail('failed to commit to ' + repository + ', could not determine image id')
+
+	cmd = docker_executable + ' tag ' + image_id + ' ' + repository
+	send_and_expect(child,cmd,expect,check_exit=False)
+	if config_dict['repository']['tar']:
+		if config_dict['build']['tutorial']:
+			pause_point(child,'We are now exporting the container to a bzipped tar file, as configured in \n[repository]\ntar:yes',print_input=False)
+		bzfile = config_dict['host']['resources_dir'] + '/' + repository_tar + '.tar.bz2'
+		log('\nDepositing bzip2 of exported container into ' + bzfile)
+		res = send_and_expect(child,docker_executable + ' export ' + config_dict['container']['container_id'] + ' | bzip2 - > ' + bzfile,[expect,'assword'],timeout=99999)
+		log(red('\nDeposited bzip2 of exported container into ' + bzfile))
+		log(red('\nRun:\n\nbunzip2 -c ' + bzfile + ' | sudo docker import -\n\nto get this imported into docker.'))
+		config_dict['build']['report'] = config_dict['build']['report'] + '\nDeposited bzip2 of exported container into ' + bzfile
+		config_dict['build']['report'] = config_dict['build']['report'] + '\nRun:\n\nbunzip2 -c ' + bzfile + ' | sudo docker import -\n\nto get this imported into docker.'
 		if res == 1:
-			send_and_expect(child,config_dict['host']['password'],expect,check_exit=False,record_command=False)
-		send_and_expect(child,'echo $SHUTIT_TMP_VAR && unset SHUTIT_TMP_VAR',expect,check_exit=False,record_command=False)
-		image_id = child.after.split('\r\n')[1]
-		if config_dict['repository']['suffix_date']:
-			suffix_date = time.strftime(config_dict['repository']['suffix_format'])
-			repository = repository + '_' + suffix_date
-			repository_tar = repository_tar + '_' + suffix_date
-		cmd = docker_executable + ' tag ' + image_id + ' ' + repository
-		if image_id == None:
-			fail('failed to commit with cmd: ' + cmd + ' could not determine image id')
-		else:
-			if config_dict['repository']['server'] == '' and len(repository) > 30:
-				fail("""repository name: '""" + repository + """' too long. If using suffix_date consider shortening""")
-			send_and_expect(child,cmd,expect,check_exit=False)
-			if config_dict['repository']['tar'] == True:
-				if config_dict['build']['tutorial']:
-					pause_point(child,'We are now exporting the container to a bzipped tar file, as configured in \n[repository]\ntar:yes',print_input=False)
-				bzfile = config_dict['host']['resources_dir'] + '/' + repository_tar + '.tar.bz2'
-				log('\nDepositing bzip2 of exported container into ' + bzfile)
-				res = send_and_expect(child,docker_executable + ' export ' + config_dict['container']['container_id'] + ' | bzip2 - > ' + bzfile,[expect,'assword'],timeout=99999)
-				log(red('\nDeposited bzip2 of exported container into ' + bzfile))
-				log(red('\nRun:\n\nbunzip2 -c ' + bzfile + ' | sudo docker import -\n\nto get this imported into docker.'))
-				config_dict['build']['report'] = config_dict['build']['report'] + '\nDeposited bzip2 of exported container into ' + bzfile
-				config_dict['build']['report'] = config_dict['build']['report'] + '\nRun:\n\nbunzip2 -c ' + bzfile + ' | sudo docker import -\n\nto get this imported into docker.'
-				if res == 1:
-					send_and_expect(child,password,expect,record_command=False)
-			if config_dict['repository']['push'] == True:
-				push_repository(child,repository,config_dict,docker_executable,expect)
-				config_dict['build']['report'] = config_dict['build']['report'] + 'Pushed repository: ' + repository
+			send_and_expect(child,password,expect,record_command=False)
+	if config_dict['repository']['push'] == True:
+		push_repository(child,repository,config_dict,docker_executable,expect)
+		config_dict['build']['report'] = config_dict['build']['report'] + 'Pushed repository: ' + repository
 
 
 # Return True if file exists, else False
@@ -760,15 +767,6 @@ def module_exists(module_id):
 # Helper function to get global without importing it.
 def get_shutit_modules():
 	return shutit_global.shutit_modules
-
-
-# Helper function to get preceding integer
-# eg com.openbet == 1003189494
-# >>> import binascii
-# >>> abs(binascii.crc32('shutit.tk'))
-# 782914092
-def get_hash(string):
-	return abs(binascii.crc32(string))
 
 
 # Distro-independent install function.
@@ -934,3 +932,13 @@ def build_report(msg=''):
 	s = s + '# BUILD REPORT FOR BUILD END ' + shutit_global.config_dict['build']['build_id'] + '\n'
 	s = s + '################################################################################\n'
 	return s
+
+# Helper function to get preceding integer
+# eg com.openbet == 1003189494
+# >>> import binascii
+# >>> abs(binascii.crc32('shutit.tk'))
+# 782914092
+#
+# Not in use, but recommended means of determining run order integer part.
+def get_hash(string):
+	return abs(binascii.crc32(string))
