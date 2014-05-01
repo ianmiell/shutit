@@ -551,7 +551,7 @@ def pause_point(child,msg,print_input=True,expect='',config_dict=None,force=Fals
 
 # Commit, tag, push, tar etc..
 # expect must be a string
-def do_repository_work(config_dict,expect,name,suffix='',docker_executable='docker',password=None,force=False):
+def do_repository_work(config_dict,expect,name,docker_executable='docker',password=None,force=False):
 	if not (config_dict['repository']['do_repository_work'] or force):
 		return
 	child = get_pexpect_child('host_child')
@@ -561,12 +561,8 @@ def do_repository_work(config_dict,expect,name,suffix='',docker_executable='dock
 	repository_tar = ''
 	repo_name = ''
 
-	if name and suffix:
-		repo_name = name + '_' + suffix
-	elif name:
+	if name:
 		repo_name = name
-	elif suffix:
-		repo_name = suffix
 
 	if server and user and repo_name:
 		repository = '%s/%s/%s' % (server, user, repo_name)
