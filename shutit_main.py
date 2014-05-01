@@ -301,8 +301,7 @@ def build_module(config_dict, shutit_map, shutit_id_list, module):
 		stop_all(config_dict, shutit_map, shutit_id_list, module.run_order)
 		util.do_repository_work(config_dict,
 			config_dict['expect_prompts']['base_prompt'],
-			str(module.module_id),
-			suffix=str(module.run_order),
+			str(module.module_id) + '_' + str(module.run_order),
 			password=config_dict['host']['password'],
 			docker_executable=config_dict['host']['docker_executable'],
 			force=True)
