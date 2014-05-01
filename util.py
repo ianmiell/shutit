@@ -584,16 +584,16 @@ def do_repository_work(config_dict,expect,repo_name,repo_suffix='',docker_execut
 	elif not server and not user and repo_suffix and not repo_name:
 		repository = '%s' % (repo_suffix,)
 		repository_tar = '%s' % (repo_suffix,)
-	elif server and user:
+	elif server and user and not repo_suffix:
 		repository = '%s/%s/%s' % (server, user, repo_name)
 		repository_tar = '%s_%s' % (user, repo_name)
-	elif not server and user:
+	elif not server and user and not repo_suffix:
 		repository = '%s/%s' % (user, repo_name)
 		repository_tar = '%s_%s' % (user, repo_name)
-	elif server and not user:
+	elif server and not user and not repo_suffix:
 		repository = '%s/%s' % (server, repo_name)
 		repository_tar = '%s' % (repo_name,)
-	elif not server and not user:
+	elif not server and not user and not repo_suffix:
 		repository = '%s' % (repo_name,)
 		repository_tar = '%s' % (repo_name,)
 
