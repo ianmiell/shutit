@@ -37,6 +37,7 @@ import binascii
 import random
 import textwrap
 import tempfile
+import json
 
 # TODO: Manage exits of containers on error
 def fail(msg,child=None):
@@ -190,7 +191,7 @@ def get_base_config(config_dict, cfg_parser):
 	config_dict['build']['action_on_ret_code']            = cp.get('build','action_on_ret_code')
 	config_dict['build']['privileged']                    = cp.getboolean('build','privileged')
 	config_dict['build']['lxc_conf']                      = cp.get('build','lxc_conf')
-	config_dict['build']['allowed_images']                = cp.get('build','allowed_images')
+	config_dict['build']['allowed_images']                = json.loads(cp.get('build','allowed_images'))
 	config_dict['container']['password']                  = cp.get('container','password')
 	config_dict['container']['hostname']                  = cp.get('container','hostname')
 	config_dict['container']['force_repo_work']           = cp.getboolean('container','force_repo_work')
@@ -270,7 +271,7 @@ def get_base_config(config_dict, cfg_parser):
 		log(red(print_config(config_dict)),force_stdout=True)
 		time.sleep(1)
 	# If build/allowed_images doesn't contain container/docker_image
-	if config_dict['build']['allowed_images'] != 'any' and config_dict['container']['docker_image'] not in config_dict['build']['allowed_images']:
+	if 'any' not in config_dict['build']['allowed_images'] and config_dict['container']['docker_image'] not in config_dict['build']['allowed_images']:
 		fail('Allowed images for this build are: ' + config_dict['build']['allowed_images'] + ' but the configured image is: ' + config_dict['container']['docker_image'])
 	# FAILS ends
 	if config_dict['host']['password'] == '':
