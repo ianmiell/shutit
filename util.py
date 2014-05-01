@@ -551,7 +551,7 @@ def pause_point(child,msg,print_input=True,expect='',config_dict=None,force=Fals
 
 # Commit, tag, push, tar etc..
 # expect must be a string
-def do_repository_work(config_dict,expect,repo_name,repo_suffix='',docker_executable='docker',password=None,force=False):
+def do_repository_work(config_dict,expect,name,suffix='',docker_executable='docker',password=None,force=False):
 	if not (config_dict['repository']['do_repository_work'] or force):
 		return
 	child = get_pexpect_child('host_child')
@@ -559,41 +559,37 @@ def do_repository_work(config_dict,expect,repo_name,repo_suffix='',docker_execut
 	user = config_dict['repository']['user']
 	repository = ''
 	repository_tar = ''
+	repo_name = ''
 
-	if server and user and repo_suffix and repo_name:
-		repository = '%s/%s/%s_%s' % (server, user, repo_name, repo_suffix)
-		repository_tar = '%s_%s_%s' % (user, repo_name, repo_suffix)
-	if not server and user and repo_suffix and repo_name:
-		repository = '%s/%s_%s' % (user, repo_name, repo_suffix)
-		repository_tar = '%s_%s_%s' % (user, repo_name, repo_suffix)
-	elif server and not user and repo_suffix and repo_name:
-		repository = '%s/%s_%s' % (server, repo_name, repo_suffix)
-		repository_tar = '%s_%s' % (repo_name, repo_suffix)
-	elif not server and not user and repo_suffix and repo_name:
-		repository = '%s_%s' % (repo_name, repo_suffix)
-		repository_tar = '%s_%s' % (repo_name, repo_suffix)
-	elif server and user and repo_suffix and not repo_name:
-		repository = '%s/%s/%s' % (server, user, repo_suffix)
-		repository_tar = '%s_%s' % (user, repo_suffix)
-	elif not server and user and repo_suffix and not repo_name:
-		repository = '%s/%s' % (user, repo_suffix)
-		repository_tar = '%s_%s' % (user, repo_suffix)
-	elif server and not user and repo_suffix and not repo_name:
-		repository = '%s/%s' % (server, repo_suffix)
-		repository_tar = '%s' % (repo_suffix,)
-	elif not server and not user and repo_suffix and not repo_name:
-		repository = '%s' % (repo_suffix,)
-		repository_tar = '%s' % (repo_suffix,)
-	elif server and user and not repo_suffix:
+	if name and suffix:
+		repo_name = name + '_' + suffix
+	elif name:
+		repo_name = name
+	elif suffix:
+		repo_name = suffix
+
+	if server and user and repo_name:
 		repository = '%s/%s/%s' % (server, user, repo_name)
 		repository_tar = '%s_%s' % (user, repo_name)
-	elif not server and user and not repo_suffix:
+	if not server and user and repo_name:
 		repository = '%s/%s' % (user, repo_name)
 		repository_tar = '%s_%s' % (user, repo_name)
-	elif server and not user and not repo_suffix:
+	elif server and not user and repo_name:
 		repository = '%s/%s' % (server, repo_name)
 		repository_tar = '%s' % (repo_name,)
-	elif not server and not user and not repo_suffix:
+	elif not server and not user and repo_name:
+		repository = '%s' % (repo_name,)
+		repository_tar = '%s' % (repo_name,)
+	elif server and user and not repo_name:
+		repository = '%s/%s/%s' % (server, user, repo_name)
+		repository_tar = '%s_%s' % (user, repo_name)
+	elif not server and user and not repo_name:
+		repository = '%s/%s' % (user, repo_name)
+		repository_tar = '%s_%s' % (user, repo_name)
+	elif server and not user and not repo_name:
+		repository = '%s/%s' % (server, repo_name)
+		repository_tar = '%s' % (repo_name,)
+	elif not server and not user and not repo_name:
 		repository = '%s' % (repo_name,)
 		repository_tar = '%s' % (repo_name,)
 

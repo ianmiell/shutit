@@ -302,7 +302,7 @@ def build_module(config_dict, shutit_map, shutit_id_list, module):
 		util.do_repository_work(config_dict,
 			config_dict['expect_prompts']['base_prompt'],
 			str(module.module_id),
-			repo_suffix=str(module.run_order),
+			suffix=str(module.run_order),
 			password=config_dict['host']['password'],
 			docker_executable=config_dict['host']['docker_executable'],
 			force=True)
