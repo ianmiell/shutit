@@ -92,18 +92,15 @@ def init_shutit_map(config_dict, shutit_map):
 		util.log('\n',force_stdout=True)
 		util.pause_point(util.get_pexpect_child('container_child'),'',print_input=False)
 
+	run_orders = {}
 	for m in util.get_shutit_modules():
 		assert isinstance(m, ShutItModule)
-		# module_id should be unique
-		for n in util.get_shutit_modules():
-			if n == m:
-				continue
-			if m.module_id == n.module_id:
-				util.fail('Duplicate module ids! ' + m.module_id + ' for ' + m.module_id + ' and ' + n.module_id)
-			if m.run_order == n.run_order:
-				util.fail('Duplicate run order! ' + str(m.run_order) + ' for ' + m.module_id + ' and ' + n.module_id)
-		# map the module id to the object
-		shutit_map.update({m.module_id:m})
+		if m.module_id in shutit_map:
+			util.fail('Duplicated module id: ' + m.module_id)
+		if m.run_order in run_orders:
+			util.fail('Duplicate run order: ' + str(m.run_order) + ' for ' +
+				m.module_id + ' and ' + run_orders[m.run_order].module_id)
+		shutit_map[m.module_id] = run_orders[m.run_order] = m
 
 def config_collection(config_dict, shutit_map, shutit_id_list):
 	shutit_id_list = run_order_modules(shutit_map, shutit_id_list)
@@ -301,12 +298,11 @@ def build_module(config_dict, shutit_map, shutit_id_list, module):
 		stop_all(config_dict, shutit_map, shutit_id_list, module.run_order)
 		util.do_repository_work(config_dict,
 			config_dict['expect_prompts']['base_prompt'],
-			str(module.module_id),
-			repo_suffix=str(module.run_order),
+			str(module.module_id) + '_' + str(module.run_order),
 			password=config_dict['host']['password'],
 			docker_executable=config_dict['host']['docker_executable'],
 			force=True)
-		# Start all before we tag to ensure services are up as expected.
+		# Start all after we tag to ensure services are up as expected.
 		start_all(config_dict, shutit_map, shutit_id_list, module.run_order)
 	if (config_dict['build']['interactive'] and
 			raw_input(util.red('\n\nDo you want to stop debug and/or interactive mode? (input y/n)\n' )) == 'y'):
@@ -322,7 +318,7 @@ def do_build(config_dict, shutit_map, shutit_id_list):
 		module = shutit_map[mid]
 		if module.run_order == 0: continue
 		util.log(util.red('considering whether to build: ' + module.module_id))
-		if config_dict[module.module_id]['build'] and not module.is_installed(config_dict):
+		if config_dict[module.module_id]['build']:
 			if module.is_installed(config_dict):
 				config_dict['build']['report'] = config_dict['build']['report'] + '\nBuilt already: ' + module.module_id + ' with run order: ' + str(module.run_order)
 			else:
@@ -334,12 +330,12 @@ def do_build(config_dict, shutit_map, shutit_id_list):
 
 def do_test(config_dict, shutit_map, shutit_id_list):
 	# Test in reverse order
-	shutit_id_list = list(reversed(run_order_modules(shutit_map, shutit_id_list)))
 	util.log(util.red('PHASE: test'))
 	if config_dict['build']['tutorial']:
 		util.pause_point(util.get_pexpect_child('container_child'),'\nNow doing test phase',print_input=False)
 	stop_all(config_dict, shutit_map, shutit_id_list,-1)
 	start_all(config_dict, shutit_map, shutit_id_list, -1)
+	shutit_id_list = list(reversed(run_order_modules(shutit_map, shutit_id_list)))
 	for mid in shutit_id_list:
 		# Only test if it's thought to be installed.
 		if is_built(config_dict,shutit_map[mid]):
@@ -363,27 +359,20 @@ def do_finalize(config_dict, shutit_map, shutit_id_list):
 			if not shutit_map[mid].finalize(config_dict):
 				util.fail(mid + ' failed on finalize',child=util.get_pexpect_child('container_child'))
 
-def tag_and_push(config_dict, shutit_map):
+def tag_and_push(config_dict):
+	if config_dict['build']['tutorial']:
+		util.pause_point(util.get_pexpect_child('host_child'),'\nDoing final committing/tagging on the overall container and creating the artifact.',print_input=False)
 	# Tag and push etc
-	util.do_repository_work(config_dict,config_dict['expect_prompts']['base_prompt'],config_dict['repository']['name'],docker_executable=config_dict['host']['docker_executable'],password=config_dict['host']['password'])
+	util.do_repository_work(
+		config_dict,
+		config_dict['expect_prompts']['base_prompt'],
+		config_dict['repository']['name'],
+		docker_executable=config_dict['host']['docker_executable'],
+		password=config_dict['host']['password'])
 	# Final exits
 	host_child = util.get_pexpect_child('host_child')
 	host_child.sendline('exit') # Exit raw bash
 	time.sleep(0.3)
-	# Finally, do repo work on the core module.
-	for module in shutit_map.values():
-		if module.run_order == 0:
-			core_module = module
-			break
-	if config_dict[core_module.module_id]['do_repository_work']:
-		if config_dict['build']['tutorial']:
-			util.pause_point(util.get_pexpect_child('host_child'),'\nDoing final committing/tagging on the overall container and creating the artifact.',print_input=False)
-		util.log(util.red('doing repo work: ' + core_module.module_id + ' with run order: ' + str(core_module.run_order)))
-		util.do_repository_work(config_dict,
-			config_dict['expect_prompts']['base_prompt'],
-			str(core_module.run_order),
-			password=config_dict['host']['password'],
-			docker_executable=config_dict['host']['docker_executable'])
 
 def shutit_main():
 	config_dict = shutit_global.config_dict
@@ -403,7 +392,7 @@ def shutit_main():
 	do_test(config_dict, shutit_map, shutit_id_list)
 	do_finalize(config_dict, shutit_map, shutit_id_list)
 
-	tag_and_push(config_dict, shutit_map)
+	tag_and_push(config_dict)
 
 	util.log(util.red(util.build_report('Module: N/A (END)')),prefix=False,force_stdout=True)
 
