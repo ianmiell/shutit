@@ -111,5 +111,29 @@ class TestShutItDepChecking(unittest.TestCase):
 			self.config_dict, shutit_map, shutit_id_list
 		)
 
+	def test_dep_resolution(self):
+		self.config_dict.update({
+			'tk.shutit.test1': {'build': False, 'build_ifneeded': True, 'remove': False},
+			'tk.shutit.test2': {'build': False, 'build_ifneeded': True, 'remove': False},
+			'tk.shutit.test3': {'build': True, 'remove': False}
+		})
+		shutit_map = {
+			'tk.shutit.test3': Bunch(
+				module_id='tk.shutit.test3',
+				run_order=1.3,
+				depends_on=["tk.shutit.test2"]),
+			'tk.shutit.test2': Bunch(
+				module_id='tk.shutit.test2',
+				run_order=1.2,
+				depends_on=["tk.shutit.test1"]),
+			'tk.shutit.test1': Bunch(
+				module_id='tk.shutit.test1',
+				run_order=1.1,
+				depends_on=[])
+		}
+		shutit_id_list = ['tk.shutit.test1', 'tk.shutit.test2', 'tk.shutit.test2']
+		shutit_main.check_deps(self.config_dict, shutit_map, shutit_id_list)
+		assert all([self.config_dict[mod_id]['build'] for mod_id in shutit_id_list])
+
 if __name__ == '__main__':
 	unittest.main()
