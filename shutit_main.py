@@ -28,8 +28,11 @@ import time
 import sys
 
 # Sort a list of module ids by run_order, doesn't modify original list
-def run_order_modules(shutit_map, shutit_id_list):
-	return sorted(shutit_id_list, key=lambda mid: shutit_map[mid].run_order)
+def run_order_modules(shutit_map, shutit_id_list, rev=False):
+	ids = sorted(shutit_id_list, key=lambda mid: shutit_map[mid].run_order)
+	if rev:
+		ids = list(reversed(ids))
+	return ids
 
 # Stop all apps less than the supplied run_order
 # run_order of -1 means 'stop everything'
@@ -37,7 +40,7 @@ def stop_all(config_dict, shutit_map, shutit_id_list, run_order):
 	if config_dict['build']['tutorial']:
 		util.pause_point(util.get_pexpect_child('container_child'),'\nRunning stop on all modules',print_input=False)
 	# sort them to it's stopped in reverse order)
-	for mid in list(reversed(run_order_modules(shutit_map, shutit_id_list))):
+	for mid in run_order_modules(shutit_map, shutit_id_list, rev=True):
 		shutit_module_obj = shutit_map[mid]
 		if run_order == -1 or shutit_module_obj.run_order <= run_order:
 			if is_built(config_dict,shutit_module_obj):
@@ -354,7 +357,7 @@ def do_test(config_dict, shutit_map, shutit_id_list):
 		util.pause_point(util.get_pexpect_child('container_child'),'\nNow doing test phase',print_input=False)
 	stop_all(config_dict, shutit_map, shutit_id_list,-1)
 	start_all(config_dict, shutit_map, shutit_id_list, -1)
-	shutit_id_list = list(reversed(run_order_modules(shutit_map, shutit_id_list)))
+	shutit_id_list = run_order_modules(shutit_map, shutit_id_list, rev=True)
 	for mid in shutit_id_list:
 		# Only test if it's thought to be installed.
 		if is_built(config_dict,shutit_map[mid]):
@@ -368,7 +371,7 @@ def do_finalize(config_dict, shutit_map, shutit_id_list):
 		util.pause_point(util.get_pexpect_child('container_child'),'\nStopping all modules before finalize phase',print_input=False)
 	stop_all(config_dict, shutit_map, shutit_id_list, -1)
 	# Finalize in reverse order
-	shutit_id_list = list(reversed(run_order_modules(shutit_map,shutit_id_list)))
+	shutit_id_list = run_order_modules(shutit_map, shutit_id_list, rev=True)
 	util.log(util.red('PHASE: finalize'))
 	if config_dict['build']['tutorial']:
 		util.pause_point(util.get_pexpect_child('container_child'),'\nNow doing finalize phase, which we do when all builds are complete and modules are stopped',print_input=False)
