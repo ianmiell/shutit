@@ -28,7 +28,8 @@ import time
 import sys
 
 # Sort a list of module ids by run_order, doesn't modify original list
-def run_order_modules(shutit_map, shutit_id_list, rev=False):
+def run_order_modules(shutit_map, rev=False):
+	shutit_id_list = shutit_map.keys()
 	ids = sorted(shutit_id_list, key=lambda mid: shutit_map[mid].run_order)
 	if rev:
 		ids = list(reversed(ids))
@@ -40,7 +41,7 @@ def stop_all(config_dict, shutit_map, shutit_id_list, run_order):
 	if config_dict['build']['tutorial']:
 		util.pause_point(util.get_pexpect_child('container_child'),'\nRunning stop on all modules',print_input=False)
 	# sort them to it's stopped in reverse order)
-	for mid in run_order_modules(shutit_map, shutit_id_list, rev=True):
+	for mid in run_order_modules(shutit_map, rev=True):
 		shutit_module_obj = shutit_map[mid]
 		if run_order == -1 or shutit_module_obj.run_order <= run_order:
 			if is_built(config_dict,shutit_module_obj):
@@ -52,7 +53,7 @@ def start_all(config_dict, shutit_map, shutit_id_list, run_order):
 	if config_dict['build']['tutorial']:
 		util.pause_point(util.get_pexpect_child('container_child'),'\nRunning start on all modules',print_input=False)
 	# sort them to they're started in order)
-	for mid in run_order_modules(shutit_map, shutit_id_list):
+	for mid in run_order_modules(shutit_map):
 		shutit_module_obj = shutit_map[mid]
 		if run_order == -1 or shutit_module_obj.run_order <= run_order:
 			if is_built(config_dict,shutit_module_obj):
@@ -102,7 +103,7 @@ def init_shutit_map(config_dict, shutit_map):
 		shutit_map[m.module_id] = run_orders[m.run_order] = m
 
 def config_collection(config_dict, shutit_map, shutit_id_list):
-	shutit_id_list = run_order_modules(shutit_map, shutit_id_list)
+	shutit_id_list = run_order_modules(shutit_map)
 	for mid in shutit_id_list:
 		# Default to None so we can interpret as ifneeded
 		util.get_config(config_dict,mid,'build',None,boolean=True)
@@ -286,7 +287,7 @@ def check_ready(config_dict, shutit_map, shutit_id_list):
 
 def do_remove(config_dict, shutit_map, shutit_id_list):
 	# Now get the run_order keys in order and go.
-	shutit_id_list = run_order_modules(shutit_map, shutit_id_list)
+	shutit_id_list = run_order_modules(shutit_map)
 	util.log(util.red('PHASE: remove'))
 	if config_dict['build']['tutorial']:
 		util.pause_point(util.get_pexpect_child('container_child'),'\nNow removing any modules that need removing',print_input=False)
@@ -332,7 +333,7 @@ def build_module(config_dict, shutit_map, shutit_id_list, module):
 		config_dict['build']['debug'] = False
 
 def do_build(config_dict, shutit_map, shutit_id_list):
-	shutit_id_list = run_order_modules(shutit_map, shutit_id_list)
+	shutit_id_list = run_order_modules(shutit_map)
 	util.log(util.red('PHASE: build, cleanup, repository work'))
 	if config_dict['build']['tutorial']:
 		util.pause_point(util.get_pexpect_child('container_child'),'\nNow building any modules that need building',print_input=False)
@@ -357,7 +358,7 @@ def do_test(config_dict, shutit_map, shutit_id_list):
 		util.pause_point(util.get_pexpect_child('container_child'),'\nNow doing test phase',print_input=False)
 	stop_all(config_dict, shutit_map, shutit_id_list,-1)
 	start_all(config_dict, shutit_map, shutit_id_list, -1)
-	shutit_id_list = run_order_modules(shutit_map, shutit_id_list, rev=True)
+	shutit_id_list = run_order_modules(shutit_map, rev=True)
 	for mid in shutit_id_list:
 		# Only test if it's thought to be installed.
 		if is_built(config_dict,shutit_map[mid]):
@@ -371,7 +372,7 @@ def do_finalize(config_dict, shutit_map, shutit_id_list):
 		util.pause_point(util.get_pexpect_child('container_child'),'\nStopping all modules before finalize phase',print_input=False)
 	stop_all(config_dict, shutit_map, shutit_id_list, -1)
 	# Finalize in reverse order
-	shutit_id_list = run_order_modules(shutit_map, shutit_id_list, rev=True)
+	shutit_id_list = run_order_modules(shutit_map, rev=True)
 	util.log(util.red('PHASE: finalize'))
 	if config_dict['build']['tutorial']:
 		util.pause_point(util.get_pexpect_child('container_child'),'\nNow doing finalize phase, which we do when all builds are complete and modules are stopped',print_input=False)
