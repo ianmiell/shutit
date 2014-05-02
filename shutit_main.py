@@ -20,10 +20,6 @@
 #OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 #SOFTWARE.
 
-# Prevent shutit being imported unless people really know what they're doing
-if __name__ == 'shutit_main' and '_import_shutit' not in globals():
-	raise Exception('ShutIt should be used as a command line tool')
-
 from shutit_module import ShutItModule
 import util
 import shutit_global
