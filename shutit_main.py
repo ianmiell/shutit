@@ -193,37 +193,38 @@ def check_deps(config_dict, shutit_map, shutit_id_list):
 	[resolve_dependencies(config_dict, shutit_map, to_build, module) for module in to_build]
 
 	# Dep checking
-	def err_checker(errs, triples, found_err):
+	def err_checker(errs, triples):
 		new_triples = []
 		for err, m in zip(errs, triples):
 			if not err:
 				new_triples.append(m)
 				continue
-			util.log(util.red(util.print_modules(shutit_map,shutit_id_list,config_dict)))
-			util.log(util.red(err))
-			found_err = True
-		return new_triples, found_err
+			found_errs.append(err)
+		return new_triples
 
-	found_err = False
+	found_errs = []
 	triples = []
 	for depender in to_build:
 		for dependee_id in depender.depends_on:
 			triples.append((depender, shutit_map.get(dependee_id), dependee_id))
 
-	triples, found_err = err_checker([
+	triples = err_checker([
 		check_dependee_exists(config_dict, depender, dependee, dependee_id)
 		for depender, dependee, dependee_id in triples
-	], triples, found_err)
-	triples, found_err = err_checker([
+	], triples)
+	triples = err_checker([
 		check_dependee_build(config_dict, depender, dependee, dependee_id)
 		for depender, dependee, dependee_id in triples
-	], triples, found_err)
-	triples, found_err = err_checker([
+	], triples)
+	triples = err_checker([
 		check_dependee_order(config_dict, depender, dependee, dependee_id)
 		for depender, dependee, dependee_id in triples
-	], triples, found_err)
+	], triples)
 
-	if found_err:
+	if found_errs:
+		util.log(util.red(util.print_modules(shutit_map,shutit_id_list,config_dict)))
+		for err in found_errs:
+			util.log(util.red(err))
 		util.fail("Encountered some errors")
 
 	# Show dependency graph
