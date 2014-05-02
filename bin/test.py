@@ -53,11 +53,12 @@ class TestShutItDepChecking(unittest.TestCase):
 		self.config_dict.update({
 			'tk.shutit.test1': {'build': True, 'remove': False}
 		})
-		shutit_map = {'tk.shutit.test1': Bunch(
-			module_id='tk.shutit.test1',
-			run_order=1.1,
-			depends_on=["tk.shutit.test2"]
-		)}
+		shutit_map = {
+			'tk.shutit.test1': Bunch(
+				module_id='tk.shutit.test1',
+				run_order=1.1,
+				depends_on=["tk.shutit.test0"])
+		}
 		shutit_id_list = ['tk.shutit.test1']
 		self.assertRaises(
 			ShutItTestException,
