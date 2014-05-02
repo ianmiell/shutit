@@ -75,6 +75,10 @@ then
 	exit 1
 fi
 
+pushd ..
+PYTHONPATH=$(pwd) python bin/test.py || failure "Unit tests"
+popd
+
 find ${SHUTIT_DIR} -name '*.cnf' | grep '/configs/[^/]*.cnf' | xargs chmod 600
 
 cleanup nothard
