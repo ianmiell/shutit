@@ -45,7 +45,7 @@ def init():
 	config_dict = {}
 	config_dict['build']                = {}
 	config_dict['build']['interactive'] = True # Default to true until we know otherwise
-	config_dict['build']['build_log']   = {}
+	config_dict['build']['build_log']   = None
 	config_dict['build']['report']      = ''
 	config_dict['container']            = {}
 	#config_dict['container']['docker_image_default'] = 'stackbrew/ubuntu' # Statically set up here as needed before general config setup made.
