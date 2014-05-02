@@ -138,10 +138,10 @@ build:yes
 
 # Aspects of build process
 [build]
-# Allowed images, eg 'ubuntu:12.10'. These are matched against 
-# 'any' is a special value meaning any image is ok, and is the default.
+# Allowed images, eg ["ubuntu:12.04"].
+# "any" is a special value meaning any image is ok, and is the default.
 # It's recommended this is locked down as far as possible.
-allowed_images:any
+allowed_images:["any"]
 END
 # Setup base config for the new module
 cat >> ${SKELETON_DIR}/configs/push.cnf << END
