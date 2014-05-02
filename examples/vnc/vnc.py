@@ -46,6 +46,7 @@ class vnc(ShutItModule):
 		install_type = config_dict['container']['install_type']
 		if install_type == 'apt':
 			util.send_and_expect(container_child,'apt-get update -qq',config_dict['expect_prompts']['root_prompt'],timeout=10000)
+		util.send_and_expect(container_child,'apt-get upgrade -y',config_dict['expect_prompts']['root_prompt'])
 		util.install(container_child,config_dict,'gnome-terminal',config_dict['expect_prompts']['root_prompt'])
 		util.install(container_child,config_dict,'openjdk-6-jre',config_dict['expect_prompts']['root_prompt'])
 		util.install(container_child,config_dict,'xserver-xorg',config_dict['expect_prompts']['root_prompt'])
