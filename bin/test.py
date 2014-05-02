@@ -44,7 +44,7 @@ class TestShutItDepChecking(unittest.TestCase):
 		self.config_dict = shutit_global.config_dict = self._config_dict.copy()
 		recupdate(self.config_dict, {
 			'build': {
-				'tutorial': False, 'debug': False, 'show_depgraph_only': False
+				'tutorial': False, 'show_depgraph_only': False
 			},
 			'host': {'shutit_module_paths': 'dummy1:dummy2'}
 		})
@@ -53,7 +53,6 @@ class TestShutItDepChecking(unittest.TestCase):
 		self.config_dict.update({
 			'tk.shutit.test1': {'build': True, 'remove': False}
 		})
-		#print(self.config_dict)
 		shutit_map = {'tk.shutit.test1': Bunch(
 			module_id='tk.shutit.test1',
 			run_order=1.1,
