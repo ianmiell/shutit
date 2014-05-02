@@ -65,7 +65,7 @@ def log(msg,code=None,pause=0,config_dict=None,prefix=True,force_stdout=False):
 		msg = colour(code, msg)
 	if config_dict['build']['debug'] or force_stdout:
 		print >> sys.stdout, msg
-	if config_dict['build']['build_log'] != {}:
+	if config_dict['build']['build_log']:
 		print >> config_dict['build']['build_log'], msg
 		config_dict['build']['build_log'].flush()
 	time.sleep(pause)

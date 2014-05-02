@@ -20,10 +20,6 @@
 #OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 #SOFTWARE.
 
-# Prevent shutit being imported unless people really know what they're doing
-if __name__ == 'shutit_main' and '_import_shutit' not in globals():
-	raise Exception('ShutIt should be used as a command line tool')
-
 from shutit_module import ShutItModule
 import util
 import shutit_global
@@ -153,39 +149,30 @@ def resolve_dependencies(config_dict, shutit_map, to_build, depender):
 				and config_dict[dependee_id]['build_ifneeded']):
 			to_build.append(dependee)
 			config_dict[dependee_id]['build'] = True
-def check_dependees_exist(config_dict, shutit_map, shutit_id_list, depender):
-	for dependee_id in depender.depends_on:
-		dependee = shutit_map.get(dependee_id)
-		# If the module id isn't there, there's a problem.
-		if dependee == None:
-			util.log(util.red(util.print_modules(shutit_map,shutit_id_list,config_dict)))
-			util.fail(dependee_id + ' module not found in paths: ' + str(config_dict['host']['shutit_module_paths']) +
-				'\nCheck your --shutit_module_path setting and ensure that ' +
-				'all modules configured to be built are in that path setting, ' +
-				'eg "--shutit_module_path /path/to/other/module/:." See also help.')
-def check_dependees_build(config_dict, shutit_map, shutit_id_list, depender):
-	depender_is_installed = depender.is_installed(config_dict)
-	for dependee_id in depender.depends_on:
-		dependee = shutit_map.get(dependee_id)
-		# If depender is installed or will be installed, so must the dependee
-		if ((config_dict[depender.module_id]['build'] or depender_is_installed) and not
-				config_dict[dependee.module_id]['build'] and not dependee.is_installed(config_dict)):
-			util.log(util.red(util.print_modules(shutit_map,shutit_id_list,config_dict)))
-			util.fail('depender module id: [' + depender.module_id + '] ' +
-				'is configured: "build:yes" or is already built ' +
-				'but dependee module_id: [' + dependee_id + '] ' +
-				'is not configured: "build:yes"')
-def check_dependees_order(config_dict, shutit_map, shutit_id_list, depender):
-	for dependee_id in depender.depends_on:
-		dependee = shutit_map.get(dependee_id)
-		# If it depends on a module id, then the module id should be higher up in the run order.
-		if dependee.run_order > depender.run_order:
-			util.log(util.red(util.print_modules(shutit_map,shutit_id_list,config_dict)))
-			util.fail('depender module id: ' + depender.module_id +
-				' (run order: ' + str(depender.run_order) + ') ' +
-				'depends on dependee module_id: ' + dependee_id +
-				' (run order: ' + str(dependee.run_order) + ') ' +
-				'but the latter is configured to run after the former')
+def check_dependee_exists(config_dict, depender, dependee, dependee_id):
+	# If the module id isn't there, there's a problem.
+	if dependee == None:
+		return (dependee_id + ' module not found in paths: ' +
+			str(config_dict['host']['shutit_module_paths']) +
+			' but needed for ' + depender.module_id +
+			'\nCheck your --shutit_module_path setting and ensure that ' +
+			'all modules configured to be built are in that path setting, ' +
+			'eg "--shutit_module_path /path/to/other/module/:." See also help.')
+def check_dependee_build(config_dict, depender, dependee, dependee_id):
+	# If depender is installed or will be installed, so must the dependee
+	if not (config_dict[dependee.module_id]['build'] or dependee.is_installed(config_dict)):
+		return ('depender module id: [' + depender.module_id + '] ' +
+			'is configured: "build:yes" or is already built ' +
+			'but dependee module_id: [' + dependee_id + '] ' +
+			'is not configured: "build:yes"')
+def check_dependee_order(config_dict, depender, dependee, dependee_id):
+	# If it depends on a module id, then the module id should be higher up in the run order.
+	if dependee.run_order > depender.run_order:
+		return ('depender module id: ' + depender.module_id +
+			' (run order: ' + str(depender.run_order) + ') ' +
+			'depends on dependee module_id: ' + dependee_id +
+			' (run order: ' + str(dependee.run_order) + ') ' +
+			'but the latter is configured to run after the former')
 def make_dep_graph(config_dict, depender):
 	digraph = ''
 	for dependee_id in depender.depends_on:
@@ -204,10 +191,42 @@ def check_deps(config_dict, shutit_map, shutit_id_list):
 	]
 	# Add any deps we may need by extending to_build and altering config_dict
 	[resolve_dependencies(config_dict, shutit_map, to_build, module) for module in to_build]
+
 	# Dep checking
-	[check_dependees_exist(config_dict, shutit_map, shutit_id_list, module) for module in to_build]
-	[check_dependees_build(config_dict, shutit_map, shutit_id_list, module) for module in to_build]
-	[check_dependees_order(config_dict, shutit_map, shutit_id_list, module) for module in to_build]
+	def err_checker(errs, triples):
+		new_triples = []
+		for err, m in zip(errs, triples):
+			if not err:
+				new_triples.append(m)
+				continue
+			found_errs.append(err)
+		return new_triples
+
+	found_errs = []
+	triples = []
+	for depender in to_build:
+		for dependee_id in depender.depends_on:
+			triples.append((depender, shutit_map.get(dependee_id), dependee_id))
+
+	triples = err_checker([
+		check_dependee_exists(config_dict, depender, dependee, dependee_id)
+		for depender, dependee, dependee_id in triples
+	], triples)
+	triples = err_checker([
+		check_dependee_build(config_dict, depender, dependee, dependee_id)
+		for depender, dependee, dependee_id in triples
+	], triples)
+	triples = err_checker([
+		check_dependee_order(config_dict, depender, dependee, dependee_id)
+		for depender, dependee, dependee_id in triples
+	], triples)
+
+	if found_errs:
+		util.log(util.red(util.print_modules(shutit_map,shutit_id_list,config_dict)))
+		for err in found_errs:
+			util.log(util.red(err))
+		util.fail("Encountered some errors")
+
 	# Show dependency graph
 	if config_dict['build']['show_depgraph_only']:
 		digraph = 'digraph depgraph {\n'
