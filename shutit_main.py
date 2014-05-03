@@ -228,9 +228,7 @@ def check_deps(config_dict, shutit_map, shutit_id_list):
 
 	if found_errs:
 		util.log(util.red(util.print_modules(shutit_map,shutit_id_list,config_dict)))
-		for err in found_errs:
-			util.log(util.red(err),force_stdout=True)
-		util.fail("Encountered some errors, quitting")
+		return found_errs
 
 	# Show dependency graph
 	if config_dict['build']['show_depgraph_only']:
@@ -247,6 +245,8 @@ def check_deps(config_dict, shutit_map, shutit_id_list):
 			if config_dict[mid]['build']:
 				util.log(util.red(mid + '\t' + str(m.run_order)))
 		util.log(util.red('\n'))
+
+	return []
 
 def check_conflicts(config_dict, shutit_map, shutit_id_list):
 	# Now consider conflicts
@@ -265,9 +265,10 @@ def check_conflicts(config_dict, shutit_map, shutit_id_list):
 			if ((config_dict[conflicter.module_id]['build'] or conflicter.is_installed(config_dict)) and
 					(config_dict[conflictee_obj.module_id]['build'] or conflictee_obj.is_installed(config_dict))):
 				util.log(util.red(util.print_modules(shutit_map,shutit_id_list,config_dict)))
-				util.fail('conflicter module id: ' + conflicter.module_id +
+				return [('conflicter module id: ' + conflicter.module_id +
 					' is configured to be built or is already built but ' +
-					'conflicts with module_id: ' + conflictee_obj.module_id)
+					'conflicts with module_id: ' + conflictee_obj.module_id,)]
+	return []
 
 def check_ready(config_dict, shutit_map, shutit_id_list):
 	util.log(util.red('PHASE: check_ready'))
@@ -283,7 +284,8 @@ def check_ready(config_dict, shutit_map, shutit_id_list):
 			util.log(util.red('checking whether module is ready to build: ' + mid))
 			if not m.check_ready(config_dict):
 				util.log(util.red(util.print_modules(shutit_map,shutit_id_list,config_dict)))
-				util.fail(mid + ' not ready to install',child=util.get_pexpect_child('container_child'))
+				return [(mid + ' not ready to install',util.get_pexpect_child('container_child'))]
+	return []
 
 
 def do_remove(config_dict, shutit_map):
@@ -405,9 +407,20 @@ def shutit_main():
 	config_collection(config_dict, shutit_map)
 	build_core_module(config_dict, shutit_map)
 
-	check_deps(config_dict, shutit_map, shutit_id_list)
-	check_conflicts(config_dict, shutit_map, shutit_id_list)
-	check_ready(config_dict, shutit_map, shutit_id_list)
+	errs = []
+	if not errs:
+		errs = check_deps(config_dict, shutit_map, shutit_id_list)
+	if not errs:
+		errs = check_conflicts(config_dict, shutit_map, shutit_id_list)
+	if not errs:
+		errs = check_ready(config_dict, shutit_map, shutit_id_list)
+	if errs:
+		child = None
+		for err in errs:
+			util.log(util.red(err[0]), force_stdout=True)
+			if not child and len(err) > 1:
+				child = err[1]
+		util.fail("Encountered some errors, quitting", child=child)
 
 	# Dependency validation done.
 
