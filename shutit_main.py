@@ -224,8 +224,8 @@ def check_deps(config_dict, shutit_map, shutit_id_list):
 	if found_errs:
 		util.log(util.red(util.print_modules(shutit_map,shutit_id_list,config_dict)))
 		for err in found_errs:
-			util.log(util.red(err))
-		util.fail("Encountered some errors")
+			util.log(util.red(err),force_stdout=True)
+		util.fail("Encountered some errors, quitting")
 
 	# Show dependency graph
 	if config_dict['build']['show_depgraph_only']:
