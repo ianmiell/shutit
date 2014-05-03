@@ -398,12 +398,9 @@ def shutit_main():
 	build_core_module(config_dict, shutit_map)
 
 	errs = []
-	if not errs:
-		errs = check_deps(config_dict, shutit_map)
-	if not errs:
-		errs = check_conflicts(config_dict, shutit_map)
-	if not errs:
-		errs = check_ready(config_dict, shutit_map)
+	if not errs: errs = check_deps(config_dict, shutit_map)
+	if not errs: errs = check_conflicts(config_dict, shutit_map)
+	if not errs: errs = check_ready(config_dict, shutit_map)
 	if errs:
 		util.log(util.red(util.print_modules(shutit_map,shutit_id_list,config_dict)))
 		child = None
