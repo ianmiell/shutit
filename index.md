@@ -156,17 +156,10 @@ obj.add_dependency('shutit.tk.setup')
 obj.add_dependency('shutit.tk.mysql.mysql')
 ```
 
-And change the **build.sh**
+And change the **build.sh** to include the module in the path
 
 ```sh
 python /tmp/a/shutit/bin/../shutit_main.py --shutit_module_path /your/path/to/shutit/example/mysql
-```
-
-And change the **configs/build.sh**, adding
-
-```
-[shutit.tk.mysql.mysql]
-build:yes
 ```
 
 Rebuild and re-run to get the same container with mysql installed.
