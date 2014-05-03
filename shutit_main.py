@@ -185,7 +185,7 @@ def make_dep_graph(config_dict, depender):
 			digraph = digraph + '"' + depender.module_id + '"->"' + dependee_id + '";\n'
 	return digraph
 
-def check_deps(config_dict, shutit_map, shutit_id_list):
+def check_deps(config_dict, shutit_map):
 	util.log(util.red('PHASE: dependencies'))
 	if config_dict['build']['tutorial']:
 		util.pause_point(util.get_pexpect_child('container_child'),'\nNow checking for dependencies between modules',print_input=False)
@@ -239,7 +239,7 @@ def check_deps(config_dict, shutit_map, shutit_id_list):
 
 	if config_dict['build']['debug']:
 		util.log(util.red('Modules configured to be built (in order) are: '))
-		for mid in shutit_id_list:
+		for mid in run_order_modules(shutit_map):
 			m = shutit_map[mid]
 			if config_dict[mid]['build']:
 				util.log(util.red(mid + '\t' + str(m.run_order)))
@@ -247,12 +247,12 @@ def check_deps(config_dict, shutit_map, shutit_id_list):
 
 	return []
 
-def check_conflicts(config_dict, shutit_map, shutit_id_list):
+def check_conflicts(config_dict, shutit_map):
 	# Now consider conflicts
 	util.log(util.red('PHASE: conflicts'))
 	if config_dict['build']['tutorial']:
 		util.pause_point(util.get_pexpect_child('container_child'),'\nNow checking for conflicts between modules',print_input=False)
-	for mid in shutit_id_list:
+	for mid in run_order_modules(shutit_map):
 		if not config_dict[mid]['build']:
 			continue
 		conflicter = shutit_map[mid]
@@ -268,13 +268,13 @@ def check_conflicts(config_dict, shutit_map, shutit_id_list):
 					'conflicts with module_id: ' + conflictee_obj.module_id,)]
 	return []
 
-def check_ready(config_dict, shutit_map, shutit_id_list):
+def check_ready(config_dict, shutit_map):
 	util.log(util.red('PHASE: check_ready'))
 	if config_dict['build']['tutorial']:
 		util.pause_point(util.get_pexpect_child('container_child'),
 			'\nNow checking whether we are ready to build modules configured to be built',
 			print_input=False)
-	for mid in shutit_id_list:
+	for mid in run_order_modules(shutit_map):
 		m = shutit_map[mid]
 		if m.run_order == 0: continue
 		util.log(util.red('considering check_ready (is it ready to be built?): ' + mid))
@@ -406,11 +406,11 @@ def shutit_main():
 
 	errs = []
 	if not errs:
-		errs = check_deps(config_dict, shutit_map, shutit_id_list)
+		errs = check_deps(config_dict, shutit_map)
 	if not errs:
-		errs = check_conflicts(config_dict, shutit_map, shutit_id_list)
+		errs = check_conflicts(config_dict, shutit_map)
 	if not errs:
-		errs = check_ready(config_dict, shutit_map, shutit_id_list)
+		errs = check_ready(config_dict, shutit_map)
 	if errs:
 		util.log(util.red(util.print_modules(shutit_map,shutit_id_list,config_dict)))
 		child = None
