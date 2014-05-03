@@ -227,7 +227,6 @@ def check_deps(config_dict, shutit_map, shutit_id_list):
 	], triples)
 
 	if found_errs:
-		util.log(util.red(util.print_modules(shutit_map,shutit_id_list,config_dict)))
 		return found_errs
 
 	# Show dependency graph
@@ -264,7 +263,6 @@ def check_conflicts(config_dict, shutit_map, shutit_id_list):
 				continue
 			if ((config_dict[conflicter.module_id]['build'] or conflicter.is_installed(config_dict)) and
 					(config_dict[conflictee_obj.module_id]['build'] or conflictee_obj.is_installed(config_dict))):
-				util.log(util.red(util.print_modules(shutit_map,shutit_id_list,config_dict)))
 				return [('conflicter module id: ' + conflicter.module_id +
 					' is configured to be built or is already built but ' +
 					'conflicts with module_id: ' + conflictee_obj.module_id,)]
@@ -283,7 +281,6 @@ def check_ready(config_dict, shutit_map, shutit_id_list):
 		if config_dict[mid]['build'] and not m.is_installed(config_dict):
 			util.log(util.red('checking whether module is ready to build: ' + mid))
 			if not m.check_ready(config_dict):
-				util.log(util.red(util.print_modules(shutit_map,shutit_id_list,config_dict)))
 				return [(mid + ' not ready to install',util.get_pexpect_child('container_child'))]
 	return []
 
@@ -415,6 +412,7 @@ def shutit_main():
 	if not errs:
 		errs = check_ready(config_dict, shutit_map, shutit_id_list)
 	if errs:
+		util.log(util.red(util.print_modules(shutit_map,shutit_id_list,config_dict)))
 		child = None
 		for err in errs:
 			util.log(util.red(err[0]), force_stdout=True)
