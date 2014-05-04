@@ -34,10 +34,10 @@ differing use cases and environments.
 
 I WANT TO SEE EXAMPLES
 ----------------------
-See in ```examples/*```
+See in ```library/*```
 eg
 ```
-cd examples/mysql
+cd library/mysql
 ./build.sh
 ./run.sh
 ```
