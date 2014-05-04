@@ -900,18 +900,6 @@ def setup_prompt(child,config_dict,prefix,prompt_name):
 	config_dict['expect_prompts'][prompt_name] = '\r\n' + local_prompt
 	child.expect(config_dict['expect_prompts'][prompt_name])
 
-
-def print_modules(shutit_map,shutit_id_list,config_dict):
-	s = ''
-	s = s + 'Modules: \n'
-	s = s + '\tRun order\tBuild\tRemove\tModule ID\n'
-	for mid in shutit_id_list:
-		s = s + ('\t' + str(shutit_map[mid].run_order) + '\t\t' +
-			str(config_dict[mid]['build']) + '\t' +
-			str(config_dict[mid]['remove']) + '\t' +
-			mid + '\n')
-	return s
-
 # Build report
 def build_report(msg=''):
 	s = ''

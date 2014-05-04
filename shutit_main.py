@@ -35,6 +35,17 @@ def run_order_modules(shutit_map, rev=False):
 		ids = list(reversed(ids))
 	return ids
 
+def print_modules(shutit_map,shutit_id_list,config_dict):
+	s = ''
+	s = s + 'Modules: \n'
+	s = s + '\tRun order\tBuild\tRemove\tModule ID\n'
+	for mid in shutit_id_list:
+		s = s + ('\t' + str(shutit_map[mid].run_order) + '\t\t' +
+			str(config_dict[mid]['build']) + '\t' +
+			str(config_dict[mid]['remove']) + '\t' +
+			mid + '\n')
+	return s
+
 # Stop all apps less than the supplied run_order
 # run_order of -1 means 'stop everything'
 def stop_all(config_dict, shutit_map, run_order):
@@ -280,7 +291,6 @@ def check_ready(config_dict, shutit_map):
 				return [(mid + ' not ready to install',util.get_pexpect_child('container_child'))]
 	return []
 
-
 def do_remove(config_dict, shutit_map):
 	# Now get the run_order keys in order and go.
 	shutit_id_list = run_order_modules(shutit_map)
@@ -294,7 +304,7 @@ def do_remove(config_dict, shutit_map):
 		if config_dict[mid]['remove']:
 			util.log(util.red('removing: ' + mid))
 			if not m.remove(config_dict):
-				util.log(util.red(util.print_modules(shutit_map,shutit_id_list,config_dict)))
+				util.log(util.red(print_modules(shutit_map,shutit_id_list,config_dict)))
 				util.fail(mid + ' failed on remove',child=util.get_pexpect_child('container_child'))
 
 def build_module(config_dict, shutit_map, module):
@@ -402,7 +412,7 @@ def shutit_main():
 	if not errs: errs = check_conflicts(config_dict, shutit_map)
 	if not errs: errs = check_ready(config_dict, shutit_map)
 	if errs:
-		util.log(util.red(util.print_modules(shutit_map,shutit_id_list,config_dict)))
+		util.log(util.red(print_modules(shutit_map,shutit_id_list,config_dict)))
 		child = None
 		for err in errs:
 			util.log(util.red(err[0]), force_stdout=True)
