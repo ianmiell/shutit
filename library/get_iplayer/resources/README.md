@@ -20,4 +20,4 @@
 #OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 #SOFTWARE.
 
-jenkins: resources required in this directory, eg gzips or text files.\nNote that the .gitignore file in the /space/git/shutit/examples/jenkins directory should exclude these files from being added to git repos (usually due to size), but can be added if forced with 'git add --force <file>'.
+get_iplayer: resources required in this directory, eg gzips or text files.\nNote that the .gitignore file in the /space/git/shutit/library/get_iplayer directory should exclude these files from being added to git repos (usually due to size), but can be added if forced with 'git add --force <file>'.
