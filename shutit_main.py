@@ -35,11 +35,11 @@ def run_order_modules(shutit_map, rev=False):
 		ids = list(reversed(ids))
 	return ids
 
-def print_modules(shutit_map,shutit_id_list,config_dict):
+def print_modules(shutit_map,config_dict):
 	s = ''
 	s = s + 'Modules: \n'
 	s = s + '\tRun order\tBuild\tRemove\tModule ID\n'
-	for mid in shutit_id_list:
+	for mid in run_order_modules(shutit_map):
 		s = s + ('\t' + str(shutit_map[mid].run_order) + '\t\t' +
 			str(config_dict[mid]['build']) + '\t' +
 			str(config_dict[mid]['remove']) + '\t' +
@@ -293,18 +293,17 @@ def check_ready(config_dict, shutit_map):
 
 def do_remove(config_dict, shutit_map):
 	# Now get the run_order keys in order and go.
-	shutit_id_list = run_order_modules(shutit_map)
 	util.log(util.red('PHASE: remove'))
 	if config_dict['build']['tutorial']:
 		util.pause_point(util.get_pexpect_child('container_child'),'\nNow removing any modules that need removing',print_input=False)
-	for mid in shutit_id_list:
+	for mid in run_order_modules(shutit_map):
 		m = shutit_map[mid]
 		if m.run_order == 0: continue
 		util.log(util.red('considering whether to remove: ' + mid))
 		if config_dict[mid]['remove']:
 			util.log(util.red('removing: ' + mid))
 			if not m.remove(config_dict):
-				util.log(util.red(print_modules(shutit_map,shutit_id_list,config_dict)))
+				util.log(util.red(print_modules(shutit_map,config_dict)))
 				util.fail(mid + ' failed on remove',child=util.get_pexpect_child('container_child'))
 
 def build_module(config_dict, shutit_map, module):
@@ -412,7 +411,7 @@ def shutit_main():
 	if not errs: errs = check_conflicts(config_dict, shutit_map)
 	if not errs: errs = check_ready(config_dict, shutit_map)
 	if errs:
-		util.log(util.red(print_modules(shutit_map,shutit_id_list,config_dict)))
+		util.log(util.red(print_modules(shutit_map,config_dict)))
 		child = None
 		for err in errs:
 			util.log(util.red(err[0]), force_stdout=True)
