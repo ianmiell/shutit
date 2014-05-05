@@ -513,10 +513,6 @@ def load_shutit_modules(config_dict):
 		time.sleep(1)
 	for shutit_module_path in config_dict['host']['shutit_module_paths']:
 		load_all_from_path(shutit_module_path,config_dict)
-	# Have we got anything to process?
-	if len(shutit_global.shutit_modules) < 2 :
-		log(shutit_global.shutit_modules)
-		fail('No ShutIt modules in path: ' + ':'.join(config_dict['host']['shutit_module_paths']) + '. Check your --shutit_module_path setting.')
 
 def print_config(config_dict):
 	s = ''

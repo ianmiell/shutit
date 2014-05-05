@@ -88,28 +88,42 @@ def shutit_init(config_dict):
 	return shutit_map
 
 def init_shutit_map(config_dict, shutit_map):
+	# Check we have modules
 	# Check for duplicate module details.
 	# Set up common config.
 	# Set up map of modules.
+
+	modules = util.get_shutit_modules()
+
+	# Have we got anything to process?
+	if len(modules) < 2 :
+		util.log(modules)
+		util.fail('No ShutIt modules in path: ' +
+			':'.join(config_dict['host']['shutit_module_paths']) +
+			'. Check your --shutit_module_path setting.')
+
 	util.log(util.red('PHASE: base setup'))
 	if config_dict['build']['tutorial']:
 		util.pause_point(util.get_pexpect_child('container_child'),
 			'\nChecking to see whether there are duplicate module ids or run orders in the visible modules.',
 			print_input=False)
 		util.log(util.get_pexpect_child('container_child'),'\nModules I see are:\n',force_stdout=True)
-		for m in util.get_shutit_modules():
+		for m in modules:
 			util.log(util.red(m.module_id),force_stdout=True)
 		util.log('\n',force_stdout=True)
 		util.pause_point(util.get_pexpect_child('container_child'),'',print_input=False)
 
 	run_orders = {}
-	for m in util.get_shutit_modules():
+	for m in modules:
 		assert isinstance(m, ShutItModule)
 		if m.module_id in shutit_map:
 			util.fail('Duplicated module id: ' + m.module_id)
 		if m.run_order in run_orders:
 			util.fail('Duplicate run order: ' + str(m.run_order) + ' for ' +
 				m.module_id + ' and ' + run_orders[m.run_order].module_id)
+		if m.run_order < 0:
+			util.fail('Invalid run order ' + str(m.run_order) + ' for ' +
+				m.module_id)
 		shutit_map[m.module_id] = run_orders[m.run_order] = m
 
 def config_collection(config_dict, shutit_map):
@@ -132,8 +146,6 @@ def config_collection(config_dict, shutit_map):
 			util.fail(mid + ' failed on get_config')
 
 def build_core_module(config_dict, shutit_map):
-	# Begin build core module
-	_core_module = False
 	for mid in module_ids(shutit_map):
 		# Let's go. Run 0 every time, this should set up the container in pexpect.
 		m = shutit_map[mid]
@@ -144,11 +156,8 @@ def build_core_module(config_dict, shutit_map):
 					print_input=False)
 			_core_module = True
 			m.build(config_dict)
-	# Once we have all the modules and the children set up, then we can look at dependencies.
-	if not _core_module:
-		util.fail('No module with run_order=0 specified! This is required.')
-	_core_module = None
-	# Finished build core module
+			return
+	util.fail('No module with run_order=0 specified! This is required.')
 
 # Once we have all the modules, then we can look at dependencies.
 # Dependency validation begins.
