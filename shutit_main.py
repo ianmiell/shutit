@@ -29,8 +29,7 @@ import sys
 
 # Sort a list of module ids by run_order, doesn't modify original list
 def run_order_modules(shutit_map, rev=False):
-	shutit_id_list = shutit_map.keys()
-	ids = sorted(shutit_id_list, key=lambda mid: shutit_map[mid].run_order)
+	ids = sorted(shutit_map.keys(), key=lambda mid: shutit_map[mid].run_order)
 	if rev:
 		ids = list(reversed(ids))
 	return ids
@@ -402,7 +401,6 @@ def tag_and_push(config_dict):
 def shutit_main():
 	config_dict = shutit_global.config_dict
 	shutit_map = shutit_init(config_dict)
-	shutit_id_list = shutit_map.keys()
 	config_collection(config_dict, shutit_map)
 	build_core_module(config_dict, shutit_map)
 
