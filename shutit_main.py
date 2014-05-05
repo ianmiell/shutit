@@ -27,8 +27,8 @@ import setup
 import time
 import sys
 
-# Sort a list of module ids by run_order, doesn't modify original list
-def run_order_modules(shutit_map, rev=False):
+# Gets a list of module ids by run_order
+def module_ids(shutit_map, rev=False):
 	ids = sorted(shutit_map.keys(), key=lambda mid: shutit_map[mid].run_order)
 	if rev:
 		ids = list(reversed(ids))
@@ -38,7 +38,7 @@ def print_modules(shutit_map,config_dict):
 	s = ''
 	s = s + 'Modules: \n'
 	s = s + '\tRun order\tBuild\tRemove\tModule ID\n'
-	for mid in run_order_modules(shutit_map):
+	for mid in module_ids(shutit_map):
 		s = s + ('\t' + str(shutit_map[mid].run_order) + '\t\t' +
 			str(config_dict[mid]['build']) + '\t' +
 			str(config_dict[mid]['remove']) + '\t' +
@@ -51,7 +51,7 @@ def stop_all(config_dict, shutit_map, run_order):
 	if config_dict['build']['tutorial']:
 		util.pause_point(util.get_pexpect_child('container_child'),'\nRunning stop on all modules',print_input=False)
 	# sort them to it's stopped in reverse order)
-	for mid in run_order_modules(shutit_map, rev=True):
+	for mid in module_ids(shutit_map, rev=True):
 		shutit_module_obj = shutit_map[mid]
 		if run_order == -1 or shutit_module_obj.run_order <= run_order:
 			if is_built(config_dict,shutit_module_obj):
@@ -63,7 +63,7 @@ def start_all(config_dict, shutit_map, run_order):
 	if config_dict['build']['tutorial']:
 		util.pause_point(util.get_pexpect_child('container_child'),'\nRunning start on all modules',print_input=False)
 	# sort them to they're started in order)
-	for mid in run_order_modules(shutit_map):
+	for mid in module_ids(shutit_map):
 		shutit_module_obj = shutit_map[mid]
 		if run_order == -1 or shutit_module_obj.run_order <= run_order:
 			if is_built(config_dict,shutit_module_obj):
@@ -113,7 +113,7 @@ def init_shutit_map(config_dict, shutit_map):
 		shutit_map[m.module_id] = run_orders[m.run_order] = m
 
 def config_collection(config_dict, shutit_map):
-	for mid in run_order_modules(shutit_map):
+	for mid in module_ids(shutit_map):
 
 		# Default to None so we can interpret as ifneeded
 		util.get_config(config_dict,mid,'build',None,boolean=True)
@@ -134,7 +134,7 @@ def config_collection(config_dict, shutit_map):
 def build_core_module(config_dict, shutit_map):
 	# Begin build core module
 	_core_module = False
-	for mid in run_order_modules(shutit_map):
+	for mid in module_ids(shutit_map):
 		# Let's go. Run 0 every time, this should set up the container in pexpect.
 		m = shutit_map[mid]
 		if m.run_order == 0:
@@ -245,7 +245,7 @@ def check_deps(config_dict, shutit_map):
 
 	if config_dict['build']['debug']:
 		util.log(util.red('Modules configured to be built (in order) are: '))
-		for mid in run_order_modules(shutit_map):
+		for mid in module_ids(shutit_map):
 			m = shutit_map[mid]
 			if config_dict[mid]['build']:
 				util.log(util.red(mid + '\t' + str(m.run_order)))
@@ -258,7 +258,7 @@ def check_conflicts(config_dict, shutit_map):
 	util.log(util.red('PHASE: conflicts'))
 	if config_dict['build']['tutorial']:
 		util.pause_point(util.get_pexpect_child('container_child'),'\nNow checking for conflicts between modules',print_input=False)
-	for mid in run_order_modules(shutit_map):
+	for mid in module_ids(shutit_map):
 		if not config_dict[mid]['build']:
 			continue
 		conflicter = shutit_map[mid]
@@ -280,7 +280,7 @@ def check_ready(config_dict, shutit_map):
 		util.pause_point(util.get_pexpect_child('container_child'),
 			'\nNow checking whether we are ready to build modules configured to be built',
 			print_input=False)
-	for mid in run_order_modules(shutit_map):
+	for mid in module_ids(shutit_map):
 		m = shutit_map[mid]
 		if m.run_order == 0: continue
 		util.log(util.red('considering check_ready (is it ready to be built?): ' + mid))
@@ -295,7 +295,7 @@ def do_remove(config_dict, shutit_map):
 	util.log(util.red('PHASE: remove'))
 	if config_dict['build']['tutorial']:
 		util.pause_point(util.get_pexpect_child('container_child'),'\nNow removing any modules that need removing',print_input=False)
-	for mid in run_order_modules(shutit_map):
+	for mid in module_ids(shutit_map):
 		m = shutit_map[mid]
 		if m.run_order == 0: continue
 		util.log(util.red('considering whether to remove: ' + mid))
@@ -340,7 +340,7 @@ def do_build(config_dict, shutit_map):
 	util.log(util.red('PHASE: build, cleanup, repository work'))
 	if config_dict['build']['tutorial']:
 		util.pause_point(util.get_pexpect_child('container_child'),'\nNow building any modules that need building',print_input=False)
-	for mid in run_order_modules(shutit_map):
+	for mid in module_ids(shutit_map):
 		module = shutit_map[mid]
 		if module.run_order == 0: continue
 		util.log(util.red('considering whether to build: ' + module.module_id))
@@ -361,7 +361,7 @@ def do_test(config_dict, shutit_map):
 		util.pause_point(util.get_pexpect_child('container_child'),'\nNow doing test phase',print_input=False)
 	stop_all(config_dict, shutit_map, -1)
 	start_all(config_dict, shutit_map, -1)
-	for mid in run_order_modules(shutit_map, rev=True):
+	for mid in module_ids(shutit_map, rev=True):
 		# Only test if it's thought to be installed.
 		if is_built(config_dict,shutit_map[mid]):
 			util.log(util.red('RUNNING TEST ON: ' + mid))
@@ -377,7 +377,7 @@ def do_finalize(config_dict, shutit_map):
 	util.log(util.red('PHASE: finalize'))
 	if config_dict['build']['tutorial']:
 		util.pause_point(util.get_pexpect_child('container_child'),'\nNow doing finalize phase, which we do when all builds are complete and modules are stopped',print_input=False)
-	for mid in run_order_modules(shutit_map, rev=True):
+	for mid in module_ids(shutit_map, rev=True):
 		# Only finalize if it's thought to be installed.
 		if is_built(config_dict,shutit_map[mid]):
 			if not shutit_map[mid].finalize(config_dict):
