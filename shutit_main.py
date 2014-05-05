@@ -47,7 +47,7 @@ def print_modules(shutit_map,config_dict):
 
 # Stop all apps less than the supplied run_order
 # run_order of -1 means 'stop everything'
-def stop_all(config_dict, shutit_map, run_order):
+def stop_all(config_dict, shutit_map, run_order=-1):
 	if config_dict['build']['tutorial']:
 		util.pause_point(util.get_pexpect_child('container_child'),'\nRunning stop on all modules',print_input=False)
 	# sort them to it's stopped in reverse order)
@@ -59,7 +59,7 @@ def stop_all(config_dict, shutit_map, run_order):
 					util.fail('failed to stop: ' + mid,child=util.get_pexpect_child('container_child'))
 
 # Start all apps less than the supplied run_order
-def start_all(config_dict, shutit_map, run_order):
+def start_all(config_dict, shutit_map, run_order=-1):
 	if config_dict['build']['tutorial']:
 		util.pause_point(util.get_pexpect_child('container_child'),'\nRunning start on all modules',print_input=False)
 	# sort them to they're started in order)
@@ -359,8 +359,8 @@ def do_test(config_dict, shutit_map):
 	util.log(util.red('PHASE: test'))
 	if config_dict['build']['tutorial']:
 		util.pause_point(util.get_pexpect_child('container_child'),'\nNow doing test phase',print_input=False)
-	stop_all(config_dict, shutit_map, -1)
-	start_all(config_dict, shutit_map, -1)
+	stop_all(config_dict, shutit_map)
+	start_all(config_dict, shutit_map)
 	for mid in module_ids(shutit_map, rev=True):
 		# Only test if it's thought to be installed.
 		if is_built(config_dict,shutit_map[mid]):
@@ -372,7 +372,7 @@ def do_finalize(config_dict, shutit_map):
 	# Stop all the modules
 	if config_dict['build']['tutorial']:
 		util.pause_point(util.get_pexpect_child('container_child'),'\nStopping all modules before finalize phase',print_input=False)
-	stop_all(config_dict, shutit_map, -1)
+	stop_all(config_dict, shutit_map)
 	# Finalize in reverse order
 	util.log(util.red('PHASE: finalize'))
 	if config_dict['build']['tutorial']:
