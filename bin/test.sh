@@ -126,8 +126,8 @@ fi
 # Examples tests
 if [[ $TESTS != 'basic' ]]
 then
-	pushd  ${SHUTIT_DIR}/examples/bin
-	./test.sh || failure "3.0.examples"
+	pushd  ${SHUTIT_DIR}/library/bin
+	./test.sh || failure "3.0.library"
 	popd
 	cleanup nothard
 fi
