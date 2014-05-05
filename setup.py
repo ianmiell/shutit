@@ -160,6 +160,7 @@ class setup(ShutItModule):
 		util.setup_prompt(container_child,config_dict,'SHUTIT_PROMPT_PRE_BUILD#','pre_build')
 		util.get_distro_info(container_child,config_dict['expect_prompts']['pre_build'],config_dict)
 		util.setup_prompt(container_child,config_dict,'SHUTIT_PROMPT_ROOT_PROMPT#','root_prompt')
+		util.send_and_expect(container_child,'stty -echo',config_dict['expect_prompts']['root_prompt'])
 		util.send_and_expect(container_child,'export DEBIAN_FRONTEND=noninteractive',config_dict['expect_prompts']['root_prompt'],check_exit=False)
 		return True
 

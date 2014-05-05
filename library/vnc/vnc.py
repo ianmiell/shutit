@@ -52,6 +52,7 @@ class vnc(ShutItModule):
 		util.install(container_child,config_dict,'xserver-xorg',config_dict['expect_prompts']['root_prompt'])
 		util.install(container_child,config_dict,'vnc4server',config_dict['expect_prompts']['root_prompt'],timeout=10000)
 		util.install(container_child,config_dict,'novnc',config_dict['expect_prompts']['root_prompt'],timeout=10000)
+		util.install(container_child,config_dict,'apt-utils',config_dict['expect_prompts']['root_prompt'],timeout=10000)
 		# apt-utils?
 		if install_type == 'apt':
 			send = 'apt-get install -qq -y --no-install-recommends ubuntu-desktop > /tmp/ubuntu-desktop && rm -f /tmp/ubuntu-desktop'

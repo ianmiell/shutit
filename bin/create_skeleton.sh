@@ -148,11 +148,13 @@ cat >> ${SKELETON_DIR}/configs/push.cnf << END
 [repository]
 do_repository_work:yes
 user:$(whoami)
-password:YOUR_REGISTRY_PASSWORD_OR_BLANK
-email:YOUR_REGISTRY_EMAIL_OR_BLANK
+# Fill these out in server- and username-specific config (also in this directory)
+#password:YOUR_REGISTRY_PASSWORD_OR_BLANK
+# Fill these out in server- and username-specific config (also in this directory)
+#email:YOUR_REGISTRY_EMAIL_OR_BLANK
 push:yes
 tar:no
-server:REMOVE_ME_FOR_DOCKER_INDEX
+#server:REMOVE_ME_FOR_DOCKER_INDEX
 name:$MODULE_NAME
 suffix_date:yes
 suffix_format:%s
