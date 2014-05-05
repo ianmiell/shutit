@@ -114,6 +114,7 @@ def init_shutit_map(config_dict, shutit_map):
 		util.pause_point(util.get_pexpect_child('container_child'),'',print_input=False)
 
 	run_orders = {}
+	has_core_module = False
 	for m in modules:
 		assert isinstance(m, ShutItModule)
 		if m.module_id in shutit_map:
@@ -124,7 +125,12 @@ def init_shutit_map(config_dict, shutit_map):
 		if m.run_order < 0:
 			util.fail('Invalid run order ' + str(m.run_order) + ' for ' +
 				m.module_id)
+		if m.run_order == 0:
+			has_core_module = True
 		shutit_map[m.module_id] = run_orders[m.run_order] = m
+
+	if not has_core_module:
+		util.fail('No module with run_order=0 specified! This is required.')
 
 def config_collection(config_dict, shutit_map):
 	for mid in module_ids(shutit_map):
@@ -146,18 +152,13 @@ def config_collection(config_dict, shutit_map):
 			util.fail(mid + ' failed on get_config')
 
 def build_core_module(config_dict, shutit_map):
-	for mid in module_ids(shutit_map):
-		# Let's go. Run 0 every time, this should set up the container in pexpect.
-		m = shutit_map[mid]
-		if m.run_order == 0:
-			if config_dict['build']['tutorial']:
-				util.pause_point(util.get_pexpect_child('container_child'),
-					'\nRunning build on the core module (' + shutit_global.shutit_main_dir + '/setup.py)',
-					print_input=False)
-			_core_module = True
-			m.build(config_dict)
-			return
-	util.fail('No module with run_order=0 specified! This is required.')
+	# Let's go. Run 0 every time, this should set up the container in pexpect.
+	core_mid = module_ids(shutit_map)[0]
+	if config_dict['build']['tutorial']:
+		util.pause_point(util.get_pexpect_child('container_child'),
+			'\nRunning build on the core module (' +
+			shutit_global.shutit_main_dir + '/setup.py)', print_input=False)
+	shutit_map[core_mid].build(config_dict)
 
 # Once we have all the modules, then we can look at dependencies.
 # Dependency validation begins.
