@@ -1,5 +1,6 @@
 import os
 import json
+import copy
 
 from bottle import route, run, request
 
@@ -60,16 +61,30 @@ function updatedoc(info) {
 	}
 	info.modules.map(function (m) {
 		var elt = document.getElementById(m.module_id);
-		elt.children[0].textContent =
+		elt.children[1].textContent =
 			m.module_id + ' - ' + m.build + ' - ' + m.run_order;
 	});
 }
 function setupmodule(m) {
 	var elt = document.createElement('li');
+	var checkbox = document.createElement('input');
+	checkbox.type = 'checkbox';
+	checkbox.addEventListener('change', changelistener);
 	var desc = document.createElement('span');
 	elt.id = m.module_id;
+	elt.appendChild(checkbox);
 	elt.appendChild(desc);
 	return elt;
+}
+function changelistener() {
+	var midlist = [];
+	// qsa doesn't return an array
+	[].slice.call(document.querySelectorAll('#mods > li')).map(function (e) {
+		if (e.children[0].checked) {
+			midlist.push(e.id);
+		}
+	});
+	getmodules(midlist);
 }
 getmodules([]);
 </script>
@@ -79,7 +94,7 @@ getmodules([]);
 
 @route('/info', method='POST')
 def info():
-	config_dict.update(orig_mod_config_dict)
+	config_dict.update(copy.deepcopy(orig_mod_config_dict))
 
 	for mid in request.json['to_build']:
 		config_dict[mid]['build'] = True
@@ -90,7 +105,7 @@ def info():
 	if not errs: errs = shutit_main.check_ready(config_dict, shutit_map)
 
 	return json.dumps({
-		'errs': errs,
+		'errs': [err[0] for err in errs],
 		'modules': [
 			{
 				"module_id": mid,
