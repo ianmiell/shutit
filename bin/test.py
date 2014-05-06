@@ -59,12 +59,8 @@ class TestShutItDepChecking(unittest.TestCase):
 				run_order=1.1,
 				depends_on=["tk.shutit.test0"])
 		}
-		shutit_id_list = ['tk.shutit.test1']
-		self.assertRaises(
-			ShutItTestException,
-			shutit_main.check_deps,
-			self.config_dict, shutit_map, shutit_id_list
-		)
+		errs = shutit_main.check_deps(self.config_dict, shutit_map)
+		self.assertEqual(len(errs), 1)
 
 	def test_dep_build_err(self):
 		self.config_dict.update({
@@ -82,12 +78,8 @@ class TestShutItDepChecking(unittest.TestCase):
 				depends_on=[],
 				is_installed=lambda c: False)
 		}
-		shutit_id_list = ['tk.shutit.test1', 'tk.shutit.test2']
-		self.assertRaises(
-			ShutItTestException,
-			shutit_main.check_deps,
-			self.config_dict, shutit_map, shutit_id_list
-		)
+		errs = shutit_main.check_deps(self.config_dict, shutit_map)
+		self.assertEqual(len(errs), 1)
 
 	def test_dep_order_err(self):
 		self.config_dict.update({
@@ -104,12 +96,8 @@ class TestShutItDepChecking(unittest.TestCase):
 				run_order=1.9,
 				depends_on=[])
 		}
-		shutit_id_list = ['tk.shutit.test1', 'tk.shutit.test2']
-		self.assertRaises(
-			ShutItTestException,
-			shutit_main.check_deps,
-			self.config_dict, shutit_map, shutit_id_list
-		)
+		errs = shutit_main.check_deps(self.config_dict, shutit_map)
+		self.assertEqual(len(errs), 1)
 
 	def test_dep_resolution(self):
 		self.config_dict.update({
@@ -131,9 +119,8 @@ class TestShutItDepChecking(unittest.TestCase):
 				run_order=1.1,
 				depends_on=[])
 		}
-		shutit_id_list = ['tk.shutit.test1', 'tk.shutit.test2', 'tk.shutit.test2']
-		shutit_main.check_deps(self.config_dict, shutit_map, shutit_id_list)
-		assert all([self.config_dict[mod_id]['build'] for mod_id in shutit_id_list])
+		shutit_main.check_deps(self.config_dict, shutit_map)
+		assert all([self.config_dict[mod_id]['build'] for mod_id in shutit_map])
 
 if __name__ == '__main__':
 	unittest.main()
