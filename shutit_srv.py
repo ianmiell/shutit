@@ -100,9 +100,9 @@ def info():
 		config_dict[mid]['build'] = True
 
 	errs = []
-	if not errs: errs = shutit_main.check_deps(config_dict, shutit_map)
-	if not errs: errs = shutit_main.check_conflicts(config_dict, shutit_map)
-	if not errs: errs = shutit_main.check_ready(config_dict, shutit_map)
+	errs.extend(shutit_main.check_deps(config_dict, shutit_map))
+	errs.extend(shutit_main.check_conflicts(config_dict, shutit_map))
+	errs.extend(shutit_main.check_ready(config_dict, shutit_map))
 
 	return json.dumps({
 		'errs': [err[0] for err in errs],
