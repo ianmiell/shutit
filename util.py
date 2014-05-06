@@ -513,10 +513,6 @@ def load_shutit_modules(config_dict):
 		time.sleep(1)
 	for shutit_module_path in config_dict['host']['shutit_module_paths']:
 		load_all_from_path(shutit_module_path,config_dict)
-	# Have we got anything to process?
-	if len(shutit_global.shutit_modules) < 2 :
-		log(shutit_global.shutit_modules)
-		fail('No ShutIt modules in path: ' + ':'.join(config_dict['host']['shutit_module_paths']) + '. Check your --shutit_module_path setting.')
 
 def print_config(config_dict):
 	s = ''
@@ -899,18 +895,6 @@ def setup_prompt(child,config_dict,prefix,prompt_name):
 	child.sendline('SHUTIT_BACKUP_PS1=$PS1 && unset PROMPT_COMMAND && PS1="' + local_prompt + '"')
 	config_dict['expect_prompts'][prompt_name] = '\r\n' + local_prompt
 	child.expect(config_dict['expect_prompts'][prompt_name])
-
-
-def print_modules(shutit_map,shutit_id_list,config_dict):
-	s = ''
-	s = s + 'Modules: \n'
-	s = s + '\tRun order\tBuild\tRemove\tModule ID\n'
-	for mid in shutit_id_list:
-		s = s + ('\t' + str(shutit_map[mid].run_order) + '\t\t' +
-			str(config_dict[mid]['build']) + '\t' +
-			str(config_dict[mid]['remove']) + '\t' +
-			mid + '\n')
-	return s
 
 # Build report
 def build_report(msg=''):
