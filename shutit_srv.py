@@ -1,19 +1,25 @@
 import os
-from bottle import route, run, template
+import json
+
+from bottle import route, run, request
 
 import shutit_main
 import shutit_global
 
 config_dict = None
+orig_mod_config_dict = {}
 shutit_map = None
 
 def start_shutit():
 	global config_dict
+	global orig_mod_config_dict
 	global shutit_map
 	config_dict = shutit_global.config_dict
 	shutit_map = shutit_main.shutit_init(config_dict)
 	shutit_main.config_collection(config_dict, shutit_map)
 	shutit_main.build_core_module(config_dict, shutit_map)
+	for mid in shutit_map:
+		orig_mod_config_dict[mid] = config_dict[mid]
 
 start_shutit()
 
@@ -21,38 +27,69 @@ index_html = '''
 <html>
 <body>
 Modules:
-<ul>
-	% for mid in module_ids:
-		<li>
-			{{ mid }} -
-				{{ config_dict[mid]['build'] }} -
-				{{ shutit_map[mid].run_order }}
-		</li>
-	% end
-</ul>
+<ul id="mods"></ul>
 Errors:
-<ul>
-	% for err in errs:
-		<li>{{ err }}</li>
-	% end
-</ul>
+<ul id="errs"></ul>
+<script>
+function getmodules(mid_list) {
+	var r = new XMLHttpRequest();
+	r.open('POST', '/info', true);
+	r.setRequestHeader("Content-type", "application/json");
+	r.onreadystatechange = function () {
+		if (r.readyState != 4 || r.status != 200) return;
+		updatedoc(r.responseText);
+	};
+	r.send(JSON.stringify({'to_build': mid_list}));
+}
+function updatedoc(info) {
+	var info = JSON.parse(info);
+	var errsElt = document.getElementById('errs');
+	var modsElt = document.getElementById('mods');
+	errsElt.innerHTML = '';
+	modsElt.innerHTML = '';
+	info.errs.map(function (e) {
+		var elt = document.createElement('li');
+		elt.textContent = e;
+		errsElt.appendChild(elt);
+	});
+	info.modules.map(function (m) {
+		var elt = document.createElement('li');
+		elt.textContent = m.module_id + ' - ' + m.build + ' - ' + m.run_order;
+		modsElt.appendChild(elt);
+	});
+}
+getmodules([]);
+</script>
 </body>
 </html>
 '''
 
-@route('/')
-def index():
+@route('/info', method='POST')
+def info():
+	config_dict.update(orig_mod_config_dict)
+
+	for mid in request.json['to_build']:
+		config_dict[mid]['build'] = True
+
 	errs = []
 	if not errs: errs = shutit_main.check_deps(config_dict, shutit_map)
 	if not errs: errs = shutit_main.check_conflicts(config_dict, shutit_map)
 	if not errs: errs = shutit_main.check_ready(config_dict, shutit_map)
-	return template(
-		index_html,
-		errs=errs,
-		module_ids=shutit_main.module_ids(shutit_map),
-		shutit_map=shutit_map,
-		config_dict=config_dict
-	)
+
+	return json.dumps({
+		'errs': errs,
+		'modules': [
+			{
+				"module_id": mid,
+				"run_order": float(shutit_map[mid].run_order),
+				"build": config_dict[mid]['build']
+			} for mid in shutit_main.module_ids(shutit_map)
+		]
+	})
+
+@route('/')
+def index():
+	return index_html
 
 if __name__ == '__main__':
 	host = os.environ.get('SHUTIT_HOST', 'localhost')
