@@ -62,27 +62,23 @@ function updatedoc(info) {
 		});
 	}
 	info.modules.map(function (m) {
-		var elt = document.getElementById(m.module_id).children[1];
-		var text = m.module_id + ' - ' + m.run_order;
-		var textElt;
+		var elt = document.getElementById(m.module_id);
 		if (m.build) {
-			textElt = document.createElement('b');
-			textElt.textContent = text;
+			elt.style.fontWeight = 'bold';
 		} else {
-			textElt = document.createTextNode(text);
+			elt.style.fontWeight = '';
 		}
-		elt.innerHTML = '';
-		elt.appendChild(textElt);
 	});
 	toggleloading(false);
 }
 function setupmodule(m) {
 	var elt = document.createElement('li');
+	elt.id = m.module_id;
 	var checkbox = document.createElement('input');
 	checkbox.type = 'checkbox';
 	checkbox.addEventListener('change', changelistener);
 	var desc = document.createElement('span');
-	elt.id = m.module_id;
+	desc.textContent = m.module_id + ' - ' + m.run_order;
 	elt.appendChild(checkbox);
 	elt.appendChild(desc);
 	return elt;
