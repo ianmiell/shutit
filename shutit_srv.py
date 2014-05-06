@@ -44,19 +44,32 @@ function getmodules(mid_list) {
 function updatedoc(info) {
 	var info = JSON.parse(info);
 	var errsElt = document.getElementById('errs');
-	var modsElt = document.getElementById('mods');
+
 	errsElt.innerHTML = '';
-	modsElt.innerHTML = '';
 	info.errs.map(function (e) {
 		var elt = document.createElement('li');
 		elt.textContent = e;
 		errsElt.appendChild(elt);
 	});
+
+	var modsElt = document.getElementById('mods');
+	if (document.querySelectorAll('#mods > li').length == 0) {
+		info.modules.map(function (m) {
+			modsElt.appendChild(setupmodule(m));
+		});
+	}
 	info.modules.map(function (m) {
-		var elt = document.createElement('li');
-		elt.textContent = m.module_id + ' - ' + m.build + ' - ' + m.run_order;
-		modsElt.appendChild(elt);
+		var elt = document.getElementById(m.module_id);
+		elt.children[0].textContent =
+			m.module_id + ' - ' + m.build + ' - ' + m.run_order;
 	});
+}
+function setupmodule(m) {
+	var elt = document.createElement('li');
+	var desc = document.createElement('span');
+	elt.id = m.module_id;
+	elt.appendChild(desc);
+	return elt;
 }
 getmodules([]);
 </script>
