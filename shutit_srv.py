@@ -27,11 +27,13 @@ start_shutit()
 index_html = '''
 <html>
 <body>
+<div id="loading" style="visibility: hidden; padding: 10px; background-color: yellow;">LOADING</div>
 Modules:
 <ul id="mods"></ul>
 Errors:
 <ul id="errs"></ul>
 <script>
+'use strict';
 function getmodules(mid_list) {
 	var r = new XMLHttpRequest();
 	r.open('POST', '/info', true);
@@ -60,10 +62,19 @@ function updatedoc(info) {
 		});
 	}
 	info.modules.map(function (m) {
-		var elt = document.getElementById(m.module_id);
-		elt.children[1].textContent =
-			m.module_id + ' - ' + m.build + ' - ' + m.run_order;
+		var elt = document.getElementById(m.module_id).children[1];
+		var text = m.module_id + ' - ' + m.run_order;
+		var textElt;
+		if (m.build) {
+			textElt = document.createElement('b');
+			textElt.textContent = text;
+		} else {
+			textElt = document.createTextNode(text);
+		}
+		elt.innerHTML = '';
+		elt.appendChild(textElt);
 	});
+	toggleloading(false);
 }
 function setupmodule(m) {
 	var elt = document.createElement('li');
@@ -77,6 +88,7 @@ function setupmodule(m) {
 	return elt;
 }
 function changelistener() {
+	toggleloading(true);
 	var midlist = [];
 	// qsa doesn't return an array
 	[].slice.call(document.querySelectorAll('#mods > li')).map(function (e) {
@@ -85,6 +97,17 @@ function changelistener() {
 		}
 	});
 	getmodules(midlist);
+}
+function toggleloading(loading) {
+	var elts = [].slice.call(document.querySelectorAll('#mods > li'))
+	if (loading) {
+		document.getElementById('loading').style.visibility = '';
+	} else {
+		document.getElementById('loading').style.visibility = 'hidden';
+	}
+	elts.map(function (e) {
+		e.children[0].disabled = loading;
+	});
 }
 getmodules([]);
 </script>
