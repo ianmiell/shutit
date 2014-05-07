@@ -422,10 +422,8 @@ def shutit_main():
 		util.log(util.red(print_modules(shutit_map,config_dict)))
 		child = None
 		for err in errs:
-			util.log(util.red(err[0]), force_stdout=True)
-			if not child and len(err) > 1:
-				child = err[1]
-		util.fail("Encountered some errors, quitting", child=child)
+			util.log(util.red(str(err)), force_stdout=True)
+		util.fail("Encountered some errors, quitting")
 
 	# Dependency validation done.
 
