@@ -34,7 +34,7 @@ def module_ids(shutit_map, rev=False):
 		ids = list(reversed(ids))
 	return ids
 
-def print_modules(shutit_map,config_dict):
+def print_modules(config_dict,shutit_map):
 	s = ''
 	s = s + 'Modules: \n'
 	s = s + '\tRun order\tBuild\tRemove\tModule ID\n'
@@ -312,7 +312,7 @@ def do_remove(config_dict, shutit_map):
 		if config_dict[mid]['remove']:
 			util.log(util.red('removing: ' + mid))
 			if not m.remove(config_dict):
-				util.log(util.red(print_modules(shutit_map,config_dict)))
+				util.log(util.red(print_modules(config_dict,shutit_map)))
 				util.fail(mid + ' failed on remove',child=util.get_pexpect_child('container_child'))
 
 def build_module(config_dict, shutit_map, module):
@@ -419,7 +419,7 @@ def shutit_main():
 	if not errs: errs = check_conflicts(config_dict, shutit_map)
 	if not errs: errs = check_ready(config_dict, shutit_map)
 	if errs:
-		util.log(util.red(print_modules(shutit_map,config_dict)))
+		util.log(util.red(print_modules(config_dict,shutit_map)))
 		child = None
 		for err in errs:
 			util.log(util.red(str(err)), force_stdout=True)
