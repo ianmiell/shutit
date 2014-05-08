@@ -60,6 +60,7 @@ class TestShutItDepChecking(unittest.TestCase):
 		}
 		errs = shutit_main.check_deps(self.shutit)
 		self.assertEqual(len(errs), 1)
+		self.assertEqual(len(errs[0]), 1)
 
 	def test_dep_build_err(self):
 		self.shutit.cfg.update({
@@ -79,6 +80,7 @@ class TestShutItDepChecking(unittest.TestCase):
 		}
 		errs = shutit_main.check_deps(self.shutit)
 		self.assertEqual(len(errs), 1)
+		self.assertEqual(len(errs[0]), 1)
 
 	def test_dep_order_err(self):
 		self.shutit.cfg.update({
@@ -97,6 +99,7 @@ class TestShutItDepChecking(unittest.TestCase):
 		}
 		errs = shutit_main.check_deps(self.shutit)
 		self.assertEqual(len(errs), 1)
+		self.assertEqual(len(errs[0]), 1)
 
 	def test_dep_resolution(self):
 		self.shutit.cfg.update({
@@ -118,7 +121,8 @@ class TestShutItDepChecking(unittest.TestCase):
 				run_order=1.1,
 				depends_on=[])
 		}
-		shutit_main.check_deps(self.shutit)
+		errs = shutit_main.check_deps(self.shutit)
+		self.assertEqual(len(errs), 0)
 		assert all([self.shutit.cfg[mod_id]['build'] for mod_id in self.shutit.shutit_map])
 
 if __name__ == '__main__':
