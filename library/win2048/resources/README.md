@@ -1,0 +1,1 @@
+2048: resources required in this directory, eg gzips or text files.\nNote that the .gitignore file in the /space/git/shutit/library/2048 directory should exclude these files from being added to git repos (usually due to size), but can be added if forced with 'git add --force <file>'.
