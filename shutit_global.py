@@ -34,6 +34,7 @@ class ShutIt(object):
 		self.cfg = kwargs['cfg']
 		self.cwd = kwargs['cwd']
 		self.shutit_command_history = kwargs['shutit_command_history']
+		self.shutit_map = kwargs['shutit_map']
 
 def init():
 	global pexpect_children
@@ -42,8 +43,10 @@ def init():
 	global cfg
 	global cwd
 	global shutit_command_history
+	global shutit_map
 
 	pexpect_children = {}
+	shutit_map = {}
 	shutit_modules   = set()
 	shutit_command_history = []
 	# Store the root directory of this application.
@@ -77,7 +80,8 @@ def init():
 		shutit_main_dir=shutit_main_dir,
 		cfg=cfg,
 		cwd=cwd,
-		shutit_command_history=shutit_command_history
+		shutit_command_history=shutit_command_history,
+		shutit_map=shutit_map
 	)
 
 shutit = init()
