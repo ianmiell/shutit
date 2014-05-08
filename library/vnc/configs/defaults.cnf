@@ -22,7 +22,7 @@
 
 
 [shutit.tk.vnc.vnc]
-password:1ncharge
+password:vncpass
 
 [build]
 privileged:yes

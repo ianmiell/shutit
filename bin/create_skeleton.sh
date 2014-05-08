@@ -147,7 +147,7 @@ END
 cat >> ${SKELETON_DIR}/configs/push.cnf << END
 [repository]
 do_repository_work:yes
-user:$(whoami)
+#user:YOUR_USERNAME
 # Fill these out in server- and username-specific config (also in this directory)
 #password:YOUR_REGISTRY_PASSWORD_OR_BLANK
 # Fill these out in server- and username-specific config (also in this directory)
