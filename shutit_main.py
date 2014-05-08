@@ -47,7 +47,9 @@ def print_modules(cfg,shutit_map):
 
 # Stop all apps less than the supplied run_order
 # run_order of -1 means 'stop everything'
-def stop_all(cfg, shutit_map, run_order=-1):
+def stop_all(shutit, run_order=-1):
+	cfg = shutit.cfg
+	shutit_map = shutit.shutit_map
 	if cfg['build']['tutorial']:
 		util.pause_point(util.get_pexpect_child('container_child'),'\nRunning stop on all modules',print_input=False)
 	# sort them to it's stopped in reverse order)
@@ -59,7 +61,9 @@ def stop_all(cfg, shutit_map, run_order=-1):
 					util.fail('failed to stop: ' + mid,child=util.get_pexpect_child('container_child'))
 
 # Start all apps less than the supplied run_order
-def start_all(cfg, shutit_map, run_order=-1):
+def start_all(shutit, run_order=-1):
+	cfg = shutit.cfg
+	shutit_map = shutit.shutit_map
 	if cfg['build']['tutorial']:
 		util.pause_point(util.get_pexpect_child('container_child'),'\nRunning start on all modules',print_input=False)
 	# sort them to they're started in order)
@@ -328,7 +332,9 @@ def do_remove(shutit):
 				util.log(util.red(print_modules(cfg,shutit_map)))
 				util.fail(mid + ' failed on remove',child=util.get_pexpect_child('container_child'))
 
-def build_module(cfg, shutit_map, module):
+def build_module(shutit, module):
+	cfg = shutit.cfg
+	shutit_map = shutit.shutit_map
 	util.log(util.red('building: ' + module.module_id + ' with run order: ' + str(module.run_order)))
 	cfg['build']['report'] = cfg['build']['report'] + '\nBuilding: ' + module.module_id + ' with run order: ' + str(module.run_order)
 	if not module.build(cfg):
@@ -345,7 +351,7 @@ def build_module(cfg, shutit_map, module):
 			(cfg['build']['interactive'] and raw_input(util.red('\n\nDo you want to save state now we\'re at the ' + 'end of this module? (' + module.module_id + ') (input y/n)\n' )) == 'y')):
 		util.log(module.module_id + ' configured to be tagged, doing repository work')
 		# Stop all before we tag to avoid file changing errors, and clean up pid files etc..
-		stop_all(cfg, shutit_map, module.run_order)
+		stop_all(shutit, module.run_order)
 		util.do_repository_work(cfg,
 			cfg['expect_prompts']['base_prompt'],
 			str(module.module_id) + '_' + str(module.run_order),
@@ -353,7 +359,7 @@ def build_module(cfg, shutit_map, module):
 			docker_executable=cfg['host']['docker_executable'],
 			force=True)
 		# Start all after we tag to ensure services are up as expected.
-		start_all(cfg, shutit_map, module.run_order)
+		start_all(shutit, module.run_order)
 	if (cfg['build']['interactive'] and
 			raw_input(util.red('\n\nDo you want to stop debug and/or interactive mode? (input y/n)\n' )) == 'y'):
 		cfg['build']['interactive'] = False
@@ -373,7 +379,7 @@ def do_build(shutit):
 			if module.is_installed(cfg):
 				cfg['build']['report'] = cfg['build']['report'] + '\nBuilt already: ' + module.module_id + ' with run order: ' + str(module.run_order)
 			else:
-				build_module(cfg, shutit_map, module)
+				build_module(shutit, module)
 		if is_built(cfg,module):
 			util.log('Starting module')
 			if not module.start(cfg):
@@ -386,8 +392,8 @@ def do_test(shutit):
 	util.log(util.red('PHASE: test'))
 	if cfg['build']['tutorial']:
 		util.pause_point(util.get_pexpect_child('container_child'),'\nNow doing test phase',print_input=False)
-	stop_all(cfg, shutit_map)
-	start_all(cfg, shutit_map)
+	stop_all(shutit)
+	start_all(shutit)
 	for mid in module_ids(shutit_map, rev=True):
 		# Only test if it's thought to be installed.
 		if is_built(cfg,shutit_map[mid]):
@@ -401,7 +407,7 @@ def do_finalize(shutit):
 	# Stop all the modules
 	if cfg['build']['tutorial']:
 		util.pause_point(util.get_pexpect_child('container_child'),'\nStopping all modules before finalize phase',print_input=False)
-	stop_all(cfg, shutit_map)
+	stop_all(shutit)
 	# Finalize in reverse order
 	util.log(util.red('PHASE: finalize'))
 	if cfg['build']['tutorial']:
