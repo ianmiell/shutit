@@ -26,6 +26,15 @@ import socket
 import time
 import util
 
+class ShutIt(object):
+	def __init__(self, **kwargs):
+		self.pexpect_children = kwargs['pexpect_children']
+		self.shutit_modules = kwargs['shutit_modules']
+		self.shutit_main_dir = kwargs['shutit_main_dir']
+		self.cfg = kwargs['cfg']
+		self.cwd = kwargs['cwd']
+		self.shutit_command_history = kwargs['shutit_command_history']
+
 def init():
 	global pexpect_children
 	global shutit_modules
@@ -62,4 +71,13 @@ def init():
 	cfg['host']['real_user'] = os.environ.get('SUDO_USER', username)
 	cfg['build']['build_id'] = socket.gethostname() + '_' + cfg['host']['real_user'] + '_' + str(time.time())
 
-init()
+	return ShutIt(
+		pexpect_children=pexpect_children,
+		shutit_modules=shutit_modules,
+		shutit_main_dir=shutit_main_dir,
+		cfg=cfg,
+		cwd=cwd,
+		shutit_command_history=shutit_command_history
+	)
+
+shutit = init()
