@@ -81,17 +81,6 @@ def start_all(shutit, run_order=-1):
 def is_built(cfg,shutit_module_obj):
 	return cfg[shutit_module_obj.module_id]['build'] or shutit_module_obj.is_installed(cfg)
 
-def shutit_init(shutit):
-	cfg = shutit.cfg
-	util.parse_args(cfg)
-	util.load_configs(shutit)
-	# Now get base config
-	if cfg['build']['show_config_only']:
-		util.log(util.print_config(cfg),force_stdout=True)
-		sys.exit()
-	util.load_shutit_modules(shutit)
-	init_shutit_map(shutit)
-
 def init_shutit_map(shutit):
 	cfg = shutit.cfg
 	shutit_map = shutit.shutit_map
@@ -439,7 +428,16 @@ def tag_and_push(cfg):
 
 def shutit_main():
 	shutit = shutit_global.shutit
-	shutit_init(shutit)
+	cfg = shutit.cfg
+
+	util.parse_args(cfg)
+	util.load_configs(shutit)
+	# Now get base config
+	if cfg['build']['show_config_only']:
+		util.log(util.print_config(cfg),force_stdout=True)
+		sys.exit()
+	util.load_shutit_modules(shutit)
+	init_shutit_map(shutit)
 	config_collection(shutit)
 	build_core_module(shutit)
 
