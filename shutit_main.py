@@ -133,7 +133,9 @@ def init_shutit_map(cfg, shutit_map):
 	if not has_core_module:
 		util.fail('No module with run_order=0 specified! This is required.')
 
-def config_collection(cfg, shutit_map):
+def config_collection(shutit):
+	cfg = shutit.cfg
+	shutit_map = shutit.shutit_map
 	for mid in module_ids(shutit_map):
 
 		# Default to None so we can interpret as ifneeded
@@ -152,7 +154,9 @@ def config_collection(cfg, shutit_map):
 		if not shutit_map[mid].get_config(cfg):
 			util.fail(mid + ' failed on get_config')
 
-def build_core_module(cfg, shutit_map):
+def build_core_module(shutit):
+	cfg = shutit.cfg
+	shutit_map = shutit.shutit_map
 	# Let's go. Run 0 every time, this should set up the container in pexpect.
 	core_mid = module_ids(shutit_map)[0]
 	if cfg['build']['tutorial']:
@@ -202,7 +206,9 @@ def make_dep_graph(cfg, depender):
 			digraph = digraph + '"' + depender.module_id + '"->"' + dependee_id + '";\n'
 	return digraph
 
-def check_deps(cfg, shutit_map):
+def check_deps(shutit):
+	cfg = shutit.cfg
+	shutit_map = shutit.shutit_map
 	util.log(util.red('PHASE: dependencies'))
 	if cfg['build']['tutorial']:
 		util.pause_point(util.get_pexpect_child('container_child'),'\nNow checking for dependencies between modules',print_input=False)
@@ -264,7 +270,9 @@ def check_deps(cfg, shutit_map):
 
 	return []
 
-def check_conflicts(cfg, shutit_map):
+def check_conflicts(shutit):
+	cfg = shutit.cfg
+	shutit_map = shutit.shutit_map
 	# Now consider conflicts
 	util.log(util.red('PHASE: conflicts'))
 	if cfg['build']['tutorial']:
@@ -285,7 +293,9 @@ def check_conflicts(cfg, shutit_map):
 					'conflicts with module_id: ' + conflictee_obj.module_id,)]
 	return []
 
-def check_ready(cfg, shutit_map):
+def check_ready(shutit):
+	cfg = shutit.cfg
+	shutit_map = shutit.shutit_map
 	util.log(util.red('PHASE: check_ready'))
 	if cfg['build']['tutorial']:
 		util.pause_point(util.get_pexpect_child('container_child'),
@@ -301,7 +311,9 @@ def check_ready(cfg, shutit_map):
 				return [(mid + ' not ready to install',util.get_pexpect_child('container_child'))]
 	return []
 
-def do_remove(cfg, shutit_map):
+def do_remove(shutit):
+	cfg = shutit.cfg
+	shutit_map = shutit.shutit_map
 	# Now get the run_order keys in order and go.
 	util.log(util.red('PHASE: remove'))
 	if cfg['build']['tutorial']:
@@ -347,7 +359,9 @@ def build_module(cfg, shutit_map, module):
 		cfg['build']['interactive'] = False
 		cfg['build']['debug'] = False
 
-def do_build(cfg, shutit_map):
+def do_build(shutit):
+	cfg = shutit.cfg
+	shutit_map = shutit.shutit_map
 	util.log(util.red('PHASE: build, cleanup, repository work'))
 	if cfg['build']['tutorial']:
 		util.pause_point(util.get_pexpect_child('container_child'),'\nNow building any modules that need building',print_input=False)
@@ -365,7 +379,9 @@ def do_build(cfg, shutit_map):
 			if not module.start(cfg):
 				util.fail(module.module_id + ' failed on start',child=util.get_pexpect_child('container_child'))
 
-def do_test(cfg, shutit_map):
+def do_test(shutit):
+	cfg = shutit.cfg
+	shutit_map = shutit.shutit_map
 	# Test in reverse order
 	util.log(util.red('PHASE: test'))
 	if cfg['build']['tutorial']:
@@ -379,7 +395,9 @@ def do_test(cfg, shutit_map):
 			if not shutit_map[mid].test(cfg):
 				util.fail(mid + ' failed on test',child=util.get_pexpect_child('container_child'))
 
-def do_finalize(cfg, shutit_map):
+def do_finalize(shutit):
+	cfg = shutit.cfg
+	shutit_map = shutit.shutit_map
 	# Stop all the modules
 	if cfg['build']['tutorial']:
 		util.pause_point(util.get_pexpect_child('container_child'),'\nStopping all modules before finalize phase',print_input=False)
@@ -413,13 +431,13 @@ def shutit_main():
 	shutit = shutit_global.shutit
 	shutit_map = shutit.shutit_map
 	shutit_init(shutit)
-	config_collection(shutit.cfg, shutit_map)
-	build_core_module(shutit.cfg, shutit_map)
+	config_collection(shutit)
+	build_core_module(shutit)
 
 	errs = []
-	if not errs: errs = check_deps(shutit.cfg, shutit_map)
-	if not errs: errs = check_conflicts(shutit.cfg, shutit_map)
-	if not errs: errs = check_ready(shutit.cfg, shutit_map)
+	if not errs: errs = check_deps(shutit)
+	if not errs: errs = check_conflicts(shutit)
+	if not errs: errs = check_ready(shutit)
 	if errs:
 		util.log(util.red(print_modules(shutit.cfg,shutit_map)))
 		child = None
@@ -429,10 +447,10 @@ def shutit_main():
 
 	# Dependency validation done.
 
-	do_remove(shutit.cfg, shutit_map)
-	do_build(shutit.cfg, shutit_map)
-	do_test(shutit.cfg, shutit_map)
-	do_finalize(shutit.cfg, shutit_map)
+	do_remove(shutit)
+	do_build(shutit)
+	do_test(shutit)
+	do_finalize(shutit)
 
 	tag_and_push(shutit.cfg)
 
