@@ -247,7 +247,7 @@ def check_deps(shutit):
 	], triples)
 
 	if found_errs:
-		return found_errs
+		return [(err,) for err in found_errs]
 
 	# Show dependency graph
 	if cfg['build']['show_depgraph_only']:
@@ -449,8 +449,10 @@ def shutit_main():
 		util.log(util.red(print_modules(shutit)))
 		child = None
 		for err in errs:
-			util.log(util.red(str(err)), force_stdout=True)
-		util.fail("Encountered some errors, quitting")
+			util.log(util.red(err[0]), force_stdout=True)
+			if not child and len(err) > 1:
+				child = err[1]
+		util.fail("Encountered some errors, quitting", child=child)
 
 	# Dependency validation done.
 
