@@ -507,7 +507,8 @@ def load_configs(shutit):
 		os.close(fd)
 		configs.append(name)
 
-	return get_configs(configs)
+	cfg_parser = get_configs(configs)
+	get_base_config(cfg, cfg_parser)
 
 def load_shutit_modules(shutit):
 	if shutit.cfg['build']['debug']:

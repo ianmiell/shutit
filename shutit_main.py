@@ -85,9 +85,8 @@ def shutit_init(shutit):
 	cfg = shutit.cfg
 	shutit_map = shutit.shutit_map
 	util.parse_args(cfg)
-	cfg_parser = util.load_configs(shutit)
+	util.load_configs(shutit)
 	# Now get base config
-	util.get_base_config(cfg, cfg_parser)
 	if cfg['build']['show_config_only']:
 		util.log(util.print_config(cfg),force_stdout=True)
 		sys.exit()
