@@ -162,7 +162,7 @@ def build_core_module(shutit):
 	if cfg['build']['tutorial']:
 		util.pause_point(util.get_pexpect_child('container_child'),
 			'\nRunning build on the core module (' +
-			shutit_global.shutit_main_dir + '/setup.py)', print_input=False)
+			shutit.shutit_main_dir + '/setup.py)', print_input=False)
 	shutit_map[core_mid].build(cfg)
 
 # Once we have all the modules, then we can look at dependencies.
