@@ -442,9 +442,9 @@ def shutit_main():
 	build_core_module(shutit)
 
 	errs = []
-	if not errs: errs = check_deps(shutit)
-	if not errs: errs = check_conflicts(shutit)
-	if not errs: errs = check_ready(shutit)
+	errs.extend(check_deps(shutit))
+	errs.extend(check_conflicts(shutit))
+	errs.extend(check_ready(shutit))
 	if errs:
 		util.log(util.red(print_modules(shutit)))
 		child = None
