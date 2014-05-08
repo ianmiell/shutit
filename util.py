@@ -452,9 +452,10 @@ def parse_args(cfg):
 			""")
 		pause_point(None,'')
 
-def load_configs(cfg):
+def load_configs(shutit):
+	cfg = shutit.cfg
 	# Get root default config file
-	default_config_file = os.path.join(shutit_global.shutit_main_dir, 'configs/defaults.cnf')
+	default_config_file = os.path.join(shutit.shutit_main_dir, 'configs/defaults.cnf')
 	configs = [default_config_file]
 	# Now all the default configs we can see
 	for path in cfg['host']['shutit_module_paths']:
@@ -464,7 +465,7 @@ def load_configs(cfg):
 					if f == 'defaults.cnf':
 						configs.append(root + '/' + f)
 	# Add the shutit global host- and user-specific config file.
-	configs.append(os.path.join(shutit_global.shutit_main_dir,
+	configs.append(os.path.join(shutit.shutit_main_dir,
 		'configs/' + socket.gethostname() + '_' + cfg['host']['real_user'] + '.cnf'))
 	# Then local host- and user-specific config file in this module.
 	configs.append('configs/' + socket.gethostname() + '_' + cfg['host']['real_user'] + '.cnf')
@@ -508,13 +509,13 @@ def load_configs(cfg):
 
 	return get_configs(configs)
 
-def load_shutit_modules(cfg):
-	if cfg['build']['debug']:
+def load_shutit_modules(shutit):
+	if shutit.cfg['build']['debug']:
 		log('ShutIt module paths now: ')
-		log(cfg['host']['shutit_module_paths'])
+		log(shutit.cfg['host']['shutit_module_paths'])
 		time.sleep(1)
-	for shutit_module_path in cfg['host']['shutit_module_paths']:
-		load_all_from_path(shutit_module_path,cfg)
+	for shutit_module_path in shutit.cfg['host']['shutit_module_paths']:
+		load_all_from_path(shutit, shutit_module_path)
 
 def print_config(cfg):
 	s = ''
@@ -744,15 +745,15 @@ def get_pexpect_child(key):
 
 # dynamically import files within the same directory (in the end, the path)
 #http://stackoverflow.com/questions/301134/dynamic-module-import-in-python
-def load_all_from_path(path,cfg):
-	if os.path.abspath(path) == shutit_global.shutit_main_dir:
+def load_all_from_path(shutit, path):
+	if os.path.abspath(path) == shutit.shutit_main_dir:
 		return
 	if os.path.exists(path):
 		for root, subFolders, files in os.walk(path):
 			for f in files:
 				mod_name,file_ext = os.path.splitext(os.path.split(f)[-1])
 				if file_ext.lower() == '.py':
-					if cfg['build']['debug']:
+					if shutit.cfg['build']['debug']:
 						log('Loading source for: ' + mod_name,os.path.join(root,f))
 					imp.load_source(mod_name,os.path.join(root,f))
 
