@@ -74,8 +74,9 @@ def start_all(cfg, shutit_map, run_order=-1):
 def is_built(cfg,shutit_module_obj):
 	return cfg[shutit_module_obj.module_id]['build'] or shutit_module_obj.is_installed(cfg)
 
-def shutit_init(cfg):
-	shutit_map = {}
+def shutit_init(shutit):
+	cfg = shutit.cfg
+	shutit_map = shutit.shutit_map
 	util.parse_args(cfg)
 	cfg_parser = util.load_configs(cfg)
 	# Now get base config
@@ -410,7 +411,8 @@ def tag_and_push(cfg):
 
 def shutit_main():
 	shutit = shutit_global.shutit
-	shutit_map = shutit_init(shutit.cfg)
+	shutit_map = shutit.shutit_map
+	shutit_init(shutit)
 	config_collection(shutit.cfg, shutit_map)
 	build_core_module(shutit.cfg, shutit_map)
 
