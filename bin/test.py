@@ -26,9 +26,6 @@ class TestShutItDepChecking(unittest.TestCase):
 
 	@classmethod
 	def setUpClass(cls):
-		cls.shutit = shutit_global.shutit
-		cls._cfg = shutit_global.shutit.cfg
-		cls._shutit_map = shutit_global.shutit.shutit_map
 		cls._log = util.log
 		cls._fail = util.fail
 		def log(*args, **kwargs):
@@ -43,8 +40,7 @@ class TestShutItDepChecking(unittest.TestCase):
 		util.fail = cls._fail
 
 	def setUp(self):
-		self.shutit.cfg = self._cfg.copy()
-		self.shutit.shutit_map = self._shutit_map.copy()
+		self.shutit = shutit_global.init()
 		recupdate(self.shutit.cfg, {
 			'build': {
 				'tutorial': False, 'debug': False, 'show_depgraph_only': False
