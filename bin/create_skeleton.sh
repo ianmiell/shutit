@@ -88,6 +88,41 @@ touch ${SKELETON_DIR}/README.md
 cat >> ${SKELETON_DIR}/README.md << END
 ${MODULE_NAME}: description of module directory in here
 END
+
+touch ${SKELETON_DIR}/build.sh
+cat >> ${SKELETON_DIR}/build.sh << END
+# This file tests your build, leaving the container intact when done.
+set -e
+python ${SHUTIT_DIR}/shutit_main.py
+# Display config
+#python ${SHUTIT_DIR}/shutit_main.py --sc
+# Debug
+#python ${SHUTIT_DIR}/shutit_main.py --debug
+# Tutorial
+#python ${SHUTIT_DIR}/shutit_main.py --tutorial
+END
+chmod +x ${SKELETON_DIR}/build.sh
+
+touch ${SKELETON_DIR}/test_build.sh
+cat >> ${SKELETON_DIR}/test_build.sh << END
+# This file tests your build, removing the container when done.
+set -e
+python ${SHUTIT_DIR}/shutit_main.py -s container rm yes
+# Display config
+#python ${SHUTIT_DIR}/shutit_main.py --sc
+# Debug
+#python ${SHUTIT_DIR}/shutit_main.py --debug
+# Tutorial
+#python ${SHUTIT_DIR}/shutit_main.py --tutorial
+END
+chmod +x ${SKELETON_DIR}/test_build.sh
+touch ${SKELETON_DIR}/build_and_push.sh
+cat >> ${SKELETON_DIR}/build_and_push.sh << END
+set -e
+python ${SHUTIT_DIR}/shutit_main.py --config configs/push.cnf
+# Display config
+#python ${SHUTIT_DIR}/shutit_main.py --sc
+# Debug
 touch ${SKELETON_DIR}/test_build.sh
 cat >> ${SKELETON_DIR}/test_build.sh << END
 set -e
