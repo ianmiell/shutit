@@ -253,14 +253,16 @@ def get_base_config(config_dict, cfg_parser):
 	# Warn if something appears not to have been overridden
 	warn = ''
 	if config_dict['container']['password'][:5] == 'YOUR_':
-		warn = '# Found ' + config_dict['container']['password'] + ' in your config, you may want to quit and override, eg put the following into your\n# ' + shutit_global.cwd + '/configs/' + socket.gethostname() + '_' + config_dict['host']['real_user'] + '.cnf file (create if necessary):\n[container]\npassword:mycontainerpassword'
+		warn = '# Found ' + config_dict['container']['password'] + ' in your config, you may want to quit and override, eg put the following into your\n# ' + shutit_global.cwd + '/configs/' + socket.gethostname() + '_' + config_dict['host']['real_user'] + '.cnf file (create if necessary):\n\n[container]\npassword:mycontainerpassword\n\n'
 		issue_warning(warn,2)
 	if config_dict['host']['username'][:5] == 'YOUR_':
-		warn = '# Found ' + config_dict['host']['username'] + ' in your config, you may want to quit and override, eg put the following into your\n# ' + shutit_global.cwd + '/configs/' + socket.gethostname() + '_' + config_dict['host']['real_user'] + '.cnf file: (create if necessary)\n[host]\nusername:myusername'
+		warn = '# Found ' + config_dict['host']['username'] + ' in your config, you may want to quit and override, eg put the following into your\n# ' + shutit_global.cwd + '/configs/' + socket.gethostname() + '_' + config_dict['host']['real_user'] + '.cnf file: (create if necessary)\n\n[host]\nusername:myusername\n\n'
 		issue_warning(warn,2)
 	if config_dict['host']['password'][:5] == 'YOUR_':
-		warn = '# Found ' + config_dict['host']['password'] + ' in your config, you may want to quit and override, eg put the following into your\n# ' + shutit_global.cwd + '/configs/' + socket.gethostname() + '_' + config_dict['host']['real_user'] + '.cnf file: (create if necessary)\n[host]\npassword:mypassword'
+		warn = '# Found ' + config_dict['host']['password'] + ' in your config, you may want to quit and override, eg put the following into your\n# ' + shutit_global.cwd + '/configs/' + socket.gethostname() + '_' + config_dict['host']['real_user'] + '.cnf file: (create if necessary)\n\n[host]\npassword:mypassword\n\n'
 		issue_warning(warn,2)
+	if warn != '':
+		fail('Failed due to above warnings - please correct and retry')
 	# END warnings
 	# FAILS begins
 	# rm is incompatible with do_repository_work
