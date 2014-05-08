@@ -409,17 +409,17 @@ def tag_and_push(cfg):
 	time.sleep(0.3)
 
 def shutit_main():
-	cfg = shutit_global.cfg
-	shutit_map = shutit_init(cfg)
-	config_collection(cfg, shutit_map)
-	build_core_module(cfg, shutit_map)
+	shutit = shutit_global.shutit
+	shutit_map = shutit_init(shutit.cfg)
+	config_collection(shutit.cfg, shutit_map)
+	build_core_module(shutit.cfg, shutit_map)
 
 	errs = []
-	if not errs: errs = check_deps(cfg, shutit_map)
-	if not errs: errs = check_conflicts(cfg, shutit_map)
-	if not errs: errs = check_ready(cfg, shutit_map)
+	if not errs: errs = check_deps(shutit.cfg, shutit_map)
+	if not errs: errs = check_conflicts(shutit.cfg, shutit_map)
+	if not errs: errs = check_ready(shutit.cfg, shutit_map)
 	if errs:
-		util.log(util.red(print_modules(cfg,shutit_map)))
+		util.log(util.red(print_modules(shutit.cfg,shutit_map)))
 		child = None
 		for err in errs:
 			util.log(util.red(str(err)), force_stdout=True)
@@ -427,17 +427,17 @@ def shutit_main():
 
 	# Dependency validation done.
 
-	do_remove(cfg, shutit_map)
-	do_build(cfg, shutit_map)
-	do_test(cfg, shutit_map)
-	do_finalize(cfg, shutit_map)
+	do_remove(shutit.cfg, shutit_map)
+	do_build(shutit.cfg, shutit_map)
+	do_test(shutit.cfg, shutit_map)
+	do_finalize(shutit.cfg, shutit_map)
 
-	tag_and_push(cfg)
+	tag_and_push(shutit.cfg)
 
 	util.log(util.red(util.build_report('Module: N/A (END)')),prefix=False,force_stdout=True)
 
-	if cfg['build']['tutorial']:
-		util.log(util.red('\nThe build is complete. You should now have a container called ' + cfg['container']['name'] + ' and a new image if you chose to commit it.\n\nLook and play with the following files from the newly-created module directory to dig deeper:\n\n\tconfigs/default.cnf\n\t*.py\n\nYou can rebuild at any time by running the supplied ./build.sh and run with the supplied ./run.sh.\n\nThere\'s a default test runner in bin/test.sh\n\nYou can inspect the details of the build in the container\'s /root/shutit_build directory.'),force_stdout=True)
+	if shutit.cfg['build']['tutorial']:
+		util.log(util.red('\nThe build is complete. You should now have a container called ' + shutit.cfg['container']['name'] + ' and a new image if you chose to commit it.\n\nLook and play with the following files from the newly-created module directory to dig deeper:\n\n\tconfigs/default.cnf\n\t*.py\n\nYou can rebuild at any time by running the supplied ./build.sh and run with the supplied ./run.sh.\n\nThere\'s a default test runner in bin/test.sh\n\nYou can inspect the details of the build in the container\'s /root/shutit_build directory.'),force_stdout=True)
 
 if __name__ == '__main__':
 	shutit_main()
