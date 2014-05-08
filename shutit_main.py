@@ -92,10 +92,12 @@ def shutit_init(shutit):
 		util.log(util.print_config(cfg),force_stdout=True)
 		sys.exit()
 	util.load_shutit_modules(shutit)
-	init_shutit_map(cfg, shutit_map)
+	init_shutit_map(shutit)
 	return shutit_map
 
-def init_shutit_map(cfg, shutit_map):
+def init_shutit_map(shutit):
+	cfg = shutit.cfg
+	shutit_map = shutit.shutit_map
 	# Check we have modules
 	# Check for duplicate module details.
 	# Set up common config.
@@ -174,7 +176,9 @@ def build_core_module(shutit):
 
 # Once we have all the modules, then we can look at dependencies.
 # Dependency validation begins.
-def resolve_dependencies(cfg, shutit_map, to_build, depender):
+def resolve_dependencies(shutit, to_build, depender):
+	cfg = shutit.cfg
+	shutit_map = shutit.shutit_map
 	for dependee_id in depender.depends_on:
 		dependee = shutit_map.get(dependee_id)
 		# Don't care if module doesn't exist, we check this later
@@ -225,7 +229,7 @@ def check_deps(shutit):
 		if mid in cfg and cfg[mid]['build']
 	]
 	# Add any deps we may need by extending to_build and altering cfg
-	[resolve_dependencies(cfg, shutit_map, to_build, module) for module in to_build]
+	[resolve_dependencies(shutit, to_build, module) for module in to_build]
 
 	# Dep checking
 	def err_checker(errs, triples):
