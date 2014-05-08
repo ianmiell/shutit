@@ -70,7 +70,8 @@ load-plugins=
 #[R0913] Too many arguments
 #[R0914] Too many local variables
 #[R0912] Too many branches
-disable=C0326,C0301,W0621,C0111,C0103,C0321,W0511,R0913,R0914,R0912
+#bad-continuation Some truly bizarre opinions about python line wrapping
+disable=C0326,C0301,W0621,C0111,C0103,C0321,W0511,R0913,R0914,R0912,bad-continuation
 
 
 [REPORTS]
