@@ -6,21 +6,25 @@ from bottle import route, run, request
 
 import shutit_main
 import shutit_global
+import util
 
-config_dict = None
-orig_mod_config_dict = {}
-shutit_map = None
+orig_mod_cfg = {}
+shutit = None
 
 def start_shutit():
-	global config_dict
-	global orig_mod_config_dict
-	global shutit_map
-	config_dict = shutit_global.config_dict
-	shutit_map = shutit_main.shutit_init(config_dict)
-	shutit_main.config_collection(config_dict, shutit_map)
-	shutit_main.build_core_module(config_dict, shutit_map)
-	for mid in shutit_map:
-		orig_mod_config_dict[mid] = config_dict[mid]
+	global shutit
+	global orig_mod_cfg
+	shutit = shutit_global.shutit
+
+	util.parse_args(shutit.cfg)
+	util.load_configs(shutit)
+	util.load_shutit_modules(shutit)
+	shutit_main.init_shutit_map(shutit)
+	shutit_main.config_collection(shutit)
+	shutit_main.build_core_module(shutit)
+
+	for mid in shutit.shutit_map:
+		orig_mod_cfg[mid] = shutit.cfg[mid]
 
 start_shutit()
 
@@ -113,24 +117,24 @@ getmodules([]);
 
 @route('/info', method='POST')
 def info():
-	config_dict.update(copy.deepcopy(orig_mod_config_dict))
+	shutit.cfg.update(copy.deepcopy(orig_mod_cfg))
 
 	for mid in request.json['to_build']:
-		config_dict[mid]['build'] = True
+		shutit.cfg[mid]['build'] = True
 
 	errs = []
-	errs.extend(shutit_main.check_deps(config_dict, shutit_map))
-	errs.extend(shutit_main.check_conflicts(config_dict, shutit_map))
-	errs.extend(shutit_main.check_ready(config_dict, shutit_map))
+	errs.extend(shutit_main.check_deps(shutit))
+	errs.extend(shutit_main.check_conflicts(shutit))
+	errs.extend(shutit_main.check_ready(shutit))
 
 	return json.dumps({
 		'errs': [err[0] for err in errs],
 		'modules': [
 			{
 				"module_id": mid,
-				"run_order": float(shutit_map[mid].run_order),
-				"build": config_dict[mid]['build']
-			} for mid in shutit_main.module_ids(shutit_map)
+				"run_order": float(shutit.shutit_map[mid].run_order),
+				"build": shutit.cfg[mid]['build']
+			} for mid in shutit_main.module_ids(shutit)
 		]
 	})
 
