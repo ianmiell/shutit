@@ -56,18 +56,18 @@ def is_file_secure(file_name):
 		return False
 	return True
 
-def log(msg,code=None,pause=0,config_dict=None,prefix=True,force_stdout=False):
-	if config_dict is None: config_dict = shutit_global.config_dict
+def log(msg,code=None,pause=0,cfg=None,prefix=True,force_stdout=False):
+	if cfg is None: cfg = shutit_global.cfg
 	if prefix:
 		prefix = 'LOG: ' + time.strftime("%Y-%m-%d %H:%M:%S",time.localtime())
 		msg = prefix + ' ' + str(msg)
 	if code != None:
 		msg = colour(code, msg)
-	if config_dict['build']['debug'] or force_stdout:
+	if cfg['build']['debug'] or force_stdout:
 		print >> sys.stdout, msg
-	if config_dict['build']['build_log']:
-		print >> config_dict['build']['build_log'], msg
-		config_dict['build']['build_log'].flush()
+	if cfg['build']['build_log']:
+		print >> cfg['build']['build_log'], msg
+		cfg['build']['build_log'].flush()
 	time.sleep(pause)
 
 def colour(code, msg):   return '\033[%sm%s\033[0m' % (code, msg)
@@ -89,21 +89,21 @@ def reverse_yellow(msg): return colour('7;33', msg)
 # expect                     - String that we expect to see in the output. Usually a prompt.
 # timeout                    - Timeout on response (default=3600 seconds).
 # check_exit                 - Whether the check the shell exit code of the command. If the exit value was non-zero an error is thrown. (default=True)
-# config_dict                - config_dict variable (default=shutit_global.config_dict)
+# cfg                        - cfg variable (default=shutit_global.cfg)
 # fail_on_empty_before       - If debug is set, fail on empty before match (default=True)
 # record_command             - Whether to record the command for output at end (default=True)
 # exit_values                - Array of acceptable exit values (default [0])
-def send_and_expect(child,send,expect,timeout=3600,check_exit=True,config_dict=None,fail_on_empty_before=True,record_command=True,exit_values=['0']):
-	if config_dict is None: config_dict = shutit_global.config_dict
-	if config_dict['build']['debug']:
+def send_and_expect(child,send,expect,timeout=3600,check_exit=True,cfg=None,fail_on_empty_before=True,record_command=True,exit_values=['0']):
+	if cfg is None: cfg = shutit_global.cfg
+	if cfg['build']['debug']:
 		log('================================================================================')
 		log('Sending>>>' + send + '<<<')
 		log('Expecting>>>' + str(expect) + '<<<')
 	# Race conditions have been seen - might want to remove this
-	time.sleep(config_dict['build']['command_pause'])
+	time.sleep(cfg['build']['command_pause'])
 	child.sendline(send)
 	expect_res = child.expect(expect,timeout)
-	if config_dict['build']['debug']:
+	if cfg['build']['debug']:
 		log('child.before>>>' + child.before + '<<<')
 		log('child.after>>>' + child.after + '<<<')
 	if fail_on_empty_before == True:
@@ -113,10 +113,10 @@ def send_and_expect(child,send,expect,timeout=3600,check_exit=True,config_dict=N
 		# Don't check exit if fail_on_empty_before is False
 		log('' + child.before + '<<<')
 		check_exit = False
-		for prompt in config_dict['expect_prompts']:
+		for prompt in cfg['expect_prompts']:
 			if prompt == expect:
 				# Reset prompt
-				handle_login(child,config_dict,'reset_tmp_prompt')
+				handle_login(child,cfg,'reset_tmp_prompt')
 				handle_revert_prompt(child,expect,'reset_tmp_prompt')
 	if check_exit == True:
 		child.sendline('echo EXIT_CODE:$?')
@@ -129,17 +129,17 @@ def send_and_expect(child,send,expect,timeout=3600,check_exit=True,config_dict=N
 			log(red('child.after: \n' + child.after + '\n'))
 			log(red('Exit value from command+\n' + send + '\nwas:\n' + res))
 			msg = '\nWARNING: command:\n' + send + '\nreturned unaccepted exit code: ' + res + '\nIf this is expected, pass in check_exit=False or an exit_values array into the send_and_expect function call.\nIf you want to error on these errors, set the config:\n[build]\naction_on_ret_code:error'
-			config_dict['build']['report'] = config_dict['build']['report'] + msg
-			if config_dict['build']['action_on_ret_code'] == 'error':
+			cfg['build']['report'] = cfg['build']['report'] + msg
+			if cfg['build']['action_on_ret_code'] == 'error':
 				pause_point(child,msg + '\n\nPause point on exit_code != 0. CTRL-C to quit',force=True)
 				#raise Exception('Exit value from command\n' + send + '\nwas:\n' + res)
 	# If the command matches any 'password's then don't record
 	if record_command:
 		ok_to_record = True
-		for i in config_dict.keys():
-			if isinstance(config_dict[i],dict):
-				for j in config_dict[i].keys():
-					if j == 'password' and config_dict[i][j] == send:
+		for i in cfg.keys():
+			if isinstance(cfg[i],dict):
+				for j in cfg[i].keys():
+					if j == 'password' and cfg[i][j] == send:
 						shutit_global.shutit_command_history.append('#redacted command, password')
 						ok_to_record = False
 						break
@@ -152,18 +152,18 @@ def send_and_expect(child,send,expect,timeout=3600,check_exit=True,config_dict=N
 	return expect_res
 
 
-def get_config(config_dict,module_id,option,default,boolean=False):
-	if module_id not in config_dict.keys():
-		config_dict[module_id] = {}
-	if not config_dict['config_parser'].has_section(module_id):
-		config_dict['config_parser'].add_section(module_id)
-	if config_dict['config_parser'].has_option(module_id,option):
+def get_config(cfg,module_id,option,default,boolean=False):
+	if module_id not in cfg.keys():
+		cfg[module_id] = {}
+	if not cfg['config_parser'].has_section(module_id):
+		cfg['config_parser'].add_section(module_id)
+	if cfg['config_parser'].has_option(module_id,option):
 		if boolean:
-			config_dict[module_id][option] = config_dict['config_parser'].getboolean(module_id,option)
+			cfg[module_id][option] = cfg['config_parser'].getboolean(module_id,option)
 		else:
-			config_dict[module_id][option] = config_dict['config_parser'].get(module_id,option)
+			cfg[module_id][option] = cfg['config_parser'].get(module_id,option)
 	else:
-		config_dict[module_id][option] = default
+		cfg[module_id][option] = default
 
 def get_configs(configs):
 	cp = ConfigParser.ConfigParser(None)
@@ -184,116 +184,116 @@ def issue_warning(msg,wait):
 
 # Manage config settings, returning a dict representing the settings
 # that have been sanity-checked.
-def get_base_config(config_dict, cfg_parser):
-	config_dict['config_parser'] = cp = cfg_parser
+def get_base_config(cfg, cfg_parser):
+	cfg['config_parser'] = cp = cfg_parser
 	# BEGIN Read from config files
-	config_dict['build']['interactive']                   = cp.getboolean('build','interactive')
-	config_dict['build']['action_on_ret_code']            = cp.get('build','action_on_ret_code')
-	config_dict['build']['privileged']                    = cp.getboolean('build','privileged')
-	config_dict['build']['lxc_conf']                      = cp.get('build','lxc_conf')
-	config_dict['build']['allowed_images']                = json.loads(cp.get('build','allowed_images'))
-	config_dict['container']['password']                  = cp.get('container','password')
-	config_dict['container']['hostname']                  = cp.get('container','hostname')
-	config_dict['container']['force_repo_work']           = cp.getboolean('container','force_repo_work')
-	config_dict['container']['locale']                    = cp.get('container','locale')
-	config_dict['container']['ports']                     = cp.get('container','ports')
-	config_dict['container']['name']                      = cp.get('container','name')
-	config_dict['container']['rm']                        = cp.getboolean('container','rm')
-	config_dict['host']['resources_dir']                  = cp.get('host','resources_dir')
-	config_dict['host']['docker_executable']              = cp.get('host','docker_executable')
-	config_dict['host']['dns']                            = cp.get('host','dns')
-	config_dict['host']['username']                       = cp.get('host','username')
-	config_dict['host']['password']                       = cp.get('host','password')
-	config_dict['host']['logfile']                        = cp.get('host','logfile')
-	config_dict['repository']['name']                     = cp.get('repository','name')
-	config_dict['repository']['server']                   = cp.get('repository','server')
-	config_dict['repository']['push']                     = cp.getboolean('repository','push')
-	config_dict['repository']['tar']                      = cp.getboolean('repository','tar')
-	config_dict['repository']['do_repository_work']       = cp.getboolean('repository','do_repository_work')
-	config_dict['repository']['suffix_date']              = cp.getboolean('repository','suffix_date')
-	config_dict['repository']['suffix_format']            = cp.get('repository','suffix_format')
+	cfg['build']['interactive']                   = cp.getboolean('build','interactive')
+	cfg['build']['action_on_ret_code']            = cp.get('build','action_on_ret_code')
+	cfg['build']['privileged']                    = cp.getboolean('build','privileged')
+	cfg['build']['lxc_conf']                      = cp.get('build','lxc_conf')
+	cfg['build']['allowed_images']                = json.loads(cp.get('build','allowed_images'))
+	cfg['container']['password']                  = cp.get('container','password')
+	cfg['container']['hostname']                  = cp.get('container','hostname')
+	cfg['container']['force_repo_work']           = cp.getboolean('container','force_repo_work')
+	cfg['container']['locale']                    = cp.get('container','locale')
+	cfg['container']['ports']                     = cp.get('container','ports')
+	cfg['container']['name']                      = cp.get('container','name')
+	cfg['container']['rm']                        = cp.getboolean('container','rm')
+	cfg['host']['resources_dir']                  = cp.get('host','resources_dir')
+	cfg['host']['docker_executable']              = cp.get('host','docker_executable')
+	cfg['host']['dns']                            = cp.get('host','dns')
+	cfg['host']['username']                       = cp.get('host','username')
+	cfg['host']['password']                       = cp.get('host','password')
+	cfg['host']['logfile']                        = cp.get('host','logfile')
+	cfg['repository']['name']                     = cp.get('repository','name')
+	cfg['repository']['server']                   = cp.get('repository','server')
+	cfg['repository']['push']                     = cp.getboolean('repository','push')
+	cfg['repository']['tar']                      = cp.getboolean('repository','tar')
+	cfg['repository']['do_repository_work']       = cp.getboolean('repository','do_repository_work')
+	cfg['repository']['suffix_date']              = cp.getboolean('repository','suffix_date')
+	cfg['repository']['suffix_format']            = cp.get('repository','suffix_format')
 	# We need this here as it's referenced even when do_repository_work is False.
-	config_dict['repository']['user']                     = cp.get('repository','user')
-	if config_dict['repository']['do_repository_work'] == True:
-		if config_dict['repository']['user'] != '':
-			config_dict['repository']['password']                 = cp.get('repository','password')
-			config_dict['repository']['email']                    = cp.get('repository','email')
+	cfg['repository']['user']                     = cp.get('repository','user')
+	if cfg['repository']['do_repository_work'] == True:
+		if cfg['repository']['user'] != '':
+			cfg['repository']['password']                 = cp.get('repository','password')
+			cfg['repository']['email']                    = cp.get('repository','email')
 	# END Read from config files
 
 	# BEGIN Standard expects
 	# It's important that these have '.*' in them at the start, so that the matched data is reliablly 'after' in the
 	# child object. Use these where possible to make things more consistent.
 	# Attempt to capture any starting prompt (when starting)
-	config_dict['expect_prompts']['base_prompt']             = '\r\n.*[@#$]'
-	config_dict['expect_prompts']['real_user_prompt']        = '\r\n.*?' + config_dict['host']['real_user'] + '@.*:'
+	cfg['expect_prompts']['base_prompt']             = '\r\n.*[@#$]'
+	cfg['expect_prompts']['real_user_prompt']        = '\r\n.*?' + cfg['host']['real_user'] + '@.*:'
 	# END Standard expects
 
 	# BEGIN tidy configs up
-	if config_dict['host']['resources_dir'] == 'resources':
-		config_dict['host']['resources_dir'] = os.path.join(shutit_global.cwd, 'resources')
-	elif config_dict['host']['resources_dir'] == '':
-		config_dict['host']['resources_dir'] = os.path.join(shutit_global.shutit_main_dir, 'resources')
-	if config_dict['host']['logfile'] == '':
-		logfile = os.path.join('/tmp/', 'shutit_log_' + config_dict['build']['build_id'])
+	if cfg['host']['resources_dir'] == 'resources':
+		cfg['host']['resources_dir'] = os.path.join(shutit_global.cwd, 'resources')
+	elif cfg['host']['resources_dir'] == '':
+		cfg['host']['resources_dir'] = os.path.join(shutit_global.shutit_main_dir, 'resources')
+	if cfg['host']['logfile'] == '':
+		logfile = os.path.join('/tmp/', 'shutit_log_' + cfg['build']['build_id'])
 	else:
-		logfile = logfile + '_' + config_dict['build']['build_id']
-	config_dict['build']['build_log'] = open(logfile,'a')
-	config_dict['build']['container_build_log'] = '/tmp/shutit_log_' + config_dict['build']['build_id']
+		logfile = logfile + '_' + cfg['build']['build_id']
+	cfg['build']['build_log'] = open(logfile,'a')
+	cfg['build']['container_build_log'] = '/tmp/shutit_log_' + cfg['build']['build_id']
 	# Lock it down to the running user.
 	os.chmod(logfile,0600)
 	# tutorial implies interactive
-	if config_dict['build']['tutorial']:
-		config_dict['build']['interactive'] = True
+	if cfg['build']['tutorial']:
+		cfg['build']['interactive'] = True
 	# debug implies interactive
-	if config_dict['build']['debug']:
-		config_dict['build']['interactive'] = True
+	if cfg['build']['debug']:
+		cfg['build']['interactive'] = True
 	# END tidy configs up
 
 	# BEGIN warnings
 	# Warn if something appears not to have been overridden
 	warn = ''
-	if config_dict['container']['password'][:5] == 'YOUR_':
-		warn = '# Found ' + config_dict['container']['password'] + ' in your config, you may want to quit and override, eg put the following into your\n# ' + shutit_global.cwd + '/configs/' + socket.gethostname() + '_' + config_dict['host']['real_user'] + '.cnf file (create if necessary):\n\n[container]\npassword:mycontainerpassword\n\n'
+	if cfg['container']['password'][:5] == 'YOUR_':
+		warn = '# Found ' + cfg['container']['password'] + ' in your config, you may want to quit and override, eg put the following into your\n# ' + shutit_global.cwd + '/configs/' + socket.gethostname() + '_' + cfg['host']['real_user'] + '.cnf file (create if necessary):\n\n[container]\npassword:mycontainerpassword\n\n'
 		issue_warning(warn,2)
-	if config_dict['host']['username'][:5] == 'YOUR_':
-		warn = '# Found ' + config_dict['host']['username'] + ' in your config, you may want to quit and override, eg put the following into your\n# ' + shutit_global.cwd + '/configs/' + socket.gethostname() + '_' + config_dict['host']['real_user'] + '.cnf file: (create if necessary)\n\n[host]\nusername:myusername\n\n'
+	if cfg['host']['username'][:5] == 'YOUR_':
+		warn = '# Found ' + cfg['host']['username'] + ' in your config, you may want to quit and override, eg put the following into your\n# ' + shutit_global.cwd + '/configs/' + socket.gethostname() + '_' + cfg['host']['real_user'] + '.cnf file: (create if necessary)\n\n[host]\nusername:myusername\n\n'
 		issue_warning(warn,2)
-	if config_dict['host']['password'][:5] == 'YOUR_':
-		warn = '# Found ' + config_dict['host']['password'] + ' in your config, you may want to quit and override, eg put the following into your\n# ' + shutit_global.cwd + '/configs/' + socket.gethostname() + '_' + config_dict['host']['real_user'] + '.cnf file: (create if necessary)\n\n[host]\npassword:mypassword\n\n'
+	if cfg['host']['password'][:5] == 'YOUR_':
+		warn = '# Found ' + cfg['host']['password'] + ' in your config, you may want to quit and override, eg put the following into your\n# ' + shutit_global.cwd + '/configs/' + socket.gethostname() + '_' + cfg['host']['real_user'] + '.cnf file: (create if necessary)\n\n[host]\npassword:mypassword\n\n'
 		issue_warning(warn,2)
 	if warn != '':
 		fail('Failed due to above warnings - please correct and retry')
 	# END warnings
 	# FAILS begins
 	# rm is incompatible with do_repository_work
-	if config_dict['container']['rm'] and config_dict['repository']['do_repository_work']:
+	if cfg['container']['rm'] and cfg['repository']['do_repository_work']:
 		fail("Can't have [container]/rm and [repository]/do_repository_work set to true")
-	if warn != '' and not config_dict['build']['tutorial']:
+	if warn != '' and not cfg['build']['tutorial']:
 		issue_warning('Showing computed config. This can also be done by calling --sc:',2)
-		log(red(print_config(config_dict)),force_stdout=True)
+		log(red(print_config(cfg)),force_stdout=True)
 		time.sleep(1)
 	# If build/allowed_images doesn't contain container/docker_image
-	if 'any' not in config_dict['build']['allowed_images'] and config_dict['container']['docker_image'] not in config_dict['build']['allowed_images']:
-		fail('Allowed images for this build are: ' + str(config_dict['build']['allowed_images']) + ' but the configured image is: ' + config_dict['container']['docker_image'])
+	if 'any' not in cfg['build']['allowed_images'] and cfg['container']['docker_image'] not in cfg['build']['allowed_images']:
+		fail('Allowed images for this build are: ' + str(cfg['build']['allowed_images']) + ' but the configured image is: ' + cfg['container']['docker_image'])
 	# FAILS ends
-	if config_dict['host']['password'] == '':
+	if cfg['host']['password'] == '':
 		import getpass
-		config_dict['host']['password'] = getpass.getpass(prompt='Input your host machine password: ')
-	if config_dict['container']['password'] == '':
+		cfg['host']['password'] = getpass.getpass(prompt='Input your host machine password: ')
+	if cfg['container']['password'] == '':
 		import getpass
-		config_dict['container']['password'] = getpass.getpass(prompt='Input your container password: ')
+		cfg['container']['password'] = getpass.getpass(prompt='Input your container password: ')
 	# Check action_on_ret_code values
-	if config_dict['build']['action_on_ret_code'] != 'msg' and config_dict['build']['action_on_ret_code'] != 'error':
+	if cfg['build']['action_on_ret_code'] != 'msg' and cfg['build']['action_on_ret_code'] != 'error':
 		fail('[build]\naction_on_ret_code:\nshould be set to "msg" or "error"')
 
 # Returns the config dict
-def parse_args(config_dict):
-	config_dict['host']['real_user_id'] = pexpect.run('id -u ' + config_dict['host']['real_user']).strip()
+def parse_args(cfg):
+	cfg['host']['real_user_id'] = pexpect.run('id -u ' + cfg['host']['real_user']).strip()
 
 	parser = argparse.ArgumentParser(description='ShutIt - a tool for managing complex Docker deployments')
 	parser.add_argument('--config', help='Config file for setup config. Must be with perms 0600. Multiple arguments allowed; config files considered in order.',default=[], action='append')
 	parser.add_argument('-s', '--set', help='Override a config item, e.g. "-s container rm no". Can be specified multiple times.', default=[], action='append', nargs=3, metavar=('SEC','KEY','VAL'))
-	parser.add_argument('--image_tag', help='Build container using specified image - if there is a symbolic reference, please use that, eg localhost.localdomain:5000/myref',default=config_dict['container']['docker_image_default'])
+	parser.add_argument('--image_tag', help='Build container using specified image - if there is a symbolic reference, please use that, eg localhost.localdomain:5000/myref',default=cfg['container']['docker_image_default'])
 	parser.add_argument('--shutit_module_path', default='.',help='List of shutit module paths, separated by colons. ShutIt registers modules by running all .py files in these directories.')
 	parser.add_argument('--pause',help='Pause between commands to avoid race conditions.',default='0.5')
 	parser.add_argument('--sc',help='Show the config computed and quit',default=False,const=True,action='store_const')
@@ -340,23 +340,23 @@ def parse_args(config_dict):
 	args = parser.parse_args(args_list)
 	# Get these early for this part of the build.
 	# These should never be config arguments, since they are needed before config is passed in.
-	config_dict['build']['debug']    = args.debug
-	config_dict['build']['tutorial'] = args.tutorial
-	config_dict['build']['command_pause'] = float(args.pause)
-	config_dict['build']['extra_configs'] = args.config
-	config_dict['build']['show_config_only'] = args.sc
-	config_dict['build']['show_depgraph_only'] = args.depgraph
-	config_dict['build']['config_overrides'] = args.set
-	config_dict['container']['docker_image'] = args.image_tag
+	cfg['build']['debug']    = args.debug
+	cfg['build']['tutorial'] = args.tutorial
+	cfg['build']['command_pause'] = float(args.pause)
+	cfg['build']['extra_configs'] = args.config
+	cfg['build']['show_config_only'] = args.sc
+	cfg['build']['show_depgraph_only'] = args.depgraph
+	cfg['build']['config_overrides'] = args.set
+	cfg['container']['docker_image'] = args.image_tag
 	# Get module paths
-	config_dict['host']['shutit_module_paths'] = args.shutit_module_path.split(':')
-	if '.' not in config_dict['host']['shutit_module_paths']:
-		if config_dict['build']['debug']:
+	cfg['host']['shutit_module_paths'] = args.shutit_module_path.split(':')
+	if '.' not in cfg['host']['shutit_module_paths']:
+		if cfg['build']['debug']:
 			log('Working directory path not included, adding...')
 			time.sleep(1)
-		config_dict['host']['shutit_module_paths'].append('.')
+		cfg['host']['shutit_module_paths'].append('.')
 	# Finished parsing args, tutorial stuff
-	if config_dict['build']['tutorial']:
+	if cfg['build']['tutorial']:
 		print textwrap.dedent("""\
 			================================================================================
 			SHUTIT - INTRODUCTION
@@ -383,7 +383,7 @@ def parse_args(config_dict):
 			      --shutit_module_path (see --help)
 			      shutit_module_path defaults to ".", adding "." if it wasn't explicitly
 			      included. The paths in this run are:
-			\t\t""" + str(config_dict['host']['shutit_module_paths']) + """
+			\t\t""" + str(cfg['host']['shutit_module_paths']) + """
 			""" + shutit_global.shutit_main_dir + """/configs/`hostname`_`whoami`.cnf
 			    - Host- and username-specific config for this host.
 			/path/to/shutit/module/configs/`hostname`_`whoami`.cnf
@@ -452,26 +452,27 @@ def parse_args(config_dict):
 			""")
 		pause_point(None,'')
 
-def load_configs(config_dict):
+def load_configs(shutit):
+	cfg = shutit.cfg
 	# Get root default config file
-	default_config_file = os.path.join(shutit_global.shutit_main_dir, 'configs/defaults.cnf')
+	default_config_file = os.path.join(shutit.shutit_main_dir, 'configs/defaults.cnf')
 	configs = [default_config_file]
 	# Now all the default configs we can see
-	for path in config_dict['host']['shutit_module_paths']:
+	for path in cfg['host']['shutit_module_paths']:
 		if os.path.exists(path):
 			for root, subFolders, files in os.walk(path):
 				for f in files:
 					if f == 'defaults.cnf':
 						configs.append(root + '/' + f)
 	# Add the shutit global host- and user-specific config file.
-	configs.append(os.path.join(shutit_global.shutit_main_dir,
-		'configs/' + socket.gethostname() + '_' + config_dict['host']['real_user'] + '.cnf'))
+	configs.append(os.path.join(shutit.shutit_main_dir,
+		'configs/' + socket.gethostname() + '_' + cfg['host']['real_user'] + '.cnf'))
 	# Then local host- and user-specific config file in this module.
-	configs.append('configs/' + socket.gethostname() + '_' + config_dict['host']['real_user'] + '.cnf')
+	configs.append('configs/' + socket.gethostname() + '_' + cfg['host']['real_user'] + '.cnf')
 	# Add the local build.cnf
 	configs.append('configs/build.cnf')
 	# Get passed-in config(s)
-	for config_file_name in config_dict['build']['extra_configs']:
+	for config_file_name in cfg['build']['extra_configs']:
 		run_config_file = os.path.expanduser(config_file_name)
 		if not os.path.isfile(run_config_file):
 			fail('Did not recognise ' + run_config_file +
@@ -479,12 +480,12 @@ def load_configs(config_dict):
 		configs.append(run_config_file)
 	# Image to use to start off. The script should be idempotent, so running it
 	# on an already built image should be ok, and is advised to reduce diff space required.
-	if config_dict['build']['tutorial'] or config_dict['build']['show_config_only']:
+	if cfg['build']['tutorial'] or cfg['build']['show_config_only']:
 		msg = ''
 		for c in configs:
 			msg = msg + '\t\n' + c
 			log('\t' + c)
-		if config_dict['build']['tutorial']:
+		if cfg['build']['tutorial']:
 			pause_point(None,'\n' + msg + '\n\nLooking at config files in the '
 				'above order (even if they do not exist - you may want to '
 				'create them).\n\nIf you get a "Port already in use:" error, '
@@ -495,9 +496,9 @@ def load_configs(config_dict):
 
 	# Interpret any config overrides, write to a file and add them to the
 	# list of configs to be interpreted
-	if config_dict['build']['config_overrides']:
+	if cfg['build']['config_overrides']:
 		override_cp = ConfigParser.ConfigParser(None)
-		for o_sec, o_key, o_val in config_dict['build']['config_overrides']:
+		for o_sec, o_key, o_val in cfg['build']['config_overrides']:
 			if not override_cp.has_section(o_sec):
 				override_cp.add_section(o_sec)
 			override_cp.set(o_sec, o_key, o_val)
@@ -506,21 +507,22 @@ def load_configs(config_dict):
 		os.close(fd)
 		configs.append(name)
 
-	return get_configs(configs)
+	cfg_parser = get_configs(configs)
+	get_base_config(cfg, cfg_parser)
 
-def load_shutit_modules(config_dict):
-	if config_dict['build']['debug']:
+def load_shutit_modules(shutit):
+	if shutit.cfg['build']['debug']:
 		log('ShutIt module paths now: ')
-		log(config_dict['host']['shutit_module_paths'])
+		log(shutit.cfg['host']['shutit_module_paths'])
 		time.sleep(1)
-	for shutit_module_path in config_dict['host']['shutit_module_paths']:
-		load_all_from_path(shutit_module_path,config_dict)
+	for shutit_module_path in shutit.cfg['host']['shutit_module_paths']:
+		load_all_from_path(shutit, shutit_module_path)
 
-def print_config(config_dict):
+def print_config(cfg):
 	s = ''
-	for section in config_dict['config_parser'].sections():
+	for section in cfg['config_parser'].sections():
 		s = s + '\n[' + section + ']\n'
-		for item in config_dict['config_parser'].items(section):
+		for item in cfg['config_parser'].items(section):
 			name = str(item[0])
 			value = str(item[1])
 			if name == 'password':
@@ -531,9 +533,9 @@ def print_config(config_dict):
 	return s
 
 # Inserts a pause in the expect session which allows the user to try things out
-def pause_point(child,msg,print_input=True,expect='',config_dict=None,force=False):
-	if config_dict is None: config_dict = shutit_global.config_dict
-	if not config_dict['build']['interactive'] and not force:
+def pause_point(child,msg,print_input=True,expect='',cfg=None,force=False):
+	if cfg is None: cfg = shutit_global.cfg
+	if not cfg['build']['interactive'] and not force:
 		return
 	# Sleep to try and make this the last thing we see before the prompt (not always the case)
 	if child and print_input:
@@ -551,12 +553,12 @@ def pause_point(child,msg,print_input=True,expect='',config_dict=None,force=Fals
 
 # Commit, tag, push, tar etc..
 # expect must be a string
-def do_repository_work(config_dict,expect,repo_name,docker_executable='docker',password=None,force=False):
-	if not (config_dict['repository']['do_repository_work'] or force):
+def do_repository_work(cfg,expect,repo_name,docker_executable='docker',password=None,force=False):
+	if not (cfg['repository']['do_repository_work'] or force):
 		return
 	child = get_pexpect_child('host_child')
-	server = config_dict['repository']['server']
-	user = config_dict['repository']['user']
+	server = cfg['repository']['server']
+	user = cfg['repository']['user']
 
 	if user and repo_name:
 		repository = '%s/%s' % (user, repo_name)
@@ -570,14 +572,14 @@ def do_repository_work(config_dict,expect,repo_name,docker_executable='docker',p
 
 	if not repository:
 		fail('Could not form valid repository name')
-	if config_dict['repository']['tar'] and not repository_tar:
+	if cfg['repository']['tar'] and not repository_tar:
 		fail('Could not form valid tar name')
 
 	if server:
 		repository = '%s/%s' % (server, repository)
 
-	if config_dict['repository']['suffix_date']:
-		suffix_date = time.strftime(config_dict['repository']['suffix_format'])
+	if cfg['repository']['suffix_date']:
+		suffix_date = time.strftime(cfg['repository']['suffix_format'])
 		repository = '%s_%s' % (repository, suffix_date)
 		repository_tar = '%s_%s' % (repository_tar, suffix_date)
 
@@ -588,9 +590,9 @@ def do_repository_work(config_dict,expect,repo_name,docker_executable='docker',p
 	repository = repository.lower()
 	# Slight pause due to race conditions seen.
 	#time.sleep(0.3)
-	res = send_and_expect(child,'SHUTIT_TMP_VAR=`' + docker_executable + ' commit ' + config_dict['container']['container_id'] + '`',[expect,'assword'],timeout=99999,check_exit=False)
+	res = send_and_expect(child,'SHUTIT_TMP_VAR=`' + docker_executable + ' commit ' + cfg['container']['container_id'] + '`',[expect,'assword'],timeout=99999,check_exit=False)
 	if res == 1:
-		send_and_expect(child,config_dict['host']['password'],expect,check_exit=False,record_command=False)
+		send_and_expect(child,cfg['host']['password'],expect,check_exit=False,record_command=False)
 	send_and_expect(child,'echo $SHUTIT_TMP_VAR && unset SHUTIT_TMP_VAR',expect,check_exit=False,record_command=False)
 	image_id = child.after.split('\r\n')[1]
 
@@ -599,21 +601,21 @@ def do_repository_work(config_dict,expect,repo_name,docker_executable='docker',p
 
 	cmd = docker_executable + ' tag ' + image_id + ' ' + repository
 	send_and_expect(child,cmd,expect,check_exit=False)
-	if config_dict['repository']['tar']:
-		if config_dict['build']['tutorial']:
+	if cfg['repository']['tar']:
+		if cfg['build']['tutorial']:
 			pause_point(child,'We are now exporting the container to a bzipped tar file, as configured in \n[repository]\ntar:yes',print_input=False)
-		bzfile = config_dict['host']['resources_dir'] + '/' + repository_tar + '.tar.bz2'
+		bzfile = cfg['host']['resources_dir'] + '/' + repository_tar + '.tar.bz2'
 		log('\nDepositing bzip2 of exported container into ' + bzfile)
-		res = send_and_expect(child,docker_executable + ' export ' + config_dict['container']['container_id'] + ' | bzip2 - > ' + bzfile,[expect,'assword'],timeout=99999)
+		res = send_and_expect(child,docker_executable + ' export ' + cfg['container']['container_id'] + ' | bzip2 - > ' + bzfile,[expect,'assword'],timeout=99999)
 		log(red('\nDeposited bzip2 of exported container into ' + bzfile))
 		log(red('\nRun:\n\nbunzip2 -c ' + bzfile + ' | sudo docker import -\n\nto get this imported into docker.'))
-		config_dict['build']['report'] = config_dict['build']['report'] + '\nDeposited bzip2 of exported container into ' + bzfile
-		config_dict['build']['report'] = config_dict['build']['report'] + '\nRun:\n\nbunzip2 -c ' + bzfile + ' | sudo docker import -\n\nto get this imported into docker.'
+		cfg['build']['report'] = cfg['build']['report'] + '\nDeposited bzip2 of exported container into ' + bzfile
+		cfg['build']['report'] = cfg['build']['report'] + '\nRun:\n\nbunzip2 -c ' + bzfile + ' | sudo docker import -\n\nto get this imported into docker.'
 		if res == 1:
 			send_and_expect(child,password,expect,record_command=False)
-	if config_dict['repository']['push'] == True:
-		push_repository(child,repository,config_dict,docker_executable,expect)
-		config_dict['build']['report'] = config_dict['build']['report'] + 'Pushed repository: ' + repository
+	if cfg['repository']['push'] == True:
+		push_repository(child,repository,cfg,docker_executable,expect)
+		cfg['build']['report'] = cfg['build']['report'] + 'Pushed repository: ' + repository
 
 
 # Return True if file exists, else False
@@ -693,25 +695,25 @@ def add_line_to_file(child,line,filename,expect,match_regexp=None,truncate=False
 
 # Get regular expression from lines
 # Returns None if none matched.
-def get_re_from_child(string,regexp,config_dict=None):
-	if config_dict is None: config_dict = shutit_global.config_dict
-	if config_dict['build']['debug']:
+def get_re_from_child(string,regexp,cfg=None):
+	if cfg is None: cfg = shutit_global.cfg
+	if cfg['build']['debug']:
 		log('get_re_from_child:')
 		log(string)
 		log(regexp)
 	lines = string.split('\r\n')
 	for l in lines:
-		if config_dict['build']['debug']:
+		if cfg['build']['debug']:
 			log('trying: ' + l)
 		match = re.match(regexp,l)
 		if match != None:
-			if config_dict['build']['debug']:
+			if cfg['build']['debug']:
 				log('returning: ' + match.group(1))
 			return match.group(1)
 	return None
 
 # expect must be a string
-def push_repository(child,repository,config_dict,docker_executable,expect):
+def push_repository(child,repository,cfg,docker_executable,expect):
 	send = docker_executable + ' push ' + repository
 	expect_list = ['Pushing','Buffering','Username:','Password:','Email:',expect]
 	timeout=99999
@@ -720,11 +722,11 @@ def push_repository(child,repository,config_dict,docker_executable,expect):
 		if res == 5:
 			break
 		elif res == 2:
-			res = send_and_expect(child,config_dict['repository']['user'],expect_list,timeout=timeout,check_exit=False)
+			res = send_and_expect(child,cfg['repository']['user'],expect_list,timeout=timeout,check_exit=False)
 		elif res == 3:
-			res = send_and_expect(child,config_dict['repository']['password'],expect_list,timeout=timeout,check_exit=False)
+			res = send_and_expect(child,cfg['repository']['password'],expect_list,timeout=timeout,check_exit=False)
 		elif res == 4:
-			res = send_and_expect(child,config_dict['repository']['email'],expect_list,timeout=timeout,check_exit=False)
+			res = send_and_expect(child,cfg['repository']['email'],expect_list,timeout=timeout,check_exit=False)
 		else:
 			res = child.expect(expect_list,timeout=timeout)
 
@@ -744,15 +746,15 @@ def get_pexpect_child(key):
 
 # dynamically import files within the same directory (in the end, the path)
 #http://stackoverflow.com/questions/301134/dynamic-module-import-in-python
-def load_all_from_path(path,config_dict):
-	if os.path.abspath(path) == shutit_global.shutit_main_dir:
+def load_all_from_path(shutit, path):
+	if os.path.abspath(path) == shutit.shutit_main_dir:
 		return
 	if os.path.exists(path):
 		for root, subFolders, files in os.walk(path):
 			for f in files:
 				mod_name,file_ext = os.path.splitext(os.path.split(f)[-1])
 				if file_ext.lower() == '.py':
-					if config_dict['build']['debug']:
+					if shutit.cfg['build']['debug']:
 						log('Loading source for: ' + mod_name,os.path.join(root,f))
 					imp.load_source(mod_name,os.path.join(root,f))
 
@@ -771,11 +773,11 @@ def get_shutit_modules():
 # Distro-independent install function.
 # Takes a package name and runs
 # Returns true if all ok (ie it's installed now), else false
-def install(child,config_dict,package,expect,options=None,timeout=3600):
+def install(child,cfg,package,expect,options=None,timeout=3600):
 	if options is None: options = {}
 	# TODO: maps of packages
 	# TODO: config of maps of packages
-	install_type = config_dict['container']['install_type']
+	install_type = cfg['container']['install_type']
 	if install_type == 'apt':
 		cmd = 'apt-get install'
 		opts = options['apt'] if 'apt' in options else '-qq -y'
@@ -791,11 +793,11 @@ def install(child,config_dict,package,expect,options=None,timeout=3600):
 # Distro-independent remove function.
 # Takes a package name and runs purge/delete on it. Generally takes the most aggressive removal option.
 # Returns true if all ok (ie it's installed now), else false
-def remove(child,config_dict,package,expect,options=None):
+def remove(child,cfg,package,expect,options=None):
 	if options is None: options = {}
 	# TODO: maps of packages
 	# TODO: config of maps of packages
-	install_type = config_dict['container']['install_type']
+	install_type = cfg['container']['install_type']
 	if install_type == 'apt':
 		cmd = 'apt-get purge'
 		opts = options['apt'] if 'apt' in options else '-qq -y'
@@ -809,10 +811,10 @@ def remove(child,config_dict,package,expect,options=None):
 	return True
 
 # Return True if we can be sure the package is installed.
-def package_installed(child,config_dict,package,expect):
-	if config_dict['container']['install_type'] == 'apt':
+def package_installed(child,cfg,package,expect):
+	if cfg['container']['install_type'] == 'apt':
 		send_and_expect(child,"""dpkg -l | awk '{print $2}' | grep "^""" + package + """$" | wc -l""",expect,check_exit=False,record_command=False)
-	elif config_dict['container']['install_type'] == 'yum':
+	elif cfg['container']['install_type'] == 'yum':
 		send_and_expect(child,"""yum list installed | awk '{print $1}' | grep "^""" + package + """$" | wc -l""",expect,check_exit=False,record_command=False)
 	else:
 		return False
@@ -824,59 +826,59 @@ def package_installed(child,config_dict,package,expect):
 
 # Fails if distro could not be determined.
 # Should be called with the container is started up.
-def get_distro_info(child,outer_expect,config_dict):
-	config_dict['container']['install_type']      = ''
-	config_dict['container']['distro']            = ''
-	config_dict['container']['distro_version']    = ''
+def get_distro_info(child,outer_expect,cfg):
+	cfg['container']['install_type']      = ''
+	cfg['container']['distro']            = ''
+	cfg['container']['distro_version']    = ''
 	install_type_map = {'ubuntu':'apt','debian':'apt','red hat':'yum','centos':'yum','fedora':'yum'}
-	handle_login(child,config_dict,'tmp_prompt')
-	if file_exists(child,config_dict['build']['cidfile'],config_dict['expect_prompts']['tmp_prompt']):
-		fail('Did not start up container. If you got a "port in use" error, try:\n\n' + config_dict['host']['docker_executable'] + ' ps -a | grep ' + config_dict['container']['ports'] + ' | awk \'{print $1}\' | xargs ' + config_dict['host']['docker_executable'] + ' kill\n\n')
+	handle_login(child,cfg,'tmp_prompt')
+	if file_exists(child,cfg['build']['cidfile'],cfg['expect_prompts']['tmp_prompt']):
+		fail('Did not start up container. If you got a "port in use" error, try:\n\n' + cfg['host']['docker_executable'] + ' ps -a | grep ' + cfg['container']['ports'] + ' | awk \'{print $1}\' | xargs ' + cfg['host']['docker_executable'] + ' kill\n\n')
 	for key in install_type_map.keys():
 		# Use grep (not egrep) because it's likely installed _everywhere_ by default.
 		child.sendline('cat /etc/issue | grep -i "' + key + '" | wc -l')
-		child.expect(config_dict['expect_prompts']['tmp_prompt'])
+		child.expect(cfg['expect_prompts']['tmp_prompt'])
 		if get_re_from_child(child.before,'^([0-9]+)$') == '1':
-			config_dict['container']['distro']       = key
-			config_dict['container']['install_type'] = install_type_map[key]
+			cfg['container']['distro']       = key
+			cfg['container']['install_type'] = install_type_map[key]
 			break
-	set_password(child,config_dict,config_dict['expect_prompts']['tmp_prompt'],config_dict['container']['password'])
-	if config_dict['container']['install_type'] == 'apt':
-		config_dict['expect_prompts']['real_user_prompt']        = '\r\n.*?' + config_dict['host']['real_user'] + '@.*:'
-		send_and_expect(child,'export DEBIAN_FRONTEND=noninteractive',config_dict['expect_prompts']['tmp_prompt'])
-		send_and_expect(child,'apt-get update',config_dict['expect_prompts']['tmp_prompt'],timeout=9999,check_exit=False)
-		send_and_expect(child,'dpkg-divert --local --rename --add /sbin/initctl',config_dict['expect_prompts']['tmp_prompt'])
-		send_and_expect(child,'ln -f -s /bin/true /sbin/initctl',config_dict['expect_prompts']['tmp_prompt'])
-		install(child,config_dict,'passwd',config_dict['expect_prompts']['tmp_prompt'])
-		install(child,config_dict,'sudo',config_dict['expect_prompts']['tmp_prompt'])
-	elif config_dict['container']['install_type'] == 'yum':
-		config_dict['expect_prompts']['real_user_prompt']        = '\r\n.*?' + config_dict['host']['real_user'] + '@.*:'
-		install(child,config_dict,'passwd',config_dict['expect_prompts']['tmp_prompt'])
-		install(child,config_dict,'sudo',config_dict['expect_prompts']['tmp_prompt'])
-		send_and_expect(child,'yum update -y',config_dict['expect_prompts']['tmp_prompt'],timeout=9999)
-	if config_dict['container']['install_type'] == '' or config_dict['container']['distro'] == '':
+	set_password(child,cfg,cfg['expect_prompts']['tmp_prompt'],cfg['container']['password'])
+	if cfg['container']['install_type'] == 'apt':
+		cfg['expect_prompts']['real_user_prompt']        = '\r\n.*?' + cfg['host']['real_user'] + '@.*:'
+		send_and_expect(child,'export DEBIAN_FRONTEND=noninteractive',cfg['expect_prompts']['tmp_prompt'])
+		send_and_expect(child,'apt-get update',cfg['expect_prompts']['tmp_prompt'],timeout=9999,check_exit=False)
+		send_and_expect(child,'dpkg-divert --local --rename --add /sbin/initctl',cfg['expect_prompts']['tmp_prompt'])
+		send_and_expect(child,'ln -f -s /bin/true /sbin/initctl',cfg['expect_prompts']['tmp_prompt'])
+		install(child,cfg,'passwd',cfg['expect_prompts']['tmp_prompt'])
+		install(child,cfg,'sudo',cfg['expect_prompts']['tmp_prompt'])
+	elif cfg['container']['install_type'] == 'yum':
+		cfg['expect_prompts']['real_user_prompt']        = '\r\n.*?' + cfg['host']['real_user'] + '@.*:'
+		install(child,cfg,'passwd',cfg['expect_prompts']['tmp_prompt'])
+		install(child,cfg,'sudo',cfg['expect_prompts']['tmp_prompt'])
+		send_and_expect(child,'yum update -y',cfg['expect_prompts']['tmp_prompt'],timeout=9999)
+	if cfg['container']['install_type'] == '' or cfg['container']['distro'] == '':
 		fail('Could not determine Linux distro information. Please inform maintainers.')
 	handle_revert_prompt(child,outer_expect,'tmp_prompt')
 
-def set_password(child,config_dict,expect,password):
-	if config_dict['container']['install_type'] == 'apt':
+def set_password(child,cfg,expect,password):
+	if cfg['container']['install_type'] == 'apt':
 		send_and_expect(child,'passwd','Enter new',check_exit=False)
 		send_and_expect(child,password,'Retype new',check_exit=False,record_command=False)
 		send_and_expect(child,password,expect,record_command=False)
-	elif config_dict['container']['install_type'] == 'yum':
+	elif cfg['container']['install_type'] == 'yum':
 		send_and_expect(child,'passwd','ew password',check_exit=False,record_command=False)
 		send_and_expect(child,password,'ew password',check_exit=False,record_command=False)
 		send_and_expect(child,password,expect,record_command=False)
-	handle_login(child,config_dict,'password_tmp_prompt')
-	send_and_expect(child,'/bin/true',config_dict['expect_prompts']['password_tmp_prompt'],record_command=False)
+	handle_login(child,cfg,'password_tmp_prompt')
+	send_and_expect(child,'/bin/true',cfg['expect_prompts']['password_tmp_prompt'],record_command=False)
 	handle_revert_prompt(child,expect,'password_tmp_prompt')
 
 
 # Returns prompt expected
-def handle_login(child,config_dict,prompt_name):
+def handle_login(child,cfg,prompt_name):
 	local_prompt = 'SHUTIT_TMP_PROMPT_' + prompt_name + '#' + str(random.getrandbits(32))
-	config_dict['expect_prompts'][prompt_name] = '\r\n' + local_prompt
-	send_and_expect(child,'SHUTIT_BACKUP_PS1_' + prompt_name + """=$PS1 && export SHUTIT_PROMPT_COMMAND_BACKUP_""" + prompt_name + """=$PROMPT_COMMAND""" + prompt_name + """ && PS1='""" + local_prompt + """' && unset PROMPT_COMMAND""",config_dict['expect_prompts'][prompt_name],record_command=False,fail_on_empty_before=False)
+	cfg['expect_prompts'][prompt_name] = '\r\n' + local_prompt
+	send_and_expect(child,'SHUTIT_BACKUP_PS1_' + prompt_name + """=$PS1 && export SHUTIT_PROMPT_COMMAND_BACKUP_""" + prompt_name + """=$PROMPT_COMMAND""" + prompt_name + """ && PS1='""" + local_prompt + """' && unset PROMPT_COMMAND""",cfg['expect_prompts'][prompt_name],record_command=False,fail_on_empty_before=False)
 
 def handle_revert_prompt(child,expect,prompt_name):
 	send_and_expect(child,"""PS1="${SHUTIT_BACKUP_PS1_""" + prompt_name + """}" && unset SHUTIT_PROMPT_COMMAND_BACKUP_""" + prompt_name + """ && unset SHUTIT_BACKUP_PS1_""" + prompt_name,expect,check_exit=False,record_command=False,fail_on_empty_before=False)
@@ -892,31 +894,31 @@ def is_user_id_available(child,user_id,expect):
 		return True
 
 # Sets up a base prompt
-def setup_prompt(child,config_dict,prefix,prompt_name):
+def setup_prompt(child,cfg,prefix,prompt_name):
 	local_prompt = prefix + str(random.getrandbits(32))
 	child.sendline('SHUTIT_BACKUP_PS1=$PS1 && unset PROMPT_COMMAND && PS1="' + local_prompt + '"')
-	config_dict['expect_prompts'][prompt_name] = '\r\n' + local_prompt
-	child.expect(config_dict['expect_prompts'][prompt_name])
+	cfg['expect_prompts'][prompt_name] = '\r\n' + local_prompt
+	child.expect(cfg['expect_prompts'][prompt_name])
 
 # Build report
 def build_report(msg=''):
 	s = ''
 	s = s + '################################################################################\n'
-	s = s + '# COMMAND HISTORY BEGIN ' + shutit_global.config_dict['build']['build_id'] + '\n'
+	s = s + '# COMMAND HISTORY BEGIN ' + shutit_global.cfg['build']['build_id'] + '\n'
 	s = s + '################################################################################\n'
 	for c in shutit_global.shutit_command_history:
 		s = s + c + '\n'
-	s = s + '# COMMAND HISTORY END ' + shutit_global.config_dict['build']['build_id'] + '\n'
+	s = s + '# COMMAND HISTORY END ' + shutit_global.cfg['build']['build_id'] + '\n'
 	s = s + '################################################################################\n'
 	s = s + '################################################################################\n'
-	s = s + '# BUILD REPORT FOR BUILD BEGIN ' + shutit_global.config_dict['build']['build_id'] + '\n'
+	s = s + '# BUILD REPORT FOR BUILD BEGIN ' + shutit_global.cfg['build']['build_id'] + '\n'
 	s = s + '# ' + msg + '\n'
 	s = s + '################################################################################\n'
-	if shutit_global.config_dict['build']['report'] != '':
-		s = s + shutit_global.config_dict['build']['report'] + '\n'
+	if shutit_global.cfg['build']['report'] != '':
+		s = s + shutit_global.cfg['build']['report'] + '\n'
 	else:
 		s = s + '# Nothing to report\n'
-	s = s + '# BUILD REPORT FOR BUILD END ' + shutit_global.config_dict['build']['build_id'] + '\n'
+	s = s + '# BUILD REPORT FOR BUILD END ' + shutit_global.cfg['build']['build_id'] + '\n'
 	s = s + '################################################################################\n'
 	return s
 
