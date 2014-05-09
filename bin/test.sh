@@ -98,6 +98,7 @@ for d in $(ls ../test | grep -v configs)
 do
 	pushd ${SHUTIT_DIR}/test/$d/bin
 	echo "PWD: $(pwd)"
+	read a
 	# Just in case only just git cloned/updated
 	touch ../configs/$(hostname)_$(whoami).cnf
 	chmod 0600 ../configs/$(hostname)_$(whoami).cnf
