@@ -82,17 +82,17 @@ class ShutItModule:
 
 
 	########################################################################
-	# config_dict
+	# cfg
 	########################################################################
 	# a dictionary which stores all the configuration for the build.
-	# module configuration is stored within config_dict[module.module_id][config_item]
+	# module configuration is stored within cfg[module.module_id][config_item]
 
 	########################################################################
 	# Helper methods.
 	########################################################################
 	# each object can handle config
-	def get_config(self,config_dict):
-		return config_dict
+	def get_config(self,cfg):
+		return cfg
 
 	# set the run order (see __init__)
 	def set_run_order(self,order):
@@ -123,7 +123,7 @@ class ShutItModule:
 	# Should return True if it ready, else False.
 	#
 	# Required.
-	def check_ready(self,config_dict):
+	def check_ready(self,cfg):
 		return True
 
 	# remove
@@ -132,7 +132,7 @@ class ShutItModule:
 	# from the system.
 	#
 	# Should return True if it has succeeded in removing, else False.
-	def remove(self,config_dict):
+	def remove(self,cfg):
 		return False
 
 	# start
@@ -140,7 +140,7 @@ class ShutItModule:
 	# Run when module should be installed (is_installed() or configured to build is true)
 	# Run after repo work.
 	@abstractmethod
-	def start(self,config_dict):
+	def start(self,cfg):
 		return False
 
 	# stop
@@ -148,7 +148,7 @@ class ShutItModule:
 	# Run when module should be stopped.
 	# Run before repo work, and before finalize is called.
 	@abstractmethod
-	def stop(self,config_dict):
+	def stop(self,cfg):
 		return False
 
 	# is_installed
@@ -160,7 +160,7 @@ class ShutItModule:
 	#
 	# Required.
 	@abstractmethod
-	def is_installed(self,config_dict):
+	def is_installed(self,cfg):
 		return False
 
 	# build
@@ -174,7 +174,7 @@ class ShutItModule:
 	#
 	# Required.
 	@abstractmethod
-	def build(self,config_dict):
+	def build(self,cfg):
 		return False
 
 
@@ -186,7 +186,7 @@ class ShutItModule:
 	#
 	# Required.
 	@abstractmethod
-	def cleanup(self,config_dict):
+	def cleanup(self,cfg):
 		return False
 
 	# test
@@ -197,7 +197,7 @@ class ShutItModule:
 	#
 	# Required.
 	@abstractmethod
-	def test(self,config_dict):
+	def test(self,cfg):
 		return False
 
 	# finalize
@@ -206,6 +206,6 @@ class ShutItModule:
 	#
 	# Required.
 	@abstractmethod
-	def finalize(self,config_dict):
+	def finalize(self,cfg):
 		return False
 

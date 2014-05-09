@@ -26,7 +26,6 @@ class TestShutItDepChecking(unittest.TestCase):
 
 	@classmethod
 	def setUpClass(cls):
-		cls._config_dict = shutit_global.config_dict
 		cls._log = util.log
 		cls._fail = util.fail
 		def log(*args, **kwargs):
@@ -41,8 +40,8 @@ class TestShutItDepChecking(unittest.TestCase):
 		util.fail = cls._fail
 
 	def setUp(self):
-		self.config_dict = shutit_global.config_dict = self._config_dict.copy()
-		recupdate(self.config_dict, {
+		self.shutit = shutit_global.init()
+		recupdate(self.shutit.cfg, {
 			'build': {
 				'tutorial': False, 'debug': False, 'show_depgraph_only': False
 			},
@@ -50,24 +49,25 @@ class TestShutItDepChecking(unittest.TestCase):
 		})
 
 	def test_dep_exists_err(self):
-		self.config_dict.update({
+		self.shutit.cfg.update({
 			'tk.shutit.test1': {'build': True, 'remove': False}
 		})
-		shutit_map = {
+		self.shutit.shutit_map = {
 			'tk.shutit.test1': Bunch(
 				module_id='tk.shutit.test1',
 				run_order=1.1,
 				depends_on=["tk.shutit.test0"])
 		}
-		errs = shutit_main.check_deps(self.config_dict, shutit_map)
+		errs = shutit_main.check_deps(self.shutit)
 		self.assertEqual(len(errs), 1)
+		self.assertEqual(len(errs[0]), 1)
 
 	def test_dep_build_err(self):
-		self.config_dict.update({
+		self.shutit.cfg.update({
 			'tk.shutit.test1': {'build': False, 'build_ifneeded': False, 'remove': False},
 			'tk.shutit.test2': {'build': True, 'remove': False}
 		})
-		shutit_map = {
+		self.shutit.shutit_map = {
 			'tk.shutit.test2': Bunch(
 				module_id='tk.shutit.test2',
 				run_order=1.2,
@@ -78,15 +78,16 @@ class TestShutItDepChecking(unittest.TestCase):
 				depends_on=[],
 				is_installed=lambda c: False)
 		}
-		errs = shutit_main.check_deps(self.config_dict, shutit_map)
+		errs = shutit_main.check_deps(self.shutit)
 		self.assertEqual(len(errs), 1)
+		self.assertEqual(len(errs[0]), 1)
 
 	def test_dep_order_err(self):
-		self.config_dict.update({
+		self.shutit.cfg.update({
 			'tk.shutit.test1': {'build': True, 'remove': False},
 			'tk.shutit.test2': {'build': True, 'remove': False}
 		})
-		shutit_map = {
+		self.shutit.shutit_map = {
 			'tk.shutit.test2': Bunch(
 				module_id='tk.shutit.test2',
 				run_order=1.2,
@@ -96,16 +97,17 @@ class TestShutItDepChecking(unittest.TestCase):
 				run_order=1.9,
 				depends_on=[])
 		}
-		errs = shutit_main.check_deps(self.config_dict, shutit_map)
+		errs = shutit_main.check_deps(self.shutit)
 		self.assertEqual(len(errs), 1)
+		self.assertEqual(len(errs[0]), 1)
 
 	def test_dep_resolution(self):
-		self.config_dict.update({
+		self.shutit.cfg.update({
 			'tk.shutit.test1': {'build': False, 'build_ifneeded': True, 'remove': False},
 			'tk.shutit.test2': {'build': False, 'build_ifneeded': True, 'remove': False},
 			'tk.shutit.test3': {'build': True, 'remove': False}
 		})
-		shutit_map = {
+		self.shutit.shutit_map = {
 			'tk.shutit.test3': Bunch(
 				module_id='tk.shutit.test3',
 				run_order=1.3,
@@ -119,8 +121,9 @@ class TestShutItDepChecking(unittest.TestCase):
 				run_order=1.1,
 				depends_on=[])
 		}
-		shutit_main.check_deps(self.config_dict, shutit_map)
-		assert all([self.config_dict[mod_id]['build'] for mod_id in shutit_map])
+		errs = shutit_main.check_deps(self.shutit)
+		self.assertEqual(len(errs), 0)
+		assert all([self.shutit.cfg[mod_id]['build'] for mod_id in self.shutit.shutit_map])
 
 if __name__ == '__main__':
 	unittest.main()
