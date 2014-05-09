@@ -68,7 +68,6 @@ class win2048(ShutItModule):
 /root/start_vnc.sh
 export DISPLAY=:1
 xdotool exec firefox
-xdotool exec killall gnome-terminal
 WID=$(xdotool search --sync --onlyvisible --class firefox)
 xdotool sleep 1
 xdotool windowraise $WID
@@ -85,8 +84,7 @@ END"""
 	# Run when module should be installed (is_installed() or configured to build is true)
 	# Run after repo work.
 	def start(self,config_dict):
-		container_child = util.get_pexpect_child('container_child')
-		util.send_and_expect(container_child,'/root/start_win2048.sh',config_dict['expect_prompts']['root_prompt'])
+		# We don't want to start this as part of build
 		return True
 	# stop
 	#
