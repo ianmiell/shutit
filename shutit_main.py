@@ -59,7 +59,7 @@ def stop_all(shutit, run_order=-1):
 	for mid in module_ids(shutit, rev=True):
 		shutit_module_obj = shutit_map[mid]
 		if run_order == -1 or shutit_module_obj.run_order <= run_order:
-			if is_built(cfg,shutit_module_obj):
+			if is_built(shutit,shutit_module_obj):
 				if not shutit_module_obj.stop(cfg):
 					util.fail('failed to stop: ' + mid,child=util.get_pexpect_child('container_child'))
 
@@ -73,13 +73,13 @@ def start_all(shutit, run_order=-1):
 	for mid in module_ids(shutit):
 		shutit_module_obj = shutit_map[mid]
 		if run_order == -1 or shutit_module_obj.run_order <= run_order:
-			if is_built(cfg,shutit_module_obj):
+			if is_built(shutit,shutit_module_obj):
 				if not shutit_module_obj.start(cfg):
 					util.fail('failed to start: ' + mid,child=util.get_pexpect_child('container_child'))
 
 # Returns true if this module is configured to be built, or if it is already installed.
-def is_built(cfg,shutit_module_obj):
-	return cfg[shutit_module_obj.module_id]['build'] or shutit_module_obj.is_installed(cfg)
+def is_built(shutit,shutit_module_obj):
+	return shutit.cfg[shutit_module_obj.module_id]['build'] or shutit_module_obj.is_installed(shutit.cfg)
 
 def init_shutit_map(shutit):
 	cfg = shutit.cfg
@@ -373,7 +373,7 @@ def do_build(shutit):
 				cfg['build']['report'] = cfg['build']['report'] + '\nBuilt already: ' + module.module_id + ' with run order: ' + str(module.run_order)
 			else:
 				build_module(shutit, module)
-		if is_built(cfg,module):
+		if is_built(shutit,module):
 			util.log('Starting module')
 			if not module.start(cfg):
 				util.fail(module.module_id + ' failed on start',child=util.get_pexpect_child('container_child'))
@@ -389,7 +389,7 @@ def do_test(shutit):
 	start_all(shutit)
 	for mid in module_ids(shutit, rev=True):
 		# Only test if it's thought to be installed.
-		if is_built(cfg,shutit_map[mid]):
+		if is_built(shutit,shutit_map[mid]):
 			util.log(util.red('RUNNING TEST ON: ' + mid))
 			if not shutit_map[mid].test(cfg):
 				util.fail(mid + ' failed on test',child=util.get_pexpect_child('container_child'))
@@ -407,7 +407,7 @@ def do_finalize(shutit):
 		util.pause_point(util.get_pexpect_child('container_child'),'\nNow doing finalize phase, which we do when all builds are complete and modules are stopped',print_input=False)
 	for mid in module_ids(shutit, rev=True):
 		# Only finalize if it's thought to be installed.
-		if is_built(cfg,shutit_map[mid]):
+		if is_built(shutit,shutit_map[mid]):
 			if not shutit_map[mid].finalize(cfg):
 				util.fail(mid + ' failed on finalize',child=util.get_pexpect_child('container_child'))
 
