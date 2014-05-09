@@ -33,7 +33,8 @@ class template(ShutItModule):
 	# determined by the framework.
 	# 
 	# Should return True if it ready, else False.
-	def check_ready(self,config_dict):
+	def check_ready(self,shutit):
+		config_dict = shutit.cfg
 		container_child = util.get_pexpect_child('container_child')
 		root_prompt_expect = config_dict['expect_prompts']['root_prompt']
 		return util.file_exists(container_child,'/resources/README.md',root_prompt_expect)
@@ -44,7 +45,8 @@ class template(ShutItModule):
 	# already.
 	#
 	# Should return True if it is certain it's there, else False.
-	def is_installed(self,config_dict):
+	def is_installed(self,shutit):
+		config_dict = shutit.cfg
 		container_child = util.get_pexpect_child('container_child')
 		root_prompt_expect = config_dict['expect_prompts']['root_prompt']
 		return util.file_exists(container_child,'/tmp/container_touched.sh',root_prompt_expect) and util.file_exists(container_child,'/tmp/README.md',root_prompt_expect)
@@ -57,7 +59,8 @@ class template(ShutItModule):
 	# this is not run.
 	#
 	# Should return True if it has succeeded in building, else False.
-	def build(self,config_dict):
+	def build(self,shutit):
+		config_dict = shutit.cfg
 		container_child = util.get_pexpect_child('container_child') # Let's get the container child object from pexpect.
 		root_prompt_expect = config_dict['expect_prompts']['root_prompt'] # Set the string we expect to see once commands are done.
 		# Line number 64 should be the next one (so bash scripts can be inserted properly)
@@ -139,7 +142,8 @@ class template(ShutItModule):
 	#
 	# Run when module should be installed (is_installed() or configured to build is true)
 	# Run after repo work.
-	def start(self,config_dict):
+	def start(self,shutit):
+		config_dict = shutit.cfg
 		container_child = util.get_pexpect_child('container_child')
 		root_prompt_expect = config_dict['expect_prompts']['root_prompt']
 		# example of starting something
@@ -151,7 +155,8 @@ class template(ShutItModule):
 	#
 	# Run when module should be stopped.
 	# Run before repo work, and before finalize is called.
-	def stop(self,config_dict):
+	def stop(self,shutit):
+		config_dict = shutit.cfg
 		container_child = util.get_pexpect_child('container_child')
 		root_prompt_expect = config_dict['expect_prompts']['root_prompt']
 		# example of stopping something
@@ -163,7 +168,8 @@ class template(ShutItModule):
 	# Cleanup the module, ie clear up stuff not needed for the rest of the build, eg tar files removed, apt-get cleans.
 	# Should return True if all is OK, else False.
 	# Note that this is only run if the build phase was actually run.
-	def cleanup(self,config_dict):
+	def cleanup(self,shutit):
+		config_dict = shutit.cfg
 		container_child = util.get_pexpect_child('container_child')
 		root_prompt_expect = config_dict['expect_prompts']['root_prompt']
 		util.send_and_expect(container_child,'rm -f /tmp/deleteme',root_prompt_expect)
@@ -172,7 +178,8 @@ class template(ShutItModule):
 	# finalize
 	#
 	# Finalize the module, ie do things that need doing before we exit.
-	def finalize(self,config_dict):
+	def finalize(self,shutit):
+		config_dict = shutit.cfg
 		container_child = util.get_pexpect_child('container_child')
 		root_prompt_expect = config_dict['expect_prompts']['root_prompt']
 		# Right at the end we want to ensure the locate db is up to date.
@@ -183,7 +190,8 @@ class template(ShutItModule):
 	# 
 	# Remove the module, which should ensure the module has been deleted 
 	# from the system.
-	def remove(self,config_dict):
+	def remove(self,shutit):
+		config_dict = shutit.cfg
 		container_child = util.get_pexpect_child('container_child')
 		root_prompt_expect = config_dict['expect_prompts']['root_prompt']
 		util.send_and_expect(container_child,'rm -f /tmp/container_touched.sh',root_prompt_expect)
@@ -196,7 +204,8 @@ class template(ShutItModule):
 	# Test the module is OK.
 	# Should return True if all is OK, else False.
 	# This is run regardless of whether the module is installed or not.
-	def test(self,config_dict):
+	def test(self,shutit):
+		config_dict = shutit.cfg
 		container_child = util.get_pexpect_child('container_child')
 		root_prompt_expect = config_dict['expect_prompts']['root_prompt']
 		# Check the packages we need are installed.
@@ -205,7 +214,8 @@ class template(ShutItModule):
 	# get_config
 	#
 	# each object can handle config here
-	def get_config(self,config_dict):
+	def get_config(self,shutit):
+		config_dict = shutit.cfg
 		cp = config_dict['config_parser']
 		# Bring the example config into the config dictionary.
 		config_dict[GLOBALLY_UNIQUE_STRING]['example']      = cp.get(GLOBALLY_UNIQUE_STRING,'example')
