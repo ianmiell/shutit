@@ -23,7 +23,6 @@
 
 from shutit_module import ShutItModule
 import pexpect
-import fdpexpect
 import sys
 import util
 import time
@@ -116,28 +115,7 @@ class setup(ShutItModule):
 				'\n\n',print_input=False)
 		util.log('\n\nCommand being run is:\n\n' + ' '.join(docker_command),force_stdout=True,prefix=False)
 		util.log('\n\nThis may download the image, please be patient\n\n',force_stdout=True,prefix=False)
-		# Fork off a pty specially for docker. This protects us from modules
-		# killing the bash process they're executing in and ending up running
-		# on the host itself
-		def docker_start(cmd_list):
-			# http://stackoverflow.com/questions/373639/running-interactive-commands-in-paramiko
-			# http://stackoverflow.com/questions/13041732/ssh-password-through-python-subprocess
-			# http://stackoverflow.com/questions/1939107/python-libraries-for-ssh-handling
-			# http://stackoverflow.com/questions/11272536/how-to-obtain-pseudo-terminal-master-file-descriptor-from-inside-ssh-session
-			# http://stackoverflow.com/questions/4022600/python-pty-fork-how-does-it-work
-			(child_pid, fd) = pty.fork()
-			if child_pid == 0:
-				# The first item of the list in the second argument is the name
-				# of the new program
-				try:
-					os.execvp(cmd_list[0], cmd_list)
-				except OSError:
-					print "Failed to exec docker"
-					sys.exit(1)
-			else:
-				return fd
-		container_fd = docker_start(docker_command)
-		container_child = fdpexpect.fdspawn(container_fd)
+		container_child = pexpect.spawn(docker_command[0], docker_command[1:])
 		if container_child.expect(['assword',config_dict['expect_prompts']['base_prompt'].strip()],9999) == 0:
 			util.send_and_expect(container_child,config_dict['host']['password'],config_dict['expect_prompts']['base_prompt'],timeout=9999,check_exit=False)
 		# Get the cid
