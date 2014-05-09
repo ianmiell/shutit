@@ -26,15 +26,27 @@ import socket
 import time
 import util
 
+class ShutIt(object):
+	def __init__(self, **kwargs):
+		self.pexpect_children = kwargs['pexpect_children']
+		self.shutit_modules = kwargs['shutit_modules']
+		self.shutit_main_dir = kwargs['shutit_main_dir']
+		self.cfg = kwargs['cfg']
+		self.cwd = kwargs['cwd']
+		self.shutit_command_history = kwargs['shutit_command_history']
+		self.shutit_map = kwargs['shutit_map']
+
 def init():
 	global pexpect_children
 	global shutit_modules
 	global shutit_main_dir
-	global config_dict
+	global cfg
 	global cwd
 	global shutit_command_history
+	global shutit_map
 
 	pexpect_children = {}
+	shutit_map = {}
 	shutit_modules   = set()
 	shutit_command_history = []
 	# Store the root directory of this application.
@@ -42,24 +54,34 @@ def init():
 	shutit_main_dir = os.path.abspath(os.path.dirname(__file__))
 	cwd = os.getcwd()
 
-	config_dict = {}
-	config_dict['build']                = {}
-	config_dict['build']['interactive'] = True # Default to true until we know otherwise
-	config_dict['build']['build_log']   = None
-	config_dict['build']['report']      = ''
-	config_dict['container']            = {}
-	#config_dict['container']['docker_image_default'] = 'stackbrew/ubuntu' # Statically set up here as needed before general config setup made.
-	config_dict['container']['docker_image_default'] = 'ubuntu:12.04' # Statically set up here as needed before general config setup made.
-	config_dict['host']                 = {}
-	config_dict['repository']           = {}
-	config_dict['expect_prompts']       = {}
-	config_dict['users']                = {}
+	cfg = {}
+	cfg['build']                = {}
+	cfg['build']['interactive'] = True # Default to true until we know otherwise
+	cfg['build']['build_log']   = None
+	cfg['build']['report']      = ''
+	cfg['container']            = {}
+	#cfg['container']['docker_image_default'] = 'stackbrew/ubuntu' # Statically set up here as needed before general config setup made.
+	cfg['container']['docker_image_default'] = 'ubuntu:12.04' # Statically set up here as needed before general config setup made.
+	cfg['host']                 = {}
+	cfg['repository']           = {}
+	cfg['expect_prompts']       = {}
+	cfg['users']                = {}
 
 	username = os.environ['LOGNAME']
 	if username == 'root':
 		util.fail('You cannot be root to run this script')
 	# Get the real username
-	config_dict['host']['real_user'] = os.environ.get('SUDO_USER', username)
-	config_dict['build']['build_id'] = socket.gethostname() + '_' + config_dict['host']['real_user'] + '_' + str(time.time())
+	cfg['host']['real_user'] = os.environ.get('SUDO_USER', username)
+	cfg['build']['build_id'] = socket.gethostname() + '_' + cfg['host']['real_user'] + '_' + str(time.time())
 
-init()
+	return ShutIt(
+		pexpect_children=pexpect_children,
+		shutit_modules=shutit_modules,
+		shutit_main_dir=shutit_main_dir,
+		cfg=cfg,
+		cwd=cwd,
+		shutit_command_history=shutit_command_history,
+		shutit_map=shutit_map
+	)
+
+shutit = init()
