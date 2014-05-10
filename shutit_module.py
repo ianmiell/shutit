@@ -90,11 +90,6 @@ class ShutItModule:
 	########################################################################
 	# Helper methods.
 	########################################################################
-	# each object can handle config
-	def get_config(self,shutit):
-		cfg = shutit.cfg
-		return cfg
-
 	# set the run order (see __init__)
 	def set_run_order(self,order):
 		self.run_order = order
@@ -110,6 +105,12 @@ class ShutItModule:
 	########################################################################
 	# Abstract methods
 	########################################################################
+
+	# get_config
+	#
+	# Get all config items necessary for this module to be built
+	def get_config(self,shutit):
+		return True
 
 	# check_ready
 	#
@@ -173,7 +174,6 @@ class ShutItModule:
 	@abstractmethod
 	def build(self,shutit):
 		pass
-
 
 	# cleanup
 	#
