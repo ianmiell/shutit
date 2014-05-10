@@ -29,13 +29,16 @@ import util
 
 class git_server(ShutItModule):
 
-	def check_ready(self,config_dict):
+	def check_ready(self,shutit):
+		config_dict = shutit.cfg
 		return True
 
-	def is_installed(self,config_dict):
+	def is_installed(self,shutit):
+		config_dict = shutit.cfg
 		return False
 
-	def build(self,config_dict):
+	def build(self,shutit):
+		config_dict = shutit.cfg
 		container_child = util.get_pexpect_child('container_child')
  		util.install(container_child,config_dict,'apache2',config_dict['expect_prompts']['root_prompt'])
  		util.install(container_child,config_dict,'git-core',config_dict['expect_prompts']['root_prompt'])
@@ -45,22 +48,28 @@ class git_server(ShutItModule):
 		util.add_to_bashrc(container_child,'git daemon --base-path=/var/cache/git --detach --syslog --export-all',config_dict['expect_prompts']['root_prompt'])
 		return True
 
-	def start(self,config_dict):
+	def start(self,shutit):
+		config_dict = shutit.cfg
 		return True
 
-	def stop(self,config_dict):
+	def stop(self,shutit):
+		config_dict = shutit.cfg
 		return True
 
-	def cleanup(self,config_dict):
+	def cleanup(self,shutit):
+		config_dict = shutit.cfg
 		return True
 
-	def finalize(self,config_dict):
+	def finalize(self,shutit):
+		config_dict = shutit.cfg
 		return True
 
-	def test(self,config_dict):
+	def test(self,shutit):
+		config_dict = shutit.cfg
 		return True
 
-	def get_config(self,config_dict):
+	def get_config(self,shutit):
+		config_dict = shutit.cfg
 		return True
 
 
