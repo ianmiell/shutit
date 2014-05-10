@@ -78,8 +78,8 @@ def send_and_expect(child,send,expect,timeout=3600,check_exit=True,cfg=None,fail
 	if cfg not in [None, shutit_global.shutit.cfg]:
 		print "Report this error and stack trace to repo owner, #d102"
 		assert False
-	return shutit_global.shutit.send_and_expect(child,send,expect,
-		timeout=timeout, check_exit=check_exit,
+	return shutit_global.shutit.send_and_expect(send,expect,
+		child=child, timeout=timeout, check_exit=check_exit,
 		fail_on_empty_before=fail_on_empty_before,
 		record_command=record_command,exit_values=exit_values)
 
