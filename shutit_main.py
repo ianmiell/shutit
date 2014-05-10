@@ -172,23 +172,23 @@ def resolve_dependencies(shutit, to_build, depender):
 				and cfg[dependee_id]['build_ifneeded']):
 			to_build.append(dependee)
 			cfg[dependee_id]['build'] = True
-def check_dependee_exists(cfg, depender, dependee, dependee_id):
+def check_dependee_exists(shutit, depender, dependee, dependee_id):
 	# If the module id isn't there, there's a problem.
 	if dependee == None:
 		return (dependee_id + ' module not found in paths: ' +
-			str(cfg['host']['shutit_module_paths']) +
+			str(shutit.cfg['host']['shutit_module_paths']) +
 			' but needed for ' + depender.module_id +
 			'\nCheck your --shutit_module_path setting and ensure that ' +
 			'all modules configured to be built are in that path setting, ' +
 			'eg "--shutit_module_path /path/to/other/module/:." See also help.')
-def check_dependee_build(cfg, depender, dependee, dependee_id):
+def check_dependee_build(shutit, depender, dependee, dependee_id):
 	# If depender is installed or will be installed, so must the dependee
-	if not (cfg[dependee.module_id]['build'] or dependee.is_installed(shutit)):
+	if not (shutit.cfg[dependee.module_id]['build'] or dependee.is_installed(shutit)):
 		return ('depender module id: [' + depender.module_id + '] ' +
 			'is configured: "build:yes" or is already built ' +
 			'but dependee module_id: [' + dependee_id + '] ' +
 			'is not configured: "build:yes"')
-def check_dependee_order(cfg, depender, dependee, dependee_id):
+def check_dependee_order(shutit, depender, dependee, dependee_id):
 	# If it depends on a module id, then the module id should be higher up in the run order.
 	if dependee.run_order > depender.run_order:
 		return ('depender module id: ' + depender.module_id +
@@ -234,15 +234,15 @@ def check_deps(shutit):
 			triples.append((depender, shutit_map.get(dependee_id), dependee_id))
 
 	triples = err_checker([
-		check_dependee_exists(cfg, depender, dependee, dependee_id)
+		check_dependee_exists(shutit, depender, dependee, dependee_id)
 		for depender, dependee, dependee_id in triples
 	], triples)
 	triples = err_checker([
-		check_dependee_build(cfg, depender, dependee, dependee_id)
+		check_dependee_build(shutit, depender, dependee, dependee_id)
 		for depender, dependee, dependee_id in triples
 	], triples)
 	triples = err_checker([
-		check_dependee_order(cfg, depender, dependee, dependee_id)
+		check_dependee_order(shutit, depender, dependee, dependee_id)
 		for depender, dependee, dependee_id in triples
 	], triples)
 
