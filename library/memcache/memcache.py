@@ -26,14 +26,17 @@ import util
 
 class memcache(ShutItModule):
 
-	def check_ready(self,config_dict):
+	def check_ready(self,shutit):
+		config_dict = shutit.cfg
 		return True
 
-	def is_installed(self,config_dict):
+	def is_installed(self,shutit):
+		config_dict = shutit.cfg
 		container_child = util.get_pexpect_child('container_child')
 		return util.file_exists(container_child,'/root/start_memcache.sh',config_dict['expect_prompts']['root_prompt'])
 
-	def build(self,config_dict):
+	def build(self,shutit):
+		config_dict = shutit.cfg
 		container_child = util.get_pexpect_child('container_child')
 		util.install(container_child,config_dict,'memcached',config_dict['expect_prompts']['root_prompt'])
 		util.install(container_child,config_dict,'libmemcached-dev',config_dict['expect_prompts']['root_prompt'])
@@ -44,22 +47,28 @@ class memcache(ShutItModule):
 		util.send_and_expect(container_child,'chmod +x /root/stop_memcache.sh',config_dict['expect_prompts']['root_prompt'])
 		return True
 
-	def start(self,config_dict):
+	def start(self,shutit):
+		config_dict = shutit.cfg
 		return True
 
-	def stop(self,config_dict):
+	def stop(self,shutit):
+		config_dict = shutit.cfg
 		return True
 
-	def cleanup(self,config_dict):
+	def cleanup(self,shutit):
+		config_dict = shutit.cfg
 		return True
 
-	def finalize(self,config_dict):
+	def finalize(self,shutit):
+		config_dict = shutit.cfg
 		return True
 
-	def test(self,config_dict):
+	def test(self,shutit):
+		config_dict = shutit.cfg
 		return True
 
-	def get_config(self,config_dict):
+	def get_config(self,shutit):
+		config_dict = shutit.cfg
 		return True
 
 

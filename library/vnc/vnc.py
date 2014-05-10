@@ -30,15 +30,18 @@ import pexpect
 # Expose port 5901 and 6080
 class vnc(ShutItModule):
 
-	def check_ready(self,config_dict):
+	def check_ready(self,shutit):
+		config_dict = shutit.cfg
 		# Only apt-based systems are supported support atm
 		return config_dict['container']['install_type'] == 'apt'
 
-	def is_installed(self,config_dict):
+	def is_installed(self,shutit):
+		config_dict = shutit.cfg
 		container_child = util.get_pexpect_child('container_child')
 		return util.file_exists(container_child,'/root/start_vnc.sh',config_dict['expect_prompts']['root_prompt'])
 
-	def build(self,config_dict):
+	def build(self,shutit):
+		config_dict = shutit.cfg
 		# TODO: distr-independence
 		container_child = util.get_pexpect_child('container_child')
 		util.send_and_expect(container_child,'echo "deb http://archive.ubuntu.com/ubuntu precise main universe multiverse" > /etc/apt/sources.list',config_dict['expect_prompts']['root_prompt'])
@@ -85,26 +88,32 @@ END""",'/root/start_vnc.sh',config_dict['expect_prompts']['root_prompt'])
 		util.send_and_expect(container_child,'chmod +x /root/stop_vnc.sh',config_dict['expect_prompts']['root_prompt'])
 		return True
 
-	def start(self,config_dict):
+	def start(self,shutit):
+		config_dict = shutit.cfg
 		container_child = util.get_pexpect_child('container_child')
 		util.send_and_expect(container_child,'/root/start_vnc.sh',config_dict['expect_prompts']['root_prompt'],check_exit=False)
 		return True
 
-	def stop(self,config_dict):
+	def stop(self,shutit):
+		config_dict = shutit.cfg
 		container_child = util.get_pexpect_child('container_child')
 		util.send_and_expect(container_child,'/root/stop_vnc.sh',config_dict['expect_prompts']['root_prompt'],check_exit=False)
 		return True
 
-	def cleanup(self,config_dict):
+	def cleanup(self,shutit):
+		config_dict = shutit.cfg
 		return True
 
-	def finalize(self,config_dict):
+	def finalize(self,shutit):
+		config_dict = shutit.cfg
 		return True
 
-	def test(self,config_dict):
+	def test(self,shutit):
+		config_dict = shutit.cfg
 		return True
 
-	def get_config(self,config_dict):
+	def get_config(self,shutit):
+		config_dict = shutit.cfg
 		cp = config_dict['config_parser']
 		config_dict['shutit.tk.vnc.vnc']['password'] = cp.get('shutit.tk.vnc.vnc','password')
 		return True

@@ -26,15 +26,18 @@ import util
 
 class casperjs(ShutItModule):
 
-	def check_ready(self,config_dict):
+	def check_ready(self,shutit):
+		config_dict = shutit.cfg
 		return True
 
-	def is_installed(self,config_dict):
+	def is_installed(self,shutit):
+		config_dict = shutit.cfg
 		container_child = util.get_pexpect_child('container_child')
 		res = util.file_exists(container_child,'/opt/casperjs',config_dict['expect_prompts']['root_prompt'],directory=True)
 		return res
 
-	def build(self,config_dict):
+	def build(self,shutit):
+		config_dict = shutit.cfg
 		container_child = util.get_pexpect_child('container_child')
 		util.send_and_expect(container_child,'pushd /opt',config_dict['expect_prompts']['root_prompt'])
 		util.install(container_child,config_dict,'git',config_dict['expect_prompts']['root_prompt'])
@@ -45,34 +48,41 @@ class casperjs(ShutItModule):
 		util.send_and_expect(container_child,'popd',config_dict['expect_prompts']['root_prompt'])
 		return True
 
-	def start(self,config_dict):
+	def start(self,shutit):
+		config_dict = shutit.cfg
 		container_child = util.get_pexpect_child('container_child')
 		return True
 
-	def stop(self,config_dict):
+	def stop(self,shutit):
+		config_dict = shutit.cfg
 		container_child = util.get_pexpect_child('container_child')
 		return True
 
 
-	def cleanup(self,config_dict):
+	def cleanup(self,shutit):
+		config_dict = shutit.cfg
 		container_child = util.get_pexpect_child('container_child')
 		util.send_and_expect(container_child,'pushd /opt',config_dict['expect_prompts']['root_prompt'])
 		util.send_and_expect(container_child,'popd /opt',config_dict['expect_prompts']['root_prompt'])
 		return True
 
-	def remove(self,config_dict):
+	def remove(self,shutit):
+		config_dict = shutit.cfg
 		container_child = util.get_pexpect_child('container_child')
 		util.send_and_expect(container_child,'rm -rf /opt/casperjs',config_dict['expect_prompts']['root_prompt'])
 		return True
 
-	def test(self,config_dict):
+	def test(self,shutit):
+		config_dict = shutit.cfg
 		container_child = util.get_pexpect_child('container_child')
 		return True
 
-	def finalize(self,config_dict):
+	def finalize(self,shutit):
+		config_dict = shutit.cfg
 		return True
 
-	def get_config(self,config_dict):
+	def get_config(self,shutit):
+		config_dict = shutit.cfg
 		cp = config_dict['config_parser']
 		return True
 
