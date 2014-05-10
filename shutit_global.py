@@ -20,13 +20,14 @@
 #OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 #SOFTWARE.
 
-
+import sys
 import os
 import socket
 import time
 import util
 
 class ShutIt(object):
+
 	def __init__(self, **kwargs):
 		self.pexpect_children = kwargs['pexpect_children']
 		self.shutit_modules = kwargs['shutit_modules']
@@ -35,6 +36,19 @@ class ShutIt(object):
 		self.cwd = kwargs['cwd']
 		self.shutit_command_history = kwargs['shutit_command_history']
 		self.shutit_map = kwargs['shutit_map']
+
+	def log(self, msg, code=None, pause=0, prefix=True, force_stdout=False):
+		if prefix:
+			prefix = 'LOG: ' + time.strftime("%Y-%m-%d %H:%M:%S",time.localtime())
+			msg = prefix + ' ' + str(msg)
+		if code != None:
+			msg = util.colour(code, msg)
+		if self.cfg['build']['debug'] or force_stdout:
+			print >> sys.stdout, msg
+		if self.cfg['build']['build_log']:
+			print >> cfg['build']['build_log'], msg
+			self.cfg['build']['build_log'].flush()
+		time.sleep(pause)
 
 def init():
 	global pexpect_children
