@@ -112,48 +112,46 @@ class ShutItModule:
 	########################################################################
 
 	# check_ready
-	# 
-	# Check whether we are ready to build this module.
-	# 
-	# This is called before the build, to ensure modules have 
-	# their requirements in place (eg files required to be mounted 
-	# in /resources). Checking whether the build will happen (and
-	# therefore whether the check should take place) will be 
-	# determined by the framework.
-	# 
-	# Should return True if it ready, else False.
 	#
-	# Required.
+	# Check whether we are ready to build this module.
+	#
+	# This is called before the build, to ensure modules have
+	# their requirements in place (eg files required to be mounted
+	# in /resources). Checking whether the build will happen (and
+	# therefore whether the check should take place) will be
+	# determined by the framework.
+	#
+	# Should return True if it ready, else False.
 	def check_ready(self,shutit):
-		cfg = shutit.cfg
 		return True
 
 	# remove
-	# 
-	# Remove the module, which should ensure the module has been deleted 
+	#
+	# Remove the module, which should ensure the module has been deleted
 	# from the system.
 	#
 	# Should return True if it has succeeded in removing, else False.
 	def remove(self,shutit):
-		cfg = shutit.cfg
 		return False
 
 	# start
 	#
 	# Run when module should be installed (is_installed() or configured to build is true)
 	# Run after repo work.
+	#
+	# Required.
 	@abstractmethod
 	def start(self,shutit):
-		cfg = shutit.cfg
 		return False
 
 	# stop
 	#
 	# Run when module should be stopped.
 	# Run before repo work, and before finalize is called.
+	#
+	# Required.
 	@abstractmethod
 	def stop(self,shutit):
-		cfg = shutit.cfg
 		return False
 
 	# is_installed
@@ -166,7 +164,6 @@ class ShutItModule:
 	# Required.
 	@abstractmethod
 	def is_installed(self,shutit):
-		cfg = shutit.cfg
 		return False
 
 	# build
@@ -181,7 +178,6 @@ class ShutItModule:
 	# Required.
 	@abstractmethod
 	def build(self,shutit):
-		cfg = shutit.cfg
 		return False
 
 
@@ -194,7 +190,6 @@ class ShutItModule:
 	# Required.
 	@abstractmethod
 	def cleanup(self,shutit):
-		cfg = shutit.cfg
 		return False
 
 	# test
@@ -206,7 +201,6 @@ class ShutItModule:
 	# Required.
 	@abstractmethod
 	def test(self,shutit):
-		cfg = shutit.cfg
 		return False
 
 	# finalize
@@ -216,6 +210,5 @@ class ShutItModule:
 	# Required.
 	@abstractmethod
 	def finalize(self,shutit):
-		cfg = shutit.cfg
 		return False
 
