@@ -43,14 +43,17 @@ import os
 
 class setup(ShutItModule):
 
-	def check_ready(self,config_dict):
+	def check_ready(self,shutit):
+		config_dict = shutit.cfg
 		# I am born ready
 		return True
 
-	def is_installed(self,config_dict):
+	def is_installed(self,shutit):
+		config_dict = shutit.cfg
 		return False
 
-	def build(self,config_dict):
+	def build(self,shutit):
+		config_dict = shutit.cfg
 		# Kick off container within host machine
 
 		# Always-required options
@@ -129,6 +132,7 @@ class setup(ShutItModule):
 		# Some pexpect settings
 		util.set_pexpect_child('host_child',host_child)
 		util.set_pexpect_child('container_child', container_child)
+		shutit.set_default_child(container_child)
 		host_child.logfile = container_child.logfile = sys.stdout
 		host_child.maxread = container_child.maxread = 2000
 		host_child.searchwindowsize = container_child.searchwindowsize = 1024
@@ -141,22 +145,27 @@ class setup(ShutItModule):
 		util.send_and_expect(container_child,'export DEBIAN_FRONTEND=noninteractive',config_dict['expect_prompts']['root_prompt'],check_exit=False)
 		return True
 
-	def start(self,config_dict):
+	def start(self,shutit):
+		config_dict = shutit.cfg
 		return True
 
-	def stop(self,config_dict):
+	def stop(self,shutit):
+		config_dict = shutit.cfg
 		return True
 
-	def cleanup(self,config_dict):
+	def cleanup(self,shutit):
+		config_dict = shutit.cfg
 		return True
 
-	def remove(self,config_dict):
+	def remove(self,shutit):
+		config_dict = shutit.cfg
 		container_child = util.get_pexpect_child('container_child')
 		if config_dict['container']['install_type'] == 'yum':
 			util.remove(container_child,config_dict,'passwd',config_dict['expect_prompts']['root_prompt'])
 		return True
 
-	def finalize(self,config_dict):
+	def finalize(self,shutit):
+		config_dict = shutit.cfg
 		# Finish with the container
 		container_child = util.get_pexpect_child('container_child')
 		# Put build info into the container
@@ -174,10 +183,12 @@ BUILDREPEND"""
 		container_child.sendline('exit') # Exit container
 		return True
 
-	def test(self,config_dict):
+	def test(self,shutit):
+		config_dict = shutit.cfg
 		return True
 
-	def get_config(self,config_dict):
+	def get_config(self,shutit):
+		config_dict = shutit.cfg
 		cp = config_dict['config_parser']
 		return True
 
