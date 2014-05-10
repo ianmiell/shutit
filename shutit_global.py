@@ -113,7 +113,7 @@ class ShutIt(object):
 				msg = '\nWARNING: command:\n' + send + '\nreturned unaccepted exit code: ' + res + '\nIf this is expected, pass in check_exit=False or an exit_values array into the send_and_expect function call.\nIf you want to error on these errors, set the config:\n[build]\naction_on_ret_code:error'
 				cfg['build']['report'] = cfg['build']['report'] + msg
 				if cfg['build']['action_on_ret_code'] == 'error':
-					util.pause_point(child,msg + '\n\nPause point on exit_code != 0. CTRL-C to quit',force=True)
+					self.pause_point(msg + '\n\nPause point on exit_code != 0. CTRL-C to quit',child=child,force=True)
 					#raise Exception('Exit value from command\n' + send + '\nwas:\n' + res)
 		# If the command matches any 'password's then don't record
 		if record_command:
@@ -139,8 +139,8 @@ class ShutIt(object):
 		if child is None:
 			util.fail("Couldn't get default child")
 		test = 'test %s %s' % ('-d' if directory is True else '-a', filename)
-		util.send_and_expect(child,test+' && echo FILEXIST-""FILFIN || echo FILNEXIST-""FILFIN','-FILFIN',check_exit=False,record_command=False)
-		res = util.get_re_from_child(child.before,'^(FILEXIST|FILNEXIST)$')
+		self.send_and_expect(test+' && echo FILEXIST-""FILFIN || echo FILNEXIST-""FILFIN','-FILFIN',child=child,check_exit=False,record_command=False)
+		res = self.get_re_from_child(child.before,'^(FILEXIST|FILNEXIST)$')
 		ret = False
 		if res == 'FILEXIST':
 			ret = True
@@ -149,7 +149,7 @@ class ShutIt(object):
 		else:
 			# Change to log?
 			print repr('before>>>>:%s<<<< after:>>>>%s<<<<' % (child.before, child.after))
-			util.pause_point(child,'Did not see FIL(N)?EXIST in before')
+			self.pause_point('Did not see FIL(N)?EXIST in before',child)
 
 		child.expect(expect)
 		return ret
@@ -160,8 +160,8 @@ class ShutIt(object):
 		if child is None:
 			util.fail("Couldn't get default child")
 		cmd = 'stat -c %a ' + filename + r" | sed 's/.\(.*\)/\1/g'"
-		util.send_and_expect(child,cmd,expect,check_exit=False,record_command=False)
-		res = util.get_re_from_child(child.before,'([0-9][0-9][0-9])')
+		self.send_and_expect(cmd,expect,child=child,check_exit=False,record_command=False)
+		res = self.get_re_from_child(child.before,'([0-9][0-9][0-9])')
 		return res
 
 	# Adds line to file if it doesn't exist (unless Force is set).
@@ -190,29 +190,29 @@ class ShutIt(object):
 			util.fail('Passed problematic character to add_line_to_file.\nPlease avoid using the following chars: ' + bad_chars + '\nor supply a match_regexp argument.\nThe line was:\n' + line)
 		# truncate file if requested, or if the file doesn't exist
 		if truncate:
-			util.send_and_expect(child,'cat > ' + filename + ' <<< ""',expect,check_exit=False)
-		elif not util.file_exists(child,filename,expect):
+			self.send_and_expect('cat > ' + filename + ' <<< ""',expect,child=child,check_exit=False)
+		elif not self.file_exists(filename,expect,child):
 			# The above cat doesn't work so we touch the file if it doesn't exist already.
-			util.send_and_expect(child,'touch ' + filename,expect,check_exit=False)
+			self.send_and_expect('touch ' + filename,expect,child,check_exit=False)
 		elif not force:
 			if literal:
 				if match_regexp == None:
-					util.send_and_expect(child,"""grep -w '^""" + line + """$' """ + filename + ' > ' + tmp_filename,expect,exit_values=['0','1'],record_command=False)
+					self.send_and_expect("""grep -w '^""" + line + """$' """ + filename + ' > ' + tmp_filename,expect,child=child,exit_values=['0','1'],record_command=False)
 				else:
-					util.send_and_expect(child,"""grep -w '^""" + match_regexp + """$' """ + filename + ' > ' + tmp_filename,expect,exit_values=['0','1'],record_command=False)
+					self.send_and_expect("""grep -w '^""" + match_regexp + """$' """ + filename + ' > ' + tmp_filename,expect,child=child,exit_values=['0','1'],record_command=False)
 			else:
 				if match_regexp == None:
-					util.send_and_expect(child,'grep -w "^' + line + '$" ' + filename + ' > ' + tmp_filename,expect,exit_values=['0','1'],record_command=False)
+					self.send_and_expect('grep -w "^' + line + '$" ' + filename + ' > ' + tmp_filename,expect,child=child,exit_values=['0','1'],record_command=False)
 				else:
-					util.send_and_expect(child,'grep -w "^' + match_regexp + '$" ' + filename + ' > ' + tmp_filename,expect,exit_values=['0','1'],record_command=False)
-			util.send_and_expect(child,'cat ' + tmp_filename + ' | wc -l',expect,exit_values=['0','1'],record_command=False,check_exit=False)
-			res = util.get_re_from_child(child.before,'^([0-9]+)$')
+					self.send_and_expect('grep -w "^' + match_regexp + '$" ' + filename + ' > ' + tmp_filename,expect,child=child,exit_values=['0','1'],record_command=False)
+			self.send_and_expect('cat ' + tmp_filename + ' | wc -l',expect,child=child,exit_values=['0','1'],record_command=False,check_exit=False)
+			res = self.get_re_from_child(child.before,'^([0-9]+)$')
 		if res == '0' or force:
-			util.send_and_expect(child,'cat >> ' + filename + """ <<< '""" + line + """'""",expect,check_exit=False)
-			util.send_and_expect(child,'rm -f ' + tmp_filename,expect,exit_values=['0','1'],record_command=False)
+			self.send_and_expect('cat >> ' + filename + """ <<< '""" + line + """'""",expect,child=child,check_exit=False)
+			self.send_and_expect('rm -f ' + tmp_filename,expect,child=child,exit_values=['0','1'],record_command=False)
 			return True
 		else:
-			util.send_and_expect(child,'rm -f ' + tmp_filename,expect,exit_values=['0','1'],record_command=False)
+			self.send_and_expect('rm -f ' + tmp_filename,expect,child=child,exit_values=['0','1'],record_command=False)
 			return False
 
 	# Inserts a pause in the expect session which allows the user to try things out
