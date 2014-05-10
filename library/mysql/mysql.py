@@ -26,10 +26,6 @@ import util
 
 class mysql(ShutItModule):
 
-	def check_ready(self,shutit):
-		config_dict = shutit.cfg
-		return True
-
 	def is_installed(self,shutit):
 		config_dict = shutit.cfg
 		container_child = util.get_pexpect_child('container_child')
@@ -107,11 +103,6 @@ class mysql(ShutItModule):
 		util.send_and_expect(container_child,'/root/stop_mysql.sh',config_dict['expect_prompts']['root_prompt'],check_exit=False)
 		return True
 
-
-	def cleanup(self,shutit):
-		config_dict = shutit.cfg
-		return True
-
 	def remove(self,shutit):
 		config_dict = shutit.cfg
 		container_child = util.get_pexpect_child('container_child')
@@ -142,10 +133,6 @@ class mysql(ShutItModule):
 		util.send_and_expect(container_child,'\q',config_dict['expect_prompts']['root_prompt'])
 		util.send_and_expect(container_child,'mysql -uroot -p' + config_dict['shutit.tk.mysql.mysql']['root_password'],'mysql>',check_exit=False,record_command=False)
 		util.send_and_expect(container_child,'\q',config_dict['expect_prompts']['root_prompt'])
-		return True
-
-	def finalize(self,shutit):
-		config_dict = shutit.cfg
 		return True
 
 	def get_config(self,shutit):
