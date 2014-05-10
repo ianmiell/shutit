@@ -26,15 +26,10 @@ import util
 
 class postgres(ShutItModule):
 
-	def check_ready(self,shutit):
-		config_dict = shutit.cfg
-		return True
-
 	def is_installed(self,shutit):
 		config_dict = shutit.cfg
 		container_child = util.get_pexpect_child('container_child')
 		return util.file_exists(container_child,'/root/start_postgres.sh',config_dict['expect_prompts']['root_prompt'])
-
 
 	def build(self,shutit):
 		config_dict = shutit.cfg
@@ -60,22 +55,6 @@ class postgres(ShutItModule):
 		config_dict = shutit.cfg
 		container_child = util.get_pexpect_child('container_child')
 		util.send_and_expect(container_child,'/root/stop_postgres.sh',config_dict['expect_prompts']['root_prompt'],check_exit=False)
-		return True
-
-	def cleanup(self,shutit):
-		config_dict = shutit.cfg
-		return True
-
-	def finalize(self,shutit):
-		config_dict = shutit.cfg
-		return True
-
-	def test(self,shutit):
-		config_dict = shutit.cfg
-		return True
-
-	def get_config(self,shutit):
-		config_dict = shutit.cfg
 		return True
 
 if not util.module_exists('shutit.tk.postgres.postgres'):

@@ -26,10 +26,6 @@ import util
 
 class memcache(ShutItModule):
 
-	def check_ready(self,shutit):
-		config_dict = shutit.cfg
-		return True
-
 	def is_installed(self,shutit):
 		config_dict = shutit.cfg
 		container_child = util.get_pexpect_child('container_child')
@@ -54,23 +50,6 @@ class memcache(ShutItModule):
 	def stop(self,shutit):
 		config_dict = shutit.cfg
 		return True
-
-	def cleanup(self,shutit):
-		config_dict = shutit.cfg
-		return True
-
-	def finalize(self,shutit):
-		config_dict = shutit.cfg
-		return True
-
-	def test(self,shutit):
-		config_dict = shutit.cfg
-		return True
-
-	def get_config(self,shutit):
-		config_dict = shutit.cfg
-		return True
-
 
 if not util.module_exists('shutit.tk.memcache.memcache'):
 	obj = memcache('shutit.tk.memcache.memcache',0.317,'ShutIt memcache module')
