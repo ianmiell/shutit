@@ -132,6 +132,7 @@ class setup(ShutItModule):
 		# Some pexpect settings
 		util.set_pexpect_child('host_child',host_child)
 		util.set_pexpect_child('container_child', container_child)
+		shutit.set_default_child(container_child)
 		host_child.logfile = container_child.logfile = sys.stdout
 		host_child.maxread = container_child.maxread = 2000
 		host_child.searchwindowsize = container_child.searchwindowsize = 1024
