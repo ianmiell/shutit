@@ -215,6 +215,45 @@ class ShutIt(object):
 			util.send_and_expect(child,'rm -f ' + tmp_filename,expect,exit_values=['0','1'],record_command=False)
 			return False
 
+	# Inserts a pause in the expect session which allows the user to try things out
+	def pause_point(self,msg,child=None,print_input=True,expect='',force=False):
+		if child is None: child = self._default_child
+		if child is None:
+			util.fail("Couldn't get default child")
+		cfg = self.cfg
+		if not cfg['build']['interactive'] and not force:
+			return
+		# Sleep to try and make this the last thing we see before the prompt (not always the case)
+		if child and print_input:
+			print util.red('\n\nPause point:\n\n') + msg + util.red('\n\nYou can now type in commands and alter the state of the container.\nHit return to see the prompt\nHit CTRL and ] at the same time to continue with build\n\n')
+			if print_input:
+				if expect == '':
+					expect = '@.*[#$]'
+					print'\n\nexpect argument not supplied to pause_point, assuming "' + expect + '" is the regexp to expect\n\n'
+			child.interact()
+		else:
+			print msg
+			print util.red('\n\n[Hit return to continue]\n')
+			raw_input('')
+
+	# Get regular expression from lines
+	# Returns None if none matched.
+	def get_re_from_child(self, string, regexp):
+		cfg = self.cfg
+		if cfg['build']['debug']:
+			self.log('get_re_from_child:')
+			self.log(string)
+			self.log(regexp)
+		lines = string.split('\r\n')
+		for l in lines:
+			if cfg['build']['debug']:
+				self.log('trying: ' + l)
+			match = re.match(regexp,l)
+			if match != None:
+				if cfg['build']['debug']:
+					self.log('returning: ' + match.group(1))
+				return match.group(1)
+		return None
 
 def init():
 	global pexpect_children

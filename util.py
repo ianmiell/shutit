@@ -463,24 +463,13 @@ def print_config(cfg):
 	s = s + '\n'
 	return s
 
-# Inserts a pause in the expect session which allows the user to try things out
+# Deprecated
 def pause_point(child,msg,print_input=True,expect='',cfg=None,force=False):
-	if cfg is None: cfg = shutit_global.cfg
-	if not cfg['build']['interactive'] and not force:
-		return
-	# Sleep to try and make this the last thing we see before the prompt (not always the case)
-	if child and print_input:
-		print red('\n\nPause point:\n\n') + msg + red('\n\nYou can now type in commands and alter the state of the container.\nHit return to see the prompt\nHit CTRL and ] at the same time to continue with build\n\n')
-		if print_input:
-			if expect == '':
-				expect = '@.*[#$]'
-				print'\n\nexpect argument not supplied to pause_point, assuming "' + expect + '" is the regexp to expect\n\n'
-		child.interact()
-	else:
-		print msg
-		print red('\n\n[Hit return to continue]\n')
-		raw_input('')
-
+	if cfg not in [None, shutit_global.shutit.cfg]:
+		print "Report this error and stack trace to repo owner, #d103"
+		assert False
+	shutit_global.shutit.pause_point(msg, child=child, print_input=print_input,
+		expect=expect, force=force)
 
 # Commit, tag, push, tar etc..
 # expect must be a string
@@ -563,24 +552,12 @@ def add_line_to_file(child,line,filename,expect,match_regexp=None,truncate=False
 		child=child, match_regexp=match_regexp, truncate=truncate, force=force,
 		literal=literal)
 
-# Get regular expression from lines
-# Returns None if none matched.
+# Deprecated
 def get_re_from_child(string,regexp,cfg=None):
-	if cfg is None: cfg = shutit_global.cfg
-	if cfg['build']['debug']:
-		log('get_re_from_child:')
-		log(string)
-		log(regexp)
-	lines = string.split('\r\n')
-	for l in lines:
-		if cfg['build']['debug']:
-			log('trying: ' + l)
-		match = re.match(regexp,l)
-		if match != None:
-			if cfg['build']['debug']:
-				log('returning: ' + match.group(1))
-			return match.group(1)
-	return None
+	if cfg not in [None, shutit_global.shutit.cfg]:
+		print "Report this error and stack trace to repo owner, #d104"
+		assert False
+	return shutit_global.shutit.get_re_from_child(string, regexp)
 
 # expect must be a string
 def push_repository(child,repository,cfg,docker_executable,expect):
