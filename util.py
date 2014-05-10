@@ -56,19 +56,12 @@ def is_file_secure(file_name):
 		return False
 	return True
 
+# Deprecated method
 def log(msg,code=None,pause=0,cfg=None,prefix=True,force_stdout=False):
-	if cfg is None: cfg = shutit_global.cfg
-	if prefix:
-		prefix = 'LOG: ' + time.strftime("%Y-%m-%d %H:%M:%S",time.localtime())
-		msg = prefix + ' ' + str(msg)
-	if code != None:
-		msg = colour(code, msg)
-	if cfg['build']['debug'] or force_stdout:
-		print >> sys.stdout, msg
-	if cfg['build']['build_log']:
-		print >> cfg['build']['build_log'], msg
-		cfg['build']['build_log'].flush()
-	time.sleep(pause)
+	if cfg not in [None, shutit_global.shutit.cfg]:
+		print "Report this error and stack trace to repo owner, #d101"
+		assert False
+	shutit_global.shutit.log(msg, code=code, pause=pause, prefix=prefix, force_stdout=force_stdout)
 
 def colour(code, msg):   return '\033[%sm%s\033[0m' % (code, msg)
 def grey(msg):           return colour('30', msg)
