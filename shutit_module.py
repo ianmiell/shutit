@@ -24,10 +24,17 @@ from abc import ABCMeta, abstractmethod
 import sys
 import decimal
 
-# Abstract class that defines what a ShutIt module must implement to be registered.
+class ShutItMeta(ABCMeta):
+	ShutItModule = None
+	def __new__(mcs, name, bases, local):
+		cls = super(ShutItMeta, mcs).__new__(mcs, name, bases, local)
+		if name == 'ShutItModule':
+			mcs.ShutItModule = cls
+		return cls
 
-class ShutItModule:
-	__metaclass__ = ABCMeta
+# Abstract class that defines what a ShutIt module must implement to be registered.
+class ShutItModule(object):
+	__metaclass__ = ShutItMeta
 
 	########################################################################
 	# Build order:
