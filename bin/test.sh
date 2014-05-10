@@ -97,18 +97,23 @@ PIDS=""
 for d in $(ls ../test | grep -v configs)
 do
 	pushd ${SHUTIT_DIR}/test/$d/bin
-	echo "PWD: $(pwd)"
-	# Just in case only just git cloned/updated
-	touch ../configs/$(hostname)_$(whoami).cnf
-	chmod 0600 ../configs/$(hostname)_$(whoami).cnf
-	if [ x$SHUTIT_PARALLEL_BUILD = 'x' ]
+	if [[ -a STOP ]]
 	then
-		./test.sh ${SHUTIT_DIR}
+		echo "STOP file found in $(pwd)"
 	else
-		./test.sh ${SHUTIT_DIR} &
-		PIDS="$PIDS $!"
+		echo "PWD: $(pwd)"
+		# Just in case only just git cloned/updated
+		touch ../configs/$(hostname)_$(whoami).cnf
+		chmod 0600 ../configs/$(hostname)_$(whoami).cnf
+		if [ x$SHUTIT_PARALLEL_BUILD = 'x' ]
+		then
+			./test.sh ${SHUTIT_DIR}
+		else
+			./test.sh ${SHUTIT_DIR} &
+			PIDS="$PIDS $!"
+		fi
+		cleanup nothard
 	fi
-	cleanup nothard
 	popd
 done
 
