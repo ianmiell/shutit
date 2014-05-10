@@ -61,7 +61,7 @@ def log(msg,code=None,pause=0,cfg=None,prefix=True,force_stdout=False):
 	if cfg not in [None, shutit_global.shutit.cfg]:
 		print "Report this error and stack trace to repo owner, #d101"
 		assert False
-	shutit_global.shutit.log(msg, code=code, pause=pause, prefix=prefix, force_stdout=force_stdout)
+	return shutit_global.shutit.log(msg, code=code, pause=pause, prefix=prefix, force_stdout=force_stdout)
 
 def colour(code, msg):   return '\033[%sm%s\033[0m' % (code, msg)
 def grey(msg):           return colour('30', msg)
@@ -78,8 +78,9 @@ def send_and_expect(child,send,expect,timeout=3600,check_exit=True,cfg=None,fail
 	if cfg not in [None, shutit_global.shutit.cfg]:
 		print "Report this error and stack trace to repo owner, #d102"
 		assert False
-	shutit_global.shutit.send_and_expect(child,send,expect,timeout=timeout,
-		check_exit=check_exit,fail_on_empty_before=fail_on_empty_before,
+	return shutit_global.shutit.send_and_expect(child,send,expect,
+		timeout=timeout, check_exit=check_exit,
+		fail_on_empty_before=fail_on_empty_before,
 		record_command=record_command,exit_values=exit_values)
 
 def get_config(cfg,module_id,option,default,boolean=False):
