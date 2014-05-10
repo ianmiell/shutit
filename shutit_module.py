@@ -91,7 +91,8 @@ class ShutItModule:
 	# Helper methods.
 	########################################################################
 	# each object can handle config
-	def get_config(self,cfg):
+	def get_config(self,shutit):
+		cfg = shutit.cfg
 		return cfg
 
 	# set the run order (see __init__)
@@ -123,7 +124,8 @@ class ShutItModule:
 	# Should return True if it ready, else False.
 	#
 	# Required.
-	def check_ready(self,cfg):
+	def check_ready(self,shutit):
+		cfg = shutit.cfg
 		return True
 
 	# remove
@@ -132,7 +134,8 @@ class ShutItModule:
 	# from the system.
 	#
 	# Should return True if it has succeeded in removing, else False.
-	def remove(self,cfg):
+	def remove(self,shutit):
+		cfg = shutit.cfg
 		return False
 
 	# start
@@ -140,7 +143,8 @@ class ShutItModule:
 	# Run when module should be installed (is_installed() or configured to build is true)
 	# Run after repo work.
 	@abstractmethod
-	def start(self,cfg):
+	def start(self,shutit):
+		cfg = shutit.cfg
 		return False
 
 	# stop
@@ -148,7 +152,8 @@ class ShutItModule:
 	# Run when module should be stopped.
 	# Run before repo work, and before finalize is called.
 	@abstractmethod
-	def stop(self,cfg):
+	def stop(self,shutit):
+		cfg = shutit.cfg
 		return False
 
 	# is_installed
@@ -160,7 +165,8 @@ class ShutItModule:
 	#
 	# Required.
 	@abstractmethod
-	def is_installed(self,cfg):
+	def is_installed(self,shutit):
+		cfg = shutit.cfg
 		return False
 
 	# build
@@ -174,7 +180,8 @@ class ShutItModule:
 	#
 	# Required.
 	@abstractmethod
-	def build(self,cfg):
+	def build(self,shutit):
+		cfg = shutit.cfg
 		return False
 
 
@@ -186,7 +193,8 @@ class ShutItModule:
 	#
 	# Required.
 	@abstractmethod
-	def cleanup(self,cfg):
+	def cleanup(self,shutit):
+		cfg = shutit.cfg
 		return False
 
 	# test
@@ -197,7 +205,8 @@ class ShutItModule:
 	#
 	# Required.
 	@abstractmethod
-	def test(self,cfg):
+	def test(self,shutit):
+		cfg = shutit.cfg
 		return False
 
 	# finalize
@@ -206,6 +215,7 @@ class ShutItModule:
 	#
 	# Required.
 	@abstractmethod
-	def finalize(self,cfg):
+	def finalize(self,shutit):
+		cfg = shutit.cfg
 		return False
 

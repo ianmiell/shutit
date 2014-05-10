@@ -26,14 +26,17 @@ import util
 
 class mysql(ShutItModule):
 
-	def check_ready(self,config_dict):
+	def check_ready(self,shutit):
+		config_dict = shutit.cfg
 		return True
 
-	def is_installed(self,config_dict):
+	def is_installed(self,shutit):
+		config_dict = shutit.cfg
 		container_child = util.get_pexpect_child('container_child')
 		return util.file_exists(container_child,'/root/start_mysql.sh',config_dict['expect_prompts']['root_prompt'])
 
-	def build(self,config_dict):
+	def build(self,shutit):
+		config_dict = shutit.cfg
 		container_child = util.get_pexpect_child('container_child')
 		util.send_and_expect(container_child,'bash',config_dict['expect_prompts']['base_prompt'],check_exit=False)
 		util.handle_login(container_child,config_dict,'mysql_tmp_prompt')
@@ -92,21 +95,25 @@ class mysql(ShutItModule):
 		util.send_and_expect(container_child,'exit',config_dict['expect_prompts']['root_prompt'])
 		return True
 
-	def start(self,config_dict):
+	def start(self,shutit):
+		config_dict = shutit.cfg
 		container_child = util.get_pexpect_child('container_child')
 		util.send_and_expect(container_child,'/root/start_mysql.sh',config_dict['expect_prompts']['root_prompt'],check_exit=False)
 		return True
 
-	def stop(self,config_dict):
+	def stop(self,shutit):
+		config_dict = shutit.cfg
 		container_child = util.get_pexpect_child('container_child')
 		util.send_and_expect(container_child,'/root/stop_mysql.sh',config_dict['expect_prompts']['root_prompt'],check_exit=False)
 		return True
 
 
-	def cleanup(self,config_dict):
+	def cleanup(self,shutit):
+		config_dict = shutit.cfg
 		return True
 
-	def remove(self,config_dict):
+	def remove(self,shutit):
+		config_dict = shutit.cfg
 		container_child = util.get_pexpect_child('container_child')
 		util.remove(container_child,config_dict,'libmysqlclient-dev',config_dict['expect_prompts']['root_prompt'])
 		util.remove(container_child,config_dict,'mysql-common',config_dict['expect_prompts']['root_prompt'])
@@ -124,7 +131,8 @@ class mysql(ShutItModule):
 		util.send_and_expect(container_child,'rm /root/stop_mysql.sh',config_dict['expect_prompts']['root_prompt'])
 		return True
 
-	def test(self,config_dict):
+	def test(self,shutit):
+		config_dict = shutit.cfg
 		container_child = util.get_pexpect_child('container_child')
 		util.send_and_expect(container_child,'mysql -u' + config_dict['shutit.tk.mysql.mysql']['mysql_user'] + ' -p' + config_dict['shutit.tk.mysql.mysql']['mysql_user_password'],'mysql>',check_exit=False,record_command=False)
 		util.send_and_expect(container_child,'\q',config_dict['expect_prompts']['root_prompt'])
@@ -136,10 +144,12 @@ class mysql(ShutItModule):
 		util.send_and_expect(container_child,'\q',config_dict['expect_prompts']['root_prompt'])
 		return True
 
-	def finalize(self,config_dict):
+	def finalize(self,shutit):
+		config_dict = shutit.cfg
 		return True
 
-	def get_config(self,config_dict):
+	def get_config(self,shutit):
+		config_dict = shutit.cfg
 		cp = config_dict['config_parser']
 		config_dict['shutit.tk.mysql.mysql']['mysql_user']               = cp.get('shutit.tk.mysql.mysql','mysql_user')
 		config_dict['shutit.tk.mysql.mysql']['mysql_user_password']      = cp.get('shutit.tk.mysql.mysql','mysql_user_password')
