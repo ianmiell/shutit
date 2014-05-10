@@ -241,7 +241,7 @@ def parse_args(cfg):
 	# - all other backslashes are treated literally
 	# e.g. ' a\ b c\\ \\d \\\e\' becomes '', 'a b', 'c\', '\d', '\\e\'
 	if os.environ.get('SHUTIT_OPTIONS', None):
-		env_args = os.environ['SHUTIT_OPTIONS']
+		env_args = os.environ['SHUTIT_OPTIONS'].strip()
 		# Split escaped backslashes
 		env_args_split = re.split(r'(\\\\)', env_args)
 		# Split non-escaped spaces
