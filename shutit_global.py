@@ -25,6 +25,8 @@ import os
 import socket
 import time
 import util
+import random
+import re
 
 class ShutIt(object):
 
@@ -130,6 +132,89 @@ class ShutIt(object):
 		else:
 			self.shutit_command_history.append('#redacted command')
 		return expect_res
+
+	# Return True if file exists, else False
+	def file_exists(self,filename,expect,child=None,directory=False):
+		if child is None: child = self._default_child
+		if child is None:
+			util.fail("Couldn't get default child")
+		test = 'test %s %s' % ('-d' if directory is True else '-a', filename)
+		util.send_and_expect(child,test+' && echo FILEXIST-""FILFIN || echo FILNEXIST-""FILFIN','-FILFIN',check_exit=False,record_command=False)
+		res = util.get_re_from_child(child.before,'^(FILEXIST|FILNEXIST)$')
+		ret = False
+		if res == 'FILEXIST':
+			ret = True
+		elif res == 'FILNEXIST':
+			pass
+		else:
+			# Change to log?
+			print repr('before>>>>:%s<<<< after:>>>>%s<<<<' % (child.before, child.after))
+			util.pause_point(child,'Did not see FIL(N)?EXIST in before')
+
+		child.expect(expect)
+		return ret
+
+	# Returns the file permission as an octal
+	def get_file_perms(self,filename,expect,child=None):
+		if child is None: child = self._default_child
+		if child is None:
+			util.fail("Couldn't get default child")
+		cmd = 'stat -c %a ' + filename + r" | sed 's/.\(.*\)/\1/g'"
+		util.send_and_expect(child,cmd,expect,check_exit=False,record_command=False)
+		res = util.get_re_from_child(child.before,'([0-9][0-9][0-9])')
+		return res
+
+	# Adds line to file if it doesn't exist (unless Force is set).
+	# Creates the file if it doesn't exist (unless truncate is set).
+	# Must be exactly the line passed in to match.
+	# Returns True if line added, False if not.
+	# If you have a lot of non-unique lines to add,
+	# it's a good idea to have a sentinel value to
+	# add first, and then if that returns true,
+	# force the remainder.
+	#
+	# match_regexp - if supplied, a regexp to look for in the file instead of the line itself, handy if the line has awkward characters in it.
+	# force        - always write the line to the file
+	# truncate     - truncate or create the file before doing anything else
+	# literal      - if true, then simply grep for the exact
+	#                string without bash interpretation
+	def add_line_to_file(self,line,filename,expect,child=None,match_regexp=None,truncate=False,force=False,literal=False):
+		if child is None: child = self._default_child
+		if child is None:
+			util.fail("Couldn't get default child")
+		# assume we're going to add it
+		res = '0'
+		bad_chars    = '"'
+		tmp_filename = '/tmp/' + str(random.getrandbits(32))
+		if match_regexp == None and re.match('.*[' + bad_chars + '].*',line) != None:
+			util.fail('Passed problematic character to add_line_to_file.\nPlease avoid using the following chars: ' + bad_chars + '\nor supply a match_regexp argument.\nThe line was:\n' + line)
+		# truncate file if requested, or if the file doesn't exist
+		if truncate:
+			util.send_and_expect(child,'cat > ' + filename + ' <<< ""',expect,check_exit=False)
+		elif not util.file_exists(child,filename,expect):
+			# The above cat doesn't work so we touch the file if it doesn't exist already.
+			util.send_and_expect(child,'touch ' + filename,expect,check_exit=False)
+		elif not force:
+			if literal:
+				if match_regexp == None:
+					util.send_and_expect(child,"""grep -w '^""" + line + """$' """ + filename + ' > ' + tmp_filename,expect,exit_values=['0','1'],record_command=False)
+				else:
+					util.send_and_expect(child,"""grep -w '^""" + match_regexp + """$' """ + filename + ' > ' + tmp_filename,expect,exit_values=['0','1'],record_command=False)
+			else:
+				if match_regexp == None:
+					util.send_and_expect(child,'grep -w "^' + line + '$" ' + filename + ' > ' + tmp_filename,expect,exit_values=['0','1'],record_command=False)
+				else:
+					util.send_and_expect(child,'grep -w "^' + match_regexp + '$" ' + filename + ' > ' + tmp_filename,expect,exit_values=['0','1'],record_command=False)
+			util.send_and_expect(child,'cat ' + tmp_filename + ' | wc -l',expect,exit_values=['0','1'],record_command=False,check_exit=False)
+			res = util.get_re_from_child(child.before,'^([0-9]+)$')
+		if res == '0' or force:
+			util.send_and_expect(child,'cat >> ' + filename + """ <<< '""" + line + """'""",expect,check_exit=False)
+			util.send_and_expect(child,'rm -f ' + tmp_filename,expect,exit_values=['0','1'],record_command=False)
+			return True
+		else:
+			util.send_and_expect(child,'rm -f ' + tmp_filename,expect,exit_values=['0','1'],record_command=False)
+			return False
+
 
 def init():
 	global pexpect_children
