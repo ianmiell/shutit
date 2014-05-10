@@ -22,13 +22,16 @@ import util
 
 class get_iplayer(ShutItModule):
 
-	def check_ready(self,config_dict):
+	def check_ready(self,shutit):
+		config_dict = shutit.cfg
 		return True
 
-	def is_installed(self,config_dict):
+	def is_installed(self,shutit):
+		config_dict = shutit.cfg
 		return False
 
-	def build(self,config_dict):
+	def build(self,shutit):
+		config_dict = shutit.cfg
 		container_child = util.get_pexpect_child('container_child') # Let's get the container child object from pexpect.
 		root_prompt_expect = config_dict['expect_prompts']['root_prompt'] # Set the string we expect to see once commands are done.
 		util.install(container_child,config_dict,'git',root_prompt_expect)
@@ -49,35 +52,42 @@ class get_iplayer(ShutItModule):
 		util.send_and_expect(container_child,'./get_iplayer',root_prompt_expect)
 		return True
 
-	def start(self,config_dict):
+	def start(self,shutit):
+		config_dict = shutit.cfg
 		container_child = util.get_pexpect_child('container_child')
 		root_prompt_expect = config_dict['expect_prompts']['root_prompt']
 		return True
 
-	def stop(self,config_dict):
+	def stop(self,shutit):
+		config_dict = shutit.cfg
 		container_child = util.get_pexpect_child('container_child')
 		root_prompt_expect = config_dict['expect_prompts']['root_prompt']
 		return True
 
-	def cleanup(self,config_dict):
+	def cleanup(self,shutit):
+		config_dict = shutit.cfg
 		container_child = util.get_pexpect_child('container_child')
 		root_prompt_expect = config_dict['expect_prompts']['root_prompt']
 		return True
 
-	def finalize(self,config_dict):
+	def finalize(self,shutit):
+		config_dict = shutit.cfg
 		container_child = util.get_pexpect_child('container_child')
 		root_prompt_expect = config_dict['expect_prompts']['root_prompt']
 		return True
 
-	def remove(self,config_dict):
+	def remove(self,shutit):
+		config_dict = shutit.cfg
 		container_child = util.get_pexpect_child('container_child')
 		root_prompt_expect = config_dict['expect_prompts']['root_prompt']
 		return True
 
-	def test(self,config_dict):
+	def test(self,shutit):
+		config_dict = shutit.cfg
 		return True
 
-	def get_config(self,config_dict):
+	def get_config(self,shutit):
+		config_dict = shutit.cfg
 		cp = config_dict['config_parser']
 		return True
 

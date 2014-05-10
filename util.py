@@ -56,19 +56,12 @@ def is_file_secure(file_name):
 		return False
 	return True
 
+# Deprecated
 def log(msg,code=None,pause=0,cfg=None,prefix=True,force_stdout=False):
-	if cfg is None: cfg = shutit_global.cfg
-	if prefix:
-		prefix = 'LOG: ' + time.strftime("%Y-%m-%d %H:%M:%S",time.localtime())
-		msg = prefix + ' ' + str(msg)
-	if code != None:
-		msg = colour(code, msg)
-	if cfg['build']['debug'] or force_stdout:
-		print >> sys.stdout, msg
-	if cfg['build']['build_log']:
-		print >> cfg['build']['build_log'], msg
-		cfg['build']['build_log'].flush()
-	time.sleep(pause)
+	if cfg not in [None, shutit_global.shutit.cfg]:
+		print "Report this error and stack trace to repo owner, #d101"
+		assert False
+	return shutit_global.shutit.log(msg, code=code, pause=pause, prefix=prefix, force_stdout=force_stdout)
 
 def colour(code, msg):   return '\033[%sm%s\033[0m' % (code, msg)
 def grey(msg):           return colour('30', msg)
@@ -80,77 +73,15 @@ def white(msg):          return colour('37', msg)
 def reverse_green(msg):  return colour('7;32', msg)
 def reverse_yellow(msg): return colour('7;33', msg)
 
-# Wrapper for send and expect where convenient.
-# Helpful for debugging.
-# Returns the expect return value
-#
-# child                      - pexpect child to issue command to.
-# send                       - String to send, ie the command being issued.
-# expect                     - String that we expect to see in the output. Usually a prompt.
-# timeout                    - Timeout on response (default=3600 seconds).
-# check_exit                 - Whether the check the shell exit code of the command. If the exit value was non-zero an error is thrown. (default=True)
-# cfg                        - cfg variable (default=shutit_global.cfg)
-# fail_on_empty_before       - If debug is set, fail on empty before match (default=True)
-# record_command             - Whether to record the command for output at end (default=True)
-# exit_values                - Array of acceptable exit values (default [0])
+# Deprecated
 def send_and_expect(child,send,expect,timeout=3600,check_exit=True,cfg=None,fail_on_empty_before=True,record_command=True,exit_values=['0']):
-	if cfg is None: cfg = shutit_global.cfg
-	if cfg['build']['debug']:
-		log('================================================================================')
-		log('Sending>>>' + send + '<<<')
-		log('Expecting>>>' + str(expect) + '<<<')
-	# Race conditions have been seen - might want to remove this
-	time.sleep(cfg['build']['command_pause'])
-	child.sendline(send)
-	expect_res = child.expect(expect,timeout)
-	if cfg['build']['debug']:
-		log('child.before>>>' + child.before + '<<<')
-		log('child.after>>>' + child.after + '<<<')
-	if fail_on_empty_before == True:
-		if child.before.strip() == '':
-			fail('before empty after sending: ' + send + '\n\nThis is expected after some commands that take a password.\nIf so, add fail_on_empty_before=False to the send_and_expect call')
-	elif fail_on_empty_before == False:
-		# Don't check exit if fail_on_empty_before is False
-		log('' + child.before + '<<<')
-		check_exit = False
-		for prompt in cfg['expect_prompts']:
-			if prompt == expect:
-				# Reset prompt
-				handle_login(child,cfg,'reset_tmp_prompt')
-				handle_revert_prompt(child,expect,'reset_tmp_prompt')
-	if check_exit == True:
-		child.sendline('echo EXIT_CODE:$?')
-		child.expect(expect,timeout)
-		res = get_re_from_child(child.before,'^EXIT_CODE:([0-9][0-9]?[0-9]?)$')
-		#print 'RES', str(res), ' ', str(exit_values), ' ', str(res in exit_values)
-		if res not in exit_values or res == None:
-			if res == None:
-				res = str(res)
-			log(red('child.after: \n' + child.after + '\n'))
-			log(red('Exit value from command+\n' + send + '\nwas:\n' + res))
-			msg = '\nWARNING: command:\n' + send + '\nreturned unaccepted exit code: ' + res + '\nIf this is expected, pass in check_exit=False or an exit_values array into the send_and_expect function call.\nIf you want to error on these errors, set the config:\n[build]\naction_on_ret_code:error'
-			cfg['build']['report'] = cfg['build']['report'] + msg
-			if cfg['build']['action_on_ret_code'] == 'error':
-				pause_point(child,msg + '\n\nPause point on exit_code != 0. CTRL-C to quit',force=True)
-				#raise Exception('Exit value from command\n' + send + '\nwas:\n' + res)
-	# If the command matches any 'password's then don't record
-	if record_command:
-		ok_to_record = True
-		for i in cfg.keys():
-			if isinstance(cfg[i],dict):
-				for j in cfg[i].keys():
-					if j == 'password' and cfg[i][j] == send:
-						shutit_global.shutit_command_history.append('#redacted command, password')
-						ok_to_record = False
-						break
-				if not ok_to_record:
-					break
-		if ok_to_record:
-			shutit_global.shutit_command_history.append(send)
-	else:
-		shutit_global.shutit_command_history.append('#redacted command')
-	return expect_res
-
+	if cfg not in [None, shutit_global.shutit.cfg]:
+		print "Report this error and stack trace to repo owner, #d102"
+		assert False
+	return shutit_global.shutit.send_and_expect(send,expect,
+		child=child, timeout=timeout, check_exit=check_exit,
+		fail_on_empty_before=fail_on_empty_before,
+		record_command=record_command,exit_values=exit_values)
 
 def get_config(cfg,module_id,option,default,boolean=False):
 	if module_id not in cfg.keys():
@@ -532,24 +463,13 @@ def print_config(cfg):
 	s = s + '\n'
 	return s
 
-# Inserts a pause in the expect session which allows the user to try things out
+# Deprecated
 def pause_point(child,msg,print_input=True,expect='',cfg=None,force=False):
-	if cfg is None: cfg = shutit_global.cfg
-	if not cfg['build']['interactive'] and not force:
-		return
-	# Sleep to try and make this the last thing we see before the prompt (not always the case)
-	if child and print_input:
-		print red('\n\nPause point:\n\n') + msg + red('\n\nYou can now type in commands and alter the state of the container.\nHit return to see the prompt\nHit CTRL and ] at the same time to continue with build\n\n')
-		if print_input:
-			if expect == '':
-				expect = '@.*[#$]'
-				print'\n\nexpect argument not supplied to pause_point, assuming "' + expect + '" is the regexp to expect\n\n'
-		child.interact()
-	else:
-		print msg
-		print red('\n\n[Hit return to continue]\n')
-		raw_input('')
-
+	if cfg not in [None, shutit_global.shutit.cfg]:
+		print "Report this error and stack trace to repo owner, #d103"
+		assert False
+	shutit_global.shutit.pause_point(msg, child=child, print_input=print_input,
+		expect=expect, force=force)
 
 # Commit, tag, push, tar etc..
 # expect must be a string
@@ -617,100 +537,27 @@ def do_repository_work(cfg,expect,repo_name,docker_executable='docker',password=
 		push_repository(child,repository,cfg,docker_executable,expect)
 		cfg['build']['report'] = cfg['build']['report'] + 'Pushed repository: ' + repository
 
-
-# Return True if file exists, else False
+# Deprecated
 def file_exists(child,filename,expect,directory=False):
-	test = 'test %s %s' % ('-d' if directory is True else '-a', filename)
-	send_and_expect(child,test+' && echo FILEXIST-""FILFIN || echo FILNEXIST-""FILFIN','-FILFIN',check_exit=False,record_command=False)
-	res = get_re_from_child(child.before,'^(FILEXIST|FILNEXIST)$')
-	ret = False
-	if res == 'FILEXIST':
-		ret = True
-	elif res == 'FILNEXIST':
-		pass
-	else:
-		# Change to log?
-		print repr('before>>>>:%s<<<< after:>>>>%s<<<<' % (child.before, child.after))
-		pause_point(child,'Did not see FIL(N)?EXIST in before')
+	return shutit_global.shutit.file_exists(filename, expect, child=child,
+		directory=directory)
 
-	child.expect(expect)
-	return ret
-
-# Returns the file permission as an octal
+# Deprecated
 def get_file_perms(child,filename,expect):
-	cmd = 'stat -c %a ' + filename + r" | sed 's/.\(.*\)/\1/g'"
-	send_and_expect(child,cmd,expect,check_exit=False,record_command=False)
-	res = get_re_from_child(child.before,'([0-9][0-9][0-9])')
-	return res
+	return shutit_global.shutit.get_file_perms(filename,expect,child=child)
 
-
-
-# Adds line to file if it doesn't exist (unless Force is set).
-# Creates the file if it doesn't exist (unless truncate is set).
-# Must be exactly the line passed in to match.
-# Returns True if line added, False if not.
-# If you have a lot of non-unique lines to add,
-# it's a good idea to have a sentinel value to
-# add first, and then if that returns true,
-# force the remainder.
-#
-# match_regexp - if supplied, a regexp to look for in the file instead of the line itself, handy if the line has awkward characters in it.
-# force        - always write the line to the file
-# truncate     - truncate or create the file before doing anything else
-# literal      - if true, then simply grep for the exact
-#                string without bash interpretation
+# Deprecated
 def add_line_to_file(child,line,filename,expect,match_regexp=None,truncate=False,force=False,literal=False):
-	# assume we're going to add it
-	res = '0'
-	bad_chars    = '"'
-	tmp_filename = '/tmp/' + str(random.getrandbits(32))
-	if match_regexp == None and re.match('.*[' + bad_chars + '].*',line) != None:
-		fail('Passed problematic character to add_line_to_file.\nPlease avoid using the following chars: ' + bad_chars + '\nor supply a match_regexp argument.\nThe line was:\n' + line)
-	# truncate file if requested, or if the file doesn't exist
-	if truncate:
-		send_and_expect(child,'cat > ' + filename + ' <<< ""',expect,check_exit=False)
-	elif not file_exists(child,filename,expect):
-		# The above cat doesn't work so we touch the file if it doesn't exist already.
-		send_and_expect(child,'touch ' + filename,expect,check_exit=False)
-	elif not force:
-		if literal:
-			if match_regexp == None:
-				send_and_expect(child,"""grep -w '^""" + line + """$' """ + filename + ' > ' + tmp_filename,expect,exit_values=['0','1'],record_command=False)
-			else:
-				send_and_expect(child,"""grep -w '^""" + match_regexp + """$' """ + filename + ' > ' + tmp_filename,expect,exit_values=['0','1'],record_command=False)
-		else:
-			if match_regexp == None:
-				send_and_expect(child,'grep -w "^' + line + '$" ' + filename + ' > ' + tmp_filename,expect,exit_values=['0','1'],record_command=False)
-			else:
-				send_and_expect(child,'grep -w "^' + match_regexp + '$" ' + filename + ' > ' + tmp_filename,expect,exit_values=['0','1'],record_command=False)
-		send_and_expect(child,'cat ' + tmp_filename + ' | wc -l',expect,exit_values=['0','1'],record_command=False,check_exit=False)
-		res = get_re_from_child(child.before,'^([0-9]+)$')
-	if res == '0' or force:
-		send_and_expect(child,'cat >> ' + filename + """ <<< '""" + line + """'""",expect,check_exit=False)
-		send_and_expect(child,'rm -f ' + tmp_filename,expect,exit_values=['0','1'],record_command=False)
-		return True
-	else:
-		send_and_expect(child,'rm -f ' + tmp_filename,expect,exit_values=['0','1'],record_command=False)
-		return False
+	return shutit_global.shutit.add_line_to_file(line, filename, expect,
+		child=child, match_regexp=match_regexp, truncate=truncate, force=force,
+		literal=literal)
 
-# Get regular expression from lines
-# Returns None if none matched.
+# Deprecated
 def get_re_from_child(string,regexp,cfg=None):
-	if cfg is None: cfg = shutit_global.cfg
-	if cfg['build']['debug']:
-		log('get_re_from_child:')
-		log(string)
-		log(regexp)
-	lines = string.split('\r\n')
-	for l in lines:
-		if cfg['build']['debug']:
-			log('trying: ' + l)
-		match = re.match(regexp,l)
-		if match != None:
-			if cfg['build']['debug']:
-				log('returning: ' + match.group(1))
-			return match.group(1)
-	return None
+	if cfg not in [None, shutit_global.shutit.cfg]:
+		print "Report this error and stack trace to repo owner, #d104"
+		assert False
+	return shutit_global.shutit.get_re_from_child(string, regexp)
 
 # expect must be a string
 def push_repository(child,repository,cfg,docker_executable,expect):
