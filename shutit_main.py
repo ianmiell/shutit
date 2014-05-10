@@ -59,8 +59,8 @@ def stop_all(shutit, run_order=-1):
 	for mid in module_ids(shutit, rev=True):
 		shutit_module_obj = shutit_map[mid]
 		if run_order == -1 or shutit_module_obj.run_order <= run_order:
-			if is_built(cfg,shutit_module_obj):
-				if not shutit_module_obj.stop(cfg):
+			if is_built(shutit,shutit_module_obj):
+				if not shutit_module_obj.stop(shutit):
 					util.fail('failed to stop: ' + mid,child=util.get_pexpect_child('container_child'))
 
 # Start all apps less than the supplied run_order
@@ -73,13 +73,13 @@ def start_all(shutit, run_order=-1):
 	for mid in module_ids(shutit):
 		shutit_module_obj = shutit_map[mid]
 		if run_order == -1 or shutit_module_obj.run_order <= run_order:
-			if is_built(cfg,shutit_module_obj):
-				if not shutit_module_obj.start(cfg):
+			if is_built(shutit,shutit_module_obj):
+				if not shutit_module_obj.start(shutit):
 					util.fail('failed to start: ' + mid,child=util.get_pexpect_child('container_child'))
 
 # Returns true if this module is configured to be built, or if it is already installed.
-def is_built(cfg,shutit_module_obj):
-	return cfg[shutit_module_obj.module_id]['build'] or shutit_module_obj.is_installed(cfg)
+def is_built(shutit,shutit_module_obj):
+	return shutit.cfg[shutit_module_obj.module_id]['build'] or shutit_module_obj.is_installed(shutit)
 
 def init_shutit_map(shutit):
 	cfg = shutit.cfg
@@ -146,7 +146,7 @@ def config_collection(shutit):
 		else:
 			util.get_config(cfg,mid,'build_ifneeded',False,boolean=True)
 
-		if not shutit_map[mid].get_config(cfg):
+		if not shutit_map[mid].get_config(shutit):
 			util.fail(mid + ' failed on get_config')
 
 def build_core_module(shutit):
@@ -158,7 +158,7 @@ def build_core_module(shutit):
 		util.pause_point(util.get_pexpect_child('container_child'),
 			'\nRunning build on the core module (' +
 			shutit.shutit_main_dir + '/setup.py)', print_input=False)
-	shutit_map[core_mid].build(cfg)
+	shutit_map[core_mid].build(shutit)
 
 # Once we have all the modules, then we can look at dependencies.
 # Dependency validation begins.
@@ -172,23 +172,23 @@ def resolve_dependencies(shutit, to_build, depender):
 				and cfg[dependee_id]['build_ifneeded']):
 			to_build.append(dependee)
 			cfg[dependee_id]['build'] = True
-def check_dependee_exists(cfg, depender, dependee, dependee_id):
+def check_dependee_exists(shutit, depender, dependee, dependee_id):
 	# If the module id isn't there, there's a problem.
 	if dependee == None:
 		return (dependee_id + ' module not found in paths: ' +
-			str(cfg['host']['shutit_module_paths']) +
+			str(shutit.cfg['host']['shutit_module_paths']) +
 			' but needed for ' + depender.module_id +
 			'\nCheck your --shutit_module_path setting and ensure that ' +
 			'all modules configured to be built are in that path setting, ' +
 			'eg "--shutit_module_path /path/to/other/module/:." See also help.')
-def check_dependee_build(cfg, depender, dependee, dependee_id):
+def check_dependee_build(shutit, depender, dependee, dependee_id):
 	# If depender is installed or will be installed, so must the dependee
-	if not (cfg[dependee.module_id]['build'] or dependee.is_installed(cfg)):
+	if not (shutit.cfg[dependee.module_id]['build'] or dependee.is_installed(shutit)):
 		return ('depender module id: [' + depender.module_id + '] ' +
 			'is configured: "build:yes" or is already built ' +
 			'but dependee module_id: [' + dependee_id + '] ' +
 			'is not configured: "build:yes"')
-def check_dependee_order(cfg, depender, dependee, dependee_id):
+def check_dependee_order(shutit, depender, dependee, dependee_id):
 	# If it depends on a module id, then the module id should be higher up in the run order.
 	if dependee.run_order > depender.run_order:
 		return ('depender module id: ' + depender.module_id +
@@ -234,15 +234,15 @@ def check_deps(shutit):
 			triples.append((depender, shutit_map.get(dependee_id), dependee_id))
 
 	triples = err_checker([
-		check_dependee_exists(cfg, depender, dependee, dependee_id)
+		check_dependee_exists(shutit, depender, dependee, dependee_id)
 		for depender, dependee, dependee_id in triples
 	], triples)
 	triples = err_checker([
-		check_dependee_build(cfg, depender, dependee, dependee_id)
+		check_dependee_build(shutit, depender, dependee, dependee_id)
 		for depender, dependee, dependee_id in triples
 	], triples)
 	triples = err_checker([
-		check_dependee_order(cfg, depender, dependee, dependee_id)
+		check_dependee_order(shutit, depender, dependee, dependee_id)
 		for depender, dependee, dependee_id in triples
 	], triples)
 
@@ -283,8 +283,8 @@ def check_conflicts(shutit):
 			conflictee_obj = shutit_map.get(conflictee)
 			if conflictee_obj == None:
 				continue
-			if ((cfg[conflicter.module_id]['build'] or conflicter.is_installed(cfg)) and
-					(cfg[conflictee_obj.module_id]['build'] or conflictee_obj.is_installed(cfg))):
+			if ((cfg[conflicter.module_id]['build'] or conflicter.is_installed(shutit)) and
+					(cfg[conflictee_obj.module_id]['build'] or conflictee_obj.is_installed(shutit))):
 				return [('conflicter module id: ' + conflicter.module_id +
 					' is configured to be built or is already built but ' +
 					'conflicts with module_id: ' + conflictee_obj.module_id,)]
@@ -302,9 +302,9 @@ def check_ready(shutit):
 		m = shutit_map[mid]
 		if m.run_order == 0: continue
 		util.log(util.red('considering check_ready (is it ready to be built?): ' + mid))
-		if cfg[mid]['build'] and not m.is_installed(cfg):
+		if cfg[mid]['build'] and not m.is_installed(shutit):
 			util.log(util.red('checking whether module is ready to build: ' + mid))
-			if not m.check_ready(cfg):
+			if not m.check_ready(shutit):
 				return [(mid + ' not ready to install',util.get_pexpect_child('container_child'))]
 	return []
 
@@ -321,7 +321,7 @@ def do_remove(shutit):
 		util.log(util.red('considering whether to remove: ' + mid))
 		if cfg[mid]['remove']:
 			util.log(util.red('removing: ' + mid))
-			if not m.remove(cfg):
+			if not m.remove(shutit):
 				util.log(util.red(print_modules(shutit)))
 				util.fail(mid + ' failed on remove',child=util.get_pexpect_child('container_child'))
 
@@ -330,11 +330,11 @@ def build_module(shutit, module):
 	shutit_map = shutit.shutit_map
 	util.log(util.red('building: ' + module.module_id + ' with run order: ' + str(module.run_order)))
 	cfg['build']['report'] = cfg['build']['report'] + '\nBuilding: ' + module.module_id + ' with run order: ' + str(module.run_order)
-	if not module.build(cfg):
+	if not module.build(shutit):
 		util.fail(module.module_id + ' failed on build',child=util.get_pexpect_child('container_child'))
 	if cfg['build']['interactive']:
 		util.pause_point(util.get_pexpect_child('container_child'),'\nPausing to allow inspect of build for: ' + module.module_id,print_input=True)
-	if not module.cleanup(cfg):
+	if not module.cleanup(shutit):
 		util.log(util.red('cleaning up: ' + module.module_id + ' with run order: ' + str(module.run_order)))
 		util.fail(module.module_id + ' failed on cleanup',child=util.get_pexpect_child('container_child'))
 	cfg['build']['report'] = cfg['build']['report'] + '\nCompleted module: ' + module.module_id
@@ -369,13 +369,13 @@ def do_build(shutit):
 		if module.run_order == 0: continue
 		util.log(util.red('considering whether to build: ' + module.module_id))
 		if cfg[module.module_id]['build']:
-			if module.is_installed(cfg):
+			if module.is_installed(shutit):
 				cfg['build']['report'] = cfg['build']['report'] + '\nBuilt already: ' + module.module_id + ' with run order: ' + str(module.run_order)
 			else:
 				build_module(shutit, module)
-		if is_built(cfg,module):
+		if is_built(shutit,module):
 			util.log('Starting module')
-			if not module.start(cfg):
+			if not module.start(shutit):
 				util.fail(module.module_id + ' failed on start',child=util.get_pexpect_child('container_child'))
 
 def do_test(shutit):
@@ -389,9 +389,9 @@ def do_test(shutit):
 	start_all(shutit)
 	for mid in module_ids(shutit, rev=True):
 		# Only test if it's thought to be installed.
-		if is_built(cfg,shutit_map[mid]):
+		if is_built(shutit,shutit_map[mid]):
 			util.log(util.red('RUNNING TEST ON: ' + mid))
-			if not shutit_map[mid].test(cfg):
+			if not shutit_map[mid].test(shutit):
 				util.fail(mid + ' failed on test',child=util.get_pexpect_child('container_child'))
 
 def do_finalize(shutit):
@@ -407,8 +407,8 @@ def do_finalize(shutit):
 		util.pause_point(util.get_pexpect_child('container_child'),'\nNow doing finalize phase, which we do when all builds are complete and modules are stopped',print_input=False)
 	for mid in module_ids(shutit, rev=True):
 		# Only finalize if it's thought to be installed.
-		if is_built(cfg,shutit_map[mid]):
-			if not shutit_map[mid].finalize(cfg):
+		if is_built(shutit,shutit_map[mid]):
+			if not shutit_map[mid].finalize(shutit):
 				util.fail(mid + ' failed on finalize',child=util.get_pexpect_child('container_child'))
 
 def tag_and_push(cfg):
