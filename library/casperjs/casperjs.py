@@ -26,10 +26,6 @@ import util
 
 class casperjs(ShutItModule):
 
-	def check_ready(self,shutit):
-		config_dict = shutit.cfg
-		return True
-
 	def is_installed(self,shutit):
 		config_dict = shutit.cfg
 		container_child = util.get_pexpect_child('container_child')
@@ -48,17 +44,6 @@ class casperjs(ShutItModule):
 		util.send_and_expect(container_child,'popd',config_dict['expect_prompts']['root_prompt'])
 		return True
 
-	def start(self,shutit):
-		config_dict = shutit.cfg
-		container_child = util.get_pexpect_child('container_child')
-		return True
-
-	def stop(self,shutit):
-		config_dict = shutit.cfg
-		container_child = util.get_pexpect_child('container_child')
-		return True
-
-
 	def cleanup(self,shutit):
 		config_dict = shutit.cfg
 		container_child = util.get_pexpect_child('container_child')
@@ -70,20 +55,6 @@ class casperjs(ShutItModule):
 		config_dict = shutit.cfg
 		container_child = util.get_pexpect_child('container_child')
 		util.send_and_expect(container_child,'rm -rf /opt/casperjs',config_dict['expect_prompts']['root_prompt'])
-		return True
-
-	def test(self,shutit):
-		config_dict = shutit.cfg
-		container_child = util.get_pexpect_child('container_child')
-		return True
-
-	def finalize(self,shutit):
-		config_dict = shutit.cfg
-		return True
-
-	def get_config(self,shutit):
-		config_dict = shutit.cfg
-		cp = config_dict['config_parser']
 		return True
 
 if not util.module_exists('shutit.tk.casperjs.casperjs'):

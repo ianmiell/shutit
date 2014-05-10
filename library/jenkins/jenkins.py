@@ -58,27 +58,6 @@ class jenkins(ShutItModule):
 		#util.send_and_expect(container_child,'/root/stop_jenkins.sh',root_prompt_expect)
 		return True
 
-	def cleanup(self,shutit):
-		config_dict = shutit.cfg
-		return True
-
-	def finalize(self,shutit):
-		config_dict = shutit.cfg
-		return True
-
-	def remove(self,shutit):
-		config_dict = shutit.cfg
-		return True
-
-	def test(self,shutit):
-		config_dict = shutit.cfg
-		return True
-
-	def get_config(self,shutit):
-		config_dict = shutit.cfg
-		return True
-
-
 if not util.module_exists('shutit.tk.jenkins'):
 	obj = jenkins('shutit.tk.jenkins.jenkins',0.323,'ShutIt Jenkins module')
 	obj.add_dependency('shutit.tk.setup')
