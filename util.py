@@ -56,7 +56,7 @@ def is_file_secure(file_name):
 		return False
 	return True
 
-# Deprecated method
+# Deprecated
 def log(msg,code=None,pause=0,cfg=None,prefix=True,force_stdout=False):
 	if cfg not in [None, shutit_global.shutit.cfg]:
 		print "Report this error and stack trace to repo owner, #d101"
@@ -73,77 +73,14 @@ def white(msg):          return colour('37', msg)
 def reverse_green(msg):  return colour('7;32', msg)
 def reverse_yellow(msg): return colour('7;33', msg)
 
-# Wrapper for send and expect where convenient.
-# Helpful for debugging.
-# Returns the expect return value
-#
-# child                      - pexpect child to issue command to.
-# send                       - String to send, ie the command being issued.
-# expect                     - String that we expect to see in the output. Usually a prompt.
-# timeout                    - Timeout on response (default=3600 seconds).
-# check_exit                 - Whether the check the shell exit code of the command. If the exit value was non-zero an error is thrown. (default=True)
-# cfg                        - cfg variable (default=shutit_global.cfg)
-# fail_on_empty_before       - If debug is set, fail on empty before match (default=True)
-# record_command             - Whether to record the command for output at end (default=True)
-# exit_values                - Array of acceptable exit values (default [0])
+# Deprecated
 def send_and_expect(child,send,expect,timeout=3600,check_exit=True,cfg=None,fail_on_empty_before=True,record_command=True,exit_values=['0']):
-	if cfg is None: cfg = shutit_global.cfg
-	if cfg['build']['debug']:
-		log('================================================================================')
-		log('Sending>>>' + send + '<<<')
-		log('Expecting>>>' + str(expect) + '<<<')
-	# Race conditions have been seen - might want to remove this
-	time.sleep(cfg['build']['command_pause'])
-	child.sendline(send)
-	expect_res = child.expect(expect,timeout)
-	if cfg['build']['debug']:
-		log('child.before>>>' + child.before + '<<<')
-		log('child.after>>>' + child.after + '<<<')
-	if fail_on_empty_before == True:
-		if child.before.strip() == '':
-			fail('before empty after sending: ' + send + '\n\nThis is expected after some commands that take a password.\nIf so, add fail_on_empty_before=False to the send_and_expect call')
-	elif fail_on_empty_before == False:
-		# Don't check exit if fail_on_empty_before is False
-		log('' + child.before + '<<<')
-		check_exit = False
-		for prompt in cfg['expect_prompts']:
-			if prompt == expect:
-				# Reset prompt
-				handle_login(child,cfg,'reset_tmp_prompt')
-				handle_revert_prompt(child,expect,'reset_tmp_prompt')
-	if check_exit == True:
-		child.sendline('echo EXIT_CODE:$?')
-		child.expect(expect,timeout)
-		res = get_re_from_child(child.before,'^EXIT_CODE:([0-9][0-9]?[0-9]?)$')
-		#print 'RES', str(res), ' ', str(exit_values), ' ', str(res in exit_values)
-		if res not in exit_values or res == None:
-			if res == None:
-				res = str(res)
-			log(red('child.after: \n' + child.after + '\n'))
-			log(red('Exit value from command+\n' + send + '\nwas:\n' + res))
-			msg = '\nWARNING: command:\n' + send + '\nreturned unaccepted exit code: ' + res + '\nIf this is expected, pass in check_exit=False or an exit_values array into the send_and_expect function call.\nIf you want to error on these errors, set the config:\n[build]\naction_on_ret_code:error'
-			cfg['build']['report'] = cfg['build']['report'] + msg
-			if cfg['build']['action_on_ret_code'] == 'error':
-				pause_point(child,msg + '\n\nPause point on exit_code != 0. CTRL-C to quit',force=True)
-				#raise Exception('Exit value from command\n' + send + '\nwas:\n' + res)
-	# If the command matches any 'password's then don't record
-	if record_command:
-		ok_to_record = True
-		for i in cfg.keys():
-			if isinstance(cfg[i],dict):
-				for j in cfg[i].keys():
-					if j == 'password' and cfg[i][j] == send:
-						shutit_global.shutit_command_history.append('#redacted command, password')
-						ok_to_record = False
-						break
-				if not ok_to_record:
-					break
-		if ok_to_record:
-			shutit_global.shutit_command_history.append(send)
-	else:
-		shutit_global.shutit_command_history.append('#redacted command')
-	return expect_res
-
+	if cfg not in [None, shutit_global.shutit.cfg]:
+		print "Report this error and stack trace to repo owner, #d102"
+		assert False
+	shutit_global.shutit.send_and_expect(child,send,expect,timeout=timeout,
+		check_exit=check_exit,fail_on_empty_before=fail_on_empty_before,
+		record_command=record_command,exit_values=exit_values)
 
 def get_config(cfg,module_id,option,default,boolean=False):
 	if module_id not in cfg.keys():
