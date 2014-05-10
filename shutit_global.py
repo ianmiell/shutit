@@ -28,6 +28,9 @@ import util
 
 class ShutIt(object):
 
+	_default_child = None
+	_default_expect = None
+
 	def __init__(self, **kwargs):
 		self.pexpect_children = kwargs['pexpect_children']
 		self.shutit_modules = kwargs['shutit_modules']
@@ -36,6 +39,12 @@ class ShutIt(object):
 		self.cwd = kwargs['cwd']
 		self.shutit_command_history = kwargs['shutit_command_history']
 		self.shutit_map = kwargs['shutit_map']
+
+	def set_default_child(self, child):
+		self._default_child = child
+
+	def set_default_expect(self, expect_str):
+		self._default_expect = expect_str
 
 	def log(self, msg, code=None, pause=0, prefix=True, force_stdout=False):
 		if prefix:
@@ -62,7 +71,11 @@ class ShutIt(object):
 	# fail_on_empty_before       - If debug is set, fail on empty before match (default=True)
 	# record_command             - Whether to record the command for output at end (default=True)
 	# exit_values                - Array of acceptable exit values (default [0])
-	def send_and_expect(self,child,send,expect,timeout=3600,check_exit=True,fail_on_empty_before=True,record_command=True,exit_values=['0']):
+	def send_and_expect(self,send,expect=None,child=None,timeout=3600,check_exit=True,fail_on_empty_before=True,record_command=True,exit_values=['0']):
+		if expect is None: expect = self._default_expect
+		if child is None: child = self._default_child
+		if expect is None or child is None:
+			util.fail("Couldn't default expect/child: " + str((expect, child)))
 		cfg = self.cfg
 		if cfg['build']['debug']:
 			self.log('================================================================================')
