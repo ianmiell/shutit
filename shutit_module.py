@@ -139,14 +139,14 @@ class ShutItModule:
 	# Run when module should be installed (is_installed() or configured to build is true)
 	# Run after repo work.
 	def start(self,shutit):
-		return False
+		return True
 
 	# stop
 	#
 	# Run when module should be stopped.
 	# Run before repo work, and before finalize is called.
 	def stop(self,shutit):
-		return False
+		return True
 
 	# is_installed
 	#
@@ -158,7 +158,7 @@ class ShutItModule:
 	# Required.
 	@abstractmethod
 	def is_installed(self,shutit):
-		return False
+		pass
 
 	# build
 	#
@@ -172,7 +172,7 @@ class ShutItModule:
 	# Required.
 	@abstractmethod
 	def build(self,shutit):
-		return False
+		pass
 
 
 	# cleanup
@@ -181,7 +181,7 @@ class ShutItModule:
 	# Should return True if all is OK, else False.
 	# Note that this is only run if the build phase was actually run.
 	def cleanup(self,shutit):
-		return False
+		return True
 
 	# test
 	#
@@ -189,11 +189,11 @@ class ShutItModule:
 	# Should return True if all is OK, else False.
 	# This is run regardless of whether the module is installed or not.
 	def test(self,shutit):
-		return False
+		return True
 
 	# finalize
 	#
 	# Finalize the module, ie do things that need doing before we exit.
 	def finalize(self,shutit):
-		return False
+		return True
 
