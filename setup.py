@@ -44,7 +44,6 @@ import os
 class setup(ShutItModule):
 
 	def is_installed(self,shutit):
-		config_dict = shutit.cfg
 		return False
 
 	def build(self,shutit):
@@ -128,6 +127,7 @@ class setup(ShutItModule):
 		util.set_pexpect_child('host_child',host_child)
 		util.set_pexpect_child('container_child', container_child)
 		shutit.set_default_child(container_child)
+		shutit.set_default_expect(config_dict['expect_prompts']['base_prompt'])
 		host_child.logfile = container_child.logfile = sys.stdout
 		host_child.maxread = container_child.maxread = 2000
 		host_child.searchwindowsize = container_child.searchwindowsize = 1024
