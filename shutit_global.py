@@ -27,6 +27,8 @@ import time
 import util
 import random
 import re
+import textwrap
+import base64
 
 class ShutIt(object):
 
@@ -149,6 +151,28 @@ class ShutIt(object):
 		else:
 			self.shutit_command_history.append('#redacted command')
 		return expect_res
+
+	def run_script(self,script,expect=None,child=None,is_bash=True):
+		child = child or self.get_default_child()
+		expect = expect or self.get_default_expect()
+		lines = script.split('\n')
+		while len(lines) > 0 and re.match('^[ \t]*$', lines[0]):
+			lines = lines[1:]
+		if len(lines) == 0:
+			return True
+		script = '\n'.join(lines)
+		script = textwrap.dedent(script)
+		if is_bash:
+			script = ('#!/bin/bash\nset -o verbose\nset -o errexit\n' +
+				'set -o nounset\n' + lines)
+		script64 = base64.standard_b64encode(script)
+		self.send_and_expect('mkdir -p /tmp/shutit', expect, child)
+		child.sendline('base64 --decode > /tmp/shutit/script.sh')
+		child.sendline(script64)
+		child.sendeof()
+		child.expect(expect)
+		self.send_and_expect('chmod +x /tmp/shutit/script.sh', expect, child)
+		return self.send_and_expect('/tmp/shutit/script.sh', expect, child)
 
 	# Return True if file exists, else False
 	def file_exists(self,filename,expect=None,child=None,directory=False):
