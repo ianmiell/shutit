@@ -169,14 +169,15 @@ class ShutIt(object):
 			self.log('================================================================================')
 			self.log('Sending script>>>' + script + '<<<')
 		script64 = base64.standard_b64encode(script)
-		self.send_and_expect('mkdir -p /tmp/shutit', expect, child)
-		child.sendline('base64 --decode > /tmp/shutit/script.sh')
+		child.sendline('base64 --decode > /tmp/shutit_script.sh')
 		child.sendline(script64)
 		child.sendeof()
 		child.expect(expect)
-		self.send_and_expect('chmod +x /tmp/shutit/script.sh', expect, child)
+		self.send_and_expect('chmod +x /tmp/shutit_script.sh', expect, child)
 		self.shutit_command_history.append(script)
-		return self.send_and_expect('/tmp/shutit/script.sh', expect, child)
+		ret = self.send_and_expect('/tmp/shutit_script.sh', expect, child)
+		self.send_and_expect('rm /tmp/shutit_script.sh', expect, child)
+		return ret
 
 	# Return True if file exists, else False
 	def file_exists(self,filename,expect=None,child=None,directory=False):
