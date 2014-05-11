@@ -25,6 +25,8 @@ import sys
 import decimal
 import inspect
 
+# Notify the shutit object whenever we call a shutit module method.
+# This allows setting values for the 'scope' of a function.
 def shutit_method_scope(func):
 	def wrapper(self, shutit):
 		shutit.module_method_start()
