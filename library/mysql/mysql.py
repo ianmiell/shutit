@@ -41,7 +41,7 @@ class mysql(ShutItModule):
 		root_pass = cfg['shutit.tk.mysql.mysql']['root_password']
 		shutit.send_and_expect("apt-get update", record_command=False)
 		shutit.send_and_expect("""debconf-set-selections <<< 'mysql-server mysql-server/root_password password {0}'""".format(root_pass),record_command=False)
-		shutit.send_and_expect("""sudo debconf-set-selectons <<< 'mysql-server mysql-server/root_password_again password {0}'""".format(root_pass),record_command=False)
+		shutit.send_and_expect("""sudo debconf-set-selections <<< 'mysql-server mysql-server/root_password_again password {0}'""".format(root_pass),record_command=False)
 		util.install(container_child,cfg,'mysql-common',expect)
 		util.install(container_child,cfg,'mysql-server',expect)
 		util.install(container_child,cfg,'libmysqlclient-dev',expect)
@@ -51,24 +51,17 @@ class mysql(ShutItModule):
 		# http://stackoverflow.com/questions/15663001/remote-connections-mysql-ubuntu
 		shutit.send_and_expect("perl -p -i -e 's/^bind.*/bind-address = 0.0.0.0/' /etc/mysql/my.cnf")
 		mysql_user = cfg['shutit.tk.mysql.mysql']['mysql_user']
-		res = shutit.send_and_expect("""echo "create user '""" + mysql_user + """'@'localhost' identified by '""" + mysql_user + """'" | mysql -p """,['assword',expect],check_exit=False)
+		shutit.pause_point('msg', force=True)
+		res = shutit.send_and_expect('mysql -p',['assword','mysql>'],check_exit=False)
 		if res == 0:
 			shutit.send_and_expect(root_pass)
-		res = shutit.send_and_expect("""echo "create user '""" + mysql_user + """'@'%' identified by '""" + mysql_user + """'" | mysql -p """,['assword',expect],check_exit=False)
-		if res == 0:
-			shutit.send_and_expect(root_pass)
-		res = shutit.send_and_expect("""echo "grant all privileges on *.* to '""" + mysql_user + """'@'localhost';" | mysql -p""",['assword',expect],check_exit=False)
-		if res == 0:
-			shutit.send_and_expect(root_pass)
-		res = shutit.send_and_expect("""echo "grant all privileges on *.* to '""" + mysql_user + """'@'%';" | mysql -p""",['assword',expect],check_exit=False)
-		if res == 0:
-			shutit.send_and_expect(root_pass)
-		res = shutit.send_and_expect("""echo "set password for """ + mysql_user + """@'localhost'  = password('""" + cfg['shutit.tk.mysql.mysql']['mysql_user_password'] + """')" | mysql -p""",['assword',expect],check_exit=False,record_command=False)
-		if res == 0:
-			shutit.send_and_expect(root_pass)
-		res = shutit.send_and_expect("""echo "set password for """ + mysql_user + """@'%'  = password('""" + cfg['shutit.tk.mysql.mysql']['mysql_user_password'] + """')" | mysql -p""",['assword',expect],check_exit=False,record_command=False)
-		if res == 0:
-			shutit.send_and_expect(root_pass)
+		shutit.send_and_expect("create user '" + mysql_user + "'@'localhost' identified by '" + mysql_user + "';",'mysql>',check_exit=False)
+		shutit.send_and_expect("create user '" + mysql_user + "'@'%' identified by '" + mysql_user + "';",'mysql>',check_exit=False)
+		shutit.send_and_expect("grant all privileges on *.* to '" + mysql_user + "'@'localhost';",'mysql>',check_exit=False)
+		shutit.send_and_expect("grant all privileges on *.* to '" + mysql_user + "'@'%';",'mysql>',check_exit=False)
+		shutit.send_and_expect("set password for " + mysql_user + "@'localhost' = password('" + cfg['shutit.tk.mysql.mysql']['mysql_user_password'] + "');",'mysql>',check_exit=False,record_command=False)
+		shutit.send_and_expect("set password for " + mysql_user + "@'%'  password('" + cfg['shutit.tk.mysql.mysql']['mysql_user_password'] + "');",'mysql>',check_exit=False,record_command=False)
+		shutit.send_and_expect('\q')
 		res = shutit.add_line_to_file('nohup mysqld &','/root/start_mysql.sh')
 		if res:
 			shutit.add_line_to_file("""echo Starting mysqld, sleeping""",'/root/start_mysql.sh',force=True)
@@ -85,10 +78,10 @@ class mysql(ShutItModule):
 			shutit.add_line_to_file("""echo sleeping 2""",'/root/stop_mysql.sh',force=True)
 			shutit.add_line_to_file('sleep 2','/root/stop_mysql.sh',force=True)
 			shutit.add_line_to_file('fi','/root/stop_mysql.sh',force=True)
-		shutit.send_and_expect(container_child,'chmod +x /root/start_mysql.sh')
-		shutit.send_and_expect(container_child,'chmod +x /root/stop_mysql.sh')
-		shutit.send_and_expect(container_child,'/root/stop_mysql.sh')
-		shutit.send_and_expect(container_child,'/root/start_mysql.sh')
+		shutit.send_and_expect('chmod +x /root/start_mysql.sh')
+		shutit.send_and_expect('chmod +x /root/stop_mysql.sh')
+		shutit.send_and_expect('/root/stop_mysql.sh')
+		shutit.send_and_expect('/root/start_mysql.sh')
 		util.handle_revert_prompt(container_child,cfg['expect_prompts']['base_prompt'],'mysql_tmp_prompt')
 		util.send_and_expect(container_child,'exit',cfg['expect_prompts']['root_prompt'])
 		return True
