@@ -196,7 +196,7 @@ def check_dependee_order(shutit, depender, dependee, dependee_id):
 			'depends on dependee module_id:\n\n' + dependee_id +
 			'\n\n(run order: ' + str(dependee.run_order) + ') ' +
 			'but the latter is configured to run after the former')
-def make_dep_graph(cfg, depender):
+def make_dep_graph(depender):
 	digraph = ''
 	for dependee_id in depender.depends_on:
 		digraph = digraph + '"' + depender.module_id + '"->"' + dependee_id + '";\n'
@@ -251,7 +251,7 @@ def check_deps(shutit):
 	# Show dependency graph
 	if cfg['build']['show_depgraph_only']:
 		digraph = 'digraph depgraph {\n'
-		digraph = digraph + '\n'.join([make_dep_graph(cfg, module) for module in to_build])
+		digraph = digraph + '\n'.join([make_dep_graph(module) for module in to_build])
 		digraph = digraph + '\n}'
 		util.log(digraph,force_stdout=True)
 		sys.exit()
