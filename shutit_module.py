@@ -25,7 +25,13 @@ import sys
 import decimal
 import inspect
 
-class ShutItModuleError(Exception):
+# TODO: these don't belong here, but this module is 'top level' and doesn't
+# depend on any other shutit files.
+class ShutItException(Exception):
+	pass
+class ShutItModuleError(ShutItException):
+	pass
+class ShutItFailException(ShutItException):
 	pass
 
 # Notify the shutit object whenever we call a shutit module method.
