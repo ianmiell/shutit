@@ -172,19 +172,27 @@ class ShutIt(object):
 		if is_bash:
 			script = ('#!/bin/bash\nset -o verbose\nset -o errexit\n' +
 				'set -o nounset\n\n' + script)
-		if cfg['build']['debug']:
-			self.log('================================================================================')
-			self.log('Sending script>>>' + script + '<<<')
-		script64 = base64.standard_b64encode(script)
-		child.sendline('base64 --decode > /tmp/shutit_script.sh')
-		child.sendline(script64)
-		child.sendeof()
-		child.expect(expect)
+		self.send_file('/tmp/shutit_script.sh', script)
 		self.send_and_expect('chmod +x /tmp/shutit_script.sh', expect, child)
 		self.shutit_command_history.append('    ' + script.replace('\n', '\n    '))
 		ret = self.send_and_expect('/tmp/shutit_script.sh', expect, child)
 		self.send_and_expect('rm /tmp/shutit_script.sh', expect, child)
 		return ret
+
+	def send_file(self,path,contents,expect=None,child=None,binary=False):
+		if cfg['build']['debug']:
+			self.log('================================================================================')
+			self.log('Sending file to' + path)
+			if not binary:
+				self.log('contents >>>' + contents + '<<<')
+		child = child or self.get_default_child()
+		expect = expect or self.get_default_expect()
+		contents64 = base64.standard_b64encode(contents)
+		child.sendline('base64 --decode > ' + path)
+		child.sendline(contents64)
+		child.sendeof()
+		child.expect(expect)
+		self._check_exit("send file to " + path,expect,child)
 
 	# Return True if file exists, else False
 	def file_exists(self,filename,expect=None,child=None,directory=False):
