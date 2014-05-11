@@ -106,14 +106,11 @@ class ShutItModule(object):
 		#   - Set up pexpect children with relevant keys and populate shutit_global.pexpect_children.
 		if isinstance(run_order,float) or isinstance(run_order,str) or isinstance(run_order,int):
 			run_order = decimal.Decimal(run_order)
-		if not isinstance(run_order,decimal.Decimal):
-			print(str(run_order) + '\'s module_id is not a decimal')
-			sys.exit(1)
-		self.run_order = run_order
 		# Check that run_order is a float - this will throw an error as a side effect if float doesn't work.
 		if not isinstance(run_order,decimal.Decimal):
 			print(module_id + '\'s run order is not a decimal')
 			sys.exit(1)
+		self.run_order = run_order
 		# module ids depended on
 		self.depends_on     = []
 		# module ids this is known to conflict with.
