@@ -23,6 +23,7 @@
 SKELETON_DIR=$1
 MODULE_NAME=$2
 SHUTIT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/.."
+# TODO: generate hash of namespace using util.get_hash(str)
 NAMESPACE=$3
 INCLUDE_SCRIPT=$4
 readonly SKELETON_DIR MODULE_NAME SHUTIT_DIR INCLUDE_SCRIPT
