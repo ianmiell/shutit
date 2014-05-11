@@ -429,7 +429,7 @@ def shutit_main():
 	# Now get base config
 	if cfg['build']['show_config_only']:
 		util.log(util.print_config(cfg),force_stdout=True)
-		sys.exit()
+		return
 	util.load_shutit_modules(shutit)
 	init_shutit_map(shutit)
 	config_collection(shutit)
@@ -446,7 +446,7 @@ def shutit_main():
 		])
 		digraph = digraph + '\n}'
 		util.log(digraph,force_stdout=True)
-		sys.exit()
+		return
 	errs.extend(check_conflicts(shutit))
 	errs.extend(check_ready(shutit))
 	if errs:
