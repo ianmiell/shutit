@@ -248,14 +248,6 @@ def check_deps(shutit):
 	if found_errs:
 		return [(err,) for err in found_errs]
 
-	# Show dependency graph
-	if cfg['build']['show_depgraph_only']:
-		digraph = 'digraph depgraph {\n'
-		digraph = digraph + '\n'.join([make_dep_graph(module) for module in to_build])
-		digraph = digraph + '\n}'
-		util.log(digraph,force_stdout=True)
-		sys.exit()
-
 	if cfg['build']['debug']:
 		util.log(util.red('Modules configured to be built (in order) are: '))
 		for mid in module_ids(shutit):
@@ -445,6 +437,16 @@ def shutit_main():
 
 	errs = []
 	errs.extend(check_deps(shutit))
+	# Show dependency graph
+	if cfg['build']['show_depgraph_only']:
+		digraph = 'digraph depgraph {\n'
+		digraph = digraph + '\n'.join([
+			make_dep_graph(module) for mid, module in shutit.shutit_map.items()
+			if mid in shutit.cfg and shutit.cfg[mid]['build']
+		])
+		digraph = digraph + '\n}'
+		util.log(digraph,force_stdout=True)
+		sys.exit()
 	errs.extend(check_conflicts(shutit))
 	errs.extend(check_ready(shutit))
 	if errs:
