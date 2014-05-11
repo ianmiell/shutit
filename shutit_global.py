@@ -164,7 +164,10 @@ class ShutIt(object):
 		script = textwrap.dedent(script)
 		if is_bash:
 			script = ('#!/bin/bash\nset -o verbose\nset -o errexit\n' +
-				'set -o nounset\n' + lines)
+				'set -o nounset\n\n' + script)
+		if cfg['build']['debug']:
+			self.log('================================================================================')
+			self.log('Sending script>>>' + script + '<<<')
 		script64 = base64.standard_b64encode(script)
 		self.send_and_expect('mkdir -p /tmp/shutit', expect, child)
 		child.sendline('base64 --decode > /tmp/shutit/script.sh')
@@ -172,6 +175,7 @@ class ShutIt(object):
 		child.sendeof()
 		child.expect(expect)
 		self.send_and_expect('chmod +x /tmp/shutit/script.sh', expect, child)
+		self.shutit_command_history.append(script)
 		return self.send_and_expect('/tmp/shutit/script.sh', expect, child)
 
 	# Return True if file exists, else False
