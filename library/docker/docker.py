@@ -167,6 +167,16 @@ fi
 END"""
 		util.send_and_expect(container_child,wrapdocker,root_prompt_expect)
 		util.send_and_expect(container_child,'chmod +x /usr/bin/wrapdocker',root_prompt_expect)
+		start_docker = """cat > /root/start_docker.sh << 'END'
+#!/bin/bash
+/root/start_ssh_server.sh
+docker -d &
+/usr/bin/wrapdocker
+echo "SSH Server up"
+echo "Docker daemon running"
+END"""
+		util.send_and_expect(container_child,start_docker,root_prompt_expect)
+		util.send_and_expect(container_child,'chmod +x /root/start_docker.sh',root_prompt_expect)
 		util.send_and_expect(container_child,'popd',root_prompt_expect)
 		return True
 
@@ -232,8 +242,9 @@ END"""
 #          eg com.my_corp.my_module_dir.my_module
 # float:   Float value for ordering module builds, must be > 0.0
 if not util.module_exists('shutit.tk.docker.docker'):
-	obj = docker('shutit.tk.docker.docker',1000.00)
+	obj = docker('shutit.tk.docker.docker',0.327)
 	obj.add_dependency('shutit.tk.setup')
+	obj.add_dependency('shutit.tk.ssh_server.ssh_server')
 	util.get_shutit_modules().add(obj)
 	ShutItModule.register(docker)
 
