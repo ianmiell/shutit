@@ -199,8 +199,7 @@ def check_dependee_order(shutit, depender, dependee, dependee_id):
 def make_dep_graph(cfg, depender):
 	digraph = ''
 	for dependee_id in depender.depends_on:
-		if cfg['build']['show_depgraph_only']:
-			digraph = digraph + '"' + depender.module_id + '"->"' + dependee_id + '";\n'
+		digraph = digraph + '"' + depender.module_id + '"->"' + dependee_id + '";\n'
 	return digraph
 
 def check_deps(shutit):
