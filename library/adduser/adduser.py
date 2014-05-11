@@ -20,7 +20,7 @@
 from shutit_module import ShutItModule
 import util
 
-class shutit(ShutItModule):
+class adduser(ShutItModule):
 
 	# check_ready
 	# 
@@ -43,9 +43,7 @@ class shutit(ShutItModule):
 	#
 	# Should return True if it is certain it's there, else False.
 	def is_installed(self,shutit):
-		container_child = util.get_pexpect_child('container_child')
-		root_prompt_expect = shutit.cfg['expect_prompts']['root_prompt']
-		return util.file_exists(container_child,'/shutit',root_prompt_expect)
+		return True
 
 	# build
 	#
@@ -58,11 +56,7 @@ class shutit(ShutItModule):
 	def build(self,shutit):
 		container_child = util.get_pexpect_child('container_child') # Let's get the container child object from pexpect.
 		root_prompt_expect = shutit.cfg['expect_prompts']['root_prompt'] # Set the string we expect to see once commands are done.
-		util.install(container_child,shutit.cfg,'git',root_prompt_expect)
-		util.send_and_expect(container_child,'pushd /',root_prompt_expect)
-		util.send_and_expect(container_child,'git clone https://github.com/ianmiell/shutit.git',root_prompt_expect)
-		util.send_and_expect(container_child,'popd /',root_prompt_expect)
-		# TODO need to add user
+		# TODO: add user
 		return True
 
 	# start
@@ -113,13 +107,19 @@ class shutit(ShutItModule):
 	# each object can handle config here
 	def get_config(self,shutit):
 		cp = shutit.cfg['config_parser']
+		# Bring the example config into the config dictionary.
+		shutit.cfg['shutit.tk.adduser.adduser']['user']      = cp.get('shutit.tk.adduser.adduser','user')
+		shutit.cfg['shutit.tk.adduser.adduser']['password'] = cp.get('shutit.tk.adduser.adduser','password')
 		return True
 
 
-if not util.module_exists('shutit.tk.shutit.shutit'):
-	obj = shutit('shutit.tk.shutit.shutit',0.397)
+# adduser(string,float)
+# string : Any string you believe to identify this module uniquely, 
+#          eg com.my_corp.my_module_dir.my_module
+# float:   Float value for ordering module builds, must be > 0.0
+if not util.module_exists('shutit.tk.adduser.adduser'):
+	obj = adduser('shutit.tk.adduser.adduser',0.380)
 	obj.add_dependency('shutit.tk.setup')
-	obj.add_dependency('shutit.tk.docker.docker')
 	util.get_shutit_modules().add(obj)
-	ShutItModule.register(shutit)
+	ShutItModule.register(adduser)
 
