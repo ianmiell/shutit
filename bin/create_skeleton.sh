@@ -124,6 +124,7 @@ python ${SHUTIT_DIR}/shutit_main.py -s container rm yes
 #python ${SHUTIT_DIR}/shutit_main.py --tutorial
 END
 chmod +x ${SKELETON_DIR}/test_build.sh
+
 touch ${SKELETON_DIR}/build_and_push.sh
 cat >> ${SKELETON_DIR}/build_and_push.sh << END
 set -e
@@ -136,10 +137,12 @@ python ${SHUTIT_DIR}/shutit_main.py --config configs/push.cnf
 #python ${SHUTIT_DIR}/shutit_main.py --tutorial
 END
 chmod +x ${SKELETON_DIR}/build_and_push.sh
+
 touch ${SKELETON_DIR}/resources/README.md
 cat >> ${SKELETON_DIR}/resources/README.md << END
 ${MODULE_NAME}: resources required in this directory, eg gzips or text files.\nNote that the .gitignore file in the ${SKELETON_DIR} directory should exclude these files from being added to git repos (usually due to size), but can be added if forced with 'git add --force <file>'.
 END
+
 # Module template
 cp ../docs/shutit_module_template.py ${SKELETON_DIR}/${MODULE_NAME}.py
 perl -p -i -e "s/template/${MODULE_NAME}/g" ${SKELETON_DIR}/${MODULE_NAME}.py
@@ -153,6 +156,7 @@ cat >> ${SKELETON_DIR}/configs/defaults.cnf << END
 example:astring
 example_bool:yes
 END
+
 # Setup base config for the new module
 cat >> ${SKELETON_DIR}/configs/build.cnf << END
 # When this module is the one being built, which modules should be built along with it by default?
@@ -167,6 +171,7 @@ build:yes
 # It's recommended this is locked down as far as possible.
 allowed_images:["any"]
 END
+
 # Setup base config for the new module
 cat >> ${SKELETON_DIR}/configs/push.cnf << END
 [repository]
@@ -248,6 +253,7 @@ else
 	exit 1
 fi
 END
+
 # Hostname config
 echo "Password (for host ($(hostname)))"
 read -s pw_host
@@ -285,6 +291,7 @@ email:YOUR_REGISTRY_EMAIL_OR_BLANK
 # Whether to push to the server
 name:${MODULE_NAME}
 END
+
 chmod 0600 ${SKELETON_DIR}/configs/defaults.cnf
 chmod 0600 ${SKELETON_DIR}/configs/build.cnf
 chmod 0600 ${SKELETON_DIR}/configs/push.cnf
@@ -305,6 +312,7 @@ cat > ${SKELETON_DIR}/run.sh << END
 # Example for running
 docker run -t -i ${MODULE_NAME} /bin/bash
 END
+
 chmod +x ${SKELETON_DIR}/run.sh
 
 echo "================================================================================"
