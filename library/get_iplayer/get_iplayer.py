@@ -22,10 +22,6 @@ import util
 
 class get_iplayer(ShutItModule):
 
-	def check_ready(self,shutit):
-		config_dict = shutit.cfg
-		return True
-
 	def is_installed(self,shutit):
 		config_dict = shutit.cfg
 		return False
@@ -51,46 +47,6 @@ class get_iplayer(ShutItModule):
 		util.send_and_expect(container_child,'chmod 755 get_iplayer',root_prompt_expect)
 		util.send_and_expect(container_child,'./get_iplayer',root_prompt_expect)
 		return True
-
-	def start(self,shutit):
-		config_dict = shutit.cfg
-		container_child = util.get_pexpect_child('container_child')
-		root_prompt_expect = config_dict['expect_prompts']['root_prompt']
-		return True
-
-	def stop(self,shutit):
-		config_dict = shutit.cfg
-		container_child = util.get_pexpect_child('container_child')
-		root_prompt_expect = config_dict['expect_prompts']['root_prompt']
-		return True
-
-	def cleanup(self,shutit):
-		config_dict = shutit.cfg
-		container_child = util.get_pexpect_child('container_child')
-		root_prompt_expect = config_dict['expect_prompts']['root_prompt']
-		return True
-
-	def finalize(self,shutit):
-		config_dict = shutit.cfg
-		container_child = util.get_pexpect_child('container_child')
-		root_prompt_expect = config_dict['expect_prompts']['root_prompt']
-		return True
-
-	def remove(self,shutit):
-		config_dict = shutit.cfg
-		container_child = util.get_pexpect_child('container_child')
-		root_prompt_expect = config_dict['expect_prompts']['root_prompt']
-		return True
-
-	def test(self,shutit):
-		config_dict = shutit.cfg
-		return True
-
-	def get_config(self,shutit):
-		config_dict = shutit.cfg
-		cp = config_dict['config_parser']
-		return True
-
 
 if not util.module_exists('shutit.tk.get_iplayer.get_iplayer'):
 	obj = get_iplayer('shutit.tk.get_iplayer.get_iplayer',0.324,'iPlayer downloader. See http://www.infradead.org/get_iplayer/html/get_iplayer.html')
