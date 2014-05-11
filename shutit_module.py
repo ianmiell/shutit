@@ -23,10 +23,38 @@
 from abc import ABCMeta, abstractmethod
 import sys
 import decimal
+import inspect
+
+def shutit_method_scope(func):
+	def wrapper(self, shutit):
+		return func(self, shutit)
+	return wrapper
 
 class ShutItMeta(ABCMeta):
 	ShutItModule = None
 	def __new__(mcs, name, bases, local):
+
+		# Don't wrap methods of the ShutItModule class, only subclasses
+		if name != 'ShutItModule':
+
+			sim = mcs.ShutItModule
+			assert sim is not None
+
+			# Wrap any of the ShutItModule (self, shutit) methods that have been
+			# overridden in a subclass
+			for name, method in local.iteritems():
+				if not hasattr(sim, name):
+					continue
+				if not callable(method):
+					continue
+				sim_method = getattr(sim, name)
+				if sim_method is method:
+					continue
+				args = inspect.getargspec(sim_method)[0]
+				if args != ['self', 'shutit']:
+					continue
+				local[name] = shutit_method_scope(method)
+
 		cls = super(ShutItMeta, mcs).__new__(mcs, name, bases, local)
 		if name == 'ShutItModule':
 			mcs.ShutItModule = cls
