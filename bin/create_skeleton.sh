@@ -23,7 +23,8 @@
 SKELETON_DIR=$1
 MODULE_NAME=$2
 SHUTIT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/.."
-INCLUDE_SCRIPT=$3
+NAMESPACE=$3
+INCLUDE_SCRIPT=$4
 readonly SKELETON_DIR MODULE_NAME SHUTIT_DIR INCLUDE_SCRIPT
 
 set -o errexit
@@ -31,11 +32,12 @@ set -o nounset
 
 function usage {
 	cat > /dev/stdout << END
-$0 PATH MODULE_NAME [SCRIPT]
+$0 PATH MODULE_NAME DOMAIN [SCRIPT]
 
 PATH        - absolute path to new directory for module
 MODULE_NAME - name for your module
-SCRIPT      - pre-existing shell script to integrate into module
+DOMAIN      - arbitrary but unique domain for namespacing your module
+SCRIPT      - pre-existing shell script to integrate into module (optional)
 END
 exit
 }
@@ -45,11 +47,11 @@ then
 	cat > /dev/stdout << END
 Must be run from bin dir like:
 
-	create_skeleton.sh <absolute_directory_name> <module_name> [<shell script to integrate>]
+create_skeleton.sh <absolute_directory_name> <module_name> <your namespace, eg com.yourname> [<shell script to integrate>]
 
 or
 
-	./create_skeleton.sh <absolute_directory_name> <module_name> [<shell script to integrate>]
+	./create_skeleton.sh <absolute_directory_name> <module_name> <your namespace, eg com.yourname> [<shell script to integrate>]
 END
 	sleep 1
 	usage
@@ -77,6 +79,12 @@ then
 	usage
 fi
 
+if [[ x$NAMESPACE == "x" ]]
+then
+	echo "Must supply a namespace for your module, eg com.yourname.madeupdomainsuffix"
+	sleep 1
+	usage
+fi
 
 mkdir -p ${SKELETON_DIR}
 mkdir -p ${SKELETON_DIR}/configs
@@ -135,13 +143,13 @@ END
 # Module template
 cp ../docs/shutit_module_template.py ${SKELETON_DIR}/${MODULE_NAME}.py
 perl -p -i -e "s/template/${MODULE_NAME}/g" ${SKELETON_DIR}/${MODULE_NAME}.py
-perl -p -i -e "s/GLOBALLY_UNIQUE_STRING/'com.mycorp.${MODULE_NAME}'/g" ${SKELETON_DIR}/${MODULE_NAME}.py
+perl -p -i -e "s/GLOBALLY_UNIQUE_STRING/'${NAMESPACE}.$(basename ${MODULE_NAME}).${MODULE_NAME}'/g" ${SKELETON_DIR}/${MODULE_NAME}.py
 perl -p -i -e "s/FLOAT/1000.00/" ${SKELETON_DIR}/${MODULE_NAME}.py
 # Configs
 # Setup base config for the new module
 cat >> ${SKELETON_DIR}/configs/defaults.cnf << END
 # Base config for the module. This contains standard defaults or hashed out examples.
-[com.mycorp.${MODULE_NAME}]
+[${NAMESPACE}.$(basename ${MODULE_NAME}).${MODULE_NAME}]
 example:astring
 example_bool:yes
 END
@@ -149,7 +157,7 @@ END
 cat >> ${SKELETON_DIR}/configs/build.cnf << END
 # When this module is the one being built, which modules should be built along with it by default?
 # This feeds into automated testing of each module.
-[com.mycorp.${MODULE_NAME}]
+[${NAMESPACE}.$(basename ${MODULE_NAME}).${MODULE_NAME}]
 build:yes
 
 # Aspects of build process
