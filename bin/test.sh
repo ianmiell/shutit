@@ -83,7 +83,7 @@ find ${SHUTIT_DIR} -name '*.cnf' | grep '/configs/[^/]*.cnf' | xargs chmod 600
 
 cleanup nothard
 echo "Testing skeleton build"
-./create_skeleton.sh ${NEWDIR} testing ${SHUTIT_DIR}/docs/example.sh
+./create_skeleton.sh ${NEWDIR} testing shutit.tk.testing ${SHUTIT_DIR}/docs/example.sh
 pushd ${NEWDIR}/bin
 touch ${SHUTIT_DIR}/test/configs/$(hostname)_$(whoami).cnf
 chmod 0600 ${SHUTIT_DIR}/test/configs/$(hostname)_$(whoami).cnf
