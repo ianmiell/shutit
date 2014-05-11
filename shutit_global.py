@@ -92,7 +92,7 @@ class ShutIt(object):
 	# fail_on_empty_before       - If debug is set, fail on empty before match (default=True)
 	# record_command             - Whether to record the command for output at end (default=True)
 	# exit_values                - Array of acceptable exit values (default [0])
-	def send_and_expect(self,send,expect=None,child=None,timeout=3600,check_exit=True,fail_on_empty_before=True,record_command=True,exit_values=['0']):
+	def send_and_expect(self,send,expect=None,child=None,timeout=3600,check_exit=True,fail_on_empty_before=True,record_command=True,exit_values=None):
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
 		cfg = self.cfg
@@ -120,20 +120,7 @@ class ShutIt(object):
 					util.handle_login(child,cfg,'reset_tmp_prompt')
 					util.handle_revert_prompt(child,expect,'reset_tmp_prompt')
 		if check_exit == True:
-			child.sendline('echo EXIT_CODE:$?')
-			child.expect(expect,timeout)
-			res = util.get_re_from_child(child.before,'^EXIT_CODE:([0-9][0-9]?[0-9]?)$')
-			#print 'RES', str(res), ' ', str(exit_values), ' ', str(res in exit_values)
-			if res not in exit_values or res == None:
-				if res == None:
-					res = str(res)
-				self.log(util.red('child.after: \n' + child.after + '\n'))
-				self.log(util.red('Exit value from command+\n' + send + '\nwas:\n' + res))
-				msg = '\nWARNING: command:\n' + send + '\nreturned unaccepted exit code: ' + res + '\nIf this is expected, pass in check_exit=False or an exit_values array into the send_and_expect function call.\nIf you want to error on these errors, set the config:\n[build]\naction_on_ret_code:error'
-				cfg['build']['report'] = cfg['build']['report'] + msg
-				if cfg['build']['action_on_ret_code'] == 'error':
-					self.pause_point(msg + '\n\nPause point on exit_code != 0. CTRL-C to quit',child=child,force=True)
-					#raise Exception('Exit value from command\n' + send + '\nwas:\n' + res)
+			self._check_exit(send,expect,child,timeout,exit_values)
 		# If the command matches any 'password's then don't record
 		if record_command:
 			ok_to_record = True
@@ -151,6 +138,24 @@ class ShutIt(object):
 		else:
 			self.shutit_command_history.append('#redacted command')
 		return expect_res
+
+	def _check_exit(self,send,expect=None,child=None,timeout=3600,exit_values=None):
+		if exit_values is None:
+			exit_values = ['0']
+		child.sendline('echo EXIT_CODE:$?')
+		child.expect(expect,timeout)
+		res = util.get_re_from_child(child.before,'^EXIT_CODE:([0-9][0-9]?[0-9]?)$')
+		#print 'RES', str(res), ' ', str(exit_values), ' ', str(res in exit_values)
+		if res not in exit_values or res == None:
+			if res == None:
+				res = str(res)
+			self.log(util.red('child.after: \n' + child.after + '\n'))
+			self.log(util.red('Exit value from command+\n' + send + '\nwas:\n' + res))
+			msg = '\nWARNING: command:\n' + send + '\nreturned unaccepted exit code: ' + res + '\nIf this is expected, pass in check_exit=False or an exit_values array into the send_and_expect function call.\nIf you want to error on these errors, set the config:\n[build]\naction_on_ret_code:error'
+			cfg['build']['report'] = cfg['build']['report'] + msg
+			if cfg['build']['action_on_ret_code'] == 'error':
+				self.pause_point(msg + '\n\nPause point on exit_code != 0. CTRL-C to quit',child=child,force=True)
+				#raise Exception('Exit value from command\n' + send + '\nwas:\n' + res)
 
 	def run_script(self,script,expect=None,child=None,is_bash=True):
 		child = child or self.get_default_child()
