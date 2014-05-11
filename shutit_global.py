@@ -179,6 +179,7 @@ class ShutIt(object):
 		self.send_and_expect('rm /tmp/shutit_script.sh', expect, child)
 		return ret
 
+	# TODO: Comments needed here, as well as example in template.
 	def send_file(self,path,contents,expect=None,child=None,binary=False):
 		if cfg['build']['debug']:
 			self.log('================================================================================')
