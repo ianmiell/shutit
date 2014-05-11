@@ -26,10 +26,6 @@ import util
 
 class wordpress(ShutItModule):
 
-	def check_ready(self,shutit):
-		config_dict = shutit.cfg
-		return True
-
 	def is_installed(self,shutit):
 		config_dict = shutit.cfg
 		return False
@@ -88,22 +84,10 @@ END"""
 		config_dict = shutit.cfg
 		return True
 
-	def cleanup(self,shutit):
-		config_dict = shutit.cfg
-		return True
-
-	def finalize(self,shutit):
-		config_dict = shutit.cfg
-		return True
-
-	def test(self,shutit):
-		config_dict = shutit.cfg
-		return True
-
 	def get_config(self,shutit):
 		config_dict = shutit.cfg
 		cp = config_dict['config_parser']
-		config_dict['shutit.tk.wordpress.wordpress']['password']               = cp.get('shutit.tk.wordpress.wordpress','password')
+		config_dict['shutit.tk.wordpress.wordpress']['password'] = cp.get('shutit.tk.wordpress.wordpress','password')
 		return True
 
 

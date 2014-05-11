@@ -26,134 +26,115 @@ import util
 
 class mysql(ShutItModule):
 
-	def check_ready(self,shutit):
-		config_dict = shutit.cfg
-		return True
-
 	def is_installed(self,shutit):
-		config_dict = shutit.cfg
+		cfg = shutit.cfg
 		container_child = util.get_pexpect_child('container_child')
-		return util.file_exists(container_child,'/root/start_mysql.sh',config_dict['expect_prompts']['root_prompt'])
+		return util.file_exists(container_child,'/root/start_mysql.sh',cfg['expect_prompts']['root_prompt'])
 
 	def build(self,shutit):
-		config_dict = shutit.cfg
+		cfg = shutit.cfg
 		container_child = util.get_pexpect_child('container_child')
-		util.send_and_expect(container_child,'bash',config_dict['expect_prompts']['base_prompt'],check_exit=False)
-		util.handle_login(container_child,config_dict,'mysql_tmp_prompt')
-		expect = config_dict['expect_prompts']['mysql_tmp_prompt']
-		root_pass = config_dict['shutit.tk.mysql.mysql']['root_password']
-		util.send_and_expect(container_child,"apt-get update",expect,record_command=False)
-		util.send_and_expect(container_child,"""debconf-set-selections <<< 'mysql-server mysql-server/root_password password {0}'""".format(root_pass),expect,record_command=False)
-		util.send_and_expect(container_child,"""sudo debconf-set-selections <<< 'mysql-server mysql-server/root_password_again password {0}'""".format(root_pass),expect,record_command=False)
-		util.install(container_child,config_dict,'mysql-common',expect)
-		util.install(container_child,config_dict,'mysql-server',expect)
-		util.install(container_child,config_dict,'libmysqlclient-dev',expect)
-		util.send_and_expect(container_child,'mysqld &',expect)
-		util.send_and_expect(container_child,'sleep 2',expect)
-		util.send_and_expect(container_child,'mysql_install_db --user=mysql --basedir=/usr --datadir=/var/mysql/database',expect)
+		shutit.send_and_expect('bash',check_exit=False)
+		util.handle_login(container_child,cfg,'mysql_tmp_prompt')
+		expect = cfg['expect_prompts']['mysql_tmp_prompt']
+		shutit.set_default_expect(expect)
+		root_pass = cfg['shutit.tk.mysql.mysql']['root_password']
+		shutit.send_and_expect("apt-get update", record_command=False)
+		shutit.send_and_expect("""debconf-set-selections <<< 'mysql-server mysql-server/root_password password {0}'""".format(root_pass),record_command=False)
+		shutit.send_and_expect("""sudo debconf-set-selections <<< 'mysql-server mysql-server/root_password_again password {0}'""".format(root_pass),record_command=False)
+		util.install(container_child,cfg,'mysql-common',expect)
+		util.install(container_child,cfg,'mysql-server',expect)
+		util.install(container_child,cfg,'libmysqlclient-dev',expect)
+		shutit.send_and_expect('mysqld &')
+		shutit.send_and_expect('sleep 2')
+		shutit.send_and_expect('mysql_install_db --user=mysql --basedir=/usr --datadir=/var/mysql/database')
 		# http://stackoverflow.com/questions/15663001/remote-connections-mysql-ubuntu
-                util.send_and_expect(container_child,"perl -p -i -e 's/^bind.*/bind-address = 0.0.0.0/' /etc/mysql/my.cnf",expect)
-		res = util.send_and_expect(container_child,"""echo "create user '""" + config_dict['shutit.tk.mysql.mysql']['mysql_user'] + """'@'localhost' identified by '""" + config_dict['shutit.tk.mysql.mysql']['mysql_user'] + """'" | mysql -p """,['assword',expect],check_exit=False)
+		shutit.send_and_expect("perl -p -i -e 's/^bind.*/bind-address = 0.0.0.0/' /etc/mysql/my.cnf")
+		mysql_user = cfg['shutit.tk.mysql.mysql']['mysql_user']
+		res = shutit.send_and_expect('mysql -p',['assword','mysql>'],check_exit=False)
 		if res == 0:
-			util.send_and_expect(container_child,root_pass,expect)
-		res = util.send_and_expect(container_child,"""echo "create user '""" + config_dict['shutit.tk.mysql.mysql']['mysql_user'] + """'@'%' identified by '""" + config_dict['shutit.tk.mysql.mysql']['mysql_user'] + """'" | mysql -p """,['assword',expect],check_exit=False)
-		if res == 0:
-			util.send_and_expect(container_child,root_pass,expect)
-		res = util.send_and_expect(container_child,"""echo "grant all privileges on *.* to '""" + config_dict['shutit.tk.mysql.mysql']['mysql_user'] + """'@'localhost';" | mysql -p""",['assword',expect],check_exit=False)
-		if res == 0:
-			util.send_and_expect(container_child,root_pass,expect)
-		res = util.send_and_expect(container_child,"""echo "grant all privileges on *.* to '""" + config_dict['shutit.tk.mysql.mysql']['mysql_user'] + """'@'%';" | mysql -p""",['assword',expect],check_exit=False)
-		if res == 0:
-			util.send_and_expect(container_child,root_pass,expect)
-		res = util.send_and_expect(container_child,"""echo "set password for """ + config_dict['shutit.tk.mysql.mysql']['mysql_user'] + """@'localhost'  = password('""" + config_dict['shutit.tk.mysql.mysql']['mysql_user_password'] + """')" | mysql -p""",['assword',expect],check_exit=False,record_command=False)
-		if res == 0:
-			util.send_and_expect(container_child,root_pass,expect)
-		res = util.send_and_expect(container_child,"""echo "set password for """ + config_dict['shutit.tk.mysql.mysql']['mysql_user'] + """@'%'  = password('""" + config_dict['shutit.tk.mysql.mysql']['mysql_user_password'] + """')" | mysql -p""",['assword',expect],check_exit=False,record_command=False)
-		if res == 0:
-			util.send_and_expect(container_child,root_pass,expect)
-		res = util.add_line_to_file(container_child,'nohup mysqld &','/root/start_mysql.sh',expect)
+			shutit.send_and_expect(root_pass,'mysql>',check_exit=False)
+		shutit.send_and_expect("create user '" + mysql_user + "'@'localhost' identified by '" + mysql_user + "';",'mysql>',check_exit=False)
+		shutit.send_and_expect("create user '" + mysql_user + "'@'%' identified by '" + mysql_user + "';",'mysql>',check_exit=False)
+		shutit.send_and_expect("grant all privileges on *.* to '" + mysql_user + "'@'localhost';",'mysql>',check_exit=False)
+		shutit.send_and_expect("grant all privileges on *.* to '" + mysql_user + "'@'%';",'mysql>',check_exit=False)
+		shutit.send_and_expect("set password for " + mysql_user + "@'localhost' = password('" + cfg['shutit.tk.mysql.mysql']['mysql_user_password'] + "');",'mysql>',check_exit=False,record_command=False)
+		shutit.send_and_expect("set password for " + mysql_user + "@'%' = password('" + cfg['shutit.tk.mysql.mysql']['mysql_user_password'] + "');",'mysql>',check_exit=False,record_command=False)
+		shutit.send_and_expect('\q')
+		res = shutit.add_line_to_file('nohup mysqld &','/root/start_mysql.sh')
 		if res:
-			util.add_line_to_file(container_child,"""echo Starting mysqld, sleeping""",'/root/start_mysql.sh',expect,force=True)
-			util.add_line_to_file(container_child,'sleep 2','/root/start_mysql.sh',expect,force=True)
-		res = util.add_line_to_file(container_child,'# mysql','/root/stop_mysql.sh',expect)
+			shutit.add_line_to_file("""echo Starting mysqld, sleeping""",'/root/start_mysql.sh',force=True)
+			shutit.add_line_to_file('sleep 2','/root/start_mysql.sh',force=True)
+		res = shutit.add_line_to_file('# mysql','/root/stop_mysql.sh')
 		if res:
-			util.add_line_to_file(container_child,'# mysql','/root/stop_mysql.sh',expect,truncate=True)
-			util.add_line_to_file(container_child,"""echo Stopping mysql""",'/root/stop_mysql.sh',expect,force=True)
-			util.send_and_expect(container_child,"""cat >> /root/stop_mysql.sh <<< "if [ x\`ps -ef | grep mysqld$ | grep -v grep | awk '{print \$2}' | wc -l\` = 'x0' ]" """,expect)
-			util.add_line_to_file(container_child,'then','/root/stop_mysql.sh',expect,force=True)
-			util.add_line_to_file(container_child,'/bin/true','/root/stop_mysql.sh',expect,force=True)
-			util.add_line_to_file(container_child,'else','/root/stop_mysql.sh',expect,force=True)
-			util.send_and_expect(container_child,"""cat >> /root/stop_mysql.sh <<< "ps -ef | grep mysqld$ | awk '{print \$2}' | sed 's/\([0-9]*\)/ kill -9 \\1/' | sh" """,expect)
-			util.add_line_to_file(container_child,"""echo sleeping 2""",'/root/stop_mysql.sh',expect,force=True)
-			util.add_line_to_file(container_child,'sleep 2','/root/stop_mysql.sh',expect,force=True)
-			util.add_line_to_file(container_child,'fi','/root/stop_mysql.sh',expect,force=True)
-		util.send_and_expect(container_child,'chmod +x /root/start_mysql.sh',expect)
-		util.send_and_expect(container_child,'chmod +x /root/stop_mysql.sh',expect)
-		util.send_and_expect(container_child,'/root/stop_mysql.sh',expect)
-		util.send_and_expect(container_child,'/root/start_mysql.sh',expect)
-		util.handle_revert_prompt(container_child,config_dict['expect_prompts']['base_prompt'],'mysql_tmp_prompt')
-		util.send_and_expect(container_child,'exit',config_dict['expect_prompts']['root_prompt'])
+			shutit.add_line_to_file('# mysql','/root/stop_mysql.sh',truncate=True)
+			shutit.add_line_to_file("""echo Stopping mysql""",'/root/stop_mysql.sh',force=True)
+			shutit.send_and_expect("""cat >> /root/stop_mysql.sh <<< "if [ x\`ps -ef | grep mysqld$ | grep -v grep | awk '{print \$2}' | wc -l\` = 'x0' ]" """)
+			shutit.add_line_to_file('then','/root/stop_mysql.sh',force=True)
+			shutit.add_line_to_file('/bin/true','/root/stop_mysql.sh',force=True)
+			shutit.add_line_to_file('else','/root/stop_mysql.sh',force=True)
+			shutit.send_and_expect("""cat >> /root/stop_mysql.sh <<< "ps -ef | grep mysqld$ | awk '{print \$2}' | sed 's/\([0-9]*\)/ kill -9 \\1/' | sh" """)
+			shutit.add_line_to_file("""echo sleeping 2""",'/root/stop_mysql.sh',force=True)
+			shutit.add_line_to_file('sleep 2','/root/stop_mysql.sh',force=True)
+			shutit.add_line_to_file('fi','/root/stop_mysql.sh',force=True)
+		shutit.send_and_expect('chmod +x /root/start_mysql.sh')
+		shutit.send_and_expect('chmod +x /root/stop_mysql.sh')
+		shutit.send_and_expect('/root/stop_mysql.sh')
+		shutit.send_and_expect('/root/start_mysql.sh')
+		util.handle_revert_prompt(container_child,cfg['expect_prompts']['base_prompt'],'mysql_tmp_prompt')
+		util.send_and_expect(container_child,'exit',cfg['expect_prompts']['root_prompt'])
 		return True
 
 	def start(self,shutit):
-		config_dict = shutit.cfg
-		container_child = util.get_pexpect_child('container_child')
-		util.send_and_expect(container_child,'/root/start_mysql.sh',config_dict['expect_prompts']['root_prompt'],check_exit=False)
+		shutit.send_and_expect('/root/start_mysql.sh',shutit.cfg['expect_prompts']['root_prompt'],check_exit=False)
 		return True
 
 	def stop(self,shutit):
-		config_dict = shutit.cfg
-		container_child = util.get_pexpect_child('container_child')
-		util.send_and_expect(container_child,'/root/stop_mysql.sh',config_dict['expect_prompts']['root_prompt'],check_exit=False)
-		return True
-
-
-	def cleanup(self,shutit):
-		config_dict = shutit.cfg
+		shutit.send_and_expect('/root/stop_mysql.sh',shutit.cfg['expect_prompts']['root_prompt'],check_exit=False)
 		return True
 
 	def remove(self,shutit):
-		config_dict = shutit.cfg
+		cfg = shutit.cfg
 		container_child = util.get_pexpect_child('container_child')
-		util.remove(container_child,config_dict,'libmysqlclient-dev',config_dict['expect_prompts']['root_prompt'])
-		util.remove(container_child,config_dict,'mysql-common',config_dict['expect_prompts']['root_prompt'])
-		util.send_and_expect(container_child,'/root/stop_mysql.sh',config_dict['expect_prompts']['root_prompt'])
+		shutit.set_default_expect(cfg['expect_prompts']['root_prompt'])
+		util.remove(container_child,cfg,'libmysqlclient-dev',cfg['expect_prompts']['root_prompt'])
+		util.remove(container_child,cfg,'mysql-common',cfg['expect_prompts']['root_prompt'])
+		shutit.send_and_expect('/root/stop_mysql.sh')
 		#http://stackoverflow.com/questions/10853004/removing-mysql-5-5-completely et al
-		util.send_and_expect(container_child,'rm -rf /var/lib/mysql',config_dict['expect_prompts']['root_prompt'])
-		util.send_and_expect(container_child,'rm -rf /etc/mysql',config_dict['expect_prompts']['root_prompt'])
-		util.send_and_expect(container_child,'deluser mysql',config_dict['expect_prompts']['root_prompt'],check_exit=False)
-		install_type = config_dict['container']['install_type']
+		shutit.send_and_expect('rm -rf /var/lib/mysql')
+		shutit.send_and_expect('rm -rf /etc/mysql')
+		shutit.send_and_expect('deluser mysql',check_exit=False)
+		install_type = cfg['container']['install_type']
 		if install_type == 'apt':
-			util.send_and_expect(container_child,'apt-get -qq -y autoremove',config_dict['expect_prompts']['root_prompt'])
-			util.send_and_expect(container_child,'apt-get -qq -y autoclean',config_dict['expect_prompts']['root_prompt'])
-		util.send_and_expect(container_child,'find / -iname \'mysql*\' | xargs rm -rf',config_dict['expect_prompts']['root_prompt'])
-		util.send_and_expect(container_child,'rm /root/start_mysql.sh',config_dict['expect_prompts']['root_prompt'])
-		util.send_and_expect(container_child,'rm /root/stop_mysql.sh',config_dict['expect_prompts']['root_prompt'])
+			shutit.send_and_expect('apt-get -qq -y autoremove')
+			shutit.send_and_expect('apt-get -qq -y autoclean')
+		shutit.send_and_expect('find / -iname \'mysql*\' | xargs rm -rf')
+		shutit.send_and_expect('rm /root/start_mysql.sh')
+		shutit.send_and_expect('rm /root/stop_mysql.sh')
 		return True
 
 	def test(self,shutit):
-		config_dict = shutit.cfg
-		container_child = util.get_pexpect_child('container_child')
-		util.send_and_expect(container_child,'mysql -u' + config_dict['shutit.tk.mysql.mysql']['mysql_user'] + ' -p' + config_dict['shutit.tk.mysql.mysql']['mysql_user_password'],'mysql>',check_exit=False,record_command=False)
-		util.send_and_expect(container_child,'\q',config_dict['expect_prompts']['root_prompt'])
-		util.send_and_expect(container_child,'mysql -u' + config_dict['shutit.tk.mysql.mysql']['mysql_user'] + ' -hlocalhost -p' + config_dict['shutit.tk.mysql.mysql']['mysql_user_password'],'mysql>',check_exit=False,record_command=False)
-		util.send_and_expect(container_child,'\q',config_dict['expect_prompts']['root_prompt'])
-		util.send_and_expect(container_child,'mysql -u' + config_dict['shutit.tk.mysql.mysql']['mysql_user'] + ' -hlocalhost -p' + config_dict['shutit.tk.mysql.mysql']['mysql_user_password'],'mysql>',check_exit=False,record_command=False)
-		util.send_and_expect(container_child,'\q',config_dict['expect_prompts']['root_prompt'])
-		util.send_and_expect(container_child,'mysql -uroot -p' + config_dict['shutit.tk.mysql.mysql']['root_password'],'mysql>',check_exit=False,record_command=False)
-		util.send_and_expect(container_child,'\q',config_dict['expect_prompts']['root_prompt'])
-		return True
-
-	def finalize(self,shutit):
-		config_dict = shutit.cfg
+		cfg = shutit.cfg
+		shutit.set_default_expect(cfg['expect_prompts']['root_prompt'])
+		mysql_user = cfg['shutit.tk.mysql.mysql']['mysql_user']
+		mysql_password = cfg['shutit.tk.mysql.mysql']['mysql_user_password']
+		root_password = cfg['shutit.tk.mysql.mysql']['root_password']
+		shutit.send_and_expect('mysql -u' + mysql_user + ' -p' + mysql_password,'mysql>',check_exit=False,record_command=False)
+		shutit.send_and_expect('\q')
+		shutit.send_and_expect('mysql -u' + mysql_user + ' -hlocalhost -p' + mysql_password,'mysql>',check_exit=False,record_command=False)
+		shutit.send_and_expect('\q')
+		shutit.send_and_expect('mysql -u' + mysql_user + ' -hlocalhost -p' + mysql_password,'mysql>',check_exit=False,record_command=False)
+		shutit.send_and_expect('\q')
+		shutit.send_and_expect('mysql -uroot -p' + root_password,'mysql>',check_exit=False,record_command=False)
+		shutit.send_and_expect('\q')
 		return True
 
 	def get_config(self,shutit):
-		config_dict = shutit.cfg
-		cp = config_dict['config_parser']
-		config_dict['shutit.tk.mysql.mysql']['mysql_user']               = cp.get('shutit.tk.mysql.mysql','mysql_user')
-		config_dict['shutit.tk.mysql.mysql']['mysql_user_password']      = cp.get('shutit.tk.mysql.mysql','mysql_user_password')
-		config_dict['shutit.tk.mysql.mysql']['root_password']            = cp.get('shutit.tk.mysql.mysql','root_password')
+		cfg = shutit.cfg
+		cp = cfg['config_parser']
+		cfg['shutit.tk.mysql.mysql']['mysql_user']          = cp.get('shutit.tk.mysql.mysql','mysql_user')
+		cfg['shutit.tk.mysql.mysql']['mysql_user_password'] = cp.get('shutit.tk.mysql.mysql','mysql_user_password')
+		cfg['shutit.tk.mysql.mysql']['root_password']       = cp.get('shutit.tk.mysql.mysql','root_password')
 		return True
 
 if not util.module_exists('shutit.tk.mysql.mysql'):

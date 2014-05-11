@@ -23,11 +23,51 @@
 from abc import ABCMeta, abstractmethod
 import sys
 import decimal
+import inspect
+
+# Notify the shutit object whenever we call a shutit module method.
+# This allows setting values for the 'scope' of a function.
+def shutit_method_scope(func):
+	def wrapper(self, shutit):
+		shutit.module_method_start()
+		ret = func(self, shutit)
+		shutit.module_method_end()
+		return ret
+	return wrapper
+
+class ShutItMeta(ABCMeta):
+	ShutItModule = None
+	def __new__(mcs, name, bases, local):
+
+		# Don't wrap methods of the ShutItModule class, only subclasses
+		if name != 'ShutItModule':
+
+			sim = mcs.ShutItModule
+			assert sim is not None
+
+			# Wrap any of the ShutItModule (self, shutit) methods that have been
+			# overridden in a subclass
+			for name, method in local.iteritems():
+				if not hasattr(sim, name):
+					continue
+				if not callable(method):
+					continue
+				sim_method = getattr(sim, name)
+				if sim_method is method:
+					continue
+				args = inspect.getargspec(sim_method)[0]
+				if args != ['self', 'shutit']:
+					continue
+				local[name] = shutit_method_scope(method)
+
+		cls = super(ShutItMeta, mcs).__new__(mcs, name, bases, local)
+		if name == 'ShutItModule':
+			mcs.ShutItModule = cls
+		return cls
 
 # Abstract class that defines what a ShutIt module must implement to be registered.
-
-class ShutItModule:
-	__metaclass__ = ABCMeta
+class ShutItModule(object):
+	__metaclass__ = ShutItMeta
 
 	########################################################################
 	# Build order:
@@ -90,11 +130,6 @@ class ShutItModule:
 	########################################################################
 	# Helper methods.
 	########################################################################
-	# each object can handle config
-	def get_config(self,shutit):
-		cfg = shutit.cfg
-		return cfg
-
 	# set the run order (see __init__)
 	def set_run_order(self,order):
 		self.run_order = order
@@ -111,50 +146,48 @@ class ShutItModule:
 	# Abstract methods
 	########################################################################
 
-	# check_ready
-	# 
-	# Check whether we are ready to build this module.
-	# 
-	# This is called before the build, to ensure modules have 
-	# their requirements in place (eg files required to be mounted 
-	# in /resources). Checking whether the build will happen (and
-	# therefore whether the check should take place) will be 
-	# determined by the framework.
-	# 
-	# Should return True if it ready, else False.
+	# get_config
 	#
-	# Required.
+	# Get all config items necessary for this module to be built
+	def get_config(self,shutit):
+		return True
+
+	# check_ready
+	#
+	# Check whether we are ready to build this module.
+	#
+	# This is called before the build, to ensure modules have
+	# their requirements in place (eg files required to be mounted
+	# in /resources). Checking whether the build will happen (and
+	# therefore whether the check should take place) will be
+	# determined by the framework.
+	#
+	# Should return True if it ready, else False.
 	def check_ready(self,shutit):
-		cfg = shutit.cfg
 		return True
 
 	# remove
-	# 
-	# Remove the module, which should ensure the module has been deleted 
+	#
+	# Remove the module, which should ensure the module has been deleted
 	# from the system.
 	#
 	# Should return True if it has succeeded in removing, else False.
 	def remove(self,shutit):
-		cfg = shutit.cfg
 		return False
 
 	# start
 	#
 	# Run when module should be installed (is_installed() or configured to build is true)
 	# Run after repo work.
-	@abstractmethod
 	def start(self,shutit):
-		cfg = shutit.cfg
-		return False
+		return True
 
 	# stop
 	#
 	# Run when module should be stopped.
 	# Run before repo work, and before finalize is called.
-	@abstractmethod
 	def stop(self,shutit):
-		cfg = shutit.cfg
-		return False
+		return True
 
 	# is_installed
 	#
@@ -166,8 +199,7 @@ class ShutItModule:
 	# Required.
 	@abstractmethod
 	def is_installed(self,shutit):
-		cfg = shutit.cfg
-		return False
+		pass
 
 	# build
 	#
@@ -181,41 +213,27 @@ class ShutItModule:
 	# Required.
 	@abstractmethod
 	def build(self,shutit):
-		cfg = shutit.cfg
-		return False
-
+		pass
 
 	# cleanup
 	#
 	# Cleanup the module, ie clear up stuff not needed for the rest of the build, eg tar files removed, apt-get cleans.
 	# Should return True if all is OK, else False.
 	# Note that this is only run if the build phase was actually run.
-	#
-	# Required.
-	@abstractmethod
 	def cleanup(self,shutit):
-		cfg = shutit.cfg
-		return False
+		return True
 
 	# test
 	#
 	# Test the module is OK.
 	# Should return True if all is OK, else False.
 	# This is run regardless of whether the module is installed or not.
-	#
-	# Required.
-	@abstractmethod
 	def test(self,shutit):
-		cfg = shutit.cfg
-		return False
+		return True
 
 	# finalize
 	#
 	# Finalize the module, ie do things that need doing before we exit.
-	#
-	# Required.
-	@abstractmethod
 	def finalize(self,shutit):
-		cfg = shutit.cfg
-		return False
+		return True
 
