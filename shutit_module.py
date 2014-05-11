@@ -25,6 +25,9 @@ import sys
 import decimal
 import inspect
 
+class ShutItModuleError(Exception):
+	pass
+
 # Notify the shutit object whenever we call a shutit module method.
 # This allows setting values for the 'scope' of a function.
 def shutit_method_scope(func):
@@ -97,8 +100,8 @@ class ShutItModule(object):
 		# Duplicate module ids are rejected if within the configured shutit_module_path.
 		self.module_id = module_id
 		if not isinstance(module_id,str):
-			print(str(module_id) + '\'s module_id is not a string')
-			sys.exit(1)
+			err = str(module_id) + '\'s module_id is not a string'
+			raise ShutItModuleError(err)
 		# run_order for the module (a float).
 		# It should be a float and not duplicated within the shutit_module path.
 		# Module 0 is special. It is expected to:
@@ -108,8 +111,8 @@ class ShutItModule(object):
 			run_order = decimal.Decimal(run_order)
 		# Check that run_order is a float - this will throw an error as a side effect if float doesn't work.
 		if not isinstance(run_order,decimal.Decimal):
-			print(module_id + '\'s run order is not a decimal')
-			sys.exit(1)
+			err = module_id + '\'s run order is not a decimal'
+			raise ShutItModuleError(err)
 		self.run_order = run_order
 		# module ids depended on
 		self.depends_on     = []
