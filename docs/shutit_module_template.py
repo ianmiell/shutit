@@ -22,21 +22,6 @@ import util
 
 class template(ShutItModule):
 
-	# check_ready
-	# 
-	# Check whether we are ready to build this module.
-	# 
-	# This is called before the build, to ensure modules have 
-	# their requirements in place (eg files required to be mounted 
-	# in /resources). Checking whether the build will happen (and
-	# therefore whether the check should take place) will be 
-	# determined by the framework.
-	# 
-	# Should return True if it ready, else False.
-	def check_ready(self,shutit):
-		container_child = util.get_pexpect_child('container_child')
-		root_prompt_expect = shutit.cfg['expect_prompts']['root_prompt']
-		return util.file_exists(container_child,'/resources/README.md',root_prompt_expect)
 
 	# is_installed
 	#
@@ -60,7 +45,7 @@ class template(ShutItModule):
 	def build(self,shutit):
 		container_child = util.get_pexpect_child('container_child') # Let's get the container child object from pexpect.
 		root_prompt_expect = shutit.cfg['expect_prompts']['root_prompt'] # Set the string we expect to see once commands are done.
-		# Line number 64 should be the next one (so bash scripts can be inserted properly)
+		# Line number 49 should be the next one (so bash scripts can be inserted properly)
 
 		# DELETE THIS SECTION WHEN UNDERSTOOD - BEGIN
 		util.send_and_expect(container_child,'touch /tmp/deleteme',root_prompt_expect)
@@ -135,82 +120,107 @@ class template(ShutItModule):
 		# DELETE THIS SECTION WHEN UNDERSTOOD - DONE
 		return True
 
-	# start
-	#
-	# Run when module should be installed (is_installed() or configured to build is true)
-	# Run after repo work.
-	def start(self,shutit):
-		container_child = util.get_pexpect_child('container_child')
-		root_prompt_expect = shutit.cfg['expect_prompts']['root_prompt']
-		# example of starting something
-		util.send_and_expect(container_child,'cat /tmp/container_touched.sh',root_prompt_expect)
-		util.send_and_expect(container_child,'sh /tmp/container_touched.sh',root_prompt_expect)
-		return True
-
-	# stop
-	#
-	# Run when module should be stopped.
-	# Run before repo work, and before finalize is called.
-	def stop(self,shutit):
-		container_child = util.get_pexpect_child('container_child')
-		root_prompt_expect = shutit.cfg['expect_prompts']['root_prompt']
-		# example of stopping something
-		util.send_and_expect(container_child,"""ps -ef | grep -v grep | grep container_touched.sh | awk '{print $1}' | sed 's/\([0-9][0-9]*\)/kill \\1/' | sh""",root_prompt_expect)
-		return True
-
-	# cleanup
-	#
-	# Cleanup the module, ie clear up stuff not needed for the rest of the build, eg tar files removed, apt-get cleans.
-	# Should return True if all is OK, else False.
-	# Note that this is only run if the build phase was actually run.
-	def cleanup(self,shutit):
-		container_child = util.get_pexpect_child('container_child')
-		root_prompt_expect = shutit.cfg['expect_prompts']['root_prompt']
-		util.send_and_expect(container_child,'rm -f /tmp/deleteme',root_prompt_expect)
-		return True
-
-	# finalize
-	#
-	# Finalize the module, ie do things that need doing before we exit.
-	def finalize(self,shutit):
-		container_child = util.get_pexpect_child('container_child')
-		root_prompt_expect = shutit.cfg['expect_prompts']['root_prompt']
-		# Right at the end we want to ensure the locate db is up to date.
-		util.send_and_expect(container_child,'updatedb',root_prompt_expect)
-		return True
-
-	# remove
-	# 
-	# Remove the module, which should ensure the module has been deleted 
-	# from the system.
-	def remove(self,shutit):
-		container_child = util.get_pexpect_child('container_child')
-		root_prompt_expect = shutit.cfg['expect_prompts']['root_prompt']
-		util.send_and_expect(container_child,'rm -f /tmp/container_touched.sh',root_prompt_expect)
-		util.send_and_expect(container_child,'rm -f /tmp/README.md',root_prompt_expect)
-		# TODO: remove the installed apps DEPENDS on install tracking being available.
-		return True
-
-	# test
-	#
-	# Test the module is OK.
-	# Should return True if all is OK, else False.
-	# This is run regardless of whether the module is installed or not.
-	def test(self,shutit):
-		container_child = util.get_pexpect_child('container_child')
-		root_prompt_expect = shutit.cfg['expect_prompts']['root_prompt']
-		# Check the packages we need are installed.
-		return util.package_installed(container_child,shutit.cfg,'mlocate',root_prompt_expect) and util.package_installed(container_child,shutit.cfg,'passwd',root_prompt_expect)
-
 	# get_config
 	#
 	# each object can handle config here
+	# OPTIONAL part of lifecycle - uncomment to include
 	def get_config(self,shutit):
 		cp = shutit.cfg['config_parser']
 		# Bring the example config into the config dictionary.
 		shutit.cfg[GLOBALLY_UNIQUE_STRING]['example']      = cp.get(GLOBALLY_UNIQUE_STRING,'example')
 		shutit.cfg[GLOBALLY_UNIQUE_STRING]['example_bool'] = cp.getboolean(GLOBALLY_UNIQUE_STRING,'example_bool')
 		return True
+
+	# check_ready
+	# 
+	# Check whether we are ready to build this module.
+	# 
+	# This is called before the build, to ensure modules have 
+	# their requirements in place (eg files required to be mounted 
+	# in /resources). Checking whether the build will happen (and
+	# therefore whether the check should take place) will be 
+	# determined by the framework.
+	# 
+	# Should return True if it ready, else False.
+	# OPTIONAL part of lifecycle - uncomment to include
+	#def check_ready(self,shutit):
+	#	container_child = util.get_pexpect_child('container_child')
+	#	root_prompt_expect = shutit.cfg['expect_prompts']['root_prompt']
+	#	return util.file_exists(container_child,'/resources/README.md',root_prompt_expect)
+
+	# start
+	#
+	# Run when module should be installed (is_installed() or configured to build is true)
+	# Run after repo work.
+	# OPTIONAL part of lifecycle - uncomment to include
+	#def start(self,shutit):
+	#	container_child = util.get_pexpect_child('container_child')
+	#	root_prompt_expect = shutit.cfg['expect_prompts']['root_prompt']
+	#	# example of starting something
+	#	util.send_and_expect(container_child,'cat /tmp/container_touched.sh',root_prompt_expect)
+	#	util.send_and_expect(container_child,'sh /tmp/container_touched.sh',root_prompt_expect)
+	#	return True
+
+	# stop
+	#
+	# Run when module should be stopped.
+	# Run before repo work, and before finalize is called.
+	# OPTIONAL part of lifecycle - uncomment to include
+	#def stop(self,shutit):
+	#	container_child = util.get_pexpect_child('container_child')
+	#	root_prompt_expect = shutit.cfg['expect_prompts']['root_prompt']
+	#	# example of stopping something
+	#	util.send_and_expect(container_child,"""ps -ef | grep -v grep | grep container_touched.sh | awk '{print $1}' | sed 's/\([0-9][0-9]*\)/kill \\1/' | sh""",root_prompt_expect)
+	#	return True
+
+	# cleanup
+	#
+	# Cleanup the module, ie clear up stuff not needed for the rest of the build, eg tar files removed, apt-get cleans.
+	# Should return True if all is OK, else False.
+	# Note that this is only run if the build phase was actually run.
+	# OPTIONAL part of lifecycle - uncomment to include
+	#def cleanup(self,shutit):
+	#	container_child = util.get_pexpect_child('container_child')
+	#	root_prompt_expect = shutit.cfg['expect_prompts']['root_prompt']
+	#	util.send_and_expect(container_child,'rm -f /tmp/deleteme',root_prompt_expect)
+	#	return True
+
+	# finalize
+	#
+	# Finalize the module, ie do things that need doing before we exit.
+	# OPTIONAL part of lifecycle - uncomment to include
+	#def finalize(self,shutit):
+	#	container_child = util.get_pexpect_child('container_child')
+	#	root_prompt_expect = shutit.cfg['expect_prompts']['root_prompt']
+	#	# Right at the end we want to ensure the locate db is up to date.
+	#	util.send_and_expect(container_child,'updatedb',root_prompt_expect)
+	#	return True
+
+	# remove
+	# 
+	# Remove the module, which should ensure the module has been deleted 
+	# from the system.
+	# OPTIONAL part of lifecycle - uncomment to include
+	#def remove(self,shutit):
+	#	container_child = util.get_pexpect_child('container_child')
+	#	root_prompt_expect = shutit.cfg['expect_prompts']['root_prompt']
+	#	util.send_and_expect(container_child,'rm -f /tmp/container_touched.sh',root_prompt_expect)
+	#	util.send_and_expect(container_child,'rm -f /tmp/README.md',root_prompt_expect)
+	#	# TODO: remove the installed apps DEPENDS on install tracking being available.
+	#	return True
+
+	# test
+	#
+	# Test the module is OK.
+	# Should return True if all is OK, else False.
+	# This is run regardless of whether the module is installed or not.
+	# OPTIONAL part of lifecycle - uncomment to include
+	#def test(self,shutit):
+	#	container_child = util.get_pexpect_child('container_child')
+	#	root_prompt_expect = shutit.cfg['expect_prompts']['root_prompt']
+	#	# Check the packages we need are installed.
+	#	return util.package_installed(container_child,shutit.cfg,'mlocate',root_prompt_expect) and util.package_installed(container_child,shutit.cfg,'passwd',root_prompt_expect)
+
 
 
 # template(string,float)
