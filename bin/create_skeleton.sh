@@ -123,25 +123,6 @@ python ${SHUTIT_DIR}/shutit_main.py --config configs/push.cnf
 # Display config
 #python ${SHUTIT_DIR}/shutit_main.py --sc
 # Debug
-touch ${SKELETON_DIR}/test_build.sh
-cat >> ${SKELETON_DIR}/test_build.sh << END
-set -e
-python ${SHUTIT_DIR}/shutit_main.py -s container rm yes
-# Display config
-#python ${SHUTIT_DIR}/shutit_main.py --sc
-# Debug
-#python ${SHUTIT_DIR}/shutit_main.py --debug
-# Tutorial
-#python ${SHUTIT_DIR}/shutit_main.py --tutorial
-END
-chmod +x ${SKELETON_DIR}/test_build.sh
-touch ${SKELETON_DIR}/build_and_push.sh
-cat >> ${SKELETON_DIR}/build_and_push.sh << END
-set -e
-python ${SHUTIT_DIR}/shutit_main.py --config configs/push.cnf
-# Display config
-#python ${SHUTIT_DIR}/shutit_main.py --sc
-# Debug
 #python ${SHUTIT_DIR}/shutit_main.py --debug
 # Tutorial
 #python ${SHUTIT_DIR}/shutit_main.py --tutorial
@@ -159,7 +140,7 @@ perl -p -i -e "s/FLOAT/1000.00/" ${SKELETON_DIR}/${MODULE_NAME}.py
 # Configs
 # Setup base config for the new module
 cat >> ${SKELETON_DIR}/configs/defaults.cnf << END
-# Base config for the module. This contains standard defaults.
+# Base config for the module. This contains standard defaults or hashed out examples.
 [com.mycorp.${MODULE_NAME}]
 example:astring
 example_bool:yes

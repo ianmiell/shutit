@@ -286,7 +286,10 @@ def init():
 	cfg['expect_prompts']       = {}
 	cfg['users']                = {}
 
-	username = os.environ['LOGNAME']
+	# If no LOGNAME available,
+	username = os.environ.get('LOGNAME','')
+	if username == '':
+		util.fail('LOGNAME not set in the environment, please set to your username.')
 	if username == 'root':
 		util.fail('You cannot be root to run this script')
 	# Get the real username
