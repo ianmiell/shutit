@@ -38,6 +38,7 @@ import textwrap
 import tempfile
 import json
 import binascii
+from shutit_module import ShutItFailException
 
 # TODO: Manage exits of containers on error
 def fail(msg,child=None):
@@ -45,7 +46,7 @@ def fail(msg,child=None):
 		pause_point(child,'Pause point on fail: ' + msg,force=True)
 	print >> sys.stderr, 'ERROR!'
 	print >> sys.stderr, red(msg)
-	sys.exit(1)
+	raise ShutItFailException(msg)
 
 def is_file_secure(file_name):
 	# If file doesn't exist, it's considered secure!
