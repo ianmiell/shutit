@@ -29,10 +29,6 @@ import util
 
 class git_server(ShutItModule):
 
-	def check_ready(self,shutit):
-		config_dict = shutit.cfg
-		return True
-
 	def is_installed(self,shutit):
 		config_dict = shutit.cfg
 		return False
@@ -55,23 +51,6 @@ class git_server(ShutItModule):
 	def stop(self,shutit):
 		config_dict = shutit.cfg
 		return True
-
-	def cleanup(self,shutit):
-		config_dict = shutit.cfg
-		return True
-
-	def finalize(self,shutit):
-		config_dict = shutit.cfg
-		return True
-
-	def test(self,shutit):
-		config_dict = shutit.cfg
-		return True
-
-	def get_config(self,shutit):
-		config_dict = shutit.cfg
-		return True
-
 
 if not util.module_exists('shutit.tk.git_server.git_server'):
 	obj = git_server('shutit.tk.git_server.git_server',0.316,'ShutIt module that sets up a minimal git server.')
