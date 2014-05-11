@@ -30,7 +30,7 @@ import re
 
 class ShutIt(object):
 
-	_default_child = None
+	_default_child = [None]
 
 	def __init__(self, **kwargs):
 		self.pexpect_children = kwargs['pexpect_children']
@@ -41,17 +41,22 @@ class ShutIt(object):
 		self.shutit_command_history = kwargs['shutit_command_history']
 		self.shutit_map = kwargs['shutit_map']
 
-	def module_method_start(self, child):
-		pass
+	# These two get called automatically by the metaclass decorator in
+	# shutit_module when a module method is called.
+	# This allows setting defaults for the 'scope' of a method.
+	def module_method_start(self):
+		if self._default_child[-1] is not None:
+			self._default_child.append(self._default_child[-1])
+	def module_method_end(self):
+		if len(self._default_child) != 1:
+			self._default_child.pop()
 
-	def module_method_end(self, child):
-		pass
-
+	def get_default_child(self):
+		if self._default_child[-1] is None:
+			util.fail("Couldn't get default child")
+		return self._default_child[-1]
 	def set_default_child(self, child):
-		if self._default_child is None:
-			self._default_child = child
-		else:
-			util.fail("Can't set default child more than once")
+		self._default_child[-1] = child
 
 	def log(self, msg, code=None, pause=0, prefix=True, force_stdout=False):
 		if prefix:
@@ -79,9 +84,7 @@ class ShutIt(object):
 	# record_command             - Whether to record the command for output at end (default=True)
 	# exit_values                - Array of acceptable exit values (default [0])
 	def send_and_expect(self,send,expect,child=None,timeout=3600,check_exit=True,fail_on_empty_before=True,record_command=True,exit_values=['0']):
-		if child is None: child = self._default_child
-		if child is None:
-			util.fail("Couldn't get default child")
+		child = child or self.get_default_child()
 		cfg = self.cfg
 		if cfg['build']['debug']:
 			self.log('================================================================================')
@@ -141,9 +144,7 @@ class ShutIt(object):
 
 	# Return True if file exists, else False
 	def file_exists(self,filename,expect,child=None,directory=False):
-		if child is None: child = self._default_child
-		if child is None:
-			util.fail("Couldn't get default child")
+		child = child or self.get_default_child()
 		test = 'test %s %s' % ('-d' if directory is True else '-a', filename)
 		self.send_and_expect(test+' && echo FILEXIST-""FILFIN || echo FILNEXIST-""FILFIN','-FILFIN',child=child,check_exit=False,record_command=False)
 		res = self.get_re_from_child(child.before,'^(FILEXIST|FILNEXIST)$')
@@ -162,9 +163,7 @@ class ShutIt(object):
 
 	# Returns the file permission as an octal
 	def get_file_perms(self,filename,expect,child=None):
-		if child is None: child = self._default_child
-		if child is None:
-			util.fail("Couldn't get default child")
+		child = child or self.get_default_child()
 		cmd = 'stat -c %a ' + filename + r" | sed 's/.\(.*\)/\1/g'"
 		self.send_and_expect(cmd,expect,child=child,check_exit=False,record_command=False)
 		res = self.get_re_from_child(child.before,'([0-9][0-9][0-9])')
@@ -185,9 +184,7 @@ class ShutIt(object):
 	# literal      - if true, then simply grep for the exact
 	#                string without bash interpretation
 	def add_line_to_file(self,line,filename,expect,child=None,match_regexp=None,truncate=False,force=False,literal=False):
-		if child is None: child = self._default_child
-		if child is None:
-			util.fail("Couldn't get default child")
+		child = child or self.get_default_child()
 		# assume we're going to add it
 		res = '0'
 		bad_chars    = '"'
@@ -223,9 +220,7 @@ class ShutIt(object):
 
 	# Inserts a pause in the expect session which allows the user to try things out
 	def pause_point(self,msg,child=None,print_input=True,expect='',force=False):
-		if child is None: child = self._default_child
-		if child is None:
-			util.fail("Couldn't get default child")
+		child = child or self.get_default_child()
 		cfg = self.cfg
 		if not cfg['build']['interactive'] and not force:
 			return
