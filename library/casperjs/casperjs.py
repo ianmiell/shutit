@@ -26,64 +26,27 @@ import util
 
 class casperjs(ShutItModule):
 
-	def check_ready(self,shutit):
-		config_dict = shutit.cfg
-		return True
-
 	def is_installed(self,shutit):
-		config_dict = shutit.cfg
-		container_child = util.get_pexpect_child('container_child')
-		res = util.file_exists(container_child,'/opt/casperjs',config_dict['expect_prompts']['root_prompt'],directory=True)
+		res = shutit.file_exists('/opt/casperjs',shutit.cfg['expect_prompts']['root_prompt'],directory=True)
 		return res
 
 	def build(self,shutit):
-		config_dict = shutit.cfg
+		cfg = shutit.cfg
 		container_child = util.get_pexpect_child('container_child')
-		util.send_and_expect(container_child,'pushd /opt',config_dict['expect_prompts']['root_prompt'])
-		util.install(container_child,config_dict,'git',config_dict['expect_prompts']['root_prompt'])
-		util.send_and_expect(container_child,'git clone git://github.com/n1k0/casperjs.git',config_dict['expect_prompts']['root_prompt'])
-		util.send_and_expect(container_child,'pushd casperjs',config_dict['expect_prompts']['root_prompt'])
-		util.send_and_expect(container_child,'git checkout tags/1.0.2',config_dict['expect_prompts']['root_prompt'])
-		util.send_and_expect(container_child,'popd',config_dict['expect_prompts']['root_prompt'])
-		util.send_and_expect(container_child,'popd',config_dict['expect_prompts']['root_prompt'])
-		return True
-
-	def start(self,shutit):
-		config_dict = shutit.cfg
-		container_child = util.get_pexpect_child('container_child')
-		return True
-
-	def stop(self,shutit):
-		config_dict = shutit.cfg
-		container_child = util.get_pexpect_child('container_child')
-		return True
-
-
-	def cleanup(self,shutit):
-		config_dict = shutit.cfg
-		container_child = util.get_pexpect_child('container_child')
-		util.send_and_expect(container_child,'pushd /opt',config_dict['expect_prompts']['root_prompt'])
-		util.send_and_expect(container_child,'popd /opt',config_dict['expect_prompts']['root_prompt'])
+		shutit.set_default_expect(cfg['expect_prompts']['root_prompt'])
+		util.install(container_child,cfg,'git',cfg['expect_prompts']['root_prompt'])
+		shutit.run_script("""
+			pushd /opt
+			git clone git://github.com/n1k0/casperjs.git
+			pushd casperjs
+			git checkout tags/1.0.2
+			popd
+			popd
+		""")
 		return True
 
 	def remove(self,shutit):
-		config_dict = shutit.cfg
-		container_child = util.get_pexpect_child('container_child')
-		util.send_and_expect(container_child,'rm -rf /opt/casperjs',config_dict['expect_prompts']['root_prompt'])
-		return True
-
-	def test(self,shutit):
-		config_dict = shutit.cfg
-		container_child = util.get_pexpect_child('container_child')
-		return True
-
-	def finalize(self,shutit):
-		config_dict = shutit.cfg
-		return True
-
-	def get_config(self,shutit):
-		config_dict = shutit.cfg
-		cp = config_dict['config_parser']
+		shutit.send_and_expect('rm -rf /opt/casperjs',shutit.cfg['expect_prompts']['root_prompt'])
 		return True
 
 if not util.module_exists('shutit.tk.casperjs.casperjs'):

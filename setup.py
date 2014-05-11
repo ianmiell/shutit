@@ -43,13 +43,7 @@ import os
 
 class setup(ShutItModule):
 
-	def check_ready(self,shutit):
-		config_dict = shutit.cfg
-		# I am born ready
-		return True
-
 	def is_installed(self,shutit):
-		config_dict = shutit.cfg
 		return False
 
 	def build(self,shutit):
@@ -133,6 +127,7 @@ class setup(ShutItModule):
 		util.set_pexpect_child('host_child',host_child)
 		util.set_pexpect_child('container_child', container_child)
 		shutit.set_default_child(container_child)
+		shutit.set_default_expect(config_dict['expect_prompts']['base_prompt'])
 		host_child.logfile = container_child.logfile = sys.stdout
 		host_child.maxread = container_child.maxread = 2000
 		host_child.searchwindowsize = container_child.searchwindowsize = 1024
@@ -143,18 +138,6 @@ class setup(ShutItModule):
 		util.get_distro_info(container_child,config_dict['expect_prompts']['pre_build'],config_dict)
 		util.setup_prompt(container_child,config_dict,'SHUTIT_PROMPT_ROOT_PROMPT#','root_prompt')
 		util.send_and_expect(container_child,'export DEBIAN_FRONTEND=noninteractive',config_dict['expect_prompts']['root_prompt'],check_exit=False)
-		return True
-
-	def start(self,shutit):
-		config_dict = shutit.cfg
-		return True
-
-	def stop(self,shutit):
-		config_dict = shutit.cfg
-		return True
-
-	def cleanup(self,shutit):
-		config_dict = shutit.cfg
 		return True
 
 	def remove(self,shutit):
@@ -181,15 +164,6 @@ LOGFILEEND"""
 BUILDREPEND"""
 		util.send_and_expect(container_child,build_rep,config_dict['expect_prompts']['root_prompt'],record_command=False)
 		container_child.sendline('exit') # Exit container
-		return True
-
-	def test(self,shutit):
-		config_dict = shutit.cfg
-		return True
-
-	def get_config(self,shutit):
-		config_dict = shutit.cfg
-		cp = config_dict['config_parser']
 		return True
 
 if not util.module_exists('shutit.tk.setup'):

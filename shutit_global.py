@@ -27,10 +27,13 @@ import time
 import util
 import random
 import re
+import textwrap
+import base64
 
 class ShutIt(object):
 
-	_default_child = None
+	_default_child = [None]
+	_default_expect = [None]
 
 	def __init__(self, **kwargs):
 		self.pexpect_children = kwargs['pexpect_children']
@@ -41,11 +44,28 @@ class ShutIt(object):
 		self.shutit_command_history = kwargs['shutit_command_history']
 		self.shutit_map = kwargs['shutit_map']
 
+	# These two get called automatically by the metaclass decorator in
+	# shutit_module when a module method is called.
+	# This allows setting defaults for the 'scope' of a method.
+	def module_method_start(self):
+		if self._default_child[-1] is not None:
+			self._default_child.append(self._default_child[-1])
+	def module_method_end(self):
+		if len(self._default_child) != 1:
+			self._default_child.pop()
+
+	def get_default_child(self):
+		if self._default_child[-1] is None:
+			util.fail("Couldn't get default child")
+		return self._default_child[-1]
 	def set_default_child(self, child):
-		if self._default_child is None:
-			self._default_child = child
-		else:
-			util.fail("Can't set default child more than once")
+		self._default_child[-1] = child
+	def get_default_expect(self):
+		if self._default_expect[-1] is None:
+			util.fail("Couldn't get default expect")
+		return self._default_expect[-1]
+	def set_default_expect(self, expect):
+		self._default_expect[-1] = expect
 
 	def log(self, msg, code=None, pause=0, prefix=True, force_stdout=False):
 		if prefix:
@@ -72,10 +92,9 @@ class ShutIt(object):
 	# fail_on_empty_before       - If debug is set, fail on empty before match (default=True)
 	# record_command             - Whether to record the command for output at end (default=True)
 	# exit_values                - Array of acceptable exit values (default [0])
-	def send_and_expect(self,send,expect,child=None,timeout=3600,check_exit=True,fail_on_empty_before=True,record_command=True,exit_values=['0']):
-		if child is None: child = self._default_child
-		if child is None:
-			util.fail("Couldn't get default child")
+	def send_and_expect(self,send,expect=None,child=None,timeout=3600,check_exit=True,fail_on_empty_before=True,record_command=True,exit_values=['0']):
+		child = child or self.get_default_child()
+		expect = expect or self.get_default_expect()
 		cfg = self.cfg
 		if cfg['build']['debug']:
 			self.log('================================================================================')
@@ -133,11 +152,36 @@ class ShutIt(object):
 			self.shutit_command_history.append('#redacted command')
 		return expect_res
 
+	def run_script(self,script,expect=None,child=None,is_bash=True):
+		child = child or self.get_default_child()
+		expect = expect or self.get_default_expect()
+		lines = script.split('\n')
+		while len(lines) > 0 and re.match('^[ \t]*$', lines[0]):
+			lines = lines[1:]
+		if len(lines) == 0:
+			return True
+		script = '\n'.join(lines)
+		script = textwrap.dedent(script)
+		if is_bash:
+			script = ('#!/bin/bash\nset -o verbose\nset -o errexit\n' +
+				'set -o nounset\n\n' + script)
+		if cfg['build']['debug']:
+			self.log('================================================================================')
+			self.log('Sending script>>>' + script + '<<<')
+		script64 = base64.standard_b64encode(script)
+		self.send_and_expect('mkdir -p /tmp/shutit', expect, child)
+		child.sendline('base64 --decode > /tmp/shutit/script.sh')
+		child.sendline(script64)
+		child.sendeof()
+		child.expect(expect)
+		self.send_and_expect('chmod +x /tmp/shutit/script.sh', expect, child)
+		self.shutit_command_history.append(script)
+		return self.send_and_expect('/tmp/shutit/script.sh', expect, child)
+
 	# Return True if file exists, else False
-	def file_exists(self,filename,expect,child=None,directory=False):
-		if child is None: child = self._default_child
-		if child is None:
-			util.fail("Couldn't get default child")
+	def file_exists(self,filename,expect=None,child=None,directory=False):
+		child = child or self.get_default_child()
+		expect = expect or self.get_default_expect()
 		test = 'test %s %s' % ('-d' if directory is True else '-a', filename)
 		self.send_and_expect(test+' && echo FILEXIST-""FILFIN || echo FILNEXIST-""FILFIN','-FILFIN',child=child,check_exit=False,record_command=False)
 		res = self.get_re_from_child(child.before,'^(FILEXIST|FILNEXIST)$')
@@ -155,10 +199,9 @@ class ShutIt(object):
 		return ret
 
 	# Returns the file permission as an octal
-	def get_file_perms(self,filename,expect,child=None):
-		if child is None: child = self._default_child
-		if child is None:
-			util.fail("Couldn't get default child")
+	def get_file_perms(self,filename,expect=None,child=None):
+		child = child or self.get_default_child()
+		expect = expect or self.get_default_expect()
 		cmd = 'stat -c %a ' + filename + r" | sed 's/.\(.*\)/\1/g'"
 		self.send_and_expect(cmd,expect,child=child,check_exit=False,record_command=False)
 		res = self.get_re_from_child(child.before,'([0-9][0-9][0-9])')
@@ -178,10 +221,9 @@ class ShutIt(object):
 	# truncate     - truncate or create the file before doing anything else
 	# literal      - if true, then simply grep for the exact
 	#                string without bash interpretation
-	def add_line_to_file(self,line,filename,expect,child=None,match_regexp=None,truncate=False,force=False,literal=False):
-		if child is None: child = self._default_child
-		if child is None:
-			util.fail("Couldn't get default child")
+	def add_line_to_file(self,line,filename,expect=None,child=None,match_regexp=None,truncate=False,force=False,literal=False):
+		child = child or self.get_default_child()
+		expect = expect or self.get_default_expect()
 		# assume we're going to add it
 		res = '0'
 		bad_chars    = '"'
@@ -217,9 +259,7 @@ class ShutIt(object):
 
 	# Inserts a pause in the expect session which allows the user to try things out
 	def pause_point(self,msg,child=None,print_input=True,expect='',force=False):
-		if child is None: child = self._default_child
-		if child is None:
-			util.fail("Couldn't get default child")
+		child = child or self.get_default_child()
 		cfg = self.cfg
 		if not cfg['build']['interactive'] and not force:
 			return
