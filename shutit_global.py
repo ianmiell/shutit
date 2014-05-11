@@ -158,6 +158,8 @@ class ShutIt(object):
 		lines = script.split('\n')
 		while len(lines) > 0 and re.match('^[ \t]*$', lines[0]):
 			lines = lines[1:]
+		while len(lines) > 0 and re.match('^[ \t]*$', lines[-1]):
+			lines = lines[:-1]
 		if len(lines) == 0:
 			return True
 		script = '\n'.join(lines)
@@ -174,7 +176,7 @@ class ShutIt(object):
 		child.sendeof()
 		child.expect(expect)
 		self.send_and_expect('chmod +x /tmp/shutit_script.sh', expect, child)
-		self.shutit_command_history.append(script)
+		self.shutit_command_history.append('    ' + script.replace('\n', '\n    '))
 		ret = self.send_and_expect('/tmp/shutit_script.sh', expect, child)
 		self.send_and_expect('rm /tmp/shutit_script.sh', expect, child)
 		return ret
