@@ -41,6 +41,12 @@ class ShutIt(object):
 		self.shutit_command_history = kwargs['shutit_command_history']
 		self.shutit_map = kwargs['shutit_map']
 
+	def module_method_start(self, child):
+		pass
+
+	def module_method_end(self, child):
+		pass
+
 	def set_default_child(self, child):
 		if self._default_child is None:
 			self._default_child = child
