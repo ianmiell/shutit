@@ -60,7 +60,6 @@ class adduser(ShutItModule):
 		shutit.send_and_expect('passwd ' + cfg['shutit.tk.adduser.adduser']['user'],'Enter new',check_exit=False)
 		shutit.send_and_expect(cfg['shutit.tk.adduser.adduser']['password'],'Retype new',check_exit=False)
 		shutit.send_and_expect(cfg['shutit.tk.adduser.adduser']['password'])
-		if cfg['']
 		shutit.send_and_expect('adduser ' + cfg['host']['real_user'] + ' sudo')
 		return True
 
