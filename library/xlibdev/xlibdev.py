@@ -23,14 +23,12 @@ import util
 class xlibdev(ShutItModule):
 
 	def is_installed(self,shutit):
-		config_dict = shutit.cfg
 		return False
 
 	def build(self,shutit):
-		config_dict = shutit.cfg
-		container_child = util.get_pexpect_child('container_child') # Let's get the container child object from pexpect.
-		root_prompt_expect = config_dict['expect_prompts']['root_prompt'] # Set the string we expect to see once commands are done.
-		util.install(container_child,config_dict,'libx11-dev',config_dict['expect_prompts']['root_prompt'])
+		root_prompt_expect = shutit.cfg['expect_prompts']['root_prompt'] # Set the string we expect to see once commands are done.
+		shutit.set_default_expect(shutit.cfg['expect_prompts']['root_prompt'])
+		shutit.install('libx11-dev')
 		return True
 
 

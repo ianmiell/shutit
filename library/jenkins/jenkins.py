@@ -22,40 +22,23 @@ import util
 
 class jenkins(ShutItModule):
 
-	def check_ready(self,shutit):
-		config_dict = shutit.cfg
-		container_child = util.get_pexpect_child('container_child')
-		root_prompt_expect = config_dict['expect_prompts']['root_prompt']
-		return util.file_exists(container_child,'/resources/README.md',root_prompt_expect)
-
 	def is_installed(self,shutit):
-		config_dict = shutit.cfg
-		container_child = util.get_pexpect_child('container_child')
-		root_prompt_expect = config_dict['expect_prompts']['root_prompt']
-		return util.file_exists(container_child,'/tmp/container_touched.sh',root_prompt_expect) and util.file_exists(container_child,'/tmp/README.md',root_prompt_expect)
+		return False
 
 	def build(self,shutit):
-		config_dict = shutit.cfg
-		container_child = util.get_pexpect_child('container_child') # Let's get the container child object from pexpect.
-		root_prompt_expect = config_dict['expect_prompts']['root_prompt'] # Set the string we expect to see once commands are done.
-		util.install(container_child,config_dict,'jenkins',root_prompt_expect)
+		shutit.install('jenkins')
 		# TODO start script
 		return True
 
 	def start(self,shutit):
-		config_dict = shutit.cfg
-		container_child = util.get_pexpect_child('container_child')
-		root_prompt_expect = config_dict['expect_prompts']['root_prompt']
+		shutit.set_default_expect(shutit.cfg['expect_prompts']['root_prompt'])
 		# TODO start jenkins
-		#util.send_and_expect(container_child,'/root/start_jenkins.sh',root_prompt_expect)
+		#shutit.send_and_expect('/root/start_jenkins.sh')
 		return True
 
 	def stop(self,shutit):
-		config_dict = shutit.cfg
-		container_child = util.get_pexpect_child('container_child')
-		root_prompt_expect = config_dict['expect_prompts']['root_prompt']
-		# TODO start jenkins
-		#util.send_and_expect(container_child,'/root/stop_jenkins.sh',root_prompt_expect)
+		# TODO stop jenkins
+		#shutit.send_and_expect('/root/stop_jenkins.sh')
 		return True
 
 if not util.module_exists('shutit.tk.jenkins'):

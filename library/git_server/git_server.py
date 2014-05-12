@@ -30,26 +30,27 @@ import util
 class git_server(ShutItModule):
 
 	def is_installed(self,shutit):
-		config_dict = shutit.cfg
 		return False
 
 	def build(self,shutit):
-		config_dict = shutit.cfg
-		container_child = util.get_pexpect_child('container_child')
- 		util.install(container_child,config_dict,'apache2',config_dict['expect_prompts']['root_prompt'])
- 		util.install(container_child,config_dict,'git-core',config_dict['expect_prompts']['root_prompt'])
- 		util.install(container_child,config_dict,'vim',config_dict['expect_prompts']['root_prompt'])
- 		util.install(container_child,config_dict,'telnet',config_dict['expect_prompts']['root_prompt'])
-		util.send_and_expect(container_child,'git daemon --base-path=/var/cache/git --detach --syslog --export-all',config_dict['expect_prompts']['root_prompt'])
-		util.add_to_bashrc(container_child,'git daemon --base-path=/var/cache/git --detach --syslog --export-all',config_dict['expect_prompts']['root_prompt'])
+		shutit.set_default_expect(shutit.cfg['expect_prompts']['root_prompt'])
+ 		shutit.install('apache2')
+ 		shutit.install('git-core')
+ 		shutit.install('vim')
+ 		shutit.install('telnet')
+		shutit.send_and_expect('git daemon --base-path=/var/cache/git --detach --syslog --export-all')
+		# TODO: turn into start/stop script
+		shutit.add_to_bashrc('git daemon --base-path=/var/cache/git --detach --syslog --export-all')
 		return True
 
 	def start(self,shutit):
-		config_dict = shutit.cfg
+		cfg = shutit.cfg
+		# TODO
 		return True
 
 	def stop(self,shutit):
-		config_dict = shutit.cfg
+		cfg = shutit.cfg
+		# TODO
 		return True
 
 if not util.module_exists('shutit.tk.git_server.git_server'):

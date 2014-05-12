@@ -54,19 +54,19 @@ class adduser(ShutItModule):
 	#
 	# Should return True if it has succeeded in building, else False.
 	def build(self,shutit):
-		container_child = util.get_pexpect_child('container_child') # Let's get the container child object from pexpect.
-		cfg = shutit.cfg
-		shutit.send_and_expect('useradd -d /home/' + cfg['shutit.tk.adduser.adduser']['user'] + ' -s /bin/bash -m ' + cfg['shutit.tk.adduser.adduser']['user'])
-		shutit.send_and_expect('passwd ' + cfg['shutit.tk.adduser.adduser']['user'],'Enter new',check_exit=False)
-		shutit.send_and_expect(cfg['shutit.tk.adduser.adduser']['password'],'Retype new',check_exit=False)
-		shutit.send_and_expect(cfg['shutit.tk.adduser.adduser']['password'])
-		shutit.send_and_expect('adduser ' + cfg['host']['real_user'] + ' sudo')
+		shutit.set_default_expect(shutit.cfg['expect_prompts']['root_prompt'])
+		# Does something odd with the terminal which makes pexpect think the commands failed
+		shutit.send_and_expect('useradd -d /home/' + shutit.cfg['shutit.tk.adduser.adduser']['user'] + ' -s /bin/bash -m ' + shutit.cfg['shutit.tk.adduser.adduser']['user'],check_exit=False)
+		shutit.send_and_expect('passwd ' + shutit.cfg['shutit.tk.adduser.adduser']['user'],'Enter new',check_exit=False)
+		shutit.send_and_expect(shutit.cfg['shutit.tk.adduser.adduser']['password'],'Retype new',check_exit=False)
+		shutit.send_and_expect(shutit.cfg['shutit.tk.adduser.adduser']['password'],check_exit=False)
+		shutit.send_and_expect('adduser ' + shutit.cfg['shutit.tk.adduser.adduser']['user'] + ' sudo')
 		return True
 
 	# start
 	#
 	# Run when module should be installed (is_installed() or configured to build is true)
-	# Run after repo work.
+	# Run after repo work.shutit.tk.adduser.adduser
 	def start(self,shutit):
 		return True
 

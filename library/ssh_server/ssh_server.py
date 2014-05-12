@@ -26,64 +26,38 @@ import util
 
 class ssh_server(ShutItModule):
 
-	def check_ready(self,shutit):
-		config_dict = shutit.cfg
-		return True
-
 	def is_installed(self,shutit):
-		config_dict = shutit.cfg
 		return False
 
 	def build(self,shutit):
-		config_dict = shutit.cfg
-		container_child = util.get_pexpect_child('container_child')
-		util.install(container_child,config_dict,'openssh-server',config_dict['expect_prompts']['root_prompt'])
-		util.send_and_expect(container_child,'mkdir -p /var/run/sshd',config_dict['expect_prompts']['root_prompt'])
-		util.send_and_expect(container_child,'chmod 700 /var/run/sshd',config_dict['expect_prompts']['root_prompt'])
+		shutit.set_default_expect(shutit.cfg['expect_prompts']['root_prompt'])
+		shutit.install('openssh-server')
+		shutit.send_and_expect('mkdir -p /var/run/sshd')
+		shutit.send_and_expect('chmod 700 /var/run/sshd')
 		# Set up root bashrcs once
 		# Root bash files seem to be inconsistent, so this the canonical one...
-		util.add_line_to_file(container_child,'export HOME=/root','/root/.bashrc',config_dict['expect_prompts']['root_prompt'])
+		shutit.add_line_to_file('export HOME=/root','/root/.bashrc')
 		# ... and the others point to it.
-		util.add_line_to_file(container_child,'. /root/.bashrc','/root/.bash_profile.sh',config_dict['expect_prompts']['root_prompt'])
-		util.add_line_to_file(container_child,'. /root/.bashrc','/.bashrc',config_dict['expect_prompts']['root_prompt'])
-		util.add_line_to_file(container_child,'. /root/.bashrc','/.bash_profile',config_dict['expect_prompts']['root_prompt'])
-		util.add_line_to_file(container_child,'# sshd','/root/start_ssh_server.sh',config_dict['expect_prompts']['root_prompt'])
+		shutit.add_line_to_file('. /root/.bashrc','/root/.bash_profile.sh')
+		shutit.add_line_to_file('. /root/.bashrc','/.bashrc')
+		shutit.add_line_to_file('. /root/.bashrc','/.bash_profile')
+		shutit.add_line_to_file('# sshd','/root/start_ssh_server.sh')
 		## To get sshd to work, we need to create a privilege separation directory.
 		## see http://docs.docker.io/en/latest/examples/running_ssh_service/
-		util.add_line_to_file(container_child,'mkdir -p /var/run/sshd','/root/start_ssh_server.sh',config_dict['expect_prompts']['root_prompt'])
-		util.add_line_to_file(container_child,'chmod 700 /var/run/sshd','/root/start_ssh_server.sh',config_dict['expect_prompts']['root_prompt'])
-		util.add_line_to_file(container_child,'start-stop-daemon --start --quiet --oknodo --pidfile /var/run/sshd.pid --exec /usr/sbin/sshd','/root/start_ssh_server.sh',config_dict['expect_prompts']['root_prompt'])
-		util.add_line_to_file(container_child,'start-stop-daemon --stop --quiet --oknodo --pidfile /var/run/sshd.pid','/root/stop_ssh_server.sh',config_dict['expect_prompts']['root_prompt'])
-		util.send_and_expect(container_child,'chmod +x /root/start_ssh_server.sh',config_dict['expect_prompts']['root_prompt'])
-		util.send_and_expect(container_child,'chmod +x /root/stop_ssh_server.sh',config_dict['expect_prompts']['root_prompt'])
+		shutit.add_line_to_file('mkdir -p /var/run/sshd','/root/start_ssh_server.sh')
+		shutit.add_line_to_file('chmod 700 /var/run/sshd','/root/start_ssh_server.sh')
+		shutit.add_line_to_file('start-stop-daemon --start --quiet --oknodo --pidfile /var/run/sshd.pid --exec /usr/sbin/sshd','/root/start_ssh_server.sh')
+		shutit.add_line_to_file('start-stop-daemon --stop --quiet --oknodo --pidfile /var/run/sshd.pid','/root/stop_ssh_server.sh')
+		shutit.send_and_expect('chmod +x /root/start_ssh_server.sh')
+		shutit.send_and_expect('chmod +x /root/stop_ssh_server.sh')
 		return True
 
 	def start(self,shutit):
-		config_dict = shutit.cfg
-		container_child = util.get_pexpect_child('container_child')
-		util.send_and_expect(container_child,'/root/start_ssh_server.sh',config_dict['expect_prompts']['root_prompt'],check_exit=False)
+		shutit.send_and_expect('/root/start_ssh_server.sh',check_exit=False)
 		return True
 
 	def stop(self,shutit):
-		config_dict = shutit.cfg
-		container_child = util.get_pexpect_child('container_child')
-		util.send_and_expect(container_child,'/root/stop_ssh_server.sh',config_dict['expect_prompts']['root_prompt'],check_exit=False)
-		return True
-
-	def cleanup(self,shutit):
-		config_dict = shutit.cfg
-		return True
-
-	def finalize(self,shutit):
-		config_dict = shutit.cfg
-		return True
-
-	def test(self,shutit):
-		config_dict = shutit.cfg
-		return True
-
-	def get_config(self,shutit):
-		config_dict = shutit.cfg
+		shutit.send_and_expect('/root/stop_ssh_server.sh',check_exit=False)
 		return True
 
 

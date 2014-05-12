@@ -27,28 +27,17 @@ import util
 class memcache(ShutItModule):
 
 	def is_installed(self,shutit):
-		config_dict = shutit.cfg
-		container_child = util.get_pexpect_child('container_child')
-		return util.file_exists(container_child,'/root/start_memcache.sh',config_dict['expect_prompts']['root_prompt'])
+		return shutit.file_exists('/root/start_memcache.sh')
 
 	def build(self,shutit):
-		config_dict = shutit.cfg
-		container_child = util.get_pexpect_child('container_child')
-		util.install(container_child,config_dict,'memcached',config_dict['expect_prompts']['root_prompt'])
-		util.install(container_child,config_dict,'libmemcached-dev',config_dict['expect_prompts']['root_prompt'])
-		util.install(container_child,config_dict,'libmemcached-tools',config_dict['expect_prompts']['root_prompt'])
-		util.send_and_expect(container_child,"""cat > /root/start_memcache.sh <<< 'service memcached start'""",config_dict['expect_prompts']['root_prompt'])
-		util.send_and_expect(container_child,"""cat > /root/stop_memcache.sh <<< 'service memcached stop'""",config_dict['expect_prompts']['root_prompt'])
-		util.send_and_expect(container_child,'chmod +x /root/start_memcache.sh',config_dict['expect_prompts']['root_prompt'])
-		util.send_and_expect(container_child,'chmod +x /root/stop_memcache.sh',config_dict['expect_prompts']['root_prompt'])
-		return True
-
-	def start(self,shutit):
-		config_dict = shutit.cfg
-		return True
-
-	def stop(self,shutit):
-		config_dict = shutit.cfg
+		shutit.set_default_expect(shutit.cfg['expect_prompts']['root_prompt'])
+		shutit.install('memcached')
+		shutit.install('libmemcached-dev')
+		shutit.install('libmemcached-tools')
+		shutit.send_and_expect("""cat > /root/start_memcache.sh <<< 'service memcached start'""")
+		shutit.send_and_expect("""cat > /root/stop_memcache.sh <<< 'service memcached stop'""")
+		shutit.send_and_expect('chmod +x /root/start_memcache.sh')
+		shutit.send_and_expect('chmod +x /root/stop_memcache.sh')
 		return True
 
 if not util.module_exists('shutit.tk.memcache.memcache'):
