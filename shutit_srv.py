@@ -116,6 +116,30 @@ var ErrList = React.createClass({
 		return <div>Errors: <ul>{errs}</ul></div>;
 	}
 });
+var BuildProgress = React.createClass({
+	getInitialState: function () {
+		return {lines: []};
+	},
+	getNewLines: function () {
+		if (!this.props.building) { return; }
+		jsonpost('/log', this.state.lines.length, (function (lines) {
+			this.setState({lines: this.state.lines.concat(lines)});
+		}).bind(this));
+	},
+	componentWillMount: function () {
+		setInterval(this.getNewLines, 1000);
+	},
+	render: function () {
+		var elts = this.state.lines.map(function (line, i) {
+			return <div key={i}>{line}</div>;
+		});
+		return (
+			<div style={{width: '500px', height: '500px', overflow: 'scroll'}}>
+				{elts}
+			</div>
+		);
+	}
+});
 var ShutItUI = React.createClass({
 	getInfo: function (newstate) {
 		var loadingstate = copy(this.state);
@@ -131,6 +155,12 @@ var ShutItUI = React.createClass({
 			verifiedstate.loading = false;
 			this.setState(verifiedstate);
 		}).bind(this));
+	},
+	beginBuild: function () {
+		var newstate = copy(this.state);
+		newstate.loading = true;
+		newstate.building = true;
+		this.setState(newstate);
 	},
 	getInitialState: function () {
 		return {modules: [], errs: [], loading: false, building: false};
@@ -155,6 +185,8 @@ var ShutItUI = React.createClass({
 				<ModuleList onChange={this.handleChange}
 					loading={this.state.loading} modules={this.state.modules} />
 				<ErrList errs={this.state.errs} />
+				<button onClick={this.beginBuild}>Begin build</button>
+				<BuildProgress building={this.state.building} />
 			</div>
 		);
 	}
@@ -192,6 +224,11 @@ def info():
 			} for mid in shutit_main.module_ids(shutit)
 		]
 	})
+
+@route('/log', method='POST')
+def log():
+	offset = request.json
+	return json.dumps(shutit.shutit_command_history[offset:])
 
 @route('/')
 def index():
