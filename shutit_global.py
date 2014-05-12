@@ -145,7 +145,7 @@ class ShutIt(object):
 			exit_values = ['0']
 		child.sendline('echo EXIT_CODE:$?')
 		child.expect(expect,timeout)
-		res = util.get_re_from_child(child.before,'^EXIT_CODE:([0-9][0-9]?[0-9]?)$')
+		res = self.get_re_from_child(child.before,'^EXIT_CODE:([0-9][0-9]?[0-9]?)$')
 		#print 'RES', str(res), ' ', str(exit_values), ' ', str(res in exit_values)
 		if res not in exit_values or res == None:
 			if res == None:
@@ -291,7 +291,7 @@ class ShutIt(object):
 			self.send_and_expect("""yum list installed | awk '{print $1}' | grep "^""" + package + """$" | wc -l""",expect,check_exit=False,record_command=False)
 		else:
 			return False
-		if get_re_from_child(child.before,'^([0-9]+)$') != '0':
+		if self.get_re_from_child(child.before,'^([0-9]+)$') != '0':
 			return True
 		else:
 			return False
