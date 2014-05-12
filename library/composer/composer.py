@@ -28,7 +28,6 @@ import util
 class composer(ShutItModule):
 
 	def is_installed(self,shutit):
-		config_dict = shutit.cfg
 		return False
 
 	def build(self,shutit):
@@ -36,7 +35,7 @@ class composer(ShutItModule):
 		container_child = util.get_pexpect_child('container_child')
 		util.install(container_child,config_dict,'curl',config_dict['expect_prompts']['root_prompt'])
 		util.install(container_child,config_dict,'php5',config_dict['expect_prompts']['root_prompt'])
-		util.send_and_expect(container_child,'curl -sS https://getcomposer.org/installer | php',config_dict['expect_prompts']['root_prompt'],check_exit=False)
+		shutit.send_and_expect('curl -sS https://getcomposer.org/installer | php')
 		return True
 
 if not util.module_exists('shutit.tk.composer.composer'):
