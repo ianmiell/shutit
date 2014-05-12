@@ -30,9 +30,8 @@ class mysql(ShutItModule):
 		return shutit.file_exists('/root/start_mysql.sh')
 
 	def build(self,shutit):
-		container_child = util.get_pexpect_child('container_child')
 		shutit.send_and_expect('bash',check_exit=False)
-		util.handle_login(container_child,shutit.cfg,'mysql_tmp_prompt')
+		shutit.handle_login('mysql_tmp_prompt')
 		shutit.set_default_expect(shutit.cfg['expect_prompts']['mysql_tmp_prompt'])
 		root_pass = shutit.cfg['shutit.tk.mysql.mysql']['root_password']
 		shutit.send_and_expect("apt-get update", record_command=False)
@@ -77,7 +76,7 @@ class mysql(ShutItModule):
 		shutit.send_and_expect('chmod +x /root/stop_mysql.sh')
 		shutit.send_and_expect('/root/stop_mysql.sh')
 		shutit.send_and_expect('/root/start_mysql.sh')
-		util.handle_revert_prompt(container_child,shutit.cfg['expect_prompts']['base_prompt'],'mysql_tmp_prompt')
+		shutit.handle_revert_prompt(shutit.cfg['expect_prompts']['base_prompt'],'mysql_tmp_prompt')
 		shutit.set_default_expect(shutit.cfg['expect_prompts']['root_prompt'])
 		shutit.send_and_expect('exit')
 		return True
