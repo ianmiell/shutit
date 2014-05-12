@@ -139,6 +139,7 @@ class ShutIt(object):
 			self.shutit_command_history.append('#redacted command')
 		return expect_res
 
+
 	def _check_exit(self,send,expect=None,child=None,timeout=3600,exit_values=None):
 		if exit_values is None:
 			exit_values = ['0']
@@ -211,7 +212,6 @@ class ShutIt(object):
 			# Change to log?
 			print repr('before>>>>:%s<<<< after:>>>>%s<<<<' % (child.before, child.after))
 			self.pause_point('Did not see FIL(N)?EXIST in before',child)
-
 		child.expect(expect)
 		return ret
 
@@ -274,6 +274,30 @@ class ShutIt(object):
 			self.send_and_expect('rm -f ' + tmp_filename,expect,child=child,exit_values=['0','1'],record_command=False)
 			return False
 
+	# Takes care of adding a line to everyone's bashrc
+	def add_to_bashrc(self,line,expect=None,child=None):
+		child = child or self.get_default_child()
+		expect = expect or self.get_default_expect()
+		self.add_line_to_file(line,'/etc/bash.bashrc',expect=expect)
+		return self.add_line_to_file(line,'/etc/profile',expect=expect)
+
+	# Return True if we can be sure the package is installed.
+	def package_installed(self,package,expect=None,child=None):
+		child = child or self.get_default_child()
+		expect = expect or self.get_default_expect()
+		if self.cfg['container']['install_type'] == 'apt':
+			self.send_and_expect("""dpkg -l | awk '{print $2}' | grep "^""" + package + """$" | wc -l""",expect,check_exit=False,record_command=False)
+		elif self.cfg['container']['install_type'] == 'yum':
+			self.send_and_expect("""yum list installed | awk '{print $1}' | grep "^""" + package + """$" | wc -l""",expect,check_exit=False,record_command=False)
+		else:
+			return False
+		if get_re_from_child(child.before,'^([0-9]+)$') != '0':
+			return True
+		else:
+			return False
+
+
+
 	# Inserts a pause in the expect session which allows the user to try things out
 	def pause_point(self,msg,child=None,print_input=True,expect='',force=False):
 		child = child or self.get_default_child()
@@ -311,6 +335,52 @@ class ShutIt(object):
 					self.log('returning: ' + match.group(1))
 				return match.group(1)
 		return None
+
+
+	# Distro-independent install function.
+	# Takes a package name and runs
+	# Returns true if all ok (ie it's installed now), else false
+	def install(self,package,child=None,expect=None,options=None,timeout=3600):
+		child = child or self.get_default_child()
+		expect = expect or self.get_default_expect()
+		if options is None: options = {}
+		# TODO: maps of packages
+		# TODO: config of maps of packages
+		install_type = self.cfg['container']['install_type']
+		if install_type == 'apt':
+			cmd = 'apt-get install'
+			opts = options['apt'] if 'apt' in options else '-qq -y'
+		elif install_type == 'yum':
+			cmd = 'yum install'
+			opts = options['yum'] if 'yum' in options else '-y'
+		else:
+			# Not handled
+			return False
+		self.send_and_expect('%s %s %s' % (cmd,opts,package),expect,timeout=timeout)
+		return True
+
+	# Distro-independent remove function.
+	# Takes a package name and runs
+	# Returns true if all ok (ie it's installed now), else false
+	def remove(self,package,child=None,expect=None,options=None,timeout=3600):
+		child = child or self.get_default_child()
+		expect = expect or self.get_default_expect()
+		if options is None: options = {}
+		# TODO: maps of packages
+		# TODO: config of maps of packages
+		install_type = self.cfg['container']['install_type']
+		if install_type == 'apt':
+			cmd = 'apt-get purge'
+			opts = options['apt'] if 'apt' in options else '-qq -y'
+		elif install_type == 'yum':
+			cmd = 'yum erase'
+			opts = options['yum'] if 'yum' in options else '-y'
+		else:
+			# Not handled
+			return False
+		self.send_and_expect('%s %s %s' % (cmd,opts,package),expect,timeout=timeout)
+		return True
+
 
 def init():
 	global pexpect_children
