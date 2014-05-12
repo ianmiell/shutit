@@ -40,7 +40,6 @@ class shutit(ShutItModule):
 	#
 	# Should return True if it has succeeded in building, else False.
 	def build(self,shutit):
-		root_prompt_expect = shutit.cfg['expect_prompts']['root_prompt'] # Set the string we expect to see once commands are done.
 		shutit.set_default_expect(shutit.cfg['expect_prompts']['root_prompt'])
 		shutit.install('git')
 		shutit.send_and_expect('pushd /')

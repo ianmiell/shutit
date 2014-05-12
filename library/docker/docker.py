@@ -22,21 +22,6 @@ import util
 
 class docker(ShutItModule):
 
-	# check_ready
-	# 
-	# Check whether we are ready to build this module.
-	# 
-	# This is called before the build, to ensure modules have 
-	# their requirements in place (eg files required to be mounted 
-	# in /resources). Checking whether the build will happen (and
-	# therefore whether the check should take place) will be 
-	# determined by the framework.
-	# 
-	# Should return True if it ready, else False.
-	def check_ready(self,shutit):
-		config_dict = shutit.cfg
-		return True
-
 	# is_installed
 	#
 	# Determines whether the module has been built in this container
