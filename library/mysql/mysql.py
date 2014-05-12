@@ -30,7 +30,7 @@ class mysql(ShutItModule):
 		return shutit.file_exists('/root/start_mysql.sh')
 
 	def build(self,shutit):
-		shutit.set_default_expect(shutit.cfg['expect_prompts']['root_prompt'])
+		shutit.set_default_expect(shutit.cfg['expect_prompts']['base_prompt'])
 		shutit.send_and_expect('bash',check_exit=False)
 		shutit.handle_login('mysql_tmp_prompt')
 		shutit.set_default_expect(shutit.cfg['expect_prompts']['mysql_tmp_prompt'])
