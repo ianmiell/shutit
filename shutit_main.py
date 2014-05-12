@@ -263,6 +263,7 @@ def check_conflicts(shutit):
 	shutit_map = shutit.shutit_map
 	# Now consider conflicts
 	util.log(util.red('PHASE: conflicts'))
+	errs = []
 	if cfg['build']['tutorial']:
 		util.pause_point(util.get_pexpect_child('container_child'),'\nNow checking for conflicts between modules',print_input=False)
 	for mid in module_ids(shutit):
@@ -276,15 +277,16 @@ def check_conflicts(shutit):
 				continue
 			if ((cfg[conflicter.module_id]['build'] or conflicter.is_installed(shutit)) and
 					(cfg[conflictee_obj.module_id]['build'] or conflictee_obj.is_installed(shutit))):
-				return [('conflicter module id: ' + conflicter.module_id +
+				errs.append(('conflicter module id: ' + conflicter.module_id +
 					' is configured to be built or is already built but ' +
-					'conflicts with module_id: ' + conflictee_obj.module_id,)]
-	return []
+					'conflicts with module_id: ' + conflictee_obj.module_id,))
+	return errs
 
 def check_ready(shutit):
 	cfg = shutit.cfg
 	shutit_map = shutit.shutit_map
 	util.log(util.red('PHASE: check_ready'))
+	errs = []
 	if cfg['build']['tutorial']:
 		util.pause_point(util.get_pexpect_child('container_child'),
 			'\nNow checking whether we are ready to build modules configured to be built',
@@ -296,8 +298,8 @@ def check_ready(shutit):
 		if cfg[mid]['build'] and not m.is_installed(shutit):
 			util.log(util.red('checking whether module is ready to build: ' + mid))
 			if not m.check_ready(shutit):
-				return [(mid + ' not ready to install',util.get_pexpect_child('container_child'))]
-	return []
+				errs.append((mid + ' not ready to install',util.get_pexpect_child('container_child')))
+	return errs
 
 def do_remove(shutit):
 	cfg = shutit.cfg
