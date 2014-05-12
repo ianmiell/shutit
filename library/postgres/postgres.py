@@ -27,34 +27,27 @@ import util
 class postgres(ShutItModule):
 
 	def is_installed(self,shutit):
-		config_dict = shutit.cfg
-		container_child = util.get_pexpect_child('container_child')
-		return util.file_exists(container_child,'/root/start_postgres.sh',config_dict['expect_prompts']['root_prompt'])
+		shutit.set_default_expect(shutit.cfg['expect_prompts']['root_prompt'])
+		return shutit.file_exists('/root/start_postgres.sh')
 
 	def build(self,shutit):
-		config_dict = shutit.cfg
-		container_child = util.get_pexpect_child('container_child')
-		util.install(container_child,config_dict,'postgresql',config_dict['expect_prompts']['root_prompt'])
-		res = util.add_line_to_file(container_child,'# postgres','/root/start_postgres.sh',config_dict['expect_prompts']['root_prompt'])
-		if res:
-			util.add_line_to_file(container_child,"echo 'Setting shmmax for postgres'",'/root/start_postgres.sh',config_dict['expect_prompts']['root_prompt'],force=True)
-			util.add_line_to_file(container_child,'sysctl -w kernel.shmmax=268435456','/root/start_postgres.sh',config_dict['expect_prompts']['root_prompt'],force=True)
-			util.add_line_to_file(container_child,'service postgresql start','/root/start_postgres.sh',config_dict['expect_prompts']['root_prompt'],force=True)
-		util.send_and_expect(container_child,"""cat > /root/stop_postgres.sh <<< 'service postgresql stop'""",config_dict['expect_prompts']['root_prompt'])
-		util.send_and_expect(container_child,'chmod +x /root/start_postgres.sh',config_dict['expect_prompts']['root_prompt'])
-		util.send_and_expect(container_child,'chmod +x /root/stop_postgres.sh',config_dict['expect_prompts']['root_prompt'])
+		shutit.set_default_expect(shutit.cfg['expect_prompts']['root_prompt'])
+		shutit.install('postgresql')
+		shutit.add_line_to_file('# postgres','/root/start_postgres.sh')
+		shutit.add_line_to_file("echo 'Setting shmmax for postgres'",'/root/start_postgres.sh')
+		shutit.add_line_to_file('sysctl -w kernel.shmmax=268435456','/root/start_postgres.sh',force=True)
+		shutit.add_line_to_file('service postgresql start','/root/start_postgres.sh',force=True)
+		shutit.send_and_expect("""cat > /root/stop_postgres.sh <<< 'service postgresql stop'""")
+		shutit.send_and_expect('chmod +x /root/start_postgres.sh')
+		shutit.send_and_expect('chmod +x /root/stop_postgres.sh')
 		return True
 
 	def start(self,shutit):
-		config_dict = shutit.cfg
-		container_child = util.get_pexpect_child('container_child')
-		util.send_and_expect(container_child,'/root/start_postgres.sh',config_dict['expect_prompts']['root_prompt'],check_exit=False)
+		shutit.send_and_expect('/root/start_postgres.sh',check_exit=False)
 		return True
 
 	def stop(self,shutit):
-		config_dict = shutit.cfg
-		container_child = util.get_pexpect_child('container_child')
-		util.send_and_expect(container_child,'/root/stop_postgres.sh',config_dict['expect_prompts']['root_prompt'],check_exit=False)
+		shutit.send_and_expect('/root/stop_postgres.sh',check_exit=False)
 		return True
 
 if not util.module_exists('shutit.tk.postgres.postgres'):

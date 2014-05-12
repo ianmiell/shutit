@@ -56,19 +56,17 @@ class docker(ShutItModule):
 	#
 	# Should return True if it has succeeded in building, else False.
 	def build(self,shutit):
-		config_dict = shutit.cfg
-		container_child = util.get_pexpect_child('container_child') # Let's get the container child object from pexpect.
-		root_prompt_expect = config_dict['expect_prompts']['root_prompt'] # Set the string we expect to see once commands are done.
-		util.send_and_expect(container_child,'echo deb http://archive.ubuntu.com/ubuntu precise universe > /etc/apt/sources.list.d/universe.list',root_prompt_expect)
-		util.send_and_expect(container_child,'apt-get update -qq',root_prompt_expect)
-		util.install(container_child,config_dict,'iptables',root_prompt_expect)
-		util.install(container_child,config_dict,'ca-certificates',root_prompt_expect)
-		util.install(container_child,config_dict,'lxc',root_prompt_expect)
-		util.install(container_child,config_dict,'curl',root_prompt_expect)
-		util.install(container_child,config_dict,'aufs-tools',root_prompt_expect)
-		util.send_and_expect(container_child,'pushd /usr/bin',root_prompt_expect)
-		util.send_and_expect(container_child,'curl https://get.docker.io/builds/Linux/x86_64/docker-latest > docker',root_prompt_expect)
-		util.send_and_expect(container_child,'chmod +x docker',root_prompt_expect)
+		shutit.set_default_expect(shutit.cfg['expect_prompts']['root_prompt'])
+		shutit.send_and_expect('echo deb http://archive.ubuntu.com/ubuntu precise universe > /etc/apt/sources.list.d/universe.list')
+		shutit.send_and_expect('apt-get update -qq')
+		shutit.install('iptables')
+		shutit.install('ca-certificates')
+		shutit.install('lxc')
+		shutit.install('curl')
+		shutit.install('aufs-tools')
+		shutit.send_and_expect('pushd /usr/bin')
+		shutit.send_and_expect('curl https://get.docker.io/builds/Linux/x86_64/docker-latest > docker')
+		shutit.send_and_expect('chmod +x docker')
 		wrapdocker = """cat > /usr/bin/wrapdocker << 'END'
 #!/bin/bash
 
@@ -165,8 +163,8 @@ docker -d &
 exec bash
 fi
 END"""
-		util.send_and_expect(container_child,wrapdocker,root_prompt_expect)
-		util.send_and_expect(container_child,'chmod +x /usr/bin/wrapdocker',root_prompt_expect)
+		shutit.send_and_expect(wrapdocker)
+		shutit.send_and_expect('chmod +x /usr/bin/wrapdocker')
 		start_docker = """cat > /root/start_docker.sh << 'END'
 #!/bin/bash
 /root/start_ssh_server.sh
@@ -175,9 +173,9 @@ docker -d &
 echo "SSH Server up"
 echo "Docker daemon running"
 END"""
-		util.send_and_expect(container_child,start_docker,root_prompt_expect)
-		util.send_and_expect(container_child,'chmod +x /root/start_docker.sh',root_prompt_expect)
-		util.send_and_expect(container_child,'popd',root_prompt_expect)
+		shutit.send_and_expect(start_docker)
+		shutit.send_and_expect('chmod +x /root/start_docker.sh')
+		shutit.send_and_expect('popd')
 		return True
 
 	# start
