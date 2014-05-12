@@ -2,7 +2,7 @@ import os
 import json
 import copy
 
-from bottle import route, run, request
+from bottle import route, run, request, static_file
 
 import shutit_main
 import shutit_global
@@ -30,86 +30,134 @@ start_shutit()
 
 index_html = '''
 <html>
+<head>
+<script src="/static/react-0.10.0.min.js"></script>
+<script src="/static/JSXTransformer-0.10.0.js"></script>
+</head>
 <body>
-<div id="loading" style="visibility: hidden; padding: 10px; background-color: yellow;">LOADING</div>
-Modules:
-<ul id="mods"></ul>
-Errors:
-<ul id="errs"></ul>
-<script>
+<div id="ShutItUI"></div>
+<script type="text/jsx">
+/** @jsx React.DOM */
 'use strict';
-function getmodules(mid_list) {
-	var r = new XMLHttpRequest();
-	r.open('POST', '/info', true);
-	r.setRequestHeader("Content-type", "application/json");
-	r.onreadystatechange = function () {
-		if (r.readyState != 4 || r.status != 200) return;
-		updatedoc(r.responseText);
-	};
-	r.send(JSON.stringify({'to_build': mid_list}));
-}
-function updatedoc(info) {
-	var info = JSON.parse(info);
-	var errsElt = document.getElementById('errs');
-
-	errsElt.innerHTML = '';
-	info.errs.map(function (e) {
-		var elt = document.createElement('li');
-		elt.textContent = e;
-		errsElt.appendChild(elt);
-	});
-
-	var modsElt = document.getElementById('mods');
-	if (document.querySelectorAll('#mods > li').length == 0) {
-		info.modules.map(function (m) {
-			modsElt.appendChild(setupmodule(m));
-		});
+function copy(obj) {
+	var newObj = {};
+	for (var key in obj) {
+		if (obj.hasOwnProperty(key)) {
+			newObj[key] = obj[key];
+		}
 	}
-	info.modules.map(function (m) {
-		var elt = document.getElementById(m.module_id);
-		if (m.build) {
-			elt.style.fontWeight = 'bold';
+	return newObj;
+}
+var StatusIndicator = React.createClass({
+	render: function () {
+		var style = {
+			visibility: this.props.loading ? '' : 'hidden',
+			padding: '10px',
+			backgroundColor: 'yellow'
+		}
+		return <div style={style}>LOADING</div>;
+	}
+});
+var ModuleListItem = React.createClass({
+	handleChange: function (property, event) {
+		var value, elt = event.target;
+		if (elt.type && elt.type === 'checkbox') {
+			value = elt.checked;
 		} else {
-			elt.style.fontWeight = '';
+			throw Error('unknown value');
 		}
-	});
-	toggleloading(false);
-}
-function setupmodule(m) {
-	var elt = document.createElement('li');
-	elt.id = m.module_id;
-	var checkbox = document.createElement('input');
-	checkbox.type = 'checkbox';
-	checkbox.addEventListener('change', changelistener);
-	var desc = document.createElement('span');
-	desc.textContent = m.module_id + ' - ' + m.run_order;
-	elt.appendChild(checkbox);
-	elt.appendChild(desc);
-	return elt;
-}
-function changelistener() {
-	toggleloading(true);
-	var midlist = [];
-	// qsa doesn't return an array
-	[].slice.call(document.querySelectorAll('#mods > li')).map(function (e) {
-		if (e.children[0].checked) {
-			midlist.push(e.id);
-		}
-	});
-	getmodules(midlist);
-}
-function toggleloading(loading) {
-	var elts = [].slice.call(document.querySelectorAll('#mods > li'))
-	if (loading) {
-		document.getElementById('loading').style.visibility = '';
-	} else {
-		document.getElementById('loading').style.visibility = 'hidden';
+		this.props.onChange(this.props.module.module_id, property, value);
+	},
+	render: function () {
+		return (
+			<li id="{this.props.module.module_id}">
+				<input type="checkbox" checked={this.props.module.selected}
+					disabled={this.props.loading}
+					onChange={this.handleChange.bind(this, 'selected')}></input>
+				<span style={{fontWeight: this.props.module.build ? 'bold' : ''}}>
+					{this.props.module.module_id}
+					- {this.props.module.run_order}
+					{this.props.module.build}</span>
+			</li>
+		)
 	}
-	elts.map(function (e) {
-		e.children[0].disabled = loading;
-	});
-}
-getmodules([]);
+});
+var ModuleList = React.createClass({
+	handleChange: function (module_id, property, value) {
+		this.props.onChange(module_id, property, value);
+	},
+	render: function () {
+		var moduleItems = this.props.modules.map((function (module) {
+			return <ModuleListItem
+				module={module}
+				loading={this.props.loading}
+				key={module.module_id}
+				onChange={this.handleChange} />;
+		}).bind(this));
+		return <div>Modules: <ul>{moduleItems}</ul></div>;
+	}
+});
+var ErrList = React.createClass({
+	render: function () {
+		var errs = this.props.errs.map(function (err, i) {
+			return <li key={i}>{err}</li>;
+		});
+		return <div>Errors: <ul>{errs}</ul></div>;
+	}
+});
+var ShutItUI = React.createClass({
+	getInfo: function (newstate) {
+		var loadingstate = copy(this.state);
+		loadingstate.loading = true;
+		this.setState(loadingstate);
+		var mid_list = [];
+		newstate.modules.map(function (module) {
+			if (module.selected) {
+				mid_list.push(module.module_id);
+			}
+		})
+		var r = new XMLHttpRequest();
+		r.open('POST', '/info', true);
+		r.setRequestHeader('Content-type', 'application/json');
+		r.onreadystatechange = (function () {
+			if (r.readyState != 4 || r.status != 200) return;
+			var verifiedstate = JSON.parse(r.responseText);
+			verifiedstate.loading = false;
+			this.setState(verifiedstate);
+		}).bind(this);
+		r.send(JSON.stringify({'to_build': mid_list}));
+	},
+	getInitialState: function () {
+		return {modules: [], errs: []};
+	},
+	componentWillMount: function () {
+		this.getInfo(this.state);
+	},
+	handleChange: function (module_id, property, value) {
+		var newstate = copy(this.state);
+		for (var i = 0; i < newstate.modules.length; i++) {
+			if (newstate.modules[i].module_id === module_id) {
+				newstate.modules[i][property] = value;
+				break;
+			}
+		}
+		this.getInfo(newstate);
+	},
+	render: function () {
+		return (
+			<div>
+				<StatusIndicator loading={this.state.loading} />
+				<ModuleList onChange={this.handleChange}
+					loading={this.state.loading} modules={this.state.modules} />
+				<ErrList errs={this.state.errs} />
+			</div>
+		);
+	}
+});
+React.renderComponent(
+	<ShutItUI />,
+	document.getElementById('ShutItUI')
+);
 </script>
 </body>
 </html>
@@ -119,7 +167,8 @@ getmodules([]);
 def info():
 	shutit.cfg.update(copy.deepcopy(orig_mod_cfg))
 
-	for mid in request.json['to_build']:
+	selected = set(request.json['to_build'])
+	for mid in selected:
 		shutit.cfg[mid]['build'] = True
 
 	errs = []
@@ -133,7 +182,8 @@ def info():
 			{
 				"module_id": mid,
 				"run_order": float(shutit.shutit_map[mid].run_order),
-				"build": shutit.cfg[mid]['build']
+				"build": shutit.cfg[mid]['build'],
+				"selected": mid in selected
 			} for mid in shutit_main.module_ids(shutit)
 		]
 	})
@@ -141,6 +191,10 @@ def info():
 @route('/')
 def index():
 	return index_html
+
+@route('/static/<path:path>')
+def static_srv(path):
+	return static_file(path, root='./web')
 
 if __name__ == '__main__':
 	host = os.environ.get('SHUTIT_HOST', 'localhost')
