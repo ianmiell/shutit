@@ -1,6 +1,7 @@
 import os
 import json
 import copy
+import threading
 
 from bottle import route, run, request, static_file
 
@@ -10,6 +11,8 @@ import util
 
 orig_mod_cfg = {}
 shutit = None
+build_done = False
+build_started = False
 
 def start_shutit():
 	global shutit
@@ -27,10 +30,12 @@ def start_shutit():
 		orig_mod_cfg[mid] = shutit.cfg[mid]
 
 def build_shutit():
+	global build_done
 	shutit_main.do_remove(shutit)
 	shutit_main.do_build(shutit)
 	shutit_main.do_test(shutit)
 	shutit_main.do_finalize(shutit)
+	build_done = True
 
 start_shutit()
 
@@ -39,6 +44,13 @@ index_html = '''
 <head>
 <script src="/static/react-0.10.0.min.js"></script>
 <script src="/static/JSXTransformer-0.10.0.js"></script>
+<style>
+#commandLog {
+	width: 500px; height: 500px; position: fixed; right: 0; top: 0;
+	overflow: scroll; float: left;
+	border-width: 1px; border-style: solid;
+}
+</style>
 </head>
 <body>
 <div id="ShutItUI"></div>
@@ -124,9 +136,10 @@ var ErrList = React.createClass({
 });
 var BuildProgress = React.createClass({
 	getInitialState: function () {
-		return {lines: [], loading: false};
+		return {lines: [], loading: false, interval: 0};
 	},
 	getNewLines: function () {
+		if (this.props.done) { clearInterval(this.state.interval); }
 		if (!this.props.building || this.state.loading) { return; }
 		var loadingstate = copy(this.state);
 		loadingstate.loading = true;
@@ -140,17 +153,16 @@ var BuildProgress = React.createClass({
 		}).bind(this));
 	},
 	componentWillMount: function () {
-		setInterval(this.getNewLines, 1000);
+		var interval = setInterval(this.getNewLines, 1000);
+		var newstate = copy(this.state);
+		newstate.interval = interval;
+		this.setState(newstate);
 	},
 	render: function () {
 		var elts = this.state.lines.map(function (line, i) {
 			return <div key={i}>{line}</div>;
 		});
-		return (
-			<div style={{width: '500px', height: '500px', overflow: 'scroll'}}>
-				{elts}
-			</div>
-		);
+		return <div id="commandLog">{elts}</div>;
 	}
 });
 var ShutItUI = React.createClass({
@@ -174,12 +186,23 @@ var ShutItUI = React.createClass({
 		newstate.loading = true;
 		newstate.building = true;
 		this.setState(newstate);
-		jsonpost('/build', '', (function (success) {
-			var newstate = copy(this.state);
-			newstate.loading = false;
-			newstate.building = false;
-			this.setState(newstate);
-		}).bind(this));
+		var checking = false;
+		var checkbuild = (function () {
+			if (checking) { return; }
+			checking = true;
+			jsonpost('/build', '', (function (done) {
+				if (!done) {
+					checking = false;
+				} else {
+					clearInterval(interval);
+					var newstate = copy(this.state);
+					newstate.building = false;
+					newstate.done = true;
+					this.setState(newstate);
+				}
+			}).bind(this));
+		}).bind(this);
+		var interval = setInterval(checkbuild, 1000);
 	},
 	getInitialState: function () {
 		return {modules: [], errs: [], loading: false, building: false};
@@ -205,7 +228,8 @@ var ShutItUI = React.createClass({
 					loading={this.state.loading} modules={this.state.modules} />
 				<ErrList errs={this.state.errs} />
 				<button onClick={this.beginBuild}>Begin build</button>
-				<BuildProgress building={this.state.building} />
+				<BuildProgress building={this.state.building}
+					done={this.state.done}/>
 			</div>
 		);
 	}
@@ -251,8 +275,15 @@ def log():
 
 @route('/build', method='POST')
 def build():
-	build_shutit()
-	return 'true'
+	global build_started
+	if build_done:
+		return 'true'
+	if not build_started:
+		build_started = True
+		t = threading.Thread(target=build_shutit)
+		t.daemon = True
+		t.start()
+	return 'false'
 
 @route('/')
 def index():
