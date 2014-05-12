@@ -2,6 +2,7 @@ import os
 import json
 import copy
 import threading
+import StringIO
 
 import bottle
 from bottle import route, request, static_file
@@ -26,6 +27,8 @@ def start_shutit():
 	shutit_main.init_shutit_map(shutit)
 	shutit_main.config_collection(shutit)
 	shutit_main.build_core_module(shutit)
+
+	shutit.cfg['build']['build_log'] = StringIO.StringIO()
 
 	for mid in shutit.shutit_map:
 		orig_mod_cfg[mid] = shutit.cfg[mid]
@@ -67,8 +70,11 @@ def info():
 
 @route('/log', method='POST')
 def log():
-	offset = request.json
-	return json.dumps({"lines": shutit.shutit_command_history[offset:]})
+	cmd_offset, log_offset = request.json
+	return json.dumps({
+		"cmds": shutit.shutit_command_history[cmd_offset:],
+		"logs": shutit.cfg['build']['build_log'].getvalue()[log_offset:]
+	})
 
 @route('/build', method='POST')
 def build():
