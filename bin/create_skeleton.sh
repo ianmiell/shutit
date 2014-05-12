@@ -214,7 +214,7 @@ END
 	# sed1 ensures no confusion with double quotes
 	# sed2 replaces script lines with shutit code
 	# sed3 uses treble quotes for simpler escaping of strings
-	egrep -v '^[\s]*$' $INCLUDE_SCRIPT | grep -v '^#' | sed "s/\"$/\" /;s/^/\t\tutil.send_and_expect(container_child,\"\"\"/;s/$/\"\"\",root_prompt_expect)/" > ${SBSI}
+	egrep -v '^[\s]*$' $INCLUDE_SCRIPT | grep -v '^#' | sed "s/\"$/\" /;s/^/\t\tshutit.send_and_expect(\"\"\"/;s/$/\"\"\")/" > ${SBSI}
 	sed "64r ${SBSI}" ${SKELETON_DIR}/${MODULE_NAME}.py > ${SKELETON_DIR}/${MODULE_NAME}.py.new
 	mv ${SKELETON_DIR}/${MODULE_NAME}.py.new ${SKELETON_DIR}/${MODULE_NAME}.py
 fi

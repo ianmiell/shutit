@@ -644,7 +644,7 @@ def get_distro_info(child,outer_expect,cfg):
 	cfg['container']['distro']            = ''
 	cfg['container']['distro_version']    = ''
 	install_type_map = {'ubuntu':'apt','debian':'apt','red hat':'yum','centos':'yum','fedora':'yum'}
-	handle_login(child,cfg,'tmp_prompt')
+	shutit_global.shutit.handle_login('tmp_prompt')
 	if file_exists(child,cfg['build']['cidfile'],cfg['expect_prompts']['tmp_prompt']):
 		fail('Did not start up container. If you got a "port in use" error, try:\n\n' + cfg['host']['docker_executable'] + ' ps -a | grep ' + cfg['container']['ports'] + ' | awk \'{print $1}\' | xargs ' + cfg['host']['docker_executable'] + ' kill\n\n')
 	for key in install_type_map.keys():
@@ -671,7 +671,7 @@ def get_distro_info(child,outer_expect,cfg):
 		send_and_expect(child,'yum update -y',cfg['expect_prompts']['tmp_prompt'],timeout=9999)
 	if cfg['container']['install_type'] == '' or cfg['container']['distro'] == '':
 		fail('Could not determine Linux distro information. Please inform maintainers.')
-	handle_revert_prompt(child,outer_expect,'tmp_prompt')
+	shutit_global.shutit.handle_revert_prompt(outer_expect,'tmp_prompt')
 
 def set_password(child,cfg,expect,password):
 	if cfg['container']['install_type'] == 'apt':
@@ -682,21 +682,19 @@ def set_password(child,cfg,expect,password):
 		send_and_expect(child,'passwd','ew password',check_exit=False,record_command=False)
 		send_and_expect(child,password,'ew password',check_exit=False,record_command=False)
 		send_and_expect(child,password,expect,record_command=False)
-	handle_login(child,cfg,'password_tmp_prompt')
+	shutit_global.shutit.handle_login('password_tmp_prompt')
 	send_and_expect(child,'/bin/true',cfg['expect_prompts']['password_tmp_prompt'],record_command=False)
-	handle_revert_prompt(child,expect,'password_tmp_prompt')
+	shutit_global.shutit.handle_revert_prompt(expect,'password_tmp_prompt')
 
 
 # Deprecated
 # Returns prompt expected
 def handle_login(child,cfg,prompt_name):
-	local_prompt = 'SHUTIT_TMP_PROMPT_' + prompt_name + '#' + str(random.getrandbits(32))
-	cfg['expect_prompts'][prompt_name] = '\r\n' + local_prompt
-	send_and_expect(child,'SHUTIT_BACKUP_PS1_' + prompt_name + """=$PS1 && export SHUTIT_PROMPT_COMMAND_BACKUP_""" + prompt_name + """=$PROMPT_COMMAND""" + prompt_name + """ && PS1='""" + local_prompt + """' && unset PROMPT_COMMAND""",cfg['expect_prompts'][prompt_name],record_command=False,fail_on_empty_before=False)
+	shutit_global.shutit.handle_login(prompt_name)
 
 # Deprecated
 def handle_revert_prompt(child,expect,prompt_name):
-	send_and_expect(child,"""PS1="${SHUTIT_BACKUP_PS1_""" + prompt_name + """}" && unset SHUTIT_PROMPT_COMMAND_BACKUP_""" + prompt_name + """ && unset SHUTIT_BACKUP_PS1_""" + prompt_name,expect,check_exit=False,record_command=False,fail_on_empty_before=False)
+	shutit_global.shutit.handle_revert_prompt(expect,prompt_name)
 
 
 # Determine whether a user_id for a user is available

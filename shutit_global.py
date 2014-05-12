@@ -141,6 +141,8 @@ class ShutIt(object):
 
 
 	def _check_exit(self,send,expect=None,child=None,timeout=3600,exit_values=None):
+		expect = expect or self.get_default_expect()
+		child = child or self.get_default_child()
 		if exit_values is None:
 			exit_values = ['0']
 		child.sendline('echo EXIT_CODE:$?')
@@ -380,6 +382,15 @@ class ShutIt(object):
 			return False
 		self.send_and_expect('%s %s %s' % (cmd,opts,package),expect,timeout=timeout)
 		return True
+
+	def handle_login(self,prompt_name):
+		local_prompt = 'SHUTIT_TMP_PROMPT_' + prompt_name + '#' + str(random.getrandbits(32))
+		self.cfg['expect_prompts'][prompt_name] = '\r\n' + local_prompt
+		self.send_and_expect('SHUTIT_BACKUP_PS1_' + prompt_name + """=$PS1 && export SHUTIT_PROMPT_COMMAND_BACKUP_""" + prompt_name + """=$PROMPT_COMMAND""" + prompt_name + """ && PS1='""" + local_prompt + """' && unset PROMPT_COMMAND""",expect=self.cfg['expect_prompts'][prompt_name],record_command=False,fail_on_empty_before=False)
+
+	def handle_revert_prompt(self,expect,prompt_name):
+		self.send_and_expect("""PS1="${SHUTIT_BACKUP_PS1_""" + prompt_name + """}" && unset SHUTIT_PROMPT_COMMAND_BACKUP_""" + prompt_name + """ && unset SHUTIT_BACKUP_PS1_""" + prompt_name,expect=expect,check_exit=False,record_command=False,fail_on_empty_before=False)
+
 
 
 def init():
