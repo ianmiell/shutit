@@ -43,7 +43,7 @@ class adduser(ShutItModule):
 	#
 	# Should return True if it is certain it's there, else False.
 	def is_installed(self,shutit):
-		return True
+		return False
 
 	# build
 	#
