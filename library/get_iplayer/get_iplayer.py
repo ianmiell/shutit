@@ -23,29 +23,26 @@ import util
 class get_iplayer(ShutItModule):
 
 	def is_installed(self,shutit):
-		config_dict = shutit.cfg
 		return False
 
 	def build(self,shutit):
-		config_dict = shutit.cfg
-		container_child = util.get_pexpect_child('container_child') # Let's get the container child object from pexpect.
-		root_prompt_expect = config_dict['expect_prompts']['root_prompt'] # Set the string we expect to see once commands are done.
-		util.install(container_child,config_dict,'git',root_prompt_expect)
-		util.install(container_child,config_dict,'liblwp-online-perl',root_prompt_expect)
-		util.install(container_child,config_dict,'rtmpdump',root_prompt_expect)
-		util.install(container_child,config_dict,'ffmpeg',root_prompt_expect)
-		util.install(container_child,config_dict,'mplayer',root_prompt_expect)
-		util.install(container_child,config_dict,'atomicparsley',root_prompt_expect)
-		util.install(container_child,config_dict,'id3v2',root_prompt_expect)
-		util.install(container_child,config_dict,'libmp3-info-perl',root_prompt_expect)
-		util.install(container_child,config_dict,'libmp3-tag-perl',root_prompt_expect)
-		util.install(container_child,config_dict,'libnet-smtp-ssl-perl',root_prompt_expect)
-		util.install(container_child,config_dict,'libnet-smtp-tls-butmaintained-perl',root_prompt_expect)
-		util.install(container_child,config_dict,'libxml-simple-perl',root_prompt_expect)
-		util.send_and_expect(container_child,'git clone git://git.infradead.org/get_iplayer.git',root_prompt_expect)
-		util.send_and_expect(container_child,'cd get_iplayer',root_prompt_expect)
-		util.send_and_expect(container_child,'chmod 755 get_iplayer',root_prompt_expect)
-		util.send_and_expect(container_child,'./get_iplayer',root_prompt_expect)
+		shutit.set_default_expect(shutit.cfg['expect_prompts']['root_prompt'])
+		shutit.install('git')
+		shutit.install('liblwp-online-perl')
+		shutit.install('rtmpdump')
+		shutit.install('ffmpeg')
+		shutit.install('mplayer')
+		shutit.install('atomicparsley')
+		shutit.install('id3v2')
+		shutit.install('libmp3-info-perl')
+		shutit.install('libmp3-tag-perl')
+		shutit.install('libnet-smtp-ssl-perl')
+		shutit.install('libnet-smtp-tls-butmaintained-perl')
+		shutit.install('libxml-simple-perl')
+		shutit.send_and_expect('git clone git://git.infradead.org/get_iplayer.git')
+		shutit.send_and_expect('cd get_iplayer')
+		shutit.send_and_expect('chmod 755 get_iplayer')
+		shutit.send_and_expect('./get_iplayer')
 		return True
 
 if not util.module_exists('shutit.tk.get_iplayer.get_iplayer'):

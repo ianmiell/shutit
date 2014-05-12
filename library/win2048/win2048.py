@@ -34,10 +34,7 @@ class win2048(ShutItModule):
 	# 
 	# Should return True if it ready, else False.
 	def check_ready(self,shutit):
-		config_dict = shutit.cfg
-		container_child = util.get_pexpect_child('container_child')
-		root_prompt_expect = config_dict['expect_prompts']['root_prompt']
-		return util.file_exists(container_child,'/resources/README.md',root_prompt_expect)
+		return shutit.file_exists('/resources/README.md')
 
 	# is_installed
 	#
@@ -46,10 +43,7 @@ class win2048(ShutItModule):
 	#
 	# Should return True if it is certain it's there, else False.
 	def is_installed(self,shutit):
-		config_dict = shutit.cfg
-		container_child = util.get_pexpect_child('container_child')
-		root_prompt_expect = config_dict['expect_prompts']['root_prompt']
-		return util.file_exists(container_child,'/tmp/container_touched.sh',root_prompt_expect) and util.file_exists(container_child,'/tmp/README.md',root_prompt_expect)
+		return shutit.file_exists('/tmp/container_touched.sh') and shutit.file_exists('/tmp/README.md')
 
 	# build
 	#
@@ -60,12 +54,10 @@ class win2048(ShutItModule):
 	#
 	# Should return True if it has succeeded in building, else False.
 	def build(self,shutit):
-		config_dict = shutit.cfg
-		container_child = util.get_pexpect_child('container_child') # Let's get the container child object from pexpect.
-		root_prompt_expect = config_dict['expect_prompts']['root_prompt'] # Set the string we expect to see once commands are done.
-		util.install(container_child,config_dict,'firefox',root_prompt_expect)
-		util.install(container_child,config_dict,'xdotool',root_prompt_expect)
-		util.install(container_child,config_dict,'vim',root_prompt_expect)
+		shutit.set_default_expect(shutit.cfg['expect_prompts']['root_prompt'])
+		shutit.install('firefox')
+		shutit.install('xdotool')
+		shutit.install('vim')
 		start_win2048 = """cat > /root/start_win2048.sh << 'END'
 # Start
 /root/start_vnc.sh
@@ -78,40 +70,8 @@ xdotool key F6
 xdotool type http://gabrielecirulli.github.io/2048/
 xdotool key KP_Enter
 END"""
-		util.send_and_expect(container_child,start_win2048,root_prompt_expect)
-		util.send_and_expect(container_child,'chmod +x /root/start_win2048.sh',root_prompt_expect)
-		return True
-
-	# start
-	#
-	# Run when module should be installed (is_installed() or configured to build is true)
-	# Run after repo work.
-	def start(self,shutit):
-		config_dict = shutit.cfg
-		# We don't want to start this as part of build
-		return True
-	# stop
-	#
-	# Run when module should be stopped.
-	# Run before repo work, and before finalize is called.
-	def stop(self,shutit):
-		config_dict = shutit.cfg
-		return True
-
-	# cleanup
-	#
-	# Cleanup the module, ie clear up stuff not needed for the rest of the build, eg tar files removed, apt-get cleans.
-	# Should return True if all is OK, else False.
-	# Note that this is only run if the build phase was actually run.
-	def cleanup(self,shutit):
-		config_dict = shutit.cfg
-		return True
-
-	# finalize
-	#
-	# Finalize the module, ie do things that need doing before we exit.
-	def finalize(self,shutit):
-		config_dict = shutit.cfg
+		shutit.send_and_expect(start_win2048)
+		shutit.send_and_expect('chmod +x /root/start_win2048.sh')
 		return True
 
 	# remove
@@ -119,10 +79,7 @@ END"""
 	# Remove the module, which should ensure the module has been deleted 
 	# from the system.
 	def remove(self,shutit):
-		config_dict = shutit.cfg
-		container_child = util.get_pexpect_child('container_child')
-		container_child = util.get_pexpect_child('container_child')
-		util.send_and_expect(container_child,'rm -f /root/start_win2048.sh',config_dict['expect_prompts']['root_prompt'])
+		shutit.send_and_expect('rm -f /root/start_win2048.sh')
 		return True
 
 	# test
@@ -131,19 +88,7 @@ END"""
 	# Should return True if all is OK, else False.
 	# This is run regardless of whether the module is installed or not.
 	def test(self,shutit):
-		config_dict = shutit.cfg
-		container_child = util.get_pexpect_child('container_child')
-		root_prompt_expect = config_dict['expect_prompts']['root_prompt']
-		# Check the packages we need are installed.
-		return util.package_installed(container_child,config_dict,'firefox',root_prompt_expect)
-
-	# get_config
-	#
-	# each object can handle config here
-	def get_config(self,shutit):
-		config_dict = shutit.cfg
-		cp = config_dict['config_parser']
-		return True
+		return shutit.package_installed('firefox')
 
 
 # win2048(string,float)

@@ -27,67 +27,58 @@ import util
 class wordpress(ShutItModule):
 
 	def is_installed(self,shutit):
-		config_dict = shutit.cfg
 		return False
 
 	def build(self,shutit):
-		config_dict = shutit.cfg
-		container_child = util.get_pexpect_child('container_child')
-		util.install(container_child,config_dict,'apache2',config_dict['expect_prompts']['root_prompt'])
-		util.install(container_child,config_dict,'wordpress',config_dict['expect_prompts']['root_prompt'])
+		shutit.set_default_expect(shutit.cfg['expect_prompts']['root_prompt'])
+		shutit.install('apache2')
+		shutit.install('wordpress')
 		apache_site = """cat > /etc/apache2/sites-available/wordpress << END
         Alias /blog /usr/share/wordpress
         Alias /blog/wp-content /var/lib/wordpress/wp-content
         <Directory /usr/share/wordpress>
-            Options FollowSymLinks
-            AllowOverride Limit Options FileInfo
-            DirectoryIndex index.php
+            Options followSymLinks
+            Allowoverride Limit Options FileInfo
+            Directoryindex index.php
             Order allow,deny
             Allow from all
         </Directory>
         <Directory /var/lib/wordpress/wp-content>
-            Options FollowSymLinks
+            Options followSymLinks
             Order allow,deny
             Allow from all
         </Directory>
 END"""
-		util.send_and_expect(container_child,apache_site,config_dict['expect_prompts']['root_prompt'])
+		shutit.send_and_expect(apache_site)
 		wordpress_mysql = """cat > /etc/wordpress/config-localhost.php << END
 <?php
 define('DB_NAME', 'wordpress');
 define('DB_USER', 'wordpress');
-define('DB_PASSWORD', """ + config_dict['shutit.tk.wordpress.wordpress']['password'] + """
+define('DB_PASSWord', """ + shutit.cfg['shutit.tk.wordpress.wordpress']['password'] + """
 define('DB_HOST', 'localhost');
-define('WP_CONTENT_DIR', '/var/lib/wordpress/wp-content');
+define('WP_CONTEnt_dir', '/var/lib/wordpress/wp-content');
 ?>
 END"""
-		util.send_and_expect(container_child,wordpress_mysql,config_dict['expect_prompts']['root_prompt'])
+		shutit.send_and_expect(wordpress_mysql)
 		sql = """cat > /tmp/sql << END
 CREATE DATABASE wordpress;
-GRANT SELECT,INSERT,UPDATE,DELETE,CREATE,DROP,ALTER
+GRANT SELECT,INSert,update,DELETE,CREATE,DROP,ALTER
 ON wordpress.*
 TO wordpress@localhost
 IDENTIFIED BY 'yourpasswordhere';
 FLUSH PRIVILEGES;
 END"""
-		util.send_and_expect(container_child,sql,config_dict['expect_prompts']['root_prompt'])
-		util.send_and_expect(container_child,'cat /tmp/sql | mysql -u' + config_dict['shutit.tk.mysql.mysql']['mysql_user'] + ' -p' + config_dict['shutit.tk.mysql.mysql']['mysql_user_password'] + ' && rm /tmp/sql',config_dict['expect_prompts']['root_prompt'],check_exit=False,record_command=False)
-		return True
+		shutit.send_and_expect(sql)
+		shutit.send_and_expect('cat /tmp/sql | mysql -u' + shutit.cfg['shutit.tk.mysql.mysql']['mysql_user'] + ' -p' + shutit.cfg['shutit.tk.mysql.mysql']['mysql_user_password'] + ' && rm /tmp/sql',check_exit=False,record_command=False)
+		return true
 
 	def start(self,shutit):
-		config_dict = shutit.cfg
-		container_child = util.get_pexpect_child('container_child')
-		util.send_and_expect(container_child,'sudo apache2ctl restart',config_dict['expect_prompts']['root_prompt'])
-		return True
-
-	def stop(self,shutit):
-		config_dict = shutit.cfg
+		shutit.send_and_expect('sudo apache2ctl restart')
 		return True
 
 	def get_config(self,shutit):
-		config_dict = shutit.cfg
-		cp = config_dict['config_parser']
-		config_dict['shutit.tk.wordpress.wordpress']['password'] = cp.get('shutit.tk.wordpress.wordpress','password')
+		cp = shutit.cfg['config_parser']
+		shutit.cfg['shutit.tk.wordpress.wordpress']['password'] = cp.get('shutit.tk.wordpress.wordpress','password')
 		return True
 
 

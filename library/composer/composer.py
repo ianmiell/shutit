@@ -31,10 +31,9 @@ class composer(ShutItModule):
 		return False
 
 	def build(self,shutit):
-		config_dict = shutit.cfg
-		container_child = util.get_pexpect_child('container_child')
-		util.install(container_child,config_dict,'curl',config_dict['expect_prompts']['root_prompt'])
-		util.install(container_child,config_dict,'php5',config_dict['expect_prompts']['root_prompt'])
+		shutit.set_default_expect(shutit.cfg['expect_prompts']['root_prompt'])
+		shutit.install('curl')
+		shutit.install('php5')
 		shutit.send_and_expect('curl -sS https://getcomposer.org/installer | php')
 		return True
 

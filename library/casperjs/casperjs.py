@@ -27,14 +27,11 @@ import util
 class casperjs(ShutItModule):
 
 	def is_installed(self,shutit):
-		res = shutit.file_exists('/opt/casperjs',shutit.cfg['expect_prompts']['root_prompt'],directory=True)
-		return res
+		return shutit.file_exists('/opt/casperjs',shutit.cfg['expect_prompts']['root_prompt'],directory=True)
 
 	def build(self,shutit):
-		cfg = shutit.cfg
-		container_child = util.get_pexpect_child('container_child')
-		shutit.set_default_expect(cfg['expect_prompts']['root_prompt'])
-		util.install(container_child,cfg,'git',cfg['expect_prompts']['root_prompt'])
+		shutit.set_default_expect(shutit.cfg['expect_prompts']['root_prompt'])
+		shutit.install('git')
 		shutit.run_script("""
 			pushd /opt
 			git clone git://github.com/n1k0/casperjs.git

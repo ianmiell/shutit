@@ -27,37 +27,29 @@ import util
 class phantomjs(ShutItModule):
 
 	def is_installed(self,shutit):
-		config_dict = shutit.cfg
-		container_child = util.get_pexpect_child('container_child')
-		res = util.file_exists(container_child,'/opt/phantomjs',config_dict['expect_prompts']['root_prompt'],directory=True)
-		return res
+		return shutit.file_exists('/opt/phantomjs',directory=True)
 
 	def build(self,shutit):
-		config_dict = shutit.cfg
-		container_child = util.get_pexpect_child('container_child')
-		util.send_and_expect(container_child,'pushd /opt',config_dict['expect_prompts']['root_prompt'])
-		# TODO: latest version?
-		util.install(container_child,config_dict,'curl',config_dict['expect_prompts']['root_prompt'])
-		util.install(container_child,config_dict,'bzip2',config_dict['expect_prompts']['root_prompt'])
-		util.send_and_expect(container_child,'curl --insecure https://phantomjs.googlecode.com/files/phantomjs-1.9.0-linux-x86_64.tar.bz2 > phantomjs-1.9.0-linux-x86_64.tar.bz2',config_dict['expect_prompts']['root_prompt'])
-		util.send_and_expect(container_child,'bunzip2 phantomjs-1.9.0-linux-x86_64.tar.bz2',config_dict['expect_prompts']['root_prompt'])
-		util.send_and_expect(container_child,'tar -xvf phantomjs-1.9.0-linux-x86_64.tar',config_dict['expect_prompts']['root_prompt'])
-		util.send_and_expect(container_child,'ln -s phantomjs-1.9.0-linux-x86_64 phantomjs',config_dict['expect_prompts']['root_prompt'],check_exit=False)
-		util.send_and_expect(container_child,'popd',config_dict['expect_prompts']['root_prompt'])
+		shutit.set_default_expect(shutit.cfg['expect_prompts']['root_prompt'])
+		shutit.send_and_expect('pushd /opt')
+		shutit.install('curl')
+		shutit.install('bzip2')
+		# TODO: latest version of pj?
+		shutit.send_and_expect('curl --insecure https://phantomjs.googlecode.com/files/phantomjs-1.9.0-linux-x86_64.tar.bz2 > phantomjs-1.9.0-linux-x86_64.tar.bz2')
+		shutit.send_and_expect('bunzip2 phantomjs-1.9.0-linux-x86_64.tar.bz2')
+		shutit.send_and_expect('tar -xvf phantomjs-1.9.0-linux-x86_64.tar')
+		shutit.send_and_expect('ln -s phantomjs-1.9.0-linux-x86_64 phantomjs')
+		shutit.send_and_expect('popd')
 		return True
 
 	def cleanup(self,shutit):
-		config_dict = shutit.cfg
-		container_child = util.get_pexpect_child('container_child')
-		util.send_and_expect(container_child,'pushd /opt',config_dict['expect_prompts']['root_prompt'])
-		util.send_and_expect(container_child,'rm phantomjs-*.tar',config_dict['expect_prompts']['root_prompt'])
-		util.send_and_expect(container_child,'popd /opt',config_dict['expect_prompts']['root_prompt'])
+		shutit.send_and_expect('pushd /opt')
+		shutit.send_and_expect('rm phantomjs-*.tar')
+		shutit.send_and_expect('popd')
 		return True
 
 	def remove(self,shutit):
-		config_dict = shutit.cfg
-		container_child = util.get_pexpect_child('container_child')
-		util.send_and_expect(container_child,'rm -rf /opt/phantomjs',config_dict['expect_prompts']['root_prompt'])
+		shutit.send_and_expect('rm -rf /opt/phantomjs')
 		return True
 
 if not util.module_exists('shutit.tk.phantomjs.phantomjs'):
