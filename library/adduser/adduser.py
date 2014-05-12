@@ -55,8 +55,11 @@ class adduser(ShutItModule):
 	# Should return True if it has succeeded in building, else False.
 	def build(self,shutit):
 		container_child = util.get_pexpect_child('container_child') # Let's get the container child object from pexpect.
-		root_prompt_expect = shutit.cfg['expect_prompts']['root_prompt'] # Set the string we expect to see once commands are done.
-		# TODO: add user
+		shutit.send_and_expect('useradd -u ' + cfg['host']['real_user_id'] + ' -d /home/' + cfg['host']['real_user'] + ' -s /bin/bash -m ' + cfg['host']['real_user'])
+		shutit.send_and_expect('adduser ' + cfg['host']['real_user'] + ' sudo')
+		shutit.send_and_expect('passwd ' + cfg['host']['real_user'],'Enter new',check_exit=False)
+		shutit.send_and_expect(cfg['host']['password'],'Retype new',check_exit=False)
+		shutit.send_and_expect(cfg['host']['password'])
 		return True
 
 	# start
