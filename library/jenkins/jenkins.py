@@ -26,12 +26,12 @@ class jenkins(ShutItModule):
 		return False
 
 	def build(self,shutit):
+		shutit.set_default_expect(shutit.cfg['expect_prompts']['root_prompt'])
 		shutit.install('jenkins')
 		# TODO start script
 		return True
 
 	def start(self,shutit):
-		shutit.set_default_expect(shutit.cfg['expect_prompts']['root_prompt'])
 		# TODO start jenkins
 		#shutit.send_and_expect('/root/start_jenkins.sh')
 		return True
