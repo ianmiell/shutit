@@ -554,9 +554,6 @@ def add_line_to_file(child,line,filename,expect,match_regexp=None,truncate=False
 
 # Deprecated
 def get_re_from_child(string,regexp,cfg=None):
-	if cfg not in [None, shutit_global.shutit.cfg]:
-		print "Report this error and stack trace to repo owner, #d104"
-		assert False
 	return shutit_global.shutit.get_re_from_child(string, regexp)
 
 # expect must be a string

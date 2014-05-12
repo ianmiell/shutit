@@ -70,7 +70,7 @@ FLUSH PRIVILEGES;
 END"""
 		shutit.send_and_expect(sql)
 		shutit.send_and_expect('cat /tmp/sql | mysql -u' + shutit.cfg['shutit.tk.mysql.mysql']['mysql_user'] + ' -p' + shutit.cfg['shutit.tk.mysql.mysql']['mysql_user_password'] + ' && rm /tmp/sql',check_exit=False,record_command=False)
-		return true
+		return True
 
 	def start(self,shutit):
 		shutit.send_and_expect('sudo apache2ctl restart')
