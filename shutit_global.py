@@ -179,7 +179,7 @@ class ShutIt(object):
 		self.send_and_expect('rm /tmp/shutit_script.sh', expect, child)
 		return ret
 
-	# TODO: Comments needed here, as well as example in template.
+	# TODO: Comments needed here, as well as example in template. And a test?
 	def send_file(self,path,contents,expect=None,child=None,binary=False):
 		if cfg['build']['debug']:
 			self.log('================================================================================')
@@ -336,7 +336,6 @@ def init():
 	cfg['build']['build_log']   = None
 	cfg['build']['report']      = ''
 	cfg['container']            = {}
-	#cfg['container']['docker_image_default'] = 'stackbrew/ubuntu' # Statically set up here as needed before general config setup made.
 	cfg['container']['docker_image_default'] = 'ubuntu:12.04' # Statically set up here as needed before general config setup made.
 	cfg['host']                 = {}
 	cfg['repository']           = {}
