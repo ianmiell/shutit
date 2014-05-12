@@ -185,7 +185,6 @@ var ShutItUI = React.createClass({
 				} else {
 					clearInterval(interval);
 					var newstate = copy(this.state);
-					newstate.buildStarted = false;
 					newstate.buildDone = true;
 					this.setState(newstate);
 				}
