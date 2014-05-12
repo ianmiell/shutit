@@ -46,10 +46,11 @@ index_html = '''
 <script src="/static/JSXTransformer-0.10.0.js"></script>
 <style>
 #commandLog {
-	width: 500px; height: 500px; position: fixed; right: 0; top: 0;
-	overflow: scroll; float: left;
-	border-width: 1px; border-style: solid;
+	width: 500px; height: 500px; right: 0; top: 0; position: fixed;
+	overflow-y: scroll; border-width: 1px; border-style: solid;
 }
+#statusBar { padding: 10px; margin-bottom: 10px; height: 50px; width: 200px; }
+pre { margin: 0; padding: 0; }
 </style>
 </head>
 <body>
@@ -79,12 +80,15 @@ function jsonpost(url, data, cb) {
 
 var StatusIndicator = React.createClass({
 	render: function () {
+		var color = 'transparent', text = '';
+		if (this.props.done) { color = "green"; text = "done"; }
+		else if (this.props.building) { color = "purple"; text = "building"; }
+		else if (this.props.loading) { color = "yellow"; text = "loading"; }
 		var style = {
-			visibility: this.props.loading ? '' : 'hidden',
-			padding: '10px',
-			backgroundColor: 'yellow'
+			visibility: color === 'transparent' ? 'hidden' : '',
+			backgroundColor: color
 		}
-		return <div style={style}>LOADING</div>;
+		return <div id="statusBar" style={style}>{text.toUpperCase()}</div>;
 	}
 });
 var ModuleListItem = React.createClass({
@@ -101,7 +105,7 @@ var ModuleListItem = React.createClass({
 		return (
 			<li id="{this.props.module.module_id}">
 				<input type="checkbox" checked={this.props.module.selected}
-					disabled={this.props.loading}
+					disabled={this.props.noInput}
 					onChange={this.handleChange.bind(this, 'selected')}></input>
 				<span style={{fontWeight: this.props.module.build ? 'bold' : ''}}>
 					{this.props.module.module_id}
@@ -119,7 +123,7 @@ var ModuleList = React.createClass({
 		var moduleItems = this.props.modules.map((function (module) {
 			return <ModuleListItem
 				module={module}
-				loading={this.props.loading}
+				noInput={this.props.noInput}
 				key={module.module_id}
 				onChange={this.handleChange} />;
 		}).bind(this));
@@ -136,18 +140,18 @@ var ErrList = React.createClass({
 });
 var BuildProgress = React.createClass({
 	getInitialState: function () {
-		return {lines: [], loading: false, interval: 0};
+		return {lines: [], loadingLog: false, interval: 0};
 	},
 	getNewLines: function () {
 		if (this.props.done) { clearInterval(this.state.interval); }
-		if (!this.props.building || this.state.loading) { return; }
+		if (!this.props.building || this.state.loadingLog) { return; }
 		var loadingstate = copy(this.state);
-		loadingstate.loading = true;
+		loadingstate.loadingLog = true;
 		this.setState(loadingstate);
 		jsonpost('/log', this.state.lines.length, (function (data) {
 			var newstate = {
 				lines: this.state.lines.concat(data.lines),
-				loading: false
+				loadingLog: false
 			};
 			this.setState(newstate);
 		}).bind(this));
@@ -158,9 +162,21 @@ var BuildProgress = React.createClass({
 		newstate.interval = interval;
 		this.setState(newstate);
 	},
+	componentWillUpdate: function () {
+		var node = this.getDOMNode();
+		// This should be === per http://blog.vjeux.com/2013/javascript/scroll-position-with-react.html
+		// but it doesn't seem to work...
+		this.toBottom = node.scrollTop + node.offsetHeight >= node.scrollHeight;
+	},
+	componentDidUpdate: function() {
+		if (this.toBottom) {
+			var node = this.getDOMNode();
+			node.scrollTop = node.scrollHeight;
+		}
+	},
 	render: function () {
 		var elts = this.state.lines.map(function (line, i) {
-			return <div key={i}>{line}</div>;
+			return <pre key={i}>{line}</pre>;
 		});
 		return <div id="commandLog">{elts}</div>;
 	}
@@ -168,7 +184,7 @@ var BuildProgress = React.createClass({
 var ShutItUI = React.createClass({
 	getInfo: function (newstate) {
 		var loadingstate = copy(this.state);
-		loadingstate.loading = true;
+		loadingstate.loadingInfo = true;
 		this.setState(loadingstate);
 		var mid_list = [];
 		newstate.modules.map(function (module) {
@@ -177,13 +193,13 @@ var ShutItUI = React.createClass({
 			}
 		})
 		jsonpost('/info', {to_build: mid_list}, (function (verifiedstate) {
-			verifiedstate.loading = false;
+			verifiedstate.loadingInfo = false;
 			this.setState(verifiedstate);
 		}).bind(this));
 	},
 	beginBuild: function () {
 		var newstate = copy(this.state);
-		newstate.loading = true;
+		newstate.loadingInfo = true;
 		newstate.building = true;
 		this.setState(newstate);
 		var checking = false;
@@ -205,7 +221,10 @@ var ShutItUI = React.createClass({
 		var interval = setInterval(checkbuild, 1000);
 	},
 	getInitialState: function () {
-		return {modules: [], errs: [], loading: false, building: false};
+		return {
+			modules: [], errs: [],
+			loadingInfo: false, building: false, done: false
+		};
 	},
 	componentWillMount: function () {
 		this.getInfo(this.state);
@@ -221,14 +240,23 @@ var ShutItUI = React.createClass({
 		this.getInfo(newstate);
 	},
 	render: function () {
+		var noInput = (this.state.loadingInfo || this.state.building ||
+						this.state.done);
 		return (
 			<div>
-				<StatusIndicator loading={this.state.loading} />
-				<ModuleList onChange={this.handleChange}
-					loading={this.state.loading} modules={this.state.modules} />
+				<StatusIndicator
+					loading={this.state.loadingInfo}
+					building={this.state.building}
+					done={this.state.done} />
+				<ModuleList
+					onChange={this.handleChange}
+					noInput={noInput}
+					modules={this.state.modules} />
 				<ErrList errs={this.state.errs} />
-				<button onClick={this.beginBuild}>Begin build</button>
-				<BuildProgress building={this.state.building}
+				<button disabled={noInput} onClick={this.beginBuild}>
+					Begin build</button>
+				<BuildProgress
+					building={this.state.building}
 					done={this.state.done}/>
 			</div>
 		);
