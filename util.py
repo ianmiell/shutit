@@ -577,11 +577,9 @@ def push_repository(child,repository,cfg,docker_executable,expect):
 		else:
 			res = child.expect(expect_list,timeout=timeout)
 
-# Takes care of adding a line to everyone's bashrc
+# Deprecated
 def add_to_bashrc(child,line,expect):
-	add_line_to_file(child,line,'/etc/bash.bashrc',expect)
-	res = add_line_to_file(child,line,'/etc/profile',expect)
-	return res
+	return shutit_global.shutit.add_line_to_file(line,'/etc/profile',expect=expect) and shutit_global.shutit.add_line_to_file(line,'/etc/bash.bashrc',expect=expect)
 
 # Set a pexpect child in the global dictionary by key.
 def set_pexpect_child(key,child):
@@ -617,59 +615,30 @@ def get_shutit_modules():
 	return shutit_global.shutit_modules
 
 
-# Distro-independent install function.
-# Takes a package name and runs
-# Returns true if all ok (ie it's installed now), else false
+# Deprecated
 def install(child,cfg,package,expect,options=None,timeout=3600):
-	if options is None: options = {}
-	# TODO: maps of packages
-	# TODO: config of maps of packages
-	install_type = cfg['container']['install_type']
-	if install_type == 'apt':
-		cmd = 'apt-get install'
-		opts = options['apt'] if 'apt' in options else '-qq -y'
-	elif install_type == 'yum':
-		cmd = 'yum install'
-		opts = options['yum'] if 'yum' in options else '-y'
-	else:
-		# Not handled
-		return False
-	send_and_expect(child,'%s %s %s' % (cmd,opts,package),expect,timeout=timeout)
-	return True
+	if cfg not in [None,shutit_global.shutit.cfg]:
+		print "Report this error and stack trace to repo owner, #d102"
+		assert False
+	return shutit_global.shutit.install(package,
+		child=child,expect=expect,options=options,timeout=timeout)
 
 # Distro-independent remove function.
 # Takes a package name and runs purge/delete on it. Generally takes the most aggressive removal option.
 # Returns true if all ok (ie it's installed now), else false
 def remove(child,cfg,package,expect,options=None):
-	if options is None: options = {}
-	# TODO: maps of packages
-	# TODO: config of maps of packages
-	install_type = cfg['container']['install_type']
-	if install_type == 'apt':
-		cmd = 'apt-get purge'
-		opts = options['apt'] if 'apt' in options else '-qq -y'
-	elif install_type == 'yum':
-		cmd = 'yum erase'
-		opts = options['yum'] if 'yum' in options else '-y'
-	else:
-		# Not handled
-		return False
-	send_and_expect(child,'%s %s %s' % (cmd,opts,package),expect,check_exit=False)
-	return True
+	if cfg not in [None,shutit_global.shutit.cfg]:
+		print "Report this error and stack trace to repo owner, #d102"
+		assert False
+	return shutit_global.shutit.remove(package,
+		child=child,expect=expect,options=options,timeout=timeout)
 
-# Return True if we can be sure the package is installed.
+# Deprecated
 def package_installed(child,cfg,package,expect):
-	if cfg['container']['install_type'] == 'apt':
-		send_and_expect(child,"""dpkg -l | awk '{print $2}' | grep "^""" + package + """$" | wc -l""",expect,check_exit=False,record_command=False)
-	elif cfg['container']['install_type'] == 'yum':
-		send_and_expect(child,"""yum list installed | awk '{print $1}' | grep "^""" + package + """$" | wc -l""",expect,check_exit=False,record_command=False)
-	else:
-		return False
-	if get_re_from_child(child.before,'^([0-9]+)$') != '0':
-		return True
-	else:
-		return False
-
+	if cfg not in [None,shutit_global.shutit.cfg]:
+		print "Report this error and stack trace to repo owner, #d102"
+		assert False
+	return shutit_global.shutit.package_installed(packge,expect,child)
 
 # Fails if distro could not be determined.
 # Should be called with the container is started up.
@@ -721,15 +690,16 @@ def set_password(child,cfg,expect,password):
 	handle_revert_prompt(child,expect,'password_tmp_prompt')
 
 
+# Deprecated
 # Returns prompt expected
 def handle_login(child,cfg,prompt_name):
 	local_prompt = 'SHUTIT_TMP_PROMPT_' + prompt_name + '#' + str(random.getrandbits(32))
 	cfg['expect_prompts'][prompt_name] = '\r\n' + local_prompt
 	send_and_expect(child,'SHUTIT_BACKUP_PS1_' + prompt_name + """=$PS1 && export SHUTIT_PROMPT_COMMAND_BACKUP_""" + prompt_name + """=$PROMPT_COMMAND""" + prompt_name + """ && PS1='""" + local_prompt + """' && unset PROMPT_COMMAND""",cfg['expect_prompts'][prompt_name],record_command=False,fail_on_empty_before=False)
 
+# Deprecated
 def handle_revert_prompt(child,expect,prompt_name):
 	send_and_expect(child,"""PS1="${SHUTIT_BACKUP_PS1_""" + prompt_name + """}" && unset SHUTIT_PROMPT_COMMAND_BACKUP_""" + prompt_name + """ && unset SHUTIT_BACKUP_PS1_""" + prompt_name,expect,check_exit=False,record_command=False,fail_on_empty_before=False)
-
 
 
 # Determine whether a user_id for a user is available
