@@ -26,6 +26,12 @@ def start_shutit():
 	for mid in shutit.shutit_map:
 		orig_mod_cfg[mid] = shutit.cfg[mid]
 
+def build_shutit():
+	shutit_main.do_remove(shutit)
+	shutit_main.do_build(shutit)
+	shutit_main.do_test(shutit)
+	shutit_main.do_finalize(shutit)
+
 start_shutit()
 
 index_html = '''
@@ -118,12 +124,19 @@ var ErrList = React.createClass({
 });
 var BuildProgress = React.createClass({
 	getInitialState: function () {
-		return {lines: []};
+		return {lines: [], loading: false};
 	},
 	getNewLines: function () {
-		if (!this.props.building) { return; }
-		jsonpost('/log', this.state.lines.length, (function (lines) {
-			this.setState({lines: this.state.lines.concat(lines)});
+		if (!this.props.building || this.state.loading) { return; }
+		var loadingstate = copy(this.state);
+		loadingstate.loading = true;
+		this.setState(loadingstate);
+		jsonpost('/log', this.state.lines.length, (function (data) {
+			var newstate = {
+				lines: this.state.lines.concat(data.lines),
+				loading: false
+			};
+			this.setState(newstate);
 		}).bind(this));
 	},
 	componentWillMount: function () {
@@ -161,6 +174,12 @@ var ShutItUI = React.createClass({
 		newstate.loading = true;
 		newstate.building = true;
 		this.setState(newstate);
+		jsonpost('/build', '', (function (success) {
+			var newstate = copy(this.state);
+			newstate.loading = false;
+			newstate.building = false;
+			this.setState(newstate);
+		}).bind(this));
 	},
 	getInitialState: function () {
 		return {modules: [], errs: [], loading: false, building: false};
@@ -228,7 +247,12 @@ def info():
 @route('/log', method='POST')
 def log():
 	offset = request.json
-	return json.dumps(shutit.shutit_command_history[offset:])
+	return json.dumps({"lines": shutit.shutit_command_history[offset:]})
+
+@route('/build', method='POST')
+def build():
+	build_shutit()
+	return 'true'
 
 @route('/')
 def index():
