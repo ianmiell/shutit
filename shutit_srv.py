@@ -48,6 +48,17 @@ function copy(obj) {
 	}
 	return newObj;
 }
+function jsonpost(url, data, cb) {
+	var r = new XMLHttpRequest();
+	r.open('POST', url, true);
+	r.setRequestHeader('Content-type', 'application/json');
+	r.onreadystatechange = (function () {
+		if (r.readyState != 4 || r.status != 200) return;
+		cb(JSON.parse(r.responseText));
+	});
+	r.send(JSON.stringify(data));
+}
+
 var StatusIndicator = React.createClass({
 	render: function () {
 		var style = {
@@ -116,19 +127,13 @@ var ShutItUI = React.createClass({
 				mid_list.push(module.module_id);
 			}
 		})
-		var r = new XMLHttpRequest();
-		r.open('POST', '/info', true);
-		r.setRequestHeader('Content-type', 'application/json');
-		r.onreadystatechange = (function () {
-			if (r.readyState != 4 || r.status != 200) return;
-			var verifiedstate = JSON.parse(r.responseText);
+		jsonpost('/info', {to_build: mid_list}, (function (verifiedstate) {
 			verifiedstate.loading = false;
 			this.setState(verifiedstate);
-		}).bind(this);
-		r.send(JSON.stringify({'to_build': mid_list}));
+		}).bind(this));
 	},
 	getInitialState: function () {
-		return {modules: [], errs: []};
+		return {modules: [], errs: [], loading: false, building: false};
 	},
 	componentWillMount: function () {
 		this.getInfo(this.state);
