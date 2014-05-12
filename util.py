@@ -635,7 +635,7 @@ def package_installed(child,cfg,package,expect):
 	if cfg not in [None,shutit_global.shutit.cfg]:
 		print "Report this error and stack trace to repo owner, #d102"
 		assert False
-	return shutit_global.shutit.package_installed(packge,expect,child)
+	return shutit_global.shutit.package_installed(package,expect,child)
 
 # Fails if distro could not be determined.
 # Should be called with the container is started up.
