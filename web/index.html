@@ -42,8 +42,8 @@ function jsonpost(url, data, cb) {
 var StatusIndicator = React.createClass({
 	render: function () {
 		var color = 'transparent', text = '';
-		if (this.props.done) { color = "green"; text = "done"; }
-		else if (this.props.building) { color = "purple"; text = "building"; }
+		if (this.props.buildDone) { color = "green"; text = "done"; }
+		else if (this.props.buildStarted) { color = "purple"; text = "building"; }
 		else if (this.props.loading) { color = "yellow"; text = "loading"; }
 		var style = {
 			visibility: color === 'transparent' ? 'hidden' : '',
@@ -103,8 +103,8 @@ var BuildProgress = React.createClass({
 		return {cmds: [], logs: '', loadingProgress: false, interval: 0};
 	},
 	getProgress: function () {
-		if (this.props.done) { clearInterval(this.state.interval); }
-		if (!this.props.building || this.state.loadingProgress) { return; }
+		if (this.props.buildDone) { clearInterval(this.state.interval); }
+		if (!this.props.buildStarted || this.state.loadingProgress) { return; }
 		var loadingstate = copy(this.state);
 		loadingstate.loadingProgress = true;
 		this.setState(loadingstate);
@@ -173,20 +173,20 @@ var ShutItUI = React.createClass({
 	beginBuild: function () {
 		var newstate = copy(this.state);
 		newstate.loadingInfo = true;
-		newstate.building = true;
+		newstate.buildStarted = true;
 		this.setState(newstate);
 		var checking = false;
 		var checkbuild = (function () {
 			if (checking) { return; }
 			checking = true;
-			jsonpost('/build', '', (function (done) {
-				if (!done) {
+			jsonpost('/build', '', (function (buildDone) {
+				if (!buildDone) {
 					checking = false;
 				} else {
 					clearInterval(interval);
 					var newstate = copy(this.state);
-					newstate.building = false;
-					newstate.done = true;
+					newstate.buildStarted = false;
+					newstate.buildDone = true;
 					this.setState(newstate);
 				}
 			}).bind(this));
@@ -196,7 +196,7 @@ var ShutItUI = React.createClass({
 	getInitialState: function () {
 		return {
 			modules: [], errs: [],
-			loadingInfo: false, building: false, done: false
+			loadingInfo: false, buildStarted: false, buildDone: false
 		};
 	},
 	componentWillMount: function () {
@@ -213,14 +213,14 @@ var ShutItUI = React.createClass({
 		this.getInfo(newstate);
 	},
 	render: function () {
-		var noInput = (this.state.loadingInfo || this.state.building ||
-						this.state.done);
+		var noInput = (this.state.loadingInfo || this.state.buildStarted ||
+						this.state.buildDone);
 		return (
 			<div>
 				<StatusIndicator
 					loading={this.state.loadingInfo}
-					building={this.state.building}
-					done={this.state.done} />
+					buildStarted={this.state.buildStarted}
+					buildDone={this.state.buildDone} />
 				<ModuleList
 					onChange={this.handleChange}
 					noInput={noInput}
@@ -229,8 +229,8 @@ var ShutItUI = React.createClass({
 				<button disabled={noInput} onClick={this.beginBuild}>
 					Begin build</button>
 				<BuildProgress
-					building={this.state.building}
-					done={this.state.done}/>
+					buildStarted={this.state.buildStarted}
+					buildDone={this.state.buildDone}/>
 			</div>
 		);
 	}
