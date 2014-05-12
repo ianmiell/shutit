@@ -3,7 +3,8 @@ import json
 import copy
 import threading
 
-from bottle import route, run, request, static_file
+import bottle
+from bottle import route, request, static_file
 
 import shutit_main
 import shutit_global
@@ -324,4 +325,5 @@ def static_srv(path):
 if __name__ == '__main__':
 	host = os.environ.get('SHUTIT_HOST', 'localhost')
 	port = int(os.environ.get('SHUTIT_PORT', 8080))
-	run(host=host, port=port, debug=True)
+	bottle.debug(True)
+	bottle.run(host=host, port=port)
