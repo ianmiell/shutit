@@ -20,23 +20,6 @@ STATUS = {
 	'errs': []
 }
 
-def start_shutit():
-	global shutit
-	global orig_mod_cfg
-	shutit = shutit_global.shutit
-
-	util.parse_args(shutit.cfg)
-	util.load_configs(shutit)
-	util.load_shutit_modules(shutit)
-	shutit_main.init_shutit_map(shutit)
-	shutit_main.config_collection(shutit)
-	shutit_main.build_core_module(shutit)
-
-	shutit.cfg['build']['build_log'] = StringIO.StringIO()
-
-	for mid in shutit.shutit_map:
-		orig_mod_cfg[mid] = shutit.cfg[mid]
-
 def build_shutit():
 	global STATUS
 	shutit_main.do_remove(shutit)
@@ -98,13 +81,22 @@ def static_srv(path):
 	return static_file(path + '.js', root='./web')
 
 def start():
-	start_shutit()
+	global shutit
+	global orig_mod_cfg
+
+	# Some hacks for serve mode
+	shutit = shutit_global.shutit
+	shutit.cfg['build']['build_log'] = StringIO.StringIO()
+	for mid in shutit.shutit_map:
+		orig_mod_cfg[mid] = shutit.cfg[mid]
 	update_modules([])
 
+	# Start the server
 	host = os.environ.get('SHUTIT_HOST', 'localhost')
 	port = int(os.environ.get('SHUTIT_PORT', 8080))
 	bottle.debug(True)
 	bottle.run(host=host, port=port)
 
 if __name__ == '__main__':
+	print "PLEASE START VIA SHUTIT_MAIN INSTEAD"
 	start()
