@@ -302,10 +302,10 @@ class ShutIt(object):
 
 
 	# Inserts a pause in the expect session which allows the user to try things out
-	def pause_point(self,msg,child=None,print_input=True,expect='',force=False):
+	def pause_point(self,msg,child=None,print_input=True,expect=''):
 		child = child or self.get_default_child()
 		cfg = self.cfg
-		if not cfg['build']['interactive'] and not force:
+		if not cfg['build']['interactive']:
 			return
 		# Sleep to try and make this the last thing we see before the prompt (not always the case)
 		if child and print_input:
