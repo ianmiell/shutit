@@ -628,7 +628,7 @@ def remove(child,cfg,package,expect,options=None):
 		print "Report this error and stack trace to repo owner, #d102"
 		assert False
 	return shutit_global.shutit.remove(package,
-		child=child,expect=expect,options=options,timeout=timeout)
+		child=child,expect=expect,options=options)
 
 # Deprecated
 def package_installed(child,cfg,package,expect):
