@@ -68,9 +68,6 @@ def update_modules(to_build):
 		} for mid in shutit_main.module_ids(shutit)
 	]
 
-start_shutit()
-update_modules([])
-
 @route('/info', method='POST')
 def info():
 	global STATUS
@@ -100,8 +97,14 @@ def index():
 def static_srv(path):
 	return static_file(path + '.js', root='./web')
 
-if __name__ == '__main__':
+def start():
+	start_shutit()
+	update_modules([])
+
 	host = os.environ.get('SHUTIT_HOST', 'localhost')
 	port = int(os.environ.get('SHUTIT_PORT', 8080))
 	bottle.debug(True)
 	bottle.run(host=host, port=port)
+
+if __name__ == '__main__':
+	start()
