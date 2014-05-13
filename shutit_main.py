@@ -175,7 +175,7 @@ def resolve_dependencies(shutit, to_build, depender):
 def check_dependee_exists(shutit, depender, dependee, dependee_id):
 	# If the module id isn't there, there's a problem.
 	if dependee == None:
-		return (dependee_id + ' module not found in paths: ' +
+		return ('module: \n\n' + dependee_id + '\n\nnot found in paths: ' +
 			str(shutit.cfg['host']['shutit_module_paths']) +
 			' but needed for ' + depender.module_id +
 			'\nCheck your --shutit_module_path setting and ensure that ' +
@@ -184,17 +184,17 @@ def check_dependee_exists(shutit, depender, dependee, dependee_id):
 def check_dependee_build(shutit, depender, dependee, dependee_id):
 	# If depender is installed or will be installed, so must the dependee
 	if not (shutit.cfg[dependee.module_id]['build'] or dependee.is_installed(shutit)):
-		return ('depender module id: [' + depender.module_id + '] ' +
+		return ('depender module id:\n\n[' + depender.module_id + ']\n\n' +
 			'is configured: "build:yes" or is already built ' +
-			'but dependee module_id: [' + dependee_id + '] ' +
+			'but dependee module_id:\n\n[' + dependee_id + ']\n\n' +
 			'is not configured: "build:yes"')
 def check_dependee_order(shutit, depender, dependee, dependee_id):
 	# If it depends on a module id, then the module id should be higher up in the run order.
 	if dependee.run_order > depender.run_order:
-		return ('depender module id: ' + depender.module_id +
-			' (run order: ' + str(depender.run_order) + ') ' +
-			'depends on dependee module_id: ' + dependee_id +
-			' (run order: ' + str(dependee.run_order) + ') ' +
+		return ('depender module id:\n\n' + depender.module_id +
+			'\n\n(run order: ' + str(depender.run_order) + ') ' +
+			'depends on dependee module_id:\n\n' + dependee_id +
+			'\n\n(run order: ' + str(dependee.run_order) + ') ' +
 			'but the latter is configured to run after the former')
 def make_dep_graph(cfg, depender):
 	digraph = ''
