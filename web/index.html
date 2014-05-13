@@ -112,9 +112,9 @@ var BuildProgress = React.createClass({
 			var newstate = copy(this.state);
 			newstate.cmds = this.state.cmds.concat(data.cmds);
 			newstate.logs = this.state.logs + data.logs;
-			this.setState(newstate);
 			if (this.props.buildDone) { clearInterval(this.state.interval); }
 			newstate.loadingProgress = false;
+			this.setState(newstate);
 		}).bind(this));
 	},
 	componentWillMount: function () {
