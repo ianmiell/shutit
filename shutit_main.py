@@ -429,7 +429,7 @@ def shutit_main():
 	util.parse_args(cfg)
 	util.load_configs(shutit)
 	# Now get base config
-	if cfg['build']['show_config_only']:
+	if cfg['mode']['show_config_only']:
 		util.log(util.print_config(cfg),force_stdout=True)
 		return
 	util.load_shutit_modules(shutit)
@@ -440,7 +440,7 @@ def shutit_main():
 	errs = []
 	errs.extend(check_deps(shutit))
 	# Show dependency graph
-	if cfg['build']['show_depgraph_only']:
+	if cfg['mode']['show_depgraph_only']:
 		digraph = 'digraph depgraph {\n'
 		digraph = digraph + '\n'.join([
 			make_dep_graph(module) for mid, module in shutit.shutit_map.items()
