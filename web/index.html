@@ -155,44 +155,33 @@ var BuildProgress = React.createClass({
 	}
 });
 var ShutItUI = React.createClass({
-	getInfo: function (newstate) {
-		var loadingstate = copy(this.state);
-		loadingstate.loadingInfo = true;
-		this.setState(loadingstate);
-		var reqdata = {}
-		if (this.state !== newstate) {
-			var mid_list = [];
-			newstate.shutit.modules.map(function (module) {
-				if (module.selected) {
-					mid_list.push(module.module_id);
-				}
-			});
-			reqdata.to_build = mid_list;
+	getInfo: function (reqdata) {
+		if (reqdata) {
+			var loadingstate = copy(this.state);
+			loadingstate.loadingInfo = true;
+			this.setState(loadingstate);
+		} else {
+			reqdata = {};
 		}
 		jsonpost('/info', reqdata, (function (shutit) {
 			var newstate = copy(this.state);
 			newstate.loadingInfo = false;
 			newstate.shutit = shutit;
 			this.setState(newstate);
+			if (this.state.shutit.build_done) {
+				clearInterval(this.state.interval);
+			}
 		}).bind(this));
 	},
 	beginBuild: function () {
+		this.getInfo({'build': ''});
+	},
+	componentWillMount: function () {
+		this.getInfo();
+		var interval = setInterval(this.getInfo, 1000);
 		var newstate = copy(this.state);
-		newstate.loadingInfo = true;
+		newstate.interval = interval;
 		this.setState(newstate);
-		var checking = false;
-		var checkbuild = (function () {
-			if (this.state.shutit.build_done) { clearInterval(interval); }
-			if (checking) { return; }
-			checking = true;
-			jsonpost('/info', {'build': ''}, (function (shutit) {
-				checking = false;
-				var newstate = copy(this.state);
-				newstate.shutit = shutit;
-				this.setState(newstate);
-			}).bind(this));
-		}).bind(this);
-		var interval = setInterval(checkbuild, 1000);
 	},
 	getInitialState: function () {
 		return {
@@ -200,21 +189,19 @@ var ShutItUI = React.createClass({
 				modules: [], errs: [],
 				build_started: false, build_done: false
 			},
-			loadingInfo: false
+			loadingInfo: false, interval: 0
 		};
 	},
-	componentWillMount: function () {
-		this.getInfo(this.state);
-	},
 	handleChange: function (module_id, property, value) {
-		var newstate = copy(this.state);
-		for (var i = 0; i < newstate.shutit.modules.length; i++) {
-			if (newstate.shutit.modules[i].module_id === module_id) {
-				newstate.shutit.modules[i][property] = value;
-				break;
+		var mid_list = [];
+		this.state.shutit.modules.map(function (m) {
+			var selected = m.selected;
+			if (m.module_id === module_id && property === 'selected') {
+				selected = value;
 			}
-		}
-		this.getInfo(newstate);
+			if (selected) { mid_list.push(m.module_id); }
+		});
+		this.getInfo({to_build: mid_list});
 	},
 	render: function () {
 		var noInput = (this.state.loadingInfo ||
@@ -231,8 +218,7 @@ var ShutItUI = React.createClass({
 					modules={this.state.shutit.modules} />
 				<ErrList errs={this.state.shutit.errs} />
 				<button disabled={noInput || this.state.shutit.errs.length}
-					onClick={this.beginBuild}>
-					Begin build</button>
+					onClick={this.beginBuild}>Begin build</button>
 				<BuildProgress
 					buildStarted={this.state.shutit.build_started}
 					buildDone={this.state.shutit.build_done}/>
