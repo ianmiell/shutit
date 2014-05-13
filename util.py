@@ -272,12 +272,12 @@ def parse_args(cfg):
 	args = parser.parse_args(args_list)
 	# Get these early for this part of the build.
 	# These should never be config arguments, since they are needed before config is passed in.
+	cfg['mode']['show_config_only'] = args.sc
+	cfg['mode']['show_depgraph_only'] = args.depgraph
 	cfg['build']['debug']    = args.debug
 	cfg['build']['tutorial'] = args.tutorial
 	cfg['build']['command_pause'] = float(args.pause)
 	cfg['build']['extra_configs'] = args.config
-	cfg['build']['show_config_only'] = args.sc
-	cfg['build']['show_depgraph_only'] = args.depgraph
 	cfg['build']['config_overrides'] = args.set
 	cfg['container']['docker_image'] = args.image_tag
 	# Get module paths
@@ -412,7 +412,7 @@ def load_configs(shutit):
 		configs.append(run_config_file)
 	# Image to use to start off. The script should be idempotent, so running it
 	# on an already built image should be ok, and is advised to reduce diff space required.
-	if cfg['build']['tutorial'] or cfg['build']['show_config_only']:
+	if cfg['build']['tutorial'] or cfg['mode']['show_config_only']:
 		msg = ''
 		for c in configs:
 			msg = msg + '\t\n' + c
