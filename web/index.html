@@ -185,7 +185,7 @@ var ShutItUI = React.createClass({
 			if (this.state.shutit.build_done) { clearInterval(interval); }
 			if (checking) { return; }
 			checking = true;
-			jsonpost('/build', '', (function (shutit) {
+			jsonpost('/info', {'build': ''}, (function (shutit) {
 				checking = false;
 				var newstate = copy(this.state);
 				newstate.shutit = shutit;
