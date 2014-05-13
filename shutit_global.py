@@ -413,7 +413,7 @@ def init():
 	cwd = os.getcwd()
 
 	cfg = {}
-	cfg['mode']                 = {}
+	cfg['action']               = {}
 	cfg['build']                = {}
 	cfg['build']['interactive'] = True # Default to true until we know otherwise
 	cfg['build']['build_log']   = None
