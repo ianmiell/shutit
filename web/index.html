@@ -42,7 +42,8 @@ function jsonpost(url, data, cb) {
 var StatusIndicator = React.createClass({
 	render: function () {
 		var color = 'transparent', text = '';
-		if (this.props.buildDone) { color = "green"; text = "done"; }
+		if (this.props.buildErr) { color = "red"; text = "error"; }
+		else if (this.props.buildDone) { color = "green"; text = "done"; }
 		else if (this.props.buildStarted) { color = "purple"; text = "building"; }
 		else if (this.props.loading) { color = "yellow"; text = "loading"; }
 		var style = {
@@ -211,7 +212,9 @@ var ShutItUI = React.createClass({
 				<StatusIndicator
 					loading={this.state.loadingInfo}
 					buildStarted={this.state.shutit.build_started}
-					buildDone={this.state.shutit.build_done} />
+					buildDone={this.state.shutit.build_done}
+					buildErr={this.state.shutit.build_done &&
+						this.state.shutit.errs.length} />
 				<ModuleList
 					onChange={this.handleChange}
 					noInput={noInput}
