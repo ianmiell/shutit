@@ -43,7 +43,7 @@ from shutit_module import ShutItFailException
 # TODO: Manage exits of containers on error
 def fail(msg,child=None):
 	if child:
-		pause_point(child,'Pause point on fail: ' + msg,force=True)
+		pause_point(child,'Pause point on fail: ' + msg)
 	print >> sys.stderr, 'ERROR!'
 	print >> sys.stderr, red(msg)
 	raise ShutItFailException(msg)
@@ -473,12 +473,12 @@ def print_config(cfg):
 	return s
 
 # Deprecated
-def pause_point(child,msg,print_input=True,expect='',cfg=None,force=False):
+def pause_point(child,msg,print_input=True,expect='',cfg=None):
 	if cfg not in [None, shutit_global.shutit.cfg]:
 		print "Report this error and stack trace to repo owner, #d103"
 		assert False
 	shutit_global.shutit.pause_point(msg, child=child, print_input=print_input,
-		expect=expect, force=force)
+		expect=expect)
 
 # Commit, tag, push, tar etc..
 # expect must be a string
