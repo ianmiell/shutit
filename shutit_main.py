@@ -23,6 +23,7 @@
 from shutit_module import ShutItModule, ShutItException
 import util
 import shutit_global
+import shutit_srv
 import setup
 import time
 import sys
@@ -427,9 +428,10 @@ def shutit_main():
 	cfg = shutit.cfg
 
 	util.parse_args(cfg)
+
 	util.load_configs(shutit)
 	# Now get base config
-	if cfg['mode']['show_config_only']:
+	if cfg['mode']['show_config']:
 		util.log(util.print_config(cfg),force_stdout=True)
 		return
 	util.load_shutit_modules(shutit)
@@ -437,10 +439,14 @@ def shutit_main():
 	config_collection(shutit)
 	build_core_module(shutit)
 
+	if cfg['mode']['serve']:
+		shutit_srv.start()
+		return
+
 	errs = []
 	errs.extend(check_deps(shutit))
 	# Show dependency graph
-	if cfg['mode']['show_depgraph_only']:
+	if cfg['mode']['show_depgraph']:
 		digraph = 'digraph depgraph {\n'
 		digraph = digraph + '\n'.join([
 			make_dep_graph(module) for mid, module in shutit.shutit_map.items()
