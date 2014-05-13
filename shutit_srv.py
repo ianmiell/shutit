@@ -99,4 +99,3 @@ def start():
 
 if __name__ == '__main__':
 	print "PLEASE START VIA SHUTIT_MAIN INSTEAD"
-	start()
