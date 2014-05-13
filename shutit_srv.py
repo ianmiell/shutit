@@ -45,14 +45,11 @@ def build_shutit():
 	shutit_main.do_finalize(shutit)
 	STATUS["build_done"] = True
 
-start_shutit()
-
-@route('/info', method='POST')
-def info():
+def update_modules(to_build):
 	global STATUS
 	shutit.cfg.update(copy.deepcopy(orig_mod_cfg))
 
-	selected = set(request.json['to_build'])
+	selected = set(to_build)
 	for mid in selected:
 		shutit.cfg[mid]['build'] = True
 
@@ -71,6 +68,14 @@ def info():
 		} for mid in shutit_main.module_ids(shutit)
 	]
 
+start_shutit()
+update_modules([])
+
+@route('/info', method='POST')
+def info():
+	global STATUS
+	if 'to_build' in request.json:
+		update_modules(request.json['to_build'])
 	return json.dumps(STATUS)
 
 @route('/log', method='POST')

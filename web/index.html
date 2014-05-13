@@ -159,13 +159,17 @@ var ShutItUI = React.createClass({
 		var loadingstate = copy(this.state);
 		loadingstate.loadingInfo = true;
 		this.setState(loadingstate);
-		var mid_list = [];
-		newstate.shutit.modules.map(function (module) {
-			if (module.selected) {
-				mid_list.push(module.module_id);
-			}
-		})
-		jsonpost('/info', {to_build: mid_list}, (function (shutit) {
+		var reqdata = {}
+		if (this.state !== newstate) {
+			var mid_list = [];
+			newstate.shutit.modules.map(function (module) {
+				if (module.selected) {
+					mid_list.push(module.module_id);
+				}
+			});
+			reqdata.to_build = mid_list;
+		}
+		jsonpost('/info', reqdata, (function (shutit) {
 			var newstate = copy(this.state);
 			newstate.loadingInfo = false;
 			newstate.shutit = shutit;
