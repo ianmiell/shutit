@@ -230,7 +230,8 @@ var ShutItUI = React.createClass({
 					noInput={noInput}
 					modules={this.state.shutit.modules} />
 				<ErrList errs={this.state.shutit.errs} />
-				<button disabled={noInput} onClick={this.beginBuild}>
+				<button disabled={noInput || this.state.shutit.errs.length}
+					onClick={this.beginBuild}>
 					Begin build</button>
 				<BuildProgress
 					buildStarted={this.state.shutit.build_started}
