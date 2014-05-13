@@ -222,15 +222,21 @@ def get_base_config(cfg, cfg_parser):
 def parse_args(cfg):
 	cfg['host']['real_user_id'] = pexpect.run('id -u ' + cfg['host']['real_user']).strip()
 
+	# Compatibility
+	if '--sc' in sys.argv:
+		sys.argv.remove('--sc')
+		sys.argv = ['sc'] + sys.argv
+	if '--depgraph' in sys.argv:
+		sys.argv.remove('--depgraph')
+		sys.argv = ['depgraph'] + sys.argv
+
 	parser = argparse.ArgumentParser(description='ShutIt - a tool for managing complex Docker deployments')
+	parser.add_argument('action', nargs='?', choices=('build','serve','depgraph','sc'), default='build', help='Action to perform. Defaults to \'build\'.')
 	parser.add_argument('--config', help='Config file for setup config. Must be with perms 0600. Multiple arguments allowed; config files considered in order.',default=[], action='append')
 	parser.add_argument('-s', '--set', help='Override a config item, e.g. "-s container rm no". Can be specified multiple times.', default=[], action='append', nargs=3, metavar=('SEC','KEY','VAL'))
 	parser.add_argument('--image_tag', help='Build container using specified image - if there is a symbolic reference, please use that, eg localhost.localdomain:5000/myref',default=cfg['container']['docker_image_default'])
 	parser.add_argument('--shutit_module_path', default='.',help='List of shutit module paths, separated by colons. ShutIt registers modules by running all .py files in these directories.')
 	parser.add_argument('--pause',help='Pause between commands to avoid race conditions.',default='0.5')
-	parser.add_argument('--sc',help='Show the config computed and quit',default=False,const=True,action='store_const')
-	parser.add_argument('--depgraph',help='Show dependency graph and quit',default=False,const=True,action='store_const')
-	parser.add_argument('--serve',help='Start the ShutIt web UI',default=False,const=True,action='store_const')
 	parser.add_argument('--debug',help='Show debug. Implies [build]/interactive config settings set, even if set to "no".',default=False,const=True,action='store_const')
 	parser.add_argument('--tutorial',help='Show tutorial info. Implies [build]/interactive config setting set, even if set to "no".',default=False,const=True,action='store_const')
 
@@ -273,9 +279,9 @@ def parse_args(cfg):
 	args = parser.parse_args(args_list)
 	# Get these early for this part of the build.
 	# These should never be config arguments, since they are needed before config is passed in.
-	cfg['action']['show_config'] = args.sc
-	cfg['action']['show_depgraph'] = args.depgraph
-	cfg['action']['serve'] = args.serve
+	cfg['action']['show_config'] =   args.action == 'sc'
+	cfg['action']['show_depgraph'] = args.action == 'depgraph'
+	cfg['action']['serve'] =         args.action == 'serve'
 	cfg['build']['debug'] = args.debug
 	cfg['build']['tutorial'] = args.tutorial
 	cfg['build']['command_pause'] = float(args.pause)
