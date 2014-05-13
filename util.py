@@ -230,6 +230,7 @@ def parse_args(cfg):
 	parser.add_argument('--pause',help='Pause between commands to avoid race conditions.',default='0.5')
 	parser.add_argument('--sc',help='Show the config computed and quit',default=False,const=True,action='store_const')
 	parser.add_argument('--depgraph',help='Show dependency graph and quit',default=False,const=True,action='store_const')
+	parser.add_argument('--serve',help='Start the ShutIt web UI',default=False,const=True,action='store_const')
 	parser.add_argument('--debug',help='Show debug. Implies [build]/interactive config settings set, even if set to "no".',default=False,const=True,action='store_const')
 	parser.add_argument('--tutorial',help='Show tutorial info. Implies [build]/interactive config setting set, even if set to "no".',default=False,const=True,action='store_const')
 
@@ -272,9 +273,10 @@ def parse_args(cfg):
 	args = parser.parse_args(args_list)
 	# Get these early for this part of the build.
 	# These should never be config arguments, since they are needed before config is passed in.
-	cfg['mode']['show_config_only'] = args.sc
-	cfg['mode']['show_depgraph_only'] = args.depgraph
-	cfg['build']['debug']    = args.debug
+	cfg['mode']['show_config'] = args.sc
+	cfg['mode']['show_depgraph'] = args.depgraph
+	cfg['mode']['serve'] = args.serve
+	cfg['build']['debug'] = args.debug
 	cfg['build']['tutorial'] = args.tutorial
 	cfg['build']['command_pause'] = float(args.pause)
 	cfg['build']['extra_configs'] = args.config
@@ -412,7 +414,7 @@ def load_configs(shutit):
 		configs.append(run_config_file)
 	# Image to use to start off. The script should be idempotent, so running it
 	# on an already built image should be ok, and is advised to reduce diff space required.
-	if cfg['build']['tutorial'] or cfg['mode']['show_config_only']:
+	if cfg['build']['tutorial'] or cfg['mode']['show_config']:
 		msg = ''
 		for c in configs:
 			msg = msg + '\t\n' + c
