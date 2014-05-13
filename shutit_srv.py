@@ -13,8 +13,12 @@ import util
 
 orig_mod_cfg = {}
 shutit = None
-build_done = False
-build_started = False
+STATUS = {
+	'build_done': False,
+	'build_started': False,
+	'modules': [],
+	'errs': []
+}
 
 def start_shutit():
 	global shutit
@@ -34,17 +38,18 @@ def start_shutit():
 		orig_mod_cfg[mid] = shutit.cfg[mid]
 
 def build_shutit():
-	global build_done
+	global STATUS
 	shutit_main.do_remove(shutit)
 	shutit_main.do_build(shutit)
 	shutit_main.do_test(shutit)
 	shutit_main.do_finalize(shutit)
-	build_done = True
+	STATUS["build_done"] = True
 
 start_shutit()
 
 @route('/info', method='POST')
 def info():
+	global STATUS
 	shutit.cfg.update(copy.deepcopy(orig_mod_cfg))
 
 	selected = set(request.json['to_build'])
@@ -56,17 +61,17 @@ def info():
 	errs.extend(shutit_main.check_conflicts(shutit))
 	errs.extend(shutit_main.check_ready(shutit))
 
-	return json.dumps({
-		'errs': [err[0] for err in errs],
-		'modules': [
-			{
-				"module_id": mid,
-				"run_order": float(shutit.shutit_map[mid].run_order),
-				"build": shutit.cfg[mid]['build'],
-				"selected": mid in selected
-			} for mid in shutit_main.module_ids(shutit)
-		]
-	})
+	STATUS['errs'] = [err[0] for err in errs]
+	STATUS['modules'] = [
+		{
+			"module_id": mid,
+			"run_order": float(shutit.shutit_map[mid].run_order),
+			"build": shutit.cfg[mid]['build'],
+			"selected": mid in selected
+		} for mid in shutit_main.module_ids(shutit)
+	]
+
+	return json.dumps(STATUS)
 
 @route('/log', method='POST')
 def log():
@@ -78,15 +83,13 @@ def log():
 
 @route('/build', method='POST')
 def build():
-	global build_started
-	if build_done:
-		return 'true'
-	if not build_started:
-		build_started = True
+	global STATUS
+	if not STATUS["build_started"]:
+		STATUS["build_started"] = True
 		t = threading.Thread(target=build_shutit)
 		t.daemon = True
 		t.start()
-	return 'false'
+	return json.dumps(STATUS)
 
 @route('/')
 def index():
