@@ -9,6 +9,7 @@ from bottle import route, request, static_file
 
 import shutit_main
 import shutit_global
+from shutit_module import ShutItException
 import util
 
 orig_mod_cfg = {}
@@ -22,10 +23,13 @@ STATUS = {
 
 def build_shutit():
 	global STATUS
-	shutit_main.do_remove(shutit)
-	shutit_main.do_build(shutit)
-	shutit_main.do_test(shutit)
-	shutit_main.do_finalize(shutit)
+	try:
+		shutit_main.do_remove(shutit)
+		shutit_main.do_build(shutit)
+		shutit_main.do_test(shutit)
+		shutit_main.do_finalize(shutit)
+	except ShutItException as e:
+		STATUS['errs'] = [e.message]
 	STATUS["build_done"] = True
 
 def update_modules(to_build):
