@@ -96,6 +96,23 @@ class ShutIt(object):
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
 		cfg = self.cfg
+		# If the command matches any 'password's then don't record
+		ok_to_record = False
+		if record_command:
+			ok_to_record = True
+			for i in cfg.keys():
+				if isinstance(cfg[i],dict):
+					for j in cfg[i].keys():
+						if j == 'password' and cfg[i][j] == send:
+							self.shutit_command_history.append('#redacted command, password')
+							ok_to_record = False
+							break
+					if not ok_to_record:
+						break
+			if ok_to_record:
+				self.shutit_command_history.append(send)
+		else:
+			self.shutit_command_history.append('#redacted command')
 		if cfg['build']['debug']:
 			self.log('================================================================================')
 			self.log('Sending>>>' + send + '<<<')
@@ -121,22 +138,6 @@ class ShutIt(object):
 					util.handle_revert_prompt(child,expect,'reset_tmp_prompt')
 		if check_exit == True:
 			self._check_exit(send,expect,child,timeout,exit_values)
-		# If the command matches any 'password's then don't record
-		if record_command:
-			ok_to_record = True
-			for i in cfg.keys():
-				if isinstance(cfg[i],dict):
-					for j in cfg[i].keys():
-						if j == 'password' and cfg[i][j] == send:
-							self.shutit_command_history.append('#redacted command, password')
-							ok_to_record = False
-							break
-					if not ok_to_record:
-						break
-			if ok_to_record:
-				self.shutit_command_history.append(send)
-		else:
-			self.shutit_command_history.append('#redacted command')
 		return expect_res
 
 
