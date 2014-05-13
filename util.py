@@ -482,8 +482,8 @@ def pause_point(child,msg,print_input=True,expect='',cfg=None,force=False):
 
 # Commit, tag, push, tar etc..
 # expect must be a string
-def do_repository_work(cfg,expect,repo_name,docker_executable='docker',password=None,force=False):
-	if not (cfg['repository']['do_repository_work'] or force):
+def do_repository_work(cfg,expect,repo_name,docker_executable='docker',password=None):
+	if not cfg['repository']['do_repository_work']:
 		return
 	child = get_pexpect_child('host_child')
 	server = cfg['repository']['server']

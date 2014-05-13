@@ -334,8 +334,13 @@ def build_module(shutit, module):
 	cfg['build']['report'] = cfg['build']['report'] + '\nCompleted module: ' + module.module_id
 	if cfg[module.module_id]['do_repository_work'] or cfg['build']['interactive']:
 		util.log(util.red(util.build_report('Module:' + module.module_id)))
-	if (cfg[module.module_id]['do_repository_work'] or
-			(cfg['build']['interactive'] and raw_input(util.red('\n\nDo you want to save state now we\'re at the ' + 'end of this module? (' + module.module_id + ') (input y/n)\n' )) == 'y')):
+	if not cfg[module.module_id]['do_repository_work'] and cfg['build']['interactive']:
+		cfg[module.module_id]['do_repository_work'] = (
+			raw_input(util.red(
+				'\n\nDo you want to save state now we\'re at the end of this ' +
+				'module? (' + module.module_id + ') (in  put y/n)\n' )) == 'y'
+		)
+	if cfg[module.module_id]['do_repository_work']:
 		util.log(module.module_id + ' configured to be tagged, doing repository work')
 		# Stop all before we tag to avoid file changing errors, and clean up pid files etc..
 		stop_all(shutit, module.run_order)
@@ -343,8 +348,7 @@ def build_module(shutit, module):
 			cfg['expect_prompts']['base_prompt'],
 			str(module.module_id) + '_' + str(module.run_order),
 			password=cfg['host']['password'],
-			docker_executable=cfg['host']['docker_executable'],
-			force=True)
+			docker_executable=cfg['host']['docker_executable'])
 		# Start all after we tag to ensure services are up as expected.
 		start_all(shutit, module.run_order)
 	if (cfg['build']['interactive'] and
