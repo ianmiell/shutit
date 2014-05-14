@@ -96,6 +96,23 @@ class ShutIt(object):
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
 		cfg = self.cfg
+		# If the command matches any 'password's then don't record
+		ok_to_record = False
+		if record_command:
+			ok_to_record = True
+			for i in cfg.keys():
+				if isinstance(cfg[i],dict):
+					for j in cfg[i].keys():
+						if j == 'password' and cfg[i][j] == send:
+							self.shutit_command_history.append('#redacted command, password')
+							ok_to_record = False
+							break
+					if not ok_to_record:
+						break
+			if ok_to_record:
+				self.shutit_command_history.append(send)
+		else:
+			self.shutit_command_history.append('#redacted command')
 		if cfg['build']['debug']:
 			self.log('================================================================================')
 			self.log('Sending>>>' + send + '<<<')
@@ -121,22 +138,6 @@ class ShutIt(object):
 					util.handle_revert_prompt(child,expect,'reset_tmp_prompt')
 		if check_exit == True:
 			self._check_exit(send,expect,child,timeout,exit_values)
-		# If the command matches any 'password's then don't record
-		if record_command:
-			ok_to_record = True
-			for i in cfg.keys():
-				if isinstance(cfg[i],dict):
-					for j in cfg[i].keys():
-						if j == 'password' and cfg[i][j] == send:
-							self.shutit_command_history.append('#redacted command, password')
-							ok_to_record = False
-							break
-					if not ok_to_record:
-						break
-			if ok_to_record:
-				self.shutit_command_history.append(send)
-		else:
-			self.shutit_command_history.append('#redacted command')
 		return expect_res
 
 
@@ -157,7 +158,7 @@ class ShutIt(object):
 			msg = '\nWARNING: command:\n' + send + '\nreturned unaccepted exit code: ' + res + '\nIf this is expected, pass in check_exit=False or an exit_values array into the send_and_expect function call.\nIf you want to error on these errors, set the config:\n[build]\naction_on_ret_code:error'
 			cfg['build']['report'] = cfg['build']['report'] + msg
 			if cfg['build']['action_on_ret_code'] == 'error':
-				self.pause_point(msg + '\n\nPause point on exit_code != 0. CTRL-C to quit',child=child,force=True)
+				util.fail(msg + '\n\nPause point on exit_code != 0. CTRL-C to quit',child=child)
 				#raise Exception('Exit value from command\n' + send + '\nwas:\n' + res)
 
 	def run_script(self,script,expect=None,child=None,is_bash=True):
@@ -301,10 +302,10 @@ class ShutIt(object):
 
 
 	# Inserts a pause in the expect session which allows the user to try things out
-	def pause_point(self,msg,child=None,print_input=True,expect='',force=False):
+	def pause_point(self,msg,child=None,print_input=True,expect=''):
 		child = child or self.get_default_child()
 		cfg = self.cfg
-		if not cfg['build']['interactive'] and not force:
+		if not cfg['build']['interactive']:
 			return
 		# Sleep to try and make this the last thing we see before the prompt (not always the case)
 		if child and print_input:
@@ -412,6 +413,7 @@ def init():
 	cwd = os.getcwd()
 
 	cfg = {}
+	cfg['action']               = {}
 	cfg['build']                = {}
 	cfg['build']['interactive'] = True # Default to true until we know otherwise
 	cfg['build']['build_log']   = None

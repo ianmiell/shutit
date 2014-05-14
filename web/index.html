@@ -1,0 +1,238 @@
+<html>
+<head>
+<script src="/static/react-0.10.0.min.js"></script>
+<script src="/static/JSXTransformer-0.10.0.js"></script>
+<style>
+#progressBox {
+	right: 0; top: 0; position: fixed;
+}
+#cmdBox, #logBox {
+	width: 400px; height: 500px; float: left;
+	overflow-y: scroll; border-width: 1px; border-style: solid;
+}
+#statusBar { padding: 10px; margin-bottom: 10px; height: 50px; width: 200px; }
+pre { margin: 0; padding: 0; }
+</style>
+</head>
+<body>
+<div id="ShutItUI"></div>
+<script type="text/jsx">
+/** @jsx React.DOM */
+'use strict';
+function copy(obj) {
+	var newObj = {};
+	for (var key in obj) {
+		if (obj.hasOwnProperty(key)) {
+			newObj[key] = obj[key];
+		}
+	}
+	return newObj;
+}
+function jsonpost(url, data, cb) {
+	var r = new XMLHttpRequest();
+	r.open('POST', url, true);
+	r.setRequestHeader('Content-type', 'application/json');
+	r.onreadystatechange = (function () {
+		if (r.readyState != 4 || r.status != 200) return;
+		cb(JSON.parse(r.responseText));
+	});
+	r.send(JSON.stringify(data));
+}
+
+var StatusIndicator = React.createClass({
+	render: function () {
+		var color = 'transparent', text = '';
+		if (this.props.buildErr) { color = "red"; text = "error"; }
+		else if (this.props.buildDone) { color = "green"; text = "done"; }
+		else if (this.props.buildStarted) { color = "purple"; text = "building"; }
+		else if (this.props.loading) { color = "yellow"; text = "loading"; }
+		var style = {
+			visibility: color === 'transparent' ? 'hidden' : '',
+			backgroundColor: color
+		}
+		return <div id="statusBar" style={style}>{text.toUpperCase()}</div>;
+	}
+});
+var ModuleListItem = React.createClass({
+	handleChange: function (property, event) {
+		var value, elt = event.target;
+		if (elt.type && elt.type === 'checkbox') {
+			value = elt.checked;
+		} else {
+			throw Error('unknown value');
+		}
+		this.props.onChange(this.props.module.module_id, property, value);
+	},
+	render: function () {
+		return (
+			<li id="{this.props.module.module_id}">
+				<input type="checkbox" checked={this.props.module.selected}
+					disabled={this.props.noInput}
+					onChange={this.handleChange.bind(this, 'selected')}></input>
+				<span style={{fontWeight: this.props.module.build ? 'bold' : ''}}>
+					{this.props.module.module_id} - {this.props.module.run_order}
+					{this.props.module.build}</span>
+			</li>
+		)
+	}
+});
+var ModuleList = React.createClass({
+	handleChange: function (module_id, property, value) {
+		this.props.onChange(module_id, property, value);
+	},
+	render: function () {
+		var moduleItems = this.props.modules.map((function (module) {
+			return <ModuleListItem
+				module={module}
+				noInput={this.props.noInput}
+				key={module.module_id}
+				onChange={this.handleChange} />;
+		}).bind(this));
+		return <div>Modules: <ul>{moduleItems}</ul></div>;
+	}
+});
+var ErrList = React.createClass({
+	render: function () {
+		var errs = this.props.errs.map(function (err, i) {
+			return <li key={i}>{err}</li>;
+		});
+		return <div>Errors: <ul>{errs}</ul></div>;
+	}
+});
+var BuildProgress = React.createClass({
+	getInitialState: function () {
+		return {cmds: [], logs: '', loadingProgress: false, interval: 0};
+	},
+	getProgress: function () {
+		if (!this.props.buildStarted || this.state.loadingProgress) { return; }
+		var loadingstate = copy(this.state);
+		loadingstate.loadingProgress = true;
+		this.setState(loadingstate);
+		var offsets = [this.state.cmds.length, this.state.logs.length]
+		jsonpost('/log', offsets, (function (data) {
+			var newstate = copy(this.state);
+			newstate.cmds = this.state.cmds.concat(data.cmds);
+			newstate.logs = this.state.logs + data.logs;
+			if (this.props.buildDone) { clearInterval(this.state.interval); }
+			newstate.loadingProgress = false;
+			this.setState(newstate);
+		}).bind(this));
+	},
+	componentWillMount: function () {
+		var interval = setInterval(this.getProgress, 1000);
+		var newstate = copy(this.state);
+		newstate.interval = interval;
+		this.setState(newstate);
+	},
+	componentWillUpdate: function () {
+		var node = this.getDOMNode();
+		// This should be === (not >=) but it doesn't seem to work...
+		// http://blog.vjeux.com/2013/javascript/scroll-position-with-react.html
+		this.toBottom = [];
+		var e, i;
+		for (i = 0; i < node.children.length; i++) {
+			e = node.children[i];
+			this.toBottom.push(e.scrollTop + e.offsetHeight >= e.scrollHeight);
+		}
+	},
+	componentDidUpdate: function() {
+		var node = this.getDOMNode();
+		this.toBottom.map(function (toBottom, i) {
+			if (toBottom) {
+				node.children[i].scrollTop = node.children[i].scrollHeight;
+			}
+		});
+	},
+	render: function () {
+		var cmdElts = this.state.cmds.map(function (line, i) {
+			return <pre key={i}>{line}</pre>;
+		});
+		return (
+			<div id="progressBox">
+				<div id="cmdBox">{cmdElts}</div>
+				<div id="logBox"><pre>{this.state.logs}</pre></div>
+			</div>
+		);
+	}
+});
+var ShutItUI = React.createClass({
+	getInfo: function (reqdata) {
+		if (reqdata) {
+			var loadingstate = copy(this.state);
+			loadingstate.loadingInfo = true;
+			this.setState(loadingstate);
+		} else {
+			reqdata = {};
+		}
+		jsonpost('/info', reqdata, (function (shutit) {
+			var newstate = copy(this.state);
+			newstate.loadingInfo = false;
+			newstate.shutit = shutit;
+			this.setState(newstate);
+			if (this.state.shutit.build_done) {
+				clearInterval(this.state.interval);
+			}
+		}).bind(this));
+	},
+	beginBuild: function () {
+		this.getInfo({'build': ''});
+	},
+	componentWillMount: function () {
+		this.getInfo();
+		var interval = setInterval(this.getInfo, 1000);
+		var newstate = copy(this.state);
+		newstate.interval = interval;
+		this.setState(newstate);
+	},
+	getInitialState: function () {
+		return {
+			shutit: {
+				modules: [], errs: [],
+				build_started: false, build_done: false
+			},
+			loadingInfo: false, interval: 0
+		};
+	},
+	handleChange: function (module_id, property, value) {
+		var mid_list = [];
+		this.state.shutit.modules.map(function (m) {
+			var selected = m.selected;
+			if (m.module_id === module_id && property === 'selected') {
+				selected = value;
+			}
+			if (selected) { mid_list.push(m.module_id); }
+		});
+		this.getInfo({to_build: mid_list});
+	},
+	render: function () {
+		var noInput = (this.state.loadingInfo ||
+			this.state.shutit.build_started || this.state.shutit.build_done);
+		return (
+			<div>
+				<StatusIndicator
+					loading={this.state.loadingInfo}
+					buildStarted={this.state.shutit.build_started}
+					buildDone={this.state.shutit.build_done}
+					buildErr={this.state.shutit.build_done &&
+						this.state.shutit.errs.length} />
+				<ModuleList
+					onChange={this.handleChange}
+					noInput={noInput}
+					modules={this.state.shutit.modules} />
+				<ErrList errs={this.state.shutit.errs} />
+				<button disabled={noInput || this.state.shutit.errs.length}
+					onClick={this.beginBuild}>Begin build</button>
+				<BuildProgress
+					buildStarted={this.state.shutit.build_started}
+					buildDone={this.state.shutit.build_done}/>
+			</div>
+		);
+	}
+});
+React.renderComponent(
+	<ShutItUI />,
+	document.getElementById('ShutItUI')
+);
+</script>
+</body>
+</html>
