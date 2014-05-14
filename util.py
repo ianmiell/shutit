@@ -45,7 +45,7 @@ def fail(msg,child=None):
 	if child:
 		pause_point(child,'Pause point on fail: ' + msg)
 	print >> sys.stderr, 'ERROR!'
-	print >> sys.stderr, red(msg)
+	print >> sys.stderr
 	raise ShutItFailException(msg)
 
 def is_file_secure(file_name):
@@ -77,7 +77,7 @@ def reverse_yellow(msg): return colour('7;33', msg)
 # Deprecated
 def send_and_expect(child,send,expect,timeout=3600,check_exit=True,cfg=None,fail_on_empty_before=True,record_command=True,exit_values=['0']):
 	if cfg not in [None, shutit_global.shutit.cfg]:
-		print "Report this error and stack trace to repo owner, #d102"
+		print "Report this error and stack trace to repo owner, #d106"
 		assert False
 	return shutit_global.shutit.send_and_expect(send,expect,
 		child=child, timeout=timeout, check_exit=check_exit,
@@ -202,7 +202,7 @@ def get_base_config(cfg, cfg_parser):
 		fail("Can't have [container]/rm and [repository]/do_repository_work set to true")
 	if warn != '' and not cfg['build']['tutorial']:
 		issue_warning('Showing computed config. This can also be done by calling --sc:',2)
-		log(red(print_config(cfg)),force_stdout=True)
+		log(print_config(cfg),force_stdout=True,code='31')
 		time.sleep(1)
 	# If build/allowed_images doesn't contain container/docker_image
 	if 'any' not in cfg['build']['allowed_images'] and cfg['container']['docker_image'] not in cfg['build']['allowed_images']:
@@ -475,76 +475,17 @@ def print_config(cfg):
 # Deprecated
 def pause_point(child,msg,print_input=True,expect='',cfg=None):
 	if cfg not in [None, shutit_global.shutit.cfg]:
-		print "Report this error and stack trace to repo owner, #d103"
+		print "Report this error and stack trace to repo owner, #d102"
 		assert False
 	shutit_global.shutit.pause_point(msg, child=child, print_input=print_input,
 		expect=expect)
 
-# Commit, tag, push, tar etc..
-# expect must be a string
+# Deprecated
 def do_repository_work(cfg,expect,repo_name,docker_executable='docker',password=None):
-	if not cfg['repository']['do_repository_work']:
-		return
-	child = get_pexpect_child('host_child')
-	server = cfg['repository']['server']
-	user = cfg['repository']['user']
-
-	if user and repo_name:
-		repository = '%s/%s' % (user, repo_name)
-		repository_tar = '%s_%s' % (user, repo_name)
-	elif user:
-		repository = repository_tar = user
-	elif repo_name:
-		repository = repository_tar = repo_name
-	else:
-		repository = repository_tar = ''
-
-	if not repository:
-		fail('Could not form valid repository name')
-	if cfg['repository']['tar'] and not repository_tar:
-		fail('Could not form valid tar name')
-
-	if server:
-		repository = '%s/%s' % (server, repository)
-
-	if cfg['repository']['suffix_date']:
-		suffix_date = time.strftime(cfg['repository']['suffix_format'])
-		repository = '%s_%s' % (repository, suffix_date)
-		repository_tar = '%s_%s' % (repository_tar, suffix_date)
-
-	if server == '' and len(repository) > 30:
-		fail("""repository name: '""" + repository + """' too long. If using suffix_date consider shortening""")
-
-	# Only lower case accepted
-	repository = repository.lower()
-	# Slight pause due to race conditions seen.
-	#time.sleep(0.3)
-	res = send_and_expect(child,'SHUTIT_TMP_VAR=`' + docker_executable + ' commit ' + cfg['container']['container_id'] + '`',[expect,'assword'],timeout=99999,check_exit=False)
-	if res == 1:
-		send_and_expect(child,cfg['host']['password'],expect,check_exit=False,record_command=False)
-	send_and_expect(child,'echo $SHUTIT_TMP_VAR && unset SHUTIT_TMP_VAR',expect,check_exit=False,record_command=False)
-	image_id = child.after.split('\r\n')[1]
-
-	if not image_id:
-		fail('failed to commit to ' + repository + ', could not determine image id')
-
-	cmd = docker_executable + ' tag ' + image_id + ' ' + repository
-	send_and_expect(child,cmd,expect,check_exit=False)
-	if cfg['repository']['tar']:
-		if cfg['build']['tutorial']:
-			pause_point(child,'We are now exporting the container to a bzipped tar file, as configured in \n[repository]\ntar:yes',print_input=False)
-		bzfile = cfg['host']['resources_dir'] + '/' + repository_tar + '.tar.bz2'
-		log('\nDepositing bzip2 of exported container into ' + bzfile)
-		res = send_and_expect(child,docker_executable + ' export ' + cfg['container']['container_id'] + ' | bzip2 - > ' + bzfile,[expect,'assword'],timeout=99999)
-		log(red('\nDeposited bzip2 of exported container into ' + bzfile))
-		log(red('\nRun:\n\nbunzip2 -c ' + bzfile + ' | sudo docker import -\n\nto get this imported into docker.'))
-		cfg['build']['report'] = cfg['build']['report'] + '\nDeposited bzip2 of exported container into ' + bzfile
-		cfg['build']['report'] = cfg['build']['report'] + '\nRun:\n\nbunzip2 -c ' + bzfile + ' | sudo docker import -\n\nto get this imported into docker.'
-		if res == 1:
-			send_and_expect(child,password,expect,record_command=False)
-	if cfg['repository']['push'] == True:
-		push_repository(child,repository,cfg,docker_executable,expect)
-		cfg['build']['report'] = cfg['build']['report'] + 'Pushed repository: ' + repository
+	if cfg not in [None, shutit_global.shutit.cfg]:
+		print "Report this error and stack trace to repo owner, #d111"
+		assert False
+	shutit_global.shutit.do_repository_work(repo_name,expect=expect,docker_executable=docker_executable,password=password)
 
 # Deprecated
 def file_exists(child,filename,expect,directory=False):
@@ -565,23 +506,12 @@ def add_line_to_file(child,line,filename,expect,match_regexp=None,truncate=False
 def get_re_from_child(string,regexp,cfg=None):
 	return shutit_global.shutit.get_re_from_child(string, regexp)
 
-# expect must be a string
+# Deprecated
 def push_repository(child,repository,cfg,docker_executable,expect):
-	send = docker_executable + ' push ' + repository
-	expect_list = ['Pushing','Buffering','Username:','Password:','Email:',expect]
-	timeout=99999
-	res = send_and_expect(child,send,expect_list,timeout=timeout,check_exit=False)
-	while True:
-		if res == 5:
-			break
-		elif res == 2:
-			res = send_and_expect(child,cfg['repository']['user'],expect_list,timeout=timeout,check_exit=False)
-		elif res == 3:
-			res = send_and_expect(child,cfg['repository']['password'],expect_list,timeout=timeout,check_exit=False)
-		elif res == 4:
-			res = send_and_expect(child,cfg['repository']['email'],expect_list,timeout=timeout,check_exit=False)
-		else:
-			res = child.expect(expect_list,timeout=timeout)
+	if cfg not in [None,shutit_global.shutit.cfg]:
+		print "Report this error and stack trace to repo owner, #d109"
+		assert False
+	return shutit_global.shutit.push_repository(repository,docker_executable,child=child,expect=expect)
 
 # Deprecated
 def add_to_bashrc(child,line,expect):
@@ -615,8 +545,6 @@ def module_exists(module_id):
 			return True
 	return False
 
-
-# Helper function to get global without importing it.
 def get_shutit_modules():
 	return shutit_global.shutit_modules
 
@@ -624,17 +552,15 @@ def get_shutit_modules():
 # Deprecated
 def install(child,cfg,package,expect,options=None,timeout=3600):
 	if cfg not in [None,shutit_global.shutit.cfg]:
-		print "Report this error and stack trace to repo owner, #d102"
+		print "Report this error and stack trace to repo owner, #d103"
 		assert False
 	return shutit_global.shutit.install(package,
 		child=child,expect=expect,options=options,timeout=timeout)
 
-# Distro-independent remove function.
-# Takes a package name and runs purge/delete on it. Generally takes the most aggressive removal option.
-# Returns true if all ok (ie it's installed now), else false
+# Deprecated
 def remove(child,cfg,package,expect,options=None):
 	if cfg not in [None,shutit_global.shutit.cfg]:
-		print "Report this error and stack trace to repo owner, #d102"
+		print "Report this error and stack trace to repo owner, #d104"
 		assert False
 	return shutit_global.shutit.remove(package,
 		child=child,expect=expect,options=options)
@@ -642,84 +568,39 @@ def remove(child,cfg,package,expect,options=None):
 # Deprecated
 def package_installed(child,cfg,package,expect):
 	if cfg not in [None,shutit_global.shutit.cfg]:
-		print "Report this error and stack trace to repo owner, #d102"
+		print "Report this error and stack trace to repo owner, #d105"
 		assert False
 	return shutit_global.shutit.package_installed(package,expect,child)
 
-# Fails if distro could not be determined.
-# Should be called with the container is started up.
+# Deprecated
 def get_distro_info(child,outer_expect,cfg):
-	cfg['container']['install_type']      = ''
-	cfg['container']['distro']            = ''
-	cfg['container']['distro_version']    = ''
-	install_type_map = {'ubuntu':'apt','debian':'apt','red hat':'yum','centos':'yum','fedora':'yum'}
-	shutit_global.shutit.handle_login('tmp_prompt')
-	if file_exists(child,cfg['build']['cidfile'],cfg['expect_prompts']['tmp_prompt']):
-		fail('Did not start up container. If you got a "port in use" error, try:\n\n' + cfg['host']['docker_executable'] + ' ps -a | grep ' + cfg['container']['ports'] + ' | awk \'{print $1}\' | xargs ' + cfg['host']['docker_executable'] + ' kill\n\n')
-	for key in install_type_map.keys():
-		# Use grep (not egrep) because it's likely installed _everywhere_ by default.
-		child.sendline('cat /etc/issue | grep -i "' + key + '" | wc -l')
-		child.expect(cfg['expect_prompts']['tmp_prompt'])
-		if get_re_from_child(child.before,'^([0-9]+)$') == '1':
-			cfg['container']['distro']       = key
-			cfg['container']['install_type'] = install_type_map[key]
-			break
-	set_password(child,cfg,cfg['expect_prompts']['tmp_prompt'],cfg['container']['password'])
-	if cfg['container']['install_type'] == 'apt':
-		cfg['expect_prompts']['real_user_prompt']        = '\r\n.*?' + cfg['host']['real_user'] + '@.*:'
-		send_and_expect(child,'export DEBIAN_FRONTEND=noninteractive',cfg['expect_prompts']['tmp_prompt'])
-		send_and_expect(child,'apt-get update',cfg['expect_prompts']['tmp_prompt'],timeout=9999,check_exit=False)
-		send_and_expect(child,'dpkg-divert --local --rename --add /sbin/initctl',cfg['expect_prompts']['tmp_prompt'])
-		send_and_expect(child,'ln -f -s /bin/true /sbin/initctl',cfg['expect_prompts']['tmp_prompt'])
-		install(child,cfg,'passwd',cfg['expect_prompts']['tmp_prompt'])
-		install(child,cfg,'sudo',cfg['expect_prompts']['tmp_prompt'])
-	elif cfg['container']['install_type'] == 'yum':
-		cfg['expect_prompts']['real_user_prompt']        = '\r\n.*?' + cfg['host']['real_user'] + '@.*:'
-		install(child,cfg,'passwd',cfg['expect_prompts']['tmp_prompt'])
-		install(child,cfg,'sudo',cfg['expect_prompts']['tmp_prompt'])
-		send_and_expect(child,'yum update -y',cfg['expect_prompts']['tmp_prompt'],timeout=9999)
-	if cfg['container']['install_type'] == '' or cfg['container']['distro'] == '':
-		fail('Could not determine Linux distro information. Please inform maintainers.')
-	shutit_global.shutit.handle_revert_prompt(outer_expect,'tmp_prompt')
-
-def set_password(child,cfg,expect,password):
-	if cfg['container']['install_type'] == 'apt':
-		send_and_expect(child,'passwd','Enter new',check_exit=False)
-		send_and_expect(child,password,'Retype new',check_exit=False,record_command=False)
-		send_and_expect(child,password,expect,record_command=False)
-	elif cfg['container']['install_type'] == 'yum':
-		send_and_expect(child,'passwd','ew password',check_exit=False,record_command=False)
-		send_and_expect(child,password,'ew password',check_exit=False,record_command=False)
-		send_and_expect(child,password,expect,record_command=False)
-	shutit_global.shutit.handle_login('password_tmp_prompt')
-	send_and_expect(child,'/bin/true',cfg['expect_prompts']['password_tmp_prompt'],record_command=False)
-	shutit_global.shutit.handle_revert_prompt(expect,'password_tmp_prompt')
-
+	if cfg not in [None,shutit_global.shutit.cfg]:
+		print "Report this error and stack trace to repo owner, #d110"
+		assert False
+	return shutit_global.shutit.get_distro_info(child=child,outer_expect=outer_expect)
 
 # Deprecated
-# Returns prompt expected
+def set_password(child,cfg,expect,password):
+	if cfg not in [None,shutit_global.shutit.cfg]:
+		print "Report this error and stack trace to repo owner, #d107"
+		assert False
+	return shutit_global.shutit.set_password(password,child=child,expect=expect)
+
+# Deprecated
 def handle_login(child,cfg,prompt_name):
-	shutit_global.shutit.handle_login(prompt_name)
+	shutit_global.shutit.handle_login(prompt_name,child=child)
 
 # Deprecated
 def handle_revert_prompt(child,expect,prompt_name):
-	shutit_global.shutit.handle_revert_prompt(expect,prompt_name)
+	shutit_global.shutit.handle_revert_prompt(expect,prompt_name,child=child)
 
-
-# Determine whether a user_id for a user is available
+# Deprecated
 def is_user_id_available(child,user_id,expect):
-	send_and_expect(child,'cut -d: -f3 /etc/paswd | grep -w ^' + user_id + '$ | wc -l',expect,check_exit=False,record_command=False)
-	if get_re_from_child(child.before,'^([0-9]+)$') == '1':
-		return False
-	else:
-		return True
+	return shutit_global.shutit.is_user_id_available(user_id,expect=expect,child=child)
 
-# Sets up a base prompt
+# Deprecated
 def setup_prompt(child,cfg,prefix,prompt_name):
-	local_prompt = prefix + str(random.getrandbits(32))
-	child.sendline('SHUTIT_BACKUP_PS1=$PS1 && unset PROMPT_COMMAND && PS1="' + local_prompt + '"')
-	cfg['expect_prompts'][prompt_name] = '\r\n' + local_prompt
-	child.expect(cfg['expect_prompts'][prompt_name])
+	shutit_global.shutit.setup_prompt(prefix,prompt_name,child=child)
 
 # Build report
 def build_report(msg=''):

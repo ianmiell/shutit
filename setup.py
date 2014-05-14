@@ -125,19 +125,25 @@ class setup(ShutItModule):
 		host_child = pexpect.spawn('/bin/bash')
 		# Some pexpect settings
 		util.set_pexpect_child('host_child',host_child)
-		util.set_pexpect_child('container_child', container_child)
-		shutit.set_default_child(container_child)
+		util.set_pexpect_child('container_child',container_child)
 		shutit.set_default_expect(config_dict['expect_prompts']['base_prompt'])
 		host_child.logfile = container_child.logfile = sys.stdout
 		host_child.maxread = container_child.maxread = 2000
 		host_child.searchwindowsize = container_child.searchwindowsize = 1024
 		# Set up prompts and let the user do things before the build
-		util.setup_prompt(host_child,config_dict,'SHUTIT_PROMPT_REAL_USER#','real_user_prompt')
-		util.pause_point(container_child,'Anything you want to do to the container before the build starts?')
-		util.setup_prompt(container_child,config_dict,'SHUTIT_PROMPT_PRE_BUILD#','pre_build')
-		util.get_distro_info(container_child,config_dict['expect_prompts']['pre_build'],config_dict)
-		util.setup_prompt(container_child,config_dict,'SHUTIT_PROMPT_ROOT_PROMPT#','root_prompt')
-		util.send_and_expect(container_child,'export DEBIAN_FRONTEND=noninteractive',config_dict['expect_prompts']['root_prompt'],check_exit=False)
+		# host child
+		shutit.set_default_child(host_child)
+		shutit.setup_prompt('SHUTIT_PROMPT_REAL_USER#','real_user_prompt')
+		shutit.set_default_expect(config_dict['expect_prompts']['real_user_prompt'])
+		# container child
+		shutit.set_default_child(container_child)
+		shutit.setup_prompt('SHUTIT_PROMPT_PRE_BUILD#','pre_build')
+		shutit.set_default_expect(config_dict['expect_prompts']['pre_build'])
+		shutit.get_distro_info()
+		shutit.setup_prompt('SHUTIT_PROMPT_ROOT_PROMPT#','root_prompt')
+		shutit.set_default_expect(config_dict['expect_prompts']['root_prompt'])
+		shutit.send_and_expect('export DEBIAN_FRONTEND=noninteractive',check_exit=False)
+		shutit.pause_point('Anything you want to do to the container before the build starts?')
 		return True
 
 	def remove(self,shutit):

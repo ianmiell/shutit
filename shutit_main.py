@@ -95,18 +95,18 @@ def init_shutit_map(shutit):
 	# Have we got anything to process?
 	if len(modules) < 2 :
 		util.log(modules)
-		util.fail('No ShutIt modules in path: ' +
+		util.fail('No ShutIt modules in path:\n\n' +
 			':'.join(cfg['host']['shutit_module_paths']) +
-			'. Check your --shutit_module_path setting.')
+			'\n\nor their subfolders. Check your --shutit_module_path setting.')
 
-	util.log(util.red('PHASE: base setup'))
+	util.log('PHASE: base setup',code='31')
 	if cfg['build']['tutorial']:
 		util.pause_point(util.get_pexpect_child('container_child'),
 			'\nChecking to see whether there are duplicate module ids or run orders in the visible modules.',
 			print_input=False)
 		util.log(util.get_pexpect_child('container_child'),'\nModules I see are:\n',force_stdout=True)
 		for m in modules:
-			util.log(util.red(m.module_id),force_stdout=True)
+			util.log(m.module_id,force_stdout=True,code='31')
 		util.log('\n',force_stdout=True)
 		util.pause_point(util.get_pexpect_child('container_child'),'',print_input=False)
 
@@ -206,7 +206,7 @@ def make_dep_graph(depender):
 def check_deps(shutit):
 	cfg = shutit.cfg
 	shutit_map = shutit.shutit_map
-	util.log(util.red('PHASE: dependencies'))
+	util.log('PHASE: dependencies',code='31')
 	if cfg['build']['tutorial']:
 		util.pause_point(util.get_pexpect_child('container_child'),'\nNow checking for dependencies between modules',print_input=False)
 	# Get modules we're going to build
@@ -250,12 +250,12 @@ def check_deps(shutit):
 		return [(err,) for err in found_errs]
 
 	if cfg['build']['debug']:
-		util.log(util.red('Modules configured to be built (in order) are: '))
+		util.log('Modules configured to be built (in order) are: ',code='31')
 		for mid in module_ids(shutit):
 			m = shutit_map[mid]
 			if cfg[mid]['build']:
-				util.log(util.red(mid + '\t' + str(m.run_order)))
-		util.log(util.red('\n'))
+				util.log(mid + '\t' + str(m.run_order),code='31')
+		util.log('\n',code='31')
 
 	return []
 
@@ -263,7 +263,7 @@ def check_conflicts(shutit):
 	cfg = shutit.cfg
 	shutit_map = shutit.shutit_map
 	# Now consider conflicts
-	util.log(util.red('PHASE: conflicts'))
+	util.log('PHASE: conflicts',code='31')
 	errs = []
 	if cfg['build']['tutorial']:
 		util.pause_point(util.get_pexpect_child('container_child'),'\nNow checking for conflicts between modules',print_input=False)
@@ -286,7 +286,7 @@ def check_conflicts(shutit):
 def check_ready(shutit):
 	cfg = shutit.cfg
 	shutit_map = shutit.shutit_map
-	util.log(util.red('PHASE: check_ready'))
+	util.log('PHASE: check_ready',code='31')
 	errs = []
 	if cfg['build']['tutorial']:
 		util.pause_point(util.get_pexpect_child('container_child'),
@@ -295,9 +295,9 @@ def check_ready(shutit):
 	for mid in module_ids(shutit):
 		m = shutit_map[mid]
 		if m.run_order == 0: continue
-		util.log(util.red('considering check_ready (is it ready to be built?): ' + mid))
+		util.log('considering check_ready (is it ready to be built?): ' + mid,code='31')
 		if cfg[mid]['build'] and not m.is_installed(shutit):
-			util.log(util.red('checking whether module is ready to build: ' + mid))
+			util.log('checking whether module is ready to build: ' + mid,code='31')
 			if not m.check_ready(shutit):
 				errs.append((mid + ' not ready to install',util.get_pexpect_child('container_child')))
 	return errs
@@ -306,40 +306,38 @@ def do_remove(shutit):
 	cfg = shutit.cfg
 	shutit_map = shutit.shutit_map
 	# Now get the run_order keys in order and go.
-	util.log(util.red('PHASE: remove'))
+	util.log('PHASE: remove',code='31')
 	if cfg['build']['tutorial']:
 		util.pause_point(util.get_pexpect_child('container_child'),'\nNow removing any modules that need removing',print_input=False)
 	for mid in module_ids(shutit):
 		m = shutit_map[mid]
 		if m.run_order == 0: continue
-		util.log(util.red('considering whether to remove: ' + mid))
+		util.log('considering whether to remove: ' + mid,code='31')
 		if cfg[mid]['remove']:
-			util.log(util.red('removing: ' + mid))
+			util.log('removing: ' + mid,code='31')
 			if not m.remove(shutit):
-				util.log(util.red(print_modules(shutit)))
+				util.log(print_modules(shutit),code='31')
 				util.fail(mid + ' failed on remove',child=util.get_pexpect_child('container_child'))
 
 def build_module(shutit, module):
 	cfg = shutit.cfg
 	shutit_map = shutit.shutit_map
-	util.log(util.red('building: ' + module.module_id + ' with run order: ' + str(module.run_order)))
+	util.log('building: ' + module.module_id + ' with run order: ' + str(module.run_order),code='31')
 	cfg['build']['report'] = cfg['build']['report'] + '\nBuilding: ' + module.module_id + ' with run order: ' + str(module.run_order)
 	if not module.build(shutit):
 		util.fail(module.module_id + ' failed on build',child=util.get_pexpect_child('container_child'))
 	if cfg['build']['interactive']:
 		util.pause_point(util.get_pexpect_child('container_child'),'\nPausing to allow inspect of build for: ' + module.module_id,print_input=True)
 	if not module.cleanup(shutit):
-		util.log(util.red('cleaning up: ' + module.module_id + ' with run order: ' + str(module.run_order)))
+		util.log('cleaning up: ' + module.module_id + ' with run order: ' + str(module.run_order),code='31')
 		util.fail(module.module_id + ' failed on cleanup',child=util.get_pexpect_child('container_child'))
 	cfg['build']['report'] = cfg['build']['report'] + '\nCompleted module: ' + module.module_id
 	if cfg[module.module_id]['do_repository_work'] or cfg['build']['interactive']:
-		util.log(util.red(util.build_report('Module:' + module.module_id)))
+		util.log(util.build_report('Module:' + module.module_id),code='31')
 	if not cfg[module.module_id]['do_repository_work'] and cfg['build']['interactive']:
 		cfg[module.module_id]['do_repository_work'] = (
-			raw_input(util.red(
-				'\n\nDo you want to save state now we\'re at the end of this ' +
-				'module? (' + module.module_id + ') (in  put y/n)\n' )) == 'y'
-		)
+			raw_input('\n\nDo you want to save state now we\'re at the end of this ' +
+				'module? (' + module.module_id + ') (in  put y/n)\n' ) == 'y')
 	if cfg[module.module_id]['do_repository_work']:
 		util.log(module.module_id + ' configured to be tagged, doing repository work')
 		# Stop all before we tag to avoid file changing errors, and clean up pid files etc..
@@ -352,20 +350,20 @@ def build_module(shutit, module):
 		# Start all after we tag to ensure services are up as expected.
 		start_all(shutit, module.run_order)
 	if (cfg['build']['interactive'] and
-			raw_input(util.red('\n\nDo you want to stop debug and/or interactive mode? (input y/n)\n' )) == 'y'):
+			raw_input('\n\nDo you want to stop debug and/or interactive mode? (input y/n)\n' ) == 'y'):
 		cfg['build']['interactive'] = False
 		cfg['build']['debug'] = False
 
 def do_build(shutit):
 	cfg = shutit.cfg
 	shutit_map = shutit.shutit_map
-	util.log(util.red('PHASE: build, cleanup, repository work'))
+	util.log('PHASE: build, cleanup, repository work',code='31')
 	if cfg['build']['tutorial']:
 		util.pause_point(util.get_pexpect_child('container_child'),'\nNow building any modules that need building',print_input=False)
 	for mid in module_ids(shutit):
 		module = shutit_map[mid]
 		if module.run_order == 0: continue
-		util.log(util.red('considering whether to build: ' + module.module_id))
+		util.log('considering whether to build: ' + module.module_id,code='31')
 		if cfg[module.module_id]['build']:
 			if module.is_installed(shutit):
 				cfg['build']['report'] = cfg['build']['report'] + '\nBuilt already: ' + module.module_id + ' with run order: ' + str(module.run_order)
@@ -380,7 +378,7 @@ def do_test(shutit):
 	cfg = shutit.cfg
 	shutit_map = shutit.shutit_map
 	# Test in reverse order
-	util.log(util.red('PHASE: test'))
+	util.log('PHASE: test',code='31')
 	if cfg['build']['tutorial']:
 		util.pause_point(util.get_pexpect_child('container_child'),'\nNow doing test phase',print_input=False)
 	stop_all(shutit)
@@ -388,7 +386,7 @@ def do_test(shutit):
 	for mid in module_ids(shutit, rev=True):
 		# Only test if it's thought to be installed.
 		if is_built(shutit,shutit_map[mid]):
-			util.log(util.red('RUNNING TEST ON: ' + mid))
+			util.log('RUNNING TEST ON: ' + mid,code='31')
 			if not shutit_map[mid].test(shutit):
 				util.fail(mid + ' failed on test',child=util.get_pexpect_child('container_child'))
 
@@ -400,7 +398,7 @@ def do_finalize(shutit):
 		util.pause_point(util.get_pexpect_child('container_child'),'\nStopping all modules before finalize phase',print_input=False)
 	stop_all(shutit)
 	# Finalize in reverse order
-	util.log(util.red('PHASE: finalize'))
+	util.log('PHASE: finalize',code='31')
 	if cfg['build']['tutorial']:
 		util.pause_point(util.get_pexpect_child('container_child'),'\nNow doing finalize phase, which we do when all builds are complete and modules are stopped',print_input=False)
 	for mid in module_ids(shutit, rev=True):
@@ -462,10 +460,10 @@ def shutit_main():
 	errs.extend(check_conflicts(shutit))
 	errs.extend(check_ready(shutit))
 	if errs:
-		util.log(util.red(print_modules(shutit)))
+		util.log(print_modules(shutit),code='31')
 		child = None
 		for err in errs:
-			util.log(util.red(err[0]), force_stdout=True)
+			util.log(err[0], force_stdout=True,code='31')
 			if not child and len(err) > 1:
 				child = err[1]
 		util.fail("Encountered some errors, quitting", child=child)
@@ -479,10 +477,10 @@ def shutit_main():
 
 	tag_and_push(shutit.cfg)
 
-	util.log(util.red(util.build_report('Module: N/A (END)')),prefix=False,force_stdout=True)
+	util.log(util.build_report('Module: N/A (END)'),prefix=False,force_stdout=True,code='31')
 
 	if shutit.cfg['build']['tutorial']:
-		util.log(util.red('\nThe build is complete. You should now have a container called ' + shutit.cfg['container']['name'] + ' and a new image if you chose to commit it.\n\nLook and play with the following files from the newly-created module directory to dig deeper:\n\n\tconfigs/default.cnf\n\t*.py\n\nYou can rebuild at any time by running the supplied ./build.sh and run with the supplied ./run.sh.\n\nThere\'s a default test runner in bin/test.sh\n\nYou can inspect the details of the build in the container\'s /root/shutit_build directory.'),force_stdout=True)
+		util.log('\nThe build is complete. You should now have a container called ' + shutit.cfg['container']['name'] + ' and a new image if you chose to commit it.\n\nLook and play with the following files from the newly-created module directory to dig deeper:\n\n\tconfigs/default.cnf\n\t*.py\n\nYou can rebuild at any time by running the supplied ./build.sh and run with the supplied ./run.sh.\n\nThere\'s a default test runner in bin/test.sh\n\nYou can inspect the details of the build in the container\'s /root/shutit_build directory.',force_stdout=True,code='31')
 
 if __name__ == '__main__':
 	try:

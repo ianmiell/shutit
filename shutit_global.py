@@ -71,7 +71,8 @@ class ShutIt(object):
 		if prefix:
 			prefix = 'LOG: ' + time.strftime("%Y-%m-%d %H:%M:%S",time.localtime())
 			msg = prefix + ' ' + str(msg)
-		if code != None:
+		# Don't colour message if we are in serve mode.
+		if code != None and not self.cfg['action']['serve']:
 			msg = util.colour(code, msg)
 		if self.cfg['build']['debug'] or force_stdout:
 			print >> sys.stdout, msg
@@ -134,8 +135,8 @@ class ShutIt(object):
 			for prompt in cfg['expect_prompts']:
 				if prompt == expect:
 					# Reset prompt
-					util.handle_login(child,cfg,'reset_tmp_prompt')
-					util.handle_revert_prompt(child,expect,'reset_tmp_prompt')
+					self.handle_login(child,cfg,'reset_tmp_prompt')
+					self.handle_revert_prompt(child,expect,'reset_tmp_prompt')
 		if check_exit == True:
 			self._check_exit(send,expect,child,timeout,exit_values)
 		return expect_res
@@ -185,13 +186,13 @@ class ShutIt(object):
 
 	# TODO: Comments needed here, as well as example in template. And a test?
 	def send_file(self,path,contents,expect=None,child=None,binary=False):
+		child = child or self.get_default_child()
+		expect = expect or self.get_default_expect()
 		if cfg['build']['debug']:
 			self.log('================================================================================')
 			self.log('Sending file to' + path)
 			if not binary:
 				self.log('contents >>>' + contents + '<<<')
-		child = child or self.get_default_child()
-		expect = expect or self.get_default_expect()
 		contents64 = base64.standard_b64encode(contents)
 		child.sendline('base64 --decode > ' + path)
 		child.sendline(contents64)
@@ -384,14 +385,178 @@ class ShutIt(object):
 		self.send_and_expect('%s %s %s' % (cmd,opts,package),expect,timeout=timeout)
 		return True
 
-	def handle_login(self,prompt_name):
+	def handle_login(self,prompt_name,child=None):
+		child = child or self.get_default_child()
 		local_prompt = 'SHUTIT_TMP_PROMPT_' + prompt_name + '#' + str(random.getrandbits(32))
 		self.cfg['expect_prompts'][prompt_name] = '\r\n' + local_prompt
 		self.send_and_expect('SHUTIT_BACKUP_PS1_' + prompt_name + """=$PS1 && export SHUTIT_PROMPT_COMMAND_BACKUP_""" + prompt_name + """=$PROMPT_COMMAND""" + prompt_name + """ && PS1='""" + local_prompt + """' && unset PROMPT_COMMAND""",expect=self.cfg['expect_prompts'][prompt_name],record_command=False,fail_on_empty_before=False)
 
-	def handle_revert_prompt(self,expect,prompt_name):
+	def handle_revert_prompt(self,expect,prompt_name,child=None):
+		child = child or self.get_default_child()
+		expect = expect or self.get_default_expect()
 		self.send_and_expect("""PS1="${SHUTIT_BACKUP_PS1_""" + prompt_name + """}" && unset SHUTIT_PROMPT_COMMAND_BACKUP_""" + prompt_name + """ && unset SHUTIT_BACKUP_PS1_""" + prompt_name,expect=expect,check_exit=False,record_command=False,fail_on_empty_before=False)
 
+	# Fails if distro could not be determined.
+	# Should be called with the container is started up.
+	def get_distro_info(self,child=None,outer_expect=None):
+		child = child or self.get_default_child()
+		cfg = self.cfg
+		outer_expect = outer_expect or self.get_default_expect()
+		cfg['container']['install_type']      = ''
+		cfg['container']['distro']            = ''
+		cfg['container']['distro_version']    = ''
+		install_type_map = {'ubuntu':'apt','debian':'apt','red hat':'yum','centos':'yum','fedora':'yum'}
+		self.handle_login('tmp_prompt')
+		self.set_default_expect(cfg['expect_prompts']['tmp_prompt'])
+		if self.file_exists(cfg['build']['cidfile']):
+			util.fail('Did not start up container. If you got a "port in use" error, try:\n\n' + cfg['host']['docker_executable'] + ' ps -a | grep ' + cfg['container']['ports'] + ' | awk \'{print $1}\' | xargs ' + cfg['host']['docker_executable'] + ' kill\n\n')
+		for key in install_type_map.keys():
+			# Use grep (not egrep) because it's likely installed _everywhere_ by default.
+			child.sendline('cat /etc/issue | grep -i "' + key + '" | wc -l')
+			child.expect(cfg['expect_prompts']['tmp_prompt'])
+			if self.get_re_from_child(child.before,'^([0-9]+)$') == '1':
+				cfg['container']['distro']       = key
+				cfg['container']['install_type'] = install_type_map[key]
+				break
+		self.set_password(cfg['container']['password'],expect=cfg['expect_prompts']['tmp_prompt'])
+		if cfg['container']['install_type'] == 'apt':
+			cfg['expect_prompts']['real_user_prompt']        = '\r\n.*?' + cfg['host']['real_user'] + '@.*:'
+			self.send_and_expect('export DEBIAN_FRONTEND=noninteractive')
+			self.send_and_expect('apt-get update',timeout=9999,check_exit=False)
+			self.send_and_expect('dpkg-divert --local --rename --add /sbin/initctl')
+			self.send_and_expect('ln -f -s /bin/true /sbin/initctl')
+			self.install('passwd')
+			self.install('sudo')
+		elif cfg['container']['install_type'] == 'yum':
+			cfg['expect_prompts']['real_user_prompt']        = '\r\n.*?' + cfg['host']['real_user'] + '@.*:'
+			self.install('passwd')
+			self.install('sudo')
+			self.send_and_expect('yum update -y',timeout=9999)
+		if cfg['container']['install_type'] == '' or cfg['container']['distro'] == '':
+			util.fail('Could not determine Linux distro information. Please inform maintainers.')
+		self.handle_revert_prompt(outer_expect,'tmp_prompt')
+
+	# Sets the password
+	def set_password(self,password,child=None,expect=None):
+		child = child or self.get_default_child()
+		expect = expect or self.get_default_expect()
+		cfg = self.cfg
+		if cfg['container']['install_type'] == 'apt':
+			self.send_and_expect('passwd',expect='Enter new',child=child,check_exit=False)
+			self.send_and_expect(password,child=child,expect='Retype new',check_exit=False,record_command=False)
+			self.send_and_expect(password,child=child,expect=expect,record_command=False)
+		elif cfg['container']['install_type'] == 'yum':
+			self.send_and_expect('passwd',child=child,expect='ew password',check_exit=False,record_command=False)
+			self.send_and_expect(password,child=child,expect='ew password',check_exit=False,record_command=False)
+			self.send_and_expect(password,child=child,expect=expect,record_command=False)
+
+
+	# Determine whether a user_id for a user is available
+	def is_user_id_available(self,user_id,child=None,expect=None):
+		child = child or self.get_default_child()
+		expect = expect or self.get_default_expect()
+		self.send_and_expect('cut -d: -f3 /etc/paswd | grep -w ^' + user_id + '$ | wc -l',child=child,expect=expect,check_exit=False,record_command=False)
+		if self.get_re_from_child(child.before,'^([0-9]+)$') == '1':
+			return False
+		else:
+			return True
+
+	# Sets up a base prompt
+	def setup_prompt(self,prefix,prompt_name,child=None):
+		child = child or self.get_default_child()
+		cfg = self.cfg
+		local_prompt = prefix + str(random.getrandbits(32))
+		child.sendline('SHUTIT_BACKUP_PS1=$PS1 && unset PROMPT_COMMAND && PS1="' + local_prompt + '"')
+		cfg['expect_prompts'][prompt_name] = '\r\n' + local_prompt
+		child.expect(cfg['expect_prompts'][prompt_name])
+
+	# expect must be a string
+	def push_repository(self,repository,docker_executable,child=None,expect=None):
+		child = child or self.get_default_child()
+		expect = expect or self.get_default_expect()
+		send = docker_executable + ' push ' + repository
+		expect_list = ['Pushing','Buffering','Username:','Password:','Email:',expect]
+		timeout=99999
+		res = self.send_and_expect(send,expect=expect_list,child=child,timeout=timeout,check_exit=False)
+		while True:
+			if res == 5:
+				break
+			elif res == 2:
+				res = self.send_and_expect(cfg['repository']['user'],child=child,expect=expect_list,timeout=timeout,check_exit=False)
+			elif res == 3:
+				res = self.send_and_expect(cfg['repository']['password'],child=child,expect=expect_list,timeout=timeout,check_exit=False)
+			elif res == 4:
+				res = self.send_and_expect(cfg['repository']['email'],child=child,expect=expect_list,timeout=timeout,check_exit=False)
+			else:
+				res = child.expect(expect_list,timeout=timeout)
+	
+	# Commit, tag, push, tar etc..
+	# expect must be a string
+	def do_repository_work(self,repo_name,expect=None,docker_executable='docker',password=None):
+		expect = expect or self.get_default_expect()
+		cfg = self.cfg
+		if not cfg['repository']['do_repository_work']:
+			return
+		child = util.get_pexpect_child('host_child')
+		server = cfg['repository']['server']
+		user = cfg['repository']['user']
+	
+		if user and repo_name:
+			repository = '%s/%s' % (user, repo_name)
+			repository_tar = '%s_%s' % (user, repo_name)
+		elif user:
+			repository = repository_tar = user
+		elif repo_name:
+			repository = repository_tar = repo_name
+		else:
+			repository = repository_tar = ''
+	
+		if not repository:
+			util.fail('Could not form valid repository name')
+		if cfg['repository']['tar'] and not repository_tar:
+			util.fail('Could not form valid tar name')
+	
+		if server:
+			repository = '%s/%s' % (server, repository)
+	
+		if cfg['repository']['suffix_date']:
+			suffix_date = time.strftime(cfg['repository']['suffix_format'])
+			repository = '%s_%s' % (repository, suffix_date)
+			repository_tar = '%s_%s' % (repository_tar, suffix_date)
+	
+		if server == '' and len(repository) > 30:
+			util.fail("""repository name: '""" + repository + """' too long. If using suffix_date consider shortening""")
+	
+		# Only lower case accepted
+		repository = repository.lower()
+		# Slight pause due to race conditions seen.
+		#time.sleep(0.3)
+		res = self.send_and_expect('SHUTIT_TMP_VAR=`' + docker_executable + ' commit ' + cfg['container']['container_id'] + '`',expect=[expect,'assword'],child=child,timeout=99999,check_exit=False)
+		if res == 1:
+			self.send_and_expect(cfg['host']['password'],expect=expect,check_exit=False,record_command=False,child=child)
+		self.send_and_expect('echo $SHUTIT_TMP_VAR && unset SHUTIT_TMP_VAR',expect=expect,check_exit=False,record_command=False,child=child)
+		image_id = child.after.split('\r\n')[1]
+	
+		if not image_id:
+			util.fail('failed to commit to ' + repository + ', could not determine image id')
+	
+		cmd = docker_executable + ' tag ' + image_id + ' ' + repository
+		self.send_and_expect(cmd,child=child,expect=expect,check_exit=False)
+		if cfg['repository']['tar']:
+			if cfg['build']['tutorial']:
+				self.pause_point('We are now exporting the container to a bzipped tar file, as configured in \n[repository]\ntar:yes',print_input=False,child=child)
+			bzfile = cfg['host']['resources_dir'] + '/' + repository_tar + '.tar.bz2'
+			log('\nDepositing bzip2 of exported container into ' + bzfile)
+			res = self.send_and_expect(docker_executable + ' export ' + cfg['container']['container_id'] + ' | bzip2 - > ' + bzfile,expect=[expect,'assword'],timeout=99999,child=child)
+			log('\nDeposited bzip2 of exported container into ' + bzfile,code='31')
+			log('\nRun:\n\nbunzip2 -c ' + bzfile + ' | sudo docker import -\n\nto get this imported into docker.',code='31')
+			cfg['build']['report'] = cfg['build']['report'] + '\nDeposited bzip2 of exported container into ' + bzfile
+			cfg['build']['report'] = cfg['build']['report'] + '\nRun:\n\nbunzip2 -c ' + bzfile + ' | sudo docker import -\n\nto get this imported into docker.'
+			if res == 1:
+				self.send_and_expect(password,expect=expect,child=child,record_command=False)
+		if cfg['repository']['push'] == True:
+			self.push_repository(repository,docker_executable,expect)
+			cfg['build']['report'] = cfg['build']['report'] + 'Pushed repository: ' + repository
 
 
 def init():
