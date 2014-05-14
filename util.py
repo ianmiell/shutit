@@ -38,14 +38,15 @@ import textwrap
 import tempfile
 import json
 import binascii
+from shutit_module import ShutItFailException
 
 # TODO: Manage exits of containers on error
 def fail(msg,child=None):
 	if child:
-		pause_point(child,'Pause point on fail: ' + msg,force=True)
+		pause_point(child,'Pause point on fail: ' + msg)
 	print >> sys.stderr, 'ERROR!'
 	print >> sys.stderr, red(msg)
-	sys.exit(1)
+	raise ShutItFailException(msg)
 
 def is_file_secure(file_name):
 	# If file doesn't exist, it's considered secure!
@@ -221,14 +222,21 @@ def get_base_config(cfg, cfg_parser):
 def parse_args(cfg):
 	cfg['host']['real_user_id'] = pexpect.run('id -u ' + cfg['host']['real_user']).strip()
 
+	# Compatibility
+	if '--sc' in sys.argv:
+		sys.argv.remove('--sc')
+		sys.argv = ['sc'] + sys.argv
+	if '--depgraph' in sys.argv:
+		sys.argv.remove('--depgraph')
+		sys.argv = ['depgraph'] + sys.argv
+
 	parser = argparse.ArgumentParser(description='ShutIt - a tool for managing complex Docker deployments')
+	parser.add_argument('action', nargs='?', choices=('build','serve','depgraph','sc'), default='build', help='Action to perform. Defaults to \'build\'.')
 	parser.add_argument('--config', help='Config file for setup config. Must be with perms 0600. Multiple arguments allowed; config files considered in order.',default=[], action='append')
 	parser.add_argument('-s', '--set', help='Override a config item, e.g. "-s container rm no". Can be specified multiple times.', default=[], action='append', nargs=3, metavar=('SEC','KEY','VAL'))
 	parser.add_argument('--image_tag', help='Build container using specified image - if there is a symbolic reference, please use that, eg localhost.localdomain:5000/myref',default=cfg['container']['docker_image_default'])
 	parser.add_argument('--shutit_module_path', default='.',help='List of shutit module paths, separated by colons. ShutIt registers modules by running all .py files in these directories.')
 	parser.add_argument('--pause',help='Pause between commands to avoid race conditions.',default='0.5')
-	parser.add_argument('--sc',help='Show the config computed and quit',default=False,const=True,action='store_const')
-	parser.add_argument('--depgraph',help='Show dependency graph and quit',default=False,const=True,action='store_const')
 	parser.add_argument('--debug',help='Show debug. Implies [build]/interactive config settings set, even if set to "no".',default=False,const=True,action='store_const')
 	parser.add_argument('--tutorial',help='Show tutorial info. Implies [build]/interactive config setting set, even if set to "no".',default=False,const=True,action='store_const')
 
@@ -271,12 +279,13 @@ def parse_args(cfg):
 	args = parser.parse_args(args_list)
 	# Get these early for this part of the build.
 	# These should never be config arguments, since they are needed before config is passed in.
-	cfg['build']['debug']    = args.debug
+	cfg['action']['show_config'] =   args.action == 'sc'
+	cfg['action']['show_depgraph'] = args.action == 'depgraph'
+	cfg['action']['serve'] =         args.action == 'serve'
+	cfg['build']['debug'] = args.debug
 	cfg['build']['tutorial'] = args.tutorial
 	cfg['build']['command_pause'] = float(args.pause)
 	cfg['build']['extra_configs'] = args.config
-	cfg['build']['show_config_only'] = args.sc
-	cfg['build']['show_depgraph_only'] = args.depgraph
 	cfg['build']['config_overrides'] = args.set
 	cfg['container']['docker_image'] = args.image_tag
 	# Get module paths
@@ -411,7 +420,7 @@ def load_configs(shutit):
 		configs.append(run_config_file)
 	# Image to use to start off. The script should be idempotent, so running it
 	# on an already built image should be ok, and is advised to reduce diff space required.
-	if cfg['build']['tutorial'] or cfg['build']['show_config_only']:
+	if cfg['build']['tutorial'] or cfg['action']['show_config']:
 		msg = ''
 		for c in configs:
 			msg = msg + '\t\n' + c
@@ -464,17 +473,17 @@ def print_config(cfg):
 	return s
 
 # Deprecated
-def pause_point(child,msg,print_input=True,expect='',cfg=None,force=False):
+def pause_point(child,msg,print_input=True,expect='',cfg=None):
 	if cfg not in [None, shutit_global.shutit.cfg]:
 		print "Report this error and stack trace to repo owner, #d103"
 		assert False
 	shutit_global.shutit.pause_point(msg, child=child, print_input=print_input,
-		expect=expect, force=force)
+		expect=expect)
 
 # Commit, tag, push, tar etc..
 # expect must be a string
-def do_repository_work(cfg,expect,repo_name,docker_executable='docker',password=None,force=False):
-	if not (cfg['repository']['do_repository_work'] or force):
+def do_repository_work(cfg,expect,repo_name,docker_executable='docker',password=None):
+	if not cfg['repository']['do_repository_work']:
 		return
 	child = get_pexpect_child('host_child')
 	server = cfg['repository']['server']
