@@ -24,3 +24,5 @@
 [shutit.tk.vnc.vnc]
 build:yes
 
+[build]
+privileged:yes

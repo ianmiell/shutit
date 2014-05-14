@@ -11,12 +11,7 @@ import util
 
 class prompt_command(ShutItModule):
 
-	def check_ready(self,shutit):
-		config_dict = shutit.cfg
-		return True
-
 	def is_installed(self,shutit):
-		config_dict = shutit.cfg
 		return False
 
 	def build(self,shutit):
@@ -24,41 +19,13 @@ class prompt_command(ShutItModule):
 		container_child = util.get_pexpect_child('container_child') # Let's get the container child object from pexpect.
 		root_prompt_expect = config_dict['expect_prompts']['root_prompt'] # Set the string we expect to see once commands are done.
 		# Breaks unless we set the PROMPT_COMMAND manually on a login
-		util.send_and_expect(container_child,"""cat >> /root/.bashrc << END
+		shutit.send_and_expect("""cat >> /root/.bashrc << END
 PROMPT_COMMAND='echo -ne "a"'
-END""",root_prompt_expect)
-		util.send_and_expect(container_child,'su',config_dict['expect_prompts']['base_prompt'],check_exit=False)
-		util.handle_login(container_child,config_dict,'test_tmp_prompt')
-		util.handle_revert_prompt(container_child,config_dict['expect_prompts']['base_prompt'],'test_tmp_prompt')
-		util.send_and_expect(container_child,'exit',root_prompt_expect)
-		return True
-
-	def start(self,shutit):
-		config_dict = shutit.cfg
-		return True
-
-	def stop(self,shutit):
-		config_dict = shutit.cfg
-		return True
-
-	def cleanup(self,shutit):
-		config_dict = shutit.cfg
-		return True
-
-	def finalize(self,shutit):
-		config_dict = shutit.cfg
-		return True
-
-	def remove(self,shutit):
-		config_dict = shutit.cfg
-		return True
-
-	def test(self,shutit):
-		config_dict = shutit.cfg
-		return True
-
-	def get_config(self,shutit):
-		config_dict = shutit.cfg
+END""")
+		shutit.send_and_expect('su',expect=config_dict['expect_prompts']['base_prompt'],check_exit=False)
+		shutit.handle_login('test_tmp_prompt')
+		shutit.handle_revert_prompt(config_dict['expect_prompts']['base_prompt'],'test_tmp_prompt')
+		shutit.send_and_expect('exit',root_prompt_expect)
 		return True
 
 if not util.module_exists('shutit.tk.prompt_command'):
