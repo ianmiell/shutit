@@ -20,9 +20,10 @@
 #OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 #SOFTWARE.
 
-from shutit_module import ShutItModule
+from shutit_module import ShutItModule, ShutItException
 import util
 import shutit_global
+import shutit_srv
 import setup
 import time
 import sys
@@ -196,11 +197,10 @@ def check_dependee_order(shutit, depender, dependee, dependee_id):
 			'depends on dependee module_id:\n\n' + dependee_id +
 			'\n\n(run order: ' + str(dependee.run_order) + ') ' +
 			'but the latter is configured to run after the former')
-def make_dep_graph(cfg, depender):
+def make_dep_graph(depender):
 	digraph = ''
 	for dependee_id in depender.depends_on:
-		if cfg['build']['show_depgraph_only']:
-			digraph = digraph + '"' + depender.module_id + '"->"' + dependee_id + '";\n'
+		digraph = digraph + '"' + depender.module_id + '"->"' + dependee_id + '";\n'
 	return digraph
 
 def check_deps(shutit):
@@ -249,14 +249,6 @@ def check_deps(shutit):
 	if found_errs:
 		return [(err,) for err in found_errs]
 
-	# Show dependency graph
-	if cfg['build']['show_depgraph_only']:
-		digraph = 'digraph depgraph {\n'
-		digraph = digraph + '\n'.join([make_dep_graph(cfg, module) for module in to_build])
-		digraph = digraph + '\n}'
-		util.log(digraph,force_stdout=True)
-		sys.exit()
-
 	if cfg['build']['debug']:
 		util.log(util.red('Modules configured to be built (in order) are: '))
 		for mid in module_ids(shutit):
@@ -272,6 +264,7 @@ def check_conflicts(shutit):
 	shutit_map = shutit.shutit_map
 	# Now consider conflicts
 	util.log(util.red('PHASE: conflicts'))
+	errs = []
 	if cfg['build']['tutorial']:
 		util.pause_point(util.get_pexpect_child('container_child'),'\nNow checking for conflicts between modules',print_input=False)
 	for mid in module_ids(shutit):
@@ -285,15 +278,16 @@ def check_conflicts(shutit):
 				continue
 			if ((cfg[conflicter.module_id]['build'] or conflicter.is_installed(shutit)) and
 					(cfg[conflictee_obj.module_id]['build'] or conflictee_obj.is_installed(shutit))):
-				return [('conflicter module id: ' + conflicter.module_id +
+				errs.append(('conflicter module id: ' + conflicter.module_id +
 					' is configured to be built or is already built but ' +
-					'conflicts with module_id: ' + conflictee_obj.module_id,)]
-	return []
+					'conflicts with module_id: ' + conflictee_obj.module_id,))
+	return errs
 
 def check_ready(shutit):
 	cfg = shutit.cfg
 	shutit_map = shutit.shutit_map
 	util.log(util.red('PHASE: check_ready'))
+	errs = []
 	if cfg['build']['tutorial']:
 		util.pause_point(util.get_pexpect_child('container_child'),
 			'\nNow checking whether we are ready to build modules configured to be built',
@@ -305,8 +299,8 @@ def check_ready(shutit):
 		if cfg[mid]['build'] and not m.is_installed(shutit):
 			util.log(util.red('checking whether module is ready to build: ' + mid))
 			if not m.check_ready(shutit):
-				return [(mid + ' not ready to install',util.get_pexpect_child('container_child'))]
-	return []
+				errs.append((mid + ' not ready to install',util.get_pexpect_child('container_child')))
+	return errs
 
 def do_remove(shutit):
 	cfg = shutit.cfg
@@ -340,8 +334,13 @@ def build_module(shutit, module):
 	cfg['build']['report'] = cfg['build']['report'] + '\nCompleted module: ' + module.module_id
 	if cfg[module.module_id]['do_repository_work'] or cfg['build']['interactive']:
 		util.log(util.red(util.build_report('Module:' + module.module_id)))
-	if (cfg[module.module_id]['do_repository_work'] or
-			(cfg['build']['interactive'] and raw_input(util.red('\n\nDo you want to save state now we\'re at the ' + 'end of this module? (' + module.module_id + ') (input y/n)\n' )) == 'y')):
+	if not cfg[module.module_id]['do_repository_work'] and cfg['build']['interactive']:
+		cfg[module.module_id]['do_repository_work'] = (
+			raw_input(util.red(
+				'\n\nDo you want to save state now we\'re at the end of this ' +
+				'module? (' + module.module_id + ') (in  put y/n)\n' )) == 'y'
+		)
+	if cfg[module.module_id]['do_repository_work']:
 		util.log(module.module_id + ' configured to be tagged, doing repository work')
 		# Stop all before we tag to avoid file changing errors, and clean up pid files etc..
 		stop_all(shutit, module.run_order)
@@ -349,8 +348,7 @@ def build_module(shutit, module):
 			cfg['expect_prompts']['base_prompt'],
 			str(module.module_id) + '_' + str(module.run_order),
 			password=cfg['host']['password'],
-			docker_executable=cfg['host']['docker_executable'],
-			force=True)
+			docker_executable=cfg['host']['docker_executable'])
 		# Start all after we tag to ensure services are up as expected.
 		start_all(shutit, module.run_order)
 	if (cfg['build']['interactive'] and
@@ -434,18 +432,33 @@ def shutit_main():
 	cfg = shutit.cfg
 
 	util.parse_args(cfg)
+
 	util.load_configs(shutit)
 	# Now get base config
-	if cfg['build']['show_config_only']:
+	if cfg['action']['show_config']:
 		util.log(util.print_config(cfg),force_stdout=True)
-		sys.exit()
+		return
 	util.load_shutit_modules(shutit)
 	init_shutit_map(shutit)
 	config_collection(shutit)
 	build_core_module(shutit)
 
+	if cfg['action']['serve']:
+		shutit_srv.start()
+		return
+
 	errs = []
 	errs.extend(check_deps(shutit))
+	# Show dependency graph
+	if cfg['action']['show_depgraph']:
+		digraph = 'digraph depgraph {\n'
+		digraph = digraph + '\n'.join([
+			make_dep_graph(module) for mid, module in shutit.shutit_map.items()
+			if mid in shutit.cfg and shutit.cfg[mid]['build']
+		])
+		digraph = digraph + '\n}'
+		util.log(digraph,force_stdout=True)
+		return
 	errs.extend(check_conflicts(shutit))
 	errs.extend(check_ready(shutit))
 	if errs:
@@ -472,4 +485,8 @@ def shutit_main():
 		util.log(util.red('\nThe build is complete. You should now have a container called ' + shutit.cfg['container']['name'] + ' and a new image if you chose to commit it.\n\nLook and play with the following files from the newly-created module directory to dig deeper:\n\n\tconfigs/default.cnf\n\t*.py\n\nYou can rebuild at any time by running the supplied ./build.sh and run with the supplied ./run.sh.\n\nThere\'s a default test runner in bin/test.sh\n\nYou can inspect the details of the build in the container\'s /root/shutit_build directory.'),force_stdout=True)
 
 if __name__ == '__main__':
-	shutit_main()
+	try:
+		shutit_main()
+	except ShutItException as e:
+		print "Error while executing: " + str(e.message)
+		sys.exit(1)
