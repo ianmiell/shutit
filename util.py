@@ -706,22 +706,6 @@ END
 exit
 }
 
-if [[ $0 != create_skeleton.sh ]] && [[ $0 != ./create_skeleton.sh ]]
-then
-	cat > /dev/stdout << END
-Must be run from bin dir like:
-
-create_skeleton.sh <absolute_directory_name> <module_name> <your namespace, eg com.yourname> [<shell script to integrate>]
-
-or
-
-	./create_skeleton.sh <absolute_directory_name> <module_name> <your namespace, eg com.yourname> [<shell script to integrate>]
-END
-	sleep 1
-	usage
-fi
-
-
 if [[ x$SKELETON_DIR == "x" ]] || [[ $(echo $SKELETON_DIR | head -c 1) != "/" ]]
 then
 	echo "Must supply a directory and it must be absolute"
@@ -808,7 +792,7 @@ ${MODULE_NAME}: resources required in this directory, eg gzips or text files.\nN
 END
 
 # Module template
-cp ../docs/shutit_module_template.py ${SKELETON_DIR}/${MODULE_NAME}.py
+cp docs/shutit_module_template.py ${SKELETON_DIR}/${MODULE_NAME}.py
 perl -p -i -e "s/template/${MODULE_NAME}/g" ${SKELETON_DIR}/${MODULE_NAME}.py
 perl -p -i -e "s/GLOBALLY_UNIQUE_STRING/'${NAMESPACE}.$(basename ${MODULE_NAME}).${MODULE_NAME}'/g" ${SKELETON_DIR}/${MODULE_NAME}.py
 perl -p -i -e "s/FLOAT/1000.00/" ${SKELETON_DIR}/${MODULE_NAME}.py
