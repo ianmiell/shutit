@@ -431,7 +431,7 @@ def shutit_main():
 	util.parse_args(cfg)
 
 	if cfg['action']['skeleton']:
-		util.create_skeleton()
+		util.create_skeleton(shutit)
 		return
 
 	util.load_configs(shutit)

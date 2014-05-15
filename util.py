@@ -680,30 +680,8 @@ def build_report(msg=''):
 def get_hash(string):
 	return abs(binascii.crc32(string))
 
-def create_skeleton():
+def create_skeleton(shutit):
 	script = r'''
-#!/bin/bash
-
-#Copyright (C) 2014 OpenBet Limited
-#
-#Permission is hereby granted, free of charge, to any person obtaining a copy 
-#of this software and associated documentation files (the "Software"), to deal
-#in the Software without restriction, including without limitation the rights
-#to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-#copies of the Software, and to permit persons to whom the Software is
-#furnished to do so, subject to the following conditions:
-#
-#The above copyright notice and this permission notice shall be included in
-#all copies or substantial portions of the Software.
-#
-#THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-#IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-#FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-#AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-#LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-#OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-#SOFTWARE.
-
 SKELETON_DIR=$1
 MODULE_NAME=$2
 SHUTIT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/.."
@@ -1016,9 +994,16 @@ echo "==========================================================================
 		err = 'Cannot create tmp script, ' + script_fname + ' already exists'
 		raise ShutItFailException(err)
 
+	path = shutit.cfg['skeleton']['path']
+	module_name = shutit.cfg['skeleton']['module_name']
+	domain = shutit.cfg['skeleton']['domain']
+	script = shutit.cfg['skeleton']['script']
+	args = [path, module_name, domain]
+	if script is not None:
+		args.append(script)
+
 	open(script_fname, 'w').write(script)
 	os.chmod(script_fname ,0700)
-	print script_fname
-	print subprocess.call(['/bin/bash', script_fname])
+	subprocess.call(['/bin/bash', script_fname] + args)
 
 	os.remove(script_fname)
