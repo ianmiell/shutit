@@ -694,26 +694,6 @@ readonly SKELETON_DIR MODULE_NAME SHUTIT_DIR INCLUDE_SCRIPT
 set -o errexit
 set -o nounset
 
-if [[ x$SKELETON_DIR == "x" ]] || [[ $(echo $SKELETON_DIR | head -c 1) != "/" ]]
-then
-	echo "Must supply a directory and it must be absolute"
-fi
-
-if [[ -a $SKELETON_DIR ]]
-then
-	echo "$SKELETON_DIR already exists"
-fi
-
-if [[ x$MODULE_NAME == "x" ]]
-then
-	echo "Must supply a name for your module, eg mymodulename"
-fi
-
-if [[ x$NAMESPACE == "x" ]]
-then
-	echo "Must supply a namespace for your module, eg com.yourname.madeupdomainsuffix"
-fi
-
 mkdir -p ${SKELETON_DIR}
 mkdir -p ${SKELETON_DIR}/configs
 mkdir -p ${SKELETON_DIR}/resources
@@ -959,13 +939,23 @@ echo "==========================================================================
 		err = 'Cannot create tmp script, ' + script_fname + ' already exists'
 		raise ShutItFailException(err)
 
-	path = shutit.cfg['skeleton']['path']
-	module_name = shutit.cfg['skeleton']['module_name']
-	domain = shutit.cfg['skeleton']['domain']
-	script_integrate = shutit.cfg['skeleton']['script']
-	args = [path, module_name, domain]
-	if script_integrate is not None:
-		args.append(script_integrate)
+	skel_path = shutit.cfg['skeleton']['path']
+	skel_module_name = shutit.cfg['skeleton']['module_name']
+	skel_domain = shutit.cfg['skeleton']['domain']
+	skel_script = shutit.cfg['skeleton']['script']
+
+	if len(skel_path) == 0 or skel_path[0] != '/':
+		fail('Must supply a directory and it must be absolute')
+	if os.path.exists(skel_path):
+		fail(skel_path + 'already exists')
+	if len(skel_module_name) == 0:
+		fail('Must supply a name for your module, eg mymodulename')
+	if len(skel_domain) == 0:
+		fail('Must supply a namespace for your module, eg com.yourname.madeupdomainsuffix')
+
+	args = [skel_path, skel_module_name, skel_domain]
+	if skel_script is not None:
+		args.append(skel_script)
 
 	try:
 		open(script_fname, 'w').write(script)
