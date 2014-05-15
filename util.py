@@ -223,23 +223,54 @@ def get_base_config(cfg, cfg_parser):
 def parse_args(cfg):
 	cfg['host']['real_user_id'] = pexpect.run('id -u ' + cfg['host']['real_user']).strip()
 
+	# These are in order of their creation
+	actions = ['build','sc','depgraph','serve','skeleton']
+
 	# Compatibility
+	# Note that (for now) all of these compat functions work because we know
+	# that there are no --options to shutit (as opposed to a subcommand)
+	# COMPAT 2014-05-13 - let sc and depgraph have '--' prefix
 	if '--sc' in sys.argv:
 		sys.argv.remove('--sc')
-		sys.argv = ['sc'] + sys.argv
+		sys.argv[1:] = ['sc'] + sys.argv[1:]
 	if '--depgraph' in sys.argv:
 		sys.argv.remove('--depgraph')
-		sys.argv = ['depgraph'] + sys.argv
+		sys.argv[1:] = ['depgraph'] + sys.argv[1:]
+	# COMPAT 2014-05-15 - let serve, sc and depgraph be specified anywhere in
+	# arguments for backwards compatibility. Hopefully there's no setting
+	# involving those words
+	for action in ['serve', 'depgraph', 'sc']:
+		try:
+			sys.argv.remove(action)
+			sys.argv[1:] = [action] + sys.argv[1:]
+		except:
+			pass
+	# COMPAT 2014-05-15 - build is the default if there is no action specified
+	# and we've not asked for help
+	if len(sys.argv) == 1 or (len(sys.argv) > 1 and sys.argv[1] not in actions
+			and '-h' not in sys.argv and '--help' not in sys.argv):
+		sys.argv.insert(1, 'build')
 
 	parser = argparse.ArgumentParser(description='ShutIt - a tool for managing complex Docker deployments')
-	parser.add_argument('action', nargs='?', choices=('build','serve','depgraph','sc','skeleton'), default='build', help='Action to perform. Defaults to \'build\'.')
-	parser.add_argument('--config', help='Config file for setup config. Must be with perms 0600. Multiple arguments allowed; config files considered in order.',default=[], action='append')
-	parser.add_argument('-s', '--set', help='Override a config item, e.g. "-s container rm no". Can be specified multiple times.', default=[], action='append', nargs=3, metavar=('SEC','KEY','VAL'))
-	parser.add_argument('--image_tag', help='Build container using specified image - if there is a symbolic reference, please use that, eg localhost.localdomain:5000/myref',default=cfg['container']['docker_image_default'])
-	parser.add_argument('--shutit_module_path', default='.',help='List of shutit module paths, separated by colons. ShutIt registers modules by running all .py files in these directories.')
-	parser.add_argument('--pause',help='Pause between commands to avoid race conditions.',default='0.5')
-	parser.add_argument('--debug',help='Show debug. Implies [build]/interactive config settings set, even if set to "no".',default=False,const=True,action='store_const')
-	parser.add_argument('--tutorial',help='Show tutorial info. Implies [build]/interactive config setting set, even if set to "no".',default=False,const=True,action='store_const')
+	subparsers = parser.add_subparsers(dest='action', help='Action to perform. Defaults to \'build\'.')
+
+	sub_parsers = dict()
+	for action in actions:
+		sub_parsers[action] = subparsers.add_parser(action)
+
+	sub_parsers['skeleton'].add_argument('path', help='absolute path to new directory for module')
+	sub_parsers['skeleton'].add_argument('module_name', help='name for your module')
+	sub_parsers['skeleton'].add_argument('domain', help='arbitrary but unique domain for namespacing your module')
+	sub_parsers['skeleton'].add_argument('script', help='pre-existing shell script to integrate into module (optional)', nargs='?', default=None)
+
+	for action in ['build','serve','depgraph','sc']:
+		sub_parsers[action].add_argument('--config', help='Config file for setup config. Must be with perms 0600. Multiple arguments allowed; config files considered in order.',default=[], action='append')
+		sub_parsers[action].add_argument('-s', '--set', help='Override a config item, e.g. "-s container rm no". Can be specified multiple times.', default=[], action='append', nargs=3, metavar=('SEC','KEY','VAL'))
+		sub_parsers[action].add_argument('--image_tag', help='Build container using specified image - if there is a symbolic reference, please use that, eg localhost.localdomain:5000/myref',default=cfg['container']['docker_image_default'])
+		sub_parsers[action].add_argument('--shutit_module_path', default='.',help='List of shutit module paths, separated by colons. ShutIt registers modules by running all .py files in these directories.')
+		sub_parsers[action].add_argument('--pause',help='Pause between commands to avoid race conditions.',default='0.5')
+		sub_parsers[action].add_argument('--debug',help='Show debug. Implies [build]/interactive config settings set, even if set to "no".',default=False,const=True,action='store_const')
+		sub_parsers[action].add_argument('--tutorial',help='Show tutorial info. Implies [build]/interactive config setting set, even if set to "no".',default=False,const=True,action='store_const')
 
 	args_list = sys.argv[1:]
 	# Load command line options from the environment (if set)
@@ -278,12 +309,25 @@ def parse_args(cfg):
 		args_list = env_args_list + args_list
 
 	args = parser.parse_args(args_list)
-	# Get these early for this part of the build.
-	# These should never be config arguments, since they are needed before config is passed in.
+
+	# What are we asking shutit to do?
 	cfg['action']['show_config'] =   args.action == 'sc'
 	cfg['action']['show_depgraph'] = args.action == 'depgraph'
 	cfg['action']['serve'] =         args.action == 'serve'
 	cfg['action']['skeleton'] =      args.action == 'skeleton'
+	cfg['action']['build'] =         args.action == 'build'
+
+	# This mode is a bit special - it's the only one with different arguments
+	if cfg['action']['skeleton']:
+		cfg['skeleton'] = {
+			'path': args.path,
+			'module_name': args.module_name,
+			'domain': args.domain,
+			'script': args.script
+		}
+
+	# Get these early for this part of the build.
+	# These should never be config arguments, since they are needed before config is passed in.
 	cfg['build']['debug'] = args.debug
 	cfg['build']['tutorial'] = args.tutorial
 	cfg['build']['command_pause'] = float(args.pause)
