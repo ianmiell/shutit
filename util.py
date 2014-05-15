@@ -694,44 +694,24 @@ readonly SKELETON_DIR MODULE_NAME SHUTIT_DIR INCLUDE_SCRIPT
 set -o errexit
 set -o nounset
 
-function usage {
-	cat > /dev/stdout << END
-$0 PATH MODULE_NAME DOMAIN [SCRIPT]
-
-PATH        - absolute path to new directory for module
-MODULE_NAME - name for your module
-DOMAIN      - arbitrary but unique domain for namespacing your module
-SCRIPT      - pre-existing shell script to integrate into module (optional)
-END
-exit
-}
-
 if [[ x$SKELETON_DIR == "x" ]] || [[ $(echo $SKELETON_DIR | head -c 1) != "/" ]]
 then
 	echo "Must supply a directory and it must be absolute"
-	sleep 1
-	usage
 fi
 
 if [[ -a $SKELETON_DIR ]]
 then
 	echo "$SKELETON_DIR already exists"
-	sleep 1
-	usage
 fi
 
 if [[ x$MODULE_NAME == "x" ]]
 then
 	echo "Must supply a name for your module, eg mymodulename"
-	sleep 1
-	usage
 fi
 
 if [[ x$NAMESPACE == "x" ]]
 then
 	echo "Must supply a namespace for your module, eg com.yourname.madeupdomainsuffix"
-	sleep 1
-	usage
 fi
 
 mkdir -p ${SKELETON_DIR}
