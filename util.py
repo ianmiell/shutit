@@ -694,10 +694,6 @@ readonly SKELETON_DIR MODULE_NAME SHUTIT_DIR INCLUDE_SCRIPT
 set -o errexit
 set -o nounset
 
-mkdir -p ${SKELETON_DIR}
-mkdir -p ${SKELETON_DIR}/configs
-mkdir -p ${SKELETON_DIR}/resources
-mkdir -p ${SKELETON_DIR}/bin
 ## Copy self to new directory.
 #cp ${BASH_SOURCE[0]} ${SKELETON_DIR}/bin
 touch ${SKELETON_DIR}/README.md
@@ -952,6 +948,11 @@ echo "==========================================================================
 		fail('Must supply a name for your module, eg mymodulename')
 	if len(skel_domain) == 0:
 		fail('Must supply a namespace for your module, eg com.yourname.madeupdomainsuffix')
+
+	os.makedirs(skel_path)
+	os.mkdir(os.path.join(skel_path, 'configs'))
+	os.mkdir(os.path.join(skel_path, 'resources'))
+	os.mkdir(os.path.join(skel_path, 'bin'))
 
 	args = [skel_path, skel_module_name, skel_domain]
 	if skel_script is not None:
