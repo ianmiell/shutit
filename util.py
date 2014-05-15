@@ -987,8 +987,9 @@ echo "==========================================================================
 	if script_integrate is not None:
 		args.append(script_integrate)
 
-	open(script_fname, 'w').write(script)
-	os.chmod(script_fname ,0700)
-	subprocess.call(['/bin/bash', script_fname] + args)
-
-	os.remove(script_fname)
+	try:
+		open(script_fname, 'w').write(script)
+		os.chmod(script_fname ,0700)
+		subprocess.call(['/bin/bash', script_fname] + args)
+	except:
+		os.remove(script_fname)
