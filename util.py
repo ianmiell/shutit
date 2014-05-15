@@ -325,6 +325,7 @@ def parse_args(cfg):
 			'domain': args.domain,
 			'script': args.script
 		}
+		return
 
 	# Get these early for this part of the build.
 	# These should never be config arguments, since they are needed before config is passed in.
@@ -997,10 +998,10 @@ echo "==========================================================================
 	path = shutit.cfg['skeleton']['path']
 	module_name = shutit.cfg['skeleton']['module_name']
 	domain = shutit.cfg['skeleton']['domain']
-	script = shutit.cfg['skeleton']['script']
+	script_integrate = shutit.cfg['skeleton']['script']
 	args = [path, module_name, domain]
-	if script is not None:
-		args.append(script)
+	if script_integrate is not None:
+		args.append(script_integrate)
 
 	open(script_fname, 'w').write(script)
 	os.chmod(script_fname ,0700)
