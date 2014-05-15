@@ -32,8 +32,9 @@ import base64
 
 class ShutIt(object):
 
-	_default_child = [None]
-	_default_expect = [None]
+	_default_child      = [None]
+	_default_expect     = [None]
+	_default_check_exit = False
 
 	def __init__(self, **kwargs):
 		self.pexpect_children = kwargs['pexpect_children']
@@ -64,8 +65,9 @@ class ShutIt(object):
 		if self._default_expect[-1] is None:
 			util.fail("Couldn't get default expect")
 		return self._default_expect[-1]
-	def set_default_expect(self, expect):
+	def set_default_expect(self, expect, check_exit=True):
 		self._default_expect[-1] = expect
+		self._default_check_exit = check_exit
 
 	def log(self, msg, code=None, pause=0, prefix=True, force_stdout=False):
 		if prefix:
@@ -93,10 +95,17 @@ class ShutIt(object):
 	# fail_on_empty_before       - If debug is set, fail on empty before match (default=True)
 	# record_command             - Whether to record the command for output at end (default=True)
 	# exit_values                - Array of acceptable exit values (default [0])
-	def send_and_expect(self,send,expect=None,child=None,timeout=3600,check_exit=True,fail_on_empty_before=True,record_command=True,exit_values=None):
+	def send_and_expect(self,send,expect=None,child=None,timeout=3600,check_exit=None,fail_on_empty_before=True,record_command=True,exit_values=None):
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
 		cfg = self.cfg
+		# If check_exit is not passed in and the expect matches the default
+		# (which we assume is a shell prompt), then do check exit.
+		if check_exit == None and expect == self.get_default_expect():
+			check_exit = True
+		# If check_exit is unknown at this point, assume we don't do it.
+		if check_exit == None:
+			check_exit = False
 		# If the command matches any 'password's then don't record
 		ok_to_record = False
 		if record_command:
