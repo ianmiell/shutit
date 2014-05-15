@@ -23,7 +23,6 @@
 from shutit_module import ShutItModule, ShutItException
 import util
 import shutit_global
-import shutit_srv
 import setup
 import time
 import sys
@@ -442,6 +441,7 @@ def shutit_main():
 	build_core_module(shutit)
 
 	if cfg['action']['serve']:
+		import shutit_srv
 		shutit_srv.start()
 		return
 
