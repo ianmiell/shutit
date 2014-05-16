@@ -415,7 +415,7 @@ class ShutIt(object):
 			("SHUTIT_BACKUP_PS1_%s=$PS1 &&" +
 			"export SHUTIT_PROMPT_COMMAND_BACKUP_%s=$PROMPT_COMMAND && " +
 			"PS1='%s' && unset PROMPT_COMMAND") %
-				(prompt_name, prompt_name, prompt_name, local_prompt),
+				(prompt_name, prompt_name, local_prompt),
 			expect=self.cfg['expect_prompts'][prompt_name],
 			record_command=False,fail_on_empty_before=False)
 
