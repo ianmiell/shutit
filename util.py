@@ -924,10 +924,12 @@ def create_skeleton(shutit):
 		for call in calls:
 			subprocess.check_call(call, shell=True)
 
-	subprocess.check_call(['git', 'init'], cwd=skel_path)
-	subprocess.check_call([
-		'cp', os.path.join(shutit_dir, '.gitignore'), '.gitignore'
-	], cwd=skel_path)
+	# Are we creating a new folder inside an existing git repo?
+	if subprocess.call(['git', 'status'], stdout=open(os.devnull, 'wb')) != 0:
+		subprocess.check_call(['git', 'init'], cwd=skel_path)
+		subprocess.check_call([
+			'cp', os.path.join(shutit_dir, '.gitignore'), '.gitignore'
+		], cwd=skel_path)
 
 	print textwrap.dedent('''\
 	================================================================================
