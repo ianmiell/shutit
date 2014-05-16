@@ -34,7 +34,7 @@ class ShutIt(object):
 
 	_default_child      = [None]
 	_default_expect     = [None]
-	_default_check_exit = False
+	_default_check_exit = [None]
 
 	def __init__(self, **kwargs):
 		self.pexpect_children = kwargs['pexpect_children']
@@ -65,6 +65,10 @@ class ShutIt(object):
 		if self._default_expect[-1] is None:
 			util.fail("Couldn't get default expect")
 		return self._default_expect[-1]
+	def get_default_check_exit(self):
+		if self._default_check_exit[-1] is None:
+			util.fail("Couldn't get default check exit")
+		return self._default_check_exit[-1]
 	def set_default_expect(self, expect, check_exit=True):
 		self._default_expect[-1] = expect
 		self._default_check_exit = check_exit
@@ -99,13 +103,14 @@ class ShutIt(object):
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
 		cfg = self.cfg
-		# If check_exit is not passed in and the expect matches the default
-		# (which we assume is a shell prompt), then do check exit.
-		if check_exit == None and expect == self.get_default_expect():
-			check_exit = True
-		# If check_exit is unknown at this point, assume we don't do it.
+		# If check_exit is not passed in
+		# - if the expect matches the default, use the default check exit
+		# - otherwise, default to doing the check
 		if check_exit == None:
-			check_exit = False
+			if expect == self.get_default_expect():
+				check_exit = self.get_default_check_exit()
+			else:
+				check_exit = True
 		# If the command matches any 'password's then don't record
 		ok_to_record = False
 		if record_command:
