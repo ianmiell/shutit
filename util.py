@@ -33,7 +33,6 @@ import imp
 import shutit_global
 import pexpect
 import socket
-import random
 import textwrap
 import tempfile
 import json
