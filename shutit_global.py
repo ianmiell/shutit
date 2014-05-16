@@ -511,7 +511,7 @@ class ShutIt(object):
 				res = self.send_and_expect(cfg['repository']['email'],child=child,expect=expect_list,timeout=timeout,check_exit=False)
 			else:
 				res = child.expect(expect_list,timeout=timeout)
-	
+
 	# Commit, tag, push, tar etc..
 	# expect must be a string
 	def do_repository_work(self,repo_name,expect=None,docker_executable='docker',password=None):
@@ -522,7 +522,7 @@ class ShutIt(object):
 		child = self.pexpect_children['host_child']
 		server = cfg['repository']['server']
 		user = cfg['repository']['user']
-	
+
 		if user and repo_name:
 			repository = '%s/%s' % (user, repo_name)
 			repository_tar = '%s_%s' % (user, repo_name)
@@ -532,23 +532,23 @@ class ShutIt(object):
 			repository = repository_tar = repo_name
 		else:
 			repository = repository_tar = ''
-	
+
 		if not repository:
 			util.fail('Could not form valid repository name')
 		if cfg['repository']['tar'] and not repository_tar:
 			util.fail('Could not form valid tar name')
-	
+
 		if server:
 			repository = '%s/%s' % (server, repository)
-	
+
 		if cfg['repository']['suffix_date']:
 			suffix_date = time.strftime(cfg['repository']['suffix_format'])
 			repository = '%s_%s' % (repository, suffix_date)
 			repository_tar = '%s_%s' % (repository_tar, suffix_date)
-	
+
 		if server == '' and len(repository) > 30:
 			util.fail("""repository name: '""" + repository + """' too long. If using suffix_date consider shortening""")
-	
+
 		# Only lower case accepted
 		repository = repository.lower()
 		# Slight pause due to race conditions seen.
@@ -558,10 +558,10 @@ class ShutIt(object):
 			self.send_and_expect(cfg['host']['password'],expect=expect,check_exit=False,record_command=False,child=child)
 		self.send_and_expect('echo $SHUTIT_TMP_VAR && unset SHUTIT_TMP_VAR',expect=expect,check_exit=False,record_command=False,child=child)
 		image_id = child.after.split('\r\n')[1]
-	
+
 		if not image_id:
 			util.fail('failed to commit to ' + repository + ', could not determine image id')
-	
+
 		cmd = docker_executable + ' tag ' + image_id + ' ' + repository
 		self.send_and_expect(cmd,child=child,expect=expect,check_exit=False)
 		if cfg['repository']['tar']:
