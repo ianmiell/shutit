@@ -694,7 +694,7 @@ def create_skeleton(shutit):
 	if len(skel_path) == 0 or skel_path[0] != '/':
 		fail('Must supply a directory and it must be absolute')
 	if os.path.exists(skel_path):
-		fail(skel_path + 'already exists')
+		fail(skel_path + ' already exists')
 	if len(skel_module_name) == 0:
 		fail('Must supply a name for your module, eg mymodulename')
 	if len(skel_domain) == 0:
@@ -717,17 +717,17 @@ def create_skeleton(shutit):
 	buildcnf_path = os.path.join(skel_path, 'configs', 'build.cnf')
 	pushcnf_path = os.path.join(skel_path, 'configs', 'push.cnf')
 	hostcnf_path = os.path.join(skel_path, 'configs',
-		shutit.cfg['host']['real_user'] + '_' + socket.gethostname() + '.cnf')
+		socket.gethostname() + '_' + shutit.cfg['host']['real_user'] + '.cnf')
 
 	templatemodule = open(
 		os.path.join(shutit_dir, 'docs', 'shutit_module_template.py')).read()
 	templatemodule = (templatemodule
 		).replace('template', skel_module_name
-		).replace('GLOBALLY_UNIQUE_STRING', '%s.%s.%s' % (skel_domain, skel_module_name, skel_module_name)
+		).replace('GLOBALLY_UNIQUE_STRING', '\'%s.%s.%s\'' % (skel_domain, skel_module_name, skel_module_name)
 		).replace('FLOAT','1000.00'
 	)
 	readme = skel_module_name + ': description of module directory in here'
-	resreadme = (skel_module_name + ': resources required in this directory,' +
+	resreadme = (skel_module_name + ': resources required in this directory, ' +
 		'eg gzips or text files.\nNote that the .gitignore file in the ' +
 		skel_path + ' directory should exclude these files from being added ' +
 		'to git repos (usually due to size), but can be added if forced with ' +
@@ -886,19 +886,19 @@ def create_skeleton(shutit):
 	open(hostcnf_path, 'w').write(hostcnf)
 	os.chmod(hostcnf_path, 0600)
 
-	print textwrap.dedent('''\
-		================================================================================
-		Please note that your bash script in:
-		''' + skel_script + '''
-		should be a simple set of one-liners
-		that return to the prompt. Anything fancy with ifs, backslashes or other
-		multi-line commands need to be handled more carefully.
-		================================================================================
-		Hit return to continue.
-		================================================================================''')
-	raw_input()
-
 	if skel_script is not None:
+		print textwrap.dedent('''\
+			================================================================================
+			Please note that your bash script in:
+			''' + skel_script + '''
+			should be a simple set of one-liners
+			that return to the prompt. Anything fancy with ifs, backslashes or other
+			multi-line commands need to be handled more carefully.
+			================================================================================
+			Hit return to continue.
+			================================================================================''')
+		raw_input()
+
 		# egrep removes leading space
 		# grep removes comments
 		# sed1 ensures no confusion with double quotes
