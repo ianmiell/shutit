@@ -1,5 +1,5 @@
 #!/bin/bash
-
+set -x
 #Copyright (C) 2014 OpenBet Limited
 #
 #Permission is hereby granted, free of charge, to any person obtaining a copy 
@@ -35,7 +35,6 @@ SHUTIT_DIR="$(pwd)/.."
 # Off for now
 SHUTIT_PARALLEL_BUILD=
 readonly SHUTIT_PARALLEL_BUILD CNAME NEWDIR SHUTIT_DIR
-export SHUTIT_OPTIONS="-s container name $CNAME"
 
 # Check we can use docker
 if ! $DOCKER info >/dev/null 2>&1; then
@@ -77,19 +76,17 @@ fi
 
 pushd ..
 PYTHONPATH=$(pwd) python bin/test.py || failure "Unit tests"
-popd
 
 find ${SHUTIT_DIR} -name '*.cnf' | grep '/configs/[^/]*.cnf' | xargs chmod 600
 
 cleanup nothard
 echo "Testing skeleton build"
-./create_skeleton.sh ${NEWDIR} testing shutit.tk ${SHUTIT_DIR}/docs/example.sh
+./shutit skeleton ${NEWDIR} testing shutit.tk ${SHUTIT_DIR}/docs/example.sh
 pushd ${NEWDIR}/bin
 touch ${SHUTIT_DIR}/test/configs/$(hostname)_$(whoami).cnf
 chmod 0600 ${SHUTIT_DIR}/test/configs/$(hostname)_$(whoami).cnf
 ./test.sh ${SHUTIT_DIR} || failure "1.0 ${NEWDIR}"
 cleanup nothard
-popd
 rm -rf ${NEWDIR}
 
 PIDS=""
