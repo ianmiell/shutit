@@ -26,21 +26,19 @@ class TestShutItDepChecking(unittest.TestCase):
 
 	@classmethod
 	def setUpClass(cls):
-		cls._log = util.log
 		cls._fail = util.fail
-		def log(*args, **kwargs):
-			pass
 		def fail(*args, **kwargs):
 			raise ShutItTestException("failed")
-		util.log = log
 		util.fail = fail
 	@classmethod
 	def tearDownClass(cls):
-		util.log = cls._log
 		util.fail = cls._fail
 
 	def setUp(self):
 		self.shutit = shutit_global.init()
+		def log(*args, **kwargs):
+			pass
+		self.shutit.log = log
 		recupdate(self.shutit.cfg, {
 			'build': {
 				'tutorial': False, 'debug': False, 'show_depgraph_only': False
