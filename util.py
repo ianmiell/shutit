@@ -731,7 +731,7 @@ def create_skeleton(shutit):
 		'eg gzips or text files.\nNote that the .gitignore file in the ' +
 		skel_path + ' directory should exclude these files from being added ' +
 		'to git repos (usually due to size), but can be added if forced with ' +
-		'\'git add --force <file>\'.')
+		'\'git add --force <file>\'.\n')
 	buildsh = textwrap.dedent('''\
 		# This file tests your build, leaving the container intact when done.
 		set -e
@@ -741,7 +741,8 @@ def create_skeleton(shutit):
 		# Debug
 		#python ''' + shutit_dir + '''/shutit_main.py --debug
 		# Tutorial
-		#python ''' + shutit_dir + '''/shutit_main.py --tutorial''')
+		#python ''' + shutit_dir + '''/shutit_main.py --tutorial
+		''')
 	testsh = textwrap.dedent('''\
 		#!/bin/bash
 		# Test the building of this module
@@ -773,10 +774,12 @@ def create_skeleton(shutit):
 		else
 			cd -
 			exit 1
-		fi''')
+		fi
+		''')
 	runsh = textwrap.dedent('''\
 		# Example for running
-		docker run -t -i ''' + skel_module_name + ''' /bin/bash''')
+		docker run -t -i ''' + skel_module_name + ''' /bin/bash
+		''')
 	testbuildsh = textwrap.dedent('''\
 		# This file tests your build, removing the container when done.
 		set -e
@@ -786,7 +789,8 @@ def create_skeleton(shutit):
 		# Debug
 		#python ''' + shutit_dir + '''/shutit_main.py --debug
 		# Tutorial
-		#python ''' + shutit_dir + '''/shutit_main.py --tutorial''')
+		#python ''' + shutit_dir + '''/shutit_main.py --tutorial
+		''')
 	buildpushsh = textwrap.dedent('''\
 		set -e
 		python ''' + shutit_dir + '''/shutit_main.py --config configs/push.cnf
@@ -795,12 +799,14 @@ def create_skeleton(shutit):
 		# Debug
 		#python ''' + shutit_dir + '''/shutit_main.py --debug
 		# Tutorial
-		#python ''' + shutit_dir + '''/shutit_main.py --tutorial''')
+		#python ''' + shutit_dir + '''/shutit_main.py --tutorial
+		''')
 	defaultscnf = textwrap.dedent('''\
 		# Base config for the module. This contains standard defaults or hashed out examples.
 		[''' + '%s.%s.%s' % (skel_domain, skel_module_name, skel_module_name) + ''']
 		example:astring
-		example_bool:yes''')
+		example_bool:yes
+		''')
 	buildcnf = textwrap.dedent('''\
 		# When this module is the one being built, which modules should be built along with it by default?
 		# This feeds into automated testing of each module.
@@ -812,7 +818,8 @@ def create_skeleton(shutit):
 		# Allowed images, eg ["ubuntu:12.04"].
 		# "any" is a special value meaning any image is ok, and is the default.
 		# It's recommended this is locked down as far as possible.
-		allowed_images:["any"]''')
+		allowed_images:["any"]
+		''')
 	pushcnf = textwrap.dedent('''\
 		[repository]
 		do_repository_work:yes
@@ -829,7 +836,8 @@ def create_skeleton(shutit):
 		suffix_format:%s
 
 		[container]
-		rm:false''')
+		rm:false
+		''')
 
 	pw_host = getpass.getpass('Password (for host %s): ' % socket.gethostname())
 	container_hostname = raw_input('Container\'s hostname: ')
@@ -862,7 +870,8 @@ def create_skeleton(shutit):
 		#Must be set if do_repository_work is true/yes and user is not blank
 		email:YOUR_REGISTRY_EMAIL_OR_BLANK
 		# Whether to push to the server
-		name:''' + skel_module_name)
+		name:''' + skel_module_name + '''
+		''')
 
 	open(templatemodule_path, 'w').write(templatemodule)
 	open(readme_path, 'w').write(readme)
