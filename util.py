@@ -699,49 +699,6 @@ cp docs/shutit_module_template.py ${SKELETON_DIR}/${MODULE_NAME}.py
 perl -p -i -e "s/template/${MODULE_NAME}/g" ${SKELETON_DIR}/${MODULE_NAME}.py
 perl -p -i -e "s/GLOBALLY_UNIQUE_STRING/'${NAMESPACE}.$(basename ${MODULE_NAME}).${MODULE_NAME}'/g" ${SKELETON_DIR}/${MODULE_NAME}.py
 perl -p -i -e "s/FLOAT/1000.00/" ${SKELETON_DIR}/${MODULE_NAME}.py
-# Configs
-# Setup base config for the new module
-cat >> ${SKELETON_DIR}/configs/defaults.cnf << END
-# Base config for the module. This contains standard defaults or hashed out examples.
-[${NAMESPACE}.$(basename ${MODULE_NAME}).${MODULE_NAME}]
-example:astring
-example_bool:yes
-END
-
-# Setup base config for the new module
-cat >> ${SKELETON_DIR}/configs/build.cnf << END
-# When this module is the one being built, which modules should be built along with it by default?
-# This feeds into automated testing of each module.
-[${NAMESPACE}.$(basename ${MODULE_NAME}).${MODULE_NAME}]
-build:yes
-
-# Aspects of build process
-[build]
-# Allowed images, eg ["ubuntu:12.04"].
-# "any" is a special value meaning any image is ok, and is the default.
-# It's recommended this is locked down as far as possible.
-allowed_images:["any"]
-END
-
-# Setup base config for the new module
-cat >> ${SKELETON_DIR}/configs/push.cnf << END
-[repository]
-do_repository_work:yes
-#user:YOUR_USERNAME
-# Fill these out in server- and username-specific config (also in this directory)
-#password:YOUR_REGISTRY_PASSWORD_OR_BLANK
-# Fill these out in server- and username-specific config (also in this directory)
-#email:YOUR_REGISTRY_EMAIL_OR_BLANK
-push:yes
-tar:no
-#server:REMOVE_ME_FOR_DOCKER_INDEX
-name:$MODULE_NAME
-suffix_date:yes
-suffix_format:%s
-
-[container]
-rm:false
-END
 
 # Include bash script
 if [[ x${INCLUDE_SCRIPT} != "x" ]]
@@ -809,9 +766,6 @@ email:YOUR_REGISTRY_EMAIL_OR_BLANK
 name:${MODULE_NAME}
 END
 
-chmod 0600 ${SKELETON_DIR}/configs/defaults.cnf
-chmod 0600 ${SKELETON_DIR}/configs/build.cnf
-chmod 0600 ${SKELETON_DIR}/configs/push.cnf
 chmod 0600 ${SKELETON_DIR}/configs/$(hostname)_$(whoami).cnf
 
 pushd ${SKELETON_DIR}
@@ -851,7 +805,7 @@ echo "==========================================================================
 	if len(skel_module_name) == 0:
 		fail('Must supply a name for your module, eg mymodulename')
 	if len(skel_domain) == 0:
-		fail('Must supply a namespace for your module, eg com.yourname.madeupdomainsuffix')
+		fail('Must supply a domain for your module, eg com.yourname.madeupdomainsuffix')
 
 	os.makedirs(skel_path)
 	os.mkdir(os.path.join(skel_path, 'configs'))
@@ -865,6 +819,9 @@ echo "==========================================================================
 	runsh_path = os.path.join(skel_path, 'run.sh')
 	testbuildsh_path = os.path.join(skel_path, 'test_build.sh')
 	buildpushsh_path = os.path.join(skel_path, 'build_and_push.sh')
+	defaultscnf_path = os.path.join(skel_path, 'configs', 'defaults.cnf')
+	buildcnf_path = os.path.join(skel_path, 'configs', 'build.cnf')
+	pushcnf_path = os.path.join(skel_path, 'configs', 'push.cnf')
 
 	readme = skel_module_name + ': description of module directory in here'
 	resreadme = (skel_module_name + ': resources required in this directory,' +
@@ -936,6 +893,41 @@ echo "==========================================================================
 		#python ''' + shutit_dir + '''/shutit_main.py --debug
 		# Tutorial
 		#python ''' + shutit_dir + '''/shutit_main.py --tutorial''')
+	defaultscnf = textwrap.dedent('''\
+		# Base config for the module. This contains standard defaults or hashed out examples.
+		[''' + '%s.%s.%s' % (skel_domain, skel_module_name, skel_module_name) + ''']
+		example:astring
+		example_bool:yes''')
+	buildcnf = textwrap.dedent('''\
+		# When this module is the one being built, which modules should be built along with it by default?
+		# This feeds into automated testing of each module.
+		[''' + '%s.%s.%s' % (skel_domain, skel_module_name, skel_module_name) + ''']
+		build:yes
+
+		# Aspects of build process
+		[build]
+		# Allowed images, eg ["ubuntu:12.04"].
+		# "any" is a special value meaning any image is ok, and is the default.
+		# It's recommended this is locked down as far as possible.
+		allowed_images:["any"]''')
+	pushcnf = textwrap.dedent('''\
+		[repository]
+		do_repository_work:yes
+		#user:YOUR_USERNAME
+		# Fill these out in server- and username-specific config (also in this directory)
+		#password:YOUR_REGISTRY_PASSWORD_OR_BLANK
+		# Fill these out in server- and username-specific config (also in this directory)
+		#email:YOUR_REGISTRY_EMAIL_OR_BLANK
+		push:yes
+		tar:no
+		#server:REMOVE_ME_FOR_DOCKER_INDEX
+		name:''' + skel_module_name + '''
+		suffix_date:yes
+		suffix_format:%s
+
+		[container]
+		rm:false''')
+
 
 	open(readme_path, 'w').write(readme)
 	open(resreadme_path, 'w').write(resreadme)
@@ -949,6 +941,12 @@ echo "==========================================================================
 	os.chmod(testbuildsh_path, os.stat(testbuildsh_path).st_mode | 0111) # chmod +x
 	open(buildpushsh_path, 'w').write(buildpushsh)
 	os.chmod(buildpushsh_path, os.stat(buildpushsh_path).st_mode | 0111) # chmod +x
+	open(defaultscnf_path, 'w').write(defaultscnf)
+	os.chmod(defaultscnf_path, 0600)
+	open(buildcnf_path, 'w').write(buildcnf)
+	os.chmod(buildcnf_path, 0600)
+	open(pushcnf_path, 'w').write(pushcnf)
+	os.chmod(pushcnf_path, 0600)
 
 	# Call the bash script
 	args = [skel_path, skel_module_name, skel_domain]
