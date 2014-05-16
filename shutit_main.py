@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 #The MIT License (MIT)
 #
 #Copyright (C) 2014 OpenBet Limited
@@ -429,6 +430,10 @@ def shutit_main():
 	cfg = shutit.cfg
 
 	util.parse_args(cfg)
+
+	if cfg['action']['skeleton']:
+		util.create_skeleton(shutit)
+		return
 
 	util.load_configs(shutit)
 	# Now get base config
