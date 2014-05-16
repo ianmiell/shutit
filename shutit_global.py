@@ -26,9 +26,13 @@ import socket
 import time
 import util
 import random
+import string
 import re
 import textwrap
 import base64
+
+def random_id(size=5, chars=string.ascii_letters + string.digits):
+	return ''.join(random.choice(chars) for _ in range(size))
 
 class ShutIt(object):
 
@@ -270,7 +274,7 @@ class ShutIt(object):
 		# assume we're going to add it
 		res = '0'
 		bad_chars    = '"'
-		tmp_filename = '/tmp/' + str(random.getrandbits(32))
+		tmp_filename = '/tmp/' + random_id()
 		if match_regexp == None and re.match('.*[' + bad_chars + '].*',line) != None:
 			util.fail('Passed problematic character to add_line_to_file.\nPlease avoid using the following chars: ' + bad_chars + '\nor supply a match_regexp argument.\nThe line was:\n' + line)
 		# truncate file if requested, or if the file doesn't exist
@@ -409,7 +413,7 @@ class ShutIt(object):
 
 	def handle_login(self,prompt_name,child=None):
 		child = child or self.get_default_child()
-		local_prompt = 'SHUTIT_TMP_PROMPT_' + prompt_name + '#' + str(random.getrandbits(32))
+		local_prompt = 'SHUTIT_TMP_' + prompt_name + '#' + random_id() + '>'
 		self.cfg['expect_prompts'][prompt_name] = '\r\n' + local_prompt
 		self.send_and_expect(
 			("SHUTIT_BACKUP_PS1_%s=$PS1 &&" +
@@ -498,7 +502,7 @@ class ShutIt(object):
 	def setup_prompt(self,prefix,prompt_name,child=None):
 		child = child or self.get_default_child()
 		cfg = self.cfg
-		local_prompt = prefix + str(random.getrandbits(32))
+		local_prompt = prefix + '#' + random_id() + '>'
 		child.sendline('SHUTIT_BACKUP_PS1=$PS1 && unset PROMPT_COMMAND && PS1="' + local_prompt + '"')
 		cfg['expect_prompts'][prompt_name] = '\r\n' + local_prompt
 		child.expect(cfg['expect_prompts'][prompt_name])
