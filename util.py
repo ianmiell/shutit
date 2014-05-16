@@ -735,17 +735,6 @@ then
 	cp ${SHUTIT_DIR}/.gitignore .gitignore
 fi
 popd
-
-echo "================================================================================"
-echo "Run:"
-echo ""
-echo "    cd ${SKELETON_DIR}; python ${SHUTIT_DIR}/shutit_main.py --tutorial"
-echo ""
-echo "And follow the instructions in the output."
-echo ""
-echo "An image called ${MODULE_NAME} will be created and can be run"
-echo "with the run.sh command."
-echo "================================================================================"
 	'''
 	shutit_dir = sys.path[0]
 	script_fname = os.path.join(shutit_dir, 'create_skeleton.sh')
@@ -955,3 +944,15 @@ echo "==========================================================================
 		subprocess.call(['/bin/bash', script_fname] + args)
 	except:
 		os.remove(script_fname)
+
+	print textwrap.dedent('''\
+	================================================================================
+	Run:
+
+	    cd ''' + skel_path + '; python ' + shutit_dir + '''/shutit_main.py --tutorial
+
+	And follow the instructions in the output.
+
+	An image called ''' + skel_module_name + ''' will be created and can be run
+	with the run.sh command.
+	================================================================================''')
