@@ -103,18 +103,19 @@ class setup(ShutItModule):
 			] if arg != ''
 		]
 		if config_dict['build']['tutorial']:
-			util.pause_point(None,'\n\nAbout to start container. ' +
+			shutit.pause_point('\n\nAbout to start container. ' +
 				'Ports mapped will be: ' + ', '.join(port_args) +
 				' (from\n\n[host]\nports:<value>\n\nconfig, building on the ' +
 				'configurable base image passed in in:\n\n\t--image <image>\n' +
 				'\nor config:\n\n\t[container]\n\tdocker_image:<image>)\n\nBase' +
 				'image in this case is:\n\n\t' + config_dict['container']['docker_image'] +
-				'\n\n',print_input=False)
-		util.log('\n\nCommand being run is:\n\n' + ' '.join(docker_command),force_stdout=True,prefix=False)
-		util.log('\n\nThis may download the image, please be patient\n\n',force_stdout=True,prefix=False)
+				'\n\n',child=None,print_input=False)
+		shutit.log('\n\nCommand being run is:\n\n' + ' '.join(docker_command),force_stdout=True,prefix=False)
+		shutit.log('\n\nThis may download the image, please be patient\n\n',force_stdout=True,prefix=False)
 		container_child = pexpect.spawn(docker_command[0], docker_command[1:])
 		if container_child.expect(['assword',config_dict['expect_prompts']['base_prompt'].strip()],9999) == 0:
-			util.send_and_expect(container_child,config_dict['host']['password'],config_dict['expect_prompts']['base_prompt'],timeout=9999,check_exit=False)
+			shutit.send_and_expect(config_dict['host']['password'],child=container_child,
+				expect=config_dict['expect_prompts']['base_prompt'],timeout=9999,check_exit=False)
 		# Get the cid
 		time.sleep(1) # cidfile creation is sometimes slow...
 		cid = open(config_dict['build']['cidfile']).read()
@@ -124,8 +125,8 @@ class setup(ShutItModule):
 		# Now let's have a host_child
 		host_child = pexpect.spawn('/bin/bash')
 		# Some pexpect settings
-		util.set_pexpect_child('host_child',host_child)
-		util.set_pexpect_child('container_child',container_child)
+		shutit.pexpect_children['host_child'] = host_child
+		shutit.pexpect_children['container_child'] = container_child
 		shutit.set_default_expect(config_dict['expect_prompts']['base_prompt'])
 		host_child.logfile = container_child.logfile = sys.stdout
 		host_child.maxread = container_child.maxread = 2000
@@ -148,9 +149,8 @@ class setup(ShutItModule):
 
 	def remove(self,shutit):
 		config_dict = shutit.cfg
-		container_child = util.get_pexpect_child('container_child')
 		if config_dict['container']['install_type'] == 'yum':
-			util.remove(container_child,config_dict,'passwd',config_dict['expect_prompts']['root_prompt'])
+			shutit.remove('passwd')
 		return True
 
 	def finalize(self,shutit):
@@ -158,17 +158,17 @@ class setup(ShutItModule):
 		# Finish with the container
 		container_child = util.get_pexpect_child('container_child')
 		# Put build info into the container
-		util.send_and_expect(container_child,'mkdir -p /root/shutit_build',config_dict['expect_prompts']['root_prompt'])
+		shutit.send_and_expect('mkdir -p /root/shutit_build')
 		logfile = '/root/shutit_build/shutit_buildlog_' + config_dict['build']['build_id']
-		util.send_and_expect(container_child,'touch ' + logfile,config_dict['expect_prompts']['root_prompt'])
+		shutit.send_and_expect('touch ' + logfile)
 		print_conf = 'cat > ' + logfile + """ << LOGFILEEND
 """ + util.print_config(config_dict) + """
 LOGFILEEND"""
-		util.send_and_expect(container_child,print_conf,config_dict['expect_prompts']['root_prompt'],record_command=False)
+		shutit.send_and_expect(print_conf,record_command=False)
 		build_rep = """cat > """ + logfile + """ << BUILDREPEND
 """ + util.build_report('') + """
 BUILDREPEND"""
-		util.send_and_expect(container_child,build_rep,config_dict['expect_prompts']['root_prompt'],record_command=False)
+		shutit.send_and_expect(build_rep,record_command=False)
 		container_child.sendline('exit') # Exit container
 		return True
 
