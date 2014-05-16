@@ -413,7 +413,7 @@ class ShutIt(object):
 		self.cfg['expect_prompts'][prompt_name] = '\r\n' + local_prompt
 		self.send_and_expect(
 			("SHUTIT_BACKUP_PS1_%s=$PS1 &&" +
-			"export SHUTIT_PROMPT_COMMAND_BACKUP_%s=$PROMPT_COMMAND%s && " +
+			"export SHUTIT_PROMPT_COMMAND_BACKUP_%s=$PROMPT_COMMAND && " +
 			"PS1='%s' && unset PROMPT_COMMAND") %
 				(prompt_name, prompt_name, prompt_name, local_prompt),
 			expect=self.cfg['expect_prompts'][prompt_name],
