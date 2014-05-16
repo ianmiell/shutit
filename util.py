@@ -307,7 +307,8 @@ def parse_args(cfg):
 				env_args_list[-1] = env_args_list[-1] + '\\'
 			else:
 				env_args_list[-1] = env_args_list[-1] + item
-		args_list = args_list + env_args_list
+		args_list[1:1] = env_args_list
+
 	args = parser.parse_args(args_list)
 
 	# What are we asking shutit to do?
