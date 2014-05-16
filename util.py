@@ -695,12 +695,6 @@ readonly SKELETON_DIR MODULE_NAME SHUTIT_DIR INCLUDE_SCRIPT
 set -o errexit
 set -o nounset
 
-# Module template
-cp docs/shutit_module_template.py ${SKELETON_DIR}/${MODULE_NAME}.py
-perl -p -i -e "s/template/${MODULE_NAME}/g" ${SKELETON_DIR}/${MODULE_NAME}.py
-perl -p -i -e "s/GLOBALLY_UNIQUE_STRING/'${NAMESPACE}.$(basename ${MODULE_NAME}).${MODULE_NAME}'/g" ${SKELETON_DIR}/${MODULE_NAME}.py
-perl -p -i -e "s/FLOAT/1000.00/" ${SKELETON_DIR}/${MODULE_NAME}.py
-
 # Include bash script
 if [[ x${INCLUDE_SCRIPT} != "x" ]]
 then
@@ -752,6 +746,7 @@ fi
 	os.mkdir(os.path.join(skel_path, 'resources'))
 	os.mkdir(os.path.join(skel_path, 'bin'))
 
+	templatemodule_path = os.path.join(skel_path, skel_module_name + '.py')
 	readme_path = os.path.join(skel_path, 'README.md')
 	resreadme_path = os.path.join(skel_path, 'resources', 'README.md')
 	buildsh_path = os.path.join(skel_path, 'build.sh')
@@ -765,6 +760,13 @@ fi
 	hostcnf_path = os.path.join(skel_path, 'configs',
 		shutit.cfg['host']['real_user'] + '_' + socket.gethostname() + '.cnf')
 
+	templatemodule = open(
+		os.path.join(shutit_dir, 'docs', 'shutit_module_template.py')).read()
+	templatemodule = (templatemodule
+		).replace('template', skel_module_name
+		).replace('GLOBALLY_UNIQUE_STRING', '%s.%s.%s' % (skel_domain, skel_module_name, skel_module_name)
+		).replace('FLOAT','1000.00'
+	)
 	readme = skel_module_name + ': description of module directory in here'
 	resreadme = (skel_module_name + ': resources required in this directory,' +
 		'eg gzips or text files.\nNote that the .gitignore file in the ' +
@@ -903,6 +905,7 @@ fi
 		# Whether to push to the server
 		name:''' + skel_module_name)
 
+	open(templatemodule_path, 'w').write(templatemodule)
 	open(readme_path, 'w').write(readme)
 	open(resreadme_path, 'w').write(resreadme)
 	open(buildsh_path, 'w').write(buildsh)
