@@ -39,6 +39,7 @@ import tempfile
 import json
 import binascii
 import subprocess
+import getpass
 from shutit_module import ShutItFailException
 
 # TODO: Manage exits of containers on error
@@ -727,47 +728,6 @@ END
 fi
 
 
-
-# Hostname config
-echo "Password (for host ($(hostname)))"
-read -s pw_host
-echo "Container's hostname"
-read container_hostname
-echo "Password (for container)"
-read -s pw_container
-cat > ${SKELETON_DIR}/configs/$(hostname)_$(whoami).cnf << END
-# Put hostname- and user-specific config in this file.
-# This file must always have perms 0600 for shutit to run.
-
-[container]
-# The container you create will have this password for root.
-password:${pw_container}
-# The container you create will have this hostname during the build.
-hostname:${container_hostname}
-# Whether to remove the container when finished.
-rm:no
-
-[host]
-# Your username on the host
-username:$(whoami)
-# Your password on the host (set to empty if not required, ie "password:")
-password:${pw_host}
-
-[repository]
-do_repository_work:no
-# If switched on, will push to docker_io
-push:no
-repository_server:
-#Must be set if do_repository_work is true/yes and user is not blank
-password:YOUR_REGISTRY_PASSWORD_OR_BLANK
-#Must be set if do_repository_work is true/yes and user is not blank
-email:YOUR_REGISTRY_EMAIL_OR_BLANK
-# Whether to push to the server
-name:${MODULE_NAME}
-END
-
-chmod 0600 ${SKELETON_DIR}/configs/$(hostname)_$(whoami).cnf
-
 pushd ${SKELETON_DIR}
 if ! git status >/dev/null 2>&1
 then
@@ -822,6 +782,8 @@ echo "==========================================================================
 	defaultscnf_path = os.path.join(skel_path, 'configs', 'defaults.cnf')
 	buildcnf_path = os.path.join(skel_path, 'configs', 'build.cnf')
 	pushcnf_path = os.path.join(skel_path, 'configs', 'push.cnf')
+	hostcnf_path = os.path.join(skel_path, 'configs',
+		shutit.cfg['host']['real_user'] + '_' + socket.gethostname() + '.cnf')
 
 	readme = skel_module_name + ': description of module directory in here'
 	resreadme = (skel_module_name + ': resources required in this directory,' +
@@ -928,6 +890,38 @@ echo "==========================================================================
 		[container]
 		rm:false''')
 
+	pw_host = getpass.getpass('Password (for host %s): ' % socket.gethostname())
+	container_hostname = raw_input('Container\'s hostname: ')
+	pw_container = getpass.getpass('Password (for container): ')
+	hostcnf = textwrap.dedent('''\
+		# Put hostname- and user-specific config in this file.
+		# This file must always have perms 0600 for shutit to run.
+
+		[container]
+		# The container you create will have this password for root.
+		password:''' + pw_container +'''
+		# The container you create will have this hostname during the build.
+		hostname:''' + container_hostname +'''
+		# Whether to remove the container when finished.
+		rm:no
+
+		[host]
+		# Your username on the host
+		username:''' + shutit.cfg['host']['real_user'] + '''
+		# Your password on the host (set to empty if not required, ie "password:")
+		password:''' + pw_host + '''
+
+		[repository]
+		do_repository_work:no
+		# If switched on, will push to docker_io
+		push:no
+		repository_server:
+		#Must be set if do_repository_work is true/yes and user is not blank
+		password:YOUR_REGISTRY_PASSWORD_OR_BLANK
+		#Must be set if do_repository_work is true/yes and user is not blank
+		email:YOUR_REGISTRY_EMAIL_OR_BLANK
+		# Whether to push to the server
+		name:''' + skel_module_name)
 
 	open(readme_path, 'w').write(readme)
 	open(resreadme_path, 'w').write(resreadme)
@@ -947,6 +941,8 @@ echo "==========================================================================
 	os.chmod(buildcnf_path, 0600)
 	open(pushcnf_path, 'w').write(pushcnf)
 	os.chmod(pushcnf_path, 0600)
+	open(hostcnf_path, 'w').write(hostcnf)
+	os.chmod(hostcnf_path, 0600)
 
 	# Call the bash script
 	args = [skel_path, skel_module_name, skel_domain]
