@@ -28,9 +28,6 @@ import util
 import time
 import re
 
-import pty
-import os
-
 # Nomenclature:
 #
 # Host machine
