@@ -33,11 +33,12 @@ import imp
 import shutit_global
 import pexpect
 import socket
-import random
 import textwrap
 import tempfile
 import json
 import binascii
+import subprocess
+import getpass
 from shutit_module import ShutItFailException
 
 # TODO: Manage exits of containers on error
@@ -222,23 +223,54 @@ def get_base_config(cfg, cfg_parser):
 def parse_args(cfg):
 	cfg['host']['real_user_id'] = pexpect.run('id -u ' + cfg['host']['real_user']).strip()
 
+	# These are in order of their creation
+	actions = ['build','sc','depgraph','serve','skeleton']
+
 	# Compatibility
+	# Note that (for now) all of these compat functions work because we know
+	# that there are no --options to shutit (as opposed to a subcommand)
+	# COMPAT 2014-05-13 - let sc and depgraph have '--' prefix
 	if '--sc' in sys.argv:
 		sys.argv.remove('--sc')
-		sys.argv = ['sc'] + sys.argv
+		sys.argv[1:] = ['sc'] + sys.argv[1:]
 	if '--depgraph' in sys.argv:
 		sys.argv.remove('--depgraph')
-		sys.argv = ['depgraph'] + sys.argv
+		sys.argv[1:] = ['depgraph'] + sys.argv[1:]
+	# COMPAT 2014-05-15 - let serve, sc and depgraph be specified anywhere in
+	# arguments for backwards compatibility. Hopefully there's no setting
+	# involving those words
+	for action in ['serve', 'depgraph', 'sc']:
+		try:
+			sys.argv.remove(action)
+			sys.argv[1:] = [action] + sys.argv[1:]
+		except:
+			pass
+	# COMPAT 2014-05-15 - build is the default if there is no action specified
+	# and we've not asked for help
+	if len(sys.argv) == 1 or (len(sys.argv) > 1 and sys.argv[1] not in actions
+			and '-h' not in sys.argv and '--help' not in sys.argv):
+		sys.argv.insert(1, 'build')
 
 	parser = argparse.ArgumentParser(description='ShutIt - a tool for managing complex Docker deployments')
-	parser.add_argument('action', nargs='?', choices=('build','serve','depgraph','sc'), default='build', help='Action to perform. Defaults to \'build\'.')
-	parser.add_argument('--config', help='Config file for setup config. Must be with perms 0600. Multiple arguments allowed; config files considered in order.',default=[], action='append')
-	parser.add_argument('-s', '--set', help='Override a config item, e.g. "-s container rm no". Can be specified multiple times.', default=[], action='append', nargs=3, metavar=('SEC','KEY','VAL'))
-	parser.add_argument('--image_tag', help='Build container using specified image - if there is a symbolic reference, please use that, eg localhost.localdomain:5000/myref',default=cfg['container']['docker_image_default'])
-	parser.add_argument('--shutit_module_path', default='.',help='List of shutit module paths, separated by colons. ShutIt registers modules by running all .py files in these directories.')
-	parser.add_argument('--pause',help='Pause between commands to avoid race conditions.',default='0.5')
-	parser.add_argument('--debug',help='Show debug. Implies [build]/interactive config settings set, even if set to "no".',default=False,const=True,action='store_const')
-	parser.add_argument('--tutorial',help='Show tutorial info. Implies [build]/interactive config setting set, even if set to "no".',default=False,const=True,action='store_const')
+	subparsers = parser.add_subparsers(dest='action', help='Action to perform. Defaults to \'build\'.')
+
+	sub_parsers = dict()
+	for action in actions:
+		sub_parsers[action] = subparsers.add_parser(action)
+
+	sub_parsers['skeleton'].add_argument('path', help='absolute path to new directory for module')
+	sub_parsers['skeleton'].add_argument('module_name', help='name for your module')
+	sub_parsers['skeleton'].add_argument('domain', help='arbitrary but unique domain for namespacing your module')
+	sub_parsers['skeleton'].add_argument('script', help='pre-existing shell script to integrate into module (optional)', nargs='?', default=None)
+
+	for action in ['build','serve','depgraph','sc']:
+		sub_parsers[action].add_argument('--config', help='Config file for setup config. Must be with perms 0600. Multiple arguments allowed; config files considered in order.',default=[], action='append')
+		sub_parsers[action].add_argument('-s', '--set', help='Override a config item, e.g. "-s container rm no". Can be specified multiple times.', default=[], action='append', nargs=3, metavar=('SEC','KEY','VAL'))
+		sub_parsers[action].add_argument('--image_tag', help='Build container using specified image - if there is a symbolic reference, please use that, eg localhost.localdomain:5000/myref',default=cfg['container']['docker_image_default'])
+		sub_parsers[action].add_argument('--shutit_module_path', default='.',help='List of shutit module paths, separated by colons. ShutIt registers modules by running all .py files in these directories.')
+		sub_parsers[action].add_argument('--pause',help='Pause between commands to avoid race conditions.',default='0.5')
+		sub_parsers[action].add_argument('--debug',help='Show debug. Implies [build]/interactive config settings set, even if set to "no".',default=False,const=True,action='store_const')
+		sub_parsers[action].add_argument('--tutorial',help='Show tutorial info. Implies [build]/interactive config setting set, even if set to "no".',default=False,const=True,action='store_const')
 
 	args_list = sys.argv[1:]
 	# Load command line options from the environment (if set)
@@ -277,11 +309,26 @@ def parse_args(cfg):
 		args_list = env_args_list + args_list
 
 	args = parser.parse_args(args_list)
-	# Get these early for this part of the build.
-	# These should never be config arguments, since they are needed before config is passed in.
+
+	# What are we asking shutit to do?
 	cfg['action']['show_config'] =   args.action == 'sc'
 	cfg['action']['show_depgraph'] = args.action == 'depgraph'
 	cfg['action']['serve'] =         args.action == 'serve'
+	cfg['action']['skeleton'] =      args.action == 'skeleton'
+	cfg['action']['build'] =         args.action == 'build'
+
+	# This mode is a bit special - it's the only one with different arguments
+	if cfg['action']['skeleton']:
+		cfg['skeleton'] = {
+			'path': args.path,
+			'module_name': args.module_name,
+			'domain': args.domain,
+			'script': args.script
+		}
+		return
+
+	# Get these early for this part of the build.
+	# These should never be config arguments, since they are needed before config is passed in.
 	cfg['build']['debug'] = args.debug
 	cfg['build']['tutorial'] = args.tutorial
 	cfg['build']['command_pause'] = float(args.pause)
@@ -633,3 +680,265 @@ def build_report(msg=''):
 # Not in use, but recommended means of determining run order integer part.
 def get_hash(string):
 	return abs(binascii.crc32(string))
+
+def create_skeleton(shutit):
+	shutit_dir = sys.path[0]
+
+	skel_path = shutit.cfg['skeleton']['path']
+	skel_module_name = shutit.cfg['skeleton']['module_name']
+	# TODO: generate hash of domain using util.get_hash(str)
+	skel_domain = shutit.cfg['skeleton']['domain']
+	skel_script = shutit.cfg['skeleton']['script']
+
+	if len(skel_path) == 0 or skel_path[0] != '/':
+		fail('Must supply a directory and it must be absolute')
+	if os.path.exists(skel_path):
+		fail(skel_path + ' already exists')
+	if len(skel_module_name) == 0:
+		fail('Must supply a name for your module, eg mymodulename')
+	if len(skel_domain) == 0:
+		fail('Must supply a domain for your module, eg com.yourname.madeupdomainsuffix')
+
+	os.makedirs(skel_path)
+	os.mkdir(os.path.join(skel_path, 'configs'))
+	os.mkdir(os.path.join(skel_path, 'resources'))
+	os.mkdir(os.path.join(skel_path, 'bin'))
+
+	templatemodule_path = os.path.join(skel_path, skel_module_name + '.py')
+	readme_path = os.path.join(skel_path, 'README.md')
+	resreadme_path = os.path.join(skel_path, 'resources', 'README.md')
+	buildsh_path = os.path.join(skel_path, 'build.sh')
+	testsh_path = os.path.join(skel_path, 'bin', 'test.sh')
+	runsh_path = os.path.join(skel_path, 'run.sh')
+	testbuildsh_path = os.path.join(skel_path, 'test_build.sh')
+	buildpushsh_path = os.path.join(skel_path, 'build_and_push.sh')
+	defaultscnf_path = os.path.join(skel_path, 'configs', 'defaults.cnf')
+	buildcnf_path = os.path.join(skel_path, 'configs', 'build.cnf')
+	pushcnf_path = os.path.join(skel_path, 'configs', 'push.cnf')
+	hostcnf_path = os.path.join(skel_path, 'configs',
+		socket.gethostname() + '_' + shutit.cfg['host']['real_user'] + '.cnf')
+
+	templatemodule = open(
+		os.path.join(shutit_dir, 'docs', 'shutit_module_template.py')).read()
+	templatemodule = (templatemodule
+		).replace('template', skel_module_name
+		).replace('GLOBALLY_UNIQUE_STRING', '\'%s.%s.%s\'' % (skel_domain, skel_module_name, skel_module_name)
+		).replace('FLOAT','1000.00'
+	)
+	readme = skel_module_name + ': description of module directory in here'
+	resreadme = (skel_module_name + ': resources required in this directory, ' +
+		'eg gzips or text files.\nNote that the .gitignore file in the ' +
+		skel_path + ' directory should exclude these files from being added ' +
+		'to git repos (usually due to size), but can be added if forced with ' +
+		'\'git add --force <file>\'.\n')
+	buildsh = textwrap.dedent('''\
+		# This file tests your build, leaving the container intact when done.
+		set -e
+		python ''' + shutit_dir + '''/shutit_main.py
+		# Display config
+		#python ''' + shutit_dir + '''/shutit_main.py --sc
+		# Debug
+		#python ''' + shutit_dir + '''/shutit_main.py --debug
+		# Tutorial
+		#python ''' + shutit_dir + '''/shutit_main.py --tutorial
+		''')
+	testsh = textwrap.dedent('''\
+		#!/bin/bash
+		# Test the building of this module
+		set -e
+		if [[ $0 != test.sh ]] && [[ $0 != ./test.sh ]] && [[ $0 != create_skeleton.sh ]] && [[ $0 != ./create_skeleton.sh ]]
+		then
+		        echo 
+		        echo "Called as: $0"
+			echo "Must be run from test dir like:"
+		        echo
+		        echo "  test.sh <path_to_shutit_dir>"
+		        echo
+		        echo "or"
+		        echo
+		        echo "  ./test.sh <path_to_shutit_dir>"
+		        exit
+		fi
+		if [ x$1 = 'x' ]
+		then
+			echo "Must supply path to core ShutIt directory"
+			exit 1
+		fi
+		cd ..
+		./test_build.sh
+		if [[ $? -eq 0 ]]
+		then
+			cd -
+			exit 0
+		else
+			cd -
+			exit 1
+		fi
+		''')
+	runsh = textwrap.dedent('''\
+		# Example for running
+		docker run -t -i ''' + skel_module_name + ''' /bin/bash
+		''')
+	testbuildsh = textwrap.dedent('''\
+		# This file tests your build, removing the container when done.
+		set -e
+		python ''' + shutit_dir + '''/shutit_main.py -s container rm yes
+		# Display config
+		#python ''' + shutit_dir + '''/shutit_main.py --sc
+		# Debug
+		#python ''' + shutit_dir + '''/shutit_main.py --debug
+		# Tutorial
+		#python ''' + shutit_dir + '''/shutit_main.py --tutorial
+		''')
+	buildpushsh = textwrap.dedent('''\
+		set -e
+		python ''' + shutit_dir + '''/shutit_main.py --config configs/push.cnf
+		# Display config
+		#python ''' + shutit_dir + '''/shutit_main.py --sc
+		# Debug
+		#python ''' + shutit_dir + '''/shutit_main.py --debug
+		# Tutorial
+		#python ''' + shutit_dir + '''/shutit_main.py --tutorial
+		''')
+	defaultscnf = textwrap.dedent('''\
+		# Base config for the module. This contains standard defaults or hashed out examples.
+		[''' + '%s.%s.%s' % (skel_domain, skel_module_name, skel_module_name) + ''']
+		example:astring
+		example_bool:yes
+		''')
+	buildcnf = textwrap.dedent('''\
+		# When this module is the one being built, which modules should be built along with it by default?
+		# This feeds into automated testing of each module.
+		[''' + '%s.%s.%s' % (skel_domain, skel_module_name, skel_module_name) + ''']
+		build:yes
+
+		# Aspects of build process
+		[build]
+		# Allowed images, eg ["ubuntu:12.04"].
+		# "any" is a special value meaning any image is ok, and is the default.
+		# It's recommended this is locked down as far as possible.
+		allowed_images:["any"]
+		''')
+	pushcnf = textwrap.dedent('''\
+		[repository]
+		do_repository_work:yes
+		#user:YOUR_USERNAME
+		# Fill these out in server- and username-specific config (also in this directory)
+		#password:YOUR_REGISTRY_PASSWORD_OR_BLANK
+		# Fill these out in server- and username-specific config (also in this directory)
+		#email:YOUR_REGISTRY_EMAIL_OR_BLANK
+		push:yes
+		tar:no
+		#server:REMOVE_ME_FOR_DOCKER_INDEX
+		name:''' + skel_module_name + '''
+		suffix_date:yes
+		suffix_format:%s
+
+		[container]
+		rm:false
+		''')
+
+	pw_host = getpass.getpass('Password (for host %s): ' % socket.gethostname())
+	container_hostname = raw_input('Container\'s hostname: ')
+	pw_container = getpass.getpass('Password (for container): ')
+	hostcnf = textwrap.dedent('''\
+		# Put hostname- and user-specific config in this file.
+		# This file must always have perms 0600 for shutit to run.
+
+		[container]
+		# The container you create will have this password for root.
+		password:''' + pw_container +'''
+		# The container you create will have this hostname during the build.
+		hostname:''' + container_hostname +'''
+		# Whether to remove the container when finished.
+		rm:no
+
+		[host]
+		# Your username on the host
+		username:''' + shutit.cfg['host']['real_user'] + '''
+		# Your password on the host (set to empty if not required, ie "password:")
+		password:''' + pw_host + '''
+
+		[repository]
+		do_repository_work:no
+		# If switched on, will push to docker_io
+		push:no
+		repository_server:
+		#Must be set if do_repository_work is true/yes and user is not blank
+		password:YOUR_REGISTRY_PASSWORD_OR_BLANK
+		#Must be set if do_repository_work is true/yes and user is not blank
+		email:YOUR_REGISTRY_EMAIL_OR_BLANK
+		# Whether to push to the server
+		name:''' + skel_module_name + '''
+		''')
+
+	open(templatemodule_path, 'w').write(templatemodule)
+	open(readme_path, 'w').write(readme)
+	open(resreadme_path, 'w').write(resreadme)
+	open(buildsh_path, 'w').write(buildsh)
+	os.chmod(buildsh_path, os.stat(buildsh_path).st_mode | 0111) # chmod +x
+	open(testsh_path, 'w').write(testsh)
+	os.chmod(testsh_path, os.stat(testsh_path).st_mode | 0111) # chmod +x
+	open(runsh_path, 'w').write(runsh)
+	os.chmod(runsh_path, os.stat(runsh_path).st_mode | 0111) # chmod +x
+	open(testbuildsh_path, 'w').write(testbuildsh)
+	os.chmod(testbuildsh_path, os.stat(testbuildsh_path).st_mode | 0111) # chmod +x
+	open(buildpushsh_path, 'w').write(buildpushsh)
+	os.chmod(buildpushsh_path, os.stat(buildpushsh_path).st_mode | 0111) # chmod +x
+	open(defaultscnf_path, 'w').write(defaultscnf)
+	os.chmod(defaultscnf_path, 0600)
+	open(buildcnf_path, 'w').write(buildcnf)
+	os.chmod(buildcnf_path, 0600)
+	open(pushcnf_path, 'w').write(pushcnf)
+	os.chmod(pushcnf_path, 0600)
+	open(hostcnf_path, 'w').write(hostcnf)
+	os.chmod(hostcnf_path, 0600)
+
+	if skel_script is not None:
+		print textwrap.dedent('''\
+			================================================================================
+			Please note that your bash script in:
+			''' + skel_script + '''
+			should be a simple set of one-liners
+			that return to the prompt. Anything fancy with ifs, backslashes or other
+			multi-line commands need to be handled more carefully.
+			================================================================================
+			Hit return to continue.
+			================================================================================''')
+		raw_input()
+
+		# egrep removes leading space
+		# grep removes comments
+		# sed1 ensures no confusion with double quotes
+		# sed2 replaces script lines with shutit code
+		# sed3 uses treble quotes for simpler escaping of strings
+		sbsi = '/tmp/shutit_bash_script_include_' + str(int(time.time()))
+		skel_mod_path = os.path.join(skel_path, skel_module_name + '.py')
+		# TODO: we probably don't need all these external programs any more
+		calls = [
+				#egrep -v '^[\s]*$' myscript.sh | grep -v '^#' | sed "s/"$/" /;s/^/              shutit.send_and_expect("""/;s/$/""")/" > /tmp/shutit_bash_script_include_1400206744
+			r'''egrep -v '^[\s]*$' ''' + skel_script + r''' | grep -v '^#' | sed "s/\"$/\" /;s/^/\t\tshutit.send_and_expect(\"\"\"/;s/$/\"\"\")/" > ''' + sbsi,
+			r'''sed "64r ''' + sbsi + '" ' + skel_mod_path + ' > ' + skel_mod_path + '.new''',
+			r'''mv ''' + skel_mod_path + '''.new ''' + skel_mod_path
+		]
+		for call in calls:
+			subprocess.check_call(['bash', '-c', call])
+
+	# Are we creating a new folder inside an existing git repo?
+	if subprocess.call(['git', 'status'], stdout=open(os.devnull, 'wb')) != 0:
+		subprocess.check_call(['git', 'init'], cwd=skel_path)
+		subprocess.check_call([
+			'cp', os.path.join(shutit_dir, '.gitignore'), '.gitignore'
+		], cwd=skel_path)
+
+	print textwrap.dedent('''\
+	================================================================================
+	Run:
+
+	    cd ''' + skel_path + '; python ' + shutit_dir + '''/shutit_main.py --tutorial
+
+	And follow the instructions in the output.
+
+	An image called ''' + skel_module_name + ''' will be created and can be run
+	with the run.sh command.
+	================================================================================''')
