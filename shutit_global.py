@@ -157,7 +157,7 @@ class ShutIt(object):
 			for prompt in cfg['expect_prompts']:
 				if prompt == expect:
 					# Reset prompt
-					self.handle_login(child,cfg,'reset_tmp_prompt')
+					self.handle_login('reset_tmp_prompt',child=child)
 					self.handle_revert_prompt(child,expect,'reset_tmp_prompt')
 		if check_exit == True:
 			self._check_exit(send,expect,child,timeout,exit_values)
@@ -519,7 +519,7 @@ class ShutIt(object):
 		cfg = self.cfg
 		if not cfg['repository']['do_repository_work']:
 			return
-		child = util.get_pexpect_child('host_child')
+		child = self.pexpect_children['host_child']
 		server = cfg['repository']['server']
 		user = cfg['repository']['user']
 	
@@ -568,10 +568,10 @@ class ShutIt(object):
 			if cfg['build']['tutorial']:
 				self.pause_point('We are now exporting the container to a bzipped tar file, as configured in \n[repository]\ntar:yes',print_input=False,child=child)
 			bzfile = cfg['host']['resources_dir'] + '/' + repository_tar + '.tar.bz2'
-			log('\nDepositing bzip2 of exported container into ' + bzfile)
+			self.log('\nDepositing bzip2 of exported container into ' + bzfile)
 			res = self.send_and_expect(docker_executable + ' export ' + cfg['container']['container_id'] + ' | bzip2 - > ' + bzfile,expect=[expect,'assword'],timeout=99999,child=child)
-			log('\nDeposited bzip2 of exported container into ' + bzfile,code='31')
-			log('\nRun:\n\nbunzip2 -c ' + bzfile + ' | sudo docker import -\n\nto get this imported into docker.',code='31')
+			self.log('\nDeposited bzip2 of exported container into ' + bzfile,code='31')
+			self.log('\nRun:\n\nbunzip2 -c ' + bzfile + ' | sudo docker import -\n\nto get this imported into docker.',code='31')
 			cfg['build']['report'] = cfg['build']['report'] + '\nDeposited bzip2 of exported container into ' + bzfile
 			cfg['build']['report'] = cfg['build']['report'] + '\nRun:\n\nbunzip2 -c ' + bzfile + ' | sudo docker import -\n\nto get this imported into docker.'
 			if res == 1:
