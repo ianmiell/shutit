@@ -87,6 +87,7 @@ chmod 0600 ${SHUTIT_DIR}/test/configs/$(hostname)_$(whoami).cnf
 ./test.sh ${SHUTIT_DIR} || failure "1.0 ${NEWDIR}"
 cleanup nothard
 rm -rf ${NEWDIR}
+popd
 
 PIDS=""
 # General tests
