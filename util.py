@@ -726,12 +726,6 @@ END
 	sed "64r ${SBSI}" ${SKELETON_DIR}/${MODULE_NAME}.py > ${SKELETON_DIR}/${MODULE_NAME}.py.new
 	mv ${SKELETON_DIR}/${MODULE_NAME}.py.new ${SKELETON_DIR}/${MODULE_NAME}.py
 fi
-
-
-pushd ${SKELETON_DIR}
-git init
-cp ${SHUTIT_DIR}/.gitignore .gitignore
-popd
 	'''
 	shutit_dir = sys.path[0]
 	script_fname = os.path.join(shutit_dir, 'create_skeleton.sh')
@@ -938,9 +932,14 @@ popd
 	try:
 		open(script_fname, 'w').write(script)
 		os.chmod(script_fname ,0700)
-		subprocess.call(['/bin/bash', script_fname] + args)
+		subprocess.check_call(['/bin/bash', script_fname] + args)
 	except:
 		os.remove(script_fname)
+
+	subprocess.check_call(['git', 'init'], cwd=skel_path)
+	subprocess.check_call([
+		'cp', os.path.join(shutit_dir, '.gitignore'), '.gitignore'
+	], cwd=skel_path)
 
 	print textwrap.dedent('''\
 	================================================================================
