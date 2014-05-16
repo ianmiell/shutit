@@ -898,45 +898,22 @@ def create_skeleton(shutit):
 		================================================================================''')
 	raw_input()
 
-	script = r'''
-SKELETON_DIR=$1
-MODULE_NAME=$2
-INCLUDE_SCRIPT=$4
-readonly SKELETON_DIR MODULE_NAME INCLUDE_SCRIPT
-
-set -o errexit
-set -o nounset
-
-# Include bash script
-if [[ x${INCLUDE_SCRIPT} != "x" ]]
-then
-	SBSI="/tmp/shutit_bash_script_include_$(date +%N)"
-	# egrep removes leading space
-	# grep removes comments
-	# sed1 ensures no confusion with double quotes
-	# sed2 replaces script lines with shutit code
-	# sed3 uses treble quotes for simpler escaping of strings
-	egrep -v '^[\s]*$' $INCLUDE_SCRIPT | grep -v '^#' | sed "s/\"$/\" /;s/^/\t\tshutit.send_and_expect(\"\"\"/;s/$/\"\"\")/" > ${SBSI}
-	sed "64r ${SBSI}" ${SKELETON_DIR}/${MODULE_NAME}.py > ${SKELETON_DIR}/${MODULE_NAME}.py.new
-	mv ${SKELETON_DIR}/${MODULE_NAME}.py.new ${SKELETON_DIR}/${MODULE_NAME}.py
-fi
-	'''
-	script_fname = os.path.join(shutit_dir, 'create_skeleton.sh')
-	if os.path.isfile(script_fname):
-		err = 'Cannot create tmp script, ' + script_fname + ' already exists'
-		raise ShutItFailException(err)
-
-	# Call the bash script
-	args = [skel_path, skel_module_name, skel_domain]
 	if skel_script is not None:
-		args.append(skel_script)
-
-	try:
-		open(script_fname, 'w').write(script)
-		os.chmod(script_fname ,0700)
-		subprocess.check_call(['/bin/bash', script_fname] + args)
-	except:
-		os.remove(script_fname)
+		# egrep removes leading space
+		# grep removes comments
+		# sed1 ensures no confusion with double quotes
+		# sed2 replaces script lines with shutit code
+		# sed3 uses treble quotes for simpler escaping of strings
+		sbsi = os.tmpnam()
+		skel_mod_path = os.path.join(skel_path, skel_module_name + '.py')
+		# TODO: shell=True is bad
+		calls = [
+			r'''egrep -v '^[\s]*$' ''' + skel_script + ''' | grep -v '^#' | sed "s/\"$/\" /;s/^/\t\tshutit.send_and_expect(\"\"\"/;s/$/\"\"\")/" > ''' + sbsi,
+			r'''sed "64r ''' + sbsi + '" ' + skel_mod_path + ' > ' + skel_mod_path + '.new''',
+			r'''mv ''' + skel_mod_path + '''.new ''' + skel_mod_path
+		]
+		for call in calls:
+			subprocess.check_call(call, shell=True)
 
 	subprocess.check_call(['git', 'init'], cwd=skel_path)
 	subprocess.check_call([
