@@ -729,11 +729,8 @@ fi
 
 
 pushd ${SKELETON_DIR}
-if ! git status >/dev/null 2>&1
-then
-	git init
-	cp ${SHUTIT_DIR}/.gitignore .gitignore
-fi
+git init
+cp ${SHUTIT_DIR}/.gitignore .gitignore
 popd
 	'''
 	shutit_dir = sys.path[0]
