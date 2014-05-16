@@ -683,34 +683,7 @@ def get_hash(string):
 	return abs(binascii.crc32(string))
 
 def create_skeleton(shutit):
-	script = r'''
-SKELETON_DIR=$1
-MODULE_NAME=$2
-INCLUDE_SCRIPT=$4
-readonly SKELETON_DIR MODULE_NAME INCLUDE_SCRIPT
-
-set -o errexit
-set -o nounset
-
-# Include bash script
-if [[ x${INCLUDE_SCRIPT} != "x" ]]
-then
-	SBSI="/tmp/shutit_bash_script_include_$(date +%N)"
-	# egrep removes leading space
-	# grep removes comments
-	# sed1 ensures no confusion with double quotes
-	# sed2 replaces script lines with shutit code
-	# sed3 uses treble quotes for simpler escaping of strings
-	egrep -v '^[\s]*$' $INCLUDE_SCRIPT | grep -v '^#' | sed "s/\"$/\" /;s/^/\t\tshutit.send_and_expect(\"\"\"/;s/$/\"\"\")/" > ${SBSI}
-	sed "64r ${SBSI}" ${SKELETON_DIR}/${MODULE_NAME}.py > ${SKELETON_DIR}/${MODULE_NAME}.py.new
-	mv ${SKELETON_DIR}/${MODULE_NAME}.py.new ${SKELETON_DIR}/${MODULE_NAME}.py
-fi
-	'''
 	shutit_dir = sys.path[0]
-	script_fname = os.path.join(shutit_dir, 'create_skeleton.sh')
-	if os.path.isfile(script_fname):
-		err = 'Cannot create tmp script, ' + script_fname + ' already exists'
-		raise ShutItFailException(err)
 
 	skel_path = shutit.cfg['skeleton']['path']
 	skel_module_name = shutit.cfg['skeleton']['module_name']
@@ -924,6 +897,34 @@ fi
 		Hit return to continue.
 		================================================================================''')
 	raw_input()
+
+	script = r'''
+SKELETON_DIR=$1
+MODULE_NAME=$2
+INCLUDE_SCRIPT=$4
+readonly SKELETON_DIR MODULE_NAME INCLUDE_SCRIPT
+
+set -o errexit
+set -o nounset
+
+# Include bash script
+if [[ x${INCLUDE_SCRIPT} != "x" ]]
+then
+	SBSI="/tmp/shutit_bash_script_include_$(date +%N)"
+	# egrep removes leading space
+	# grep removes comments
+	# sed1 ensures no confusion with double quotes
+	# sed2 replaces script lines with shutit code
+	# sed3 uses treble quotes for simpler escaping of strings
+	egrep -v '^[\s]*$' $INCLUDE_SCRIPT | grep -v '^#' | sed "s/\"$/\" /;s/^/\t\tshutit.send_and_expect(\"\"\"/;s/$/\"\"\")/" > ${SBSI}
+	sed "64r ${SBSI}" ${SKELETON_DIR}/${MODULE_NAME}.py > ${SKELETON_DIR}/${MODULE_NAME}.py.new
+	mv ${SKELETON_DIR}/${MODULE_NAME}.py.new ${SKELETON_DIR}/${MODULE_NAME}.py
+fi
+	'''
+	script_fname = os.path.join(shutit_dir, 'create_skeleton.sh')
+	if os.path.isfile(script_fname):
+		err = 'Cannot create tmp script, ' + script_fname + ' already exists'
+		raise ShutItFailException(err)
 
 	# Call the bash script
 	args = [skel_path, skel_module_name, skel_domain]
