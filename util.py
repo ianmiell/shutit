@@ -833,7 +833,8 @@ echo "An image called ${MODULE_NAME} will be created and can be run"
 echo "with the run.sh command."
 echo "================================================================================"
 	'''
-	script_fname = os.path.join(sys.path[0], 'create_skeleton.sh')
+	shutit_dir = sys.path[0]
+	script_fname = os.path.join(shutit_dir, 'create_skeleton.sh')
 	if os.path.isfile(script_fname):
 		err = 'Cannot create tmp script, ' + script_fname + ' already exists'
 		raise ShutItFailException(err)
@@ -874,13 +875,13 @@ echo "==========================================================================
 	buildsh = textwrap.dedent('''\
 		# This file tests your build, leaving the container intact when done.
 		set -e
-		python ${SHUTIT_DIR}/shutit_main.py
+		python ''' + shutit_dir + '''/shutit_main.py
 		# Display config
-		#python ${SHUTIT_DIR}/shutit_main.py --sc
+		#python ''' + shutit_dir + '''/shutit_main.py --sc
 		# Debug
-		#python ${SHUTIT_DIR}/shutit_main.py --debug
+		#python ''' + shutit_dir + '''/shutit_main.py --debug
 		# Tutorial
-		#python ${SHUTIT_DIR}/shutit_main.py --tutorial''')
+		#python ''' + shutit_dir + '''/shutit_main.py --tutorial''')
 	testsh = textwrap.dedent('''\
 		#!/bin/bash
 		# Test the building of this module
@@ -915,26 +916,26 @@ echo "==========================================================================
 		fi''')
 	runsh = textwrap.dedent('''\
 		# Example for running
-		docker run -t -i ${MODULE_NAME} /bin/bash''')
+		docker run -t -i ''' + skel_module_name + ''' /bin/bash''')
 	testbuildsh = textwrap.dedent('''\
 		# This file tests your build, removing the container when done.
 		set -e
-		python ${SHUTIT_DIR}/shutit_main.py -s container rm yes
+		python ''' + shutit_dir + '''/shutit_main.py -s container rm yes
 		# Display config
-		#python ${SHUTIT_DIR}/shutit_main.py --sc
+		#python ''' + shutit_dir + '''/shutit_main.py --sc
 		# Debug
-		#python ${SHUTIT_DIR}/shutit_main.py --debug
+		#python ''' + shutit_dir + '''/shutit_main.py --debug
 		# Tutorial
-		#python ${SHUTIT_DIR}/shutit_main.py --tutorial''')
+		#python ''' + shutit_dir + '''/shutit_main.py --tutorial''')
 	buildpushsh = textwrap.dedent('''\
 		set -e
-		python ${SHUTIT_DIR}/shutit_main.py --config configs/push.cnf
+		python ''' + shutit_dir + '''/shutit_main.py --config configs/push.cnf
 		# Display config
-		#python ${SHUTIT_DIR}/shutit_main.py --sc
+		#python ''' + shutit_dir + '''/shutit_main.py --sc
 		# Debug
-		#python ${SHUTIT_DIR}/shutit_main.py --debug
+		#python ''' + shutit_dir + '''/shutit_main.py --debug
 		# Tutorial
-		#python ${SHUTIT_DIR}/shutit_main.py --tutorial''')
+		#python ''' + shutit_dir + '''/shutit_main.py --tutorial''')
 
 	open(readme_path, 'w').write(readme)
 	open(resreadme_path, 'w').write(resreadme)
