@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 #The MIT License (MIT)
 #
 #Copyright (C) 2014 OpenBet Limited
