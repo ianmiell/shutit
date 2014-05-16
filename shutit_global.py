@@ -51,16 +51,22 @@ class ShutIt(object):
 	def module_method_start(self):
 		if self._default_child[-1] is not None:
 			self._default_child.append(self._default_child[-1])
+		if self._default_expect[-1] is not None:
+			self._default_expect.append(self._default_expect[-1])
+		if self._default_check_exit[-1] is not None:
+			self._default_check_exit.append(self._default_check_exit[-1])
 	def module_method_end(self):
 		if len(self._default_child) != 1:
 			self._default_child.pop()
+		if len(self._default_expect) != 1:
+			self._default_expect.pop()
+		if len(self._default_check_exit) != 1:
+			self._default_check_exit.pop()
 
 	def get_default_child(self):
 		if self._default_child[-1] is None:
 			util.fail("Couldn't get default child")
 		return self._default_child[-1]
-	def set_default_child(self, child):
-		self._default_child[-1] = child
 	def get_default_expect(self):
 		if self._default_expect[-1] is None:
 			util.fail("Couldn't get default expect")
@@ -69,9 +75,11 @@ class ShutIt(object):
 		if self._default_check_exit[-1] is None:
 			util.fail("Couldn't get default check exit")
 		return self._default_check_exit[-1]
+	def set_default_child(self, child):
+		self._default_child[-1] = child
 	def set_default_expect(self, expect, check_exit=True):
 		self._default_expect[-1] = expect
-		self._default_check_exit = check_exit
+		self._default_check_exit[-1] = check_exit
 
 	def log(self, msg, code=None, pause=0, prefix=True, force_stdout=False):
 		if prefix:
