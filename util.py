@@ -280,7 +280,8 @@ def parse_args(cfg):
 	# - backslash before a backslash is interpreted as a single backslash
 	# - all other backslashes are treated literally
 	# e.g. ' a\ b c\\ \\d \\\e\' becomes '', 'a b', 'c\', '\d', '\\e\'
-	if os.environ.get('SHUTIT_OPTIONS', None):
+	# Ignore SHUTIT_OPTIONS if this is creating a skeleton
+	if os.environ.get('SHUTIT_OPTIONS', None) and args_list[0] != 'skeleton':
 		env_args = os.environ['SHUTIT_OPTIONS'].strip()
 		# Split escaped backslashes
 		env_args_split = re.split(r'(\\\\)', env_args)
