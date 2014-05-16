@@ -134,14 +134,14 @@ class setup(ShutItModule):
 		# Set up prompts and let the user do things before the build
 		# host child
 		shutit.set_default_child(host_child)
-		shutit.setup_prompt('SHUTIT_PROMPT_REAL_USER#','real_user_prompt')
+		shutit.setup_prompt('SHUTIT_REAL_USER','real_user_prompt')
 		shutit.set_default_expect(config_dict['expect_prompts']['real_user_prompt'])
 		# container child
 		shutit.set_default_child(container_child)
-		shutit.setup_prompt('SHUTIT_PROMPT_PRE_BUILD#','pre_build')
+		shutit.setup_prompt('SHUTIT_PRE_BUILD','pre_build')
 		shutit.set_default_expect(config_dict['expect_prompts']['pre_build'])
 		shutit.get_distro_info()
-		shutit.setup_prompt('SHUTIT_PROMPT_ROOT_PROMPT#','root_prompt')
+		shutit.setup_prompt('SHUTIT_ROOT','root_prompt')
 		shutit.set_default_expect(config_dict['expect_prompts']['root_prompt'])
 		shutit.send_and_expect('export DEBIAN_FRONTEND=noninteractive',check_exit=False)
 		shutit.pause_point('Anything you want to do to the container before the build starts?')
