@@ -913,16 +913,17 @@ def create_skeleton(shutit):
 		# sed1 ensures no confusion with double quotes
 		# sed2 replaces script lines with shutit code
 		# sed3 uses treble quotes for simpler escaping of strings
-		sbsi = os.tmpnam()
+		sbsi = '/tmp/shutit_bash_script_include_' + str(int(time.time()))
 		skel_mod_path = os.path.join(skel_path, skel_module_name + '.py')
-		# TODO: shell=True is bad
+		# TODO: we probably don't need all these external programs any more
 		calls = [
-			r'''egrep -v '^[\s]*$' ''' + skel_script + ''' | grep -v '^#' | sed "s/\"$/\" /;s/^/\t\tshutit.send_and_expect(\"\"\"/;s/$/\"\"\")/" > ''' + sbsi,
+				#egrep -v '^[\s]*$' myscript.sh | grep -v '^#' | sed "s/"$/" /;s/^/              shutit.send_and_expect("""/;s/$/""")/" > /tmp/shutit_bash_script_include_1400206744
+			r'''egrep -v '^[\s]*$' ''' + skel_script + r''' | grep -v '^#' | sed "s/\"$/\" /;s/^/\t\tshutit.send_and_expect(\"\"\"/;s/$/\"\"\")/" > ''' + sbsi,
 			r'''sed "64r ''' + sbsi + '" ' + skel_mod_path + ' > ' + skel_mod_path + '.new''',
 			r'''mv ''' + skel_mod_path + '''.new ''' + skel_mod_path
 		]
 		for call in calls:
-			subprocess.check_call(call, shell=True)
+			subprocess.check_call(['bash', '-c', call])
 
 	# Are we creating a new folder inside an existing git repo?
 	if subprocess.call(['git', 'status'], stdout=open(os.devnull, 'wb')) != 0:
