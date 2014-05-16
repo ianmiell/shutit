@@ -34,6 +34,7 @@ SHUTIT_DIR="$(pwd)/.."
 # Off for now
 SHUTIT_PARALLEL_BUILD=
 readonly SHUTIT_PARALLEL_BUILD CNAME NEWDIR SHUTIT_DIR
+export SHUTIT_OPTIONS="-s container name $CNAME"
 
 # Check we can use docker
 if ! $DOCKER info >/dev/null 2>&1; then
