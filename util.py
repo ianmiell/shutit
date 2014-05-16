@@ -771,40 +771,6 @@ fi
 
 
 
-cat > ${SKELETON_DIR}/bin/test.sh << 'END'
-#!/bin/bash
-# Test the building of this module
-set -e
-if [[ $0 != test.sh ]] && [[ $0 != ./test.sh ]] && [[ $0 != create_skeleton.sh ]] && [[ $0 != ./create_skeleton.sh ]]
-then
-        echo 
-        echo "Called as: $0"
-	echo "Must be run from test dir like:"
-        echo
-        echo "  test.sh <path_to_shutit_dir>"
-        echo
-        echo "or"
-        echo
-        echo "  ./test.sh <path_to_shutit_dir>"
-        exit
-fi
-if [ x$1 = 'x' ]
-then
-	echo "Must supply path to core ShutIt directory"
-	exit 1
-fi
-cd ..
-./test_build.sh
-if [[ $? -eq 0 ]]
-then
-	cd -
-	exit 0
-else
-	cd -
-	exit 1
-fi
-END
-
 # Hostname config
 echo "Password (for host ($(hostname)))"
 read -s pw_host
@@ -847,7 +813,6 @@ chmod 0600 ${SKELETON_DIR}/configs/defaults.cnf
 chmod 0600 ${SKELETON_DIR}/configs/build.cnf
 chmod 0600 ${SKELETON_DIR}/configs/push.cnf
 chmod 0600 ${SKELETON_DIR}/configs/$(hostname)_$(whoami).cnf
-chmod +x ${SKELETON_DIR}/bin/test.sh
 
 pushd ${SKELETON_DIR}
 if ! git status >/dev/null 2>&1
@@ -856,15 +821,6 @@ then
 	cp ${SHUTIT_DIR}/.gitignore .gitignore
 fi
 popd
-
-# Run file
-touch ${SKELETON_DIR}/run.sh
-cat > ${SKELETON_DIR}/run.sh << END
-# Example for running
-docker run -t -i ${MODULE_NAME} /bin/bash
-END
-
-chmod +x ${SKELETON_DIR}/run.sh
 
 echo "================================================================================"
 echo "Run:"
@@ -904,15 +860,17 @@ echo "==========================================================================
 	readme_path = os.path.join(skel_path, 'README.md')
 	resreadme_path = os.path.join(skel_path, 'resources', 'README.md')
 	buildsh_path = os.path.join(skel_path, 'build.sh')
+	testsh_path = os.path.join(skel_path, 'bin', 'test.sh')
+	runsh_path = os.path.join(skel_path, 'run.sh')
 	testbuildsh_path = os.path.join(skel_path, 'test_build.sh')
 	buildpushsh_path = os.path.join(skel_path, 'build_and_push.sh')
+
 	readme = skel_module_name + ': description of module directory in here'
 	resreadme = (skel_module_name + ': resources required in this directory,' +
 		'eg gzips or text files.\nNote that the .gitignore file in the ' +
 		skel_path + ' directory should exclude these files from being added ' +
 		'to git repos (usually due to size), but can be added if forced with ' +
 		'\'git add --force <file>\'.')
-
 	buildsh = textwrap.dedent('''\
 		# This file tests your build, leaving the container intact when done.
 		set -e
@@ -923,6 +881,41 @@ echo "==========================================================================
 		#python ${SHUTIT_DIR}/shutit_main.py --debug
 		# Tutorial
 		#python ${SHUTIT_DIR}/shutit_main.py --tutorial''')
+	testsh = textwrap.dedent('''\
+		#!/bin/bash
+		# Test the building of this module
+		set -e
+		if [[ $0 != test.sh ]] && [[ $0 != ./test.sh ]] && [[ $0 != create_skeleton.sh ]] && [[ $0 != ./create_skeleton.sh ]]
+		then
+		        echo 
+		        echo "Called as: $0"
+			echo "Must be run from test dir like:"
+		        echo
+		        echo "  test.sh <path_to_shutit_dir>"
+		        echo
+		        echo "or"
+		        echo
+		        echo "  ./test.sh <path_to_shutit_dir>"
+		        exit
+		fi
+		if [ x$1 = 'x' ]
+		then
+			echo "Must supply path to core ShutIt directory"
+			exit 1
+		fi
+		cd ..
+		./test_build.sh
+		if [[ $? -eq 0 ]]
+		then
+			cd -
+			exit 0
+		else
+			cd -
+			exit 1
+		fi''')
+	runsh = textwrap.dedent('''\
+		# Example for running
+		docker run -t -i ${MODULE_NAME} /bin/bash''')
 	testbuildsh = textwrap.dedent('''\
 		# This file tests your build, removing the container when done.
 		set -e
@@ -947,6 +940,10 @@ echo "==========================================================================
 	open(resreadme_path, 'w').write(resreadme)
 	open(buildsh_path, 'w').write(buildsh)
 	os.chmod(buildsh_path, os.stat(buildsh_path).st_mode | 0111) # chmod +x
+	open(testsh_path, 'w').write(testsh)
+	os.chmod(testsh_path, os.stat(testsh_path).st_mode | 0111) # chmod +x
+	open(runsh_path, 'w').write(runsh)
+	os.chmod(runsh_path, os.stat(runsh_path).st_mode | 0111) # chmod +x
 	open(testbuildsh_path, 'w').write(testbuildsh)
 	os.chmod(testbuildsh_path, os.stat(testbuildsh_path).st_mode | 0111) # chmod +x
 	open(buildpushsh_path, 'w').write(buildpushsh)
