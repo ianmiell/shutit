@@ -686,11 +686,8 @@ def create_skeleton(shutit):
 	script = r'''
 SKELETON_DIR=$1
 MODULE_NAME=$2
-SHUTIT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/.."
-# TODO: generate hash of namespace using util.get_hash(str)
-NAMESPACE=$3
 INCLUDE_SCRIPT=$4
-readonly SKELETON_DIR MODULE_NAME SHUTIT_DIR INCLUDE_SCRIPT
+readonly SKELETON_DIR MODULE_NAME INCLUDE_SCRIPT
 
 set -o errexit
 set -o nounset
@@ -698,18 +695,6 @@ set -o nounset
 # Include bash script
 if [[ x${INCLUDE_SCRIPT} != "x" ]]
 then
-	cat > /dev/stdout << END
-================================================================================
-Please note that your bash script in:
-${INCLUDE_SCRIPT}
-should be a simple set of one-liners
-that return to the prompt. Anything fancy with ifs, backslashes or other
-multi-line commands need to be handled more carefully.
-================================================================================
-Hit return to continue.
-================================================================================
-END
-	read _ignored
 	SBSI="/tmp/shutit_bash_script_include_$(date +%N)"
 	# egrep removes leading space
 	# grep removes comments
@@ -729,6 +714,7 @@ fi
 
 	skel_path = shutit.cfg['skeleton']['path']
 	skel_module_name = shutit.cfg['skeleton']['module_name']
+	# TODO: generate hash of domain using util.get_hash(str)
 	skel_domain = shutit.cfg['skeleton']['domain']
 	skel_script = shutit.cfg['skeleton']['script']
 
@@ -926,6 +912,18 @@ fi
 	os.chmod(pushcnf_path, 0600)
 	open(hostcnf_path, 'w').write(hostcnf)
 	os.chmod(hostcnf_path, 0600)
+
+	print textwrap.dedent('''\
+		================================================================================
+		Please note that your bash script in:
+		''' + skel_script + '''
+		should be a simple set of one-liners
+		that return to the prompt. Anything fancy with ifs, backslashes or other
+		multi-line commands need to be handled more carefully.
+		================================================================================
+		Hit return to continue.
+		================================================================================''')
+	raw_input()
 
 	# Call the bash script
 	args = [skel_path, skel_module_name, skel_domain]
