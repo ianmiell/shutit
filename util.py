@@ -694,59 +694,6 @@ readonly SKELETON_DIR MODULE_NAME SHUTIT_DIR INCLUDE_SCRIPT
 set -o errexit
 set -o nounset
 
-## Copy self to new directory.
-#cp ${BASH_SOURCE[0]} ${SKELETON_DIR}/bin
-touch ${SKELETON_DIR}/README.md
-cat >> ${SKELETON_DIR}/README.md << END
-${MODULE_NAME}: description of module directory in here
-END
-
-touch ${SKELETON_DIR}/build.sh
-cat >> ${SKELETON_DIR}/build.sh << END
-# This file tests your build, leaving the container intact when done.
-set -e
-python ${SHUTIT_DIR}/shutit_main.py
-# Display config
-#python ${SHUTIT_DIR}/shutit_main.py --sc
-# Debug
-#python ${SHUTIT_DIR}/shutit_main.py --debug
-# Tutorial
-#python ${SHUTIT_DIR}/shutit_main.py --tutorial
-END
-chmod +x ${SKELETON_DIR}/build.sh
-
-touch ${SKELETON_DIR}/test_build.sh
-cat >> ${SKELETON_DIR}/test_build.sh << END
-# This file tests your build, removing the container when done.
-set -e
-python ${SHUTIT_DIR}/shutit_main.py -s container rm yes
-# Display config
-#python ${SHUTIT_DIR}/shutit_main.py --sc
-# Debug
-#python ${SHUTIT_DIR}/shutit_main.py --debug
-# Tutorial
-#python ${SHUTIT_DIR}/shutit_main.py --tutorial
-END
-chmod +x ${SKELETON_DIR}/test_build.sh
-
-touch ${SKELETON_DIR}/build_and_push.sh
-cat >> ${SKELETON_DIR}/build_and_push.sh << END
-set -e
-python ${SHUTIT_DIR}/shutit_main.py --config configs/push.cnf
-# Display config
-#python ${SHUTIT_DIR}/shutit_main.py --sc
-# Debug
-#python ${SHUTIT_DIR}/shutit_main.py --debug
-# Tutorial
-#python ${SHUTIT_DIR}/shutit_main.py --tutorial
-END
-chmod +x ${SKELETON_DIR}/build_and_push.sh
-
-touch ${SKELETON_DIR}/resources/README.md
-cat >> ${SKELETON_DIR}/resources/README.md << END
-${MODULE_NAME}: resources required in this directory, eg gzips or text files.\nNote that the .gitignore file in the ${SKELETON_DIR} directory should exclude these files from being added to git repos (usually due to size), but can be added if forced with 'git add --force <file>'.
-END
-
 # Module template
 cp docs/shutit_module_template.py ${SKELETON_DIR}/${MODULE_NAME}.py
 perl -p -i -e "s/template/${MODULE_NAME}/g" ${SKELETON_DIR}/${MODULE_NAME}.py
@@ -954,6 +901,58 @@ echo "==========================================================================
 	os.mkdir(os.path.join(skel_path, 'resources'))
 	os.mkdir(os.path.join(skel_path, 'bin'))
 
+	readme_path = os.path.join(skel_path, 'README.md')
+	resreadme_path = os.path.join(skel_path, 'resources', 'README.md')
+	buildsh_path = os.path.join(skel_path, 'build.sh')
+	testbuildsh_path = os.path.join(skel_path, 'test_build.sh')
+	buildpushsh_path = os.path.join(skel_path, 'build_and_push.sh')
+	readme = skel_module_name + ': description of module directory in here'
+	resreadme = (skel_module_name + ': resources required in this directory,' +
+		'eg gzips or text files.\nNote that the .gitignore file in the ' +
+		skel_path + ' directory should exclude these files from being added ' +
+		'to git repos (usually due to size), but can be added if forced with ' +
+		'\'git add --force <file>\'.')
+
+	buildsh = textwrap.dedent('''\
+		# This file tests your build, leaving the container intact when done.
+		set -e
+		python ${SHUTIT_DIR}/shutit_main.py
+		# Display config
+		#python ${SHUTIT_DIR}/shutit_main.py --sc
+		# Debug
+		#python ${SHUTIT_DIR}/shutit_main.py --debug
+		# Tutorial
+		#python ${SHUTIT_DIR}/shutit_main.py --tutorial''')
+	testbuildsh = textwrap.dedent('''\
+		# This file tests your build, removing the container when done.
+		set -e
+		python ${SHUTIT_DIR}/shutit_main.py -s container rm yes
+		# Display config
+		#python ${SHUTIT_DIR}/shutit_main.py --sc
+		# Debug
+		#python ${SHUTIT_DIR}/shutit_main.py --debug
+		# Tutorial
+		#python ${SHUTIT_DIR}/shutit_main.py --tutorial''')
+	buildpushsh = textwrap.dedent('''\
+		set -e
+		python ${SHUTIT_DIR}/shutit_main.py --config configs/push.cnf
+		# Display config
+		#python ${SHUTIT_DIR}/shutit_main.py --sc
+		# Debug
+		#python ${SHUTIT_DIR}/shutit_main.py --debug
+		# Tutorial
+		#python ${SHUTIT_DIR}/shutit_main.py --tutorial''')
+
+	open(readme_path, 'w').write(readme)
+	open(resreadme_path, 'w').write(resreadme)
+	open(buildsh_path, 'w').write(buildsh)
+	os.chmod(buildsh_path, os.stat(buildsh_path).st_mode | 0111) # chmod +x
+	open(testbuildsh_path, 'w').write(testbuildsh)
+	os.chmod(testbuildsh_path, os.stat(testbuildsh_path).st_mode | 0111) # chmod +x
+	open(buildpushsh_path, 'w').write(buildpushsh)
+	os.chmod(buildpushsh_path, os.stat(buildpushsh_path).st_mode | 0111) # chmod +x
+
+	# Call the bash script
 	args = [skel_path, skel_module_name, skel_domain]
 	if skel_script is not None:
 		args.append(skel_script)
