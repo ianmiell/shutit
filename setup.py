@@ -38,7 +38,7 @@ import re
 # container_child - pexpect-spawned child created to create the container
 # host_child      - pexpect spawned child living on the host container
 
-class setup(ShutItModule):
+class conn_docker(ShutItModule):
 
 	def is_installed(self,shutit):
 		return False
@@ -141,7 +141,7 @@ class setup(ShutItModule):
 		shutit.setup_prompt('SHUTIT_ROOT','root_prompt')
 		shutit.set_default_expect(config_dict['expect_prompts']['root_prompt'])
 		shutit.send_and_expect('export DEBIAN_FRONTEND=noninteractive',check_exit=False)
-		shutit.pause_point('Anything you want to do to the container before the build starts?')
+		shutit.pause_point('Anything you want to do now the container is connected to?')
 		return True
 
 	def remove(self,shutit):
@@ -167,6 +167,20 @@ LOGFILEEND"""
 BUILDREPEND"""
 		shutit.send_and_expect(build_rep,record_command=False)
 		container_child.sendline('exit') # Exit container
+		return True
+
+if not util.module_exists('shutit.tk.conn_docker'):
+	obj = conn_docker('shutit.tk.conn_docker',-0.1,'Connect ShutIt to docker')
+	util.get_shutit_modules().add(obj)
+	ShutItModule.register(conn_docker)
+
+class setup(ShutItModule):
+
+	def is_installed(self,shutit):
+		return False
+
+	def build(self,shutit):
+		shutit.pause_point('Anything you want to do to the container before the build starts?')
 		return True
 
 if not util.module_exists('shutit.tk.setup'):
