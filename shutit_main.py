@@ -156,32 +156,27 @@ def config_collection(shutit):
 			util.fail(mid + ' failed on get_config')
 
 def build_conn_module(shutit):
-	cfg = shutit.cfg
-	shutit_map = shutit.shutit_map
-	# Let's go. Run 0 every time, this should set up the container in pexpect.
+	# Set up the container in pexpect.
 	conn_mid = 'shutit.tk.conn_docker'
-	if cfg['build']['tutorial']:
+	if shutit.cfg['build']['tutorial']:
 		shutit.pause_point('\nRunning the conn module (' +
 			shutit.shutit_main_dir + '/setup.py)', print_input=False)
-	shutit_map[conn_mid].build(shutit)
+	shutit.shutit_map[conn_mid].build(shutit)
 
-def build_core_module(shutit):
-	cfg = shutit.cfg
-	shutit_map = shutit.shutit_map
-	# Let's go. Run 0 every time, this should set up the container in pexpect.
-	core_mid = module_ids(shutit)[0]
-	if cfg['build']['tutorial']:
-		shutit.pause_point('\nRunning build on the core module (' +
+def build_setup_module(shutit):
+	# Get the container into a sane start state ready to build
+	setup_mid = module_ids(shutit)[0]
+	if shutit.cfg['build']['tutorial']:
+		shutit.pause_point('\nRunning the setup module (' +
 			shutit.shutit_main_dir + '/setup.py)', print_input=False)
-	shutit_map[core_mid].build(shutit)
+	shutit.shutit_map[setup_mid].build(shutit)
 
 # Once we have all the modules, then we can look at dependencies.
 # Dependency validation begins.
 def resolve_dependencies(shutit, to_build, depender):
 	cfg = shutit.cfg
-	shutit_map = shutit.shutit_map
 	for dependee_id in depender.depends_on:
-		dependee = shutit_map.get(dependee_id)
+		dependee = shutit.shutit_map.get(dependee_id)
 		# Don't care if module doesn't exist, we check this later
 		if (dependee and dependee not in to_build
 				and cfg[dependee_id]['build_ifneeded']):
