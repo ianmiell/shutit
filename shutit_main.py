@@ -28,10 +28,14 @@ import setup
 import time
 import sys
 
-# Gets a list of module ids by run_order
+# Gets a list of module ids by run_order, ignoring conn modules (run order < 0)
 def module_ids(shutit, rev=False):
 	shutit_map = shutit.shutit_map
-	ids = sorted(shutit_map.keys(), key=lambda mid: shutit_map[mid].run_order)
+	ids = [
+		key for key, value in shutit.shutit_map.iteritems()
+		if value.run_order >= 0.0
+	]
+	ids = sorted(ids, key=lambda mid: shutit_map[mid].run_order)
 	if rev:
 		ids = list(reversed(ids))
 	return ids
@@ -92,8 +96,8 @@ def init_shutit_map(shutit):
 
 	modules = shutit.shutit_modules
 
-	# Have we got anything to process?
-	if len(modules) < 2 :
+	# Have we got anything to process outside of special modules?
+	if len([mod for mod in modules if mod.run_order > 0]) < 1:
 		shutit.log(modules)
 		util.fail('No ShutIt modules in path:\n\n' +
 			':'.join(cfg['host']['shutit_module_paths']) +
@@ -110,6 +114,7 @@ def init_shutit_map(shutit):
 		shutit.pause_point('',print_input=False)
 
 	run_orders = {}
+	has_conn_module = False
 	has_core_module = False
 	for m in modules:
 		assert isinstance(m, ShutItModule)
@@ -119,14 +124,15 @@ def init_shutit_map(shutit):
 			util.fail('Duplicate run order: ' + str(m.run_order) + ' for ' +
 				m.module_id + ' and ' + run_orders[m.run_order].module_id)
 		if m.run_order < 0:
-			util.fail('Invalid run order ' + str(m.run_order) + ' for ' +
-				m.module_id)
+			has_conn_module = True
 		if m.run_order == 0:
 			has_core_module = True
 		shutit_map[m.module_id] = run_orders[m.run_order] = m
 
 	if not has_core_module:
 		util.fail('No module with run_order=0 specified! This is required.')
+	if not has_conn_module:
+		util.fail('No module with run_order<0 specified! This is required.')
 
 def config_collection(shutit):
 	cfg = shutit.cfg
@@ -148,6 +154,16 @@ def config_collection(shutit):
 
 		if not shutit_map[mid].get_config(shutit):
 			util.fail(mid + ' failed on get_config')
+
+def build_conn_module(shutit):
+	cfg = shutit.cfg
+	shutit_map = shutit.shutit_map
+	# Let's go. Run 0 every time, this should set up the container in pexpect.
+	conn_mid = 'shutit.tk.conn_docker'
+	if cfg['build']['tutorial']:
+		shutit.pause_point('\nRunning the conn module (' +
+			shutit.shutit_main_dir + '/setup.py)', print_input=False)
+	shutit_map[conn_mid].build(shutit)
 
 def build_core_module(shutit):
 	cfg = shutit.cfg
@@ -441,7 +457,7 @@ def shutit_main():
 	util.load_shutit_modules(shutit)
 	init_shutit_map(shutit)
 	config_collection(shutit)
-	build_core_module(shutit)
+	build_conn_module(shutit)
 
 	if cfg['action']['serve']:
 		import shutit_srv
@@ -473,6 +489,7 @@ def shutit_main():
 
 	# Dependency validation done.
 
+	build_core_module(shutit)
 	do_remove(shutit)
 	do_build(shutit)
 	do_test(shutit)
