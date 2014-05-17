@@ -32,6 +32,7 @@ class composer(ShutItModule):
 
 	def build(self,shutit):
 		shutit.set_default_expect(shutit.cfg['expect_prompts']['root_prompt'])
+		shutit.send_and_expect('asd')
 		shutit.install('curl')
 		shutit.install('php5')
 		shutit.send_and_expect('curl -sS https://getcomposer.org/installer | php')
