@@ -29,6 +29,6 @@ INCLUDE_SCRIPT=$4
 set -o errexit
 
 echo "THIS SCRIPT IS DEPRECATED, PLEASE USE SHUTIT_MAIN DIRECTLY"
-echo "i.e. python shutit_main.py skeleton $1 $2 $3 $4"
+echo "i.e. shutit skeleton $1 $2 $3 $4"
 
-python $SHUTIT_DIR/shutit_main.py skeleton $1 $2 $3 $4
+python $SHUTIT_DIR/shutit skeleton $1 $2 $3 $4
