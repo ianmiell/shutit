@@ -735,13 +735,13 @@ def create_skeleton(shutit):
 	buildsh = textwrap.dedent('''\
 		# This file tests your build, leaving the container intact when done.
 		set -e
-		python ''' + shutit_dir + '''/shutit_main.py
+		python ''' + shutit_dir + '''/shutit
 		# Display config
-		#python ''' + shutit_dir + '''/shutit_main.py --sc
+		#python ''' + shutit_dir + '''/shutit sc
 		# Debug
-		#python ''' + shutit_dir + '''/shutit_main.py --debug
+		#python ''' + shutit_dir + '''/shutit build --debug
 		# Tutorial
-		#python ''' + shutit_dir + '''/shutit_main.py --tutorial
+		#python ''' + shutit_dir + '''/shutit build --tutorial
 		''')
 	testsh = textwrap.dedent('''\
 		#!/bin/bash
@@ -783,23 +783,23 @@ def create_skeleton(shutit):
 	testbuildsh = textwrap.dedent('''\
 		# This file tests your build, removing the container when done.
 		set -e
-		python ''' + shutit_dir + '''/shutit_main.py -s container rm yes
+		python ''' + shutit_dir + '''/shutit build -s container rm yes
 		# Display config
-		#python ''' + shutit_dir + '''/shutit_main.py --sc
+		#python ''' + shutit_dir + '''/shutit sc
 		# Debug
-		#python ''' + shutit_dir + '''/shutit_main.py --debug
+		#python ''' + shutit_dir + '''/shutit build --debug
 		# Tutorial
-		#python ''' + shutit_dir + '''/shutit_main.py --tutorial
+		#python ''' + shutit_dir + '''/shutit build --tutorial
 		''')
 	buildpushsh = textwrap.dedent('''\
 		set -e
-		python ''' + shutit_dir + '''/shutit_main.py --config configs/push.cnf
+		python ''' + shutit_dir + '''/shutit build --config configs/push.cnf
 		# Display config
-		#python ''' + shutit_dir + '''/shutit_main.py --sc
+		#python ''' + shutit_dir + '''/shutit sc
 		# Debug
-		#python ''' + shutit_dir + '''/shutit_main.py --debug
+		#python ''' + shutit_dir + '''/shutit build --debug
 		# Tutorial
-		#python ''' + shutit_dir + '''/shutit_main.py --tutorial
+		#python ''' + shutit_dir + '''/shutit build --tutorial
 		''')
 	defaultscnf = textwrap.dedent('''\
 		# Base config for the module. This contains standard defaults or hashed out examples.
