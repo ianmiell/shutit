@@ -182,8 +182,6 @@ class setup(ShutItModule):
 		shutit.pause_point('Anything you want to do to the container before the build starts?')
 		return True
 
-if not util.module_exists('shutit.tk.setup'):
-	obj = setup('shutit.tk.setup',0.0,'Core ShutIt setup')
-	util.get_shutit_modules().add(obj)
-	ShutItModule.register(setup)
+def module():
+	return setup('shutit.tk.setup',0.0,'Core ShutIt setup')
 
