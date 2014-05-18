@@ -171,7 +171,6 @@ BUILDREPEND"""
 		return True
 
 def conn_module():
-	ShutItModule.register(conn_docker)
 	return conn_docker('shutit.tk.conn_docker',-0.1,'Connect ShutIt to docker')
 
 class setup(ShutItModule):
