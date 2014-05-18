@@ -146,13 +146,21 @@ def config_collection(shutit):
 		if not shutit_map[mid].get_config(shutit):
 			util.fail(mid + ' failed on get_config')
 
-def build_conn_module(shutit):
+def conn_container(shutit):
 	assert len(shutit.conn_modules) == 1
 	# Set up the container in pexpect.
 	if shutit.cfg['build']['tutorial']:
 		shutit.pause_point('\nRunning the conn module (' +
 			shutit.shutit_main_dir + '/setup.py)', print_input=False)
 	list(shutit.conn_modules)[0].build(shutit)
+
+def finalize_container(shutit):
+	assert len(shutit.conn_modules) == 1
+	# Set up the container in pexpect.
+	if shutit.cfg['build']['tutorial']:
+		shutit.pause_point('\nFinalizing the conntainer module (' +
+			shutit.shutit_main_dir + '/setup.py)', print_input=False)
+	list(shutit.conn_modules)[0].finalize(shutit)
 
 # Once we have all the modules, then we can look at dependencies.
 # Dependency validation begins.
@@ -433,7 +441,8 @@ def shutit_main():
 	util.load_shutit_modules(shutit)
 	init_shutit_map(shutit)
 	config_collection(shutit)
-	build_conn_module(shutit)
+
+	conn_container(shutit)
 
 	if cfg['action']['serve']:
 		import shutit_srv
@@ -469,6 +478,8 @@ def shutit_main():
 	do_build(shutit)
 	do_test(shutit)
 	do_finalize(shutit)
+
+	finalize_container(shutit)
 
 	tag_and_push(shutit)
 
