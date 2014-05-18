@@ -179,6 +179,17 @@ class setup(ShutItModule):
 		return False
 
 	def build(self,shutit):
+		if shutit.cfg['container']['install_type'] == 'apt':
+			shutit.send_and_expect('export DEBIAN_FRONTEND=noninteractive')
+			shutit.send_and_expect('apt-get update',timeout=9999,check_exit=False)
+			shutit.send_and_expect('dpkg-divert --local --rename --add /sbin/initctl')
+			shutit.send_and_expect('ln -f -s /bin/true /sbin/initctl')
+			shutit.install('passwd')
+			shutit.install('sudo')
+		elif shutit.cfg['container']['install_type'] == 'yum':
+			shutit.install('passwd')
+			shutit.install('sudo')
+			shutit.send_and_expect('yum update -y',timeout=9999)
 		shutit.pause_point('Anything you want to do to the container before the build starts?')
 		return True
 
