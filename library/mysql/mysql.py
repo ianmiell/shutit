@@ -77,7 +77,6 @@ class mysql(ShutItModule):
 		shutit.send_and_expect('chmod +x /root/stop_mysql.sh')
 		shutit.send_and_expect('/root/stop_mysql.sh')
 		shutit.send_and_expect('/root/start_mysql.sh')
-		shutit.handle_revert_prompt(shutit.cfg['expect_prompts']['base_prompt'],'mysql_tmp_prompt')
 		shutit.set_default_expect(shutit.cfg['expect_prompts']['root_prompt'])
 		shutit.send_and_expect('exit')
 		return True
