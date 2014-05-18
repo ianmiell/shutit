@@ -30,6 +30,7 @@ import string
 import re
 import textwrap
 import base64
+from shutit_module import ShutItFailException
 
 def random_id(size=5, chars=string.ascii_letters + string.digits):
 	return ''.join(random.choice(chars) for _ in range(size))
@@ -88,6 +89,14 @@ class ShutIt(object):
 	def set_default_expect(self, expect, check_exit=True):
 		self._default_expect[-1] = expect
 		self._default_check_exit[-1] = check_exit
+
+	# TODO: Manage exits of containers on error
+	def fail(self, msg, child=None):
+		if child:
+			self.pause_point(child,'Pause point on fail: ' + msg)
+		print >> sys.stderr, 'ERROR!'
+		print >> sys.stderr
+		raise ShutItFailException(msg)
 
 	def log(self, msg, code=None, pause=0, prefix=True, force_stdout=False):
 		if prefix:
