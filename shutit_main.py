@@ -31,11 +31,7 @@ import sys
 # Gets a list of module ids by run_order, ignoring conn modules (run order < 0)
 def module_ids(shutit, rev=False):
 	shutit_map = shutit.shutit_map
-	ids = [
-		key for key, value in shutit.shutit_map.iteritems()
-		if value.run_order >= 0.0
-	]
-	ids = sorted(ids, key=lambda mid: shutit_map[mid].run_order)
+	ids = sorted(shutit_map.keys(), key=lambda mid: shutit_map[mid].run_order)
 	if rev:
 		ids = list(reversed(ids))
 	return ids
@@ -114,7 +110,6 @@ def init_shutit_map(shutit):
 		shutit.pause_point('',print_input=False)
 
 	run_orders = {}
-	has_conn_module = False
 	has_core_module = False
 	for m in modules:
 		assert isinstance(m, ShutItModule)
@@ -123,16 +118,12 @@ def init_shutit_map(shutit):
 		if m.run_order in run_orders:
 			util.fail('Duplicate run order: ' + str(m.run_order) + ' for ' +
 				m.module_id + ' and ' + run_orders[m.run_order].module_id)
-		if m.run_order < 0:
-			has_conn_module = True
 		if m.run_order == 0:
 			has_core_module = True
 		shutit_map[m.module_id] = run_orders[m.run_order] = m
 
 	if not has_core_module:
 		util.fail('No module with run_order=0 specified! This is required.')
-	if not has_conn_module:
-		util.fail('No module with run_order<0 specified! This is required.')
 
 def config_collection(shutit):
 	cfg = shutit.cfg
@@ -157,11 +148,10 @@ def config_collection(shutit):
 
 def build_conn_module(shutit):
 	# Set up the container in pexpect.
-	conn_mid = 'shutit.tk.conn_docker'
 	if shutit.cfg['build']['tutorial']:
 		shutit.pause_point('\nRunning the conn module (' +
 			shutit.shutit_main_dir + '/setup.py)', print_input=False)
-	shutit.shutit_map[conn_mid].build(shutit)
+	shutit.conn_module.build(shutit)
 
 def build_setup_module(shutit):
 	# Get the container into a sane start state ready to build
@@ -449,6 +439,7 @@ def shutit_main():
 	if cfg['action']['show_config']:
 		shutit.log(util.print_config(cfg),force_stdout=True)
 		return
+	shutit.conn_module = setup.conn_module()
 	util.load_shutit_modules(shutit)
 	init_shutit_map(shutit)
 	config_collection(shutit)
@@ -484,7 +475,7 @@ def shutit_main():
 
 	# Dependency validation done.
 
-	build_core_module(shutit)
+	build_setup_module(shutit)
 	do_remove(shutit)
 	do_build(shutit)
 	do_test(shutit)

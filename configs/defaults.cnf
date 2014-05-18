@@ -83,7 +83,6 @@ suffix_format:%Y%m%d_%H%M%S
 # Root setup script
 # Each module should set these in a config
 [shutit.tk.setup]
-# Whether to build this module
 build:yes
 
 # Aspects of build process
