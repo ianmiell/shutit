@@ -40,7 +40,6 @@ import json
 import binascii
 import subprocess
 import getpass
-from shutit_module import ShutItFailException
 
 def is_file_secure(file_name):
 	# If file doesn't exist, it's considered secure!
