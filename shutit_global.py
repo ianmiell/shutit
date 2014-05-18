@@ -453,28 +453,23 @@ class ShutIt(object):
 
 	# Fails if distro could not be determined.
 	# Should be called with the container is started up.
-	def get_distro_info(self,child=None,outer_expect=None):
+	def get_distro_info(self,child=None):
 		child = child or self.get_default_child()
 		cfg = self.cfg
-		outer_expect = outer_expect or self.get_default_expect()
 		cfg['container']['install_type']      = ''
 		cfg['container']['distro']            = ''
 		cfg['container']['distro_version']    = ''
 		install_type_map = {'ubuntu':'apt','debian':'apt','red hat':'yum','centos':'yum','fedora':'yum'}
-		self.handle_login('tmp_prompt')
-		self.set_default_expect(cfg['expect_prompts']['tmp_prompt'])
 		for key in install_type_map.keys():
-			child.sendline('cat /etc/issue | grep -i "' + key + '" | wc -l')
-			child.expect(cfg['expect_prompts']['tmp_prompt'])
+			self.send_and_expect('cat /etc/issue | grep -i "' + key + '" | wc -l', check_exit=False)
 			if self.get_re_from_child(child.before,'^([0-9]+)$') == '1':
 				cfg['container']['distro']       = key
 				cfg['container']['install_type'] = install_type_map[key]
 				break
-		self.set_password(cfg['container']['password'],expect=cfg['expect_prompts']['tmp_prompt'])
+		self.set_password(cfg['container']['password'])
 		cfg['expect_prompts']['real_user_prompt'] = '\r\n.*?' + cfg['host']['real_user'] + '@.*:'
 		if cfg['container']['install_type'] == '' or cfg['container']['distro'] == '':
 			util.fail('Could not determine Linux distro information. Please inform maintainers.')
-		self.handle_revert_prompt(outer_expect,'tmp_prompt')
 
 	# Sets the password
 	def set_password(self,password,child=None,expect=None):
