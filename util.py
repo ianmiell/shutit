@@ -582,26 +582,29 @@ def load_all_from_path(shutit, path):
 	if not os.path.exists(path):
 		return
 	for root, subFolders, files in os.walk(path):
-		for f in files:
-			mod_name,file_ext = os.path.splitext(os.path.split(f)[-1])
-			if file_ext.lower() != '.py':
-				continue
-			if shutit.cfg['build']['debug']:
-				log('Loading source for: ' + mod_name,os.path.join(root,f))
-			pymod = imp.load_source(mod_name,os.path.join(root,f))
-			# New style is to have a callable 'module/0' which returns one or
-			# more module objects.
-			# If this doesn't exist we assume that it's doing the old style
-			# (automatically inserting the module) or it's not a shutit module.
-			# In either case, there's nothing left to do
-			if not hasattr(pymod, 'module'):
-				continue
-			modulefunc = getattr(pymod, 'module')
-			if not callable(modulefunc):
-				continue
-			module = modulefunc()
-			ShutItModule.register(module.__class__)
-			shutit.shutit_modules.add(module)
+		for fname in files:
+			load_from_file(shutit, os.path.join(root, fname))
+
+def load_from_file(shutit, fpath):
+	mod_name,file_ext = os.path.splitext(os.path.split(fpath)[-1])
+	if file_ext.lower() != '.py':
+		return
+	if shutit.cfg['build']['debug']:
+		log('Loading source for: ' + mod_name, fpath)
+	pymod = imp.load_source(mod_name, fpath)
+	# New style is to have a callable 'module/0' which returns one or
+	# more module objects.
+	# If this doesn't exist we assume that it's doing the old style
+	# (automatically inserting the module) or it's not a shutit module.
+	# In either case, there's nothing left to do
+	if not hasattr(pymod, 'module'):
+		return
+	modulefunc = getattr(pymod, 'module')
+	if not callable(modulefunc):
+		return
+	module = modulefunc()
+	ShutItModule.register(module.__class__)
+	shutit.shutit_modules.add(module)
 
 # Deprecated
 def module_exists(module_id):
