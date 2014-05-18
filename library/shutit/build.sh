@@ -1,10 +1,9 @@
 # This file tests your build, leaving the container intact when done.
 set -e
-export SHUTIT_OPTIONS="$SHUTIT_OPTIONS --shutit_module_path ../docker:../ssh_server"
-python ../../shutit_main.py
+../../shutit build --shutit_module_path ../docker:../ssh_server
 # Display config
-#python ../../shutit_main.py --sc
+#../../shutit sc
 # Debug
-#python ../../shutit_main.py --debug
+#../../shutit build --debug
 # Tutorial
-#python ../../shutit_main.py --tutorial
+#../../shutit build --tutorial
