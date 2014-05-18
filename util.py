@@ -578,14 +578,16 @@ def get_pexpect_child(key):
 def load_all_from_path(shutit, path):
 	if os.path.abspath(path) == shutit.shutit_main_dir:
 		return
-	if os.path.exists(path):
-		for root, subFolders, files in os.walk(path):
-			for f in files:
-				mod_name,file_ext = os.path.splitext(os.path.split(f)[-1])
-				if file_ext.lower() == '.py':
-					if shutit.cfg['build']['debug']:
-						log('Loading source for: ' + mod_name,os.path.join(root,f))
-					imp.load_source(mod_name,os.path.join(root,f))
+	if not os.path.exists(path):
+		return
+	for root, subFolders, files in os.walk(path):
+		for f in files:
+			mod_name,file_ext = os.path.splitext(os.path.split(f)[-1])
+			if file_ext.lower() != '.py':
+				continue
+			if shutit.cfg['build']['debug']:
+				log('Loading source for: ' + mod_name,os.path.join(root,f))
+			imp.load_source(mod_name,os.path.join(root,f))
 
 def module_exists(module_id):
 	for m in get_shutit_modules():
