@@ -600,17 +600,21 @@ def load_from_py_module(shutit, pymod):
 	# If this doesn't exist we assume that it's doing the old style
 	# (automatically inserting the module) or it's not a shutit module.
 	# In either case, there's nothing left to do
-	if not hasattr(pymod, 'module'):
-		return
-	modulefunc = getattr(pymod, 'module')
-	if not callable(modulefunc):
-		return
-	modules = modulefunc()
-	if type(modules) is not list:
-		modules = [modules]
-	for module in modules:
-		ShutItModule.register(module.__class__)
-		shutit.shutit_modules.add(module)
+	targets = [
+		('module', shutit.shutit_modules), ('conn_module', shutit.conn_modules)
+	]
+	for attr, target in targets:
+		if not hasattr(pymod, attr):
+			return
+		modulefunc = getattr(pymod, attr)
+		if not callable(modulefunc):
+			return
+		modules = modulefunc()
+		if type(modules) is not list:
+			modules = [modules]
+		for module in modules:
+			ShutItModule.register(module.__class__)
+			target.add(module)
 
 # Deprecated
 def module_exists(module_id):
