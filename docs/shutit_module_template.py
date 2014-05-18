@@ -93,12 +93,11 @@ class template(ShutItModule):
 		# When logging in, use the base prompt to attempt to match all prompts
 		# Note that we don't check_exit, because the exit value won't be meaningful.
 		shutit.send_and_expect('su',shutit.cfg['expect_prompts']['base_prompt'],check_exit=False)
-		# Then call handle_login to set and get the bespoke prompt for the session
-		shutit.handle_login('test_tmp_prompt')
+		# Then call setup_prompt to set and get the bespoke prompt for the session
+		shutit.setup_prompt('test_tmp_prompt')
 		shutit.set_default_expect(shutit.cfg['expect_prompts']['test_tmp_prompt'])
 		shutit.send_and_expect('echo "a command and some output"')
-		# We're about to exit, so handle the reversion of the prompt using the base_prompt again.
-		shutit.handle_revert_prompt(shutit.cfg['expect_prompts']['base_prompt'],'test_tmp_prompt')
+		# Make sure we're expecting the right thing after we exit this subshell
 		shutit.set_default_expect(shutit.cfg['expect_prompts']['root_prompt'])
 		shutit.send_and_expect('exit')
 
