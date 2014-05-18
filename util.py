@@ -605,9 +605,12 @@ def load_from_py_module(shutit, pymod):
 	modulefunc = getattr(pymod, 'module')
 	if not callable(modulefunc):
 		return
-	module = modulefunc()
-	ShutItModule.register(module.__class__)
-	shutit.shutit_modules.add(module)
+	modules = modulefunc()
+	if type(modules) is not list:
+		modules = [modules]
+	for module in modules:
+		ShutItModule.register(module.__class__)
+		shutit.shutit_modules.add(module)
 
 # Deprecated
 def module_exists(module_id):
