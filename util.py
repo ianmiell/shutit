@@ -159,7 +159,6 @@ def get_base_config(cfg, cfg_parser):
 	# child object. Use these where possible to make things more consistent.
 	# Attempt to capture any starting prompt (when starting)
 	cfg['expect_prompts']['base_prompt']             = '\r\n.*[@#$]'
-	cfg['expect_prompts']['real_user_prompt']        = '\r\n.*?' + cfg['host']['real_user'] + '@.*:'
 	# END Standard expects
 
 	# BEGIN tidy configs up
