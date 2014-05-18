@@ -735,13 +735,13 @@ def create_skeleton(shutit):
 	buildsh = textwrap.dedent('''\
 		# This file tests your build, leaving the container intact when done.
 		set -e
-		python ''' + shutit_dir + '''/shutit
+		''' + shutit_dir + '''/shutit
 		# Display config
-		#python ''' + shutit_dir + '''/shutit sc
+		#''' + shutit_dir + '''/shutit sc
 		# Debug
-		#python ''' + shutit_dir + '''/shutit build --debug
+		#''' + shutit_dir + '''/shutit build --debug
 		# Tutorial
-		#python ''' + shutit_dir + '''/shutit build --tutorial
+		#''' + shutit_dir + '''/shutit build --tutorial
 		''')
 	testsh = textwrap.dedent('''\
 		#!/bin/bash
@@ -783,23 +783,23 @@ def create_skeleton(shutit):
 	testbuildsh = textwrap.dedent('''\
 		# This file tests your build, removing the container when done.
 		set -e
-		python ''' + shutit_dir + '''/shutit build -s container rm yes
+		''' + shutit_dir + '''/shutit build -s container rm yes
 		# Display config
-		#python ''' + shutit_dir + '''/shutit sc
+		#''' + shutit_dir + '''/shutit sc
 		# Debug
-		#python ''' + shutit_dir + '''/shutit build --debug
+		#''' + shutit_dir + '''/shutit build --debug
 		# Tutorial
-		#python ''' + shutit_dir + '''/shutit build --tutorial
+		#''' + shutit_dir + '''/shutit build --tutorial
 		''')
 	buildpushsh = textwrap.dedent('''\
 		set -e
-		python ''' + shutit_dir + '''/shutit build --config configs/push.cnf
+		''' + shutit_dir + '''/shutit build --config configs/push.cnf
 		# Display config
-		#python ''' + shutit_dir + '''/shutit sc
+		#''' + shutit_dir + '''/shutit sc
 		# Debug
-		#python ''' + shutit_dir + '''/shutit build --debug
+		#''' + shutit_dir + '''/shutit build --debug
 		# Tutorial
-		#python ''' + shutit_dir + '''/shutit build --tutorial
+		#''' + shutit_dir + '''/shutit build --tutorial
 		''')
 	defaultscnf = textwrap.dedent('''\
 		# Base config for the module. This contains standard defaults or hashed out examples.
@@ -936,7 +936,7 @@ def create_skeleton(shutit):
 	================================================================================
 	Run:
 
-	    cd ''' + skel_path + '; python ' + shutit_dir + '''/shutit_main.py --tutorial
+	    cd ''' + skel_path + '; ' + shutit_dir + '''/shutit build --tutorial
 
 	And follow the instructions in the output.
 
