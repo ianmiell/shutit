@@ -435,10 +435,10 @@ class ShutIt(object):
 	def handle_login(self,prompt_name,child=None):
 		self.setup_prompt(prompt_name, child=child)
 
-	# Sets up a base prompt
-	def setup_prompt(self,prompt_name,prefix='SHUTIT_TMP',child=None):
+	# Use this when you've opened a new shell to set the PS1 to something sane.
+	def setup_prompt(self,prompt_name,prefix='TMP',child=None):
 		child = child or self.get_default_child()
-		local_prompt = prefix + '#' + random_id() + '>'
+		local_prompt = 'SHUTIT_' + prefix + '#' + random_id() + '>'
 		shutit.cfg['expect_prompts'][prompt_name] = '\r\n' + local_prompt
 		self.send_and_expect(
 			("SHUTIT_BACKUP_PS1_%s=$PS1 && PS1='%s' && unset PROMPT_COMMAND") %
@@ -449,6 +449,8 @@ class ShutIt(object):
 	def handle_revert_prompt(self,expect,prompt_name,child=None):
 		self.revert_prompt(prompt_name,expect,child)
 
+	# It should be fairly rare to need this. Most of the time you would just
+	# exit a subshell rather than resetting the prompt.
 	def revert_prompt(self,old_prompt_name,new_expect=None,child=None):
 		child = child or self.get_default_child()
 		expect = new_expect or self.get_default_expect()
