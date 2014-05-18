@@ -440,6 +440,7 @@ def shutit_main():
 		shutit.log(util.print_config(cfg),force_stdout=True)
 		return
 	shutit.conn_module = setup.conn_module()
+	util.load_from_py_module(shutit, setup)
 	util.load_shutit_modules(shutit)
 	init_shutit_map(shutit)
 	config_collection(shutit)
