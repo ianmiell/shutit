@@ -1,8 +1,8 @@
 set -e
-python ../../shutit_main.py --shutit_module_path ../
+../../shutit build --shutit_module_path ../
 # Display config
-#python ../../shutit_main.py --sc
+#../../shutit sc
 # Debug
-#python ../../shutit_main.py --debug
+#../../shutit build --debug
 # Tutorial
-#python ../../shutit_main.py --tutorial
+#../../shutit build --tutorial
