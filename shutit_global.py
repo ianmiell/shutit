@@ -427,10 +427,8 @@ class ShutIt(object):
 		local_prompt = 'SHUTIT_TMP_' + prompt_name + '#' + random_id() + '>'
 		self.cfg['expect_prompts'][prompt_name] = '\r\n' + local_prompt
 		self.send_and_expect(
-			("SHUTIT_BACKUP_PS1_%s=$PS1 &&" +
-			"export SHUTIT_PROMPT_COMMAND_BACKUP_%s=$PROMPT_COMMAND && " +
-			"PS1='%s' && unset PROMPT_COMMAND") %
-				(prompt_name, prompt_name, local_prompt),
+			("SHUTIT_BACKUP_PS1_%s=$PS1 && PS1='%s' && unset PROMPT_COMMAND") %
+				(prompt_name, local_prompt),
 			expect=self.cfg['expect_prompts'][prompt_name],
 			record_command=False,fail_on_empty_before=False)
 
@@ -438,10 +436,8 @@ class ShutIt(object):
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
 		self.send_and_expect(
-			('PS1="${SHUTIT_BACKUP_PS1_%s}" && ' +
-			'unset SHUTIT_PROMPT_COMMAND_BACKUP_%s && ' +
-			'unset SHUTIT_BACKUP_PS1_%s') %
-				(prompt_name, prompt_name, prompt_name),
+			('PS1="${SHUTIT_BACKUP_PS1_%s}" && unset SHUTIT_BACKUP_PS1_%s') %
+				(prompt_name, prompt_name),
 			expect=expect,check_exit=False,record_command=False,fail_on_empty_before=False)
 
 	# Fails if distro could not be determined.
