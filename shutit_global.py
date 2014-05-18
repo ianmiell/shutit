@@ -466,19 +466,7 @@ class ShutIt(object):
 				cfg['container']['install_type'] = install_type_map[key]
 				break
 		self.set_password(cfg['container']['password'],expect=cfg['expect_prompts']['tmp_prompt'])
-		if cfg['container']['install_type'] == 'apt':
-			cfg['expect_prompts']['real_user_prompt']        = '\r\n.*?' + cfg['host']['real_user'] + '@.*:'
-			self.send_and_expect('export DEBIAN_FRONTEND=noninteractive')
-			self.send_and_expect('apt-get update',timeout=9999,check_exit=False)
-			self.send_and_expect('dpkg-divert --local --rename --add /sbin/initctl')
-			self.send_and_expect('ln -f -s /bin/true /sbin/initctl')
-			self.install('passwd')
-			self.install('sudo')
-		elif cfg['container']['install_type'] == 'yum':
-			cfg['expect_prompts']['real_user_prompt']        = '\r\n.*?' + cfg['host']['real_user'] + '@.*:'
-			self.install('passwd')
-			self.install('sudo')
-			self.send_and_expect('yum update -y',timeout=9999)
+		cfg['expect_prompts']['real_user_prompt'] = '\r\n.*?' + cfg['host']['real_user'] + '@.*:'
 		if cfg['container']['install_type'] == '' or cfg['container']['distro'] == '':
 			util.fail('Could not determine Linux distro information. Please inform maintainers.')
 		self.handle_revert_prompt(outer_expect,'tmp_prompt')
