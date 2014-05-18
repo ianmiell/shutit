@@ -456,8 +456,6 @@ class ShutIt(object):
 		install_type_map = {'ubuntu':'apt','debian':'apt','red hat':'yum','centos':'yum','fedora':'yum'}
 		self.handle_login('tmp_prompt')
 		self.set_default_expect(cfg['expect_prompts']['tmp_prompt'])
-		if self.file_exists(cfg['build']['cidfile']):
-			util.fail('Did not start up container. If you got a "port in use" error, try:\n\n' + cfg['host']['docker_executable'] + ' ps -a | grep ' + cfg['container']['ports'] + ' | awk \'{print $1}\' | xargs ' + cfg['host']['docker_executable'] + ' kill\n\n')
 		for key in install_type_map.keys():
 			child.sendline('cat /etc/issue | grep -i "' + key + '" | wc -l')
 			child.expect(cfg['expect_prompts']['tmp_prompt'])
