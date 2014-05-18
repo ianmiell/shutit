@@ -366,6 +366,13 @@ class ShutIt(object):
 				return match.group(1)
 		return None
 
+	# Returns the output of a command
+	def get_output(self,send,expect=None,child=None):
+		child = child or self.get_default_child()
+		expect = expect or self.get_default_expect()
+		self.send_and_expect(send,check_exit=False)
+		return shutit.get_default_child().before.strip(send)
+
 
 	# Distro-independent install function.
 	# Takes a package name and runs
