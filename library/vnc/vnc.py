@@ -40,8 +40,8 @@ class vnc(ShutItModule):
 	def build(self,shutit):
 		# TODO: distr-independence
 		shutit.set_default_expect(shutit.cfg['expect_prompts']['root_prompt'])
-		shutit.send_and_expect('echo "deb http://archive.ubuntu.com/ubuntu precise main universe multiverse" > /etc/apt/sources.list')
-		shutit.add_line_to_file('deb http://archive.ubuntu.com/ubuntu/ precise-updates main restricted','/etc/apt/sources.list')
+		shutit.send_and_expect("""echo "deb http://archive.ubuntu.com/ubuntu $(grep CODENAME /etc/lsb-release | sed 's/DISTRIB_CODENAME=\(.*\)/\1/g') main universe multiverse" > /etc/apt/sources.list""")
+		shutit.add_line_to_file("""deb http://archive.ubuntu.com/ubuntu/ $(grep CODENAME /etc/lsb-release | sed 's/DISTRIB_CODENAME=\(.*\)/\1/g')-updates main restricted','/etc/apt/sources.list""")
 		if shutit.cfg['container']['install_type'] == 'apt':
 			shutit.send_and_expect('apt-get update -qq',timeout=10000)
 		shutit.send_and_expect('apt-get upgrade -y')
