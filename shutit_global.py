@@ -41,6 +41,8 @@ class ShutIt(object):
 	_default_check_exit = [None]
 
 	def __init__(self, **kwargs):
+		# These used to be in shutit_global, so we pass them in as args so
+		# the original reference can be put in shutit_global
 		self.pexpect_children = kwargs['pexpect_children']
 		self.shutit_modules = kwargs['shutit_modules']
 		self.shutit_main_dir = kwargs['shutit_main_dir']
@@ -48,6 +50,8 @@ class ShutIt(object):
 		self.cwd = kwargs['cwd']
 		self.shutit_command_history = kwargs['shutit_command_history']
 		self.shutit_map = kwargs['shutit_map']
+		# These are new members we dont have to provide compaitibility for
+		self.conn_module = None
 
 	# These two get called automatically by the metaclass decorator in
 	# shutit_module when a module method is called.
