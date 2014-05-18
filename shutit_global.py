@@ -591,7 +591,7 @@ class ShutIt(object):
 			if res == 1:
 				self.send_and_expect(password,expect=expect,child=child,record_command=False)
 		if cfg['repository']['push'] == True:
-			self.push_repository(repository,docker_executable,expect)
+			self.push_repository(repository,docker_executable,expect=expect)
 			cfg['build']['report'] = cfg['build']['report'] + 'Pushed repository: ' + repository
 
 
