@@ -45,7 +45,6 @@ class conn_docker(ShutItModule):
 
 	def build(self,shutit):
 		cfg = shutit.cfg
-		# Kick off container within host machine
 
 		# Always-required options
 		cfg['build']['cidfile'] = '/tmp/' + cfg['host']['username'] + '_cidfile_' + cfg['build']['build_id']
@@ -152,12 +151,6 @@ class conn_docker(ShutItModule):
 		shutit.pause_point('Anything you want to do now the container is connected to?')
 		return True
 
-	def remove(self,shutit):
-		cfg = shutit.cfg
-		if cfg['container']['install_type'] == 'yum':
-			shutit.remove('passwd')
-		return True
-
 	def finalize(self,shutit):
 		cfg = shutit.cfg
 		# Finish with the container
@@ -199,6 +192,12 @@ class setup(ShutItModule):
 			shutit.install('sudo')
 			shutit.send_and_expect('yum update -y',timeout=9999)
 		shutit.pause_point('Anything you want to do to the container before the build starts?')
+		return True
+
+	def remove(self,shutit):
+		cfg = shutit.cfg
+		if cfg['container']['install_type'] == 'yum':
+			shutit.remove('passwd')
 		return True
 
 def module():
