@@ -656,7 +656,7 @@ def get_distro_info(child,outer_expect,cfg):
 	if cfg not in [None,shutit_global.shutit.cfg]:
 		print "Report this error and stack trace to repo owner, #d110"
 		assert False
-	return shutit_global.shutit.get_distro_info(child=child,outer_expect=outer_expect)
+	return shutit_global.shutit.get_distro_info(child=child)
 
 # Deprecated
 def set_password(child,cfg,expect,password):
