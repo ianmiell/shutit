@@ -71,7 +71,7 @@ ShutIt works in the following way:
        return to the script (v useful for debugging))
      - add_line_to_file (if line is not already there)
      - add_to_bashrc (to add something to everyone's login)
-     - handle_login/revert_login (to handle shell prompt oddities in a 
+     - setup_prompt (to handle shell prompt oddities in a 
        reliable/predictable way)
      - is user_id_available
      - set_password (package-management aware)
@@ -197,8 +197,8 @@ Known Issues
 Since a core technology used in this application is pexpect - and a typical
 usage pattern is to expect the prompt to return - unusual shell
 prompts and escape sequences have been known to cause problems.
-Use ```util.handle_login()``` and ```util.handle_revert_prompt()``` functions
-to help manage this.
+Use the ```shutit.setup_prompt()``` function to help manage this by setting up
+a more sane prompt.
 Use of ```COMMAND_PROMPT``` with ```echo -ne``` has been seen to cause problems
 with overwriting of shells and pexpect patterns.
 
