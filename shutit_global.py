@@ -165,8 +165,8 @@ class ShutIt(object):
 			for prompt in cfg['expect_prompts']:
 				if prompt == expect:
 					# Reset prompt
-					self.handle_login('reset_tmp_prompt',child=child)
-					self.handle_revert_prompt(child,expect,'reset_tmp_prompt')
+					self.setup_prompt('reset_tmp_prompt',child=child)
+					self.revert_prompt('reset_tmp_prompt',expect,child=child)
 		if check_exit == True:
 			self._check_exit(send,expect,child,timeout,exit_values)
 		return expect_res
@@ -428,7 +428,9 @@ class ShutIt(object):
 
 	# Sets up a base prompt
 	def setup_prompt(self,prompt_name,prefix='SHUTIT_TMP',child=None):
-		# TODO: does there need to be some compat in here?
+		# TODO: does there need to be some compat in here? The first two
+		# argument order has been switched, but this appears to be an internal
+		# method
 		child = child or self.get_default_child()
 		local_prompt = prefix + '#' + random_id() + '>'
 		shutit.cfg['expect_prompts'][prompt_name] = '\r\n' + local_prompt
@@ -439,14 +441,14 @@ class ShutIt(object):
 			record_command=False,fail_on_empty_before=False)
 
 	def handle_revert_prompt(self,expect,prompt_name,child=None):
-		self.revert_prompt(expect,prompt_name,child)
+		self.revert_prompt(prompt_name,expect,child)
 
-	def revert_prompt(self,expect,prompt_name,child=None):
+	def revert_prompt(self,old_prompt_name,new_expect=None,child=None):
 		child = child or self.get_default_child()
-		expect = expect or self.get_default_expect()
+		expect = new_expect or self.get_default_expect()
 		self.send_and_expect(
 			('PS1="${SHUTIT_BACKUP_PS1_%s}" && unset SHUTIT_BACKUP_PS1_%s') %
-				(prompt_name, prompt_name),
+				(old_prompt_name, old_prompt_name),
 			expect=expect,check_exit=False,record_command=False,fail_on_empty_before=False)
 
 	# Fails if distro could not be determined.

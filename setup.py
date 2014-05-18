@@ -138,14 +138,14 @@ class conn_docker(ShutItModule):
 		# Set up prompts and let the user do things before the build
 		# host child
 		shutit.set_default_child(host_child)
-		shutit.setup_prompt('SHUTIT_REAL_USER','real_user_prompt')
+		shutit.setup_prompt('real_user_prompt','SHUTIT_REAL_USER')
 		shutit.set_default_expect(cfg['expect_prompts']['real_user_prompt'])
 		# container child
 		shutit.set_default_child(container_child)
-		shutit.setup_prompt('SHUTIT_PRE_BUILD','pre_build')
+		shutit.setup_prompt('pre_build', 'SHUTIT_PRE_BUILD')
 		shutit.set_default_expect(cfg['expect_prompts']['pre_build'])
 		shutit.get_distro_info()
-		shutit.setup_prompt('SHUTIT_ROOT','root_prompt')
+		shutit.setup_prompt('root_prompt', 'SHUTIT_ROOT')
 		shutit.set_default_expect(cfg['expect_prompts']['root_prompt'])
 		shutit.send_and_expect('export DEBIAN_FRONTEND=noninteractive',check_exit=False)
 		shutit.pause_point('Anything you want to do now the container is connected to?')
