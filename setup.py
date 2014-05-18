@@ -44,12 +44,12 @@ class conn_docker(ShutItModule):
 		return False
 
 	def build(self,shutit):
-		config_dict = shutit.cfg
+		cfg = shutit.cfg
 		# Kick off container within host machine
 
 		# Always-required options
-		config_dict['build']['cidfile'] = '/tmp/' + config_dict['host']['username'] + '_cidfile_' + config_dict['build']['build_id']
-		cidfile_arg = '--cidfile=' + config_dict['build']['cidfile']
+		cfg['build']['cidfile'] = '/tmp/' + cfg['host']['username'] + '_cidfile_' + cfg['build']['build_id']
+		cidfile_arg = '--cidfile=' + cfg['build']['cidfile']
 
 		# Singly specified options
 		privileged_arg = ''
@@ -58,31 +58,31 @@ class conn_docker(ShutItModule):
 		hostname_arg   = ''
 		volume_arg     = ''
 		rm_arg         = ''
-		if config_dict['build']['privileged']:
+		if cfg['build']['privileged']:
 			privileged_arg = '--privileged=true'
-		if config_dict['build']['lxc_conf'] != '':
-			lxc_conf_arg = '--lxc-conf=' + config_dict['build']['lxc_conf']
-		if config_dict['container']['name'] != '':
-			name_arg = '--name=' + config_dict['container']['name']
-		if config_dict['container']['hostname'] != '':
-			hostname_arg = '-h=' + config_dict['container']['hostname']
-		if config_dict['host']['resources_dir'] != '':
-			volume_arg = '-v=' + config_dict['host']['resources_dir'] + ':/resources'
+		if cfg['build']['lxc_conf'] != '':
+			lxc_conf_arg = '--lxc-conf=' + cfg['build']['lxc_conf']
+		if cfg['container']['name'] != '':
+			name_arg = '--name=' + cfg['container']['name']
+		if cfg['container']['hostname'] != '':
+			hostname_arg = '-h=' + cfg['container']['hostname']
+		if cfg['host']['resources_dir'] != '':
+			volume_arg = '-v=' + cfg['host']['resources_dir'] + ':/resources'
 		# Incompatible with do_repository_work
-		if config_dict['container']['rm']:
+		if cfg['container']['rm']:
 			rm_arg = '--rm=true'
 
 		# Multiply specified options
 		port_args = []
 		dns_args = []
-		ports_list = config_dict['container']['ports'].strip().split()
-		dns_list = config_dict['host']['dns'].strip().split()
+		ports_list = cfg['container']['ports'].strip().split()
+		dns_list = cfg['host']['dns'].strip().split()
 		for portmap in ports_list:
 			port_args.append('-p=' + portmap)
 		for dns in dns_list:
 			dns_args.append('-dns=' + dns)
 
-		docker_command = config_dict['host']['docker_executable'].split(' ') + [
+		docker_command = cfg['host']['docker_executable'].split(' ') + [
 			arg for arg in [
 				'run',
 				cidfile_arg,
@@ -95,44 +95,44 @@ class conn_docker(ShutItModule):
 				] + port_args + dns_args + [
 				'-t',
 				'-i',
-				config_dict['container']['docker_image'],
+				cfg['container']['docker_image'],
 				'/bin/bash'
 			] if arg != ''
 		]
-		if config_dict['build']['tutorial']:
+		if cfg['build']['tutorial']:
 			shutit.pause_point('\n\nAbout to start container. ' +
 				'Ports mapped will be: ' + ', '.join(port_args) +
 				' (from\n\n[host]\nports:<value>\n\nconfig, building on the ' +
 				'configurable base image passed in in:\n\n\t--image <image>\n' +
 				'\nor config:\n\n\t[container]\n\tdocker_image:<image>)\n\nBase' +
-				'image in this case is:\n\n\t' + config_dict['container']['docker_image'] +
+				'image in this case is:\n\n\t' + cfg['container']['docker_image'] +
 				'\n\n',child=None,print_input=False)
 		shutit.log('\n\nCommand being run is:\n\n' + ' '.join(docker_command),force_stdout=True,prefix=False)
 		shutit.log('\n\nThis may download the image, please be patient\n\n',force_stdout=True,prefix=False)
 		container_child = pexpect.spawn(docker_command[0], docker_command[1:])
-		if container_child.expect(['assword',config_dict['expect_prompts']['base_prompt'].strip()],9999) == 0:
-			shutit.send_and_expect(config_dict['host']['password'],child=container_child,
-				expect=config_dict['expect_prompts']['base_prompt'],timeout=9999,check_exit=False)
+		if container_child.expect(['assword',cfg['expect_prompts']['base_prompt'].strip()],9999) == 0:
+			shutit.send_and_expect(cfg['host']['password'],child=container_child,
+				expect=cfg['expect_prompts']['base_prompt'],timeout=9999,check_exit=False)
 		# Get the cid
 		time.sleep(1) # cidfile creation is sometimes slow...
-		cid = open(config_dict['build']['cidfile']).read()
+		cid = open(cfg['build']['cidfile']).read()
 		if cid == '' or re.match('^[a-z0-9]+$', cid) == None:
 			util.fail('Could not get container_id - quitting. Check whether ' +
 				'other containers may be clashing on port allocation or name.' +
 				'\nYou might want to try running: sudo docker kill ' +
-				config_dict['container']['name'] + '; sudo docker rm ' +
-				config_dict['container']['name'] + '\nto resolve a name clash or: ' +
-				config_dict['host']['docker_executable'] + ' ps -a | grep ' +
-				config_dict['container']['ports'] + ' | awk \'{print $1}\' | ' +
-				'xargs ' + config_dict['host']['docker_executable'] + ' kill\nto + '
+				cfg['container']['name'] + '; sudo docker rm ' +
+				cfg['container']['name'] + '\nto resolve a name clash or: ' +
+				cfg['host']['docker_executable'] + ' ps -a | grep ' +
+				cfg['container']['ports'] + ' | awk \'{print $1}\' | ' +
+				'xargs ' + cfg['host']['docker_executable'] + ' kill\nto + '
 				'resolve a port clash\n')
-		config_dict['container']['container_id'] = cid
+		cfg['container']['container_id'] = cid
 		# Now let's have a host_child
 		host_child = pexpect.spawn('/bin/bash')
 		# Some pexpect settings
 		shutit.pexpect_children['host_child'] = host_child
 		shutit.pexpect_children['container_child'] = container_child
-		shutit.set_default_expect(config_dict['expect_prompts']['base_prompt'])
+		shutit.set_default_expect(cfg['expect_prompts']['base_prompt'])
 		host_child.logfile = container_child.logfile = sys.stdout
 		host_child.maxread = container_child.maxread = 2000
 		host_child.searchwindowsize = container_child.searchwindowsize = 1024
@@ -140,34 +140,34 @@ class conn_docker(ShutItModule):
 		# host child
 		shutit.set_default_child(host_child)
 		shutit.setup_prompt('SHUTIT_REAL_USER','real_user_prompt')
-		shutit.set_default_expect(config_dict['expect_prompts']['real_user_prompt'])
+		shutit.set_default_expect(cfg['expect_prompts']['real_user_prompt'])
 		# container child
 		shutit.set_default_child(container_child)
 		shutit.setup_prompt('SHUTIT_PRE_BUILD','pre_build')
-		shutit.set_default_expect(config_dict['expect_prompts']['pre_build'])
+		shutit.set_default_expect(cfg['expect_prompts']['pre_build'])
 		shutit.get_distro_info()
 		shutit.setup_prompt('SHUTIT_ROOT','root_prompt')
-		shutit.set_default_expect(config_dict['expect_prompts']['root_prompt'])
+		shutit.set_default_expect(cfg['expect_prompts']['root_prompt'])
 		shutit.send_and_expect('export DEBIAN_FRONTEND=noninteractive',check_exit=False)
 		shutit.pause_point('Anything you want to do now the container is connected to?')
 		return True
 
 	def remove(self,shutit):
-		config_dict = shutit.cfg
-		if config_dict['container']['install_type'] == 'yum':
+		cfg = shutit.cfg
+		if cfg['container']['install_type'] == 'yum':
 			shutit.remove('passwd')
 		return True
 
 	def finalize(self,shutit):
-		config_dict = shutit.cfg
+		cfg = shutit.cfg
 		# Finish with the container
 		container_child = util.get_pexpect_child('container_child')
 		# Put build info into the container
 		shutit.send_and_expect('mkdir -p /root/shutit_build')
-		logfile = '/root/shutit_build/shutit_buildlog_' + config_dict['build']['build_id']
+		logfile = '/root/shutit_build/shutit_buildlog_' + cfg['build']['build_id']
 		shutit.send_and_expect('touch ' + logfile)
 		print_conf = 'cat > ' + logfile + """ << LOGFILEEND
-""" + util.print_config(config_dict) + """
+""" + util.print_config(cfg) + """
 LOGFILEEND"""
 		shutit.send_and_expect(print_conf,record_command=False)
 		build_rep = """cat > """ + logfile + """ << BUILDREPEND
