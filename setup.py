@@ -191,6 +191,7 @@ class setup(ShutItModule):
 			shutit.install('passwd')
 			shutit.install('sudo')
 			shutit.send_and_expect('yum update -y',timeout=9999)
+		shutit.set_password(shutit.cfg['container']['password'])
 		shutit.pause_point('Anything you want to do to the container before the build starts?')
 		return True
 
