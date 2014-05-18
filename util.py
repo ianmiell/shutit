@@ -592,6 +592,9 @@ def load_from_file(shutit, fpath):
 	if shutit.cfg['build']['debug']:
 		log('Loading source for: ' + mod_name, fpath)
 	pymod = imp.load_source(mod_name, fpath)
+	load_from_py_module(shutit, pymod)
+
+def load_from_py_module(shutit, pymod):
 	# New style is to have a callable 'module/0' which returns one or
 	# more module objects.
 	# If this doesn't exist we assume that it's doing the old style
