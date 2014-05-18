@@ -42,14 +42,6 @@ import subprocess
 import getpass
 from shutit_module import ShutItFailException
 
-# TODO: Manage exits of containers on error
-def fail(msg,child=None):
-	if child:
-		pause_point(child,'Pause point on fail: ' + msg)
-	print >> sys.stderr, 'ERROR!'
-	print >> sys.stderr
-	raise ShutItFailException(msg)
-
 def is_file_secure(file_name):
 	# If file doesn't exist, it's considered secure!
 	if not os.path.isfile(file_name):
@@ -58,6 +50,10 @@ def is_file_secure(file_name):
 	if file_mode & (stat.S_IRGRP | stat.S_IWGRP | stat.S_IXGRP | stat.S_IROTH | stat.S_IWOTH | stat.S_IXOTH):
 		return False
 	return True
+
+# Deprecated
+def fail(msg,child=None):
+	shutit_global.shutit.fail(msg, child=child)
 
 # Deprecated
 def log(msg,code=None,pause=0,cfg=None,prefix=True,force_stdout=False):
@@ -649,13 +645,6 @@ def package_installed(child,cfg,package,expect):
 		print "Report this error and stack trace to repo owner, #d105"
 		assert False
 	return shutit_global.shutit.package_installed(package,expect,child)
-
-# Deprecated
-def get_distro_info(child,outer_expect,cfg):
-	if cfg not in [None,shutit_global.shutit.cfg]:
-		print "Report this error and stack trace to repo owner, #d110"
-		assert False
-	return shutit_global.shutit.get_distro_info(child=child)
 
 # Deprecated
 def set_password(child,cfg,expect,password):

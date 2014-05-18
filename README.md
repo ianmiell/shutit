@@ -77,7 +77,6 @@ ShutIt works in the following way:
      - set_password (package-management aware)
      - file_exists
      - get_file_perms
-     - get_distro_info
      - package_installed (determine whether package is already installed)
      - loads more to come
 
