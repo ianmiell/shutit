@@ -31,6 +31,7 @@ import time
 import re
 import imp
 import shutit_global
+from shutit_module import ShutItModule
 import pexpect
 import socket
 import textwrap
@@ -587,14 +588,29 @@ def load_all_from_path(shutit, path):
 				continue
 			if shutit.cfg['build']['debug']:
 				log('Loading source for: ' + mod_name,os.path.join(root,f))
-			imp.load_source(mod_name,os.path.join(root,f))
+			pymod = imp.load_source(mod_name,os.path.join(root,f))
+			# New style is to have a callable 'module/0' which returns one or
+			# more module objects.
+			# If this doesn't exist we assume that it's doing the old style
+			# (automatically inserting the module) or it's not a shutit module.
+			# In either case, there's nothing left to do
+			if not hasattr(pymod, 'module'):
+				continue
+			modulefunc = getattr(pymod, 'module')
+			if not callable(modulefunc):
+				continue
+			module = modulefunc()
+			ShutItModule.register(module.__class__)
+			shutit.shutit_modules.add(module)
 
+# Deprecated
 def module_exists(module_id):
 	for m in get_shutit_modules():
 		if m.module_id == module_id:
 			return True
 	return False
 
+# Deprecated
 def get_shutit_modules():
 	return shutit_global.shutit_modules
 
