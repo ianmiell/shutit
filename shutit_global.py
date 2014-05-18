@@ -428,9 +428,6 @@ class ShutIt(object):
 
 	# Sets up a base prompt
 	def setup_prompt(self,prompt_name,prefix='SHUTIT_TMP',child=None):
-		# TODO: does there need to be some compat in here? The first two
-		# argument order has been switched, but this appears to be an internal
-		# method
 		child = child or self.get_default_child()
 		local_prompt = prefix + '#' + random_id() + '>'
 		shutit.cfg['expect_prompts'][prompt_name] = '\r\n' + local_prompt

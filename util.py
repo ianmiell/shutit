@@ -676,10 +676,6 @@ def handle_revert_prompt(child,expect,prompt_name):
 def is_user_id_available(child,user_id,expect):
 	return shutit_global.shutit.is_user_id_available(user_id,expect=expect,child=child)
 
-# Deprecated
-def setup_prompt(child,cfg,prefix,prompt_name):
-	shutit_global.shutit.setup_prompt(prefix,prompt_name,child=child)
-
 # Build report
 def build_report(msg=''):
 	s = ''
