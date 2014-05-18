@@ -145,6 +145,10 @@ class setup(ShutItModule):
 		shutit.set_default_expect(config_dict['expect_prompts']['root_prompt'])
 		shutit.send_and_expect('export DEBIAN_FRONTEND=noninteractive',check_exit=False)
 		shutit.pause_point('Anything you want to do to the container before the build starts?')
+		res = shutit.get_output('ls')
+		print '-=--'
+		print res
+		print '-=--'
 		return True
 
 	def remove(self,shutit):
