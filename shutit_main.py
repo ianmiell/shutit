@@ -154,14 +154,6 @@ def build_conn_module(shutit):
 			shutit.shutit_main_dir + '/setup.py)', print_input=False)
 	list(shutit.conn_modules)[0].build(shutit)
 
-def build_setup_module(shutit):
-	# Get the container into a sane start state ready to build
-	setup_mid = module_ids(shutit)[0]
-	if shutit.cfg['build']['tutorial']:
-		shutit.pause_point('\nRunning the setup module (' +
-			shutit.shutit_main_dir + '/setup.py)', print_input=False)
-	shutit.shutit_map[setup_mid].build(shutit)
-
 # Once we have all the modules, then we can look at dependencies.
 # Dependency validation begins.
 def resolve_dependencies(shutit, to_build, depender):
@@ -293,7 +285,6 @@ def check_ready(shutit):
 			print_input=False)
 	for mid in module_ids(shutit):
 		m = shutit_map[mid]
-		if m.run_order == 0: continue
 		shutit.log('considering check_ready (is it ready to be built?): ' + mid,code='31')
 		if cfg[mid]['build'] and not m.is_installed(shutit):
 			shutit.log('checking whether module is ready to build: ' + mid,code='31')
@@ -310,7 +301,6 @@ def do_remove(shutit):
 		shutit.pause_point('\nNow removing any modules that need removing',print_input=False)
 	for mid in module_ids(shutit):
 		m = shutit_map[mid]
-		if m.run_order == 0: continue
 		shutit.log('considering whether to remove: ' + mid,code='31')
 		if cfg[mid]['remove']:
 			shutit.log('removing: ' + mid,code='31')
@@ -360,7 +350,6 @@ def do_build(shutit):
 		shutit.pause_point('\nNow building any modules that need building',print_input=False)
 	for mid in module_ids(shutit):
 		module = shutit_map[mid]
-		if module.run_order == 0: continue
 		shutit.log('considering whether to build: ' + module.module_id,code='31')
 		if cfg[module.module_id]['build']:
 			if module.is_installed(shutit):
@@ -476,7 +465,6 @@ def shutit_main():
 
 	# Dependency validation done.
 
-	build_setup_module(shutit)
 	do_remove(shutit)
 	do_build(shutit)
 	do_test(shutit)
