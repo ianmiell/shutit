@@ -147,11 +147,12 @@ def config_collection(shutit):
 			util.fail(mid + ' failed on get_config')
 
 def build_conn_module(shutit):
+	assert len(shutit.conn_modules) == 1
 	# Set up the container in pexpect.
 	if shutit.cfg['build']['tutorial']:
 		shutit.pause_point('\nRunning the conn module (' +
 			shutit.shutit_main_dir + '/setup.py)', print_input=False)
-	shutit.conn_module.build(shutit)
+	list(shutit.conn_modules)[0].build(shutit)
 
 def build_setup_module(shutit):
 	# Get the container into a sane start state ready to build
@@ -439,7 +440,6 @@ def shutit_main():
 	if cfg['action']['show_config']:
 		shutit.log(util.print_config(cfg),force_stdout=True)
 		return
-	shutit.conn_module = setup.conn_module()
 	util.load_from_py_module(shutit, setup)
 	util.load_shutit_modules(shutit)
 	init_shutit_map(shutit)

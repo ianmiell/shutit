@@ -51,7 +51,7 @@ class ShutIt(object):
 		self.shutit_command_history = kwargs['shutit_command_history']
 		self.shutit_map = kwargs['shutit_map']
 		# These are new members we dont have to provide compaitibility for
-		self.conn_module = None
+		self.conn_modules = set()
 
 	# These two get called automatically by the metaclass decorator in
 	# shutit_module when a module method is called.
