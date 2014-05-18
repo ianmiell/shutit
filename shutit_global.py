@@ -466,7 +466,6 @@ class ShutIt(object):
 				cfg['container']['distro']       = key
 				cfg['container']['install_type'] = install_type_map[key]
 				break
-		self.set_password(cfg['container']['password'])
 		if cfg['container']['install_type'] == '' or cfg['container']['distro'] == '':
 			util.fail('Could not determine Linux distro information. Please inform maintainers.')
 
