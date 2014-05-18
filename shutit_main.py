@@ -402,23 +402,6 @@ def do_finalize(shutit):
 			if not shutit_map[mid].finalize(shutit):
 				util.fail(mid + ' failed on finalize',child=shutit.pexpect_children['container_child'])
 
-def tag_and_push(shutit):
-	cfg = shutit.cfg
-	if cfg['build']['tutorial']:
-		shutit.pause_point('\nDoing final committing/tagging on the overall container and creating the artifact.',
-			child=shutit.pexpect_children['host_child'],print_input=False)
-	# Tag and push etc
-	util.do_repository_work(
-		cfg,
-		cfg['expect_prompts']['base_prompt'],
-		cfg['repository']['name'],
-		docker_executable=cfg['host']['docker_executable'],
-		password=cfg['host']['password'])
-	# Final exits
-	host_child = shutit.pexpect_children['host_child']
-	host_child.sendline('exit') # Exit raw bash
-	time.sleep(0.3)
-
 def shutit_main():
 	if sys.version_info.major == 2:
 		if sys.version_info.minor < 7:
@@ -480,8 +463,6 @@ def shutit_main():
 	do_finalize(shutit)
 
 	finalize_container(shutit)
-
-	tag_and_push(shutit)
 
 	shutit.log(util.build_report('Module: N/A (END)'),prefix=False,force_stdout=True,code='31')
 
