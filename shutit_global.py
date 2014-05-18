@@ -426,6 +426,18 @@ class ShutIt(object):
 	def handle_login(self,prompt_name,child=None):
 		self.setup_prompt(prompt_name, child=child)
 
+	# Sets up a base prompt
+	def setup_prompt(self,prompt_name,prefix='SHUTIT_TMP',child=None):
+		# TODO: does there need to be some compat in here?
+		child = child or self.get_default_child()
+		local_prompt = prefix + '#' + random_id() + '>'
+		shutit.cfg['expect_prompts'][prompt_name] = '\r\n' + local_prompt
+		self.send_and_expect(
+			("SHUTIT_BACKUP_PS1_%s=$PS1 && PS1='%s' && unset PROMPT_COMMAND") %
+				(prompt_name, local_prompt),
+			expect=self.cfg['expect_prompts'][prompt_name],
+			record_command=False,fail_on_empty_before=False)
+
 	def handle_revert_prompt(self,expect,prompt_name,child=None):
 		self.revert_prompt(expect,prompt_name,child)
 
@@ -486,18 +498,6 @@ class ShutIt(object):
 			return False
 		else:
 			return True
-
-	# Sets up a base prompt
-	def setup_prompt(self,prompt_name,prefix='SHUTIT_TMP',child=None):
-		# TODO: does there need to be some compat in here?
-		child = child or self.get_default_child()
-		local_prompt = prefix + '#' + random_id() + '>'
-		shutit.cfg['expect_prompts'][prompt_name] = '\r\n' + local_prompt
-		self.send_and_expect(
-			("SHUTIT_BACKUP_PS1_%s=$PS1 && PS1='%s' && unset PROMPT_COMMAND") %
-				(prompt_name, local_prompt),
-			expect=self.cfg['expect_prompts'][prompt_name],
-			record_command=False,fail_on_empty_before=False)
 
 	# expect must be a string
 	def push_repository(self,repository,docker_executable,child=None,expect=None):
