@@ -169,10 +169,9 @@ BUILDREPEND"""
 		container_child.sendline('exit') # Exit container
 		return True
 
-if not util.module_exists('shutit.tk.conn_docker'):
-	obj = conn_docker('shutit.tk.conn_docker',-0.1,'Connect ShutIt to docker')
-	util.get_shutit_modules().add(obj)
+def conn_module():
 	ShutItModule.register(conn_docker)
+	return conn_docker('shutit.tk.conn_docker',-0.1,'Connect ShutIt to docker')
 
 class setup(ShutItModule):
 
