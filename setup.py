@@ -117,7 +117,15 @@ class conn_docker(ShutItModule):
 		time.sleep(1) # cidfile creation is sometimes slow...
 		cid = open(config_dict['build']['cidfile']).read()
 		if cid == '' or re.match('^[a-z0-9]+$', cid) == None:
-			util.fail('Could not get container_id - quitting. Check whether other containers are running\nwhich clash eg on port allocation or name, preventing startup.\nYou might want to try running: sudo docker kill ' + config_dict['container']['name'] + '; sudo docker rm ' + config_dict['container']['name'])
+			util.fail('Could not get container_id - quitting. Check whether ' +
+				'other containers may be clashing on port allocation or name.' +
+				'\nYou might want to try running: sudo docker kill ' +
+				config_dict['container']['name'] + '; sudo docker rm ' +
+				config_dict['container']['name'] + '\nto resolve a name clash or: ' +
+				config_dict['host']['docker_executable'] + ' ps -a | grep ' +
+				config_dict['container']['ports'] + ' | awk \'{print $1}\' | ' +
+				'xargs ' + config_dict['host']['docker_executable'] + ' kill\nto + '
+				'resolve a port clash\n')
 		config_dict['container']['container_id'] = cid
 		# Now let's have a host_child
 		host_child = pexpect.spawn('/bin/bash')
