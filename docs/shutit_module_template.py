@@ -126,9 +126,10 @@ class template(ShutItModule):
 	# OPTIONAL part of lifecycle - uncomment to include
 	def get_config(self,shutit):
 		cp = shutit.cfg['config_parser']
+		mod_id = GLOBALLY_UNIQUE_STRING
 		# Bring the example config into the config dictionary.
-		shutit.cfg[GLOBALLY_UNIQUE_STRING]['example']      = cp.get(GLOBALLY_UNIQUE_STRING,'example')
-		shutit.cfg[GLOBALLY_UNIQUE_STRING]['example_bool'] = cp.getboolean(GLOBALLY_UNIQUE_STRING,'example_bool')
+		shutit.cfg[mod_id]['example']      = cp.get(mod_id,'example')
+		shutit.cfg[mod_id]['example_bool'] = cp.getboolean(mod_id,'example_bool')
 		return True
 
 	# check_ready
