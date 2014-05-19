@@ -3,15 +3,20 @@
 <script src="/static/react-0.10.0.min.js"></script>
 <script src="/static/JSXTransformer-0.10.0.js"></script>
 <style>
+body { margin: 0; padding: 0 }
+pre { margin: 5px; padding: 0; }
 #progressBox {
-	right: 0; top: 0; position: fixed;
+	width: 50%; right: 0; top: 0; height: 100%; position: fixed;
 }
 #cmdBox, #logBox {
-	width: 400px; height: 500px; float: left;
-	overflow-y: scroll; border-width: 1px; border-style: solid;
+	position: relative; width: 50%; height: 100%; float: left; overflow-y: scroll;
+	padding 2px; box-shadow: 0 0 0 2px black inset;
 }
-#statusBar { padding: 10px; margin-bottom: 10px; height: 50px; width: 200px; }
-pre { margin: 0; padding: 0; }
+#statusBar {
+	margin-bottom: 10px; height: 50px; width: 50%;
+	text-align: center; line-height: 50px; font-weight: bold; font-size: 2em;
+	box-shadow: 0 0 0 2px black inset;
+}
 </style>
 </head>
 <body>
@@ -41,15 +46,13 @@ function jsonpost(url, data, cb) {
 
 var StatusIndicator = React.createClass({
 	render: function () {
-		var color = 'transparent', text = '';
+		var color, text;
 		if (this.props.buildErr) { color = "red"; text = "error"; }
 		else if (this.props.buildDone) { color = "green"; text = "done"; }
 		else if (this.props.buildStarted) { color = "purple"; text = "building"; }
 		else if (this.props.loading) { color = "yellow"; text = "loading"; }
-		var style = {
-			visibility: color === 'transparent' ? 'hidden' : '',
-			backgroundColor: color
-		}
+		else { color = 'transparent'; text = '...idle...'; }
+		var style = { backgroundColor: color }
 		return <div id="statusBar" style={style}>{text.toUpperCase()}</div>;
 	}
 });
@@ -144,12 +147,9 @@ var BuildProgress = React.createClass({
 		});
 	},
 	render: function () {
-		var cmdElts = this.state.cmds.map(function (line, i) {
-			return <pre key={i}>{line}</pre>;
-		});
 		return (
 			<div id="progressBox">
-				<div id="cmdBox">{cmdElts}</div>
+				<div id="cmdBox"><pre>{this.state.cmds.join('\n')}</pre></div>
 				<div id="logBox"><pre>{this.state.logs}</pre></div>
 			</div>
 		);
