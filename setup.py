@@ -27,6 +27,7 @@ import sys
 import util
 import time
 import re
+import json
 
 # Nomenclature:
 #
@@ -194,17 +195,22 @@ class setup(ShutItModule):
 		return False
 
 	def build(self,shutit):
+		mod_id = 'shutit.tk.setup'
+		packages = shutit.cfg[mod_id]['packages']
+		do_update = shutit.cfg[mod_id]['do_update']
 		if shutit.cfg['container']['install_type'] == 'apt':
 			shutit.send_and_expect('export DEBIAN_FRONTEND=noninteractive')
-			shutit.send_and_expect('apt-get update',timeout=9999,check_exit=False)
+			if do_update:
+				shutit.send_and_expect('apt-get update',timeout=9999,check_exit=False)
 			shutit.send_and_expect('dpkg-divert --local --rename --add /sbin/initctl')
 			shutit.send_and_expect('ln -f -s /bin/true /sbin/initctl')
-			shutit.install('passwd')
-			shutit.install('sudo')
+			for p in packages:
+				shutit.install(p)
 		elif shutit.cfg['container']['install_type'] == 'yum':
-			shutit.install('passwd')
-			shutit.install('sudo')
-			shutit.send_and_expect('yum update -y',timeout=9999)
+			for p in packages:
+				shutit.install(p)
+			if do_update:
+				shutit.send_and_expect('yum update -y',timeout=9999)
 		shutit.set_password(shutit.cfg['container']['password'])
 		shutit.pause_point('Anything you want to do to the container before the build starts?')
 		return True
@@ -213,6 +219,13 @@ class setup(ShutItModule):
 		cfg = shutit.cfg
 		if cfg['container']['install_type'] == 'yum':
 			shutit.remove('passwd')
+		return True
+
+	def get_config(self, shutit):
+		cp = shutit.cfg['config_parser']
+		mod_id = 'shutit.tk.setup'
+		shutit.cfg[mod_id]['packages']  = json.loads(cp.get(mod_id,'packages'))
+		shutit.cfg[mod_id]['do_update'] = cp.getboolean(mod_id,'do_update')
 		return True
 
 def module():
