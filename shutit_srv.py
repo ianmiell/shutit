@@ -40,7 +40,8 @@ STATUS = {
 	'build_done': False,
 	'build_started': False,
 	'modules': [],
-	'errs': []
+	'errs': [],
+	'cid': None
 }
 
 def build_shutit():
@@ -110,10 +111,12 @@ def static_srv(path):
 def start():
 	global shutit
 	global orig_mod_cfg
+	global STATUS
 
 	# Some hacks for server mode
 	shutit = shutit_global.shutit
 	shutit.cfg['build']['build_log'] = StringIO.StringIO()
+	STATUS['cid'] = shutit.cfg['container']['container_id']
 	for mid in shutit.shutit_map:
 		orig_mod_cfg[mid] = shutit.cfg[mid]
 	update_modules([])
