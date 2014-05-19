@@ -34,15 +34,9 @@ import shutit_global
 from shutit_module import ShutItException
 import util
 
-orig_mod_cfg = {}
+orig_mod_cfg = None
 shutit = None
-STATUS = {
-	'build_done': False,
-	'build_started': False,
-	'modules': [],
-	'errs': [],
-	'cid': None
-}
+STATUS = None
 
 def build_shutit():
 	global STATUS
@@ -108,13 +102,29 @@ def index():
 def static_srv(path):
 	return static_file(path + '.js', root='./web')
 
-def start():
-	global shutit
+def shutit_reset():
 	global orig_mod_cfg
+	global shutit
 	global STATUS
 
-	shutit = shutit_global.shutit
+	orig_mod_cfg = {}
+	shutit = None
+	STATUS = {
+		'build_done': False,
+		'build_started': False,
+		'modules': [],
+		'errs': [],
+		'cid': None
+	}
 
+	# Start with a fresh shutit object
+	shutit = shutit_global.shutit = shutit_global.init()
+
+	# This has already happened but we have to do it again on top of our new
+	# shutit object
+	util.parse_args(shutit.cfg)
+
+	# The rest of the loading from shutit_main
 	util.load_configs(shutit)
 	shutit_main.shutit_module_init(shutit)
 	shutit_main.conn_container(shutit)
@@ -125,6 +135,9 @@ def start():
 	for mid in shutit.shutit_map:
 		orig_mod_cfg[mid] = shutit.cfg[mid]
 	update_modules([])
+
+def start():
+	shutit_reset()
 
 	# Start the server
 	host = os.environ.get('SHUTIT_HOST', 'localhost')
