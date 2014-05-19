@@ -1,21 +1,25 @@
 <html>
 <head>
-<script src="/static/react-0.10.0.min.js"></script>
+<script src="/static/react-0.10.0.js"></script>
 <script src="/static/JSXTransformer-0.10.0.js"></script>
 <style>
+* { box-sizing: border-box; }
 body { margin: 0; padding: 0 }
-pre { margin: 5px; padding: 0; }
+pre { margin: 0px; padding: 0; }
 #progressBox {
 	width: 50%; right: 0; top: 0; height: 100%; position: fixed;
 }
-#cmdBox, #logBox {
-	position: relative; width: 50%; height: 100%; float: left; overflow-y: scroll;
-	padding 2px; box-shadow: 0 0 0 2px black inset;
+#cmdBox, #logBox, #buildArea, #infoDisplay {
+	position: relative; width: 50%; height: 100%; float: left; overflow-y: auto;
+	box-shadow: 0 0 0 2px black inset; padding: 4px;
 }
 #statusBar {
-	margin-bottom: 10px; height: 50px; width: 50%;
+	height: 50px; width: 50%;
 	text-align: center; line-height: 50px; font-weight: bold; font-size: 2em;
 	box-shadow: 0 0 0 2px black inset;
+}
+#inputArea {
+	position: absolute; width: 50%; top: 50px; bottom: 0;
 }
 </style>
 </head>
@@ -91,7 +95,7 @@ var ModuleList = React.createClass({
 				key={module.module_id}
 				onChange={this.handleChange} />;
 		}).bind(this));
-		return <div>Modules: <ul>{moduleItems}</ul></div>;
+		return <div id="moduleList">Modules: <ul>{moduleItems}</ul></div>;
 	}
 });
 var ErrList = React.createClass({
@@ -100,6 +104,13 @@ var ErrList = React.createClass({
 			return <li key={i}>{err}</li>;
 		});
 		return <div>Errors: <ul>{errs}</ul></div>;
+	}
+});
+var InfoDisplay = React.createClass({
+	render: function () {
+		return (
+			<div id="infoDisplay">{this.props.cid}</div>
+		);
 	}
 });
 var BuildProgress = React.createClass({
@@ -215,13 +226,20 @@ var ShutItUI = React.createClass({
 					buildDone={this.state.shutit.build_done}
 					buildErr={this.state.shutit.build_done &&
 						this.state.shutit.errs.length} />
-				<ModuleList
-					onChange={this.handleChange}
-					noInput={noInput}
-					modules={this.state.shutit.modules} />
-				<ErrList errs={this.state.shutit.errs} />
-				<button disabled={noInput || this.state.shutit.errs.length}
-					onClick={this.beginBuild}>Begin build</button>
+				<div id="inputArea">
+					<div id="buildArea">
+						<ModuleList
+							onChange={this.handleChange}
+							noInput={noInput}
+							modules={this.state.shutit.modules} />
+						<ErrList errs={this.state.shutit.errs} />
+						<button disabled={noInput || this.state.shutit.errs.length}
+							onClick={this.beginBuild}>Begin build</button>
+					</div>
+					<InfoDisplay
+						cid={this.state.shutit.cid}
+						/>
+				</div>
 				<BuildProgress
 					buildStarted={this.state.shutit.build_started}
 					buildDone={this.state.shutit.build_done}/>
