@@ -23,8 +23,8 @@ class prompt_command(ShutItModule):
 PROMPT_COMMAND='echo -ne "a"'
 END""")
 		shutit.send_and_expect('su',expect=config_dict['expect_prompts']['base_prompt'],check_exit=False)
-		shutit.handle_login('test_tmp_prompt')
-		shutit.handle_revert_prompt(config_dict['expect_prompts']['base_prompt'],'test_tmp_prompt')
+		shutit.setup_prompt('test_tmp_prompt')
+		shutit.send_and_expect('echo abc',expect=config_dict['expect_prompts']['test_tmp_prompt'])
 		shutit.send_and_expect('exit',root_prompt_expect)
 		return True
 

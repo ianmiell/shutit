@@ -28,7 +28,7 @@ import setup
 import time
 import sys
 
-# Gets a list of module ids by run_order
+# Gets a list of module ids by run_order, ignoring conn modules (run order < 0)
 def module_ids(shutit, rev=False):
 	shutit_map = shutit.shutit_map
 	ids = sorted(shutit_map.keys(), key=lambda mid: shutit_map[mid].run_order)
@@ -92,8 +92,8 @@ def init_shutit_map(shutit):
 
 	modules = shutit.shutit_modules
 
-	# Have we got anything to process?
-	if len(modules) < 2 :
+	# Have we got anything to process outside of special modules?
+	if len([mod for mod in modules if mod.run_order > 0]) < 1:
 		shutit.log(modules)
 		util.fail('No ShutIt modules in path:\n\n' +
 			':'.join(cfg['host']['shutit_module_paths']) +
@@ -118,9 +118,6 @@ def init_shutit_map(shutit):
 		if m.run_order in run_orders:
 			util.fail('Duplicate run order: ' + str(m.run_order) + ' for ' +
 				m.module_id + ' and ' + run_orders[m.run_order].module_id)
-		if m.run_order < 0:
-			util.fail('Invalid run order ' + str(m.run_order) + ' for ' +
-				m.module_id)
 		if m.run_order == 0:
 			has_core_module = True
 		shutit_map[m.module_id] = run_orders[m.run_order] = m
@@ -149,23 +146,28 @@ def config_collection(shutit):
 		if not shutit_map[mid].get_config(shutit):
 			util.fail(mid + ' failed on get_config')
 
-def build_core_module(shutit):
-	cfg = shutit.cfg
-	shutit_map = shutit.shutit_map
-	# Let's go. Run 0 every time, this should set up the container in pexpect.
-	core_mid = module_ids(shutit)[0]
-	if cfg['build']['tutorial']:
-		shutit.pause_point('\nRunning build on the core module (' +
+def conn_container(shutit):
+	assert len(shutit.conn_modules) == 1
+	# Set up the container in pexpect.
+	if shutit.cfg['build']['tutorial']:
+		shutit.pause_point('\nRunning the conn module (' +
 			shutit.shutit_main_dir + '/setup.py)', print_input=False)
-	shutit_map[core_mid].build(shutit)
+	list(shutit.conn_modules)[0].build(shutit)
+
+def finalize_container(shutit):
+	assert len(shutit.conn_modules) == 1
+	# Set up the container in pexpect.
+	if shutit.cfg['build']['tutorial']:
+		shutit.pause_point('\nFinalizing the conntainer module (' +
+			shutit.shutit_main_dir + '/setup.py)', print_input=False)
+	list(shutit.conn_modules)[0].finalize(shutit)
 
 # Once we have all the modules, then we can look at dependencies.
 # Dependency validation begins.
 def resolve_dependencies(shutit, to_build, depender):
 	cfg = shutit.cfg
-	shutit_map = shutit.shutit_map
 	for dependee_id in depender.depends_on:
-		dependee = shutit_map.get(dependee_id)
+		dependee = shutit.shutit_map.get(dependee_id)
 		# Don't care if module doesn't exist, we check this later
 		if (dependee and dependee not in to_build
 				and cfg[dependee_id]['build_ifneeded']):
@@ -291,7 +293,6 @@ def check_ready(shutit):
 			print_input=False)
 	for mid in module_ids(shutit):
 		m = shutit_map[mid]
-		if m.run_order == 0: continue
 		shutit.log('considering check_ready (is it ready to be built?): ' + mid,code='31')
 		if cfg[mid]['build'] and not m.is_installed(shutit):
 			shutit.log('checking whether module is ready to build: ' + mid,code='31')
@@ -308,7 +309,6 @@ def do_remove(shutit):
 		shutit.pause_point('\nNow removing any modules that need removing',print_input=False)
 	for mid in module_ids(shutit):
 		m = shutit_map[mid]
-		if m.run_order == 0: continue
 		shutit.log('considering whether to remove: ' + mid,code='31')
 		if cfg[mid]['remove']:
 			shutit.log('removing: ' + mid,code='31')
@@ -358,7 +358,6 @@ def do_build(shutit):
 		shutit.pause_point('\nNow building any modules that need building',print_input=False)
 	for mid in module_ids(shutit):
 		module = shutit_map[mid]
-		if module.run_order == 0: continue
 		shutit.log('considering whether to build: ' + module.module_id,code='31')
 		if cfg[module.module_id]['build']:
 			if module.is_installed(shutit):
@@ -403,23 +402,6 @@ def do_finalize(shutit):
 			if not shutit_map[mid].finalize(shutit):
 				util.fail(mid + ' failed on finalize',child=shutit.pexpect_children['container_child'])
 
-def tag_and_push(shutit):
-	cfg = shutit.cfg
-	if cfg['build']['tutorial']:
-		shutit.pause_point('\nDoing final committing/tagging on the overall container and creating the artifact.',
-			child=shutit.pexpect_children['host_child'],print_input=False)
-	# Tag and push etc
-	util.do_repository_work(
-		cfg,
-		cfg['expect_prompts']['base_prompt'],
-		cfg['repository']['name'],
-		docker_executable=cfg['host']['docker_executable'],
-		password=cfg['host']['password'])
-	# Final exits
-	host_child = shutit.pexpect_children['host_child']
-	host_child.sendline('exit') # Exit raw bash
-	time.sleep(0.3)
-
 def shutit_main():
 	if sys.version_info.major == 2:
 		if sys.version_info.minor < 7:
@@ -438,10 +420,12 @@ def shutit_main():
 	if cfg['action']['show_config']:
 		shutit.log(util.print_config(cfg),force_stdout=True)
 		return
+	util.load_from_py_module(shutit, setup)
 	util.load_shutit_modules(shutit)
 	init_shutit_map(shutit)
 	config_collection(shutit)
-	build_core_module(shutit)
+
+	conn_container(shutit)
 
 	if cfg['action']['serve']:
 		import shutit_srv
@@ -478,7 +462,7 @@ def shutit_main():
 	do_test(shutit)
 	do_finalize(shutit)
 
-	tag_and_push(shutit)
+	finalize_container(shutit)
 
 	shutit.log(util.build_report('Module: N/A (END)'),prefix=False,force_stdout=True,code='31')
 

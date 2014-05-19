@@ -31,6 +31,7 @@ import time
 import re
 import imp
 import shutit_global
+from shutit_module import ShutItModule
 import pexpect
 import socket
 import textwrap
@@ -39,7 +40,6 @@ import json
 import binascii
 import subprocess
 import getpass
-from shutit_module import ShutItFailException
 
 # TODO: Manage exits of containers on error
 def fail(msg,child=None):
@@ -58,13 +58,6 @@ def is_file_secure(file_name):
 		return False
 	return True
 
-# Deprecated
-def log(msg,code=None,pause=0,cfg=None,prefix=True,force_stdout=False):
-	if cfg not in [None, shutit_global.shutit.cfg]:
-		print "Report this error and stack trace to repo owner, #d101"
-		assert False
-	return shutit_global.shutit.log(msg, code=code, pause=pause, prefix=prefix, force_stdout=force_stdout)
-
 def colour(code, msg):   return '\033[%sm%s\033[0m' % (code, msg)
 def grey(msg):           return colour('30', msg)
 def red(msg):            return colour('31', msg)
@@ -74,16 +67,6 @@ def blue(msg):           return colour('34', msg)
 def white(msg):          return colour('37', msg)
 def reverse_green(msg):  return colour('7;32', msg)
 def reverse_yellow(msg): return colour('7;33', msg)
-
-# Deprecated
-def send_and_expect(child,send,expect,timeout=3600,check_exit=True,cfg=None,fail_on_empty_before=True,record_command=True,exit_values=['0']):
-	if cfg not in [None, shutit_global.shutit.cfg]:
-		print "Report this error and stack trace to repo owner, #d106"
-		assert False
-	return shutit_global.shutit.send_and_expect(send,expect,
-		child=child, timeout=timeout, check_exit=check_exit,
-		fail_on_empty_before=fail_on_empty_before,
-		record_command=record_command,exit_values=exit_values)
 
 def get_config(cfg,module_id,option,default,boolean=False):
 	if module_id not in cfg.keys():
@@ -158,7 +141,6 @@ def get_base_config(cfg, cfg_parser):
 	# child object. Use these where possible to make things more consistent.
 	# Attempt to capture any starting prompt (when starting)
 	cfg['expect_prompts']['base_prompt']             = '\r\n.*[@#$]'
-	cfg['expect_prompts']['real_user_prompt']        = '\r\n.*?' + cfg['host']['real_user'] + '@.*:'
 	# END Standard expects
 
 	# BEGIN tidy configs up
@@ -520,51 +502,6 @@ def print_config(cfg):
 	s = s + '\n'
 	return s
 
-# Deprecated
-def pause_point(child,msg,print_input=True,expect='',cfg=None):
-	if cfg not in [None, shutit_global.shutit.cfg]:
-		print "Report this error and stack trace to repo owner, #d102"
-		assert False
-	shutit_global.shutit.pause_point(msg, child=child, print_input=print_input,
-		expect=expect)
-
-# Deprecated
-def do_repository_work(cfg,expect,repo_name,docker_executable='docker',password=None):
-	if cfg not in [None, shutit_global.shutit.cfg]:
-		print "Report this error and stack trace to repo owner, #d111"
-		assert False
-	shutit_global.shutit.do_repository_work(repo_name,expect=expect,docker_executable=docker_executable,password=password)
-
-# Deprecated
-def file_exists(child,filename,expect,directory=False):
-	return shutit_global.shutit.file_exists(filename, expect, child=child,
-		directory=directory)
-
-# Deprecated
-def get_file_perms(child,filename,expect):
-	return shutit_global.shutit.get_file_perms(filename,expect,child=child)
-
-# Deprecated
-def add_line_to_file(child,line,filename,expect,match_regexp=None,truncate=False,force=False,literal=False):
-	return shutit_global.shutit.add_line_to_file(line, filename, expect,
-		child=child, match_regexp=match_regexp, truncate=truncate, force=force,
-		literal=literal)
-
-# Deprecated
-def get_re_from_child(string,regexp,cfg=None):
-	return shutit_global.shutit.get_re_from_child(string, regexp)
-
-# Deprecated
-def push_repository(child,repository,cfg,docker_executable,expect):
-	if cfg not in [None,shutit_global.shutit.cfg]:
-		print "Report this error and stack trace to repo owner, #d109"
-		assert False
-	return shutit_global.shutit.push_repository(repository,docker_executable,child=child,expect=expect)
-
-# Deprecated
-def add_to_bashrc(child,line,expect):
-	return shutit_global.shutit.add_line_to_file(line,'/etc/profile',expect=expect) and shutit_global.shutit.add_line_to_file(line,'/etc/bash.bashrc',expect=expect)
-
 # Set a pexpect child in the global dictionary by key.
 def set_pexpect_child(key,child):
 	shutit_global.pexpect_children.update({key:child})
@@ -578,77 +515,42 @@ def get_pexpect_child(key):
 def load_all_from_path(shutit, path):
 	if os.path.abspath(path) == shutit.shutit_main_dir:
 		return
-	if os.path.exists(path):
-		for root, subFolders, files in os.walk(path):
-			for f in files:
-				mod_name,file_ext = os.path.splitext(os.path.split(f)[-1])
-				if file_ext.lower() == '.py':
-					if shutit.cfg['build']['debug']:
-						log('Loading source for: ' + mod_name,os.path.join(root,f))
-					imp.load_source(mod_name,os.path.join(root,f))
+	if not os.path.exists(path):
+		return
+	for root, subFolders, files in os.walk(path):
+		for fname in files:
+			load_from_file(shutit, os.path.join(root, fname))
 
-def module_exists(module_id):
-	for m in get_shutit_modules():
-		if m.module_id == module_id:
-			return True
-	return False
+def load_from_file(shutit, fpath):
+	mod_name,file_ext = os.path.splitext(os.path.split(fpath)[-1])
+	if file_ext.lower() != '.py':
+		return
+	if shutit.cfg['build']['debug']:
+		log('Loading source for: ' + mod_name, fpath)
+	pymod = imp.load_source(mod_name, fpath)
+	load_from_py_module(shutit, pymod)
 
-def get_shutit_modules():
-	return shutit_global.shutit_modules
-
-
-# Deprecated
-def install(child,cfg,package,expect,options=None,timeout=3600):
-	if cfg not in [None,shutit_global.shutit.cfg]:
-		print "Report this error and stack trace to repo owner, #d103"
-		assert False
-	return shutit_global.shutit.install(package,
-		child=child,expect=expect,options=options,timeout=timeout)
-
-# Deprecated
-def remove(child,cfg,package,expect,options=None):
-	if cfg not in [None,shutit_global.shutit.cfg]:
-		print "Report this error and stack trace to repo owner, #d104"
-		assert False
-	return shutit_global.shutit.remove(package,
-		child=child,expect=expect,options=options)
-
-# Deprecated
-def package_installed(child,cfg,package,expect):
-	if cfg not in [None,shutit_global.shutit.cfg]:
-		print "Report this error and stack trace to repo owner, #d105"
-		assert False
-	return shutit_global.shutit.package_installed(package,expect,child)
-
-# Deprecated
-def get_distro_info(child,outer_expect,cfg):
-	if cfg not in [None,shutit_global.shutit.cfg]:
-		print "Report this error and stack trace to repo owner, #d110"
-		assert False
-	return shutit_global.shutit.get_distro_info(child=child,outer_expect=outer_expect)
-
-# Deprecated
-def set_password(child,cfg,expect,password):
-	if cfg not in [None,shutit_global.shutit.cfg]:
-		print "Report this error and stack trace to repo owner, #d107"
-		assert False
-	return shutit_global.shutit.set_password(password,child=child,expect=expect)
-
-# Deprecated
-def handle_login(child,cfg,prompt_name):
-	shutit_global.shutit.handle_login(prompt_name,child=child)
-
-# Deprecated
-def handle_revert_prompt(child,expect,prompt_name):
-	shutit_global.shutit.handle_revert_prompt(expect,prompt_name,child=child)
-
-# Deprecated
-def is_user_id_available(child,user_id,expect):
-	return shutit_global.shutit.is_user_id_available(user_id,expect=expect,child=child)
-
-# Deprecated
-def setup_prompt(child,cfg,prefix,prompt_name):
-	shutit_global.shutit.setup_prompt(prefix,prompt_name,child=child)
+def load_from_py_module(shutit, pymod):
+	# New style is to have a callable 'module/0' which returns one or
+	# more module objects.
+	# If this doesn't exist we assume that it's doing the old style
+	# (automatically inserting the module) or it's not a shutit module.
+	# In either case, there's nothing left to do
+	targets = [
+		('module', shutit.shutit_modules), ('conn_module', shutit.conn_modules)
+	]
+	for attr, target in targets:
+		if not hasattr(pymod, attr):
+			return
+		modulefunc = getattr(pymod, attr)
+		if not callable(modulefunc):
+			return
+		modules = modulefunc()
+		if type(modules) is not list:
+			modules = [modules]
+		for module in modules:
+			ShutItModule.register(module.__class__)
+			target.add(module)
 
 # Build report
 def build_report(msg=''):
@@ -943,3 +845,119 @@ def create_skeleton(shutit):
 	An image called ''' + skel_module_name + ''' will be created and can be run
 	with the run.sh command.
 	================================================================================''')
+
+# Deprecated
+def log(msg,code=None,pause=0,cfg=None,prefix=True,force_stdout=False):
+	if cfg not in [None, shutit_global.shutit.cfg]:
+		print "Report this error and stack trace to repo owner, #d101"
+		assert False
+	return shutit_global.shutit.log(msg, code=code, pause=pause, prefix=prefix, force_stdout=force_stdout)
+
+# Deprecated
+def send_and_expect(child,send,expect,timeout=3600,check_exit=True,cfg=None,fail_on_empty_before=True,record_command=True,exit_values=['0']):
+	if cfg not in [None, shutit_global.shutit.cfg]:
+		print "Report this error and stack trace to repo owner, #d106"
+		assert False
+	return shutit_global.shutit.send_and_expect(send,expect,
+		child=child, timeout=timeout, check_exit=check_exit,
+		fail_on_empty_before=fail_on_empty_before,
+		record_command=record_command,exit_values=exit_values)
+
+# Deprecated
+def pause_point(child,msg,print_input=True,expect='',cfg=None):
+	if cfg not in [None, shutit_global.shutit.cfg]:
+		print "Report this error and stack trace to repo owner, #d102"
+		assert False
+	shutit_global.shutit.pause_point(msg, child=child, print_input=print_input,
+		expect=expect)
+
+# Deprecated
+def do_repository_work(cfg,expect,repo_name,docker_executable='docker',password=None):
+	if cfg not in [None, shutit_global.shutit.cfg]:
+		print "Report this error and stack trace to repo owner, #d111"
+		assert False
+	shutit_global.shutit.do_repository_work(repo_name,expect=expect,docker_executable=docker_executable,password=password)
+
+# Deprecated
+def file_exists(child,filename,expect,directory=False):
+	return shutit_global.shutit.file_exists(filename, expect, child=child,
+		directory=directory)
+
+# Deprecated
+def get_file_perms(child,filename,expect):
+	return shutit_global.shutit.get_file_perms(filename,expect,child=child)
+
+# Deprecated
+def add_line_to_file(child,line,filename,expect,match_regexp=None,truncate=False,force=False,literal=False):
+	return shutit_global.shutit.add_line_to_file(line, filename, expect,
+		child=child, match_regexp=match_regexp, truncate=truncate, force=force,
+		literal=literal)
+
+# Deprecated
+def get_re_from_child(string,regexp,cfg=None):
+	return shutit_global.shutit.get_re_from_child(string, regexp)
+
+# Deprecated
+def push_repository(child,repository,cfg,docker_executable,expect):
+	if cfg not in [None,shutit_global.shutit.cfg]:
+		print "Report this error and stack trace to repo owner, #d109"
+		assert False
+	return shutit_global.shutit.push_repository(repository,docker_executable,child=child,expect=expect)
+
+# Deprecated
+def add_to_bashrc(child,line,expect):
+	return shutit_global.shutit.add_line_to_file(line,'/etc/profile',expect=expect) and shutit_global.shutit.add_line_to_file(line,'/etc/bash.bashrc',expect=expect)
+
+# Deprecated
+def module_exists(module_id):
+	for m in get_shutit_modules():
+		if m.module_id == module_id:
+			return True
+	return False
+
+# Deprecated
+def get_shutit_modules():
+	return shutit_global.shutit_modules
+
+# Deprecated
+def install(child,cfg,package,expect,options=None,timeout=3600):
+	if cfg not in [None,shutit_global.shutit.cfg]:
+		print "Report this error and stack trace to repo owner, #d103"
+		assert False
+	return shutit_global.shutit.install(package,
+		child=child,expect=expect,options=options,timeout=timeout)
+
+# Deprecated
+def remove(child,cfg,package,expect,options=None):
+	if cfg not in [None,shutit_global.shutit.cfg]:
+		print "Report this error and stack trace to repo owner, #d104"
+		assert False
+	return shutit_global.shutit.remove(package,
+		child=child,expect=expect,options=options)
+
+# Deprecated
+def package_installed(child,cfg,package,expect):
+	if cfg not in [None,shutit_global.shutit.cfg]:
+		print "Report this error and stack trace to repo owner, #d105"
+		assert False
+	return shutit_global.shutit.package_installed(package,expect,child)
+
+# Deprecated
+def set_password(child,cfg,expect,password):
+	if cfg not in [None,shutit_global.shutit.cfg]:
+		print "Report this error and stack trace to repo owner, #d107"
+		assert False
+	return shutit_global.shutit.set_password(password,child=child,expect=expect)
+
+# Deprecated
+def handle_login(child,cfg,prompt_name):
+	shutit_global.shutit.handle_login(prompt_name,child=child)
+
+# Deprecated
+def handle_revert_prompt(child,expect,prompt_name):
+	shutit_global.shutit.handle_revert_prompt(expect,prompt_name,child=child)
+
+# Deprecated
+def is_user_id_available(child,user_id,expect):
+	return shutit_global.shutit.is_user_id_available(user_id,expect=expect,child=child)
+
