@@ -58,19 +58,8 @@ class win2048(ShutItModule):
 		shutit.install('firefox')
 		shutit.install('xdotool')
 		shutit.install('vim')
-		start_win2048 = """cat > /root/start_win2048.sh << 'END'
-# Start
-/root/start_vnc.sh
-export DISPLAY=:1
-xdotool exec firefox
-WID=$(xdotool search --sync --onlyvisible --class firefox)
-xdotool sleep 1
-xdotool windowraise $WID
-xdotool key F6
-xdotool type http://gabrielecirulli.github.io/2048/
-xdotool key KP_Enter
-END"""
-		shutit.send_and_expect(start_win2048)
+		shutit.send_file('/root/start_win2048.sh',file.read(file('resources/start_win2048.sh')))
+		shutit.send_file('/root/tryagain.pat',file.read(file('resources/tryagain.pat')))
 		shutit.send_and_expect('chmod +x /root/start_win2048.sh')
 		return True
 
