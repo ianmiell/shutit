@@ -37,10 +37,6 @@ def random_id(size=5, chars=string.ascii_letters + string.digits):
 
 class ShutIt(object):
 
-	_default_child      = [None]
-	_default_expect     = [None]
-	_default_check_exit = [None]
-
 	def __init__(self, **kwargs):
 		# These used to be in shutit_global, so we pass them in as args so
 		# the original reference can be put in shutit_global
@@ -53,6 +49,11 @@ class ShutIt(object):
 		self.shutit_map = kwargs['shutit_map']
 		# These are new members we dont have to provide compaitibility for
 		self.conn_modules = set()
+
+		# Hidden attributes
+		self._default_child      = [None]
+		self._default_expect     = [None]
+		self._default_check_exit = [None]
 
 	# These two get called automatically by the metaclass decorator in
 	# shutit_module when a module method is called.
