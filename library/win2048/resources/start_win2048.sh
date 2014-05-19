@@ -19,3 +19,12 @@ xdotool type http://gabrielecirulli.github.io/2048/
 xdotool key KP_Enter
 xdotool sleep 10
 
+# Example for automating single attempt repeatedly
+#xdotool key KP_Right
+#xfce4-screenshooter 
+#visgrep /root/a.png /root/tryagain.pat
+#if [[ echo $? = 0 ]]
+#echo OK
+#else
+#echo FAIL
+#fi
