@@ -58,8 +58,10 @@ class win2048(ShutItModule):
 		shutit.install('firefox')
 		shutit.install('xautomation')
 		shutit.install('vim')
+		shutit.install('xfce4-screenshooter')
 		shutit.send_file('/root/start_win2048.sh',file.read(file('resources/start_win2048.sh')))
 		shutit.send_file('/root/tryagain.pat',file.read(file('resources/tryagain.pat')))
+		shutit.send_file('/root/tryagain.png',file.read(file('resources/tryagain.png')))
 		shutit.send_and_expect('chmod +x /root/start_win2048.sh')
 		return True
 
