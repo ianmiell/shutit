@@ -22,7 +22,7 @@ xdotool sleep 10
 # Example for automating single attempt repeatedly
 #xdotool key KP_Right
 #sleep 2
-#xdotool key KP_PgDn
+#xdotool key KP_PageDown
 #sleep 5
 #scrot a.png
 #visgrep /root/a.png /root/tryagain.pat
