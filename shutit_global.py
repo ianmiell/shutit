@@ -30,6 +30,7 @@ import string
 import re
 import textwrap
 import base64
+from shutit_module import ShutItFailException
 
 def random_id(size=5, chars=string.ascii_letters + string.digits):
 	return ''.join(random.choice(chars) for _ in range(size))
@@ -41,6 +42,8 @@ class ShutIt(object):
 	_default_check_exit = [None]
 
 	def __init__(self, **kwargs):
+		# These used to be in shutit_global, so we pass them in as args so
+		# the original reference can be put in shutit_global
 		self.pexpect_children = kwargs['pexpect_children']
 		self.shutit_modules = kwargs['shutit_modules']
 		self.shutit_main_dir = kwargs['shutit_main_dir']
@@ -48,6 +51,8 @@ class ShutIt(object):
 		self.cwd = kwargs['cwd']
 		self.shutit_command_history = kwargs['shutit_command_history']
 		self.shutit_map = kwargs['shutit_map']
+		# These are new members we dont have to provide compaitibility for
+		self.conn_modules = set()
 
 	# These two get called automatically by the metaclass decorator in
 	# shutit_module when a module method is called.
@@ -161,8 +166,8 @@ class ShutIt(object):
 			for prompt in cfg['expect_prompts']:
 				if prompt == expect:
 					# Reset prompt
-					self.handle_login('reset_tmp_prompt',child=child)
-					self.handle_revert_prompt(child,expect,'reset_tmp_prompt')
+					self.setup_prompt('reset_tmp_prompt',child=child)
+					self.revert_prompt('reset_tmp_prompt',expect,child=child)
 		if check_exit == True:
 			self._check_exit(send,expect,child,timeout,exit_values)
 		return expect_res
@@ -418,66 +423,51 @@ class ShutIt(object):
 		self.send_and_expect('%s %s %s' % (cmd,opts,package),expect,timeout=timeout)
 		return True
 
+	# Deprecated
 	def handle_login(self,prompt_name,child=None):
+		self.setup_prompt(prompt_name, child=child)
+
+	# Use this when you've opened a new shell to set the PS1 to something sane.
+	def setup_prompt(self,prompt_name,prefix='TMP',child=None):
 		child = child or self.get_default_child()
-		local_prompt = 'SHUTIT_TMP_' + prompt_name + '#' + random_id() + '>'
-		self.cfg['expect_prompts'][prompt_name] = '\r\n' + local_prompt
+		local_prompt = 'SHUTIT_' + prefix + '#' + random_id() + '>'
+		shutit.cfg['expect_prompts'][prompt_name] = '\r\n' + local_prompt
 		self.send_and_expect(
-			("SHUTIT_BACKUP_PS1_%s=$PS1 &&" +
-			"export SHUTIT_PROMPT_COMMAND_BACKUP_%s=$PROMPT_COMMAND && " +
-			"PS1='%s' && unset PROMPT_COMMAND") %
-				(prompt_name, prompt_name, local_prompt),
+			("SHUTIT_BACKUP_PS1_%s=$PS1 && PS1='%s' && unset PROMPT_COMMAND") %
+				(prompt_name, local_prompt),
 			expect=self.cfg['expect_prompts'][prompt_name],
 			record_command=False,fail_on_empty_before=False)
 
 	def handle_revert_prompt(self,expect,prompt_name,child=None):
+		self.revert_prompt(prompt_name,expect,child)
+
+	# It should be fairly rare to need this. Most of the time you would just
+	# exit a subshell rather than resetting the prompt.
+	def revert_prompt(self,old_prompt_name,new_expect=None,child=None):
 		child = child or self.get_default_child()
-		expect = expect or self.get_default_expect()
+		expect = new_expect or self.get_default_expect()
 		self.send_and_expect(
-			('PS1="${SHUTIT_BACKUP_PS1_%s}" && ' +
-			'unset SHUTIT_PROMPT_COMMAND_BACKUP_%s && ' +
-			'unset SHUTIT_BACKUP_PS1_%s') %
-				(prompt_name, prompt_name, prompt_name),
+			('PS1="${SHUTIT_BACKUP_PS1_%s}" && unset SHUTIT_BACKUP_PS1_%s') %
+				(old_prompt_name, old_prompt_name),
 			expect=expect,check_exit=False,record_command=False,fail_on_empty_before=False)
 
 	# Fails if distro could not be determined.
 	# Should be called with the container is started up.
-	def get_distro_info(self,child=None,outer_expect=None):
+	def get_distro_info(self,child=None):
 		child = child or self.get_default_child()
 		cfg = self.cfg
-		outer_expect = outer_expect or self.get_default_expect()
 		cfg['container']['install_type']      = ''
 		cfg['container']['distro']            = ''
 		cfg['container']['distro_version']    = ''
 		install_type_map = {'ubuntu':'apt','debian':'apt','red hat':'yum','centos':'yum','fedora':'yum'}
-		self.handle_login('tmp_prompt')
-		self.set_default_expect(cfg['expect_prompts']['tmp_prompt'])
-		if self.file_exists(cfg['build']['cidfile']):
-			util.fail('Did not start up container. If you got a "port in use" error, try:\n\n' + cfg['host']['docker_executable'] + ' ps -a | grep ' + cfg['container']['ports'] + ' | awk \'{print $1}\' | xargs ' + cfg['host']['docker_executable'] + ' kill\n\n')
 		for key in install_type_map.keys():
-			child.sendline('cat /etc/issue | grep -i "' + key + '" | wc -l')
-			child.expect(cfg['expect_prompts']['tmp_prompt'])
+			self.send_and_expect('cat /etc/issue | grep -i "' + key + '" | wc -l', check_exit=False)
 			if self.get_re_from_child(child.before,'^([0-9]+)$') == '1':
 				cfg['container']['distro']       = key
 				cfg['container']['install_type'] = install_type_map[key]
 				break
-		self.set_password(cfg['container']['password'],expect=cfg['expect_prompts']['tmp_prompt'])
-		if cfg['container']['install_type'] == 'apt':
-			cfg['expect_prompts']['real_user_prompt']        = '\r\n.*?' + cfg['host']['real_user'] + '@.*:'
-			self.send_and_expect('export DEBIAN_FRONTEND=noninteractive')
-			self.send_and_expect('apt-get update',timeout=9999,check_exit=False)
-			self.send_and_expect('dpkg-divert --local --rename --add /sbin/initctl')
-			self.send_and_expect('ln -f -s /bin/true /sbin/initctl')
-			self.install('passwd')
-			self.install('sudo')
-		elif cfg['container']['install_type'] == 'yum':
-			cfg['expect_prompts']['real_user_prompt']        = '\r\n.*?' + cfg['host']['real_user'] + '@.*:'
-			self.install('passwd')
-			self.install('sudo')
-			self.send_and_expect('yum update -y',timeout=9999)
 		if cfg['container']['install_type'] == '' or cfg['container']['distro'] == '':
 			util.fail('Could not determine Linux distro information. Please inform maintainers.')
-		self.handle_revert_prompt(outer_expect,'tmp_prompt')
 
 	# Sets the password
 	def set_password(self,password,child=None,expect=None):
@@ -503,15 +493,6 @@ class ShutIt(object):
 			return False
 		else:
 			return True
-
-	# Sets up a base prompt
-	def setup_prompt(self,prefix,prompt_name,child=None):
-		child = child or self.get_default_child()
-		cfg = self.cfg
-		local_prompt = prefix + '#' + random_id() + '>'
-		child.sendline('SHUTIT_BACKUP_PS1=$PS1 && unset PROMPT_COMMAND && PS1="' + local_prompt + '"')
-		cfg['expect_prompts'][prompt_name] = '\r\n' + local_prompt
-		child.expect(cfg['expect_prompts'][prompt_name])
 
 	# expect must be a string
 	def push_repository(self,repository,docker_executable,child=None,expect=None):

@@ -87,18 +87,17 @@ class template(ShutItModule):
 		# example of resource use (simple file, copy the README.md into the container)
 		shutit.send_and_expect('cp /resources/README.md /tmp')
 		# example of bespoke config use
-		if shutit.cfg[GLOBALLY_UNIQUE_STRING]['example_bool']:
-			shutit.add_line_to_file('# ' + shutit.cfg[GLOBALLY_UNIQUE_STRING]['example'],'/tmp/container_touched.sh')
+		if shutit.cfg[self.module_id]['example_bool']:
+			shutit.add_line_to_file('# ' + shutit.cfg[self.module_id]['example'],'/tmp/container_touched.sh')
 		# Example of login/logout handling
 		# When logging in, use the base prompt to attempt to match all prompts
 		# Note that we don't check_exit, because the exit value won't be meaningful.
 		shutit.send_and_expect('su',shutit.cfg['expect_prompts']['base_prompt'],check_exit=False)
-		# Then call handle_login to set and get the bespoke prompt for the session
-		shutit.handle_login('test_tmp_prompt')
+		# Then call setup_prompt to set and get the bespoke prompt for the session
+		shutit.setup_prompt('test_tmp_prompt')
 		shutit.set_default_expect(shutit.cfg['expect_prompts']['test_tmp_prompt'])
 		shutit.send_and_expect('echo "a command and some output"')
-		# We're about to exit, so handle the reversion of the prompt using the base_prompt again.
-		shutit.handle_revert_prompt(shutit.cfg['expect_prompts']['base_prompt'],'test_tmp_prompt')
+		# Make sure we're expecting the right thing after we exit this subshell
 		shutit.set_default_expect(shutit.cfg['expect_prompts']['root_prompt'])
 		shutit.send_and_expect('exit')
 
@@ -128,8 +127,8 @@ class template(ShutItModule):
 	def get_config(self,shutit):
 		cp = shutit.cfg['config_parser']
 		# Bring the example config into the config dictionary.
-		shutit.cfg[GLOBALLY_UNIQUE_STRING]['example']      = cp.get(GLOBALLY_UNIQUE_STRING,'example')
-		shutit.cfg[GLOBALLY_UNIQUE_STRING]['example_bool'] = cp.getboolean(GLOBALLY_UNIQUE_STRING,'example_bool')
+		shutit.cfg[self.module_id]['example']      = cp.get(self.module_id,'example')
+		shutit.cfg[self.module_id]['example_bool'] = cp.getboolean(self.module_id,'example_bool')
 		return True
 
 	# check_ready
@@ -220,9 +219,8 @@ class template(ShutItModule):
 # string : Any string you believe to identify this module uniquely, 
 #          eg com.my_corp.my_module_dir.my_module
 # float:   Float value for ordering module builds, must be > 0.0
-if not util.module_exists(GLOBALLY_UNIQUE_STRING):
+def module():
 	obj = template(GLOBALLY_UNIQUE_STRING,FLOAT)
 	obj.add_dependency('shutit.tk.setup')
-	util.get_shutit_modules().add(obj)
-	ShutItModule.register(template)
+	return obj
 
