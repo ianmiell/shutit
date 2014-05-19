@@ -21,7 +21,9 @@ xdotool sleep 10
 
 # Example for automating single attempt repeatedly
 #xdotool key KP_Right
-#xfce4-screenshooter 
+#xfce4-screenshooter -w -s /root
+#xdotool key a
+#xdotool key KP_Enter
 #visgrep /root/a.png /root/tryagain.pat
 #if [[ echo $? = 0 ]]
 #echo OK
