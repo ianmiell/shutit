@@ -113,8 +113,13 @@ def start():
 	global orig_mod_cfg
 	global STATUS
 
-	# Some hacks for server mode
 	shutit = shutit_global.shutit
+
+	util.load_configs(shutit)
+	shutit_main.shutit_module_init(shutit)
+	shutit_main.conn_container(shutit)
+
+	# Some hacks for server mode
 	shutit.cfg['build']['build_log'] = StringIO.StringIO()
 	STATUS['cid'] = shutit.cfg['container']['container_id']
 	for mid in shutit.shutit_map:
