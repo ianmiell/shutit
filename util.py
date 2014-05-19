@@ -40,6 +40,7 @@ import json
 import binascii
 import subprocess
 import getpass
+from shutit_module import ShutItFailException
 
 # TODO: Manage exits of containers on error
 def fail(msg,child=None):
