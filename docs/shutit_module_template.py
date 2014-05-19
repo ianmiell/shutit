@@ -220,9 +220,8 @@ class template(ShutItModule):
 # string : Any string you believe to identify this module uniquely, 
 #          eg com.my_corp.my_module_dir.my_module
 # float:   Float value for ordering module builds, must be > 0.0
-if not util.module_exists(GLOBALLY_UNIQUE_STRING):
+def module():
 	obj = template(GLOBALLY_UNIQUE_STRING,FLOAT)
 	obj.add_dependency('shutit.tk.setup')
-	util.get_shutit_modules().add(obj)
-	ShutItModule.register(template)
+	return obj
 
