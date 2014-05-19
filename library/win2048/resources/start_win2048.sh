@@ -12,11 +12,10 @@ xdotool exec firefox
 WID=$(xdotool search --sync --onlyvisible --class firefox)
 echo $WID
 xdotool sleep 10
-killall gnome-terminal
 xdotool windowfocus $WID
+killall gnome-terminal
 xdotool key F6
 xdotool type http://gabrielecirulli.github.io/2048/
 xdotool key KP_Enter
 xdotool sleep 10
-xdotool key KP_Right
 
