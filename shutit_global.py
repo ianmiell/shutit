@@ -90,14 +90,6 @@ class ShutIt(object):
 		self._default_expect[-1] = expect
 		self._default_check_exit[-1] = check_exit
 
-	# TODO: Manage exits of containers on error
-	def fail(self, msg, child=None):
-		if child:
-			self.pause_point(child,'Pause point on fail: ' + msg)
-		print >> sys.stderr, 'ERROR!'
-		print >> sys.stderr
-		raise ShutItFailException(msg)
-
 	def log(self, msg, code=None, pause=0, prefix=True, force_stdout=False):
 		if prefix:
 			prefix = 'LOG: ' + time.strftime("%Y-%m-%d %H:%M:%S",time.localtime())
