@@ -83,12 +83,12 @@ def info():
 	global STATUS
 	if 'to_build' in request.json:
 		update_modules(request.json['to_build'])
-	if 'build' in request.json:
-		if not STATUS["build_started"]:
-			STATUS["build_started"] = True
-			t = threading.Thread(target=build_shutit)
-			t.daemon = True
-			t.start()
+	if ('build' in request.json and len(STATUS['errs']) == 0
+			and not STATUS["build_started"]):
+		STATUS["build_started"] = True
+		t = threading.Thread(target=build_shutit)
+		t.daemon = True
+		t.start()
 	return json.dumps(STATUS)
 
 @route('/log', method='POST')
