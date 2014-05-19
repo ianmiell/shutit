@@ -84,6 +84,10 @@ suffix_format:%Y%m%d_%H%M%S
 # Each module should set these in a config
 [shutit.tk.setup]
 build:yes
+# Modules may rely on the below settings, only change for debugging. Do not rely
+# on these configs being stable.
+do_update:yes
+packages:["passwd","sudo"]
 
 # Aspects of build process
 [build]
