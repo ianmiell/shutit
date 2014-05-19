@@ -50,6 +50,7 @@ def fail(msg,child=None):
 	print >> sys.stderr
 	raise ShutItFailException(msg)
 
+
 def is_file_secure(file_name):
 	# If file doesn't exist, it's considered secure!
 	if not os.path.isfile(file_name):
