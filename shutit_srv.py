@@ -50,6 +50,7 @@ def build_shutit():
 		shutit_main.do_build(shutit)
 		shutit_main.do_test(shutit)
 		shutit_main.do_finalize(shutit)
+		shutit_main.finalize_container(shutit)
 	except ShutItException as e:
 		STATUS['errs'] = [e.message]
 	STATUS["build_done"] = True

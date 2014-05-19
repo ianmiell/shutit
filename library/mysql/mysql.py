@@ -32,7 +32,7 @@ class mysql(ShutItModule):
 	def build(self,shutit):
 		shutit.set_default_expect(shutit.cfg['expect_prompts']['base_prompt'])
 		shutit.send_and_expect('bash',check_exit=False)
-		shutit.handle_login('mysql_tmp_prompt')
+		shutit.setup_prompt('mysql_tmp_prompt')
 		shutit.set_default_expect(shutit.cfg['expect_prompts']['mysql_tmp_prompt'])
 		root_pass = shutit.cfg['shutit.tk.mysql.mysql']['root_password']
 		shutit.send_and_expect("apt-get update", record_command=False)
@@ -56,28 +56,28 @@ class mysql(ShutItModule):
 		shutit.send_and_expect("grant all privileges on *.* to '" + mysql_user + "'@'%';",'mysql>',check_exit=False)
 		shutit.send_and_expect("set password for " + mysql_user + "@'localhost' = password('" + shutit.cfg['shutit.tk.mysql.mysql']['mysql_user_password'] + "');",'mysql>',check_exit=False,record_command=False)
 		shutit.send_and_expect("set password for " + mysql_user + "@'%' = password('" + shutit.cfg['shutit.tk.mysql.mysql']['mysql_user_password'] + "');",'mysql>',check_exit=False,record_command=False)
-		shutit.send_and_expect('\q')
-		res = shutit.add_line_to_file('nohup mysqld &','/root/start_mysql.sh')
-		if res:
-			shutit.add_line_to_file("""echo Starting mysqld, sleeping""",'/root/start_mysql.sh',force=True)
-			shutit.add_line_to_file('sleep 2','/root/start_mysql.sh',force=True)
-		res = shutit.add_line_to_file('# mysql','/root/stop_mysql.sh')
-		if res:
-			shutit.add_line_to_file('# mysql','/root/stop_mysql.sh',truncate=True)
-			shutit.add_line_to_file("""echo Stopping mysql""",'/root/stop_mysql.sh',force=True)
-			shutit.send_and_expect("""cat >> /root/stop_mysql.sh <<< "if [ x\`ps -ef | grep mysqld$ | grep -v grep | awk '{print \$2}' | wc -l\` = 'x0' ]" """)
-			shutit.add_line_to_file('then','/root/stop_mysql.sh',force=True)
-			shutit.add_line_to_file('/bin/true','/root/stop_mysql.sh',force=True)
-			shutit.add_line_to_file('else','/root/stop_mysql.sh',force=True)
-			shutit.send_and_expect("""cat >> /root/stop_mysql.sh <<< "ps -ef | grep mysqld$ | awk '{print \$2}' | sed 's/\([0-9]*\)/ kill -9 \\1/' | sh" """)
-			shutit.add_line_to_file("""echo sleeping 2""",'/root/stop_mysql.sh',force=True)
-			shutit.add_line_to_file('sleep 2','/root/stop_mysql.sh',force=True)
-			shutit.add_line_to_file('fi','/root/stop_mysql.sh',force=True)
+		shutit.send_and_expect(r'\q')
+		shutit.send_file('/root/start_mysql.sh', '''
+			nohup mysqld &
+			echo Starting mysqld, sleeping
+			sleep 2
+		''')
+		shutit.send_file('/root/stop_mysql.sh', r'''
+			# mysql
+			echo Stopping mysql
+			if [ x$(ps -ef | grep mysqld$ | grep -v grep | awk '{print $2}' | wc -l) = 'x0' ]
+			then
+				/bin/true
+			else
+				ps -ef | grep mysqld$ | awk '{print $2}' | sed 's/\([0-9]*\)/ kill -9 \1/' | sh
+				echo sleeping 2
+				sleep 2
+			fi
+		''')
 		shutit.send_and_expect('chmod +x /root/start_mysql.sh')
 		shutit.send_and_expect('chmod +x /root/stop_mysql.sh')
 		shutit.send_and_expect('/root/stop_mysql.sh')
 		shutit.send_and_expect('/root/start_mysql.sh')
-		shutit.handle_revert_prompt(shutit.cfg['expect_prompts']['base_prompt'],'mysql_tmp_prompt')
 		shutit.set_default_expect(shutit.cfg['expect_prompts']['root_prompt'])
 		shutit.send_and_expect('exit')
 		return True
