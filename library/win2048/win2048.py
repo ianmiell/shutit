@@ -56,7 +56,7 @@ class win2048(ShutItModule):
 	def build(self,shutit):
 		shutit.set_default_expect(shutit.cfg['expect_prompts']['root_prompt'])
 		shutit.install('firefox')
-		shutit.install('xdotool')
+		shutit.install('xautomation')
 		shutit.install('vim')
 		shutit.send_file('/root/start_win2048.sh',file.read(file('resources/start_win2048.sh')))
 		shutit.send_file('/root/tryagain.pat',file.read(file('resources/tryagain.pat')))
