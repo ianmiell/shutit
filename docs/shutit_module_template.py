@@ -87,8 +87,8 @@ class template(ShutItModule):
 		# example of resource use (simple file, copy the README.md into the container)
 		shutit.send_and_expect('cp /resources/README.md /tmp')
 		# example of bespoke config use
-		if shutit.cfg[GLOBALLY_UNIQUE_STRING]['example_bool']:
-			shutit.add_line_to_file('# ' + shutit.cfg[GLOBALLY_UNIQUE_STRING]['example'],'/tmp/container_touched.sh')
+		if shutit.cfg[self.module_id]['example_bool']:
+			shutit.add_line_to_file('# ' + shutit.cfg[self.module_id]['example'],'/tmp/container_touched.sh')
 		# Example of login/logout handling
 		# When logging in, use the base prompt to attempt to match all prompts
 		# Note that we don't check_exit, because the exit value won't be meaningful.
@@ -126,10 +126,9 @@ class template(ShutItModule):
 	# OPTIONAL part of lifecycle - uncomment to include
 	def get_config(self,shutit):
 		cp = shutit.cfg['config_parser']
-		mod_id = GLOBALLY_UNIQUE_STRING
 		# Bring the example config into the config dictionary.
-		shutit.cfg[mod_id]['example']      = cp.get(mod_id,'example')
-		shutit.cfg[mod_id]['example_bool'] = cp.getboolean(mod_id,'example_bool')
+		shutit.cfg[self.module_id]['example']      = cp.get(self.module_id,'example')
+		shutit.cfg[self.module_id]['example_bool'] = cp.getboolean(self.module_id,'example_bool')
 		return True
 
 	# check_ready

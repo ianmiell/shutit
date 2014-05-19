@@ -223,9 +223,8 @@ class setup(ShutItModule):
 
 	def get_config(self, shutit):
 		cp = shutit.cfg['config_parser']
-		mod_id = 'shutit.tk.setup'
-		shutit.cfg[mod_id]['packages']  = json.loads(cp.get(mod_id,'packages'))
-		shutit.cfg[mod_id]['do_update'] = cp.getboolean(mod_id,'do_update')
+		shutit.cfg[self.module_id]['packages']  = json.loads(cp.get(self.module_id,'packages'))
+		shutit.cfg[self.module_id]['do_update'] = cp.getboolean(self.module_id,'do_update')
 		return True
 
 def module():
