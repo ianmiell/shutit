@@ -84,6 +84,8 @@ def info():
 		t = threading.Thread(target=build_shutit)
 		t.daemon = True
 		t.start()
+	if 'reset' in request.json:
+		shutit_reset()
 	return json.dumps(STATUS)
 
 @route('/log', method='POST')
@@ -108,6 +110,12 @@ def shutit_reset():
 	global STATUS
 
 	orig_mod_cfg = {}
+	if shutit is not None:
+		for c in shutit.pexpect_children.values():
+			# Try to clean up the old children...
+			c.send('\n')
+			c.sendeof()
+			c.readlines()
 	shutit = None
 	STATUS = {
 		'build_done': False,
