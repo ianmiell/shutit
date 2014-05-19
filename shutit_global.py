@@ -452,13 +452,12 @@ class ShutIt(object):
 			expect=expect,check_exit=False,record_command=False,fail_on_empty_before=False)
 
 	# Fails if distro could not be determined.
-	# Should be called with the container is started up.
+	# Should be called with the container is started up, and uses as core info as possible.
 	def get_distro_info(self,child=None):
 		child = child or self.get_default_child()
 		cfg = self.cfg
 		cfg['container']['install_type']      = ''
 		cfg['container']['distro']            = ''
-		cfg['container']['distro_version']    = ''
 		install_type_map = {'ubuntu':'apt','debian':'apt','red hat':'yum','centos':'yum','fedora':'yum'}
 		for key in install_type_map.keys():
 			self.send_and_expect('cat /etc/issue | grep -i "' + key + '" | wc -l', check_exit=False)
