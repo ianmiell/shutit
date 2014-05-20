@@ -103,10 +103,36 @@ var ErrList = React.createClass({
 		return <div>Errors: <ul>{errs}</ul></div>;
 	}
 });
+var ConfigItem = React.createClass({
+	render: function () {
+		return <div>{this.props.key}: {JSON.stringify(this.props.val)}</div>;
+	}
+});
+var ConfigSection = React.createClass({
+	render: function () {
+		var elts = [];
+		for (var key in this.props.cfgs) {
+			elts.push(<ConfigItem key={key} val={this.props.cfgs[key]} />);
+		}
+		return <div><div>{this.props.key}</div>{elts}</div>;
+	}
+});
+var ConfigEditor = React.createClass({
+	render: function () {
+		var elts = [];
+		for (var sec in this.props.cfg) {
+			elts.push(<ConfigSection key={sec} cfgs={this.props.cfg[sec]} />);
+		}
+		return <div>{elts}</div>;
+	}
+});
 var InfoDisplay = React.createClass({
 	render: function () {
 		return (
-			<div id="infoDisplay">{this.props.cid}</div>
+			<div id="infoDisplay">
+				<div>{this.props.cid}</div>
+				<ConfigEditor cfg={this.props.cfg} />
+			</div>
 		);
 	}
 });
@@ -245,7 +271,7 @@ var ShutItUI = React.createClass({
 					</div>
 					<InfoDisplay
 						cid={this.state.shutit.cid}
-						/>
+						cfg={this.state.shutit.cfg} />
 				</div>
 				<BuildProgress
 					buildStarted={this.state.shutit.build_started}
