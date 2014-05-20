@@ -45,7 +45,7 @@ function jsonpost(url, data, cb) {
 var StatusIndicator = React.createClass({
 	render: function () {
 		var color, text;
-		if (this.props.buildErr) { color = "red"; text = "error"; }
+		if (this.props.hasErr) { color = "red"; text = "error"; }
 		else if (this.props.buildDone) { color = "green"; text = "done"; }
 		else if (this.props.buildStarted) { color = "purple"; text = "building"; }
 		else if (this.props.loading) { color = "yellow"; text = "loading"; }
@@ -221,8 +221,7 @@ var ShutItUI = React.createClass({
 					resetting={this.state.shutit.resetting}
 					buildStarted={this.state.shutit.build_started}
 					buildDone={this.state.shutit.build_done}
-					buildErr={this.state.shutit.build_done &&
-						this.state.shutit.errs.length} />
+					hasErr={this.state.shutit.errs.length} />
 				<div id="inputArea">
 					<div id="buildArea">
 						<ModuleList
