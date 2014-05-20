@@ -18,19 +18,19 @@ xdotool key F6
 xdotool type http://gabrielecirulli.github.io/2048/
 xdotool key KP_Enter
 
-## Example for automating single attempt repeatedly
+## Example for automating single attempt repeatedly (hitting down on start)
 #sleep 2
 #xdotool key KP_Down
-#sleep 2
-#xdotool key KP_Page_Down
 #sleep 5
 #scrot -u /root/a.png
-#visgrep /root/a.png /root/tryagain.pat
-#if [[ $? = 0 ]]
+#visgrep -x 0 -y 0 -t 100000 /root/a.png /root/tryagain.pat /root/tryagain.pat
+#res=$?
+#echo $res
+#if [[ $res = 1 ]]
 #then
 #	echo OK
 #else
 #	echo FAIL
 #fi
-sleep 99999
+#/bin/bash
 
