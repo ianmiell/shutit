@@ -158,7 +158,7 @@ class conn_docker(ShutItModule):
 		container_child = util.get_pexpect_child('container_child')
 		# Put build info into the container
 		shutit.send_and_expect('mkdir -p /root/shutit_build')
-		logfile = '/root/shutit_build/shutit_buildlog_' + cfg['build']['build_id']
+		logfile = cfg['build']['container_build_log']
 		shutit.send_and_expect('touch ' + logfile)
 		print_conf = 'cat > ' + logfile + """ << LOGFILEEND
 """ + util.print_config(cfg) + """
