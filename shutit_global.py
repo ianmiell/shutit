@@ -600,7 +600,8 @@ def init():
 	# http://stackoverflow.com/questions/5137497/find-current-directory-and-files-directory
 	shutit_main_dir = os.path.abspath(os.path.dirname(__file__))
 	cwd = os.getcwd()
-
+	if shutit_main_dir == cwd:
+		util.fail("Should not be run from core shutit dir. Please run shutit -h for usage. If you're new to this, try running:\n\ncd library/adduser && ../../shutit\n\nfor a simple example run.")
 	cfg = {}
 	cfg['action']               = {}
 	cfg['build']                = {}
