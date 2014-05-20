@@ -29,13 +29,7 @@ pre { margin: 0px; padding: 0; }
 /** @jsx React.DOM */
 'use strict';
 function copy(obj) {
-	var newObj = {};
-	for (var key in obj) {
-		if (obj.hasOwnProperty(key)) {
-			newObj[key] = obj[key];
-		}
-	}
-	return newObj;
+	return JSON.parse(JSON.stringify(obj));
 }
 function jsonpost(url, data, cb) {
 	var r = new XMLHttpRequest();
