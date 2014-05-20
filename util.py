@@ -84,13 +84,20 @@ def get_config(cfg,module_id,option,default,boolean=False):
 		cfg[module_id][option] = default
 
 def get_configs(configs):
-	cp = ConfigParser.ConfigParser(None)
+	cp       = ConfigParser.ConfigParser(None)
 	fail_str = ''
+	files    = []
 	for config_file in configs:
 		if not is_file_secure(config_file):
 			fail_str = fail_str + '\nchmod 0600 ' + config_file
+			files.append(config_file)
 	if fail_str != '':
 		fail_str = 'Files are not secure, mode should be 0600. Run the following commands to correct:\n' + fail_str + '\n'
+		print fail_str
+		if raw_input('\n\nDo you want me to run this for you? (input y/n)\n') == 'y':
+			for f in files:
+				os.chmod(f,0600)
+			return get_configs(configs)
 		fail(fail_str)
 	read_files = cp.read(configs)
 	return cp
@@ -170,13 +177,13 @@ def get_base_config(cfg, cfg_parser):
 	# Warn if something appears not to have been overridden
 	warn = ''
 	if cfg['container']['password'][:5] == 'YOUR_':
-		warn = '# Found ' + cfg['container']['password'] + ' in your config, you may want to quit and override, eg put the following into your\n# ' + shutit_global.cwd + '/configs/' + socket.gethostname() + '_' + cfg['host']['real_user'] + '.cnf file (create if necessary):\n\n[container]\npassword:mycontainerpassword\n\n'
+		warn = '# Found ' + cfg['container']['password'] + ' in your config, you may want to quit and override, eg put the following into your\n# ' + shutit_global.cwd + '/configs/' + socket.gethostname() + '_' + cfg['host']['real_user'] + '.cnf file (create if necessary):\n\n[container]\n#root password for the container\npassword:mycontainerpassword\n\n'
 		issue_warning(warn,2)
 	if cfg['host']['username'][:5] == 'YOUR_':
-		warn = '# Found ' + cfg['host']['username'] + ' in your config, you may want to quit and override, eg put the following into your\n# ' + shutit_global.cwd + '/configs/' + socket.gethostname() + '_' + cfg['host']['real_user'] + '.cnf file: (create if necessary)\n\n[host]\nusername:myusername\n\n'
+		warn = '# Found ' + cfg['host']['username'] + ' in your config, you may want to quit and override, eg put the following into your\n# ' + shutit_global.cwd + '/configs/' + socket.gethostname() + '_' + cfg['host']['real_user'] + '.cnf file: (create if necessary)\n\n[host]\n#your "real" username\nusername:myusername\n\n'
 		issue_warning(warn,2)
 	if cfg['host']['password'][:5] == 'YOUR_':
-		warn = '# Found ' + cfg['host']['password'] + ' in your config, you may want to quit and override, eg put the following into your\n# ' + shutit_global.cwd + '/configs/' + socket.gethostname() + '_' + cfg['host']['real_user'] + '.cnf file: (create if necessary)\n\n[host]\npassword:mypassword\n\n'
+		warn = '# Found ' + cfg['host']['password'] + ' in your config, you may want to quit and override, eg put the following into your\n# ' + shutit_global.cwd + '/configs/' + socket.gethostname() + '_' + cfg['host']['real_user'] + '.cnf file: (create if necessary)\n\n[host]\n#your "real" password on your host machine\npassword:mypassword\n\n'
 		issue_warning(warn,2)
 	if warn != '':
 		fail('Failed due to above warnings - please correct and retry')
