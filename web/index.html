@@ -104,23 +104,44 @@ var ErrList = React.createClass({
 	}
 });
 var ConfigItem = React.createClass({
-	onClick: function () {
-		this.setState({editing: !this.state.editing});
+	handleClick: function () {
+		var editing = this.state.editing, copystate = copy(this.state);
+		if (editing) {
+			var change = {};
+			change[this.props.key] = this.state.val;
+			this.props.onChange(change);
+		} else {
+			copystate.val = this.props.val;
+		}
+		copystate.editing = !editing;
+		this.setState(copystate);
+	},
+	handleChange: function (event) {
+		var val = event.target.value
+		var copystate = copy(this.state);
+		copystate.val = val;
+		try {
+			copystate.valid = typeof this.props.val === typeof JSON.parse(val);
+		} catch (e) {
+			copystate.valid = false;
+		}
+		this.setState(copystate);
 	},
 	getInitialState: function () {
-		return {editing: false};
+		return {editing: false, valid: true, val: ''};
 	},
 	render: function () {
 		var valElt, strval = JSON.stringify(this.props.val);
 		if (this.state.editing) {
 			valElt = (
 				<span>
-					<input defaultValue={strval} />
-					<button onClick={this.onClick}>conf</button>
+					<input onChange={this.handleChange} value={this.state.val} />
+					<button disabled={!this.state.valid}
+						onClick={this.handleClick}>conf</button>
 				</span>
 			);
 		} else {
-			valElt = <span onClick={this.onClick}>{strval}</span>;
+			valElt = <span onClick={this.handleClick}>{strval}</span>;
 		}
 		return <pre><span>{this.props.key}: </span>{valElt}</pre>;
 	}
@@ -132,10 +153,19 @@ var ConfigSection = React.createClass({
 	onClick: function () {
 		this.setState({expanded: !this.state.expanded});
 	},
+	handleChange: function (subchange) {
+		var change = {};
+		change[this.props.key] = subchange;
+		this.props.onChange(change);
+	},
 	render: function () {
 		var elts = [], key, expanded = this.state.expanded;
 		for (var key in this.props.cfgs) {
-			elts.push(<ConfigItem key={key} val={this.props.cfgs[key]} />);
+			elts.push(
+				<ConfigItem
+					onChange={this.handleChange}
+					key={key} val={this.props.cfgs[key]} />
+			);
 		}
 		var style = {display: expanded ? '' : 'none'};
 		return (
@@ -149,10 +179,17 @@ var ConfigSection = React.createClass({
 	}
 });
 var ConfigEditor = React.createClass({
+	handleChange: function (change) {
+		console.log(change);
+	},
 	render: function () {
 		var elts = [];
 		for (var sec in this.props.cfg) {
-			elts.push(<ConfigSection key={sec} cfgs={this.props.cfg[sec]} />);
+			elts.push(
+				<ConfigSection
+					onChange={this.handleChange}
+					key={sec} cfgs={this.props.cfg[sec]} />
+			);
 		}
 		return <div>{elts}</div>;
 	}
