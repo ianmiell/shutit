@@ -5,7 +5,7 @@
 <style>
 * { box-sizing: border-box; }
 body { margin: 0; padding: 0 }
-pre { margin: 0px; padding: 0; }
+pre { margin: 0; padding: 0; }
 #progressBox {
 	width: 50%; right: 0; top: 0; height: 100%; position: fixed;
 }
@@ -104,17 +104,48 @@ var ErrList = React.createClass({
 	}
 });
 var ConfigItem = React.createClass({
+	onClick: function () {
+		this.setState({editing: !this.state.editing});
+	},
+	getInitialState: function () {
+		return {editing: false};
+	},
 	render: function () {
-		return <div>{this.props.key}: {JSON.stringify(this.props.val)}</div>;
+		var valElt, strval = JSON.stringify(this.props.val);
+		if (this.state.editing) {
+			valElt = (
+				<span>
+					<input defaultValue={strval} />
+					<button onClick={this.onClick}>conf</button>
+				</span>
+			);
+		} else {
+			valElt = <span onClick={this.onClick}>{strval}</span>;
+		}
+		return <pre><span>{this.props.key}: </span>{valElt}</pre>;
 	}
 });
 var ConfigSection = React.createClass({
+	getInitialState: function () {
+		return {expanded: false};
+	},
+	onClick: function () {
+		this.setState({expanded: !this.state.expanded});
+	},
 	render: function () {
-		var elts = [];
+		var elts = [], key, expanded = this.state.expanded;
 		for (var key in this.props.cfgs) {
 			elts.push(<ConfigItem key={key} val={this.props.cfgs[key]} />);
 		}
-		return <div><div>{this.props.key}</div>{elts}</div>;
+		var style = {display: expanded ? '' : 'none'};
+		return (
+			<div>
+				<div onClick={this.onClick}>
+					<pre>{expanded ? '-' : '+'} {this.props.key}</pre>
+				</div>
+				<div style={style}>{elts}</div>
+			</div>
+		);
 	}
 });
 var ConfigEditor = React.createClass({
