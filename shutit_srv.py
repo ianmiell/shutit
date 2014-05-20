@@ -94,9 +94,15 @@ def info():
 @route('/log', method='POST')
 def log():
 	cmd_offset, log_offset = request.json
+	if STATUS['resetting']:
+		command_list = []
+		log = ''
+	else:
+		command_list = shutit.shutit_command_history[cmd_offset:]
+		log = shutit.cfg['build']['build_log'].getvalue()[log_offset:]
 	return json.dumps({
-		"cmds": shutit.shutit_command_history[cmd_offset:],
-		"logs": shutit.cfg['build']['build_log'].getvalue()[log_offset:]
+		"cmds": command_list,
+		"logs": log
 	})
 
 @route('/')
@@ -126,7 +132,7 @@ def shutit_reset():
 		'resetting': True,
 		'modules': [],
 		'errs': [],
-		'cid': None
+		'cid': ''
 	}
 
 	def reset_thread():

@@ -110,27 +110,30 @@ var InfoDisplay = React.createClass({
 });
 var BuildProgress = React.createClass({
 	getInitialState: function () {
-		return {cmds: [], logs: '', loadingProgress: false, interval: 0};
+		return {cmds: [], logs: '', loadingProgress: false, cid: ''};
 	},
 	getProgress: function () {
-		if (!this.props.buildStarted || this.state.loadingProgress) { return; }
+		if (this.state.loadingProgress) { return; }
 		var loadingstate = copy(this.state);
 		loadingstate.loadingProgress = true;
+		if (this.props.cid !== loadingstate.cid) {
+			loadingstate.cid = this.props.cid;
+			loadingstate.cmds = [];
+			loadingstate.logs = '';
+		}
 		this.setState(loadingstate);
 		var offsets = [this.state.cmds.length, this.state.logs.length]
 		jsonpost('/log', offsets, (function (data) {
 			var newstate = copy(this.state);
 			newstate.cmds = this.state.cmds.concat(data.cmds);
 			newstate.logs = this.state.logs + data.logs;
-			if (this.props.buildDone) { clearInterval(this.state.interval); }
 			newstate.loadingProgress = false;
 			this.setState(newstate);
 		}).bind(this));
 	},
 	componentWillMount: function () {
-		var interval = setInterval(this.getProgress, 1000);
+		setInterval(this.getProgress, 1000);
 		var newstate = copy(this.state);
-		newstate.interval = interval;
 		this.setState(newstate);
 	},
 	componentWillUpdate: function () {
@@ -240,7 +243,8 @@ var ShutItUI = React.createClass({
 				</div>
 				<BuildProgress
 					buildStarted={this.state.shutit.build_started}
-					buildDone={this.state.shutit.build_done}/>
+					buildDone={this.state.shutit.build_done}
+					cid={this.state.shutit.cid} />
 			</div>
 		);
 	}
