@@ -74,13 +74,13 @@ class vnc(ShutItModule):
 		shutit.add_line_to_file("""vncserver << END
 """ + shutit.cfg['shutit.tk.vnc.vnc']['password'] + """
 """ + shutit.cfg['shutit.tk.vnc.vnc']['password'] + """
-END""",'/root/start_vnc.sh',shutit.cfg['expect_prompts']['root_prompt'])
-		shutit.add_line_to_file('echo "Did you expose ports 5901 and 6080?"','/root/start_vnc.sh',shutit.cfg['expect_prompts']['root_prompt'],match_regexp='echo .Did you expose ports 5901 and 6080..')
-		shutit.add_line_to_file('echo "If so, then vncviewer localhost:1 should work."','/root/start_vnc.sh',shutit.cfg['expect_prompts']['root_prompt'],match_regexp='echo .If so, then vncviewer localhost:1 should work..')
-		shutit.add_line_to_file('# stop vnc','/root/stop_vnc.sh',shutit.cfg['expect_prompts']['root_prompt'])
-		shutit.add_line_to_file("""ps -ef | grep Xvnc4 | grep -v grep | awk '{print $2}' | xargs kill""",'/root/stop_vnc.sh',shutit.cfg['expect_prompts']['root_prompt'])
-		shutit.add_line_to_file('sleep 10','/root/stop_vnc.sh',shutit.cfg['expect_prompts']['root_prompt'])
-		shutit.add_line_to_file('rm -rf /tmp/.X*-lock','/root/stop_vnc.sh',shutit.cfg['expect_prompts']['root_prompt'])
+END""",'/root/start_vnc.sh')
+		shutit.add_line_to_file('echo "Did you expose ports 5901 and 6080?"','/root/start_vnc.sh',match_regexp='echo .Did you expose ports 5901 and 6080..')
+		shutit.add_line_to_file('echo "If so, then vncviewer localhost:1 should work."','/root/start_vnc.sh',match_regexp='echo .If so, then vncviewer localhost:1 should work..')
+		shutit.add_line_to_file('# stop vnc','/root/stop_vnc.sh')
+		shutit.add_line_to_file("""ps -ef | grep Xvnc4 | grep -v grep | awk '{print $2}' | xargs kill""",'/root/stop_vnc.sh')
+		shutit.add_line_to_file('sleep 10','/root/stop_vnc.sh')
+		shutit.add_line_to_file('rm -rf /tmp/.X*-lock','/root/stop_vnc.sh')
 		shutit.send_and_expect('chmod +x /root/start_vnc.sh')
 		shutit.send_and_expect('chmod +x /root/stop_vnc.sh')
 		return True
