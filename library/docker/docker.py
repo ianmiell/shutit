@@ -22,24 +22,6 @@ import util
 
 class docker(ShutItModule):
 
-	# is_installed
-	#
-	# Determines whether the module has been built in this container
-	# already.
-	#
-	# Should return True if it is certain it's there, else False.
-	def is_installed(self,shutit):
-		config_dict = shutit.cfg
-		return False
-
-	# build
-	#
-	# Run the build part of the module, which should ensure the module
-	# has been set up.
-	# If is_installed determines that the module is already there,
-	# this is not run.
-	#
-	# Should return True if it has succeeded in building, else False.
 	def build(self,shutit):
 		shutit.set_default_expect(shutit.cfg['expect_prompts']['root_prompt'])
 		shutit.send_and_expect('echo deb http://archive.ubuntu.com/ubuntu precise universe > /etc/apt/sources.list.d/universe.list')
@@ -163,61 +145,10 @@ END"""
 		shutit.send_and_expect('popd')
 		return True
 
-	# start
-	#
-	# Run when module should be installed (is_installed() or configured to build is true)
-	# Run after repo work.
-	def start(self,shutit):
+	def is_installed(self,shutit):
 		config_dict = shutit.cfg
-		return True
+		return False
 
-	# stop
-	#
-	# Run when module should be stopped.
-	# Run before repo work, and before finalize is called.
-	def stop(self,shutit):
-		config_dict = shutit.cfg
-		return True
-
-	# cleanup
-	#
-	# Cleanup the module, ie clear up stuff not needed for the rest of the build, eg tar files removed, apt-get cleans.
-	# Should return True if all is OK, else False.
-	# Note that this is only run if the build phase was actually run.
-	def cleanup(self,shutit):
-		config_dict = shutit.cfg
-		return True
-
-	# finalize
-	#
-	# Finalize the module, ie do things that need doing before we exit.
-	def finalize(self,shutit):
-		config_dict = shutit.cfg
-		return True
-
-	# remove
-	# 
-	# Remove the module, which should ensure the module has been deleted 
-	# from the system.
-	def remove(self,shutit):
-		config_dict = shutit.cfg
-		return True
-
-	# test
-	#
-	# Test the module is OK.
-	# Should return True if all is OK, else False.
-	# This is run regardless of whether the module is installed or not.
-	def test(self,shutit):
-		config_dict = shutit.cfg
-		return True
-
-	# get_config
-	#
-	# each object can handle config here
-	def get_config(self,shutit):
-		config_dict = shutit.cfg
-		return True
 
 
 if not util.module_exists('shutit.tk.docker.docker'):
