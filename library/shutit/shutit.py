@@ -22,23 +22,9 @@ import util
 
 class shutit(ShutItModule):
 
-	# is_installed
-	#
-	# Determines whether the module has been built in this container
-	# already.
-	#
-	# Should return True if it is certain it's there, else False.
 	def is_installed(self,shutit):
 		return shutit.file_exists('/shutit',directory=True)
 
-	# build
-	#
-	# Run the build part of the module, which should ensure the module
-	# has been set up.
-	# If is_installed determines that the module is already there,
-	# this is not run.
-	#
-	# Should return True if it has succeeded in building, else False.
 	def build(self,shutit):
 		shutit.set_default_expect(shutit.cfg['expect_prompts']['root_prompt'])
 		shutit.install('git')

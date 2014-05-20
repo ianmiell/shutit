@@ -22,9 +22,6 @@ import util
 
 class get_iplayer(ShutItModule):
 
-	def is_installed(self,shutit):
-		return False
-
 	def build(self,shutit):
 		shutit.set_default_expect(shutit.cfg['expect_prompts']['root_prompt'])
 		shutit.install('git')
@@ -44,6 +41,9 @@ class get_iplayer(ShutItModule):
 		shutit.send_and_expect('chmod 755 get_iplayer')
 		shutit.send_and_expect('./get_iplayer')
 		return True
+
+	def is_installed(self,shutit):
+		return False
 
 if not util.module_exists('shutit.tk.get_iplayer.get_iplayer'):
 	obj = get_iplayer('shutit.tk.get_iplayer.get_iplayer',0.324,'iPlayer downloader. See http://www.infradead.org/get_iplayer/html/get_iplayer.html')
