@@ -52,7 +52,10 @@ def build_shutit():
 
 def update_modules(to_build):
 	global STATUS
-	shutit.cfg.update(copy.deepcopy(orig_mod_cfg))
+	# Updating each individual module section will propogate the changes to
+	# STATUS as well (as the references are the same)
+	for mid in orig_mod_cfg:
+		shutit.cfg[mid].update(orig_mod_cfg[mid])
 
 	selected = set(to_build)
 	for mid in selected:
@@ -132,7 +135,8 @@ def shutit_reset():
 		'resetting': True,
 		'modules': [],
 		'errs': [],
-		'cid': ''
+		'cid': '',
+		'cfg': {}
 	}
 
 	def reset_thread():
@@ -155,7 +159,9 @@ def shutit_reset():
 		shutit.cfg['build']['build_log'] = StringIO.StringIO()
 		STATUS['cid'] = shutit.cfg['container']['container_id']
 		for mid in shutit.shutit_map:
-			orig_mod_cfg[mid] = shutit.cfg[mid]
+			STATUS['cfg'][mid] = orig_mod_cfg[mid] = shutit.cfg[mid]
+		# Otherwise editing shutit.cfg will edit orig_mod_cfg
+		orig_mod_cfg = copy.deepcopy(orig_mod_cfg)
 		update_modules([])
 
 		STATUS['resetting'] = False
