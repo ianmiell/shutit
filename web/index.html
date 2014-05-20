@@ -36,8 +36,10 @@ function jsonpost(url, data, cb) {
 	r.open('POST', url, true);
 	r.setRequestHeader('Content-type', 'application/json');
 	r.onreadystatechange = (function () {
-		if (r.readyState != 4 || r.status != 200) return;
-		cb(JSON.parse(r.responseText));
+		if (r.readyState != 4) return;
+		var err = r.status !== 200; // we don't have 304's in this app
+		var data = err ? null : JSON.parse(r.responseText);
+		cb(err, data);
 	});
 	r.send(JSON.stringify(data));
 }
@@ -123,10 +125,12 @@ var BuildProgress = React.createClass({
 		}
 		this.setState(loadingstate);
 		var offsets = [this.state.cmds.length, this.state.logs.length]
-		jsonpost('/log', offsets, (function (data) {
+		jsonpost('/log', offsets, (function (err, data) {
 			var newstate = copy(this.state);
-			newstate.cmds = this.state.cmds.concat(data.cmds);
-			newstate.logs = this.state.logs + data.logs;
+			if (!err) {
+				newstate.cmds = this.state.cmds.concat(data.cmds);
+				newstate.logs = this.state.logs + data.logs;
+			}
 			newstate.loadingProgress = false;
 			this.setState(newstate);
 		}).bind(this));
@@ -173,10 +177,12 @@ var ShutItUI = React.createClass({
 		} else {
 			reqdata = {};
 		}
-		jsonpost('/info', reqdata, (function (shutit) {
+		jsonpost('/info', reqdata, (function (err, shutit) {
 			var newstate = copy(this.state);
 			newstate.loadingInfo = false;
-			newstate.shutit = shutit;
+			if (!err) {
+				newstate.shutit = shutit;
+			}
 			this.setState(newstate);
 		}).bind(this));
 	},
