@@ -107,39 +107,44 @@ var ConfigItem = React.createClass({
 	handleClick: function () {
 		var editing = this.state.editing, copystate = copy(this.state);
 		if (editing) {
-			this.props.onChange(this.props.key, this.state.val);
+			this.props.onChange(this.props.key, JSON.parse(this.state.strval));
 		} else {
-			copystate.val = this.props.val;
+			copystate.strval = JSON.stringify(this.props.val);
 		}
 		copystate.editing = !editing;
 		this.setState(copystate);
 	},
 	handleChange: function (event) {
-		var val = event.target.value
+		var strval = event.target.value;
 		var copystate = copy(this.state);
-		copystate.val = val;
+		copystate.strval = strval;
 		try {
-			copystate.valid = typeof this.props.val === typeof JSON.parse(val);
+			copystate.valid = typeof this.props.val === typeof JSON.parse(strval);
 		} catch (e) {
 			copystate.valid = false;
 		}
 		this.setState(copystate);
 	},
 	getInitialState: function () {
-		return {editing: false, valid: true, val: ''};
+		return {editing: false, valid: true, strval: ''};
 	},
 	render: function () {
-		var valElt, strval = JSON.stringify(this.props.val);
+		var valElt;
 		if (this.state.editing) {
 			valElt = (
 				<span>
-					<input onChange={this.handleChange} value={this.state.val} />
+					<input onChange={this.handleChange}
+						value={this.state.strval} />
 					<button disabled={!this.state.valid}
 						onClick={this.handleClick}>conf</button>
 				</span>
 			);
 		} else {
-			valElt = <span onClick={this.handleClick}>{strval}</span>;
+			valElt = (
+				<span onClick={this.handleClick}>
+					{JSON.stringify(this.props.val)}
+				</span>
+			);
 		}
 		return <pre><span>{this.props.key}: </span>{valElt}</pre>;
 	}
@@ -311,7 +316,6 @@ var ShutItUI = React.createClass({
 			if (selected) { info.to_build.push(m.module_id); }
 		});
 		var cfg = this.state.shutit.cfg;
-		console.log(value);
 		if (module_id in cfg && property in cfg[module_id]) {
 			if (value !== cfg[module_id][property]) {
 				info.cfg = [module_id, property, value];
