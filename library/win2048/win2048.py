@@ -22,37 +22,9 @@ import util
 
 class win2048(ShutItModule):
 
-	# check_ready
-	# 
-	# Check whether we are ready to build this module.
-	# 
-	# This is called before the build, to ensure modules have 
-	# their requirements in place (eg files required to be mounted 
-	# in /resources). Checking whether the build will happen (and
-	# therefore whether the check should take place) will be 
-	# determined by the framework.
-	# 
-	# Should return True if it ready, else False.
-	def check_ready(self,shutit):
-		return shutit.file_exists('/resources/README.md')
-
-	# is_installed
-	#
-	# Determines whether the module has been built in this container
-	# already.
-	#
-	# Should return True if it is certain it's there, else False.
 	def is_installed(self,shutit):
-		return shutit.file_exists('/tmp/container_touched.sh') and shutit.file_exists('/tmp/README.md')
+		return self.test(shutit)
 
-	# build
-	#
-	# Run the build part of the module, which should ensure the module
-	# has been set up.
-	# If is_installed determines that the module is already there,
-	# this is not run.
-	#
-	# Should return True if it has succeeded in building, else False.
 	def build(self,shutit):
 		shutit.set_default_expect(shutit.cfg['expect_prompts']['root_prompt'])
 		shutit.install('firefox')
@@ -60,26 +32,17 @@ class win2048(ShutItModule):
 		shutit.install('vim')
 		shutit.install('scrot')
 		shutit.send_file('/root/start_win2048.sh',file.read(file('resources/start_win2048.sh')))
-		shutit.send_file('/root/tryagain.pat',file.read(file('resources/tryagain.pat')))
 		shutit.send_file('/root/tryagain.png',file.read(file('resources/tryagain.png')))
+		shutit.send_and_expect('patextract /root/tryagain.png 0 0 69 20 > /root/tryagain.pat')
 		shutit.send_and_expect('chmod +x /root/start_win2048.sh')
 		return True
 
-	# remove
-	# 
-	# Remove the module, which should ensure the module has been deleted 
-	# from the system.
 	def remove(self,shutit):
 		shutit.send_and_expect('rm -f /root/start_win2048.sh')
 		return True
 
-	# test
-	#
-	# Test the module is OK.
-	# Should return True if all is OK, else False.
-	# This is run regardless of whether the module is installed or not.
 	def test(self,shutit):
-		return shutit.package_installed('firefox')
+		return shutit.package_installed('firefox') and shutit.package_installed('scrot')
 
 
 # win2048(string,float)
