@@ -28,6 +28,7 @@ sleep 5
 
 ## Example for automating single attempt repeatedly
 if [[ x$key != 'x' ]]
+then
 	#Hit key, eg Down for down arrow
 	xdotool key KP_${key}
 	#Wait for game over to appear
