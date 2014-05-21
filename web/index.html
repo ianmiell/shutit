@@ -163,9 +163,11 @@ var ConfigSection = React.createClass({
 	render: function () {
 		var elts = [],
 			keys = Object.keys(this.props.cfgs),
-			expanded = this.state.expanded;
+			expanded = this.state.expanded,
+			advanced = ['build','remove','do_repository_work','build_ifneeded'];
 		keys.sort();
 		keys.map((function (key) {
+			if (!this.props.advanced && advanced.indexOf(key) > -1) { return; }
 			elts.push(
 				<ConfigItem
 					onChange={this.handleChange}
@@ -193,7 +195,7 @@ var ConfigEditor = React.createClass({
 		secs.map((function (sec) {
 			elts.push(
 				<ConfigSection
-					onChange={this.handleChange}
+					onChange={this.handleChange} advanced={this.props.advanced}
 					key={sec} cfgs={this.props.cfg[sec]} />
 			);
 		}).bind(this));
@@ -201,14 +203,25 @@ var ConfigEditor = React.createClass({
 	}
 });
 var InfoDisplay = React.createClass({
+	getInitialState: function () {
+		return {advanced: false};
+	},
+	advancedSwitch: function (event) {
+		this.setState({advanced: event.target.checked});
+	},
 	handleChange: function (sec, key, val) {
 		this.props.onChange(sec, key, val);
 	},
 	render: function () {
 		return (
 			<div id="infoDisplay">
-				<div>{this.props.cid}</div>
-				<ConfigEditor onChange={this.handleChange} cfg={this.props.cfg} />
+				<div><span>CID: {this.props.cid}</span></div>
+				<br />
+				<input type="checkbox"
+				checked={this.state.advanced} onChange={this.advancedSwitch}>
+					Advanced Settings</input>
+					<ConfigEditor onChange={this.handleChange}
+						cfg={this.props.cfg} advanced={this.state.advanced} />
 			</div>
 		);
 	}
