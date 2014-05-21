@@ -50,8 +50,11 @@ def build_shutit():
 		STATUS['errs'] = [e.message]
 	STATUS["build_done"] = True
 
-def update_modules(to_build):
+def update_modules(to_build, cfg):
 	global STATUS
+	if cfg is not None:
+		sec, key, val = cfg
+		orig_mod_cfg[sec][key] = val
 	# Updating each individual module section will propogate the changes to
 	# STATUS as well (as the references are the same)
 	for mid in orig_mod_cfg:
@@ -80,11 +83,13 @@ def update_modules(to_build):
 def info():
 	global STATUS
 	can_check = not (STATUS['build_started'] or STATUS['resetting'])
+	can_cfg = not (STATUS['build_started'] or STATUS['resetting'])
 	can_build = not (STATUS['build_started'] or STATUS['resetting'])
 	can_reset = not ((STATUS['build_started'] and not STATUS['build_done']) or
 		STATUS['resetting'])
-	if can_check and 'to_build' in request.json:
-		update_modules(request.json['to_build'])
+
+	if can_check and 'to_build' in request.json and 'cfg' in request.json:
+		update_modules(request.json['to_build'], request.json['cfg'])
 	if can_build and 'build' in request.json and len(STATUS['errs']) == 0:
 		STATUS["build_started"] = True
 		t = threading.Thread(target=build_shutit)
@@ -92,6 +97,7 @@ def info():
 		t.start()
 	if can_reset and 'reset' in request.json:
 		shutit_reset()
+
 	return json.dumps(STATUS)
 
 @route('/log', method='POST')
@@ -162,7 +168,7 @@ def shutit_reset():
 			STATUS['cfg'][mid] = orig_mod_cfg[mid] = shutit.cfg[mid]
 		# Otherwise editing shutit.cfg will edit orig_mod_cfg
 		orig_mod_cfg = copy.deepcopy(orig_mod_cfg)
-		update_modules([])
+		update_modules([], None)
 
 		STATUS['resetting'] = False
 
