@@ -21,13 +21,13 @@
 #OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 #SOFTWARE.
 set -e
-../../shutit
+../../shutit build
 # Display config
-#/space/git/shutit/bin/../shutit --sc
+#../../shutit sc
 # Debug
-#/space/git/shutit/bin/../shutit build --debug
+#../../shutit build --debug
 # Tutorial
-#/space/git/shutit/bin/../shutit build --tutorial
+#../../shutit build --tutorial
 # Push command line example
 #../../shutit build -s repository do_repository_work yes -s repository push yes -s repository server "" -s repository name get_iplayer -s repository user imiell -s repository suffix_date yes -s repository password XXX -s repository email ian.miell@gmail.com -s repository suffix_format '%Y%m%d'
 
