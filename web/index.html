@@ -161,14 +161,17 @@ var ConfigSection = React.createClass({
 		this.props.onChange(this.props.key, key, val);
 	},
 	render: function () {
-		var elts = [], key, expanded = this.state.expanded;
-		for (var key in this.props.cfgs) {
+		var elts = [],
+			keys = Object.keys(this.props.cfgs),
+			expanded = this.state.expanded;
+		keys.sort();
+		keys.map((function (key) {
 			elts.push(
 				<ConfigItem
 					onChange={this.handleChange}
 					key={key} val={this.props.cfgs[key]} />
 			);
-		}
+		}).bind(this))
 		var style = {display: expanded ? '' : 'none'};
 		return (
 			<div>
@@ -185,14 +188,15 @@ var ConfigEditor = React.createClass({
 		this.props.onChange(sec, key, val);
 	},
 	render: function () {
-		var elts = [];
-		for (var sec in this.props.cfg) {
+		var elts = [], secs = Object.keys(this.props.cfg);
+		secs.sort();
+		secs.map((function (sec) {
 			elts.push(
 				<ConfigSection
 					onChange={this.handleChange}
 					key={sec} cfgs={this.props.cfg[sec]} />
 			);
-		}
+		}).bind(this));
 		return <div>{elts}</div>;
 	}
 });
@@ -300,7 +304,7 @@ var ShutItUI = React.createClass({
 	getInitialState: function () {
 		return {
 			shutit: {
-				modules: [], errs: [],
+				modules: [], errs: [], cfg: {},
 				build_started: false, build_done: false, resetting: false
 			},
 			loadingInfo: false
