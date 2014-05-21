@@ -28,14 +28,15 @@ xdotool key KP_Enter
 #xdotool key KP_Page_Down
 #sleep 2
 #scrot -q 100 -u /root/a.png
+#patextract /root/tryagain.png 0 0 69 20 > /root/tryagain.pat
 #visgrep -x 0 -y 0 -t 100000 /root/a.png /root/tryagain.pat /root/tryagain.pat
 #res=$?
-#echo $res
 #if [[ $res = 1 ]]
 #then
 #	echo OK
 #       /bin/bash
 #else
 #	echo FAIL
+#       exit 1
 #fi
 
