@@ -402,6 +402,12 @@ def do_finalize(shutit):
 			if not shutit_map[mid].finalize(shutit):
 				util.fail(mid + ' failed on finalize',child=shutit.pexpect_children['container_child'])
 
+def shutit_module_init(shutit):
+	util.load_from_py_module(shutit, setup)
+	util.load_shutit_modules(shutit)
+	init_shutit_map(shutit)
+	config_collection(shutit)
+
 def shutit_main():
 	if sys.version_info.major == 2:
 		if sys.version_info.minor < 7:
@@ -415,22 +421,20 @@ def shutit_main():
 		util.create_skeleton(shutit)
 		return
 
-	util.load_configs(shutit)
-	# Now get base config
-	if cfg['action']['show_config']:
-		shutit.log(util.print_config(cfg),force_stdout=True)
-		return
-	util.load_from_py_module(shutit, setup)
-	util.load_shutit_modules(shutit)
-	init_shutit_map(shutit)
-	config_collection(shutit)
-
-	conn_container(shutit)
-
 	if cfg['action']['serve']:
 		import shutit_srv
 		shutit_srv.start()
 		return
+
+	util.load_configs(shutit)
+
+	if cfg['action']['show_config']:
+		shutit.log(util.print_config(cfg),force_stdout=True)
+		return
+
+	shutit_module_init(shutit)
+
+	conn_container(shutit)
 
 	errs = []
 	errs.extend(check_deps(shutit))
