@@ -11,32 +11,45 @@ export DISPLAY=:1
 xdotool exec firefox
 WID=$(xdotool search --sync --onlyvisible --class firefox)
 echo $WID
+# Wait for things to load
 xdotool sleep 10
+# Destroy the gnome terminal
 killall gnome-terminal
+# Focus on the ff window
 xdotool windowfocus $WID
+# Go to address bar
 xdotool key F6
+# Type address in
 xdotool type http://gabrielecirulli.github.io/2048/
+# Go.
 xdotool key KP_Enter
+#Wait for page to load
+sleep 5
 
-## Example for automating single attempt repeatedly (hitting down on start)
-##Wait for page to load
-#sleep 5
-##Hit down arrow
-#xdotool key KP_Down
-##Wait for game over to appear
-#sleep 5
-#xdotool key KP_Page_Down
-#sleep 2
-#scrot -q 100 -u /root/a.png
-#patextract /root/tryagain.png 0 0 69 20 > /root/tryagain.pat
-#visgrep -x 0 -y 0 -t 100000 /root/a.png /root/tryagain.pat /root/tryagain.pat
-#res=$?
-#if [[ $res = 1 ]]
-#then
-#	echo OK
-#       /bin/bash
-#else
-#	echo FAIL
-#       exit 1
-#fi
-
+## Example for automating single attempt repeatedly
+if [[ x$key != 'x' ]]
+	#Hit key, eg Down for down arrow
+	xdotool key KP_${key}
+	#Wait for game over to appear
+	sleep 5
+	xdotool key KP_Page_Down
+	sleep 2
+	# Take a screenshot, which either has "try again on it, or doesn't"
+	scrot -q 100 -u /root/a.png
+	# extract the pat file
+	patextract /root/tryagain.png 0 0 69 20 > /root/tryagain.pat
+	# is it there?
+	# 0 = match(es)
+	# 1 = no match
+	# else error
+	visgrep -x 0 -y 0 -t 100000 /root/a.png /root/tryagain.pat /root/tryagain.pat
+	res=$?
+	if [[ $res = 1 ]]
+	then
+		echo OK
+	else
+		echo FAIL
+	       exit 1
+	fi
+fi
+/bin/bash
