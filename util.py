@@ -116,6 +116,7 @@ def get_base_config(cfg, cfg_parser):
 	cfg['build']['action_on_ret_code']            = cp.get('build','action_on_ret_code')
 	cfg['build']['privileged']                    = cp.getboolean('build','privileged')
 	cfg['build']['lxc_conf']                      = cp.get('build','lxc_conf')
+	cfg['build']['build_log']                     = cp.getboolean('build','build_log')
 	cfg['build']['allowed_images']                = json.loads(cp.get('build','allowed_images'))
 	cfg['container']['password']                  = cp.get('container','password')
 	cfg['container']['hostname']                  = cp.get('container','hostname')
@@ -161,10 +162,11 @@ def get_base_config(cfg, cfg_parser):
 		logfile = os.path.join('/tmp/', 'shutit_log_' + cfg['build']['build_id'])
 	else:
 		logfile = logfile + '_' + cfg['build']['build_id']
-	cfg['build']['build_log'] = open(logfile,'a')
 	cfg['build']['container_build_log'] = '/tmp/shutit_log_' + cfg['build']['build_id']
-	# Lock it down to the running user.
-	os.chmod(logfile,0600)
+	if cfg['build']['build_log']:
+		cfg['build']['build_log'] = open(logfile,'a')
+		# Lock it down to the running user.
+		os.chmod(logfile,0600)
 	# tutorial implies interactive
 	if cfg['build']['tutorial']:
 		cfg['build']['interactive'] = True
