@@ -1,6 +1,6 @@
 # This file tests your build, removing the container when done.
 set -e
-../../shutit -s container rm yes
+../../shutit build -s container rm yes
 # Display config
 #../../shutit sc
 # Debug
