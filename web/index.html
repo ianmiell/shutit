@@ -1,17 +1,26 @@
 <html>
 <head>
-<script src="/static/react-0.10.0.min.js"></script>
+<script src="/static/react-0.10.0.js"></script>
 <script src="/static/JSXTransformer-0.10.0.js"></script>
 <style>
-#progressBox {
-	right: 0; top: 0; position: fixed;
-}
-#cmdBox, #logBox {
-	width: 400px; height: 500px; float: left;
-	overflow-y: scroll; border-width: 1px; border-style: solid;
-}
-#statusBar { padding: 10px; margin-bottom: 10px; height: 50px; width: 200px; }
+* { box-sizing: border-box; }
+body { margin: 0; padding: 0 }
 pre { margin: 0; padding: 0; }
+#progressBox {
+	width: 50%; right: 0; top: 0; height: 100%; position: fixed;
+}
+#cmdBox, #logBox, #buildArea, #infoDisplay {
+	position: relative; width: 50%; height: 100%; float: left; overflow-y: auto;
+	box-shadow: 0 0 0 2px black inset; padding: 4px;
+}
+#statusBar {
+	height: 50px; width: 50%;
+	text-align: center; line-height: 50px; font-weight: bold; font-size: 2em;
+	box-shadow: 0 0 0 2px black inset;
+}
+#inputArea {
+	position: absolute; width: 50%; top: 50px; bottom: 0;
+}
 </style>
 </head>
 <body>
@@ -20,36 +29,31 @@ pre { margin: 0; padding: 0; }
 /** @jsx React.DOM */
 'use strict';
 function copy(obj) {
-	var newObj = {};
-	for (var key in obj) {
-		if (obj.hasOwnProperty(key)) {
-			newObj[key] = obj[key];
-		}
-	}
-	return newObj;
+	return JSON.parse(JSON.stringify(obj));
 }
 function jsonpost(url, data, cb) {
 	var r = new XMLHttpRequest();
 	r.open('POST', url, true);
 	r.setRequestHeader('Content-type', 'application/json');
 	r.onreadystatechange = (function () {
-		if (r.readyState != 4 || r.status != 200) return;
-		cb(JSON.parse(r.responseText));
+		if (r.readyState != 4) return;
+		var err = r.status !== 200; // we don't have 304's in this app
+		var data = err ? null : JSON.parse(r.responseText);
+		cb(err, data);
 	});
 	r.send(JSON.stringify(data));
 }
 
 var StatusIndicator = React.createClass({
 	render: function () {
-		var color = 'transparent', text = '';
-		if (this.props.buildErr) { color = "red"; text = "error"; }
+		var color, text;
+		if (this.props.hasErr) { color = "red"; text = "error"; }
 		else if (this.props.buildDone) { color = "green"; text = "done"; }
 		else if (this.props.buildStarted) { color = "purple"; text = "building"; }
 		else if (this.props.loading) { color = "yellow"; text = "loading"; }
-		var style = {
-			visibility: color === 'transparent' ? 'hidden' : '',
-			backgroundColor: color
-		}
+		else if (this.props.resetting) { color = 'blue'; text = 'resetting'; }
+		else { color = 'transparent'; text = '...idle...'; }
+		var style = { backgroundColor: color }
 		return <div id="statusBar" style={style}>{text.toUpperCase()}</div>;
 	}
 });
@@ -88,7 +92,7 @@ var ModuleList = React.createClass({
 				key={module.module_id}
 				onChange={this.handleChange} />;
 		}).bind(this));
-		return <div>Modules: <ul>{moduleItems}</ul></div>;
+		return <div id="moduleList">Modules: <ul>{moduleItems}</ul></div>;
 	}
 });
 var ErrList = React.createClass({
@@ -99,29 +103,158 @@ var ErrList = React.createClass({
 		return <div>Errors: <ul>{errs}</ul></div>;
 	}
 });
+var ConfigItem = React.createClass({
+	handleClick: function () {
+		var editing = this.state.editing, copystate = copy(this.state);
+		if (editing) {
+			this.props.onChange(this.props.key, JSON.parse(this.state.strval));
+		} else {
+			copystate.strval = JSON.stringify(this.props.val);
+		}
+		copystate.editing = !editing;
+		this.setState(copystate);
+	},
+	handleChange: function (event) {
+		var strval = event.target.value;
+		var copystate = copy(this.state);
+		copystate.strval = strval;
+		try {
+			copystate.valid = typeof this.props.val === typeof JSON.parse(strval);
+		} catch (e) {
+			copystate.valid = false;
+		}
+		this.setState(copystate);
+	},
+	getInitialState: function () {
+		return {editing: false, valid: true, strval: ''};
+	},
+	render: function () {
+		var valElt;
+		if (this.state.editing) {
+			valElt = (
+				<span>
+					<input onChange={this.handleChange}
+						value={this.state.strval} />
+					<button disabled={!this.state.valid}
+						onClick={this.handleClick}>conf</button>
+				</span>
+			);
+		} else {
+			valElt = (
+				<span onClick={this.handleClick}>
+					{JSON.stringify(this.props.val)}
+				</span>
+			);
+		}
+		return <pre><span>{this.props.key}: </span>{valElt}</pre>;
+	}
+});
+var ConfigSection = React.createClass({
+	getInitialState: function () {
+		return {expanded: false};
+	},
+	onClick: function () {
+		this.setState({expanded: !this.state.expanded});
+	},
+	handleChange: function (key, val) {
+		var change = {};
+		this.props.onChange(this.props.key, key, val);
+	},
+	render: function () {
+		var elts = [],
+			keys = Object.keys(this.props.cfgs),
+			expanded = this.state.expanded,
+			advanced = ['build','remove','do_repository_work','build_ifneeded'];
+		keys.sort();
+		keys.map((function (key) {
+			if (!this.props.advanced && advanced.indexOf(key) > -1) { return; }
+			elts.push(
+				<ConfigItem
+					onChange={this.handleChange}
+					key={key} val={this.props.cfgs[key]} />
+			);
+		}).bind(this))
+		var parentstyle = {color: elts.length ? '' : 'grey'},
+			childstyle = {display: expanded ? '' : 'none'};
+		return (
+			<div>
+				<div style={parentstyle} onClick={this.onClick}>
+					<pre>{expanded ? '-' : '+'} {this.props.key}</pre>
+				</div>
+				<div style={childstyle}>{elts}</div>
+			</div>
+		);
+	}
+});
+var ConfigEditor = React.createClass({
+	handleChange: function (sec, key, val) {
+		this.props.onChange(sec, key, val);
+	},
+	render: function () {
+		var elts = [], secs = Object.keys(this.props.cfg);
+		secs.sort();
+		secs.map((function (sec) {
+			elts.push(
+				<ConfigSection
+					onChange={this.handleChange} advanced={this.props.advanced}
+					key={sec} cfgs={this.props.cfg[sec]} />
+			);
+		}).bind(this));
+		return <div>{elts}</div>;
+	}
+});
+var InfoDisplay = React.createClass({
+	getInitialState: function () {
+		return {advanced: false};
+	},
+	advancedSwitch: function (event) {
+		this.setState({advanced: event.target.checked});
+	},
+	handleChange: function (sec, key, val) {
+		this.props.onChange(sec, key, val);
+	},
+	render: function () {
+		return (
+			<div id="infoDisplay">
+				<div><span>CID: {this.props.cid}</span></div>
+				<br />
+				<input type="checkbox"
+				checked={this.state.advanced} onChange={this.advancedSwitch}>
+					Advanced Settings</input>
+					<ConfigEditor onChange={this.handleChange}
+						cfg={this.props.cfg} advanced={this.state.advanced} />
+			</div>
+		);
+	}
+});
 var BuildProgress = React.createClass({
 	getInitialState: function () {
-		return {cmds: [], logs: '', loadingProgress: false, interval: 0};
+		return {cmds: [], logs: '', loadingProgress: false, cid: ''};
 	},
 	getProgress: function () {
-		if (!this.props.buildStarted || this.state.loadingProgress) { return; }
+		if (this.state.loadingProgress) { return; }
 		var loadingstate = copy(this.state);
 		loadingstate.loadingProgress = true;
+		if (this.props.cid !== loadingstate.cid) {
+			loadingstate.cid = this.props.cid;
+			loadingstate.cmds = [];
+			loadingstate.logs = '';
+		}
 		this.setState(loadingstate);
 		var offsets = [this.state.cmds.length, this.state.logs.length]
-		jsonpost('/log', offsets, (function (data) {
+		jsonpost('/log', offsets, (function (err, data) {
 			var newstate = copy(this.state);
-			newstate.cmds = this.state.cmds.concat(data.cmds);
-			newstate.logs = this.state.logs + data.logs;
-			if (this.props.buildDone) { clearInterval(this.state.interval); }
+			if (!err) {
+				newstate.cmds = this.state.cmds.concat(data.cmds);
+				newstate.logs = this.state.logs + data.logs;
+			}
 			newstate.loadingProgress = false;
 			this.setState(newstate);
 		}).bind(this));
 	},
 	componentWillMount: function () {
-		var interval = setInterval(this.getProgress, 1000);
+		setInterval(this.getProgress, 1000);
 		var newstate = copy(this.state);
-		newstate.interval = interval;
 		this.setState(newstate);
 	},
 	componentWillUpdate: function () {
@@ -144,12 +277,9 @@ var BuildProgress = React.createClass({
 		});
 	},
 	render: function () {
-		var cmdElts = this.state.cmds.map(function (line, i) {
-			return <pre key={i}>{line}</pre>;
-		});
 		return (
 			<div id="progressBox">
-				<div id="cmdBox">{cmdElts}</div>
+				<div id="cmdBox"><pre>{this.state.cmds.join('\n')}</pre></div>
 				<div id="logBox"><pre>{this.state.logs}</pre></div>
 			</div>
 		);
@@ -164,67 +294,87 @@ var ShutItUI = React.createClass({
 		} else {
 			reqdata = {};
 		}
-		jsonpost('/info', reqdata, (function (shutit) {
+		jsonpost('/info', reqdata, (function (err, shutit) {
 			var newstate = copy(this.state);
 			newstate.loadingInfo = false;
-			newstate.shutit = shutit;
-			this.setState(newstate);
-			if (this.state.shutit.build_done) {
-				clearInterval(this.state.interval);
+			if (!err) {
+				newstate.shutit = shutit;
 			}
+			this.setState(newstate);
 		}).bind(this));
 	},
 	beginBuild: function () {
 		this.getInfo({'build': ''});
 	},
+	resetShutIt: function () {
+		this.getInfo({'reset': ''});
+	},
 	componentWillMount: function () {
 		this.getInfo();
-		var interval = setInterval(this.getInfo, 1000);
+		setInterval(this.getInfo, 1000);
 		var newstate = copy(this.state);
-		newstate.interval = interval;
 		this.setState(newstate);
 	},
 	getInitialState: function () {
 		return {
 			shutit: {
-				modules: [], errs: [],
-				build_started: false, build_done: false
+				modules: [], errs: [], cfg: {},
+				build_started: false, build_done: false, resetting: false
 			},
-			loadingInfo: false, interval: 0
+			loadingInfo: false
 		};
 	},
 	handleChange: function (module_id, property, value) {
-		var mid_list = [];
+		var info = {to_build: [], cfg: null};
 		this.state.shutit.modules.map(function (m) {
 			var selected = m.selected;
 			if (m.module_id === module_id && property === 'selected') {
 				selected = value;
 			}
-			if (selected) { mid_list.push(m.module_id); }
+			if (selected) { info.to_build.push(m.module_id); }
 		});
-		this.getInfo({to_build: mid_list});
+		var cfg = this.state.shutit.cfg;
+		if (module_id in cfg && property in cfg[module_id]) {
+			if (value !== cfg[module_id][property]) {
+				info.cfg = [module_id, property, value];
+			}
+		}
+		this.getInfo(info);
 	},
 	render: function () {
-		var noInput = (this.state.loadingInfo ||
+		var noInput = (this.state.loadingInfo || this.state.shutit.resetting ||
 			this.state.shutit.build_started || this.state.shutit.build_done);
+		var cannotReset = (this.state.loadingInfo || this.state.shutit.resetting ||
+			(this.state.shutit.build_started && !this.state.shutit.build_done));
 		return (
 			<div>
 				<StatusIndicator
 					loading={this.state.loadingInfo}
+					resetting={this.state.shutit.resetting}
 					buildStarted={this.state.shutit.build_started}
 					buildDone={this.state.shutit.build_done}
-					buildErr={this.state.shutit.build_done &&
-						this.state.shutit.errs.length} />
-				<ModuleList
-					onChange={this.handleChange}
-					noInput={noInput}
-					modules={this.state.shutit.modules} />
-				<ErrList errs={this.state.shutit.errs} />
-				<button disabled={noInput || this.state.shutit.errs.length}
-					onClick={this.beginBuild}>Begin build</button>
+					hasErr={this.state.shutit.errs.length} />
+				<div id="inputArea">
+					<div id="buildArea">
+						<ModuleList
+							onChange={this.handleChange}
+							noInput={noInput}
+							modules={this.state.shutit.modules} />
+						<ErrList errs={this.state.shutit.errs} />
+						<button disabled={noInput || this.state.shutit.errs.length}
+							onClick={this.beginBuild}>Begin build</button>
+						<button disabled={cannotReset}
+							onClick={this.resetShutIt}>Reset ShutIt</button>
+					</div>
+					<InfoDisplay
+						onChange={this.handleChange}
+						cid={this.state.shutit.cid}
+						cfg={this.state.shutit.cfg} />
+				</div>
 				<BuildProgress
 					buildStarted={this.state.shutit.build_started}
-					buildDone={this.state.shutit.build_done}/>
+					buildDone={this.state.shutit.build_done}
+					cid={this.state.shutit.cid} />
 			</div>
 		);
 	}
