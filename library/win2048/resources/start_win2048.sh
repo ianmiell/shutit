@@ -19,18 +19,23 @@ xdotool type http://gabrielecirulli.github.io/2048/
 xdotool key KP_Enter
 
 ## Example for automating single attempt repeatedly (hitting down on start)
-#sleep 2
-#xdotool key KP_Down
+##Wait for page to load
 #sleep 5
-#scrot -u /root/a.png
+##Hit down arrow
+#xdotool key KP_Down
+##Wait for game over to appear
+#sleep 5
+#xdotool key KP_Page_Down
+#sleep 2
+#scrot -q 100 -u /root/a.png
 #visgrep -x 0 -y 0 -t 100000 /root/a.png /root/tryagain.pat /root/tryagain.pat
 #res=$?
 #echo $res
 #if [[ $res = 1 ]]
 #then
 #	echo OK
+#       /bin/bash
 #else
 #	echo FAIL
 #fi
-#/bin/bash
 
