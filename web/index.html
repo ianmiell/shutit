@@ -174,13 +174,14 @@ var ConfigSection = React.createClass({
 					key={key} val={this.props.cfgs[key]} />
 			);
 		}).bind(this))
-		var style = {display: expanded ? '' : 'none'};
+		var parentstyle = {color: elts.length ? '' : 'grey'},
+			childstyle = {display: expanded ? '' : 'none'};
 		return (
 			<div>
-				<div onClick={this.onClick}>
+				<div style={parentstyle} onClick={this.onClick}>
 					<pre>{expanded ? '-' : '+'} {this.props.key}</pre>
 				</div>
-				<div style={style}>{elts}</div>
+				<div style={childstyle}>{elts}</div>
 			</div>
 		);
 	}
