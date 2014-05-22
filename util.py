@@ -261,7 +261,7 @@ def parse_args(cfg):
 		sub_parsers[action].add_argument('-s', '--set', help='Override a config item, e.g. "-s container rm no". Can be specified multiple times.', default=[], action='append', nargs=3, metavar=('SEC','KEY','VAL'))
 		sub_parsers[action].add_argument('--image_tag', help='Build container using specified image - if there is a symbolic reference, please use that, eg localhost.localdomain:5000/myref',default=cfg['container']['docker_image_default'])
 		sub_parsers[action].add_argument('--shutit_module_path', default='.',help='List of shutit module paths, separated by colons. ShutIt registers modules by running all .py files in these directories.')
-		sub_parsers[action].add_argument('--pause',help='Pause between commands to avoid race conditions.',default='0.5')
+		sub_parsers[action].add_argument('--pause',help='Pause between commands to avoid race conditions.',default='0.2')
 		sub_parsers[action].add_argument('--debug',help='Show debug. Implies [build]/interactive config settings set, even if set to "no".',default=False,const=True,action='store_const')
 		sub_parsers[action].add_argument('--tutorial',help='Show tutorial info. Implies [build]/interactive config setting set, even if set to "no".',default=False,const=True,action='store_const')
 
