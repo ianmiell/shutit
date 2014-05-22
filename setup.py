@@ -88,10 +88,6 @@ class conn_docker(ShutItModule):
 
 		# Onto the actual execution
 
-		# Always-required options
-		cfg['build']['cidfile'] = '/tmp/' + cfg['host']['username'] + '_cidfile_' + cfg['build']['build_id']
-		cidfile_arg = '--cidfile=' + cfg['build']['cidfile']
-
 		# Singly specified options
 		privileged_arg = ''
 		lxc_conf_arg   = ''
@@ -126,7 +122,6 @@ class conn_docker(ShutItModule):
 		run_cmd = docker + [
 			arg for arg in [
 				'run',
-				cidfile_arg,
 				privileged_arg,
 				lxc_conf_arg,
 				name_arg,
