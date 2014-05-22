@@ -47,6 +47,47 @@ class conn_docker(ShutItModule):
 	def build(self,shutit):
 		cfg = shutit.cfg
 
+		docker = cfg['host']['docker_executable'].split(' ')
+		password = cfg['host']['password']
+
+		# Do some docker capability checking
+
+		# First check we actually have docker and password (if needed) works
+		check_cmd = docker + ['--version']
+		str_cmd = ' '.join(check_cmd)
+		try:
+			child = pexpect.spawn(check_cmd[0], check_cmd[1:], timeout=1)
+		except pexpect.ExceptionPexpect:
+			util.fail('Cannot run check on "' + str_cmd + '", is the docker ' +
+				'command on your path?')
+		try:
+			if child.expect(['assword', pexpect.EOF]) == 0:
+				child.sendline(password)
+				child.expect(pexpect.EOF)
+		except pexpect.ExceptionPexpect:
+			util.fail('"' + str_cmd + '" did not complete in 1s, ' +
+				'is your host password config correct?')
+		child.close()
+		if child.exitstatus != 0:
+			util.fail('"' + str_cmd + '" didn\'t return a 0 exit code')
+		# Now check connectivity to the docker daemon
+		check_cmd = docker + ['info']
+		str_cmd = ' '.join(check_cmd)
+		child = pexpect.spawn(check_cmd[0], check_cmd[1:], timeout=1)
+		try:
+			if child.expect(['assword', pexpect.EOF]) == 0:
+				child.sendline(password)
+				child.expect(pexpect.EOF)
+		except pexpect.ExceptionPexpect:
+			util.fail('"' + str_cmd + '" did not complete in 1s, ' +
+				'is the docker daemon overloaded?')
+		child.close()
+		if child.exitstatus != 0:
+			util.fail(str_cmd + ' didn\'t return a 0 exit code, ' +
+				'is the docker daemon running?')
+
+		# Onto the actual execution
+
 		# Always-required options
 		cfg['build']['cidfile'] = '/tmp/' + cfg['host']['username'] + '_cidfile_' + cfg['build']['build_id']
 		cidfile_arg = '--cidfile=' + cfg['build']['cidfile']
@@ -82,7 +123,7 @@ class conn_docker(ShutItModule):
 		for dns in dns_list:
 			dns_args.append('-dns=' + dns)
 
-		docker_command = cfg['host']['docker_executable'].split(' ') + [
+		docker_command = docker + [
 			arg for arg in [
 				'run',
 				cidfile_arg,
