@@ -123,7 +123,7 @@ class conn_docker(ShutItModule):
 		for dns in dns_list:
 			dns_args.append('-dns=' + dns)
 
-		run_cmd = docker + [
+		docker_command = docker + [
 			arg for arg in [
 				'run',
 				cidfile_arg,
@@ -134,9 +134,8 @@ class conn_docker(ShutItModule):
 				volume_arg,
 				rm_arg,
 				] + port_args + dns_args + [
-				'-t', # pseudo-tty, required for a shell
-				'-i', # interactive
-				'-d', # send to background
+				'-t',
+				'-i',
 				cfg['container']['docker_image'],
 				'/bin/bash'
 			] if arg != ''
@@ -149,16 +148,15 @@ class conn_docker(ShutItModule):
 				'\nor config:\n\n\t[container]\n\tdocker_image:<image>)\n\nBase' +
 				'image in this case is:\n\n\t' + cfg['container']['docker_image'] +
 				'\n\n',child=None,print_input=False)
-		shutit.log('\n\nCommand being run is:\n\n' + ' '.join(run_cmd),force_stdout=True,prefix=False)
+		shutit.log('\n\nCommand being run is:\n\n' + ' '.join(docker_command),force_stdout=True,prefix=False)
 		shutit.log('\n\nThis may download the image, please be patient\n\n',force_stdout=True,prefix=False)
-
-		# Actually start the container and get the cid
-		child = pexpect.spawn(run_cmd[0], run_cmd[1:])
-		if child.expect(['assword',pexpect.EOF], timeout=9999) == 0:
-			child.sendline(password)
-			child.expect('\r\n')
-			child.expect(pexpect.EOF, timeout=9999)
-		cid = child.before.strip()
+		container_child = pexpect.spawn(docker_command[0], docker_command[1:])
+		if container_child.expect(['assword',cfg['expect_prompts']['base_prompt'].strip()],9999) == 0:
+			shutit.send_and_expect(cfg['host']['password'],child=container_child,
+				expect=cfg['expect_prompts']['base_prompt'],timeout=9999,check_exit=False)
+		# Get the cid
+		time.sleep(1) # cidfile creation is sometimes slow...
+		cid = open(cfg['build']['cidfile']).read()
 		if cid == '' or re.match('^[a-z0-9]+$', cid) == None:
 			util.fail('Could not get container_id - quitting. Check whether ' +
 				'other containers may be clashing on port allocation or name.' +
@@ -169,16 +167,7 @@ class conn_docker(ShutItModule):
 				cfg['container']['ports'] + ' | awk \'{print $1}\' | ' +
 				'xargs ' + cfg['host']['docker_executable'] + ' kill\nto + '
 				'resolve a port clash\n')
-		shutit.log('Started container ' + cid, force_stdout=True)
 		cfg['container']['container_id'] = cid
-
-		# Connect to the container we started and set up pexpect
-		base_prompt = cfg['expect_prompts']['base_prompt']
-		attach_cmd = docker + ['attach', cid]
-		container_child = pexpect.spawn(attach_cmd[0], attach_cmd[1:])
-		if container_child.expect(['assword', base_prompt.strip()], 5) == 0:
-			child.sendline(password, timeout=5)
-			container_child.expect(base_prompt.strip(), timeout=5)
 		# Now let's have a host_child
 		host_child = pexpect.spawn('/bin/bash')
 		# Some pexpect settings
