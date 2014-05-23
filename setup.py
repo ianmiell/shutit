@@ -179,13 +179,10 @@ class conn_docker(ShutItModule):
 		# Some pexpect settings
 		shutit.pexpect_children['host_child'] = host_child
 		shutit.pexpect_children['container_child'] = container_child
-		shutit.set_default_expect(base_prompt)
+		shutit.set_default_expect(cfg['expect_prompts']['base_prompt'])
 		host_child.logfile = container_child.logfile = sys.stdout
 		host_child.maxread = container_child.maxread = 2000
 		host_child.searchwindowsize = container_child.searchwindowsize = 1024
-		# Race conditions have been seen - might want to remove this
-		delay = cfg['build']['command_pause']
-		host_child.delaybeforesend = container_child.delaybeforesend = delay
 		# Set up prompts and let the user do things before the build
 		# host child
 		shutit.set_default_child(host_child)
