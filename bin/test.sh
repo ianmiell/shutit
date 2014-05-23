@@ -26,7 +26,7 @@ TESTS=$1
 
 set -o errexit
 set -o nounset
-set -x 
+#set -x 
 
 # Variables
 NEWDIR=/tmp/shutit_testing_$(hostname)_$(whoami)_$(date -I)_$(date +%N)
