@@ -74,8 +74,8 @@ var ModuleListItem = React.createClass({
 					disabled={this.props.noInput}
 					onChange={this.handleChange.bind(this, 'selected')}></input>
 				<span style={{fontWeight: this.props.module.build ? 'bold' : ''}}>
-					{this.props.module.module_id} - {this.props.module.run_order}
-					{this.props.module.build}</span>
+					{this.props.module.module_id}
+				{this.props.module.description}</span>
 			</li>
 		)
 	}

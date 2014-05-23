@@ -73,6 +73,7 @@ def update_modules(to_build, cfg):
 	STATUS['modules'] = [
 		{
 			"module_id": mid,
+			"description": shutit.shutit_map[mid].description,
 			"run_order": float(shutit.shutit_map[mid].run_order),
 			"build": shutit.cfg[mid]['build'],
 			"selected": mid in selected
