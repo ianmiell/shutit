@@ -27,11 +27,15 @@ xdotool key KP_Enter
 sleep 5
 
 ## Example for automating single attempt repeatedly
-if [[ x$key != 'x' ]]
+if [[ x$keys != 'x' ]]
 then
-	echo "pressing $key"
-	#Hit key, eg Down for down arrow
-	xdotool key KP_${key}
+	for k in $keys
+	do	
+		echo "pressing $k"
+		sleep 1
+		#Hit key, eg Down for down arrow
+		xdotool key KP_${k}
+	done
 	#Wait for game over to appear
 	echo "Waiting for game over"
 	sleep 5
