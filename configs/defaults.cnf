@@ -91,8 +91,6 @@ packages:["passwd","sudo","lsb-release"]
 
 # Aspects of build process
 [build]
-# Whether to be interactive at key points (eg end of module build)
-interactive:no
 build_log:no
 # options: msg   = message at end if there was a ret code error from a command
 #          error = throw error if there was a ret code error from a command
