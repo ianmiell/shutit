@@ -112,7 +112,6 @@ def issue_warning(msg,wait):
 def get_base_config(cfg, cfg_parser):
 	cfg['config_parser'] = cp = cfg_parser
 	# BEGIN Read from config files
-	cfg['build']['interactive']                   = cp.get('build','interactive')
 	cfg['build']['action_on_ret_code']            = cp.get('build','action_on_ret_code')
 	cfg['build']['privileged']                    = cp.getboolean('build','privileged')
 	cfg['build']['lxc_conf']                      = cp.get('build','lxc_conf')
@@ -257,7 +256,7 @@ def parse_args(cfg):
 		sub_parsers[action].add_argument('--shutit_module_path', default='.',help='List of shutit module paths, separated by colons. ShutIt registers modules by running all .py files in these directories.')
 		sub_parsers[action].add_argument('--pause',help='Pause between commands to avoid race conditions.',default='0.0')
 		sub_parsers[action].add_argument('--debug',help='Show debug.',default=False,const=True,action='store_const')
-		sub_parsers[action].add_argument('--interactive',help='Level of interactive. 0 = none, 1 = regular asking, 2 = tutorial mode',default='0',const=True,action='store_const')
+		sub_parsers[action].add_argument('--interactive',help='Level of interactive. 0 = none, 1 = regular asking, 2 = tutorial mode',default='0')
 
 	args_list = sys.argv[1:]
 	# Load command line options from the environment (if set)
@@ -460,7 +459,7 @@ def load_configs(shutit):
 		for c in configs:
 			msg = msg + '\t\n' + c
 			log('\t' + c)
-		if cfg['build']['interactive']:
+		if cfg['build']['interactive'] >= 2:
 			pause_point(None,'\n' + msg + '\n\nLooking at config files in the '
 				'above order (even if they do not exist - you may want to '
 				'create them).\n\nIf you get a "Port already in use:" error, '
