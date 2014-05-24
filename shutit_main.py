@@ -338,11 +338,7 @@ def build_module(shutit, module):
 		shutit.log(module.module_id + ' configured to be tagged, doing repository work')
 		# Stop all before we tag to avoid file changing errors, and clean up pid files etc..
 		stop_all(shutit, module.run_order)
-		util.do_repository_work(cfg,
-			cfg['expect_prompts']['base_prompt'],
-			str(module.module_id) + '_' + str(module.run_order),
-			password=cfg['host']['password'],
-			docker_executable=cfg['host']['docker_executable'])
+		shutit.do_repository_work(str(module.module_id) + '_' + str(module.run_order),password=cfg['host']['password'],docker_executable=cfg['host']['docker_executable'])
 		# Start all after we tag to ensure services are up as expected.
 		start_all(shutit, module.run_order)
 	if (cfg['build']['interactive'] >= 1 and
