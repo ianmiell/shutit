@@ -38,7 +38,7 @@ class composer(ShutItModule):
 		return True
 
 if not util.module_exists('shutit.tk.composer.composer'):
-	obj = composer('shutit.tk.composer.composer',0.315,'Dependency manager for php: https://getcomposer.org/')
+	obj = composer('shutit.tk.composer.composer',0.315,'dependency manager for php: https://getcomposer.org/')
 	obj.add_dependency('shutit.tk.setup')
 	util.get_shutit_modules().add(obj)
 	ShutItModule.register(composer)

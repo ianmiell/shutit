@@ -51,7 +51,7 @@ class postgres(ShutItModule):
 		return True
 
 if not util.module_exists('shutit.tk.postgres.postgres'):
-	obj = postgres('shutit.tk.postgres.postgres',0.320,'Postgres ShutIt module. Handles shm settings etc..')
+	obj = postgres('shutit.tk.postgres.postgres',0.320,'handles shm settings')
 	obj.add_dependency('shutit.tk.setup')
 	util.get_shutit_modules().add(obj)
 	ShutItModule.register(postgres)

@@ -50,7 +50,7 @@ class win2048(ShutItModule):
 #          eg com.my_corp.my_module_dir.my_module
 # float:   Float value for ordering module builds, must be > 0.0
 if not util.module_exists('shutit.tk.win2048.win2048'):
-	obj = win2048('shutit.tk.win2048.win2048',0.326)
+	obj = win2048('shutit.tk.win2048.win2048',0.326,'win at 2048')
 	obj.add_dependency('shutit.tk.setup')
 	obj.add_dependency('shutit.tk.vnc.vnc')
 	util.get_shutit_modules().add(obj)

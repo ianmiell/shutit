@@ -215,7 +215,7 @@ var InfoDisplay = React.createClass({
 	render: function () {
 		return (
 			<div id="infoDisplay">
-				<div><span>CID: {this.props.cid}</span></div>
+				<div><span><small>Container ID: {this.props.cid}</small></span></div>
 				<br />
 				<input type="checkbox"
 				checked={this.state.advanced} onChange={this.advancedSwitch}>
