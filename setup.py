@@ -101,6 +101,10 @@ class conn_docker(ShutItModule):
 		rm_arg         = ''
 		if cfg['build']['privileged']:
 			privileged_arg = '--privileged=true'
+		else:
+			# TODO: put in to ensure serve always works.
+			# Need better solution in place, eg refresh builder when build needs privileged
+			privileged_arg = '--privileged=true'
 		if cfg['build']['lxc_conf'] != '':
 			lxc_conf_arg = '--lxc-conf=' + cfg['build']['lxc_conf']
 		if cfg['container']['name'] != '':
