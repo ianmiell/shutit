@@ -112,7 +112,7 @@ def issue_warning(msg,wait):
 def get_base_config(cfg, cfg_parser):
 	cfg['config_parser'] = cp = cfg_parser
 	# BEGIN Read from config files
-	cfg['build']['interactive']                   = cp.getboolean('build','interactive')
+	cfg['build']['interactive']                   = cp.get('build','interactive')
 	cfg['build']['action_on_ret_code']            = cp.get('build','action_on_ret_code')
 	cfg['build']['privileged']                    = cp.getboolean('build','privileged')
 	cfg['build']['lxc_conf']                      = cp.get('build','lxc_conf')
@@ -167,12 +167,6 @@ def get_base_config(cfg, cfg_parser):
 		cfg['build']['build_log'] = open(logfile,'a')
 		# Lock it down to the running user.
 		os.chmod(logfile,0600)
-	# tutorial implies interactive
-	if cfg['build']['tutorial']:
-		cfg['build']['interactive'] = True
-	# debug implies interactive
-	if cfg['build']['debug']:
-		cfg['build']['interactive'] = True
 	# END tidy configs up
 
 	# BEGIN warnings
@@ -194,7 +188,7 @@ def get_base_config(cfg, cfg_parser):
 	# rm is incompatible with do_repository_work
 	if cfg['container']['rm'] and cfg['repository']['do_repository_work']:
 		fail("Can't have [container]/rm and [repository]/do_repository_work set to true")
-	if warn != '' and not cfg['build']['tutorial']:
+	if warn != '':
 		issue_warning('Showing computed config. This can also be done by calling --sc:',2)
 		log(print_config(cfg),force_stdout=True,code='31')
 		time.sleep(1)
@@ -262,8 +256,8 @@ def parse_args(cfg):
 		sub_parsers[action].add_argument('--image_tag', help='Build container using specified image - if there is a symbolic reference, please use that, eg localhost.localdomain:5000/myref',default=cfg['container']['docker_image_default'])
 		sub_parsers[action].add_argument('--shutit_module_path', default='.',help='List of shutit module paths, separated by colons. ShutIt registers modules by running all .py files in these directories.')
 		sub_parsers[action].add_argument('--pause',help='Pause between commands to avoid race conditions.',default='0.0')
-		sub_parsers[action].add_argument('--debug',help='Show debug. Implies [build]/interactive config settings set, even if set to "no".',default=False,const=True,action='store_const')
-		sub_parsers[action].add_argument('--tutorial',help='Show tutorial info. Implies [build]/interactive config setting set, even if set to "no".',default=False,const=True,action='store_const')
+		sub_parsers[action].add_argument('--debug',help='Show debug.',default=False,const=True,action='store_const')
+		sub_parsers[action].add_argument('--interactive',help='Level of interactive. 0 = none, 1 = regular asking, 2 = tutorial mode',default='0',const=True,action='store_const')
 
 	args_list = sys.argv[1:]
 	# Load command line options from the environment (if set)
@@ -324,7 +318,7 @@ def parse_args(cfg):
 	# Get these early for this part of the build.
 	# These should never be config arguments, since they are needed before config is passed in.
 	cfg['build']['debug'] = args.debug
-	cfg['build']['tutorial'] = args.tutorial
+	cfg['build']['interactive'] = int(args.interactive)
 	cfg['build']['command_pause'] = float(args.pause)
 	cfg['build']['extra_configs'] = args.config
 	cfg['build']['config_overrides'] = args.set
@@ -337,7 +331,7 @@ def parse_args(cfg):
 			time.sleep(1)
 		cfg['host']['shutit_module_paths'].append('.')
 	# Finished parsing args, tutorial stuff
-	if cfg['build']['tutorial']:
+	if cfg['build']['interactive'] >= 2:
 		print textwrap.dedent("""\
 			================================================================================
 			SHUTIT - INTRODUCTION
@@ -461,12 +455,12 @@ def load_configs(shutit):
 		configs.append(run_config_file)
 	# Image to use to start off. The script should be idempotent, so running it
 	# on an already built image should be ok, and is advised to reduce diff space required.
-	if cfg['build']['tutorial'] or cfg['action']['show_config']:
+	if cfg['build']['interactive'] >= 2 or cfg['action']['show_config']:
 		msg = ''
 		for c in configs:
 			msg = msg + '\t\n' + c
 			log('\t' + c)
-		if cfg['build']['tutorial']:
+		if cfg['build']['interactive']:
 			pause_point(None,'\n' + msg + '\n\nLooking at config files in the '
 				'above order (even if they do not exist - you may want to '
 				'create them).\n\nIf you get a "Port already in use:" error, '
@@ -654,7 +648,7 @@ def create_skeleton(shutit):
 		# Debug
 		#''' + shutit_dir + '''/shutit build --debug
 		# Tutorial
-		#''' + shutit_dir + '''/shutit build --tutorial
+		#''' + shutit_dir + '''/shutit build --interactive 2
 		''')
 	testsh = textwrap.dedent('''\
 		#!/bin/bash
@@ -702,7 +696,7 @@ def create_skeleton(shutit):
 		# Debug
 		#''' + shutit_dir + '''/shutit build --debug
 		# Tutorial
-		#''' + shutit_dir + '''/shutit build --tutorial
+		#''' + shutit_dir + '''/shutit build --
 		''')
 	buildpushsh = textwrap.dedent('''\
 		set -e
@@ -712,7 +706,7 @@ def create_skeleton(shutit):
 		# Debug
 		#''' + shutit_dir + '''/shutit build --debug
 		# Tutorial
-		#''' + shutit_dir + '''/shutit build --tutorial
+		#''' + shutit_dir + '''/shutit build --interactive 2
 		''')
 	defaultscnf = textwrap.dedent('''\
 		# Base config for the module. This contains standard defaults or hashed out examples.
@@ -849,7 +843,7 @@ def create_skeleton(shutit):
 	================================================================================
 	Run:
 
-	    cd ''' + skel_path + '; ' + shutit_dir + '''/shutit build --tutorial
+	    cd ''' + skel_path + '; ' + shutit_dir + '''/shutit build --interactive 2
 
 	And follow the instructions in the output.
 
