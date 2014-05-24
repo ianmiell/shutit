@@ -144,7 +144,7 @@ class conn_docker(ShutItModule):
 				'/bin/bash'
 			] if arg != ''
 		]
-		if cfg['build']['tutorial']:
+		if cfg['build']['interactive'] >= 2:
 			shutit.pause_point('\n\nAbout to start container. ' +
 				'Ports mapped will be: ' + ', '.join(port_args) +
 				' (from\n\n[host]\nports:<value>\n\nconfig, building on the ' +
@@ -216,7 +216,7 @@ BUILDREPEND"""
 		container_child.sendline('exit') # Exit container
 
 		# Tag and push etc
-		if cfg['build']['tutorial']:
+		if cfg['build']['interactive'] >= 2:
 			shutit.pause_point('\nDoing final committing/tagging on the overall container and creating the artifact.',
 				child=shutit.pexpect_children['host_child'],print_input=False)
 		util.do_repository_work(
