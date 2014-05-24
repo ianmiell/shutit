@@ -43,7 +43,7 @@ class adduser(ShutItModule):
 		return True
 
 if not util.module_exists('shutit.tk.adduser.adduser'):
-	obj = adduser('shutit.tk.adduser.adduser',0.380)
+	obj = adduser('shutit.tk.adduser.adduser',0.380,'add a user')
 	obj.add_dependency('shutit.tk.setup')
 	util.get_shutit_modules().add(obj)
 	ShutItModule.register(adduser)

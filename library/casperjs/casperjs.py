@@ -47,7 +47,7 @@ class casperjs(ShutItModule):
 		return True
 
 if not util.module_exists('shutit.tk.casperjs.casperjs'):
-	obj = casperjs('shutit.tk.casperjs.casperjs',0.314,'casperjs ShutIt module. See http://casperjs.org/')
+	obj = casperjs('shutit.tk.casperjs.casperjs',0.314,'http://casperjs.org/')
 	util.get_shutit_modules().add(obj)
 	ShutItModule.register(casperjs)
 

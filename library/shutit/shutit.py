@@ -34,7 +34,7 @@ class shutit(ShutItModule):
 		return True
 
 if not util.module_exists('shutit.tk.shutit.shutit'):
-	obj = shutit('shutit.tk.shutit.shutit',0.397)
+	obj = shutit('shutit.tk.shutit.shutit',0.397,'shutit in container')
 	obj.add_dependency('shutit.tk.setup')
 	obj.add_dependency('shutit.tk.docker.docker')
 	# We need to create a user to get shutit to work

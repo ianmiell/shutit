@@ -32,7 +32,7 @@ class xlibdev(ShutItModule):
 
 
 if not util.module_exists('shutit.tk.xlibdev.xlibdev'):
-	obj = xlibdev('shutit.tk.xlibdev.xlibdev',0.3225)
+	obj = xlibdev('shutit.tk.xlibdev.xlibdev',0.3225,'xlib dev environment')
 	obj.add_dependency('shutit.tk.setup')
 	obj.add_dependency('shutit.tk.vnc.vnc')
 	util.get_shutit_modules().add(obj)

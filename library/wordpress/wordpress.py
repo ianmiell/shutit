@@ -83,7 +83,7 @@ END"""
 
 
 if not util.module_exists('shutit.tk.wordpress.wordpress'):
-	obj = wordpress('shutit.tk.wordpress.wordpress',0.325,'Wordpress example ShutIt module')
+	obj = wordpress('shutit.tk.wordpress.wordpress',0.325,'wordpress setup')
 	obj.add_dependency('shutit.tk.setup')
 	obj.add_dependency('shutit.tk.mysql.mysql')
 	util.get_shutit_modules().add(obj)
