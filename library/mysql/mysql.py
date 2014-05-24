@@ -131,7 +131,7 @@ class mysql(ShutItModule):
 		return True
 
 if not util.module_exists('shutit.tk.mysql.mysql'):
-	obj = mysql('shutit.tk.mysql.mysql',0.318,'ShutIt MySql module. Sets up a user/password and the root password.')
+	obj = mysql('shutit.tk.mysql.mysql',0.318,'mysql module. sets up a user/password and the root password, tests all OK.')
 	obj.add_dependency('shutit.tk.setup')
 	util.get_shutit_modules().add(obj)
 	ShutItModule.register(mysql)

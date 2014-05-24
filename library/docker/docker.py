@@ -152,7 +152,7 @@ END"""
 
 
 if not util.module_exists('shutit.tk.docker.docker'):
-	obj = docker('shutit.tk.docker.docker',0.396,'Docker server within docker, communicating with host docker daemon')
+	obj = docker('shutit.tk.docker.docker',0.396,'docker server communicating with host docker daemon')
 	obj.add_dependency('shutit.tk.setup')
 	obj.add_dependency('shutit.tk.ssh_server.ssh_server')
 	util.get_shutit_modules().add(obj)

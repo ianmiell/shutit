@@ -62,7 +62,7 @@ class ssh_server(ShutItModule):
 
 
 if not util.module_exists('shutit.tk.ssh_server.ssh_server'):
-	obj = ssh_server('shutit.tk.ssh_server.ssh_server',0.321,'OpenSSH server ShutIt module')
+	obj = ssh_server('shutit.tk.ssh_server.ssh_server',0.321,'ssh server')
 	obj.add_dependency('shutit.tk.setup')
 	util.get_shutit_modules().add(obj)
 	ShutItModule.register(ssh_server)
