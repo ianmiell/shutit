@@ -1,5 +1,5 @@
 #!/bin/bash
-echo "Input keys, eg "Right Left Down Up", Left, Up, Down, or blank for no key"
+echo "Input keys, eg \"Right Left Down Up\", Left, Up, Down, or blank for no key"
 read keys
 echo "Input image, default is: $(whoami)/2048"
 read image
