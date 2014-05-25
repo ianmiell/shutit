@@ -152,9 +152,6 @@ class conn_docker(ShutItModule):
 				'\nor config:\n\n\t[container]\n\tdocker_image:<image>)\n\nBase' +
 				'image in this case is:\n\n\t' + cfg['container']['docker_image'] +
 				'\n\n',child=None,print_input=False)
-		# We seem to need a pause at this point, as sometimes the expect does not "catch",
-		# presumably due to a race condition.
-		time.sleep(2)
 		shutit.log('\n\nCommand being run is:\n\n' + ' '.join(docker_command),force_stdout=True,prefix=False)
 		shutit.log('\n\nThis may download the image, please be patient\n\n',force_stdout=True,prefix=False)
 		container_child = pexpect.spawn(docker_command[0], docker_command[1:])
@@ -176,6 +173,7 @@ class conn_docker(ShutItModule):
 				'resolve a port clash\n')
 		cfg['container']['container_id'] = cid
 		# Now let's have a host_child
+		util.log('Creating host child')
 		host_child = pexpect.spawn('/bin/bash')
 		# Some pexpect settings
 		shutit.pexpect_children['host_child'] = host_child
@@ -187,15 +185,15 @@ class conn_docker(ShutItModule):
 		# Set up prompts and let the user do things before the build
 		# host child
 		shutit.set_default_child(host_child)
+		util.log('Setting up default prompt on host child')
 		shutit.setup_prompt('real_user_prompt','REAL_USER')
-		shutit.set_default_expect(cfg['expect_prompts']['real_user_prompt'])
 		# container child
 		shutit.set_default_child(container_child)
+		util.log('Setting up default prompt on container child')
 		shutit.setup_prompt('pre_build', 'PRE_BUILD')
-		shutit.set_default_expect(cfg['expect_prompts']['pre_build'])
 		shutit.get_distro_info()
 		shutit.setup_prompt('root_prompt', 'ROOT')
-		shutit.set_default_expect(cfg['expect_prompts']['root_prompt'])
+		# TODO: distro-independence
 		shutit.send_and_expect('export DEBIAN_FRONTEND=noninteractive',check_exit=False)
 		shutit.pause_point('Anything you want to do now the container is connected to?')
 		return True
