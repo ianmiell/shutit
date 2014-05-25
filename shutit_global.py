@@ -619,8 +619,9 @@ def init():
 	username = os.environ.get('LOGNAME','')
 	if username == '':
 		util.fail('LOGNAME not set in the environment, please set to your username.')
-	if username == 'root':
-		util.fail('You cannot be root to run this script')
+	# TODO: Do we still need this?
+	#if username == 'root':
+	#	util.fail('You cannot be root to run this script')
 	# Get the real username
 	cfg['host']['real_user'] = os.environ.get('SUDO_USER', username)
 	cfg['build']['build_id'] = socket.gethostname() + '_' + cfg['host']['real_user'] + '_' + str(time.time())
