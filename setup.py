@@ -152,6 +152,9 @@ class conn_docker(ShutItModule):
 				'\nor config:\n\n\t[container]\n\tdocker_image:<image>)\n\nBase' +
 				'image in this case is:\n\n\t' + cfg['container']['docker_image'] +
 				'\n\n',child=None,print_input=False)
+		# We seem to need a pause at this point, as sometimes the expect does not "catch",
+		# presumably due to a race condition.
+		time.sleep(2)
 		shutit.log('\n\nCommand being run is:\n\n' + ' '.join(docker_command),force_stdout=True,prefix=False)
 		shutit.log('\n\nThis may download the image, please be patient\n\n',force_stdout=True,prefix=False)
 		container_child = pexpect.spawn(docker_command[0], docker_command[1:])
