@@ -240,13 +240,13 @@ class ShutIt(object):
 				util.fail(msg + '\n\nPause point on exit_code != 0. CTRL-C to quit',child=child)
 				#raise Exception('Exit value from command\n' + send + '\nwas:\n' + res)
 
-	def run_script(self,script,expect=None,child=None,is_bash=True):
+	def run_script(self,script,expect=None,child=None,in_shell=True):
 		"""Run the passed-in string 
 
-		- script  - 
-		- expect  - 
-		- child   - 
-		- is_bash - 
+		- script   - 
+		- expect   - 
+		- child    - 
+		- in_shell - 
 		"""
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
@@ -259,13 +259,15 @@ class ShutIt(object):
 			return True
 		script = '\n'.join(lines)
 		script = textwrap.dedent(script)
-		if is_bash:
-			script = ('#!/bin/bash\nset -o verbose\nset -o errexit\n' +
-				'set -o nounset\n\n' + script)
+		if in_shell:
+			script = ('set -o xtrace \n\n' + script + '\n\nset +o xtrace')
 		self.send_file('/tmp/shutit_script.sh', script)
 		self.send_and_expect('chmod +x /tmp/shutit_script.sh', expect, child)
 		self.shutit_command_history.append('    ' + script.replace('\n', '\n    '))
-		ret = self.send_and_expect('/tmp/shutit_script.sh', expect, child)
+		if in_shell:
+			ret = self.send_and_expect('. /tmp/shutit_script.sh', expect, child)
+		else:
+			ret = self.send_and_expect('/tmp/shutit_script.sh', expect, child)
 		self.send_and_expect('rm /tmp/shutit_script.sh', expect, child)
 		return ret
 
