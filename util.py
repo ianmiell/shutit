@@ -268,6 +268,14 @@ def parse_args(cfg):
 			and '-h' not in sys.argv and '--help' not in sys.argv):
 		sys.argv.insert(1, 'build')
 
+	# Pexpect documentation says systems have issues with pauses < 0.05
+	def check_pause(value):
+		ivalue = float(value)
+		if ivalue < 0.05:
+			raise argparse.ArgumentTypeError(
+				"%s is an invalid pause (must be >= 0.05)" % value)
+		return ivalue
+
 	parser = argparse.ArgumentParser(description='ShutIt - a tool for managing complex Docker deployments')
 	subparsers = parser.add_subparsers(dest='action', help='Action to perform. Defaults to \'build\'.')
 
@@ -285,7 +293,7 @@ def parse_args(cfg):
 		sub_parsers[action].add_argument('-s', '--set', help='Override a config item, e.g. "-s container rm no". Can be specified multiple times.', default=[], action='append', nargs=3, metavar=('SEC','KEY','VAL'))
 		sub_parsers[action].add_argument('--image_tag', help='Build container using specified image - if there is a symbolic reference, please use that, eg localhost.localdomain:5000/myref',default=cfg['container']['docker_image_default'])
 		sub_parsers[action].add_argument('-m','--shutit_module_path', default='.',help='List of shutit module paths, separated by colons. ShutIt registers modules by running all .py files in these directories.')
-		sub_parsers[action].add_argument('--pause',help='Pause between commands to avoid race conditions.',default='0.0')
+		sub_parsers[action].add_argument('--pause',help='Pause between commands to avoid race conditions.',default='0.05',type=check_pause)
 		sub_parsers[action].add_argument('--debug',help='Show debug.',default=False,const=True,action='store_const')
 		sub_parsers[action].add_argument('--interactive',help='Level of interactive. 0 = none, 1 = regular asking, 2 = tutorial mode',default='0')
 

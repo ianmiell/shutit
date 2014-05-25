@@ -196,8 +196,6 @@ class ShutIt(object):
 			self.log('================================================================================')
 			self.log('Sending>>>' + send + '<<<')
 			self.log('Expecting>>>' + str(expect) + '<<<')
-		# Race conditions have been seen (we thought at one point) - might want to remove this
-		time.sleep(cfg['build']['command_pause'])
 		child.sendline(send)
 		expect_res = child.expect(expect,timeout)
 		if cfg['build']['debug']:

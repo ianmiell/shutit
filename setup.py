@@ -191,6 +191,8 @@ class conn_docker(ShutItModule):
 		host_child.logfile = container_child.logfile = sys.stdout
 		host_child.maxread = container_child.maxread = 2000
 		host_child.searchwindowsize = container_child.searchwindowsize = 1024
+		delay = cfg['build']['command_pause']
+		host_child.delaybeforesend = container_child.delaybeforesend = delay
 		# Set up prompts and let the user do things before the build
 		# host child
 		shutit.set_default_child(host_child)
