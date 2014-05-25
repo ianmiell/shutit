@@ -40,7 +40,7 @@ STATUS = None
 
 def build_shutit():
 	global STATUS
-	util.log(print_cfg(shutit.cfg))
+	util.log(util.print_config(shutit.cfg))
 	try:
 		shutit_main.do_remove(shutit)
 		shutit_main.do_build(shutit)
