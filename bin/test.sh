@@ -21,21 +21,14 @@
 
 TESTS=$1
 
-[ "x$DOCKER" != "x" ] || DOCKER="sudo docker"
-[ "x$TESTS" != "x" ] || TEST="basic"
-
-set -o errexit
-set -o nounset
-#set -x 
+source shared_test_utils.sh
 
 # Variables
 NEWDIR=/tmp/shutit_testing_$(hostname)_$(whoami)_$(date -I)_$(date +%N)
-CNAME=shutit_test_container_$(dd if=/dev/urandom bs=256 count=1 2>/dev/null | md5sum | awk '{print $1}')
 SHUTIT_DIR="$(pwd)/.."
-# Off for now
-SHUTIT_PARALLEL_BUILD=
-readonly SHUTIT_PARALLEL_BUILD CNAME NEWDIR SHUTIT_DIR
-export SHUTIT_OPTIONS="-s container name $CNAME"
+readonly NEWDIR SHUTIT_DIR
+
+set_shutit_options
 
 # Check we can use docker
 if ! $DOCKER info >/dev/null 2>&1; then
@@ -43,26 +36,7 @@ if ! $DOCKER info >/dev/null 2>&1; then
 	false
 fi
 
-function failure() {
-	echo "============================================"
-	echo "FAILED"
-	echo "$1"
-	echo "============================================"
-	cleanup hard
-	exit 1
-}
-
-function cleanup() {
-	local CONTAINERS=$($DOCKER ps -a | grep shutit_test_container_ | awk '{print $1}')
-	if [ "x$1" = "xhard" ]; then
-		$DOCKER kill $CONTAINERS >/dev/null 2>&1 || /bin/true
-	fi
-	$DOCKER rm $CONTAINERS >/dev/null 2>&1 || /bin/true
-}
-
-# Set up a random container name for tests to use
 # This is a fallback, any tests runnable on their own should include the below
-
 if [[ $0 != test.sh ]] && [[ $0 != ./test.sh ]]
 then
 	echo "Must be run from bin dir of ShutIt"
@@ -112,6 +86,7 @@ do
 			PIDS="$PIDS $!"
 		fi
 		cleanup nothard
+		set_shutit_options
 	fi
 	popd
 done
