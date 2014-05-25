@@ -33,13 +33,12 @@ class casperjs(ShutItModule):
 		shutit.set_default_expect(shutit.cfg['expect_prompts']['root_prompt'])
 		shutit.install('git')
 		shutit.run_script("""
-			pushd /opt
+			#!/bin/bash
+			cd /opt
 			git clone git://github.com/n1k0/casperjs.git
-			pushd casperjs
+			cd casperjs
 			git checkout tags/1.0.2
-			popd
-			popd
-		""")
+		""", in_shell=False)
 		return True
 
 	def remove(self,shutit):
