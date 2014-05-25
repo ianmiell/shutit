@@ -184,8 +184,8 @@ class ShutIt(object):
 		if res not in exit_values or res == None:
 			if res == None:
 				res = str(res)
-			self.log(util.red('child.after: \n' + child.after + '\n'))
-			self.log(util.red('Exit value from command+\n' + send + '\nwas:\n' + res))
+			self.log('child.after: \n' + child.after + '\n')
+			self.log('Exit value from command+\n' + send + '\nwas:\n' + res)
 			msg = '\nWARNING: command:\n' + send + '\nreturned unaccepted exit code: ' + res + '\nIf this is expected, pass in check_exit=False or an exit_values array into the send_and_expect function call.\nIf you want to error on these errors, set the config:\n[build]\naction_on_ret_code:error'
 			cfg['build']['report'] = cfg['build']['report'] + msg
 			if cfg['build']['action_on_ret_code'] == 'error':
