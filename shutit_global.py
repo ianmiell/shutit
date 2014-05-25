@@ -288,10 +288,28 @@ class ShutIt(object):
 			self.log('Sending file to' + path)
 			if not binary:
 				self.log('contents >>>' + contents + '<<<')
+		# Prepare to send the contents as base64 so we don't have to worry about
+		# special shell characters
+		contents = ''
 		contents64 = base64.standard_b64encode(contents)
 		child.sendline('base64 --decode > ' + path)
-		child.sendline(contents64)
+		child.expect('\r\n')
+		# We have to batch the file up to avoid hitting pipe buffer limit. This
+		# is 4k on modern machines (it seems), but we choose 1k for safety
+		# https://github.com/pexpect/pexpect/issues/55
+		batchsize = 1024
+		for l in range(0, len(contents64), batchsize):
+			child.sendline(contents64[l:l + batchsize])
+		# Make sure we've synced the prompt before we send EOF. I don't know why
+		# this requires three sendlines to generate 2x'\r\n'.
+		# Note: we can't rely on a '\r\n' from the batching because the file
+		# being sent may validly be empty.
+		child.sendline()
+		child.sendline()
+		child.sendline()
+		child.expect('\r\n\r\n')
 		child.sendeof()
+		# Done sending the file
 		child.expect(expect)
 		self._check_exit("send file to " + path,expect,child)
 
