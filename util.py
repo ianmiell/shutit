@@ -877,7 +877,7 @@ def pause_point(child,msg,print_input=True,expect='',cfg=None):
 		expect=expect)
 
 # Deprecated
-def do_repository_work(cfg,expect,repo_name,docker_executable='docker',password=None):
+def do_repository_work(cfg,expect,repo_name,docker_executable='docker.io',password=None):
 	if cfg not in [None, shutit_global.shutit.cfg]:
 		print "Report this error and stack trace to repo owner, #d111"
 		assert False
