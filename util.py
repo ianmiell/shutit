@@ -188,7 +188,7 @@ def get_base_config(cfg, cfg_parser):
 	if cfg['container']['rm'] and cfg['repository']['do_repository_work']:
 		fail("Can't have [container]/rm and [repository]/do_repository_work set to true")
 	if warn != '':
-		issue_warning('Showing computed config. This can also be done by calling --sc:',2)
+		issue_warning('Showing computed config. This can also be done by calling with sc:',2)
 		log(print_config(cfg),force_stdout=True,code='31')
 		time.sleep(1)
 	# If build/allowed_images doesn't contain container/docker_image
