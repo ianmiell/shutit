@@ -33,7 +33,6 @@ class mysql(ShutItModule):
 		shutit.set_default_expect(shutit.cfg['expect_prompts']['base_prompt'])
 		shutit.send_and_expect('bash',check_exit=False)
 		shutit.setup_prompt('mysql_tmp_prompt')
-		shutit.set_default_expect(shutit.cfg['expect_prompts']['mysql_tmp_prompt'])
 		root_pass = shutit.cfg['shutit.tk.mysql.mysql']['root_password']
 		shutit.send_and_expect("apt-get update", record_command=False)
 		shutit.send_and_expect("""debconf-set-selections <<< 'mysql-server mysql-server/root_password password {0}'""".format(root_pass),record_command=False)

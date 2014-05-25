@@ -349,6 +349,7 @@ def do_build(shutit):
 	cfg = shutit.cfg
 	shutit_map = shutit.shutit_map
 	shutit.log('PHASE: build, cleanup, repository work',code='31')
+	util.log(util.print_config(shutit.cfg))
 	if cfg['build']['interactive'] >= 2:
 		shutit.pause_point('\nNow building any modules that need building',print_input=False)
 	for mid in module_ids(shutit):

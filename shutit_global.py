@@ -427,7 +427,7 @@ class ShutIt(object):
 		self.setup_prompt(prompt_name, child=child)
 
 	# Use this when you've opened a new shell to set the PS1 to something sane.
-	def setup_prompt(self,prompt_name,prefix='TMP',child=None):
+	def setup_prompt(self,prompt_name,prefix='TMP',child=None,set_default_expect=True):
 		child = child or self.get_default_child()
 		local_prompt = 'SHUTIT_' + prefix + '#' + random_id() + '>'
 		shutit.cfg['expect_prompts'][prompt_name] = '\r\n' + local_prompt
@@ -436,6 +436,9 @@ class ShutIt(object):
 				(prompt_name, local_prompt),
 			expect=self.cfg['expect_prompts'][prompt_name],
 			fail_on_empty_before=False)
+		if set_default_expect:
+			util.log('Resetting default expect to: ' + shutit.cfg['expect_prompts'][prompt_name])
+			self.set_default_expect(shutit.cfg['expect_prompts'][prompt_name])
 
 	def handle_revert_prompt(self,expect,prompt_name,child=None):
 		self.revert_prompt(prompt_name,expect,child)
