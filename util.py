@@ -180,8 +180,9 @@ def get_base_config(cfg, cfg_parser):
 	if cfg['host']['password'][:5] == 'YOUR_':
 		warn = '# Found ' + cfg['host']['password'] + ' in your config, you may want to quit and override, eg put the following into your\n# ' + shutit_global.cwd + '/configs/' + socket.gethostname() + '_' + cfg['host']['real_user'] + '.cnf file: (create if necessary)\n\n[host]\n#your "real" password on your host machine\npassword:mypassword\n\n'
 		issue_warning(warn,2)
-	if warn != '':
-		fail('Failed due to above warnings - please correct and retry')
+	# TODO: reinstate these?
+	#if warn != '':
+	#	fail('Failed due to above warnings - please correct and retry')
 	# END warnings
 	# FAILS begins
 	# rm is incompatible with do_repository_work
