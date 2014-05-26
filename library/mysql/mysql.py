@@ -20,9 +20,7 @@
 #OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 #SOFTWARE.
 
-
 from shutit_module import ShutItModule
-import util
 
 class mysql(ShutItModule):
 
@@ -129,9 +127,11 @@ class mysql(ShutItModule):
 		shutit.cfg['shutit.tk.mysql.mysql']['root_password']       = cp.get('shutit.tk.mysql.mysql','root_password')
 		return True
 
-if not util.module_exists('shutit.tk.mysql.mysql'):
-	obj = mysql('shutit.tk.mysql.mysql',0.318,'mysql module. sets up a user/password and the root password, tests all OK.')
-	obj.add_dependency('shutit.tk.setup')
-	util.get_shutit_modules().add(obj)
-	ShutItModule.register(mysql)
+def module():
+	return mysql(
+		'shutit.tk.mysql.mysql', 0.318,
+		description='mysql module. sets up a user/password and the root ' +
+			'password, tests all OK.',
+		depends=['shutit.tk.setup']
+	)
 

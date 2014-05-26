@@ -20,9 +20,7 @@
 #OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 #SOFTWARE.
 
-
 from shutit_module import ShutItModule
-import util
 
 class casperjs(ShutItModule):
 
@@ -46,7 +44,9 @@ class casperjs(ShutItModule):
 		return True
 
 def module():
-	obj = casperjs('shutit.tk.casperjs.casperjs',0.314,'http://casperjs.org/')
-	obj.add_dependency('shutit.tk.setup')
-	return obj
+	return casperjs(
+		'shutit.tk.casperjs.casperjs', 0.314,
+		description='http://casperjs.org/',
+		depends=['shutit.tk.setup']
+	)
 
