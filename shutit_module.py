@@ -114,7 +114,7 @@ class ShutItModule(object):
 	__metaclass__ = ShutItMeta
 
 	def __init__(self, module_id, run_order,
-			description='', deps=None, conflicts=None):
+			description='', depends=None, conflicts=None):
 		"""Constructor.
 		Sets up module_id, run_order, deps and conflicts.
 		Also checks types for safety.
@@ -142,8 +142,8 @@ class ShutItModule(object):
 		self.run_order = run_order
 		# module ids depended on
 		self.depends_on     = []
-		if deps is not None:
-			self.depends_on = [dep for dep in deps]
+		if depends is not None:
+			self.depends_on = [dep for dep in depends]
 		# module ids this is known to conflict with.
 		self.conflicts_with = []
 		if conflicts is not None:
