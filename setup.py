@@ -223,7 +223,8 @@ LOGFILEEND"""
 		build_rep = """cat > """ + logfile + """ << BUILDREPEND
 """ + util.build_report('') + """
 BUILDREPEND"""
-		shutit.send_and_expect(build_rep,record_command=False)
+		# Do we need this check_exit=False?
+		shutit.send_and_expect(build_rep,record_command=False,check_exit=False)
 		container_child.sendline('exit') # Exit container
 
 		# Tag and push etc
