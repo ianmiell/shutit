@@ -25,9 +25,10 @@ import json
 import copy
 import threading
 import StringIO
+import subprocess
 
 import bottle
-from bottle import route, request, static_file
+from bottle import route, request, response, static_file
 
 import shutit_main
 import shutit_global
@@ -134,6 +135,24 @@ def static_srv(path):
 	"""Serves a static file.
 	"""
 	return static_file(path + '.js', root='./web')
+
+@route('/export/<cid>.tar.gz')
+def export_srv(cid):
+	# TODO: this blocks all other requests
+	global shutit
+	docker = shutit.cfg['host']['docker_executable'].split(' ')
+	export_cmd = docker + ['export', cid]
+	# TODO: check for error on stderr for both the below commands
+	tar_export = subprocess.Popen(export_cmd,
+		stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+	gzip_export = subprocess.Popen(['gzip', '--stdout'],
+		stdin=tar_export.stdout, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+	response.content_type = 'application/x-gzip'
+	response.set_header('Content-disposition', 'attachment')
+	if 'wsgi.file_wrapper' in request.environ:
+		return request.environ['wsgi.file_wrapper'](gzip_export.stdout)
+	else:
+		return iter(lambda: gzip_export.stdout.read(1024*1024), '')
 
 def shutit_reset():
 	"""Handles a ShutIt reset, clearing the STATUS global.

@@ -308,6 +308,9 @@ var ShutItUI = React.createClass({
 	resetShutIt: function () {
 		this.getInfo({'reset': ''});
 	},
+	exportContainer: function () {
+		window.open('/export/' + this.state.shutit.cid + '.tar.gz')
+	},
 	componentWillMount: function () {
 		this.getInfo();
 		setInterval(this.getInfo, 1000);
@@ -317,7 +320,7 @@ var ShutItUI = React.createClass({
 	getInitialState: function () {
 		return {
 			shutit: {
-				modules: [], errs: [], cfg: {},
+				modules: [], errs: [], cfg: {}, cid: '',
 				build_started: false, build_done: false, resetting: false
 			},
 			loadingInfo: false
@@ -364,6 +367,8 @@ var ShutItUI = React.createClass({
 							onClick={this.beginBuild}>Begin build</button>
 						<button disabled={cannotReset}
 							onClick={this.resetShutIt}>Reset ShutIt</button>
+						<button disabled={!this.state.shutit.build_done}
+							onClick={this.exportContainer}>Export Container</button>
 					</div>
 					<InfoDisplay
 						onChange={this.handleChange}
