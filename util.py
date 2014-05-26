@@ -568,7 +568,13 @@ def load_all_from_path(shutit, path):
 			load_mod_from_file(shutit, os.path.join(root, fname))
 
 def load_mod_from_file(shutit, fpath):
-	"""Responsible for loading a .py file into ShutIt.
+	"""Loads modules from a .py file into ShutIt if there are no modules from
+	this file already.
+	We expect to have a callable 'module/0' which returns one or more module
+	objects.
+	If this doesn't exist we assume that the .py file works in the old style
+	(automatically inserting the module into shutit_global) or it's not a shutit
+	module.
 	"""
 	mod_name, file_ext = os.path.splitext(os.path.split(fpath)[-1])
 	if file_ext.lower() != '.py':
@@ -589,18 +595,7 @@ def load_mod_from_file(shutit, fpath):
 		log('Loading source for: ' + mod_name, fpath)
 	pymod = imp.load_source(mod_name, fpath)
 
-	#To load from a py module we expect to have a callable 'module/0'
-	#function which returns one or more module objects.
-	#If this doesn't exist we assume that it's doing the 'old' style
-	#(automatically inserting the module) or it's not a shutit module;
-	#in either case, this function is a no-op.
-
 	# Got the python module, now time to pull the shutit module(s) out of it.
-	# New style is to have a callable 'module/0' which returns one or
-	# more module objects.
-	# If this doesn't exist we assume that it's doing the old style
-	# (automatically inserting the module) or it's not a shutit module.
-	# In either case, there's nothing left to do
 	targets = [
 		('module', shutit.shutit_modules), ('conn_module', shutit.conn_modules)
 	]
