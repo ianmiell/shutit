@@ -609,12 +609,10 @@ def create_skeleton(shutit):
 
 	os.makedirs(skel_path)
 	os.mkdir(os.path.join(skel_path, 'configs'))
-	os.mkdir(os.path.join(skel_path, 'resources'))
 	os.mkdir(os.path.join(skel_path, 'bin'))
 
 	templatemodule_path = os.path.join(skel_path, skel_module_name + '.py')
 	readme_path = os.path.join(skel_path, 'README.md')
-	resreadme_path = os.path.join(skel_path, 'resources', 'README.md')
 	buildsh_path = os.path.join(skel_path, 'build.sh')
 	testsh_path = os.path.join(skel_path, 'bin', 'test.sh')
 	runsh_path = os.path.join(skel_path, 'run.sh')
@@ -634,11 +632,6 @@ def create_skeleton(shutit):
 		).replace('FLOAT','1000.00'
 	)
 	readme = skel_module_name + ': description of module directory in here'
-	resreadme = (skel_module_name + ': resources required in this directory, ' +
-		'eg gzips or text files.\nNote that the .gitignore file in the ' +
-		skel_path + ' directory should exclude these files from being added ' +
-		'to git repos (usually due to size), but can be added if forced with ' +
-		'\'git add --force <file>\'.\n')
 	buildsh = textwrap.dedent('''\
 		# This file tests your build, leaving the container intact when done.
 		set -e
@@ -782,7 +775,6 @@ def create_skeleton(shutit):
 
 	open(templatemodule_path, 'w').write(templatemodule)
 	open(readme_path, 'w').write(readme)
-	open(resreadme_path, 'w').write(resreadme)
 	open(buildsh_path, 'w').write(buildsh)
 	os.chmod(buildsh_path, os.stat(buildsh_path).st_mode | 0111) # chmod +x
 	open(testsh_path, 'w').write(testsh)
