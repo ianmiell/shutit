@@ -31,9 +31,8 @@ import setup
 import time
 import sys
 
-# Gets a list of module ids by run_order, ignoring conn modules (run order < 0)
 def module_ids(shutit, rev=False):
-	"""TODO
+	"""Gets a list of module ids by run_order, ignoring conn modules (run order < 0)
 	"""
 	shutit_map = shutit.shutit_map
 	ids = sorted(shutit_map.keys(), key=lambda mid: shutit_map[mid].run_order)
@@ -42,7 +41,7 @@ def module_ids(shutit, rev=False):
 	return ids
 
 def print_modules(shutit):
-	"""TODO
+	"""Returns a string table representing the modules in the ShutIt module map.
 	"""
 	cfg = shutit.cfg
 	shutit_map = shutit.shutit_map
@@ -56,10 +55,10 @@ def print_modules(shutit):
 			mid + '\n')
 	return s
 
-# Stop all apps less than the supplied run_order
 # run_order of -1 means 'stop everything'
 def stop_all(shutit, run_order=-1):
-	"""TODO
+	"""Runs stop method on all modules less than the passed-in run_order.
+	Used when container is exporting itself mid-build, so we clean up state before committing run files etc.
 	"""
 	cfg = shutit.cfg
 	shutit_map = shutit.shutit_map
@@ -75,7 +74,9 @@ def stop_all(shutit, run_order=-1):
 
 # Start all apps less than the supplied run_order
 def start_all(shutit, run_order=-1):
-	"""TODO
+	"""Runs start method on all modules less than the passed-in run_order.
+	Used when container is exporting itself mid-build, so we can export a clean
+	container and still depended-on modules running if necessary.
 	"""
 	cfg = shutit.cfg
 	shutit_map = shutit.shutit_map
@@ -89,21 +90,21 @@ def start_all(shutit, run_order=-1):
 				if not shutit_module_obj.start(shutit):
 					util.fail('failed to start: ' + mid,child=shutit.pexpect_children['container_child'])
 
-# Returns true if this module is configured to be built, or if it is already installed.
 def is_built(shutit,shutit_module_obj):
-	"""TODO
+	"""Returns true if this module is configured to be built, or if it is already installed.
 	"""
 	return shutit.cfg[shutit_module_obj.module_id]['build'] or shutit_module_obj.is_installed(shutit)
 
 def init_shutit_map(shutit):
-	"""TODO
+	"""Initializes the module map of shutit based on the modules we have gathered.
+
+	Checks we have core modules
+	Checks for duplicate module details.
+	Sets up common config.
+	Sets up map of modules.
 	"""
 	cfg = shutit.cfg
 	shutit_map = shutit.shutit_map
-	# Check we have modules
-	# Check for duplicate module details.
-	# Set up common config.
-	# Set up map of modules.
 
 	modules = shutit.shutit_modules
 
@@ -141,7 +142,7 @@ def init_shutit_map(shutit):
 		util.fail('No module with run_order=0 specified! This is required.')
 
 def config_collection(shutit):
-	"""TODO
+	"""Collect core config from config files for all seen modules.
 	"""
 	cfg = shutit.cfg
 	shutit_map = shutit.shutit_map
@@ -164,7 +165,7 @@ def config_collection(shutit):
 			util.fail(mid + ' failed on get_config')
 
 def conn_container(shutit):
-	"""TODO
+	"""Connect to the container.
 	"""
 	assert len(shutit.conn_modules) == 1
 	# Set up the container in pexpect.
@@ -174,7 +175,7 @@ def conn_container(shutit):
 	list(shutit.conn_modules)[0].build(shutit)
 
 def finalize_container(shutit):
-	"""TODO
+	"""Finalize the container using the core finalize method.
 	"""
 	assert len(shutit.conn_modules) == 1
 	# Set up the container in pexpect.
@@ -186,7 +187,7 @@ def finalize_container(shutit):
 # Once we have all the modules, then we can look at dependencies.
 # Dependency validation begins.
 def resolve_dependencies(shutit, to_build, depender):
-	"""TODO
+	"""Add any required dependencies.
 	"""
 	cfg = shutit.cfg
 	for dependee_id in depender.depends_on:
@@ -196,8 +197,9 @@ def resolve_dependencies(shutit, to_build, depender):
 				and cfg[dependee_id]['build_ifneeded']):
 			to_build.append(dependee)
 			cfg[dependee_id]['build'] = True
+
 def check_dependee_exists(shutit, depender, dependee, dependee_id):
-	"""TODO
+	"""Checks whether a depended-on module is available.
 	"""
 	# If the module id isn't there, there's a problem.
 	if dependee == None:
@@ -207,8 +209,9 @@ def check_dependee_exists(shutit, depender, dependee, dependee_id):
 			'\nCheck your --shutit_module_path setting and ensure that ' +
 			'all modules configured to be built are in that path setting, ' +
 			'eg "--shutit_module_path /path/to/other/module/:." See also help.')
+
 def check_dependee_build(shutit, depender, dependee, dependee_id):
-	"""TODO
+	"""Checks whether a depended on module is configured to be built.
 	"""
 	# If depender is installed or will be installed, so must the dependee
 	if not (shutit.cfg[dependee.module_id]['build'] or dependee.is_installed(shutit)):
@@ -216,8 +219,9 @@ def check_dependee_build(shutit, depender, dependee, dependee_id):
 			'is configured: "build:yes" or is already built ' +
 			'but dependee module_id:\n\n[' + dependee_id + ']\n\n' +
 			'is not configured: "build:yes"')
+
 def check_dependee_order(shutit, depender, dependee, dependee_id):
-	"""TODO
+	"""Checks whether run orders are in the appropriate order.
 	"""
 	# If it depends on a module id, then the module id should be higher up in the run order.
 	if dependee.run_order > depender.run_order:
@@ -226,8 +230,9 @@ def check_dependee_order(shutit, depender, dependee, dependee_id):
 			'depends on dependee module_id:\n\n' + dependee_id +
 			'\n\n(run order: ' + str(dependee.run_order) + ') ' +
 			'but the latter is configured to run after the former')
+
 def make_dep_graph(depender):
-	"""TODO
+	"""Returns a digraph string fragment based on the passed-in module 
 	"""
 	digraph = ''
 	for dependee_id in depender.depends_on:
@@ -235,7 +240,7 @@ def make_dep_graph(depender):
 	return digraph
 
 def check_deps(shutit):
-	"""TODO
+	"""Dependency checking phase is performed in this method.
 	"""
 	cfg = shutit.cfg
 	shutit_map = shutit.shutit_map
@@ -293,7 +298,7 @@ def check_deps(shutit):
 	return []
 
 def check_conflicts(shutit):
-	"""TODO
+	"""Checks for any conflicts between modules configured to be built.
 	"""
 	cfg = shutit.cfg
 	shutit_map = shutit.shutit_map
@@ -319,7 +324,8 @@ def check_conflicts(shutit):
 	return errs
 
 def check_ready(shutit):
-	"""TODO
+	"""Check that all modules are ready to be built, calling check_ready on each of those
+	configured to be built and not already installed (see is_installed).
 	"""
 	cfg = shutit.cfg
 	shutit_map = shutit.shutit_map
@@ -338,7 +344,7 @@ def check_ready(shutit):
 	return errs
 
 def do_remove(shutit):
-	"""TODO
+	"""Remove modules by calling remove method on those configured for removal.
 	"""
 	cfg = shutit.cfg
 	shutit_map = shutit.shutit_map
@@ -356,7 +362,7 @@ def do_remove(shutit):
 				util.fail(mid + ' failed on remove',child=shutit.pexpect_children['container_child'])
 
 def build_module(shutit, module):
-	"""TODO
+	"""Build passed-in module.
 	"""
 	cfg = shutit.cfg
 	shutit.log('building: ' + module.module_id + ' with run order: ' + str(module.run_order),code='31')
@@ -387,7 +393,7 @@ def build_module(shutit, module):
 		cfg['build']['interactive'] = 0
 
 def do_build(shutit):
-	"""TODO
+	"""Runs build phase, building any modules that we've determined need building.
 	"""
 	cfg = shutit.cfg
 	shutit_map = shutit.shutit_map
@@ -409,7 +415,7 @@ def do_build(shutit):
 				util.fail(module.module_id + ' failed on start',child=shutit.pexpect_children['container_child'])
 
 def do_test(shutit):
-	"""TODO
+	"""Runs test phase, erroring if any return false.
 	"""
 	cfg = shutit.cfg
 	shutit_map = shutit.shutit_map
@@ -427,7 +433,7 @@ def do_test(shutit):
 				util.fail(mid + ' failed on test',child=shutit.pexpect_children['container_child'])
 
 def do_finalize(shutit):
-	"""TODO
+	"""Runs finalize phase; run after all builds are complete and all modules have been stopped.
 	"""
 	cfg = shutit.cfg
 	shutit_map = shutit.shutit_map
@@ -446,7 +452,7 @@ def do_finalize(shutit):
 				util.fail(mid + ' failed on finalize',child=shutit.pexpect_children['container_child'])
 
 def shutit_module_init(shutit):
-	"""TODO
+	"""Initialize.
 	"""
 	util.load_from_py_module(shutit, setup)
 	util.load_shutit_modules(shutit)
@@ -454,7 +460,14 @@ def shutit_module_init(shutit):
 	config_collection(shutit)
 
 def shutit_main():
-	"""TODO
+	"""Main ShutIt function.
+	
+	Handles the configured actions:
+
+	- skeleton    - create skeleton module
+	- serve       - run as a server
+	- sc          - output computed configuration
+	- depgraph    - output digraph of module dependencies
 	"""
 	if sys.version_info.major == 2:
 		if sys.version_info.minor < 7:
