@@ -66,7 +66,7 @@ class conn_docker(ShutItModule):
 				child.expect(pexpect.EOF)
 		except pexpect.ExceptionPexpect:
 			util.fail('"' + str_cmd + '" did not complete in 1s, ' +
-				'is your host password config correct?')
+				'\nIs your host password config correct?\nIs your docker_executable setting correct?')
 		child.close()
 		if child.exitstatus != 0:
 			util.fail('"' + str_cmd + '" didn\'t return a 0 exit code')

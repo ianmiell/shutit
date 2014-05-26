@@ -180,8 +180,9 @@ def get_base_config(cfg, cfg_parser):
 	if cfg['host']['password'][:5] == 'YOUR_':
 		warn = '# Found ' + cfg['host']['password'] + ' in your config, you may want to quit and override, eg put the following into your\n# ' + shutit_global.cwd + '/configs/' + socket.gethostname() + '_' + cfg['host']['real_user'] + '.cnf file: (create if necessary)\n\n[host]\n#your "real" password on your host machine\npassword:mypassword\n\n'
 		issue_warning(warn,2)
-	if warn != '':
-		fail('Failed due to above warnings - please correct and retry')
+	# TODO: reinstate these?
+	#if warn != '':
+	#	fail('Failed due to above warnings - please correct and retry')
 	# END warnings
 	# FAILS begins
 	# rm is incompatible with do_repository_work
@@ -253,7 +254,7 @@ def parse_args(cfg):
 		sub_parsers[action].add_argument('--config', help='Config file for setup config. Must be with perms 0600. Multiple arguments allowed; config files considered in order.',default=[], action='append')
 		sub_parsers[action].add_argument('-s', '--set', help='Override a config item, e.g. "-s container rm no". Can be specified multiple times.', default=[], action='append', nargs=3, metavar=('SEC','KEY','VAL'))
 		sub_parsers[action].add_argument('--image_tag', help='Build container using specified image - if there is a symbolic reference, please use that, eg localhost.localdomain:5000/myref',default=cfg['container']['docker_image_default'])
-		sub_parsers[action].add_argument('--shutit_module_path', default='.',help='List of shutit module paths, separated by colons. ShutIt registers modules by running all .py files in these directories.')
+		sub_parsers[action].add_argument('-m','--shutit_module_path', default='.',help='List of shutit module paths, separated by colons. ShutIt registers modules by running all .py files in these directories.')
 		sub_parsers[action].add_argument('--pause',help='Pause between commands to avoid race conditions.',default='0.0')
 		sub_parsers[action].add_argument('--debug',help='Show debug.',default=False,const=True,action='store_const')
 		sub_parsers[action].add_argument('--interactive',help='Level of interactive. 0 = none, 1 = regular asking, 2 = tutorial mode',default='0')
@@ -876,7 +877,7 @@ def pause_point(child,msg,print_input=True,expect='',cfg=None):
 		expect=expect)
 
 # Deprecated
-def do_repository_work(cfg,expect,repo_name,docker_executable='docker',password=None):
+def do_repository_work(cfg,expect,repo_name,docker_executable='docker.io',password=None):
 	if cfg not in [None, shutit_global.shutit.cfg]:
 		print "Report this error and stack trace to repo owner, #d111"
 		assert False
