@@ -39,7 +39,7 @@ shutit = None
 STATUS = None
 
 def build_shutit():
-	"""TODO
+	"""Performs ShutIt remove/build/test/finalize cycle.
 	"""
 	global STATUS
 	try:
@@ -53,14 +53,14 @@ def build_shutit():
 	STATUS["build_done"] = True
 
 def update_modules(to_build, cfg):
-	"""TODO
+	"""Updates modules to be built with the passed-in config.
+	Updating each individual module section will propogate the changes to
+	STATUS as well (as the references are the same)
 	"""
 	global STATUS
 	if cfg is not None:
 		sec, key, val = cfg
 		orig_mod_cfg[sec][key] = val
-	# Updating each individual module section will propogate the changes to
-	# STATUS as well (as the references are the same)
 	for mid in orig_mod_cfg:
 		shutit.cfg[mid].update(orig_mod_cfg[mid])
 
@@ -86,14 +86,13 @@ def update_modules(to_build, cfg):
 
 @route('/info', method='POST')
 def info():
-	"""TODO
+	"""Handles requests to build, reset, defaulting to returning current STATUS if none of these are requested.
 	"""
 	global STATUS
 	can_check = not (STATUS['build_started'] or STATUS['resetting'])
-	can_cfg = not (STATUS['build_started'] or STATUS['resetting'])
+	can_cfg   = not (STATUS['build_started'] or STATUS['resetting'])
 	can_build = not (STATUS['build_started'] or STATUS['resetting'])
-	can_reset = not ((STATUS['build_started'] and not STATUS['build_done']) or
-		STATUS['resetting'])
+	can_reset = not ((STATUS['build_started'] and not STATUS['build_done']) or STATUS['resetting'])
 
 	if can_check and 'to_build' in request.json and 'cfg' in request.json:
 		update_modules(request.json['to_build'], request.json['cfg'])
@@ -109,7 +108,7 @@ def info():
 
 @route('/log', method='POST')
 def log():
-	"""TODO
+	"""Returns log information to the client.
 	"""
 	cmd_offset, log_offset = request.json
 	if STATUS['resetting']:
@@ -125,18 +124,18 @@ def log():
 
 @route('/')
 def index():
-	"""TODO
+	"""Serves the main file.
 	"""
 	return static_file('index.html', root='./web')
 
 @route('/static/<path:path>.js')
 def static_srv(path):
-	"""TODO
+	"""Serves a static file.
 	"""
 	return static_file(path + '.js', root='./web')
 
 def shutit_reset():
-	"""TODO
+	"""Handles a ShutIt reset, clearing the STATUS global.
 	"""
 	global orig_mod_cfg
 	global shutit
@@ -192,7 +191,11 @@ def shutit_reset():
 	t.start()
 
 def start():
-	"""TODO
+	"""Start the ShutIt server.
+
+	Environment variables:
+		SHUTIT_HOST - hostname for the server (default: localhost)
+		SHUTIT_PORT - port for the server (default: 8080)
 	"""
 	shutit_reset()
 
