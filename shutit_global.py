@@ -33,11 +33,17 @@ import base64
 from shutit_module import ShutItFailException
 
 def random_id(size=5, chars=string.ascii_letters + string.digits):
+	"""TODO
+	"""
 	return ''.join(random.choice(chars) for _ in range(size))
 
 class ShutIt(object):
+	"""TODO
+	"""
 
 	def __init__(self, **kwargs):
+		"""TODO
+		"""
 		# These used to be in shutit_global, so we pass them in as args so
 		# the original reference can be put in shutit_global
 		self.pexpect_children = kwargs['pexpect_children']
@@ -59,6 +65,8 @@ class ShutIt(object):
 	# shutit_module when a module method is called.
 	# This allows setting defaults for the 'scope' of a method.
 	def module_method_start(self):
+		"""TODO
+		"""
 		if self._default_child[-1] is not None:
 			self._default_child.append(self._default_child[-1])
 		if self._default_expect[-1] is not None:
@@ -66,6 +74,8 @@ class ShutIt(object):
 		if self._default_check_exit[-1] is not None:
 			self._default_check_exit.append(self._default_check_exit[-1])
 	def module_method_end(self):
+		"""TODO
+		"""
 		if len(self._default_child) != 1:
 			self._default_child.pop()
 		if len(self._default_expect) != 1:
@@ -74,24 +84,36 @@ class ShutIt(object):
 			self._default_check_exit.pop()
 
 	def get_default_child(self):
+		"""TODO
+		"""
 		if self._default_child[-1] is None:
 			util.fail("Couldn't get default child")
 		return self._default_child[-1]
 	def get_default_expect(self):
+		"""TODO
+		"""
 		if self._default_expect[-1] is None:
 			util.fail("Couldn't get default expect")
 		return self._default_expect[-1]
 	def get_default_check_exit(self):
+		"""TODO
+		"""
 		if self._default_check_exit[-1] is None:
 			util.fail("Couldn't get default check exit")
 		return self._default_check_exit[-1]
 	def set_default_child(self, child):
+		"""TODO
+		"""
 		self._default_child[-1] = child
 	def set_default_expect(self, expect, check_exit=True):
+		"""TODO
+		"""
 		self._default_expect[-1] = expect
 		self._default_check_exit[-1] = check_exit
 
 	def log(self, msg, code=None, pause=0, prefix=True, force_stdout=False):
+		"""TODO
+		"""
 		if prefix:
 			prefix = 'LOG: ' + time.strftime("%Y-%m-%d %H:%M:%S",time.localtime())
 			msg = prefix + ' ' + str(msg)
@@ -118,6 +140,8 @@ class ShutIt(object):
 	# record_command             - Whether to record the command for output at end (default=True)
 	# exit_values                - Array of acceptable exit values (default [0])
 	def send_and_expect(self,send,expect=None,child=None,timeout=3600,check_exit=None,fail_on_empty_before=True,record_command=True,exit_values=None):
+		"""TODO
+		"""
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
 		cfg = self.cfg
@@ -173,6 +197,8 @@ class ShutIt(object):
 
 
 	def _check_exit(self,send,expect=None,child=None,timeout=3600,exit_values=None):
+		"""TODO
+		"""
 		expect = expect or self.get_default_expect()
 		child = child or self.get_default_child()
 		if exit_values is None:
@@ -193,6 +219,8 @@ class ShutIt(object):
 				#raise Exception('Exit value from command\n' + send + '\nwas:\n' + res)
 
 	def run_script(self,script,expect=None,child=None,is_bash=True):
+		"""TODO
+		"""
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
 		lines = script.split('\n')
@@ -216,6 +244,8 @@ class ShutIt(object):
 
 	# TODO: Comments needed here, as well as example in template. And a test?
 	def send_file(self,path,contents,expect=None,child=None,binary=False):
+		"""TODO
+		"""
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
 		if cfg['build']['debug']:
@@ -232,6 +262,8 @@ class ShutIt(object):
 
 	# Return True if file exists, else False
 	def file_exists(self,filename,expect=None,child=None,directory=False):
+		"""TODO
+		"""
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
 		test = 'test %s %s' % ('-d' if directory is True else '-a', filename)
@@ -251,6 +283,8 @@ class ShutIt(object):
 
 	# Returns the file permission as an octal
 	def get_file_perms(self,filename,expect=None,child=None):
+		"""TODO
+		"""
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
 		cmd = 'stat -c %a ' + filename + r" | sed 's/.\(.*\)/\1/g'"
@@ -273,6 +307,8 @@ class ShutIt(object):
 	# literal      - if true, then simply grep for the exact
 	#                string without bash interpretation
 	def add_line_to_file(self,line,filename,expect=None,child=None,match_regexp=None,truncate=False,force=False,literal=False):
+		"""TODO
+		"""
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
 		# assume we're going to add it
@@ -310,6 +346,8 @@ class ShutIt(object):
 
 	# Takes care of adding a line to everyone's bashrc
 	def add_to_bashrc(self,line,expect=None,child=None):
+		"""TODO
+		"""
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
 		self.add_line_to_file(line,'/etc/bash.bashrc',expect=expect)
@@ -317,6 +355,8 @@ class ShutIt(object):
 
 	# Return True if we can be sure the package is installed.
 	def package_installed(self,package,expect=None,child=None):
+		"""TODO
+		"""
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
 		if self.cfg['container']['install_type'] == 'apt':
@@ -334,6 +374,8 @@ class ShutIt(object):
 
 	# Inserts a pause in the expect session which allows the user to try things out
 	def pause_point(self,msg,child=None,print_input=True,expect=''):
+		"""TODO
+		"""
 		child = child or self.get_default_child()
 		cfg = self.cfg
 		if not cfg['build']['interactive']:
@@ -354,6 +396,8 @@ class ShutIt(object):
 	# Get regular expression from lines
 	# Returns None if none matched.
 	def get_re_from_child(self, string, regexp):
+		"""TODO
+		"""
 		cfg = self.cfg
 		if cfg['build']['debug']:
 			self.log('get_re_from_child:')
@@ -372,6 +416,8 @@ class ShutIt(object):
 
 	# Returns the output of a command
 	def get_output(self,send,expect=None,child=None):
+		"""TODO
+		"""
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
 		self.send_and_expect(send,check_exit=False)
@@ -382,6 +428,8 @@ class ShutIt(object):
 	# Takes a package name and runs
 	# Returns true if all ok (ie it's installed now), else false
 	def install(self,package,child=None,expect=None,options=None,timeout=3600):
+		"""TODO
+		"""
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
 		if options is None: options = {}
@@ -404,6 +452,8 @@ class ShutIt(object):
 	# Takes a package name and runs
 	# Returns true if all ok (ie it's installed now), else false
 	def remove(self,package,child=None,expect=None,options=None,timeout=3600):
+		"""TODO
+		"""
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
 		if options is None: options = {}
@@ -424,10 +474,14 @@ class ShutIt(object):
 
 	# Deprecated
 	def handle_login(self,prompt_name,child=None):
+		"""TODO
+		"""
 		self.setup_prompt(prompt_name, child=child)
 
 	# Use this when you've opened a new shell to set the PS1 to something sane.
 	def setup_prompt(self,prompt_name,prefix='TMP',child=None,set_default_expect=True):
+		"""TODO
+		"""
 		child = child or self.get_default_child()
 		local_prompt = 'SHUTIT_' + prefix + '#' + random_id() + '>'
 		shutit.cfg['expect_prompts'][prompt_name] = '\r\n' + local_prompt
@@ -441,11 +495,15 @@ class ShutIt(object):
 			self.set_default_expect(shutit.cfg['expect_prompts'][prompt_name])
 
 	def handle_revert_prompt(self,expect,prompt_name,child=None):
+		"""TODO
+		"""
 		self.revert_prompt(prompt_name,expect,child)
 
 	# It should be fairly rare to need this. Most of the time you would just
 	# exit a subshell rather than resetting the prompt.
 	def revert_prompt(self,old_prompt_name,new_expect=None,child=None):
+		"""TODO
+		"""
 		child = child or self.get_default_child()
 		expect = new_expect or self.get_default_expect()
 		self.send_and_expect(
@@ -456,6 +514,8 @@ class ShutIt(object):
 	# Fails if distro could not be determined.
 	# Should be called with the container is started up, and uses as core info as possible.
 	def get_distro_info(self,child=None):
+		"""TODO
+		"""
 		child = child or self.get_default_child()
 		cfg = self.cfg
 		cfg['container']['install_type']      = ''
@@ -472,6 +532,8 @@ class ShutIt(object):
 
 	# Sets the password
 	def set_password(self,password,child=None,expect=None):
+		"""TODO
+		"""
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
 		cfg = self.cfg
@@ -487,6 +549,8 @@ class ShutIt(object):
 
 	# Determine whether a user_id for a user is available
 	def is_user_id_available(self,user_id,child=None,expect=None):
+		"""TODO
+		"""
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
 		self.send_and_expect('cut -d: -f3 /etc/paswd | grep -w ^' + user_id + '$ | wc -l',child=child,expect=expect,check_exit=False)
@@ -497,6 +561,8 @@ class ShutIt(object):
 
 	# expect must be a string
 	def push_repository(self,repository,docker_executable,child=None,expect=None):
+		"""TODO
+		"""
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
 		send = docker_executable + ' push ' + repository
@@ -518,6 +584,8 @@ class ShutIt(object):
 	# Commit, tag, push, tar etc..
 	# expect must be a string
 	def do_repository_work(self,repo_name,expect=None,docker_executable='docker',password=None):
+		"""TODO
+		"""
 		expect = expect or self.get_default_expect()
 		cfg = self.cfg
 		if not cfg['repository']['do_repository_work']:
@@ -586,6 +654,8 @@ class ShutIt(object):
 
 
 def init():
+	"""TODO
+	"""
 	global pexpect_children
 	global shutit_modules
 	global shutit_main_dir
