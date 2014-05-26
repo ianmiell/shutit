@@ -24,8 +24,6 @@ import util
 import os
 
 class template(ShutItModule):
-	"""TODO
-	"""
 
 	# is_installed
 	#
@@ -34,8 +32,6 @@ class template(ShutItModule):
 	#
 	# Should return True if it is certain it's there, else False.
 	def is_installed(self,shutit):
-		"""TODO
-		"""
 		shutit.set_default_expect(shutit.cfg['expect_prompts']['root_prompt'])
 		return shutit.file_exists('/tmp/container_touched.sh') and shutit.file_exists('/tmp/README.md')
 
@@ -48,8 +44,6 @@ class template(ShutItModule):
 	#
 	# Should return True if it has succeeded in building, else False.
 	def build(self,shutit):
-		"""TODO
-		"""
 		shutit.set_default_expect(shutit.cfg['expect_prompts']['root_prompt'])
 		# Line number 49 should be the next one (so bash scripts can be inserted properly)
 
