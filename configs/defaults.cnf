@@ -44,7 +44,7 @@ rm:no
 # in your /path/to/shutit/configs/`hostname`_`username`.cnf
 resources_dir:resources
 # Docker executable on your host machine
-docker_executable:sudo docker
+docker_executable:sudo docker.io
 # space separated list of dns servers to use
 dns:
 # Your host machine username and password - replace with your chosen names
