@@ -224,7 +224,12 @@ def start():
 	host = os.environ.get('SHUTIT_HOST', 'localhost')
 	port = int(os.environ.get('SHUTIT_PORT', 8080))
 	bottle.debug(True)
-	bottle.run(host=host, port=port)
+	try:
+		import cherrypy
+		bottle.run(host=host, port=port, server='cherrypy')
+	except:
+		print "WARNING: falling back to single threaded mode"
+		bottle.run(host=host, port=port)
 
 if __name__ == '__main__':
 	print "PLEASE START VIA SHUTIT_MAIN INSTEAD"
