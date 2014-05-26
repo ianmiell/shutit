@@ -600,10 +600,8 @@ def load_mod_from_file(shutit, fpath):
 		('module', shutit.shutit_modules), ('conn_module', shutit.conn_modules)
 	]
 	for attr, target in targets:
-		if not hasattr(pymod, attr):
-			return
-		modulefunc = getattr(pymod, attr)
-		# Old style, nothing else to do
+		modulefunc = getattr(pymod, attr, None)
+		# Old style or not a shutit module, nothing else to do
 		if not callable(modulefunc):
 			return
 		modules = modulefunc()
