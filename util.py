@@ -104,6 +104,8 @@ def get_configs(configs):
 			files.append(config_file)
 	if fail_str != '':
 		fail_str = 'Files are not secure, mode should be 0600. Run the following commands to correct:\n' + fail_str + '\n'
+		# Actually show this to the user before failing...
+		print fail_str
 		if raw_input('\n\nDo you want me to run this for you? (input y/n)\n') == 'y':
 			for f in files:
 				os.chmod(f,0600)
