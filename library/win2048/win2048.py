@@ -18,7 +18,6 @@
 #CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 from shutit_module import ShutItModule
-import util
 import os
 
 class win2048(ShutItModule):
@@ -46,15 +45,10 @@ class win2048(ShutItModule):
 	def test(self,shutit):
 		return shutit.package_installed('firefox') and shutit.package_installed('scrot')
 
-
-# win2048(string,float)
-# string : Any string you believe to identify this module uniquely, 
-#          eg com.my_corp.my_module_dir.my_module
-# float:   Float value for ordering module builds, must be > 0.0
-if not util.module_exists('shutit.tk.win2048.win2048'):
-	obj = win2048('shutit.tk.win2048.win2048',0.326,'win at 2048')
-	obj.add_dependency('shutit.tk.setup')
-	obj.add_dependency('shutit.tk.vnc.vnc')
-	util.get_shutit_modules().add(obj)
-	ShutItModule.register(win2048)
+def module():
+	return win2048(
+		'shutit.tk.win2048.win2048', 0.326,
+		description='win at 2048',
+		depends=['shutit.tk.setup', 'shutit.tk.vnc.vnc']
+	)
 

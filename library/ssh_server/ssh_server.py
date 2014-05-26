@@ -20,9 +20,7 @@
 #OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 #SOFTWARE.
 
-
 from shutit_module import ShutItModule
-import util
 
 class ssh_server(ShutItModule):
 
@@ -61,9 +59,10 @@ class ssh_server(ShutItModule):
 		return True
 
 
-if not util.module_exists('shutit.tk.ssh_server.ssh_server'):
-	obj = ssh_server('shutit.tk.ssh_server.ssh_server',0.321,'ssh server')
-	obj.add_dependency('shutit.tk.setup')
-	util.get_shutit_modules().add(obj)
-	ShutItModule.register(ssh_server)
+def module():
+	return ssh_server(
+		'shutit.tk.ssh_server.ssh_server', 0.321,
+		description='ssh server',
+		depends=['shutit.tk.setup']
+	)
 

@@ -20,10 +20,7 @@
 #OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 #SOFTWARE.
 
-
 from shutit_module import ShutItModule
-import pexpect
-import util
 
 #cf http://www.spinellis.gr/blog/20130619/
 
@@ -53,8 +50,10 @@ class git_server(ShutItModule):
 		# TODO
 		return True
 
-if not util.module_exists('shutit.tk.git_server.git_server'):
-	obj = git_server('shutit.tk.git_server.git_server',0.316,'minimal git server.')
-	util.get_shutit_modules().add(obj)
-	ShutItModule.register(git_server)
+def module():
+	return git_server(
+		'shutit.tk.git_server.git_server', 0.316,
+		description='minimal git server.',
+		depends=['shutit.tk.setup']
+	)
 
