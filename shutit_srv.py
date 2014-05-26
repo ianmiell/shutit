@@ -49,8 +49,8 @@ def build_shutit():
 		shutit_main.do_finalize(shutit)
 		shutit_main.finalize_container(shutit)
 	except ShutItException as e:
-		STATUS['errs'] = [e.message]
-	STATUS["build_done"] = True
+		STATUS['errs'] = [str(e)]
+	STATUS['build_done'] = True
 
 def update_modules(to_build, cfg):
 	"""Updates modules to be built with the passed-in config.
