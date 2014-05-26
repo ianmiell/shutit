@@ -20,9 +20,7 @@
 #OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 #SOFTWARE.
 
-
 from shutit_module import ShutItModule
-import util
 
 class postgres(ShutItModule):
 
@@ -50,9 +48,10 @@ class postgres(ShutItModule):
 		shutit.send_and_expect('/root/stop_postgres.sh',check_exit=False)
 		return True
 
-if not util.module_exists('shutit.tk.postgres.postgres'):
-	obj = postgres('shutit.tk.postgres.postgres',0.320,'handles shm settings')
-	obj.add_dependency('shutit.tk.setup')
-	util.get_shutit_modules().add(obj)
-	ShutItModule.register(postgres)
+def module():
+	return postgres(
+		'shutit.tk.postgres.postgres', 0.320,
+		description='handles shm settings',
+		depends=['shutit.tk.setup']
+	)
 

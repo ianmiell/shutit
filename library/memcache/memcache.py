@@ -20,9 +20,7 @@
 #OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 #SOFTWARE.
 
-
 from shutit_module import ShutItModule
-import util
 
 class memcache(ShutItModule):
 
@@ -40,9 +38,10 @@ class memcache(ShutItModule):
 		shutit.send_and_expect('chmod +x /root/stop_memcache.sh')
 		return True
 
-if not util.module_exists('shutit.tk.memcache.memcache'):
-	obj = memcache('shutit.tk.memcache.memcache',0.317,'memcache')
-	obj.add_dependency('shutit.tk.setup')
-	util.get_shutit_modules().add(obj)
-	ShutItModule.register(memcache)
+def module():
+	return memcache(
+		'shutit.tk.memcache.memcache', 0.317,
+		description='memcache',
+		depends=['shutit.tk.setup']
+	)
 

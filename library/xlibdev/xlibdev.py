@@ -18,7 +18,6 @@
 #CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 from shutit_module import ShutItModule
-import util
 
 class xlibdev(ShutItModule):
 
@@ -30,11 +29,10 @@ class xlibdev(ShutItModule):
 		shutit.install('libx11-dev')
 		return True
 
-
-if not util.module_exists('shutit.tk.xlibdev.xlibdev'):
-	obj = xlibdev('shutit.tk.xlibdev.xlibdev',0.3225,'xlib dev environment')
-	obj.add_dependency('shutit.tk.setup')
-	obj.add_dependency('shutit.tk.vnc.vnc')
-	util.get_shutit_modules().add(obj)
-	ShutItModule.register(xlibdev)
+def module():
+	return xlibdev(
+		'shutit.tk.xlibdev.xlibdev', 0.3225,
+		description='xlib dev environment',
+		depends=['shutit.tk.setup', 'shutit.tk.vnc.vnc']
+	)
 

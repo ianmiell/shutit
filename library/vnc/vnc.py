@@ -20,11 +20,7 @@
 #OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 #SOFTWARE.
 
-
 from shutit_module import ShutItModule
-import util
-import pexpect
-
 
 #From: https://groups.google.com/forum/#!topic/docker-user/D0n-lURDn0o
 # Expose port 5901 and 6080
@@ -99,8 +95,10 @@ END""",'/root/start_vnc.sh')
 		cfg['shutit.tk.vnc.vnc']['password'] = cp.get('shutit.tk.vnc.vnc','password')
 		return True
 
-if not util.module_exists('shutit.tk.vnc.vnc'):
-	obj = vnc('shutit.tk.vnc.vnc',0.322,'vnc server. contains instructions for use within /root/start_vnc.sh output.')
-	util.get_shutit_modules().add(obj)
-	ShutItModule.register(vnc)
+def module():
+	return vnc(
+		'shutit.tk.vnc.vnc', 0.322,
+		description='vnc server. contains instructions for use within /root/start_vnc.sh output.',
+		depends=['shutit.tk.setup']
+	)
 

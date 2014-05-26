@@ -20,9 +20,7 @@
 #OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 #SOFTWARE.
 
-
 from shutit_module import ShutItModule
-import util
 
 class phantomjs(ShutItModule):
 
@@ -52,8 +50,10 @@ class phantomjs(ShutItModule):
 		shutit.send_and_expect('rm -rf /opt/phantomjs')
 		return True
 
-if not util.module_exists('shutit.tk.phantomjs.phantomjs'):
-	obj = phantomjs('shutit.tk.phantomjs.phantomjs',0.319,'see http://phantomjs.org/')
-	util.get_shutit_modules().add(obj)
-	ShutItModule.register(phantomjs)
+def module():
+	return phantomjs(
+		'shutit.tk.phantomjs.phantomjs', 0.319,
+		description='see http://phantomjs.org/',
+		depends=['shutit.tk.setup']
+	)
 
