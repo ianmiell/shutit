@@ -21,6 +21,9 @@
 #OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 #SOFTWARE.
 
+"""ShutIt is
+"""
+
 from shutit_module import ShutItModule, ShutItException
 import util
 import shutit_global
@@ -30,6 +33,8 @@ import sys
 
 # Gets a list of module ids by run_order, ignoring conn modules (run order < 0)
 def module_ids(shutit, rev=False):
+	"""TODO
+	"""
 	shutit_map = shutit.shutit_map
 	ids = sorted(shutit_map.keys(), key=lambda mid: shutit_map[mid].run_order)
 	if rev:
@@ -37,6 +42,8 @@ def module_ids(shutit, rev=False):
 	return ids
 
 def print_modules(shutit):
+	"""TODO
+	"""
 	cfg = shutit.cfg
 	shutit_map = shutit.shutit_map
 	s = ''
@@ -52,6 +59,8 @@ def print_modules(shutit):
 # Stop all apps less than the supplied run_order
 # run_order of -1 means 'stop everything'
 def stop_all(shutit, run_order=-1):
+	"""TODO
+	"""
 	cfg = shutit.cfg
 	shutit_map = shutit.shutit_map
 	if cfg['build']['interactive'] >= 2:
@@ -66,6 +75,8 @@ def stop_all(shutit, run_order=-1):
 
 # Start all apps less than the supplied run_order
 def start_all(shutit, run_order=-1):
+	"""TODO
+	"""
 	cfg = shutit.cfg
 	shutit_map = shutit.shutit_map
 	if cfg['build']['interactive'] >= 2:
@@ -80,9 +91,13 @@ def start_all(shutit, run_order=-1):
 
 # Returns true if this module is configured to be built, or if it is already installed.
 def is_built(shutit,shutit_module_obj):
+	"""TODO
+	"""
 	return shutit.cfg[shutit_module_obj.module_id]['build'] or shutit_module_obj.is_installed(shutit)
 
 def init_shutit_map(shutit):
+	"""TODO
+	"""
 	cfg = shutit.cfg
 	shutit_map = shutit.shutit_map
 	# Check we have modules
@@ -126,6 +141,8 @@ def init_shutit_map(shutit):
 		util.fail('No module with run_order=0 specified! This is required.')
 
 def config_collection(shutit):
+	"""TODO
+	"""
 	cfg = shutit.cfg
 	shutit_map = shutit.shutit_map
 	for mid in module_ids(shutit):
@@ -147,6 +164,8 @@ def config_collection(shutit):
 			util.fail(mid + ' failed on get_config')
 
 def conn_container(shutit):
+	"""TODO
+	"""
 	assert len(shutit.conn_modules) == 1
 	# Set up the container in pexpect.
 	if shutit.cfg['build']['interactive'] >= 2:
@@ -155,6 +174,8 @@ def conn_container(shutit):
 	list(shutit.conn_modules)[0].build(shutit)
 
 def finalize_container(shutit):
+	"""TODO
+	"""
 	assert len(shutit.conn_modules) == 1
 	# Set up the container in pexpect.
 	if shutit.cfg['build']['interactive'] >= 2:
@@ -165,6 +186,8 @@ def finalize_container(shutit):
 # Once we have all the modules, then we can look at dependencies.
 # Dependency validation begins.
 def resolve_dependencies(shutit, to_build, depender):
+	"""TODO
+	"""
 	cfg = shutit.cfg
 	for dependee_id in depender.depends_on:
 		dependee = shutit.shutit_map.get(dependee_id)
@@ -174,6 +197,8 @@ def resolve_dependencies(shutit, to_build, depender):
 			to_build.append(dependee)
 			cfg[dependee_id]['build'] = True
 def check_dependee_exists(shutit, depender, dependee, dependee_id):
+	"""TODO
+	"""
 	# If the module id isn't there, there's a problem.
 	if dependee == None:
 		return ('module: \n\n' + dependee_id + '\n\nnot found in paths: ' +
@@ -183,6 +208,8 @@ def check_dependee_exists(shutit, depender, dependee, dependee_id):
 			'all modules configured to be built are in that path setting, ' +
 			'eg "--shutit_module_path /path/to/other/module/:." See also help.')
 def check_dependee_build(shutit, depender, dependee, dependee_id):
+	"""TODO
+	"""
 	# If depender is installed or will be installed, so must the dependee
 	if not (shutit.cfg[dependee.module_id]['build'] or dependee.is_installed(shutit)):
 		return ('depender module id:\n\n[' + depender.module_id + ']\n\n' +
@@ -190,6 +217,8 @@ def check_dependee_build(shutit, depender, dependee, dependee_id):
 			'but dependee module_id:\n\n[' + dependee_id + ']\n\n' +
 			'is not configured: "build:yes"')
 def check_dependee_order(shutit, depender, dependee, dependee_id):
+	"""TODO
+	"""
 	# If it depends on a module id, then the module id should be higher up in the run order.
 	if dependee.run_order > depender.run_order:
 		return ('depender module id:\n\n' + depender.module_id +
@@ -198,12 +227,16 @@ def check_dependee_order(shutit, depender, dependee, dependee_id):
 			'\n\n(run order: ' + str(dependee.run_order) + ') ' +
 			'but the latter is configured to run after the former')
 def make_dep_graph(depender):
+	"""TODO
+	"""
 	digraph = ''
 	for dependee_id in depender.depends_on:
 		digraph = digraph + '"' + depender.module_id + '"->"' + dependee_id + '";\n'
 	return digraph
 
 def check_deps(shutit):
+	"""TODO
+	"""
 	cfg = shutit.cfg
 	shutit_map = shutit.shutit_map
 	shutit.log('PHASE: dependencies',code='31')
@@ -260,6 +293,8 @@ def check_deps(shutit):
 	return []
 
 def check_conflicts(shutit):
+	"""TODO
+	"""
 	cfg = shutit.cfg
 	shutit_map = shutit.shutit_map
 	# Now consider conflicts
@@ -284,6 +319,8 @@ def check_conflicts(shutit):
 	return errs
 
 def check_ready(shutit):
+	"""TODO
+	"""
 	cfg = shutit.cfg
 	shutit_map = shutit.shutit_map
 	shutit.log('PHASE: check_ready',code='31')
@@ -301,6 +338,8 @@ def check_ready(shutit):
 	return errs
 
 def do_remove(shutit):
+	"""TODO
+	"""
 	cfg = shutit.cfg
 	shutit_map = shutit.shutit_map
 	# Now get the run_order keys in order and go.
@@ -317,6 +356,8 @@ def do_remove(shutit):
 				util.fail(mid + ' failed on remove',child=shutit.pexpect_children['container_child'])
 
 def build_module(shutit, module):
+	"""TODO
+	"""
 	cfg = shutit.cfg
 	shutit.log('building: ' + module.module_id + ' with run order: ' + str(module.run_order),code='31')
 	cfg['build']['report'] = cfg['build']['report'] + '\nBuilding: ' + module.module_id + ' with run order: ' + str(module.run_order)
@@ -346,6 +387,8 @@ def build_module(shutit, module):
 		cfg['build']['interactive'] = 0
 
 def do_build(shutit):
+	"""TODO
+	"""
 	cfg = shutit.cfg
 	shutit_map = shutit.shutit_map
 	shutit.log('PHASE: build, cleanup, repository work',code='31')
@@ -366,6 +409,8 @@ def do_build(shutit):
 				util.fail(module.module_id + ' failed on start',child=shutit.pexpect_children['container_child'])
 
 def do_test(shutit):
+	"""TODO
+	"""
 	cfg = shutit.cfg
 	shutit_map = shutit.shutit_map
 	# Test in reverse order
@@ -382,6 +427,8 @@ def do_test(shutit):
 				util.fail(mid + ' failed on test',child=shutit.pexpect_children['container_child'])
 
 def do_finalize(shutit):
+	"""TODO
+	"""
 	cfg = shutit.cfg
 	shutit_map = shutit.shutit_map
 	# Stop all the modules
@@ -399,12 +446,16 @@ def do_finalize(shutit):
 				util.fail(mid + ' failed on finalize',child=shutit.pexpect_children['container_child'])
 
 def shutit_module_init(shutit):
+	"""TODO
+	"""
 	util.load_from_py_module(shutit, setup)
 	util.load_shutit_modules(shutit)
 	init_shutit_map(shutit)
 	config_collection(shutit)
 
 def shutit_main():
+	"""TODO
+	"""
 	if sys.version_info.major == 2:
 		if sys.version_info.minor < 7:
 			util.fail('Python version must be 2.7+')
