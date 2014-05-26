@@ -241,9 +241,10 @@ BUILDREPEND"""
 		return True
 
 def conn_module():
-	"""Connects Shutit to docker.
-	"""
-	return conn_docker('shutit.tk.conn_docker',-0.1,'Connect ShutIt to docker')
+	return conn_docker(
+		'shutit.tk.conn_docker', -0.1,
+		description='Connect ShutIt to docker'
+	)
 
 class setup(ShutItModule):
 
@@ -294,7 +295,5 @@ class setup(ShutItModule):
 		return True
 
 def module():
-	"""Module definition
-	"""
-	return setup('shutit.tk.setup',0.0,'Core ShutIt setup')
+	return setup('shutit.tk.setup', 0.0, description='Core ShutIt setup')
 
