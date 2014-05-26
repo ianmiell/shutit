@@ -19,6 +19,8 @@
 #LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 #OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 #SOFTWARE.
+"""Abstract class that defines how a ShutIt module lifecycle.
+"""
 
 from abc import ABCMeta, abstractmethod
 import sys
@@ -28,25 +30,24 @@ import inspect
 # TODO: these don't belong here, but this module is 'top level' and doesn't
 # depend on any other shutit files.
 class ShutItException(Exception):
-	"""TODO
+	"""Placeholder exception. Implementation TODO.
 	"""
 	pass
 class ShutItModuleError(ShutItException):
-	"""TODO
+	"""Placeholder exception. Implementation TODO.
 	"""
 	pass
 class ShutItFailException(ShutItException):
-	"""TODO
+	"""Placeholder exception. Implementation TODO.
 	"""
 	pass
 
-# Notify the shutit object whenever we call a shutit module method.
-# This allows setting values for the 'scope' of a function.
 def shutit_method_scope(func):
-	"""TODO
+	"""Notifies the ShutIt object whenever we call a shutit module method.
+	This allows setting values for the 'scope' of a function.
 	"""
 	def wrapper(self, shutit):
-		"""TODO
+		"""Wrapper to call a shutit module method, notifying the ShutIt object.
 		"""
 		shutit.module_method_start()
 		ret = func(self, shutit)
@@ -88,36 +89,32 @@ class ShutItMeta(ABCMeta):
 			mcs.ShutItModule = cls
 		return cls
 
-# Abstract class that defines what a ShutIt module must implement to be registered.
 class ShutItModule(object):
-	"""TODO
+	"""Abstract class that defines what a ShutIt module must implement to be registered.
+
+	Build order:
+
+	- Gather core config (build, remove, tag)
+	- Gather module-specific config
+	- FOR MODULE 0
+	    - Build module 0
+	- FOR ALL MODULES:
+	- Determine dependency requirements are met
+	- Determine conflict requirements are met.
+	    - Remove any modules that are configured for removal.
+	    - Build if not installed
+	    - Cleanup if not installed
+	    - Do repo work if not installed (commit, tag, push)
+	    - Test all modules (in reverse)
+	    - Finalize all modules
+	- FOR MODULE 0
+	    - Do repo work on build
 	"""
 	__metaclass__ = ShutItMeta
 
-	########################################################################
-	# Build order:
-	########################################################################
-	# - Gather core config (build, remove, tag)
-	# - Gather module-specific config
-	# - FOR MODULE 0
-	#     - Build module 0
-	# - FOR ALL MODULES:
-	# - Determine dependency requirements are met
-	# - Determine conflict requirements are met.
-	#     - Remove any modules that are configured for removal.
-	#     - Build if not installed
-	#     - Cleanup if not installed
-	#     - Do repo work if not installed (commit, tag, push)
-	#     - Test all modules (in reverse)
-	#     - Finalize all modules
-	# - FOR MODULE 0
-	#     - Do repo work on build
-
-	########################################################################
-	# Constructor
-	########################################################################
 	def __init__(self,module_id,run_order,description=''):
-		"""TODO
+		"""Constructor.
+		Sets up module_id, run_order, checks types for safety.
 		"""
 		# Module id for the module (a string).
 		# Following the Java standard is recommended, eg 'com.bigcorp.project.alpha.mymodule'
@@ -148,144 +145,107 @@ class ShutItModule(object):
 
 
 	########################################################################
-	# cfg
-	########################################################################
-	# a dictionary which stores all the configuration for the build.
-	# module configuration is stored within cfg[module.module_id][config_item]
-
-	########################################################################
 	# Helper methods.
 	########################################################################
-	# set the run order (see __init__)
 	def set_run_order(self,order):
-		"""TODO
+		"""Set the object's run order (see __init__)
 		"""
 		self.run_order = order
 
-	# add a dependency (see __init__)
 	def add_dependency(self,dependency):
-		"""TODO
+		"""Adds a dependency (see __init__)
 		"""
 		self.depends_on.append(dependency)
 
-	# add a conflict (see __init__)
 	def add_conflict(self,conflict):
-		"""TODO
+		"""Adds a conflict (see __init__)
 		"""
 		self.conflicts_with.append(conflict)
 
 	########################################################################
 	# Abstract methods
 	########################################################################
-
-	# get_config
-	#
-	# Get all config items necessary for this module to be built
 	def get_config(self,shutit):
-		"""TODO
+		"""Gets all config items necessary for this module to be built
 		"""
 		return True
 
-	# check_ready
-	#
-	# Check whether we are ready to build this module.
-	#
-	# This is called before the build, to ensure modules have
-	# their requirements in place (eg files required to be mounted
-	# in /resources). Checking whether the build will happen (and
-	# therefore whether the check should take place) will be
-	# determined by the framework.
-	#
-	# Should return True if it ready, else False.
 	def check_ready(self,shutit):
-		"""TODO
+		"""Checks whether we are ready to build this module.
+
+		This is called before the build, to ensure modules have
+		their requirements in place (eg files required to be available
+		in resources folders) before we commence the build.
+		Checking whether the build will happen at all (and
+		therefore whether the check should take place) will be
+		determined by the framework.
+		
+		Should return True if it's ready to run, else False.
 		"""
 		return True
 
-	# remove
-	#
-	# Remove the module, which should ensure the module has been deleted
-	# from the system.
-	#
-	# Should return True if it has succeeded in removing, else False.
 	def remove(self,shutit):
-		"""TODO
+		"""Remove the module, which should ensure the module has been deleted
+		from the system.
+		
+		Returns True if all removed without any errors, else False.
 		"""
 		return False
 
-	# start
-	#
-	# Run when module should be installed (is_installed() or configured to build is true)
-	# Run after repo work.
 	def start(self,shutit):
-		"""TODO
+		"""Run when module should be installed (is_installed() or configured to build is true)
+		Run after repository work.
+		Returns True if all started ok.
 		"""
 		return True
 
-	# stop
-	#
-	# Run when module should be stopped.
-	# Run before repo work, and before finalize is called.
 	def stop(self,shutit):
-		"""TODO
+		"""Runs when module should be stopped.
+		Runs before repo work, and before finalize is called.
+		Returns True if all stopped ok.
 		"""
 		return True
 
-	# is_installed
-	#
-	# Determines whether the module has been built in this container
-	# already.
-	#
-	# Should return True if it is certain it's there, else False.
-	#
-	# Required.
 	@abstractmethod
 	def is_installed(self,shutit):
-		"""TODO
+		"""Determines whether the module has been built in this container
+		already.
+		
+		Returns True if it is certain it's there, else False.
+		
+		Required.
 		"""
 		pass
 
-	# build
-	#
-	# Run the build part of the module, which should ensure the module
-	# has been set up.
-	# If is_installed determines that the module is already there,
-	# this is not run.
-	#
-	# Should return True if it has succeeded in building, else False.
-	#
-	# Required.
 	@abstractmethod
 	def build(self,shutit):
-		"""TODO
+		"""Runs the build part of the module, which should ensure the module
+		has been set up.
+		If is_installed determines that the module is already there,
+		this is not run.
+		
+		Returns True if it has succeeded in building, else False.
+		
+		Required.
 		"""
 		pass
 
-	# cleanup
-	#
-	# Cleanup the module, ie clear up stuff not needed for the rest of the build, eg tar files removed, apt-get cleans.
-	# Should return True if all is OK, else False.
-	# Note that this is only run if the build phase was actually run.
 	def cleanup(self,shutit):
-		"""TODO
+		"""Cleans up the module, ie clear up stuff not needed for the rest of the build, eg tar files removed, apt-get cleans.
+		Returns True if all is OK, else False.
+		Note that this is only run if the build phase was actually run.
 		"""
 		return True
 
-	# test
-	#
-	# Test the module is OK.
-	# Should return True if all is OK, else False.
-	# This is run regardless of whether the module is installed or not.
 	def test(self,shutit):
-		"""TODO
+		"""Tests the module is OK.
+		Returns True if all is OK, else False.
+		This is run regardless of whether the module is installed or not.
 		"""
 		return True
 
-	# finalize
-	#
-	# Finalize the module, ie do things that need doing before we exit.
 	def finalize(self,shutit):
-		"""TODO
+		"""Finalize the module, ie do things that need doing after final module has been run and before we exit, eg updatedb.
 		"""
 		return True
 
