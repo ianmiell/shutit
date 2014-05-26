@@ -113,7 +113,7 @@ def init_shutit_map(shutit):
 		shutit.log(modules)
 		util.fail('No ShutIt modules in path:\n\n' +
 			':'.join(cfg['host']['shutit_module_paths']) +
-			'\n\nor their subfolders. Check your --shutit_module_path setting.')
+			'\n\nor their subfolders. Check your --shutit_module_path/-m setting.')
 
 	shutit.log('PHASE: base setup',code='31')
 	if cfg['build']['interactive'] >= 2:
