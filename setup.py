@@ -1,3 +1,15 @@
+"""
+Nomenclature:
+
+Host machine
+  Machine on which this pexpect script is run.
+Container
+  Container created to run the modules on.
+
+container_child - pexpect-spawned child created to create the container
+host_child      - pexpect spawned child living on the host container
+"""
+
 #The MIT License (MIT)
 #
 #Copyright (C) 2014 OpenBet Limited
@@ -29,27 +41,18 @@ import time
 import re
 import json
 
-# Nomenclature:
-#
-# Host machine
-#   Machine on which this pexpect script is run.
-# Container
-#   Container created to run the modules on.
-#
-# container_child - pexpect-spawned child created to create the container
-# host_child      - pexpect spawned child living on the host container
 
 class conn_docker(ShutItModule):
-	"""TODO
+	"""Connects ShutIt to docker daemon and starts the container.
 	"""
 
 	def is_installed(self,shutit):
-		"""TODO
+		"""Always considered false for ShutIt setup.
 		"""
 		return False
 
 	def build(self,shutit):
-		"""TODO
+		"""Sets up the container ready for building.
 		"""
 		cfg = shutit.cfg
 
@@ -98,7 +101,7 @@ class conn_docker(ShutItModule):
 		cfg['build']['cidfile'] = '/tmp/' + cfg['host']['username'] + '_cidfile_' + cfg['build']['build_id']
 		cidfile_arg = '--cidfile=' + cfg['build']['cidfile']
 
-		# Singly specified options
+		# Singly-specified options
 		privileged_arg = ''
 		lxc_conf_arg   = ''
 		name_arg       = ''
@@ -123,7 +126,7 @@ class conn_docker(ShutItModule):
 		if cfg['container']['rm']:
 			rm_arg = '--rm=true'
 
-		# Multiply specified options
+		# Multiply-specified options
 		port_args = []
 		dns_args = []
 		ports_list = cfg['container']['ports'].strip().split()
@@ -199,13 +202,12 @@ class conn_docker(ShutItModule):
 		shutit.setup_prompt('pre_build', 'PRE_BUILD')
 		shutit.get_distro_info()
 		shutit.setup_prompt('root_prompt', 'ROOT')
-		# TODO: distro-independence
-		shutit.send_and_expect('export DEBIAN_FRONTEND=noninteractive',check_exit=False)
 		shutit.pause_point('Anything you want to do now the container is connected to?')
 		return True
 
 	def finalize(self,shutit):
-		"""TODO
+		"""Finalizes the container, exiting for us back to the original shell
+		and performing any repository work required.
 		"""
 		cfg = shutit.cfg
 		# Finish with the container
@@ -236,19 +238,20 @@ BUILDREPEND"""
 		return True
 
 def conn_module():
-	"""TODO
+	"""Connects Shutit to docker.
 	"""
 	return conn_docker('shutit.tk.conn_docker',-0.1,'Connect ShutIt to docker')
 
 class setup(ShutItModule):
 
 	def is_installed(self,shutit):
-		"""TODO
+		"""Always considered false for ShutIt setup.
 		"""
 		return False
 
 	def build(self,shutit):
-		"""TODO
+		"""Initializes container ready for build, setting password
+		and updating package management.
 		"""
 		mod_id = 'shutit.tk.setup'
 		packages = shutit.cfg[mod_id]['packages']
@@ -271,7 +274,7 @@ class setup(ShutItModule):
 		return True
 
 	def remove(self,shutit):
-		"""TODO
+		"""Removes anything performed as part of build.
 		"""
 		cfg = shutit.cfg
 		if cfg['container']['install_type'] == 'yum':
@@ -279,7 +282,8 @@ class setup(ShutItModule):
 		return True
 
 	def get_config(self, shutit):
-		"""TODO
+		"""Gets the configured core pacakges, and whether to perform the package
+		management update.
 		"""
 		cp = shutit.cfg['config_parser']
 		shutit.cfg[self.module_id]['packages']  = json.loads(cp.get(self.module_id,'packages'))
@@ -287,5 +291,7 @@ class setup(ShutItModule):
 		return True
 
 def module():
+	"""Module definition
+	"""
 	return setup('shutit.tk.setup',0.0,'Core ShutIt setup')
 
