@@ -32,8 +32,8 @@ class win2048(ShutItModule):
 		shutit.install('xautomation')
 		shutit.install('vim')
 		shutit.install('scrot')
-		shutit.send_file('/root/start_win2048.sh',file.read(file('resources/start_win2048.sh')))
-		shutit.send_file('/root/tryagain.png',file.read(file('resources/tryagain.png')))
+		shutit.send_file('/root/start_win2048.sh',file.read(file(os.path.abspath(os.path.dirname(__file__)) + '/files/start_win2048.sh')))
+		shutit.send_file('/root/tryagain.png',file.read(file(os.path.abspath(os.path.dirname(__file__)) + '/files/tryagain.png')))
 		shutit.send_and_expect('patextract /root/tryagain.png 0 0 69 20 > /root/tryagain.pat')
 		shutit.send_and_expect('chmod +x /root/start_win2048.sh')
 		return True
