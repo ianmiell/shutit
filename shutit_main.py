@@ -27,9 +27,8 @@
 from shutit_module import ShutItModule, ShutItException
 import util
 import shutit_global
-import setup
-import time
 import sys
+import os
 
 def module_ids(shutit, rev=False):
 	"""Gets a list of module ids by run_order, ignoring conn modules (run order < 0)
@@ -454,7 +453,7 @@ def do_finalize(shutit):
 def shutit_module_init(shutit):
 	"""Initialize.
 	"""
-	util.load_from_py_module(shutit, setup)
+	util.load_mod_from_file(shutit, os.path.join(shutit.shutit_main_dir, 'setup.py'))
 	util.load_shutit_modules(shutit)
 	init_shutit_map(shutit)
 	config_collection(shutit)
