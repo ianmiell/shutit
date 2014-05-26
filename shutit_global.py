@@ -382,7 +382,7 @@ class ShutIt(object):
 			return
 		# Sleep to try and make this the last thing we see before the prompt (not always the case)
 		if child and print_input:
-			print util.red('\n\nPause point:\n\n') + msg + util.red('\n\nYou can now type in commands and alter the state of the container.\nHit return to see the prompt\nHit CTRL and ] at the same time to continue with build\n\n')
+			print util.colour('31','\n\nPause point:\n\n') + msg + util.colour('31','\n\nYou can now type in commands and alter the state of the container.\nHit return to see the prompt\nHit CTRL and ] at the same time to continue with build\n\n')
 			if print_input:
 				if expect == '':
 					expect = '@.*[#$]'
@@ -390,7 +390,7 @@ class ShutIt(object):
 			child.interact()
 		else:
 			print msg
-			print util.red('\n\n[Hit return to continue]\n')
+			print util.colour('31','\n\n[Hit return to continue]\n')
 			raw_input('')
 
 	# Get regular expression from lines

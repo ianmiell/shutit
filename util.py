@@ -1,5 +1,8 @@
 #!/usr/bin/env pythen
 
+"""ShutIt utility functions.
+"""
+
 #The MIT License (MIT)
 #
 #Copyright (C) 2014 OpenBet Limited
@@ -44,7 +47,7 @@ from shutit_module import ShutItFailException
 
 # TODO: Manage exits of containers on error
 def fail(msg,child=None):
-	"""TODO
+	"""Handles a failure, pausing if a pexpect child object is passed in.
 	"""
 	if child:
 		pause_point(child,'Pause point on fail: ' + msg)
@@ -54,9 +57,9 @@ def fail(msg,child=None):
 
 
 def is_file_secure(file_name):
-	"""TODO
+	"""Returns false if file is considered insecure, true if secure.
+	If file doesn't exist, it's considered secure!
 	"""
-	# If file doesn't exist, it's considered secure!
 	if not os.path.isfile(file_name):
 		return True
 	file_mode = os.stat(file_name).st_mode
@@ -64,18 +67,17 @@ def is_file_secure(file_name):
 		return False
 	return True
 
-def colour(code, msg):   return '\033[%sm%s\033[0m' % (code, msg)
-def grey(msg):           return colour('30', msg)
-def red(msg):            return colour('31', msg)
-def green(msg):          return colour('32', msg)
-def yellow(msg):         return colour('33', msg)
-def blue(msg):           return colour('34', msg)
-def white(msg):          return colour('37', msg)
-def reverse_green(msg):  return colour('7;32', msg)
-def reverse_yellow(msg): return colour('7;33', msg)
+
+def colour(code, msg):
+	"""Colourize the given string for a terminal.
+	"""
+	return '\033[%sm%s\033[0m' % (code, msg)
+	
 
 def get_config(cfg,module_id,option,default,boolean=False):
-	"""TODO
+	"""Gets a specific config from the config parser object,
+	allowing for a default.
+	Handles booleans vs strings appropriately.
 	"""
 	if module_id not in cfg.keys():
 		cfg[module_id] = {}
@@ -90,7 +92,8 @@ def get_config(cfg,module_id,option,default,boolean=False):
 		cfg[module_id][option] = default
 
 def get_configs(configs):
-	"""TODO
+	"""Reads config files in, checking their security first
+	(in case passwords/sensitive info is in them).
 	"""
 	cp       = ConfigParser.ConfigParser(None)
 	fail_str = ''
@@ -101,7 +104,6 @@ def get_configs(configs):
 			files.append(config_file)
 	if fail_str != '':
 		fail_str = 'Files are not secure, mode should be 0600. Run the following commands to correct:\n' + fail_str + '\n'
-		print fail_str
 		if raw_input('\n\nDo you want me to run this for you? (input y/n)\n') == 'y':
 			for f in files:
 				os.chmod(f,0600)
@@ -110,9 +112,8 @@ def get_configs(configs):
 	read_files = cp.read(configs)
 	return cp
 
-# Helper function to issue warning
 def issue_warning(msg,wait):
-	"""TODO
+	"""Issues a warning to stderr.
 	"""
 	print >> sys.stderr, msg
 	time.sleep(wait)
@@ -120,7 +121,7 @@ def issue_warning(msg,wait):
 # Manage config settings, returning a dict representing the settings
 # that have been sanity-checked.
 def get_base_config(cfg, cfg_parser):
-	"""TODO
+	"""Responsible for getting core configuration from config files.
 	"""
 	cfg['config_parser'] = cp = cfg_parser
 	# BEGIN Read from config files
@@ -220,7 +221,20 @@ def get_base_config(cfg, cfg_parser):
 
 # Returns the config dict
 def parse_args(cfg):
-	"""TODO
+	"""Responsible for parsing arguments.
+
+	TODO: precendence
+
+	Environment variables:
+	SHUTIT_OPTIONS:
+		Loads command line options from the environment (if set).
+		Behaves like GREP_OPTIONS:
+		- space separated list of arguments
+		- backslash before a space escapes the space separation
+		- backslash before a backslash is interpreted as a single backslash
+		- all other backslashes are treated literally
+		eg ' a\ b c\\ \\d \\\e\' becomes '', 'a b', 'c\', '\d', '\\e\'
+		SHUTIT_OPTIONS is ignored if we are creating a skeleton
 	"""
 	cfg['host']['real_user_id'] = pexpect.run('id -u ' + cfg['host']['real_user']).strip()
 
@@ -274,14 +288,6 @@ def parse_args(cfg):
 		sub_parsers[action].add_argument('--interactive',help='Level of interactive. 0 = none, 1 = regular asking, 2 = tutorial mode',default='0')
 
 	args_list = sys.argv[1:]
-	# Load command line options from the environment (if set)
-	# Behaves like GREP_OPTIONS
-	# - space seperated list of arguments
-	# - backslash before a spaces escapes the space separation
-	# - backslash before a backslash is interpreted as a single backslash
-	# - all other backslashes are treated literally
-	# e.g. ' a\ b c\\ \\d \\\e\' becomes '', 'a b', 'c\', '\d', '\\e\'
-	# Ignore SHUTIT_OPTIONS if this is creating a skeleton
 	if os.environ.get('SHUTIT_OPTIONS', None) and args_list[0] != 'skeleton':
 		env_args = os.environ['SHUTIT_OPTIONS'].strip()
 		# Split escaped backslashes
@@ -388,7 +394,7 @@ def parse_args(cfg):
 			name:value
 			================================================================================
 
-			""" + red('[Hit return to continue]'))
+			""" + colour('31','[Hit return to continue]'))
 		raw_input('')
 		print textwrap.dedent("""\
 			================================================================================
@@ -425,7 +431,7 @@ def parse_args(cfg):
 			See """ + shutit_global.shutit_main_dir + """/shutit_module.py for more detailed documentation on these.
 			================================================================================
 
-			""" + red("[Hit return to continue]"))
+			""" + colour('31','[Hit return to continue]'))
 		raw_input('')
 		print textwrap.dedent("""\
 			================================================================================
@@ -442,7 +448,8 @@ def parse_args(cfg):
 		pause_point(None,'')
 
 def load_configs(shutit):
-	"""TODO
+	"""Responsible for loading config files into ShutIt.
+	Recurses down from configured shutit module paths.
 	"""
 	cfg = shutit.cfg
 	# Get root default config file
@@ -502,7 +509,8 @@ def load_configs(shutit):
 	get_base_config(cfg, cfg_parser)
 
 def load_shutit_modules(shutit):
-	"""TODO
+	"""Responsible for loading the shutit modules based on the configured moduleu
+	paths.
 	"""
 	if shutit.cfg['build']['debug']:
 		log('ShutIt module paths now: ')
@@ -512,7 +520,7 @@ def load_shutit_modules(shutit):
 		load_all_from_path(shutit, shutit_module_path)
 
 def print_config(cfg):
-	"""TODO
+	"""Returns a string representing the config of this ShutIt run.
 	"""
 	s = ''
 	for section in cfg['config_parser'].sections():
@@ -527,23 +535,20 @@ def print_config(cfg):
 	s = s + '\n'
 	return s
 
-# Set a pexpect child in the global dictionary by key.
 def set_pexpect_child(key,child):
-	"""TODO
+	"""Set a pexpect child in the global dictionary by key.
 	"""
 	shutit_global.pexpect_children.update({key:child})
 
-# Get a pexpect child in the global dictionary by key.
 def get_pexpect_child(key):
-	"""TODO
+	"""Get a pexpect child in the global dictionary by key.
 	"""
 	return shutit_global.pexpect_children[key]
 
-# dynamically import files within the same directory (in the end, the path)
-#http://stackoverflow.com/questions/301134/dynamic-module-import-in-python
 def load_all_from_path(shutit, path):
-	"""TODO
+	"""Dynamically imports files within the same directory (in the end, the path).
 	"""
+	#http://stackoverflow.com/questions/301134/dynamic-module-import-in-python
 	if os.path.abspath(path) == shutit.shutit_main_dir:
 		return
 	if not os.path.exists(path):
@@ -553,7 +558,7 @@ def load_all_from_path(shutit, path):
 			load_from_file(shutit, os.path.join(root, fname))
 
 def load_from_file(shutit, fpath):
-	"""TODO
+	"""Responsible for loading a .py file into ShutIt.
 	"""
 	mod_name,file_ext = os.path.splitext(os.path.split(fpath)[-1])
 	if file_ext.lower() != '.py':
@@ -564,13 +569,12 @@ def load_from_file(shutit, fpath):
 	load_from_py_module(shutit, pymod)
 
 def load_from_py_module(shutit, pymod):
-	"""TODO
+	"""To load from a py module we expect to have a callable 'module/0'
+	function which returns one or more module objects.
+	If this doesn't exist we assume that it's doing the 'old' style
+	(automatically inserting the module) or it's not a shutit module; 
+	in either case, this function is a no-op.
 	"""
-	# New style is to have a callable 'module/0' which returns one or
-	# more module objects.
-	# If this doesn't exist we assume that it's doing the old style
-	# (automatically inserting the module) or it's not a shutit module.
-	# In either case, there's nothing left to do
 	targets = [
 		('module', shutit.shutit_modules), ('conn_module', shutit.conn_modules)
 	]
@@ -589,7 +593,8 @@ def load_from_py_module(shutit, pymod):
 
 # Build report
 def build_report(msg=''):
-	"""TODO
+	"""Resposible for constructing a report to be output as part of the build.
+	Retrurns report as a string.
 	"""
 	s = ''
 	s = s + '################################################################################\n'
@@ -611,20 +616,20 @@ def build_report(msg=''):
 	s = s + '################################################################################\n'
 	return s
 
-# Helper function to get preceding integer
-# eg com.openbet == 1003189494
-# >>> import binascii
-# >>> abs(binascii.crc32('shutit.tk'))
-# 782914092
-#
-# Not in use, but recommended means of determining run order integer part.
 def get_hash(string):
-	"""TODO
+	"""Helper function to get preceding integer
+	eg com.openbet == 1003189494
+	>>> import binascii
+	>>> abs(binascii.crc32('shutit.tk'))
+	782914092
+	
+	Recommended means of determining run order integer part.
 	"""
 	return abs(binascii.crc32(string))
 
 def create_skeleton(shutit):
-	"""TODO
+	"""Helper function to create a standard module directory ready to run
+	and tinker with.
 	"""
 	shutit_dir = sys.path[0]
 
