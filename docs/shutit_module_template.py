@@ -229,8 +229,6 @@ class template(ShutItModule):
 	#	shutit.set_default_expect(shutit.cfg['expect_prompts']['root_prompt'])
 	#	return shutit.package_installed('mlocate') and shutit.package_installed('passwd')
 
-
-
 # template(string,float)
 # string : Any string you believe to identify this module uniquely, 
 #          eg com.my_corp.my_module_dir.my_module
@@ -238,7 +236,8 @@ class template(ShutItModule):
 def module():
 	#	"""Docstring
 	#	"""
-	obj = template(GLOBALLY_UNIQUE_STRING,FLOAT)
-	obj.add_dependency('shutit.tk.setup')
-	return obj
+	return template(
+		GLOBALLY_UNIQUE_STRING, FLOAT,
+		depends=['shutit.tk.setup']
+	)
 
