@@ -56,11 +56,12 @@ def shutit_method_scope(func):
 	return wrapper
 
 class ShutItMeta(ABCMeta):
-	"""TODO
+	"""Abstract class that defines what a ShutIt module must implement to be registered.
 	"""
 	ShutItModule = None
 	def __new__(mcs, name, bases, local):
-		"""TODO
+		"""Checks this is a ShutItModule, and wraps any ShutItModule methods
+		that have been overridden in the subclass.
 		"""
 
 		# Don't wrap methods of the ShutItModule class, only subclasses
@@ -90,7 +91,7 @@ class ShutItMeta(ABCMeta):
 		return cls
 
 class ShutItModule(object):
-	"""Abstract class that defines what a ShutIt module must implement to be registered.
+	"""Class that takes a ShutIt object and defines what a ShutIt module must implement to be registered.
 
 	Build order:
 
