@@ -565,26 +565,42 @@ def load_all_from_path(shutit, path):
 		return
 	for root, subFolders, files in os.walk(path):
 		for fname in files:
-			load_from_file(shutit, os.path.join(root, fname))
+			load_mod_from_file(shutit, os.path.join(root, fname))
 
-def load_from_file(shutit, fpath):
+def load_mod_from_file(shutit, fpath):
 	"""Responsible for loading a .py file into ShutIt.
 	"""
-	mod_name,file_ext = os.path.splitext(os.path.split(fpath)[-1])
+	mod_name, file_ext = os.path.splitext(os.path.split(fpath)[-1])
 	if file_ext.lower() != '.py':
 		return
+	# Do we already have modules from this file? If so we know we can skip.
+	# Note that this attribute will only be set for 'new style' module loading,
+	# this should be ok because 'old style' loading checks for duplicate
+	# existing modules.
+	# TODO: this is quadratic complexity
+	existingmodules = [
+		m for m in shutit.shutit_modules
+		if getattr(m, '__module_file', None) == fpath
+	]
+	if len(existingmodules) > 0:
+		return
+	# Looks like it's ok to load this file
 	if shutit.cfg['build']['debug']:
 		log('Loading source for: ' + mod_name, fpath)
 	pymod = imp.load_source(mod_name, fpath)
-	load_from_py_module(shutit, pymod)
 
-def load_from_py_module(shutit, pymod):
-	"""To load from a py module we expect to have a callable 'module/0'
-	function which returns one or more module objects.
-	If this doesn't exist we assume that it's doing the 'old' style
-	(automatically inserting the module) or it's not a shutit module; 
-	in either case, this function is a no-op.
-	"""
+	#To load from a py module we expect to have a callable 'module/0'
+	#function which returns one or more module objects.
+	#If this doesn't exist we assume that it's doing the 'old' style
+	#(automatically inserting the module) or it's not a shutit module;
+	#in either case, this function is a no-op.
+
+	# Got the python module, now time to pull the shutit module(s) out of it.
+	# New style is to have a callable 'module/0' which returns one or
+	# more module objects.
+	# If this doesn't exist we assume that it's doing the old style
+	# (automatically inserting the module) or it's not a shutit module.
+	# In either case, there's nothing left to do
 	targets = [
 		('module', shutit.shutit_modules), ('conn_module', shutit.conn_modules)
 	]
@@ -592,12 +608,14 @@ def load_from_py_module(shutit, pymod):
 		if not hasattr(pymod, attr):
 			return
 		modulefunc = getattr(pymod, attr)
+		# Old style, nothing else to do
 		if not callable(modulefunc):
 			return
 		modules = modulefunc()
 		if type(modules) is not list:
 			modules = [modules]
 		for module in modules:
+			setattr(module, '__module_file', fpath)
 			ShutItModule.register(module.__class__)
 			target.add(module)
 
