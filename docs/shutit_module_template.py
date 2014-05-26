@@ -1,3 +1,5 @@
+"""ShutIt module. See http://shutit.tk
+"""
 #Copyright (C) 2014 OpenBet Limited
 #
 #
@@ -18,25 +20,21 @@
 #IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 #CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-
 from shutit_module import ShutItModule
 import util
 import os
 
 class template(ShutItModule):
-
-	# is_installed
-	#
 	# Determines whether the module has been built in this container
 	# already.
 	#
 	# Should return True if it is certain it's there, else False.
 	def is_installed(self,shutit):
+		"""Docstring
+		"""
 		shutit.set_default_expect(shutit.cfg['expect_prompts']['root_prompt'])
 		return shutit.file_exists('/tmp/container_touched.sh') and shutit.file_exists('/tmp/README.md')
 
-	# build
-	#
 	# Run the build part of the module, which should ensure the module
 	# has been set up.
 	# If is_installed determines that the module is already there,
@@ -44,6 +42,8 @@ class template(ShutItModule):
 	#
 	# Should return True if it has succeeded in building, else False.
 	def build(self,shutit):
+		"""Docstring
+		"""
 		shutit.set_default_expect(shutit.cfg['expect_prompts']['root_prompt'])
 		# Line number 49 should be the next one (so bash scripts can be inserted properly)
 
@@ -125,7 +125,7 @@ class template(ShutItModule):
 	# each object can handle config here
 	# OPTIONAL part of lifecycle - uncomment to include
 	def get_config(self,shutit):
-		"""TODO
+		"""Docstring
 		"""
 		cp = shutit.cfg['config_parser']
 		# Bring the example config into the config dictionary.

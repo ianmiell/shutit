@@ -1,3 +1,6 @@
+"""Contains all the core ShutIt methods and functionality.
+"""
+
 #The MIT License (MIT)
 #
 #Copyright (C) 2014 OpenBet Limited
@@ -33,16 +36,25 @@ import base64
 from shutit_module import ShutItFailException
 
 def random_id(size=5, chars=string.ascii_letters + string.digits):
-	"""TODO
+	"""Generates a random string of given size from the given chars.
 	"""
 	return ''.join(random.choice(chars) for _ in range(size))
 
 class ShutIt(object):
-	"""TODO
+	"""ShutIt build class.
+	Represents an instance of a ShutIt build with associated config.
 	"""
 
 	def __init__(self, **kwargs):
-		"""TODO
+		"""Constructor.
+		Sets up:
+
+		- pexpect_children   - 
+		- shutit_modules     - 
+		- shutit_main_dir    - directory in which shutit is located
+		- cfg                - dictionary of configuration of build
+		- cwd                - working directory of build
+		- shutit_map         - 
 		"""
 		# These used to be in shutit_global, so we pass them in as args so
 		# the original reference can be put in shutit_global
@@ -61,11 +73,10 @@ class ShutIt(object):
 		self._default_expect     = [None]
 		self._default_check_exit = [None]
 
-	# These two get called automatically by the metaclass decorator in
-	# shutit_module when a module method is called.
-	# This allows setting defaults for the 'scope' of a method.
 	def module_method_start(self):
-		"""TODO
+		"""Gets called automatically by the metaclass decorator in
+		shutit_module when a module method is called.
+		This allows setting defaults for the 'scope' of a method.
 		"""
 		if self._default_child[-1] is not None:
 			self._default_child.append(self._default_child[-1])
@@ -74,7 +85,9 @@ class ShutIt(object):
 		if self._default_check_exit[-1] is not None:
 			self._default_check_exit.append(self._default_check_exit[-1])
 	def module_method_end(self):
-		"""TODO
+		"""Gets called automatically by the metaclass decorator in
+		shutit_module when a module method is finished.
+		This allows setting defaults for the 'scope' of a method.
 		"""
 		if len(self._default_child) != 1:
 			self._default_child.pop()
@@ -84,35 +97,40 @@ class ShutIt(object):
 			self._default_check_exit.pop()
 
 	def get_default_child(self):
-		"""TODO
+		"""Returns the currently-set default pexpect child.
 		"""
 		if self._default_child[-1] is None:
 			util.fail("Couldn't get default child")
 		return self._default_child[-1]
 	def get_default_expect(self):
-		"""TODO
+		"""Returns the currently-set default pexpect string (usually a prompt).
 		"""
 		if self._default_expect[-1] is None:
 			util.fail("Couldn't get default expect")
 		return self._default_expect[-1]
 	def get_default_check_exit(self):
-		"""TODO
+		"""Returns default value of check_exit. See send_and_expect method.
 		"""
 		if self._default_check_exit[-1] is None:
 			util.fail("Couldn't get default check exit")
 		return self._default_check_exit[-1]
 	def set_default_child(self, child):
-		"""TODO
+		"""Sets the default pexpect child.
 		"""
 		self._default_child[-1] = child
 	def set_default_expect(self, expect, check_exit=True):
-		"""TODO
+		"""Sets the default pexpect string (usually a prompt)
 		"""
 		self._default_expect[-1] = expect
 		self._default_check_exit[-1] = check_exit
 
 	def log(self, msg, code=None, pause=0, prefix=True, force_stdout=False):
-		"""TODO
+		"""Logging function.
+
+		code         - Colour code for logging. Ignored if we are in serve mode.
+		pause        - Length of time to pause after logging (default: 0)
+		prefix       - Whether to output logging prefix (LOG: <time>) (default: True)
+		force_stdout - If we are not in debug, put this in stdout anyway (default: False)
 		"""
 		if prefix:
 			prefix = 'LOG: ' + time.strftime("%Y-%m-%d %H:%M:%S",time.localtime())
@@ -127,20 +145,27 @@ class ShutIt(object):
 			self.cfg['build']['build_log'].flush()
 		time.sleep(pause)
 
-	# Wrapper for send and expect where convenient.
-	# Helpful for debugging.
-	# Returns the expect return value
-	#
-	# child                      - pexpect child to issue command to.
-	# send                       - String to send, ie the command being issued.
-	# expect                     - String that we expect to see in the output. Usually a prompt.
-	# timeout                    - Timeout on response (default=3600 seconds).
-	# check_exit                 - Whether the check the shell exit code of the command. If the exit value was non-zero an error is thrown. (default=True)
-	# fail_on_empty_before       - If debug is set, fail on empty before match (default=True)
-	# record_command             - Whether to record the command for output at end (default=True)
-	# exit_values                - Array of acceptable exit values (default [0])
 	def send_and_expect(self,send,expect=None,child=None,timeout=3600,check_exit=None,fail_on_empty_before=True,record_command=True,exit_values=None):
-		"""TODO
+		"""Send string to the container, and wait until the expected string is seen before returning.
+
+		Returns the pexpect return value
+		
+		child                      - pexpect child to issue command to.
+		send                       - String to send, ie the command being issued.
+		expect                     - String that we expect to see in the output. Usually a prompt.
+		                             Defaults to currently-set expect string (see set_default_expect)
+		timeout                    - Timeout on response (default=3600 seconds).
+		check_exit                 - Whether to check the shell exit code of the passed-in command.
+		                             If the exit value was non-zero an error is thrown.
+					     (default=None, which takes the currently-configured check_exit value)
+					     See also fail_on_empty_before.
+		fail_on_empty_before       - If debug is set, fail on empty match output string (default=True)
+		                             If this is set to False, then we don't check the exit value of the 
+					     command.
+		record_command             - Whether to record the command for output at end (default=True)
+		                             As a safety measure, if the command matches any 'password's then we 
+					     don't record it.
+		exit_values                - Array of acceptable exit values (default [0])
 		"""
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
@@ -153,7 +178,6 @@ class ShutIt(object):
 				check_exit = self.get_default_check_exit()
 			else:
 				check_exit = True
-		# If the command matches any 'password's then don't record
 		ok_to_record = False
 		if record_command:
 			ok_to_record = True
@@ -172,7 +196,7 @@ class ShutIt(object):
 			self.log('================================================================================')
 			self.log('Sending>>>' + send + '<<<')
 			self.log('Expecting>>>' + str(expect) + '<<<')
-		# Race conditions have been seen - might want to remove this
+		# Race conditions have been seen (we thought at one point) - might want to remove this
 		time.sleep(cfg['build']['command_pause'])
 		child.sendline(send)
 		expect_res = child.expect(expect,timeout)
@@ -197,7 +221,7 @@ class ShutIt(object):
 
 
 	def _check_exit(self,send,expect=None,child=None,timeout=3600,exit_values=None):
-		"""TODO
+		"""Internal function to check the exit value of the shell.
 		"""
 		expect = expect or self.get_default_expect()
 		child = child or self.get_default_child()
@@ -219,7 +243,12 @@ class ShutIt(object):
 				#raise Exception('Exit value from command\n' + send + '\nwas:\n' + res)
 
 	def run_script(self,script,expect=None,child=None,is_bash=True):
-		"""TODO
+		"""Run the passed-in string 
+
+		- script  - 
+		- expect  - 
+		- child   - 
+		- is_bash - 
 		"""
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
@@ -242,9 +271,15 @@ class ShutIt(object):
 		self.send_and_expect('rm /tmp/shutit_script.sh', expect, child)
 		return ret
 
-	# TODO: Comments needed here, as well as example in template. And a test?
+	# TODO: test for this
 	def send_file(self,path,contents,expect=None,child=None,binary=False):
-		"""TODO
+		"""Sends the passed-in string as a file to the passed-in path on the container.
+
+		- path     - Target location of file in container.
+		- contents - Contents of file as a string. See binary.
+		- expect   - 
+		- child    - 
+		- binary   - Don't log the file contents.
 		"""
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
@@ -260,9 +295,8 @@ class ShutIt(object):
 		child.expect(expect)
 		self._check_exit("send file to " + path,expect,child)
 
-	# Return True if file exists, else False
 	def file_exists(self,filename,expect=None,child=None,directory=False):
-		"""TODO
+		"""Return True if file exists, else False
 		"""
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
@@ -281,9 +315,8 @@ class ShutIt(object):
 		child.expect(expect)
 		return ret
 
-	# Returns the file permission as an octal
 	def get_file_perms(self,filename,expect=None,child=None):
-		"""TODO
+		"""Returns the file permission as an octal string.
 		"""
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
@@ -292,22 +325,20 @@ class ShutIt(object):
 		res = self.get_re_from_child(child.before,'([0-9][0-9][0-9])')
 		return res
 
-	# Adds line to file if it doesn't exist (unless Force is set).
-	# Creates the file if it doesn't exist (unless truncate is set).
-	# Must be exactly the line passed in to match.
-	# Returns True if line added, False if not.
-	# If you have a lot of non-unique lines to add,
-	# it's a good idea to have a sentinel value to
-	# add first, and then if that returns true,
-	# force the remainder.
-	#
-	# match_regexp - if supplied, a regexp to look for in the file instead of the line itself, handy if the line has awkward characters in it.
-	# force        - always write the line to the file
-	# truncate     - truncate or create the file before doing anything else
-	# literal      - if true, then simply grep for the exact
-	#                string without bash interpretation
 	def add_line_to_file(self,line,filename,expect=None,child=None,match_regexp=None,truncate=False,force=False,literal=False):
-		"""TODO
+		"""Adds line to file if it doesn't exist (unless Force is set).
+		Creates the file if it doesn't exist (unless truncate is set).
+		Must be exactly the line passed in to match.
+		Returns True if line added, False if not.
+		If you have a lot of non-unique lines to add, it's a good idea to have a sentinel value to
+		add first, and then if that returns true, force the remainder.
+	
+		- line         - Line to add.
+		- filename     - Filename to add it to.
+		- match_regexp - If supplied, a regexp to look for in the file instead of the line itself, handy if the line has awkward characters in it.
+		- truncate     - Truncate or create the file before doing anything else
+		- force        - Always write the line to the file
+		- literal      - If true, then simply grep for the exact string without bash interpretation
 		"""
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
@@ -344,18 +375,16 @@ class ShutIt(object):
 			self.send_and_expect('rm -f ' + tmp_filename,expect,child=child,exit_values=['0','1'])
 			return False
 
-	# Takes care of adding a line to everyone's bashrc
 	def add_to_bashrc(self,line,expect=None,child=None):
-		"""TODO
+		"""Takes care of adding a line to everyone's bashrc.
 		"""
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
 		self.add_line_to_file(line,'/etc/bash.bashrc',expect=expect)
 		return self.add_line_to_file(line,'/etc/profile',expect=expect)
 
-	# Return True if we can be sure the package is installed.
 	def package_installed(self,package,expect=None,child=None):
-		"""TODO
+		"""Returns True if we can be sure the package is installed.
 		"""
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
@@ -372,9 +401,8 @@ class ShutIt(object):
 
 
 
-	# Inserts a pause in the expect session which allows the user to try things out
 	def pause_point(self,msg,child=None,print_input=True,expect=''):
-		"""TODO
+		"""Inserts a pause in the build session which allows the user to try things out before continuing.
 		"""
 		child = child or self.get_default_child()
 		cfg = self.cfg
@@ -393,10 +421,9 @@ class ShutIt(object):
 			print util.colour('31','\n\n[Hit return to continue]\n')
 			raw_input('')
 
-	# Get regular expression from lines
-	# Returns None if none matched.
 	def get_re_from_child(self, string, regexp):
-		"""TODO
+		"""Get regular expression from any of the lines passed in in string
+		Returns None if none of the lines matched.
 		"""
 		cfg = self.cfg
 		if cfg['build']['debug']:
@@ -414,9 +441,8 @@ class ShutIt(object):
 				return match.group(1)
 		return None
 
-	# Returns the output of a command
 	def get_output(self,send,expect=None,child=None):
-		"""TODO
+		"""Returns the output of a command run.
 		"""
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
@@ -424,11 +450,10 @@ class ShutIt(object):
 		return shutit.get_default_child().before.strip(send)
 
 
-	# Distro-independent install function.
-	# Takes a package name and runs
-	# Returns true if all ok (ie it's installed now), else false
 	def install(self,package,child=None,expect=None,options=None,timeout=3600):
-		"""TODO
+		"""Distro-independent install function.
+		Takes a package name and runs the relevant install function.
+		Returns true if all ok (ie it's installed), else false
 		"""
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
@@ -448,11 +473,10 @@ class ShutIt(object):
 		self.send_and_expect('%s %s %s' % (cmd,opts,package),expect,timeout=timeout)
 		return True
 
-	# Distro-independent remove function.
-	# Takes a package name and runs
-	# Returns true if all ok (ie it's installed now), else false
 	def remove(self,package,child=None,expect=None,options=None,timeout=3600):
-		"""TODO
+		"""Distro-independent remove function.
+		Takes a package name and runs relevant remove function.
+		Returns true if all ok (ie it's installed now), else false
 		"""
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
@@ -472,15 +496,9 @@ class ShutIt(object):
 		self.send_and_expect('%s %s %s' % (cmd,opts,package),expect,timeout=timeout)
 		return True
 
-	# Deprecated
-	def handle_login(self,prompt_name,child=None):
-		"""TODO
-		"""
-		self.setup_prompt(prompt_name, child=child)
 
-	# Use this when you've opened a new shell to set the PS1 to something sane.
 	def setup_prompt(self,prompt_name,prefix='TMP',child=None,set_default_expect=True):
-		"""TODO
+		"""Use this when you've opened a new shell to set the PS1 to something sane.
 		"""
 		child = child or self.get_default_child()
 		local_prompt = 'SHUTIT_' + prefix + '#' + random_id() + '>'
@@ -495,14 +513,15 @@ class ShutIt(object):
 			self.set_default_expect(shutit.cfg['expect_prompts'][prompt_name])
 
 	def handle_revert_prompt(self,expect,prompt_name,child=None):
-		"""TODO
+		"""Deprecated. Do not use.
 		"""
-		self.revert_prompt(prompt_name,expect,child)
+		self.revert_prompt(prompt_name,expect=expect,child=child)
 
-	# It should be fairly rare to need this. Most of the time you would just
-	# exit a subshell rather than resetting the prompt.
 	def revert_prompt(self,old_prompt_name,new_expect=None,child=None):
-		"""TODO
+		"""Reverts the prompt to the previous value (passed-in).
+
+		It should be fairly rare to need this. Most of the time you would just
+		exit a subshell rather than resetting the prompt.
 		"""
 		child = child or self.get_default_child()
 		expect = new_expect or self.get_default_expect()
@@ -511,10 +530,11 @@ class ShutIt(object):
 				(old_prompt_name, old_prompt_name),
 			expect=expect,check_exit=False,fail_on_empty_before=False)
 
-	# Fails if distro could not be determined.
-	# Should be called with the container is started up, and uses as core info as possible.
 	def get_distro_info(self,child=None):
-		"""TODO
+		"""Get information about which distro we are using.
+
+		Fails if distro could not be determined.
+		Should be called with the container is started up, and uses as core info as possible.
 		"""
 		child = child or self.get_default_child()
 		cfg = self.cfg
@@ -530,9 +550,8 @@ class ShutIt(object):
 		if cfg['container']['install_type'] == '' or cfg['container']['distro'] == '':
 			util.fail('Could not determine Linux distro information. Please inform maintainers.')
 
-	# Sets the password
 	def set_password(self,password,child=None,expect=None):
-		"""TODO
+		"""Sets the password for the current user.
 		"""
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
@@ -547,9 +566,8 @@ class ShutIt(object):
 			self.send_and_expect(password,child=child,expect=expect,record_command=False)
 
 
-	# Determine whether a user_id for a user is available
 	def is_user_id_available(self,user_id,child=None,expect=None):
-		"""TODO
+		"""Determine whether a user_id for a user is available.
 		"""
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
@@ -559,9 +577,11 @@ class ShutIt(object):
 		else:
 			return True
 
-	# expect must be a string
-	def push_repository(self,repository,docker_executable,child=None,expect=None):
-		"""TODO
+	def push_repository(self,repository,docker_executable='docker.io',child=None,expect=None):
+		"""Pushes the repository.
+
+		- repository        - 
+		- docker_executable -
 		"""
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
@@ -581,10 +601,8 @@ class ShutIt(object):
 			else:
 				res = child.expect(expect_list,timeout=timeout)
 
-	# Commit, tag, push, tar etc..
-	# expect must be a string
 	def do_repository_work(self,repo_name,expect=None,docker_executable='docker',password=None):
-		"""TODO
+		"""Commit, tag, push, tar the container based on the configuration we have.
 		"""
 		expect = expect or self.get_default_expect()
 		cfg = self.cfg
@@ -649,12 +667,17 @@ class ShutIt(object):
 				self.send_and_expect(password,expect=expect,child=child)
 		if cfg['repository']['push'] == True:
 			# Pass the child explicitly as it's the host child.
-			self.push_repository(repository,docker_executable,expect=expect,child=child)
+			self.push_repository(repository,docker_executable=docker_executable,expect=expect,child=child)
 			cfg['build']['report'] = cfg['build']['report'] + 'Pushed repository: ' + repository
+
+	def handle_login(self,prompt_name,child=None):
+		"""Deprecated. Do not use.
+		"""
+		self.setup_prompt(prompt_name, child=child)
 
 
 def init():
-	"""TODO
+	"""Initialize the shutit object. Called when imported.
 	"""
 	global pexpect_children
 	global shutit_modules
