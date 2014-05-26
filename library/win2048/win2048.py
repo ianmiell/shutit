@@ -19,6 +19,7 @@
 
 from shutit_module import ShutItModule
 import util
+import os
 
 class win2048(ShutItModule):
 
