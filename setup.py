@@ -40,11 +40,17 @@ import json
 # host_child      - pexpect spawned child living on the host container
 
 class conn_docker(ShutItModule):
+	"""TODO
+	"""
 
 	def is_installed(self,shutit):
+		"""TODO
+		"""
 		return False
 
 	def build(self,shutit):
+		"""TODO
+		"""
 		cfg = shutit.cfg
 
 		docker = cfg['host']['docker_executable'].split(' ')
@@ -199,6 +205,8 @@ class conn_docker(ShutItModule):
 		return True
 
 	def finalize(self,shutit):
+		"""TODO
+		"""
 		cfg = shutit.cfg
 		# Finish with the container
 		container_child = util.get_pexpect_child('container_child')
@@ -228,14 +236,20 @@ BUILDREPEND"""
 		return True
 
 def conn_module():
+	"""TODO
+	"""
 	return conn_docker('shutit.tk.conn_docker',-0.1,'Connect ShutIt to docker')
 
 class setup(ShutItModule):
 
 	def is_installed(self,shutit):
+		"""TODO
+		"""
 		return False
 
 	def build(self,shutit):
+		"""TODO
+		"""
 		mod_id = 'shutit.tk.setup'
 		packages = shutit.cfg[mod_id]['packages']
 		do_update = shutit.cfg[mod_id]['do_update']
@@ -257,12 +271,16 @@ class setup(ShutItModule):
 		return True
 
 	def remove(self,shutit):
+		"""TODO
+		"""
 		cfg = shutit.cfg
 		if cfg['container']['install_type'] == 'yum':
 			shutit.remove('passwd')
 		return True
 
 	def get_config(self, shutit):
+		"""TODO
+		"""
 		cp = shutit.cfg['config_parser']
 		shutit.cfg[self.module_id]['packages']  = json.loads(cp.get(self.module_id,'packages'))
 		shutit.cfg[self.module_id]['do_update'] = cp.getboolean(self.module_id,'do_update')

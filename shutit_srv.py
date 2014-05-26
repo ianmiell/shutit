@@ -39,6 +39,8 @@ shutit = None
 STATUS = None
 
 def build_shutit():
+	"""TODO
+	"""
 	global STATUS
 	try:
 		shutit_main.do_remove(shutit)
@@ -51,6 +53,8 @@ def build_shutit():
 	STATUS["build_done"] = True
 
 def update_modules(to_build, cfg):
+	"""TODO
+	"""
 	global STATUS
 	if cfg is not None:
 		sec, key, val = cfg
@@ -82,6 +86,8 @@ def update_modules(to_build, cfg):
 
 @route('/info', method='POST')
 def info():
+	"""TODO
+	"""
 	global STATUS
 	can_check = not (STATUS['build_started'] or STATUS['resetting'])
 	can_cfg = not (STATUS['build_started'] or STATUS['resetting'])
@@ -103,6 +109,8 @@ def info():
 
 @route('/log', method='POST')
 def log():
+	"""TODO
+	"""
 	cmd_offset, log_offset = request.json
 	if STATUS['resetting']:
 		command_list = []
@@ -117,13 +125,19 @@ def log():
 
 @route('/')
 def index():
+	"""TODO
+	"""
 	return static_file('index.html', root='./web')
 
 @route('/static/<path:path>.js')
 def static_srv(path):
+	"""TODO
+	"""
 	return static_file(path + '.js', root='./web')
 
 def shutit_reset():
+	"""TODO
+	"""
 	global orig_mod_cfg
 	global shutit
 	global STATUS
@@ -178,6 +192,8 @@ def shutit_reset():
 	t.start()
 
 def start():
+	"""TODO
+	"""
 	shutit_reset()
 
 	# Start the server

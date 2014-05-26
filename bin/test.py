@@ -5,12 +5,16 @@ import util
 
 # In order to dynamically create objects
 class Bunch:
+	"""TODO
+	"""
 	def __init__(self, **kwds):
 		self.__dict__.update(kwds)
 
 # Updating multiple levels of a dict
 import collections
 def recupdate(d, u):
+	"""TODO
+	"""
 	for k, v in u.iteritems():
 		if isinstance(v, collections.Mapping):
 			r = recupdate(d.get(k, {}), v)
@@ -20,21 +24,31 @@ def recupdate(d, u):
 	return d
 
 class ShutItTestException(Exception):
+	"""TODO
+	"""
 	pass
 
 class TestShutItDepChecking(unittest.TestCase):
+	"""TODO
+	"""
 
 	@classmethod
 	def setUpClass(cls):
+		"""TODO
+		"""
 		cls._fail = util.fail
 		def fail(*args, **kwargs):
 			raise ShutItTestException("failed")
 		util.fail = fail
 	@classmethod
 	def tearDownClass(cls):
+		"""TODO
+		"""
 		util.fail = cls._fail
 
 	def setUp(self):
+		"""TODO
+		"""
 		self.shutit = shutit_global.init()
 		def log(*args, **kwargs):
 			pass
@@ -47,6 +61,8 @@ class TestShutItDepChecking(unittest.TestCase):
 		})
 
 	def test_dep_exists_err(self):
+		"""TODO
+		"""
 		self.shutit.cfg.update({
 			'tk.shutit.test1': {'build': True, 'remove': False}
 		})
@@ -61,6 +77,8 @@ class TestShutItDepChecking(unittest.TestCase):
 		self.assertEqual(len(errs[0]), 1)
 
 	def test_dep_build_err(self):
+		"""TODO
+		"""
 		self.shutit.cfg.update({
 			'tk.shutit.test1': {'build': False, 'build_ifneeded': False, 'remove': False},
 			'tk.shutit.test2': {'build': True, 'remove': False}
@@ -81,6 +99,8 @@ class TestShutItDepChecking(unittest.TestCase):
 		self.assertEqual(len(errs[0]), 1)
 
 	def test_dep_order_err(self):
+		"""TODO
+		"""
 		self.shutit.cfg.update({
 			'tk.shutit.test1': {'build': True, 'remove': False},
 			'tk.shutit.test2': {'build': True, 'remove': False}
@@ -100,6 +120,8 @@ class TestShutItDepChecking(unittest.TestCase):
 		self.assertEqual(len(errs[0]), 1)
 
 	def test_dep_resolution(self):
+		"""TODO
+		"""
 		self.shutit.cfg.update({
 			'tk.shutit.test1': {'build': False, 'build_ifneeded': True, 'remove': False},
 			'tk.shutit.test2': {'build': False, 'build_ifneeded': True, 'remove': False},
