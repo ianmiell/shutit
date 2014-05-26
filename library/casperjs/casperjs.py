@@ -45,8 +45,8 @@ class casperjs(ShutItModule):
 		shutit.send_and_expect('rm -rf /opt/casperjs',shutit.cfg['expect_prompts']['root_prompt'])
 		return True
 
-if not util.module_exists('shutit.tk.casperjs.casperjs'):
+def module():
 	obj = casperjs('shutit.tk.casperjs.casperjs',0.314,'http://casperjs.org/')
-	util.get_shutit_modules().add(obj)
-	ShutItModule.register(casperjs)
+	obj.add_dependency('shutit.tk.setup')
+	return obj
 
