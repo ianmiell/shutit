@@ -28,16 +28,26 @@ import inspect
 # TODO: these don't belong here, but this module is 'top level' and doesn't
 # depend on any other shutit files.
 class ShutItException(Exception):
+	"""TODO
+	"""
 	pass
 class ShutItModuleError(ShutItException):
+	"""TODO
+	"""
 	pass
 class ShutItFailException(ShutItException):
+	"""TODO
+	"""
 	pass
 
 # Notify the shutit object whenever we call a shutit module method.
 # This allows setting values for the 'scope' of a function.
 def shutit_method_scope(func):
+	"""TODO
+	"""
 	def wrapper(self, shutit):
+		"""TODO
+		"""
 		shutit.module_method_start()
 		ret = func(self, shutit)
 		shutit.module_method_end()
@@ -45,8 +55,12 @@ def shutit_method_scope(func):
 	return wrapper
 
 class ShutItMeta(ABCMeta):
+	"""TODO
+	"""
 	ShutItModule = None
 	def __new__(mcs, name, bases, local):
+		"""TODO
+		"""
 
 		# Don't wrap methods of the ShutItModule class, only subclasses
 		if name != 'ShutItModule':
@@ -76,6 +90,8 @@ class ShutItMeta(ABCMeta):
 
 # Abstract class that defines what a ShutIt module must implement to be registered.
 class ShutItModule(object):
+	"""TODO
+	"""
 	__metaclass__ = ShutItMeta
 
 	########################################################################
@@ -101,6 +117,8 @@ class ShutItModule(object):
 	# Constructor
 	########################################################################
 	def __init__(self,module_id,run_order,description=''):
+		"""TODO
+		"""
 		# Module id for the module (a string).
 		# Following the Java standard is recommended, eg 'com.bigcorp.project.alpha.mymodule'
 		# Duplicate module ids are rejected if within the configured shutit_module_path.
@@ -140,14 +158,20 @@ class ShutItModule(object):
 	########################################################################
 	# set the run order (see __init__)
 	def set_run_order(self,order):
+		"""TODO
+		"""
 		self.run_order = order
 
 	# add a dependency (see __init__)
 	def add_dependency(self,dependency):
+		"""TODO
+		"""
 		self.depends_on.append(dependency)
 
 	# add a conflict (see __init__)
 	def add_conflict(self,conflict):
+		"""TODO
+		"""
 		self.conflicts_with.append(conflict)
 
 	########################################################################
@@ -158,6 +182,8 @@ class ShutItModule(object):
 	#
 	# Get all config items necessary for this module to be built
 	def get_config(self,shutit):
+		"""TODO
+		"""
 		return True
 
 	# check_ready
@@ -172,6 +198,8 @@ class ShutItModule(object):
 	#
 	# Should return True if it ready, else False.
 	def check_ready(self,shutit):
+		"""TODO
+		"""
 		return True
 
 	# remove
@@ -181,6 +209,8 @@ class ShutItModule(object):
 	#
 	# Should return True if it has succeeded in removing, else False.
 	def remove(self,shutit):
+		"""TODO
+		"""
 		return False
 
 	# start
@@ -188,6 +218,8 @@ class ShutItModule(object):
 	# Run when module should be installed (is_installed() or configured to build is true)
 	# Run after repo work.
 	def start(self,shutit):
+		"""TODO
+		"""
 		return True
 
 	# stop
@@ -195,6 +227,8 @@ class ShutItModule(object):
 	# Run when module should be stopped.
 	# Run before repo work, and before finalize is called.
 	def stop(self,shutit):
+		"""TODO
+		"""
 		return True
 
 	# is_installed
@@ -207,6 +241,8 @@ class ShutItModule(object):
 	# Required.
 	@abstractmethod
 	def is_installed(self,shutit):
+		"""TODO
+		"""
 		pass
 
 	# build
@@ -221,6 +257,8 @@ class ShutItModule(object):
 	# Required.
 	@abstractmethod
 	def build(self,shutit):
+		"""TODO
+		"""
 		pass
 
 	# cleanup
@@ -229,6 +267,8 @@ class ShutItModule(object):
 	# Should return True if all is OK, else False.
 	# Note that this is only run if the build phase was actually run.
 	def cleanup(self,shutit):
+		"""TODO
+		"""
 		return True
 
 	# test
@@ -237,11 +277,15 @@ class ShutItModule(object):
 	# Should return True if all is OK, else False.
 	# This is run regardless of whether the module is installed or not.
 	def test(self,shutit):
+		"""TODO
+		"""
 		return True
 
 	# finalize
 	#
 	# Finalize the module, ie do things that need doing before we exit.
 	def finalize(self,shutit):
+		"""TODO
+		"""
 		return True
 

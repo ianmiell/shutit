@@ -44,6 +44,8 @@ from shutit_module import ShutItFailException
 
 # TODO: Manage exits of containers on error
 def fail(msg,child=None):
+	"""TODO
+	"""
 	if child:
 		pause_point(child,'Pause point on fail: ' + msg)
 	print >> sys.stderr, 'ERROR!'
@@ -52,6 +54,8 @@ def fail(msg,child=None):
 
 
 def is_file_secure(file_name):
+	"""TODO
+	"""
 	# If file doesn't exist, it's considered secure!
 	if not os.path.isfile(file_name):
 		return True
@@ -71,6 +75,8 @@ def reverse_green(msg):  return colour('7;32', msg)
 def reverse_yellow(msg): return colour('7;33', msg)
 
 def get_config(cfg,module_id,option,default,boolean=False):
+	"""TODO
+	"""
 	if module_id not in cfg.keys():
 		cfg[module_id] = {}
 	if not cfg['config_parser'].has_section(module_id):
@@ -84,6 +90,8 @@ def get_config(cfg,module_id,option,default,boolean=False):
 		cfg[module_id][option] = default
 
 def get_configs(configs):
+	"""TODO
+	"""
 	cp       = ConfigParser.ConfigParser(None)
 	fail_str = ''
 	files    = []
@@ -104,12 +112,16 @@ def get_configs(configs):
 
 # Helper function to issue warning
 def issue_warning(msg,wait):
+	"""TODO
+	"""
 	print >> sys.stderr, msg
 	time.sleep(wait)
 
 # Manage config settings, returning a dict representing the settings
 # that have been sanity-checked.
 def get_base_config(cfg, cfg_parser):
+	"""TODO
+	"""
 	cfg['config_parser'] = cp = cfg_parser
 	# BEGIN Read from config files
 	cfg['build']['action_on_ret_code']            = cp.get('build','action_on_ret_code')
@@ -208,6 +220,8 @@ def get_base_config(cfg, cfg_parser):
 
 # Returns the config dict
 def parse_args(cfg):
+	"""TODO
+	"""
 	cfg['host']['real_user_id'] = pexpect.run('id -u ' + cfg['host']['real_user']).strip()
 
 	# These are in order of their creation
@@ -428,6 +442,8 @@ def parse_args(cfg):
 		pause_point(None,'')
 
 def load_configs(shutit):
+	"""TODO
+	"""
 	cfg = shutit.cfg
 	# Get root default config file
 	default_config_file = os.path.join(shutit.shutit_main_dir, 'configs/defaults.cnf')
@@ -486,6 +502,8 @@ def load_configs(shutit):
 	get_base_config(cfg, cfg_parser)
 
 def load_shutit_modules(shutit):
+	"""TODO
+	"""
 	if shutit.cfg['build']['debug']:
 		log('ShutIt module paths now: ')
 		log(shutit.cfg['host']['shutit_module_paths'])
@@ -494,6 +512,8 @@ def load_shutit_modules(shutit):
 		load_all_from_path(shutit, shutit_module_path)
 
 def print_config(cfg):
+	"""TODO
+	"""
 	s = ''
 	for section in cfg['config_parser'].sections():
 		s = s + '\n[' + section + ']\n'
@@ -509,15 +529,21 @@ def print_config(cfg):
 
 # Set a pexpect child in the global dictionary by key.
 def set_pexpect_child(key,child):
+	"""TODO
+	"""
 	shutit_global.pexpect_children.update({key:child})
 
 # Get a pexpect child in the global dictionary by key.
 def get_pexpect_child(key):
+	"""TODO
+	"""
 	return shutit_global.pexpect_children[key]
 
 # dynamically import files within the same directory (in the end, the path)
 #http://stackoverflow.com/questions/301134/dynamic-module-import-in-python
 def load_all_from_path(shutit, path):
+	"""TODO
+	"""
 	if os.path.abspath(path) == shutit.shutit_main_dir:
 		return
 	if not os.path.exists(path):
@@ -527,6 +553,8 @@ def load_all_from_path(shutit, path):
 			load_from_file(shutit, os.path.join(root, fname))
 
 def load_from_file(shutit, fpath):
+	"""TODO
+	"""
 	mod_name,file_ext = os.path.splitext(os.path.split(fpath)[-1])
 	if file_ext.lower() != '.py':
 		return
@@ -536,6 +564,8 @@ def load_from_file(shutit, fpath):
 	load_from_py_module(shutit, pymod)
 
 def load_from_py_module(shutit, pymod):
+	"""TODO
+	"""
 	# New style is to have a callable 'module/0' which returns one or
 	# more module objects.
 	# If this doesn't exist we assume that it's doing the old style
@@ -559,6 +589,8 @@ def load_from_py_module(shutit, pymod):
 
 # Build report
 def build_report(msg=''):
+	"""TODO
+	"""
 	s = ''
 	s = s + '################################################################################\n'
 	s = s + '# COMMAND HISTORY BEGIN ' + shutit_global.cfg['build']['build_id'] + '\n'
@@ -587,9 +619,13 @@ def build_report(msg=''):
 #
 # Not in use, but recommended means of determining run order integer part.
 def get_hash(string):
+	"""TODO
+	"""
 	return abs(binascii.crc32(string))
 
 def create_skeleton(shutit):
+	"""TODO
+	"""
 	shutit_dir = sys.path[0]
 
 	skel_path = shutit.cfg['skeleton']['path']
@@ -845,6 +881,8 @@ def create_skeleton(shutit):
 
 # Deprecated
 def log(msg,code=None,pause=0,cfg=None,prefix=True,force_stdout=False):
+	"""Deprecated. Do not use.
+	"""
 	if cfg not in [None, shutit_global.shutit.cfg]:
 		print "Report this error and stack trace to repo owner, #d101"
 		assert False
@@ -852,6 +890,8 @@ def log(msg,code=None,pause=0,cfg=None,prefix=True,force_stdout=False):
 
 # Deprecated
 def send_and_expect(child,send,expect,timeout=3600,check_exit=True,cfg=None,fail_on_empty_before=True,record_command=True,exit_values=['0']):
+	"""Deprecated. Do not use.
+	"""
 	if cfg not in [None, shutit_global.shutit.cfg]:
 		print "Report this error and stack trace to repo owner, #d106"
 		assert False
@@ -862,6 +902,8 @@ def send_and_expect(child,send,expect,timeout=3600,check_exit=True,cfg=None,fail
 
 # Deprecated
 def pause_point(child,msg,print_input=True,expect='',cfg=None):
+	"""Deprecated. Do not use.
+	"""
 	if cfg not in [None, shutit_global.shutit.cfg]:
 		print "Report this error and stack trace to repo owner, #d102"
 		assert False
@@ -870,6 +912,8 @@ def pause_point(child,msg,print_input=True,expect='',cfg=None):
 
 # Deprecated
 def do_repository_work(cfg,expect,repo_name,docker_executable='docker.io',password=None):
+	"""Deprecated. Do not use.
+	"""
 	if cfg not in [None, shutit_global.shutit.cfg]:
 		print "Report this error and stack trace to repo owner, #d111"
 		assert False
@@ -877,25 +921,35 @@ def do_repository_work(cfg,expect,repo_name,docker_executable='docker.io',passwo
 
 # Deprecated
 def file_exists(child,filename,expect,directory=False):
+	"""Deprecated. Do not use.
+	"""
 	return shutit_global.shutit.file_exists(filename, expect, child=child,
 		directory=directory)
 
 # Deprecated
 def get_file_perms(child,filename,expect):
+	"""Deprecated. Do not use.
+	"""
 	return shutit_global.shutit.get_file_perms(filename,expect,child=child)
 
 # Deprecated
 def add_line_to_file(child,line,filename,expect,match_regexp=None,truncate=False,force=False,literal=False):
+	"""Deprecated. Do not use.
+	"""
 	return shutit_global.shutit.add_line_to_file(line, filename, expect,
 		child=child, match_regexp=match_regexp, truncate=truncate, force=force,
 		literal=literal)
 
 # Deprecated
 def get_re_from_child(string,regexp,cfg=None):
+	"""Deprecated. Do not use.
+	"""
 	return shutit_global.shutit.get_re_from_child(string, regexp)
 
 # Deprecated
 def push_repository(child,repository,cfg,docker_executable,expect):
+	"""Deprecated. Do not use.
+	"""
 	if cfg not in [None,shutit_global.shutit.cfg]:
 		print "Report this error and stack trace to repo owner, #d109"
 		assert False
@@ -903,10 +957,14 @@ def push_repository(child,repository,cfg,docker_executable,expect):
 
 # Deprecated
 def add_to_bashrc(child,line,expect):
+	"""Deprecated. Do not use.
+	"""
 	return shutit_global.shutit.add_line_to_file(line,'/etc/profile',expect=expect) and shutit_global.shutit.add_line_to_file(line,'/etc/bash.bashrc',expect=expect)
 
 # Deprecated
 def module_exists(module_id):
+	"""Deprecated. Do not use.
+	"""
 	for m in get_shutit_modules():
 		if m.module_id == module_id:
 			return True
@@ -914,10 +972,14 @@ def module_exists(module_id):
 
 # Deprecated
 def get_shutit_modules():
+	"""Deprecated. Do not use.
+	"""
 	return shutit_global.shutit_modules
 
 # Deprecated
 def install(child,cfg,package,expect,options=None,timeout=3600):
+	"""Deprecated. Do not use.
+	"""
 	if cfg not in [None,shutit_global.shutit.cfg]:
 		print "Report this error and stack trace to repo owner, #d103"
 		assert False
@@ -926,6 +988,8 @@ def install(child,cfg,package,expect,options=None,timeout=3600):
 
 # Deprecated
 def remove(child,cfg,package,expect,options=None):
+	"""Deprecated. Do not use.
+	"""
 	if cfg not in [None,shutit_global.shutit.cfg]:
 		print "Report this error and stack trace to repo owner, #d104"
 		assert False
@@ -934,6 +998,8 @@ def remove(child,cfg,package,expect,options=None):
 
 # Deprecated
 def package_installed(child,cfg,package,expect):
+	"""Deprecated. Do not use.
+	"""
 	if cfg not in [None,shutit_global.shutit.cfg]:
 		print "Report this error and stack trace to repo owner, #d105"
 		assert False
@@ -941,6 +1007,8 @@ def package_installed(child,cfg,package,expect):
 
 # Deprecated
 def set_password(child,cfg,expect,password):
+	"""Deprecated. Do not use.
+	"""
 	if cfg not in [None,shutit_global.shutit.cfg]:
 		print "Report this error and stack trace to repo owner, #d107"
 		assert False
@@ -948,13 +1016,19 @@ def set_password(child,cfg,expect,password):
 
 # Deprecated
 def handle_login(child,cfg,prompt_name):
+	"""Deprecated. Do not use.
+	"""
 	shutit_global.shutit.handle_login(prompt_name,child=child)
 
 # Deprecated
 def handle_revert_prompt(child,expect,prompt_name):
+	"""Deprecated. Do not use.
+	"""
 	shutit_global.shutit.handle_revert_prompt(expect,prompt_name,child=child)
 
 # Deprecated
 def is_user_id_available(child,user_id,expect):
+	"""Deprecated. Do not use.
+	"""
 	return shutit_global.shutit.is_user_id_available(user_id,expect=expect,child=child)
 
