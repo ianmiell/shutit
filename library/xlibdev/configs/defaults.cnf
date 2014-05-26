@@ -1,4 +1,2 @@
 # Base config for the module. This contains standard defaults.
-[com.mycorp.xlibdev]
-example:astring
-example_bool:yes
+[shutit.tk.xlibdev.xlibdev]
