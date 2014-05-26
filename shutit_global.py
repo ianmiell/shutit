@@ -250,6 +250,7 @@ class ShutIt(object):
 		"""
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
+		# Trim any whitespace lines from start and end of script, then dedent
 		lines = script.split('\n')
 		while len(lines) > 0 and re.match('^[ \t]*$', lines[0]):
 			lines = lines[1:]
@@ -259,6 +260,7 @@ class ShutIt(object):
 			return True
 		script = '\n'.join(lines)
 		script = textwrap.dedent(script)
+		# Send the script and run it in the manner specified
 		if in_shell:
 			script = ('set -o xtrace \n\n' + script + '\n\nset +o xtrace')
 		self.send_file('/tmp/shutit_script.sh', script)
