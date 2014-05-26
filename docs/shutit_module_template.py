@@ -21,9 +21,9 @@
 
 from shutit_module import ShutItModule
 import util
+import os
 
 class template(ShutItModule):
-
 
 	# is_installed
 	#
@@ -84,8 +84,8 @@ class template(ShutItModule):
 		else:
 			# We fail out on this case, as it's not expected.
 			util.fail('res: ' + str(res) + ' not handled')
-		# example of resource use (simple file, copy the README.md into the container)
-		shutit.send_and_expect('cp /resources/README.md /tmp')
+		# example of resource use (simple file, copy README.md into the container)
+		shutit.send_file('/tmp/copiedfile',file.read(file(os.path.abspath(os.path.dirname(__file__)) + '/README.md')))
 		# example of bespoke config use
 		if shutit.cfg[self.module_id]['example_bool']:
 			shutit.add_line_to_file('# ' + shutit.cfg[self.module_id]['example'],'/tmp/container_touched.sh')
