@@ -39,7 +39,7 @@ fi
 # This is a fallback, any tests runnable on their own should include the below
 if [[ $0 != test.sh ]] && [[ $0 != ./test.sh ]]
 then
-	echo "Must be run from test dir of ShutIt"
+	echo "Must be run from root dir of ShutIt"
 	exit 1
 fi
 
