@@ -31,6 +31,7 @@ class win2048(ShutItModule):
 		shutit.install('xautomation')
 		shutit.install('vim')
 		shutit.install('scrot')
+		shutit.install('wget')
 		shutit.send_file('/root/start_win2048.sh',file.read(file(os.path.abspath(os.path.dirname(__file__)) + '/files/start_win2048.sh')))
 		#shutit.send_file('/root/tryagain.png',file.read(file(os.path.abspath(os.path.dirname(__file__)) + '/files/tryagain.png')))
 		shutit.send_and_expect('pushd /root')
