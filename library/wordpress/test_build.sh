@@ -20,4 +20,4 @@
 #OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 #SOFTWARE.
 set -e
-../../shutit build --shutit_module_path ..
+../../shutit build --shutit_module_path ../mysql
