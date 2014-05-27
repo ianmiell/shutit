@@ -1,5 +1,5 @@
 set -e
-../../shutit build --config configs/push.cnf -m ../docker:../adduser:../ssh_server
+../../shutit build --config configs/push.cnf -m ..
 # Display config
 #../../shutit sc
 # Debug
