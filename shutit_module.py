@@ -113,9 +113,11 @@ class ShutItModule(object):
 	"""
 	__metaclass__ = ShutItMeta
 
-	def __init__(self,module_id,run_order,description=''):
+	def __init__(self, module_id, run_order,
+			description='', depends=None, conflicts=None):
 		"""Constructor.
-		Sets up module_id, run_order, checks types for safety.
+		Sets up module_id, run_order, deps and conflicts.
+		Also checks types for safety.
 		"""
 		# Module id for the module (a string).
 		# Following the Java standard is recommended, eg 'com.bigcorp.project.alpha.mymodule'
@@ -140,8 +142,12 @@ class ShutItModule(object):
 		self.run_order = run_order
 		# module ids depended on
 		self.depends_on     = []
+		if depends is not None:
+			self.depends_on = [dep for dep in depends]
 		# module ids this is known to conflict with.
 		self.conflicts_with = []
+		if conflicts is not None:
+			self.conflicts_with = [conflict for conflict in conflicts]
 		self.description = description
 
 
@@ -149,18 +155,15 @@ class ShutItModule(object):
 	# Helper methods.
 	########################################################################
 	def set_run_order(self,order):
-		"""Set the object's run order (see __init__)
-		"""
+		"""Deprecated"""
 		self.run_order = order
 
 	def add_dependency(self,dependency):
-		"""Adds a dependency (see __init__)
-		"""
+		"""Deprecated"""
 		self.depends_on.append(dependency)
 
 	def add_conflict(self,conflict):
-		"""Adds a conflict (see __init__)
-		"""
+		"""Deprecated"""
 		self.conflicts_with.append(conflict)
 
 	########################################################################
