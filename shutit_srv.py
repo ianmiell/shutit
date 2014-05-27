@@ -63,6 +63,7 @@ def update_modules(to_build, cfg):
 		orig_mod_cfg[sec][key] = val
 	for mid in orig_mod_cfg:
 		shutit.cfg[mid].update(orig_mod_cfg[mid])
+	shutit.cfg['repository'].update(orig_mod_cfg['repository'])
 
 	selected = set(to_build)
 	for mid in selected:
@@ -180,7 +181,8 @@ def shutit_reset():
 		STATUS['cid'] = shutit.cfg['container']['container_id']
 		for mid in shutit.shutit_map:
 			STATUS['cfg'][mid] = orig_mod_cfg[mid] = shutit.cfg[mid]
-		# Otherwise editing shutit.cfg will edit orig_mod_cfg
+		# Add in core sections
+		STATUS['cfg']['repository'] = orig_mod_cfg['repository'] = shutit.cfg['repository']
 		orig_mod_cfg = copy.deepcopy(orig_mod_cfg)
 		update_modules([], None)
 
