@@ -28,8 +28,6 @@ class mysql(ShutItModule):
 		return shutit.file_exists('/root/start_mysql.sh')
 
 	def build(self,shutit):
-		shutit.send_and_expect('bash',expect=shutit.cfg['expect_prompts']['base_prompt'],check_exit=False)
-		shutit.setup_prompt('mysql_tmp_prompt')
 		root_pass = shutit.cfg['shutit.tk.mysql.mysql']['root_password']
 		shutit.send_and_expect("apt-get update", record_command=False)
 		shutit.send_and_expect("""debconf-set-selections <<< 'mysql-server mysql-server/root_password password {0}'""".format(root_pass),record_command=False)
@@ -74,8 +72,6 @@ class mysql(ShutItModule):
 		shutit.send_and_expect('chmod +x /root/stop_mysql.sh')
 		shutit.send_and_expect('/root/stop_mysql.sh')
 		shutit.send_and_expect('/root/start_mysql.sh')
-		shutit.set_default_expect(shutit.cfg['expect_prompts']['root_prompt'])
-		shutit.send_and_expect('exit')
 		return True
 
 	def start(self,shutit):
