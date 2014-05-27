@@ -143,10 +143,8 @@ def get_base_config(cfg, cfg_parser):
 	cfg['repository']['suffix_format']            = cp.get('repository','suffix_format')
 	# We need this here as it's referenced even when do_repository_work is False.
 	cfg['repository']['user']                     = cp.get('repository','user')
-	if cfg['repository']['do_repository_work'] == True:
-		if cfg['repository']['user'] != '':
-			cfg['repository']['password']                 = cp.get('repository','password')
-			cfg['repository']['email']                    = cp.get('repository','email')
+	cfg['repository']['password']                 = cp.get('repository','password')
+	cfg['repository']['email']                    = cp.get('repository','email')
 	# END Read from config files
 
 	# BEGIN Standard expects
