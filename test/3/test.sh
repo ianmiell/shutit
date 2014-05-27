@@ -38,10 +38,4 @@ export SHUTIT_OPTIONS="-s container name $CNAME"
 #        exit 1
 #fi
 
-python ${1}/shutit_main.py --image_tag debian --shutit_module_path ..
-if [ $? -ne 0 ]
-then
-	exit 1
-fi
-
-exit 0
+python ${1}/shutit_main.py --image_tag debian --shutit_module_path .. || exit 1
