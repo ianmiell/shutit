@@ -8,6 +8,19 @@ Complex Docker Deployments Made Simple
 REALLY QUICK START
 ------------------
 
+Videos:
+-------
+
+- [Setting up a ShutIt server in 3 minutes](https://www.youtube.com/watch?v=ForTMTUMp3s)
+
+- [Steps for above](https://gist.github.com/ianmiell/947ff3fabc44ace617c6)
+
+- [Configuring and uploading a MySql container](https://www.youtube.com/watch?v=snd2gdsEYTQ)
+
+
+Do it yourself:
+---------------
+
 ```
 cd bin
 ./create_skeleton.sh <new_directory (absolute path)> <new module name>
