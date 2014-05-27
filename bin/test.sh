@@ -43,9 +43,9 @@ then
 	exit 1
 fi
 
-if [[ "$(sed -n '48p' ../docs/shutit_module_template.py)" != "		# Line number 49 should be the next one (so bash scripts can be inserted properly)" ]]
+if [[ "$(sed -n '41p' ../docs/shutit_module_template.py)" != "		# Line number 42 should be the next one (so bash scripts can be inserted properly)" ]]
 then
-	echo "Line 48 of ../docs/shutit_module_template.py should be as per bin/test.sh specifies"
+	echo "Line 41 of ../docs/shutit_module_template.py should be as per bin/test.sh specifies"
 	exit 1
 fi
 
