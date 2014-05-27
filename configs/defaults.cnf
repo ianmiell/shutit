@@ -72,7 +72,7 @@ push:yes
 tar:no
 # repository server - must be overridden if you want to push this
 # make blank if you want this to be sent to the main docker index on docker.io
-server:docker.io
+server:blank_this_if_index_is_docker.io
 # tag name
 name:my_repository_name
 # Whether to suffix the date to the tag
