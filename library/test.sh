@@ -21,17 +21,16 @@
 #OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 #SOFTWARE.
 
-source ../../test/shared_test_utils.sh
+source ../test/shared_test_utils.sh
 
 PIDS=""
-dirs=`ls ../ | grep -vw bin | grep -v README`
-for d in $dirs
+for d in *
 do
 	cleanup
 	set_shutit_options
-	if [[ -a ../$d/test.sh ]]
+	if [[ -a $d/test.sh ]]
 	then
-		pushd ../$d
+		pushd $d
 		# Set up a random container name for tests to use
 		if [[ x$SHUTIT_PARALLEL_BUILD = 'x' ]]
 		then
@@ -41,7 +40,7 @@ do
 			PIDS="$PIDS $!"
 		fi
 	popd
-fi
+	fi
 done
 
 if [ x$SHUTIT_PARALLEL_BUILD != 'x' ]
