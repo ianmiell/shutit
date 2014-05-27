@@ -61,7 +61,7 @@ logfile:
 # Whether to honour any of the other configs in this section (eg tag and/or push to server)
 do_repository_work:no
 # User on registry to namespace repo - can be set to blank if not docker.io
-user:
+user:your_index_username_or_blank
 #Must be set if do_repository_work is true/yes and user is not blank
 password:YOUR_INDEX_PASSWORD_OR_BLANK
 #Must be set if do_repository_work is true/yes and user is not blank
@@ -72,13 +72,13 @@ push:yes
 tar:no
 # repository server - must be overridden if you want to push this
 # make blank if you want this to be sent to the main docker index on docker.io
-server:set_to_blank_if_you_want_docker.io
+server:docker.io
 # tag name
 name:my_repository_name
 # Whether to suffix the date to the tag
-suffix_date:yes
-# Suffix format (default is date YYYYmmdd_HHmmss)
-suffix_format:%Y%m%d_%H%M%S
+suffix_date:no
+# Suffix format (default is epoch seconds (%s), but %Y%m%d_%H%M%S is an option if the length is ok with the index)
+suffix_format:%s
 
 # Root setup script
 # Each module should set these in a config
