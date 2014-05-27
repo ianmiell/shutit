@@ -20,9 +20,7 @@
 #OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 #SOFTWARE.
 
-
 from shutit_module import ShutItModule
-import util
 
 class mysql(ShutItModule):
 
@@ -30,9 +28,6 @@ class mysql(ShutItModule):
 		return shutit.file_exists('/root/start_mysql.sh')
 
 	def build(self,shutit):
-		shutit.set_default_expect(shutit.cfg['expect_prompts']['base_prompt'])
-		shutit.send_and_expect('bash',check_exit=False)
-		shutit.setup_prompt('mysql_tmp_prompt')
 		root_pass = shutit.cfg['shutit.tk.mysql.mysql']['root_password']
 		shutit.send_and_expect("apt-get update", record_command=False)
 		shutit.send_and_expect("""debconf-set-selections <<< 'mysql-server mysql-server/root_password password {0}'""".format(root_pass),record_command=False)
@@ -77,8 +72,6 @@ class mysql(ShutItModule):
 		shutit.send_and_expect('chmod +x /root/stop_mysql.sh')
 		shutit.send_and_expect('/root/stop_mysql.sh')
 		shutit.send_and_expect('/root/start_mysql.sh')
-		shutit.set_default_expect(shutit.cfg['expect_prompts']['root_prompt'])
-		shutit.send_and_expect('exit')
 		return True
 
 	def start(self,shutit):
@@ -90,7 +83,6 @@ class mysql(ShutItModule):
 		return True
 
 	def remove(self,shutit):
-		shutit.set_default_expect(shutit.cfg['expect_prompts']['root_prompt'])
 		shutit.remove('libmysqlclient-dev')
 		shutit.remove('mysql-common')
 		shutit.send_and_expect('/root/stop_mysql.sh')
@@ -108,7 +100,6 @@ class mysql(ShutItModule):
 		return True
 
 	def test(self,shutit):
-		shutit.set_default_expect(shutit.cfg['expect_prompts']['root_prompt'])
 		mysql_user = shutit.cfg['shutit.tk.mysql.mysql']['mysql_user']
 		mysql_password = shutit.cfg['shutit.tk.mysql.mysql']['mysql_user_password']
 		root_password = shutit.cfg['shutit.tk.mysql.mysql']['root_password']
@@ -129,9 +120,11 @@ class mysql(ShutItModule):
 		shutit.cfg['shutit.tk.mysql.mysql']['root_password']       = cp.get('shutit.tk.mysql.mysql','root_password')
 		return True
 
-if not util.module_exists('shutit.tk.mysql.mysql'):
-	obj = mysql('shutit.tk.mysql.mysql',0.318,'mysql module. sets up a user/password and the root password, tests all OK.')
-	obj.add_dependency('shutit.tk.setup')
-	util.get_shutit_modules().add(obj)
-	ShutItModule.register(mysql)
+def module():
+	return mysql(
+		'shutit.tk.mysql.mysql', 0.318,
+		description='mysql module. sets up a user/password and the root ' +
+			'password, tests all OK.',
+		depends=['shutit.tk.setup']
+	)
 

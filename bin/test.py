@@ -1,7 +1,6 @@
 import unittest
 import shutit_main
 import shutit_global
-import util
 
 # In order to dynamically create objects
 class Bunch:
@@ -32,27 +31,16 @@ class TestShutItDepChecking(unittest.TestCase):
 	"""TODO
 	"""
 
-	@classmethod
-	def setUpClass(cls):
-		"""TODO
-		"""
-		cls._fail = util.fail
-		def fail(*args, **kwargs):
-			raise ShutItTestException("failed")
-		util.fail = fail
-	@classmethod
-	def tearDownClass(cls):
-		"""TODO
-		"""
-		util.fail = cls._fail
-
 	def setUp(self):
 		"""TODO
 		"""
 		self.shutit = shutit_global.init()
 		def log(*args, **kwargs):
 			pass
+		def fail(*args, **kwargs):
+			raise ShutItTestException("failed")
 		self.shutit.log = log
+		self.shutit.fail = fail
 		recupdate(self.shutit.cfg, {
 			'build': {
 				'tutorial': False, 'debug': False, 'show_depgraph_only': False

@@ -18,7 +18,6 @@
 #CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 from shutit_module import ShutItModule
-import util
 
 class adduser(ShutItModule):
 
@@ -26,7 +25,6 @@ class adduser(ShutItModule):
 		return False
 
 	def build(self,shutit):
-		shutit.set_default_expect(shutit.cfg['expect_prompts']['root_prompt'])
 		# Does something odd with the terminal which makes pexpect think the commands failed
 		shutit.send_and_expect('useradd -d /home/' + shutit.cfg['shutit.tk.adduser.adduser']['user'] + ' -s /bin/bash -m ' + shutit.cfg['shutit.tk.adduser.adduser']['user'],check_exit=False)
 		shutit.send_and_expect('passwd ' + shutit.cfg['shutit.tk.adduser.adduser']['user'],'Enter new',check_exit=False)
@@ -42,9 +40,10 @@ class adduser(ShutItModule):
 		shutit.cfg['shutit.tk.adduser.adduser']['password'] = cp.get('shutit.tk.adduser.adduser','password')
 		return True
 
-if not util.module_exists('shutit.tk.adduser.adduser'):
-	obj = adduser('shutit.tk.adduser.adduser',0.380,'add a user')
-	obj.add_dependency('shutit.tk.setup')
-	util.get_shutit_modules().add(obj)
-	ShutItModule.register(adduser)
+def module():
+	return adduser(
+		'shutit.tk.adduser.adduser', 0.380,
+		description='add a user',
+		depends=['shutit.tk.setup']
+	)
 

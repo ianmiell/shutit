@@ -20,9 +20,7 @@
 #OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 #SOFTWARE.
 
-
 from shutit_module import ShutItModule
-import util
 
 class casperjs(ShutItModule):
 
@@ -30,24 +28,24 @@ class casperjs(ShutItModule):
 		return shutit.file_exists('/opt/casperjs',shutit.cfg['expect_prompts']['root_prompt'],directory=True)
 
 	def build(self,shutit):
-		shutit.set_default_expect(shutit.cfg['expect_prompts']['root_prompt'])
 		shutit.install('git')
 		shutit.run_script("""
-			pushd /opt
+			#!/bin/bash
+			cd /opt
 			git clone git://github.com/n1k0/casperjs.git
-			pushd casperjs
+			cd casperjs
 			git checkout tags/1.0.2
-			popd
-			popd
-		""")
+		""", in_shell=False)
 		return True
 
 	def remove(self,shutit):
 		shutit.send_and_expect('rm -rf /opt/casperjs',shutit.cfg['expect_prompts']['root_prompt'])
 		return True
 
-if not util.module_exists('shutit.tk.casperjs.casperjs'):
-	obj = casperjs('shutit.tk.casperjs.casperjs',0.314,'http://casperjs.org/')
-	util.get_shutit_modules().add(obj)
-	ShutItModule.register(casperjs)
+def module():
+	return casperjs(
+		'shutit.tk.casperjs.casperjs', 0.314,
+		description='http://casperjs.org/',
+		depends=['shutit.tk.setup']
+	)
 
