@@ -25,7 +25,6 @@ class shutit(ShutItModule):
 		return shutit.file_exists('/shutit',directory=True)
 
 	def build(self,shutit):
-		shutit.set_default_expect(shutit.cfg['expect_prompts']['root_prompt'])
 		shutit.install('git')
 		shutit.send_and_expect('pushd /')
 		shutit.send_and_expect('git clone https://github.com/ianmiell/shutit.git')

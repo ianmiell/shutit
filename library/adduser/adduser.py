@@ -25,7 +25,6 @@ class adduser(ShutItModule):
 		return False
 
 	def build(self,shutit):
-		shutit.set_default_expect(shutit.cfg['expect_prompts']['root_prompt'])
 		# Does something odd with the terminal which makes pexpect think the commands failed
 		shutit.send_and_expect('useradd -d /home/' + shutit.cfg['shutit.tk.adduser.adduser']['user'] + ' -s /bin/bash -m ' + shutit.cfg['shutit.tk.adduser.adduser']['user'],check_exit=False)
 		shutit.send_and_expect('passwd ' + shutit.cfg['shutit.tk.adduser.adduser']['user'],'Enter new',check_exit=False)

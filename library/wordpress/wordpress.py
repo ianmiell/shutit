@@ -28,7 +28,6 @@ class wordpress(ShutItModule):
 		return False
 
 	def build(self,shutit):
-		shutit.set_default_expect(shutit.cfg['expect_prompts']['root_prompt'])
 		shutit.install('apache2')
 		shutit.install('wordpress')
 		apache_site = """cat > /etc/apache2/sites-available/wordpress << END
