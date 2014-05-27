@@ -50,7 +50,7 @@ then
 fi
 
 pushd ..
-PYTHONPATH=$(pwd) python bin/test.py || failure "Unit tests"
+PYTHONPATH=$(pwd) python test/test.py || failure "Unit tests"
 
 find ${SHUTIT_DIR} -name '*.cnf' | grep '/configs/[^/]*.cnf' | xargs chmod 600
 
