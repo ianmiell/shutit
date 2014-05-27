@@ -21,7 +21,6 @@
 #CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 from shutit_module import ShutItModule
-import util
 import os
 
 class template(ShutItModule):
@@ -77,7 +76,7 @@ class template(ShutItModule):
 			pass
 		else:
 			# We fail out on this case, as it's not expected.
-			util.fail('res: ' + str(res) + ' not handled')
+			shutit.fail('res: ' + str(res) + ' not handled')
 		# example of resource use (simple file, copy README.md into the container)
 		shutit.send_file('/tmp/copiedfile',file.read(file(os.path.abspath(os.path.dirname(__file__)) + '/README.md')))
 		# example of bespoke config use
@@ -106,7 +105,7 @@ class template(ShutItModule):
 				When you're done, "Ctrl" and "]" at the same time.
 				You should then see your inputted lines in the output.
 				Add them to the module file before the pause_point line as 
-				"util.send_and_expect" lines (copy and paste), following
+				"shutit.send_and_expect" lines (copy and paste), following
 				the examples above this one in the file.
 				Then "Ctrl" and "]" at the same time again to return to the script.
 				Eventually you'll get a docker export to a tar file in your 
