@@ -29,9 +29,9 @@ for d in $dirs
 do
 	cleanup
 	set_shutit_options
-	if [[ -a ../$d/bin/test.sh ]]
+	if [[ -a ../$d/test.sh ]]
 	then
-		pushd ../$d/bin
+		pushd ../$d
 		# Set up a random container name for tests to use
 		if [[ x$SHUTIT_PARALLEL_BUILD = 'x' ]]
 		then
