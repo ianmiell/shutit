@@ -100,19 +100,19 @@ class ShutIt(object):
 		"""Returns the currently-set default pexpect child.
 		"""
 		if self._default_child[-1] is None:
-			util.fail("Couldn't get default child")
+			shutit.fail("Couldn't get default child")
 		return self._default_child[-1]
 	def get_default_expect(self):
 		"""Returns the currently-set default pexpect string (usually a prompt).
 		"""
 		if self._default_expect[-1] is None:
-			util.fail("Couldn't get default expect")
+			shutit.fail("Couldn't get default expect")
 		return self._default_expect[-1]
 	def get_default_check_exit(self):
 		"""Returns default value of check_exit. See send_and_expect method.
 		"""
 		if self._default_check_exit[-1] is None:
-			util.fail("Couldn't get default check exit")
+			shutit.fail("Couldn't get default check exit")
 		return self._default_check_exit[-1]
 	def set_default_child(self, child):
 		"""Sets the default pexpect child.
@@ -123,6 +123,17 @@ class ShutIt(object):
 		"""
 		self._default_expect[-1] = expect
 		self._default_check_exit[-1] = check_exit
+
+	# TODO: Manage exits of containers on error
+	def fail(self, msg, child=None):
+		"""Handles a failure, pausing if a pexpect child object is passed in.
+		"""
+		# Note: we must not default to a child here
+		if child is not None:
+			self.pause_point(child, 'Pause point on fail: ' + msg)
+		print >> sys.stderr, 'ERROR!'
+		print >> sys.stderr
+		raise ShutItFailException(msg)
 
 	def log(self, msg, code=None, pause=0, prefix=True, force_stdout=False):
 		"""Logging function.
@@ -196,8 +207,6 @@ class ShutIt(object):
 			self.log('================================================================================')
 			self.log('Sending>>>' + send + '<<<')
 			self.log('Expecting>>>' + str(expect) + '<<<')
-		# Race conditions have been seen (we thought at one point) - might want to remove this
-		time.sleep(cfg['build']['command_pause'])
 		child.sendline(send)
 		expect_res = child.expect(expect,timeout)
 		if cfg['build']['debug']:
@@ -205,7 +214,7 @@ class ShutIt(object):
 			self.log('child.after>>>' + child.after + '<<<')
 		if fail_on_empty_before == True:
 			if child.before.strip() == '':
-				util.fail('before empty after sending: ' + send + '\n\nThis is expected after some commands that take a password.\nIf so, add fail_on_empty_before=False to the send_and_expect call')
+				shutit.fail('before empty after sending: ' + send + '\n\nThis is expected after some commands that take a password.\nIf so, add fail_on_empty_before=False to the send_and_expect call')
 		elif fail_on_empty_before == False:
 			# Don't check exit if fail_on_empty_before is False
 			self.log('' + child.before + '<<<')
@@ -239,19 +248,20 @@ class ShutIt(object):
 			msg = '\nWARNING: command:\n' + send + '\nreturned unaccepted exit code: ' + res + '\nIf this is expected, pass in check_exit=False or an exit_values array into the send_and_expect function call.\nIf you want to error on these errors, set the config:\n[build]\naction_on_ret_code:error'
 			cfg['build']['report'] = cfg['build']['report'] + msg
 			if cfg['build']['action_on_ret_code'] == 'error':
-				util.fail(msg + '\n\nPause point on exit_code != 0. CTRL-C to quit',child=child)
+				shutit.fail(msg + '\n\nPause point on exit_code != 0. CTRL-C to quit',child=child)
 				#raise Exception('Exit value from command\n' + send + '\nwas:\n' + res)
 
-	def run_script(self,script,expect=None,child=None,is_bash=True):
+	def run_script(self,script,expect=None,child=None,in_shell=True):
 		"""Run the passed-in string 
 
-		- script  - 
-		- expect  - 
-		- child   - 
-		- is_bash - 
+		- script   - 
+		- expect   - 
+		- child    - 
+		- in_shell - 
 		"""
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
+		# Trim any whitespace lines from start and end of script, then dedent
 		lines = script.split('\n')
 		while len(lines) > 0 and re.match('^[ \t]*$', lines[0]):
 			lines = lines[1:]
@@ -261,13 +271,16 @@ class ShutIt(object):
 			return True
 		script = '\n'.join(lines)
 		script = textwrap.dedent(script)
-		if is_bash:
-			script = ('#!/bin/bash\nset -o verbose\nset -o errexit\n' +
-				'set -o nounset\n\n' + script)
+		# Send the script and run it in the manner specified
+		if in_shell:
+			script = ('set -o xtrace \n\n' + script + '\n\nset +o xtrace')
 		self.send_file('/tmp/shutit_script.sh', script)
 		self.send_and_expect('chmod +x /tmp/shutit_script.sh', expect, child)
 		self.shutit_command_history.append('    ' + script.replace('\n', '\n    '))
-		ret = self.send_and_expect('/tmp/shutit_script.sh', expect, child)
+		if in_shell:
+			ret = self.send_and_expect('. /tmp/shutit_script.sh', expect, child)
+		else:
+			ret = self.send_and_expect('/tmp/shutit_script.sh', expect, child)
 		self.send_and_expect('rm /tmp/shutit_script.sh', expect, child)
 		return ret
 
@@ -288,10 +301,27 @@ class ShutIt(object):
 			self.log('Sending file to' + path)
 			if not binary:
 				self.log('contents >>>' + contents + '<<<')
+		# Prepare to send the contents as base64 so we don't have to worry about
+		# special shell characters
 		contents64 = base64.standard_b64encode(contents)
 		child.sendline('base64 --decode > ' + path)
-		child.sendline(contents64)
+		child.expect('\r\n')
+		# We have to batch the file up to avoid hitting pipe buffer limit. This
+		# is 4k on modern machines (it seems), but we choose 1k for safety
+		# https://github.com/pexpect/pexpect/issues/55
+		batchsize = 1024
+		for l in range(0, len(contents64), batchsize):
+			child.sendline(contents64[l:l + batchsize])
+		# Make sure we've synced the prompt before we send EOF. I don't know why
+		# this requires three sendlines to generate 2x'\r\n'.
+		# Note: we can't rely on a '\r\n' from the batching because the file
+		# being sent may validly be empty.
+		child.sendline()
+		child.sendline()
+		child.sendline()
+		child.expect('\r\n\r\n')
 		child.sendeof()
+		# Done sending the file
 		child.expect(expect)
 		self._check_exit("send file to " + path,expect,child)
 
@@ -347,7 +377,7 @@ class ShutIt(object):
 		bad_chars    = '"'
 		tmp_filename = '/tmp/' + random_id()
 		if match_regexp == None and re.match('.*[' + bad_chars + '].*',line) != None:
-			util.fail('Passed problematic character to add_line_to_file.\nPlease avoid using the following chars: ' + bad_chars + '\nor supply a match_regexp argument.\nThe line was:\n' + line)
+			shutit.fail('Passed problematic character to add_line_to_file.\nPlease avoid using the following chars: ' + bad_chars + '\nor supply a match_regexp argument.\nThe line was:\n' + line)
 		# truncate file if requested, or if the file doesn't exist
 		if truncate:
 			self.send_and_expect('cat > ' + filename + ' <<< ""',expect,child=child,check_exit=False)
@@ -509,7 +539,7 @@ class ShutIt(object):
 			expect=self.cfg['expect_prompts'][prompt_name],
 			fail_on_empty_before=False)
 		if set_default_expect:
-			util.log('Resetting default expect to: ' + shutit.cfg['expect_prompts'][prompt_name])
+			shutit.log('Resetting default expect to: ' + shutit.cfg['expect_prompts'][prompt_name])
 			self.set_default_expect(shutit.cfg['expect_prompts'][prompt_name])
 
 	def handle_revert_prompt(self,expect,prompt_name,child=None):
@@ -548,7 +578,7 @@ class ShutIt(object):
 				cfg['container']['install_type'] = install_type_map[key]
 				break
 		if cfg['container']['install_type'] == '' or cfg['container']['distro'] == '':
-			util.fail('Could not determine Linux distro information. Please inform maintainers.')
+			shutit.fail('Could not determine Linux distro information. Please inform maintainers.')
 
 	def set_password(self,password,child=None,expect=None):
 		"""Sets the password for the current user.
@@ -623,9 +653,9 @@ class ShutIt(object):
 			repository = repository_tar = ''
 
 		if not repository:
-			util.fail('Could not form valid repository name')
+			shutit.fail('Could not form valid repository name')
 		if cfg['repository']['tar'] and not repository_tar:
-			util.fail('Could not form valid tar name')
+			shutit.fail('Could not form valid tar name')
 
 		if server:
 			repository = '%s/%s' % (server, repository)
@@ -636,7 +666,7 @@ class ShutIt(object):
 			repository_tar = '%s_%s' % (repository_tar, suffix_date)
 
 		if server == '' and len(repository) > 30:
-			util.fail("""repository name: '""" + repository + """' too long. If using suffix_date consider shortening""")
+			shutit.fail("""repository name: '""" + repository + """' too long. If using suffix_date consider shortening""")
 
 		# Only lower case accepted
 		repository = repository.lower()
@@ -649,7 +679,7 @@ class ShutIt(object):
 		image_id = child.after.split('\r\n')[1]
 
 		if not image_id:
-			util.fail('failed to commit to ' + repository + ', could not determine image id')
+			shutit.fail('failed to commit to ' + repository + ', could not determine image id')
 
 		cmd = docker_executable + ' tag ' + image_id + ' ' + repository
 		self.send_and_expect(cmd,child=child,expect=expect,check_exit=False)
