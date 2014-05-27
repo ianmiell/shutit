@@ -563,6 +563,7 @@ def load_mod_from_file(shutit, fpath):
 	(automatically inserting the module into shutit_global) or it's not a shutit
 	module.
 	"""
+	fpath = os.path.abspath(fpath)
 	mod_name, file_ext = os.path.splitext(os.path.split(fpath)[-1])
 	if file_ext.lower() != '.py':
 		return
