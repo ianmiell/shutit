@@ -303,7 +303,6 @@ class ShutIt(object):
 				self.log('contents >>>' + contents + '<<<')
 		# Prepare to send the contents as base64 so we don't have to worry about
 		# special shell characters
-		contents = ''
 		contents64 = base64.standard_b64encode(contents)
 		child.sendline('base64 --decode > ' + path)
 		child.expect('\r\n')
