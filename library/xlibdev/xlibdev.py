@@ -25,7 +25,6 @@ class xlibdev(ShutItModule):
 		return False
 
 	def build(self,shutit):
-		shutit.set_default_expect(shutit.cfg['expect_prompts']['root_prompt'])
 		shutit.install('libx11-dev')
 		return True
 

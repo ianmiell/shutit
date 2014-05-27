@@ -30,23 +30,20 @@ class git_server(ShutItModule):
 		return False
 
 	def build(self,shutit):
-		shutit.set_default_expect(shutit.cfg['expect_prompts']['root_prompt'])
- 		shutit.install('apache2')
- 		shutit.install('git-core')
- 		shutit.install('vim')
- 		shutit.install('telnet')
+		shutit.install('apache2')
+		shutit.install('git-core')
+		shutit.install('vim')
+		shutit.install('telnet')
 		shutit.send_and_expect('git daemon --base-path=/var/cache/git --detach --syslog --export-all')
 		# TODO: turn into start/stop script
 		shutit.add_to_bashrc('git daemon --base-path=/var/cache/git --detach --syslog --export-all')
 		return True
 
 	def start(self,shutit):
-		cfg = shutit.cfg
 		# TODO
 		return True
 
 	def stop(self,shutit):
-		cfg = shutit.cfg
 		# TODO
 		return True
 

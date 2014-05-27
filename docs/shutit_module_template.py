@@ -30,9 +30,6 @@ class template(ShutItModule):
 	#
 	# Should return True if it is certain it's there, else False.
 	def is_installed(self,shutit):
-		"""Docstring
-		"""
-		shutit.set_default_expect(shutit.cfg['expect_prompts']['root_prompt'])
 		return shutit.file_exists('/tmp/container_touched.sh') and shutit.file_exists('/tmp/README.md')
 
 	# Run the build part of the module, which should ensure the module
@@ -42,9 +39,6 @@ class template(ShutItModule):
 	#
 	# Should return True if it has succeeded in building, else False.
 	def build(self,shutit):
-		"""Docstring
-		"""
-		shutit.set_default_expect(shutit.cfg['expect_prompts']['root_prompt'])
 		# Line number 49 should be the next one (so bash scripts can be inserted properly)
 
 		# DELETE THIS SECTION WHEN UNDERSTOOD - BEGIN
@@ -125,8 +119,6 @@ class template(ShutItModule):
 	# each object can handle config here
 	# OPTIONAL part of lifecycle - uncomment to include
 	def get_config(self,shutit):
-		"""Docstring
-		"""
 		cp = shutit.cfg['config_parser']
 		# Bring the example config into the config dictionary.
 		shutit.cfg[self.module_id]['example']      = cp.get(self.module_id,'example')
@@ -146,9 +138,6 @@ class template(ShutItModule):
 	# Should return True if it ready, else False.
 	# OPTIONAL part of lifecycle - uncomment to include
 	#def check_ready(self,shutit):
-	#	"""Docstring
-	#	"""
-	#	shutit.set_default_expect(shutit.cfg['expect_prompts']['root_prompt'])
 	#	return shutit.file_exists('/resources/README.md')
 
 	# start
@@ -157,9 +146,6 @@ class template(ShutItModule):
 	# Run after repo work.
 	# OPTIONAL part of lifecycle - uncomment to include
 	#def start(self,shutit):
-	#	"""Docstring
-	#	"""
-	#	shutit.set_default_expect(shutit.cfg['expect_prompts']['root_prompt'])
 	#	# example of starting something
 	#	shutit.send_and_expect('cat /tmp/container_touched.sh')
 	#	shutit.send_and_expect('sh /tmp/container_touched.sh')
@@ -171,9 +157,6 @@ class template(ShutItModule):
 	# Run before repo work, and before finalize is called.
 	# OPTIONAL part of lifecycle - uncomment to include
 	#def stop(self,shutit):
-	#	"""Docstring
-	#	"""
-	#	shutit.set_default_expect(shutit.cfg['expect_prompts']['root_prompt'])
 	#	# example of stopping something
 	#	shutit.send_and_expect("""ps -ef | grep -v grep | grep container_touched.sh | awk '{print $1}' | sed 's/\([0-9][0-9]*\)/kill \\1/' | sh""")
 	#	return True
@@ -185,9 +168,6 @@ class template(ShutItModule):
 	# Note that this is only run if the build phase was actually run.
 	# OPTIONAL part of lifecycle - uncomment to include
 	#def cleanup(self,shutit):
-	#	"""Docstring
-	#	"""
-	#	shutit.set_default_expect(shutit.cfg['expect_prompts']['root_prompt'])
 	#	shutit.send_and_expect('rm -f /tmp/deleteme')
 	#	return True
 
@@ -196,9 +176,6 @@ class template(ShutItModule):
 	# Finalize the module, ie do things that need doing before we exit.
 	# OPTIONAL part of lifecycle - uncomment to include
 	#def finalize(self,shutit):
-	#	"""Docstring
-	#	"""
-	#	shutit.set_default_expect(shutit.cfg['expect_prompts']['root_prompt'])
 	#	# Right at the end we want to ensure the locate db is up to date.
 	#	shutit.send_and_expect('updatedb')
 	#	return True
@@ -209,9 +186,6 @@ class template(ShutItModule):
 	# from the system.
 	# OPTIONAL part of lifecycle - uncomment to include
 	#def remove(self,shutit):
-	#	"""Docstring
-	#	"""
-	#	shutit.set_default_expect(shutit.cfg['expect_prompts']['root_prompt'])
 	#	shutit.send_and_expect('rm -f /tmp/container_touched.sh')
 	#	shutit.send_and_expect('rm -f /tmp/README.md')
 	#	# TODO: remove the installed apps DEPENDS on install tracking being available.
@@ -224,9 +198,6 @@ class template(ShutItModule):
 	# This is run regardless of whether the module is installed or not.
 	# OPTIONAL part of lifecycle - uncomment to include
 	#def test(self,shutit):
-	#	"""Docstring
-	#	"""
-	#	shutit.set_default_expect(shutit.cfg['expect_prompts']['root_prompt'])
 	#	return shutit.package_installed('mlocate') and shutit.package_installed('passwd')
 
 # template(string,float)
@@ -234,8 +205,6 @@ class template(ShutItModule):
 #          eg com.my_corp.my_module_dir.my_module
 # float:   Float value for ordering module builds, must be > 0.0
 def module():
-	#	"""Docstring
-	#	"""
 	return template(
 		GLOBALLY_UNIQUE_STRING, FLOAT,
 		depends=['shutit.tk.setup']
