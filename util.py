@@ -774,11 +774,11 @@ def create_skeleton(shutit):
 	pushcnf = textwrap.dedent('''\
 		[repository]
 		do_repository_work:yes
-		#user:YOUR_USERNAME
+		user:YOUR_USERNAME
 		# Fill these out in server- and username-specific config (also in this directory)
-		#password:YOUR_REGISTRY_PASSWORD_OR_BLANK
+		password:YOUR_REGISTRY_PASSWORD_OR_BLANK
 		# Fill these out in server- and username-specific config (also in this directory)
-		#email:YOUR_REGISTRY_EMAIL_OR_BLANK
+		email:YOUR_REGISTRY_EMAIL_OR_BLANK
 		push:yes
 		tar:no
 		#server:REMOVE_ME_FOR_DOCKER_INDEX
@@ -816,7 +816,7 @@ def create_skeleton(shutit):
 		# If switched on, will push to docker_io
 		push:no
 		repository_server:
-		Must be set if do_repository_work is true/yes and user is not blank
+		#Must be set if do_repository_work is true/yes and user is not blank
 		password:YOUR_REGISTRY_PASSWORD_OR_BLANK
 		#Must be set if do_repository_work is true/yes and user is not blank
 		email:YOUR_REGISTRY_EMAIL_OR_BLANK
