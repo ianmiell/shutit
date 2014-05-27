@@ -221,7 +221,7 @@ def start():
 	shutit_reset()
 
 	# Start the server
-	host = os.environ.get('SHUTIT_HOST', 'localhost')
+	host = os.environ.get('SHUTIT_HOST', '0.0.0.0')
 	port = int(os.environ.get('SHUTIT_PORT', 8080))
 	bottle.debug(True)
 	bottle.run(host=host, port=port)
