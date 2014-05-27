@@ -869,7 +869,7 @@ def create_skeleton(shutit):
 		calls = [
 				#egrep -v '^[\s]*$' myscript.sh | grep -v '^#' | sed "s/"$/" /;s/^/              shutit.send_and_expect("""/;s/$/""")/" > /tmp/shutit_bash_script_include_1400206744
 			r'''egrep -v '^[\s]*$' ''' + skel_script + r''' | grep -v '^#' | sed "s/\"$/\" /;s/^/\t\tshutit.send_and_expect(\"\"\"/;s/$/\"\"\")/" > ''' + sbsi,
-			r'''sed "64r ''' + sbsi + '" ' + skel_mod_path + ' > ' + skel_mod_path + '.new''',
+			r'''sed "41r ''' + sbsi + '" ' + skel_mod_path + ' > ' + skel_mod_path + '.new''',
 			r'''mv ''' + skel_mod_path + '''.new ''' + skel_mod_path
 		]
 		for call in calls:
