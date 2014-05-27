@@ -27,14 +27,11 @@ then
         echo "Must supply path to shutit directory"
         exit 1
 fi
-cd ..
 ./test_build.sh
 if [[ $? -eq 0 ]]
 then
-        cd -
         exit 0
 else
-        cd -
         exit 1
 fi
 
