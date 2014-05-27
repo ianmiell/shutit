@@ -441,8 +441,8 @@ def parse_args(cfg):
 			module you are developing easily.
 			To escape a pause point, hit the "CTRL" and the "]" key simultaneously.
 			================================================================================
-			""")
-		pause_point(None,'')
+			""" + colour('31','[Hit return to continue]'))
+		raw_input('')
 
 def load_configs(shutit):
 	"""Responsible for loading config files into ShutIt.
