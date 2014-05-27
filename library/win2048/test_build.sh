@@ -1,5 +1,5 @@
 set -e
-../../shutit build --shutit_module_path ..
+../../shutit build --shutit_module_path ../vnc
 # Display config
 #../../shutit sc
 # Debug
