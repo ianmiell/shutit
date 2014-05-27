@@ -100,19 +100,19 @@ class ShutIt(object):
 		"""Returns the currently-set default pexpect child.
 		"""
 		if self._default_child[-1] is None:
-			util.fail("Couldn't get default child")
+			shutit.fail("Couldn't get default child")
 		return self._default_child[-1]
 	def get_default_expect(self):
 		"""Returns the currently-set default pexpect string (usually a prompt).
 		"""
 		if self._default_expect[-1] is None:
-			util.fail("Couldn't get default expect")
+			shutit.fail("Couldn't get default expect")
 		return self._default_expect[-1]
 	def get_default_check_exit(self):
 		"""Returns default value of check_exit. See send_and_expect method.
 		"""
 		if self._default_check_exit[-1] is None:
-			util.fail("Couldn't get default check exit")
+			shutit.fail("Couldn't get default check exit")
 		return self._default_check_exit[-1]
 	def set_default_child(self, child):
 		"""Sets the default pexpect child.
@@ -214,7 +214,7 @@ class ShutIt(object):
 			self.log('child.after>>>' + child.after + '<<<')
 		if fail_on_empty_before == True:
 			if child.before.strip() == '':
-				util.fail('before empty after sending: ' + send + '\n\nThis is expected after some commands that take a password.\nIf so, add fail_on_empty_before=False to the send_and_expect call')
+				shutit.fail('before empty after sending: ' + send + '\n\nThis is expected after some commands that take a password.\nIf so, add fail_on_empty_before=False to the send_and_expect call')
 		elif fail_on_empty_before == False:
 			# Don't check exit if fail_on_empty_before is False
 			self.log('' + child.before + '<<<')
@@ -248,7 +248,7 @@ class ShutIt(object):
 			msg = '\nWARNING: command:\n' + send + '\nreturned unaccepted exit code: ' + res + '\nIf this is expected, pass in check_exit=False or an exit_values array into the send_and_expect function call.\nIf you want to error on these errors, set the config:\n[build]\naction_on_ret_code:error'
 			cfg['build']['report'] = cfg['build']['report'] + msg
 			if cfg['build']['action_on_ret_code'] == 'error':
-				util.fail(msg + '\n\nPause point on exit_code != 0. CTRL-C to quit',child=child)
+				shutit.fail(msg + '\n\nPause point on exit_code != 0. CTRL-C to quit',child=child)
 				#raise Exception('Exit value from command\n' + send + '\nwas:\n' + res)
 
 	def run_script(self,script,expect=None,child=None,in_shell=True):
@@ -378,7 +378,7 @@ class ShutIt(object):
 		bad_chars    = '"'
 		tmp_filename = '/tmp/' + random_id()
 		if match_regexp == None and re.match('.*[' + bad_chars + '].*',line) != None:
-			util.fail('Passed problematic character to add_line_to_file.\nPlease avoid using the following chars: ' + bad_chars + '\nor supply a match_regexp argument.\nThe line was:\n' + line)
+			shutit.fail('Passed problematic character to add_line_to_file.\nPlease avoid using the following chars: ' + bad_chars + '\nor supply a match_regexp argument.\nThe line was:\n' + line)
 		# truncate file if requested, or if the file doesn't exist
 		if truncate:
 			self.send_and_expect('cat > ' + filename + ' <<< ""',expect,child=child,check_exit=False)
@@ -540,7 +540,7 @@ class ShutIt(object):
 			expect=self.cfg['expect_prompts'][prompt_name],
 			fail_on_empty_before=False)
 		if set_default_expect:
-			util.log('Resetting default expect to: ' + shutit.cfg['expect_prompts'][prompt_name])
+			shutit.log('Resetting default expect to: ' + shutit.cfg['expect_prompts'][prompt_name])
 			self.set_default_expect(shutit.cfg['expect_prompts'][prompt_name])
 
 	def handle_revert_prompt(self,expect,prompt_name,child=None):
@@ -579,7 +579,7 @@ class ShutIt(object):
 				cfg['container']['install_type'] = install_type_map[key]
 				break
 		if cfg['container']['install_type'] == '' or cfg['container']['distro'] == '':
-			util.fail('Could not determine Linux distro information. Please inform maintainers.')
+			shutit.fail('Could not determine Linux distro information. Please inform maintainers.')
 
 	def set_password(self,password,child=None,expect=None):
 		"""Sets the password for the current user.
@@ -654,9 +654,9 @@ class ShutIt(object):
 			repository = repository_tar = ''
 
 		if not repository:
-			util.fail('Could not form valid repository name')
+			shutit.fail('Could not form valid repository name')
 		if cfg['repository']['tar'] and not repository_tar:
-			util.fail('Could not form valid tar name')
+			shutit.fail('Could not form valid tar name')
 
 		if server:
 			repository = '%s/%s' % (server, repository)
@@ -667,7 +667,7 @@ class ShutIt(object):
 			repository_tar = '%s_%s' % (repository_tar, suffix_date)
 
 		if server == '' and len(repository) > 30:
-			util.fail("""repository name: '""" + repository + """' too long. If using suffix_date consider shortening""")
+			shutit.fail("""repository name: '""" + repository + """' too long. If using suffix_date consider shortening""")
 
 		# Only lower case accepted
 		repository = repository.lower()
@@ -680,7 +680,7 @@ class ShutIt(object):
 		image_id = child.after.split('\r\n')[1]
 
 		if not image_id:
-			util.fail('failed to commit to ' + repository + ', could not determine image id')
+			shutit.fail('failed to commit to ' + repository + ', could not determine image id')
 
 		cmd = docker_executable + ' tag ' + image_id + ' ' + repository
 		self.send_and_expect(cmd,child=child,expect=expect,check_exit=False)
