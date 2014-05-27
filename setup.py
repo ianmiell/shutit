@@ -228,13 +228,15 @@ BUILDREPEND"""
 		# Finish with the container
 		shutit.pexpect_children['container_child'].sendline('exit') # Exit container
 
+		host_child = shutit.pexpect_children['host_child']
+		shutit.set_default_child(host_child)
+		shutit.set_default_expect(cfg['expect_prompts']['real_user_prompt'])
 		# Tag and push etc
 		if cfg['build']['interactive'] >= 2:
 			shutit.pause_point('\nDoing final committing/tagging on the overall container and creating the artifact.',
 				child=shutit.pexpect_children['host_child'],print_input=False)
 		shutit.do_repository_work(cfg['repository']['name'],docker_executable=cfg['host']['docker_executable'],password=cfg['host']['password'])
 		# Final exits
-		host_child = shutit.pexpect_children['host_child']
 		host_child.sendline('exit') # Exit raw bash
 		time.sleep(0.3)
 		return True
