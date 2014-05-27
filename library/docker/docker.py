@@ -18,12 +18,10 @@
 #CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 from shutit_module import ShutItModule
-import util
 
 class docker(ShutItModule):
 
 	def build(self,shutit):
-		shutit.set_default_expect(shutit.cfg['expect_prompts']['root_prompt'])
 		shutit.send_and_expect('echo deb http://archive.ubuntu.com/ubuntu precise universe > /etc/apt/sources.list.d/universe.list')
 		shutit.send_and_expect('apt-get update -qq')
 		shutit.install('iptables')
@@ -149,12 +147,10 @@ END"""
 		config_dict = shutit.cfg
 		return False
 
-
-
-if not util.module_exists('shutit.tk.docker.docker'):
-	obj = docker('shutit.tk.docker.docker',0.396,'docker server communicating with host docker daemon')
-	obj.add_dependency('shutit.tk.setup')
-	obj.add_dependency('shutit.tk.ssh_server.ssh_server')
-	util.get_shutit_modules().add(obj)
-	ShutItModule.register(docker)
+def module():
+	return docker(
+		'shutit.tk.docker.docker', 0.396,
+		description='docker server communicating with host docker daemon',
+		depends=['shutit.tk.setup', 'shutit.tk.ssh_server.ssh_server']
+	)
 

@@ -20,10 +20,7 @@
 #OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 #SOFTWARE.
 
-
 from shutit_module import ShutItModule
-import util
-
 
 class composer(ShutItModule):
 
@@ -31,15 +28,15 @@ class composer(ShutItModule):
 		return False
 
 	def build(self,shutit):
-		shutit.set_default_expect(shutit.cfg['expect_prompts']['root_prompt'])
 		shutit.install('curl')
 		shutit.install('php5')
 		shutit.send_and_expect('curl -sS https://getcomposer.org/installer | php')
 		return True
 
-if not util.module_exists('shutit.tk.composer.composer'):
-	obj = composer('shutit.tk.composer.composer',0.315,'dependency manager for php: https://getcomposer.org/')
-	obj.add_dependency('shutit.tk.setup')
-	util.get_shutit_modules().add(obj)
-	ShutItModule.register(composer)
+def module():
+	return composer(
+		'shutit.tk.composer.composer', 0.315,
+		description='dependency manager for php: https://getcomposer.org/',
+		depends=['shutit.tk.setup']
+	)
 

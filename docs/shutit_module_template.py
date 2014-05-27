@@ -21,7 +21,6 @@
 #CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 from shutit_module import ShutItModule
-import util
 import os
 
 class template(ShutItModule):
@@ -30,9 +29,6 @@ class template(ShutItModule):
 	#
 	# Should return True if it is certain it's there, else False.
 	def is_installed(self,shutit):
-		"""Docstring
-		"""
-		shutit.set_default_expect(shutit.cfg['expect_prompts']['root_prompt'])
 		return shutit.file_exists('/tmp/container_touched.sh') and shutit.file_exists('/tmp/README.md')
 
 	# Run the build part of the module, which should ensure the module
@@ -42,10 +38,7 @@ class template(ShutItModule):
 	#
 	# Should return True if it has succeeded in building, else False.
 	def build(self,shutit):
-		"""Docstring
-		"""
-		shutit.set_default_expect(shutit.cfg['expect_prompts']['root_prompt'])
-		# Line number 49 should be the next one (so bash scripts can be inserted properly)
+		# Line number 42 should be the next one (so bash scripts can be inserted properly)
 
 		# DELETE THIS SECTION WHEN UNDERSTOOD - BEGIN
 		shutit.send_and_expect('touch /tmp/deleteme')
@@ -83,7 +76,7 @@ class template(ShutItModule):
 			pass
 		else:
 			# We fail out on this case, as it's not expected.
-			util.fail('res: ' + str(res) + ' not handled')
+			shutit.fail('res: ' + str(res) + ' not handled')
 		# example of resource use (simple file, copy README.md into the container)
 		shutit.send_file('/tmp/copiedfile',file.read(file(os.path.abspath(os.path.dirname(__file__)) + '/README.md')))
 		# example of bespoke config use
@@ -112,7 +105,7 @@ class template(ShutItModule):
 				When you're done, "Ctrl" and "]" at the same time.
 				You should then see your inputted lines in the output.
 				Add them to the module file before the pause_point line as 
-				"util.send_and_expect" lines (copy and paste), following
+				"shutit.send_and_expect" lines (copy and paste), following
 				the examples above this one in the file.
 				Then "Ctrl" and "]" at the same time again to return to the script.
 				Eventually you'll get a docker export to a tar file in your 
@@ -125,8 +118,6 @@ class template(ShutItModule):
 	# each object can handle config here
 	# OPTIONAL part of lifecycle - uncomment to include
 	def get_config(self,shutit):
-		"""Docstring
-		"""
 		cp = shutit.cfg['config_parser']
 		# Bring the example config into the config dictionary.
 		shutit.cfg[self.module_id]['example']      = cp.get(self.module_id,'example')
@@ -146,9 +137,6 @@ class template(ShutItModule):
 	# Should return True if it ready, else False.
 	# OPTIONAL part of lifecycle - uncomment to include
 	#def check_ready(self,shutit):
-	#	"""Docstring
-	#	"""
-	#	shutit.set_default_expect(shutit.cfg['expect_prompts']['root_prompt'])
 	#	return shutit.file_exists('/resources/README.md')
 
 	# start
@@ -157,9 +145,6 @@ class template(ShutItModule):
 	# Run after repo work.
 	# OPTIONAL part of lifecycle - uncomment to include
 	#def start(self,shutit):
-	#	"""Docstring
-	#	"""
-	#	shutit.set_default_expect(shutit.cfg['expect_prompts']['root_prompt'])
 	#	# example of starting something
 	#	shutit.send_and_expect('cat /tmp/container_touched.sh')
 	#	shutit.send_and_expect('sh /tmp/container_touched.sh')
@@ -171,9 +156,6 @@ class template(ShutItModule):
 	# Run before repo work, and before finalize is called.
 	# OPTIONAL part of lifecycle - uncomment to include
 	#def stop(self,shutit):
-	#	"""Docstring
-	#	"""
-	#	shutit.set_default_expect(shutit.cfg['expect_prompts']['root_prompt'])
 	#	# example of stopping something
 	#	shutit.send_and_expect("""ps -ef | grep -v grep | grep container_touched.sh | awk '{print $1}' | sed 's/\([0-9][0-9]*\)/kill \\1/' | sh""")
 	#	return True
@@ -185,9 +167,6 @@ class template(ShutItModule):
 	# Note that this is only run if the build phase was actually run.
 	# OPTIONAL part of lifecycle - uncomment to include
 	#def cleanup(self,shutit):
-	#	"""Docstring
-	#	"""
-	#	shutit.set_default_expect(shutit.cfg['expect_prompts']['root_prompt'])
 	#	shutit.send_and_expect('rm -f /tmp/deleteme')
 	#	return True
 
@@ -196,9 +175,6 @@ class template(ShutItModule):
 	# Finalize the module, ie do things that need doing before we exit.
 	# OPTIONAL part of lifecycle - uncomment to include
 	#def finalize(self,shutit):
-	#	"""Docstring
-	#	"""
-	#	shutit.set_default_expect(shutit.cfg['expect_prompts']['root_prompt'])
 	#	# Right at the end we want to ensure the locate db is up to date.
 	#	shutit.send_and_expect('updatedb')
 	#	return True
@@ -209,9 +185,6 @@ class template(ShutItModule):
 	# from the system.
 	# OPTIONAL part of lifecycle - uncomment to include
 	#def remove(self,shutit):
-	#	"""Docstring
-	#	"""
-	#	shutit.set_default_expect(shutit.cfg['expect_prompts']['root_prompt'])
 	#	shutit.send_and_expect('rm -f /tmp/container_touched.sh')
 	#	shutit.send_and_expect('rm -f /tmp/README.md')
 	#	# TODO: remove the installed apps DEPENDS on install tracking being available.
@@ -224,21 +197,15 @@ class template(ShutItModule):
 	# This is run regardless of whether the module is installed or not.
 	# OPTIONAL part of lifecycle - uncomment to include
 	#def test(self,shutit):
-	#	"""Docstring
-	#	"""
-	#	shutit.set_default_expect(shutit.cfg['expect_prompts']['root_prompt'])
 	#	return shutit.package_installed('mlocate') and shutit.package_installed('passwd')
-
-
 
 # template(string,float)
 # string : Any string you believe to identify this module uniquely, 
 #          eg com.my_corp.my_module_dir.my_module
 # float:   Float value for ordering module builds, must be > 0.0
 def module():
-	#	"""Docstring
-	#	"""
-	obj = template(GLOBALLY_UNIQUE_STRING,FLOAT)
-	obj.add_dependency('shutit.tk.setup')
-	return obj
+	return template(
+		GLOBALLY_UNIQUE_STRING, FLOAT,
+		depends=['shutit.tk.setup']
+	)
 
