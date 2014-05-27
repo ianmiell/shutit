@@ -17,6 +17,9 @@ Videos:
 
 - [Configuring and uploading a MySql container](https://www.youtube.com/watch?v=snd2gdsEYTQ)
 
+- [Building a win2048 container](https://www.youtube.com/watch?v=Wagof_wnRRY) cf: [Blog](http://zwischenzugs.wordpress.com/2014/05/09/docker-shutit-and-the-perfect-2048-game/)
+
+
 
 Do it yourself:
 ---------------
