@@ -38,7 +38,7 @@ class template(ShutItModule):
 	#
 	# Should return True if it has succeeded in building, else False.
 	def build(self,shutit):
-		# Line number 49 should be the next one (so bash scripts can be inserted properly)
+		# Line number 42 should be the next one (so bash scripts can be inserted properly)
 
 		# DELETE THIS SECTION WHEN UNDERSTOOD - BEGIN
 		shutit.send_and_expect('touch /tmp/deleteme')
