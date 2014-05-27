@@ -45,17 +45,6 @@ import subprocess
 import getpass
 from shutit_module import ShutItFailException
 
-# TODO: Manage exits of containers on error
-def fail(msg,child=None):
-	"""Handles a failure, pausing if a pexpect child object is passed in.
-	"""
-	if child:
-		pause_point(child,'Pause point on fail: ' + msg)
-	print >> sys.stderr, 'ERROR!'
-	print >> sys.stderr
-	raise ShutItFailException(msg)
-
-
 def is_file_secure(file_name):
 	"""Returns false if file is considered insecure, true if secure.
 	If file doesn't exist, it's considered secure!
@@ -904,6 +893,12 @@ def create_skeleton(shutit):
 	An image called ''' + skel_module_name + ''' will be created and can be run
 	with the run.sh command.
 	================================================================================''')
+
+# Deprecated
+def fail(msg,child=None):
+	"""Deprecated. Do not use.
+	"""
+	return shutit_global.shutit.fail(msg, child=child)
 
 # Deprecated
 def log(msg,code=None,pause=0,cfg=None,prefix=True,force_stdout=False):
