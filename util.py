@@ -702,7 +702,7 @@ def create_skeleton(shutit):
 		#!/bin/bash
 		# Test the building of this module
 		set -e
-		if [[ $0 != test.sh ]] && [[ $0 != ./test.sh ]] && [[ $0 != create_skeleton.sh ]] && [[ $0 != ./create_skeleton.sh ]]
+		if [[ $0 != test.sh ]] && [[ $0 != ./test.sh ]]
 		then
 		        echo 
 		        echo "Called as: $0"
