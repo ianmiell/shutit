@@ -21,7 +21,7 @@
 #OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 #SOFTWARE.
 
-source ../../bin/shared_test_utils.sh
+source ../../test/shared_test_utils.sh
 
 PIDS=""
 dirs=`ls ../ | grep -vw bin | grep -v README`
