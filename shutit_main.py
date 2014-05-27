@@ -69,7 +69,7 @@ def stop_all(shutit, run_order=-1):
 		if run_order == -1 or shutit_module_obj.run_order <= run_order:
 			if is_built(shutit,shutit_module_obj):
 				if not shutit_module_obj.stop(shutit):
-					util.fail('failed to stop: ' + mid,child=shutit.pexpect_children['container_child'])
+					shutit.fail('failed to stop: ' + mid,child=shutit.pexpect_children['container_child'])
 
 # Start all apps less than the supplied run_order
 def start_all(shutit, run_order=-1):
@@ -87,7 +87,7 @@ def start_all(shutit, run_order=-1):
 		if run_order == -1 or shutit_module_obj.run_order <= run_order:
 			if is_built(shutit,shutit_module_obj):
 				if not shutit_module_obj.start(shutit):
-					util.fail('failed to start: ' + mid,child=shutit.pexpect_children['container_child'])
+					shutit.fail('failed to start: ' + mid,child=shutit.pexpect_children['container_child'])
 
 def is_built(shutit,shutit_module_obj):
 	"""Returns true if this module is configured to be built, or if it is already installed.
@@ -110,7 +110,7 @@ def init_shutit_map(shutit):
 	# Have we got anything to process outside of special modules?
 	if len([mod for mod in modules if mod.run_order > 0]) < 1:
 		shutit.log(modules)
-		util.fail('No ShutIt modules in path:\n\n' +
+		shutit.fail('No ShutIt modules in path:\n\n' +
 			':'.join(cfg['host']['shutit_module_paths']) +
 			'\n\nor their subfolders. Check your --shutit_module_path/-m setting.')
 
@@ -129,16 +129,16 @@ def init_shutit_map(shutit):
 	for m in modules:
 		assert isinstance(m, ShutItModule)
 		if m.module_id in shutit_map:
-			util.fail('Duplicated module id: ' + m.module_id)
+			shutit.fail('Duplicated module id: ' + m.module_id)
 		if m.run_order in run_orders:
-			util.fail('Duplicate run order: ' + str(m.run_order) + ' for ' +
+			shutit.fail('Duplicate run order: ' + str(m.run_order) + ' for ' +
 				m.module_id + ' and ' + run_orders[m.run_order].module_id)
 		if m.run_order == 0:
 			has_core_module = True
 		shutit_map[m.module_id] = run_orders[m.run_order] = m
 
 	if not has_core_module:
-		util.fail('No module with run_order=0 specified! This is required.')
+		shutit.fail('No module with run_order=0 specified! This is required.')
 
 def config_collection(shutit):
 	"""Collect core config from config files for all seen modules.
@@ -161,7 +161,7 @@ def config_collection(shutit):
 			util.get_config(cfg,mid,'build_ifneeded',False,boolean=True)
 
 		if not shutit_map[mid].get_config(shutit):
-			util.fail(mid + ' failed on get_config')
+			shutit.fail(mid + ' failed on get_config')
 
 def conn_container(shutit):
 	"""Connect to the container.
@@ -358,7 +358,7 @@ def do_remove(shutit):
 			shutit.log('removing: ' + mid,code='31')
 			if not m.remove(shutit):
 				shutit.log(print_modules(shutit),code='31')
-				util.fail(mid + ' failed on remove',child=shutit.pexpect_children['container_child'])
+				shutit.fail(mid + ' failed on remove',child=shutit.pexpect_children['container_child'])
 
 def build_module(shutit, module):
 	"""Build passed-in module.
@@ -367,12 +367,12 @@ def build_module(shutit, module):
 	shutit.log('building: ' + module.module_id + ' with run order: ' + str(module.run_order),code='31')
 	cfg['build']['report'] = cfg['build']['report'] + '\nBuilding: ' + module.module_id + ' with run order: ' + str(module.run_order)
 	if not module.build(shutit):
-		util.fail(module.module_id + ' failed on build',child=shutit.get_pexpect_children['container_child'])
+		shutit.fail(module.module_id + ' failed on build',child=shutit.get_pexpect_children['container_child'])
 	if cfg['build']['interactive'] >= 1:
 		shutit.pause_point('\nPausing to allow inspect of build for: ' + module.module_id,print_input=True)
 	if not module.cleanup(shutit):
 		shutit.log('cleaning up: ' + module.module_id + ' with run order: ' + str(module.run_order),code='31')
-		util.fail(module.module_id + ' failed on cleanup',child=shutit.pexpect_children['container_child'])
+		shutit.fail(module.module_id + ' failed on cleanup',child=shutit.pexpect_children['container_child'])
 	cfg['build']['report'] = cfg['build']['report'] + '\nCompleted module: ' + module.module_id
 	if cfg[module.module_id]['do_repository_work'] or cfg['build']['interactive'] >= 1:
 		shutit.log(util.build_report('Module:' + module.module_id),code='31')
@@ -397,7 +397,7 @@ def do_build(shutit):
 	cfg = shutit.cfg
 	shutit_map = shutit.shutit_map
 	shutit.log('PHASE: build, cleanup, repository work',code='31')
-	util.log(util.print_config(shutit.cfg))
+	shutit.log(util.print_config(shutit.cfg))
 	if cfg['build']['interactive'] >= 2:
 		shutit.pause_point('\nNow building any modules that need building',print_input=False)
 	for mid in module_ids(shutit):
@@ -411,7 +411,7 @@ def do_build(shutit):
 		if is_built(shutit,module):
 			shutit.log('Starting module')
 			if not module.start(shutit):
-				util.fail(module.module_id + ' failed on start',child=shutit.pexpect_children['container_child'])
+				shutit.fail(module.module_id + ' failed on start',child=shutit.pexpect_children['container_child'])
 
 def do_test(shutit):
 	"""Runs test phase, erroring if any return false.
@@ -429,7 +429,7 @@ def do_test(shutit):
 		if is_built(shutit,shutit_map[mid]):
 			shutit.log('RUNNING TEST ON: ' + mid,code='31')
 			if not shutit_map[mid].test(shutit):
-				util.fail(mid + ' failed on test',child=shutit.pexpect_children['container_child'])
+				shutit.fail(mid + ' failed on test',child=shutit.pexpect_children['container_child'])
 
 def do_finalize(shutit):
 	"""Runs finalize phase; run after all builds are complete and all modules have been stopped.
@@ -448,7 +448,7 @@ def do_finalize(shutit):
 		# Only finalize if it's thought to be installed.
 		if is_built(shutit,shutit_map[mid]):
 			if not shutit_map[mid].finalize(shutit):
-				util.fail(mid + ' failed on finalize',child=shutit.pexpect_children['container_child'])
+				shutit.fail(mid + ' failed on finalize',child=shutit.pexpect_children['container_child'])
 
 def shutit_module_init(shutit):
 	"""Initialize.
@@ -516,7 +516,7 @@ def shutit_main():
 			shutit.log(err[0], force_stdout=True,code='31')
 			if not child and len(err) > 1:
 				child = err[1]
-		util.fail("Encountered some errors, quitting", child=child)
+		shutit.fail("Encountered some errors, quitting", child=child)
 
 	# Dependency validation done.
 
