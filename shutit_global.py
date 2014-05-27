@@ -675,11 +675,10 @@ class ShutIt(object):
 		res = self.send_and_expect('SHUTIT_TMP_VAR=`' + docker_executable + ' commit ' + cfg['container']['container_id'] + '`',expect=[expect,'assword'],child=child,timeout=99999,check_exit=False)
 		if res == 1:
 			self.send_and_expect(cfg['host']['password'],expect=expect,check_exit=False,record_command=False,child=child)
-		self.send_and_expect('echo $SHUTIT_TMP_VAR && unset SHUTIT_TMP_VAR',expect=expect,check_exit=False,child=child)
 		image_id = child.after.split('\r\n')[1]
-
 		if not image_id:
 			shutit.fail('failed to commit to ' + repository + ', could not determine image id')
+		self.send_and_expect('echo $SHUTIT_TMP_VAR && unset SHUTIT_TMP_VAR',expect=expect,check_exit=False,child=child)
 
 		cmd = docker_executable + ' tag ' + image_id + ' ' + repository
 		self.send_and_expect(cmd,child=child,expect=expect,check_exit=False)
