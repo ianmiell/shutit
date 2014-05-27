@@ -481,13 +481,18 @@ def load_configs(shutit):
 			msg = msg + '\t\n' + c
 			log('\t' + c)
 		if cfg['build']['interactive'] >= 2:
-			pause_point(None,'\n' + msg + '\n\nLooking at config files in the '
-				'above order (even if they do not exist - you may want to '
-				'create them).\n\nIf you get a "Port already in use:" error, '
-				'run:\n\n\tdocker ps -a | grep -w <port> | awk \'{print $1}\' '
-				'| xargs docker kill\nor\n\tsudo docker ps -a | grep -w <port> '
-				'| awk \'{print $1}\' | xargs sudo docker kill\n',
-				print_input=False)
+			print textwrap.dedent("""\n""") + msg + textwrap.dedent("""
+				Looking at config files in the above order (even if they
+				do not exist - you may want to create them).
+				
+				If you get a "Port already in use:" error,
+				run:
+					docker ps -a | grep -w <port> | awk '{print $1}' | xargs docker kill
+					
+				or
+					sudo docker ps -a | grep -w <port> | awk '{print $1}' | xargs sudo docker kill
+				""" + colour('31','[Hit return to continue]'))
+			raw_input('')
 
 	# Interpret any config overrides, write to a file and add them to the
 	# list of configs to be interpreted
