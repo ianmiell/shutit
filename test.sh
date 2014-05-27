@@ -21,11 +21,11 @@
 
 TESTS=$1
 
-source shared_test_utils.sh
+source test/shared_test_utils.sh
 
 # Variables
 NEWDIR=/tmp/shutit_testing_$(hostname)_$(whoami)_$(date -I)_$(date +%N)
-SHUTIT_DIR="$(pwd)/.."
+SHUTIT_DIR="$(pwd)"
 readonly NEWDIR SHUTIT_DIR
 
 set_shutit_options
@@ -39,17 +39,16 @@ fi
 # This is a fallback, any tests runnable on their own should include the below
 if [[ $0 != test.sh ]] && [[ $0 != ./test.sh ]]
 then
-	echo "Must be run from bin dir of ShutIt"
+	echo "Must be run from test dir of ShutIt"
 	exit 1
 fi
 
-if [[ "$(sed -n '41p' ../docs/shutit_module_template.py)" != "		# Line number 42 should be the next one (so bash scripts can be inserted properly)" ]]
+if [[ "$(sed -n '41p' docs/shutit_module_template.py)" != "		# Line number 42 should be the next one (so bash scripts can be inserted properly)" ]]
 then
-	echo "Line 41 of ../docs/shutit_module_template.py should be as per bin/test.sh specifies"
+	echo "Line 41 of docs/shutit_module_template.py should be as test.sh specifies"
 	exit 1
 fi
 
-pushd ..
 PYTHONPATH=$(pwd) python test/test.py || failure "Unit tests"
 
 find ${SHUTIT_DIR} -name '*.cnf' | grep '/configs/[^/]*.cnf' | xargs chmod 600
@@ -57,7 +56,7 @@ find ${SHUTIT_DIR} -name '*.cnf' | grep '/configs/[^/]*.cnf' | xargs chmod 600
 cleanup nothard
 echo "Testing skeleton build"
 ./shutit skeleton ${NEWDIR} testing shutit.tk ${SHUTIT_DIR}/docs/example.sh
-pushd ${NEWDIR}/bin
+pushd ${NEWDIR}
 touch ${SHUTIT_DIR}/test/configs/$(hostname)_$(whoami).cnf
 chmod 0600 ${SHUTIT_DIR}/test/configs/$(hostname)_$(whoami).cnf
 ./test.sh ${SHUTIT_DIR} || failure "1.0 ${NEWDIR}"
@@ -67,17 +66,17 @@ popd
 
 PIDS=""
 # General tests
-for d in $(ls ../test | grep -v configs)
+for d in $(ls test | grep -v configs)
 do
-	pushd ${SHUTIT_DIR}/test/$d/bin
+	pushd ${SHUTIT_DIR}/test/$d
 	if [[ -a STOP ]]
 	then
 		echo "STOP file found in $(pwd)"
 	else
 		echo "PWD: $(pwd)"
 		# Just in case only just git cloned/updated
-		touch ../configs/$(hostname)_$(whoami).cnf
-		chmod 0600 ../configs/$(hostname)_$(whoami).cnf
+		touch configs/$(hostname)_$(whoami).cnf
+		chmod 0600 configs/$(hostname)_$(whoami).cnf
 		if [ x$SHUTIT_PARALLEL_BUILD = 'x' ]
 		then
 			./test.sh ${SHUTIT_DIR}
@@ -105,7 +104,7 @@ fi
 # Examples tests
 if [[ $TESTS != 'basic' ]]
 then
-	pushd  ${SHUTIT_DIR}/library/bin
+	pushd  ${SHUTIT_DIR}/library
 	./test.sh || failure "3.0.library"
 	popd
 	cleanup nothard
