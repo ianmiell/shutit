@@ -1,4 +1,1 @@
 # Base config for the module. This contains standard defaults.
-[shutit.tk.shutit.shutit]
-example:astring
-example_bool:yes

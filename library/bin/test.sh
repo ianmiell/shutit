@@ -29,16 +29,19 @@ for d in $dirs
 do
 	cleanup
 	set_shutit_options
-	pushd ../$d/bin
-	# Set up a random container name for tests to use
-	if [ x$SHUTIT_PARALLEL_BUILD = 'x' ]
+	if [[ -a ../$d/bin/test.sh ]]
 	then
-		./test.sh "`pwd`/.."
-	else
-		./test.sh "`pwd`/.." &
-		PIDS="$PIDS $!"
-	fi
+		pushd ../$d/bin
+		# Set up a random container name for tests to use
+		if [[ x$SHUTIT_PARALLEL_BUILD = 'x' ]]
+		then
+			./test.sh "`pwd`/.."
+		else
+			./test.sh "`pwd`/.." &
+			PIDS="$PIDS $!"
+		fi
 	popd
+fi
 done
 
 if [ x$SHUTIT_PARALLEL_BUILD != 'x' ]
