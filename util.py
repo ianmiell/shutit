@@ -664,12 +664,11 @@ def create_skeleton(shutit):
 
 	os.makedirs(skel_path)
 	os.mkdir(os.path.join(skel_path, 'configs'))
-	os.mkdir(os.path.join(skel_path, 'bin'))
 
 	templatemodule_path = os.path.join(skel_path, skel_module_name + '.py')
 	readme_path = os.path.join(skel_path, 'README.md')
 	buildsh_path = os.path.join(skel_path, 'build.sh')
-	testsh_path = os.path.join(skel_path, 'bin', 'test.sh')
+	testsh_path = os.path.join(skel_path, 'test.sh')
 	runsh_path = os.path.join(skel_path, 'run.sh')
 	testbuildsh_path = os.path.join(skel_path, 'test_build.sh')
 	buildpushsh_path = os.path.join(skel_path, 'build_and_push.sh')
@@ -720,14 +719,11 @@ def create_skeleton(shutit):
 			echo "Must supply path to core ShutIt directory"
 			exit 1
 		fi
-		cd ..
 		./test_build.sh
 		if [[ $? -eq 0 ]]
 		then
-			cd -
 			exit 0
 		else
-			cd -
 			exit 1
 		fi
 		''')

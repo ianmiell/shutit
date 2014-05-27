@@ -189,7 +189,7 @@ Tests
 Run 
 
 ```
-pushd bin
+pushd test
 ./test.sh
 popd
 ```
