@@ -28,7 +28,6 @@ class phantomjs(ShutItModule):
 		return shutit.file_exists('/opt/phantomjs',directory=True)
 
 	def build(self,shutit):
-		shutit.set_default_expect(shutit.cfg['expect_prompts']['root_prompt'])
 		shutit.send_and_expect('pushd /opt')
 		shutit.install('curl')
 		shutit.install('bzip2')

@@ -35,7 +35,6 @@ class vnc(ShutItModule):
 
 	def build(self,shutit):
 		# TODO: distr-independence
-		shutit.set_default_expect(shutit.cfg['expect_prompts']['root_prompt'])
 		shutit.send_and_expect('lsb_release -c -s',check_exit=False)
 		release_name = shutit.get_re_from_child(shutit.get_default_child().before,'^([a-z][a-z]*)$')
 		if shutit.cfg['container']['install_type'] == 'apt':

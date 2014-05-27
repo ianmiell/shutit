@@ -28,8 +28,7 @@ class mysql(ShutItModule):
 		return shutit.file_exists('/root/start_mysql.sh')
 
 	def build(self,shutit):
-		shutit.set_default_expect(shutit.cfg['expect_prompts']['base_prompt'])
-		shutit.send_and_expect('bash',check_exit=False)
+		shutit.send_and_expect('bash',expect=shutit.cfg['expect_prompts']['base_prompt'],check_exit=False)
 		shutit.setup_prompt('mysql_tmp_prompt')
 		root_pass = shutit.cfg['shutit.tk.mysql.mysql']['root_password']
 		shutit.send_and_expect("apt-get update", record_command=False)
@@ -88,7 +87,6 @@ class mysql(ShutItModule):
 		return True
 
 	def remove(self,shutit):
-		shutit.set_default_expect(shutit.cfg['expect_prompts']['root_prompt'])
 		shutit.remove('libmysqlclient-dev')
 		shutit.remove('mysql-common')
 		shutit.send_and_expect('/root/stop_mysql.sh')
@@ -106,7 +104,6 @@ class mysql(ShutItModule):
 		return True
 
 	def test(self,shutit):
-		shutit.set_default_expect(shutit.cfg['expect_prompts']['root_prompt'])
 		mysql_user = shutit.cfg['shutit.tk.mysql.mysql']['mysql_user']
 		mysql_password = shutit.cfg['shutit.tk.mysql.mysql']['mysql_user_password']
 		root_password = shutit.cfg['shutit.tk.mysql.mysql']['root_password']

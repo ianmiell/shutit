@@ -22,7 +22,6 @@ from shutit_module import ShutItModule
 class get_iplayer(ShutItModule):
 
 	def build(self,shutit):
-		shutit.set_default_expect(shutit.cfg['expect_prompts']['root_prompt'])
 		shutit.install('git')
 		shutit.install('liblwp-online-perl')
 		shutit.install('rtmpdump')

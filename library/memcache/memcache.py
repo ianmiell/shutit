@@ -28,7 +28,6 @@ class memcache(ShutItModule):
 		return shutit.file_exists('/root/start_memcache.sh')
 
 	def build(self,shutit):
-		shutit.set_default_expect(shutit.cfg['expect_prompts']['root_prompt'])
 		shutit.install('memcached')
 		shutit.install('libmemcached-dev')
 		shutit.install('libmemcached-tools')

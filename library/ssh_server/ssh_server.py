@@ -28,7 +28,6 @@ class ssh_server(ShutItModule):
 		return False
 
 	def build(self,shutit):
-		shutit.set_default_expect(shutit.cfg['expect_prompts']['root_prompt'])
 		shutit.install('openssh-server')
 		shutit.send_and_expect('mkdir -p /var/run/sshd')
 		shutit.send_and_expect('chmod 700 /var/run/sshd')

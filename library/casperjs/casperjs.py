@@ -28,7 +28,6 @@ class casperjs(ShutItModule):
 		return shutit.file_exists('/opt/casperjs',shutit.cfg['expect_prompts']['root_prompt'],directory=True)
 
 	def build(self,shutit):
-		shutit.set_default_expect(shutit.cfg['expect_prompts']['root_prompt'])
 		shutit.install('git')
 		shutit.run_script("""
 			#!/bin/bash

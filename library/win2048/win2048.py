@@ -26,7 +26,6 @@ class win2048(ShutItModule):
 		return self.test(shutit)
 
 	def build(self,shutit):
-		shutit.set_default_expect(shutit.cfg['expect_prompts']['root_prompt'])
 		shutit.install('firefox')
 		shutit.install('xdotool')
 		shutit.install('xautomation')

@@ -22,7 +22,6 @@ from shutit_module import ShutItModule
 class docker(ShutItModule):
 
 	def build(self,shutit):
-		shutit.set_default_expect(shutit.cfg['expect_prompts']['root_prompt'])
 		shutit.send_and_expect('echo deb http://archive.ubuntu.com/ubuntu precise universe > /etc/apt/sources.list.d/universe.list')
 		shutit.send_and_expect('apt-get update -qq')
 		shutit.install('iptables')

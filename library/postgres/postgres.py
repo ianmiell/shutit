@@ -25,11 +25,9 @@ from shutit_module import ShutItModule
 class postgres(ShutItModule):
 
 	def is_installed(self,shutit):
-		shutit.set_default_expect(shutit.cfg['expect_prompts']['root_prompt'])
 		return shutit.file_exists('/root/start_postgres.sh')
 
 	def build(self,shutit):
-		shutit.set_default_expect(shutit.cfg['expect_prompts']['root_prompt'])
 		shutit.install('postgresql')
 		shutit.add_line_to_file('# postgres','/root/start_postgres.sh')
 		shutit.add_line_to_file("echo Setting shmmax for postgres",'/root/start_postgres.sh')
