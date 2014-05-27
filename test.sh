@@ -68,6 +68,7 @@ PIDS=""
 # General tests
 for d in $(ls test | grep -v configs)
 do
+	[ -d ${SHUTIT_DIR}/test/$d ] || continue
 	pushd ${SHUTIT_DIR}/test/$d
 	if [[ -a STOP ]]
 	then
