@@ -676,8 +676,8 @@ class ShutIt(object):
 		if res == 1:
 			self.send_and_expect(cfg['host']['password'],expect=expect,check_exit=False,record_command=False,child=child)
 		self.send_and_expect('echo $SHUTIT_TMP_VAR && unset SHUTIT_TMP_VAR',expect=expect,check_exit=False,child=child)
-		self.cfg(child.before)
-		self.cfg(child.after)
+		self.log(child.before)
+		self.log(child.after)
 		image_id = child.before.split('\r\n')[1]
 		if not image_id:
 			shutit.fail('failed to commit to ' + repository + ', could not determine image id')
