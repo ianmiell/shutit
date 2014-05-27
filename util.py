@@ -719,13 +719,7 @@ def create_skeleton(shutit):
 			echo "Must supply path to core ShutIt directory"
 			exit 1
 		fi
-		./test_build.sh
-		if [[ $? -eq 0 ]]
-		then
-			exit 0
-		else
-			exit 1
-		fi
+		./test_build.sh || exit 1
 		''')
 	runsh = textwrap.dedent('''\
 		# Example for running
