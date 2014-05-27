@@ -18,7 +18,6 @@
 #CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 from shutit_module import ShutItModule
-import util
 
 class shutit(ShutItModule):
 
@@ -26,19 +25,17 @@ class shutit(ShutItModule):
 		return shutit.file_exists('/shutit',directory=True)
 
 	def build(self,shutit):
-		shutit.set_default_expect(shutit.cfg['expect_prompts']['root_prompt'])
 		shutit.install('git')
 		shutit.send_and_expect('pushd /')
 		shutit.send_and_expect('git clone https://github.com/ianmiell/shutit.git')
 		shutit.send_and_expect('popd')
 		return True
 
-if not util.module_exists('shutit.tk.shutit.shutit'):
-	obj = shutit('shutit.tk.shutit.shutit',0.397,'shutit in container')
-	obj.add_dependency('shutit.tk.setup')
-	obj.add_dependency('shutit.tk.docker.docker')
-	# We need to create a user to get shutit to work
-	obj.add_dependency('shutit.tk.adduser.adduser')
-	util.get_shutit_modules().add(obj)
-	ShutItModule.register(shutit)
+def module():
+	# Shutit needs a user to work
+	return shutit(
+		'shutit.tk.shutit.shutit', 0.397,
+		description='shutit in container',
+		depends=['shutit.tk.setup', 'shutit.tk.docker.docker', 'shutit.tk.adduser.adduser']
+	)
 

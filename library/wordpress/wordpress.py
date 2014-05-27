@@ -20,9 +20,7 @@
 #OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 #SOFTWARE.
 
-
 from shutit_module import ShutItModule
-import util
 
 class wordpress(ShutItModule):
 
@@ -30,7 +28,6 @@ class wordpress(ShutItModule):
 		return False
 
 	def build(self,shutit):
-		shutit.set_default_expect(shutit.cfg['expect_prompts']['root_prompt'])
 		shutit.install('apache2')
 		shutit.install('wordpress')
 		apache_site = """cat > /etc/apache2/sites-available/wordpress << END
@@ -81,11 +78,10 @@ END"""
 		shutit.cfg['shutit.tk.wordpress.wordpress']['password'] = cp.get('shutit.tk.wordpress.wordpress','password')
 		return True
 
-
-if not util.module_exists('shutit.tk.wordpress.wordpress'):
-	obj = wordpress('shutit.tk.wordpress.wordpress',0.325,'wordpress setup')
-	obj.add_dependency('shutit.tk.setup')
-	obj.add_dependency('shutit.tk.mysql.mysql')
-	util.get_shutit_modules().add(obj)
-	ShutItModule.register(wordpress)
+def module():
+	return wordpress(
+		'shutit.tk.wordpress.wordpress', 0.325,
+		description='wordpress setup',
+		depends=['shutit.tk.setup', 'shutit.tk.mysql.mysql']
+	)
 

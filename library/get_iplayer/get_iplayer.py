@@ -18,12 +18,10 @@
 #CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 from shutit_module import ShutItModule
-import util
 
 class get_iplayer(ShutItModule):
 
 	def build(self,shutit):
-		shutit.set_default_expect(shutit.cfg['expect_prompts']['root_prompt'])
 		shutit.install('git')
 		shutit.install('liblwp-online-perl')
 		shutit.install('rtmpdump')
@@ -45,9 +43,11 @@ class get_iplayer(ShutItModule):
 	def is_installed(self,shutit):
 		return False
 
-if not util.module_exists('shutit.tk.get_iplayer.get_iplayer'):
-	obj = get_iplayer('shutit.tk.get_iplayer.get_iplayer',0.324,'iPlayer downloader. See http://www.infradead.org/get_iplayer/html/get_iplayer.html')
-	obj.add_dependency('shutit.tk.setup')
-	util.get_shutit_modules().add(obj)
-	ShutItModule.register(get_iplayer)
+def module():
+	return get_iplayer(
+		'shutit.tk.get_iplayer.get_iplayer', 0.324,
+		description='iPlayer downloader. See ' +
+			'http://www.infradead.org/get_iplayer/html/get_iplayer.html',
+		depends=['shutit.tk.setup']
+	)
 

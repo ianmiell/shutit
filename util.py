@@ -45,17 +45,6 @@ import subprocess
 import getpass
 from shutit_module import ShutItFailException
 
-# TODO: Manage exits of containers on error
-def fail(msg,child=None):
-	"""Handles a failure, pausing if a pexpect child object is passed in.
-	"""
-	if child:
-		pause_point(child,'Pause point on fail: ' + msg)
-	print >> sys.stderr, 'ERROR!'
-	print >> sys.stderr
-	raise ShutItFailException(msg)
-
-
 def is_file_secure(file_name):
 	"""Returns false if file is considered insecure, true if secure.
 	If file doesn't exist, it's considered secure!
@@ -268,6 +257,14 @@ def parse_args(cfg):
 			and '-h' not in sys.argv and '--help' not in sys.argv):
 		sys.argv.insert(1, 'build')
 
+	# Pexpect documentation says systems have issues with pauses < 0.05
+	def check_pause(value):
+		ivalue = float(value)
+		if ivalue < 0.05:
+			raise argparse.ArgumentTypeError(
+				"%s is an invalid pause (must be >= 0.05)" % value)
+		return ivalue
+
 	parser = argparse.ArgumentParser(description='ShutIt - a tool for managing complex Docker deployments')
 	subparsers = parser.add_subparsers(dest='action', help='Action to perform. Defaults to \'build\'.')
 
@@ -285,7 +282,7 @@ def parse_args(cfg):
 		sub_parsers[action].add_argument('-s', '--set', help='Override a config item, e.g. "-s container rm no". Can be specified multiple times.', default=[], action='append', nargs=3, metavar=('SEC','KEY','VAL'))
 		sub_parsers[action].add_argument('--image_tag', help='Build container using specified image - if there is a symbolic reference, please use that, eg localhost.localdomain:5000/myref',default=cfg['container']['docker_image_default'])
 		sub_parsers[action].add_argument('-m','--shutit_module_path', default='.',help='List of shutit module paths, separated by colons. ShutIt registers modules by running all .py files in these directories.')
-		sub_parsers[action].add_argument('--pause',help='Pause between commands to avoid race conditions.',default='0.0')
+		sub_parsers[action].add_argument('--pause',help='Pause between commands to avoid race conditions.',default='0.05',type=check_pause)
 		sub_parsers[action].add_argument('--debug',help='Show debug.',default=False,const=True,action='store_const')
 		sub_parsers[action].add_argument('--interactive',help='Level of interactive. 0 = none, 1 = regular asking, 2 = tutorial mode',default='0')
 
@@ -557,39 +554,50 @@ def load_all_from_path(shutit, path):
 		return
 	for root, subFolders, files in os.walk(path):
 		for fname in files:
-			load_from_file(shutit, os.path.join(root, fname))
+			load_mod_from_file(shutit, os.path.join(root, fname))
 
-def load_from_file(shutit, fpath):
-	"""Responsible for loading a .py file into ShutIt.
+def load_mod_from_file(shutit, fpath):
+	"""Loads modules from a .py file into ShutIt if there are no modules from
+	this file already.
+	We expect to have a callable 'module/0' which returns one or more module
+	objects.
+	If this doesn't exist we assume that the .py file works in the old style
+	(automatically inserting the module into shutit_global) or it's not a shutit
+	module.
 	"""
-	mod_name,file_ext = os.path.splitext(os.path.split(fpath)[-1])
+	mod_name, file_ext = os.path.splitext(os.path.split(fpath)[-1])
 	if file_ext.lower() != '.py':
 		return
+	# Do we already have modules from this file? If so we know we can skip.
+	# Note that this attribute will only be set for 'new style' module loading,
+	# this should be ok because 'old style' loading checks for duplicate
+	# existing modules.
+	# TODO: this is quadratic complexity
+	existingmodules = [
+		m for m in shutit.shutit_modules
+		if getattr(m, '__module_file', None) == fpath
+	]
+	if len(existingmodules) > 0:
+		return
+	# Looks like it's ok to load this file
 	if shutit.cfg['build']['debug']:
 		log('Loading source for: ' + mod_name, fpath)
 	pymod = imp.load_source(mod_name, fpath)
-	load_from_py_module(shutit, pymod)
 
-def load_from_py_module(shutit, pymod):
-	"""To load from a py module we expect to have a callable 'module/0'
-	function which returns one or more module objects.
-	If this doesn't exist we assume that it's doing the 'old' style
-	(automatically inserting the module) or it's not a shutit module; 
-	in either case, this function is a no-op.
-	"""
+	# Got the python module, now time to pull the shutit module(s) out of it.
 	targets = [
 		('module', shutit.shutit_modules), ('conn_module', shutit.conn_modules)
 	]
 	for attr, target in targets:
-		if not hasattr(pymod, attr):
-			return
-		modulefunc = getattr(pymod, attr)
+		modulefunc = getattr(pymod, attr, None)
+		# Old style or not a shutit module, nothing else to do
 		if not callable(modulefunc):
 			return
 		modules = modulefunc()
 		if type(modules) is not list:
 			modules = [modules]
 		for module in modules:
+			setattr(module, '__module_file', fpath)
 			ShutItModule.register(module.__class__)
 			target.add(module)
 
@@ -861,7 +869,7 @@ def create_skeleton(shutit):
 		calls = [
 				#egrep -v '^[\s]*$' myscript.sh | grep -v '^#' | sed "s/"$/" /;s/^/              shutit.send_and_expect("""/;s/$/""")/" > /tmp/shutit_bash_script_include_1400206744
 			r'''egrep -v '^[\s]*$' ''' + skel_script + r''' | grep -v '^#' | sed "s/\"$/\" /;s/^/\t\tshutit.send_and_expect(\"\"\"/;s/$/\"\"\")/" > ''' + sbsi,
-			r'''sed "64r ''' + sbsi + '" ' + skel_mod_path + ' > ' + skel_mod_path + '.new''',
+			r'''sed "41r ''' + sbsi + '" ' + skel_mod_path + ' > ' + skel_mod_path + '.new''',
 			r'''mv ''' + skel_mod_path + '''.new ''' + skel_mod_path
 		]
 		for call in calls:
@@ -885,6 +893,12 @@ def create_skeleton(shutit):
 	An image called ''' + skel_module_name + ''' will be created and can be run
 	with the run.sh command.
 	================================================================================''')
+
+# Deprecated
+def fail(msg,child=None):
+	"""Deprecated. Do not use.
+	"""
+	return shutit_global.shutit.fail(msg, child=child)
 
 # Deprecated
 def log(msg,code=None,pause=0,cfg=None,prefix=True,force_stdout=False):

@@ -67,18 +67,18 @@ class conn_docker(ShutItModule):
 		try:
 			child = pexpect.spawn(check_cmd[0], check_cmd[1:], timeout=1)
 		except pexpect.ExceptionPexpect:
-			util.fail('Cannot run check on "' + str_cmd + '", is the docker ' +
+			shutit.fail('Cannot run check on "' + str_cmd + '", is the docker ' +
 				'command on your path?')
 		try:
 			if child.expect(['assword', pexpect.EOF]) == 0:
 				child.sendline(password)
 				child.expect(pexpect.EOF)
 		except pexpect.ExceptionPexpect:
-			util.fail('"' + str_cmd + '" did not complete in 1s, ' +
+			shutit.fail('"' + str_cmd + '" did not complete in 1s, ' +
 				'\nIs your host password config correct?\nIs your docker_executable setting correct?')
 		child.close()
 		if child.exitstatus != 0:
-			util.fail('"' + str_cmd + '" didn\'t return a 0 exit code')
+			shutit.fail('"' + str_cmd + '" didn\'t return a 0 exit code')
 		# Now check connectivity to the docker daemon
 		check_cmd = docker + ['info']
 		str_cmd = ' '.join(check_cmd)
@@ -88,11 +88,11 @@ class conn_docker(ShutItModule):
 				child.sendline(password)
 				child.expect(pexpect.EOF)
 		except pexpect.ExceptionPexpect:
-			util.fail('"' + str_cmd + '" did not complete in 1s, ' +
+			shutit.fail('"' + str_cmd + '" did not complete in 1s, ' +
 				'is the docker daemon overloaded?')
 		child.close()
 		if child.exitstatus != 0:
-			util.fail(str_cmd + ' didn\'t return a 0 exit code, ' +
+			shutit.fail(str_cmd + ' didn\'t return a 0 exit code, ' +
 				'is the docker daemon running?')
 
 		# Onto the actual execution
@@ -171,7 +171,7 @@ class conn_docker(ShutItModule):
 		time.sleep(1) # cidfile creation is sometimes slow...
 		cid = open(cfg['build']['cidfile']).read()
 		if cid == '' or re.match('^[a-z0-9]+$', cid) == None:
-			util.fail('Could not get container_id - quitting. Check whether ' +
+			shutit.fail('Could not get container_id - quitting. Check whether ' +
 				'other containers may be clashing on port allocation or name.' +
 				'\nYou might want to try running: sudo docker kill ' +
 				cfg['container']['name'] + '; sudo docker rm ' +
@@ -182,7 +182,7 @@ class conn_docker(ShutItModule):
 				'resolve a port clash\n')
 		cfg['container']['container_id'] = cid
 		# Now let's have a host_child
-		util.log('Creating host child')
+		shutit.log('Creating host child')
 		host_child = pexpect.spawn('/bin/bash')
 		# Some pexpect settings
 		shutit.pexpect_children['host_child'] = host_child
@@ -191,14 +191,16 @@ class conn_docker(ShutItModule):
 		host_child.logfile = container_child.logfile = sys.stdout
 		host_child.maxread = container_child.maxread = 2000
 		host_child.searchwindowsize = container_child.searchwindowsize = 1024
+		delay = cfg['build']['command_pause']
+		host_child.delaybeforesend = container_child.delaybeforesend = delay
 		# Set up prompts and let the user do things before the build
 		# host child
 		shutit.set_default_child(host_child)
-		util.log('Setting up default prompt on host child')
+		shutit.log('Setting up default prompt on host child')
 		shutit.setup_prompt('real_user_prompt','REAL_USER')
 		# container child
 		shutit.set_default_child(container_child)
-		util.log('Setting up default prompt on container child')
+		shutit.log('Setting up default prompt on container child')
 		shutit.setup_prompt('pre_build', 'PRE_BUILD')
 		shutit.get_distro_info()
 		shutit.setup_prompt('root_prompt', 'ROOT')
@@ -210,8 +212,6 @@ class conn_docker(ShutItModule):
 		and performing any repository work required.
 		"""
 		cfg = shutit.cfg
-		# Finish with the container
-		container_child = util.get_pexpect_child('container_child')
 		# Put build info into the container
 		shutit.send_and_expect('mkdir -p /root/shutit_build')
 		logfile = cfg['build']['container_build_log']
@@ -225,7 +225,8 @@ LOGFILEEND"""
 BUILDREPEND"""
 		# Do we need this check_exit=False?
 		shutit.send_and_expect(build_rep,record_command=False,check_exit=False)
-		container_child.sendline('exit') # Exit container
+		# Finish with the container
+		shutit.pexpect_children['container_child'].sendline('exit') # Exit container
 
 		# Tag and push etc
 		if cfg['build']['interactive'] >= 2:
@@ -239,9 +240,10 @@ BUILDREPEND"""
 		return True
 
 def conn_module():
-	"""Connects Shutit to docker.
-	"""
-	return conn_docker('shutit.tk.conn_docker',-0.1,'Connect ShutIt to docker')
+	return conn_docker(
+		'shutit.tk.conn_docker', -0.1,
+		description='Connect ShutIt to docker'
+	)
 
 class setup(ShutItModule):
 
@@ -292,7 +294,5 @@ class setup(ShutItModule):
 		return True
 
 def module():
-	"""Module definition
-	"""
-	return setup('shutit.tk.setup',0.0,'Core ShutIt setup')
+	return setup('shutit.tk.setup', 0.0, description='Core ShutIt setup')
 
