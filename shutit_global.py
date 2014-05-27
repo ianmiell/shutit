@@ -124,6 +124,17 @@ class ShutIt(object):
 		self._default_expect[-1] = expect
 		self._default_check_exit[-1] = check_exit
 
+	# TODO: Manage exits of containers on error
+	def fail(self, msg, child=None):
+		"""Handles a failure, pausing if a pexpect child object is passed in.
+		"""
+		# Note: we must not default to a child here
+		if child is not None:
+			self.pause_point(child, 'Pause point on fail: ' + msg)
+		print >> sys.stderr, 'ERROR!'
+		print >> sys.stderr
+		raise ShutItFailException(msg)
+
 	def log(self, msg, code=None, pause=0, prefix=True, force_stdout=False):
 		"""Logging function.
 
