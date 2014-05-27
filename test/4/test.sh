@@ -18,13 +18,8 @@ fi
 CNAME=shutit_test_container_$(dd if=/dev/urandom bs=256 count=1 2>/dev/null | md5sum | awk '{print $1}')
 export SHUTIT_OPTIONS="-s container name $CNAME"
 
-cd ..
 ./build.sh
-if [[ 0 -eq 0 ]]
+if [ 0 -ne 0 ]
 then
-	cd -
-	exit 0
-else
-	cd -
 	exit 1
 fi
