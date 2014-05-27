@@ -616,7 +616,7 @@ class ShutIt(object):
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
 		send = docker_executable + ' push ' + repository
-		expect_list = ['Username:','Password:','Email:',expect]
+		expect_list = ['Username','Password','Email',expect]
 		timeout=99999
 		res = self.send_and_expect(send,expect=expect_list,child=child,timeout=timeout,check_exit=False,fail_on_empty_before=False)
 		while True:
