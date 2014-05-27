@@ -616,20 +616,18 @@ class ShutIt(object):
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
 		send = docker_executable + ' push ' + repository
-		expect_list = ['Pushing','Buffering','Username:','Password:','Email:',expect]
+		expect_list = ['Username:','Password:','Email:',expect]
 		timeout=99999
-		res = self.send_and_expect(send,expect=expect_list,child=child,timeout=timeout,check_exit=False)
+		res = self.send_and_expect(send,expect=expect_list,child=child,timeout=timeout,check_exit=False,fail_on_empty_before=False)
 		while True:
-			if res == 5:
+			if res == 3:
 				break
+			elif res == 0:
+				res = self.send_and_expect(cfg['repository']['user'],child=child,expect=expect_list,timeout=timeout,check_exit=False,fail_on_empty_before=False)
+			elif res == 1:
+				res = self.send_and_expect(cfg['repository']['password'],child=child,expect=expect_list,timeout=timeout,check_exit=False,fail_on_empty_before=False)
 			elif res == 2:
-				res = self.send_and_expect(cfg['repository']['user'],child=child,expect=expect_list,timeout=timeout,check_exit=False)
-			elif res == 3:
-				res = self.send_and_expect(cfg['repository']['password'],child=child,expect=expect_list,timeout=timeout,check_exit=False)
-			elif res == 4:
-				res = self.send_and_expect(cfg['repository']['email'],child=child,expect=expect_list,timeout=timeout,check_exit=False)
-			else:
-				res = child.expect(expect_list,timeout=timeout)
+				res = self.send_and_expect(cfg['repository']['email'],child=child,expect=expect_list,timeout=timeout,check_exit=False,fail_on_empty_before=False)
 
 	def do_repository_work(self,repo_name,expect=None,docker_executable='docker',password=None):
 		"""Commit, tag, push, tar the container based on the configuration we have.
