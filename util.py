@@ -664,14 +664,12 @@ def create_skeleton(shutit):
 
 	os.makedirs(skel_path)
 	os.mkdir(os.path.join(skel_path, 'configs'))
-	os.mkdir(os.path.join(skel_path, 'bin'))
 
 	templatemodule_path = os.path.join(skel_path, skel_module_name + '.py')
 	readme_path = os.path.join(skel_path, 'README.md')
 	buildsh_path = os.path.join(skel_path, 'build.sh')
-	testsh_path = os.path.join(skel_path, 'bin', 'test.sh')
+	testsh_path = os.path.join(skel_path, 'test.sh')
 	runsh_path = os.path.join(skel_path, 'run.sh')
-	testbuildsh_path = os.path.join(skel_path, 'test_build.sh')
 	buildpushsh_path = os.path.join(skel_path, 'build_and_push.sh')
 	defaultscnf_path = os.path.join(skel_path, 'configs', 'defaults.cnf')
 	buildcnf_path = os.path.join(skel_path, 'configs', 'build.cnf')
@@ -688,73 +686,53 @@ def create_skeleton(shutit):
 	)
 	readme = skel_module_name + ': description of module directory in here'
 	buildsh = textwrap.dedent('''\
+		[ -z "$SHUTIT" ] && SHUTIT="$1/shutit"
+		[ -z "$SHUTIT" ] && SHUTIT="$(which shutit)"
+		# Fall back to trying directory of shutit when module was first created
+		[ -z "$SHUTIT" ] && SHUTIT="''' + shutit_dir + '''/shutit" ]
+		if [ -z "$SHUTIT" -o ! -x "$SHUTIT" ]
+		then
+			echo "Must supply path to ShutIt dir or have shutit on path"
+			exit 1
+		fi
 		# This file tests your build, leaving the container intact when done.
 		set -e
-		''' + shutit_dir + '''/shutit
+		$SHUTIT build
 		# Display config
-		#''' + shutit_dir + '''/shutit sc
+		#$SHUTIT sc
 		# Debug
-		#''' + shutit_dir + '''/shutit build --debug
+		#$SHUTIT build --debug
 		# Tutorial
-		#''' + shutit_dir + '''/shutit build --interactive 2
+		#$SHUTIT build --interactive 2
 		''')
 	testsh = textwrap.dedent('''\
 		#!/bin/bash
 		# Test the building of this module
 		set -e
-		if [[ $0 != test.sh ]] && [[ $0 != ./test.sh ]] && [[ $0 != create_skeleton.sh ]] && [[ $0 != ./create_skeleton.sh ]]
+		if [ $0 != test.sh ] && [ $0 != ./test.sh ]
 		then
-		        echo 
-		        echo "Called as: $0"
-			echo "Must be run from test dir like:"
-		        echo
-		        echo "  test.sh <path_to_shutit_dir>"
-		        echo
-		        echo "or"
-		        echo
-		        echo "  ./test.sh <path_to_shutit_dir>"
-		        exit
+			echo
+			echo "Called as: $0"
+			echo "Must be run from module root dir like:"
+			echo
+			echo "  test.sh <path_to_shutit_dir>"
+			echo
+			echo "or"
+			echo
+			echo "  ./test.sh <path_to_shutit_dir>"
+			exit
 		fi
-		if [ x$1 = 'x' ]
-		then
-			echo "Must supply path to core ShutIt directory"
-			exit 1
-		fi
-		cd ..
-		./test_build.sh
-		if [[ $? -eq 0 ]]
-		then
-			cd -
-			exit 0
-		else
-			cd -
-			exit 1
-		fi
+		export SHUTIT_OPTIONS="$SHUTIT_OPTIONS -s container rm yes"
+		./build.sh $1
 		''')
 	runsh = textwrap.dedent('''\
 		# Example for running
 		docker run -t -i ''' + skel_module_name + ''' /bin/bash
 		''')
-	testbuildsh = textwrap.dedent('''\
-		# This file tests your build, removing the container when done.
-		set -e
-		''' + shutit_dir + '''/shutit build -s container rm yes
-		# Display config
-		#''' + shutit_dir + '''/shutit sc
-		# Debug
-		#''' + shutit_dir + '''/shutit build --debug
-		# Tutorial
-		#''' + shutit_dir + '''/shutit build --
-		''')
 	buildpushsh = textwrap.dedent('''\
 		set -e
-		''' + shutit_dir + '''/shutit build --config configs/push.cnf
-		# Display config
-		#''' + shutit_dir + '''/shutit sc
-		# Debug
-		#''' + shutit_dir + '''/shutit build --debug
-		# Tutorial
-		#''' + shutit_dir + '''/shutit build --interactive 2
+		export SHUTIT_OPTIONS="$SHUTIT_OPTIONS --config configs/push.cnf"
+		./build.sh $1
 		''')
 	defaultscnf = textwrap.dedent('''\
 		# Base config for the module. This contains standard defaults or hashed out examples.
@@ -836,8 +814,6 @@ def create_skeleton(shutit):
 	os.chmod(testsh_path, os.stat(testsh_path).st_mode | 0111) # chmod +x
 	open(runsh_path, 'w').write(runsh)
 	os.chmod(runsh_path, os.stat(runsh_path).st_mode | 0111) # chmod +x
-	open(testbuildsh_path, 'w').write(testbuildsh)
-	os.chmod(testbuildsh_path, os.stat(testbuildsh_path).st_mode | 0111) # chmod +x
 	open(buildpushsh_path, 'w').write(buildpushsh)
 	os.chmod(buildpushsh_path, os.stat(buildpushsh_path).st_mode | 0111) # chmod +x
 	open(defaultscnf_path, 'w').write(defaultscnf)
