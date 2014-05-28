@@ -51,12 +51,12 @@ An example folder structure:
 ```
 ./my_module
 ├── build.sh
+├── build_and_push.sh
 ├── configs
 │   ├── build.cnf
 │   └── defaults.cnf
+├── my_module.py
 ├── README.md
-├── resources
-│   └── README.md
 ├── run.sh
 └── test.sh
 ```
@@ -138,7 +138,7 @@ to:
 And change the **build.sh** to include the module in the path
 
 ```sh
-/path/to/shutit build -m /your/path/to/shutit/example/mysql
+/path/to/shutit build -m /path/to/shutit/library/mysql
 ```
 
 Rebuild and re-run to get the same container with mysql installed.
