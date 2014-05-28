@@ -545,7 +545,7 @@ class ShutIt(object):
 	def handle_revert_prompt(self,expect,prompt_name,child=None):
 		"""Deprecated. Do not use.
 		"""
-		self.revert_prompt(prompt_name,expect=expect,child=child)
+		self.revert_prompt(prompt_name,new_expect=expect,child=child)
 
 	def revert_prompt(self,old_prompt_name,new_expect=None,child=None):
 		"""Reverts the prompt to the previous value (passed-in).

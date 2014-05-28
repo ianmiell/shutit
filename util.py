@@ -41,6 +41,7 @@ import textwrap
 import tempfile
 import json
 import binascii
+import uuid
 import subprocess
 import getpass
 from shutit_module import ShutItFailException
@@ -569,7 +570,7 @@ def load_mod_from_file(shutit, fpath):
 	module.
 	"""
 	fpath = os.path.abspath(fpath)
-	mod_name, file_ext = os.path.splitext(os.path.split(fpath)[-1])
+	file_ext = os.path.splitext(os.path.split(fpath)[-1])[-1]
 	if file_ext.lower() != '.py':
 		return
 	# Do we already have modules from this file? If so we know we can skip.
@@ -585,7 +586,9 @@ def load_mod_from_file(shutit, fpath):
 		return
 	# Looks like it's ok to load this file
 	if shutit.cfg['build']['debug']:
-		log('Loading source for: ' + mod_name, fpath)
+		log('Loading source for: ' + fpath)
+
+	mod_name = str(uuid.uuid4()).replace('-', '_')
 	pymod = imp.load_source(mod_name, fpath)
 
 	# Got the python module, now time to pull the shutit module(s) out of it.
@@ -601,7 +604,6 @@ def load_mod_from_file(shutit, fpath):
 		if type(modules) is not list:
 			modules = [modules]
 		for module in modules:
-			setattr(module, '__module_file', fpath)
 			ShutItModule.register(module.__class__)
 			target.add(module)
 
