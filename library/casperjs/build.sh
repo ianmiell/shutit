@@ -9,10 +9,11 @@ then
 fi
 # This file tests your build, leaving the container intact when done.
 set -e
-$SHUTIT build -m ..
+$SHUTIT build
 # Display config
 #$SHUTIT sc
 # Debug
 #$SHUTIT build --debug
 # Tutorial
 #$SHUTIT build --interactive 2
+
