@@ -503,7 +503,7 @@ def load_configs(shutit):
 				override_cp.add_section(o_sec)
 			override_cp.set(o_sec, o_key, o_val)
 		fd, name = tempfile.mkstemp()
-		os.write(fd, print_config({ "config_parser": override_cp }))
+		os.write(fd, print_config({ "config_parser": override_cp },hide_password=False))
 		os.close(fd)
 		configs.append(name)
 
@@ -521,7 +521,7 @@ def load_shutit_modules(shutit):
 	for shutit_module_path in shutit.cfg['host']['shutit_module_paths']:
 		load_all_from_path(shutit, shutit_module_path)
 
-def print_config(cfg):
+def print_config(cfg,hide_password=True):
 	"""Returns a string representing the config of this ShutIt run.
 	"""
 	s = ''
@@ -530,7 +530,7 @@ def print_config(cfg):
 		for item in cfg['config_parser'].items(section):
 			name = str(item[0])
 			value = str(item[1])
-			if name == 'password':
+			if name == 'password' and hide_password:
 				value = 'XXX'
 			s = s + name + ':' + value
 			s = s + '\n'
