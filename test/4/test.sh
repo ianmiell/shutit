@@ -9,19 +9,6 @@
 #THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 set -e
-if [[ ./create_skeleton.sh != test.sh ]] && [[ ./create_skeleton.sh != ./test.sh ]] && [[ ./create_skeleton.sh != create_skeleton.sh ]] && [[ ./create_skeleton.sh != ./create_skeleton.sh ]]
-then
-        echo
-        echo "Called as: ./create_skeleton.sh"
-	echo "Must be run from test dir like:"
-        echo
-        echo "  test.sh <path_to_shutit_dir>"
-        echo
-        echo "or"
-        echo
-        echo "  ./test.sh <path_to_shutit_dir>"
-        exit
-fi
 if [ x$1 = 'x' ]
 then
 	echo "Must supply path to shutit directory"
@@ -31,13 +18,4 @@ fi
 CNAME=shutit_test_container_$(dd if=/dev/urandom bs=256 count=1 2>/dev/null | md5sum | awk '{print $1}')
 export SHUTIT_OPTIONS="-s container name $CNAME"
 
-cd ..
-./build.sh
-if [[ 0 -eq 0 ]]
-then
-	cd -
-	exit 0
-else
-	cd -
-	exit 1
-fi
+python ${1}/shutit_main.py || exit 1
