@@ -25,8 +25,7 @@ Do it yourself:
 ---------------
 
 ```
-cd bin
-./create_skeleton.sh <new_directory (absolute path)> <new module name>
+./shutit skeleton <new directory> <new module name> <user domain>
 ```
 
 and follow instructions.
@@ -149,9 +148,7 @@ scope is for the user to decide, but it's best that each module doesn't get too
 large.
 
 Within each module directory the following directories are placed as part of
-```
-create_skeleton.sh
-```
+`./shutit skeleton`.
 
 - test
     - should contain ```test_`hostname`.sh``` executables which exit with a 
@@ -192,7 +189,7 @@ Tests
 Run 
 
 ```
-pushd bin
+pushd test
 ./test.sh
 popd
 ```
