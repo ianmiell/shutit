@@ -20,6 +20,10 @@ Videos:
 - [Building a win2048 container](https://www.youtube.com/watch?v=Wagof_wnRRY) cf: [Blog](http://zwischenzugs.wordpress.com/2014/05/09/docker-shutit-and-the-perfect-2048-game/)
 
 
+Docs:
+-----
+- [Walkthrough](http://ianmiell.github.io/shutit/)
+
 
 Do it yourself:
 ---------------
