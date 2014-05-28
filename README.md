@@ -20,6 +20,10 @@ Videos:
 - [Building a win2048 container](https://www.youtube.com/watch?v=Wagof_wnRRY) cf: [Blog](http://zwischenzugs.wordpress.com/2014/05/09/docker-shutit-and-the-perfect-2048-game/)
 
 
+Docs:
+-----
+- [Walkthrough](http://ianmiell.github.io/shutit/)
+
 
 Do it yourself:
 ---------------
@@ -189,21 +193,15 @@ Tests
 Run 
 
 ```
-pushd test
 ./test.sh
-popd
 ```
 
 Dependencies
 --------------
-- python 2.7+ (or you can install the various python libraries required)
+- python 2.7+
+- See [here](https://gist.github.com/ianmiell/947ff3fabc44ace617c6) for a minimal build.
 
 
-TODO
-----
-- Improve configuration automation (eg auto-building of required modules)
-- Orchestration of containers
-- Improve visualization of dependencies
 
 Known Issues
 --------------
