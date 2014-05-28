@@ -34,9 +34,9 @@ do
 		# Set up a random container name for tests to use
 		if [[ x$SHUTIT_PARALLEL_BUILD = 'x' ]]
 		then
-			./test.sh "`pwd`/.."
+			./test.sh "`pwd`/../.."
 		else
-			./test.sh "`pwd`/.." &
+			./test.sh "`pwd`/../.." &
 			PIDS="$PIDS $!"
 		fi
 	popd
