@@ -24,7 +24,7 @@
 source ../test/shared_test_utils.sh
 
 PIDS=""
-for d in d*
+for d in *
 do
 	cleanup
 	set_shutit_options
