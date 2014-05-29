@@ -738,14 +738,10 @@ def init():
 	cfg['users']                = {}
 
 	# If no LOGNAME available,
-	username = os.environ.get('LOGNAME','')
-	if username == '':
+	cfg['host']['username'] = os.environ.get('LOGNAME','')
+	if cfg['host']['username'] == '':
 		util.fail('LOGNAME not set in the environment, please set to your username.')
-	# TODO: Do we still need this?
-	#if username == 'root':
-	#	util.fail('You cannot be root to run this script')
-	# Get the real username
-	cfg['host']['real_user'] = os.environ.get('SUDO_USER', username)
+	cfg['host']['real_user'] = os.environ.get('SUDO_USER', cfg['host']['username'])
 	cfg['build']['build_id'] = socket.gethostname() + '_' + cfg['host']['real_user'] + '_' + str(time.time())
 
 	return ShutIt(

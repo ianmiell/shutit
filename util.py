@@ -132,7 +132,6 @@ def get_base_config(cfg, cfg_parser):
 	cfg['host']['resources_dir']                  = cp.get('host','resources_dir')
 	cfg['host']['docker_executable']              = cp.get('host','docker_executable')
 	cfg['host']['dns']                            = cp.get('host','dns')
-	cfg['host']['username']                       = cp.get('host','username')
 	cfg['host']['password']                       = cp.get('host','password')
 	cfg['host']['logfile']                        = cp.get('host','logfile')
 	cfg['repository']['name']                     = cp.get('repository','name')
@@ -176,9 +175,6 @@ def get_base_config(cfg, cfg_parser):
 	warn = ''
 	if cfg['container']['password'][:5] == 'YOUR_':
 		warn = '# Found ' + cfg['container']['password'] + ' in your config, you may want to quit and override, eg put the following into your\n# ' + shutit_global.cwd + '/configs/' + socket.gethostname() + '_' + cfg['host']['real_user'] + '.cnf file (create if necessary):\n\n[container]\n#root password for the container\npassword:mycontainerpassword\n\n'
-		issue_warning(warn,2)
-	if cfg['host']['username'][:5] == 'YOUR_':
-		warn = '# Found ' + cfg['host']['username'] + ' in your config, you may want to quit and override, eg put the following into your\n# ' + shutit_global.cwd + '/configs/' + socket.gethostname() + '_' + cfg['host']['real_user'] + '.cnf file: (create if necessary)\n\n[host]\n#your "real" username\nusername:myusername\n\n'
 		issue_warning(warn,2)
 	if cfg['host']['password'][:5] == 'YOUR_':
 		warn = '# Found ' + cfg['host']['password'] + ' in your config, you may want to quit and override, eg put the following into your\n# ' + shutit_global.cwd + '/configs/' + socket.gethostname() + '_' + cfg['host']['real_user'] + '.cnf file: (create if necessary)\n\n[host]\n#your "real" password on your host machine\npassword:mypassword\n\n'
