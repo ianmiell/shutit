@@ -19,8 +19,6 @@
 #OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 #SOFTWARE.
 
-set -x
-
 TESTS=$1
 
 source test/shared_test_utils.sh
