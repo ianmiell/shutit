@@ -49,10 +49,7 @@ resources_dir:
 docker_executable:sudo docker.io
 # space separated list of dns servers to use
 dns:
-# Your host machine username and password - replace with your chosen names
-username:YOUR_USERNAME
-# Password for the username above on the host
-# If left blank, you will be prompted for a password
+# Password for the username above on the host (only needed if sudo is needed)
 password:YOUR_PASSWORD
 # Log file - will be set to 0600 perms, and defaults to /tmp/<YOUR_USERNAME>_shutit_log_<timestamp>
 # A timestamp will be added to the end of the filename.
