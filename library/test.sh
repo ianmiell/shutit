@@ -32,12 +32,17 @@ do
 	then
 		pushd $d
 		# Set up a random container name for tests to use
-		if [[ x$SHUTIT_PARALLEL_BUILD = 'x' ]]
+		if [[ -a $d/STOP ]]
 		then
-			./test.sh "`pwd`/../.."
+			echo "Skipping $d"
 		else
-			./test.sh "`pwd`/../.." &
-			PIDS="$PIDS $!"
+			if [[ x$SHUTIT_PARALLEL_BUILD = 'x' ]]
+			then
+				./test.sh "`pwd`/../.."
+			else
+				./test.sh "`pwd`/../.." &
+				PIDS="$PIDS $!"
+			fi
 		fi
 	popd
 	fi
