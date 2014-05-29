@@ -24,7 +24,7 @@
 source ../test/shared_test_utils.sh
 
 PIDS=""
-for d in *
+for d in d*
 do
 	cleanup
 	set_shutit_options
@@ -32,7 +32,7 @@ do
 	then
 		pushd $d
 		# Set up a random container name for tests to use
-		if [[ -a $d/STOP ]]
+		if [[ -a STOP ]]
 		then
 			echo "Skipping $d"
 		else
