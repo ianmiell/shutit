@@ -19,6 +19,8 @@
 #OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 #SOFTWARE.
 
+set -x
+
 TESTS=$1
 
 source test/shared_test_utils.sh
@@ -57,8 +59,8 @@ cleanup nothard
 echo "Testing skeleton build"
 ./shutit skeleton ${NEWDIR} testing shutit.tk ${SHUTIT_DIR}/docs/example.sh
 pushd ${NEWDIR}
-touch ${SHUTIT_DIR}/test/configs/$(hostname)_$(whoami).cnf
-chmod 0600 ${SHUTIT_DIR}/test/configs/$(hostname)_$(whoami).cnf
+touch ${NEWDIR}/configs/$(hostname)_$(whoami).cnf
+chmod 0600 ${NEWDIR}/configs/$(hostname)_$(whoami).cnf
 ./test.sh ${SHUTIT_DIR} || failure "1.0 ${NEWDIR}"
 cleanup nothard
 rm -rf ${NEWDIR}
