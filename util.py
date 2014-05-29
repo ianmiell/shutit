@@ -41,7 +41,7 @@ import textwrap
 import tempfile
 import json
 import binascii
-import uuid
+import base64
 import subprocess
 import getpass
 from shutit_module import ShutItFailException
@@ -588,7 +588,7 @@ def load_mod_from_file(shutit, fpath):
 	if shutit.cfg['build']['debug']:
 		log('Loading source for: ' + fpath)
 
-	mod_name = str(uuid.uuid4()).replace('-', '_')
+	mod_name = base64.b32encode(fpath).replace('=', '')
 	pymod = imp.load_source(mod_name, fpath)
 
 	# Got the python module, now time to pull the shutit module(s) out of it.
@@ -604,6 +604,7 @@ def load_mod_from_file(shutit, fpath):
 		if type(modules) is not list:
 			modules = [modules]
 		for module in modules:
+			setattr(module, '__module_file', fpath)
 			ShutItModule.register(module.__class__)
 			target.add(module)
 
