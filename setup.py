@@ -154,13 +154,14 @@ class conn_docker(ShutItModule):
 			] if arg != ''
 		]
 		if cfg['build']['interactive'] >= 2:
-			shutit.pause_point('\n\nAbout to start container. ' +
+			print('\n\nAbout to start container. ' +
 				'Ports mapped will be: ' + ', '.join(port_args) +
 				' (from\n\n[host]\nports:<value>\n\nconfig, building on the ' +
 				'configurable base image passed in in:\n\n\t--image <image>\n' +
 				'\nor config:\n\n\t[container]\n\tdocker_image:<image>)\n\nBase' +
 				'image in this case is:\n\n\t' + cfg['container']['docker_image'] +
-				'\n\n',child=None,print_input=False)
+				'\n\n')
+			raw_input('')
 		shutit.log('\n\nCommand being run is:\n\n' + ' '.join(docker_command),force_stdout=True,prefix=False)
 		shutit.log('\n\nThis may download the image, please be patient\n\n',force_stdout=True,prefix=False)
 		container_child = pexpect.spawn(docker_command[0], docker_command[1:])

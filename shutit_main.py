@@ -62,7 +62,8 @@ def stop_all(shutit, run_order=-1):
 	cfg = shutit.cfg
 	shutit_map = shutit.shutit_map
 	if cfg['build']['interactive'] >= 2:
-		shutit.pause_point('\nRunning stop on all modules',print_input=False)
+		print('\nRunning stop on all modules')
+		raw_input('')
 	# sort them to it's stopped in reverse order)
 	for mid in module_ids(shutit, rev=True):
 		shutit_module_obj = shutit_map[mid]
@@ -80,7 +81,8 @@ def start_all(shutit, run_order=-1):
 	cfg = shutit.cfg
 	shutit_map = shutit.shutit_map
 	if cfg['build']['interactive'] >= 2:
-		shutit.pause_point('\nRunning start on all modules',print_input=False)
+		print('\nRunning start on all modules')
+		raw_input('')
 	# sort them to they're started in order)
 	for mid in module_ids(shutit):
 		shutit_module_obj = shutit_map[mid]
@@ -116,13 +118,12 @@ def init_shutit_map(shutit):
 
 	shutit.log('PHASE: base setup',code='31')
 	if cfg['build']['interactive'] >= 2:
-		shutit.pause_point('\nChecking to see whether there are duplicate module ids or run orders in the visible modules.',
-			print_input=False)
+		print('\nChecking to see whether there are duplicate module ids or run orders in the visible modules.')
 		shutit.log('\nModules I see are:\n',force_stdout=True)
 		for m in modules:
 			shutit.log(m.module_id,force_stdout=True,code='31')
 		shutit.log('\n',force_stdout=True)
-		shutit.pause_point('',print_input=False)
+		raw_input('')
 
 	run_orders = {}
 	has_core_module = False
@@ -169,8 +170,9 @@ def conn_container(shutit):
 	assert len(shutit.conn_modules) == 1
 	# Set up the container in pexpect.
 	if shutit.cfg['build']['interactive'] >= 2:
-		shutit.pause_point('\nRunning the conn module (' +
-			shutit.shutit_main_dir + '/setup.py)', print_input=False)
+		print('\nRunning the conn module (' +
+			shutit.shutit_main_dir + '/setup.py)')
+		raw_input('')
 	list(shutit.conn_modules)[0].build(shutit)
 
 def finalize_container(shutit):
@@ -399,7 +401,8 @@ def do_build(shutit):
 	shutit.log('PHASE: build, cleanup, repository work',code='31')
 	shutit.log(util.print_config(shutit.cfg))
 	if cfg['build']['interactive'] >= 2:
-		shutit.pause_point('\nNow building any modules that need building',print_input=False)
+		print '\nNow building any modules that need building' + util.colour('31','\n[Hit return to continue]')
+		raw_input('')
 	for mid in module_ids(shutit):
 		module = shutit_map[mid]
 		shutit.log('considering whether to build: ' + module.module_id,code='31')
@@ -421,7 +424,8 @@ def do_test(shutit):
 	# Test in reverse order
 	shutit.log('PHASE: test',code='31')
 	if cfg['build']['interactive'] >= 2:
-		shutit.pause_point('\nNow doing test phase',print_input=False)
+		print '\nNow doing test phase' + util.colour('31','\n[Hit return to continue]')
+		raw_input('')
 	stop_all(shutit)
 	start_all(shutit)
 	for mid in module_ids(shutit, rev=True):
@@ -438,12 +442,14 @@ def do_finalize(shutit):
 	shutit_map = shutit.shutit_map
 	# Stop all the modules
 	if cfg['build']['interactive'] == 2:
-		shutit.pause_point('\nStopping all modules before finalize phase',print_input=False)
+		print('\nStopping all modules before finalize phase')
+		raw_input('')
 	stop_all(shutit)
 	# Finalize in reverse order
 	shutit.log('PHASE: finalize',code='31')
 	if cfg['build']['interactive'] >= 2:
-		shutit.pause_point('\nNow doing finalize phase, which we do when all builds are complete and modules are stopped',print_input=False)
+		print('\nNow doing finalize phase, which we do when all builds are complete and modules are stopped')
+		raw_input('')
 	for mid in module_ids(shutit, rev=True):
 		# Only finalize if it's thought to be installed.
 		if is_built(shutit,shutit_map[mid]):
@@ -519,7 +525,7 @@ def shutit_main():
 		shutit.fail("Encountered some errors, quitting", child=child)
 
 	# Dependency validation done.
-
+	print 'aasd'
 	do_remove(shutit)
 	do_build(shutit)
 	do_test(shutit)
