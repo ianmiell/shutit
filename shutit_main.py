@@ -62,7 +62,7 @@ def stop_all(shutit, run_order=-1):
 	cfg = shutit.cfg
 	shutit_map = shutit.shutit_map
 	if cfg['build']['interactive'] >= 2:
-		print('\nRunning stop on all modules' + colour('31','\n[Hit return to continue]'))
+		print('\nRunning stop on all modules' + util.colour('31','\n[Hit return to continue]'))
 		raw_input('')
 	# sort them to it's stopped in reverse order)
 	for mid in module_ids(shutit, rev=True):
@@ -81,7 +81,7 @@ def start_all(shutit, run_order=-1):
 	cfg = shutit.cfg
 	shutit_map = shutit.shutit_map
 	if cfg['build']['interactive'] >= 2:
-		print('\nRunning start on all modules' + colour('31','\n[Hit return to continue]'))
+		print('\nRunning start on all modules' + util.colour('31','\n[Hit return to continue]'))
 		raw_input('')
 	# sort them to they're started in order)
 	for mid in module_ids(shutit):
@@ -123,7 +123,7 @@ def init_shutit_map(shutit):
 		for m in modules:
 			shutit.log(m.module_id,force_stdout=True,code='31')
 		shutit.log('\n',force_stdout=True)
-		print(colour('31','[Hit return to continue]'))
+		print(util.colour('31','[Hit return to continue]'))
 		raw_input('')
 
 	run_orders = {}
@@ -172,7 +172,7 @@ def conn_container(shutit):
 	# Set up the container in pexpect.
 	if shutit.cfg['build']['interactive'] >= 2:
 		print('\nRunning the conn module (' +
-			shutit.shutit_main_dir + '/setup.py)' + colour('31','\n[Hit return to continue]'))
+			shutit.shutit_main_dir + '/setup.py)' + util.colour('31','\n[Hit return to continue]'))
 		raw_input('')
 	list(shutit.conn_modules)[0].build(shutit)
 
@@ -443,13 +443,13 @@ def do_finalize(shutit):
 	shutit_map = shutit.shutit_map
 	# Stop all the modules
 	if cfg['build']['interactive'] == 2:
-		print('\nStopping all modules before finalize phase' + colour('31','\n[Hit return to continue]'))
+		print('\nStopping all modules before finalize phase' + util.colour('31','\n[Hit return to continue]'))
 		raw_input('')
 	stop_all(shutit)
 	# Finalize in reverse order
 	shutit.log('PHASE: finalize',code='31')
 	if cfg['build']['interactive'] >= 2:
-		print('\nNow doing finalize phase, which we do when all builds are complete and modules are stopped' + colour('31','\n[Hit return to continue]'))
+		print('\nNow doing finalize phase, which we do when all builds are complete and modules are stopped' + util.colour('31','\n[Hit return to continue]'))
 		raw_input('')
 	for mid in module_ids(shutit, rev=True):
 		# Only finalize if it's thought to be installed.
