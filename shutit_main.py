@@ -525,7 +525,6 @@ def shutit_main():
 		shutit.fail("Encountered some errors, quitting", child=child)
 
 	# Dependency validation done.
-	print 'aasd'
 	do_remove(shutit)
 	do_build(shutit)
 	do_test(shutit)
