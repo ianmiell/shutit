@@ -375,8 +375,6 @@ def parse_args(cfg):
 			\t\t""" + str(cfg['host']['shutit_module_paths']) + """
 			""" + shutit_global.shutit_main_dir + """/configs/`hostname`_`whoami`.cnf
 			    - Host- and username-specific config for this host.
-			/path/to/shutit/module/configs/`hostname`_`whoami`.cnf
-			    - Hostname-specific config for the running user for this module.
 			/path/to/this/shutit/module/configs/build.cnf
 			    - Config specifying what should be built when this module is invoked.
 			/your/path/to/<configname>.cnf
@@ -459,8 +457,6 @@ def load_configs(shutit):
 	# Add the shutit global host- and user-specific config file.
 	configs.append(os.path.join(shutit.shutit_main_dir,
 		'configs/' + socket.gethostname() + '_' + cfg['host']['real_user'] + '.cnf'))
-	# Then local host- and user-specific config file in this module.
-	configs.append('configs/' + socket.gethostname() + '_' + cfg['host']['real_user'] + '.cnf')
 	# Add the local build.cnf
 	configs.append('configs/build.cnf')
 	# Get passed-in config(s)
@@ -673,8 +669,6 @@ def create_skeleton(shutit):
 	defaultscnf_path = os.path.join(skel_path, 'configs', 'defaults.cnf')
 	buildcnf_path = os.path.join(skel_path, 'configs', 'build.cnf')
 	pushcnf_path = os.path.join(skel_path, 'configs', 'push.cnf')
-	hostcnf_path = os.path.join(skel_path, 'configs',
-		socket.gethostname() + '_' + shutit.cfg['host']['real_user'] + '.cnf')
 
 	templatemodule = open(
 		os.path.join(shutit_dir, 'docs', 'shutit_module_template.py')).read()
@@ -774,36 +768,6 @@ def create_skeleton(shutit):
 	pw_host = getpass.getpass('Password (for host %s): ' % socket.gethostname())
 	container_hostname = raw_input('Container\'s hostname: ')
 	pw_container = getpass.getpass('Password (for container): ')
-	hostcnf = textwrap.dedent('''\
-		# Put hostname- and user-specific config in this file.
-		# This file must always have perms 0600 for shutit to run.
-
-		[container]
-		# The container you create will have this password for root.
-		password:''' + pw_container +'''
-		# The container you create will have this hostname during the build.
-		hostname:''' + container_hostname +'''
-		# Whether to remove the container when finished.
-		rm:no
-
-		[host]
-		# Your username on the host
-		username:''' + shutit.cfg['host']['real_user'] + '''
-		# Your password on the host (set to empty if not required, ie "password:")
-		password:''' + pw_host + '''
-
-		[repository]
-		do_repository_work:no
-		# If switched on, will push to docker_io
-		push:no
-		server:
-		#Must be set if do_repository_work is true/yes and user is not blank
-		password:YOUR_REGISTRY_PASSWORD_OR_BLANK
-		#Must be set if do_repository_work is true/yes and user is not blank
-		email:YOUR_REGISTRY_EMAIL_OR_BLANK
-		# Whether to push to the server
-		name:''' + skel_module_name + '''
-		''')
 
 	open(templatemodule_path, 'w').write(templatemodule)
 	open(readme_path, 'w').write(readme)
@@ -821,8 +785,6 @@ def create_skeleton(shutit):
 	os.chmod(buildcnf_path, 0600)
 	open(pushcnf_path, 'w').write(pushcnf)
 	os.chmod(pushcnf_path, 0600)
-	open(hostcnf_path, 'w').write(hostcnf)
-	os.chmod(hostcnf_path, 0600)
 
 	if skel_script is not None:
 		print textwrap.dedent('''\
