@@ -57,8 +57,6 @@ cleanup nothard
 echo "Testing skeleton build"
 ./shutit skeleton ${NEWDIR} testing shutit.tk ${SHUTIT_DIR}/docs/example.sh
 pushd ${NEWDIR}
-touch ${NEWDIR}/configs/$(hostname)_$(whoami).cnf
-chmod 0600 ${NEWDIR}/configs/$(hostname)_$(whoami).cnf
 ./test.sh ${SHUTIT_DIR} || failure "1.0 ${NEWDIR}"
 cleanup nothard
 rm -rf ${NEWDIR}
@@ -76,8 +74,6 @@ do
 	else
 		echo "PWD: $(pwd)"
 		# Just in case only just git cloned/updated
-		touch configs/$(hostname)_$(whoami).cnf
-		chmod 0600 configs/$(hostname)_$(whoami).cnf
 		if [ x$SHUTIT_PARALLEL_BUILD = 'x' ]
 		then
 			./test.sh ${SHUTIT_DIR}
