@@ -38,4 +38,4 @@ export SHUTIT_OPTIONS="-s container name $CNAME"
 #        exit 1
 #fi
 
-${1}/shutit build --image_tag debian --shutit_module_path .. || exit 1
+${1}/shutit build --image_tag debian:6.0.9 --shutit_module_path .. || exit 1
