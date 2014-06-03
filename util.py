@@ -796,7 +796,7 @@ def create_skeleton(shutit):
 		do_repository_work:no
 		# If switched on, will push to docker_io
 		push:no
-		repository_server:
+		server:
 		#Must be set if do_repository_work is true/yes and user is not blank
 		password:YOUR_REGISTRY_PASSWORD_OR_BLANK
 		#Must be set if do_repository_work is true/yes and user is not blank
