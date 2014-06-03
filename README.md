@@ -172,7 +172,6 @@ These config files are also created, defaulted, and automatically sourced:
 ```
 configs/defaults.cnf               - 
 configs/build.cnf                  - 
-configs/`hostname`_`whoami`.cnf    - 
 ```
 
 And these files are also automatically created:
