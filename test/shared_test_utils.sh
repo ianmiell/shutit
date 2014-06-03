@@ -1,6 +1,6 @@
 #!/bin/bash
 
-[ "x$DOCKER" != "x" ] || DOCKER="sudo docker"
+[ "x$DOCKER" != "x" ] || DOCKER="sudo docker.io"
 [ "x$TESTS" != "x" ] || TEST="basic"
 
 # Off for now
