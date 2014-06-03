@@ -37,6 +37,7 @@ class apache_proxypass(ShutItModule):
 		shutit.install('wget')
 		shutit.install('vim')
 		shutit.send_and_expect('a2enmod proxy_http')
+		shutit.send_and_expect('a2enmod proxy_html')
 		shutit.send_and_expect('service apache2 restart')
 		return True
 
@@ -57,7 +58,7 @@ class apache_proxypass(ShutItModule):
 
 def module():
 	return apache_proxypass(
-		'shutit.tk.apache_proxypass.apache_proxypass', 0.400,
+		'shutit.tk.apache_proxypass.apache_proxypass', 0.310,
 		depends=['shutit.tk.setup']
 	)
 
