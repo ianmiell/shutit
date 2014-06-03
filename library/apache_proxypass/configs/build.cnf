@@ -11,5 +11,5 @@ build:yes
 allowed_images:["any"]
 
 [repository]
-name:apache_reverse_proxy
+name:apache_proxypass
 
