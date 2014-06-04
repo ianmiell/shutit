@@ -46,7 +46,7 @@ rm:no
 # If set to "resources", then defaults to the resources folder in the cwd.
 resources_dir:
 # Docker executable on your host machine
-docker_executable:sudo docker.io
+docker_executable:docker.io
 # space separated list of dns servers to use
 dns:
 # Password for the username above on the host (only needed if sudo is needed)
