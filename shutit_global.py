@@ -618,6 +618,7 @@ class ShutIt(object):
 		send = docker_executable + ' push ' + repository
 		expect_list = ['Username','Password','Email',expect]
 		timeout=99999
+		self.log('Running: ' + send,force_stdout=True,prefix=False)
 		res = self.send_and_expect(send,expect=expect_list,child=child,timeout=timeout,check_exit=False,fail_on_empty_before=False)
 		while True:
 			if res == 3:

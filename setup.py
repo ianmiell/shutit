@@ -65,6 +65,7 @@ class conn_docker(ShutItModule):
 		check_cmd = docker + ['--version']
 		str_cmd = ' '.join(check_cmd)
 		try:
+			shutit.log('Running: ' + str_cmd,force_stdout=True,prefix=False)
 			child = pexpect.spawn(check_cmd[0], check_cmd[1:], timeout=1)
 		except pexpect.ExceptionPexpect:
 			shutit.fail('Cannot run check on "' + str_cmd + '", is the docker ' +
@@ -158,9 +159,9 @@ class conn_docker(ShutItModule):
 				'Ports mapped will be: ' + ', '.join(port_args) +
 				' (from\n\n[host]\nports:<value>\n\nconfig, building on the ' +
 				'configurable base image passed in in:\n\n\t--image <image>\n' +
-				'\nor config:\n\n\t[container]\n\tdocker_image:<image>)\n\nBase' +
+				'\nor config:\n\n\t[container]\n\tdocker_image:<image>)\n\nBase ' +
 				'image in this case is:\n\n\t' + cfg['container']['docker_image'] +
-				'\n\n')
+				'\n\n' + util.colour('31','[Hit return to continue]'))
 			raw_input('')
 		shutit.log('\n\nCommand being run is:\n\n' + ' '.join(docker_command),force_stdout=True,prefix=False)
 		shutit.log('\n\nThis may download the image, please be patient\n\n',force_stdout=True,prefix=False)
