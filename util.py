@@ -747,6 +747,8 @@ def create_skeleton(shutit):
 		# "any" is a special value meaning any image is ok, and is the default.
 		# It's recommended this is locked down as far as possible.
 		allowed_images:["any"]
+		[repository]
+		name:''' + skel_module_name + '''
 		''')
 	pushcnf = textwrap.dedent('''\
 		[repository]
