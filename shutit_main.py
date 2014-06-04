@@ -118,13 +118,11 @@ def init_shutit_map(shutit):
 
 	shutit.log('PHASE: base setup',code='31')
 	if cfg['build']['interactive'] >= 2:
-		print('\nChecking to see whether there are duplicate module ids or run orders in the visible modules.')
+		shutit.log('\nChecking to see whether there are duplicate module ids or run orders in the visible modules.',force_stdout=True)
 		shutit.log('\nModules I see are:\n',force_stdout=True)
 		for m in modules:
 			shutit.log(m.module_id,force_stdout=True,code='31')
 		shutit.log('\n',force_stdout=True)
-		print(util.colour('31','[Hit return to continue]'))
-		raw_input('')
 
 	run_orders = {}
 	has_core_module = False
@@ -141,6 +139,10 @@ def init_shutit_map(shutit):
 
 	if not has_core_module:
 		shutit.fail('No module with run_order=0 specified! This is required.')
+
+	if cfg['build']['interactive'] >= 2:
+		print(util.colour('31','Module id and run order checks OK\n[Hit return to continue]'))
+		raw_input('')
 
 def config_collection(shutit):
 	"""Collect core config from config files for all seen modules.
@@ -504,6 +506,8 @@ def shutit_main():
 
 	errs = []
 	errs.extend(check_deps(shutit))
+	if cfg['build']['interactive'] >= 2:
+		shutit.log('OK',force_stdout=True)
 	# Show dependency graph
 	if cfg['action']['show_depgraph']:
 		digraph = 'digraph depgraph {\n'
@@ -515,7 +519,11 @@ def shutit_main():
 		shutit.log(digraph,force_stdout=True)
 		return
 	errs.extend(check_conflicts(shutit))
+	if cfg['build']['interactive'] >= 2:
+		shutit.log('OK',force_stdout=True)
 	errs.extend(check_ready(shutit))
+	if cfg['build']['interactive'] >= 2:
+		shutit.log('OK',force_stdout=True)
 	if errs:
 		shutit.log(print_modules(shutit),code='31')
 		child = None

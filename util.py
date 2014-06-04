@@ -269,7 +269,7 @@ def parse_args(cfg):
 
 	sub_parsers['skeleton'].add_argument('path', help='absolute path to new directory for module')
 	sub_parsers['skeleton'].add_argument('module_name', help='name for your module')
-	sub_parsers['skeleton'].add_argument('domain', help='arbitrary but unique domain for namespacing your module')
+	sub_parsers['skeleton'].add_argument('domain', help='arbitrary but unique domain for namespacing your module, eg com.mycorp')
 	sub_parsers['skeleton'].add_argument('script', help='pre-existing shell script to integrate into module (optional)', nargs='?', default=None)
 
 	for action in ['build','serve','depgraph','sc']:
@@ -654,6 +654,8 @@ def create_skeleton(shutit):
 		fail(skel_path + ' already exists')
 	if len(skel_module_name) == 0:
 		fail('Must supply a name for your module, eg mymodulename')
+	if not re.match('^[a-zA-z_][0-9a-zA-Z_]+$',skel_module_name):
+		fail('Module names must comply with python classname standards: cf: http://stackoverflow.com/questions/10120295/valid-characters-in-a-python-class-name')
 	if len(skel_domain) == 0:
 		fail('Must supply a domain for your module, eg com.yourname.madeupdomainsuffix')
 
@@ -794,10 +796,7 @@ def create_skeleton(shutit):
 			should be a simple set of one-liners
 			that return to the prompt. Anything fancy with ifs, backslashes or other
 			multi-line commands need to be handled more carefully.
-			================================================================================
-			Hit return to continue.
 			================================================================================''')
-		raw_input()
 
 		# egrep removes leading space
 		# grep removes comments
