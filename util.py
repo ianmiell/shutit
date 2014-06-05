@@ -81,7 +81,7 @@ def get_config(cfg,module_id,option,default,boolean=False):
 	else:
 		cfg[module_id][option] = default
 
-def get_configs(configs):
+def get_configs(shutit,configs):
 	"""Reads config files in, checking their security first
 	(in case passwords/sensitive info is in them).
 	"""
@@ -93,13 +93,13 @@ def get_configs(configs):
 			fail_str = fail_str + '\nchmod 0600 ' + config_file
 			files.append(config_file)
 	if fail_str != '':
-		fail_str = 'Files are not secure, mode should be 0600. Run the following commands to correct:\n' + fail_str + '\n'
+		fail_str = 'Files are not secure, mode should be 0600. Running the following commands to correct:\n' + fail_str + '\n'
 		# Actually show this to the user before failing...
-		print fail_str
-		if raw_input('\n\nDo you want me to run this for you? (input y/n)\n') == 'y':
+		shutit.log(fail_str,force_stdout=True)
+		if shutit.cfg['action']['serve'] or raw_input('\n\nDo you want me to run this for you? (input y/n)\n') == 'y':
 			for f in files:
 				os.chmod(f,0600)
-			return get_configs(configs)
+			return get_configs(shutit,configs)
 		fail(fail_str)
 	read_files = cp.read(configs)
 	return cp
@@ -500,7 +500,7 @@ def load_configs(shutit):
 		os.close(fd)
 		configs.append(name)
 
-	cfg_parser = get_configs(configs)
+	cfg_parser = get_configs(shutit,configs)
 	get_base_config(cfg, cfg_parser)
 
 def load_shutit_modules(shutit):
@@ -681,6 +681,11 @@ def create_skeleton(shutit):
 	)
 	readme = skel_module_name + ': description of module directory in here'
 	buildsh = textwrap.dedent('''\
+		if [[ x$2 != 'x' ]]
+		then
+			echo "build.sh takes exactly one argument at most"
+			exit 1
+		exit
 		[ -z "$SHUTIT" ] && SHUTIT="$1/shutit"
 		[ -z "$SHUTIT" ] && SHUTIT="$(which shutit)"
 		# Fall back to trying directory of shutit when module was first created
@@ -697,6 +702,8 @@ def create_skeleton(shutit):
 		#$SHUTIT sc
 		# Debug
 		#$SHUTIT build --debug
+		# Interactive build
+		#$SHUTIT build --interactive 1
 		# Tutorial
 		#$SHUTIT build --interactive 2
 		''')
@@ -758,8 +765,8 @@ def create_skeleton(shutit):
 		password:YOUR_REGISTRY_PASSWORD_OR_BLANK
 		# Fill these out in server- and username-specific config (also in this directory)
 		email:YOUR_REGISTRY_EMAIL_OR_BLANK
-		push:yes
-		tar:no
+		push:no
+		tar:yes
 		#server:REMOVE_ME_FOR_DOCKER_INDEX
 		name:''' + skel_module_name + '''
 		suffix_date:yes
