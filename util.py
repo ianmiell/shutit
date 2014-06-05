@@ -122,6 +122,7 @@ def get_base_config(cfg, cfg_parser):
 	cfg['build']['lxc_conf']                      = cp.get('build','lxc_conf')
 	cfg['build']['build_log']                     = cp.getboolean('build','build_log')
 	cfg['build']['allowed_images']                = json.loads(cp.get('build','allowed_images'))
+	cfg['build']['base_image']                    = cp.get('build','base_image')
 	cfg['container']['password']                  = cp.get('container','password')
 	cfg['container']['hostname']                  = cp.get('container','hostname')
 	cfg['container']['force_repo_work']           = cp.getboolean('container','force_repo_work')
@@ -168,6 +169,8 @@ def get_base_config(cfg, cfg_parser):
 		cfg['build']['build_log'] = open(logfile,'a')
 		# Lock it down to the running user.
 		os.chmod(logfile,0600)
+	if cfg['container']['docker_image'] == '':
+		cfg['container']['docker_image'] = cfg['build']['base_image']
 	# END tidy configs up
 
 	# BEGIN warnings
@@ -275,7 +278,7 @@ def parse_args(cfg):
 	for action in ['build','serve','depgraph','sc']:
 		sub_parsers[action].add_argument('--config', help='Config file for setup config. Must be with perms 0600. Multiple arguments allowed; config files considered in order.',default=[], action='append')
 		sub_parsers[action].add_argument('-s', '--set', help='Override a config item, e.g. "-s container rm no". Can be specified multiple times.', default=[], action='append', nargs=3, metavar=('SEC','KEY','VAL'))
-		sub_parsers[action].add_argument('--image_tag', help='Build container using specified image - if there is a symbolic reference, please use that, eg localhost.localdomain:5000/myref',default=cfg['container']['docker_image_default'])
+		sub_parsers[action].add_argument('--image_tag', help='Build container using specified image - if there is a symbolic reference, please use that, eg localhost.localdomain:5000/myref',default='')
 		sub_parsers[action].add_argument('-m','--shutit_module_path', default='.',help='List of shutit module paths, separated by colons. ShutIt registers modules by running all .py files in these directories.')
 		sub_parsers[action].add_argument('--pause',help='Pause between commands to avoid race conditions.',default='0.05',type=check_pause)
 		sub_parsers[action].add_argument('--debug',help='Show debug.',default=False,const=True,action='store_const')
@@ -685,7 +688,7 @@ def create_skeleton(shutit):
 		then
 			echo "build.sh takes exactly one argument at most"
 			exit 1
-		exit
+		fi
 		[ -z "$SHUTIT" ] && SHUTIT="$1/shutit"
 		[ -z "$SHUTIT" ] && SHUTIT="$(which shutit)"
 		# Fall back to trying directory of shutit when module was first created
@@ -724,7 +727,7 @@ def create_skeleton(shutit):
 			echo "  ./test.sh <path_to_shutit_dir>"
 			exit
 		fi
-		export SHUTIT_OPTIONS="$SHUTIT_OPTIONS -s container rm yes"
+		export SHUTIT_OPTIONS="$SHUTIT_OPTIONS"
 		./build.sh $1
 		''')
 	runsh = textwrap.dedent('''\
