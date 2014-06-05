@@ -732,7 +732,6 @@ def init():
 	cfg['build']['build_log']   = None
 	cfg['build']['report']      = ''
 	cfg['container']            = {}
-	cfg['container']['docker_image_default'] = 'ubuntu:12.04' # Statically set up here as needed before general config setup made.
 	cfg['host']                 = {}
 	cfg['repository']           = {}
 	cfg['expect_prompts']       = {}
