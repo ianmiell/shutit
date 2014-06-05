@@ -643,7 +643,7 @@ class ShutIt(object):
 
 		if user and repo_name:
 			repository = '%s/%s' % (user, repo_name)
-			repository_tar = '%s_%s' % (user, repo_name)
+			repository_tar = '%s%s' % (user, repo_name)
 		elif user:
 			repository = repository_tar = user
 		elif repo_name:
@@ -661,8 +661,8 @@ class ShutIt(object):
 
 		if cfg['repository']['suffix_date']:
 			suffix_date = time.strftime(cfg['repository']['suffix_format'])
-			repository = '%s_%s' % (repository, suffix_date)
-			repository_tar = '%s_%s' % (repository_tar, suffix_date)
+			repository = '%s%s' % (repository, suffix_date)
+			repository_tar = '%s%s' % (repository_tar, suffix_date)
 
 		if server == '' and len(repository) > 30:
 			shutit.fail("""repository name: '""" + repository + """' too long. If using suffix_date consider shortening""")
