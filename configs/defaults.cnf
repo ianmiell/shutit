@@ -105,4 +105,6 @@ lxc_conf:
 # It's recommended this is locked down as far as possible.
 # NB each image must be in double quotes.
 allowed_images:["any"]
+# Base image can be over-ridden by --image_tag defaults to this.
+base_image:ubuntu:12.10
 
