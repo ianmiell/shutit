@@ -52,7 +52,7 @@ var StatusIndicator = React.createClass({
 		else if (this.props.buildStarted) { color = "purple"; text = "building"; }
 		else if (this.props.loading) { color = "yellow"; text = "loading"; }
 		else if (this.props.resetting) { color = 'blue'; text = 'resetting'; }
-		else { color = 'transparent'; text = '...idle...'; }
+		else { color = 'transparent'; text = '...awaiting input...'; }
 		var style = { backgroundColor: color }
 		return <div id="statusBar" style={style}>{text.toUpperCase()}</div>;
 	}
@@ -215,6 +215,8 @@ var InfoDisplay = React.createClass({
 	render: function () {
 		return (
 			<div id="infoDisplay">
+				<div><span><small><a href="https://github.com/ianmiell/shutit/">GitHub</a></small></span></div>
+				<div><span><small><a href="http://ianmiell.github.io/shutit/">ShutIt Docs</a></small></span></div>
 				<div><span><small>Container ID: {this.props.cid}</small></span></div>
 				<br />
 				<input type="checkbox"
