@@ -106,5 +106,5 @@ lxc_conf:
 # NB each image must be in double quotes.
 allowed_images:["any"]
 # Base image can be over-ridden by --image_tag defaults to this.
-base_image:ubuntu:12.10
+base_image:ubuntu:12.04
 
