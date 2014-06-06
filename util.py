@@ -138,11 +138,11 @@ def get_base_config(cfg, cfg_parser):
 	cfg['repository']['name']                     = cp.get('repository','name')
 	cfg['repository']['server']                   = cp.get('repository','server')
 	cfg['repository']['push']                     = cp.getboolean('repository','push')
-	cfg['repository']['tar']                      = cp.getboolean('repository','tar')
-	cfg['repository']['do_repository_work']       = cp.getboolean('repository','do_repository_work')
+	cfg['repository']['tag']                      = cp.getboolean('repository','tag')
+	cfg['repository']['export']                   = cp.getboolean('repository','export')
+	cfg['repository']['save']                     = cp.getboolean('repository','save')
 	cfg['repository']['suffix_date']              = cp.getboolean('repository','suffix_date')
 	cfg['repository']['suffix_format']            = cp.get('repository','suffix_format')
-	# We need this here as it's referenced even when do_repository_work is False.
 	cfg['repository']['user']                     = cp.get('repository','user')
 	cfg['repository']['password']                 = cp.get('repository','password')
 	cfg['repository']['email']                    = cp.get('repository','email')
@@ -187,9 +187,9 @@ def get_base_config(cfg, cfg_parser):
 	#	fail('Failed due to above warnings - please correct and retry')
 	# END warnings
 	# FAILS begins
-	# rm is incompatible with do_repository_work
-	if cfg['container']['rm'] and cfg['repository']['do_repository_work']:
-		fail("Can't have [container]/rm and [repository]/do_repository_work set to true")
+	# rm is incompatible with repository actions
+	if cfg['container']['rm'] and (cfg['repository']['push'] or cfg['repository']['save'] or cfg['repository']['export']):
+		fail("Can't have [container]/rm and [repository]/(push/save/export) set to true")
 	if warn != '':
 		issue_warning('Showing computed config. This can also be done by calling with sc:',2)
 		log(print_config(cfg),force_stdout=True,code='31')
@@ -275,6 +275,10 @@ def parse_args(cfg):
 	sub_parsers['skeleton'].add_argument('domain', help='arbitrary but unique domain for namespacing your module, eg com.mycorp')
 	sub_parsers['skeleton'].add_argument('script', help='pre-existing shell script to integrate into module (optional)', nargs='?', default=None)
 
+	sub_parsers['build'].add_argument('--export', help='export to a tar file', const=True, default=False, action='store_const')
+	sub_parsers['build'].add_argument('--save', help='save to a tar file', const=True, default=False, action='store_const')
+	sub_parsers['build'].add_argument('--push', help='push to a repo', const=True, default=False, action='store_const')
+
 	for action in ['build','serve','depgraph','sc']:
 		sub_parsers[action].add_argument('--config', help='Config file for setup config. Must be with perms 0600. Multiple arguments allowed; config files considered in order.',default=[], action='append')
 		sub_parsers[action].add_argument('-s', '--set', help='Override a config item, e.g. "-s container rm no". Can be specified multiple times.', default=[], action='append', nargs=3, metavar=('SEC','KEY','VAL'))
@@ -331,6 +335,14 @@ def parse_args(cfg):
 			'script': args.script
 		}
 		return
+
+	# Persistence-related arguments.
+	if args.push:
+		cfg['repository']['push'] = True
+	if args.export:
+		cfg['repository']['export'] = True
+	if args.save:
+		cfg['repository']['save'] = True
 
 	# Get these early for this part of the build.
 	# These should never be config arguments, since they are needed before config is passed in.
@@ -762,14 +774,15 @@ def create_skeleton(shutit):
 		''')
 	pushcnf = textwrap.dedent('''\
 		[repository]
-		do_repository_work:yes
 		user:YOUR_USERNAME
 		# Fill these out in server- and username-specific config (also in this directory)
 		password:YOUR_REGISTRY_PASSWORD_OR_BLANK
 		# Fill these out in server- and username-specific config (also in this directory)
 		email:YOUR_REGISTRY_EMAIL_OR_BLANK
+		tag:no
 		push:no
-		tar:yes
+		save:no
+		export:no
 		#server:REMOVE_ME_FOR_DOCKER_INDEX
 		name:''' + skel_module_name + '''
 		suffix_date:yes
