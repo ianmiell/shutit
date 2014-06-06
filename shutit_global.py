@@ -451,8 +451,14 @@ class ShutIt(object):
 			print util.colour('31','\n\n[Hit return to continue]\n')
 			raw_input('')
 
+	def get_output(self,child=None):
+		"""Helper function to get latest output."""
+		child = child or self.get_default_child()
+		return child.before
+
+
 	def get_re_from_child(self, string, regexp):
-		"""Get regular expression from any of the lines passed in in string
+		"""Get regular expression from the first of the lines passed in in string that matched.
 		Returns None if none of the lines matched.
 		"""
 		cfg = self.cfg
@@ -471,7 +477,7 @@ class ShutIt(object):
 				return match.group(1)
 		return None
 
-	def get_output(self,send,expect=None,child=None):
+	def send_and_get_output(self,send,expect=None,child=None):
 		"""Returns the output of a command run.
 		"""
 		child = child or self.get_default_child()
