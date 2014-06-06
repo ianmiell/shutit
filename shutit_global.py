@@ -641,17 +641,22 @@ class ShutIt(object):
 		"""
 		expect = expect or self.get_default_expect()
 		cfg = self.cfg
-		if not cfg['repository']['do_repository_work']:
+		tag    = cfg['repository']['tag']
+		push   = cfg['repository']['push']
+		export = cfg['repository']['export']
+		save   = cfg['repository']['save']
+		if not (push or export or save or tag):
 			return
-		child = self.pexpect_children['host_child']
-		server = cfg['repository']['server']
-		user = cfg['repository']['user']
 
-		if user and repo_name:
-			repository = '%s/%s' % (user, repo_name)
-			repository_tar = '%s%s' % (user, repo_name)
-		elif user:
-			repository = repository_tar = user
+		child  = self.pexpect_children['host_child']
+		server = cfg['repository']['server']
+		repo_user   = cfg['repository']['user']
+
+		if repo_user and repo_name:
+			repository = '%s/%s' % (repo_user, repo_name)
+			repository_tar = '%s%s' % (repo_user, repo_name)
+		elif repo_user:
+			repository = repository_tar = repo_user
 		elif repo_name:
 			repository = repository_tar = repo_name
 		else:
@@ -659,7 +664,7 @@ class ShutIt(object):
 
 		if not repository:
 			shutit.fail('Could not form valid repository name')
-		if cfg['repository']['tar'] and not repository_tar:
+		if (export or save) and not repository_tar:
 			shutit.fail('Could not form valid tar name')
 
 		if server:
@@ -673,34 +678,39 @@ class ShutIt(object):
 		if server == '' and len(repository) > 30:
 			shutit.fail("""repository name: '""" + repository + """' too long. If using suffix_date consider shortening""")
 
+		# Commit image
 		# Only lower case accepted
 		repository = repository.lower()
-		# Slight pause due to race conditions seen.
-		#time.sleep(0.3)
-		res = self.send_and_expect('SHUTIT_TMP_VAR=`' + docker_executable + ' commit ' + cfg['container']['container_id'] + '`',expect=[expect,'assword'],child=child,timeout=99999,check_exit=False)
-		if res == 1:
+		if self.send_and_expect('SHUTIT_TMP_VAR=`' + docker_executable + ' commit ' + cfg['container']['container_id'] + '`',expect=[expect,'assword'],child=child,timeout=99999,check_exit=False) == 1:
 			self.send_and_expect(cfg['host']['password'],expect=expect,check_exit=False,record_command=False,child=child)
 		self.send_and_expect('echo $SHUTIT_TMP_VAR && unset SHUTIT_TMP_VAR',expect=expect,check_exit=False,child=child)
-		self.log(child.before)
-		self.log(child.after)
 		image_id = child.before.split('\r\n')[1]
 		if not image_id:
 			shutit.fail('failed to commit to ' + repository + ', could not determine image id')
 
+		# Tag image
 		cmd = docker_executable + ' tag ' + image_id + ' ' + repository
 		self.send_and_expect(cmd,child=child,expect=expect,check_exit=False)
-		if cfg['repository']['tar']:
+		if export or save:
 			if cfg['build']['interactive'] >= 2:
 				self.pause_point('We are now exporting the container to a bzipped tar file, as configured in \n[repository]\ntar:yes',print_input=False,child=child)
-			bzfile = cfg['host']['resources_dir'] + '/' + repository_tar + '.tar.bz2'
 			self.log('\nDepositing bzip2 of exported container into ' + bzfile)
-			res = self.send_and_expect(docker_executable + ' export ' + cfg['container']['container_id'] + ' | bzip2 - > ' + bzfile,expect=[expect,'assword'],timeout=99999,child=child)
-			self.log('\nDeposited bzip2 of exported container into ' + bzfile,code='31')
-			self.log('\nRun:\n\nbunzip2 -c ' + bzfile + ' | sudo docker import -\n\nto get this imported into docker.',code='31')
-			cfg['build']['report'] = cfg['build']['report'] + '\nDeposited bzip2 of exported container into ' + bzfile
-			cfg['build']['report'] = cfg['build']['report'] + '\nRun:\n\nbunzip2 -c ' + bzfile + ' | sudo docker import -\n\nto get this imported into docker.'
-			if res == 1:
-				self.send_and_expect(password,expect=expect,child=child)
+			if export:
+				bzfile = cfg['host']['resources_dir'] + '/' + repository_tar + 'export.tar.bz2'
+				if self.send_and_expect(docker_executable + ' export ' + cfg['container']['container_id'] + ' | bzip2 - > ' + bzfile,expect=[expect,'assword'],timeout=99999,child=child) == 1:
+					self.send_and_expect(password,expect=expect,child=child)
+				self.log('\nDeposited bzip2 of exported container into ' + bzfile,code='31')
+				self.log('\nRun:\n\nbunzip2 -c ' + bzfile + ' | sudo docker import -\n\nto get this imported into docker.',code='31')
+				cfg['build']['report'] = cfg['build']['report'] + '\nDeposited bzip2 of exported container into ' + bzfile
+				cfg['build']['report'] = cfg['build']['report'] + '\nRun:\n\nbunzip2 -c ' + bzfile + ' | sudo docker import -\n\nto get this imported into docker.'
+			if save:
+				bzfile = cfg['host']['resources_dir'] + '/' + repository_tar + 'save.tar.bz2'
+				if self.send_and_expect(docker_executable + ' save ' + cfg['container']['container_id'] + ' | bzip2 - > ' + bzfile,expect=[expect,'assword'],timeout=99999,child=child) == 1:
+					self.send_and_expect(password,expect=expect,child=child)
+				self.log('\nDeposited bzip2 of exported container into ' + bzfile,code='31')
+				self.log('\nRun:\n\nbunzip2 -c ' + bzfile + ' | sudo docker import -\n\nto get this imported into docker.',code='31')
+				cfg['build']['report'] = cfg['build']['report'] + '\nDeposited bzip2 of exported container into ' + bzfile
+				cfg['build']['report'] = cfg['build']['report'] + '\nRun:\n\nbunzip2 -c ' + bzfile + ' | sudo docker import -\n\nto get this imported into docker.'
 		if cfg['repository']['push'] == True:
 			# Pass the child explicitly as it's the host child.
 			self.push_repository(repository,docker_executable=docker_executable,expect=expect,child=child)
