@@ -27,7 +27,6 @@ PIDS=""
 for d in *
 do
 	cleanup
-	set_shutit_options
 	if [[ -a $d/test.sh ]]
 	then
 		pushd $d
@@ -36,6 +35,8 @@ do
 		then
 			echo "Skipping $d"
 		else
+			# Must be done on each iteration as we ned a fresh cid per test run
+			set_shutit_options
 			if [[ x$SHUTIT_PARALLEL_BUILD = 'x' ]]
 			then
 				./test.sh "`pwd`/../.."

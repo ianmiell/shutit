@@ -3,8 +3,10 @@
 [ "x$DOCKER" != "x" ] || DOCKER="docker.io"
 [ "x$TESTS" != "x" ] || TEST="basic"
 
+find . | grep cnf$ | xargs chmod 0600
+
 # Off for now
-SHUTIT_PARALLEL_BUILD=
+SHUTIT_PARALLEL_BUILD=$1
 readonly SHUTIT_PARALLEL_BUILD
 
 set -o errexit
