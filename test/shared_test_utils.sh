@@ -14,7 +14,7 @@ set -o nounset
 function set_shutit_options() {
 	local CNAME
 	CNAME=shutit_test_container_$(dd if=/dev/urandom bs=256 count=1 2>/dev/null | md5sum | awk '{print $1}')
-	export SHUTIT_OPTIONS="-s container name $CNAME"
+	export SHUTIT_OPTIONS="-s container name $CNAME -s container rm yes -s repository do_repository_work no"
 }
 
 function cleanup() {
