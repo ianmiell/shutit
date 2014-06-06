@@ -431,12 +431,12 @@ class ShutIt(object):
 
 
 
-	def pause_point(self,msg,child=None,print_input=True,expect=''):
+	def pause_point(self,msg,child=None,print_input=True,expect='',force=False):
 		"""Inserts a pause in the build session which allows the user to try things out before continuing.
 		"""
 		child = child or self.get_default_child()
 		cfg = self.cfg
-		if not cfg['build']['interactive']:
+		if not cfg['build']['interactive'] and not force:
 			return
 		# Sleep to try and make this the last thing we see before the prompt (not always the case)
 		if child and print_input:
