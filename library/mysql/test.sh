@@ -37,5 +37,5 @@ then
         echo "  ./test.sh <path_to_shutit_dir>"
         exit
 fi
-export SHUTIT_OPTIONS="$SHUTIT_OPTIONS -s container rm yes"
+export SHUTIT_OPTIONS="$SHUTIT_OPTIONS"
 ./build.sh $1
