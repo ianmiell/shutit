@@ -250,9 +250,10 @@ def parse_args(cfg):
 		except:
 			pass
 	# COMPAT 2014-05-15 - build is the default if there is no action specified
-	# and we've not asked for help
+	# and we've not asked for help and we've called via 'shutit_main.py'
 	if len(sys.argv) == 1 or (len(sys.argv) > 1 and sys.argv[1] not in actions
-			and '-h' not in sys.argv and '--help' not in sys.argv):
+			and '-h' not in sys.argv and '--help' not in sys.argv
+			and os.path.basename(sys.argv[0]) == 'shutit_main.py'):
 		sys.argv.insert(1, 'build')
 
 	# Pexpect documentation says systems have issues with pauses < 0.05
@@ -337,12 +338,13 @@ def parse_args(cfg):
 		return
 
 	# Persistence-related arguments.
-	if args.push:
-		cfg['repository']['push'] = True
-	if args.export:
-		cfg['repository']['export'] = True
-	if args.save:
-		cfg['repository']['save'] = True
+	if cfg['action']['build']:
+		if args.push:
+			cfg['repository']['push'] = True
+		if args.export:
+			cfg['repository']['export'] = True
+		if args.save:
+			cfg['repository']['save'] = True
 
 	# Get these early for this part of the build.
 	# These should never be config arguments, since they are needed before config is passed in.
