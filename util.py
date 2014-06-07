@@ -169,7 +169,7 @@ def colour(code, msg):
 	"""Colourize the given string for a terminal.
 	"""
 	return '\033[%sm%s\033[0m' % (code, msg)
-	
+
 
 def get_config(cfg,module_id,option,default,boolean=False):
 	"""Gets a specific config from the config parser object,
@@ -497,7 +497,7 @@ def parse_args(cfg):
 			================================================================================
 			The config files are read in the following order:
 			================================================================================
-			""" + shutit_global.shutit_main_dir + """/configs/defaults.cnf
+			<internal defaults>
 			    - Core shutit defaults. Maintained by BDFL.
 			/path/to/shutit/module/configs/defaults.cnf
 			    - Maintained by the module path directory's maintainer. Do not edit these
