@@ -337,12 +337,13 @@ def parse_args(cfg):
 		return
 
 	# Persistence-related arguments.
-	if args.push:
-		cfg['repository']['push'] = True
-	if args.export:
-		cfg['repository']['export'] = True
-	if args.save:
-		cfg['repository']['save'] = True
+	if cfg['action']['build']:
+		if args.push:
+			cfg['repository']['push'] = True
+		if args.export:
+			cfg['repository']['export'] = True
+		if args.save:
+			cfg['repository']['save'] = True
 
 	# Get these early for this part of the build.
 	# These should never be config arguments, since they are needed before config is passed in.
