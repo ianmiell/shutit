@@ -104,7 +104,6 @@ class ShutItModule(object):
 	- Determine conflict requirements are met.
 	    - Remove any modules that are configured for removal.
 	    - Build if not installed
-	    - Cleanup if not installed
 	    - Do repo work if not installed (commit, tag, push)
 	    - Test all modules (in reverse)
 	    - Finalize all modules
@@ -233,13 +232,6 @@ class ShutItModule(object):
 		Required.
 		"""
 		pass
-
-	def cleanup(self,shutit):
-		"""Cleans up the module, ie clear up stuff not needed for the rest of the build, eg tar files removed, apt-get cleans.
-		Returns True if all is OK, else False.
-		Note that this is only run if the build phase was actually run.
-		"""
-		return True
 
 	def test(self,shutit):
 		"""Tests the module is OK.
