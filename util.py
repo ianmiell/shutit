@@ -968,16 +968,6 @@ def install(child,cfg,package,expect,options=None,timeout=3600):
 		child=child,expect=expect,options=options,timeout=timeout)
 
 # Deprecated
-def remove(child,cfg,package,expect,options=None):
-	"""Deprecated. Do not use.
-	"""
-	if cfg not in [None,shutit_global.shutit.cfg]:
-		print "Report this error and stack trace to repo owner, #d104"
-		assert False
-	return shutit_global.shutit.remove(package,
-		child=child,expect=expect,options=options)
-
-# Deprecated
 def handle_login(child,cfg,prompt_name):
 	"""Deprecated. Do not use.
 	"""
