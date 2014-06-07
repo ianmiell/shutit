@@ -861,12 +861,6 @@ def create_skeleton(shutit):
 	================================================================================''')
 
 # Deprecated
-def fail(msg,child=None):
-	"""Deprecated. Do not use.
-	"""
-	return shutit_global.shutit.fail(msg, child=child)
-
-# Deprecated
 def log(msg,code=None,pause=0,cfg=None,prefix=True,force_stdout=False):
 	"""Deprecated. Do not use.
 	"""
