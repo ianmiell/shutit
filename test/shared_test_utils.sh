@@ -3,6 +3,7 @@
 [ "x$DOCKER" != "x" ] || DOCKER="docker.io"
 [ "x$TESTS" != "x" ] || TEST="basic"
 
+# TODO: do this in this directory and up two/shutit*
 find . | grep cnf$ | xargs chmod 0600
 
 # Off for now
