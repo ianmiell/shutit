@@ -415,7 +415,6 @@ def parse_args(cfg):
 			        remove all modules config'd for removal
 			    foreach module:
 			        build
-			        cleanup
 			        tag
 			            stop all modules already started
 			            do repository work configured
