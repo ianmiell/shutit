@@ -922,27 +922,6 @@ def add_line_to_file(child,line,filename,expect,match_regexp=None,truncate=False
 		literal=literal)
 
 # Deprecated
-def get_re_from_child(string,regexp,cfg=None):
-	"""Deprecated. Do not use.
-	"""
-	return shutit_global.shutit.get_re_from_child(string, regexp)
-
-# Deprecated
-def push_repository(child,repository,cfg,docker_executable,expect):
-	"""Deprecated. Do not use.
-	"""
-	if cfg not in [None,shutit_global.shutit.cfg]:
-		print "Report this error and stack trace to repo owner, #d109"
-		assert False
-	return shutit_global.shutit.push_repository(repository,docker_executable,child=child,expect=expect)
-
-# Deprecated
-def add_to_bashrc(child,line,expect):
-	"""Deprecated. Do not use.
-	"""
-	return shutit_global.shutit.add_line_to_file(line,'/etc/profile',expect=expect) and shutit_global.shutit.add_line_to_file(line,'/etc/bash.bashrc',expect=expect)
-
-# Deprecated
 def module_exists(module_id):
 	"""Deprecated. Do not use.
 	"""
@@ -956,16 +935,6 @@ def get_shutit_modules():
 	"""Deprecated. Do not use.
 	"""
 	return shutit_global.shutit_modules
-
-# Deprecated
-def install(child,cfg,package,expect,options=None,timeout=3600):
-	"""Deprecated. Do not use.
-	"""
-	if cfg not in [None,shutit_global.shutit.cfg]:
-		print "Report this error and stack trace to repo owner, #d103"
-		assert False
-	return shutit_global.shutit.install(package,
-		child=child,expect=expect,options=options,timeout=timeout)
 
 # Deprecated
 def handle_login(child,cfg,prompt_name):
