@@ -163,7 +163,7 @@ var ConfigSection = React.createClass({
 		var elts = [],
 			keys = Object.keys(this.props.cfgs),
 			expanded = this.state.expanded,
-			advanced = ['build','remove','do_repository_work','build_ifneeded'];
+			advanced = ['build','remove','build_ifneeded'];
 		keys.sort();
 		keys.map((function (key) {
 			if (!this.props.advanced && advanced.indexOf(key) > -1) { return; }
