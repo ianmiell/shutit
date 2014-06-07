@@ -375,9 +375,6 @@ def build_module(shutit, module):
 		shutit.fail(module.module_id + ' failed on build',child=shutit.get_pexpect_children['container_child'])
 	if cfg['build']['interactive'] >= 1:
 		shutit.pause_point('\nPausing to allow inspect of build for: ' + module.module_id,print_input=True)
-	if not module.cleanup(shutit):
-		shutit.log('cleaning up: ' + module.module_id + ' with run order: ' + str(module.run_order),code='31')
-		shutit.fail(module.module_id + ' failed on cleanup',child=shutit.pexpect_children['container_child'])
 	cfg['build']['report'] = cfg['build']['report'] + '\nCompleted module: ' + module.module_id
 	if cfg[module.module_id]['do_repository_work'] or cfg['build']['interactive'] >= 1:
 		shutit.log(util.build_report('Module:' + module.module_id),code='31')
@@ -401,7 +398,7 @@ def do_build(shutit):
 	"""
 	cfg = shutit.cfg
 	shutit_map = shutit.shutit_map
-	shutit.log('PHASE: build, cleanup, repository work',code='31')
+	shutit.log('PHASE: build, repository work',code='31')
 	shutit.log(util.print_config(shutit.cfg))
 	if cfg['build']['interactive'] >= 2:
 		print '\nNow building any modules that need building' + util.colour('31','\n[Hit return to continue]')
