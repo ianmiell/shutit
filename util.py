@@ -188,7 +188,7 @@ def get_base_config(cfg, cfg_parser):
 	# END warnings
 	# FAILS begins
 	# rm is incompatible with repository actions
-	if cfg['container']['rm'] and (cfg['repository']['push'] or cfg['repository']['save'] or cfg['repository']['export']):
+	if cfg['container']['rm'] and (cfg['repository']['tag'] or cfg['repository']['push'] or cfg['repository']['save'] or cfg['repository']['export']):
 		fail("Can't have [container]/rm and [repository]/(push/save/export) set to true")
 	if warn != '':
 		issue_warning('Showing computed config. This can also be done by calling with sc:',2)
