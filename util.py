@@ -978,24 +978,6 @@ def remove(child,cfg,package,expect,options=None):
 		child=child,expect=expect,options=options)
 
 # Deprecated
-def package_installed(child,cfg,package,expect):
-	"""Deprecated. Do not use.
-	"""
-	if cfg not in [None,shutit_global.shutit.cfg]:
-		print "Report this error and stack trace to repo owner, #d105"
-		assert False
-	return shutit_global.shutit.package_installed(package,expect,child)
-
-# Deprecated
-def set_password(child,cfg,expect,password):
-	"""Deprecated. Do not use.
-	"""
-	if cfg not in [None,shutit_global.shutit.cfg]:
-		print "Report this error and stack trace to repo owner, #d107"
-		assert False
-	return shutit_global.shutit.set_password(password,child=child,expect=expect)
-
-# Deprecated
 def handle_login(child,cfg,prompt_name):
 	"""Deprecated. Do not use.
 	"""
