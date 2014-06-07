@@ -476,7 +476,7 @@ def shutit_main():
 	"""
 	if sys.version_info.major == 2:
 		if sys.version_info.minor < 7:
-			util.fail('Python version must be 2.7+')
+			shutit_global.shutit.fail('Python version must be 2.7+')
 	shutit = shutit_global.shutit
 	cfg = shutit.cfg
 
