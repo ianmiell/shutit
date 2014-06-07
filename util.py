@@ -1007,9 +1007,3 @@ def handle_revert_prompt(child,expect,prompt_name):
 	"""
 	shutit_global.shutit.handle_revert_prompt(expect,prompt_name,child=child)
 
-# Deprecated
-def is_user_id_available(child,user_id,expect):
-	"""Deprecated. Do not use.
-	"""
-	return shutit_global.shutit.is_user_id_available(user_id,expect=expect,child=child)
-
