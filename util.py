@@ -196,6 +196,8 @@ def get_configs(shutit,configs):
 	fail_str = ''
 	files    = []
 	for config_file in configs:
+		if type(config_file) is tuple:
+			continue
 		if not is_file_secure(config_file):
 			fail_str = fail_str + '\nchmod 0600 ' + config_file
 			files.append(config_file)
@@ -213,7 +215,7 @@ def get_configs(shutit,configs):
 		if type(config) is tuple:
 			cp.readfp(config[1])
 		else:
-			cp.read(configs)
+			cp.read(config)
 	return cp
 
 def issue_warning(msg,wait):
