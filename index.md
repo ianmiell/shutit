@@ -65,8 +65,8 @@ An example folder structure:
 
 The default module contains examples of many common tasks when installing, e.g.
 
- - install               - installs packages based on distro ('passwd' install in shutit_module.py)
- - password handling     - automate the inputting of passwords (changing 'password' in shutit_module.py)
+ - install               - installs packages based on distro ('passwd' install in skeleton --example above)
+ - password handling     - automate the inputting of passwords (changing 'password' in skeleton --example above)
  - config to set up apps - allows you to specify build parameters
  - add line to file      - incrementally construct files
  - send file             - or send them in one shot
