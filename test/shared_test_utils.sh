@@ -3,8 +3,11 @@
 [ "x$DOCKER" != "x" ] || DOCKER="docker.io"
 [ "x$TESTS" != "x" ] || TEST="basic"
 
+# TODO: do this in this directory and up two/shutit*
+find . | grep cnf$ | xargs chmod 0600
+
 # Off for now
-SHUTIT_PARALLEL_BUILD=
+SHUTIT_PARALLEL_BUILD=$1
 readonly SHUTIT_PARALLEL_BUILD
 
 set -o errexit
@@ -14,7 +17,7 @@ set -o nounset
 function set_shutit_options() {
 	local CNAME
 	CNAME=shutit_test_container_$(dd if=/dev/urandom bs=256 count=1 2>/dev/null | md5sum | awk '{print $1}')
-	export SHUTIT_OPTIONS="-s container name $CNAME -s container rm yes -s repository do_repository_work no"
+	export SHUTIT_OPTIONS="-s container name $CNAME"
 }
 
 function cleanup() {

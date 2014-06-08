@@ -36,11 +36,6 @@ class phantomjs(ShutItModule):
 		shutit.send_and_expect('bunzip2 phantomjs-1.9.0-linux-x86_64.tar.bz2')
 		shutit.send_and_expect('tar -xvf phantomjs-1.9.0-linux-x86_64.tar')
 		shutit.send_and_expect('ln -s phantomjs-1.9.0-linux-x86_64 phantomjs')
-		shutit.send_and_expect('popd')
-		return True
-
-	def cleanup(self,shutit):
-		shutit.send_and_expect('pushd /opt')
 		shutit.send_and_expect('rm phantomjs-*.tar')
 		shutit.send_and_expect('popd')
 		return True

@@ -432,12 +432,12 @@ class ShutIt(object):
 
 
 
-	def pause_point(self,msg,child=None,print_input=True,expect=''):
+	def pause_point(self,msg,child=None,print_input=True,expect='',force=False):
 		"""Inserts a pause in the build session which allows the user to try things out before continuing.
 		"""
 		child = child or self.get_default_child()
 		cfg = self.cfg
-		if not cfg['build']['interactive']:
+		if not cfg['build']['interactive'] and not force:
 			return
 		# Sleep to try and make this the last thing we see before the prompt (not always the case)
 		if child and print_input:
@@ -757,7 +757,7 @@ def init():
 	# If no LOGNAME available,
 	cfg['host']['username'] = os.environ.get('LOGNAME','')
 	if cfg['host']['username'] == '':
-		util.fail('LOGNAME not set in the environment, please set to your username.')
+		shutit_global.shutit.fail('LOGNAME not set in the environment, please set to your username.')
 	cfg['host']['real_user'] = os.environ.get('SUDO_USER', cfg['host']['username'])
 	cfg['build']['build_id'] = socket.gethostname() + '_' + cfg['host']['real_user'] + '_' + str(time.time())
 
