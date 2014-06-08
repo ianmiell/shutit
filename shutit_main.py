@@ -383,8 +383,8 @@ def build_module(shutit, module):
 		shutit.log(util.build_report('Module:' + module.module_id),code='31')
 	if not cfg[module.module_id]['do_repository_work'] and cfg['build']['interactive'] >= 1:
 		cfg[module.module_id]['do_repository_work'] = (
-			raw_input('\n\nDo you want to save state now we\'re at the end of this ' +
-				'module? (' + module.module_id + ') (in  put y/n)\n' ) == 'y')
+			shutit.log("\n\nDo you want to save state now we\'re at the end of this module? (" + module.module_id + ") (input y/n")
+			raw_input('') == 'y')
 	if cfg[module.module_id]['do_repository_work']:
 		shutit.log(module.module_id + ' configured to be tagged, doing repository work')
 		# Stop all before we tag to avoid file changing errors, and clean up pid files etc..
@@ -393,7 +393,8 @@ def build_module(shutit, module):
 		# Start all after we tag to ensure services are up as expected.
 		start_all(shutit, module.run_order)
 	if (cfg['build']['interactive'] >= 1 and
-			raw_input('\n\nDo you want to stop interactive mode? (input y/n)\n' ) == 'y'):
+			shutit.log("\n\nDo you want to stop interactive mode? (input y/n)\n")
+			raw_input('' ) == 'y'):
 		cfg['build']['interactive'] = 0
 
 def do_build(shutit):
