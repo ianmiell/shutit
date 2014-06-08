@@ -795,7 +795,7 @@ def create_skeleton(shutit):
 		''')
 
 	pw_host = getpass.getpass('Password (for host %s): ' % socket.gethostname())
-	shutit.log("Container's hostname: ",force_stdout=True)
+	print "Container's hostname: "
 	container_hostname = raw_input('')
 	pw_container = getpass.getpass('Password (for container): ')
 
