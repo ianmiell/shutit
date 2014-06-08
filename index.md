@@ -30,32 +30,32 @@ Join us!
 
 ### Step 1: Get the source ###
 ```sh
-git clone https://github.com/ianmiell/shutit
+git clone https://github.com/ianmiell/shutit.git
 ```
 
 ### Step 2: Create a new module ###
 
 ```sh
 cd shutit
-./shutit skeleton --example /home/username/shutit_modules/shutit_module shutit_module com.mycorpdomain
-cd /home/username/shutit_modules/shutit_module
+./shutit skeleton --example $HOME/shutit_modules/my_module my_module my.domain.com
+cd $HOME/shutit_modules/my_module
 ```
 
 Folder structure:
 
- - **/bin** - scripts for this module *(see example below)*
  - **/configs** - config for your module *(see example below)*
  - **/resources** - files needed that are too big for source control *(see example below)*
 
 An example folder structure:
 
 ```
-./shutit_module
+./my_module
 ├── build.sh
 ├── build_and_push.sh
 ├── configs
 │   ├── build.cnf
 │   └── defaults.cnf
+├── my_module.py
 ├── README.md
 ├── run.sh
 └── test.sh
@@ -65,13 +65,13 @@ An example folder structure:
 
 The default module contains examples of many common tasks when installing, e.g.
 
- - shutit.install                             - installs packages based on distro (eg 'passwd' install in shutit_module.py)
- - password handling                          - automate the inputting of passwords (eg 'passwd' install in shutit_module.py)
- - config to set up apps                      - (eg 'passwd' install in shutit_module.py)
- - add line to file                           - automate the input-ing of passwords
- - shutit.pause_point                         - to allow you to stop during a build and inspect before continuing
- - handle logins/logouts                      - to make for safer automated interactions with eg unexpected prompts
- - pull resources in and out of the container - for objects too big for source control
+ - install               - installs packages based on distro ('passwd' install in shutit_module.py)
+ - password handling     - automate the inputting of passwords (changing 'password' in shutit_module.py)
+ - config to set up apps - allows you to specify build parameters
+ - add line to file      - incrementally construct files
+ - send file             - or send them in one shot
+ - pause_point           - allow you to stop during a build and inspect before continuing
+ - handle logins/logouts - to make for safer automated interactions with eg unexpected prompts
 
 It also gives a simple example of each part of the build lifecycle. **Add a package to install to shutit_module.py**
 
@@ -87,19 +87,19 @@ shutit.install('your chosen package here')
 
 **Running the module requires that in your shutit_module.py, shutit_module(string,float) is set:**
 
- - **string** is a python string that is not likely to clash, eg **'com.mydomain.mysubmodule.myref'** (including quotes)
+ - **string** is a python string that is not likely to clash, eg **'my.domain.com.myref'** (including quotes)
  - **float** is a unique decimal value that is not clashing with any other modules, and defines the order in which they are built
 
 **Change the above and save the file**
 
 ```sh
-$ grep -rnwl com.mycorp.shutit_module *
+$ grep -rnwl my.domain.com *
 configs/build.cnf
 configs/defaults.cnf
 [...]
 ```
 
-**Replace references to com.mycorp.shutit_module with your chosen string in the above files**
+**Replace references to my.domain.com with your chosen string in the above files**
 
 ### Step 4: Build your module ###
 
@@ -135,6 +135,12 @@ to:
 
 ```python
 depends=['shutit.tk.setup','shutit.tk.mysql.mysql']
+```
+
+And change the **build.sh** to include the module in the path
+
+```sh
+/path/to/shutit build -m /path/to/shutit/library/mysql
 ```
 
 Rebuild and re-run to get the same container with mysql installed.
