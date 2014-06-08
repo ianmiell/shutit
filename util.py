@@ -96,7 +96,8 @@ def get_configs(shutit,configs):
 		fail_str = 'Files are not secure, mode should be 0600. Running the following commands to correct:\n' + fail_str + '\n'
 		# Actually show this to the user before failing...
 		shutit.log(fail_str,force_stdout=True)
-		if shutit.cfg['action']['serve'] or raw_input('\n\nDo you want me to run this for you? (input y/n)\n') == 'y':
+		shutit.log('\n\nDo you want me to run this for you? (input y/n)\n',force_stdout=True)
+		if shutit.cfg['action']['serve'] or raw_input('') == 'y':
 			for f in files:
 				os.chmod(f,0600)
 			return get_configs(shutit,configs)
@@ -794,7 +795,8 @@ def create_skeleton(shutit):
 		''')
 
 	pw_host = getpass.getpass('Password (for host %s): ' % socket.gethostname())
-	container_hostname = raw_input('Container\'s hostname: ')
+	print "Container's hostname: "
+	container_hostname = raw_input('')
 	pw_container = getpass.getpass('Password (for container): ')
 
 	open(templatemodule_path, 'w').write(templatemodule)
@@ -861,12 +863,6 @@ def create_skeleton(shutit):
 	================================================================================''')
 
 # Deprecated
-def fail(msg,child=None):
-	"""Deprecated. Do not use.
-	"""
-	return shutit_global.shutit.fail(msg, child=child)
-
-# Deprecated
 def log(msg,code=None,pause=0,cfg=None,prefix=True,force_stdout=False):
 	"""Deprecated. Do not use.
 	"""
@@ -928,27 +924,6 @@ def add_line_to_file(child,line,filename,expect,match_regexp=None,truncate=False
 		literal=literal)
 
 # Deprecated
-def get_re_from_child(string,regexp,cfg=None):
-	"""Deprecated. Do not use.
-	"""
-	return shutit_global.shutit.get_re_from_child(string, regexp)
-
-# Deprecated
-def push_repository(child,repository,cfg,docker_executable,expect):
-	"""Deprecated. Do not use.
-	"""
-	if cfg not in [None,shutit_global.shutit.cfg]:
-		print "Report this error and stack trace to repo owner, #d109"
-		assert False
-	return shutit_global.shutit.push_repository(repository,docker_executable,child=child,expect=expect)
-
-# Deprecated
-def add_to_bashrc(child,line,expect):
-	"""Deprecated. Do not use.
-	"""
-	return shutit_global.shutit.add_line_to_file(line,'/etc/profile',expect=expect) and shutit_global.shutit.add_line_to_file(line,'/etc/bash.bashrc',expect=expect)
-
-# Deprecated
 def module_exists(module_id):
 	"""Deprecated. Do not use.
 	"""
@@ -964,44 +939,6 @@ def get_shutit_modules():
 	return shutit_global.shutit_modules
 
 # Deprecated
-def install(child,cfg,package,expect,options=None,timeout=3600):
-	"""Deprecated. Do not use.
-	"""
-	if cfg not in [None,shutit_global.shutit.cfg]:
-		print "Report this error and stack trace to repo owner, #d103"
-		assert False
-	return shutit_global.shutit.install(package,
-		child=child,expect=expect,options=options,timeout=timeout)
-
-# Deprecated
-def remove(child,cfg,package,expect,options=None):
-	"""Deprecated. Do not use.
-	"""
-	if cfg not in [None,shutit_global.shutit.cfg]:
-		print "Report this error and stack trace to repo owner, #d104"
-		assert False
-	return shutit_global.shutit.remove(package,
-		child=child,expect=expect,options=options)
-
-# Deprecated
-def package_installed(child,cfg,package,expect):
-	"""Deprecated. Do not use.
-	"""
-	if cfg not in [None,shutit_global.shutit.cfg]:
-		print "Report this error and stack trace to repo owner, #d105"
-		assert False
-	return shutit_global.shutit.package_installed(package,expect,child)
-
-# Deprecated
-def set_password(child,cfg,expect,password):
-	"""Deprecated. Do not use.
-	"""
-	if cfg not in [None,shutit_global.shutit.cfg]:
-		print "Report this error and stack trace to repo owner, #d107"
-		assert False
-	return shutit_global.shutit.set_password(password,child=child,expect=expect)
-
-# Deprecated
 def handle_login(child,cfg,prompt_name):
 	"""Deprecated. Do not use.
 	"""
@@ -1012,10 +949,4 @@ def handle_revert_prompt(child,expect,prompt_name):
 	"""Deprecated. Do not use.
 	"""
 	shutit_global.shutit.handle_revert_prompt(expect,prompt_name,child=child)
-
-# Deprecated
-def is_user_id_available(child,user_id,expect):
-	"""Deprecated. Do not use.
-	"""
-	return shutit_global.shutit.is_user_id_available(user_id,expect=expect,child=child)
 
