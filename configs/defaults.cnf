@@ -72,14 +72,14 @@ save:no
 # Whether to push to the server
 push:no
 # User on registry to namespace repo - can be set to blank if not docker.io
-user:your_index_username_or_blank
+user:
 #Must be set if do_repository_work is true/yes and user is not blank
 password:YOUR_INDEX_PASSWORD_OR_BLANK
 #Must be set if do_repository_work is true/yes and user is not blank
 email:YOUR_INDEX_EMAIL_OR_BLANK
-# repository server - must be overridden if you want to push this
+# repository server
 # make blank if you want this to be sent to the main docker index on docker.io
-server:blank_this_if_index_is_docker.io
+server:
 
 # Root setup script
 # Each module should set these in a config

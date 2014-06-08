@@ -160,16 +160,6 @@ class template(ShutItModule):
 	#	shutit.send_and_expect("""ps -ef | grep -v grep | grep container_touched.sh | awk '{print $1}' | sed 's/\([0-9][0-9]*\)/kill \\1/' | sh""")
 	#	return True
 
-	# cleanup
-	#
-	# Cleanup the module, ie clear up stuff not needed for the rest of the build, eg tar files removed, apt-get cleans.
-	# Should return True if all is OK, else False.
-	# Note that this is only run if the build phase was actually run.
-	# OPTIONAL part of lifecycle - uncomment to include
-	#def cleanup(self,shutit):
-	#	shutit.send_and_expect('rm -f /tmp/deleteme')
-	#	return True
-
 	# finalize
 	#
 	# Finalize the module, ie do things that need doing before we exit.
