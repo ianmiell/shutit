@@ -583,13 +583,22 @@ class ShutIt(object):
 		cfg = self.cfg
 		cfg['container']['install_type']      = ''
 		cfg['container']['distro']            = ''
+		cfg['container']['distro_version']    = ''
 		install_type_map = {'ubuntu':'apt','debian':'apt','red hat':'yum','centos':'yum','fedora':'yum'}
-		for key in install_type_map.keys():
-			self.send_and_expect('cat /etc/issue | grep -i "' + key + '" | wc -l', check_exit=False)
-			if self.get_re_from_child(child.before,'^([0-9]+)$') == '1':
-				cfg['container']['distro']       = key
-				cfg['container']['install_type'] = install_type_map[key]
-				break
+		if self.package_installed('lsb_release'):
+			self.send_and_expect('lsb_release -a')
+			if self.get_re_from_child(child.before,'^Release:[\s]*(.*)$'):
+			s = self.get_re_from_child(child.before,'^Distributor ID:[\s]*\(.*)$')
+			if s:
+				cfg['container']['distro']       = s.lower()
+				cfg['container']['install_type'] = install_type_map[s.lower()]
+		else:
+			for key in install_type_map.keys():
+				self.send_and_expect('cat /etc/issue | grep -i "' + key + '" | wc -l', check_exit=False)
+				if self.get_re_from_child(child.before,'^([0-9]+)$') == '1':
+					cfg['container']['distro']       = key
+					cfg['container']['install_type'] = install_type_map[key]
+					break
 		if cfg['container']['install_type'] == '' or cfg['container']['distro'] == '':
 			shutit.fail('Could not determine Linux distro information. Please inform maintainers.')
 
