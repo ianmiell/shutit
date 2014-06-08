@@ -101,7 +101,7 @@ def get_configs(shutit,configs):
 			for f in files:
 				os.chmod(f,0600)
 			return get_configs(shutit,configs)
-		fail(fail_str)
+		shutit.fail(fail_str)
 	read_files = cp.read(configs)
 	return cp
 
@@ -183,21 +183,19 @@ def get_base_config(cfg, cfg_parser):
 	if cfg['host']['password'][:5] == 'YOUR_':
 		warn = '# Found ' + cfg['host']['password'] + ' in your config, you may want to quit and override, eg put the following into your\n# ' + shutit_global.cwd + '/configs/' + socket.gethostname() + '_' + cfg['host']['real_user'] + '.cnf file: (create if necessary)\n\n[host]\n#your "real" password on your host machine\npassword:mypassword\n\n'
 		issue_warning(warn,2)
-	# TODO: reinstate these?
-	#if warn != '':
-	#	fail('Failed due to above warnings - please correct and retry')
-	# END warnings
 	# FAILS begins
 	# rm is incompatible with repository actions
 	if cfg['container']['rm'] and (cfg['repository']['tag'] or cfg['repository']['push'] or cfg['repository']['save'] or cfg['repository']['export']):
-		fail("Can't have [container]/rm and [repository]/(push/save/export) set to true")
+		print("Can't have [container]/rm and [repository]/(push/save/export) set to true")
+		sys.exit()
 	if warn != '':
 		issue_warning('Showing computed config. This can also be done by calling with sc:',2)
 		log(print_config(cfg),force_stdout=True,code='31')
 		time.sleep(1)
 	# If build/allowed_images doesn't contain container/docker_image
 	if 'any' not in cfg['build']['allowed_images'] and cfg['container']['docker_image'] not in cfg['build']['allowed_images']:
-		fail('Allowed images for this build are: ' + str(cfg['build']['allowed_images']) + ' but the configured image is: ' + cfg['container']['docker_image'])
+		print('Allowed images for this build are: ' + str(cfg['build']['allowed_images']) + ' but the configured image is: ' + cfg['container']['docker_image'])
+		sys.exit()
 	# FAILS ends
 	if cfg['host']['password'] == '':
 		import getpass
@@ -207,7 +205,8 @@ def get_base_config(cfg, cfg_parser):
 		cfg['container']['password'] = getpass.getpass(prompt='Input your container password: ')
 	# Check action_on_ret_code values
 	if cfg['build']['action_on_ret_code'] != 'msg' and cfg['build']['action_on_ret_code'] != 'error':
-		fail('[build]\naction_on_ret_code:\nshould be set to "msg" or "error"')
+		print('[build]\naction_on_ret_code:\nshould be set to "msg" or "error"')
+		sys.exit()
 
 # Returns the config dict
 def parse_args(cfg):
@@ -480,8 +479,9 @@ def load_configs(shutit):
 	for config_file_name in cfg['build']['extra_configs']:
 		run_config_file = os.path.expanduser(config_file_name)
 		if not os.path.isfile(run_config_file):
-			fail('Did not recognise ' + run_config_file +
+			print('Did not recognise ' + run_config_file +
 					' as a file - do you need to touch ' + run_config_file + '?')
+			sys.exit()
 		configs.append(run_config_file)
 	# Image to use to start off. The script should be idempotent, so running it
 	# on an already built image should be ok, and is advised to reduce diff space required.
@@ -666,15 +666,15 @@ def create_skeleton(shutit):
 	skel_script = shutit.cfg['skeleton']['script']
 
 	if len(skel_path) == 0 or skel_path[0] != '/':
-		fail('Must supply a directory and it must be absolute')
+		shutit.fail('Must supply a directory and it must be absolute')
 	if os.path.exists(skel_path):
-		fail(skel_path + ' already exists')
+		shutit.fail(skel_path + ' already exists')
 	if len(skel_module_name) == 0:
-		fail('Must supply a name for your module, eg mymodulename')
+		shutit.fail('Must supply a name for your module, eg mymodulename')
 	if not re.match('^[a-zA-z_][0-9a-zA-Z_]+$',skel_module_name):
-		fail('Module names must comply with python classname standards: cf: http://stackoverflow.com/questions/10120295/valid-characters-in-a-python-class-name')
+		shutit.fail('Module names must comply with python classname standards: cf: http://stackoverflow.com/questions/10120295/valid-characters-in-a-python-class-name')
 	if len(skel_domain) == 0:
-		fail('Must supply a domain for your module, eg com.yourname.madeupdomainsuffix')
+		shutit.fail('Must supply a domain for your module, eg com.yourname.madeupdomainsuffix')
 
 	os.makedirs(skel_path)
 	os.mkdir(os.path.join(skel_path, 'configs'))
