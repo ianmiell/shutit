@@ -276,6 +276,7 @@ def parse_args(cfg):
 	sub_parsers['skeleton'].add_argument('module_name', help='name for your module')
 	sub_parsers['skeleton'].add_argument('domain', help='arbitrary but unique domain for namespacing your module, eg com.mycorp')
 	sub_parsers['skeleton'].add_argument('script', help='pre-existing shell script to integrate into module (optional)', nargs='?', default=None)
+	sub_parsers['skeleton'].add_argument('--example', help='add an example implementation with model calls to ShutIt API', default=False, const=True, action='store_const')
 
 	sub_parsers['build'].add_argument('--export', help='export to a tar file', const=True, default=False, action='store_const')
 	sub_parsers['build'].add_argument('--save', help='save to a tar file', const=True, default=False, action='store_const')
@@ -334,7 +335,8 @@ def parse_args(cfg):
 			'path': args.path,
 			'module_name': args.module_name,
 			'domain': args.domain,
-			'script': args.script
+			'script': args.script,
+			'example': args.example
 		}
 		return
 
@@ -664,6 +666,7 @@ def create_skeleton(shutit):
 	# TODO: generate hash of domain using util.get_hash(str)
 	skel_domain = shutit.cfg['skeleton']['domain']
 	skel_script = shutit.cfg['skeleton']['script']
+	skel_example = shutit.cfg['skeleton']['example']
 
 	if len(skel_path) == 0 or skel_path[0] != '/':
 		fail('Must supply a directory and it must be absolute')
@@ -689,8 +692,10 @@ def create_skeleton(shutit):
 	buildcnf_path = os.path.join(skel_path, 'configs', 'build.cnf')
 	pushcnf_path = os.path.join(skel_path, 'configs', 'push.cnf')
 
-	templatemodule = open(
-		os.path.join(shutit_dir, 'docs', 'shutit_module_template.py')).read()
+	if skel_example:
+		templatemodule = open(os.path.join(shutit_dir, 'docs', 'shutit_module_template.py')).read()
+	else:
+		templatemodule = open(os.path.join(shutit_dir, 'docs', 'shutit_module_template_bare.py')).read()
 	templatemodule = (templatemodule
 		).replace('template', skel_module_name
 		).replace('GLOBALLY_UNIQUE_STRING', '\'%s.%s.%s\'' % (skel_domain, skel_module_name, skel_module_name)
