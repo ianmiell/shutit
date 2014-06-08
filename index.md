@@ -36,8 +36,8 @@ git clone https://github.com/ianmiell/shutit
 ### Step 2: Create a new module ###
 
 ```sh
-cd shutit/bin
-./create_skeleton.sh /home/username/shutit_modules/shutit_module shutit_module
+cd shutit
+./shutit skeleton --example /home/username/shutit_modules/shutit_module shutit_module com.mycorpdomain
 cd /home/username/shutit_modules/shutit_module
 ```
 
@@ -51,29 +51,25 @@ An example folder structure:
 
 ```
 ./shutit_module
-├──  bin
-│   ├── create_skeleton.sh
-│   ├── README.md
-│   └── test.sh
 ├── build.sh
+├── build_and_push.sh
 ├── configs
 │   ├── build.cnf
 │   └── defaults.cnf
 ├── README.md
-├── resources
-│   └── README.md
-└── run.sh
+├── run.sh
+└── test.sh
 ```
 
 ### Step 3: Modify the default module ###
 
 The default module contains examples of many common tasks when installing, e.g.
 
- - util.install                               - installs packages based on distro (eg 'passwd' install in shutit_module.py)
+ - shutit.install                             - installs packages based on distro (eg 'passwd' install in shutit_module.py)
  - password handling                          - automate the inputting of passwords (eg 'passwd' install in shutit_module.py)
  - config to set up apps                      - (eg 'passwd' install in shutit_module.py)
  - add line to file                           - automate the input-ing of passwords
- - util.pause_point                           - to allow you to stop during a build and inspect before continuing
+ - shutit.pause_point                         - to allow you to stop during a build and inspect before continuing
  - handle logins/logouts                      - to make for safer automated interactions with eg unexpected prompts
  - pull resources in and out of the container - for objects too big for source control
 
@@ -81,12 +77,12 @@ It also gives a simple example of each part of the build lifecycle. **Add a pack
 
 ```python
 # Make sure passwd is installed
-util.install(container_child,config_dict,'passwd',root_prompt_expect)
+shutit.install('passwd')
 # Install mlocate
-util.install(container_child,config_dict,'mlocate',root_prompt_expect)
+shutit.install('mlocate')
 
 # Install added by you
-util.install(container_child,config_dict,'your chosen package here',root_prompt_expect)
+shutit.install('your chosen package here')
 ```
 
 **Running the module requires that in your shutit_module.py, shutit_module(string,float) is set:**
@@ -106,20 +102,6 @@ configs/defaults.cnf
 **Replace references to com.mycorp.shutit_module with your chosen string in the above files**
 
 ### Step 4: Build your module ###
-
-```sh
-$ ./build.sh
-ERROR!
-Files are not secure, mode should be 0600. Run the following commands to correct:
-
-chmod 0600 [...]/defaults.cnf
-```
-
-**Secure your files:**
-
-```sh
-chmod 0600 configs/defaults.cnf
-```
 
 **Build module:**
 
@@ -146,20 +128,13 @@ You are now in your bespoke container!
 Let's add mysql to the container build. Change this in your **shutit_module.py:**
 
 ```python
-obj.add_dependency('shutit.tk.setup')
+depends=['shutit.tk.setup']
 ```
 
 to:
 
 ```python
-obj.add_dependency('shutit.tk.setup')
-obj.add_dependency('shutit.tk.mysql.mysql')
-```
-
-And change the **build.sh** to include the module in the path
-
-```sh
-python /tmp/a/shutit/bin/../shutit_main.py --shutit_module_path /your/path/to/shutit/example/mysql
+depends=['shutit.tk.setup','shutit.tk.mysql.mysql']
 ```
 
 Rebuild and re-run to get the same container with mysql installed.
