@@ -372,7 +372,7 @@ def build_module(shutit, module):
 	shutit.log('building: ' + module.module_id + ' with run order: ' + str(module.run_order),code='31')
 	cfg['build']['report'] = cfg['build']['report'] + '\nBuilding: ' + module.module_id + ' with run order: ' + str(module.run_order)
 	if not module.build(shutit):
-		shutit.fail(module.module_id + ' failed on build',child=shutit.get_pexpect_children['container_child'])
+		shutit.fail(module.module_id + ' failed on build',child=shutit.pexpect_children['container_child'])
 	if cfg['build']['interactive'] >= 1:
 		shutit.pause_point('\nPausing to allow inspect of build for: ' + module.module_id,print_input=True)
 	cfg['build']['report'] = cfg['build']['report'] + '\nCompleted module: ' + module.module_id
