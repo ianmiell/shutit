@@ -96,7 +96,8 @@ def get_configs(shutit,configs):
 		fail_str = 'Files are not secure, mode should be 0600. Running the following commands to correct:\n' + fail_str + '\n'
 		# Actually show this to the user before failing...
 		shutit.log(fail_str,force_stdout=True)
-		if shutit.cfg['action']['serve'] or raw_input('\n\nDo you want me to run this for you? (input y/n)\n') == 'y':
+		shutit.log('\n\nDo you want me to run this for you? (input y/n)\n',force_stdout=True)
+		if shutit.cfg['action']['serve'] or raw_input('') == 'y':
 			for f in files:
 				os.chmod(f,0600)
 			return get_configs(shutit,configs)
@@ -793,7 +794,8 @@ def create_skeleton(shutit):
 		''')
 
 	pw_host = getpass.getpass('Password (for host %s): ' % socket.gethostname())
-	container_hostname = raw_input('Container\'s hostname: ')
+	shutit.log("Container's hostname: ",force_stdout=True)
+	container_hostname = raw_input('')
 	pw_container = getpass.getpass('Password (for container): ')
 
 	open(templatemodule_path, 'w').write(templatemodule)

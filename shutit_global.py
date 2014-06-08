@@ -151,6 +151,7 @@ class ShutIt(object):
 			msg = util.colour(code, msg)
 		if self.cfg['build']['debug'] or force_stdout:
 			print >> sys.stdout, msg
+			sys.stdout.flush()
 		if self.cfg['build']['build_log']:
 			print >> cfg['build']['build_log'], msg
 			self.cfg['build']['build_log'].flush()
