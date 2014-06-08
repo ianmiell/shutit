@@ -382,9 +382,8 @@ def build_module(shutit, module):
 	if cfg[module.module_id]['do_repository_work'] or cfg['build']['interactive'] >= 1:
 		shutit.log(util.build_report('Module:' + module.module_id),code='31')
 	if not cfg[module.module_id]['do_repository_work'] and cfg['build']['interactive'] >= 1:
-		cfg[module.module_id]['do_repository_work'] = (
-			shutit.log("\n\nDo you want to save state now we\'re at the end of this module? (" + module.module_id + ") (input y/n")
-			raw_input('') == 'y')
+		shutit.log("\n\nDo you want to save state now we\'re at the end of this module? (" + module.module_id + ") (input y/n")
+		cfg[module.module_id]['do_repository_work'] = (raw_input('') == 'y')
 	if cfg[module.module_id]['do_repository_work']:
 		shutit.log(module.module_id + ' configured to be tagged, doing repository work')
 		# Stop all before we tag to avoid file changing errors, and clean up pid files etc..
@@ -392,10 +391,10 @@ def build_module(shutit, module):
 		shutit.do_repository_work(str(module.module_id) + '_' + str(module.run_order),password=cfg['host']['password'],docker_executable=cfg['host']['docker_executable'])
 		# Start all after we tag to ensure services are up as expected.
 		start_all(shutit, module.run_order)
-	if (cfg['build']['interactive'] >= 1 and
-			shutit.log("\n\nDo you want to stop interactive mode? (input y/n)\n")
-			raw_input('' ) == 'y'):
-		cfg['build']['interactive'] = 0
+	if cfg['build']['interactive'] >= 1:
+		shutit.log("\n\nDo you want to stop interactive mode? (input y/n)\n")
+		if raw_input('') == 'y':
+			cfg['build']['interactive'] = 0
 
 def do_build(shutit):
 	"""Runs build phase, building any modules that we've determined need building.
