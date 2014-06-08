@@ -225,7 +225,9 @@ class ShutIt(object):
 					# Reset prompt
 					self.setup_prompt('reset_tmp_prompt',child=child)
 					self.revert_prompt('reset_tmp_prompt',expect,child=child)
+		cfg['build']['last_output'] = child.before
 		if check_exit == True:
+			# store the output
 			self._check_exit(send,expect,child,timeout,exit_values)
 		return expect_res
 
@@ -237,6 +239,7 @@ class ShutIt(object):
 		child = child or self.get_default_child()
 		if exit_values is None:
 			exit_values = ['0']
+		# Don't use send_and_expect here (will mess up last_output)!
 		child.sendline('echo EXIT_CODE:$?')
 		child.expect(expect,timeout)
 		res = self.get_re_from_child(child.before,'^EXIT_CODE:([0-9][0-9]?[0-9]?)$')
@@ -455,7 +458,7 @@ class ShutIt(object):
 	def get_output(self,child=None):
 		"""Helper function to get latest output."""
 		child = child or self.get_default_child()
-		return child.before
+		return self.cfg['build']['last_output']
 
 
 	def get_re_from_child(self, string, regexp):
@@ -500,7 +503,10 @@ class ShutIt(object):
 		install_type = self.cfg['container']['install_type']
 		if install_type == 'apt':
 			cmd = 'apt-get install'
-			opts = options['apt'] if 'apt' in options else '-qq -y'
+			if self.cfg['build']['debug']:
+				opts = options['apt'] if 'apt' in options else '-y'
+			else:
+				opts = options['apt'] if 'apt' in options else '-qq -y'
 		elif install_type == 'yum':
 			cmd = 'yum install'
 			opts = options['yum'] if 'yum' in options else '-y'
