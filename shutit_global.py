@@ -151,6 +151,7 @@ class ShutIt(object):
 			msg = util.colour(code, msg)
 		if self.cfg['build']['debug'] or force_stdout:
 			print >> sys.stdout, msg
+			sys.stdout.flush()
 		if self.cfg['build']['build_log']:
 			print >> cfg['build']['build_log'], msg
 			self.cfg['build']['build_log'].flush()
@@ -756,7 +757,7 @@ def init():
 	# If no LOGNAME available,
 	cfg['host']['username'] = os.environ.get('LOGNAME','')
 	if cfg['host']['username'] == '':
-		util.fail('LOGNAME not set in the environment, please set to your username.')
+		shutit_global.shutit.fail('LOGNAME not set in the environment, please set to your username.')
 	cfg['host']['real_user'] = os.environ.get('SUDO_USER', cfg['host']['username'])
 	cfg['build']['build_id'] = socket.gethostname() + '_' + cfg['host']['real_user'] + '_' + str(time.time())
 
