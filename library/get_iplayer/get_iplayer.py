@@ -34,15 +34,16 @@ class get_iplayer(ShutItModule):
 		shutit.install('libnet-smtp-ssl-perl')
 		shutit.install('libnet-smtp-tls-butmaintained-perl')
 		shutit.install('libxml-simple-perl')
+		shutit.send_and_expect('pushd /')
 		shutit.send_and_expect('git clone git://git.infradead.org/get_iplayer.git')
 		shutit.send_and_expect('cd get_iplayer')
 		shutit.send_and_expect('chmod 755 get_iplayer')
 		shutit.send_and_expect('./get_iplayer')
-		shutit.send_and_expect('cd -')
+		shutit.send_and_expect('popd')
 		return True
 
 	def is_installed(self,shutit):
-		return shutit.file_exists('~/get_iplayer/get_iplayer')
+		return shutit.file_exists('/get_iplayer/get_iplayer')
 
 def module():
 	return get_iplayer(
