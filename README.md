@@ -29,7 +29,7 @@ Do it yourself:
 ---------------
 
 ```
-./shutit skeleton <new directory> <new module name> <user domain>
+./shutit skeleton --example <new directory> <new module name> <user domain>
 ```
 
 and follow instructions.
