@@ -25,7 +25,7 @@ from shutit_module import ShutItModule
 class ssh_server(ShutItModule):
 
 	def is_installed(self,shutit):
-		return False
+		shutit.file_exists('/root/start_ssh_server.sh')
 
 	def build(self,shutit):
 		shutit.install('openssh-server')
