@@ -118,9 +118,12 @@ class ShutIt(object):
 		"""Sets the default pexpect child.
 		"""
 		self._default_child[-1] = child
-	def set_default_expect(self, expect, check_exit=True):
-		"""Sets the default pexpect string (usually a prompt)
+	def set_default_expect(self, expect=None, check_exit=True):
+		"""Sets the default pexpect string (usually a prompt).
+                Defaults to the configured root_prompt.
 		"""
+		if expect == None:
+			expect = self.cfg['expect_prompts']['root_prompt']
 		self._default_expect[-1] = expect
 		self._default_check_exit[-1] = check_exit
 
@@ -335,8 +338,8 @@ class ShutIt(object):
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
 		test = 'test %s %s' % ('-d' if directory is True else '-a', filename)
-		self.send_and_expect(test+' && echo FILEXIST-""FILFIN || echo FILNEXIST-""FILFIN','-FILFIN',child=child,check_exit=False,record_command=False)
-		res = self.get_re_from_child(child.before,'^(FILEXIST|FILNEXIST)$')
+		self.send_and_expect(test + ' && echo FILEXIST-""FILFIN || echo FILNEXIST-""FILFIN',expect=expect,child=child,check_exit=False,record_command=False)
+		res = self.get_re_from_child(child.before,'^(FILEXIST|FILNEXIST)-FILFIN$')
 		ret = False
 		if res == 'FILEXIST':
 			ret = True
@@ -346,7 +349,6 @@ class ShutIt(object):
 			# Change to log?
 			print repr('before>>>>:%s<<<< after:>>>>%s<<<<' % (child.before, child.after))
 			self.pause_point('Did not see FIL(N)?EXIST in before',child)
-		child.expect(expect)
 		return ret
 
 	def get_file_perms(self,filename,expect=None,child=None):
@@ -384,29 +386,29 @@ class ShutIt(object):
 			shutit.fail('Passed problematic character to add_line_to_file.\nPlease avoid using the following chars: ' + bad_chars + '\nor supply a match_regexp argument.\nThe line was:\n' + line)
 		# truncate file if requested, or if the file doesn't exist
 		if truncate:
-			self.send_and_expect('cat > ' + filename + ' <<< ""',expect,child=child,check_exit=False)
-		elif not self.file_exists(filename,expect,child):
+			self.send_and_expect('cat > ' + filename + ' <<< ""',expect=expect,child=child,check_exit=False)
+		elif not self.file_exists(filename,expect=expect,child=child):
 			# The above cat doesn't work so we touch the file if it doesn't exist already.
-			self.send_and_expect('touch ' + filename,expect,child,check_exit=False)
+			self.send_and_expect('touch ' + filename,expect=expect,child=child,check_exit=False)
 		elif not force:
 			if literal:
 				if match_regexp == None:
-					self.send_and_expect("""grep -w '^""" + line + """$' """ + filename + ' > ' + tmp_filename,expect,child=child,exit_values=['0','1'])
+					self.send_and_expect("""grep -w '^""" + line + """$' """ + filename + ' > ' + tmp_filename,expect=expect,child=child,exit_values=['0','1'])
 				else:
-					self.send_and_expect("""grep -w '^""" + match_regexp + """$' """ + filename + ' > ' + tmp_filename,expect,child=child,exit_values=['0','1'])
+					self.send_and_expect("""grep -w '^""" + match_regexp + """$' """ + filename + ' > ' + tmp_filename,expect=expect,child=child,exit_values=['0','1'])
 			else:
 				if match_regexp == None:
-					self.send_and_expect('grep -w "^' + line + '$" ' + filename + ' > ' + tmp_filename,expect,child=child,exit_values=['0','1'])
+					self.send_and_expect('grep -w "^' + line + '$" ' + filename + ' > ' + tmp_filename,expect=expect,child=child,exit_values=['0','1'])
 				else:
-					self.send_and_expect('grep -w "^' + match_regexp + '$" ' + filename + ' > ' + tmp_filename,expect,child=child,exit_values=['0','1'])
-			self.send_and_expect('cat ' + tmp_filename + ' | wc -l',expect,child=child,exit_values=['0','1'],check_exit=False)
+					self.send_and_expect('grep -w "^' + match_regexp + '$" ' + filename + ' > ' + tmp_filename,expect=expect,child=child,exit_values=['0','1'])
+			self.send_and_expect('cat ' + tmp_filename + ' | wc -l',expect=expect,child=child,exit_values=['0','1'],check_exit=False)
 			res = self.get_re_from_child(child.before,'^([0-9]+)$')
 		if res == '0' or force:
-			self.send_and_expect('cat >> ' + filename + """ <<< '""" + line + """'""",expect,child=child,check_exit=False)
-			self.send_and_expect('rm -f ' + tmp_filename,expect,child=child,exit_values=['0','1'])
+			self.send_and_expect('cat >> ' + filename + """ <<< '""" + line + """'""",expect=expect,child=child,check_exit=False)
+			self.send_and_expect('rm -f ' + tmp_filename,expect=expect,child=child,exit_values=['0','1'])
 			return True
 		else:
-			self.send_and_expect('rm -f ' + tmp_filename,expect,child=child,exit_values=['0','1'])
+			self.send_and_expect('rm -f ' + tmp_filename,expect=expect,child=child,exit_values=['0','1'])
 			return False
 
 	def add_to_bashrc(self,line,expect=None,child=None):
@@ -473,7 +475,7 @@ class ShutIt(object):
 		lines = string.split('\r\n')
 		for l in lines:
 			if cfg['build']['debug']:
-				self.log('trying: ' + l)
+				self.log('trying: ' + l + ' against regexp: ' + regexp)
 			match = re.match(regexp,l)
 			if match != None:
 				if cfg['build']['debug']:
@@ -583,13 +585,23 @@ class ShutIt(object):
 		cfg = self.cfg
 		cfg['container']['install_type']      = ''
 		cfg['container']['distro']            = ''
+		cfg['container']['distro_version']    = ''
 		install_type_map = {'ubuntu':'apt','debian':'apt','red hat':'yum','centos':'yum','fedora':'yum'}
-		for key in install_type_map.keys():
-			self.send_and_expect('cat /etc/issue | grep -i "' + key + '" | wc -l', check_exit=False)
-			if self.get_re_from_child(child.before,'^([0-9]+)$') == '1':
-				cfg['container']['distro']       = key
-				cfg['container']['install_type'] = install_type_map[key]
-				break
+		if self.package_installed('lsb_release'):
+			self.send_and_expect('lsb_release -a')
+			s = self.get_re_from_child(child.before,'^Distributor ID:[\s]*\(.*)$')
+			if s:
+				cfg['container']['distro']       = s.lower()
+				cfg['container']['install_type'] = install_type_map[s.lower()]
+			# TODO: version
+			#version = self.get_re_from_child(child.before,'^Release:[\s]*(.*)$')
+		else:
+			for key in install_type_map.keys():
+				self.send_and_expect('cat /etc/issue | grep -i "' + key + '" | wc -l', check_exit=False)
+				if self.get_re_from_child(child.before,'^([0-9]+)$') == '1':
+					cfg['container']['distro']       = key
+					cfg['container']['install_type'] = install_type_map[key]
+					break
 		if cfg['container']['install_type'] == '' or cfg['container']['distro'] == '':
 			shutit.fail('Could not determine Linux distro information. Please inform maintainers.')
 

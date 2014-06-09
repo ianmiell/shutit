@@ -4,7 +4,7 @@
 [ "x$TESTS" != "x" ] || TEST="basic"
 
 # TODO: do this in this directory and up two/shutit*
-find . | grep cnf$ | xargs chmod 0600
+find . | grep cnf$ | xargs --no-run-if-empty chmod 0600
 
 # Off for now
 SHUTIT_PARALLEL_BUILD=$1
