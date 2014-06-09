@@ -454,6 +454,13 @@ def parse_args(cfg):
 		}
 		return
 
+	# We're not creating a skeleton, so make sure we have the infrastructure
+	# in place for a user-level storage area
+	if not os.path.isdir(os.path.expanduser('~/.shutit')):
+		os.mkdir(os.path.expanduser('~/.shutit'), 0o700)
+	if not os.path.isfile(os.path.expanduser('~/.shutit/user.cnf')):
+		os.close(os.open(os.path.expanduser('~/.shutit/user.cnf'), os.O_WRONLY | os.O_CREAT, 0o600))
+
 	# Persistence-related arguments.
 	if cfg['action']['build']:
 		if args.push:
