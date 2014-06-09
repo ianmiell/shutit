@@ -52,18 +52,19 @@ class squid_deb_proxy(ShutItModule):
 		shutit.install('squid-deb-proxy-client')
 		shutit.send_and_expect('rm /usr/share/squid-deb-proxy-client/apt-avahi-discover')
 		shutit.send_and_expect("""route -n | awk '/^0.0.0.0/ {print $2}' | tee /tmp/hostip""",check_exit=False)
-		host_ip = shutit.get_output()
 		# TODO: port config
 		shutit.send_and_expect("""echo "HEAD /" | nc `cat /tmp/hostip` 8000 | grep squid-deb-proxy && (echo "Acquire::http::Proxy \\"http://$(cat /tmp/hostip):8000\\";" > /etc/apt/apt.conf.d/30proxy) && (echo "Acquire::http::Proxy::ppa.launchpad.net DIRECT;" >> /etc/apt/apt.conf.d/30proxy) || echo 'No squid-deb-proxy detected on docker host'""",check_exit=True)
 		shutit.send_and_expect('rm /tmp/hostip')
 		return True
 
 	def start(self,shutit):
-		shutit.send_and_expect('/root/start_mysql.sh',check_exit=False)
+		shutit.send_and_expect("""route -n | awk '/^0.0.0.0/ {print $2}' | tee /tmp/hostip""",check_exit=False)
+		shutit.send_and_expect("""echo "HEAD /" | nc `cat /tmp/hostip` 8000 | grep squid-deb-proxy && (echo "Acquire::http::Proxy \\"http://$(cat /tmp/hostip):8000\\";" > /etc/apt/apt.conf.d/30proxy) && (echo "Acquire::http::Proxy::ppa.launchpad.net DIRECT;" >> /etc/apt/apt.conf.d/30proxy) || echo 'No squid-deb-proxy detected on docker host'""",check_exit=True)
+		shutit.send_and_expect('/root/start_avahi_daemon.sh',check_exit=False)
 		return True
 
 	def stop(self,shutit):
-		shutit.send_and_expect('/root/stop_mysql.sh',check_exit=False)
+		shutit.send_and_expect('/root/stop_avahi_daemon.sh',check_exit=False)
 		return True
 
 	def get_config(self,shutit):
