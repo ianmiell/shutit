@@ -67,7 +67,7 @@ PIDS=""
 for d in $(ls test | grep -v configs)
 do
 	[ -d ${SHUTIT_DIR}/test/$d ] || continue
-	pushd ${SHUTIT_DIR}/test/$d
+	pushd ${SHUTIT_DIR}/test/$d > /dev/null 2>&1
 	if [[ -a STOP ]]
 	then
 		echo "STOP file found in $(pwd)"
