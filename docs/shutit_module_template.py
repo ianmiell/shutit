@@ -51,6 +51,7 @@ class template(ShutItModule):
 		shutit.send_and_expect('chmod +x /tmp/container_touched.sh')
 		# Make sure passwd is installed
 		shutit.install('passwd')
+		shutit.install('sudo')
 		# Install mlocate
 		shutit.install('mlocate')
 		# Example of distro-specific password update

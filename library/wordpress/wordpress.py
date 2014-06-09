@@ -70,7 +70,7 @@ END"""
 		return True
 
 	def start(self,shutit):
-		shutit.send_and_expect('sudo apache2ctl restart')
+		shutit.send_and_expect('apache2ctl restart')
 		return True
 
 	def get_config(self,shutit):
