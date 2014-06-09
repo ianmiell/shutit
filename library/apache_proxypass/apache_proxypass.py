@@ -35,7 +35,6 @@ class apache_proxypass(ShutItModule):
 		shutit.send_and_expect('perl -p -i -e "s@<VirtualHost .:80>.*@<VirtualHost *:80>\nProxyHTMLStripComments on\nProxyRequests off\nSetOutputFilter proxy-html\nProxyHTMLDoctype XHTML\n<Location />\nProxyPass ' + shutit.cfg[self.module_id]['proxypass_site'] + '\nProxyPassReverse ' + shutit.cfg[self.module_id]['proxypass_site'] + '\nOrder allow,deny\nAllow from all\n</Location>@" /etc/apache2/sites-enabled/000-default')
 		shutit.install('libapache2-mod-proxy-html')
 		shutit.install('wget')
-		shutit.install('vim')
 		shutit.send_and_expect('a2enmod proxy_http')
 		shutit.send_and_expect('a2enmod proxy_html')
 		shutit.send_and_expect('service apache2 restart')
@@ -59,6 +58,7 @@ class apache_proxypass(ShutItModule):
 def module():
 	return apache_proxypass(
 		'shutit.tk.apache_proxypass.apache_proxypass', 0.310,
+		description='example apache proxy-pass configuration',
 		depends=['shutit.tk.setup']
 	)
 
