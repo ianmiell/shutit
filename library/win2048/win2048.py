@@ -116,6 +116,6 @@ def module():
 	return win2048(
 		'shutit.tk.win2048.win2048', 0.326,
 		description='win at 2048',
-		depends=['shutit.tk.setup', 'shutit.tk.vnc.vnc']
+		depends=['shutit.tk.setup', 'shutit.tk.vnc.vnc', 'shutit.tk.squid_deb_proxy.squid_deb_proxy']
 	)
 
