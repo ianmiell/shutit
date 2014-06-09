@@ -1,4 +1,2 @@
 # Base config for the module. This contains standard defaults or hashed out examples.
 [shutit.tk.squid_deb_proxy.squid_deb_proxy]
-example:astring
-example_bool:yes
