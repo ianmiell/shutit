@@ -38,10 +38,11 @@ class get_iplayer(ShutItModule):
 		shutit.send_and_expect('cd get_iplayer')
 		shutit.send_and_expect('chmod 755 get_iplayer')
 		shutit.send_and_expect('./get_iplayer')
+		shutit.send_and_expect('cd -')
 		return True
 
 	def is_installed(self,shutit):
-		return False
+		return shutit.file_exists('~/get_iplayer/get_iplayer')
 
 def module():
 	return get_iplayer(
