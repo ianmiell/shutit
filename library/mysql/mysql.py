@@ -75,11 +75,11 @@ class mysql(ShutItModule):
 		return True
 
 	def start(self,shutit):
-		shutit.send_and_expect('/root/start_mysql.sh',shutit.cfg['expect_prompts']['root_prompt'],check_exit=False)
+		shutit.send_and_expect('/root/start_mysql.sh',check_exit=False)
 		return True
 
 	def stop(self,shutit):
-		shutit.send_and_expect('/root/stop_mysql.sh',shutit.cfg['expect_prompts']['root_prompt'],check_exit=False)
+		shutit.send_and_expect('/root/stop_mysql.sh',check_exit=False)
 		return True
 
 	def remove(self,shutit):

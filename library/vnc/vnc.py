@@ -35,11 +35,13 @@ class vnc(ShutItModule):
 
 	def build(self,shutit):
 		# TODO: distr-independence
-		shutit.send_and_expect('lsb_release -c -s',check_exit=False)
-		release_name = shutit.get_re_from_child(shutit.get_default_child().before,'^([a-z][a-z]*)$')
+		shutit.install('lsb-release')
+		shutit.install('lsb-release')
+		shutit.send_and_expect('lsb_release -s -c')
+		release=shutit.get_output().split('\n')[1]
 		if shutit.cfg['container']['install_type'] == 'apt':
-			shutit.send_and_expect("""echo "deb http://archive.ubuntu.com/ubuntu """ + release_name + """ main universe multiverse" > /etc/apt/sources.list""")
-			shutit.add_line_to_file("""deb http://archive.ubuntu.com/ubuntu/ """ + release_name + """-updates main restricted""","""/etc/apt/sources.list""")
+			shutit.send_and_expect("""echo "deb http://archive.ubuntu.com/ubuntu """ + release + """ main universe multiverse" > /etc/apt/sources.list""")
+			shutit.add_line_to_file("""deb http://archive.ubuntu.com/ubuntu/ """ + release + """-updates main restricted""","""/etc/apt/sources.list""")
 			shutit.send_and_expect('apt-get update -qq',timeout=10000)
 			shutit.send_and_expect('apt-get upgrade -y')
 		shutit.install('gnome-terminal')
