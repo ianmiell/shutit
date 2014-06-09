@@ -29,7 +29,8 @@ class mysql(ShutItModule):
 
 	def build(self,shutit):
 		root_pass = shutit.cfg['shutit.tk.mysql.mysql']['root_password']
-		shutit.send_and_expect("apt-get update", record_command=False)
+		shutit.install('sudo')
+		shutit.send_and_expect("apt-get update")
 		shutit.send_and_expect("""debconf-set-selections <<< 'mysql-server mysql-server/root_password password {0}'""".format(root_pass),record_command=False)
 		shutit.send_and_expect("""sudo debconf-set-selections <<< 'mysql-server mysql-server/root_password_again password {0}'""".format(root_pass),record_command=False)
 		shutit.install('mysql-common')

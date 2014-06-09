@@ -64,9 +64,10 @@ class conn_docker(ShutItModule):
 		# First check we actually have docker and password (if needed) works
 		check_cmd = docker + ['--version']
 		str_cmd = ' '.join(check_cmd)
+		cmd_timeout = 10
 		try:
 			shutit.log('Running: ' + str_cmd,force_stdout=True,prefix=False)
-			child = pexpect.spawn(check_cmd[0], check_cmd[1:], timeout=1)
+			child = pexpect.spawn(check_cmd[0], check_cmd[1:], timeout=cmd_timeout)
 		except pexpect.ExceptionPexpect:
 			shutit.fail('Cannot run check on "' + str_cmd + '", is the docker ' +
 				'command on your path?')
@@ -75,7 +76,7 @@ class conn_docker(ShutItModule):
 				child.sendline(password)
 				child.expect(pexpect.EOF)
 		except pexpect.ExceptionPexpect:
-			shutit.fail('"' + str_cmd + '" did not complete in 1s, ' +
+			shutit.fail('"' + str_cmd + '" did not complete in ' + cmd_timeout + 's, ' +
 				'\nIs your host password config correct?\nIs your docker_executable setting correct?')
 		child.close()
 		if child.exitstatus != 0:
@@ -83,13 +84,13 @@ class conn_docker(ShutItModule):
 		# Now check connectivity to the docker daemon
 		check_cmd = docker + ['info']
 		str_cmd = ' '.join(check_cmd)
-		child = pexpect.spawn(check_cmd[0], check_cmd[1:], timeout=1)
+		child = pexpect.spawn(check_cmd[0], check_cmd[1:], timeout=cmd_timeout)
 		try:
 			if child.expect(['assword', pexpect.EOF]) == 0:
 				child.sendline(password)
 				child.expect(pexpect.EOF)
 		except pexpect.ExceptionPexpect:
-			shutit.fail('"' + str_cmd + '" did not complete in 1s, ' +
+			shutit.fail('"' + str_cmd + '" did not complete in ' + cmd_timeout + 's, ' +
 				'is the docker daemon overloaded?')
 		child.close()
 		if child.exitstatus != 0:
