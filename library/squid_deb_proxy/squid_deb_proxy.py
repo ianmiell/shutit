@@ -36,6 +36,16 @@ class squid_deb_proxy(ShutItModule):
 		# pw user add messagebus # was in original instruction, didn't work, apparently not needed
 		shutit.send_and_expect('dbus-daemon --system')
 		shutit.send_and_expect('/usr/sbin/avahi-daemon &')
+		shutit.send_file('/root/start_avahi_daemon.sh', '''
+			dbus-daemon --system
+			/usr/sbin/avahi-daemon &
+		''')
+		shutit.send_file('/root/start_avahi_daemon.sh', '''
+			# TODO stop these
+			#dbus-daemon --system
+			#/usr/sbin/avahi-daemon &
+		''')
+		# TODO: add to start/stop script
 		# We seem to need to remove this so that our settings work. Since this is not a "real" machine, I think.
 		shutit.install('netcat')
 		shutit.install('net-tools')
@@ -46,8 +56,14 @@ class squid_deb_proxy(ShutItModule):
 		# TODO: port config
 		shutit.send_and_expect("""echo "HEAD /" | nc `cat /tmp/hostip` 8000 | grep squid-deb-proxy && (echo "Acquire::http::Proxy \\"http://$(cat /tmp/hostip):8000\\";" > /etc/apt/apt.conf.d/30proxy) && (echo "Acquire::http::Proxy::ppa.launchpad.net DIRECT;" >> /etc/apt/apt.conf.d/30proxy) || echo 'No squid-deb-proxy detected on docker host'""",check_exit=True)
 		shutit.send_and_expect('rm /tmp/hostip')
-		# TODO: test - to remove
-		shutit.install('maven')
+		return True
+
+	def start(self,shutit):
+		shutit.send_and_expect('/root/start_mysql.sh',check_exit=False)
+		return True
+
+	def stop(self,shutit):
+		shutit.send_and_expect('/root/stop_mysql.sh',check_exit=False)
 		return True
 
 	def get_config(self,shutit):
