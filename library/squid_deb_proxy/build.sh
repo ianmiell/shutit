@@ -13,7 +13,7 @@ then
 fi
 # This file tests your build, leaving the container intact when done.
 set -e
-$SHUTIT build --image_tag ubuntu:trusty
+$SHUTIT build
 # Display config
 #$SHUTIT sc
 # Debug
