@@ -762,6 +762,10 @@ def create_skeleton(shutit):
 		''')
 	defaultscnf = textwrap.dedent('''\
 		# Base config for the module. This contains standard defaults or hashed out examples.
+		# DO NOT UPDATE THIS UNLESS YOU OWN THE MODULE CODE
+		# If you want to set these, update them in a specific config called with --config in 
+		# your build, or add them to the core shutit/configs/$(hostname)_$(whoami).cnf 
+		# file.
 		[''' + '%s.%s.%s' % (skel_domain, skel_module_name, skel_module_name) + ''']
 		example:astring
 		example_bool:yes
