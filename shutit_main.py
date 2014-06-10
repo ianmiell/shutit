@@ -112,9 +112,14 @@ def init_shutit_map(shutit):
 	# Have we got anything to process outside of special modules?
 	if len([mod for mod in modules if mod.run_order > 0]) < 1:
 		shutit.log(modules)
-		shutit.fail('No ShutIt modules in path:\n\n' +
-			':'.join(cfg['host']['shutit_module_paths']) +
-			'\n\nor their subfolders. Check your --shutit_module_path/-m setting.')
+		path = ':'.join(cfg['host']['shutit_module_paths'])
+		if path == '':
+			shutit.fail('No ShutIt module path given. Did you set --shutit_module_path/-m wrongly?')
+		elif path == '.':
+			shutit.fail('No ShutIt module path given apart from default (.). Did you set --shutit_module_path/-m?')
+		else:
+			shutit.fail('No ShutIt modules in path:\n\n' + path +
+			'\n\nor their subfolders. Check you set --shutit_module_path/-m setting and that there are ShutIt modules below.')
 
 	shutit.log('PHASE: base setup',code='31')
 	if cfg['build']['interactive'] >= 2:
