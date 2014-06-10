@@ -601,6 +601,7 @@ def load_configs(shutit):
 	# Add the shutit global host- and user-specific config file.
 	configs.append(os.path.join(shutit.shutit_main_dir,
 		'configs/' + socket.gethostname() + '_' + cfg['host']['real_user'] + '.cnf'))
+	configs.append(os.path.join(cfg['shutit_home'], 'config'))
 	# Add the local build.cnf
 	configs.append('configs/build.cnf')
 	# Get passed-in config(s)
