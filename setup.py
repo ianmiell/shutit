@@ -167,9 +167,21 @@ class conn_docker(ShutItModule):
 		shutit.log('\n\nCommand being run is:\n\n' + ' '.join(docker_command),force_stdout=True,prefix=False)
 		shutit.log('\n\nThis may download the image, please be patient\n\n',force_stdout=True,prefix=False)
 		container_child = pexpect.spawn(docker_command[0], docker_command[1:])
-		if container_child.expect(['assword',cfg['expect_prompts']['base_prompt'].strip()],9999) == 0:
-			shutit.send_and_expect(cfg['host']['password'],child=container_child,
-				expect=cfg['expect_prompts']['base_prompt'],timeout=9999,check_exit=False)
+		expect = ['assword',cfg['expect_prompts']['base_prompt'].strip(),'Waiting','ulling','endpoint','Download']
+		while True:
+			res = container_child.expect(expect,9999)
+			if res == 0:
+				shutit.send_and_expect(cfg['host']['password'],child=container_child,expect=expect,timeout=9999,check_exit=False)
+			elif res == 1:
+				break
+			elif res == 2:
+				#print container_child.before
+				#print container_child.after
+				continue
+			else:
+				#print container_child.before
+				#print container_child.after
+				continue
 		# Get the cid
 		time.sleep(1) # cidfile creation is sometimes slow...
 		cid = open(cfg['build']['cidfile']).read()
