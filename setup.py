@@ -95,7 +95,7 @@ class conn_docker(ShutItModule):
 		child.close()
 		if child.exitstatus != 0:
 			shutit.fail(str_cmd + ' didn\'t return a 0 exit code, ' +
-				'is the docker daemon running?')
+				'is the docker daemon running? Do you need to set the docker_executable config to use sudo?')
 
 		# Onto the actual execution
 
