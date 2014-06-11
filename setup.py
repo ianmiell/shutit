@@ -218,16 +218,7 @@ class conn_docker(ShutItModule):
 		# Put build info into the container
 		shutit.send_and_expect('mkdir -p /root/shutit_build')
 		logfile = cfg['build']['container_build_log']
-		shutit.send_and_expect('touch ' + logfile)
-		print_conf = 'cat > ' + logfile + """ << LOGFILEEND
-""" + util.print_config(cfg) + """
-LOGFILEEND"""
-		shutit.send_and_expect(print_conf,record_command=False)
-		build_rep = """cat > """ + logfile + """ << BUILDREPEND
-""" + util.build_report('') + """
-BUILDREPEND"""
-		# Do we need this check_exit=False?
-		shutit.send_and_expect(build_rep,record_command=False,check_exit=False)
+		shutit.send_file(logfile, util.build_report(''))
 		# Finish with the container
 		shutit.pexpect_children['container_child'].sendline('exit') # Exit container
 
