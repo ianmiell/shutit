@@ -820,10 +820,11 @@ def create_skeleton(shutit):
 	os.chmod(runsh_path, os.stat(runsh_path).st_mode | 0111) # chmod +x
 	open(buildpushsh_path, 'w').write(buildpushsh)
 	os.chmod(buildpushsh_path, os.stat(buildpushsh_path).st_mode | 0111) # chmod +x
+	# defaults.cnf and build.cnf should be read-only (maintainer changes only)
 	open(defaultscnf_path, 'w').write(defaultscnf)
-	os.chmod(defaultscnf_path, 0600)
+	os.chmod(defaultscnf_path, 0400)
 	open(buildcnf_path, 'w').write(buildcnf)
-	os.chmod(buildcnf_path, 0600)
+	os.chmod(buildcnf_path, 0400)
 	open(pushcnf_path, 'w').write(pushcnf)
 	os.chmod(pushcnf_path, 0600)
 
