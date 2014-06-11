@@ -172,6 +172,7 @@ def get_base_config(cfg, cfg_parser):
 		os.chmod(logfile,0600)
 	if cfg['container']['docker_image'] == '':
 		cfg['container']['docker_image'] = cfg['build']['base_image']
+	print cfg['container']['docker_image']
 	# END tidy configs up
 
 	# BEGIN warnings
