@@ -289,7 +289,7 @@ def parse_args(cfg):
 		sub_parsers[action].add_argument('-m','--shutit_module_path', default='.',help='List of shutit module paths, separated by colons. ShutIt registers modules by running all .py files in these directories.')
 		sub_parsers[action].add_argument('--pause',help='Pause between commands to avoid race conditions.',default='0.05',type=check_pause)
 		sub_parsers[action].add_argument('--debug',help='Show debug.',default=False,const=True,action='store_const')
-		sub_parsers[action].add_argument('--interactive',help='Level of interactive. 0 = none, 1 = regular asking, 2 = tutorial mode',default='0')
+		sub_parsers[action].add_argument('--interactive',help='Level of interactive. 0 = none, 1 = honour pause points, 2 = regular querying of user on each module, 2 = tutorial mode',default='0')
 
 	args_list = sys.argv[1:]
 	if os.environ.get('SHUTIT_OPTIONS', None) and args_list[0] != 'skeleton':
@@ -366,7 +366,7 @@ def parse_args(cfg):
 			time.sleep(1)
 		cfg['host']['shutit_module_paths'].append('.')
 	# Finished parsing args, tutorial stuff
-	if cfg['build']['interactive'] >= 2:
+	if cfg['build']['interactive'] >= 3:
 		print textwrap.dedent("""\
 			================================================================================
 			SHUTIT - INTRODUCTION
@@ -489,12 +489,12 @@ def load_configs(shutit):
 		configs.append(run_config_file)
 	# Image to use to start off. The script should be idempotent, so running it
 	# on an already built image should be ok, and is advised to reduce diff space required.
-	if cfg['build']['interactive'] >= 2 or cfg['action']['show_config']:
+	if cfg['build']['interactive'] >= 3 or cfg['action']['show_config']:
 		msg = ''
 		for c in configs:
 			msg = msg + '\t\n' + c
 			log('\t' + c)
-		if cfg['build']['interactive'] >= 2:
+		if cfg['build']['interactive'] >= 3:
 			print textwrap.dedent("""\n""") + msg + textwrap.dedent("""
 				Looking at config files in the above order (even if they
 				do not exist - you may want to create them).
@@ -727,10 +727,12 @@ def create_skeleton(shutit):
 		#$SHUTIT sc
 		# Debug
 		#$SHUTIT build --debug
-		# Interactive build
+		# Honour pause points
 		#$SHUTIT build --interactive 1
-		# Tutorial
+		# Interactive build
 		#$SHUTIT build --interactive 2
+		# Tutorial
+		#$SHUTIT build --interactive 3
 		''')
 	testsh = textwrap.dedent('''\
 		#!/bin/bash
@@ -867,7 +869,7 @@ def create_skeleton(shutit):
 	================================================================================
 	Run:
 
-	    cd ''' + skel_path + '; ' + shutit_dir + '''/shutit build --interactive 2
+	    cd ''' + skel_path + '; ' + shutit_dir + '''/shutit build --interactive 3
 
 	And follow the instructions in the output.
 
