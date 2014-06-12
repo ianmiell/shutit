@@ -44,7 +44,114 @@ import binascii
 import base64
 import subprocess
 import getpass
+import StringIO
 from shutit_module import ShutItFailException
+
+_default_cnf = '''
+################################################################################
+## Default core config file for ShutIt.
+#  If this file is in the core of ShutIt it should only
+#  ever be changed by the maintainer/BDFL.
+#  If it's been copied into a module, then the maintainer
+#  of that module only should be changing it.
+#  If you are a developer on SI or the module, change the
+#  config specific to your run (ie configs/<hostname>_<username>.cnf)
+#
+#  Submit a pull request to the maintainer if you want the
+#  default.cnf changed.
+################################################################################
+
+# Details relating to the container you are building itself
+[container]
+# Root password for the container - replace with your chosen password
+# If left blank, you will be prompted for a password
+password:YOUR_CONTAINER_PASSWORD
+# Hostname for the container - replace with your chosen container name
+hostname:
+force_repo_work:no
+locale:en_US.UTF-8
+# space separated list of ports to expose
+# e.g. "ports:2222:22 8080:80" would expose container ports 22 and 80 as the
+# host's 2222 and 8080
+ports:
+# Name to give the container. Empty means "let docker default a name".
+name:
+# Whether to remove the container when finished.
+rm:no
+
+# Information specific to the host on which the build runs.
+[host]
+# Folder with files you want to copy from in your build.
+# Often a good idea to have a central folder for this per host
+# in your /path/to/shutit/configs/`hostname`_`username`.cnf
+# If set to blank, then defaults to /path/to/shutit/resources (preferred)
+# If set to "resources", then defaults to the resources folder in the cwd.
+resources_dir:
+# Docker executable on your host machine
+docker_executable:docker.io
+# space separated list of dns servers to use
+dns:
+# Password for the username above on the host (only needed if sudo is needed)
+password:YOUR_PASSWORD
+# Log file - will be set to 0600 perms, and defaults to /tmp/<YOUR_USERNAME>_shutit_log_<timestamp>
+# A timestamp will be added to the end of the filename.
+logfile:
+
+# Repository information
+[repository]
+# Whether to tag
+tag:yes
+# Whether to suffix the date to the tag
+suffix_date:yes
+# Suffix format (default is epoch seconds (%s), but %Y%m%d_%H%M%S is an option if the length is ok with the index)
+suffix_format:%s
+# tag name
+name:my_repository_name
+# Whether to tar up the docker image exported
+export:no
+# Whether to tar up the docker image saved
+save:no
+# Whether to push to the server
+push:no
+# User on registry to namespace repo - can be set to blank if not docker.io
+user:
+#Must be set if do_repository_work is true/yes and user is not blank
+password:YOUR_INDEX_PASSWORD_OR_BLANK
+#Must be set if do_repository_work is true/yes and user is not blank
+email:YOUR_INDEX_EMAIL_OR_BLANK
+# repository server
+# make blank if you want this to be sent to the main docker index on docker.io
+server:
+
+# Root setup script
+# Each module should set these in a config
+[shutit.tk.setup]
+build:yes
+# Modules may rely on the below settings, only change for debugging. Do not rely
+# on these configs being stable.
+do_update:yes
+packages:[]
+
+# Aspects of build process
+[build]
+build_log:no
+# options: msg   = message at end if there was a ret code error from a command
+#          error = throw error if there was a ret code error from a command
+action_on_ret_code:error
+# Run container in privileged mode
+privileged:no
+# lxc-conf arg, eg
+#lxc_conf:lxc.aa_profile=unconfined
+lxc_conf:
+# Allowed images json-list, eg ["ubuntu:12.04"], each matched on
+# an OR basis with the image base.
+# 'any' is a special value meaning any image is ok, and is the default.
+# It's recommended this is locked down as far as possible.
+# NB each image must be in double quotes.
+allowed_images:["any"]
+# Base image can be over-ridden by --image_tag defaults to this.
+base_image:ubuntu:12.04
+'''
 
 def is_file_secure(file_name):
 	"""Returns false if file is considered insecure, true if secure.
@@ -62,7 +169,7 @@ def colour(code, msg):
 	"""Colourize the given string for a terminal.
 	"""
 	return '\033[%sm%s\033[0m' % (code, msg)
-	
+
 
 def get_config(cfg,module_id,option,default,boolean=False):
 	"""Gets a specific config from the config parser object,
@@ -89,6 +196,8 @@ def get_configs(shutit,configs):
 	fail_str = ''
 	files    = []
 	for config_file in configs:
+		if type(config_file) is tuple:
+			continue
 		if not is_file_secure(config_file):
 			fail_str = fail_str + '\nchmod 0600 ' + config_file
 			files.append(config_file)
@@ -102,7 +211,11 @@ def get_configs(shutit,configs):
 				os.chmod(f,0600)
 			return get_configs(shutit,configs)
 		shutit.fail(fail_str)
-	read_files = cp.read(configs)
+	for config in configs:
+		if type(config) is tuple:
+			cp.readfp(config[1])
+		else:
+			cp.read(config)
 	return cp
 
 def issue_warning(msg,wait):
@@ -172,6 +285,7 @@ def get_base_config(cfg, cfg_parser):
 		os.chmod(logfile,0600)
 	if cfg['container']['docker_image'] == '':
 		cfg['container']['docker_image'] = cfg['build']['base_image']
+	print cfg['container']['docker_image']
 	# END tidy configs up
 
 	# BEGIN warnings
@@ -288,7 +402,7 @@ def parse_args(cfg):
 		sub_parsers[action].add_argument('-m','--shutit_module_path', default='.',help='List of shutit module paths, separated by colons. ShutIt registers modules by running all .py files in these directories.')
 		sub_parsers[action].add_argument('--pause',help='Pause between commands to avoid race conditions.',default='0.05',type=check_pause)
 		sub_parsers[action].add_argument('--debug',help='Show debug.',default=False,const=True,action='store_const')
-		sub_parsers[action].add_argument('--interactive',help='Level of interactive. 0 = none, 1 = regular asking, 2 = tutorial mode',default='0')
+		sub_parsers[action].add_argument('--interactive',help='Level of interactive. 0 = none, 1 = honour pause points, 2 = regular querying of user on each module, 2 = tutorial mode',default='0')
 
 	args_list = sys.argv[1:]
 	if os.environ.get('SHUTIT_OPTIONS', None) and args_list[0] != 'skeleton':
@@ -340,6 +454,18 @@ def parse_args(cfg):
 		}
 		return
 
+	shutit_home = cfg['shutit_home'] = os.path.expanduser('~/.shutit')
+	# We're not creating a skeleton, so make sure we have the infrastructure
+	# in place for a user-level storage area
+	if not os.path.isdir(shutit_home):
+		os.mkdir(shutit_home, 0o700)
+	if not os.path.isfile(os.path.join(shutit_home, 'config')):
+		os.close(os.open(
+			os.path.join(shutit_home, 'config'),
+			os.O_WRONLY | os.O_CREAT,
+			0o600
+		))
+
 	# Persistence-related arguments.
 	if cfg['action']['build']:
 		if args.push:
@@ -365,7 +491,7 @@ def parse_args(cfg):
 			time.sleep(1)
 		cfg['host']['shutit_module_paths'].append('.')
 	# Finished parsing args, tutorial stuff
-	if cfg['build']['interactive'] >= 2:
+	if cfg['build']['interactive'] >= 3:
 		print textwrap.dedent("""\
 			================================================================================
 			SHUTIT - INTRODUCTION
@@ -383,7 +509,7 @@ def parse_args(cfg):
 			================================================================================
 			The config files are read in the following order:
 			================================================================================
-			""" + shutit_global.shutit_main_dir + """/configs/defaults.cnf
+			<internal defaults>
 			    - Core shutit defaults. Maintained by BDFL.
 			/path/to/shutit/module/configs/defaults.cnf
 			    - Maintained by the module path directory's maintainer. Do not edit these
@@ -464,8 +590,7 @@ def load_configs(shutit):
 	"""
 	cfg = shutit.cfg
 	# Get root default config file
-	default_config_file = os.path.join(shutit.shutit_main_dir, 'configs/defaults.cnf')
-	configs = [default_config_file]
+	configs = [('defaults', StringIO.StringIO(_default_cnf))]
 	# Now all the default configs we can see
 	for path in cfg['host']['shutit_module_paths']:
 		if os.path.exists(path):
@@ -476,6 +601,7 @@ def load_configs(shutit):
 	# Add the shutit global host- and user-specific config file.
 	configs.append(os.path.join(shutit.shutit_main_dir,
 		'configs/' + socket.gethostname() + '_' + cfg['host']['real_user'] + '.cnf'))
+	configs.append(os.path.join(cfg['shutit_home'], 'config'))
 	# Add the local build.cnf
 	configs.append('configs/build.cnf')
 	# Get passed-in config(s)
@@ -488,12 +614,14 @@ def load_configs(shutit):
 		configs.append(run_config_file)
 	# Image to use to start off. The script should be idempotent, so running it
 	# on an already built image should be ok, and is advised to reduce diff space required.
-	if cfg['build']['interactive'] >= 2 or cfg['action']['show_config']:
+	if cfg['build']['interactive'] >= 3 or cfg['action']['show_config']:
 		msg = ''
 		for c in configs:
+			if type(c) is tuple:
+				c = c[0]
 			msg = msg + '\t\n' + c
 			log('\t' + c)
-		if cfg['build']['interactive'] >= 2:
+		if cfg['build']['interactive'] >= 3:
 			print textwrap.dedent("""\n""") + msg + textwrap.dedent("""
 				Looking at config files in the above order (even if they
 				do not exist - you may want to create them).
@@ -726,10 +854,12 @@ def create_skeleton(shutit):
 		#$SHUTIT sc
 		# Debug
 		#$SHUTIT build --debug
-		# Interactive build
+		# Honour pause points
 		#$SHUTIT build --interactive 1
-		# Tutorial
+		# Interactive build
 		#$SHUTIT build --interactive 2
+		# Tutorial
+		#$SHUTIT build --interactive 3
 		''')
 	testsh = textwrap.dedent('''\
 		#!/bin/bash
@@ -820,10 +950,11 @@ def create_skeleton(shutit):
 	os.chmod(runsh_path, os.stat(runsh_path).st_mode | 0111) # chmod +x
 	open(buildpushsh_path, 'w').write(buildpushsh)
 	os.chmod(buildpushsh_path, os.stat(buildpushsh_path).st_mode | 0111) # chmod +x
+	# defaults.cnf and build.cnf should be read-only (maintainer changes only)
 	open(defaultscnf_path, 'w').write(defaultscnf)
-	os.chmod(defaultscnf_path, 0600)
+	os.chmod(defaultscnf_path, 0400)
 	open(buildcnf_path, 'w').write(buildcnf)
-	os.chmod(buildcnf_path, 0600)
+	os.chmod(buildcnf_path, 0400)
 	open(pushcnf_path, 'w').write(pushcnf)
 	os.chmod(pushcnf_path, 0600)
 
@@ -865,7 +996,7 @@ def create_skeleton(shutit):
 	================================================================================
 	Run:
 
-	    cd ''' + skel_path + '; ' + shutit_dir + '''/shutit build --interactive 2
+	    cd ''' + skel_path + '; ' + shutit_dir + '''/shutit build --interactive 3
 
 	And follow the instructions in the output.
 
