@@ -168,19 +168,14 @@ class conn_docker(ShutItModule):
 		shutit.log('\n\nThis may download the image, please be patient\n\n',force_stdout=True,prefix=False)
 		container_child = pexpect.spawn(docker_command[0], docker_command[1:])
 		expect = ['assword',cfg['expect_prompts']['base_prompt'].strip(),'Waiting','ulling','endpoint','Download']
+		res = container_child.expect(expect,9999)
 		while True:
-			res = container_child.expect(expect,9999)
 			if res == 0:
-				shutit.send_and_expect(cfg['host']['password'],child=container_child,expect=expect,timeout=9999,check_exit=False)
+				res = shutit.send_and_expect(cfg['host']['password'],child=container_child,expect=expect,timeout=9999,check_exit=False,fail_on_empty_before=False)
 			elif res == 1:
 				break
-			elif res == 2:
-				#print container_child.before
-				#print container_child.after
-				continue
 			else:
-				#print container_child.before
-				#print container_child.after
+				res = container_child.expect(expect,9999)
 				continue
 		# Get the cid
 		time.sleep(1) # cidfile creation is sometimes slow...
