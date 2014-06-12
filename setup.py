@@ -155,7 +155,7 @@ class conn_docker(ShutItModule):
 				'/bin/bash'
 			] if arg != ''
 		]
-		if cfg['build']['interactive'] >= 2:
+		if cfg['build']['interactive'] >= 3:
 			print('\n\nAbout to start container. ' +
 				'Ports mapped will be: ' + ', '.join(port_args) +
 				' (from\n\n[host]\nports:<value>\n\nconfig, building on the ' +
@@ -233,7 +233,7 @@ class conn_docker(ShutItModule):
 		shutit.set_default_child(host_child)
 		shutit.set_default_expect(cfg['expect_prompts']['real_user_prompt'])
 		# Tag and push etc
-		if cfg['build']['interactive'] >= 2:
+		if cfg['build']['interactive'] >= 3:
 			shutit.pause_point('\nDoing final committing/tagging on the overall container and creating the artifact.',
 				child=shutit.pexpect_children['host_child'],print_input=False)
 		shutit.do_repository_work(cfg['repository']['name'],docker_executable=cfg['host']['docker_executable'],password=cfg['host']['password'])
