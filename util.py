@@ -153,6 +153,34 @@ allowed_images:["any"]
 base_image:ubuntu:12.04
 '''
 
+class LayerConfigParser(ConfigParser):
+
+	def __init__(self, *args, **kwargs):
+		ConfigParser.__init__(self, *args, **kwargs)
+		self._cps = []
+
+	def read(self, filenames, *args, **kwargs):
+		if type(filenames) is not list:
+			filenames = [filenames]
+		for filename in filenames:
+			cp = ConfigParser()
+			cp.read(filename, *args, **kwargs)
+			self._cps.append((cp, filename))
+		return ConfigParser.read(self, filenames, *args, **kwargs)
+
+	def readfp(self, fp, filename=None, *args, **kwargs):
+		cp = ConfigParser()
+		cp.readfp(fp, filename, *args, **kwargs)
+		self._cps.append((cp, filename))
+		fp.seek(0)
+		return ConfigParser.readfp(self, fp, filename, *args, **kwargs)
+
+	def whereset(self, sec, name):
+		for cp, filename in reversed(self._cps):
+			if cp.has_option(sec, name):
+				return filename
+		raise ShutItFailException('[%s]/%s was never set' % (sec, name))
+
 def is_file_secure(file_name):
 	"""Returns false if file is considered insecure, true if secure.
 	If file doesn't exist, it's considered secure!
@@ -192,7 +220,7 @@ def get_configs(shutit,configs):
 	"""Reads config files in, checking their security first
 	(in case passwords/sensitive info is in them).
 	"""
-	cp       = ConfigParser(None)
+	cp       = LayerConfigParser(None)
 	fail_str = ''
 	files    = []
 	for config_file in configs:
@@ -638,7 +666,7 @@ def load_configs(shutit):
 	# Interpret any config overrides, write to a file and add them to the
 	# list of configs to be interpreted
 	if cfg['build']['config_overrides']:
-		override_cp = ConfigParser(None)
+		override_cp = LayerConfigParser(None)
 		for o_sec, o_key, o_val in cfg['build']['config_overrides']:
 			if not override_cp.has_section(o_sec):
 				override_cp.add_section(o_sec)
