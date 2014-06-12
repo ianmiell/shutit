@@ -711,7 +711,7 @@ class ShutIt(object):
 		cmd = docker_executable + ' tag ' + image_id + ' ' + repository
 		self.send_and_expect(cmd,child=child,expect=expect,check_exit=False)
 		if export or save:
-			if cfg['build']['interactive'] >= 2:
+			if cfg['build']['interactive'] >= 3:
 				self.pause_point('We are now exporting the container to a bzipped tar file, as configured in \n[repository]\ntar:yes',print_input=False,child=child)
 			self.log('\nDepositing bzip2 of exported container into ' + bzfile)
 			if export:
