@@ -170,13 +170,14 @@ class conn_docker(ShutItModule):
 		expect = ['assword',cfg['expect_prompts']['base_prompt'].strip(),'Waiting','ulling','endpoint','Download']
 		res = container_child.expect(expect,9999)
 		while True:
+			print res
 			if res == 0:
 				res = shutit.send_and_expect(cfg['host']['password'],child=container_child,expect=expect,timeout=9999,check_exit=False,fail_on_empty_before=False)
 			elif res == 1:
 				break
 			else:
-				res = container_child.expect(expect,9999)
 				print container_child.before + container_child.after
+				res = container_child.expect(expect,9999)
 				continue
 		# Get the cid
 		time.sleep(1) # cidfile creation is sometimes slow...
