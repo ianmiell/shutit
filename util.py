@@ -695,9 +695,7 @@ def print_config(cfg,hide_password=True):
 	s = ''
 	for section in cfg['config_parser'].sections():
 		s = s + '\n[' + section + ']\n'
-		for item in cfg['config_parser'].items(section):
-			name = str(item[0])
-			value = str(item[1])
+		for name, value in cfg['config_parser'].items(section):
 			if name == 'password' and hide_password:
 				value = 'XXX'
 			s = s + name + ':' + value
