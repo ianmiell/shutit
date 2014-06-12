@@ -29,7 +29,7 @@ import sys
 import argparse
 import os
 import stat
-import ConfigParser
+from ConfigParser import ConfigParser
 import time
 import re
 import imp
@@ -192,7 +192,7 @@ def get_configs(shutit,configs):
 	"""Reads config files in, checking their security first
 	(in case passwords/sensitive info is in them).
 	"""
-	cp       = ConfigParser.ConfigParser(None)
+	cp       = ConfigParser(None)
 	fail_str = ''
 	files    = []
 	for config_file in configs:
@@ -638,7 +638,7 @@ def load_configs(shutit):
 	# Interpret any config overrides, write to a file and add them to the
 	# list of configs to be interpreted
 	if cfg['build']['config_overrides']:
-		override_cp = ConfigParser.ConfigParser(None)
+		override_cp = ConfigParser(None)
 		for o_sec, o_key, o_val in cfg['build']['config_overrides']:
 			if not override_cp.has_section(o_sec):
 				override_cp.add_section(o_sec)
