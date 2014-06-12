@@ -176,6 +176,7 @@ class conn_docker(ShutItModule):
 				break
 			else:
 				res = container_child.expect(expect,9999)
+				print container_child.before + container_child.after
 				continue
 		# Get the cid
 		time.sleep(1) # cidfile creation is sometimes slow...
