@@ -95,7 +95,7 @@ class conn_docker(ShutItModule):
 		child.close()
 		if child.exitstatus != 0:
 			shutit.fail(str_cmd + ' didn\'t return a 0 exit code, ' +
-				'is the docker daemon running?')
+				'is the docker daemon running? Do you need to set the docker_executable config to use sudo?')
 
 		# Onto the actual execution
 
@@ -155,7 +155,7 @@ class conn_docker(ShutItModule):
 				'/bin/bash'
 			] if arg != ''
 		]
-		if cfg['build']['interactive'] >= 2:
+		if cfg['build']['interactive'] >= 3:
 			print('\n\nAbout to start container. ' +
 				'Ports mapped will be: ' + ', '.join(port_args) +
 				' (from\n\n[host]\nports:<value>\n\nconfig, building on the ' +
@@ -167,9 +167,16 @@ class conn_docker(ShutItModule):
 		shutit.log('\n\nCommand being run is:\n\n' + ' '.join(docker_command),force_stdout=True,prefix=False)
 		shutit.log('\n\nThis may download the image, please be patient\n\n',force_stdout=True,prefix=False)
 		container_child = pexpect.spawn(docker_command[0], docker_command[1:])
-		if container_child.expect(['assword',cfg['expect_prompts']['base_prompt'].strip()],9999) == 0:
-			shutit.send_and_expect(cfg['host']['password'],child=container_child,
-				expect=cfg['expect_prompts']['base_prompt'],timeout=9999,check_exit=False)
+		expect = ['assword',cfg['expect_prompts']['base_prompt'].strip(),'Waiting','ulling','endpoint','Download']
+		res = container_child.expect(expect,9999)
+		while True:
+			if res == 0:
+				res = shutit.send_and_expect(cfg['host']['password'],child=container_child,expect=expect,timeout=9999,check_exit=False,fail_on_empty_before=False)
+			elif res == 1:
+				break
+			else:
+				res = container_child.expect(expect,9999)
+				continue
 		# Get the cid
 		time.sleep(1) # cidfile creation is sometimes slow...
 		cid = open(cfg['build']['cidfile']).read()
@@ -226,7 +233,7 @@ class conn_docker(ShutItModule):
 		shutit.set_default_child(host_child)
 		shutit.set_default_expect(cfg['expect_prompts']['real_user_prompt'])
 		# Tag and push etc
-		if cfg['build']['interactive'] >= 2:
+		if cfg['build']['interactive'] >= 3:
 			shutit.pause_point('\nDoing final committing/tagging on the overall container and creating the artifact.',
 				child=shutit.pexpect_children['host_child'],print_input=False)
 		shutit.do_repository_work(cfg['repository']['name'],docker_executable=cfg['host']['docker_executable'],password=cfg['host']['password'])
