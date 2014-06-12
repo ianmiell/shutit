@@ -50,17 +50,16 @@ class squid_deb_proxy(ShutItModule):
 		shutit.install('netcat')
 		shutit.install('net-tools')
 		shutit.install('squid-deb-proxy-client')
-		shutit.send_and_expect('rm /usr/share/squid-deb-proxy-client/apt-avahi-discover')
-		shutit.send_and_expect("""route -n | awk '/^0.0.0.0/ {print $2}' | tee /tmp/hostip""",check_exit=False)
-		# TODO: port config
-		shutit.send_and_expect("""echo "HEAD /" | nc `cat /tmp/hostip` 8000 | grep squid-deb-proxy && (echo "Acquire::http::Proxy \\"http://$(cat /tmp/hostip):8000\\";" > /etc/apt/apt.conf.d/30proxy) && (echo "Acquire::http::Proxy::ppa.launchpad.net DIRECT;" >> /etc/apt/apt.conf.d/30proxy) || echo 'No squid-deb-proxy detected on docker host'""",check_exit=True)
-		shutit.send_and_expect('rm /tmp/hostip')
+		shutit.send_and_expect('/root/start_avahi_daemon.sh',check_exit=False)
+		shutit.send_and_expect('rm -f /usr/share/squid-deb-proxy-client/apt-avahi-discover')
 		return True
 
 	def start(self,shutit):
+		shutit.send_and_expect('rm -f /usr/share/squid-deb-proxy-client/apt-avahi-discover')
 		shutit.send_and_expect("""route -n | awk '/^0.0.0.0/ {print $2}' | tee /tmp/hostip""",check_exit=False)
-		shutit.send_and_expect("""echo "HEAD /" | nc `cat /tmp/hostip` 8000 | grep squid-deb-proxy && (echo "Acquire::http::Proxy \\"http://$(cat /tmp/hostip):8000\\";" > /etc/apt/apt.conf.d/30proxy) && (echo "Acquire::http::Proxy::ppa.launchpad.net DIRECT;" >> /etc/apt/apt.conf.d/30proxy) || echo 'No squid-deb-proxy detected on docker host'""",check_exit=True)
-		shutit.send_and_expect('/root/start_avahi_daemon.sh',check_exit=False)
+		shutit.send_and_expect("""echo "HEAD /" | nc `cat /tmp/hostip` """ + shutit.cfg['shutit.tk.squid_deb_proxy.squid_deb_proxy']['host_proxy_port'] + """ | grep squid-deb-proxy && (echo "Acquire::http::Proxy \\"http://$(cat /tmp/hostip):""" + shutit.cfg['shutit.tk.squid_deb_proxy.squid_deb_proxy']['host_proxy_port'] + """\\";" > /etc/apt/apt.conf.d/30proxy) && (echo "Acquire::http::Proxy::ppa.launchpad.net DIRECT;" >> /etc/apt/apt.conf.d/30proxy) || echo 'No squid-deb-proxy detected on docker host'""",check_exit=True)
+		shutit.send_and_expect('rm /tmp/hostip')
+		shutit.send_and_expect('/root/start_mysql.sh',check_exit=False)
 		return True
 
 	def stop(self,shutit):
@@ -69,6 +68,7 @@ class squid_deb_proxy(ShutItModule):
 
 	def get_config(self,shutit):
 		cp = shutit.cfg['config_parser']
+		shutit.cfg['shutit.tk.squid_deb_proxy.squid_deb_proxy']['host_proxy_port']          = cp.get('shutit.tk.squid_deb_proxy.squid_deb_proxy','host_proxy_port')
 		return True
 
 def module():
