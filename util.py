@@ -334,6 +334,7 @@ def parse_args(cfg):
 			'path': args.path,
 			'module_name': args.module_name,
 			'domain': args.domain,
+			'domainhash': str(get_hash(args.domain)),
 			'script': args.script,
 			'example': args.example
 		}
@@ -661,12 +662,12 @@ def create_skeleton(shutit):
 	"""
 	shutit_dir = sys.path[0]
 
-	skel_path = shutit.cfg['skeleton']['path']
+	skel_path        = shutit.cfg['skeleton']['path']
 	skel_module_name = shutit.cfg['skeleton']['module_name']
-	# TODO: generate hash of domain using util.get_hash(str)
-	skel_domain = shutit.cfg['skeleton']['domain']
-	skel_script = shutit.cfg['skeleton']['script']
-	skel_example = shutit.cfg['skeleton']['example']
+	skel_domain      = shutit.cfg['skeleton']['domain']
+	skel_domain_hash = shutit.cfg['skeleton']['domainhash']
+	skel_script      = shutit.cfg['skeleton']['script']
+	skel_example     = shutit.cfg['skeleton']['example']
 
 	if len(skel_path) == 0 or skel_path[0] != '/':
 		shutit.fail('Must supply a directory and it must be absolute')
@@ -699,7 +700,7 @@ def create_skeleton(shutit):
 	templatemodule = (templatemodule
 		).replace('template', skel_module_name
 		).replace('GLOBALLY_UNIQUE_STRING', '\'%s.%s.%s\'' % (skel_domain, skel_module_name, skel_module_name)
-		).replace('FLOAT','1000.00'
+		).replace('FLOAT',skel_domain_hash + '.00'
 	)
 	readme = skel_module_name + ': description of module directory in here'
 	buildsh = textwrap.dedent('''\
@@ -761,6 +762,10 @@ def create_skeleton(shutit):
 		''')
 	defaultscnf = textwrap.dedent('''\
 		# Base config for the module. This contains standard defaults or hashed out examples.
+		# DO NOT UPDATE THIS UNLESS YOU OWN THE MODULE CODE
+		# If you want to set these, update them in a specific config called with --config in 
+		# your build, or add them to the core shutit/configs/$(hostname)_$(whoami).cnf 
+		# file.
 		[''' + '%s.%s.%s' % (skel_domain, skel_module_name, skel_module_name) + ''']
 		example:astring
 		example_bool:yes
