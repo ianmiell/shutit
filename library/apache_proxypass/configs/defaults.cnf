@@ -1,3 +1,0 @@
-# Base config for the module. This contains standard defaults or hashed out examples.
-[shutit.tk.apache_proxypass.apache_proxypass]
-proxypass_site:http://shutit.tk
