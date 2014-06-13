@@ -671,8 +671,10 @@ def load_configs(shutit):
 			if not override_cp.has_section(o_sec):
 				override_cp.add_section(o_sec)
 			override_cp.set(o_sec, o_key, o_val)
-		override_cfg = print_config({"config_parser": override_cp},hide_password=False)
-		configs.append(('overrides', StringIO.StringIO(override_cfg)))
+		override_fd = StringIO.StringIO()
+		override_cp.write(override_fd)
+		override_fd.seek(0)
+		configs.append(('overrides', override_fd))
 
 	cfg_parser = get_configs(shutit,configs)
 	get_base_config(cfg, cfg_parser)
