@@ -171,8 +171,10 @@ class conn_docker(ShutItModule):
 		res = container_child.expect(expect,9999)
 		while True:
 			if res == 0:
+				print '...'
 				res = shutit.send_and_expect(cfg['host']['password'],child=container_child,expect=expect,timeout=9999,check_exit=False,fail_on_empty_before=False)
 			elif res == 1:
+				print 'Prompt found, breaking out'
 				break
 			else:
 				print container_child.before + container_child.after
@@ -180,7 +182,9 @@ class conn_docker(ShutItModule):
 				continue
 		# Get the cid
 		time.sleep(1) # cidfile creation is sometimes slow...
+		print 'Slept'
 		cid = open(cfg['build']['cidfile']).read()
+		print 'Opening file'
 		if cid == '' or re.match('^[a-z0-9]+$', cid) == None:
 			shutit.fail('Could not get container_id - quitting. Check whether ' +
 				'other containers may be clashing on port allocation or name.' +
