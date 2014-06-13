@@ -854,7 +854,6 @@ def create_skeleton(shutit):
 	testsh_path = os.path.join(skel_path, 'test.sh')
 	runsh_path = os.path.join(skel_path, 'run.sh')
 	buildpushsh_path = os.path.join(skel_path, 'build_and_push.sh')
-	defaultscnf_path = os.path.join(skel_path, 'configs', 'defaults.cnf')
 	buildcnf_path = os.path.join(skel_path, 'configs', 'build.cnf')
 	pushcnf_path = os.path.join(skel_path, 'configs', 'push.cnf')
 
@@ -927,16 +926,6 @@ def create_skeleton(shutit):
 		export SHUTIT_OPTIONS="$SHUTIT_OPTIONS --config configs/push.cnf"
 		./build.sh $1
 		''')
-	defaultscnf = textwrap.dedent('''\
-		# Base config for the module. This contains standard defaults or hashed out examples.
-		# DO NOT UPDATE THIS UNLESS YOU OWN THE MODULE CODE
-		# If you want to set these, update them in a specific config called with --config in 
-		# your build, or add them to the core shutit/configs/$(hostname)_$(whoami).cnf 
-		# file.
-		[''' + '%s.%s.%s' % (skel_domain, skel_module_name, skel_module_name) + ''']
-		example:astring
-		example_bool:yes
-		''')
 	buildcnf = textwrap.dedent('''\
 		# When this module is the one being built, which modules should be built along with it by default?
 		# This feeds into automated testing of each module.
@@ -987,9 +976,7 @@ def create_skeleton(shutit):
 	os.chmod(runsh_path, os.stat(runsh_path).st_mode | 0111) # chmod +x
 	open(buildpushsh_path, 'w').write(buildpushsh)
 	os.chmod(buildpushsh_path, os.stat(buildpushsh_path).st_mode | 0111) # chmod +x
-	# defaults.cnf and build.cnf should be read-only (maintainer changes only)
-	open(defaultscnf_path, 'w').write(defaultscnf)
-	os.chmod(defaultscnf_path, 0400)
+	# build.cnf should be read-only (maintainer changes only)
 	open(buildcnf_path, 'w').write(buildcnf)
 	os.chmod(buildcnf_path, 0400)
 	open(pushcnf_path, 'w').write(pushcnf)
