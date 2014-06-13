@@ -29,7 +29,7 @@ import sys
 import argparse
 import os
 import stat
-from ConfigParser import ConfigParser
+from ConfigParser import RawConfigParser
 import time
 import re
 import imp
@@ -38,7 +38,6 @@ from shutit_module import ShutItModule
 import pexpect
 import socket
 import textwrap
-import tempfile
 import json
 import binascii
 import base64
@@ -153,27 +152,27 @@ allowed_images:["any"]
 base_image:ubuntu:12.04
 '''
 
-class LayerConfigParser(ConfigParser):
+class LayerConfigParser(RawConfigParser):
 
 	def __init__(self, *args, **kwargs):
-		ConfigParser.__init__(self, *args, **kwargs)
+		RawConfigParser.__init__(self, *args, **kwargs)
 		self._cps = []
 
 	def read(self, filenames, *args, **kwargs):
 		if type(filenames) is not list:
 			filenames = [filenames]
 		for filename in filenames:
-			cp = ConfigParser()
+			cp = RawConfigParser()
 			cp.read(filename, *args, **kwargs)
 			self._cps.append((cp, filename))
-		return ConfigParser.read(self, filenames, *args, **kwargs)
+		return RawConfigParser.read(self, filenames, *args, **kwargs)
 
 	def readfp(self, fp, filename=None, *args, **kwargs):
-		cp = ConfigParser()
+		cp = RawConfigParser()
 		cp.readfp(fp, filename, *args, **kwargs)
 		self._cps.append((cp, filename))
 		fp.seek(0)
-		return ConfigParser.readfp(self, fp, filename, *args, **kwargs)
+		return RawConfigParser.readfp(self, fp, filename, *args, **kwargs)
 
 	def whereset(self, sec, name):
 		for cp, filename in reversed(self._cps):
@@ -220,7 +219,7 @@ def get_configs(shutit,configs):
 	"""Reads config files in, checking their security first
 	(in case passwords/sensitive info is in them).
 	"""
-	cp       = LayerConfigParser(None)
+	cp       = LayerConfigParser()
 	fail_str = ''
 	files    = []
 	for config_file in configs:
@@ -666,7 +665,8 @@ def load_configs(shutit):
 	# Interpret any config overrides, write to a file and add them to the
 	# list of configs to be interpreted
 	if cfg['build']['config_overrides']:
-		override_cp = LayerConfigParser(None)
+		# We don't need layers, this is a temporary configparser
+		override_cp = RawConfigParser()
 		for o_sec, o_key, o_val in cfg['build']['config_overrides']:
 			if not override_cp.has_section(o_sec):
 				override_cp.add_section(o_sec)
