@@ -543,16 +543,7 @@ def parse_args(cfg):
 			================================================================================
 			The config files are read in the following order:
 			================================================================================
-			<internal defaults>
-			    - Core shutit defaults. Maintained by BDFL.
-			/path/to/shutit/module/configs/defaults.cnf
-			    - Maintained by the module path directory's maintainer. Do not edit these
-			      files unless you are the maintainer.
-			      These are read in in the order in which the module paths were added in
-			      --shutit_module_path (see --help)
-			      shutit_module_path defaults to ".", adding "." if it wasn't explicitly
-			      included. The paths in this run are:
-			\t\t""" + str(cfg['host']['shutit_module_paths']) + """
+			""" + str(cfg['host']['shutit_module_paths']) + """
 			""" + shutit_global.shutit_main_dir + """/configs/`hostname`_`whoami`.cnf
 			    - Host- and username-specific config for this host.
 			/path/to/this/shutit/module/configs/build.cnf
@@ -623,15 +614,8 @@ def load_configs(shutit):
 	Recurses down from configured shutit module paths.
 	"""
 	cfg = shutit.cfg
-	# Get root default config file
+	# Get root default config.
 	configs = [('defaults', StringIO.StringIO(_default_cnf))]
-	# Now all the default configs we can see
-	for path in cfg['host']['shutit_module_paths']:
-		if os.path.exists(path):
-			for root, subFolders, files in os.walk(path):
-				for f in files:
-					if f == 'defaults.cnf':
-						configs.append(root + '/' + f)
 	# Add the shutit global host- and user-specific config file.
 	configs.append(os.path.join(shutit.shutit_main_dir,
 		'configs/' + socket.gethostname() + '_' + cfg['host']['real_user'] + '.cnf'))

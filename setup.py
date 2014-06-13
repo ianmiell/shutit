@@ -170,6 +170,7 @@ class conn_docker(ShutItModule):
 		expect = ['assword',cfg['expect_prompts']['base_prompt'].strip(),'Waiting','ulling','endpoint','Download']
 		res = container_child.expect(expect,9999)
 		while True:
+			print """>>>\n""" + container_child.before + container_child.after + """\n<<<"""
 			if res == 0:
 				print '...'
 				res = shutit.send_and_expect(cfg['host']['password'],child=container_child,expect=expect,timeout=9999,check_exit=False,fail_on_empty_before=False)
@@ -177,7 +178,6 @@ class conn_docker(ShutItModule):
 				print 'Prompt found, breaking out'
 				break
 			else:
-				print container_child.before + container_child.after
 				res = container_child.expect(expect,9999)
 				continue
 		# Get the cid
@@ -220,14 +220,14 @@ class conn_docker(ShutItModule):
 		print 'Setting default child done'
 		shutit.log('Setting up default prompt on host child')
 		print 'Setting up prompt'
-		shutit.setup_prompt('real_user_prompt','REAL_USER')
+		shutit.setup_prompt('real_user_prompt',prefix='REAL_USER')
 		print 'Setting up prompt done'
 		# container child
 		shutit.set_default_child(container_child)
 		shutit.log('Setting up default prompt on container child')
-		shutit.setup_prompt('pre_build', 'PRE_BUILD')
+		shutit.setup_prompt('pre_build', prefix='PRE_BUILD')
 		shutit.get_distro_info()
-		shutit.setup_prompt('root_prompt', 'ROOT')
+		shutit.setup_prompt('root_prompt', prefix='ROOT')
 		shutit.pause_point('Anything you want to do now the container is connected to?')
 		return True
 
