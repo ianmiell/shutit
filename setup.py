@@ -170,21 +170,21 @@ class conn_docker(ShutItModule):
 		expect = ['assword',cfg['expect_prompts']['base_prompt'].strip(),'Waiting','ulling','endpoint','Download']
 		res = container_child.expect(expect,9999)
 		while True:
-			print """>>>\n""" + container_child.before + container_child.after + """\n<<<"""
+			shutit.log(""">>>\n""" + container_child.before + container_child.after + """\n<<<""")
 			if res == 0:
-				print '...'
+				shutit.log('...')
 				res = shutit.send_and_expect(cfg['host']['password'],child=container_child,expect=expect,timeout=9999,check_exit=False,fail_on_empty_before=False)
 			elif res == 1:
-				print 'Prompt found, breaking out'
+				shutit.log('Prompt found, breaking out')
 				break
 			else:
 				res = container_child.expect(expect,9999)
 				continue
 		# Get the cid
 		time.sleep(1) # cidfile creation is sometimes slow...
-		print 'Slept'
+		shutit.log('Slept')
 		cid = open(cfg['build']['cidfile']).read()
-		print 'Opening file'
+		shutit.log('Opening file')
 		if cid == '' or re.match('^[a-z0-9]+$', cid) == None:
 			shutit.fail('Could not get container_id - quitting. Check whether ' +
 				'other containers may be clashing on port allocation or name.' +
@@ -195,19 +195,19 @@ class conn_docker(ShutItModule):
 				cfg['container']['ports'] + ' | awk \'{print $1}\' | ' +
 				'xargs ' + cfg['host']['docker_executable'] + ' kill\nto + '
 				'resolve a port clash\n')
-		print 'cid: ' + cid
+		shutit.log('cid: ' + cid)
 		cfg['container']['container_id'] = cid
 		# Now let's have a host_child
 		shutit.log('Creating host child')
-		print 'Spawning host child'
+		shutit.log('Spawning host child')
 		host_child = pexpect.spawn('/bin/bash')
-		print 'Spawning done'
+		shutit.log('Spawning done')
 		# Some pexpect settings
 		shutit.pexpect_children['host_child'] = host_child
 		shutit.pexpect_children['container_child'] = container_child
-		print 'Setting default expect'
+		shutit.log('Setting default expect')
 		shutit.set_default_expect(cfg['expect_prompts']['base_prompt'])
-		print 'Setting default expect done'
+		shutit.log('Setting default expect done')
 		host_child.logfile = container_child.logfile = sys.stdout
 		host_child.maxread = container_child.maxread = 2000
 		host_child.searchwindowsize = container_child.searchwindowsize = 1024
@@ -215,13 +215,13 @@ class conn_docker(ShutItModule):
 		host_child.delaybeforesend = container_child.delaybeforesend = delay
 		# Set up prompts and let the user do things before the build
 		# host child
-		print 'Setting default child'
+		shutit.log('Setting default child')
 		shutit.set_default_child(host_child)
-		print 'Setting default child done'
+		shutit.log('Setting default child done')
 		shutit.log('Setting up default prompt on host child')
-		print 'Setting up prompt'
+		shutit.log('Setting up prompt')
 		shutit.setup_prompt('real_user_prompt',prefix='REAL_USER')
-		print 'Setting up prompt done'
+		shutit.log('Setting up prompt done')
 		# container child
 		shutit.set_default_child(container_child)
 		shutit.log('Setting up default prompt on container child')
