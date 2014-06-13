@@ -167,23 +167,24 @@ class conn_docker(ShutItModule):
 		shutit.log('\n\nCommand being run is:\n\n' + ' '.join(docker_command),force_stdout=True,prefix=False)
 		shutit.log('\n\nThis may download the image, please be patient\n\n',force_stdout=True,prefix=False)
 		container_child = pexpect.spawn(docker_command[0], docker_command[1:])
-                if container_child.expect(['assword',cfg['expect_prompts']['base_prompt'].strip()],9999) == 0:
-                        shutit.send_and_expect(cfg['host']['password'],child=container_child,
-                                expect=cfg['expect_prompts']['base_prompt'],timeout=9999,check_exit=False)
-		#expect = ['assword',cfg['expect_prompts']['base_prompt'].strip(),'Waiting','ulling','endpoint','Download']
-		#res = container_child.expect(expect,9999)
-		#while True:
-		#	if res == 0:
-		#		res = shutit.send_and_expect(cfg['host']['password'],child=container_child,expect=expect,timeout=9999,check_exit=False,fail_on_empty_before=False)
-		#	elif res == 1:
-		#		break
-		#	else:
-		#		print container_child.before + container_child.after
-		#		res = container_child.expect(expect,9999)
-		#		continue
+		expect = ['assword',cfg['expect_prompts']['base_prompt'].strip(),'Waiting','ulling','endpoint','Download']
+		res = container_child.expect(expect,9999)
+		while True:
+			if res == 0:
+				print '...'
+				res = shutit.send_and_expect(cfg['host']['password'],child=container_child,expect=expect,timeout=9999,check_exit=False,fail_on_empty_before=False)
+			elif res == 1:
+				print 'Prompt found, breaking out'
+				break
+			else:
+				print container_child.before + container_child.after
+				res = container_child.expect(expect,9999)
+				continue
 		# Get the cid
 		time.sleep(1) # cidfile creation is sometimes slow...
+		print 'Slept'
 		cid = open(cfg['build']['cidfile']).read()
+		print 'Opening file'
 		if cid == '' or re.match('^[a-z0-9]+$', cid) == None:
 			shutit.fail('Could not get container_id - quitting. Check whether ' +
 				'other containers may be clashing on port allocation or name.' +
@@ -194,9 +195,11 @@ class conn_docker(ShutItModule):
 				cfg['container']['ports'] + ' | awk \'{print $1}\' | ' +
 				'xargs ' + cfg['host']['docker_executable'] + ' kill\nto + '
 				'resolve a port clash\n')
+		print 'cid: ' + cid
 		cfg['container']['container_id'] = cid
 		# Now let's have a host_child
 		shutit.log('Creating host child')
+		print 'Spawning host child'
 		host_child = pexpect.spawn('/bin/bash')
 		# Some pexpect settings
 		shutit.pexpect_children['host_child'] = host_child
