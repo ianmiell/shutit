@@ -499,7 +499,7 @@ def shutit_main():
 	util.load_configs(shutit)
 
 	if cfg['action']['show_config']:
-		shutit.log(util.print_config(cfg),force_stdout=True)
+		shutit.log(util.print_config(cfg,history=cfg['build']['cfghistory']),force_stdout=True)
 		return
 
 	shutit_module_init(shutit)
