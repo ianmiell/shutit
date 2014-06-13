@@ -180,6 +180,13 @@ class LayerConfigParser(RawConfigParser):
 				return filename
 		raise ShutItFailException('[%s]/%s was never set' % (sec, name))
 
+	def remove_section(self, *args, **kwargs):
+		raise NotImplementedError('Layer config parsers aren\'t directly mutable')
+	def remove_option(self, *args, **kwargs):
+		raise NotImplementedError('Layer config parsers aren\'t directly mutable')
+	def set(self, *args, **kwargs):
+		raise NotImplementedError('Layer config parsers aren\'t directly mutable')
+
 def is_file_secure(file_name):
 	"""Returns false if file is considered insecure, true if secure.
 	If file doesn't exist, it's considered secure!
