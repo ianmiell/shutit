@@ -241,7 +241,7 @@ def get_configs(shutit,configs):
 		shutit.fail(fail_str)
 	for config in configs:
 		if type(config) is tuple:
-			cp.readfp(config[1])
+			cp.readfp(config[1], filename=config[0])
 		else:
 			cp.read(config)
 	return cp
@@ -422,6 +422,8 @@ def parse_args(cfg):
 	sub_parsers['build'].add_argument('--save', help='save to a tar file', const=True, default=False, action='store_const')
 	sub_parsers['build'].add_argument('--push', help='push to a repo', const=True, default=False, action='store_const')
 
+	sub_parsers['sc'].add_argument('--history', help='show config history', const=True, default=False, action='store_const')
+
 	for action in ['build','serve','depgraph','sc']:
 		sub_parsers[action].add_argument('--config', help='Config file for setup config. Must be with perms 0600. Multiple arguments allowed; config files considered in order.',default=[], action='append')
 		sub_parsers[action].add_argument('-s', '--set', help='Override a config item, e.g. "-s container rm no". Can be specified multiple times.', default=[], action='append', nargs=3, metavar=('SEC','KEY','VAL'))
@@ -498,6 +500,8 @@ def parse_args(cfg):
 		cfg['repository']['push'] = args.push
 		cfg['repository']['export'] = args.export
 		cfg['repository']['save'] = args.save
+	elif cfg['action']['show_config']:
+		cfg['build']['cfghistory'] = args.history
 
 	# Get these early for this part of the build.
 	# These should never be config arguments, since they are needed before config is passed in.
@@ -686,17 +690,21 @@ def load_shutit_modules(shutit):
 	for shutit_module_path in shutit.cfg['host']['shutit_module_paths']:
 		load_all_from_path(shutit, shutit_module_path)
 
-def print_config(cfg,hide_password=True):
+def print_config(cfg,hide_password=True,history=False):
 	"""Returns a string representing the config of this ShutIt run.
 	"""
 	s = ''
-	for section in cfg['config_parser'].sections():
+	cp = cfg['config_parser']
+	for section in cp.sections():
 		s = s + '\n[' + section + ']\n'
-		for name, value in cfg['config_parser'].items(section):
+		for name, value in cp.items(section):
+			line = ''
 			if name == 'password' and hide_password:
 				value = 'XXX'
-			s = s + name + ':' + value
-			s = s + '\n'
+			line += name + ':' + value
+			if history:
+				line += (30-len(line)) * ' ' + ' # ' + cp.whereset(section, name)
+			s += line + '\n'
 	s = s + '\n'
 	return s
 
