@@ -170,7 +170,6 @@ Within each module directory the following directories are placed as part of
 These config files are also created, defaulted, and automatically sourced:
 
 ```
-configs/defaults.cnf               - 
 configs/build.cnf                  - 
 ```
 
