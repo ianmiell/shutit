@@ -552,7 +552,7 @@ class ShutIt(object):
 			("SHUTIT_BACKUP_PS1_%s=$PS1 && PS1='%s' && unset PROMPT_COMMAND") %
 				(prompt_name, local_prompt),
 			expect=self.cfg['expect_prompts'][prompt_name],
-			fail_on_empty_before=False)
+			fail_on_empty_before=False,timeout=5)
 		if set_default_expect:
 			shutit.log('Resetting default expect to: ' + shutit.cfg['expect_prompts'][prompt_name])
 			self.set_default_expect(shutit.cfg['expect_prompts'][prompt_name])
@@ -735,10 +735,15 @@ class ShutIt(object):
 			self.push_repository(repository,docker_executable=docker_executable,expect=expect,child=child)
 			cfg['build']['report'] = cfg['build']['report'] + 'Pushed repository: ' + repository
 
+	# Pass-through function for convenience
+	def get_config(self,module_id,option,default,boolean=False):
+		util.get_config(self.cfg,module_id,option,default,boolean)
+
 	def handle_login(self,prompt_name,child=None):
 		"""Deprecated. Do not use.
 		"""
 		self.setup_prompt(prompt_name, child=child)
+	
 
 
 def init():
