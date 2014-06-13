@@ -671,10 +671,8 @@ def load_configs(shutit):
 			if not override_cp.has_section(o_sec):
 				override_cp.add_section(o_sec)
 			override_cp.set(o_sec, o_key, o_val)
-		fd, name = tempfile.mkstemp()
-		os.write(fd, print_config({ "config_parser": override_cp },hide_password=False))
-		os.close(fd)
-		configs.append(name)
+		override_cfg = print_config({"config_parser": override_cp},hide_password=False)
+		configs.append(('overrides', StringIO.StringIO(override_cfg)))
 
 	cfg_parser = get_configs(shutit,configs)
 	get_base_config(cfg, cfg_parser)
