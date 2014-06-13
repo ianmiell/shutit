@@ -201,10 +201,13 @@ class conn_docker(ShutItModule):
 		shutit.log('Creating host child')
 		print 'Spawning host child'
 		host_child = pexpect.spawn('/bin/bash')
+		print 'Spawning done'
 		# Some pexpect settings
 		shutit.pexpect_children['host_child'] = host_child
 		shutit.pexpect_children['container_child'] = container_child
+		print 'Setting default expect'
 		shutit.set_default_expect(cfg['expect_prompts']['base_prompt'])
+		print 'Setting default expect done'
 		host_child.logfile = container_child.logfile = sys.stdout
 		host_child.maxread = container_child.maxread = 2000
 		host_child.searchwindowsize = container_child.searchwindowsize = 1024
@@ -212,7 +215,9 @@ class conn_docker(ShutItModule):
 		host_child.delaybeforesend = container_child.delaybeforesend = delay
 		# Set up prompts and let the user do things before the build
 		# host child
+		print 'Setting default child'
 		shutit.set_default_child(host_child)
+		print 'Setting default child done'
 		shutit.log('Setting up default prompt on host child')
 		shutit.setup_prompt('real_user_prompt','REAL_USER')
 		# container child
