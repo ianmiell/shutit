@@ -119,10 +119,8 @@ class template(ShutItModule):
 	# each object can handle config here
 	# OPTIONAL part of lifecycle - uncomment to include
 	def get_config(self,shutit):
-		cp = shutit.cfg['config_parser']
-		# Bring the example config into the config dictionary.
-		shutit.cfg[self.module_id]['example']      = cp.get(self.module_id,'example')
-		shutit.cfg[self.module_id]['example_bool'] = cp.getboolean(self.module_id,'example_bool')
+		shutit.get_config(self.module_id,'example','somestring')
+		shutit.get_config(self.module_id,'example_bool',False,boolean=True)
 		return True
 
 	# check_ready

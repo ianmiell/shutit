@@ -219,7 +219,9 @@ class conn_docker(ShutItModule):
 		shutit.set_default_child(host_child)
 		print 'Setting default child done'
 		shutit.log('Setting up default prompt on host child')
+		print 'Setting up prompt'
 		shutit.setup_prompt('real_user_prompt','REAL_USER')
+		print 'Setting up prompt done'
 		# container child
 		shutit.set_default_child(container_child)
 		shutit.log('Setting up default prompt on container child')
