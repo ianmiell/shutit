@@ -274,7 +274,6 @@ class setup(ShutItModule):
 		and updating package management.
 		"""
 		mod_id = 'shutit.tk.setup'
-		packages = shutit.cfg[mod_id]['packages']
 		do_update = shutit.cfg[mod_id]['do_update']
 		if shutit.cfg['container']['install_type'] == 'apt':
 			shutit.send_and_expect('export DEBIAN_FRONTEND=noninteractive')
@@ -282,11 +281,7 @@ class setup(ShutItModule):
 				shutit.send_and_expect('apt-get update',timeout=9999,check_exit=False)
 			shutit.send_and_expect('dpkg-divert --local --rename --add /sbin/initctl')
 			shutit.send_and_expect('ln -f -s /bin/true /sbin/initctl')
-			for p in packages:
-				shutit.install(p)
 		elif shutit.cfg['container']['install_type'] == 'yum':
-			for p in packages:
-				shutit.install(p)
 			if do_update:
 				shutit.send_and_expect('yum update -y',timeout=9999)
 		shutit.set_password(shutit.cfg['container']['password'])
@@ -306,7 +301,6 @@ class setup(ShutItModule):
 		management update.
 		"""
 		cp = shutit.cfg['config_parser']
-		shutit.cfg[self.module_id]['packages']  = json.loads(cp.get(self.module_id,'packages'))
 		shutit.cfg[self.module_id]['do_update'] = cp.getboolean(self.module_id,'do_update')
 		return True
 
