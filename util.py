@@ -129,7 +129,6 @@ build:yes
 # Modules may rely on the below settings, only change for debugging. Do not rely
 # on these configs being stable.
 do_update:yes
-packages:[]
 
 # Aspects of build process
 [build]
