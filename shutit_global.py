@@ -199,7 +199,7 @@ class ShutIt(object):
 			for i in cfg.keys():
 				if isinstance(cfg[i],dict):
 					for j in cfg[i].keys():
-						if j == 'password' and cfg[i][j] == send:
+						if (j == 'password' or j == 'passphrase') and cfg[i][j] == send:
 							self.shutit_command_history.append('#redacted command, password')
 							ok_to_record = False
 							break
