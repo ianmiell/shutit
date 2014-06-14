@@ -51,15 +51,11 @@ class conn_docker(ShutItModule):
 		"""
 		return False
 
-	def build(self,shutit):
-		"""Sets up the container ready for building.
-		"""
+	def _check_docker(self, shutit):
+		# Do some docker capability checking
 		cfg = shutit.cfg
-
 		docker = cfg['host']['docker_executable'].split(' ')
 		password = cfg['host']['password']
-
-		# Do some docker capability checking
 
 		# First check we actually have docker and password (if needed) works
 		check_cmd = docker + ['--version']
@@ -81,6 +77,7 @@ class conn_docker(ShutItModule):
 		child.close()
 		if child.exitstatus != 0:
 			shutit.fail('"' + str_cmd + '" didn\'t return a 0 exit code')
+
 		# Now check connectivity to the docker daemon
 		check_cmd = docker + ['info']
 		str_cmd = ' '.join(check_cmd)
@@ -97,7 +94,13 @@ class conn_docker(ShutItModule):
 			shutit.fail(str_cmd + ' didn\'t return a 0 exit code, ' +
 				'is the docker daemon running? Do you need to set the docker_executable config to use sudo?')
 
-		# Onto the actual execution
+	def build(self,shutit):
+		"""Sets up the container ready for building.
+		"""
+		self._check_docker(shutit)
+
+		cfg = shutit.cfg
+		docker = cfg['host']['docker_executable'].split(' ')
 
 		# Always-required options
 		cfg['build']['cidfile'] = '/tmp/' + cfg['host']['username'] + '_cidfile_' + cfg['build']['build_id']
