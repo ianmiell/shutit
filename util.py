@@ -690,7 +690,7 @@ def print_config(cfg,hide_password=True,history=False):
 		s = s + '\n[' + section + ']\n'
 		for name, value in cp.items(section):
 			line = ''
-			if name == 'password' and hide_password:
+			if (name == 'password' or name == 'passphrase') and hide_password:
 				value = 'XXX'
 			line += name + ':' + value
 			if history:
