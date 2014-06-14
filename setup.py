@@ -90,7 +90,7 @@ class conn_docker(ShutItModule):
 				child.sendline(password)
 				child.expect(pexpect.EOF)
 		except pexpect.ExceptionPexpect:
-			shutit.fail('"' + str_cmd + '" did not complete in ' + cmd_timeout + 's, ' +
+			shutit.fail('"' + str_cmd + '" did not complete in ' + str(cmd_timeout) + 's, ' +
 				'is the docker daemon overloaded?')
 		child.close()
 		if child.exitstatus != 0:
