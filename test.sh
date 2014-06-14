@@ -64,6 +64,7 @@ popd
 
 PIDS=""
 # General tests
+mkdir -p /tmp/shutit_logs/$$
 for d in $(ls test | grep -v configs)
 do
 	[ -d ${SHUTIT_DIR}/test/$d ] || continue
@@ -76,10 +77,11 @@ do
 		# Just in case only just git cloned/updated
 		if [ x$SHUTIT_PARALLEL_BUILD = 'x' ]
 		then
-			./test.sh ${SHUTIT_DIR}
+			./test.sh ${SHUTIT_DIR} 2>&1 | tee /tmp/shutit_logs/$$/shutit_core_test_$(date +%s)
 		else
-			./test.sh ${SHUTIT_DIR} &
+			./test.sh ${SHUTIT_DIR} 2>&1 | tee /tmp/shutit_logs/$$/shutit_core_test_$(date +%s) & 
 			PIDS="$PIDS $!"
+			sleep 5
 		fi
 		cleanup nothard
 		set_shutit_options
