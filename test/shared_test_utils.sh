@@ -7,7 +7,7 @@
 find . | grep cnf$ | xargs --no-run-if-empty chmod 0600
 
 # Off for now
-SHUTIT_PARALLEL_BUILD=$1
+SHUTIT_PARALLEL_BUILD=
 readonly SHUTIT_PARALLEL_BUILD
 
 set -o errexit
