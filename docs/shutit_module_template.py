@@ -81,8 +81,6 @@ class template(ShutItModule):
 		# example of resource use (simple file, copy README.md into the container)
 		shutit.send_file('/tmp/copiedfile',file.read(file(os.path.abspath(os.path.dirname(__file__)) + '/README.md')))
 		# example of bespoke config use
-		if shutit.cfg[self.module_id]['example_bool']:
-			shutit.add_line_to_file('# ' + shutit.cfg[self.module_id]['example'],'/tmp/container_touched.sh')
 		# Example of login/logout handling
 		# When logging in, use the base prompt to attempt to match all prompts
 		# Note that we don't check_exit, because the exit value won't be meaningful.
@@ -119,8 +117,6 @@ class template(ShutItModule):
 	# each object can handle config here
 	# OPTIONAL part of lifecycle - uncomment to include
 	def get_config(self,shutit):
-		shutit.get_config(self.module_id,'example','somestring')
-		shutit.get_config(self.module_id,'example_bool',False,boolean=True)
 		return True
 
 	# check_ready
