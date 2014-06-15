@@ -685,12 +685,16 @@ def load_shutit_modules(shutit):
 def print_config(cfg,hide_password=True,history=False):
 	"""Returns a string representing the config of this ShutIt run.
 	"""
-	copiedcfg = copy.copy(cfg)
-	for k in copiedcfg.keys():
-		if type(k) == str and type(cfg[k]) == dict:
-			for k1 in cfg[k].keys():
-				if k1 == 'password' or k1 == 'passphrase':
-					copiedcfg[k][k1] = 'XXX'
+	copiedcfg = {}
+	for k in cfg.keys():
+		if type(k) == str:
+			copiedcfg[k] = {}
+			if type(cfg[k]) == dict:
+				for k1 in cfg[k].keys():
+					if k1 == 'password' or k1 == 'passphrase':
+						copiedcfg[k][k1] = 'XXX'
+					else:
+						copiedcfg[k][k1] = cfg[k][k1]
 	r = pprint.PrettyPrinter().pformat(copiedcfg)
 	return r
 
