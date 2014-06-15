@@ -101,7 +101,7 @@ logfile:
 # Repository information
 [repository]
 # Whether to tag
-tag:yes
+tag:no
 # Whether to suffix the date to the tag
 suffix_date:yes
 # Suffix format (default is epoch seconds (%s), but %Y%m%d_%H%M%S is an option if the length is ok with the index)
