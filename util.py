@@ -44,6 +44,8 @@ import base64
 import subprocess
 import getpass
 import StringIO
+import copy
+import pprint
 from shutit_module import ShutItFailException
 
 _default_cnf = '''
@@ -683,20 +685,10 @@ def load_shutit_modules(shutit):
 def print_config(cfg,hide_password=True,history=False):
 	"""Returns a string representing the config of this ShutIt run.
 	"""
-	s = ''
-	cp = cfg['config_parser']
-	for section in cp.sections():
-		s = s + '\n[' + section + ']\n'
-		for name, value in cp.items(section):
-			line = ''
-			if (name == 'password' or name == 'passphrase') and hide_password:
-				value = 'XXX'
-			line += name + ':' + value
-			if history:
-				line += (30-len(line)) * ' ' + ' # ' + cp.whereset(section, name)
-			s += line + '\n'
-	s = s + '\n'
-	return s
+	copycfg = copy.copy(cfg)
+	# TODO: edit out password
+	r = pprint.PrettyPrinter().pformat(copycfg)
+	return r
 
 def set_pexpect_child(key,child):
 	"""Set a pexpect child in the global dictionary by key.
