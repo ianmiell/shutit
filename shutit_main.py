@@ -502,9 +502,6 @@ def shutit_main():
 
 	util.load_configs(shutit)
 
-	if cfg['action']['show_config']:
-		shutit.log(util.print_config(cfg,history=cfg['build']['cfghistory']),force_stdout=True)
-		return
 
 	shutit_module_init(shutit)
 
@@ -526,6 +523,9 @@ def shutit_main():
 		return
 	# Dependency validation done, now collect configs of those marked for build.
 	config_collection_for_built(shutit)
+	if cfg['action']['show_config']:
+		shutit.log(util.print_config(cfg,history=cfg['build']['cfghistory']),force_stdout=True)
+		return
 	# Check for conflicts now.
 	errs.extend(check_conflicts(shutit))
 	if cfg['build']['interactive'] >= 3:
