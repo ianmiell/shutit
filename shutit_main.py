@@ -502,7 +502,6 @@ def shutit_main():
 
 	util.load_configs(shutit)
 
-
 	shutit_module_init(shutit)
 
 	conn_container(shutit)
