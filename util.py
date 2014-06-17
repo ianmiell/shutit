@@ -154,31 +154,47 @@ base_image:ubuntu:12.04
 
 class LayerConfigParser(RawConfigParser):
 
-	def __init__(self, *args, **kwargs):
-		RawConfigParser.__init__(self, *args, **kwargs)
-		self._cps = []
+	def __init__(self):
+		RawConfigParser.__init__(self)
+		self.layers = []
 
-	def read(self, filenames, *args, **kwargs):
+	def read(self, filenames):
 		if type(filenames) is not list:
 			filenames = [filenames]
 		for filename in filenames:
 			cp = RawConfigParser()
-			cp.read(filename, *args, **kwargs)
-			self._cps.append((cp, filename))
-		return RawConfigParser.read(self, filenames, *args, **kwargs)
+			cp.read(filename)
+			self.layers.append((cp, filename, None))
+		return RawConfigParser.read(self, filenames)
 
-	def readfp(self, fp, filename=None, *args, **kwargs):
+	def readfp(self, fp, filename=None):
 		cp = RawConfigParser()
-		cp.readfp(fp, filename, *args, **kwargs)
-		self._cps.append((cp, filename))
 		fp.seek(0)
-		return RawConfigParser.readfp(self, fp, filename, *args, **kwargs)
+		cp.readfp(fp, filename)
+		self.layers.append((cp, filename, fp))
+		fp.seek(0)
+		ret = RawConfigParser.readfp(self, fp, filename)
+		return ret
 
 	def whereset(self, sec, name):
-		for cp, filename in reversed(self._cps):
+		for cp, filename, fp in reversed(self.layers):
 			if cp.has_option(sec, name):
 				return filename
 		raise ShutItFailException('[%s]/%s was never set' % (sec, name))
+
+	def reload(self):
+		"""
+		Re-reads all layers again. In theory this should overwrite all the old
+		values with any newer ones.
+		It assumes we never delete a config item before reload.
+		"""
+		oldlayers = self.layers
+		self.layers = []
+		for cp, filename, fp in oldlayers:
+			if fp is None:
+				self.read(filename)
+			else:
+				self.readfp(fp, filename)
 
 	def remove_section(self, *args, **kwargs):
 		raise NotImplementedError('Layer config parsers aren\'t directly mutable')

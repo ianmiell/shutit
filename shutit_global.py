@@ -33,6 +33,7 @@ import string
 import re
 import textwrap
 import base64
+from ConfigParser import ConfigParser
 from shutit_module import ShutItFailException
 
 def random_id(size=5, chars=string.ascii_letters + string.digits):
@@ -435,7 +436,56 @@ class ShutIt(object):
 		else:
 			return False
 
+	def prompt_cfg(self,msg,sec,name):
+		"""Prompt for a config value, possibly saving it to the user-level cfg
+		"""
+		cfg = self.cfg
+		cfgstr = '[%s]/%s' % (sec, name)
+		cp = cfg['config_parser']
+		usercfg = os.path.join(cfg['shutit_home'], 'config')
 
+		print util.colour('34', '\nPROMPTING FOR CONFIG: %s' % (cfgstr,))
+		print util.colour('34', '\n' + msg + '\n')
+
+		if cp.has_option(sec, name):
+			whereset = cp.whereset(sec, name)
+			if usercfg == whereset:
+				self.fail(cfgstr + ' has already been set in the user ' +
+					'config, edit ' + usercfg + ' directly to change it')
+			for subcp, filename, fp in reversed(cp.layers):
+				# Is the config file loaded after the user config file?
+				if filename == whereset:
+					self.fail(cfgstr + ' is being set in ' + filename + ', ' +
+						'unable to override on a user config level')
+				elif filename == usercfg:
+					break
+		else:
+			# The item is not currently set so we're fine to do so
+			pass
+		val = raw_input('>> ')
+		is_excluded = (
+			cp.has_option('save_exclude', sec) and
+			name in cp.get('save_exclude', sec).split()
+		)
+		# TODO: ideally we would remember the prompted config item for this
+		# invocation of shutit
+		if not is_excluded:
+			usercp = [
+				subcp for subcp, filename, fp in cp.layers
+				if filename == usercfg
+			][0]
+			if raw_input(util.colour('34',
+					'Do you want to save this to your user settings? y/n: ')) == 'y':
+				sec_toset, name_toset, val_toset = sec, name, val
+			else:
+				# Never save it
+				sec_toset, name_toset, val_toset = 'save_exclude', cfgstr, ''
+			if not usercp.has_section(sec_toset):
+				usercp.add_section(sec_toset)
+			usercp.set(sec_toset, name_toset, val_toset)
+			usercp.write(open(usercfg, 'w'))
+			cp.reload()
+		return val
 
 	def pause_point(self,msg,child=None,print_input=True,expect='',force=False):
 		"""Inserts a pause in the build session which allows the user to try things out before continuing.
