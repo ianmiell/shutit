@@ -29,7 +29,7 @@ import sys
 import argparse
 import os
 import stat
-import ConfigParser
+from ConfigParser import RawConfigParser
 import time
 import re
 import imp
@@ -38,13 +38,13 @@ from shutit_module import ShutItModule
 import pexpect
 import socket
 import textwrap
-import tempfile
 import json
 import binascii
 import base64
 import subprocess
 import getpass
 import StringIO
+import copy
 from shutit_module import ShutItFailException
 
 _default_cnf = '''
@@ -100,7 +100,7 @@ logfile:
 # Repository information
 [repository]
 # Whether to tag
-tag:yes
+tag:no
 # Whether to suffix the date to the tag
 suffix_date:yes
 # Suffix format (default is epoch seconds (%s), but %Y%m%d_%H%M%S is an option if the length is ok with the index)
@@ -130,7 +130,6 @@ build:yes
 # Modules may rely on the below settings, only change for debugging. Do not rely
 # on these configs being stable.
 do_update:yes
-packages:[]
 
 # Aspects of build process
 [build]
@@ -152,6 +151,41 @@ allowed_images:["any"]
 # Base image can be over-ridden by --image_tag defaults to this.
 base_image:ubuntu:12.04
 '''
+
+class LayerConfigParser(RawConfigParser):
+
+	def __init__(self, *args, **kwargs):
+		RawConfigParser.__init__(self, *args, **kwargs)
+		self._cps = []
+
+	def read(self, filenames, *args, **kwargs):
+		if type(filenames) is not list:
+			filenames = [filenames]
+		for filename in filenames:
+			cp = RawConfigParser()
+			cp.read(filename, *args, **kwargs)
+			self._cps.append((cp, filename))
+		return RawConfigParser.read(self, filenames, *args, **kwargs)
+
+	def readfp(self, fp, filename=None, *args, **kwargs):
+		cp = RawConfigParser()
+		cp.readfp(fp, filename, *args, **kwargs)
+		self._cps.append((cp, filename))
+		fp.seek(0)
+		return RawConfigParser.readfp(self, fp, filename, *args, **kwargs)
+
+	def whereset(self, sec, name):
+		for cp, filename in reversed(self._cps):
+			if cp.has_option(sec, name):
+				return filename
+		raise ShutItFailException('[%s]/%s was never set' % (sec, name))
+
+	def remove_section(self, *args, **kwargs):
+		raise NotImplementedError('Layer config parsers aren\'t directly mutable')
+	def remove_option(self, *args, **kwargs):
+		raise NotImplementedError('Layer config parsers aren\'t directly mutable')
+	def set(self, *args, **kwargs):
+		raise NotImplementedError('Layer config parsers aren\'t directly mutable')
 
 def is_file_secure(file_name):
 	"""Returns false if file is considered insecure, true if secure.
@@ -192,7 +226,7 @@ def get_configs(shutit,configs):
 	"""Reads config files in, checking their security first
 	(in case passwords/sensitive info is in them).
 	"""
-	cp       = ConfigParser.ConfigParser(None)
+	cp       = LayerConfigParser()
 	fail_str = ''
 	files    = []
 	for config_file in configs:
@@ -213,7 +247,7 @@ def get_configs(shutit,configs):
 		shutit.fail(fail_str)
 	for config in configs:
 		if type(config) is tuple:
-			cp.readfp(config[1])
+			cp.readfp(config[1], filename=config[0])
 		else:
 			cp.read(config)
 	return cp
@@ -285,7 +319,6 @@ def get_base_config(cfg, cfg_parser):
 		os.chmod(logfile,0600)
 	if cfg['container']['docker_image'] == '':
 		cfg['container']['docker_image'] = cfg['build']['base_image']
-	print cfg['container']['docker_image']
 	# END tidy configs up
 
 	# BEGIN warnings
@@ -395,6 +428,8 @@ def parse_args(cfg):
 	sub_parsers['build'].add_argument('--save', help='save to a tar file', const=True, default=False, action='store_const')
 	sub_parsers['build'].add_argument('--push', help='push to a repo', const=True, default=False, action='store_const')
 
+	sub_parsers['sc'].add_argument('--history', help='show config history', const=True, default=False, action='store_const')
+
 	for action in ['build','serve','depgraph','sc']:
 		sub_parsers[action].add_argument('--config', help='Config file for setup config. Must be with perms 0600. Multiple arguments allowed; config files considered in order.',default=[], action='append')
 		sub_parsers[action].add_argument('-s', '--set', help='Override a config item, e.g. "-s container rm no". Can be specified multiple times.', default=[], action='append', nargs=3, metavar=('SEC','KEY','VAL'))
@@ -468,12 +503,11 @@ def parse_args(cfg):
 
 	# Persistence-related arguments.
 	if cfg['action']['build']:
-		if args.push:
-			cfg['repository']['push'] = True
-		if args.export:
-			cfg['repository']['export'] = True
-		if args.save:
-			cfg['repository']['save'] = True
+		cfg['repository']['push'] = args.push
+		cfg['repository']['export'] = args.export
+		cfg['repository']['save'] = args.save
+	elif cfg['action']['show_config']:
+		cfg['build']['cfghistory'] = args.history
 
 	# Get these early for this part of the build.
 	# These should never be config arguments, since they are needed before config is passed in.
@@ -509,16 +543,7 @@ def parse_args(cfg):
 			================================================================================
 			The config files are read in the following order:
 			================================================================================
-			<internal defaults>
-			    - Core shutit defaults. Maintained by BDFL.
-			/path/to/shutit/module/configs/defaults.cnf
-			    - Maintained by the module path directory's maintainer. Do not edit these
-			      files unless you are the maintainer.
-			      These are read in in the order in which the module paths were added in
-			      --shutit_module_path (see --help)
-			      shutit_module_path defaults to ".", adding "." if it wasn't explicitly
-			      included. The paths in this run are:
-			\t\t""" + str(cfg['host']['shutit_module_paths']) + """
+			""" + str(cfg['host']['shutit_module_paths']) + """
 			""" + shutit_global.shutit_main_dir + """/configs/`hostname`_`whoami`.cnf
 			    - Host- and username-specific config for this host.
 			/path/to/this/shutit/module/configs/build.cnf
@@ -589,15 +614,8 @@ def load_configs(shutit):
 	Recurses down from configured shutit module paths.
 	"""
 	cfg = shutit.cfg
-	# Get root default config file
+	# Get root default config.
 	configs = [('defaults', StringIO.StringIO(_default_cnf))]
-	# Now all the default configs we can see
-	for path in cfg['host']['shutit_module_paths']:
-		if os.path.exists(path):
-			for root, subFolders, files in os.walk(path):
-				for f in files:
-					if f == 'defaults.cnf':
-						configs.append(root + '/' + f)
 	# Add the shutit global host- and user-specific config file.
 	configs.append(os.path.join(shutit.shutit_main_dir,
 		'configs/' + socket.gethostname() + '_' + cfg['host']['real_user'] + '.cnf'))
@@ -638,15 +656,16 @@ def load_configs(shutit):
 	# Interpret any config overrides, write to a file and add them to the
 	# list of configs to be interpreted
 	if cfg['build']['config_overrides']:
-		override_cp = ConfigParser.ConfigParser(None)
+		# We don't need layers, this is a temporary configparser
+		override_cp = RawConfigParser()
 		for o_sec, o_key, o_val in cfg['build']['config_overrides']:
 			if not override_cp.has_section(o_sec):
 				override_cp.add_section(o_sec)
 			override_cp.set(o_sec, o_key, o_val)
-		fd, name = tempfile.mkstemp()
-		os.write(fd, print_config({ "config_parser": override_cp },hide_password=False))
-		os.close(fd)
-		configs.append(name)
+		override_fd = StringIO.StringIO()
+		override_cp.write(override_fd)
+		override_fd.seek(0)
+		configs.append(('overrides', override_fd))
 
 	cfg_parser = get_configs(shutit,configs)
 	get_base_config(cfg, cfg_parser)
@@ -662,21 +681,24 @@ def load_shutit_modules(shutit):
 	for shutit_module_path in shutit.cfg['host']['shutit_module_paths']:
 		load_all_from_path(shutit, shutit_module_path)
 
-def print_config(cfg,hide_password=True):
+def print_config(cfg,hide_password=True,history=False):
 	"""Returns a string representing the config of this ShutIt run.
 	"""
-	s = ''
-	for section in cfg['config_parser'].sections():
-		s = s + '\n[' + section + ']\n'
-		for item in cfg['config_parser'].items(section):
-			name = str(item[0])
-			value = str(item[1])
-			if name == 'password' and hide_password:
-				value = 'XXX'
-			s = s + name + ':' + value
-			s = s + '\n'
-	s = s + '\n'
-	return s
+	r = ''
+	for k in cfg.keys():
+		if type(k) == str and type(cfg[k]) == dict:
+			r = r + '\n[' + k + ']\n'
+			for k1 in cfg[k].keys():
+				r = r + k1 + ': ' 
+				if hide_password and (k1 == 'password' or k1 == 'passphrase'):
+					r = r + 'XXX'
+				else:
+					if type(cfg[k][k1] == bool):
+						r = r + str(cfg[k][k1])
+					elif type(cfg[k][k1] == str):
+						r = r + cfg[k][k1]
+				r = r + '\n'
+	return r
 
 def set_pexpect_child(key,child):
 	"""Set a pexpect child in the global dictionary by key.
@@ -817,7 +839,6 @@ def create_skeleton(shutit):
 	testsh_path = os.path.join(skel_path, 'test.sh')
 	runsh_path = os.path.join(skel_path, 'run.sh')
 	buildpushsh_path = os.path.join(skel_path, 'build_and_push.sh')
-	defaultscnf_path = os.path.join(skel_path, 'configs', 'defaults.cnf')
 	buildcnf_path = os.path.join(skel_path, 'configs', 'build.cnf')
 	pushcnf_path = os.path.join(skel_path, 'configs', 'push.cnf')
 
@@ -890,16 +911,6 @@ def create_skeleton(shutit):
 		export SHUTIT_OPTIONS="$SHUTIT_OPTIONS --config configs/push.cnf"
 		./build.sh $1
 		''')
-	defaultscnf = textwrap.dedent('''\
-		# Base config for the module. This contains standard defaults or hashed out examples.
-		# DO NOT UPDATE THIS UNLESS YOU OWN THE MODULE CODE
-		# If you want to set these, update them in a specific config called with --config in 
-		# your build, or add them to the core shutit/configs/$(hostname)_$(whoami).cnf 
-		# file.
-		[''' + '%s.%s.%s' % (skel_domain, skel_module_name, skel_module_name) + ''']
-		example:astring
-		example_bool:yes
-		''')
 	buildcnf = textwrap.dedent('''\
 		# When this module is the one being built, which modules should be built along with it by default?
 		# This feeds into automated testing of each module.
@@ -950,9 +961,7 @@ def create_skeleton(shutit):
 	os.chmod(runsh_path, os.stat(runsh_path).st_mode | 0111) # chmod +x
 	open(buildpushsh_path, 'w').write(buildpushsh)
 	os.chmod(buildpushsh_path, os.stat(buildpushsh_path).st_mode | 0111) # chmod +x
-	# defaults.cnf and build.cnf should be read-only (maintainer changes only)
-	open(defaultscnf_path, 'w').write(defaultscnf)
-	os.chmod(defaultscnf_path, 0400)
+	# build.cnf should be read-only (maintainer changes only)
 	open(buildcnf_path, 'w').write(buildcnf)
 	os.chmod(buildcnf_path, 0400)
 	open(pushcnf_path, 'w').write(pushcnf)
