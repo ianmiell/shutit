@@ -32,15 +32,14 @@ host_child      - pexpect spawned child living on the host container
 #OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 #SOFTWARE.
 
-
 from shutit_module import ShutItModule
 import pexpect
 import sys
 import util
 import time
 import re
-import json
-
+import subprocess
+from distutils import spawn
 
 class conn_docker(ShutItModule):
 	"""Connects ShutIt to docker daemon and starts the container.
@@ -54,29 +53,66 @@ class conn_docker(ShutItModule):
 	def _check_docker(self, shutit):
 		# Do some docker capability checking
 		cfg = shutit.cfg
-		docker = cfg['host']['docker_executable'].split(' ')
+		cp = cfg['config_parser']
 		password = cfg['host']['password']
+
+		# If we have sudo, kill any current sudo timeout. This is a bit of a
+		# hammer and somewhat unfriendly, but tells us if we need a password.
+		if spawn.find_executable('sudo') is not None:
+			if subprocess.call(['sudo', '-k']) != 0:
+				shutit.fail('Couldn\'t kill sudo timeout')
+
+		# Check the executable is in the path. Not robust (as it could be sudo)
+		# but deals with the common case of 'docker.io' being wrong.
+		docker = cfg['host']['docker_executable'].split(' ')
+		if spawn.find_executable(docker[0]) is None:
+			msg = ('Didn\'t find %s on the path, what is the ' +
+				'executable name (or full path) of docker?') % (docker[0],)
+			cfg['host']['docker_executable'] = shutit.prompt_cfg(msg, 'host', 'docker_executable')
+			return False
 
 		# First check we actually have docker and password (if needed) works
 		check_cmd = docker + ['--version']
 		str_cmd = ' '.join(check_cmd)
 		cmd_timeout = 10
+		needed_password = False
+		fail_msg = ''
 		try:
 			shutit.log('Running: ' + str_cmd,force_stdout=True,prefix=False)
 			child = pexpect.spawn(check_cmd[0], check_cmd[1:], timeout=cmd_timeout)
 		except pexpect.ExceptionPexpect:
-			shutit.fail('Cannot run check on "' + str_cmd + '", is the docker ' +
-				'command on your path?')
+			msg = ('Failed to run %s (not sure why this has happened)...try ' +
+				'a different docker executable?') % (str_cmd,)
+			cfg['host']['docker_executable'] = shutit.prompt_cfg(msg, 'host', 'docker_executable')
+			return False
 		try:
 			if child.expect(['assword', pexpect.EOF]) == 0:
+				needed_password = True
 				child.sendline(password)
 				child.expect(pexpect.EOF)
 		except pexpect.ExceptionPexpect:
-			shutit.fail('"' + str_cmd + '" did not complete in ' + cmd_timeout + 's, ' +
-				'\nIs your host password config correct?\nIs your docker_executable setting correct?')
+			fail_msg = '"%s" did not complete in %ss' % (str_cmd, cmd_timeout)
 		child.close()
 		if child.exitstatus != 0:
-			shutit.fail('"' + str_cmd + '" didn\'t return a 0 exit code')
+			fail_msg = '"%s" didn\'t return a 0 exit code' % (str_cmd,)
+
+		if fail_msg:
+			# TODO: Ideally here we'd split up our checks so if it asked for a
+			# password, kill the sudo timeout and run `sudo -l`. We then know if
+			# the password is right or not so we know what we need to prompt
+			# for. At the moment we assume the password if it was asked for.
+			if needed_password:
+				msg = (fail_msg + ', your host password or ' +
+					'docker_executable config may be wrong (I will assume ' +
+					'password).\nPlease confirm your host password.')
+				sec, name = 'host', 'password'
+			else:
+				msg = (fail_msg + ', your docker_executable ' +
+					'setting seems to be wrong.\nPlease confirm your host ' +
+					'password.')
+				sec, name = 'host', 'docker_executable'
+			cfg[sec][name] = shutit.prompt_cfg(msg, sec, name)
+			return False
 
 		# Now check connectivity to the docker daemon
 		check_cmd = docker + ['info']
@@ -94,10 +130,13 @@ class conn_docker(ShutItModule):
 			shutit.fail(str_cmd + ' didn\'t return a 0 exit code, ' +
 				'is the docker daemon running? Do you need to set the docker_executable config to use sudo?')
 
+		return True
+
 	def build(self,shutit):
 		"""Sets up the container ready for building.
 		"""
-		self._check_docker(shutit)
+		while not self._check_docker(shutit):
+			pass
 
 		cfg = shutit.cfg
 		docker = cfg['host']['docker_executable'].split(' ')
