@@ -444,6 +444,10 @@ class ShutIt(object):
 		cp = cfg['config_parser']
 		usercfg = os.path.join(cfg['shutit_home'], 'config')
 
+		if not cfg['build']['interactive']:
+			shutit.fail('ShutIt is not in interactive mode so cannnot prompt ' +
+				'for values.')
+
 		print util.colour('34', '\nPROMPTING FOR CONFIG: %s' % (cfgstr,))
 		print util.colour('34', '\n' + msg + '\n')
 
@@ -818,7 +822,7 @@ def init():
 	cfg = {}
 	cfg['action']               = {}
 	cfg['build']                = {}
-	cfg['build']['interactive'] = True # Default to true until we know otherwise
+	cfg['build']['interactive'] = 1 # Default to true until we know otherwise
 	cfg['build']['build_log']   = None
 	cfg['build']['report']      = ''
 	cfg['container']            = {}
