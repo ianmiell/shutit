@@ -962,11 +962,6 @@ def create_skeleton(shutit):
 		rm:false
 		''')
 
-	pw_host = getpass.getpass('Password (for host %s): ' % socket.gethostname())
-	print "Container's hostname: "
-	container_hostname = raw_input('')
-	pw_container = getpass.getpass('Password (for container): ')
-
 	open(templatemodule_path, 'w').write(templatemodule)
 	open(readme_path, 'w').write(readme)
 	open(buildsh_path, 'w').write(buildsh)
