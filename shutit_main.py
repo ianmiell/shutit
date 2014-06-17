@@ -164,12 +164,16 @@ def config_collection(shutit):
 		# ifneeded will (by default) only take effect if 'build' is not specified
 		# It can, however, be forced to a value, but this should be unusual
 		if cfg[mid]['build'] is None:
-			util.get_config(cfg,mid,'build_ifneeded',True,boolean=True)
+			shutit.get_config(mid,'build_ifneeded',True,boolean=True)
 			cfg[mid]['build'] = False
 		else:
-			util.get_config(cfg,mid,'build_ifneeded',False,boolean=True)
+			shutit.get_config(mid,'build_ifneeded',False,boolean=True)
 
-		if not shutit_map[mid].get_config(shutit):
+# We need to only collect the configs for the ones that are being built.
+# By the point this is called we should know what's being built (ie after dependency resolution).
+def config_collection_for_built(shutit):
+	for mid in module_ids(shutit):
+		if not shutit.shutit_map[mid].get_config(shutit) and shutit.cfg[mid]['build']:
 			shutit.fail(mid + ' failed on get_config')
 
 def conn_container(shutit):
@@ -498,9 +502,6 @@ def shutit_main():
 
 	util.load_configs(shutit)
 
-	if cfg['action']['show_config']:
-		shutit.log(util.print_config(cfg),force_stdout=True)
-		return
 
 	shutit_module_init(shutit)
 
@@ -520,6 +521,12 @@ def shutit_main():
 		digraph = digraph + '\n}'
 		shutit.log(digraph,force_stdout=True)
 		return
+	# Dependency validation done, now collect configs of those marked for build.
+	config_collection_for_built(shutit)
+	if cfg['action']['show_config']:
+		shutit.log(util.print_config(cfg,history=cfg['build']['cfghistory']),force_stdout=True)
+		return
+	# Check for conflicts now.
 	errs.extend(check_conflicts(shutit))
 	if cfg['build']['interactive'] >= 3:
 		shutit.log('OK',force_stdout=True)
@@ -535,7 +542,6 @@ def shutit_main():
 				child = err[1]
 		shutit.fail("Encountered some errors, quitting", child=child)
 
-	# Dependency validation done.
 	do_remove(shutit)
 	do_build(shutit)
 	do_test(shutit)

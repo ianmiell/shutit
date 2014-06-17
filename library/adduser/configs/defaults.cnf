@@ -1,4 +1,0 @@
-# Base config for the module. This contains standard defaults.
-[shutit.tk.adduser.adduser]
-user:ausername
-password:apassword
