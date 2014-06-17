@@ -115,10 +115,9 @@ class mysql(ShutItModule):
 		return True
 
 	def get_config(self,shutit):
-		cp = shutit.cfg['config_parser']
-		shutit.cfg['shutit.tk.mysql.mysql']['mysql_user']          = cp.get('shutit.tk.mysql.mysql','mysql_user')
-		shutit.cfg['shutit.tk.mysql.mysql']['mysql_user_password'] = cp.get('shutit.tk.mysql.mysql','mysql_user_password')
-		shutit.cfg['shutit.tk.mysql.mysql']['root_password']       = cp.get('shutit.tk.mysql.mysql','root_password')
+		shutit.get_config('shutit.tk.mysql.mysql','mysql_user','prince')
+		shutit.get_config('shutit.tk.mysql.mysql','mysql_user_password','underthecherrymoon')
+		shutit.get_config('shutit.tk.mysql.mysql','root_password','purple_rain')
 		return True
 
 def module():
