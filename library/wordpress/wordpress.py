@@ -74,8 +74,7 @@ END"""
 		return True
 
 	def get_config(self,shutit):
-		cp = shutit.cfg['config_parser']
-		shutit.cfg['shutit.tk.wordpress.wordpress']['password'] = cp.get('shutit.tk.wordpress.wordpress','password')
+		shutit.get_config('shutit.tk.wordpress.wordpress','password','lovesexy')
 		return True
 
 def module():

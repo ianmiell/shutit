@@ -148,6 +148,7 @@ END"""
 		config_dict = shutit.cfg
 		return False
 
+
 def module():
 	return docker(
 		'shutit.tk.docker.docker', 0.396,

@@ -67,8 +67,7 @@ class squid_deb_proxy(ShutItModule):
 		return True
 
 	def get_config(self,shutit):
-		cp = shutit.cfg['config_parser']
-		shutit.cfg['shutit.tk.squid_deb_proxy.squid_deb_proxy']['host_proxy_port']          = cp.get('shutit.tk.squid_deb_proxy.squid_deb_proxy','host_proxy_port')
+		shutit.get_config('shutit.tk.squid_deb_proxy.squid_deb_proxy','host_proxy_port','8000')
 		return True
 
 def module():
