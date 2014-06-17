@@ -276,7 +276,7 @@ class conn_docker(ShutItModule):
 		shutit.setup_prompt('pre_build', prefix='PRE_BUILD')
 		shutit.get_distro_info()
 		shutit.setup_prompt('root_prompt', prefix='ROOT')
-		shutit.pause_point('Anything you want to do now the container is connected to?')
+		shutit.pause_point('Anything you want to do now the container is connected to?', level=2)
 		return True
 
 	def finalize(self,shutit):
@@ -295,9 +295,8 @@ class conn_docker(ShutItModule):
 		shutit.set_default_child(host_child)
 		shutit.set_default_expect(cfg['expect_prompts']['real_user_prompt'])
 		# Tag and push etc
-		if cfg['build']['interactive'] >= 3:
-			shutit.pause_point('\nDoing final committing/tagging on the overall container and creating the artifact.',
-				child=shutit.pexpect_children['host_child'],print_input=False)
+		shutit.pause_point('\nDoing final committing/tagging on the overall container and creating the artifact.',
+			child=shutit.pexpect_children['host_child'],print_input=False, level=3)
 		shutit.do_repository_work(cfg['repository']['name'],docker_executable=cfg['host']['docker_executable'],password=cfg['host']['password'])
 		# Final exits
 		host_child.sendline('exit') # Exit raw bash
@@ -333,7 +332,7 @@ class setup(ShutItModule):
 			if do_update:
 				shutit.send_and_expect('yum update -y',timeout=9999)
 		shutit.set_password(shutit.cfg['container']['password'])
-		shutit.pause_point('Anything you want to do to the container before the build starts?')
+		shutit.pause_point('Anything you want to do to the container before the build starts?', level=2)
 		return True
 
 	def remove(self,shutit):
