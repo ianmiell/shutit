@@ -45,7 +45,6 @@ import subprocess
 import getpass
 import StringIO
 import copy
-import pprint
 from shutit_module import ShutItFailException
 
 _default_cnf = '''
