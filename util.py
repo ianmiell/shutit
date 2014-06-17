@@ -685,13 +685,20 @@ def load_shutit_modules(shutit):
 def print_config(cfg,hide_password=True,history=False):
 	"""Returns a string representing the config of this ShutIt run.
 	"""
-	copiedcfg = copy.copy(cfg)
-	for k in copiedcfg.keys():
+	r = ''
+	for k in cfg.keys():
 		if type(k) == str and type(cfg[k]) == dict:
+			r = r + '\n[' + k + ']\n'
 			for k1 in cfg[k].keys():
-				if k1 == 'password' or k1 == 'passphrase':
-					copiedcfg[k][k1] = 'XXX'
-	r = pprint.PrettyPrinter().pformat(copiedcfg)
+				r = r + k1 + ': ' 
+				if hide_password and (k1 == 'password' or k1 == 'passphrase'):
+					r = r + 'XXX'
+				else:
+					if type(cfg[k][k1] == bool):
+						r = r + str(cfg[k][k1])
+					elif type(cfg[k][k1] == str):
+						r = r + cfg[k][k1]
+				r = r + '\n'
 	return r
 
 def set_pexpect_child(key,child):
