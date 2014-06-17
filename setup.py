@@ -90,7 +90,7 @@ class conn_docker(ShutItModule):
 				child.sendline(password)
 				child.expect(pexpect.EOF)
 		except pexpect.ExceptionPexpect:
-			shutit.fail('"' + str_cmd + '" did not complete in ' + cmd_timeout + 's, ' +
+			shutit.fail('"' + str_cmd + '" did not complete in ' + str(cmd_timeout) + 's, ' +
 				'is the docker daemon overloaded?')
 		child.close()
 		if child.exitstatus != 0:
@@ -170,16 +170,21 @@ class conn_docker(ShutItModule):
 		expect = ['assword',cfg['expect_prompts']['base_prompt'].strip(),'Waiting','ulling','endpoint','Download']
 		res = container_child.expect(expect,9999)
 		while True:
+			shutit.log(""">>>\n""" + container_child.before + container_child.after + """\n<<<""")
 			if res == 0:
+				shutit.log('...')
 				res = shutit.send_and_expect(cfg['host']['password'],child=container_child,expect=expect,timeout=9999,check_exit=False,fail_on_empty_before=False)
 			elif res == 1:
+				shutit.log('Prompt found, breaking out')
 				break
 			else:
 				res = container_child.expect(expect,9999)
 				continue
 		# Get the cid
 		time.sleep(1) # cidfile creation is sometimes slow...
+		shutit.log('Slept')
 		cid = open(cfg['build']['cidfile']).read()
+		shutit.log('Opening file')
 		if cid == '' or re.match('^[a-z0-9]+$', cid) == None:
 			shutit.fail('Could not get container_id - quitting. Check whether ' +
 				'other containers may be clashing on port allocation or name.' +
@@ -190,14 +195,19 @@ class conn_docker(ShutItModule):
 				cfg['container']['ports'] + ' | awk \'{print $1}\' | ' +
 				'xargs ' + cfg['host']['docker_executable'] + ' kill\nto + '
 				'resolve a port clash\n')
+		shutit.log('cid: ' + cid)
 		cfg['container']['container_id'] = cid
 		# Now let's have a host_child
 		shutit.log('Creating host child')
+		shutit.log('Spawning host child')
 		host_child = pexpect.spawn('/bin/bash')
+		shutit.log('Spawning done')
 		# Some pexpect settings
 		shutit.pexpect_children['host_child'] = host_child
 		shutit.pexpect_children['container_child'] = container_child
+		shutit.log('Setting default expect')
 		shutit.set_default_expect(cfg['expect_prompts']['base_prompt'])
+		shutit.log('Setting default expect done')
 		host_child.logfile = container_child.logfile = sys.stdout
 		host_child.maxread = container_child.maxread = 2000
 		host_child.searchwindowsize = container_child.searchwindowsize = 1024
@@ -205,15 +215,19 @@ class conn_docker(ShutItModule):
 		host_child.delaybeforesend = container_child.delaybeforesend = delay
 		# Set up prompts and let the user do things before the build
 		# host child
+		shutit.log('Setting default child')
 		shutit.set_default_child(host_child)
+		shutit.log('Setting default child done')
 		shutit.log('Setting up default prompt on host child')
-		shutit.setup_prompt('real_user_prompt','REAL_USER')
+		shutit.log('Setting up prompt')
+		shutit.setup_prompt('real_user_prompt',prefix='REAL_USER')
+		shutit.log('Setting up prompt done')
 		# container child
 		shutit.set_default_child(container_child)
 		shutit.log('Setting up default prompt on container child')
-		shutit.setup_prompt('pre_build', 'PRE_BUILD')
+		shutit.setup_prompt('pre_build', prefix='PRE_BUILD')
 		shutit.get_distro_info()
-		shutit.setup_prompt('root_prompt', 'ROOT')
+		shutit.setup_prompt('root_prompt', prefix='ROOT')
 		shutit.pause_point('Anything you want to do now the container is connected to?')
 		return True
 
@@ -260,7 +274,6 @@ class setup(ShutItModule):
 		and updating package management.
 		"""
 		mod_id = 'shutit.tk.setup'
-		packages = shutit.cfg[mod_id]['packages']
 		do_update = shutit.cfg[mod_id]['do_update']
 		if shutit.cfg['container']['install_type'] == 'apt':
 			shutit.send_and_expect('export DEBIAN_FRONTEND=noninteractive')
@@ -268,11 +281,7 @@ class setup(ShutItModule):
 				shutit.send_and_expect('apt-get update',timeout=9999,check_exit=False)
 			shutit.send_and_expect('dpkg-divert --local --rename --add /sbin/initctl')
 			shutit.send_and_expect('ln -f -s /bin/true /sbin/initctl')
-			for p in packages:
-				shutit.install(p)
 		elif shutit.cfg['container']['install_type'] == 'yum':
-			for p in packages:
-				shutit.install(p)
 			if do_update:
 				shutit.send_and_expect('yum update -y',timeout=9999)
 		shutit.set_password(shutit.cfg['container']['password'])
@@ -292,7 +301,6 @@ class setup(ShutItModule):
 		management update.
 		"""
 		cp = shutit.cfg['config_parser']
-		shutit.cfg[self.module_id]['packages']  = json.loads(cp.get(self.module_id,'packages'))
 		shutit.cfg[self.module_id]['do_update'] = cp.getboolean(self.module_id,'do_update')
 		return True
 
