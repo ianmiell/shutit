@@ -92,7 +92,7 @@ docker_executable:docker.io
 # space separated list of dns servers to use
 dns:
 # Password for the username above on the host (only needed if sudo is needed)
-password:YOUR_PASSWORD
+password:
 # Log file - will be set to 0600 perms, and defaults to /tmp/<YOUR_USERNAME>_shutit_log_<timestamp>
 # A timestamp will be added to the end of the filename.
 logfile:
@@ -343,9 +343,6 @@ def get_base_config(cfg, cfg_parser):
 	if cfg['container']['password'][:5] == 'YOUR_':
 		warn = '# Found ' + cfg['container']['password'] + ' in your config, you may want to quit and override, eg put the following into your\n# ' + shutit_global.cwd + '/configs/' + socket.gethostname() + '_' + cfg['host']['real_user'] + '.cnf file (create if necessary):\n\n[container]\n#root password for the container\npassword:mycontainerpassword\n\n'
 		issue_warning(warn,2)
-	if cfg['host']['password'][:5] == 'YOUR_':
-		warn = '# Found ' + cfg['host']['password'] + ' in your config, you may want to quit and override, eg put the following into your\n# ' + shutit_global.cwd + '/configs/' + socket.gethostname() + '_' + cfg['host']['real_user'] + '.cnf file: (create if necessary)\n\n[host]\n#your "real" password on your host machine\npassword:mypassword\n\n'
-		issue_warning(warn,2)
 	# FAILS begins
 	# rm is incompatible with repository actions
 	if cfg['container']['rm'] and (cfg['repository']['tag'] or cfg['repository']['push'] or cfg['repository']['save'] or cfg['repository']['export']):
@@ -360,11 +357,7 @@ def get_base_config(cfg, cfg_parser):
 		print('Allowed images for this build are: ' + str(cfg['build']['allowed_images']) + ' but the configured image is: ' + cfg['container']['docker_image'])
 		sys.exit()
 	# FAILS ends
-	if cfg['host']['password'] == '':
-		import getpass
-		cfg['host']['password'] = getpass.getpass(prompt='Input your host machine password: ')
 	if cfg['container']['password'] == '':
-		import getpass
 		cfg['container']['password'] = getpass.getpass(prompt='Input your container password: ')
 	# Check action_on_ret_code values
 	if cfg['build']['action_on_ret_code'] != 'msg' and cfg['build']['action_on_ret_code'] != 'error':
