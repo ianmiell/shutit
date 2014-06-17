@@ -54,7 +54,6 @@ class conn_docker(ShutItModule):
 		# Do some docker capability checking
 		cfg = shutit.cfg
 		cp = cfg['config_parser']
-		password = cfg['host']['password']
 
 		# If we have sudo, kill any current sudo timeout. This is a bit of a
 		# hammer and somewhat unfriendly, but tells us if we need a password.
@@ -88,7 +87,11 @@ class conn_docker(ShutItModule):
 		try:
 			if child.expect(['assword', pexpect.EOF]) == 0:
 				needed_password = True
-				child.sendline(password)
+				if cfg['host']['password'] == '':
+					msg = ('Running "%s" has prompted for a password, please ' +
+						'enter your host password') % (str_cmd,)
+					cfg['host']['password'] = shutit.prompt_cfg(msg, 'host', 'password', ispass=True)
+				child.sendline(cfg['host']['password'])
 				child.expect(pexpect.EOF)
 		except pexpect.ExceptionPexpect:
 			fail_msg = '"%s" did not complete in %ss' % (str_cmd, cmd_timeout)
@@ -105,13 +108,13 @@ class conn_docker(ShutItModule):
 				msg = (fail_msg + ', your host password or ' +
 					'docker_executable config may be wrong (I will assume ' +
 					'password).\nPlease confirm your host password.')
-				sec, name = 'host', 'password'
+				sec, name, ispass = 'host', 'password', True
 			else:
 				msg = (fail_msg + ', your docker_executable ' +
 					'setting seems to be wrong.\nPlease confirm your host ' +
 					'password.')
-				sec, name = 'host', 'docker_executable'
-			cfg[sec][name] = shutit.prompt_cfg(msg, sec, name)
+				sec, name, ispass = 'host', 'docker_executable', False
+			cfg[sec][name] = shutit.prompt_cfg(msg, sec, name, ispass=ispass)
 			return False
 
 		# Now check connectivity to the docker daemon
@@ -120,7 +123,7 @@ class conn_docker(ShutItModule):
 		child = pexpect.spawn(check_cmd[0], check_cmd[1:], timeout=cmd_timeout)
 		try:
 			if child.expect(['assword', pexpect.EOF]) == 0:
-				child.sendline(password)
+				child.sendline(cfg['host']['password'])
 				child.expect(pexpect.EOF)
 		except pexpect.ExceptionPexpect:
 			shutit.fail('"' + str_cmd + '" did not complete in ' + str(cmd_timeout) + 's, ' +
