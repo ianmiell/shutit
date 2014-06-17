@@ -500,12 +500,12 @@ class ShutIt(object):
 			cp.reload()
 		return val
 
-	def pause_point(self,msg,child=None,print_input=True,expect='',force=False):
+	def pause_point(self,msg,child=None,print_input=True,expect='',level=1):
 		"""Inserts a pause in the build session which allows the user to try things out before continuing.
 		"""
 		child = child or self.get_default_child()
 		cfg = self.cfg
-		if not cfg['build']['interactive'] and not force:
+		if not cfg['build']['interactive'] or cfg['build']['interactive'] < level:
 			return
 		# Sleep to try and make this the last thing we see before the prompt (not always the case)
 		if child and print_input:
@@ -774,8 +774,7 @@ class ShutIt(object):
 		cmd = docker_executable + ' tag ' + image_id + ' ' + repository
 		self.send_and_expect(cmd,child=child,expect=expect,check_exit=False)
 		if export or save:
-			if cfg['build']['interactive'] >= 3:
-				self.pause_point('We are now exporting the container to a bzipped tar file, as configured in \n[repository]\ntar:yes',print_input=False,child=child)
+			self.pause_point('We are now exporting the container to a bzipped tar file, as configured in \n[repository]\ntar:yes',print_input=False,child=child,level=3)
 			self.log('\nDepositing bzip2 of exported container into ' + bzfile)
 			if export:
 				bzfile = cfg['host']['resources_dir'] + '/' + repository_tar + 'export.tar.bz2'
