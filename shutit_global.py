@@ -33,7 +33,7 @@ import string
 import re
 import textwrap
 import base64
-from ConfigParser import ConfigParser
+import getpass
 from shutit_module import ShutItFailException
 
 def random_id(size=5, chars=string.ascii_letters + string.digits):
@@ -436,7 +436,7 @@ class ShutIt(object):
 		else:
 			return False
 
-	def prompt_cfg(self,msg,sec,name):
+	def prompt_cfg(self,msg,sec,name,ispass=False):
 		"""Prompt for a config value, possibly saving it to the user-level cfg
 		"""
 		cfg = self.cfg
@@ -466,7 +466,10 @@ class ShutIt(object):
 		else:
 			# The item is not currently set so we're fine to do so
 			pass
-		val = raw_input('>> ')
+		if ispass:
+			val = getpass.getpass('>> ')
+		else:
+			val = raw_input('>> ')
 		is_excluded = (
 			cp.has_option('save_exclude', sec) and
 			name in cp.get('save_exclude', sec).split()
@@ -483,7 +486,13 @@ class ShutIt(object):
 				sec_toset, name_toset, val_toset = sec, name, val
 			else:
 				# Never save it
-				sec_toset, name_toset, val_toset = 'save_exclude', cfgstr, ''
+				if cp.has_option('save_exclude', sec):
+					excluded = cp.get('save_exclude', sec).split()
+				else:
+					excluded = []
+				excluded.append(name)
+				excluded = ' '.join(excluded)
+				sec_toset, name_toset, val_toset = 'save_exclude', sec, excluded
 			if not usercp.has_section(sec_toset):
 				usercp.add_section(sec_toset)
 			usercp.set(sec_toset, name_toset, val_toset)
