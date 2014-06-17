@@ -127,8 +127,11 @@ class conn_docker(ShutItModule):
 				'is the docker daemon overloaded?')
 		child.close()
 		if child.exitstatus != 0:
-			shutit.fail(str_cmd + ' didn\'t return a 0 exit code, ' +
-				'is the docker daemon running? Do you need to set the docker_executable config to use sudo?')
+			msg = ('"' + str_cmd + '" didn\'t return a 0 exit code, is the ' +
+				'docker daemon running? Do you need to set the ' +
+				'docker_executable config to use sudo? Please confirm the ' +
+				'docker executable.')
+			cfg['host']['docker_executable'] = shutit.prompt_cfg(msg, 'host', 'docker_executable')
 
 		return True
 
