@@ -134,7 +134,7 @@ class ShutIt(object):
 		"""
 		# Note: we must not default to a child here
 		if child is not None:
-			self.pause_point(child, 'Pause point on fail: ' + msg)
+			self.pause_point('Pause point on fail: ' + msg, child=child)
 		print >> sys.stderr, 'ERROR!'
 		print >> sys.stderr
 		raise ShutItFailException(msg)
@@ -419,6 +419,22 @@ class ShutIt(object):
 		expect = expect or self.get_default_expect()
 		self.add_line_to_file(line,'/etc/bash.bashrc',expect=expect)
 		return self.add_line_to_file(line,'/etc/profile',expect=expect)
+
+	def user_exists(self,user,expect=None,child=None):
+		"""Returns true if the specified username exists"""
+		child = child or self.get_default_child()
+		expect = expect or self.get_default_expect()
+		exist = False
+		if user == '': return exist
+		ret = shutit.send_and_expect(
+			'id %s && echo E""XIST || echo N""XIST' % user,
+			expect=['NXIST','EXIST'], child=child
+		)
+		if ret:
+			exist = True
+		# sync with the prompt
+		child.expect(expect)
+		return exist
 
 	def package_installed(self,package,expect=None,child=None):
 		"""Returns True if we can be sure the package is installed.
