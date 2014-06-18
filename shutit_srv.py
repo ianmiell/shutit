@@ -197,6 +197,7 @@ def shutit_reset():
 
 		# Some hacks for server mode
 		shutit.cfg['build']['build_log'] = StringIO.StringIO()
+		shutit.cfg['build']['interactive'] = 0
 		STATUS['cid'] = shutit.cfg['container']['container_id']
 		for mid in shutit.shutit_map:
 			STATUS['cfg'][mid] = orig_mod_cfg[mid] = shutit.cfg[mid]
