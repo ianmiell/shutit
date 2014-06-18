@@ -192,9 +192,8 @@ def finalize_container(shutit):
 	"""
 	assert len(shutit.conn_modules) == 1
 	# Set up the container in pexpect.
-	if shutit.cfg['build']['interactive'] >= 3:
-		shutit.pause_point('\nFinalizing the conntainer module (' +
-			shutit.shutit_main_dir + '/setup.py)', print_input=False)
+	shutit.pause_point('\nFinalizing the conntainer module (' +
+		shutit.shutit_main_dir + '/setup.py)', print_input=False, level=3)
 	list(shutit.conn_modules)[0].finalize(shutit)
 
 # Once we have all the modules, then we can look at dependencies.
@@ -258,8 +257,7 @@ def check_deps(shutit):
 	cfg = shutit.cfg
 	shutit_map = shutit.shutit_map
 	shutit.log('PHASE: dependencies',code='31')
-	if cfg['build']['interactive'] >= 3:
-		shutit.pause_point('\nNow checking for dependencies between modules',print_input=False)
+	shutit.pause_point('\nNow checking for dependencies between modules',print_input=False,level=3)
 	# Get modules we're going to build
 	to_build = [
 		shutit_map[mid] for mid in shutit_map
@@ -318,8 +316,7 @@ def check_conflicts(shutit):
 	# Now consider conflicts
 	shutit.log('PHASE: conflicts',code='31')
 	errs = []
-	if cfg['build']['interactive'] >= 3:
-		shutit.pause_point('\nNow checking for conflicts between modules',print_input=False)
+	shutit.pause_point('\nNow checking for conflicts between modules',print_input=False,level=3)
 	for mid in module_ids(shutit):
 		if not cfg[mid]['build']:
 			continue
@@ -344,9 +341,8 @@ def check_ready(shutit):
 	shutit_map = shutit.shutit_map
 	shutit.log('PHASE: check_ready',code='31')
 	errs = []
-	if cfg['build']['interactive'] >= 3:
-		shutit.pause_point('\nNow checking whether we are ready to build modules configured to be built',
-			print_input=False)
+	shutit.pause_point('\nNow checking whether we are ready to build modules configured to be built',
+		print_input=False,level=3)
 	for mid in module_ids(shutit):
 		m = shutit_map[mid]
 		shutit.log('considering check_ready (is it ready to be built?): ' + mid,code='31')
@@ -363,8 +359,7 @@ def do_remove(shutit):
 	shutit_map = shutit.shutit_map
 	# Now get the run_order keys in order and go.
 	shutit.log('PHASE: remove',code='31')
-	if cfg['build']['interactive'] >= 3:
-		shutit.pause_point('\nNow removing any modules that need removing',print_input=False)
+	shutit.pause_point('\nNow removing any modules that need removing',print_input=False,level=3)
 	for mid in module_ids(shutit):
 		m = shutit_map[mid]
 		shutit.log('considering whether to remove: ' + mid,code='31')
@@ -382,8 +377,7 @@ def build_module(shutit, module):
 	cfg['build']['report'] = cfg['build']['report'] + '\nBuilding: ' + module.module_id + ' with run order: ' + str(module.run_order)
 	if not module.build(shutit):
 		shutit.fail(module.module_id + ' failed on build',child=shutit.pexpect_children['container_child'])
-	if cfg['build']['interactive'] >= 2:
-		shutit.pause_point('\nPausing to allow inspect of build for: ' + module.module_id,print_input=True)
+	shutit.pause_point('\nPausing to allow inspect of build for: ' + module.module_id,print_input=True,level=2)
 	cfg['build']['report'] = cfg['build']['report'] + '\nCompleted module: ' + module.module_id
 	if cfg[module.module_id]['do_repository_work'] or cfg['build']['interactive'] >= 2:
 		shutit.log(util.build_report('Module:' + module.module_id),code='31')
@@ -501,7 +495,6 @@ def shutit_main():
 		return
 
 	util.load_configs(shutit)
-
 
 	shutit_module_init(shutit)
 
