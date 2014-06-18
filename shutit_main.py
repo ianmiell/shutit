@@ -502,8 +502,6 @@ def shutit_main():
 
 	errs = []
 	errs.extend(check_deps(shutit))
-	if cfg['build']['interactive'] >= 3:
-		shutit.log('OK',force_stdout=True)
 	# Show dependency graph
 	if cfg['action']['show_depgraph']:
 		digraph = 'digraph depgraph {\n'
@@ -521,11 +519,7 @@ def shutit_main():
 		return
 	# Check for conflicts now.
 	errs.extend(check_conflicts(shutit))
-	if cfg['build']['interactive'] >= 3:
-		shutit.log('OK',force_stdout=True)
 	errs.extend(check_ready(shutit))
-	if cfg['build']['interactive'] >= 3:
-		shutit.log('OK',force_stdout=True)
 	if errs:
 		shutit.log(print_modules(shutit),code='31')
 		child = None
