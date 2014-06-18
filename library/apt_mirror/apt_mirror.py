@@ -40,7 +40,7 @@ class apt_mirror(ShutItModule):
 
 def module():
 	return apt_mirror(
-		'shutit.tk.apt_mirror.apt_mirror', 782914092.00,
+		'shutit.tk.apt_mirror.apt_mirror', 0.801,
 		depends=['shutit.tk.setup']
 	)
 
