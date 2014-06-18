@@ -134,7 +134,7 @@ class ShutIt(object):
 		"""
 		# Note: we must not default to a child here
 		if child is not None:
-			self.pause_point(child, 'Pause point on fail: ' + msg)
+			self.pause_point('Pause point on fail: ' + msg, child=child)
 		print >> sys.stderr, 'ERROR!'
 		print >> sys.stderr
 		raise ShutItFailException(msg)
