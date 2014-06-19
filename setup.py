@@ -200,7 +200,7 @@ class conn_docker(ShutItModule):
 				'-t',
 				'-i',
 				cfg['container']['docker_image'],
-				'su', '-s', '/bin/bash', 'root'
+				'/bin/bash'
 			] if arg != ''
 		]
 		if cfg['build']['interactive'] >= 3:
