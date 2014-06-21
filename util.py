@@ -92,7 +92,7 @@ docker_executable:docker.io
 # space separated list of dns servers to use
 dns:
 # Password for the username above on the host (only needed if sudo is needed)
-password:YOUR_PASSWORD
+password:
 # Log file - will be set to 0600 perms, and defaults to /tmp/<YOUR_USERNAME>_shutit_log_<timestamp>
 # A timestamp will be added to the end of the filename.
 logfile:
@@ -154,31 +154,47 @@ base_image:ubuntu:12.04
 
 class LayerConfigParser(RawConfigParser):
 
-	def __init__(self, *args, **kwargs):
-		RawConfigParser.__init__(self, *args, **kwargs)
-		self._cps = []
+	def __init__(self):
+		RawConfigParser.__init__(self)
+		self.layers = []
 
-	def read(self, filenames, *args, **kwargs):
+	def read(self, filenames):
 		if type(filenames) is not list:
 			filenames = [filenames]
 		for filename in filenames:
 			cp = RawConfigParser()
-			cp.read(filename, *args, **kwargs)
-			self._cps.append((cp, filename))
-		return RawConfigParser.read(self, filenames, *args, **kwargs)
+			cp.read(filename)
+			self.layers.append((cp, filename, None))
+		return RawConfigParser.read(self, filenames)
 
-	def readfp(self, fp, filename=None, *args, **kwargs):
+	def readfp(self, fp, filename=None):
 		cp = RawConfigParser()
-		cp.readfp(fp, filename, *args, **kwargs)
-		self._cps.append((cp, filename))
 		fp.seek(0)
-		return RawConfigParser.readfp(self, fp, filename, *args, **kwargs)
+		cp.readfp(fp, filename)
+		self.layers.append((cp, filename, fp))
+		fp.seek(0)
+		ret = RawConfigParser.readfp(self, fp, filename)
+		return ret
 
 	def whereset(self, sec, name):
-		for cp, filename in reversed(self._cps):
+		for cp, filename, fp in reversed(self.layers):
 			if cp.has_option(sec, name):
 				return filename
 		raise ShutItFailException('[%s]/%s was never set' % (sec, name))
+
+	def reload(self):
+		"""
+		Re-reads all layers again. In theory this should overwrite all the old
+		values with any newer ones.
+		It assumes we never delete a config item before reload.
+		"""
+		oldlayers = self.layers
+		self.layers = []
+		for cp, filename, fp in oldlayers:
+			if fp is None:
+				self.read(filename)
+			else:
+				self.readfp(fp, filename)
 
 	def remove_section(self, *args, **kwargs):
 		raise NotImplementedError('Layer config parsers aren\'t directly mutable')
@@ -327,9 +343,6 @@ def get_base_config(cfg, cfg_parser):
 	if cfg['container']['password'][:5] == 'YOUR_':
 		warn = '# Found ' + cfg['container']['password'] + ' in your config, you may want to quit and override, eg put the following into your\n# ' + shutit_global.cwd + '/configs/' + socket.gethostname() + '_' + cfg['host']['real_user'] + '.cnf file (create if necessary):\n\n[container]\n#root password for the container\npassword:mycontainerpassword\n\n'
 		issue_warning(warn,2)
-	if cfg['host']['password'][:5] == 'YOUR_':
-		warn = '# Found ' + cfg['host']['password'] + ' in your config, you may want to quit and override, eg put the following into your\n# ' + shutit_global.cwd + '/configs/' + socket.gethostname() + '_' + cfg['host']['real_user'] + '.cnf file: (create if necessary)\n\n[host]\n#your "real" password on your host machine\npassword:mypassword\n\n'
-		issue_warning(warn,2)
 	# FAILS begins
 	# rm is incompatible with repository actions
 	if cfg['container']['rm'] and (cfg['repository']['tag'] or cfg['repository']['push'] or cfg['repository']['save'] or cfg['repository']['export']):
@@ -344,11 +357,7 @@ def get_base_config(cfg, cfg_parser):
 		print('Allowed images for this build are: ' + str(cfg['build']['allowed_images']) + ' but the configured image is: ' + cfg['container']['docker_image'])
 		sys.exit()
 	# FAILS ends
-	if cfg['host']['password'] == '':
-		import getpass
-		cfg['host']['password'] = getpass.getpass(prompt='Input your host machine password: ')
 	if cfg['container']['password'] == '':
-		import getpass
 		cfg['container']['password'] = getpass.getpass(prompt='Input your container password: ')
 	# Check action_on_ret_code values
 	if cfg['build']['action_on_ret_code'] != 'msg' and cfg['build']['action_on_ret_code'] != 'error':
@@ -437,7 +446,7 @@ def parse_args(cfg):
 		sub_parsers[action].add_argument('-m','--shutit_module_path', default='.',help='List of shutit module paths, separated by colons. ShutIt registers modules by running all .py files in these directories.')
 		sub_parsers[action].add_argument('--pause',help='Pause between commands to avoid race conditions.',default='0.05',type=check_pause)
 		sub_parsers[action].add_argument('--debug',help='Show debug.',default=False,const=True,action='store_const')
-		sub_parsers[action].add_argument('--interactive',help='Level of interactive. 0 = none, 1 = honour pause points, 2 = regular querying of user on each module, 2 = tutorial mode',default='0')
+		sub_parsers[action].add_argument('--interactive',help='Level of interactive. 0 = none, 1 = honour pause points and config prompting, 2 = query user on each module, 3 = tutorial mode',default='1')
 
 	args_list = sys.argv[1:]
 	if os.environ.get('SHUTIT_OPTIONS', None) and args_list[0] != 'skeleton':
@@ -899,7 +908,6 @@ def create_skeleton(shutit):
 			echo "  ./test.sh <path_to_shutit_dir>"
 			exit
 		fi
-		export SHUTIT_OPTIONS="$SHUTIT_OPTIONS"
 		./build.sh $1
 		''')
 	runsh = textwrap.dedent('''\
@@ -945,11 +953,6 @@ def create_skeleton(shutit):
 		[container]
 		rm:false
 		''')
-
-	pw_host = getpass.getpass('Password (for host %s): ' % socket.gethostname())
-	print "Container's hostname: "
-	container_hostname = raw_input('')
-	pw_container = getpass.getpass('Password (for container): ')
 
 	open(templatemodule_path, 'w').write(templatemodule)
 	open(readme_path, 'w').write(readme)
