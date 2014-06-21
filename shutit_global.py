@@ -705,6 +705,7 @@ class ShutIt(object):
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
 		cfg = self.cfg
+		self.install('passwd')
 		if cfg['container']['install_type'] == 'apt':
 			self.send_and_expect('passwd',expect='Enter new',child=child,check_exit=False)
 			self.send_and_expect(password,child=child,expect='Retype new',check_exit=False,record_command=False)
