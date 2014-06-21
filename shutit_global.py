@@ -34,6 +34,7 @@ import re
 import textwrap
 import base64
 import getpass
+import package_map
 from shutit_module import ShutItFailException
 
 def random_id(size=5, chars=string.ascii_letters + string.digits):
@@ -193,7 +194,17 @@ class ShutIt(object):
 			if expect == self.get_default_expect():
 				check_exit = self.get_default_check_exit()
 			else:
-				check_exit = True
+				# If expect given doesn't match the defaults and no argument was passed in
+				# (ie check_exit was passed in as None), set check_exit to true iff it
+				# matches a prompt.
+				expect_matches_prompt = False
+				for prompt in cfg['expect_prompts']:
+					if prompt == expect:
+						expect_matches_prompt = True
+				if not expect_matches_prompt:
+					check_exit = False
+				else:
+					check_exit = True
 		ok_to_record = False
 		if record_command:
 			ok_to_record = True
@@ -594,6 +605,8 @@ class ShutIt(object):
 		else:
 			# Not handled
 			return False
+		# Get mapped package.
+		package = package_map.map_package(package,self.cfg['container']['install_type'])
 		self.send_and_expect('%s %s %s' % (cmd,opts,package),expect,timeout=timeout)
 		return True
 
@@ -617,6 +630,8 @@ class ShutIt(object):
 		else:
 			# Not handled
 			return False
+		# Get mapped package.
+		package = package_map.map_package(package,self.cfg['container']['install_type'])
 		self.send_and_expect('%s %s %s' % (cmd,opts,package),expect,timeout=timeout)
 		return True
 
