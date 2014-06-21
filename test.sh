@@ -62,7 +62,6 @@ cleanup nothard
 rm -rf ${NEWDIR}
 popd
 
-PIDS=""
 # General tests
 mkdir -p /tmp/shutit_logs/$$
 for d in $(ls test | grep -v configs)
@@ -79,9 +78,9 @@ do
 		then
 			./test.sh ${SHUTIT_DIR} 2>&1 | tee /tmp/shutit_logs/$$/shutit_core_test_$(date +%s)
 		else
+# TODO
+#http://stackoverflow.com/questions/356100/how-to-wait-in-bash-for-several-subprocesses-to-finish-and-return-exit-code-0
 			./test.sh ${SHUTIT_DIR} 2>&1 | tee /tmp/shutit_logs/$$/shutit_core_test_$(date +%s) & 
-			PIDS="$PIDS $!"
-			sleep 5
 		fi
 		cleanup nothard
 		set_shutit_options
@@ -89,16 +88,27 @@ do
 	popd
 done
 
-readonly PIDS
+FAIL=0
 if [ x$SHUTIT_PARALLEL_BUILD != 'x' ]
 then
-	echo "PIDS: $PIDS"
-	for P in $PIDS; do
+	for P in $(jobs -p); do
+		echo "========================================================"
 		echo "WAITING ON: $P"
-		wait $P
-		echo "FINISHED: $P"
+		echo "========================================================"
+		wait $P || let "FAIL+=1"
+		echo "========================================================"
+		echo "FINISHED: $P $?"
+		echo "========================================================"
 	done
 fi
+
+if [[ $FAIL == "0" ]]
+then
+	/bin/true
+else
+	failure "FAILED"
+fi
+
 
 # Examples tests
 if [[ $TESTS != 'basic' ]]
