@@ -33,6 +33,8 @@ import string
 import re
 import textwrap
 import base64
+import getpass
+import package_map
 from shutit_module import ShutItFailException
 
 def random_id(size=5, chars=string.ascii_letters + string.digits):
@@ -133,7 +135,7 @@ class ShutIt(object):
 		"""
 		# Note: we must not default to a child here
 		if child is not None:
-			self.pause_point(child, 'Pause point on fail: ' + msg)
+			self.pause_point('Pause point on fail: ' + msg, child=child)
 		print >> sys.stderr, 'ERROR!'
 		print >> sys.stderr
 		raise ShutItFailException(msg)
@@ -192,7 +194,17 @@ class ShutIt(object):
 			if expect == self.get_default_expect():
 				check_exit = self.get_default_check_exit()
 			else:
-				check_exit = True
+				# If expect given doesn't match the defaults and no argument was passed in
+				# (ie check_exit was passed in as None), set check_exit to true iff it
+				# matches a prompt.
+				expect_matches_prompt = False
+				for prompt in cfg['expect_prompts']:
+					if prompt == expect:
+						expect_matches_prompt = True
+				if not expect_matches_prompt:
+					check_exit = False
+				else:
+					check_exit = True
 		ok_to_record = False
 		if record_command:
 			ok_to_record = True
@@ -419,6 +431,22 @@ class ShutIt(object):
 		self.add_line_to_file(line,'/etc/bash.bashrc',expect=expect)
 		return self.add_line_to_file(line,'/etc/profile',expect=expect)
 
+	def user_exists(self,user,expect=None,child=None):
+		"""Returns true if the specified username exists"""
+		child = child or self.get_default_child()
+		expect = expect or self.get_default_expect()
+		exist = False
+		if user == '': return exist
+		ret = shutit.send_and_expect(
+			'id %s && echo E""XIST || echo N""XIST' % user,
+			expect=['NXIST','EXIST'], child=child
+		)
+		if ret:
+			exist = True
+		# sync with the prompt
+		child.expect(expect)
+		return exist
+
 	def package_installed(self,package,expect=None,child=None):
 		"""Returns True if we can be sure the package is installed.
 		"""
@@ -435,14 +463,76 @@ class ShutIt(object):
 		else:
 			return False
 
+	def prompt_cfg(self,msg,sec,name,ispass=False):
+		"""Prompt for a config value, possibly saving it to the user-level cfg
+		"""
+		cfg = self.cfg
+		cfgstr = '[%s]/%s' % (sec, name)
+		cp = cfg['config_parser']
+		usercfg = os.path.join(cfg['shutit_home'], 'config')
 
+		if not cfg['build']['interactive']:
+			shutit.fail('ShutIt is not in interactive mode so cannnot prompt ' +
+				'for values.')
 
-	def pause_point(self,msg,child=None,print_input=True,expect='',force=False):
+		print util.colour('34', '\nPROMPTING FOR CONFIG: %s' % (cfgstr,))
+		print util.colour('34', '\n' + msg + '\n')
+
+		if cp.has_option(sec, name):
+			whereset = cp.whereset(sec, name)
+			if usercfg == whereset:
+				self.fail(cfgstr + ' has already been set in the user ' +
+					'config, edit ' + usercfg + ' directly to change it')
+			for subcp, filename, fp in reversed(cp.layers):
+				# Is the config file loaded after the user config file?
+				if filename == whereset:
+					self.fail(cfgstr + ' is being set in ' + filename + ', ' +
+						'unable to override on a user config level')
+				elif filename == usercfg:
+					break
+		else:
+			# The item is not currently set so we're fine to do so
+			pass
+		if ispass:
+			val = getpass.getpass('>> ')
+		else:
+			val = raw_input('>> ')
+		is_excluded = (
+			cp.has_option('save_exclude', sec) and
+			name in cp.get('save_exclude', sec).split()
+		)
+		# TODO: ideally we would remember the prompted config item for this
+		# invocation of shutit
+		if not is_excluded:
+			usercp = [
+				subcp for subcp, filename, fp in cp.layers
+				if filename == usercfg
+			][0]
+			if raw_input(util.colour('34',
+					'Do you want to save this to your user settings? y/n: ')) == 'y':
+				sec_toset, name_toset, val_toset = sec, name, val
+			else:
+				# Never save it
+				if cp.has_option('save_exclude', sec):
+					excluded = cp.get('save_exclude', sec).split()
+				else:
+					excluded = []
+				excluded.append(name)
+				excluded = ' '.join(excluded)
+				sec_toset, name_toset, val_toset = 'save_exclude', sec, excluded
+			if not usercp.has_section(sec_toset):
+				usercp.add_section(sec_toset)
+			usercp.set(sec_toset, name_toset, val_toset)
+			usercp.write(open(usercfg, 'w'))
+			cp.reload()
+		return val
+
+	def pause_point(self,msg,child=None,print_input=True,expect='',level=1):
 		"""Inserts a pause in the build session which allows the user to try things out before continuing.
 		"""
 		child = child or self.get_default_child()
 		cfg = self.cfg
-		if not cfg['build']['interactive'] and not force:
+		if not cfg['build']['interactive'] or cfg['build']['interactive'] < level:
 			return
 		# Sleep to try and make this the last thing we see before the prompt (not always the case)
 		if child and print_input:
@@ -515,6 +605,8 @@ class ShutIt(object):
 		else:
 			# Not handled
 			return False
+		# Get mapped package.
+		package = package_map.map_package(package,self.cfg['container']['install_type'])
 		self.send_and_expect('%s %s %s' % (cmd,opts,package),expect,timeout=timeout)
 		return True
 
@@ -538,6 +630,8 @@ class ShutIt(object):
 		else:
 			# Not handled
 			return False
+		# Get mapped package.
+		package = package_map.map_package(package,self.cfg['container']['install_type'])
 		self.send_and_expect('%s %s %s' % (cmd,opts,package),expect,timeout=timeout)
 		return True
 
@@ -611,6 +705,7 @@ class ShutIt(object):
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
 		cfg = self.cfg
+		self.install('passwd')
 		if cfg['container']['install_type'] == 'apt':
 			self.send_and_expect('passwd',expect='Enter new',child=child,check_exit=False)
 			self.send_and_expect(password,child=child,expect='Retype new',check_exit=False,record_command=False)
@@ -711,8 +806,7 @@ class ShutIt(object):
 		cmd = docker_executable + ' tag ' + image_id + ' ' + repository
 		self.send_and_expect(cmd,child=child,expect=expect,check_exit=False)
 		if export or save:
-			if cfg['build']['interactive'] >= 3:
-				self.pause_point('We are now exporting the container to a bzipped tar file, as configured in \n[repository]\ntar:yes',print_input=False,child=child)
+			self.pause_point('We are now exporting the container to a bzipped tar file, as configured in \n[repository]\ntar:yes',print_input=False,child=child,level=3)
 			self.log('\nDepositing bzip2 of exported container into ' + bzfile)
 			if export:
 				bzfile = cfg['host']['resources_dir'] + '/' + repository_tar + 'export.tar.bz2'
@@ -768,7 +862,7 @@ def init():
 	cfg = {}
 	cfg['action']               = {}
 	cfg['build']                = {}
-	cfg['build']['interactive'] = True # Default to true until we know otherwise
+	cfg['build']['interactive'] = 1 # Default to true until we know otherwise
 	cfg['build']['build_log']   = None
 	cfg['build']['report']      = ''
 	cfg['container']            = {}
