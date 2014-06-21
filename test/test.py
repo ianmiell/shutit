@@ -35,15 +35,17 @@ class TestShutItDepChecking(unittest.TestCase):
 		"""TODO
 		"""
 		self.shutit = shutit_global.init()
-		def log(*args, **kwargs):
+		def noop(*args, **kwargs):
 			pass
 		def fail(*args, **kwargs):
 			raise ShutItTestException("failed")
-		self.shutit.log = log
+		self.shutit.log = noop
 		self.shutit.fail = fail
+		self.shutit.get_default_child = noop
 		recupdate(self.shutit.cfg, {
 			'build': {
-				'tutorial': False, 'debug': False, 'show_depgraph_only': False
+				'tutorial': False, 'debug': False, 'show_depgraph_only': False,
+				'interactive': 0
 			},
 			'host': {'shutit_module_paths': 'dummy1:dummy2'}
 		})

@@ -24,30 +24,34 @@
 source ../test/shared_test_utils.sh
 
 PIDS=""
-for d in *
+for dist in ubuntu:latest debian:latest
 do
-	cleanup
-	if [[ -a $d/test.sh ]]
-	then
-		pushd $d
-		# Set up a random container name for tests to use
-		if [[ -a STOP ]]
+	for d in *
+	do
+		cleanup
+		if [[ -a $d/test.sh ]]
 		then
-			echo "Skipping $d"
-		else
-			# Must be done on each iteration as we ned a fresh cid per test run
-			set_shutit_options
-			if [[ x$SHUTIT_PARALLEL_BUILD = 'x' ]]
+			pushd $d
+			# Set up a random container name for tests to use
+			if [[ -a STOP ]]
 			then
-				./test.sh "`pwd`/../.."
+				echo "Skipping $d"
 			else
-				./test.sh "`pwd`/../.." &
-				PIDS="$PIDS $!"
+				# Must be done on each iteration as we ned a fresh cid per test run
+				set_shutit_options "--image_tag $dist"
+				if [[ x$SHUTIT_PARALLEL_BUILD = 'x' ]]
+				then
+					./test.sh "`pwd`/../.."
+				else
+					./test.sh "`pwd`/../.." &
+					PIDS="$PIDS $!"
+				fi
 			fi
+		popd
 		fi
-	popd
-	fi
+	done
 done
+
 
 if [ x$SHUTIT_PARALLEL_BUILD != 'x' ]
 then
