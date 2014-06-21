@@ -134,9 +134,6 @@ do_update:yes
 # Aspects of build process
 [build]
 build_log:no
-# options: msg   = message at end if there was a ret code error from a command
-#          error = throw error if there was a ret code error from a command
-action_on_ret_code:error
 # Run container in privileged mode
 privileged:no
 # lxc-conf arg, eg
@@ -281,7 +278,6 @@ def get_base_config(cfg, cfg_parser):
 	"""
 	cfg['config_parser'] = cp = cfg_parser
 	# BEGIN Read from config files
-	cfg['build']['action_on_ret_code']            = cp.get('build','action_on_ret_code')
 	cfg['build']['privileged']                    = cp.getboolean('build','privileged')
 	cfg['build']['lxc_conf']                      = cp.get('build','lxc_conf')
 	cfg['build']['build_log']                     = cp.getboolean('build','build_log')
@@ -359,10 +355,6 @@ def get_base_config(cfg, cfg_parser):
 	# FAILS ends
 	if cfg['container']['password'] == '':
 		cfg['container']['password'] = getpass.getpass(prompt='Input your container password: ')
-	# Check action_on_ret_code values
-	if cfg['build']['action_on_ret_code'] != 'msg' and cfg['build']['action_on_ret_code'] != 'error':
-		print('[build]\naction_on_ret_code:\nshould be set to "msg" or "error"')
-		sys.exit()
 
 # Returns the config dict
 def parse_args(cfg):
