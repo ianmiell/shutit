@@ -54,14 +54,14 @@ class vnc(ShutItModule):
 		if shutit.cfg['container']['install_type'] == 'apt':
 			send = 'apt-get install -qq -y --no-install-recommends ubuntu-desktop > /tmp/ubuntu-desktop && rm -f /tmp/ubuntu-desktop'
 		while True:
-			res = shutit.send_and_expect(send,['Unpacking','Setting up',shutit.cfg['expect_prompts']['root_prompt']],timeout=9999,check_exit=False)
+			res = shutit.send_and_expect(send,expect=['Unpacking','Setting up',shutit.cfg['expect_prompts']['root_prompt']],timeout=9999)
 			if res == 2:
 				break
 			elif res == 0 or res == 1:
 				send = ''
 		send = 'vncserver'
 		while True:
-			res = shutit.send_and_expect(send,expect=['assword:','erify',shutit.cfg['expect_prompts']['root_prompt']],check_exit=False,fail_on_empty_before=False,record_command=False)
+			res = shutit.send_and_expect(send,expect=['assword:','erify',shutit.cfg['expect_prompts']['root_prompt']],fail_on_empty_before=False,record_command=False)
 			if res == 0 or res == 1:
 				send = shutit.cfg['shutit.tk.vnc.vnc']['password']
 			elif res == 2:
