@@ -444,7 +444,7 @@ def do_finalize(shutit):
 	cfg = shutit.cfg
 	shutit_map = shutit.shutit_map
 	# Stop all the modules
-	if cfg['build']['interactive'] == 3:
+	if cfg['build']['interactive'] >= 3:
 		print('\nStopping all modules before finalize phase' + util.colour('31','\n[Hit return to continue]'))
 		raw_input('')
 	stop_all(shutit)

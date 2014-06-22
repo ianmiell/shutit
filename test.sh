@@ -76,16 +76,17 @@ do
 		# Just in case only just git cloned/updated
 		if [ x$SHUTIT_PARALLEL_BUILD = 'x' ]
 		then
-			./test.sh ${SHUTIT_DIR} 2>&1 | tee /tmp/shutit_logs/$$/shutit_core_test_$(date +%s)
+			./test.sh ${SHUTIT_DIR} 2>&1 | tee /tmp/shutit_logs/$$/shutit_core_test_$(date +%s) || failure "$d in base tests failed"
 		else
 # TODO
 #http://stackoverflow.com/questions/356100/how-to-wait-in-bash-for-several-subprocesses-to-finish-and-return-exit-code-0
-			./test.sh ${SHUTIT_DIR} 2>&1 | tee /tmp/shutit_logs/$$/shutit_core_test_$(date +%s) & 
+			./test.sh ${SHUTIT_DIR} 2>&1 | tee /tmp/shutit_logs/$$/shutit_core_test_$(date +%s)|| failure "$d in base tests failed" & 
 		fi
 		cleanup nothard
 		set_shutit_options
 	fi
 	popd
+	report()
 done
 
 FAIL=0

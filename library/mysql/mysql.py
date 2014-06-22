@@ -42,15 +42,15 @@ class mysql(ShutItModule):
 		# http://stackoverflow.com/questions/15663001/remote-connections-mysql-ubuntu
 		shutit.send_and_expect("perl -p -i -e 's/^bind.*/bind-address = 0.0.0.0/' /etc/mysql/my.cnf")
 		mysql_user = shutit.cfg['shutit.tk.mysql.mysql']['mysql_user']
-		res = shutit.send_and_expect('mysql -p',['assword','mysql>'],check_exit=False)
+		res = shutit.send_and_expect('mysql -p',expect=['assword','mysql>'])
 		if res == 0:
-			shutit.send_and_expect(root_pass,'mysql>',check_exit=False)
-		shutit.send_and_expect("create user '" + mysql_user + "'@'localhost' identified by '" + mysql_user + "';",'mysql>',check_exit=False)
-		shutit.send_and_expect("create user '" + mysql_user + "'@'%' identified by '" + mysql_user + "';",'mysql>',check_exit=False)
-		shutit.send_and_expect("grant all privileges on *.* to '" + mysql_user + "'@'localhost';",'mysql>',check_exit=False)
-		shutit.send_and_expect("grant all privileges on *.* to '" + mysql_user + "'@'%';",'mysql>',check_exit=False)
-		shutit.send_and_expect("set password for " + mysql_user + "@'localhost' = password('" + shutit.cfg['shutit.tk.mysql.mysql']['mysql_user_password'] + "');",'mysql>',check_exit=False,record_command=False)
-		shutit.send_and_expect("set password for " + mysql_user + "@'%' = password('" + shutit.cfg['shutit.tk.mysql.mysql']['mysql_user_password'] + "');",'mysql>',check_exit=False,record_command=False)
+			shutit.send_and_expect(root_pass,expect='mysql>')
+		shutit.send_and_expect("create user '" + mysql_user + "'@'localhost' identified by '" + mysql_user + "';",expect='mysql>')
+		shutit.send_and_expect("create user '" + mysql_user + "'@'%' identified by '" + mysql_user + "';",expect='mysql>')
+		shutit.send_and_expect("grant all privileges on *.* to '" + mysql_user + "'@'localhost';",expect='mysql>')
+		shutit.send_and_expect("grant all privileges on *.* to '" + mysql_user + "'@'%';",expect='mysql>')
+		shutit.send_and_expect("set password for " + mysql_user + "@'localhost' = password('" + shutit.cfg['shutit.tk.mysql.mysql']['mysql_user_password'] + "');",expect='mysql>',record_command=False)
+		shutit.send_and_expect("set password for " + mysql_user + "@'%' = password('" + shutit.cfg['shutit.tk.mysql.mysql']['mysql_user_password'] + "');",expect='mysql>',record_command=False)
 		shutit.send_and_expect(r'\q')
 		shutit.send_file('/root/start_mysql.sh', '''
 			nohup mysqld &
@@ -104,13 +104,13 @@ class mysql(ShutItModule):
 		mysql_user = shutit.cfg['shutit.tk.mysql.mysql']['mysql_user']
 		mysql_password = shutit.cfg['shutit.tk.mysql.mysql']['mysql_user_password']
 		root_password = shutit.cfg['shutit.tk.mysql.mysql']['root_password']
-		shutit.send_and_expect('mysql -u' + mysql_user + ' -p' + mysql_password,'mysql>',check_exit=False,record_command=False)
+		shutit.send_and_expect('mysql -u' + mysql_user + ' -p' + mysql_password,expect='mysql>',record_command=False)
 		shutit.send_and_expect('\q')
-		shutit.send_and_expect('mysql -u' + mysql_user + ' -hlocalhost -p' + mysql_password,'mysql>',check_exit=False,record_command=False)
+		shutit.send_and_expect('mysql -u' + mysql_user + ' -hlocalhost -p' + mysql_password,expect='mysql>',record_command=False)
 		shutit.send_and_expect('\q')
-		shutit.send_and_expect('mysql -u' + mysql_user + ' -hlocalhost -p' + mysql_password,'mysql>',check_exit=False,record_command=False)
+		shutit.send_and_expect('mysql -u' + mysql_user + ' -hlocalhost -p' + mysql_password,expect='mysql>',record_command=False)
 		shutit.send_and_expect('\q')
-		shutit.send_and_expect('mysql -uroot -p' + root_password,'mysql>',check_exit=False,record_command=False)
+		shutit.send_and_expect('mysql -uroot -p' + root_password,expect='mysql>',record_command=False)
 		shutit.send_and_expect('\q')
 		return True
 
