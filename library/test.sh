@@ -24,30 +24,35 @@
 source ../test/shared_test_utils.sh
 
 PIDS=""
-for d in *
+BUILD_REPORT=""
+for dist in ubuntu:10.04 ubuntu:12.04 ubuntu:12.10 ubuntu:13.10 ubuntu:14.04 ubuntu:13.04 debian:experimental debian:6.0.9 debian:7.5 debian:jessie debian:oldstable debian:sid debian:7.4 debian:6.0.8 debian:7.3
 do
-	cleanup
-	if [[ -a $d/test.sh ]]
-	then
-		pushd $d
-		# Set up a random container name for tests to use
-		if [[ -a STOP ]]
+	for d in *
+	do
+		cleanup
+		if [[ -a $d/test.sh ]]
 		then
-			echo "Skipping $d"
-		else
-			# Must be done on each iteration as we ned a fresh cid per test run
-			set_shutit_options
-			if [[ x$SHUTIT_PARALLEL_BUILD = 'x' ]]
+			pushd $d
+			# Set up a random container name for tests to use
+			if [[ -a STOP ]]
 			then
-				./test.sh "`pwd`/../.."
+				echo "Skipping $d"
 			else
-				./test.sh "`pwd`/../.." &
-				PIDS="$PIDS $!"
+				# Must be done on each iteration as we ned a fresh cid per test run
+				set_shutit_options "--image_tag $dist"
+				if [[ x$SHUTIT_PARALLEL_BUILD = 'x' ]]
+				then
+					./test.sh "`pwd`/../.." || BUILD_REPORT+="\nFAILED $dist $d"
+				else
+					./test.sh "`pwd`/../.." || BUILD_REPORT+="\nFAILED $dist $d" &
+					PIDS="$PIDS $!"
+				fi
 			fi
+		popd
 		fi
-	popd
-	fi
+	done
 done
+
 
 if [ x$SHUTIT_PARALLEL_BUILD != 'x' ]
 then
@@ -58,4 +63,9 @@ then
 		echo "PIDS: $PIDS"
 		echo "FINISHED: $P"
 	done
+fi
+
+if [[ $BUILD_REPORT != "" ]]
+	echo $BUILD_REPORT
+	exit 1
 fi
