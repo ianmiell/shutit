@@ -25,7 +25,7 @@ source ../test/shared_test_utils.sh
 
 PIDS=""
 BUILD_REPORT=""
-for dist in ubuntu:10.04 ubuntu:12.04 ubuntu:12.10 ubuntu:13.10 ubuntu:14.04 ubuntu:13.04 debian:experimental debian:6.0.9 debian:7.5 debian:jessie debian:oldstable debian:sid debian:7.4 debian:6.0.8 debian:7.3
+for dist in ubuntu:12.04 ubuntu:12.10 ubuntu:13.10 ubuntu:14.04 ubuntu:13.04 debian:experimental debian:6.0.9 debian:7.5 debian:jessie debian:oldstable debian:sid debian:7.4 debian:6.0.8 debian:7.3
 do
 	for d in *
 	do
