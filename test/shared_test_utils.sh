@@ -16,8 +16,15 @@ set -o nounset
 
 function set_shutit_options() {
 	local CNAME
+	local OPTS
 	CNAME=shutit_test_container_$(dd if=/dev/urandom bs=256 count=1 2>/dev/null | md5sum | awk '{print $1}')
-	export SHUTIT_OPTIONS="-s container name $CNAME"
+	OPTS=${1:-none}
+	if [[ "$OPTS" = "none" ]]
+	then
+		export SHUTIT_OPTIONS="-s container name $CNAME "
+	else
+		export SHUTIT_OPTIONS="-s container name $CNAME $OPTS"
+	fi
 }
 
 function cleanup() {
