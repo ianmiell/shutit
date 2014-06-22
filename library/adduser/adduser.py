@@ -26,13 +26,13 @@ class adduser(ShutItModule):
 
 	def build(self,shutit):
 		# Does something odd with the terminal which makes pexpect think the commands failed
-		shutit.send_and_expect('useradd -d /home/' + shutit.cfg['shutit.tk.adduser.adduser']['user'] + ' -s /bin/bash -m ' + shutit.cfg['shutit.tk.adduser.adduser']['user'],check_exit=False)
+		shutit.send_and_expect('useradd -d /home/' + shutit.cfg['shutit.tk.adduser.adduser']['user'] + ' -s /bin/bash -m ' + shutit.cfg['shutit.tk.adduser.adduser']['user'])
 		shutit.install('passwd')
 		shutit.install('sudo')
 		shutit.install('adduser')
-		shutit.send_and_expect('passwd ' + shutit.cfg['shutit.tk.adduser.adduser']['user'],'Enter new',check_exit=False)
-		shutit.send_and_expect(shutit.cfg['shutit.tk.adduser.adduser']['password'],'Retype new',check_exit=False)
-		shutit.send_and_expect(shutit.cfg['shutit.tk.adduser.adduser']['password'],check_exit=False)
+		shutit.send_and_expect('passwd ' + shutit.cfg['shutit.tk.adduser.adduser']['user'],expect='Enter new')
+		shutit.send_and_expect(shutit.cfg['shutit.tk.adduser.adduser']['password'],expect='Retype new')
+		shutit.send_and_expect(shutit.cfg['shutit.tk.adduser.adduser']['password'])
 		shutit.send_and_expect('adduser ' + shutit.cfg['shutit.tk.adduser.adduser']['user'] + ' sudo')
 		return True
 
