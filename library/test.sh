@@ -39,12 +39,12 @@ do
 				echo "Skipping $d"
 			else
 				# Must be done on each iteration as we ned a fresh cid per test run
-				set_shutit_options "--image_tag $dist"
+				set_shutit_options "--image_tag $dist --interactive 0"
 				if [[ x$SHUTIT_PARALLEL_BUILD = 'x' ]]
 				then
-					./test.sh "`pwd`/../.." || BUILD_REPORT+="\nFAILED $dist $d"
+					./test.sh "`pwd`/../.." || failure "FAILED $dist $d"
 				else
-					./test.sh "`pwd`/../.." || BUILD_REPORT+="\nFAILED $dist $d" &
+					./test.sh "`pwd`/../.." || failure "FAILED $dist $d" &
 					PIDS="$PIDS $!"
 				fi
 			fi
@@ -65,7 +65,4 @@ then
 	done
 fi
 
-if [[ $BUILD_REPORT != "" ]]
-	echo $BUILD_REPORT
-	exit 1
-fi
+report

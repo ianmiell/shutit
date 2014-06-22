@@ -10,6 +10,8 @@ find . | grep cnf$ | xargs --no-run-if-empty chmod 0600
 SHUTIT_PARALLEL_BUILD=
 readonly SHUTIT_PARALLEL_BUILD
 
+SHUTIT_TEST_REPORT=""
+
 set -o errexit
 set -o nounset
 #set -x
@@ -28,7 +30,7 @@ function set_shutit_options() {
 }
 
 function cleanup() {
-	CONTAINERS=$($DOCKER ps -a | grep shutit_test_container_ | awk '{print $1}')
+	CONTAINERS=$($DOCKER ps -a | grep shutit_test_container_$$ | awk '{print $1}')
 	if [[ "x${1:-}" = "xhard" ]]
 	then
 		$DOCKER kill $CONTAINERS >/dev/null 2>&1 || /bin/true
@@ -40,8 +42,11 @@ function failure() {
 	echo "============================================"
 	echo "FAILED"
 	echo "$1"
+	SHUTIT_TEST_REPORT+="\n${1}"
 	echo "============================================"
 	cleanup hard
-	exit 1
 }
 
+function report() {
+	echo $SHUTIT_TEST_REPORT
+}
