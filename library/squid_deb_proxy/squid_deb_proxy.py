@@ -40,28 +40,26 @@ class squid_deb_proxy(ShutItModule):
 			dbus-daemon --system
 			/usr/sbin/avahi-daemon &
 		''')
-		shutit.send_file('/root/start_avahi_daemon.sh', '''
-			# TODO stop these
-			#dbus-daemon --system
-			#/usr/sbin/avahi-daemon &
+		shutit.send_file('/root/stop_avahi_daemon.sh', '''
+			ps -ef | grep avahi-daemon | awk '{print $1}' | xargs --no-run-if-empty kill
 		''')
-		# TODO: add to start/stop script
-		# We seem to need to remove this so that our settings work. Since this is not a "real" machine, I think.
+		shutit.send_and_expect('chmod +x /root/start_avahi_daemon.sh')
 		shutit.install('netcat')
 		shutit.install('net-tools')
 		shutit.install('squid-deb-proxy-client')
 		return True
 
 	def start(self,shutit):
+		# We seem to need to remove this so that our settings work. Since this is not a "real" machine, I think.
 		shutit.send_and_expect('rm -f /usr/share/squid-deb-proxy-client/apt-avahi-discover')
 		shutit.send_and_expect("""route -n | awk '/^0.0.0.0/ {print $2}' | tee /tmp/hostip""",check_exit=False)
 		shutit.send_and_expect("""echo "HEAD /" | nc `cat /tmp/hostip` """ + shutit.cfg['shutit.tk.squid_deb_proxy.squid_deb_proxy']['host_proxy_port'] + """ | grep squid-deb-proxy && (echo "Acquire::http::Proxy \\"http://$(cat /tmp/hostip):""" + shutit.cfg['shutit.tk.squid_deb_proxy.squid_deb_proxy']['host_proxy_port'] + """\\";" > /etc/apt/apt.conf.d/30proxy) && (echo "Acquire::http::Proxy::ppa.launchpad.net DIRECT;" >> /etc/apt/apt.conf.d/30proxy) || echo 'No squid-deb-proxy detected on docker host'""",check_exit=True)
 		shutit.send_and_expect('rm -f /tmp/hostip')
-		shutit.send_and_expect('/root/start_mysql.sh',check_exit=False)
+		shutit.send_and_expect('/root/start_avahi_daemon.sh',check_exit=False)
 		return True
 
 	def stop(self,shutit):
-		shutit.send_and_expect('/root/stop_mysql.sh',check_exit=False)
+		shutit.send_and_expect('/root/stop_avahi_daemon.sh',check_exit=False)
 		return True
 
 	def get_config(self,shutit):
