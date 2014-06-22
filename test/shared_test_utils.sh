@@ -19,7 +19,7 @@ set -o nounset
 function set_shutit_options() {
 	local CNAME
 	local OPTS
-	CNAME=shutit_test_container_$(dd if=/dev/urandom bs=256 count=1 2>/dev/null | md5sum | awk '{print $1}')
+	CNAME=shutit_test_container_$$_$(dd if=/dev/urandom bs=256 count=1 2>/dev/null | md5sum | awk '{print $1}')
 	OPTS=${1:-none}
 	if [[ "$OPTS" = "none" ]]
 	then
