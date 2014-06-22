@@ -42,8 +42,8 @@ function failure() {
 	echo "============================================"
 	echo "FAILED"
 	echo "$1"
-	SHUTIT_TEST_REPORT+="\n${1}"
 	echo "============================================"
+	SHUTIT_TEST_REPORT+="\n${1}"
 	cleanup hard
 }
 
