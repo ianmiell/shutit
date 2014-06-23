@@ -268,7 +268,8 @@ class ShutIt(object):
 			cfg['build']['report'] = cfg['build']['report'] + msg
 			if cfg['build']['interactive'] >= 1:
 				shutit.fail(msg + '\n\nPause point on exit_code != 0 (' + res + '). CTRL-C to quit',child=child)
-				#raise Exception('Exit value from command\n' + send + '\nwas:\n' + res)
+			else:
+				raise Exception('Exit value from command\n' + send + '\nwas:\n' + res)
 
 	def run_script(self,script,expect=None,child=None,in_shell=True):
 		"""Run the passed-in string 
