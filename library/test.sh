@@ -42,6 +42,7 @@ do
 				if [[ x$SHUTIT_PARALLEL_BUILD = 'x' ]]
 				then
 					./test.sh "`pwd`/../.." || failure "FAILED $dist $d"
+					report
 				else
 					./test.sh "`pwd`/../.." || failure "FAILED $dist $d" &
 					PIDS="$PIDS $!"
@@ -59,6 +60,7 @@ then
 		echo "PIDS: $PIDS"
 		echo "WAITING ON: $P"
 		wait $P
+		report
 		echo "PIDS: $PIDS"
 		echo "FINISHED: $P"
 	done
