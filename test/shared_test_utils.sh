@@ -7,7 +7,7 @@
 find . | grep cnf$ | xargs --no-run-if-empty chmod 0600
 
 # Off for now
-SHUTIT_PARALLEL_BUILD=
+SHUTIT_PARALLEL_BUILD=x
 readonly SHUTIT_PARALLEL_BUILD
 
 SHUTIT_TEST_REPORT=""
@@ -23,7 +23,7 @@ function set_shutit_options() {
 	OPTS=${1:-none}
 	if [[ "$OPTS" = "none" ]]
 	then
-		export SHUTIT_OPTIONS="-s container name $CNAME "
+		export SHUTIT_OPTIONS="-s container name $CNAME"
 	else
 		export SHUTIT_OPTIONS="-s container name $CNAME $OPTS"
 	fi
@@ -44,9 +44,11 @@ function failure() {
 	echo "$1"
 	echo "============================================"
 	SHUTIT_TEST_REPORT+="$$: ${1}\n"
-	cleanup hard
 }
 
 function report() {
+	echo "SHUTIT_TEST_REPORT:"
+	echo "============================================"
 	echo -e $SHUTIT_TEST_REPORT
+	echo "============================================"
 }
