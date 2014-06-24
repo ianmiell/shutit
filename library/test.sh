@@ -47,15 +47,15 @@ do
 					report
 				else
 					./test.sh "`pwd`/../.." &
-					PIDS[$!]="$dist $d"
+					JOB=$!
+					PIDS[$JOB]="$JOB: $dist $d"
+					echo ${PIDS[*]}
 				fi
 			fi
 		popd
 		fi
 	done
 done
-
-echo PIDS: ${!PIDS[*]}
 
 if [ x$SHUTIT_PARALLEL_BUILD != 'x' ]
 then
