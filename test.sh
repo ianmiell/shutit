@@ -99,7 +99,7 @@ if [ x$SHUTIT_PARALLEL_BUILD != 'x' ]
 then
 	for P in ${!PIDS[*]}; do
 		echo "WAITING FOR $P"
-		wait $P || failure "FAILER ${PIDS[$P]}"
+		wait $P || failure "FAILED: ${PIDS[$P]}"
 		report
 	done
 fi
@@ -117,6 +117,5 @@ fi
 echo "================================================================================"
 echo "PASSED"
 echo "================================================================================"
-report
 exit 0
 
