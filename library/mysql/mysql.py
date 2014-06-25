@@ -31,8 +31,12 @@ class mysql(ShutItModule):
 		root_pass = shutit.cfg['shutit.tk.mysql.mysql']['root_password']
 		shutit.install('sudo')
 		shutit.send_and_expect("apt-get update")
-		shutit.send_and_expect("""debconf-set-selections <<< 'mysql-server mysql-server/root_password password {0}'""".format(root_pass),record_command=False)
-		shutit.send_and_expect("""sudo debconf-set-selections <<< 'mysql-server mysql-server/root_password_again password {0}'""".format(root_pass),record_command=False)
+		shutit.send_and_expect("""debconf-set-selections << 'END'
+mysql-server mysql-server/root_password password {0}
+END""".format(root_pass),echo=False)
+		shutit.send_and_expect("""debconf-set-selections << 'END'
+mysql-server mysql-server/root_password_again password {0}
+END""".format(root_pass),echo=False)
 		shutit.install('mysql-common')
 		shutit.install('mysql-server')
 		shutit.install('libmysqlclient-dev')
@@ -44,13 +48,13 @@ class mysql(ShutItModule):
 		mysql_user = shutit.cfg['shutit.tk.mysql.mysql']['mysql_user']
 		res = shutit.send_and_expect('mysql -p',expect=['assword','mysql>'])
 		if res == 0:
-			shutit.send_and_expect(root_pass,expect='mysql>')
+			shutit.send_and_expect(root_pass,expect='mysql>',echo=False)
 		shutit.send_and_expect("create user '" + mysql_user + "'@'localhost' identified by '" + mysql_user + "';",expect='mysql>')
 		shutit.send_and_expect("create user '" + mysql_user + "'@'%' identified by '" + mysql_user + "';",expect='mysql>')
 		shutit.send_and_expect("grant all privileges on *.* to '" + mysql_user + "'@'localhost';",expect='mysql>')
 		shutit.send_and_expect("grant all privileges on *.* to '" + mysql_user + "'@'%';",expect='mysql>')
-		shutit.send_and_expect("set password for " + mysql_user + "@'localhost' = password('" + shutit.cfg['shutit.tk.mysql.mysql']['mysql_user_password'] + "');",expect='mysql>',record_command=False)
-		shutit.send_and_expect("set password for " + mysql_user + "@'%' = password('" + shutit.cfg['shutit.tk.mysql.mysql']['mysql_user_password'] + "');",expect='mysql>',record_command=False)
+		shutit.send_and_expect("set password for " + mysql_user + "@'localhost' = password('" + shutit.cfg['shutit.tk.mysql.mysql']['mysql_user_password'] + "');",expect='mysql>',echo=False)
+		shutit.send_and_expect("set password for " + mysql_user + "@'%' = password('" + shutit.cfg['shutit.tk.mysql.mysql']['mysql_user_password'] + "');",expect='mysql>',echo=False)
 		shutit.send_and_expect(r'\q')
 		shutit.send_file('/root/start_mysql.sh', '''
 			nohup mysqld &
@@ -104,13 +108,13 @@ class mysql(ShutItModule):
 		mysql_user = shutit.cfg['shutit.tk.mysql.mysql']['mysql_user']
 		mysql_password = shutit.cfg['shutit.tk.mysql.mysql']['mysql_user_password']
 		root_password = shutit.cfg['shutit.tk.mysql.mysql']['root_password']
-		shutit.send_and_expect('mysql -u' + mysql_user + ' -p' + mysql_password,expect='mysql>',record_command=False)
+		shutit.send_and_expect('mysql -u' + mysql_user + ' -p' + mysql_password,expect='mysql>',echo=False)
 		shutit.send_and_expect('\q')
-		shutit.send_and_expect('mysql -u' + mysql_user + ' -hlocalhost -p' + mysql_password,expect='mysql>',record_command=False)
+		shutit.send_and_expect('mysql -u' + mysql_user + ' -hlocalhost -p' + mysql_password,expect='mysql>',echo=False)
 		shutit.send_and_expect('\q')
-		shutit.send_and_expect('mysql -u' + mysql_user + ' -hlocalhost -p' + mysql_password,expect='mysql>',record_command=False)
+		shutit.send_and_expect('mysql -u' + mysql_user + ' -hlocalhost -p' + mysql_password,expect='mysql>',echo=False)
 		shutit.send_and_expect('\q')
-		shutit.send_and_expect('mysql -uroot -p' + root_password,expect='mysql>',record_command=False)
+		shutit.send_and_expect('mysql -uroot -p' + root_password,expect='mysql>',echo=False)
 		shutit.send_and_expect('\q')
 		return True
 
