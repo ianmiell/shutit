@@ -258,7 +258,8 @@ class conn_docker(ShutItModule):
 		shutit.log('Setting default expect')
 		shutit.set_default_expect(cfg['expect_prompts']['base_prompt'])
 		shutit.log('Setting default expect done')
-		host_child.logfile = container_child.logfile = sys.stdout
+		host_child.logfile_send = container_child.logfile_send = sys.stdout
+		host_child.logfile_read = container_child.logfile_read = sys.stdout
 		host_child.maxread = container_child.maxread = 2000
 		host_child.searchwindowsize = container_child.searchwindowsize = 1024
 		delay = cfg['build']['command_pause']
