@@ -64,52 +64,45 @@ popd
 
 # General tests
 mkdir -p /tmp/shutit_logs/$$
-for d in $(ls test | grep -v configs)
+declare -A PIDS
+PIDS=()
+for dist in ubuntu:12.04 debian:7.3
 do
-	[ -d ${SHUTIT_DIR}/test/$d ] || continue
-	pushd ${SHUTIT_DIR}/test/$d > /dev/null 2>&1
-	if [[ -a STOP ]]
-	then
-		echo "STOP file found in $(pwd)"
-	else
-		echo "PWD: $(pwd)"
-		# Just in case only just git cloned/updated
-		if [ x$SHUTIT_PARALLEL_BUILD = 'x' ]
+	for d in $(ls test | grep -v configs)
+	do
+		[ -d ${SHUTIT_DIR}/test/$d ] || continue
+		pushd ${SHUTIT_DIR}/test/$d > /dev/null 2>&1
+		if [[ -a STOP ]]
 		then
-			./test.sh ${SHUTIT_DIR} 2>&1 | tee /tmp/shutit_logs/$$/shutit_core_test_$(date +%s) || failure "$d in base tests failed"
+			echo "STOP file found in $(pwd)"
 		else
-# TODO
-#http://stackoverflow.com/questions/356100/how-to-wait-in-bash-for-several-subprocesses-to-finish-and-return-exit-code-0
-			./test.sh ${SHUTIT_DIR} 2>&1 | tee /tmp/shutit_logs/$$/shutit_core_test_$(date +%s)|| failure "$d in base tests failed" & 
+			echo "PWD: $(pwd)"
+			# Just in case only just git cloned/updated
+			if [ x$SHUTIT_PARALLEL_BUILD = 'x' ]
+			then
+				./test.sh ${SHUTIT_DIR} 2>&1 | tee /tmp/shutit_logs/$$/shutit_core_test_$(date +%s) || failure "$d in base tests failed"
+			else
+	# TODO
+	#http://stackoverflow.com/questions/356100/how-to-wait-in-bash-for-several-subprocesses-to-finish-and-return-exit-code-0
+				./test.sh ${SHUTIT_DIR} 2>&1 | tee /tmp/shutit_logs/$$/shutit_core_test_$(date +%s)|| failure "$d in base tests failed" & 
+				JOB=$!
+				PIDS[$JOB]="$JOB: $dist $d"
+			fi
+			cleanup nothard
+			set_shutit_options
 		fi
-		cleanup nothard
-		set_shutit_options
-	fi
-	popd
-	report()
+		popd
+	done
 done
 
-FAIL=0
 if [ x$SHUTIT_PARALLEL_BUILD != 'x' ]
 then
-	for P in $(jobs -p); do
-		echo "========================================================"
-		echo "WAITING ON: $P"
-		echo "========================================================"
-		wait $P || let "FAIL+=1"
-		echo "========================================================"
-		echo "FINISHED: $P $?"
-		echo "========================================================"
+	for P in ${!PIDS[*]}; do
+		echo "WAITING FOR $P"
+		wait $P || failure "FAILER ${PIDS[$P]}"
+		report
 	done
 fi
-
-if [[ $FAIL == "0" ]]
-then
-	/bin/true
-else
-	failure "FAILED"
-fi
-
 
 # Examples tests
 if [[ $TESTS != 'basic' ]]
@@ -124,6 +117,6 @@ fi
 echo "================================================================================"
 echo "PASSED"
 echo "================================================================================"
+report
 exit 0
-
 
