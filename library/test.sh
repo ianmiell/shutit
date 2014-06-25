@@ -23,8 +23,10 @@
 
 source ../test/shared_test_utils.sh
 
-PIDS=""
-for dist in ubuntu:12.04 ubuntu:12.10 ubuntu:13.10 ubuntu:14.04 ubuntu:13.04 debian:experimental debian:6.0.9 debian:7.5 debian:jessie debian:sid debian:7.4 debian:6.0.8 debian:7.3
+declare -A PIDS
+PIDS=()
+#for dist in ubuntu:12.04 ubuntu:12.10 ubuntu:13.10 ubuntu:14.04 ubuntu:13.04 debian:experimental debian:6.0.9 debian:7.5 debian:7.4 debian:6.0.8 debian:7.3
+for dist in ubuntu:12.04 debian:7.3
 do
 	for d in *
 	do
@@ -44,8 +46,10 @@ do
 					./test.sh "`pwd`/../.." || failure "FAILED $dist $d"
 					report
 				else
-					./test.sh "`pwd`/../.." || failure "FAILED $dist $d" &
-					PIDS="$PIDS $!"
+					./test.sh "`pwd`/../.." &
+					JOB=$!
+					PIDS[$JOB]="$JOB: $dist $d"
+					echo ${PIDS[*]}
 				fi
 			fi
 		popd
@@ -53,16 +57,13 @@ do
 	done
 done
 
-
 if [ x$SHUTIT_PARALLEL_BUILD != 'x' ]
 then
-	for P in $PIDS; do
-		echo "PIDS: $PIDS"
-		echo "WAITING ON: $P"
-		wait $P
+	for P in ${!PIDS[*]}; do
+		echo WAITING FOR $P
+		wait $P || failure "FAILED ${PIDS[$P]}"
+		echo REPORT:
 		report
-		echo "PIDS: $PIDS"
-		echo "FINISHED: $P"
 	done
 fi
 
