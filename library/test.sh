@@ -49,8 +49,9 @@ do
 					./test.sh "`pwd`/../.." &
 					JOB=$!
 					PIDS[$JOB]="$JOB: $dist $d"
-					echo ${PIDS[*]}
 				fi
+				cleanup nothard
+				set_shutit_options
 			fi
 		popd
 		fi
@@ -62,9 +63,7 @@ then
 	for P in ${!PIDS[*]}; do
 		echo WAITING FOR $P
 		wait $P || failure "FAILED ${PIDS[$P]}"
-		echo REPORT:
 		report
 	done
 fi
 
-report
