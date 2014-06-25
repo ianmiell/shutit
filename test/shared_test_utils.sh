@@ -27,6 +27,7 @@ function set_shutit_options() {
 	else
 		export SHUTIT_OPTIONS="-s container name $CNAME $OPTS"
 	fi
+	CNAME=shutit_test_container_$$_$(dd if=/dev/urandom bs=256 count=1 2>/dev/null | md5sum | awk '{print $1}')
 }
 
 function cleanup() {
