@@ -162,7 +162,7 @@ class ShutIt(object):
 			self.cfg['build']['build_log'].flush()
 		time.sleep(pause)
 
-	def send_and_expect(self,send,expect=None,child=None,timeout=3600,check_exit=None,fail_on_empty_before=True,record_command=True,exit_values=None):
+	def send_and_expect(self,send,expect=None,child=None,timeout=3600,check_exit=None,fail_on_empty_before=True,record_command=None,exit_values=None,echo=None):
 		"""Send string to the container, and wait until the expected string is seen before returning.
 
 		Returns the pexpect return value
@@ -206,7 +206,9 @@ class ShutIt(object):
 				else:
 					check_exit = True
 		ok_to_record = False
-		if record_command:
+		if echo == False and record_command == None:
+			record_command = False
+		if record_command == None or record_command:
 			ok_to_record = True
 			for i in cfg.keys():
 				if isinstance(cfg[i],dict):
@@ -223,8 +225,16 @@ class ShutIt(object):
 			self.log('================================================================================')
 			self.log('Sending>>>' + send + '<<<')
 			self.log('Expecting>>>' + str(expect) + '<<<')
-		child.sendline(send)
-		expect_res = child.expect(expect,timeout)
+		# Don't echo if echo passed in as False
+		if echo == False:
+			oldlog = child.logfile_send
+			child.logfile_send = None
+			child.sendline(send)
+			expect_res = child.expect(expect,timeout)
+			child.logfile_send = oldlog
+		else:
+			child.sendline(send)
+			expect_res = child.expect(expect,timeout)
 		if cfg['build']['debug']:
 			self.log('child.before>>>' + child.before + '<<<')
 			self.log('child.after>>>' + child.after + '<<<')
@@ -542,7 +552,10 @@ class ShutIt(object):
 				if expect == '':
 					expect = '@.*[#$]'
 					print'\n\nexpect argument not supplied to pause_point, assuming "' + expect + '" is the regexp to expect\n\n'
+			oldlog = child.logfile_send
+			child.logfile_send = None
 			child.interact()
+			child.logfile_send = oldlog
 		else:
 			print msg
 			print util.colour('31','\n\n[Hit return to continue]\n')
@@ -709,12 +722,12 @@ class ShutIt(object):
 		self.install('passwd')
 		if cfg['container']['install_type'] == 'apt':
 			self.send_and_expect('passwd',expect='Enter new',child=child,check_exit=False)
-			self.send_and_expect(password,child=child,expect='Retype new',check_exit=False,record_command=False)
-			self.send_and_expect(password,child=child,expect=expect,record_command=False)
+			self.send_and_expect(password,child=child,expect='Retype new',check_exit=False,echo=False)
+			self.send_and_expect(password,child=child,expect=expect,echo=False)
 		elif cfg['container']['install_type'] == 'yum':
-			self.send_and_expect('passwd',child=child,expect='ew password',check_exit=False,record_command=False)
-			self.send_and_expect(password,child=child,expect='ew password',check_exit=False,record_command=False)
-			self.send_and_expect(password,child=child,expect=expect,record_command=False)
+			self.send_and_expect('passwd',child=child,expect='ew password',check_exit=False)
+			self.send_and_expect(password,child=child,expect='ew password',check_exit=False,echo=False)
+			self.send_and_expect(password,child=child,expect=expect,echo=False)
 
 
 	def is_user_id_available(self,user_id,child=None,expect=None):
