@@ -277,6 +277,7 @@ class conn_docker(ShutItModule):
 		shutit.set_default_child(container_child)
 		shutit.log('Setting up default prompt on container child')
 		shutit.setup_prompt('pre_build', prefix='PRE_BUILD')
+		shutit.send_and_expect('export HOME=/root')
 		shutit.get_distro_info()
 		shutit.setup_prompt('root_prompt', prefix='ROOT')
 		shutit.pause_point('Anything you want to do now the container is connected to?', level=2)
