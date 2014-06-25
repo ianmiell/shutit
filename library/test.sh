@@ -23,14 +23,13 @@
 
 source ../test/shared_test_utils.sh
 
-declare -A PIDS
-PIDS=()
 #for dist in ubuntu:12.04 ubuntu:12.10 ubuntu:13.10 ubuntu:14.04 ubuntu:13.04 debian:experimental debian:6.0.9 debian:7.5 debian:7.4 debian:6.0.8 debian:7.3
-for dist in ubuntu:12.04 debian:7.3
+for dist in ubuntu:12.04
 do
 	for d in *
 	do
-		cleanup
+		declare -A PIDS
+		PIDS=()
 		if [[ -a $d/test.sh ]]
 		then
 			pushd $d
@@ -46,24 +45,24 @@ do
 					./test.sh "`pwd`/../.." || failure "FAILED $dist $d"
 					report
 				else
-					./test.sh "`pwd`/../.." &
+					LOGFILE="/tmp/shutit_test_parallel_$$_$(dd if=/dev/urandom bs=256 count=1 2>/dev/null | md5sum | awk '{print $1}')"
+					./test.sh "`pwd`/../.." 2>&1 | tee $LOGFILE &
 					JOB=$!
 					PIDS[$JOB]="$JOB: $dist $d"
 				fi
-				cleanup nothard
 				set_shutit_options
 			fi
 		popd
 		fi
 	done
+	if [ x$SHUTIT_PARALLEL_BUILD != 'x' ]
+	then
+		for P in ${!PIDS[*]}; do
+			echo WAITING FOR $P
+			wait $P || failure "FAILED: ${PIDS[$P]}"
+			report
+		done
+	fi
 done
 
-if [ x$SHUTIT_PARALLEL_BUILD != 'x' ]
-then
-	for P in ${!PIDS[*]}; do
-		echo WAITING FOR $P
-		wait $P || failure "FAILED ${PIDS[$P]}"
-		report
-	done
-fi
-
+cleanup nothard
