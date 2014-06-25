@@ -59,8 +59,7 @@ END""".format(root_pass),echo=False)
 		shutit.send_file('/root/start_mysql.sh', '''
 			nohup mysqld &
 			echo Starting mysqld, sleeping
-			sleep 2
-		''')
+			sleep 2''')
 		shutit.send_file('/root/stop_mysql.sh', r'''
 			# mysql
 			echo Stopping mysql
@@ -71,8 +70,7 @@ END""".format(root_pass),echo=False)
 				ps -ef | grep mysqld$ | awk '{print $2}' | sed 's/\([0-9]*\)/ kill -9 \1/' | sh
 				echo sleeping 2
 				sleep 2
-			fi
-		''')
+			fi''')
 		shutit.send_and_expect('chmod +x /root/start_mysql.sh')
 		shutit.send_and_expect('chmod +x /root/stop_mysql.sh')
 		shutit.send_and_expect('/root/stop_mysql.sh')
