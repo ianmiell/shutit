@@ -764,7 +764,7 @@ class ShutIt(object):
 			elif res == 2:
 				res = self.send_and_expect(cfg['repository']['email'],child=child,expect=expect_list,timeout=timeout,check_exit=False,fail_on_empty_before=False)
 
-	def do_repository_work(self,repo_name,expect=None,docker_executable='docker',password=None):
+	def do_repository_work(self,repo_name,expect=None,docker_executable='docker',password=None,force=None):
 		"""Commit, tag, push, tar the container based on the configuration we have.
 		"""
 		expect = expect or self.get_default_expect()
@@ -774,9 +774,14 @@ class ShutIt(object):
 		export = cfg['repository']['export']
 		save   = cfg['repository']['save']
 		if not (push or export or save or tag):
-			return
+			# If we're forcing this, then tag as a minimum
+			if force:
+				tag = True
+			else:
+				return
 
 		child  = self.pexpect_children['host_child']
+		expect = cfg['expect_prompts']['real_user_prompt']
 		server = cfg['repository']['server']
 		repo_user   = cfg['repository']['user']
 
@@ -803,7 +808,7 @@ class ShutIt(object):
 			repository = '%s%s' % (repository, suffix_date)
 			repository_tar = '%s%s' % (repository_tar, suffix_date)
 
-		if server == '' and len(repository) > 30:
+		if server == '' and len(repository) > 30 and push:
 			shutit.fail("""repository name: '""" + repository + """' too long. If using suffix_date consider shortening""")
 
 		# Commit image
