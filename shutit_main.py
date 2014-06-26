@@ -515,7 +515,7 @@ def shutit_main():
 	# Dependency validation done, now collect configs of those marked for build.
 	config_collection_for_built(shutit)
 	if cfg['action']['show_config']:
-		shutit.log(util.print_config(cfg,history=cfg['build']['cfghistory']),force_stdout=True)
+		shutit.log(util.print_config(cfg,history=cfg['build']['cfghistory']))
 		return
 	# Check for conflicts now.
 	errs.extend(check_conflicts(shutit))
@@ -528,6 +528,10 @@ def shutit_main():
 			if not child and len(err) > 1:
 				child = err[1]
 		shutit.fail("Encountered some errors, quitting", child=child)
+
+	# Create the build directory and put the config in it.
+	shutit.send_and_expect('mkdir -p ' + shutit.cfg ['build']['build_db_dir'] + '/' + shutit.cfg['build']['build_id'])
+	shutit.record_config()
 
 	do_remove(shutit)
 	do_build(shutit)
