@@ -31,8 +31,8 @@ class adduser(ShutItModule):
 		shutit.install('sudo')
 		shutit.install('adduser')
 		shutit.send_and_expect('passwd ' + shutit.cfg['shutit.tk.adduser.adduser']['user'],expect='Enter new')
-		shutit.send_and_expect(shutit.cfg['shutit.tk.adduser.adduser']['password'],expect='Retype new')
-		shutit.send_and_expect(shutit.cfg['shutit.tk.adduser.adduser']['password'])
+		shutit.send_and_expect(shutit.cfg['shutit.tk.adduser.adduser']['password'],expect='Retype new',echo=False)
+		shutit.send_and_expect(shutit.cfg['shutit.tk.adduser.adduser']['password'],echo=False)
 		shutit.send_and_expect('adduser ' + shutit.cfg['shutit.tk.adduser.adduser']['user'] + ' sudo')
 		return True
 

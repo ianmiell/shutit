@@ -61,7 +61,7 @@ class vnc(ShutItModule):
 				send = ''
 		send = 'vncserver'
 		while True:
-			res = shutit.send_and_expect(send,expect=['assword:','erify',shutit.cfg['expect_prompts']['root_prompt']],fail_on_empty_before=False,record_command=False)
+			res = shutit.send_and_expect(send,expect=['assword:','erify',shutit.cfg['expect_prompts']['root_prompt']],fail_on_empty_before=False,echo=False)
 			if res == 0 or res == 1:
 				send = shutit.cfg['shutit.tk.vnc.vnc']['password']
 			elif res == 2:
