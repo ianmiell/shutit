@@ -97,7 +97,7 @@ then
 	fi
 fi
 /bin/bash
-ENDS""",check_exit=False)
+ENDS""",check_exit=False,echo=False)
 		shutit.send_and_expect('pushd /root')
 		shutit.send_and_expect('wget https://raw.githubusercontent.com/ianmiell/shutit/master/library/win2048/files/tryagain.png')
 		shutit.send_and_expect('patextract /root/tryagain.png 0 0 69 20 > /root/tryagain.pat')

@@ -61,18 +61,19 @@ class template(ShutItModule):
 			# "check_exit" checks the exit code of the command you are running.
 			# We can't check the exit code as the command will not return when we see 'Retype new' on the terminal.
 			shutit.send_and_expect('passwd','Enter new',check_exit=False)
-			shutit.send_and_expect(shutit.cfg['container']['password'],'Retype new',check_exit=False,record_command=False)
-			shutit.send_and_expect(shutit.cfg['container']['password'])
+			# echo=False ensured it's not output on to the running terminal
+			shutit.send_and_expect(shutit.cfg['container']['password'],'Retype new',check_exit=False,echo=False)
+			shutit.send_and_expect(shutit.cfg['container']['password'],echo=False)
 		elif shutit.cfg['container']['install_type'] == 'yum': # yum-based password update
 			# Check_exit checks the exit code of the command you are running.
 			# We can't check the exit code as the command will not return when we see 'ew password' on the terminal.
 			shutit.send_and_expect('passwd','ew password',check_exit=False)
-			shutit.send_and_expect(shutit.cfg['container']['password'],'ew password',check_exit=False,record_command=False)
-			shutit.send_and_expect(shutit.cfg['container']['password'])
+			shutit.send_and_expect(shutit.cfg['container']['password'],'ew password',check_exit=False,echo=False)
+			shutit.send_and_expect(shutit.cfg['container']['password'],echo=False)
 		# You can put multiple items you might expect in a list and handle accordingly:
 		res = shutit.send_and_expect('sudo ls',['assword',shutit.cfg['expect_prompts']['root_prompt']],check_exit=False)
 		if res == 0:
-			shutit.send_and_expect(shutit.cfg['container']['password'])
+			shutit.send_and_expect(shutit.cfg['container']['password'],echo=False)
 		elif res == 1:
 			pass
 		else:
