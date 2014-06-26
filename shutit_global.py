@@ -601,6 +601,7 @@ class ShutIt(object):
 		Takes a package name and runs the relevant install function.
 		Returns true if all ok (ie it's installed), else false
 		"""
+		#TODO: Temporary failure resolving
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
 		if options is None: options = {}
@@ -851,6 +852,9 @@ class ShutIt(object):
 	# Pass-through function for convenience
 	def get_config(self,module_id,option,default,boolean=False):
 		util.get_config(self.cfg,module_id,option,default,boolean)
+
+	def record_config(self):
+		self.send_file(self.cfg['build']['build_db_dir'] + '/' + self.cfg['build']['build_id'] + '/config',util.print_config(self.cfg))
 
 	def handle_login(self,prompt_name,child=None):
 		"""Deprecated. Do not use.
