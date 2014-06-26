@@ -45,6 +45,7 @@ import subprocess
 import getpass
 import StringIO
 import copy
+import hashlib
 from shutit_module import ShutItFailException
 
 _default_cnf = '''
@@ -691,9 +692,9 @@ def print_config(cfg,hide_password=True,history=False):
 		if type(k) == str and type(cfg[k]) == dict:
 			r = r + '\n[' + k + ']\n'
 			for k1 in cfg[k].keys():
-				r = r + k1 + ': ' 
+				r = r + k1 + ':' 
 				if hide_password and (k1 == 'password' or k1 == 'passphrase'):
-					r = r + 'XXX'
+					r = r + hashlib.sha1(cfg[k][k1]).hexdigest()
 				else:
 					if type(cfg[k][k1] == bool):
 						r = r + str(cfg[k][k1])
