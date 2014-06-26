@@ -287,24 +287,23 @@ class conn_docker(ShutItModule):
 		"""Finalizes the container, exiting for us back to the original shell
 		and performing any repository work required.
 		"""
-		cfg = shutit.cfg
 		# Put build info into the container
-		shutit.send_and_expect('mkdir -p /root/shutit_build')
-		logfile = cfg['build']['container_build_log']
+		shutit.send_and_expect('mkdir -p ' + shutit.cfg ['build']['build_db_dir'] + '/' + shutit.cfg['build']['build_id'])
+		logfile = shutit.cfg['build']['container_build_log']
 		shutit.send_file(logfile, util.build_report(''))
+		shutit.add_line_to_file(shutit.cfg['build']['build_id'],shutit.cfg ['build']['build_db_dir'] + '/builds')
 		# Finish with the container
 		shutit.pexpect_children['container_child'].sendline('exit') # Exit container
 
 		host_child = shutit.pexpect_children['host_child']
 		shutit.set_default_child(host_child)
-		shutit.set_default_expect(cfg['expect_prompts']['real_user_prompt'])
+		shutit.set_default_expect(shutit.cfg['expect_prompts']['real_user_prompt'])
 		# Tag and push etc
 		shutit.pause_point('\nDoing final committing/tagging on the overall container and creating the artifact.',
 			child=shutit.pexpect_children['host_child'],print_input=False, level=3)
-		shutit.do_repository_work(cfg['repository']['name'],docker_executable=cfg['host']['docker_executable'],password=cfg['host']['password'])
+		shutit.do_repository_work(shutit.cfg['repository']['name'],docker_executable=shutit.cfg['host']['docker_executable'],password=shutit.cfg['host']['password'])
 		# Final exits
 		host_child.sendline('exit') # Exit raw bash
-		time.sleep(0.3)
 		return True
 
 def conn_module():

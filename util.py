@@ -283,6 +283,7 @@ def get_base_config(cfg, cfg_parser):
 	cfg['build']['build_log']                     = cp.getboolean('build','build_log')
 	cfg['build']['allowed_images']                = json.loads(cp.get('build','allowed_images'))
 	cfg['build']['base_image']                    = cp.get('build','base_image')
+	cfg['build']['build_db_dir']                  = '/root/shutit_build'
 	cfg['container']['password']                  = cp.get('container','password')
 	cfg['container']['hostname']                  = cp.get('container','hostname')
 	cfg['container']['force_repo_work']           = cp.getboolean('container','force_repo_work')
