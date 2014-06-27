@@ -7,7 +7,7 @@
 find . | grep cnf$ | xargs --no-run-if-empty chmod 0600
 
 # Off for now
-SHUTIT_PARALLEL_BUILD=
+SHUTIT_PARALLEL_BUILD=x
 readonly SHUTIT_PARALLEL_BUILD
 
 SHUTIT_TEST_REPORT=""
