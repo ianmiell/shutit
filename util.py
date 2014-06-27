@@ -700,7 +700,12 @@ def print_config(cfg,hide_password=True,history=False):
 			for k1 in keys2:
 					r = r + k1 + ':' 
 					if hide_password and (k1 == 'password' or k1 == 'passphrase'):
-						r = r + hashlib.sha1(cfg[k][k1]).hexdigest()
+						s = hashlib.sha512(cfg[k][k1]).hexdigest()
+						i = 27
+						while i > 0:
+							i = i - 1
+							s = hashlib.sha512(s).hexdigest()
+						r = r + s
 					else:
 						if type(cfg[k][k1] == bool):
 							r = r + str(cfg[k][k1])
@@ -766,6 +771,7 @@ def load_mod_from_file(shutit, fpath):
 	targets = [
 		('module', shutit.shutit_modules), ('conn_module', shutit.conn_modules)
 	]
+	shutit.cfg['build']['source'] = {}
 	for attr, target in targets:
 		modulefunc = getattr(pymod, attr, None)
 		# Old style or not a shutit module, nothing else to do
@@ -778,6 +784,8 @@ def load_mod_from_file(shutit, fpath):
 			setattr(module, '__module_file', fpath)
 			ShutItModule.register(module.__class__)
 			target.add(module)
+			shutit.cfg['build']['source'][fpath] = open(fpath).read()
+
 
 # Build report
 def build_report(msg=''):
