@@ -688,19 +688,25 @@ def print_config(cfg,hide_password=True,history=False):
 	"""Returns a string representing the config of this ShutIt run.
 	"""
 	r = ''
-	for k in cfg.keys():
+	keys1 = cfg.keys()
+	if keys1:
+		keys1.sort()
+	for k in keys1:
 		if type(k) == str and type(cfg[k]) == dict:
 			r = r + '\n[' + k + ']\n'
-			for k1 in cfg[k].keys():
-				r = r + k1 + ':' 
-				if hide_password and (k1 == 'password' or k1 == 'passphrase'):
-					r = r + hashlib.sha1(cfg[k][k1]).hexdigest()
-				else:
-					if type(cfg[k][k1] == bool):
-						r = r + str(cfg[k][k1])
-					elif type(cfg[k][k1] == str):
-						r = r + cfg[k][k1]
-				r = r + '\n'
+			keys2 = cfg[k].keys()
+			if keys2:
+				keys2.sort()
+			for k1 in keys2:
+					r = r + k1 + ':' 
+					if hide_password and (k1 == 'password' or k1 == 'passphrase'):
+						r = r + hashlib.sha1(cfg[k][k1]).hexdigest()
+					else:
+						if type(cfg[k][k1] == bool):
+							r = r + str(cfg[k][k1])
+						elif type(cfg[k][k1] == str):
+							r = r + cfg[k][k1]
+					r = r + '\n'
 	return r
 
 def set_pexpect_child(key,child):
