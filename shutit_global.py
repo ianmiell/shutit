@@ -853,8 +853,9 @@ class ShutIt(object):
 	def get_config(self,module_id,option,default,boolean=False):
 		util.get_config(self.cfg,module_id,option,default,boolean)
 
+	# Put the config in a file in the container.
 	def record_config(self):
-		self.send_file(self.cfg['build']['build_db_dir'] + '/' + self.cfg['build']['build_id'] + '/config',util.print_config(self.cfg))
+		self.send_file(self.cfg['build']['build_db_dir'] + '/' + self.cfg['build']['build_id'] + '/' + self.cfg['build']['build_id'] + '.cfg',util.print_config(self.cfg))
 
 	def handle_login(self,prompt_name,child=None):
 		"""Deprecated. Do not use.
