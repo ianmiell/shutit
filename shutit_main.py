@@ -529,10 +529,7 @@ def shutit_main():
 				child = err[1]
 		shutit.fail("Encountered some errors, quitting", child=child)
 
-	# Create the build directory and put the config in it.
-	shutit.send_and_expect('mkdir -p ' + shutit.cfg ['build']['build_db_dir'] + '/' + shutit.cfg['build']['build_id'])
 	shutit.record_config()
-
 	do_remove(shutit)
 	do_build(shutit)
 	do_test(shutit)
