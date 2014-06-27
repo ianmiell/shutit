@@ -31,6 +31,7 @@ class docker_registry(ShutItModule):
 	def build(self,shutit):
 		shutit.install('gunicorn')
 		shutit.install('git')
+		shutit.install('python-sqlalchemy')
 		shutit.send_and_expect('pushd /')
 		shutit.send_and_expect('git clone https://github.com/dotcloud/docker-registry.git')
 		shutit.send_and_expect('popd')
@@ -48,7 +49,33 @@ class docker_registry(ShutItModule):
 			# Increase timeout as it's low by default
 			gunicorn --access-logfile - --debug --max-requests """ + shutit.cfg['shutit.tk.docker_registry.docker_registry']['gunicorn_max_requests'] + """ --graceful-timeout """ + shutit.cfg['shutit.tk.docker_registry.docker_registry']['gunicorn_timeout'] + """ -t """ + shutit.cfg['shutit.tk.docker_registry.docker_registry']['gunicorn_timeout'] + """ -k gevent -b 0.0.0.0:$REGISTRY_PORT -w $GUNICORN_WORKERS wsgi:application
 			""")
+		shutit.send_file('/docker-registry/config.yml',"""
+common:
+    loglevel: info
+    search_backend: sqlalchemy
+    sqlalchemy_index_database: sqlite:////tmp/docker-registry.db
 
+prod:
+    loglevel: warn
+    storage: s3
+    s3_access_key: _env:AWS_S3_ACCESS_KEY
+    s3_secret_key: _env:AWS_S3_SECRET_KEY
+    s3_bucket: _env:AWS_S3_BUCKET
+    boto_bucket: _env:AWS_S3_BUCKET
+    storage_path: /srv/docker
+    smtp_host: localhost
+    from_addr: docker@myself.com
+    to_addr: my@myself.com
+
+dev:
+    loglevel: debug
+    storage: local
+    storage_path: /srv/registry
+
+test:
+    storage: local
+    storage_path: /tmp/tmpdockertmp	
+		""")
 		return True
 
 	def get_config(self,shutit):
