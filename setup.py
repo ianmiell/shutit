@@ -216,6 +216,7 @@ class conn_docker(ShutItModule):
 			raw_input('')
 		shutit.log('\n\nCommand being run is:\n\n' + ' '.join(docker_command),force_stdout=True,prefix=False)
 		shutit.log('\n\nThis may download the image, please be patient\n\n',force_stdout=True,prefix=False)
+
 		container_child = pexpect.spawn(docker_command[0], docker_command[1:])
 		expect = ['assword',cfg['expect_prompts']['base_prompt'].strip(),'Waiting','ulling','endpoint','Download']
 		res = container_child.expect(expect,9999)
@@ -280,6 +281,12 @@ class conn_docker(ShutItModule):
 		shutit.send_and_expect('export HOME=/root')
 		shutit.get_distro_info()
 		shutit.setup_prompt('root_prompt', prefix='ROOT')
+		# Create the build directory and put the config in it.
+		shutit.send_and_expect('mkdir -p ' + shutit.cfg ['build']['build_db_dir'] + '/' + shutit.cfg['build']['build_id'])
+		# Record the command we ran and the python env.
+		# TODO: record the image sha1
+		shutit.send_file(shutit.cfg['build']['build_db_dir'] + '/' + shutit.cfg['build']['build_id'] + '/python_env.sh',str(sys.__dict__))
+		shutit.send_file(shutit.cfg['build']['build_db_dir'] + '/' + shutit.cfg['build']['build_id'] + '/docker_command.sh',' '.join(docker_command))
 		shutit.pause_point('Anything you want to do now the container is connected to?', level=2)
 		return True
 
