@@ -44,6 +44,8 @@ def build_shutit():
 	"""
 	global STATUS
 	try:
+	        # Dependency validation done, now collect configs of those marked for build.
+		shutit_main.config_collection_for_built(shutit)
 		shutit_main.do_remove(shutit)
 		shutit_main.do_build(shutit)
 		shutit_main.do_test(shutit)
