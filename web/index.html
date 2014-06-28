@@ -360,17 +360,17 @@ var ShutItUI = React.createClass({
 					hasErr={this.state.shutit.errs.length} />
 				<div id="inputArea">
 					<div id="buildArea">
-						<ModuleList
-							onChange={this.handleChange}
-							noInput={noInput}
-							modules={this.state.shutit.modules} />
-						<ErrList errs={this.state.shutit.errs} />
 						<button disabled={noInput || this.state.shutit.errs.length}
 							onClick={this.beginBuild}>Begin build</button>
 						<button disabled={cannotReset}
 							onClick={this.resetShutIt}>Reset ShutIt</button>
 						<button disabled={!this.state.shutit.build_done}
 							onClick={this.exportContainer}>Export Container</button>
+						<ErrList errs={this.state.shutit.errs} />
+						<ModuleList
+							onChange={this.handleChange}
+							noInput={noInput}
+							modules={this.state.shutit.modules} />
 					</div>
 					<InfoDisplay
 						onChange={this.handleChange}
