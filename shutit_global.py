@@ -35,6 +35,7 @@ import textwrap
 import base64
 import getpass
 import package_map
+import datetime
 from shutit_module import ShutItFailException
 
 def random_id(size=5, chars=string.ascii_letters + string.digits):
@@ -900,7 +901,7 @@ def init():
 	if cfg['host']['username'] == '':
 		shutit_global.shutit.fail('LOGNAME not set in the environment, please set to your username.')
 	cfg['host']['real_user'] = os.environ.get('SUDO_USER', cfg['host']['username'])
-	cfg['build']['build_id'] = socket.gethostname() + '_' + cfg['host']['real_user'] + '_' + str(time.time())
+	cfg['build']['build_id'] = socket.gethostname() + '_' + cfg['host']['real_user'] + '_' + str(time.time()) + '.' + str(datetime.datetime.now().microsecond)
 
 	return ShutIt(
 		pexpect_children=pexpect_children,
