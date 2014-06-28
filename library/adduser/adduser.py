@@ -46,7 +46,7 @@ class adduser(ShutItModule):
 def module():
 	return adduser(
 		'shutit.tk.adduser.adduser', 0.380,
-		description='add a user',
+		description='add a configurable user',
 		depends=['shutit.tk.setup']
 	)
 

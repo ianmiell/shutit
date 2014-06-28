@@ -71,6 +71,7 @@ class squid_deb_proxy(ShutItModule):
 def module():
 	return squid_deb_proxy(
 		'shutit.tk.squid_deb_proxy.squid_deb_proxy', 0.01,
+		description='detects whether a squid deb proxy is available on the host and uses it',
 		depends=['shutit.tk.setup']
 	)
 
