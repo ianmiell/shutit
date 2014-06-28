@@ -330,8 +330,9 @@ class setup(ShutItModule):
 		"""Initializes container ready for build, setting password
 		and updating package management.
 		"""
-		mod_id = 'shutit.tk.setup'
-		do_update = shutit.cfg[mod_id]['do_update']
+		do_update = True
+		# Seems to be broken
+		#do_update = shutit.cfg[self.module_id]['do_update']
 		if shutit.cfg['container']['install_type'] == 'apt':
 			shutit.send_and_expect('export DEBIAN_FRONTEND=noninteractive')
 			if do_update:
@@ -358,7 +359,7 @@ class setup(ShutItModule):
 		management update.
 		"""
 		cp = shutit.cfg['config_parser']
-		shutit.cfg[self.module_id]['do_update'] = cp.getboolean(self.module_id,'do_update')
+		shutit.get_config(self.module_id,'do_update','yes')
 		return True
 
 def module():
