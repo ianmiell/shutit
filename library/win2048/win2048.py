@@ -115,7 +115,7 @@ ENDS""",check_exit=False,echo=False)
 def module():
 	return win2048(
 		'shutit.tk.win2048.win2048', 0.326,
-		description='win at 2048',
+		description='win at 2048!',
 		depends=['shutit.tk.setup', 'shutit.tk.vnc.vnc']
 	)
 

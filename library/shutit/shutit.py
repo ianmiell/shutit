@@ -35,7 +35,7 @@ def module():
 	# Shutit needs a user to work
 	return shutit(
 		'shutit.tk.shutit.shutit', 0.397,
-		description='shutit in container',
+		description='shutit in a container',
 		depends=['shutit.tk.setup', 'shutit.tk.docker.docker', 'shutit.tk.adduser.adduser']
 	)
 

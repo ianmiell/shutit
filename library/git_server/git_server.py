@@ -50,7 +50,7 @@ class git_server(ShutItModule):
 def module():
 	return git_server(
 		'shutit.tk.git_server.git_server', 0.316,
-		description='minimal git server.',
+		description='minimal git server',
 		depends=['shutit.tk.setup']
 	)
 
