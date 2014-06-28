@@ -49,7 +49,7 @@ class postgres(ShutItModule):
 def module():
 	return postgres(
 		'shutit.tk.postgres.postgres', 0.320,
-		description='Installs postgres and handles shm settings changes',
+		description='installs postgres and handles shm settings changes',
 		depends=['shutit.tk.setup']
 	)
 

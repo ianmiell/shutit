@@ -41,6 +41,7 @@ class apt_mirror(ShutItModule):
 def module():
 	return apt_mirror(
 		'shutit.tk.apt_mirror.apt_mirror', 0.801,
+		description='apt mirror builder',
 		depends=['shutit.tk.setup']
 	)
 

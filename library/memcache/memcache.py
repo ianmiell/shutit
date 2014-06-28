@@ -40,7 +40,7 @@ class memcache(ShutItModule):
 def module():
 	return memcache(
 		'shutit.tk.memcache.memcache', 0.317,
-		description='memcache',
+		description='memcache server',
 		depends=['shutit.tk.setup']
 	)
 
