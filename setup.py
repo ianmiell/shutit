@@ -296,8 +296,8 @@ class conn_docker(ShutItModule):
 		"""
 		# Put build info into the container
 		shutit.send_and_expect('mkdir -p ' + shutit.cfg ['build']['build_db_dir'] + '/' + shutit.cfg['build']['build_id'])
-		logfile = shutit.cfg['build']['container_build_log']
-		shutit.send_file(logfile, util.build_report(''))
+		shutit.send_file(shutit.cfg['build']['build_db_dir'] + '/' + shutit.cfg['build']['build_id'] + '/build.log', util.get_commands(shutit))
+		shutit.send_file(shutit.cfg['build']['build_db_dir'] + '/' + shutit.cfg['build']['build_id'] + '/build_commands.sh',util.get_commands(shutit))
 		shutit.add_line_to_file(shutit.cfg['build']['build_id'],shutit.cfg ['build']['build_db_dir'] + '/builds')
 		# Finish with the container
 		shutit.pexpect_children['container_child'].sendline('exit') # Exit container
