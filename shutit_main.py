@@ -380,7 +380,7 @@ def build_module(shutit, module):
 	shutit.pause_point('\nPausing to allow inspect of build for: ' + module.module_id,print_input=True,level=2)
 	cfg['build']['report'] = cfg['build']['report'] + '\nCompleted module: ' + module.module_id
 	if cfg[module.module_id]['do_repository_work'] or cfg['build']['interactive'] >= 2:
-		shutit.log(util.build_report('Module:' + module.module_id),code='31')
+		shutit.log(util.build_report(shutit,'#Module:' + module.module_id),code='31')
 	if not cfg[module.module_id]['do_repository_work'] and cfg['build']['interactive'] >= 2:
 		shutit.log("\n\nDo you want to save state now we\'re at the end of this module? (" + module.module_id + ") (input y/n)",force_stdout=True)
 		cfg[module.module_id]['do_repository_work'] = (raw_input('') == 'y')
@@ -537,7 +537,7 @@ def shutit_main():
 
 	finalize_container(shutit)
 
-	shutit.log(util.build_report('Module: N/A (END)'),prefix=False,force_stdout=True,code='31')
+	shutit.log(util.build_report(shutit,'#Module: N/A (END)'),prefix=False,force_stdout=True,code='31')
 
 	if shutit.cfg['build']['interactive'] >= 3:
 		shutit.log('\nThe build is complete. You should now have a container called ' + shutit.cfg['container']['name'] + ' and a new image if you chose to commit it.\n\nLook and play with the following files from the newly-created module directory to dig deeper:\n\n\tconfigs/default.cnf\n\t*.py\n\nYou can rebuild at any time by running the supplied ./build.sh and run with the supplied ./run.sh.\n\nThere\'s a default test runner in test.sh\n\nYou can inspect the details of the build in the container\'s /root/shutit_build directory.',force_stdout=True,code='31')

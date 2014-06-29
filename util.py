@@ -326,7 +326,6 @@ def get_base_config(cfg, cfg_parser):
 		logfile = os.path.join('/tmp/', 'shutit_log_' + cfg['build']['build_id'])
 	else:
 		logfile = logfile + '_' + cfg['build']['build_id']
-	cfg['build']['container_build_log'] = '/tmp/shutit_log_' + cfg['build']['build_id']
 	if cfg['build']['build_log']:
 		cfg['build']['build_log'] = open(logfile,'a')
 		# Lock it down to the running user.
@@ -788,7 +787,7 @@ def load_mod_from_file(shutit, fpath):
 
 
 # Build report
-def build_report(msg=''):
+def build_report(shutit,msg=''):
 	"""Resposible for constructing a report to be output as part of the build.
 	Retrurns report as a string.
 	"""
@@ -796,8 +795,7 @@ def build_report(msg=''):
 	s = s + '################################################################################\n'
 	s = s + '# COMMAND HISTORY BEGIN ' + shutit_global.cfg['build']['build_id'] + '\n'
 	s = s + '################################################################################\n'
-	for c in shutit_global.shutit_command_history:
-		s = s + c + '\n'
+	s = s + get_commands(shutit)
 	s = s + '# COMMAND HISTORY END ' + shutit_global.cfg['build']['build_id'] + '\n'
 	s = s + '################################################################################\n'
 	s = s + '################################################################################\n'
@@ -811,6 +809,15 @@ def build_report(msg=''):
 	s = s + '# BUILD REPORT FOR BUILD END ' + shutit_global.cfg['build']['build_id'] + '\n'
 	s = s + '################################################################################\n'
 	return s
+
+def get_commands(shutit):
+	"""Gets command that have been run and have not been redacted.
+	"""
+	s = ''
+	for c in shutit_global.shutit_command_history:
+		s = s + c + '\n'
+	return s
+	
 
 def get_hash(string):
 	"""Helper function to get preceding integer
