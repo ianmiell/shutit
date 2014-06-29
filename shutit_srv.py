@@ -67,6 +67,7 @@ def update_modules(to_build, cfg):
 	for mid in orig_mod_cfg:
 		shutit.cfg[mid].update(orig_mod_cfg[mid])
 	shutit.cfg['repository'].update(orig_mod_cfg['repository'])
+	shutit_main.config_collection_for_built(shutit)
 
 	selected = set(to_build)
 	for mid in selected:
