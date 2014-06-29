@@ -91,8 +91,6 @@ END""",'/root/start_vnc.sh')
 
 	def get_config(self,shutit):
 		shutit.get_config('shutit.tk.vnc.vnc','password','vncpass')
-		# Set build to privileged
-		shutit.cfg['build']['privileged'] = True
 		return True
 
 def module():

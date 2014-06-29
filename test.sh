@@ -111,7 +111,11 @@ then
 	./test.sh || failure "3.0.library"
 	popd
 	cleanup nothard
+	report
 fi
+
+
+report
 
 # OK
 echo "================================================================================"
