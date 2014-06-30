@@ -46,7 +46,7 @@ class wordpress(ShutItModule):
             Allow from all
         </Directory>
 END"""
-		shutit.send_and_expect(apache_site)
+		shutit.send(apache_site)
 		wordpress_mysql = """cat > /etc/wordpress/config-localhost.php << END
 <?php
 define('DB_NAME', 'wordpress');
@@ -56,7 +56,7 @@ define('DB_HOST', 'localhost');
 define('WP_CONTEnt_dir', '/var/lib/wordpress/wp-content');
 ?>
 END"""
-		shutit.send_and_expect(wordpress_mysql)
+		shutit.send(wordpress_mysql)
 		sql = """cat > /tmp/sql << END
 CREATE DATABASE wordpress;
 GRANT SELECT,INSert,update,DELETE,CREATE,DROP,ALTER
@@ -65,12 +65,12 @@ TO wordpress@localhost
 IDENTIFIED BY 'yourpasswordhere';
 FLUSH PRIVILEGES;
 END"""
-		shutit.send_and_expect(sql)
-		shutit.send_and_expect('cat /tmp/sql | mysql -u' + shutit.cfg['shutit.tk.mysql.mysql']['mysql_user'] + ' -p' + shutit.cfg['shutit.tk.mysql.mysql']['mysql_user_password'] + ' && rm /tmp/sql',check_exit=False,record_command=False)
+		shutit.send(sql)
+		shutit.send('cat /tmp/sql | mysql -u' + shutit.cfg['shutit.tk.mysql.mysql']['mysql_user'] + ' -p' + shutit.cfg['shutit.tk.mysql.mysql']['mysql_user_password'] + ' && rm /tmp/sql',check_exit=False,record_command=False)
 		return True
 
 	def start(self,shutit):
-		shutit.send_and_expect('apache2ctl restart')
+		shutit.send('apache2ctl restart')
 		return True
 
 	def get_config(self,shutit):

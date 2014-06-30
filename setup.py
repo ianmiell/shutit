@@ -205,7 +205,7 @@ class conn_docker(ShutItModule):
 				'/bin/bash'
 			] if arg != ''
 		]
-		if cfg['build']['interactive'] >= 3:
+		if cfg['build']['interactive'] >= 2:
 			print('\n\nAbout to start container. ' +
 				'Ports mapped will be: ' + ', '.join(port_args) +
 				' (from\n\n[host]\nports:<value>\n\nconfig, building on the ' +

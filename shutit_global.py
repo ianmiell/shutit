@@ -163,6 +163,9 @@ class ShutIt(object):
 			self.cfg['build']['build_log'].flush()
 		time.sleep(pause)
 
+	def send(self,send,expect=None,child=None,timeout=3600,check_exit=None,fail_on_empty_before=True,record_command=None,exit_values=None,echo=None):
+		return self.send_and_expect(send,expect=expect,child=child,timeout=timeout,check_exit=check_exit,fail_on_empty_before=fail_on_empty_before,record_command=record_command,exit_values=exit_values,echo=echo)
+
 	def send_and_expect(self,send,expect=None,child=None,timeout=3600,check_exit=None,fail_on_empty_before=True,record_command=None,exit_values=None,echo=None):
 		"""Send string to the container, and wait until the expected string is seen before returning.
 

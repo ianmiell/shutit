@@ -220,7 +220,7 @@ def colour(code, msg):
 
 
 def get_config(cfg,module_id,option,default,boolean=False):
-	"""Gets a specific config from the config parser object,
+	"""Gets a specific config from the config files,
 	allowing for a default.
 	Handles booleans vs strings appropriately.
 	"""
@@ -235,6 +235,7 @@ def get_config(cfg,module_id,option,default,boolean=False):
 			cfg[module_id][option] = cfg['config_parser'].get(module_id,option)
 	else:
 		cfg[module_id][option] = default
+		#cfg['config_parser'].set(module_id,default)
 
 def get_configs(shutit,configs):
 	"""Reads config files in, checking their security first

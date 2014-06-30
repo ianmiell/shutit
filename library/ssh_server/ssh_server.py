@@ -29,8 +29,8 @@ class ssh_server(ShutItModule):
 
 	def build(self,shutit):
 		shutit.install('openssh-server')
-		shutit.send_and_expect('mkdir -p /var/run/sshd')
-		shutit.send_and_expect('chmod 700 /var/run/sshd')
+		shutit.send('mkdir -p /var/run/sshd')
+		shutit.send('chmod 700 /var/run/sshd')
 		# Set up root bashrcs once
 		# Root bash files seem to be inconsistent, so this the canonical one...
 		shutit.add_line_to_file('export HOME=/root','/root/.bashrc')
@@ -45,16 +45,16 @@ class ssh_server(ShutItModule):
 		shutit.add_line_to_file('chmod 700 /var/run/sshd','/root/start_ssh_server.sh')
 		shutit.add_line_to_file('start-stop-daemon --start --quiet --oknodo --pidfile /var/run/sshd.pid --exec /usr/sbin/sshd','/root/start_ssh_server.sh')
 		shutit.add_line_to_file('start-stop-daemon --stop --quiet --oknodo --pidfile /var/run/sshd.pid','/root/stop_ssh_server.sh')
-		shutit.send_and_expect('chmod +x /root/start_ssh_server.sh')
-		shutit.send_and_expect('chmod +x /root/stop_ssh_server.sh')
+		shutit.send('chmod +x /root/start_ssh_server.sh')
+		shutit.send('chmod +x /root/stop_ssh_server.sh')
 		return True
 
 	def start(self,shutit):
-		shutit.send_and_expect('/root/start_ssh_server.sh',check_exit=False)
+		shutit.send('/root/start_ssh_server.sh',check_exit=False)
 		return True
 
 	def stop(self,shutit):
-		shutit.send_and_expect('/root/stop_ssh_server.sh',check_exit=False)
+		shutit.send('/root/stop_ssh_server.sh',check_exit=False)
 		return True
 
 

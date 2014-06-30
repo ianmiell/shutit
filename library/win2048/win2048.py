@@ -32,7 +32,7 @@ class win2048(ShutItModule):
 		shutit.install('vim')
 		shutit.install('scrot')
 		shutit.install('wget')
-		shutit.send_and_expect("""cat > /root/start_win2048.sh << 'ENDS'
+		shutit.send("""cat > /root/start_win2048.sh << 'ENDS'
 #!/bin/bash
 # start vnc
 rm -rf /tmp/.X*
@@ -98,15 +98,15 @@ then
 fi
 /bin/bash
 ENDS""",check_exit=False,echo=False)
-		shutit.send_and_expect('pushd /root')
-		shutit.send_and_expect('wget https://raw.githubusercontent.com/ianmiell/shutit/master/library/win2048/files/tryagain.png')
-		shutit.send_and_expect('patextract /root/tryagain.png 0 0 69 20 > /root/tryagain.pat')
-		shutit.send_and_expect('chmod +x /root/start_win2048.sh')
-		shutit.send_and_expect('popd')
+		shutit.send('pushd /root')
+		shutit.send('wget https://raw.githubusercontent.com/ianmiell/shutit/master/library/win2048/files/tryagain.png')
+		shutit.send('patextract /root/tryagain.png 0 0 69 20 > /root/tryagain.pat')
+		shutit.send('chmod +x /root/start_win2048.sh')
+		shutit.send('popd')
 		return True
 
 	def remove(self,shutit):
-		shutit.send_and_expect('rm -f /root/start_win2048.sh')
+		shutit.send('rm -f /root/start_win2048.sh')
 		return True
 
 	def test(self,shutit):

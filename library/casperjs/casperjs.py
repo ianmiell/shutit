@@ -39,7 +39,7 @@ class casperjs(ShutItModule):
 		return True
 
 	def remove(self,shutit):
-		shutit.send_and_expect('rm -rf /opt/casperjs',shutit.cfg['expect_prompts']['root_prompt'])
+		shutit.send('rm -rf /opt/casperjs',shutit.cfg['expect_prompts']['root_prompt'])
 		return True
 
 def module():

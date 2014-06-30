@@ -32,10 +32,10 @@ class apt_mirror(ShutItModule):
 		#http://unixrob.blogspot.co.uk/2012/05/create-apt-mirror-with-ubuntu-1204-lts.html
 		shutit.install('apt-mirror')
 		shutit.install('apache2')
-		shutit.send_and_expect('/var/spool/apt-mirror/var/clean.sh')
-		shutit.send_and_expect('ln -s /var/spool/apt-mirror/mirror/gb.archive.ubuntu.com/ubuntu/ /var/www/ubuntu')
-		shutit.send_and_expect('ln -s /var/spool/apt-mirror/mirror/apt.puppetlabs.com /var/www/puppet')
-		shutit.send_and_expect('apt-mirror')
+		shutit.send('/var/spool/apt-mirror/var/clean.sh')
+		shutit.send('ln -s /var/spool/apt-mirror/mirror/gb.archive.ubuntu.com/ubuntu/ /var/www/ubuntu')
+		shutit.send('ln -s /var/spool/apt-mirror/mirror/apt.puppetlabs.com /var/www/puppet')
+		shutit.send('apt-mirror')
 		return True
 
 def module():
