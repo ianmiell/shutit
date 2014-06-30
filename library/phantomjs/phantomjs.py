@@ -28,20 +28,20 @@ class phantomjs(ShutItModule):
 		return shutit.file_exists('/opt/phantomjs',directory=True)
 
 	def build(self,shutit):
-		shutit.send_and_expect('pushd /opt')
+		shutit.send('pushd /opt')
 		shutit.install('curl')
 		shutit.install('bzip2')
 		# TODO: latest version of pj?
-		shutit.send_and_expect('curl --insecure https://phantomjs.googlecode.com/files/phantomjs-1.9.0-linux-x86_64.tar.bz2 > phantomjs-1.9.0-linux-x86_64.tar.bz2')
-		shutit.send_and_expect('bunzip2 phantomjs-1.9.0-linux-x86_64.tar.bz2')
-		shutit.send_and_expect('tar -xvf phantomjs-1.9.0-linux-x86_64.tar')
-		shutit.send_and_expect('ln -s phantomjs-1.9.0-linux-x86_64 phantomjs')
-		shutit.send_and_expect('rm phantomjs-*.tar')
-		shutit.send_and_expect('popd')
+		shutit.send('curl --insecure https://phantomjs.googlecode.com/files/phantomjs-1.9.0-linux-x86_64.tar.bz2 > phantomjs-1.9.0-linux-x86_64.tar.bz2')
+		shutit.send('bunzip2 phantomjs-1.9.0-linux-x86_64.tar.bz2')
+		shutit.send('tar -xvf phantomjs-1.9.0-linux-x86_64.tar')
+		shutit.send('ln -s phantomjs-1.9.0-linux-x86_64 phantomjs')
+		shutit.send('rm phantomjs-*.tar')
+		shutit.send('popd')
 		return True
 
 	def remove(self,shutit):
-		shutit.send_and_expect('rm -rf /opt/phantomjs')
+		shutit.send('rm -rf /opt/phantomjs')
 		return True
 
 def module():

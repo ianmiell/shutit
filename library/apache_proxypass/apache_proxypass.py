@@ -32,12 +32,12 @@ class apache_proxypass(ShutItModule):
 		# Based on: http://www.jamescoyle.net/how-to/116-simple-apache-reverse-proxy-example
 		shutit.install('apache2')
 		# Let's use a value as a separator unlikely to be in the config for the host (@) to avoid perl compilation errors due to a clash.
-		shutit.send_and_expect('perl -p -i -e "s@<VirtualHost .:80>.*@<VirtualHost *:80>\nProxyHTMLStripComments on\nProxyRequests off\nSetOutputFilter proxy-html\nProxyHTMLDoctype XHTML\n<Location />\nProxyPass ' + shutit.cfg[self.module_id]['proxypass_site'] + '\nProxyPassReverse ' + shutit.cfg[self.module_id]['proxypass_site'] + '\nOrder allow,deny\nAllow from all\n</Location>@" /etc/apache2/sites-enabled/000-default')
+		shutit.send('perl -p -i -e "s@<VirtualHost .:80>.*@<VirtualHost *:80>\nProxyHTMLStripComments on\nProxyRequests off\nSetOutputFilter proxy-html\nProxyHTMLDoctype XHTML\n<Location />\nProxyPass ' + shutit.cfg[self.module_id]['proxypass_site'] + '\nProxyPassReverse ' + shutit.cfg[self.module_id]['proxypass_site'] + '\nOrder allow,deny\nAllow from all\n</Location>@" /etc/apache2/sites-enabled/000-default')
 		shutit.install('libapache2-mod-proxy-html')
 		shutit.install('wget')
-		shutit.send_and_expect('a2enmod proxy_http')
-		shutit.send_and_expect('a2enmod proxy_html')
-		shutit.send_and_expect('service apache2 restart')
+		shutit.send('a2enmod proxy_http')
+		shutit.send('a2enmod proxy_html')
+		shutit.send('service apache2 restart')
 		return True
 
 	def get_config(self,shutit):
@@ -46,11 +46,11 @@ class apache_proxypass(ShutItModule):
 
 	def start(self,shutit):
 		# example of starting something
-		shutit.send_and_expect('apache2ctl start')
+		shutit.send('apache2ctl start')
 		return True
 
 	def stop(self,shutit):
-		shutit.send_and_expect('apache2ctl stop')
+		shutit.send('apache2ctl stop')
 		return True
 
 def module():

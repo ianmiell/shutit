@@ -26,9 +26,9 @@ class shutit(ShutItModule):
 
 	def build(self,shutit):
 		shutit.install('git')
-		shutit.send_and_expect('pushd /')
-		shutit.send_and_expect('git clone https://github.com/ianmiell/shutit.git')
-		shutit.send_and_expect('popd')
+		shutit.send('pushd /')
+		shutit.send('git clone https://github.com/ianmiell/shutit.git')
+		shutit.send('popd')
 		return True
 
 def module():

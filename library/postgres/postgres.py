@@ -33,17 +33,17 @@ class postgres(ShutItModule):
 		shutit.add_line_to_file("echo Setting shmmax for postgres",'/root/start_postgres.sh')
 		shutit.add_line_to_file('sysctl -w kernel.shmmax=268435456','/root/start_postgres.sh',force=True)
 		shutit.add_line_to_file('service postgresql start','/root/start_postgres.sh',force=True)
-		shutit.send_and_expect("""cat > /root/stop_postgres.sh <<< 'service postgresql stop'""")
-		shutit.send_and_expect('chmod +x /root/start_postgres.sh')
-		shutit.send_and_expect('chmod +x /root/stop_postgres.sh')
+		shutit.send("""cat > /root/stop_postgres.sh <<< 'service postgresql stop'""")
+		shutit.send('chmod +x /root/start_postgres.sh')
+		shutit.send('chmod +x /root/stop_postgres.sh')
 		return True
 
 	def start(self,shutit):
-		shutit.send_and_expect('/root/start_postgres.sh',check_exit=False)
+		shutit.send('/root/start_postgres.sh',check_exit=False)
 		return True
 
 	def stop(self,shutit):
-		shutit.send_and_expect('/root/stop_postgres.sh',check_exit=False)
+		shutit.send('/root/stop_postgres.sh',check_exit=False)
 		return True
 
 def module():

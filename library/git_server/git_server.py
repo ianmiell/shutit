@@ -34,7 +34,7 @@ class git_server(ShutItModule):
 		shutit.install('git-core')
 		shutit.install('vim')
 		shutit.install('telnet')
-		shutit.send_and_expect('git daemon --base-path=/var/cache/git --detach --syslog --export-all')
+		shutit.send('git daemon --base-path=/var/cache/git --detach --syslog --export-all')
 		# TODO: turn into start/stop script
 		shutit.add_to_bashrc('git daemon --base-path=/var/cache/git --detach --syslog --export-all')
 		return True

@@ -22,16 +22,16 @@ from shutit_module import ShutItModule
 class docker(ShutItModule):
 
 	def build(self,shutit):
-		shutit.send_and_expect('echo deb http://archive.ubuntu.com/ubuntu precise universe > /etc/apt/sources.list.d/universe.list')
-		shutit.send_and_expect('apt-get update -qq')
+		shutit.send('echo deb http://archive.ubuntu.com/ubuntu precise universe > /etc/apt/sources.list.d/universe.list')
+		shutit.send('apt-get update -qq')
 		shutit.install('iptables')
 		shutit.install('ca-certificates')
 		shutit.install('lxc')
 		shutit.install('curl')
 		shutit.install('aufs-tools')
-		shutit.send_and_expect('pushd /usr/bin')
-		shutit.send_and_expect('curl https://get.docker.io/builds/Linux/x86_64/docker-latest > docker')
-		shutit.send_and_expect('chmod +x docker')
+		shutit.send('pushd /usr/bin')
+		shutit.send('curl https://get.docker.io/builds/Linux/x86_64/docker-latest > docker')
+		shutit.send('chmod +x docker')
 		wrapdocker = """cat > /usr/bin/wrapdocker << 'END'
 #!/bin/bash
 
@@ -128,8 +128,8 @@ docker -d &
 exec bash
 fi
 END"""
-		shutit.send_and_expect(wrapdocker)
-		shutit.send_and_expect('chmod +x /usr/bin/wrapdocker')
+		shutit.send(wrapdocker)
+		shutit.send('chmod +x /usr/bin/wrapdocker')
 		start_docker = """cat > /root/start_docker.sh << 'END'
 #!/bin/bash
 /root/start_ssh_server.sh
@@ -138,9 +138,9 @@ docker -d &
 echo "SSH Server up"
 echo "Docker daemon running"
 END"""
-		shutit.send_and_expect(start_docker)
-		shutit.send_and_expect('chmod +x /root/start_docker.sh')
-		shutit.send_and_expect('popd')
+		shutit.send(start_docker)
+		shutit.send('chmod +x /root/start_docker.sh')
+		shutit.send('popd')
 		return True
 
 	def is_installed(self,shutit):

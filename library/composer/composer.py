@@ -30,9 +30,9 @@ class composer(ShutItModule):
 	def build(self,shutit):
 		shutit.install('curl')
 		shutit.install('php5')
-		shutit.send_and_expect('pushd /')
-		shutit.send_and_expect('curl -sS https://getcomposer.org/installer | php')
-		shutit.send_and_expect('popd')
+		shutit.send('pushd /')
+		shutit.send('curl -sS https://getcomposer.org/installer | php')
+		shutit.send('popd')
 		return True
 
 def module():

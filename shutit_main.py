@@ -379,9 +379,9 @@ def build_module(shutit, module):
 		shutit.fail(module.module_id + ' failed on build',child=shutit.pexpect_children['container_child'])
 	shutit.pause_point('\nPausing to allow inspect of build for: ' + module.module_id,print_input=True,level=2)
 	cfg['build']['report'] = cfg['build']['report'] + '\nCompleted module: ' + module.module_id
-	if cfg[module.module_id]['do_repository_work'] or cfg['build']['interactive'] >= 2:
+	if cfg[module.module_id]['do_repository_work'] or cfg['build']['interactive'] >= 3:
 		shutit.log(util.build_report(shutit,'#Module:' + module.module_id),code='31')
-	if not cfg[module.module_id]['do_repository_work'] and cfg['build']['interactive'] >= 2:
+	if not cfg[module.module_id]['do_repository_work'] and cfg['build']['interactive'] >= 3:
 		shutit.log("\n\nDo you want to save state now we\'re at the end of this module? (" + module.module_id + ") (input y/n)",force_stdout=True)
 		cfg[module.module_id]['do_repository_work'] = (raw_input('') == 'y')
 	if cfg[module.module_id]['do_repository_work']:
@@ -391,7 +391,7 @@ def build_module(shutit, module):
 		shutit.do_repository_work(str(module.module_id) + '_' + str(module.run_order),password=cfg['host']['password'],docker_executable=cfg['host']['docker_executable'],force=True)
 		# Start all after we tag to ensure services are up as expected.
 		start_all(shutit, module.run_order)
-	if cfg['build']['interactive'] >= 2:
+	if cfg['build']['interactive'] >= 3:
 		shutit.log("\n\nDo you want to stop interactive mode? (input y/n)\n",force_stdout=True)
 		if raw_input('') == 'y':
 			cfg['build']['interactive'] = 0
