@@ -281,7 +281,7 @@ class ShutIt(object):
 			msg = '\nWARNING: command:\n' + send + '\nreturned unaccepted exit code: ' + res + '\nIf this is expected, pass in check_exit=False or an exit_values array into the send_and_expect function call.'
 			cfg['build']['report'] = cfg['build']['report'] + msg
 			if cfg['build']['interactive'] >= 1:
-				shutit.fail(msg + '\n\nPause point on exit_code != 0 (' + res + '). CTRL-C to quit',child=child)
+				shutit.pause_point(msg + '\n\nPause point on exit_code != 0 (' + res + '). CTRL-C to quit',child=child)
 			else:
 				raise Exception('Exit value from command\n' + send + '\nwas:\n' + res)
 
@@ -732,9 +732,15 @@ class ShutIt(object):
 		cfg = self.cfg
 		self.install('passwd')
 		if cfg['container']['install_type'] == 'apt':
+<<<<<<< Updated upstream
 			self.send('passwd',expect='Enter new',child=child,check_exit=False)
 			self.send(password,child=child,expect='Retype new',check_exit=False,echo=False)
 			self.send(password,child=child,expect=expect,echo=False)
+=======
+			self.send_and_expect('passwd',expect='Enter new',child=child,check_exit=False)
+			self.send_and_expect(password,child=child,expect='Retype new',check_exit=False,echo=False)
+			self.send_and_expect(password,child=child,expect=expect,echo=False)
+>>>>>>> Stashed changes
 			self.install('apt-utils')
 		elif cfg['container']['install_type'] == 'yum':
 			self.send('passwd',child=child,expect='ew password',check_exit=False)

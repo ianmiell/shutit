@@ -47,7 +47,6 @@ AACl73eqAgAAAAACAAAFAHYACAIAAA4CAABoZWlnaHQAAFgCAAAAaWRlc3J0LwIAAABkY29uZi1l
 ZGl0b3IvAAAAAAAAAAsAAABrZXliaW5kaW5ncy8EAAAAc2hvdy1kZXNrdG9wAAAAAABhc2NhLwAA
 AQAAAG9yZy8JAAAALwAAAAUAAAAGAAAAd20vAAMAAABnbm9tZS8AAAoAAABkZXNrdG9wLwgAAAB3
 aWR0aAAAACADAAAAaQ==""",base64encoded=True)
-		shutit.pause_point('asd')
 		shutit.install('gnome-core')
 		shutit.install('gnome-terminal')
 		shutit.install('openjdk-6-jre')
