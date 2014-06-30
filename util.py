@@ -1005,8 +1005,8 @@ def create_skeleton(shutit):
 		skel_mod_path = os.path.join(skel_path, skel_module_name + '.py')
 		# TODO: we probably don't need all these external programs any more
 		calls = [
-				#egrep -v '^[\s]*$' myscript.sh | grep -v '^#' | sed "s/"$/" /;s/^/              shutit.send_and_expect("""/;s/$/""")/" > /tmp/shutit_bash_script_include_1400206744
-			r'''egrep -v '^[\s]*$' ''' + skel_script + r''' | grep -v '^#' | sed "s/\"$/\" /;s/^/\t\tshutit.send_and_expect(\"\"\"/;s/$/\"\"\")/" > ''' + sbsi,
+				#egrep -v '^[\s]*$' myscript.sh | grep -v '^#' | sed "s/"$/" /;s/^/              shutit.send("""/;s/$/""")/" > /tmp/shutit_bash_script_include_1400206744
+			r'''egrep -v '^[\s]*$' ''' + skel_script + r''' | grep -v '^#' | sed "s/\"$/\" /;s/^/\t\tshutit.send(\"\"\"/;s/$/\"\"\")/" > ''' + sbsi,
 			r'''sed "41r ''' + sbsi + '" ' + skel_mod_path + ' > ' + skel_mod_path + '.new''',
 			r'''mv ''' + skel_mod_path + '''.new ''' + skel_mod_path
 		]
@@ -1048,7 +1048,7 @@ def send_and_expect(child,send,expect,timeout=3600,check_exit=True,cfg=None,fail
 	if cfg not in [None, shutit_global.shutit.cfg]:
 		print "Report this error and stack trace to repo owner, #d106"
 		assert False
-	return shutit_global.shutit.send_and_expect(send,expect,
+	return shutit_global.shutit.send(send,expect,
 		child=child, timeout=timeout, check_exit=check_exit,
 		fail_on_empty_before=fail_on_empty_before,
 		record_command=record_command,exit_values=exit_values)
