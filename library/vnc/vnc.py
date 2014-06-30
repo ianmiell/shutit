@@ -35,15 +35,20 @@ class vnc(ShutItModule):
 
 	def build(self,shutit):
 		# TODO: distr-independence
-		shutit.install('lsb-release')
-		shutit.send('lsb_release -s -c')
-		release=shutit.get_output().split('\n')[1]
-		#if shutit.cfg['container']['install_type'] == 'apt':
-		#	shutit.send("""echo "deb http://archive.ubuntu.com/ubuntu """ + release + """ main universe multiverse" > /etc/apt/sources.list""")
-		#	shutit.add_line_to_file("""deb http://archive.ubuntu.com/ubuntu/ """ + release + """-updates main restricted""","""/etc/apt/sources.list""")
-		#	shutit.send('apt-get update -qq',timeout=10000)
-		#	shutit.send('apt-get upgrade -y')
-		shutit.install('gnome')
+		shutit.send('mkdir -p /root/.config/dconf')
+		shutit.send_file('/root/.config/dconf/user',"""
+R1ZhcmlhbnQAAAAAAAAAABgAAABwAQAAAAAAKAwAAAAAAAAAAAAAAAAAAAABAAAAAQAAAAIAAAAD
+AAAABQAAAAcAAAAKAAAADAAAAAwAAADepzLWAgAAAHABAAAGAHYAeAEAAH4BAADYlUmXBQAAAH4B
+AAAGAEwAhAEAAIgBAAAF9HCFAQAAAIgBAAANAEwAmAEAAKABAACSB0ZKCAAAAKABAAAMAEwArAEA
+ALABAAB61W5fAwAAALABAAAMAHYAwAEAAMMBAAAnh3h8BwAAAMMBAAADAEwAyAEAAMwBAABLUJAL
+BwAAAMwBAAAEAEwA0AEAANQBAADUtQIA/////9QBAAABAEwA2AEAAOABAACMAtigCgAAAOABAAAD
+AEwA5AEAAOgBAACwtyQwBgAAAOgBAAAGAEwA8AEAAPQBAAC5iP3aCQAAAPQBAAAIAEwA/AEAAAAC
+AACl73eqAgAAAAACAAAFAHYACAIAAA4CAABoZWlnaHQAAFgCAAAAaWRlc3J0LwIAAABkY29uZi1l
+ZGl0b3IvAAAAAAAAAAsAAABrZXliaW5kaW5ncy8EAAAAc2hvdy1kZXNrdG9wAAAAAABhc2NhLwAA
+AQAAAG9yZy8JAAAALwAAAAUAAAAGAAAAd20vAAMAAABnbm9tZS8AAAoAAABkZXNrdG9wLwgAAAB3
+aWR0aAAAACADAAAAaQ==""",base64encoded=True)
+		shutit.pause_point('asd')
+		shutit.install('gnome-core')
 		shutit.install('gnome-terminal')
 		shutit.install('openjdk-6-jre')
 		shutit.install('xserver-xorg')
@@ -101,3 +106,5 @@ def module():
 		depends=['shutit.tk.setup']
 	)
 
+
+#/root/.config/dconf/user
