@@ -224,7 +224,7 @@ class conn_docker(ShutItModule):
 			shutit.log(""">>>\n""" + container_child.before + container_child.after + """\n<<<""")
 			if res == 0:
 				shutit.log('...')
-				res = shutit.send_and_expect(cfg['host']['password'],child=container_child,expect=expect,timeout=9999,check_exit=False,fail_on_empty_before=False)
+				res = shutit.send(cfg['host']['password'],child=container_child,expect=expect,timeout=9999,check_exit=False,fail_on_empty_before=False)
 			elif res == 1:
 				shutit.log('Prompt found, breaking out')
 				break
@@ -278,11 +278,11 @@ class conn_docker(ShutItModule):
 		shutit.set_default_child(container_child)
 		shutit.log('Setting up default prompt on container child')
 		shutit.setup_prompt('pre_build', prefix='PRE_BUILD')
-		shutit.send_and_expect('export HOME=/root')
+		shutit.send('export HOME=/root')
 		shutit.get_distro_info()
 		shutit.setup_prompt('root_prompt', prefix='ROOT')
 		# Create the build directory and put the config in it.
-		shutit.send_and_expect('mkdir -p ' + shutit.cfg ['build']['build_db_dir'] + '/' + shutit.cfg['build']['build_id'])
+		shutit.send('mkdir -p ' + shutit.cfg ['build']['build_db_dir'] + '/' + shutit.cfg['build']['build_id'])
 		# Record the command we ran and the python env.
 		# TODO: record the image id we ran against - wait for "docker debug" command
 		shutit.send_file(shutit.cfg['build']['build_db_dir'] + '/' + shutit.cfg['build']['build_id'] + '/python_env.sh',str(sys.__dict__))
@@ -295,7 +295,7 @@ class conn_docker(ShutItModule):
 		and performing any repository work required.
 		"""
 		# Put build info into the container
-		shutit.send_and_expect('mkdir -p ' + shutit.cfg ['build']['build_db_dir'] + '/' + shutit.cfg['build']['build_id'])
+		shutit.send('mkdir -p ' + shutit.cfg ['build']['build_db_dir'] + '/' + shutit.cfg['build']['build_id'])
 		shutit.send_file(shutit.cfg['build']['build_db_dir'] + '/' + shutit.cfg['build']['build_id'] + '/build.log', util.get_commands(shutit))
 		shutit.send_file(shutit.cfg['build']['build_db_dir'] + '/' + shutit.cfg['build']['build_id'] + '/build_commands.sh',util.get_commands(shutit))
 		shutit.add_line_to_file(shutit.cfg['build']['build_id'],shutit.cfg ['build']['build_db_dir'] + '/builds')
@@ -334,14 +334,14 @@ class setup(ShutItModule):
 		# Seems to be broken
 		#do_update = shutit.cfg[self.module_id]['do_update']
 		if shutit.cfg['container']['install_type'] == 'apt':
-			shutit.send_and_expect('export DEBIAN_FRONTEND=noninteractive')
+			shutit.send('export DEBIAN_FRONTEND=noninteractive')
 			if do_update:
-				shutit.send_and_expect('apt-get update',timeout=9999,check_exit=False)
-			shutit.send_and_expect('dpkg-divert --local --rename --add /sbin/initctl')
-			shutit.send_and_expect('ln -f -s /bin/true /sbin/initctl')
+				shutit.send('apt-get update',timeout=9999,check_exit=False)
+			shutit.send('dpkg-divert --local --rename --add /sbin/initctl')
+			shutit.send('ln -f -s /bin/true /sbin/initctl')
 		elif shutit.cfg['container']['install_type'] == 'yum':
 			if do_update:
-				shutit.send_and_expect('yum update -y',timeout=9999)
+				shutit.send('yum update -y',timeout=9999)
 		shutit.set_password(shutit.cfg['container']['password'])
 		shutit.pause_point('Anything you want to do to the container before the build starts?', level=2)
 		return True
