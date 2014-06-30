@@ -732,15 +732,9 @@ class ShutIt(object):
 		cfg = self.cfg
 		self.install('passwd')
 		if cfg['container']['install_type'] == 'apt':
-<<<<<<< Updated upstream
 			self.send('passwd',expect='Enter new',child=child,check_exit=False)
 			self.send(password,child=child,expect='Retype new',check_exit=False,echo=False)
 			self.send(password,child=child,expect=expect,echo=False)
-=======
-			self.send_and_expect('passwd',expect='Enter new',child=child,check_exit=False)
-			self.send_and_expect(password,child=child,expect='Retype new',check_exit=False,echo=False)
-			self.send_and_expect(password,child=child,expect=expect,echo=False)
->>>>>>> Stashed changes
 			self.install('apt-utils')
 		elif cfg['container']['install_type'] == 'yum':
 			self.send('passwd',child=child,expect='ew password',check_exit=False)
