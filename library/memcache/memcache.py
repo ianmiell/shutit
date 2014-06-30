@@ -31,10 +31,10 @@ class memcache(ShutItModule):
 		shutit.install('memcached')
 		shutit.install('libmemcached-dev')
 		shutit.install('libmemcached-tools')
-		shutit.send_and_expect("""cat > /root/start_memcache.sh <<< 'service memcached start'""")
-		shutit.send_and_expect("""cat > /root/stop_memcache.sh <<< 'service memcached stop'""")
-		shutit.send_and_expect('chmod +x /root/start_memcache.sh')
-		shutit.send_and_expect('chmod +x /root/stop_memcache.sh')
+		shutit.send("""cat > /root/start_memcache.sh <<< 'service memcached start'""")
+		shutit.send("""cat > /root/stop_memcache.sh <<< 'service memcached stop'""")
+		shutit.send('chmod +x /root/start_memcache.sh')
+		shutit.send('chmod +x /root/stop_memcache.sh')
 		return True
 
 def module():
