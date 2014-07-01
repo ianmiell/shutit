@@ -21,6 +21,7 @@
 #SOFTWARE.
 
 from shutit_module import ShutItModule
+import base64
 
 #From: https://groups.google.com/forum/#!topic/docker-user/D0n-lURDn0o
 # Expose port 5901 and 6080
@@ -36,7 +37,7 @@ class vnc(ShutItModule):
 	def build(self,shutit):
 		# TODO: distr-independence
 		shutit.send('mkdir -p /root/.config/dconf')
-		shutit.send_file('/root/.config/dconf/user',"""
+		shutit.send_file('/root/.config/dconf/user',base64.standard_b64decode("""
 R1ZhcmlhbnQAAAAAAAAAABgAAABwAQAAAAAAKAwAAAAAAAAAAAAAAAAAAAABAAAAAQAAAAIAAAAD
 AAAABQAAAAcAAAAKAAAADAAAAAwAAADepzLWAgAAAHABAAAGAHYAeAEAAH4BAADYlUmXBQAAAH4B
 AAAGAEwAhAEAAIgBAAAF9HCFAQAAAIgBAAANAEwAmAEAAKABAACSB0ZKCAAAAKABAAAMAEwArAEA
@@ -46,7 +47,7 @@ AEwA5AEAAOgBAACwtyQwBgAAAOgBAAAGAEwA8AEAAPQBAAC5iP3aCQAAAPQBAAAIAEwA/AEAAAAC
 AACl73eqAgAAAAACAAAFAHYACAIAAA4CAABoZWlnaHQAAFgCAAAAaWRlc3J0LwIAAABkY29uZi1l
 ZGl0b3IvAAAAAAAAAAsAAABrZXliaW5kaW5ncy8EAAAAc2hvdy1kZXNrdG9wAAAAAABhc2NhLwAA
 AQAAAG9yZy8JAAAALwAAAAUAAAAGAAAAd20vAAMAAABnbm9tZS8AAAoAAABkZXNrdG9wLwgAAAB3
-aWR0aAAAACADAAAAaQ==""",base64encoded=True)
+aWR0aAAAACADAAAAaQ==""")
 		shutit.install('gnome-core')
 		shutit.install('gnome-terminal')
 		shutit.install('openjdk-6-jre')
