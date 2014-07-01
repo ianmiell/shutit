@@ -515,7 +515,7 @@ def shutit_main():
 	# Dependency validation done, now collect configs of those marked for build.
 	config_collection_for_built(shutit)
 	if cfg['action']['show_config']:
-		shutit.log(util.print_config(cfg,history=cfg['build']['cfghistory']))
+		shutit.log(util.print_config(cfg,history=cfg['build']['cfghistory']),force_stdout=True)
 		return
 	# Check for conflicts now.
 	errs.extend(check_conflicts(shutit))

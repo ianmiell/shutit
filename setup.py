@@ -285,8 +285,8 @@ class conn_docker(ShutItModule):
 		shutit.send('mkdir -p ' + shutit.cfg ['build']['build_db_dir'] + '/' + shutit.cfg['build']['build_id'])
 		# Record the command we ran and the python env.
 		# TODO: record the image id we ran against - wait for "docker debug" command
-		shutit.send_file(shutit.cfg['build']['build_db_dir'] + '/' + shutit.cfg['build']['build_id'] + '/python_env.sh',str(sys.__dict__))
-		shutit.send_file(shutit.cfg['build']['build_db_dir'] + '/' + shutit.cfg['build']['build_id'] + '/docker_command.sh',' '.join(docker_command))
+		shutit.send_file(shutit.cfg['build']['build_db_dir'] + '/' + shutit.cfg['build']['build_id'] + '/python_env.sh',str(sys.__dict__),log=False)
+		shutit.send_file(shutit.cfg['build']['build_db_dir'] + '/' + shutit.cfg['build']['build_id'] + '/docker_command.sh',' '.join(docker_command),log=False)
 		shutit.pause_point('Anything you want to do now the container is connected to?', level=2)
 		return True
 
