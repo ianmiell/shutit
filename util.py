@@ -1042,18 +1042,6 @@ def log(msg,code=None,pause=0,cfg=None,prefix=True,force_stdout=False):
 	return shutit_global.shutit.log(msg, code=code, pause=pause, prefix=prefix, force_stdout=force_stdout)
 
 # Deprecated
-def send_and_expect(child,send,expect,timeout=3600,check_exit=True,cfg=None,fail_on_empty_before=True,record_command=True,exit_values=['0']):
-	"""Deprecated. Do not use.
-	"""
-	if cfg not in [None, shutit_global.shutit.cfg]:
-		print "Report this error and stack trace to repo owner, #d106"
-		assert False
-	return shutit_global.shutit.send(send,expect,
-		child=child, timeout=timeout, check_exit=check_exit,
-		fail_on_empty_before=fail_on_empty_before,
-		record_command=record_command,exit_values=exit_values)
-
-# Deprecated
 def pause_point(child,msg,print_input=True,expect='',cfg=None):
 	"""Deprecated. Do not use.
 	"""
