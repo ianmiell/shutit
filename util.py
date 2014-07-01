@@ -1108,15 +1108,4 @@ def get_shutit_modules():
 	"""
 	return shutit_global.shutit_modules
 
-# Deprecated
-def handle_login(child,cfg,prompt_name):
-	"""Deprecated. Do not use.
-	"""
-	shutit_global.shutit.handle_login(prompt_name,child=child)
-
-# Deprecated
-def handle_revert_prompt(child,expect,prompt_name):
-	"""Deprecated. Do not use.
-	"""
-	shutit_global.shutit.handle_revert_prompt(expect,prompt_name,child=child)
 
