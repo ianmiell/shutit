@@ -319,28 +319,25 @@ class ShutIt(object):
 		return ret
 
 	# TODO: test for this
-	def send_file(self,path,contents,expect=None,child=None,binary=False,base64encoded=False):
+	def send_file(self,path,contents,expect=None,child=None,log=True):
 		"""Sends the passed-in string as a file to the passed-in path on the container.
 
 		- path     - Target location of file in container.
-		- contents - Contents of file as a string. See binary.
+		- contents - Contents of file as a string. See log.
 		- expect   - 
 		- child    - 
-		- binary   - Don't log the file contents.
+		- log      - Don't log the file contents.
 		"""
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
 		if cfg['build']['debug']:
 			self.log('================================================================================')
 			self.log('Sending file to' + path)
-			if not binary and not base64encoded:
+			if log:
 				self.log('contents >>>' + contents + '<<<')
 		# Prepare to send the contents as base64 so we don't have to worry about
 		# special shell characters
-		if not base64encoded:
-			contents64 = base64.standard_b64encode(contents)
-		else:
-			contents64 = contents
+		contents64 = base64.standard_b64encode(contents)
 		child.sendline('base64 --decode > ' + path)
 		child.expect('\r\n')
 		# We have to batch the file up to avoid hitting pipe buffer limit. This
@@ -673,11 +670,6 @@ class ShutIt(object):
 			shutit.log('Resetting default expect to: ' + shutit.cfg['expect_prompts'][prompt_name])
 			self.set_default_expect(shutit.cfg['expect_prompts'][prompt_name])
 
-	def handle_revert_prompt(self,expect,prompt_name,child=None):
-		"""Deprecated. Do not use. Use revert_prompt instead
-		"""
-		self.revert_prompt(prompt_name,new_expect=expect,child=child)
-
 	def revert_prompt(self,old_prompt_name,new_expect=None,child=None):
 		"""Reverts the prompt to the previous value (passed-in).
 
@@ -691,7 +683,7 @@ class ShutIt(object):
 				(old_prompt_name, old_prompt_name),
 			expect=expect,check_exit=False,fail_on_empty_before=False)
 		if not new_expect:
-			shutit.log('Resetting default expect to')
+			shutit.log('Resetting default expect to default')
 			self.set_default_expect()
 
 	def get_distro_info(self,child=None):
@@ -868,10 +860,7 @@ class ShutIt(object):
 	def record_config(self):
 		self.send_file(self.cfg['build']['build_db_dir'] + '/' + self.cfg['build']['build_id'] + '/' + self.cfg['build']['build_id'] + '.cfg',util.print_config(self.cfg))
 
-	def handle_login(self,prompt_name,child=None):
-		"""Deprecated. Do not use. Use setup_prompt instead.
-		"""
-		self.setup_prompt(prompt_name, child=child)
+
 	
 
 
