@@ -30,16 +30,18 @@ class mysql(ShutItModule):
 	def build(self,shutit):
 		root_pass = shutit.cfg['shutit.tk.mysql.mysql']['root_password']
 		shutit.install('sudo')
-		shutit.send("apt-get update")
-		shutit.send("""debconf-set-selections << 'END'
+		if shutit.cfg['container']['install_type'] == 'apt':
+			shutit.send("""debconf-set-selections << 'END'
 mysql-server mysql-server/root_password password {0}
 END""".format(root_pass),echo=False)
-		shutit.send("""debconf-set-selections << 'END'
+			shutit.send("""debconf-set-selections << 'END'
 mysql-server mysql-server/root_password_again password {0}
 END""".format(root_pass),echo=False)
-		shutit.install('mysql-common')
+			shutit.install('mysql-common')
+			shutit.install('libmysqlclient-dev')
+		else:
+			shutit.install('mysql')
 		shutit.install('mysql-server')
-		shutit.install('libmysqlclient-dev')
 		shutit.send('mysqld &')
 		shutit.send('sleep 2')
 		shutit.send('mysql_install_db --user=mysql --basedir=/usr --datadir=/var/mysql/database')

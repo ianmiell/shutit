@@ -29,6 +29,7 @@ class phantomjs(ShutItModule):
 
 	def build(self,shutit):
 		shutit.send('pushd /opt')
+		shutit.install('tar') # required for centos image
 		shutit.install('curl')
 		shutit.install('bzip2')
 		# TODO: latest version of pj?
