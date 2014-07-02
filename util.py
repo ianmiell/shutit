@@ -348,7 +348,7 @@ def get_base_config(cfg, cfg_parser):
 		sys.exit()
 	if warn != '':
 		issue_warning('Showing computed config. This can also be done by calling with sc:',2)
-		log(print_config(cfg),force_stdout=True,code='31')
+		shutit_global.shutit.log(print_config(cfg),force_stdout=True,code='31')
 		time.sleep(1)
 	# If build/allowed_images doesn't contain container/docker_image
 	if 'any' not in cfg['build']['allowed_images'] and cfg['container']['docker_image'] not in cfg['build']['allowed_images']:
@@ -524,7 +524,7 @@ def parse_args(cfg):
 	cfg['host']['shutit_module_paths'] = args.shutit_module_path.split(':')
 	if '.' not in cfg['host']['shutit_module_paths']:
 		if cfg['build']['debug']:
-			log('Working directory path not included, adding...')
+			shutit_global.shutit.log('Working directory path not included, adding...')
 			time.sleep(1)
 		cfg['host']['shutit_module_paths'].append('.')
 	# Finished parsing args, tutorial stuff
@@ -641,7 +641,7 @@ def load_configs(shutit):
 			if type(c) is tuple:
 				c = c[0]
 			msg = msg + '\t\n' + c
-			log('\t' + c)
+			shutit.log('\t' + c)
 		if cfg['build']['interactive'] >= 3:
 			print textwrap.dedent("""\n""") + msg + textwrap.dedent("""
 				Looking at config files in the above order (even if they
@@ -678,8 +678,8 @@ def load_shutit_modules(shutit):
 	paths.
 	"""
 	if shutit.cfg['build']['debug']:
-		log('ShutIt module paths now: ')
-		log(shutit.cfg['host']['shutit_module_paths'])
+		shutit.log('ShutIt module paths now: ')
+		shutit.log(shutit.cfg['host']['shutit_module_paths'])
 		time.sleep(1)
 	for shutit_module_path in shutit.cfg['host']['shutit_module_paths']:
 		load_all_from_path(shutit, shutit_module_path)
@@ -762,7 +762,7 @@ def load_mod_from_file(shutit, fpath):
 		return
 	# Looks like it's ok to load this file
 	if shutit.cfg['build']['debug']:
-		log('Loading source for: ' + fpath)
+		shutit.log('Loading source for: ' + fpath)
 
 	mod_name = base64.b32encode(fpath).replace('=', '')
 	pymod = imp.load_source(mod_name, fpath)
@@ -1031,14 +1031,4 @@ def create_skeleton(shutit):
 	An image called ''' + skel_module_name + ''' will be created and can be run
 	with the run.sh command.
 	================================================================================''')
-
-# Deprecated
-def log(msg,code=None,pause=0,cfg=None,prefix=True,force_stdout=False):
-	"""Deprecated. Do not use.
-	"""
-	if cfg not in [None, shutit_global.shutit.cfg]:
-		print "Report this error and stack trace to repo owner, #d101"
-		assert False
-	return shutit_global.shutit.log(msg, code=code, pause=pause, prefix=prefix, force_stdout=force_stdout)
-
 
