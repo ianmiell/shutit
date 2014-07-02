@@ -830,9 +830,9 @@ class ShutIt(object):
 		self.send(cmd,child=child,expect=expect,check_exit=False)
 		if export or save:
 			self.pause_point('We are now exporting the container to a bzipped tar file, as configured in \n[repository]\ntar:yes',print_input=False,child=child,level=3)
-			self.log('\nDepositing bzip2 of exported container into ' + bzfile)
 			if export:
 				bzfile = cfg['host']['resources_dir'] + '/' + repository_tar + 'export.tar.bz2'
+				self.log('\nDepositing bzip2 of exported container into ' + bzfile)
 				if self.send(docker_executable + ' export ' + cfg['container']['container_id'] + ' | bzip2 - > ' + bzfile,expect=[expect,'assword'],timeout=99999,child=child) == 1:
 					self.send(password,expect=expect,child=child)
 				self.log('\nDeposited bzip2 of exported container into ' + bzfile,code='31')
@@ -841,6 +841,7 @@ class ShutIt(object):
 				cfg['build']['report'] = cfg['build']['report'] + '\nRun:\n\nbunzip2 -c ' + bzfile + ' | sudo docker import -\n\nto get this imported into docker.'
 			if save:
 				bzfile = cfg['host']['resources_dir'] + '/' + repository_tar + 'save.tar.bz2'
+				self.log('\nDepositing bzip2 of exported container into ' + bzfile)
 				if self.send(docker_executable + ' save ' + cfg['container']['container_id'] + ' | bzip2 - > ' + bzfile,expect=[expect,'assword'],timeout=99999,child=child) == 1:
 					self.send(password,expect=expect,child=child)
 				self.log('\nDeposited bzip2 of exported container into ' + bzfile,code='31')
