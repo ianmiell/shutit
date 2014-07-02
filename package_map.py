@@ -26,7 +26,11 @@
 # Structured by package, then another dict with install_type -> mapped package inside that.
 # The keys are then the canonical package names.
 # eg {'httpd',
-package_map = {'apache2':{'apt':'apache2','yum':'httpd'}}
+package_map = {
+	'apache2':               {'apt':'apache2',           'yum':'httpd'},
+	'adduser':               {'apt':'adduser',           'yum':''},
+	'php5':                  {'apt':'php5',              'yum':'php'}
+}
 
 def map_package(package,install_type):
 	# If package mapping exists, then return it, else return package.
