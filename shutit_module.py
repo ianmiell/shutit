@@ -151,21 +151,6 @@ class ShutItModule(object):
 
 
 	########################################################################
-	# Helper methods.
-	########################################################################
-	def set_run_order(self,order):
-		"""Deprecated"""
-		self.run_order = order
-
-	def add_dependency(self,dependency):
-		"""Deprecated"""
-		self.depends_on.append(dependency)
-
-	def add_conflict(self,conflict):
-		"""Deprecated"""
-		self.conflicts_with.append(conflict)
-
-	########################################################################
 	# Abstract methods
 	########################################################################
 	def get_config(self,shutit):
