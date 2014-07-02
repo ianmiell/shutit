@@ -103,7 +103,11 @@ var ErrList = React.createClass({
 	}
 });
 var ConfigItem = React.createClass({
+	// Called on click of a value (to edit) or confirm (to save)
 	handleClick: function () {
+		// If we're in the middle of editing then we've clicked confrm
+		// and the event needs to bubble upwards.
+		// Otherwise we've clicked the value and want to begin editing.
 		var editing = this.state.editing, copystate = copy(this.state);
 		if (editing) {
 			this.props.onChange(this.props.key, JSON.parse(this.state.strval));
@@ -113,6 +117,9 @@ var ConfigItem = React.createClass({
 		copystate.editing = !editing;
 		this.setState(copystate);
 	},
+	// Every time the value of the input box is changed, check if it's a
+	// valid json value and is of the same type as the existing value.
+	// If not, assume it's invalid.
 	handleChange: function (event) {
 		var strval = event.target.value;
 		var copystate = copy(this.state);
@@ -204,7 +211,7 @@ var ConfigEditor = React.createClass({
 });
 var InfoDisplay = React.createClass({
 	getInitialState: function () {
-		return {advanced: true};
+		return {advanced: false};
 	},
 	advancedSwitch: function (event) {
 		this.setState({advanced: event.target.checked});
