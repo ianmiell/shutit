@@ -144,8 +144,11 @@ END"""
 		return True
 
 	def is_installed(self,shutit):
-		config_dict = shutit.cfg
 		return False
+
+	def check_ready(self,shutit):
+		# Only apt-based systems are supported support atm
+		return shutit.cfg['container']['install_type'] == 'apt'
 
 
 def module():

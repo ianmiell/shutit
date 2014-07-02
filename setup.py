@@ -186,7 +186,7 @@ class conn_docker(ShutItModule):
 		for portmap in ports_list:
 			port_args.append('-p=' + portmap)
 		for dns in dns_list:
-			dns_args.append('-dns=' + dns)
+			dns_args.append('--dns=' + dns)
 
 		docker_command = docker + [
 			arg for arg in [
