@@ -44,7 +44,7 @@ def build_shutit():
 	"""
 	global STATUS
 	try:
-	        # Dependency validation done, now collect configs of those marked for build.
+		# Dependency validation done, now collect configs of those marked for build.
 		shutit_main.config_collection_for_built(shutit)
 		shutit_main.do_remove(shutit)
 		shutit_main.do_build(shutit)
@@ -56,27 +56,43 @@ def build_shutit():
 	STATUS['build_done'] = True
 
 def update_modules(to_build, cfg):
-	"""Updates modules to be built with the passed-in config.
+	"""
+	Updates modules to be built with the passed-in config.
 	Updating each individual module section will propogate the changes to
-	STATUS as well (as the references are the same)
+	STATUS as well (as the references are the same).
+	Note that we have to apply overrides in a specific order -
+	1) reset the modules being built to the defaults
+	2) set any modules selected for build as build = True
+	3) reset configs using config_collection_for_built
+	4) apply config overrides
 	"""
 	global STATUS
+
+	selected = set(to_build)
+	for mid in shutit.cfg:
+		if mid in orig_mod_cfg and 'build' in orig_mod_cfg[mid]:
+			shutit.cfg[mid]['build'] = orig_mod_cfg[mid]['build']
+		if mid in selected:
+			shutit.cfg[mid]['build'] = True
+	# There is a complexity here in that module configs may depend on
+	# configs from other modules (!). We assume this won't happen as we
+	# would have to override each module at the correct time.
+	shutit_main.config_collection_for_built(shutit)
+
 	if cfg is not None:
 		sec, key, val = cfg
 		orig_mod_cfg[sec][key] = val
 	for mid in orig_mod_cfg:
-		shutit.cfg[mid].update(orig_mod_cfg[mid])
-	shutit_main.config_collection_for_built(shutit)
-
-	selected = set(to_build)
-	for mid in selected:
-		shutit.cfg[mid]['build'] = True
+		for cfgkey in orig_mod_cfg[mid]:
+			if cfgkey == 'build': continue
+			shutit.cfg[mid][cfgkey] = orig_mod_cfg[mid][cfgkey]
 
 	errs = []
 	errs.extend(shutit_main.check_deps(shutit))
 	errs.extend(shutit_main.check_conflicts(shutit))
 	errs.extend(shutit_main.check_ready(shutit))
 
+	# TODO: display an error if (selected and not build)
 	STATUS['errs'] = [err[0] for err in errs]
 	STATUS['modules'] = [
 		{
@@ -202,9 +218,13 @@ def shutit_reset():
 		shutit.cfg['build']['interactive'] = 0
 		STATUS['cid'] = shutit.cfg['container']['container_id']
 		for mid in shutit.shutit_map:
-			STATUS['cfg'][mid] = orig_mod_cfg[mid] = shutit.cfg[mid]
+			orig_mod_cfg[mid] = STATUS['cfg'][mid] = shutit.cfg[mid]
 		# Add in core sections
-		STATUS['cfg']['repository'] = orig_mod_cfg['repository'] = shutit.cfg['repository']
+		for mid in ['repository']:
+			orig_mod_cfg[mid] = STATUS['cfg'][mid] = shutit.cfg[mid]
+		# Make sure that orig_mod_cfg can be updated seperately to
+		# STATUS and shutit.cfg (which remain linked), as it will hold
+		# our overrides
 		orig_mod_cfg = copy.deepcopy(orig_mod_cfg)
 		update_modules([], None)
 
