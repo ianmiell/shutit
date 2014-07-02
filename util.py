@@ -353,6 +353,7 @@ def get_base_config(cfg, cfg_parser):
 	# If build/allowed_images doesn't contain container/docker_image
 	if 'any' not in cfg['build']['allowed_images'] and cfg['container']['docker_image'] not in cfg['build']['allowed_images']:
 		print('Allowed images for this build are: ' + str(cfg['build']['allowed_images']) + ' but the configured image is: ' + cfg['container']['docker_image'])
+		# Exit without error code so that it plays nice with tests.
 		sys.exit()
 	# FAILS ends
 	if cfg['container']['password'] == '':
@@ -687,32 +688,40 @@ def load_shutit_modules(shutit):
 def print_config(cfg,hide_password=True,history=False):
 	"""Returns a string representing the config of this ShutIt run.
 	"""
-	r = ''
+	cp = cfg['config_parser']
+	s = ''
 	keys1 = cfg.keys()
 	if keys1:
 		keys1.sort()
 	for k in keys1:
 		if type(k) == str and type(cfg[k]) == dict:
-			r = r + '\n[' + k + ']\n'
+			s += '\n[' + k + ']\n'
 			keys2 = cfg[k].keys()
 			if keys2:
 				keys2.sort()
 			for k1 in keys2:
-					r = r + k1 + ':' 
+					line = ''
+					line += k1 + ':' 
 					if hide_password and (k1 == 'password' or k1 == 'passphrase'):
-						s = hashlib.sha512(cfg[k][k1]).hexdigest()
+						p = hashlib.sha512(cfg[k][k1]).hexdigest()
 						i = 27
 						while i > 0:
 							i = i - 1
-							s = hashlib.sha512(s).hexdigest()
-						r = r + s
+							p = hashlib.sha512(s).hexdigest()
+						line += p
 					else:
 						if type(cfg[k][k1] == bool):
-							r = r + str(cfg[k][k1])
+							line += str(cfg[k][k1])
 						elif type(cfg[k][k1] == str):
-							r = r + cfg[k][k1]
-					r = r + '\n'
-	return r
+							line += cfg[k][k1]
+					if history:
+						try:
+							line += (30-len(line)) * ' ' + ' # ' + cp.whereset(k, k1)
+						except:
+							# Assume this is because it was never set by a config parser.
+							line += (30-len(line)) * ' ' + ' # ' + "defaults in code"
+					s += line + '\n'
+	return s 
 
 def set_pexpect_child(key,child):
 	"""Set a pexpect child in the global dictionary by key.
