@@ -211,7 +211,7 @@ var ConfigEditor = React.createClass({
 });
 var InfoDisplay = React.createClass({
 	getInitialState: function () {
-		return {advanced: true};
+		return {advanced: false};
 	},
 	advancedSwitch: function (event) {
 		this.setState({advanced: event.target.checked});
