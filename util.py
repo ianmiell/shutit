@@ -1042,38 +1042,6 @@ def log(msg,code=None,pause=0,cfg=None,prefix=True,force_stdout=False):
 	return shutit_global.shutit.log(msg, code=code, pause=pause, prefix=prefix, force_stdout=force_stdout)
 
 # Deprecated
-def pause_point(child,msg,print_input=True,expect='',cfg=None):
-	"""Deprecated. Do not use.
-	"""
-	if cfg not in [None, shutit_global.shutit.cfg]:
-		print "Report this error and stack trace to repo owner, #d102"
-		assert False
-	shutit_global.shutit.pause_point(msg, child=child, print_input=print_input,
-		expect=expect)
-
-# Deprecated
-def do_repository_work(cfg,expect,repo_name,docker_executable='docker.io',password=None):
-	"""Deprecated. Do not use.
-	"""
-	if cfg not in [None, shutit_global.shutit.cfg]:
-		print "Report this error and stack trace to repo owner, #d111"
-		assert False
-	shutit_global.shutit.do_repository_work(repo_name,expect=expect,docker_executable=docker_executable,password=password)
-
-# Deprecated
-def file_exists(child,filename,expect,directory=False):
-	"""Deprecated. Do not use.
-	"""
-	return shutit_global.shutit.file_exists(filename, expect, child=child,
-		directory=directory)
-
-# Deprecated
-def get_file_perms(child,filename,expect):
-	"""Deprecated. Do not use.
-	"""
-	return shutit_global.shutit.get_file_perms(filename,expect,child=child)
-
-# Deprecated
 def add_line_to_file(child,line,filename,expect,match_regexp=None,truncate=False,force=False,literal=False):
 	"""Deprecated. Do not use.
 	"""
