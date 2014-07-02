@@ -26,7 +26,8 @@ import os
 class squid_deb_proxy(ShutItModule):
 
 	def is_installed(self,shutit):
-		return shutit.file_exists('/root/start_avahi_daemon.sh') and shutit.package_installed('squid-deb-proxy-client') and shutit.package_installed('avahi-daemon')
+		# Only apt-based systems are supported support atm
+	        return shutit.cfg['container']['install_type'] == 'apt' and shutit.file_exists('/root/start_avahi_daemon.sh') and shutit.package_installed('squid-deb-proxy-client') and shutit.package_installed('avahi-daemon')
 
 	def build(self,shutit):
 		# This sets up the avahi daemon such that the squid deb proxy can run.

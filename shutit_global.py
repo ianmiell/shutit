@@ -626,7 +626,11 @@ class ShutIt(object):
 			return False
 		# Get mapped package.
 		package = package_map.map_package(package,self.cfg['container']['install_type'])
-		self.send('%s %s %s' % (cmd,opts,package),expect,timeout=timeout)
+		if package != '':
+			self.send('%s %s %s' % (cmd,opts,package),expect,timeout=timeout)
+		else:
+			# package not required
+			pass
 		return True
 
 	def remove(self,package,child=None,expect=None,options=None,timeout=3600):
@@ -716,20 +720,20 @@ class ShutIt(object):
 		if cfg['container']['install_type'] == '' or cfg['container']['distro'] == '':
 			shutit.fail('Could not determine Linux distro information. Please inform maintainers.')
 
-	def set_password(self,password,child=None,expect=None):
-		"""Sets the password for the current user.
+	def set_password(self,password,user='',child=None,expect=None):
+		"""Sets the password for the current user or passed-in user.
 		"""
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
 		cfg = self.cfg
 		self.install('passwd')
 		if cfg['container']['install_type'] == 'apt':
-			self.send('passwd',expect='Enter new',child=child,check_exit=False)
+			self.send('passwd ' + user,expect='Enter new',child=child,check_exit=False)
 			self.send(password,child=child,expect='Retype new',check_exit=False,echo=False)
 			self.send(password,child=child,expect=expect,echo=False)
 			self.install('apt-utils')
 		elif cfg['container']['install_type'] == 'yum':
-			self.send('passwd',child=child,expect='ew password',check_exit=False)
+			self.send('passwd ' + user,child=child,expect='ew password',check_exit=False)
 			self.send(password,child=child,expect='ew password',check_exit=False,echo=False)
 			self.send(password,child=child,expect=expect,echo=False)
 
