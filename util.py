@@ -1041,27 +1041,4 @@ def log(msg,code=None,pause=0,cfg=None,prefix=True,force_stdout=False):
 		assert False
 	return shutit_global.shutit.log(msg, code=code, pause=pause, prefix=prefix, force_stdout=force_stdout)
 
-# Deprecated
-def add_line_to_file(child,line,filename,expect,match_regexp=None,truncate=False,force=False,literal=False):
-	"""Deprecated. Do not use.
-	"""
-	return shutit_global.shutit.add_line_to_file(line, filename, expect,
-		child=child, match_regexp=match_regexp, truncate=truncate, force=force,
-		literal=literal)
-
-# Deprecated
-def module_exists(module_id):
-	"""Deprecated. Do not use.
-	"""
-	for m in get_shutit_modules():
-		if m.module_id == module_id:
-			return True
-	return False
-
-# Deprecated
-def get_shutit_modules():
-	"""Deprecated. Do not use.
-	"""
-	return shutit_global.shutit_modules
-
 
