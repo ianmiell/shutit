@@ -352,9 +352,16 @@ def get_base_config(cfg, cfg_parser):
 		time.sleep(1)
 	# If build/allowed_images doesn't contain container/docker_image
 	if 'any' not in cfg['build']['allowed_images'] and cfg['container']['docker_image'] not in cfg['build']['allowed_images']:
-		print('Allowed images for this build are: ' + str(cfg['build']['allowed_images']) + ' but the configured image is: ' + cfg['container']['docker_image'])
-		# Exit without error code so that it plays nice with tests.
-		sys.exit()
+		# Try allowed images as regexps
+		ok = False
+		for regexp in cfg['build']['allowed_images']:
+			if re.match(regexp,cfg['container']['docker_image']):
+				ok = True
+				break
+		if not ok:
+			print('Allowed images for this build are: ' + str(cfg['build']['allowed_images']) + ' but the configured image is: ' + cfg['container']['docker_image'])
+			# Exit without error code so that it plays nice with tests.
+			sys.exit()
 	# FAILS ends
 	if cfg['container']['password'] == '':
 		cfg['container']['password'] = getpass.getpass(prompt='Input your container password: ')
