@@ -141,11 +141,10 @@ privileged:no
 #lxc_conf:lxc.aa_profile=unconfined
 lxc_conf:
 # Allowed images json-list, eg ["ubuntu:12.04"], each matched on
-# an OR basis with the image base.
-# 'any' is a special value meaning any image is ok, and is the default.
+# an OR basis with the image_tag configured for the build.
 # It's recommended this is locked down as far as possible.
 # NB each image must be in double quotes.
-allowed_images:["any"]
+allowed_images:[".*"]
 # Base image can be over-ridden by --image_tag defaults to this.
 base_image:ubuntu:12.04
 '''
@@ -959,10 +958,9 @@ def create_skeleton(shutit):
 
 		# Aspects of build process
 		[build]
-		# Allowed images, eg ["ubuntu:12.04"].
-		# "any" is a special value meaning any image is ok, and is the default.
+		# Allowed images as a regexp, eg ["ubuntu:12.*"], or [".*"], or ["centos"].
 		# It's recommended this is locked down as far as possible.
-		allowed_images:["any"]
+		allowed_images:[".*"]
 		[repository]
 		name:''' + skel_module_name + '''
 		''')
