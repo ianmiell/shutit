@@ -39,13 +39,18 @@ def parse_dockerfile(contents):
 			#if docker_command == "FROM":
 			#	# In build.cnf, add the allowed_images.
 			#	return [docker_command_args]
-			#elif docker_command == "MAINTAINER":
-			#	# ?
-			#	return [docker_command_args]
+
 			#elif docker_command == "RUN":
 			#	# Only handle simple commands for now and ignore the fact that Dockerfiles run 
 			#	# with /bin/sh -c rather than bash.
 			#	ret.append(docker_command_args)
+			#elif docker_command == "ADD":
+			#	# Send file - is this potentially got from the web? Is that the difference between this and COPY?
+			#	ret.append(docker_command_args)
+			#elif docker_command == "COPY":
+			#	# Send file
+			#	ret.append(docker_command_args)
+
 			#elif docker_command == "CMD":
 			#	# Only handle simple commands for now (ie not execs) and ignore the fact that Dockerfiles
 			#	# Put in the run.sh
@@ -56,29 +61,22 @@ def parse_dockerfile(contents):
 			#elif docker_command == "ENV":
 			#	# Put in the run.sh
 			#	ret.append(docker_command_args)
-			#elif docker_command == "ADD":
-			#	# Send file - is this potentially got from the web? Is that the difference between this and COPY?
-			#	ret.append(docker_command_args)
-			#	pass
-			#elif docker_command == "COPY":
-			#	# Send file
-			#	ret.append(docker_command_args)
-			#	pass
-			#elif docker_command == "ENTRYPOINT":
-			#	# Ignore - effectively the same as CMD for us.
-			#	pass
 			#elif docker_command == "VOLUME":
 			#	# Put in the run.sh
-			#	pass
+			#elif docker_command == "ENTRYPOINT":
+			#	# Ignore - effectively the same as CMD for us.
+
 			#elif docker_command == "USER":
 			#	# Put in the start script
-			#	pass
 			#elif docker_command == "WORKDIR":
 			#	# Put in the start script
-			#	pass
+
 			#elif docker_command == "ONBUILD":
 			#	# Maps to finalize :)
-			#	pass
+
+			#elif docker_command == "MAINTAINER":
+			#	# ?
+			#	return [docker_command_args]
 		else:
 			print "Ignored line: " + line
 	return ret
