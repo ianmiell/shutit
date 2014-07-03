@@ -22,3 +22,6 @@
 [shutit.tk.vnc.vnc]
 build:yes
 
+[container]
+allowed_images:["ubuntu.*"]
+
