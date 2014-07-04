@@ -964,7 +964,6 @@ def create_skeleton(shutit):
 				# Push and pop
 				shutit.cfg['dockerfile']['script'].append((item[0],item[1]))
 
-		print shutit.cfg['dockerfile']
 		# We now have the script, so let's construct it inline here
 		# Header.
 		templatemodule = ''
