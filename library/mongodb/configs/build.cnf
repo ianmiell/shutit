@@ -1,0 +1,13 @@
+# When this module is the one being built, which modules should be built along with it by default?
+# This feeds into automated testing of each module.
+[shutit.tk.mongodb.mongodb]
+build:yes
+
+# Aspects of build process
+[build]
+# Allowed images as a regexp, eg ["ubuntu:12.*"], or [".*"], or ["centos"].
+# It's recommended this is locked down as far as possible.
+allowed_images:[".*"]
+base_image:ubuntu
+[repository]
+name:mongodb
