@@ -46,6 +46,7 @@ import getpass
 import StringIO
 import copy
 import hashlib
+import dockerfile
 from shutit_module import ShutItFailException
 
 _default_cnf = '''
@@ -433,6 +434,7 @@ def parse_args(cfg):
 	sub_parsers['skeleton'].add_argument('domain', help='arbitrary but unique domain for namespacing your module, eg com.mycorp')
 	sub_parsers['skeleton'].add_argument('script', help='pre-existing shell script to integrate into module (optional)', nargs='?', default=None)
 	sub_parsers['skeleton'].add_argument('--example', help='add an example implementation with model calls to ShutIt API', default=False, const=True, action='store_const')
+	sub_parsers['skeleton'].add_argument('-d','--dockerfile', default=None)
 
 	sub_parsers['build'].add_argument('--export', help='export to a tar file', const=True, default=False, action='store_const')
 	sub_parsers['build'].add_argument('--save', help='save to a tar file', const=True, default=False, action='store_const')
@@ -490,12 +492,13 @@ def parse_args(cfg):
 	# This mode is a bit special - it's the only one with different arguments
 	if cfg['action']['skeleton']:
 		cfg['skeleton'] = {
-			'path': args.path,
+			'path':        args.path,
 			'module_name': args.module_name,
-			'domain': args.domain,
-			'domainhash': str(get_hash(args.domain)),
-			'script': args.script,
-			'example': args.example
+			'domain':      args.domain,
+			'domainhash':  str(get_hash(args.domain)),
+			'script':      args.script,
+			'example':     args.example,
+			'dockerfile':  args.dockerfile
 		}
 		return
 
@@ -858,6 +861,7 @@ def create_skeleton(shutit):
 	skel_domain_hash = shutit.cfg['skeleton']['domainhash']
 	skel_script      = shutit.cfg['skeleton']['script']
 	skel_example     = shutit.cfg['skeleton']['example']
+	skel_dockerfile  = shutit.cfg['skeleton']['dockerfile']
 
 	if len(skel_path) == 0 or skel_path[0] != '/':
 		shutit.fail('Must supply a directory and it must be absolute')
@@ -869,18 +873,30 @@ def create_skeleton(shutit):
 		shutit.fail('Module names must comply with python classname standards: cf: http://stackoverflow.com/questions/10120295/valid-characters-in-a-python-class-name')
 	if len(skel_domain) == 0:
 		shutit.fail('Must supply a domain for your module, eg com.yourname.madeupdomainsuffix')
+	if not os.path.exists(skel_dockerfile):
+		shutit.fail('Dockerfile "' + skel_dockerfile + '" must exist')
 
 	os.makedirs(skel_path)
 	os.mkdir(os.path.join(skel_path, 'configs'))
 
 	templatemodule_path = os.path.join(skel_path, skel_module_name + '.py')
-	readme_path = os.path.join(skel_path, 'README.md')
-	buildsh_path = os.path.join(skel_path, 'build.sh')
-	testsh_path = os.path.join(skel_path, 'test.sh')
-	runsh_path = os.path.join(skel_path, 'run.sh')
-	buildpushsh_path = os.path.join(skel_path, 'build_and_push.sh')
-	buildcnf_path = os.path.join(skel_path, 'configs', 'build.cnf')
-	pushcnf_path = os.path.join(skel_path, 'configs', 'push.cnf')
+	readme_path         = os.path.join(skel_path, 'README.md')
+	buildsh_path        = os.path.join(skel_path, 'build.sh')
+	testsh_path         = os.path.join(skel_path, 'test.sh')
+	runsh_path          = os.path.join(skel_path, 'run.sh')
+	buildpushsh_path    = os.path.join(skel_path, 'build_and_push.sh')
+	buildcnf_path       = os.path.join(skel_path, 'configs', 'build.cnf')
+	pushcnf_path        = os.path.join(skel_path, 'configs', 'push.cnf')
+
+	if skel_dockerfile:
+		dockerfile_contents = open(skel_dockerfile).read()
+		dockerfile_list = dockerfile.parse_dockerfile(dockerfile_contents)
+		# Set defaults from given dockerfile
+		# TODO
+
+	else:
+		# Set defaults for notional dockerfile
+		pass
 
 	if skel_example:
 		templatemodule = open(os.path.join(shutit_dir, 'docs', 'shutit_module_template.py')).read()
