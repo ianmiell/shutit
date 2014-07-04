@@ -55,7 +55,7 @@ find ${SHUTIT_DIR} -name '*.cnf' | grep '/configs/[^/]*.cnf' | xargs chmod 600
 
 cleanup nothard
 echo "Testing skeleton build"
-./shutit skeleton ${NEWDIR} testing shutit.tk ${SHUTIT_DIR}/docs/example.sh
+./shutit skeleton -d docs/eg_dockerfile ${NEWDIR} testing shutit.tk ${SHUTIT_DIR}/docs/example.sh
 pushd ${NEWDIR}
 ./test.sh ${SHUTIT_DIR} || failure "1.0 ${NEWDIR}"
 cleanup nothard

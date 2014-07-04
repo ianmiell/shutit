@@ -21,7 +21,6 @@
 #CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 from shutit_module import ShutItModule
-import os
 
 class template(ShutItModule):
 

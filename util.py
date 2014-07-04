@@ -46,7 +46,6 @@ import getpass
 import StringIO
 import copy
 import hashlib
-import dockerfile
 from shutit_module import ShutItFailException
 
 _default_cnf = '''
@@ -873,7 +872,7 @@ def create_skeleton(shutit):
 		shutit.fail('Module names must comply with python classname standards: cf: http://stackoverflow.com/questions/10120295/valid-characters-in-a-python-class-name')
 	if len(skel_domain) == 0:
 		shutit.fail('Must supply a domain for your module, eg com.yourname.madeupdomainsuffix')
-	if not os.path.exists(skel_dockerfile):
+	if skel_dockerfile and not os.path.exists(skel_dockerfile):
 		shutit.fail('Dockerfile "' + skel_dockerfile + '" must exist')
 
 	os.makedirs(skel_path)
@@ -888,17 +887,162 @@ def create_skeleton(shutit):
 	buildcnf_path       = os.path.join(skel_path, 'configs', 'build.cnf')
 	pushcnf_path        = os.path.join(skel_path, 'configs', 'push.cnf')
 
+	shutit.cfg['dockerfile']['base_image'] = 'ubuntu:12.10'
+	shutit.cfg['dockerfile']['user']       = ''
+	shutit.cfg['dockerfile']['maintainer'] = ''
+	shutit.cfg['dockerfile']['entrypoint'] = ''
+	shutit.cfg['dockerfile']['expose']     = []
+	shutit.cfg['dockerfile']['env']        = []
+	shutit.cfg['dockerfile']['volume']     = []
+	shutit.cfg['dockerfile']['onbuild']    = []
+	shutit.cfg['dockerfile']['script']     = []
+	shutit.cfg['dockerfile']['cmd']        = '/bin/bash'
 	if skel_dockerfile:
 		dockerfile_contents = open(skel_dockerfile).read()
-		dockerfile_list = dockerfile.parse_dockerfile(dockerfile_contents)
+		dockerfile_list = parse_dockerfile(shutit,dockerfile_contents)
 		# Set defaults from given dockerfile
-		# TODO
+		for item in dockerfile_list:
+			# These items are not order-dependent and don't affect the build, so we collect them here:
+			docker_command = item[0]
+			if docker_command == 'FROM': #DONE
+				# Should be only one of these
+				shutit.cfg['dockerfile']['base_image'] = item[1]
+                        elif docker_command == "ONBUILD": #TODO
+				# Maps to finalize :) - can we have more than one of these? assume yes
+				# This contains within it one of the above commands, so we need to abstract this out.
+				shutit.cfg['dockerfile']['onbuild'].append(item[1])
+                        elif docker_command == "MAINTAINER": #TODO
+				# TODO
+				shutit.cfg['dockerfile']['maintainer'] = item[1]
+                        elif docker_command == "VOLUME": #DONE
+				# Put in the run.sh.
+				try:
+					shutit.cfg['dockerfile']['volume'] = ' '.join(json.loads(item[1]))
+				except:
+					shutit.cfg['dockerfile']['volume'].append(item[1])
+			elif docker_command == 'EXPOSE': #DONE
+				# Put in the run.sh.
+				shutit.cfg['dockerfile']['expose'].append(item[1])
+                        elif docker_command == "ENTRYPOINT": #TODO
+				# Put in the run.sh? Yes, if it exists it goes at the front of cmd
+				try:
+					shutit.cfg['dockerfile']['entrypoint'] = ' '.join(json.loads(item[1]))
+				except:
+					shutit.cfg['dockerfile']['entrypoint'] = item[1]
+			elif docker_command == "CMD": #DONE
+				# Put in the run.sh
+				try:
+					shutit.cfg['dockerfile']['cmd'] = ' '.join(json.loads(item[1]))
+				except:
+					shutit.cfg['dockerfile']['cmd'] = item[1]
+			# Other items to be run through sequentially (as they are part of the script)
+			if docker_command == "USER": #TODO
+				# Put in the start script as well as su'ing from here - assuming order dependent?
+				shutit.cfg['dockerfile']['script'].append((item[0],item[1]))
+				# We assume the last one seen is the one we use for the image.
+				# Put this in the default start script.
+				shutit.cfg['dockerfile']['user']        = item[1]
+			elif docker_command == 'ENV': #DONE
+				# Put in the run.sh.
+				shutit.cfg['dockerfile']['script'].append((item[0],item[1]))
+				# Set in the build
+				shutit.cfg['dockerfile']['env'].append(item[1])
+                        elif docker_command == "RUN": #DONE
+				# Only handle simple commands for now and ignore the fact that Dockerfiles run 
+				# with /bin/sh -c rather than bash. 
+				try:
+					shutit.cfg['dockerfile']['script'].append((item[0],' '.join(json.loads(item[1]))))
+				except:
+					shutit.cfg['dockerfile']['script'].append((item[0],item[1]))
+			elif docker_command == "ADD": #DONE but rules TODO
+				# Send file - is this potentially got from the web? Is that the difference between this and COPY?
+				shutit.cfg['dockerfile']['script'].append((item[0],item[1]))
+			elif docker_command == "COPY": #DONE but rules TODO
+				# Send file
+				shutit.cfg['dockerfile']['script'].append((item[0],item[1]))
+			elif docker_command == "WORKDIR": #DONE
+				# Push and pop
+				shutit.cfg['dockerfile']['script'].append((item[0],item[1]))
 
-	else:
-		# Set defaults for notional dockerfile
-		pass
+		print shutit.cfg['dockerfile']
+		# We now have the script, so let's construct it inline here
+		# Header.
+		templatemodule = ''
+		templatemodule += '''
+from shutit_module import ShutItModule
 
-	if skel_example:
+class template(ShutItModule):
+
+        def is_installed(self,shutit):
+                return False
+'''
+		# build
+		build     = ''
+		numpushes = 0
+		for item in shutit.cfg['dockerfile']['script']:
+			dockerfile_command = item[0]
+			dockerfile_args    = item[1].split()
+			if dockerfile_command == 'RUN':
+				build += """\n\t\tshutit.send('""" + ' '.join(dockerfile_args) + """')"""
+			elif dockerfile_command == 'WORKDIR':
+				build += """\n\t\tshutit.send('pushd """ + ' '.join(dockerfile_args) + """')"""
+				numpushes = numpushes + 1
+			elif dockerfile_command == 'COPY':
+				#The copy obeys the following rules:
+				#    The <src> path must be inside the context of the build; you cannot COPY ../something /something, because the first step of a docker build is to send the context directory (and subdirectories) to the docker daemon.
+				#    If <src> is a directory, the entire directory is copied, including filesystem metadata.
+				#    If <src> is any other kind of file, it is copied individually along with its metadata. In this case, if <dest> ends with a trailing slash /, it will be considered a directory and the contents of <src> will be written at <dest>/base(<src>).
+				#    If <dest> does not end with a trailing slash, it will be considered a regular file and the contents of <src> will be written at <dest>.
+				#    If <dest> doesn't exist, it is created along with all missing directories in its path.
+				build += """\n\t\tshutit.send_host_file('""" + dockerfile_args[1] + """','""" + shutit_dir + dockerfile_args[0] + """')"""
+
+			elif dockerfile_command == 'ADD':
+				# TODO: web ADDs
+				#The copy obeys the following rules:
+				#    The <src> path must be inside the context of the build; you cannot ADD ../something /something, because the first step of a docker build is to send the context directory (and subdirectories) to the docker daemon.
+				#    If <src> is a URL and <dest> does not end with a trailing slash, then a file is downloaded from the URL and copied to <dest>.
+				#    If <src> is a URL and <dest> does end with a trailing slash, then the filename is inferred from the URL and the file is downloaded to <dest>/<filename>. For instance, ADD http://example.com/foobar / would create the file /foobar. The URL must have a nontrivial path so that an appropriate filename can be discovered in this case (http://example.com will not work).
+				#    If <src> is a directory, the entire directory is copied, including filesystem metadata.
+				#    If <src> is a local tar archive in a recognized compression format (identity, gzip, bzip2 or xz) then it is unpacked as a directory. Resources from remote URLs are not decompressed. When a directory is copied or unpacked, it has the same behavior as tar -x: the result is the union of:
+				#        whatever existed at the destination path and
+				#        the contents of the source tree, with conflicts resolved in favor of "2." on a file-by-file basis.
+				#    If <src> is any other kind of file, it is copied individually along with its metadata. In this case, if <dest> ends with a trailing slash /, it will be considered a directory and the contents of <src> will be written at <dest>/base(<src>).
+				#    If <dest> does not end with a trailing slash, it will be considered a regular file and the contents of <src> will be written at <dest>.
+				#    If <dest> doesn't exist, it is created along with all missing directories in its path.
+				build += """\n\t\tshutit.send_host_file('""" + shutit_dir + dockerfile_args[1] + """','""" + shutit_dir + '/' + dockerfile_args[0] + """')"""
+			elif dockerfile_command == 'ENV':
+				build += """\n\t\tshutit.send('export """ + '='.join(dockerfile_args) + """')"""
+
+		while numpushes > 0:
+			build += """\n\t\tshutit.send('popd')"""
+			numpushes = numpushes - 1
+		templatemodule += '''
+        def build(self,shutit):
+''' + build + '''
+                return True
+'''
+
+
+		# Gather and place finalize bit
+		finalize = ''
+		for line in shutit.cfg['dockerfile']['onbuild']:
+			finalize += '\n\t\tshutit.send(\'' + line + '\''
+		templatemodule += '''
+	def finalize(self,shutit):
+''' + finalize + '''
+		return True
+
+'''
+
+		templatemodule += '''
+def module():
+        return template(
+                ''' + '\'%s.%s.%s\'' % (skel_domain, skel_module_name, skel_module_name) + ''', ''' + skel_domain_hash + '.00' + ''',
+                depends=['shutit.tk.setup']
+        )
+'''
+		
+	elif skel_example:
 		templatemodule = open(os.path.join(shutit_dir, 'docs', 'shutit_module_template.py')).read()
 	else:
 		templatemodule = open(os.path.join(shutit_dir, 'docs', 'shutit_module_template_bare.py')).read()
@@ -957,10 +1101,18 @@ def create_skeleton(shutit):
 		fi
 		./build.sh $1
 		''')
+	volumes_arg = ''
+	for varg in shutit.cfg['dockerfile']['volume']:
+		volumes_arg += ' -v ' + varg + ':' + varg
+	ports_arg = ''
+	for parg in shutit.cfg['dockerfile']['expose']:
+		ports_arg += ' -p ' + parg + ':' + parg
+	env_arg = ''
+	for earg in shutit.cfg['dockerfile']['env']:
+		env_arg += ' -e ' + earg.split()[0] + ':' + earg.split()[1]
 	runsh = textwrap.dedent('''\
 		# Example for running
-		docker run -t -i ''' + skel_module_name + ''' /bin/bash
-		''')
+		docker run -t -i''' + ports_arg + volumes_arg + env_arg + ' ' + skel_module_name + ' ' + shutit.cfg['dockerfile']['entrypoint'] + ' ' + shutit.cfg['dockerfile']['cmd'])
 	buildpushsh = textwrap.dedent('''\
 		set -e
 		export SHUTIT_OPTIONS="$SHUTIT_OPTIONS --config configs/push.cnf"
@@ -977,6 +1129,7 @@ def create_skeleton(shutit):
 		# Allowed images as a regexp, eg ["ubuntu:12.*"], or [".*"], or ["centos"].
 		# It's recommended this is locked down as far as possible.
 		allowed_images:[".*"]
+		base_image:''' + shutit.cfg['dockerfile']['base_image'] + '''
 		[repository]
 		name:''' + skel_module_name + '''
 		''')
@@ -1061,4 +1214,17 @@ def create_skeleton(shutit):
 	An image called ''' + skel_module_name + ''' will be created and can be run
 	with the run.sh command.
 	================================================================================''')
+
+
+# Parses the dockerfile (passed in as a string)
+# and info to extract, and returns a list with the information in a more canonical form, still ordered.
+def parse_dockerfile(shutit,contents):
+        ret = []
+        for l in contents.split('\n'):
+                m = re.match("^[\s]*([A-Z]+)[\s]*(.*)$",l)
+                if m:
+                        ret.append([m.group(1),m.group(2)])
+                else:
+                        shutit.log("Ignored line in parse_dockerfile: " + l)
+        return ret
 
