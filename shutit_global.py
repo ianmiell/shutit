@@ -163,8 +163,6 @@ class ShutIt(object):
 			self.cfg['build']['build_log'].flush()
 		time.sleep(pause)
 
-	def send(self,send,expect=None,child=None,timeout=3600,check_exit=None,fail_on_empty_before=True,record_command=None,exit_values=None,echo=None):
-		return self.send_and_expect(send,expect=expect,child=child,timeout=timeout,check_exit=check_exit,fail_on_empty_before=fail_on_empty_before,record_command=record_command,exit_values=exit_values,echo=echo)
 
 	def send_and_expect(self,send,expect=None,child=None,timeout=3600,check_exit=None,fail_on_empty_before=True,record_command=None,exit_values=None,echo=None):
 		"""Send string to the container, and wait until the expected string is seen before returning.
@@ -260,6 +258,9 @@ class ShutIt(object):
 			self._check_exit(send,expect,child,timeout,exit_values)
 		return expect_res
 
+	# alias send to send_and_expect
+	send = send_and_expect
+
 
 	def _check_exit(self,send,expect=None,child=None,timeout=3600,exit_values=None):
 		"""Internal function to check the exit value of the shell.
@@ -318,7 +319,6 @@ class ShutIt(object):
 		self.send('rm /tmp/shutit_script.sh', expect, child)
 		return ret
 
-	# TODO: test for this
 	def send_file(self,path,contents,expect=None,child=None,log=True):
 		"""Sends the passed-in string as a file to the passed-in path on the container.
 
@@ -326,7 +326,7 @@ class ShutIt(object):
 		- contents - Contents of file as a string. See log.
 		- expect   - 
 		- child    - 
-		- log      - Don't log the file contents.
+		- log      - Log the file contents if in debug.
 		"""
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
@@ -335,6 +335,9 @@ class ShutIt(object):
 			self.log('Sending file to' + path)
 			if log:
 				self.log('contents >>>' + contents + '<<<')
+		oldlog = child.logfile_send
+		child.logfile_send = None
+
 		# Prepare to send the contents as base64 so we don't have to worry about
 		# special shell characters
 		contents64 = base64.standard_b64encode(contents)
@@ -358,6 +361,12 @@ class ShutIt(object):
 		# Done sending the file
 		child.expect(expect)
 		self._check_exit("send file to " + path,expect,child)
+		child.logfile_send = oldlog
+
+	def send_host_file(self,path,hostfilepath,expect=None,child=None,log=True):
+		child = child or self.get_default_child()
+		expect = expect or self.get_default_expect()
+		self.send_file(path,open(hostfilepath).read(),expect=expect,child=child,log=log)
 
 	def file_exists(self,filename,expect=None,child=None,directory=False):
 		"""Return True if file exists, else False
@@ -894,11 +903,13 @@ def init():
 	cfg['build']['interactive'] = 1 # Default to true until we know otherwise
 	cfg['build']['build_log']   = None
 	cfg['build']['report']      = ''
+	cfg['build']['debug']       = False
 	cfg['container']            = {}
 	cfg['host']                 = {}
 	cfg['repository']           = {}
 	cfg['expect_prompts']       = {}
 	cfg['users']                = {}
+	cfg['dockerfile']           = {}
 
 	# If no LOGNAME available,
 	cfg['host']['username'] = os.environ.get('LOGNAME','')
