@@ -78,13 +78,13 @@ def parse_dockerfile(contents):
 			#	# ?
 			#	return [docker_command_args]
 		else:
-			print "Ignored line: " + line
+			print "Ignored line: " + l
 	return ret
 
-parse_dockerfile("""
+print parse_dockerfile("""
 a
 A a
-    B b
+    B b asd as da sda
     c
 """)
 
