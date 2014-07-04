@@ -523,10 +523,10 @@ def parse_args(cfg):
 
 	# Get these early for this part of the build.
 	# These should never be config arguments, since they are needed before config is passed in.
-	cfg['build']['debug'] = args.debug
-	cfg['build']['interactive'] = int(args.interactive)
-	cfg['build']['command_pause'] = float(args.pause)
-	cfg['build']['extra_configs'] = args.config
+	cfg['build']['debug']            = args.debug
+	cfg['build']['interactive']      = int(args.interactive)
+	cfg['build']['command_pause']    = float(args.pause)
+	cfg['build']['extra_configs']    = args.config
 	cfg['build']['config_overrides'] = args.set
 	cfg['container']['docker_image'] = args.image_tag
 	# Get module paths
@@ -994,7 +994,6 @@ class template(ShutItModule):
 				#    If <dest> does not end with a trailing slash, it will be considered a regular file and the contents of <src> will be written at <dest>.
 				#    If <dest> doesn't exist, it is created along with all missing directories in its path.
 				build += """\n\t\tshutit.send_host_file('""" + dockerfile_args[1] + """','""" + shutit_dir + '/' + dockerfile_args[0] + """')"""
-
 			elif dockerfile_command == 'ADD':
 				# TODO: web ADDs
 				#The copy obeys the following rules:
@@ -1011,7 +1010,6 @@ class template(ShutItModule):
 				build += """\n\t\tshutit.send_host_file('""" + shutit_dir + dockerfile_args[1] + """','""" + shutit_dir + '/' + dockerfile_args[0] + """')"""
 			elif dockerfile_command == 'ENV':
 				build += """\n\t\tshutit.send('export """ + '='.join(dockerfile_args) + """')"""
-
 		while numpushes > 0:
 			build += """\n\t\tshutit.send('popd')"""
 			numpushes = numpushes - 1
@@ -1020,8 +1018,6 @@ class template(ShutItModule):
 ''' + build + '''
                 return True
 '''
-
-
 		# Gather and place finalize bit
 		finalize = ''
 		for line in shutit.cfg['dockerfile']['onbuild']:
@@ -1030,9 +1026,7 @@ class template(ShutItModule):
 	def finalize(self,shutit):
 ''' + finalize + '''
 		return True
-
 '''
-
 		templatemodule += '''
 def module():
         return template(
@@ -1040,7 +1034,6 @@ def module():
                 depends=['shutit.tk.setup']
         )
 '''
-		
 	elif skel_example:
 		templatemodule = open(os.path.join(shutit_dir, 'docs', 'shutit_module_template.py')).read()
 	else:
@@ -1127,7 +1120,7 @@ def module():
 		[build]
 		# Allowed images as a regexp, eg ["ubuntu:12.*"], or [".*"], or ["centos"].
 		# It's recommended this is locked down as far as possible.
-		allowed_images:[".*"]
+		allowed_images:["''' + shutit.cfg['dockerfile']['base_image'] + '''"]
 		base_image:''' + shutit.cfg['dockerfile']['base_image'] + '''
 		[repository]
 		name:''' + skel_module_name + '''
