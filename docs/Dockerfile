@@ -1,3 +1,5 @@
+# Example Dockerfile for test purposes
+
 FROM ubuntu:14.04
 
 WORKDIR /
@@ -19,6 +21,6 @@ EXPOSE 8088
 EXPOSE 8089
 
 VOLUME /tmp
-VOLUME /home
+VOLUME ["/home"]
 
-CMD ["/bin/bash","-c"]
+CMD ["/bin/bash"]
