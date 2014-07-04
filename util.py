@@ -994,7 +994,7 @@ class template(ShutItModule):
 				#    If <src> is any other kind of file, it is copied individually along with its metadata. In this case, if <dest> ends with a trailing slash /, it will be considered a directory and the contents of <src> will be written at <dest>/base(<src>).
 				#    If <dest> does not end with a trailing slash, it will be considered a regular file and the contents of <src> will be written at <dest>.
 				#    If <dest> doesn't exist, it is created along with all missing directories in its path.
-				build += """\n\t\tshutit.send_host_file('""" + dockerfile_args[1] + """','""" + shutit_dir + dockerfile_args[0] + """')"""
+				build += """\n\t\tshutit.send_host_file('""" + dockerfile_args[1] + """','""" + shutit_dir + '/' + dockerfile_args[0] + """')"""
 
 			elif dockerfile_command == 'ADD':
 				# TODO: web ADDs
