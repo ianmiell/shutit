@@ -810,30 +810,30 @@ def build_report(shutit,msg=''):
 	Retrurns report as a string.
 	"""
 	s = ''
-	s = s + '################################################################################\n'
-	s = s + '# COMMAND HISTORY BEGIN ' + shutit_global.cfg['build']['build_id'] + '\n'
-	s = s + '################################################################################\n'
-	s = s + get_commands(shutit)
-	s = s + '# COMMAND HISTORY END ' + shutit_global.cfg['build']['build_id'] + '\n'
-	s = s + '################################################################################\n'
-	s = s + '################################################################################\n'
-	s = s + '# BUILD REPORT FOR BUILD BEGIN ' + shutit_global.cfg['build']['build_id'] + '\n'
-	s = s + '# ' + msg + '\n'
-	s = s + '################################################################################\n'
+	s += '################################################################################\n'
+	s += '# COMMAND HISTORY BEGIN ' + shutit_global.cfg['build']['build_id'] + '\n'
+	s += get_commands(shutit)
+	s += '# COMMAND HISTORY END ' + shutit_global.cfg['build']['build_id'] + '\n'
+	s += '################################################################################\n'
+	s += '################################################################################\n'
+	s += '# BUILD REPORT FOR BUILD BEGIN ' + shutit_global.cfg['build']['build_id'] + '\n'
+	s += '# ' + msg + '\n'
 	if shutit_global.cfg['build']['report'] != '':
-		s = s + shutit_global.cfg['build']['report'] + '\n'
+		s += shutit_global.cfg['build']['report'] + '\n'
 	else:
-		s = s + '# Nothing to report\n'
-	s = s + '# BUILD REPORT FOR BUILD END ' + shutit_global.cfg['build']['build_id'] + '\n'
-	s = s + '################################################################################\n'
+		s += '# Nothing to report\n'
+
+	s += '# CONTAINER_ID: ' + shutit.cfg['container']['container_id'] + '\n'
+	s += '# BUILD REPORT FOR BUILD END ' + shutit_global.cfg['build']['build_id'] + '\n'
+	s += '###############################################################################\n'
 	return s
 
 def get_commands(shutit):
 	"""Gets command that have been run and have not been redacted.
 	"""
 	s = ''
-	for c in shutit_global.shutit_command_history:
-		s = s + c + '\n'
+	for c in shutit.shutit_command_history:
+		s += c + '\n'
 	return s
 	
 
@@ -888,6 +888,7 @@ def create_skeleton(shutit):
 	pushcnf_path        = os.path.join(skel_path, 'configs', 'push.cnf')
 
 	shutit.cfg['dockerfile']['base_image'] = 'ubuntu:12.10'
+	shutit.cfg['dockerfile']['cmd']        = '/bin/bash'
 	shutit.cfg['dockerfile']['user']       = ''
 	shutit.cfg['dockerfile']['maintainer'] = ''
 	shutit.cfg['dockerfile']['entrypoint'] = ''
@@ -896,7 +897,6 @@ def create_skeleton(shutit):
 	shutit.cfg['dockerfile']['volume']     = []
 	shutit.cfg['dockerfile']['onbuild']    = []
 	shutit.cfg['dockerfile']['script']     = []
-	shutit.cfg['dockerfile']['cmd']        = '/bin/bash'
 	if skel_dockerfile:
 		dockerfile_contents = open(skel_dockerfile).read()
 		dockerfile_list = parse_dockerfile(shutit,dockerfile_contents)
@@ -1097,8 +1097,12 @@ def module():
 	for varg in shutit.cfg['dockerfile']['volume']:
 		volumes_arg += ' -v ' + varg + ':' + varg
 	ports_arg = ''
-	for parg in shutit.cfg['dockerfile']['expose']:
-		ports_arg += ' -p ' + parg + ':' + parg
+	if type(shutit.cfg['dockerfile']['expose']) == str:
+		for parg in shutit.cfg['dockerfile']['expose'].split():
+			ports_arg += ' -p ' + parg + ':' + parg
+	else:
+		for parg in shutit.cfg['dockerfile']['expose']:
+			ports_arg += ' -p ' + parg + ':' + parg
 	env_arg = ''
 	for earg in shutit.cfg['dockerfile']['env']:
 		env_arg += ' -e ' + earg.split()[0] + ':' + earg.split()[1]

@@ -18,7 +18,7 @@ COPY test.sh /tmp/test.sh
 RUN cat /tmp/test.sh
 
 EXPOSE 8088
-EXPOSE 8089
+EXPOSE 8089 8090
 
 VOLUME /tmp
 VOLUME ["/home"]
