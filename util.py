@@ -876,12 +876,13 @@ def create_skeleton(shutit):
 		shutit.fail('Module names must comply with python classname standards: cf: http://stackoverflow.com/questions/10120295/valid-characters-in-a-python-class-name')
 	if len(skel_domain) == 0:
 		shutit.fail('Must supply a domain for your module, eg com.yourname.madeupdomainsuffix')
-	if skel_dockerfile and not os.path.exists(skel_dockerfile):
-		if urlparse.urlparse(skel_dockerfile)[0] == '':
-			shutit.fail('Dockerfile "' + skel_dockerfile + '" must exist')
-		dockerfile_contents = urllib2.urlopen(skel_dockerfile).read()
-	else:
-		dockerfile_contents = open(skel_dockerfile).read()
+	if skel_dockerfile :
+		if not os.path.exists(skel_dockerfile):
+			if urlparse.urlparse(skel_dockerfile)[0] == '':
+				shutit.fail('Dockerfile "' + skel_dockerfile + '" must exist')
+			dockerfile_contents = urllib2.urlopen(skel_dockerfile).read()
+		else:
+			dockerfile_contents = open(skel_dockerfile).read()
 
 	os.makedirs(skel_path)
 	os.mkdir(os.path.join(skel_path, 'configs'))
