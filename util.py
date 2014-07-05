@@ -1247,10 +1247,14 @@ def module():
 
 	    cd ''' + skel_path + '; ' + shutit_dir + '''/shutit build --interactive 3
 
-	And follow the instructions in the output.
+	and follow the tutorial, or:
 
-	An image called ''' + skel_module_name + ''' will be created and can be run
-	with the run.sh command.
+	    cd ''' + skel_path + '; ' + shutit_dir + '''./build.sh
+	
+	to just go ahead and build it.
+
+	An image called ''' + skel_module_name + ''' will be created either way, and
+	can be run with the run.sh command.
 	================================================================================''')
 
 
