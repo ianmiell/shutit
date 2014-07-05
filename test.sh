@@ -54,21 +54,31 @@ fi
 find ${SHUTIT_DIR} -name '*.cnf' | grep '/configs/[^/]*.cnf' | xargs chmod 600
 cleanup nothard
 
-echo "Testing skeleton build basic"
-./shutit skeleton ${NEWDIR} testing shutit.tk ${SHUTIT_DIR}/docs/example.sh
+echo "Testing skeleton build with Dockerfile"
+./shutit skeleton -d docs/Dockerfile ${NEWDIR} testing shutit.tk
 pushd ${NEWDIR}
 ./test.sh ${SHUTIT_DIR} || failure "1.0 ${NEWDIR}"
 cleanup nothard
 rm -rf ${NEWDIR}
 popd
 
-echo "Testing skeleton build with Dockerfile"
-./shutit skeleton -d docs/Dockerfile ${NEWDIR} testing shutit.tk ${SHUTIT_DIR}/docs/example.sh
+echo "Testing skeleton build basic bare"
+./shutit skeleton ${NEWDIR} testing shutit.tk
 pushd ${NEWDIR}
 ./test.sh ${SHUTIT_DIR} || failure "1.1 ${NEWDIR}"
 cleanup nothard
 rm -rf ${NEWDIR}
 popd
+
+
+echo "Testing skeleton build basic with example script"
+./shutit skeleton ${NEWDIR} testing shutit.tk ${SHUTIT_DIR}/docs/example.sh
+pushd ${NEWDIR}
+./test.sh ${SHUTIT_DIR} || failure "1.2 ${NEWDIR}"
+cleanup nothard
+rm -rf ${NEWDIR}
+popd
+
 
 # General tests
 mkdir -p /tmp/shutit_logs/$$

@@ -257,7 +257,6 @@ class ShutIt(object):
 			# store the output
 			self._check_exit(send,expect,child,timeout,exit_values)
 		return expect_res
-
 	# alias send to send_and_expect
 	send = send_and_expect
 
@@ -287,7 +286,7 @@ class ShutIt(object):
 				raise Exception('Exit value from command\n' + send + '\nwas:\n' + res)
 
 	def run_script(self,script,expect=None,child=None,in_shell=True):
-		"""Run the passed-in string 
+		"""Run the passed-in string on the container's command line.
 
 		- script   - 
 		- expect   - 
@@ -335,9 +334,9 @@ class ShutIt(object):
 			self.log('Sending file to' + path)
 			if log:
 				self.log('contents >>>' + contents + '<<<')
+		# Try and echo as little as possible
 		oldlog = child.logfile_send
 		child.logfile_send = None
-
 		# Prepare to send the contents as base64 so we don't have to worry about
 		# special shell characters
 		contents64 = base64.standard_b64encode(contents)
@@ -361,11 +360,17 @@ class ShutIt(object):
 		# Done sending the file
 		child.expect(expect)
 		self._check_exit("send file to " + path,expect,child)
+		# Go to old echo
 		child.logfile_send = oldlog
 
 	def send_host_file(self,path,hostfilepath,expect=None,child=None,log=True):
-		child = child or self.get_default_child()
-		expect = expect or self.get_default_expect()
+		"""Send file from host machine to given path
+		- path         - path to send file to
+		- hostfilepath - path to file from host to send to container
+		- expect       - arg to pass to send_file (default None)
+		- child        - arg to pass to send_file (default None)
+		- log          - arg to pass to send_file (default True)
+		"""
 		self.send_file(path,open(hostfilepath).read(),expect=expect,child=child,log=log)
 
 	def file_exists(self,filename,expect=None,child=None,directory=False):
@@ -840,6 +845,7 @@ class ShutIt(object):
 
 		# Tag image
 		cmd = docker_executable + ' tag ' + image_id + ' ' + repository
+		shutit_global.cfg['build']['report'] += '\nBuild tagged as: ' + repository
 		self.send(cmd,child=child,expect=expect,check_exit=False)
 		if export or save:
 			self.pause_point('We are now exporting the container to a bzipped tar file, as configured in \n[repository]\ntar:yes',print_input=False,child=child,level=3)
@@ -850,8 +856,8 @@ class ShutIt(object):
 					self.send(password,expect=expect,child=child)
 				self.log('\nDeposited bzip2 of exported container into ' + bzfile,code='31')
 				self.log('\nRun:\n\nbunzip2 -c ' + bzfile + ' | sudo docker import -\n\nto get this imported into docker.',code='31')
-				cfg['build']['report'] = cfg['build']['report'] + '\nDeposited bzip2 of exported container into ' + bzfile
-				cfg['build']['report'] = cfg['build']['report'] + '\nRun:\n\nbunzip2 -c ' + bzfile + ' | sudo docker import -\n\nto get this imported into docker.'
+				cfg['build']['report'] += '\nDeposited bzip2 of exported container into ' + bzfile
+				cfg['build']['report'] += '\nRun:\n\nbunzip2 -c ' + bzfile + ' | sudo docker import -\n\nto get this imported into docker.'
 			if save:
 				bzfile = cfg['host']['resources_dir'] + '/' + repository_tar + 'save.tar.bz2'
 				self.log('\nDepositing bzip2 of exported container into ' + bzfile)
@@ -859,12 +865,12 @@ class ShutIt(object):
 					self.send(password,expect=expect,child=child)
 				self.log('\nDeposited bzip2 of exported container into ' + bzfile,code='31')
 				self.log('\nRun:\n\nbunzip2 -c ' + bzfile + ' | sudo docker import -\n\nto get this imported into docker.',code='31')
-				cfg['build']['report'] = cfg['build']['report'] + '\nDeposited bzip2 of exported container into ' + bzfile
-				cfg['build']['report'] = cfg['build']['report'] + '\nRun:\n\nbunzip2 -c ' + bzfile + ' | sudo docker import -\n\nto get this imported into docker.'
+				cfg['build']['report'] += '\nDeposited bzip2 of exported container into ' + bzfile
+				cfg['build']['report'] += '\nRun:\n\nbunzip2 -c ' + bzfile + ' | sudo docker import -\n\nto get this imported into docker.'
 		if cfg['repository']['push'] == True:
 			# Pass the child explicitly as it's the host child.
 			self.push_repository(repository,docker_executable=docker_executable,expect=expect,child=child)
-			cfg['build']['report'] = cfg['build']['report'] + 'Pushed repository: ' + repository
+			cfg['build']['report'] = cfg['build']['report'] + '\nPushed repository: ' + repository
 
 	# Pass-through function for convenience
 	def get_config(self,module_id,option,default,boolean=False):
