@@ -44,6 +44,6 @@ class skype_pulseaudio(ShutItModule):
 
 def module():
         return skype_pulseaudio(
-                'shutit.tk.skype_pulseaudio.skype_pulseaudio', 782914092.00,
+                'shutit.tk.skype_pulseaudio.skype_pulseaudio', 0.681273871,
                 depends=['shutit.tk.setup']
         )
