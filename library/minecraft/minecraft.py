@@ -35,6 +35,6 @@ class minecraft(ShutItModule):
 
 def module():
         return minecraft(
-                'shutit.tk.minecraft.minecraft', 782914092.00,
+                'shutit.tk.minecraft.minecraft', 0.67544,
                 depends=['shutit.tk.setup']
         )

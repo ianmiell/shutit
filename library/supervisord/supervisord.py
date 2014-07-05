@@ -26,6 +26,6 @@ class supervisord(ShutItModule):
 
 def module():
         return supervisord(
-                'shutit.tk.supervisord.supervisord', 782914092.00,
+                'shutit.tk.supervisord.supervisord', 0.12376123,
                 depends=['shutit.tk.setup']
         )
