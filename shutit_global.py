@@ -845,7 +845,7 @@ class ShutIt(object):
 
 		# Tag image
 		cmd = docker_executable + ' tag ' + image_id + ' ' + repository
-		shutit_global.cfg['build']['report'] += '\nBuild tagged as: ' + repository
+		self.cfg['build']['report'] += '\nBuild tagged as: ' + repository
 		self.send(cmd,child=child,expect=expect,check_exit=False)
 		if export or save:
 			self.pause_point('We are now exporting the container to a bzipped tar file, as configured in \n[repository]\ntar:yes',print_input=False,child=child,level=3)

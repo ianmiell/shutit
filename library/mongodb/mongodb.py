@@ -22,6 +22,6 @@ class mongodb(ShutItModule):
 
 def module():
         return mongodb(
-                'shutit.tk.mongodb.mongodb', 782914092.13124,
+                'shutit.tk.mongodb.mongodb', 0.13124,
                 depends=['shutit.tk.setup']
         )
