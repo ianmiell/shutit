@@ -490,6 +490,8 @@ def parse_args(cfg):
 
 	# This mode is a bit special - it's the only one with different arguments
 	if cfg['action']['skeleton']:
+		if args.dockerfile and args.script:
+			shutit_global.shutit.fail('Cannot have script and Dockerfile as arguments')
 		cfg['skeleton'] = {
 			'path':        args.path,
 			'module_name': args.module_name,
@@ -515,9 +517,9 @@ def parse_args(cfg):
 
 	# Persistence-related arguments.
 	if cfg['action']['build']:
-		cfg['repository']['push'] = args.push
+		cfg['repository']['push']   = args.push
 		cfg['repository']['export'] = args.export
-		cfg['repository']['save'] = args.save
+		cfg['repository']['save']   = args.save
 	elif cfg['action']['show_config']:
 		cfg['build']['cfghistory'] = args.history
 
@@ -1128,6 +1130,20 @@ def module():
 		base_image:''' + shutit.cfg['dockerfile']['base_image'] + '''
 		[repository]
 		name:''' + skel_module_name + '''
+		[repository]
+		user:
+		# Fill these out in server- and username-specific config (also in this directory)
+		password:YOUR_REGISTRY_PASSWORD_OR_BLANK
+		# Fill these out in server- and username-specific config (also in this directory)
+		email:YOUR_REGISTRY_EMAIL_OR_BLANK
+		tag:yes
+		push:no
+		save:no
+		export:no
+		#server:REMOVE_ME_FOR_DOCKER_INDEX
+		name:''' + skel_module_name + '''
+		suffix_date:no
+		suffix_format:%s
 		''')
 	pushcnf = textwrap.dedent('''\
 		[repository]
