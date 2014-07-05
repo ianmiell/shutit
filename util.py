@@ -1253,11 +1253,20 @@ def module():
 # and info to extract, and returns a list with the information in a more canonical form, still ordered.
 def parse_dockerfile(shutit,contents):
         ret = []
+	full_line = ''
         for l in contents.split('\n'):
-                m = re.match("^[\s]*([A-Z]+)[\s]*(.*)$",l)
-                if m:
-                        ret.append([m.group(1),m.group(2)])
-                else:
-                        shutit.log("Ignored line in parse_dockerfile: " + l)
+		# Handle continuations
+		if len(l) > 0:
+			if l[-1] == '\\':
+				full_line += l[0:-1]
+				pass
+			else:
+				full_line += l
+                		m = re.match("^[\s]*([A-Z]+)[\s]*(.*)$",full_line)
+                		if m:
+                		        ret.append([m.group(1),m.group(2)])
+                		else:
+                		        shutit.log("Ignored line in parse_dockerfile: " + l)
+				full_line = ''
         return ret
 
