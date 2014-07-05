@@ -991,6 +991,8 @@ class template(ShutItModule):
 			elif dockerfile_command == 'COPY':
 				#The copy obeys the following rules:
 				#    The <src> path must be inside the context of the build; you cannot COPY ../something /something, because the first step of a docker build is to send the context directory (and subdirectories) to the docker daemon.
+				if dockerfile_args[0][0] == '.' or dockerfile_args[0][0] == '/':
+					shutit.fail('Invalid line: ' + str(dockerfile_args) + ' file must be in local subdirectory')
 				#    If <src> is a directory, the entire directory is copied, including filesystem metadata.
 				#    If <src> is any other kind of file, it is copied individually along with its metadata. In this case, if <dest> ends with a trailing slash /, it will be considered a directory and the contents of <src> will be written at <dest>/base(<src>).
 				#    If <dest> does not end with a trailing slash, it will be considered a regular file and the contents of <src> will be written at <dest>.
@@ -1000,6 +1002,8 @@ class template(ShutItModule):
 				# TODO: web ADDs
 				#The copy obeys the following rules:
 				#    The <src> path must be inside the context of the build; you cannot ADD ../something /something, because the first step of a docker build is to send the context directory (and subdirectories) to the docker daemon.
+				if dockerfile_args[0][0] == '.' or dockerfile_args[0][0] == '/':
+					shutit.fail('Invalid line: ' + str(dockerfile_args) + ' file must be in local subdirectory')
 				#    If <src> is a URL and <dest> does not end with a trailing slash, then a file is downloaded from the URL and copied to <dest>.
 				#    If <src> is a URL and <dest> does end with a trailing slash, then the filename is inferred from the URL and the file is downloaded to <dest>/<filename>. For instance, ADD http://example.com/foobar / would create the file /foobar. The URL must have a nontrivial path so that an appropriate filename can be discovered in this case (http://example.com will not work).
 				#    If <src> is a directory, the entire directory is copied, including filesystem metadata.
