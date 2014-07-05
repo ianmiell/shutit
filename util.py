@@ -46,6 +46,8 @@ import getpass
 import StringIO
 import copy
 import hashlib
+import urlparse
+import urllib2
 from shutit_module import ShutItFailException
 
 _default_cnf = '''
@@ -875,7 +877,11 @@ def create_skeleton(shutit):
 	if len(skel_domain) == 0:
 		shutit.fail('Must supply a domain for your module, eg com.yourname.madeupdomainsuffix')
 	if skel_dockerfile and not os.path.exists(skel_dockerfile):
-		shutit.fail('Dockerfile "' + skel_dockerfile + '" must exist')
+		if urlparse.urlparse(skel_dockerfile)[0] == '':
+			shutit.fail('Dockerfile "' + skel_dockerfile + '" must exist')
+		dockerfile_contents = urllib2.urlopen(skel_dockerfile).read()
+	else:
+		dockerfile_contents = open(skel_dockerfile).read()
 
 	os.makedirs(skel_path)
 	os.mkdir(os.path.join(skel_path, 'configs'))
@@ -900,7 +906,6 @@ def create_skeleton(shutit):
 	shutit.cfg['dockerfile']['onbuild']    = []
 	shutit.cfg['dockerfile']['script']     = []
 	if skel_dockerfile:
-		dockerfile_contents = open(skel_dockerfile).read()
 		dockerfile_list = parse_dockerfile(shutit,dockerfile_contents)
 		# Set defaults from given dockerfile
 		for item in dockerfile_list:
@@ -1020,8 +1025,7 @@ class template(ShutItModule):
 			build += """\n\t\tshutit.send('popd')"""
 			numpushes = numpushes - 1
 		templatemodule += '''
-        def build(self,shutit):
-''' + build + '''
+        def build(self,shutit):''' + build + '''
                 return True
 '''
 		# Gather and place finalize bit
@@ -1029,8 +1033,16 @@ class template(ShutItModule):
 		for line in shutit.cfg['dockerfile']['onbuild']:
 			finalize += '\n\t\tshutit.send(\'' + line + '\''
 		templatemodule += '''
-	def finalize(self,shutit):
-''' + finalize + '''
+	def finalize(self,shutit):''' + finalize + '''
+		return True
+
+	def test(self,shutit):
+		return True
+
+	def is_installed(self,shutit):
+		return False
+
+	def get_config(self,shutit):
 		return True
 '''
 		templatemodule += '''
