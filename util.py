@@ -906,6 +906,8 @@ def create_skeleton(shutit):
 	shutit.cfg['dockerfile']['onbuild']    = []
 	shutit.cfg['dockerfile']['script']     = []
 	if skel_dockerfile:
+		# Wipe the command as we expect one in the file.
+		shutit.cfg['dockerfile']['cmd']        = ''
 		dockerfile_list = parse_dockerfile(shutit,dockerfile_contents)
 		# Set defaults from given dockerfile
 		for item in dockerfile_list:
@@ -975,6 +977,7 @@ def create_skeleton(shutit):
 		# Header.
 		templatemodule = ''
 		templatemodule += '''
+# Created from dockerfile: ''' + skel_dockerfile + '''
 from shutit_module import ShutItModule
 
 class template(ShutItModule):
@@ -988,10 +991,11 @@ class template(ShutItModule):
 		for item in shutit.cfg['dockerfile']['script']:
 			dockerfile_command = item[0]
 			dockerfile_args    = item[1].split()
+			cmd = ' '.join(dockerfile_args).replace("'","\\'")
 			if dockerfile_command == 'RUN':
-				build += """\n\t\tshutit.send('""" + ' '.join(dockerfile_args) + """')"""
+				build += """\n\t\tshutit.send('""" + cmd + """')"""
 			elif dockerfile_command == 'WORKDIR':
-				build += """\n\t\tshutit.send('pushd """ + ' '.join(dockerfile_args) + """')"""
+				build += """\n\t\tshutit.send('pushd """ + cmd + """')"""
 				numpushes = numpushes + 1
 			elif dockerfile_command == 'COPY':
 				#The copy obeys the following rules:
@@ -1020,6 +1024,7 @@ class template(ShutItModule):
 				#    If <dest> doesn't exist, it is created along with all missing directories in its path.
 				build += """\n\t\tshutit.send_host_file('""" + shutit_dir + dockerfile_args[1] + """','""" + shutit_dir + '/' + dockerfile_args[0] + """')"""
 			elif dockerfile_command == 'ENV':
+				cmd = '='.join(dockerfile_args).replace("'","\\'")
 				build += """\n\t\tshutit.send('export """ + '='.join(dockerfile_args) + """')"""
 		while numpushes > 0:
 			build += """\n\t\tshutit.send('popd')"""
@@ -1126,7 +1131,7 @@ def module():
 		env_arg += ' -e ' + earg.split()[0] + ':' + earg.split()[1]
 	runsh = textwrap.dedent('''\
 		# Example for running
-		docker run -t -i''' + ports_arg + volumes_arg + env_arg + ' ' + skel_module_name + ' ' + shutit.cfg['dockerfile']['entrypoint'] + ' ' + shutit.cfg['dockerfile']['cmd'])
+		docker run -t -i''' + ports_arg + volumes_arg + env_arg + ' ' + skel_module_name + ' ' + shutit.cfg['dockerfile']['entrypoint'] + ' ' + shutit.cfg['dockerfile']['cmd'] + '\n')
 	buildpushsh = textwrap.dedent('''\
 		set -e
 		export SHUTIT_OPTIONS="$SHUTIT_OPTIONS --config configs/push.cnf"
