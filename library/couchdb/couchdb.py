@@ -1,4 +1,5 @@
 
+# Created from dockerfile: /space/git/dockerfiles_repos/dockerfile-examples/couchdb/Dockerfile
 from shutit_module import ShutItModule
 
 class couchdb(ShutItModule):
@@ -7,7 +8,6 @@ class couchdb(ShutItModule):
                 return False
 
         def build(self,shutit):
-
 		shutit.send('echo "deb http://us.archive.ubuntu.com/ubuntu/ precise universe" >> /etc/apt/sources.list')
 		shutit.send('apt-get -y update')
 		shutit.send('apt-get install -y g++')
@@ -21,12 +21,19 @@ class couchdb(ShutItModule):
                 return True
 
 	def finalize(self,shutit):
-
 		return True
 
+	def test(self,shutit):
+		return True
+
+	def is_installed(self,shutit):
+		return False
+
+	def get_config(self,shutit):
+		return True
 
 def module():
         return couchdb(
-                'shutit.tk.couchdb.couchdb', 0.12124,
+                'shutit.tk.couchdb.couchdb', 782914092.00,
                 depends=['shutit.tk.setup']
         )

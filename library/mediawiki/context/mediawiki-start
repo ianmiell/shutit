@@ -1,0 +1,10 @@
+#!/bin/sh
+
+set -eu
+
+if [ ! -d /data/images ]; then
+  mkdir /data/images
+  chown www-data:www-data /data/images
+fi
+
+exec /usr/bin/supervisord
