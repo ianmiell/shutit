@@ -8,9 +8,8 @@ class rabbitmq(ShutItModule):
                 return False
 
         def build(self,shutit):
-		shutit.install('wget')
-		shutit.install('logrotate')
-		shutit.install('rabbitmq-server')
+		shutit.send('yum -y update; yum clean all')
+		shutit.send('yum -y install wget logrotate rabbitmq-server; yum clean all')
 		shutit.send('/usr/lib/rabbitmq/bin/rabbitmq-plugins enable rabbitmq_management')
                 return True
 
@@ -28,6 +27,6 @@ class rabbitmq(ShutItModule):
 
 def module():
         return rabbitmq(
-                'shutit.tk.rabbitmq.rabbitmq', 0.681264,
+                'shutit.tk.rabbitmq.rabbitmq', 782914092.00,
                 depends=['shutit.tk.setup']
         )
