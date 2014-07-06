@@ -757,9 +757,20 @@ def load_all_from_path(shutit, path):
 		# If a STOP file exists, ignore this folder
 		if os.path.exists(root + '/STOP'):
 			shutit.log('Ignoring directory: ' + root + ' as it has a STOP file in it')
-			continue
+			break
 		for fname in files:
 			load_mod_from_file(shutit, os.path.join(root, fname))
+
+def copy_all_from_path(shutit,path,exclude='Dockerfile'):
+	if not os.path.exists(path):
+		return
+	for root, subFolders, files in os.walk(path):
+		for subfolder in files:
+			print subfolder
+		for fname in files:
+			print fname
+			if os.path.exists(root + '/' + exclude):
+				continue
 
 def load_mod_from_file(shutit, fpath):
 	"""Loads modules from a .py file into ShutIt if there are no modules from
@@ -896,6 +907,7 @@ def create_skeleton(shutit):
 
 	os.makedirs(skel_path)
 	os.mkdir(os.path.join(skel_path, 'configs'))
+	os.mkdir(os.path.join(skel_path, 'context'))
 
 	templatemodule_path = os.path.join(skel_path, skel_module_name + '.py')
 	readme_path         = os.path.join(skel_path, 'README.md')
@@ -982,10 +994,9 @@ def create_skeleton(shutit):
 			elif docker_command == "WORKDIR": #DONE
 				# Push and pop
 				shutit.cfg['dockerfile']['script'].append((item[0],item[1]))
-
 		# We now have the script, so let's construct it inline here
-		# Header.
 		templatemodule = ''
+		# Header.
 		templatemodule += '''
 # Created from dockerfile: ''' + skel_dockerfile + '''
 from shutit_module import ShutItModule
