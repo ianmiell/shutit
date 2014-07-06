@@ -112,7 +112,7 @@ class ShutIt(object):
 			shutit.fail("Couldn't get default expect")
 		return self._default_expect[-1]
 	def get_default_check_exit(self):
-		"""Returns default value of check_exit. See send_and_expect method.
+		"""Returns default value of check_exit. See send method.
 		"""
 		if self._default_check_exit[-1] is None:
 			shutit.fail("Couldn't get default check exit")
@@ -242,7 +242,7 @@ class ShutIt(object):
 			self.log('child.after>>>' + child.after + '<<<')
 		if fail_on_empty_before == True:
 			if child.before.strip() == '':
-				shutit.fail('before empty after sending: ' + send + '\n\nThis is expected after some commands that take a password.\nIf so, add fail_on_empty_before=False to the send_and_expect call')
+				shutit.fail('before empty after sending: ' + send + '\n\nThis is expected after some commands that take a password.\nIf so, add fail_on_empty_before=False to the send call')
 		elif fail_on_empty_before == False:
 			# Don't check exit if fail_on_empty_before is False
 			self.log('' + child.before + '<<<')
@@ -268,7 +268,7 @@ class ShutIt(object):
 		child = child or self.get_default_child()
 		if exit_values is None:
 			exit_values = ['0']
-		# Don't use send_and_expect here (will mess up last_output)!
+		# Don't use send here (will mess up last_output)!
 		child.sendline('echo EXIT_CODE:$?')
 		child.expect(expect,timeout)
 		res = self.get_re_from_child(child.before,'^EXIT_CODE:([0-9][0-9]?[0-9]?)$')
@@ -278,7 +278,7 @@ class ShutIt(object):
 				res = str(res)
 			self.log('child.after: \n' + child.after + '\n')
 			self.log('Exit value from command+\n' + send + '\nwas:\n' + res)
-			msg = '\nWARNING: command:\n' + send + '\nreturned unaccepted exit code: ' + res + '\nIf this is expected, pass in check_exit=False or an exit_values array into the send_and_expect function call.'
+			msg = '\nWARNING: command:\n' + send + '\nreturned unaccepted exit code: ' + res + '\nIf this is expected, pass in check_exit=False or an exit_values array into the send function call.'
 			cfg['build']['report'] = cfg['build']['report'] + msg
 			if cfg['build']['interactive'] >= 1:
 				shutit.pause_point(msg + '\n\nPause point on exit_code != 0 (' + res + '). CTRL-C to quit',child=child)
@@ -371,7 +371,34 @@ class ShutIt(object):
 		- child        - arg to pass to send_file (default None)
 		- log          - arg to pass to send_file (default True)
 		"""
-		self.send_file(path,open(hostfilepath).read(),expect=expect,child=child,log=log)
+		child = child or self.get_default_child()
+		expect = expect or self.get_default_expect()
+		if os.path.isfile(hostfilepath):
+			self.send_file(path,open(hostfilepath).read(),expect=expect,child=child,log=log)
+		elif os.path.isdir(hostfilepath):
+			self.send_host_dir(path,hostfilepath,expect=expect,child=child,log=log)
+		else:
+			shutit.fail('send_host_file - file: ' + hostfilepath + ' does not exist as file or dir. cwd is: ' + os.getcwd())
+
+	def send_host_dir(self,path,hostfilepath,expect=None,child=None,log=True):
+		"""Send file from host machine to given path
+		- path         - path to send file to
+		- hostfilepath - path to file from host to send to container
+		- expect       - arg to pass to send_file (default None)
+		- child        - arg to pass to send_file (default None)
+		- log          - arg to pass to send_file (default True)
+		"""
+		child = child or self.get_default_child()
+		expect = expect or self.get_default_expect()
+		for root, subFolders, files in os.walk(hostfilepath):
+			for subfolder in subFolders:
+				self.send('mkdir -p ' + path + '/' + subfolder)
+				self.send_host_dir(path + '/' + subfolder,hostfilepath + '/' + subfolder,expect=expect,child=child,log=log)
+			for fname in files:
+				hostfullfname = os.path.join(root,fname)
+				containerfname = os.path.join(path,fname)
+				self.send_file(containerfname,open(hostfullfname).read(),expect=expect,child=child,log=log)
+
 
 	def file_exists(self,filename,expect=None,child=None,directory=False):
 		"""Return True if file exists, else False

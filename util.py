@@ -48,6 +48,7 @@ import copy
 import hashlib
 import urlparse
 import urllib2
+import shutil
 from shutit_module import ShutItFailException
 
 _default_cnf = '''
@@ -761,16 +762,6 @@ def load_all_from_path(shutit, path):
 		for fname in files:
 			load_mod_from_file(shutit, os.path.join(root, fname))
 
-def copy_all_from_path(shutit,path,exclude='Dockerfile'):
-	if not os.path.exists(path):
-		return
-	for root, subFolders, files in os.walk(path):
-		for subfolder in files:
-			print subfolder
-		for fname in files:
-			print fname
-			if os.path.exists(root + '/' + exclude):
-				continue
 
 def load_mod_from_file(shutit, fpath):
 	"""Loads modules from a .py file into ShutIt if there are no modules from
@@ -927,6 +918,12 @@ def create_skeleton(shutit):
 		else:
 			dockerfile_contents = open(skel_dockerfile).read()
 			dockerfile_dirname = os.path.dirname(skel_dockerfile)
+			shutil.rmtree(skel_path + '/context')
+			shutil.copytree(dockerfile_dirname,skel_path + '/context')
+			# Remove Dockerfile as it's not part of the context.
+			if os.path.isfile(skel_path + '/context/Dockerfile'):
+				os.remove(skel_path + '/context/Dockerfile')
+			# Change to this context
 			os.chdir(dockerfile_dirname)
 		# Wipe the command as we expect one in the file.
 		shutit.cfg['dockerfile']['cmd']        = ''
@@ -934,7 +931,7 @@ def create_skeleton(shutit):
 		# Set defaults from given dockerfile
 		for item in dockerfile_list:
 			# These items are not order-dependent and don't affect the build, so we collect them here:
-			docker_command = item[0]
+			docker_command = item[0].upper()
 			if docker_command == 'FROM': #DONE
 				# Should be only one of these
 				shutit.cfg['dockerfile']['base_image'] = item[1]
@@ -948,7 +945,7 @@ def create_skeleton(shutit):
                         elif docker_command == "VOLUME": #DONE
 				# Put in the run.sh.
 				try:
-					shutit.cfg['dockerfile']['volume'] = ' '.join(json.loads(item[1]))
+					shutit.cfg['dockerfile']['volume'].append(' '.join(json.loads(item[1])))
 				except:
 					shutit.cfg['dockerfile']['volume'].append(item[1])
 			elif docker_command == 'EXPOSE': #DONE
@@ -1009,8 +1006,9 @@ class template(ShutItModule):
 		# build
 		build     = ''
 		numpushes = 0
+		wgetgot   = False
 		for item in shutit.cfg['dockerfile']['script']:
-			dockerfile_command = item[0]
+			dockerfile_command = item[0].upper()
 			dockerfile_args    = item[1].split()
 			cmd = ' '.join(dockerfile_args).replace("'","\\'")
 			if dockerfile_command == 'RUN':
@@ -1018,32 +1016,51 @@ class template(ShutItModule):
 			elif dockerfile_command == 'WORKDIR':
 				build += """\n\t\tshutit.send('pushd """ + cmd + """')"""
 				numpushes = numpushes + 1
-			elif dockerfile_command == 'COPY':
-				#The copy obeys the following rules:
+			elif dockerfile_command == 'COPY' or dockerfile_command == 'ADD':
 				#    The <src> path must be inside the context of the build; you cannot COPY ../something /something, because the first step of a docker build is to send the context directory (and subdirectories) to the docker daemon.
-				if dockerfile_args[0] != '.' and dockerfile_args[0][0] == '.' or dockerfile_args[0][0] == '/':
+				if dockerfile_args[0][0:1] == '..' or dockerfile_args[0][0] == '/':
 					shutit.fail('Invalid line: ' + str(dockerfile_args) + ' file must be in local subdirectory')
-				#    If <src> is a directory, the entire directory is copied, including filesystem metadata.
-				#    If <src> is any other kind of file, it is copied individually along with its metadata. In this case, if <dest> ends with a trailing slash /, it will be considered a directory and the contents of <src> will be written at <dest>/base(<src>).
-				#    If <dest> does not end with a trailing slash, it will be considered a regular file and the contents of <src> will be written at <dest>.
-				#    If <dest> doesn't exist, it is created along with all missing directories in its path.
-				build += """\n\t\tshutit.send_host_file('""" + dockerfile_args[1] + """','""" + shutit_dir + '/' + dockerfile_args[0] + """')"""
-			elif dockerfile_command == 'ADD':
-				# TODO: web ADDs
-				#The copy obeys the following rules:
-				#    The <src> path must be inside the context of the build; you cannot ADD ../something /something, because the first step of a docker build is to send the context directory (and subdirectories) to the docker daemon.
-				if dockerfile_args[0] != '.' and dockerfile_args[0][0] == '.' or dockerfile_args[0][0] == '/':
-					shutit.fail('Invalid line: ' + str(dockerfile_args) + ' file must be in local subdirectory')
-				#    If <src> is a URL and <dest> does not end with a trailing slash, then a file is downloaded from the URL and copied to <dest>.
-				#    If <src> is a URL and <dest> does end with a trailing slash, then the filename is inferred from the URL and the file is downloaded to <dest>/<filename>. For instance, ADD http://example.com/foobar / would create the file /foobar. The URL must have a nontrivial path so that an appropriate filename can be discovered in this case (http://example.com will not work).
-				#    If <src> is a directory, the entire directory is copied, including filesystem metadata.
-				#    If <src> is a local tar archive in a recognized compression format (identity, gzip, bzip2 or xz) then it is unpacked as a directory. Resources from remote URLs are not decompressed. When a directory is copied or unpacked, it has the same behavior as tar -x: the result is the union of:
-				#        whatever existed at the destination path and
-				#        the contents of the source tree, with conflicts resolved in favor of "2." on a file-by-file basis.
-				#    If <src> is any other kind of file, it is copied individually along with its metadata. In this case, if <dest> ends with a trailing slash /, it will be considered a directory and the contents of <src> will be written at <dest>/base(<src>).
-				#    If <dest> does not end with a trailing slash, it will be considered a regular file and the contents of <src> will be written at <dest>.
-				#    If <dest> doesn't exist, it is created along with all missing directories in its path.
-				build += """\n\t\tshutit.send_host_file('""" + shutit_dir + dockerfile_args[1] + """','""" + shutit_dir + '/' + dockerfile_args[0] + """')"""
+				if dockerfile_args[1][-1] == '/':
+					# Dir we're COPYing or ADDing to
+					destdir  = dockerfile_args[1]
+					# File/dir we're COPYing or ADDing from
+					fromfile = dockerfile_args[0]
+					# Final file/dir
+					outfile  = destdir + fromfile
+					if os.path.isfile(fromfile):
+						outfiledir = os.path.dirname(fromfile)
+						build += """\n\t\tshutit.send('mkdir -p """ + destdir + '/' + outfiledir + """')"""
+					elif os.path.isdir(fromfile):
+						build += """\n\t\tshutit.send('mkdir -p """ + destdir + fromfile + """')"""
+				else:
+					outfile = dockerfile_args[1]
+				# If this is something we have to wget:
+				if dockerfile_command == 'ADD' and urlparse.urlparse(dockerfile_args[0])[0] != '':
+					if not wgetgot:
+						build += """\n\t\tshutit.install('wget')"""
+						wgetgot = True
+					if dockerfile_args[1][-1] == '/':
+						destdir = destdir[0:-1]
+						outpath = urlparse.urlparse(dockerfile_args[0])[2]
+						outpathdir = os.path.dirname(outpath)
+						build += """\n\t\tshutit.send('mkdir -p """ + destdir + outpathdir + """')"""
+						build += """\n\t\tshutit.send('wget -O """ + destdir + outpath + ' ' + dockerfile_args[0] + """')"""
+					else:
+						outpath  = dockerfile_args[1]
+						destdir  = os.path.dirname(dockerfile_args[1])
+						build += """\n\t\tshutit.send('mkdir -p """ + destdir + """')"""
+						build += """\n\t\tshutit.send('wget -O """ + outpath + ' ' + dockerfile_args[0] + """')"""
+				else:
+					# From the local filesystem:
+					localfile = 'context/' + dockerfile_args[0]
+					## TODO replace with sha1
+					#tmpstr = 'aksljdfhaksfhd'
+					#if localfile[-4:] == '.tar':
+					#	build += """\n\t\tshutit.send_file('""" + outfile + '/' + localfile + """')"""
+					#elif localfile[-4:] == '.bz2':
+					#elif localfile[-3:] == '.gz':
+					#elif localfile[-3:] == '.xz':
+					build += """\n\t\tshutit.send_host_file('""" + outfile + """','""" + localfile + """')"""
 			elif dockerfile_command == 'ENV':
 				cmd = '='.join(dockerfile_args).replace("'","\\'")
 				build += """\n\t\tshutit.send('export """ + '='.join(dockerfile_args) + """')"""
@@ -1080,7 +1097,8 @@ def module():
 '''
 		# Return program to main shutit_dir
 		if dockerfile_dirname:
-			os.chdir(shutit_dir)
+		                os.chdir(shutit_dir)
+
 	elif skel_example:
 		templatemodule = open(os.path.join(shutit_dir, 'docs', 'shutit_module_template.py')).read()
 	else:
@@ -1145,11 +1163,12 @@ def module():
 		volumes_arg += ' -v ' + varg + ':' + varg
 	ports_arg = ''
 	if type(shutit.cfg['dockerfile']['expose']) == str:
-		for parg in shutit.cfg['dockerfile']['expose'].split():
+		for parg in shutit.cfg['dockerfile']['expose']:
 			ports_arg += ' -p ' + parg + ':' + parg
 	else:
 		for parg in shutit.cfg['dockerfile']['expose']:
-			ports_arg += ' -p ' + parg + ':' + parg
+			for port in parg.split():
+				ports_arg += ' -p ' + port + ':' + port
 	env_arg = ''
 	for earg in shutit.cfg['dockerfile']['env']:
 		env_arg += ' -e ' + earg.split()[0] + ':' + earg.split()[1]
@@ -1268,7 +1287,7 @@ def module():
 
 	and follow the tutorial, or:
 
-	    cd ''' + skel_path + '; ' + shutit_dir + '''./build.sh
+	    cd ''' + skel_path + '''; ./build.sh
 	
 	to just go ahead and build it.
 
@@ -1290,7 +1309,7 @@ def parse_dockerfile(shutit,contents):
 				pass
 			else:
 				full_line += l
-                		m = re.match("^[\s]*([A-Z]+)[\s]*(.*)$",full_line)
+                		m = re.match("^[\s]*([A-Za-z]+)[\s]*(.*)$",full_line)
                 		if m:
                 		        ret.append([m.group(1),m.group(2)])
                 		else:
