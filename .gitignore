@@ -23,10 +23,9 @@
 *.pyc
 **.cnf
 *resources/*
-**bz2
+shutit_resources/*
 **.log
 **.lck
-shutit_resources/*
 !**defaults.cnf
 !**build.cnf
 !*resources/README.md
