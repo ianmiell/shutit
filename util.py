@@ -758,7 +758,7 @@ def load_all_from_path(shutit, path):
 		# If a STOP file exists, ignore this folder
 		if os.path.exists(root + '/STOP'):
 			shutit.log('Ignoring directory: ' + root + ' as it has a STOP file in it')
-			break
+			continue
 		for fname in files:
 			load_mod_from_file(shutit, os.path.join(root, fname))
 
