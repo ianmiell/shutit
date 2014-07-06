@@ -1,16 +1,16 @@
 # When this module is the one being built, which modules should be built along with it by default?
 # This feeds into automated testing of each module.
-[shutit.tk.couchdb.couchdb]
+[shutit.tk.mediawiki.mediawiki]
 build:yes
 
 # Aspects of build process
 [build]
 # Allowed images as a regexp, eg ["ubuntu:12.*"], or [".*"], or ["centos"].
 # It's recommended this is locked down as far as possible.
-allowed_images:["ubuntu"]
-base_image:ubuntu
+allowed_images:["ubuntu:12.04"]
+base_image:ubuntu:12.04
 [repository]
-name:couchdb
+name:mediawiki
 [repository]
 user:
 # Fill these out in server- and username-specific config (also in this directory)
@@ -22,6 +22,6 @@ push:no
 save:no
 export:no
 #server:REMOVE_ME_FOR_DOCKER_INDEX
-name:couchdb
+name:mediawiki
 suffix_date:no
 suffix_format:%s
