@@ -910,6 +910,8 @@ def create_skeleton(shutit):
 	pushcnf_path        = os.path.join(skel_path, 'configs', 'push.cnf')
 
 	if skel_dockerfile:
+		if os.path.basename(skel_dockerfile) != 'Dockerfile':
+			skel_dockerfile += '/Dockerfile'
 		if not os.path.exists(skel_dockerfile):
 			if urlparse.urlparse(skel_dockerfile)[0] == '':
 				shutit.fail('Dockerfile "' + skel_dockerfile + '" must exist')
