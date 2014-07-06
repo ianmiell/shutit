@@ -1,1 +1,1 @@
-incecoder: description of module directory in here
+icecoder: description of module directory in here
