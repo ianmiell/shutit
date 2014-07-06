@@ -1,5 +1,5 @@
 
-# Created from dockerfile: https://raw.githubusercontent.com/crosbymichael/Dockerfiles/master/minecraft/Dockerfile
+# Created from dockerfile: /space/git/dockerfiles_repos/Dockerfiles/minecraft/Dockerfile
 from shutit_module import ShutItModule
 
 class minecraft(ShutItModule):
@@ -35,6 +35,6 @@ class minecraft(ShutItModule):
 
 def module():
         return minecraft(
-                'shutit.tk.minecraft.minecraft', 0.67544,
+                'shutit.tk.minecraft.minecraft', 782914092.00,
                 depends=['shutit.tk.setup']
         )
