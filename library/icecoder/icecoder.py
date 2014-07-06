@@ -2,7 +2,7 @@
 # Created from dockerfile: /space/git/dockerfiles_repos/dockerfile-examples/icecoder/Dockerfile
 from shutit_module import ShutItModule
 
-class incecoder(ShutItModule):
+class icecoder(ShutItModule):
 
         def is_installed(self,shutit):
                 return False
@@ -35,7 +35,7 @@ class incecoder(ShutItModule):
 		return True
 
 def module():
-        return incecoder(
-                'shutit.tk.incecoder.incecoder', 782914092.00,
+        return icecoder(
+                'shutit.tk.icecoder.icecoder', 782914092.00,
                 depends=['shutit.tk.setup']
         )
