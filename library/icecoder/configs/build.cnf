@@ -1,6 +1,6 @@
 # When this module is the one being built, which modules should be built along with it by default?
 # This feeds into automated testing of each module.
-[shutit.tk.incecoder.incecoder]
+[shutit.tk.icecoder.icecoder]
 build:yes
 
 # Aspects of build process
@@ -10,7 +10,7 @@ build:yes
 allowed_images:["ubuntu:12.04"]
 base_image:ubuntu:12.04
 [repository]
-name:incecoder
+name:icecoder
 [repository]
 user:
 # Fill these out in server- and username-specific config (also in this directory)
@@ -22,6 +22,6 @@ push:no
 save:no
 export:no
 #server:REMOVE_ME_FOR_DOCKER_INDEX
-name:incecoder
+name:itcecoder
 suffix_date:no
 suffix_format:%s
