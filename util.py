@@ -862,6 +862,7 @@ def create_skeleton(shutit):
 	"""
 	shutit_dir = sys.path[0]
 
+	# Set up local directories
 	skel_path        = shutit.cfg['skeleton']['path']
 	skel_module_name = shutit.cfg['skeleton']['module_name']
 	skel_domain      = shutit.cfg['skeleton']['domain']
@@ -869,7 +870,19 @@ def create_skeleton(shutit):
 	skel_script      = shutit.cfg['skeleton']['script']
 	skel_example     = shutit.cfg['skeleton']['example']
 	skel_dockerfile  = shutit.cfg['skeleton']['dockerfile']
+	# Set up dockerfile cfg
+	shutit.cfg['dockerfile']['base_image'] = 'ubuntu:12.10'
+	shutit.cfg['dockerfile']['cmd']        = '/bin/bash'
+	shutit.cfg['dockerfile']['user']       = ''
+	shutit.cfg['dockerfile']['maintainer'] = ''
+	shutit.cfg['dockerfile']['entrypoint'] = ''
+	shutit.cfg['dockerfile']['expose']     = []
+	shutit.cfg['dockerfile']['env']        = []
+	shutit.cfg['dockerfile']['volume']     = []
+	shutit.cfg['dockerfile']['onbuild']    = []
+	shutit.cfg['dockerfile']['script']     = []
 
+	# Check setup
 	if len(skel_path) == 0 or skel_path[0] != '/':
 		shutit.fail('Must supply a directory and it must be absolute')
 	if os.path.exists(skel_path):
@@ -880,13 +893,6 @@ def create_skeleton(shutit):
 		shutit.fail('Module names must comply with python classname standards: cf: http://stackoverflow.com/questions/10120295/valid-characters-in-a-python-class-name')
 	if len(skel_domain) == 0:
 		shutit.fail('Must supply a domain for your module, eg com.yourname.madeupdomainsuffix')
-	if skel_dockerfile :
-		if not os.path.exists(skel_dockerfile):
-			if urlparse.urlparse(skel_dockerfile)[0] == '':
-				shutit.fail('Dockerfile "' + skel_dockerfile + '" must exist')
-			dockerfile_contents = urllib2.urlopen(skel_dockerfile).read()
-		else:
-			dockerfile_contents = open(skel_dockerfile).read()
 
 	os.makedirs(skel_path)
 	os.mkdir(os.path.join(skel_path, 'configs'))
@@ -900,17 +906,16 @@ def create_skeleton(shutit):
 	buildcnf_path       = os.path.join(skel_path, 'configs', 'build.cnf')
 	pushcnf_path        = os.path.join(skel_path, 'configs', 'push.cnf')
 
-	shutit.cfg['dockerfile']['base_image'] = 'ubuntu:12.10'
-	shutit.cfg['dockerfile']['cmd']        = '/bin/bash'
-	shutit.cfg['dockerfile']['user']       = ''
-	shutit.cfg['dockerfile']['maintainer'] = ''
-	shutit.cfg['dockerfile']['entrypoint'] = ''
-	shutit.cfg['dockerfile']['expose']     = []
-	shutit.cfg['dockerfile']['env']        = []
-	shutit.cfg['dockerfile']['volume']     = []
-	shutit.cfg['dockerfile']['onbuild']    = []
-	shutit.cfg['dockerfile']['script']     = []
 	if skel_dockerfile:
+		if not os.path.exists(skel_dockerfile):
+			if urlparse.urlparse(skel_dockerfile)[0] == '':
+				shutit.fail('Dockerfile "' + skel_dockerfile + '" must exist')
+			dockerfile_contents = urllib2.urlopen(skel_dockerfile).read()
+			dockerfile_dirname = None
+		else:
+			dockerfile_contents = open(skel_dockerfile).read()
+			dockerfile_dirname = os.path.dirname(skel_dockerfile)
+			os.chdir(dockerfile_dirname)
 		# Wipe the command as we expect one in the file.
 		shutit.cfg['dockerfile']['cmd']        = ''
 		dockerfile_list = parse_dockerfile(shutit,dockerfile_contents)
@@ -1005,7 +1010,7 @@ class template(ShutItModule):
 			elif dockerfile_command == 'COPY':
 				#The copy obeys the following rules:
 				#    The <src> path must be inside the context of the build; you cannot COPY ../something /something, because the first step of a docker build is to send the context directory (and subdirectories) to the docker daemon.
-				if dockerfile_args[0][0] == '.' or dockerfile_args[0][0] == '/':
+				if dockerfile_args[0] != '.' and dockerfile_args[0][0] == '.' or dockerfile_args[0][0] == '/':
 					shutit.fail('Invalid line: ' + str(dockerfile_args) + ' file must be in local subdirectory')
 				#    If <src> is a directory, the entire directory is copied, including filesystem metadata.
 				#    If <src> is any other kind of file, it is copied individually along with its metadata. In this case, if <dest> ends with a trailing slash /, it will be considered a directory and the contents of <src> will be written at <dest>/base(<src>).
@@ -1016,7 +1021,7 @@ class template(ShutItModule):
 				# TODO: web ADDs
 				#The copy obeys the following rules:
 				#    The <src> path must be inside the context of the build; you cannot ADD ../something /something, because the first step of a docker build is to send the context directory (and subdirectories) to the docker daemon.
-				if dockerfile_args[0][0] == '.' or dockerfile_args[0][0] == '/':
+				if dockerfile_args[0] != '.' and dockerfile_args[0][0] == '.' or dockerfile_args[0][0] == '/':
 					shutit.fail('Invalid line: ' + str(dockerfile_args) + ' file must be in local subdirectory')
 				#    If <src> is a URL and <dest> does not end with a trailing slash, then a file is downloaded from the URL and copied to <dest>.
 				#    If <src> is a URL and <dest> does end with a trailing slash, then the filename is inferred from the URL and the file is downloaded to <dest>/<filename>. For instance, ADD http://example.com/foobar / would create the file /foobar. The URL must have a nontrivial path so that an appropriate filename can be discovered in this case (http://example.com will not work).
@@ -1062,6 +1067,9 @@ def module():
                 depends=['shutit.tk.setup']
         )
 '''
+		# Return program to main shutit_dir
+		if dockerfile_dirname:
+			os.chdir(shutit_dir)
 	elif skel_example:
 		templatemodule = open(os.path.join(shutit_dir, 'docs', 'shutit_module_template.py')).read()
 	else:
