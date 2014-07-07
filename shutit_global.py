@@ -922,9 +922,9 @@ def init():
 	global shutit_command_history
 	global shutit_map
 
-	pexpect_children = {}
-	shutit_map = {}
-	shutit_modules   = set()
+	pexpect_children       = {}
+	shutit_map             = {}
+	shutit_modules         = set()
 	shutit_command_history = []
 	# Store the root directory of this application.
 	# http://stackoverflow.com/questions/5137497/find-current-directory-and-files-directory
