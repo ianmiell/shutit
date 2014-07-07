@@ -452,6 +452,7 @@ def parse_args(cfg):
 		sub_parsers[action].add_argument('--pause',help='Pause between commands to avoid race conditions.',default='0.05',type=check_pause)
 		sub_parsers[action].add_argument('--debug',help='Show debug.',default=False,const=True,action='store_const')
 		sub_parsers[action].add_argument('--interactive',help='Level of interactive. 0 = none, 1 = honour pause points and config prompting, 2 = query user on each module, 3 = tutorial mode',default='1')
+		sub_parsers[action].add_argument('--ignorestop', help='ignore STOP files', const=True, default=False, action='store_const')
 
 	args_list = sys.argv[1:]
 	if os.environ.get('SHUTIT_OPTIONS', None) and args_list[0] != 'skeleton':
@@ -534,6 +535,7 @@ def parse_args(cfg):
 	cfg['build']['extra_configs']    = args.config
 	cfg['build']['config_overrides'] = args.set
 	cfg['container']['docker_image'] = args.image_tag
+	cfg['build']['ignorestop']       = args.ignorestop
 	# Get module paths
 	cfg['host']['shutit_module_paths'] = args.shutit_module_path.split(':')
 	if '.' not in cfg['host']['shutit_module_paths']:
@@ -756,8 +758,8 @@ def load_all_from_path(shutit, path):
 		return
 	for root, subFolders, files in os.walk(path):
 		# If a STOP file exists, ignore this folder
-		if os.path.exists(root + '/STOP'):
-			shutit.log('Ignoring directory: ' + root + ' as it has a STOP file in it')
+		if os.path.exists(root + '/STOP') and not shutit.cfg['build']['ignorestop']:
+			shutit.log('Ignoring directory: ' + root + ' as it has a STOP file in it. Pass --ignorestop to shutit run to override.')
 			continue
 		for fname in files:
 			load_mod_from_file(shutit, os.path.join(root, fname))
@@ -942,7 +944,7 @@ def create_skeleton(shutit):
 				# This contains within it one of the above commands, so we need to abstract this out.
 				shutit.cfg['dockerfile']['onbuild'].append(item[1])
                         elif docker_command == "MAINTAINER": #TODO
-				# TODO
+				# Added simply as comment now.
 				shutit.cfg['dockerfile']['maintainer'] = item[1]
                         elif docker_command == "VOLUME": #DONE
 				# Put in the run.sh.
@@ -998,6 +1000,7 @@ def create_skeleton(shutit):
 		# Header.
 		templatemodule += '''
 # Created from dockerfile: ''' + skel_dockerfile + '''
+# Maintainer:              ''' + shutit.cfg['dockerfile']['maintainer'] + '''
 from shutit_module import ShutItModule
 
 class template(ShutItModule):
