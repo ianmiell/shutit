@@ -413,7 +413,10 @@ def do_build(shutit):
 			if module.is_installed(shutit):
 				cfg['build']['report'] = cfg['build']['report'] + '\nBuilt already: ' + module.module_id + ' with run order: ' + str(module.run_order)
 			else:
+				revert_dir = os.getcwd()
+				os.chdir(os.path.dirname(module.__module_file))
 				build_module(shutit, module)
+				os.chdir(revert_dir)
 		if is_built(shutit,module):
 			shutit.log('Starting module')
 			if not module.start(shutit):
