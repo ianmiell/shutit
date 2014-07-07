@@ -441,6 +441,7 @@ def parse_args(cfg):
 	sub_parsers['build'].add_argument('--export', help='export to a tar file', const=True, default=False, action='store_const')
 	sub_parsers['build'].add_argument('--save', help='save to a tar file', const=True, default=False, action='store_const')
 	sub_parsers['build'].add_argument('--push', help='push to a repo', const=True, default=False, action='store_const')
+	sub_parsers['build'].add_argument('--ignorestop', help='ignore STOP files', const=True, default=False, action='store_const')
 
 	sub_parsers['sc'].add_argument('--history', help='show config history', const=True, default=False, action='store_const')
 
@@ -533,6 +534,7 @@ def parse_args(cfg):
 	cfg['build']['command_pause']    = float(args.pause)
 	cfg['build']['extra_configs']    = args.config
 	cfg['build']['config_overrides'] = args.set
+	cfg['build']['ignorestop']       = args.ignorestop
 	cfg['container']['docker_image'] = args.image_tag
 	# Get module paths
 	cfg['host']['shutit_module_paths'] = args.shutit_module_path.split(':')
@@ -756,8 +758,8 @@ def load_all_from_path(shutit, path):
 		return
 	for root, subFolders, files in os.walk(path):
 		# If a STOP file exists, ignore this folder
-		if os.path.exists(root + '/STOP'):
-			shutit.log('Ignoring directory: ' + root + ' as it has a STOP file in it')
+		if os.path.exists(root + '/STOP') and not shutit.cfg['build']['ignorestop']:
+			shutit.log('Ignoring directory: ' + root + ' as it has a STOP file in it. Pass --ignorestop to shutit run to override.')
 			continue
 		for fname in files:
 			load_mod_from_file(shutit, os.path.join(root, fname))
@@ -942,7 +944,7 @@ def create_skeleton(shutit):
 				# This contains within it one of the above commands, so we need to abstract this out.
 				shutit.cfg['dockerfile']['onbuild'].append(item[1])
                         elif docker_command == "MAINTAINER": #TODO
-				# TODO
+				# Added simply as comment now.
 				shutit.cfg['dockerfile']['maintainer'] = item[1]
                         elif docker_command == "VOLUME": #DONE
 				# Put in the run.sh.
@@ -998,6 +1000,7 @@ def create_skeleton(shutit):
 		# Header.
 		templatemodule += '''
 # Created from dockerfile: ''' + skel_dockerfile + '''
+# Maintainer:              ''' + shutit.cfg['dockerfile']['maintainer'] + '''
 from shutit_module import ShutItModule
 
 class template(ShutItModule):
