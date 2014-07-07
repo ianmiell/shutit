@@ -27,6 +27,6 @@ class transmission(ShutItModule):
 
 def module():
         return transmission(
-                'shutit.tk.transmission.transmission', 782914092.00,
+                'shutit.tk.transmission.transmission', 0.15246246246,
                 depends=['shutit.tk.setup']
         )

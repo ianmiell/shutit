@@ -32,6 +32,6 @@ class plex(ShutItModule):
 
 def module():
         return plex(
-                'shutit.tk.plex.plex', 782914092.00,
+                'shutit.tk.plex.plex', 0.156123464246,
                 depends=['shutit.tk.setup']
         )

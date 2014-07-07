@@ -27,6 +27,6 @@ class sickbeard(ShutItModule):
 
 def module():
         return sickbeard(
-                'shutit.tk.sickbeard.sickbeard', 782914092.00,
+                'shutit.tk.sickbeard.sickbeard', 0.1561537357,
                 depends=['shutit.tk.setup']
         )

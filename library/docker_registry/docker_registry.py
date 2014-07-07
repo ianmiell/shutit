@@ -34,6 +34,6 @@ class docker_registry(ShutItModule):
 
 def module():
         return docker_registry(
-                'shutit.tk.docker_registry.docker_registry', 782914092.00,
+                'shutit.tk.docker_registry.docker_registry', 0.1567436124124,
                 depends=['shutit.tk.setup']
         )

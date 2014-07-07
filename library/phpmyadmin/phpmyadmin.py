@@ -26,6 +26,6 @@ class phpmyadmin(ShutItModule):
 
 def module():
         return phpmyadmin(
-                'shutit.tk.phpmyadmin.phpmyadmin', 782914092.00,
+                'shutit.tk.phpmyadmin.phpmyadmin', 0.1561234737,
                 depends=['shutit.tk.setup']
         )
