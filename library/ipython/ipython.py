@@ -49,6 +49,6 @@ class ipython(ShutItModule):
 
 def module():
         return ipython(
-                'shutit.tk.ipython.ipython', 782914092.00,
+                'shutit.tk.ipython.ipython', 0.1325135,
                 depends=['shutit.tk.setup']
         )
