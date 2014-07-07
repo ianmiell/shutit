@@ -8,7 +8,6 @@ class android_dev(ShutItModule):
                 return False
 
         def build(self,shutit):
-		shutit.send('export DEBIAN_FRONTEND=noninteractive')
 		shutit.send('echo "debconf shared/accepted-oracle-license-v1-1 select true" | debconf-set-selections')
 		shutit.send('echo "debconf shared/accepted-oracle-license-v1-1 seen true" | debconf-set-selections')
 		shutit.send('apt-get -y install python-software-properties bzip2')
@@ -59,6 +58,6 @@ class android_dev(ShutItModule):
 
 def module():
         return android_dev(
-                'shutit.tk.android_dev.android_dev', 782914092.00,
+                'shutit.tk.android_dev.android_dev', 0.1567365,
                 depends=['shutit.tk.setup']
         )

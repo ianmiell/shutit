@@ -27,6 +27,6 @@ class btsync(ShutItModule):
 
 def module():
         return btsync(
-                'shutit.tk.btsync.btsync', 782914092.00,
+                'shutit.tk.btsync.btsync', 0.15673135,
                 depends=['shutit.tk.setup']
         )
