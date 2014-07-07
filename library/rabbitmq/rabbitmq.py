@@ -27,6 +27,6 @@ class rabbitmq(ShutItModule):
 
 def module():
         return rabbitmq(
-                'shutit.tk.rabbitmq.rabbitmq', 782914092.00,
+                'shutit.tk.rabbitmq.rabbitmq', 0.1523523,
                 depends=['shutit.tk.setup']
         )

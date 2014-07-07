@@ -28,6 +28,6 @@ class influxdb(ShutItModule):
 
 def module():
         return influxdb(
-                'shutit.tk.influxdb.influxdb', 782914092.00,
+                'shutit.tk.influxdb.influxdb', 0.1212353,
                 depends=['shutit.tk.setup']
         )
