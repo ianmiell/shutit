@@ -34,6 +34,6 @@ class couchdb(ShutItModule):
 
 def module():
         return couchdb(
-                'shutit.tk.couchdb.couchdb', 782914092.00,
+                'shutit.tk.couchdb.couchdb', 0.123124,
                 depends=['shutit.tk.setup']
         )

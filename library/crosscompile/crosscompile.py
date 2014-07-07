@@ -36,6 +36,6 @@ class crosscompile(ShutItModule):
 
 def module():
         return crosscompile(
-                'shutit.tk.crosscompile.crosscompile', 782914092.00,
+                'shutit.tk.crosscompile.crosscompile', 0.1241325,
                 depends=['shutit.tk.setup']
         )

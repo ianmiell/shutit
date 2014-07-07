@@ -30,6 +30,6 @@ class docpad(ShutItModule):
 
 def module():
         return docpad(
-                'shutit.tk.docpad.docpad', 782914092.00,
+                'shutit.tk.docpad.docpad', 0.1258925,
                 depends=['shutit.tk.setup']
         )
