@@ -184,7 +184,8 @@ def shutit_reset():
 			c.send('\n')
 			c.sendeof()
 			c.readlines()
-		image_tag = shutit.cfg['container']['image_tag']
+		print shutit.cfg
+		image_tag = shutit.cfg['container']['docker_image']
 	else:
 		image_tag = ''
 	shutit = None
