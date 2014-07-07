@@ -32,6 +32,6 @@ class mariadb(ShutItModule):
 
 def module():
         return mariadb(
-                'shutit.tk.mariadb.mariadb', 782914092.00,
+                'shutit.tk.mariadb.mariadb', 0.12313251,
                 depends=['shutit.tk.setup']
         )

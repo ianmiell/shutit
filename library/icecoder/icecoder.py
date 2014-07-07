@@ -36,6 +36,6 @@ class icecoder(ShutItModule):
 
 def module():
         return icecoder(
-                'shutit.tk.icecoder.icecoder', 782914092.00,
+                'shutit.tk.icecoder.icecoder', 0.1241435,
                 depends=['shutit.tk.setup']
         )
