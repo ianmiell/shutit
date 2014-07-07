@@ -1,0 +1,27 @@
+# When this module is the one being built, which modules should be built along with it by default?
+# This feeds into automated testing of each module.
+[shutit.tk.transmission.transmission]
+build:yes
+
+# Aspects of build process
+[build]
+# Allowed images as a regexp, eg ["ubuntu:12.*"], or [".*"], or ["centos"].
+# It's recommended this is locked down as far as possible.
+allowed_images:["ubuntu"]
+base_image:ubuntu
+[repository]
+name:transmission
+[repository]
+user:
+# Fill these out in server- and username-specific config (also in this directory)
+password:YOUR_REGISTRY_PASSWORD_OR_BLANK
+# Fill these out in server- and username-specific config (also in this directory)
+email:YOUR_REGISTRY_EMAIL_OR_BLANK
+tag:yes
+push:no
+save:no
+export:no
+#server:REMOVE_ME_FOR_DOCKER_INDEX
+name:transmission
+suffix_date:no
+suffix_format:%s

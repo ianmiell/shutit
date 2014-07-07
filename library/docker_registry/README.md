@@ -1,0 +1,1 @@
+docker_registry: description of module directory in here
