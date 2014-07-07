@@ -44,6 +44,6 @@ class mediawiki(ShutItModule):
 
 def module():
         return mediawiki(
-                'shutit.tk.mediawiki.mediawiki', 782914092.00,
+                'shutit.tk.mediawiki.mediawiki', 0.12412515,
                 depends=['shutit.tk.setup']
         )

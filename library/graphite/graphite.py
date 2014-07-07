@@ -42,6 +42,6 @@ class graphite(ShutItModule):
 
 def module():
         return graphite(
-                'shutit.tk.graphite.graphite', 782914092.00,
+                'shutit.tk.graphite.graphite', 0.124162874,
                 depends=['shutit.tk.setup']
         )

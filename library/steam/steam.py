@@ -31,6 +31,6 @@ class steam(ShutItModule):
 
 def module():
         return steam(
-                'shutit.tk.steam.steam', 782914092.00,
+                'shutit.tk.steam.steam', 0.12135315,
                 depends=['shutit.tk.setup']
         )

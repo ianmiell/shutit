@@ -27,6 +27,6 @@ class rethinkdb(ShutItModule):
 
 def module():
         return rethinkdb(
-                'shutit.tk.rethinkdb.rethinkdb', 782914092.00,
+                'shutit.tk.rethinkdb.rethinkdb', 0.124125,
                 depends=['shutit.tk.setup']
         )
