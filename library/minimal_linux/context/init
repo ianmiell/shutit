@@ -1,0 +1,4 @@
+#!/bin/ash
+mount -t proc none /proc
+mount -t sysfs none /sys
+/bin/ash
