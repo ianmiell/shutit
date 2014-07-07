@@ -34,6 +34,6 @@ class camlistore(ShutItModule):
 
 def module():
         return camlistore(
-                'shutit.tk.camlistore.camlistore', 782914092.00,
+                'shutit.tk.camlistore.camlistore', 0.1567436346,
                 depends=['shutit.tk.setup']
         )

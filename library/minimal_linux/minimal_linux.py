@@ -59,6 +59,6 @@ class minimal_linux(ShutItModule):
 
 def module():
         return minimal_linux(
-                'shutit.tk.minimal_linux.minimal_linux', 782914092.00,
+                'shutit.tk.minimal_linux.minimal_linux', 0.1561245235,
                 depends=['shutit.tk.setup']
         )

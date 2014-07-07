@@ -36,6 +36,6 @@ class logstash(ShutItModule):
 
 def module():
         return logstash(
-                'shutit.tk.logstash.logstash', 782914092.00,
+                'shutit.tk.logstash.logstash', 0.15645626,
                 depends=['shutit.tk.setup']
         )
