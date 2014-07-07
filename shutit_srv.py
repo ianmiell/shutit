@@ -94,11 +94,11 @@ def update_modules(to_build, cfg):
 	STATUS['errs'] = [err[0] for err in errs]
 	STATUS['modules'] = [
 		{
-			"module_id": mid,
+			"module_id":   mid,
 			"description": shutit.shutit_map[mid].description,
-			"run_order": float(shutit.shutit_map[mid].run_order),
-			"build": shutit.cfg[mid]['build'],
-			"selected": mid in selected
+			"run_order":   float(shutit.shutit_map[mid].run_order),
+			"build":       shutit.cfg[mid]['build'],
+			"selected":    mid in selected
 		} for mid in shutit_main.module_ids(shutit)
 	]
 
@@ -184,6 +184,9 @@ def shutit_reset():
 			c.send('\n')
 			c.sendeof()
 			c.readlines()
+		image_tag = shutit.cfg['container']['image_tag']
+	else:
+		image_tag = ''
 	shutit = None
 	STATUS = {
 		'build_done':    False,
@@ -192,7 +195,8 @@ def shutit_reset():
 		'modules':       [],
 		'errs':          [],
 		'cid':           '',
-		'cfg':           {}
+		'cfg':           {},
+		'image_tag':     image_tag
 	}
 
 	def reset_thread():
@@ -209,6 +213,11 @@ def shutit_reset():
 		# The rest of the loading from shutit_main
 		util.load_configs(shutit)
 		shutit_main.shutit_module_init(shutit)
+		# Here we can set the starting image.
+		if STATUS['image_tag'] != '':
+			shutit.cfg['container']['docker_image'] = STATUS['image_tag']
+		else:
+			STATUS['image_tag'] = shutit.cfg['container']['docker_image']
 		shutit_main.conn_container(shutit)
 
 		# Some hacks for server mode
@@ -218,7 +227,7 @@ def shutit_reset():
 		for mid in shutit.shutit_map:
 			orig_mod_cfg[mid] = STATUS['cfg'][mid] = shutit.cfg[mid]
 		# Add in core sections
-		for mid in ['repository']:
+		for mid in ['repository','container']:
 			orig_mod_cfg[mid] = STATUS['cfg'][mid] = shutit.cfg[mid]
 		# Make sure that orig_mod_cfg can be updated seperately to
 		# STATUS and shutit.cfg (which remain linked), as it will hold
