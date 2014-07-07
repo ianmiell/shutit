@@ -186,13 +186,13 @@ def shutit_reset():
 			c.readlines()
 	shutit = None
 	STATUS = {
-		'build_done': False,
+		'build_done':    False,
 		'build_started': False,
-		'resetting': True,
-		'modules': [],
-		'errs': [],
-		'cid': '',
-		'cfg': {}
+		'resetting':     True,
+		'modules':       [],
+		'errs':          [],
+		'cid':           '',
+		'cfg':           {}
 	}
 
 	def reset_thread():
