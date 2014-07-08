@@ -25,9 +25,12 @@ Structured:
 Flexible:
 
 - Modules can be plugged together like lego
+- GUI allows to you build and download images for your own needs
 - Modules model shell interactions, with all the freedom and control that implies
 - Module scripts are in python, allowing full language control
 - Many helper functions for common interaction patterns
+- Can pause during build or on error to interact, then continue with build
+
 
 REALLY QUICK START
 ------------------
