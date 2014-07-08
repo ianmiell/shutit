@@ -339,6 +339,11 @@ class ShutIt(object):
 		child.logfile_send = None
 		# Prepare to send the contents as base64 so we don't have to worry about
 		# special shell characters
+		# TODO: hide the gory details: http://stackoverflow.com/questions/5633472/how-do-i-turn-off-echo-in-a-terminal
+		#stty_orig=`stty -g`
+		#stty -echo
+		#echo 'hidden section'
+		#stty $stty_orig && echo forcenewline
 		contents64 = base64.standard_b64encode(contents)
 		child.sendline("base64 --decode > '" + path + "'")
 		child.expect('\r\n')
