@@ -494,8 +494,8 @@ def parse_args(cfg):
 
 	# This mode is a bit special - it's the only one with different arguments
 	if cfg['action']['skeleton']:
-		if args.dockerfile and args.script:
-			shutit_global.shutit.fail('Cannot have script and Dockerfile as arguments')
+		if (args.dockerfile and (args.script or args.example)) or (args.example and args.script):
+			shutit_global.shutit.fail('Cannot have any two of script, -d/--dockerfile Dockerfile or --example as arguments')
 		cfg['skeleton'] = {
 			'path':        args.path,
 			'module_name': args.module_name,
@@ -1023,7 +1023,7 @@ class template(ShutItModule):
 				numpushes = numpushes + 1
 			elif dockerfile_command == 'COPY' or dockerfile_command == 'ADD':
 				#    The <src> path must be inside the context of the build; you cannot COPY ../something /something, because the first step of a docker build is to send the context directory (and subdirectories) to the docker daemon.
-				if dockerfile_args[0][0:1] == '..' or dockerfile_args[0][0] == '/':
+				if dockerfile_args[0][0:1] == '..' or dockerfile_args[0][0] == '/' or dockerfile_args[0][0] == '~':
 					shutit.fail('Invalid line: ' + str(dockerfile_args) + ' file must be in local subdirectory')
 				if dockerfile_args[1][-1] == '/':
 					# Dir we're COPYing or ADDing to
