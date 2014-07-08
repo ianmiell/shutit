@@ -340,7 +340,7 @@ class ShutIt(object):
 		# Prepare to send the contents as base64 so we don't have to worry about
 		# special shell characters
 		contents64 = base64.standard_b64encode(contents)
-		child.sendline('base64 --decode > ' + path)
+		child.sendline("base64 --decode > '" + path + "'")
 		child.expect('\r\n')
 		# We have to batch the file up to avoid hitting pipe buffer limit. This
 		# is 4k on modern machines (it seems), but we choose 1k for safety
@@ -355,11 +355,11 @@ class ShutIt(object):
 		child.sendline()
 		child.sendline()
 		child.sendline()
-		child.expect('\r\n\r\n')
+		child.expect('\r\n\r\n',timeout=999999)
 		child.sendeof()
 		# Done sending the file
 		child.expect(expect)
-		self._check_exit("send file to " + path,expect,child)
+		self._check_exit("#send file to " + path,expect,child)
 		# Go to old echo
 		child.logfile_send = oldlog
 
@@ -391,6 +391,8 @@ class ShutIt(object):
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
 		for root, subFolders, files in os.walk(hostfilepath):
+			subFolders.sort()
+			files.sort()
 			for subfolder in subFolders:
 				self.send('mkdir -p ' + path + '/' + subfolder)
 				self.send_host_dir(path + '/' + subfolder,hostfilepath + '/' + subfolder,expect=expect,child=child,log=log)
