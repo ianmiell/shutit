@@ -135,10 +135,11 @@ def log():
 	else:
 		command_list = shutit.shutit_command_history[cmd_offset:]
 		log = shutit.cfg['build']['build_log'].getvalue()[log_offset:]
+	# Working around issues with encoding in a cowardly way.
 	return json.dumps({
 		"cmds": command_list,
 		"logs": log
-	})
+	},encoding='iso8859-1')
 
 @route('/')
 def index():

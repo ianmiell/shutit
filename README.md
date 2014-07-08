@@ -4,6 +4,30 @@
 ===============
 Complex Docker Deployments Made Simple
 
+ShutIt is a tool for managing your build process that is both structured and flexible:
+
+Structured:
+
+- Modular structure
+- Manages the startup and setup of your container ready for the build
+- Has a lifecycle that can manage different parts of the lifecycle, eg:
+	- Pre-requisites check
+	- Already installed check
+	- Start module
+	- Stop module
+	- Test module
+- Allows you to set config
+- Allows you to manage modules per distro (if needed)
+- Forces you to define an order for the modules
+- Puts record of build process into container
+- Enables continuous regression testing
+
+Flexible:
+
+- Modules can be plugged together like lego
+- Modules model shell interactions, with all the freedom and control that implies
+- Module scripts are in python, allowing full language control
+- Many helper functions for common interaction patterns
 
 REALLY QUICK START
 ------------------
