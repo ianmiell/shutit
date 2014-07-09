@@ -31,6 +31,10 @@ class shutit(ShutItModule):
 		shutit.send('popd')
 		return True
 
+	def test(self,shutit):
+		# TODO: test it works
+		return True
+
 def module():
 	# Shutit needs a user to work
 	return shutit(
