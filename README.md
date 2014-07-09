@@ -42,6 +42,10 @@ Dependencies
 - python 2.7+
 - See [here](https://gist.github.com/ianmiell/947ff3fabc44ace617c6) for a minimal build.
 
+apt-get install git python-bottle docker.io python-pexpect python-cherrypy3
+git clone https://github.com/ianmiell/shutit.git && cd shutit
+./shutit serve -m library
+
 
 Videos:
 -------
