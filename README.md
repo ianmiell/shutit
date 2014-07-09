@@ -12,10 +12,12 @@ Structured:
 - Manages the startup and setup of your container ready for the build
 - Has a lifecycle that can manage different parts of the lifecycle, eg:
 	- Pre-requisites check
-	- Already installed check
+	- "Already installed?" check
+	- Gather config
 	- Start module
 	- Stop module
 	- Test module
+	- Finalize container
 - Allows you to set config
 - Allows you to manage modules per distro (if needed)
 - Forces you to define an order for the modules
@@ -24,9 +26,9 @@ Structured:
 
 Flexible:
 
+- Modules model shell interactions, with all the freedom and control that implies
 - Modules can be plugged together like lego
 - GUI allows to you build and download images for your own needs
-- Modules model shell interactions, with all the freedom and control that implies
 - Module scripts are in python, allowing full language control
 - Many helper functions for common interaction patterns
 - Can pause during build or on error to interact, then continue with build
@@ -34,6 +36,12 @@ Flexible:
 
 REALLY QUICK START
 ------------------
+
+Dependencies
+--------------
+- python 2.7+
+- See [here](https://gist.github.com/ianmiell/947ff3fabc44ace617c6) for a minimal build.
+
 
 Videos:
 -------
@@ -215,10 +223,6 @@ Run
 ./test.sh
 ```
 
-Dependencies
---------------
-- python 2.7+
-- See [here](https://gist.github.com/ianmiell/947ff3fabc44ace617c6) for a minimal build.
 
 
 
