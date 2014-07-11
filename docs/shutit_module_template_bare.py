@@ -33,6 +33,7 @@ class template(ShutItModule):
 def module():
 	return template(
 		GLOBALLY_UNIQUE_STRING, FLOAT,
+		description='',
 		depends=['shutit.tk.setup']
 	)
 

@@ -1186,6 +1186,7 @@ def module():
 		./build.sh $1
 		''')
 	buildcnf = textwrap.dedent('''\
+		# This file should be changed only by the maintainer.
 		# When this module is the one being built, which modules should be built along with it by default?
 		# This feeds into automated testing of each module.
 		[''' + '%s.%s.%s' % (skel_domain, skel_module_name, skel_module_name) + ''']

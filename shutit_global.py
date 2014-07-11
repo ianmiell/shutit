@@ -165,9 +165,10 @@ class ShutIt(object):
 
 
 	def send_and_expect(self,send,expect=None,child=None,timeout=3600,check_exit=None,fail_on_empty_before=True,record_command=None,exit_values=None,echo=None):
-		"""Send string to the container, and wait until the expected string is seen before returning.
+		"""Send string to the container prompt, and wait until the expected string is seen before returning.
+		The expected string will default to the currently-set default expected string (see get_default_expect)
 
-		Returns the pexpect return value
+		Returns the pexpect return value (ie which expected string in the list matched):
 		
 		child                      - pexpect child to issue command to.
 		send                       - String to send, ie the command being issued.
