@@ -1057,7 +1057,7 @@ class template(ShutItModule):
 						build += """\n\t\tshutit.send('wget -O """ + outpath + ' ' + dockerfile_args[0] + """')"""
 				else:
 					# From the local filesystem:
-					localfile = 'context/' + dockerfile_args[0]
+					localfile = dockerfile_args[0]
 					## TODO replace with sha1
 					#tmpstr = 'aksljdfhaksfhd'
 					#if localfile[-4:] == '.tar':
@@ -1065,7 +1065,10 @@ class template(ShutItModule):
 					#elif localfile[-4:] == '.bz2':
 					#elif localfile[-3:] == '.gz':
 					#elif localfile[-3:] == '.xz':
-					build += """\n\t\tshutit.send_host_file('""" + outfile + """','""" + localfile + """')"""
+					if os.path.isdir(localfile):
+						build += """\n\t\tshutit.send_host_dir('""" + outfile + """','""" + localfile + """')"""
+					else:
+						build += """\n\t\tshutit.send_host_file('""" + outfile + """','""" + localfile + """')"""
 			elif dockerfile_command == 'ENV':
 				cmd = '='.join(dockerfile_args).replace("'","\\'")
 				build += """\n\t\tshutit.send('export """ + '='.join(dockerfile_args) + """')"""
