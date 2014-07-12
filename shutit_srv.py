@@ -231,6 +231,7 @@ def shutit_reset():
 		# Add in core sections
 		for mid in ['repository','container']:
 			orig_mod_cfg[mid] = STATUS['cfg'][mid] = shutit.cfg[mid]
+			
 		# Make sure that orig_mod_cfg can be updated seperately to
 		# STATUS and shutit.cfg (which remain linked), as it will hold
 		# our overrides
