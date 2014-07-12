@@ -1059,7 +1059,7 @@ class template(ShutItModule):
 					# From the local filesystem on construction:
 					localfile = dockerfile_args[0]
 					# Local file location on build:
-					buildstagefile = 'context' + dockerfile_args[0]
+					buildstagefile = 'context/' + dockerfile_args[0]
 					## TODO replace with sha1
 					#tmpstr = 'aksljdfhaksfhd'
 					#if localfile[-4:] == '.tar':
