@@ -25,7 +25,9 @@ Each module has several attributes whose implications should be understood as th
 
 #### module_id
 
-A string - which should be globally unique - that represents this module's place in the ShutIt universe.
+A string - which should be globally unique - that represents this module's place in the ShutIt universe. By convention this follows the Java namespacing model of domain_name.namespace.module, eg
+
+com.openbet.web.application
 
 #### run_order
 
