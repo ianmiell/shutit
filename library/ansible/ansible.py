@@ -41,13 +41,13 @@ class ansible(ShutItModule):
 		return True
 
 	def test(self,shutit):
-		if shutit.send('ansible all -m ping',expect=['assword',shutit.cfg['expect_prompts']['root_prompt']]) == 0:
-			shutit.send(shutit.cfg['container']['password'])
+		#if shutit.send('ansible all -m ping',expect=['assword',shutit.cfg['expect_prompts']['root_prompt']]) == 0:
+		#	shutit.send(shutit.cfg['container']['password'])
 		return True
 
 def module():
 	return ansible(
-		'shutit.tk.ansible.ansible', 782914092.00,
+		'shutit.tk.ansible.ansible', 0.7656,
 		description='',
 		depends=['shutit.tk.setup','shutit.tk.ssh_server.ssh_server','shutit.tk.ssh_key.ssh_key']
 	)
