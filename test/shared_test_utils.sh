@@ -48,8 +48,11 @@ function failure() {
 }
 
 function report() {
-	echo "SHUTIT_TEST_REPORT:"
-	echo "============================================"
-	echo -e $SHUTIT_TEST_REPORT
-	echo "============================================"
+	if [[ "x$SHUTIT_TEST_REPORT" != "x" ]]
+	then
+		echo "SHUTIT_TEST_REPORT:"
+		echo "============================================"
+		echo -e $SHUTIT_TEST_REPORT
+		echo "============================================"
+	fi
 }
