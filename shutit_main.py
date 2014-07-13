@@ -172,7 +172,6 @@ def config_collection(shutit):
 # We need to only collect the configs for the ones that are being built.
 # By the point this is called we should know what's being built (ie after dependency resolution).
 def config_collection_for_built(shutit):
-	print module_ids(shutit)
 	for mid in module_ids(shutit):
 		if not shutit.shutit_map[mid].get_config(shutit) and shutit.cfg[mid]['build']:
 			shutit.fail(mid + ' failed on get_config')
