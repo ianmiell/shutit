@@ -1,0 +1,4 @@
+# When this module is the one being built, which modules should be built along with it by default?
+# This feeds into automated testing of each module.
+[shutit.tk.ssh_key.ssh_key]
+build:yes
