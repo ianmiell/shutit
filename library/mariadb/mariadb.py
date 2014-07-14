@@ -8,8 +8,7 @@ class mariadb(ShutItModule):
                 return False
 
         def build(self,shutit):
-		shutit.send('yum -y update; yum clean all')
-		shutit.send('yum -y install mariadb-server pwgen supervisor psmisc net-tools; yum clean all')
+		shutit.send('yum -y install mariadb-server pwgen supervisor psmisc net-tools')
 		shutit.send_host_file('/start.sh','context/./start.sh')
 		shutit.send_host_file('/config_mariadb.sh','context/./config_mariadb.sh')
 		shutit.send_host_file('/etc/supervisord.conf','context/./supervisord.conf')
