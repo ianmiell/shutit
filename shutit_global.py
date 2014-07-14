@@ -411,15 +411,18 @@ class ShutIt(object):
 		"""
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
+		self.log('entered send_host_dir in: ' + os.getcwd())
 		for root, subFolders, files in os.walk(hostfilepath):
 			subFolders.sort()
 			files.sort()
 			for subfolder in subFolders:
 				self.send('mkdir -p ' + path + '/' + subfolder)
+				self.log('send_host_dir recursing to: ' + hostfilepath + '/' + subfolder)
 				self.send_host_dir(path + '/' + subfolder,hostfilepath + '/' + subfolder,expect=expect,child=child,log=log)
 			for fname in files:
 				hostfullfname = os.path.join(root,fname)
 				containerfname = os.path.join(path,fname)
+				self.log('send_host_dir sending file hostfullfname to container file: ' + containerfname)
 				self.send_file(containerfname,open(hostfullfname).read(),expect=expect,child=child,log=log)
 
 
