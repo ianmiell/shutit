@@ -10,9 +10,10 @@ class redis(ShutItModule):
 
         def build(self,shutit):
 		#add
-		shutit.send('groupadd -r redis && useradd -r -g redis redis')
-		shutit.send('apt-get update && apt-get install -y build-essential tcl valgrind')
 		shutit.send_host_dir('/usr/src/redis','context/.')
+		shutit.send('groupadd -r redis')
+		shutit.send('useradd -r -g redis redis')
+		shutit.install('build-essential tcl valgrind')
 		shutit.send('make -C /usr/src/redis')
 		#in
 		shutit.send('make -C /usr/src/redis test || true')
