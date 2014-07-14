@@ -1,5 +1,5 @@
 
-# Created from dockerfile: ./Dockerfile
+# Created from dockerfile: /space/git/dockerfiles_repos/redis/Dockerfile
 # Maintainer:              
 from shutit_module import ShutItModule
 
@@ -10,9 +10,9 @@ class redis(ShutItModule):
 
         def build(self,shutit):
 		#add
-		shutit.send_host_dir('/usr/src/redis','context/.')
 		shutit.send('groupadd -r redis && useradd -r -g redis redis')
-		shutit.install('build-essential tcl valgrind')
+		shutit.send('apt-get update && apt-get install -y build-essential tcl valgrind')
+		shutit.send_host_dir('/usr/src/redis','context/.')
 		shutit.send('make -C /usr/src/redis')
 		#in
 		shutit.send('make -C /usr/src/redis test || true')
