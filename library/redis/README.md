@@ -1,0 +1,1 @@
+redis: description of module directory in here
