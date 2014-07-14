@@ -1,11 +1,17 @@
-[ -z "$SHUTIT" ] && SHUTIT="$1/shutit"
-[ -z "$SHUTIT" ] && SHUTIT="$(which shutit)"
-# Fall back to trying directory of shutit when module was first created
-[ -z "$SHUTIT" ] && SHUTIT="../../shutit" ]
-if [ -z "$SHUTIT" -o ! -x "$SHUTIT" ]
+if [[ x$2 != 'x' ]]
 then
-        echo "Must supply path to ShutIt dir or have shutit on path"
-        exit 1
+	echo "build.sh takes exactly one argument at most"
+	exit 1
+fi
+[[ -z "$SHUTIT" ]] && SHUTIT="$1/shutit"
+[[ ! -a "$SHUTIT" ]] || [[ -z "$SHUTIT" ]] && SHUTIT="$(which shutit)"
+[[ ! -a "$SHUTIT" ]] || [[ -z "$SHUTIT" ]] && SHUTIT="../../shutit"
+# Fall back to trying directory of shutit when module was first created
+[[ ! -a "$SHUTIT" ]] && SHUTIT="/space/git/shutit/shutit"
+if [[ ! -a "$SHUTIT" ]]
+then
+	echo "Must supply path to ShutIt dir or have shutit on path"
+	exit 1
 fi
 # This file tests your build, leaving the container intact when done.
 set -e
@@ -14,6 +20,9 @@ $SHUTIT build -m ..
 #$SHUTIT sc
 # Debug
 #$SHUTIT build --debug
-# Tutorial
+# Honour pause points
+#$SHUTIT build --interactive 1
+# Interactive build
 #$SHUTIT build --interactive 2
-
+# Tutorial
+#$SHUTIT build --interactive 3
