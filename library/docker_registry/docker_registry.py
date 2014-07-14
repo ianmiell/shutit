@@ -8,15 +8,19 @@ class docker_registry(ShutItModule):
                 return False
 
         def build(self,shutit):
-		shutit.send('apt-get update; apt-get install -y git-core build-essential python-dev libevent1-dev python-openssl liblzma-dev wget; rm /var/lib/apt/lists/*_*')
-		shutit.send('cd /tmp; wget http://python-distribute.org/distribute_setup.py')
-		shutit.send('cd /tmp; python distribute_setup.py; easy_install pip; rm distribute_setup.py')
+		shutit.send('apt-get install -y git-core build-essential python-dev libevent1-dev python-openssl liblzma-dev wget')
+		shutit.send('rm /var/lib/apt/lists/*_*')
+		shutit.send('pushd /tmp')
+		shutit.send('wget http://python-distribute.org/distribute_setup.py')
+		shutit.send('python distribute_setup.py')
+		shutit.send('easy_install pip')
+		shutit.send('rm distribute_setup.py')
+		shutit.send('popd')
 		shutit.send_host_file('/docker-registry','context/docker-registry')
 		shutit.send_host_file('/etc/boto.cfg','context/docker-registry/config/boto.cfg')
-		shutit.send('cd /docker-registry && pip install -r requirements.txt')
+		shutit.send('pushd /docker-registry && pip install -r requirements.txt')
 		shutit.send('export dev_version=1')
 		shutit.send_host_file('/docker-registry/config/config.yml','context/config-local-standalone.yml')
-		shutit.send('pushd /docker-registry')
 		shutit.send('popd')
                 return True
 

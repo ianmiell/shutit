@@ -13,10 +13,13 @@ class couchdb(ShutItModule):
 		shutit.send('apt-get install -y g++')
 		shutit.send('apt-get install -y erlang-dev erlang-manpages erlang-base-hipe erlang-eunit erlang-nox erlang-xmerl erlang-inets')
 		shutit.send('apt-get install -y libmozjs185-dev libicu-dev libcurl4-gnutls-dev libtool wget')
-		shutit.send('cd /tmp ; wget http://www.bizdirusa.com/mirrors/apache/couchdb/source/1.3.1/apache-couchdb-1.3.1.tar.gz')
+		shutit.send('cd /tmp')
+		shutit.send('wget http://www.bizdirusa.com/mirrors/apache/couchdb/source/1.3.1/apache-couchdb-1.3.1.tar.gz')
 		shutit.send('cd /tmp && tar xvzf apache-couchdb-1.3.1.tar.gz')
 		shutit.send('apt-get install -y make')
-		shutit.send('cd /tmp/apache-couchdb-* ; ./configure && make install')
+		shutit.send('cd /tmp/apache-couchdb-*')
+		shutit.send('./configure')
+		shutit.send('make install')
 		shutit.send('printf "[httpd]\nport = 8101\nbind_address = 0.0.0.0" > /usr/local/etc/couchdb/local.d/docker.ini')
                 return True
 
