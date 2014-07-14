@@ -8,12 +8,17 @@ class steam(ShutItModule):
                 return False
 
         def build(self,shutit):
-		shutit.send('apt-get update && apt-get install -yq steam-launcher')
+		shutit.install('steam-launcher')
 		shutit.send('echo \'deb [arch=amd64,i386] http://repo.steampowered.com/steam precise steam\' > /etc/apt/sources.list.d/steam.list && dpkg --add-architecture i386')
-		shutit.send('apt-get update && apt-get install -yq libgl1-mesa-dri:i386 libgl1-mesa-glx:i386 libc6:i386')
-		shutit.send('apt-get install -yq sudo')
-		shutit.send('echo \'steam ALL = NOPASSWD: ALL\' > /etc/sudoers.d/steam && chmod 0440 /etc/sudoers.d/steam')
-		shutit.send('adduser --disabled-password --gecos \'Steam\' steam && adduser steam video')
+		shutit.send('apt-get update')
+		shutit.instll('libgl1-mesa-dri:i386')
+		shutit.instll('libgl1-mesa-glx:i386')
+		shutit.instll('libc6:i386')
+		shutit.install('sudo')
+		shutit.send('echo \'steam ALL = NOPASSWD: ALL\' > /etc/sudoers.d/steam')
+		shutit.send('chmod 0440 /etc/sudoers.d/steam')
+		shutit.send('adduser --disabled-password --gecos \'Steam\' steam')
+		shutit.send('adduser steam video')
 		shutit.send('export HOME=/home/steam')
                 return True
 

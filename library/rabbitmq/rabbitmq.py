@@ -8,8 +8,7 @@ class rabbitmq(ShutItModule):
                 return False
 
         def build(self,shutit):
-		shutit.send('yum -y update; yum clean all')
-		shutit.send('yum -y install wget logrotate rabbitmq-server; yum clean all')
+		shutit.send('yum -y install wget logrotate rabbitmq-server')
 		shutit.send('/usr/lib/rabbitmq/bin/rabbitmq-plugins enable rabbitmq_management')
                 return True
 
