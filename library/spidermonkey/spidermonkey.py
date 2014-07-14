@@ -39,6 +39,6 @@ class spidermonkey(ShutItModule):
 
 def module():
         return spidermonkey(
-                'shutit.tk.spidermonkey.spidermonkey', 782914092.00,
+                'shutit.tk.spidermonkey.spidermonkey', 0.412415,
                 depends=['shutit.tk.setup']
         )
