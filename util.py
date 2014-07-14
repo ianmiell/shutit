@@ -995,6 +995,9 @@ def create_skeleton(shutit):
 			elif docker_command == "WORKDIR": #DONE
 				# Push and pop
 				shutit.cfg['dockerfile']['script'].append((item[0],item[1]))
+			elif docker_command == "COMMENT": #DONE
+				# Push and pop
+				shutit.cfg['dockerfile']['script'].append((item[0],item[1]))
 		# We now have the script, so let's construct it inline here
 		templatemodule = ''
 		# Header.
@@ -1074,6 +1077,8 @@ class template(ShutItModule):
 			elif dockerfile_command == 'ENV':
 				cmd = '='.join(dockerfile_args).replace("'","\\'")
 				build += """\n\t\tshutit.send('export """ + '='.join(dockerfile_args) + """')"""
+			elif dockerfile_command == 'COMMENT':
+				build += """\n\t\t#""" + dockerfile_args[0]
 		while numpushes > 0:
 			build += """\n\t\tshutit.send('popd')"""
 			numpushes = numpushes - 1
@@ -1325,7 +1330,11 @@ def parse_dockerfile(shutit,contents):
                 		if m:
                 		        ret.append([m.group(1),m.group(2)])
                 		else:
-                		        shutit.log("Ignored line in parse_dockerfile: " + l)
+					m1 = re.match("^#(..*)",full_line)
+					if m1:
+                		        	ret.append(['COMMENT',m1.group(1)])
+					else:
+                		        	shutit.log("Ignored line in parse_dockerfile: " + l)
 				full_line = ''
         return ret
 
