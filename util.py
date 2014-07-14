@@ -431,7 +431,7 @@ def parse_args(cfg):
 	for action in actions:
 		sub_parsers[action] = subparsers.add_parser(action)
 
-	sub_parsers['skeleton'].add_argument('path', help='absolute path to new directory for module')
+	sub_parsers['skeleton'].add_argument('modpath', help='absolute path to new directory for module')
 	sub_parsers['skeleton'].add_argument('module_name', help='name for your module')
 	sub_parsers['skeleton'].add_argument('domain', help='arbitrary but unique domain for namespacing your module, eg com.mycorp')
 	sub_parsers['skeleton'].add_argument('script', help='pre-existing shell script to integrate into module (optional)', nargs='?', default=None)
@@ -497,7 +497,7 @@ def parse_args(cfg):
 		if (args.dockerfile and (args.script or args.example)) or (args.example and args.script):
 			shutit_global.shutit.fail('Cannot have any two of script, -d/--dockerfile Dockerfile or --example as arguments')
 		cfg['skeleton'] = {
-			'path':        args.path,
+			'path':        args.modpath,
 			'module_name': args.module_name,
 			'domain':      args.domain,
 			'domainhash':  str(get_hash(args.domain)),
@@ -1102,6 +1102,7 @@ class template(ShutItModule):
 def module():
         return template(
                 ''' + '\'%s.%s.%s\'' % (skel_domain, skel_module_name, skel_module_name) + ''', ''' + skel_domain_hash + '.00' + ''',
+		description='',
                 depends=['shutit.tk.setup']
         )
 '''
