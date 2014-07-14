@@ -356,7 +356,9 @@ class ShutIt(object):
 		#echo 'hidden section'
 		#stty $stty_orig && echo forcenewline
 		contents64 = base64.standard_b64encode(contents)
-		child.sendline("base64 --decode > '" + path + "'")
+		# if replace funny chars
+		path = path.replace(' ','\ ')
+		child.sendline("base64 --decode > " + path)
 		child.expect('\r\n')
 		# We have to batch the file up to avoid hitting pipe buffer limit. This
 		# is 4k on modern machines (it seems), but we choose 1k for safety
