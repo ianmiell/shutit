@@ -37,7 +37,7 @@ class redis(ShutItModule):
 
 def module():
         return redis(
-                'shutit.tk.redis.redis', 782914092.00,
-		description='',
+                'shutit.tk.redis.redis', 0.1502412,
+		description='redis, based on https://github.com/docker-library/redis',
                 depends=['shutit.tk.setup']
         )
