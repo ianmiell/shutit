@@ -1330,7 +1330,7 @@ def parse_dockerfile(shutit,contents):
                 		if m:
                 		        ret.append([m.group(1),m.group(2)])
                 		else:
-					m1 = re.match("^#(..*)",full_line)
+					m1 = re.match("^#(..*)$",full_line)
 					if m1:
                 		        	ret.append(['COMMENT',m1.group(1)])
 					else:
