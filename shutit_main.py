@@ -427,6 +427,9 @@ def do_test(shutit):
 	"""
 	cfg = shutit.cfg
 	shutit_map = shutit.shutit_map
+	if not cfg['build']['dotest']:
+		shutit.log('Tests configured off, not running')
+		return
 	# Test in reverse order
 	shutit.log('PHASE: test',code='31')
 	if cfg['build']['interactive'] >= 3:

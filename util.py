@@ -150,6 +150,8 @@ lxc_conf:
 allowed_images:[".*"]
 # Base image can be over-ridden by --image_tag defaults to this.
 base_image:ubuntu:12.04
+# Whether to perform tests. 
+dotest:yes
 '''
 
 class LayerConfigParser(RawConfigParser):
@@ -288,6 +290,7 @@ def get_base_config(cfg, cfg_parser):
 	cfg['build']['allowed_images']                = json.loads(cp.get('build','allowed_images'))
 	cfg['build']['base_image']                    = cp.get('build','base_image')
 	cfg['build']['build_db_dir']                  = '/root/shutit_build'
+	cfg['build']['dotest']                        = cp.get('build','dotest')
 	cfg['container']['password']                  = cp.get('container','password')
 	cfg['container']['hostname']                  = cp.get('container','hostname')
 	cfg['container']['force_repo_work']           = cp.getboolean('container','force_repo_work')
