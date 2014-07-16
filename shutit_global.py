@@ -651,15 +651,27 @@ class ShutIt(object):
 		if not self.cfg['build']['interactive'] or self.cfg['build']['interactive'] < level:
 			return
 		if child and print_input:
-			print util.colour('31','\n\nPause point:\n\n') + msg + util.colour('31','\n\nYou can now type in commands and alter the state of the container.\nHit return to see the prompt\nHit CTRL and ] at the same time to continue with build\n\n')
+			print util.colour('31','\n\nPause point:\n\n') + msg + util.colour('31','\n\nYou can now type in commands and alter the state of the container.\nHit return to see the prompt\nHit CTRL and ] at the same time to continue with build\n\nHit CTRL and [ to save the state\n\n')
 			oldlog = child.logfile_send
 			child.logfile_send = None
-			child.interact()
+			child.interact(input_filter=self._pause_input_filter)
 			child.logfile_send = oldlog
 		else:
 			print msg
 			print util.colour('31','\n\n[Hit return to continue]\n')
 			raw_input('')
+
+	def _pause_input_filter(self,s):
+		"""Input filter for pause point to catch special keystrokes"""
+		# Can get errors with eg up/down chars
+		try:
+			if ord(s) == 27:
+				self.log('\n\nCTRL and [ caught, forcing a tag at least\n\n',force_stdout=True)
+				self.do_repository_work('tagged_by_shutit',password=self.cfg['host']['password'],docker_executable=self.cfg['host']['docker_executable'],force=True)
+				self.log('\n\nCommit and tag done\n\n',force_stdout=True)
+		except:
+			pass
+		return s
 
 	def get_output(self,child=None):
 		"""Helper function to get output from latest command run.
@@ -922,7 +934,7 @@ class ShutIt(object):
 			elif res == 2:
 				res = self.send(cfg['repository']['email'],child=child,expect=expect_list,timeout=timeout,check_exit=False,fail_on_empty_before=False)
 
-	def do_repository_work(self,repo_name,expect=None,docker_executable='docker',password=None,force=None):
+	def do_repository_work(self,repo_name,repo_tag=None,expect=None,docker_executable='docker',password=None,force=None):
 		"""Commit, tag, push, tar the container based on the configuration we have.
 
 		- repo_name         - 
@@ -944,13 +956,14 @@ class ShutIt(object):
 			else:
 				return
 
-		child  = self.pexpect_children['host_child']
-		expect = cfg['expect_prompts']['real_user_prompt']
-		server = cfg['repository']['server']
-		repo_user   = cfg['repository']['user']
+		child     = self.pexpect_children['host_child']
+		expect    = cfg['expect_prompts']['real_user_prompt']
+		server    = cfg['repository']['server']
+		repo_user = cfg['repository']['user']
+		repo_tag  = cfg['repository']['tag_name']
 
 		if repo_user and repo_name:
-			repository = '%s/%s' % (repo_user, repo_name)
+			repository = '%s/%s%s' % (repo_user, repo_name)
 			repository_tar = '%s%s' % (repo_user, repo_name)
 		elif repo_user:
 			repository = repository_tar = repo_user
@@ -958,6 +971,8 @@ class ShutIt(object):
 			repository = repository_tar = repo_name
 		else:
 			repository = repository_tar = ''
+		if repository != '':
+			repository = repository + ':' + repo_tag
 
 		if not repository:
 			shutit.fail('Could not form valid repository name')
