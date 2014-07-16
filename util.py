@@ -126,6 +126,9 @@ email:YOUR_INDEX_EMAIL_OR_BLANK
 # repository server
 # make blank if you want this to be sent to the main docker index on docker.io
 server:
+# tag suffix, defaults to "latest", eg registry/username/repository:latest.
+# empty is also "latest"
+tag_name:latest
 
 # Root setup script
 # Each module should set these in a config
@@ -152,6 +155,8 @@ allowed_images:[".*"]
 base_image:ubuntu:12.04
 # Whether to perform tests. 
 dotest:yes
+# --net argument, eg "bridge", "none", "container:<name|id>" or "host". Empty means use default (bridge).
+net:
 '''
 
 class LayerConfigParser(RawConfigParser):
@@ -291,6 +296,7 @@ def get_base_config(cfg, cfg_parser):
 	cfg['build']['base_image']                    = cp.get('build','base_image')
 	cfg['build']['build_db_dir']                  = '/root/shutit_build'
 	cfg['build']['dotest']                        = cp.get('build','dotest')
+	cfg['build']['net']                           = cp.get('build','net')
 	cfg['container']['password']                  = cp.get('container','password')
 	cfg['container']['hostname']                  = cp.get('container','hostname')
 	cfg['container']['force_repo_work']           = cp.getboolean('container','force_repo_work')
@@ -364,9 +370,12 @@ def get_base_config(cfg, cfg_parser):
 				ok = True
 				break
 		if not ok:
-			print('Allowed images for this build are: ' + str(cfg['build']['allowed_images']) + ' but the configured image is: ' + cfg['container']['docker_image'])
+			print('\n\nAllowed images for this build are: ' + str(cfg['build']['allowed_images']) + ' but the configured image is: ' + cfg['container']['docker_image'] + '\n\n')
 			# Exit without error code so that it plays nice with tests.
 			sys.exit()
+	if cfg['container']['hostname'] != '' and cfg['build']['net'] != '' and cfg['build']['net'] != 'bridge':
+		print('\n\ncontainer/hostname or build/net configs must be blank\n\n')
+		sys.exit()
 	# FAILS ends
 	if cfg['container']['password'] == '':
 		cfg['container']['password'] = getpass.getpass(prompt='Input your container password: ')
@@ -1226,6 +1235,9 @@ def module():
 		export:no
 		#server:REMOVE_ME_FOR_DOCKER_INDEX
 		name:''' + skel_module_name + '''
+		# tag suffix, defaults to "latest", eg registry/username/repository:latest.
+		# empty is also "latest"
+		tag_name:latest
 		suffix_date:no
 		suffix_format:%s
 		''')
@@ -1242,6 +1254,9 @@ def module():
 		export:no
 		#server:REMOVE_ME_FOR_DOCKER_INDEX
 		name:''' + skel_module_name + '''
+		# tag suffix, defaults to "latest", eg registry/username/repository:latest.
+		# empty is also "latest"
+		tag_name:latest
 		suffix_date:yes
 		suffix_format:%s
 
