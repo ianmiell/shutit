@@ -160,6 +160,7 @@ class conn_docker(ShutItModule):
 		hostname_arg   = ''
 		volume_arg     = ''
 		rm_arg         = ''
+		net_arg        = ''
 		if cfg['build']['privileged']:
 			privileged_arg = '--privileged=true'
 		else:
@@ -174,15 +175,17 @@ class conn_docker(ShutItModule):
 			hostname_arg = '-h=' + cfg['container']['hostname']
 		if cfg['host']['resources_dir'] != '':
 			volume_arg = '-v=' + cfg['host']['resources_dir'] + ':/resources'
+		if cfg['build']['net'] != '':
+			net_arg        = '--net="' + cfg['build']['net'] + '"'
 		# Incompatible with do_repository_work
 		if cfg['container']['rm']:
 			rm_arg = '--rm=true'
 
 		# Multiply-specified options
-		port_args = []
-		dns_args = []
+		port_args  = []
+		dns_args   = []
 		ports_list = cfg['container']['ports'].strip().split()
-		dns_list = cfg['host']['dns'].strip().split()
+		dns_list   = cfg['host']['dns'].strip().split()
 		for portmap in ports_list:
 			port_args.append('-p=' + portmap)
 		for dns in dns_list:
@@ -198,6 +201,7 @@ class conn_docker(ShutItModule):
 				hostname_arg,
 				volume_arg,
 				rm_arg,
+				net_arg,
 				] + port_args + dns_args + [
 				'-t',
 				'-i',
