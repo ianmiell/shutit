@@ -252,7 +252,7 @@ class ShutIt(object):
 			self.log('child.after>>>' + child.after + '<<<')
 		if fail_on_empty_before == True:
 			if child.before.strip() == '':
-				shutit.fail('before empty after sending: ' + send + '\n\nThis is expected after some commands that take a password.\nIf so, add fail_on_empty_before=False to the send call')
+				shutit.fail('before empty after sending: ' + send + '\n\nThis is expected after some commands that take a password.\nIf so, add fail_on_empty_before=False to the send call',child=child)
 		elif fail_on_empty_before == False:
 			# Don't check exit if fail_on_empty_before is False
 			self.log('' + child.before + '<<<')
@@ -397,7 +397,7 @@ class ShutIt(object):
 		elif os.path.isdir(hostfilepath):
 			self.send_host_dir(path,hostfilepath,expect=expect,child=child,log=log)
 		else:
-			shutit.fail('send_host_file - file: ' + hostfilepath + ' does not exist as file or dir. cwd is: ' + os.getcwd())
+			shutit.fail('send_host_file - file: ' + hostfilepath + ' does not exist as file or dir. cwd is: ' + os.getcwd(),child=child)
 
 	def send_host_dir(self,path,hostfilepath,expect=None,child=None,log=True):
 		"""Send directory and all contents recursively from host machine to given path.
@@ -488,7 +488,7 @@ class ShutIt(object):
 		bad_chars    = '"'
 		tmp_filename = '/tmp/' + random_id()
 		if match_regexp == None and re.match('.*[' + bad_chars + '].*',line) != None:
-			shutit.fail('Passed problematic character to add_line_to_file.\nPlease avoid using the following chars: ' + bad_chars + '\nor supply a match_regexp argument.\nThe line was:\n' + line)
+			shutit.fail('Passed problematic character to add_line_to_file.\nPlease avoid using the following chars: ' + bad_chars + '\nor supply a match_regexp argument.\nThe line was:\n' + line,child=child)
 		if not self.file_exists(filename,expect=expect,child=child):
 			# The above cat doesn't work so we touch the file if it doesn't exist already.
 			self.send('touch ' + filename,expect=expect,child=child,check_exit=False)
@@ -869,7 +869,7 @@ class ShutIt(object):
 					cfg['container']['install_type'] = install_type_map[key]
 					break
 		if cfg['container']['install_type'] == '' or cfg['container']['distro'] == '':
-			shutit.fail('Could not determine Linux distro information. Please inform maintainers.')
+			shutit.fail('Could not determine Linux distro information. Please inform maintainers.',child=child)
 
 	def set_password(self,password,user='',child=None,expect=None):
 		"""Sets the password for the current user or passed-in user.
@@ -975,9 +975,9 @@ class ShutIt(object):
 			repository = repository + ':' + repo_tag
 
 		if not repository:
-			shutit.fail('Could not form valid repository name')
+			shutit.fail('Could not form valid repository name',child=child)
 		if (export or save) and not repository_tar:
-			shutit.fail('Could not form valid tar name')
+			shutit.fail('Could not form valid tar name',child=child)
 
 		if server:
 			repository = '%s/%s' % (server, repository)
@@ -988,7 +988,7 @@ class ShutIt(object):
 			repository_tar = '%s%s' % (repository_tar, suffix_date)
 
 		if server == '' and len(repository) > 30 and push:
-			shutit.fail("""repository name: '""" + repository + """' too long. If using suffix_date consider shortening""")
+			shutit.fail("""repository name: '""" + repository + """' too long. If using suffix_date consider shortening""",child=child)
 
 		# Commit image
 		# Only lower case accepted
@@ -998,7 +998,7 @@ class ShutIt(object):
 		self.send('echo $SHUTIT_TMP_VAR && unset SHUTIT_TMP_VAR',expect=expect,check_exit=False,child=child)
 		image_id = child.before.split('\r\n')[1]
 		if not image_id:
-			shutit.fail('failed to commit to ' + repository + ', could not determine image id')
+			shutit.fail('failed to commit to ' + repository + ', could not determine image id',child=child)
 
 		# Tag image
 		cmd = docker_executable + ' tag ' + image_id + ' ' + repository
