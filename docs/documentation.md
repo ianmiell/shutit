@@ -464,8 +464,25 @@ Config pertaining to the base setup of the container before any modules are run.
 
 - shutit.tk.setup
 
+#### Per-module config
 
+For each module, extra configs are created by default. These are:
 
+- tagmodule
+
+Whether to tag the module at the end of its build. Useful for debugging to return to a certain point if necessary.
+
+The format of the tag is "module id"_"module run order"
+
+- build
+
+Whether to build this module. 
+
+Dependency management will auto-set this for you, but you may want to ensure a module always gets built (eg a debugging tool not directly related to your application).
+
+- remove
+
+Whether to invoke the remove function within the module before the build starts.
 
 [Github]: https://github.com/ianmiell/shutit
 

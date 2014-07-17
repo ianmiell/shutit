@@ -119,9 +119,9 @@ save:no
 push:no
 # User on registry to namespace repo - can be set to blank if not docker.io
 user:
-#Must be set if do_repository_work is true/yes and user is not blank
+#Must be set if push is true/yes and user is not blank
 password:YOUR_INDEX_PASSWORD_OR_BLANK
-#Must be set if do_repository_work is true/yes and user is not blank
+#Must be set if push is true/yes and user is not blank
 email:YOUR_INDEX_EMAIL_OR_BLANK
 # repository server
 # make blank if you want this to be sent to the main docker index on docker.io
