@@ -48,7 +48,7 @@ END""".format(root_pass), echo=False)
         # http://stackoverflow.com/questions/15663001/remote-connections-mysql-ubuntu
         shutit.send("perl -p -i -e 's/^bind.*/bind-address = 0.0.0.0/' /etc/mysql/my.cnf")
         mysql_user = shutit.cfg['shutit.tk.mysql.mysql']['mysql_user']
-        res = shutit.send('mysql -p', expect=['assword','mysql>'])
+        res = shutit.send('mysql -p', expect=['assword', 'mysql>'])
         if res == 0:
             shutit.send(root_pass, expect='mysql>', echo=False)
         shutit.send("create user '" + mysql_user + "'@'localhost' identified by '" + mysql_user + "';", expect='mysql>')
@@ -119,9 +119,9 @@ END""".format(root_pass), echo=False)
         return True
 
     def get_config(self, shutit):
-        shutit.get_config('shutit.tk.mysql.mysql','mysql_user','prince')
-        shutit.get_config('shutit.tk.mysql.mysql','mysql_user_password','underthecherrymoon')
-        shutit.get_config('shutit.tk.mysql.mysql','root_password','purple_rain')
+        shutit.get_config('shutit.tk.mysql.mysql', 'mysql_user','prince')
+        shutit.get_config('shutit.tk.mysql.mysql', 'mysql_user_password','underthecherrymoon')
+        shutit.get_config('shutit.tk.mysql.mysql', 'root_password','purple_rain')
         return True
 
 def module():

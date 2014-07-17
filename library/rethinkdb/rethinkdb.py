@@ -10,7 +10,7 @@ class rethinkdb(ShutItModule):
         def build(self, shutit):
         shutit.send('echo "0.2" > /version')
         shutit.send('mkdir -p //')
-        shutit.send_host_file('/rethinkdb-install.sh','context/rethinkdb-install.sh')
+        shutit.send_host_file('/rethinkdb-install.sh', 'context/rethinkdb-install.sh')
                 return True
 
     def finalize(self, shutit):

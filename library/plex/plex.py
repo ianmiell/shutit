@@ -14,7 +14,7 @@ class plex(ShutItModule):
         shutit.send('dpkg -i /plexmediaserver.deb')
         shutit.send('rm /plexmediaserver.deb')
         shutit.send('sed -i "s/rlimit-nproc=3/#rlimit-nproc=3/" /etc/avahi/avahi-daemon.conf')
-        shutit.send_host_file('/start.sh','context/./start.sh')
+        shutit.send_host_file('/start.sh', 'context/./start.sh')
         shutit.send('chmod u+x /start.sh')
                 return True
 

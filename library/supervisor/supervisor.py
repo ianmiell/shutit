@@ -13,7 +13,7 @@ class supervisor(ShutItModule):
         shutit.send('apt-get upgrade -y')
         shutit.send('apt-get install -y supervisor')
         shutit.send('mkdir -p /var/log/supervisor')
-        shutit.send_host_file('/etc/supervisor/conf.d/supervisord.conf','context/supervisord.conf')
+        shutit.send_host_file('/etc/supervisor/conf.d/supervisord.conf', 'context/supervisord.conf')
                 return True
 
     def finalize(self, shutit):

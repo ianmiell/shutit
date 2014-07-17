@@ -36,8 +36,8 @@ class adduser(ShutItModule):
     def get_config(self, shutit):
         cp = shutit.cfg['config_parser']
         # Bring the example config into the config dictionary.
-        shutit.get_config('shutit.tk.adduser.adduser','user','auser')
-        shutit.get_config('shutit.tk.adduser.adduser','password','apassword')
+        shutit.get_config('shutit.tk.adduser.adduser', 'user','auser')
+        shutit.get_config('shutit.tk.adduser.adduser', 'password','apassword')
         return True
 
 def module():
