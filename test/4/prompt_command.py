@@ -10,21 +10,21 @@ from shutit_module import ShutItModule
 
 class prompt_command(ShutItModule):
 
-	def is_installed(self,shutit):
+	def is_installed(self, shutit):
 		return False
 
-	def build(self,shutit):
+	def build(self, shutit):
 		cfg = shutit.cfg
 		# Breaks unless we set the PROMPT_COMMAND manually on a login
 		shutit.send_and_expect("""cat >> /root/.bashrc << END
 PROMPT_COMMAND='echo -ne "a"'
 END""")
-		shutit.send_and_expect('su',expect=cfg['expect_prompts']['base_prompt'],check_exit=False)
+		shutit.send_and_expect('su', expect=cfg['expect_prompts']['base_prompt'], check_exit=False)
 		shutit.setup_prompt('test_tmp_prompt')
-		shutit.send_and_expect('echo abc',expect=cfg['expect_prompts']['test_tmp_prompt'])
+		shutit.send_and_expect('echo abc', expect=cfg['expect_prompts']['test_tmp_prompt'])
 		shutit.send_and_expect('exit', cfg['expect_prompts']['root_prompt'])
 		return True
 
 def module():
-	return prompt_command('shutit.tk.prompt_command',1000.00,depends=['shutit.tk.setup'])
+	return prompt_command('shutit.tk.prompt_command',1000.00, depends=['shutit.tk.setup'])
 
