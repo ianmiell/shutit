@@ -139,7 +139,7 @@ def log():
 	return json.dumps({
 		"cmds": command_list,
 		"logs": log
-	},encoding='iso8859-1')
+	}, encoding='iso8859-1')
 
 @route('/')
 def index():

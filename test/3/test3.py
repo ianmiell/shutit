@@ -10,10 +10,10 @@ from shutit_module import ShutItModule
 
 class test3(ShutItModule):
 
-	def is_installed(self,shutit):
+	def is_installed(self, shutit):
 		return False
 
-	def build(self,shutit):
+	def build(self, shutit):
 		shutit.install('openssh-server')
 		return True
 

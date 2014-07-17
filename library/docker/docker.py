@@ -21,7 +21,7 @@ from shutit_module import ShutItModule
 
 class docker(ShutItModule):
 
-	def build(self,shutit):
+	def build(self, shutit):
 		shutit.send('echo deb http://archive.ubuntu.com/ubuntu precise universe > /etc/apt/sources.list.d/universe.list')
 		shutit.send('apt-get update -qq')
 		shutit.install('iptables')
@@ -42,7 +42,7 @@ CGROUP=/sys/fs/cgroup
 mkdir $CGROUP
 
 mountpoint -q $CGROUP ||
-mount -n -t tmpfs -o uid=0,gid=0,mode=0755 cgroup $CGROUP || {
+mount -n -t tmpfs -o uid=0, gid=0, mode=0755 cgroup $CGROUP || {
 echo "Could not make a tmpfs mount. Did you use -privileged?"
 exit 1
 }
@@ -82,10 +82,10 @@ do
 
         # Likewise, on at least one system, it has been reported that
         # systemd would mount the CPU and CPU accounting controllers
-        # (respectively "cpu" and "cpuacct") with "-o cpuacct,cpu"
-        # but on a directory called "cpu,cpuacct" (note the inversion
+        # (respectively "cpu" and "cpuacct") with "-o cpuacct, cpu"
+        # but on a directory called "cpu, cpuacct" (note the inversion
         # in the order of the groups). This tries to work around it.
-        [ $SUBSYS = cpuacct,cpu ] && ln -s $SUBSYS $CGROUP/cpu,cpuacct
+        [ $SUBSYS = cpuacct, cpu ] && ln -s $SUBSYS $CGROUP/cpu, cpuacct
 done
 
 # Note: as I write those lines, the LXC userland tools cannot setup
@@ -143,10 +143,10 @@ END"""
 		shutit.send('popd')
 		return True
 
-	def is_installed(self,shutit):
+	def is_installed(self, shutit):
 		return False
 
-	def check_ready(self,shutit):
+	def check_ready(self, shutit):
 		# Only apt-based systems are supported support atm
 		return shutit.cfg['container']['install_type'] == 'apt'
 

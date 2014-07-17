@@ -24,10 +24,10 @@ from shutit_module import ShutItModule
 
 class ansible(ShutItModule):
 
-	def is_installed(self,shutit):
+	def is_installed(self, shutit):
 		return False
 
-	def build(self,shutit):
+	def build(self, shutit):
 		shutit.install('git')
 		shutit.install('python2.7-dev')
 		shutit.install('python-pip')
@@ -42,8 +42,8 @@ class ansible(ShutItModule):
 		shutit.add_to_bashrc('export ANSIBLE_HOSTS=/root/ansible_hosts')
 		return True
 
-	def test(self,shutit):
-		if shutit.send('ansible all -m ping',expect=['assword',shutit.cfg['expect_prompts']['root_prompt']]) == 0:
+	def test(self, shutit):
+		if shutit.send('ansible all -m ping', expect=['assword', shutit.cfg['expect_prompts']['root_prompt']]) == 0:
 			shutit.send(shutit.cfg['container']['password'])
 		return True
 

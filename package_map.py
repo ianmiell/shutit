@@ -32,7 +32,7 @@ package_map = {
 	'php5':                  {'apt':'php5',              'yum':'php'}
 }
 
-def map_package(package,install_type):
+def map_package(package, install_type):
 	# If package mapping exists, then return it, else return package.
 	global package_map
 	if package in package_map.keys():

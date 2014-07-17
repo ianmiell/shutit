@@ -3,10 +3,10 @@ from shutit_module import ShutItModule
 
 class django(ShutItModule):
 
-        def is_installed(self,shutit):
+        def is_installed(self, shutit):
                 return False
 
-        def build(self,shutit):
+        def build(self, shutit):
 
 		shutit.send('apt-get install -y -q software-properties-common')
 		#shutit.send('add-apt-repository -y "deb http://archive.ubuntu.com/ubuntu $(lsb_release -sc) universe"')
@@ -40,7 +40,7 @@ class django(ShutItModule):
 		shutit.send('easy_install django')
                 return True
 
-	def finalize(self,shutit):
+	def finalize(self, shutit):
 
 		return True
 

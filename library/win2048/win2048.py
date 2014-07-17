@@ -22,10 +22,10 @@ import os
 
 class win2048(ShutItModule):
 
-	def is_installed(self,shutit):
+	def is_installed(self, shutit):
 		return self.test(shutit)
 
-	def build(self,shutit):
+	def build(self, shutit):
 		shutit.install('firefox')
 		shutit.install('xdotool')
 		shutit.install('xautomation')
@@ -97,7 +97,7 @@ then
 	fi
 fi
 /bin/bash
-ENDS""",check_exit=False,echo=False)
+ENDS""", check_exit=False, echo=False)
 		shutit.send('pushd /root')
 		shutit.send('wget https://raw.githubusercontent.com/ianmiell/shutit/master/library/win2048/files/tryagain.png')
 		shutit.send('patextract /root/tryagain.png 0 0 69 20 > /root/tryagain.pat')
@@ -105,11 +105,11 @@ ENDS""",check_exit=False,echo=False)
 		shutit.send('popd')
 		return True
 
-	def remove(self,shutit):
+	def remove(self, shutit):
 		shutit.send('rm -f /root/start_win2048.sh')
 		return True
 
-	def test(self,shutit):
+	def test(self, shutit):
 		return shutit.package_installed('firefox') and shutit.package_installed('scrot')
 
 def module():
