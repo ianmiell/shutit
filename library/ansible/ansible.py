@@ -34,6 +34,7 @@ class ansible(ShutItModule):
 		shutit.send('git clone git://github.com/ansible/ansible.git')
 		shutit.send('cd ./ansible')
 		shutit.send('source ./hacking/env-setup')
+		shutit.add_to_bashrc('source ./hacking/env-setup')
 		shutit.send('easy_install pip')
 		shutit.send('pip install paramiko PyYAML jinja2 httplib2')
 		shutit.send('echo "127.0.0.1" > ~/ansible_hosts')
