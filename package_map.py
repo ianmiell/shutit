@@ -23,34 +23,34 @@
 """Stores known package maps for different distributions.
 """
 
-# Structured by package, then another dict with install_type -> mapped package inside that.
+# Structured by package, then another dict with
+# install_type -> mapped package inside that.
 # The keys are then the canonical package names.
-# eg {'httpd',
-package_map = {
+PACKAGE_MAP = {
     'apache2':               {'apt':'apache2',           'yum':'httpd'},
     'adduser':               {'apt':'adduser',           'yum':''},
     'php5':                  {'apt':'php5',              'yum':'php'}
 }
 
 def map_package(package, install_type):
-    # If package mapping exists, then return it, else return package.
-    global package_map
-    if package in package_map.keys():
-        for d in package_map[package].keys():
-            if d == install_type:
-                return package_map[package][install_type]
+    """If package mapping exists, then return it, else return package.
+    """
+    if package in PACKAGE_MAP.keys():
+        for itype in PACKAGE_MAP[package].keys():
+            if itype == install_type:
+                return PACKAGE_MAP[package][install_type]
     # Otherwise, simply return package
     return package
 
-# Is this name mentioned anywhere? Then return it as a suggestion?
 def find_package(sought_package):
-    global package_map
+    """Is this name mentioned anywhere? Then return it as a suggestion?
+    """
     # First check top-level keys
-    if sought_package in package_map.keys():
-        return package_map[sought_package]
-    for package in package_map.keys():
-        for install_type in package_map[package].keys():
-            print package_map[package][install_type]
-            if sought_package == package_map[package][install_type]:
-                return {package:package_map[package]}
+    if sought_package in PACKAGE_MAP.keys():
+        return PACKAGE_MAP[sought_package]
+    for package in PACKAGE_MAP.keys():
+        for install_type in PACKAGE_MAP[package].keys():
+            print PACKAGE_MAP[package][install_type]
+            if sought_package == PACKAGE_MAP[package][install_type]:
+                return {package:PACKAGE_MAP[package]}
     return None

@@ -58,7 +58,6 @@ echo "Testing skeleton build with Dockerfile"
 ./shutit skeleton -d docs/dockerfile/Dockerfile ${NEWDIR} testing shutit.tk
 pushd ${NEWDIR}
 ./test.sh ${SHUTIT_DIR} || failure "1.0 ${NEWDIR}"
-exit
 cleanup hard
 rm -rf ${NEWDIR}
 popd
