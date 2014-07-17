@@ -10,10 +10,10 @@ from shutit_module import ShutItModule
 
 class test5_2(ShutItModule):
 
-	def is_installed(self,shutit):
+	def is_installed(self, shutit):
 		return False
 
-	def build(self,shutit):
+	def build(self, shutit):
 		return True
 
 def module():

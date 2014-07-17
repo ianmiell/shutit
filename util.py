@@ -228,7 +228,7 @@ def colour(code, msg):
 	return '\033[%sm%s\033[0m' % (code, msg)
 
 
-def get_config(cfg,module_id,option,default,boolean=False):
+def get_config(cfg, module_id, option, default, boolean=False):
 	"""Gets a specific config from the config files,
 	allowing for a default.
 	Handles booleans vs strings appropriately.
@@ -237,16 +237,16 @@ def get_config(cfg,module_id,option,default,boolean=False):
 		cfg[module_id] = {}
 	if not cfg['config_parser'].has_section(module_id):
 		cfg['config_parser'].add_section(module_id)
-	if cfg['config_parser'].has_option(module_id,option):
+	if cfg['config_parser'].has_option(module_id, option):
 		if boolean:
-			cfg[module_id][option] = cfg['config_parser'].getboolean(module_id,option)
+			cfg[module_id][option] = cfg['config_parser'].getboolean(module_id, option)
 		else:
-			cfg[module_id][option] = cfg['config_parser'].get(module_id,option)
+			cfg[module_id][option] = cfg['config_parser'].get(module_id, option)
 	else:
 		cfg[module_id][option] = default
-		#cfg['config_parser'].set(module_id,default)
+		#cfg['config_parser'].set(module_id, default)
 
-def get_configs(shutit,configs):
+def get_configs(shutit, configs):
 	"""Reads config files in, checking their security first
 	(in case passwords/sensitive info is in them).
 	"""
@@ -262,12 +262,12 @@ def get_configs(shutit,configs):
 	if fail_str != '':
 		fail_str = 'Files are not secure, mode should be 0600. Running the following commands to correct:\n' + fail_str + '\n'
 		# Actually show this to the user before failing...
-		shutit.log(fail_str,force_stdout=True)
-		shutit.log('\n\nDo you want me to run this for you? (input y/n)\n',force_stdout=True)
+		shutit.log(fail_str, force_stdout=True)
+		shutit.log('\n\nDo you want me to run this for you? (input y/n)\n', force_stdout=True)
 		if shutit.cfg['action']['serve'] or raw_input('') == 'y':
 			for f in files:
 				os.chmod(f,0600)
-			return get_configs(shutit,configs)
+			return get_configs(shutit, configs)
 		shutit.fail(fail_str)
 	for config in configs:
 		if type(config) is tuple:
@@ -276,7 +276,7 @@ def get_configs(shutit,configs):
 			cp.read(config)
 	return cp
 
-def issue_warning(msg,wait):
+def issue_warning(msg, wait):
 	"""Issues a warning to stderr.
 	"""
 	print >> sys.stderr, msg
@@ -360,14 +360,14 @@ def get_base_config(cfg, cfg_parser):
 		sys.exit()
 	if warn != '':
 		issue_warning('Showing computed config. This can also be done by calling with sc:',2)
-		shutit_global.shutit.log(print_config(cfg),force_stdout=True,code='31')
+		shutit_global.shutit.log(print_config(cfg), force_stdout=True, code='31')
 		time.sleep(1)
 	# If build/allowed_images doesn't contain container/docker_image
 	if 'any' not in cfg['build']['allowed_images'] and cfg['container']['docker_image'] not in cfg['build']['allowed_images']:
 		# Try allowed images as regexps
 		ok = False
 		for regexp in cfg['build']['allowed_images']:
-			if re.match(regexp,cfg['container']['docker_image']):
+			if re.match(regexp, cfg['container']['docker_image']):
 				ok = True
 				break
 		if not ok:
@@ -458,13 +458,13 @@ def parse_args(cfg):
 	sub_parsers['sc'].add_argument('--history', help='show config history', const=True, default=False, action='store_const')
 
 	for action in ['build','serve','depgraph','sc']:
-		sub_parsers[action].add_argument('--config', help='Config file for setup config. Must be with perms 0600. Multiple arguments allowed; config files considered in order.',default=[], action='append')
+		sub_parsers[action].add_argument('--config', help='Config file for setup config. Must be with perms 0600. Multiple arguments allowed; config files considered in order.', default=[], action='append')
 		sub_parsers[action].add_argument('-s', '--set', help='Override a config item, e.g. "-s container rm no". Can be specified multiple times.', default=[], action='append', nargs=3, metavar=('SEC','KEY','VAL'))
-		sub_parsers[action].add_argument('--image_tag', help='Build container using specified image - if there is a symbolic reference, please use that, eg localhost.localdomain:5000/myref',default='')
-		sub_parsers[action].add_argument('-m','--shutit_module_path', default='.',help='List of shutit module paths, separated by colons. ShutIt registers modules by running all .py files in these directories.')
-		sub_parsers[action].add_argument('--pause',help='Pause between commands to avoid race conditions.',default='0.05',type=check_pause)
-		sub_parsers[action].add_argument('--debug',help='Show debug.',default=False,const=True,action='store_const')
-		sub_parsers[action].add_argument('--interactive',help='Level of interactive. 0 = none, 1 = honour pause points and config prompting, 2 = query user on each module, 3 = tutorial mode',default='1')
+		sub_parsers[action].add_argument('--image_tag', help='Build container using specified image - if there is a symbolic reference, please use that, eg localhost.localdomain:5000/myref', default='')
+		sub_parsers[action].add_argument('-m','--shutit_module_path', default='.', help='List of shutit module paths, separated by colons. ShutIt registers modules by running all .py files in these directories.')
+		sub_parsers[action].add_argument('--pause', help='Pause between commands to avoid race conditions.', default='0.05', type=check_pause)
+		sub_parsers[action].add_argument('--debug', help='Show debug.', default=False, const=True, action='store_const')
+		sub_parsers[action].add_argument('--interactive', help='Level of interactive. 0 = none, 1 = honour pause points and config prompting, 2 = query user on each module, 3 = tutorial mode', default='1')
 		sub_parsers[action].add_argument('--ignorestop', help='ignore STOP files', const=True, default=False, action='store_const')
 
 	args_list = sys.argv[1:]
@@ -699,7 +699,7 @@ def load_configs(shutit):
 		override_fd.seek(0)
 		configs.append(('overrides', override_fd))
 
-	cfg_parser = get_configs(shutit,configs)
+	cfg_parser = get_configs(shutit, configs)
 	get_base_config(cfg, cfg_parser)
 
 def load_shutit_modules(shutit):
@@ -713,7 +713,7 @@ def load_shutit_modules(shutit):
 	for shutit_module_path in shutit.cfg['host']['shutit_module_paths']:
 		load_all_from_path(shutit, shutit_module_path)
 
-def print_config(cfg,hide_password=True,history=False):
+def print_config(cfg, hide_password=True, history=False):
 	"""Returns a string representing the config of this ShutIt run.
 	"""
 	cp = cfg['config_parser']
@@ -751,7 +751,7 @@ def print_config(cfg,hide_password=True,history=False):
 					s += line + '\n'
 	return s 
 
-def set_pexpect_child(key,child):
+def set_pexpect_child(key, child):
 	"""Set a pexpect child in the global dictionary by key.
 	"""
 	shutit_global.pexpect_children.update({key:child})
@@ -772,7 +772,7 @@ def load_all_from_path(shutit, path):
 	for root, subFolders, files in os.walk(path):
 		# If a STOP file exists, ignore this folder
 		if os.path.exists(root + '/STOP') and not shutit.cfg['build']['ignorestop']:
-			shutit.log('Ignoring directory: ' + root + ' as it has a STOP file in it. Pass --ignorestop to shutit run to override.',force_stdout=True)
+			shutit.log('Ignoring directory: ' + root + ' as it has a STOP file in it. Pass --ignorestop to shutit run to override.', force_stdout=True)
 			continue
 		for fname in files:
 			load_mod_from_file(shutit, os.path.join(root, fname))
@@ -830,7 +830,7 @@ def load_mod_from_file(shutit, fpath):
 
 
 # Build report
-def build_report(shutit,msg=''):
+def build_report(shutit, msg=''):
 	"""Resposible for constructing a report to be output as part of the build.
 	Retrurns report as a string.
 	"""
@@ -906,7 +906,7 @@ def create_skeleton(shutit):
 		shutit.fail(skel_path + ' already exists')
 	if len(skel_module_name) == 0:
 		shutit.fail('Must supply a name for your module, eg mymodulename')
-	if not re.match('^[a-zA-z_][0-9a-zA-Z_]+$',skel_module_name):
+	if not re.match('^[a-zA-z_][0-9a-zA-Z_]+$', skel_module_name):
 		shutit.fail('Module names must comply with python classname standards: cf: http://stackoverflow.com/questions/10120295/valid-characters-in-a-python-class-name')
 	if len(skel_domain) == 0:
 		shutit.fail('Must supply a domain for your module, eg com.yourname.madeupdomainsuffix')
@@ -936,7 +936,7 @@ def create_skeleton(shutit):
 			dockerfile_contents = open(skel_dockerfile).read()
 			dockerfile_dirname = os.path.dirname(skel_dockerfile)
 			shutil.rmtree(skel_path + '/context')
-			shutil.copytree(dockerfile_dirname,skel_path + '/context')
+			shutil.copytree(dockerfile_dirname, skel_path + '/context')
 			# Remove Dockerfile as it's not part of the context.
 			if os.path.isfile(skel_path + '/context/Dockerfile'):
 				os.remove(skel_path + '/context/Dockerfile')
@@ -944,7 +944,7 @@ def create_skeleton(shutit):
 			os.chdir(dockerfile_dirname)
 		# Wipe the command as we expect one in the file.
 		shutit.cfg['dockerfile']['cmd']        = ''
-		dockerfile_list = parse_dockerfile(shutit,dockerfile_contents)
+		dockerfile_list = parse_dockerfile(shutit, dockerfile_contents)
 		# Set defaults from given dockerfile
 		for item in dockerfile_list:
 			# These items are not order-dependent and don't affect the build, so we collect them here:
@@ -983,13 +983,13 @@ def create_skeleton(shutit):
 			# Other items to be run through sequentially (as they are part of the script)
 			if docker_command == "USER": #TODO
 				# Put in the start script as well as su'ing from here - assuming order dependent?
-				shutit.cfg['dockerfile']['script'].append((item[0],item[1]))
+				shutit.cfg['dockerfile']['script'].append((item[0], item[1]))
 				# We assume the last one seen is the one we use for the image.
 				# Put this in the default start script.
 				shutit.cfg['dockerfile']['user']        = item[1]
 			elif docker_command == 'ENV': #DONE
 				# Put in the run.sh.
-				shutit.cfg['dockerfile']['script'].append((item[0],item[1]))
+				shutit.cfg['dockerfile']['script'].append((item[0], item[1]))
 				# Set in the build
 				shutit.cfg['dockerfile']['env'].append(item[1])
                         elif docker_command == "RUN": #DONE
@@ -998,19 +998,19 @@ def create_skeleton(shutit):
 				try:
 					shutit.cfg['dockerfile']['script'].append((item[0],' '.join(json.loads(item[1]))))
 				except:
-					shutit.cfg['dockerfile']['script'].append((item[0],item[1]))
+					shutit.cfg['dockerfile']['script'].append((item[0], item[1]))
 			elif docker_command == "ADD": #DONE but rules TODO
 				# Send file - is this potentially got from the web? Is that the difference between this and COPY?
-				shutit.cfg['dockerfile']['script'].append((item[0],item[1]))
+				shutit.cfg['dockerfile']['script'].append((item[0], item[1]))
 			elif docker_command == "COPY": #DONE but rules TODO
 				# Send file
-				shutit.cfg['dockerfile']['script'].append((item[0],item[1]))
+				shutit.cfg['dockerfile']['script'].append((item[0], item[1]))
 			elif docker_command == "WORKDIR": #DONE
 				# Push and pop
-				shutit.cfg['dockerfile']['script'].append((item[0],item[1]))
+				shutit.cfg['dockerfile']['script'].append((item[0], item[1]))
 			elif docker_command == "COMMENT": #DONE
 				# Push and pop
-				shutit.cfg['dockerfile']['script'].append((item[0],item[1]))
+				shutit.cfg['dockerfile']['script'].append((item[0], item[1]))
 		# We now have the script, so let's construct it inline here
 		templatemodule = ''
 		# Header.
@@ -1021,7 +1021,7 @@ from shutit_module import ShutItModule
 
 class template(ShutItModule):
 
-        def is_installed(self,shutit):
+        def is_installed(self, shutit):
                 return False
 '''
 		# build
@@ -1096,7 +1096,7 @@ class template(ShutItModule):
 			build += """\n\t\tshutit.send('popd')"""
 			numpushes = numpushes - 1
 		templatemodule += '''
-        def build(self,shutit):''' + build + '''
+        def build(self, shutit):''' + build + '''
                 return True
 '''
 		# Gather and place finalize bit
@@ -1104,16 +1104,16 @@ class template(ShutItModule):
 		for line in shutit.cfg['dockerfile']['onbuild']:
 			finalize += '\n\t\tshutit.send(\'' + line + '\''
 		templatemodule += '''
-	def finalize(self,shutit):''' + finalize + '''
+	def finalize(self, shutit):''' + finalize + '''
 		return True
 
-	def test(self,shutit):
+	def test(self, shutit):
 		return True
 
-	def is_installed(self,shutit):
+	def is_installed(self, shutit):
 		return False
 
-	def get_config(self,shutit):
+	def get_config(self, shutit):
 		return True
 '''
 		templatemodule += '''
@@ -1135,7 +1135,7 @@ def module():
 	templatemodule = (templatemodule
 		).replace('template', skel_module_name
 		).replace('GLOBALLY_UNIQUE_STRING', '\'%s.%s.%s\'' % (skel_domain, skel_module_name, skel_module_name)
-		).replace('FLOAT',skel_domain_hash + '.00'
+		).replace('FLOAT', skel_domain_hash + '.00'
 	)
 	readme = skel_module_name + ': description of module directory in here'
 	buildsh = textwrap.dedent('''\
@@ -1334,7 +1334,7 @@ def module():
 
 # Parses the dockerfile (passed in as a string)
 # and info to extract, and returns a list with the information in a more canonical form, still ordered.
-def parse_dockerfile(shutit,contents):
+def parse_dockerfile(shutit, contents):
         ret = []
 	full_line = ''
         for l in contents.split('\n'):
@@ -1345,13 +1345,13 @@ def parse_dockerfile(shutit,contents):
 				pass
 			else:
 				full_line += l
-                		m = re.match("^[\s]*([A-Za-z]+)[\s]*(.*)$",full_line)
+                		m = re.match("^[\s]*([A-Za-z]+)[\s]*(.*)$", full_line)
                 		if m:
-                		        ret.append([m.group(1),m.group(2)])
+                		        ret.append([m.group(1), m.group(2)])
                 		else:
-					m1 = re.match("^#(..*)$",full_line)
+					m1 = re.match("^#(..*)$", full_line)
 					if m1:
-                		        	ret.append(['COMMENT',m1.group(1)])
+                		        	ret.append(['COMMENT', m1.group(1)])
 					else:
                 		        	shutit.log("Ignored line in parse_dockerfile: " + l)
 				full_line = ''
