@@ -37,9 +37,9 @@ class ansible(ShutItModule):
 		shutit.add_to_bashrc('source ./hacking/env-setup')
 		shutit.send('easy_install pip')
 		shutit.send('pip install paramiko PyYAML jinja2 httplib2')
-		shutit.send('echo "127.0.0.1" > ~/ansible_hosts')
-		shutit.send('export ANSIBLE_HOSTS=~/ansible_hosts')
-		shutit.add_to_bashrc('export ANSIBLE_HOSTS=~/ansible_hosts')
+		shutit.send('echo "127.0.0.1" > /root/ansible_hosts')
+		shutit.send('export ANSIBLE_HOSTS=/root/ansible_hosts')
+		shutit.add_to_bashrc('export ANSIBLE_HOSTS=/root/ansible_hosts')
 		return True
 
 	def test(self,shutit):
