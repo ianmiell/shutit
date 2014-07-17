@@ -41,7 +41,7 @@ class apache_proxypass(ShutItModule):
         return True
 
     def get_config(self, shutit):
-        shutit.get_config(self.module_id,'proxypass_site','http://shutit.tk')
+        shutit.get_config(self.module_id, 'proxypass_site','http://shutit.tk')
         return True
 
     def start(self, shutit):

@@ -36,10 +36,10 @@ class ssh_key(ShutItModule):
     def get_config(self, shutit):
         cfg = shutit.cfg
         # SSH passphrase, default to empty
-        shutit.get_config(self.module_id,'passphrase','')
-        shutit.get_config(self.module_id,'login','')
-        shutit.get_config(self.module_id,'ssh_keyfile_dir','/home/' + shutit.cfg['shutit.tk.adduser.adduser']['user'] + '/.ssh')
-        shutit.get_config(self.module_id,'ssh_keyfile_name','id_rsa')
+        shutit.get_config(self.module_id, 'passphrase','')
+        shutit.get_config(self.module_id, 'login','')
+        shutit.get_config(self.module_id, 'ssh_keyfile_dir','/home/' + shutit.cfg['shutit.tk.adduser.adduser']['user'] + '/.ssh')
+        shutit.get_config(self.module_id, 'ssh_keyfile_name','id_rsa')
         cfg[self.module_id]['login'] = cfg[self.module_id]['login'].split()
         if 'root' not in cfg[self.module_id]['login']:
             cfg[self.module_id]['login'].append('root')
@@ -50,7 +50,7 @@ class ssh_key(ShutItModule):
         cfg = shutit.cfg
         shutit.send('su - ' + cfg[self.module_id]['login'][0], cfg['expect_prompts']['base_prompt'], check_exit=False)
         shutit.setup_prompt('ssh_key_tmp_prompt')
-        expect = ['authenticity','Enter passphrase','assword', shutit.get_default_expect()]
+        expect = ['authenticity', 'Enter passphrase','assword', shutit.get_default_expect()]
         send = 'ssh localhost'
         while True:
             res = shutit.send(send, expect=expect, check_exit=False)
@@ -69,6 +69,6 @@ def module():
     return ssh_key(
         'shutit.tk.ssh_key.ssh_key', 0.1259,
         description='ssh key provisioning, just for the build. keys deleted at end of build.',
-        depends=['shutit.tk.setup','shutit.tk.adduser.adduser']
+        depends=['shutit.tk.setup', 'shutit.tk.adduser.adduser']
     )
 

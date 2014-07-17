@@ -289,38 +289,38 @@ def get_base_config(cfg, cfg_parser):
     """
     cfg['config_parser'] = cp = cfg_parser
     # BEGIN Read from config files
-    cfg['build']['privileged']                    = cp.getboolean('build','privileged')
-    cfg['build']['lxc_conf']                      = cp.get('build','lxc_conf')
-    cfg['build']['build_log']                     = cp.getboolean('build','build_log')
-    cfg['build']['allowed_images']                = json.loads(cp.get('build','allowed_images'))
-    cfg['build']['base_image']                    = cp.get('build','base_image')
+    cfg['build']['privileged']                    = cp.getboolean('build', 'privileged')
+    cfg['build']['lxc_conf']                      = cp.get('build', 'lxc_conf')
+    cfg['build']['build_log']                     = cp.getboolean('build', 'build_log')
+    cfg['build']['allowed_images']                = json.loads(cp.get('build', 'allowed_images'))
+    cfg['build']['base_image']                    = cp.get('build', 'base_image')
     cfg['build']['build_db_dir']                  = '/root/shutit_build'
-    cfg['build']['dotest']                        = cp.get('build','dotest')
-    cfg['build']['net']                           = cp.get('build','net')
-    cfg['container']['password']                  = cp.get('container','password')
-    cfg['container']['hostname']                  = cp.get('container','hostname')
-    cfg['container']['force_repo_work']           = cp.getboolean('container','force_repo_work')
-    cfg['container']['locale']                    = cp.get('container','locale')
-    cfg['container']['ports']                     = cp.get('container','ports')
-    cfg['container']['name']                      = cp.get('container','name')
-    cfg['container']['rm']                        = cp.getboolean('container','rm')
-    cfg['host']['resources_dir']                  = cp.get('host','resources_dir')
-    cfg['host']['docker_executable']              = cp.get('host','docker_executable')
-    cfg['host']['dns']                            = cp.get('host','dns')
-    cfg['host']['password']                       = cp.get('host','password')
-    cfg['host']['logfile']                        = cp.get('host','logfile')
-    cfg['repository']['name']                     = cp.get('repository','name')
-    cfg['repository']['server']                   = cp.get('repository','server')
-    cfg['repository']['push']                     = cp.getboolean('repository','push')
-    cfg['repository']['tag']                      = cp.getboolean('repository','tag')
-    cfg['repository']['export']                   = cp.getboolean('repository','export')
-    cfg['repository']['save']                     = cp.getboolean('repository','save')
-    cfg['repository']['suffix_date']              = cp.getboolean('repository','suffix_date')
-    cfg['repository']['suffix_format']            = cp.get('repository','suffix_format')
-    cfg['repository']['user']                     = cp.get('repository','user')
-    cfg['repository']['password']                 = cp.get('repository','password')
-    cfg['repository']['email']                    = cp.get('repository','email')
-    cfg['repository']['tag_name']                 = cp.get('repository','tag_name')
+    cfg['build']['dotest']                        = cp.get('build', 'dotest')
+    cfg['build']['net']                           = cp.get('build', 'net')
+    cfg['container']['password']                  = cp.get('container', 'password')
+    cfg['container']['hostname']                  = cp.get('container', 'hostname')
+    cfg['container']['force_repo_work']           = cp.getboolean('container', 'force_repo_work')
+    cfg['container']['locale']                    = cp.get('container', 'locale')
+    cfg['container']['ports']                     = cp.get('container', 'ports')
+    cfg['container']['name']                      = cp.get('container', 'name')
+    cfg['container']['rm']                        = cp.getboolean('container', 'rm')
+    cfg['host']['resources_dir']                  = cp.get('host', 'resources_dir')
+    cfg['host']['docker_executable']              = cp.get('host', 'docker_executable')
+    cfg['host']['dns']                            = cp.get('host', 'dns')
+    cfg['host']['password']                       = cp.get('host', 'password')
+    cfg['host']['logfile']                        = cp.get('host', 'logfile')
+    cfg['repository']['name']                     = cp.get('repository', 'name')
+    cfg['repository']['server']                   = cp.get('repository', 'server')
+    cfg['repository']['push']                     = cp.getboolean('repository', 'push')
+    cfg['repository']['tag']                      = cp.getboolean('repository', 'tag')
+    cfg['repository']['export']                   = cp.getboolean('repository', 'export')
+    cfg['repository']['save']                     = cp.getboolean('repository', 'save')
+    cfg['repository']['suffix_date']              = cp.getboolean('repository', 'suffix_date')
+    cfg['repository']['suffix_format']            = cp.get('repository', 'suffix_format')
+    cfg['repository']['user']                     = cp.get('repository', 'user')
+    cfg['repository']['password']                 = cp.get('repository', 'password')
+    cfg['repository']['email']                    = cp.get('repository', 'email')
+    cfg['repository']['tag_name']                 = cp.get('repository', 'tag_name')
     # END Read from config files
 
     # BEGIN Standard expects
@@ -340,7 +340,7 @@ def get_base_config(cfg, cfg_parser):
     else:
         logfile = logfile + '_' + cfg['build']['build_id']
     if cfg['build']['build_log']:
-        cfg['build']['build_log'] = open(logfile,'a')
+        cfg['build']['build_log'] = open(logfile, 'a')
         # Lock it down to the running user.
         os.chmod(logfile,0600)
     if cfg['container']['docker_image'] == '':
@@ -401,7 +401,7 @@ def parse_args(cfg):
     cfg['host']['real_user_id'] = pexpect.run('id -u ' + cfg['host']['real_user']).strip()
 
     # These are in order of their creation
-    actions = ['build','sc','depgraph','serve','skeleton']
+    actions = ['build', 'sc','depgraph','serve','skeleton']
 
     # Compatibility
     # Note that (for now) all of these compat functions work because we know
@@ -449,7 +449,7 @@ def parse_args(cfg):
     sub_parsers['skeleton'].add_argument('domain', help='arbitrary but unique domain for namespacing your module, eg com.mycorp')
     sub_parsers['skeleton'].add_argument('script', help='pre-existing shell script to integrate into module (optional)', nargs='?', default=None)
     sub_parsers['skeleton'].add_argument('--example', help='add an example implementation with model calls to ShutIt API', default=False, const=True, action='store_const')
-    sub_parsers['skeleton'].add_argument('-d','--dockerfile', default=None)
+    sub_parsers['skeleton'].add_argument('-d', '--dockerfile', default=None)
 
     sub_parsers['build'].add_argument('--export', help='export to a tar file', const=True, default=False, action='store_const')
     sub_parsers['build'].add_argument('--save', help='save to a tar file', const=True, default=False, action='store_const')
@@ -457,11 +457,11 @@ def parse_args(cfg):
 
     sub_parsers['sc'].add_argument('--history', help='show config history', const=True, default=False, action='store_const')
 
-    for action in ['build','serve','depgraph','sc']:
+    for action in ['build', 'serve','depgraph','sc']:
         sub_parsers[action].add_argument('--config', help='Config file for setup config. Must be with perms 0600. Multiple arguments allowed; config files considered in order.', default=[], action='append')
-        sub_parsers[action].add_argument('-s', '--set', help='Override a config item, e.g. "-s container rm no". Can be specified multiple times.', default=[], action='append', nargs=3, metavar=('SEC','KEY','VAL'))
+        sub_parsers[action].add_argument('-s', '--set', help='Override a config item, e.g. "-s container rm no". Can be specified multiple times.', default=[], action='append', nargs=3, metavar=('SEC', 'KEY','VAL'))
         sub_parsers[action].add_argument('--image_tag', help='Build container using specified image - if there is a symbolic reference, please use that, eg localhost.localdomain:5000/myref', default='')
-        sub_parsers[action].add_argument('-m','--shutit_module_path', default='.', help='List of shutit module paths, separated by colons. ShutIt registers modules by running all .py files in these directories.')
+        sub_parsers[action].add_argument('-m', '--shutit_module_path', default='.', help='List of shutit module paths, separated by colons. ShutIt registers modules by running all .py files in these directories.')
         sub_parsers[action].add_argument('--pause', help='Pause between commands to avoid race conditions.', default='0.05', type=check_pause)
         sub_parsers[action].add_argument('--debug', help='Show debug.', default=False, const=True, action='store_const')
         sub_parsers[action].add_argument('--interactive', help='Level of interactive. 0 = none, 1 = honour pause points and config prompting, 2 = query user on each module, 3 = tutorial mode', default='1')
@@ -589,7 +589,7 @@ def parse_args(cfg):
             name:value
             ================================================================================
 
-            """ + colour('31','[Hit return to continue]'))
+            """ + colour('31', '[Hit return to continue]'))
         raw_input('')
         print textwrap.dedent("""\
             ================================================================================
@@ -625,7 +625,7 @@ def parse_args(cfg):
             See """ + shutit_global.shutit_main_dir + """/shutit_module.py for more detailed documentation on these.
             ================================================================================
 
-            """ + colour('31','[Hit return to continue]'))
+            """ + colour('31', '[Hit return to continue]'))
         raw_input('')
         print textwrap.dedent("""\
             ================================================================================
@@ -638,7 +638,7 @@ def parse_args(cfg):
             module you are developing easily.
             To escape a pause point, hit the "CTRL" and the "]" key simultaneously.
             ================================================================================
-            """ + colour('31','[Hit return to continue]'))
+            """ + colour('31', '[Hit return to continue]'))
         raw_input('')
 
 def load_configs(shutit):
@@ -682,7 +682,7 @@ def load_configs(shutit):
                     
                 or
                     sudo docker ps -a | grep -w <port> | awk '{print $1}' | xargs sudo docker kill
-                """ + colour('31','[Hit return to continue]'))
+                """ + colour('31', '[Hit return to continue]'))
             raw_input('')
 
     # Interpret any config overrides, write to a file and add them to the
@@ -996,7 +996,7 @@ def create_skeleton(shutit):
                 # Only handle simple commands for now and ignore the fact that Dockerfiles run 
                 # with /bin/sh -c rather than bash. 
                 try:
-                    shutit.cfg['dockerfile']['script'].append((item[0],' '.join(json.loads(item[1]))))
+                    shutit.cfg['dockerfile']['script'].append((item[0], ' '.join(json.loads(item[1]))))
                 except:
                     shutit.cfg['dockerfile']['script'].append((item[0], item[1]))
             elif docker_command == "ADD": #DONE but rules TODO
@@ -1084,9 +1084,9 @@ class template(ShutItModule):
                     #elif localfile[-3:] == '.gz':
                     #elif localfile[-3:] == '.xz':
                     if os.path.isdir(localfile):
-                        build += """\n\t\tshutit.send_host_dir('""" + outfile + """','""" + buildstagefile + """')"""
+                        build += """\n\t\tshutit.send_host_dir('""" + outfile + """', '""" + buildstagefile + """')"""
                     else:
-                        build += """\n\t\tshutit.send_host_file('""" + outfile + """','""" + buildstagefile + """')"""
+                        build += """\n\t\tshutit.send_host_file('""" + outfile + """', '""" + buildstagefile + """')"""
             elif dockerfile_command == 'ENV':
                 cmd = '='.join(dockerfile_args).replace("'","\\'")
                 build += """\n\t\tshutit.send('export """ + '='.join(dockerfile_args) + """')"""

@@ -16,11 +16,11 @@ class docker_registry(ShutItModule):
         shutit.send('easy_install pip')
         shutit.send('rm distribute_setup.py')
         shutit.send('popd')
-        shutit.send_host_file('/docker-registry','context/docker-registry')
-        shutit.send_host_file('/etc/boto.cfg','context/docker-registry/config/boto.cfg')
+        shutit.send_host_file('/docker-registry', 'context/docker-registry')
+        shutit.send_host_file('/etc/boto.cfg', 'context/docker-registry/config/boto.cfg')
         shutit.send('pushd /docker-registry && pip install -r requirements.txt')
         shutit.send('export dev_version=1')
-        shutit.send_host_file('/docker-registry/config/config.yml','context/config-local-standalone.yml')
+        shutit.send_host_file('/docker-registry/config/config.yml', 'context/config-local-standalone.yml')
         shutit.send('popd')
                 return True
 

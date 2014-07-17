@@ -47,5 +47,5 @@ class django(ShutItModule):
 def module():
         return django(
                 'shutit.tk.django.django', 0.3185,
-                depends=['shutit.tk.setup','shutit.tk.mysql.mysql']
+                depends=['shutit.tk.setup', 'shutit.tk.mysql.mysql']
         )

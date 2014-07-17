@@ -12,10 +12,10 @@ class mediawiki(ShutItModule):
         shutit.send('apt-get -y update')
         shutit.send('LC_ALL=C DEBIAN_FRONTEND=noninteractive apt-get install -y supervisor nginx-light php5-fpm php5-intl php5-mysql php5-')
         shutit.send('LC_ALL=C DEBIAN_FRONTEND=noninteractive apt-get install -y php-apc php5-gd php5-intl php5-mysqlnd php5-pgsql')
-        shutit.send_host_file('/etc/nginx/nginx.conf','context/./nginx.conf')
-        shutit.send_host_file('/etc/supervisor/conf.d/supervisord.conf','context/./supervisord.conf')
-        shutit.send_host_file('/etc/php5/fpm/php-fpm.conf','context/./fpm.conf')
-        shutit.send_host_file('/etc/php5/fpm/pool.d/www.conf','context/./fpm-pool-www.conf')
+        shutit.send_host_file('/etc/nginx/nginx.conf', 'context/./nginx.conf')
+        shutit.send_host_file('/etc/supervisor/conf.d/supervisord.conf', 'context/./supervisord.conf')
+        shutit.send_host_file('/etc/php5/fpm/php-fpm.conf', 'context/./fpm.conf')
+        shutit.send_host_file('/etc/php5/fpm/pool.d/www.conf', 'context/./fpm-pool-www.conf')
         shutit.send('mkdir /src')
         shutit.install('wget')
         shutit.send('mkdir -p /src')
@@ -27,7 +27,7 @@ class mediawiki(ShutItModule):
         shutit.send('ln -s /data/LocalSettings.php /src/mediawiki/LocalSettings.php')
         shutit.send('rm -rf /src/mediawiki/images')
         shutit.send('ln -s /data/images /src/mediawiki/images')
-        shutit.send_host_file('/usr/bin/mediawiki-start','context/./mediawiki-start')
+        shutit.send_host_file('/usr/bin/mediawiki-start', 'context/./mediawiki-start')
                 return True
 
     def finalize(self, shutit):
