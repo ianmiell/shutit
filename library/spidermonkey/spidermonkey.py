@@ -5,10 +5,10 @@ from shutit_module import ShutItModule
 
 class spidermonkey(ShutItModule):
 
-        def is_installed(self,shutit):
+        def is_installed(self, shutit):
                 return False
 
-        def build(self,shutit):
+        def build(self, shutit):
 		shutit.install('zip unzip libnspr4-dev wget')
 		shutit.send('export SPIDER_ZIP=jsshell-linux-x86_64.zip')
 		shutit.send('export SPIDER_ROOT=/opt/src/jsshell')
@@ -20,7 +20,7 @@ class spidermonkey(ShutItModule):
 		shutit.send('ln -s ${SPIDER_ROOT}/*.so /usr/local/share')
                 return True
 
-	def finalize(self,shutit):
+	def finalize(self, shutit):
 		shutit.send('apt-get -y -qq --force-yes clean')
 		shutit.send('export SPIDER_ZIP=jsshell-linux-x86_64.zip')
 		shutit.send('export SPIDER_ROOT=/opt/src/jsshell')
@@ -28,13 +28,13 @@ class spidermonkey(ShutItModule):
 		shutit.send('rm -rf ${SPIDER_ROOT}/../${SPIDER_ZIP}')
 		return True
 
-	def test(self,shutit):
+	def test(self, shutit):
 		return True
 
-	def is_installed(self,shutit):
+	def is_installed(self, shutit):
 		return False
 
-	def get_config(self,shutit):
+	def get_config(self, shutit):
 		return True
 
 def module():

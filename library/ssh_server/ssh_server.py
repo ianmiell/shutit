@@ -24,10 +24,10 @@ from shutit_module import ShutItModule
 
 class ssh_server(ShutItModule):
 
-	def is_installed(self,shutit):
+	def is_installed(self, shutit):
 		shutit.file_exists('/root/start_ssh_server.sh')
 
-	def build(self,shutit):
+	def build(self, shutit):
 		shutit.install('openssh-server')
 		shutit.send('mkdir -p /var/run/sshd')
 		shutit.send('chmod 700 /var/run/sshd')
@@ -49,12 +49,12 @@ class ssh_server(ShutItModule):
 		shutit.send('chmod +x /root/stop_ssh_server.sh')
 		return True
 
-	def start(self,shutit):
-		shutit.send('/root/start_ssh_server.sh',check_exit=False)
+	def start(self, shutit):
+		shutit.send('/root/start_ssh_server.sh', check_exit=False)
 		return True
 
-	def stop(self,shutit):
-		shutit.send('/root/stop_ssh_server.sh',check_exit=False)
+	def stop(self, shutit):
+		shutit.send('/root/stop_ssh_server.sh', check_exit=False)
 		return True
 
 

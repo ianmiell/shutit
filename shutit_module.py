@@ -122,7 +122,7 @@ class ShutItModule(object):
 		# Following the Java standard is recommended, eg 'com.bigcorp.project.alpha.mymodule'
 		# Duplicate module ids are rejected if within the configured shutit_module_path.
 		self.module_id = module_id
-		if not isinstance(module_id,str):
+		if not isinstance(module_id, str):
 			err = str(module_id) + '\'s module_id is not a string'
 			print err
 			raise ShutItModuleError(err)
@@ -131,10 +131,10 @@ class ShutItModule(object):
 		# Module 0 is special. It is expected to:
 		#   - Set up a container (see setup.py)
 		#   - Set up pexpect children with relevant keys and populate shutit_global.pexpect_children.
-		if isinstance(run_order,float) or isinstance(run_order,str) or isinstance(run_order,int):
+		if isinstance(run_order, float) or isinstance(run_order, str) or isinstance(run_order, int):
 			run_order = decimal.Decimal(run_order)
 		# Check that run_order is a float - this will throw an error as a side effect if float doesn't work.
-		if not isinstance(run_order,decimal.Decimal):
+		if not isinstance(run_order, decimal.Decimal):
 			err = module_id + '\'s run order is not a decimal'
 			print err
 			raise ShutItModuleError(err)
@@ -153,12 +153,12 @@ class ShutItModule(object):
 	########################################################################
 	# Abstract methods
 	########################################################################
-	def get_config(self,shutit):
+	def get_config(self, shutit):
 		"""Gets all config items necessary for this module to be built
 		"""
 		return True
 
-	def check_ready(self,shutit):
+	def check_ready(self, shutit):
 		"""Checks whether we are ready to build this module.
 
 		This is called before the build, to ensure modules have
@@ -172,7 +172,7 @@ class ShutItModule(object):
 		"""
 		return True
 
-	def remove(self,shutit):
+	def remove(self, shutit):
 		"""Remove the module, which should ensure the module has been deleted
 		from the system.
 		
@@ -180,14 +180,14 @@ class ShutItModule(object):
 		"""
 		return False
 
-	def start(self,shutit):
+	def start(self, shutit):
 		"""Run when module should be installed (is_installed() or configured to build is true)
 		Run after repository work.
 		Returns True if all started ok.
 		"""
 		return True
 
-	def stop(self,shutit):
+	def stop(self, shutit):
 		"""Runs when module should be stopped.
 		Runs before repo work, and before finalize is called.
 		Returns True if all stopped ok.
@@ -195,7 +195,7 @@ class ShutItModule(object):
 		return True
 
 	@abstractmethod
-	def is_installed(self,shutit):
+	def is_installed(self, shutit):
 		"""Determines whether the module has been built in this container
 		already.
 		
@@ -206,7 +206,7 @@ class ShutItModule(object):
 		pass
 
 	@abstractmethod
-	def build(self,shutit):
+	def build(self, shutit):
 		"""Runs the build part of the module, which should ensure the module
 		has been set up.
 		If is_installed determines that the module is already there,
@@ -218,14 +218,14 @@ class ShutItModule(object):
 		"""
 		pass
 
-	def test(self,shutit):
+	def test(self, shutit):
 		"""Tests the module is OK.
 		Returns True if all is OK, else False.
 		This is run regardless of whether the module is installed or not.
 		"""
 		return True
 
-	def finalize(self,shutit):
+	def finalize(self, shutit):
 		"""Finalize the module, ie do things that need doing after final module has been run and before we exit, eg updatedb.
 		"""
 		return True

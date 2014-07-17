@@ -5,10 +5,10 @@ from shutit_module import ShutItModule
 
 class orientdb(ShutItModule):
 
-        def is_installed(self,shutit):
+        def is_installed(self, shutit):
                 return False
 
-        def build(self,shutit):
+        def build(self, shutit):
 		shutit.send('apt-get -y -qq update &amp;&amp; apt-get -y -qq install wget')
 		shutit.send('export ROOT=/opt/downloads')
 		shutit.send('export ORIENT_URL=http://www.orientdb.org/portal/function/portal/download/unknown@unknown.com')
@@ -17,16 +17,16 @@ class orientdb(ShutItModule):
 		shutit.send('apt-get -y -qq --force-yes clean &amp;&amp; rm -rf /opt/downloads/linux /var/lib/apt/lists/* /tmp/* /var/tmp/*')
                 return True
 
-	def finalize(self,shutit):
+	def finalize(self, shutit):
 		return True
 
-	def test(self,shutit):
+	def test(self, shutit):
 		return True
 
-	def is_installed(self,shutit):
+	def is_installed(self, shutit):
 		return False
 
-	def get_config(self,shutit):
+	def get_config(self, shutit):
 		return True
 
 def module():

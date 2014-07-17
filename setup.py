@@ -45,7 +45,7 @@ class conn_docker(ShutItModule):
 	"""Connects ShutIt to docker daemon and starts the container.
 	"""
 
-	def is_installed(self,shutit):
+	def is_installed(self, shutit):
 		"""Always considered false for ShutIt setup.
 		"""
 		return False
@@ -77,7 +77,7 @@ class conn_docker(ShutItModule):
 		needed_password = False
 		fail_msg = ''
 		try:
-			shutit.log('Running: ' + str_cmd,force_stdout=True,prefix=False)
+			shutit.log('Running: ' + str_cmd, force_stdout=True, prefix=False)
 			child = pexpect.spawn(check_cmd[0], check_cmd[1:], timeout=cmd_timeout)
 		except pexpect.ExceptionPexpect:
 			msg = ('Failed to run %s (not sure why this has happened)...try ' +
@@ -138,7 +138,7 @@ class conn_docker(ShutItModule):
 
 		return True
 
-	def build(self,shutit):
+	def build(self, shutit):
 		"""Sets up the container ready for building.
 		"""
 		# Uncomment for testing for "failure" cases.
@@ -218,17 +218,17 @@ class conn_docker(ShutItModule):
 				'image in this case is:\n\n\t' + cfg['container']['docker_image'] +
 				'\n\n' + util.colour('31','[Hit return to continue]'))
 			raw_input('')
-		shutit.log('\n\nCommand being run is:\n\n' + ' '.join(docker_command),force_stdout=True,prefix=False)
-		shutit.log('\n\nThis may download the image, please be patient\n\n',force_stdout=True,prefix=False)
+		shutit.log('\n\nCommand being run is:\n\n' + ' '.join(docker_command), force_stdout=True, prefix=False)
+		shutit.log('\n\nThis may download the image, please be patient\n\n', force_stdout=True, prefix=False)
 
 		container_child = pexpect.spawn(docker_command[0], docker_command[1:])
-		expect = ['assword',cfg['expect_prompts']['base_prompt'].strip(),'Waiting','ulling','endpoint','Download']
+		expect = ['assword', cfg['expect_prompts']['base_prompt'].strip(),'Waiting','ulling','endpoint','Download']
 		res = container_child.expect(expect,9999)
 		while True:
 			shutit.log(""">>>\n""" + container_child.before + container_child.after + """\n<<<""")
 			if res == 0:
 				shutit.log('...')
-				res = shutit.send(cfg['host']['password'],child=container_child,expect=expect,timeout=9999,check_exit=False,fail_on_empty_before=False)
+				res = shutit.send(cfg['host']['password'], child=container_child, expect=expect, timeout=9999, check_exit=False, fail_on_empty_before=False)
 			elif res == 1:
 				shutit.log('Prompt found, breaking out')
 				break
@@ -276,7 +276,7 @@ class conn_docker(ShutItModule):
 		shutit.log('Setting default child done')
 		shutit.log('Setting up default prompt on host child')
 		shutit.log('Setting up prompt')
-		shutit.setup_prompt('real_user_prompt',prefix='REAL_USER')
+		shutit.setup_prompt('real_user_prompt', prefix='REAL_USER')
 		shutit.log('Setting up prompt done')
 		# container child
 		shutit.set_default_child(container_child)
@@ -289,20 +289,20 @@ class conn_docker(ShutItModule):
 		shutit.send('mkdir -p ' + shutit.cfg ['build']['build_db_dir'] + '/' + shutit.cfg['build']['build_id'])
 		# Record the command we ran and the python env.
 		# TODO: record the image id we ran against - wait for "docker debug" command
-		shutit.send_file(shutit.cfg['build']['build_db_dir'] + '/' + shutit.cfg['build']['build_id'] + '/python_env.sh',str(sys.__dict__),log=False)
-		shutit.send_file(shutit.cfg['build']['build_db_dir'] + '/' + shutit.cfg['build']['build_id'] + '/docker_command.sh',' '.join(docker_command),log=False)
+		shutit.send_file(shutit.cfg['build']['build_db_dir'] + '/' + shutit.cfg['build']['build_id'] + '/python_env.sh', str(sys.__dict__), log=False)
+		shutit.send_file(shutit.cfg['build']['build_db_dir'] + '/' + shutit.cfg['build']['build_id'] + '/docker_command.sh',' '.join(docker_command), log=False)
 		shutit.pause_point('Anything you want to do now the container is connected to?', level=2)
 		return True
 
-	def finalize(self,shutit):
+	def finalize(self, shutit):
 		"""Finalizes the container, exiting for us back to the original shell
 		and performing any repository work required.
 		"""
 		# Put build info into the container
 		shutit.send('mkdir -p ' + shutit.cfg ['build']['build_db_dir'] + '/' + shutit.cfg['build']['build_id'])
 		shutit.send_file(shutit.cfg['build']['build_db_dir'] + '/' + shutit.cfg['build']['build_id'] + '/build.log', util.get_commands(shutit))
-		shutit.send_file(shutit.cfg['build']['build_db_dir'] + '/' + shutit.cfg['build']['build_id'] + '/build_commands.sh',util.get_commands(shutit))
-		shutit.add_line_to_file(shutit.cfg['build']['build_id'],shutit.cfg ['build']['build_db_dir'] + '/builds')
+		shutit.send_file(shutit.cfg['build']['build_db_dir'] + '/' + shutit.cfg['build']['build_id'] + '/build_commands.sh', util.get_commands(shutit))
+		shutit.add_line_to_file(shutit.cfg['build']['build_id'], shutit.cfg ['build']['build_db_dir'] + '/builds')
 		# Finish with the container
 		shutit.pexpect_children['container_child'].sendline('exit') # Exit container
 
@@ -311,8 +311,8 @@ class conn_docker(ShutItModule):
 		shutit.set_default_expect(shutit.cfg['expect_prompts']['real_user_prompt'])
 		# Tag and push etc
 		shutit.pause_point('\nDoing final committing/tagging on the overall container and creating the artifact.',
-			child=shutit.pexpect_children['host_child'],print_input=False, level=3)
-		shutit.do_repository_work(shutit.cfg['repository']['name'],docker_executable=shutit.cfg['host']['docker_executable'],password=shutit.cfg['host']['password'])
+			child=shutit.pexpect_children['host_child'], print_input=False, level=3)
+		shutit.do_repository_work(shutit.cfg['repository']['name'], docker_executable=shutit.cfg['host']['docker_executable'], password=shutit.cfg['host']['password'])
 		# Final exits
 		host_child.sendline('exit') # Exit raw bash
 		return True
@@ -325,12 +325,12 @@ def conn_module():
 
 class setup(ShutItModule):
 
-	def is_installed(self,shutit):
+	def is_installed(self, shutit):
 		"""Always considered false for ShutIt setup.
 		"""
 		return False
 
-	def build(self,shutit):
+	def build(self, shutit):
 		"""Initializes container ready for build, setting password
 		and updating package management.
 		"""
@@ -340,17 +340,17 @@ class setup(ShutItModule):
 		if shutit.cfg['container']['install_type'] == 'apt':
 			shutit.send('export DEBIAN_FRONTEND=noninteractive')
 			if do_update:
-				shutit.send('apt-get update',timeout=9999,check_exit=False)
+				shutit.send('apt-get update', timeout=9999, check_exit=False)
 			shutit.send('dpkg-divert --local --rename --add /sbin/initctl')
 			shutit.send('ln -f -s /bin/true /sbin/initctl')
 		elif shutit.cfg['container']['install_type'] == 'yum':
 			if do_update:
-				shutit.send('yum update -y',timeout=9999)
+				shutit.send('yum update -y', timeout=9999)
 		shutit.set_password(shutit.cfg['container']['password'])
 		shutit.pause_point('Anything you want to do to the container before the build starts?', level=2)
 		return True
 
-	def remove(self,shutit):
+	def remove(self, shutit):
 		"""Removes anything performed as part of build.
 		"""
 		cfg = shutit.cfg

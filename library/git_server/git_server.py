@@ -26,10 +26,10 @@ from shutit_module import ShutItModule
 
 class git_server(ShutItModule):
 
-	def is_installed(self,shutit):
+	def is_installed(self, shutit):
 		return False
 
-	def build(self,shutit):
+	def build(self, shutit):
 		shutit.install('apache2')
 		shutit.install('git-core')
 		shutit.install('vim')
@@ -39,11 +39,11 @@ class git_server(ShutItModule):
 		shutit.add_to_bashrc('git daemon --base-path=/var/cache/git --detach --syslog --export-all')
 		return True
 
-	def start(self,shutit):
+	def start(self, shutit):
 		# TODO
 		return True
 
-	def stop(self,shutit):
+	def stop(self, shutit):
 		# TODO
 		return True
 

@@ -4,10 +4,10 @@ from shutit_module import ShutItModule
 
 class mediawiki(ShutItModule):
 
-        def is_installed(self,shutit):
+        def is_installed(self, shutit):
                 return False
 
-        def build(self,shutit):
+        def build(self, shutit):
 		shutit.send('echo \'deb http://us.archive.ubuntu.com/ubuntu/ precise universe\' >> /etc/apt/sources.list')
 		shutit.send('apt-get -y update')
 		shutit.send('LC_ALL=C DEBIAN_FRONTEND=noninteractive apt-get install -y supervisor nginx-light php5-fpm php5-intl php5-mysql php5-')
@@ -30,16 +30,16 @@ class mediawiki(ShutItModule):
 		shutit.send_host_file('/usr/bin/mediawiki-start','context/./mediawiki-start')
                 return True
 
-	def finalize(self,shutit):
+	def finalize(self, shutit):
 		return True
 
-	def test(self,shutit):
+	def test(self, shutit):
 		return True
 
-	def is_installed(self,shutit):
+	def is_installed(self, shutit):
 		return False
 
-	def get_config(self,shutit):
+	def get_config(self, shutit):
 		return True
 
 def module():

@@ -10,10 +10,10 @@ from shutit_module import ShutItModule
 
 class test2(ShutItModule):
 
-	def is_installed(self,shutit):
+	def is_installed(self, shutit):
 		return False
 
-	def build(self,shutit):
+	def build(self, shutit):
 		shutit.send_and_expect('touch /tmp/container_touched')
 		shutit.add_line_to_file('#test line','/tmp/newfile')
 		shutit.add_line_to_file('#test line','/tmp/newfile')
@@ -23,5 +23,5 @@ class test2(ShutItModule):
 		return True
 
 def module():
-	return test2('shutit.tk.test.test2',2,depends=['shutit.tk.setup'])
+	return test2('shutit.tk.test.test2',2, depends=['shutit.tk.setup'])
 

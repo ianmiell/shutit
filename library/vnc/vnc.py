@@ -27,17 +27,17 @@ import base64
 # Expose port 5901 and 6080
 class vnc(ShutItModule):
 
-	def check_ready(self,shutit):
+	def check_ready(self, shutit):
 		# Only apt-based systems are supported support atm
 		return shutit.cfg['container']['install_type'] == 'apt'
 
-	def is_installed(self,shutit):
+	def is_installed(self, shutit):
 		return shutit.file_exists('/root/start_vnc.sh')
 
-	def build(self,shutit):
+	def build(self, shutit):
 		# TODO: distr-independence
 		shutit.send('mkdir -p /root/.config/dconf')
-		shutit.send_file('/root/.config/dconf/user',base64.standard_b64decode("""
+		shutit.send_file('/root/.config/dconf/user', base64.standard_b64decode("""
 R1ZhcmlhbnQAAAAAAAAAABgAAABwAQAAAAAAKAwAAAAAAAAAAAAAAAAAAAABAAAAAQAAAAIAAAAD
 AAAABQAAAAcAAAAKAAAADAAAAAwAAADepzLWAgAAAHABAAAGAHYAeAEAAH4BAADYlUmXBQAAAH4B
 AAAGAEwAhAEAAIgBAAAF9HCFAQAAAIgBAAANAEwAmAEAAKABAACSB0ZKCAAAAKABAAAMAEwArAEA
@@ -59,14 +59,14 @@ aWR0aAAAACADAAAAaQ=="""))
 		if shutit.cfg['container']['install_type'] == 'apt':
 			send = 'apt-get install -qq -y --no-install-recommends ubuntu-desktop > /tmp/ubuntu-desktop && rm -f /tmp/ubuntu-desktop'
 		while True:
-			res = shutit.send(send,expect=['Unpacking','Setting up',shutit.cfg['expect_prompts']['root_prompt']],timeout=9999)
+			res = shutit.send(send, expect=['Unpacking','Setting up', shutit.cfg['expect_prompts']['root_prompt']], timeout=9999)
 			if res == 2:
 				break
 			elif res == 0 or res == 1:
 				send = ''
 		send = 'vncserver'
 		while True:
-			res = shutit.send(send,expect=['assword:','erify',shutit.cfg['expect_prompts']['root_prompt']],fail_on_empty_before=False,echo=False)
+			res = shutit.send(send, expect=['assword:','erify', shutit.cfg['expect_prompts']['root_prompt']], fail_on_empty_before=False, echo=False)
 			if res == 0 or res == 1:
 				send = shutit.cfg['shutit.tk.vnc.vnc']['password']
 			elif res == 2:
@@ -77,8 +77,8 @@ aWR0aAAAACADAAAAaQ=="""))
 """ + shutit.cfg['shutit.tk.vnc.vnc']['password'] + """
 """ + shutit.cfg['shutit.tk.vnc.vnc']['password'] + """
 END""",'/root/start_vnc.sh')
-		shutit.add_line_to_file('echo "Did you expose ports 5901 and 6080?"','/root/start_vnc.sh',match_regexp='echo .Did you expose ports 5901 and 6080..')
-		shutit.add_line_to_file('echo "If so, then vncviewer localhost:1 should work."','/root/start_vnc.sh',match_regexp='echo .If so, then vncviewer localhost:1 should work..')
+		shutit.add_line_to_file('echo "Did you expose ports 5901 and 6080?"','/root/start_vnc.sh', match_regexp='echo .Did you expose ports 5901 and 6080..')
+		shutit.add_line_to_file('echo "If so, then vncviewer localhost:1 should work."','/root/start_vnc.sh', match_regexp='echo .If so, then vncviewer localhost:1 should work..')
 		shutit.add_line_to_file('# stop vnc','/root/stop_vnc.sh')
 		shutit.add_line_to_file("""ps -ef | grep Xvnc4 | grep -v grep | awk '{print $2}' | xargs kill""",'/root/stop_vnc.sh')
 		shutit.add_line_to_file('sleep 10','/root/stop_vnc.sh')
@@ -87,15 +87,15 @@ END""",'/root/start_vnc.sh')
 		shutit.send('chmod +x /root/stop_vnc.sh')
 		return True
 
-	def start(self,shutit):
-		shutit.send('/root/start_vnc.sh',check_exit=False)
+	def start(self, shutit):
+		shutit.send('/root/start_vnc.sh', check_exit=False)
 		return True
 
-	def stop(self,shutit):
-		shutit.send('/root/stop_vnc.sh',check_exit=False)
+	def stop(self, shutit):
+		shutit.send('/root/stop_vnc.sh', check_exit=False)
 		return True
 
-	def get_config(self,shutit):
+	def get_config(self, shutit):
 		shutit.get_config('shutit.tk.vnc.vnc','password','vncpass')
 		return True
 

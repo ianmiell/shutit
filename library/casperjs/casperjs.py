@@ -24,10 +24,10 @@ from shutit_module import ShutItModule
 
 class casperjs(ShutItModule):
 
-	def is_installed(self,shutit):
-		return shutit.file_exists('/opt/casperjs',shutit.cfg['expect_prompts']['root_prompt'],directory=True)
+	def is_installed(self, shutit):
+		return shutit.file_exists('/opt/casperjs', shutit.cfg['expect_prompts']['root_prompt'], directory=True)
 
-	def build(self,shutit):
+	def build(self, shutit):
 		shutit.install('git')
 		shutit.run_script("""
 			#!/bin/bash
@@ -38,8 +38,8 @@ class casperjs(ShutItModule):
 		""", in_shell=False)
 		return True
 
-	def remove(self,shutit):
-		shutit.send('rm -rf /opt/casperjs',shutit.cfg['expect_prompts']['root_prompt'])
+	def remove(self, shutit):
+		shutit.send('rm -rf /opt/casperjs', shutit.cfg['expect_prompts']['root_prompt'])
 		return True
 
 def module():

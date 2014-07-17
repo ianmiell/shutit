@@ -21,17 +21,17 @@ from shutit_module import ShutItModule
 
 class shutit(ShutItModule):
 
-	def is_installed(self,shutit):
-		return shutit.file_exists('/shutit',directory=True)
+	def is_installed(self, shutit):
+		return shutit.file_exists('/shutit', directory=True)
 
-	def build(self,shutit):
+	def build(self, shutit):
 		shutit.install('git')
 		shutit.send('pushd /')
 		shutit.send('git clone https://github.com/ianmiell/shutit.git')
 		shutit.send('popd')
 		return True
 
-	def test(self,shutit):
+	def test(self, shutit):
 		# TODO: test it works
 		return True
 
