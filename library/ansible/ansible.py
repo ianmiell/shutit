@@ -24,33 +24,33 @@ from shutit_module import ShutItModule
 
 class ansible(ShutItModule):
 
-	def is_installed(self, shutit):
-		return False
+    def is_installed(self, shutit):
+        return False
 
-	def build(self, shutit):
-		shutit.install('git')
-		shutit.install('python2.7-dev')
-		shutit.install('python-pip')
-		shutit.send('git clone git://github.com/ansible/ansible.git')
-		shutit.send('cd ./ansible')
-		shutit.send('source ./hacking/env-setup')
-		shutit.add_to_bashrc('source ./hacking/env-setup')
-		shutit.send('easy_install pip')
-		shutit.send('pip install paramiko PyYAML jinja2 httplib2')
-		shutit.send('echo "127.0.0.1" > /root/ansible_hosts')
-		shutit.send('export ANSIBLE_HOSTS=/root/ansible_hosts')
-		shutit.add_to_bashrc('export ANSIBLE_HOSTS=/root/ansible_hosts')
-		return True
+    def build(self, shutit):
+        shutit.install('git')
+        shutit.install('python2.7-dev')
+        shutit.install('python-pip')
+        shutit.send('git clone git://github.com/ansible/ansible.git')
+        shutit.send('cd ./ansible')
+        shutit.send('source ./hacking/env-setup')
+        shutit.add_to_bashrc('source ./hacking/env-setup')
+        shutit.send('easy_install pip')
+        shutit.send('pip install paramiko PyYAML jinja2 httplib2')
+        shutit.send('echo "127.0.0.1" > /root/ansible_hosts')
+        shutit.send('export ANSIBLE_HOSTS=/root/ansible_hosts')
+        shutit.add_to_bashrc('export ANSIBLE_HOSTS=/root/ansible_hosts')
+        return True
 
-	def test(self, shutit):
-		if shutit.send('ansible all -m ping', expect=['assword', shutit.cfg['expect_prompts']['root_prompt']]) == 0:
-			shutit.send(shutit.cfg['container']['password'])
-		return True
+    def test(self, shutit):
+        if shutit.send('ansible all -m ping', expect=['assword', shutit.cfg['expect_prompts']['root_prompt']]) == 0:
+            shutit.send(shutit.cfg['container']['password'])
+        return True
 
 def module():
-	return ansible(
-		'shutit.tk.ansible.ansible', 0.7656,
-		description='',
-		depends=['shutit.tk.setup','shutit.tk.ssh_server.ssh_server','shutit.tk.ssh_key.ssh_key']
-	)
+    return ansible(
+        'shutit.tk.ansible.ansible', 0.7656,
+        description='',
+        depends=['shutit.tk.setup','shutit.tk.ssh_server.ssh_server','shutit.tk.ssh_key.ssh_key']
+    )
 

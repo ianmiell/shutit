@@ -21,40 +21,40 @@ from shutit_module import ShutItModule
 
 class get_iplayer(ShutItModule):
 
-	def build(self, shutit):
-		if shutit.cfg['container']['install_type'] == 'yum':
-			shutit.install('wget')
-			shutit.send('wget http://linuxcentre.net/get_iplayer/packages/get_iplayer-current.noarch.rpm')
-			shutit.send('yum --nogpgcheck localinstall get_iplayer-current.noarch.rpm')
-		else:
-			shutit.install('git')
-			shutit.install('liblwp-online-perl')
-			shutit.install('rtmpdump')
-			shutit.install('ffmpeg')
-			shutit.install('mplayer')
-			shutit.install('atomicparsley')
-			shutit.install('id3v2')
-			shutit.install('libmp3-info-perl')
-			shutit.install('libmp3-tag-perl')
-			shutit.install('libnet-smtp-ssl-perl')
-			shutit.install('libnet-smtp-tls-butmaintained-perl')
-			shutit.install('libxml-simple-perl')
-			shutit.send('pushd /')
-			shutit.send('git clone git://git.infradead.org/get_iplayer.git')
-			shutit.send('cd get_iplayer')
-			shutit.send('chmod 755 get_iplayer')
-			shutit.send('./get_iplayer')
-			shutit.send('popd')
-		return True
+    def build(self, shutit):
+        if shutit.cfg['container']['install_type'] == 'yum':
+            shutit.install('wget')
+            shutit.send('wget http://linuxcentre.net/get_iplayer/packages/get_iplayer-current.noarch.rpm')
+            shutit.send('yum --nogpgcheck localinstall get_iplayer-current.noarch.rpm')
+        else:
+            shutit.install('git')
+            shutit.install('liblwp-online-perl')
+            shutit.install('rtmpdump')
+            shutit.install('ffmpeg')
+            shutit.install('mplayer')
+            shutit.install('atomicparsley')
+            shutit.install('id3v2')
+            shutit.install('libmp3-info-perl')
+            shutit.install('libmp3-tag-perl')
+            shutit.install('libnet-smtp-ssl-perl')
+            shutit.install('libnet-smtp-tls-butmaintained-perl')
+            shutit.install('libxml-simple-perl')
+            shutit.send('pushd /')
+            shutit.send('git clone git://git.infradead.org/get_iplayer.git')
+            shutit.send('cd get_iplayer')
+            shutit.send('chmod 755 get_iplayer')
+            shutit.send('./get_iplayer')
+            shutit.send('popd')
+        return True
 
-	def is_installed(self, shutit):
-		return shutit.file_exists('/get_iplayer/get_iplayer')
+    def is_installed(self, shutit):
+        return shutit.file_exists('/get_iplayer/get_iplayer')
 
 def module():
-	return get_iplayer(
-		'shutit.tk.get_iplayer.get_iplayer', 0.324,
-		description='iPlayer downloader. See ' +
-			'http://www.infradead.org/get_iplayer/html/get_iplayer.html',
-		depends=['shutit.tk.setup']
-	)
+    return get_iplayer(
+        'shutit.tk.get_iplayer.get_iplayer', 0.324,
+        description='iPlayer downloader. See ' +
+            'http://www.infradead.org/get_iplayer/html/get_iplayer.html',
+        depends=['shutit.tk.setup']
+    )
 

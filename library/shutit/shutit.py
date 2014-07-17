@@ -21,25 +21,25 @@ from shutit_module import ShutItModule
 
 class shutit(ShutItModule):
 
-	def is_installed(self, shutit):
-		return shutit.file_exists('/shutit', directory=True)
+    def is_installed(self, shutit):
+        return shutit.file_exists('/shutit', directory=True)
 
-	def build(self, shutit):
-		shutit.install('git')
-		shutit.send('pushd /')
-		shutit.send('git clone https://github.com/ianmiell/shutit.git')
-		shutit.send('popd')
-		return True
+    def build(self, shutit):
+        shutit.install('git')
+        shutit.send('pushd /')
+        shutit.send('git clone https://github.com/ianmiell/shutit.git')
+        shutit.send('popd')
+        return True
 
-	def test(self, shutit):
-		# TODO: test it works
-		return True
+    def test(self, shutit):
+        # TODO: test it works
+        return True
 
 def module():
-	# Shutit needs a user to work
-	return shutit(
-		'shutit.tk.shutit.shutit', 0.397,
-		description='shutit in a container',
-		depends=['shutit.tk.setup', 'shutit.tk.docker.docker', 'shutit.tk.adduser.adduser']
-	)
+    # Shutit needs a user to work
+    return shutit(
+        'shutit.tk.shutit.shutit', 0.397,
+        description='shutit in a container',
+        depends=['shutit.tk.setup', 'shutit.tk.docker.docker', 'shutit.tk.adduser.adduser']
+    )
 

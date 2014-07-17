@@ -27,30 +27,30 @@
 # The keys are then the canonical package names.
 # eg {'httpd',
 package_map = {
-	'apache2':               {'apt':'apache2',           'yum':'httpd'},
-	'adduser':               {'apt':'adduser',           'yum':''},
-	'php5':                  {'apt':'php5',              'yum':'php'}
+    'apache2':               {'apt':'apache2',           'yum':'httpd'},
+    'adduser':               {'apt':'adduser',           'yum':''},
+    'php5':                  {'apt':'php5',              'yum':'php'}
 }
 
 def map_package(package, install_type):
-	# If package mapping exists, then return it, else return package.
-	global package_map
-	if package in package_map.keys():
-		for d in package_map[package].keys():
-			if d == install_type:
-				return package_map[package][install_type]
-	# Otherwise, simply return package
-	return package
+    # If package mapping exists, then return it, else return package.
+    global package_map
+    if package in package_map.keys():
+        for d in package_map[package].keys():
+            if d == install_type:
+                return package_map[package][install_type]
+    # Otherwise, simply return package
+    return package
 
 # Is this name mentioned anywhere? Then return it as a suggestion?
 def find_package(sought_package):
-	global package_map
-	# First check top-level keys
-	if sought_package in package_map.keys():
-		return package_map[sought_package]
-	for package in package_map.keys():
-		for install_type in package_map[package].keys():
-			print package_map[package][install_type]
-			if sought_package == package_map[package][install_type]:
-				return {package:package_map[package]}
-	return None
+    global package_map
+    # First check top-level keys
+    if sought_package in package_map.keys():
+        return package_map[sought_package]
+    for package in package_map.keys():
+        for install_type in package_map[package].keys():
+            print package_map[package][install_type]
+            if sought_package == package_map[package][install_type]:
+                return {package:package_map[package]}
+    return None
