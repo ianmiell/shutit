@@ -43,7 +43,7 @@ then
 	exit 1
 fi
 
-if [[ "$(sed -n '41p' docs/shutit_module_template.py)" != "		# Line number 42 should be the next one (so bash scripts can be inserted properly)" ]]
+if [[ "$(sed -n '41p' docs/shutit_module_template.py)" != "        # Line number 42 should be the next one (so bash scripts can be inserted properly)" ]]
 then
 	echo "Line 41 of docs/shutit_module_template.py should be as test.sh specifies"
 	exit 1
@@ -58,7 +58,6 @@ echo "Testing skeleton build with Dockerfile"
 ./shutit skeleton -d docs/dockerfile/Dockerfile ${NEWDIR} testing shutit.tk
 pushd ${NEWDIR}
 ./test.sh ${SHUTIT_DIR} || failure "1.0 ${NEWDIR}"
-exit
 cleanup hard
 rm -rf ${NEWDIR}
 popd
