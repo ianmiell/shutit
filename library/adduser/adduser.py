@@ -21,29 +21,29 @@ from shutit_module import ShutItModule
 
 class adduser(ShutItModule):
 
-	def is_installed(self, shutit):
-		return False
+    def is_installed(self, shutit):
+        return False
 
-	def build(self, shutit):
-		# Does something odd with the terminal which makes pexpect think the commands failed
-		shutit.send('useradd -d /home/' + shutit.cfg['shutit.tk.adduser.adduser']['user'] + ' -s /bin/bash -m ' + shutit.cfg['shutit.tk.adduser.adduser']['user'])
-		shutit.install('passwd')
-		shutit.install('sudo')
-		shutit.install('adduser')
-		shutit.set_password(shutit.cfg['shutit.tk.adduser.adduser']['password'], user=shutit.cfg['shutit.tk.adduser.adduser']['user'])
-		return True
+    def build(self, shutit):
+        # Does something odd with the terminal which makes pexpect think the commands failed
+        shutit.send('useradd -d /home/' + shutit.cfg['shutit.tk.adduser.adduser']['user'] + ' -s /bin/bash -m ' + shutit.cfg['shutit.tk.adduser.adduser']['user'])
+        shutit.install('passwd')
+        shutit.install('sudo')
+        shutit.install('adduser')
+        shutit.set_password(shutit.cfg['shutit.tk.adduser.adduser']['password'], user=shutit.cfg['shutit.tk.adduser.adduser']['user'])
+        return True
 
-	def get_config(self, shutit):
-		cp = shutit.cfg['config_parser']
-		# Bring the example config into the config dictionary.
-		shutit.get_config('shutit.tk.adduser.adduser','user','auser')
-		shutit.get_config('shutit.tk.adduser.adduser','password','apassword')
-		return True
+    def get_config(self, shutit):
+        cp = shutit.cfg['config_parser']
+        # Bring the example config into the config dictionary.
+        shutit.get_config('shutit.tk.adduser.adduser','user','auser')
+        shutit.get_config('shutit.tk.adduser.adduser','password','apassword')
+        return True
 
 def module():
-	return adduser(
-		'shutit.tk.adduser.adduser', 0.1012,
-		description='add a configurable user',
-		depends=['shutit.tk.setup']
-	)
+    return adduser(
+        'shutit.tk.adduser.adduser', 0.1012,
+        description='add a configurable user',
+        depends=['shutit.tk.setup']
+    )
 

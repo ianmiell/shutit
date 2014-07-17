@@ -24,21 +24,21 @@ from shutit_module import ShutItModule
 
 class composer(ShutItModule):
 
-	def is_installed(self, shutit):
-		return shutit.file_exists('/composer.phar')
+    def is_installed(self, shutit):
+        return shutit.file_exists('/composer.phar')
 
-	def build(self, shutit):
-		shutit.install('curl')
-		shutit.install('php5')
-		shutit.send('pushd /')
-		shutit.send('curl -sS https://getcomposer.org/installer | php')
-		shutit.send('popd')
-		return True
+    def build(self, shutit):
+        shutit.install('curl')
+        shutit.install('php5')
+        shutit.send('pushd /')
+        shutit.send('curl -sS https://getcomposer.org/installer | php')
+        shutit.send('popd')
+        return True
 
 def module():
-	return composer(
-		'shutit.tk.composer.composer', 0.315,
-		description='dependency manager for php: https://getcomposer.org/',
-		depends=['shutit.tk.setup']
-	)
+    return composer(
+        'shutit.tk.composer.composer', 0.315,
+        description='dependency manager for php: https://getcomposer.org/',
+        depends=['shutit.tk.setup']
+    )
 
