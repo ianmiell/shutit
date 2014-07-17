@@ -1021,8 +1021,8 @@ from shutit_module import ShutItModule
 
 class template(ShutItModule):
 
-        def is_installed(self, shutit):
-                return False
+    def is_installed(self, shutit):
+        return False
 '''
         # build
         build     = ''
@@ -1096,7 +1096,7 @@ class template(ShutItModule):
             build += """\n\t\tshutit.send('popd')"""
             numpushes = numpushes - 1
         templatemodule += '''
-        def build(self, shutit):''' + build + '''
+    def build(self, shutit):''' + build + '''
                 return True
 '''
         # Gather and place finalize bit
