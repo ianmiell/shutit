@@ -51,7 +51,7 @@ class ssh_key(ShutItModule):
 		shutit.send('su - ' + cfg[self.module_id]['login'][0],cfg['expect_prompts']['base_prompt'],check_exit=False)
 		shutit.setup_prompt('ssh_key_tmp_prompt')
 		expect = ['authenticity','Enter passphrase','assword',shutit.get_default_expect()]
-		send = 'localhost'
+		send = 'ssh localhost'
 		while True:
 			res = shutit.send(send,expect=expect,check_exit=False)
 			if res == 0:
