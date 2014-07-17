@@ -21,7 +21,7 @@ from shutit_module import ShutItModule
 
 class get_iplayer(ShutItModule):
 
-	def build(self,shutit):
+	def build(self, shutit):
 		if shutit.cfg['container']['install_type'] == 'yum':
 			shutit.install('wget')
 			shutit.send('wget http://linuxcentre.net/get_iplayer/packages/get_iplayer-current.noarch.rpm')
@@ -47,7 +47,7 @@ class get_iplayer(ShutItModule):
 			shutit.send('popd')
 		return True
 
-	def is_installed(self,shutit):
+	def is_installed(self, shutit):
 		return shutit.file_exists('/get_iplayer/get_iplayer')
 
 def module():

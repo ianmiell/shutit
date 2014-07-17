@@ -10,17 +10,17 @@ from shutit_module import ShutItModule
 
 class test6(ShutItModule):
 
-	def is_installed(self,shutit):
+	def is_installed(self, shutit):
 		return False
 
-	def build(self,shutit):
+	def build(self, shutit):
 		shutit.send_and_expect('touch /tmp/test6')
 		shutit.send_and_expect('echo some output')
 		import re
-		if re.findall('^some output$',shutit.get_output(),flags=re.MULTILINE):
+		if re.findall('^some output$', shutit.get_output(), flags=re.MULTILINE):
 			return True
 		return False
 
 def module():
-	return test6('shutit.tk.test.test6',6.1,depends=['shutit.tk.setup'])
+	return test6('shutit.tk.test.test6',6.1, depends=['shutit.tk.setup'])
 

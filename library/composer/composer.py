@@ -24,10 +24,10 @@ from shutit_module import ShutItModule
 
 class composer(ShutItModule):
 
-	def is_installed(self,shutit):
+	def is_installed(self, shutit):
 		return shutit.file_exists('/composer.phar')
 
-	def build(self,shutit):
+	def build(self, shutit):
 		shutit.install('curl')
 		shutit.install('php5')
 		shutit.send('pushd /')

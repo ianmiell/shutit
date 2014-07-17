@@ -10,13 +10,13 @@ from shutit_module import ShutItModule
 
 class test5_1(ShutItModule):
 
-	def is_installed(self,shutit):
+	def is_installed(self, shutit):
 		return False
 
-	def build(self,shutit):
+	def build(self, shutit):
 		shutit.send_and_expect('touch /tmp/test5_1')
 		return True
 
 def module():
-	return test5_1('shutit.tk.test.test5_1',5.1,depends=['shutit.tk.setup'])
+	return test5_1('shutit.tk.test.test5_1',5.1, depends=['shutit.tk.setup'])
 

@@ -25,11 +25,11 @@ import os
 
 class squid_deb_proxy(ShutItModule):
 
-	def is_installed(self,shutit):
+	def is_installed(self, shutit):
 		# Only apt-based systems are supported support atm
 	        return shutit.cfg['container']['install_type'] == 'apt' and shutit.file_exists('/root/start_avahi_daemon.sh') and shutit.package_installed('squid-deb-proxy-client') and shutit.package_installed('avahi-daemon')
 
-	def build(self,shutit):
+	def build(self, shutit):
 		# This sets up the avahi daemon such that the squid deb proxy can run.
 		# TODO: separate into its own module.
 		shutit.install('avahi-daemon')
@@ -48,24 +48,24 @@ class squid_deb_proxy(ShutItModule):
 		shutit.install('netcat')
 		shutit.install('net-tools')
 		shutit.install('squid-deb-proxy-client')
-		shutit.send('/root/start_avahi_daemon.sh',check_exit=False)
+		shutit.send('/root/start_avahi_daemon.sh', check_exit=False)
 		shutit.send('rm -f /usr/share/squid-deb-proxy-client/apt-avahi-discover')
 		return True
 
-	def start(self,shutit):
+	def start(self, shutit):
 		# We seem to need to remove this so that our settings work. Since this is not a "real" machine, I think.
 		shutit.send('rm -f /usr/share/squid-deb-proxy-client/apt-avahi-discover')
-		shutit.send("""route -n | awk '/^0.0.0.0/ {print $2}' | tee /tmp/hostip""",check_exit=False)
-		shutit.send("""echo "HEAD /" | nc `cat /tmp/hostip` """ + shutit.cfg['shutit.tk.squid_deb_proxy.squid_deb_proxy']['host_proxy_port'] + """ | grep squid-deb-proxy && (echo "Acquire::http::Proxy \\"http://$(cat /tmp/hostip):""" + shutit.cfg['shutit.tk.squid_deb_proxy.squid_deb_proxy']['host_proxy_port'] + """\\";" > /etc/apt/apt.conf.d/30proxy) && (echo "Acquire::http::Proxy::ppa.launchpad.net DIRECT;" >> /etc/apt/apt.conf.d/30proxy) || echo 'No squid-deb-proxy detected on docker host'""",check_exit=True)
+		shutit.send("""route -n | awk '/^0.0.0.0/ {print $2}' | tee /tmp/hostip""", check_exit=False)
+		shutit.send("""echo "HEAD /" | nc `cat /tmp/hostip` """ + shutit.cfg['shutit.tk.squid_deb_proxy.squid_deb_proxy']['host_proxy_port'] + """ | grep squid-deb-proxy && (echo "Acquire::http::Proxy \\"http://$(cat /tmp/hostip):""" + shutit.cfg['shutit.tk.squid_deb_proxy.squid_deb_proxy']['host_proxy_port'] + """\\";" > /etc/apt/apt.conf.d/30proxy) && (echo "Acquire::http::Proxy::ppa.launchpad.net DIRECT;" >> /etc/apt/apt.conf.d/30proxy) || echo 'No squid-deb-proxy detected on docker host'""", check_exit=True)
 		shutit.send('rm -f /tmp/hostip')
-		shutit.send('/root/start_avahi_daemon.sh',check_exit=False)
+		shutit.send('/root/start_avahi_daemon.sh', check_exit=False)
 		return True
 
-	def stop(self,shutit):
-		shutit.send('/root/stop_avahi_daemon.sh',check_exit=False)
+	def stop(self, shutit):
+		shutit.send('/root/stop_avahi_daemon.sh', check_exit=False)
 		return True
 
-	def get_config(self,shutit):
+	def get_config(self, shutit):
 		shutit.get_config('shutit.tk.squid_deb_proxy.squid_deb_proxy','host_proxy_port','8000')
 		return True
 

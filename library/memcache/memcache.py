@@ -24,10 +24,10 @@ from shutit_module import ShutItModule
 
 class memcache(ShutItModule):
 
-	def is_installed(self,shutit):
+	def is_installed(self, shutit):
 		return shutit.file_exists('/root/start_memcache.sh')
 
-	def build(self,shutit):
+	def build(self, shutit):
 		shutit.install('memcached')
 		shutit.install('libmemcached-dev')
 		shutit.install('libmemcached-tools')

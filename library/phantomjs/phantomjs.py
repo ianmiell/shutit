@@ -24,10 +24,10 @@ from shutit_module import ShutItModule
 
 class phantomjs(ShutItModule):
 
-	def is_installed(self,shutit):
-		return shutit.file_exists('/opt/phantomjs',directory=True)
+	def is_installed(self, shutit):
+		return shutit.file_exists('/opt/phantomjs', directory=True)
 
-	def build(self,shutit):
+	def build(self, shutit):
 		shutit.send('pushd /opt')
 		shutit.install('tar') # required for centos image
 		shutit.install('curl')
@@ -41,7 +41,7 @@ class phantomjs(ShutItModule):
 		shutit.send('popd')
 		return True
 
-	def remove(self,shutit):
+	def remove(self, shutit):
 		shutit.send('rm -rf /opt/phantomjs')
 		return True
 

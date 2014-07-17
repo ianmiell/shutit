@@ -4,10 +4,10 @@ from shutit_module import ShutItModule
 
 class icecoder(ShutItModule):
 
-        def is_installed(self,shutit):
+        def is_installed(self, shutit):
                 return False
 
-        def build(self,shutit):
+        def build(self, shutit):
 		shutit.install('apache2')
 		shutit.install('php5')
 		shutit.install('libapache2-mod-php5')
@@ -28,16 +28,16 @@ class icecoder(ShutItModule):
 		shutit.send('chmod g+s /var/www/projects')
                 return True
 
-	def finalize(self,shutit):
+	def finalize(self, shutit):
 		return True
 
-	def test(self,shutit):
+	def test(self, shutit):
 		return True
 
-	def is_installed(self,shutit):
+	def is_installed(self, shutit):
 		return False
 
-	def get_config(self,shutit):
+	def get_config(self, shutit):
 		return True
 
 def module():

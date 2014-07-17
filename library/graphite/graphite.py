@@ -4,10 +4,10 @@ from shutit_module import ShutItModule
 
 class graphite(ShutItModule):
 
-        def is_installed(self,shutit):
+        def is_installed(self, shutit):
                 return False
 
-        def build(self,shutit):
+        def build(self, shutit):
 		shutit.send('echo \'deb http://us.archive.ubuntu.com/ubuntu/ precise universe\' >> /etc/apt/sources.list')
 		shutit.send('apt-get -y update')
 		shutit.send('apt-get -y install python-ldap python-cairo python-django python-twisted python-django-tagging python-simplejson python-memcache python-pysqlite2 python-support python-pip gunicorn supervisor nginx-light')
@@ -28,16 +28,16 @@ class graphite(ShutItModule):
 		shutit.send('cd /var/lib/graphite/webapp/graphite && python manage.py syncdb --noinput')
                 return True
 
-	def finalize(self,shutit):
+	def finalize(self, shutit):
 		return True
 
-	def test(self,shutit):
+	def test(self, shutit):
 		return True
 
-	def is_installed(self,shutit):
+	def is_installed(self, shutit):
 		return False
 
-	def get_config(self,shutit):
+	def get_config(self, shutit):
 		return True
 
 def module():

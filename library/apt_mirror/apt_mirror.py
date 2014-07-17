@@ -25,10 +25,10 @@ import os
 
 class apt_mirror(ShutItModule):
 
-	def is_installed(self,shutit):
+	def is_installed(self, shutit):
 		return False
 
-	def build(self,shutit):
+	def build(self, shutit):
 		#http://unixrob.blogspot.co.uk/2012/05/create-apt-mirror-with-ubuntu-1204-lts.html
 		shutit.install('apt-mirror')
 		shutit.install('apache2')
