@@ -33,18 +33,18 @@ class ssh_server(ShutItModule):
         shutit.send('chmod 700 /var/run/sshd')
         # Set up root bashrcs once
         # Root bash files seem to be inconsistent, so this the canonical one...
-        shutit.add_line_to_file('export HOME=/root','/root/.bashrc')
+        shutit.add_line_to_file('export HOME=/root', '/root/.bashrc')
         # ... and the others point to it.
-        shutit.add_line_to_file('. /root/.bashrc','/root/.bash_profile.sh')
-        shutit.add_line_to_file('. /root/.bashrc','/.bashrc')
-        shutit.add_line_to_file('. /root/.bashrc','/.bash_profile')
-        shutit.add_line_to_file('# sshd','/root/start_ssh_server.sh')
+        shutit.add_line_to_file('. /root/.bashrc', '/root/.bash_profile.sh')
+        shutit.add_line_to_file('. /root/.bashrc', '/.bashrc')
+        shutit.add_line_to_file('. /root/.bashrc', '/.bash_profile')
+        shutit.add_line_to_file('# sshd', '/root/start_ssh_server.sh')
         ## To get sshd to work, we need to create a privilege separation directory.
         ## see http://docs.docker.io/en/latest/examples/running_ssh_service/
-        shutit.add_line_to_file('mkdir -p /var/run/sshd','/root/start_ssh_server.sh')
-        shutit.add_line_to_file('chmod 700 /var/run/sshd','/root/start_ssh_server.sh')
-        shutit.add_line_to_file('start-stop-daemon --start --quiet --oknodo --pidfile /var/run/sshd.pid --exec /usr/sbin/sshd','/root/start_ssh_server.sh')
-        shutit.add_line_to_file('start-stop-daemon --stop --quiet --oknodo --pidfile /var/run/sshd.pid','/root/stop_ssh_server.sh')
+        shutit.add_line_to_file('mkdir -p /var/run/sshd', '/root/start_ssh_server.sh')
+        shutit.add_line_to_file('chmod 700 /var/run/sshd', '/root/start_ssh_server.sh')
+        shutit.add_line_to_file('start-stop-daemon --start --quiet --oknodo --pidfile /var/run/sshd.pid --exec /usr/sbin/sshd', '/root/start_ssh_server.sh')
+        shutit.add_line_to_file('start-stop-daemon --stop --quiet --oknodo --pidfile /var/run/sshd.pid', '/root/stop_ssh_server.sh')
         shutit.send('chmod +x /root/start_ssh_server.sh')
         shutit.send('chmod +x /root/stop_ssh_server.sh')
         return True

@@ -27,7 +27,7 @@ class sentry(ShutItModule):
         shutit.send('python get-pip.py')
         shutit.send('pip install psycopg2')
         shutit.send('pip install sentry')
-        shutit.send_host_file('/sentry.conf.py','context/sentry.conf.py')
+        shutit.send_host_file('/sentry.conf.py', 'context/sentry.conf.py')
                 return True
 
     def finalize(self, shutit):

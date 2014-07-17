@@ -14,7 +14,7 @@ class nodejs(ShutItModule):
         shutit.send('apt-get update')
         shutit.send('apt-get install -y nodejs')
         shutit.send('mkdir /var/www')
-        shutit.send_host_file('/var/www/app.js','context/app.js')
+        shutit.send_host_file('/var/www/app.js', 'context/app.js')
                 return True
 
     def finalize(self, shutit):

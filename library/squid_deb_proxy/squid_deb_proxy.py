@@ -66,7 +66,7 @@ class squid_deb_proxy(ShutItModule):
         return True
 
     def get_config(self, shutit):
-        shutit.get_config('shutit.tk.squid_deb_proxy.squid_deb_proxy','host_proxy_port','8000')
+        shutit.get_config('shutit.tk.squid_deb_proxy.squid_deb_proxy', 'host_proxy_port','8000')
         return True
 
 def module():
