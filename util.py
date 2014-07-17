@@ -888,7 +888,7 @@ def create_skeleton(shutit):
 	skel_example     = shutit.cfg['skeleton']['example']
 	skel_dockerfile  = shutit.cfg['skeleton']['dockerfile']
 	# Set up dockerfile cfg
-	shutit.cfg['dockerfile']['base_image'] = 'ubuntu:12.10'
+	shutit.cfg['dockerfile']['base_image'] = 'ubuntu:12.04'
 	shutit.cfg['dockerfile']['cmd']        = '/bin/bash'
 	shutit.cfg['dockerfile']['user']       = ''
 	shutit.cfg['dockerfile']['maintainer'] = ''
