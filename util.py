@@ -952,14 +952,14 @@ def create_skeleton(shutit):
             if docker_command == 'FROM': #DONE
                 # Should be only one of these
                 shutit.cfg['dockerfile']['base_image'] = item[1]
-                        elif docker_command == "ONBUILD": #TODO
+            elif docker_command == "ONBUILD": #TODO
                 # Maps to finalize :) - can we have more than one of these? assume yes
                 # This contains within it one of the above commands, so we need to abstract this out.
                 shutit.cfg['dockerfile']['onbuild'].append(item[1])
-                        elif docker_command == "MAINTAINER": #TODO
+            elif docker_command == "MAINTAINER": #TODO
                 # Added simply as comment now.
                 shutit.cfg['dockerfile']['maintainer'] = item[1]
-                        elif docker_command == "VOLUME": #DONE
+            elif docker_command == "VOLUME": #DONE
                 # Put in the run.sh.
                 try:
                     shutit.cfg['dockerfile']['volume'].append(' '.join(json.loads(item[1])))
@@ -968,7 +968,7 @@ def create_skeleton(shutit):
             elif docker_command == 'EXPOSE': #DONE
                 # Put in the run.sh.
                 shutit.cfg['dockerfile']['expose'].append(item[1])
-                        elif docker_command == "ENTRYPOINT": #TODO
+            elif docker_command == "ENTRYPOINT": #TODO
                 # Put in the run.sh? Yes, if it exists it goes at the front of cmd
                 try:
                     shutit.cfg['dockerfile']['entrypoint'] = ' '.join(json.loads(item[1]))
@@ -992,7 +992,7 @@ def create_skeleton(shutit):
                 shutit.cfg['dockerfile']['script'].append((item[0], item[1]))
                 # Set in the build
                 shutit.cfg['dockerfile']['env'].append(item[1])
-                        elif docker_command == "RUN": #DONE
+            elif docker_command == "RUN": #DONE
                 # Only handle simple commands for now and ignore the fact that Dockerfiles run 
                 # with /bin/sh -c rather than bash. 
                 try:
@@ -1336,24 +1336,24 @@ def module():
 # and info to extract, and returns a list with the information in a more canonical form, still ordered.
 def parse_dockerfile(shutit, contents):
         ret = []
-    full_line = ''
+        full_line = ''
         for l in contents.split('\n'):
-        # Handle continuations
-        if len(l) > 0:
-            if l[-1] == '\\':
-                full_line += l[0:-1]
-                pass
-            else:
-                full_line += l
-                        m = re.match("^[\s]*([A-Za-z]+)[\s]*(.*)$", full_line)
-                        if m:
-                                ret.append([m.group(1), m.group(2)])
-                        else:
-                    m1 = re.match("^#(..*)$", full_line)
-                    if m1:
-                                    ret.append(['COMMENT', m1.group(1)])
+            # Handle continuations
+            if len(l) > 0:
+                if l[-1] == '\\':
+                    full_line += l[0:-1]
+                    pass
+                else:
+                    full_line += l
+                    m = re.match("^[\s]*([A-Za-z]+)[\s]*(.*)$", full_line)
+                    if m:
+                        ret.append([m.group(1), m.group(2)])
                     else:
-                                    shutit.log("Ignored line in parse_dockerfile: " + l)
-                full_line = ''
-        return ret
+                        m1 = re.match("^#(..*)$", full_line)
+                    if m1:
+                        ret.append(['COMMENT', m1.group(1)])
+                    else:
+                        shutit.log("Ignored line in parse_dockerfile: " + l)
+                    full_line = ''
+            return ret
 
