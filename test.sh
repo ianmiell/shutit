@@ -24,7 +24,7 @@ TESTS=$1
 source test/shared_test_utils.sh
 
 # Variables
-NEWDIR=/tmp/shutit_testing_$(hostname)_$(whoami)_$(date -I)_$(date +%N)
+NEWDIR=/tmp/shutit_testing_$$_$(hostname)_$(whoami)_$(date -I)_$(date +%N)
 SHUTIT_DIR="$(pwd)"
 readonly NEWDIR SHUTIT_DIR
 
@@ -52,13 +52,13 @@ fi
 #PYTHONPATH=$(pwd) python test/test.py || failure "Unit tests"
 
 find ${SHUTIT_DIR} -name '*.cnf' | grep '/configs/[^/]*.cnf' | xargs chmod 600
-cleanup nothard
+cleanup hard
 
 echo "Testing skeleton build with Dockerfile"
 ./shutit skeleton -d docs/dockerfile/Dockerfile ${NEWDIR} testing shutit.tk
 pushd ${NEWDIR}
 ./test.sh ${SHUTIT_DIR} || failure "1.0 ${NEWDIR}"
-cleanup nothard
+cleanup hard
 rm -rf ${NEWDIR}
 popd
 
@@ -66,7 +66,7 @@ echo "Testing skeleton build basic bare"
 ./shutit skeleton ${NEWDIR} testing shutit.tk
 pushd ${NEWDIR}
 ./test.sh ${SHUTIT_DIR} || failure "1.1 ${NEWDIR}"
-cleanup nothard
+cleanup hard
 rm -rf ${NEWDIR}
 popd
 
@@ -75,7 +75,7 @@ echo "Testing skeleton build basic with example script"
 ./shutit skeleton ${NEWDIR} testing shutit.tk ${SHUTIT_DIR}/docs/example.sh
 pushd ${NEWDIR}
 ./test.sh ${SHUTIT_DIR} || failure "1.2 ${NEWDIR}"
-cleanup nothard
+cleanup hard
 rm -rf ${NEWDIR}
 popd
 
@@ -103,6 +103,7 @@ do
 			if [ x$SHUTIT_PARALLEL_BUILD = 'x' ]
 			then
 				./test.sh ${SHUTIT_DIR} 2>&1 | tee /tmp/shutit_logs/$$/shutit_core_test_$(date +%s) || failure "$d in base tests failed"
+				cleanup hard
 			else
 	# TODO
 	#http://stackoverflow.com/questions/356100/how-to-wait-in-bash-for-several-subprocesses-to-finish-and-return-exit-code-0
@@ -110,7 +111,6 @@ do
 				JOB=$!
 				PIDS[$JOB]="$JOB: $dist $d"
 			fi
-			cleanup nothard
 			set_shutit_options
 		fi
 		popd
@@ -123,6 +123,7 @@ then
 		echo "WAITING FOR $P"
 		wait $P || failure "FAILED: ${PIDS[$P]}"
 		report
+		cleanup nothard
 	done
 fi
 
@@ -136,8 +137,8 @@ then
 	report
 fi
 
-
 report
+cleanup hard
 
 # OK
 exit 0
