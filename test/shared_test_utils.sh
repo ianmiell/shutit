@@ -9,6 +9,8 @@ find . | grep cnf$ | xargs --no-run-if-empty chmod 0600
 # Off for now
 SHUTIT_PARALLEL_BUILD=
 readonly SHUTIT_PARALLEL_BUILD
+BUILD_REF=$(dd if=/dev/urandom bs=256 count=1 2>/dev/null | md5sum | awk '{print $1}' | sed 's/^\(....\).*/\1/')
+readonly BUILD_REF
 
 SHUTIT_TEST_REPORT=""
 
@@ -16,10 +18,11 @@ set -o errexit
 set -o nounset
 #set -x
 
+
 function set_shutit_options() {
 	local CNAME
 	local OPTS
-	CNAME=shutit_test_container_$$_$(dd if=/dev/urandom bs=256 count=1 2>/dev/null | md5sum | awk '{print $1}')
+	CNAME=shutit_test_container_${BUILD_REF}_$(dd if=/dev/urandom bs=256 count=1 2>/dev/null | md5sum | awk '{print $1}')
 	OPTS=${1:-none}
 	if [[ "$OPTS" = "none" ]]
 	then
@@ -27,16 +30,22 @@ function set_shutit_options() {
 	else
 		export SHUTIT_OPTIONS="-s container name $CNAME $OPTS"
 	fi
-	CNAME=shutit_test_container_$$_$(dd if=/dev/urandom bs=256 count=1 2>/dev/null | md5sum | awk '{print $1}')
+	CNAME=shutit_test_container_${BUILD_REF}_$(dd if=/dev/urandom bs=256 count=1 2>/dev/null | md5sum | awk '{print $1}')
 }
 
 function cleanup() {
-	CONTAINERS=$($DOCKER ps -a | grep shutit_test_container_$$ | awk '{print $1}')
-	if [[ "x${1:-}" = "xhard" ]]
+	CONTAINERS=$($DOCKER ps -a | grep shutit_test_container_${BUILD_REF} | awk '{print $1}')
+	if [[ "x$CONTAINERS" != "x" ]]
 	then
-		$DOCKER kill $CONTAINERS >/dev/null 2>&1 || /bin/true
+		if [[ "x${1:-}" = "xhard" ]]
+		then
+			echo "Force-removing containers: $CONTAINERS"
+			$DOCKER rm -f $CONTAINERS
+		else
+			echo "Removing containers: $CONTAINERS"
+			$DOCKER rm $CONTAINERS || /bin/true
+		fi
 	fi
-	$DOCKER rm $CONTAINERS >/dev/null 2>&1 || /bin/true
 }
 
 function failure() {
