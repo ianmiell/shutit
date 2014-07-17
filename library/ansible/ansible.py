@@ -43,8 +43,8 @@ class ansible(ShutItModule):
 		return True
 
 	def test(self,shutit):
-		#if shutit.send('ansible all -m ping',expect=['assword',shutit.cfg['expect_prompts']['root_prompt']]) == 0:
-		#	shutit.send(shutit.cfg['container']['password'])
+		if shutit.send('ansible all -m ping',expect=['assword',shutit.cfg['expect_prompts']['root_prompt']]) == 0:
+			shutit.send(shutit.cfg['container']['password'])
 		return True
 
 def module():
