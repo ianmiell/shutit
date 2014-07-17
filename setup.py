@@ -216,13 +216,13 @@ class conn_docker(ShutItModule):
                 'configurable base image passed in in:\n\n\t--image <image>\n' +
                 '\nor config:\n\n\t[container]\n\tdocker_image:<image>)\n\nBase ' +
                 'image in this case is:\n\n\t' + cfg['container']['docker_image'] +
-                '\n\n' + util.colour('31','[Hit return to continue]'))
+                '\n\n' + util.colour('31', '[Hit return to continue]'))
             raw_input('')
         shutit.log('\n\nCommand being run is:\n\n' + ' '.join(docker_command), force_stdout=True, prefix=False)
         shutit.log('\n\nThis may download the image, please be patient\n\n', force_stdout=True, prefix=False)
 
         container_child = pexpect.spawn(docker_command[0], docker_command[1:])
-        expect = ['assword', cfg['expect_prompts']['base_prompt'].strip(),'Waiting','ulling','endpoint','Download']
+        expect = ['assword', cfg['expect_prompts']['base_prompt'].strip(), 'Waiting', 'ulling', 'endpoint', 'Download']
         res = container_child.expect(expect,9999)
         while True:
             shutit.log(""">>>\n""" + container_child.before + container_child.after + """\n<<<""")
@@ -290,7 +290,7 @@ class conn_docker(ShutItModule):
         # Record the command we ran and the python env.
         # TODO: record the image id we ran against - wait for "docker debug" command
         shutit.send_file(shutit.cfg['build']['build_db_dir'] + '/' + shutit.cfg['build']['build_id'] + '/python_env.sh', str(sys.__dict__), log=False)
-        shutit.send_file(shutit.cfg['build']['build_db_dir'] + '/' + shutit.cfg['build']['build_id'] + '/docker_command.sh',' '.join(docker_command), log=False)
+        shutit.send_file(shutit.cfg['build']['build_db_dir'] + '/' + shutit.cfg['build']['build_id'] + '/docker_command.sh', ' '.join(docker_command), log=False)
         shutit.pause_point('Anything you want to do now the container is connected to?', level=2)
         return True
 
@@ -363,7 +363,7 @@ class setup(ShutItModule):
         management update.
         """
         cp = shutit.cfg['config_parser']
-        shutit.get_config(self.module_id,'do_update','yes')
+        shutit.get_config(self.module_id, 'do_update', 'yes')
         return True
 
 def module():
