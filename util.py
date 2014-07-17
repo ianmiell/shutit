@@ -401,7 +401,7 @@ def parse_args(cfg):
     cfg['host']['real_user_id'] = pexpect.run('id -u ' + cfg['host']['real_user']).strip()
 
     # These are in order of their creation
-    actions = ['build', 'sc','depgraph','serve','skeleton']
+    actions = ['build', 'sc', 'depgraph', 'serve', 'skeleton']
 
     # Compatibility
     # Note that (for now) all of these compat functions work because we know
@@ -457,9 +457,9 @@ def parse_args(cfg):
 
     sub_parsers['sc'].add_argument('--history', help='show config history', const=True, default=False, action='store_const')
 
-    for action in ['build', 'serve','depgraph','sc']:
+    for action in ['build', 'serve', 'depgraph', 'sc']:
         sub_parsers[action].add_argument('--config', help='Config file for setup config. Must be with perms 0600. Multiple arguments allowed; config files considered in order.', default=[], action='append')
-        sub_parsers[action].add_argument('-s', '--set', help='Override a config item, e.g. "-s container rm no". Can be specified multiple times.', default=[], action='append', nargs=3, metavar=('SEC', 'KEY','VAL'))
+        sub_parsers[action].add_argument('-s', '--set', help='Override a config item, e.g. "-s container rm no". Can be specified multiple times.', default=[], action='append', nargs=3, metavar=('SEC', 'KEY', 'VAL'))
         sub_parsers[action].add_argument('--image_tag', help='Build container using specified image - if there is a symbolic reference, please use that, eg localhost.localdomain:5000/myref', default='')
         sub_parsers[action].add_argument('-m', '--shutit_module_path', default='.', help='List of shutit module paths, separated by colons. ShutIt registers modules by running all .py files in these directories.')
         sub_parsers[action].add_argument('--pause', help='Pause between commands to avoid race conditions.', default='0.05', type=check_pause)
@@ -1031,7 +1031,7 @@ class template(ShutItModule):
         for item in shutit.cfg['dockerfile']['script']:
             dockerfile_command = item[0].upper()
             dockerfile_args    = item[1].split()
-            cmd = ' '.join(dockerfile_args).replace("'","\\'")
+            cmd = ' '.join(dockerfile_args).replace("'", "\\'")
             if dockerfile_command == 'RUN':
                 build += """\n\t\tshutit.send('""" + cmd + """')"""
             elif dockerfile_command == 'WORKDIR':
@@ -1088,7 +1088,7 @@ class template(ShutItModule):
                     else:
                         build += """\n\t\tshutit.send_host_file('""" + outfile + """', '""" + buildstagefile + """')"""
             elif dockerfile_command == 'ENV':
-                cmd = '='.join(dockerfile_args).replace("'","\\'")
+                cmd = '='.join(dockerfile_args).replace("'", "\\'")
                 build += """\n\t\tshutit.send('export """ + '='.join(dockerfile_args) + """')"""
             elif dockerfile_command == 'COMMENT':
                 build += """\n\t\t#""" + dockerfile_args[0]
