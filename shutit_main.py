@@ -159,7 +159,7 @@ def config_collection(shutit):
 		# Default to None so we can interpret as ifneeded
 		util.get_config(cfg,mid,'build',None,boolean=True)
 		util.get_config(cfg,mid,'remove',False,boolean=True)
-		util.get_config(cfg,mid,'do_repository_work',False,boolean=True)
+		util.get_config(cfg,mid,'tagmodule',False,boolean=True)
 
 		# ifneeded will (by default) only take effect if 'build' is not specified
 		# It can, however, be forced to a value, but this should be unusual
@@ -379,12 +379,12 @@ def build_module(shutit, module):
 		shutit.fail(module.module_id + ' failed on build',child=shutit.pexpect_children['container_child'])
 	shutit.pause_point('\nPausing to allow inspect of build for: ' + module.module_id,print_input=True,level=2)
 	cfg['build']['report'] = cfg['build']['report'] + '\nCompleted module: ' + module.module_id
-	if cfg[module.module_id]['do_repository_work'] or cfg['build']['interactive'] >= 3:
+	if cfg[module.module_id]['tagmodule'] or cfg['build']['interactive'] >= 3:
 		shutit.log(util.build_report(shutit,'#Module:' + module.module_id),code='31')
-	if not cfg[module.module_id]['do_repository_work'] and cfg['build']['interactive'] >= 2:
+	if not cfg[module.module_id]['tagmodule'] and cfg['build']['interactive'] >= 2:
 		shutit.log("\n\nDo you want to save state now we\'re at the end of this module? (" + module.module_id + ") (input y/n)",force_stdout=True)
-		cfg[module.module_id]['do_repository_work'] = (raw_input('') == 'y')
-	if cfg[module.module_id]['do_repository_work']:
+		cfg[module.module_id]['tagmodule'] = (raw_input('') == 'y')
+	if cfg[module.module_id]['tagmodule']:
 		shutit.log(module.module_id + ' configured to be tagged, doing repository work',force_stdout=True)
 		# Stop all before we tag to avoid file changing errors, and clean up pid files etc..
 		stop_all(shutit, module.run_order)
