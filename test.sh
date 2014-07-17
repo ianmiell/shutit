@@ -18,7 +18,7 @@
 #LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 #OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 #SOFTWARE.
-#set -x
+set -e
 TESTS=$1
 
 source test/shared_test_utils.sh
@@ -58,6 +58,7 @@ echo "Testing skeleton build with Dockerfile"
 ./shutit skeleton -d docs/dockerfile/Dockerfile ${NEWDIR} testing shutit.tk
 pushd ${NEWDIR}
 ./test.sh ${SHUTIT_DIR} || failure "1.0 ${NEWDIR}"
+exit
 cleanup hard
 rm -rf ${NEWDIR}
 popd
@@ -81,11 +82,11 @@ popd
 
 
 # General tests
+set +e
 mkdir -p /tmp/shutit_logs/$$
 declare -A PIDS
 PIDS=()
 DISTROS=${SHUTITTEST_DISTROS:-ubuntu:12.04 debian:7.3}
-
 for dist in $DISTROS
 do
 	for d in $(ls test | grep -v configs)
