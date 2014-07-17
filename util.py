@@ -320,6 +320,7 @@ def get_base_config(cfg, cfg_parser):
 	cfg['repository']['user']                     = cp.get('repository','user')
 	cfg['repository']['password']                 = cp.get('repository','password')
 	cfg['repository']['email']                    = cp.get('repository','email')
+	cfg['repository']['tag_name']                 = cp.get('repository','tag_name')
 	# END Read from config files
 
 	# BEGIN Standard expects
