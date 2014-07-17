@@ -39,6 +39,7 @@ class ansible(ShutItModule):
 		shutit.send('pip install paramiko PyYAML jinja2 httplib2')
 		shutit.send('echo "127.0.0.1" > ~/ansible_hosts')
 		shutit.send('export ANSIBLE_HOSTS=~/ansible_hosts')
+		shutit.add_to_bashrc('export ANSIBLE_HOSTS=~/ansible_hosts')
 		return True
 
 	def test(self,shutit):
