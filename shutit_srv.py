@@ -229,7 +229,7 @@ def shutit_reset():
         for mid in shutit.shutit_map:
             orig_mod_cfg[mid] = STATUS['cfg'][mid] = shutit.cfg[mid]
         # Add in core sections
-        for mid in ['repository','container']:
+        for mid in ['repository', 'container']:
             orig_mod_cfg[mid] = STATUS['cfg'][mid] = shutit.cfg[mid]
             
         # Make sure that orig_mod_cfg can be updated seperately to

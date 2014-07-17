@@ -63,7 +63,7 @@ def stop_all(shutit, run_order=-1):
     cfg = shutit.cfg
     shutit_map = shutit.shutit_map
     if cfg['build']['interactive'] >= 3:
-        print('\nRunning stop on all modules' + util.colour('31','\n[Hit return to continue]'))
+        print('\nRunning stop on all modules' + util.colour('31', '\n[Hit return to continue]'))
         raw_input('')
     # sort them to it's stopped in reverse order)
     for mid in module_ids(shutit, rev=True):
@@ -82,7 +82,7 @@ def start_all(shutit, run_order=-1):
     cfg = shutit.cfg
     shutit_map = shutit.shutit_map
     if cfg['build']['interactive'] >= 3:
-        print('\nRunning start on all modules' + util.colour('31','\n[Hit return to continue]'))
+        print('\nRunning start on all modules' + util.colour('31', '\n[Hit return to continue]'))
         raw_input('')
     # sort them to they're started in order)
     for mid in module_ids(shutit):
@@ -147,7 +147,7 @@ def init_shutit_map(shutit):
         shutit.fail('No module with run_order=0 specified! This is required.')
 
     if cfg['build']['interactive'] >= 3:
-        print(util.colour('31','Module id and run order checks OK\n[Hit return to continue]'))
+        print(util.colour('31', 'Module id and run order checks OK\n[Hit return to continue]'))
         raw_input('')
 
 def config_collection(shutit):
@@ -184,7 +184,7 @@ def conn_container(shutit):
     # Set up the container in pexpect.
     if shutit.cfg['build']['interactive'] >= 3:
         print('\nRunning the conn module (' +
-            shutit.shutit_main_dir + '/setup.py)' + util.colour('31','\n[Hit return to continue]'))
+            shutit.shutit_main_dir + '/setup.py)' + util.colour('31', '\n[Hit return to continue]'))
         raw_input('')
     list(shutit.conn_modules)[0].build(shutit)
 
@@ -381,7 +381,7 @@ def build_module(shutit, module):
     shutit.pause_point('\nPausing to allow inspect of build for: ' + module.module_id, print_input=True, level=2)
     cfg['build']['report'] = cfg['build']['report'] + '\nCompleted module: ' + module.module_id
     if cfg[module.module_id]['tagmodule'] or cfg['build']['interactive'] >= 3:
-        shutit.log(util.build_report(shutit,'#Module:' + module.module_id), code='31')
+        shutit.log(util.build_report(shutit, '#Module:' + module.module_id), code='31')
     if not cfg[module.module_id]['tagmodule'] and cfg['build']['interactive'] >= 2:
         shutit.log("\n\nDo you want to save state now we\'re at the end of this module? (" + module.module_id + ") (input y/n)", force_stdout=True)
         cfg[module.module_id]['tagmodule'] = (raw_input('') == 'y')
@@ -405,7 +405,7 @@ def do_build(shutit):
     shutit.log('PHASE: build, repository work', code='31')
     shutit.log(util.print_config(shutit.cfg))
     if cfg['build']['interactive'] >= 3:
-        print '\nNow building any modules that need building' + util.colour('31','\n[Hit return to continue]')
+        print '\nNow building any modules that need building' + util.colour('31', '\n[Hit return to continue]')
         raw_input('')
     for mid in module_ids(shutit):
         module = shutit_map[mid]
@@ -434,7 +434,7 @@ def do_test(shutit):
     # Test in reverse order
     shutit.log('PHASE: test', code='31')
     if cfg['build']['interactive'] >= 3:
-        print '\nNow doing test phase' + util.colour('31','\n[Hit return to continue]')
+        print '\nNow doing test phase' + util.colour('31', '\n[Hit return to continue]')
         raw_input('')
     stop_all(shutit)
     start_all(shutit)
@@ -452,13 +452,13 @@ def do_finalize(shutit):
     shutit_map = shutit.shutit_map
     # Stop all the modules
     if cfg['build']['interactive'] >= 3:
-        print('\nStopping all modules before finalize phase' + util.colour('31','\n[Hit return to continue]'))
+        print('\nStopping all modules before finalize phase' + util.colour('31', '\n[Hit return to continue]'))
         raw_input('')
     stop_all(shutit)
     # Finalize in reverse order
     shutit.log('PHASE: finalize', code='31')
     if cfg['build']['interactive'] >= 3:
-        print('\nNow doing finalize phase, which we do when all builds are complete and modules are stopped' + util.colour('31','\n[Hit return to continue]'))
+        print('\nNow doing finalize phase, which we do when all builds are complete and modules are stopped' + util.colour('31', '\n[Hit return to continue]'))
         raw_input('')
     for mid in module_ids(shutit, rev=True):
         # Only finalize if it's thought to be installed.
@@ -544,7 +544,7 @@ def shutit_main():
 
     finalize_container(shutit)
 
-    shutit.log(util.build_report(shutit,'#Module: N/A (END)'), prefix=False, force_stdout=True, code='31')
+    shutit.log(util.build_report(shutit, '#Module: N/A (END)'), prefix=False, force_stdout=True, code='31')
 
     if shutit.cfg['build']['interactive'] >= 3:
         shutit.log('\nThe build is complete. You should now have a container called ' + shutit.cfg['container']['name'] + ' and a new image if you chose to commit it.\n\nLook and play with the following files from the newly-created module directory to dig deeper:\n\n\tconfigs/default.cnf\n\t*.py\n\nYou can rebuild at any time by running the supplied ./build.sh and run with the supplied ./run.sh.\n\nThere\'s a default test runner in test.sh\n\nYou can inspect the details of the build in the container\'s /root/shutit_build directory.', force_stdout=True, code='31')
