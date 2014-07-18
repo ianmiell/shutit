@@ -153,7 +153,8 @@ class ShutIt(object):
         - force_stdout - If we are not in debug, put this in stdout anyway (default: False)
         """
         if prefix:
-            prefix = 'LOG: ' + time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+            prefix = 'LOG: ' + time.strftime("%Y-%m-%d %H:%M:%S", 
+                time.localtime())
             msg = prefix + ' ' + str(msg)
         # Don't colour message if we are in serve mode.
         if code != None and not self.cfg['action']['serve']:
@@ -167,38 +168,59 @@ class ShutIt(object):
         time.sleep(pause)
 
 
-    def send(self, send, expect=None, child=None, timeout=3600, check_exit=None, fail_on_empty_before=True, record_command=None, exit_values=None, echo=None):
-        """Send string as a shell command, and wait until the expected output is seen (either a string
-        or any from a list of strings) before returning.
-        The expected string will default to the currently-set default expected string (see get_default_expect)
+    def send(self, 
+             send,
+             expect=None,
+	     child=None, 
+             timeout=3600,
+             check_exit=None,
+             fail_on_empty_before=True,
+             record_command=None,
+             exit_values=None,
+             echo=None):
+        """Send string as a shell command, and wait until the expected output
+        is seen (either a string or any from a list of strings) before
+        returning. The expected string will default to the currently-set
+        default expected string (see get_default_expect)
 
-        Returns the pexpect return value (ie which expected string in the list matched)
+        Returns the pexpect return value (ie which expected string in the list
+        matched)
         
         Arguments:
 
         - child                      - pexpect child to issue command to.
-        - send                       - String to send, ie the command being issued.
-        - expect                     - String that we expect to see in the output. Usually a prompt.
-                                       Defaults to currently-set expect string (see set_default_expect)
-        - timeout                    - Timeout on response (default=3600 seconds).
-        - check_exit                 - Whether to check the shell exit code of the passed-in command.
-                                       If the exit value was non-zero an error is thrown.
-                                       (default=None, which takes the currently-configured check_exit value)
+        - send                       - String to send, ie the command being
+                                       issued.
+        - expect                     - String that we expect to see in the
+                                       output. Usually a prompt. Defaults to
+                                       currently-set expect string (see
+                                       set_default_expect)
+        - timeout                    - Timeout on response
+                                       (default=3600 seconds).
+        - check_exit                 - Whether to check the shell exit code of
+                                       the passed-in command.  If the exit value
+                                       was non-zero an error is thrown.
+                                       (default=None, which takes the
+                                       currently-configured check_exit value)
                                        See also fail_on_empty_before.
-        - fail_on_empty_before       - If debug is set, fail on empty match output string (default=True)
-                                       If this is set to False, then we don't check the exit value of the 
-                                       command.
-        - record_command             - Whether to record the command for output at end (default=True)
-                                       As a safety measure, if the command matches any 'password's then we 
-                                       don't record it.
-        - exit_values                - Array of acceptable exit values (default [0])
-        - echo                       - Whether to suppress any logging output from pexpect to the terminal or not.
-                                       We don't record the command if this is set to False unless record_command is
+        - fail_on_empty_before       - If debug is set, fail on empty match
+                                       output string (default=True)
+                                       If this is set to False, then we don't
+                                       check the exit value of the command.
+        - record_command             - Whether to record the command for output
+                                       at end (default=True). As a safety
+                                       measure, if the command matches any
+                                       'password's then we don't record it.
+        - exit_values                - Array of acceptable exit values
+                                       (default [0])
+        - echo                       - Whether to suppress any logging output
+                                       from pexpect to the terminal or not.
+                                       We don't record the command if this is
+                                       set to False unless record_command is
                                        explicitly passed in as True.
         """
         child = child or self.get_default_child()
         expect = expect or self.get_default_expect()
-        cfg = self.cfg
         # If check_exit is not passed in
         # - if the expect matches the default, use the default check exit
         # - otherwise, default to doing the check
@@ -206,9 +228,9 @@ class ShutIt(object):
             if expect == self.get_default_expect():
                 check_exit = self.get_default_check_exit()
             else:
-                # If expect given doesn't match the defaults and no argument was passed in
-                # (ie check_exit was passed in as None), set check_exit to true iff it
-                # matches a prompt.
+                # If expect given doesn't match the defaults and no argument
+                # was passed in (ie check_exit was passed in as None), set
+                # check_exit to true iff it matches a prompt.
                 expect_matches_prompt = False
                 for prompt in cfg['expect_prompts']:
                     if prompt == expect:
@@ -225,8 +247,10 @@ class ShutIt(object):
             for i in cfg.keys():
                 if isinstance(cfg[i], dict):
                     for j in cfg[i].keys():
-                        if (j == 'password' or j == 'passphrase') and cfg[i][j] == send:
-                            self.shutit_command_history.append('#redacted command, password')
+                        if ((j == 'password' or j == 'passphrase') 
+                                and cfg[i][j] == send):
+                            self.shutit_command_history.append \
+                                ('#redacted command, password')
                             ok_to_record = False
                             break
                     if not ok_to_record:
@@ -234,7 +258,8 @@ class ShutIt(object):
             if ok_to_record:
                 self.shutit_command_history.append(send)
         if cfg['build']['debug']:
-            self.log('================================================================================')
+            self.log('===================================================' + 
+                '=============================')
             self.log('Sending>>>' + send + '<<<')
             self.log('Expecting>>>' + str(expect) + '<<<')
         # Don't echo if echo passed in as False
@@ -252,7 +277,10 @@ class ShutIt(object):
             self.log('child.after>>>' + child.after + '<<<')
         if fail_on_empty_before == True:
             if child.before.strip() == '':
-                shutit.fail('before empty after sending: ' + send + '\n\nThis is expected after some commands that take a password.\nIf so, add fail_on_empty_before=False to the send call', child=child)
+                shutit.fail('before empty after sending: ' + send +
+                    '\n\nThis is expected after some commands that take a ' + 
+                    'password.\nIf so, add fail_on_empty_before=False to ' + 
+                    'the send call', child=child)
         elif fail_on_empty_before == False:
             # Don't check exit if fail_on_empty_before is False
             self.log('' + child.before + '<<<')
@@ -261,7 +289,8 @@ class ShutIt(object):
                 if prompt == expect:
                     # Reset prompt
                     self.setup_prompt('reset_tmp_prompt', child=child)
-                    self.revert_prompt('reset_tmp_prompt', expect, child=child)
+                    self.revert_prompt('reset_tmp_prompt', expect,
+                        child=child)
         cfg['build']['last_output'] = child.before
         if check_exit == True:
             # store the output
@@ -271,7 +300,12 @@ class ShutIt(object):
     send_and_expect = send
 
 
-    def _check_exit(self, send, expect=None, child=None, timeout=3600, exit_values=None):
+    def _check_exit(self,
+                    send,
+                    expect=None,
+                    child=None,
+                    timeout=3600,
+                    exit_values=None):
         """Internal function to check the exit value of the shell. Do not use.
         """
         expect = expect or self.get_default_expect()
@@ -281,19 +315,25 @@ class ShutIt(object):
         # Don't use send here (will mess up last_output)!
         child.sendline('echo EXIT_CODE:$?')
         child.expect(expect, timeout)
-        res = self.get_re_from_child(child.before, '^EXIT_CODE:([0-9][0-9]?[0-9]?)$')
-        #print 'RES', str(res), ' ', str(exit_values), ' ', str(res in exit_values)
+        res = self.get_re_from_child(child.before, 
+            '^EXIT_CODE:([0-9][0-9]?[0-9]?)$')
         if res not in exit_values or res == None:
             if res == None:
                 res = str(res)
             self.log('child.after: \n' + child.after + '\n')
             self.log('Exit value from command+\n' + send + '\nwas:\n' + res)
-            msg = '\nWARNING: command:\n' + send + '\nreturned unaccepted exit code: ' + res + '\nIf this is expected, pass in check_exit=False or an exit_values array into the send function call.'
+            msg = ('\nWARNING: command:\n' + send + 
+                  '\nreturned unaccepted exit code: ' + 
+                  res + 
+                  '\nIf this is expected, pass in check_exit=False or ' + 
+                  'an exit_values array into the send function call.')
             cfg['build']['report'] = cfg['build']['report'] + msg
             if cfg['build']['interactive'] >= 1:
-                shutit.pause_point(msg + '\n\nPause point on exit_code != 0 (' + res + '). CTRL-C to quit', child=child)
+                shutit.pause_point(msg + '\n\nPause point on exit_code != 0 (' +
+                    res + '). CTRL-C to quit', child=child)
             else:
-                raise Exception('Exit value from command\n' + send + '\nwas:\n' + res)
+                raise Exception('Exit value from command\n' + send +
+                    '\nwas:\n' + res)
 
     def run_script(self, script, expect=None, child=None, in_shell=True):
         """Run the passed-in string as a script on the container's command line.
@@ -321,7 +361,8 @@ class ShutIt(object):
             script = ('set -o xtrace \n\n' + script + '\n\nset +o xtrace')
         self.send_file('/tmp/shutit_script.sh', script)
         self.send('chmod +x /tmp/shutit_script.sh', expect, child)
-        self.shutit_command_history.append('    ' + script.replace('\n', '\n    '))
+        self.shutit_command_history.append\
+            ('    ' + script.replace('\n', '\n    '))
         if in_shell:
             ret = self.send('. /tmp/shutit_script.sh', expect, child)
         else:
@@ -330,7 +371,8 @@ class ShutIt(object):
         return ret
 
     def send_file(self, path, contents, expect=None, child=None, log=True):
-        """Sends the passed-in string as a file to the passed-in path on the container.
+        """Sends the passed-in string as a file to the passed-in path on the
+        container.
 
         - path     - Target location of file in container.
         - contents - Contents of file as a string. See log.
@@ -341,7 +383,8 @@ class ShutIt(object):
         child = child or self.get_default_child()
         expect = expect or self.get_default_expect()
         if cfg['build']['debug']:
-            self.log('================================================================================')
+            self.log('=====================================================' + 
+                '===========================')
             self.log('Sending file to' + path)
             if log:
                 self.log('contents >>>' + contents + '<<<')
@@ -350,7 +393,8 @@ class ShutIt(object):
         child.logfile_send = None
         # Prepare to send the contents as base64 so we don't have to worry about
         # special shell characters
-        # TODO: hide the gory details: http://stackoverflow.com/questions/5633472/how-do-i-turn-off-echo-in-a-terminal
+        # TODO: hide the gory details:
+        # http://stackoverflow.com/questions/5633472
         #stty_orig=`stty -g`
         #stty -echo
         #echo 'hidden section'
@@ -364,8 +408,8 @@ class ShutIt(object):
         # is 4k on modern machines (it seems), but we choose 1k for safety
         # https://github.com/pexpect/pexpect/issues/55
         batchsize = 1024
-        for l in range(0, len(contents64), batchsize):
-            child.sendline(contents64[l:l + batchsize])
+        for batch in range(0, len(contents64), batchsize):
+            child.sendline(contents64[batch:batch + batchsize])
         # Make sure we've synced the prompt before we send EOF. I don't know why
         # this requires three sendlines to generate 2x'\r\n'.
         # Note: we can't rely on a '\r\n' from the batching because the file
@@ -381,7 +425,12 @@ class ShutIt(object):
         # Go to old echo
         child.logfile_send = oldlog
 
-    def send_host_file(self, path, hostfilepath, expect=None, child=None, log=True):
+    def send_host_file(self,
+                       path,
+                       hostfilepath,
+                       expect=None,
+                       child=None,
+                       log=True):
         """Send file from host machine to given path
 
         - path         - Path to send file to.
@@ -393,15 +442,24 @@ class ShutIt(object):
         child = child or self.get_default_child()
         expect = expect or self.get_default_expect()
         if os.path.isfile(hostfilepath):
-            self.send_file(path, open(hostfilepath).read(), expect=expect, child=child, log=log)
+            self.send_file(path, open(hostfilepath).read(), expect=expect, 
+                child=child, log=log)
         elif os.path.isdir(hostfilepath):
-            self.send_host_dir(path, hostfilepath, expect=expect, child=child, log=log)
+            self.send_host_dir(path, hostfilepath, expect=expect,
+                child=child, log=log)
         else:
-            shutit.fail('send_host_file - file: ' + hostfilepath + ' does not exist as file or dir. cwd is: ' + os.getcwd(), child=child)
+            shutit.fail('send_host_file - file: ' + hostfilepath +
+                ' does not exist as file or dir. cwd is: ' + os.getcwd(),
+                child=child)
 
-    def send_host_dir(self, path, hostfilepath, expect=None, child=None, log=True):
-        """Send directory and all contents recursively from host machine to given path.
-        It will automatically make directories on the container.
+    def send_host_dir(self,
+                      path,
+                      hostfilepath,
+                      expect=None,
+                      child=None,
+                      log=True):
+        """Send directory and all contents recursively from host machine to
+        given path.  It will automatically make directories on the container.
 
         - path         - Path to send file to
         - hostfilepath - Path to file from host to send to container
@@ -412,18 +470,22 @@ class ShutIt(object):
         child = child or self.get_default_child()
         expect = expect or self.get_default_expect()
         self.log('entered send_host_dir in: ' + os.getcwd())
-        for root, subFolders, files in os.walk(hostfilepath):
-            subFolders.sort()
+        for root, subfolders, files in os.walk(hostfilepath):
+            subfolders.sort()
             files.sort()
-            for subfolder in subFolders:
+            for subfolder in subfolders:
                 self.send('mkdir -p ' + path + '/' + subfolder)
-                self.log('send_host_dir recursing to: ' + hostfilepath + '/' + subfolder)
-                self.send_host_dir(path + '/' + subfolder, hostfilepath + '/' + subfolder, expect=expect, child=child, log=log)
+                self.log('send_host_dir recursing to: ' + hostfilepath +
+                    '/' + subfolder)
+                self.send_host_dir(path + '/' + subfolder, hostfilepath +
+                    '/' + subfolder, expect=expect, child=child, log=log)
             for fname in files:
                 hostfullfname = os.path.join(root, fname)
                 containerfname = os.path.join(path, fname)
-                self.log('send_host_dir sending file hostfullfname to container file: ' + containerfname)
-                self.send_file(containerfname, open(hostfullfname).read(), expect=expect, child=child, log=log)
+                self.log('send_host_dir sending file hostfullfname to ' + 
+                    'container file: ' + containerfname)
+                self.send_file(containerfname, open(hostfullfname).read(), 
+                    expect=expect, child=child, log=log)
 
 
     def file_exists(self, filename, expect=None, child=None, directory=False):
@@ -437,8 +499,11 @@ class ShutIt(object):
         child = child or self.get_default_child()
         expect = expect or self.get_default_expect()
         test = 'test %s %s' % ('-d' if directory is True else '-a', filename)
-        self.send(test + ' && echo FILEXIST-""FILFIN || echo FILNEXIST-""FILFIN', expect=expect, child=child, check_exit=False, record_command=False)
-        res = self.get_re_from_child(child.before, '^(FILEXIST|FILNEXIST)-FILFIN$')
+        self.send(test +
+            ' && echo FILEXIST-""FILFIN || echo FILNEXIST-""FILFIN',
+            expect=expect, child=child, check_exit=False, record_command=False)
+        res = self.get_re_from_child(child.before,
+            '^(FILEXIST|FILNEXIST)-FILFIN$')
         ret = False
         if res == 'FILEXIST':
             ret = True
@@ -446,12 +511,14 @@ class ShutIt(object):
             pass
         else:
             # Change to log?
-            print repr('before>>>>:%s<<<< after:>>>>%s<<<<' % (child.before, child.after))
+            print repr('before>>>>:%s<<<< after:>>>>%s<<<<' %
+                (child.before, child.after))
             self.pause_point('Did not see FIL(N)?EXIST in before', child)
         return ret
 
     def get_file_perms(self, filename, expect=None, child=None):
-        """Returns the permissions of the file on the container as an octal string triplet.
+        """Returns the permissions of the file on the container as an octal
+        string triplet.
 
         - filename  - Filename to get permissions of.
         - expect    - See send()
@@ -464,22 +531,32 @@ class ShutIt(object):
         res = self.get_re_from_child(child.before, '([0-9][0-9][0-9])')
         return res
 
-    def add_line_to_file(self, line, filename, expect=None, child=None, match_regexp=None, force=False, literal=False):
+    def add_line_to_file(self,
+                         line,
+                         filename, 
+                         expect=None,
+                         child=None,
+                         match_regexp=None,
+                         force=False,
+                         literal=False):
         """Adds line to file if it doesn't exist (unless Force is set).
         Creates the file if it doesn't exist.
         Must be exactly the line passed in to match.
         Returns True if line added, False if not.
-        If you have a lot of non-unique lines to add, it's a good idea to have a sentinel value to
-        add first, and then if that returns true, force the remainder.
+        If you have a lot of non-unique lines to add, it's a good idea to
+        have a sentinel value to add first, and then if that returns true,
+        force the remainder.
     
         - line         - Line to add.
         - filename     - Filename to add it to.
         - expect       - See send()
         - child        - See send()
-        - match_regexp - If supplied, a regexp to look for in the file instead of the line itself,
+        - match_regexp - If supplied, a regexp to look for in the file
+                         instead of the line itself,
                          handy if the line has awkward characters in it.
         - force        - Always write the line to the file.
-        - literal      - If true, then simply grep for the exact string without bash interpretation.
+        - literal      - If true, then simply grep for the exact string without
+                         bash interpretation.
         """
         child = child or self.get_default_child()
         expect = expect or self.get_default_expect()
@@ -487,30 +564,74 @@ class ShutIt(object):
         res = '0'
         bad_chars    = '"'
         tmp_filename = '/tmp/' + random_id()
-        if match_regexp == None and re.match('.*[' + bad_chars + '].*', line) != None:
-            shutit.fail('Passed problematic character to add_line_to_file.\nPlease avoid using the following chars: ' + bad_chars + '\nor supply a match_regexp argument.\nThe line was:\n' + line, child=child)
+        if match_regexp == None and re.match('.*[' + bad_chars + '].*',
+                line) != None:
+            shutit.fail('Passed problematic character to add_line_to_file.\n' +
+                'Please avoid using the following chars: ' + 
+                bad_chars +
+                '\nor supply a match_regexp argument.\nThe line was:\n' +
+                line, child=child)
         if not self.file_exists(filename, expect=expect, child=child):
-            # The above cat doesn't work so we touch the file if it doesn't exist already.
-            self.send('touch ' + filename, expect=expect, child=child, check_exit=False)
+            # The above cat doesn't work so we touch the file if it
+            # doesn't exist already.
+            self.send('touch ' + filename, expect=expect, child=child,
+                check_exit=False)
         elif not force:
             if literal:
                 if match_regexp == None:
-                    self.send("""grep -w '^""" + line + """$' """ + filename + ' > ' + tmp_filename, expect=expect, child=child, exit_values=['0', '1'])
+                    self.send("""grep -w '^""" + 
+                              line +
+                              """$' """ +
+                              filename +
+                              ' > ' + 
+                              tmp_filename, 
+                              expect=expect,
+                              child=child,
+                              exit_values=['0', '1'])
                 else:
-                    self.send("""grep -w '^""" + match_regexp + """$' """ + filename + ' > ' + tmp_filename, expect=expect, child=child, exit_values=['0', '1'])
+                    self.send("""grep -w '^""" + 
+                              match_regexp + 
+                              """$' """ +
+                              filename +
+                              ' > ' +
+                              tmp_filename,
+                              expect=expect,
+                              child=child, 
+                              exit_values=['0', '1'])
             else:
                 if match_regexp == None:
-                    self.send('grep -w "^' + line + '$" ' + filename + ' > ' + tmp_filename, expect=expect, child=child, exit_values=['0', '1'])
+                    self.send('grep -w "^' +
+                              line +
+                              '$" ' +
+                              filename +
+                              ' > ' +
+                              tmp_filename,
+                              expect=expect,
+                              child=child,
+                              exit_values=['0', '1'])
                 else:
-                    self.send('grep -w "^' + match_regexp + '$" ' + filename + ' > ' + tmp_filename, expect=expect, child=child, exit_values=['0', '1'])
-            self.send('cat ' + tmp_filename + ' | wc -l', expect=expect, child=child, exit_values=['0', '1'], check_exit=False)
+                    self.send('grep -w "^' +
+                              match_regexp +
+                              '$" ' +
+                              filename +
+                              ' > ' +
+                              tmp_filename,
+                              expect=expect,
+                              child=child,
+                              exit_values=['0', '1'])
+            self.send('cat ' + tmp_filename + ' | wc -l',
+                      expect=expect, child=child, exit_values=['0', '1'],
+                      check_exit=False)
             res = self.get_re_from_child(child.before, '^([0-9]+)$')
         if res == '0' or force:
-            self.send('cat >> ' + filename + """ <<< '""" + line + """'""", expect=expect, child=child, check_exit=False)
-            self.send('rm -f ' + tmp_filename, expect=expect, child=child, exit_values=['0', '1'])
+            self.send('cat >> ' + filename + """ <<< '""" + line + """'""",
+                expect=expect, child=child, check_exit=False)
+            self.send('rm -f ' + tmp_filename, expect=expect, child=child,
+                exit_values=['0', '1'])
             return True
         else:
-            self.send('rm -f ' + tmp_filename, expect=expect, child=child, exit_values=['0', '1'])
+            self.send('rm -f ' + tmp_filename, expect=expect, child=child,
+                exit_values=['0', '1'])
             return False
 
     def add_to_bashrc(self, line, expect=None, child=None):
@@ -557,9 +678,11 @@ class ShutIt(object):
         child = child or self.get_default_child()
         expect = expect or self.get_default_expect()
         if self.cfg['container']['install_type'] == 'apt':
-            self.send("""dpkg -l | awk '{print $2}' | grep "^""" + package + """$" | wc -l""", expect, check_exit=False)
+            self.send("""dpkg -l | awk '{print $2}' | grep "^""" +
+                package + """$" | wc -l""", expect, check_exit=False)
         elif self.cfg['container']['install_type'] == 'yum':
-            self.send("""yum list installed | awk '{print $1}' | grep "^""" + package + """$" | wc -l""", expect, check_exit=False)
+            self.send("""yum list installed | awk '{print $1}' | grep "^""" +
+                package + """$" | wc -l""", expect, check_exit=False)
         else:
             return False
         if self.get_re_from_child(child.before, '^([0-9]+)$') != '0':
@@ -568,18 +691,17 @@ class ShutIt(object):
             return False
 
     def prompt_cfg(self, msg, sec, name, ispass=False):
-        """Prompt for a config value, optionally saving it to the user-level cfg.
-        Only runs if we are in an interactive mode.
+        """Prompt for a config value, optionally saving it to the user-level
+        cfg. Only runs if we are in an interactive mode.
 
         msg    - Message to display to user.
         sec    - Section of config to add to.
         name   - Config item name.
         ispass - Hide the input from the terminal.
         """
-        cfg     = self.cfg
-        cfgstr  = '[%s]/%s' % (sec, name)
-        cp      = cfg['config_parser']
-        usercfg = os.path.join(cfg['shutit_home'], 'config')
+        cfgstr        = '[%s]/%s' % (sec, name)
+        config_parser = cfg['config_parser']
+        usercfg       = os.path.join(cfg['shutit_home'], 'config')
 
         if not cfg['build']['interactive']:
             shutit.fail('ShutIt is not in interactive mode so cannnot prompt ' +
@@ -588,12 +710,12 @@ class ShutIt(object):
         print util.colour('34', '\nPROMPTING FOR CONFIG: %s' % (cfgstr,))
         print util.colour('34', '\n' + msg + '\n')
 
-        if cp.has_option(sec, name):
-            whereset = cp.whereset(sec, name)
+        if config_parser.has_option(sec, name):
+            whereset = config_parser.whereset(sec, name)
             if usercfg == whereset:
                 self.fail(cfgstr + ' has already been set in the user ' +
                     'config, edit ' + usercfg + ' directly to change it')
-            for subcp, filename, fp in reversed(cp.layers):
+            for subcp, filename, _fp in reversed(config_parser.layers):
                 # Is the config file loaded after the user config file?
                 if filename == whereset:
                     self.fail(cfgstr + ' is being set in ' + filename + ', ' +
@@ -608,23 +730,24 @@ class ShutIt(object):
         else:
             val = raw_input('>> ')
         is_excluded = (
-            cp.has_option('save_exclude', sec) and
-            name in cp.get('save_exclude', sec).split()
+            config_parser.has_option('save_exclude', sec) and
+            name in config_parser.get('save_exclude', sec).split()
         )
         # TODO: ideally we would remember the prompted config item for this
         # invocation of shutit
         if not is_excluded:
             usercp = [
-                subcp for subcp, filename, fp in cp.layers
+                subcp for subcp, filename, _fp in config_parser.layers
                 if filename == usercfg
             ][0]
             if raw_input(util.colour('34',
-                    'Do you want to save this to your user settings? y/n: ')) == 'y':
+                    'Do you want to save this to your ' +
+                    'user settings? y/n: ')) == 'y':
                 sec_toset, name_toset, val_toset = sec, name, val
             else:
                 # Never save it
-                if cp.has_option('save_exclude', sec):
-                    excluded = cp.get('save_exclude', sec).split()
+                if config_parser.has_option('save_exclude', sec):
+                    excluded = config_parser.get('save_exclude', sec).split()
                 else:
                     excluded = []
                 excluded.append(name)
@@ -634,24 +757,32 @@ class ShutIt(object):
                 usercp.add_section(sec_toset)
             usercp.set(sec_toset, name_toset, val_toset)
             usercp.write(open(usercfg, 'w'))
-            cp.reload()
+            config_parser.reload()
         return val
 
     def pause_point(self, msg, child=None, print_input=True, level=1):
-        """Inserts a pause in the build session, which allows the user to try things out before continuing.
-        Ignored if we are not in an interactive mode, or the interactive level is less than the passed-in one.
-        Designed to help debug the build, or drop to on failure so the situation can be debugged.
+        """Inserts a pause in the build session, which allows the user to try
+        things out before continuing. Ignored if we are not in an interactive
+        mode, or the interactive level is less than the passed-in one.
+        Designed to help debug the build, or drop to on failure so the
+        situation can be debugged.
 
         - msg         - Message to display to user on pause point.
         - child       - See send()
-        - print_input - Whether to take input at this point (ie interact), or simply pause pending any input.
+        - print_input - Whether to take input at this point (ie interact), or
+                        simply pause pending any input.
         - level       - Minimum level to invoke the pause_point at
         """
         child = child or self.get_default_child()
-        if not self.cfg['build']['interactive'] or self.cfg['build']['interactive'] < level:
+        if (not self.cfg['build']['interactive'] or 
+            self.cfg['build']['interactive'] < level):
             return
         if child and print_input:
-            print util.colour('31', '\n\nPause point:\n\n') + msg + util.colour('31','\n\nYou can now type in commands and alter the state of the container.\nHit return to see the prompt\nHit CTRL and ] at the same time to continue with build\n\nHit CTRL and [ to save the state\n\n')
+            print (util.colour('31', '\n\nPause point:\n\n') + 
+                msg + util.colour('31','\n\nYou can now type in commands and ' +
+                'alter the state of the container.\nHit return to see the ' +
+                'prompt\nHit CTRL and ] at the same time to continue with ' +
+                'build\n\nHit CTRL and [ to save the state\n\n'))
             oldlog = child.logfile_send
             child.logfile_send = None
             child.interact(input_filter=self._pause_input_filter)
@@ -661,17 +792,19 @@ class ShutIt(object):
             print util.colour('31', '\n\n[Hit return to continue]\n')
             raw_input('')
 
-    def _pause_input_filter(self, s):
+    def _pause_input_filter(self, input_string):
         """Input filter for pause point to catch special keystrokes"""
         # Can get errors with eg up/down chars
-        try:
-            if ord(s) == 27:
-                self.log('\n\nCTRL and [ caught, forcing a tag at least\n\n', force_stdout=True)
-                self.do_repository_work('tagged_by_shutit', password=self.cfg['host']['password'], docker_executable=self.cfg['host']['docker_executable'], force=True)
+        if len(input_string) == 1:
+            if ord(input_string) == 27:
+                self.log('\n\nCTRL and [ caught, forcing a tag at least\n\n',
+                    force_stdout=True)
+                self.do_repository_work('tagged_by_shutit',
+                    password=self.cfg['host']['password'],
+                    docker_executable=self.cfg['host']['docker_executable'],
+                    force=True)
                 self.log('\n\nCommit and tag done\n\n', force_stdout=True)
-        except:
-            pass
-        return s
+        return input_string
 
     def get_output(self, child=None):
         """Helper function to get output from latest command run.
@@ -683,22 +816,23 @@ class ShutIt(object):
 
 
     def get_re_from_child(self, string, regexp):
-        """Get regular expression from the first of the lines passed in in string that matched.
+        """Get regular expression from the first of the lines passed
+        in in string that matched.
+
         Returns None if none of the lines matched.
 
         - string - string to search through lines of
         - regexp - regexp to search for per line
         """
-        cfg = self.cfg
         if cfg['build']['debug']:
             self.log('get_re_from_child:')
             self.log(string)
             self.log(regexp)
         lines = string.split('\r\n')
-        for l in lines:
+        for line in lines:
             if cfg['build']['debug']:
-                self.log('trying: ' + l + ' against regexp: ' + regexp)
-            match = re.match(regexp, l)
+                self.log('trying: ' + line + ' against regexp: ' + regexp)
+            match = re.match(regexp, line)
             if match != None:
                 if cfg['build']['debug']:
                     self.log('returning: ' + match.group(1))
@@ -719,7 +853,12 @@ class ShutIt(object):
         return shutit.get_default_child().before.strip(send)
 
 
-    def install(self, package, child=None, expect=None, options=None, timeout=3600):
+    def install(self,
+                package,
+                child=None,
+                expect=None,
+                options=None,
+                timeout=3600):
         """Distro-independent install function.
         Takes a package name and runs the relevant install function.
         Returns true if all ok (ie it's installed), else false.
@@ -749,15 +888,22 @@ class ShutIt(object):
             # Not handled
             return False
         # Get mapped package.
-        package = package_map.map_package(package, self.cfg['container']['install_type'])
+        package = package_map.map_package(package,
+            self.cfg['container']['install_type'])
         if package != '':
-            self.send('%s %s %s' % (cmd, opts, package), expect, timeout=timeout)
+            self.send('%s %s %s' % (cmd, opts, package), expect,
+                timeout=timeout)
         else:
             # package not required
             pass
         return True
 
-    def remove(self, package, child=None, expect=None, options=None, timeout=3600):
+    def remove(self,
+               package,
+               child=None,
+               expect=None,
+               options=None,
+               timeout=3600):
         """Distro-independent remove function.
         Takes a package name and runs relevant remove function.
         Returns true if all ok (ie it's installed now), else false.
@@ -784,18 +930,26 @@ class ShutIt(object):
             # Not handled
             return False
         # Get mapped package.
-        package = package_map.map_package(package, self.cfg['container']['install_type'])
+        package = package_map.map_package(package,
+            self.cfg['container']['install_type'])
         self.send('%s %s %s' % (cmd, opts, package), expect, timeout=timeout)
         return True
 
 
-    def setup_prompt(self, prompt_name, prefix='TMP', child=None, set_default_expect=True):
-        """Use this when you've opened a new shell to set the PS1 to something sane.
-        By default, it sets up the default expect so you don't have to worry about it
-        and can just call shutit.send('a command').
+    def setup_prompt(self,
+                     prompt_name,
+                     prefix='TMP',
+                     child=None,
+                     set_default_expect=True):
+        """Use this when you've opened a new shell to set the PS1 to something
+        sane. By default, it sets up the default expect so you don't have to
+        worry about it and can just call shutit.send('a command').
+
         Typically it would be used in this boilerplate pattern:
 
-        shutit.send('su - auser', expect=shutit.cfg['expect_prompts']['base_prompt'], check_exit=False)
+        shutit.send('su - auser',
+                    expect=shutit.cfg['expect_prompts']['base_prompt'],
+                    check_exit=False)
         shutit.setup_prompt('tmp_prompt')
         shutit.send('some command')
         [...]
@@ -816,7 +970,8 @@ class ShutIt(object):
             expect=self.cfg['expect_prompts'][prompt_name],
             fail_on_empty_before=False, timeout=5)
         if set_default_expect:
-            shutit.log('Resetting default expect to: ' + shutit.cfg['expect_prompts'][prompt_name])
+            shutit.log('Resetting default expect to: ' +
+            shutit.cfg['expect_prompts'][prompt_name])
             self.set_default_expect(shutit.cfg['expect_prompts'][prompt_name])
 
     def revert_prompt(self, old_prompt_name, new_expect=None, child=None):
@@ -843,33 +998,43 @@ class ShutIt(object):
         """Get information about which distro we are using.
 
         Fails if distro could not be determined.
-        Should be called with the container is started up, and uses as core info as possible.
+        Should be called with the container is started up, and uses as core info
+        as possible.
 
         - child              - See send()
         """
         child = child or self.get_default_child()
-        cfg = self.cfg
         cfg['container']['install_type']      = ''
         cfg['container']['distro']            = ''
         cfg['container']['distro_version']    = ''
-        install_type_map = {'ubuntu':'apt', 'debian':'apt','red hat':'yum','centos':'yum','fedora':'yum'}
+        install_type_map = {'ubuntu':'apt',
+                            'debian':'apt',
+                            'red hat':'yum',
+                            'centos':'yum',
+                            'fedora':'yum'}
         if self.package_installed('lsb_release'):
             self.send('lsb_release -a')
-            s = self.get_re_from_child(child.before, '^Distributor ID:[\s]*\(.*)$')
-            if s:
-                cfg['container']['distro']       = s.lower()
-                cfg['container']['install_type'] = install_type_map[s.lower()]
+            dist_string = self.get_re_from_child(child.before,
+                '^Distributor ID:[\s]*\(.*)$')
+            if dist_string:
+                cfg['container']['distro']       = dist_string.lower()
+                cfg['container']['install_type'] = (
+                    install_type_map[dist_string.lower()])
             # TODO: version
-            #version = self.get_re_from_child(child.before, '^Release:[\s]*(.*)$')
+            #version = self.get_re_from_child(child.before,
+            #    '^Release:[\s]*(.*)$')
         else:
             for key in install_type_map.keys():
-                self.send('cat /etc/issue | grep -i "' + key + '" | wc -l', check_exit=False)
+                self.send('cat /etc/issue | grep -i "' + key + '" | wc -l',
+                    check_exit=False)
                 if self.get_re_from_child(child.before, '^([0-9]+)$') == '1':
                     cfg['container']['distro']       = key
                     cfg['container']['install_type'] = install_type_map[key]
                     break
-        if cfg['container']['install_type'] == '' or cfg['container']['distro'] == '':
-            shutit.fail('Could not determine Linux distro information. Please inform maintainers.', child=child)
+        if (cfg['container']['install_type'] == '' or 
+            cfg['container']['distro'] == ''):
+            shutit.fail('Could not determine Linux distro information. ' + 
+                        'Please inform maintainers.', child=child)
 
     def set_password(self, password, user='', child=None, expect=None):
         """Sets the password for the current user or passed-in user.
@@ -881,16 +1046,19 @@ class ShutIt(object):
         """
         child = child or self.get_default_child()
         expect = expect or self.get_default_expect()
-        cfg = self.cfg
         self.install('passwd')
         if cfg['container']['install_type'] == 'apt':
-            self.send('passwd ' + user, expect='Enter new', child=child, check_exit=False)
-            self.send(password, child=child, expect='Retype new', check_exit=False, echo=False)
+            self.send('passwd ' + user,
+                      expect='Enter new', child=child, check_exit=False)
+            self.send(password, child=child, expect='Retype new',
+                      check_exit=False, echo=False)
             self.send(password, child=child, expect=expect, echo=False)
             self.install('apt-utils')
         elif cfg['container']['install_type'] == 'yum':
-            self.send('passwd ' + user, child=child, expect='ew password', check_exit=False)
-            self.send(password, child=child, expect='ew password', check_exit=False, echo=False)
+            self.send('passwd ' + user, child=child, expect='ew password',
+                      check_exit=False)
+            self.send(password, child=child, expect='ew password',
+                      check_exit=False, echo=False)
             self.send(password, child=child, expect=expect, echo=False)
 
 
@@ -903,13 +1071,18 @@ class ShutIt(object):
         """
         child = child or self.get_default_child()
         expect = expect or self.get_default_expect()
-        self.send('cut -d: -f3 /etc/paswd | grep -w ^' + user_id + '$ | wc -l', child=child, expect=expect, check_exit=False)
+        self.send('cut -d: -f3 /etc/paswd | grep -w ^' + user_id + '$ | wc -l',
+                  child=child, expect=expect, check_exit=False)
         if self.get_re_from_child(child.before, '^([0-9]+)$') == '1':
             return False
         else:
             return True
 
-    def push_repository(self, repository, docker_executable='docker.io', child=None, expect=None):
+    def push_repository(self,
+                        repository,
+                        docker_executable='docker.io',
+                        child=None,
+                        expect=None):
         """Pushes the repository.
 
         - repository        - 
@@ -920,22 +1093,36 @@ class ShutIt(object):
         child = child or self.get_default_child()
         expect = expect or self.get_default_expect()
         send = docker_executable + ' push ' + repository
-        expect_list = ['Username', 'Password','Email', expect]
-        timeout=99999
+        expect_list = ['Username', 'Password', 'Email', expect]
+        timeout = 99999
         self.log('Running: ' + send, force_stdout=True, prefix=False)
-        res = self.send(send, expect=expect_list, child=child, timeout=timeout, check_exit=False, fail_on_empty_before=False)
+        res = self.send(send, expect=expect_list, child=child, timeout=timeout,
+                        check_exit=False, fail_on_empty_before=False)
         while True:
             if res == 3:
                 break
             elif res == 0:
-                res = self.send(cfg['repository']['user'], child=child, expect=expect_list, timeout=timeout, check_exit=False, fail_on_empty_before=False)
+                res = self.send(cfg['repository']['user'], child=child,
+                                expect=expect_list, timeout=timeout,
+                                check_exit=False, fail_on_empty_before=False)
             elif res == 1:
-                res = self.send(cfg['repository']['password'], child=child, expect=expect_list, timeout=timeout, check_exit=False, fail_on_empty_before=False)
+                res = self.send(cfg['repository']['password'], child=child,
+                                expect=expect_list, timeout=timeout,
+                                check_exit=False, fail_on_empty_before=False)
             elif res == 2:
-                res = self.send(cfg['repository']['email'], child=child, expect=expect_list, timeout=timeout, check_exit=False, fail_on_empty_before=False)
+                res = self.send(cfg['repository']['email'], child=child,
+                                expect=expect_list, timeout=timeout,
+                                check_exit=False, fail_on_empty_before=False)
 
-    def do_repository_work(self, repo_name, repo_tag=None, expect=None, docker_executable='docker', password=None, force=None):
-        """Commit, tag, push, tar the container based on the configuration we have.
+    def do_repository_work(self,
+                           repo_name,
+                           repo_tag=None,
+                           expect=None,
+                           docker_executable='docker',
+                           password=None,
+                           force=None):
+        """Commit, tag, push, tar the container based on the configuration we
+        have.
 
         - repo_name         - 
         - expect            - See send()
@@ -944,7 +1131,6 @@ class ShutIt(object):
         - force             - 
         """
         expect = expect or self.get_default_expect()
-        cfg = self.cfg
         tag    = cfg['repository']['tag']
         push   = cfg['repository']['push']
         export = cfg['repository']['export']
@@ -988,46 +1174,86 @@ class ShutIt(object):
             repository_tar = '%s%s' % (repository_tar, suffix_date)
 
         if server == '' and len(repository) > 30 and push:
-            shutit.fail("""repository name: '""" + repository + """' too long. If using suffix_date consider shortening""", child=child)
+            shutit.fail("""repository name: '""" + repository +
+                """' too long. If using suffix_date consider shortening""",
+                child=child)
 
         # Commit image
         # Only lower case accepted
         repository = repository.lower()
-        if self.send('SHUTIT_TMP_VAR=`' + docker_executable + ' commit ' + cfg['container']['container_id'] + '`', expect=[expect, 'assword'], child=child, timeout=99999, check_exit=False) == 1:
-            self.send(cfg['host']['password'], expect=expect, check_exit=False, record_command=False, child=child)
-        self.send('echo $SHUTIT_TMP_VAR && unset SHUTIT_TMP_VAR', expect=expect, check_exit=False, child=child)
+        if self.send('SHUTIT_TMP_VAR=`' + docker_executable + ' commit ' +
+                     cfg['container']['container_id'] + '`',
+                     expect=[expect,'assword'], child=child, timeout=99999,
+                     check_exit=False) == 1:
+            self.send(cfg['host']['password'], expect=expect, check_exit=False,
+                      record_command=False, child=child)
+        self.send('echo $SHUTIT_TMP_VAR && unset SHUTIT_TMP_VAR', expect=expect,
+                  check_exit=False, child=child)
         image_id = child.before.split('\r\n')[1]
         if not image_id:
-            shutit.fail('failed to commit to ' + repository + ', could not determine image id', child=child)
+            shutit.fail('failed to commit to ' + repository +
+                        ', could not determine image id', child=child)
 
         # Tag image
         cmd = docker_executable + ' tag ' + image_id + ' ' + repository
         self.cfg['build']['report'] += '\nBuild tagged as: ' + repository
         self.send(cmd, child=child, expect=expect, check_exit=False)
         if export or save:
-            self.pause_point('We are now exporting the container to a bzipped tar file, as configured in \n[repository]\ntar:yes', print_input=False, child=child, level=3)
+            self.pause_point('We are now exporting the container to a ' + 
+                             'bzipped tar file, as configured in ' +
+                             '\n[repository]\ntar:yes', print_input=False,
+                             child=child, level=3)
             if export:
-                bzfile = cfg['host']['resources_dir'] + '/' + repository_tar + 'export.tar.bz2'
-                self.log('\nDepositing bzip2 of exported container into ' + bzfile)
-                if self.send(docker_executable + ' export ' + cfg['container']['container_id'] + ' | bzip2 - > ' + bzfile, expect=[expect, 'assword'], timeout=99999, child=child) == 1:
+                bzfile = (cfg['host']['resources_dir'] + '/' + 
+                          repository_tar + 'export.tar.bz2')
+                self.log('\nDepositing bzip2 of exported container into ' +
+                         bzfile)
+                if self.send(docker_executable + ' export ' +
+                             cfg['container']['container_id'] +
+                             ' | bzip2 - > ' + bzfile,
+                             expect=[expect, 'assword'], timeout=99999,
+                             child=child) == 1:
                     self.send(password, expect=expect, child=child)
-                self.log('\nDeposited bzip2 of exported container into ' + bzfile, code='31')
-                self.log('\nRun:\n\nbunzip2 -c ' + bzfile + ' | sudo docker import -\n\nto get this imported into docker.', code='31')
-                cfg['build']['report'] += '\nDeposited bzip2 of exported container into ' + bzfile
-                cfg['build']['report'] += '\nRun:\n\nbunzip2 -c ' + bzfile + ' | sudo docker import -\n\nto get this imported into docker.'
+                self.log('\nDeposited bzip2 of exported container into ' +
+                         bzfile, code='31')
+                self.log('\nRun:\n\nbunzip2 -c ' + bzfile +
+                         ' | sudo docker import -\n\n' +
+                         'to get this imported into docker.', code='31')
+                cfg['build']['report'] += ('\nDeposited bzip2 of exported' +
+                                          ' container into ' + bzfile)
+                cfg['build']['report'] += ('\nRun:\n\nbunzip2 -c ' + bzfile +
+                                          ' | sudo docker import -\n\n' +
+                                          'to get this imported into docker.')
             if save:
-                bzfile = cfg['host']['resources_dir'] + '/' + repository_tar + 'save.tar.bz2'
-                self.log('\nDepositing bzip2 of exported container into ' + bzfile)
-                if self.send(docker_executable + ' save ' + cfg['container']['container_id'] + ' | bzip2 - > ' + bzfile, expect=[expect, 'assword'], timeout=99999, child=child) == 1:
+                bzfile = (cfg['host']['resources_dir'] +
+                          '/' + repository_tar + 'save.tar.bz2')
+                self.log('\nDepositing bzip2 of exported container into ' +
+                         bzfile)
+                if self.send(docker_executable + ' save ' +
+                             cfg['container']['container_id'] +
+                             ' | bzip2 - > ' + bzfile,
+                             expect=[expect, 'assword'],
+                             timeout=99999, child=child) == 1:
                     self.send(password, expect=expect, child=child)
-                self.log('\nDeposited bzip2 of exported container into ' + bzfile, code='31')
-                self.log('\nRun:\n\nbunzip2 -c ' + bzfile + ' | sudo docker import -\n\nto get this imported into docker.', code='31')
-                cfg['build']['report'] += '\nDeposited bzip2 of exported container into ' + bzfile
-                cfg['build']['report'] += '\nRun:\n\nbunzip2 -c ' + bzfile + ' | sudo docker import -\n\nto get this imported into docker.'
+                self.log('\nDeposited bzip2 of exported container into ' +
+                         bzfile, code='31')
+                self.log('\nRun:\n\nbunzip2 -c ' + bzfile +
+                         ' | sudo docker import -\n\n' + 
+                         'to get this imported into docker.',
+                         code='31')
+                cfg['build']['report'] += ('\nDeposited bzip2 of exported ' + 
+                                          'container into ' + bzfile)
+                cfg['build']['report'] += ('\nRun:\n\nbunzip2 -c ' + bzfile +
+                                           ' | sudo docker import -\n\n' + 
+                                           'to get this imported into docker.')
         if cfg['repository']['push'] == True:
             # Pass the child explicitly as it's the host child.
-            self.push_repository(repository, docker_executable=docker_executable, expect=expect, child=child)
-            cfg['build']['report'] = cfg['build']['report'] + '\nPushed repository: ' + repository
+            self.push_repository(repository,
+                                 docker_executable=docker_executable,
+                                 expect=expect,
+                                 child=child)
+            cfg['build']['report'] = (cfg['build']['report'] +
+                                      '\nPushed repository: ' + repository)
 
     def get_config(self, module_id, option, default, boolean=False):
         """ Pass-through function for convenience
@@ -1042,10 +1268,10 @@ class ShutIt(object):
     def record_config(self):
         """ Put the config in a file in the container.
         """
-        self.send_file(self.cfg['build']['build_db_dir'] + '/' + self.cfg['build']['build_id'] + '/' + self.cfg['build']['build_id'] + '.cfg', util.print_config(self.cfg))
-
-
-    
+        self.send_file(self.cfg['build']['build_db_dir'] +
+                       '/' + self.cfg['build']['build_id'] +
+                       '/' + self.cfg['build']['build_id'] +
+                       '.cfg', util.print_config(self.cfg))
 
 
 def init():
@@ -1064,7 +1290,7 @@ def init():
     shutit_modules         = set()
     shutit_command_history = []
     # Store the root directory of this application.
-    # http://stackoverflow.com/questions/5137497/find-current-directory-and-files-directory
+    # http://stackoverflow.com/questions/5137497
     shutit_main_dir = os.path.abspath(os.path.dirname(__file__))
     cwd = os.getcwd()
     cfg = {}
@@ -1084,9 +1310,14 @@ def init():
     # If no LOGNAME available,
     cfg['host']['username'] = os.environ.get('LOGNAME', '')
     if cfg['host']['username'] == '':
-        shutit_global.shutit.fail('LOGNAME not set in the environment, please set to your username.')
-    cfg['host']['real_user'] = os.environ.get('SUDO_USER', cfg['host']['username'])
-    cfg['build']['build_id'] = socket.gethostname() + '_' + cfg['host']['real_user'] + '_' + str(time.time()) + '.' + str(datetime.datetime.now().microsecond)
+        shutit_global.shutit.fail('LOGNAME not set in the environment, ' +
+                                  'please set to your username.')
+    cfg['host']['real_user'] = os.environ.get('SUDO_USER',
+                                              cfg['host']['username'])
+    cfg['build']['build_id'] = (socket.gethostname() + '_' +
+                                cfg['host']['real_user'] + '_' +
+                                str(time.time()) + '.' +
+                                str(datetime.datetime.now().microsecond))
 
     return ShutIt(
         pexpect_children=pexpect_children,
