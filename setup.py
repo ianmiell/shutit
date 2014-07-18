@@ -221,9 +221,9 @@ class ConnDocker(ShutItModule):
             print('\n\nAbout to start container. ' +
                 'Ports mapped will be: ' + ', '.join(port_args) +
                 ' (from\n\n[host]\nports:<value>\n\nconfig, building on the ' +
-                'configurable base image passed in in:\n\n\t--image <image>\n' +
-                '\nor config:\n\n\t[container]\n\tdocker_image:<image>)\n\n' +
-                'Base image in this case is:\n\n\t' + 
+                'configurable base image passed in in:\n\n    --image <image>\n' +
+                '\nor config:\n\n    [container]\n    docker_image:<image>)\n\n' +
+                'Base image in this case is:\n\n    ' + 
 		cfg['container']['docker_image'] +
                 '\n\n' + util.colour('31', '[Hit return to continue]'))
             raw_input('')

@@ -3,11 +3,10 @@ from shutit_module import ShutItModule
 
 class django(ShutItModule):
 
-        def is_installed(self, shutit):
-                return False
+    def is_installed(self, shutit):
+        return False
 
-        def build(self, shutit):
-
+    def build(self, shutit):
         shutit.send('apt-get install -y -q software-properties-common')
         #shutit.send('add-apt-repository -y "deb http://archive.ubuntu.com/ubuntu $(lsb_release -sc) universe"')
         shutit.send('apt-get install -y -q vim')
@@ -38,10 +37,9 @@ class django(ShutItModule):
         shutit.send('apt-get install -y -q libwebp-dev')
         shutit.send('apt-get install -y -q libtiff-dev')
         shutit.send('easy_install django')
-                return True
+        return True
 
     def finalize(self, shutit):
-
         return True
 
 def module():
