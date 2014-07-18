@@ -35,7 +35,7 @@ import shutit_global
 from shutit_module import ShutItException
 import util
 
-orig_mod_cfg = None
+ORIG_MOD_CFG = None
 shutit = None
 STATUS = None
 
@@ -49,8 +49,8 @@ def build_shutit():
         shutit_main.do_test(shutit)
         shutit_main.do_finalize(shutit)
         shutit_main.finalize_container(shutit)
-    except ShutItException as e:
-        STATUS['errs'] = [str(e)]
+    except ShutItException as error:
+        STATUS['errs'] = [str(error)]
     STATUS['build_done'] = True
 
 def update_modules(to_build, cfg):
@@ -68,8 +68,8 @@ def update_modules(to_build, cfg):
 
     selected = set(to_build)
     for mid in shutit.cfg:
-        if mid in orig_mod_cfg and 'build' in orig_mod_cfg[mid]:
-            shutit.cfg[mid]['build'] = orig_mod_cfg[mid]['build']
+        if mid in ORIG_MOD_CFG and 'build' in ORIG_MOD_CFG[mid]:
+            shutit.cfg[mid]['build'] = ORIG_MOD_CFG[mid]['build']
         if mid in selected:
             shutit.cfg[mid]['build'] = True
     # There is a complexity here in that module configs may depend on
@@ -79,11 +79,11 @@ def update_modules(to_build, cfg):
 
     if cfg is not None:
         sec, key, val = cfg
-        orig_mod_cfg[sec][key] = val
-    for mid in orig_mod_cfg:
-        for cfgkey in orig_mod_cfg[mid]:
+        ORIG_MOD_CFG[sec][key] = val
+    for mid in ORIG_MOD_CFG:
+        for cfgkey in ORIG_MOD_CFG[mid]:
             if cfgkey == 'build': continue
-            shutit.cfg[mid][cfgkey] = orig_mod_cfg[mid][cfgkey]
+            shutit.cfg[mid][cfgkey] = ORIG_MOD_CFG[mid][cfgkey]
 
     errs = []
     errs.extend(shutit_main.check_deps(shutit))
@@ -104,21 +104,21 @@ def update_modules(to_build, cfg):
 
 @route('/info', method='POST')
 def info():
-    """Handles requests to build, reset, defaulting to returning current STATUS if none of these are requested.
+    """Handles requests to build, reset, defaulting to returning
+    current STATUS if none of these are requested.
     """
-    global STATUS
     can_check = not (STATUS['build_started'] or STATUS['resetting'])
-    can_cfg   = not (STATUS['build_started'] or STATUS['resetting'])
     can_build = not (STATUS['build_started'] or STATUS['resetting'])
-    can_reset = not ((STATUS['build_started'] and not STATUS['build_done']) or STATUS['resetting'])
+    can_reset = not ((STATUS['build_started'] and not STATUS['build_done'])
+                     or STATUS['resetting'])
 
     if can_check and 'to_build' in request.json and 'cfg' in request.json:
         update_modules(request.json['to_build'], request.json['cfg'])
     if can_build and 'build' in request.json and len(STATUS['errs']) == 0:
         STATUS["build_started"] = True
-        t = threading.Thread(target=build_shutit)
-        t.daemon = True
-        t.start()
+        thread = threading.Thread(target=build_shutit)
+        thread.daemon = True
+        thread.start()
     if can_reset and 'reset' in request.json:
         shutit_reset()
 
@@ -131,7 +131,7 @@ def log():
     cmd_offset, log_offset = request.json
     if STATUS['resetting']:
         command_list = []
-        log = ''
+        log          = ''
     else:
         command_list = shutit.shutit_command_history[cmd_offset:]
         log = shutit.cfg['build']['build_log'].getvalue()[log_offset:]
@@ -174,17 +174,17 @@ def export_srv(cid):
 def shutit_reset():
     """Handles a ShutIt reset, clearing the STATUS global.
     """
-    global orig_mod_cfg
+    global ORIG_MOD_CFG
     global shutit
     global STATUS
 
-    orig_mod_cfg = {}
+    ORIG_MOD_CFG = {}
     if shutit is not None:
-        for c in shutit.pexpect_children.values():
+        for child in shutit.pexpect_children.values():
             # Try to clean up the old children...
-            c.send('\n')
-            c.sendeof()
-            c.readlines()
+            child.send('\n')
+            child.sendeof()
+            child.readlines()
         print shutit.cfg
         image_tag = shutit.cfg['container']['docker_image']
     else:
@@ -202,9 +202,8 @@ def shutit_reset():
     }
 
     def reset_thread():
-        global orig_mod_cfg
+        global ORIG_MOD_CFG
         global shutit
-        global STATUS
         # Start with a fresh shutit object
         shutit = shutit_global.shutit = shutit_global.init()
 
@@ -227,22 +226,22 @@ def shutit_reset():
         shutit.cfg['build']['interactive'] = 0
         STATUS['cid'] = shutit.cfg['container']['container_id']
         for mid in shutit.shutit_map:
-            orig_mod_cfg[mid] = STATUS['cfg'][mid] = shutit.cfg[mid]
+            ORIG_MOD_CFG[mid] = STATUS['cfg'][mid] = shutit.cfg[mid]
         # Add in core sections
         for mid in ['repository', 'container']:
-            orig_mod_cfg[mid] = STATUS['cfg'][mid] = shutit.cfg[mid]
+            ORIG_MOD_CFG[mid] = STATUS['cfg'][mid] = shutit.cfg[mid]
             
-        # Make sure that orig_mod_cfg can be updated seperately to
+        # Make sure that ORIG_MOD_CFG can be updated seperately to
         # STATUS and shutit.cfg (which remain linked), as it will hold
         # our overrides
-        orig_mod_cfg = copy.deepcopy(orig_mod_cfg)
+        ORIG_MOD_CFG = copy.deepcopy(ORIG_MOD_CFG)
         update_modules([], None)
 
         STATUS['resetting'] = False
 
-    t = threading.Thread(target=reset_thread)
-    t.daemon = True
-    t.start()
+    thread = threading.Thread(target=reset_thread)
+    thread.daemon = True
+    thread.start()
 
 def start():
     """Start the ShutIt server.
