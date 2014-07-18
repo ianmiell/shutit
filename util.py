@@ -669,8 +669,8 @@ def load_configs(shutit):
         for c in configs:
             if type(c) is tuple:
                 c = c[0]
-            msg = msg + '\t\n' + c
-            shutit.log('\t' + c)
+            msg = msg + '    \n' + c
+            shutit.log('    ' + c)
         if cfg['build']['interactive'] >= 3:
             print textwrap.dedent("""\n""") + msg + textwrap.dedent("""
                 Looking at config files in the above order (even if they
@@ -1033,9 +1033,9 @@ class template(ShutItModule):
             dockerfile_args    = item[1].split()
             cmd = ' '.join(dockerfile_args).replace("'", "\\'")
             if dockerfile_command == 'RUN':
-                build += """\n\t\tshutit.send('""" + cmd + """')"""
+                build += """\n        shutit.send('""" + cmd + """')"""
             elif dockerfile_command == 'WORKDIR':
-                build += """\n\t\tshutit.send('pushd """ + cmd + """')"""
+                build += """\n        shutit.send('pushd """ + cmd + """')"""
                 numpushes = numpushes + 1
             elif dockerfile_command == 'COPY' or dockerfile_command == 'ADD':
                 #    The <src> path must be inside the context of the build; you cannot COPY ../something /something, because the first step of a docker build is to send the context directory (and subdirectories) to the docker daemon.
@@ -1050,27 +1050,27 @@ class template(ShutItModule):
                     outfile  = destdir + fromfile
                     if os.path.isfile(fromfile):
                         outfiledir = os.path.dirname(fromfile)
-                        build += """\n\t\tshutit.send('mkdir -p """ + destdir + '/' + outfiledir + """')"""
+                        build += """\n        shutit.send('mkdir -p """ + destdir + '/' + outfiledir + """')"""
                     elif os.path.isdir(fromfile):
-                        build += """\n\t\tshutit.send('mkdir -p """ + destdir + fromfile + """')"""
+                        build += """\n        shutit.send('mkdir -p """ + destdir + fromfile + """')"""
                 else:
                     outfile = dockerfile_args[1]
                 # If this is something we have to wget:
                 if dockerfile_command == 'ADD' and urlparse.urlparse(dockerfile_args[0])[0] != '':
                     if not wgetgot:
-                        build += """\n\t\tshutit.install('wget')"""
+                        build += """\n        shutit.install('wget')"""
                         wgetgot = True
                     if dockerfile_args[1][-1] == '/':
                         destdir = destdir[0:-1]
                         outpath = urlparse.urlparse(dockerfile_args[0])[2]
                         outpathdir = os.path.dirname(outpath)
-                        build += """\n\t\tshutit.send('mkdir -p """ + destdir + outpathdir + """')"""
-                        build += """\n\t\tshutit.send('wget -O """ + destdir + outpath + ' ' + dockerfile_args[0] + """')"""
+                        build += """\n        shutit.send('mkdir -p """ + destdir + outpathdir + """')"""
+                        build += """\n        shutit.send('wget -O """ + destdir + outpath + ' ' + dockerfile_args[0] + """')"""
                     else:
                         outpath  = dockerfile_args[1]
                         destdir  = os.path.dirname(dockerfile_args[1])
-                        build += """\n\t\tshutit.send('mkdir -p """ + destdir + """')"""
-                        build += """\n\t\tshutit.send('wget -O """ + outpath + ' ' + dockerfile_args[0] + """')"""
+                        build += """\n        shutit.send('mkdir -p """ + destdir + """')"""
+                        build += """\n        shutit.send('wget -O """ + outpath + ' ' + dockerfile_args[0] + """')"""
                 else:
                     # From the local filesystem on construction:
                     localfile = dockerfile_args[0]
@@ -1079,21 +1079,21 @@ class template(ShutItModule):
                     ## TODO replace with sha1
                     #tmpstr = 'aksljdfhaksfhd'
                     #if localfile[-4:] == '.tar':
-                    #    build += """\n\t\tshutit.send_file('""" + outfile + '/' + localfile + """')"""
+                    #    build += """\n        shutit.send_file('""" + outfile + '/' + localfile + """')"""
                     #elif localfile[-4:] == '.bz2':
                     #elif localfile[-3:] == '.gz':
                     #elif localfile[-3:] == '.xz':
                     if os.path.isdir(localfile):
-                        build += """\n\t\tshutit.send_host_dir('""" + outfile + """', '""" + buildstagefile + """')"""
+                        build += """\n        shutit.send_host_dir('""" + outfile + """', '""" + buildstagefile + """')"""
                     else:
-                        build += """\n\t\tshutit.send_host_file('""" + outfile + """', '""" + buildstagefile + """')"""
+                        build += """\n        shutit.send_host_file('""" + outfile + """', '""" + buildstagefile + """')"""
             elif dockerfile_command == 'ENV':
                 cmd = '='.join(dockerfile_args).replace("'", "\\'")
-                build += """\n\t\tshutit.send('export """ + '='.join(dockerfile_args) + """')"""
+                build += """\n        shutit.send('export """ + '='.join(dockerfile_args) + """')"""
             elif dockerfile_command == 'COMMENT':
-                build += """\n\t\t#""" + dockerfile_args[0]
+                build += """\n        #""" + dockerfile_args[0]
         while numpushes > 0:
-            build += """\n\t\tshutit.send('popd')"""
+            build += """\n        shutit.send('popd')"""
             numpushes = numpushes - 1
         templatemodule += '''
     def build(self, shutit):''' + build + '''
@@ -1102,7 +1102,7 @@ class template(ShutItModule):
         # Gather and place finalize bit
         finalize = ''
         for line in shutit.cfg['dockerfile']['onbuild']:
-            finalize += '\n\t\tshutit.send(\'' + line + '\''
+            finalize += '\n        shutit.send(\'' + line + '\''
         templatemodule += '''
     def finalize(self, shutit):''' + finalize + '''
         return True
@@ -1129,9 +1129,9 @@ def module():
                         os.chdir(shutit_dir)
 
     elif skel_example:
-        templatemodule = open(os.path.join(shutit_dir, 'docs', 'shutit_module_template.py')).read()
+        templatemodule = open(os.path.join(shutit_dir, 'assets', 'shutit_module_template.py')).read()
     else:
-        templatemodule = open(os.path.join(shutit_dir, 'docs', 'shutit_module_template_bare.py')).read()
+        templatemodule = open(os.path.join(shutit_dir, 'assets', 'shutit_module_template_bare.py')).read()
     templatemodule = (templatemodule
         ).replace('template', skel_module_name
         ).replace('GLOBALLY_UNIQUE_STRING', '\'%s.%s.%s\'' % (skel_domain, skel_module_name, skel_module_name)
@@ -1301,7 +1301,7 @@ def module():
         # TODO: we probably don't need all these external programs any more
         calls = [
                 #egrep -v '^[\s]*$' myscript.sh | grep -v '^#' | sed "s/"$/" /;s/^/              shutit.send("""/;s/$/""")/" > /tmp/shutit_bash_script_include_1400206744
-            r'''egrep -v '^[\s]*$' ''' + skel_script + r''' | grep -v '^#' | sed "s/\"$/\" /;s/^/\t\tshutit.send(\"\"\"/;s/$/\"\"\")/" > ''' + sbsi,
+            r'''egrep -v '^[\s]*$' ''' + skel_script + r''' | grep -v '^#' | sed "s/\"$/\" /;s/^/        shutit.send(\"\"\"/;s/$/\"\"\")/" > ''' + sbsi,
             r'''sed "41r ''' + sbsi + '" ' + skel_mod_path + ' > ' + skel_mod_path + '.new''',
             r'''mv ''' + skel_mod_path + '''.new ''' + skel_mod_path
         ]

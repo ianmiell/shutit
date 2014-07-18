@@ -64,7 +64,7 @@ Videos:
 
 Docs:
 -----
-- [User Guide](https://github.com/ianmiell/shutit/blob/master/docs/documentation.md)
+- [User Guide](https://github.com/ianmiell/shutit/blob/master/assets/documentation.md)
 
 - [Walkthrough](http://ianmiell.github.io/shutit/)
 

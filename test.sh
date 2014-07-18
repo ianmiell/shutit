@@ -43,9 +43,9 @@ then
 	exit 1
 fi
 
-if [[ "$(sed -n '41p' docs/shutit_module_template.py)" != "        # Line number 42 should be the next one (so bash scripts can be inserted properly)" ]]
+if [[ "$(sed -n '41p' assets/shutit_module_template.py)" != "        # Line number 42 should be the next one (so bash scripts can be inserted properly)" ]]
 then
-	echo "Line 41 of docs/shutit_module_template.py should be as test.sh specifies"
+	echo "Line 41 of assets/shutit_module_template.py should be as test.sh specifies"
 	exit 1
 fi
 
@@ -55,7 +55,7 @@ find ${SHUTIT_DIR} -name '*.cnf' | grep '/configs/[^/]*.cnf' | xargs chmod 600
 cleanup hard
 
 echo "Testing skeleton build with Dockerfile"
-./shutit skeleton -d docs/dockerfile/Dockerfile ${NEWDIR} testing shutit.tk
+./shutit skeleton -d assets/dockerfile/Dockerfile ${NEWDIR} testing shutit.tk
 pushd ${NEWDIR}
 ./test.sh ${SHUTIT_DIR} || failure "1.0 ${NEWDIR}"
 cleanup hard
@@ -72,7 +72,7 @@ popd
 
 
 echo "Testing skeleton build basic with example script"
-./shutit skeleton ${NEWDIR} testing shutit.tk ${SHUTIT_DIR}/docs/example.sh
+./shutit skeleton ${NEWDIR} testing shutit.tk ${SHUTIT_DIR}/assets/example.sh
 pushd ${NEWDIR}
 ./test.sh ${SHUTIT_DIR} || failure "1.2 ${NEWDIR}"
 cleanup hard
