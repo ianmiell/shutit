@@ -23,7 +23,6 @@
 """
 
 from abc import ABCMeta, abstractmethod
-import sys
 import decimal
 import inspect
 
@@ -56,7 +55,8 @@ def shutit_method_scope(func):
     return wrapper
 
 class ShutItMeta(ABCMeta):
-    """Abstract class that defines what a ShutIt module must implement to be registered.
+    """Abstract class that defines what a ShutIt module must implement
+    to be registered.
     """
     ShutItModule = None
     def __new__(mcs, name, bases, local):
@@ -91,7 +91,8 @@ class ShutItMeta(ABCMeta):
         return cls
 
 class ShutItModule(object):
-    """Class that takes a ShutIt object and defines what a ShutIt module must implement to be registered.
+    """Class that takes a ShutIt object and defines what a ShutIt module must
+    implement to be registered.
 
     Build order:
 
@@ -119,8 +120,10 @@ class ShutItModule(object):
         Also checks types for safety.
         """
         # Module id for the module (a string).
-        # Following the Java standard is recommended, eg 'com.bigcorp.project.alpha.mymodule'
-        # Duplicate module ids are rejected if within the configured shutit_module_path.
+        # Following the Java standard is recommended,
+        # eg 'com.bigcorp.project.alpha.mymodule'
+        # Duplicate module ids are rejected if within the configured
+        # shutit_module_path.
         self.module_id = module_id
         if not isinstance(module_id, str):
             err = str(module_id) + '\'s module_id is not a string'
@@ -130,10 +133,14 @@ class ShutItModule(object):
         # It should be a float and not duplicated within the shutit_module path.
         # Module 0 is special. It is expected to:
         #   - Set up a container (see setup.py)
-        #   - Set up pexpect children with relevant keys and populate shutit_global.pexpect_children.
-        if isinstance(run_order, float) or isinstance(run_order, str) or isinstance(run_order, int):
+        #   - Set up pexpect children with relevant keys and populate
+        #     shutit_global.pexpect_children.
+        if (isinstance(run_order, float) or
+            isinstance(run_order, str) or
+            isinstance(run_order, int)):
             run_order = decimal.Decimal(run_order)
-        # Check that run_order is a float - this will throw an error as a side effect if float doesn't work.
+        # Check that run_order is a float - this will throw an error as a 
+        # side effect if float doesn't work.
         if not isinstance(run_order, decimal.Decimal):
             err = module_id + '\'s run order is not a decimal'
             print err
@@ -181,7 +188,8 @@ class ShutItModule(object):
         return False
 
     def start(self, shutit):
-        """Run when module should be installed (is_installed() or configured to build is true)
+        """Run when module should be installed (is_installed() or configured
+        to build is true)
         Run after repository work.
         Returns True if all started ok.
         """
@@ -226,7 +234,8 @@ class ShutItModule(object):
         return True
 
     def finalize(self, shutit):
-        """Finalize the module, ie do things that need doing after final module has been run and before we exit, eg updatedb.
+        """Finalize the module, ie do things that need doing after final module
+        has been run and before we exit, eg updatedb.
         """
         return True
 

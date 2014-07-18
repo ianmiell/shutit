@@ -4,17 +4,17 @@ from shutit_module import ShutItModule
 
 class arangodb(ShutItModule):
 
-        def is_installed(self, shutit):
-                return False
+    def is_installed(self, shutit):
+        return False
 
-        def build(self, shutit):
+    def build(self, shutit):
         shutit.install('wget')
         shutit.send('export ARANGO_URL=http://www.arangodb.org/repositories/arangodb2/xUbuntu_14.04')
         shutit.send('echo "deb $ARANGO_URL/ /" >> /etc/apt/sources.list.d/arangodb.list && wget $ARANGO_URL/Release.key && apt-key add - < Release.key && rm Release.key')
         shutit.send('apt-get -y -qq --force-yes update')
         shutit.send('apt-get -y -qq --force-yes install arangodb=2.1.2')
         shutit.send('rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*')
-                return True
+        return True
 
     def finalize(self, shutit):
         return True
