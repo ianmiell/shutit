@@ -4,14 +4,14 @@ from shutit_module import ShutItModule
 
 class btsync(ShutItModule):
 
-        def is_installed(self, shutit):
-                return False
+    def is_installed(self, shutit):
+        return False
 
-        def build(self, shutit):
+    def build(self, shutit):
         shutit.send('apt-get update && apt-get install -y curl')
         shutit.send('curl -o /usr/bin/btsync.tar.gz http://download-lb.utorrent.com/endpoint/btsync/os/linux-x64/track/stable')
         shutit.send('cd /usr/bin && tar -xzvf btsync.tar.gz && rm btsync.tar.gz')
-                return True
+        return True
 
     def finalize(self, shutit):
         return True

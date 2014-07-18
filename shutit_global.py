@@ -1157,8 +1157,6 @@ class ShutIt(object):
             repository = repository_tar = repo_name
         else:
             repository = repository_tar = ''
-        if repository != '':
-            repository = repository + ':' + repo_tag
 
         if not repository:
             shutit.fail('Could not form valid repository name', child=child)
@@ -1172,6 +1170,9 @@ class ShutIt(object):
             suffix_date = time.strftime(cfg['repository']['suffix_format'])
             repository = '%s%s' % (repository, suffix_date)
             repository_tar = '%s%s' % (repository_tar, suffix_date)
+
+        if repository != '':
+            repository = repository + ':' + repo_tag
 
         if server == '' and len(repository) > 30 and push:
             shutit.fail("""repository name: '""" + repository +

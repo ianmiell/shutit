@@ -4,10 +4,10 @@ from shutit_module import ShutItModule
 
 class camlistore(ShutItModule):
 
-        def is_installed(self, shutit):
-                return False
+    def is_installed(self, shutit):
+        return False
 
-        def build(self, shutit):
+    def build(self, shutit):
         shutit.send('apt-get -y --force-yes install git golang')
         shutit.send('adduser --no-create-home --home /camlistore --disabled-password camlistore')
         shutit.send('git clone https://github.com/bradfitz/camlistore.git')
@@ -18,7 +18,7 @@ class camlistore(ShutItModule):
         shutit.send('export HOME=/camlistore')
         shutit.send('export USER=camlistore')
         shutit.send('popd')
-                return True
+        return True
 
     def finalize(self, shutit):
         return True
