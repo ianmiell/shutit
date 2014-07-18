@@ -45,25 +45,27 @@ def print_modules(shutit):
     """
     cfg = shutit.cfg
     shutit_map = shutit.shutit_map
-    s = ''
-    s = s + 'Modules: \n'
-    s = s + '\tRun order\tBuild\tRemove\tModule ID\n'
+    string = ''
+    string = string + 'Modules: \n'
+    string = string + '\tRun order\tBuild\tRemove\tModule ID\n'
     for mid in module_ids(shutit):
-        s = s + ('\t' + str(shutit_map[mid].run_order) + '\t\t' +
+        string = string + ('\t' + str(shutit_map[mid].run_order) + '\t\t' +
             str(cfg[mid]['build']) + '\t' +
             str(cfg[mid]['remove']) + '\t' +
             mid + '\n')
-    return s
+    return string
 
 # run_order of -1 means 'stop everything'
 def stop_all(shutit, run_order=-1):
     """Runs stop method on all modules less than the passed-in run_order.
-    Used when container is exporting itself mid-build, so we clean up state before committing run files etc.
+    Used when container is exporting itself mid-build, so we clean up state
+    before committing run files etc.
     """
     cfg = shutit.cfg
     shutit_map = shutit.shutit_map
     if cfg['build']['interactive'] >= 3:
-        print('\nRunning stop on all modules' + util.colour('31', '\n[Hit return to continue]'))
+        print('\nRunning stop on all modules' + \
+            util.colour('31', '\n[Hit return to continue]'))
         raw_input('')
     # sort them to it's stopped in reverse order)
     for mid in module_ids(shutit, rev=True):
@@ -71,7 +73,8 @@ def stop_all(shutit, run_order=-1):
         if run_order == -1 or shutit_module_obj.run_order <= run_order:
             if is_built(shutit, shutit_module_obj):
                 if not shutit_module_obj.stop(shutit):
-                    shutit.fail('failed to stop: ' + mid, child=shutit.pexpect_children['container_child'])
+                    shutit.fail('failed to stop: ' + \
+                        mid, child=shutit.pexpect_children['container_child'])
 
 # Start all apps less than the supplied run_order
 def start_all(shutit, run_order=-1):
@@ -82,7 +85,8 @@ def start_all(shutit, run_order=-1):
     cfg = shutit.cfg
     shutit_map = shutit.shutit_map
     if cfg['build']['interactive'] >= 3:
-        print('\nRunning start on all modules' + util.colour('31', '\n[Hit return to continue]'))
+        print('\nRunning start on all modules' + 
+            util.colour('31', '\n[Hit return to continue]'))
         raw_input('')
     # sort them to they're started in order)
     for mid in module_ids(shutit):
@@ -90,15 +94,19 @@ def start_all(shutit, run_order=-1):
         if run_order == -1 or shutit_module_obj.run_order <= run_order:
             if is_built(shutit, shutit_module_obj):
                 if not shutit_module_obj.start(shutit):
-                    shutit.fail('failed to start: ' + mid, child=shutit.pexpect_children['container_child'])
+                    shutit.fail('failed to start: ' + mid, \
+                        child=shutit.pexpect_children['container_child'])
 
 def is_built(shutit, shutit_module_obj):
-    """Returns true if this module is configured to be built, or if it is already installed.
+    """Returns true if this module is configured to be built,
+    or if it is already installed.
     """
-    return shutit.cfg[shutit_module_obj.module_id]['build'] or shutit_module_obj.is_installed(shutit)
+    return shutit.cfg[shutit_module_obj.module_id]['build'] \
+        or shutit_module_obj.is_installed(shutit)
 
 def init_shutit_map(shutit):
-    """Initializes the module map of shutit based on the modules we have gathered.
+    """Initializes the module map of shutit based on the modules
+    we have gathered.
 
     Checks we have core modules
     Checks for duplicate module details.
@@ -115,33 +123,41 @@ def init_shutit_map(shutit):
         shutit.log(modules)
         path = ':'.join(cfg['host']['shutit_module_paths'])
         if path == '':
-            shutit.fail('No modules aside from core ones found and no ShutIt module path given. Did you set --shutit_module_path/-m wrongly?')
+            shutit.fail('No modules aside from core ones found and no ShutIt \
+                module path given. \
+                Did you set --shutit_module_path/-m wrongly?')
         elif path == '.':
-            shutit.fail('No modules aside from core ones found and no ShutIt module path given apart from default (.). Did you set --shutit_module_path/-m? Is there a STOP file in your . dir?')
+            shutit.fail('No modules aside from core ones found and no ShutIt \
+                module path given apart from default (.). Did you set \
+                --shutit_module_path/-m? Is there a STOP file in your . dir?')
         else:
-            shutit.fail('No modules aside from core ones found and no ShutIt modules in path:\n\n' + path +
-            '\n\nor their subfolders. Check you set --shutit_module_path/-m setting and check that there are ShutIt modules below without STOP files in any relevant directories.')
+            shutit.fail('No modules aside from core ones found and no ShutIt ' +
+                'modules in path:\n\n' + path +
+                '\n\nor their subfolders. Check you set ' + 
+                '--shutit_module_path/-m setting and check that there are ' + 
+                'ShutItmodules below without STOP files in any relevant ' + 
+                'directories.')
 
     shutit.log('PHASE: base setup', code='31')
     if cfg['build']['interactive'] >= 3:
         shutit.log('\nChecking to see whether there are duplicate module ids or run orders in the visible modules.', force_stdout=True)
         shutit.log('\nModules I see are:\n', force_stdout=True)
-        for m in modules:
-            shutit.log(m.module_id, force_stdout=True, code='31')
+        for module in modules:
+            shutit.log(module.module_id, force_stdout=True, code='31')
         shutit.log('\n', force_stdout=True)
 
     run_orders = {}
     has_core_module = False
-    for m in modules:
-        assert isinstance(m, ShutItModule)
-        if m.module_id in shutit_map:
-            shutit.fail('Duplicated module id: ' + m.module_id)
-        if m.run_order in run_orders:
-            shutit.fail('Duplicate run order: ' + str(m.run_order) + ' for ' +
-                m.module_id + ' and ' + run_orders[m.run_order].module_id)
-        if m.run_order == 0:
+    for module in modules:
+        assert isinstance(module, ShutItModule)
+        if module.module_id in shutit_map:
+            shutit.fail('Duplicated module id: ' + module.module_id)
+        if module.run_order in run_orders:
+            shutit.fail('Duplicate run order: ' + str(module.run_order) + ' for ' +
+                module.module_id + ' and ' + run_orders[module.run_order].module_id)
+        if module.run_order == 0:
             has_core_module = True
-        shutit_map[m.module_id] = run_orders[m.run_order] = m
+        shutit_map[module.module_id] = run_orders[module.run_order] = module
 
     if not has_core_module:
         shutit.fail('No module with run_order=0 specified! This is required.')
@@ -154,9 +170,7 @@ def config_collection(shutit):
     """Collect core config from config files for all seen modules.
     """
     cfg = shutit.cfg
-    shutit_map = shutit.shutit_map
     for mid in module_ids(shutit):
-
         # Default to None so we can interpret as ifneeded
         util.get_config(cfg, mid, 'build', None, boolean=True)
         util.get_config(cfg, mid, 'remove', False, boolean=True)
@@ -270,9 +284,9 @@ def check_deps(shutit):
     # Dep checking
     def err_checker(errs, triples):
         new_triples = []
-        for err, m in zip(errs, triples):
+        for err, module in zip(errs, triples):
             if not err:
-                new_triples.append(m)
+                new_triples.append(module)
                 continue
             found_errs.append(err)
         return new_triples
@@ -302,9 +316,9 @@ def check_deps(shutit):
     if cfg['build']['debug']:
         shutit.log('Modules configured to be built (in order) are: ', code='31')
         for mid in module_ids(shutit):
-            m = shutit_map[mid]
+            module = shutit_map[mid]
             if cfg[mid]['build']:
-                shutit.log(mid + '\t' + str(m.run_order), code='31')
+                shutit.log(mid + '\t' + str(module.run_order), code='31')
         shutit.log('\n', code='31')
 
     return []
@@ -345,11 +359,11 @@ def check_ready(shutit):
     shutit.pause_point('\nNow checking whether we are ready to build modules configured to be built',
         print_input=False, level=3)
     for mid in module_ids(shutit):
-        m = shutit_map[mid]
+        module = shutit_map[mid]
         shutit.log('considering check_ready (is it ready to be built?): ' + mid, code='31')
-        if cfg[mid]['build'] and not m.is_installed(shutit):
+        if cfg[mid]['build'] and not module.is_installed(shutit):
             shutit.log('checking whether module is ready to build: ' + mid, code='31')
-            if not m.check_ready(shutit):
+            if not module.check_ready(shutit):
                 errs.append((mid + ' not ready to install', shutit.pexpect_children['container_child']))
     return errs
 
@@ -362,11 +376,11 @@ def do_remove(shutit):
     shutit.log('PHASE: remove', code='31')
     shutit.pause_point('\nNow removing any modules that need removing', print_input=False, level=3)
     for mid in module_ids(shutit):
-        m = shutit_map[mid]
+        module = shutit_map[mid]
         shutit.log('considering whether to remove: ' + mid, code='31')
         if cfg[mid]['remove']:
             shutit.log('removing: ' + mid, code='31')
-            if not m.remove(shutit):
+            if not module.remove(shutit):
                 shutit.log(print_modules(shutit), code='31')
                 shutit.fail(mid + ' failed on remove', child=shutit.pexpect_children['container_child'])
 
