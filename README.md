@@ -50,6 +50,8 @@ git clone https://github.com/ianmiell/shutit.git && cd shutit
 Videos:
 -------
 
+- [Talk on ShutIt](https://www.youtube.com/watch?v=zVUPmmUU3yY) 
+
 - [Setting up a ShutIt server in 3 minutes](https://www.youtube.com/watch?v=ForTMTUMp3s)
 
 - [Steps for above](https://gist.github.com/ianmiell/947ff3fabc44ace617c6)
@@ -59,19 +61,14 @@ Videos:
 - [Building a win2048 container](https://www.youtube.com/watch?v=Wagof_wnRRY) cf: [Blog](http://zwischenzugs.wordpress.com/2014/05/09/docker-shutit-and-the-perfect-2048-game/)
 
 
+
 Docs:
 -----
+- [User Guide](https://github.com/ianmiell/shutit/blob/master/docs/documentation.md)
+
 - [Walkthrough](http://ianmiell.github.io/shutit/)
 
 
-Do it yourself:
----------------
-
-```
-./shutit skeleton --example <new directory> <new module name> <user domain>
-```
-
-and follow instructions.
 
 
 REALLY QUICK OVERVIEW
@@ -164,17 +161,6 @@ with them:
   appropriate once we had a deterministic set of steps that also documented
   server requirements
 
-
-
-It is designed to:
-
-- create static containers in as deterministic and predictable way as
-  manageable
-- handle complex inputs and outputs
-- easy to learn
-- easy to convert existing shell scripts
-- have (limited) functionality for rebuilding specific modules
-
 If you are a sysadmin looking for something to manage dynamic, moving target
 systems stick with chef/puppet. If you're a programmer who wants to manage a
 bunch of existing scripts in a painless way, keep on reading.
@@ -233,7 +219,7 @@ Run
 Known Issues
 --------------
 Since a core technology used in this application is pexpect - and a typical
-usage pattern is to expect the prompt to return - unusual shell
+usage pattern is to expect the prompt to return. Unusual shell
 prompts and escape sequences have been known to cause problems.
 Use the ```shutit.setup_prompt()``` function to help manage this by setting up
 a more sane prompt.
