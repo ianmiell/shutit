@@ -2,12 +2,10 @@
 # This feeds into automated testing of each module.
 [shutit.tk.crosscompile.crosscompile]
 build:yes
+allowed_images:["ubuntu"]
 
 # Aspects of build process
 [build]
-# Allowed images as a regexp, eg ["ubuntu:12.*"], or [".*"], or ["centos"].
-# It's recommended this is locked down as far as possible.
-allowed_images:["ubuntu"]
 base_image:ubuntu
 [repository]
 name:crosscompile
