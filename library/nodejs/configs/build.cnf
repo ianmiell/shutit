@@ -2,16 +2,14 @@
 # This feeds into automated testing of each module.
 [shutit.tk.nodejs.nodejs]
 build:yes
+allowed_images:["ubuntu"]
 
 # Aspects of build process
 [build]
-# Allowed images as a regexp, eg ["ubuntu:12.*"], or [".*"], or ["centos"].
-# It's recommended this is locked down as far as possible.
-allowed_images:["ubuntu"]
 base_image:ubuntu
+
 [repository]
 name:nodejs
-[repository]
 user:
 # Fill these out in server- and username-specific config (also in this directory)
 password:YOUR_REGISTRY_PASSWORD_OR_BLANK

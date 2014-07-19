@@ -22,7 +22,5 @@
 
 [shutit.tk.wordpress.wordpress]
 build:yes
-
-[container]
 allowed_images:["ubuntu.*"]
 
