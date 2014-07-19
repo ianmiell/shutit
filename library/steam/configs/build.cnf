@@ -2,16 +2,16 @@
 # This feeds into automated testing of each module.
 [shutit.tk.steam.steam]
 build:yes
-
-# Aspects of build process
-[build]
 # Allowed images as a regexp, eg ["ubuntu:12.*"], or [".*"], or ["centos"].
 # It's recommended this is locked down as far as possible.
 allowed_images:["tianon/steamos"]
+
+# Aspects of build process
+[build]
 base_image:tianon/steamos
+
 [repository]
 name:steam
-[repository]
 user:
 # Fill these out in server- and username-specific config (also in this directory)
 password:YOUR_REGISTRY_PASSWORD_OR_BLANK

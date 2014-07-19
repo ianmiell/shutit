@@ -2,7 +2,4 @@
 # This feeds into automated testing of each module.
 [shutit.tk.get_iplayer.get_iplayer]
 build:yes
-
-[container]
 allowed_images:["ubuntu.*"]
-
