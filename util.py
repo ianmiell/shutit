@@ -146,11 +146,6 @@ privileged:no
 # lxc-conf arg, eg
 #lxc_conf:lxc.aa_profile=unconfined
 lxc_conf:
-# Allowed images json-list, eg ["ubuntu:12.04"], each matched on
-# an OR basis with the image_tag configured for the build.
-# It's recommended this is locked down as far as possible.
-# NB each image must be in double quotes.
-allowed_images:[".*"]
 # Base image can be over-ridden by --image_tag defaults to this.
 base_image:ubuntu:12.04
 # Whether to perform tests. 
@@ -228,23 +223,34 @@ def colour(code, msg):
     return '\033[%sm%s\033[0m' % (code, msg)
 
 
-def get_config(cfg, module_id, option, default, boolean=False):
+def get_config(cfg,
+               module_id,
+               option,
+               default,
+               boolean=False,
+               forcedefault=False):
     """Gets a specific config from the config files,
     allowing for a default.
     Handles booleans vs strings appropriately.
+
+    cfg          - shutit object's config
+    module_id    - module id this relates to, eg com.mycorp.mymodule.mymodule
+    option       - config item to set
+    default      - default value if not set in files
+    boolean      - whether this is a boolean value or not (default False)
+    forcedefault - if set to true, allows you to set the value (default False)
     """
     if module_id not in cfg.keys():
         cfg[module_id] = {}
     if not cfg['config_parser'].has_section(module_id):
         cfg['config_parser'].add_section(module_id)
-    if cfg['config_parser'].has_option(module_id, option):
+    if not forcedefault and cfg['config_parser'].has_option(module_id, option):
         if boolean:
             cfg[module_id][option] = cfg['config_parser'].getboolean(module_id, option)
         else:
             cfg[module_id][option] = cfg['config_parser'].get(module_id, option)
     else:
         cfg[module_id][option] = default
-        #cfg['config_parser'].set(module_id, default)
 
 def get_configs(shutit, configs):
     """Reads config files in, checking their security first
@@ -292,7 +298,6 @@ def get_base_config(cfg, cfg_parser):
     cfg['build']['privileged']                    = cp.getboolean('build', 'privileged')
     cfg['build']['lxc_conf']                      = cp.get('build', 'lxc_conf')
     cfg['build']['build_log']                     = cp.getboolean('build', 'build_log')
-    cfg['build']['allowed_images']                = json.loads(cp.get('build', 'allowed_images'))
     cfg['build']['base_image']                    = cp.get('build', 'base_image')
     cfg['build']['build_db_dir']                  = '/root/shutit_build'
     cfg['build']['dotest']                        = cp.get('build', 'dotest')
@@ -362,18 +367,6 @@ def get_base_config(cfg, cfg_parser):
         issue_warning('Showing computed config. This can also be done by calling with sc:',2)
         shutit_global.shutit.log(print_config(cfg), force_stdout=True, code='31')
         time.sleep(1)
-    # If build/allowed_images doesn't contain container/docker_image
-    if 'any' not in cfg['build']['allowed_images'] and cfg['container']['docker_image'] not in cfg['build']['allowed_images']:
-        # Try allowed images as regexps
-        ok = False
-        for regexp in cfg['build']['allowed_images']:
-            if re.match(regexp, cfg['container']['docker_image']):
-                ok = True
-                break
-        if not ok:
-            print('\n\nAllowed images for this build are: ' + str(cfg['build']['allowed_images']) + ' but the configured image is: ' + cfg['container']['docker_image'] + '\n\n')
-            # Exit without error code so that it plays nice with tests.
-            sys.exit()
     if cfg['container']['hostname'] != '' and cfg['build']['net'] != '' and cfg['build']['net'] != 'bridge':
         print('\n\ncontainer/hostname or build/net configs must be blank\n\n')
         sys.exit()
@@ -1215,16 +1208,15 @@ def module():
         # This feeds into automated testing of each module.
         [''' + '%s.%s.%s' % (skel_domain, skel_module_name, skel_module_name) + ''']
         build:yes
-
-        # Aspects of build process
-        [build]
         # Allowed images as a regexp, eg ["ubuntu:12.*"], or [".*"], or ["centos"].
         # It's recommended this is locked down as far as possible.
         allowed_images:["''' + shutit.cfg['dockerfile']['base_image'] + '''"]
+
+        # Aspects of build process
+        [build]
         base_image:''' + shutit.cfg['dockerfile']['base_image'] + '''
         [repository]
         name:''' + skel_module_name + '''
-        [repository]
         user:
         # Fill these out in server- and username-specific config (also in this directory)
         password:YOUR_REGISTRY_PASSWORD_OR_BLANK
