@@ -7,6 +7,7 @@ class mongodb(ShutItModule):
         return False
 
     def build(self, shutit):
+        shutit.install('adduser')
         shutit.send('apt-key adv --keyserver keyserver.ubuntu.com --recv 7F0CEB10')
         shutit.send('echo "deb http://downloads-distro.mongodb.org/repo/ubuntu-upstart dist 10gen" | tee -a /etc/apt/sources.list.d/10gen.list')
         shutit.send('apt-get update')
