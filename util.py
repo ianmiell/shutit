@@ -232,35 +232,6 @@ def colour(code, msg):
     return '\033[%sm%s\033[0m' % (code, msg)
 
 
-def get_config(cfg,
-               module_id,
-               option,
-               default,
-               boolean=False,
-               forcedefault=False):
-    """Gets a specific config from the config files,
-    allowing for a default.
-    Handles booleans vs strings appropriately.
-
-    cfg          - shutit object's config
-    module_id    - module id this relates to, eg com.mycorp.mymodule.mymodule
-    option       - config item to set
-    default      - default value if not set in files
-    boolean      - whether this is a boolean value or not (default False)
-    forcedefault - if set to true, allows you to set the value (default False)
-    """
-    if module_id not in cfg.keys():
-        cfg[module_id] = {}
-    if not cfg['config_parser'].has_section(module_id):
-        cfg['config_parser'].add_section(module_id)
-    if not forcedefault and cfg['config_parser'].has_option(module_id, option):
-        if boolean:
-            cfg[module_id][option] = cfg['config_parser'].getboolean(module_id, option)
-        else:
-            cfg[module_id][option] = cfg['config_parser'].get(module_id, option)
-    else:
-        cfg[module_id][option] = default
-
 def get_configs(shutit, configs):
     """Reads config files in, checking their security first
     (in case passwords/sensitive info is in them).

@@ -1261,15 +1261,42 @@ class ShutIt(object):
             cfg['build']['report'] = (cfg['build']['report'] +
                                       '\nPushed repository: ' + repository)
 
-    def get_config(self, module_id, option, default, boolean=False):
-        """ Pass-through function for convenience
 
-        - module_id   - 
-        - option      - 
-        - default     - 
-        - boolean     - 
+    def get_config(self,
+                   module_id,
+                   option,
+                   default=None,
+                   boolean=False,
+                   forcedefault=False,
+                   forcenone=False):
+        """Gets a specific config from the config files,
+        allowing for a default.
+        Handles booleans vs strings appropriately.
+    
+        module_id    - module id this relates to,
+                       eg com.mycorp.mymodule.mymodule
+        option       - config item to set
+        default      - default value if not set in files
+        boolean      - whether this is a boolean value or not (default False)
+        forcedefault - if set to true, allows you to override any value
+                       already set (default False)
+        forcenone    - if set to true, allows you to set the value to None
+                       (default False)
         """
-        util.get_config(self.cfg, module_id, option, default, boolean)
+        if module_id not in self.cfg.keys():
+            self.cfg[module_id] = {}
+        if not cfg['config_parser'].has_section(module_id):
+            self.cfg['config_parser'].add_section(module_id)
+        if not forcedefault and self.cfg['config_parser'].has_option(module_id, option):
+            if boolean:
+                self.cfg[module_id][option] = self.cfg['config_parser'].getboolean(module_id, option)
+            else:
+                self.cfg[module_id][option] = self.cfg['config_parser'].get(module_id, option)
+        else:
+            if default == None and forcenone != True:
+                self.fail('Config item: ' + option + ':\nin module:\n[' + module_id + ']\nmust be set!\n\nOften this is a deliberate requirement to place in your host-specific /path/to/shutit/configs/$(hostname)_$(whoami).cnf file.')
+            self.cfg[module_id][option] = default
+
 
     def record_config(self):
         """ Put the config in a file in the container.
