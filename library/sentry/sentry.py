@@ -4,11 +4,12 @@ from shutit_module import ShutItModule
 
 class sentry(ShutItModule):
 
-        def is_installed(self, shutit):
-                return False
+    def is_installed(self, shutit):
+        return False
 
-        def build(self, shutit):
-        shutit.send('echo "deb http://archive.ubuntu.com/ubuntu precise main universe" > /etc/apt/sources.list')
+    def build(self, shutit):
+        shutit.install('lsb-release')
+        shutit.send('echo "deb http://archive.ubuntu.com/ubuntu $(lsb_release -c -s) main universe" > /etc/apt/sources.list')
         shutit.send('apt-get update')
         shutit.send('apt-get upgrade -y')
         shutit.send('apt-get install -y language-pack-en')
@@ -28,7 +29,7 @@ class sentry(ShutItModule):
         shutit.send('pip install psycopg2')
         shutit.send('pip install sentry')
         shutit.send_host_file('/sentry.conf.py', 'context/sentry.conf.py')
-                return True
+        return True
 
     def finalize(self, shutit):
         return True
