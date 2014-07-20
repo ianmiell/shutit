@@ -43,8 +43,16 @@ class ansible(ShutItModule):
         return True
 
     def test(self, shutit):
-        if shutit.send('ansible all -m ping', expect=['assword', shutit.cfg['expect_prompts']['root_prompt']]) == 0:
-            shutit.send(shutit.cfg['container']['password'])
+        send = 'ansible all -m ping'
+        expect=['assword', shutit.cfg['expect_prompts']['root_prompt'],'authenticity of host']
+        while True:
+            res = shutit.send(send, expect=expect)
+            if res == 1:
+                break
+            elif res == 0:
+                send = shutit.cfg['container']['password']
+            elif res == 2:
+                send = 'yes'
         return True
 
 def module():
