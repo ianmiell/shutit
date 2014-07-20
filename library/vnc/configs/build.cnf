@@ -21,6 +21,6 @@
 #SOFTWARE.
 [shutit.tk.vnc.vnc]
 build:yes
-allowed_images:["ubuntu.*"]
+allowed_images:["ubuntu.*","debian.*"]
 
 
