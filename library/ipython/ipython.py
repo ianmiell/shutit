@@ -4,10 +4,10 @@ from shutit_module import ShutItModule
 
 class ipython(ShutItModule):
 
-        def is_installed(self, shutit):
-                return False
+    def is_installed(self, shutit):
+        return False
 
-        def build(self, shutit):
+    def build(self, shutit):
         shutit.send('echo "deb http://archive.ubuntu.com/ubuntu precise main universe" > /etc/apt/sources.list')
         shutit.send('apt-get update')
         shutit.send('apt-get upgrade -y')
@@ -33,7 +33,7 @@ class ipython(ShutItModule):
         shutit.send('pip install pandas')
         shutit.send('pip install jinja2')
         shutit.send('pip install ipython')
-                return True
+        return True
 
     def finalize(self, shutit):
         return True
