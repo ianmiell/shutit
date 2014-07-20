@@ -4,18 +4,19 @@ from shutit_module import ShutItModule
 
 class nodejs(ShutItModule):
 
-        def is_installed(self, shutit):
-                return False
+    def is_installed(self, shutit):
+        return False
 
-        def build(self, shutit):
-        shutit.send('apt-get install -y python-software-properties python')
-        shutit.send('add-apt-repository ppa:chris-lea/node.js')
-        shutit.send('echo "deb http://us.archive.ubuntu.com/ubuntu/ precise universe" >> /etc/apt/sources.list')
+    def build(self, shutit):
+        shutit.install('lsb-release')
+        shutit.install('software-properties-common')
+        shutit.send('add-apt-repository -y ppa:chris-lea/node.js')
+        shutit.send('echo "deb http://us.archive.ubuntu.com/ubuntu/ $(lsb_release -c -s) universe" >> /etc/apt/sources.list')
         shutit.send('apt-get update')
-        shutit.send('apt-get install -y nodejs')
+        shutit.install('nodejs')
         shutit.send('mkdir /var/www')
         shutit.send_host_file('/var/www/app.js', 'context/app.js')
-                return True
+        return True
 
     def finalize(self, shutit):
         return True
