@@ -5,19 +5,24 @@ from shutit_module import ShutItModule
 
 class orientdb(ShutItModule):
 
-        def is_installed(self, shutit):
-                return False
+    def is_installed(self, shutit):
+        return False
 
-        def build(self, shutit):
-        shutit.send('apt-get -y -qq update &amp;&amp; apt-get -y -qq install wget')
+    def build(self, shutit):
+        shutit.install('wget')
+        shutit.install('tar')
         shutit.send('export ROOT=/opt/downloads')
         shutit.send('export ORIENT_URL=http://www.orientdb.org/portal/function/portal/download/unknown@unknown.com')
         shutit.send('export ORIENT_VERSION=orientdb-community-1.7.4')
-        shutit.send('mkdir ${ROOT} &amp;&amp; cd ${ROOT} &amp;&amp; wget ${ORIENT_URL}/-/-/-/-/-/${ORIENT_VERSION}.tar.gz/false/false/linux &amp;&amp; tar -xzf linux &amp;&amp; ln -s ${ROOT}/${ORIENT_VERSION} ${ROOT}/orientdb')
-        shutit.send('apt-get -y -qq --force-yes clean &amp;&amp; rm -rf /opt/downloads/linux /var/lib/apt/lists/* /tmp/* /var/tmp/*')
-                return True
+        shutit.send('mkdir ${ROOT}')
+        shutit.send('cd ${ROOT}')
+        shutit.send('wget ${ORIENT_URL}/-/-/-/-/-/${ORIENT_VERSION}.tar.gz/false/false/linux')
+        shutit.send('tar -xzf linux')
+        shutit.send('ln -s ${ROOT}/${ORIENT_VERSION} ${ROOT}/orientdb')
+        return True
 
     def finalize(self, shutit):
+        shutit.send('rm -rf /opt/downloads/linux /var/lib/apt/lists/* /tmp/* /var/tmp/*')
         return True
 
     def test(self, shutit):
