@@ -2,3 +2,9 @@
 # This feeds into automated testing of each module.
 [shutit.tk.ssh_key.ssh_key]
 build:yes
+
+# These values must be over-ridden and point to real values to work.
+# Place in /path/to/your/shutit/configs/$(hostname)_$(username).cnf
+#ssh_keyfile_dir:
+#ssh_keyfile_name:
+

@@ -38,8 +38,8 @@ class ssh_key(ShutItModule):
         # SSH passphrase, default to empty
         shutit.get_config(self.module_id, 'passphrase','')
         shutit.get_config(self.module_id, 'login','')
-        shutit.get_config(self.module_id, 'ssh_keyfile_dir','/home/' + shutit.cfg['shutit.tk.adduser.adduser']['user'] + '/.ssh')
-        shutit.get_config(self.module_id, 'ssh_keyfile_name','id_rsa')
+        shutit.get_config(self.module_id, 'ssh_keyfile_dir')
+        shutit.get_config(self.module_id, 'ssh_keyfile_name')
         cfg[self.module_id]['login'] = cfg[self.module_id]['login'].split()
         if 'root' not in cfg[self.module_id]['login']:
             cfg[self.module_id]['login'].append('root')
