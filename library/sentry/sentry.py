@@ -20,8 +20,9 @@ class sentry(ShutItModule):
         shutit.send('locale-gen en_US.UTF-8')
         shutit.send('dpkg-reconfigure locales')
         shutit.install('openssh-server git-core libxml2-dev curl python build-essential make gcc python-dev wget')
-        shutit.install('postgresql-client-9.1 postgresql-client-common libpq5')
-        shutit.install('libpq-dev')
+        shutit.install('postgresql-client postgresql-client-common libpq5')
+        # broken in 14.04
+        #shutit.install('libpq-dev')
         shutit.send('wget http://python-distribute.org/distribute_setup.py')
         shutit.send('python distribute_setup.py')
         shutit.send('wget https://raw.github.com/pypa/pip/master/contrib/get-pip.py')
