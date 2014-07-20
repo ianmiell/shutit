@@ -2,13 +2,13 @@
 # This feeds into automated testing of each module.
 [shutit.tk.docker_registry.docker_registry]
 build:yes
-allowed_images:["ubuntu:13.04"]
+allowed_images:["ubuntu:14.04"]
 
 # Aspects of build process
 [build]
 # Allowed images as a regexp, eg ["ubuntu:12.*"], or [".*"], or ["centos"].
 # It's recommended this is locked down as far as possible.
-base_image:ubuntu:13.04
+base_image:ubuntu:14.04
 
 [repository]
 name:docker_registry
