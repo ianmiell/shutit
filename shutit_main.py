@@ -21,7 +21,7 @@
 #OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 #SOFTWARE.
 
-"""ShutIt is
+"""ShutIt is a means of building stateless containers in a flexible and predictable way.
 """
 
 from shutit_module import ShutItModule, ShutItException
@@ -177,11 +177,11 @@ def config_collection(shutit):
     cfg = shutit.cfg
     for mid in module_ids(shutit):
         # Default to None so we can interpret as ifneeded
-        util.get_config(cfg, mid, 'build', None, boolean=True)
-        util.get_config(cfg, mid, 'remove', False, boolean=True)
-        util.get_config(cfg, mid, 'tagmodule', False, boolean=True)
+        shutit.get_config(mid, 'build', None, boolean=True, forcenone=True)
+        shutit.get_config(mid, 'remove', False, boolean=True)
+        shutit.get_config(mid, 'tagmodule', False, boolean=True)
         # Default to allow any image
-        util.get_config(cfg, mid, 'allowed_images', [".*"])
+        shutit.get_config(mid, 'allowed_images', [".*"])
 
         # ifneeded will (by default) only take effect if 'build' is not
         # specified. It can, however, be forced to a value, but this
@@ -208,7 +208,7 @@ def config_collection_for_built(shutit):
             module = shutit.shutit_map[mid]
             cfg_file = os.path.dirname(module.__module_file) + '/configs/build.cnf'
             if os.path.isfile(cfg_file):
-                 # use util.get_config, forcing the passed-in default
+                 # use shutit.get_config, forcing the passed-in default
                  import ConfigParser
                  config_parser = ConfigParser.ConfigParser()
                  config_parser.read(cfg_file)
@@ -218,7 +218,7 @@ def config_collection_for_built(shutit):
                              value = config_parser.get(section,option)
                              if option == 'allowed_images':
                                  value = json.loads(value)
-                             util.get_config(shutit.cfg, mid, option,
+                             shutit.get_config(mid, option,
                                              value, forcedefault=True)
     # TODO: re-check command line arguments as well?
     # Check the allowed_images against the base_image
