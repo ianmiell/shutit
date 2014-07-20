@@ -2,14 +2,14 @@
 # This feeds into automated testing of each module.
 [shutit.tk.crosscompile.crosscompile]
 build:yes
-allowed_images:["ubuntu"]
+allowed_images:["ubuntu:12.04"]
 
 # Aspects of build process
 [build]
 base_image:ubuntu
+
 [repository]
 name:crosscompile
-[repository]
 user:
 # Fill these out in server- and username-specific config (also in this directory)
 password:YOUR_REGISTRY_PASSWORD_OR_BLANK
