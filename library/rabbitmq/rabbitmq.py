@@ -4,13 +4,13 @@ from shutit_module import ShutItModule
 
 class rabbitmq(ShutItModule):
 
-        def is_installed(self, shutit):
-                return False
+    def is_installed(self, shutit):
+        return False
 
-        def build(self, shutit):
-        shutit.send('yum -y install wget logrotate rabbitmq-server')
+    def build(self, shutit):
+        shutit.install('wget logrotate rabbitmq-server')
         shutit.send('/usr/lib/rabbitmq/bin/rabbitmq-plugins enable rabbitmq_management')
-                return True
+        return True
 
     def finalize(self, shutit):
         return True
