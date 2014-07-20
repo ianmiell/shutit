@@ -178,11 +178,20 @@ class LayerConfigParser(RawConfigParser):
         ret = RawConfigParser.readfp(self, fp, filename)
         return ret
 
-    def whereset(self, sec, name):
+    def whereset(self, section, option):
         for cp, filename, fp in reversed(self.layers):
-            if cp.has_option(sec, name):
+            if cp.has_option(section, option):
                 return filename
-        raise ShutItFailException('[%s]/%s was never set' % (sec, name))
+        raise ShutItFailException('[%s]/%s was never set' % (section, option))
+
+    def get_config_set(self, section, option):
+        """Returns a set with each value per config file in it.
+        """
+	values = set()
+        for cp, filename, fp in self.layers:
+            if cp.has_option(section, option):
+                values.add(cp.get(section, option))
+        return values
 
     def reload(self):
         """
@@ -273,6 +282,7 @@ def get_configs(shutit, configs):
         if shutit.cfg['action']['serve'] or raw_input('') == 'y':
             for f in files:
                 os.chmod(f,0600)
+            # recurse
             return get_configs(shutit, configs)
         shutit.fail(fail_str)
     for config in configs:
@@ -280,6 +290,8 @@ def get_configs(shutit, configs):
             cp.readfp(config[1], filename=config[0])
         else:
             cp.read(config)
+    #TODO: treat allowed_images as a special, additive case
+    shutit.cfg['build']['allowed_images'] = cp.get_config_set('build', 'allowed_images')
     return cp
 
 def issue_warning(msg, wait):
@@ -696,7 +708,7 @@ def load_configs(shutit):
     get_base_config(cfg, cfg_parser)
 
 def load_shutit_modules(shutit):
-    """Responsible for loading the shutit modules based on the configured moduleu
+    """Responsible for loading the shutit modules based on the configured module
     paths.
     """
     if shutit.cfg['build']['debug']:
@@ -723,6 +735,8 @@ def print_config(cfg, hide_password=True, history=False):
             for k1 in keys2:
                     line = ''
                     line += k1 + ':' 
+                    # If we want to hide passwords, we do so using a sha512
+                    # done an aritrary number of times (27).
                     if hide_password and (k1 == 'password' or k1 == 'passphrase'):
                         p = hashlib.sha512(cfg[k][k1]).hexdigest()
                         i = 27
