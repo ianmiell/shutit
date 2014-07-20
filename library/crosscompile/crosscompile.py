@@ -4,21 +4,22 @@ from shutit_module import ShutItModule
 
 class crosscompile(ShutItModule):
 
-        def is_installed(self, shutit):
-                return False
+    def is_installed(self, shutit):
+            return False
 
-        def build(self, shutit):
-        shutit.send('echo "deb http://archive.ubuntu.com/ubuntu precise main universe" > /etc/apt/sources.list')
+    def build(self, shutit):
+        shutit.install('lsb-release')
+        shutit.send('echo "deb http://archive.ubuntu.com/ubuntu $(lsb_release -s -c) main universe" > /etc/apt/sources.list')
         shutit.send('apt-get update')
         shutit.send('apt-get upgrade -y')
+        shutit.install('gcc')
+        shutit.install('g++')
         shutit.install('mercurial git-core')
         shutit.send('hg clone https://code.google.com/p/go')
         shutit.send('pushd /go')
         shutit.send('hg update go1.1.2')
         shutit.send('export GOROOT=/go')
         shutit.send('export GOBIN=/go/bin')
-        shutit.install('gcc')
-        shutit.install('g++')
         shutit.install('make build-essential')
         shutit.send('pushd /go/src')
         shutit.send('./all.bash')
@@ -26,7 +27,7 @@ class crosscompile(ShutItModule):
         shutit.send('/bin/bash -c "git clone git://github.com/davecheney/golang-crosscompile.git && source golang-crosscompile/crosscompile.bash && go-crosscompile-build-all"')
         shutit.send('popd')
         shutit.send('popd')
-                return True
+        return True
 
     def finalize(self, shutit):
         return True
