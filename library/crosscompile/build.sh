@@ -15,7 +15,7 @@ then
 fi
 # This file tests your build, leaving the container intact when done.
 set -e
-$SHUTIT build
+$SHUTIT build -m ..
 # Display config
 #$SHUTIT sc
 # Debug
