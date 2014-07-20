@@ -4,10 +4,10 @@ from shutit_module import ShutItModule
 
 class docker_registry(ShutItModule):
 
-        def is_installed(self, shutit):
-                return False
+    def is_installed(self, shutit):
+        return False
 
-        def build(self, shutit):
+    def build(self, shutit):
         shutit.send('apt-get install -y git-core build-essential python-dev libevent1-dev python-openssl liblzma-dev wget')
         shutit.send('rm /var/lib/apt/lists/*_*')
         shutit.send('pushd /tmp')
@@ -22,7 +22,7 @@ class docker_registry(ShutItModule):
         shutit.send('export dev_version=1')
         shutit.send_host_file('/docker-registry/config/config.yml', 'context/config-local-standalone.yml')
         shutit.send('popd')
-                return True
+        return True
 
     def finalize(self, shutit):
         return True
