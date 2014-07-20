@@ -29,6 +29,7 @@ class ssh_server(ShutItModule):
 
     def build(self, shutit):
         shutit.install('openssh-server')
+        shutit.set_password(shutit.cfg['container']['password'])
         shutit.send('mkdir -p /var/run/sshd')
         shutit.send('chmod 700 /var/run/sshd')
         # Set up root bashrcs once

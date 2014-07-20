@@ -382,7 +382,6 @@ class setup(ShutItModule):
         elif shutit.cfg['container']['install_type'] == 'yum':
             if do_update:
                 shutit.send('yum update -y', timeout=9999)
-        shutit.set_password(shutit.cfg['container']['password'])
         shutit.pause_point('Anything you want to do to the container \
             before the build starts?', level=2)
         return True
