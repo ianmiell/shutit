@@ -4,10 +4,10 @@ from shutit_module import ShutItModule
 
 class mariadb(ShutItModule):
 
-        def is_installed(self, shutit):
-                return False
+    def is_installed(self, shutit):
+        return False
 
-        def build(self, shutit):
+    def build(self, shutit):
         shutit.send('yum -y install mariadb-server pwgen supervisor psmisc net-tools')
         shutit.send_host_file('/start.sh', 'context/./start.sh')
         shutit.send_host_file('/config_mariadb.sh', 'context/./config_mariadb.sh')
@@ -15,7 +15,7 @@ class mariadb(ShutItModule):
         shutit.send('chmod 755 /start.sh')
         shutit.send('chmod 755 /config_mariadb.sh')
         shutit.send('/config_mariadb.sh')
-                return True
+        return True
 
     def finalize(self, shutit):
         return True
