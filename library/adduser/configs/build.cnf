@@ -4,3 +4,7 @@
 build:yes
 allowed_images:[".*"]
 
+[shutit.tk.auser.auser]
+user:auser
+password:apassword
+
