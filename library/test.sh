@@ -23,7 +23,7 @@
 
 source ../test/shared_test_utils.sh
 
-DISTROS=${SHUTITTEST_DISTROS:-ubuntu:13.10 ubuntu:14.04 ubuntu:13.04 debian:6.0.9 debian:7.5 debian:7.4 debian:6.0.8 debian:7.3}
+DISTROS=${SHUTITTEST_DISTROS:-ubuntu:12.04 ubuntu:14.04 debian:7.5 debian:7.4 debian:7.3}
 for dist in $DISTROS
 do
 	for d in *
