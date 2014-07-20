@@ -1361,5 +1361,5 @@ def parse_dockerfile(shutit, contents):
                     else:
                         shutit.log("Ignored line in parse_dockerfile: " + l)
                     full_line = ''
-            return ret
+        return ret
 
