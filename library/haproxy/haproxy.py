@@ -1,6 +1,8 @@
 
 # Created from dockerfile: ./Dockerfile
 # Maintainer:              Alan Boudreault "boudreault.alan@gmail.com"
+
+# See also http://oskarhane.com/haproxy-as-a-static-reverse-proxy-for-docker-containers/
 from shutit_module import ShutItModule
 
 class haproxy(ShutItModule):
