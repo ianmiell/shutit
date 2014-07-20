@@ -858,7 +858,8 @@ class ShutIt(object):
                 child=None,
                 expect=None,
                 options=None,
-                timeout=3600):
+                timeout=3600,
+                force=False):
         """Distro-independent install function.
         Takes a package name and runs the relevant install function.
         Returns true if all ok (ie it's installed), else false.
@@ -868,6 +869,7 @@ class ShutIt(object):
         - child    - See send()
         - options  - 
         - timeout  - 
+        - force    - force if necessary
         """
         #TODO: Temporary failure resolving
         child = child or self.get_default_child()
@@ -880,7 +882,10 @@ class ShutIt(object):
             if self.cfg['build']['debug']:
                 opts = options['apt'] if 'apt' in options else '-y'
             else:
-                opts = options['apt'] if 'apt' in options else '-qq -y'
+                if force:
+                    opts = options['apt'] if 'apt' in options else '-qq -y'
+                else:
+                    opts = options['apt'] if 'apt' in options else '-qq -y --force-yes'
         elif install_type == 'yum':
             cmd = 'yum install'
             opts = options['yum'] if 'yum' in options else '-y'
