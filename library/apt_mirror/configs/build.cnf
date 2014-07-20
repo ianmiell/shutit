@@ -2,7 +2,7 @@
 # This feeds into automated testing of each module.
 [shutit.tk.apt_mirror.apt_mirror]
 build:yes
-allowed_images:["any"]
+allowed_images:[".*"]
 
 [repository]
 name:apt_mirror

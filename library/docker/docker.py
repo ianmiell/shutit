@@ -22,7 +22,8 @@ from shutit_module import ShutItModule
 class docker(ShutItModule):
 
     def build(self, shutit):
-        shutit.send('echo deb http://archive.ubuntu.com/ubuntu precise universe > /etc/apt/sources.list.d/universe.list')
+        shutit.install('lsb-release')
+        shutit.send('echo deb http://archive.ubuntu.com/ubuntu $(lsb_release -s -c) universe > /etc/apt/sources.list.d/universe.list')
         shutit.send('apt-get update -qq')
         shutit.install('iptables')
         shutit.install('ca-certificates')
