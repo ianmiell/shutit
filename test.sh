@@ -85,7 +85,7 @@ set +e
 mkdir -p /tmp/shutit_logs/$$
 declare -A PIDS
 PIDS=()
-DISTROS=${SHUTITTEST_DISTROS:-ubuntu:12.04 debian:7.3}
+DISTROS=${SHUTITTEST_DISTROS:-ubuntu:12.04 ubuntu:14.04 debian:7.3}
 for dist in $DISTROS
 do
 	for d in $(ls test | grep -v configs)
