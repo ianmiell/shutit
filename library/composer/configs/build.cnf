@@ -22,4 +22,4 @@
 
 [shutit.tk.composer.composer]
 build:yes
-allowed_images:12.04
+allowed_images:["ubuntu:12.04"]
