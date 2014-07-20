@@ -883,9 +883,9 @@ class ShutIt(object):
                 opts = options['apt'] if 'apt' in options else '-y'
             else:
                 if force:
-                    opts = options['apt'] if 'apt' in options else '-qq -y'
-                else:
                     opts = options['apt'] if 'apt' in options else '-qq -y --force-yes'
+                else:
+                    opts = options['apt'] if 'apt' in options else '-qq -y'
         elif install_type == 'yum':
             cmd = 'yum install'
             opts = options['yum'] if 'yum' in options else '-y'
