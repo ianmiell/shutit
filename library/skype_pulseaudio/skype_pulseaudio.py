@@ -4,10 +4,10 @@ from shutit_module import ShutItModule
 
 class skype_pulseaudio(ShutItModule):
 
-        def is_installed(self, shutit):
-                return False
+    def is_installed(self, shutit):
+        return False
 
-        def build(self, shutit):
+    def build(self, shutit):
         shutit.send('export DEBIAN_FRONTEND=noninteractive')
         shutit.send('dpkg --add-architecture i386')
         shutit.send('apt-get update')
@@ -28,7 +28,7 @@ class skype_pulseaudio(ShutItModule):
         shutit.send('''echo 'export PULSE_SERVER="tcp:localhost:64713"' >> /usr/local/bin/skype-pulseaudio''')
         shutit.send('''echo 'PULSE_LATENCY_MSEC=60 skype' >> /usr/local/bin/skype-pulseaudio''')
         shutit.send('chmod 755 /usr/local/bin/skype-pulseaudio')
-                return True
+        return True
 
     def finalize(self, shutit):
         return True
