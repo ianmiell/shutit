@@ -4,12 +4,13 @@ from shutit_module import ShutItModule
 
 class steam(ShutItModule):
 
-        def is_installed(self, shutit):
-                return False
+    def is_installed(self, shutit):
+        return False
 
-        def build(self, shutit):
+    def build(self, shutit):
         shutit.install('steam-launcher')
-        shutit.send('echo \'deb [arch=amd64, i386] http://repo.steampowered.com/steam precise steam\' > /etc/apt/sources.list.d/steam.list && dpkg --add-architecture i386')
+        shutit.install('lsb-release')
+        shutit.send('echo \'deb [arch=amd64, i386] http://repo.steampowered.com/steam $(lsb_release -s -c) steam\' > /etc/apt/sources.list.d/steam.list && dpkg --add-architecture i386')
         shutit.send('apt-get update')
         shutit.instll('libgl1-mesa-dri:i386')
         shutit.instll('libgl1-mesa-glx:i386')
@@ -20,7 +21,7 @@ class steam(ShutItModule):
         shutit.send('adduser --disabled-password --gecos \'Steam\' steam')
         shutit.send('adduser steam video')
         shutit.send('export HOME=/home/steam')
-                return True
+        return True
 
     def finalize(self, shutit):
         return True
