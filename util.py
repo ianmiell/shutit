@@ -990,34 +990,34 @@ def create_skeleton(shutit):
             # Other items to be run through sequentially (as they are part of the script)
             if docker_command == "USER": #TODO
                 # Put in the start script as well as su'ing from here - assuming order dependent?
-                shutit.cfg['dockerfile']['script'].append((item[0], item[1]))
+                shutit.cfg['dockerfile']['script'].append((docker_command, item[1]))
                 # We assume the last one seen is the one we use for the image.
                 # Put this in the default start script.
                 shutit.cfg['dockerfile']['user']        = item[1]
             elif docker_command == 'ENV': #DONE
                 # Put in the run.sh.
-                shutit.cfg['dockerfile']['script'].append((item[0], item[1]))
+                shutit.cfg['dockerfile']['script'].append((docker_command, item[1]))
                 # Set in the build
                 shutit.cfg['dockerfile']['env'].append(item[1])
             elif docker_command == "RUN": #DONE
                 # Only handle simple commands for now and ignore the fact that Dockerfiles run 
                 # with /bin/sh -c rather than bash. 
                 try:
-                    shutit.cfg['dockerfile']['script'].append((item[0], ' '.join(json.loads(item[1]))))
+                    shutit.cfg['dockerfile']['script'].append((docker_command, ' '.join(json.loads(item[1]))))
                 except:
-                    shutit.cfg['dockerfile']['script'].append((item[0], item[1]))
+                    shutit.cfg['dockerfile']['script'].append((docker_command, item[1]))
             elif docker_command == "ADD": #DONE but rules TODO
                 # Send file - is this potentially got from the web? Is that the difference between this and COPY?
-                shutit.cfg['dockerfile']['script'].append((item[0], item[1]))
+                shutit.cfg['dockerfile']['script'].append((docker_command, item[1]))
             elif docker_command == "COPY": #DONE but rules TODO
                 # Send file
-                shutit.cfg['dockerfile']['script'].append((item[0], item[1]))
+                shutit.cfg['dockerfile']['script'].append((docker_command, item[1]))
             elif docker_command == "WORKDIR": #DONE
                 # Push and pop
-                shutit.cfg['dockerfile']['script'].append((item[0], item[1]))
+                shutit.cfg['dockerfile']['script'].append((docker_command, item[1]))
             elif docker_command == "COMMENT": #DONE
                 # Push and pop
-                shutit.cfg['dockerfile']['script'].append((item[0], item[1]))
+                shutit.cfg['dockerfile']['script'].append((docker_command, item[1]))
         # We now have the script, so let's construct it inline here
         templatemodule = ''
         # Header.
@@ -1098,13 +1098,13 @@ class template(ShutItModule):
                 cmd = '='.join(dockerfile_args).replace("'", "\\'")
                 build += """\n        shutit.send('export """ + '='.join(dockerfile_args) + """')"""
             elif dockerfile_command == 'COMMENT':
-                build += """\n        #""" + dockerfile_args[0]
+                build += """\n        # """ + ' '.join(dockerfile_args)
         while numpushes > 0:
             build += """\n        shutit.send('popd')"""
             numpushes = numpushes - 1
         templatemodule += '''
     def build(self, shutit):''' + build + '''
-                return True
+        return True
 '''
         # Gather and place finalize bit
         finalize = ''
@@ -1352,6 +1352,7 @@ def parse_dockerfile(shutit, contents):
                 else:
                     full_line += l
                     m = re.match("^[\s]*([A-Za-z]+)[\s]*(.*)$", full_line)
+                    m1 = None
                     if m:
                         ret.append([m.group(1), m.group(2)])
                     else:
