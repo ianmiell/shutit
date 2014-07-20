@@ -2,5 +2,5 @@
 # This feeds into automated testing of each module.
 [shutit.tk.shutit.shutit]
 build:yes
-allowed_images:["any"]
+allowed_images:[".*"]
 
