@@ -50,7 +50,7 @@ class haproxy(ShutItModule):
 
 def module():
         return haproxy(
-                'shutit.tk.haproxy.haproxy', 782914092.00,
+                'shutit.tk.haproxy.haproxy', 0.113621462,
         description='',
                 depends=['shutit.tk.setup']
         )
