@@ -37,8 +37,8 @@ class cloudera(ShutItModule):
         return True
 
 def module():
-        return cloudera(
-                'shutit.tk.cloudera.cloudera', 782914092.00,
+    return cloudera(
+        'shutit.tk.cloudera.cloudera', 0.625471642,
         description='',
-                depends=['shutit.tk.setup']
-        )
+        depends=['shutit.tk.setup']
+    )
