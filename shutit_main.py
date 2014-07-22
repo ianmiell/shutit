@@ -432,7 +432,7 @@ def check_ready(shutit):
             shutit.log('checking whether module is ready to build: ' + mid,
                        code='31')
             if not module.check_ready(shutit):
-                errs.append((mid + ' not ready to install',
+                errs.append((mid + ' not ready to install. This may help:\n\n' + mid.check_ready.__doc__,
                              shutit.pexpect_children['container_child']))
     return errs
 
