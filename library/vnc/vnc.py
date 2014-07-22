@@ -28,7 +28,8 @@ import base64
 class vnc(ShutItModule):
 
     def check_ready(self, shutit):
-        # Only apt-based systems are supported support atm
+        """Only apt-based systems are supported support atm
+        """
         return shutit.cfg['container']['install_type'] == 'apt'
 
     def is_installed(self, shutit):

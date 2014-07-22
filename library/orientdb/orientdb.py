@@ -36,6 +36,6 @@ class orientdb(ShutItModule):
 
 def module():
         return orientdb(
-                'shutit.tk.orientdb.orientdb', 782914092.00,
+                'shutit.tk.orientdb.orientdb', 0.18742184,
                 depends=['shutit.tk.setup']
         )

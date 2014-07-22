@@ -6,6 +6,8 @@ class ssh_key(ShutItModule):
     # TODO: look for different ssh keys
 
     def check_ready(self, shutit):
+        """Configured ssh keys not found on host.
+        """
         f = shutit.cfg[self.module_id]['ssh_keyfile_dir'] + '/' + shutit.cfg[self.module_id]['ssh_keyfile_name']
         if not os.path.isfile(f) and not os.path.isfile(f + '.pub'):
             shutit.log('File: ' + f + "\ndoesn't exist on host", force_stdout=True)
