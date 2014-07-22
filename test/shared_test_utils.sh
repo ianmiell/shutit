@@ -65,3 +65,10 @@ function report() {
 		echo "============================================"
 	fi
 }
+
+get_abs_filename() {
+	# $1 : relative filename
+	echo "$(cd "$(dirname "$1")" && pwd)/$(basename "$1")"
+}
+
+export SHUTIT=$(get_abs_filename $(dirname ${BASH_SOURCE[0]})/../shutit)
