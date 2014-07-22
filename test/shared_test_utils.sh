@@ -12,6 +12,12 @@ readonly SHUTIT_PARALLEL_BUILD
 BUILD_REF=$(dd if=/dev/urandom bs=256 count=1 2>/dev/null | md5sum | awk '{print $1}' | sed 's/^\(....\).*/\1/')
 readonly BUILD_REF
 
+function get_abs_filename() {
+        # $1 : relative filename
+        echo "$(cd "$(dirname "$1")" && pwd)/$(basename "$1")"
+}
+export SHUTIT=$(get_abs_filename $(dirname ${BASH_SOURCE[0]})/../shutit)
+readonly SHUTIT
 SHUTIT_TEST_REPORT=""
 
 set -o errexit
@@ -65,3 +71,6 @@ function report() {
 		echo "============================================"
 	fi
 }
+
+
+
