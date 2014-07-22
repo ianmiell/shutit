@@ -134,6 +134,9 @@ class template(ShutItModule):
     # Should return True if it ready, else False.
     # OPTIONAL part of lifecycle - uncomment to include
     #def check_ready(self,shutit):
+    #    """This help string is printed if we're not ready.
+    #    Advice to failure should be placed here.
+    #    """
     #    return shutit.file_exists('/resources/README.md')
 
     # start
