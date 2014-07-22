@@ -25,8 +25,8 @@ class puppet(ShutItModule):
         return True
 
 def module():
-        return puppet(
-                'shutit.tk.puppet.puppet', 782914092.00,
-        description='',
-                depends=['shutit.tk.setup']
-        )
+    return puppet(
+        'shutit.tk.puppet.puppet', 0.012412487,
+        description='Puppet reference build',
+        depends=['shutit.tk.setup']
+    )
