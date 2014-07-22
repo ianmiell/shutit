@@ -769,6 +769,9 @@ def load_mod_from_file(shutit, fpath):
     file_ext = os.path.splitext(os.path.split(fpath)[-1])[-1]
     if file_ext.lower() != '.py':
         return
+    if re.match('.*\/context\/.*',fpath):
+        shutit.log('Ignoring file: "' + fpath + '" as this appears to be part of the context directory')
+        return
     # Do we already have modules from this file? If so we know we can skip.
     # Note that this attribute will only be set for 'new style' module loading,
     # this should be ok because 'old style' loading checks for duplicate
