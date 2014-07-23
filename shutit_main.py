@@ -198,33 +198,37 @@ def config_collection_for_built(shutit):
     dependency resolution).
     """
     for mid in module_ids(shutit):
-        if shutit.cfg[mid]['build']:
-            if not shutit.shutit_map[mid].get_config(shutit):
+        # Get the config even if installed or building (may be needed in other
+        # hooks, eg test).
+        if (is_built(shutit,shutit_map(mid)) and
+            not shutit.shutit_map[mid].get_config(shutit)):
                 shutit.fail(mid + ' failed on get_config')
-            # Collect the build.cfg
-            # If this file exists, process it.
-            # We could just read in the file and process only those 
-            # that relate to the mid
+        # Collect the build.cfg if we are building here.
+        # If this file exists, process it.
+        # We could just read in the file and process only those 
+        # that relate to the mid.
+        if shutit.cfg[mid]['build']:
             module = shutit.shutit_map[mid]
             cfg_file = os.path.dirname(module.__module_file) + '/configs/build.cnf'
             if os.path.isfile(cfg_file):
-                 # use shutit.get_config, forcing the passed-in default
-                 import ConfigParser
-                 config_parser = ConfigParser.ConfigParser()
-                 config_parser.read(cfg_file)
-                 for section in config_parser.sections():
-                     if section == mid:
-                         for option in config_parser.options(section):
-                             value = config_parser.get(section,option)
-                             if option == 'allowed_images':
-                                 value = json.loads(value)
-                             shutit.get_config(mid, option,
-                                             value, forcedefault=True)
+                # use shutit.get_config, forcing the passed-in default
+                import ConfigParser
+                config_parser = ConfigParser.ConfigParser()
+                config_parser.read(cfg_file)
+                for section in config_parser.sections():
+                    if section == mid:
+                        for option in config_parser.options(section):
+                            value = config_parser.get(section,option)
+                            if option == 'allowed_images':
+                                value = json.loads(value)
+                            shutit.get_config(mid, option,
+                                            value, forcedefault=True)
     # TODO: re-check command line arguments as well?
     # Check the allowed_images against the base_image
     for mid in module_ids(shutit):
         if shutit.cfg[mid]['build']:
-            if (shutit.cfg[mid]['allowed_images'] and
+            if (not shutit.cfg['build']['ignoreimage'] and 
+                shutit.cfg[mid]['allowed_images'] and
                 shutit.cfg['container']['docker_image'] not in
                     shutit.cfg[mid]['allowed_images']):
                 ok = False
@@ -233,13 +237,13 @@ def config_collection_for_built(shutit):
                     if re.match(regexp, shutit.cfg['container']['docker_image']):
                         ok = True
                         break
-        if not ok:
-            print('\n\nAllowed images for ' + mid + ' are: ' +
-                  str(shutit.cfg[mid]['allowed_images']) +
-                  ' but the configured image is: ' +
-                  shutit.cfg['container']['docker_image'] + '\n\n')
-            # Exit without error code so that it plays nice with tests.
-            sys.exit()
+                if not ok:
+                    print('\n\nAllowed images for ' + mid + ' are: ' +
+                          str(shutit.cfg[mid]['allowed_images']) +
+                          ' but the configured image is: ' +
+                          shutit.cfg['container']['docker_image'] + '\n\n')
+                    # Exit without error code so that it plays nice with tests.
+                    sys.exit()
 
                              
 
