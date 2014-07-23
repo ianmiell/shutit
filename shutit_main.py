@@ -36,8 +36,7 @@ def module_ids(shutit, rev=False):
     """Gets a list of module ids by run_order, ignoring conn modules
     (run order < 0)
     """
-    shutit_map = shutit.shutit_map
-    ids = sorted(shutit_map.keys(), key=lambda mid: shutit_map[mid].run_order)
+    ids = sorted(shutit.shutit_map.keys(),key=lambda mid: shutit.shutit_map[mid].run_order)
     if rev:
         ids = list(reversed(ids))
     return ids
@@ -46,15 +45,15 @@ def print_modules(shutit):
     """Returns a string table representing the modules in the ShutIt module map.
     """
     cfg = shutit.cfg
-    shutit_map = shutit.shutit_map
     string = ''
     string = string + 'Modules: \n'
     string = string + '    Run order    Build    Remove    Module ID\n'
     for mid in module_ids(shutit):
-        string = string + ('    ' + str(shutit_map[mid].run_order) + '        ' +
-            str(cfg[mid]['build']) + '    ' +
-            str(cfg[mid]['remove']) + '    ' +
-            mid + '\n')
+        string = string + ('    ' + str(shutit.shutit_map[mid].run_order) +
+                           '        ' +
+                           str(cfg[mid]['build']) + '    ' +
+                           str(cfg[mid]['remove']) + '    ' +
+                           mid + '\n')
     return string
 
 # run_order of -1 means 'stop everything'
@@ -64,14 +63,13 @@ def stop_all(shutit, run_order=-1):
     before committing run files etc.
     """
     cfg = shutit.cfg
-    shutit_map = shutit.shutit_map
     if cfg['build']['interactive'] >= 3:
         print('\nRunning stop on all modules' + \
             util.colour('31', '\n[Hit return to continue]'))
         raw_input('')
     # sort them to it's stopped in reverse order)
     for mid in module_ids(shutit, rev=True):
-        shutit_module_obj = shutit_map[mid]
+        shutit_module_obj = shutit.shutit_map[mid]
         if run_order == -1 or shutit_module_obj.run_order <= run_order:
             if is_built(shutit, shutit_module_obj):
                 if not shutit_module_obj.stop(shutit):
@@ -85,14 +83,13 @@ def start_all(shutit, run_order=-1):
     container and still depended-on modules running if necessary.
     """
     cfg = shutit.cfg
-    shutit_map = shutit.shutit_map
     if cfg['build']['interactive'] >= 3:
         print('\nRunning start on all modules' + 
             util.colour('31', '\n[Hit return to continue]'))
         raw_input('')
     # sort them to they're started in order)
     for mid in module_ids(shutit):
-        shutit_module_obj = shutit_map[mid]
+        shutit_module_obj = shutit.shutit_map[mid]
         if run_order == -1 or shutit_module_obj.run_order <= run_order:
             if is_built(shutit, shutit_module_obj):
                 if not shutit_module_obj.start(shutit):
@@ -116,7 +113,6 @@ def init_shutit_map(shutit):
     Sets up map of modules.
     """
     cfg = shutit.cfg
-    shutit_map = shutit.shutit_map
 
     modules = shutit.shutit_modules
 
@@ -153,7 +149,7 @@ def init_shutit_map(shutit):
     has_core_module = False
     for module in modules:
         assert isinstance(module, ShutItModule)
-        if module.module_id in shutit_map:
+        if module.module_id in shutit.shutit_map:
             shutit.fail('Duplicated module id: ' + module.module_id)
         if module.run_order in run_orders:
             shutit.fail('Duplicate run order: ' + str(module.run_order) +
@@ -161,7 +157,7 @@ def init_shutit_map(shutit):
                 run_orders[module.run_order].module_id)
         if module.run_order == 0:
             has_core_module = True
-        shutit_map[module.module_id] = run_orders[module.run_order] = module
+        shutit.shutit_map[module.module_id] = run_orders[module.run_order] = module
 
     if not has_core_module:
         shutit.fail('No module with run_order=0 specified! This is required.')
@@ -200,7 +196,7 @@ def config_collection_for_built(shutit):
     for mid in module_ids(shutit):
         # Get the config even if installed or building (may be needed in other
         # hooks, eg test).
-        if (is_built(shutit,shutit_map(mid)) and
+        if (is_built(shutit, shutit.shutit_map[mid]) and
             not shutit.shutit_map[mid].get_config(shutit)):
                 shutit.fail(mid + ' failed on get_config')
         # Collect the build.cfg if we are building here.
@@ -331,13 +327,12 @@ def check_deps(shutit):
     """Dependency checking phase is performed in this method.
     """
     cfg = shutit.cfg
-    shutit_map = shutit.shutit_map
     shutit.log('PHASE: dependencies', code='31')
     shutit.pause_point('\nNow checking for dependencies between modules',
                        print_input=False, level=3)
     # Get modules we're going to build
     to_build = [
-        shutit_map[mid] for mid in shutit_map
+        shutit.shutit_map[mid] for mid in shutit.shutit_map
         if mid in cfg and cfg[mid]['build']
     ]
     # Add any deps we may need by extending to_build and altering cfg
@@ -360,7 +355,8 @@ def check_deps(shutit):
     triples    = []
     for depender in to_build:
         for dependee_id in depender.depends_on:
-            triples.append((depender, shutit_map.get(dependee_id), dependee_id))
+            triples.append((depender, shutit.shutit_map.get(dependee_id),
+                            dependee_id))
 
     triples = err_checker([
         check_dependee_exists(shutit, depender, dependee, dependee_id)
@@ -381,7 +377,7 @@ def check_deps(shutit):
     if cfg['build']['debug']:
         shutit.log('Modules configured to be built (in order) are: ', code='31')
         for mid in module_ids(shutit):
-            module = shutit_map[mid]
+            module = shutit.shutit_map[mid]
             if cfg[mid]['build']:
                 shutit.log(mid + '    ' + str(module.run_order), code='31')
         shutit.log('\n', code='31')
@@ -392,7 +388,6 @@ def check_conflicts(shutit):
     """Checks for any conflicts between modules configured to be built.
     """
     cfg = shutit.cfg
-    shutit_map = shutit.shutit_map
     # Now consider conflicts
     shutit.log('PHASE: conflicts', code='31')
     errs = []
@@ -401,10 +396,10 @@ def check_conflicts(shutit):
     for mid in module_ids(shutit):
         if not cfg[mid]['build']:
             continue
-        conflicter = shutit_map[mid]
+        conflicter = shutit.shutit_map[mid]
         for conflictee in conflicter.conflicts_with:
             # If the module id isn't there, there's no problem.
-            conflictee_obj = shutit_map.get(conflictee)
+            conflictee_obj = shutit.shutit_map.get(conflictee)
             if conflictee_obj == None:
                 continue
             if ((cfg[conflicter.module_id]['build'] or
@@ -422,14 +417,13 @@ def check_ready(shutit):
     (see is_installed).
     """
     cfg = shutit.cfg
-    shutit_map = shutit.shutit_map
     shutit.log('PHASE: check_ready', code='31')
     errs = []
     shutit.pause_point('\nNow checking whether we are ready to build modules' + 
                        'configured to be built',
         print_input=False, level=3)
     for mid in module_ids(shutit):
-        module = shutit_map[mid]
+        module = shutit.shutit_map[mid]
         shutit.log('considering check_ready (is it ready to be built?): ' +
                    mid, code='31')
         if cfg[mid]['build'] and not module.is_installed(shutit):
@@ -444,13 +438,12 @@ def do_remove(shutit):
     """Remove modules by calling remove method on those configured for removal.
     """
     cfg = shutit.cfg
-    shutit_map = shutit.shutit_map
     # Now get the run_order keys in order and go.
     shutit.log('PHASE: remove', code='31')
     shutit.pause_point('\nNow removing any modules that need removing',
                        print_input=False, level=3)
     for mid in module_ids(shutit):
-        module = shutit_map[mid]
+        module = shutit.shutit_map[mid]
         shutit.log('considering whether to remove: ' + mid, code='31')
         if cfg[mid]['remove']:
             shutit.log('removing: ' + mid, code='31')
@@ -509,7 +502,6 @@ def do_build(shutit):
     need building.
     """
     cfg = shutit.cfg
-    shutit_map = shutit.shutit_map
     shutit.log('PHASE: build, repository work', code='31')
     shutit.log(util.print_config(shutit.cfg))
     if cfg['build']['interactive'] >= 3:
@@ -517,7 +509,7 @@ def do_build(shutit):
                util.colour('31', '\n[Hit return to continue]'))
         raw_input('')
     for mid in module_ids(shutit):
-        module = shutit_map[mid]
+        module = shutit.shutit_map[mid]
         shutit.log('considering whether to build: ' + module.module_id,
                    code='31')
         if cfg[module.module_id]['build']:
@@ -541,7 +533,6 @@ def do_test(shutit):
     """Runs test phase, erroring if any return false.
     """
     cfg = shutit.cfg
-    shutit_map = shutit.shutit_map
     if not cfg['build']['dotest']:
         shutit.log('Tests configured off, not running')
         return
@@ -555,9 +546,9 @@ def do_test(shutit):
     start_all(shutit)
     for mid in module_ids(shutit, rev=True):
         # Only test if it's thought to be installed.
-        if is_built(shutit, shutit_map[mid]):
+        if is_built(shutit, shutit.shutit_map[mid]):
             shutit.log('RUNNING TEST ON: ' + mid, code='31')
-            if not shutit_map[mid].test(shutit):
+            if not shutit.shutit_map[mid].test(shutit):
                 shutit.fail(mid + ' failed on test',
                             child=shutit.pexpect_children['container_child'])
 
@@ -566,7 +557,6 @@ def do_finalize(shutit):
     have been stopped.
     """
     cfg = shutit.cfg
-    shutit_map = shutit.shutit_map
     # Stop all the modules
     if cfg['build']['interactive'] >= 3:
         print('\nStopping all modules before finalize phase' + util.colour('31',
@@ -582,8 +572,8 @@ def do_finalize(shutit):
         raw_input('')
     for mid in module_ids(shutit, rev=True):
         # Only finalize if it's thought to be installed.
-        if is_built(shutit, shutit_map[mid]):
-            if not shutit_map[mid].finalize(shutit):
+        if is_built(shutit, shutit.shutit_map[mid]):
+            if not shutit.shutit_map[mid].finalize(shutit):
                 shutit.fail(mid + ' failed on finalize',
                             child=shutit.pexpect_children['container_child'])
 
