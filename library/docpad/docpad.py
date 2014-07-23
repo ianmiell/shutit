@@ -4,10 +4,10 @@ from shutit_module import ShutItModule
 
 class docpad(ShutItModule):
 
-        def is_installed(self, shutit):
-                return False
+    def is_installed(self, shutit):
+        return False
 
-        def build(self, shutit):
+    def build(self, shutit):
         shutit.install('python-software-properties')
         shutit.install('python')
         shutit.install('software-properties-common')
@@ -20,7 +20,7 @@ class docpad(ShutItModule):
         shutit.install('npm')
         #fails - still to debug
         shutit.send('npm install -g docpad@6.44')
-                return True
+        return True
 
     def finalize(self, shutit):
         return True
