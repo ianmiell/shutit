@@ -941,7 +941,7 @@ class ShutIt(object):
         return True
 
 
-    def login(self, user, command='su -', child=None):
+    def login(self, user='root', command='su -', child=None):
         """Logs the user in with the passed-in password and command.
         Tracks the login. If used, used logout to log out again.
         Assumes you are root when logging in, so no password required.
