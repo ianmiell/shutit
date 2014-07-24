@@ -941,7 +941,7 @@ class ShutIt(object):
         return True
 
 
-    def login(self, user='root', command='su -', child=None):
+    def login(self, user='root', command='su -', child=None, password=None):
         """Logs the user in with the passed-in password and command.
         Tracks the login. If used, used logout to log out again.
         Assumes you are root when logging in, so no password required.
@@ -955,7 +955,12 @@ class ShutIt(object):
         child = child or self.get_default_child()
         r_id = random_id()
         self.cfg['build']['login_stack'].append(r_id)
-        self.send(command + ' ' + user,expect=shutit.cfg['expect_prompts']['base_prompt'],check_exit=False)
+        res = self.send(command + ' ' + user,expect=['assword',shutit.cfg['expect_prompts']['base_prompt']],check_exit=False)
+        if res == 0:
+            if password != None:
+                self.send(password,expect=shutit.cfg['expect_prompts']['base_prompt'],check_exit=False)
+            else:
+                shutit.fail('Please supply a password argument to shutit.login.')
         self.setup_prompt(r_id,child=child)
 
 
