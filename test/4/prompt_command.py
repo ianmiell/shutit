@@ -14,15 +14,26 @@ class prompt_command(ShutItModule):
 		return False
 
 	def build(self, shutit):
-		cfg = shutit.cfg
 		# Breaks unless we set the PROMPT_COMMAND manually on a login
 		shutit.send_and_expect("""cat >> /root/.bashrc << END
 PROMPT_COMMAND='echo -ne "a"'
 END""")
-		shutit.send_and_expect('su', expect=cfg['expect_prompts']['base_prompt'], check_exit=False)
+                # Try core way of logging in
+		shutit.send_and_expect('su', expect=shutit.cfg['expect_prompts']['base_prompt'], check_exit=False)
 		shutit.setup_prompt('test_tmp_prompt')
-		shutit.send_and_expect('echo abc', expect=cfg['expect_prompts']['test_tmp_prompt'])
-		shutit.send_and_expect('exit', cfg['expect_prompts']['root_prompt'])
+		shutit.send_and_expect('echo abc', expect=shutit.cfg['expect_prompts']['test_tmp_prompt'])
+		shutit.send_and_expect('exit', shutit.cfg['expect_prompts']['root_prompt'])
+                # Simple login and out
+                shutit.login('root')
+                shutit.send('whoami')
+                shutit.logout()
+                # Multi-level login and out
+                shutit.login('root')
+                shutit.send('whoami')
+                shutit.login('root')
+                shutit.send('whoami')
+                shutit.logout()
+                shutit.logout()
 		return True
 
 def module():

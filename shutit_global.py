@@ -941,6 +941,48 @@ class ShutIt(object):
         return True
 
 
+    def login(self, user, command='su -', child=None):
+        """Logs the user in with the passed-in password and command.
+        Tracks the login. If used, used logout to log out again.
+        Assumes you are root when logging in, so no password required.
+        If not, override the default command for multi-level logins.
+        If passwords are required, see setup_prompt() and revert_prompt()
+
+        user     - User to login with
+        command  - Command to login with
+        child    - See send()
+        """
+        child = child or self.get_default_child()
+        r_id = random_id()
+        self.cfg['build']['login_stack'].append(r_id)
+        self.send(command + ' ' + user,expect=shutit.cfg['expect_prompts']['base_prompt'],check_exit=False)
+        self.setup_prompt(r_id,child=child)
+
+
+    def logout(self,child=None):
+        """Logs the user out. Assumes that login has been called.
+        If login has never been called, throw an error.
+
+        - child              - See send()
+        """
+        child = child or self.get_default_child()
+        print '\n============================================='
+        print self.cfg['build']['login_stack']
+        print '=============================================\n'
+        if len(self.cfg['build']['login_stack']):
+             current_prompt_name = self.cfg['build']['login_stack'].pop()
+             if len(self.cfg['build']['login_stack']):
+                 old_prompt_name     = self.cfg['build']['login_stack'][-1]
+                 self.set_default_expect(self.cfg['expect_prompts'][old_prompt_name])
+             else:
+                 # If none are on the stack, we assume we're going to the root_prompt
+                 # set up in setup.py
+                 self.set_default_expect()
+        else:
+             self.fail('Logout called without corresponding login')
+        self.send('exit')
+        
+
     def setup_prompt(self,
                      prompt_name,
                      prefix='TMP',
@@ -950,6 +992,9 @@ class ShutIt(object):
         sane. By default, it sets up the default expect so you don't have to
         worry about it and can just call shutit.send('a command').
 
+        If you want simple login and logout, please use login() and logout()
+        within this module.
+
         Typically it would be used in this boilerplate pattern:
 
         shutit.send('su - auser',
@@ -958,7 +1003,7 @@ class ShutIt(object):
         shutit.setup_prompt('tmp_prompt')
         shutit.send('some command')
         [...]
-        shutit.setup_default_prompt()
+        shutit.set_default_expect()
         shutit.send('exit')
 
         - prompt_name        - Reference name for prompt.
@@ -973,11 +1018,12 @@ class ShutIt(object):
             ("SHUTIT_BACKUP_PS1_%s=$PS1 && PS1='%s' && unset PROMPT_COMMAND") %
                 (prompt_name, local_prompt),
             expect=self.cfg['expect_prompts'][prompt_name],
-            fail_on_empty_before=False, timeout=5)
+            fail_on_empty_before=False, timeout=5, child=child)
         if set_default_expect:
             shutit.log('Resetting default expect to: ' +
             shutit.cfg['expect_prompts'][prompt_name])
             self.set_default_expect(shutit.cfg['expect_prompts'][prompt_name])
+
 
     def revert_prompt(self, old_prompt_name, new_expect=None, child=None):
         """Reverts the prompt to the previous value (passed-in).
@@ -998,6 +1044,7 @@ class ShutIt(object):
         if not new_expect:
             shutit.log('Resetting default expect to default')
             self.set_default_expect()
+
 
     def get_distro_info(self, child=None):
         """Get information about which distro we are using.

@@ -285,6 +285,8 @@ def get_base_config(cfg, cfg_parser):
     cfg['build']['build_db_dir']                  = '/root/shutit_build'
     cfg['build']['dotest']                        = cp.get('build', 'dotest')
     cfg['build']['net']                           = cp.get('build', 'net')
+    # Track logins in a stack.
+    cfg['build']['login_stack']                   = []
     cfg['container']['password']                  = cp.get('container', 'password')
     cfg['container']['hostname']                  = cp.get('container', 'hostname')
     cfg['container']['force_repo_work']           = cp.getboolean('container', 'force_repo_work')
@@ -314,8 +316,8 @@ def get_base_config(cfg, cfg_parser):
     # BEGIN Standard expects
     # It's important that these have '.*' in them at the start, so that the matched data is reliablly 'after' in the
     # child object. Use these where possible to make things more consistent.
-    # Attempt to capture any starting prompt (when starting)
-    cfg['expect_prompts']['base_prompt']             = '\r\n.*[@#$]'
+    # Attempt to capture any starting prompt (when starting) with this regexp.
+    cfg['expect_prompts']['base_prompt']          = '\r\n.*[@#$]'
     # END Standard expects
 
     # BEGIN tidy configs up
