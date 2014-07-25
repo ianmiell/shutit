@@ -1,6 +1,5 @@
 #!/bin/bash
 # Test the building of this module
-set -e
 if [ $0 != test.sh ] && [ $0 != ./test.sh ]
 then
         echo

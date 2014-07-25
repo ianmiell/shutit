@@ -8,7 +8,6 @@ then
 	exit 1
 fi
 # This file tests your build, leaving the container intact when done.
-set -e
 $SHUTIT build
 # Display config
 #$SHUTIT sc
