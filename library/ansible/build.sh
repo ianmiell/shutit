@@ -14,7 +14,6 @@ then
 	exit 1
 fi
 # This file tests your build, leaving the container intact when done.
-set -e
 $SHUTIT build -m ../ssh_server:../ssh_key:../adduser
 # Display config
 #$SHUTIT sc

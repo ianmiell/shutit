@@ -1,4 +1,3 @@
-set -e
 if [ $0 != test.sh ] && [ $0 != ./test.sh ]
 then
         echo

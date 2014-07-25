@@ -1,4 +1,3 @@
-set -e
 ../../../../shutit/shutit build --config configs/push.cnf
 # Display config 
 #../../../../shutit/shutit sc
