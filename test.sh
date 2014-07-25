@@ -18,7 +18,6 @@
 #LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 #OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 #SOFTWARE.
-set -e
 TESTS=$1
 
 source test/shared_test_utils.sh
@@ -49,7 +48,7 @@ then
 	exit 1
 fi
 
-#PYTHONPATH=$(pwd) python test/test.py || failure "Unit tests"
+#PYTHONPATH=$(pwd) python test/test.py 
 
 find ${SHUTIT_DIR} -name '*.cnf' | grep '/configs/[^/]*.cnf' | xargs chmod 600
 cleanup hard
@@ -57,7 +56,7 @@ cleanup hard
 echo "Testing skeleton build with Dockerfile"
 ./shutit skeleton -d assets/dockerfile/Dockerfile ${NEWDIR} testing shutit.tk
 pushd ${NEWDIR}
-./test.sh ${SHUTIT_DIR} || failure "1.0 ${NEWDIR}"
+./test.sh ${SHUTIT_DIR}
 cleanup hard
 rm -rf ${NEWDIR}
 popd
@@ -65,7 +64,7 @@ popd
 echo "Testing skeleton build basic bare"
 ./shutit skeleton ${NEWDIR} testing shutit.tk
 pushd ${NEWDIR}
-./test.sh ${SHUTIT_DIR} || failure "1.1 ${NEWDIR}"
+./test.sh ${SHUTIT_DIR}
 cleanup hard
 rm -rf ${NEWDIR}
 popd
@@ -74,14 +73,13 @@ popd
 echo "Testing skeleton build basic with example script"
 ./shutit skeleton ${NEWDIR} testing shutit.tk ${SHUTIT_DIR}/assets/example.sh
 pushd ${NEWDIR}
-./test.sh ${SHUTIT_DIR} || failure "1.2 ${NEWDIR}"
+./test.sh ${SHUTIT_DIR}
 cleanup hard
 rm -rf ${NEWDIR}
 popd
 
 
 # General tests
-set +e
 mkdir -p /tmp/shutit_logs/$$
 declare -A PIDS
 PIDS=()
@@ -102,17 +100,18 @@ do
 			# Just in case only just git cloned/updated
 			if [ x$SHUTIT_PARALLEL_BUILD = 'x' ]
 			then
-				./test.sh ${SHUTIT_DIR} 2>&1 | tee /tmp/shutit_logs/$$/shutit_core_test_$(date +%s) || failure "$d in base tests failed"
+				./test.sh ${SHUTIT_DIR} 2>&1 | tee /tmp/shutit_logs/$$/shutit_core_test_$(date +%s)
 				cleanup hard
 			else
 	# TODO
 	#http://stackoverflow.com/questions/356100/how-to-wait-in-bash-for-several-subprocesses-to-finish-and-return-exit-code-0
-				./test.sh ${SHUTIT_DIR} 2>&1 | tee /tmp/shutit_logs/$$/shutit_core_test_$(date +%s)|| failure "$d in base tests failed" & 
+				./test.sh ${SHUTIT_DIR} 2>&1 | tee /tmp/shutit_logs/$$/shutit_core_test_$(date +%s)
 				JOB=$!
 				PIDS[$JOB]="$JOB: $dist $d"
 			fi
 			set_shutit_options
 		fi
+		report
 		popd
 	done
 done
@@ -121,7 +120,7 @@ if [ x$SHUTIT_PARALLEL_BUILD != 'x' ]
 then
 	for P in ${!PIDS[*]}; do
 		echo "WAITING FOR $P"
-		wait $P || failure "FAILED: ${PIDS[$P]}"
+		wait $P 
 		report
 		cleanup nothard
 	done
@@ -131,7 +130,7 @@ fi
 if [[ $TESTS != 'basic' ]]
 then
 	pushd  ${SHUTIT_DIR}/library
-	./test.sh || failure "3.0.library"
+	./test.sh 
 	popd
 	cleanup nothard
 	report
