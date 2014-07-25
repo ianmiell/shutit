@@ -67,11 +67,11 @@ def update_modules(to_build, cfg):
     global STATUS
 
     selected = set(to_build)
-    for mid in shutit.cfg:
-        if mid in ORIG_MOD_CFG and 'build' in ORIG_MOD_CFG[mid]:
-            shutit.cfg[mid]['build'] = ORIG_MOD_CFG[mid]['build']
-        if mid in selected:
-            shutit.cfg[mid]['build'] = True
+    for module_id in shutit.cfg:
+        if module_id in ORIG_MOD_CFG and 'build' in ORIG_MOD_CFG[module_id]:
+            shutit.cfg[module_id]['build'] = ORIG_MOD_CFG[module_id]['build']
+        if module_id in selected:
+            shutit.cfg[module_id]['build'] = True
     # There is a complexity here in that module configs may depend on
     # configs from other modules (!). We assume this won't happen as we
     # would have to override each module at the correct time.
@@ -80,10 +80,10 @@ def update_modules(to_build, cfg):
     if cfg is not None:
         sec, key, val = cfg
         ORIG_MOD_CFG[sec][key] = val
-    for mid in ORIG_MOD_CFG:
-        for cfgkey in ORIG_MOD_CFG[mid]:
+    for module_id in ORIG_MOD_CFG:
+        for cfgkey in ORIG_MOD_CFG[module_id]:
             if cfgkey == 'build': continue
-            shutit.cfg[mid][cfgkey] = ORIG_MOD_CFG[mid][cfgkey]
+            shutit.cfg[module_id][cfgkey] = ORIG_MOD_CFG[module_id][cfgkey]
 
     errs = []
     errs.extend(shutit_main.check_deps(shutit))
@@ -94,12 +94,12 @@ def update_modules(to_build, cfg):
     STATUS['errs'] = [err[0] for err in errs]
     STATUS['modules'] = [
         {
-            "module_id":   mid,
-            "description": shutit.shutit_map[mid].description,
-            "run_order":   float(shutit.shutit_map[mid].run_order),
-            "build":       shutit.cfg[mid]['build'],
-            "selected":    mid in selected
-        } for mid in shutit_main.module_ids(shutit)
+            "module_id":   module_id,
+            "description": shutit.shutit_map[module_id].description,
+            "run_order":   float(shutit.shutit_map[module_id].run_order),
+            "build":       shutit.cfg[module_id]['build'],
+            "selected":    module_id in selected
+        } for module_id in shutit_main.module_ids(shutit)
     ]
 
 @route('/info', method='POST')
@@ -225,11 +225,11 @@ def shutit_reset():
         shutit.cfg['build']['build_log'] = StringIO.StringIO()
         shutit.cfg['build']['interactive'] = 0
         STATUS['cid'] = shutit.cfg['container']['container_id']
-        for mid in shutit.shutit_map:
-            ORIG_MOD_CFG[mid] = STATUS['cfg'][mid] = shutit.cfg[mid]
+        for module_id in shutit.shutit_map:
+            ORIG_MOD_CFG[module_id] = STATUS['cfg'][module_id] = shutit.cfg[module_id]
         # Add in core sections
-        for mid in ['repository', 'container']:
-            ORIG_MOD_CFG[mid] = STATUS['cfg'][mid] = shutit.cfg[mid]
+        for module_id in ['repository', 'container']:
+            ORIG_MOD_CFG[module_id] = STATUS['cfg'][module_id] = shutit.cfg[module_id]
             
         # Make sure that ORIG_MOD_CFG can be updated seperately to
         # STATUS and shutit.cfg (which remain linked), as it will hold

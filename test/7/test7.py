@@ -35,7 +35,8 @@ class test7(ShutItModule):
         return True
 
     def test(self,shutit):
-        shutit.cfg[self.mid]['isset']
+        # TODO: this fails...
+        shutit.cfg[self.module_id]['isset']
         return True
 
 def module():

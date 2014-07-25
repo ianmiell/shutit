@@ -32,9 +32,9 @@ function set_shutit_options() {
 	OPTS=${1:-none}
 	if [[ "$OPTS" = "none" ]]
 	then
-		export SHUTIT_OPTIONS="-s container name $CNAME"
+		export SHUTIT_OPTIONS="-s container name $CNAME -s repository tag no"
 	else
-		export SHUTIT_OPTIONS="-s container name $CNAME $OPTS"
+		export SHUTIT_OPTIONS="-s container name $CNAME $OPTS -s repository tag no"
 	fi
 	CNAME=shutit_test_container_${BUILD_REF}_$(dd if=/dev/urandom bs=256 count=1 2>/dev/null | md5sum | awk '{print $1}')
 }
