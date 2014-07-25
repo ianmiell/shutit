@@ -85,14 +85,16 @@ class template(ShutItModule):
         # Example of login/logout handling
         # When logging in, use the base prompt to attempt to match all prompts
         # Note that we don't check_exit, because the exit value won't be meaningful.
-        shutit.send_and_expect('su',shutit.cfg['expect_prompts']['base_prompt'],check_exit=False)
+        shutit.login()
+        #shutit.send_and_expect('su',shutit.cfg['expect_prompts']['base_prompt'],check_exit=False)
         # Then call setup_prompt to set and get the bespoke prompt for the session
-        shutit.setup_prompt('test_tmp_prompt')
-        shutit.set_default_expect(shutit.cfg['expect_prompts']['test_tmp_prompt'])
-        shutit.send_and_expect('echo "a command and some output"')
+        #shutit.setup_prompt('test_tmp_prompt')
+        #shutit.set_default_expect(shutit.cfg['expect_prompts']['test_tmp_prompt'])
+        #shutit.send_and_expect('echo "a command and some output"')
         # Make sure we're expecting the right thing after we exit this subshell
-        shutit.set_default_expect(shutit.cfg['expect_prompts']['root_prompt'])
-        shutit.send_and_expect('exit')
+        #shutit.set_default_expect(shutit.cfg['expect_prompts']['root_prompt'])
+        #shutit.send_and_expect('exit')
+        shutit.logout()
 
         # Example of temporary debugging
         orig_debug_val = shutit.cfg['build']['debug']
