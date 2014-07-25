@@ -25,6 +25,7 @@
 from abc import ABCMeta, abstractmethod
 import decimal
 import inspect
+import sys
 
 # TODO: these don't belong here, but this module is 'top level' and doesn't
 # depend on any other shutit files.
