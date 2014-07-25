@@ -32,20 +32,17 @@ import sys
 class ShutItException(Exception):
     """Placeholder exception. Implementation TODO.
     """
-    # Let's at least exit with an error
-    sys.exit(1)
+    pass
 
 class ShutItModuleError(ShutItException):
     """Placeholder exception. Implementation TODO.
     """
-    # Let's at least exit with an error
-    sys.exit(1)
+    pass
 
 class ShutItFailException(ShutItException):
     """Placeholder exception. Implementation TODO.
     """
-    # Let's at least exit with an error
-    sys.exit(1)
+    pass
 
 def shutit_method_scope(func):
     """Notifies the ShutIt object whenever we call a shutit module method.
