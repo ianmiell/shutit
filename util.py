@@ -1140,7 +1140,6 @@ def module():
             exit 1
         fi
         # This file tests your build, leaving the container intact when done.
-        set -e
         $SHUTIT build
         # Display config
         #$SHUTIT sc
@@ -1156,7 +1155,6 @@ def module():
     testsh = textwrap.dedent('''\
         #!/bin/bash
         # Test the building of this module
-        set -e
         if [ $0 != test.sh ] && [ $0 != ./test.sh ]
         then
             echo
@@ -1190,7 +1188,6 @@ def module():
         # Example for running
         docker run -t -i''' + ports_arg + volumes_arg + env_arg + ' ' + skel_module_name + ' ' + shutit.cfg['dockerfile']['entrypoint'] + ' ' + shutit.cfg['dockerfile']['cmd'] + '\n')
     buildpushsh = textwrap.dedent('''\
-        set -e
         export SHUTIT_OPTIONS="$SHUTIT_OPTIONS --config configs/push.cnf"
         ./build.sh $1
         ''')
