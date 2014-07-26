@@ -2,6 +2,7 @@
 
 # Simple CI for ShutIt
 
+# To force a run even if no updates.
 FORCE=0
 SHUTIT_BUILD_DIR="/tmp/shutit_builddir"
 mkdir -p $SHUTIT_BUILD_DIR
