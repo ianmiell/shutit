@@ -146,5 +146,5 @@ cleanup hard
 
 popd > /dev/null 2>&1
 # OK
-exit 0
+exit
 
