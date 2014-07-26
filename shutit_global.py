@@ -785,7 +785,10 @@ class ShutIt(object):
                 'build\n\nHit CTRL and [ to save the state\n\n'))
             oldlog = child.logfile_send
             child.logfile_send = None
-            child.interact(input_filter=self._pause_input_filter)
+            try:
+                child.interact(input_filter=self._pause_input_filter)
+            except:
+                shutit.fail('Failed to interact, probably because this is run non-interactively')
             child.logfile_send = oldlog
         else:
             print msg
@@ -896,8 +899,17 @@ class ShutIt(object):
         package = package_map.map_package(package,
             self.cfg['container']['install_type'])
         if package != '':
-            self.send('%s %s %s' % (cmd, opts, package), expect,
-                timeout=timeout)
+            fails = 0
+            while True:
+                res = self.send('%s %s %s' % (cmd, opts, package),
+                    expect=['Unable to fetch some archives',expect],
+                    timeout=timeout)
+                if res == 1:
+                    break
+                else:
+                    fails += 1
+                if fails >= 3:
+                    break
         else:
             # package not required
             pass
