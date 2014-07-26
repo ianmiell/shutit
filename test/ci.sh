@@ -16,23 +16,21 @@ then
 	exit 
 else
 	touch $LOCKFILE
-fi
-
-# Fetch changes
-git fetch origin master
-# See if there are any incoming changes
-updates=$(git log HEAD..origin/master --oneline | wc -l)
-if [[ $updates -gt 0 ]] || [[ $FORCE -gt 0 ]]
-then
-	git pull origin master
-	./test.sh > $LOGFILE 2>&1 || EXIT_CODE=$?
-        if [[ $EXIT_CODE -ne 0 ]]
+	# Fetch changes
+	git fetch origin master
+	# See if there are any incoming changes
+	updates=$(git log HEAD..origin/master --oneline | wc -l)
+	if [[ $updates -gt 0 ]] || [[ $FORCE -gt 0 ]]
 	then
-		tail -100 $LOGFILE | mail -s "ANGRY SHUTIT" ian.miell@gmail.com
-	else
-		echo OK | mail -s "HAPPY SHUTIT" ian.miell@gmail.com
-		rm -rf $SHUTIT_BUILD_DIR
+		git pull origin master
+		./test.sh > $LOGFILE 2>&1 || EXIT_CODE=$?
+	        if [[ $EXIT_CODE -ne 0 ]]
+		then
+			tail -100 $LOGFILE | mail -s "ANGRY SHUTIT" ian.miell@gmail.com
+		else
+			echo OK | mail -s "HAPPY SHUTIT" ian.miell@gmail.com
+			rm -rf $SHUTIT_BUILD_DIR
+		fi
 	fi
 	rm -f $LOCKFILE
 fi
-
