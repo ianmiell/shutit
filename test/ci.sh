@@ -3,7 +3,9 @@
 # Simple CI for ShutIt
 
 FORCE=1
-LOCKFILE="/tmp/shutitci.lck"
+SHUTIT_BUILD_DIR="/tmp/shutit_builddir"
+LOCKFILE="${SHUTIT_BUILD_DIR}/shutitci.lck"
+LOGFILE="${SHUTIT_BUILD_DIR}/shutit_build_${RANDOM}.log"
 if [[ -a $LOCKFILE ]]
 then
 	echo "Already running"
@@ -16,17 +18,17 @@ git fetch origin master
 # See if there are any incoming changes
 updates=$(git log HEAD..origin/master --oneline | wc -l)
 git log HEAD..origin/master --oneline 
-git log HEAD..origin/master --oneline | wc -l
 if [[ $updates -gt 0 ]] || [[ $FORCE -gt 0 ]]
 then
 	git pull origin master
+	mkdir -p $SHUTIT_BUILD_DIR
 	id=$RANDOM
 	./test.sh > /tmp/shutitci_${id}.txt || EXIT_CODE=$?
         if [[ $EXIT_CODE -ne 0 ]] || [[ $FORCE -gt 0 ]]
 	then
-		cat /tmp/shutitci_${id}.txt | mail ian.miell@gmail.com
+		cat $LOGFILE | mail -s "ANGRY SHUTIT: ian.miell@gmail.com"
 	fi
-	rm -f /tmp/shutitci_*txt
+	rm -f $LOGFILE
 fi
 
-rm -f $LOCKFILE
+rm -rf $SHUTIT_BUILD_DIR
