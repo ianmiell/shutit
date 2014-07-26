@@ -37,8 +37,8 @@ class jenkins(ShutItModule):
 
 def module():
     return jenkins(
-        'shutit.tk.jenkins.jenkins', 782914092.00,
-        description='',
-        depends=['shutit.tk.setup']
+        'shutit.tk.jenkins.jenkins', 0.34141512,
+        description='Jenkins with vnc',
+        depends=['shutit.tk.setup','shutit.tk.vnc.vnc']
     )
 
