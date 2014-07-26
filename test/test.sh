@@ -18,7 +18,10 @@
 #LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 #OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 #SOFTWARE.
+
 TESTS=$1
+
+pushd $(dirname ${BASH_SOURCE[0]})/.. > /dev/null 2>&1
 
 set -e 
 
@@ -141,6 +144,7 @@ fi
 report
 cleanup hard
 
+popd > /dev/null 2>&1
 # OK
 exit 0
 
