@@ -6,8 +6,10 @@
 FORCE=0
 SHUTIT_BUILD_DIR="/tmp/shutit_builddir"
 mkdir -p $SHUTIT_BUILD_DIR
-LOCKFILE="${SHUTIT_BUILD_DIR}/shutitci.lck"
 LOGFILE="${SHUTIT_BUILD_DIR}/shutit_build_${RANDOM}.log"
+
+# Lockfile
+LOCKFILE="${SHUTIT_BUILD_DIR}/shutitci.lck"
 if [[ -a $LOCKFILE ]]
 then
 	echo "Already running"
