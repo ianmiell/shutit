@@ -25,7 +25,7 @@ updates=$(git log HEAD..origin/master --oneline | wc -l)
 if [[ $updates -gt 0 ]] || [[ $FORCE -gt 0 ]]
 then
 	git pull origin master
-	./test.sh > $LOGFILE || EXIT_CODE=$?
+	./test.sh > $LOGFILE 2>&1 || EXIT_CODE=$?
         if [[ $EXIT_CODE -ne 0 ]]
 	then
 		tail -100 $LOGFILE | mail -s "ANGRY SHUTIT" ian.miell@gmail.com
