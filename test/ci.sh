@@ -31,8 +31,8 @@ then
 		tail -100 $LOGFILE | mail -s "ANGRY SHUTIT" ian.miell@gmail.com
 	else
 		echo OK | mail -s "HAPPY SHUTIT" ian.miell@gmail.com
+		rm -rf $SHUTIT_BUILD_DIR
 	fi
-	rm -f $LOGFILE
+	rm -f $LOCKFILE
 fi
 
-rm -rf $SHUTIT_BUILD_DIR
