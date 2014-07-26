@@ -32,7 +32,7 @@ class jenkins(ShutItModule):
         shutit.send('wget -q -O - http://pkg.jenkins-ci.org/debian/jenkins-ci.org.key | apt-key add -')
         shutit.send("""sh -c 'echo deb http://pkg.jenkins-ci.org/debian binary/ > /etc/apt/sources.list.d/jenkins.list'""")
         shutit.send('apt-get update')
-        shutit.send('apt-get install jenkins')
+        shutit.install('jenkins')
         return True
 
 def module():
