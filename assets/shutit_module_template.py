@@ -85,7 +85,7 @@ class template(ShutItModule):
         # Example of login/logout handling
         # When logging in, use the base prompt to attempt to match all prompts
         # Note that we don't check_exit, because the exit value won't be meaningful.
-        shutit.login()
+        shutit.login('root')
         #shutit.send_and_expect('su',shutit.cfg['expect_prompts']['base_prompt'],check_exit=False)
         # Then call setup_prompt to set and get the bespoke prompt for the session
         #shutit.setup_prompt('test_tmp_prompt')
