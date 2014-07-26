@@ -24,9 +24,11 @@ then
 	mkdir -p $SHUTIT_BUILD_DIR
 	id=$RANDOM
 	./test.sh > /tmp/shutitci_${id}.txt || EXIT_CODE=$?
-        if [[ $EXIT_CODE -ne 0 ]] || [[ $FORCE -gt 0 ]]
+        if [[ $EXIT_CODE -ne 0 ]]
 	then
-		cat $LOGFILE | mail -s "ANGRY SHUTIT: ian.miell@gmail.com"
+		cat $LOGFILE | mail -s "ANGRY SHUTIT" ian.miell@gmail.com
+	else
+		echo OK | mail -s "HAPPY SHUTIT" ian.miell@gmail.com
 	fi
 	rm -f $LOGFILE
 fi
