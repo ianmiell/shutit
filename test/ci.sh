@@ -22,8 +22,7 @@ if [[ $updates -gt 0 ]] || [[ $FORCE -gt 0 ]]
 then
 	git pull origin master
 	mkdir -p $SHUTIT_BUILD_DIR
-	id=$RANDOM
-	./test.sh > /tmp/shutitci_${id}.txt || EXIT_CODE=$?
+	./test.sh > $LOGFILE || EXIT_CODE=$?
         if [[ $EXIT_CODE -ne 0 ]]
 	then
 		cat $LOGFILE | mail -s "ANGRY SHUTIT" ian.miell@gmail.com
