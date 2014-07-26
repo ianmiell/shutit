@@ -25,7 +25,7 @@ else
 		git pull origin master
 		pushd $SHUTIT_BUILD_DIR
 		git clone https://github.com/ianmiell/shutit.git
-		pushd shutit
+		pushd shutit/test
 		./test.sh > $LOGFILE 2>&1 || EXIT_CODE=$?
 	        if [[ $EXIT_CODE -ne 0 ]]
 		then
