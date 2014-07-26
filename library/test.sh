@@ -42,8 +42,7 @@ do
 				set_shutit_options "--image_tag $dist --interactive 0"
 				if [[ x$SHUTIT_PARALLEL_BUILD = 'x' ]]
 				then
-					./test.sh "`pwd`/../.." || failure "FAILED $dist $d"
-					report
+					./test.sh "`pwd`/../.."
 					cleanup hard
 				else
 					LOGFILE="/tmp/shutit_test_parallel_$$_$(dd if=/dev/urandom bs=256 count=1 2>/dev/null | md5sum | awk '{print $1}')"
@@ -60,10 +59,8 @@ do
 	then
 		for P in ${!PIDS[*]}; do
 			echo WAITING FOR $P
-			wait $P || failure "FAILED: ${PIDS[$P]}"
-			report
+			wait $P 
 		done
 	fi
 	cleanup hard
 done
-
