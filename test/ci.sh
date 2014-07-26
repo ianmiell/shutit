@@ -23,6 +23,9 @@ else
 	if [[ $updates -gt 0 ]] || [[ $FORCE -gt 0 ]]
 	then
 		git pull origin master
+		pushd $SHUTIT_BUILD_DIR
+		git clone https://github.com/ianmiell/shutit.git
+		pushd shutit
 		./test.sh > $LOGFILE 2>&1 || EXIT_CODE=$?
 	        if [[ $EXIT_CODE -ne 0 ]]
 		then
@@ -31,6 +34,8 @@ else
 			echo OK | mail -s "HAPPY SHUTIT" ian.miell@gmail.com
 			rm -rf $SHUTIT_BUILD_DIR
 		fi
+		popd
+		popd
 	fi
 	rm -f $LOCKFILE
 fi
