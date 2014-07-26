@@ -18,10 +18,10 @@ else
 	touch $LOCKFILE
 fi
 
+# Fetch changes
 git fetch origin master
 # See if there are any incoming changes
 updates=$(git log HEAD..origin/master --oneline | wc -l)
-git log HEAD..origin/master --oneline 
 if [[ $updates -gt 0 ]] || [[ $FORCE -gt 0 ]]
 then
 	git pull origin master
