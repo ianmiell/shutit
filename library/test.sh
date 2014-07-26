@@ -44,6 +44,7 @@ do
 				then
 					./test.sh "`pwd`/../.." || failure "FAILED $dist $d"
 					report
+					cleanup hard
 				else
 					LOGFILE="/tmp/shutit_test_parallel_$$_$(dd if=/dev/urandom bs=256 count=1 2>/dev/null | md5sum | awk '{print $1}')"
 					./test.sh "`pwd`/../.." 2>&1 | tee $LOGFILE &
@@ -63,6 +64,6 @@ do
 			report
 		done
 	fi
+	cleanup hard
 done
 
-cleanup nothard
