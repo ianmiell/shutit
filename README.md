@@ -213,8 +213,6 @@ Run
 ./test.sh
 ```
 
-
-
 Known Issues
 --------------
 Since a core technology used in this application is pexpect - and a typical
