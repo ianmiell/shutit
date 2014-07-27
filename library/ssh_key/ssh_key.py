@@ -49,8 +49,9 @@ class ssh_key(ShutItModule):
 
     # Assumes no passphrase - adding a config is a TODO
     def test(self, shutit):
-        cfg = shutit.cfg
-        shutit.send('su - ' + cfg[self.module_id]['login'][0], cfg['expect_prompts']['base_prompt'], check_exit=False)
+        shutit.send('su - ' + shutit.cfg[self.module_id]['login'][0],
+                    shutit.cfg['expect_prompts']['base_prompt'],
+                    check_exit=False)
         shutit.setup_prompt('ssh_key_tmp_prompt')
         expect = ['authenticity', 'Enter passphrase','assword', shutit.get_default_expect()]
         send = 'ssh localhost'
@@ -64,7 +65,7 @@ class ssh_key(ShutItModule):
                 send = shutit.cfg['shutit.tk.adduser.adduser']['password']
             elif res == 3:
                 break
-        shutit.send('exit', expect=cfg['expect_prompts']['root_prompt'])
+        shutit.send('exit', expect=shutit.cfg['expect_prompts']['root_prompt'])
         return True
 
 def module():
