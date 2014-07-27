@@ -1,0 +1,2 @@
+ssh_key (a requirement of this) doesn't work out of the box as it requires keys to be configured,
+so ansible is STOPped
