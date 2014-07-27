@@ -9,7 +9,7 @@ find . | grep cnf$ | xargs --no-run-if-empty chmod 0600
 # Off for now
 SHUTIT_PARALLEL_BUILD=
 readonly SHUTIT_PARALLEL_BUILD
-BUILD_REF=$RANDOM
+BUILD_REF=$$
 readonly BUILD_REF
 
 function get_abs_filename() {
@@ -31,7 +31,7 @@ set -o nounset
 function set_shutit_options() {
 	local CNAME
 	local OPTS
-	CNAME=shutit_test_container_${BUILD_REF}
+	CNAME=shutit_test_container_${BUILD_REF}_${RANDOM}${RANDOM}
 	OPTS=${1:-none}
 	if [[ "$OPTS" = "none" ]]
 	then
@@ -39,7 +39,6 @@ function set_shutit_options() {
 	else
 		export SHUTIT_OPTIONS="-s container name $CNAME $OPTS -s repository tag no"
 	fi
-	CNAME=shutit_test_container_${BUILD_REF}
 }
 
 function cleanup() {
