@@ -32,10 +32,9 @@ else
 			tail -100 $LOGFILE | mail -s "ANGRY SHUTIT" ian.miell@gmail.com
 		else
 			echo OK | mail -s "HAPPY SHUTIT" ian.miell@gmail.com
-			rm -rf $SHUTIT_BUILD_DIR
 		fi
 		popd
 		popd
 	fi
-	rm -f $LOCKFILE
+	rm -rf $SHUTIT_BUILD_DIR
 fi
