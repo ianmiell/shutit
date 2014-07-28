@@ -31,6 +31,7 @@ else
 	        if [[ $EXIT_CODE -ne 0 ]]
 		then
 			echo "attached" | mail -s "ANGRY SHUTIT" ian.miell@gmail.com -A $LOGFILE
+			rm -f $LOCKFILE
 		else
 			echo OK | mail -s "HAPPY SHUTIT" ian.miell@gmail.com
 			rm -rf $SHUTIT_BUILD_DIR
