@@ -10,8 +10,7 @@ class minimal_linux(ShutItModule):
     def build(self, shutit):
         shutit.send('export KERNEL_VERSION=3.14.2')
         shutit.install('wget')
-        shutit.send('apt-get update')
-        shutit.send('apt-get install -qy fakeroot kernel-package xz-utils bc xorriso syslinux git vim-tiny lib32ncurses5-dev')
+        shutit.install('fakeroot kernel-package xz-utils bc xorriso syslinux git vim-tiny lib32ncurses5-dev')
         shutit.send('wget -O /linux-3.14.2.tar.xz https://www.kernel.org/pub/linux/kernel/v3.x/linux-3.14.2.tar.xz') 
         shutit.send_host_file('/kernel_config.patch', 'context/kernel_config.patch')
         shutit.send('xz -d linux-3.14.2.tar.xz')
