@@ -4,8 +4,7 @@
 
 # To force a run even if no updates.
 FORCE=0
-SHUTIT_BUILD_DIR="/tmp/shutit_builddir"
-rm -rf $SHUTIT_BUILD_DIR
+SHUTIT_BUILD_DIR="/tmp/shutit_builddir.$(date +%s)"
 mkdir -p $SHUTIT_BUILD_DIR
 LOGFILE="${SHUTIT_BUILD_DIR}/shutit_build_${RANDOM}.log"
 
@@ -21,22 +20,24 @@ else
 	git fetch origin master
 	# See if there are any incoming changes
 	updates=$(git log HEAD..origin/master --oneline | wc -l)
+	echo "Updates: $updates"
 	if [[ $updates -gt 0 ]] || [[ $FORCE -gt 0 ]]
 	then
+		echo "Pulling"
 		git pull origin master
 		pushd $SHUTIT_BUILD_DIR
 		git clone https://github.com/ianmiell/shutit.git
 		pushd shutit/test
-		./test.sh > $LOGFILE 2>&1 || EXIT_CODE=$?
+		./test.sh | tee $LOGFILE 2>&1 || EXIT_CODE=$?
 	        if [[ $EXIT_CODE -ne 0 ]]
 		then
 			echo "attached" | mail -s "ANGRY SHUTIT" ian.miell@gmail.com -A $LOGFILE
+			cp -r $SHUTIT_BUILD_DIR $SHUTIT_BUILD_DIR.$(date +%s)
 		else
 			echo OK | mail -s "HAPPY SHUTIT" ian.miell@gmail.com
-			rm -rf $SHUTIT_BUILD_DIR
 		fi
 		popd
 		popd
 	fi
-	rm -f $LOCKFILE
+	rm -rf $SHUTIT_BUILD_DIR
 fi
