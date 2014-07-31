@@ -8,8 +8,7 @@ class sickbeard(ShutItModule):
         return False
 
     def build(self, shutit):
-        shutit.send('export DEBIAN_FRONTEND=noninteractive')
-        shutit.send('apt-get install -y git python python-cheetah')
+        shutit.install('git python python-cheetah')
         shutit.send('git clone https://github.com/midgetspy/Sick-Beard.git sickbeard')
         return True
 
