@@ -4,15 +4,19 @@
 
 # To force a run even if no updates.
 FORCE=0
-SHUTIT_BUILD_DIR="/tmp/shutit_builddir.$(date +%s)"
+
+SHUTIT_BUILD_DIR="/tmp/shutit_builddir"
 mkdir -p $SHUTIT_BUILD_DIR
-LOGFILE="${SHUTIT_BUILD_DIR}/shutit_build_${RANDOM}.log"
+LOGFILE="${SHUTIT_BUILD_DIR}/shutit_build_${RANDOM}.log.txt"
+
+echo $(date) >> $LOGFILE
 
 # Lockfile
 LOCKFILE="${SHUTIT_BUILD_DIR}/shutitci.lck"
 if [[ -a $LOCKFILE ]]
 then
-	echo "Already running"
+	echo "Already running" >> $LOGFILE
+	rm -rf $SHUTIT_BUILD_DIR
 	exit 
 else
 	touch $LOCKFILE
@@ -29,16 +33,18 @@ else
 		git clone https://github.com/ianmiell/shutit.git
 		pushd shutit/test
 		./test.sh | tee $LOGFILE 2>&1 || EXIT_CODE=$?
+		echo EXIT_CODE:$EXIT_CODE
 	        if [[ $EXIT_CODE -ne 0 ]]
 		then
 			echo "attached" | mail -s "ANGRY SHUTIT" ian.miell@gmail.com -A $LOGFILE
 			cp -r $SHUTIT_BUILD_DIR $SHUTIT_BUILD_DIR.$(date +%s)
 		else
-			echo OK | mail -s "HAPPY SHUTIT" ian.miell@gmail.com
+			echo OK | mail -s "HAPPY SHUTIT" ian.miell@gmail.com -A $LOGFILE
 		fi
 		popd
 		popd
 	fi
 	# get rid of /tmp detritus, leaving anything accessed 2 days ago+
+	mv ${SHUTIT_BUILD_DIR} ${SHUTIT_BUILD_DIR}.$(date +%s)
 	find /tmp/shutit* -type d -atime +1 | rm -rf
 fi
