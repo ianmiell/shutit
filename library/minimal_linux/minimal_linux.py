@@ -27,7 +27,7 @@ class minimal_linux(ShutItModule):
         shutit.send('pushd /busybox-1.22.1')
         shutit.send('make defconfig')
         shutit.send('echo "STATIC=y >> .config" >> .config')
-        shutit.send('make'
+        shutit.send('make')
         shutit.send('make install')
         shutit.send('cp -r _install /rootfs')
         shutit.send('ls -la /rootfs/bin/busybox')
