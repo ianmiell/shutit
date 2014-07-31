@@ -4,15 +4,19 @@
 
 # To force a run even if no updates.
 FORCE=0
+
 SHUTIT_BUILD_DIR="/tmp/shutit_builddir"
 mkdir -p $SHUTIT_BUILD_DIR
 LOGFILE="${SHUTIT_BUILD_DIR}/shutit_build_${RANDOM}.log"
+
+echo $(date) >> $LOGFILE
 
 # Lockfile
 LOCKFILE="${SHUTIT_BUILD_DIR}/shutitci.lck"
 if [[ -a $LOCKFILE ]]
 then
-	echo "Already running"
+	echo "Already running" >> $LOGFILE
+	rm -rf $SHUTIT_BUILD_DIR
 	exit 
 else
 	touch $LOCKFILE
