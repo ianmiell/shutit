@@ -11,7 +11,7 @@ class supervisor(ShutItModule):
         shutit.send('echo "deb http://archive.ubuntu.com/ubuntu precise main universe" > /etc/apt/sources.list')
         shutit.send('apt-get update')
         shutit.send('apt-get upgrade -y')
-        shutit.send('apt-get install -y supervisor')
+        shutit.install('supervisor')
         shutit.send('mkdir -p /var/log/supervisor')
         shutit.send_host_file('/etc/supervisor/conf.d/supervisord.conf', 'context/supervisord.conf')
         return True
