@@ -4,7 +4,7 @@
 
 # To force a run even if no updates.
 FORCE=0
-SHUTIT_BUILD_DIR="/tmp/shutit_builddir.$(date +%s)"
+SHUTIT_BUILD_DIR="/tmp/shutit_builddir"
 mkdir -p $SHUTIT_BUILD_DIR
 LOGFILE="${SHUTIT_BUILD_DIR}/shutit_build_${RANDOM}.log"
 
@@ -40,5 +40,6 @@ else
 		popd
 	fi
 	# get rid of /tmp detritus, leaving anything accessed 2 days ago+
+	mv ${SHUTIT_BUILD_DIR} ${SHUTIT_BUILD_DIR}.$(date +%s)
 	find /tmp/shutit* -type d -atime +1 | rm -rf
 fi
