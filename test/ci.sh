@@ -7,7 +7,7 @@ FORCE=0
 
 SHUTIT_BUILD_DIR="/tmp/shutit_builddir"
 mkdir -p $SHUTIT_BUILD_DIR
-LOGFILE="${SHUTIT_BUILD_DIR}/shutit_build_${RANDOM}.log"
+LOGFILE="${SHUTIT_BUILD_DIR}/shutit_build_${RANDOM}.log.txt"
 
 echo $(date) >> $LOGFILE
 
@@ -38,7 +38,7 @@ else
 			echo "attached" | mail -s "ANGRY SHUTIT" ian.miell@gmail.com -A $LOGFILE
 			cp -r $SHUTIT_BUILD_DIR $SHUTIT_BUILD_DIR.$(date +%s)
 		else
-			echo OK | mail -s "HAPPY SHUTIT" ian.miell@gmail.com
+			echo OK | mail -s "HAPPY SHUTIT" ian.miell@gmail.com -A $LOGFILE
 		fi
 		popd
 		popd
