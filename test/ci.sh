@@ -31,22 +31,20 @@ else
 		git pull origin master
 		pushd $SHUTIT_BUILD_DIR
 		git clone https://github.com/ianmiell/shutit.git
+		popd
 		pushd shutit/test
 		./test.sh | tee $LOGFILE 2>&1 || EXIT_CODE=$?
 		echo EXIT_CODE:$EXIT_CODE
 	        if [[ $EXIT_CODE -ne 0 ]]
 		then
 			echo "attached" | mail -s "ANGRY SHUTIT" ian.miell@gmail.com -A $LOGFILE
-			popd
-			popd
 			cp -r $SHUTIT_BUILD_DIR $SHUTIT_BUILD_DIR.$(date +%s)
 		else
-			popd
-			popd
 			echo OK | mail -s "HAPPY SHUTIT" ian.miell@gmail.com -A $LOGFILE
 		fi
 	fi
 	# get rid of /tmp detritus, leaving anything accessed 2 days ago+
 	mv ${SHUTIT_BUILD_DIR} ${SHUTIT_BUILD_DIR}.$(date +%s)
 	find /tmp/shutit* -type d -atime +1 | rm -rf
+	popd
 fi
