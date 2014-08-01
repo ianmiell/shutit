@@ -32,7 +32,7 @@ else
 		pushd $SHUTIT_BUILD_DIR
 		git clone https://github.com/ianmiell/shutit.git
 		popd
-		pushd shutit/test
+		pushd ${SHUTIT_BUILD_DIR}/shutit/test
 		./test.sh | tee $LOGFILE 2>&1 || EXIT_CODE=$?
 		echo EXIT_CODE:$EXIT_CODE
 	        if [[ $EXIT_CODE -ne 0 ]]
