@@ -54,7 +54,6 @@ class ansible(ShutItModule):
                 send = shutit.cfg['container']['password']
             elif res == 2:
                 send = 'yes'
-        shutit.send('exit')
         return True
 
 def module():
