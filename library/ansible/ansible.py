@@ -28,18 +28,20 @@ class ansible(ShutItModule):
         return False
 
     def build(self, shutit):
+	shutit.pause_point('ansible')
         shutit.install('git')
         shutit.install('python2.7-dev')
         shutit.install('python-pip')
+        shutit.send('pushd /root')
         shutit.send('git clone git://github.com/ansible/ansible.git')
-        shutit.send('cd ./ansible')
-        shutit.send('source ./hacking/env-setup')
-        shutit.add_to_bashrc('source ./hacking/env-setup')
+        shutit.send('source /root/ansible/hacking/env-setup')
+        shutit.add_to_bashrc('source /root/ansible/hacking/env-setup')
         shutit.send('easy_install pip')
         shutit.send('pip install paramiko PyYAML jinja2 httplib2')
         shutit.send('echo "127.0.0.1" > /root/ansible_hosts')
         shutit.send('export ANSIBLE_HOSTS=/root/ansible_hosts')
         shutit.add_to_bashrc('export ANSIBLE_HOSTS=/root/ansible_hosts')
+        shutit.send('popd')
         return True
 
     def test(self, shutit):
