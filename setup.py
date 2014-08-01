@@ -348,6 +348,7 @@ class ConnDocker(ShutItModule):
             docker_executable=cfg['host']['docker_executable'], \
             password=cfg['host']['password'])
         # Final exits
+        host_child.sendline('rm -f ' + cfg['build']['cidfile']) # Exit raw bash
         host_child.sendline('exit') # Exit raw bash
         return True
 
