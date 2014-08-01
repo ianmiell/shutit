@@ -22,26 +22,26 @@ then
 else
 	touch $LOCKFILE
 	# Fetch changes
-	git fetch origin master | tee -a $LOGFILE
+	git fetch origin master 2>&1 | tee -a $LOGFILE
 	# See if there are any incoming changes
 	updates=$(git log HEAD..origin/master --oneline | wc -l)
 	echo "Updates: $updates" | tee -a $LOGFILE
 	if [[ $updates -gt 0 ]] || [[ $FORCE -gt 0 ]]
 	then
 		echo "Pulling" | tee -a $LOGFILE
-		git pull origin master | tee -a $LOGFILE
+		git pull origin master 2>&1 | tee -a $LOGFILE
 		pushd $SHUTIT_BUILD_DIR
 		git clone https://github.com/ianmiell/shutit.git
 		popd
 		pushd ${SHUTIT_BUILD_DIR}/shutit/test
-		./test.sh | tee -a $LOGFILE 2>&1 || EXIT_CODE=$?
+		./test.sh 2>&1 | tee -a $LOGFILE || EXIT_CODE=$?
 		echo EXIT_CODE:$EXIT_CODE
 	        if [[ $EXIT_CODE -ne 0 ]]
 		then
 			echo "attached" | mail -s "ANGRY SHUTIT" ian.miell@gmail.com -A $LOGFILE
 			cp -r $SHUTIT_BUILD_DIR $SHUTIT_BUILD_DIR.$(date +%s)
 		else
-			echo OK | mail -s "HAPPY SHUTIT" ian.miell@gmail.com -A $LOGFILE
+			echo "OK" | mail -s "HAPPY SHUTIT" ian.miell@gmail.com -A $LOGFILE
 		fi
 		popd
 		# move aside build dir for reference
