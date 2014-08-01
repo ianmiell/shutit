@@ -13,7 +13,7 @@ then
 	set +x
 fi
 
-SHUTIT_BUILD_DIR="/tmp/shutit_builddir"
+SHUTIT_BUILD_DIR="/tmp/shutitci/shutit_builddir"
 mkdir -p $SHUTIT_BUILD_DIR
 LOGFILE="${SHUTIT_BUILD_DIR}/shutit_build_${RANDOM}.log.txt"
 touch $LOGFILE
@@ -58,5 +58,5 @@ else
 		rm -rf $SHUTIT_BUILD_DIR
 	fi
 	# get rid of /tmp detritus, leaving anything accessed 2 days ago+
-	find /tmp/shutit* -type d -atime +1 | rm -rf
+	find /tmp/shutitci/* -type d -atime +1 | rm -rf
 fi
