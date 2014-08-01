@@ -297,11 +297,11 @@ The container is finalized by the core setup module. As part of this it will tag
 
 #### Module hook functions
 
-These all return True if OK (or the answer is "yes" for is_installed), or False if not OK (or the answer is "no" for is_installed).
+These all return True if OK (or the answer is "yes" for is\_installed), or False if not OK (or the answer is "no" for is\_installed).
 
-If False is returned for all functions (except is_installed), the build will fail.
+If False is returned for all functions (except is\_installed), the build will fail.
 
-- is_installed
+- is\_installed
 
 Used by "Check ready" part of lifecycle to determine whether the module is installed or not.
 
@@ -325,7 +325,7 @@ Handles the stopping of the module. When any kind of persistence is performed, a
 
 Handles the testing of the module.
 
-- get_config
+- get\_config
 
 Gathers configuration for the module.
 
@@ -701,7 +701,7 @@ Tests
 Run 
 
 ```
-./test.sh
+cd test && ./test.sh
 ```
 
 Known Issues
