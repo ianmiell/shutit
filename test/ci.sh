@@ -42,9 +42,9 @@ else
 		else
 			echo OK | mail -s "HAPPY SHUTIT" ian.miell@gmail.com -A $LOGFILE
 		fi
+		popd
 	fi
 	# get rid of /tmp detritus, leaving anything accessed 2 days ago+
 	mv ${SHUTIT_BUILD_DIR} ${SHUTIT_BUILD_DIR}.$(date +%s)
 	find /tmp/shutit* -type d -atime +1 | rm -rf
-	popd
 fi
