@@ -31,8 +31,7 @@ class ssh_key(ShutItModule):
 
     def finalize(self, shutit):
         # We don't want to leave keys lying around.
-        # The real user module should remove these but let's take no chances.
-        shutit.send('rm -rf /root/.ssh')
+        shutit.send('rm -rf /root/.ssh/' + shutit.cfg[self.module_id]['ssh_keyfile_name'])
         return True
 
     def get_config(self, shutit):
@@ -71,7 +70,7 @@ class ssh_key(ShutItModule):
 def module():
     return ssh_key(
         'shutit.tk.ssh_key.ssh_key', 0.1259,
-        description='ssh key provisioning, just for the build. keys deleted at end of build.',
+        description='ssh key provisioning, just for the build. private keys are deleted at end of build.',
         depends=['shutit.tk.setup', 'shutit.tk.adduser.adduser']
     )
 
