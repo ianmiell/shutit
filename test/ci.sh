@@ -8,8 +8,9 @@ FORCE=0
 SHUTIT_BUILD_DIR="/tmp/shutit_builddir"
 mkdir -p $SHUTIT_BUILD_DIR
 LOGFILE="${SHUTIT_BUILD_DIR}/shutit_build_${RANDOM}.log.txt"
+touch $LOGFILE
 
-echo $(date) | tee $LOGFILE
+echo $(date) | tee -a $LOGFILE
 
 # Lockfile
 LOCKFILE="${SHUTIT_BUILD_DIR}/shutitci.lck"
@@ -21,19 +22,19 @@ then
 else
 	touch $LOCKFILE
 	# Fetch changes
-	git fetch origin master | tee $LOGFILE
+	git fetch origin master | tee -a $LOGFILE
 	# See if there are any incoming changes
 	updates=$(git log HEAD..origin/master --oneline | wc -l)
-	echo "Updates: $updates" | tee $LOGFILE
+	echo "Updates: $updates" | tee -a $LOGFILE
 	if [[ $updates -gt 0 ]] || [[ $FORCE -gt 0 ]]
 	then
-		echo "Pulling" | tee $LOGFILE
-		git pull origin master | tee $LOGFILE
+		echo "Pulling" | tee -a $LOGFILE
+		git pull origin master | tee -a $LOGFILE
 		pushd $SHUTIT_BUILD_DIR
 		git clone https://github.com/ianmiell/shutit.git
 		popd
 		pushd ${SHUTIT_BUILD_DIR}/shutit/test
-		./test.sh | tee $LOGFILE 2>&1 || EXIT_CODE=$?
+		./test.sh | tee -a $LOGFILE 2>&1 || EXIT_CODE=$?
 		echo EXIT_CODE:$EXIT_CODE
 	        if [[ $EXIT_CODE -ne 0 ]]
 		then
