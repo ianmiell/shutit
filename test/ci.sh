@@ -43,8 +43,8 @@ else
 		git clone https://github.com/ianmiell/shutit.git
 		popd
 		pushd ${SHUTIT_BUILD_DIR}/shutit/test
-		./test.sh 2>&1 | tee -a $LOGFILE || EXIT_CODE=$?
-		echo EXIT_CODE:$EXIT_CODE
+		./test.sh >> ${LOGFILE} 2>&1
+		EXIT_CODE=$?
 	        if [[ $EXIT_CODE -ne 0 ]]
 		then
 			echo "attached" | mail -s "ANGRY SHUTIT" ian.miell@gmail.com -A $LOGFILE
