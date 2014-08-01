@@ -21,14 +21,14 @@ then
 else
 	touch $LOCKFILE
 	# Fetch changes
-	git fetch origin master
+	git fetch origin master | tee $LOGFILE
 	# See if there are any incoming changes
 	updates=$(git log HEAD..origin/master --oneline | wc -l)
-	echo "Updates: $updates"
+	echo "Updates: $updates" | tee $LOGFILE
 	if [[ $updates -gt 0 ]] || [[ $FORCE -gt 0 ]]
 	then
-		echo "Pulling"
-		git pull origin master
+		echo "Pulling" | tee $LOGFILE
+		git pull origin master | tee $LOGFILE
 		pushd $SHUTIT_BUILD_DIR
 		git clone https://github.com/ianmiell/shutit.git
 		popd
