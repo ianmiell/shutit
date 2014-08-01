@@ -10,7 +10,7 @@ mkdir -p $SHUTIT_BUILD_DIR
 LOGFILE="${SHUTIT_BUILD_DIR}/shutit_build_${RANDOM}.log.txt"
 touch $LOGFILE
 
-echo $(date) | tee -a $LOGFILE
+echo $(date) 2>&1 | tee -a $LOGFILE
 
 # Lockfile
 LOCKFILE="${SHUTIT_BUILD_DIR}/shutitci.lck"
