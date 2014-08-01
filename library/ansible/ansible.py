@@ -28,7 +28,6 @@ class ansible(ShutItModule):
         return False
 
     def build(self, shutit):
-	shutit.pause_point('ansible')
         shutit.install('git')
         shutit.install('python2.7-dev')
         shutit.install('python-pip')
@@ -46,7 +45,7 @@ class ansible(ShutItModule):
 
     def test(self, shutit):
         send = 'ansible all -m ping'
-        expect=['assword', shutit.cfg['expect_prompts']['root_prompt'],'authenticity of host']
+        expect=['assword', shutit.cfg['expect_prompts']['base_prompt'],'authenticity of host']
         while True:
             res = shutit.send(send, expect=expect)
             if res == 1:
@@ -55,6 +54,7 @@ class ansible(ShutItModule):
                 send = shutit.cfg['container']['password']
             elif res == 2:
                 send = 'yes'
+        shutit.send('exit')
         return True
 
 def module():
