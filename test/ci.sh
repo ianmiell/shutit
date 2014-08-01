@@ -30,20 +30,18 @@ else
 	then
 		echo "Pulling" | tee -a $LOGFILE
 		git pull origin master 2>&1 | tee -a $LOGFILE
-		pushd $SHUTIT_BUILD_DIR
+		# This won't exist in a bit so no point pushd'ing
+		cd $SHUTIT_BUILD_DIR
 		git clone https://github.com/ianmiell/shutit.git
-		popd
-		pushd ${SHUTIT_BUILD_DIR}/shutit/test
+		cd ${SHUTIT_BUILD_DIR}/shutit/test
 		./test.sh 2>&1 | tee -a $LOGFILE || EXIT_CODE=$?
 		echo EXIT_CODE:$EXIT_CODE
 	        if [[ $EXIT_CODE -ne 0 ]]
 		then
 			echo "attached" | mail -s "ANGRY SHUTIT" ian.miell@gmail.com -A $LOGFILE
-			cp -r $SHUTIT_BUILD_DIR $SHUTIT_BUILD_DIR.$(date +%s)
 		else
 			echo "OK" | mail -s "HAPPY SHUTIT" ian.miell@gmail.com -A $LOGFILE
 		fi
-		popd
 		# move aside build dir for reference
 		mv ${SHUTIT_BUILD_DIR} ${SHUTIT_BUILD_DIR}.$(date +%s)
 	else
