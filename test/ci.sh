@@ -3,7 +3,15 @@
 # Simple CI for ShutIt
 
 # To force a run even if no updates.
-FORCE=0
+FORCE_ARG=$1
+VERBOSE_ARG=$2
+FORCE=${FORCE_ARG:-0}
+VERBOSE=${VERBOSE_ARG:-0}
+
+if [[ $VERBOSE -gt 0 ]]
+then
+	set +x
+fi
 
 SHUTIT_BUILD_DIR="/tmp/shutit_builddir"
 mkdir -p $SHUTIT_BUILD_DIR
