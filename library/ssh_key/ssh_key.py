@@ -40,7 +40,7 @@ class ssh_key(ShutItModule):
         # SSH passphrase, default to empty
         shutit.get_config(self.module_id, 'passphrase','')
         shutit.get_config(self.module_id, 'login','')
-        shutit.get_config(self.module_id, 'ssh_keyfile_dir', '~/.ssh')
+        shutit.get_config(self.module_id, 'ssh_keyfile_dir', '/home/' + cfg['host']['real_user'] + '/.ssh')
         shutit.get_config(self.module_id, 'ssh_keyfile_name', 'id_rsa')
         cfg[self.module_id]['login'] = cfg[self.module_id]['login'].split()
         if 'root' not in cfg[self.module_id]['login']:
