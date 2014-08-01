@@ -37,12 +37,14 @@ else
 	        if [[ $EXIT_CODE -ne 0 ]]
 		then
 			echo "attached" | mail -s "ANGRY SHUTIT" ian.miell@gmail.com -A $LOGFILE
+			popd
+			popd
 			cp -r $SHUTIT_BUILD_DIR $SHUTIT_BUILD_DIR.$(date +%s)
 		else
+			popd
+			popd
 			echo OK | mail -s "HAPPY SHUTIT" ian.miell@gmail.com -A $LOGFILE
 		fi
-		popd
-		popd
 	fi
 	# get rid of /tmp detritus, leaving anything accessed 2 days ago+
 	mv ${SHUTIT_BUILD_DIR} ${SHUTIT_BUILD_DIR}.$(date +%s)
