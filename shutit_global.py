@@ -1218,7 +1218,7 @@ class ShutIt(object):
         repo_tag  = cfg['repository']['tag_name']
 
         if repo_user and repo_name:
-            repository = '%s/%s%s' % (repo_user, repo_name)
+            repository = '%s/%s' % (repo_user, repo_name)
             repository_tar = '%s%s' % (repo_user, repo_name)
         elif repo_user:
             repository = repository_tar = repo_user

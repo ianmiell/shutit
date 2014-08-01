@@ -25,7 +25,6 @@ LOCKFILE="${SHUTIT_BUILD_DIR}/shutitci.lck"
 if [[ -a $LOCKFILE ]]
 then
 	echo "Already running" | tee $LOGFILE
-	rm -rf $SHUTIT_BUILD_DIR
 	exit 
 else
 	touch $LOCKFILE
