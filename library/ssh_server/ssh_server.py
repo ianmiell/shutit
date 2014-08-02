@@ -44,8 +44,13 @@ class ssh_server(ShutItModule):
         ## see http://docs.docker.io/en/latest/examples/running_ssh_service/
         shutit.add_line_to_file('mkdir -p /var/run/sshd', '/root/start_ssh_server.sh')
         shutit.add_line_to_file('chmod 700 /var/run/sshd', '/root/start_ssh_server.sh')
-        shutit.add_line_to_file('start-stop-daemon --start --quiet --oknodo --pidfile /var/run/sshd.pid --exec /usr/sbin/sshd', '/root/start_ssh_server.sh')
-        shutit.add_line_to_file('start-stop-daemon --stop --quiet --oknodo --pidfile /var/run/sshd.pid', '/root/stop_ssh_server.sh')
+        if shutit.cfg['container']['distro'] in ('ubuntu','debian'):
+            shutit.add_line_to_file('start-stop-daemon --start --quiet --oknodo --pidfile /var/run/sshd.pid --exec /usr/sbin/sshd', '/root/start_ssh_server.sh')
+            shutit.add_line_to_file('start-stop-daemon --stop --quiet --oknodo --pidfile /var/run/sshd.pid', '/root/stop_ssh_server.sh')
+        else:
+            shutit.send('sshd-keygen')
+            shutit.add_line_to_file('/usr/sbin/sshd', '/root/start_ssh_server.sh')
+            shutit.add_line_to_file('ps -ef | grep -w sshd | awk \'{print $2}\' | xargs kill', '/root/stop_ssh_server.sh')
         shutit.send('chmod +x /root/start_ssh_server.sh')
         shutit.send('chmod +x /root/stop_ssh_server.sh')
         return True

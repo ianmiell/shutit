@@ -312,6 +312,7 @@ class ShutIt(object):
         child = child or self.get_default_child()
         if exit_values is None:
             exit_values = ['0']
+        # TODO: check that all values are strings.
         # Don't use send here (will mess up last_output)!
         child.sendline('echo EXIT_CODE:$?')
         child.expect(expect, timeout)
@@ -824,6 +825,8 @@ class ShutIt(object):
 
         Returns None if none of the lines matched.
 
+        Returns True if there are no groups selected in the regexp.
+
         - string - string to search through lines of
         - regexp - regexp to search for per line
         """
@@ -837,9 +840,12 @@ class ShutIt(object):
                 self.log('trying: ' + line + ' against regexp: ' + regexp)
             match = re.match(regexp, line)
             if match != None:
-                if cfg['build']['debug']:
-                    self.log('returning: ' + match.group(1))
-                return match.group(1)
+                if len(match.groups()) > 0:
+                    if cfg['build']['debug']:
+                        self.log('returning: ' + match.group(1))
+                    return match.group(1)
+                else:
+                    return True
         return None
 
     def send_and_get_output(self, send, expect=None, child=None):
@@ -1100,6 +1106,12 @@ class ShutIt(object):
                     cfg['container']['distro']       = key
                     cfg['container']['install_type'] = install_type_map[key]
                     break
+        if (cfg['container']['install_type'] == '' or 
+            cfg['container']['distro'] == ''):
+            self.send('cat /etc/issue',check_exit=False)
+            if self.get_re_from_child(child.before,'^Kernel .*r on an .*m$'):
+                cfg['container']['distro']       = 'centos'
+                cfg['container']['install_type'] = 'yum'
         if (cfg['container']['install_type'] == '' or 
             cfg['container']['distro'] == ''):
             shutit.fail('Could not determine Linux distro information. ' + 
