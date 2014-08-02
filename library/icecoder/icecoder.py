@@ -17,7 +17,7 @@ class icecoder(ShutItModule):
         shutit.send('export APACHE_LOG_DIR=/var/log/apache2')
         shutit.install('wget')
         shutit.send('mkdir -p /var/www')
-        shutit.send('wget -O /var/www/icecoder.zip \'http://icecoder.net/download-zip?version=3.0beta\'')
+        shutit.send('wget -O /var/www/icecoder.zip \'http://icecoder.net/download-zip\'')
         shutit.send('cd /var/www')
         shutit.send('unzip -o icecoder.zip')
         shutit.send('cd /var/www')
