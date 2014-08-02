@@ -9,12 +9,13 @@ class crosscompile(ShutItModule):
 
     def build(self, shutit):
         shutit.install('lsb-release')
-        shutit.send('echo "deb http://archive.ubuntu.com/ubuntu $(lsb_release -s -c) main universe" > /etc/apt/sources.list')
-        shutit.send('apt-get update')
-        shutit.send('apt-get upgrade -y')
         shutit.install('gcc')
         shutit.install('g++')
-        shutit.install('mercurial git-core')
+        shutit.install('mercurial')
+        shutit.install('git-core')
+        shutit.send('echo "deb http://archive.ubuntu.com/ubuntu $(lsb_release -s -c) main universe" > /etc/apt/sources.list')
+        shutit.send('apt-get update')
+        #shutit.send('apt-get upgrade -y')
         shutit.send('hg clone https://code.google.com/p/go')
         shutit.send('pushd /go')
         shutit.send('hg update go1.1.2')
