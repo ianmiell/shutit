@@ -227,7 +227,8 @@ class ConnDocker(ShutItModule):
 		cfg['container']['docker_image'] +
                 '\n\n' + util.colour('31', '[Hit return to continue]'))
             raw_input('')
-        shutit.log('\n\nCommand being run is:\n\n' + ' '.join(docker_command),
+        shutit.cfg['build']['docker_command'] = ' '.join(docker_command)
+        shutit.log('\n\nCommand being run is:\n\n' + shutit.cfg['build']['docker_command'],
 	    force_stdout=True, prefix=False)
         shutit.log('\n\nThis may download the image, please be patient\n\n',
 	    force_stdout=True, prefix=False)
