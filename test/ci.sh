@@ -54,6 +54,7 @@ else
 		fi
 		popd
 	fi
+	rm -f $LOCKFILE
 	# get rid of /tmp detritus, leaving anything accessed 2 days ago+
 	find /tmp/shutitci/* -type d -atime +1 | rm -rf
 fi
