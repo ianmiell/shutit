@@ -53,6 +53,7 @@ else
 			echo "OK" | mail -s "HAPPY SHUTIT" ian.miell@gmail.com -A $LOGFILE
 		fi
 		popd
+		rm -rf ${SHUTIT_BUILD_DIR}/shutit
 	fi
 	rm -f $LOCKFILE
 	# get rid of /tmp detritus, leaving anything accessed 2 days ago+
