@@ -37,6 +37,13 @@ Flexible:
 REALLY QUICK START
 ------------------
 
+We always need help, and with a potentially infinite number of libraries required, it's likely you will be able to contribute. Just mail ian.miell@gmail.com if you want to be assigned a mentor. [He won't bite](https://www.youtube.com/watch?v=zVUPmmUU3yY) 
+
+Mailing List
+------------
+https://groups.google.com/forum/#!forum/shutit-users
+shutit-users@groups.google.com
+
 Dependencies
 --------------
 - python 2.7+
@@ -44,7 +51,6 @@ Dependencies
 
 apt-get install git python-bottle docker.io python-pexpect python-cherrypy3
 git clone https://github.com/ianmiell/shutit.git && cd shutit
-./shutit serve -m library
 
 
 Videos:
@@ -64,7 +70,6 @@ Videos:
 
 Docs:
 -----
-- [User Guide](https://github.com/ianmiell/shutit/blob/master/assets/documentation.md)
 
 - [Walkthrough](http://ianmiell.github.io/shutit/)
 
@@ -99,9 +104,9 @@ cd library/mysql
 
 Overview
 --------
-While evaluating Docker for my corp (openbet.com) I reached a point where
+While evaluating Docker for my [corp](http://www.openbet.com) I reached a point where
 using Dockerfiles was somewhat painful or verbose for complex and/or long and/or
-configurable interactions. So we wrote our own for our purposes.
+configurable interactions. So we wrote our own.
 
 ShutIt works in the following way:
 
@@ -137,12 +142,12 @@ ShutIt works in the following way:
 
 If you have an existing bash script it is relatively trivial to port to this 
 to get going with docker and start shipping containers (see create\_skeleton.sh
-below).
+below). You can also use this to prototype builds before porting to whatever
+configuration management tool you ultimately choose.
 
 As a by-product of this design, you can use it in a similar way to chef/puppet
 (by taking an existing container and configuring it to remove and build a
-specific module), but it's not designed for this purpose and probably won't 
-be as useful for moving target systems.
+specific module), but it's not designed primarily for this purpose.
 
 Chef/Puppet were suggested as alternatives, but for several reasons I didn't go
 with them:
