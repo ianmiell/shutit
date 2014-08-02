@@ -23,7 +23,7 @@ class ssh_key(ShutItModule):
         return True
 
     def test(self, shutit):
-        expect = ['authenticity', shutit.get_default_expect()]
+        expect = ['authenticity', shutit.cfg['expect_prompts']['base_prompt']]
         send = 'ssh localhost'
         while True:
             res = shutit.send(send, expect=expect, check_exit=False)
@@ -31,6 +31,7 @@ class ssh_key(ShutItModule):
                 send = 'yes'
             elif res == 1:
                 break
+        shutit.send('exit')
         return True
 
 def module():
