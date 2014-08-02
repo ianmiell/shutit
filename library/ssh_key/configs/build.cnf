@@ -2,9 +2,4 @@
 # This feeds into automated testing of each module.
 [shutit.tk.ssh_key.ssh_key]
 build:yes
-
-# To replace these defaults for this host:
-# Place configs in in /path/to/your/shutit/configs/$(hostname)_$(username).cnf
-#ssh_keyfile_dir:/home/me/.ssh
-#ssh_keyfile_name:id_rsa
-
+allowed_images:["ubuntu.*","centos:centos7"]
