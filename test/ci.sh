@@ -16,17 +16,19 @@ fi
 SHUTIT_BUILD_DIR="/tmp/shutitci/shutit_builddir"
 mkdir -p $SHUTIT_BUILD_DIR
 LOGFILE="${SHUTIT_BUILD_DIR}/shutit_build_${RANDOM}.log.txt"
-touch $LOGFILE
+SHUTITLOGFILE="${SHUTIT_BUILD_DIR}/shutit_build.log.txt"
+touch $SHUTITLOGFILE
 
-echo $(date) 2>&1 | tee -a $LOGFILE
+echo $(date) 2>&1 | tee -a $SHUTITLOGFILE
 
 # Lockfile
 LOCKFILE="${SHUTIT_BUILD_DIR}/shutitci.lck"
 if [[ -a $LOCKFILE ]]
 then
-	echo "Already running" | tee $LOGFILE
+	echo "Already running" | tee -a $SHUTITLOGFILE
 	exit 
 else
+	touch $LOGFILE
 	touch $LOCKFILE
 	# Fetch changes
 	git fetch origin master 2>&1 | tee -a $LOGFILE
@@ -51,10 +53,6 @@ else
 			echo "OK" | mail -s "HAPPY SHUTIT" ian.miell@gmail.com -A $LOGFILE
 		fi
 		popd
-		# move aside build dir for reference
-		mv ${SHUTIT_BUILD_DIR} ${SHUTIT_BUILD_DIR}.$(date +%s)
-	else
-		rm -rf $SHUTIT_BUILD_DIR
 	fi
 	# get rid of /tmp detritus, leaving anything accessed 2 days ago+
 	find /tmp/shutitci/* -type d -atime +1 | rm -rf
