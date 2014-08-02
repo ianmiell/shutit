@@ -680,5 +680,5 @@ if __name__ == '__main__':
         shutit_main()
     except ShutItException as e:
         print 'Error while executing: ' + str(e.message)
-        print 'Docker command was:\n' + shutit.cfg['build']['docker_command']
+        print 'Docker command was:\n' + shutit_global.shutit.cfg['build']['docker_command']
         sys.exit(1)
