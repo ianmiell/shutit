@@ -1,3 +1,28 @@
+"""Utility object for sending emails reports via shutit
+"""
+
+#The MIT License (MIT)
+#
+#Copyright (C) 2014 OpenBet Limited
+#
+#Permission is hereby granted, free of charge, to any person obtaining a copy of
+#this software and associated documentation files (the "Software"), to deal in
+#the Software without restriction, including without limitation the rights to
+#use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+#of the Software, and to permit persons to whom the Software is furnished to do
+#so, subject to the following conditions:
+#
+#The above copyright notice and this permission notice shall be included in all
+#copies or substantial portions of the Software.
+#
+#THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+#IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+#ITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+#THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+#LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+#OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+#SOFTWARE.
+
 from email.mime.text import MIMEText
 from email.mime.application import MIMEApplication
 from email.mime.multipart import MIMEMultipart
@@ -5,126 +30,116 @@ from collections import OrderedDict
 from smtplib import SMTP
 import os, gzip
 
-# Util to send an email during shutit build
-#
-# Currently this needs to be symlinked into the main shutit folder in order to work - see TODOs
-#
-# TODO
-#  - make part of core shutit properly
-#  - copy attachments properly (e.g. not using /resources),
-#    thereby removing the need for root hopefully. I have considered
-#    running an smtp server inside the container but this seems dirty for
-#    our purposes. Ultimately there needs to be an easy way of getting files out of shutit
-#
 class emailer():
 
-	# cfg_section - where to take email configs from inside shutit.config:
-	#               (mailto, mailfrom, smtp_server, subject, signature, send_mail)
-	def __init__(
-		self,
-		cfg_section,
-		shutit
-	):
-		self._set_config(cfg_section,shutit.cfg)
-		self.shutit    = shutit
-		self.lines     = []
-		self.attaches  = []
-		self._chmod_resources(self.shutit)
+    def __init__(
+        self,
+        cfg_section,
+        shutit
+    ):
+        """Initialise the object
+        cfg_section - section in shutit config to look for email configuration items
+                      allowing easier config according to shutit_module.
+                      e.g. 'com.my_module','subject': My Moduloe Build Failed!
+                      Config Items:
+                      mailto      - address to send the mail to (no default)
+                      mailfrom    - address to send the mail from (angry@shutit.tk)
+                      smtp_server - server to send the mail (localhost)
+                      subject     - subject of the email (Shutit Report)
+                      signature   - \n\n --Angry Shutit
+                      compress    - gzip attachments? (True)
+        """
+        self.shutit    = shutit
+        self.__set_config(cfg_section)
+        self.lines     = []
+        self.attaches  = []
 
-	def _set_config(self,cfg_section,cfg):
+    def __set_config(self,cfg_section):
+        """Set a local config array up according to defaults and main shutit configuration
 
-		self.config    = {}
-		defaults = [
-			'mailto','',
-			'mailfrom','angry@shutit.com',
-			'smtp_server','localhost',
-			'send_mail',True,
-			'subject','Shutit Report',
-			'signature','\n\n --Angry Shutit',
-			'compress',True
-		]
+        cfg_section - see __init__
+        """
+        cfg = self.shutit.cfg
+        self.config    = {}
+        defaults = [
+            'mailto','',
+            'mailfrom','angry@shutit.tk',
+            'smtp_server','localhost',
+            'send_mail',True,
+            'subject','Shutit Report',
+            'signature','\n\n --Angry Shutit',
+            'compress',True
+        ]
 
-		for i in range(len(defaults)-1):
-			name    = defaults[i]
-			default = defaults[i+1]
-			try:
-				self.config[name] = cfg[cfg_section][name]
-			except KeyError as e:
-				if default == '':
-					print e
-					raise Exception('emailer._set_config: ' + name + ' must be set')
-				else:
-					self.config[name] = default
-			i += 1
+        for i in range(len(defaults)-1):
+            name    = defaults[i]
+            default = defaults[i+1]
+            try:
+                self.config[name] = cfg[cfg_section][name]
+            except KeyError as e:
+                if default == '':
+                    print e
+                    raise Exception('emailer._set_config: ' + name + ' must be set')
+                else:
+                    self.config[name] = default
+            i += 1
 
-	def _chmod_resources(self,shutit):
-		if shutit.get_file_perms('/resources') == "777":
-			return True
-		user = shutit.send_and_get_output('whoami').strip()
-		# revert to root to do attachments
-		if user != 'root':
-			shutit.logout()
-		shutit.send('chmod 777 /resources')
-		# we've done what we need to do as root, go home
-		if user != 'root':
-			shutit.login(user)
+    def __gzip(self,filename):
+        """ Compress a file returning the new filename (.gz)
+        """
+        zn = filename + '.gz'
+        fp = open(filename,'rb')
+        zp = gzip.open(zn,'wb')
+        zp.writelines(fp)
+        fp.close()
+        zp.close()
+        return zn
 
-	# Add a line to the email
-	def add_line(self,line):
-		self.lines.append(line)
+    def add_line(self,line):
+        """Add a single line to the email body
+        """
+        self.lines.append(line)
 
-	# Add an entire message as string (will overwrite anything added as lines thus far)
-	def add_msg(self,msg):
-		self.lines = msg.rsplit('\n')
+    def add_body(self,msg):
+        """Add an entire email body message as a string, will be split on newlines
+           and overwrite anything currently in the body (e.g added by add_lines)
+        """
+        self.lines = msg.rsplit('\n')
 
-	# Attach a file - currently needs to be entered as root (shutit)
-	#
-	# - Filename: absolute path, relative to the docker container!
-	# - filetype: MIMEApplication._subtype
-	def attach(self,filename,filetype="txt"):
-		shutit = self.shutit
-		# move to dockerresources to the emailer can have visibility
-		resources_dir = self.shutit.cfg['host']['resources_dir']
-		shutit.send('cp ' + filename + ' /resources')
-		if self.config['compress']:
-			filetype='x-gzip-compressed'
-			filename = self.gzip(filename)
-		# the file name is different on the host (running shutit), than it is on docker
-		host_filename = os.path.join(resources_dir,os.path.basename(filename))
-		fp = open(host_filename, 'rb')
-		attach = MIMEApplication(fp.read(),_subtype=filetype)
-		fp.close()
-		attach.add_header('Content-Disposition','attachment',filename=os.path.basename(filename))
-		self.attaches.append(attach)
-		shutit.send('rm -f /resources/' + os.path.basename(filename))
+    def attach(self,filename,filetype="txt"):
+        """Attach a file - currently needs to be entered as root (shutit)
 
-	# Compress a file returning the new filename.
-	def gzip(self,filename):
-		resources_dir = self.shutit.cfg['host']['resources_dir']
-		host_filename = os.path.join(resources_dir,os.path.basename(filename))
-		zn = host_filename + '.gz'
-		fp = open(host_filename,'rb')
-		zp = gzip.open(zn,'wb')
-		zp.writelines(fp)
-		fp.close()
-		zp.close()
-		# delete the original file, we've got a shiny new compressed one
-		self.shutit.send('rm -f /resources/' + os.path.basename(filename))
-		return zn
+        Filename - absolute path, relative to the docker container!
+        filetype - MIMEApplication._subtype
+        """
+        shutit = self.shutit
+        host_path = '/tmp'
+        host_fn = os.path.join(host_path,os.path.basename(filename))
+        shutit.get_file(filename,host_path)
+        if self.config['compress']:
+            filetype='x-gzip-compressed'
+            filename = self.__gzip(host_fn)
+        fp = open(host_fn, 'rb')
+        attach = MIMEApplication(fp.read(),_subtype=filetype)
+        fp.close()
+        attach.add_header('Content-Disposition','attachment',filename=os.path.basename(filename))
+        self.attaches.append(attach)
 
-	def send(self):
-		if not self.config['send_mail']:
-			print 'emailer.send: Not configured to send mail!'
-			return True
-		msg  = MIMEMultipart()
-		msg['Subject'] = self.config['subject']
-		msg['To']      = self.config['mailto']
-		msg['From']    = self.config['mailfrom']
-		body = MIMEText('\n'.join(self.lines) + self.config['signature'])
-		msg.attach(body)
-		for attach in self.attaches:
-			msg.attach(attach)
-		s = SMTP(self.config['smtp_server'])
-		s.sendmail(self.config['mailfrom'], self.config['mailto'], msg.as_string())
-		s.quit()
+    def send(self):
+        """Send the email according to the configured setup
+        """
+        if not self.config['send_mail']:
+            print 'emailer.send: Not configured to send mail!'
+            return True
+        msg  = MIMEMultipart()
+        msg['Subject'] = self.config['subject']
+        msg['To']      = self.config['mailto']
+        msg['From']    = self.config['mailfrom']
+        body = MIMEText('\n'.join(self.lines) + self.config['signature'])
+        msg.attach(body)
+        for attach in self.attaches:
+            msg.attach(attach)
+        s = SMTP(self.config['smtp_server'])
+        s.sendmail(self.config['mailfrom'], self.config['mailto'], msg.as_string())
+        s.quit()
 
