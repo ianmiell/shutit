@@ -9,7 +9,8 @@ class puppet(ShutItModule):
         return False
 
     def build(self, shutit):
-        shutit.install('puppet librarian-puppet')
+        shutit.install('puppet')
+        shutit.install('librarian-puppet')
         return True
 
     def finalize(self, shutit):
