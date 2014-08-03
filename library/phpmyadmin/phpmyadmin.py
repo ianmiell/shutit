@@ -8,8 +8,7 @@ class phpmyadmin(ShutItModule):
         return False
 
     def build(self, shutit):
-        shutit.send('export DEBIAN_FRONTEND=noninteractive')
-        shutit.send('apt-get install -y --no-install-recommends nginx phpmyadmin mcrypt libmcrypt-dev')
+        shutit.install('nginx phpmyadmin mcrypt libmcrypt-dev')
         return True
 
     def finalize(self, shutit):

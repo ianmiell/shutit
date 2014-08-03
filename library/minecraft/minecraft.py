@@ -9,9 +9,9 @@ class minecraft(ShutItModule):
 
     def build(self, shutit):
         shutit.install('lsb-release')
+        shutit.install('software-properties-common')
         shutit.send('echo "deb http://archive.ubuntu.com/ubuntu $(lsb_release -s -c) main universe" > /etc/apt/sources.list')
         shutit.send('apt-get update')
-        shutit.send('apt-get install -y software-properties-common')
         shutit.send('apt-add-repository ppa:webupd8team/java -y')
         shutit.send('apt-get update')
         shutit.send('echo oracle-java7-installer shared/accepted-oracle-license-v1-1 select true | /usr/bin/debconf-set-selections')
