@@ -25,6 +25,7 @@
 
 import sys
 import os
+import shutil
 import socket
 import time
 import util
@@ -168,10 +169,10 @@ class ShutIt(object):
         time.sleep(pause)
 
 
-    def send(self, 
+    def send(self,
              send,
              expect=None,
-	     child=None, 
+             child=None,
              timeout=3600,
              check_exit=None,
              fail_on_empty_before=True,
@@ -185,7 +186,7 @@ class ShutIt(object):
 
         Returns the pexpect return value (ie which expected string in the list
         matched)
-        
+
         Arguments:
 
         - child                      - pexpect child to issue command to.
@@ -690,6 +691,62 @@ class ShutIt(object):
             return True
         else:
             return False
+
+    def ls(self, dir):
+        """Helper proc to list files in a directory
+
+        dir - directory to list
+        """
+        # should this blow up?
+        if not shutit.file_exists(dir,directory=True):
+            return []
+        files = shutit.send_and_get_output('ls ' + dir)
+        files = files.split(' ')
+        # cleanout garbage from the terminal - all of this is necessary cause there are
+        # random return characters in the middle of the file names
+        files = filter(bool, files)
+        files = [file.strip() for file in files]
+        f = []
+        for file in files:
+            spl = file.split('\r')
+            f = f + spl
+        files = f
+        # this is required again to remove the '\n's
+        files = [file.strip() for file in files]
+        return files
+
+    def mount_tmp(self):
+        """mount a temporary file system as a workaround for the AUFS /tmp issues
+            not necessary if running devicemapper
+        """
+        shutit.send('mkdir -p /tmpbak') # Needed?
+        shutit.send('touch /tmp/' + cfg['build']['build_id']) # Needed?
+        shutit.send('cp -r /tmp/* /tmpbak') # Needed?
+        shutit.send('mount -t tmpfs tmpfs /tmp')
+        shutit.send('cp -r /tmpbak/* /tmp') # Needed?
+        shutit.send('rm -rf /tmpbak') # Needed?
+        shutit.send('rm -f /tmp/' + cfg['build']['build_id']) # Needed?
+
+    def get_file(self,container_path,host_path):
+        """Copy a file from the docker container to the host machine, via the resources mount
+
+            container_path - path to file in the container
+            host_path      - path to file on the host machine (e.g. copy test)
+        """
+        filename = os.path.basename(container_path)
+        resources_dir = shutit.cfg['host']['resources_dir']
+        if shutit.get_file_perms('/resources') != "777":
+            user = shutit.send_and_get_output('whoami').strip()
+            # revert to root to do attachments
+            if user != 'root':
+                shutit.logout()
+            shutit.send('chmod 777 /resources')
+            # we've done what we need to do as root, go home
+            if user != 'root':
+                shutit.login(user)
+        shutit.send('cp ' + container_path + ' /resources')
+        shutil.copyfile(os.path.join(resources_dir,filename),os.path.join(host_path,filename))
+        shutit.send('rm -f /resources/' + filename)
 
     def prompt_cfg(self, msg, sec, name, ispass=False):
         """Prompt for a config value, optionally saving it to the user-level
