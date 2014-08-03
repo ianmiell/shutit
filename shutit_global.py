@@ -1083,9 +1083,6 @@ class ShutIt(object):
         - child              - See send()
         """
         child = child or self.get_default_child()
-        print '\n============================================='
-        print self.cfg['build']['login_stack']
-        print '=============================================\n'
         if len(self.cfg['build']['login_stack']):
              current_prompt_name = self.cfg['build']['login_stack'].pop()
              if len(self.cfg['build']['login_stack']):
