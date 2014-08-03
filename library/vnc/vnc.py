@@ -58,7 +58,7 @@ aWR0aAAAACADAAAAaQ=="""))
         shutit.install('apt-utils')
         # apt-utils?
         if shutit.cfg['container']['install_type'] == 'apt':
-            send = 'apt-get install -qq -y --no-install-recommends ubuntu-desktop > /tmp/ubuntu-desktop && rm -f /tmp/ubuntu-desktop'
+            send = 'apt-get install -qq -y --no-install-recommends ubuntu-desktop > /tmp/ubuntu-desktop'
         while True:
             res = shutit.send(send, expect=['Unpacking', 'Setting up', shutit.cfg['expect_prompts']['root_prompt']], timeout=9999)
             if res == 2:
@@ -66,6 +66,7 @@ aWR0aAAAACADAAAAaQ=="""))
             elif res == 0 or res == 1:
                 send = ''
         send = 'vncserver'
+        shutit.send('rm -rf /tmp/ubuntu-desktop')
         while True:
             res = shutit.send(send, expect=['assword:', 'erify', shutit.cfg['expect_prompts']['root_prompt']], fail_on_empty_before=False, echo=False)
             if res == 0 or res == 1:
