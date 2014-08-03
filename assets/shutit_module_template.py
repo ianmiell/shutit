@@ -198,6 +198,7 @@ class template(ShutItModule):
 def module():
     return template(
         GLOBALLY_UNIQUE_STRING, FLOAT,
+        maintainer='',
         description='',
         depends=['shutit.tk.setup']
     )
