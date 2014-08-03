@@ -9,7 +9,9 @@ class plex(ShutItModule):
 
     def build(self, shutit):
         shutit.install('wget')
-        shutit.send('apt-get -q update && apt-get install -qy --force-yes avahi-daemon avahi-utils')
+        #shutit.send('apt-get install -qy --force-yes avahi-daemon avahi-utils')
+        shutit.install('avahi-daemon')
+        shutit.install('avahi-utils')
         shutit.send('wget -O /plexmediaserver.deb http://downloads.plexapp.com/plex-media-server/0.9.9.12.504-3e7f93c/plexmediaserver_0.9.9.12.504-3e7f93c_amd64.deb')
         shutit.send('dpkg -i /plexmediaserver.deb')
         shutit.send('rm /plexmediaserver.deb')
