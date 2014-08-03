@@ -17,6 +17,7 @@ class test2(ShutItModule):
 		shutit.send_and_expect('touch /tmp/container_touched')
 		shutit.add_line_to_file('#test line', '/tmp/newfile')
 		shutit.add_line_to_file('#test line', '/tmp/newfile')
+		shutit.ls('/tmp')
 		shutit.send_and_expect('useradd testuser')
 		shutit.send_and_expect('su - testuser', '\\$ ', check_exit=False)
 		shutit.send_and_expect('exit', check_exit=False)
