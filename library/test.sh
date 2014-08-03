@@ -33,6 +33,7 @@ do
 		if [[ -a $d/test.sh ]]
 		then
 			pushd $d
+			echo "PWD: $(pwd)"
 			# Set up a random container name for tests to use
 			if [[ -a STOP ]]
 			then
