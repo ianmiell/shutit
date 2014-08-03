@@ -2,4 +2,4 @@
 # This feeds into automated testing of each module.
 [shutit.tk.docker.docker]
 build:yes
-allowed_images:["ubuntu.*","debian.*"]
+allowed_images:["ubuntu.*"]
