@@ -8,8 +8,7 @@ class transmission(ShutItModule):
         return False
 
     def build(self, shutit):
-        shutit.send('export DEBIAN_FRONTEND=noninteractive')
-        shutit.send('apt-get update && apt-get install -y transmission-daemon')
+        shutit.install('transmission-daemon')
         shutit.send('sed -i -e \'/^OPTION/s/"$/ --foreground"/\' /etc/default/transmission-daemon')
         return True
 
