@@ -28,15 +28,15 @@ then
 	echo "Already running" | tee -a $SHUTITLOGFILE
 	exit 
 else
-	touch $LOGFILE
 	touch $LOCKFILE
 	# Fetch changes
-	git fetch origin master 2>&1 | tee -a $LOGFILE
+	git fetch origin master 2>&1 | tee -a $SHUTITLOGFILE
 	# See if there are any incoming changes
 	updates=$(git log HEAD..origin/master --oneline | wc -l)
-	echo "Updates: $updates" | tee -a $LOGFILE
+	echo "Updates: $updates" | tee -a $SHUTITLOGFILE
 	if [[ $updates -gt 0 ]] || [[ $FORCE -gt 0 ]]
 	then
+		touch $LOGFILE
 		echo "Pulling" | tee -a $LOGFILE
 		git pull origin master 2>&1 | tee -a $LOGFILE
 		# This won't exist in a bit so no point pushd'ing
