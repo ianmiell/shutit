@@ -2,11 +2,11 @@
 # This feeds into automated testing of each module.
 [shutit.tk.mongodb.mongodb]
 build:yes
-allowed_images:[".*"]
+allowed_images:["ubuntu:12.04"]
 
 # Aspects of build process
 [build]
-base_image:ubuntu
+base_image:ubuntu:12.04
 
 [repository]
 name:mongodb
