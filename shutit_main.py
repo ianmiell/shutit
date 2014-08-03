@@ -230,7 +230,7 @@ def config_collection_for_built(shutit):
                 ok = False
                 # Try allowed images as regexps
                 for regexp in shutit.cfg[module_id]['allowed_images']:
-                    if re.match(regexp, shutit.cfg['container']['docker_image']):
+                    if re.match('^' + regexp + '$', shutit.cfg['container']['docker_image']):
                         ok = True
                         break
                 if not ok:
