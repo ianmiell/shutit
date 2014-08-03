@@ -2,11 +2,11 @@
 # This feeds into automated testing of each module.
 [shutit.tk.minecraft.minecraft]
 build:yes
-allowed_images:["ubuntu"]
+allowed_images:["ubuntu:14.04"]
 
 # Aspects of build process
 [build]
-base_image:ubuntu
+base_image:ubuntu:14.04
 
 [repository]
 name:minecraft
