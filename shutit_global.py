@@ -39,6 +39,7 @@ import package_map
 import datetime
 from shutit_module import ShutItFailException
 
+
 def random_id(size=5, chars=string.ascii_letters + string.digits):
     """Generates a random string of given size from the given chars.
     size    - size of random string
@@ -46,10 +47,12 @@ def random_id(size=5, chars=string.ascii_letters + string.digits):
     """
     return ''.join(random.choice(chars) for _ in range(size))
 
+
 class ShutIt(object):
     """ShutIt build class.
     Represents an instance of a ShutIt build with associated config.
     """
+
 
     def __init__(self, **kwargs):
         """Constructor.
@@ -79,6 +82,7 @@ class ShutIt(object):
         self._default_expect     = [None]
         self._default_check_exit = [None]
 
+
     def module_method_start(self):
         """Gets called automatically by the metaclass decorator in
         shutit_module when a module method is called.
@@ -90,6 +94,8 @@ class ShutIt(object):
             self._default_expect.append(self._default_expect[-1])
         if self._default_check_exit[-1] is not None:
             self._default_check_exit.append(self._default_check_exit[-1])
+
+
     def module_method_end(self):
         """Gets called automatically by the metaclass decorator in
         shutit_module when a module method is finished.
@@ -102,28 +108,37 @@ class ShutIt(object):
         if len(self._default_check_exit) != 1:
             self._default_check_exit.pop()
 
+
     def get_default_child(self):
         """Returns the currently-set default pexpect child.
         """
         if self._default_child[-1] is None:
             shutit.fail("Couldn't get default child")
         return self._default_child[-1]
+
+
     def get_default_expect(self):
         """Returns the currently-set default pexpect string (usually a prompt).
         """
         if self._default_expect[-1] is None:
             shutit.fail("Couldn't get default expect")
         return self._default_expect[-1]
+
+
     def get_default_check_exit(self):
         """Returns default value of check_exit. See send method.
         """
         if self._default_check_exit[-1] is None:
             shutit.fail("Couldn't get default check exit")
         return self._default_check_exit[-1]
+
+
     def set_default_child(self, child):
         """Sets the default pexpect child.
         """
         self._default_child[-1] = child
+
+
     def set_default_expect(self, expect=None, check_exit=True):
         """Sets the default pexpect string (usually a prompt).
                 Defaults to the configured root_prompt if no
@@ -133,6 +148,7 @@ class ShutIt(object):
             expect = self.cfg['expect_prompts']['root_prompt']
         self._default_expect[-1] = expect
         self._default_check_exit[-1] = check_exit
+
 
     # TODO: Manage exits of containers on error
     def fail(self, msg, child=None):
@@ -144,6 +160,7 @@ class ShutIt(object):
         print >> sys.stderr, 'ERROR!'
         print >> sys.stderr
         raise ShutItFailException(msg)
+
 
     def log(self, msg, code=None, pause=0, prefix=True, force_stdout=False):
         """Logging function.
@@ -337,6 +354,7 @@ class ShutIt(object):
                 raise Exception('Exit value from command\n' + send +
                     '\nwas:\n' + res)
 
+
     def run_script(self, script, expect=None, child=None, in_shell=True):
         """Run the passed-in string as a script on the container's command line.
 
@@ -371,6 +389,7 @@ class ShutIt(object):
             ret = self.send('/tmp/shutit_script.sh', expect, child)
         self.send('rm /tmp/shutit_script.sh', expect, child)
         return ret
+
 
     def send_file(self, path, contents, expect=None, child=None, log=True):
         """Sends the passed-in string as a file to the passed-in path on the
@@ -427,6 +446,7 @@ class ShutIt(object):
         # Go to old echo
         child.logfile_send = oldlog
 
+
     def send_host_file(self,
                        path,
                        hostfilepath,
@@ -453,6 +473,7 @@ class ShutIt(object):
             shutit.fail('send_host_file - file: ' + hostfilepath +
                 ' does not exist as file or dir. cwd is: ' + os.getcwd(),
                 child=child)
+
 
     def send_host_dir(self,
                       path,
@@ -518,6 +539,7 @@ class ShutIt(object):
             self.pause_point('Did not see FIL(N)?EXIST in before', child)
         return ret
 
+
     def get_file_perms(self, filename, expect=None, child=None):
         """Returns the permissions of the file on the container as an octal
         string triplet.
@@ -532,6 +554,7 @@ class ShutIt(object):
         self.send(cmd, expect, child=child, check_exit=False)
         res = self.get_re_from_child(child.before, '([0-9][0-9][0-9])')
         return res
+
 
     def add_line_to_file(self,
                          line,
@@ -636,6 +659,7 @@ class ShutIt(object):
                 exit_values=['0', '1'])
             return False
 
+
     def add_to_bashrc(self, line, expect=None, child=None):
         """Takes care of adding a line to everyone's bashrc
         (/etc/bash.bashrc, /etc/profile).
@@ -648,6 +672,7 @@ class ShutIt(object):
         expect = expect or self.get_default_expect()
         self.add_line_to_file(line, '/etc/bash.bashrc', expect=expect)
         return self.add_line_to_file(line, '/etc/profile', expect=expect)
+
 
     def user_exists(self, user, expect=None, child=None):
         """Returns true if the specified username exists.
@@ -669,6 +694,7 @@ class ShutIt(object):
         # sync with the prompt
         child.expect(expect)
         return exist
+
 
     def package_installed(self, package, expect=None, child=None):
         """Returns True if we can be sure the package is installed.
@@ -692,15 +718,18 @@ class ShutIt(object):
         else:
             return False
 
-    def ls(self, dir):
+
+    def ls(self, directory):
         """Helper proc to list files in a directory
+
+        Returns list of files.
 
         dir - directory to list
         """
         # should this blow up?
-        if not shutit.file_exists(dir,directory=True):
-            return []
-        files = shutit.send_and_get_output('ls ' + dir)
+        if not shutit.file_exists(directory,directory=True):
+            shutit.fail('ls: directory\n\n' + directory + '\n\ndoes not exist')
+        files = shutit.send_and_get_output('ls ' + directory)
         files = files.split(' ')
         # cleanout garbage from the terminal - all of this is necessary cause there are
         # random return characters in the middle of the file names
@@ -715,6 +744,7 @@ class ShutIt(object):
         files = [file.strip() for file in files]
         return files
 
+
     def mount_tmp(self):
         """mount a temporary file system as a workaround for the AUFS /tmp issues
             not necessary if running devicemapper
@@ -726,6 +756,7 @@ class ShutIt(object):
         shutit.send('cp -r /tmpbak/* /tmp') # Needed?
         shutit.send('rm -rf /tmpbak') # Needed?
         shutit.send('rm -f /tmp/' + cfg['build']['build_id']) # Needed?
+
 
     def get_file(self,container_path,host_path):
         """Copy a file from the docker container to the host machine, via the resources mount
@@ -747,6 +778,7 @@ class ShutIt(object):
         shutit.send('cp ' + container_path + ' /resources')
         shutil.copyfile(os.path.join(resources_dir,filename),os.path.join(host_path,filename))
         shutit.send('rm -f /resources/' + filename)
+
 
     def prompt_cfg(self, msg, sec, name, ispass=False):
         """Prompt for a config value, optionally saving it to the user-level
@@ -818,6 +850,7 @@ class ShutIt(object):
             config_parser.reload()
         return val
 
+
     def pause_point(self, msg, child=None, print_input=True, level=1):
         """Inserts a pause in the build session, which allows the user to try
         things out before continuing. Ignored if we are not in an interactive
@@ -853,6 +886,7 @@ class ShutIt(object):
             print util.colour('31', '\n\n[Hit return to continue]\n')
             raw_input('')
 
+
     def _pause_input_filter(self, input_string):
         """Input filter for pause point to catch special keystrokes"""
         # Can get errors with eg up/down chars
@@ -866,6 +900,7 @@ class ShutIt(object):
                     force=True)
                 self.log('\n\nCommit and tag done\n\n', force_stdout=True)
         return input_string
+
 
     def get_output(self, child=None):
         """Helper function to get output from latest command run.
@@ -904,6 +939,7 @@ class ShutIt(object):
                 else:
                     return True
         return None
+
 
     def send_and_get_output(self, send, expect=None, child=None):
         """Returns the output of a command run.
@@ -977,6 +1013,7 @@ class ShutIt(object):
             # package not required
             pass
         return True
+
 
     def remove(self,
                package,
@@ -1174,6 +1211,7 @@ class ShutIt(object):
             shutit.fail('Could not determine Linux distro information. ' + 
                         'Please inform maintainers.', child=child)
 
+
     def set_password(self, password, user='', child=None, expect=None):
         """Sets the password for the current user or passed-in user.
 
@@ -1216,6 +1254,7 @@ class ShutIt(object):
         else:
             return True
 
+
     def push_repository(self,
                         repository,
                         docker_executable='docker.io',
@@ -1251,6 +1290,7 @@ class ShutIt(object):
                 res = self.send(cfg['repository']['email'], child=child,
                                 expect=expect_list, timeout=timeout,
                                 check_exit=False, fail_on_empty_before=False)
+
 
     def do_repository_work(self,
                            repo_name,

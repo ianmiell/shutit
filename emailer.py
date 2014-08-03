@@ -30,14 +30,14 @@ from collections import OrderedDict
 from smtplib import SMTP
 import os, gzip
 
-class emailer():
+class Emailer():
 
     def __init__(
         self,
         cfg_section,
         shutit
     ):
-        """Initialise the object
+        """Initialise the Emailer object
         cfg_section - section in shutit config to look for email configuration items
                       allowing easier config according to shutit_module.
                       e.g. 'com.my_module','subject': My Moduloe Build Failed!
@@ -79,10 +79,11 @@ class emailer():
             except KeyError as e:
                 if default == '':
                     print e
-                    raise Exception('emailer._set_config: ' + name + ' must be set')
+                    raise Exception('Emailer._set_config: ' + name + ' must be set')
                 else:
                     self.config[name] = default
             i += 1
+
 
     def __gzip(self,filename):
         """ Compress a file returning the new filename (.gz)
@@ -95,16 +96,19 @@ class emailer():
         zp.close()
         return zn
 
+
     def add_line(self,line):
         """Add a single line to the email body
         """
         self.lines.append(line)
+
 
     def add_body(self,msg):
         """Add an entire email body message as a string, will be split on newlines
            and overwrite anything currently in the body (e.g added by add_lines)
         """
         self.lines = msg.rsplit('\n')
+
 
     def attach(self,filename,filetype="txt"):
         """Attach a file - currently needs to be entered as root (shutit)
@@ -125,11 +129,12 @@ class emailer():
         attach.add_header('Content-Disposition','attachment',filename=os.path.basename(filename))
         self.attaches.append(attach)
 
+
     def send(self):
         """Send the email according to the configured setup
         """
         if not self.config['send_mail']:
-            print 'emailer.send: Not configured to send mail!'
+            print 'Emailer.send: Not configured to send mail!'
             return True
         msg  = MIMEMultipart()
         msg['Subject'] = self.config['subject']
