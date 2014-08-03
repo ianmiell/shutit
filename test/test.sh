@@ -64,7 +64,7 @@ pushd ${NEWDIR}
 ./test.sh ${SHUTIT_DIR}
 cleanup hard
 rm -rf ${NEWDIR}
-popd
+popd > /dev/null 2>&1
 
 echo "Testing skeleton build basic bare"
 ./shutit skeleton ${NEWDIR} testing shutit.tk
@@ -72,7 +72,7 @@ pushd ${NEWDIR}
 ./test.sh ${SHUTIT_DIR}
 cleanup hard
 rm -rf ${NEWDIR}
-popd
+popd > /dev/null 2>&1
 
 
 echo "Testing skeleton build basic with example script"
@@ -81,7 +81,7 @@ pushd ${NEWDIR}
 ./test.sh ${SHUTIT_DIR}
 cleanup hard
 rm -rf ${NEWDIR}
-popd
+popd > /dev/null 2>&1
 
 
 # General tests
@@ -108,8 +108,8 @@ do
 				./test.sh ${SHUTIT_DIR} 2>&1 | tee /tmp/shutit_logs/$$/shutit_core_test_$(date +%s)
 				cleanup hard
 			else
-	# TODO
-	#http://stackoverflow.com/questions/356100/how-to-wait-in-bash-for-several-subprocesses-to-finish-and-return-exit-code-0
+				# TODO
+				#http://stackoverflow.com/questions/356100/how-to-wait-in-bash-for-several-subprocesses-to-finish-and-return-exit-code-0
 				./test.sh ${SHUTIT_DIR} 2>&1 | tee /tmp/shutit_logs/$$/shutit_core_test_$(date +%s)
 				JOB=$!
 				PIDS[$JOB]="$JOB: $dist $d"
@@ -117,7 +117,7 @@ do
 			set_shutit_options
 		fi
 		report
-		popd
+		popd > /dev/null 2>&1
 	done
 done
 
@@ -136,7 +136,7 @@ if [[ $TESTS != 'basic' ]]
 then
 	pushd  ${SHUTIT_DIR}/library
 	./test.sh 
-	popd
+	popd > /dev/null 2>&1
 	cleanup nothard
 	report
 fi
