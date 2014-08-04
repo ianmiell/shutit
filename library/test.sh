@@ -50,6 +50,7 @@ do
 					./test.sh "`pwd`/../.." 2>&1 | tee $LOGFILE &
 					JOB=$!
 					PIDS[$JOB]="$JOB: $dist $d"
+					sleep 10 #give docker server time to recover
 				fi
 				set_shutit_options
 			fi
@@ -61,6 +62,7 @@ do
 		for P in ${!PIDS[*]}; do
 			echo WAITING FOR $P
 			wait $P 
+			sleep 10 #give docker server time to recover
 		done
 	fi
 	cleanup hard
