@@ -102,12 +102,15 @@ do
 			# Must be done on each iteration as we ned a fresh cid per test run
 			set_shutit_options "--image_tag $dist --interactive 0"
 			echo "================================================================================"
-			echo "SHUTIT MODULE TEST $d: In directory: `pwd`"
+			echo "SHUTIT MODULE TEST $d: In directory: `pwd`" BEGIN
 			echo "================================================================================"
 			if [ x$SHUTIT_PARALLEL_BUILD = 'x' ]
 			then
 				./test.sh ${SHUTIT_DIR} 2>&1 | tee /tmp/shutit_logs/$$/shutit_core_test_$(date +%s)
 				cleanup hard
+				echo "================================================================================"
+				echo "SHUTIT MODULE TEST $d: In directory: `pwd`" END
+				echo "================================================================================"
 			else
 				# TODO
 				#http://stackoverflow.com/questions/356100/how-to-wait-in-bash-for-several-subprocesses-to-finish-and-return-exit-code-0
