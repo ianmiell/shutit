@@ -38,8 +38,8 @@ class aws(ShutItModule):
 
 def module():
     return aws(
-        'shutit.tk.aws.aws', 782914092.00,
-        description='',
+        'shutit.tk.aws.aws', 0.00123,
+        description='aws client setup',
         depends=['shutit.tk.setup']
     )
 
