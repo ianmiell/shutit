@@ -1476,6 +1476,13 @@ class ShutIt(object):
                        '/' + self.cfg['build']['build_id'] +
                        '.cfg', util.print_config(self.cfg))
 
+    def get_emailer(self, cfg_section):
+        """Sends an email using the mailer
+        """
+        import emailer
+        return emailer.emailer(cfg_section, self)
+        
+
 
 def init():
     """Initialize the shutit object. Called when imported.
