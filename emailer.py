@@ -2,7 +2,7 @@
 
 Example code:
 
-        e = Emailer('shutit.tk.mysql.mysql',shutit)
+        e = shutit.get_emailer('shutit.tk.mysql.mysql',shutit)
         for line in ['your message line 1', 'your message line 2']:
                 e.add_line(line)
         for attach in ['/tmp/filetoattach1','/tmp/filetoattach2']:
@@ -50,14 +50,14 @@ from collections import OrderedDict
 from smtplib import SMTP
 import os, gzip
 
-class Emailer():
+class emailer():
 
     def __init__(
         self,
         cfg_section,
         shutit
     ):
-        """Initialise the Emailer object
+        """Initialise the emailer object
         cfg_section - section in shutit config to look for email configuration items
                       allowing easier config according to shutit_module.
                       e.g. 'com.my_module','subject': My Module Build Failed!
@@ -94,12 +94,14 @@ class Emailer():
         for i in range(len(defaults)-1):
             name    = defaults[i]
             default = defaults[i+1]
+            print cfg_section
+            print name
             try:
                 self.config[name] = cfg[cfg_section][name]
             except KeyError as e:
                 if default == '':
                     print e
-                    raise Exception('Emailer._set_config: ' + name + ' must be set')
+                    raise Exception('emailer._set_config: ' + name + ' must be set')
                 else:
                     self.config[name] = default
             i += 1
@@ -154,7 +156,7 @@ class Emailer():
         """Send the email according to the configured setup
         """
         if not self.config['send_mail']:
-            print 'Emailer.send: Not configured to send mail!'
+            print 'emailer.send: Not configured to send mail!'
             return True
         msg  = MIMEMultipart()
         msg['Subject'] = self.config['subject']
