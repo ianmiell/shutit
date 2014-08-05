@@ -101,8 +101,9 @@ do
 		else
 			# Must be done on each iteration as we ned a fresh cid per test run
 			set_shutit_options "--image_tag $dist --interactive 0"
-			echo "PWD: $(pwd)"
-			# Just in case only just git cloned/updated
+			echo "================================================================================"
+			echo "SHUTIT MODULE TEST $d: In directory: `pwd`"
+			echo "================================================================================"
 			if [ x$SHUTIT_PARALLEL_BUILD = 'x' ]
 			then
 				./test.sh ${SHUTIT_DIR} 2>&1 | tee /tmp/shutit_logs/$$/shutit_core_test_$(date +%s)
