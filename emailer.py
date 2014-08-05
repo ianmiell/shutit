@@ -1,4 +1,24 @@
 """Utility object for sending emails reports via shutit
+
+Example code:
+
+        e = Emailer('shutit.tk.mysql.mysql',shutit)
+        for line in ['your message line 1', 'your message line 2']:
+                e.add_line(line)
+        for attach in ['/tmp/filetoattach1','/tmp/filetoattach2']:
+                e.attach(attach)
+        e.send()
+
+Example cfg:
+
+        [shutit.tk.mysql.mysql]
+        mailto:recipient@example.com
+        mailfrom:sender@example.com
+        smtp_server:localhost
+        subject:Shutit Report
+        signature:--Angry Shutit
+        compress:yes
+
 """
 
 #The MIT License (MIT)
@@ -40,7 +60,7 @@ class Emailer():
         """Initialise the Emailer object
         cfg_section - section in shutit config to look for email configuration items
                       allowing easier config according to shutit_module.
-                      e.g. 'com.my_module','subject': My Moduloe Build Failed!
+                      e.g. 'com.my_module','subject': My Module Build Failed!
                       Config Items:
                       mailto      - address to send the mail to (no default)
                       mailfrom    - address to send the mail from (angry@shutit.tk)
@@ -145,6 +165,7 @@ class Emailer():
         for attach in self.attaches:
             msg.attach(attach)
         s = SMTP(self.config['smtp_server'])
+        # TODO: send to shutitmodule.maintainer as well
         s.sendmail(self.config['mailfrom'], self.config['mailto'], msg.as_string())
         s.quit()
 
