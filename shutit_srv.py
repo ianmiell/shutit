@@ -72,10 +72,6 @@ def update_modules(to_build, cfg):
             shutit.cfg[module_id]['build'] = ORIG_MOD_CFG[module_id]['build']
         if module_id in selected:
             shutit.cfg[module_id]['build'] = True
-    # There is a complexity here in that module configs may depend on
-    # configs from other modules (!). We assume this won't happen as we
-    # would have to override each module at the correct time.
-    shutit_main.config_collection_for_built(shutit)
 
     if cfg is not None:
         sec, key, val = cfg
@@ -87,6 +83,10 @@ def update_modules(to_build, cfg):
 
     errs = []
     errs.extend(shutit_main.check_deps(shutit))
+    # There is a complexity here in that module configs may depend on
+    # configs from other modules (!). We assume this won't happen as we
+    # would have to override each module at the correct time.
+    shutit_main.config_collection_for_built(shutit)
     errs.extend(shutit_main.check_conflicts(shutit))
     errs.extend(shutit_main.check_ready(shutit))
 
