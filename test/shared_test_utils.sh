@@ -21,7 +21,7 @@ readonly SHUTIT
 SHUTIT_TEST_REPORT=""
 
 # Default distros
-SHUTITTEST_DISTROS=${SHUTITTEST_DISTROS:-ubuntu:12.04 ubuntu:14.04 debian:7.5 fedora:20}
+SHUTITTEST_DISTROS=${SHUTITTEST_DISTROS:-phusion/baseimage ubuntu:12.04 ubuntu:14.04 debian:7.5 fedora:20}
 
 set -o errexit
 set -o nounset
