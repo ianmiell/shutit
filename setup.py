@@ -372,6 +372,7 @@ class setup(ShutItModule):
         """Initializes container ready for build, setting password
         and updating package management.
         """
+        
         do_update = True
         # Seems to be broken
         #do_update = shutit.cfg[self.module_id]['do_update']
