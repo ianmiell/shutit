@@ -105,7 +105,7 @@ class emailer():
             try:
                 self.config[name] = cfg[cfg_section][name]
             except KeyError as e:
-                if default == '':
+                if default == '' and (name not in ('username','password')):
                     print e
                     raise Exception('emailer._set_config: ' + name + ' must be set')
                 else:
