@@ -724,7 +724,7 @@ class ShutIt(object):
 
         Returns list of files.
 
-        dir - directory to list
+        directory - directory to list
         """
         # should this blow up?
         if not shutit.file_exists(directory,directory=True):
