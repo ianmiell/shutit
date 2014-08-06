@@ -8,3 +8,12 @@
 
 [shutit.tk.test.test1]
 build:yes
+#mail
+#mailto:
+#mailfrom:
+#smtp_server:smtp.gmail.com:587
+#subject:Shutit Report
+#signature:--Angry Shutit
+#compress:yes
+#username:
+#password:

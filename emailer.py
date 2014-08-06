@@ -18,6 +18,8 @@ Example cfg:
         subject:Shutit Report
         signature:--Angry Shutit
         compress:yes
+        username:
+        password:
 
 """
 
@@ -68,6 +70,8 @@ class emailer():
                       subject     - subject of the email (Shutit Report)
                       signature   - \n\n --Angry Shutit
                       compress    - gzip attachments? (True)
+                      username    - mail username
+                      password    - mail password
         """
         self.shutit    = shutit
         self.__set_config(cfg_section)
@@ -88,7 +92,9 @@ class emailer():
             'send_mail',True,
             'subject','Shutit Report',
             'signature','\n\n --Angry Shutit',
-            'compress',True
+            'compress',True,
+            'username','',
+            'password',''
         ]
 
         for i in range(len(defaults)-1):
@@ -158,6 +164,7 @@ class emailer():
         if not self.config['send_mail']:
             print 'emailer.send: Not configured to send mail!'
             return True
+        # TODO: send mail to maintainer
         msg  = MIMEMultipart()
         msg['Subject'] = self.config['subject']
         msg['To']      = self.config['mailto']
@@ -167,7 +174,9 @@ class emailer():
         for attach in self.attaches:
             msg.attach(attach)
         s = SMTP(self.config['smtp_server'])
-        # TODO: send to shutitmodule.maintainer as well
+        s.starttls()
+        if self.config['username'] != '':
+            s.login(self.config['username'], self.config['password'])
         s.sendmail(self.config['mailfrom'], self.config['mailto'], msg.as_string())
         s.quit()
 
