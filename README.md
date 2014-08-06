@@ -457,6 +457,34 @@ Help on methods on the shutit object (defined in shutit_global.py):
            pause        - Length of time to pause after logging (default: 0)
            prefix       - Whether to output logging prefix (LOG: <time>) (default: True)
            force_stdout - If we are not in debug, put this in stdout anyway (default: False)
+
+       login(self, user='root', command='su -', child=None, password=None)
+           Logs the user in with the passed-in password and command.
+           Tracks the login. If used, used logout to log out again.
+           Assumes you are root when logging in, so no password required.
+           If not, override the default command for multi-level logins.
+           If passwords are required, see setup_prompt() and revert_prompt()
+           
+           user     - User to login with
+           command  - Command to login with
+           child    - See send()
+       
+       logout(self, child=None)
+           Logs the user out. Assumes that login has been called.
+           If login has never been called, throw an error.
+           
+           - child              - See send()
+       
+       ls(self, directory)
+           Helper proc to list files in a directory
+           
+           Returns list of files.
+           
+           directory - directory to list
+
+       mount_tmp(self)
+           mount a temporary file system as a workaround for the AUFS /tmp issues
+           not necessary if running devicemapper
        
        module_method_end(self)
            Gets called automatically by the metaclass decorator in
