@@ -68,7 +68,7 @@ class emailer():
                       mailfrom    - address to send the mail from (angry@shutit.tk)
                       smtp_server - server to send the mail (localhost)
                       subject     - subject of the email (Shutit Report)
-                      signature   - \n\n --Angry Shutit
+                      signature   - --Angry Shutit
                       compress    - gzip attachments? (True)
                       username    - mail username
                       password    - mail password
@@ -91,7 +91,7 @@ class emailer():
             'smtp_server','localhost',
             'send_mail',True,
             'subject','Shutit Report',
-            'signature','\n\n --Angry Shutit',
+            'signature','--Angry Shutit',
             'compress',True,
             'username','',
             'password',''
@@ -100,8 +100,6 @@ class emailer():
         for i in range(len(defaults)-1):
             name    = defaults[i]
             default = defaults[i+1]
-            print cfg_section
-            print name
             try:
                 self.config[name] = cfg[cfg_section][name]
             except KeyError as e:
@@ -169,6 +167,10 @@ class emailer():
         msg['Subject'] = self.config['subject']
         msg['To']      = self.config['mailto']
         msg['From']    = self.config['mailfrom']
+        if self.config['signature'] != '':
+            signature = '\n\n' + self.config['signature']
+        else:
+            signature = self.config['signature']
         body = MIMEText('\n'.join(self.lines) + self.config['signature'])
         msg.attach(body)
         for attach in self.attaches:
