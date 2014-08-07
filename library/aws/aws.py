@@ -34,7 +34,8 @@ class aws(ShutItModule):
         shutit.send('wget --no-check-certificate https://s3.amazonaws.com/aws-cli/awscli-bundle.zip')
         shutit.send('unzip awscli-bundle.zip')
         shutit.send('./awscli-bundle/install -i /usr/local/aws -b /usr/local/bin/aws')
-        shutit.send("""cat > ~/.aws/credentials << END
+        shutit.send('mkdir -p /root/.aws')
+        shutit.send("""cat > /root/.aws/credentials << END
 [default]
 aws_access_key_id = """ + shutit.cfg[self.module_id]['access_key_id'] + """
 aws_secret_access_key = """ + shutit.cfg[self.module_id]['secret_access_key'] + """
