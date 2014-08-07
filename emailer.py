@@ -60,10 +60,9 @@ class emailer():
         shutit
     ):
         """Initialise the emailer object
-        cfg_section - section in shutit config to look for email configuration items
-                      allowing easier config according to shutit_module.
-                      e.g. 'com.my_module','subject': My Module Build Failed!
-                      Config Items:
+        cfg_section - section in shutit config to look for email cfg items.
+                      items with a default of None must be set
+                      Config Items - use a default of None make mandatory:
                       mailto      - address to send the mail to (no default)
                       mailfrom    - address to send the mail from (angry@shutit.tk)
                       smtp_server - server to send the mail (localhost)
@@ -79,14 +78,15 @@ class emailer():
         self.attaches  = []
 
     def __set_config(self,cfg_section):
-        """Set a local config array up according to defaults and main shutit configuration
+        """Set a local config array up according to
+        defaults and main shutit configuration
 
         cfg_section - see __init__
         """
         cfg = self.shutit.cfg
         self.config    = {}
         defaults = [
-            'mailto','',
+            'mailto',None,
             'mailfrom','angry@shutit.tk',
             'smtp_server','localhost',
             'send_mail',True,
@@ -103,8 +103,7 @@ class emailer():
             try:
                 self.config[name] = cfg[cfg_section][name]
             except KeyError as e:
-                if default == '' and (name not in ('username','password')):
-                    print e
+                if default is None:
                     raise Exception('emailer._set_config: ' + name + ' must be set')
                 else:
                     self.config[name] = default
