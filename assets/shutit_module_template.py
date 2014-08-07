@@ -120,7 +120,7 @@ class template(ShutItModule):
     # each object can handle config here
     # OPTIONAL part of lifecycle - uncomment to include
     def get_config(self,shutit):
-        shutit.get_config(self.mod_id,'test_config','some_default_value')
+        shutit.get_config(self.module_id,'test_config','some_default_value')
         return True
 
     # check_ready
