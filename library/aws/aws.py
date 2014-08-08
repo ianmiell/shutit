@@ -31,11 +31,13 @@ class aws(ShutItModule):
         shutit.install('wget')
         shutit.install('zip')
         shutit.install('python-pip')
+        shutit.install('groff') # required for help
+        shutit.install('less') # required for help
         shutit.send('wget --no-check-certificate https://s3.amazonaws.com/aws-cli/awscli-bundle.zip')
         shutit.send('unzip awscli-bundle.zip')
         shutit.send('./awscli-bundle/install -i /usr/local/aws -b /usr/local/bin/aws')
-        shutit.send('mkdir -p /root/.aws')
-        shutit.send("""cat > /root/.aws/credentials << END
+        shutit.send('mkdir -p /.aws')
+        shutit.send("""cat > /.aws/credentials << END
 [default]
 aws_access_key_id = """ + shutit.cfg[self.module_id]['access_key_id'] + """
 aws_secret_access_key = """ + shutit.cfg[self.module_id]['secret_access_key'] + """
