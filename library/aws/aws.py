@@ -31,20 +31,27 @@ class aws(ShutItModule):
         shutit.install('wget')
         shutit.install('zip')
         shutit.install('python-pip')
+        shutit.install('openssh-client') # required to log into ec2 instances
         shutit.install('groff') # required for help
         shutit.install('less') # required for help
+        shutit.install('vim') # not required just handy
         shutit.send('wget --no-check-certificate https://s3.amazonaws.com/aws-cli/awscli-bundle.zip')
         shutit.send('unzip awscli-bundle.zip')
         shutit.send('./awscli-bundle/install -i /usr/local/aws -b /usr/local/bin/aws')
+        shutit.send('complete -C aws_completer aws')
         shutit.send('mkdir -p /.aws')
-        shutit.send("""cat > /.aws/credentials << END
+        shutit.send("""cat > /.aws/config << END
 [default]
+region = """ + shutit.cfg[self.module_id]['region'] + """
+output = """ + shutit.cfg[self.module_id]['output'] + """
 aws_access_key_id = """ + shutit.cfg[self.module_id]['access_key_id'] + """
 aws_secret_access_key = """ + shutit.cfg[self.module_id]['secret_access_key'] + """
 END""")
         return True
 
     def get_config(self, shutit):
+        shutit.get_config(self.module_id, 'region', '')
+        shutit.get_config(self.module_id, 'output', '')
         shutit.get_config(self.module_id, 'access_key_id', '')
         shutit.get_config(self.module_id, 'secret_access_key', '')
         return True
