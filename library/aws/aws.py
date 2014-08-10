@@ -35,6 +35,7 @@ class aws(ShutItModule):
         shutit.install('groff') # required for help
         shutit.install('less') # required for help
         shutit.install('vim') # not required just handy
+	# http://docs.aws.amazon.com/cli/latest/userguide/installing.html
         shutit.send('wget --no-check-certificate https://s3.amazonaws.com/aws-cli/awscli-bundle.zip')
         shutit.send('unzip awscli-bundle.zip')
         shutit.send('./awscli-bundle/install -i /usr/local/aws -b /usr/local/bin/aws')
