@@ -20,6 +20,8 @@ Example cfg:
         compress:yes
         username:
         password:
+        safe_mode: True
+        mailto_maintainer: True
 
 """
 
@@ -48,11 +50,12 @@ Example cfg:
 from email.mime.text import MIMEText
 from email.mime.application import MIMEApplication
 from email.mime.multipart import MIMEMultipart
-from collections import OrderedDict
-from smtplib import SMTP
+from smtplib import SMTP, SMTPSenderRefused
 import os, gzip
 
-class emailer():
+class Emailer():
+    """ Emailer class definition
+    """
 
     def __init__(
         self,
@@ -60,82 +63,91 @@ class emailer():
         shutit
     ):
         """Initialise the emailer object
-        cfg_section - section in shutit config to look for email cfg items.
-                      items with a default of None must be set
-                      Config Items - use a default of None make mandatory:
+        cfg_section - section in shutit config to look for email configuration items
+                      allowing easier config according to shutit_module.
+                      e.g. 'com.my_module','subject': My Module Build Failed!
+                      Config Items:
                       mailto      - address to send the mail to (no default)
                       mailfrom    - address to send the mail from (angry@shutit.tk)
                       smtp_server - server to send the mail (localhost)
+                      smtp_port   - port to contact the smtp server on (587)
                       subject     - subject of the email (Shutit Report)
                       signature   - --Angry Shutit
                       compress    - gzip attachments? (True)
                       username    - mail username
                       password    - mail password
+                      safe_mode   - don't fail the build if we get an exception
+                      mailto_maintainer - email the maintainer of the module as
+                                          well as the mailto address
         """
         self.shutit    = shutit
+        self.config    = {}
         self.__set_config(cfg_section)
         self.lines     = []
         self.attaches  = []
 
-    def __set_config(self,cfg_section):
+    def __set_config(self, cfg_section):
         """Set a local config array up according to
         defaults and main shutit configuration
 
         cfg_section - see __init__
         """
-        cfg = self.shutit.cfg
-        self.config    = {}
         defaults = [
-            'mailto',None,
-            'mailfrom','angry@shutit.tk',
-            'smtp_server','localhost',
-            'send_mail',True,
-            'subject','Shutit Report',
-            'signature','--Angry Shutit',
-            'compress',True,
-            'username','',
-            'password',''
+            'mailto', None,
+            'mailfrom', 'angry@shutit.tk',
+            'smtp_server', 'localhost',
+            'smtp_port', 25,
+            'send_mail', True,
+            'subject', 'Shutit Report',
+            'signature', '--Angry Shutit',
+            'compress', True,
+            'username', '',
+            'password', '',
+            'safe_mode', True,
+            'maintainer','',
+            'mailto_maintainer', True
         ]
 
-        for i in range(len(defaults)-1):
-            name    = defaults[i]
-            default = defaults[i+1]
+        for cfg_name, cfg_default in zip(defaults[0::2], defaults[1::2]):
             try:
-                self.config[name] = cfg[cfg_section][name]
-            except KeyError as e:
-                if default is None:
-                    raise Exception('emailer._set_config: ' + name + ' must be set')
+                self.config[cfg_name] = self.shutit.cfg[cfg_section][cfg_name]
+            except KeyError:
+                if cfg_default is None:
+                    raise Exception(cfg_default + ' must be set')
                 else:
-                    self.config[name] = default
-            i += 1
+                    self.config[cfg_name] = cfg_default
 
+        # only send a mail to the module's maintainer if configured correctly
+        if self.config['mailto_maintainer'] and \
+            (self.config['maintainer'] == "" or \
+            self.config['maintainer'] == self.config['mailto']):
+            self.config['mailto_maintainer'] = False
+            self.config['maintainer'] = ""
 
-    def __gzip(self,filename):
+    @staticmethod
+    def __gzip(filename):
         """ Compress a file returning the new filename (.gz)
         """
-        zn = filename + '.gz'
-        fp = open(filename,'rb')
-        zp = gzip.open(zn,'wb')
-        zp.writelines(fp)
-        fp.close()
-        zp.close()
-        return zn
+        zipname = filename + '.gz'
+        file_pointer = open(filename,'rb')
+        zip_pointer = gzip.open(zipname,'wb')
+        zip_pointer.writelines(file_pointer)
+        file_pointer.close()
+        zip_pointer.close()
+        return zipname
 
-
-    def add_line(self,line):
+    def add_line(self, line):
         """Add a single line to the email body
         """
         self.lines.append(line)
 
-
-    def add_body(self,msg):
-        """Add an entire email body message as a string, will be split on newlines
+    def add_body(self, msg):
+        """Add an entire email body as a string, will be split on newlines
            and overwrite anything currently in the body (e.g added by add_lines)
         """
         self.lines = msg.rsplit('\n')
 
-
-    def attach(self,filename,filetype="txt"):
+    def attach(self, filename, filetype="txt"):
         """Attach a file - currently needs to be entered as root (shutit)
 
         Filename - absolute path, relative to the docker container!
@@ -143,41 +155,80 @@ class emailer():
         """
         shutit = self.shutit
         host_path = '/tmp'
-        host_fn = os.path.join(host_path,os.path.basename(filename))
-        shutit.get_file(filename,host_path)
+        host_fn = os.path.join(host_path, os.path.basename(filename))
+        shutit.get_file(filename, host_path)
         if self.config['compress']:
-            filetype='x-gzip-compressed'
+            filetype = 'x-gzip-compressed'
             filename = self.__gzip(host_fn)
-        fp = open(host_fn, 'rb')
-        attach = MIMEApplication(fp.read(),_subtype=filetype)
-        fp.close()
-        attach.add_header('Content-Disposition','attachment',filename=os.path.basename(filename))
+        file_pointer = open(host_fn, 'rb')
+        attach = MIMEApplication(file_pointer.read(), _subtype=filetype)
+        file_pointer.close()
+        attach.add_header(
+            'Content-Disposition',
+            'attachment',
+            filename=os.path.basename(filename)
+        )
         self.attaches.append(attach)
 
-
-    def send(self):
-        """Send the email according to the configured setup
+    def __compose(self):
+        """ Compose the message, pulling together body, attachments etc
         """
-        if not self.config['send_mail']:
-            print 'emailer.send: Not configured to send mail!'
-            return True
-        # TODO: send mail to maintainer
         msg  = MIMEMultipart()
         msg['Subject'] = self.config['subject']
         msg['To']      = self.config['mailto']
         msg['From']    = self.config['mailfrom']
+        # add the module's maintainer as a CC if configured
+        if self.config['mailto_maintainer']:
+            msg['Cc'] = self.config['maintainer']
         if self.config['signature'] != '':
             signature = '\n\n' + self.config['signature']
         else:
             signature = self.config['signature']
-        body = MIMEText('\n'.join(self.lines) + self.config['signature'])
+        body = MIMEText('\n'.join(self.lines) + signature)
         msg.attach(body)
         for attach in self.attaches:
             msg.attach(attach)
-        s = SMTP(self.config['smtp_server'])
-        s.starttls()
+        return msg
+
+    def send(self, attachment_failure=False):
+        """Send the email according to the configured setup
+
+           attachment_failure - used to indicate a recursive call after the
+                                smtp server has refused based on file size.
+                                Should not be used externally
+        """
+        if not self.config['send_mail']:
+            self.shutit.log('emailer.send: Not configured to send mail!')
+            return True
+        msg = self.__compose()
+        mailto = [self.config['mailto']]
+        smtp = SMTP(self.config['smtp_server'], self.config['smtp_port'])
+        smtp.starttls()
         if self.config['username'] != '':
-            s.login(self.config['username'], self.config['password'])
-        s.sendmail(self.config['mailfrom'], self.config['mailto'], msg.as_string())
-        s.quit()
+            smtp.login(self.config['username'], self.config['password'])
+        if self.config['mailto_maintainer']:
+            mailto.append(self.config['maintainer'])
+        try:
+            smtp.sendmail(
+                self.config['mailfrom'],
+                mailto,
+                msg.as_string()
+            )
+        except SMTPSenderRefused as refused:
+            code = refused.args[0]
+            if code == 552 and not attachment_failure:
+                self.shutit.log("Mailserver rejected message due to " + \
+                    "oversize attachments, attempting to resend without")
+                self.send(attachment_failure=True)
+                self.attaches = []
+            else:
+                self.shutit.log("Unhandled SMTP error:" + str(refused))
+                if not self.config['safe_mode']:
+                    raise refused
+        except Exception as error:
+            self.shutit.log('Unhandled exception: ' + str(error))
+            if not self.config['safe_mode']:
+                raise error
+        finally:
+            smtp.quit()
 
