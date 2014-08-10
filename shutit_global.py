@@ -1480,8 +1480,7 @@ class ShutIt(object):
         """Sends an email using the mailer
         """
         import emailer
-        return emailer.emailer(cfg_section, self)
-        
+        return emailer.Emailer(cfg_section, self)
 
 
 def init():
