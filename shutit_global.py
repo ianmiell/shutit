@@ -873,7 +873,7 @@ class ShutIt(object):
                 msg + util.colour('31','\n\nYou can now type in commands and ' +
                 'alter the state of the container.\nHit return to see the ' +
                 'prompt\nHit CTRL and ] at the same time to continue with ' +
-                'build\n\nHit CTRL and [ to save the state\n\n'))
+                'build\n\nHit CTRL and f to save the state\n\n'))
             oldlog = child.logfile_send
             child.logfile_send = None
             try:
@@ -891,8 +891,8 @@ class ShutIt(object):
         """Input filter for pause point to catch special keystrokes"""
         # Can get errors with eg up/down chars
         if len(input_string) == 1:
-            if ord(input_string) == 27:
-                self.log('\n\nCTRL and [ caught, forcing a tag at least\n\n',
+            if ord(input_string) == 6:
+                self.log('\n\nCTRL and f caught, forcing a tag at least\n\n',
                     force_stdout=True)
                 self.do_repository_work('tagged_by_shutit',
                     password=self.cfg['host']['password'],
