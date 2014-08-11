@@ -484,7 +484,7 @@ class ShutIt(object):
         """Send directory and all contents recursively from host machine to
         given path.  It will automatically make directories on the container.
 
-        - path         - Path to send file to
+        - path         - Path to send directory to
         - hostfilepath - Path to file from host to send to container
         - expect       - See send()
         - child        - See send()
@@ -1131,7 +1131,10 @@ class ShutIt(object):
         self.send(
             ("SHUTIT_BACKUP_PS1_%s=$PS1 && PS1='%s' && unset PROMPT_COMMAND") %
                 (prompt_name, local_prompt),
-            expect=self.cfg['expect_prompts'][prompt_name],
+            # The newline in the list is a hack. On my work laptop this line hangs
+	    # and times out very frequently. This workaround seems to work, but I
+	    # haven't figured out why yet - imiell.
+            expect=[self.cfg['expect_prompts'][prompt_name],'\r\n'],
             fail_on_empty_before=False, timeout=5, child=child)
         if set_default_expect:
             shutit.log('Resetting default expect to: ' +
