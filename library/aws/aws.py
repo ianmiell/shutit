@@ -41,10 +41,13 @@ class aws(ShutItModule):
         shutit.send('./awscli-bundle/install -i /usr/local/aws -b /usr/local/bin/aws')
         shutit.send('complete -C aws_completer aws')
         shutit.send('mkdir -p /.aws')
+        configstr = '[default]'
+        if shutit.cfg[self.module_id]['region'] != '':
+            config += '\nregion = ' + shutit.cfg[self.module_id]['region']
+        if shutit.cfg[self.module_id]['output'] != '':
+            config += '\noutput = ' + shutit.cfg[self.module_id]['region']
         shutit.send("""cat > /.aws/config << END
-[default]
-region = """ + shutit.cfg[self.module_id]['region'] + """
-output = """ + shutit.cfg[self.module_id]['output'] + """
+""" + configstr + """
 aws_access_key_id = """ + shutit.cfg[self.module_id]['access_key_id'] + """
 aws_secret_access_key = """ + shutit.cfg[self.module_id]['secret_access_key'] + """
 END""")
