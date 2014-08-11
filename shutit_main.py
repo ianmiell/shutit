@@ -32,6 +32,7 @@ import os
 import json
 import re
 
+
 def module_ids(shutit, rev=False):
     """Gets a list of module ids by run_order, ignoring conn modules
     (run order < 0)
