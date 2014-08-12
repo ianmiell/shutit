@@ -24,9 +24,6 @@ from shutit_module import ShutItModule
 
 class aws(ShutItModule):
 
-    def is_installed(self,shutit):
-        return False
-
     def build(self,shutit):
         shutit.install('wget')
         shutit.install('zip')
@@ -53,6 +50,11 @@ class aws(ShutItModule):
         shutit.get_config(self.module_id, 'access_key_id', '')
         shutit.get_config(self.module_id, 'secret_access_key', '')
         return True
+
+    def is_installed(self,shutit):
+        if shutit.file_exists('/usr/local/bin/aws'):
+            return True
+        return False
 
 def module():
     return aws(
