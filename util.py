@@ -1160,7 +1160,7 @@ def module():
         then
             echo
             echo "Called as: $0"
-            echo "Must be run from module root dir like:"
+            echo "Must be run as test.sh or ./test.sh"
             exit
         fi
         ./build.sh
