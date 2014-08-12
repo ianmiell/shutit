@@ -16,8 +16,10 @@ function get_abs_filename() {
         # $1 : relative filename
         echo "$(cd "$(dirname "$1")" && pwd)/$(basename "$1")"
 }
-export SHUTIT=$(get_abs_filename $(dirname ${BASH_SOURCE[0]})/../shutit)
-readonly SHUTIT
+export SHUTITDIR=${SHUTITDIR:-$(get_abs_filename $(dirname ${BASH_SOURCE[0]})/..)}
+export SHUTIT=${SHUTIT:-${SHUTITDIR}/shutit)}
+readonly SHUTIT SHUTITDIR
+
 SHUTIT_TEST_REPORT=""
 
 # Default distros
