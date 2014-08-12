@@ -5,7 +5,7 @@
 build:yes
 # Allowed images as a regexp, eg ["ubuntu:12.*"], or [".*"], or ["centos"].
 # It's recommended this is locked down as far as possible.
-allowed_images:["ubuntu:12.04"]
+allowed_images:["ubuntu:12.04",".*aws.*"]
 
 # Aspects of build process
 [build]
