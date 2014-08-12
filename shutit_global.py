@@ -278,7 +278,7 @@ class ShutIt(object):
                         break
             if ok_to_record:
                 self.shutit_command_history.append(send)
-        if cfg['build']['debug']:
+        if cfg['build']['debug'] and send != None:
             self.log('===================================================' + 
                 '=============================')
             self.log('Sending>>>' + send + '<<<')
@@ -292,7 +292,7 @@ class ShutIt(object):
             child.logfile_send = oldlog
         else:
             # If we're sending something, send it.
-            if send:
+            if send != None:
                 child.sendline(send)
             expect_res = child.expect(expect, timeout)
         if cfg['build']['debug']:
@@ -909,6 +909,8 @@ class ShutIt(object):
 
     def get_output(self, child=None):
         """Helper function to get output from latest command run.
+        Use with care - if you are expecting something other than 
+        a prompt, this may not return what you might expect.
 
         - child       - See send()
         """
@@ -1365,21 +1367,14 @@ class ShutIt(object):
         # Commit image
         # Only lower case accepted
         repository = repository.lower()
-        if self.send('SHUTIT_TMP_VAR=`' + docker_executable + ' commit ' +
-                     cfg['container']['container_id'] + '`',
+        if self.send('SHUTIT_TMP_VAR=$(' + docker_executable + ' commit ' +
+                     cfg['container']['container_id'] + ')',
                      expect=[expect,'assword'], child=child, timeout=99999,
                      check_exit=False) == 1:
             self.send(cfg['host']['password'], expect=expect, check_exit=False,
                       record_command=False, child=child)
-        self.send('echo $SHUTIT_TMP_VAR && unset SHUTIT_TMP_VAR', expect=expect,
-                  check_exit=False, child=child)
-        image_id = child.before.split('\r\n')[1]
-        if not image_id:
-            shutit.fail('failed to commit to ' + repository +
-                        ', could not determine image id', child=child)
-
         # Tag image
-        cmd = docker_executable + ' tag ' + image_id + ' ' + repository
+        cmd = docker_executable + ' tag $SHUTIT_TMP_VAR ' + repository
         self.cfg['build']['report'] += '\nBuild tagged as: ' + repository
         self.send(cmd, child=child, expect=expect, check_exit=False)
         if export or save:
