@@ -1126,12 +1126,13 @@ def module():
     buildsh = textwrap.dedent('''\
         if [[ x$2 != 'x' ]]
         then
-            echo "build.sh takes exactly one argument at most"
+            echo "$? takes exactly one argument at most"
             exit 1
         fi
         [[ -z "$SHUTIT" ]] && SHUTIT="$1/shutit"
         [[ ! -a "$SHUTIT" ]] || [[ -z "$SHUTIT" ]] && SHUTIT="$(which shutit)"
         [[ ! -a "$SHUTIT" ]] || [[ -z "$SHUTIT" ]] && SHUTIT="../../shutit"
+        [[ ! -a "$SHUTIT" ]] || [[ -z "$SHUTIT" ]] && SHUTIT="~/shutit"
         # Fall back to trying directory of shutit when module was first created
         [[ ! -a "$SHUTIT" ]] && SHUTIT="''' + shutit_dir + '''/shutit"
         if [[ ! -a "$SHUTIT" ]]
