@@ -1161,15 +1161,9 @@ def module():
             echo
             echo "Called as: $0"
             echo "Must be run from module root dir like:"
-            echo
-            echo "  test.sh <path_to_shutit_dir>"
-            echo
-            echo "or"
-            echo
-            echo "  ./test.sh <path_to_shutit_dir>"
             exit
         fi
-        ./build.sh $1
+        ./build.sh
         ''')
     volumes_arg = ''
     for varg in shutit.cfg['dockerfile']['volume']:
