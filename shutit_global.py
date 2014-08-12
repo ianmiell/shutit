@@ -185,7 +185,6 @@ class ShutIt(object):
             self.cfg['build']['build_log'].flush()
         time.sleep(pause)
 
-
     def send(self,
              send,
              expect=None,
@@ -208,7 +207,11 @@ class ShutIt(object):
 
         - child                      - pexpect child to issue command to.
         - send                       - String to send, ie the command being
-                                       issued.
+                                       issued. If set to None, we consume up to
+                                       the expect string, which is useful if we
+                                       just matched output that came before a
+                                       standard command that returns to the
+                                       prompt.
         - expect                     - String that we expect to see in the
                                        output. Usually a prompt. Defaults to
                                        currently-set expect string (see
@@ -288,7 +291,9 @@ class ShutIt(object):
             expect_res = child.expect(expect, timeout)
             child.logfile_send = oldlog
         else:
-            child.sendline(send)
+            # If we're sending something, send it.
+            if send:
+                child.sendline(send)
             expect_res = child.expect(expect, timeout)
         if cfg['build']['debug']:
             self.log('child.before>>>' + child.before + '<<<')
