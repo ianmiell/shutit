@@ -555,7 +555,7 @@ class ShutIt(object):
         """
         child = child or self.get_default_child()
         expect = expect or self.get_default_expect()
-        cmd = 'stat -c %a ' + filename + r" | sed 's/.\(.*\)/\1/g'"
+        cmd = 'stat -c %a ' + filename
         self.send(cmd, expect, child=child, check_exit=False)
         res = self.get_re_from_child(child.before, '([0-9][0-9][0-9])')
         return res
