@@ -1101,8 +1101,10 @@ class ShutIt(object):
                  self.set_default_expect()
         else:
              self.fail('Logout called without corresponding login')
-        self.send('exit')
-        
+        # No point in checking exit here, the exit code will be
+        # from the previous command from the logged in session
+        self.send('exit', check_exit=False)
+
 
     def setup_prompt(self,
                      prompt_name,
