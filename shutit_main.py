@@ -681,4 +681,5 @@ if __name__ == '__main__':
         shutit_main()
     except ShutItException as e:
         print 'Error while executing: ' + str(e.message)
+	feedback = raw_input('')
         sys.exit(1)
