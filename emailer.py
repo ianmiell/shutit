@@ -160,6 +160,7 @@ class Emailer():
         if self.config['compress']:
             filetype = 'x-gzip-compressed'
             filename = self.__gzip(host_fn)
+            host_fn = os.path.join(host_path, os.path.basename(filename))
         file_pointer = open(host_fn, 'rb')
         attach = MIMEApplication(file_pointer.read(), _subtype=filetype)
         file_pointer.close()
@@ -198,7 +199,10 @@ class Emailer():
                                 Should not be used externally
         """
         if not self.config['send_mail']:
-            self.shutit.log('emailer.send: Not configured to send mail!')
+            self.shutit.log(
+                'emailer.send: Not configured to send mail!',
+                force_stdout=True
+            )
             return True
         msg = self.__compose()
         mailto = [self.config['mailto']]
@@ -209,6 +213,7 @@ class Emailer():
         if self.config['mailto_maintainer']:
             mailto.append(self.config['maintainer'])
         try:
+            self.shutit.log('Attempting to send email', force_stdout=True)
             smtp.sendmail(
                 self.config['mailfrom'],
                 mailto,
@@ -217,16 +222,26 @@ class Emailer():
         except SMTPSenderRefused as refused:
             code = refused.args[0]
             if code == 552 and not attachment_failure:
-                self.shutit.log("Mailserver rejected message due to " + \
-                    "oversize attachments, attempting to resend without")
-                self.send(attachment_failure=True)
+                self.shutit.log(
+                    "Mailserver rejected message due to " + \
+                    "oversize attachments, attempting to resend without",
+                    force_stdout=True
+                )
                 self.attaches = []
+                self.lines.append("Oversized attachments not sent")
+                self.send(attachment_failure=True)
             else:
-                self.shutit.log("Unhandled SMTP error:" + str(refused))
+                self.shutit.log(
+                    "Unhandled SMTP error:" + str(refused),
+                    force_stdout=True
+                )
                 if not self.config['safe_mode']:
                     raise refused
         except Exception as error:
-            self.shutit.log('Unhandled exception: ' + str(error))
+            self.shutit.log(
+                'Unhandled exception: ' + str(error),
+                force_stdout=True
+            )
             if not self.config['safe_mode']:
                 raise error
         finally:
