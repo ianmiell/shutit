@@ -1124,11 +1124,6 @@ def module():
     )
     readme = skel_module_name + ': description of module directory in here'
     buildsh = textwrap.dedent('''\
-        if [[ x$2 != 'x' ]]
-        then
-            echo "$? takes exactly one argument at most"
-            exit 1
-        fi
         [[ -z "$SHUTIT" ]] && SHUTIT="$1/shutit"
         [[ ! -a "$SHUTIT" ]] || [[ -z "$SHUTIT" ]] && SHUTIT="$(which shutit)"
         [[ ! -a "$SHUTIT" ]] || [[ -z "$SHUTIT" ]] && SHUTIT="../../shutit"
