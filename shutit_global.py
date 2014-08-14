@@ -300,7 +300,7 @@ class ShutIt(object):
             self.log('child.after>>>' + child.after + '<<<')
         if fail_on_empty_before == True:
             if child.before.strip() == '':
-                shutit.fail('before empty after sending: ' + send +
+                shutit.fail('before empty after sending: ' + str(send) +
                     '\n\nThis is expected after some commands that take a ' + 
                     'password.\nIf so, add fail_on_empty_before=False to ' + 
                     'the send call', child=child)
@@ -345,7 +345,7 @@ class ShutIt(object):
             if res == None:
                 res = str(res)
             self.log('child.after: \n' + child.after + '\n')
-            self.log('Exit value from command+\n' + send + '\nwas:\n' + res)
+            self.log('Exit value from command+\n' + str(send) + '\nwas:\n' + res)
             msg = ('\nWARNING: command:\n' + send + 
                   '\nreturned unaccepted exit code: ' + 
                   res + 
@@ -874,6 +874,10 @@ class ShutIt(object):
             self.cfg['build']['interactive'] < level):
             return
         if child and print_input:
+            # Handy resize of terminal for debian
+            if shutit.cfg['container']['install_type'] == 'apt':
+                    shutit.install('xterm')
+                    print (util.colour('31', '\n\nYou can try running "resize" to get a terminal of a useful size.\n\n'))
             print (util.colour('31', '\n\nPause point:\n\n') + 
                 msg + util.colour('31','\n\nYou can now type in commands and ' +
                 'alter the state of the container.\nHit return to see the ' +
