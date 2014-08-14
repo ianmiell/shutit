@@ -17,7 +17,7 @@ function get_abs_filename() {
         echo "$(cd "$(dirname "$1")" && pwd)/$(basename "$1")"
 }
 export SHUTITDIR=${SHUTITDIR:-$(get_abs_filename $(dirname ${BASH_SOURCE[0]})/..)}
-export SHUTIT=${SHUTIT:-${SHUTITDIR}/shutit)}
+export SHUTIT=${SHUTIT:-${SHUTITDIR}/shutit}
 readonly SHUTIT SHUTITDIR
 
 SHUTIT_TEST_REPORT=""
