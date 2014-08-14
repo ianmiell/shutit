@@ -32,6 +32,7 @@ class ansible(ShutItModule):
         shutit.install('python2.7-dev')
         shutit.install('python-pip')
         shutit.install('python-simplejson')
+        shutit.install('sshpass')
         shutit.send('pushd /root')
         shutit.send('git clone git://github.com/ansible/ansible.git')
         shutit.send('source /root/ansible/hacking/env-setup')
