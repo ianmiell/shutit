@@ -692,6 +692,22 @@ def load_shutit_modules(shutit):
         time.sleep(1)
     for shutit_module_path in shutit.cfg['host']['shutit_module_paths']:
         load_all_from_path(shutit, shutit_module_path)
+    # Now we should have all modules.
+    if shutit.cfg['action']['show_config']:
+        print "Modules in order:"
+        a = {}
+        for m in shutit.shutit_modules:
+            a.update({m.module_id:m.run_order})
+        b = a.values()
+        b.sort()
+        l = []
+        for k in b:
+            for m in shutit.shutit_modules:
+                if m.run_order == k:
+                     l.append([m.module_id,str(m.run_order)])
+        for i in l:
+            print i[0]
+
 
 def print_config(cfg, hide_password=True, history=False):
     """Returns a string representing the config of this ShutIt run.
