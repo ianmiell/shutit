@@ -1189,6 +1189,19 @@ class ShutIt(object):
         cfg['container']['install_type']      = ''
         cfg['container']['distro']            = ''
         cfg['container']['distro_version']    = ''
+        # A list of OS Family members
+        # RedHat    = RedHat, Fedora, CentOS, Scientific, SLC, Ascendos, CloudLinux, PSBM, OracleLinux, OVS, OEL, Amazon, XenServer 
+        # Debian    = Ubuntu, Debian
+        # Suse      = SLES, SLED, OpenSuSE, Suse
+        # Gentoo    = Gentoo, Funtoo
+        # Archlinux = Archlinux
+        # Mandrake  = Mandriva, Mandrake
+        # Solaris   = Solaris, Nexenta, OmniOS, OpenIndiana, SmartOS
+        # AIX       = AIX
+        # Alpine    = Alpine
+        # Darwin    = MacOSX
+        # FreeBSD   = FreeBSD
+        # HP-UK     = HPUX
         install_type_map = {'ubuntu':'apt',
                             'debian':'apt',
                             'red hat':'yum',
