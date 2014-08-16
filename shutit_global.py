@@ -1202,6 +1202,39 @@ class ShutIt(object):
         # Darwin    = MacOSX
         # FreeBSD   = FreeBSD
         # HP-UK     = HPUX
+
+#    OSDIST_DICT = { '/etc/redhat-release': 'RedHat',
+#                    '/etc/vmware-release': 'VMwareESX',
+#                    '/etc/openwrt_release': 'OpenWrt',
+#                    '/etc/system-release': 'OtherLinux',
+#                    '/etc/alpine-release': 'Alpine',
+#                    '/etc/release': 'Solaris',
+#                    '/etc/arch-release': 'Archlinux',
+#                    '/etc/SuSE-release': 'SuSE',
+#                    '/etc/gentoo-release': 'Gentoo',
+#                    '/etc/os-release': 'Debian' }
+#    SELINUX_MODE_DICT = { 1: 'enforcing', 0: 'permissive', -1: 'disabled' }
+#
+#    # A list of dicts.  If there is a platform with more than one
+#    # package manager, put the preferred one last.  If there is an
+#    # ansible module, use that as the value for the 'name' key.
+#    PKG_MGRS = [ { 'path' : '/usr/bin/yum',         'name' : 'yum' },
+#                 { 'path' : '/usr/bin/apt-get',     'name' : 'apt' },
+#                 { 'path' : '/usr/bin/zypper',      'name' : 'zypper' },
+#                 { 'path' : '/usr/sbin/urpmi',      'name' : 'urpmi' },
+#                 { 'path' : '/usr/bin/pacman',      'name' : 'pacman' },
+#                 { 'path' : '/bin/opkg',            'name' : 'opkg' },
+#                 { 'path' : '/opt/local/bin/pkgin', 'name' : 'pkgin' },
+#                 { 'path' : '/opt/local/bin/port',  'name' : 'macports' },
+#                 { 'path' : '/sbin/apk',            'name' : 'apk' },
+#                 { 'path' : '/usr/sbin/pkg',        'name' : 'pkgng' },
+#                 { 'path' : '/usr/sbin/swlist',     'name' : 'SD-UX' },
+#                 { 'path' : '/usr/bin/emerge',      'name' : 'portage' },
+#                 { 'path' : '/usr/sbin/pkgadd',     'name' : 'svr4pkg' },
+#                 { 'path' : '/usr/bin/pkg',         'name' : 'pkg' },
+#    ]
+
+
         install_type_map = {'ubuntu':'apt',
                             'debian':'apt',
                             'red hat':'yum',
