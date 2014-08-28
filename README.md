@@ -229,19 +229,6 @@ List of module_ids of modules that conflict with this module.
 
 ### ShutIt Build Lifecycle
 
-#### Overview
-
-- Gather modules
-- Gather configuration
-- Check for module conflicts
-- Check ready on all modules
-- Record configuration
-- Remove modules configured for removal
-- Build modules
-- Test modules
-- Finalize modules
-- Finalize container
-
 #### Details
 
 - Gather modules
@@ -347,7 +334,89 @@ Module conflicts
 	
 ## Invocation
 
+General help:
+
 ```
+$ shutit -h
+usage: shutit [-h] {build,sc,depgraph,serve,skeleton} ...
+
+ShutIt - a tool for managing complex Docker deployments. To view help for a
+specific subcommand, type ./shutit <subcommand> -h
+
+positional arguments:
+  {build,sc,depgraph,serve,skeleton}
+                        Action to perform. Defaults to 'build'.
+
+optional arguments:
+  -h, --help            show this help message and exit
+```
+
+
+Build module:
+
+```
+$ shutit build -h
+usage: shutit build [-h] [--export] [--save] [--push] [--config CONFIG]
+                    [-s SEC KEY VAL] [--image_tag IMAGE_TAG]
+                    [-m SHUTIT_MODULE_PATH] [--pause PAUSE] [--debug]
+                    [--interactive INTERACTIVE] [--ignorestop] [--ignoreimage]
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --export              export to a tar file
+  --save                save to a tar file
+  --push                push to a repo
+  --config CONFIG       Config file for setup config. Must be with perms 0600.
+                        Multiple arguments allowed; config files considered in
+                        order.
+  -s SEC KEY VAL, --set SEC KEY VAL
+                        Override a config item, e.g. "-s container rm no". Can
+                        be specified multiple times.
+  --image_tag IMAGE_TAG
+                        Build container using specified image - if there is a
+                        symbolic reference, please use that, eg
+                        localhost.localdomain:5000/myref
+  -m SHUTIT_MODULE_PATH, --shutit_module_path SHUTIT_MODULE_PATH
+                        List of shutit module paths, separated by colons.
+                        ShutIt registers modules by running all .py files in
+                        these directories.
+  --pause PAUSE         Pause between commands to avoid race conditions.
+  --debug               Show debug.
+  --interactive INTERACTIVE
+                        Level of interactive. 0 = none, 1 = honour pause
+                        points and config prompting, 2 = query user on each
+                        module, 3 = tutorial mode
+  --ignorestop          ignore STOP files
+  --ignoreimage         ignore disallowed images
+```
+
+Create new skeleton module:
+
+```
+$ shutit skeleton -h
+usage: shutit skeleton [-h] [--example] [-d DOCKERFILE]
+                       module_directory module_name domain [script]
+
+positional arguments:
+  module_directory      absolute path to new directory for module
+  module_name           name for your module
+  domain                arbitrary but unique domain for namespacing your
+                        module, eg com.mycorp
+  script                pre-existing shell script to integrate into module
+                        (optional)
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --example             add an example implementation with model calls to
+                        ShutIt API
+  -d DOCKERFILE, --dockerfile DOCKERFILE
+
+```
+
+Show computed configuration:
+
+```
+$ shutit sc -h
 usage: shutit sc [-h] [--history] [--config CONFIG] [-s SEC KEY VAL]
                   [--image_tag IMAGE_TAG] [-m SHUTIT_MODULE_PATH]
                   [--pause PAUSE] [--debug] [--interactive INTERACTIVE]
@@ -377,6 +446,43 @@ usage: shutit sc [-h] [--history] [--config CONFIG] [-s SEC KEY VAL]
                          module, 3 = tutorial mode
    --ignorestop          ignore STOP files
 ```
+
+
+Output a dependency graph of the potential build:
+
+```
+$ shutit depgraph -h
+usage: shutit depgraph [-h] [--config CONFIG] [-s SEC KEY VAL]
+                       [--image_tag IMAGE_TAG] [-m SHUTIT_MODULE_PATH]
+                       [--pause PAUSE] [--debug] [--interactive INTERACTIVE]
+                       [--ignorestop] [--ignoreimage]
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --config CONFIG       Config file for setup config. Must be with perms 0600.
+                        Multiple arguments allowed; config files considered in
+                        order.
+  -s SEC KEY VAL, --set SEC KEY VAL
+                        Override a config item, e.g. "-s container rm no". Can
+                        be specified multiple times.
+  --image_tag IMAGE_TAG
+                        Build container using specified image - if there is a
+                        symbolic reference, please use that, eg
+                        localhost.localdomain:5000/myref
+  -m SHUTIT_MODULE_PATH, --shutit_module_path SHUTIT_MODULE_PATH
+                        List of shutit module paths, separated by colons.
+                        ShutIt registers modules by running all .py files in
+                        these directories.
+  --pause PAUSE         Pause between commands to avoid race conditions.
+  --debug               Show debug.
+  --interactive INTERACTIVE
+                        Level of interactive. 0 = none, 1 = honour pause
+                        points and config prompting, 2 = query user on each
+                        module, 3 = tutorial mode
+  --ignorestop          ignore STOP files
+  --ignoreimage         ignore disallowed images
+```
+
 
 ## ShutIt API
 
