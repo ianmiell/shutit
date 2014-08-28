@@ -631,39 +631,121 @@ DATA
 
 ### Configuration
 
+Configuration is specified in .cnf files.
+
+These are divided up into sections:
+
 #### Sections
 
 ##### container
 
 Config pertaining to the container.
 
+Defaults from util.tcl:
+
+```
+# Details relating to the container you are building itself
+[container]
+# Root password for the container - replace with your chosen password
+# If left blank, you will be prompted for a password
+password:YOUR_CONTAINER_PASSWORD
+# Hostname for the container - replace with your chosen container name
+hostname:
+force_repo_work:no
+locale:en_US.UTF-8
+# space separated list of ports to expose
+# e.g. "ports:2222:22 8080:80" would expose container ports 22 and 80 as the
+# host's 2222 and 8080
+ports:
+# Name to give the container. Empty means "let docker default a name".
+name:
+# Whether to remove the container when finished.
+rm:no
+```
+
 ##### host
 
 Config pertaining to the container.
+
+```
+# Information specific to the host on which the build runs.
+[host]
+# Folder with files you want to copy from in your build.
+# Often a good idea to have a central folder for this per host
+# in your /path/to/shutit/configs/`hostname`_`username`.cnf
+# If set to blank, then defaults to /path/to/shutit/resources (preferred)
+# If set to "resources", then defaults to the resources folder in the cwd.
+resources_dir:
+# Docker executable on your host machine
+docker_executable:docker.io
+# space separated list of dns servers to use
+dns:
+# Password for the username above on the host (only needed if sudo is needed)
+password:
+# Log file - will be set to 0600 perms, and defaults to /tmp/<YOUR_USERNAME>_shutit_log_<timestamp>
+# A timestamp will be added to the end of the filename.
+logfile:
+```
 
 ##### repository
 
 Config pertaining to the persistence of the container, enabling commit, tag, save and push.
 
+```
+# Repository information
+[repository]
+# Whether to tag
+tag:no
+# Whether to suffix the date to the tag
+suffix_date:yes
+# Suffix format (default is epoch seconds (%s), but %Y%m%d_%H%M%S is an option if the length is ok with the index)
+suffix_format:%s
+# tag name
+name:my_repository_name
+# Whether to tar up the docker image exported
+export:no
+# Whether to tar up the docker image saved
+save:no
+# Whether to push to the server
+push:no
+# User on registry to namespace repo - can be set to blank if not docker.io
+user:
+#Must be set if push is true/yes and user is not blank
+password:YOUR_INDEX_PASSWORD_OR_BLANK
+#Must be set if push is true/yes and user is not blank
+email:YOUR_INDEX_EMAIL_OR_BLANK
+# repository server
+# make blank if you want this to be sent to the main docker index on docker.io
+server:
+# tag suffix, defaults to "latest", eg registry/username/repository:latest.
+# empty is also "latest"
+tag_name:latest
+```
+
 ##### build
 
 Config pertaining to the build process.
 
+```
+# Aspects of build process
+[build]
+build_log:no
+# Run container in privileged mode
+privileged:no
+# lxc-conf arg, eg
+#lxc_conf:lxc.aa_profile=unconfined
+lxc_conf:
+# Base image can be over-ridden by --image_tag defaults to this.
+base_image:ubuntu:12.04
+# Whether to perform tests. 
+dotest:yes
+# --net argument, eg "bridge", "none", "container:<name|id>" or "host". Empty means use default (bridge).
+net:
+```
+
 ##### shutit.tk.setup
 
 Config pertaining to the base setup of the container before any modules are run.
-
-#### Per-section config:
-
-- container
-
-- host
-
-- repository
-
-- build
-
-- shutit.tk.setup
 
 #### Per-module config
 
@@ -684,6 +766,18 @@ Dependency management will auto-set this for you, but you may want to ensure a m
 - remove
 
 Whether to invoke the remove function within the module before the build starts.
+
+You can set these eg:
+
+```
+[com.mycorp.mymodule.modulename]
+# Whether to tag the module at the end of its build.
+tagmodule:no
+# eg to add in a module that 
+build:no
+# Whether to remove the module before building (if is\_installed returns true)
+remove:no
+```
 
 [Github]: https://github.com/ianmiell/shutit
 
