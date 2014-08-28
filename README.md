@@ -254,13 +254,15 @@ Configuration is gathered in the following order:
 
 1) Defaults loaded within the code
 
-2) The following file is searched for: /path/to/shutit/configs/<HOSTNAME>_<USERNAME>.cnf
+2) The following (auto-created) file is searched for: ~/.shutit/config 
 
 This file can contain host-specific overrides, and is optional
 
 3) configs/build.cnf is loaded from the current working directory of the shutit invocation
 
 4) 0-n config files passed in with --config arguments are loaded
+
+5) Command-line overrides, eg "-s com.mycorp.mymodule.module name value"
 
 All config files need to have permissions 0x00.
 

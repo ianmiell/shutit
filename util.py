@@ -548,27 +548,31 @@ def parse_args(cfg):
 
             It is configured through command-line arguments (see --help) and .cnf files.
             ================================================================================
-
-
+            
+            
             ================================================================================
             CONFIG
             ================================================================================
-            The config files are read in the following order:
+            The config is read in the following order:
             ================================================================================
-            """ + str(cfg['host']['shutit_module_paths']) + """
-            """ + shutit_global.shutit_main_dir + """/configs/`hostname`_`whoami`.cnf
+            ~/.shutit/config
                 - Host- and username-specific config for this host.
             /path/to/this/shutit/module/configs/build.cnf
                 - Config specifying what should be built when this module is invoked.
             /your/path/to/<configname>.cnf
                 - Passed-in config (via --config, see --help)
+            command-line overrides, eg -s com.mycorp.mymodule.module name value
             ================================================================================
             Config items look like this:
-
+            
             [section]
             name:value
+            
+            or as command-line overrides:
+            
+	    -s section name value
             ================================================================================
-
+            
             """ + colour('31', '[Hit return to continue]'))
         raw_input('')
         print textwrap.dedent("""\
@@ -600,7 +604,8 @@ def parse_args(cfg):
             The module_id is a string that uniquely identifies the module.
 
             The run_order is a float that defines the order in which the module should be
-            run relative to other modules.
+            run relative to other modules. This guarantees a deterministic ordering of 
+	    the modules run.
 
             See """ + shutit_global.shutit_main_dir + """/shutit_module.py for more detailed documentation on these.
             ================================================================================
@@ -612,12 +617,18 @@ def parse_args(cfg):
             PAUSE POINTS
             ================================================================================
             Pause points can be placed within the build, which is useful for debugging.
+
             This is used throughout this tutorial.
+
             When debugging, pause_points will output your keyboard input before you finish.
+
             This can help you build your build, as these commands can be pasted into the
             module you are developing easily.
-            To escape a pause point, hit the "CTRL" and the "]" key simultaneously.
+
+            To escape a pause point when it happens, hit the "CTRL" and the "]"
+            key simultaneously.
             ================================================================================
+
             """ + colour('31', '[Hit return to continue]'))
         raw_input('')
 
@@ -662,6 +673,7 @@ def load_configs(shutit):
                     
                 or
                     sudo docker ps -a | grep -w <port> | awk '{print $1}' | xargs sudo docker kill
+                
                 """ + colour('31', '[Hit return to continue]'))
             raw_input('')
 
@@ -861,7 +873,7 @@ def get_commands(shutit):
     for c in shutit.shutit_command_history:
         s += c + '\n'
     return s
-    
+
 
 def get_hash(string):
     """Helper function to get preceding integer
@@ -869,7 +881,7 @@ def get_hash(string):
     >>> import binascii
     >>> abs(binascii.crc32('shutit.tk'))
     782914092
-    
+
     Recommended means of determining run order integer part.
     """
     return abs(binascii.crc32(string))
@@ -1312,7 +1324,7 @@ def module():
     and follow the tutorial, or:
 
         cd ''' + skel_path + '''; ./build.sh
-    
+
     to just go ahead and build it.
 
     An image called ''' + skel_module_name + ''' will be created either way, and
