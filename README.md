@@ -691,6 +691,8 @@ logfile:
 
 Config pertaining to the persistence of the container, enabling commit, tag, save and push.
 
+Defaults from util.tcl:
+
 ```
 # Repository information
 [repository]
@@ -725,6 +727,8 @@ tag_name:latest
 ##### build
 
 Config pertaining to the build process.
+
+Defaults from util.tcl:
 
 ```
 # Aspects of build process
