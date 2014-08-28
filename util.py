@@ -415,14 +415,14 @@ def parse_args(cfg):
                 "%s is an invalid pause (must be >= 0.05)" % value)
         return ivalue
 
-    parser = argparse.ArgumentParser(description='ShutIt - a tool for managing complex Docker deployments')
+    parser = argparse.ArgumentParser(description='ShutIt - a tool for managing complex Docker deployments.\n\nTo view help for a specific subcommand, type ./shutit <subcommand> -h')
     subparsers = parser.add_subparsers(dest='action', help='Action to perform. Defaults to \'build\'.')
 
     sub_parsers = dict()
     for action in actions:
         sub_parsers[action] = subparsers.add_parser(action)
 
-    sub_parsers['skeleton'].add_argument('modpath', help='absolute path to new directory for module')
+    sub_parsers['skeleton'].add_argument('module_directory', help='absolute path to new directory for module')
     sub_parsers['skeleton'].add_argument('module_name', help='name for your module')
     sub_parsers['skeleton'].add_argument('domain', help='arbitrary but unique domain for namespacing your module, eg com.mycorp')
     sub_parsers['skeleton'].add_argument('script', help='pre-existing shell script to integrate into module (optional)', nargs='?', default=None)
@@ -489,7 +489,7 @@ def parse_args(cfg):
         if (args.dockerfile and (args.script or args.example)) or (args.example and args.script):
             shutit_global.shutit.fail('Cannot have any two of script, -d/--dockerfile Dockerfile or --example as arguments')
         cfg['skeleton'] = {
-            'path':        args.modpath,
+            'path':        args.module_directory,
             'module_name': args.module_name,
             'domain':      args.domain,
             'domainhash':  str(get_hash(args.domain)),
@@ -1152,7 +1152,6 @@ def module():
             exit 1
         fi
         # This file tests your build, leaving the container intact when done.
-        $SHUTIT build
         # Display config
         #$SHUTIT sc
         # Debug
@@ -1163,6 +1162,8 @@ def module():
         #$SHUTIT build --interactive 2
         # Tutorial
         #$SHUTIT build --interactive 3
+
+        $SHUTIT build
         ''')
     testsh = textwrap.dedent('''\
         #!/bin/bash
