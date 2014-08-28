@@ -187,7 +187,7 @@ class LayerConfigParser(RawConfigParser):
     def get_config_set(self, section, option):
         """Returns a set with each value per config file in it.
         """
-	values = set()
+        values = set()
         for cp, filename, fp in self.layers:
             if cp.has_option(section, option):
                 values.add(cp.get(section, option))
@@ -570,7 +570,7 @@ def parse_args(cfg):
             
             or as command-line overrides:
             
-	    -s section name value
+            -s section name value
             ================================================================================
             
             """ + colour('31', '[Hit return to continue]'))
@@ -605,12 +605,12 @@ def parse_args(cfg):
 
             The run_order is a float that defines the order in which the module should be
             run relative to other modules. This guarantees a deterministic ordering of 
-	    the modules run.
+            the modules run.
 
             See """ + shutit_global.shutit_main_dir + """/shutit_module.py for more detailed documentation on these.
-            ================================================================================
 
-            """ + colour('31', '[Hit return to continue]'))
+            ================================================================================
+            """ + colour('31', '\n[Hit return to continue]'))
         raw_input('')
         print textwrap.dedent("""\
             ================================================================================
