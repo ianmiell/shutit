@@ -607,10 +607,11 @@ def parse_args(cfg):
             run relative to other modules. This guarantees a deterministic ordering of 
             the modules run.
 
-            See """ + shutit_global.shutit_main_dir + """/shutit_module.py for more detailed documentation on these.
+            See shutit_module.py for more detailed documentation on these.
 
             ================================================================================
-            """ + colour('31', '\n[Hit return to continue]'))
+
+            """ + colour('31', '[Hit return to continue]'))
         raw_input('')
         print textwrap.dedent("""\
             ================================================================================
