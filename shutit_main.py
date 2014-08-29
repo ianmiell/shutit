@@ -691,4 +691,7 @@ if __name__ == '__main__':
 	    urllib.urlopen("http://shutit.tk?" + urllib.urlencode({'shutitrunstatus':'fail','err':str(e.message)}))
             sys.exit(1)
     if phone_home:
-        urllib.urlopen("http://shutit.tk?" + urllib.urlencode({'shutitrunstatus':'ok'}))
+        try:
+            urllib.urlopen("http://shutit.tk?" + urllib.urlencode({'shutitrunstatus':'ok'}))
+        except:
+            pass
