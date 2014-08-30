@@ -229,19 +229,6 @@ List of module_ids of modules that conflict with this module.
 
 ### ShutIt Build Lifecycle
 
-#### Overview
-
-- Gather modules
-- Gather configuration
-- Check for module conflicts
-- Check ready on all modules
-- Record configuration
-- Remove modules configured for removal
-- Build modules
-- Test modules
-- Finalize modules
-- Finalize container
-
 #### Details
 
 - Gather modules
@@ -254,13 +241,15 @@ Configuration is gathered in the following order:
 
 1) Defaults loaded within the code
 
-2) The following file is searched for: /path/to/shutit/configs/<HOSTNAME>_<USERNAME>.cnf
+2) The following (auto-created) file is searched for: ~/.shutit/config 
 
 This file can contain host-specific overrides, and is optional
 
 3) configs/build.cnf is loaded from the current working directory of the shutit invocation
 
 4) 0-n config files passed in with --config arguments are loaded
+
+5) Command-line overrides, eg "-s com.mycorp.mymodule.module name value"
 
 All config files need to have permissions 0x00.
 
@@ -345,7 +334,89 @@ Module conflicts
 	
 ## Invocation
 
+General help:
+
 ```
+$ shutit -h
+usage: shutit [-h] {build,sc,depgraph,serve,skeleton} ...
+
+ShutIt - a tool for managing complex Docker deployments. To view help for a
+specific subcommand, type ./shutit <subcommand> -h
+
+positional arguments:
+  {build,sc,depgraph,serve,skeleton}
+                        Action to perform. Defaults to 'build'.
+
+optional arguments:
+  -h, --help            show this help message and exit
+```
+
+
+Build module:
+
+```
+$ shutit build -h
+usage: shutit build [-h] [--export] [--save] [--push] [--config CONFIG]
+                    [-s SEC KEY VAL] [--image_tag IMAGE_TAG]
+                    [-m SHUTIT_MODULE_PATH] [--pause PAUSE] [--debug]
+                    [--interactive INTERACTIVE] [--ignorestop] [--ignoreimage]
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --export              export to a tar file
+  --save                save to a tar file
+  --push                push to a repo
+  --config CONFIG       Config file for setup config. Must be with perms 0600.
+                        Multiple arguments allowed; config files considered in
+                        order.
+  -s SEC KEY VAL, --set SEC KEY VAL
+                        Override a config item, e.g. "-s container rm no". Can
+                        be specified multiple times.
+  --image_tag IMAGE_TAG
+                        Build container using specified image - if there is a
+                        symbolic reference, please use that, eg
+                        localhost.localdomain:5000/myref
+  -m SHUTIT_MODULE_PATH, --shutit_module_path SHUTIT_MODULE_PATH
+                        List of shutit module paths, separated by colons.
+                        ShutIt registers modules by running all .py files in
+                        these directories.
+  --pause PAUSE         Pause between commands to avoid race conditions.
+  --debug               Show debug.
+  --interactive INTERACTIVE
+                        Level of interactive. 0 = none, 1 = honour pause
+                        points and config prompting, 2 = query user on each
+                        module, 3 = tutorial mode
+  --ignorestop          ignore STOP files
+  --ignoreimage         ignore disallowed images
+```
+
+Create new skeleton module:
+
+```
+$ shutit skeleton -h
+usage: shutit skeleton [-h] [--example] [-d DOCKERFILE]
+                       module_directory module_name domain [script]
+
+positional arguments:
+  module_directory      absolute path to new directory for module
+  module_name           name for your module
+  domain                arbitrary but unique domain for namespacing your
+                        module, eg com.mycorp
+  script                pre-existing shell script to integrate into module
+                        (optional)
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --example             add an example implementation with model calls to
+                        ShutIt API
+  -d DOCKERFILE, --dockerfile DOCKERFILE
+
+```
+
+Show computed configuration:
+
+```
+$ shutit sc -h
 usage: shutit sc [-h] [--history] [--config CONFIG] [-s SEC KEY VAL]
                   [--image_tag IMAGE_TAG] [-m SHUTIT_MODULE_PATH]
                   [--pause PAUSE] [--debug] [--interactive INTERACTIVE]
@@ -375,6 +446,43 @@ usage: shutit sc [-h] [--history] [--config CONFIG] [-s SEC KEY VAL]
                          module, 3 = tutorial mode
    --ignorestop          ignore STOP files
 ```
+
+
+Output a dependency graph of the potential build:
+
+```
+$ shutit depgraph -h
+usage: shutit depgraph [-h] [--config CONFIG] [-s SEC KEY VAL]
+                       [--image_tag IMAGE_TAG] [-m SHUTIT_MODULE_PATH]
+                       [--pause PAUSE] [--debug] [--interactive INTERACTIVE]
+                       [--ignorestop] [--ignoreimage]
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --config CONFIG       Config file for setup config. Must be with perms 0600.
+                        Multiple arguments allowed; config files considered in
+                        order.
+  -s SEC KEY VAL, --set SEC KEY VAL
+                        Override a config item, e.g. "-s container rm no". Can
+                        be specified multiple times.
+  --image_tag IMAGE_TAG
+                        Build container using specified image - if there is a
+                        symbolic reference, please use that, eg
+                        localhost.localdomain:5000/myref
+  -m SHUTIT_MODULE_PATH, --shutit_module_path SHUTIT_MODULE_PATH
+                        List of shutit module paths, separated by colons.
+                        ShutIt registers modules by running all .py files in
+                        these directories.
+  --pause PAUSE         Pause between commands to avoid race conditions.
+  --debug               Show debug.
+  --interactive INTERACTIVE
+                        Level of interactive. 0 = none, 1 = honour pause
+                        points and config prompting, 2 = query user on each
+                        module, 3 = tutorial mode
+  --ignorestop          ignore STOP files
+  --ignoreimage         ignore disallowed images
+```
+
 
 ## ShutIt API
 
@@ -631,39 +739,125 @@ DATA
 
 ### Configuration
 
+Configuration is specified in .cnf files.
+
+These are divided up into sections:
+
 #### Sections
 
 ##### container
 
 Config pertaining to the container.
 
+Defaults from util.tcl:
+
+```
+# Details relating to the container you are building itself
+[container]
+# Root password for the container - replace with your chosen password
+# If left blank, you will be prompted for a password
+password:YOUR_CONTAINER_PASSWORD
+# Hostname for the container - replace with your chosen container name
+hostname:
+force_repo_work:no
+locale:en_US.UTF-8
+# space separated list of ports to expose
+# e.g. "ports:2222:22 8080:80" would expose container ports 22 and 80 as the
+# host's 2222 and 8080
+ports:
+# Name to give the container. Empty means "let docker default a name".
+name:
+# Whether to remove the container when finished.
+rm:no
+```
+
 ##### host
 
 Config pertaining to the container.
+
+```
+# Information specific to the host on which the build runs.
+[host]
+# Folder with files you want to copy from in your build.
+# Often a good idea to have a central folder for this per host
+# in your /path/to/shutit/configs/`hostname`_`username`.cnf
+# If set to blank, then defaults to /path/to/shutit/resources (preferred)
+# If set to "resources", then defaults to the resources folder in the cwd.
+resources_dir:
+# Docker executable on your host machine
+docker_executable:docker.io
+# space separated list of dns servers to use
+dns:
+# Password for the username above on the host (only needed if sudo is needed)
+password:
+# Log file - will be set to 0600 perms, and defaults to /tmp/<YOUR_USERNAME>_shutit_log_<timestamp>
+# A timestamp will be added to the end of the filename.
+logfile:
+```
 
 ##### repository
 
 Config pertaining to the persistence of the container, enabling commit, tag, save and push.
 
+Defaults from util.tcl:
+
+```
+# Repository information
+[repository]
+# Whether to tag
+tag:no
+# Whether to suffix the date to the tag
+suffix_date:yes
+# Suffix format (default is epoch seconds (%s), but %Y%m%d_%H%M%S is an option if the length is ok with the index)
+suffix_format:%s
+# tag name
+name:my_repository_name
+# Whether to tar up the docker image exported
+export:no
+# Whether to tar up the docker image saved
+save:no
+# Whether to push to the server
+push:no
+# User on registry to namespace repo - can be set to blank if not docker.io
+user:
+#Must be set if push is true/yes and user is not blank
+password:YOUR_INDEX_PASSWORD_OR_BLANK
+#Must be set if push is true/yes and user is not blank
+email:YOUR_INDEX_EMAIL_OR_BLANK
+# repository server
+# make blank if you want this to be sent to the main docker index on docker.io
+server:
+# tag suffix, defaults to "latest", eg registry/username/repository:latest.
+# empty is also "latest"
+tag_name:latest
+```
+
 ##### build
 
 Config pertaining to the build process.
 
+Defaults from util.tcl:
+
+```
+# Aspects of build process
+[build]
+build_log:no
+# Run container in privileged mode
+privileged:no
+# lxc-conf arg, eg
+#lxc_conf:lxc.aa_profile=unconfined
+lxc_conf:
+# Base image can be over-ridden by --image_tag defaults to this.
+base_image:ubuntu:12.04
+# Whether to perform tests. 
+dotest:yes
+# --net argument, eg "bridge", "none", "container:<name|id>" or "host". Empty means use default (bridge).
+net:
+```
+
 ##### shutit.tk.setup
 
 Config pertaining to the base setup of the container before any modules are run.
-
-#### Per-section config:
-
-- container
-
-- host
-
-- repository
-
-- build
-
-- shutit.tk.setup
 
 #### Per-module config
 
@@ -684,6 +878,18 @@ Dependency management will auto-set this for you, but you may want to ensure a m
 - remove
 
 Whether to invoke the remove function within the module before the build starts.
+
+You can set these eg:
+
+```
+[com.mycorp.mymodule.modulename]
+# Whether to tag the module at the end of its build.
+tagmodule:no
+# eg to add in a module that 
+build:no
+# Whether to remove the module before building (if is\_installed returns true)
+remove:no
+```
 
 [Github]: https://github.com/ianmiell/shutit
 

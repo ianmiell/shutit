@@ -187,7 +187,7 @@ class LayerConfigParser(RawConfigParser):
     def get_config_set(self, section, option):
         """Returns a set with each value per config file in it.
         """
-	values = set()
+        values = set()
         for cp, filename, fp in self.layers:
             if cp.has_option(section, option):
                 values.add(cp.get(section, option))
@@ -415,14 +415,14 @@ def parse_args(cfg):
                 "%s is an invalid pause (must be >= 0.05)" % value)
         return ivalue
 
-    parser = argparse.ArgumentParser(description='ShutIt - a tool for managing complex Docker deployments')
+    parser = argparse.ArgumentParser(description='ShutIt - a tool for managing complex Docker deployments.\n\nTo view help for a specific subcommand, type ./shutit <subcommand> -h')
     subparsers = parser.add_subparsers(dest='action', help='Action to perform. Defaults to \'build\'.')
 
     sub_parsers = dict()
     for action in actions:
         sub_parsers[action] = subparsers.add_parser(action)
 
-    sub_parsers['skeleton'].add_argument('modpath', help='absolute path to new directory for module')
+    sub_parsers['skeleton'].add_argument('module_directory', help='absolute path to new directory for module')
     sub_parsers['skeleton'].add_argument('module_name', help='name for your module')
     sub_parsers['skeleton'].add_argument('domain', help='arbitrary but unique domain for namespacing your module, eg com.mycorp')
     sub_parsers['skeleton'].add_argument('script', help='pre-existing shell script to integrate into module (optional)', nargs='?', default=None)
@@ -489,7 +489,7 @@ def parse_args(cfg):
         if (args.dockerfile and (args.script or args.example)) or (args.example and args.script):
             shutit_global.shutit.fail('Cannot have any two of script, -d/--dockerfile Dockerfile or --example as arguments')
         cfg['skeleton'] = {
-            'path':        args.modpath,
+            'path':        args.module_directory,
             'module_name': args.module_name,
             'domain':      args.domain,
             'domainhash':  str(get_hash(args.domain)),
@@ -548,27 +548,31 @@ def parse_args(cfg):
 
             It is configured through command-line arguments (see --help) and .cnf files.
             ================================================================================
-
-
+            
+            
             ================================================================================
             CONFIG
             ================================================================================
-            The config files are read in the following order:
+            The config is read in the following order:
             ================================================================================
-            """ + str(cfg['host']['shutit_module_paths']) + """
-            """ + shutit_global.shutit_main_dir + """/configs/`hostname`_`whoami`.cnf
+            ~/.shutit/config
                 - Host- and username-specific config for this host.
             /path/to/this/shutit/module/configs/build.cnf
                 - Config specifying what should be built when this module is invoked.
             /your/path/to/<configname>.cnf
                 - Passed-in config (via --config, see --help)
+            command-line overrides, eg -s com.mycorp.mymodule.module name value
             ================================================================================
             Config items look like this:
-
+            
             [section]
             name:value
+            
+            or as command-line overrides:
+            
+            -s section name value
             ================================================================================
-
+            
             """ + colour('31', '[Hit return to continue]'))
         raw_input('')
         print textwrap.dedent("""\
@@ -600,9 +604,11 @@ def parse_args(cfg):
             The module_id is a string that uniquely identifies the module.
 
             The run_order is a float that defines the order in which the module should be
-            run relative to other modules.
+            run relative to other modules. This guarantees a deterministic ordering of 
+            the modules run.
 
-            See """ + shutit_global.shutit_main_dir + """/shutit_module.py for more detailed documentation on these.
+            See shutit_module.py for more detailed documentation on these.
+
             ================================================================================
 
             """ + colour('31', '[Hit return to continue]'))
@@ -612,12 +618,18 @@ def parse_args(cfg):
             PAUSE POINTS
             ================================================================================
             Pause points can be placed within the build, which is useful for debugging.
+
             This is used throughout this tutorial.
+
             When debugging, pause_points will output your keyboard input before you finish.
+
             This can help you build your build, as these commands can be pasted into the
             module you are developing easily.
-            To escape a pause point, hit the "CTRL" and the "]" key simultaneously.
+
+            To escape a pause point when it happens, hit the "CTRL" and the "]"
+            key simultaneously.
             ================================================================================
+
             """ + colour('31', '[Hit return to continue]'))
         raw_input('')
 
@@ -662,6 +674,7 @@ def load_configs(shutit):
                     
                 or
                     sudo docker ps -a | grep -w <port> | awk '{print $1}' | xargs sudo docker kill
+                
                 """ + colour('31', '[Hit return to continue]'))
             raw_input('')
 
@@ -692,6 +705,22 @@ def load_shutit_modules(shutit):
         time.sleep(1)
     for shutit_module_path in shutit.cfg['host']['shutit_module_paths']:
         load_all_from_path(shutit, shutit_module_path)
+    # Now we should have all modules.
+    if shutit.cfg['action']['show_config']:
+        print "Modules in order:"
+        a = {}
+        for m in shutit.shutit_modules:
+            a.update({m.module_id:m.run_order})
+        b = a.values()
+        b.sort()
+        l = []
+        for k in b:
+            for m in shutit.shutit_modules:
+                if m.run_order == k:
+                     l.append([m.module_id,str(m.run_order)])
+        for i in l:
+            print i[0]
+
 
 def print_config(cfg, hide_password=True, history=False):
     """Returns a string representing the config of this ShutIt run.
@@ -845,7 +874,7 @@ def get_commands(shutit):
     for c in shutit.shutit_command_history:
         s += c + '\n'
     return s
-    
+
 
 def get_hash(string):
     """Helper function to get preceding integer
@@ -853,7 +882,7 @@ def get_hash(string):
     >>> import binascii
     >>> abs(binascii.crc32('shutit.tk'))
     782914092
-    
+
     Recommended means of determining run order integer part.
     """
     return abs(binascii.crc32(string))
@@ -1136,7 +1165,6 @@ def module():
             exit 1
         fi
         # This file tests your build, leaving the container intact when done.
-        $SHUTIT build
         # Display config
         #$SHUTIT sc
         # Debug
@@ -1147,6 +1175,8 @@ def module():
         #$SHUTIT build --interactive 2
         # Tutorial
         #$SHUTIT build --interactive 3
+
+        $SHUTIT build
         ''')
     testsh = textwrap.dedent('''\
         #!/bin/bash
@@ -1295,7 +1325,7 @@ def module():
     and follow the tutorial, or:
 
         cd ''' + skel_path + '''; ./build.sh
-    
+
     to just go ahead and build it.
 
     An image called ''' + skel_module_name + ''' will be created either way, and

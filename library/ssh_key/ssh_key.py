@@ -17,10 +17,12 @@ class ssh_key(ShutItModule):
 
     def finalize(self, shutit):
         # We don't want to leave keys lying around.
-        shutit.send('rm -rf /root/.ssh')
+        if shutit.cfg[self.module_id]['remove_keys']:
+            shutit.send('rm -rf /root/.ssh')
         return True
 
     def get_config(self, shutit):
+        shutit.get_config(self.module_id,'remove_keys',True,boolean=True)
         return True
 
     def test(self, shutit):
