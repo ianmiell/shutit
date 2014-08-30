@@ -86,7 +86,7 @@ def start_all(shutit, run_order=-1):
     cfg = shutit.cfg
     if cfg['build']['interactive'] >= 3:
         print('\nRunning start on all modules' + 
-            util.colour('31', '\n[Hit return to continue]'))
+            util.colour('31', '\n[Hit return to continue]\n'))
         raw_input('')
     # sort them to they're started in order)
     for module_id in module_ids(shutit):
@@ -164,8 +164,8 @@ def init_shutit_map(shutit):
         shutit.fail('No module with run_order=0 specified! This is required.')
 
     if cfg['build']['interactive'] >= 3:
-        print(util.colour('31', 'Module id and run order checks OK\n' + 
-              '[Hit return to continue]'))
+        print(util.colour('31', 'Module id and run order checks OK' + 
+              '\n\n[Hit return to continue]\n'))
         raw_input('')
 
 def config_collection(shutit):
@@ -252,7 +252,7 @@ def conn_container(shutit):
     if shutit.cfg['build']['interactive'] >= 3:
         print('\nRunning the conn module (' +
             shutit.shutit_main_dir + '/setup.py)' + util.colour('31',
-                '\n[Hit return to continue]'))
+                '\n\n[Hit return to continue]\n'))
         raw_input('')
     list(shutit.conn_modules)[0].build(shutit)
 
@@ -478,7 +478,7 @@ def build_module(shutit, module):
         cfg['build']['interactive'] >= 2):
         shutit.log("\n\nDo you want to save state now we\'re at the " +
                    "end of this module? (" + module.module_id +
-                   ") (input y/n)", force_stdout=True)
+                   ") (input y/n)", force_stdout=True, code='31')
         cfg[module.module_id]['tagmodule'] = (raw_input('') == 'y')
     if cfg[module.module_id]['tagmodule']:
         shutit.log(module.module_id +
@@ -496,7 +496,7 @@ def build_module(shutit, module):
         start_all(shutit, module.run_order)
     if cfg['build']['interactive'] >= 2:
         shutit.log("\n\nDo you want to stop interactive mode? (input y/n)\n",
-                   force_stdout=True)
+                   force_stdout=True,code='31')
         if raw_input('') == 'y':
             cfg['build']['interactive'] = 0
 
@@ -509,7 +509,7 @@ def do_build(shutit):
     shutit.log(util.print_config(shutit.cfg))
     if cfg['build']['interactive'] >= 3:
         print ('\nNow building any modules that need building' +
-               util.colour('31', '\n[Hit return to continue]'))
+               util.colour('31', '\n\n[Hit return to continue]\n'))
         raw_input('')
     for module_id in module_ids(shutit):
         module = shutit.shutit_map[module_id]
@@ -543,7 +543,7 @@ def do_test(shutit):
     shutit.log('PHASE: test', code='31')
     if cfg['build']['interactive'] >= 3:
         print '\nNow doing test phase' + util.colour('31',
-            '\n[Hit return to continue]')
+            '\n\n[Hit return to continue]\n')
         raw_input('')
     stop_all(shutit)
     start_all(shutit)
@@ -563,7 +563,7 @@ def do_finalize(shutit):
     # Stop all the modules
     if cfg['build']['interactive'] >= 3:
         print('\nStopping all modules before finalize phase' + util.colour('31',
-              '\n[Hit return to continue]'))
+              '\n\n[Hit return to continue]\n'))
         raw_input('')
     stop_all(shutit)
     # Finalize in reverse order
@@ -571,7 +571,7 @@ def do_finalize(shutit):
     if cfg['build']['interactive'] >= 3:
         print('\nNow doing finalize phase, which we do when all builds are ' +
               'complete and modules are stopped' +
-              util.colour('31', '\n[Hit return to continue]'))
+              util.colour('31', '\n\n[Hit return to continue]\n'))
         raw_input('')
     for module_id in module_ids(shutit, rev=True):
         # Only finalize if it's thought to be installed.
@@ -677,8 +677,21 @@ def shutit_main():
             '/root/shutit_build directory.', force_stdout=True, code='31')
 
 if __name__ == '__main__':
+    phone_home = False
+    try:
+        import urllib
+        phone_home = True
+    except:
+        pass
     try:
         shutit_main()
     except ShutItException as e:
         print 'Error while executing: ' + str(e.message)
-        sys.exit(1)
+        if phone_home:
+            urllib.urlopen("http://shutit.tk?" + urllib.urlencode({'shutitrunstatus':'fail','err':str(e.message),'user':os.getlogin()}))
+            sys.exit(1)
+    if phone_home:
+        try:
+            urllib.urlopen("http://shutit.tk?" + urllib.urlencode({'shutitrunstatus':'ok','user':os.getlogin()}))
+        except:
+            pass
