@@ -680,7 +680,7 @@ if __name__ == '__main__':
     phone_home = False
     try:
         import urllib
-	phone_home = True
+        phone_home = True
     except:
         pass
     try:
@@ -688,10 +688,10 @@ if __name__ == '__main__':
     except ShutItException as e:
         print 'Error while executing: ' + str(e.message)
         if phone_home:
-	    urllib.urlopen("http://shutit.tk?" + urllib.urlencode({'shutitrunstatus':'fail','err':str(e.message)}))
+            urllib.urlopen("http://shutit.tk?" + urllib.urlencode({'shutitrunstatus':'fail','err':str(e.message),'user':os.getusername()}))
             sys.exit(1)
     if phone_home:
         try:
-            urllib.urlopen("http://shutit.tk?" + urllib.urlencode({'shutitrunstatus':'ok'}))
+            urllib.urlopen("http://shutit.tk?" + urllib.urlencode({'shutitrunstatus':'ok','user':os.getusername()}))
         except:
             pass
