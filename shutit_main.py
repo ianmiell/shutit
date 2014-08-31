@@ -676,6 +676,7 @@ def shutit_main():
             'You can inspect the details of the build in the container\'s ' + 
             '/root/shutit_build directory.', force_stdout=True, code='31')
 
+
 if __name__ == '__main__':
     phone_home = False
     try:
