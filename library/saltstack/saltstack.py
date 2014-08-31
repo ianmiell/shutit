@@ -22,20 +22,15 @@
 
 from shutit_module import ShutItModule
 
-class heka(ShutItModule):
+class saltstack(ShutItModule):
 
     def is_installed(self,shutit):
         return False
 
     def build(self,shutit):
-        shutit.send('mkdir -p /opt/heka')
-        shutit.send('pushd /opt/heka')
-        shutit.send('git clone https://github.com/mozilla-services/heka')
-        shutit.send('pushd heka')
-        shutit.send('source build.sh')
-        shutit.send('popd')
-        shutit.send('export PATH=$PATH:/opt/heka/bin')
-        shutit.add_to_bashrc('export PATH=$PATH:/opt/heka/bin')
+        shutit.install('curl')
+        # Not working
+        shutit.send('curl -L http://bootstrap.saltstack.org | sh -s -- -M -N')
         return True
 
     #def get_config(self,shutit):
@@ -56,17 +51,14 @@ class heka(ShutItModule):
     #def remove(self,shutit):
     #    return True
 
-    def test(self,shutit):
-        shutit.send('pushd /opt/heka')
-        shutit.send('ctest')
-        shutit.send('popd')
-        return True
+    #def test(self,shutit):
+    #    return True
 
 def module():
-    return heka(
-        'shutit.tk.heka.heka', 0.53234,
-	description='http://hekad.readthedocs.org/en',
+    return saltstack(
+        'shutit.tk.saltstack.saltstack', 782914092.1235236,
+        description='Saltstack master setup',
         maintainer='ian.miell@gmail.com',
-        depends=['shutit.tk.setup','shutit.tk.go.go']
+        depends=['shutit.tk.setup']
     )
 
