@@ -876,8 +876,9 @@ class ShutIt(object):
         if child and print_input:
             # Handy resize of terminal for debian
             if shutit.cfg['container']['install_type'] == 'apt':
-                    shutit.install('xterm')
-                    print (util.colour('31', '\n\nYou can try running "resize" to get a terminal of a useful size.\n\n'))
+                    #shutit.install('xterm')
+                    #shutit.send('resize')
+                    print (util.colour('31', '\n\nYou can try installing "xterm", then running "resize" to get a terminal of a useful size.\n\n'))
             print (util.colour('31', '\n\nPause point:\n\n') + 
                 msg + util.colour('31','\n\nYou can now type in commands and ' +
                 'alter the state of the container.\nHit return to see the ' +
@@ -972,7 +973,8 @@ class ShutIt(object):
                 expect=None,
                 options=None,
                 timeout=3600,
-                force=False):
+                force=False,
+                check_exit=True):
         """Distro-independent install function.
         Takes a package name and runs the relevant install function.
         Returns true if all ok (ie it's installed), else false.
@@ -983,6 +985,7 @@ class ShutIt(object):
         - options  - 
         - timeout  - 
         - force    - force if necessary
+        - check_exit - if False, failure to install is ok
         """
         #TODO: Temporary failure resolving
         child = child or self.get_default_child()
@@ -1008,12 +1011,14 @@ class ShutIt(object):
         # Get mapped package.
         package = package_map.map_package(package,
             self.cfg['container']['install_type'])
+        # Let's be tolerant of failure eg due to network.
+        # This is especially helpful with automated testing.
         if package != '':
             fails = 0
             while True:
                 res = self.send('%s %s %s' % (cmd, opts, package),
                     expect=['Unable to fetch some archives',expect],
-                    timeout=timeout)
+                    timeout=timeout, check_exit=check_exit)
                 if res == 1:
                     break
                 else:

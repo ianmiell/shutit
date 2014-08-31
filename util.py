@@ -1134,7 +1134,8 @@ class template(ShutItModule):
 def module():
         return template(
                 ''' + '\'%s.%s.%s\'' % (skel_domain, skel_module_name, skel_module_name) + ''', ''' + skel_domain_hash + '.00' + ''',
-        description='',
+                description='',
+                mainatiner='',
                 depends=['shutit.tk.setup']
         )
 '''
