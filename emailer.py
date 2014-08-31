@@ -2,26 +2,26 @@
 
 Example code:
 
-        e = shutit.get_emailer('shutit.tk.mysql.mysql',shutit)
-        for line in ['your message line 1', 'your message line 2']:
-                e.add_line(line)
-        for attach in ['/tmp/filetoattach1','/tmp/filetoattach2']:
-                e.attach(attach)
-        e.send()
+       e = shutit.get_emailer('shutit.tk.mysql.mysql',shutit)
+       for line in ['your message line 1', 'your message line 2']:
+               e.add_line(line)
+       for attach in ['/tmp/filetoattach1','/tmp/filetoattach2']:
+               e.attach(attach)
+       e.send()
 
 Example cfg:
 
-        [shutit.tk.mysql.mysql]
-        mailto:recipient@example.com
-        mailfrom:sender@example.com
-        smtp_server:localhost
-        subject:Shutit Report
-        signature:--Angry Shutit
-        compress:yes
-        username:
-        password:
-        safe_mode: True
-        mailto_maintainer: True
+       [shutit.tk.mysql.mysql]
+       mailto:recipient@example.com
+       mailfrom:sender@example.com
+       smtp_server:localhost
+       subject:Shutit Report
+       signature:--Angry Shutit
+       compress:yes
+       username:
+       password:
+       safe_mode: True
+       mailto_maintainer: True
 
 """
 

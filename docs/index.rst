@@ -11,6 +11,14 @@ Contents:
 .. toctree::
    :maxdepth: 2
 
+.. automodule:: shutit_global
+.. automodule:: setup
+.. automodule:: shutit_module
+.. automodule:: shutit_srv
+.. automodule:: util
+.. automodule:: package_map
+.. automodule:: emailer
+
 
 
 Indices and tables
