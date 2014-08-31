@@ -26,8 +26,12 @@ class shutit(ShutItModule):
 
     def build(self, shutit):
         shutit.install('git')
-        shutit.send('pushd /')
+        shutit.install('python-pip')
+        shutit.send('pushd /opt')
         shutit.send('git clone https://github.com/ianmiell/shutit.git')
+        shutit.send('pushd shutit')
+        shutit.send('pip install -r requirements.txt')
+        shutit.send('popd')
         shutit.send('popd')
         return True
 
