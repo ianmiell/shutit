@@ -33,7 +33,7 @@ set -o nounset
 function set_shutit_options() {
 	local CNAME
 	local OPTS
-	CNAME=shutit_test_container_${BUILD_REF}_${RANDOM}${RANDOM}
+	CNAME=shutit_test_container_${BUILD_REF}
 	OPTS=${1:-none}
 	if [[ "$OPTS" = "none" ]]
 	then
