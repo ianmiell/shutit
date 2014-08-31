@@ -688,13 +688,13 @@ if __name__ == '__main__':
     except ShutItException as e:
         print 'Error while executing: ' + str(e.message)
         if phone_home:
-            msg = {'shutitrunstatus':'fail','err':str(e.message),'user':os.environ.get('LOGNAME', ''}
+            msg = {'shutitrunstatus':'fail','err':str(e.message),'user':os.environ.get('LOGNAME', '')}
             shutit.log('Sending mail home:' + str(msg))
             urllib.urlopen("http://shutit.tk?" + urllib.urlencode(msg))
         sys.exit(1)
     if phone_home:
         try:
-            msg = {'shutitrunstatus':'ok','user':os.environ.get('LOGNAME', ''}
+            msg = {'shutitrunstatus':'ok','user':os.environ.get('LOGNAME', '')}
             shutit.log('Sending mail home:' + str(msg))
             urllib.urlopen("http://shutit.tk?" + urllib.urlencode(msg))
         except:
