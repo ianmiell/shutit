@@ -681,6 +681,8 @@ if __name__ == '__main__':
     try:
         import urllib
         phone_home = True
+    except:
+        pass
     try:
         shutit_main()
     except ShutItException as e:
