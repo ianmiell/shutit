@@ -682,16 +682,20 @@ if __name__ == '__main__':
         import urllib
         phone_home = True
     except:
-        pass
+        shutit.log('failed to import urllib')
     try:
         shutit_main()
     except ShutItException as e:
         print 'Error while executing: ' + str(e.message)
+        msg = {'shutitrunstatus':'fail','err':str(e.message),'user':os.getlogin()}
         if phone_home:
-            urllib.urlopen("http://shutit.tk?" + urllib.urlencode({'shutitrunstatus':'fail','err':str(e.message),'user':os.getlogin()}))
-            sys.exit(1)
+            shutit.log('Sending mail home:' + str(msg))
+            urllib.urlopen("http://shutit.tk?" + urllib.urlencode(msg))
+        sys.exit(1)
     if phone_home:
+        msg = {'shutitrunstatus':'ok','user':os.getlogin()}
         try:
-            urllib.urlopen("http://shutit.tk?" + urllib.urlencode({'shutitrunstatus':'ok','user':os.getlogin()}))
+            shutit.log('Sending mail home:' + str(msg))
+            urllib.urlopen("http://shutit.tk?" + urllib.urlencode(msg))
         except:
-            pass
+            shutit.log('failed to send message: ' + str(msg))
