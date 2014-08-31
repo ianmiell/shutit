@@ -1189,6 +1189,52 @@ class ShutIt(object):
         cfg['container']['install_type']      = ''
         cfg['container']['distro']            = ''
         cfg['container']['distro_version']    = ''
+        # A list of OS Family members
+        # RedHat    = RedHat, Fedora, CentOS, Scientific, SLC, Ascendos, CloudLinux, PSBM, OracleLinux, OVS, OEL, Amazon, XenServer 
+        # Debian    = Ubuntu, Debian
+        # Suse      = SLES, SLED, OpenSuSE, Suse
+        # Gentoo    = Gentoo, Funtoo
+        # Archlinux = Archlinux
+        # Mandrake  = Mandriva, Mandrake
+        # Solaris   = Solaris, Nexenta, OmniOS, OpenIndiana, SmartOS
+        # AIX       = AIX
+        # Alpine    = Alpine
+        # Darwin    = MacOSX
+        # FreeBSD   = FreeBSD
+        # HP-UK     = HPUX
+
+        #    OSDIST_DICT = { '/etc/redhat-release': 'RedHat',
+        #                    '/etc/vmware-release': 'VMwareESX',
+        #                    '/etc/openwrt_release': 'OpenWrt',
+        #                    '/etc/system-release': 'OtherLinux',
+        #                    '/etc/alpine-release': 'Alpine',
+        #                    '/etc/release': 'Solaris',
+        #                    '/etc/arch-release': 'Archlinux',
+        #                    '/etc/SuSE-release': 'SuSE',
+        #                    '/etc/gentoo-release': 'Gentoo',
+        #                    '/etc/os-release': 'Debian' }
+        #    SELINUX_MODE_DICT = { 1: 'enforcing', 0: 'permissive', -1: 'disabled' }
+        #
+        #    # A list of dicts.  If there is a platform with more than one
+        #    # package manager, put the preferred one last.  If there is an
+        #    # ansible module, use that as the value for the 'name' key.
+        #    PKG_MGRS = [ { 'path' : '/usr/bin/yum',         'name' : 'yum' },
+        #                 { 'path' : '/usr/bin/apt-get',     'name' : 'apt' },
+        #                 { 'path' : '/usr/bin/zypper',      'name' : 'zypper' },
+        #                 { 'path' : '/usr/sbin/urpmi',      'name' : 'urpmi' },
+        #                 { 'path' : '/usr/bin/pacman',      'name' : 'pacman' },
+        #                 { 'path' : '/bin/opkg',            'name' : 'opkg' },
+        #                 { 'path' : '/opt/local/bin/pkgin', 'name' : 'pkgin' },
+        #                 { 'path' : '/opt/local/bin/port',  'name' : 'macports' },
+        #                 { 'path' : '/sbin/apk',            'name' : 'apk' },
+        #                 { 'path' : '/usr/sbin/pkg',        'name' : 'pkgng' },
+        #                 { 'path' : '/usr/sbin/swlist',     'name' : 'SD-UX' },
+        #                 { 'path' : '/usr/bin/emerge',      'name' : 'portage' },
+        #                 { 'path' : '/usr/sbin/pkgadd',     'name' : 'svr4pkg' },
+        #                 { 'path' : '/usr/bin/pkg',         'name' : 'pkg' },
+        #    ]
+
+
         install_type_map = {'ubuntu':'apt',
                             'debian':'apt',
                             'red hat':'yum',
@@ -1473,7 +1519,7 @@ class ShutIt(object):
                 self.cfg[module_id][option] = self.cfg['config_parser'].get(module_id, option)
         else:
             if default == None and forcenone != True:
-                self.fail('Config item: ' + option + ':\nin module:\n[' + module_id + ']\nmust be set!\n\nOften this is a deliberate requirement to place in your host-specific /path/to/shutit/configs/$(hostname)_$(whoami).cnf file.')
+                self.fail('Config item: ' + option + ':\nin module:\n[' + module_id + ']\nmust be set!\n\nOften this is a deliberate requirement to place in your ~/.shutit/config file.')
             self.cfg[module_id][option] = default
 
 
@@ -1532,7 +1578,7 @@ def init():
             cfg['host']['username'] = os.getlogin()
         if cfg['host']['username'] == '':
             shutit_global.shutit.fail('LOGNAME not set in the environment, ' +
-                                      'and login unavailable in puthon; ' +
+                                      'and login unavailable in python; ' +
                                       'please set to your username.')
     cfg['host']['real_user'] = os.environ.get('SUDO_USER',
                                               cfg['host']['username'])

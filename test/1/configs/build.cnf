@@ -11,7 +11,8 @@ build:yes
 #mail
 mailto:shutittest@gmail.com
 mailfrom:shutittest@gmail.com
-smtp_server:smtp.gmail.com:587
+smtp_server:smtp.gmail.com
+smtp_port:587
 subject:Shutit Report
 signature:--Angry Shutit
 compress:yes
