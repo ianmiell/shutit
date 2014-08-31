@@ -1578,7 +1578,7 @@ def init():
             cfg['host']['username'] = os.getlogin()
         if cfg['host']['username'] == '':
             shutit_global.shutit.fail('LOGNAME not set in the environment, ' +
-                                      'and login unavailable in puthon; ' +
+                                      'and login unavailable in python; ' +
                                       'please set to your username.')
     cfg['host']['real_user'] = os.environ.get('SUDO_USER',
                                               cfg['host']['username'])
