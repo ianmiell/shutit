@@ -657,26 +657,15 @@ def load_configs(shutit):
     # Image to use to start off. The script should be idempotent, so running it
     # on an already built image should be ok, and is advised to reduce diff space required.
     if cfg['build']['interactive'] >= 3 or cfg['action']['show_config']:
+        print textwrap.dedent("""\n""") + msg + textwrap.dedent("""Looking at config files in the following order:""")
         msg = ''
         for c in configs:
             if type(c) is tuple:
                 c = c[0]
             msg = msg + '    \n' + c
             shutit.log('    ' + c)
-        if cfg['build']['interactive'] >= 3:
-            print textwrap.dedent("""\n""") + msg + textwrap.dedent("""
-                Looking at config files in the above order (even if they
-                do not exist - you may want to create them).
-                
-                If you get a "Port already in use:" error,
-                run:
-                    docker ps -a | grep -w <port> | awk '{print $1}' | xargs docker kill
-                    
-                or
-                    sudo docker ps -a | grep -w <port> | awk '{print $1}' | xargs sudo docker kill
-                
-                """ + colour('31', '[Hit return to continue]'))
-            raw_input('')
+        print textwrap.dedent("""\n""") + msg + textwrap.dedent(colour('31', '[Hit return to continue]'))
+        raw_input('')
 
     # Interpret any config overrides, write to a file and add them to the
     # list of configs to be interpreted
