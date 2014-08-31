@@ -1,3 +1,6 @@
+"""Stores known package maps for different distributions.
+"""
+
 #The MIT License (MIT)
 #
 #Copyright (C) 2014 OpenBet Limited
@@ -20,8 +23,6 @@
 #OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 #SOFTWARE.
 
-"""Stores known package maps for different distributions.
-"""
 
 # Structured by package, then another dict with
 # install_type -> mapped package inside that.

@@ -6,18 +6,16 @@
 Welcome to ShutIt's documentation!
 ==================================
 
-Contents:
-
 .. toctree::
    :maxdepth: 2
 
-.. automodule:: shutit_global
-.. automodule:: setup
-.. automodule:: shutit_module
-.. automodule:: shutit_srv
-.. automodule:: util
-.. automodule:: package_map
-.. automodule:: emailer
+.. .. automodule:: shutit_global
+   .. automodule:: setup
+   .. automodule:: shutit_module
+   .. automodule:: shutit_srv
+   .. automodule:: util
+   .. automodule:: package_map
+   .. automodule:: emailer
 
 
 
