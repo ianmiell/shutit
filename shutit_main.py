@@ -524,9 +524,14 @@ def do_build(shutit):
                      ' with run order: ' +
                      str(module.run_order))
             else:
+                # We move to the module directory to perform the build, returning immediately afterwards.
                 revert_dir = os.getcwd()
                 os.chdir(os.path.dirname(module.__module_file))
+                # We expect to be root before building a module
+                shutit.send('[ $(id -u) -eq 0 ]')
                 build_module(shutit, module)
+                # We expect to be root after building a module
+                shutit.send('[ $(id -u) -eq 0 ]')
                 os.chdir(revert_dir)
         if is_built(shutit, module):
             shutit.log('Starting module')
@@ -699,7 +704,6 @@ if __name__ == '__main__':
             urllib.urlopen("http://shutit.tk?" + urllib.urlencode(msg))
         sys.exit(1)
     if phone_home:
-        print 'asd'
         try:
             if shutit_global.shutit.cfg['build']['completed']:
                 msg = {'shutitrunstatus':'ok','pwd':os.getcwd(),'user':os.environ.get('LOGNAME', '')}
