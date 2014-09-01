@@ -1122,7 +1122,7 @@ class template(ShutItModule):
         templatemodule += """
 def module():
         return template(
-                ''' + '\'%s.%s.%s\'' % (skel_domain, skel_module_name, skel_module_name) + ''', ''' + skel_domain_hash + '.00' + ''',
+                """ + """\'%s.%s.%s\'""" % (skel_domain, skel_module_name, skel_module_name) + """, """ + skel_domain_hash + '.00' + """,
                 description='',
                 maintainer='""" + shutit.cfg['dockerfile']['maintainer'] + """',
                 depends=['shutit.tk.setup']
