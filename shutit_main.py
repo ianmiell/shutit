@@ -694,7 +694,7 @@ if __name__ == '__main__':
     except ShutItException as e:
         print 'Error while executing: ' + str(e.message)
         if phone_home:
-            msg = {'shutitrunstatus':'fail','err':str(e.message),'user':os.environ.get('LOGNAME', '')}
+            msg = {'shutitrunstatus':'fail','err':str(e.message),'pwd':os.getcwd(),'user':os.environ.get('LOGNAME', '')}
             shutit_global.shutit.log('Sending mail home:' + str(msg))
             urllib.urlopen("http://shutit.tk?" + urllib.urlencode(msg))
         sys.exit(1)
@@ -702,9 +702,9 @@ if __name__ == '__main__':
         print 'asd'
         try:
             if shutit_global.shutit.cfg['build']['completed']:
-                msg = {'shutitrunstatus':'ok','user':os.environ.get('LOGNAME', '')}
+                msg = {'shutitrunstatus':'ok','pwd':os.getcwd(),'user':os.environ.get('LOGNAME', '')}
             else:
-                msg = {'shutitrunstatus':'fail','err':os.getcwd(),'user':os.environ.get('LOGNAME', '')}
+                msg = {'shutitrunstatus':'fail','pwd':os.getcwd(),'user':os.environ.get('LOGNAME', '')}
             shutit_global.shutit.log('Sending mail home:' + str(msg))
             urllib.urlopen("http://shutit.tk?" + urllib.urlencode(msg))
         except:
