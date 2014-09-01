@@ -1124,7 +1124,7 @@ def module():
         return template(
                 ''' + '\'%s.%s.%s\'' % (skel_domain, skel_module_name, skel_module_name) + ''', ''' + skel_domain_hash + '.00' + ''',
                 description='',
-                mainatiner='',
+                maintainer='',
                 depends=['shutit.tk.setup']
         )
 '''
