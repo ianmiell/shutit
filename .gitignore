@@ -26,6 +26,7 @@
 shutit_resources/*
 **.log
 **.lck
+docs/_build
 !**defaults.cnf
 !**build.cnf
 !*resources/README.md
