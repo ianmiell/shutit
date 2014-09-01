@@ -956,7 +956,7 @@ def create_skeleton(shutit):
             if docker_command == 'FROM':
                 # Should be only one of these
                 shutit.cfg['dockerfile']['base_image'] = item[1]
-            elif docker_command == "ONBUILD": #TODO
+            elif docker_command == "ONBUILD":
                 # Maps to finalize :) - can we have more than one of these? assume yes
                 # This contains within it one of the above commands, so we need to abstract this out.
                 shutit.cfg['dockerfile']['onbuild'].append(item[1])
