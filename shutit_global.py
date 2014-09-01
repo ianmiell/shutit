@@ -990,7 +990,6 @@ class ShutIt(object):
         - check_exit - If False, failure to install is ok (default True)
         - reinstall  - Advise a reinstall where possible (default False)
         """
-        #TODO: Temporary failure resolving
         child = child or self.get_default_child()
         expect = expect or self.get_default_expect()
         if options is None: options = {}
