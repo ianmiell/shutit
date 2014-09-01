@@ -678,6 +678,9 @@ def shutit_main():
             'You can inspect the details of the build in the container\'s ' + 
             '/root/shutit_build directory.', force_stdout=True, code='31')
 
+    # Mark the build as completed
+    shutit.cfg['build']['completed'] = True
+
 
 if __name__ == '__main__':
     phone_home = False
@@ -696,9 +699,13 @@ if __name__ == '__main__':
             urllib.urlopen("http://shutit.tk?" + urllib.urlencode(msg))
         sys.exit(1)
     if phone_home:
+        print 'asd'
         try:
-            msg = {'shutitrunstatus':'ok','user':os.environ.get('LOGNAME', '')}
+            if shutit_global.shutit.cfg['build']['completed']:
+                msg = {'shutitrunstatus':'ok','user':os.environ.get('LOGNAME', '')}
+            else:
+                msg = {'shutitrunstatus':'fail','err':os.getcwd(),'user':os.environ.get('LOGNAME', '')}
             shutit_global.shutit.log('Sending mail home:' + str(msg))
             urllib.urlopen("http://shutit.tk?" + urllib.urlencode(msg))
         except:
-            shutit_global.shutit.log('failed to send message: ' + str(msg))
+            shutit_global.shutit.log('failed to send message')
