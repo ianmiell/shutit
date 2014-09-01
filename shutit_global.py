@@ -888,8 +888,8 @@ class ShutIt(object):
             child.logfile_send = None
             try:
                 child.interact(input_filter=self._pause_input_filter)
-            except:
-                shutit.fail('Failed to interact, probably because this is run non-interactively')
+            except Exception as e:
+                shutit.fail('Failed to interact, probably because this is run non-interactively.\n\n' + str(e))
             child.logfile_send = oldlog
         else:
             print msg
@@ -974,18 +974,21 @@ class ShutIt(object):
                 options=None,
                 timeout=3600,
                 force=False,
-                check_exit=True):
+                check_exit=True,
+                reinstall=False):
         """Distro-independent install function.
         Takes a package name and runs the relevant install function.
         Returns true if all ok (ie it's installed), else false.
 
-        - package  - Package to install, which is run through package_map
-        - expect   - See send()
-        - child    - See send()
-        - options  - 
-        - timeout  - 
-        - force    - force if necessary
-        - check_exit - if False, failure to install is ok
+        - package    - Package to install, which is run through package_map
+        - expect     - See send()
+        - child      - See send()
+        - timeout    - Timeout to wait for finish of install.
+        - options    - Dictionary for specific options per install tool.
+                       Overrides any arguments passed into this function.
+        - force      - force if necessary
+        - check_exit - If False, failure to install is ok (default True)
+        - reinstall  - Advise a reinstall where possible (default False)
         """
         #TODO: Temporary failure resolving
         child = child or self.get_default_child()
@@ -993,18 +996,27 @@ class ShutIt(object):
         if options is None: options = {}
         # TODO: config of maps of packages
         install_type = self.cfg['container']['install_type']
+        opts = ''
         if install_type == 'apt':
             cmd = 'apt-get install'
-            if self.cfg['build']['debug']:
-                opts = options['apt'] if 'apt' in options else '-y'
+            if 'apt' in options:
+                opts = options['apt']
             else:
+                opts = '-y'
+                if not self.cfg['build']['debug']:
+                    opts += ' -qq'
                 if force:
-                    opts = options['apt'] if 'apt' in options else '-qq -y --force-yes'
-                else:
-                    opts = options['apt'] if 'apt' in options else '-qq -y'
+                    opts += ' --force-yes'
+                if reinstall:
+                    opts += ' --reinstall'
         elif install_type == 'yum':
             cmd = 'yum install'
-            opts = options['yum'] if 'yum' in options else '-y'
+            if 'yum' in options:
+                opts = options['yum']
+            else:
+                opts += ' -y'
+            if reinstall:
+                opts += ' reinstall'
         else:
             # Not handled
             return False
