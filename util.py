@@ -960,8 +960,7 @@ def create_skeleton(shutit):
                 # Maps to finalize :) - can we have more than one of these? assume yes
                 # This contains within it one of the above commands, so we need to abstract this out.
                 shutit.cfg['dockerfile']['onbuild'].append(item[1])
-            elif docker_command == "MAINTAINER": #TODO
-                # Added simply as comment now.
+            elif docker_command == "MAINTAINER":
                 shutit.cfg['dockerfile']['maintainer'] = item[1]
             elif docker_command == "VOLUME": #DONE
                 # Put in the run.sh.
@@ -1120,15 +1119,15 @@ class template(ShutItModule):
     def get_config(self, shutit):
         return True
 '''
-        templatemodule += '''
+        templatemodule += """
 def module():
         return template(
                 ''' + '\'%s.%s.%s\'' % (skel_domain, skel_module_name, skel_module_name) + ''', ''' + skel_domain_hash + '.00' + ''',
                 description='',
-                maintainer='',
+                maintainer='""" + shutit.cfg['dockerfile']['maintainer'] + """',
                 depends=['shutit.tk.setup']
         )
-'''
+"""
         # Return program to main shutit_dir
         if dockerfile_dirname:
                         os.chdir(shutit_dir)
