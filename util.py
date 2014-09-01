@@ -953,7 +953,7 @@ def create_skeleton(shutit):
         for item in dockerfile_list:
             # These items are not order-dependent and don't affect the build, so we collect them here:
             docker_command = item[0].upper()
-            if docker_command == 'FROM': #DONE
+            if docker_command == 'FROM':
                 # Should be only one of these
                 shutit.cfg['dockerfile']['base_image'] = item[1]
             elif docker_command == "ONBUILD": #TODO
@@ -962,13 +962,13 @@ def create_skeleton(shutit):
                 shutit.cfg['dockerfile']['onbuild'].append(item[1])
             elif docker_command == "MAINTAINER":
                 shutit.cfg['dockerfile']['maintainer'] = item[1]
-            elif docker_command == "VOLUME": #DONE
+            elif docker_command == "VOLUME":
                 # Put in the run.sh.
                 try:
                     shutit.cfg['dockerfile']['volume'].append(' '.join(json.loads(item[1])))
                 except:
                     shutit.cfg['dockerfile']['volume'].append(item[1])
-            elif docker_command == 'EXPOSE': #DONE
+            elif docker_command == 'EXPOSE':
                 # Put in the run.sh.
                 shutit.cfg['dockerfile']['expose'].append(item[1])
             elif docker_command == "ENTRYPOINT": #TODO
@@ -977,7 +977,7 @@ def create_skeleton(shutit):
                     shutit.cfg['dockerfile']['entrypoint'] = ' '.join(json.loads(item[1]))
                 except:
                     shutit.cfg['dockerfile']['entrypoint'] = item[1]
-            elif docker_command == "CMD": #DONE
+            elif docker_command == "CMD":
                 # Put in the run.sh
                 try:
                     shutit.cfg['dockerfile']['cmd'] = ' '.join(json.loads(item[1]))
@@ -990,28 +990,28 @@ def create_skeleton(shutit):
                 # We assume the last one seen is the one we use for the image.
                 # Put this in the default start script.
                 shutit.cfg['dockerfile']['user']        = item[1]
-            elif docker_command == 'ENV': #DONE
+            elif docker_command == 'ENV':
                 # Put in the run.sh.
                 shutit.cfg['dockerfile']['script'].append((docker_command, item[1]))
                 # Set in the build
                 shutit.cfg['dockerfile']['env'].append(item[1])
-            elif docker_command == "RUN": #DONE
+            elif docker_command == "RUN":
                 # Only handle simple commands for now and ignore the fact that Dockerfiles run 
                 # with /bin/sh -c rather than bash. 
                 try:
                     shutit.cfg['dockerfile']['script'].append((docker_command, ' '.join(json.loads(item[1]))))
                 except:
                     shutit.cfg['dockerfile']['script'].append((docker_command, item[1]))
-            elif docker_command == "ADD": #DONE but rules TODO
+            elif docker_command == "ADD": #TODO rules
                 # Send file - is this potentially got from the web? Is that the difference between this and COPY?
                 shutit.cfg['dockerfile']['script'].append((docker_command, item[1]))
-            elif docker_command == "COPY": #DONE but rules TODO
+            elif docker_command == "COPY": #TODO rules
                 # Send file
                 shutit.cfg['dockerfile']['script'].append((docker_command, item[1]))
-            elif docker_command == "WORKDIR": #DONE
+            elif docker_command == "WORKDIR":
                 # Push and pop
                 shutit.cfg['dockerfile']['script'].append((docker_command, item[1]))
-            elif docker_command == "COMMENT": #DONE
+            elif docker_command == "COMMENT":
                 # Push and pop
                 shutit.cfg['dockerfile']['script'].append((docker_command, item[1]))
         # We now have the script, so let's construct it inline here
