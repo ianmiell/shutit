@@ -94,10 +94,6 @@ class ShutIt(object):
             self._default_expect.append(self._default_expect[-1])
         if self._default_check_exit[-1] is not None:
             self._default_check_exit.append(self._default_check_exit[-1])
-        # Login to ensure environment is predictable (ie add_to_bashrc's 
-        # rather than exports)
-        if self._default_child[-1] is not None:
-            self.login()
 
 
     def module_method_end(self):
@@ -111,10 +107,6 @@ class ShutIt(object):
             self._default_expect.pop()
         if len(self._default_check_exit) != 1:
             self._default_check_exit.pop()
-        # Logout to ensure environment is predictable (ie add_to_bashrc's 
-        # rather than exports)
-        if len(self._default_child) != 1:
-            self.logout()
 
 
     def get_default_child(self):
