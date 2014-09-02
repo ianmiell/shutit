@@ -32,7 +32,6 @@ class heka(ShutItModule):
         shutit.send('pushd /opt/heka')
         shutit.send('git clone https://github.com/mozilla-services/heka')
         shutit.send('pushd heka')
-        shutit.pause_point('asd')
         shutit.send('source build.sh')
         shutit.send('popd')
         shutit.send('export PATH=$PATH:/opt/heka/bin')
