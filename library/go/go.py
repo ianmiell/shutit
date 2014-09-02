@@ -29,7 +29,7 @@ class go(ShutItModule):
 
     def build(self,shutit):
         shutit.install('cmake')
-        shutit.install('go')
+        shutit.install('golang')
         shutit.install('mercurial')
         shutit.install('make')
         shutit.install('gcc')
