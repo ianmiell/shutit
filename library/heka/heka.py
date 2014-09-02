@@ -32,6 +32,7 @@ class heka(ShutItModule):
         shutit.send('pushd /opt/heka')
         shutit.send('git clone https://github.com/mozilla-services/heka')
         shutit.send('pushd heka')
+        shutit.pause_point('asd')
         shutit.send('source build.sh')
         shutit.send('popd')
         shutit.send('export PATH=$PATH:/opt/heka/bin')
@@ -65,7 +66,7 @@ class heka(ShutItModule):
 def module():
     return heka(
         'shutit.tk.heka.heka', 0.53234,
-	description='http://hekad.readthedocs.org/en',
+        description='http://hekad.readthedocs.org/en',
         maintainer='ian.miell@gmail.com',
         depends=['shutit.tk.setup','shutit.tk.go.go']
     )

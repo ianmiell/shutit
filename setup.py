@@ -220,7 +220,7 @@ class ConnDocker(ShutItModule):
         if cfg['build']['interactive'] >= 2:
             print('\n\nAbout to start container. ' +
                 'Ports mapped will be: ' + ', '.join(port_args) +
-                ' (from\n\n[host]\nports:<value>\n\nconfig, building on the ' +
+                '\n\n[host]\nports:<value>\n\nconfig, building on the ' +
                 'configurable base image passed in in:\n\n    --image <image>\n' +
                 '\nor config:\n\n    [container]\n    docker_image:<image>)\n\n' +
                 'Base image in this case is:\n\n    ' + 
@@ -387,8 +387,8 @@ class setup(ShutItModule):
                 # yum updates are so often "bad" that we let exit codes of 1
                 # through. TODO: make this more sophisticated
                 shutit.send('yum update -y', timeout=9999, exit_values=['0', '1'])
-        shutit.pause_point('Anything you want to do to the container \
-            before the build starts?', level=2)
+        shutit.pause_point('Anything you want to do to the container ' + 
+            'before the build starts?', level=2)
         return True
 
     def remove(self, shutit):
