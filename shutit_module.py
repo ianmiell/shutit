@@ -22,10 +22,12 @@
 """Abstract class that defines how a ShutIt module should be written.
 """
 
+
 from abc import ABCMeta, abstractmethod
 import decimal
 import inspect
 import sys
+
 
 # TODO: these don't belong here, but this module is 'top level' and doesn't
 # depend on any other shutit files.
@@ -34,15 +36,18 @@ class ShutItException(Exception):
     """
     pass
 
+
 class ShutItModuleError(ShutItException):
     """Placeholder exception. Implementation TODO.
     """
     pass
 
+
 class ShutItFailException(ShutItException):
     """Placeholder exception. Implementation TODO.
     """
     pass
+
 
 def shutit_method_scope(func):
     """Notifies the ShutIt object whenever we call a shutit module method.
@@ -56,6 +61,7 @@ def shutit_method_scope(func):
         shutit.module_method_end()
         return ret
     return wrapper
+
 
 class ShutItMeta(ABCMeta):
     """Abstract class that defines what a ShutIt module must implement
@@ -92,6 +98,7 @@ class ShutItMeta(ABCMeta):
         if name == 'ShutItModule':
             mcs.ShutItModule = cls
         return cls
+
 
 class ShutItModule(object):
     """Class that takes a ShutIt object and defines what a ShutIt module must

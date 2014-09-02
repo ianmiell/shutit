@@ -502,6 +502,7 @@ def build_module(shutit, module):
         if raw_input('') == 'y':
             cfg['build']['interactive'] = 0
 
+
 def do_build(shutit):
     """Runs build phase, building any modules that we've determined
     need building.
@@ -527,17 +528,14 @@ def do_build(shutit):
                 # We move to the module directory to perform the build, returning immediately afterwards.
                 revert_dir = os.getcwd()
                 os.chdir(os.path.dirname(module.__module_file))
-                # We expect to be root before building a module
-                shutit.send('[ $(id -u) -eq 0 ]')
                 build_module(shutit, module)
-                # We expect to be root after building a module
-                shutit.send('[ $(id -u) -eq 0 ]')
                 os.chdir(revert_dir)
         if is_built(shutit, module):
             shutit.log('Starting module')
             if not module.start(shutit):
                 shutit.fail(module.module_id + ' failed on start',
                             child=shutit.pexpect_children['container_child'])
+
 
 def do_test(shutit):
     """Runs test phase, erroring if any return false.

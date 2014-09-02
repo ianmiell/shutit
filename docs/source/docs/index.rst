@@ -1,4 +1,7 @@
-testing
+shutit
+======
+
+Principal python module
 
 .. automodule:: shutit_global
    :members:
