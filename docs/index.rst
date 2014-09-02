@@ -1,14 +1,15 @@
+:orphan:
+
+
 .. ShutIt documentation master file, created by
    sphinx-quickstart on Fri Jul 18 17:17:10 2014.
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to ShutIt's documentation!
-==================================
+.. .. _contents:
 
- .. toctree::
-   :maxdepth: 2
-
+ShutIt
+======
 
 .. topic:: Introduction
 
@@ -44,7 +45,44 @@ Welcome to ShutIt's documentation!
   - Can pause during build or on error to interact, then continue with build
 
 
+.. seealso:: Other Documentation
 
+    Download an offline copy of the latest ShutIt documentation:
+
+    * `PDF`_
+    * `ePub`_
+
+    See documentation for past Salt releases at http://shutit.readthedocs.org.
+    Download offline copies on the `ReadTheDocs download page`_.
+
+.. _`PDF`: https://media.readthedocs.org/pdf/shutit/latest/shutit.pdf
+.. _`ePub`: https://media.readthedocs.org/epub/shutit/latest/shutit.epub
+.. _`ReadTheDocs download page`: https://readthedocs.org/projects/shutit/downloads/
+
+
+Download
+========
+
+
+
+Getting Started
+===============
+
+
+ShutIt in depth
+===============
+
+Developer Docs
+==============
+
+:doc:`Docs <source/docs/index>`
+
+Read man
+
+Subtopic1
+---------
+
+**Subtopic2**
 
 .. .. automodule:: shutit_global
    .. automodule:: setup
@@ -54,7 +92,11 @@ Welcome to ShutIt's documentation!
    .. automodule:: package_map
    .. automodule:: emailer
 
+.. .. toctree::
+   :maxdepth: 2
 
+More information about the project
+==================================
 
 Indices and tables
 ==================
