@@ -1,4 +1,3 @@
-:orphan:
 
 
 .. ShutIt documentation master file, created by
@@ -6,7 +5,13 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-.. .. _contents:
+.. :orphan:
+
+.. toctree::
+   :maxdepth: 2
+   source/docs/index.rst
+
+.. _contents:
 
 ShutIt
 ======
@@ -75,25 +80,13 @@ ShutIt in depth
 Developer Docs
 ==============
 
-:doc:`Docs <source/docs/index>`
-
-Read man
+:doc:`Docs <source/docs/index.rst>`
 
 Subtopic1
 ---------
 
 **Subtopic2**
 
-.. .. automodule:: shutit_global
-   .. automodule:: setup
-   .. automodule:: shutit_module
-   .. automodule:: shutit_srv
-   .. automodule:: util
-   .. automodule:: package_map
-   .. automodule:: emailer
-
-.. .. toctree::
-   :maxdepth: 2
 
 More information about the project
 ==================================

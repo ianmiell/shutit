@@ -94,6 +94,10 @@ class ShutIt(object):
             self._default_expect.append(self._default_expect[-1])
         if self._default_check_exit[-1] is not None:
             self._default_check_exit.append(self._default_check_exit[-1])
+        # Login to ensure environment is predictable (ie add_to_bashrc's 
+        # rather than exports)
+        if self._default_child[-1] is not None:
+            self.login()
 
 
     def module_method_end(self):
@@ -107,6 +111,10 @@ class ShutIt(object):
             self._default_expect.pop()
         if len(self._default_check_exit) != 1:
             self._default_check_exit.pop()
+        # Logout to ensure environment is predictable (ie add_to_bashrc's 
+        # rather than exports)
+        if len(self._default_child) != 1:
+            self.logout()
 
 
     def get_default_child(self):
@@ -1138,7 +1146,7 @@ class ShutIt(object):
         If you want simple login and logout, please use login() and logout()
         within this module.
 
-        Typically it would be used in this boilerplate pattern:
+        Typically it would be used in this boilerplate pattern
 
         shutit.send('su - auser',
                     expect=shutit.cfg['expect_prompts']['base_prompt'],
@@ -1260,8 +1268,11 @@ class ShutIt(object):
             self.send('lsb_release -a')
             dist_string = self.get_re_from_child(child.before,
                 '^Distributor ID:[\s]*\(.*)$')
+            version_string = self.get_re_from_child(child.before,
+                '^Release:[\s*\(.*)$')
             if dist_string:
-                cfg['container']['distro']       = dist_string.lower()
+                cfg['container']['distro']         = dist_string.lower()
+                cfg['container']['distro_version'] = version_string
                 cfg['container']['install_type'] = (
                     install_type_map[dist_string.lower()])
             # TODO: version
@@ -1513,16 +1524,12 @@ class ShutIt(object):
         """Gets a specific config from the config files,
         allowing for a default.
         Handles booleans vs strings appropriately.
-    
-        module_id    - module id this relates to,
-                       eg com.mycorp.mymodule.mymodule
+        module_id    - module id this relates to, eg com.mycorp.mymodule.mymodule
         option       - config item to set
         default      - default value if not set in files
         boolean      - whether this is a boolean value or not (default False)
-        forcedefault - if set to true, allows you to override any value
-                       already set (default False)
-        forcenone    - if set to true, allows you to set the value to None
-                       (default False)
+        forcedefault - if set to true, allows you to override any value already set (default False)
+        forcenone    - if set to true, allows you to set the value to None (default False)
         """
         if module_id not in self.cfg.keys():
             self.cfg[module_id] = {}
