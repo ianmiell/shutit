@@ -28,7 +28,7 @@ class llvm(ShutItModule):
         shutit.send('popd')
         shutit.send('pushd llvm')
         shutit.send('./configure')
-        shutit.send('make')
+        shutit.send('make',timeout=99999)
         shutit.send('popd')
         return True
 

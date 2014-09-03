@@ -42,6 +42,7 @@ def module_ids(shutit, rev=False):
         ids = list(reversed(ids))
     return ids
 
+
 def print_modules(shutit):
     """Returns a string table representing the modules in the ShutIt module map.
     """
@@ -56,6 +57,7 @@ def print_modules(shutit):
                            str(cfg[module_id]['remove']) + '    ' +
                            module_id + '\n')
     return string
+
 
 # run_order of -1 means 'stop everything'
 def stop_all(shutit, run_order=-1):
@@ -77,6 +79,7 @@ def stop_all(shutit, run_order=-1):
                     shutit.fail('failed to stop: ' + \
                         module_id, child=shutit.pexpect_children['container_child'])
 
+
 # Start all apps less than the supplied run_order
 def start_all(shutit, run_order=-1):
     """Runs start method on all modules less than the passed-in run_order.
@@ -97,12 +100,14 @@ def start_all(shutit, run_order=-1):
                     shutit.fail('failed to start: ' + module_id, \
                         child=shutit.pexpect_children['container_child'])
 
+
 def is_built(shutit, shutit_module_obj):
     """Returns true if this module is configured to be built,
     or if it is already installed.
     """
     return shutit.cfg[shutit_module_obj.module_id]['build'] \
         or shutit_module_obj.is_installed(shutit)
+
 
 def init_shutit_map(shutit):
     """Initializes the module map of shutit based on the modules
@@ -168,6 +173,7 @@ def init_shutit_map(shutit):
               '\n\n[Hit return to continue]\n'))
         raw_input('')
 
+
 def config_collection(shutit):
     """Collect core config from config files for all seen modules.
     """
@@ -188,6 +194,7 @@ def config_collection(shutit):
             cfg[module_id]['build'] = False
         else:
             shutit.get_config(module_id, 'build_ifneeded', False, boolean=True)
+
 
 def config_collection_for_built(shutit):
     """Collect configuration for modules that are being built.
@@ -245,7 +252,6 @@ def config_collection_for_built(shutit):
                     sys.exit()
 
                              
-
 def conn_container(shutit):
     """Connect to the container.
     """
@@ -258,14 +264,16 @@ def conn_container(shutit):
         raw_input('')
     list(shutit.conn_modules)[0].build(shutit)
 
+
 def finalize_container(shutit):
     """Finalize the container using the core finalize method.
     """
     assert len(shutit.conn_modules) == 1
     # Set up the container in pexpect.
-    shutit.pause_point('\nFinalizing the conntainer module (' +
+    shutit.pause_point('\nFinalizing the container module (' +
         shutit.shutit_main_dir + '/setup.py)', print_input=False, level=3)
     list(shutit.conn_modules)[0].finalize(shutit)
+
 
 # Once we have all the modules, then we can look at dependencies.
 # Dependency validation begins.
@@ -282,6 +290,7 @@ def resolve_dependencies(shutit, to_build, depender):
             cfg[dependee_id]['build'] = True
     return True
 
+
 def check_dependee_exists(shutit, depender, dependee, dependee_id):
     """Checks whether a depended-on module is available.
     """
@@ -294,6 +303,7 @@ def check_dependee_exists(shutit, depender, dependee, dependee_id):
             'all modules configured to be built are in that path setting, ' +
             'eg "--shutit_module_path /path/to/other/module/:." See also help.')
 
+
 def check_dependee_build(shutit, depender, dependee, dependee_id):
     """Checks whether a depended on module is configured to be built.
     """
@@ -304,6 +314,7 @@ def check_dependee_build(shutit, depender, dependee, dependee_id):
             'is configured: "build:yes" or is already built ' +
             'but dependee module_id:\n\n[' + dependee_id + ']\n\n' +
             'is not configured: "build:yes"')
+
 
 def check_dependee_order(_shutit, depender, dependee, dependee_id):
     """Checks whether run orders are in the appropriate order.
@@ -317,6 +328,7 @@ def check_dependee_order(_shutit, depender, dependee, dependee_id):
             '\n\n(run order: ' + str(dependee.run_order) + ') ' +
             'but the latter is configured to run after the former')
 
+
 def make_dep_graph(depender):
     """Returns a digraph string fragment based on the passed-in module 
     """
@@ -325,6 +337,7 @@ def make_dep_graph(depender):
         digraph = (digraph + '"' + depender.module_id + '"->"' +
            dependee_id + '";\n')
     return digraph
+
 
 def check_deps(shutit):
     """Dependency checking phase is performed in this method.
@@ -387,6 +400,7 @@ def check_deps(shutit):
 
     return []
 
+
 def check_conflicts(shutit):
     """Checks for any conflicts between modules configured to be built.
     """
@@ -414,6 +428,7 @@ def check_conflicts(shutit):
                     'conflicts with module_id: ' + conflictee_obj.module_id,))
     return errs
 
+
 def check_ready(shutit):
     """Check that all modules are ready to be built, calling check_ready on
     each of those configured to be built and not already installed
@@ -432,12 +447,15 @@ def check_ready(shutit):
         if cfg[module_id]['build'] and not module.is_installed(shutit):
             shutit.log('checking whether module is ready to build: ' + module_id,
                        code='31')
+            shutit.login()
             if not module.check_ready(shutit):
                 errs.append((module_id + ' not ready to install. Read the ' +
                              'check_ready function within it to determine ' +
                              'what is missing.\n\n',
                              shutit.pexpect_children['container_child']))
+            shutit.logout()
     return errs
+
 
 def do_remove(shutit):
     """Remove modules by calling remove method on those configured for removal.
@@ -452,10 +470,13 @@ def do_remove(shutit):
         shutit.log('considering whether to remove: ' + module_id, code='31')
         if cfg[module_id]['remove']:
             shutit.log('removing: ' + module_id, code='31')
+            shutit.login()
             if not module.remove(shutit):
                 shutit.log(print_modules(shutit), code='31')
                 shutit.fail(module_id + ' failed on remove',
                 child=shutit.pexpect_children['container_child'])
+            shutit.logout()
+
 
 def build_module(shutit, module):
     """Build passed-in module.
@@ -528,7 +549,9 @@ def do_build(shutit):
                 # We move to the module directory to perform the build, returning immediately afterwards.
                 revert_dir = os.getcwd()
                 os.chdir(os.path.dirname(module.__module_file))
+                shutit.login()
                 build_module(shutit, module)
+                shutit.logout()
                 os.chdir(revert_dir)
         if is_built(shutit, module):
             shutit.log('Starting module')
@@ -556,9 +579,12 @@ def do_test(shutit):
         # Only test if it's thought to be installed.
         if is_built(shutit, shutit.shutit_map[module_id]):
             shutit.log('RUNNING TEST ON: ' + module_id, code='31')
+            shutit.login()
             if not shutit.shutit_map[module_id].test(shutit):
                 shutit.fail(module_id + ' failed on test',
                             child=shutit.pexpect_children['container_child'])
+            shutit.logout()
+
 
 def do_finalize(shutit):
     """Runs finalize phase; run after all builds are complete and all modules
@@ -581,9 +607,12 @@ def do_finalize(shutit):
     for module_id in module_ids(shutit, rev=True):
         # Only finalize if it's thought to be installed.
         if is_built(shutit, shutit.shutit_map[module_id]):
+            shutit.login()
             if not shutit.shutit_map[module_id].finalize(shutit):
                 shutit.fail(module_id + ' failed on finalize',
                             child=shutit.pexpect_children['container_child'])
+            shutit.logout()
+
 
 def shutit_module_init(shutit):
     """Initialize.
@@ -593,6 +622,7 @@ def shutit_module_init(shutit):
     util.load_shutit_modules(shutit)
     init_shutit_map(shutit)
     config_collection(shutit)
+
 
 def shutit_main():
     """Main ShutIt function.

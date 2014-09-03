@@ -66,10 +66,10 @@ aWR0aAAAACADAAAAaQ=="""))
         #        break
         #    elif res == 0 or res == 1:
         #        send = ''
-        send = 'vncserver'
         shutit.send('rm -rf /tmp/ubuntu-desktop')
+        send = 'vncserver'
         while True:
-            res = shutit.send(send, expect=['assword:', 'erify', shutit.cfg['expect_prompts']['root_prompt']], fail_on_empty_before=False, echo=False)
+            res = shutit.send(send, expect=['assword:', 'erify', shutit.get_default_expect()], fail_on_empty_before=False, echo=False)
             if res == 0 or res == 1:
                 send = shutit.cfg['shutit.tk.vnc.vnc']['password']
             elif res == 2:

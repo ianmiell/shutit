@@ -5,11 +5,11 @@
 build:yes
 # Allowed images as a regexp, eg ["ubuntu:12.*"], or [".*"], or ["centos"].
 # It's recommended this is locked down as far as possible.
-allowed_images:["ubuntu:12.04"]
+allowed_images:["ubuntu:trusty","ubuntu:14.04"]
 
 # Aspects of build process
 [build]
-base_image:ubuntu:12.04
+base_image:ubuntu:trusty
 [repository]
 name:emscripten
 user:

@@ -2,7 +2,7 @@
 # This feeds into automated testing of each module.
 [shutit.tk.nodejs.nodejs]
 build:yes
-allowed_images:["ubuntu:14.04"]
+allowed_images:["ubuntu:14.04","ubuntu:trusty"]
 
 # Aspects of build process
 [build]

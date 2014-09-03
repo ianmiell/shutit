@@ -30,7 +30,6 @@ class get_iplayer(ShutItModule):
             shutit.install('git')
             shutit.install('liblwp-online-perl')
             shutit.install('rtmpdump')
-            shutit.install('ffmpeg')
             shutit.install('mplayer')
             shutit.install('atomicparsley')
             shutit.install('id3v2')
@@ -39,16 +38,21 @@ class get_iplayer(ShutItModule):
             shutit.install('libnet-smtp-ssl-perl')
             shutit.install('libnet-smtp-tls-butmaintained-perl')
             shutit.install('libxml-simple-perl')
-            shutit.send('pushd /')
+            shutit.send('pushd /opt')
             shutit.send('git clone git://git.infradead.org/get_iplayer.git')
             shutit.send('cd get_iplayer')
             shutit.send('chmod 755 get_iplayer')
             shutit.send('./get_iplayer')
             shutit.send('popd')
+            shutit.add_to_bashrc('export PATH=${PATH}:/opt/get_iplayer')
         return True
 
     def is_installed(self, shutit):
         return shutit.file_exists('/get_iplayer/get_iplayer')
+
+    def test(self, shutit):
+        shutit.send('get_iplayer')
+        return True
 
 def module():
     return get_iplayer(
