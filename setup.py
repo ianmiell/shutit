@@ -300,6 +300,7 @@ class ConnDocker(ShutItModule):
         shutit.log('Setting up default prompt on container child')
         shutit.setup_prompt('pre_build', prefix='PRE_BUILD')
         shutit.send('export HOME=/root')
+        shutit.add_to_bashrc('export HOME=/root')
         shutit.get_distro_info()
         shutit.setup_prompt('root_prompt', prefix='ROOT')
         # Create the build directory and put the config in it.
@@ -377,7 +378,7 @@ class setup(ShutItModule):
         # Seems to be broken
         #do_update = shutit.cfg[self.module_id]['do_update']
         if shutit.cfg['container']['install_type'] == 'apt':
-            shutit.send('export DEBIAN_FRONTEND=noninteractive')
+            shutit.add_to_bashrc('export DEBIAN_FRONTEND=noninteractive')
             if do_update:
                 shutit.send('apt-get update', timeout=9999, check_exit=False)
             shutit.send('dpkg-divert --local --rename --add /sbin/initctl')

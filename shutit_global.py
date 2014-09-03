@@ -105,7 +105,6 @@ class ShutIt(object):
             self._default_child.pop()
         if len(self._default_expect) != 1:
             self._default_expect.pop()
-        if len(self._default_check_exit) != 1:
             self._default_check_exit.pop()
 
 
