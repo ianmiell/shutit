@@ -34,7 +34,6 @@ class heka(ShutItModule):
         shutit.send('pushd heka')
         shutit.send('source build.sh')
         shutit.send('popd')
-        shutit.send('export PATH=$PATH:/opt/heka/bin')
         shutit.add_to_bashrc('export PATH=$PATH:/opt/heka/bin')
         return True
 

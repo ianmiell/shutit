@@ -9,7 +9,7 @@ class cloudera(ShutItModule):
         return False
 
     def build(self, shutit):
-        shutit.send('apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -yq curl')
+        shutit.install('curl')
         # add CDH repo
         shutit.send('curl http://archive.cloudera.com/cdh5/ubuntu/precise/amd64/cdh/archive.key | apt-key add -')
         shutit.send('curl http://archive.cloudera.com/cdh5/ubuntu/precise/amd64/cdh/cloudera.list > /etc/apt/sources.list.d/cloudera.list')
@@ -17,10 +17,10 @@ class cloudera(ShutItModule):
         shutit.send('curl http://archive.cloudera.com/cm5/ubuntu/precise/amd64/cm/archive.key | apt-key add -')
         shutit.send('curl http://archive.cloudera.com/cm5/ubuntu/precise/amd64/cm/cloudera.list > /etc/apt/sources.list.d/cloudera-manager.list')
         shutit.send('apt-get update')
-        shutit.send('DEBIAN_FRONTEND=noninteractive apt-get install -yq oracle-j2sdk1.7')
-        shutit.send('export JAVA_HOME=/usr/lib/jvm/java-7-oracle-cloudera')
-        shutit.send('export PATH=$JAVA_HOME/bin:$PATH')
-        shutit.send('DEBIAN_FRONTEND=noninteractive apt-get install -yq cloudera-manager-daemons cloudera-manager-server')
+        shutit.install('oracle-j2sdk1.7')
+        shutit.add_to_bashrc('export JAVA_HOME=/usr/lib/jvm/java-7-oracle-cloudera')
+        shutit.add_to_bashrc('export PATH=$JAVA_HOME/bin:$PATH')
+        shutit.install('cloudera-manager-daemons cloudera-manager-server')
         # Ports for Cloudera Manager
         return True
 

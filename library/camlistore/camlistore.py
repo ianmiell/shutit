@@ -15,8 +15,6 @@ class camlistore(ShutItModule):
         shutit.send('chown -R camlistore /camlistore')
         shutit.send('pushd /camlistore')
         shutit.send('go run make.go')
-        shutit.send('export HOME=/camlistore')
-        shutit.send('export USER=camlistore')
         shutit.send('popd')
         return True
 
