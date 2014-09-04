@@ -94,12 +94,14 @@ class template(ShutItModule):
         shutit.send_and_expect('echo "Another command to look at debug output"')
         shutit.cfg['build']['debug'] = orig_debug_val
         shutit.pause_point("""
-                The doubling up of text is expected; try and ignore it :)
                 When you're done, "Ctrl" and "]" at the same time.
+
                 You should then see your inputted lines in the output.
+
                 Add them to the module file before the pause_point line as 
                 "shutit.send_and_expect" lines (copy and paste), following
                 the examples above this one in the file.
+
                 Then "Ctrl" and "]" at the same time again to return to the script.
                 Eventually you'll get a docker export to a tar file in your 
                 configured resources folder.""")
