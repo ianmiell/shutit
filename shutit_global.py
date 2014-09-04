@@ -908,7 +908,8 @@ class ShutIt(object):
                     password=self.cfg['host']['password'],
                     docker_executable=self.cfg['host']['docker_executable'],
                     force=True)
-                self.log('\n\nCommit and tag done\n\n', force_stdout=True)
+                self.log('\n\nCommit and tag done\n\nCTRL-] to continue with' + 
+                    ' build. Hit return for a promp.', force_stdout=True)
         return input_string
 
 
