@@ -862,7 +862,8 @@ def get_commands(shutit):
     """
     s = ''
     for c in shutit.shutit_command_history:
-        s += c + '\n'
+        if type(c) == str:
+            s += c + '\n'
     return s
 
 
