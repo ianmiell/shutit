@@ -314,7 +314,7 @@ class ShutIt(object):
                     self.revert_prompt('reset_tmp_prompt', expect,
                         child=child)
         # Last output - remove the first line, as it is the previous command.
-        cfg['build']['last_output'] = '\n'.join(child.before.split('\n'[1:]))
+        cfg['build']['last_output'] = '\n'.join(child.before.split('\n')[1:])
         if check_exit == True:
             # store the output
             self._check_exit(send, expect, child, timeout, exit_values)
