@@ -71,7 +71,7 @@ class template(ShutItModule):
             shutit.send_and_expect(shutit.cfg['container']['password'],'ew password',check_exit=False,echo=False)
             shutit.send_and_expect(shutit.cfg['container']['password'],echo=False)
         # You can put multiple items you might expect in a list and handle accordingly:
-        res = shutit.send_and_expect('sudo ls',['assword',shutit.cfg['expect_prompts']['root_prompt']],check_exit=False)
+        res = shutit.send_and_expect('sudo ls',['assword',shutit.get_default_expect()],check_exit=False)
         if res == 0:
             shutit.send_and_expect(shutit.cfg['container']['password'],echo=False)
         elif res == 1:
@@ -83,17 +83,8 @@ class template(ShutItModule):
         shutit.send_file('/tmp/copiedfile',file.read(file(os.path.abspath(os.path.dirname(__file__)) + '/README.md')))
         # example of bespoke config use
         # Example of login/logout handling
-        # When logging in, use the base prompt to attempt to match all prompts
-        # Note that we don't check_exit, because the exit value won't be meaningful.
         shutit.login('root')
-        #shutit.send_and_expect('su',shutit.cfg['expect_prompts']['base_prompt'],check_exit=False)
-        # Then call setup_prompt to set and get the bespoke prompt for the session
-        #shutit.setup_prompt('test_tmp_prompt')
-        #shutit.set_default_expect(shutit.cfg['expect_prompts']['test_tmp_prompt'])
-        #shutit.send_and_expect('echo "a command and some output"')
-        # Make sure we're expecting the right thing after we exit this subshell
-        #shutit.set_default_expect(shutit.cfg['expect_prompts']['root_prompt'])
-        #shutit.send_and_expect('exit')
+        shutit.send_and_expect('echo "a command and some output"')
         shutit.logout()
 
         # Example of temporary debugging
