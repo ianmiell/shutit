@@ -299,8 +299,6 @@ class ConnDocker(ShutItModule):
         shutit.set_default_child(container_child)
         shutit.log('Setting up default prompt on container child')
         shutit.setup_prompt('pre_build', prefix='PRE_BUILD')
-        shutit.send('export HOME=/root')
-        shutit.add_to_bashrc('export HOME=/root')
         shutit.get_distro_info()
         shutit.setup_prompt('root_prompt', prefix='ROOT')
         # Create the build directory and put the config in it.
@@ -381,6 +379,8 @@ class setup(ShutItModule):
             shutit.add_to_bashrc('export DEBIAN_FRONTEND=noninteractive')
             if do_update:
                 shutit.send('apt-get update', timeout=9999, check_exit=False)
+            shutit.install('lsb-release')
+            shutit.lsb_release()
             shutit.send('dpkg-divert --local --rename --add /sbin/initctl')
             shutit.send('ln -f -s /bin/true /sbin/initctl')
         elif shutit.cfg['container']['install_type'] == 'yum':

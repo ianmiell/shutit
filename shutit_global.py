@@ -875,10 +875,12 @@ class ShutIt(object):
             return
         if child and print_input:
             # Handy resize of terminal for debian
-            if shutit.cfg['container']['install_type'] == 'apt':
-                    #shutit.install('xterm')
-                    #shutit.send('resize')
+            try:
+                if shutit.cfg['container']['install_type'] == 'apt':
                     print (util.colour('31', '\n\nYou can try installing "xterm", then running "resize" to get a terminal of a useful size.\n\n'))
+            except:
+                # Don't worry if we can't do the above
+                pass
             print (util.colour('31', '\n\nPause point:\n\n') + 
                 msg + util.colour('31','\n\nYou can now type in commands and ' +
                 'alter the state of the container.\nHit return to see the ' +
@@ -1252,32 +1254,15 @@ class ShutIt(object):
         #    ]
 
 
-        install_type_map = {'ubuntu':'apt',
-                            'debian':'apt',
-                            'red hat':'yum',
-                            'centos':'yum',
-                            'fedora':'yum'}
         if self.package_installed('lsb_release'):
-            self.send('lsb_release -a')
-            dist_string = self.get_re_from_child(child.before,
-                '^Distributor ID:[\s]*\(.*)$')
-            version_string = self.get_re_from_child(child.before,
-                '^Release:[\s*\(.*)$')
-            if dist_string:
-                cfg['container']['distro']         = dist_string.lower()
-                cfg['container']['distro_version'] = version_string
-                cfg['container']['install_type'] = (
-                    install_type_map[dist_string.lower()])
-            # TODO: version
-            #version = self.get_re_from_child(child.before,
-            #    '^Release:[\s]*(.*)$')
+            self.lsb_release()
         else:
-            for key in install_type_map.keys():
+            for key in cfg['build']['install_type_map'].keys():
                 self.send('cat /etc/issue | grep -i "' + key + '" | wc -l',
                     check_exit=False)
                 if self.get_re_from_child(child.before, '^([0-9]+)$') == '1':
                     cfg['container']['distro']       = key
-                    cfg['container']['install_type'] = install_type_map[key]
+                    cfg['container']['install_type'] = cfg['build']['install_type_map'][key]
                     break
         if (cfg['container']['install_type'] == '' or 
             cfg['container']['distro'] == ''):
@@ -1289,6 +1274,20 @@ class ShutIt(object):
             cfg['container']['distro'] == ''):
             shutit.fail('Could not determine Linux distro information. ' + 
                         'Please inform maintainers.', child=child)
+
+
+    def lsb_release(self, child=None):
+        child = child or self.get_default_child()
+        self.send('lsb_release -a',check_exit=False)
+        dist_string = self.get_re_from_child(child.before,
+            '^Distributor[\s]*ID:[\s]*(.*)$')
+        version_string = self.get_re_from_child(child.before,
+            '^Release:[\s*](.*)$')
+        if dist_string:
+            cfg['container']['distro']         = dist_string.lower()
+            cfg['container']['distro_version'] = version_string
+            cfg['container']['install_type'] = (
+                cfg['build']['install_type_map'][dist_string.lower()])
 
 
     def set_password(self, password, user='', child=None, expect=None):
@@ -1586,6 +1585,11 @@ def init():
     cfg['expect_prompts']       = {}
     cfg['users']                = {}
     cfg['dockerfile']           = {}
+    cfg['build']['install_type_map'] = {'ubuntu':'apt',
+                            'debian':'apt',
+                            'red hat':'yum',
+                            'centos':'yum',
+                            'fedora':'yum'}
 
     # If no LOGNAME available,
     cfg['host']['username'] = os.environ.get('LOGNAME', '')
