@@ -56,7 +56,8 @@ aWR0aAAAACADAAAAaQ=="""))
         shutit.install('vnc4server')
         shutit.install('novnc')
         shutit.install('apt-utils')
-        shutit.install('ubuntu-desktop')
+        if shutit.cfg['container']['distro'] == 'ubuntu':
+            shutit.install('ubuntu-desktop')
         # apt-utils?
         #if shutit.cfg['container']['install_type'] == 'apt':
         #    send = 'apt-get install -qq -y --no-install-recommends ubuntu-desktop > /tmp/ubuntu-desktop'
