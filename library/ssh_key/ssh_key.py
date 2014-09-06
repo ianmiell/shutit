@@ -12,7 +12,7 @@ class ssh_key(ShutItModule):
     def build(self, shutit):
         shutit.install('openssh-client')
         shutit.send("ssh-keygen -P '' -f '/root/.ssh/id_rsa'")
-        shutit.send('cat ~/.ssh/id_rsa.pub >> /root/.ssh/authorized_keys')
+        shutit.send('cat /root/.ssh/id_rsa.pub >> /root/.ssh/authorized_keys')
         return True
 
     def finalize(self, shutit):
