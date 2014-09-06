@@ -44,13 +44,11 @@ class ssh_server(ShutItModule):
         ## see http://docs.docker.io/en/latest/examples/running_ssh_service/
         shutit.add_line_to_file('mkdir -p /var/run/sshd', '/root/start_ssh_server.sh')
         shutit.add_line_to_file('chmod 700 /var/run/sshd', '/root/start_ssh_server.sh')
-        print shutit.cfg['container']
         if shutit.cfg['container']['distro'] in ('ubuntu','debian'):
             shutit.add_line_to_file('start-stop-daemon --start --quiet --oknodo --pidfile /var/run/sshd.pid --exec /usr/sbin/sshd', '/root/start_ssh_server.sh')
             shutit.add_line_to_file('start-stop-daemon --stop --quiet --oknodo --pidfile /var/run/sshd.pid', '/root/stop_ssh_server.sh')
             # 12.04 issue on selinux hosts:
             # https://groups.google.com/forum/#!topic/docker-user/73AiwlZEgY4
-            print shutit.cfg['container']['distro_version']
             if shutit.cfg['container']['distro_version'] == '12.04':
                 shutit.send('wget http://mirrors.kernel.org/ubuntu/pool/main/libs/libselinux/libselinux1_2.1.13-2_amd64.deb')
                 shutit.send('dpkg --install libselinux1_2.1.13-2_amd64.deb')
