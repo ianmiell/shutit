@@ -9,6 +9,7 @@ class ianmiellawslogin(ShutItModule):
 
     def build(self,shutit):
         # Make sure we have none up
+        #shutit.pause_point('aws ec2 describe-instances --filter Name=instance-state-name,Values=running')
         shutit.send('aws ec2 describe-instances --filter Name=instance-state-name,Values=running')
         json_dict = json.loads(shutit.get_output())
         if len(json_dict['Reservations']) != 0:
@@ -17,9 +18,11 @@ class ianmiellawslogin(ShutItModule):
         shutit.send('aws ec2 run-instances --image-id ' + shutit.cfg[self.module_id]['image_id'] + ' --instance-type ' + shutit.cfg[self.module_id]['instance_type'] + ' --key-name imiell_aws_eu')
         json_dict = json.loads(shutit.get_output())
         shutit.cfg[self.module_id]['instance_id'] = json_dict['Instances'][0]['InstanceId']
-        
-        shutit.send('sleep 500')
 
+        #ec2-authorize = see http://docs.aws.amazon.com/AWSEC2/latest/CommandLineReference/ApiReference-cmd-AuthorizeSecurityGroupIngress.html
+        
+        shutit.pause_point('aws ec2 describe-instances --filter Name=instance-state-name,Values=running')
+        #shutit.send('sleep 500')
         shutit.send('aws ec2 describe-instances --filter Name=instance-state-name,Values=running')
         json_dict = json.loads(shutit.get_output())
         shutit.cfg[self.module_id]['ec2_ip'] = json_dict['Reservations'][0]['Instances'][0]['PublicIpAddress']
