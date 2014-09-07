@@ -1428,16 +1428,18 @@ class ShutIt(object):
             repository_tar = '%s%s' % (repository_tar, suffix_date)
 
         if repository != '':
-            repository = repository + ':' + repo_tag
+            repository_with_tag = repository + ':' + repo_tag
+
+        # Commit image
+        # Only lower case accepted
+        repository          = repository.lower()
+        repository_with_tag = repository_with_tag.lower()
 
         if server == '' and len(repository) > 30 and push:
             shutit.fail("""repository name: '""" + repository +
                 """' too long. If using suffix_date consider shortening""",
                 child=child)
 
-        # Commit image
-        # Only lower case accepted
-        repository = repository.lower()
         if self.send('SHUTIT_TMP_VAR=$(' + docker_executable + ' commit ' +
                      cfg['container']['container_id'] + ')',
                      expect=[expect,'assword'], child=child, timeout=99999,
@@ -1445,8 +1447,8 @@ class ShutIt(object):
             self.send(cfg['host']['password'], expect=expect, check_exit=False,
                       record_command=False, child=child)
         # Tag image
-        cmd = docker_executable + ' tag $SHUTIT_TMP_VAR ' + repository
-        self.cfg['build']['report'] += '\nBuild tagged as: ' + repository
+        cmd = docker_executable + ' tag $SHUTIT_TMP_VAR ' + repository_with_tag
+        self.cfg['build']['report'] += '\nBuild tagged as: ' + repository_with_tag
         self.send(cmd, child=child, expect=expect, check_exit=False)
         if export or save:
             self.pause_point('We are now exporting the container to a ' + 
