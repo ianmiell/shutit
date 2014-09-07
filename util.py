@@ -658,8 +658,8 @@ def load_configs(shutit):
     # Image to use to start off. The script should be idempotent, so running it
     # on an already built image should be ok, and is advised to reduce diff space required.
     if cfg['build']['interactive'] >= 3 or cfg['action']['show_config']:
-        print textwrap.dedent("""\n""") + msg + textwrap.dedent("""Looking at config files in the following order:""")
         msg = ''
+        print textwrap.dedent("""\n""") + msg + textwrap.dedent("""Looking at config files in the following order:""")
         for c in configs:
             if type(c) is tuple:
                 c = c[0]
