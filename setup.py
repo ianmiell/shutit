@@ -217,14 +217,14 @@ class ConnDocker(ShutItModule):
                 '/bin/bash'
             ] if arg != ''
         ]
-        if cfg['build']['interactive'] >= 2:
+        if cfg['build']['interactive'] >= 3:
             print('\n\nAbout to start container. ' +
                 'Ports mapped will be: ' + ', '.join(port_args) +
                 '\n\n[host]\nports:<value>\n\nconfig, building on the ' +
                 'configurable base image passed in in:\n\n    --image <image>\n' +
                 '\nor config:\n\n    [container]\n    docker_image:<image>)\n\n' +
                 'Base image in this case is:\n\n    ' + 
-		cfg['container']['docker_image'] +
+                cfg['container']['docker_image'] +
                 '\n\n' + util.colour('31', '[Hit return to continue]'))
             raw_input('')
         shutit.cfg['build']['docker_command'] = ' '.join(docker_command)
