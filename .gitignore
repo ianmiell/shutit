@@ -31,3 +31,5 @@ docs/_build
 !**build.cnf
 !*resources/README.md
 !*shutit_resources/README.md
+pubring.gpg~
+secring.gpg
