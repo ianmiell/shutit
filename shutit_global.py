@@ -1083,6 +1083,24 @@ class ShutIt(object):
         return True
 
 
+    def exec_shell(self, command='bash', child=None, password=None):
+        """See login.
+
+        This is the same, except it simply execs a shell, acting like a login.
+        Useful eg if you've just ssh'd in and need to refresh the shell in a 
+        simple exec_shell()/exit_shell() combo.
+
+        user     - User to login with
+        command  - Command to login with
+        child    - See send()
+        """
+        child = child or self.get_default_child()
+        r_id = random_id()
+        self.cfg['build']['login_stack'].append(r_id)
+        self.send(command,expect=shutit.cfg['expect_prompts']['base_prompt'],check_exit=False)
+        self.setup_prompt(r_id,child=child)
+
+
     def login(self, user='root', command='su -', child=None, password=None):
         """Logs the user in with the passed-in password and command.
         Tracks the login. If used, used logout to log out again.
@@ -1127,6 +1145,8 @@ class ShutIt(object):
         # No point in checking exit here, the exit code will be
         # from the previous command from the logged in session
         self.send('exit', check_exit=False)
+    # alias exit_shell to logout
+    exit_shell = logout
 
 
     def setup_prompt(self,
@@ -1164,8 +1184,8 @@ class ShutIt(object):
             ("SHUTIT_BACKUP_PS1_%s=$PS1 && PS1='%s' && unset PROMPT_COMMAND") %
                 (prompt_name, local_prompt),
             # The newline in the list is a hack. On my work laptop this line hangs
-	    # and times out very frequently. This workaround seems to work, but I
-	    # haven't figured out why yet - imiell.
+            # and times out very frequently. This workaround seems to work, but I
+            # haven't figured out why yet - imiell.
             expect=[self.cfg['expect_prompts'][prompt_name],'\r\n'],
             fail_on_empty_before=False, timeout=5, child=child)
         if set_default_expect:
@@ -1195,7 +1215,7 @@ class ShutIt(object):
             self.set_default_expect()
 
 
-    def get_distro_info(self, child=None):
+    def get_distro_info(self, child=None, container=True):
         """Get information about which distro we are using.
 
         Fails if distro could not be determined.
@@ -1203,11 +1223,16 @@ class ShutIt(object):
         as possible.
 
         - child              - See send()
+        - container          - If True, we are in the container shell
         """
         child = child or self.get_default_child()
-        cfg['container']['install_type']      = ''
-        cfg['container']['distro']            = ''
-        cfg['container']['distro_version']    = ''
+        install_type   = ''
+        distro         = ''
+        distro_version = ''
+        if container:
+            cfg['container']['install_type']      = ''
+            cfg['container']['distro']            = ''
+            cfg['container']['distro_version']    = ''
         # A list of OS Family members
         # RedHat    = RedHat, Fedora, CentOS, Scientific, SLC, Ascendos, CloudLinux, PSBM, OracleLinux, OVS, OEL, Amazon, XenServer 
         # Debian    = Ubuntu, Debian
@@ -1252,28 +1277,32 @@ class ShutIt(object):
         #                 { 'path' : '/usr/sbin/pkgadd',     'name' : 'svr4pkg' },
         #                 { 'path' : '/usr/bin/pkg',         'name' : 'pkg' },
         #    ]
-
-
         if self.package_installed('lsb_release'):
-            self.lsb_release()
+            d = self.lsb_release()
+            install_type   = d['install_type']
+            distro         = d['distro']
+            distro_version = d['distro_version']
         else:
             for key in cfg['build']['install_type_map'].keys():
                 self.send('cat /etc/issue | grep -i "' + key + '" | wc -l',
                     check_exit=False)
                 if self.get_re_from_child(child.before, '^([0-9]+)$') == '1':
-                    cfg['container']['distro']       = key
-                    cfg['container']['install_type'] = cfg['build']['install_type_map'][key]
+                    distro       = key
+                    install_type = cfg['build']['install_type_map'][key]
                     break
-        if (cfg['container']['install_type'] == '' or 
-            cfg['container']['distro'] == ''):
+        if (install_type == '' or distro == ''):
             self.send('cat /etc/issue',check_exit=False)
             if self.get_re_from_child(child.before,'^Kernel .*r on an .*m$'):
-                cfg['container']['distro']       = 'centos'
-                cfg['container']['install_type'] = 'yum'
-        if (cfg['container']['install_type'] == '' or 
-            cfg['container']['distro'] == ''):
+                distro       = 'centos'
+                install_type = 'yum'
+        if (install_type == '' or distro == ''):
             shutit.fail('Could not determine Linux distro information. ' + 
-                        'Please inform maintainers.', child=child)
+                        'Please inform ShutIt maintainers.', child=child)
+        if container:
+            cfg['container']['install_type']   = install_type
+            cfg['container']['distro']         = distro
+            cfg['container']['distro_version'] = distro_version
+        return {'install_type':install_type,'distro':distro,'distro_version':distro_version}
 
 
     def lsb_release(self, child=None):
@@ -1284,10 +1313,12 @@ class ShutIt(object):
         version_string = self.get_re_from_child(child.before,
             '^Release:[\s*](.*)$')
         if dist_string:
-            cfg['container']['distro']         = dist_string.lower()
-            cfg['container']['distro_version'] = version_string
-            cfg['container']['install_type'] = (
+            d = {}
+            d['distro']         = dist_string.lower()
+            d['distro_version'] = version_string
+            d['install_type'] = (
                 cfg['build']['install_type_map'][dist_string.lower()])
+        return d
 
 
     def set_password(self, password, user='', child=None, expect=None):
@@ -1547,6 +1578,7 @@ class ShutIt(object):
                        '/' + self.cfg['build']['build_id'] +
                        '/' + self.cfg['build']['build_id'] +
                        '.cfg', util.print_config(self.cfg))
+
 
     def get_emailer(self, cfg_section):
         """Sends an email using the mailer
