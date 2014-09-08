@@ -30,20 +30,13 @@ class cmake(ShutItModule):
         return False
 
     def build(self, shutit):
-        shutit.install('gcc')
         if shutit.cfg['container']['install_type'] == 'apt' and shutit.cfg['container']['distro'] == 'ubuntu':
-            if shutit.cfg['container']['distro_version'] >= "12.1":
-                shutit.install('g++-4.8')
-                shutit.send('update-alternatives --install /usr/bin/gcc gcc /usr/bin/g++-4.8 50')
-            else:
-                shutit.install('python-software-properties')
-                shutit.send('add-apt-repository -y ppa:ubuntu-toolchain-r/test')
-                shutit.send('apt-get update')
-                shutit.install('g++-4.8')
-                shutit.send('update-alternatives --install /usr/bin/gcc gcc /usr/bin/g++-4.8 50')
             if shutit.cfg['container']['distro_version'] >= "14.04":
                 shutit.install('cmake')
             else:
+                shutit.install('gcc')
+                shutit.install('g++')
+                shutit.install('python-software-properties')
                 shutit.install('git')
                 shutit.install('make')
                 shutit.send('pushd /opt')
