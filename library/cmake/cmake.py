@@ -30,6 +30,7 @@ class cmake(ShutItModule):
         return False
 
     def build(self, shutit):
+        shutit.install('gcc')
         if shutit.cfg['container']['install_type'] == 'apt' and shutit.cfg['container']['distro'] == 'ubuntu':
             if shutit.cfg['container']['distro_version'] >= "12.1":
                 shutit.install('g++-4.8')
