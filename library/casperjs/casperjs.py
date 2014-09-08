@@ -25,7 +25,7 @@ from shutit_module import ShutItModule
 class casperjs(ShutItModule):
 
     def is_installed(self, shutit):
-        return shutit.file_exists('/opt/casperjs', shutit.cfg['expect_prompts']['root_prompt'], directory=True)
+        return shutit.file_exists('/opt/casperjs', directory=True)
 
     def build(self, shutit):
         shutit.install('git')
@@ -39,7 +39,7 @@ class casperjs(ShutItModule):
         return True
 
     def remove(self, shutit):
-        shutit.send('rm -rf /opt/casperjs', shutit.cfg['expect_prompts']['root_prompt'])
+        shutit.send('rm -rf /opt/casperjs')
         return True
 
 def module():

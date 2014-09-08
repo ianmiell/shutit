@@ -62,7 +62,7 @@ aWR0aAAAACADAAAAaQ=="""))
         #if shutit.cfg['container']['install_type'] == 'apt':
         #    send = 'apt-get install -qq -y --no-install-recommends ubuntu-desktop > /tmp/ubuntu-desktop'
         #while True:
-        #    res = shutit.send(send, expect=['Unpacking', 'Setting up', shutit.cfg['expect_prompts']['root_prompt']], timeout=9999)
+        #    res = shutit.send(send, expect=['Unpacking', 'Setting up', shutit.get_default_expect()], timeout=9999)
         #    if res == 2:
         #        break
         #    elif res == 0 or res == 1:

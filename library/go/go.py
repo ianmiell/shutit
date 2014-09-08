@@ -28,7 +28,6 @@ class go(ShutItModule):
         return False
 
     def build(self,shutit):
-        shutit.install('cmake')
         shutit.install('golang')
         shutit.install('mercurial')
         shutit.install('make')
@@ -69,6 +68,6 @@ def module():
         'shutit.tk.go.go', 0.1346356,
         description='Go language setup (direct from source)',
         maintainer='ian.miell@gmail.com',
-        depends=['shutit.tk.setup']
+        depends=['shutit.tk.setup','shutit.tk.cmake.cmake']
     )
 
