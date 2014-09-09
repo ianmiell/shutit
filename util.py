@@ -919,13 +919,14 @@ def create_skeleton(shutit):
     os.makedirs(skel_path)
     os.mkdir(os.path.join(skel_path, 'configs'))
     os.mkdir(os.path.join(skel_path, 'context'))
+    os.mkdir(os.path.join(skel_path, 'bin'))
 
     templatemodule_path = os.path.join(skel_path, skel_module_name + '.py')
     readme_path         = os.path.join(skel_path, 'README.md')
-    buildsh_path        = os.path.join(skel_path, 'build.sh')
-    testsh_path         = os.path.join(skel_path, 'test.sh')
-    runsh_path          = os.path.join(skel_path, 'run.sh')
-    buildpushsh_path    = os.path.join(skel_path, 'build_and_push.sh')
+    buildsh_path        = os.path.join(skel_path, 'bin/build.sh')
+    testsh_path         = os.path.join(skel_path, 'bin/test.sh')
+    runsh_path          = os.path.join(skel_path, 'bin/run.sh')
+    buildpushsh_path    = os.path.join(skel_path, 'bin/build_and_push.sh')
     buildcnf_path       = os.path.join(skel_path, 'configs', 'build.cnf')
     pushcnf_path        = os.path.join(skel_path, 'configs', 'push.cnf')
 
@@ -1155,19 +1156,9 @@ def module():
             echo "Must supply path to ShutIt dir or have shutit on path"
             exit 1
         fi
-        # This file tests your build, leaving the container intact when done.
-        # Display config
-        #$SHUTIT sc
-        # Debug
-        #$SHUTIT build --debug
-        # Honour pause points
-        #$SHUTIT build --interactive 1
-        # Interactive build
-        #$SHUTIT build --interactive 2
-        # Tutorial
-        #$SHUTIT build --interactive 3
-
+        pushd ..
         $SHUTIT build
+        popd
         ''')
     testsh = textwrap.dedent('''\
         #!/bin/bash

@@ -31,7 +31,8 @@ class ianmiellawslogin(ShutItModule):
        	    shutit.send('yes',check_exit=False,expect=shutit.cfg['expect_prompts']['base_prompt'])
         shutit.exec_shell()
         shutit.send('sudo yum install -y docker')
-        shutit.pause_point('docker pull something')
+        shutit.send('sudo service docker start')
+        shutit.pause_point('sudo docker pull imiell/2048')
         shutit.exit_shell()
         # Exit back to the "real container"
         shutit.send('exit')
