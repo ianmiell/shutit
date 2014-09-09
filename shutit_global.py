@@ -1319,14 +1319,12 @@ class ShutIt(object):
     def lsb_release(self, child=None):
         child = child or self.get_default_child()
         self.send('lsb_release -a',check_exit=False)
-        print child.before
         dist_string = self.get_re_from_child(child.before,
             '^Distributor[\s]*ID:[\s]*(.*)$')
         version_string = self.get_re_from_child(child.before,
             '^Release:[\s*](.*)$')
-        print version_string
+        d = {}
         if dist_string:
-            d = {}
             d['distro']         = dist_string.lower()
             d['distro_version'] = version_string
             d['install_type'] = (
