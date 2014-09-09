@@ -30,12 +30,12 @@ do
 	do
 		declare -A PIDS
 		PIDS=()
-		if [[ -a $d/test.sh ]]
+		if [[ -a $d/bin/test.sh ]]
 		then
-			pushd $d
+			pushd $d/bin
 			echo "PWD: $(pwd)"
 			# Set up a random container name for tests to use
-			if [[ -a STOP ]]
+			if [[ -a ../STOP ]]
 			then
 				echo "Skipping $d"
 			else

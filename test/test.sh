@@ -60,7 +60,7 @@ cleanup hard
 
 echo "Testing skeleton build with Dockerfile"
 ./shutit skeleton -d assets/dockerfile/Dockerfile ${NEWDIR} testing shutit.tk
-pushd ${NEWDIR}
+pushd ${NEWDIR}/bin
 ./test.sh ${SHUTIT_DIR}
 cleanup hard
 rm -rf ${NEWDIR}
@@ -68,7 +68,7 @@ popd > /dev/null 2>&1
 
 echo "Testing skeleton build basic bare"
 ./shutit skeleton ${NEWDIR} testing shutit.tk
-pushd ${NEWDIR}
+pushd ${NEWDIR}/bin
 ./test.sh ${SHUTIT_DIR}
 cleanup hard
 rm -rf ${NEWDIR}
@@ -77,7 +77,7 @@ popd > /dev/null 2>&1
 
 echo "Testing skeleton build basic with example script"
 ./shutit skeleton ${NEWDIR} testing shutit.tk ${SHUTIT_DIR}/assets/example.sh
-pushd ${NEWDIR}
+pushd ${NEWDIR}/bin
 ./test.sh ${SHUTIT_DIR}
 cleanup hard
 rm -rf ${NEWDIR}
@@ -135,7 +135,7 @@ then
 	done
 fi
 
-# Examples tests
+# Library tests
 if [[ $TESTS != 'basic' ]]
 then
 	pushd  ${SHUTIT_DIR}/library

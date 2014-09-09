@@ -1277,7 +1277,7 @@ class ShutIt(object):
         #                 { 'path' : '/usr/sbin/pkgadd',     'name' : 'svr4pkg' },
         #                 { 'path' : '/usr/bin/pkg',         'name' : 'pkg' },
         #    ]
-        if self.package_installed('lsb_release'):
+        if self.package_installed('lsb-release'):
             d = self.lsb_release()
             install_type   = d['install_type']
             distro         = d['distro']
@@ -1290,14 +1290,25 @@ class ShutIt(object):
                     distro       = key
                     install_type = cfg['build']['install_type_map'][key]
                     break
-        if (install_type == '' or distro == ''):
-            self.send('cat /etc/issue',check_exit=False)
-            if self.get_re_from_child(child.before,'^Kernel .*r on an .*m$'):
-                distro       = 'centos'
-                install_type = 'yum'
-        if (install_type == '' or distro == ''):
-            shutit.fail('Could not determine Linux distro information. ' + 
-                        'Please inform ShutIt maintainers.', child=child)
+            if (install_type == '' or distro == ''):
+                self.send('cat /etc/issue',check_exit=False)
+                if self.get_re_from_child(child.before,'^Kernel .*r on an .*m$'):
+                    distro       = 'centos'
+                    install_type = 'yum'
+            if (install_type == '' or distro == ''):
+                shutit.fail('Could not determine Linux distro information. ' + 
+                            'Please inform ShutIt maintainers.', child=child)
+            # The call to self.package_installed with lsb-release above 
+            # may fail if it doesn't know the install type, so
+            # if we've determined that now
+            if install_type == 'apt':
+                shutit.install('lsb-release')
+                d = self.lsb_release()
+                install_type   = d['install_type']
+                distro         = d['distro']
+                distro_version = d['distro_version']
+        # We should have the distro info now, let's assign to container config 
+        # if this is not a one-off.
         if container:
             cfg['container']['install_type']   = install_type
             cfg['container']['distro']         = distro
@@ -1308,10 +1319,12 @@ class ShutIt(object):
     def lsb_release(self, child=None):
         child = child or self.get_default_child()
         self.send('lsb_release -a',check_exit=False)
+        print child.before
         dist_string = self.get_re_from_child(child.before,
             '^Distributor[\s]*ID:[\s]*(.*)$')
         version_string = self.get_re_from_child(child.before,
             '^Release:[\s*](.*)$')
+        print version_string
         if dist_string:
             d = {}
             d['distro']         = dist_string.lower()

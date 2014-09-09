@@ -49,9 +49,9 @@ class ssh_server(ShutItModule):
             shutit.add_line_to_file('start-stop-daemon --stop --quiet --oknodo --pidfile /var/run/sshd.pid', '/root/stop_ssh_server.sh')
             # 12.04 issue on selinux hosts:
             # https://groups.google.com/forum/#!topic/docker-user/73AiwlZEgY4
-            if shutit.cfg['container']['distro_version'] == '12.04':
-                shutit.send('wget http://mirrors.kernel.org/ubuntu/pool/main/libs/libselinux/libselinux1_2.1.13-2_amd64.deb')
-                shutit.send('dpkg --install libselinux1_2.1.13-2_amd64.deb')
+            #if shutit.cfg['container']['distro_version'] == '12.04':
+            #    shutit.send('wget http://mirrors.kernel.org/ubuntu/pool/main/libs/libselinux/libselinux1_2.1.13-2_i386.deb')
+            #    shutit.send('dpkg --install libselinux1_2.1.13-2_i386.deb')
         else:
             shutit.send('sshd-keygen')
             shutit.add_line_to_file('/usr/sbin/sshd', '/root/start_ssh_server.sh')
