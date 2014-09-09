@@ -2,7 +2,7 @@
 
 [ShutIt](http://shutit.tk)
 ===============
-Complex Docker Deployments Made Simple
+Complex Docker Builds Made Simple
 
 ShutIt is a tool for managing your build process that is both structured and flexible:
 
