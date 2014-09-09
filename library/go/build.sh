@@ -10,7 +10,7 @@ then
     exit 1
 fi
 # This file tests your build, leaving the container intact when done.
-$SHUTIT build
+$SHUTIT build -m ../cmake
 # Display config
 #$SHUTIT sc
 # Debug
