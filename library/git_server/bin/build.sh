@@ -10,6 +10,6 @@ then
         exit 1
 fi
 # This file tests your build, leaving the container intact when done.
-pushd
+pushd ..
 $SHUTIT build
 popd
