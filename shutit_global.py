@@ -1302,7 +1302,8 @@ class ShutIt(object):
             # may fail if it doesn't know the install type, so
             # if we've determined that now
             if install_type == 'apt':
-                shutit.install('lsb-release')
+                self.send('apt-get update')
+                self.send('apt-get install -y -qq lsb-release')
                 d = self.lsb_release()
                 install_type   = d['install_type']
                 distro         = d['distro']
