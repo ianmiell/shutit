@@ -13,4 +13,4 @@ then
     echo "  ./test.sh <path_to_shutit_dir>"
     exit
 fi
-./build.sh $1
+./build.sh $1 "$@"
