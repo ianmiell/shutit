@@ -27,15 +27,11 @@ class ianmiellawslogin(ShutItModule):
         json_dict = json.loads(shutit.get_output())
         shutit.cfg[self.module_id]['ec2_ip'] = json_dict['Reservations'][0]['Instances'][0]['PublicIpAddress']
 
-        if shutit.send('ssh -i imiell_aws_eu.pem ec2-user@' + shutit.cfg[self.module_id]['ec2_ip'],expect=['continue connecting',shutit.cfg['expect_prompts']['base_prompt']],check_exit=False) == 0:
-       	    shutit.send('yes',check_exit=False,expect=shutit.cfg['expect_prompts']['base_prompt'])
-        shutit.exec_shell()
+        shutit.login(command='ssh -i imiell_aws_eu.pem ec2-user@' + shutit.cfg[self.module_id]['ec2_ip'])
         shutit.send('sudo yum install -y docker')
         shutit.send('sudo service docker start')
-        shutit.pause_point('sudo docker pull imiell/2048')
-        shutit.exit_shell()
         # Exit back to the "real container"
-        shutit.send('exit')
+        shutit.logout()
         return True
 
     def get_config(self,shutit):
