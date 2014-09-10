@@ -1115,12 +1115,21 @@ class ShutIt(object):
         child = child or self.get_default_child()
         r_id = random_id()
         self.cfg['build']['login_stack'].append(r_id)
-        res = self.send(command + ' ' + user,expect=['assword',shutit.cfg['expect_prompts']['base_prompt']],check_exit=False)
-        if res == 0:
-            if password != None:
-                self.send(password,expect=shutit.cfg['expect_prompts']['base_prompt'],check_exit=False)
-            else:
-                shutit.fail('Please supply a password argument to shutit.login.')
+        if command == 'su -':
+            send = command + ' ' + user
+        else:
+            send = command
+        while True:
+            res = self.send(send,expect=['ontinue connecting','assword',shutit.cfg['expect_prompts']['base_prompt']],check_exit=False)
+            if res == 0:
+                send = 'yes'
+            elif res == 1:
+                if password != None:
+                    self.send(password,expect=shutit.cfg['expect_prompts']['base_prompt'],check_exit=False)
+                else:
+                    shutit.fail('Please supply a password argument to shutit.login.')
+            elif res == 2:
+                break
         self.setup_prompt(r_id,child=child)
 
 

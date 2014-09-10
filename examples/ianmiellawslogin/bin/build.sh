@@ -1,8 +1,3 @@
-if [[ x$2 != 'x' ]]
-then
-    echo "build.sh takes exactly one argument at most"
-    exit 1
-fi
 [[ -z "$SHUTIT" ]] && SHUTIT="$1/shutit"
 [[ ! -a "$SHUTIT" ]] || [[ -z "$SHUTIT" ]] && SHUTIT="$(which shutit)"
 [[ ! -a "$SHUTIT" ]] || [[ -z "$SHUTIT" ]] && SHUTIT="../../shutit"
