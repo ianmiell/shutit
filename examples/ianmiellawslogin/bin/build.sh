@@ -14,14 +14,6 @@ then
     exit 1
 fi
 # This file tests your build, leaving the container intact when done.
-$SHUTIT build -m /space/git/shutit/library/aws:..
-# Display config
-#$SHUTIT sc
-# Debug
-#$SHUTIT build --debug
-# Honour pause points
-#$SHUTIT build --interactive 1
-# Interactive build
-#$SHUTIT build --interactive 2
-# Tutorial
-#$SHUTIT build --interactive 3
+pushd ..
+$SHUTIT build -m /space/git/shutit/library/aws:.. "$@"
+popd
