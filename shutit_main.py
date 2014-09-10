@@ -451,9 +451,9 @@ def check_ready(shutit):
                        code='31')
             shutit.login()
             if not module.check_ready(shutit):
-                errs.append((module_id + ' not ready to install. Read the ' +
-                             'check_ready function within it to determine ' +
-                             'what is missing.\n\n',
+                errs.append((module_id + ' not ready to install.\nRead the ' +
+                             'check_ready function in the module,\nor log' + 
+                             'messages above to determine the issue.\n\n',
                              shutit.pexpect_children['container_child']))
             shutit.logout()
     return errs
