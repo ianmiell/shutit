@@ -28,7 +28,7 @@ class template(ShutItModule):
     # already.
     #
     # Should return True if it is certain it's there, else False.
-    def is_installed(self,shutit):
+    def is_installed(self, shutit):
         return shutit.file_exists('/tmp/container_touched.sh') and shutit.file_exists('/tmp/README.md')
 
     # Run the build part of the module, which should ensure the module
@@ -37,7 +37,7 @@ class template(ShutItModule):
     # this is not run.
     #
     # Should return True if it has succeeded in building, else False.
-    def build(self,shutit):
+    def build(self, shutit):
         # Line number 42 should be the next one (so bash scripts can be inserted properly)
 
         # DELETE THIS SECTION WHEN UNDERSTOOD - BEGIN
@@ -112,7 +112,7 @@ class template(ShutItModule):
     #
     # each object can handle config here
     # OPTIONAL part of lifecycle - uncomment to include
-    def get_config(self,shutit):
+    def get_config(self, shutit):
         shutit.get_config(self.module_id,'test_config','some_default_value')
         return True
 
@@ -128,7 +128,7 @@ class template(ShutItModule):
     # 
     # Should return True if it ready, else False.
     # OPTIONAL part of lifecycle - uncomment to include
-    #def check_ready(self,shutit):
+    #def check_ready(self, shutit):
     #    """This help string is printed if we're not ready.
     #    Advice to failure should be placed here.
     #    """
@@ -139,7 +139,7 @@ class template(ShutItModule):
     # Run when module should be installed (is_installed() or configured to build is true)
     # Run after repo work.
     # OPTIONAL part of lifecycle - uncomment to include
-    #def start(self,shutit):
+    #def start(self, shutit):
     #    # example of starting something
     #    shutit.send_and_expect('cat /tmp/container_touched.sh')
     #    shutit.send_and_expect('sh /tmp/container_touched.sh')
@@ -150,7 +150,7 @@ class template(ShutItModule):
     # Run when module should be stopped.
     # Run before repo work, and before finalize is called.
     # OPTIONAL part of lifecycle - uncomment to include
-    #def stop(self,shutit):
+    #def stop(self, shutit):
     #    # example of stopping something
     #    shutit.send_and_expect("""ps -ef | grep -v grep | grep container_touched.sh | awk '{print $1}' | sed 's/\([0-9][0-9]*\)/kill \\1/' | sh""")
     #    return True
@@ -159,7 +159,7 @@ class template(ShutItModule):
     #
     # Finalize the module, ie do things that need doing before we exit.
     # OPTIONAL part of lifecycle - uncomment to include
-    #def finalize(self,shutit):
+    #def finalize(self, shutit):
     #    # Right at the end we want to ensure the locate db is up to date.
     #    shutit.send_and_expect('updatedb')
     #    return True
@@ -169,7 +169,7 @@ class template(ShutItModule):
     # Remove the module, which should ensure the module has been deleted 
     # from the system.
     # OPTIONAL part of lifecycle - uncomment to include
-    #def remove(self,shutit):
+    #def remove(self, shutit):
     #    shutit.send_and_expect('rm -f /tmp/container_touched.sh')
     #    shutit.send_and_expect('rm -f /tmp/README.md')
     #    # TODO: remove the installed apps DEPENDS on install tracking being available.
@@ -181,7 +181,7 @@ class template(ShutItModule):
     # Should return True if all is OK, else False.
     # This is run regardless of whether the module is installed or not.
     # OPTIONAL part of lifecycle - uncomment to include
-    #def test(self,shutit):
+    #def test(self, shutit):
     #    return shutit.package_installed('mlocate') and shutit.package_installed('passwd')
 
 # template(string,float)

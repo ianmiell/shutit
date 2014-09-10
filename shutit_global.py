@@ -516,6 +516,20 @@ class ShutIt(object):
                     expect=expect, child=child, log=log)
 
 
+    def host_file_exists(self, filename, directory=False):
+        """Return True if file exists on the host, else false
+
+        - filename     - Filename to determine the existence of.
+        - directory    - Indicate that the file expected is a directory.
+        """
+
+        if directory:
+            return os.path.isdir(filename)
+        else:
+            return os.path.isfile(filename)
+
+
+
     def file_exists(self, filename, expect=None, child=None, directory=False):
         """Return True if file exists on the container being built, else False
 
@@ -877,21 +891,21 @@ class ShutIt(object):
             # Handy resize of terminal for debian
             try:
                 if shutit.cfg['container']['install_type'] == 'apt':
-                    print (util.colour('31', '\n\nYou can try installing "xterm", then running "resize" to get a terminal of a useful size.\n\n'))
+                    print (util.colour('31', '\nYou can try installing "xterm", then running "resize" to get a terminal of a useful size.\n'))
             except:
                 # Don't worry if we can't do the above
                 pass
-            print (util.colour('31', '\n\nPause point:\n\n') + 
-                msg + util.colour('31','\n\nYou can now type in commands and ' +
+            print (util.colour('31', '\nPause point:\n') + 
+                msg + util.colour('31','\nYou can now type in commands and ' +
                 'alter the state of the container.\nHit return to see the ' +
                 'prompt\nHit CTRL and ] at the same time to continue with ' +
-                'build\n\nHit CTRL and f to save the state\n\n'))
+                'build\n\nHit CTRL and f to save the state\n'))
             oldlog = child.logfile_send
             child.logfile_send = None
             try:
                 child.interact(input_filter=self._pause_input_filter)
             except Exception as e:
-                shutit.fail('Failed to interact, probably because this is run non-interactively.\n\n' + str(e))
+                shutit.fail('Failed to interact, probably because this is run non-interactively.\n' + str(e))
             child.logfile_send = oldlog
         else:
             print msg
