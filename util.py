@@ -1145,6 +1145,7 @@ def module():
     )
     readme = skel_module_name + ': description of module directory in here'
     buildsh = textwrap.dedent('''\
+        #!/bin/bash
         [[ -z "$SHUTIT" ]] && SHUTIT="$1/shutit"
         [[ ! -a "$SHUTIT" ]] || [[ -z "$SHUTIT" ]] && SHUTIT="$(which shutit)"
         [[ ! -a "$SHUTIT" ]] || [[ -z "$SHUTIT" ]] && SHUTIT="../../shutit"
@@ -1187,6 +1188,7 @@ def module():
     for earg in shutit.cfg['dockerfile']['env']:
         env_arg += ' -e ' + earg.split()[0] + ':' + earg.split()[1]
     runsh = textwrap.dedent('''\
+        #!/bin/bash
         # Example for running
         docker run -t -i''' + ports_arg + volumes_arg + env_arg + ' ' + skel_module_name + ' ' + shutit.cfg['dockerfile']['entrypoint'] + ' ' + shutit.cfg['dockerfile']['cmd'] + '\n')
     buildpushsh = textwrap.dedent('''\
