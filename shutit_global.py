@@ -575,6 +575,83 @@ class ShutIt(object):
         return res
 
 
+
+    def remove_line_from_file(self,
+                              line,
+                              filename,
+                              expect=None,
+                              child=None,
+                              match_regexp=None,
+                              literal=False):
+        """Removes line from file, if it exists.
+        Must be exactly the line passed in to match.
+        Returns True if there were no problems, False if there were.
+    
+        - line         - Line to add.
+        - filename     - Filename to add it to.
+        - expect       - See send()
+        - child        - See send()
+        - match_regexp - If supplied, a regexp to look for in the file
+                         instead of the line itself,
+                         handy if the line has awkward characters in it.
+        - literal      - If true, then simply grep for the exact string without
+                         bash interpretation.
+        """
+        child = child or self.get_default_child()
+        expect = expect or self.get_default_expect()
+        # assume we're going to add it
+        tmp_filename = '/tmp/' + random_id()
+        if self.file_exists(filename, expect=expect, child=child):
+            if literal:
+                if match_regexp == None:
+                    self.send("""grep -v '^""" + 
+                              line +
+                              """$' """ +
+                              filename +
+                              ' > ' + 
+                              tmp_filename, 
+                              expect=expect,
+                              child=child,
+                              exit_values=['0', '1'])
+                else:
+                    self.send("""grep -v '^""" + 
+                              match_regexp + 
+                              """$' """ +
+                              filename +
+                              ' > ' +
+                              tmp_filename,
+                              expect=expect,
+                              child=child, 
+                              exit_values=['0', '1'])
+            else:
+                if match_regexp == None:
+                    self.send('grep -v "^' +
+                              line +
+                              '$" ' +
+                              filename +
+                              ' > ' +
+                              tmp_filename,
+                              expect=expect,
+                              child=child,
+                              exit_values=['0', '1'])
+                else:
+                    self.send('grep -v "^' +
+                              match_regexp +
+                              '$" ' +
+                              filename +
+                              ' > ' +
+                              tmp_filename,
+                              expect=expect,
+                              child=child,
+                              exit_values=['0', '1'])
+            self.send('cat ' + tmp_filename + ' > ' + filename,
+                      expect=expect, child=child,
+                      check_exit=False)
+            self.send('rm -f ' + tmp_filename, expect=expect, child=child,
+                exit_values=['0', '1'])
+        return True
+                         
+
     def add_line_to_file(self,
                          line,
                          filename, 
