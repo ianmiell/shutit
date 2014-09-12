@@ -1147,11 +1147,12 @@ class ShutIt(object):
         self.setup_prompt(r_id,child=child)
 
 
-    def logout(self,child=None):
+    def logout(self, child=None, expect=None):
         """Logs the user out. Assumes that login has been called.
         If login has never been called, throw an error.
 
         - child              - See send()
+        - expect             - override expect (eg for base_prompt)
         """
         child = child or self.get_default_child()
         if len(self.cfg['build']['login_stack']):
@@ -1167,7 +1168,10 @@ class ShutIt(object):
              self.fail('Logout called without corresponding login')
         # No point in checking exit here, the exit code will be
         # from the previous command from the logged in session
-        self.send('exit', check_exit=False)
+        if expect != None:
+            self.send('exit', check_exit=False)
+        else:
+            self.send('exit', expect=expect, check_exit=False)
     # alias exit_shell to logout
     exit_shell = logout
 
