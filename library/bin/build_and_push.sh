@@ -21,12 +21,12 @@
 #OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 #SOFTWARE.
 
-source ../test/shared_test_utils.sh
+source ../../test/shared_test_utils.sh
 
 DISTROS=${SHUTITTEST_DISTROS:-ubuntu:12.04}
 for dist in $DISTROS
 do
-	for d in *
+	for d in $(ls ../* | grep -vw bin)
 	do
 		declare -A PIDS
 		PIDS=()
@@ -43,11 +43,11 @@ do
 				set_shutit_options "--image_tag $dist --interactive 0"
 				if [[ x$SHUTIT_PARALLEL_BUILD = 'x' ]]
 				then
-					./test.sh "`pwd`/../.."
+					./build_and_push.sh
 					cleanup hard
 				else
 					LOGFILE="/tmp/shutit_test_parallel_$$_$(dd if=/dev/urandom bs=256 count=1 2>/dev/null | md5sum | awk '{print $1}')"
-					./test.sh "`pwd`/../.." 2>&1 | tee $LOGFILE &
+					./build_and_push.sh 2>&1 | tee $LOGFILE &
 					JOB=$!
 					PIDS[$JOB]="$JOB: $dist $d"
 					sleep 10 #give docker server time to recover
