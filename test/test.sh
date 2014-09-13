@@ -138,7 +138,7 @@ fi
 # Library tests
 if [[ $TESTS != 'basic' ]]
 then
-	pushd  ${SHUTIT_DIR}/library
+	pushd  ${SHUTIT_DIR}/library/bin
 	./test.sh 
 	popd > /dev/null 2>&1
 	cleanup nothard
