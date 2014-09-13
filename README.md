@@ -386,7 +386,7 @@ optional arguments:
                         Level of interactive. 0 = none, 1 = honour pause
                         points and config prompting, 2 = query user on each
                         module, 3 = tutorial mode
-  --ignorestop          ignore STOP files
+  --ignorestop          ignore STOP* files
   --ignoreimage         ignore disallowed images
 ```
 
@@ -444,7 +444,7 @@ usage: shutit sc [-h] [--history] [--config CONFIG] [-s SEC KEY VAL]
                          Level of interactive. 0 = none, 1 = honour pause
                          points and config prompting, 2 = query user on each
                          module, 3 = tutorial mode
-   --ignorestop          ignore STOP files
+   --ignorestop          ignore STOP* files
 ```
 
 
@@ -479,7 +479,7 @@ optional arguments:
                         Level of interactive. 0 = none, 1 = honour pause
                         points and config prompting, 2 = query user on each
                         module, 3 = tutorial mode
-  --ignorestop          ignore STOP files
+  --ignorestop          ignore STOP* files
   --ignoreimage         ignore disallowed images
 ```
 

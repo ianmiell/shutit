@@ -134,14 +134,14 @@ def init_shutit_map(shutit):
         elif path == '.':
             shutit.fail('No modules aside from core ones found and no ShutIt' + 
                         ' module path given apart from default (.).\nDid you' + 
-                        ' set--shutit_module_path/-m? Is there a STOP file' + 
+                        ' set--shutit_module_path/-m? Is there a STOP* file' + 
                         ' in your . dir?')
         else:
             shutit.fail('No modules aside from core ones found and no ShutIt ' +
                 'modules in path:\n\n' + path +
                 '\n\nor their subfolders. Check you set ' + 
                 '--shutit_module_path/-m setting and check that there are ' + 
-                'ShutItmodules below without STOP files in any relevant ' + 
+                'ShutItmodules below without STOP* files in any relevant ' + 
                 'directories.')
 
     shutit.log('PHASE: base setup', code='31')

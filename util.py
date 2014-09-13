@@ -772,8 +772,8 @@ def load_all_from_path(shutit, path):
         return
     for root, subFolders, files in os.walk(path):
         # If a STOP file exists, ignore this folder
-        if os.path.exists(root + '/STOP') and not shutit.cfg['build']['ignorestop']:
-            shutit.log('Ignoring directory: ' + root + ' as it has a STOP file in it. Pass --ignorestop to shutit run to override.', force_stdout=True)
+        if os.path.exists(root + '/STOPBUILD') and not shutit.cfg['build']['ignorestop']:
+            shutit.log('Ignoring directory: ' + root + ' as it has a STOPBUILD file in it. Pass --ignorestop to shutit run to override.', force_stdout=True)
             continue
         for fname in files:
             load_mod_from_file(shutit, os.path.join(root, fname))
