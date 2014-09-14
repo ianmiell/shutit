@@ -251,7 +251,7 @@ def get_configs(shutit, configs):
         	# Actually show this to the user before failing...
         	shutit.log(fail_str, force_stdout=True)
         	shutit.log('\n\nDo you want me to run this for you? (input y/n)\n', force_stdout=True)
-        if shutit.cfg['action']['serve'] or raw_input('') == 'y' or cfg['build']['interactive'] == 0:
+        if shutit.cfg['action']['serve'] or raw_input('') == 'y' or shutit.cfg['build']['interactive'] == 0:
             for f in files:
                 os.chmod(f,0600)
             # recurse
