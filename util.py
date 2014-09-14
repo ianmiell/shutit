@@ -246,11 +246,12 @@ def get_configs(shutit, configs):
             fail_str = fail_str + '\nchmod 0600 ' + config_file
             files.append(config_file)
     if fail_str != '':
-        fail_str = 'Files are not secure, mode should be 0600. Running the following commands to correct:\n' + fail_str + '\n'
-        # Actually show this to the user before failing...
-        shutit.log(fail_str, force_stdout=True)
-        shutit.log('\n\nDo you want me to run this for you? (input y/n)\n', force_stdout=True)
-        if shutit.cfg['action']['serve'] or raw_input('') == 'y':
+        if cfg['build']['interactive'] > 0:
+        	fail_str = 'Files are not secure, mode should be 0600. Running the following commands to correct:\n' + fail_str + '\n'
+        	# Actually show this to the user before failing...
+        	shutit.log(fail_str, force_stdout=True)
+        	shutit.log('\n\nDo you want me to run this for you? (input y/n)\n', force_stdout=True)
+        if shutit.cfg['action']['serve'] or raw_input('') == 'y' or cfg['build']['interactive'] == 0:
             for f in files:
                 os.chmod(f,0600)
             # recurse
