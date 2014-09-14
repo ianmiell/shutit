@@ -37,6 +37,89 @@ Flexible:
 REALLY QUICK START
 ------------------
 
+See here:
+
+http://ianmiell.github.io/shutit/
+
+
+WHAT DOES IT DO?
+----------------
+We start with a "Unit of Build", similar to a Dockerfile.
+
+Unit of Build for Mongodb:
+
+```
+module:com.mycorp.mongo.mongodb
+run order: 1234.1234
+|---------------------------------------------------------------------------------------------------------------------------|
+|apt-key adv --keyserver keyserver.ubuntu.com --recv 7F0CEB10                                                               |
+|echo "deb http://downloads-distro.mongodb.org/repo/ubuntu-upstart dist 10gen" | tee -a /etc/apt/sources.list.d/10gen.list  |
+|apt-get update                                                                                                             |
+|apt-get -y install apt-utils                                                                                               |
+|apt-get -y install mongodb-10gen                                                                                           |
+|---------------------------------------------------------------------------------------------------------------------------|
+```
+
+We call this a ShutIt module. In this case, we'll give this the id: 
+
+```
+com.mycorp.mongo.mongodb
+```
+
+and the run order
+
+```
+1234.1234
+```
+
+Say we want to plug these together with other modules. ShutIt allows you do this.
+
+But what if one module depends on another, eg mymongomodule which trivially adds a line to a config?
+
+Unit of Build for MyMongoDB (com.mycorp.mongo.mymongodb):
+
+```
+module: com.mycorp.mongo.mymongodb
+run order: 1235.1235
+|-----------------------------------------------|
+|(depend on com.mycorp.mongo.mongodb)           |
+|echo "config item" >> /etc/somewhere/somefile  |
+|-----------------------------------------------|
+```
+
+and give it a run order of 1235.1235. Note that the run order is higher, as we depend on the com.mycorp.mongo.mongodb module being there (ShutIt checks all this for you).
+
+As you plug together more and more modules, you'll find you need a build lifecycle to manage how these modules interact and build.
+
+What ShutIt does to manage this is:
+
+- gathers all the modules it can find in its path and determines their ordering
+- for all modules, it gathers any build-specific config (eg passwords etc)
+- it checks dependencies and conflicts across all modules and figures out which modules need to be built
+- for all modules, it checks whether the module is already installed
+- for all modules, if it needs building, it runs the build
+- for all modules, run a test cycle to ensure everything is as we expect
+- for all modules, run a finalize function to clean up the container
+- do any configured committing, tagging and pushing of the image
+
+These correspond to the various functions that can be implemented.
+
+ShutIt provides a means for auto-generation of modules (either bare ones, or from existing Dockerfiles) with:
+
+```
+shutit skeleton [-d Dockerfile] <directory to create module in> <domain>
+```
+
+eg:
+
+```
+shutit skeleton /home/me/shutit_modules/com/mycorp/mongo com.mycorp
+```
+
+
+CAN I CONTRIBUTE?
+-----------------
+
 We always need help, and with a potentially infinite number of libraries required, it's likely you will be able to contribute. Just mail ian.miell@gmail.com if you want to be assigned a mentor. [He won't bite](https://www.youtube.com/watch?v=zVUPmmUU3yY) 
 
 Mailing List
