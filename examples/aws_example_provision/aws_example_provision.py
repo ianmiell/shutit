@@ -54,6 +54,6 @@ def module():
         'shutit.tk.aws_example_provision.aws_example_provision', 0.013235,
         description='Creates AMI',
         maintainer='ian.miell@gmail.com',
-        depends=['shutit.tk.setup','tk.ianandsarah.aws_example.aws_example']
+        depends=['shutit.tk.setup','shutit.tk.aws_example.aws_example']
     )
 

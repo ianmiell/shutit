@@ -1,7 +1,7 @@
 # This file should be changed only by the maintainer.
 # When this module is the one being built, which modules should be built along with it by default?
 # This feeds into automated testing of each module.
-[tk.ianandsarah.aws_example_provision.aws_example_provision]
+[shutit.tk.aws_example_provision.aws_example_provision]
 build:yes
 # Allowed images as a regexp, eg ["ubuntu:12.*"], or [".*"], or ["centos"].
 # It's recommended this is locked down as far as possible.
