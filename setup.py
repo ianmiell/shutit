@@ -238,8 +238,9 @@ class ConnDocker(ShutItModule):
             'Waiting', 'ulling', 'endpoint', 'Download']
         res = container_child.expect(expect, 9999)
         while True:
-            shutit.log(""">>>\n""" + container_child.before +\
-                container_child.after + """\n<<<""", force_stdout=True)
+            shutit.log("""\n""" + container_child.before +\
+                container_child.after + """\n""", prefix=False,
+                force_stdout=True)
             if res == 0:
                 shutit.log('...')
                 res = shutit.send(cfg['host']['password'], \
