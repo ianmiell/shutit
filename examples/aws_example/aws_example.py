@@ -5,7 +5,7 @@ import glob
 
 from shutit_module import ShutItModule
 
-class ianmiellaws(ShutItModule):
+class aws_example(ShutItModule):
 
     def is_installed(self,shutit):
         return False
@@ -26,8 +26,8 @@ class ianmiellaws(ShutItModule):
 
 
 def module():
-    return ianmiellaws(
-        'shutit.tk.ianmiellaws.ianmiellaws', 0.011,
+    return aws_example(
+        'shutit.tk.aws_example.aws_example', 0.011,
         description='Sets up pems in aws',
         maintainer='ian.miell@gmail.com',
         depends=['shutit.tk.setup','shutit.tk.aws.aws']

@@ -1,7 +1,7 @@
 # This file should be changed only by the maintainer.
 # When this module is the one being built, which modules should be built along with it by default?
 # This feeds into automated testing of each module.
-[tk.ianandsarah.ianmiellaws.ianmiellaws]
+[tk.ianandsarah.aws_example.aws_example]
 build:yes
 # Allowed images as a regexp, eg ["ubuntu:12.*"], or [".*"], or ["centos"].
 # It's recommended this is locked down as far as possible.
@@ -11,7 +11,7 @@ allowed_images:["ubuntu:12.04",".*aws.*"]
 [build]
 base_image:ubuntu:12.04
 [repository]
-name:ianmiellaws
+name:aws_example
 user:
 # Fill these out in server- and username-specific config (also in this directory)
 password:YOUR_REGISTRY_PASSWORD_OR_BLANK
@@ -22,7 +22,7 @@ push:no
 save:no
 export:no
 #server:REMOVE_ME_FOR_DOCKER_INDEX
-name:ianmiellaws
+name:aws_example
 # tag suffix, defaults to "latest", eg registry/username/repository:latest.
 # empty is also "latest"
 tag_name:latest
