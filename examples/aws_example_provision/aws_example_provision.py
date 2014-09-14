@@ -30,6 +30,11 @@ class aws_example_provision(ShutItModule):
         shutit.login(command='ssh -i ' + shutit.cfg['shutit.tk.aws_example.aws_example']['pem_name'] + '.pem ec2-user@' + shutit.cfg[self.module_id]['ec2_ip'])
         shutit.send('sudo yum install -y docker')
         shutit.send('sudo service docker start')
+        # Example of what you might want to do. Note that this won't work out
+        # of the box as the security policy of the VM needs to allow access to
+        # the relevant port.
+        #shutit.send('sudo docker pull training/webapp')
+        #shutit.send('sudo docker run -d --net=host training/webapp')
         # Exit back to the "real container"
         shutit.logout()
         return True
