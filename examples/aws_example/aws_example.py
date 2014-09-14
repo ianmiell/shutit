@@ -11,13 +11,15 @@ class aws_example(ShutItModule):
         return False
 
     def build(self,shutit):
-        shutit.send_host_dir('/root','context/pems')
-        shutit.send('chmod 400 /root/' + shutit.cfg[self.module_id]['pem_name'] + '.pem')
+        pemfile = shutit.cfg[self.module_id]['pem_name'] + '.pem'
+        shutit.send_host_file('/root/' + pemfile,'context/pems/' + pemfile)
+        shutit.send('chmod 400 /root/' + pemfile)
         return True
 
     def get_config(self, shutit):
         shutit.get_config(self.module_id,'pem_name')
         return True
+
 
 
 def module():
