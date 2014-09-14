@@ -26,7 +26,6 @@ class aws_example_provision(ShutItModule):
         shutit.send('aws ec2 describe-instances --filter Name=instance-state-name,Values=running')
         json_dict = json.loads(shutit.get_output())
         shutit.cfg[self.module_id]['ec2_ip'] = json_dict['Reservations'][0]['Instances'][0]['PublicIpAddress']
-
         shutit.login(command='ssh -i ' + shutit.cfg['shutit.tk.aws_example.aws_example']['pem_name'] + '.pem ec2-user@' + shutit.cfg[self.module_id]['ec2_ip'])
         shutit.send('sudo yum install -y docker')
         shutit.send('sudo service docker start')
