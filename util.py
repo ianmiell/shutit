@@ -253,7 +253,7 @@ def get_configs(shutit, configs):
         	shutit.log('\n\nDo you want me to run this for you? (input y/n)\n', force_stdout=True)
         if shutit.cfg['action']['serve'] or shutit.cfg['build']['interactive'] == 0 or raw_input('') == 'y':
             for f in files:
-        	    shutit.log('Correcting insecure file permissions on: ' + f, force_stdout=True)
+                shutit.log('Correcting insecure file permissions on: ' + f, force_stdout=True)
                 os.chmod(f,0600)
             # recurse
             return get_configs(shutit, configs)
