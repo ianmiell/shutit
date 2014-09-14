@@ -31,5 +31,6 @@ docs/_build
 !**build.cnf
 !*resources/README.md
 !*shutit_resources/README.md
+examples/ianmiellaws/context/pems/*.pem
 pubring.gpg~
 secring.gpg

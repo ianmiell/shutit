@@ -51,7 +51,7 @@ class ianmiellawslogin(ShutItModule):
 
 def module():
     return ianmiellawslogin(
-        'tk.ianandsarah.ianmiellawslogin.ianmiellawslogin', 1159697827.1,
+        'shutit.tk.ianmiellawslogin.ianmiellawslogin', 0.013235,
         description='Creates AMI',
         maintainer='ian.miell@gmail.com',
         depends=['shutit.tk.setup','tk.ianandsarah.ianmiellaws.ianmiellaws']

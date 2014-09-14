@@ -1158,7 +1158,7 @@ def module():
             exit 1
         fi
         pushd ..
-        $SHUTIT build
+        $SHUTIT build --shutit_module_path $(dirname $SHUTIT)/library
         popd
         ''')
     testsh = textwrap.dedent('''\

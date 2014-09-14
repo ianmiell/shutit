@@ -450,12 +450,17 @@ def check_ready(shutit):
             shutit.log('checking whether module is ready to build: ' + module_id,
                        code='31')
             shutit.login()
+            # Move to the directory so context is correct (eg for checking for
+            # the existence of files needed for build)
+            revert_dir = os.getcwd()
+            os.chdir(os.path.dirname(module.__module_file))
             if not module.check_ready(shutit):
                 errs.append((module_id + ' not ready to install.\nRead the ' +
                              'check_ready function in the module,\nor log ' + 
                              'messages above to determine the issue.\n\n',
                              shutit.pexpect_children['container_child']))
             shutit.logout()
+            os.chdir(revert_dir)
     return errs
 
 
