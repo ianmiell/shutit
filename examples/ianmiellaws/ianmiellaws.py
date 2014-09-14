@@ -18,7 +18,7 @@ class ianmiellaws(ShutItModule):
     def check_ready(self, shutit):
         if len(glob.glob('context/pems/*pem')) == 0:
             shutit.log('\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!' + 
-                '\nNo pems in context/pems/*pem' + 
+                '\nNo pems in context/pems/*pem ' +
                 '\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!',
                 force_stdout=True)
             return False
@@ -27,7 +27,7 @@ class ianmiellaws(ShutItModule):
 
 def module():
     return ianmiellaws(
-        'tk.ianandsarah.ianmiellaws.ianmiellaws', 1159697827.00,
+        'shutit.tk.ianmiellaws.ianmiellaws', 0.011,
         description='Sets up pems in aws',
         maintainer='ian.miell@gmail.com',
         depends=['shutit.tk.setup','shutit.tk.aws.aws']
