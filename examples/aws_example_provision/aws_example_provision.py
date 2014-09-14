@@ -5,7 +5,7 @@ import json
 
 from shutit_module import ShutItModule
 
-class ianmiellawslogin(ShutItModule):
+class aws_example_provision(ShutItModule):
 
     def build(self,shutit):
         # Have we got any up?
@@ -50,10 +50,10 @@ class ianmiellawslogin(ShutItModule):
         return False
 
 def module():
-    return ianmiellawslogin(
-        'shutit.tk.ianmiellawslogin.ianmiellawslogin', 0.013235,
+    return aws_example_provision(
+        'shutit.tk.aws_example_provision.aws_example_provision', 0.013235,
         description='Creates AMI',
         maintainer='ian.miell@gmail.com',
-        depends=['shutit.tk.setup','tk.ianandsarah.ianmiellaws.ianmiellaws']
+        depends=['shutit.tk.setup','tk.ianandsarah.aws_example.aws_example']
     )
 
