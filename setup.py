@@ -225,7 +225,7 @@ class ConnDocker(ShutItModule):
                 '\nor config:\n\n    [container]\n    docker_image:<image>)\n\n' +
                 'Base image in this case is:\n\n    ' + 
                 cfg['container']['docker_image'] +
-                '\n\n' + util.colour('31', '[Hit return to continue]'))
+                '\n\n' + util.colour('31', '\n[Hit return to continue]'))
             raw_input('')
         shutit.cfg['build']['docker_command'] = ' '.join(docker_command)
         shutit.log('\n\nCommand being run is:\n\n' + shutit.cfg['build']['docker_command'],
