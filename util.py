@@ -1198,7 +1198,13 @@ def module():
         ./build.sh $1
         ''')
     buildcnf = textwrap.dedent('''\
-        # This file should be changed only by the maintainer.
+        ###############################################################################
+        # PLEASE NOTE: This file should be changed only by the maintainer.
+        # PLEASE NOTE: This file is only sourced if the "shutit build" command is run
+        #              and this file is in the relative path: configs/build.cnf
+        #              This is to ensure it is only sourced if _this_ module is the
+        #              target.
+        ###############################################################################
         # When this module is the one being built, which modules should be built along with it by default?
         # This feeds into automated testing of each module.
         [''' + '%s.%s.%s' % (skel_domain, skel_module_name, skel_module_name) + ''']
