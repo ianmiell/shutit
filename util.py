@@ -127,8 +127,7 @@ tag_name:latest
 # Each module should set these in a config
 [shutit.tk.setup]
 shutit.core.module.build:yes
-# Modules may rely on the below settings, only change for debugging. Do not rely
-# on these configs being stable.
+# Modules may rely on the below settings, only change for debugging.
 do_update:yes
 
 # Aspects of build process
