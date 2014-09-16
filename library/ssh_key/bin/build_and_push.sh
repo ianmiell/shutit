@@ -1,7 +1,2 @@
-../../../../shutit/shutit build --config configs/push.cnf
-# Display config 
-#../../../../shutit/shutit sc
-# Debug
-#../../../../shutit/shutit build --debug
-# Tutorial
-#../../../../shutit/shutit build --interact 2
+export SHUTIT_OPTIONS="$SHUTIT_OPTIONS --config configs/push.cnf"
+./build.sh $1
