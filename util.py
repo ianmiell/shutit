@@ -1236,9 +1236,14 @@ def module():
         suffix_format:%s
         ''')
     pushcnf = textwrap.dedent('''\
-        # THIS FILE SHOULD ONLY BE EDITED BY THE MAINTAINER!
-        # IF YOU WANT TO CHANGE THE CONFIG, PASS IN --config configfilename
-        # OR ADD DETAILS TO YOUR ~/.shutit/config FILE
+        ###############################################################################
+        # PLEASE NOTE: This file should be changed only by the maintainer.
+        # PLEASE NOTE: IF YOU WANT TO CHANGE THE CONFIG, PASS IN
+        #              --config configfilename
+        #              OR ADD DETAILS TO YOUR
+        #              ~/.shutit/config
+        #              FILE
+        ###############################################################################
         [container]
         rm:false
 
