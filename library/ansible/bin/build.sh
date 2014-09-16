@@ -10,6 +10,5 @@ then
 fi
 # This file tests your build, leaving the container intact when done.
 pushd ..
-$SHUTIT sc -m ../ssh_server:../ssh_key:../adduser
 $SHUTIT build -m ../ssh_server:../ssh_key:../adduser
 popd
