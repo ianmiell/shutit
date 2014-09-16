@@ -1,7 +1,2 @@
-../../shutit build --config configs/push.cnf -m ../vnc
-# Display config
-#../../shutit sc
-# Debug
-#../../shutit build --debug
-# Tutorial
-#../../shutit build --tutorial
+export SHUTIT_OPTIONS="$SHUTIT_OPTIONS --config configs/push.cnf"
+./build.sh $1
