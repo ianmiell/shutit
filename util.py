@@ -1198,7 +1198,13 @@ def module():
         ./build.sh $1
         ''')
     buildcnf = textwrap.dedent('''\
-        # This file should be changed only by the maintainer.
+        ###############################################################################
+        # PLEASE NOTE: This file should be changed only by the maintainer.
+        # PLEASE NOTE: This file is only sourced if the "shutit build" command is run
+        #              and this file is in the relative path: configs/build.cnf
+        #              This is to ensure it is only sourced if _this_ module is the
+        #              target.
+        ###############################################################################
         # When this module is the one being built, which modules should be built along with it by default?
         # This feeds into automated testing of each module.
         [''' + '%s.%s.%s' % (skel_domain, skel_module_name, skel_module_name) + ''']
@@ -1230,9 +1236,14 @@ def module():
         suffix_format:%s
         ''')
     pushcnf = textwrap.dedent('''\
-        # THIS FILE SHOULD ONLY BE EDITED BY THE MAINTAINER!
-        # IF YOU WANT TO CHANGE THE CONFIG, PASS IN --config configfilename
-        # OR ADD DETAILS TO YOUR ~/.shutit/config FILE
+        ###############################################################################
+        # PLEASE NOTE: This file should be changed only by the maintainer.
+        # PLEASE NOTE: IF YOU WANT TO CHANGE THE CONFIG, PASS IN
+        #              --config configfilename
+        #              OR ADD DETAILS TO YOUR
+        #              ~/.shutit/config
+        #              FILE
+        ###############################################################################
         [container]
         rm:false
 
