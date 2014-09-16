@@ -4,5 +4,3 @@
 build:yes
 allowed_images:[".*"]
 
-[repository]
-name:apt_mirror

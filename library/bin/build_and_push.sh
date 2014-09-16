@@ -23,19 +23,20 @@
 
 source ../../test/shared_test_utils.sh
 
-DISTROS=${SHUTITTEST_DISTROS:-ubuntu:12.04}
+# Just ubuntu for now
+DISTROS=${SHUTITTEST_DISTROS:-ubuntu:12.04 ubuntu14.04}
 for dist in $DISTROS
 do
-	for d in $(ls ../* | grep -vw bin)
+	for d in $(ls -d ../* | grep -vw bin)
 	do
 		declare -A PIDS
 		PIDS=()
-		if [[ -a $d/bin/test.sh ]]
+		if [[ -a $d/bin/build_and_push.sh ]]
 		then
 			pushd $d/bin
 			echo "PWD: $(pwd)"
 			# Set up a random container name for tests to use
-			if [[ -a ../STOP ]]
+			if [[ -a ../STOPTEST ]]
 			then
 				echo "Skipping $d"
 			else

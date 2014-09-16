@@ -4,6 +4,4 @@
 build:yes
 allowed_images:["ubuntu.*"]
 
-[repository]
-name:apache_proxypass
 
