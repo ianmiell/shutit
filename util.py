@@ -100,6 +100,8 @@ password:
 # Log file - will be set to 0600 perms, and defaults to /tmp/<YOUR_USERNAME>_shutit_log_<timestamp>
 # A timestamp will be added to the end of the filename.
 logfile:
+# ShutIt paths to look up modules in separated by ":", eg /path1/here:/opt/path2/there
+shutit_module_path:.
 
 # Repository information
 [repository]
@@ -302,6 +304,7 @@ def get_base_config(cfg, cfg_parser):
     cfg['host']['dns']                            = cp.get('host', 'dns')
     cfg['host']['password']                       = cp.get('host', 'password')
     cfg['host']['logfile']                        = cp.get('host', 'logfile')
+    cfg['host']['shutit_module_path']             = cp.get('host', 'shutit_module_path')
     cfg['repository']['name']                     = cp.get('repository', 'name')
     cfg['repository']['server']                   = cp.get('repository', 'server')
     cfg['repository']['push']                     = cp.getboolean('repository', 'push')
@@ -533,12 +536,12 @@ def parse_args(cfg):
     cfg['build']['ignorestop']       = args.ignorestop
     cfg['build']['ignoreimage']      = args.ignoreimage
     # Get module paths
-    cfg['host']['shutit_module_paths'] = args.shutit_module_path.split(':')
-    if '.' not in cfg['host']['shutit_module_paths']:
+    cfg['host']['shutit_module_path'] = args.shutit_module_path.split(':')
+    if '.' not in cfg['host']['shutit_module_path']:
         if cfg['build']['debug']:
             shutit_global.shutit.log('Working directory path not included, adding...')
             time.sleep(1)
-        cfg['host']['shutit_module_paths'].append('.')
+        cfg['host']['shutit_module_path'].append('.')
     # Finished parsing args, tutorial stuff
     if cfg['build']['interactive'] >= 3:
         print textwrap.dedent("""\
@@ -693,9 +696,9 @@ def load_shutit_modules(shutit):
     """
     if shutit.cfg['build']['debug']:
         shutit.log('ShutIt module paths now: ')
-        shutit.log(shutit.cfg['host']['shutit_module_paths'])
+        shutit.log(shutit.cfg['host']['shutit_module_path'])
         time.sleep(1)
-    for shutit_module_path in shutit.cfg['host']['shutit_module_paths']:
+    for shutit_module_path in shutit.cfg['host']['shutit_module_path']:
         load_all_from_path(shutit, shutit_module_path)
     # Now we should have all modules.
     if shutit.cfg['action']['show_config']:

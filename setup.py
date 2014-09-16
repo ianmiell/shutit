@@ -156,7 +156,8 @@ class ConnDocker(ShutItModule):
         docker = cfg['host']['docker_executable'].split(' ')
 
         # Always-required options
-        cfg['build']['cidfile'] = '/tmp/' + cfg['host']['username'] +\
+        os.mkdir('/tmp/shutit/cidfiles')
+        cfg['build']['cidfile'] = '/tmp/shutit/cidfiles' + cfg['host']['username'] +\
             '_cidfile_' + cfg['build']['build_id']
         cidfile_arg = '--cidfile=' + cfg['build']['cidfile']
 

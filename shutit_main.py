@@ -125,7 +125,7 @@ def init_shutit_map(shutit):
     # Have we got anything to process outside of special modules?
     if len([mod for mod in modules if mod.run_order > 0]) < 1:
         shutit.log(modules)
-        path = ':'.join(cfg['host']['shutit_module_paths'])
+        path = ':'.join(cfg['host']['shutit_module_path'])
         if path == '':
             shutit.fail('No modules aside from core ones found and no ShutIt' + 
                         ' module path given. ' + 
@@ -299,7 +299,7 @@ def check_dependee_exists(shutit, depender, dependee, dependee_id):
     # If the module id isn't there, there's a problem.
     if dependee == None:
         return ('module: \n\n' + dependee_id + '\n\nnot found in paths: ' +
-            str(shutit.cfg['host']['shutit_module_paths']) +
+            str(shutit.cfg['host']['shutit_module_path']) +
             ' but needed for ' + depender.module_id +
             '\nCheck your --shutit_module_path setting and ensure that ' +
             'all modules configured to be built are in that path setting, ' +
