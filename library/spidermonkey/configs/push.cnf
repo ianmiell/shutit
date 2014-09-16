@@ -5,7 +5,7 @@
 rm:false
 
 [repository]
-name:''' + skel_module_name + '''
+name:spidermonkey
 # COPY THESE TO YOUR ~/.shutit/config FILE AND FILL OUT ITEMS IN CAPS
 #user:YOUR_USERNAME
 ## Fill these out in server- and username-specific config (also in this directory)
