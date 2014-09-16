@@ -12,13 +12,3 @@ fi
 pushd ..
 $SHUTIT build -m ../ssh_server:../ssh_key:../adduser
 popd
-# Display config
-#$SHUTIT sc
-# Debug
-#$SHUTIT build --debug
-# Honour pause points
-#$SHUTIT build --interactive 1
-# Interactive build
-#$SHUTIT build --interactive 2
-# Tutorial
-#$SHUTIT build --interactive 3

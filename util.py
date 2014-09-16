@@ -100,6 +100,8 @@ password:
 # Log file - will be set to 0600 perms, and defaults to /tmp/<YOUR_USERNAME>_shutit_log_<timestamp>
 # A timestamp will be added to the end of the filename.
 logfile:
+# ShutIt paths to look up modules in separated by ":", eg /path1/here:/opt/path2/there
+shutit_module_path:.
 
 # Repository information
 [repository]
@@ -246,12 +248,14 @@ def get_configs(shutit, configs):
             fail_str = fail_str + '\nchmod 0600 ' + config_file
             files.append(config_file)
     if fail_str != '':
-        fail_str = 'Files are not secure, mode should be 0600. Running the following commands to correct:\n' + fail_str + '\n'
-        # Actually show this to the user before failing...
-        shutit.log(fail_str, force_stdout=True)
-        shutit.log('\n\nDo you want me to run this for you? (input y/n)\n', force_stdout=True)
-        if shutit.cfg['action']['serve'] or raw_input('') == 'y':
+        if shutit.cfg['build']['interactive'] > 0:
+        	fail_str = 'Files are not secure, mode should be 0600. Running the following commands to correct:\n' + fail_str + '\n'
+        	# Actually show this to the user before failing...
+        	shutit.log(fail_str, force_stdout=True)
+        	shutit.log('\n\nDo you want me to run this for you? (input y/n)\n', force_stdout=True)
+        if shutit.cfg['action']['serve'] or shutit.cfg['build']['interactive'] == 0 or raw_input('') == 'y':
             for f in files:
+                shutit.log('Correcting insecure file permissions on: ' + f, force_stdout=True)
                 os.chmod(f,0600)
             # recurse
             return get_configs(shutit, configs)
@@ -300,6 +304,7 @@ def get_base_config(cfg, cfg_parser):
     cfg['host']['dns']                            = cp.get('host', 'dns')
     cfg['host']['password']                       = cp.get('host', 'password')
     cfg['host']['logfile']                        = cp.get('host', 'logfile')
+    cfg['host']['shutit_module_path']             = cp.get('host', 'shutit_module_path')
     cfg['repository']['name']                     = cp.get('repository', 'name')
     cfg['repository']['server']                   = cp.get('repository', 'server')
     cfg['repository']['push']                     = cp.getboolean('repository', 'push')
@@ -531,12 +536,12 @@ def parse_args(cfg):
     cfg['build']['ignorestop']       = args.ignorestop
     cfg['build']['ignoreimage']      = args.ignoreimage
     # Get module paths
-    cfg['host']['shutit_module_paths'] = args.shutit_module_path.split(':')
-    if '.' not in cfg['host']['shutit_module_paths']:
+    cfg['host']['shutit_module_path'] = args.shutit_module_path.split(':')
+    if '.' not in cfg['host']['shutit_module_path']:
         if cfg['build']['debug']:
             shutit_global.shutit.log('Working directory path not included, adding...')
             time.sleep(1)
-        cfg['host']['shutit_module_paths'].append('.')
+        cfg['host']['shutit_module_path'].append('.')
     # Finished parsing args, tutorial stuff
     if cfg['build']['interactive'] >= 3:
         print textwrap.dedent("""\
@@ -691,9 +696,9 @@ def load_shutit_modules(shutit):
     """
     if shutit.cfg['build']['debug']:
         shutit.log('ShutIt module paths now: ')
-        shutit.log(shutit.cfg['host']['shutit_module_paths'])
+        shutit.log(shutit.cfg['host']['shutit_module_path'])
         time.sleep(1)
-    for shutit_module_path in shutit.cfg['host']['shutit_module_paths']:
+    for shutit_module_path in shutit.cfg['host']['shutit_module_path']:
         load_all_from_path(shutit, shutit_module_path)
     # Now we should have all modules.
     if shutit.cfg['action']['show_config']:
@@ -1158,7 +1163,7 @@ def module():
             exit 1
         fi
         pushd ..
-        $SHUTIT build
+        $SHUTIT build --shutit_module_path $(dirname $SHUTIT)/library
         popd
         ''')
     testsh = textwrap.dedent('''\
@@ -1196,7 +1201,13 @@ def module():
         ./build.sh $1
         ''')
     buildcnf = textwrap.dedent('''\
-        # This file should be changed only by the maintainer.
+        ###############################################################################
+        # PLEASE NOTE: This file should be changed only by the maintainer.
+        # PLEASE NOTE: This file is only sourced if the "shutit build" command is run
+        #              and this file is in the relative path: configs/build.cnf
+        #              This is to ensure it is only sourced if _this_ module is the
+        #              target.
+        ###############################################################################
         # When this module is the one being built, which modules should be built along with it by default?
         # This feeds into automated testing of each module.
         [''' + '%s.%s.%s' % (skel_domain, skel_module_name, skel_module_name) + ''']
@@ -1228,26 +1239,35 @@ def module():
         suffix_format:%s
         ''')
     pushcnf = textwrap.dedent('''\
-        [repository]
-        user:YOUR_USERNAME
-        # Fill these out in server- and username-specific config (also in this directory)
-        password:YOUR_REGISTRY_PASSWORD_OR_BLANK
-        # Fill these out in server- and username-specific config (also in this directory)
-        email:YOUR_REGISTRY_EMAIL_OR_BLANK
-        tag:no
-        push:no
-        save:no
-        export:no
-        #server:REMOVE_ME_FOR_DOCKER_INDEX
-        name:''' + skel_module_name + '''
-        # tag suffix, defaults to "latest", eg registry/username/repository:latest.
-        # empty is also "latest"
-        tag_name:latest
-        suffix_date:yes
-        suffix_format:%s
-
+        ###############################################################################
+        # PLEASE NOTE: This file should be changed only by the maintainer.
+        # PLEASE NOTE: IF YOU WANT TO CHANGE THE CONFIG, PASS IN
+        #              --config configfilename
+        #              OR ADD DETAILS TO YOUR
+        #              ~/.shutit/config
+        #              FILE
+        ###############################################################################
         [container]
         rm:false
+
+        [repository]
+        name:''' + skel_module_name + '''
+        # COPY THESE TO YOUR ~/.shutit/config FILE AND FILL OUT ITEMS IN CAPS
+        #user:YOUR_USERNAME
+        ## Fill these out in server- and username-specific config (also in this directory)
+        #password:YOUR_REGISTRY_PASSWORD_OR_BLANK
+        ## Fill these out in server- and username-specific config (also in this directory)
+        #email:YOUR_REGISTRY_EMAIL_OR_BLANK
+        #tag:no
+        #push:yes
+        #save:no
+        #export:no
+        ##server:REMOVE_ME_FOR_DOCKER_INDEX
+        ## tag suffix, defaults to "latest", eg registry/username/repository:latest.
+        ## empty is also "latest"
+        #tag_name:latest
+        #suffix_date:no
+        #suffix_format:%s
         ''')
 
     open(templatemodule_path, 'w').write(templatemodule)

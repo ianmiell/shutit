@@ -10,18 +10,3 @@ allowed_images:["ubuntu"]
 [build]
 base_image:ubuntu
 
-[repository]
-name:sentry
-user:
-# Fill these out in server- and username-specific config (also in this directory)
-password:YOUR_REGISTRY_PASSWORD_OR_BLANK
-# Fill these out in server- and username-specific config (also in this directory)
-email:YOUR_REGISTRY_EMAIL_OR_BLANK
-tag:yes
-push:no
-save:no
-export:no
-#server:REMOVE_ME_FOR_DOCKER_INDEX
-name:sentry
-suffix_date:no
-suffix_format:%s

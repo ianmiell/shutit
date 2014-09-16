@@ -7,5 +7,3 @@ build:yes
 # It's recommended this is locked down as far as possible.
 allowed_images:["ubuntu.*"]
 
-[repository]
-name:squid_deb_proxy

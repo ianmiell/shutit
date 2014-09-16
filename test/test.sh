@@ -24,6 +24,7 @@ TESTS=$1
 pushd $(dirname ${BASH_SOURCE[0]})/.. > /dev/null 2>&1
 
 set -e 
+set -x
 
 source test/shared_test_utils.sh
 

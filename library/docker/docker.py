@@ -142,6 +142,7 @@ END"""
         shutit.send(start_docker)
         shutit.send('chmod +x /root/start_docker.sh')
         shutit.send('popd')
+        shutit.send('ln -s /usr/bin/docker /usr/bin/docker.io')
         return True
 
     def is_installed(self, shutit):

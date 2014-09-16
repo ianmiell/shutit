@@ -1744,8 +1744,12 @@ def init():
     # If no LOGNAME available,
     cfg['host']['username'] = os.environ.get('LOGNAME', '')
     if cfg['host']['username'] == '':
-        if os.getlogin() != '':
-            cfg['host']['username'] = os.getlogin()
+        try:
+            if os.getlogin() != '':
+                cfg['host']['username'] = os.getlogin()
+        except:
+            # Can fail eg if in container, TODO: try whoami and id here
+            pass
         if cfg['host']['username'] == '':
             shutit_global.shutit.fail('LOGNAME not set in the environment, ' +
                                       'and login unavailable in python; ' +

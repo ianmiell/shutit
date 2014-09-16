@@ -156,7 +156,8 @@ class ConnDocker(ShutItModule):
         docker = cfg['host']['docker_executable'].split(' ')
 
         # Always-required options
-        cfg['build']['cidfile'] = '/tmp/' + cfg['host']['username'] +\
+        os.mkdir('/tmp/shutit/cidfiles')
+        cfg['build']['cidfile'] = '/tmp/shutit/cidfiles' + cfg['host']['username'] +\
             '_cidfile_' + cfg['build']['build_id']
         cidfile_arg = '--cidfile=' + cfg['build']['cidfile']
 
@@ -225,7 +226,7 @@ class ConnDocker(ShutItModule):
                 '\nor config:\n\n    [container]\n    docker_image:<image>)\n\n' +
                 'Base image in this case is:\n\n    ' + 
                 cfg['container']['docker_image'] +
-                '\n\n' + util.colour('31', '[Hit return to continue]'))
+                '\n\n' + util.colour('31', '\n[Hit return to continue]'))
             raw_input('')
         shutit.cfg['build']['docker_command'] = ' '.join(docker_command)
         shutit.log('\n\nCommand being run is:\n\n' + shutit.cfg['build']['docker_command'],
