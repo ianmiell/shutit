@@ -253,18 +253,21 @@ def config_collection_for_built(shutit):
                     # Exit without error code so that it plays nice with tests.
                     sys.exit()
 
-                             
+
 def conn_container(shutit):
     """Connect to the container.
     """
-    assert len(shutit.conn_modules) == 1
-    # Set up the container in pexpect.
+    for mod in shutit.conn_modules:
+        if mod.module_id == 'shutit.tk.conn_docker':
+            conn_module = mod
+
+    # Set up the target in pexpect.
     if shutit.cfg['build']['interactive'] >= 3:
         print('\nRunning the conn module (' +
             shutit.shutit_main_dir + '/setup.py)' + util.colour('31',
                 '\n\n[Hit return to continue]\n'))
         raw_input('')
-    list(shutit.conn_modules)[0].build(shutit)
+    conn_module.build(shutit)
 
 
 def finalize_container(shutit):
