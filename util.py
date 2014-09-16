@@ -53,16 +53,7 @@ from shutit_module import ShutItFailException
 
 _default_cnf = '''
 ################################################################################
-## Default core config file for ShutIt.
-#  If this file is in the core of ShutIt it should only
-#  ever be changed by the maintainer/BDFL.
-#  If it's been copied into a module, then the maintainer
-#  of that module only should be changing it.
-#  If you are a developer on SI or the module, change the
-#  config specific to your run (ie configs/<hostname>_<username>.cnf)
-#
-#  Submit a pull request to the maintainer if you want the
-#  default.cnf changed.
+# Default core config file for ShutIt.
 ################################################################################
 
 # Details relating to the container you are building itself
