@@ -20,16 +20,24 @@
 #OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 #SOFTWARE.
 
+# Python
 *.pyc
+# Configs
 **.cnf
-*resources/*
-shutit_resources/*
-**.log
-**.lck
-docs/_build
-!**defaults.cnf
 !**build.cnf
+!**push.cnf
+!**defaults.cnf
+# Logs
+**.log
+# Lock files
+**.lck
+# Docs
+docs/_build
+# Resources
+*resources/*
 !*resources/README.md
 !*shutit_resources/README.md
+# Keys
+examples/ianmiellaws/context/pems/*.pem
 pubring.gpg~
 secring.gpg

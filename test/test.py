@@ -47,7 +47,7 @@ class TestShutItDepChecking(unittest.TestCase):
 				'tutorial': False, 'debug': False, 'show_depgraph_only': False,
 				'interactive': 0
 			},
-			'host': {'shutit_module_paths': 'dummy1:dummy2'}
+			'host': {'shutit_module_path': 'dummy1:dummy2'}
 		})
 
 	def test_dep_exists_err(self):

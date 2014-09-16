@@ -5,7 +5,7 @@ import json
 
 from shutit_module import ShutItModule
 
-class ianmiellawslogin(ShutItModule):
+class aws_example_provision(ShutItModule):
 
     def build(self,shutit):
         # Have we got any up?
@@ -17,7 +17,7 @@ class ianmiellawslogin(ShutItModule):
             shutit.send('aws ec2 terminate-instances --instance-ids ' + shutit.cfg[self.module_id]['instance_id'])
         # TODO - check with describe rather than pause
         shutit.send('sleep 30')
-        shutit.send('aws ec2 run-instances --image-id ' + shutit.cfg[self.module_id]['image_id'] + ' --instance-type ' + shutit.cfg[self.module_id]['instance_type'] + ' --key-name imiell_aws_eu --security-groups ' + shutit.cfg[self.module_id]['security_groups'])
+        shutit.send('aws ec2 run-instances --image-id ' + shutit.cfg[self.module_id]['image_id'] + ' --instance-type ' + shutit.cfg[self.module_id]['instance_type'] + ' --key-name ' + shutit.cfg['shutit.tk.aws_example.aws_example']['pem_name'] + ' --security-groups ' + shutit.cfg[self.module_id]['security_groups'])
         json_dict = json.loads(shutit.get_output())
         shutit.cfg[self.module_id]['instance_id'] = json_dict['Instances'][0]['InstanceId']
         # TODO - check with describe rather than pause
@@ -26,10 +26,14 @@ class ianmiellawslogin(ShutItModule):
         shutit.send('aws ec2 describe-instances --filter Name=instance-state-name,Values=running')
         json_dict = json.loads(shutit.get_output())
         shutit.cfg[self.module_id]['ec2_ip'] = json_dict['Reservations'][0]['Instances'][0]['PublicIpAddress']
-
-        shutit.login(command='ssh -i imiell_aws_eu.pem ec2-user@' + shutit.cfg[self.module_id]['ec2_ip'])
+        shutit.login(command='ssh -i ' + shutit.cfg['shutit.tk.aws_example.aws_example']['pem_name'] + '.pem ec2-user@' + shutit.cfg[self.module_id]['ec2_ip'])
         shutit.send('sudo yum install -y docker')
         shutit.send('sudo service docker start')
+        # Example of what you might want to do. Note that this won't work out
+        # of the box as the security policy of the VM needs to allow access to
+        # the relevant port.
+        #shutit.send('sudo docker pull training/webapp')
+        #shutit.send('sudo docker run -d --net=host training/webapp')
         # Exit back to the "real container"
         shutit.logout()
         return True
@@ -50,10 +54,10 @@ class ianmiellawslogin(ShutItModule):
         return False
 
 def module():
-    return ianmiellawslogin(
-        'tk.ianandsarah.ianmiellawslogin.ianmiellawslogin', 1159697827.1,
+    return aws_example_provision(
+        'shutit.tk.aws_example_provision.aws_example_provision', 0.013235,
         description='Creates AMI',
         maintainer='ian.miell@gmail.com',
-        depends=['shutit.tk.setup','tk.ianandsarah.ianmiellaws.ianmiellaws']
+        depends=['shutit.tk.setup','shutit.tk.aws_example.aws_example']
     )
 
