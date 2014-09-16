@@ -376,9 +376,7 @@ class setup(ShutItModule):
         and updating package management.
         """
         
-        do_update = True
-        # Seems to be broken
-        #do_update = shutit.cfg[self.module_id]['do_update']
+        do_update = shutit.cfg[self.module_id]['do_update']
         shutit.add_to_bashrc('export HISTSIZE=99999999')
         # Apparently there are some things you can't take for granted.
         shutit.install('perl')
@@ -412,7 +410,7 @@ class setup(ShutItModule):
         """Gets the configured core pacakges, and whether to perform the package
         management update.
         """
-        shutit.get_config(self.module_id, 'do_update', 'yes')
+        shutit.get_config(self.module_id, 'do_update', True, boolean=True)
         return True
 
 def module():
