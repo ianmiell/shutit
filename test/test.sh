@@ -107,7 +107,7 @@ do
 			echo "================================================================================"
 			if [ x$SHUTIT_PARALLEL_BUILD = 'x' ]
 			then
-				./test.sh ${SHUTIT_DIR} 2>&1 | tee /tmp/shutit_logs/$$/shutit_core_test_$(date +%s)
+				./test.sh 2>&1 | tee /tmp/shutit_logs/$$/shutit_core_test_$(date +%s)
 				cleanup hard
 				echo "================================================================================"
 				echo "SHUTIT MODULE TEST $d: In directory: `pwd`" END
@@ -115,7 +115,7 @@ do
 			else
 				# TODO
 				#http://stackoverflow.com/questions/356100/how-to-wait-in-bash-for-several-subprocesses-to-finish-and-return-exit-code-0
-				./test.sh ${SHUTIT_DIR} 2>&1 | tee /tmp/shutit_logs/$$/shutit_core_test_$(date +%s)
+				./test.sh 2>&1 | tee /tmp/shutit_logs/$$/shutit_core_test_$(date +%s)
 				JOB=$!
 				PIDS[$JOB]="$JOB: $dist $d"
 			fi
