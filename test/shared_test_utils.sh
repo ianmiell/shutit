@@ -50,9 +50,11 @@ function cleanup() {
 		if [[ "x${1:-}" = "xhard" ]]
 		then
 			echo "Force-removing containers: $CONTAINERS"
-			$DOCKER rm -f $CONTAINERS
+			# Has been seen to fail - this is best endeavours
+			$DOCKER rm -f $CONTAINERS || /bin/true
 		else
 			echo "Removing containers: $CONTAINERS"
+			# Has been seen to fail - this is best endeavours
 			$DOCKER rm $CONTAINERS || /bin/true
 		fi
 	fi
