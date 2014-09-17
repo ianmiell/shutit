@@ -39,6 +39,7 @@ import util
 import time
 import re
 import subprocess
+import os
 from distutils import spawn
 
 class ConnDocker(ShutItModule):
