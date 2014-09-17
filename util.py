@@ -304,7 +304,7 @@ def get_base_config(cfg, cfg_parser):
     cfg['host']['dns']                            = cp.get('host', 'dns')
     cfg['host']['password']                       = cp.get('host', 'password')
     cfg['host']['logfile']                        = cp.get('host', 'logfile')
-    cfg['host']['shutit_module_path']             = cp.get('host', 'shutit_module_path')
+    cfg['host']['shutit_module_path']             = cp.get('host', 'shutit_module_path').split(':')
     cfg['repository']['name']                     = cp.get('repository', 'name')
     cfg['repository']['server']                   = cp.get('repository', 'server')
     cfg['repository']['push']                     = cp.getboolean('repository', 'push')
@@ -445,7 +445,7 @@ def parse_args(cfg):
         sub_parsers[action].add_argument('--config', help='Config file for setup config. Must be with perms 0600. Multiple arguments allowed; config files considered in order.', default=[], action='append')
         sub_parsers[action].add_argument('-s', '--set', help='Override a config item, e.g. "-s container rm no". Can be specified multiple times.', default=[], action='append', nargs=3, metavar=('SEC', 'KEY', 'VAL'))
         sub_parsers[action].add_argument('--image_tag', help='Build container using specified image - if there is a symbolic reference, please use that, eg localhost.localdomain:5000/myref', default='')
-        sub_parsers[action].add_argument('-m', '--shutit_module_path', default='.', help='List of shutit module paths, separated by colons. ShutIt registers modules by running all .py files in these directories.')
+        sub_parsers[action].add_argument('-m', '--shutit_module_path', default=None, help='List of shutit module paths, separated by colons. ShutIt registers modules by running all .py files in these directories.')
         sub_parsers[action].add_argument('--pause', help='Pause between commands to avoid race conditions.', default='0.05', type=check_pause)
         sub_parsers[action].add_argument('--debug', help='Show debug.', default=False, const=True, action='store_const')
         sub_parsers[action].add_argument('--interactive', help='Level of interactive. 0 = none, 1 = honour pause points and config prompting, 2 = query user on each module, 3 = tutorial mode', default='1')
@@ -527,6 +527,14 @@ def parse_args(cfg):
 
     # Get these early for this part of the build.
     # These should never be config arguments, since they are needed before config is passed in.
+    if args.shutit_module_path is not None:
+        module_paths = args.shutit_module_path.split(':')
+        if '.' not in module_paths:
+            if cfg['build']['debug']:
+                shutit_global.shutit.log('Working directory path not included, adding...')
+                time.sleep(1)
+            module_paths.append('.')
+        args.set.append(('host', 'shutit_module_path', ':'.join(module_paths)))
     cfg['build']['debug']            = args.debug
     cfg['build']['interactive']      = int(args.interactive)
     cfg['build']['command_pause']    = float(args.pause)
@@ -535,13 +543,6 @@ def parse_args(cfg):
     cfg['container']['docker_image'] = args.image_tag
     cfg['build']['ignorestop']       = args.ignorestop
     cfg['build']['ignoreimage']      = args.ignoreimage
-    # Get module paths
-    cfg['host']['shutit_module_path'] = args.shutit_module_path.split(':')
-    if '.' not in cfg['host']['shutit_module_path']:
-        if cfg['build']['debug']:
-            shutit_global.shutit.log('Working directory path not included, adding...')
-            time.sleep(1)
-        cfg['host']['shutit_module_path'].append('.')
     # Finished parsing args, tutorial stuff
     if cfg['build']['interactive'] >= 3:
         print textwrap.dedent("""\
