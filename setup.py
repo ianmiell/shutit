@@ -35,6 +35,7 @@ host_child      - pexpect spawned child living on the host container
 from shutit_module import ShutItModule
 import pexpect
 import sys
+import os
 import util
 import time
 import re
@@ -157,8 +158,8 @@ class ConnDocker(ShutItModule):
         docker = cfg['host']['docker_executable'].split(' ')
 
         # Always-required options
-        os.mkdir('/tmp/shutit')
-        os.mkdir('/tmp/shutit/cidfiles')
+        if not os.path.exists('/tmp/shutit/cidfiles'):
+            os.makedirs('/tmp/shutit/cidfiles')
         cfg['build']['cidfile'] = '/tmp/shutit/cidfiles' + cfg['host']['username'] +\
             '_cidfile_' + cfg['build']['build_id']
         cidfile_arg = '--cidfile=' + cfg['build']['cidfile']
