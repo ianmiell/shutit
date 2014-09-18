@@ -1752,9 +1752,8 @@ def init():
             if os.getlogin() != '':
                 cfg['host']['username'] = os.getlogin()
         except:
-            userhome = os.path.expanduser('~')          
-            # Gives username by splitting path based on OS
-            cfg['host']['username'] = os.path.split(userhome)[-1]   
+            import getpass
+            cfg['host']['username'] = getpass.getuser()
         if cfg['host']['username'] == '':
             shutit_global.shutit.fail('LOGNAME not set in the environment, ' +
                                       'and login unavailable in python; ' +
