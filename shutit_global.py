@@ -318,6 +318,8 @@ class ShutIt(object):
         if check_exit == True:
             # store the output
             self._check_exit(send, expect, child, timeout, exit_values)
+        if cfg['build']['step_through']:
+            self.pause_point('pause point: stepping through')
         return expect_res
     # alias send to send_and_expect
     send_and_expect = send
@@ -946,6 +948,13 @@ class ShutIt(object):
             config_parser.reload()
         return val
 
+    def step_through(self, msg, child=None, level=1, print_input=True, value=True):
+        child = child or self.get_default_child()
+        if (not self.cfg['build']['interactive'] or 
+            self.cfg['build']['interactive'] < level):
+            return
+        self.cfg['build']['step_through'] = value
+        self.pause_point(msg, child=child, print_input=print_input, level=level)
 
     def pause_point(self, msg, child=None, print_input=True, level=1):
         """Inserts a pause in the build session, which allows the user to try
@@ -965,13 +974,8 @@ class ShutIt(object):
             self.cfg['build']['interactive'] < level):
             return
         if child and print_input:
-            # Handy resize of terminal for debian
-            try:
-                if shutit.cfg['container']['install_type'] == 'apt':
-                    print (util.colour('31', '\nYou can try installing "xterm", then running "resize" to get a terminal of a useful size.\n'))
-            except:
-                # Don't worry if we can't do the above
-                pass
+            if shutit.cfg['container']['install_type'] == 'apt':
+                print (util.colour('31', '\nYou can try installing "xterm", then running "resize" to get a terminal of a useful size.\n'))
             print (util.colour('31', '\nPause point:\n') + 
                 msg + util.colour('31','\nYou can now type in commands and ' +
                 'alter the state of the container.\nHit return to see the ' +
