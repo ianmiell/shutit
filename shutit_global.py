@@ -1454,7 +1454,11 @@ class ShutIt(object):
             self.send(password, child=child, expect='Retype new',
                       check_exit=False, echo=False)
             self.send(password, child=child, expect=expect, echo=False)
-            self.install('apt-utils')
+            #Considered harmful as it broke builds due to keyring error
+            #W: GPG error: http://ppa.launchpad.net precise Release: The following signatures couldn't be verified because the public key is not available: NO_PUBKEY B70731143DD9F856
+            #W: Failed to fetch http://archive.ubuntu.com/ubuntu/dists/precise/main/source/Sources  Hash Sum mismatch
+            # It seems that doing apt-utils before apt-get update is a problem
+            #self.install('apt-utils')
         elif cfg['container']['install_type'] == 'yum':
             self.send('passwd ' + user, child=child, expect='ew password',
                       check_exit=False)
