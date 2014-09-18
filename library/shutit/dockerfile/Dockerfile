@@ -17,7 +17,7 @@ COPY wrapdocker /usr/bin/wrapdocker
 
 # Add your build.sh here, so eg:
 # COPY configfile ~/.shutit/config
-WORKDIR library/win2048/bin
-RUN ./build.sh
+WORKDIR library/win2048
+RUN ../../shutit build -m .. --interactive 0
 
 CMD ["/bin/bash"]

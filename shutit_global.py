@@ -889,12 +889,12 @@ class ShutIt(object):
         config_parser = cfg['config_parser']
         usercfg       = os.path.join(cfg['shutit_home'], 'config')
 
-        if not cfg['build']['interactive']:
-            shutit.fail('ShutIt is not in interactive mode so cannnot prompt ' +
-                'for values.')
-
         print util.colour('34', '\nPROMPTING FOR CONFIG: %s' % (cfgstr,))
         print util.colour('34', '\n' + msg + '\n')
+
+        if not cfg['build']['interactive']:
+            shutit.fail('ShutIt is not in interactive mode so cannot prompt ' +
+                'for values.')
 
         if config_parser.has_option(sec, name):
             whereset = config_parser.whereset(sec, name)
