@@ -290,6 +290,7 @@ def get_base_config(cfg, cfg_parser):
     cfg['build']['dotest']                        = cp.get('build', 'dotest')
     cfg['build']['net']                           = cp.get('build', 'net')
     cfg['build']['completed']                     = False
+    cfg['build']['step_through']                  = False
     # Track logins in a stack.
     cfg['build']['login_stack']                   = []
     cfg['container']['password']                  = cp.get('container', 'password')
