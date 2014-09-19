@@ -15,6 +15,11 @@ RUN pip install -r requirements.txt
 RUN ln -s /usr/bin/docker /usr/bin/docker.io
 COPY wrapdocker /usr/bin/wrapdocker
 
+VOLUME /var/lib/docker
+VOLUME /var/run/
+
+RUN docker -d
+
 # Add your build.sh here, so eg:
 # COPY configfile ~/.shutit/config
 WORKDIR library/win2048
