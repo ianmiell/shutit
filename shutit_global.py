@@ -1707,7 +1707,7 @@ class ShutIt(object):
     def get_emailer(self, cfg_section):
         """Sends an email using the mailer
         """
-        import emailer
+        from alerting import emailer
         return emailer.Emailer(cfg_section, self)
 
 
