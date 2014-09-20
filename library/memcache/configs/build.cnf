@@ -1,2 +1,2 @@
 [shutit.tk.memcache.memcache]
-build:yes
+shutit.core.module.build:yes

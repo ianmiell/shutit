@@ -1,4 +1,4 @@
 [shutit.tk.wordpress.wordpress]
-build:yes
-allowed_images:["ubuntu.*"]
+shutit.core.module.build:yes
+shutit.core.module.allowed_images:["ubuntu.*"]
 

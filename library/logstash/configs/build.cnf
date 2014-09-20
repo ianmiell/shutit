@@ -1,8 +1,8 @@
 # When this module is the one being built, which modules should be built along with it by default?
 # This feeds into automated testing of each module.
 [shutit.tk.logstash.logstash]
-build:yes
-allowed_images:["debian:sid"]
+shutit.core.module.build:yes
+shutit.core.module.allowed_images:["debian:sid"]
 
 # Aspects of build process
 [build]

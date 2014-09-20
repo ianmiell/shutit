@@ -2,8 +2,8 @@
 # When this module is the one being built, which modules should be built along with it by default?
 # This feeds into automated testing of each module.
 [shutit.tk.orientdb.orientdb]
-build:yes
-allowed_images:["joaodubas/openjdk:latest"]
+shutit.core.module.build:yes
+shutit.core.module.allowed_images:["joaodubas/openjdk:latest"]
 
 # Aspects of build process
 [build]

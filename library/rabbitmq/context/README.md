@@ -5,7 +5,7 @@ Fedora dockerfile for rabbitmq
 
 Tested on Docker 0.7.0
 
-To build:
+To shutit.core.module.build:
 
 Copy the sources down -
 

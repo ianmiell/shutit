@@ -1,8 +1,8 @@
 # When this module is the one being built, which modules should be built along with it by default?
 # This feeds into automated testing of each module.
 [shutit.tk.skype_pulseaudio.skype_pulseaudio]
-build:yes
-allowed_images:["debian:stable"]
+shutit.core.module.build:yes
+shutit.core.module.allowed_images:["debian:stable"]
 
 # Aspects of build process
 [build]

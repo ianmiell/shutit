@@ -1,10 +1,10 @@
 # When this module is the one being built, which modules should be built along with it by default?
 # This feeds into automated testing of each module.
 [shutit.tk.steam.steam]
-build:yes
+shutit.core.module.build:yes
 # Allowed images as a regexp, eg ["ubuntu:12.*"], or [".*"], or ["centos"].
 # It's recommended this is locked down as far as possible.
-allowed_images:["tianon/steamos"]
+shutit.core.module.allowed_images:["tianon/steamos"]
 
 # Aspects of build process
 [build]

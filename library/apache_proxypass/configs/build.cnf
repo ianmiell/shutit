@@ -1,7 +1,7 @@
 # When this module is the one being built, which modules should be built along with it by default?
 # This feeds into automated testing of each module.
 [shutit.tk.apache_proxypass.apache_proxypass]
-build:yes
-allowed_images:["ubuntu.*"]
+shutit.core.module.build:yes
+shutit.core.module.allowed_images:["ubuntu.*"]
 
 

@@ -1213,7 +1213,7 @@ def module():
         build:yes
         # Allowed images as a regexp, eg ["ubuntu:12.*"], or [".*"], or ["centos"].
         # It's recommended this is locked down as far as possible.
-        allowed_images:["''' + shutit.cfg['dockerfile']['base_image'] + '''"]
+        shutit.core.module.allowed_images:["''' + shutit.cfg['dockerfile']['base_image'] + '''"]
 
         # Aspects of build process
         [build]

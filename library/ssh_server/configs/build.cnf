@@ -1,2 +1,2 @@
 [shutit.tk.ssh_server.ssh_server]
-build:yes
+shutit.core.module.build:yes
