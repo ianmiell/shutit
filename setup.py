@@ -380,6 +380,8 @@ class setup(ShutItModule):
         # Seems to be broken
         #do_update = shutit.cfg[self.module_id]['do_update']
         shutit.add_to_bashrc('export HISTSIZE=99999999')
+        # Apparently there are some things you can't take for granted.
+        shutit.install('perl')
         shutit.send("perl -p -i -e 's/HISTSIZE=1000//' ~/.bashrc") 
         if shutit.cfg['container']['install_type'] == 'apt':
             shutit.add_to_bashrc('export DEBIAN_FRONTEND=noninteractive')
