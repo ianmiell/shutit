@@ -772,6 +772,8 @@ def get_pexpect_child(key):
 def load_all_from_path(shutit, path):
     """Dynamically imports files within the same directory (in the end, the path).
     """
+    #111: handle expanded paths
+    path = os.path.expanduser(path)
     #http://stackoverflow.com/questions/301134/dynamic-module-import-in-python
     if os.path.abspath(path) == shutit.shutit_main_dir:
         return
