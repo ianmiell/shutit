@@ -365,7 +365,7 @@ class ConnDocker(ShutItConnModule):
         host_child.sendline('exit') # Exit raw bash
         return True
 
-class ConnSSH(ShutItModule):
+class ConnSSH(ShutItConnModule):
     """Connects ShutIt to a machine via ssh.
     """
 
