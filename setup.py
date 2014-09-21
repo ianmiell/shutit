@@ -43,7 +43,12 @@ import subprocess
 import os
 from distutils import spawn
 
-class ConnDocker(ShutItModule):
+class ShutItConnModule(ShutItModule):
+
+    def __init__(self, *args, **kwargs):
+        super(ShutItConnModule, self).__init__(*args, **kwargs)
+
+class ConnDocker(ShutItConnModule):
     """Connects ShutIt to docker daemon and starts the container.
     """
 
