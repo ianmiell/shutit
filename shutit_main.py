@@ -501,16 +501,16 @@ def build_module(shutit, module):
                        module.module_id, print_input=True, level=2)
     cfg['build']['report'] = (cfg['build']['report'] + '\nCompleted module: ' +
                               module.module_id)
-    if cfg[module.module_id]['tag'] or cfg['build']['interactive'] >= 3:
+    if cfg[module.module_id]['shutit.core.module.tag'] or cfg['build']['interactive'] >= 3:
         shutit.log(util.build_report(shutit, '#Module:' + module.module_id),
                    code='31')
-    if (not cfg[module.module_id]['tag'] and
+    if (not cfg[module.module_id]['shutit.core.module.tag'] and
         cfg['build']['interactive'] >= 2):
         shutit.log("\n\nDo you want to save state now we\'re at the " +
                    "end of this module? (" + module.module_id +
                    ") (input y/n)", force_stdout=True, code='31')
-        cfg[module.module_id]['tag'] = (raw_input('') == 'y')
-    if cfg[module.module_id]['tag']:
+        cfg[module.module_id]['shutit.core.module.tag'] = (raw_input('') == 'y')
+    if cfg[module.module_id]['shutit.core.module.tag']:
         shutit.log(module.module_id +
                    ' configured to be tagged, doing repository work',
                    force_stdout=True)
