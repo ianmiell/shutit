@@ -257,9 +257,13 @@ def config_collection_for_built(shutit):
 def conn_container(shutit):
     """Connect to the container.
     """
+    conn_module = None
     for mod in shutit.conn_modules:
-        if mod.module_id == 'shutit.tk.conn_docker':
+        if mod.module_id == shutit.cfg['build']['conn_module']:
             conn_module = mod
+            break
+    if conn_module is None:
+        shutit.fail('Couldn\'t find conn_module ' + cfg['build']['conn_module'])
 
     # Set up the target in pexpect.
     if shutit.cfg['build']['interactive'] >= 3:
@@ -276,6 +280,12 @@ def finalize_container(shutit):
     # Set up the container in pexpect.
     shutit.pause_point('\nFinalizing the container module (' +
         shutit.shutit_main_dir + '/setup.py)', print_input=False, level=3)
+    # Can assume conn_module exists at this point
+    for mod in shutit.conn_modules:
+        if mod.module_id == shutit.cfg['build']['conn_module']:
+            conn_module = mod
+            break
+
     for mod in shutit.conn_modules:
         if mod.module_id == 'shutit.tk.conn_docker':
             conn_module = mod
