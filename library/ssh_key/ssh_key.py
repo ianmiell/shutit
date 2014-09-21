@@ -26,14 +26,18 @@ class ssh_key(ShutItModule):
         return True
 
     def test(self, shutit):
-        expect = ['authenticity', shutit.cfg['expect_prompts']['base_prompt']]
-        send = 'ssh localhost'
-        while True:
-            res = shutit.send(send, expect=expect, check_exit=False)
-            if res == 0:
-                send = 'yes'
-            elif res == 1:
-                break
+        d = {'authenticity':'yes'}
+        shutit.multisend('ssh localhost',d,expect=shutit.cfg['expect_prompts']['base_prompt'],check_exit=False)
+        
+
+        #expect = ['authenticity', shutit.cfg['expect_prompts']['base_prompt']]
+        #send = 'ssh localhost'
+        #while True:
+        #    res = shutit.send(send, expect=expect, check_exit=False)
+        #    if res == 0:
+        #        send = 'yes'
+        #    elif res == 1:
+        #        break
         shutit.send('exit')
         return True
 
