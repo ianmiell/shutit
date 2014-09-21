@@ -856,7 +856,8 @@ def build_report(shutit, msg=''):
     else:
         s += '# Nothing to report\n'
 
-    s += '# CONTAINER_ID: ' + shutit.cfg['container']['container_id'] + '\n'
+    if 'container_id' in shutit.cfg['container']:
+        s += '# CONTAINER_ID: ' + shutit.cfg['container']['container_id'] + '\n'
     s += '# BUILD REPORT FOR BUILD END ' + shutit_global.cfg['build']['build_id'] + '\n'
     s += '###############################################################################\n'
     return s

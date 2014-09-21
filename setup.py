@@ -387,7 +387,11 @@ class ConnSSH(ShutItModule):
         ssh_key  = cfg[self.module_id]['ssh_key']
         ssh_cmd  = cfg[self.module_id]['ssh_cmd']
 
-        opts = []
+        opts = [
+            '-t',
+            '-o', 'UserKnownHostsFile=/dev/null',
+            '-o', 'StrictHostKeyChecking=no'
+        ]
 
         if ssh_pass == '':
             opts += ['-o', 'PasswordAuthentication=no']
@@ -406,9 +410,9 @@ class ConnSSH(ShutItModule):
 
         cmd_arg = ssh_cmd
         if cmd_arg == '':
-            cmd_arg = 'sudo su -'
+            cmd_arg = 'sudo su -s /bin/bash -'
 
-        ssh_command = ['ssh'] + opts + [host_arg, ssh_cmd]
+        ssh_command = ['ssh'] + opts + [host_arg, cmd_arg]
 
         if cfg['build']['interactive'] >= 3:
             print('\n\nAbout to connect to host.' +
@@ -474,8 +478,8 @@ class ConnSSH(ShutItModule):
              shutit.cfg['build']['build_id'] + '/python_env.sh', \
              str(sys.__dict__), log=False)
         shutit.send_file(shutit.cfg['build']['build_db_dir'] + '/' + \
-             shutit.cfg['build']['build_id'] + '/docker_command.sh', \
-             ' '.join(docker_command), log=False)
+             shutit.cfg['build']['build_id'] + '/ssh_command.sh', \
+             ' '.join(ssh_command), log=False)
         shutit.pause_point('Anything you want to do now the ' + 
              'target is connected to?', level=2)
         return True
