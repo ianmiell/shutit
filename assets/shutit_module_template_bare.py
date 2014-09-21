@@ -20,6 +20,17 @@
 #IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 #CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+
+
+
+# THIS SPACE INTENTIONALLY LEFT BLANK
+
+
+
+
+
+
+
 from shutit_module import ShutItModule
 
 class template(ShutItModule):
@@ -28,6 +39,7 @@ class template(ShutItModule):
 		return False
 
 	def build(self, shutit):
+
 		return True
 
 	#def get_config(self, shutit):
@@ -41,7 +53,6 @@ class template(ShutItModule):
 
 	#def stop(self, shutit):
 	#    return True
-
 	#def finalize(self, shutit):
 	#    return True
 
