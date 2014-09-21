@@ -24,50 +24,50 @@ from shutit_module import ShutItModule
 
 class go(ShutItModule):
 
-    def is_installed(self,shutit):
-        return False
+	def is_installed(self,shutit):
+		return False
 
-    def build(self,shutit):
-        shutit.install('golang')
-        shutit.install('mercurial')
-        shutit.install('make')
-        shutit.install('gcc')
-        shutit.install('patch')
-        shutit.install('git')
-        shutit.add_to_bashrc('export PATH=$PATH:/go/bin')
-        shutit.send('mkdir -p /opt/go')
-        shutit.send('hg clone -u release https://code.google.com/p/go')
-        shutit.send('pushd go/src')
-        shutit.send('./all.bash')
-        shutit.send('popd')
-        return True
+	def build(self,shutit):
+		shutit.install('golang')
+		shutit.install('mercurial')
+		shutit.install('make')
+		shutit.install('gcc')
+		shutit.install('patch')
+		shutit.install('git')
+		shutit.add_to_bashrc('export PATH=$PATH:/go/bin')
+		shutit.send('mkdir -p /opt/go')
+		shutit.send('hg clone -u release https://code.google.com/p/go')
+		shutit.send('pushd go/src')
+		shutit.send('./all.bash')
+		shutit.send('popd')
+		return True
 
-    #def get_config(self,shutit):
-    #    return True
+	#def get_config(self,shutit):
+	#    return True
 
-    #def check_ready(self,shutit):
-    #    return True
-    
-    #def start(self,shutit):
-    #    return True
+	#def check_ready(self,shutit):
+	#    return True
+	
+	#def start(self,shutit):
+	#    return True
 
-    #def stop(self,shutit):
-    #    return True
+	#def stop(self,shutit):
+	#    return True
 
-    #def finalize(self,shutit):
-    #    return True
+	#def finalize(self,shutit):
+	#    return True
 
-    #def remove(self,shutit):
-    #    return True
+	#def remove(self,shutit):
+	#    return True
 
-    #def test(self,shutit):
-    #    return True
+	#def test(self,shutit):
+	#    return True
 
 def module():
-    return go(
-        'shutit.tk.go.go', 0.1346356,
-        description='Go language setup (direct from source)',
-        maintainer='ian.miell@gmail.com',
-        depends=['shutit.tk.setup','shutit.tk.cmake.cmake']
-    )
+	return go(
+		'shutit.tk.go.go', 0.1346356,
+		description='Go language setup (direct from source)',
+		maintainer='ian.miell@gmail.com',
+		depends=['shutit.tk.setup','shutit.tk.cmake.cmake']
+	)
 

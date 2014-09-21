@@ -24,54 +24,54 @@ from shutit_module import ShutItModule
 
 class artifactory(ShutItModule):
 
-    def is_installed(self,shutit):
-        return False
+	def is_installed(self,shutit):
+		return False
 
-    def build(self,shutit):
-        shutit.install('wget')
-        shutit.install('zip')
-        shutit.install('openjdk-7-jdk')
-        shutit.install('net-tools') # required for installservice.sh script
-        shutit.send('mkdir -p /opt/artifactory')
-        shutit.send('wget -O /opt/artifactory/artifactory.zip http://bit.ly/Hqv9aj')
-        shutit.send('pushd /opt/artifactory')
-        shutit.send('unzip artifactory.zip')
-        shutit.send('rm -f artifactory.zip')
-        shutit.send('popd')
-        shutit.send('/opt/artifactory/artifactory*/bin/installService.sh')
-        return True
+	def build(self,shutit):
+		shutit.install('wget')
+		shutit.install('zip')
+		shutit.install('openjdk-7-jdk')
+		shutit.install('net-tools') # required for installservice.sh script
+		shutit.send('mkdir -p /opt/artifactory')
+		shutit.send('wget -O /opt/artifactory/artifactory.zip http://bit.ly/Hqv9aj')
+		shutit.send('pushd /opt/artifactory')
+		shutit.send('unzip artifactory.zip')
+		shutit.send('rm -f artifactory.zip')
+		shutit.send('popd')
+		shutit.send('/opt/artifactory/artifactory*/bin/installService.sh')
+		return True
 
-    #def get_config(self,shutit):
-    #    return True
+	#def get_config(self,shutit):
+	#    return True
 
-    #def check_ready(self,shutit):
-    #    return True
-    
-    def start(self,shutit):
-        shutit.send('service artifactory start')
-        return True
+	#def check_ready(self,shutit):
+	#    return True
+	
+	def start(self,shutit):
+		shutit.send('service artifactory start')
+		return True
 
-    def stop(self,shutit):
-        shutit.send('service artifactory stop')
-        return True
+	def stop(self,shutit):
+		shutit.send('service artifactory stop')
+		return True
 
-    #def finalize(self,shutit):
-    #    return True
+	#def finalize(self,shutit):
+	#    return True
 
-    def remove(self,shutit):
-        shutit.send('rm -rf /opt/artifactory')
-        shutit.send('rm -rf /etc/opt/jfrog/artifactory')
-        shutit.send('rm -rf /etc/init.d/artifactory')
-        return True
+	def remove(self,shutit):
+		shutit.send('rm -rf /opt/artifactory')
+		shutit.send('rm -rf /etc/opt/jfrog/artifactory')
+		shutit.send('rm -rf /etc/init.d/artifactory')
+		return True
 
-    #def test(self,shutit):
-    #    return True
+	#def test(self,shutit):
+	#    return True
 
 def module():
-    return artifactory(
-        'shutit.tk.artifactory.artifactory', 0.76152,
-        description='reference artifactory installation',
-        maintainer='ian.miell@gmail.com',
-        depends=['shutit.tk.setup']
-    )
+	return artifactory(
+		'shutit.tk.artifactory.artifactory', 0.76152,
+		description='reference artifactory installation',
+		maintainer='ian.miell@gmail.com',
+		depends=['shutit.tk.setup']
+	)
 

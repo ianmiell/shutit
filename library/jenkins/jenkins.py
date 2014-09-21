@@ -24,21 +24,21 @@ from shutit_module import ShutItModule
 
 class jenkins(ShutItModule):
 
-    def is_installed(self,shutit):
-        return False
+	def is_installed(self,shutit):
+		return False
 
-    def build(self,shutit):
-        shutit.install('wget')
-        shutit.send('wget -q -O - http://pkg.jenkins-ci.org/debian/jenkins-ci.org.key | apt-key add -')
-        shutit.send("""sh -c 'echo deb http://pkg.jenkins-ci.org/debian binary/ > /etc/apt/sources.list.d/jenkins.list'""")
-        shutit.send('apt-get update')
-        shutit.install('jenkins')
-        return True
+	def build(self,shutit):
+		shutit.install('wget')
+		shutit.send('wget -q -O - http://pkg.jenkins-ci.org/debian/jenkins-ci.org.key | apt-key add -')
+		shutit.send("""sh -c 'echo deb http://pkg.jenkins-ci.org/debian binary/ > /etc/apt/sources.list.d/jenkins.list'""")
+		shutit.send('apt-get update')
+		shutit.install('jenkins')
+		return True
 
 def module():
-    return jenkins(
-        'shutit.tk.jenkins.jenkins', 0.34141512,
-        description='Jenkins with vnc',
-        depends=['shutit.tk.setup','shutit.tk.vnc.vnc']
-    )
+	return jenkins(
+		'shutit.tk.jenkins.jenkins', 0.34141512,
+		description='Jenkins with vnc',
+		depends=['shutit.tk.setup','shutit.tk.vnc.vnc']
+	)
 

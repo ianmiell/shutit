@@ -24,43 +24,43 @@ from shutit_module import ShutItModule
 
 class emscripten(ShutItModule):
 
-    def is_installed(self,shutit):
-        return False
+	def is_installed(self,shutit):
+		return False
 
-    def build(self,shutit):
-        shutit.install('git')
-        shutit.install('python')
-        shutit.send('pushd /opt')
-        shutit.send('git clone git://github.com/kripken/emscripten.git')
-        shutit.send('popd')
-        return True
+	def build(self,shutit):
+		shutit.install('git')
+		shutit.install('python')
+		shutit.send('pushd /opt')
+		shutit.send('git clone git://github.com/kripken/emscripten.git')
+		shutit.send('popd')
+		return True
 
-    #def get_config(self,shutit):
-    #    return True
+	#def get_config(self,shutit):
+	#    return True
 
-    #def check_ready(self,shutit):
-    #    return True
-    
-    #def start(self,shutit):
-    #    return True
+	#def check_ready(self,shutit):
+	#    return True
+	
+	#def start(self,shutit):
+	#    return True
 
-    #def stop(self,shutit):
-    #    return True
+	#def stop(self,shutit):
+	#    return True
 
-    #def finalize(self,shutit):
-    #    return True
+	#def finalize(self,shutit):
+	#    return True
 
-    #def remove(self,shutit):
-    #    return True
+	#def remove(self,shutit):
+	#    return True
 
-    #def test(self,shutit):
-    #    return True
+	#def test(self,shutit):
+	#    return True
 
 def module():
-    return emscripten(
-        'shutit.tk.emscripten.emscripten', 0.3153235,
-        description='Emscripten module',
-        maintainer='ian.miell@gmail.com',
-        depends=['shutit.tk.setup','shutit.tk.llvm.llvm','shutit.tk.nodejs.nodejs']
-    )
+	return emscripten(
+		'shutit.tk.emscripten.emscripten', 0.3153235,
+		description='Emscripten module',
+		maintainer='ian.miell@gmail.com',
+		depends=['shutit.tk.setup','shutit.tk.llvm.llvm','shutit.tk.nodejs.nodejs']
+	)
 

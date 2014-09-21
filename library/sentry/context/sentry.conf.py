@@ -10,14 +10,14 @@ database_host = os.environ.get('SENTRY_HOST', '127.0.0.1')
 database_port = os.environ.get('SENTRY_PORT', '')
 
 DATABASES = {
-    'default': {
-        'ENGINE': os.environ.get('SENTRY_ENGINE', 'django.db.backends.sqlite3'),  # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
-        'NAME': database_name,                      # Or path to database file if using sqlite3.
-        'USER': database_user,                      # Not used with sqlite3.
-        'PASSWORD': database_password,                  # Not used with sqlite3.
-        'HOST': database_host,                      # Set to empty string for localhost. Not used with sqlite3.
-        'PORT': database_port,                      # Set to empty string for default. Not used with sqlite3.
-    }
+	'default': {
+		'ENGINE': os.environ.get('SENTRY_ENGINE', 'django.db.backends.sqlite3'),  # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
+		'NAME': database_name,                      # Or path to database file if using sqlite3.
+		'USER': database_user,                      # Not used with sqlite3.
+		'PASSWORD': database_password,                  # Not used with sqlite3.
+		'HOST': database_host,                      # Set to empty string for localhost. Not used with sqlite3.
+		'PORT': database_port,                      # Set to empty string for default. Not used with sqlite3.
+	}
 }
 
 SENTRY_KEY = os.environ.get('SENTRY_KEY', '333dkdslyvBUGWq5bcnW9d1MZQ82qmPZB4pskKS3223fdBfuhySw==')
@@ -32,7 +32,7 @@ SENTRY_PUBLIC = False
 SENTRY_WEB_HOST = '0.0.0.0'
 SENTRY_WEB_PORT = 9000
 SENTRY_WEB_OPTIONS = {
-    'workers': 3,  # the number of gunicorn workers
+	'workers': 3,  # the number of gunicorn workers
 }
 
 # Mail server configuration

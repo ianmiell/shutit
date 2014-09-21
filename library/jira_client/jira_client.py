@@ -24,21 +24,21 @@ from shutit_module import ShutItModule
 
 class jira_client(ShutItModule):
 
-    def is_installed(self,shutit):
-        return False
+	def is_installed(self,shutit):
+		return False
 
-    def build(self,shutit):
-        shutit.install('python')
-        shutit.install('python-pip')
-        shutit.send('pip install jira')
-        # Create config.ini
-        shutit.send_host_file('/root/config.ini','context/config.ini')
-        return True
+	def build(self,shutit):
+		shutit.install('python')
+		shutit.install('python-pip')
+		shutit.send('pip install jira')
+		# Create config.ini
+		shutit.send_host_file('/root/config.ini','context/config.ini')
+		return True
 
 def module():
-    return jira_client(
-        'shutit.tk.jira_client.jira_client.jira_client.jira_client', 0.162452264,
-        description='Jira client',
-        depends=['shutit.tk.setup']
-    )
+	return jira_client(
+		'shutit.tk.jira_client.jira_client.jira_client.jira_client', 0.162452264,
+		description='Jira client',
+		depends=['shutit.tk.setup']
+	)
 

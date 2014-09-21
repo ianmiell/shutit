@@ -24,41 +24,41 @@ from shutit_module import ShutItModule
 
 class saltstack(ShutItModule):
 
-    def is_installed(self,shutit):
-        return False
+	def is_installed(self,shutit):
+		return False
 
-    def build(self,shutit):
-        shutit.install('curl')
-        # Not working
-        shutit.send('curl -L http://bootstrap.saltstack.org | sh -s -- -M -N')
-        return True
+	def build(self,shutit):
+		shutit.install('curl')
+		# Not working
+		shutit.send('curl -L http://bootstrap.saltstack.org | sh -s -- -M -N')
+		return True
 
-    #def get_config(self,shutit):
-    #    return True
+	#def get_config(self,shutit):
+	#    return True
 
-    #def check_ready(self,shutit):
-    #    return True
-    
-    #def start(self,shutit):
-    #    return True
+	#def check_ready(self,shutit):
+	#    return True
+	
+	#def start(self,shutit):
+	#    return True
 
-    #def stop(self,shutit):
-    #    return True
+	#def stop(self,shutit):
+	#    return True
 
-    #def finalize(self,shutit):
-    #    return True
+	#def finalize(self,shutit):
+	#    return True
 
-    #def remove(self,shutit):
-    #    return True
+	#def remove(self,shutit):
+	#    return True
 
-    #def test(self,shutit):
-    #    return True
+	#def test(self,shutit):
+	#    return True
 
 def module():
-    return saltstack(
-        'shutit.tk.saltstack.saltstack', 782914092.1235236,
-        description='Saltstack master setup',
-        maintainer='ian.miell@gmail.com',
-        depends=['shutit.tk.setup']
-    )
+	return saltstack(
+		'shutit.tk.saltstack.saltstack', 782914092.1235236,
+		description='Saltstack master setup',
+		maintainer='ian.miell@gmail.com',
+		depends=['shutit.tk.setup']
+	)
 

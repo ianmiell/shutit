@@ -24,42 +24,42 @@ from shutit_module import ShutItModule
 
 class aws(ShutItModule):
 
-    def build(self,shutit):
-        shutit.install('wget')
-        shutit.install('zip')
-        shutit.install('python-pip')
-        shutit.install('openssh-client') # required to log into ec2 instances
-        shutit.install('groff') # required for help
-        shutit.install('less') # required for help
-        shutit.install('vim') # not required just handy
-        # http://docs.aws.amazon.com/cli/latest/userguide/installing.html
-        shutit.send('wget --no-check-certificate https://s3.amazonaws.com/aws-cli/awscli-bundle.zip')
-        shutit.send('unzip awscli-bundle.zip')
-        shutit.send('./awscli-bundle/install -i /usr/local/aws -b /usr/local/bin/aws')
-        shutit.send('complete -C aws_completer aws')
-        shutit.send('aws configure',expect="Access Key ID")
-        shutit.send(shutit.cfg[self.module_id]['access_key_id'],expect="Secret Access Key")
-        shutit.send(shutit.cfg[self.module_id]['secret_access_key'],expect="Default region name")
-        shutit.send(shutit.cfg[self.module_id]['region'],expect="Default output format")
-        shutit.send(shutit.cfg[self.module_id]['output'])
-        return True
+	def build(self,shutit):
+		shutit.install('wget')
+		shutit.install('zip')
+		shutit.install('python-pip')
+		shutit.install('openssh-client') # required to log into ec2 instances
+		shutit.install('groff') # required for help
+		shutit.install('less') # required for help
+		shutit.install('vim') # not required just handy
+		# http://docs.aws.amazon.com/cli/latest/userguide/installing.html
+		shutit.send('wget --no-check-certificate https://s3.amazonaws.com/aws-cli/awscli-bundle.zip')
+		shutit.send('unzip awscli-bundle.zip')
+		shutit.send('./awscli-bundle/install -i /usr/local/aws -b /usr/local/bin/aws')
+		shutit.send('complete -C aws_completer aws')
+		shutit.send('aws configure',expect="Access Key ID")
+		shutit.send(shutit.cfg[self.module_id]['access_key_id'],expect="Secret Access Key")
+		shutit.send(shutit.cfg[self.module_id]['secret_access_key'],expect="Default region name")
+		shutit.send(shutit.cfg[self.module_id]['region'],expect="Default output format")
+		shutit.send(shutit.cfg[self.module_id]['output'])
+		return True
 
-    def get_config(self, shutit):
-        shutit.get_config(self.module_id, 'region', '')
-        shutit.get_config(self.module_id, 'output', '')
-        shutit.get_config(self.module_id, 'access_key_id', '')
-        shutit.get_config(self.module_id, 'secret_access_key', '')
-        return True
+	def get_config(self, shutit):
+		shutit.get_config(self.module_id, 'region', '')
+		shutit.get_config(self.module_id, 'output', '')
+		shutit.get_config(self.module_id, 'access_key_id', '')
+		shutit.get_config(self.module_id, 'secret_access_key', '')
+		return True
 
-    def is_installed(self,shutit):
-        if shutit.file_exists('/usr/local/bin/aws'):
-            return True
-        return False
+	def is_installed(self,shutit):
+		if shutit.file_exists('/usr/local/bin/aws'):
+			return True
+		return False
 
 def module():
-    return aws(
-        'shutit.tk.aws.aws', 0.00123,
-        description='aws client setup',
-        depends=['shutit.tk.setup']
-    )
+	return aws(
+		'shutit.tk.aws.aws', 0.00123,
+		description='aws client setup',
+		depends=['shutit.tk.setup']
+	)
 

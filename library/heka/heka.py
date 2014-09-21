@@ -24,48 +24,48 @@ from shutit_module import ShutItModule
 
 class heka(ShutItModule):
 
-    def is_installed(self,shutit):
-        return False
+	def is_installed(self,shutit):
+		return False
 
-    def build(self,shutit):
-        shutit.send('mkdir -p /opt/heka')
-        shutit.send('pushd /opt/heka')
-        shutit.send('git clone https://github.com/mozilla-services/heka')
-        shutit.send('pushd heka')
-        shutit.send('source build.sh')
-        shutit.send('popd')
-        shutit.add_to_bashrc('export PATH=$PATH:/opt/heka/bin')
-        return True
+	def build(self,shutit):
+		shutit.send('mkdir -p /opt/heka')
+		shutit.send('pushd /opt/heka')
+		shutit.send('git clone https://github.com/mozilla-services/heka')
+		shutit.send('pushd heka')
+		shutit.send('source build.sh')
+		shutit.send('popd')
+		shutit.add_to_bashrc('export PATH=$PATH:/opt/heka/bin')
+		return True
 
-    #def get_config(self,shutit):
-    #    return True
+	#def get_config(self,shutit):
+	#    return True
 
-    #def check_ready(self,shutit):
-    #    return True
-    
-    #def start(self,shutit):
-    #    return True
+	#def check_ready(self,shutit):
+	#    return True
+	
+	#def start(self,shutit):
+	#    return True
 
-    #def stop(self,shutit):
-    #    return True
+	#def stop(self,shutit):
+	#    return True
 
-    #def finalize(self,shutit):
-    #    return True
+	#def finalize(self,shutit):
+	#    return True
 
-    #def remove(self,shutit):
-    #    return True
+	#def remove(self,shutit):
+	#    return True
 
-    def test(self,shutit):
-        shutit.send('pushd /opt/heka')
-        shutit.send('ctest')
-        shutit.send('popd')
-        return True
+	def test(self,shutit):
+		shutit.send('pushd /opt/heka')
+		shutit.send('ctest')
+		shutit.send('popd')
+		return True
 
 def module():
-    return heka(
-        'shutit.tk.heka.heka', 0.53234,
-        description='http://hekad.readthedocs.org/en',
-        maintainer='ian.miell@gmail.com',
-        depends=['shutit.tk.setup','shutit.tk.go.go']
-    )
+	return heka(
+		'shutit.tk.heka.heka', 0.53234,
+		description='http://hekad.readthedocs.org/en',
+		maintainer='ian.miell@gmail.com',
+		depends=['shutit.tk.setup','shutit.tk.go.go']
+	)
 

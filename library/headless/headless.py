@@ -24,19 +24,19 @@ from shutit_module import ShutItModule
 
 class headless(ShutItModule):
 
-    def is_installed(self,shutit):
-        return False
+	def is_installed(self,shutit):
+		return False
 
-    def build(self,shutit):
-        shutit.install('xvfb')
-        shutit.install('rubygems')
-        shutit.send('gem install headless')
-        return True
+	def build(self,shutit):
+		shutit.install('xvfb')
+		shutit.install('rubygems')
+		shutit.send('gem install headless')
+		return True
 
 def module():
-    return headless(
-        'shutit.tk.headless.headless', 0.1231251,
-        description='https://github.com/mparaz/headless',
-        depends=['shutit.tk.setup']
-    )
+	return headless(
+		'shutit.tk.headless.headless', 0.1231251,
+		description='https://github.com/mparaz/headless',
+		depends=['shutit.tk.setup']
+	)
 
