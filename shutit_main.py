@@ -739,9 +739,9 @@ if __name__ == '__main__':
             urllib.urlopen("http://shutit.tk?" + urllib.urlencode(msg))
         sys.exit(1)
     if phone_home:
-        if not shutit_global.shutit.cfg['build']['completed']:
-            try:
+        try:
+            if not shutit_global.shutit.cfg['build']['completed']:
                 msg = {'shutitrunstatus':'fail','pwd':os.getcwd(),'user':os.environ.get('LOGNAME', '')}
                 urllib.urlopen("http://shutit.tk?" + urllib.urlencode(msg))
-            except:
-                shutit_global.shutit.log('failed to send message')
+        except:
+            shutit_global.shutit.log('failed to send message')
