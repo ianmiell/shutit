@@ -15,21 +15,21 @@ class prompt_command(ShutItModule):
 
 	def build(self, shutit):
 		# Breaks unless we set the PROMPT_COMMAND manually on a login
-				# Try core way of logging in
-				shutit.login()
+		# Try core way of logging in
+		shutit.login()
 		shutit.send_and_expect('echo abc')
-				shutit.logout()
-				# Simple login and out
-				shutit.login('root')
-				shutit.send('whoami')
-				shutit.logout()
-				# Multi-level login and out
-				shutit.login('root')
-				shutit.send('whoami')
-				shutit.login('root')
-				shutit.send('whoami')
-				shutit.logout()
-				shutit.logout()
+		shutit.logout()
+		# Simple login and out
+		shutit.login('root')
+		shutit.send('whoami')
+		shutit.logout()
+		# Multi-level login and out
+		shutit.login('root')
+		shutit.send('whoami')
+		shutit.login('root')
+		shutit.send('whoami')
+		shutit.logout()
+		shutit.logout()
 		return True
 
 def module():
