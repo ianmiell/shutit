@@ -135,7 +135,7 @@ tag_name:latest
 # Root setup script
 # Each module should set these in a config
 [shutit.tk.setup]
-build:yes
+shutit.core.module.build:yes
 # Modules may rely on the below settings, only change for debugging. Do not rely
 # on these configs being stable.
 do_update:yes
@@ -1210,7 +1210,7 @@ def module():
         # When this module is the one being built, which modules should be built along with it by default?
         # This feeds into automated testing of each module.
         [''' + '%s.%s.%s' % (skel_domain, skel_module_name, skel_module_name) + ''']
-        build:yes
+        shutit.core.module.build:yes
         # Allowed images as a regexp, eg ["ubuntu:12.*"], or [".*"], or ["centos"].
         # It's recommended this is locked down as far as possible.
         shutit.core.module.allowed_images:["''' + shutit.cfg['dockerfile']['base_image'] + '''"]
