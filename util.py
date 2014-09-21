@@ -130,6 +130,9 @@ shutit.core.module.build:yes
 # Modules may rely on the below settings, only change for debugging.
 do_update:yes
 
+[shutit.tk.conn_bash]
+# None
+
 [shutit.tk.conn_ssh]
 # Required
 ssh_host:

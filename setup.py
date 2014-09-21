@@ -43,6 +43,7 @@ import subprocess
 import os
 from distutils import spawn
 
+
 class ShutItConnModule(ShutItModule):
 
 	def __init__(self, *args, **kwargs):
@@ -113,6 +114,7 @@ class ShutItConnModule(ShutItModule):
 			 util.get_commands(shutit))
 		shutit.add_line_to_file(cfg['build']['build_id'], \
 			 cfg['build']['build_db_dir'] + '/builds')
+
 
 class ConnDocker(ShutItConnModule):
 	"""Connects ShutIt to docker daemon and starts the container.
@@ -375,6 +377,57 @@ class ConnDocker(ShutItConnModule):
 		host_child.sendline('exit') # Exit raw bash
 		return True
 
+
+class ConnBash(ShutItConnModule):
+	"""Connects ShutIt to a machine via bash.
+	"""
+
+	def is_installed(self, shutit):
+		"""Always considered false for ShutIt setup.
+		"""
+		return False
+
+	def get_config(self, shutit):
+		return True
+
+	def build(self, shutit):
+		"""Sets up the machine ready for building.
+		"""
+
+		cfg = shutit.cfg
+		command = '/bin/bash'
+		container_child = pexpect.spawn(command)
+		container_child.expect(cfg['expect_prompts']['base_prompt'], 10)
+		self._setup_prompts(shutit, container_child)
+		self._add_begin_build_info(shutit, command)
+		return True
+
+	def finalize(self, shutit):
+		"""Finalizes the container, exiting for us back to the original shell
+		and performing any repository work required.
+		"""
+		self._add_end_build_info(shutit)
+		# Finish with the container
+		shutit.pexpect_children['container_child'].sendline('exit')
+
+		cfg = shutit.cfg
+		host_child = shutit.pexpect_children['host_child']
+		shutit.set_default_child(host_child)
+		shutit.set_default_expect(cfg['expect_prompts']['real_user_prompt'])
+		# Tag and push etc
+		shutit.pause_point('\nDoing final committing/tagging on the overall \
+			container and creating the artifact.', \
+			child=shutit.pexpect_children['host_child'], \
+			print_input=False, level=3)
+		shutit.do_repository_work(cfg['repository']['name'], \
+			docker_executable=cfg['host']['docker_executable'], \
+			password=cfg['host']['password'])
+		# Final exits
+		host_child.sendline('rm -f ' + cfg['build']['cidfile']) # Exit raw bash
+		host_child.sendline('exit') # Exit raw bash
+		return True
+
+
 class ConnSSH(ShutItConnModule):
 	"""Connects ShutIt to a machine via ssh.
 	"""
@@ -476,6 +529,7 @@ class ConnSSH(ShutItConnModule):
 		host_child.sendline('exit') # Exit raw bash
 		return True
 
+
 def conn_module():
 	"""Connect ShutIt to something
 	"""
@@ -488,7 +542,12 @@ def conn_module():
 			'shutit.tk.conn_ssh', -0.1,
 			description='Connect ShutIt to a host via ssh'
 		),
+		ConnBash(
+			'shutit.tk.conn_bash', -0.1,
+			description='Connect ShutIt to a host via bash'
+		),
 	]
+
 
 class setup(ShutItModule):
 
@@ -538,6 +597,7 @@ class setup(ShutItModule):
 		"""
 		shutit.get_config(self.module_id, 'do_update', True, boolean=True)
 		return True
+
 
 def module():
 	return setup('shutit.tk.setup', 0.0, description='Core ShutIt setup')
