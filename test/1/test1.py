@@ -20,7 +20,7 @@ class test1(ShutItModule):
 		for line in ['your message line 1', 'your message line 2']:
 			e.add_line(line)
 		for attach in ['/tmp/container_touched']:
-		        e.attach(attach)
+				e.attach(attach)
 		e.send()
 		return True
 

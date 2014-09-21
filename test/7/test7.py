@@ -24,25 +24,25 @@ from shutit_module import ShutItModule
 
 class test7(ShutItModule):
 
-    def is_installed(self,shutit):
-        return True
+	def is_installed(self,shutit):
+		return True
 
-    def build(self,shutit):
-        return True
+	def build(self,shutit):
+		return True
 
-    def get_config(self,shutit):
-        shutit.get_config('shutit.tk.test7.test7','isset','y')
-        return True
+	def get_config(self,shutit):
+		shutit.get_config('shutit.tk.test7.test7','isset','y')
+		return True
 
-    def test(self,shutit):
-        # TODO: this fails...
-        shutit.cfg[self.module_id]['isset']
-        return True
+	def test(self,shutit):
+		# TODO: this fails...
+		shutit.cfg[self.module_id]['isset']
+		return True
 
 def module():
-    return test7(
-        'shutit.tk.test7.test7', 0.007,
-        description='',
-        depends=['shutit.tk.setup']
-    )
+	return test7(
+		'shutit.tk.test7.test7', 0.007,
+		description='',
+		depends=['shutit.tk.setup']
+	)
 
