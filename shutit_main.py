@@ -253,28 +253,43 @@ def config_collection_for_built(shutit):
                     # Exit without error code so that it plays nice with tests.
                     sys.exit()
 
-                             
+
 def conn_container(shutit):
     """Connect to the container.
     """
-    assert len(shutit.conn_modules) == 1
-    # Set up the container in pexpect.
+    conn_module = None
+    for mod in shutit.conn_modules:
+        if mod.module_id == shutit.cfg['build']['conn_module']:
+            conn_module = mod
+            break
+    if conn_module is None:
+        shutit.fail('Couldn\'t find conn_module ' + cfg['build']['conn_module'])
+
+    # Set up the target in pexpect.
     if shutit.cfg['build']['interactive'] >= 3:
         print('\nRunning the conn module (' +
             shutit.shutit_main_dir + '/setup.py)' + util.colour('31',
                 '\n\n[Hit return to continue]\n'))
         raw_input('')
-    list(shutit.conn_modules)[0].build(shutit)
+    conn_module.get_config(shutit)
+    conn_module.build(shutit)
 
 
 def finalize_container(shutit):
     """Finalize the container using the core finalize method.
     """
-    assert len(shutit.conn_modules) == 1
     # Set up the container in pexpect.
     shutit.pause_point('\nFinalizing the container module (' +
         shutit.shutit_main_dir + '/setup.py)', print_input=False, level=3)
-    list(shutit.conn_modules)[0].finalize(shutit)
+    # Can assume conn_module exists at this point
+    for mod in shutit.conn_modules:
+        if mod.module_id == shutit.cfg['build']['conn_module']:
+            conn_module = mod
+            break
+
+    for mod in shutit.conn_modules:
+        if mod.module_id == 'shutit.tk.conn_docker':
+            conn_module = mod
 
 
 # Once we have all the modules, then we can look at dependencies.

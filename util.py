@@ -53,16 +53,7 @@ from shutit_module import ShutItFailException
 
 _default_cnf = '''
 ################################################################################
-## Default core config file for ShutIt.
-#  If this file is in the core of ShutIt it should only
-#  ever be changed by the maintainer/BDFL.
-#  If it's been copied into a module, then the maintainer
-#  of that module only should be changing it.
-#  If you are a developer on SI or the module, change the
-#  config specific to your run (ie configs/<hostname>_<username>.cnf)
-#
-#  Submit a pull request to the maintainer if you want the
-#  default.cnf changed.
+# Default core config file for ShutIt.
 ################################################################################
 
 # Details relating to the container you are building itself
@@ -136,13 +127,25 @@ tag_name:latest
 # Each module should set these in a config
 [shutit.tk.setup]
 shutit.core.module.build:yes
-# Modules may rely on the below settings, only change for debugging. Do not rely
-# on these configs being stable.
+# Modules may rely on the below settings, only change for debugging.
 do_update:yes
+
+[shutit.tk.conn_ssh]
+# Required
+ssh_host:
+# All other configs are optional
+ssh_port:
+ssh_user:
+password:
+ssh_key:
+# (what to execute on the target to get a root shell)
+ssh_cmd:
 
 # Aspects of build process
 [build]
 build_log:no
+# How to connect to target
+conn_module:shutit.tk.conn_docker
 # Run container in privileged mode
 privileged:no
 # lxc-conf arg, eg
@@ -282,6 +285,7 @@ def get_base_config(cfg, cfg_parser):
     """
     cfg['config_parser'] = cp = cfg_parser
     # BEGIN Read from config files
+    cfg['build']['conn_module']                   = cp.get('build', 'conn_module')
     cfg['build']['privileged']                    = cp.getboolean('build', 'privileged')
     cfg['build']['lxc_conf']                      = cp.get('build', 'lxc_conf')
     cfg['build']['build_log']                     = cp.getboolean('build', 'build_log')
@@ -861,7 +865,8 @@ def build_report(shutit, msg=''):
     else:
         s += '# Nothing to report\n'
 
-    s += '# CONTAINER_ID: ' + shutit.cfg['container']['container_id'] + '\n'
+    if 'container_id' in shutit.cfg['container']:
+        s += '# CONTAINER_ID: ' + shutit.cfg['container']['container_id'] + '\n'
     s += '# BUILD REPORT FOR BUILD END ' + shutit_global.cfg['build']['build_id'] + '\n'
     s += '###############################################################################\n'
     return s

@@ -43,7 +43,78 @@ import subprocess
 import os
 from distutils import spawn
 
-class ConnDocker(ShutItModule):
+class ShutItConnModule(ShutItModule):
+
+    def __init__(self, *args, **kwargs):
+        super(ShutItConnModule, self).__init__(*args, **kwargs)
+
+    def _setup_prompts(self, shutit, container_child):
+        cfg = shutit.cfg
+        # Now let's have a host_child
+        shutit.log('Creating host child')
+        shutit.log('Spawning host child')
+        host_child = pexpect.spawn('/bin/bash')
+        shutit.log('Spawning done')
+        # Some pexpect settings
+        shutit.pexpect_children['host_child'] = host_child
+        shutit.pexpect_children['container_child'] = container_child
+        shutit.log('Setting default expect')
+        shutit.set_default_expect(cfg['expect_prompts']['base_prompt'])
+        shutit.log('Setting default expect done')
+        host_child.logfile_send = container_child.logfile_send = sys.stdout
+        host_child.logfile_read = container_child.logfile_read = sys.stdout
+        host_child.maxread = container_child.maxread = 2000
+        host_child.searchwindowsize = container_child.searchwindowsize = 1024
+        delay = cfg['build']['command_pause']
+        host_child.delaybeforesend = container_child.delaybeforesend = delay
+        # Set up prompts and let the user do things before the build
+        # host child
+        shutit.log('Setting default child')
+        shutit.set_default_child(host_child)
+        shutit.log('Setting default child done')
+        shutit.log('Setting up default prompt on host child')
+        shutit.log('Setting up prompt')
+        shutit.setup_prompt('real_user_prompt', prefix='REAL_USER')
+        shutit.log('Setting up prompt done')
+        # container child
+        shutit.set_default_child(container_child)
+        shutit.log('Setting up default prompt on container child')
+        shutit.setup_prompt('pre_build', prefix='PRE_BUILD')
+        shutit.get_distro_info()
+        shutit.setup_prompt('root_prompt', prefix='ROOT')
+
+    def _add_begin_build_info(self, shutit, command):
+        cfg = shutit.cfg
+        # Create the build directory and put the config in it.
+        shutit.send('mkdir -p ' + cfg['build']['build_db_dir'] + \
+             '/' + cfg['build']['build_id'])
+        # Record the command we ran and the python env.
+        # TODO: record the image id we ran against -
+        # wait for "docker debug" command
+        shutit.send_file(cfg['build']['build_db_dir'] + '/' + \
+             cfg['build']['build_id'] + '/python_env.sh', \
+             str(sys.__dict__), log=False)
+        shutit.send_file(cfg['build']['build_db_dir'] + '/' + \
+             cfg['build']['build_id'] + '/command.sh', \
+             ' '.join(command), log=False)
+        shutit.pause_point('Anything you want to do now the ' +
+             'target is connected to?', level=2)
+
+    def _add_end_build_info(self, shutit):
+        cfg = shutit.cfg
+        # Put build info into the target
+        shutit.send('mkdir -p ' + cfg['build']['build_db_dir'] + '/' + \
+             cfg['build']['build_id'])
+        shutit.send_file(cfg['build']['build_db_dir'] + '/' + \
+             cfg['build']['build_id'] + '/build.log', \
+             util.get_commands(shutit))
+        shutit.send_file(cfg['build']['build_db_dir'] + '/' + \
+             cfg['build']['build_id'] + '/build_commands.sh', \
+             util.get_commands(shutit))
+        shutit.add_line_to_file(cfg['build']['build_id'], \
+             cfg['build']['build_db_dir'] + '/builds')
+
+class ConnDocker(ShutItConnModule):
     """Connects ShutIt to docker daemon and starts the container.
     """
 
@@ -273,73 +344,21 @@ class ConnDocker(ShutItModule):
                 'resolve a port clash\n')
         shutit.log('cid: ' + cid)
         cfg['container']['container_id'] = cid
-        # Now let's have a host_child
-        shutit.log('Creating host child')
-        shutit.log('Spawning host child')
-        host_child = pexpect.spawn('/bin/bash')
-        shutit.log('Spawning done')
-        # Some pexpect settings
-        shutit.pexpect_children['host_child'] = host_child
-        shutit.pexpect_children['container_child'] = container_child
-        shutit.log('Setting default expect')
-        shutit.set_default_expect(cfg['expect_prompts']['base_prompt'])
-        shutit.log('Setting default expect done')
-        host_child.logfile_send = container_child.logfile_send = sys.stdout
-        host_child.logfile_read = container_child.logfile_read = sys.stdout
-        host_child.maxread = container_child.maxread = 2000
-        host_child.searchwindowsize = container_child.searchwindowsize = 1024
-        delay = cfg['build']['command_pause']
-        host_child.delaybeforesend = container_child.delaybeforesend = delay
-        # Set up prompts and let the user do things before the build
-        # host child
-        shutit.log('Setting default child')
-        shutit.set_default_child(host_child)
-        shutit.log('Setting default child done')
-        shutit.log('Setting up default prompt on host child')
-        shutit.log('Setting up prompt')
-        shutit.setup_prompt('real_user_prompt', prefix='REAL_USER')
-        shutit.log('Setting up prompt done')
-        # container child
-        shutit.set_default_child(container_child)
-        shutit.log('Setting up default prompt on container child')
-        shutit.setup_prompt('pre_build', prefix='PRE_BUILD')
-        shutit.get_distro_info()
-        shutit.setup_prompt('root_prompt', prefix='ROOT')
-        # Create the build directory and put the config in it.
-        shutit.send('mkdir -p ' + shutit.cfg ['build']['build_db_dir'] + \
-             '/' + shutit.cfg['build']['build_id'])
-        # Record the command we ran and the python env.
-        # TODO: record the image id we ran against - 
-        # wait for "docker debug" command
-        shutit.send_file(shutit.cfg['build']['build_db_dir'] + '/' + \
-             shutit.cfg['build']['build_id'] + '/python_env.sh', \
-             str(sys.__dict__), log=False)
-        shutit.send_file(shutit.cfg['build']['build_db_dir'] + '/' + \
-             shutit.cfg['build']['build_id'] + '/docker_command.sh', \
-             ' '.join(docker_command), log=False)
-        shutit.pause_point('Anything you want to do now the ' + 
-	     'container is connected to?', level=2)
+
+        self._setup_prompts(shutit, container_child)
+        self._add_begin_build_info(shutit, docker_command)
+
         return True
 
     def finalize(self, shutit):
         """Finalizes the container, exiting for us back to the original shell
         and performing any repository work required.
         """
-        cfg = shutit.cfg
-        # Put build info into the container
-        shutit.send('mkdir -p ' + shutit.cfg ['build']['build_db_dir'] + '/' + \
-             cfg['build']['build_id'])
-        shutit.send_file(shutit.cfg['build']['build_db_dir'] + '/' + \
-             cfg['build']['build_id'] + '/build.log', \
-             util.get_commands(shutit))
-        shutit.send_file(shutit.cfg['build']['build_db_dir'] + '/' + \
-             cfg['build']['build_id'] + '/build_commands.sh', \
-             util.get_commands(shutit))
-        shutit.add_line_to_file(shutit.cfg['build']['build_id'], \
-             cfg ['build']['build_db_dir'] + '/builds')
+        self._add_end_build_info(shutit)
         # Finish with the container
         shutit.pexpect_children['container_child'].sendline('exit')
 
+        cfg = shutit.cfg
         host_child = shutit.pexpect_children['host_child']
         shutit.set_default_child(host_child)
         shutit.set_default_expect(cfg['expect_prompts']['real_user_prompt'])
@@ -356,13 +375,120 @@ class ConnDocker(ShutItModule):
         host_child.sendline('exit') # Exit raw bash
         return True
 
-def conn_module():
-    """Connect ShutIt to docker
+class ConnSSH(ShutItConnModule):
+    """Connects ShutIt to a machine via ssh.
     """
-    return ConnDocker(
-        'shutit.tk.conn_docker', -0.1,
-        description='Connect ShutIt to docker'
-    )
+
+    def is_installed(self, shutit):
+        """Always considered false for ShutIt setup.
+        """
+        return False
+
+    def get_config(self, shutit):
+        shutit.get_config(self.module_id, 'ssh_host', '')
+        shutit.get_config(self.module_id, 'ssh_port', '')
+        shutit.get_config(self.module_id, 'ssh_user', '')
+        shutit.get_config(self.module_id, 'password', '')
+        shutit.get_config(self.module_id, 'ssh_key', '')
+        shutit.get_config(self.module_id, 'ssh_cmd', '')
+        return True
+
+    def build(self, shutit):
+        """Sets up the machine ready for building.
+        """
+
+        cfg = shutit.cfg
+
+        ssh_host = cfg[self.module_id]['ssh_host']
+        ssh_port = cfg[self.module_id]['ssh_port']
+        ssh_user = cfg[self.module_id]['ssh_user']
+        ssh_pass = cfg[self.module_id]['password']
+        ssh_key  = cfg[self.module_id]['ssh_key']
+        ssh_cmd  = cfg[self.module_id]['ssh_cmd']
+
+        opts = [
+            '-t',
+            '-o', 'UserKnownHostsFile=/dev/null',
+            '-o', 'StrictHostKeyChecking=no'
+        ]
+
+        if ssh_pass == '':
+            opts += ['-o', 'PasswordAuthentication=no']
+
+        if ssh_port != '':
+            opts += ['-p', ssh_port]
+
+        if ssh_key != '':
+            opts += ['-i', ssh_key]
+
+        host_arg = ssh_host
+        if host_arg == '':
+            shutit.fail('No host specified for sshing')
+        if ssh_user != '':
+            host_arg = ssh_user + '@' + host_arg
+
+        cmd_arg = ssh_cmd
+        if cmd_arg == '':
+            cmd_arg = 'sudo su -s /bin/bash -'
+
+        ssh_command = ['ssh'] + opts + [host_arg, cmd_arg]
+
+        if cfg['build']['interactive'] >= 3:
+            print('\n\nAbout to connect to host.' +
+                '\n\n' + util.colour('31', '\n[Hit return to continue]'))
+            raw_input('')
+        shutit.cfg['build']['ssh_command'] = ' '.join(ssh_command)
+        shutit.log('\n\nCommand being run is:\n\n' + shutit.cfg['build']['ssh_command'],
+            force_stdout=True, prefix=False)
+
+        container_child = pexpect.spawn(ssh_command[0], ssh_command[1:])
+        expect = ['assword', cfg['expect_prompts']['base_prompt'].strip()]
+        res = container_child.expect(expect, 10)
+        while True:
+            shutit.log(container_child.before + container_child.after, prefix=False,
+                force_stdout=True)
+            if res == 0:
+                shutit.log('...')
+                res = shutit.send(ssh_pass,
+                    child=container_child, expect=expect, timeout=10,
+                    check_exit=False, fail_on_empty_before=False)
+            elif res == 1:
+                shutit.log('Prompt found, breaking out')
+                break
+
+        self._setup_prompts(shutit, container_child)
+        self._add_begin_build_info(shutit, ssh_command)
+
+        return True
+
+    def finalize(self, shutit):
+        """Finalizes the container, exiting for us back to the original shell
+        and performing any repository work required.
+        """
+        self._add_end_build_info(shutit)
+        # Finish with the container
+        shutit.pexpect_children['container_child'].sendline('exit')
+
+        host_child = shutit.pexpect_children['host_child']
+        shutit.set_default_child(host_child)
+        shutit.set_default_expect(shutit.cfg['expect_prompts']['real_user_prompt'])
+        # Final exits
+        host_child.sendline('exit') # Exit raw bash
+        return True
+
+def conn_module():
+    """Connect ShutIt to something
+    """
+    return [
+        ConnDocker(
+            'shutit.tk.conn_docker', -0.1,
+            description='Connect ShutIt to docker'
+        ),
+        ConnSSH(
+            'shutit.tk.conn_ssh', -0.1,
+            description='Connect ShutIt to a host via ssh'
+        ),
+    ]
 
 class setup(ShutItModule):
 
@@ -376,9 +502,7 @@ class setup(ShutItModule):
         and updating package management.
         """
         
-        do_update = True
-        # Seems to be broken
-        #do_update = shutit.cfg[self.module_id]['do_update']
+        do_update = shutit.cfg[self.module_id]['do_update']
         shutit.add_to_bashrc('export HISTSIZE=99999999')
         # Apparently there are some things you can't take for granted.
         shutit.install('perl')
@@ -412,7 +536,7 @@ class setup(ShutItModule):
         """Gets the configured core pacakges, and whether to perform the package
         management update.
         """
-        shutit.get_config(self.module_id, 'do_update', 'yes')
+        shutit.get_config(self.module_id, 'do_update', True, boolean=True)
         return True
 
 def module():
