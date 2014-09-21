@@ -967,11 +967,11 @@ You can set these eg:
 ```
 [com.mycorp.mymodule.modulename]
 # Whether to tag the module at the end of its build.
-tagmodule:no
+shutit.core.module.tag:no
 # eg to add in a module that 
-build:no
+shutit.core.module.build:no
 # Whether to remove the module before building (if is\_installed returns true)
-remove:no
+shutit.core.module.remove:no
 ```
 
 [Github]: https://github.com/ianmiell/shutit
@@ -1060,5 +1060,4 @@ THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-
 

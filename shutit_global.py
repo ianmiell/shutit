@@ -318,6 +318,8 @@ class ShutIt(object):
         if check_exit == True:
             # store the output
             self._check_exit(send, expect, child, timeout, exit_values)
+        if cfg['build']['step_through']:
+            self.pause_point('pause point: stepping through')
         return expect_res
     # alias send to send_and_expect
     send_and_expect = send
@@ -889,12 +891,12 @@ class ShutIt(object):
         config_parser = cfg['config_parser']
         usercfg       = os.path.join(cfg['shutit_home'], 'config')
 
-        if not cfg['build']['interactive']:
-            shutit.fail('ShutIt is not in interactive mode so cannnot prompt ' +
-                'for values.')
-
         print util.colour('34', '\nPROMPTING FOR CONFIG: %s' % (cfgstr,))
         print util.colour('34', '\n' + msg + '\n')
+
+        if not cfg['build']['interactive']:
+            shutit.fail('ShutIt is not in interactive mode so cannot prompt ' +
+                'for values.')
 
         if config_parser.has_option(sec, name):
             whereset = config_parser.whereset(sec, name)
@@ -946,6 +948,13 @@ class ShutIt(object):
             config_parser.reload()
         return val
 
+    def step_through(self, msg, child=None, level=1, print_input=True, value=True):
+        child = child or self.get_default_child()
+        if (not self.cfg['build']['interactive'] or 
+            self.cfg['build']['interactive'] < level):
+            return
+        self.cfg['build']['step_through'] = value
+        self.pause_point(msg, child=child, print_input=print_input, level=level)
 
     def pause_point(self, msg, child=None, print_input=True, level=1):
         """Inserts a pause in the build session, which allows the user to try
@@ -965,13 +974,8 @@ class ShutIt(object):
             self.cfg['build']['interactive'] < level):
             return
         if child and print_input:
-            # Handy resize of terminal for debian
-            try:
-                if shutit.cfg['container']['install_type'] == 'apt':
-                    print (util.colour('31', '\nYou can try installing "xterm", then running "resize" to get a terminal of a useful size.\n'))
-            except:
-                # Don't worry if we can't do the above
-                pass
+            if shutit.cfg['container']['install_type'] == 'apt':
+                print (util.colour('31', '\nYou can try installing "xterm", then running "resize" to get a terminal of a useful size.\n'))
             print (util.colour('31', '\nPause point:\n') + 
                 msg + util.colour('31','\nYou can now type in commands and ' +
                 'alter the state of the container.\nHit return to see the ' +
@@ -1454,7 +1458,11 @@ class ShutIt(object):
             self.send(password, child=child, expect='Retype new',
                       check_exit=False, echo=False)
             self.send(password, child=child, expect=expect, echo=False)
-            self.install('apt-utils')
+            #Considered harmful as it broke builds due to keyring error
+            #W: GPG error: http://ppa.launchpad.net precise Release: The following signatures couldn't be verified because the public key is not available: NO_PUBKEY B70731143DD9F856
+            #W: Failed to fetch http://archive.ubuntu.com/ubuntu/dists/precise/main/source/Sources  Hash Sum mismatch
+            # It seems that doing apt-utils before apt-get update is a problem
+            #self.install('apt-utils')
         elif cfg['container']['install_type'] == 'yum':
             self.send('passwd ' + user, child=child, expect='ew password',
                       check_exit=False)
@@ -1699,7 +1707,7 @@ class ShutIt(object):
     def get_emailer(self, cfg_section):
         """Sends an email using the mailer
         """
-        import emailer
+        from alerting import emailer
         return emailer.Emailer(cfg_section, self)
 
 
@@ -1748,8 +1756,8 @@ def init():
             if os.getlogin() != '':
                 cfg['host']['username'] = os.getlogin()
         except:
-            # Can fail eg if in container, TODO: try whoami and id here
-            pass
+            import getpass
+            cfg['host']['username'] = getpass.getuser()
         if cfg['host']['username'] == '':
             shutit_global.shutit.fail('LOGNAME not set in the environment, ' +
                                       'and login unavailable in python; ' +

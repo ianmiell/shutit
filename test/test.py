@@ -70,7 +70,7 @@ class TestShutItDepChecking(unittest.TestCase):
 		"""TODO
 		"""
 		self.shutit.cfg.update({
-			'tk.shutit.test1': {'build': False, 'build_ifneeded': False, 'remove': False},
+			'tk.shutit.test1': {'build': False, 'shutit.core.module.build_ifneeded': False, 'remove': False},
 			'tk.shutit.test2': {'build': True, 'remove': False}
 		})
 		self.shutit.shutit_map = {
@@ -113,8 +113,8 @@ class TestShutItDepChecking(unittest.TestCase):
 		"""TODO
 		"""
 		self.shutit.cfg.update({
-			'tk.shutit.test1': {'build': False, 'build_ifneeded': True, 'remove': False},
-			'tk.shutit.test2': {'build': False, 'build_ifneeded': True, 'remove': False},
+			'tk.shutit.test1': {'build': False, 'shutit.core.module.build_ifneeded': True, 'remove': False},
+			'tk.shutit.test2': {'build': False, 'shutit.core.module.build_ifneeded': True, 'remove': False},
 			'tk.shutit.test3': {'build': True, 'remove': False}
 		})
 		self.shutit.shutit_map = {

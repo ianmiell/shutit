@@ -290,6 +290,7 @@ def get_base_config(cfg, cfg_parser):
     cfg['build']['dotest']                        = cp.get('build', 'dotest')
     cfg['build']['net']                           = cp.get('build', 'net')
     cfg['build']['completed']                     = False
+    cfg['build']['step_through']                  = False
     # Track logins in a stack.
     cfg['build']['login_stack']                   = []
     cfg['container']['password']                  = cp.get('container', 'password')
@@ -1212,7 +1213,7 @@ def module():
         build:yes
         # Allowed images as a regexp, eg ["ubuntu:12.*"], or [".*"], or ["centos"].
         # It's recommended this is locked down as far as possible.
-        allowed_images:["''' + shutit.cfg['dockerfile']['base_image'] + '''"]
+        shutit.core.module.allowed_images:["''' + shutit.cfg['dockerfile']['base_image'] + '''"]
 
         # Aspects of build process
         [build]
