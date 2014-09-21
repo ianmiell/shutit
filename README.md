@@ -977,7 +977,6 @@ shutit.core.module.remove:no
 [Github]: https://github.com/ianmiell/shutit
 
 
-
 Directory Structure
 --------
 Each module directory should contain modules that are grouped together somehow
