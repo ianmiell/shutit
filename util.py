@@ -131,6 +131,15 @@ shutit.core.module.build:yes
 do_update:yes
 
 [shutit.tk.conn_ssh]
+# Required
+ssh_host:
+# All other configs are optional
+ssh_port:
+ssh_user:
+password:
+ssh_key:
+# (what to execute on the target to get a root shell)
+ssh_cmd:
 
 # Aspects of build process
 [build]
