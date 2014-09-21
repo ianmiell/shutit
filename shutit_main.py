@@ -271,6 +271,7 @@ def conn_container(shutit):
             shutit.shutit_main_dir + '/setup.py)' + util.colour('31',
                 '\n\n[Hit return to continue]\n'))
         raw_input('')
+    conn_module.get_config(shutit)
     conn_module.build(shutit)
 
 
