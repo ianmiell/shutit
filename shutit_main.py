@@ -273,11 +273,12 @@ def conn_container(shutit):
 def finalize_container(shutit):
     """Finalize the container using the core finalize method.
     """
-    assert len(shutit.conn_modules) == 1
     # Set up the container in pexpect.
     shutit.pause_point('\nFinalizing the container module (' +
         shutit.shutit_main_dir + '/setup.py)', print_input=False, level=3)
-    list(shutit.conn_modules)[0].finalize(shutit)
+    for mod in shutit.conn_modules:
+        if mod.module_id == 'shutit.tk.conn_docker':
+            conn_module = mod
 
 
 # Once we have all the modules, then we can look at dependencies.
