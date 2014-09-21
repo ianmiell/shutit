@@ -48,7 +48,7 @@ then
 	exit 1
 fi
 
-if [[ "$(sed -n '41p' assets/shutit_module_template.py)" != "        # Line number 42 should be the next one (so bash scripts can be inserted properly)" ]]
+if [[ "$(sed -n '41p' assets/shutit_module_template.py)" != "		# Line number 42 should be the next one (so bash scripts can be inserted properly)" ]]
 then
 	echo "Line 41 of assets/shutit_module_template.py should be as test.sh specifies"
 	exit 1
