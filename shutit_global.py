@@ -184,6 +184,41 @@ class ShutIt(object):
             self.cfg['build']['build_log'].flush()
         time.sleep(pause)
 
+    def multisend(self,
+                  send,
+                  send_dict,
+                  expect=None,
+                  child=None,
+                  timeout=3600,
+                  check_exit=None,
+                  fail_on_empty_before=True,
+                  record_command=None,
+                  exit_values=None,
+                  echo=None):
+        """Multisend. Same as send, except it takes multiple sends and expects in a dict that are
+        processed while waiting for the end "expect" argument supplied.
+
+        Arguments as per send(), except:
+
+        send_dict - dict of sends and expects, eg: {'interim prompt:','some input','other prompt','some other input'}
+        expect - final expect we want to see. defaults to child.get_default_expect()
+        """
+        expect = expect or self.get_default_expect()
+        child = child or self.get_default_child()
+        
+        send_iteration = send
+        expect_list = send_dict.keys()
+        # Put breakout item in last.
+        expect_list.append(expect)
+        while True:
+            # If it's the last item in the list, it's the breakout one.
+            res = self.send(send_iteration, expect=expect_list, child=child, check_exit=check_exit, fail_on_empty_before=fail_on_empty_before, timeout=timeout, record_command=record_command, exit_values=exit_values, echo=echo)
+            if res == len(expect_list) - 1:
+                break
+            else:
+                send_iteration = send_dict[expect_list[res]]
+                  
+                  
     def send(self,
              send,
              expect=None,
