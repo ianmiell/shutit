@@ -48,6 +48,20 @@ class ShutItConnModule(ShutItModule):
     def __init__(self, *args, **kwargs):
         super(ShutItConnModule, self).__init__(*args, **kwargs)
 
+    def add_build_info(self, shutit):
+        cfg = shutit.cfg
+        # Put build info into the target
+        shutit.send('mkdir -p ' + cfg['build']['build_db_dir'] + '/' + \
+             cfg['build']['build_id'])
+        shutit.send_file(shutit.cfg['build']['build_db_dir'] + '/' + \
+             cfg['build']['build_id'] + '/build.log', \
+             util.get_commands(shutit))
+        shutit.send_file(shutit.cfg['build']['build_db_dir'] + '/' + \
+             cfg['build']['build_id'] + '/build_commands.sh', \
+             util.get_commands(shutit))
+        shutit.add_line_to_file(cfg['build']['build_id'], \
+             cfg['build']['build_db_dir'] + '/builds')
+
 class ConnDocker(ShutItConnModule):
     """Connects ShutIt to docker daemon and starts the container.
     """
@@ -330,21 +344,11 @@ class ConnDocker(ShutItConnModule):
         """Finalizes the container, exiting for us back to the original shell
         and performing any repository work required.
         """
-        cfg = shutit.cfg
-        # Put build info into the container
-        shutit.send('mkdir -p ' + shutit.cfg ['build']['build_db_dir'] + '/' + \
-             cfg['build']['build_id'])
-        shutit.send_file(shutit.cfg['build']['build_db_dir'] + '/' + \
-             cfg['build']['build_id'] + '/build.log', \
-             util.get_commands(shutit))
-        shutit.send_file(shutit.cfg['build']['build_db_dir'] + '/' + \
-             cfg['build']['build_id'] + '/build_commands.sh', \
-             util.get_commands(shutit))
-        shutit.add_line_to_file(shutit.cfg['build']['build_id'], \
-             cfg ['build']['build_db_dir'] + '/builds')
+        self.add_build_info(shutit)
         # Finish with the container
         shutit.pexpect_children['container_child'].sendline('exit')
 
+        cfg = shutit.cfg
         host_child = shutit.pexpect_children['host_child']
         shutit.set_default_child(host_child)
         shutit.set_default_expect(cfg['expect_prompts']['real_user_prompt'])
@@ -493,24 +497,13 @@ class ConnSSH(ShutItModule):
         """Finalizes the container, exiting for us back to the original shell
         and performing any repository work required.
         """
-        cfg = shutit.cfg
-        # Put build info into the target
-        shutit.send('mkdir -p ' + shutit.cfg ['build']['build_db_dir'] + '/' + \
-             cfg['build']['build_id'])
-        shutit.send_file(shutit.cfg['build']['build_db_dir'] + '/' + \
-             cfg['build']['build_id'] + '/build.log', \
-             util.get_commands(shutit))
-        shutit.send_file(shutit.cfg['build']['build_db_dir'] + '/' + \
-             cfg['build']['build_id'] + '/build_commands.sh', \
-             util.get_commands(shutit))
-        shutit.add_line_to_file(shutit.cfg['build']['build_id'], \
-             cfg ['build']['build_db_dir'] + '/builds')
+        self.add_build_info(shutit)
         # Finish with the container
         shutit.pexpect_children['container_child'].sendline('exit')
 
         host_child = shutit.pexpect_children['host_child']
         shutit.set_default_child(host_child)
-        shutit.set_default_expect(cfg['expect_prompts']['real_user_prompt'])
+        shutit.set_default_expect(shutit.cfg['expect_prompts']['real_user_prompt'])
         # Final exits
         host_child.sendline('exit') # Exit raw bash
         return True
