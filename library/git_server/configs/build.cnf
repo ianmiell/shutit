@@ -1,4 +1,4 @@
 [shutit.tk.git_server.git_server]
-build:yes
-allowed_images:["ubuntu.*","debian:.*"]
+shutit.core.module.build:yes
+shutit.core.module.allowed_images:["ubuntu.*","debian:.*"]
 

@@ -1,8 +1,8 @@
 # When this module is the one being built, which modules should be built along with it by default?
 # This feeds into automated testing of each module.
 [shutit.tk.minimal_linux.minimal_linux]
-build:yes
-allowed_images:["debian:jessie"]
+shutit.core.module.build:yes
+shutit.core.module.allowed_images:["debian:jessie"]
 
 # Aspects of build process
 [build]

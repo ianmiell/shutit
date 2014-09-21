@@ -55,7 +55,6 @@ aWR0aAAAACADAAAAaQ=="""))
         shutit.install('xserver-xorg')
         shutit.install('vnc4server')
         shutit.install('novnc')
-        shutit.install('apt-utils')
         if shutit.cfg['container']['distro'] == 'ubuntu':
             shutit.install('ubuntu-desktop')
         # apt-utils?

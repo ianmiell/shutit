@@ -12,16 +12,16 @@ Example code:
 Example cfg:
 
        [shutit.tk.mysql.mysql]
-       mailto:recipient@example.com
-       mailfrom:sender@example.com
-       smtp_server:localhost
-       subject:Shutit Report
-       signature:--Angry Shutit
-       compress:yes
-       username:
-       password:
-       safe_mode: True
-       mailto_maintainer: True
+       shutit.core.alerting.emailer.mailto:recipient@example.com
+       shutit.core.alerting.emailer.mailfrom:sender@example.com
+       shutit.core.alerting.emailer.smtp_server:localhost
+       shutit.core.alerting.emailer.subject:Shutit Report
+       shutit.core.alerting.emailer.signature:--Angry Shutit
+       shutit.core.alerting.emailer.compress:yes
+       shutit.core.alerting.emailer.username:
+       shutit.core.alerting.emailer.password:
+       shutit.core.alerting.emailer.safe_mode: True
+       shutit.core.alerting.emailer.mailto_maintainer: True
 
 """
 
@@ -65,20 +65,20 @@ class Emailer():
         """Initialise the emailer object
         cfg_section - section in shutit config to look for email configuration items
                       allowing easier config according to shutit_module.
-                      e.g. 'com.my_module','subject': My Module Build Failed!
+                      e.g. 'com.my_module','shutit.core.alerting.emailer.subject': My Module Build Failed!
                       Config Items:
-                      mailto      - address to send the mail to (no default)
-                      mailfrom    - address to send the mail from (angry@shutit.tk)
-                      smtp_server - server to send the mail (localhost)
-                      smtp_port   - port to contact the smtp server on (587)
-                      subject     - subject of the email (Shutit Report)
-                      signature   - --Angry Shutit
-                      compress    - gzip attachments? (True)
-                      username    - mail username
-                      password    - mail password
-                      safe_mode   - don't fail the build if we get an exception
-                      mailto_maintainer - email the maintainer of the module as
-                                          well as the mailto address
+                      shutit.core.alerting.emailer.mailto      - address to send the mail to (no default)
+                      shutit.core.alerting.emailer.mailfrom    - address to send the mail from (angry@shutit.tk)
+                      shutit.core.alerting.emailer.smtp_server - server to send the mail (localhost)
+                      shutit.core.alerting.emailer.smtp_port   - port to contact the smtp server on (587)
+                      shutit.core.alerting.emailer.subject     - subject of the email (Shutit Report)
+                      shutit.core.alerting.emailer.signature   - --Angry Shutit
+                      shutit.core.alerting.emailer.compress    - gzip attachments? (True)
+                      shutit.core.alerting.emailer.username    - mail username
+                      shutit.core.alerting.emailer.password    - mail password
+                      shutit.core.alerting.emailer.safe_mode   - don't fail the build if we get an exception
+                      shutit.core.alerting.emailer.mailto_maintainer - email the maintainer of the module as
+                                                                       well as the shutit.core.alerting.emailer.mailto address
         """
         self.shutit    = shutit
         self.config    = {}
@@ -93,19 +93,19 @@ class Emailer():
         cfg_section - see __init__
         """
         defaults = [
-            'mailto', None,
-            'mailfrom', 'angry@shutit.tk',
-            'smtp_server', 'localhost',
-            'smtp_port', 25,
-            'send_mail', True,
-            'subject', 'Shutit Report',
-            'signature', '--Angry Shutit',
-            'compress', True,
-            'username', '',
-            'password', '',
-            'safe_mode', True,
-            'maintainer','',
-            'mailto_maintainer', True
+            'shutit.core.alerting.emailer.mailto', None,
+            'shutit.core.alerting.emailer.mailfrom', 'angry@shutit.tk',
+            'shutit.core.alerting.emailer.smtp_server', 'localhost',
+            'shutit.core.alerting.emailer.smtp_port', 25,
+            'shutit.core.alerting.emailer.send_mail', True,
+            'shutit.core.alerting.emailer.subject', 'Shutit Report',
+            'shutit.core.alerting.emailer.signature', '--Angry Shutit',
+            'shutit.core.alerting.emailer.compress', True,
+            'shutit.core.alerting.emailer.username', '',
+            'shutit.core.alerting.emailer.password', '',
+            'shutit.core.alerting.emailer.safe_mode', True,
+            'shutit.core.alerting.emailer.maintainer','',
+            'shutit.core.alerting.emailer.mailto_maintainer', True
         ]
 
         for cfg_name, cfg_default in zip(defaults[0::2], defaults[1::2]):
@@ -118,11 +118,11 @@ class Emailer():
                     self.config[cfg_name] = cfg_default
 
         # only send a mail to the module's maintainer if configured correctly
-        if self.config['mailto_maintainer'] and \
-            (self.config['maintainer'] == "" or \
-            self.config['maintainer'] == self.config['mailto']):
-            self.config['mailto_maintainer'] = False
-            self.config['maintainer'] = ""
+        if self.config['shutit.core.alerting.emailer.mailto_maintainer'] and \
+            (self.config['shutit.core.alerting.emailer.maintainer'] == "" or \
+            self.config['shutit.core.alerting.emailer.maintainer'] == self.config['shutit.core.alerting.emailer.mailto']):
+            self.config['shutit.core.alerting.emailer.mailto_maintainer'] = False
+            self.config['shutit.core.alerting.emailer.maintainer'] = ""
 
     @staticmethod
     def __gzip(filename):
@@ -157,7 +157,7 @@ class Emailer():
         host_path = '/tmp'
         host_fn = os.path.join(host_path, os.path.basename(filename))
         shutit.get_file(filename, host_path)
-        if self.config['compress']:
+        if self.config['shutit.core.alerting.emailer.compress']:
             filetype = 'x-gzip-compressed'
             filename = self.__gzip(host_fn)
             host_fn = os.path.join(host_path, os.path.basename(filename))
@@ -175,16 +175,16 @@ class Emailer():
         """ Compose the message, pulling together body, attachments etc
         """
         msg  = MIMEMultipart()
-        msg['Subject'] = self.config['subject']
-        msg['To']      = self.config['mailto']
-        msg['From']    = self.config['mailfrom']
+        msg['Subject'] = self.config['shutit.core.alerting.emailer.subject']
+        msg['To']      = self.config['shutit.core.alerting.emailer.mailto']
+        msg['From']    = self.config['shutit.core.alerting.emailer.mailfrom']
         # add the module's maintainer as a CC if configured
-        if self.config['mailto_maintainer']:
-            msg['Cc'] = self.config['maintainer']
-        if self.config['signature'] != '':
+        if self.config['shutit.core.alerting.emailer.mailto_maintainer']:
+            msg['Cc'] = self.config['shutit.core.alerting.emailer.maintainer']
+        if self.config['shutit.core.alerting.emailer.signature'] != '':
             signature = '\n\n' + self.config['signature']
         else:
-            signature = self.config['signature']
+            signature = self.config['shutit.core.alerting.emailer.signature']
         body = MIMEText('\n'.join(self.lines) + signature)
         msg.attach(body)
         for attach in self.attaches:
@@ -198,24 +198,24 @@ class Emailer():
                                 smtp server has refused based on file size.
                                 Should not be used externally
         """
-        if not self.config['send_mail']:
+        if not self.config['shutit.core.alerting.emailer.send_mail']:
             self.shutit.log(
                 'emailer.send: Not configured to send mail!',
                 force_stdout=True
             )
             return True
         msg = self.__compose()
-        mailto = [self.config['mailto']]
-        smtp = SMTP(self.config['smtp_server'], self.config['smtp_port'])
+        mailto = [self.config['shutit.core.alerting.emailer.mailto']]
+        smtp = SMTP(self.config['shutit.core.alerting.emailer.smtp_server'], self.config['shutit.core.alerting.emailer.smtp_port'])
         smtp.starttls()
-        if self.config['username'] != '':
-            smtp.login(self.config['username'], self.config['password'])
-        if self.config['mailto_maintainer']:
-            mailto.append(self.config['maintainer'])
+        if self.config['shutit.core.alerting.emailer.username'] != '':
+            smtp.login(self.config['shutit.core.alerting.emailer.username'], self.config['shutit.core.alerting.emailer.password'])
+        if self.config['shutit.core.alerting.emailer.mailto_maintainer']:
+            mailto.append(self.config['shutit.core.alerting.emailer.maintainer'])
         try:
             self.shutit.log('Attempting to send email', force_stdout=True)
             smtp.sendmail(
-                self.config['mailfrom'],
+                self.config['shutit.core.alerting.emailer.mailfrom'],
                 mailto,
                 msg.as_string()
             )
@@ -235,14 +235,14 @@ class Emailer():
                     "Unhandled SMTP error:" + str(refused),
                     force_stdout=True
                 )
-                if not self.config['safe_mode']:
+                if not self.config['shutit.core.alerting.emailer.safe_mode']:
                     raise refused
         except Exception as error:
             self.shutit.log(
                 'Unhandled exception: ' + str(error),
                 force_stdout=True
             )
-            if not self.config['safe_mode']:
+            if not self.config['shutit.core.alerting.emailer.safe_mode']:
                 raise error
         finally:
             smtp.quit()

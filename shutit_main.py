@@ -53,8 +53,8 @@ def print_modules(shutit):
     for module_id in module_ids(shutit):
         string = string + ('    ' + str(shutit.shutit_map[module_id].run_order) +
                            '        ' +
-                           str(cfg[module_id]['build']) + '    ' +
-                           str(cfg[module_id]['remove']) + '    ' +
+                           str(cfg[module_id]['shutit.core.module.build']) + '    ' +
+                           str(cfg[module_id]['shutit.core.module.remove']) + '    ' +
                            module_id + '\n')
     return string
 
@@ -182,20 +182,20 @@ def config_collection(shutit):
     cfg = shutit.cfg
     for module_id in module_ids(shutit):
         # Default to None so we can interpret as ifneeded
-        shutit.get_config(module_id, 'build', None, boolean=True, forcenone=True)
-        shutit.get_config(module_id, 'remove', False, boolean=True)
-        shutit.get_config(module_id, 'tagmodule', False, boolean=True)
+        shutit.get_config(module_id, 'shutit.core.module.build', None, boolean=True, forcenone=True)
+        shutit.get_config(module_id, 'shutit.core.module.remove', False, boolean=True)
+        shutit.get_config(module_id, 'shutit.core.module.tag', False, boolean=True)
         # Default to allow any image
-        shutit.get_config(module_id, 'allowed_images', [".*"])
+        shutit.get_config(module_id, 'shutit.core.module.allowed_images', [".*"])
 
         # ifneeded will (by default) only take effect if 'build' is not
         # specified. It can, however, be forced to a value, but this
         # should be unusual.
         if cfg[module_id]['build'] is None:
-            shutit.get_config(module_id, 'build_ifneeded', True, boolean=True)
+            shutit.get_config(module_id, 'shutit.core.module.build_ifneeded', True, boolean=True)
             cfg[module_id]['build'] = False
         else:
-            shutit.get_config(module_id, 'build_ifneeded', False, boolean=True)
+            shutit.get_config(module_id, 'shutit.core.module.build_ifneeded', False, boolean=True)
 
 
 def config_collection_for_built(shutit):
@@ -225,7 +225,7 @@ def config_collection_for_built(shutit):
                     if section == module_id:
                         for option in config_parser.options(section):
                             value = config_parser.get(section,option)
-                            if option == 'allowed_images':
+                            if option == 'shutit.core.module.allowed_images':
                                 value = json.loads(value)
                             shutit.get_config(module_id, option,
                                             value, forcedefault=True)
@@ -234,18 +234,18 @@ def config_collection_for_built(shutit):
     for module_id in module_ids(shutit):
         if shutit.cfg[module_id]['build']:
             if (not shutit.cfg['build']['ignoreimage'] and 
-                shutit.cfg[module_id]['allowed_images'] and
+                shutit.cfg[module_id]['shutit.core.module.allowed_images'] and
                 shutit.cfg['container']['docker_image'] not in
-                    shutit.cfg[module_id]['allowed_images']):
+                    shutit.cfg[module_id]['shutit.core.module.allowed_images']):
                 ok = False
                 # Try allowed images as regexps
-                for regexp in shutit.cfg[module_id]['allowed_images']:
+                for regexp in shutit.cfg[module_id]['shutit.core.module.allowed_images']:
                     if re.match('^' + regexp + '$', shutit.cfg['container']['docker_image']):
                         ok = True
                         break
                 if not ok:
                     print('\n\nAllowed images for ' + module_id + ' are: ' +
-                          str(shutit.cfg[module_id]['allowed_images']) +
+                          str(shutit.cfg[module_id]['shutit.core.module.allowed_images']) +
                           ' but the configured image is: ' +
                           shutit.cfg['container']['docker_image'] +
                           '\n\nIf you want to ignore this restriction, ' + 
@@ -287,7 +287,7 @@ def resolve_dependencies(shutit, to_build, depender):
         dependee = shutit.shutit_map.get(dependee_id)
         # Don't care if module doesn't exist, we check this later
         if (dependee and dependee not in to_build
-                and cfg[dependee_id]['build_ifneeded']):
+                and cfg[dependee_id]['shutit.core.module.build_ifneeded']):
             to_build.append(dependee)
             cfg[dependee_id]['build'] = True
     return True
@@ -475,7 +475,7 @@ def do_remove(shutit):
     for module_id in module_ids(shutit):
         module = shutit.shutit_map[module_id]
         shutit.log('considering whether to remove: ' + module_id, code='31')
-        if cfg[module_id]['remove']:
+        if cfg[module_id]['shutit.core.module.remove']:
             shutit.log('removing: ' + module_id, code='31')
             shutit.login()
             if not module.remove(shutit):
@@ -501,16 +501,16 @@ def build_module(shutit, module):
                        module.module_id, print_input=True, level=2)
     cfg['build']['report'] = (cfg['build']['report'] + '\nCompleted module: ' +
                               module.module_id)
-    if cfg[module.module_id]['tagmodule'] or cfg['build']['interactive'] >= 3:
+    if cfg[module.module_id]['tag'] or cfg['build']['interactive'] >= 3:
         shutit.log(util.build_report(shutit, '#Module:' + module.module_id),
                    code='31')
-    if (not cfg[module.module_id]['tagmodule'] and
+    if (not cfg[module.module_id]['tag'] and
         cfg['build']['interactive'] >= 2):
         shutit.log("\n\nDo you want to save state now we\'re at the " +
                    "end of this module? (" + module.module_id +
                    ") (input y/n)", force_stdout=True, code='31')
-        cfg[module.module_id]['tagmodule'] = (raw_input('') == 'y')
-    if cfg[module.module_id]['tagmodule']:
+        cfg[module.module_id]['tag'] = (raw_input('') == 'y')
+    if cfg[module.module_id]['tag']:
         shutit.log(module.module_id +
                    ' configured to be tagged, doing repository work',
                    force_stdout=True)

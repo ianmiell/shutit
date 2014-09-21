@@ -151,5 +151,6 @@ cleanup hard
 
 popd > /dev/null 2>&1
 # OK
+echo "SHUTIT TEST OK"
 exit
 
