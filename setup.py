@@ -393,11 +393,10 @@ class ConnBash(ShutItConnModule):
 	def build(self, shutit):
 		"""Sets up the machine ready for building.
 		"""
-
 		cfg = shutit.cfg
 		command = '/bin/bash'
 		container_child = pexpect.spawn(command)
-		container_child.expect(cfg['expect_prompts']['base_prompt'], 10)
+		container_child.expect(cfg['expect_prompts']['base_prompt'].strip(), 10)
 		self._setup_prompts(shutit, container_child)
 		self._add_begin_build_info(shutit, command)
 		return True
@@ -531,7 +530,7 @@ class ConnSSH(ShutItConnModule):
 
 
 def conn_module():
-	"""Connect ShutIt to something
+	"""Connects ShutIt to something
 	"""
 	return [
 		ConnDocker(
