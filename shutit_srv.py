@@ -71,17 +71,17 @@ def update_modules(to_build, cfg):
 
     selected = set(to_build)
     for module_id in shutit.cfg:
-        if module_id in ORIG_MOD_CFG and 'build' in ORIG_MOD_CFG[module_id]:
-            shutit.cfg[module_id]['build'] = ORIG_MOD_CFG[module_id]['build']
+        if module_id in ORIG_MOD_CFG and 'shutut.core.module.build' in ORIG_MOD_CFG[module_id]:
+            shutit.cfg[module_id]['shutit.core.module.build'] = ORIG_MOD_CFG[module_id]['shutit.core.module.build']
         if module_id in selected:
-            shutit.cfg[module_id]['build'] = True
+            shutit.cfg[module_id]['shutit.core.module.build'] = True
 
     if cfg is not None:
         sec, key, val = cfg
         ORIG_MOD_CFG[sec][key] = val
     for module_id in ORIG_MOD_CFG:
         for cfgkey in ORIG_MOD_CFG[module_id]:
-            if cfgkey == 'build': continue
+            if cfgkey == 'shutit.core.module.build': continue
             shutit.cfg[module_id][cfgkey] = ORIG_MOD_CFG[module_id][cfgkey]
 
     errs = []
@@ -100,7 +100,7 @@ def update_modules(to_build, cfg):
             "module_id":   module_id,
             "description": shutit.shutit_map[module_id].description,
             "run_order":   float(shutit.shutit_map[module_id].run_order),
-            "build":       shutit.cfg[module_id]['build'],
+            "build":       shutit.cfg[module_id]['shutit.core.module.build'],
             "selected":    module_id in selected
         } for module_id in shutit_main.module_ids(shutit)
     ]

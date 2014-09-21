@@ -105,7 +105,7 @@ def is_built(shutit, shutit_module_obj):
     """Returns true if this module is configured to be built,
     or if it is already installed.
     """
-    return shutit.cfg[shutit_module_obj.module_id]['build'] \
+    return shutit.cfg[shutit_module_obj.module_id]['shutit.core.module.build'] \
         or shutit_module_obj.is_installed(shutit)
 
 
@@ -191,9 +191,9 @@ def config_collection(shutit):
         # ifneeded will (by default) only take effect if 'build' is not
         # specified. It can, however, be forced to a value, but this
         # should be unusual.
-        if cfg[module_id]['build'] is None:
+        if cfg[module_id]['shutit.core.module.build'] is None:
             shutit.get_config(module_id, 'shutit.core.module.build_ifneeded', True, boolean=True)
-            cfg[module_id]['build'] = False
+            cfg[module_id]['shutit.core.module.build'] = False
         else:
             shutit.get_config(module_id, 'shutit.core.module.build_ifneeded', False, boolean=True)
 
@@ -213,7 +213,7 @@ def config_collection_for_built(shutit):
         # If this file exists, process it.
         # We could just read in the file and process only those 
         # that relate to the module_id.
-        if shutit.cfg[module_id]['build']:
+        if shutit.cfg[module_id]['shutit.core.module.build']:
             module = shutit.shutit_map[module_id]
             cfg_file = os.path.dirname(module.__module_file) + '/configs/build.cnf'
             if os.path.isfile(cfg_file):
@@ -232,7 +232,7 @@ def config_collection_for_built(shutit):
     # TODO: re-check command line arguments as well?
     # Check the allowed_images against the base_image
     for module_id in module_ids(shutit):
-        if shutit.cfg[module_id]['build']:
+        if shutit.cfg[module_id]['shutit.core.module.build']:
             if (not shutit.cfg['build']['ignoreimage'] and 
                 shutit.cfg[module_id]['shutit.core.module.allowed_images'] and
                 shutit.cfg['container']['docker_image'] not in
@@ -289,7 +289,7 @@ def resolve_dependencies(shutit, to_build, depender):
         if (dependee and dependee not in to_build
                 and cfg[dependee_id]['shutit.core.module.build_ifneeded']):
             to_build.append(dependee)
-            cfg[dependee_id]['build'] = True
+            cfg[dependee_id]['shutit.core.module.build'] = True
     return True
 
 
@@ -310,7 +310,7 @@ def check_dependee_build(shutit, depender, dependee, dependee_id):
     """Checks whether a depended on module is configured to be built.
     """
     # If depender is installed or will be installed, so must the dependee
-    if not (shutit.cfg[dependee.module_id]['build'] or
+    if not (shutit.cfg[dependee.module_id]['shutit.core.module.build'] or
             dependee.is_installed(shutit)):
         return ('depender module id:\n\n[' + depender.module_id + ']\n\n' +
             'is configured: "build:yes" or is already built ' +
@@ -351,7 +351,7 @@ def check_deps(shutit):
     # Get modules we're going to build
     to_build = [
         shutit.shutit_map[module_id] for module_id in shutit.shutit_map
-        if module_id in cfg and cfg[module_id]['build']
+        if module_id in cfg and cfg[module_id]['shutit.core.module.build']
     ]
     # Add any deps we may need by extending to_build and altering cfg
     for module in to_build:
@@ -396,7 +396,7 @@ def check_deps(shutit):
         shutit.log('Modules configured to be built (in order) are: ', code='31')
         for module_id in module_ids(shutit):
             module = shutit.shutit_map[module_id]
-            if cfg[module_id]['build']:
+            if cfg[module_id]['shutit.core.module.build']:
                 shutit.log(module_id + '    ' + str(module.run_order), code='31')
         shutit.log('\n', code='31')
 
@@ -413,7 +413,7 @@ def check_conflicts(shutit):
     shutit.pause_point('\nNow checking for conflicts between modules',
                        print_input=False, level=3)
     for module_id in module_ids(shutit):
-        if not cfg[module_id]['build']:
+        if not cfg[module_id]['shutit.core.module.build']:
             continue
         conflicter = shutit.shutit_map[module_id]
         for conflictee in conflicter.conflicts_with:
@@ -421,9 +421,9 @@ def check_conflicts(shutit):
             conflictee_obj = shutit.shutit_map.get(conflictee)
             if conflictee_obj == None:
                 continue
-            if ((cfg[conflicter.module_id]['build'] or
+            if ((cfg[conflicter.module_id]['shutit.core.module.build'] or
                  conflicter.is_installed(shutit)) and
-                    (cfg[conflictee_obj.module_id]['build'] or
+                    (cfg[conflictee_obj.module_id]['shutit.core.module.build'] or
                      conflictee_obj.is_installed(shutit))):
                 errs.append(('conflicter module id: ' + conflicter.module_id +
                     ' is configured to be built or is already built but ' +
@@ -446,7 +446,7 @@ def check_ready(shutit):
         module = shutit.shutit_map[module_id]
         shutit.log('considering check_ready (is it ready to be built?): ' +
                    module_id, code='31')
-        if cfg[module_id]['build'] and not module.is_installed(shutit):
+        if cfg[module_id]['shutit.core.module.build'] and not module.is_installed(shutit):
             shutit.log('checking whether module is ready to build: ' + module_id,
                        code='31')
             shutit.login()
@@ -546,7 +546,7 @@ def do_build(shutit):
         module = shutit.shutit_map[module_id]
         shutit.log('considering whether to build: ' + module.module_id,
                    code='31')
-        if cfg[module.module_id]['build']:
+        if cfg[module.module_id]['shutit.core.module.build']:
             if module.is_installed(shutit):
                 cfg['build']['report'] = (cfg['build']['report'] +
                      '\nBuilt already: ' + module.module_id +
@@ -671,7 +671,7 @@ def shutit_main():
         digraph = 'digraph depgraph {\n'
         digraph = digraph + '\n'.join([
             make_dep_graph(module) for module_id, module in shutit.shutit_map.items()
-            if module_id in shutit.cfg and shutit.cfg[module_id]['build']
+            if module_id in shutit.cfg and shutit.cfg[module_id]['shutit.core.module.build']
         ])
         digraph = digraph + '\n}'
         shutit.log(digraph, force_stdout=True)
