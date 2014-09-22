@@ -937,15 +937,17 @@ def create_skeleton(shutit):
 	os.mkdir(os.path.join(skel_path, 'configs'))
 	os.mkdir(os.path.join(skel_path, 'context'))
 	os.mkdir(os.path.join(skel_path, 'bin'))
+	os.mkdir(os.path.join(skel_path, 'dockerfile'))
 
-	templatemodule_path = os.path.join(skel_path, skel_module_name + '.py')
-	readme_path         = os.path.join(skel_path, 'README.md')
-	buildsh_path        = os.path.join(skel_path, 'bin/build.sh')
-	testsh_path         = os.path.join(skel_path, 'bin/test.sh')
-	runsh_path          = os.path.join(skel_path, 'bin/run.sh')
-	buildpushsh_path    = os.path.join(skel_path, 'bin/build_and_push.sh')
-	buildcnf_path       = os.path.join(skel_path, 'configs', 'build.cnf')
-	pushcnf_path        = os.path.join(skel_path, 'configs', 'push.cnf')
+	templatemodule_path   = os.path.join(skel_path, skel_module_name + '.py')
+	readme_path           = os.path.join(skel_path, 'README.md')
+	buildsh_path          = os.path.join(skel_path, 'bin', 'build.sh')
+	testsh_path           = os.path.join(skel_path, 'bin', 'test.sh')
+	runsh_path            = os.path.join(skel_path, 'bin', 'run.sh')
+	buildpushsh_path      = os.path.join(skel_path, 'bin', 'build_and_push.sh')
+	buildcnf_path         = os.path.join(skel_path, 'configs', 'build.cnf')
+	pushcnf_path          = os.path.join(skel_path, 'configs', 'push.cnf')
+	builddockerfile_path  = os.path.join(skel_path, 'dockerfile', 'Dockerfile')
 
 	if skel_dockerfile:
 		if os.path.basename(skel_dockerfile) != 'Dockerfile':
@@ -1278,9 +1280,25 @@ def module():
 		#suffix_date:no
 		#suffix_format:%s
 		''')
+	builddockerfile = textwrap.dedent('''\
+       FROM ''' + shutit.cfg['dockerfile']['base_image'] + '''
+
+       RUN apt-get update
+       RUN apt-get install -y -qq curl git python-pip
+       WORKDIR /opt
+       RUN git clone https://github.com/ianmiell/shutit.git
+       WORKDIR shutit
+       RUN pip install -r requirements.txt
+
+       WORKDIR ''' + skel_path + '''
+       RUN /opt/shutit/shutit build --shutit_module_path /opt/shutit/library --interactive 0 -s build conn_module shutit.tk.conn_bash
+
+       CMD ["/bin/bash"] 
+		''')
 
 	open(templatemodule_path, 'w').write(templatemodule)
 	open(readme_path, 'w').write(readme)
+	open(builddockerfile_path, 'w').write(builddockerfile)
 	open(buildsh_path, 'w').write(buildsh)
 	os.chmod(buildsh_path, os.stat(buildsh_path).st_mode | 0111) # chmod +x
 	open(testsh_path, 'w').write(testsh)
