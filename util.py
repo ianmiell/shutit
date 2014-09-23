@@ -147,6 +147,8 @@ ssh_cmd:
 # Aspects of build process
 [build]
 build_log:no
+# How to connect to target
+conn_module:shutit.tk.conn_docker
 # Run container in privileged mode
 privileged:no
 # lxc-conf arg, eg
@@ -286,6 +288,7 @@ def get_base_config(cfg, cfg_parser):
 	"""
 	cfg['config_parser'] = cp = cfg_parser
 	# BEGIN Read from config files
+	cfg['build']['conn_module']                   = cp.get('build', 'conn_module')
 	cfg['build']['privileged']                    = cp.getboolean('build', 'privileged')
 	cfg['build']['lxc_conf']                      = cp.get('build', 'lxc_conf')
 	cfg['build']['build_log']                     = cp.getboolean('build', 'build_log')
@@ -346,8 +349,6 @@ def get_base_config(cfg, cfg_parser):
 		os.chmod(logfile,0600)
 	if cfg['container']['docker_image'] == '':
 		cfg['container']['docker_image'] = cfg['build']['base_image']
-	if cfg['build']['conn_module'] == 'bash':
-		cfg['build']['interactive'] = 0
 	# END tidy configs up
 
 	# BEGIN warnings
