@@ -127,7 +127,7 @@ class ConnDocker(ShutItConnModule):
 
 	def _check_docker(self, shutit):
 		"""Private function. Do some docker capability checking
-	"""
+		"""
 		cfg = shutit.cfg
 
 		# If we have sudo, kill any current sudo timeout. This is a bit of a

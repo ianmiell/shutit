@@ -288,7 +288,6 @@ def get_base_config(cfg, cfg_parser):
 	"""
 	cfg['config_parser'] = cp = cfg_parser
 	# BEGIN Read from config files
-	cfg['build']['conn_module']                   = cp.get('build', 'conn_module')
 	cfg['build']['privileged']                    = cp.getboolean('build', 'privileged')
 	cfg['build']['lxc_conf']                      = cp.get('build', 'lxc_conf')
 	cfg['build']['build_log']                     = cp.getboolean('build', 'build_log')
@@ -298,6 +297,9 @@ def get_base_config(cfg, cfg_parser):
 	cfg['build']['net']                           = cp.get('build', 'net')
 	cfg['build']['completed']                     = False
 	cfg['build']['step_through']                  = False
+	# Take a command-line arg if given, else default.
+	if cfg['build']['conn_module'] == None:
+		cfg['build']['conn_module']                   = cp.get('build', 'conn_module')
 	# Track logins in a stack.
 	cfg['build']['login_stack']                   = []
 	cfg['container']['password']                  = cp.get('container', 'password')
@@ -453,7 +455,7 @@ def parse_args(cfg):
 
 	for action in ['build', 'serve', 'depgraph', 'sc']:
 		sub_parsers[action].add_argument('--config', help='Config file for setup config. Must be with perms 0600. Multiple arguments allowed; config files considered in order.', default=[], action='append')
-		sub_parsers[action].add_argument('-d','--delivery', help='Delivery method. "docker" container (default), configured "ssh" connection, "bash" session', default='docker')
+		sub_parsers[action].add_argument('-d','--delivery', help='Delivery method. "docker" container (default), configured "ssh" connection, "bash" session', default=None)
 		sub_parsers[action].add_argument('-s', '--set', help='Override a config item, e.g. "-s container rm no". Can be specified multiple times.', default=[], action='append', nargs=3, metavar=('SEC', 'KEY', 'VAL'))
 		sub_parsers[action].add_argument('--image_tag', help='Build container using specified image - if there is a symbolic reference, please use that, eg localhost.localdomain:5000/myref', default='')
 		sub_parsers[action].add_argument('-m', '--shutit_module_path', default=None, help='List of shutit module paths, separated by colons. ShutIt registers modules by running all .py files in these directories.')
@@ -542,6 +544,8 @@ def parse_args(cfg):
 		cfg['build']['conn_module'] = 'shutit.tk.conn_ssh'
 	elif args.delivery == 'bash':
 		cfg['build']['conn_module'] = 'shutit.tk.conn_bash'
+	elif args.delivery == None:
+		cfg['build']['conn_module'] = None
 
 	# Get these early for this part of the build.
 	# These should never be config arguments, since they are needed before config is passed in.
