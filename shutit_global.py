@@ -1524,10 +1524,10 @@ class ShutIt(object):
 
 
 	def push_repository(self,
-						repository,
-						docker_executable='docker.io',
-						child=None,
-						expect=None):
+	                    repository,
+	                    docker_executable='docker.io',
+	                    child=None,
+	                    expect=None):
 		"""Pushes the repository.
 
 		- repository        - 
@@ -1561,12 +1561,12 @@ class ShutIt(object):
 
 
 	def do_repository_work(self,
-						   repo_name,
-						   repo_tag=None,
-						   expect=None,
-						   docker_executable='docker',
-						   password=None,
-						   force=None):
+	                       repo_name,
+	                       repo_tag=None,
+	                       expect=None,
+	                       docker_executable='docker',
+	                       password=None,
+	                       force=None):
 		"""Commit, tag, push, tar the container based on the configuration we
 		have.
 
@@ -1691,20 +1691,20 @@ class ShutIt(object):
 		if cfg['repository']['push'] == True:
 			# Pass the child explicitly as it's the host child.
 			self.push_repository(repository,
-								 docker_executable=docker_executable,
-								 expect=expect,
-								 child=child)
+		                             docker_executable=docker_executable,
+		                             expect=expect,
+		                             child=child)
 			cfg['build']['report'] = (cfg['build']['report'] +
-									  '\nPushed repository: ' + repository)
+			                          '\nPushed repository: ' + repository)
 
 
 	def get_config(self,
-				   module_id,
-				   option,
-				   default=None,
-				   boolean=False,
-				   forcedefault=False,
-				   forcenone=False):
+	               module_id,
+	               option,
+	               default=None,
+	               boolean=False,
+	               forcedefault=False,
+	               forcenone=False):
 		"""Gets a specific config from the config files,
 		allowing for a default.
 		Handles booleans vs strings appropriately.
