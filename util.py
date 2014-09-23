@@ -147,8 +147,6 @@ ssh_cmd:
 # Aspects of build process
 [build]
 build_log:no
-# How to connect to target
-conn_module:shutit.tk.conn_docker
 # Run container in privileged mode
 privileged:no
 # lxc-conf arg, eg
@@ -288,7 +286,6 @@ def get_base_config(cfg, cfg_parser):
 	"""
 	cfg['config_parser'] = cp = cfg_parser
 	# BEGIN Read from config files
-	cfg['build']['conn_module']                   = cp.get('build', 'conn_module')
 	cfg['build']['privileged']                    = cp.getboolean('build', 'privileged')
 	cfg['build']['lxc_conf']                      = cp.get('build', 'lxc_conf')
 	cfg['build']['build_log']                     = cp.getboolean('build', 'build_log')
@@ -349,6 +346,8 @@ def get_base_config(cfg, cfg_parser):
 		os.chmod(logfile,0600)
 	if cfg['container']['docker_image'] == '':
 		cfg['container']['docker_image'] = cfg['build']['base_image']
+	if cfg['build']['conn_module'] == 'bash':
+		cfg['build']['interactive'] = 0
 	# END tidy configs up
 
 	# BEGIN warnings
@@ -357,6 +356,7 @@ def get_base_config(cfg, cfg_parser):
 	if cfg['container']['password'][:5] == 'YOUR_':
 		warn = '# Found ' + cfg['container']['password'] + ' in your config, you may want to quit and override, eg put the following into your\n# ' + shutit_global.cwd + '/configs/' + socket.gethostname() + '_' + cfg['host']['real_user'] + '.cnf file (create if necessary):\n\n[container]\n#root password for the container\npassword:mycontainerpassword\n\n'
 		issue_warning(warn,2)
+
 	# FAILS begins
 	# rm is incompatible with repository actions
 	if cfg['container']['rm'] and (cfg['repository']['tag'] or cfg['repository']['push'] or cfg['repository']['save'] or cfg['repository']['export']):
@@ -369,6 +369,7 @@ def get_base_config(cfg, cfg_parser):
 	if cfg['container']['hostname'] != '' and cfg['build']['net'] != '' and cfg['build']['net'] != 'bridge':
 		print('\n\ncontainer/hostname or build/net configs must be blank\n\n')
 		sys.exit()
+	# TODO: delivery method checks
 	# FAILS ends
 	if cfg['container']['password'] == '':
 		cfg['container']['password'] = getpass.getpass(prompt='Input your container password: ')
@@ -451,6 +452,7 @@ def parse_args(cfg):
 
 	for action in ['build', 'serve', 'depgraph', 'sc']:
 		sub_parsers[action].add_argument('--config', help='Config file for setup config. Must be with perms 0600. Multiple arguments allowed; config files considered in order.', default=[], action='append')
+		sub_parsers[action].add_argument('-d','--delivery', help='Delivery method. "docker" container (default), configured "ssh" connection, "bash" session', default='docker')
 		sub_parsers[action].add_argument('-s', '--set', help='Override a config item, e.g. "-s container rm no". Can be specified multiple times.', default=[], action='append', nargs=3, metavar=('SEC', 'KEY', 'VAL'))
 		sub_parsers[action].add_argument('--image_tag', help='Build container using specified image - if there is a symbolic reference, please use that, eg localhost.localdomain:5000/myref', default='')
 		sub_parsers[action].add_argument('-m', '--shutit_module_path', default=None, help='List of shutit module paths, separated by colons. ShutIt registers modules by running all .py files in these directories.')
@@ -488,7 +490,6 @@ def parse_args(cfg):
 			else:
 				env_args_list[-1] = env_args_list[-1] + item
 		args_list[1:1] = env_args_list
-
 	args = parser.parse_args(args_list)
 
 	# What are we asking shutit to do?
@@ -532,6 +533,14 @@ def parse_args(cfg):
 		cfg['repository']['save']   = args.save
 	elif cfg['action']['show_config']:
 		cfg['build']['cfghistory'] = args.history
+
+	# What are we building on? Convert arg to conn_module we use.
+	if args.delivery == 'docker':
+		cfg['build']['conn_module'] = 'shutit.tk.conn_docker'
+	elif args.delivery == 'ssh':
+		cfg['build']['conn_module'] = 'shutit.tk.conn_ssh'
+	elif args.delivery == 'bash':
+		cfg['build']['conn_module'] = 'shutit.tk.conn_bash'
 
 	# Get these early for this part of the build.
 	# These should never be config arguments, since they are needed before config is passed in.
@@ -1291,7 +1300,7 @@ def module():
        RUN pip install -r requirements.txt
 
        WORKDIR ''' + skel_path + '''
-       RUN /opt/shutit/shutit build --shutit_module_path /opt/shutit/library --interactive 0 -s build conn_module shutit.tk.conn_bash
+       RUN /opt/shutit/shutit build --shutit_module_path /opt/shutit/library --delivery bash
 
        CMD ["/bin/bash"] 
 		''')

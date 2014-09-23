@@ -263,7 +263,7 @@ def conn_container(shutit):
 			conn_module = mod
 			break
 	if conn_module is None:
-		shutit.fail('Couldn\'t find conn_module ' + cfg['build']['conn_module'])
+		shutit.fail('Couldn\'t find conn_module ' + shutit.cfg['build']['conn_module'])
 
 	# Set up the target in pexpect.
 	if shutit.cfg['build']['interactive'] >= 3:

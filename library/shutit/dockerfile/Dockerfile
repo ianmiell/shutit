@@ -10,7 +10,7 @@ RUN pip install -r requirements.txt
 # Add your build.sh here, so eg:
 # COPY configfile ~/.shutit/config
 WORKDIR library/win2048
-RUN ../../shutit build -m .. --interactive 0 -s build conn_module shutit.tk.conn_bash
+RUN ../../shutit build --shutit_module_path .. --delivery bash
 
 CMD ["/bin/bash"]
 
