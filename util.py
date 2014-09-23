@@ -259,7 +259,7 @@ def get_configs(shutit, configs):
 			# Actually show this to the user before failing...
 			shutit.log(fail_str, force_stdout=True)
 			shutit.log('\n\nDo you want me to run this for you? (input y/n)\n', force_stdout=True)
-		if shutit.cfg['action']['serve'] or shutit.cfg['build']['interactive'] == 0 or raw_input('') == 'y':
+		if shutit.cfg['action']['serve'] or shutit.cfg['build']['interactive'] == 0 or util_raw_input(shutit=shutit,default='y') == 'y':
 			for f in files:
 				shutit.log('Correcting insecure file permissions on: ' + f, force_stdout=True)
 				os.chmod(f,0600)
@@ -599,7 +599,7 @@ def parse_args(cfg):
 			================================================================================
 			
 			""" + colour('31', '[Hit return to continue]'))
-		raw_input('')
+		util_raw_input()
 		print textwrap.dedent("""\
 			================================================================================
 			MODULES
@@ -637,7 +637,7 @@ def parse_args(cfg):
 			================================================================================
 
 			""" + colour('31', '[Hit return to continue]'))
-		raw_input('')
+		util_raw_input()
 		print textwrap.dedent("""\
 			================================================================================
 			PAUSE POINTS
@@ -656,7 +656,7 @@ def parse_args(cfg):
 			================================================================================
 
 			""" + colour('31', '[Hit return to continue]'))
-		raw_input('')
+		util_raw_input()
 
 def load_configs(shutit):
 	"""Responsible for loading config files into ShutIt.
@@ -690,7 +690,7 @@ def load_configs(shutit):
 			msg = msg + '    \n' + c
 			shutit.log('    ' + c)
 		print textwrap.dedent("""\n""") + msg + textwrap.dedent(colour('31', '[Hit return to continue]'))
-		raw_input('')
+		util_raw_input(shutit=shutit)
 
 	# Interpret any config overrides, write to a file and add them to the
 	# list of configs to be interpreted
@@ -1400,15 +1400,18 @@ def parse_dockerfile(shutit, contents):
 				full_line = ''
 	return ret
 
-def util_raw_input(shutit, prompt, default=None):
+def util_raw_input(shutit=None, prompt='', default=None):
 	"""Handles raw_input calls, and switches off interactivity if there is apparently
 	no controlling terminal (or there are any other problems)
 	"""
-	if shutit.cfg['build']['interactive'] == 0:
+
+	if shutit and shutit.cfg['build']['interactive'] == 0:
 		return default
 	try:
 		raw_input(prompt)
 	except:
-		shutit.log('Problems getting raw input, assuming no controlling terminal.')
-		shutit.cfg['build']['interactive'] = 0
+		msg = 'Problems getting raw input, assuming no controlling terminal.'
+		if shutit:
+			shutit.log(msg)
+			shutit.cfg['build']['interactive'] = 0
 		return default
