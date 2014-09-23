@@ -57,16 +57,7 @@ aWR0aAAAACADAAAAaQ=="""))
 		shutit.install('novnc')
 		if shutit.cfg['container']['distro'] == 'ubuntu':
 			shutit.install('ubuntu-desktop')
-		# apt-utils?
-		#if shutit.cfg['container']['install_type'] == 'apt':
-		#    send = 'apt-get install -qq -y --no-install-recommends ubuntu-desktop > /tmp/ubuntu-desktop'
-		#while True:
-		#    res = shutit.send(send, expect=['Unpacking', 'Setting up', shutit.get_default_expect()], timeout=9999)
-		#    if res == 2:
-		#        break
-		#    elif res == 0 or res == 1:
-		#        send = ''
-		shutit.send('rm -rf /tmp/ubuntu-desktop')
+			shutit.send('rm -rf /tmp/ubuntu-desktop')
 		send = 'vncserver'
 		shutit.multisend(send, {'assword:':shutit.cfg['shutit.tk.vnc.vnc']['password'], 'erify':shutit.cfg['shutit.tk.vnc.vnc']['password']}, fail_on_empty_before=False, echo=False)
 		shutit.add_line_to_file('# start vnc', '/root/start_vnc.sh')
