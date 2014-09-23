@@ -1377,26 +1377,38 @@ def module():
 # Parses the dockerfile (passed in as a string)
 # and info to extract, and returns a list with the information in a more canonical form, still ordered.
 def parse_dockerfile(shutit, contents):
-		ret = []
-		full_line = ''
-		for l in contents.split('\n'):
-			# Handle continuations
-			if len(l) > 0:
-				if l[-1] == '\\':
-					full_line += l[0:-1]
-					pass
+	ret = []
+	full_line = ''
+	for l in contents.split('\n'):
+		# Handle continuations
+		if len(l) > 0:
+			if l[-1] == '\\':
+				full_line += l[0:-1]
+				pass
+			else:
+				full_line += l
+				m = re.match("^[\s]*([A-Za-z]+)[\s]*(.*)$", full_line)
+				m1 = None
+				if m:
+					ret.append([m.group(1), m.group(2)])
 				else:
-					full_line += l
-					m = re.match("^[\s]*([A-Za-z]+)[\s]*(.*)$", full_line)
-					m1 = None
-					if m:
-						ret.append([m.group(1), m.group(2)])
-					else:
-						m1 = re.match("^#(..*)$", full_line)
-					if m1:
-						ret.append(['COMMENT', m1.group(1)])
-					else:
-						shutit.log("Ignored line in parse_dockerfile: " + l)
-					full_line = ''
-		return ret
+					m1 = re.match("^#(..*)$", full_line)
+				if m1:
+					ret.append(['COMMENT', m1.group(1)])
+				else:
+					shutit.log("Ignored line in parse_dockerfile: " + l)
+				full_line = ''
+	return ret
 
+def util_raw_input(shutit, prompt, default=None):
+	"""Handles raw_input calls, and switches off interactivity if there is apparently
+	no controlling terminal (or there are any other problems)
+	"""
+	if shutit.cfg['build']['interactive'] == 0:
+		return default
+	try:
+		raw_input(prompt)
+	except:
+		shutit.log('Problems getting raw input, assuming no controlling terminal.')
+		shutit.cfg['build']['interactive'] = 0
+		return default
