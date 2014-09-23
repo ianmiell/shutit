@@ -951,7 +951,7 @@ class ShutIt(object):
 		if ispass:
 			val = getpass.getpass('>> ')
 		else:
-			val = raw_input('>> ')
+			val = util.util_raw_input(shutit=self,prompt='>> ')
 		is_excluded = (
 			config_parser.has_option('save_exclude', sec) and
 			name in config_parser.get('save_exclude', sec).split()
@@ -963,9 +963,9 @@ class ShutIt(object):
 				subcp for subcp, filename, _fp in config_parser.layers
 				if filename == usercfg
 			][0]
-			if raw_input(util.colour('34',
+			if util.util_raw_input(shutit=self,prompt=util.colour('34',
 					'Do you want to save this to your ' +
-					'user settings? y/n: ')) == 'y':
+					'user settings? y/n: '),default='y') == 'y':
 				sec_toset, name_toset, val_toset = sec, name, val
 			else:
 				# Never save it
@@ -1026,7 +1026,7 @@ class ShutIt(object):
 		else:
 			print msg
 			print util.colour('31', '\n\n[Hit return to continue]\n')
-			raw_input('')
+			util.util_raw_input(shutit=self)
 
 
 	def _pause_input_filter(self, input_string):

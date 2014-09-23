@@ -303,7 +303,7 @@ class ConnDocker(ShutItConnModule):
 				'Base image in this case is:\n\n    ' + 
 				cfg['container']['docker_image'] +
 				'\n\n' + util.colour('31', '\n[Hit return to continue]'))
-			raw_input('')
+			util.util_raw_input(shutit=shutit)
 		shutit.cfg['build']['docker_command'] = ' '.join(docker_command)
 		shutit.log('\n\nCommand being run is:\n\n' + shutit.cfg['build']['docker_command'],
 		force_stdout=True, prefix=False)
@@ -465,7 +465,7 @@ class ConnSSH(ShutItConnModule):
 		if cfg['build']['interactive'] >= 3:
 			print('\n\nAbout to connect to host.' +
 				'\n\n' + util.colour('31', '\n[Hit return to continue]'))
-			raw_input('')
+			util.util_raw_input(shutit=shutit)
 		shutit.cfg['build']['ssh_command'] = ' '.join(ssh_command)
 		shutit.log('\n\nCommand being run is:\n\n' + shutit.cfg['build']['ssh_command'],
 			force_stdout=True, prefix=False)
