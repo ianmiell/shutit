@@ -288,7 +288,6 @@ def get_base_config(cfg, cfg_parser):
 	"""
 	cfg['config_parser'] = cp = cfg_parser
 	# BEGIN Read from config files
-	
 	cfg['build']['privileged']                    = cp.getboolean('build', 'privileged')
 	cfg['build']['lxc_conf']                      = cp.get('build', 'lxc_conf')
 	cfg['build']['build_log']                     = cp.getboolean('build', 'build_log')
@@ -298,6 +297,9 @@ def get_base_config(cfg, cfg_parser):
 	cfg['build']['net']                           = cp.get('build', 'net')
 	cfg['build']['completed']                     = False
 	cfg['build']['step_through']                  = False
+	# Take a command-line arg if given, else default.
+	if cfg['build']['conn_module'] == None:
+		cfg['build']['conn_module']                   = cp.get('build', 'conn_module')
 	# Track logins in a stack.
 	cfg['build']['login_stack']                   = []
 	cfg['container']['password']                  = cp.get('container', 'password')
@@ -325,9 +327,6 @@ def get_base_config(cfg, cfg_parser):
 	cfg['repository']['password']                 = cp.get('repository', 'password')
 	cfg['repository']['email']                    = cp.get('repository', 'email')
 	cfg['repository']['tag_name']                 = cp.get('repository', 'tag_name')
-	# Take a command-line arg if given, else default.
-	if cfg['build']['conn_module'] == None:
-		cfg['build']['conn_module']                   = cp.get('build', 'conn_module')
 	# END Read from config files
 
 	# BEGIN Standard expects
