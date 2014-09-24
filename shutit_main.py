@@ -286,10 +286,7 @@ def finalize_container(shutit):
 		if mod.module_id == shutit.cfg['build']['conn_module']:
 			conn_module = mod
 			break
-
-	for mod in shutit.conn_modules:
-		if mod.module_id == 'shutit.tk.conn_docker':
-			conn_module = mod
+	conn_module.finalize(shutit)
 
 
 # Once we have all the modules, then we can look at dependencies.
