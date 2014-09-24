@@ -9,8 +9,9 @@ RUN pip install -r requirements.txt
 
 # Add your build.sh here, so eg:
 # COPY configfile ~/.shutit/config
-WORKDIR library/win2048
+WORKDIR library/adduser
 RUN ../../shutit build --shutit_module_path .. --delivery bash
+RUN echo DONE
 
 CMD ["/bin/bash"]
 
