@@ -1412,7 +1412,7 @@ def util_raw_input(shutit=None, prompt='', default=None):
 	if shutit and shutit.cfg['build']['interactive'] == 0:
 		return default
 	try:
-		raw_input(prompt)
+		return raw_input(prompt)
 	except:
 		msg = 'Problems getting raw input, assuming no controlling terminal.'
 		if shutit:
