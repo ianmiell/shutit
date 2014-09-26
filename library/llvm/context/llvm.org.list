@@ -1,0 +1,2 @@
+deb http://llvm.org/apt/saucy/ llvm-toolchain-saucy-3.4 main
+deb-src http://llvm.org/apt/saucy/ llvm-toolchain-saucy-3.4 main
