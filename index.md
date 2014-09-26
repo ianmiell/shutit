@@ -43,22 +43,26 @@ cd $HOME/shutit_modules/my_module
 
 Folder structure:
 
- - **/configs** - config for your module *(see example below)*
- - **/resources** - files needed that are too big for source control *(see example below)*
+ - **/bin**        - helpful template scripts
+ - **/configs**    - config for your module *(see example below)*
+ - **/context**    - files you may want to insert into your container or use as part of the build
+ - **/dockerfile** - ready-made dockerfile to build the app from a dockerfile if desired
 
 An example folder structure:
 
 ```
 ./my_module
-├── build.sh
-├── build_and_push.sh
+├── bin
+│   ├── build_and_push.sh
+│   ├── build.sh
+│   ├── run.sh
+│   └── test.sh
 ├── configs
-│   ├── build.cnf
-│   └── defaults.cnf
+│   └── build.cnf
+├── context
+├── dockerfile
 ├── my_module.py
-├── README.md
-├── run.sh
-└── test.sh
+└── README.md
 ```
 
 ### Step 3: Modify the default module ###
