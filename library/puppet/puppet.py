@@ -19,8 +19,8 @@ class puppet(ShutItModule):
 		if 'puppet.conf' not in shutit.ls('/etc/puppet'):
 			shutit.send('puppetmasterd --genconfig > puppet.conf')
 		# TODO: add:
-	#[master]
-	#certname=localhost
+		#[master]
+		#certname=localhost
 
 		#
 		shutit.send('mkdir -p /etc/puppet/manifests')

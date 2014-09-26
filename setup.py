@@ -380,6 +380,7 @@ class ConnDocker(ShutItConnModule):
 
 class ConnBash(ShutItConnModule):
 	"""Connects ShutIt to a machine via bash.
+	Assumes no docker daemon available for tagging and pushing.
 	"""
 
 	def is_installed(self, shutit):
@@ -416,6 +417,7 @@ class ConnBash(ShutItConnModule):
 
 class ConnSSH(ShutItConnModule):
 	"""Connects ShutIt to a machine via ssh.
+	Assumes no docker daemon available for tagging and pushing.
 	"""
 
 	def is_installed(self, shutit):
