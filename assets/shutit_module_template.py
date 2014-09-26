@@ -71,7 +71,7 @@ class template(ShutItModule):
 			shutit.send_and_expect(shutit.cfg['container']['password'],'ew password',check_exit=False,echo=False)
 			shutit.send_and_expect(shutit.cfg['container']['password'],echo=False)
 		# You can put multiple items you might expect in a list and handle accordingly:
-		shutit.multisend('sudo ls',{'assword',shutit.cfg['container']['password']},echo=False,check_exit=False)
+		shutit.multisend('sudo ls',{'assword':shutit.cfg['container']['password']},echo=False,check_exit=False)
 		# example of resource use (simple file, copy README.md into the container)
 		shutit.send_file('/tmp/copiedfile',file.read(file(os.path.abspath(os.path.dirname(__file__)) + '/README.md')))
 		# example of bespoke config use
