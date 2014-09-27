@@ -1564,7 +1564,7 @@ class ShutIt(object):
 	                       repo_name,
 	                       repo_tag=None,
 	                       expect=None,
-	                       docker_executable='docker',
+	                       docker_executable='docker.io',
 	                       password=None,
 	                       force=None):
 		"""Commit, tag, push, tar the container based on the configuration we
