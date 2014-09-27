@@ -30,13 +30,17 @@ Join us!
 
 ### Step 1: Get the source ###
 ```sh
+#install git
+#install python-pip
+#install docker
 git clone https://github.com/ianmiell/shutit.git
+cd shutit
+pip install -r requirements.txt
 ```
 
 ### Step 2: Create a new module ###
 
 ```sh
-cd shutit
 ./shutit skeleton --example $HOME/shutit_modules/my_module my_module my.domain.com
 cd $HOME/shutit_modules/my_module
 ```
@@ -61,13 +65,14 @@ An example folder structure:
 │   └── build.cnf
 ├── context
 ├── dockerfile
+│   └── Dockerfile
 ├── my_module.py
 └── README.md
 ```
 
-### Step 3: Modify the default module ###
+### Step 3: Modify the example module ###
 
-The default module contains examples of many common tasks when installing, e.g.
+The example module contains examples of many common tasks when installing, e.g.
 
  - install               - installs packages based on distro ('passwd' install in skeleton --example above)
  - password handling     - automate the inputting of passwords (changing 'password' in skeleton --example above)
@@ -89,28 +94,13 @@ shutit.install('mlocate')
 shutit.install('your chosen package here')
 ```
 
-**Running the module requires that in your shutit_module.py, shutit_module(string,float) is set:**
-
- - **string** is a python string that is not likely to clash, eg **'my.domain.com.myref'** (including quotes)
- - **float** is a unique decimal value that is not clashing with any other modules, and defines the order in which they are built
-
-**Change the above and save the file**
-
-```sh
-$ grep -rnwl my.domain.com *
-configs/build.cnf
-configs/defaults.cnf
-[...]
-```
-
-**Replace references to my.domain.com with your chosen string in the above files**
-
 ### Step 4: Build your module ###
 
 **Build module:**
 
 ```sh
-$ ./build.sh
+$ cd bin
+$ SHUTIT=/path/to/shutit/shutit ./build.sh
 SHUTIT_BACKUP_PS1=$PS1 && unset PROMPT_COMMAND && PS1="SHUTIT_PROMPT_REAL_USER#195886238"
 SHUTIT_BACKUP_PS1=$PS1 && unset PROMPT_COMMAND && PS1="SHUTIT_PROMPT_REAL_USER#195886238"
 set PROMPT_COMMAND && PS1="SHUTIT_PROMPT_REAL_USER#195886238"CKUP_PS1=$PS1 && un 
@@ -148,3 +138,7 @@ And change the **build.sh** to include the module in the path
 ```
 
 Rebuild and re-run to get the same container with mysql installed.
+```sh
+$ SHUTIT=/path/to/shutit/shutit ./build.sh
+$ ./run.sh
+```
