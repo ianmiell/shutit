@@ -14,7 +14,6 @@ class puppet(ShutItModule):
 		shutit.install('puppetmaster') # Only for master
 		shutit.install('librarian-puppet')
 		shutit.install('ruby')
-		shutit.install('libshadow-ruby1.8')
 		shutit.install('facter')
 		if 'puppet.conf' not in shutit.ls('/etc/puppet'):
 			shutit.send('puppetmasterd --genconfig > puppet.conf')
@@ -45,7 +44,7 @@ class puppet(ShutItModule):
 
 def module():
 	return puppet(
-		'shutit.tk.puppet.puppet', 0.012412487,
+		'shutit.tk.puppet.puppet', 0.3312412487,
 		description='Puppet reference build',
-		depends=['shutit.tk.setup','shutit.tk.ssh_keys']
+		depends=['shutit.tk.setup','shutit.tk.ssh_key.ssh_key']
 	)
