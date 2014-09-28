@@ -745,12 +745,11 @@ if __name__ == '__main__':
 		shutit_main()
 	except ShutItException as e:
 		print 'Error while executing: ' + str(e.message)
-		if phone_home:
+		if phone_home and util.util_raw_input(prompt='Error seen - would you like to inform the maintainers? (y/n)') == 'y':
 			msg = {'shutitrunstatus':'fail','err':str(e.message),'pwd':os.getcwd(),'user':os.environ.get('LOGNAME', '')}
-			shutit_global.shutit.log('Sending mail home:' + str(msg))
 			urllib.urlopen("http://shutit.tk?" + urllib.urlencode(msg))
 		sys.exit(1)
-	if phone_home:
+	if phone_home and util.util_raw_input(prompt='Error seen - would you like to inform the maintainers? (y/n)') == 'y':
 		try:
 			if not shutit_global.shutit.cfg['build']['completed']:
 				msg = {'shutitrunstatus':'fail','pwd':os.getcwd(),'user':os.environ.get('LOGNAME', '')}
