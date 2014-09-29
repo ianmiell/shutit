@@ -749,9 +749,9 @@ if __name__ == '__main__':
 			msg = {'shutitrunstatus':'fail','err':str(e.message),'pwd':os.getcwd(),'user':os.environ.get('LOGNAME', '')}
 			urllib.urlopen("http://shutit.tk?" + urllib.urlencode(msg))
 		sys.exit(1)
-	if phone_home and util.util_raw_input(prompt='Error seen - would you like to inform the maintainers? (y/n)') == 'y':
+	if phone_home:
 		try:
-			if not shutit_global.shutit.cfg['build']['completed']:
+			if not shutit_global.shutit.cfg['build']['completed'] and util.util_raw_input(prompt='Error seen - would you like to inform the maintainers? (y/n)') == 'y':
 				msg = {'shutitrunstatus':'fail','pwd':os.getcwd(),'user':os.environ.get('LOGNAME', '')}
 				urllib.urlopen("http://shutit.tk?" + urllib.urlencode(msg))
 		except:
