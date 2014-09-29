@@ -1157,7 +1157,7 @@ def module():
             exit 1
         fi
         pushd ..
-        $SHUTIT build
+        $SHUTIT build "$@"
         popd
         ''')
     testsh = textwrap.dedent('''\
@@ -1170,7 +1170,7 @@ def module():
             echo "Must be run as test.sh or ./test.sh"
             exit
         fi
-        ./build.sh
+        ./build.sh "$@"
         ''')
     volumes_arg = ''
     for varg in shutit.cfg['dockerfile']['volume']:
