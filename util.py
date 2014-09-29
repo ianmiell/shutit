@@ -1188,7 +1188,7 @@ def module():
 			exit 1
 		fi
 		pushd ..
-		$SHUTIT build --shutit_module_path $(dirname $SHUTIT)/library
+		$SHUTIT build --shutit_module_path $(dirname $SHUTIT)/library "$@"
 		popd
 		''')
 	testsh = textwrap.dedent('''\
@@ -1201,7 +1201,7 @@ def module():
 			echo "Must be run as test.sh or ./test.sh"
 			exit
 		fi
-		./build.sh
+		./build.sh "$@"
 		''')
 	volumes_arg = ''
 	for varg in shutit.cfg['dockerfile']['volume']:
@@ -1223,7 +1223,7 @@ def module():
 		docker run -t -i''' + ports_arg + volumes_arg + env_arg + ' ' + skel_module_name + ' ' + shutit.cfg['dockerfile']['entrypoint'] + ' ' + shutit.cfg['dockerfile']['cmd'] + '\n')
 	buildpushsh = textwrap.dedent('''\
 		export SHUTIT_OPTIONS="$SHUTIT_OPTIONS --config configs/push.cnf"
-		./build.sh $1
+		./build.sh "$@"
 		''')
 	buildcnf = textwrap.dedent('''\
 		###############################################################################
