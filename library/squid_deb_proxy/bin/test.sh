@@ -13,4 +13,4 @@ then
 	exit
 fi
 export SHUTIT_OPTIONS="$SHUTIT_OPTIONS"
-./build.sh $1
+./build.sh "$@"

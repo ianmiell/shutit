@@ -1,3 +1,4 @@
+#!/bin/bash
 if [ $0 != test.sh ] && [ $0 != ./test.sh ]
 then
         echo
@@ -11,4 +12,4 @@ then
         echo "  ./test.sh <path_to_shutit_dir>"
         exit
 fi
-./build.sh $1
+./build.sh "$@"
