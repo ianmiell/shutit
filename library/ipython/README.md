@@ -1,1 +1,0 @@
-ipython: description of module directory in here

@@ -1,1 +1,0 @@
-squid_deb_proxy: description of module directory in here

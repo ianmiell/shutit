@@ -1,1 +1,0 @@
-minimal_linux: description of module directory in here
