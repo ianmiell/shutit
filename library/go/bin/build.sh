@@ -1,3 +1,4 @@
+#!/bin/bash
 [[ -z "$SHUTIT" ]] && SHUTIT="$1/shutit"
 [[ ! -a "$SHUTIT" ]] || [[ -z "$SHUTIT" ]] && SHUTIT="$(which shutit)"
 [[ ! -a "$SHUTIT" ]] || [[ -z "$SHUTIT" ]] && SHUTIT="../../shutit"
@@ -11,5 +12,5 @@ then
 fi
 # This file tests your build, leaving the container intact when done.
 pushd ..
-$SHUTIT build -m ../cmake
+$SHUTIT build -m ../cmake "$@"
 popd

@@ -11,5 +11,5 @@ then
 fi
 # This file tests your build, leaving the container intact when done.
 pushd ..
-$SHUTIT build -m ..
+$SHUTIT build -m .. "$@"
 popd

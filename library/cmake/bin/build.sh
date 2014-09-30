@@ -1,3 +1,4 @@
+#!/bin/bash
 [[ -z "$SHUTIT" ]] && SHUTIT="$1/shutit"
 [[ ! -a "$SHUTIT" ]] || [[ -z "$SHUTIT" ]] && SHUTIT="$(which shutit)"
 [[ ! -a "$SHUTIT" ]] || [[ -z "$SHUTIT" ]] && SHUTIT="../../shutit"
@@ -10,5 +11,5 @@ then
     exit 1
 fi
 pushd ..
-$SHUTIT build
+$SHUTIT build "$@"
 popd
