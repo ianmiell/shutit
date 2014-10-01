@@ -99,8 +99,8 @@ shutit.install('your chosen package here')
 **Build module:**
 
 ```sh
-$ cd bin
-$ SHUTIT=/path/to/shutit/shutit ./build.sh
+$ cd $HOME/shutit_modules/my_module/bin
+$ SHUTIT=/absolute/path/to/shutit_dir/shutit ./build.sh
 SHUTIT_BACKUP_PS1=$PS1 && unset PROMPT_COMMAND && PS1="SHUTIT_PROMPT_REAL_USER#195886238"
 SHUTIT_BACKUP_PS1=$PS1 && unset PROMPT_COMMAND && PS1="SHUTIT_PROMPT_REAL_USER#195886238"
 set PROMPT_COMMAND && PS1="SHUTIT_PROMPT_REAL_USER#195886238"CKUP_PS1=$PS1 && un 
