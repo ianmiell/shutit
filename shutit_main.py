@@ -452,7 +452,7 @@ def check_ready(shutit):
 	shutit.log('PHASE: check_ready', code='31')
 	errs = []
 	shutit.pause_point('\nNow checking whether we are ready to build modules' + 
-					   'configured to be built',
+					   ' configured to be built',
 		print_input=False, level=3)
 	for module_id in module_ids(shutit):
 		module = shutit.shutit_map[module_id]
