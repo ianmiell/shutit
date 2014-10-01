@@ -139,7 +139,7 @@ def init_shutit_map(shutit):
 		else:
 			shutit.fail('No modules aside from core ones found and no ShutIt ' +
 				'modules in path:\n\n' + path +
-				'\n\nor their subfolders. Check you set ' + 
+				'\n\nor their subfolders. Check your ' + 
 				'--shutit_module_path/-m setting and check that there are ' + 
 				'ShutItmodules below without STOP* files in any relevant ' + 
 				'directories.')
