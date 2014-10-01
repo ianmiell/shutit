@@ -31,6 +31,7 @@ import sys
 import os
 import json
 import re
+from distutils import spawn
 
 
 def module_ids(shutit, rev=False):
@@ -656,6 +657,39 @@ def shutit_main():
 	if sys.version_info.major == 2:
 		if sys.version_info.minor < 7:
 			shutit_global.shutit.fail('Python version must be 2.7+')
+
+	# Try and ensure shutit is on the path - makes onboarding easier
+	# This is best-endeavours - doesn't matter if we can't do it
+	try:
+		if spawn.find_executable('shutit') is None:
+			# try the current directory, the .. directory, or the ../shutit directory, the ~/shutit
+			pwd = os.getcwd()
+			path_to_shutit = ''
+			for d in ('.','..','~','~/shutit','/space/git/shutit'):
+				if os.path.isfile(os.path.expanduser(d) + '/shutit'):
+					path_to_shutit = d + '/shutit'
+					res = util.util_raw_input(prompt='shutit appears not to be on your path - would you like me to add it to your ~/.bashrc (Y/n)? ')
+					if res not in ('n','N'):
+						bashrc = os.path.expanduser('~/') + '.bashrc'
+						if os.path.isfile(bashrc):
+							with open(bashrc, "a") as myfile:
+								myfile.write('export PATH="$PATH:' + path_to_shutit + '"')
+					break
+			if path_to_shutit == '':
+				while True:
+					res = util.util_raw_input(prompt='shutit appears not to be on your path - please input the path to your shutit dir\n')
+					if os.path.isfile(os.path.expanduser(res) + '/shutit'):
+						path_to_shutit = res + '/shutit'
+						bashrc = os.path.expanduser('~/') + '.bashrc'
+						if os.path.isfile(bashrc):
+							with open(bashrc, "a") as myfile:
+								myfile.write('export PATH="$PATH:"' + path_to_shutit + '"')
+			if path_to_shutit != '':
+				util.util_raw_input(prompt='\nPath set up - please open new terminal and re-run command\n')
+				sys.exit()
+	except:
+		pass
+
 	shutit = shutit_global.shutit
 	cfg = shutit.cfg
 
@@ -745,7 +779,7 @@ if __name__ == '__main__':
 		shutit_main()
 	except ShutItException as e:
 		print 'Error while executing: ' + str(e.message)
-		if phone_home and util.util_raw_input(prompt='Error seen - would you like to inform the maintainers? (y/n)') == 'y':
+		if phone_home and util.util_raw_input(prompt='Error seen - would you like to inform the maintainers? (Y/n)\n') not in ('N','n'):
 			msg = {'shutitrunstatus':'fail','err':str(e.message),'pwd':os.getcwd(),'user':os.environ.get('LOGNAME', '')}
 			urllib.urlopen("http://shutit.tk?" + urllib.urlencode(msg))
 		sys.exit(1)
