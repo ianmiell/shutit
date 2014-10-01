@@ -1408,7 +1408,6 @@ def util_raw_input(shutit=None, prompt='', default=None):
 	"""Handles raw_input calls, and switches off interactivity if there is apparently
 	no controlling terminal (or there are any other problems)
 	"""
-
 	if shutit and shutit.cfg['build']['interactive'] == 0:
 		return default
 	try:
