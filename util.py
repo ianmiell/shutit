@@ -1365,11 +1365,11 @@ def module():
 	================================================================================
 	Run:
 
-		cd ''' + skel_path + '; ' + shutit_dir + '''/shutit build --interactive 3
+		cd ''' + skel_path + ' && ' + shutit_dir + '''/shutit build --interactive 3
 
 	and follow the tutorial, or:
 
-		cd ''' + skel_path + '''; ./build.sh
+		cd ''' + skel_path + '''/bin && ./build.sh
 
 	to just go ahead and build it.
 
