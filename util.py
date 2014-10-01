@@ -1420,9 +1420,3 @@ def util_raw_input(shutit=None, prompt='', default=None):
 			shutit.cfg['build']['interactive'] = 0
 		return default
 
-def which(pgm):
-	path=os.getenv('PATH')
-	for p in path.split(os.path.pathsep):
-		p=os.path.join(p,pgm)
-		if os.path.exists(p) and os.access(p,os.X_OK):
-			return p
