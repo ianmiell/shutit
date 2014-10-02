@@ -673,7 +673,8 @@ def shutit_main():
 						bashrc = os.path.expanduser('~/') + '.bashrc'
 						if os.path.isfile(bashrc):
 							with open(bashrc, "a") as myfile:
-								myfile.write('export PATH="$PATH:' + path_to_shutit + '"')
+								# TODO: possible to get it if not already there, so check it
+								myfile.write('export PATH="$PATH:' + path_to_shutit + '"\n')
 					break
 			if path_to_shutit == '':
 				while True:
