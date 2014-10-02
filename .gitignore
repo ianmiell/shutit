@@ -41,3 +41,4 @@ docs/_build
 examples/ianmiellaws/context/pems/*.pem
 pubring.gpg~
 secring.gpg
+examples/digital_ocean/context/access_token.dat
