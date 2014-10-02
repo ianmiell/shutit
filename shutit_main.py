@@ -659,8 +659,8 @@ def shutit_main():
 			shutit_global.shutit.fail('Python version must be 2.7+')
 
 	# Try and ensure shutit is on the path - makes onboarding easier
-	# This is best-endeavours - doesn't matter if we can't do it
-	try:
+	# Only do this if we're in a terminal
+	if sys.stdout.isatty():
 		if spawn.find_executable('shutit') is None:
 			# try the current directory, the .. directory, or the ../shutit directory, the ~/shutit
 			pwd = os.getcwd()
@@ -674,6 +674,7 @@ def shutit_main():
 						if os.path.isfile(bashrc):
 							with open(bashrc, "a") as myfile:
 								# TODO: possible to get it if not already there, so check it
+								#http://unix.stackexchange.com/questions/26676/how-to-check-if-a-shell-is-login-interactive-batch
 								myfile.write('export PATH="$PATH:' + path_to_shutit + '"\n')
 					break
 			if path_to_shutit == '':
@@ -688,8 +689,6 @@ def shutit_main():
 			if path_to_shutit != '':
 				util.util_raw_input(prompt='\nPath set up - please open new terminal and re-run command\n')
 				sys.exit()
-	except:
-		pass
 
 	shutit = shutit_global.shutit
 	cfg = shutit.cfg
