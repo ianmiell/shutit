@@ -768,6 +768,16 @@ def shutit_main():
 	shutit.cfg['build']['completed'] = True
 
 
+def phone_home(msg,question=''):
+	"""Report message home. 
+	msg - message to send home
+	question - question to ask - assumes Y/y for send message, else no
+	"""
+	if question != '':
+		if util.util_raw_input(prompt=question + ' (Y/n)\n') not in ('y','Y',''):
+			return
+	urllib.urlopen("http://shutit.tk?" + urllib.urlencode(msg))
+
 if __name__ == '__main__':
 	phone_home = False
 	try:
@@ -779,14 +789,12 @@ if __name__ == '__main__':
 		shutit_main()
 	except ShutItException as e:
 		print 'Error while executing: ' + str(e.message)
-		if phone_home and util.util_raw_input(prompt='Error seen - would you like to inform the maintainers? (Y/n)\n') not in ('N','n'):
-			msg = {'shutitrunstatus':'fail','err':str(e.message),'pwd':os.getcwd(),'user':os.environ.get('LOGNAME', '')}
-			urllib.urlopen("http://shutit.tk?" + urllib.urlencode(msg))
+		if phone_home:
+			phone_home({'shutitrunstatus':'fail','err':str(e.message),'pwd':os.getcwd(),'user':os.environ.get('LOGNAME', '')},question='Error seen - would you like to inform the maintainers?') not in ('N','n')
 		sys.exit(1)
 	if phone_home:
 		try:
-			if not shutit_global.shutit.cfg['build']['completed'] and util.util_raw_input(prompt='Error seen - would you like to inform the maintainers? (y/n)') == 'y':
-				msg = {'shutitrunstatus':'fail','pwd':os.getcwd(),'user':os.environ.get('LOGNAME', '')}
-				urllib.urlopen("http://shutit.tk?" + urllib.urlencode(msg))
+			if not shutit_global.shutit.cfg['build']['completed']:
+				phone_home({'shutitrunstatus':'fail','pwd':os.getcwd(),'user':os.environ.get('LOGNAME', '')},question='Error seen - would you like to inform the maintainers?')
 		except:
 			shutit_global.shutit.log('failed to send message')
