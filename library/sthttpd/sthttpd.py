@@ -12,14 +12,14 @@ class sthttpd(ShutItModule):
 		shutit.install('automake')
 		shutit.install('gcc')
 		shutit.install('make')
+		shutit.send('addgroup thttpd')
 		shutit.send('pushd /opt')
 		shutit.send('git clone git://opensource.dyc.edu/sthttpd sthttpd')
 		shutit.send('pushd sthttpd')
 		shutit.send('./autogen.sh')
 		shutit.send('./configure')
 		shutit.send('make')
-		# TODO: create group?
-		#shutit.send('make install')
+		shutit.send('make install')
 		return True
 
 	#def get_config(self, shutit):
