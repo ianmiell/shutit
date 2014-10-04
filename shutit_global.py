@@ -217,8 +217,8 @@ class ShutIt(object):
 				break
 			else:
 				send_iteration = send_dict[expect_list[res]]
-				  
-				  
+
+  
 	def send(self,
 			 send,
 			 expect=None,

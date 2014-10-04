@@ -1,19 +1,18 @@
 """ShutIt module. See http://shutit.tk
 """
-
 from shutit_module import ShutItModule
 
-class devstack(ShutItModule):
+class fpm(ShutItModule):
 
 	def is_installed(self, shutit):
 		return False
 
 	def build(self, shutit):
-		shutit.install('git')
-		shutit.send('git clone https://github.com/openstack-dev/devstack.git')
-		shutit.send('pushd devstack')
-		shutit.send('./stack.sh')
-		shutit.send('popd')
+		shutit.install('ruby')
+		shutit.install('rubygems')
+		shutit.install('ruby-dev')
+		shutit.install('gcc')
+		shutit.send('gem install fpm')
 		return True
 
 	#def get_config(self, shutit):
@@ -37,10 +36,10 @@ class devstack(ShutItModule):
 	#    return True
 
 def module():
-	return devstack(
-		'shutit.tk.devstack.devstack', 0.12498712,
-		description='',
-		maintainer='',
+	return fpm(
+		'shutit.tk.fpm.fpm', 0.1592387529835,
+		description='Flippant package manager',
+		maintainer='ian.miell@gmail.com',
 		depends=['shutit.tk.setup']
 	)
 

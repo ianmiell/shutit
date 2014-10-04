@@ -30,7 +30,8 @@
 PACKAGE_MAP = {
 	'apache2':               {'apt':'apache2',           'yum':'httpd'},
 	'adduser':               {'apt':'adduser',           'yum':''},
-	'php5':                  {'apt':'php5',              'yum':'php'}
+	'php5':                  {'apt':'php5',              'yum':'php'},
+	'ruby-dev':              {'apt':'ruby-dev',          'yum':'ruby-devel'},
 }
 
 def map_package(package, install_type):

@@ -1,19 +1,18 @@
 """ShutIt module. See http://shutit.tk
 """
-
 from shutit_module import ShutItModule
 
-class devstack(ShutItModule):
+class sthttpd(ShutItModule):
 
 	def is_installed(self, shutit):
 		return False
 
 	def build(self, shutit):
 		shutit.install('git')
-		shutit.send('git clone https://github.com/openstack-dev/devstack.git')
-		shutit.send('pushd devstack')
-		shutit.send('./stack.sh')
-		shutit.send('popd')
+		shutit.send('pushd /opt')
+		shutit.send('git clone git://opensource.dyc.edu/sthttpd sthttpd')
+		shutit.send('pushd sthttpd')
+
 		return True
 
 	#def get_config(self, shutit):
@@ -37,8 +36,8 @@ class devstack(ShutItModule):
 	#    return True
 
 def module():
-	return devstack(
-		'shutit.tk.devstack.devstack', 0.12498712,
+	return sthttpd(
+		'shutit.tk.sthttpd.sthttpd', 782914092.00,
 		description='',
 		maintainer='',
 		depends=['shutit.tk.setup']
