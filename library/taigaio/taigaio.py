@@ -11,6 +11,7 @@ class taigaio(ShutItModule):
 		shutit.install('adduser')
 		shutit.install('git')
 		shutit.install('sudo')
+		shutit.install('weblint-perl') #for bower
 		shutit.send('adduser --gecos "" --disabled-password taiga')
 		shutit.send('echo taiga:taiga | chpasswd')
 		shutit.send('adduser taiga sudo')
