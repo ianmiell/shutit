@@ -44,9 +44,9 @@ class sthttpd(ShutItModule):
 
 def module():
 	return sthttpd(
-		'shutit.tk.sthttpd.sthttpd', 782914092.00,
-		description='',
-		maintainer='',
+		'shutit.tk.sthttpd.sthttpd', 0.1219187350,
+		description='Small lightweight web server',
+		maintainer='ian.miell@gmail.com',
 		depends=['shutit.tk.setup']
 	)
 
