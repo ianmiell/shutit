@@ -406,6 +406,7 @@ class ConnBash(ShutItConnModule):
 		"""Finalizes the container, exiting for us back to the original shell
 		and performing any repository work required.
 		"""
+		host_child = shutit.pexpect_children['host_child']
 		self._add_end_build_info(shutit)
 		# Finish with the container
 		shutit.pexpect_children['container_child'].sendline('exit')
