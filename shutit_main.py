@@ -768,7 +768,7 @@ def shutit_main():
 	shutit.cfg['build']['completed'] = True
 
 
-def phone_home(msg,question=''):
+def do_phone_home(msg,question=''):
 	"""Report message home. 
 	msg - message to send home
 	question - question to ask - assumes Y/y for send message, else no
@@ -790,11 +790,11 @@ if __name__ == '__main__':
 	except ShutItException as e:
 		print 'Error while executing: ' + str(e.message)
 		if phone_home:
-			phone_home({'shutitrunstatus':'fail','err':str(e.message),'pwd':os.getcwd(),'user':os.environ.get('LOGNAME', '')},question='Error seen - would you like to inform the maintainers?')
+			do_phone_home({'shutitrunstatus':'fail','err':str(e.message),'pwd':os.getcwd(),'user':os.environ.get('LOGNAME', '')},question='Error seen - would you like to inform the maintainers?')
 		sys.exit(1)
 	if phone_home:
 		try:
 			if not shutit_global.shutit.cfg['build']['completed']:
-				phone_home({'shutitrunstatus':'fail','pwd':os.getcwd(),'user':os.environ.get('LOGNAME', '')},question='Error seen - would you like to inform the maintainers?')
+				do_phone_home({'shutitrunstatus':'fail','pwd':os.getcwd(),'user':os.environ.get('LOGNAME', '')},question='Error seen - would you like to inform the maintainers?')
 		except:
 			shutit_global.shutit.log('failed to send message')
