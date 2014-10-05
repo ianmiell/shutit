@@ -54,7 +54,7 @@ class taigaio(ShutItModule):
 		shutit.send('python manage.py runserver 0.0.0.0:8000 > /dev/null 2>&1 &')
 		# Newline required to make the expect work
 		shutit.send('''curl -w '\n' localhost:8000''')
-		shutit.send('kill %1',exit_values=[0,1])
+		shutit.send('kill %1',check_exit=False)
 		return True
 
 def module():
