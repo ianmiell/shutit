@@ -52,7 +52,6 @@ class taigaio(ShutItModule):
 
 	def test(self, shutit):
 		shutit.send('python manage.py runserver 0.0.0.0:8000 > /dev/null 2>&1 &')
-		shutit.send('deactivate')
 		shutit.send('curl localhost:8000')
 		shutit.send('kill %1')
 		return True
