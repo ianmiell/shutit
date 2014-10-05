@@ -11,6 +11,7 @@ class taigaio(ShutItModule):
 		shutit.install('adduser')
 		shutit.install('git')
 		shutit.install('sudo')
+		shutit.install('weblint-perl') #for bower
 		shutit.send('adduser --gecos "" --disabled-password taiga')
 		shutit.send('echo taiga:taiga | chpasswd')
 		shutit.send('adduser taiga sudo')
@@ -53,7 +54,7 @@ class taigaio(ShutItModule):
 
 def module():
 	return taigaio(
-		'shutit.tk.taigaio.taigaio', 0.313652837652,
+		'shutit.tk.taigaio.taigaio', 0.33652837652,
 		description='Taigaio install',
 		maintainer='ian.miell@gmail.com',
 		depends=['shutit.tk.setup','shutit.tk.postgres.postgres']

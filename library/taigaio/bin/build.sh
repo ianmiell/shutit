@@ -8,5 +8,5 @@ then
 	exit 1
 fi
 pushd ..
-$SHUTIT build --shutit_module_path $(dirname $SHUTIT)/library/postgres "$@"
+$SHUTIT build --shutit_module_path $(dirname $SHUTIT)/library "$@"
 popd
