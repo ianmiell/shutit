@@ -12,24 +12,24 @@ class template(ShutItModule):
 		return True
 
 	#def get_config(self, shutit):
-	#    return True
+	#	return True
 
 	#def check_ready(self, shutit):
-	#    return True
+	#	return True
 	
 	#def start(self, shutit):
-	#    return True
+	#	return True
 
 	#def stop(self, shutit):
 	#    return True
 	#def finalize(self, shutit):
-	#    return True
+	#	return True
 
 	#def remove(self, shutit):
-	#    return True
+	#	return True
 
 	#def test(self, shutit):
-	#    return True
+	#	return True
 
 def module():
 	return template(
