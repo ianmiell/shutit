@@ -11,6 +11,7 @@ class taigaio(ShutItModule):
 		shutit.install('adduser')
 		shutit.install('git')
 		shutit.install('sudo')
+		shutit.install('python3-pip')
 		shutit.install('weblint-perl') #for bower
 		shutit.send('adduser --gecos "" --disabled-password taiga')
 		shutit.send('echo taiga:taiga | chpasswd')
@@ -18,7 +19,7 @@ class taigaio(ShutItModule):
 		shutit.login('taiga')
 		shutit.send('git clone https://github.com/taigaio/taiga-scripts.git')
 		shutit.send('pushd taiga-scripts')
-		shutit.multisend('bash setup-server.sh',{'Scheme':'http','Hostname':'8000','assword for':'taiga'})
+		shutit.multisend('bash setup-server.sh',{'Scheme':'http','Hostname':'8000','assword for':'taiga','anonymously report usage statistics to improve the tool over time':'n'})
 		# needed?
 		shutit.send('pushd ~/taiga-back/')
 		# Not sure about django side
@@ -29,7 +30,7 @@ class taigaio(ShutItModule):
 		#shutit.send('python manage.py loaddata initial_user')
 		#shutit.send('python manage.py loaddata initial_project_templates')
 		#shutit.send('python manage.py loaddata initial_role')
-		shutit.send('logout')
+		shutit.logout()
 		return True
 
 	#def get_config(self, shutit):
