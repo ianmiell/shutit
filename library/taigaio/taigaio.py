@@ -19,7 +19,7 @@ class taigaio(ShutItModule):
 		shutit.send('git clone https://github.com/taigaio/taiga-scripts.git')
 		shutit.send('pushd taiga-scripts')
 		shutit.multisend('bash setup-server.sh',{'Scheme':'http','Hostname':'8000','assword for':'taiga'})
-		# needed
+		# needed?
 		#shutit.send('sudo -u postgres createuser --superuser $USER')
 		#shutit.send('sudo -u postgres createdb $USER')
 		#shutit.send('python manage.py migrate --noinput')
