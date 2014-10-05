@@ -790,7 +790,7 @@ if __name__ == '__main__':
 	except ShutItException as e:
 		print 'Error while executing: ' + str(e.message)
 		if phone_home:
-			phone_home({'shutitrunstatus':'fail','err':str(e.message),'pwd':os.getcwd(),'user':os.environ.get('LOGNAME', '')},question='Error seen - would you like to inform the maintainers?') not in ('N','n')
+			phone_home({'shutitrunstatus':'fail','err':str(e.message),'pwd':os.getcwd(),'user':os.environ.get('LOGNAME', '')},question='Error seen - would you like to inform the maintainers?')
 		sys.exit(1)
 	if phone_home:
 		try:
