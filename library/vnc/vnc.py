@@ -73,7 +73,6 @@ END""", '/root/start_vnc.sh')
 		shutit.add_line_to_file("""ps -ef | grep Xvnc4 | grep -v grep | awk '{print $2}' | xargs kill""", '/root/stop_vnc.sh')
 		shutit.add_line_to_file('sleep 10', '/root/stop_vnc.sh')
 		shutit.add_line_to_file('rm -rf /tmp/.X*-lock', '/root/stop_vnc.sh')
-		shutit.add_line_to_file('sleep infinity')
 		shutit.send('chmod +x /root/start_vnc.sh')
 		shutit.send('chmod +x /root/stop_vnc.sh')
 		return True
