@@ -93,27 +93,27 @@ class ShutItConnModule(ShutItModule):
 		# TODO: record the image id we ran against -
 		# wait for "docker debug" command
 		shutit.send_file(cfg['build']['build_db_dir'] + '/' + \
-			 cfg['build']['build_id'] + '/python_env.sh', \
-			 str(sys.__dict__), log=False)
+		    cfg['build']['build_id'] + '/python_env.sh', \
+		    str(sys.__dict__), log=False)
 		shutit.send_file(cfg['build']['build_db_dir'] + '/' + \
-			 cfg['build']['build_id'] + '/command.sh', \
-			 ' '.join(command), log=False)
+		    cfg['build']['build_id'] + '/command.sh', \
+		    ' '.join(command), log=False)
 		shutit.pause_point('Anything you want to do now the ' +
-			 'target is connected to?', level=2)
+		    'target is connected to?', level=2)
 
 	def _add_end_build_info(self, shutit):
 		cfg = shutit.cfg
 		# Put build info into the target
 		shutit.send('mkdir -p ' + cfg['build']['build_db_dir'] + '/' + \
-			 cfg['build']['build_id'])
+		    cfg['build']['build_id'])
 		shutit.send_file(cfg['build']['build_db_dir'] + '/' + \
-			 cfg['build']['build_id'] + '/build.log', \
-			 util.get_commands(shutit))
+		    cfg['build']['build_id'] + '/build.log', \
+		    util.get_commands(shutit))
 		shutit.send_file(cfg['build']['build_db_dir'] + '/' + \
-			 cfg['build']['build_id'] + '/build_commands.sh', \
-			 util.get_commands(shutit))
+		    cfg['build']['build_id'] + '/build_commands.sh', \
+		    util.get_commands(shutit))
 		shutit.add_line_to_file(cfg['build']['build_id'], \
-			 cfg['build']['build_db_dir'] + '/builds')
+		    cfg['build']['build_db_dir'] + '/builds')
 
 
 class ConnDocker(ShutItConnModule):
@@ -141,7 +141,7 @@ class ConnDocker(ShutItConnModule):
 		docker = cfg['host']['docker_executable'].split(' ')
 		if spawn.find_executable(docker[0]) is None:
 			msg = ('Didn\'t find %s on the path, what is the ' +\
-				'executable name (or full path) of docker?') % (docker[0],)
+			       'executable name (or full path) of docker?') % (docker[0],)
 			cfg['host']['docker_executable'] = \
 				shutit.prompt_cfg(msg, 'host', 'docker_executable')
 			return False
@@ -158,18 +158,18 @@ class ConnDocker(ShutItConnModule):
 			timeout=cmd_timeout)
 		except pexpect.ExceptionPexpect:
 			msg = ('Failed to run %s (not sure why this has happened)...try ' +
-				'a different docker executable?') % (str_cmd,)
+			       'a different docker executable?') % (str_cmd,)
 			cfg['host']['docker_executable'] = shutit.prompt_cfg(msg,
-				'host', 'docker_executable')
+			    'host', 'docker_executable')
 			return False
 		try:
 			if child.expect(['assword', pexpect.EOF]) == 0:
 				needed_password = True
 				if cfg['host']['password'] == '':
 					msg = ('Running "%s" has prompted for a password, please ' +
-						'enter your host password') % (str_cmd,)
+					       'enter your host password') % (str_cmd,)
 					cfg['host']['password'] = shutit.prompt_cfg(msg, 'host',
-					'password', ispass=True)
+					    'password', ispass=True)
 				child.sendline(cfg['host']['password'])
 				child.expect(pexpect.EOF)
 		except pexpect.ExceptionPexpect:
@@ -185,13 +185,13 @@ class ConnDocker(ShutItConnModule):
 			# for. At the moment we assume the password if it was asked for.
 			if needed_password:
 				msg = (fail_msg + ', your host password or ' +
-					'docker_executable config may be wrong (I will assume ' +
-					'password).\nPlease confirm your host password.')
+				       'docker_executable config may be wrong (I will assume ' +
+				       'password).\nPlease confirm your host password.')
 				sec, name, ispass = 'host', 'password', True
 			else:
 				msg = (fail_msg + ', your docker_executable ' +
-					'setting seems to be wrong.\nPlease confirm your host ' +
-					'password.')
+				       'setting seems to be wrong.\nPlease confirm your host ' +
+				       'password.')
 				sec, name, ispass = 'host', 'docker_executable', False
 			cfg[sec][name] = shutit.prompt_cfg(msg, sec, name, ispass=ispass)
 			return False
@@ -211,11 +211,11 @@ class ConnDocker(ShutItConnModule):
 		child.close()
 		if child.exitstatus != 0:
 			msg = ('"' + str_cmd + '" didn\'t return a 0 exit code, is the ' +
-				'docker daemon running? Do you need to set the ' +
-				'docker_executable config to use sudo? Please confirm the ' +
-				'docker executable.')
+			       'docker daemon running? Do you need to set the ' +
+			       'docker_executable config to use sudo? Please confirm the ' +
+			       'docker executable.')
 			cfg['host']['docker_executable'] = shutit.prompt_cfg(msg, 'host',
-			'docker_executable')
+			    'docker_executable')
 
 		return True
 
@@ -234,7 +234,7 @@ class ConnDocker(ShutItConnModule):
 		if not os.path.exists('/tmp/shutit/cidfiles'):
 			os.makedirs('/tmp/shutit/cidfiles')
 		cfg['build']['cidfile'] = '/tmp/shutit/cidfiles' + cfg['host']['username'] +\
-			'_cidfile_' + cfg['build']['build_id']
+		    '_cidfile_' + cfg['build']['build_id']
 		cidfile_arg = '--cidfile=' + cfg['build']['cidfile']
 
 		# Singly-specified options
@@ -296,13 +296,13 @@ class ConnDocker(ShutItConnModule):
 		]
 		if cfg['build']['interactive'] >= 3:
 			print('\n\nAbout to start container. ' +
-				'Ports mapped will be: ' + ', '.join(port_args) +
-				'\n\n[host]\nports:<value>\n\nconfig, building on the ' +
-				'configurable base image passed in in:\n\n    --image <image>\n' +
-				'\nor config:\n\n    [container]\n    docker_image:<image>)\n\n' +
-				'Base image in this case is:\n\n    ' + 
-				cfg['container']['docker_image'] +
-				'\n\n' + util.colour('31', '\n[Hit return to continue]'))
+			      'Ports mapped will be: ' + ', '.join(port_args) +
+			      '\n\n[host]\nports:<value>\n\nconfig, building on the ' +
+			      'configurable base image passed in in:\n\n    --image <image>\n' +
+			      '\nor config:\n\n    [container]\n    docker_image:<image>)\n\n' +
+			      'Base image in this case is:\n\n    ' + 
+			      cfg['container']['docker_image'] +
+			      '\n\n' + util.colour('31', '\n[Hit return to continue]'))
 			util.util_raw_input(shutit=shutit)
 		shutit.cfg['build']['docker_command'] = ' '.join(docker_command)
 		shutit.log('\n\nCommand being run is:\n\n' + shutit.cfg['build']['docker_command'],
@@ -312,7 +312,7 @@ class ConnDocker(ShutItConnModule):
 
 		container_child = pexpect.spawn(docker_command[0], docker_command[1:])
 		expect = ['assword', cfg['expect_prompts']['base_prompt'].strip(), \
-			'Waiting', 'ulling', 'endpoint', 'Download']
+		          'Waiting', 'ulling', 'endpoint', 'Download']
 		res = container_child.expect(expect, 9999)
 		while True:
 			shutit.log(container_child.before + container_child.after, prefix=False,
@@ -320,8 +320,8 @@ class ConnDocker(ShutItConnModule):
 			if res == 0:
 				shutit.log('...')
 				res = shutit.send(cfg['host']['password'], \
-					child=container_child, expect=expect, timeout=9999, \
-					check_exit=False, fail_on_empty_before=False)
+				    child=container_child, expect=expect, timeout=9999, \
+				    check_exit=False, fail_on_empty_before=False)
 			elif res == 1:
 				shutit.log('Prompt found, breaking out')
 				break
@@ -335,15 +335,15 @@ class ConnDocker(ShutItConnModule):
 		shutit.log('Opening file')
 		if cid == '' or re.match('^[a-z0-9]+$', cid) == None:
 			shutit.fail('Could not get container_id - quitting. ' +
-				'Check whether ' +
-				'other containers may be clashing on port allocation or name.' +
-				'\nYou might want to try running: sudo docker kill ' +
-				cfg['container']['name'] + '; sudo docker rm ' +
-				cfg['container']['name'] + '\nto resolve a name clash or: ' +
-				cfg['host']['docker_executable'] + ' ps -a | grep ' +
-				cfg['container']['ports'] + ' | awk \'{print $1}\' | ' +
-				'xargs ' + cfg['host']['docker_executable'] + ' kill\nto + '
-				'resolve a port clash\n')
+			            'Check whether ' +
+			            'other containers may be clashing on port allocation or name.' +
+			            '\nYou might want to try running: sudo docker kill ' +
+			            cfg['container']['name'] + '; sudo docker rm ' +
+			            cfg['container']['name'] + '\nto resolve a name clash or: ' +
+			            cfg['host']['docker_executable'] + ' ps -a | grep ' +
+			            cfg['container']['ports'] + ' | awk \'{print $1}\' | ' +
+			            'xargs ' + cfg['host']['docker_executable'] + ' kill\nto + '
+			            'resolve a port clash\n')
 		shutit.log('cid: ' + cid)
 		cfg['container']['container_id'] = cid
 
@@ -366,12 +366,12 @@ class ConnDocker(ShutItConnModule):
 		shutit.set_default_expect(cfg['expect_prompts']['real_user_prompt'])
 		# Tag and push etc
 		shutit.pause_point('\nDoing final committing/tagging on the overall \
-			container and creating the artifact.', \
-			child=shutit.pexpect_children['host_child'], \
-			print_input=False, level=3)
+		                   container and creating the artifact.', \
+		                   child=shutit.pexpect_children['host_child'], \
+		                   print_input=False, level=3)
 		shutit.do_repository_work(cfg['repository']['name'], \
-			docker_executable=cfg['host']['docker_executable'], \
-			password=cfg['host']['password'])
+		           docker_executable=cfg['host']['docker_executable'], \
+		           password=cfg['host']['password'])
 		# Final exits
 		host_child.sendline('rm -f ' + cfg['build']['cidfile']) # Exit raw bash
 		host_child.sendline('exit') # Exit raw bash
@@ -477,8 +477,8 @@ class ConnSSH(ShutItConnModule):
 			if res == 0:
 				shutit.log('...')
 				res = shutit.send(ssh_pass,
-					child=container_child, expect=expect, timeout=10,
-					check_exit=False, fail_on_empty_before=False)
+				             child=container_child, expect=expect, timeout=10,
+				             check_exit=False, fail_on_empty_before=False)
 			elif res == 1:
 				shutit.log('Prompt found, breaking out')
 				break
