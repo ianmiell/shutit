@@ -267,7 +267,7 @@ class ShutIt(object):
 		                               measure, if the command matches any
 		                               'password's then we don't record it.
 		- exit_values                - Array of acceptable exit values
-		                               (default [0])
+		                               (default ['0'])
 		- echo                       - Whether to suppress any logging output
 		                               from pexpect to the terminal or not.
 		                               We don't record the command if this is
