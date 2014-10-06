@@ -140,7 +140,7 @@ class ShutIt(object):
 
 	def set_default_expect(self, expect=None, check_exit=True):
 		"""Sets the default pexpect string (usually a prompt).
-				Defaults to the configured root_prompt if no
+		Defaults to the configured root_prompt if no
 		argument is passed.
 		"""
 		if expect == None:
@@ -710,11 +710,11 @@ class ShutIt(object):
 		- expect       - See send()
 		- child        - See send()
 		- match_regexp - If supplied, a regexp to look for in the file
-						 instead of the line itself,
-						 handy if the line has awkward characters in it.
+		                 instead of the line itself,
+		                 handy if the line has awkward characters in it.
 		- force        - Always write the line to the file.
 		- literal      - If true, then simply grep for the exact string without
-						 bash interpretation.
+		                 bash interpretation.
 		"""
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
@@ -894,8 +894,8 @@ class ShutIt(object):
 	def get_file(self,container_path,host_path):
 		"""Copy a file from the docker container to the host machine, via the resources mount
 
-			container_path - path to file in the container
-			host_path      - path to file on the host machine (e.g. copy test)
+		container_path - path to file in the container
+		host_path      - path to file on the host machine (e.g. copy test)
 		"""
 		filename = os.path.basename(container_path)
 		resources_dir = shutit.cfg['host']['resources_dir']
@@ -1118,7 +1118,7 @@ class ShutIt(object):
 		- child      - See send()
 		- timeout    - Timeout to wait for finish of install.
 		- options    - Dictionary for specific options per install tool.
-					   Overrides any arguments passed into this function.
+		               Overrides any arguments passed into this function.
 		- force      - force if necessary
 		- check_exit - If False, failure to install is ok (default True)
 		- reinstall  - Advise a reinstall where possible (default False)
@@ -1189,7 +1189,7 @@ class ShutIt(object):
 		- expect   - See send()
 		- child    - See send()
 		- options  - Dict of options to pass to the remove command,
-					 mapped by install_type.
+		             mapped by install_type.
 		- timeout  - See send()
 		"""
 		child = child or self.get_default_child()
@@ -1307,8 +1307,8 @@ class ShutIt(object):
 		Typically it would be used in this boilerplate pattern
 
 		shutit.send('su - auser',
-					expect=shutit.cfg['expect_prompts']['base_prompt'],
-					check_exit=False)
+		            expect=shutit.cfg['expect_prompts']['base_prompt'],
+		            check_exit=False)
 		shutit.setup_prompt('tmp_prompt')
 		shutit.send('some command')
 		[...]
@@ -1345,7 +1345,7 @@ class ShutIt(object):
 
 		- old_prompt_name - 
 		- new_expect      - 
-		- child              - See send()
+		- child           - See send()
 		"""
 		child = child or self.get_default_child()
 		expect = new_expect or self.get_default_expect()
@@ -1707,7 +1707,9 @@ class ShutIt(object):
 	               forcenone=False):
 		"""Gets a specific config from the config files,
 		allowing for a default.
+
 		Handles booleans vs strings appropriately.
+
 		module_id    - module id this relates to, eg com.mycorp.mymodule.mymodule
 		option       - config item to set
 		default      - default value if not set in files
@@ -1779,10 +1781,10 @@ def init():
 	cfg['users']                = {}
 	cfg['dockerfile']           = {}
 	cfg['build']['install_type_map'] = {'ubuntu':'apt',
-							'debian':'apt',
-							'red hat':'yum',
-							'centos':'yum',
-							'fedora':'yum'}
+	                                    'debian':'apt',
+	                                    'red hat':'yum',
+	                                    'centos':'yum',
+	                                    'fedora':'yum'}
 
 	# If no LOGNAME available,
 	cfg['host']['username'] = os.environ.get('LOGNAME', '')
