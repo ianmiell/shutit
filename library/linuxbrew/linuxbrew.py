@@ -27,8 +27,8 @@ class linuxbrew(ShutItModule):
 		shutit.install('zlib1g-dev')
 		shutit.send('pushd /opt')
 		shutit.send('git clone https://github.com/Homebrew/linuxbrew.git ~/.linuxbrew')
-		shutit.add_to_bashrc('PATH="$HOME/.linuxbrew/bin:$PATH"')
-		shutit.add_to_bashrc('LD_LIBRARY_PATH="$HOME/.linuxbrew/lib:$LD_LIBRARY_PATH"')
+		shutit.send('''echo 'export PATH="$HOME/.linuxbrew/bin:$PATH"' >> ~/.bashrc''')
+		shutit.send('''echo 'export LD_LIBRARY_PATH="$HOME/.linuxbrew/lib:$LD_LIBRARY_PATH"' >> ~/.bashrc''')
 		return True
 
 	#def get_config(self, shutit):
