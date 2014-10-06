@@ -13,24 +13,38 @@ class taigaio(ShutItModule):
 		shutit.install('sudo')
 		shutit.install('python3-pip')
 		shutit.install('weblint-perl') #for bower
+		shutit.run_script('''
+			echo "LANG=en_US.UTF-8" > /etc/default/locale
+			echo "LC_MESSAGES=POSIX" >> /etc/default/locale
+			echo "LANGUAGE=en" >> /etc/default/locale
+			locale-gen en_US.UTF-8
+		''')
 		shutit.send('adduser --gecos "" --disabled-password taiga')
 		shutit.send('echo taiga:taiga | chpasswd')
 		shutit.send('adduser taiga sudo')
 		shutit.login('taiga')
 		shutit.send('git clone https://github.com/taigaio/taiga-scripts.git')
 		shutit.send('pushd taiga-scripts')
-		shutit.multisend('bash setup-server.sh',{'Scheme':'http','Hostname':'8000','assword for':'taiga','anonymously report usage statistics to improve the tool over time':'n'})
-		# needed?
-		shutit.send('pushd ~/taiga-back/')
-		# Not sure about django side
-		#shutit.send('workon taiga')
-		#shutit.send('sudo -u postgres createuser --superuser $USER')
-		#shutit.send('sudo -u postgres createdb $USER')
-		#shutit.send('python manage.py migrate --noinput')
-		#shutit.send('python manage.py loaddata initial_user')
-		#shutit.send('python manage.py loaddata initial_project_templates')
-		#shutit.send('python manage.py loaddata initial_role')
+		shutit.multisend('bash setup-server.sh', {
+			'Scheme':'http',
+			'Hostname':'localhost:8000',
+			'assword for':'taiga',
+			'anonymously report usage statistics to improve the tool over time':'n'
+		})
 		shutit.logout()
+		shutit.run_script('''
+			cat >/root/start_taiga.sh <<EOF
+			/usr/local/bin/circusd --daemon /home/taiga/conf/circus.ini
+			service nginx start
+			EOF
+			cat >/root/stop_taiga.sh <<EOF
+			circusctl stop
+			circusctl quit
+			service nginx stop
+			EOF
+		'''
+		)
+		shutit.send('chmod +x /root/{start,stop}_taiga.sh')
 		return True
 
 	#def get_config(self, shutit):
@@ -38,7 +52,7 @@ class taigaio(ShutItModule):
 
 	#def check_ready(self, shutit):
 	#    return True
-	
+
 	#def start(self, shutit):
 	#    return True
 
@@ -51,10 +65,10 @@ class taigaio(ShutItModule):
 	#    return True
 
 	def test(self, shutit):
-		shutit.send('python manage.py runserver 0.0.0.0:8000 > /dev/null 2>&1 &')
+		shutit.send('/root/start_taiga.sh')
 		# Newline required to make the expect work
 		shutit.send('''curl -w '\n' localhost:8000''')
-		shutit.send('kill %1',check_exit=False)
+		shutit.send('/root/stop_taiga.sh')
 		return True
 
 def module():
