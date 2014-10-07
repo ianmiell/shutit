@@ -14,6 +14,8 @@ class nightmare(ShutItModule):
 
 	def build(self, shutit):
 		shutit.install('unzip')
+		shutit.install('libqtgui4')
+		shutit.install('libfontconfig')
 		shutit.send('brew update')
 		shutit.send('brew install phantomjs')
 		shutit.send('npm install --save nightmare')

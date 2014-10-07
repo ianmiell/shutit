@@ -1,3 +1,3 @@
 [shutit.tk.composer.composer]
 shutit.core.module.build:yes
-shutit.core.module.allowed_images:["ubuntu:12.04"]
+shutit.core.module.allowed_images:["ubuntu:12.04","ubuntu:14.04"]
