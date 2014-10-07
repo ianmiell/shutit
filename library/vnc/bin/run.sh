@@ -20,4 +20,4 @@
 #OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 #SOFTWARE.
 
-docker run -t -i -p 5901:5901 -p 6080:6080 image /bin/bash
+docker run -t -i -p 5901:5901 -p 6080:6080 image /bin/bash -c '/root/start_vnc.sh && sleep infinity'
