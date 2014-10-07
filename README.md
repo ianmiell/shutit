@@ -931,7 +931,7 @@ privileged:no
 #lxc_conf:lxc.aa_profile=unconfined
 lxc_conf:
 # Base image can be over-ridden by --image_tag defaults to this.
-base_image:ubuntu:12.04
+base_image:ubuntu:14.04
 # Whether to perform tests. 
 dotest:yes
 # --net argument, eg "bridge", "none", "container:<name|id>" or "host". Empty means use default (bridge).
