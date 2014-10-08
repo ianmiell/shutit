@@ -134,7 +134,7 @@ class ConnDocker(ShutItConnModule):
 		# hammer and somewhat unfriendly, but tells us if we need a password.
 		if spawn.find_executable('sudo') is not None:
 			if subprocess.call(['sudo', '-k']) != 0:
-				shutit.fail('Couldn\'t kill sudo timeout')
+				shutit.fail("Couldn't kill sudo timeout")
 
 		# Check the executable is in the path. Not robust (as it could be sudo)
 		# but deals with the common case of 'docker.io' being wrong.
@@ -454,7 +454,7 @@ class ConnSSH(ShutItConnModule):
 			opts += ['-i', ssh_key]
 		host_arg = ssh_host
 		if host_arg == '':
-			shutit.fail('No host specified for sshing')
+			shutit.fail('No host specified for sshing', throw_exception=False)
 		if ssh_user != '':
 			host_arg = ssh_user + '@' + host_arg
 		cmd_arg = ssh_cmd
