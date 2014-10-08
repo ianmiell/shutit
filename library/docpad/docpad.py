@@ -15,11 +15,9 @@ class docpad(ShutItModule):
 		shutit.send('apt-get update')
 		shutit.install('python-software-properties')
 		shutit.install('python')
-		shutit.send('apt-get install -y nodejs git')
-		#added also by hand
-		shutit.install('npm')
-		#fails - still to debug
-		shutit.send('npm install -g docpad@6.44')
+		shutit.install('nodejs')
+		#shutit.install('git')
+		shutit.send('npm install -g docpad@6.44 && echo ""')
 		return True
 
 	def finalize(self, shutit):
@@ -35,7 +33,7 @@ class docpad(ShutItModule):
 		return True
 
 def module():
-		return docpad(
-				'shutit.tk.docpad.docpad', 0.1258925,
-				depends=['shutit.tk.setup']
-		)
+	return docpad(
+		'shutit.tk.docpad.docpad', 0.1258925,
+		depends=['shutit.tk.setup']
+	)
