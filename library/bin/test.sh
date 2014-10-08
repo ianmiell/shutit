@@ -42,11 +42,11 @@ do
 				set_shutit_options "--image_tag $dist --interactive 0"
 				if [[ x$SHUTIT_PARALLEL_BUILD = 'x' ]]
 				then
-					./test.sh "`pwd`/../.."
+					./test.sh
 					cleanup hard
 				else
 					LOGFILE="/tmp/shutit_test_parallel_$$_$(dd if=/dev/urandom bs=256 count=1 2>/dev/null | md5sum | awk '{print $1}')"
-					./test.sh "`pwd`/../.." 2>&1 | tee $LOGFILE &
+					./test.sh
 					JOB=$!
 					PIDS[$JOB]="$JOB: $dist $d"
 					sleep 10 #give docker server time to recover

@@ -249,7 +249,8 @@ def config_collection_for_built(shutit):
 						  str(shutit.cfg[module_id]['shutit.core.module.allowed_images']) +
 						  ' but the configured image is: ' +
 						  shutit.cfg['container']['docker_image'] +
-						  '\n\nIf you want to ignore this restriction, ' + 
+						  '\n\nIs your shutit_module_path set correctly?' +
+					          '\n\nIf you want to ignore this restriction, ' + 
 						  'pass in the --ignoreimage flag to shutit.\n\n')
 					# Exit without error code so that it plays nice with tests.
 					sys.exit()

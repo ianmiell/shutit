@@ -1222,7 +1222,7 @@ def module():
 		# Example for running
 		docker run -t -i''' + ports_arg + volumes_arg + env_arg + ' ' + skel_module_name + ' ' + shutit.cfg['dockerfile']['entrypoint'] + ' ' + shutit.cfg['dockerfile']['cmd'] + '\n')
 	buildpushsh = textwrap.dedent('''\
-		export SHUTIT_OPTIONS="$SHUTIT_OPTIONS --config configs/push.cnf"
+		export SHUTIT_OPTIONS="$SHUTIT_OPTIONS --config configs/push.cnf -s repository push yes"
 		./build.sh "$@"
 		''')
 	buildcnf = textwrap.dedent('''\

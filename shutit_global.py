@@ -490,11 +490,11 @@ class ShutIt(object):
 
 
 	def send_host_file(self,
-					   path,
-					   hostfilepath,
-					   expect=None,
-					   child=None,
-					   log=True):
+	                   path,
+	                   hostfilepath,
+	                   expect=None,
+	                   child=None,
+	                   log=True):
 		"""Send file from host machine to given path
 
 		- path         - Path to send file to.
