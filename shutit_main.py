@@ -164,7 +164,7 @@ def init_shutit_map(shutit):
 		if module.run_order in run_orders:
 			shutit.fail('Duplicate run order: ' + str(module.run_order) +
 				' for ' + module.module_id + ' and ' +
-				run_orders[module.run_order].module_id) + 
+				run_orders[module.run_order].module_id + 
 			    '\n\nYou may want to check your --shutit_module_path setting')
 		if module.run_order == 0:
 			has_core_module = True
