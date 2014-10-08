@@ -1782,6 +1782,7 @@ def init():
 	cfg['dockerfile']           = {}
 	cfg['build']['install_type_map'] = {'ubuntu':'apt',
 	                                    'debian':'apt',
+	                                    'steamos':'apt',
 	                                    'red hat':'yum',
 	                                    'centos':'yum',
 	                                    'fedora':'yum'}
