@@ -9,18 +9,16 @@ class steam(ShutItModule):
 
 	def build(self, shutit):
 		shutit.install('steam-launcher')
-		shutit.install('lsb-release')
-		shutit.send('echo \'deb [arch=amd64, i386] http://repo.steampowered.com/steam $(lsb_release -s -c) steam\' > /etc/apt/sources.list.d/steam.list && dpkg --add-architecture i386')
+		shutit.send('echo \'deb http://repo.steampowered.com/steam $(lsb_release -s -c) steam\' > /etc/apt/sources.list.d/steam.list && dpkg --add-architecture i386')
 		shutit.send('apt-get update')
-		shutit.instll('libgl1-mesa-dri:i386')
-		shutit.instll('libgl1-mesa-glx:i386')
-		shutit.instll('libc6:i386')
+		shutit.install('libgl1-mesa-dri:i386')
+		shutit.install('libgl1-mesa-glx:i386')
+		shutit.install('libc6:i386')
 		shutit.install('sudo')
 		shutit.send('echo \'steam ALL = NOPASSWD: ALL\' > /etc/sudoers.d/steam')
 		shutit.send('chmod 0440 /etc/sudoers.d/steam')
 		shutit.send('adduser --disabled-password --gecos \'Steam\' steam')
 		shutit.send('adduser steam video')
-		shutit.send('export HOME=/home/steam')
 		return True
 
 	def finalize(self, shutit):
@@ -36,7 +34,7 @@ class steam(ShutItModule):
 		return True
 
 def module():
-		return steam(
-				'shutit.tk.steam.steam', 0.12135315,
-				depends=['shutit.tk.setup']
-		)
+	return steam(
+		'shutit.tk.steam.steam', 0.12135315,
+		depends=['shutit.tk.setup']
+	)
