@@ -162,6 +162,7 @@ class ShutIt(object):
 			raise ShutItFailException(msg)
 		else:
 			# This is an "OK" failure, ie we don't need to throw an exception.
+			print msg
 			sys.exit(0)
 
 
