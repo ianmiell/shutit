@@ -9,7 +9,7 @@ class steam(ShutItModule):
 
 	def build(self, shutit):
 		shutit.install('steam-launcher')
-		shutit.send('echo "deb http://repo.steampowered.com/steam/dists precise steam" > /etc/apt/sources.list.d/steam.list')
+		shutit.send('echo "deb http://repo.steampowered.com/steam precise steam" > /etc/apt/sources.list.d/steam.list')
 		shutit.send('dpkg --add-architecture i386')
 		shutit.send('apt-get update')
 		shutit.install('libgl1-mesa-dri:i386')

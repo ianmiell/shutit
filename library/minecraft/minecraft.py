@@ -1,4 +1,3 @@
-
 # Created from dockerfile: /space/git/dockerfiles_repos/Dockerfiles/minecraft/Dockerfile
 from shutit_module import ShutItModule
 
@@ -36,7 +35,7 @@ class minecraft(ShutItModule):
 		return True
 
 def module():
-		return minecraft(
-				'shutit.tk.minecraft.minecraft', 0.12153353,
-				depends=['shutit.tk.setup']
-		)
+	return minecraft(
+		'shutit.tk.minecraft.minecraft', 0.3512153353,
+		depends=['shutit.tk.setup','shutit.tk.vnc.vnc']
+	)
