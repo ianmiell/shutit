@@ -8,16 +8,16 @@ class mediawiki(ShutItModule):
 			return False
 
 	def build(self, shutit):
-		shutit.send('echo \'deb http://us.archive.ubuntu.com/ubuntu/ precise universe\' >> /etc/apt/sources.list')
+		shutit.send('echo "deb http://us.archive.ubuntu.com/ubuntu/ $(lsb_release -c -s) universe" >> /etc/apt/sources.list')
 		shutit.send('apt-get -y update')
-		shutit.send('LC_ALL=C DEBIAN_FRONTEND=noninteractive apt-get install -y supervisor nginx-light php5-fpm php5-intl php5-mysql php5-')
-		shutit.send('LC_ALL=C DEBIAN_FRONTEND=noninteractive apt-get install -y php-apc php5-gd php5-intl php5-mysqlnd php5-pgsql')
+		shutit.install('supervisor nginx-light php5-fpm php5-intl php5-mysql php5-')
+		shutit.install('php-apc php5-gd php5-intl php5-mysqlnd php5-pgsql')
+		shutit.install('wget')
 		shutit.send_host_file('/etc/nginx/nginx.conf', 'context/./nginx.conf')
 		shutit.send_host_file('/etc/supervisor/conf.d/supervisord.conf', 'context/./supervisord.conf')
 		shutit.send_host_file('/etc/php5/fpm/php-fpm.conf', 'context/./fpm.conf')
 		shutit.send_host_file('/etc/php5/fpm/pool.d/www.conf', 'context/./fpm-pool-www.conf')
 		shutit.send('mkdir /src')
-		shutit.install('wget')
 		shutit.send('mkdir -p /src')
 		shutit.send('wget -O /src/mediawiki.tgz http://download.wikimedia.org/mediawiki/1.21/mediawiki-1.21.2.tar.gz')
 		shutit.send('cd /src && tar zxf mediawiki.tgz')

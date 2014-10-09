@@ -22,7 +22,7 @@ from shutit_module import ShutItModule
 class shutit(ShutItModule):
 
 	def is_installed(self, shutit):
-		return shutit.file_exists('/shutit', directory=True)
+		return shutit.file_exists('/opt/shutit', directory=True)
 
 	def build(self, shutit):
 		shutit.install('git')
