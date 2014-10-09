@@ -159,11 +159,13 @@ def init_shutit_map(shutit):
 	for module in modules:
 		assert isinstance(module, ShutItModule)
 		if module.module_id in shutit.shutit_map:
-			shutit.fail('Duplicated module id: ' + module.module_id)
+			shutit.fail('Duplicated module id: ' + module.module_id + 
+			    '\n\nYou may want to check your --shutit_module_path setting')
 		if module.run_order in run_orders:
 			shutit.fail('Duplicate run order: ' + str(module.run_order) +
 				' for ' + module.module_id + ' and ' +
-				run_orders[module.run_order].module_id)
+				run_orders[module.run_order].module_id + 
+			    '\n\nYou may want to check your --shutit_module_path setting')
 		if module.run_order == 0:
 			has_core_module = True
 		shutit.shutit_map[module.module_id] = run_orders[module.run_order] = module
@@ -249,7 +251,8 @@ def config_collection_for_built(shutit):
 						  str(shutit.cfg[module_id]['shutit.core.module.allowed_images']) +
 						  ' but the configured image is: ' +
 						  shutit.cfg['container']['docker_image'] +
-						  '\n\nIf you want to ignore this restriction, ' + 
+						  '\n\nIs your shutit_module_path set correctly?' +
+					          '\n\nIf you want to ignore this restriction, ' + 
 						  'pass in the --ignoreimage flag to shutit.\n\n')
 					# Exit without error code so that it plays nice with tests.
 					sys.exit()

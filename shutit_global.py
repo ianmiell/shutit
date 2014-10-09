@@ -150,7 +150,7 @@ class ShutIt(object):
 
 
 	# TODO: Manage exits of containers on error
-	def fail(self, msg, child=None):
+	def fail(self, msg, child=None, throw_exception=True):
 		"""Handles a failure, pausing if a pexpect child object is passed in.
 		"""
 		# Note: we must not default to a child here
@@ -158,7 +158,11 @@ class ShutIt(object):
 			self.pause_point('Pause point on fail: ' + msg, child=child)
 		print >> sys.stderr, 'ERROR!'
 		print >> sys.stderr
-		raise ShutItFailException(msg)
+		if throw_exception:
+			raise ShutItFailException(msg)
+		else:
+			# This is an "OK" failure, ie we don't need to throw an exception.
+			sys.exit(0)
 
 
 	def log(self, msg, code=None, pause=0, prefix=True, force_stdout=False):
@@ -490,11 +494,11 @@ class ShutIt(object):
 
 
 	def send_host_file(self,
-					   path,
-					   hostfilepath,
-					   expect=None,
-					   child=None,
-					   log=True):
+	                   path,
+	                   hostfilepath,
+	                   expect=None,
+	                   child=None,
+	                   log=True):
 		"""Send file from host machine to given path
 
 		- path         - Path to send file to.
@@ -514,7 +518,7 @@ class ShutIt(object):
 		else:
 			shutit.fail('send_host_file - file: ' + hostfilepath +
 				' does not exist as file or dir. cwd is: ' + os.getcwd(),
-				child=child)
+				child=child, throw_exception=False)
 
 
 	def send_host_dir(self,
@@ -728,7 +732,7 @@ class ShutIt(object):
 				'Please avoid using the following chars: ' + 
 				bad_chars +
 				'\nor supply a match_regexp argument.\nThe line was:\n' +
-				line, child=child)
+				line, child=child, throw_exception=False)
 		if not self.file_exists(filename, expect=expect, child=child):
 			# The above cat doesn't work so we touch the file if it
 			# doesn't exist already.
@@ -861,7 +865,8 @@ class ShutIt(object):
 		"""
 		# should this blow up?
 		if not shutit.file_exists(directory,directory=True):
-			shutit.fail('ls: directory\n\n' + directory + '\n\ndoes not exist')
+			shutit.fail('ls: directory\n\n' + directory + '\n\ndoes not exist',
+			    throw_exception=False)
 		files = shutit.send_and_get_output('ls ' + directory)
 		files = files.split(' ')
 		# cleanout garbage from the terminal - all of this is necessary cause there are
@@ -928,21 +933,23 @@ class ShutIt(object):
 
 		print util.colour('34', '\nPROMPTING FOR CONFIG: %s' % (cfgstr,))
 		print util.colour('34', '\n' + msg + '\n')
-
-		if not cfg['build']['interactive']:
-			shutit.fail('ShutIt is not in interactive mode so cannot prompt ' +
-				'for values.')
+		
+		if not sys.stdout.isatty():
+			shutit.fail('ShutIt is not in a terminal so cannot prompt ' +
+				'for values.', throw_exception=False)
 
 		if config_parser.has_option(sec, name):
 			whereset = config_parser.whereset(sec, name)
 			if usercfg == whereset:
 				self.fail(cfgstr + ' has already been set in the user ' +
-					'config, edit ' + usercfg + ' directly to change it')
+				    'config, edit ' + usercfg + ' directly to change it',
+				    throw_exception=False)
 			for subcp, filename, _fp in reversed(config_parser.layers):
 				# Is the config file loaded after the user config file?
 				if filename == whereset:
 					self.fail(cfgstr + ' is being set in ' + filename + ', ' +
-						'unable to override on a user config level')
+					    'unable to override on a user config level',
+					    throw_exception=False)
 				elif filename == usercfg:
 					break
 		else:
@@ -985,7 +992,7 @@ class ShutIt(object):
 
 	def step_through(self, msg, child=None, level=1, print_input=True, value=True):
 		child = child or self.get_default_child()
-		if (not self.cfg['build']['interactive'] or 
+		if (not sys.stdout.isatty() or not self.cfg['build']['interactive'] or 
 			self.cfg['build']['interactive'] < level):
 			return
 		self.cfg['build']['step_through'] = value
@@ -1005,7 +1012,7 @@ class ShutIt(object):
 		- level       - Minimum level to invoke the pause_point at
 		"""
 		child = child or self.get_default_child()
-		if (not self.cfg['build']['interactive'] or 
+		if (not sys.stdout.isatty() or not self.cfg['build']['interactive'] or 
 			self.cfg['build']['interactive'] < level):
 			return
 		if child and print_input:
@@ -1257,7 +1264,7 @@ class ShutIt(object):
 				if password != None:
 					self.send(password,expect=shutit.cfg['expect_prompts']['base_prompt'],check_exit=False)
 				else:
-					shutit.fail('Please supply a password argument to shutit.login.')
+					shutit.fail('Please supply a password argument to shutit.login.', throw_exception=False)
 			elif res == 2:
 				break
 		self.setup_prompt(r_id,child=child)
@@ -1281,7 +1288,7 @@ class ShutIt(object):
 				 # set up in setup.py
 				 self.set_default_expect()
 		else:
-			 self.fail('Logout called without corresponding login')
+			 self.fail('Logout called without corresponding login', throw_exception=False)
 		# No point in checking exit here, the exit code will be
 		# from the previous command from the logged in session
 		if expect != None:
@@ -1605,9 +1612,9 @@ class ShutIt(object):
 			repository = repository_tar = ''
 
 		if not repository:
-			shutit.fail('Could not form valid repository name', child=child)
+			shutit.fail('Could not form valid repository name', child=child, throw_exception=False)
 		if (export or save) and not repository_tar:
-			shutit.fail('Could not form valid tar name', child=child)
+			shutit.fail('Could not form valid tar name', child=child, throw_exception=False)
 
 		if server:
 			repository = '%s/%s' % (server, repository)
@@ -1628,7 +1635,7 @@ class ShutIt(object):
 		if server == '' and len(repository) > 30 and push:
 			shutit.fail("""repository name: '""" + repository +
 				"""' too long. If using suffix_date consider shortening""",
-				child=child)
+				child=child, throw_exception=False)
 
 		if self.send('SHUTIT_TMP_VAR=$(' + docker_executable + ' commit ' +
 					 cfg['container']['container_id'] + ')',
@@ -1728,7 +1735,7 @@ class ShutIt(object):
 				self.cfg[module_id][option] = self.cfg['config_parser'].get(module_id, option)
 		else:
 			if default == None and forcenone != True:
-				self.fail('Config item: ' + option + ':\nin module:\n[' + module_id + ']\nmust be set!\n\nOften this is a deliberate requirement to place in your ~/.shutit/config file.')
+				self.fail('Config item: ' + option + ':\nin module:\n[' + module_id + ']\nmust be set!\n\nOften this is a deliberate requirement to place in your ~/.shutit/config file.', throw_exception=False)
 			self.cfg[module_id][option] = default
 
 
@@ -1799,7 +1806,7 @@ def init():
 		if cfg['host']['username'] == '':
 			shutit_global.shutit.fail('LOGNAME not set in the environment, ' +
 									  'and login unavailable in python; ' +
-									  'please set to your username.')
+									  'please set to your username.', throw_exception=False)
 	cfg['host']['real_user'] = os.environ.get('SUDO_USER',
 											  cfg['host']['username'])
 	cfg['build']['build_id'] = (socket.gethostname() + '_' +
