@@ -163,6 +163,7 @@ class ShutIt(object):
 		else:
 			# This is an "OK" failure, ie we don't need to throw an exception.
 			# However, it's still a failure, so return 1
+			print msg
 			sys.exit(1)
 
 
