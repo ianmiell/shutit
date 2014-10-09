@@ -45,9 +45,9 @@ class llvm(ShutItModule):
 		return True
 
 def module():
-		return llvm(
-				'shutit.tk.llvm.llvm', 0.223534,
-				description='LLVM and clang',
-				maintainer='ian.miell@gmail.com',
-				depends=['shutit.tk.setup']
-		)
+	return llvm(
+		'shutit.tk.llvm.llvm', 0.223534,
+		description='LLVM and clang',
+		maintainer='ian.miell@gmail.com',
+		depends=['shutit.tk.setup']
+	)

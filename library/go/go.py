@@ -34,7 +34,7 @@ class go(ShutItModule):
 		shutit.install('gcc')
 		shutit.install('patch')
 		shutit.install('git')
-		shutit.add_to_bashrc('export PATH=$PATH:/go/bin')
+		shutit.add_to_bashrc('export PATH=$PATH:/opt/go/go/bin')
 		shutit.send('mkdir -p /opt/go')
 		shutit.send('hg clone -u release https://code.google.com/p/go')
 		shutit.send('pushd go/src')

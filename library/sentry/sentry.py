@@ -55,7 +55,7 @@ class sentry(ShutItModule):
 		return True
 
 def module():
-		return sentry(
-				'shutit.tk.sentry.sentry', 0.121353315,
-				depends=['shutit.tk.setup']
-		)
+	return sentry(
+		'shutit.tk.sentry.sentry', 0.121353315,
+		depends=['shutit.tk.setup']
+	)

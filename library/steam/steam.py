@@ -18,7 +18,7 @@ class steam(ShutItModule):
 		shutit.install('sudo')
 		shutit.send('echo "steam ALL = NOPASSWD: ALL" > /etc/sudoers.d/steam')
 		shutit.send('chmod 0440 /etc/sudoers.d/steam')
-		shutit.send('adduser --disabled-password --gecos \'Steam\' steam')
+		shutit.send('adduser --disabled-password --gecos "Steam" steam')
 		shutit.send('adduser steam video')
 		return True
 
