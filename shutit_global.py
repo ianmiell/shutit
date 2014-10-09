@@ -162,7 +162,8 @@ class ShutIt(object):
 			raise ShutItFailException(msg)
 		else:
 			# This is an "OK" failure, ie we don't need to throw an exception.
-			sys.exit(0)
+			# However, it's still a failure, so return 1
+			sys.exit(1)
 
 
 	def log(self, msg, code=None, pause=0, prefix=True, force_stdout=False):
@@ -1805,14 +1806,14 @@ def init():
 			cfg['host']['username'] = getpass.getuser()
 		if cfg['host']['username'] == '':
 			shutit_global.shutit.fail('LOGNAME not set in the environment, ' +
-									  'and login unavailable in python; ' +
-									  'please set to your username.', throw_exception=False)
+			                          'and login unavailable in python; ' +
+			                          'please set to your username.', throw_exception=False)
 	cfg['host']['real_user'] = os.environ.get('SUDO_USER',
 											  cfg['host']['username'])
 	cfg['build']['build_id'] = (socket.gethostname() + '_' +
-								cfg['host']['real_user'] + '_' +
-								str(time.time()) + '.' +
-								str(datetime.datetime.now().microsecond))
+	                            cfg['host']['real_user'] + '_' +
+	                            str(time.time()) + '.' +
+	                            str(datetime.datetime.now().microsecond))
 
 	return ShutIt(
 		pexpect_children=pexpect_children,
