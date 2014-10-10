@@ -1183,8 +1183,7 @@ def module():
 		[[ ! -a "$SHUTIT" ]] || [[ -z "$SHUTIT" ]] && SHUTIT="$(which shutit)"
 		if [[ ! -a "$SHUTIT" ]]
 		then
-			echo "Must supply path to ShutIt dir or have shutit on path"
-			echo "or set SHUTIT to the shutit executable in the env"
+			echo "Must have shutit on path, eg export PATH=$PATH:/path/to/shutit_dir"
 			exit 1
 		fi
 		pushd ..

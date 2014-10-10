@@ -272,7 +272,7 @@ class ShutIt(object):
 		                               at end (default=True). As a safety
 		                               measure, if the command matches any
 		                               'password's then we don't record it.
-		- exit_values                - Array of acceptable exit values
+		- exit_values                - Array of acceptable exit values as strings
 		                               (default ['0'])
 		- echo                       - Whether to suppress any logging output
 		                               from pexpect to the terminal or not.
@@ -1218,7 +1218,7 @@ class ShutIt(object):
 		# Get mapped package.
 		package = package_map.map_package(package,
 			self.cfg['container']['install_type'])
-		self.send('%s %s %s' % (cmd, opts, package), expect, timeout=timeout)
+		self.send('%s %s %s' % (cmd, opts, package), expect, timeout=timeout, exit_values=['0','100'])
 		return True
 
 
