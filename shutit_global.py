@@ -1618,7 +1618,7 @@ class ShutIt(object):
 		if (export or save) and not repository_tar:
 			shutit.fail('Could not form valid tar name', child=child, throw_exception=False)
 
-		if server:
+		if server != '':
 			repository = '%s/%s' % (server, repository)
 
 		if cfg['repository']['suffix_date']:
@@ -1700,9 +1700,9 @@ class ShutIt(object):
 		if cfg['repository']['push'] == True:
 			# Pass the child explicitly as it's the host child.
 			self.push_repository(repository,
-		                             docker_executable=docker_executable,
-		                             expect=expect,
-		                             child=child)
+		                         docker_executable=docker_executable,
+		                         expect=expect,
+		                         child=child)
 			cfg['build']['report'] = (cfg['build']['report'] +
 			                          '\nPushed repository: ' + repository)
 
