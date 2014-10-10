@@ -16,6 +16,7 @@ class psty(ShutItModule):
 	def build(self, shutit):
 		shutit.install('python')
 		shutit.install('git')
+		shutit.send('pushd /opt')
 		shutit.send('git clone https://github.com/pigshell/pigshell.git')
 		shutit.send('mkdir -p /var/psty_dir')
 		return True

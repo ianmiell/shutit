@@ -1,3 +1,3 @@
 #!/bin/bash
 # Example for running
-sudo docker run -d -p 50937:50937 imiell/psty /bin/bash -c 'python /opt/pigshell
+sudo docker run -d -p 50937:50937 -v /tmp:/var/psty_dir imiell/psty /bin/bash -c 'python /opt/pigshell/psty.py -a -d /var/psty_dir'
