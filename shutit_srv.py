@@ -188,7 +188,6 @@ def shutit_reset():
 			child.send('\n')
 			child.sendeof()
 			child.readlines()
-		print shutit.cfg
 		image_tag = shutit.cfg['container']['docker_image']
 	else:
 		image_tag = ''
