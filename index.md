@@ -138,6 +138,7 @@ And change the **build.sh** to include the module in the path
 ```
 
 Rebuild and re-run to get the same container with mysql installed.
+
 ```sh
 $ SHUTIT=/path/to/shutit/shutit ./build.sh
 $ ./run.sh
