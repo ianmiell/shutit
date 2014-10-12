@@ -1603,8 +1603,6 @@ class ShutIt(object):
 		repo_user = cfg['repository']['user']
 		repo_tag  = cfg['repository']['tag_name']
 
-		print repo_user
-		print repo_name
 		if repo_user and repo_name:
 			repository = '%s/%s' % (repo_user, repo_name)
 			repository_tar = '%s%s' % (repo_user, repo_name)
@@ -1614,9 +1612,6 @@ class ShutIt(object):
 			repository = repository_tar = repo_name
 		else:
 			repository = repository_tar = ''
-
-		print repository
-		sys.exit(0)
 
 		if not repository:
 			shutit.fail('Could not form valid repository name', child=child, throw_exception=False)
