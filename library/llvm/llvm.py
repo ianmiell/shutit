@@ -29,10 +29,15 @@ class llvm(ShutItModule):
 		shutit.send('pushd llvm')
 		shutit.send('./configure')
 		shutit.send('make',timeout=99999)
+		# Required for install
+		shutit.install('groff')
+		shutit.send('make install',timeout=99999)
 		shutit.send('popd')
 		return True
 
 	def finalize(self, shutit):
+		# Remove llvm stuff
+		shutit.send('rm -rf /opt/llvm',timeout=99999)
 		return True
 
 	def test(self, shutit):
