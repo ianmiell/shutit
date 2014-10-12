@@ -680,7 +680,7 @@ def load_configs(shutit):
 		run_config_file = os.path.expanduser(config_file_name)
 		if not os.path.isfile(run_config_file):
 			print('Did not recognise ' + run_config_file +
-					' as a file - do you need to touch ' + run_config_file + '?')
+			      ' as a file - do you need to touch ' + run_config_file + '?')
 			sys.exit()
 		configs.append(run_config_file)
 	# Image to use to start off. The script should be idempotent, so running it
