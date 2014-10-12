@@ -35,7 +35,7 @@ from distutils import spawn
 
 
 def module_ids(shutit, rev=False):
-	"""Gets a list of module ids by run_order, ignoring conn modules
+	"""Gets a list of module ids guaranteed to be sorted by run_order, ignoring conn modules
 	(run order < 0)
 	"""
 	ids = sorted(shutit.shutit_map.keys(),key=lambda module_id: shutit.shutit_map[module_id].run_order)
@@ -260,16 +260,20 @@ def config_collection_for_built(shutit):
 	# We assume the last module is the only one that matters in terms of allowed images.
 	# Therefore, if we have exited the above for loop then this is definitely not allowed.
 	if not shutit.cfg['build']['ignoreimage'] and ok == False:
-		print('\n\nWARNING!\n\nAllowed images for ' + module_id + ' are: ' +
-		      str(shutit.cfg[module_id]['shutit.core.module.allowed_images']) +
-		      ' but the configured image is: ' +
-		      shutit.cfg['container']['docker_image'] +
-		      '\n\nIs your shutit_module_path set correctly?' +
-		      '\n\nIf you want to ignore this restriction, ' + 
-		      'pass in the --ignoreimage flag to shutit.\n\n')
-		# We assume the last module is the only one that matters in terms of allowed images.
-		# Exit without error code so that it plays nice with tests.
-		sys.exit()
+		for regexp in shutit.cfg[module_id]['shutit.core.module.allowed_images']:
+			if re.match('^' + regexp + '$', shutit.cfg['container']['docker_image']):
+				ok = True
+		if not ok:
+			print('\n\nAllowed images for ' + module_id + ' are: ' +
+			      str(shutit.cfg[module_id]['shutit.core.module.allowed_images']) +
+			      ' but the configured image is: ' +
+			      shutit.cfg['container']['docker_image'] +
+			      '\n\nIs your shutit_module_path set correctly?' +
+			      '\n\nIf you want to ignore this restriction, ' + 
+			      'pass in the --ignoreimage flag to shutit.\n\n')
+			# We assume the last module is the only one that matters in terms of allowed images.
+			# Exit without error code so that it plays nice with tests.
+			sys.exit()
 
 
 def conn_container(shutit):
