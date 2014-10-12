@@ -234,12 +234,14 @@ def config_collection_for_built(shutit):
 							                  value, forcedefault=True)
 	# TODO: re-check command line arguments as well?
 	# Check the allowed_images against the base_image
+	ok = None
 	for module_id in module_ids(shutit):
 		if shutit.cfg[module_id]['shutit.core.module.build']:
 			if (not shutit.cfg['build']['ignoreimage'] and 
 			    shutit.cfg[module_id]['shutit.core.module.allowed_images'] and
 			    shutit.cfg['container']['docker_image'] not in
 			    shutit.cfg[module_id]['shutit.core.module.allowed_images']):
+				# re-set on each iteration
 				ok = False
 				# Try allowed images as regexps
 				for regexp in shutit.cfg[module_id]['shutit.core.module.allowed_images']:
@@ -248,15 +250,26 @@ def config_collection_for_built(shutit):
 						break
 				if not ok:
 					# TODO: warn if in debug, unless it's the currently-built module, in which case exit
-					print('\n\nAllowed images for ' + module_id + ' are: ' +
+					print('\n\nWARNING!\n\nAllowed images for ' + module_id + ' are: ' +
 					      str(shutit.cfg[module_id]['shutit.core.module.allowed_images']) +
 					      ' but the configured image is: ' +
 					      shutit.cfg['container']['docker_image'] +
 					      '\n\nIs your shutit_module_path set correctly?' +
 					      '\n\nIf you want to ignore this restriction, ' + 
 					      'pass in the --ignoreimage flag to shutit.\n\n')
-					# Exit without error code so that it plays nice with tests.
-					sys.exit()
+	# We assume the last module is the only one that matters in terms of allowed images.
+	# Therefore, if we have exited the above for loop then this is definitely not allowed.
+	if not shutit.cfg['build']['ignoreimage'] and ok == False:
+		print('\n\nWARNING!\n\nAllowed images for ' + module_id + ' are: ' +
+		      str(shutit.cfg[module_id]['shutit.core.module.allowed_images']) +
+		      ' but the configured image is: ' +
+		      shutit.cfg['container']['docker_image'] +
+		      '\n\nIs your shutit_module_path set correctly?' +
+		      '\n\nIf you want to ignore this restriction, ' + 
+		      'pass in the --ignoreimage flag to shutit.\n\n')
+		# We assume the last module is the only one that matters in terms of allowed images.
+		# Exit without error code so that it plays nice with tests.
+		sys.exit()
 
 
 def conn_container(shutit):
@@ -669,7 +682,7 @@ def shutit_main():
 			# try the current directory, the .. directory, or the ../shutit directory, the ~/shutit
 			pwd = os.getcwd()
 			path_to_shutit = ''
-			for d in ('.','..','~','~/shutit','/space/git/shutit'):
+			for d in ('.','..','~','~/shutit'):
 				if os.path.isfile(os.path.expanduser(d) + '/shutit'):
 					path_to_shutit = d + '/shutit'
 					res = util.util_raw_input(prompt='shutit appears not to be on your path - would you like me to add it to your ~/.bashrc (Y/n)? ')
@@ -781,6 +794,7 @@ def do_phone_home(msg,question=''):
 		if util.util_raw_input(prompt=question + ' (Y/n)\n') not in ('y','Y',''):
 			return
 	urllib.urlopen("http://shutit.tk?" + urllib.urlencode(msg))
+
 
 if __name__ == '__main__':
 	phone_home = False
