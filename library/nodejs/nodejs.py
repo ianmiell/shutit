@@ -31,7 +31,7 @@ class nodejs(ShutItModule):
 		return True
 
 def module():
-		return nodejs(
-				'shutit.tk.nodejs.nodejs', 0.1212353235,
-				depends=['shutit.tk.setup']
-		)
+	return nodejs(
+		'shutit.tk.nodejs.nodejs', 0.1212353235,
+		depends=['shutit.tk.setup']
+	)
