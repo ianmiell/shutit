@@ -37,14 +37,14 @@ class llvm(ShutItModule):
 
 	def finalize(self, shutit):
 		# Remove llvm stuff
-		shutit.send('rm -rf /opt/llvm',timeout=99999)
+		shutit.send('rm -rf /opt/llvm')
 		return True
 
 	def test(self, shutit):
 		return True
 
 	def is_installed(self, shutit):
-		return False
+		return shutit.file_exists('/usr/local/bin/pp-trace')
 
 	def get_config(self, shutit):
 		return True
