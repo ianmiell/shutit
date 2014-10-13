@@ -28,7 +28,8 @@ class llvm(ShutItModule):
 		shutit.send('popd')
 		shutit.send('pushd llvm')
 		shutit.send('./configure')
-		shutit.send('make',timeout=99999)
+		# Echo required to force newline
+		shutit.send('make && echo',timeout=99999)
 		# Required for install
 		shutit.install('groff')
 		shutit.send('make install',timeout=99999)
