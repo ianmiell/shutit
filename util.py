@@ -538,12 +538,15 @@ def parse_args(cfg):
 		cfg['build']['cfghistory'] = args.history
 
 	# What are we building on? Convert arg to conn_module we use.
-	if args.delivery == 'docker':
+	if args.delivery == 'docker' or args.delivery == 'container':
 		cfg['build']['conn_module'] = 'shutit.tk.conn_docker'
+		cfg['build']['delivery']    = 'container'
 	elif args.delivery == 'ssh':
 		cfg['build']['conn_module'] = 'shutit.tk.conn_ssh'
-	elif args.delivery == 'bash' or args.delivery == 'dockerfile':
+		cfg['build']['delivery']    = 'ssh'
+	elif args.delivery == 'bash':
 		cfg['build']['conn_module'] = 'shutit.tk.conn_bash'
+		cfg['build']['delivery']    = 'bash'
 	elif args.delivery == None:
 		cfg['build']['conn_module'] = None
 
