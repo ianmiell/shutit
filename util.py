@@ -298,7 +298,6 @@ def get_base_config(cfg, cfg_parser):
 	cfg['build']['completed']                     = False
 	cfg['build']['step_through']                  = False
 	# Take a command-line arg if given, else default.
-	print cfg
 	if cfg['build']['conn_module'] == None:
 		cfg['build']['conn_module']                   = cp.get('build', 'conn_module')
 	# Track logins in a stack.
