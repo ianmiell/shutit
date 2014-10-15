@@ -380,7 +380,8 @@ class ShutIt(object):
 			exit_values = ['0']
 		# TODO: check that all values are strings.
 		# Don't use send here (will mess up last_output)!
-		child.sendline('echo EXIT_CODE:$?')
+		# Space before "echo" here is sic - we don't need this to show up in bash history
+		child.sendline(' echo EXIT_CODE:$?')
 		child.expect(expect, timeout)
 		res = self.get_re_from_child(child.before, 
 			'^EXIT_CODE:([0-9][0-9]?[0-9]?)$')
