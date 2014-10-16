@@ -12,6 +12,7 @@ class binspector(ShutItModule):
 	def build(self, shutit):
 		shutit.install('curl')
 		shutit.install('git')
+		shutit.install('python2.7-minimal')
 		shutit.send('pushd /opt')
 		shutit.send('git clone https://github.com/binspector/binspector.git')
 		shutit.send('pushd /opt')

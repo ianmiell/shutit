@@ -255,7 +255,7 @@ def config_collection_for_built(shutit):
 					      ' but the configured image is: ' +
 					      shutit.cfg['container']['docker_image'] +
 					      '\n\nIs your shutit_module_path set correctly?' +
-					      '\n\nIf you want to ignore this restriction, ' + 
+					      '\n\nIf you want to ignore this, ' + 
 					      'pass in the --ignoreimage flag to shutit.\n\n')
 	# We assume the last module is the only one that matters in terms of allowed images.
 	# Therefore, if we have exited the above for loop then this is definitely not allowed.
