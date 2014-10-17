@@ -706,7 +706,8 @@ def shutit_main():
 						bashrc = os.path.expanduser('~/') + '.bashrc'
 						if os.path.isfile(bashrc):
 							with open(bashrc, "a") as myfile:
-								myfile.write('export PATH="$PATH:"' + path_to_shutit + '"')
+								myfile.write('\nexport PATH="$PATH:"' + path_to_shutit + '"\n')
+								break
 			if path_to_shutit != '':
 				util.util_raw_input(prompt='\nPath set up - please open new terminal and re-run command\n')
 				sys.exit()

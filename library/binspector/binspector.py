@@ -37,6 +37,6 @@ def module():
 		'shutit.tk.binspector.binspector', 0.3132235246,
 		description='binary inspector',
 		maintainer='ian.miell@gmail.com',
-		depends=['shutit.tk.setup']
+		depends=['shutit.tk.setup','shutit.tk.llvm.llvm']
 	)
 
