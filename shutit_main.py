@@ -743,12 +743,16 @@ def shutit_main():
 		])
 		digraph = digraph + '\n}'
 		shutit.log(digraph, force_stdout=True)
+		# Set build completed
+		cfg['build']['completed'] = True
 		return
 	# Dependency validation done, now collect configs of those marked for build.
 	config_collection_for_built(shutit)
 	if cfg['action']['show_config']:
 		shutit.log(util.print_config(cfg, history=cfg['build']['cfghistory']),
 				   force_stdout=True)
+		# Set build completed
+		cfg['build']['completed'] = True
 		return
 	# Check for conflicts now.
 	errs.extend(check_conflicts(shutit))
@@ -813,6 +817,7 @@ if __name__ == '__main__':
 	except ShutItException as e:
 		print 'Error while executing: ' + str(e.message)
 		if phone_home:
+			print e
 			do_phone_home({'shutitrunstatus':'fail','err':str(e.message),'pwd':os.getcwd(),'user':os.environ.get('LOGNAME', '')},question='Error seen - would you like to inform the maintainers?')
 		sys.exit(1)
 	if phone_home:
