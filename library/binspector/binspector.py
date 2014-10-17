@@ -13,6 +13,7 @@ class binspector(ShutItModule):
 		shutit.install('curl')
 		shutit.install('git')
 		shutit.install('python2.7-minimal')
+		shutit.install('libc6')
 		shutit.send('pushd /opt')
 		shutit.send('git clone https://github.com/binspector/binspector.git')
 		shutit.send('popd')
@@ -29,6 +30,6 @@ def module():
 		'shutit.tk.binspector.binspector', 0.3132235246,
 		description='binary inspector',
 		maintainer='ian.miell@gmail.com',
-		depends=['shutit.tk.setup','shutit.tk.llvm.llvm']
+		depends=['shutit.tk.setup']
 	)
 
