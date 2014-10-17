@@ -15,7 +15,6 @@ class binspector(ShutItModule):
 		shutit.install('python2.7-minimal')
 		shutit.install('libc6')
 		shutit.install('mlocate')
-		shutit.send('pushd /opt/binspector')
 		shutit.send('updatedb')
 		# TODO: Make exports part of llvm
 		shutit.send('export LIBRARY_PATH=:/usr/lib/x86_64-linux-gnu')
