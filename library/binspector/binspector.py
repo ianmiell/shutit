@@ -15,9 +15,6 @@ class binspector(ShutItModule):
 		shutit.install('python2.7-minimal')
 		shutit.install('libc6')
 		shutit.install('mlocate')
-		shutit.send('pushd /opt')
-		shutit.send('git clone https://github.com/binspector/binspector.git')
-		shutit.send('popd')
 		shutit.send('pushd /opt/binspector')
 		shutit.send('updatedb')
 		# TODO: Make exports part of llvm
@@ -25,7 +22,6 @@ class binspector(ShutItModule):
 		shutit.send('export CPATH=/usr/include/c++/4.8:/usr/include/x86_64-linux-gnu/c++/4.8')
 		# Hack to make clang use libstdc++ rather than c++
 		shutit.send('ln -s /usr/lib/gcc/x86_64-linux-gnu/4.8/libstdc++.so /usr/lib/gcc/x86_64-linux-gnu/4.8/libc++.so')
-
 		shutit.send('pushd /opt')
 		shutit.send('git clone https://github.com/binspector/binspector.git')
 		shutit.send('popd')

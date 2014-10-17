@@ -34,6 +34,8 @@ class llvm(ShutItModule):
 		shutit.install('groff')
 		shutit.send('make install',timeout=99999)
 		shutit.send('popd')
+		shutit.add_to_bashrc('export LIBRARY_PATH=${LD_LIBRARY_PATH}:/usr/lib/x86_64-linux-gnu')
+		shutit.add_to_bashrc('export CPATH=${CPATH}:/usr/include/c++/4.8:/usr/include/x86_64-linux-gnu/c++/4.8')
 		return True
 
 	def finalize(self, shutit):
