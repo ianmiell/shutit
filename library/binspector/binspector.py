@@ -15,11 +15,13 @@ class binspector(ShutItModule):
 		shutit.install('python2.7-minimal')
 		shutit.send('pushd /opt')
 		shutit.send('git clone https://github.com/binspector/binspector.git')
-		shutit.send('pushd /opt')
+		shutit.send('popd')
 		shutit.send('pushd /opt/binspector')
+		shutit.pause_point('CPATH')
 		shutit.send('./configure.sh')
 		shutit.send('./build.sh')
 		shutit.send('./smoke_test.sh')
+		shutit.send('popd')
 		return True
 
 def module():
