@@ -977,11 +977,14 @@ def create_skeleton(shutit):
 		else:
 			dockerfile_contents = open(skel_dockerfile).read()
 			dockerfile_dirname = os.path.dirname(skel_dockerfile)
-			shutil.rmtree(skel_path + '/context')
-			shutil.copytree(dockerfile_dirname, skel_path + '/context')
-			# Remove Dockerfile as it's not part of the context.
-			if os.path.isfile(skel_path + '/context/Dockerfile'):
-				os.remove(skel_path + '/context/Dockerfile')
+			if dockerfile_dirname == '':
+				shutit.fail('Dockerfile must be absolute')
+			if os.path.exists(dockerfile_dirname + '/context'):
+				shutil.rmtree(skel_path + '/context')
+				shutil.copytree(dockerfile_dirname, skel_path + '/context')
+				# Remove Dockerfile as it's not part of the context.
+				if os.path.isfile(skel_path + '/context/Dockerfile'):
+					os.remove(skel_path + '/context/Dockerfile')
 			# Change to this context
 			os.chdir(dockerfile_dirname)
 		# Wipe the command as we expect one in the file.
