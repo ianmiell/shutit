@@ -32,7 +32,7 @@ class composer(ShutItModule):
 		shutit.install('php5')
 		shutit.send('pushd /tmp')
 		shutit.send('curl -sS https://getcomposer.org/installer | php')
-		shutit.send('mv composer.phar /usr/bin')
+		shutit.send('mv composer.phar /usr/bin/composer')
 		shutit.send('popd')
 		return True
 
