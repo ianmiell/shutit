@@ -25,13 +25,14 @@ from shutit_module import ShutItModule
 class composer(ShutItModule):
 
 	def is_installed(self, shutit):
-		return shutit.file_exists('/composer.phar')
+		return shutit.file_exists('/usr/bin/composer')
 
 	def build(self, shutit):
 		shutit.install('curl')
 		shutit.install('php5')
-		shutit.send('pushd /')
+		shutit.send('pushd /tmp')
 		shutit.send('curl -sS https://getcomposer.org/installer | php')
+		shutit.send('mv composer.phar /usr/bin')
 		shutit.send('popd')
 		return True
 

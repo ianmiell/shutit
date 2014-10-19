@@ -43,6 +43,12 @@ do
 				if [[ x$SHUTIT_PARALLEL_BUILD = 'x' ]]
 				then
 					./test.sh
+					if [[ $? != 0 ]]
+					then
+						echo "FAILURE $d $dist"
+						cleanup hard
+						exit 1
+					fi
 					cleanup hard
 				else
 					LOGFILE="/tmp/shutit_test_parallel_$$_$(dd if=/dev/urandom bs=256 count=1 2>/dev/null | md5sum | awk '{print $1}')"
