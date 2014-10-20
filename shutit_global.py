@@ -400,7 +400,7 @@ class ShutIt(object):
 				shutit.pause_point(msg + '\n\nPause point on exit_code != 0 (' +
 					res + '). CTRL-C to quit', child=child)
 			else:
-				raise Exception('Exit value from command\n' + send +
+				shutit.fail('Exit value from command\n' + send +
 					'\nwas:\n' + res)
 
 
