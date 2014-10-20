@@ -23,7 +23,6 @@ TESTS=$1
 
 pushd $(dirname ${BASH_SOURCE[0]})/.. > /dev/null 2>&1
 
-set -e 
 #set -x
 
 source test/shared_test_utils.sh
@@ -59,27 +58,48 @@ fi
 find ${SHUTIT_DIR} -name '*.cnf' | grep '/configs/[^/]*.cnf' | xargs chmod 600
 cleanup hard
 
-echo "Testing skeleton build with Dockerfile"
+DESC="Testing skeleton build with Dockerfile"
+echo $DESC
 ./shutit skeleton -d assets/dockerfile/Dockerfile ${NEWDIR} testing shutit.tk
 pushd ${NEWDIR}/bin
 ./test.sh
+if [[ "x$?" != "x0" ]]
+then
+	echo "FAILED ON $DESC"
+	cleanup herd
+	exit 1
+fi
 cleanup hard
 rm -rf ${NEWDIR}
 popd > /dev/null 2>&1
 
-echo "Testing skeleton build basic bare"
+DESC="Testing skeleton build basic bare"
+echo $DESC
 ./shutit skeleton ${NEWDIR} testing shutit.tk
 pushd ${NEWDIR}/bin
 ./test.sh
+if [[ "x$?" != "x0" ]]
+then
+	echo "FAILED ON $DESC"
+	cleanup herd
+	exit 1
+fi
 cleanup hard
 rm -rf ${NEWDIR}
 popd > /dev/null 2>&1
 
 
-echo "Testing skeleton build basic with example script"
+DESC="Testing skeleton build basic with example script"
+echo $DESC
 ./shutit skeleton ${NEWDIR} testing shutit.tk ${SHUTIT_DIR}/assets/example.sh
 pushd ${NEWDIR}/bin
 ./test.sh
+if [[ "x$?" != "x0" ]]
+then
+	echo "FAILED ON $DESC"
+	cleanup herd
+	exit 1
+fi
 cleanup hard
 rm -rf ${NEWDIR}
 popd > /dev/null 2>&1
@@ -112,8 +132,12 @@ do
 				echo "RUNNING: $cmd"
 				echo "================================================================================"
 				$cmd
-				if [[ $? != 0 ]]
+				RES=$?
+				echo $RES
+				if [[ "x$RES" != "x0" ]]
 				then
+					echo "FAILURE |$RES| in: $(pwd) running $cmd"
+					cleanup hard
 					exit 1
 				fi
 				cleanup hard
@@ -139,6 +163,11 @@ then
 	for P in ${!PIDS[*]}; do
 		echo "WAITING FOR $P"
 		wait $P 
+		if [[ $? != 0 ]]
+		then
+			cleanup herd
+			exit 1
+		fi
 		report
 		cleanup nothard
 	done
@@ -149,6 +178,11 @@ if [[ $TESTS != 'basic' ]]
 then
 	pushd  ${SHUTIT_DIR}/library/bin
 	./test.sh 
+	if [[ $? != 0 ]]
+	then
+		cleanup herd
+		exit 1
+	fi
 	popd > /dev/null 2>&1
 	cleanup nothard
 	report
