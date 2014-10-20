@@ -196,26 +196,26 @@ class ConnDocker(ShutItConnModule):
 			cfg[sec][name] = shutit.prompt_cfg(msg, sec, name, ispass=ispass)
 			return False
 
-		# Now check connectivity to the docker daemon
-		check_cmd = docker + ['info']
-		str_cmd = ' '.join(check_cmd)
-		child = pexpect.spawn(check_cmd[0], check_cmd[1:], timeout=cmd_timeout)
-		try:
-			if child.expect(['assword', pexpect.EOF]) == 0:
-				child.sendline(cfg['host']['password'])
-				child.expect(pexpect.EOF)
-		except pexpect.ExceptionPexpect:
-			shutit.fail('"' + str_cmd + '" did not complete in ' +
-			str(cmd_timeout) + 's, ' +
-			'is the docker daemon overloaded?')
-		child.close()
-		if child.exitstatus != 0:
-			msg = ('"' + str_cmd + '" didn\'t return a 0 exit code, is the ' +
-			       'docker daemon running? Do you need to set the ' +
-			       'docker_executable config to use sudo? Please confirm the ' +
-			       'docker executable.')
-			cfg['host']['docker_executable'] = shutit.prompt_cfg(msg, 'host',
-			    'docker_executable')
+		## Now check connectivity to the docker daemon
+		#check_cmd = docker + ['info']
+		#str_cmd = ' '.join(check_cmd)
+		#child = pexpect.spawn(check_cmd[0], check_cmd[1:], timeout=cmd_timeout)
+		#try:
+		#	if child.expect(['assword', pexpect.EOF]) == 0:
+		#		child.sendline(cfg['host']['password'])
+		#		child.expect(pexpect.EOF)
+		#except pexpect.ExceptionPexpect:
+		#	shutit.fail('"' + str_cmd + '" did not complete in ' +
+		#	str(cmd_timeout) + 's, ' +
+		#	'is the docker daemon overloaded?')
+		#child.close()
+		#if child.exitstatus != 0:
+		#	msg = ('"' + str_cmd + '" didn\'t return a 0 exit code, is the ' +
+		#	       'docker daemon running? Do you need to set the ' +
+		#	       'docker_executable config to use sudo? Please confirm the ' +
+		#	       'docker executable.')
+		#	cfg['host']['docker_executable'] = shutit.prompt_cfg(msg, 'host',
+		#	    'docker_executable')
 
 		return True
 

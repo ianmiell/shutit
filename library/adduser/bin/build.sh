@@ -13,4 +13,9 @@ fi
 # This file tests your build, leaving the container intact when done.
 pushd ..
 $SHUTIT build "$@"
+if [[ $? != 0 ]]
+then
+	popd
+	exit 1
+fi
 popd
