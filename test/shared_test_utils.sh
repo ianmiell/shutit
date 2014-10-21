@@ -48,11 +48,12 @@ function cleanup() {
 		then
 			echo "Force-removing containers: $CONTAINERS"
 			# Has been seen to fail - this is best endeavours
-			$DOCKER rm -f $CONTAINERS || /bin/true
+			# Sometimes you have to wait
+			$DOCKER rm -f $CONTAINERS || (sleep 60 && $DOCKER rm -f $CONTAINERS)
 		else
 			echo "Removing containers: $CONTAINERS"
 			# Has been seen to fail - this is best endeavours
-			$DOCKER rm $CONTAINERS || /bin/true
+			$DOCKER rm $CONTAINERS || (sleep 60 && $DOCKER rm $CONTAINERS)
 		fi
 	fi
 }
