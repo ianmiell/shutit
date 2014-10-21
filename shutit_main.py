@@ -337,7 +337,10 @@ def check_dependee_exists(shutit, depender, dependee, dependee_id):
 		        ' but needed for ' + depender.module_id +
 		        '\nCheck your --shutit_module_path setting and ensure that ' +
 		        'all modules configured to be built are in that path setting, ' +
-		        'eg "--shutit_module_path /path/to/other/module/:." See also help.')
+		        'eg "--shutit_module_path /path/to/other/module/:."\n\n' +
+		        'Also check that the module is configured to be built with ' +
+		        'the correct module id in that module\'s configs/build.cnf file.' +
+		        '\n\nSee also help.')
 
 
 def check_dependee_build(shutit, depender, dependee, dependee_id):
@@ -801,7 +804,7 @@ def do_phone_home(msg,question=''):
 	"""
 	if question != '':
 		if util.util_raw_input(prompt=question + ' (Y/n)\n') not in ('y','Y',''):
-			sys.exit(1)
+			return
 	urllib.urlopen("http://shutit.tk?" + urllib.urlencode(msg))
 
 
@@ -824,7 +827,8 @@ if __name__ == '__main__':
 		try:
 			if not shutit_global.shutit.cfg['build']['completed']:
 				do_phone_home({'shutitrunstatus':'fail','pwd':os.getcwd(),'user':os.environ.get('LOGNAME', '')},question='Error seen - would you like to inform the maintainers?')
-			sys.exit(1)
-		except:
-			shutit_global.shutit.log('failed to send message')
-			sys.exit(1)
+				sys.exit(1)
+		except Exception as e:
+			shutit_global.shutit.log('failed to send message: ' + str(e.message))
+			# We don't know what went wrong here, so don't return error
+			sys.exit(0)
