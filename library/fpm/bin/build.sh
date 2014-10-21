@@ -8,7 +8,7 @@ then
 	exit 1
 fi
 pushd ..
-$SHUTIT build --shutit_module_path .. "$@"
+$SHUTIT build -m .. "$@"
 if [[ $? != 0 ]]
 then
         popd
