@@ -21,7 +21,6 @@ class cloudera(ShutItModule):
 		shutit.add_to_bashrc('export JAVA_HOME=/usr/lib/jvm/java-7-oracle-cloudera')
 		shutit.add_to_bashrc('export PATH=$JAVA_HOME/bin:$PATH')
 		shutit.install('cloudera-manager-daemons cloudera-manager-server')
-		# Ports for Cloudera Manager
 		return True
 
 	def finalize(self, shutit):
