@@ -133,7 +133,6 @@ do
 				echo "================================================================================"
 				$cmd
 				RES=$?
-				echo $RES
 				if [[ "x$RES" != "x0" ]]
 				then
 					echo "FAILURE |$RES| in: $(pwd) running $cmd"
