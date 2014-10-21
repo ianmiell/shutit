@@ -824,6 +824,7 @@ if __name__ == '__main__':
 		try:
 			if not shutit_global.shutit.cfg['build']['completed']:
 				do_phone_home({'shutitrunstatus':'fail','pwd':os.getcwd(),'user':os.environ.get('LOGNAME', '')},question='Error seen - would you like to inform the maintainers?')
-				sys.exit(1)
+			sys.exit(1)
 		except:
 			shutit_global.shutit.log('failed to send message')
+			sys.exit(1)
