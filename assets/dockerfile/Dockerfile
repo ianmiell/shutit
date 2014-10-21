@@ -36,9 +36,9 @@ RUN cat /etc/hosts
 # ADD
 # If <dest> does not end with a trailing slash, it will be considered a regular file and the contents of <src> will be written at <dest>. DONE
 # If <dest> doesn't exist, it is created along with all missing directories in its path. DONE
-ADD dockerfiledir /dockerfiledir
-RUN cat /dockerfiledir/subdir/action.sh
-RUN rm -rf /dockerfiledir
+#ADD dockerfiledir /dockerfiledir
+#RUN cat /dockerfiledir/subdir/action.sh
+#RUN rm -rf /dockerfiledir
 
 # If <src> is a directory, the entire directory is copied, DONE including filesystem metadata. TODO
 #ADD . /dockerfiledirdotcopy
@@ -51,9 +51,9 @@ RUN rm -rf /dockerfiledir
 #RUN cat /tmp/addtmp/dockerfiledir/README.md
 #RUN rm -rf /tmp/addtmp
 
-ADD dockerfiledir /tmp/addtmp2/
-RUN cat /tmp/addtmp2/dockerfiledir/subdir/action.sh
-RUN rm -rf /tmp/addtmp2
+#ADD dockerfiledir /tmp/addtmp2/
+#RUN cat /tmp/addtmp2/dockerfiledir/subdir/action.sh
+#RUN rm -rf /tmp/addtmp2
 
 # If <src> is a URL and <dest> does not end with a trailing slash, then a file is downloaded from the URL and copied to <dest>. DONE
 ADD https://raw.githubusercontent.com/ianmiell/shutit/master/README.md /tmp/shutit/README.md
