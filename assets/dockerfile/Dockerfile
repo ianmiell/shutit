@@ -18,19 +18,19 @@ RUN cat /etc/hosts
 # COPY
 # If <src> is any other kind of file, it is copied individually DONE along with its metadata TODO. In this case, if <dest> ends with a trailing slash /, it will be considered a directory and the contents of <src> will be written at <dest>/base(<src>). DONE
 # If <dest> does not end with a trailing slash, it will be considered a regular file and the contents of <src> will be written at <dest>. DONE
-COPY dockerfiledir/README.md /tmp/README.md
-RUN cat /tmp/README.md
-RUN rm /tmp/README.md
+#COPY dockerfiledir/README.md /tmp/README.md
+#RUN cat /tmp/README.md
+#RUN rm /tmp/README.md
 
 # If <dest> doesn't exist, it is created along with all missing directories in its path. DONE
-COPY dockerfiledir/README.md /tmp/copytmp/
-RUN cat /tmp/copytmp/dockerfiledir/README.md
-RUN rm -rf /tmp/copytmp
+#COPY dockerfiledir/README.md /tmp/copytmp/
+#RUN cat /tmp/copytmp/dockerfiledir/README.md
+#RUN rm -rf /tmp/copytmp
 
 # If <src> is a directory, the entire directory is copied DONE, including filesystem metadata. TODO
-COPY dockerfiledir /tmp/copytmp2/
-RUN cat /tmp/copytmp2/dockerfiledir/README.md
-RUN rm -rf /tmp/copytmp2
+#COPY dockerfiledir /tmp/copytmp2/
+#RUN cat /tmp/copytmp2/dockerfiledir/README.md
+#RUN rm -rf /tmp/copytmp2
 
 
 # ADD
@@ -41,15 +41,15 @@ RUN cat /dockerfiledir/subdir/action.sh
 RUN rm -rf /dockerfiledir
 
 # If <src> is a directory, the entire directory is copied, DONE including filesystem metadata. TODO
-ADD . /dockerfiledirdotcopy
-RUN cat /dockerfiledirdotcopy/dockerfiledir/README.md
-RUN rm -rf /dockerfiledirdotcopy
+#ADD . /dockerfiledirdotcopy
+#RUN cat /dockerfiledirdotcopy/dockerfiledir/README.md
+#RUN rm -rf /dockerfiledirdotcopy
 
 
 # If <src> is any other kind of file, it is copied individually DONE along with its metadata TODO. In this case, if <dest> ends with a trailing slash /, it will be considered a directory and the contents of <src> will be written at <dest>/base(<src>). DONE
-ADD dockerfiledir/README.md /tmp/addtmp/
-RUN cat /tmp/addtmp/dockerfiledir/README.md
-RUN rm -rf /tmp/addtmp
+#ADD dockerfiledir/README.md /tmp/addtmp/
+#RUN cat /tmp/addtmp/dockerfiledir/README.md
+#RUN rm -rf /tmp/addtmp
 
 ADD dockerfiledir /tmp/addtmp2/
 RUN cat /tmp/addtmp2/dockerfiledir/subdir/action.sh
