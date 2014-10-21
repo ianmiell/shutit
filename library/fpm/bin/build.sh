@@ -8,7 +8,7 @@ then
 	exit 1
 fi
 pushd ..
-$SHUTIT build -m .. "$@"
+$SHUTIT build "$@"
 if [[ $? != 0 ]]
 then
         popd
