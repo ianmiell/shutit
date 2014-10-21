@@ -66,7 +66,7 @@ pushd ${NEWDIR}/bin
 if [[ "x$?" != "x0" ]]
 then
 	echo "FAILED ON $DESC"
-	cleanup herd
+	cleanup hard
 	exit 1
 fi
 cleanup hard
@@ -81,7 +81,7 @@ pushd ${NEWDIR}/bin
 if [[ "x$?" != "x0" ]]
 then
 	echo "FAILED ON $DESC"
-	cleanup herd
+	cleanup hard
 	exit 1
 fi
 cleanup hard
@@ -97,7 +97,7 @@ pushd ${NEWDIR}/bin
 if [[ "x$?" != "x0" ]]
 then
 	echo "FAILED ON $DESC"
-	cleanup herd
+	cleanup hard
 	exit 1
 fi
 cleanup hard
@@ -165,7 +165,7 @@ then
 		wait $P 
 		if [[ $? != 0 ]]
 		then
-			cleanup herd
+			cleanup hard
 			exit 1
 		fi
 		report
@@ -180,7 +180,7 @@ then
 	./test.sh 
 	if [[ $? != 0 ]]
 	then
-		cleanup herd
+		cleanup hard
 		exit 1
 	fi
 	popd > /dev/null 2>&1
