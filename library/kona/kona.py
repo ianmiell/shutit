@@ -45,7 +45,7 @@ class kona(ShutItModule):
 
 def module():
 	return kona(
-		'shutit.tk.kona.kona', 782914092.00,
+		'shutit.tk.kona.kona', 0.1251568234,
 		description='Open source K interpreter',
 		maintainer='ian.miell@gmail.com',
 		depends=['shutit.tk.setup']

@@ -66,7 +66,7 @@ class tclpy(ShutItModule):
 
 def module():
 	return tclpy(
-		'shutit.tk.tclpy.tclpy', 782914092.0125235135315,
+		'shutit.tk.tclpy.tclpy', 0.0125235135315,
 		description='',
 		maintainer='',
 		depends=['shutit.tk.setup']
