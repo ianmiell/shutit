@@ -17,11 +17,13 @@ class luakernel(ShutItModule):
 		shutit.install('xorriso')
 		shutit.install('lua5.2')
 		shutit.install('grub-common')
-		shutit.send('export CPATH=/usr/include/x86_64-linux-gnu:/usr/include')
-		shutit.send('export LIBRARY_PATH=/lib:/lib32:/libx32:/lib64')
+		#shutit.send('export CPATH=/usr/include/x86_64-linux-gnu:/usr/include')
+		#shutit.send('export LIBRARY_PATH=/lib:/lib32:/libx32:/lib64')
 		shutit.send('git clone https://github.com/ers35/luakernel.git')
 		shutit.send('cd luakernel')
+		shutit.login('root')
 		shutit.send('make')
+		shutit.logout()
 		return True
 
 	#def get_config(self, shutit):
