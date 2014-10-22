@@ -40,7 +40,7 @@ import datetime
 from shutit_module import ShutItFailException
 
 
-def random_id(size=5, chars=string.ascii_letters + string.digits):
+def random_id(size=10, chars=string.ascii_letters + string.digits):
 	"""Generates a random string of given size from the given chars.
 	size    - size of random string
 	chars   - constituent pool of characters to draw random characters from

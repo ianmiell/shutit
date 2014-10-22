@@ -271,7 +271,7 @@ def get_configs(shutit, configs):
 			cp.readfp(config[1], filename=config[0])
 		else:
 			cp.read(config)
-	#TODO: treat allowed_images as a special, additive case
+	# Treat allowed_images as a special, additive case
 	shutit.cfg['build']['allowed_images'] = cp.get_config_set('build', 'allowed_images')
 	return cp
 
@@ -381,7 +381,7 @@ def get_base_config(cfg, cfg_parser):
 def parse_args(cfg):
 	"""Responsible for parsing arguments.
 
-	TODO: precendence
+	TODO: precendence of configs documented
 
 	Environment variables:
 	SHUTIT_OPTIONS:
@@ -1012,7 +1012,7 @@ def create_skeleton(shutit):
 			elif docker_command == 'EXPOSE':
 				# Put in the run.sh.
 				shutit.cfg['dockerfile']['expose'].append(item[1])
-			elif docker_command == "ENTRYPOINT": #TODO
+			elif docker_command == "ENTRYPOINT":
 				# Put in the run.sh? Yes, if it exists it goes at the front of cmd
 				try:
 					shutit.cfg['dockerfile']['entrypoint'] = ' '.join(json.loads(item[1]))
@@ -1043,10 +1043,10 @@ def create_skeleton(shutit):
 					shutit.cfg['dockerfile']['script'].append((docker_command, ' '.join(json.loads(item[1]))))
 				except:
 					shutit.cfg['dockerfile']['script'].append((docker_command, item[1]))
-			elif docker_command == "ADD": #TODO rules
+			elif docker_command == "ADD":
 				# Send file - is this potentially got from the web? Is that the difference between this and COPY?
 				shutit.cfg['dockerfile']['script'].append((docker_command, item[1]))
-			elif docker_command == "COPY": #TODO rules
+			elif docker_command == "COPY":
 				# Send file
 				shutit.cfg['dockerfile']['script'].append((docker_command, item[1]))
 			elif docker_command == "WORKDIR":
