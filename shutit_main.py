@@ -251,7 +251,6 @@ def config_collection_for_built(shutit):
 					ok = True
 					break
 			if not ok:
-				# TODO: warn if in debug, unless it's the currently-built module, in which case exit
 				print('\n\nWARNING!\n\nAllowed images for ' + module_id + ' are: ' +
 				      str(shutit.cfg[module_id]['shutit.core.module.allowed_images']) +
 				      ' but the configured image is: ' +
@@ -699,7 +698,6 @@ def shutit_main():
 						bashrc = os.path.expanduser('~/') + '.bashrc'
 						if os.path.isfile(bashrc):
 							with open(bashrc, "a") as myfile:
-								# TODO: possible to get it if not already there, so check it
 								#http://unix.stackexchange.com/questions/26676/how-to-check-if-a-shell-is-login-interactive-batch
 								myfile.write('export PATH="$PATH:' + path_to_shutit + '"\n')
 					break

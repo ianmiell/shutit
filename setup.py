@@ -248,9 +248,9 @@ class ConnDocker(ShutItConnModule):
 		if cfg['build']['privileged']:
 			privileged_arg = '--privileged=true'
 		else:
-			# TODO: put in to ensure serve always works.
+			# TODO: put in to ensure serve always works. --cap-add is now an option.
 			# Need better solution in place, eg refresh builder when build
-		# needs privileged
+			# needs privileged
 			privileged_arg = '--privileged=true'
 		if cfg['build']['lxc_conf'] != '':
 			lxc_conf_arg = '--lxc-conf=' + cfg['build']['lxc_conf']
