@@ -7,8 +7,11 @@
 ###############################################################################
 # When this module is the one being built, which modules should be built along with it by default?
 # This feeds into automated testing of each module.
-[shutit.tk.psty.psty]
+[shutit.tk.pigshell.psty]
 shutit.core.module.build:yes
+[shutit.tk.pigshell.pigshell]
+shutit.core.module.build:yes
+
 # Allowed images as a regexp, eg ["ubuntu:12.*"], or [".*"], or ["centos"].
 # It's recommended this is locked down as far as possible.
 shutit.core.module.allowed_images:["ubuntu:14.04"]

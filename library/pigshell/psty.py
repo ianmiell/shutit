@@ -47,7 +47,7 @@ class psty(ShutItModule):
 
 def module():
 	return psty(
-		'shutit.tk.psty.psty', 0.12659152,
+		'shutit.tk.pigshell.psty', 0.12659152,
 		description='Runs a local psty server for pigshell.com',
 		maintainer='ian.miell@gmail.com',
 		depends=['shutit.tk.setup']
