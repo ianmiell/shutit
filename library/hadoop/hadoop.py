@@ -19,20 +19,11 @@ class hadoop(ShutItModule):
 		# TODO: configure version number
 		shutit.send('wget http://mirror.gopotato.co.uk/apache/hadoop/common/stable/hadoop-2.5.1.tar.gz')
 		shutit.send('tar -zxvf hadoop*tar.gz')
-		shutit.send('export HADOOP_PREFIX=/opt/hadoop-2.5.1')
 		shutit.send('mkdir input')
-		shutit.pause_point('install hadoop, get java home')
-#"Unpack the downloaded Hadoop distribution. In the distribution, edit the file etc/hadoop/hadoop-env.sh to define some parameters as follows:
-#  # set to the root of your Java installation
-#  export JAVA_HOME=/usr/java/latest
-#  # Assuming your installation directory is /usr/local/hadoop
-#  export HADOOP_PREFIX=/usr/local/hadoop
-#Try the following command:
-#  $ bin/hadoop
-#This will display the usage documentation for the hadoop script.
-#Now you are ready to start your Hadoop cluster in one of the three supported modes:"
-
-# http://hadoop.apache.org/docs/current/hadoop-project-dist/hadoop-common/SingleCluster.html#Standalone_Operation
+		shutit.add_line_to_file('export HADOOP_PREFIX=/opt/hadoop-2.5.1','/opt/hadoop-2.5.1/hadoop_env.sh')
+		# TODO: add to bashrc?
+		shutit.send('export JAVA_HOME=/usr')
+		shutit.send('pushd hadoop-2.5.1')
 		shutit.send('popd')
 		return True
 
