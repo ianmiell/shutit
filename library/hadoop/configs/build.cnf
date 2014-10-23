@@ -7,12 +7,12 @@
 ###############################################################################
 # When this module is the one being built, which modules should be built along with it by default?
 # This feeds into automated testing of each module.
-[shutit.tk.java_oracle_6.java_oracle_6_jdk]
+[shutit.tk.hadoop.hadoop]
 shutit.core.module.build:yes
 # Allowed images as a regexp, eg ["ubuntu:12.*"], or [".*"], or ["centos"].
 # It's recommended this is locked down as far as possible.
-shutit.core.module.allowed_images:["phusion/baseimage:latest","ubuntu:14.04"]
+shutit.core.module.allowed_images:["ubuntu:14.04"]
 
 # Aspects of build process
 [build]
-base_image:phusion/baseimage:latest
+base_image:ubuntu:14.04
