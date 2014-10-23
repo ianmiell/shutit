@@ -7,7 +7,7 @@ then
 	exit 1
 fi
 pushd ..
-$SHUTIT build --shutit_module_path ../java_oracle_6 "$@"
+$SHUTIT build --shutit_module_path ../java_oracle_6:../ssh_key:../adduser:../ssh_server "$@"
 if [[ $? != 0 ]]
 then
 	popd

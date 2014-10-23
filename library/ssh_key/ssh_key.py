@@ -43,7 +43,7 @@ class ssh_key(ShutItModule):
 
 def module():
 	return ssh_key(
-		'shutit.tk.ssh_key.ssh_key', 0.321759,
+		'shutit.tk.ssh_key.ssh_key', 0.121759,
 		description='ssh key provisioning, just for the build. private keys are deleted at end of build.',
 		depends=['shutit.tk.setup', 'shutit.tk.adduser.adduser', 'shutit.tk.ssh_server.ssh_server']
 	)
