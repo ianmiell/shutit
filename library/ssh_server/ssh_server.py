@@ -75,7 +75,7 @@ class ssh_server(ShutItModule):
 
 def module():
 	return ssh_server(
-		'shutit.tk.ssh_server.ssh_server', 0.321,
+		'shutit.tk.ssh_server.ssh_server', 0.121,
 		description='ssh server',
 		depends=['shutit.tk.setup']
 	)
