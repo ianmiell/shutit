@@ -27,7 +27,7 @@ Structured:
 Flexible:
 
 - Modules model shell interactions, with all the freedom and control that implies
-- Modules can be plugged together like lego
+- Modules can be plugged together like legos
 - GUI allows to you build and download images for your own needs (see http://shutit.tk)
 - Module scripts are in python, allowing full language control
 - Many helper functions for common interaction patterns
@@ -94,7 +94,7 @@ As you plug together more and more modules, you'll find you need a build lifecyc
 What ShutIt does to manage this is:
 
 - gathers all the modules it can find in its path and determines their ordering
-- for all modules, it gathers any build-specific config (eg passwords etc)
+- for all modules, it gathers any build-specific config (e.g. passwords etc.)
 - it checks dependencies and conflicts across all modules and figures out which modules need to be built
 - for all modules, it checks whether the module is already installed
 - for all modules, if it needs building, it runs the build
