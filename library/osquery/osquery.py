@@ -87,8 +87,8 @@ class osquery(ShutItModule):
 def module():
 	return osquery(
 		'shutit.tk.osquery.osquery', 0.11352451,
-		description='',
-		maintainer='',
-		depends=['shutit.tk.setup','shutit.tk.rocksdb.rocksdb']
+		description='Facebook\'s OSQuery sql tool',
+		maintainer='ian.miell@gmail.com',
+		depends=['shutit.tk.setup','shutit.tk.rocksdb.rocksdb','shutit.tk.thrift.thrift']
 	)
 
