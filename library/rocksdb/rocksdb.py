@@ -14,6 +14,8 @@ class rocksdb(ShutItModule):
 
 	def build(self, shutit):
 		shutit.install('git')
+		shutit.install('make')
+		shutit.install('g++')
 		shutit.send('pushd /opt')
 		shutit.send('git clone https://github.com/facebook/rocksdb.git')
 		shutit.send('pushd /opt/rockdsb')
