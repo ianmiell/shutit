@@ -56,7 +56,7 @@ class osquery(ShutItModule):
 		shutit.send('popd')
 		shutit.send('pushd /opt')
 		shutit.send('git clone https://github.com/facebook/osquery.git')
-		shutit.send('pushd /osquery')
+		shutit.send('pushd /opt/osquery')
 		shutit.send('git submodule init')
 		shutit.send('git submodule update')
 		shutit.send('make')
