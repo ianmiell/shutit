@@ -979,7 +979,7 @@ def create_skeleton(shutit):
 			dockerfile_dirname = os.path.dirname(skel_dockerfile)
 			if dockerfile_dirname == '':
 				shutit.fail('Dockerfile must be absolute')
-			if os.path.exists(dockerfile_dirname + '/context'):
+			if os.path.exists(dockerfile_dirname):
 				shutil.rmtree(skel_path + '/context')
 				shutil.copytree(dockerfile_dirname, skel_path + '/context')
 				# Remove Dockerfile as it's not part of the context.
