@@ -15,10 +15,16 @@ class rocksdb(ShutItModule):
 		shutit.install('git')
 		shutit.install('make')
 		shutit.install('g++')
+		shutit.install('libgflags-dev')
+		shutit.install('libbz2-dev')
 		shutit.send('pushd /opt')
 		shutit.send('git clone https://github.com/facebook/rocksdb.git')
 		shutit.send('pushd /opt/rockdsb')
+		shutit.send('make')
 		shutit.send('make all')
+		shutit.send('make install')
+		shutit.send('popd')
+		shutit.send('popd')
 		return True
 
 	#def get_config(self, shutit):
@@ -43,9 +49,9 @@ class rocksdb(ShutItModule):
 
 def module():
 	return rocksdb(
-		'shutit.tk.rocksdb.rocksdb', 782914092.00,
-		description='',
-		maintainer='',
+		'shutit.tk.rocksdb.rocksdb', 0.1103251735,
+		description='Facebook\'s rocksdb',
+		maintainer='ian.miell@gmail.com',
 		depends=['shutit.tk.setup']
 	)
 

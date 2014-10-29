@@ -53,9 +53,9 @@ class thrift(ShutItModule):
 
 def module():
 	return thrift(
-		'shutit.tk.thrift.thrift', 0.2124125,
+		'shutit.tk.thrift.thrift', 0.1124125,
 		description='',
-		maintainer='',
+		maintainer='ian.miell@gmail.com',
 		depends=['shutit.tk.setup']
 	)
 

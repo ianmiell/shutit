@@ -89,6 +89,6 @@ def module():
 		'shutit.tk.osquery.osquery', 0.11352451,
 		description='',
 		maintainer='',
-		depends=['shutit.tk.setup']
+		depends=['shutit.tk.setup','shutit.tk.rocksdb.rocksdb']
 	)
 
