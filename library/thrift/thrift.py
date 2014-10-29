@@ -22,13 +22,17 @@ class thrift(ShutItModule):
 		shutit.install('libevent-dev')
 		shutit.install('bison')
 		shutit.install('make')
+		shutit.install('libboost1.55-all-dev')
+		shutit.install('libssl-dev')
 		shutit.send('pushd /opt')
 		shutit.send('git clone https://github.com/apache/thrift.git')
 		shutit.send('pushd /opt/thrift')
 		shutit.send('./bootstrap.sh')
 		shutit.send('./configure')
 		shutit.send('make')
-
+		shutit.send('make install')
+		shutit.send('popd')
+		shutit.send('popd')
 		return True
 
 	#def get_config(self, shutit):

@@ -40,21 +40,6 @@ class osquery(ShutItModule):
 		shutit.send('export CPATH=/usr/lib/x86_64-linux-gnu:/opt/rocksdb/include')
 		shutit.send('export LIBRARY_PATH=/usr/local/lib')
 		shutit.send('pushd /opt')
-		shutit.send('git clone https://github.com/apache/thrift.git')
-		shutit.send('pushd /opt/thrift')
-		shutit.send('./bootstrap.sh')
-		shutit.send('./configure')
-		shutit.send('make')
-		shutit.send('popd')
-		shutit.send('popd')
-		shutit.send('pushd /opt')
-		shutit.send('git clone https://github.com/facebook/rocksdb.git')
-		shutit.send('pushd /opt/rocksdb')
-		shutit.send('make all')
-		shutit.send('make install')
-		shutit.send('popd')
-		shutit.send('popd')
-		shutit.send('pushd /opt')
 		shutit.send('git clone https://github.com/facebook/osquery.git')
 		shutit.send('pushd /opt/osquery')
 		shutit.send('git submodule init')
@@ -87,8 +72,8 @@ class osquery(ShutItModule):
 def module():
 	return osquery(
 		'shutit.tk.osquery.osquery', 0.11352451,
-		description='',
-		maintainer='',
-		depends=['shutit.tk.setup','shutit.tk.rocksdb.rocksdb']
+		description='Facebook\'s OSQuery sql tool',
+		maintainer='ian.miell@gmail.com',
+		depends=['shutit.tk.setup','shutit.tk.rocksdb.rocksdb','shutit.tk.thrift.thrift']
 	)
 

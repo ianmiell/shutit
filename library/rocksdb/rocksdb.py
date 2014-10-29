@@ -19,7 +19,7 @@ class rocksdb(ShutItModule):
 		shutit.install('libbz2-dev')
 		shutit.send('pushd /opt')
 		shutit.send('git clone https://github.com/facebook/rocksdb.git')
-		shutit.send('pushd /opt/rockdsb')
+		shutit.send('pushd /opt/rocksdb')
 		shutit.send('make')
 		shutit.send('make all')
 		shutit.send('make install')
