@@ -1,1 +1,3 @@
-java_oracle_6: description of module directory in here
+java_oracle_6: 
+
+Oracle's Java 6

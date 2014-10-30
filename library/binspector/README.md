@@ -1,1 +1,5 @@
-binspector: description of module directory in here
+binspector: 
+
+https://github.com/binspector/binspector
+
+A binary format analysis tool

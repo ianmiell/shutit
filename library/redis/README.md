@@ -1,1 +1,5 @@
-redis: description of module directory in here
+redis:
+
+key-value store
+
+http://redis.io/

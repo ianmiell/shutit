@@ -1,1 +1,5 @@
-linuxbrew: description of module directory in here
+linuxbrew: 
+
+https://github.com/Homebrew/linuxbrew
+
+Implementation of brew in linux
