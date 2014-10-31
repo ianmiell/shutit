@@ -1296,7 +1296,7 @@ def module():
        WORKDIR shutit
        RUN pip install -r requirements.txt
 
-       WORKDIR ''' + skel_path + ''' # You probably want to change this
+       WORKDIR ''' + skel_path + ''' <- TODO You will need to to change this
        RUN /opt/shutit/shutit build --shutit_module_path /opt/shutit/library --delivery bash
 
        CMD ["/bin/bash"] 

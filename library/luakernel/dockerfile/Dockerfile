@@ -7,7 +7,7 @@ RUN git clone https://github.com/ianmiell/shutit.git
 WORKDIR shutit
 RUN pip install -r requirements.txt
 
-WORKDIR /home/imiell/shutit_dev/library/luakernel # You probably want to change this
+WORKDIR /opt/shutit/library/luakernel
 RUN /opt/shutit/shutit build --shutit_module_path /opt/shutit/library --delivery bash
 
 CMD ["/bin/bash"] 
