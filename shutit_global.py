@@ -1346,6 +1346,9 @@ class ShutIt(object):
 			shutit.log('Resetting default expect to: ' +
 			shutit.cfg['expect_prompts'][prompt_name])
 			self.set_default_expect(shutit.cfg['expect_prompts'][prompt_name])
+		# Now we've set up the prompt, we don't need the newline at the front.
+		# This helps us when the returned output does not include a newline at the end.
+		shutit.cfg['expect_prompts'][prompt_name] = local_prompt
 
 
 	def revert_prompt(self, old_prompt_name, new_expect=None, child=None):
