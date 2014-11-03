@@ -1304,10 +1304,10 @@ class ShutIt(object):
 
 
 	def setup_prompt(self,
-					 prompt_name,
-					 prefix='TMP',
-					 child=None,
-					 set_default_expect=True):
+	                 prompt_name,
+	                 prefix='TMP',
+	                 child=None,
+	                 set_default_expect=True):
 		"""Use this when you've opened a new shell to set the PS1 to something
 		sane. By default, it sets up the default expect so you don't have to
 		worry about it and can just call shutit.send('a command').
