@@ -1333,14 +1333,14 @@ class ShutIt(object):
 		"""
 		child = child or self.get_default_child()
 		local_prompt = 'SHUTIT_' + prefix + '#' + random_id() + '>'
-		shutit.cfg['expect_prompts'][prompt_name] = '\r\n' + local_prompt
+		shutit.cfg['expect_prompts'][prompt_name] = local_prompt
 		self.send(
 			("SHUTIT_BACKUP_PS1_%s=$PS1 && PS1='%s' && unset PROMPT_COMMAND") %
 				(prompt_name, local_prompt),
 			# The newline in the list is a hack. On my work laptop this line hangs
 			# and times out very frequently. This workaround seems to work, but I
 			# haven't figured out why yet - imiell.
-			expect=[self.cfg['expect_prompts'][prompt_name],'\r\n'],
+			expect=['\r\n' + self.cfg['expect_prompts'][prompt_name]],
 			fail_on_empty_before=False, timeout=5, child=child)
 		if set_default_expect:
 			shutit.log('Resetting default expect to: ' +

@@ -36,7 +36,7 @@ class digital_ocean(ShutItModule):
 		# Read in the token
 		token = open(shutit.cfg[self.module_id]['oauth_token_file']).read().strip()
 		shutit.install('curl')
-		shutit.send('curl -u "' + token + ':" -X GET "https://api.digitalocean.com/v2/droplets" && echo')
+		shutit.send('curl -u "' + token + ':" -X GET "https://api.digitalocean.com/v2/droplets"')
 		return True
 
 	def get_config(self, shutit):
