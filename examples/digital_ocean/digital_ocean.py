@@ -24,38 +24,46 @@ from shutit_module import ShutItModule
 
 class digital_ocean(ShutItModule):
 
+	# Before we start the run, let's check that the access token exists.
+	def check_ready(self, shutit):
+		shutit.file_exists(shutit.cfg[self.module_id]['oauth_token_file'])
+		return True
+
 	def is_installed(self, shutit):
 		return False
 
 	def build(self, shutit):
+		# Read in the token
+		token = open(shutit.cfg[self.module_id]['oauth_token_file']).read().strip()
+		shutit.install('curl')
+		shutit.send('curl -u "' + token + ':" -X GET "https://api.digitalocean.com/v2/droplets"')
 		return True
 
-	#def get_config(self, shutit):
-	#    return True
-
-	#def check_ready(self, shutit):
-	#    return True
+	def get_config(self, shutit):
+		# oauth access token filename, defaults to context/access_token.dat
+		shutit.get_config(self.module_id,'oauth_token_file','context/access_token.dat')
+		return True
 	
 	#def start(self, shutit):
-	#    return True
+	#	return True
 
 	#def stop(self, shutit):
-	#    return True
+	#	return True
 
 	#def finalize(self, shutit):
-	#    return True
+	#	return True
 
 	#def remove(self, shutit):
-	#    return True
+	#	return True
 
 	#def test(self, shutit):
-	#    return True
+	#	return True
 
 def module():
 	return digital_ocean(
-		'shutit.tk.digital_ocean.digital_ocean', 782914092.00,
-		description='',
-		maintainer='',
+		'shutit.tk.digital_ocean.digital_ocean', 0.1135,
+		description='Digital Ocean API example',
+		maintainer='ian.miell@gmail.com',
 		depends=['shutit.tk.setup']
 	)
 
