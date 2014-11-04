@@ -32,7 +32,7 @@ class weave(ShutItModule):
 
 	def stop(self, shutit):
 		shutit.send('weave stop')
-	    return True
+		return True
 
 	#def finalize(self, shutit):
 	#	return True
