@@ -157,7 +157,7 @@ END"""
 def module():
 	return docker(
 		'shutit.tk.docker.docker', 0.396,
-		description='docker server (communicates with host\'s docker daemon)',
+		description="docker server (communicates with host's docker daemon)",
 		depends=['shutit.tk.setup', 'shutit.tk.ssh_server.ssh_server']
 	)
 
