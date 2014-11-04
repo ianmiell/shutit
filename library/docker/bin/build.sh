@@ -12,7 +12,7 @@ then
 fi
 # This file tests your build, leaving the container intact when done.
 pushd ..
-$SHUTIT build -m .. "$@"
+$SHUTIT build -m ../ssh_server "$@"
 if [[ $? != 0 ]]
 then
         popd
