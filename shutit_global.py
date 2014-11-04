@@ -40,7 +40,7 @@ import datetime
 from shutit_module import ShutItFailException
 
 
-def random_id(size=10, chars=string.ascii_letters + string.digits):
+def random_id(size=3, chars=string.ascii_letters + string.digits):
 	"""Generates a random string of given size from the given chars.
 	size    - size of random string
 	chars   - constituent pool of characters to draw random characters from
@@ -234,7 +234,7 @@ class ShutIt(object):
 	         fail_on_empty_before=True,
 	         record_command=None,
 	         exit_values=None,
-	         echo=None):
+	         echo=False):
 		"""Send string as a shell command, and wait until the expected output
 		is seen (either a string or any from a list of strings) before
 		returning. The expected string will default to the currently-set

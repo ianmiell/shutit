@@ -28,6 +28,7 @@ class postgres(ShutItModule):
 		return shutit.file_exists('/root/start_postgres.sh')
 
 	def build(self, shutit):
+		shutit.send("""cat > /root/stop_postgres.sh <<< 'service postgresql stop'""")
 		shutit.install('postgresql')
 		shutit.add_line_to_file('# postgres', '/root/start_postgres.sh')
 		shutit.add_line_to_file("echo Setting shmmax for postgres", '/root/start_postgres.sh')
