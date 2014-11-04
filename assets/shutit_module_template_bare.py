@@ -26,7 +26,8 @@ class template(ShutItModule):
 	#	return True
 
 	#def stop(self, shutit):
-	#    return True
+	#	return True
+
 	#def finalize(self, shutit):
 	#	return True
 
