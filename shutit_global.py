@@ -191,16 +191,16 @@ class ShutIt(object):
 		time.sleep(pause)
 
 	def multisend(self,
-				  send,
-				  send_dict,
-				  expect=None,
-				  child=None,
-				  timeout=3600,
-				  check_exit=None,
-				  fail_on_empty_before=True,
-				  record_command=None,
-				  exit_values=None,
-				  echo=None):
+	              send,
+	              send_dict,
+	              expect=None,
+	              child=None,
+	              timeout=3600,
+	              check_exit=None,
+	              fail_on_empty_before=True,
+	              record_command=None,
+	              exit_values=None,
+	              echo=None):
 		"""Multisend. Same as send, except it takes multiple sends and expects in a dict that are
 		processed while waiting for the end "expect" argument supplied.
 
