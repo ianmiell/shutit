@@ -1332,7 +1332,7 @@ class ShutIt(object):
 		- set_default_expect - Whether to set the default expect to the new prompt.
 		"""
 		child = child or self.get_default_child()
-		local_prompt = 'SHUTIT_' + prefix + '#' + random_id() + '>\n'
+		local_prompt = 'SHUTIT_' + prefix + '#' + random_id() + '>'
 		shutit.cfg['expect_prompts'][prompt_name] = local_prompt
 		self.send(
 			("SHUTIT_BACKUP_PS1_%s=$PS1 && PS1='%s' && unset PROMPT_COMMAND") %
