@@ -40,7 +40,7 @@ import datetime
 from shutit_module import ShutItFailException
 
 
-def random_id(size=10, chars=string.ascii_letters + string.digits):
+def random_id(size=8, chars=string.ascii_letters + string.digits):
 	"""Generates a random string of given size from the given chars.
 	size    - size of random string
 	chars   - constituent pool of characters to draw random characters from
@@ -234,7 +234,7 @@ class ShutIt(object):
 	         fail_on_empty_before=True,
 	         record_command=None,
 	         exit_values=None,
-	         echo=None):
+	         echo=False):
 		"""Send string as a shell command, and wait until the expected output
 		is seen (either a string or any from a list of strings) before
 		returning. The expected string will default to the currently-set
@@ -584,7 +584,8 @@ class ShutIt(object):
 		"""
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
-		test = 'test %s %s' % ('-d' if directory is True else '-a', filename)
+		#       v the space is intentional, to avoid polluting bash history.
+		test = ' test %s %s' % ('-d' if directory is True else '-a', filename)
 		self.send(test +
 			' && echo FILEXIST-""FILFIN || echo FILNEXIST-""FILFIN',
 			expect=expect, child=child, check_exit=False, record_command=False)
@@ -648,7 +649,8 @@ class ShutIt(object):
 		if self.file_exists(filename, expect=expect, child=child):
 			if literal:
 				if match_regexp == None:
-					self.send("""grep -v '^""" + 
+					#            v the space is intentional, to avoid polluting bash history.
+					self.send(""" grep -v '^""" + 
 							  line +
 							  """$' """ +
 							  filename +
@@ -658,7 +660,8 @@ class ShutIt(object):
 							  child=child,
 							  exit_values=['0', '1'])
 				else:
-					self.send("""grep -v '^""" + 
+					#            v the space is intentional, to avoid polluting bash history.
+					self.send(""" grep -v '^""" + 
 							  match_regexp + 
 							  """$' """ +
 							  filename +
@@ -669,7 +672,8 @@ class ShutIt(object):
 							  exit_values=['0', '1'])
 			else:
 				if match_regexp == None:
-					self.send('grep -v "^' +
+					#          v the space is intentional, to avoid polluting bash history.
+					self.send(' grep -v "^' +
 							  line +
 							  '$" ' +
 							  filename +
@@ -679,7 +683,8 @@ class ShutIt(object):
 							  child=child,
 							  exit_values=['0', '1'])
 				else:
-					self.send('grep -v "^' +
+					#          v the space is intentional, to avoid polluting bash history.
+					self.send(' grep -v "^' +
 							  match_regexp +
 							  '$" ' +
 							  filename +
@@ -744,7 +749,8 @@ class ShutIt(object):
 		elif not force:
 			if literal:
 				if match_regexp == None:
-					self.send("""grep -w '^""" + 
+					#            v the space is intentional, to avoid polluting bash history.
+					self.send(""" grep -w '^""" + 
 							  line +
 							  """$' """ +
 							  filename +
@@ -754,7 +760,8 @@ class ShutIt(object):
 							  child=child,
 							  exit_values=['0', '1'])
 				else:
-					self.send("""grep -w '^""" + 
+					#            v the space is intentional, to avoid polluting bash history.
+					self.send(""" grep -w '^""" + 
 							  match_regexp + 
 							  """$' """ +
 							  filename +
@@ -765,7 +772,8 @@ class ShutIt(object):
 							  exit_values=['0', '1'])
 			else:
 				if match_regexp == None:
-					self.send('grep -w "^' +
+					#          v the space is intentional, to avoid polluting bash history.
+					self.send(' grep -w "^' +
 							  line +
 							  '$" ' +
 							  filename +
@@ -775,7 +783,8 @@ class ShutIt(object):
 							  child=child,
 							  exit_values=['0', '1'])
 				else:
-					self.send('grep -w "^' +
+					#          v the space is intentional, to avoid polluting bash history.
+					self.send(' grep -w "^' +
 							  match_regexp +
 							  '$" ' +
 							  filename +
@@ -826,7 +835,8 @@ class ShutIt(object):
 		exist = False
 		if user == '': return exist
 		ret = shutit.send(
-			'id %s && echo E""XIST || echo N""XIST' % user,
+			#v the space is intentional, to avoid polluting bash history.
+			' id %s && echo E""XIST || echo N""XIST' % user,
 			expect=['NXIST', 'EXIST'], child=child
 		)
 		if ret:
@@ -846,10 +856,12 @@ class ShutIt(object):
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
 		if self.cfg['container']['install_type'] == 'apt':
-			self.send("""dpkg -l | awk '{print $2}' | grep "^""" +
+			#            v the space is intentional, to avoid polluting bash history.
+			self.send(""" dpkg -l | awk '{print $2}' | grep "^""" +
 				package + """$" | wc -l""", expect, check_exit=False)
 		elif self.cfg['container']['install_type'] == 'yum':
-			self.send("""yum list installed | awk '{print $1}' | grep "^""" +
+			#            v the space is intentional, to avoid polluting bash history.
+			self.send(""" yum list installed | awk '{print $1}' | grep "^""" +
 				package + """$" | wc -l""", expect, check_exit=False)
 		else:
 			return False
@@ -1334,8 +1346,13 @@ class ShutIt(object):
 		child = child or self.get_default_child()
 		local_prompt = 'SHUTIT_' + prefix + '#' + random_id() + '>'
 		shutit.cfg['expect_prompts'][prompt_name] = local_prompt
+		# Set up the PS1 value.
+		# Keep a backup in SHUTIT_BACKUP_PS1_<ref>
+		# Unset the PROMPT_COMMAND as this can cause nasty surprises in the output.
+		# Set the cols value, as unpleasant escapes are put in the output if the
+		# input is > n chars wide.
 		self.send(
-			("SHUTIT_BACKUP_PS1_%s=$PS1 && PS1='%s' && unset PROMPT_COMMAND") %
+			("SHUTIT_BACKUP_PS1_%s=$PS1 && PS1='%s' && unset PROMPT_COMMAND && stty cols 999999999") %
 				(prompt_name, local_prompt),
 			# The newline in the list is a hack. On my work laptop this line hangs
 			# and times out very frequently. This workaround seems to work, but I
@@ -1360,8 +1377,9 @@ class ShutIt(object):
 		"""
 		child = child or self.get_default_child()
 		expect = new_expect or self.get_default_expect()
+		#     v the space is intentional, to avoid polluting bash history.
 		self.send(
-			('PS1="${SHUTIT_BACKUP_PS1_%s}" && unset SHUTIT_BACKUP_PS1_%s') %
+			(' PS1="${SHUTIT_BACKUP_PS1_%s}" && unset SHUTIT_BACKUP_PS1_%s') %
 				(old_prompt_name, old_prompt_name),
 			expect=expect, check_exit=False, fail_on_empty_before=False)
 		if not new_expect:
@@ -1438,14 +1456,16 @@ class ShutIt(object):
 			distro_version = d['distro_version']
 		else:
 			for key in cfg['build']['install_type_map'].keys():
-				self.send('cat /etc/issue | grep -i "' + key + '" | wc -l',
+			    #          v the space is intentional, to avoid polluting bash history.
+				self.send(' cat /etc/issue | grep -i "' + key + '" | wc -l',
 					check_exit=False)
 				if self.get_re_from_child(child.before, '^([0-9]+)$') == '1':
 					distro       = key
 					install_type = cfg['build']['install_type_map'][key]
 					break
 			if (install_type == '' or distro == ''):
-				self.send('cat /etc/issue',check_exit=False)
+			    #          v the space is intentional, to avoid polluting bash history.
+				self.send(' cat /etc/issue',check_exit=False)
 				if self.get_re_from_child(child.before,'^Kernel .*r on an .*m$'):
 					distro       = 'centos'
 					install_type = 'yum'
@@ -1473,7 +1493,8 @@ class ShutIt(object):
 
 	def lsb_release(self, child=None):
 		child = child or self.get_default_child()
-		self.send('lsb_release -a',check_exit=False)
+		#          v the space is intentional, to avoid polluting bash history.
+		self.send(' lsb_release -a',check_exit=False)
 		dist_string = self.get_re_from_child(child.before,
 			'^Distributor[\s]*ID:[\s]*(.*)$')
 		version_string = self.get_re_from_child(child.before,
@@ -1526,7 +1547,8 @@ class ShutIt(object):
 		"""
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
-		self.send('cut -d: -f3 /etc/paswd | grep -w ^' + user_id + '$ | wc -l',
+		#          v the space is intentional, to avoid polluting bash history.
+		self.send(' cut -d: -f3 /etc/paswd | grep -w ^' + user_id + '$ | wc -l',
 				  child=child, expect=expect, check_exit=False)
 		if self.get_re_from_child(child.before, '^([0-9]+)$') == '1':
 			return False
