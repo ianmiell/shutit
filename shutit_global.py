@@ -697,13 +697,13 @@ class ShutIt(object):
 						 
 
 	def add_line_to_file(self,
-						 line,
-						 filename, 
-						 expect=None,
-						 child=None,
-						 match_regexp=None,
-						 force=False,
-						 literal=False):
+	                     line,
+	                     filename, 
+	                     expect=None,
+	                     child=None,
+	                     match_regexp=None,
+	                     force=False,
+	                     literal=False):
 		"""Adds line to file if it doesn't exist (unless Force is set).
 		Creates the file if it doesn't exist.
 		Must be exactly the line passed in to match.
@@ -1112,14 +1112,14 @@ class ShutIt(object):
 
 
 	def install(self,
-				package,
-				child=None,
-				expect=None,
-				options=None,
-				timeout=3600,
-				force=False,
-				check_exit=True,
-				reinstall=False):
+	            package,
+	            child=None,
+	            expect=None,
+	            options=None,
+	            timeout=3600,
+	            force=False,
+	            check_exit=True,
+	            reinstall=False):
 		"""Distro-independent install function.
 		Takes a package name and runs the relevant install function.
 		Returns true if all ok (ie it's installed), else false.
