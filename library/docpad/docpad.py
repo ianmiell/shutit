@@ -17,7 +17,7 @@ class docpad(ShutItModule):
 		shutit.install('python')
 		shutit.install('nodejs')
 		#shutit.install('git')
-		shutit.send('npm install -g docpad@6.44 && echo ""')
+		shutit.send('npm install -g docpad@6.44')
 		return True
 
 	def finalize(self, shutit):

@@ -34,7 +34,7 @@ class gitlab(ShutItModule):
 
 def module():
 		return gitlab(
-				'shutit.tk.gitlab.gitlab', 782914092.00,
+				'shutit.tk.gitlab.gitlab', 0.121351351,
 				description='',
 				maintainer='sameer@damagehead.com',
 				depends=['shutit.tk.setup']
