@@ -40,7 +40,7 @@ import datetime
 from shutit_module import ShutItFailException
 
 
-def random_id(size=3, chars=string.ascii_letters + string.digits):
+def random_id(size=8, chars=string.ascii_letters + string.digits):
 	"""Generates a random string of given size from the given chars.
 	size    - size of random string
 	chars   - constituent pool of characters to draw random characters from
@@ -1334,8 +1334,13 @@ class ShutIt(object):
 		child = child or self.get_default_child()
 		local_prompt = 'SHUTIT_' + prefix + '#' + random_id() + '>'
 		shutit.cfg['expect_prompts'][prompt_name] = local_prompt
+		# Set up the PS1 value.
+		# Keep a backup in SHUTIT_BACKUP_PS1_<ref>
+		# Unset the PROMPT_COMMAND as this can cause nasty surprises in the output.
+		# Set the cols value, as unpleasant escapes are put in the output if the
+		# input is > n chars wide.
 		self.send(
-			("SHUTIT_BACKUP_PS1_%s=$PS1 && PS1='%s' && unset PROMPT_COMMAND") %
+			("SHUTIT_BACKUP_PS1_%s=$PS1 && PS1='%s' && unset PROMPT_COMMAND && stty cols 999999999") %
 				(prompt_name, local_prompt),
 			# The newline in the list is a hack. On my work laptop this line hangs
 			# and times out very frequently. This workaround seems to work, but I
