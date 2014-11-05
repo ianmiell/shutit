@@ -148,6 +148,14 @@ END"""
 	def is_installed(self, shutit):
 		return False
 
+	def start(self, shutit):
+		shutit.send('/root/start_docker.sh')
+		return True
+
+	def stop(self, shutit):
+		shutit.send('''ps -ef | grep "docker..d " | awk '{print $2}' | xargs kill''')
+		return True
+
 	def check_ready(self, shutit):
 		"""Only apt-based systems are supported support atm.
 		"""

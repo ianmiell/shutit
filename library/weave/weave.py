@@ -13,7 +13,7 @@ class weave(ShutItModule):
 
 
 	def build(self, shutit):
-		shutit.install('conntracker')
+		#shutit.install('conntracker')
 		shutit.install('wget')
 		shutit.install('ethtool')
 		shutit.send('sudo wget -O /usr/local/bin/weave https://raw.githubusercontent.com/zettio/weave/master/weave')
