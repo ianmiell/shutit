@@ -537,7 +537,7 @@ def build_module(shutit, module):
 		           "end of this module? (" + module.module_id +
 		           ") (input y/n)", force_stdout=True, code='31')
 		cfg[module.module_id]['shutit.core.module.tag'] = (util.util_raw_input(shutit=shutit,default='y') == 'y')
-	if cfg[module.module_id]['shutit.core.module.tag']:
+	if cfg[module.module_id]['shutit.core.module.tag'] or cfg['build']['tag_modules']:
 		shutit.log(module.module_id +
 		           ' configured to be tagged, doing repository work',
 		           force_stdout=True)
