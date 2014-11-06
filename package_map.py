@@ -52,7 +52,6 @@ def find_package(sought_package):
 		return PACKAGE_MAP[sought_package]
 	for package in PACKAGE_MAP.keys():
 		for install_type in PACKAGE_MAP[package].keys():
-			print PACKAGE_MAP[package][install_type]
 			if sought_package == PACKAGE_MAP[package][install_type]:
 				return {package:PACKAGE_MAP[package]}
 	return None
