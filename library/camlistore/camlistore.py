@@ -8,12 +8,11 @@ class camlistore(ShutItModule):
 		return False
 
 	def build(self, shutit):
-		shutit.send('apt-get -y --force-yes install git golang')
-		shutit.send('adduser --no-create-home --home /camlistore --disabled-password camlistore')
+		shutit.install('git golang',force=True)
+		shutit.send('pushd /opt')
 		shutit.send('git clone https://github.com/bradfitz/camlistore.git')
-		shutit.send('chmod 777 /camlistore')
-		shutit.send('chown -R camlistore /camlistore')
-		shutit.send('pushd /camlistore')
+		shutit.send('chmod 777 camlistore')
+		shutit.send('pushd camlistore')
 		shutit.send('go run make.go')
 		shutit.send('popd')
 		return True
