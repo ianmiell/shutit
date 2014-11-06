@@ -89,6 +89,31 @@ do
 		[ $SUBSYS = cpuacct, cpu ] && ln -s $SUBSYS $CGROUP/cpu, cpuacct
 done
 
+# From: https://github.com/docker/docker/issues/8791
+cgroupfs_mount() {
+        # see also https://github.com/tianon/cgroupfs-mount/blob/master/cgroupfs-mount
+        if grep -v '^#' /etc/fstab | grep -q cgroup \
+                || [ ! -e /proc/cgroups ] \
+                || [ ! -d /sys/fs/cgroup ]; then
+                return
+        fi
+        if ! mountpoint -q /sys/fs/cgroup; then
+                mount -t tmpfs -o uid=0,gid=0,mode=0755 cgroup /sys/fs/cgroup
+        fi
+        (
+                cd /sys/fs/cgroup
+                for sys in $(awk '!/^#/ { if ($4 == 1) print $1 }' /proc/cgroups); do
+                        mkdir -p $sys
+                        if ! mountpoint -q $sys; then
+                                if ! mount -n -t cgroup -o $sys cgroup $sys; then
+                                        rmdir $sys || true
+                                fi
+                        fi
+                done
+        )
+}
+
+
 # Note: as I write those lines, the LXC userland tools cannot setup
 # a "sub-container" properly if the "devices" cgroup is not in its
 # own hierarchy. Let's detect this and issue a warning.
@@ -117,6 +142,9 @@ popd >/dev/null
 # If a pidfile is still around (for example after a container restart),
 # delete it so that docker can start.
 rm -rf /var/run/docker.pid
+
+# Mount cgroups - see above
+cgroupfs_mount
 
 # If we were given a PORT environment variable, start as a simple daemon;
 # otherwise, spawn a shell as well
