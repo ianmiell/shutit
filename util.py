@@ -458,6 +458,7 @@ def parse_args(cfg):
 		sub_parsers[action].add_argument('-d','--delivery', help='Delivery method. "docker" container (default), configured "ssh" connection, "bash" session', default=None, choices=('docker','container','ssh','bash'))
 		sub_parsers[action].add_argument('-s', '--set', help='Override a config item, e.g. "-s container rm no". Can be specified multiple times.', default=[], action='append', nargs=3, metavar=('SEC', 'KEY', 'VAL'))
 		sub_parsers[action].add_argument('--image_tag', help='Build container using specified image - if there is a symbolic reference, please use that, eg localhost.localdomain:5000/myref', default='')
+		sub_parsers[action].add_argument('--tag_modules', help='Tag each module after it\'s successfully built regardless of the module config and based on the repository config.', default=False, const=True, action='store_const')
 		sub_parsers[action].add_argument('-m', '--shutit_module_path', default=None, help='List of shutit module paths, separated by colons. ShutIt registers modules by running all .py files in these directories.')
 		sub_parsers[action].add_argument('--pause', help='Pause between commands to avoid race conditions.', default='0.05', type=check_pause)
 		sub_parsers[action].add_argument('--debug', help='Show debug.', default=False, const=True, action='store_const')
@@ -568,6 +569,7 @@ def parse_args(cfg):
 	cfg['container']['docker_image'] = args.image_tag
 	cfg['build']['ignorestop']       = args.ignorestop
 	cfg['build']['ignoreimage']      = args.ignoreimage
+	cfg['build']['tag_modules']      = args.tag_modules
 	# Finished parsing args, tutorial stuff
 	if cfg['build']['interactive'] >= 3:
 		print textwrap.dedent("""\
