@@ -27,11 +27,12 @@ class weave(ShutItModule):
 	#	return True
 	
 	def start(self, shutit):
-		shutit.send('weave launch')
+		# TODO: this is synchronous
+		#shutit.send('weave launch')
 		return True
 
 	def stop(self, shutit):
-		shutit.send('weave stop')
+		#shutit.send('weave stop')
 		return True
 
 	#def finalize(self, shutit):
