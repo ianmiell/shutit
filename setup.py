@@ -90,7 +90,6 @@ class ShutItConnModule(ShutItModule):
 		shutit.send('mkdir -p ' + cfg['build']['build_db_dir'] + \
 			 '/' + cfg['build']['build_id'])
 		# Record the command we ran and the python env.
-		# TODO: record the image id we ran against -
 		# wait for "docker debug" command
 		shutit.send_file(cfg['build']['build_db_dir'] + '/' + \
 		    cfg['build']['build_id'] + '/python_env.sh', \

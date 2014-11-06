@@ -21,8 +21,6 @@ class hadoop(ShutItModule):
 		shutit.send('tar -zxvf hadoop*tar.gz')
 		shutit.send('mkdir input')
 		shutit.add_line_to_file('export HADOOP_PREFIX=/opt/hadoop-2.5.1','/opt/hadoop-2.5.1/hadoop_env.sh')
-		# TODO: add to bashrc?
-		shutit.send('export JAVA_HOME=/usr')
 		shutit.send('pushd hadoop-2.5.1')
 		shutit.send('popd')
 		return True
@@ -37,7 +35,8 @@ class hadoop(ShutItModule):
 	#	return True
 
 	#def stop(self, shutit):
-	#    return True
+	#	return True
+
 	#def finalize(self, shutit):
 	#	return True
 

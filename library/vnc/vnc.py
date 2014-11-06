@@ -37,6 +37,7 @@ class vnc(ShutItModule):
 
 	def build(self, shutit):
 		# TODO: distr-independence
+		shutit.step_through('apt-get update')
 		shutit.send('mkdir -p /root/.config/dconf')
 		shutit.send_file('/root/.config/dconf/user', base64.standard_b64decode("""
 R1ZhcmlhbnQAAAAAAAAAABgAAABwAQAAAAAAKAwAAAAAAAAAAAAAAAAAAAABAAAAAQAAAAIAAAAD

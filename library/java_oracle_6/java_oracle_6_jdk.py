@@ -10,7 +10,6 @@ class java_oracle_6_jdk(ShutItModule):
 	def build(self, shutit):
 		# accept-java-license
 		shutit.send('echo /usr/bin/debconf shared/accepted-oracle-license-v1-1 select true | /usr/bin/debconf-set-selections')
-		#shutit.send('apt-get update')
 		shutit.install('software-properties-common')
 		shutit.send('add-apt-repository ppa:webupd8team/java',expect='ENTER')
 		shutit.send('')
@@ -19,6 +18,7 @@ class java_oracle_6_jdk(ShutItModule):
 		shutit.send('apt-get update')
 		shutit.install('oracle-java6-installer')
 		shutit.install('oracle-java6-set-default')
+		shutit.add_to_bashrc('export JAVA_HOME=/usr')
 		return True
 
 	def finalize(self, shutit):

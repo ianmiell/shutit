@@ -232,7 +232,6 @@ def config_collection_for_built(shutit):
 								value = json.loads(value)
 							shutit.get_config(module_id, option,
 							                  value, forcedefault=True)
-	# TODO: re-check command line arguments as well?
 	# Check the allowed_images against the base_image
 	ok = None
 	passed = True
