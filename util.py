@@ -742,7 +742,7 @@ def load_shutit_modules(shutit):
 				if m.run_order == k:
 					 l.append([m.module_id,str(m.run_order)])
 		for i in l:
-			print i[0]
+			print 'loaded module: ' + i[0]
 
 
 def print_config(cfg, hide_password=True, history=False):
