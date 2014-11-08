@@ -1,2 +1,6 @@
 [shutit.tk.prompt_command] 
-build:yes
+shutit.core.module.build:yes
+
+[repository]
+name:test4
+

@@ -198,7 +198,7 @@ class ShutIt(object):
 	              timeout=3600,
 	              check_exit=None,
 	              fail_on_empty_before=True,
-	              record_command=None,
+	              record_command=True,
 	              exit_values=None,
 	              echo=None):
 		"""Multisend. Same as send, except it takes multiple sends and expects in a dict that are
@@ -232,7 +232,7 @@ class ShutIt(object):
 	         timeout=3600,
 	         check_exit=None,
 	         fail_on_empty_before=True,
-	         record_command=None,
+	         record_command=True,
 	         exit_values=None,
 	         echo=False):
 		"""Send string as a shell command, and wait until the expected output
@@ -312,6 +312,7 @@ class ShutIt(object):
 								and cfg[i][j] == send):
 							self.shutit_command_history.append \
 								('#redacted command, password')
+							print self.shutit_command_history
 							ok_to_record = False
 							break
 					if not ok_to_record:
