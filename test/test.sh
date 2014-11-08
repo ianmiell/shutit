@@ -119,6 +119,10 @@ do
 		if [[ -a STOPTEST ]]
 		then
 			echo "STOPTEST file found in $(pwd)"
+		elif [[ -a /tmp/SHUTITSTOPTEST ]]
+			then
+				echo "/tmp/SHUTITSTOPTEST file found in /tmp"
+			fi
 		else
 			# Must be done on each iteration as we ned a fresh cid per test run
 			set_shutit_options "--image_tag $dist --interactive 0"
