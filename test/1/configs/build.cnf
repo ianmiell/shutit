@@ -18,3 +18,7 @@ signature:--Angry Shutit
 compress:yes
 username:shutittest
 password:elephanttree
+
+[repository]
+name:test1
+
