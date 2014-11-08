@@ -8,3 +8,7 @@
 
 [shutit.tk.test.test3]
 shutit.core.module.build:yes
+
+[repository]
+name:test3
+
