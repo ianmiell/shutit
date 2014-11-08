@@ -113,7 +113,7 @@ class Emailer():
 				self.config[cfg_name] = self.shutit.cfg[cfg_section][cfg_name]
 			except KeyError:
 				if cfg_default is None:
-					raise Exception(cfg_default + ' must be set')
+					raise Exception(cfg_section + ' ' + cfg_name + ' must be set')
 				else:
 					self.config[cfg_name] = cfg_default
 
@@ -182,7 +182,7 @@ class Emailer():
 		if self.config['shutit.core.alerting.emailer.mailto_maintainer']:
 			msg['Cc'] = self.config['shutit.core.alerting.emailer.maintainer']
 		if self.config['shutit.core.alerting.emailer.signature'] != '':
-			signature = '\n\n' + self.config['signature']
+			signature = '\n\n' + self.config['shutit.core.alerting.emailer.signature']
 		else:
 			signature = self.config['shutit.core.alerting.emailer.signature']
 		body = MIMEText('\n'.join(self.lines) + signature)
