@@ -22,6 +22,10 @@ class test1(ShutItModule):
 		for attach in ['/tmp/container_touched']:
 				e.attach(attach)
 		e.send()
+#		shutit.run_script('''
+##asd
+##asd
+#''')
 		return True
 
 def module():
