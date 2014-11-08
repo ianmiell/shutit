@@ -18,3 +18,7 @@ shutit.core.alerting.emailer.signature:--Angry Shutit
 shutit.core.alerting.emailer.compress:yes
 shutit.core.alerting.emailer.username:shutittest
 shutit.core.alerting.emailer.password:elephanttree
+
+[repository]
+name:test1
+
