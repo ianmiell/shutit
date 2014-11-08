@@ -7,14 +7,14 @@
 #THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 [shutit.tk.test.test1]
-build:yes
+shutit.core.module.build:yes
 #mail
-mailto:shutittest@gmail.com
-mailfrom:shutittest@gmail.com
-smtp_server:smtp.gmail.com
-smtp_port:587
-subject:Shutit Report
-signature:--Angry Shutit
-compress:yes
-username:shutittest
-password:elephanttree
+shutit.core.alerting.emailer.mailto:shutittest@gmail.com
+shutit.core.alerting.emailer.mailfrom:shutittest@gmail.com
+shutit.core.alerting.emailer.smtp_server:smtp.gmail.com
+shutit.core.alerting.emailer.smtp_port:587
+shutit.core.alerting.emailer.subject:Shutit Report
+shutit.core.alerting.emailer.signature:--Angry Shutit
+shutit.core.alerting.emailer.compress:yes
+shutit.core.alerting.emailer.username:shutittest
+shutit.core.alerting.emailer.password:elephanttree
