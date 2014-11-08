@@ -13,3 +13,6 @@
 # Top level module
 [shutit.tk.test.test5_3]
 shutit.core.module.build:yes
+[repository]
+name:test5
+
