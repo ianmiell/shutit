@@ -1353,7 +1353,7 @@ class ShutIt(object):
 		# Set the cols value, as unpleasant escapes are put in the output if the
 		# input is > n chars wide.
 		self.send(
-			("SHUTIT_BACKUP_PS1_%s=$PS1 && PS1='%s' && unset PROMPT_COMMAND && stty cols 999") %
+			("SHUTIT_BACKUP_PS1_%s=$PS1 && PS1='%s' && unset PROMPT_COMMAND && stty cols 240") %
 				(prompt_name, local_prompt),
 			# The newline in the list is a hack. On my work laptop this line hangs
 			# and times out very frequently. This workaround seems to work, but I
