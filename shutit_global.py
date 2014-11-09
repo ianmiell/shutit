@@ -1797,6 +1797,7 @@ def init():
 	shutit_map             = {}
 	shutit_modules         = set()
 	shutit_command_history = []
+	terminal_columns       = 240
 	# Store the root directory of this application.
 	# http://stackoverflow.com/questions/5137497
 	shutit_main_dir = os.path.abspath(os.path.dirname(__file__))
