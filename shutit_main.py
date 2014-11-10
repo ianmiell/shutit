@@ -475,7 +475,7 @@ def check_ready(shutit):
 		if cfg[module_id]['shutit.core.module.build'] and not module.is_installed(shutit):
 			shutit.log('checking whether module is ready to build: ' + module_id,
 			           code='31')
-			shutit.login()
+			shutit.login(prompt_prefix=module_id)
 			# Move to the directory so context is correct (eg for checking for
 			# the existence of files needed for build)
 			revert_dir = os.getcwd()
@@ -503,7 +503,7 @@ def do_remove(shutit):
 		shutit.log('considering whether to remove: ' + module_id, code='31')
 		if cfg[module_id]['shutit.core.module.remove']:
 			shutit.log('removing: ' + module_id, code='31')
-			shutit.login()
+			shutit.login(prompt_prefix=module_id)
 			if not module.remove(shutit):
 				shutit.log(print_modules(shutit), code='31')
 				shutit.fail(module_id + ' failed on remove',
@@ -582,7 +582,7 @@ def do_build(shutit):
 				# We move to the module directory to perform the build, returning immediately afterwards.
 				revert_dir = os.getcwd()
 				os.chdir(os.path.dirname(module.__module_file))
-				shutit.login()
+				shutit.login(prompt_prefix=module_id)
 				build_module(shutit, module)
 				shutit.logout()
 				os.chdir(revert_dir)
@@ -609,10 +609,11 @@ def do_test(shutit):
 	stop_all(shutit)
 	start_all(shutit)
 	for module_id in module_ids(shutit, rev=True):
+		module = shutit.shutit_map[module_id]
 		# Only test if it's thought to be installed.
 		if is_built(shutit, shutit.shutit_map[module_id]):
 			shutit.log('RUNNING TEST ON: ' + module_id, code='31')
-			shutit.login()
+			shutit.login(prompt_prefix=module_id)
 			if not shutit.shutit_map[module_id].test(shutit):
 				shutit.fail(module_id + ' failed on test',
 				child=shutit.pexpect_children['container_child'])
@@ -638,9 +639,10 @@ def do_finalize(shutit):
 		      util.colour('31', '\n\n[Hit return to continue]\n'))
 		util.util_raw_input(shutit=shutit)
 	for module_id in module_ids(shutit, rev=True):
+		module = shutit.shutit_map[module_id]
 		# Only finalize if it's thought to be installed.
 		if is_built(shutit, shutit.shutit_map[module_id]):
-			shutit.login()
+			shutit.login(prompt_prefix=module_id)
 			if not shutit.shutit_map[module_id].finalize(shutit):
 				shutit.fail(module_id + ' failed on finalize',
 			                child=shutit.pexpect_children['container_child'])
