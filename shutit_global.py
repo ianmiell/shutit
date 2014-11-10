@@ -1014,7 +1014,7 @@ class ShutIt(object):
 		self.cfg['build']['step_through'] = value
 		self.pause_point(msg, child=child, print_input=print_input, level=level)
 
-	def pause_point(self, msg, child=None, print_input=True, level=1):
+	def pause_point(self, msg, child=None, print_input=True, level=1, resize=False):
 		"""Inserts a pause in the build session, which allows the user to try
 		things out before continuing. Ignored if we are not in an interactive
 		mode, or the interactive level is less than the passed-in one.
@@ -1032,6 +1032,10 @@ class ShutIt(object):
 			self.cfg['build']['interactive'] < level):
 			return
 		if child and print_input:
+			if resize:
+					shutit.send_file('/tmp/resize',self.shutit_main_dir+'/assets/resize', child=child, log=False)
+					shutit.send('chmod 755 /tmp/resize')
+					shutit.send('/tmp/resize')
 			if shutit.cfg['container']['install_type'] == 'apt':
 				print (util.colour('31', '\nYou can try installing "xterm", then running "resize" to get a terminal of a useful size.\n'))
 			print (util.colour('31', '\nPause point:\n') + 
