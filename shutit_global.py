@@ -1012,7 +1012,7 @@ class ShutIt(object):
 			self.cfg['build']['interactive'] < level):
 			return
 		self.cfg['build']['step_through'] = value
-		self.pause_point(msg, child=child, print_input=print_input, level=level)
+		self.pause_point(msg, child=child, print_input=print_input, level=level, resize=False)
 
 	def pause_point(self, msg, child=None, print_input=True, level=1, resize=False):
 		"""Inserts a pause in the build session, which allows the user to try
@@ -1033,11 +1033,10 @@ class ShutIt(object):
 			return
 		if child and print_input:
 			if resize:
-					shutit.send_file('/tmp/resize',self.shutit_main_dir+'/assets/resize', child=child, log=False)
-					shutit.send('chmod 755 /tmp/resize')
-					shutit.send('/tmp/resize')
-			if shutit.cfg['container']['install_type'] == 'apt':
-				print (util.colour('31', '\nYou can try installing "xterm", then running "resize" to get a terminal of a useful size.\n'))
+				print ('resize==True, so attempting to resize terminal.\n\nIf you are not at a shell prompt when calling pause_point, then pass in resize=False.')
+				shutit.send_host_file('/tmp/resize',self.shutit_main_dir+'/assets/resize', child=child, log=False)
+				shutit.send('chmod 755 /tmp/resize')
+				shutit.send('/tmp/resize')
 			print (util.colour('31', '\nPause point:\n') + 
 				msg + util.colour('31','\nYou can now type in commands and ' +
 				'alter the state of the container.\nHit return to see the ' +
@@ -1259,16 +1258,17 @@ class ShutIt(object):
 		self.setup_prompt(r_id,child=child)
 
 
-	def login(self, user='root', command='su -', child=None, password=None):
+	def login(self, user='root', command='su -', child=None, password=None, prompt_prefix=None):
 		"""Logs the user in with the passed-in password and command.
 		Tracks the login. If used, used logout to log out again.
 		Assumes you are root when logging in, so no password required.
 		If not, override the default command for multi-level logins.
 		If passwords are required, see setup_prompt() and revert_prompt()
 
-		user     - User to login with
-		command  - Command to login with
-		child    - See send()
+		user      - User to login with
+		command   - Command to login with
+		child     - See send()
+		prompt_prefix - Prefix to use in prompt setup
 		"""
 		child = child or self.get_default_child()
 		r_id = random_id()
@@ -1288,7 +1288,12 @@ class ShutIt(object):
 					shutit.fail('Please supply a password argument to shutit.login.', throw_exception=False)
 			elif res == 2:
 				break
-		self.setup_prompt(r_id,child=child)
+		print prompt_prefix
+		if prompt_prefix != None:
+			self.setup_prompt(r_id,child=child,prefix=prompt_prefix)
+		else:
+			self.setup_prompt(r_id,child=child)
+
 
 
 	def logout(self, child=None, expect=None):
