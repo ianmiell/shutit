@@ -1033,7 +1033,7 @@ class ShutIt(object):
 				print ('resize==True, so attempting to resize terminal.\n\nIf you are not at a shell prompt when calling pause_point, then pass in resize=False.')
 				shutit.send_host_file('/tmp/resize',self.shutit_main_dir+'/assets/resize', child=child, log=False)
 				shutit.send('chmod 755 /tmp/resize')
-				shutit.send('/tmp/resize')
+				child.sendline('sleep 2 && /tmp/resize')
 			print (util.colour('31', '\nPause point:\n') + 
 				msg + util.colour('31','\nYou can now type in commands and ' +
 				'alter the state of the container.\nHit return to see the ' +
