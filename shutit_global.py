@@ -1251,6 +1251,7 @@ class ShutIt(object):
 		child = child or self.get_default_child()
 		r_id = random_id()
 		self.cfg['build']['login_stack'].append(r_id)
+		#print self.cfg['build']['login_stack']
 		self.send(command,expect=shutit.cfg['expect_prompts']['base_prompt'],check_exit=False)
 		self.setup_prompt(r_id,child=child)
 
@@ -1270,6 +1271,7 @@ class ShutIt(object):
 		child = child or self.get_default_child()
 		r_id = random_id()
 		self.cfg['build']['login_stack'].append(r_id)
+		#print self.cfg['build']['login_stack']
 		if command == 'su -':
 			send = command + ' ' + user
 		else:
@@ -1301,16 +1303,18 @@ class ShutIt(object):
 		"""
 		child = child or self.get_default_child()
 		if len(self.cfg['build']['login_stack']):
-			 current_prompt_name = self.cfg['build']['login_stack'].pop()
-			 if len(self.cfg['build']['login_stack']):
-				 old_prompt_name     = self.cfg['build']['login_stack'][-1]
-				 self.set_default_expect(self.cfg['expect_prompts'][old_prompt_name])
-			 else:
-				 # If none are on the stack, we assume we're going to the root_prompt
-				 # set up in setup.py
-				 self.set_default_expect()
+			#print "LOGIN STACK TO BE POPPED"
+			#print self.cfg['build']['login_stack']
+			current_prompt_name = self.cfg['build']['login_stack'].pop()
+			if len(self.cfg['build']['login_stack']):
+				old_prompt_name     = self.cfg['build']['login_stack'][-1]
+				self.set_default_expect(self.cfg['expect_prompts'][old_prompt_name])
+			else:
+				# If none are on the stack, we assume we're going to the root_prompt
+				# set up in setup.py
+				self.set_default_expect()
 		else:
-			 self.fail('Logout called without corresponding login', throw_exception=False)
+			self.fail('Logout called without corresponding login', throw_exception=False)
 		# No point in checking exit here, the exit code will be
 		# from the previous command from the logged in session
 		if expect != None:
@@ -1353,12 +1357,11 @@ class ShutIt(object):
 		local_prompt = 'SHUTIT_' + prefix + '#' + random_id() + '>'
 		shutit.cfg['expect_prompts'][prompt_name] = local_prompt
 		# Set up the PS1 value.
-		# Keep a backup in SHUTIT_BACKUP_PS1_<ref>
 		# Unset the PROMPT_COMMAND as this can cause nasty surprises in the output.
 		# Set the cols value, as unpleasant escapes are put in the output if the
 		# input is > n chars wide.
 		self.send(
-			("SHUTIT_BACKUP_PS1_%s=$PS1 && PS1='%s' && unset PROMPT_COMMAND && stty cols 240") %
+			(" export SHUTIT_BACKUP_PS1_%s=$PS1 && PS1='%s' && unset PROMPT_COMMAND && stty cols 240") %
 				(prompt_name, local_prompt),
 			# The newline in the list is a hack. On my work laptop this line hangs
 			# and times out very frequently. This workaround seems to work, but I
@@ -1367,7 +1370,7 @@ class ShutIt(object):
 			fail_on_empty_before=False, timeout=5, child=child)
 		if set_default_expect:
 			shutit.log('Resetting default expect to: ' +
-			shutit.cfg['expect_prompts'][prompt_name])
+				shutit.cfg['expect_prompts'][prompt_name])
 			self.set_default_expect(shutit.cfg['expect_prompts'][prompt_name])
 
 
@@ -1383,7 +1386,7 @@ class ShutIt(object):
 		"""
 		child = child or self.get_default_child()
 		expect = new_expect or self.get_default_expect()
-		#     v the space is intentional, to avoid polluting bash history.
+		#	  v the space is intentional, to avoid polluting bash history.
 		self.send(
 			(' PS1="${SHUTIT_BACKUP_PS1_%s}" && unset SHUTIT_BACKUP_PS1_%s') %
 				(old_prompt_name, old_prompt_name),
