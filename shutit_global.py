@@ -1255,7 +1255,6 @@ class ShutIt(object):
 		self.send(command,expect=shutit.cfg['expect_prompts']['base_prompt'],check_exit=False)
 		self.setup_prompt(r_id,child=child)
 
-
 	def login(self, user='root', command='su -', child=None, password=None, prompt_prefix=None):
 		"""Logs the user in with the passed-in password and command.
 		Tracks the login. If used, used logout to log out again.
