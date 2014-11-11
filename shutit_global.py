@@ -1288,7 +1288,6 @@ class ShutIt(object):
 					shutit.fail('Please supply a password argument to shutit.login.', throw_exception=False)
 			elif res == 2:
 				break
-		print prompt_prefix
 		if prompt_prefix != None:
 			self.setup_prompt(r_id,child=child,prefix=prompt_prefix)
 		else:
