@@ -467,8 +467,6 @@ class ShutIt(object):
 		# TODO: hide the gory details:
 		# http://stackoverflow.com/questions/5633472
 		#stty_orig=`stty -g`
-		#stty -echo
-		#echo 'hidden section'
 		#stty $stty_orig && echo forcenewline
 		contents64 = base64.standard_b64encode(contents)
 		# if replace funny chars
@@ -493,7 +491,6 @@ class ShutIt(object):
 		# Done sending the file
 		child.expect(expect)
 		self._check_exit("#send file to " + path, expect, child)
-		# Go to old echo
 		child.logfile_send = oldlog
 
 
