@@ -15,6 +15,7 @@ class jq(ShutItModule):
 		shutit.install('flex')
 		shutit.install('bison')
 		shutit.install('autoconf')
+		shutit.install('git')
 		shutit.send('pushd /opt')
 		shutit.send('git clone https://github.com/stedolan/jq.git')
 		shutit.send('pushd jq')
