@@ -261,9 +261,9 @@ def config_collection_for_built(shutit):
 				      'pass in the --ignoreimage flag to shutit.\n\n')
 	# Having printed out all the warnings, let's exit.
 	if not passed: 
-		# We assume the last module is the only one that matters in terms of allowed images.
 		# Exit without error code so that it plays nice with tests.
 		sys.exit(0)
+
 
 def conn_container(shutit):
 	"""Connect to the container.
@@ -736,6 +736,7 @@ def shutit_main():
 		])
 		digraph = digraph + '\n}'
 		shutit.log(digraph, force_stdout=True)
+		shutit.log('\nAbove is the digraph for this shutit invocation. Use graphviz to render into an image, eg\n\n\tshutit depgraph -m library | dot -Tpng -o depgraph.png', force_stdout=True)
 		# Set build completed
 		cfg['build']['completed'] = True
 		return
