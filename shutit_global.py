@@ -1255,6 +1255,7 @@ class ShutIt(object):
 		self.send(command,expect=shutit.cfg['expect_prompts']['base_prompt'],check_exit=False)
 		self.setup_prompt(r_id,child=child)
 
+
 	def login(self, user='root', command='su -', child=None, password=None, prompt_prefix=None):
 		"""Logs the user in with the passed-in password and command.
 		Tracks the login. If used, used logout to log out again.
@@ -1362,11 +1363,11 @@ class ShutIt(object):
 		self.send(
 			(" export SHUTIT_BACKUP_PS1_%s=$PS1 && PS1='%s' && unset PROMPT_COMMAND && stty cols 240") %
 				(prompt_name, local_prompt),
-			# The newline in the list is a hack. On my work laptop this line hangs
-			# and times out very frequently. This workaround seems to work, but I
-			# haven't figured out why yet - imiell.
-			expect=['\r\n' + self.cfg['expect_prompts'][prompt_name]],
-			fail_on_empty_before=False, timeout=5, child=child)
+				# The newline in the list is a hack. On my work laptop this line hangs
+				# and times out very frequently. This workaround seems to work, but I
+				# haven't figured out why yet - imiell.
+				expect=['\r\n' + self.cfg['expect_prompts'][prompt_name]],
+				fail_on_empty_before=False, timeout=5, child=child)
 		if set_default_expect:
 			shutit.log('Resetting default expect to: ' +
 				shutit.cfg['expect_prompts'][prompt_name])
@@ -1389,7 +1390,7 @@ class ShutIt(object):
 		self.send(
 			(' PS1="${SHUTIT_BACKUP_PS1_%s}" && unset SHUTIT_BACKUP_PS1_%s') %
 				(old_prompt_name, old_prompt_name),
-			expect=expect, check_exit=False, fail_on_empty_before=False)
+				expect=expect, check_exit=False, fail_on_empty_before=False)
 		if not new_expect:
 			shutit.log('Resetting default expect to default')
 			self.set_default_expect()
@@ -1583,22 +1584,22 @@ class ShutIt(object):
 		timeout = 99999
 		self.log('Running: ' + send, force_stdout=True, prefix=False)
 		res = self.send(send, expect=expect_list, child=child, timeout=timeout,
-						check_exit=False, fail_on_empty_before=False)
+		                check_exit=False, fail_on_empty_before=False)
 		while True:
 			if res == 3:
 				break
 			elif res == 0:
 				res = self.send(cfg['repository']['user'], child=child,
-								expect=expect_list, timeout=timeout,
-								check_exit=False, fail_on_empty_before=False)
+				                expect=expect_list, timeout=timeout,
+				                check_exit=False, fail_on_empty_before=False)
 			elif res == 1:
 				res = self.send(cfg['repository']['password'], child=child,
-								expect=expect_list, timeout=timeout,
-								check_exit=False, fail_on_empty_before=False)
+				                expect=expect_list, timeout=timeout,
+				                check_exit=False, fail_on_empty_before=False)
 			elif res == 2:
 				res = self.send(cfg['repository']['email'], child=child,
-								expect=expect_list, timeout=timeout,
-								check_exit=False, fail_on_empty_before=False)
+				                expect=expect_list, timeout=timeout,
+				                check_exit=False, fail_on_empty_before=False)
 
 
 	def do_repository_work(self,
