@@ -7,10 +7,9 @@ then
 	exit 1
 fi
 pushd ..
-$SHUTIT build --shutit_module_path $(dirname $SHUTIT)/library "$@"
+$SHUTIT build --shutit_module_path .. "$@"
 if [[ $? != 0 ]]
 then
 	popd
 	exit 1
 fi
-popd
