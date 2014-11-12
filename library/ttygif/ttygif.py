@@ -4,7 +4,7 @@
 from shutit_module import ShutItModule
 
 
-class jq(ShutItModule):
+class ttygif(ShutItModule):
 
 
 	def is_installed(self, shutit):
@@ -12,24 +12,16 @@ class jq(ShutItModule):
 
 
 	def build(self, shutit):
-		shutit.install('flex')
-		shutit.install('bison')
-		shutit.install('autoconf')
 		shutit.install('git')
-		shutit.install('make')
-		shutit.install('libtool')
-		shutit.install('libonig-dev')
+		shutit.install('imagemagick')
+		shutit.install('ttyrec')
 		shutit.send('pushd /opt')
-		shutit.send('git clone https://github.com/stedolan/jq.git')
-		shutit.send('pushd jq')
-		shutit.send('autoreconf -i')
-		shutit.send('./configure')
-		shutit.send('make -j8')
-		shutit.send('make check')
-		shutit.send('make install')
+		shutit.send('git clone https://github.com/icholy/ttygif.git')
+		shutit.send('pushd /opt/ttygif')
+		shutit.send('make')
+		shutit.send('mv ttygif /usr/bin/')
 		shutit.send('popd')
 		shutit.send('popd')
-		shutit.send('rm -rf /opt/jq')
 		return True
 
 	#def get_config(self, shutit):
@@ -54,10 +46,10 @@ class jq(ShutItModule):
 	#	return True
 
 def module():
-	return jq(
-		'shutit.tk.jq.jq', 0.11258107521,
-		description='JQ - sed for JSON',
+	return ttygif(
+		'shutit.tk.ttygif.ttygif', 0.135136139681,
+		description='Turn terminal sessions into gifs',
 		maintainer='ian.miell@gmail.com',
-		depends=['shutit.tk.setup']
+		depends=['shutit.tk.setup','shutit.tk.toolchain.toolchain']
 	)
 

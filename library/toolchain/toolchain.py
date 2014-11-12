@@ -4,7 +4,7 @@
 from shutit_module import ShutItModule
 
 
-class jq(ShutItModule):
+class toolchain(ShutItModule):
 
 
 	def is_installed(self, shutit):
@@ -12,24 +12,14 @@ class jq(ShutItModule):
 
 
 	def build(self, shutit):
+		shutit.install('gcc')
+		shutit.install('make')
+		shutit.install('autoconf')
+		shutit.install('automake')
 		shutit.install('flex')
 		shutit.install('bison')
-		shutit.install('autoconf')
-		shutit.install('git')
-		shutit.install('make')
-		shutit.install('libtool')
-		shutit.install('libonig-dev')
-		shutit.send('pushd /opt')
-		shutit.send('git clone https://github.com/stedolan/jq.git')
-		shutit.send('pushd jq')
-		shutit.send('autoreconf -i')
-		shutit.send('./configure')
-		shutit.send('make -j8')
-		shutit.send('make check')
-		shutit.send('make install')
-		shutit.send('popd')
-		shutit.send('popd')
-		shutit.send('rm -rf /opt/jq')
+		shutit.install('m4')
+		shutit.install('g++')
 		return True
 
 	#def get_config(self, shutit):
@@ -54,9 +44,9 @@ class jq(ShutItModule):
 	#	return True
 
 def module():
-	return jq(
-		'shutit.tk.jq.jq', 0.11258107521,
-		description='JQ - sed for JSON',
+	return toolchain(
+		'shutit.tk.toolchain.toolchain', 0.01212513461,
+		description='Helper module for tools needed for compilation etc..',
 		maintainer='ian.miell@gmail.com',
 		depends=['shutit.tk.setup']
 	)
