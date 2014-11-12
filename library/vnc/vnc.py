@@ -61,10 +61,10 @@ END""", '/root/start_vnc.sh')
 		shutit.send('chmod +x /root/start_vnc.sh')
 		shutit.send('chmod +x /root/stop_vnc.sh')
 
-		# Ridiculous hack to make the "s" key work. cf: http://broderick-tech.com/vnc-broken-s-key/
+		# Ridiculous hack to make the "s" and various other keys work. cf: http://broderick-tech.com/vnc-broken-s-key/
 		shutit.send('/root/start_vnc.sh', check_exit=False)
 		shutit.send('export DISPLAY=:1', check_exit=False)
-		shutit.send('gsettings set org.gnome.desktop.wm.keybindings  panel-main-menu []')
+		shutit.send('''gsettings list-recursively org.gnome.desktop.wm.keybindings  | grep -v "@as" | awk '{print $2}' | xargs -IXXX gsettings set org.gnome.desktop.wm.keybindings XXX []''')
 		shutit.send('/root/stop_vnc.sh', check_exit=False)
 		return True
 
