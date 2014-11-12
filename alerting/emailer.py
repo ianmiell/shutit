@@ -50,7 +50,7 @@ Example cfg:
 from email.mime.text import MIMEText
 from email.mime.application import MIMEApplication
 from email.mime.multipart import MIMEMultipart
-from smtplib import SMTP, SMTPSenderRefused
+from smtplib import SMTP, SMTP_SSL, SMTPSenderRefused
 import os, gzip
 
 class Emailer():
@@ -71,6 +71,7 @@ class Emailer():
 					  shutit.core.alerting.emailer.mailfrom    - address to send the mail from (angry@shutit.tk)
 					  shutit.core.alerting.emailer.smtp_server - server to send the mail (localhost)
 					  shutit.core.alerting.emailer.smtp_port   - port to contact the smtp server on (587)
+					  shutit.core.alerting.emailer.use_tls     - should we use tls to connect (True)
 					  shutit.core.alerting.emailer.subject     - subject of the email (Shutit Report)
 					  shutit.core.alerting.emailer.signature   - --Angry Shutit
 					  shutit.core.alerting.emailer.compress    - gzip attachments? (True)
@@ -97,6 +98,7 @@ class Emailer():
 			'shutit.core.alerting.emailer.mailfrom', 'angry@shutit.tk',
 			'shutit.core.alerting.emailer.smtp_server', 'localhost',
 			'shutit.core.alerting.emailer.smtp_port', 25,
+			'shutit.core.alerting.emailer.use_tls', True,
 			'shutit.core.alerting.emailer.send_mail', True,
 			'shutit.core.alerting.emailer.subject', 'Shutit Report',
 			'shutit.core.alerting.emailer.signature', '--Angry Shutit',
@@ -135,6 +137,23 @@ class Emailer():
 		file_pointer.close()
 		zip_pointer.close()
 		return zipname
+
+	def __get_smtp(self):
+		""" Return the appropraite smtplib depending on wherther we're using TLS
+		"""
+		use_tls = self.config['shutit.core.alerting.emailer.use_tls']
+		if use_tls:
+			smtp = SMTP(
+				self.config['shutit.core.alerting.emailer.smtp_server'],
+				self.config['shutit.core.alerting.emailer.smtp_port']
+			)
+			smtp.starttls()
+		else:
+			smtp = SMTP_SSL(
+				self.config['shutit.core.alerting.emailer.smtp_server'],
+				self.config['shutit.core.alerting.emailer.smtp_port']
+			)
+		return smtp
 
 	def add_line(self, line):
 		"""Add a single line to the email body
@@ -206,8 +225,7 @@ class Emailer():
 			return True
 		msg = self.__compose()
 		mailto = [self.config['shutit.core.alerting.emailer.mailto']]
-		smtp = SMTP(self.config['shutit.core.alerting.emailer.smtp_server'], self.config['shutit.core.alerting.emailer.smtp_port'])
-		smtp.starttls()
+		smtp = self.__get_smtp()
 		if self.config['shutit.core.alerting.emailer.username'] != '':
 			smtp.login(self.config['shutit.core.alerting.emailer.username'], self.config['shutit.core.alerting.emailer.password'])
 		if self.config['shutit.core.alerting.emailer.mailto_maintainer']:
