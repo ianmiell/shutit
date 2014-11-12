@@ -37,18 +37,6 @@ class vnc(ShutItModule):
 
 	def build(self, shutit):
 		# TODO: distr-independence
-		shutit.send('mkdir -p /root/.config/dconf')
-		shutit.send_file('/root/.config/dconf/user', base64.standard_b64decode("""
-R1ZhcmlhbnQAAAAAAAAAABgAAABwAQAAAAAAKAwAAAAAAAAAAAAAAAAAAAABAAAAAQAAAAIAAAAD
-AAAABQAAAAcAAAAKAAAADAAAAAwAAADepzLWAgAAAHABAAAGAHYAeAEAAH4BAADYlUmXBQAAAH4B
-AAAGAEwAhAEAAIgBAAAF9HCFAQAAAIgBAAANAEwAmAEAAKABAACSB0ZKCAAAAKABAAAMAEwArAEA
-ALABAAB61W5fAwAAALABAAAMAHYAwAEAAMMBAAAnh3h8BwAAAMMBAAADAEwAyAEAAMwBAABLUJAL
-BwAAAMwBAAAEAEwA0AEAANQBAADUtQIA/////9QBAAABAEwA2AEAAOABAACMAtigCgAAAOABAAAD
-AEwA5AEAAOgBAACwtyQwBgAAAOgBAAAGAEwA8AEAAPQBAAC5iP3aCQAAAPQBAAAIAEwA/AEAAAAC
-AACl73eqAgAAAAACAAAFAHYACAIAAA4CAABoZWlnaHQAAFgCAAAAaWRlc3J0LwIAAABkY29uZi1l
-ZGl0b3IvAAAAAAAAAAsAAABrZXliaW5kaW5ncy8EAAAAc2hvdy1kZXNrdG9wAAAAAABhc2NhLwAA
-AQAAAG9yZy8JAAAALwAAAAUAAAAGAAAAd20vAAMAAABnbm9tZS8AAAoAAABkZXNrdG9wLwgAAAB3
-aWR0aAAAACADAAAAaQ=="""))
 		shutit.install('gnome-core')
 		shutit.install('gnome-terminal')
 		shutit.install('openjdk-6-jre')
@@ -72,6 +60,12 @@ END""", '/root/start_vnc.sh')
 		shutit.send_host_file('/root/stop_vnc.sh','context/stop_vnc.sh')
 		shutit.send('chmod +x /root/start_vnc.sh')
 		shutit.send('chmod +x /root/stop_vnc.sh')
+
+		# Ridiculous hack to make the "s" key work. cf: http://broderick-tech.com/vnc-broken-s-key/
+		shutit.send('/root/start_vnc.sh', check_exit=False)
+		shutit.send('export DISPLAY=:1', check_exit=False)
+		shutit.send('gsettings set org.gnome.desktop.wm.keybindings  panel-main-menu []')
+		shutit.send('/root/stop_vnc.sh', check_exit=False)
 		return True
 
 	def start(self, shutit):
