@@ -47,9 +47,9 @@ class ttygif(ShutItModule):
 
 def module():
 	return ttygif(
-		'shutit.tk.ttygif.ttygif', 0.135136139681,
+		'shutit.tk.ttygif.ttygif', 0.35136139681,
 		description='Turn terminal sessions into gifs',
 		maintainer='ian.miell@gmail.com',
-		depends=['shutit.tk.setup','shutit.tk.toolchain.toolchain']
+		depends=['shutit.tk.setup','shutit.tk.toolchain.toolchain','shutit.tk.vnc.vnc']
 	)
 
