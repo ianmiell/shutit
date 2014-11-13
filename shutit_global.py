@@ -375,6 +375,9 @@ class ShutIt(object):
 					exit_values=None):
 		"""Internal function to check the exit value of the shell. Do not use.
 		"""
+		if cfg['build']['check_exit'] == False:
+			self.log('check_exit configured off, returning')
+			return
 		expect = expect or self.get_default_expect()
 		child = child or self.get_default_child()
 		if exit_values is None:
