@@ -297,6 +297,7 @@ def get_base_config(cfg, cfg_parser):
 	cfg['build']['net']                           = cp.get('build', 'net')
 	cfg['build']['completed']                     = False
 	cfg['build']['step_through']                  = False
+	cfg['build']['check_exit']                    = True
 	# Take a command-line arg if given, else default.
 	if cfg['build']['conn_module'] == None:
 		cfg['build']['conn_module']                   = cp.get('build', 'conn_module')

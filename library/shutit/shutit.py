@@ -33,6 +33,7 @@ class shutit(ShutItModule):
 		shutit.send('pip install -r requirements.txt')
 		shutit.send('popd')
 		shutit.send('popd')
+		shutit.add_to_bashrc('export PATH=$PATH:/opt/shutit')
 		return True
 
 	def test(self, shutit):
