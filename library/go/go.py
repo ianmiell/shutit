@@ -30,7 +30,6 @@ class go(ShutItModule):
 	def build(self,shutit):
 		shutit.install('golang')
 		shutit.install('mercurial')
-		shutit.install('make')
 		shutit.install('gcc')
 		shutit.install('patch')
 		shutit.install('git')

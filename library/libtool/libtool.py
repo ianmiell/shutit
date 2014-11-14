@@ -12,7 +12,6 @@ class libtool(ShutItModule):
 
 
 	def build(self, shutit):
-		shutit.install('make')
 		shutit.install('git')
 		shutit.install('gcc')
 		shutit.install('m4') # required
@@ -55,6 +54,6 @@ def module():
 		'shutit.tk.libtool.libtool', 0.0185135124,
 		description='',
 		maintainer='',
-		depends=['shutit.tk.setup','shutit.tk.xz.xz','shutit.tk.help2man.help2man','shutit.tk.texinfo.texinfo','shutit.tk.autoconf.autoconf','shutit.tk.automake.automake']
+		depends=['shutit.tk.setup','shutit.tk.xz.xz','shutit.tk.help2man.help2man','shutit.tk.texinfo.texinfo','shutit.tk.autoconf.autoconf','shutit.tk.automake.automake','shutit.tk.make.make']
 	)
 

@@ -38,7 +38,6 @@ class cmake(ShutItModule):
 				shutit.install('g++')
 				shutit.install('python-software-properties')
 				shutit.install('git')
-				shutit.install('make')
 				shutit.send('pushd /opt')
 				shutit.send('git clone git://cmake.org/cmake.git')
 				shutit.send('pushd cmake')
@@ -49,6 +48,7 @@ class cmake(ShutItModule):
 				shutit.send('popd')
 				shutit.send('popd')
 				shutit.add_to_bashrc("alias cmake='cmake -DCMAKE_C_COMPILER=gcc-4.8 -DCMAKE_CXX_COMPILER=g++-4.8'")
+				shutit.send('rm -rf /pushd/cmake')
 		return True
 
 	def test(self, shutit):
@@ -61,6 +61,6 @@ def module():
 		'shutit.tk.cmake.cmake', 0.09187246124,
 		description='CMake',
 		maintainer='ian.miell@gmail.com',
-		depends=['shutit.tk.setup']
+		depends=['shutit.tk.setup','shutit.tk.make.make']
 	)
 

@@ -12,7 +12,6 @@ class autoconf(ShutItModule):
 
 
 	def build(self, shutit):
-		shutit.install('make')
 		shutit.install('tar')
 		shutit.install('gcc')
 		shutit.install('m4') # required
@@ -59,6 +58,6 @@ def module():
 		'shutit.tk.autoconf.autoconf', 0.010925156,
 		description='',
 		maintainer='',
-		depends=['shutit.tk.setup','shutit.tk.xz.xz']
+		depends=['shutit.tk.setup','shutit.tk.xz.xz','shutit.tk.make.make']
 	)
 

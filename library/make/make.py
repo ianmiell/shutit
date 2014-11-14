@@ -18,6 +18,7 @@ class make(ShutItModule):
 		shutit.send('pushd make-4.1')
 		shutit.send('./configure')
 		shutit.send('sh build.sh') # to install make without make
+		shutit.send('./make install') # to install make without make
 		shutit.send('popd')
 		shutit.send('popd')
 		shutit.send('rm -rf /opt/make-*')

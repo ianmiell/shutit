@@ -17,7 +17,6 @@ class gettext(ShutItModule):
 		shutit.install('bzip2')
 		shutit.install('wget')
 		shutit.install('gcc')
-		shutit.install('make')
 		shutit.send('pushd /opt')
 		shutit.send('wget http://ftp.gnu.org/pub/gnu/gettext/gettext-0.19.3.tar.xz')
 		shutit.send('xz -d gettext-0.19.3.tar.xz')
@@ -57,6 +56,6 @@ def module():
 		'shutit.tk.gettext.gettext', 0.019531361436,
 		description='',
 		maintainer='',
-		depends=['shutit.tk.setup','shutit.tk.xz.xz','shutit.tk.autoconf.autoconf']
+		depends=['shutit.tk.setup','shutit.tk.xz.xz','shutit.tk.autoconf.autoconf','shutit.tk.make.make']
 	)
 

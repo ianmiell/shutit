@@ -16,7 +16,6 @@ class help2man(ShutItModule):
 		shutit.install('xz-utils')
 		shutit.install('tar')
 		shutit.install('gcc')
-		shutit.install('make')
 		shutit.send('pushd /opt')
 		shutit.send('wget http://ftp.gnu.org/gnu/help2man/help2man-1.46.4.tar.xz')
 		shutit.send('xz -d help2man-1.46.4.tar.xz')
@@ -56,6 +55,6 @@ def module():
 		'shutit.tk.help2man.help2man', 0.01124135,
 		description='',
 		maintainer='',
-		depends=['shutit.tk.setup']
+		depends=['shutit.tk.setup','shutit.tk.make.make']
 	)
 
