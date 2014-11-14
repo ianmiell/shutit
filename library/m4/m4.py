@@ -50,5 +50,5 @@ def module():
 		'shutit.tk.m4.m4', 0.0196,
 		description='',
 		maintainer='',
-		depends=['shutit.tk.setup','shutit.tk.help2man.help2man','shutit.tk.xz.xz','shutit.tk.automake.automake','shutit.tk.libtool.libtool','shutit.tk.texinfo.texinfo','shutit.tk.gettext.gettext']
+		depends=['shutit.tk.libtool.libtool','shutit.tk.gettext.gettext']
 	)

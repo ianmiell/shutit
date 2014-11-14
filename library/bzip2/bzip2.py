@@ -51,6 +51,6 @@ def module():
 		'shutit.tk.bzip2.bzip2', 0.0101,
 		description='',
 		maintainer='',
-		depends=['shutit.tk.setup','shutit.tk.make.make']
+		depends=['shutit.tk.make.make']
 	)
 

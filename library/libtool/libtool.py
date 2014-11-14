@@ -14,6 +14,7 @@ class libtool(ShutItModule):
 	def build(self, shutit):
 		shutit.install('git')
 		shutit.install('gcc')
+		shutit.install('wget')
 		shutit.install('m4') # required
 		shutit.send('pushd /opt')
 		shutit.send('git clone git://git.savannah.gnu.org/libtool.git')
@@ -54,6 +55,6 @@ def module():
 		'shutit.tk.libtool.libtool', 0.0185135124,
 		description='',
 		maintainer='',
-		depends=['shutit.tk.setup','shutit.tk.xz.xz','shutit.tk.help2man.help2man','shutit.tk.texinfo.texinfo','shutit.tk.autoconf.autoconf','shutit.tk.automake.automake','shutit.tk.make.make']
+		depends=['shutit.tk.help2man.help2man','shutit.tk.texinfo.texinfo','shutit.tk.automake.automake']
 	)
 

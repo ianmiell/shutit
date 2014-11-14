@@ -7,7 +7,7 @@ then
 	exit 1
 fi
 pushd ..
-$SHUTIT build --shutit_module_path $(dirname $SHUTIT)/library "$@"
+$SHUTIT build -m ../automake:../texinfo:../help2man "$@"
 if [[ $? != 0 ]]
 then
 	popd

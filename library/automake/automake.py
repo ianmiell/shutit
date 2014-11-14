@@ -60,6 +60,6 @@ def module():
 		'shutit.tk.automake.automake', 0.013251352435,
 		description='',
 		maintainer='',
-		depends=['shutit.tk.setup','shutit.tk.xz.xz','shutit.tk.make.make','shutit.tk.autoconf.autoconf','shutit.tk.bzip2.bzip2']
+		depends=['shutit.tk.autoconf.autoconf']
 	)
 
