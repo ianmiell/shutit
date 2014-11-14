@@ -15,17 +15,22 @@ class autoconf(ShutItModule):
 		shutit.install('make')
 		shutit.install('tar')
 		shutit.install('gcc')
+		shutit.install('m4') # required
 		shutit.send('pushd /opt')
-		shutit.send('wget http://ftp.gnu.org/gnu/autoconf/autoconf-2.64.tar.xz')
-		shutit.send('xz -d autoconf-2.64.tar.xz')
-		shutit.send('tar -xf autoconf-2.64.tar')
-		shutit.send('pushd autoconf-2.64')
+		shutit.send('mkdir -p autoconf')
+		shutit.send('pushd autoconf')
+		shutit.send('wget http://ftp.gnu.org/gnu/autoconf/autoconf-latest.tar.xz')
+		shutit.send('xz -d autoconf-latest.tar.xz')
+		shutit.send('tar -xf autoconf-latest.tar')
+		shutit.send('pushd autoconf-[0-9]*')
 		shutit.send('./configure')
 		shutit.send('make')
 		shutit.send('make install')
 		shutit.send('popd')
 		shutit.send('popd')
-		shutit.send('rm -rf /opt/autoconf-*')
+		shutit.send('popd')
+		shutit.send('rm -rf /opt/autoconf')
+		shutit.remove('m4') # required
 		return True
 
 	#def get_config(self, shutit):
@@ -51,9 +56,9 @@ class autoconf(ShutItModule):
 
 def module():
 	return autoconf(
-		'shutit.tk.autoconf.autoconf', 0.01925156,
+		'shutit.tk.autoconf.autoconf', 0.010925156,
 		description='',
 		maintainer='',
-		depends=['shutit.tk.setup','shutit.tk.xz.xz','shutit.tk.m4.m4']
+		depends=['shutit.tk.setup','shutit.tk.xz.xz']
 	)
 

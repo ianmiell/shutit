@@ -13,9 +13,9 @@ class libtool(ShutItModule):
 
 	def build(self, shutit):
 		shutit.install('make')
-		shutit.install('autoconf')
 		shutit.install('git')
 		shutit.install('gcc')
+		shutit.install('m4') # required
 		shutit.send('pushd /opt')
 		shutit.send('git clone git://git.savannah.gnu.org/libtool.git')
 		shutit.send('pushd libtool')
@@ -26,6 +26,7 @@ class libtool(ShutItModule):
 		shutit.send('popd')
 		shutit.send('popd')
 		shutit.send('rm -rf /opt/libtool')
+		shutit.remove('m4') # required
 		return True
 
 	#def get_config(self, shutit):
@@ -51,9 +52,9 @@ class libtool(ShutItModule):
 
 def module():
 	return libtool(
-		'shutit.tk.libtool.libtool', 0.015135124,
+		'shutit.tk.libtool.libtool', 0.0185135124,
 		description='',
 		maintainer='',
-		depends=['shutit.tk.setup','shutit.tk.xz.xz','shutit.tk.help2man.help2man','shutit.tk.texinfo.texinfo']
+		depends=['shutit.tk.setup','shutit.tk.xz.xz','shutit.tk.help2man.help2man','shutit.tk.texinfo.texinfo','shutit.tk.autoconf.autoconf','shutit.tk.automake.automake']
 	)
 

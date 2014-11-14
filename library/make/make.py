@@ -4,27 +4,28 @@
 from shutit_module import ShutItModule
 
 
-class yacc(ShutItModule):
+class make(ShutItModule):
 
 
 	def is_installed(self, shutit):
+		shutit.install('wget')
+		shutit.install('gcc')
+		shutit.install('bzip2')
+		shutit.send('pushd /opt')
+		shutit.send('wget http://ftp.gnu.org/gnu/make/make-4.1.tar.bz2')
+		shutit.send('bunzip2 make-4.1.tar.bz2')
+		shutit.send('tar -xvf make-4.1.tar')
+		shutit.send('pushd make-4.1')
+		shutit.send('./configure')
+		shutit.send('sh build.sh') # to install make without make
+		shutit.send('popd')
+		shutit.send('popd')
+		shutit.send('rm -rf /opt/make-*')
 		return False
 
 
 	def build(self, shutit):
-		shutit.install('wget')
-		shutit.install('tar')
-		shutit.install('gcc')
-		shutit.send('pushd /opt')
-		shutit.send('wget http://invisible-island.net/datafiles/release/byacc.tar.gz')
-		shutit.send('tar -zxf byacc.tar.gz')
-		shutit.send('pushd byacc-*') # don't know date in dirname
-		shutit.send('./configure --prefix=/usr')
-		shutit.send('make')
-		shutit.send('make install')
-		shutit.send('popd')
-		shutit.send('popd')
-		shutit.send('rm -rf /opt/byacc')
+
 		return True
 
 	#def get_config(self, shutit):
@@ -49,10 +50,10 @@ class yacc(ShutItModule):
 	#	return True
 
 def module():
-	return yacc(
-		'shutit.tk.yacc.yacc', 0.0121325,
+	return make(
+		'shutit.tk.make.make', 0.010011,
 		description='',
 		maintainer='',
-		depends=['shutit.tk.setup','shutit.tk.make.make']
+		depends=['shutit.tk.setup']
 	)
 

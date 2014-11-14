@@ -16,7 +16,6 @@ class xz(ShutItModule):
 		shutit.install('bzip2')
 		shutit.install('wget')
 		shutit.install('gcc')
-		shutit.install('make')
 		shutit.send('pushd /opt')
 		shutit.send('wget http://tukaani.org/xz/xz-5.0.7.tar.bz2')
 		shutit.send('bunzip2 xz-5.0.7.tar.bz2')
@@ -53,9 +52,9 @@ class xz(ShutItModule):
 
 def module():
 	return xz(
-		'shutit.tk.xz.xz', 0.012513624735,
+		'shutit.tk.xz.xz', 0.0102513624735,
 		description='',
 		maintainer='',
-		depends=['shutit.tk.setup']
+		depends=['shutit.tk.setup','shutit.tk.make.make']
 	)
 

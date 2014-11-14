@@ -14,7 +14,6 @@ class llvm(ShutItModule):
 		shutit.install('python')
 		shutit.install('gcc')
 		shutit.install('g++')
-		shutit.install('make')
 		shutit.send('pushd /opt')
 		shutit.send('svn co http://llvm.org/svn/llvm-project/llvm/trunk llvm')
 		shutit.send('pushd llvm/tools')
@@ -57,5 +56,5 @@ def module():
 		'shutit.tk.llvm.llvm', 0.223534,
 		description='LLVM and clang',
 		maintainer='ian.miell@gmail.com',
-		depends=['shutit.tk.setup']
+		depends=['shutit.tk.setup','shutit.tk.make.make']
 	)

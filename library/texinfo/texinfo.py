@@ -16,7 +16,6 @@ class texinfo(ShutItModule):
 		shutit.install('bzip2')
 		shutit.install('wget')
 		shutit.install('gcc')
-		shutit.install('make')
 		shutit.send('pushd /opt')
 		shutit.send('wget http://ftp.gnu.org/gnu/texinfo/texinfo-5.2.tar.xz')
 		shutit.send('xz -d texinfo-5.2.tar.xz ')
@@ -56,6 +55,6 @@ def module():
 		'shutit.tk.texinfo.texinfo', 0.012515332,
 		description='',
 		maintainer='',
-		depends=['shutit.tk.setup','shutit.tk.xz.xz']
+		depends=['shutit.tk.setup','shutit.tk.xz.xz','shutit.tk.make.make']
 	)
 

@@ -22,6 +22,7 @@ class m4(ShutItModule):
 		shutit.send('popd')
 		shutit.send('popd')
 		shutit.send('rm -rf /opt/m4')
+		shutit.remove('autoconf') # required
 		return True
 
 	#def get_config(self, shutit):
@@ -47,9 +48,8 @@ class m4(ShutItModule):
 
 def module():
 	return m4(
-		'shutit.tk.m4.m4', 0.019,
+		'shutit.tk.m4.m4', 0.0196,
 		description='',
 		maintainer='',
 		depends=['shutit.tk.setup','shutit.tk.help2man.help2man','shutit.tk.xz.xz','shutit.tk.automake.automake','shutit.tk.libtool.libtool','shutit.tk.texinfo.texinfo','shutit.tk.gettext.gettext']
 	)
-
