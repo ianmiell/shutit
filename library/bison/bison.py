@@ -12,8 +12,8 @@ class bison(ShutItModule):
 
 
 	def build(self, shutit):
-		shutit.install('wget')
 		shutit.install('tar')
+		shutit.install('wget')
 		shutit.install('gcc')
 		shutit.send('pushd /opt')
 		shutit.send('mkdir -p bison')

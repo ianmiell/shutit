@@ -14,20 +14,24 @@ class automake(ShutItModule):
 
 	def build(self, shutit):
 		shutit.install('tar')
-		shutit.install('bzip2')
 		shutit.install('wget')
 		shutit.install('gcc')
+		shutit.install('autoconf') #required
 		shutit.send('pushd /opt')
+		shutit.send('mkdir -p automake')
+		shutit.send('pushd /opt/automake')
 		shutit.send('wget http://ftp.gnu.org/gnu/automake/automake-1.14.tar.xz')
 		shutit.send('xz -d automake-1.14.tar.xz')
 		shutit.send('tar -xf automake-1.14.tar')
-		shutit.send('pushd /opt/automake-1.14')
+		shutit.send('pushd /opt/automake/automake-1.14')
 		shutit.send('./configure')
 		shutit.send('make')
 		shutit.send('make install')
 		shutit.send('popd')
 		shutit.send('popd')
-		shutit.send('rm -rf /opt/automake-*')
+		shutit.send('popd')
+		shutit.send('rm -rf /opt/automake')
+		shutit.remove('autoconf') #required
 		return True
 
 	#def get_config(self, shutit):
@@ -56,6 +60,6 @@ def module():
 		'shutit.tk.automake.automake', 0.013251352435,
 		description='',
 		maintainer='',
-		depends=['shutit.tk.setup','shutit.tk.xz.xz','shutit.tk.make.make','shutit.tk.autoconf.autoconf']
+		depends=['shutit.tk.setup','shutit.tk.xz.xz','shutit.tk.make.make','shutit.tk.autoconf.autoconf','shutit.tk.bzip2.bzip2']
 	)
 

@@ -13,20 +13,22 @@ class texinfo(ShutItModule):
 
 	def build(self, shutit):
 		shutit.install('tar')
-		shutit.install('bzip2')
-		shutit.install('wget')
 		shutit.install('gcc')
+		shutit.install('wget')
 		shutit.send('pushd /opt')
-		shutit.send('wget http://ftp.gnu.org/gnu/texinfo/texinfo-5.2.tar.xz')
+		shutit.send('mkdir -p texinfo')
+		shutit.send('pushd /opt/texinfo')
+		shutit.send('wget http://ftp.gnu.org/gnu/texinfo/texinfo-5.2.tar.xz') # appears to be no "latest"
 		shutit.send('xz -d texinfo-5.2.tar.xz ')
 		shutit.send('tar -xf texinfo-5.2.tar')
-		shutit.send('pushd /opt/texinfo-5.2')
+		shutit.send('pushd /opt/texinfo/texinfo-5.2')
 		shutit.send('./configure')
 		shutit.send('make')
 		shutit.send('make install')
 		shutit.send('popd')
 		shutit.send('popd')
-		shutit.send('rm -rf /opt/texinfo-*')
+		shutit.send('popd')
+		shutit.send('rm -rf /opt/texinfo')
 		return True
 
 	#def get_config(self, shutit):
@@ -55,6 +57,6 @@ def module():
 		'shutit.tk.texinfo.texinfo', 0.012515332,
 		description='',
 		maintainer='',
-		depends=['shutit.tk.setup','shutit.tk.xz.xz','shutit.tk.make.make']
+		depends=['shutit.tk.setup','shutit.tk.xz.xz','shutit.tk.make.make','shutit.tk.bzip2.bzip2','shutit.tk.wget.wget']
 	)
 

@@ -14,7 +14,7 @@ class make(ShutItModule):
 	def build(self, shutit):
 		shutit.install('wget')
 		shutit.install('gcc')
-		shutit.install('bzip2')
+		shutit.install('bzip2') # required
 		shutit.send('pushd /opt')
 		shutit.send('mkdir -p make')
 		shutit.send('pushd /opt/make')
@@ -29,6 +29,7 @@ class make(ShutItModule):
 		shutit.send('popd')
 		shutit.send('popd')
 		shutit.send('rm -rf /opt/make')
+		shutit.remove('bzip2') # required
 		return True
 
 	#def get_config(self, shutit):

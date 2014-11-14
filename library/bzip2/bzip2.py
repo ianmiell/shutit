@@ -1,10 +1,11 @@
 """ShutIt module. See http://shutit.tk
+In source, line 16 should be blank, within the build def. This doesn't matter except for test builds, so can be removed once in use.
 """
 
 from shutit_module import ShutItModule
 
 
-class xz(ShutItModule):
+class bzip2(ShutItModule):
 
 
 	def is_installed(self, shutit):
@@ -12,23 +13,16 @@ class xz(ShutItModule):
 
 
 	def build(self, shutit):
-		shutit.install('tar')
-		shutit.install('gcc')
-		shutit.install('wget')
-		shutit.send('pushd /opt')
-		shutit.send('mkdir -p /opt/xz')
-		shutit.send('pushd /opt/xz')
-		shutit.send('wget http://tukaani.org/xz/xz-5.0.7.tar.bz2')
-		shutit.send('bunzip2 xz-5.0.7.tar.bz2')
-		shutit.send('tar -xf xz-5.0.7.tar')
-		shutit.send('pushd /opt/xz-5.0.7')
-		shutit.send('./configure')
+		shutit.send('mkdir -p /opt/bzip2')
+		shutit.send('pushd /opt/bzip2')
+		shutit.send_host_file('/opt/bzip2/bzip2.tar','context/bzip2-1.0.6.tar')
+		shutit.send('tar -xf bzip2.tar')
+		shutit.send('pushd bzip2-1.0.6')
 		shutit.send('make')
 		shutit.send('make install')
 		shutit.send('popd')
 		shutit.send('popd')
-		shutit.send('popd')
-		shutit.send('rm -rf /opt/xz')
+		shutit.send('rm -rf bzip2')
 		return True
 
 	#def get_config(self, shutit):
@@ -53,10 +47,10 @@ class xz(ShutItModule):
 	#	return True
 
 def module():
-	return xz(
-		'shutit.tk.xz.xz', 0.0102513624735,
+	return bzip2(
+		'shutit.tk.bzip2.bzip2', 0.0101,
 		description='',
 		maintainer='',
-		depends=['shutit.tk.setup','shutit.tk.make.make','shutit.tk.bzip2.bzip2']
+		depends=['shutit.tk.setup','shutit.tk.make.make']
 	)
 

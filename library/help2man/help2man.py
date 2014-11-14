@@ -12,11 +12,12 @@ class help2man(ShutItModule):
 
 
 	def build(self, shutit):
-		shutit.install('wget')
-		shutit.install('xz-utils')
 		shutit.install('tar')
 		shutit.install('gcc')
+		shutit.install('wget')
 		shutit.send('pushd /opt')
+		shutit.send('mkdir -p /opt/help2man')
+		shutit.send('pushd /opt/help2man')
 		shutit.send('wget http://ftp.gnu.org/gnu/help2man/help2man-1.46.4.tar.xz')
 		shutit.send('xz -d help2man-1.46.4.tar.xz')
 		shutit.send('tar -xf help2man-1.46.4.tar')
@@ -26,7 +27,8 @@ class help2man(ShutItModule):
 		shutit.send('make install')
 		shutit.send('popd')
 		shutit.send('popd')
-		shutit.send('rm -rf /opt/help2man*')
+		shutit.send('popd')
+		shutit.send('rm -rf /opt/help2man')
 		return True
 
 	#def get_config(self, shutit):
@@ -55,6 +57,6 @@ def module():
 		'shutit.tk.help2man.help2man', 0.01124135,
 		description='',
 		maintainer='',
-		depends=['shutit.tk.setup','shutit.tk.make.make']
+		depends=['shutit.tk.setup','shutit.tk.make.make','shutit.tk.xz.xz']
 	)
 

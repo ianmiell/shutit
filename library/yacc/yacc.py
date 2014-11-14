@@ -12,9 +12,9 @@ class yacc(ShutItModule):
 
 
 	def build(self, shutit):
-		shutit.install('wget')
 		shutit.install('tar')
 		shutit.install('gcc')
+		shutit.install('wget')
 		shutit.send('pushd /opt')
 		shutit.send('mkdir -p byacc')
 		shutit.send('pushd /opt/byacc')
