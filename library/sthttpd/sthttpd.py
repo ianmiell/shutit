@@ -9,7 +9,6 @@ class sthttpd(ShutItModule):
 
 	def build(self, shutit):
 		shutit.install('git')
-		shutit.install('automake')
 		shutit.install('gcc')
 		shutit.install('make')
 		shutit.send('addgroup thttpd')
@@ -47,6 +46,6 @@ def module():
 		'shutit.tk.sthttpd.sthttpd', 0.1219187350,
 		description='Small lightweight web server',
 		maintainer='ian.miell@gmail.com',
-		depends=['shutit.tk.setup']
+		depends=['shutit.tk.setup','shutit.tk.automake.automake']
 	)
 

@@ -20,8 +20,10 @@ class ttygif(ShutItModule):
 		shutit.send('pushd /opt/ttygif')
 		shutit.send('make')
 		shutit.send('mv ttygif /usr/bin/')
+		shutit.send('mv concat.sh /usr/bin/')
 		shutit.send('popd')
 		shutit.send('popd')
+		shutit.send('rm -rf /opt/ttygif')
 		return True
 
 	#def get_config(self, shutit):

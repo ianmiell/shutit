@@ -366,7 +366,7 @@ def get_base_config(cfg, cfg_parser):
 	if cfg['container']['rm'] and (cfg['repository']['tag'] or cfg['repository']['push'] or cfg['repository']['save'] or cfg['repository']['export']):
 		print("Can't have [container]/rm and [repository]/(push/save/export) set to true")
 		sys.exit()
-	if warn != '':
+	if warn != '' and cfg['build']['debug']:
 		issue_warning('Showing computed config. This can also be done by calling with sc:',2)
 		shutit_global.shutit.log(print_config(cfg), force_stdout=True, code='31')
 		time.sleep(1)

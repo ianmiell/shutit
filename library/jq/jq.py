@@ -13,10 +13,10 @@ class jq(ShutItModule):
 
 	def build(self, shutit):
 		shutit.install('flex')
-		shutit.install('bison')
 		shutit.install('autoconf')
 		shutit.install('git')
 		shutit.install('make')
+		shutit.install('bison')
 		shutit.install('libtool')
 		shutit.install('libonig-dev')
 		shutit.send('pushd /opt')
