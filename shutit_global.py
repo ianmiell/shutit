@@ -1014,7 +1014,7 @@ class ShutIt(object):
 		self.cfg['build']['step_through'] = value
 		self.pause_point(msg, child=child, print_input=print_input, level=level, resize=False)
 
-	def pause_point(self, msg, child=None, print_input=True, level=1, resize=False):
+	def pause_point(self, msg, child=None, print_input=True, level=1, resize=True):
 		"""Inserts a pause in the build session, which allows the user to try
 		things out before continuing. Ignored if we are not in an interactive
 		mode, or the interactive level is less than the passed-in one.
@@ -1033,7 +1033,9 @@ class ShutIt(object):
 			return
 		if child and print_input:
 			if resize:
-				print ('resize==True, so attempting to resize terminal.\n\nIf you are not at a shell prompt when calling pause_point, then pass in resize=False.')
+				print (util.colour('31','\nPause point:\n' +
+					'resize==True, so attempting to resize terminal.\n\n' +
+					'If you are not at a shell prompt when calling pause_point, then pass in resize=False.'))
 				shutit.send_host_file('/tmp/resize',self.shutit_main_dir+'/assets/resize', child=child, log=False)
 				shutit.send('chmod 755 /tmp/resize')
 				child.sendline('sleep 2 && /tmp/resize')
