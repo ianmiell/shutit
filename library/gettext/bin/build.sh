@@ -7,7 +7,7 @@ then
 	exit 1
 fi
 pushd ..
-$SHUTIT build -m ../autoconf "$@"
+$SHUTIT build -m ../autoconf:../xz:../bzip2:../make "$@"
 if [[ $? != 0 ]]
 then
 	popd

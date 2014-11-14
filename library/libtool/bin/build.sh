@@ -7,7 +7,7 @@ then
 	exit 1
 fi
 pushd ..
-$SHUTIT build -m ../automake:../texinfo:../help2man "$@"
+$SHUTIT build -m ../automake:../texinfo:../help2man:../xz:../autoconf:../bzip2:../make "$@"
 if [[ $? != 0 ]]
 then
 	popd
