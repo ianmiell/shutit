@@ -40,7 +40,7 @@ class record_shutit_build(ShutItModule):
 def module():
 	return record_shutit_build(
 		'shutit.tk.record_shutit_build.record_shutit_build', 0.39952141313136,
-		description='Base container to record a shutit build. See README.md in the source folder.',
+		description='Module to record a shutit build. See README.md in the source folder.',
 		maintainer='ian.miell@gmail.com',
 		depends=['shutit.tk.setup','shutit.tk.shutit.shutit','shutit.tk.ttygif.ttygif','shutit.tk.docker.docker']
 	)

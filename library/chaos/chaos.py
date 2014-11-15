@@ -42,7 +42,7 @@ class chaos(ShutItModule):
 def module():
 	return chaos(
 		'shutit.tk.chaos.chaos', 0.011213525,
-		description='Illustrative container that starts process and produces output at random',
+		description='Illustrative module that starts process and produces output at random',
 		maintainer='ian.miell@gmail.com',
 		depends=['shutit.tk.setup']
 	)

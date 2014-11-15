@@ -135,7 +135,7 @@ END"""
 	def check_ready(self, shutit):
 		"""Only apt-based systems are supported support atm.
 		"""
-		return shutit.cfg['container']['install_type'] == 'apt'
+		return shutit.cfg['target']['install_type'] == 'apt'
 
 
 def module():

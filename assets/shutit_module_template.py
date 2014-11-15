@@ -16,13 +16,13 @@ class template(ShutItModule):
 
 		# DELETE THIS SECTION WHEN UNDERSTOOD - BEGIN
 		shutit.send_and_expect('touch /tmp/deleteme')
-		shutit.send_and_expect('touch /tmp/container_touched.sh')
-		shutit.add_line_to_file('#This line should only appear once in the file','/tmp/container_touched.sh')
-		shutit.add_line_to_file('#This line should only appear once in the file','/tmp/container_touched.sh')
+		shutit.send_and_expect('touch /tmp/target_touched.sh')
+		shutit.add_line_to_file('#This line should only appear once in the file','/tmp/target_touched.sh')
+		shutit.add_line_to_file('#This line should only appear once in the file','/tmp/target_touched.sh')
 		# We add the match_regexp because the string has a quote in it.
-		shutit.add_line_to_file('echo "hello container"','/tmp/container_touched.sh',match_regexp='echo .hello container.')
-		shutit.add_line_to_file('sleep 10000000 &','/tmp/container_touched.sh')
-		shutit.send_and_expect('chmod +x /tmp/container_touched.sh')
+		shutit.add_line_to_file('echo "hello target"','/tmp/target_touched.sh',match_regexp='echo .hello target.')
+		shutit.add_line_to_file('sleep 10000000 &','/tmp/target_touched.sh')
+		shutit.send_and_expect('chmod +x /tmp/target_touched.sh')
 		# Make sure passwd is installed
 		shutit.install('passwd')
 		shutit.install('sudo')
@@ -31,22 +31,22 @@ class template(ShutItModule):
 		# Example of distro-specific password update
 		# record_command=False prevents the password being output at the end on debug. However, if it matches a password stored in config, 
 		# it will automatically redact it.
-		if shutit.cfg['container']['install_type'] == 'apt': # apt-based password update
+		if shutit.cfg['target']['install_type'] == 'apt': # apt-based password update
 			# "check_exit" checks the exit code of the command you are running.
 			# We can't check the exit code as the command will not return when we see 'Retype new' on the terminal.
 			shutit.send_and_expect('passwd','Enter new',check_exit=False)
 			# echo=False ensured it's not output on to the running terminal
-			shutit.send_and_expect(shutit.cfg['container']['password'],'Retype new',check_exit=False,echo=False)
-			shutit.send_and_expect(shutit.cfg['container']['password'],echo=False)
-		elif shutit.cfg['container']['install_type'] == 'yum': # yum-based password update
+			shutit.send_and_expect(shutit.cfg['target']['password'],'Retype new',check_exit=False,echo=False)
+			shutit.send_and_expect(shutit.cfg['target']['password'],echo=False)
+		elif shutit.cfg['target']['install_type'] == 'yum': # yum-based password update
 			# Check_exit checks the exit code of the command you are running.
 			# We can't check the exit code as the command will not return when we see 'ew password' on the terminal.
 			shutit.send_and_expect('passwd','ew password',check_exit=False)
-			shutit.send_and_expect(shutit.cfg['container']['password'],'ew password',check_exit=False,echo=False)
-			shutit.send_and_expect(shutit.cfg['container']['password'],echo=False)
+			shutit.send_and_expect(shutit.cfg['target']['password'],'ew password',check_exit=False,echo=False)
+			shutit.send_and_expect(shutit.cfg['target']['password'],echo=False)
 		# You can put multiple items you might expect in a list and handle accordingly:
-		shutit.multisend('sudo ls',{'assword':shutit.cfg['container']['password']},echo=False,check_exit=False)
-		# example of resource use (simple file, copy README.md into the container)
+		shutit.multisend('sudo ls',{'assword':shutit.cfg['target']['password']},echo=False,check_exit=False)
+		# example of resource use (simple file, copy README.md into the target)
 		shutit.send_file('/tmp/copiedfile',file.read(file(os.path.abspath(os.path.dirname(__file__)) + '/README.md')))
 		# example of bespoke config use
 		# Example of login/logout handling
@@ -75,12 +75,12 @@ class template(ShutItModule):
 		# DELETE THIS SECTION WHEN UNDERSTOOD - DONE
 		return True
 
-	# Determines whether the module has been built in this container
+	# Determines whether the module has been built in this target
 	# already.
 	#
 	# Should return True if it is certain it's there, else False.
 	def is_installed(self, shutit):
-		return shutit.file_exists('/tmp/container_touched.sh') and shutit.file_exists('/tmp/README.md')
+		return shutit.file_exists('/tmp/target_touched.sh') and shutit.file_exists('/tmp/README.md')
 
 	# get_config
 	#
@@ -115,8 +115,8 @@ class template(ShutItModule):
 	# OPTIONAL part of lifecycle - uncomment to include
 	#def start(self, shutit):
 	#    # example of starting something
-	#    shutit.send_and_expect('cat /tmp/container_touched.sh')
-	#    shutit.send_and_expect('sh /tmp/container_touched.sh')
+	#    shutit.send_and_expect('cat /tmp/target_touched.sh')
+	#    shutit.send_and_expect('sh /tmp/target_touched.sh')
 	#    return True
 
 	# stop
@@ -126,7 +126,7 @@ class template(ShutItModule):
 	# OPTIONAL part of lifecycle - uncomment to include
 	#def stop(self, shutit):
 	#    # example of stopping something
-	#    shutit.send_and_expect("""ps -ef | grep -v grep | grep container_touched.sh | awk '{print $1}' | sed 's/\([0-9][0-9]*\)/kill \\1/' | sh""")
+	#    shutit.send_and_expect("""ps -ef | grep -v grep | grep target_touched.sh | awk '{print $1}' | sed 's/\([0-9][0-9]*\)/kill \\1/' | sh""")
 	#    return True
 
 	# finalize
@@ -144,7 +144,7 @@ class template(ShutItModule):
 	# from the system.
 	# OPTIONAL part of lifecycle - uncomment to include
 	#def remove(self, shutit):
-	#    shutit.send_and_expect('rm -f /tmp/container_touched.sh')
+	#    shutit.send_and_expect('rm -f /tmp/target_touched.sh')
 	#    shutit.send_and_expect('rm -f /tmp/README.md')
 	#    # TODO: remove the installed apps DEPENDS on install tracking being available.
 	#    return True

@@ -52,7 +52,7 @@ class ansible(ShutItModule):
 			if res == 1:
 				break
 			elif res == 0:
-				send = shutit.cfg['container']['password']
+				send = shutit.cfg['target']['password']
 			elif res == 2:
 				send = 'yes'
 		return True

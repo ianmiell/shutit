@@ -9,7 +9,7 @@ class llvm(ShutItModule):
 		return False
 
 	def build(self, shutit):
-		# Docker container image for building apps hosted on LLVM.
+		# Module for building apps hosted on LLVM.
 		shutit.install('subversion')
 		shutit.install('python')
 		shutit.install('gcc')

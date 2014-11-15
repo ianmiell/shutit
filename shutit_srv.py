@@ -51,7 +51,7 @@ def build_shutit():
 		shutit_main.do_build(shutit)
 		shutit_main.do_test(shutit)
 		shutit_main.do_finalize(shutit)
-		shutit_main.finalize_container(shutit)
+		shutit_main.finalize_target(shutit)
 	except ShutItException as error:
 		STATUS['errs'] = [str(error)]
 	STATUS['build_done'] = True
@@ -188,7 +188,7 @@ def shutit_reset():
 			child.send('\n')
 			child.sendeof()
 			child.readlines()
-		image_tag = shutit.cfg['container']['docker_image']
+		image_tag = shutit.cfg['target']['docker_image']
 	else:
 		image_tag = ''
 	shutit = None
@@ -218,15 +218,15 @@ def shutit_reset():
 		shutit_main.shutit_module_init(shutit)
 		# Here we can set the starting image.
 		if STATUS['image_tag'] != '':
-			shutit.cfg['container']['docker_image'] = STATUS['image_tag']
+			shutit.cfg['target']['docker_image'] = STATUS['image_tag']
 		else:
-			STATUS['image_tag'] = shutit.cfg['container']['docker_image']
-		shutit_main.conn_container(shutit)
+			STATUS['image_tag'] = shutit.cfg['target']['docker_image']
+		shutit_main.conn_target(shutit)
 
 		# Some hacks for server mode
 		shutit.cfg['build']['build_log'] = StringIO.StringIO()
 		shutit.cfg['build']['interactive'] = 0
-		STATUS['cid'] = shutit.cfg['container']['container_id']
+		STATUS['cid'] = shutit.cfg['target']['container_id']
 		for module_id in shutit.shutit_map:
 			ORIG_MOD_CFG[module_id] = STATUS['cfg'][module_id] = shutit.cfg[module_id]
 		# Add in core sections

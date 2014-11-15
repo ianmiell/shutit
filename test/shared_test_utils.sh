@@ -34,9 +34,9 @@ function set_shutit_options() {
 	OPTS=${1:-none}
 	if [[ "$OPTS" = "none" ]]
 	then
-		export SHUTIT_OPTIONS="-s container name $CNAME -s repository tag no --interactive 0"
+		export SHUTIT_OPTIONS="-s target name $CNAME -s repository tag no --interactive 0"
 	else
-		export SHUTIT_OPTIONS="-s container name $CNAME $OPTS -s repository tag no --interactive 0"
+		export SHUTIT_OPTIONS="-s target name $CNAME $OPTS -s repository tag no --interactive 0"
 	fi
 }
 

@@ -30,7 +30,7 @@ class vnc(ShutItModule):
 	def check_ready(self, shutit):
 		"""Only apt-based systems are supported support atm
 		"""
-		return shutit.cfg['container']['install_type'] == 'apt'
+		return shutit.cfg['target']['install_type'] == 'apt'
 
 	def is_installed(self, shutit):
 		return shutit.file_exists('/root/start_vnc.sh')
@@ -43,7 +43,7 @@ class vnc(ShutItModule):
 		shutit.install('xserver-xorg')
 		shutit.install('vnc4server')
 		shutit.install('novnc')
-		if shutit.cfg['container']['distro'] == 'ubuntu':
+		if shutit.cfg['target']['distro'] == 'ubuntu':
 			shutit.install('ubuntu-desktop')
 			shutit.send('rm -rf /tmp/ubuntu-desktop')
 		send = 'vncserver'
