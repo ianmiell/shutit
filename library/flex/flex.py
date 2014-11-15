@@ -1,5 +1,4 @@
 """ShutIt module. See http://shutit.tk
-In source, line 16 should be blank, within the build def. This doesn't matter except for test builds, so can be removed once in use.
 """
 
 from shutit_module import ShutItModule
@@ -21,12 +20,12 @@ class flex(ShutItModule):
 		shutit.send('bunzip2 flex-2.5.39.tar.bz2')
 		shutit.send('tar -xvf flex-2.5.39.tar')
 		shutit.send('pushd flex-2.5.39')
-		shutit.send('./configure')
+		shutit.send('./configure --prefix=/usr')
 		shutit.send('make')
 		shutit.send('make install')
 		shutit.send('popd')
 		shutit.send('popd')
-		shutit.remove('m4') # reqiured
+		shutit.send('rm -rf /opt/flex')
 		return True
 
 	#def get_config(self, shutit):
@@ -53,8 +52,8 @@ class flex(ShutItModule):
 def module():
 	return flex(
 		'shutit.tk.flex.flex', 0.0122515332,
-		description='',
-		maintainer='',
+		description='Flex',
+		maintainer='ian.miell@gmail.com',
 		depends=['shutit.tk.bzip2.bzip2']
 	)
 

@@ -1,5 +1,4 @@
 """ShutIt module. See http://shutit.tk
-In source, line 16 should be blank, within the build def. This doesn't matter except for test builds, so can be removed once in use.
 """
 
 from shutit_module import ShutItModule
@@ -14,9 +13,7 @@ class git(ShutItModule):
 
 	def build(self, shutit):
 		shutit.install('wget')
-		shutit.install('zip') # TODO build
 		shutit.install('gcc')
-		shutit.install('tcl') # TODO build
 		shutit.install('libssl-dev')
 		shutit.install('libcurl4-gnutls-dev')
 		shutit.install('libexpat1-dev')
@@ -60,6 +57,6 @@ def module():
 		'shutit.tk.git.git', 0.021,
 		description='Git built from source',
 		maintainer='ian.miell@gmail.com',
-		depends=['shutit.tk.gettext.gettext']
+		depends=['shutit.tk.gettext.gettext','shutit.tk.zip.zip','shutit.tk.tcl.tcl']
 	)
 

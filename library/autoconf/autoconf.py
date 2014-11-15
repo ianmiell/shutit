@@ -14,7 +14,7 @@ class autoconf(ShutItModule):
 	def build(self, shutit):
 		shutit.install('tar')
 		shutit.install('gcc')
-		shutit.install('m4') # required
+		shutit.install('m4')
 		shutit.send('pushd /opt')
 		shutit.send('mkdir -p autoconf')
 		shutit.send('pushd autoconf')
@@ -29,7 +29,6 @@ class autoconf(ShutItModule):
 		shutit.send('popd')
 		shutit.send('popd')
 		shutit.send('rm -rf /opt/autoconf')
-		shutit.remove('m4') # required
 		return True
 
 	#def get_config(self, shutit):

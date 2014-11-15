@@ -22,7 +22,7 @@ class help2man(ShutItModule):
 		shutit.send('xz -d help2man-1.46.4.tar.xz')
 		shutit.send('tar -xf help2man-1.46.4.tar')
 		shutit.send('pushd help2man-1.46.4')
-		shutit.send('./configure')
+		shutit.send('./configure --prefix=/usr')
 		shutit.send('make')
 		shutit.send('make install')
 		shutit.send('popd')

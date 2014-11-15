@@ -22,7 +22,7 @@ class texinfo(ShutItModule):
 		shutit.send('xz -d texinfo-5.2.tar.xz ')
 		shutit.send('tar -xf texinfo-5.2.tar')
 		shutit.send('pushd /opt/texinfo/texinfo-5.2')
-		shutit.send('./configure')
+		shutit.send('./configure --prefix=/usr')
 		shutit.send('make')
 		shutit.send('make install')
 		shutit.send('popd')

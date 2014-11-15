@@ -1,5 +1,4 @@
 """ShutIt module. See http://shutit.tk
-In source, line 16 should be blank, within the build def. This doesn't matter except for test builds, so can be removed once in use.
 """
 
 from shutit_module import ShutItModule
@@ -16,7 +15,7 @@ class automake(ShutItModule):
 		shutit.install('tar')
 		shutit.install('wget')
 		shutit.install('gcc')
-		shutit.install('autoconf') #required
+		shutit.install('m4')
 		shutit.send('pushd /opt')
 		shutit.send('mkdir -p automake')
 		shutit.send('pushd /opt/automake')
@@ -24,14 +23,13 @@ class automake(ShutItModule):
 		shutit.send('xz -d automake-1.14.tar.xz')
 		shutit.send('tar -xf automake-1.14.tar')
 		shutit.send('pushd /opt/automake/automake-1.14')
-		shutit.send('./configure')
+		shutit.send('./configure --prefix=/usr')
 		shutit.send('make')
 		shutit.send('make install')
 		shutit.send('popd')
 		shutit.send('popd')
 		shutit.send('popd')
 		shutit.send('rm -rf /opt/automake')
-		shutit.remove('autoconf') #required
 		return True
 
 	#def get_config(self, shutit):

@@ -27,7 +27,7 @@ class thrift(ShutItModule):
 		shutit.send('git clone https://github.com/apache/thrift.git')
 		shutit.send('pushd /opt/thrift')
 		shutit.send('./bootstrap.sh')
-		shutit.send('./configure')
+		shutit.send('./configure --prefix=/usr')
 		shutit.send('make')
 		shutit.send('make install')
 		shutit.send('popd')

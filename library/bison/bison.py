@@ -15,6 +15,7 @@ class bison(ShutItModule):
 		shutit.install('tar')
 		shutit.install('wget')
 		shutit.install('gcc')
+		shutit.install('m4')
 		shutit.send('pushd /opt')
 		shutit.send('mkdir -p bison')
 		shutit.send('pushd /opt/bison')
@@ -22,7 +23,7 @@ class bison(ShutItModule):
 		shutit.send('wget http://ftp.gnu.org/gnu/bison/bison-' + version + '.tar.gz')
 		shutit.send('tar -zxf bison-' + version + '.tar.gz')
 		shutit.send('pushd bison-' + version)
-		shutit.send('./configure --prefix=/usr/local/bison --with-libiconv-prefix=/usr/local/libiconv/')
+		shutit.send('./configure --prefix=/usr --with-libiconv-prefix=/usr')
 		shutit.send('make')
 		shutit.send('make install')
 		shutit.send('popd')
@@ -57,6 +58,6 @@ def module():
 		'shutit.tk.bison.bison', 0.01961124124756,
 		description='Bison compilation',
 		maintainer='ian.miell@gmail.com',
-		depends=['shutit.tk.setup','shutit.tk.m4.m4','shutit.tk.make.make']
+		depends=['shutit.tk.make.make']
 	)
 

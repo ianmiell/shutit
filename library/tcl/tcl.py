@@ -21,7 +21,7 @@ class tcl(ShutItModule):
 		shutit.send('gunzip tcl8.6.3-src.tar.gz')
 		shutit.send('tar -xf tcl8.6.3-src.tar')
 		shutit.send('pushd tcl8.6.3/unix')
-		shutit.send('./configure')
+		shutit.send('./configure --prefix=/usr')
 		shutit.send('make')
 		shutit.send('make install')
 		shutit.send('popd')
@@ -51,10 +51,9 @@ class tcl(ShutItModule):
 
 def module():
 	return tcl(
-		'shutit.tk.tcl.tcl', 0.19125135,
+		'shutit.tk.tcl.tcl', 0.019125135,
 		description='',
-	
-maintainer='',
+		maintainer='',
 		depends=['shutit.tk.yacc.yacc']
 	)
 

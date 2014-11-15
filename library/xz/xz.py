@@ -22,7 +22,7 @@ class xz(ShutItModule):
 		shutit.send('bunzip2 xz-5.0.7.tar.bz2')
 		shutit.send('tar -xf xz-5.0.7.tar')
 		shutit.send('pushd /opt/xz/xz-5.0.7')
-		shutit.send('./configure')
+		shutit.send('./configure --prefix=/usr')
 		shutit.send('make')
 		shutit.send('make install')
 		shutit.send('popd')

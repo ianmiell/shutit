@@ -44,7 +44,7 @@ class mesos(ShutItModule):
 		shutit.send('./bootstrap')
 		shutit.send('mkdir build')
 		shutit.send('pushd build')
-		shutit.send('../configure')
+		shutit.send('../configure --prefix=/usr')
 		shutit.send('make')
 		# TODO: fails ATM, not sure if it's really a problem or not
 		#shutit.send('make check')

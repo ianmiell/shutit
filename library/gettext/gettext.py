@@ -1,5 +1,4 @@
 """ShutIt module. See http://shutit.tk
-In source, line 16 should be blank, within the build def. This doesn't matter except for test builds, so can be removed once in use.
 """
 
 from shutit_module import ShutItModule
@@ -22,7 +21,7 @@ class gettext(ShutItModule):
 		shutit.send('xz -d gettext-0.19.3.tar.xz')
 		shutit.send('tar -xf gettext-0.19.3.tar')
 		shutit.send('pushd /opt/gettext/gettext-0.19.3')
-		shutit.send('./configure')
+		shutit.send('./configure --prefix=/usr')
 		shutit.send('make')
 		shutit.send('make install')
 		shutit.send('popd')

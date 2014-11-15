@@ -18,7 +18,7 @@ class couchdb(ShutItModule):
 		shutit.send('cd /tmp && tar xvzf apache-couchdb-1.6.0.tar.gz')
 		shutit.send('apt-get install -y make')
 		shutit.send('cd /tmp/apache-couchdb-*')
-		shutit.send('./configure')
+		shutit.send('./configure --prefix=/usr')
 		shutit.send('make install')
 		shutit.send('printf "[httpd]\nport = 8101\nbind_address = 0.0.0.0" > /usr/local/etc/couchdb/local.d/docker.ini')
 		return True

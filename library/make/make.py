@@ -22,7 +22,7 @@ class make(ShutItModule):
 		shutit.send('bunzip2 make-4.1.tar.bz2')
 		shutit.send('tar -xvf make-4.1.tar')
 		shutit.send('pushd make-4.1')
-		shutit.send('./configure')
+		shutit.send('./configure --prefix=/usr')
 		shutit.send('sh build.sh') # to build make without make
 		shutit.send('./make install')
 		shutit.send('popd')

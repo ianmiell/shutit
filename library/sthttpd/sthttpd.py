@@ -15,7 +15,7 @@ class sthttpd(ShutItModule):
 		shutit.send('git clone git://opensource.dyc.edu/sthttpd sthttpd')
 		shutit.send('pushd sthttpd')
 		shutit.send('./autogen.sh')
-		shutit.send('./configure')
+		shutit.send('./configure --prefix=/usr')
 		shutit.send('make')
 		shutit.send('make install')
 		return True

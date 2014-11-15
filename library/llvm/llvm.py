@@ -26,7 +26,7 @@ class llvm(ShutItModule):
 		shutit.send('svn co http://llvm.org/svn/llvm-project/compiler-rt/trunk compiler-rt')
 		shutit.send('popd')
 		shutit.send('pushd llvm')
-		shutit.send('./configure')
+		shutit.send('./configure --prefix=/usr')
 		# Echo required to force newline
 		shutit.send('make && echo',timeout=99999)
 		# Required for install

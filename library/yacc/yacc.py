@@ -56,6 +56,6 @@ def module():
 		'shutit.tk.yacc.yacc', 0.0121325,
 		description='',
 		maintainer='',
-		depends=['shutit.tk.setup','shutit.tk.make.make']
+		depends=['shutit.tk.make.make']
 	)
 

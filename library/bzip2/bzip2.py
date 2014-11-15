@@ -1,5 +1,4 @@
 """ShutIt module. See http://shutit.tk
-In source, line 16 should be blank, within the build def. This doesn't matter except for test builds, so can be removed once in use.
 """
 
 from shutit_module import ShutItModule
@@ -13,6 +12,7 @@ class bzip2(ShutItModule):
 
 
 	def build(self, shutit):
+		shutit.install('tar')
 		shutit.send('mkdir -p /opt/bzip2')
 		shutit.send('pushd /opt/bzip2')
 		shutit.send_host_file('/opt/bzip2/bzip2.tar','context/bzip2-1.0.6.tar')
@@ -22,7 +22,7 @@ class bzip2(ShutItModule):
 		shutit.send('make install')
 		shutit.send('popd')
 		shutit.send('popd')
-		shutit.send('rm -rf bzip2')
+		shutit.send('rm -rf /opt/bzip2')
 		return True
 
 	#def get_config(self, shutit):
@@ -50,7 +50,7 @@ def module():
 	return bzip2(
 		'shutit.tk.bzip2.bzip2', 0.0101,
 		description='',
-		maintainer='',
+		maintainer='ian.miell@gmail.com',
 		depends=['shutit.tk.make.make']
 	)
 
