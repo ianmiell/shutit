@@ -37,7 +37,6 @@ class cmake(ShutItModule):
 				shutit.install('gcc')
 				shutit.install('g++')
 				shutit.install('python-software-properties')
-				shutit.install('git')
 				shutit.send('pushd /opt')
 				shutit.send('git clone git://cmake.org/cmake.git')
 				shutit.send('pushd cmake')
@@ -61,6 +60,6 @@ def module():
 		'shutit.tk.cmake.cmake', 0.09187246124,
 		description='CMake',
 		maintainer='ian.miell@gmail.com',
-		depends=['shutit.tk.make.make']
+		depends=['shutit.tk.git.git']
 	)
 

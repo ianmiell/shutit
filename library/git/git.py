@@ -31,6 +31,7 @@ class git(ShutItModule):
 		shutit.send('make install prefix=/usr')
 		shutit.send('popd')
 		shutit.send('popd')
+		shutit.send('rm -rf /opt/git')
 		return True
 
 	#def get_config(self, shutit):

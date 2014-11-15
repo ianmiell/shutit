@@ -21,7 +21,7 @@ class zip(ShutItModule):
 		shutit.send('pushd /opt/zip')
 		shutit.send('bunzip2 unzip610b.tar.bz2')
 		shutit.send('tar -xf unzip610b.tar')
-		shutit.pause_point('zip')
+		shutit.pause_point('zip next step make -f unix/Makefile IZ_BZIP2=/opt/bzip2/bzip2-1.0.6 IZ_ZLIB=../../zlib/zlib-1.2.5 generic')
 		return True
 
 	#def get_config(self, shutit):
