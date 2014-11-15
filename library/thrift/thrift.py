@@ -18,7 +18,6 @@ class thrift(ShutItModule):
 		shutit.install('libtool')
 		shutit.install('libqt4-dev')
 		shutit.install('pkg-config')
-		shutit.install('flex')
 		shutit.install('libevent-dev')
 		shutit.install('bison')
 		shutit.install('make')
@@ -60,6 +59,6 @@ def module():
 		'shutit.tk.thrift.thrift', 0.1124125,
 		description='',
 		maintainer='ian.miell@gmail.com',
-		depends=['shutit.tk.setup']
+		depends=['shutit.tk.flex.flex']
 	)
 

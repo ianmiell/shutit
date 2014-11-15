@@ -12,7 +12,6 @@ class jq(ShutItModule):
 
 
 	def build(self, shutit):
-		shutit.install('flex')
 		shutit.install('autoconf')
 		shutit.install('git')
 		shutit.install('bison')
@@ -57,6 +56,6 @@ def module():
 		'shutit.tk.jq.jq', 0.11258107521,
 		description='JQ - sed for JSON',
 		maintainer='ian.miell@gmail.com',
-		depends=['shutit.tk.setup','shutit.tk.make.make']
+		depends=['shutit.tk.setup','shutit.tk.make.make','shutit.tk.flex.flex']
 	)
 
