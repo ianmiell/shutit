@@ -56,6 +56,6 @@ def module():
 		'shutit.tk.jq.jq', 0.11258107521,
 		description='JQ - sed for JSON',
 		maintainer='ian.miell@gmail.com',
-		depends=['shutit.tk.setup','shutit.tk.make.make','shutit.tk.flex.flex']
+		depends=['shutit.tk.flex.flex']
 	)
 

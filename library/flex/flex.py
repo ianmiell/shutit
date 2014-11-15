@@ -14,7 +14,7 @@ class flex(ShutItModule):
 
 	def build(self, shutit):
 		shutit.install('wget')
-		shutit.install('m4') # reqiured
+		shutit.install('m4') # required
 		shutit.send('mkdir -p /opt/flex')
 		shutit.send('pushd /opt/flex')
 		shutit.send('wget http://prdownloads.sourceforge.net/flex/flex-2.5.39.tar.bz2')
@@ -26,7 +26,7 @@ class flex(ShutItModule):
 		shutit.send('make install')
 		shutit.send('popd')
 		shutit.send('popd')
-		shutit.remove('m4') # reqiured
+		shutit.remove('m4') # required
 		return True
 
 	#def get_config(self, shutit):
