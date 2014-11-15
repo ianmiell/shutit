@@ -68,6 +68,6 @@ def module():
 		'shutit.tk.osquery.osquery', 0.11352451,
 		description='Facebook\'s OSQuery sql tool',
 		maintainer='ian.miell@gmail.com',
-		depends=['shutit.tk.setup','shutit.tk.rocksdb.rocksdb','shutit.tk.thrift.thrift','shutit.tk.automake','shutit.tk.bison.bison','shutit.tk.libtool.libtool']
+		depends=['shutit.tk.rocksdb.rocksdb','shutit.tk.thrift.thrift','shutit.tk.automake.automake','shutit.tk.bison.bison','shutit.tk.libtool.libtool']
 	)
 
