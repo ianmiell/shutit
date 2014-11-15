@@ -728,13 +728,13 @@ def shutit_main():
 	errs = []
 	errs.extend(check_deps(shutit))
 	# Show dependency graph
+	digraph = 'digraph depgraph {\n'
+	digraph = digraph + '\n'.join([
+		make_dep_graph(module) for module_id, module in shutit.shutit_map.items()
+		if module_id in shutit.cfg and shutit.cfg[module_id]['shutit.core.module.build']
+	])
+	digraph = digraph + '\n}'
 	if cfg['action']['show_depgraph']:
-		digraph = 'digraph depgraph {\n'
-		digraph = digraph + '\n'.join([
-			make_dep_graph(module) for module_id, module in shutit.shutit_map.items()
-			if module_id in shutit.cfg and shutit.cfg[module_id]['shutit.core.module.build']
-		])
-		digraph = digraph + '\n}'
 		shutit.log(digraph, force_stdout=True)
 		shutit.log('\nAbove is the digraph for this shutit invocation. Use graphviz to render into an image, eg\n\n\tshutit depgraph -m library | dot -Tpng -o depgraph.png', force_stdout=True)
 		# Set build completed
