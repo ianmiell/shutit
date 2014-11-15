@@ -169,7 +169,7 @@ class Emailer():
 	def attach(self, filename, filetype="txt"):
 		"""Attach a file - currently needs to be entered as root (shutit)
 
-		Filename - absolute path, relative to the docker container!
+		Filename - absolute path, relative to the target host!
 		filetype - MIMEApplication._subtype
 		"""
 		shutit = self.shutit

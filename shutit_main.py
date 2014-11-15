@@ -21,7 +21,7 @@
 #OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 #SOFTWARE.
 
-"""ShutIt is a means of building stateless containers in a flexible and predictable way.
+"""ShutIt is a means of building stateless target hosts in a flexible and predictable way.
 """
 
 from shutit_module import ShutItModule, ShutItException
@@ -63,7 +63,7 @@ def print_modules(shutit):
 # run_order of -1 means 'stop everything'
 def stop_all(shutit, run_order=-1):
 	"""Runs stop method on all modules less than the passed-in run_order.
-	Used when container is exporting itself mid-build, so we clean up state
+	Used when target is exporting itself mid-build, so we clean up state
 	before committing run files etc.
 	"""
 	cfg = shutit.cfg
@@ -78,14 +78,14 @@ def stop_all(shutit, run_order=-1):
 			if is_built(shutit, shutit_module_obj):
 				if not shutit_module_obj.stop(shutit):
 					shutit.fail('failed to stop: ' + \
-						module_id, child=shutit.pexpect_children['container_child'])
+						module_id, child=shutit.pexpect_children['target_child'])
 
 
 # Start all apps less than the supplied run_order
 def start_all(shutit, run_order=-1):
 	"""Runs start method on all modules less than the passed-in run_order.
-	Used when container is exporting itself mid-build, so we can export a clean
-	container and still depended-on modules running if necessary.
+	Used when target is exporting itself mid-build, so we can export a clean
+	target and still depended-on modules running if necessary.
 	"""
 	cfg = shutit.cfg
 	if cfg['build']['interactive'] >= 3:
@@ -99,7 +99,7 @@ def start_all(shutit, run_order=-1):
 			if is_built(shutit, shutit_module_obj):
 				if not shutit_module_obj.start(shutit):
 					shutit.fail('failed to start: ' + module_id, \
-						child=shutit.pexpect_children['container_child'])
+						child=shutit.pexpect_children['target_child'])
 
 
 def is_built(shutit, shutit_module_obj):
@@ -240,14 +240,14 @@ def config_collection_for_built(shutit):
 		if (shutit.cfg[module_id]['shutit.core.module.build'] and
 		   (not shutit.cfg['build']['ignoreimage'] and 
 		    shutit.cfg[module_id]['shutit.core.module.allowed_images'] and
-		    shutit.cfg['container']['docker_image'] not in
+		    shutit.cfg['target']['docker_image'] not in
 		    shutit.cfg[module_id]['shutit.core.module.allowed_images'])):
 			last_checked_module_id = module_id
 			# re-set on each iteration
 			ok = False
 			# Try allowed images as regexps
 			for regexp in shutit.cfg[module_id]['shutit.core.module.allowed_images']:
-				if re.match('^' + regexp + '$', shutit.cfg['container']['docker_image']):
+				if re.match('^' + regexp + '$', shutit.cfg['target']['docker_image']):
 					ok = True
 					break
 			if not ok:
@@ -255,7 +255,7 @@ def config_collection_for_built(shutit):
 				print('\n\nWARNING!\n\nAllowed images for ' + module_id + ' are: ' +
 				      str(shutit.cfg[module_id]['shutit.core.module.allowed_images']) +
 				      ' but the configured image is: ' +
-				      shutit.cfg['container']['docker_image'] +
+				      shutit.cfg['target']['docker_image'] +
 				      '\n\nIs your shutit_module_path set correctly?' +
 				      '\n\nIf you want to ignore this, ' + 
 				      'pass in the --ignoreimage flag to shutit.\n\n')
@@ -265,8 +265,8 @@ def config_collection_for_built(shutit):
 		sys.exit(0)
 
 
-def conn_container(shutit):
-	"""Connect to the container.
+def conn_target(shutit):
+	"""Connect to the target.
 	"""
 	conn_module = None
 	for mod in shutit.conn_modules:
@@ -286,11 +286,10 @@ def conn_container(shutit):
 	conn_module.build(shutit)
 
 
-def finalize_container(shutit):
-	"""Finalize the container using the core finalize method.
+def finalize_target(shutit):
+	"""Finalize the target using the core finalize method.
 	"""
-	# Set up the container in pexpect.
-	shutit.pause_point('\nFinalizing the container module (' +
+	shutit.pause_point('\nFinalizing the target module (' +
 		shutit.shutit_main_dir + '/setup.py)', print_input=False, level=3)
 	# Can assume conn_module exists at this point
 	for mod in shutit.conn_modules:
@@ -484,7 +483,7 @@ def check_ready(shutit):
 				errs.append((module_id + ' not ready to install.\nRead the ' +
 				            'check_ready function in the module,\nor log ' + 
 				            'messages above to determine the issue.\n\n',
-				            shutit.pexpect_children['container_child']))
+				            shutit.pexpect_children['target_child']))
 			shutit.logout()
 			os.chdir(revert_dir)
 	return errs
@@ -507,7 +506,7 @@ def do_remove(shutit):
 			if not module.remove(shutit):
 				shutit.log(print_modules(shutit), code='31')
 				shutit.fail(module_id + ' failed on remove',
-				child=shutit.pexpect_children['container_child'])
+				child=shutit.pexpect_children['target_child'])
 			shutit.logout()
 
 
@@ -522,7 +521,7 @@ def build_module(shutit, module):
 	                          str(module.run_order))
 	if not module.build(shutit):
 		shutit.fail(module.module_id + ' failed on build',
-		            child=shutit.pexpect_children['container_child'])
+		            child=shutit.pexpect_children['target_child'])
 	shutit.pause_point('\nPausing to allow inspect of build for: ' +
 	                   module.module_id, print_input=True, level=2)
 	cfg['build']['report'] = (cfg['build']['report'] + '\nCompleted module: ' +
@@ -590,7 +589,7 @@ def do_build(shutit):
 			shutit.log('Starting module')
 			if not module.start(shutit):
 				shutit.fail(module.module_id + ' failed on start',
-				    child=shutit.pexpect_children['container_child'])
+				    child=shutit.pexpect_children['target'])
 
 
 def do_test(shutit):
@@ -616,7 +615,7 @@ def do_test(shutit):
 			shutit.login(prompt_prefix=module_id)
 			if not shutit.shutit_map[module_id].test(shutit):
 				shutit.fail(module_id + ' failed on test',
-				child=shutit.pexpect_children['container_child'])
+				child=shutit.pexpect_children['target'])
 			shutit.logout()
 
 
@@ -645,7 +644,7 @@ def do_finalize(shutit):
 			shutit.login(prompt_prefix=module_id)
 			if not shutit.shutit_map[module_id].finalize(shutit):
 				shutit.fail(module_id + ' failed on finalize',
-			                child=shutit.pexpect_children['container_child'])
+			                child=shutit.pexpect_children['target'])
 			shutit.logout()
 
 
@@ -723,19 +722,20 @@ def shutit_main():
 
 	shutit_module_init(shutit)
 
-	conn_container(shutit)
+	conn_target(shutit)
 
 	errs = []
 	errs.extend(check_deps(shutit))
 	# Show dependency graph
+	digraph = 'digraph depgraph {\n'
+	digraph = digraph + '\n'.join([
+		make_dep_graph(module) for module_id, module in shutit.shutit_map.items()
+		if module_id in shutit.cfg and shutit.cfg[module_id]['shutit.core.module.build']
+	])
+	digraph = digraph + '\n}'
+	shutit.cfg['build']['depgraph'] = digraph
 	if cfg['action']['show_depgraph']:
-		digraph = 'digraph depgraph {\n'
-		digraph = digraph + '\n'.join([
-			make_dep_graph(module) for module_id, module in shutit.shutit_map.items()
-			if module_id in shutit.cfg and shutit.cfg[module_id]['shutit.core.module.build']
-		])
-		digraph = digraph + '\n}'
-		shutit.log(digraph, force_stdout=True)
+		shutit.log('\n' + digraph, force_stdout=True)
 		shutit.log('\nAbove is the digraph for this shutit invocation. Use graphviz to render into an image, eg\n\n\tshutit depgraph -m library | dot -Tpng -o depgraph.png', force_stdout=True)
 		# Set build completed
 		cfg['build']['completed'] = True
@@ -766,22 +766,22 @@ def shutit_main():
 	do_test(shutit)
 	do_finalize(shutit)
 
-	finalize_container(shutit)
+	finalize_target(shutit)
 
 	shutit.log(util.build_report(shutit, '#Module: N/A (END)'), prefix=False,
 			   force_stdout=True, code='31')
 
 	if shutit.cfg['build']['interactive'] >= 3:
 		shutit.log('\n' +
-		           'The build is complete. You should now have a container ' + 
-		           'called ' + shutit.cfg['container']['name'] +
+		           'The build is complete. You should now have a target ' + 
+		           'called ' + shutit.cfg['target']['name'] +
 		           ' and a new image if you chose to commit it.\n\n' + 
 		           'Look and play with the following files from the newly-created ' + 
 		           'module directory to dig deeper:\n\n    configs/default.cnf\n    ' + 
 		           '*.py\n\nYou can rebuild at any time by running the supplied ' + 
 		           './build.sh and run with the supplied ./run.sh.\n\nThere\'s a ' + 
 		           'default test runner in test.sh\n\n' + 
-		           'You can inspect the details of the build in the container\'s ' + 
+		           'You can inspect the details of the build in the target\'s ' + 
 		           '/root/shutit_build directory.', force_stdout=True, code='31')
 
 	# Mark the build as completed

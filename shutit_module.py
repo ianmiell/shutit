@@ -142,7 +142,7 @@ class ShutItModule(object):
 		# run_order for the module (a float).
 		# It should be a float and not duplicated within the shutit_module path.
 		# Module 0 is special. It is expected to:
-		#   - Set up a container (see setup.py)
+		#   - Set up a target (see setup.py)
 		#   - Set up pexpect children with relevant keys and populate
 		#     shutit_global.pexpect_children.
 		if (isinstance(run_order, float) or
@@ -215,7 +215,7 @@ class ShutItModule(object):
 
 	@abstractmethod
 	def is_installed(self, shutit):
-		"""Determines whether the module has been built in this container
+		"""Determines whether the module has been built in this target host
 		already.
 		
 		Returns True if it is certain it's there, else False.
