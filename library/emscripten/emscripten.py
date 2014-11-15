@@ -61,6 +61,6 @@ def module():
 		'shutit.tk.emscripten.emscripten', 0.3153235,
 		description='Emscripten module',
 		maintainer='ian.miell@gmail.com',
-		depends=['shutit.tk.setup','shutit.tk.llvm.llvm','shutit.tk.nodejs.nodejs']
+		depends=['shutit.tk.llvm.llvm','shutit.tk.nodejs.nodejs']
 	)
 

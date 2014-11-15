@@ -6,7 +6,7 @@
 #              ~/.shutit/config
 #              FILE
 ###############################################################################
-[container]
+[target]
 rm:false
 
 [repository]

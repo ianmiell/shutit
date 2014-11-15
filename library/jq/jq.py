@@ -16,6 +16,7 @@ class jq(ShutItModule):
 		shutit.send('pushd /opt')
 		shutit.send('git clone https://github.com/stedolan/jq.git')
 		shutit.send('pushd jq')
+# NEEDS install-info - coreutils?
 		shutit.send('autoreconf -i')
 		shutit.send('./configure --prefix=/usr')
 		shutit.send('make -j8')
@@ -52,6 +53,6 @@ def module():
 		'shutit.tk.jq.jq', 0.11258107521,
 		description='JQ - sed for JSON',
 		maintainer='ian.miell@gmail.com',
-		depends=['shutit.tk.git.git','shutit.tk.autoconf.autoconf','shutit.tk.bison.bison','shutit.tk.libtool.libtool']
+		depends=['shutit.tk.git.git','shutit.tk.autoconf.autoconf','shutit.tk.bison.bison','shutit.tk.libtool.libtool','shutit.tk.coreutils.coreutils','shutit.tk.texinfo.texinfo']
 	)
 
