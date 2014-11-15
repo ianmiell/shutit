@@ -1,6 +1,5 @@
 FROM progrium/busybox
-RUN opkg-install bash gcc
-#RUN opk-install bzip2 # possibly can remove
+RUN opkg-install bash gcc bzip2 # possibly can slim further
 
 # Make default shells bash
 RUN sed -i 's/^root.*bin.sh/root:x:0:0:root:\/root:\/bin\/bash/' /etc/passwd

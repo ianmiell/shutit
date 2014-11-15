@@ -735,7 +735,7 @@ def shutit_main():
 	])
 	digraph = digraph + '\n}'
 	if cfg['action']['show_depgraph']:
-		shutit.log('\n' + digraph, force_stdout=True)
+		shutit.log(digraph, force_stdout=True)
 		shutit.log('\nAbove is the digraph for this shutit invocation. Use graphviz to render into an image, eg\n\n\tshutit depgraph -m library | dot -Tpng -o depgraph.png', force_stdout=True)
 		# Set build completed
 		cfg['build']['completed'] = True
