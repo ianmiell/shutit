@@ -1014,7 +1014,7 @@ class ShutIt(object):
 		self.cfg['build']['step_through'] = value
 		self.pause_point(msg, child=child, print_input=print_input, level=level, resize=False)
 
-	def pause_point(self, msg, child=None, print_input=True, level=1, resize=False):
+	def pause_point(self, msg, child=None, print_input=True, level=1, resize=True):
 		"""Inserts a pause in the build session, which allows the user to try
 		things out before continuing. Ignored if we are not in an interactive
 		mode, or the interactive level is less than the passed-in one.
@@ -1157,10 +1157,6 @@ class ShutIt(object):
 		if options is None: options = {}
 		# TODO: config of maps of packages
 		install_type = self.cfg['container']['install_type']
-		if install_type == 'src':
-			# src install types assume that these will be built as ShutIt dependencies from source,
-			# so we simply return here.
-			return True
 		opts = ''
 		if install_type == 'apt':
 			cmd = 'apt-get install'
@@ -1837,8 +1833,7 @@ def init():
 	                                    'steamos':'apt',
 	                                    'red hat':'yum',
 	                                    'centos':'yum',
-	                                    'fedora':'yum',
-	                                    'shutit':'src'}
+	                                    'fedora':'yum'}
 
 	# If no LOGNAME available,
 	cfg['host']['username'] = os.environ.get('LOGNAME', '')

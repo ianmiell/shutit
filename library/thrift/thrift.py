@@ -12,9 +12,15 @@ class thrift(ShutItModule):
 
 
 	def build(self, shutit):
+		shutit.install('git')
+		shutit.install('automake')
+		shutit.install('autoconf')
+		shutit.install('libtool')
 		shutit.install('libqt4-dev')
 		shutit.install('pkg-config')
 		shutit.install('libevent-dev')
+		shutit.install('bison')
+		shutit.install('make')
 		shutit.install('libboost1.55-all-dev')
 		shutit.install('libssl-dev')
 		shutit.send('pushd /opt')
@@ -26,7 +32,6 @@ class thrift(ShutItModule):
 		shutit.send('make install')
 		shutit.send('popd')
 		shutit.send('popd')
-		shutit.send('rm -rf /opt/thrift')
 		return True
 
 	#def get_config(self, shutit):
@@ -54,6 +59,6 @@ def module():
 		'shutit.tk.thrift.thrift', 0.1124125,
 		description='',
 		maintainer='ian.miell@gmail.com',
-		depends=['shutit.tk.flex.flex','shutit.tk.automake.automake','shutit.tk.libtool.libtool','shutit.tk.bison.bison','shutit.tk.git.git']
+		depends=['shutit.tk.flex.flex']
 	)
 
