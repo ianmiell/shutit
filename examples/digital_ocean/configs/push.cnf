@@ -16,5 +16,5 @@ tag_name:latest
 suffix_date:yes
 suffix_format:%s
 
-[container]
+[target]
 rm:false
