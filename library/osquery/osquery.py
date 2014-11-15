@@ -13,14 +13,10 @@ class osquery(ShutItModule):
 
 	def build(self, shutit):
 		shutit.install('git')
-		shutit.install('autoconf')
-		shutit.install('libtool')
 		shutit.install('libqt4-dev')
 		shutit.install('pkg-config')
 		shutit.install('flex')
 		shutit.install('libevent-dev')
-		shutit.install('make')
-		shutit.install('cmake')
 		shutit.install('sqlite')
 		shutit.install('liblzma-dev')
 		shutit.install('libboost1.55-all-dev')
@@ -72,6 +68,6 @@ def module():
 		'shutit.tk.osquery.osquery', 0.11352451,
 		description='Facebook\'s OSQuery sql tool',
 		maintainer='ian.miell@gmail.com',
-		depends=['shutit.tk.setup','shutit.tk.rocksdb.rocksdb','shutit.tk.thrift.thrift','shutit.tk.automake','shutit.tk.bison.bison']
+		depends=['shutit.tk.setup','shutit.tk.rocksdb.rocksdb','shutit.tk.thrift.thrift','shutit.tk.automake','shutit.tk.bison.bison','shutit.tk.libtool.libtool']
 	)
 

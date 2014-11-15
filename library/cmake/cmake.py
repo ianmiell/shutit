@@ -61,6 +61,6 @@ def module():
 		'shutit.tk.cmake.cmake', 0.09187246124,
 		description='CMake',
 		maintainer='ian.miell@gmail.com',
-		depends=['shutit.tk.setup','shutit.tk.make.make']
+		depends=['shutit.tk.make.make']
 	)
 
