@@ -14,22 +14,24 @@ class make(ShutItModule):
 	def build(self, shutit):
 		shutit.install('wget')
 		shutit.install('gcc')
-		shutit.install('bzip2') # required
 		shutit.send('pushd /opt')
 		shutit.send('mkdir -p make')
 		shutit.send('pushd /opt/make')
-		shutit.send('wget http://ftp.gnu.org/gnu/make/make-4.1.tar.bz2')
-		shutit.send('bunzip2 make-4.1.tar.bz2')
-		shutit.send('tar -xvf make-4.1.tar')
+		shutit.send('wget http://ftp.gnu.org/gnu/make/make-4.1.tar.gz')
+		shutit.send('gunzip make-4.1.tar.gz')
+		if shutit.file_exists('/root/tar'):
+			shutit.send('/root/tar -xf make-4.1.tar')
+		else:
+			shutit.send('tar -xf make-4.1.tar')
 		shutit.send('pushd make-4.1')
 		shutit.send('./configure')
 		shutit.send('sh build.sh') # to build make without make
-		shutit.send('./make install')
+		#shutit.send('./make install')
+		shutit.send('mv make /usr/bin')
 		shutit.send('popd')
 		shutit.send('popd')
 		shutit.send('popd')
 		shutit.send('rm -rf /opt/make')
-		shutit.remove('bzip2') # required
 		return True
 
 	#def get_config(self, shutit):
