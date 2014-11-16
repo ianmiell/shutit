@@ -99,9 +99,6 @@ class ShutItConnModule(ShutItModule):
 		shutit.send_file(cfg['build']['build_db_dir'] + '/' + \
 		    cfg['build']['build_id'] + '/command.sh', \
 		    ' '.join(command), log=False)
-		shutit.send_file(cfg['build']['build_db_dir'] + '/' + \
-		    cfg['build']['build_id'] + '/depgraph', \
-		    cfg['build']['depgraph'])
 		shutit.pause_point('Anything you want to do now the ' +
 		    'target is connected to?', level=2)
 
@@ -116,6 +113,9 @@ class ShutItConnModule(ShutItModule):
 		shutit.send_file(cfg['build']['build_db_dir'] + '/' + \
 		    cfg['build']['build_id'] + '/build_commands.sh', \
 		    util.get_commands(shutit))
+		shutit.send_file(cfg['build']['build_db_dir'] + '/' + \
+		    cfg['build']['build_id'] + '/depgraph', \
+		    cfg['build']['depgraph'])
 		shutit.add_line_to_file(cfg['build']['build_id'], \
 		    cfg['build']['build_db_dir'] + '/builds')
 
