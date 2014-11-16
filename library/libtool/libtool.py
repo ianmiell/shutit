@@ -20,13 +20,14 @@ class libtool(ShutItModule):
 		shutit.send('git clone git://git.savannah.gnu.org/libtool.git')
 		shutit.send('pushd libtool')
 		shutit.send('./bootstrap')
-		shutit.send('./configure')
+		shutit.send('./configure --prefix=/usr')
 		shutit.send('make')
 		shutit.send('make install')
 		shutit.send('popd')
 		shutit.send('popd')
 		shutit.send('rm -rf /opt/libtool')
 		shutit.remove('m4') # required
+		shutit.remove('git')
 		return True
 
 	#def get_config(self, shutit):

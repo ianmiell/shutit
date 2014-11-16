@@ -7,7 +7,7 @@ then
 	exit 1
 fi
 pushd ..
-$SHUTIT build -m ../xz:../bzip2:../make "$@"
+$SHUTIT build -m ../xz:../bzip2:../make:../texinfo "$@"
 if [[ $? != 0 ]]
 then
 	popd
