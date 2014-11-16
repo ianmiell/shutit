@@ -57,6 +57,6 @@ def module():
 		'shutit.tk.help2man.help2man', 0.01124135,
 		description='',
 		maintainer='',
-		depends=['shutit.tk.xz.xz']
+		depends=['shutit.tk.texinfo.texinfo']
 	)
 
