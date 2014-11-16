@@ -47,6 +47,6 @@ def module():
 		'shutit.tk.kona.kona', 0.1251568234,
 		description='Open source K interpreter',
 		maintainer='ian.miell@gmail.com',
-		depends=['shutit.tk.setup','shutit.tk.make.make']
+		depends=['shutit.tk.make.make']
 	)
 

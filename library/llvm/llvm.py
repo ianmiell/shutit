@@ -56,5 +56,5 @@ def module():
 		'shutit.tk.llvm.llvm', 0.223534,
 		description='LLVM and clang',
 		maintainer='ian.miell@gmail.com',
-		depends=['shutit.tk.setup','shutit.tk.make.make']
+		depends=['shutit.tk.make.make']
 	)
