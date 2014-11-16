@@ -11,7 +11,7 @@ then
     exit 1
 fi
 pushd ..
-$SHUTIT build -m ../llvm:../nodejs "$@"
+$SHUTIT build -m .. "$@"
 if [[ $? != 0 ]]
 then
         popd

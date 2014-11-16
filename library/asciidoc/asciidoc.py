@@ -53,6 +53,6 @@ def module():
 		'shutit.tk.asciidoc.asciidoc', 0.0125243623,
 		description='',
 		maintainer='',
-		depends=['shutit.tk.make.make']
+		depends=['shutit.tk.python.python']
 	)
 

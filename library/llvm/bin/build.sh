@@ -11,7 +11,7 @@ then
     exit 1
 fi
 pushd ..
-$SHUTIT build "$@"
+$SHUTIT build -m ../make "$@"
 if [[ $? != 0 ]]
 then
         popd

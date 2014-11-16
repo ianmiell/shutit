@@ -10,8 +10,6 @@ class llvm(ShutItModule):
 
 	def build(self, shutit):
 		# Module for building apps hosted on LLVM.
-		shutit.install('subversion')
-		shutit.install('python')
 		shutit.install('gcc')
 		shutit.install('g++')
 		shutit.send('pushd /opt')
@@ -56,5 +54,5 @@ def module():
 		'shutit.tk.llvm.llvm', 0.223534,
 		description='LLVM and clang',
 		maintainer='ian.miell@gmail.com',
-		depends=['shutit.tk.make.make']
+		depends=['shutit.tk.make.make','shutit.tk.subversion.subversion']
 	)

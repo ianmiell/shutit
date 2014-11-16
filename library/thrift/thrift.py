@@ -59,6 +59,6 @@ def module():
 		'shutit.tk.thrift.thrift', 0.1124125,
 		description='',
 		maintainer='ian.miell@gmail.com',
-		depends=['shutit.tk.flex.flex']
+		depends=['shutit.tk.flex.flex','shutit.tk.git.git','shutit.tk.libxslt.libxslt']
 	)
 

@@ -12,8 +12,6 @@ class m4(ShutItModule):
 
 
 	def build(self, shutit):
-		shutit.install('git')
-		shutit.install('autoconf') # required
 		shutit.send('pushd /opt')
 		shutit.send('git clone git://git.sv.gnu.org/m4')
 		shutit.send('pushd /opt/m4')
@@ -21,7 +19,6 @@ class m4(ShutItModule):
 		shutit.send('popd')
 		shutit.send('popd')
 		shutit.send('rm -rf /opt/m4')
-		shutit.remove('autoconf') # required
 		return True
 
 	#def get_config(self, shutit):
@@ -47,8 +44,8 @@ class m4(ShutItModule):
 
 def module():
 	return m4(
-		'shutit.tk.m4.m4', 0.0196,
+		'shutit.tk.m4.m4', 0.0236,
 		description='',
 		maintainer='',
-		depends=['shutit.tk.libtool.libtool','shutit.tk.gettext.gettext']
+		depends=['shutit.tk.libtool.libtool','shutit.tk.gettext.gettext','shutit.tk.autoconf.autoconf','shutit.tk.git.git']
 	)

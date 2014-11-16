@@ -11,8 +11,8 @@
 shutit.core.module.build:yes
 # Allowed images as a regexp, eg ["ubuntu:12.*"], or [".*"], or ["centos"].
 # It's recommended this is locked down as far as possible.
-shutit.core.module.allowed_images:["ubuntu:14.04"]
+shutit.core.module.allowed_images:["ubuntu:14.04","imiell/shutit_dist_base"]
 
 # Aspects of build process
 [build]
-base_image:ubuntu:14.04
+base_image:imiell/shutit_dist_base

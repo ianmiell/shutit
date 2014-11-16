@@ -50,6 +50,6 @@ def module():
 		'shutit.tk.coreutils.coreutils', 0.021251825152,
 		description='',
 		maintainer='',
-		depends=['shutit.tk.git.git','shutit.tk.bison.bison','shutit.tk.gperf.gperf','shutit.tk.patch.patch','shutit.tk.rsync.rsync']
+		depends=['shutit.tk.git.git','shutit.tk.bison.bison','shutit.tk.gperf.gperf','shutit.tk.patch.patch','shutit.tk.rsync.rsync','shutit.tk.libxslt.libxslt']
 	)
 

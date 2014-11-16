@@ -12,8 +12,6 @@ class kona(ShutItModule):
 
 
 	def build(self, shutit):
-		shutit.install('git')
-		shutit.install('gcc')
 		shutit.send('pushd /opt')
 		shutit.send('git clone https://github.com/kevinlawler/kona.git')
 		shutit.send('pushd kona')
@@ -47,6 +45,6 @@ def module():
 		'shutit.tk.kona.kona', 0.1251568234,
 		description='Open source K interpreter',
 		maintainer='ian.miell@gmail.com',
-		depends=['shutit.tk.make.make']
+		depends=['shutit.tk.make.make','shutit.tk.git.git','shutit.tk.libxslt.libxslt']
 	)
 

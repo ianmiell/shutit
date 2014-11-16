@@ -12,7 +12,7 @@ then
 fi
 # This file tests your build, leaving the container intact when done.
 pushd ..
-$SHUTIT build -m ../cmake:../git "$@"
+$SHUTIT build -m .. "$@"
 if [[ $? != 0 ]]
 then
         popd
