@@ -47,6 +47,6 @@ def module():
 		'shutit.tk.sthttpd.sthttpd', 0.1219187350,
 		description='Small lightweight web server',
 		maintainer='ian.miell@gmail.com',
-		depends=['shutit.tk.automake.automake','shutit.tk.git.git']
+		depends=['shutit.tk.automake.automake','shutit.tk.git.git','shutit.tk.libxslt.libxslt']
 	)
 
