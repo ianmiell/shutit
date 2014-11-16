@@ -1157,6 +1157,9 @@ class ShutIt(object):
 		if options is None: options = {}
 		# TODO: config of maps of packages
 		install_type = self.cfg['target']['install_type']
+		if install_type == 'src':
+			# If this is a src build, we assume it's already installed.
+			return True
 		opts = ''
 		if install_type == 'apt':
 			cmd = 'apt-get install'
@@ -1224,8 +1227,10 @@ class ShutIt(object):
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
 		if options is None: options = {}
-		# TODO: config of maps of packages
 		install_type = self.cfg['target']['install_type']
+		if install_type == 'src':
+			# If this is a src build, we assume it's already installed.
+			return True
 		if install_type == 'apt':
 			cmd = 'apt-get purge'
 			opts = options['apt'] if 'apt' in options else '-qq -y'
@@ -1834,7 +1839,8 @@ def init():
 	                                    'steamos':'apt',
 	                                    'red hat':'yum',
 	                                    'centos':'yum',
-	                                    'fedora':'yum'}
+	                                    'fedora':'yum',
+	                                    'shutit':'src'}
 
 	# If no LOGNAME available,
 	cfg['host']['username'] = os.environ.get('LOGNAME', '')
