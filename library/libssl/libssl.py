@@ -4,7 +4,7 @@
 from shutit_module import ShutItModule
 
 
-class asciidoc(ShutItModule):
+class libssl(ShutItModule):
 
 
 	def is_installed(self, shutit):
@@ -12,19 +12,19 @@ class asciidoc(ShutItModule):
 
 
 	def build(self, shutit):
-		#http://www.methods.co.nz/asciidoc/INSTALL.html#X1
-		shutit.send('mkdir -p /opt/asciidoc')
-		shutit.send('pushd /opt/asciidoc')
-		shutit.send('wget http://downloads.sourceforge.net/project/asciidoc/asciidoc/8.6.9/asciidoc-8.6.9.tar.gz')
-		shutit.send('gunzip asciidoc-8.6.9.tar.gz')
-		shutit.send('tar -xf asciidoc-8.6.9.tar')
-		shutit.send('pushd asciidoc-8.6.9')
-		shutit.send('./configure --prefix=/usr')
+		#https://www.openssl.org/source/
+		shutit.send('mkdir -p /opt/libssl')
+		shutit.send('pushd /opt/libssl')
+		shutit.send('wget https://www.openssl.org/source/openssl-1.0.1j.tar.gz')
+		shutit.send('gunzip openssl-1.0.1j.tar.gz')
+		shutit.send('tar -xf openssl-1.0.1j.tar')
+		shutit.send('pushd openssl-1.0.1j')
+		shutit.send('./config --prefix=/usr')
 		shutit.send('make')
 		shutit.send('make install')
 		shutit.send('popd')
 		shutit.send('popd')
-		shutit.send('rm -rf /opt/asciidoc')
+		shutit.send('rm -rf /opt/libssl')
 		return True
 
 	#def get_config(self, shutit):
@@ -49,10 +49,10 @@ class asciidoc(ShutItModule):
 	#	return True
 
 def module():
-	return asciidoc(
-		'shutit.tk.asciidoc.asciidoc', 0.0125243623,
+	return libssl(
+		'shutit.tk.libssl.libssl', 0.010125136,
 		description='',
-		maintainer='',
+		maintainer='ian.miell@gmail.com',
 		depends=['shutit.tk.make.make']
 	)
 

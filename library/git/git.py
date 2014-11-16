@@ -57,6 +57,6 @@ def module():
 		'shutit.tk.git.git', 0.021,
 		description='Git built from source',
 		maintainer='ian.miell@gmail.com',
-		depends=['shutit.tk.gettext.gettext','shutit.tk.zip.zip','shutit.tk.tcl.tcl']
+		depends=['shutit.tk.gettext.gettext','shutit.tk.zip.zip','shutit.tk.tcl.tcl','shutit.tk.expat.expat','shutit.tk.curl.curl','shutit.tk.asciidoc.asciidoc']
 	)
 
