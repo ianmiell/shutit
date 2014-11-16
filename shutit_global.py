@@ -1366,7 +1366,7 @@ class ShutIt(object):
 		# Set the cols value, as unpleasant escapes are put in the output if the
 		# input is > n chars wide.
 		self.send(
-			(" export SHUTIT_BACKUP_PS1_%s=$PS1 && PS1='%s' && unset PROMPT_COMMAND && stty cols 240") %
+			(" export SHUTIT_BACKUP_PS1_%s=$PS1 && PS1='%s' && unset PROMPT_COMMAND && stty cols " + str(shutit.cfg['target']['stty_cols'])) %
 				(prompt_name, local_prompt),
 				# The newline in the list is a hack. On my work laptop this line hangs
 				# and times out very frequently. This workaround seems to work, but I
@@ -1812,7 +1812,6 @@ def init():
 	shutit_map             = {}
 	shutit_modules         = set()
 	shutit_command_history = []
-	terminal_columns       = 240
 	# Store the root directory of this application.
 	# http://stackoverflow.com/questions/5137497
 	shutit_main_dir = os.path.abspath(os.path.dirname(__file__))

@@ -312,6 +312,7 @@ def get_base_config(cfg, cfg_parser):
 	cfg['target']['ports']                     = cp.get('target', 'ports')
 	cfg['target']['name']                      = cp.get('target', 'name')
 	cfg['target']['rm']                        = cp.getboolean('target', 'rm')
+	cfg['target']['stty_cols']                 = 180
 	cfg['host']['resources_dir']                  = cp.get('host', 'resources_dir')
 	cfg['host']['docker_executable']              = cp.get('host', 'docker_executable')
 	cfg['host']['dns']                            = cp.get('host', 'dns')
