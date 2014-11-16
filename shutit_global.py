@@ -477,9 +477,9 @@ class ShutIt(object):
 		child.sendline("base64 --decode > " + path)
 		child.expect('\r\n')
 		# We have to batch the file up to avoid hitting pipe buffer limit. This
-		# is 4k on modern machines (it seems), but we choose 1k for safety
+		# is 4k on modern machines (it seems), but we choose 4000b for safety
 		# https://github.com/pexpect/pexpect/issues/55
-		batchsize = 1024
+		batchsize = 4000
 		for batch in range(0, len(contents64), batchsize):
 			child.sendline(contents64[batch:batch + batchsize])
 		# Make sure we've synced the prompt before we send EOF. I don't know why
