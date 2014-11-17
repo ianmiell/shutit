@@ -17,6 +17,7 @@ class template(ShutItModule):
 		return True
 
 	#def get_config(self, shutit):
+	#	shutit.get_config(self.module_id,'item','default')
 	#	return True
 
 	#def check_ready(self, shutit):
