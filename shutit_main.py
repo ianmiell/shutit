@@ -241,7 +241,7 @@ def config_collection_for_built(shutit):
 		   (not shutit.cfg['build']['ignoreimage'] and 
 		    shutit.cfg[module_id]['shutit.core.module.allowed_images'] and
 		    shutit.cfg['target']['docker_image'] not in
-		    shutit.cfg[module_id]['shutit.core.module.allowed_images'])):
+		    	shutit.cfg[module_id]['shutit.core.module.allowed_images'])):
 			last_checked_module_id = module_id
 			# re-set on each iteration
 			ok = False

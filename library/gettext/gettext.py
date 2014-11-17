@@ -17,10 +17,10 @@ class gettext(ShutItModule):
 		shutit.send('pushd /opt')
 		shutit.send('mkdir -p /opt/gettext')
 		shutit.send('pushd /opt/gettext')
-		shutit.send('wget http://ftp.gnu.org/pub/gnu/gettext/gettext-0.19.3.tar.xz')
-		shutit.send('xz -d gettext-0.19.3.tar.xz')
-		shutit.send('tar -xf gettext-0.19.3.tar')
-		shutit.send('pushd /opt/gettext/gettext-0.19.3')
+		shutit.send('wget http://ftp.gnu.org/pub/gnu/gettext/gettext-' + self.cfg[self.module_id]['version'] + '.tar.xz')
+		shutit.send('xz -d gettext-' + self.cfg[self.module_id]['version'] + '.tar.xz')
+		shutit.send('tar -xf gettext-' + self.cfg[self.module_id]['version'] + '.tar')
+		shutit.send('pushd /opt/gettext/gettext-' + self.cfg[self.module_id]['version'])
 		shutit.send('./configure --prefix=/usr')
 		shutit.send('make')
 		shutit.send('make install')
@@ -30,8 +30,9 @@ class gettext(ShutItModule):
 		shutit.send('rm -rf /opt/gettext')
 		return True
 
-	#def get_config(self, shutit):
-	#	return True
+	def get_config(self, shutit):
+		shutit.get_config(self.module_id,'version','0.19.3')
+		return True
 
 	#def check_ready(self, shutit):
 	#	return True

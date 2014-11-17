@@ -14,10 +14,10 @@ class xmlto(ShutItModule):
 	def build(self, shutit):
 		shutit.send('mkdir -p /opt/xmlto')
 		shutit.send('pushd /opt/xmlto')
-		shutit.send('wget https://fedorahosted.org/releases/x/m/xmlto/xmlto-0.0.26.tar.bz2')
-		shutit.send('bunzip2 xmlto-0.0.26.tar.bz2')
-		shutit.send('tar -xf xmlto-0.0.26.tar')
-		shutit.send('pushd xmlto-0.0.26')
+		shutit.send('wget https://fedorahosted.org/releases/x/m/xmlto/xmlto-' + shutit.cfg[self.module_id]['version'] + '.tar.bz2')
+		shutit.send('bunzip2 xmlto-' + shutit.cfg[self.module_id]['version'] + '.tar.bz2')
+		shutit.send('tar -xf xmlto-' + shutit.cfg[self.module_id]['version'] + '.tar')
+		shutit.send('pushd xmlto-' + shutit.cfg[self.module_id]['version'])
 		shutit.send('./configure --prefix=/usr')
 		shutit.send('make')
 		shutit.send('make install')
@@ -26,8 +26,9 @@ class xmlto(ShutItModule):
 		shutit.send('rm -rf /opt/xmlto')
 		return True
 
-	#def get_config(self, shutit):
-	#	return True
+	def get_config(self, shutit):
+		shutit.get_config(self.module_id,'version','0.0.26')
+		return True
 
 	#def check_ready(self, shutit):
 	#	return True

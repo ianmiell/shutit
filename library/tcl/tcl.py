@@ -17,10 +17,9 @@ class tcl(ShutItModule):
 		shutit.install('gzip')
 		shutit.send('mkdir -p /opt/tcl')
 		shutit.send('pushd /opt/tcl')
-		shutit.send('wget http://prdownloads.sourceforge.net/tcl/tcl8.6.3-src.tar.gz')
-		shutit.send('gunzip tcl8.6.3-src.tar.gz')
-		shutit.send('tar -xf tcl8.6.3-src.tar')
-		shutit.send('pushd tcl8.6.3/unix')
+		shutit.send('wget http://prdownloads.sourceforge.net/tcl/tcl' + shutit.cfg[self.module_id]['version'] + '-src.tar.gz')
+		shutit.send('tar -zxf tcl' + shutit.cfg[self.module_id]['version'] + '-src.tar')
+		shutit.send('pushd tcl' + shutit.cfg[self.module_id]['version'] + '/unix')
 		shutit.send('./configure --prefix=/usr')
 		shutit.send('make')
 		shutit.send('make install')
@@ -28,8 +27,9 @@ class tcl(ShutItModule):
 		shutit.send('rm -rf /opt/tcl')
 		return True
 
-	#def get_config(self, shutit):
-	#	return True
+	def get_config(self, shutit):
+		shutit.get_config(self.module_id,'version','8.6.3')
+		return True
 
 	#def check_ready(self, shutit):
 	#	return True

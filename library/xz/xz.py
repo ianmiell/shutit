@@ -18,10 +18,10 @@ class xz(ShutItModule):
 		shutit.send('pushd /opt')
 		shutit.send('mkdir -p /opt/xz')
 		shutit.send('pushd /opt/xz')
-		shutit.send('wget http://tukaani.org/xz/xz-5.0.7.tar.bz2')
-		shutit.send('bunzip2 xz-5.0.7.tar.bz2')
-		shutit.send('tar -xf xz-5.0.7.tar')
-		shutit.send('pushd /opt/xz/xz-5.0.7')
+		shutit.send('wget http://tukaani.org/xz/xz-' + shutit.cfg[self.module_id]['version'] + '.tar.bz2')
+		shutit.send('bunzip2 xz-' + shutit.cfg[self.module_id]['version'] + '.tar.bz2')
+		shutit.send('tar -xf xz-' + shutit.cfg[self.module_id]['version'] + '.tar')
+		shutit.send('pushd /opt/xz/xz-' + shutit.cfg[self.module_id]['version'])
 		shutit.send('./configure --prefix=/usr')
 		shutit.send('make')
 		shutit.send('make install')
@@ -31,8 +31,9 @@ class xz(ShutItModule):
 		shutit.send('rm -rf /opt/xz')
 		return True
 
-	#def get_config(self, shutit):
-	#	return True
+	def get_config(self, shutit):
+		shutit.get_config(self.module_id,'version','5.0.7')
+		return True
 
 	#def check_ready(self, shutit):
 	#	return True

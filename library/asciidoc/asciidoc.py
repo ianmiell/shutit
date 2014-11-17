@@ -15,10 +15,9 @@ class asciidoc(ShutItModule):
 		#http://www.methods.co.nz/asciidoc/INSTALL.html#X1
 		shutit.send('mkdir -p /opt/asciidoc')
 		shutit.send('pushd /opt/asciidoc')
-		shutit.send('wget http://downloads.sourceforge.net/project/asciidoc/asciidoc/8.6.9/asciidoc-8.6.9.tar.gz')
-		shutit.send('gunzip asciidoc-8.6.9.tar.gz')
-		shutit.send('tar -xf asciidoc-8.6.9.tar')
-		shutit.send('pushd asciidoc-8.6.9')
+		shutit.send('wget http://downloads.sourceforge.net/project/asciidoc/asciidoc/' + self.cfg[self.module_id]['version'] + '/asciidoc-' + self.cfg[self.module_id]['version'] + '.tar.gz')
+		shutit.send('tar -zxf asciidoc-' + self.cfg[self.module_id]['version'] + '.tar')
+		shutit.send('pushd asciidoc-' + self.cfg[self.module_id]['version'])
 		shutit.send('./configure --prefix=/usr')
 		shutit.send('make')
 		shutit.send('make install')
@@ -27,8 +26,9 @@ class asciidoc(ShutItModule):
 		shutit.send('rm -rf /opt/asciidoc')
 		return True
 
-	#def get_config(self, shutit):
-	#	return True
+	def get_config(self, shutit):
+		shutit.get_config(self.module_id,'version','8.6.9')
+		return True
 
 	#def check_ready(self, shutit):
 	#	return True

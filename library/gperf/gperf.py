@@ -17,18 +17,18 @@ class gperf(ShutItModule):
 		shutit.install('g++')
 		shutit.send('mkdir -p /opt/gperf')
 		shutit.send('pushd /opt/gperf')
-		shutit.send('wget http://ftp.gnu.org/pub/gnu/gperf/gperf-3.0.4.tar.gz')
-		shutit.send('gunzip gperf-3.0.4.tar.gz')
-		shutit.send('tar -xf gperf-3.0.4.tar')
-		shutit.send('pushd gperf-3.0.4')
+		shutit.send('wget http://ftp.gnu.org/pub/gnu/gperf/gperf-' + shutit.cfg[self.module_id]['version'] + '.tar.gz')
+		shutit.send('tar -zxf gperf-' + shutit.cfg[self.module_id]['version'] + '.tar')
+		shutit.send('pushd gperf-' + shutit.cfg[self.module_id]['version'])
 		shutit.send('./configure --prefix=/usr')
 		shutit.send('make')
 		shutit.send('make install')
 		shutit.send('rm -rf /opt/gperf')
 		return True
 
-	#def get_config(self, shutit):
-	#	return True
+	def get_config(self, shutit):
+		shutit.get_config(self.module_id,'version','3.0.4')
+		return True
 
 	#def check_ready(self, shutit):
 	#	return True

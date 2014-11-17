@@ -16,10 +16,10 @@ class flex(ShutItModule):
 		shutit.install('m4') # reqiured
 		shutit.send('mkdir -p /opt/flex')
 		shutit.send('pushd /opt/flex')
-		shutit.send('wget http://prdownloads.sourceforge.net/flex/flex-2.5.39.tar.bz2')
-		shutit.send('bunzip2 flex-2.5.39.tar.bz2')
-		shutit.send('tar -xvf flex-2.5.39.tar')
-		shutit.send('pushd flex-2.5.39')
+		shutit.send('wget http://prdownloads.sourceforge.net/flex/flex-' + self.cfg[self.module_id]['version'] + '.tar.bz2')
+		shutit.send('bunzip2 flex-' + self.cfg[self.module_id]['version'] + '.tar.bz2')
+		shutit.send('tar -xf flex-' + self.cfg[self.module_id]['version'] + '.tar')
+		shutit.send('pushd flex-' + self.cfg[self.module_id]['version'])
 		shutit.send('./configure --prefix=/usr')
 		shutit.send('make')
 		shutit.send('make install')
@@ -28,8 +28,9 @@ class flex(ShutItModule):
 		shutit.send('rm -rf /opt/flex')
 		return True
 
-	#def get_config(self, shutit):
-	#	return True
+	def get_config(self, shutit):
+		shutit.get_config(self.module_id,'version','2.5.39')
+		return True
 
 	#def check_ready(self, shutit):
 	#	return True

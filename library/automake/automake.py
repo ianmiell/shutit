@@ -19,10 +19,10 @@ class automake(ShutItModule):
 		shutit.send('pushd /opt')
 		shutit.send('mkdir -p automake')
 		shutit.send('pushd /opt/automake')
-		shutit.send('wget http://ftp.gnu.org/gnu/automake/automake-1.14.tar.xz')
-		shutit.send('xz -d automake-1.14.tar.xz')
-		shutit.send('tar -xf automake-1.14.tar')
-		shutit.send('pushd /opt/automake/automake-1.14')
+		shutit.send('wget http://ftp.gnu.org/gnu/automake/automake-' + self.cfg[self.module_id]['version'] + '.tar.xz')
+		shutit.send('xz -d automake-' + self.cfg[self.module_id]['version'] + '.tar.xz')
+		shutit.send('tar -xf automake-' + self.cfg[self.module_id]['version'] + '.tar')
+		shutit.send('pushd /opt/automake/automake-' + self.cfg[self.module_id]['version'])
 		shutit.send('./configure --prefix=/usr')
 		shutit.send('make')
 		shutit.send('make install')
@@ -32,8 +32,9 @@ class automake(ShutItModule):
 		shutit.send('rm -rf /opt/automake')
 		return True
 
-	#def get_config(self, shutit):
-	#	return True
+	def get_config(self, shutit):
+		shutit.get_config(self.module_id,'version','1.14')
+		return True
 
 	#def check_ready(self, shutit):
 	#	return True

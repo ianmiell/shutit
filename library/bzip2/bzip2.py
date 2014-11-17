@@ -15,9 +15,9 @@ class bzip2(ShutItModule):
 		shutit.install('tar')
 		shutit.send('mkdir -p /opt/bzip2')
 		shutit.send('pushd /opt/bzip2')
-		shutit.send_host_file('/opt/bzip2/bzip2.tar','context/bzip2-1.0.6.tar')
+		shutit.send_host_file('/opt/bzip2/bzip2.tar','context/bzip2-' + self.cfg[self.module_id]['version'] + '.tar')
 		shutit.send('tar -xf bzip2.tar')
-		shutit.send('pushd bzip2-1.0.6')
+		shutit.send('pushd bzip2-' + self.cfg[self.module_id]['version'])
 		shutit.send('PREFIX=/usr make')
 		shutit.send('PREFIX=/usr make install')
 		shutit.send('popd')
@@ -25,8 +25,9 @@ class bzip2(ShutItModule):
 		shutit.send('rm -rf /opt/bzip2')
 		return True
 
-	#def get_config(self, shutit):
-	#	return True
+	def get_config(self, shutit):
+		shutit.get_config(self.module_id,'version','1.0.6')
+		return True
 
 	#def check_ready(self, shutit):
 	#	return True

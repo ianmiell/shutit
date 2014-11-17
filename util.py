@@ -370,7 +370,7 @@ def get_base_config(cfg, cfg_parser):
 		print("Can't have [target]/rm and [repository]/(push/save/export) set to true")
 		sys.exit()
 	if warn != '' and cfg['build']['debug']:
-		issue_warning('Showing computed config. This can also be done by calling with sc:',2)
+		issue_warning('Showing config as read in. This can also be done by calling with sc:',2)
 		shutit_global.shutit.log(print_config(cfg), force_stdout=True, code='31')
 		time.sleep(1)
 	if cfg['target']['hostname'] != '' and cfg['build']['net'] != '' and cfg['build']['net'] != 'bridge':
@@ -438,7 +438,7 @@ def parse_args(cfg):
 		return ivalue
 
 	parser = argparse.ArgumentParser(description='ShutIt - a tool for managing complex Docker deployments.\n\nTo view help for a specific subcommand, type ./shutit <subcommand> -h')
-	subparsers = parser.add_subparsers(dest='action', help='Action to perform. Defaults to \'build\'.')
+	subparsers = parser.add_subparsers(dest='action', help='Action to perform - build=deploy to target, serve=run a shutit web server, skeleton=construct a skeleton module, sc=show configuration as read in. Defaults to \'build\'.')
 
 	sub_parsers = dict()
 	for action in actions:
@@ -570,10 +570,10 @@ def parse_args(cfg):
 	cfg['build']['command_pause']    = float(args.pause)
 	cfg['build']['extra_configs']    = args.config
 	cfg['build']['config_overrides'] = args.set
-	cfg['target']['docker_image'] = args.image_tag
 	cfg['build']['ignorestop']       = args.ignorestop
 	cfg['build']['ignoreimage']      = args.ignoreimage
 	cfg['build']['tag_modules']      = args.tag_modules
+	cfg['target']['docker_image']    = args.image_tag
 	# Finished parsing args, tutorial stuff
 	if cfg['build']['interactive'] >= 3:
 		print textwrap.dedent("""\

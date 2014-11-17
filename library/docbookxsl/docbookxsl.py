@@ -1,5 +1,4 @@
 """ShutIt module. See http://shutit.tk
-In source, line 16 should be blank, within the build def. This doesn't matter except for test builds, so can be removed once in use.
 """
 
 from shutit_module import ShutItModule
@@ -15,10 +14,10 @@ class docbookxsl(ShutItModule):
 	def build(self, shutit):
 		shutit.send('mkdir -p /opt/docbookxsl')
 		shutit.send('pushd /opt/docbookxsl')
-		shutit.send('wget http://downloads.sourceforge.net/docbook/docbook-xsl-1.78.1.tar.bz2')
-		shutit.send('bunzip2 docbook-xsl-1.78.1.tar.bz2')
-		shutit.send('tar -xf docbook-xsl-1.78.1.tar')
-		shutit.send('pushd docbook-xsl-1.78.1')
+		shutit.send('wget http://downloads.sourceforge.net/docbook/docbook-xsl-' + shutit.cfg[self.module_id]['version'] + '.tar.bz2')
+		shutit.send('bunzip2 docbook-xsl-' + shutit.cfg[self.module_id]['version'] + '.tar.bz2')
+		shutit.send('tar -xf docbook-xsl-' + shutit.cfg[self.module_id]['version'] + '.tar')
+		shutit.send('pushd docbook-xsl-1')
 		# www.linuxfromscratch.org/blfs/view/svn/pst/docbook-xsl.html for installation TODO
 		shutit.send('./configure --prefix=/usr')
 		shutit.send('make')
@@ -28,8 +27,9 @@ class docbookxsl(ShutItModule):
 		shutit.send('rm -rf /opt/docbookxsl')
 		return True
 
-	#def get_config(self, shutit):
-	#	return True
+	def get_config(self, shutit):
+		shutit.get_config(self.module_id,'version','1.78.1')
+		return True
 
 	#def check_ready(self, shutit):
 	#	return True

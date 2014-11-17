@@ -15,10 +15,9 @@ class zlib(ShutItModule):
 		#From http://www.zlib.net/
 		shutit.send('mkdir -p /opt/zlib')
 		shutit.send('pushd /opt/zlib')
-		shutit.send('wget http://zlib.net/zlib-1.2.8.tar.gz')
-		shutit.send('gunzip zlib-1.2.8.tar.gz')
-		shutit.send('tar -xf zlib-1.2.8.tar')
-		shutit.send('pushd zlib-1.2.8')
+		shutit.send('wget http://zlib.net/zlib-' + shutit.cfg[self.module_id]['version'] + '.tar.gz')
+		shutit.send('tar -zxf zlib-' + shutit.cfg[self.module_id]['version'] + '.tar')
+		shutit.send('pushd zlib-' + shutit.cfg[self.module_id]['version'])
 		shutit.send('./configure --prefix=/usr')
 		shutit.send('make')
 		shutit.send('make install')
@@ -27,8 +26,9 @@ class zlib(ShutItModule):
 		shutit.send('rm -rf /opt/zlib')
 		return True
 
-	#def get_config(self, shutit):
-	#	return True
+	def get_config(self, shutit):
+		shutit.get_config(self.module_id,'version','1.2.8')
+		return True
 
 	#def check_ready(self, shutit):
 	#	return True

@@ -15,10 +15,9 @@ class libssl(ShutItModule):
 		#https://www.openssl.org/source/
 		shutit.send('mkdir -p /opt/libssl')
 		shutit.send('pushd /opt/libssl')
-		shutit.send('wget https://www.openssl.org/source/openssl-1.0.1j.tar.gz')
-		shutit.send('gunzip openssl-1.0.1j.tar.gz')
-		shutit.send('tar -xf openssl-1.0.1j.tar')
-		shutit.send('pushd openssl-1.0.1j')
+		shutit.send('wget https://www.openssl.org/source/openssl-' + shutit.cfg[self.module_id]['version'] + '.tar.gz')
+		shutit.send('tar -zxf openssl-' + shutit.cfg[self.module_id]['version'] + '.tar')
+		shutit.send('pushd openssl-' + shutit.cfg[self.module_id]['version'])
 		shutit.send('./config --prefix=/usr')
 		shutit.send('make')
 		shutit.send('make install')
@@ -27,8 +26,9 @@ class libssl(ShutItModule):
 		shutit.send('rm -rf /opt/libssl')
 		return True
 
-	#def get_config(self, shutit):
-	#	return True
+	def get_config(self, shutit):
+		shutit.get_config(self.module_id,'version','1.0.1j')
+		return True
 
 	#def check_ready(self, shutit):
 	#	return True

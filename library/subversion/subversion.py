@@ -15,9 +15,9 @@ class subversion(ShutItModule):
 	def build(self, shutit):
 		shutit.send('mkdir -p /opt/subversion')
 		shutit.send('pushd /opt/subversion')
-		shutit.send('wget http://mirror.gopotato.co.uk/apache/subversion/subversion-1.8.10.tar.gz')
-		shutit.send('tar -zxf subversion-1.8.10.tar.gz')
-		shutit.send('pushd subversion-1.8.10')
+		shutit.send('wget http://mirror.gopotato.co.uk/apache/subversion/subversion-' + shutit.cfg[self.module_id]['version'] + '.tar.gz')
+		shutit.send('tar -zxf subversion-' + shutit.cfg[self.module_id]['version'] + '.tar.gz')
+		shutit.send('pushd subversion-' + shutit.cfg[self.module_id]['version'])
 		shutit.send('./configure --prefix=/usr')
 		shutit.send('make')
 		shutit.send('make install')
@@ -26,8 +26,9 @@ class subversion(ShutItModule):
 		shutit.send('rm -rf /opt/subversion')
 		return True
 
-	#def get_config(self, shutit):
-	#	return True
+	def get_config(self, shutit):
+		shutit.get_config(self.module_id,'version','1.8.10')
+		return True
 
 	#def check_ready(self, shutit):
 	#	return True

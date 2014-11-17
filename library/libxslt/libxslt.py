@@ -14,10 +14,9 @@ class libxslt(ShutItModule):
 	def build(self, shutit):
 		shutit.send('mkdir -p /opt/libxslt')
 		shutit.send('pushd /opt/libxslt')
-		shutit.send('wget ftp://xmlsoft.org/libxslt/libxslt-1.1.28.tar.gz')
-		shutit.send('gunzip libxslt-1.1.28.tar.gz')
-		shutit.send('tar -xf libxslt-1.1.28.tar')
-		shutit.send('pushd libxslt-1.1.28')
+		shutit.send('wget ftp://xmlsoft.org/libxslt/libxslt-' + shutit.cfg[self.module_id]['version'] + '.tar.gz')
+		shutit.send('tar -zxf libxslt-' + shutit.cfg[self.module_id]['version'] + '.tar')
+		shutit.send('pushd libxslt-' + shutit.cfg[self.module_id]['version'])
 		shutit.send('./configure --prefix=/usr')
 		shutit.send('make')
 		shutit.send('make install')
@@ -26,8 +25,9 @@ class libxslt(ShutItModule):
 		shutit.send('rm -rf /opt/libxslt')
 		return True
 
-	#def get_config(self, shutit):
-	#	return True
+	def get_config(self, shutit):
+		shutit.get_config(self.module_id,'version','1.1.28')
+		return True
 
 	#def check_ready(self, shutit):
 	#	return True

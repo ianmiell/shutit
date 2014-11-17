@@ -15,10 +15,9 @@ class rsync(ShutItModule):
 		shutit.install('wget')
 		shutit.send('mkdir -p /opt/rsync')
 		shutit.send('pushd /opt/rsync')
-		shutit.send('wget http://rsync.samba.org/ftp/rsync/src/rsync-3.1.1.tar.gz')
-		shutit.send('gunzip rsync-3.1.1.tar.gz')
-		shutit.send('tar -xf rsync-3.1.1.tar')
-		shutit.send('pushd rsync-3.1.1')
+		shutit.send('wget http://rsync.samba.org/ftp/rsync/src/rsync-' + shutit.cfg[self.module_id]['version'] + '.tar.gz')
+		shutit.send('tar -zxf rsync-' + shutit.cfg[self.module_id]['version'] + '.tar')
+		shutit.send('pushd rsync-' + shutit.cfg[self.module_id]['version'])
 		shutit.send('./configure --prefix=/usr')
 		shutit.send('make')
 		shutit.send('make install')
@@ -27,8 +26,9 @@ class rsync(ShutItModule):
 		shutit.send('rm -rf /opt/rsync')
 		return True
 
-	#def get_config(self, shutit):
-	#	return True
+	def get_config(self, shutit):
+		shutit.get_config(self.module_id,'version','3.1.1')
+		return True
 
 	#def check_ready(self, shutit):
 	#	return True

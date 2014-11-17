@@ -39,8 +39,8 @@ class go(ShutItModule):
 		#shutit.send('pushd go/src')
 		#shutit.send('./all.bash')
 		#shutit.send('popd')
-		shutit.send('wget https://storage.googleapis.com/golang/go1.3.3.src.tar.gz')
-		shutit.send('tar -zxf go1.3.3.src.tar.gz')
+		shutit.send('wget https://storage.googleapis.com/golang/go' + self.cfg[self.module_id]['version'] + '.src.tar.gz')
+		shutit.send('tar -zxf go' + self.cfg[self.module_id]['version'] + '.src.tar.gz')
 		shutit.send('cd go/src/')
 		shutit.send('GOROOT_FINAL=/usr ./make.bash')
 		shutit.send('mv go /usr/bin')
@@ -48,8 +48,9 @@ class go(ShutItModule):
 		shutit.send('rm -rf /go')
 		return True
 
-	#def get_config(self,shutit):
-	#    return True
+	def get_config(self,shutit):
+		shutit.get_config(self.module_id,'version','1.3.3')
+	    return True
 
 	#def check_ready(self,shutit):
 	#    return True

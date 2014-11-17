@@ -53,6 +53,6 @@ def module():
 		'shutit.tk.jq.jq', 0.11258107521,
 		description='JQ - sed for JSON',
 		maintainer='ian.miell@gmail.com',
-		depends=['shutit.tk.git.git','shutit.tk.autoconf.autoconf','shutit.tk.bison.bison','shutit.tk.libtool.libtool','shutit.tk.coreutils.coreutils','shutit.tk.texinfo.texinfo','shutit.tk.flex.flex']
+		depends=['shutit.tk.git.git','shutit.tk.libtool.libtool','shutit.tk.coreutils.coreutils','shutit.tk.flex.flex']
 	)
 

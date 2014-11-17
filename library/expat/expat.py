@@ -14,10 +14,9 @@ class expat(ShutItModule):
 	def build(self, shutit):
 		shutit.send('mkdir -p /opt/expat')
 		shutit.send('pushd /opt/expat')
-		shutit.send('wget -O expat.tar.gz http://downloads.sourceforge.net/project/expat/expat/2.1.0/expat-2.1.0.tar.gz')
-		shutit.send('gunzip expat.tar.gz')
-		shutit.send('tar -xf expat.tar')
-		shutit.send('pushd expat-2.1.0')
+		shutit.send('wget -O expat.tar.gz http://downloads.sourceforge.net/project/expat/expat/' + self.cfg[self.module_id]['version'] + '/expat-' + self.cfg[self.module_id]['version'] + '.tar.gz')
+		shutit.send('tar -zxf expat.tar')
+		shutit.send('pushd expat-' + self.cfg[self.module_id]['version'])
 		shutit.send('./configure --prefix=/usr')
 		shutit.send('make')
 		shutit.send('make install')
@@ -26,8 +25,9 @@ class expat(ShutItModule):
 		shutit.send('rm -rf /opt/expat')
 		return True
 
-	#def get_config(self, shutit):
-	#	return True
+	def get_config(self, shutit):
+		shutit.get_config(self.module_id,'version','2.1.0')
+		return True
 
 	#def check_ready(self, shutit):
 	#	return True

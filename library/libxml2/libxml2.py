@@ -14,9 +14,9 @@ class libxml2(ShutItModule):
 	def build(self, shutit):
 		shutit.send('mkdir -p /opt/libxml2')
 		shutit.send('pushd /opt/libxml2')
-		shutit.send('wget ftp://xmlsoft.org/libxslt/libxml2-sources-2.9.2.tar.gz')
-		shutit.send('tar -zxf libxml2-sources-2.9.2.tar.gz')
-		shutit.send('pushd libxml2-2.9.2')
+		shutit.send('wget ftp://xmlsoft.org/libxslt/libxml2-sources-' + shutit.cfg[self.module_id]['version'] + '.tar.gz')
+		shutit.send('tar -zxf libxml2-sources-' + shutit.cfg[self.module_id]['version'] + '.tar.gz')
+		shutit.send('pushd libxml2-' + shutit.cfg[self.module_id]['version'])
 		shutit.send('./configure --prefix=/usr')
 		shutit.send('make')
 		shutit.send('make install')
@@ -25,8 +25,9 @@ class libxml2(ShutItModule):
 		shutit.send('rm -rf /opt/libxml2')
 		return True
 
-	#def get_config(self, shutit):
-	#	return True
+	def get_config(self, shutit):
+		shutit.get_config(self.module_id,'version','2.9.2')
+		return True
 
 	#def check_ready(self, shutit):
 	#	return True

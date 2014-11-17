@@ -18,10 +18,10 @@ class texinfo(ShutItModule):
 		shutit.send('pushd /opt')
 		shutit.send('mkdir -p texinfo')
 		shutit.send('pushd /opt/texinfo')
-		shutit.send('wget http://ftp.gnu.org/gnu/texinfo/texinfo-5.2.tar.xz') # appears to be no "latest"
-		shutit.send('xz -d texinfo-5.2.tar.xz ')
-		shutit.send('tar -xf texinfo-5.2.tar')
-		shutit.send('pushd /opt/texinfo/texinfo-5.2')
+		shutit.send('wget http://ftp.gnu.org/gnu/texinfo/texinfo-' + shutit.cfg[self.module_id]['version'] + '.tar.xz')
+		shutit.send('xz -d texinfo-' + shutit.cfg[self.module_id]['version'] + '.tar.xz ')
+		shutit.send('tar -xf texinfo-' + shutit.cfg[self.module_id]['version'] + '.tar')
+		shutit.send('pushd /opt/texinfo/texinfo-' + shutit.cfg[self.module_id]['version'])
 		shutit.send('./configure --prefix=/usr')
 		shutit.send('make')
 		shutit.send('make install')
@@ -31,8 +31,9 @@ class texinfo(ShutItModule):
 		shutit.send('rm -rf /opt/texinfo')
 		return True
 
-	#def get_config(self, shutit):
-	#	return True
+	def get_config(self, shutit):
+		shutit.get_config(self.module_id,'version','5.2')
+		return True
 
 	#def check_ready(self, shutit):
 	#	return True

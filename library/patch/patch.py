@@ -15,10 +15,9 @@ class patch(ShutItModule):
 		shutit.install('wget')
 		shutit.send('mkdir -p /opt/patch')
 		shutit.send('pushd /opt/patch')
-		shutit.send('wget http://ftp.gnu.org/gnu/patch/patch-2.7.tar.gz')
-		shutit.send('gunzip patch-2.7.tar.gz')
-		shutit.send('tar -xf patch-2.7.tar')
-		shutit.send('pushd patch-2.7')
+		shutit.send('wget http://ftp.gnu.org/gnu/patch/patch-' + shutit.cfg[self.module_id]['version'] + '.tar.gz')
+		shutit.send('tar -zxf patch-' + shutit.cfg[self.module_id]['version'] + '.tar')
+		shutit.send('pushd patch-' + shutit.cfg[self.module_id]['version'])
 		shutit.send('./configure --prefix=/usr')
 		shutit.send('make')
 		shutit.send('make install')
@@ -27,8 +26,9 @@ class patch(ShutItModule):
 		shutit.send('rm -rf /opt/patch')
 		return True
 
-	#def get_config(self, shutit):
-	#	return True
+	def get_config(self, shutit):
+		shutit.get_config(self.module_id,'version','2.7')
+		return True
 
 	#def check_ready(self, shutit):
 	#	return True
