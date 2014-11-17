@@ -1,7 +1,7 @@
 # THIS FILE SHOULD ONLY BE EDITED BY THE MAINTAINER!
 # IF YOU WANT TO CHANGE THE CONFIG, PASS IN --config configfilename
 # OR ADD DETAILS TO YOUR ~/.shutit/config FILE
-[container]
+[target]
 rm:false
 
 [repository]

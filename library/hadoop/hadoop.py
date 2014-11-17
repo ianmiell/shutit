@@ -16,17 +16,18 @@ class hadoop(ShutItModule):
 		shutit.install('rsync')
 		shutit.install('wget')
 		shutit.send('pushd /opt')
-		# TODO: configure version number
-		shutit.send('wget http://mirror.gopotato.co.uk/apache/hadoop/common/stable/hadoop-2.5.1.tar.gz')
-		shutit.send('tar -zxvf hadoop*tar.gz')
+		shutit.send('wget http://mirror.gopotato.co.uk/apache/hadoop/common/stable/hadoop-' + shutit.cfg[self.module_id]['version'] + '.tar.gz')
+		shutit.send('tar -zxf hadoop*tar.gz')
 		shutit.send('mkdir input')
-		shutit.add_line_to_file('export HADOOP_PREFIX=/opt/hadoop-2.5.1','/opt/hadoop-2.5.1/hadoop_env.sh')
-		shutit.send('pushd hadoop-2.5.1')
+		shutit.add_line_to_file('export HADOOP_PREFIX=/opt/hadoop-' + shutit.cfg[self.module_id]['version'],'/opt/hadoop-' + shutit.cfg[self.module_id]['version'] + '/hadoop_env.sh')
+		shutit.send('pushd hadoop-' + shutit.cfg[self.module_id]['version'] + '')
+		# TODO
 		shutit.send('popd')
 		return True
 
-	#def get_config(self, shutit):
-	#	return True
+	def get_config(self, shutit):
+		shutit.get_config(self.module_id,'version','2.5.1')
+		return True
 
 	#def check_ready(self, shutit):
 	#	return True

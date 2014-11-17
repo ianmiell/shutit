@@ -8,14 +8,14 @@ class minimal_linux(ShutItModule):
 		return False
 
 	def build(self, shutit):
-		shutit.send('export KERNEL_VERSION=3.14.2')
+		shutit.send('export KERNEL_VERSION=' + shutit.cfg[self.module_id]['version'])
 		shutit.install('wget')
 		shutit.install('fakeroot kernel-package xz-utils bc xorriso syslinux git vim-tiny lib32ncurses5-dev')
-		shutit.send('wget -O /linux-3.14.2.tar.xz https://www.kernel.org/pub/linux/kernel/v3.x/linux-3.14.2.tar.xz') 
+		shutit.send('wget -O /linux-' + shutit.cfg[self.module_id]['version'] + '.tar.xz https://www.kernel.org/pub/linux/kernel/v3.x/linux-' + shutit.cfg[self.module_id]['version'] + '.tar.xz') 
 		shutit.send_host_file('/kernel_config.patch', 'context/kernel_config.patch')
-		shutit.send('xz -d linux-3.14.2.tar.xz')
-		shutit.send('tar -xvf linux-3.14.2.tar')
-		shutit.send('pushd /linux-3.14.2')
+		shutit.send('xz -d linux-' + shutit.cfg[self.module_id]['version'] + '.tar.xz')
+		shutit.send('tar -xvf linux-' + shutit.cfg[self.module_id]['version'] + '.tar')
+		shutit.send('pushd /linux-' + shutit.cfg[self.module_id]['version'])
 		shutit.send('make defconfig')
 		shutit.send('make')
 		shutit.send('popd')
@@ -40,7 +40,7 @@ class minimal_linux(ShutItModule):
 		shutit.send('cp /busybox-1.22.1/_install/bin/busybox /rootfs/linuxrc')
 		shutit.send('mkdir -p /tmp/iso/boot')
 		shutit.send('find | cpio -o -H newc | gzip > /tmp/iso/boot/initrd.gz')
-		shutit.send('cp -v /linux-3.14.2/arch/x86_64/boot/bzImage /tmp/iso/boot/vmlinuz64')
+		shutit.send('cp -v /linux-' + shutit.cfg[self.module_id]['version'] + '/arch/x86_64/boot/bzImage /tmp/iso/boot/vmlinuz64')
 		shutit.send('cp /usr/lib/syslinux/isolinux.bin /tmp/iso/boot/')
 		shutit.send('cp /isolinux.cfg /tmp/iso/boot/')
 		shutit.send('cp /busybox-1.22.1/_install/bin/busybox /tmp/iso/linuxrc')
@@ -59,6 +59,7 @@ class minimal_linux(ShutItModule):
 		return False
 
 	def get_config(self, shutit):
+		shutit.get_config(self.module_id,'version','3.14.12')
 		return True
 
 def module():

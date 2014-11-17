@@ -9,12 +9,9 @@ class llvm(ShutItModule):
 		return False
 
 	def build(self, shutit):
-		# Docker container image for building apps hosted on LLVM.
-		shutit.install('subversion')
-		shutit.install('python')
+		# Module for building apps hosted on LLVM.
 		shutit.install('gcc')
 		shutit.install('g++')
-		shutit.install('make')
 		shutit.send('pushd /opt')
 		shutit.send('svn co http://llvm.org/svn/llvm-project/llvm/trunk llvm')
 		shutit.send('pushd llvm/tools')
@@ -27,7 +24,7 @@ class llvm(ShutItModule):
 		shutit.send('svn co http://llvm.org/svn/llvm-project/compiler-rt/trunk compiler-rt')
 		shutit.send('popd')
 		shutit.send('pushd llvm')
-		shutit.send('./configure')
+		shutit.send('./configure --prefix=/usr')
 		# Echo required to force newline
 		shutit.send('make && echo',timeout=99999)
 		# Required for install
@@ -57,5 +54,5 @@ def module():
 		'shutit.tk.llvm.llvm', 0.223534,
 		description='LLVM and clang',
 		maintainer='ian.miell@gmail.com',
-		depends=['shutit.tk.setup']
+		depends=['shutit.tk.make.make','shutit.tk.subversion.subversion']
 	)

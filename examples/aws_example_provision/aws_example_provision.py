@@ -34,7 +34,7 @@ class aws_example_provision(ShutItModule):
 		# the relevant port.
 		#shutit.send('sudo docker pull training/webapp')
 		#shutit.send('sudo docker run -d --net=host training/webapp')
-		# Exit back to the "real container"
+		# Exit back to the "real target"
 		shutit.logout()
 		return True
 

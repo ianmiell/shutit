@@ -7,7 +7,7 @@ then
 	exit 1
 fi
 pushd ..
-$SHUTIT build --shutit_module_path ../rocksdb:../thrift "$@"
+$SHUTIT build --shutit_module_path ../rocksdb:../thrift:../bison:../libtool:../help2man:../texinfo:../autoconf:../xz:../automake:../bzip2:../make:../m4:../gettext "$@"
 if [[ $? != 0 ]]
 then
 	popd

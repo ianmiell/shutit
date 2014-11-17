@@ -28,22 +28,29 @@ class go(ShutItModule):
 		return False
 
 	def build(self,shutit):
-		shutit.install('golang')
-		shutit.install('mercurial')
-		shutit.install('make')
-		shutit.install('gcc')
-		shutit.install('patch')
-		shutit.install('git')
-		shutit.add_to_bashrc('export PATH=$PATH:/opt/go/go/bin')
-		shutit.send('mkdir -p /opt/go')
-		shutit.send('hg clone -u release https://code.google.com/p/go')
-		shutit.send('pushd go/src')
-		shutit.send('./all.bash')
-		shutit.send('popd')
+		#shutit.install('golang')
+		#shutit.install('mercurial')
+		#shutit.install('gcc')
+		#shutit.install('patch')
+		#shutit.install('git')
+		#shutit.add_to_bashrc('export PATH=$PATH:/opt/go/go/bin')
+		#shutit.send('mkdir -p /opt/go')
+		#shutit.send('hg clone -u release https://code.google.com/p/go')
+		#shutit.send('pushd go/src')
+		#shutit.send('./all.bash')
+		#shutit.send('popd')
+		shutit.send('wget https://storage.googleapis.com/golang/go' + self.cfg[self.module_id]['version'] + '.src.tar.gz')
+		shutit.send('tar -zxf go' + self.cfg[self.module_id]['version'] + '.src.tar.gz')
+		shutit.send('cd go/src/')
+		shutit.send('GOROOT_FINAL=/usr ./make.bash')
+		shutit.send('mv go /usr/bin')
+		shutit.send('mv gofmt /usr/bin')
+		shutit.send('rm -rf /go')
 		return True
 
-	#def get_config(self,shutit):
-	#    return True
+	def get_config(self,shutit):
+		shutit.get_config(self.module_id,'version','1.3.3')
+		return True
 
 	#def check_ready(self,shutit):
 	#    return True
@@ -68,6 +75,6 @@ def module():
 		'shutit.tk.go.go', 0.1346356,
 		description='Go language setup (direct from source)',
 		maintainer='ian.miell@gmail.com',
-		depends=['shutit.tk.setup','shutit.tk.cmake.cmake']
+		depends=['shutit.tk.make.make']
 	)
 

@@ -14,11 +14,11 @@ class couchdb(ShutItModule):
 		shutit.send('apt-get install -y erlang-dev erlang-manpages erlang-base-hipe erlang-eunit erlang-nox erlang-xmerl erlang-inets')
 		shutit.send('apt-get install -y libmozjs185-dev libicu-dev libcurl4-gnutls-dev libtool wget')
 		shutit.send('cd /tmp')
-		shutit.send('wget http://www.bizdirusa.com/mirrors/apache/couchdb/source/1.6.0/apache-couchdb-1.6.0.tar.gz')
-		shutit.send('cd /tmp && tar xvzf apache-couchdb-1.6.0.tar.gz')
+		shutit.send('wget http://www.bizdirusa.com/mirrors/apache/couchdb/source/' + self.cfg[self.module_id]['version'] + '/apache-couchdb-' + self.cfg[self.module_id]['version'] + '.tar.gz')
+		shutit.send('cd /tmp && tar xvzf apache-couchdb-' + self.cfg[self.module_id]['version'] + '.tar.gz')
 		shutit.send('apt-get install -y make')
 		shutit.send('cd /tmp/apache-couchdb-*')
-		shutit.send('./configure')
+		shutit.send('./configure --prefix=/usr')
 		shutit.send('make install')
 		shutit.send('printf "[httpd]\nport = 8101\nbind_address = 0.0.0.0" > /usr/local/etc/couchdb/local.d/docker.ini')
 		return True
@@ -33,6 +33,7 @@ class couchdb(ShutItModule):
 		return False
 
 	def get_config(self, shutit):
+		shutit.get_config(self.module_id,'version','1.6.0')
 		return True
 
 def module():

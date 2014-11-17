@@ -56,22 +56,24 @@ _default_cnf = '''
 # Default core config file for ShutIt.
 ################################################################################
 
-# Details relating to the container you are building itself
-[container]
-# Root password for the container - replace with your chosen password
+# Details relating to the target you are building to (container, ssh or bash)
+[target]
+# Root password for the target - replace with your chosen password
 # If left blank, you will be prompted for a password
-password:YOUR_CONTAINER_PASSWORD
-# Hostname for the container - replace with your chosen container name
+password:YOUR_TARGET_PASSWORD
+# Hostname for the target - replace with your chosen target hostname
+# (where applicable, eg docker container)
 hostname:
 force_repo_work:no
 locale:en_US.UTF-8
 # space separated list of ports to expose
 # e.g. "ports:2222:22 8080:80" would expose container ports 22 and 80 as the
-# host's 2222 and 8080
+# host's 2222 and 8080 (where applicable)
 ports:
-# Name to give the container. Empty means "let docker default a name".
+# Name to give the docker container (where applicable).
+# Empty means "let docker default a name".
 name:
-# Whether to remove the container when finished.
+# Whether to remove the docker container when finished (where applicable).
 rm:no
 
 # Information specific to the host on which the build runs.
@@ -149,7 +151,7 @@ ssh_cmd:
 build_log:no
 # How to connect to target
 conn_module:shutit.tk.conn_docker
-# Run container in privileged mode
+# Run any docker container in privileged mode
 privileged:no
 # lxc-conf arg, eg
 #lxc_conf:lxc.aa_profile=unconfined
@@ -158,7 +160,7 @@ lxc_conf:
 base_image:ubuntu:14.04
 # Whether to perform tests. 
 dotest:yes
-# --net argument, eg "bridge", "none", "container:<name|id>" or "host". Empty means use default (bridge).
+# --net argument to docker, eg "bridge", "none", "container:<name|id>" or "host". Empty means use default (bridge).
 net:
 '''
 
@@ -297,18 +299,20 @@ def get_base_config(cfg, cfg_parser):
 	cfg['build']['net']                           = cp.get('build', 'net')
 	cfg['build']['completed']                     = False
 	cfg['build']['step_through']                  = False
+	cfg['build']['check_exit']                    = True
 	# Take a command-line arg if given, else default.
 	if cfg['build']['conn_module'] == None:
 		cfg['build']['conn_module']                   = cp.get('build', 'conn_module')
 	# Track logins in a stack.
 	cfg['build']['login_stack']                   = []
-	cfg['container']['password']                  = cp.get('container', 'password')
-	cfg['container']['hostname']                  = cp.get('container', 'hostname')
-	cfg['container']['force_repo_work']           = cp.getboolean('container', 'force_repo_work')
-	cfg['container']['locale']                    = cp.get('container', 'locale')
-	cfg['container']['ports']                     = cp.get('container', 'ports')
-	cfg['container']['name']                      = cp.get('container', 'name')
-	cfg['container']['rm']                        = cp.getboolean('container', 'rm')
+	cfg['target']['password']                  = cp.get('target', 'password')
+	cfg['target']['hostname']                  = cp.get('target', 'hostname')
+	cfg['target']['force_repo_work']           = cp.getboolean('target', 'force_repo_work')
+	cfg['target']['locale']                    = cp.get('target', 'locale')
+	cfg['target']['ports']                     = cp.get('target', 'ports')
+	cfg['target']['name']                      = cp.get('target', 'name')
+	cfg['target']['rm']                        = cp.getboolean('target', 'rm')
+	cfg['target']['stty_cols']                 = 320
 	cfg['host']['resources_dir']                  = cp.get('host', 'resources_dir')
 	cfg['host']['docker_executable']              = cp.get('host', 'docker_executable')
 	cfg['host']['dns']                            = cp.get('host', 'dns')
@@ -349,33 +353,33 @@ def get_base_config(cfg, cfg_parser):
 		cfg['build']['build_log'] = open(logfile, 'a')
 		# Lock it down to the running user.
 		os.chmod(logfile,0600)
-	if cfg['container']['docker_image'] == '':
-		cfg['container']['docker_image'] = cfg['build']['base_image']
+	if cfg['target']['docker_image'] == '':
+		cfg['target']['docker_image'] = cfg['build']['base_image']
 	# END tidy configs up
 
 	# BEGIN warnings
 	# Warn if something appears not to have been overridden
 	warn = ''
-	if cfg['container']['password'][:5] == 'YOUR_':
-		warn = '# Found ' + cfg['container']['password'] + ' in your config, you may want to quit and override, eg put the following into your\n# ' + shutit_global.cwd + '/configs/' + socket.gethostname() + '_' + cfg['host']['real_user'] + '.cnf file (create if necessary):\n\n[container]\n#root password for the container\npassword:mycontainerpassword\n\n'
+	if cfg['target']['password'][:5] == 'YOUR_':
+		warn = '# Found ' + cfg['target']['password'] + ' in your config, you may want to quit and override, eg put the following into your\n# ' + shutit_global.cwd + '/configs/' + socket.gethostname() + '_' + cfg['host']['real_user'] + '.cnf file (create if necessary):\n\n[target]\n#root password for the target host\npassword:mytargethostpassword\n\n'
 		issue_warning(warn,2)
 
 	# FAILS begins
 	# rm is incompatible with repository actions
-	if cfg['container']['rm'] and (cfg['repository']['tag'] or cfg['repository']['push'] or cfg['repository']['save'] or cfg['repository']['export']):
-		print("Can't have [container]/rm and [repository]/(push/save/export) set to true")
+	if cfg['target']['rm'] and (cfg['repository']['tag'] or cfg['repository']['push'] or cfg['repository']['save'] or cfg['repository']['export']):
+		print("Can't have [target]/rm and [repository]/(push/save/export) set to true")
 		sys.exit()
-	if warn != '':
-		issue_warning('Showing computed config. This can also be done by calling with sc:',2)
+	if warn != '' and cfg['build']['debug']:
+		issue_warning('Showing config as read in. This can also be done by calling with sc:',2)
 		shutit_global.shutit.log(print_config(cfg), force_stdout=True, code='31')
 		time.sleep(1)
-	if cfg['container']['hostname'] != '' and cfg['build']['net'] != '' and cfg['build']['net'] != 'bridge':
-		print('\n\ncontainer/hostname or build/net configs must be blank\n\n')
+	if cfg['target']['hostname'] != '' and cfg['build']['net'] != '' and cfg['build']['net'] != 'bridge':
+		print('\n\ntarget/hostname or build/net configs must be blank\n\n')
 		sys.exit()
 	# TODO: delivery method checks
 	# FAILS ends
-	if cfg['container']['password'] == '':
-		cfg['container']['password'] = getpass.getpass(prompt='Input your container password: ')
+	if cfg['target']['password'] == '':
+		cfg['target']['password'] = getpass.getpass(prompt='Input your target password: ')
 
 # Returns the config dict
 def parse_args(cfg):
@@ -434,7 +438,7 @@ def parse_args(cfg):
 		return ivalue
 
 	parser = argparse.ArgumentParser(description='ShutIt - a tool for managing complex Docker deployments.\n\nTo view help for a specific subcommand, type ./shutit <subcommand> -h')
-	subparsers = parser.add_subparsers(dest='action', help='Action to perform. Defaults to \'build\'.')
+	subparsers = parser.add_subparsers(dest='action', help='Action to perform - build=deploy to target, serve=run a shutit web server, skeleton=construct a skeleton module, sc=show configuration as read in. Defaults to \'build\'.')
 
 	sub_parsers = dict()
 	for action in actions:
@@ -455,9 +459,9 @@ def parse_args(cfg):
 
 	for action in ['build', 'serve', 'depgraph', 'sc']:
 		sub_parsers[action].add_argument('--config', help='Config file for setup config. Must be with perms 0600. Multiple arguments allowed; config files considered in order.', default=[], action='append')
-		sub_parsers[action].add_argument('-d','--delivery', help='Delivery method. "docker" container (default), configured "ssh" connection, "bash" session', default=None, choices=('docker','container','ssh','bash'))
-		sub_parsers[action].add_argument('-s', '--set', help='Override a config item, e.g. "-s container rm no". Can be specified multiple times.', default=[], action='append', nargs=3, metavar=('SEC', 'KEY', 'VAL'))
-		sub_parsers[action].add_argument('--image_tag', help='Build container using specified image - if there is a symbolic reference, please use that, eg localhost.localdomain:5000/myref', default='')
+		sub_parsers[action].add_argument('-d','--delivery', help='Delivery method, aka target. "docker" container (default), configured "ssh" connection, "bash" session', default=None, choices=('docker','target','ssh','bash'))
+		sub_parsers[action].add_argument('-s', '--set', help='Override a config item, e.g. "-s target rm no". Can be specified multiple times.', default=[], action='append', nargs=3, metavar=('SEC', 'KEY', 'VAL'))
+		sub_parsers[action].add_argument('--image_tag', help='Build container from specified image - if there is a symbolic reference, please use that, eg localhost.localdomain:5000/myref', default='')
 		sub_parsers[action].add_argument('--tag_modules', help='Tag each module after it\'s successfully built regardless of the module config and based on the repository config.', default=False, const=True, action='store_const')
 		sub_parsers[action].add_argument('-m', '--shutit_module_path', default=None, help='List of shutit module paths, separated by colons. ShutIt registers modules by running all .py files in these directories.')
 		sub_parsers[action].add_argument('--pause', help='Pause between commands to avoid race conditions.', default='0.05', type=check_pause)
@@ -539,9 +543,9 @@ def parse_args(cfg):
 		cfg['build']['cfghistory'] = args.history
 
 	# What are we building on? Convert arg to conn_module we use.
-	if args.delivery == 'docker' or args.delivery == 'container':
+	if args.delivery == 'docker' or args.delivery == 'target':
 		cfg['build']['conn_module'] = 'shutit.tk.conn_docker'
-		cfg['build']['delivery']    = 'container'
+		cfg['build']['delivery']    = 'target'
 	elif args.delivery == 'ssh':
 		cfg['build']['conn_module'] = 'shutit.tk.conn_ssh'
 		cfg['build']['delivery']    = 'ssh'
@@ -566,17 +570,17 @@ def parse_args(cfg):
 	cfg['build']['command_pause']    = float(args.pause)
 	cfg['build']['extra_configs']    = args.config
 	cfg['build']['config_overrides'] = args.set
-	cfg['container']['docker_image'] = args.image_tag
 	cfg['build']['ignorestop']       = args.ignorestop
 	cfg['build']['ignoreimage']      = args.ignoreimage
 	cfg['build']['tag_modules']      = args.tag_modules
+	cfg['target']['docker_image']    = args.image_tag
 	# Finished parsing args, tutorial stuff
 	if cfg['build']['interactive'] >= 3:
 		print textwrap.dedent("""\
 			================================================================================
 			SHUTIT - INTRODUCTION
 			================================================================================
-			ShutIt is a script that allows the building of static containers.
+			ShutIt is a script that allows the building of static target environments.
 			allowing a high degree of flexibility and easy conversion from other build
 			methods (eg bash scripts)
 
@@ -742,7 +746,7 @@ def load_shutit_modules(shutit):
 				if m.run_order == k:
 					 l.append([m.module_id,str(m.run_order)])
 		for i in l:
-			print 'loaded module: ' + i[0]
+			print 'loaded module: ' + i[0] + ', ' + i[1]
 
 
 def print_config(cfg, hide_password=True, history=False):
@@ -887,8 +891,8 @@ def build_report(shutit, msg=''):
 	else:
 		s += '# Nothing to report\n'
 
-	if 'container_id' in shutit.cfg['container']:
-		s += '# CONTAINER_ID: ' + shutit.cfg['container']['container_id'] + '\n'
+	if 'container_id' in shutit.cfg['target']:
+		s += '# CONTAINER_ID: ' + shutit.cfg['target']['container_id'] + '\n'
 	s += '# BUILD REPORT FOR BUILD END ' + shutit_global.cfg['build']['build_id'] + '\n'
 	s += '###############################################################################\n'
 	return s
@@ -1266,7 +1270,7 @@ def module():
 		#              ~/.shutit/config
 		#              FILE
 		###############################################################################
-		[container]
+		[target]
 		rm:false
 
 		[repository]

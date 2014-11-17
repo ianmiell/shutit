@@ -19,9 +19,9 @@ class mediawiki(ShutItModule):
 		shutit.send_host_file('/etc/php5/fpm/pool.d/www.conf', 'context/./fpm-pool-www.conf')
 		shutit.send('mkdir /src')
 		shutit.send('mkdir -p /src')
-		shutit.send('wget -O /src/mediawiki.tgz http://download.wikimedia.org/mediawiki/1.21/mediawiki-1.21.2.tar.gz')
+		shutit.send('wget -O /src/mediawiki.tgz http://download.wikimedia.org/mediawiki/1.21/mediawiki-' + shutit.cfg[self.module_id]['version'] + '.tar.gz')
 		shutit.send('cd /src && tar zxf mediawiki.tgz')
-		shutit.send('ln -snf /src/mediawiki-1.21.2 /src/mediawiki')
+		shutit.send('ln -snf /src/mediawiki-' + shutit.cfg[self.module_id]['version'] + ' /src/mediawiki')
 		shutit.send('chown -R www-data:www-data /src/mediawiki/')
 		shutit.send('mkdir /data')
 		shutit.send('ln -s /data/LocalSettings.php /src/mediawiki/LocalSettings.php')
@@ -40,6 +40,7 @@ class mediawiki(ShutItModule):
 		return False
 
 	def get_config(self, shutit):
+		shutit.get_config(self.module_id,'version','1.21.2')
 		return True
 
 def module():

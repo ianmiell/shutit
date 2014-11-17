@@ -22,7 +22,7 @@ class binspector(ShutItModule):
 		shutit.send('git clone https://github.com/binspector/binspector.git')
 		shutit.send('popd')
 		shutit.send('pushd /opt/binspector')
-		shutit.send('./configure.sh')
+		shutit.send('./configure.sh --prefix=/usr')
 		shutit.send('./build.sh')
 		shutit.send('./smoke_test.sh')
 		shutit.send('popd')
