@@ -14,9 +14,9 @@ class curl(ShutItModule):
 	def build(self, shutit):
 		shutit.send('mkdir -p /opt/curl')
 		shutit.send('pushd /opt/curl')
-		shutit.send('wget http://curl.haxx.se/download/curl-' + self.cfg[self.module_id]['version'] + '.tar.gz')
-		shutit.send('tar -zxf curl-' + self.cfg[self.module_id]['version'] + '.tar')
-		shutit.send('pushd curl-' + self.cfg[self.module_id]['version'])
+		shutit.send('wget http://curl.haxx.se/download/curl-' + shutit.cfg[self.module_id]['version'] + '.tar.gz')
+		shutit.send('tar -zxf curl-' + shutit.cfg[self.module_id]['version'] + '.tar')
+		shutit.send('pushd curl-' + shutit.cfg[self.module_id]['version'])
 		shutit.send('./configure --prefix=/usr')
 		shutit.send('make')
 		shutit.send('make install')
