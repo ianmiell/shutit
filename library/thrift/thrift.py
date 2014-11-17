@@ -21,6 +21,7 @@ class thrift(ShutItModule):
 		shutit.install('libevent-dev')
 		shutit.install('bison')
 		shutit.install('make')
+		shutit.install('flex')
 		shutit.install('libboost1.55-all-dev')
 		shutit.install('libssl-dev')
 		shutit.send('pushd /opt')
@@ -59,6 +60,6 @@ def module():
 		'shutit.tk.thrift.thrift', 0.1124125,
 		description='',
 		maintainer='ian.miell@gmail.com',
-		depends=['shutit.tk.flex.flex','shutit.tk.git.git','shutit.tk.libxslt.libxslt']
+		depends=['shutit.tk.setup']
 	)
 

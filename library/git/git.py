@@ -24,7 +24,8 @@ class git(ShutItModule):
 		shutit.send('wget https://github.com/git/git/archive/master.zip')
 		shutit.send('unzip master.zip')
 		shutit.send('pushd git-master')
-		shutit.send('make prefix=/usr all doc info')
+		#shutit.send('make prefix=/usr all doc info') # trouble with docs/docbook etc - to resolve
+		shutit.send('make prefix=/usr all')
 		shutit.send('make install prefix=/usr')
 		shutit.send('popd')
 		shutit.send('popd')
@@ -57,6 +58,6 @@ def module():
 		'shutit.tk.git.git', 0.021,
 		description='Git built from source',
 		maintainer='ian.miell@gmail.com',
-		depends=['shutit.tk.gettext.gettext','shutit.tk.zip.zip','shutit.tk.tcl.tcl','shutit.tk.expat.expat','shutit.tk.curl.curl','shutit.tk.asciidoc.asciidoc']
+		depends=['shutit.tk.gettext.gettext','shutit.tk.zip.zip','shutit.tk.tcl.tcl','shutit.tk.expat.expat','shutit.tk.curl.curl','shutit.tk.asciidoc.asciidoc','shutit.tk.xmlto.xmlto','shutit.tk.libxslt.libxslt']
 	)
 

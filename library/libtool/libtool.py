@@ -56,6 +56,6 @@ def module():
 		'shutit.tk.libtool.libtool', 0.0225135124,
 		description='',
 		maintainer='',
-		depends=['shutit.tk.help2man.help2man','shutit.tk.git.git','shutit.tk.libxslt.libxslt']
+		depends=['shutit.tk.help2man.help2man','shutit.tk.texinfo.texinfo','shutit.tk.automake.automake','shutit.tk.git.git','shutit.tk.libxslt.libxslt','shutit.tk.patch.patch']
 	)
 

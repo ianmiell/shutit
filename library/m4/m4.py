@@ -47,5 +47,5 @@ def module():
 		'shutit.tk.m4.m4', 0.0236,
 		description='',
 		maintainer='',
-		depends=['shutit.tk.libtool.libtool','shutit.tk.gettext.gettext','shutit.tk.autoconf.autoconf','shutit.tk.git.git']
+		depends=['shutit.tk.libtool.libtool','shutit.tk.gettext.gettext','shutit.tk.autoconf.autoconf','shutit.tk.git.git','shutit.tk.patch.patch','shutit.tk.rsync.rsync']
 	)
