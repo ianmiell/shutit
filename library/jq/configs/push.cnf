@@ -18,7 +18,6 @@ name:jq
 ## Fill these out in server- and username-specific config (also in this directory)
 #email:YOUR_REGISTRY_EMAIL_OR_BLANK
 #tag:no
-#push:yes
 #save:no
 #export:no
 ##server:REMOVE_ME_FOR_DOCKER_INDEX

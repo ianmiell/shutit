@@ -6,6 +6,7 @@ rm:false
 
 [repository]
 name:memcache
+push:yes
 # COPY THESE TO YOUR ~/.shutit/config FILE AND FILL OUT ITEMS IN CAPS
 #user:YOUR_USERNAME
 ## Fill these out in server- and username-specific config (also in this directory)
