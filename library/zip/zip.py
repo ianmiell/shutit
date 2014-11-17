@@ -50,7 +50,7 @@ class zip(ShutItModule):
 
 def module():
 	return zip(
-		'shutit.tk.zip.zip', 0.01332513136,
+		'shutit.tk.zip.zip', 0.0111332513136,
 		description='',
 		maintainer='ian.miell@gmail.com',
 		depends=['shutit.tk.zlib.zlib']

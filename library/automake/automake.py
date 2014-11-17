@@ -55,7 +55,7 @@ class automake(ShutItModule):
 
 def module():
 	return automake(
-		'shutit.tk.automake.automake', 0.013251352435,
+		'shutit.tk.automake.automake', 0.011113251352435,
 		description='',
 		maintainer='',
 		depends=['shutit.tk.autoconf.autoconf']

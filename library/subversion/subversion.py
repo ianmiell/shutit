@@ -1,10 +1,11 @@
 """ShutIt module. See http://shutit.tk
+In source, line 16 should be blank, within the build def. This doesn't matter except for test builds, so can be removed once in use.
 """
 
 from shutit_module import ShutItModule
 
 
-class zlib(ShutItModule):
+class subversion(ShutItModule):
 
 
 	def is_installed(self, shutit):
@@ -12,19 +13,17 @@ class zlib(ShutItModule):
 
 
 	def build(self, shutit):
-		#From http://www.zlib.net/
-		shutit.send('mkdir -p /opt/zlib')
-		shutit.send('pushd /opt/zlib')
-		shutit.send('wget http://zlib.net/zlib-1.2.8.tar.gz')
-		shutit.send('gunzip zlib-1.2.8.tar.gz')
-		shutit.send('tar -xf zlib-1.2.8.tar')
-		shutit.send('pushd zlib-1.2.8')
+		shutit.send('mkdir -p /opt/subversion')
+		shutit.send('pushd /opt/subversion')
+		shutit.send('wget http://mirror.gopotato.co.uk/apache/subversion/subversion-1.8.10.tar.gz')
+		shutit.send('tar -zxf subversion-1.8.10.tar.gz')
+		shutit.send('pushd subversion-1.8.10')
 		shutit.send('./configure --prefix=/usr')
 		shutit.send('make')
 		shutit.send('make install')
 		shutit.send('popd')
 		shutit.send('popd')
-		shutit.send('rm -rf /opt/zlib')
+		shutit.send('rm -rf /opt/subversion')
 		return True
 
 	#def get_config(self, shutit):
@@ -49,10 +48,10 @@ class zlib(ShutItModule):
 	#	return True
 
 def module():
-	return zlib(
-		'shutit.tk.zlib.zlib', 0.0111326125136,
+	return subversion(
+		'shutit.tk.subversion.subversion', 0.012532473,
 		description='',
 		maintainer='',
-		depends=['shutit.tk.automake.automake']
+		depends=['shutit.tk.apache_portable_runtime_util.apache_portable_runtime_util','shutit.tk.sqlite.sqlite']
 	)
 

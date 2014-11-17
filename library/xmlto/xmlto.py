@@ -4,7 +4,7 @@
 from shutit_module import ShutItModule
 
 
-class zlib(ShutItModule):
+class xmlto(ShutItModule):
 
 
 	def is_installed(self, shutit):
@@ -12,19 +12,18 @@ class zlib(ShutItModule):
 
 
 	def build(self, shutit):
-		#From http://www.zlib.net/
-		shutit.send('mkdir -p /opt/zlib')
-		shutit.send('pushd /opt/zlib')
-		shutit.send('wget http://zlib.net/zlib-1.2.8.tar.gz')
-		shutit.send('gunzip zlib-1.2.8.tar.gz')
-		shutit.send('tar -xf zlib-1.2.8.tar')
-		shutit.send('pushd zlib-1.2.8')
+		shutit.send('mkdir -p /opt/xmlto')
+		shutit.send('pushd /opt/xmlto')
+		shutit.send('wget https://fedorahosted.org/releases/x/m/xmlto/xmlto-0.0.26.tar.bz2')
+		shutit.send('bunzip2 xmlto-0.0.26.tar.bz2')
+		shutit.send('tar -xf xmlto-0.0.26.tar')
+		shutit.send('pushd xmlto-0.0.26')
 		shutit.send('./configure --prefix=/usr')
 		shutit.send('make')
 		shutit.send('make install')
 		shutit.send('popd')
 		shutit.send('popd')
-		shutit.send('rm -rf /opt/zlib')
+		shutit.send('rm -rf /opt/xmlto')
 		return True
 
 	#def get_config(self, shutit):
@@ -49,10 +48,10 @@ class zlib(ShutItModule):
 	#	return True
 
 def module():
-	return zlib(
-		'shutit.tk.zlib.zlib', 0.0111326125136,
+	return xmlto(
+		'shutit.tk.xmlto.xmlto', 0.01135135,
 		description='',
 		maintainer='',
-		depends=['shutit.tk.automake.automake']
+		depends=['shutit.tk.make.make']
 	)
 

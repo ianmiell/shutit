@@ -4,7 +4,7 @@
 from shutit_module import ShutItModule
 
 
-class zlib(ShutItModule):
+class apache_portable_runtime(ShutItModule):
 
 
 	def is_installed(self, shutit):
@@ -12,19 +12,17 @@ class zlib(ShutItModule):
 
 
 	def build(self, shutit):
-		#From http://www.zlib.net/
-		shutit.send('mkdir -p /opt/zlib')
-		shutit.send('pushd /opt/zlib')
-		shutit.send('wget http://zlib.net/zlib-1.2.8.tar.gz')
-		shutit.send('gunzip zlib-1.2.8.tar.gz')
-		shutit.send('tar -xf zlib-1.2.8.tar')
-		shutit.send('pushd zlib-1.2.8')
+		shutit.send('mkdir -p /opt/apr')
+		shutit.send('pushd /opt/apr')
+		shutit.send('wget http://apache.mirrors.timporter.net//apr/apr-1.5.1.tar.gz')
+		shutit.send('tar -zxf apr-1.5.1.tar.gz')
+		shutit.send('pushd apr-1.5.1')
 		shutit.send('./configure --prefix=/usr')
 		shutit.send('make')
 		shutit.send('make install')
 		shutit.send('popd')
 		shutit.send('popd')
-		shutit.send('rm -rf /opt/zlib')
+		shutit.send('rm -rf /opt/apr')
 		return True
 
 	#def get_config(self, shutit):
@@ -49,10 +47,10 @@ class zlib(ShutItModule):
 	#	return True
 
 def module():
-	return zlib(
-		'shutit.tk.zlib.zlib', 0.0111326125136,
+	return apache_portable_runtime(
+		'shutit.tk.apache_portable_runtime.apache_portable_runtime', 0.01213613624,
 		description='',
 		maintainer='',
-		depends=['shutit.tk.automake.automake']
+		depends=['shutit.tk.make.make']
 	)
 

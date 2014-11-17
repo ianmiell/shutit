@@ -4,7 +4,7 @@
 from shutit_module import ShutItModule
 
 
-class zlib(ShutItModule):
+class sqlite(ShutItModule):
 
 
 	def is_installed(self, shutit):
@@ -12,19 +12,17 @@ class zlib(ShutItModule):
 
 
 	def build(self, shutit):
-		#From http://www.zlib.net/
-		shutit.send('mkdir -p /opt/zlib')
-		shutit.send('pushd /opt/zlib')
-		shutit.send('wget http://zlib.net/zlib-1.2.8.tar.gz')
-		shutit.send('gunzip zlib-1.2.8.tar.gz')
-		shutit.send('tar -xf zlib-1.2.8.tar')
-		shutit.send('pushd zlib-1.2.8')
+		shutit.send('mkdir -p /opt/sqlite')
+		shutit.send('pushd /opt/sqlite')
+		shutit.send('wget http://www.sqlite.org/2014/sqlite-autoconf-3080701.tar.gz')
+		shutit.send('tar -zxf sqlite-autoconf-3080701.tar.gz')
+		shutit.send('pushd sqlite-autoconf-3080701')
 		shutit.send('./configure --prefix=/usr')
 		shutit.send('make')
 		shutit.send('make install')
 		shutit.send('popd')
 		shutit.send('popd')
-		shutit.send('rm -rf /opt/zlib')
+		shutit.send('rm -rf /opt/sqlite')
 		return True
 
 	#def get_config(self, shutit):
@@ -49,10 +47,10 @@ class zlib(ShutItModule):
 	#	return True
 
 def module():
-	return zlib(
-		'shutit.tk.zlib.zlib', 0.0111326125136,
+	return sqlite(
+		'shutit.tk.sqlite.sqlite', 0.01215246246,
 		description='',
 		maintainer='',
-		depends=['shutit.tk.automake.automake']
+		depends=['shutit.tk.make.make']
 	)
 

@@ -4,7 +4,7 @@
 from shutit_module import ShutItModule
 
 
-class zlib(ShutItModule):
+class python(ShutItModule):
 
 
 	def is_installed(self, shutit):
@@ -12,19 +12,17 @@ class zlib(ShutItModule):
 
 
 	def build(self, shutit):
-		#From http://www.zlib.net/
-		shutit.send('mkdir -p /opt/zlib')
-		shutit.send('pushd /opt/zlib')
-		shutit.send('wget http://zlib.net/zlib-1.2.8.tar.gz')
-		shutit.send('gunzip zlib-1.2.8.tar.gz')
-		shutit.send('tar -xf zlib-1.2.8.tar')
-		shutit.send('pushd zlib-1.2.8')
+		shutit.send('mkdir -p /opt/python')
+		shutit.send('pushd /opt/python')
+		shutit.send('wget https://www.python.org/ftp/python/2.7.8/Python-2.7.8.tgz')
+		shutit.send('tar -zxf Python-2.7.8.tgz')
+		shutit.send('pushd Python-2.7.8')
 		shutit.send('./configure --prefix=/usr')
 		shutit.send('make')
 		shutit.send('make install')
 		shutit.send('popd')
 		shutit.send('popd')
-		shutit.send('rm -rf /opt/zlib')
+		shutit.send('rm -rf /opt/python')
 		return True
 
 	#def get_config(self, shutit):
@@ -49,10 +47,10 @@ class zlib(ShutItModule):
 	#	return True
 
 def module():
-	return zlib(
-		'shutit.tk.zlib.zlib', 0.0111326125136,
+	return python(
+		'shutit.tk.python.python', 0.012513613613,
 		description='',
 		maintainer='',
-		depends=['shutit.tk.automake.automake']
+		depends=['shutit.tk.make.make']
 	)
 

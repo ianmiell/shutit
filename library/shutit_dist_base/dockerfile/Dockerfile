@@ -5,7 +5,12 @@ RUN apt-get update
 RUN apt-get purge -q -y vim-common vim-tiny xkb-data ucf ureadahead whiptail procps plymouth ntpdate net-tools module-init-tools mime-support logrotate makedev lockfile-progs locales apt-utils busybox-initramfs cpio debconf-i18n libtext-charwidth-perl libtext-iconv-perl libsqlite3-0 libssl1.0.0 libpopt0 libpng12-0 file libnih1 libp11-kit0 ibnewt0.52 libncursesw5 libklibc libkmod2 libpam-cap liblockfile1 libmagic1 liblockfile-bin liblocale-gettext-perl libmodule-pluggable-perl libgpg-error0 libfribidi0 libexpat1 libestr0 libdrm2 libdbus-1-3 libcap2-bin libbsd0 libapt-inst1.5 isc-dhcp-common netbase iproute2
 
 # Useful
-RUN apt-get install -q -y gcc wget g++ libssl-dev
+# gcc for building software
+# wget for getting source 
+# g++ for some build reqs
+# libssl-dev for early build deps
+# docbook - no time to work out how to install
+RUN apt-get install -q -y gcc wget g++ libssl-dev docbook docbook-xsl-ns
 
 RUN apt-get purge -q -y manpages-dev manpages
 
