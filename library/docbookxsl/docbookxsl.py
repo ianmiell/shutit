@@ -19,6 +19,7 @@ class docbookxsl(ShutItModule):
 		shutit.send('bunzip2 docbook-xsl-1.78.1.tar.bz2')
 		shutit.send('tar -xf docbook-xsl-1.78.1.tar')
 		shutit.send('pushd docbook-xsl-1.78.1')
+		# www.linuxfromscratch.org/blfs/view/svn/pst/docbook-xsl.html for installation TODO
 		shutit.send('./configure --prefix=/usr')
 		shutit.send('make')
 		shutit.send('make install')
