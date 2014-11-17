@@ -40,7 +40,7 @@ class mediawiki(ShutItModule):
 		return False
 
 	def get_config(self, shutit):
-    	shutit.get_config(self.module_id,'version','1.21.2')
+		shutit.get_config(self.module_id,'version','1.21.2')
 		return True
 
 def module():

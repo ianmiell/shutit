@@ -50,7 +50,7 @@ class go(ShutItModule):
 
 	def get_config(self,shutit):
 		shutit.get_config(self.module_id,'version','1.3.3')
-	    return True
+		return True
 
 	#def check_ready(self,shutit):
 	#    return True
