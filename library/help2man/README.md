@@ -1,1 +1,0 @@
-help2man: description of module directory in here
