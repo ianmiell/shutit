@@ -734,7 +734,6 @@ def shutit_main():
 		if module_id in shutit.cfg and shutit.cfg[module_id]['shutit.core.module.build']
 	])
 	digraph = digraph + '\n}'
-	shutit.cfg['build']['depgraph'] = digraph
 	# Now make the full digraph regardless of whether we're building or not
 	full_digraph = 'digraph depgraph {\n'
 	full_digraph = full_digraph + '\n'.join([
@@ -742,16 +741,18 @@ def shutit_main():
 		if module_id in shutit.cfg
 	])
 	full_digraph = full_digraph + '\n}'
-	shutit.cfg['build']['full_depgraph'] = full_digraph
-	if cfg['action']['show_depgraph']:
-		shutit.log('\n' + digraph, force_stdout=True)
-		shutit.log('\nAbove is the digraph for this shutit invocation. Use graphviz to render into an image, eg\n\n\tshutit depgraph -m library | dot -Tpng -o depgraph.png', force_stdout=True)
-		shutit.log('\n\n# complete digraph\n'+ full_digraph, force_stdout=True)
-		shutit.log('\n' + full_digraph, force_stdout=True)
-		shutit.log('\nAbove is the FULL digraph for this shutit invocation including all non-built modules. Use graphviz to render into an image, eg\n\n\tshutit depgraph -m library | dot -Tpng -o depgraph.png', force_stdout=True)
+	# Write out to files:
+	digraph_filename = '/tmp/digraph_' + shutit.cfg['build']['build_id']
+	digraph_file = file(digraph_filename,'w')
+	digraph_file.write(digraph)
+	digraph_file.close()
+	full_digraph_filename = '/tmp/full_digraph_' + shutit.cfg['build']['build_id']
+	full_digraph_file = file(full_digraph_filename,'w')
+	full_digraph_file.write(full_digraph)
+	full_digraph_file.close()
+	if cfg['action']['show_config']:
+		shutit.log('Digraphs written out to:' + digraph_filename + ' and ' + full_digraph_filename + '\n\nRun eg:\n\n\tdot -Tpdf -o digraph.pdf ' + digraph_filename + '\n\nto render into a gif (requires graphviz)', force_stdout=True)
 		# Set build completed
-		cfg['build']['completed'] = True
-		return
 	# Dependency validation done, now collect configs of those marked for build.
 	config_collection_for_built(shutit)
 	if cfg['action']['show_config']:

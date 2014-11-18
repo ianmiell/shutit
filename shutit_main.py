@@ -734,12 +734,10 @@ def shutit_main():
 	])
 	digraph = digraph + '\n}'
 	shutit.cfg['build']['depgraph'] = digraph
-	if cfg['action']['show_depgraph']:
-		shutit.log('\n' + digraph, force_stdout=True)
+	if cfg['action']['show_config']:
+		shutit.log('\n================================================================================\n' + digraph, force_stdout=True)
 		shutit.log('\nAbove is the digraph for this shutit invocation. Use graphviz to render into an image, eg\n\n\tshutit depgraph -m library | dot -Tpng -o depgraph.png', force_stdout=True)
-		# Set build completed
-		cfg['build']['completed'] = True
-		return
+		shutit.log('\n================================================================================\n', force_stdout=True)
 	# Dependency validation done, now collect configs of those marked for build.
 	config_collection_for_built(shutit)
 	if cfg['action']['show_config']:

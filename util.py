@@ -401,22 +401,19 @@ def parse_args(cfg):
 	cfg['host']['real_user_id'] = pexpect.run('id -u ' + cfg['host']['real_user']).strip()
 
 	# These are in order of their creation
-	actions = ['build', 'sc', 'depgraph', 'serve', 'skeleton']
+	actions = ['build', 'sc', 'serve', 'skeleton']
 
 	# Compatibility
 	# Note that (for now) all of these compat functions work because we know
 	# that there are no --options to shutit (as opposed to a subcommand)
-	# COMPAT 2014-05-13 - let sc and depgraph have '--' prefix
+	# COMPAT 2014-05-13 - let sc have '--' prefix
 	if '--sc' in sys.argv:
 		sys.argv.remove('--sc')
 		sys.argv[1:] = ['sc'] + sys.argv[1:]
-	if '--depgraph' in sys.argv:
-		sys.argv.remove('--depgraph')
-		sys.argv[1:] = ['depgraph'] + sys.argv[1:]
-	# COMPAT 2014-05-15 - let serve, sc and depgraph be specified anywhere in
+	# COMPAT 2014-05-15 - let serve and sc be specified anywhere in
 	# arguments for backwards compatibility. Hopefully there's no setting
 	# involving those words
-	for action in ['serve', 'depgraph', 'sc']:
+	for action in ['serve', 'sc']:
 		try:
 			sys.argv.remove(action)
 			sys.argv[1:] = [action] + sys.argv[1:]
@@ -457,7 +454,7 @@ def parse_args(cfg):
 
 	sub_parsers['sc'].add_argument('--history', help='show config history', const=True, default=False, action='store_const')
 
-	for action in ['build', 'serve', 'depgraph', 'sc']:
+	for action in ['build', 'serve', 'sc']:
 		sub_parsers[action].add_argument('--config', help='Config file for setup config. Must be with perms 0600. Multiple arguments allowed; config files considered in order.', default=[], action='append')
 		sub_parsers[action].add_argument('-d','--delivery', help='Delivery method, aka target. "docker" container (default), configured "ssh" connection, "bash" session', default=None, choices=('docker','target','ssh','bash'))
 		sub_parsers[action].add_argument('-s', '--set', help='Override a config item, e.g. "-s target rm no". Can be specified multiple times.', default=[], action='append', nargs=3, metavar=('SEC', 'KEY', 'VAL'))
@@ -502,7 +499,6 @@ def parse_args(cfg):
 
 	# What are we asking shutit to do?
 	cfg['action']['show_config'] =   args.action == 'sc'
-	cfg['action']['show_depgraph'] = args.action == 'depgraph'
 	cfg['action']['serve'] =         args.action == 'serve'
 	cfg['action']['skeleton'] =      args.action == 'skeleton'
 	cfg['action']['build'] =         args.action == 'build'
