@@ -1557,6 +1557,12 @@ class ShutIt(object):
 			self.send(password, child=child, expect='ew password',
 					  check_exit=False, echo=False)
 			self.send(password, child=child, expect=expect, echo=False)
+		else:
+			self.send('passwd ' + user,
+					  expect='Enter new', child=child, check_exit=False)
+			self.send(password, child=child, expect='Retype new',
+					  check_exit=False, echo=False)
+			self.send(password, child=child, expect=expect, echo=False)
 
 
 	def is_user_id_available(self, user_id, child=None, expect=None):
