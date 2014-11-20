@@ -421,13 +421,13 @@ General help:
 
 ```
 $ shutit -h
-usage: shutit [-h] {build,sc,depgraph,serve,skeleton} ...
+usage: shutit [-h] {build,sc,serve,skeleton} ...
 
 ShutIt - a tool for managing complex Docker deployments. To view help for a
 specific subcommand, type ./shutit <subcommand> -h
 
 positional arguments:
-  {build,sc,depgraph,serve,skeleton}
+  {build,sc,serve,skeleton}
                         Action to perform. Defaults to 'build'.
 
 optional arguments:
@@ -530,41 +530,6 @@ usage: shutit sc [-h] [--history] [--config CONFIG] [-s SEC KEY VAL]
    --ignorestop          ignore STOP* files
 ```
 
-
-Output a dependency graph of the potential build:
-
-```
-$ shutit depgraph -h
-usage: shutit depgraph [-h] [--config CONFIG] [-s SEC KEY VAL]
-                       [--image_tag IMAGE_TAG] [-m SHUTIT_MODULE_PATH]
-                       [--pause PAUSE] [--debug] [--interactive INTERACTIVE]
-                       [--ignorestop] [--ignoreimage]
-
-optional arguments:
-  -h, --help            show this help message and exit
-  --config CONFIG       Config file for setup config. Must be with perms 0600.
-                        Multiple arguments allowed; config files considered in
-                        order.
-  -s SEC KEY VAL, --set SEC KEY VAL
-                        Override a config item, e.g. "-s container rm no". Can
-                        be specified multiple times.
-  --image_tag IMAGE_TAG
-                        Build container using specified image - if there is a
-                        symbolic reference, please use that, eg
-                        localhost.localdomain:5000/myref
-  -m SHUTIT_MODULE_PATH, --shutit_module_path SHUTIT_MODULE_PATH
-                        List of shutit module paths, separated by colons.
-                        ShutIt registers modules by running all .py files in
-                        these directories.
-  --pause PAUSE         Pause between commands to avoid race conditions.
-  --debug               Show debug.
-  --interactive INTERACTIVE
-                        Level of interactive. 0 = none, 1 = honour pause
-                        points and config prompting, 2 = query user on each
-                        module, 3 = tutorial mode
-  --ignorestop          ignore STOP* files
-  --ignoreimage         ignore disallowed images
-```
 
 
 ## ShutIt API
