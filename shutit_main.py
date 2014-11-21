@@ -507,6 +507,9 @@ def do_remove(shutit):
 				shutit.log(print_modules(shutit), code='31')
 				shutit.fail(module_id + ' failed on remove',
 				child=shutit.pexpect_children['target_child'])
+			else:
+				# Create a directory and files to indicate this has been removed.
+				shutit.send('mkdir -p /root/shutit_build/module_record/' + module.module_id + ' && rm -f /root/shutit_build/module_record/' + module.module_id + '/built && touch /root/shutit_build/module_record/' + module.module_id + '/removed')
 			shutit.logout()
 
 
@@ -522,6 +525,9 @@ def build_module(shutit, module):
 	if not module.build(shutit):
 		shutit.fail(module.module_id + ' failed on build',
 		            child=shutit.pexpect_children['target_child'])
+	else:
+		# Create a directory and files to indicate this has been built.
+		shutit.send('mkdir -p /root/shutit_build/module_record/' + module.module_id + ' && touch /root/shutit_build/module_record/' + module.module_id + '/built && rm -f /root/shutit_build/module_record/' + module.module_id + '/removed')
 	shutit.pause_point('\nPausing to allow inspect of build for: ' +
 	                   module.module_id, print_input=True, level=2)
 	cfg['build']['report'] = (cfg['build']['report'] + '\nCompleted module: ' +
