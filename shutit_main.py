@@ -581,8 +581,7 @@ def do_build(shutit):
 			if module.is_installed(shutit):
 				cfg['build']['report'] = (cfg['build']['report'] +
 				    '\nBuilt already: ' + module.module_id +
-				    ' with run order: ' +
-			str(module.run_order))
+				    ' with run order: ' + str(module.run_order))
 			else:
 				# We move to the module directory to perform the build, returning immediately afterwards.
 				revert_dir = os.getcwd()
@@ -685,30 +684,35 @@ def shutit_main():
 			# try the current directory, the .. directory, or the ../shutit directory, the ~/shutit
 			pwd = os.getcwd()
 			path_to_shutit = ''
+			done = False
 			for d in ('.','..','~','~/shutit'):
+				path_to_shutit = d + '/shutit'
 				if os.path.isfile(os.path.expanduser(d) + '/shutit'):
-					path_to_shutit = d + '/shutit'
 					res = util.util_raw_input(prompt='shutit appears not to be on your path - would you like me to add it to your ~/.bashrc (Y/n)? ')
 					if res not in ('n','N'):
 						bashrc = os.path.expanduser('~/') + '.bashrc'
-						if os.path.isfile(bashrc):
-							with open(bashrc, "a") as myfile:
-								#http://unix.stackexchange.com/questions/26676/how-to-check-if-a-shell-is-login-interactive-batch
-								myfile.write('export PATH="$PATH:' + path_to_shutit + '"\n')
-					break
-			if path_to_shutit == '':
+						if os.path.isfile(path_to_shutit):
+							if os.path.isfile(d + '/shutit'):
+								with open(bashrc, "a") as myfile:
+									#http://unix.stackexchange.com/questions/26676/how-to-check-if-a-shell-is-login-interactive-batch
+									myfile.write('export PATH="$PATH:' + os.path.expanduser(d) + '"\n')
+									break
+			if done == False:
 				while True:
 					res = util.util_raw_input(prompt='shutit appears not to be on your path - please input the path to your shutit dir\n')
 					if os.path.isfile(os.path.expanduser(res) + '/shutit'):
 						path_to_shutit = res + '/shutit'
 						bashrc = os.path.expanduser('~/') + '.bashrc'
-						if os.path.isfile(bashrc):
+						if os.path.isfile(path_to_shutit):
 							with open(bashrc, "a") as myfile:
 								myfile.write('\nexport PATH="$PATH:' + path_to_shutit + '"\n')
+								myfile.write('\nexport PATH="$PATH:' + res + '"\n')
+								done = True
 								break
 			if path_to_shutit != '':
-				util.util_raw_input(prompt='\nPath set up - please open new terminal and re-run command\n')
-				sys.exit()
+				if done == False:
+					util.util_raw_input(prompt='\nPath set up - please open new terminal and re-run command\n')
+					sys.exit()
 
 	shutit = shutit_global.shutit
 	cfg = shutit.cfg
