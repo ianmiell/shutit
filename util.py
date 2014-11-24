@@ -845,6 +845,10 @@ def load_mod_from_file(shutit, fpath):
 	if shutit.cfg['build']['debug']:
 		shutit.log('Loading source for: ' + fpath)
 
+	# Add this directory to the python path iff not already there.
+	directory = os.path.dirname(fpath)
+	if directory not in sys.path:
+		sys.path.append(os.path.dirname(fpath))
 	mod_name = base64.b32encode(fpath).replace('=', '')
 	pymod = imp.load_source(mod_name, fpath)
 

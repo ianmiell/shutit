@@ -1006,7 +1006,7 @@ class ShutIt(object):
 			config_parser.reload()
 		return val
 
-	def step_through(self, msg, child=None, level=1, print_input=True, value=True):
+	def step_through(self, msg='', child=None, level=1, print_input=True, value=True):
 		child = child or self.get_default_child()
 		if (not sys.stdout.isatty() or not self.cfg['build']['interactive'] or 
 			self.cfg['build']['interactive'] < level):
@@ -1014,7 +1014,7 @@ class ShutIt(object):
 		self.cfg['build']['step_through'] = value
 		self.pause_point(msg, child=child, print_input=print_input, level=level, resize=False)
 
-	def pause_point(self, msg, child=None, print_input=True, level=1, resize=False):
+	def pause_point(self, msg='', child=None, print_input=True, level=1, resize=False):
 		"""Inserts a pause in the build session, which allows the user to try
 		things out before continuing. Ignored if we are not in an interactive
 		mode, or the interactive level is less than the passed-in one.
