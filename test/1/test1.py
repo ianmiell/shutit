@@ -7,6 +7,7 @@
 #THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 from shutit_module import ShutItModule
+import thing
 
 class test1(ShutItModule):
 
@@ -14,6 +15,7 @@ class test1(ShutItModule):
 		return False
 
 	def build(self, shutit):
+		thing.thing()
 		shutit.send_and_expect('touch /tmp/container_touched')
 		# to test email if desired
 		e = shutit.get_emailer(self.module_id)

@@ -1,0 +1,2 @@
+def thing():
+	print 'thung'
