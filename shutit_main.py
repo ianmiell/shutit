@@ -801,14 +801,16 @@ def shutit_main():
 	shutit.cfg['build']['completed'] = True
 
 
-def do_phone_home(msg,question=''):
-	"""Report message home. 
+def do_phone_home(msg=None,question='Error seen - would you like to inform the maintainers?'):
+	"""Report message home.
 	msg - message to send home
 	question - question to ask - assumes Y/y for send message, else no
 	"""
-	if question != '':
-		if util.util_raw_input(prompt=question + ' (Y/n)\n') not in ('y','Y',''):
-			return
+	if msg is None:
+		msg = {}
+	msg.update({'shutitrunstatus':'fail','pwd':os.getcwd(),'user':os.environ.get('LOGNAME', '')})
+	if question != '' and util.util_raw_input(prompt=question + ' (Y/n)\n') not in ('y','Y',''):
+		return
 	urllib.urlopen("http://shutit.tk?" + urllib.urlencode(msg))
 
 
@@ -818,13 +820,13 @@ if __name__ == '__main__':
 	except ShutItException as e:
 		print 'Error while executing: ' + str(e.message)
 		print e
-		do_phone_home({'shutitrunstatus':'fail','err':str(e.message),'pwd':os.getcwd(),'user':os.environ.get('LOGNAME', '')},question='Error seen - would you like to inform the maintainers?')
+		do_phone_home({'err':str(e.message)})
 		sys.exit(1)
 	if shutit_global.shutit.cfg['build']['completed']:
 		sys.exit(0)
 	# Build didn't complete
 	try:
-		do_phone_home({'shutitrunstatus':'fail','pwd':os.getcwd(),'user':os.environ.get('LOGNAME', '')},question='Error seen - would you like to inform the maintainers?')
+		do_phone_home()
 		sys.exit(1)
 	except Exception as e:
 		shutit_global.shutit.log('failed to send message: ' + str(e.message))
