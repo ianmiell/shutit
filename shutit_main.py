@@ -693,14 +693,14 @@ def shutit_main():
 			path_to_shutit = d + '/shutit'
 			if os.path.isfile(os.path.expanduser(d) + '/shutit'):
 				res = util.util_raw_input(prompt='shutit appears not to be on your path - would you like me to add it to your ~/.bashrc (Y/n)? ')
-				if res not in ('n','N'):
-					bashrc = os.path.expanduser('~/') + '.bashrc'
-					if os.path.isfile(path_to_shutit):
-						if os.path.isfile(d + '/shutit'):
-							with open(bashrc, "a") as myfile:
-								#http://unix.stackexchange.com/questions/26676/how-to-check-if-a-shell-is-login-interactive-batch
-								myfile.write('export PATH="$PATH:' + os.path.expanduser(d) + '"\n')
-								break
+				if res in ('n','N'):
+					continue
+				bashrc = os.path.expanduser('~/') + '.bashrc'
+				if os.path.isfile(path_to_shutit) and os.path.isfile(d + '/shutit'):
+					with open(bashrc, "a") as myfile:
+						#http://unix.stackexchange.com/questions/26676/how-to-check-if-a-shell-is-login-interactive-batch
+						myfile.write('export PATH="$PATH:' + os.path.expanduser(d) + '"\n')
+					break
 		if done == False:
 			while True:
 				res = util.util_raw_input(prompt='shutit appears not to be on your path - please input the path to your shutit dir\n')
