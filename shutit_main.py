@@ -230,8 +230,14 @@ def config_collection_for_built(shutit):
 							value = config_parser.get(section,option)
 							if option == 'shutit.core.module.allowed_images':
 								value = json.loads(value)
-							shutit.get_config(module_id, option,
-							                  value, forcedefault=True)
+							is_bool = (type(shutit.cfg[module_id][option]) == bool)
+							shutit.get_config(
+								module_id,
+								option,
+								value,
+								boolean=is_bool,
+								forcedefault=True
+							)
 	# Check the allowed_images against the base_image
 	ok = None
 	passed = True
