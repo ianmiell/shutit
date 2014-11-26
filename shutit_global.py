@@ -1789,8 +1789,21 @@ class ShutIt(object):
 		else:
 			if default == None and forcenone != True:
 				self.fail('Config item: ' + option + ':\nin module:\n[' + module_id + ']\nmust be set!\n\nOften this is a deliberate requirement to place in your ~/.shutit/config file.', throw_exception=False)
-			self.cfg[module_id][option] = default
-
+			# have to cater for other boolean strings.
+			# ConfigParser.getboolean would normally do this for us
+			elif default is not None and boolean and type(default) is not bool:
+				# https://docs.python.org/2/library/configparser.html - getboolean
+				true  = ["1","yes","true","on"]
+				false = ["0","no","false","off"]
+				if default.lower() in true:
+					self.cfg[module_id][option] = True
+				elif default.lower() in false:
+					self.cfg[module_id][option] = False
+				else:
+					# Technically should raise ValueError?
+					self.cfg[module_id][option] = default
+			else:
+				self.cfg[module_id][option] = default
 
 	def record_config(self):
 		""" Put the config in a file in the target.
