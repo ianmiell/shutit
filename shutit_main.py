@@ -805,7 +805,10 @@ def do_phone_home(msg=None,question='Error seen - would you like to inform the m
 	msg.update({'shutitrunstatus':'fail','pwd':os.getcwd(),'user':os.environ.get('LOGNAME', '')})
 	if question != '' and util.util_raw_input(prompt=question + ' (Y/n)\n') not in ('y','Y',''):
 		return
-	urllib.urlopen("http://shutit.tk?" + urllib.urlencode(msg))
+	try:
+		urllib.urlopen("http://shutit.tk?" + urllib.urlencode(msg))
+	except Exception as e:
+		shutit_global.shutit.log('failed to send message: ' + str(e.message))
 
 
 if __name__ == '__main__':
@@ -816,13 +819,7 @@ if __name__ == '__main__':
 		print e
 		do_phone_home({'err':str(e.message)})
 		sys.exit(1)
-	if shutit_global.shutit.cfg['build']['completed']:
-		sys.exit(0)
-	# Build didn't complete
-	try:
+	if not shutit_global.shutit.cfg['build']['completed']:
 		do_phone_home()
 		sys.exit(1)
-	except Exception as e:
-		shutit_global.shutit.log('failed to send message: ' + str(e.message))
-		# We don't know what went wrong here, so don't return error
-		sys.exit(0)
+	sys.exit(0)
