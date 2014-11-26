@@ -670,37 +670,28 @@ def shutit_module_init(shutit):
 
 def setup_shutit_path():
 	# try the current directory, the .. directory, or the ../shutit directory, the ~/shutit
-	pwd = os.getcwd()
+	res = util.util_raw_input(prompt='shutit appears not to be on your path - should try and we find it and add it to your ~/.bashrc (Y/n)?')
+	if res in ['n','N']:
+		return
 	path_to_shutit = ''
-	done = False
-	for d in ('.','..','~','~/shutit'):
-		path_to_shutit = d + '/shutit'
-		if os.path.isfile(os.path.expanduser(d) + '/shutit'):
-			res = util.util_raw_input(prompt='shutit appears not to be on your path - would you like me to add it to your ~/.bashrc (Y/n)? ')
-			if res in ('n','N'):
-				continue
-			bashrc = os.path.expanduser('~/') + '.bashrc'
-			if os.path.isfile(path_to_shutit) and os.path.isfile(d + '/shutit'):
-				with open(bashrc, "a") as myfile:
-					#http://unix.stackexchange.com/questions/26676/how-to-check-if-a-shell-is-login-interactive-batch
-					myfile.write('export PATH="$PATH:' + os.path.expanduser(d) + '"\n')
-				break
-	if done == False:
-		while True:
-			res = util.util_raw_input(prompt='shutit appears not to be on your path - please input the path to your shutit dir\n')
-			if os.path.isfile(os.path.expanduser(res) + '/shutit'):
-				path_to_shutit = res + '/shutit'
-				bashrc = os.path.expanduser('~/') + '.bashrc'
-				if os.path.isfile(path_to_shutit):
-					with open(bashrc, "a") as myfile:
-						myfile.write('\nexport PATH="$PATH:' + path_to_shutit + '"\n')
-						myfile.write('\nexport PATH="$PATH:' + res + '"\n')
-						done = True
-						break
+	for d in ['.','..','~','~/shutit']:
+		path = os.path.abspath(d + '/shutit')
+		if not os.path.isfile(path):
+			continue
+		path_to_shutit = path
+	while path_to_shutit == '':
+		d = util.util_raw_input(prompt='cannot auto-find shutit - please input the path to your shutit dir\n')
+		path = os.path.abspath(d + '/shutit')
+		if not os.path.isfile(path):
+			continue
+		path_to_shutit = path
 	if path_to_shutit != '':
-		if done == False:
-			util.util_raw_input(prompt='\nPath set up - please open new terminal and re-run command\n')
-			sys.exit()
+		bashrc = os.path.expanduser('~/.bashrc')
+		with open(bashrc, "a") as myfile:
+			#http://unix.stackexchange.com/questions/26676/how-to-check-if-a-shell-is-login-interactive-batch
+			myfile.write('\nexport PATH="$PATH:' + os.path.dirname(path_to_shutit) + '"\n')
+		util.util_raw_input(prompt='\nPath set up - please open new terminal and re-run command\n')
+		sys.exit()
 
 
 def shutit_main():
