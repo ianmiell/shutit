@@ -44,7 +44,7 @@ import base64
 import subprocess
 import getpass
 import StringIO
-import copy
+import glob
 import hashlib
 import urlparse
 import urllib2
@@ -805,14 +805,15 @@ def load_all_from_path(shutit, path):
 		return
 	if not os.path.exists(path):
 		return
-	for root, subFolders, files in os.walk(path):
-		# If a STOP file exists, ignore this folder
-		if os.path.exists(root + '/STOPBUILD') and not shutit.cfg['build']['ignorestop']:
-			shutit.log('Ignoring directory: ' + root + ' as it has a STOPBUILD file in it. Pass --ignorestop to shutit run to override.', force_stdout=True)
-			continue
-		for fname in files:
-			load_mod_from_file(shutit, os.path.join(root, fname))
-
+	if os.path.exists(path + '/STOPBUILD') and not shutit.cfg['build']['ignorestop']:
+		shutit.log('Ignoring directory: ' + path + ' as it has a STOPBUILD file in it. Pass --ignorestop to shutit run to override.', force_stdout=True)
+		return
+	for sub in glob.glob(os.path.join(path, '*')):
+		subpath = os.path.join(path, sub)
+		if os.path.isfile(subpath):
+			load_mod_from_file(shutit, subpath)
+		elif os.path.isdir(subpath):
+			load_all_from_path(shutit, subpath)
 
 def load_mod_from_file(shutit, fpath):
 	"""Loads modules from a .py file into ShutIt if there are no modules from
