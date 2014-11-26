@@ -26,6 +26,7 @@
 
 from shutit_module import ShutItModule, ShutItException
 import util
+import urllib
 import shutit_global
 import sys
 import os
@@ -812,26 +813,20 @@ def do_phone_home(msg,question=''):
 
 
 if __name__ == '__main__':
-	phone_home = False
-	try:
-		import urllib
-		phone_home = True
-	except:
-		pass
 	try:
 		shutit_main()
 	except ShutItException as e:
 		print 'Error while executing: ' + str(e.message)
-		if phone_home:
-			print e
-			do_phone_home({'shutitrunstatus':'fail','err':str(e.message),'pwd':os.getcwd(),'user':os.environ.get('LOGNAME', '')},question='Error seen - would you like to inform the maintainers?')
+		print e
+		do_phone_home({'shutitrunstatus':'fail','err':str(e.message),'pwd':os.getcwd(),'user':os.environ.get('LOGNAME', '')},question='Error seen - would you like to inform the maintainers?')
 		sys.exit(1)
-	if phone_home:
-		try:
-			if not shutit_global.shutit.cfg['build']['completed']:
-				do_phone_home({'shutitrunstatus':'fail','pwd':os.getcwd(),'user':os.environ.get('LOGNAME', '')},question='Error seen - would you like to inform the maintainers?')
-				sys.exit(1)
-		except Exception as e:
-			shutit_global.shutit.log('failed to send message: ' + str(e.message))
-			# We don't know what went wrong here, so don't return error
-			sys.exit(0)
+	if shutit_global.shutit.cfg['build']['completed']:
+		sys.exit(0)
+	# Build didn't complete
+	try:
+		do_phone_home({'shutitrunstatus':'fail','pwd':os.getcwd(),'user':os.environ.get('LOGNAME', '')},question='Error seen - would you like to inform the maintainers?')
+		sys.exit(1)
+	except Exception as e:
+		shutit_global.shutit.log('failed to send message: ' + str(e.message))
+		# We don't know what went wrong here, so don't return error
+		sys.exit(0)
