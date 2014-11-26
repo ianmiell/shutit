@@ -227,7 +227,11 @@ def config_collection_for_built(shutit):
 				for section in config_parser.sections():
 					if section == module_id:
 						for option in config_parser.options(section):
-							value = config_parser.get(section,option)
+							is_bool = (type(shutit.cfg[module_id][option]) == bool)
+							if is_bool:
+								value = config_parser.getboolean(section,option)
+							else:
+								value = config_parser.get(section,option)
 							if option == 'shutit.core.module.allowed_images':
 								value = json.loads(value)
 							shutit.get_config(module_id, option,
