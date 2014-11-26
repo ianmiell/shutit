@@ -1789,8 +1789,7 @@ class ShutIt(object):
 		else:
 			if default == None and forcenone != True:
 				self.fail('Config item: ' + option + ':\nin module:\n[' + module_id + ']\nmust be set!\n\nOften this is a deliberate requirement to place in your ~/.shutit/config file.', throw_exception=False)
-			else:
-				self.cfg[module_id][option] = default
+			self.cfg[module_id][option] = default
 
 	def record_config(self):
 		""" Put the config in a file in the target.
