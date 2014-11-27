@@ -230,9 +230,9 @@ def shutit_reset():
 		for module_id in shutit.shutit_map:
 			ORIG_MOD_CFG[module_id] = STATUS['cfg'][module_id] = shutit.cfg[module_id]
 		# Add in core sections
-		for module_id in ['repository', 'container']:
+		for module_id in ['repository', 'target']:
 			ORIG_MOD_CFG[module_id] = STATUS['cfg'][module_id] = shutit.cfg[module_id]
-			
+
 		# Make sure that ORIG_MOD_CFG can be updated seperately to
 		# STATUS and shutit.cfg (which remain linked), as it will hold
 		# our overrides
