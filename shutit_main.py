@@ -819,6 +819,8 @@ if __name__ == '__main__':
 		shutit_main()
 	except ShutItException as e:
 		print 'Error while executing: ' + str(e.message)
+		sys.exit(1)
+	except Exception as e:
 		print e
 		do_phone_home({'err':str(e.message)})
 		sys.exit(1)
