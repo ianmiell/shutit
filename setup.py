@@ -533,7 +533,9 @@ class setup(ShutItModule):
 		"""
 		do_update = shutit.cfg[self.module_id]['do_update']
 		shutit.send("sed -i 's/.*HISTSIZE=[0-9]*$//' ~/.bashrc") 
-		shutit.send("sed -i 's/.*HISTSIZE=[0-9]*$//' /etc/bash.bashrc") 
+		# eg centos doesn't have this
+		if shutit.file_exists('/etc/bash.bashrc'):
+			shutit.send("sed -i 's/.*HISTSIZE=[0-9]*$//' /etc/bash.bashrc") 
 		shutit.send("sed -i 's/.*HISTSIZE=[0-9]*$//' /etc/profile") 
 		shutit.add_to_bashrc('export HISTSIZE=99999999')
 		if shutit.cfg['target']['install_type'] == 'apt':
