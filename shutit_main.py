@@ -264,9 +264,7 @@ def config_collection_for_built(shutit):
 				      '\n\nIs your shutit_module_path set correctly?' +
 				      '\n\nIf you want to ignore this, ' + 
 				      'pass in the --ignoreimage flag to shutit.\n\n')
-	# Having printed out all the warnings, let's exit.
 	if not passed:
-		# Exit without error code so that it plays nice with tests.
 		raise ShutItFailException('Allowed images checking failed')
 
 
