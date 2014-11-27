@@ -724,6 +724,7 @@ def shutit_main():
 
 	if cfg['action']['serve']:
 		import shutit_srv
+		cfg['build']['interactive'] = 0
 		shutit_srv.start()
 		return
 
