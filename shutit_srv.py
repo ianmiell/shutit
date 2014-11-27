@@ -71,7 +71,7 @@ def update_modules(to_build, cfg):
 
 	selected = set(to_build)
 	for module_id in shutit.cfg:
-		if module_id in ORIG_MOD_CFG and 'shutut.core.module.build' in ORIG_MOD_CFG[module_id]:
+		if module_id in ORIG_MOD_CFG and 'shutit.core.module.build' in ORIG_MOD_CFG[module_id]:
 			shutit.cfg[module_id]['shutit.core.module.build'] = ORIG_MOD_CFG[module_id]['shutit.core.module.build']
 		if module_id in selected:
 			shutit.cfg[module_id]['shutit.core.module.build'] = True
