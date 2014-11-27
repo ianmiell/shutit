@@ -803,6 +803,8 @@ def do_phone_home(msg=None,question='Error seen - would you like to inform the m
 	"""
 	if msg is None:
 		msg = {}
+	if shutit_global.shutit.cfg['build']['interactive'] == 0:
+		return
 	msg.update({'shutitrunstatus':'fail','pwd':os.getcwd(),'user':os.environ.get('LOGNAME', '')})
 	if question != '' and util.util_raw_input(prompt=question + ' (Y/n)\n') not in ('y','Y',''):
 		return
