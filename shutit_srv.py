@@ -71,7 +71,7 @@ def update_modules(to_build, cfg):
 
 	selected = set(to_build)
 	for module_id in shutit.cfg:
-		if module_id in ORIG_MOD_CFG and 'shutut.core.module.build' in ORIG_MOD_CFG[module_id]:
+		if module_id in ORIG_MOD_CFG and 'shutit.core.module.build' in ORIG_MOD_CFG[module_id]:
 			shutit.cfg[module_id]['shutit.core.module.build'] = ORIG_MOD_CFG[module_id]['shutit.core.module.build']
 		if module_id in selected:
 			shutit.cfg[module_id]['shutit.core.module.build'] = True
@@ -212,6 +212,7 @@ def shutit_reset():
 		# This has already happened but we have to do it again on top of our new
 		# shutit object
 		util.parse_args(shutit.cfg)
+		shutit.cfg['build']['interactive'] = 0
 
 		# The rest of the loading from shutit_main
 		util.load_configs(shutit)
@@ -222,6 +223,7 @@ def shutit_reset():
 		else:
 			STATUS['image_tag'] = shutit.cfg['target']['docker_image']
 		shutit_main.conn_target(shutit)
+		shutit_main.config_collection_for_built(shutit)
 
 		# Some hacks for server mode
 		shutit.cfg['build']['build_log'] = StringIO.StringIO()
@@ -230,9 +232,9 @@ def shutit_reset():
 		for module_id in shutit.shutit_map:
 			ORIG_MOD_CFG[module_id] = STATUS['cfg'][module_id] = shutit.cfg[module_id]
 		# Add in core sections
-		for module_id in ['repository', 'container']:
+		for module_id in ['repository', 'target']:
 			ORIG_MOD_CFG[module_id] = STATUS['cfg'][module_id] = shutit.cfg[module_id]
-			
+
 		# Make sure that ORIG_MOD_CFG can be updated seperately to
 		# STATUS and shutit.cfg (which remain linked), as it will hold
 		# our overrides
@@ -258,12 +260,7 @@ def start():
 	host = os.environ.get('SHUTIT_HOST', '0.0.0.0')
 	port = int(os.environ.get('SHUTIT_PORT', 8080))
 	bottle.debug(True)
-	try:
-		import cherrypy
-		bottle.run(host=host, port=port, server='cherrypy')
-	except:
-		print "WARNING: falling back to single threaded mode"
-		bottle.run(host=host, port=port)
+	bottle.run(host=host, port=port)
 
 if __name__ == '__main__':
 	print "PLEASE START VIA SHUTIT_MAIN INSTEAD"
