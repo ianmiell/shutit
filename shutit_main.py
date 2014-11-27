@@ -24,7 +24,7 @@
 """ShutIt is a means of building stateless target hosts in a flexible and predictable way.
 """
 
-from shutit_module import ShutItModule, ShutItException
+from shutit_module import ShutItModule, ShutItException, ShutItFailException
 import ConfigParser
 import util
 import urllib
@@ -267,7 +267,7 @@ def config_collection_for_built(shutit):
 	# Having printed out all the warnings, let's exit.
 	if not passed:
 		# Exit without error code so that it plays nice with tests.
-		sys.exit(0)
+		raise ShutItFailException('Allowed images checking failed')
 
 
 def conn_target(shutit):
