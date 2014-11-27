@@ -718,6 +718,7 @@ def shutit_main():
 
 	if cfg['action']['skeleton']:
 		util.create_skeleton(shutit)
+		cfg['build']['completed'] = True
 		return
 
 	if cfg['action']['serve']:
