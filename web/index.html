@@ -170,7 +170,13 @@ var ConfigSection = React.createClass({
 		var elts = [],
 			keys = Object.keys(this.props.cfgs),
 			expanded = this.state.expanded,
-			advanced = ['shutit.core.module.build','shutit.core.module.remove','shutit.core.module.build_ifneeded'];
+			advanced = [
+				'shutit.core.module.build',
+				'shutit.core.module.remove',
+				'shutit.core.module.build_ifneeded',
+				'shutit.core.module.allowed_images',
+				'shutit.core.module.tag'
+			];
 		keys.sort();
 		keys.map((function (key) {
 			if (!this.props.advanced && advanced.indexOf(key) > -1) { return; }
