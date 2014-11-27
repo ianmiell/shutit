@@ -24,8 +24,10 @@
 """ShutIt is a means of building stateless target hosts in a flexible and predictable way.
 """
 
-from shutit_module import ShutItModule, ShutItException
+from shutit_module import ShutItModule, ShutItException, ShutItFailException
+import ConfigParser
 import util
+import urllib
 import shutit_global
 import sys
 import os
@@ -221,7 +223,6 @@ def config_collection_for_built(shutit):
 			cfg_file = os.path.dirname(module.__module_file) + '/configs/build.cnf'
 			if os.path.isfile(cfg_file):
 				# use shutit.get_config, forcing the passed-in default
-				import ConfigParser
 				config_parser = ConfigParser.ConfigParser()
 				config_parser.read(cfg_file)
 				for section in config_parser.sections():
@@ -263,10 +264,8 @@ def config_collection_for_built(shutit):
 				      '\n\nIs your shutit_module_path set correctly?' +
 				      '\n\nIf you want to ignore this, ' + 
 				      'pass in the --ignoreimage flag to shutit.\n\n')
-	# Having printed out all the warnings, let's exit.
-	if not passed: 
-		# Exit without error code so that it plays nice with tests.
-		sys.exit(0)
+	if not passed:
+		raise ShutItFailException('Allowed images checking failed')
 
 
 def conn_target(shutit):
@@ -667,9 +666,35 @@ def shutit_module_init(shutit):
 	config_collection(shutit)
 
 
+def setup_shutit_path():
+	# try the current directory, the .. directory, or the ../shutit directory, the ~/shutit
+	res = util.util_raw_input(prompt='shutit appears not to be on your path - should try and we find it and add it to your ~/.bashrc (Y/n)?')
+	if res in ['n','N']:
+		return
+	path_to_shutit = ''
+	for d in ['.','..','~','~/shutit']:
+		path = os.path.abspath(d + '/shutit')
+		if not os.path.isfile(path):
+			continue
+		path_to_shutit = path
+	while path_to_shutit == '':
+		d = util.util_raw_input(prompt='cannot auto-find shutit - please input the path to your shutit dir\n')
+		path = os.path.abspath(d + '/shutit')
+		if not os.path.isfile(path):
+			continue
+		path_to_shutit = path
+	if path_to_shutit != '':
+		bashrc = os.path.expanduser('~/.bashrc')
+		with open(bashrc, "a") as myfile:
+			#http://unix.stackexchange.com/questions/26676/how-to-check-if-a-shell-is-login-interactive-batch
+			myfile.write('\nexport PATH="$PATH:' + os.path.dirname(path_to_shutit) + '"\n')
+		util.util_raw_input(prompt='\nPath set up - please open new terminal and re-run command\n')
+		sys.exit()
+
+
 def shutit_main():
 	"""Main ShutIt function.
-	
+
 	Handles the configured actions:
 
 	- skeleton    - create skeleton module
@@ -683,40 +708,8 @@ def shutit_main():
 
 	# Try and ensure shutit is on the path - makes onboarding easier
 	# Only do this if we're in a terminal
-	if sys.stdout.isatty():
-		if spawn.find_executable('shutit') is None:
-			# try the current directory, the .. directory, or the ../shutit directory, the ~/shutit
-			pwd = os.getcwd()
-			path_to_shutit = ''
-			done = False
-			for d in ('.','..','~','~/shutit'):
-				path_to_shutit = d + '/shutit'
-				if os.path.isfile(os.path.expanduser(d) + '/shutit'):
-					res = util.util_raw_input(prompt='shutit appears not to be on your path - would you like me to add it to your ~/.bashrc (Y/n)? ')
-					if res not in ('n','N'):
-						bashrc = os.path.expanduser('~/') + '.bashrc'
-						if os.path.isfile(path_to_shutit):
-							if os.path.isfile(d + '/shutit'):
-								with open(bashrc, "a") as myfile:
-									#http://unix.stackexchange.com/questions/26676/how-to-check-if-a-shell-is-login-interactive-batch
-									myfile.write('export PATH="$PATH:' + os.path.expanduser(d) + '"\n')
-									break
-			if done == False:
-				while True:
-					res = util.util_raw_input(prompt='shutit appears not to be on your path - please input the path to your shutit dir\n')
-					if os.path.isfile(os.path.expanduser(res) + '/shutit'):
-						path_to_shutit = res + '/shutit'
-						bashrc = os.path.expanduser('~/') + '.bashrc'
-						if os.path.isfile(path_to_shutit):
-							with open(bashrc, "a") as myfile:
-								myfile.write('\nexport PATH="$PATH:' + path_to_shutit + '"\n')
-								myfile.write('\nexport PATH="$PATH:' + res + '"\n')
-								done = True
-								break
-			if path_to_shutit != '':
-				if done == False:
-					util.util_raw_input(prompt='\nPath set up - please open new terminal and re-run command\n')
-					sys.exit()
+	if sys.stdout.isatty() and spawn.find_executable('shutit') is None:
+		setup_shutit_path()
 
 	shutit = shutit_global.shutit
 	cfg = shutit.cfg
@@ -729,6 +722,7 @@ def shutit_main():
 
 	if cfg['action']['serve']:
 		import shutit_srv
+		cfg['build']['interactive'] = 0
 		shutit_srv.start()
 		return
 
@@ -800,38 +794,35 @@ def shutit_main():
 	shutit.cfg['build']['completed'] = True
 
 
-def do_phone_home(msg,question=''):
-	"""Report message home. 
+def do_phone_home(msg=None,question='Error seen - would you like to inform the maintainers?'):
+	"""Report message home.
 	msg - message to send home
 	question - question to ask - assumes Y/y for send message, else no
 	"""
-	if question != '':
-		if util.util_raw_input(prompt=question + ' (Y/n)\n') not in ('y','Y',''):
-			return
-	urllib.urlopen("http://shutit.tk?" + urllib.urlencode(msg))
+	if msg is None:
+		msg = {}
+	if shutit_global.shutit.cfg['build']['interactive'] == 0:
+		return
+	msg.update({'shutitrunstatus':'fail','pwd':os.getcwd(),'user':os.environ.get('LOGNAME', '')})
+	if question != '' and util.util_raw_input(prompt=question + ' (Y/n)\n') not in ('y','Y',''):
+		return
+	try:
+		urllib.urlopen("http://shutit.tk?" + urllib.urlencode(msg))
+	except Exception as e:
+		shutit_global.shutit.log('failed to send message: ' + str(e.message))
 
 
 if __name__ == '__main__':
-	phone_home = False
-	try:
-		import urllib
-		phone_home = True
-	except:
-		pass
 	try:
 		shutit_main()
 	except ShutItException as e:
 		print 'Error while executing: ' + str(e.message)
-		if phone_home:
-			print e
-			do_phone_home({'shutitrunstatus':'fail','err':str(e.message),'pwd':os.getcwd(),'user':os.environ.get('LOGNAME', '')},question='Error seen - would you like to inform the maintainers?')
 		sys.exit(1)
-	if phone_home:
-		try:
-			if not shutit_global.shutit.cfg['build']['completed']:
-				do_phone_home({'shutitrunstatus':'fail','pwd':os.getcwd(),'user':os.environ.get('LOGNAME', '')},question='Error seen - would you like to inform the maintainers?')
-				sys.exit(1)
-		except Exception as e:
-			shutit_global.shutit.log('failed to send message: ' + str(e.message))
-			# We don't know what went wrong here, so don't return error
-			sys.exit(0)
+	except Exception as e:
+		print e
+		do_phone_home({'err':str(e.message)})
+		sys.exit(1)
+	if not shutit_global.shutit.cfg['build']['completed']:
+		do_phone_home()
+		sys.exit(1)
+	sys.exit(0)

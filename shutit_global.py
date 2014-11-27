@@ -1824,6 +1824,7 @@ def init():
 	cfg['build']['build_log']   = None
 	cfg['build']['report']      = ''
 	cfg['build']['debug']       = False
+	cfg['build']['completed']   = False
 	cfg['target']            = {}
 	cfg['host']                 = {}
 	cfg['repository']           = {}

@@ -44,7 +44,7 @@ import base64
 import subprocess
 import getpass
 import StringIO
-import copy
+import glob
 import hashlib
 import urlparse
 import urllib2
@@ -261,7 +261,7 @@ def get_configs(shutit, configs):
 			# Actually show this to the user before failing...
 			shutit.log(fail_str, force_stdout=True)
 			shutit.log('\n\nDo you want me to run this for you? (input y/n)\n', force_stdout=True)
-		if shutit.cfg['action']['serve'] or shutit.cfg['build']['interactive'] == 0 or util_raw_input(shutit=shutit,default='y') == 'y':
+		if shutit.cfg['build']['interactive'] == 0 or util_raw_input(shutit=shutit,default='y') == 'y':
 			for f in files:
 				shutit.log('Correcting insecure file permissions on: ' + f, force_stdout=True)
 				os.chmod(f,0600)
@@ -799,20 +799,21 @@ def load_all_from_path(shutit, path):
 	"""Dynamically imports files within the same directory (in the end, the path).
 	"""
 	#111: handle expanded paths
-	path = os.path.expanduser(path)
+	path = os.path.abspath(path)
 	#http://stackoverflow.com/questions/301134/dynamic-module-import-in-python
 	if os.path.abspath(path) == shutit.shutit_main_dir:
 		return
 	if not os.path.exists(path):
 		return
-	for root, subFolders, files in os.walk(path):
-		# If a STOP file exists, ignore this folder
-		if os.path.exists(root + '/STOPBUILD') and not shutit.cfg['build']['ignorestop']:
-			shutit.log('Ignoring directory: ' + root + ' as it has a STOPBUILD file in it. Pass --ignorestop to shutit run to override.', force_stdout=True)
-			continue
-		for fname in files:
-			load_mod_from_file(shutit, os.path.join(root, fname))
-
+	if os.path.exists(path + '/STOPBUILD') and not shutit.cfg['build']['ignorestop']:
+		shutit.log('Ignoring directory: ' + path + ' as it has a STOPBUILD file in it. Pass --ignorestop to shutit run to override.', force_stdout=True)
+		return
+	for sub in glob.glob(os.path.join(path, '*')):
+		subpath = os.path.join(path, sub)
+		if os.path.isfile(subpath):
+			load_mod_from_file(shutit, subpath)
+		elif os.path.isdir(subpath):
+			load_all_from_path(shutit, subpath)
 
 def load_mod_from_file(shutit, fpath):
 	"""Loads modules from a .py file into ShutIt if there are no modules from
