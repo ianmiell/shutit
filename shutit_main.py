@@ -25,6 +25,7 @@
 """
 
 from shutit_module import ShutItModule, ShutItException
+import ConfigParser
 import util
 import urllib
 import shutit_global
@@ -222,7 +223,6 @@ def config_collection_for_built(shutit):
 			cfg_file = os.path.dirname(module.__module_file) + '/configs/build.cnf'
 			if os.path.isfile(cfg_file):
 				# use shutit.get_config, forcing the passed-in default
-				import ConfigParser
 				config_parser = ConfigParser.ConfigParser()
 				config_parser.read(cfg_file)
 				for section in config_parser.sections():
@@ -265,7 +265,7 @@ def config_collection_for_built(shutit):
 				      '\n\nIf you want to ignore this, ' + 
 				      'pass in the --ignoreimage flag to shutit.\n\n')
 	# Having printed out all the warnings, let's exit.
-	if not passed: 
+	if not passed:
 		# Exit without error code so that it plays nice with tests.
 		sys.exit(0)
 
