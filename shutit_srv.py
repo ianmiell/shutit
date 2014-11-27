@@ -223,6 +223,7 @@ def shutit_reset():
 		else:
 			STATUS['image_tag'] = shutit.cfg['target']['docker_image']
 		shutit_main.conn_target(shutit)
+		shutit_main.config_collection_for_built(shutit)
 
 		# Some hacks for server mode
 		shutit.cfg['build']['build_log'] = StringIO.StringIO()
