@@ -14,13 +14,20 @@ class buildroot(ShutItModule):
 		shutit.install('wget')
 		shutit.install('build-essential')
 		shutit.install('ncurses-dev')
+		shutit.install('rsync')
+		shutit.install('python')
+		shutit.install('unzip')
+		shutit.install('bc')
 		shutit.send('mkdir -p /opt/buildroot')
 		shutit.send('pushd /opt/buildroot')
 		shutit.send('wget http://buildroot.uclibc.org/downloads/buildroot-2014.08.tar.gz')
 		shutit.send('gunzip buildroot-2014.08.tar.gz')
-		shutit.send('tar -xvf buildroot-2014.08.tar')
+		shutit.send('tar -xf buildroot-2014.08.tar')
+		shutit.send('ls -r | tail -1 | xargs -IXXX ln -s XXX buildroot')
 		shutit.send('unset CC')
 		shutit.send('unset CXX')
+		shutit.send_host_file('/opt/buildroot/buildroot/.config','context/config.shutitdist.base')
+		shutit.send('make')
 		return True
 
 	#def get_config(self, shutit):
