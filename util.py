@@ -971,7 +971,7 @@ def create_skeleton(shutit):
 	buildpushsh_path      = os.path.join(skel_path, 'bin', 'build_and_push.sh')
 	buildcnf_path         = os.path.join(skel_path, 'configs', 'build.cnf')
 	pushcnf_path          = os.path.join(skel_path, 'configs', 'push.cnf')
-	builddockerfile_path  = os.path.join(skel_path, 'dockerfile', 'Dockerfile')
+	builddockerfile_path  = os.path.join(skel_path, 'Dockerfile')
 
 	if skel_dockerfile:
 		if os.path.basename(skel_dockerfile) != 'Dockerfile':
