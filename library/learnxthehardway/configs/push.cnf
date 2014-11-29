@@ -1,0 +1,29 @@
+###############################################################################
+# PLEASE NOTE: This file should be changed only by the maintainer.
+# PLEASE NOTE: IF YOU WANT TO CHANGE THE CONFIG, PASS IN
+#              --config configfilename
+#              OR ADD DETAILS TO YOUR
+#              ~/.shutit/config
+#              FILE
+###############################################################################
+[target]
+rm:false
+
+[repository]
+name:learnxthehardway
+# COPY THESE TO YOUR ~/.shutit/config FILE AND FILL OUT ITEMS IN CAPS
+#user:YOUR_USERNAME
+## Fill these out in server- and username-specific config (also in this directory)
+#password:YOUR_REGISTRY_PASSWORD_OR_BLANK
+## Fill these out in server- and username-specific config (also in this directory)
+#email:YOUR_REGISTRY_EMAIL_OR_BLANK
+#tag:no
+#push:yes
+#save:no
+#export:no
+##server:REMOVE_ME_FOR_DOCKER_INDEX
+## tag suffix, defaults to "latest", eg registry/username/repository:latest.
+## empty is also "latest"
+#tag_name:latest
+#suffix_date:no
+#suffix_format:%s
