@@ -1,0 +1,5 @@
+[repository]
+do_repository_work:yes
+
+[target]
+rm:no
