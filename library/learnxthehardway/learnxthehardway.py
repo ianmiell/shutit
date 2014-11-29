@@ -56,9 +56,9 @@ class learnxthehardway(ShutItModule):
 
 def module():
 	return learnxthehardway(
-		'shutit.tk.learnxthehardway.learnxthehardway', 0.1125183957,
+		'shutit.tk.learnxthehardway.learnxthehardway', 0.331125183957,
 		description='',
-		maintainer='',
-		depends=['shutit.tk.setup']
+		maintainer='ian.miell@gmail.com',
+		depends=['shutit.tk.vnc.vnc']
 	)
 
