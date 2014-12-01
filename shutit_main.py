@@ -228,6 +228,13 @@ def config_collection_for_built(shutit):
 				for section in config_parser.sections():
 					if section == module_id:
 						for option in config_parser.options(section):
+							override = False
+							for mod, opt, val in shutit.cfg['build']['config_overrides']:
+								# skip overrides
+								if mod == module_id and opt == option:
+									override = True
+							if override:
+								continue
 							is_bool = (type(shutit.cfg[module_id][option]) == bool)
 							if is_bool:
 								value = config_parser.getboolean(section,option)
