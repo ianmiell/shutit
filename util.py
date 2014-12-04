@@ -698,7 +698,7 @@ def load_configs(shutit):
 				c = c[0]
 			msg = msg + '    \n' + c
 			shutit.log('    ' + c)
-		print textwrap.dedent("""\n""") + msg + textwrap.dedent(colour('31', '[Hit return to continue]'))
+		print textwrap.dedent("""\n""") + msg + textwrap.dedent(colour('31', '\n\n[Hit return to continue]'))
 		util_raw_input(shutit=shutit)
 
 	# Interpret any config overrides, write to a file and add them to the
