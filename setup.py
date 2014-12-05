@@ -538,6 +538,8 @@ class setup(ShutItModule):
 			shutit.send("sed -i 's/.*HISTSIZE=[0-9]*$//' /etc/bash.bashrc") 
 		shutit.send("sed -i 's/.*HISTSIZE=[0-9]*$//' /etc/profile") 
 		shutit.add_to_bashrc('export HISTSIZE=99999999')
+		# Ignore leading-space commands in the history.
+		shutit.add_to_bashrc('export HISTCONTROL=ignorespace')
 		if shutit.cfg['target']['install_type'] == 'apt':
 			shutit.add_to_bashrc('export DEBIAN_FRONTEND=noninteractive')
 			if do_update:

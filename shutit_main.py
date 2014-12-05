@@ -71,7 +71,7 @@ def stop_all(shutit, run_order=-1):
 	cfg = shutit.cfg
 	if cfg['build']['interactive'] >= 3:
 		print('\nRunning stop on all modules' + \
-			util.colour('31', '\n[Hit return to continue]'))
+			util.colour('31', '\n\n[Hit return to continue]'))
 		util.util_raw_input(shutit=shutit)
 	# sort them to it's stopped in reverse order)
 	for module_id in module_ids(shutit, rev=True):
@@ -92,7 +92,7 @@ def start_all(shutit, run_order=-1):
 	cfg = shutit.cfg
 	if cfg['build']['interactive'] >= 3:
 		print('\nRunning start on all modules' + 
-			util.colour('31', '\n[Hit return to continue]\n'))
+			util.colour('31', '\n\n[Hit return to continue]\n'))
 		util.util_raw_input(shutit=shutit)
 	# sort them to they're started in order)
 	for module_id in module_ids(shutit):

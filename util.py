@@ -606,8 +606,7 @@ def parse_args(cfg):
 			
 			-s section name value
 			================================================================================
-			
-			""" + colour('31', '[Hit return to continue]'))
+			""" + colour('31', '\n[Hit return to continue]'))
 		util_raw_input()
 		print textwrap.dedent("""\
 			================================================================================
@@ -644,8 +643,7 @@ def parse_args(cfg):
 			See shutit_module.py for more detailed documentation on these.
 
 			================================================================================
-
-			""" + colour('31', '[Hit return to continue]'))
+			""" + colour('31', '\n[Hit return to continue]'))
 		util_raw_input()
 		print textwrap.dedent("""\
 			================================================================================
@@ -663,8 +661,7 @@ def parse_args(cfg):
 			To escape a pause point when it happens, hit the "CTRL" and the "]"
 			key simultaneously.
 			================================================================================
-
-			""" + colour('31', '[Hit return to continue]'))
+			""" + colour('31', '\n[Hit return to continue]'))
 		util_raw_input()
 
 def load_configs(shutit):
@@ -698,7 +695,7 @@ def load_configs(shutit):
 				c = c[0]
 			msg = msg + '    \n' + c
 			shutit.log('    ' + c)
-		print textwrap.dedent("""\n""") + msg + textwrap.dedent(colour('31', '[Hit return to continue]'))
+		print textwrap.dedent("""\n""") + msg + textwrap.dedent(colour('31', '\n\n[Hit return to continue]'))
 		util_raw_input(shutit=shutit)
 
 	# Interpret any config overrides, write to a file and add them to the
@@ -741,8 +738,10 @@ def load_shutit_modules(shutit):
 			for m in shutit.shutit_modules:
 				if m.run_order == k:
 					 l.append([m.module_id,str(m.run_order)])
+		count = 0
 		for i in l:
-			print 'loaded module: ' + i[0] + ', ' + i[1]
+			count = count + 1
+			print 'loaded module: ' + i[0] + ', ' + i[1] + ', ' + count
 
 
 def print_config(cfg, hide_password=True, history=False):
