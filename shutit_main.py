@@ -73,10 +73,11 @@ def stop_all(shutit, run_order=-1):
 		print('\nRunning stop on all modules' + \
 			util.colour('31', '\n\n[Hit return to continue]'))
 		util.util_raw_input(shutit=shutit)
-	# sort them to it's stopped in reverse order)
+	# sort them so they're stopped in reverse order
 	for module_id in module_ids(shutit, rev=True):
 		shutit_module_obj = shutit.shutit_map[module_id]
 		if run_order == -1 or shutit_module_obj.run_order <= run_order:
+			# TODO: cache this - it's a big time-waster when libraries get big
 			if is_built(shutit, shutit_module_obj):
 				if not shutit_module_obj.stop(shutit):
 					shutit.fail('failed to stop: ' + \
@@ -94,10 +95,11 @@ def start_all(shutit, run_order=-1):
 		print('\nRunning start on all modules' + 
 			util.colour('31', '\n\n[Hit return to continue]\n'))
 		util.util_raw_input(shutit=shutit)
-	# sort them to they're started in order)
+	# sort them so they're started in order
 	for module_id in module_ids(shutit):
 		shutit_module_obj = shutit.shutit_map[module_id]
 		if run_order == -1 or shutit_module_obj.run_order <= run_order:
+			# TODO: cache this - it's a big time-waster when libraries get big
 			if is_built(shutit, shutit_module_obj):
 				if not shutit_module_obj.start(shutit):
 					shutit.fail('failed to start: ' + module_id, \
