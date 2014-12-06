@@ -741,7 +741,7 @@ def load_shutit_modules(shutit):
 		count = 0
 		for i in l:
 			count = count + 1
-			print 'loaded module: ' + i[0] + ', ' + i[1] + ', ' + count
+			print 'loaded module: ' + i[0] + ', ' + i[1] + ', ' + str(count)
 
 
 def print_config(cfg, hide_password=True, history=False):
