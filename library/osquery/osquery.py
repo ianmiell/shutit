@@ -71,6 +71,6 @@ def module():
 		'shutit.tk.osquery.osquery', 0.11352451,
 		description='Facebook\'s OSQuery sql tool',
 		maintainer='ian.miell@gmail.com',
-		depends==['shutit.tk.rocksdb.rocksdb','shutit.tk.thrift.thrift']
+		depends=['shutit.tk.rocksdb.rocksdb','shutit.tk.thrift.thrift']
 	)
 
