@@ -29,6 +29,10 @@ class osquery(ShutItModule):
 		shutit.install('libprocps3-dev')
 		shutit.install('libsnappy-dev')
 		shutit.install('libunwind8-dev')
+		shutit.install('flex')
+		shutit.install('bison')
+		shutit.install('libtool')
+		shutit.install('automake')
 		shutit.send('pip install jinja2')
 		shutit.send('export CPATH=/usr/lib/x86_64-linux-gnu:/opt/rocksdb/include')
 		shutit.send('export LIBRARY_PATH=/usr/local/lib')
@@ -67,6 +71,6 @@ def module():
 		'shutit.tk.osquery.osquery', 0.11352451,
 		description='Facebook\'s OSQuery sql tool',
 		maintainer='ian.miell@gmail.com',
-		depends=['shutit.tk.rocksdb.rocksdb','shutit.tk.thrift.thrift','shutit.tk.automake.automake','shutit.tk.bison.bison','shutit.tk.libtool.libtool','shutit.tk.flex.flex']
+		depends==['shutit.tk.rocksdb.rocksdb','shutit.tk.thrift.thrift']
 	)
 
