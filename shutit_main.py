@@ -110,8 +110,16 @@ def is_built(shutit, shutit_module_obj):
 	"""Returns true if this module is configured to be built,
 	or if it is already installed.
 	"""
-	return shutit.cfg[shutit_module_obj.module_id]['shutit.core.module.build'] \
-		or shutit_module_obj.is_installed(shutit)
+	if shutit_module_obj.module_id in shutit.cfg['target']['modules_installed']:
+		return True
+	if shutit_module_obj.module_id in shutit.cfg['target']['modules_removed']:
+		return False
+	if shutit.cfg[shutit_module_obj.module_id]['shutit.core.module.build'] \
+		or shutit_module_obj.is_installed(shutit):
+		shutit.cfg['target']['modules_installed'].append(shutit_module_obj.module_id)
+		return True
+	return False
+		
 
 
 def init_shutit_map(shutit):
