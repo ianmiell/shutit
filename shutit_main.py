@@ -117,6 +117,23 @@ def is_built(shutit, shutit_module_obj):
 		shutit.cfg['target']['modules_installed'].append(shutit_module_obj.module_id)
 		return True
 	return False
+
+
+
+def is_ready(shutit, shutit_module_obj):
+	"""Returns true if this module is ready to be built.
+	Caches the result (as it's assumed not to change during the build).
+	"""
+	if shutit_module_obj.module_id in shutit.cfg['target']['modules_ready']:
+		shutit.log('is_ready: returning True from cache')
+		return True
+	ready = shutit_module_obj.check_ready(shutit)
+	if ready:
+		shutit.cfg['target']['modules_ready'].append(shutit_module_obj.module_id)
+		return True
+	else:
+		return False
+	
 		
 
 
@@ -497,7 +514,7 @@ def check_ready(shutit):
 			# the existence of files needed for build)
 			revert_dir = os.getcwd()
 			os.chdir(os.path.dirname(module.__module_file))
-			if not module.check_ready(shutit):
+			if not is_ready(shutit, module):
 				errs.append((module_id + ' not ready to install.\nRead the ' +
 				            'check_ready function in the module,\nor log ' + 
 				            'messages above to determine the issue.\n\n',
@@ -850,7 +867,7 @@ if __name__ == '__main__':
 		print 'Error while executing: ' + str(e.message)
 		sys.exit(1)
 	except Exception as e:
-		print e
+		print e.message
 		do_phone_home({'err':str(e.message)})
 		sys.exit(1)
 	if not shutit_global.shutit.cfg['build']['completed']:
