@@ -531,6 +531,9 @@ class setup(ShutItModule):
 		"""Initializes target ready for build, setting password
 		and updating package management.
 		"""
+		# Get the configured core packages, and whether to perform the package
+		# We put this here so that the server can work (it doesn't call get_config).
+		shutit.get_config(self.module_id, 'do_update', True, boolean=True)
 		do_update = shutit.cfg[self.module_id]['do_update']
 		shutit.send("sed -i 's/.*HISTSIZE=[0-9]*$//' ~/.bashrc") 
 		# eg centos doesn't have this
@@ -566,10 +569,6 @@ class setup(ShutItModule):
 		return True
 
 	def get_config(self, shutit):
-		"""Gets the configured core pacakges, and whether to perform the package
-		management update.
-		"""
-		shutit.get_config(self.module_id, 'do_update', True, boolean=True)
 		return True
 
 

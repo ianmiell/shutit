@@ -112,10 +112,12 @@ def is_built(shutit, shutit_module_obj):
 	"""
 	if shutit_module_obj.module_id in shutit.cfg['target']['modules_installed']:
 		return True
-	if shutit.cfg[shutit_module_obj.module_id]['shutit.core.module.build'] \
-		or shutit_module_obj.is_installed(shutit):
-		shutit.cfg['target']['modules_installed'].append(shutit_module_obj.module_id)
-		return True
+	if shutit.cfg[shutit_module_obj.module_id]['shutit.core.module.build']:
+		if shutit_module_obj.is_installed(shutit):
+			shutit.cfg['target']['modules_installed'].append(shutit_module_obj.module_id)
+			return True
+		else:
+			shutit.cfg['target']['modules_not_installed'].append(shutit_module_obj.module_id)
 	return False
 		
 
@@ -530,6 +532,7 @@ def do_remove(shutit):
 				shutit.send('mkdir -p /root/shutit_build/module_record/' + module.module_id + ' && rm -f /root/shutit_build/module_record/' + module.module_id + '/built && touch /root/shutit_build/module_record/' + module.module_id + '/removed')
 				# Remove from "installed" cache
 				shutit.cfg['target']['modules_installed'].remove(module.module_id)
+				shutit.cfg['target']['modules_not_installed'].append(module.module_id)
 			shutit.logout()
 			
 
@@ -551,6 +554,7 @@ def build_module(shutit, module):
 		shutit.send('mkdir -p /root/shutit_build/module_record/' + module.module_id + ' && touch /root/shutit_build/module_record/' + module.module_id + '/built && rm -f /root/shutit_build/module_record/' + module.module_id + '/removed')
 		# Put it into "installed" cache
 		shutit.cfg['target']['modules_installed'].append(module.module_id)
+		shutit.cfg['target']['modules_not_installed'].remove(module.module_id)
 	shutit.pause_point('\nPausing to allow inspect of build for: ' +
 	                   module.module_id, print_input=True, level=2)
 	cfg['build']['report'] = (cfg['build']['report'] + '\nCompleted module: ' +
