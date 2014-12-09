@@ -86,11 +86,14 @@ def update_modules(to_build, cfg):
 
 	errs = []
 	errs.extend(shutit_main.check_deps(shutit))
+	print '1'
 	# There is a complexity here in that module configs may depend on
 	# configs from other modules (!). We assume this won't happen as we
 	# would have to override each module at the correct time.
 	shutit_main.config_collection_for_built(shutit)
+	print '2'
 	errs.extend(shutit_main.check_conflicts(shutit))
+	print '3'
 	errs.extend(shutit_main.check_ready(shutit))
 
 	# TODO: display an error if (selected and not build)
