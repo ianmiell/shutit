@@ -315,6 +315,7 @@ def get_base_config(cfg, cfg_parser):
 	cfg['target']['stty_cols']                 = 320
 	# installed and removed cache
 	cfg['target']['modules_installed']         = [] # has been installed (in this build or previously)
+	cfg['target']['modules_ready']             = [] # has been checked for readiness and is ready (in this build)
 	#cfg['target']['modules_not_installed']     = [] # has neither been installed nor removed TODO
 	#cfg['target']['modules_removed']           = [] # has been removed (in this build or previously) TODO
 	cfg['host']['resources_dir']                  = cp.get('host', 'resources_dir')
