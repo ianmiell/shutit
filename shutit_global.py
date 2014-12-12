@@ -234,7 +234,8 @@ class ShutIt(object):
 	         fail_on_empty_before=True,
 	         record_command=True,
 	         exit_values=None,
-	         echo=False):
+	         echo=False,
+	         retry=3):
 		"""Send string as a shell command, and wait until the expected output
 		is seen (either a string or any from a list of strings) before
 		returning. The expected string will default to the currently-set
@@ -279,6 +280,9 @@ class ShutIt(object):
 		                               We don't record the command if this is
 		                               set to False unless record_command is
 		                               explicitly passed in as True.
+		- retry                      - Number of times to retry the command if
+		                               the first attempt doesn't work. Useful if
+		                               going to the network.
 		"""
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
@@ -325,41 +329,45 @@ class ShutIt(object):
 			self.log('Sending>>>' + send + '<<<')
 			self.log('Expecting>>>' + str(expect) + '<<<')
 		# Don't echo if echo passed in as False
-		if echo == False:
-			oldlog = child.logfile_send
-			child.logfile_send = None
-			child.sendline(send)
-			expect_res = child.expect(expect, timeout)
-			child.logfile_send = oldlog
-		else:
-			# If we're sending something, send it.
-			if send != None:
+		while retry > 0:
+			if echo == False:
+				oldlog = child.logfile_send
+				child.logfile_send = None
 				child.sendline(send)
-			expect_res = child.expect(expect, timeout)
-		if cfg['build']['debug']:
-			self.log('child.before>>>' + child.before + '<<<')
-			self.log('child.after>>>' + child.after + '<<<')
-		if fail_on_empty_before == True:
-			if child.before.strip() == '':
-				shutit.fail('before empty after sending: ' + str(send) +
-					'\n\nThis is expected after some commands that take a ' + 
-					'password.\nIf so, add fail_on_empty_before=False to ' + 
-					'the send call', child=child)
-		elif fail_on_empty_before == False:
-			# Don't check exit if fail_on_empty_before is False
-			self.log('' + child.before + '<<<')
-			check_exit = False
-			for prompt in cfg['expect_prompts']:
-				if prompt == expect:
-					# Reset prompt
-					self.setup_prompt('reset_tmp_prompt', child=child)
-					self.revert_prompt('reset_tmp_prompt', expect,
-						child=child)
-		# Last output - remove the first line, as it is the previous command.
-		cfg['build']['last_output'] = '\n'.join(child.before.split('\n')[1:])
-		if check_exit == True:
-			# store the output
-			self._check_exit(send, expect, child, timeout, exit_values)
+				expect_res = child.expect(expect, timeout)
+				child.logfile_send = oldlog
+			else:
+				# If we're sending something, send it.
+				if send != None:
+					child.sendline(send)
+				expect_res = child.expect(expect, timeout)
+			if cfg['build']['debug']:
+				self.log('child.before>>>' + child.before + '<<<')
+				self.log('child.after>>>' + child.after + '<<<')
+			if fail_on_empty_before == True:
+				if child.before.strip() == '':
+					shutit.fail('before empty after sending: ' + str(send) +
+						'\n\nThis is expected after some commands that take a ' + 
+						'password.\nIf so, add fail_on_empty_before=False to ' + 
+						'the send call', child=child)
+			elif fail_on_empty_before == False:
+				# Don't check exit if fail_on_empty_before is False
+				self.log('' + child.before + '<<<')
+				check_exit = False
+				for prompt in cfg['expect_prompts']:
+					if prompt == expect:
+						# Reset prompt
+						self.setup_prompt('reset_tmp_prompt', child=child)
+						self.revert_prompt('reset_tmp_prompt', expect,
+							child=child)
+			# Last output - remove the first line, as it is the previous command.
+			cfg['build']['last_output'] = '\n'.join(child.before.split('\n')[1:])
+			if check_exit == True:
+				# store the output
+				if not self._check_exit(send, expect, child, timeout, exit_values):
+					retry = retry - 1
+					continue
+			break
 		if cfg['build']['step_through']:
 			self.pause_point('pause point: stepping through')
 		return expect_res
@@ -372,7 +380,8 @@ class ShutIt(object):
 					expect=None,
 					child=None,
 					timeout=3600,
-					exit_values=None):
+					exit_values=None,
+	                retry=0):
 		"""Internal function to check the exit value of the shell. Do not use.
 		"""
 		if cfg['build']['check_exit'] == False:
@@ -404,8 +413,12 @@ class ShutIt(object):
 				shutit.pause_point(msg + '\n\nPause point on exit_code != 0 (' +
 					res + '). CTRL-C to quit', child=child)
 			else:
-				shutit.fail('Exit value from command\n' + send +
-					'\nwas:\n' + res)
+				if retry > 0:
+					shutit.fail('Exit value from command\n' + send +
+						'\nwas:\n' + res)
+				else:
+					return False
+		return True
 
 
 	def run_script(self, script, expect=None, child=None, in_shell=True):
@@ -1115,7 +1128,7 @@ class ShutIt(object):
 		return None
 
 
-	def send_and_get_output(self, send, expect=None, child=None):
+	def send_and_get_output(self, send, expect=None, child=None, retry=3):
 		"""Returns the output of a command run.
 		send() is called, and exit is not checked.
 
@@ -1125,7 +1138,7 @@ class ShutIt(object):
 		"""
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
-		self.send(send, check_exit=False)
+		self.send(send, check_exit=False, retry=3)
 		return shutit.get_default_child().before.strip(send)
 
 
