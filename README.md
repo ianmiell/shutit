@@ -41,6 +41,11 @@ See here:
 
 http://ianmiell.github.io/shutit/
 
+INSTALLATION
+------------
+
+See [INSTALL](http://github.com/ianmiell/shutit/INSTALL.md)
+
 
 WHAT DOES IT DO?
 ----------------
