@@ -387,7 +387,7 @@ def get_base_config(cfg, cfg_parser):
 		cfg['target']['password'] = getpass.getpass(prompt='Input your target password: ')
 
 # Returns the config dict
-def parse_args(cfg):
+def parse_args(shutit):
 	"""Responsible for parsing arguments.
 
 	TODO: precendence of configs documented
@@ -403,6 +403,7 @@ def parse_args(cfg):
 		eg ' a\ b c\\ \\d \\\e\' becomes '', 'a b', 'c\', '\d', '\\e\'
 		SHUTIT_OPTIONS is ignored if we are creating a skeleton
 	"""
+	cfg = shutit.cfg
 	cfg['host']['real_user_id'] = pexpect.run('id -u ' + cfg['host']['real_user']).strip()
 
 	# These are in order of their creation
@@ -468,6 +469,7 @@ def parse_args(cfg):
 		sub_parsers[action].add_argument('-m', '--shutit_module_path', default=None, help='List of shutit module paths, separated by colons. ShutIt registers modules by running all .py files in these directories.')
 		sub_parsers[action].add_argument('--pause', help='Pause between commands to avoid race conditions.', default='0.05', type=check_pause)
 		sub_parsers[action].add_argument('--debug', help='Show debug.', default=False, const=True, action='store_const')
+		sub_parsers[action].add_argument('--trace', help='Trace function calls', const=True, default=False, action='store_const')
 		sub_parsers[action].add_argument('--interactive', help='Level of interactive. 0 = none, 1 = honour pause points and config prompting, 2 = query user on each module, 3 = tutorial mode', default='1')
 		sub_parsers[action].add_argument('--ignorestop', help='ignore STOP files', const=True, default=False, action='store_const')
 		sub_parsers[action].add_argument('--ignoreimage', help='ignore disallowed images', const=True, default=False, action='store_const')
@@ -567,6 +569,7 @@ def parse_args(cfg):
 			module_paths.append('.')
 		args.set.append(('host', 'shutit_module_path', ':'.join(module_paths)))
 	cfg['build']['debug']            = args.debug
+	cfg['build']['trace']            = args.trace
 	cfg['build']['interactive']      = int(args.interactive)
 	cfg['build']['command_pause']    = float(args.pause)
 	cfg['build']['extra_configs']    = args.config
@@ -668,6 +671,16 @@ def parse_args(cfg):
 			================================================================================
 			""" + colour('31', '\n[Hit return to continue]'))
 		util_raw_input()
+	# Set up trace as fast as possible.
+	if shutit.cfg['build']['trace']:
+		def tracefunc(frame, event, arg, indent=[0]):
+			if event == "call":
+				shutit.log("-> call function: " + frame.f_code.co_name,force_stdout=True)
+			elif event == "return":
+				shutit.log("<- exit function: " + frame.f_code.co_name,force_stdout=True)
+			return tracefunc
+		sys.settrace(tracefunc)
+
 
 def load_configs(shutit):
 	"""Responsible for loading config files into ShutIt.
