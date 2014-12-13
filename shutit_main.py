@@ -751,7 +751,7 @@ def shutit_main():
 	shutit = shutit_global.shutit
 	cfg = shutit.cfg
 
-	util.parse_args(cfg)
+	util.parse_args(shutit)
 
 	if cfg['action']['skeleton']:
 		util.create_skeleton(shutit)
@@ -861,16 +861,16 @@ def do_phone_home(msg=None,question='Error seen - would you like to inform the m
 
 
 if __name__ == '__main__':
-	try:
-		shutit_main()
-	except ShutItException as e:
-		print 'Error while executing: ' + str(e.message)
-		sys.exit(1)
-	except Exception as e:
-		print e.message
-		do_phone_home({'err':str(e.message)})
-		sys.exit(1)
-	if not shutit_global.shutit.cfg['build']['completed']:
-		do_phone_home()
-		sys.exit(1)
-	sys.exit(0)
+	#try:
+	shutit_main()
+	#except ShutItException as e:
+	#	print 'Error while executing: ' + str(e.message)
+	#	sys.exit(1)
+	#except Exception as e:
+	#	print e.message
+	#	do_phone_home({'err':str(e.message)})
+	#	sys.exit(1)
+	#if not shutit_global.shutit.cfg['build']['completed']:
+	#	do_phone_home()
+	#	sys.exit(1)
+	#sys.exit(0)

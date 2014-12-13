@@ -214,7 +214,7 @@ def shutit_reset():
 
 		# This has already happened but we have to do it again on top of our new
 		# shutit object
-		util.parse_args(shutit.cfg)
+		util.parse_args(shutit)
 		shutit.cfg['build']['interactive'] = 0
 
 		# The rest of the loading from shutit_main
