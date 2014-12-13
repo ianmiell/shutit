@@ -125,7 +125,7 @@ do
 				echo "/tmp/SHUTITSTOPTEST file found in /tmp"
 			else
 				# Must be done on each iteration as we ned a fresh cid per test run
-				set_shutit_options "--image_tag $dist --interactive 0"
+				set_shutit_options "--image_tag $dist --interactive 0 --imageerrorok"
 				echo "================================================================================"
 				echo "SHUTIT MODULE TEST $d: In directory: `pwd` BEGIN"
 				echo "================================================================================"

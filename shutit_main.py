@@ -297,7 +297,12 @@ def config_collection_for_built(shutit):
 				      '\n\nIf you want to ignore this, ' + 
 				      'pass in the --ignoreimage flag to shutit.\n\n')
 	if not passed:
-		raise ShutItFailException('Allowed images checking failed')
+		if shutit.cfg['build']['imageerrorok']:
+			# useful for test scripts
+			print('Exiting on allowed images error, with return status 0')
+			sys.exit(0)
+		else:
+			raise ShutItFailException('Allowed images checking failed')
 
 
 def conn_target(shutit):
