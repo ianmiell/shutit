@@ -471,8 +471,9 @@ def parse_args(shutit):
 		sub_parsers[action].add_argument('--debug', help='Show debug.', default=False, const=True, action='store_const')
 		sub_parsers[action].add_argument('--trace', help='Trace function calls', const=True, default=False, action='store_const')
 		sub_parsers[action].add_argument('--interactive', help='Level of interactive. 0 = none, 1 = honour pause points and config prompting, 2 = query user on each module, 3 = tutorial mode', default='1')
-		sub_parsers[action].add_argument('--ignorestop', help='ignore STOP files', const=True, default=False, action='store_const')
-		sub_parsers[action].add_argument('--ignoreimage', help='ignore disallowed images', const=True, default=False, action='store_const')
+		sub_parsers[action].add_argument('--ignorestop', help='Ignore STOP files', const=True, default=False, action='store_const')
+		sub_parsers[action].add_argument('--ignoreimage', help='Ignore disallowed images', const=True, default=False, action='store_const')
+		sub_parsers[action].add_argument('--imageerrorok', help='Exit without error if allowed images fails (used for test scripts)', const=True, default=False, action='store_const')
 
 	args_list = sys.argv[1:]
 	if os.environ.get('SHUTIT_OPTIONS', None) and args_list[0] != 'skeleton':
@@ -576,6 +577,7 @@ def parse_args(shutit):
 	cfg['build']['config_overrides'] = args.set
 	cfg['build']['ignorestop']       = args.ignorestop
 	cfg['build']['ignoreimage']      = args.ignoreimage
+	cfg['build']['imageerrorok']     = args.imageerrorok
 	cfg['build']['tag_modules']      = args.tag_modules
 	cfg['target']['docker_image']    = args.image_tag
 	# Finished parsing args, tutorial stuff
@@ -675,7 +677,7 @@ def parse_args(shutit):
 	if shutit.cfg['build']['trace']:
 		def tracefunc(frame, event, arg, indent=[0]):
 			if event == "call":
-				shutit.log("-> call function: " + frame.f_code.co_name,force_stdout=True)
+				shutit.log("-> call function: " + frame.f_code.co_name + " " + str(frame.f_code.co_varnames),force_stdout=True)
 			elif event == "return":
 				shutit.log("<- exit function: " + frame.f_code.co_name,force_stdout=True)
 			return tracefunc
