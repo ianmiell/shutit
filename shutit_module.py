@@ -166,6 +166,7 @@ class ShutItModule(object):
 			self.conflicts_with = [conflict for conflict in conflicts]
 		self.description = description
 		self.maintainer  = maintainer
+		self.image_allowed = True
 
 
 	########################################################################
