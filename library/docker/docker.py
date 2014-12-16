@@ -31,7 +31,8 @@ class docker(ShutItModule):
 		shutit.install('curl')
 		shutit.install('aufs-tools')
 		shutit.send('pushd /usr/bin')
-		shutit.send('curl https://get.docker.io/builds/Linux/x86_64/docker-latest > docker')
+		# Sensible to pick a relatively old one to avoid client mismatch errors
+		shutit.send('curl https://get.docker.io/builds/Linux/x86_64/docker-1.0.1 > docker')
 		shutit.send('chmod +x docker')
 		wrapdocker = """cat > /usr/bin/wrapdocker << 'END'
 #!/bin/bash
