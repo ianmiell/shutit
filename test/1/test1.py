@@ -18,12 +18,12 @@ class test1(ShutItModule):
 		thing.thing()
 		shutit.send_and_expect('touch /tmp/container_touched')
 		# to test email if desired
-		e = shutit.get_emailer(self.module_id)
-		for line in ['your message line 1', 'your message line 2']:
-			e.add_line(line)
-		for attach in ['/tmp/container_touched']:
-				e.attach(attach)
-		e.send()
+		#e = shutit.get_emailer(self.module_id)
+		#for line in ['your message line 1', 'your message line 2']:
+		#	e.add_line(line)
+		#for attach in ['/tmp/container_touched']:
+		#		e.attach(attach)
+		#e.send()
 		shutit.run_script('''
 #asd
 ls

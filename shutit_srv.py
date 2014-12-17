@@ -93,7 +93,6 @@ def update_modules(to_build, cfg):
 	errs.extend(shutit_main.check_conflicts(shutit))
 	errs.extend(shutit_main.check_ready(shutit))
 
-	# TODO: display an error if (selected and not build)
 	STATUS['errs'] = [err[0] for err in errs]
 	STATUS['modules'] = [
 		{
@@ -102,7 +101,7 @@ def update_modules(to_build, cfg):
 			"run_order":   float(shutit.shutit_map[module_id].run_order),
 			"build":       shutit.cfg[module_id]['shutit.core.module.build'],
 			"selected":    module_id in selected
-		} for module_id in shutit_main.module_ids(shutit)
+		} for module_id in shutit_main.allowed_module_ids(shutit)
 	]
 
 @route('/info', method='POST')
