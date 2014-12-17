@@ -174,7 +174,6 @@ var ConfigSection = React.createClass({
 				'shutit.core.module.build',
 				'shutit.core.module.remove',
 				'shutit.core.module.build_ifneeded',
-				'shutit.core.module.allowed_images',
 				'shutit.core.module.tag'
 			];
 		keys.sort();
@@ -231,6 +230,7 @@ var InfoDisplay = React.createClass({
 				<div><span><small><a href="https://github.com/ianmiell/shutit/">GitHub</a></small></span></div>
 				<div><span><small><a href="http://ianmiell.github.io/shutit/">ShutIt Docs</a></small></span></div>
 				<div><span><small>Container ID: {this.props.cid}</small></span></div>
+				<div><span><small>Base image: {this.props.image_tag}</small></span></div>
 				<br />
 				<input type="checkbox"
 				checked={this.state.advanced} onChange={this.advancedSwitch}>
@@ -388,6 +388,7 @@ var ShutItUI = React.createClass({
 					<InfoDisplay
 						onChange={this.handleChange}
 						cid={this.state.shutit.cid}
+						image_tag={this.state.shutit.image_tag}
 						cfg={this.state.shutit.cfg} />
 				</div>
 				<BuildProgress
