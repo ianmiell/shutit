@@ -1437,3 +1437,12 @@ def util_raw_input(shutit=None, prompt='', default=None):
 			shutit.cfg['build']['interactive'] = 0
 		return default
 
+
+def print_stack_trace():
+	print '================================================================================'
+	print 'Strack trace was:\n================================================================================'
+	import traceback
+	(a,b,c) = sys.exc_info()
+	traceback.print_tb(c)
+	print '================================================================================'
+
