@@ -23,13 +23,15 @@ Configuration in shutit is processed in the following order:
 
 ### Defaults
 
-Defaults exist in the code somewhere.
+Defaults are the config items set in the code.
+
+If a setting is required but not present, an error is thrown on startup.
 
 ### Host Config
 
-A file is automatically created in ~/.shutit/config which is read first by ShutIt.
+A file is automatically created in ~/.shutit/config which is read in by ShutIt after the defaults stage.
 
-This file should contain configuration specific to your host, for example 
+This file should contain configuration specific to your host environment, for example:
 
 ```sh
 [host]
@@ -54,15 +56,24 @@ Just because a module is visible to ShutIt does not mean that it will have its b
 included. It will only be included if the module is a dependency of another module marked for
 building.
 
+
 ### Passed-in Config Files
 
 Any files passed in with the command line argument `--config` are processed immediately prior to
 any `-s` options.
 
 
+### Command Line
+
+Arguments can be passed in on the command line using the -s flag. For example:
+
+```sh
+shutit build -m /opt/git/shutit/library -s host docker_executable mydockerbinary
+```
+
 ## Module Configuration Sections
 
-Modules' configuration uses the module id as the section name, eg:
+Module-level configuration uses the module's string id for the section name, eg:
 
 ```sh
 [com.mycorp.mymodule]
@@ -72,15 +83,18 @@ myname:myvalue
 
 ## Global Configuration Sections
 
+These are documented in the util.py file (search for "Default core config file for ShutIt.").
 
 ## Global Configuaration Names
 
 Some configuration name:value pairs are required for each module:
 
-shutit.core.module.build 
-shutit.core.module.allowed_images
-shutit.core.module.remove
-shutit.core.module.tag
+| name | Description | Example | Default |
+|------|--------|----|----|
+| shutit.core.module.build | Whether to build this module | yes | no |
+| shutit.core.module.allowed_images | ["debian:.*","ubuntu:trusty","johnsmith/.*"] | [".*"] |
+| shutit.core.module.remove | Whether to remove this module at the start of the build | yes | no |
+| shutit.core.module.tag | Whether to tag this module when building it is complete | yes | no |
 
 
 eg to ensure the com.mycorp.mymodule module is built, and to allow it to be 
@@ -112,3 +126,5 @@ Also tells you where the configuration was taken from.
 Note that any name:value pair where the name is "password" is sha1'd when printed out.
 
 ## File permissions
+
+All .cnf files must be secure (ie have permissions of 0600) for ShutIt to successfully start up. This is because they may have plain text passwords or keys in them.
