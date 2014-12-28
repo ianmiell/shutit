@@ -16,8 +16,7 @@ class alfs(ShutItModule):
 		shutit.send('mkdir -p /mnt/build_dir')
 		shutit.send('cd /mnt/build_dir')
 		shutit.send('export LANG=en_GB.UTF-8')
-		# build libxslt
-		shutit.send('mkdir -p /mnt/build_dir/xslt')
+		shutit.send('mkdir -p /mnt/build_dir/xslt') # build libxslt
 		shutit.send('cd /mnt/build_dir/xslt')
 		shutit.send('curl -L http://xmlsoft.org/sources/libxslt-1.1.28.tar.gz | tar -zxf -')
 		shutit.send('cd libxslt-*')
@@ -29,23 +28,22 @@ class alfs(ShutItModule):
 		shutit.send('cd /mnt/build_dir')
 		password = '1ncharge'
 		shutit.set_password(password, user='lfs')
-		shutit.send('echo "lfs ALL=(ALL) ALL" >> /etc/sudoers')
+		shutit.send('echo "lfs ALL=(ALL:ALL) NOPASSWD: ALL" >> /etc/sudoers')
 		# use latest
 		shutit.send('svn co svn://svn.linuxfromscratch.org/ALFS/jhalfs/trunk jhalfs-trunk')
 		shutit.send('cd jhalfs-trunk')
 		# TODO - set locale - http://www.shellhacks.com/en/HowTo-Change-Locale-Language-and-Character-Set-in-Linux
-		shutit.multisend('make config',{'(GETPKG)':'y','(SRC_ARCHIVE)':'','(RETRYSRCDOWNLOAD)':'y','(RETRYDOWNLOADCNT)':'','(DOWNLOADTIMEOUT)':'','(SERVER)':'','(CONFIG_TESTS)':'n','(LANG)':'C','Groff page size':'2','Create SBU':'n','(BOOK_LFS)':'','relSVN':'','(CUSTOM_TOOLS)':'','(BLFS_TOOL)':'','(CONFIG_USER)':'','(BUILDDIR)':'','(CLEAN)':'','(PKGMNGT)':'','(INSTALL_LOG)':'','(HAVE_FSTAB)':'','(CONFIG_BUILD_KERNEL)':'','(STRIP)':'','(VIMLANG)':'','(NO_PROGRESS_BAR)':'','(TIMEZONE)':'','(FULL_LOCALE)':'','(COMPARE)':'','(CONFIG_OPTIMIZE)':'','(SCRIPT_ROOT)':'','(JHALFSDIR)':'','(LOGDIRBASE)':'','(LOGDIR)':'','(TESTLOGDIRBASE)':'','(TESTLOGDIR)':'','(FILELOGDIRBASE)':'','(FILELOGDIR)':'','(ICALOGDIR)':'','(FARCELOGDIR)':'','(MKFILE)':'','(XSL)':'','(PKG_LST)':'','(REBUILD_MAKEFILE)':'','Are you happy with these settings':'','Do you wish':'','oad an Alt':'E'})
-		shutit.send('make')
+		shutit.multisend('gmake config',{r'\(GETPKG\)':'y',r'\(SRC_ARCHIVE\)':'',r'\(RETRYSRCDOWNLOAD\)':'y',r'\(RETRYDOWNLOADCNT\)':'',r'\(DOWNLOADTIMEOUT\)':'',r'\(SERVER\)':'',r'\(CONFIG_TESTS\)':'n',r'\(LANG\)':'C',r'Groff page size':'2',r'Create SBU':'n',r'\(BOOK_LFS\)':'',r'relSVN':'',r'\(CUSTOM_TOOLS\)':'',r'\(BLFS_TOOL\)':'',r'\(CONFIG_USER\)':'',r'\(BUILDDIR\)':'',r'\(CLEAN\)':'',r'\(PKGMNGT\)':'',r'\(INSTALL_LOG\)':'',r'\(HAVE_FSTAB\)':'',r'\(CONFIG_BUILD_KERNEL\)':'',r'\(STRIP\)':'',r'\(VIMLANG\)':'',r'\(NO_PROGRESS_BAR\)':'',r'\(TIMEZONE\)':'',r'\(FULL_LOCALE\)':'',r'\(COMPARE\)':'',r'\(CONFIG_OPTIMIZE\)':'',r'\(SCRIPT_ROOT\)':'',r'\(JHALFSDIR\)':'',r'\(LOGDIRBASE\)':'',r'\(LOGDIR\)':'',r'\(TESTLOGDIRBASE\)':'',r'\(TESTLOGDIR\)':'',r'\(FILELOGDIRBASE\)':'',r'\(FILELOGDIR\)':'',r'\(ICALOGDIR\)':'',r'\(FARCELOGDIR\)':'',r'\(MKFILE\)':'',r'\(XSL\)':'',r'\(PKG_LST\)':'',r'\(REBUILD_MAKEFILE\)':''})
+		shutit.multisend('make',{'Are you happy with these settings':'','Do you wish':'','oad an Alt':'E'},fail_on_empty_before=False)
 		shutit.send(r'''sed -i 's@cd gettext-tools@cd gettext-tools && cp ../gettext-runtime/intl/plural.c ../gettext-runtime/intl/pluralx.c@' /mnt/build_dir/jhalfs/lfs-commands/chapter05/052-gettext''') #HACK: sudo vi 052-gettext 
 		shutit.login('lfs')
 		shutit.send('cd /mnt/build_dir/jhalfs')
-		shutit.multisend('make',{'assword:':password})
+		#shutit.pause_point('')	
+		shutit.send('make')
 		shutit.logout()
-		shutit.send('rm -rf /mnt/build_dir/sources /mnt/build_dir/tools')
+		shutit.send('rm -rf /mnt/build_dir/sources /mnt/build_dir/tools /mnt/build_dir/xslt')
 		shutit.send('cd /mnt/build_dir')
-		shutit.send('tar -cf /lfs.tar .')
-#docker cp id:sd.tar .
-# # copy to artifacts
+		shutit.send('tar -cf /artifacts/lfs.tar .')
 #FROM scratch
 #ADD sd.tar /
 		return True
