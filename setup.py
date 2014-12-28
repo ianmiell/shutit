@@ -259,8 +259,8 @@ class ConnDocker(ShutItConnModule):
 			name_arg = '--name=' + cfg['target']['name']
 		if cfg['target']['hostname'] != '':
 			hostname_arg = '-h=' + cfg['target']['hostname']
-		if cfg['host']['resources_dir'] != '':
-			volume_arg = '-v=' + cfg['host']['resources_dir'] + ':/resources'
+		if cfg['host']['artifacts_dir'] != '':
+			volume_arg = '-v=' + cfg['host']['artifacts_dir'] + ':/artifacts'
 		if cfg['build']['net'] != '':
 			net_arg        = '--net="' + cfg['build']['net'] + '"'
 		# Incompatible with do_repository_work

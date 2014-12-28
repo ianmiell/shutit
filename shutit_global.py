@@ -410,7 +410,7 @@ class ShutIt(object):
 				  'an exit_values array into the send function call.')
 			cfg['build']['report'] = cfg['build']['report'] + msg
 			if cfg['build']['interactive'] >= 1:
-				shutit.pause_point(msg + '\n\nPause point on exit_code != 0 (' +
+				self.pause_point(msg + '\n\nPause point on exit_code != 0 (' +
 					res + '). CTRL-C to quit', child=child)
 			else:
 				if retry > 0:
@@ -926,25 +926,25 @@ class ShutIt(object):
 
 
 	def get_file(self,target_path,host_path):
-		"""Copy a file from the target machine to the host machine, via the resources mount
+		"""Copy a file from the target machine to the host machine, via the artifacts mount
 
 		target_path - path to file in the target
 		host_path      - path to file on the host machine (e.g. copy test)
 		"""
 		filename = os.path.basename(target_path)
-		resources_dir = shutit.cfg['host']['resources_dir']
-		if shutit.get_file_perms('/resources') != "777":
+		artifacts_dir = shutit.cfg['host']['artifacts_dir']
+		if shutit.get_file_perms('/artifacts') != "777":
 			user = shutit.send_and_get_output('whoami').strip()
 			# revert to root to do attachments
 			if user != 'root':
 				shutit.logout()
-			shutit.send('chmod 777 /resources')
+			shutit.send('chmod 777 /artifacts')
 			# we've done what we need to do as root, go home
 			if user != 'root':
 				shutit.login(user)
-		shutit.send('cp ' + target_path + ' /resources')
-		shutil.copyfile(os.path.join(resources_dir,filename),os.path.join(host_path,filename))
-		shutit.send('rm -f /resources/' + filename)
+		shutit.send('cp ' + target_path + ' /artifacts')
+		shutil.copyfile(os.path.join(artifacts_dir,filename),os.path.join(host_path,filename))
+		shutit.send('rm -f /artifacts/' + filename)
 
 
 	def prompt_cfg(self, msg, sec, name, ispass=False):
@@ -1019,13 +1019,17 @@ class ShutIt(object):
 			config_parser.reload()
 		return val
 
+
 	def step_through(self, msg='', child=None, level=1, print_input=True, value=True):
+		"""Implements a step-through function, using pause_point.
+		"""
 		child = child or self.get_default_child()
 		if (not sys.stdout.isatty() or not self.cfg['build']['interactive'] or 
 			self.cfg['build']['interactive'] < level):
 			return
 		self.cfg['build']['step_through'] = value
 		self.pause_point(msg, child=child, print_input=print_input, level=level, resize=False)
+
 
 	def pause_point(self, msg='', child=None, print_input=True, level=1, resize=False):
 		"""Inserts a pause in the build session, which allows the user to try
@@ -1709,7 +1713,7 @@ class ShutIt(object):
 							 '\n[repository]\ntar:yes', print_input=False,
 							 child=child, level=3)
 			if export:
-				bzfile = (cfg['host']['resources_dir'] + '/' + 
+				bzfile = (cfg['host']['artifacts_dir'] + '/' + 
 						  repository_tar + 'export.tar.bz2')
 				self.log('\nDepositing bzip2 of exported container into ' +
 						 bzfile)
@@ -1730,7 +1734,7 @@ class ShutIt(object):
 										  ' | sudo docker import -\n\n' +
 										  'to get this imported into docker.')
 			if save:
-				bzfile = (cfg['host']['resources_dir'] +
+				bzfile = (cfg['host']['artifacts_dir'] +
 						  '/' + repository_tar + 'save.tar.bz2')
 				self.log('\nDepositing bzip2 of exported container into ' +
 						 bzfile)
