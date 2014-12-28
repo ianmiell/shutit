@@ -38,8 +38,9 @@ class alfs(ShutItModule):
 		shutit.multisend('./jhalfs run',{'Do you want to run jhalfs':'yes','Are you happy with these settings':'yes'},timeout=9999999)
 		shutit.login('lfs')
 		shutit.send('cd /mnt/build_dir/jhalfs')
-		shutit.send('make',timeout=999999)
-		shutit.send(r'''sed -i 's@cd gettext-tools@cd gettext-tools && cp ../gettext-runtime/intl/plural.c ../gettext-runtime/intl/pluralx.c@' /mnt/build_dir/jhalfs/lfs-commands/chapter05/052-gettext''') #HACK: sudo vi 052-gettext 
+		shutit.send('make',timeout=999999,exit_values=['0','2']) # this will fail, but needs to be run to get to correct it (next line)
+		shutit.send(r'''sudo sed -i 's@cd gettext-tools@cd gettext-tools && cp ../gettext-runtime/intl/plural.c ../gettext-runtime/intl/pluralx.c@' /mnt/build_dir/jhalfs/lfs-commands/chapter05/052-gettext''') #HACK: sudo vi 052-gettext 
+		shutit.send('make',timeout=999999) # this will fail, but needs to be run to get to correct it (next line)
 		shutit.logout()
 		shutit.send('rm -rf /mnt/build_dir/sources /mnt/build_dir/tools /mnt/build_dir/xslt')
 		shutit.send('cd /mnt/build_dir')
