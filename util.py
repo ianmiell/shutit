@@ -520,6 +520,7 @@ def parse_args(shutit):
 		cfg['skeleton'] = {
 			'path':        args.module_directory,
 			'module_name': args.module_name,
+			'base_image':  args.base_image,
 			'domain':      args.domain,
 			'domainhash':  str(get_hash(args.domain)),
 			'depends':     args.depends,

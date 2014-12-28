@@ -27,12 +27,11 @@ class shutit(ShutItModule):
 	def build(self, shutit):
 		shutit.install('git')
 		shutit.install('python-pip')
-		shutit.send('pushd /opt')
+		shutit.send('cd /opt')
 		shutit.send('git clone https://github.com/ianmiell/shutit.git')
-		shutit.send('pushd shutit')
+		shutit.send('cd shutit')
 		shutit.send('pip install -r requirements.txt')
-		shutit.send('popd')
-		shutit.send('popd')
+		shutit.send('find . | grep cnf | xargs chmod 0600')
 		shutit.add_to_bashrc('export PATH=$PATH:/opt/shutit')
 		return True
 

@@ -22,9 +22,9 @@ from shutit_module import ShutItModule
 class docker(ShutItModule):
 
 	def build(self, shutit):
-		shutit.install('lsb-release')
-		shutit.send('echo deb http://archive.ubuntu.com/ubuntu $(lsb_release -s -c) universe > /etc/apt/sources.list.d/universe.list')
-		shutit.send('apt-get update -qq')
+		#shutit.install('lsb-release')
+		#shutit.send('echo deb http://archive.ubuntu.com/ubuntu $(lsb_release -s -c) universe > /etc/apt/sources.list.d/universe.list')
+		#shutit.send('apt-get update -qq')
 		shutit.install('iptables')
 		shutit.install('ca-certificates')
 		shutit.install('lxc')
@@ -137,6 +137,16 @@ END"""
 		"""Only apt-based systems are supported support atm.
 		"""
 		return shutit.cfg['target']['install_type'] == 'apt'
+
+	def start(self, shutit):
+		shutit.send('/root/start_docker.sh')
+		return True
+
+	def stop(self, shutit):
+		shutit.send('''ps -ef | grep docker..d | awk '{print $2} | xargs -r kill''')
+		shutit.send('''ps -ef | grep wrapdocker | awk '{print $2} | xargs -r kill''')
+		return True
+		
 
 
 def module():
