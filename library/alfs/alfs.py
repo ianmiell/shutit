@@ -33,13 +33,13 @@ class alfs(ShutItModule):
 		shutit.send('svn co svn://svn.linuxfromscratch.org/ALFS/jhalfs/trunk jhalfs-trunk')
 		shutit.send('cd jhalfs-trunk')
 		# TODO - set locale - http://www.shellhacks.com/en/HowTo-Change-Locale-Language-and-Character-Set-in-Linux
-		shutit.multisend('gmake config',{r'\(GETPKG\)':'y',r'\(SRC_ARCHIVE\)':'',r'\(RETRYSRCDOWNLOAD\)':'y',r'\(RETRYDOWNLOADCNT\)':'',r'\(DOWNLOADTIMEOUT\)':'',r'\(SERVER\)':'',r'\(CONFIG_TESTS\)':'n',r'\(LANG\)':'C',r'Groff page size':'2',r'Create SBU':'n',r'\(BOOK_LFS\)':'',r'relSVN':'',r'\(CUSTOM_TOOLS\)':'',r'\(BLFS_TOOL\)':'',r'\(CONFIG_USER\)':'',r'\(BUILDDIR\)':'',r'\(CLEAN\)':'',r'\(PKGMNGT\)':'',r'\(INSTALL_LOG\)':'',r'\(HAVE_FSTAB\)':'',r'\(CONFIG_BUILD_KERNEL\)':'',r'\(STRIP\)':'',r'\(VIMLANG\)':'',r'\(NO_PROGRESS_BAR\)':'',r'\(TIMEZONE\)':'',r'\(FULL_LOCALE\)':'',r'\(COMPARE\)':'',r'\(CONFIG_OPTIMIZE\)':'',r'\(SCRIPT_ROOT\)':'',r'\(JHALFSDIR\)':'',r'\(LOGDIRBASE\)':'',r'\(LOGDIR\)':'',r'\(TESTLOGDIRBASE\)':'',r'\(TESTLOGDIR\)':'',r'\(FILELOGDIRBASE\)':'',r'\(FILELOGDIR\)':'',r'\(ICALOGDIR\)':'',r'\(FARCELOGDIR\)':'',r'\(MKFILE\)':'',r'\(XSL\)':'',r'\(PKG_LST\)':'',r'\(REBUILD_MAKEFILE\)':''})
-		shutit.multisend('make',{'Are you happy with these settings':'','Do you wish':'','oad an Alt':'E'},fail_on_empty_before=False)
-		shutit.send(r'''sed -i 's@cd gettext-tools@cd gettext-tools && cp ../gettext-runtime/intl/plural.c ../gettext-runtime/intl/pluralx.c@' /mnt/build_dir/jhalfs/lfs-commands/chapter05/052-gettext''') #HACK: sudo vi 052-gettext 
+		shutit.multisend('make config',{r'\(GETPKG\)':'y',r'\(SRC_ARCHIVE\)':'',r'\(RETRYSRCDOWNLOAD\)':'y',r'\(RETRYDOWNLOADCNT\)':'',r'\(DOWNLOADTIMEOUT\)':'',r'\(SERVER\)':'',r'\(CONFIG_TESTS\)':'n',r'\(LANG\)':'C',r'Groff page size':'2',r'Create SBU':'n',r'\(BOOK_LFS\)':'',r'relSVN':'',r'\(CUSTOM_TOOLS\)':'',r'\(BLFS_TOOL\)':'',r'\(CONFIG_USER\)':'',r'\(BUILDDIR\)':'',r'\(CLEAN\)':'',r'\(PKGMNGT\)':'',r'\(INSTALL_LOG\)':'',r'\(HAVE_FSTAB\)':'',r'\(CONFIG_BUILD_KERNEL\)':'',r'\(STRIP\)':'',r'\(VIMLANG\)':'',r'\(NO_PROGRESS_BAR\)':'',r'\(TIMEZONE\)':'',r'\(FULL_LOCALE\)':'',r'\(COMPARE\)':'',r'\(CONFIG_OPTIMIZE\)':'',r'\(SCRIPT_ROOT\)':'',r'\(JHALFSDIR\)':'',r'\(LOGDIRBASE\)':'',r'\(LOGDIR\)':'',r'\(TESTLOGDIRBASE\)':'',r'\(TESTLOGDIR\)':'',r'\(FILELOGDIRBASE\)':'',r'\(FILELOGDIR\)':'',r'\(ICALOGDIR\)':'',r'\(FARCELOGDIR\)':'',r'\(MKFILE\)':'',r'\(XSL\)':'',r'\(PKG_LST\)':'',r'\(REBUILD_MAKEFILE\)':'',r'\(RUNMAKE\)':'y'})
+		shutit.send('touch configuration.old') # cheat to avoid error
+		shutit.multisend('./jhalfs run',{'Are you happy with these settings':'yes'},timeout=9999999)
 		shutit.login('lfs')
 		shutit.send('cd /mnt/build_dir/jhalfs')
-		#shutit.pause_point('')	
 		shutit.send('make')
+		shutit.send(r'''sed -i 's@cd gettext-tools@cd gettext-tools && cp ../gettext-runtime/intl/plural.c ../gettext-runtime/intl/pluralx.c@' /mnt/build_dir/jhalfs/lfs-commands/chapter05/052-gettext''') #HACK: sudo vi 052-gettext 
 		shutit.logout()
 		shutit.send('rm -rf /mnt/build_dir/sources /mnt/build_dir/tools /mnt/build_dir/xslt')
 		shutit.send('cd /mnt/build_dir')
