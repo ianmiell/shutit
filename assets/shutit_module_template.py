@@ -71,7 +71,7 @@ class template(ShutItModule):
 
 				Then "Ctrl" and "]" at the same time again to return to the script.
 				Eventually you'll get a docker export to a tar file in your 
-				configured resources folder.""")
+				configured artifacts folder.""")
 		# DELETE THIS SECTION WHEN UNDERSTOOD - DONE
 		return True
 
@@ -97,7 +97,7 @@ class template(ShutItModule):
 	# 
 	# This is called before the build, to ensure modules have 
 	# their requirements in place (eg files required to be mounted 
-	# in /resources). Checking whether the build will happen (and
+	# in /artifacts). Checking whether the build will happen (and
 	# therefore whether the check should take place) will be 
 	# determined by the framework.
 	# 
@@ -107,7 +107,7 @@ class template(ShutItModule):
 	#    """This help string is printed if we're not ready.
 	#    Advice to failure should be placed here.
 	#    """
-	#    return shutit.file_exists('/resources/README.md')
+	#    return shutit.file_exists('/artifacts/README.md')
 
 	# start
 	#

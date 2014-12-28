@@ -181,7 +181,7 @@ class ShutItModule(object):
 
 		This is called before the build, to ensure modules have
 		their requirements in place (eg files required to be available
-		in resources folders) before we commence the build.
+		in artifacts folders) before we commence the build.
 		Checking whether the build will happen at all (and
 		therefore whether the check should take place) will be
 		determined by the framework.

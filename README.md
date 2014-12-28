@@ -834,9 +834,9 @@ Config pertaining to the container.
 # Folder with files you want to copy from in your build.
 # Often a good idea to have a central folder for this per host
 # in your /path/to/shutit/configs/`hostname`_`username`.cnf
-# If set to blank, then defaults to /path/to/shutit/resources (preferred)
-# If set to "resources", then defaults to the resources folder in the cwd.
-resources_dir:
+# If set to blank, then defaults to /path/to/shutit/artifacts (preferred)
+# If set to "artifacts", then defaults to the artifacts folder in the cwd.
+artifacts_dir:
 # Docker executable on your host machine
 docker_executable:docker.io
 # space separated list of dns servers to use

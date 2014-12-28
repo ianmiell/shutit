@@ -33,10 +33,10 @@
 **.lck
 # Docs
 docs/_build
-# Resources
-*resources/*
-!*resources/README.md
-!*shutit_resources/README.md
+# artifacts
+*artifacts/*
+!*artifacts/README.md
+!*shutit_artifacts/README.md
 # Keys
 examples/ianmiellaws/context/pems/*.pem
 pubring.gpg~

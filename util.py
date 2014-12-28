@@ -81,9 +81,9 @@ rm:no
 # Folder with files you want to copy from in your build.
 # Often a good idea to have a central folder for this per host
 # in your /path/to/shutit/configs/`hostname`_`username`.cnf
-# If set to blank, then defaults to /path/to/shutit/resources (preferred)
-# If set to "resources", then defaults to the resources folder in the cwd.
-resources_dir:
+# If set to blank, then defaults to /path/to/shutit/artifacts (preferred)
+# If set to "artifacts", then defaults to the artifacts folder in the cwd.
+artifacts_dir:
 # Docker executable on your host machine
 docker_executable:docker.io
 # space separated list of dns servers to use
@@ -318,7 +318,7 @@ def get_base_config(cfg, cfg_parser):
 	cfg['target']['modules_ready']             = [] # has been checked for readiness and is ready (in this build)
 	#cfg['target']['modules_not_installed']     = [] # has neither been installed nor removed TODO
 	#cfg['target']['modules_removed']           = [] # has been removed (in this build or previously) TODO
-	cfg['host']['resources_dir']                  = cp.get('host', 'resources_dir')
+	cfg['host']['artifacts_dir']                  = cp.get('host', 'artifacts_dir')
 	cfg['host']['docker_executable']              = cp.get('host', 'docker_executable')
 	cfg['host']['dns']                            = cp.get('host', 'dns')
 	cfg['host']['password']                       = cp.get('host', 'password')
@@ -346,10 +346,10 @@ def get_base_config(cfg, cfg_parser):
 	# END Standard expects
 
 	# BEGIN tidy configs up
-	if cfg['host']['resources_dir'] == 'resources':
-		cfg['host']['resources_dir'] = os.path.join(shutit_global.cwd, 'resources')
-	elif cfg['host']['resources_dir'] == '':
-		cfg['host']['resources_dir'] = os.path.join(shutit_global.shutit_main_dir, 'resources')
+	if cfg['host']['artifacts_dir'] == 'artifacts':
+		cfg['host']['artifacts_dir'] = os.path.join(shutit_global.cwd, 'artifacts')
+	elif cfg['host']['artifacts_dir'] == '':
+		cfg['host']['artifacts_dir'] = os.path.join(shutit_global.shutit_main_dir, 'artifacts')
 	if cfg['host']['logfile'] == '':
 		logfile = os.path.join('/tmp/', 'shutit_log_' + cfg['build']['build_id'])
 	else:
@@ -450,6 +450,8 @@ def parse_args(shutit):
 	sub_parsers['skeleton'].add_argument('module_directory', help='absolute path to new directory for module')
 	sub_parsers['skeleton'].add_argument('module_name', help='name for your module')
 	sub_parsers['skeleton'].add_argument('domain', help='arbitrary but unique domain for namespacing your module, eg com.mycorp')
+	sub_parsers['skeleton'].add_argument('depends', help='module id to depend on, default shutit.tk.setup (optional)', default='shutit.tk.setup')
+	sub_parsers['skeleton'].add_argument('base_image', help='from image, default ubuntu:14.04 (optional)', default='ubuntu:14.04')
 	sub_parsers['skeleton'].add_argument('script', help='pre-existing shell script to integrate into module (optional)', nargs='?', default=None)
 	sub_parsers['skeleton'].add_argument('--example', help='add an example implementation with model calls to ShutIt API', default=False, const=True, action='store_const')
 	sub_parsers['skeleton'].add_argument('-d', '--dockerfile', default=None)
@@ -520,6 +522,7 @@ def parse_args(shutit):
 			'module_name': args.module_name,
 			'domain':      args.domain,
 			'domainhash':  str(get_hash(args.domain)),
+			'depends':     args.depends,
 			'script':      args.script,
 			'example':     args.example,
 			'dockerfile':  args.dockerfile
@@ -949,11 +952,13 @@ def create_skeleton(shutit):
 	skel_module_name = shutit.cfg['skeleton']['module_name']
 	skel_domain      = shutit.cfg['skeleton']['domain']
 	skel_domain_hash = shutit.cfg['skeleton']['domainhash']
+	skel_depends     = shutit.cfg['skeleton']['depends']
+	skel_base_image  = shutit.cfg['skeleton']['base_image']
 	skel_script      = shutit.cfg['skeleton']['script']
 	skel_example     = shutit.cfg['skeleton']['example']
 	skel_dockerfile  = shutit.cfg['skeleton']['dockerfile']
 	# Set up dockerfile cfg
-	shutit.cfg['dockerfile']['base_image'] = 'ubuntu:14.04'
+	shutit.cfg['dockerfile']['base_image'] = skel_base_image
 	shutit.cfg['dockerfile']['cmd']        = '/bin/bash'
 	shutit.cfg['dockerfile']['user']       = ''
 	shutit.cfg['dockerfile']['maintainer'] = ''
@@ -1189,15 +1194,15 @@ class template(ShutItModule):
 		templatemodule += """
 def module():
 		return template(
-				""" + """\'%s.%s.%s\'""" % (skel_domain, skel_module_name, skel_module_name) + """, """ + skel_domain_hash + '.00' + """,
+				""" + """\'%s.%s.%s\'""" % (skel_domain, skel_module_name, skel_module_name) + """, """ + skel_domain_hash + ".00" + """,
 				description='',
 				maintainer='""" + shutit.cfg['dockerfile']['maintainer'] + """',
-				depends=['shutit.tk.setup']
+				depends=[' """ % (skel_depends) + """'] 
 		)
 """
 		# Return program to main shutit_dir
 		if dockerfile_dirname:
-						os.chdir(shutit_dir)
+			os.chdir(shutit_dir)
 
 	elif skel_example:
 		templatemodule = open(os.path.join(shutit_dir, 'assets', 'shutit_module_template.py')).read()
@@ -1445,4 +1450,21 @@ def print_stack_trace():
 	(a,b,c) = sys.exc_info()
 	traceback.print_tb(c)
 	print '================================================================================'
+
+
+def ctrl_c_signal_handler(signal, frame):
+	"""CTRL-C signal handler - enters a pause point if it can.
+	"""
+	#print "================================================================================"
+	#print frame.f_code.co_name
+	#print frame.f_code.co_varnames
+	#print "================================================================================"
+	#print frame.f_locals
+	if False and 'shutit' in frame.f_locals:
+		shutit = frame.f_locals['shutit']
+		#print shutit
+		shutit.pause_point(msg='Captured CTRL-c - entering pause point')
+	else:
+		print "CTRL-C caught, but not in context with ability to pause. CTRL-z and kill %n if you really want out."
+		time.sleep(1)
 

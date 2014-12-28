@@ -27,15 +27,27 @@ class alfs(ShutItModule):
 		shutit.send('groupadd lfs')
 		shutit.send('useradd -s /bin/bash -g lfs -m -k /dev/null lfs')
 		shutit.send('cd /mnt/build_dir')
+		password = '1ncharge'
+		shutit.set_password(password, user='lfs')
+		shutit.send('echo "lfs ALL=(ALL) ALL" >> /etc/sudoers')
 		# use latest
 		shutit.send('svn co svn://svn.linuxfromscratch.org/ALFS/jhalfs/trunk jhalfs-trunk')
 		shutit.send('cd jhalfs-trunk')
-		shutit.set_password('1ncharge', user='lfs')
-		shutit.send('echo "lfs ALL=(ALL) ALL" >> /etc/sudoers')
 		# TODO - set locale - http://www.shellhacks.com/en/HowTo-Change-Locale-Language-and-Character-Set-in-Linux
+		shutit.multisend('make config',{'(GETPKG)':'y','(SRC_ARCHIVE)':'','(RETRYSRCDOWNLOAD)':'y','(RETRYDOWNLOADCNT)':'','(DOWNLOADTIMEOUT)':'','(SERVER)':'','(CONFIG_TESTS)':'n','(LANG)':'C','Groff page size':'2','Create SBU':'n','(BOOK_LFS)':'','relSVN':'','(CUSTOM_TOOLS)':'','(BLFS_TOOL)':'','(CONFIG_USER)':'','(BUILDDIR)':'','(CLEAN)':'','(PKGMNGT)':'','(INSTALL_LOG)':'','(HAVE_FSTAB)':'','(CONFIG_BUILD_KERNEL)':'','(STRIP)':'','(VIMLANG)':'','(NO_PROGRESS_BAR)':'','(TIMEZONE)':'','(FULL_LOCALE)':'','(COMPARE)':'','(CONFIG_OPTIMIZE)':'','(SCRIPT_ROOT)':'','(JHALFSDIR)':'','(LOGDIRBASE)':'','(LOGDIR)':'','(TESTLOGDIRBASE)':'','(TESTLOGDIR)':'','(FILELOGDIRBASE)':'','(FILELOGDIR)':'','(ICALOGDIR)':'','(FARCELOGDIR)':'','(MKFILE)':'','(XSL)':'','(PKG_LST)':'','(REBUILD_MAKEFILE)':'','Are you happy with these settings':'','Do you wish':'','oad an Alt':'E'})
+		shutit.send('make')
+		shutit.send(r'''sed -i 's@cd gettext-tools@cd gettext-tools && cp ../gettext-runtime/intl/plural.c ../gettext-runtime/intl/pluralx.c@' /mnt/build_dir/jhalfs/lfs-commands/chapter05/052-gettext''') #HACK: sudo vi 052-gettext 
 		shutit.login('lfs')
-		shutit.pause_point('')
+		shutit.send('cd /mnt/build_dir/jhalfs')
+		shutit.multisend('make',{'assword:':password})
 		shutit.logout()
+		shutit.send('rm -rf /mnt/build_dir/sources /mnt/build_dir/tools')
+		shutit.send('cd /mnt/build_dir')
+		shutit.send('tar -cf /lfs.tar .')
+#docker cp id:sd.tar .
+# # copy to artifacts
+#FROM scratch
+#ADD sd.tar /
 		return True
 
 	#def get_config(self, shutit):

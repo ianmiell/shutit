@@ -33,6 +33,7 @@ import sys
 import os
 import json
 import re
+import signal
 from distutils import spawn
 
 
@@ -931,6 +932,8 @@ def do_phone_home(msg=None,question='Error seen - would you like to inform the m
 	except Exception as e:
 		shutit_global.shutit.log('failed to send message: ' + str(e.message))
 
+
+signal.signal(signal.SIGINT, util.ctrl_c_signal_handler)
 
 if __name__ == '__main__':
 	try:
