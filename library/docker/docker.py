@@ -30,6 +30,7 @@ class docker(ShutItModule):
 		shutit.install('lxc')
 		shutit.install('curl')
 		shutit.install('aufs-tools')
+		shutit.install('psmisc') # for killall
 		shutit.send('pushd /usr/bin')
 		# Sensible to pick a relatively old one to avoid client mismatch errors
 		shutit.send('curl https://get.docker.io/builds/Linux/x86_64/docker-1.0.1 > docker')
