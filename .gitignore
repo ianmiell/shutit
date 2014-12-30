@@ -35,6 +35,8 @@ nohup.out
 **.lck
 # Docs
 docs/_build
+# Artifacts
+artifacts/*
 # Resources
 *resources/*
 !*resources/README.md
