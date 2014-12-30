@@ -38,7 +38,7 @@ class alfs(ShutItModule):
 		# use latest
 		shutit.send('svn co svn://svn.linuxfromscratch.org/ALFS/jhalfs/trunk jhalfs-trunk')
 		shutit.send('cd jhalfs-trunk')
-		shutit.multisend('make config',{r'\(GETPKG\)':'y',r'\(SRC_ARCHIVE\)':'',r'\(RETRYSRCDOWNLOAD\)':'y',r'\(RETRYDOWNLOADCNT\)':'',r'\(DOWNLOADTIMEOUT\)':'',r'\(SERVER\)':'',r'\(CONFIG_TESTS\)':'n',r'\(LANG\)':'C',r'Groff page size':'2',r'Create SBU':'n',r'\(BOOK_LFS\)':'',r'relSVN':'',r'\(CUSTOM_TOOLS\)':'',r'\(BLFS_TOOL\)':'',r'\(CONFIG_USER\)':'',r'\(BUILDDIR\)':'',r'\(CLEAN\)':'',r'\(PKGMNGT\)':'',r'\(INSTALL_LOG\)':'',r'\(HAVE_FSTAB\)':'',r'\(CONFIG_BUILD_KERNEL\)':'',r'\(STRIP\)':'',r'\(VIMLANG\)':'',r'\(NO_PROGRESS_BAR\)':'',r'\(TIMEZONE\)':'',r'\(FULL_LOCALE\)':'',r'\(COMPARE\)':'',r'\(CONFIG_OPTIMIZE\)':'',r'\(SCRIPT_ROOT\)':'',r'\(JHALFSDIR\)':'',r'\(LOGDIRBASE\)':'',r'\(LOGDIR\)':'',r'\(TESTLOGDIRBASE\)':'',r'\(TESTLOGDIR\)':'',r'\(FILELOGDIRBASE\)':'',r'\(FILELOGDIR\)':'',r'\(ICALOGDIR\)':'',r'\(FARCELOGDIR\)':'',r'\(MKFILE\)':'',r'\(XSL\)':'',r'\(PKG_LST\)':'',r'\(REBUILD_MAKEFILE\)':'',r'\(RUNMAKE\)':'y'})
+		shutit.multisend('make config',{r'\(GETPKG\)':'y',r'\(SRC_ARCHIVE\)':'',r'\(RETRYSRCDOWNLOAD\)':'y',r'\(RETRYDOWNLOADCNT\)':'',r'\(DOWNLOADTIMEOUT\)':'',r'\(SERVER\)':'',r'\(CONFIG_TESTS\)':'n',r'\(LANG\)':'C',r'Groff page size':'2',r'Create SBU':'n',r'\(BOOK_LFS\)':'',r'relSVN':'',r'\(CUSTOM_TOOLS\)':'',r'\(BLFS_TOOL\)':'',r'\(CONFIG_USER\)':'',r'\(BUILDDIR\)':'',r'\(CLEAN\)':'',r'\(PKGMNGT\)':'',r'\(INSTALL_LOG\)':'',r'\(HAVE_FSTAB\)':'',r'\(CONFIG_BUILD_KERNEL\)':'',r'\(STRIP\)':'',r'\(VIMLANG\)':'',r'\(NO_PROGRESS_BAR\)':'',r'\(TIMEZONE\)':'',r'\(FULL_LOCALE\)':'n',r'\(COMPARE\)':'',r'\(CONFIG_OPTIMIZE\)':'',r'\(SCRIPT_ROOT\)':'',r'\(JHALFSDIR\)':'',r'\(LOGDIRBASE\)':'',r'\(LOGDIR\)':'',r'\(TESTLOGDIRBASE\)':'',r'\(TESTLOGDIR\)':'',r'\(FILELOGDIRBASE\)':'',r'\(FILELOGDIR\)':'',r'\(ICALOGDIR\)':'',r'\(FARCELOGDIR\)':'',r'\(MKFILE\)':'',r'\(XSL\)':'',r'\(PKG_LST\)':'',r'\(REBUILD_MAKEFILE\)':'',r'\(RUNMAKE\)':'y'})
 		shutit.send('touch configuration.old') # cheat to avoid error
 		shutit.multisend('./jhalfs run',{'Do you want to run jhalfs':'yes','Are you happy with these settings':'yes'},timeout=9999999)
 		shutit.login('lfs')
@@ -47,9 +47,9 @@ class alfs(ShutItModule):
 		shutit.send(r'''sudo sed -i '4s/.*/cp $PKGDIR\/gettext-runtime\/intl\/plural.c $PKGDIR\/gettext-runtime\/intl\/pluralx.c/' /mnt/build_dir/jhalfs/lfs-commands/chapter05/052-gettext''') #HACK: sudo vi 052-gettext 
 		shutit.send('make',timeout=999999) # this will fail, but needs to be run to get to correct it (next line)
 		shutit.logout()
-		shutit.send('rm -rf /mnt/build_dir/sources /mnt/build_dir/tools /mnt/build_dir/xslt')
+		shutit.send('rm -rf /mnt/build_dir/sources /mnt/build_dir/tools /mnt/build_dir/xslt /tmp/build_dir/jhalfs*')
+		shutit.send('echo "ShutIt Distro 0.1" > /etc/issue')
 		shutit.send('cd /mnt/build_dir')
-		shutit.send('rm -rf /jhalfs*')
 		shutit.send('tar -cf /artifacts/lfs.tar .')
 		shutit.send('xz /artifacts/lfs.tar')
 #FROM scratch

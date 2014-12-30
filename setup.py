@@ -532,7 +532,7 @@ class setup(ShutItModule):
 		and updating package management.
 		"""
 		do_update = shutit.cfg[self.module_id]['do_update']
-		shutit.send("sed -i 's/.*HISTSIZE=[0-9]*$//' ~/.bashrc") 
+		shutit.send("touch ~/.bashrc && sed -i 's/.*HISTSIZE=[0-9]*$//' ~/.bashrc") 
 		# eg centos doesn't have this
 		if shutit.file_exists('/etc/bash.bashrc'):
 			shutit.send("sed -i 's/.*HISTSIZE=[0-9]*$//' /etc/bash.bashrc") 
