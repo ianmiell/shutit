@@ -35,92 +35,11 @@ class docker(ShutItModule):
 		shutit.send('curl https://get.docker.io/builds/Linux/x86_64/docker-1.0.1 > docker')
 		shutit.send('chmod +x docker')
 		shutit.send_host_file('/usr/bin/wrapdocker','context/wrapdocker')
-#		wrapdocker = """cat > /usr/bin/wrapdocker << 'END'
-##!/bin/bash
-## cf https://github.com/jpetazzo/dind
-#CGROUP=/sys/fs/cgroup
-#[ -d $CGROUP ] ||
-#mkdir $CGROUP
-#mountpoint -q $CGROUP ||
-#mount -n -t tmpfs -o uid=0, gid=0, mode=0755 cgroup $CGROUP || {
-#echo "Could not make a tmpfs mount. Did you use -privileged?"
-#exit 1
-#}
-#if [ -d /sys/kernel/security ] && ! mountpoint -q /sys/kernel/security
-#then
-#mount -t securityfs none /sys/kernel/security || {
-#		echo "Could not mount /sys/kernel/security."
-#		echo "AppArmor detection and -privileged mode might break."
-#	}
-#fi
-#for SUBSYS in $(cut -d: -f2 /proc/1/cgroup)
-#do
-#		[ -d $CGROUP/$SUBSYS ] || mkdir $CGROUP/$SUBSYS
-#		mountpoint -q $CGROUP/$SUBSYS ||
-#				mount -n -t cgroup -o $SUBSYS cgroup $CGROUP/$SUBSYS
-#		echo $SUBSYS | grep -q ^name= && {
-#				NAME=$(echo $SUBSYS | sed s/^name=//)
-#				ln -s $SUBSYS $CGROUP/$NAME
-#		}
-#		[ $SUBSYS = cpuacct, cpu ] && ln -s $SUBSYS $CGROUP/cpu, cpuacct
-#done
-#
-## From: https://github.com/docker/docker/issues/8791
-#cgroupfs_mount() {
-#        # see also https://github.com/tianon/cgroupfs-mount/blob/master/cgroupfs-mount
-#        if grep -v '^#' /etc/fstab | grep -q cgroup \
-#                || [ ! -e /proc/cgroups ] \
-#                || [ ! -d /sys/fs/cgroup ]; then
-#                return
-#        fi
-#        if ! mountpoint -q /sys/fs/cgroup; then
-#                mount -t tmpfs -o uid=0,gid=0,mode=0755 cgroup /sys/fs/cgroup
-#        fi
-#        (
-#                cd /sys/fs/cgroup
-#                for sys in $(awk '!/^#/ { if ($4 == 1) print $1 }' /proc/cgroups); do
-#                        mkdir -p $sys
-#                        if ! mountpoint -q $sys; then
-#                                if ! mount -n -t cgroup -o $sys cgroup $sys; then
-#                                        rmdir $sys || true
-#                                fi
-#                        fi
-#                done
-#        )
-#}
-#grep -q :devices: /proc/1/cgroup ||
-#echo "WARNING: the 'devices' cgroup should be in its own hierarchy."
-#grep -qw devices /proc/1/cgroup ||
-#echo "WARNING: it looks like the 'devices' cgroup is not mounted."
-#pushd /proc/self/fd >/dev/null
-#for FD in *
-#do
-#case "$FD" in
-## Keep stdin/stdout/stderr
-#[012])
-#;;
-#*)
-#eval exec "$FD>&-"
-#;;
-#esac
-#done
-#popd >/dev/null
-#rm -rf /var/run/docker.pid
-#cgroupfs_mount
-#if [ "$PORT" ]
-#then
-#exec docker -d -H 0.0.0.0:$PORT
-#else
-#docker -d &
-#exec bash
-#fi
-#END"""
-		shutit.send(wrapdocker)
 		shutit.send('chmod +x /usr/bin/wrapdocker')
 		start_docker = """cat > /root/start_docker.sh << 'END'
 #!/bin/bash
 /root/start_ssh_server.sh
-/usr/bin/wrapdocker
+/usr/bin/wrapdocker &
 echo "SSH Server up"
 echo "Docker daemon running"
 END"""
@@ -143,8 +62,7 @@ END"""
 		return True
 
 	def stop(self, shutit):
-		shutit.send('''ps -ef | grep docker..d | awk '{print $2} | xargs -r kill''')
-		shutit.send('''ps -ef | grep wrapdocker | awk '{print $2} | xargs -r kill''')
+		shutit.send('killall docker')
 		return True
 		
 
