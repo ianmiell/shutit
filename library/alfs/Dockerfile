@@ -1,4 +1,4 @@
-FROM ubuntu:14.04
+FROM debian:jessie
 
 RUN apt-get update
 RUN apt-get install -y -qq curl git python-pip
@@ -7,7 +7,7 @@ RUN git clone https://github.com/ianmiell/shutit.git
 WORKDIR shutit
 RUN pip install -r requirements.txt
 
-WORKDIR /home/imiell/shutit/library/alfs <- TODO You will need to to change this
+WORKDIR /opt/shutit/library/alfs
 RUN /opt/shutit/shutit build --shutit_module_path /opt/shutit/library --delivery bash
 
 CMD ["/bin/bash"] 
