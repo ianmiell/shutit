@@ -45,7 +45,6 @@ class alfs(ShutItModule):
 		# use latest
 		shutit.send('svn co svn://svn.linuxfromscratch.org/ALFS/jhalfs/trunk jhalfs-trunk')
 		shutit.send('cd jhalfs-trunk')
-<<<<<<< Updated upstream
 		shutit.send('mkdir -p ' + src_archive)
 		shutit.multisend('make config',{r'\(GETPKG\)':'y',r'\(SRC_ARCHIVE\)':src_archive,r'\(RETRYSRCDOWNLOAD\)':'y',r'\(RETRYDOWNLOADCNT\)':'',r'\(DOWNLOADTIMEOUT\)':'',r'\(SERVER\)':'',r'\(CONFIG_TESTS\)':'n',r'\(LANG\)':'C',r'Groff page size':'2',r'Create SBU':'n',r'\(BOOK_LFS\)':'1',r'relSVN':'',r'\(CUSTOM_TOOLS\)':'n',r'\(BLFS_TOOL\)':'y','\(BLFS_SVN\)':'1',r'\(DEP_LIBXML\)':'y',r'\(DEP_LIBXSLT\)':'y',r'\(DEP_TIDY\)':'y',r'\(DEP_DBXML\)':'y',r'\(DEP_LYNX\)':'n',r'\(DEP_SUDO\)':'y',r'\(DEP_WGET\)':'y',r'\(DEP_GPM\)':'n',r'\(DEP_SVN\)':'n',r'\(DEP_PYTHON\)':'n',r'\(DEP_OPENSSL\)':'y',r'\(BLFS_ROOT\)':'/blfs_root',r'\(BLFS_XML\)':'blfs-xml',r'\(TRACKING_DIR\)':'/var/lib/jhalfs/BLFS',r'\(CONFIG_USER\)':'',r'\(BUILDDIR\)':'',r'\(CLEAN\)':'',r'\(PKGMNGT\)':'',r'\(INSTALL_LOG\)':'',r'\(HAVE_FSTAB\)':'',r'\(CONFIG_BUILD_KERNEL\)':'',r'\(STRIP\)':'',r'\(VIMLANG\)':'',r'\(NO_PROGRESS_BAR\)':'y',r'\(TIMEZONE\)':'',r'\(FULL_LOCALE\)':'n',r'\(COMPARE\)':'',r'\(CONFIG_OPTIMIZE\)':'',r'\(SCRIPT_ROOT\)':'',r'\(JHALFSDIR\)':'',r'\(LOGDIRBASE\)':'',r'\(LOGDIR\)':'',r'\(TESTLOGDIRBASE\)':'',r'\(TESTLOGDIR\)':'',r'\(FILELOGDIRBASE\)':'',r'\(FILELOGDIR\)':'',r'\(ICALOGDIR\)':'',r'\(FARCELOGDIR\)':'',r'\(MKFILE\)':'',r'\(XSL\)':'',r'\(PKG_LST\)':'',r'\(REBUILD_MAKEFILE\)':'',r'\(RUNMAKE\)':'y'})
 		shutit.send('''sed -i '313,320s/.*//' jhalfs''') # remove stuff that asks us questions
@@ -57,21 +56,21 @@ class alfs(ShutItModule):
 		shutit.send(r'''sudo sed -i '4s/.*/cp $PKGDIR\/gettext-runtime\/intl\/plural.c $PKGDIR\/gettext-runtime\/intl\/pluralx.c/' /mnt/build_dir/jhalfs/lfs-commands/chapter05/052-gettext''') #HACK: sudo vi 052-gettext 
 		shutit.send('make',timeout=999999) # this will fail, but needs to be run to get to correct it (next line)
 		shutit.logout()
-		shutit.send('rm -rf /mnt/build_dir/sources /mnt/build_dir/tools ' + src_archive + ' /mnt/build_dir/jhalfs* /mnt/build_dir/blfs_root')
 		shutit.send('echo "ShutIt Distro 0.1" > /etc/issue')
 		shutit.send('cd /mnt/build_dir')
-		shutit.send('tar -cf /artifacts/lfs.tar .')
-		shutit.send('xz /artifacts/lfs.tar')
-#FROM scratch
-#ADD sd.tar /
+		shutit.send('rm -rf /mnt/build_dir/sources /mnt/build_dir/tools ' + src_archive + ' /mnt/build_dir/jhalfs* /mnt/build_dir/blfs_root')
+		shutit.send('tar -cf - | xz - > /artifacts/lfs.tar.xz')
 		return True
 
 	#def get_config(self, shutit):
 	#	shutit.get_config(self.module_id,'item','default')
 	#	return True
 
-	#def check_ready(self, shutit):
-	#	return True
+	def check_ready(self, shutit):
+		if shutit.file_exists('/artifacts/lfs.tar.xz'):
+			shutit.log('REMOVE THE lfs.tar.xz FILE IN YOUR artifacts folder!')
+			return False
+		return True
 	
 	#def start(self, shutit):
 	#	return True
