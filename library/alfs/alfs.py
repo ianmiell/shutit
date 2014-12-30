@@ -10,6 +10,7 @@ class alfs(ShutItModule):
 	def is_installed(self, shutit):
 		return shutit.file_exists('/root/shutit_build/module_record/' + self.module_id + '/built')
 
+
 	def build(self, shutit):
 		shutit.install('build-essential bison subversion wget curl texinfo libxml2 gawk patch sudo ncurses-dev libxml2-utils libxml2-dev locales')
 		shutit.run_script('''
