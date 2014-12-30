@@ -29,8 +29,9 @@
 !**defaults.cnf
 # Logs
 **.log
-# Nohups
+# Nohups and outs
 nohup.out
+out
 # Lock files
 **.lck
 # Docs
