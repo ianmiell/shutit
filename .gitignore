@@ -29,10 +29,15 @@
 !**defaults.cnf
 # Logs
 **.log
+# Nohups and outs
+nohup.out
+out
 # Lock files
 **.lck
 # Docs
 docs/_build
+# Artifacts
+artifacts/*
 # Resources
 *resources/*
 !*resources/README.md
