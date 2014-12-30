@@ -410,8 +410,9 @@ class ShutIt(object):
 				  'an exit_values array into the send function call.')
 			cfg['build']['report'] = cfg['build']['report'] + msg
 			if cfg['build']['interactive'] >= 1:
+				# This is a failure, so we pass in level=0
 				self.pause_point(msg + '\n\nPause point on exit_code != 0 (' +
-					res + '). CTRL-C to quit', child=child)
+					res + '). CTRL-C to quit', child=child, level=0)
 			else:
 				if retry > 0:
 					shutit.fail('Exit value from command\n' + send +
