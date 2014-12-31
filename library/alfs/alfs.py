@@ -59,7 +59,7 @@ class alfs(ShutItModule):
 		shutit.send('echo "ShutIt Distro 0.1" > /etc/issue')
 		shutit.send('rm -rf /mnt/build_dir/sources /mnt/build_dir/tools ' + src_archive + ' /mnt/build_dir/jhalfs* /mnt/build_dir/blfs_root')
 		shutit.send('cd /mnt/build_dir')
-		shutit.send('tar -cf - | xz - > /artifacts/lfs.tar.xz')
+		shutit.send('tar -cf - . | xz - > /artifacts/lfs.tar.xz')
 		return True
 
 	#def get_config(self, shutit):

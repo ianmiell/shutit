@@ -31,7 +31,7 @@ class docker(ShutItModule):
 		shutit.install('curl')
 		shutit.install('aufs-tools')
 		shutit.install('psmisc') # for killall
-		shutit.send('pushd /usr/bin')
+		shutit.send('cd /usr/bin')
 		# Sensible to pick a relatively old one to avoid client mismatch errors
 		shutit.send('curl https://get.docker.io/builds/Linux/x86_64/docker-1.0.1 > docker')
 		shutit.send('chmod +x docker')
@@ -46,7 +46,6 @@ echo "Docker daemon running"
 END"""
 		shutit.send(start_docker)
 		shutit.send('chmod +x /root/start_docker.sh')
-		shutit.send('popd')
 		shutit.send('ln -s /usr/bin/docker /usr/bin/docker.io')
 		return True
 
@@ -63,7 +62,7 @@ END"""
 		return True
 
 	def stop(self, shutit):
-		shutit.send('killall docker')
+		shutit.send('/usr/bin/killall docker')
 		return True
 		
 
