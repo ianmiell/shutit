@@ -57,7 +57,13 @@ class alfs(ShutItModule):
 		shutit.send('make',timeout=999999) # this will fail, but needs to be run to get to correct it (next line)
 		shutit.logout()
 		shutit.send('echo "ShutIt Distro 0.1" > /etc/issue')
-		shutit.send('rm -rf /mnt/build_dir/sources /mnt/build_dir/tools ' + src_archive + ' /mnt/build_dir/jhalfs* /mnt/build_dir/blfs_root')
+		shutit.send('mkdir -p /opt/alfs_build')
+		# mv rather than delete, as resluting image will have record in
+		shutit.send('mv /mnt/build_dir/sources /opt/alfs_build')
+		shutit.send('mv /mnt/build_dir/tools /opt/alfs/build')
+		shutit.send('mv ' + src_archive + ' /opt/alfs/build')
+		shutit.send('mv /mnt/build_dir/jhalfs* /opt/alfs/build')
+		shutit.send('mv /mnt/build_dir/blfs_root /opt/alfs/build')
 		shutit.send('cd /mnt/build_dir')
 		shutit.send('tar -cf - . | xz - > /artifacts/lfs.tar.xz')
 		return True
