@@ -1335,10 +1335,7 @@ class ShutIt(object):
 			self.fail('Logout called without corresponding login', throw_exception=False)
 		# No point in checking exit here, the exit code will be
 		# from the previous command from the logged in session
-		if expect != None:
-			self.send('exit', check_exit=False)
-		else:
-			self.send('exit', expect=expect, check_exit=False)
+		self.send('exit', expect=expect, check_exit=False)
 	# alias exit_shell to logout
 	exit_shell = logout
 
