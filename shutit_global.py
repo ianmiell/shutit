@@ -824,7 +824,7 @@ class ShutIt(object):
 			return False
 
 
-	def add_to_bashrc(self, line, expect=None, child=None):
+	def add_to_bashrc(self, line, expect=None, child=None, match_regexp=None):
 		"""Takes care of adding a line to everyone's bashrc
 		(/etc/bash.bashrc, /etc/profile).
 
@@ -834,8 +834,9 @@ class ShutIt(object):
 		"""
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
-		self.add_line_to_file(line, '/etc/bash.bashrc', expect=expect)
-		return self.add_line_to_file(line, '/etc/profile', expect=expect)
+		self.add_line_to_file(line, '~/.bashrc', expect=expect, match_regexp=match_regexp)
+		self.add_line_to_file(line, '/etc/bash.bashrc', expect=expect, match_regexp=match_regexp)
+		return self.add_line_to_file(line, '/etc/profile', expect=expect, match_regexp=match_regexp)
 
 
 	def user_exists(self, user, expect=None, child=None):
