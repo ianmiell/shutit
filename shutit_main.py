@@ -105,8 +105,7 @@ def stop_all(shutit, run_order=-1):
 	for module_id in module_ids(shutit, rev=True):
 		shutit_module_obj = shutit.shutit_map[module_id]
 		if run_order == -1 or shutit_module_obj.run_order <= run_order:
-			# TODO: cache this - it's a big time-waster when libraries get big
-			if is_to_be_built_or_is_installed(shutit, shutit_module_obj):
+			if is_installed(shutit, shutit_module_obj):
 				if not shutit_module_obj.stop(shutit):
 					shutit.fail('failed to stop: ' + \
 						module_id, child=shutit.pexpect_children['target_child'])
@@ -127,38 +126,39 @@ def start_all(shutit, run_order=-1):
 	for module_id in module_ids(shutit):
 		shutit_module_obj = shutit.shutit_map[module_id]
 		if run_order == -1 or shutit_module_obj.run_order <= run_order:
-			# TODO: cache this - it's a big time-waster when libraries get big
-			if is_to_be_built_or_is_installed(shutit, shutit_module_obj):
+			if is_installed(shutit, shutit_module_obj):
 				if not shutit_module_obj.start(shutit):
 					shutit.fail('failed to start: ' + module_id, \
 						child=shutit.pexpect_children['target_child'])
-
 
 
 def is_installed(shutit, shutit_module_obj):
 	"""Returns true if this module is installed.
 	Uses cache where possible.
 	"""
+	# Cache first
 	if shutit_module_obj.module_id in shutit.cfg['target']['modules_installed']:
 		return True
+	if shutit_module_obj.module_id in shutit.cfg['target']['modules_not_installed']:
+		return False
+	# Is it installed?
 	if shutit_module_obj.is_installed(shutit):
 		shutit.cfg['target']['modules_installed'].append(shutit_module_obj.module_id)
 		return True
-	return False
+	# If not installed, and not in cache, add it.
+	else:
+		if shutit_module_obj.module_id not in shutit.cfg['target']['modules_not_installed']:
+			shutit.cfg['target']['modules_not_installed'].append(shutit_module_obj.module_id)
+		return False
+
 
 def is_to_be_built_or_is_installed(shutit, shutit_module_obj):
 	"""Returns true if this module is configured to be built,
 	or if it is already installed.
 	"""
-	if shutit_module_obj.module_id in shutit.cfg['target']['modules_installed']:
-		return True
 	if shutit.cfg[shutit_module_obj.module_id]['shutit.core.module.build']:
 		return True
-	if shutit_module_obj.is_installed(shutit):
-		shutit.cfg['target']['modules_installed'].append(shutit_module_obj.module_id)
-		return True
-	return False
-
+	return is_installed(shutit, shutit_module_obj)
 
 
 def is_ready(shutit, shutit_module_obj):
@@ -441,7 +441,7 @@ def check_dependee_build(shutit, depender, dependee, dependee_id):
 	"""
 	# If depender is installed or will be installed, so must the dependee
 	if not (shutit.cfg[dependee.module_id]['shutit.core.module.build'] or
-	        is_installed(shutit,dependee)):
+	        is_to_be_built_or_is_installed(shutit,dependee)):
 		return ('depender module id:\n\n[' + depender.module_id + ']\n\n' +
 		        'is configured: "build:yes" or is already built ' +
 		        'but dependee module_id:\n\n[' + dependee_id + ']\n\n' +
@@ -552,9 +552,9 @@ def check_conflicts(shutit):
 			if conflictee_obj == None:
 				continue
 			if ((cfg[conflicter.module_id]['shutit.core.module.build'] or
-			     is_installed(shutit,conflicter)) and
+			     is_to_be_built_or_is_installed(shutit,conflicter)) and
 			    (cfg[conflictee_obj.module_id]['shutit.core.module.build'] or
-			     is_installed(shutit,conflictee_obj))):
+			     is_to_be_built_or_is_installed(shutit,conflictee_obj))):
 			    errs.append(('conflicter module id: ' + conflicter.module_id +
 	                    ' is configured to be built or is already built but ' +
 	                    'conflicts with module_id: ' + conflictee_obj.module_id,))
@@ -576,7 +576,7 @@ def check_ready(shutit):
 		module = shutit.shutit_map[module_id]
 		shutit.log('considering check_ready (is it ready to be built?): ' +
 		           module_id, code='31')
-		if cfg[module_id]['shutit.core.module.build'] and not is_installed(shutit,module):
+		if cfg[module_id]['shutit.core.module.build'] and not is_installed(shutit,module) and module.module_id not in shutit.cfg['target']['modules_ready']:
 			shutit.log('checking whether module is ready to build: ' + module_id,
 			           code='31')
 			shutit.login(prompt_prefix=module_id)
@@ -617,6 +617,8 @@ def do_remove(shutit):
 				shutit.send('mkdir -p /root/shutit_build/module_record/' + module.module_id + ' && rm -f /root/shutit_build/module_record/' + module.module_id + '/built && touch /root/shutit_build/module_record/' + module.module_id + '/removed')
 				# Remove from "installed" cache
 				shutit.cfg['target']['modules_installed'].remove(module.module_id)
+				# Add to "not installed" cache
+				shutit.cfg['target']['modules_not_installed'].append(module.module_id)
 			shutit.logout()
 			
 
@@ -638,6 +640,8 @@ def build_module(shutit, module):
 		shutit.send('mkdir -p /root/shutit_build/module_record/' + module.module_id + ' && touch /root/shutit_build/module_record/' + module.module_id + '/built && rm -f /root/shutit_build/module_record/' + module.module_id + '/removed')
 		# Put it into "installed" cache
 		shutit.cfg['target']['modules_installed'].append(module.module_id)
+		# Remove from "not installed" cache
+		shutit.cfg['target']['modules_not_installed'].remove(module.module_id)
 	shutit.pause_point('\nPausing to allow inspect of build for: ' +
 	                   module.module_id, print_input=True, level=2)
 	cfg['build']['report'] = (cfg['build']['report'] + '\nCompleted module: ' +
@@ -700,7 +704,7 @@ def do_build(shutit):
 				build_module(shutit, module)
 				shutit.logout()
 				os.chdir(revert_dir)
-		if is_to_be_built_or_is_installed(shutit, module):
+		if is_installed(shutit, module):
 			shutit.log('Starting module')
 			if not module.start(shutit):
 				shutit.fail(module.module_id + ' failed on start',
@@ -724,8 +728,8 @@ def do_test(shutit):
 	start_all(shutit)
 	for module_id in module_ids(shutit, rev=True):
 		module = shutit.shutit_map[module_id]
-		# Only test if it's thought to be installed.
-		if is_to_be_built_or_is_installed(shutit, shutit.shutit_map[module_id]):
+		# Only test if it's installed.
+		if is_installed(shutit, shutit.shutit_map[module_id]):
 			shutit.log('RUNNING TEST ON: ' + module_id, code='31')
 			shutit.login(prompt_prefix=module_id)
 			if not shutit.shutit_map[module_id].test(shutit):
@@ -755,7 +759,7 @@ def do_finalize(shutit):
 	for module_id in module_ids(shutit, rev=True):
 		module = shutit.shutit_map[module_id]
 		# Only finalize if it's thought to be installed.
-		if is_to_be_built_or_is_installed(shutit, shutit.shutit_map[module_id]):
+		if is_installed(shutit, shutit.shutit_map[module_id]):
 			shutit.login(prompt_prefix=module_id)
 			if not shutit.shutit_map[module_id].finalize(shutit):
 				shutit.fail(module_id + ' failed on finalize',
