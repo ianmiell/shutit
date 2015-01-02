@@ -60,10 +60,10 @@ class alfs(ShutItModule):
 		shutit.send('mkdir -p /opt/alfs_build')
 		# mv rather than delete, as resluting image will have record in
 		shutit.send('mv /mnt/build_dir/sources /opt/alfs_build')
-		shutit.send('mv /mnt/build_dir/tools /opt/alfs/build')
-		shutit.send('mv ' + src_archive + ' /opt/alfs/build')
-		shutit.send('mv /mnt/build_dir/jhalfs* /opt/alfs/build')
-		shutit.send('mv /mnt/build_dir/blfs_root /opt/alfs/build')
+		shutit.send('mv /mnt/build_dir/tools /opt/alfs_build')
+		shutit.send('mv ' + src_archive + ' /opt/alfs_build')
+		shutit.send('mv /mnt/build_dir/jhalfs* /opt/alfs_build')
+		shutit.send('mv /mnt/build_dir/blfs_root /opt/alfs_build')
 		shutit.send('cd /mnt/build_dir')
 		shutit.send('tar -cf - . | xz - > /artifacts/lfs.tar.xz')
 		return True
