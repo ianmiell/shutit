@@ -1339,6 +1339,29 @@ class ShutIt(object):
 	exit_shell = logout
 
 
+	def ssh(self, hostname, username, password=None, expect=None):
+		"""Make an ssh connection to a remote server and setup
+		the prompt accordingly. Similar logic to login with the prompt stack.
+		Logout can (and should) be called to exit the ssh session
+
+		- hostname - hostname of server to ssh to
+		- username - username to connect as
+		- password - password to connect with
+		- expect   - override expect
+		"""
+		ssh_prompt=username + '@.*\$'
+		shutit.install('ssh')
+		shutit.multisend(
+			'ssh ' + username + '@' + hostname,
+			{'assword':password,'continue connecting':'yes'},
+			expect=ssh_prompt
+		)
+		child = self.get_default_child()
+		r_id = random_id()
+		self.cfg['build']['login_stack'].append(r_id)
+		self.setup_prompt(r_id,child=child)
+
+
 	def setup_prompt(self,
 	                 prompt_name,
 	                 prefix='TMP',
