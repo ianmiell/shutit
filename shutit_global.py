@@ -824,7 +824,7 @@ class ShutIt(object):
 			return False
 
 
-	def add_to_bashrc(self, line, expect=None, child=None):
+	def add_to_bashrc(self, line, expect=None, child=None, match_regexp=None):
 		"""Takes care of adding a line to everyone's bashrc
 		(/etc/bash.bashrc, /etc/profile).
 
@@ -834,8 +834,9 @@ class ShutIt(object):
 		"""
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
-		self.add_line_to_file(line, '/etc/bash.bashrc', expect=expect)
-		return self.add_line_to_file(line, '/etc/profile', expect=expect)
+		self.add_line_to_file(line, '~/.bashrc', expect=expect, match_regexp=match_regexp)
+		self.add_line_to_file(line, '/etc/bash.bashrc', expect=expect, match_regexp=match_regexp)
+		return self.add_line_to_file(line, '/etc/profile', expect=expect, match_regexp=match_regexp)
 
 
 	def user_exists(self, user, expect=None, child=None):
@@ -1279,7 +1280,6 @@ class ShutIt(object):
 		child = child or self.get_default_child()
 		r_id = random_id()
 		self.cfg['build']['login_stack'].append(r_id)
-		#print self.cfg['build']['login_stack']
 		self.send(command,expect=shutit.cfg['expect_prompts']['base_prompt'],check_exit=False)
 		self.setup_prompt(r_id,child=child)
 
@@ -1299,7 +1299,6 @@ class ShutIt(object):
 		child = child or self.get_default_child()
 		r_id = random_id()
 		self.cfg['build']['login_stack'].append(r_id)
-		#print self.cfg['build']['login_stack']
 		if command == 'su -' or command == 'login':
 			send = command + ' ' + user
 		else:
@@ -1335,10 +1334,7 @@ class ShutIt(object):
 			self.fail('Logout called without corresponding login', throw_exception=False)
 		# No point in checking exit here, the exit code will be
 		# from the previous command from the logged in session
-		if expect is None:
-			self.send('exit', check_exit=False)
-		else:
-			self.send('exit', expect=expect, check_exit=False)
+		self.send('exit', expect=expect, check_exit=False)
 	# alias exit_shell to logout
 	exit_shell = logout
 
@@ -1773,8 +1769,7 @@ class ShutIt(object):
 	               boolean=False,
 	               forcedefault=False,
 	               forcenone=False):
-		"""Gets a specific config from the config files,
-		allowing for a default.
+		"""Gets a specific config from the config files, allowing for a default.
 
 		Handles booleans vs strings appropriately.
 

@@ -47,14 +47,14 @@ function jsonpost(url, data, cb) {
 var StatusIndicator = React.createClass({
 	render: function () {
 		var color, text;
-		if (this.props.hasErr) { color = "red"; text = "error"; }
-		else if (this.props.buildDone) { color = "green"; text = "done"; }
-		else if (this.props.buildStarted) { color = "purple"; text = "building"; }
-		else if (this.props.loading) { color = "yellow"; text = "loading"; }
-		else if (this.props.resetting) { color = 'blue'; text = 'resetting'; }
-		else { color = 'transparent'; text = '...awaiting input...'; }
+		if (this.props.hasErr) { color = "red"; text = "Error! Reboot server."; }
+		else if (this.props.buildDone) { color = "green"; text = "Done (hit reset to start again)"; }
+		else if (this.props.buildStarted) { color = "purple"; text = "Building, please wait"; }
+		else if (this.props.loading) { color = "yellow"; text = "Thinking..."; }
+		else if (this.props.resetting) { color = 'blue'; text = 'Resetting...'; }
+		else { color = 'transparent'; text = '...Awaiting input...'; }
 		var style = { backgroundColor: color }
-		return <div id="statusBar" style={style}>{text.toUpperCase()}</div>;
+		return <div id="statusBar" style={style}>{text}</div>;
 	}
 });
 var ModuleListItem = React.createClass({

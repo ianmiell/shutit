@@ -16,8 +16,8 @@ class alfs(ShutItModule):
 		password = '2mvjsthr'
 		src_archive = '/mnt/build_dir/src_archive'
 		# install programs
-		shutit.install('build-essential bison subversion wget curl texinfo libxml2 gawk patch sudo ncurses-dev libxml2-utils libxml2-dev locales tidy docbook-xml')
-		shutit.install('vim strace xterm') # optional
+		shutit.install('build-essential bison subversion wget curl texinfo libxml2 gawk patch sudo ncurses-dev libxml2-utils libxml2-dev locales tidy docbook-xml udev')
+		#shutit.install('vim strace xterm') # optional
 		# Try and sort out locale
 		shutit.send('''echo "LANG=en_US.UTF-8" > /etc/default/locale''')
 		shutit.send('echo "LC_MESSAGES=POSIX" >> /etc/default/locale')
@@ -46,7 +46,7 @@ class alfs(ShutItModule):
 		shutit.send('svn co svn://svn.linuxfromscratch.org/ALFS/jhalfs/trunk jhalfs-trunk')
 		shutit.send('cd jhalfs-trunk')
 		shutit.send('mkdir -p ' + src_archive)
-		shutit.multisend('make config',{r'\(GETPKG\)':'y',r'\(SRC_ARCHIVE\)':src_archive,r'\(RETRYSRCDOWNLOAD\)':'y',r'\(RETRYDOWNLOADCNT\)':'',r'\(DOWNLOADTIMEOUT\)':'',r'\(SERVER\)':'',r'\(CONFIG_TESTS\)':'n',r'\(LANG\)':'C',r'Groff page size':'2',r'Create SBU':'n',r'\(BOOK_LFS\)':'1',r'relSVN':'',r'\(CUSTOM_TOOLS\)':'n',r'\(BLFS_TOOL\)':'y','\(BLFS_SVN\)':'1',r'\(DEP_LIBXML\)':'y',r'\(DEP_LIBXSLT\)':'y',r'\(DEP_TIDY\)':'y',r'\(DEP_DBXML\)':'y',r'\(DEP_LYNX\)':'n',r'\(DEP_SUDO\)':'y',r'\(DEP_WGET\)':'y',r'\(DEP_GPM\)':'n',r'\(DEP_SVN\)':'n',r'\(DEP_PYTHON\)':'n',r'\(DEP_OPENSSL\)':'y',r'\(BLFS_ROOT\)':'/blfs_root',r'\(BLFS_XML\)':'blfs-xml',r'\(TRACKING_DIR\)':'/var/lib/jhalfs/BLFS',r'\(CONFIG_USER\)':'',r'\(BUILDDIR\)':'',r'\(CLEAN\)':'',r'\(PKGMNGT\)':'',r'\(INSTALL_LOG\)':'',r'\(HAVE_FSTAB\)':'',r'\(CONFIG_BUILD_KERNEL\)':'',r'\(STRIP\)':'',r'\(VIMLANG\)':'',r'\(NO_PROGRESS_BAR\)':'y',r'\(TIMEZONE\)':'',r'\(FULL_LOCALE\)':'n',r'\(COMPARE\)':'',r'\(CONFIG_OPTIMIZE\)':'',r'\(SCRIPT_ROOT\)':'',r'\(JHALFSDIR\)':'',r'\(LOGDIRBASE\)':'',r'\(LOGDIR\)':'',r'\(TESTLOGDIRBASE\)':'',r'\(TESTLOGDIR\)':'',r'\(FILELOGDIRBASE\)':'',r'\(FILELOGDIR\)':'',r'\(ICALOGDIR\)':'',r'\(FARCELOGDIR\)':'',r'\(MKFILE\)':'',r'\(XSL\)':'',r'\(PKG_LST\)':'',r'\(REBUILD_MAKEFILE\)':'',r'\(RUNMAKE\)':'y'})
+		shutit.multisend('make config',{r'\(GETPKG\)':'y',r'\(SRC_ARCHIVE\)':src_archive,r'\(RETRYSRCDOWNLOAD\)':'y',r'\(RETRYDOWNLOADCNT\)':'',r'\(DOWNLOADTIMEOUT\)':'',r'\(SERVER\)':'',r'\(CONFIG_TESTS\)':'n',r'\(LANG\)':'C',r'Groff page size':'2',r'Create SBU':'n',r'\(BOOK_LFS\)':'1',r'relSVN':'',r'\(CUSTOM_TOOLS\)':'n',r'\(BLFS_TOOL\)':'y','\(BLFS_SVN\)':'1',r'\(DEP_LIBXML\)':'y',r'\(DEP_LIBXSLT\)':'y',r'\(DEP_TIDY\)':'y',r'\(DEP_DBXML\)':'y',r'\(DEP_LYNX\)':'n',r'\(DEP_SUDO\)':'y',r'\(DEP_WGET\)':'y',r'\(DEP_GPM\)':'y',r'\(DEP_SVN\)':'n',r'\(DEP_PYTHON\)':'y',r'\(DEP_OPENSSL\)':'y',r'\(BLFS_ROOT\)':'/blfs_root',r'\(BLFS_XML\)':'blfs-xml',r'\(TRACKING_DIR\)':'/var/lib/jhalfs/BLFS',r'\(CONFIG_USER\)':'',r'\(BUILDDIR\)':'',r'\(CLEAN\)':'n',r'\(PKGMNGT\)':'',r'\(INSTALL_LOG\)':'',r'\(HAVE_FSTAB\)':'n',r'\(CONFIG_BUILD_KERNEL\)':'n',r'\(STRIP\)':'',r'\(VIMLANG\)':'',r'\(NO_PROGRESS_BAR\)':'y',r'\(TIMEZONE\)':'',r'\(FULL_LOCALE\)':'n',r'\(COMPARE\)':'',r'\(CONFIG_OPTIMIZE\)':'',r'\(SCRIPT_ROOT\)':'',r'\(JHALFSDIR\)':'',r'\(LOGDIRBASE\)':'',r'\(LOGDIR\)':'',r'\(TESTLOGDIRBASE\)':'',r'\(TESTLOGDIR\)':'',r'\(FILELOGDIRBASE\)':'',r'\(FILELOGDIR\)':'',r'\(ICALOGDIR\)':'',r'\(FARCELOGDIR\)':'',r'\(MKFILE\)':'',r'\(XSL\)':'',r'\(PKG_LST\)':'',r'\(REBUILD_MAKEFILE\)':'',r'\(RUNMAKE\)':'y'})
 		shutit.send('''sed -i '313,320s/.*//' jhalfs''') # remove stuff that asks us questions
 		shutit.send('''sed -i '94,104s/.*//' jhalfs''') # remove stuff that asks us questions
 		shutit.send('./jhalfs run',exit_values=['0','1'])
@@ -60,10 +60,10 @@ class alfs(ShutItModule):
 		shutit.send('mkdir -p /opt/alfs_build')
 		# mv rather than delete, as resluting image will have record in
 		shutit.send('mv /mnt/build_dir/sources /opt/alfs_build')
-		shutit.send('mv /mnt/build_dir/tools /opt/alfs/build')
-		shutit.send('mv ' + src_archive + ' /opt/alfs/build')
-		shutit.send('mv /mnt/build_dir/jhalfs* /opt/alfs/build')
-		shutit.send('mv /mnt/build_dir/blfs_root /opt/alfs/build')
+		shutit.send('mv /mnt/build_dir/tools /opt/alfs_build')
+		shutit.send('mv ' + src_archive + ' /opt/alfs_build')
+		shutit.send('mv /mnt/build_dir/jhalfs* /opt/alfs_build')
+		shutit.send('mv /mnt/build_dir/blfs_root /opt/alfs_build')
 		shutit.send('cd /mnt/build_dir')
 		shutit.send('tar -cf - . | xz - > /artifacts/lfs.tar.xz')
 		return True
@@ -74,7 +74,7 @@ class alfs(ShutItModule):
 
 	def check_ready(self, shutit):
 		if shutit.file_exists('/artifacts/lfs.tar.xz'):
-			shutit.log('REMOVE THE lfs.tar.xz FILE IN YOUR artifacts folder!')
+			shutit.log('REMOVE THE lfs.tar.xz FILE IN YOUR artifacts folder!',force_stdout=True)
 			return False
 		return True
 	
