@@ -576,7 +576,7 @@ def check_ready(shutit):
 		module = shutit.shutit_map[module_id]
 		shutit.log('considering check_ready (is it ready to be built?): ' +
 		           module_id, code='31')
-		if cfg[module_id]['shutit.core.module.build'] and not is_installed(shutit,module) and module.module_id not in shutit.cfg['target']['modules_ready']:
+		if cfg[module_id]['shutit.core.module.build'] and module.module_id not in shutit.cfg['target']['modules_ready'] and not is_installed(shutit,module):
 			shutit.log('checking whether module is ready to build: ' + module_id,
 			           code='31')
 			shutit.login(prompt_prefix=module_id)
