@@ -542,9 +542,6 @@ class setup(ShutItModule):
 		shutit.add_to_bashrc('export HISTSIZE=99999999')
 		# Ignore leading-space commands in the history.
 		shutit.add_to_bashrc('export HISTCONTROL=ignorespace:cmdhist')
-		# Hist time format in something easily ordered
-		shutit.send(r"export HISTTIMEFORMAT='%s: '")
-		shutit.send(r'''echo "export HISTTIMEFORMAT='%s: ' >> ~/.bashrc''')
 		if shutit.cfg['target']['install_type'] == 'apt':
 			shutit.add_to_bashrc('export DEBIAN_FRONTEND=noninteractive')
 			if do_update:
