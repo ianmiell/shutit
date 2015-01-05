@@ -576,7 +576,7 @@ def check_ready(shutit):
 		module = shutit.shutit_map[module_id]
 		shutit.log('considering check_ready (is it ready to be built?): ' +
 		           module_id, code='31')
-		if cfg[module_id]['shutit.core.module.build'] and not is_installed(shutit,module) and module.module_id not in shutit.cfg['target']['modules_ready']:
+		if cfg[module_id]['shutit.core.module.build'] and module.module_id not in shutit.cfg['target']['modules_ready'] and not is_installed(shutit,module):
 			shutit.log('checking whether module is ready to build: ' + module_id,
 			           code='31')
 			shutit.login(prompt_prefix=module_id)
@@ -857,19 +857,22 @@ def shutit_main():
 			if module_id in shutit.cfg and shutit.cfg[module_id]['shutit.core.module.build']
 		])
 		digraph = digraph + '\n}'
-		shutit.cfg['build']['depgraph'] = digraph
+		f = file(cfg['build']['show_config_path'] + '/digraph.txt','w')
+		f.write(digraph)
+		f.close()
 		digraph_all = 'digraph depgraph {\n'
 		digraph_all = digraph_all + '\n'.join([
 			make_dep_graph(module) for module_id, module in shutit.shutit_map.items()
 		])
 		digraph_all = digraph_all + '\n}'
-		shutit.cfg['build']['depgraph_all'] = digraph_all
+		f = file(cfg['build']['show_config_path'] + '/digraph_all.txt','w')
+		f.write(digraph_all)
+		f.close()
 		shutit.log('\n================================================================================\n' + digraph_all, force_stdout=True)
 		shutit.log('\nAbove is the digraph for all modules seen in this shutit invocation. Use graphviz to render into an image, eg\n\n\tshutit depgraph -m library | dot -Tpng -o depgraph.png', force_stdout=True)
 		shutit.log('\n================================================================================\n', force_stdout=True)
 		shutit.log('\n\n' + digraph, force_stdout=True)
 		shutit.log('\n================================================================================\n' + digraph, force_stdout=True)
-		shutit.log('\nAbove is the digraph for this shutit invocation. Use graphviz to render into an image, eg\n\n\tshutit depgraph -m library | dot -Tpng -o depgraph.png', force_stdout=True)
 		shutit.log('\n================================================================================\n', force_stdout=True)
 	# Dependency validation done, now collect configs of those marked for build.
 	config_collection_for_built(shutit)
@@ -878,6 +881,18 @@ def shutit_main():
 				   force_stdout=True)
 		# Set build completed
 		cfg['build']['completed'] = True
+		f = file(cfg['build']['show_config_path'] + '/cfg.txt','w')
+		f.write(util.print_config(cfg, history=cfg['build']['cfghistory']))
+		f.close()
+		shutit.log('================================================================================', force_stdout=True)
+		shutit.log('Config details placed in: ' + cfg['build']['show_config_path'], force_stdout=True)
+		shutit.log('================================================================================', force_stdout=True)
+		shutit.log('To render the digraph of this build into an image run eg:\n\ndot -Tgv -o ' + cfg['build']['show_config_path'] + '/digraph.gv ' + cfg['build']['show_config_path'] + '/digraph.txt && dot -Tpdf -o digraph.pdf ' + cfg['build']['show_config_path'] + '/digraph.gv\n\n', force_stdout=True)
+		shutit.log('================================================================================', force_stdout=True)
+		shutit.log('To render the digraph of all visible modules into an image, run eg:\n\ndot -Tgv -o ' + cfg['build']['show_config_path'] + '/digraph_all.gv ' + cfg['build']['show_config_path'] + '/digraph_all.txt && dot -Tpdf -o digraph_all.pdf ' + cfg['build']['show_config_path'] + '/digraph_all.gv\n\n', force_stdout=True)
+		shutit.log('================================================================================', force_stdout=True)
+		shutit.log('\nConfiguration details have been written to the folder: ' + cfg['build']['show_config_path'] + '\n', force_stdout=True)
+		shutit.log('================================================================================', force_stdout=True)
 		return
 	# Check for conflicts now.
 	errs.extend(check_conflicts(shutit))

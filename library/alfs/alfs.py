@@ -57,6 +57,10 @@ class alfs(ShutItModule):
 		shutit.send('make',timeout=999999) # this will fail, but needs to be run to get to correct it (next line)
 		shutit.logout()
 		shutit.send('echo "ShutIt Distro 0.1" > /mnt/build_dir/etc/issue')
+		shutit.send('echo "export HISTCONTROL=ignorespace:cmdhist" >> /mnt/build_dir/root/.bashrc')
+		shutit.send('echo "export HISTSIZE=99999999" >> /mnt/build_dir/root/.bashrc')
+		shutit.send('''echo "export HISTTIMEFORMAT='%s: '" >> /mnt/build_dir/root/.bashrc''')
+		shutit.send('echo "shopt -s histappend" >> /mnt/build_dir/root/.bashrc')
 		shutit.send('mkdir -p /opt/alfs_build')
 		# mv rather than delete, as resluting image will have record in
 		shutit.send('mv /mnt/build_dir/sources /opt/alfs_build')

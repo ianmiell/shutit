@@ -25,5 +25,5 @@ name:alfs
 ## tag suffix, defaults to "latest", eg registry/username/repository:latest.
 ## empty is also "latest"
 #tag_name:latest
-#suffix_date:no
+#suffix_date:yes
 #suffix_format:%s
