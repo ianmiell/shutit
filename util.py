@@ -530,6 +530,13 @@ def parse_args(shutit):
 		}
 		return
 
+	if cfg['action']['show_config']:
+		cfg['build']['show_config_path'] = '/tmp/shutit/show_config/' + cfg['build']['build_id']
+		if os.path.exists(cfg['build']['show_config_path']):
+			print(cfg['build']['show_config_path'] + ' exists. Please move and re-run.')
+			sys.exit()
+		os.makedirs(cfg['build']['show_config_path'])
+
 	shutit_home = cfg['shutit_home'] = os.path.expanduser('~/.shutit')
 	# We're not creating a skeleton, so make sure we have the infrastructure
 	# in place for a user-level storage area
@@ -713,14 +720,19 @@ def load_configs(shutit):
 	# on an already built image should be ok, and is advised to reduce diff space required.
 	if cfg['build']['interactive'] >= 3 or cfg['action']['show_config']:
 		msg = ''
-		print textwrap.dedent("""\n""") + msg + textwrap.dedent("""Looking at config files in the following order:""")
+		print textwrap.dedent("""\n""") + textwrap.dedent("""Looking at config files in the following order:""")
 		for c in configs:
 			if type(c) is tuple:
 				c = c[0]
 			msg = msg + '    \n' + c
 			shutit.log('    ' + c)
-		print textwrap.dedent("""\n""") + msg + textwrap.dedent(colour('31', '\n\n[Hit return to continue]'))
-		util_raw_input(shutit=shutit)
+		if cfg['build']['interactive'] >= 3:
+			print textwrap.dedent("""\n""") + msg + textwrap.dedent(colour('31', '\n\n[Hit return to continue]'))
+			util_raw_input(shutit=shutit)
+		if cfg['action']['show_config']:
+			f = file(cfg['build']['show_config_path'] + '/config_file_order.txt','w')
+			f.write(msg)
+			f.close()
 
 	# Interpret any config overrides, write to a file and add them to the
 	# list of configs to be interpreted
@@ -751,7 +763,7 @@ def load_shutit_modules(shutit):
 		load_all_from_path(shutit, shutit_module_path)
 	# Now we should have all modules.
 	if shutit.cfg['action']['show_config']:
-		print "Modules in order:"
+		msg = "Modules in order:\n"
 		a = {}
 		for m in shutit.shutit_modules:
 			a.update({m.module_id:m.run_order})
@@ -765,7 +777,11 @@ def load_shutit_modules(shutit):
 		count = 0
 		for i in l:
 			count = count + 1
-			print 'loaded module: ' + i[0] + ', ' + i[1] + ', ' + str(count)
+			msg = msg + 'loaded module: ' + i[0] + ', ' + i[1] + ', ' + str(count) + '\n'
+		print msg
+		f = file(shutit.cfg['build']['show_config_path'] + '/module_order.txt','w')
+		f.write(msg)
+		f.close()
 
 
 def print_config(cfg, hide_password=True, history=False):
