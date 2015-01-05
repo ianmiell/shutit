@@ -834,7 +834,7 @@ class ShutIt(object):
 		"""
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
-		#self.add_line_to_file(line, '~/.bashrc', expect=expect, match_regexp=match_regexp) # This won't work for root - TODO
+		self.add_line_to_file(line, '${HOME}/.bashrc', expect=expect, match_regexp=match_regexp) # This won't work for root - TODO
 		self.add_line_to_file(line, '/etc/bash.bashrc', expect=expect, match_regexp=match_regexp)
 		return self.add_line_to_file(line, '/etc/profile', expect=expect, match_regexp=match_regexp)
 

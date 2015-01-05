@@ -891,6 +891,8 @@ def shutit_main():
 		shutit.log('================================================================================', force_stdout=True)
 		shutit.log('To render the digraph of all visible modules into an image, run eg:\n\ndot -Tgv -o ' + cfg['build']['show_config_path'] + '/digraph_all.gv ' + cfg['build']['show_config_path'] + '/digraph_all.txt && dot -Tpdf -o digraph_all.pdf ' + cfg['build']['show_config_path'] + '/digraph_all.gv\n\n', force_stdout=True)
 		shutit.log('================================================================================', force_stdout=True)
+		shutit.log('\nConfiguration details have been written to the folder: ' + cfg['build']['show_config_path'] + '\n', force_stdout=True)
+		shutit.log('================================================================================', force_stdout=True)
 		return
 	# Check for conflicts now.
 	errs.extend(check_conflicts(shutit))
