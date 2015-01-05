@@ -532,7 +532,9 @@ class setup(ShutItModule):
 		and updating package management.
 		"""
 		do_update = shutit.cfg[self.module_id]['do_update']
-		shutit.send("touch ~/.bashrc && sed -i 's/.*HISTSIZE=[0-9]*$//' ~/.bashrc") 
+		shutit.send("touch ~/.bashrc")
+		# Remvoe the 
+		shutit.send("sed -i 's/.*HISTSIZE=[0-9]*$//' ~/.bashrc") 
 		# eg centos doesn't have this
 		if shutit.file_exists('/etc/bash.bashrc'):
 			shutit.send("sed -i 's/.*HISTSIZE=[0-9]*$//' /etc/bash.bashrc") 
@@ -540,6 +542,9 @@ class setup(ShutItModule):
 		shutit.add_to_bashrc('export HISTSIZE=99999999')
 		# Ignore leading-space commands in the history.
 		shutit.add_to_bashrc('export HISTCONTROL=ignorespace:cmdhist')
+		# Hist time format in something easily ordered
+		shutit.send(r"export HISTTIMEFORMAT='%s: '")
+		shutit.send(r'''echo "export HISTTIMEFORMAT='%s: ' >> ~/.bashrc''')
 		if shutit.cfg['target']['install_type'] == 'apt':
 			shutit.add_to_bashrc('export DEBIAN_FRONTEND=noninteractive')
 			if do_update:
