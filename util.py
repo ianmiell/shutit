@@ -85,7 +85,7 @@ rm:no
 # If set to "artifacts", then defaults to the artifacts folder in the cwd.
 artifacts_dir:
 # Docker executable on your host machine
-docker_executable:docker.io
+docker_executable:docker
 # space separated list of dns servers to use
 dns:
 # Password for the username above on the host (only needed if sudo is needed)
