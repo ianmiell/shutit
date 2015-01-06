@@ -364,7 +364,8 @@ class ShutIt(object):
 			cfg['build']['last_output'] = '\n'.join(child.before.split('\n')[1:])
 			if check_exit == True:
 				# store the output
-				if not self._check_exit(send, expect, child, timeout, exit_values):
+				if not self._check_exit(send, expect, child, timeout, exit_values, retry=retry):
+					self.log('Sending: ' + send + '\nfailed, retrying')
 					retry = retry - 1
 					continue
 			break
@@ -414,7 +415,7 @@ class ShutIt(object):
 				self.pause_point(msg + '\n\nPause point on exit_code != 0 (' +
 					res + '). CTRL-C to quit', child=child, level=0)
 			else:
-				if retry > 0:
+				if retry == 0:
 					shutit.fail('Exit value from command\n' + send +
 						'\nwas:\n' + res)
 				else:

@@ -17,7 +17,7 @@ class alfs(ShutItModule):
 		src_archive = '/mnt/build_dir/src_archive'
 		# install programs
 		shutit.install('build-essential bison subversion wget curl texinfo libxml2 gawk patch sudo ncurses-dev libxml2-utils libxml2-dev locales tidy docbook-xml udev')
-		#shutit.install('vim strace xterm') # optional
+		shutit.install('vim strace xterm') # optional
 		# Try and sort out locale
 		shutit.send('''echo "LANG=en_US.UTF-8" > /etc/default/locale''')
 		shutit.send('echo "LC_MESSAGES=POSIX" >> /etc/default/locale')
@@ -59,7 +59,7 @@ class alfs(ShutItModule):
 		shutit.send('echo "ShutIt Distro 0.1" > /mnt/build_dir/etc/issue')
 		shutit.send('echo "export HISTCONTROL=ignorespace:cmdhist" >> /mnt/build_dir/root/.bashrc')
 		shutit.send('echo "export HISTSIZE=99999999" >> /mnt/build_dir/root/.bashrc')
-		shutit.send('''echo "export HISTTIMEFORMAT='%s: '" >> /mnt/build_dir/root/.bashrc''')
+		shutit.send('''echo 'export HISTTIMEFORMAT="%s: "' >> /mnt/build_dir/root/.bashrc''')
 		shutit.send('echo "shopt -s histappend" >> /mnt/build_dir/root/.bashrc')
 		shutit.send('mkdir -p /opt/alfs_build')
 		# mv rather than delete, as resluting image will have record in
