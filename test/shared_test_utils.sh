@@ -1,6 +1,6 @@
 #!/bin/bash
 
-[ "x$DOCKER" != "x" ] || DOCKER="docker.io"
+[ "x$DOCKER" != "x" ] || DOCKER="docker"
 [ "x$TESTS" != "x" ] || TEST="basic"
 
 # TODO: do this in this directory and up two/shutit*
