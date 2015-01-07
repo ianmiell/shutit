@@ -363,7 +363,8 @@ class ShutIt(object):
 			cfg['build']['last_output'] = '\n'.join(child.before.split('\n')[1:])
 			if check_exit == True:
 				# store the output
-				if not self._check_exit(send, expect, child, timeout, exit_values):
+				if not self._check_exit(send, expect, child, timeout, exit_values, retry=retry):
+					self.log('Sending: ' + send + '\nfailed, retrying')
 					retry = retry - 1
 					continue
 			break
@@ -413,9 +414,9 @@ class ShutIt(object):
 				self.pause_point(msg + '\n\nPause point on exit_code != 0 (' +
 					res + '). CTRL-C to quit', child=child, level=0)
 			else:
-				if retry > 0:
+				if retry == 0:
 					shutit.fail('Exit value from command\n' + send +
-						'\nwas:\n' + res)
+						'\nwas:\n' + res, throw_exception=True)
 				else:
 					#print "CHECK EXIT RETURNS False"
 					return False
@@ -1385,6 +1386,48 @@ class ShutIt(object):
 		self.send('exit', expect=expect, check_exit=False)
 	# alias exit_shell to logout
 	exit_shell = logout
+
+
+#	def get_url(self,
+#	            filename,
+#	            locations,
+#	            command='wget',
+#	            expect=None,
+#	            child=None,
+#	            timeout=3600,
+#	            fail_on_empty_before=True,
+#	            record_command=True,
+#	            exit_values=None,
+#	            echo=False,
+#	            retry=3):
+#		"""Handles the getting of a url for you.
+#		filename is filename, eg ajar.jar
+#		locations is a list of mirrors, eg ['ftp://loc.org','http://anotherloc.com/jars']"""
+#		# TODO: use filewatcher? http://www.filewatcher.com/m/which-2.20.tar.gz.135372-6.html
+#		# TODO: md5sum checking
+#		child = child or self.get_default_child()
+#		expect = expect or self.get_default_expect()
+#		if len(locations) == 0 or retry < 1:
+#			# TODO throw error, check type above also
+#			return False
+#		for location in locations:
+#			while retry > 0:
+#				# TODO only one trailing slash if already supplied /
+#				send = command + ' ' + location + '/' + filename
+#				self.send(send,check_exit=False,child=child,expect=expect,timeout=timeout,fail_on_empty_before=fail_on_empty_before,record_command=record_command,echo=echo)
+#				if not self._check_exit(send, expect, child, timeout, exit_values, retry=retry):
+#					self.log('Sending: ' + send + '\nfailed, retrying')
+#					retry = retry - 1
+#					if retry == 0:
+#						# Don't quit, let's break out of this location
+#						break
+#					continue
+#				# If we get here, all is ok.
+#				return True
+#		# If we get here, it didn't work
+#		return False
+		
+			
 
 
 	def setup_prompt(self,
