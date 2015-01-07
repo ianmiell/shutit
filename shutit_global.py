@@ -316,7 +316,6 @@ class ShutIt(object):
 								and cfg[i][j] == send):
 							self.shutit_command_history.append \
 								('#redacted command, password')
-							print self.shutit_command_history
 							ok_to_record = False
 							break
 					if not ok_to_record:
