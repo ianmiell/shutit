@@ -316,7 +316,6 @@ class ShutIt(object):
 								and cfg[i][j] == send):
 							self.shutit_command_history.append \
 								('#redacted command, password')
-							print self.shutit_command_history
 							ok_to_record = False
 							break
 					if not ok_to_record:
@@ -418,7 +417,9 @@ class ShutIt(object):
 					shutit.fail('Exit value from command\n' + send +
 						'\nwas:\n' + res)
 				else:
+					#print "CHECK EXIT RETURNS False"
 					return False
+		#print "CHECK EXIT RETURNS True"
 		return True
 
 
@@ -837,6 +838,53 @@ class ShutIt(object):
 		self.add_line_to_file(line, '${HOME}/.bashrc', expect=expect, match_regexp=match_regexp) # This won't work for root - TODO
 		self.add_line_to_file(line, '/etc/bash.bashrc', expect=expect, match_regexp=match_regexp)
 		return self.add_line_to_file(line, '/etc/profile', expect=expect, match_regexp=match_regexp)
+
+
+	def get_url(self,
+	            filename,
+	            locations,
+	            command='wget',
+	            expect=None,
+	            child=None,
+	            timeout=3600,
+	            fail_on_empty_before=True,
+	            record_command=True,
+	            exit_values=None,
+	            echo=False,
+	            retry=3):
+		"""Handles the getting of a url for you.
+		filename is filename, eg ajar.jar
+		locations is a list of mirrors, eg ['ftp://loc.org','http://anotherloc.com/jars']"""
+		# TODO: use filewatcher? http://www.filewatcher.com/m/which-2.20.tar.gz.135372-6.html
+		# TODO: md5sum checking
+		child = child or self.get_default_child()
+		expect = expect or self.get_default_expect()
+		if len(locations) == 0 or retry < 1:
+			# TODO throw error, check type above also
+			return False
+		for location in locations:
+			print '================================================================================'
+			print location
+			print retry
+			print '================================================================================'
+			while retry > 0:
+				# TODO only one trailing slash if already supplied /
+				send = command + ' ' + location + '/' + filename
+				self.send(send,check_exit=False,child=child,expect=expect,timeout=timeout,fail_on_empty_before=fail_on_empty_before,record_command=record_command,echo=echo)
+				print '2'
+				if not self._check_exit(send, expect, child, timeout, exit_values, retry=0):
+					print '3'
+					self.log('Sending: ' + send + '\nfailed, retrying')
+					retry = retry - 1
+					if retry == 0:
+						# Don't quit, let's break out of this location
+						break
+					continue
+				# If we get here, all is ok.
+				return True
+		# If we get here, it didn't work
+		return False
+
 
 
 	def user_exists(self, user, expect=None, child=None):
