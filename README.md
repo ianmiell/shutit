@@ -666,7 +666,7 @@ Help on methods on the shutit object (defined in shutit_global.py):
        prompt_cfg(self, msg, sec, name, ispass=False)
            Prompt for a config value, possibly saving it to the user-level cfg
        
-       push_repository(self, repository, docker_executable='docker.io', child=None, expect=None)
+       push_repository(self, repository, docker_executable='docker', child=None, expect=None)
            Pushes the repository.
            
            - repository        - 
@@ -838,7 +838,7 @@ Config pertaining to the container.
 # If set to "artifacts", then defaults to the artifacts folder in the cwd.
 artifacts_dir:
 # Docker executable on your host machine
-docker_executable:docker.io
+docker_executable:docker
 # space separated list of dns servers to use
 dns:
 # Password for the username above on the host (only needed if sudo is needed)
