@@ -856,24 +856,21 @@ class ShutIt(object):
 	            retry=3):
 		"""Handles the getting of a url for you.
 		filename is filename, eg ajar.jar
-		locations is a list of mirrors, eg ['ftp://loc.org','http://anotherloc.com/jars']"""
-		# TODO: use filewatcher? http://www.filewatcher.com/m/which-2.20.tar.gz.135372-6.html
-		# TODO: md5sum checking
+		locations is a list of mirrors, 
+		eg get_util('somejar.jar',['ftp://loc.org','http://anotherloc.com/jars'])"""
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
-		if len(locations) == 0 or retry < 1:
-			# TODO throw error, check type above also
-			return False
+		if len(locations) == 0 or type(locations) != list:
+			raise ShutItFailException('Locations should be a list containing base of the url.')
 		retry_orig = retry
 		for location in locations:
 			retry = retry_orig
-			while retry > 0:
-				# TODO only one trailing slash if already supplied /
+			if location[-1] == '/':
+				location = location[0:-1]
+			while retry >= 0:
 				send = command + ' ' + location + '/' + filename
 				self.send(send,check_exit=False,child=child,expect=expect,timeout=timeout,fail_on_empty_before=fail_on_empty_before,record_command=record_command,echo=echo)
-				print '2'
 				if not self._check_exit(send, expect, child, timeout, exit_values, retbool=True):
-					print '3'
 					self.log('Sending: ' + send + '\nfailed, retrying')
 					retry = retry - 1
 					if retry == 0:
@@ -1740,7 +1737,8 @@ class ShutIt(object):
 
 		if server == '' and len(repository) > 30 and push:
 			shutit.fail("""repository name: '""" + repository +
-				"""' too long. If using suffix_date consider shortening""",
+				"""' too long to push. If using suffix_date consider shortening, or consider""" +
+			    """ adding "-s repository push no" to your arguments to prevent pushing.""",
 				child=child, throw_exception=False)
 
 		if self.send('SHUTIT_TMP_VAR=$(' + docker_executable + ' commit ' +
