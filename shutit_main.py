@@ -708,7 +708,7 @@ def do_build(shutit):
 			shutit.log('Starting module')
 			if not module.start(shutit):
 				shutit.fail(module.module_id + ' failed on start',
-				    child=shutit.pexpect_children['target'])
+				    child=shutit.pexpect_children['target_child'])
 
 
 def do_test(shutit):
@@ -734,7 +734,7 @@ def do_test(shutit):
 			shutit.login(prompt_prefix=module_id)
 			if not shutit.shutit_map[module_id].test(shutit):
 				shutit.fail(module_id + ' failed on test',
-				child=shutit.pexpect_children['target'])
+				child=shutit.pexpect_children['target_child'])
 			shutit.logout()
 
 
@@ -763,7 +763,7 @@ def do_finalize(shutit):
 			shutit.login(prompt_prefix=module_id)
 			if not shutit.shutit_map[module_id].finalize(shutit):
 				shutit.fail(module_id + ' failed on finalize',
-			                child=shutit.pexpect_children['target'])
+			                child=shutit.pexpect_children['target_child'])
 			shutit.logout()
 
 

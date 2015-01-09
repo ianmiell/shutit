@@ -38,17 +38,18 @@ class osquery(ShutItModule):
 		shutit.install('libudev-dev')
 		shutit.install('librpm-dev')
 		shutit.install('libblkid-dev')
+		shutit.install('libapt-pkg-dev')
+		shutit.install('libdpkg-dev')
 		shutit.send('pip install jinja2')
 		shutit.send('export CPATH=/usr/lib/x86_64-linux-gnu:/opt/rocksdb/include')
 		shutit.send('export LIBRARY_PATH=/usr/local/lib')
-		shutit.send('pushd /opt')
+		shutit.send('cd /opt')
 		shutit.send('git clone https://github.com/facebook/osquery.git')
-		shutit.send('pushd /opt/osquery')
+		shutit.send('cd /opt/osquery')
 		shutit.send('git submodule init')
 		shutit.send('git submodule update')
 		shutit.send('make')
-		shutit.send('popd')
-		shutit.send('popd')
+		shutit.send('make install')
 		return True
 
 	#def get_config(self, shutit):

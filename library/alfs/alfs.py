@@ -54,7 +54,7 @@ class alfs(ShutItModule):
 		shutit.send('cd /mnt/build_dir/jhalfs')
 		shutit.send('make',timeout=999999,exit_values=['0','2']) # this will fail, but needs to be run to get to correct it (next line)
 		shutit.send(r'''sudo sed -i '4s/.*/cp $PKGDIR\/gettext-runtime\/intl\/plural.c $PKGDIR\/gettext-runtime\/intl\/pluralx.c/' /mnt/build_dir/jhalfs/lfs-commands/chapter05/052-gettext''') #HACK: sudo vi 052-gettext 
-		shutit.send('make',timeout=999999) # this will fail, but needs to be run to get to correct it (next line)
+		shutit.send('make',timeout=999999)
 		shutit.logout()
 		shutit.send('echo "ShutIt Distro 0.1" > /mnt/build_dir/etc/issue')
 		shutit.send('echo "export HISTCONTROL=ignorespace:cmdhist" >> /mnt/build_dir/root/.bashrc')
