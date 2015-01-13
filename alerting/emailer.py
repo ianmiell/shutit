@@ -174,8 +174,7 @@ class Emailer():
 		"""
 		shutit = self.shutit
 		host_path = '/tmp'
-		host_fn = os.path.join(host_path, os.path.basename(filename))
-		shutit.get_file(filename, host_path)
+		host_fn = shutit.get_file(filename, host_path)
 		if self.config['shutit.core.alerting.emailer.compress']:
 			filetype = 'x-gzip-compressed'
 			filename = self.__gzip(host_fn)

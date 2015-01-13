@@ -990,8 +990,9 @@ class ShutIt(object):
 			if user != 'root':
 				shutit.login(user)
 		shutit.send('cp ' + target_path + ' /artifacts')
-		shutil.copyfile(os.path.join(artifacts_dir,filename),os.path.join(host_path,filename))
+		shutil.copyfile(os.path.join(artifacts_dir,filename),os.path.join(host_path,'{0}_'.format(shutit.cfg['build']['build_id']) + filename))
 		shutit.send('rm -f /artifacts/' + filename)
+		return os.path.join(host_path,'{0}_'.format(shutit.cfg['build']['build_id']) + filename)
 
 
 	def prompt_cfg(self, msg, sec, name, ispass=False):
