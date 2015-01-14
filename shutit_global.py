@@ -479,6 +479,9 @@ class ShutIt(object):
 			self.log('Sending file to' + path)
 			if log:
 				self.log('contents >>>' + contents + '<<<')
+		print 'HERE=================================='
+		print cfg['build']['delivery']
+		print 'HERE=================================='
 		if cfg['build']['delivery'] == 'bash':
 			f = open(path,'w')
 			f.write(contents)
