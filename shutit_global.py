@@ -1898,7 +1898,7 @@ def init():
 	cfg['build']['interactive'] = 1 # Default to true until we know otherwise
 	cfg['build']['build_log']   = None
 	cfg['build']['report']      = ''
-	cfg['build']['report_final_messsages'] = ''
+	cfg['build']['report_final_messages'] = ''
 	cfg['build']['debug']       = False
 	cfg['build']['completed']   = False
 	cfg['target']            = {}
