@@ -519,6 +519,7 @@ class ShutIt(object):
 	                   hostfilepath,
 	                   expect=None,
 	                   child=None,
+	                   timeout=3600,
 	                   log=True):
 		"""Send file from host machine to given path
 
@@ -530,13 +531,21 @@ class ShutIt(object):
 		"""
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
-		if os.path.isfile(hostfilepath):
-			self.send_file(path, open(hostfilepath).read(), expect=expect, 
-				child=child, log=log)
-		elif os.path.isdir(hostfilepath):
-			self.send_host_dir(path, hostfilepath, expect=expect,
-				child=child, log=log)
+		if cfg['build']['delivery'] == 'bash':
+			if os.path.isfile(hostfilepath):
+				# assumes that we have perms to do this
+				self.send('cp ' + hostfilepath + ' ' + path,expect=expect, child=child, timeout=timeout)
+			elif os.path.isdir(hostfilepath):
+				# assumes that we have perms to do this
+				self.send('cp -r ' + hostfilepath + ' ' + path,expect=expect, child=child, timeout=timeout)
 		else:
+			if os.path.isfile(hostfilepath):
+				self.send_file(path, open(hostfilepath).read(), expect=expect, 
+					child=child, log=log)
+			elif os.path.isdir(hostfilepath):
+				self.send_host_dir(path, hostfilepath, expect=expect,
+					child=child, log=log)
+			else:
 			shutit.fail('send_host_file - file: ' + hostfilepath +
 				' does not exist as file or dir. cwd is: ' + os.getcwd(),
 				child=child, throw_exception=False)
