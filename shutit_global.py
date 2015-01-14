@@ -479,39 +479,44 @@ class ShutIt(object):
 			self.log('Sending file to' + path)
 			if log:
 				self.log('contents >>>' + contents + '<<<')
-		# Try and echo as little as possible
-		oldlog = child.logfile_send
-		child.logfile_send = None
-		# Prepare to send the contents as base64 so we don't have to worry about
-		# special shell characters
-		# TODO: hide the gory details:
-		# http://stackoverflow.com/questions/5633472
-		#stty_orig=`stty -g`
-		#stty $stty_orig && echo forcenewline
-		contents64 = base64.standard_b64encode(contents)
-		# if replace funny chars
-		path = path.replace(' ', '\ ')
-		child.sendline("base64 --decode > " + path)
-		child.expect('\r\n')
-		# We have to batch the file up to avoid hitting pipe buffer limit. This
-		# is 4k on modern machines (it seems), but we choose 4000b for safety
-		# https://github.com/pexpect/pexpect/issues/55
-		batchsize = 4000
-		for batch in range(0, len(contents64), batchsize):
-			child.sendline(contents64[batch:batch + batchsize])
-		# Make sure we've synced the prompt before we send EOF. I don't know why
-		# this requires three sendlines to generate 2x'\r\n'.
-		# Note: we can't rely on a '\r\n' from the batching because the file
-		# being sent may validly be empty.
-		child.sendline()
-		child.sendline()
-		child.sendline()
-		child.expect('\r\n\r\n', timeout=999999)
-		child.sendeof()
-		# Done sending the file
-		child.expect(expect)
-		self._check_exit("#send file to " + path, expect, child)
-		child.logfile_send = oldlog
+		if cfg['build']['delivery'] == 'bash':
+			f = open(path,'w')
+			f.write(contents)
+			f.close()
+		else:
+			# Try and echo as little as possible
+			oldlog = child.logfile_send
+			child.logfile_send = None
+			# Prepare to send the contents as base64 so we don't have to worry about
+			# special shell characters
+			# TODO: hide the gory details:
+			# http://stackoverflow.com/questions/5633472
+			#stty_orig=`stty -g`
+			#stty $stty_orig && echo forcenewline
+			contents64 = base64.standard_b64encode(contents)
+			# if replace funny chars
+			path = path.replace(' ', '\ ')
+			child.sendline("base64 --decode > " + path)
+			child.expect('\r\n')
+			# We have to batch the file up to avoid hitting pipe buffer limit. This
+			# is 4k on modern machines (it seems), but we choose 4000b for safety
+			# https://github.com/pexpect/pexpect/issues/55
+			batchsize = 4000
+			for batch in range(0, len(contents64), batchsize):
+				child.sendline(contents64[batch:batch + batchsize])
+			# Make sure we've synced the prompt before we send EOF. I don't know why
+			# this requires three sendlines to generate 2x'\r\n'.
+			# Note: we can't rely on a '\r\n' from the batching because the file
+			# being sent may validly be empty.
+			child.sendline()
+			child.sendline()
+			child.sendline()
+			child.expect('\r\n\r\n', timeout=999999)
+			child.sendeof()
+			# Done sending the file
+			child.expect(expect)
+			self._check_exit("#send file to " + path, expect, child)
+			child.logfile_send = oldlog
 
 
 	def send_host_file(self,
