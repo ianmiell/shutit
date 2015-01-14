@@ -917,7 +917,7 @@ def shutit_main():
 	shutit.log(util.build_report(shutit, '#Module: N/A (END)'), prefix=False,
 			   force_stdout=True, code='31')
 	if shutit.cfg['build']['report_final_messages'] != '':
-		shutit.log(shutit.cfg['build']['report_final_messages']), prefix=False,
+		shutit.log(shutit.cfg['build']['report_final_messages'], prefix=False,
 		           force_stdout=True, code='31')
 
 	if shutit.cfg['build']['interactive'] >= 3:
