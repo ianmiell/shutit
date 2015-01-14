@@ -1008,8 +1008,8 @@ class ShutIt(object):
 		config_parser = cfg['config_parser']
 		usercfg       = os.path.join(cfg['shutit_home'], 'config')
 
-		print util.colour('34', '\nPROMPTING FOR CONFIG: %s' % (cfgstr,))
-		print util.colour('34', '\n' + msg + '\n')
+		print util.colour('31', '\nPROMPTING FOR CONFIG: %s' % (cfgstr,))
+		print util.colour('31', '\n' + msg + '\n')
 		
 		if not sys.stdout.isatty():
 			shutit.fail('ShutIt is not in a terminal so cannot prompt ' +
@@ -1047,7 +1047,7 @@ class ShutIt(object):
 				subcp for subcp, filename, _fp in config_parser.layers
 				if filename == usercfg
 			][0]
-			if util.util_raw_input(shutit=self,prompt=util.colour('34',
+			if util.util_raw_input(shutit=self,prompt=util.colour('31',
 					'Do you want to save this to your ' +
 					'user settings? y/n: '),default='y') == 'y':
 				sec_toset, name_toset, val_toset = sec, name, val
@@ -1636,7 +1636,7 @@ class ShutIt(object):
 
 	def push_repository(self,
 	                    repository,
-	                    docker_executable='docker.io',
+	                    docker_executable='docker',
 	                    child=None,
 	                    expect=None):
 		"""Pushes the repository.
