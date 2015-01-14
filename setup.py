@@ -191,8 +191,8 @@ class ConnDocker(ShutItConnModule):
 				sec, name, ispass = 'host', 'password', True
 			else:
 				msg = (fail_msg + ', your docker_executable ' +
-				       'setting seems to be wrong.\nPlease confirm your host ' +
-				       'password.')
+				       'setting seems to be wrong.\nPlease confirm your docker ' +
+				       'executable, eg "sudo docker".')
 				sec, name, ispass = 'host', 'docker_executable', False
 			cfg[sec][name] = shutit.prompt_cfg(msg, sec, name, ispass=ispass)
 			return False

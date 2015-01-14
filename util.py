@@ -569,6 +569,7 @@ def parse_args(shutit):
 		cfg['build']['delivery']    = 'bash'
 	elif args.delivery == None:
 		cfg['build']['conn_module'] = None
+		cfg['build']['delivery']    = 'target'
 
 	# Get these early for this part of the build.
 	# These should never be config arguments, since they are needed before config is passed in.

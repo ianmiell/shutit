@@ -479,39 +479,44 @@ class ShutIt(object):
 			self.log('Sending file to' + path)
 			if log:
 				self.log('contents >>>' + contents + '<<<')
-		# Try and echo as little as possible
-		oldlog = child.logfile_send
-		child.logfile_send = None
-		# Prepare to send the contents as base64 so we don't have to worry about
-		# special shell characters
-		# TODO: hide the gory details:
-		# http://stackoverflow.com/questions/5633472
-		#stty_orig=`stty -g`
-		#stty $stty_orig && echo forcenewline
-		contents64 = base64.standard_b64encode(contents)
-		# if replace funny chars
-		path = path.replace(' ', '\ ')
-		child.sendline("base64 --decode > " + path)
-		child.expect('\r\n')
-		# We have to batch the file up to avoid hitting pipe buffer limit. This
-		# is 4k on modern machines (it seems), but we choose 4000b for safety
-		# https://github.com/pexpect/pexpect/issues/55
-		batchsize = 4000
-		for batch in range(0, len(contents64), batchsize):
-			child.sendline(contents64[batch:batch + batchsize])
-		# Make sure we've synced the prompt before we send EOF. I don't know why
-		# this requires three sendlines to generate 2x'\r\n'.
-		# Note: we can't rely on a '\r\n' from the batching because the file
-		# being sent may validly be empty.
-		child.sendline()
-		child.sendline()
-		child.sendline()
-		child.expect('\r\n\r\n', timeout=999999)
-		child.sendeof()
-		# Done sending the file
-		child.expect(expect)
-		self._check_exit("#send file to " + path, expect, child)
-		child.logfile_send = oldlog
+		if cfg['build']['delivery'] == 'bash':
+			f = open(path,'w')
+			f.write(contents)
+			f.close()
+		else:
+			# Try and echo as little as possible
+			oldlog = child.logfile_send
+			child.logfile_send = None
+			# Prepare to send the contents as base64 so we don't have to worry about
+			# special shell characters
+			# TODO: hide the gory details:
+			# http://stackoverflow.com/questions/5633472
+			#stty_orig=`stty -g`
+			#stty $stty_orig && echo forcenewline
+			contents64 = base64.standard_b64encode(contents)
+			# if replace funny chars
+			path = path.replace(' ', '\ ')
+			child.sendline("base64 --decode > " + path)
+			child.expect('\r\n')
+			# We have to batch the file up to avoid hitting pipe buffer limit. This
+			# is 4k on modern machines (it seems), but we choose 4000b for safety
+			# https://github.com/pexpect/pexpect/issues/55
+			batchsize = 4000
+			for batch in range(0, len(contents64), batchsize):
+				child.sendline(contents64[batch:batch + batchsize])
+			# Make sure we've synced the prompt before we send EOF. I don't know why
+			# this requires three sendlines to generate 2x'\r\n'.
+			# Note: we can't rely on a '\r\n' from the batching because the file
+			# being sent may validly be empty.
+			child.sendline()
+			child.sendline()
+			child.sendline()
+			child.expect('\r\n\r\n', timeout=999999)
+			child.sendeof()
+			# Done sending the file
+			child.expect(expect)
+			self._check_exit("#send file to " + path, expect, child)
+			child.logfile_send = oldlog
 
 
 	def send_host_file(self,
@@ -519,6 +524,7 @@ class ShutIt(object):
 	                   hostfilepath,
 	                   expect=None,
 	                   child=None,
+	                   timeout=3600,
 	                   log=True):
 		"""Send file from host machine to given path
 
@@ -530,16 +536,24 @@ class ShutIt(object):
 		"""
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
-		if os.path.isfile(hostfilepath):
-			self.send_file(path, open(hostfilepath).read(), expect=expect, 
-				child=child, log=log)
-		elif os.path.isdir(hostfilepath):
-			self.send_host_dir(path, hostfilepath, expect=expect,
-				child=child, log=log)
+		if cfg['build']['delivery'] == 'bash':
+			if os.path.isfile(hostfilepath):
+				# assumes that we have perms to do this
+				self.send('cp ' + hostfilepath + ' ' + path,expect=expect, child=child, timeout=timeout)
+			elif os.path.isdir(hostfilepath):
+				# assumes that we have perms to do this
+				self.send('cp -r ' + hostfilepath + ' ' + path,expect=expect, child=child, timeout=timeout)
 		else:
-			shutit.fail('send_host_file - file: ' + hostfilepath +
-				' does not exist as file or dir. cwd is: ' + os.getcwd(),
-				child=child, throw_exception=False)
+			if os.path.isfile(hostfilepath):
+				self.send_file(path, open(hostfilepath).read(), expect=expect, 
+					child=child, log=log)
+			elif os.path.isdir(hostfilepath):
+				self.send_host_dir(path, hostfilepath, expect=expect,
+					child=child, log=log)
+			else:
+				shutit.fail('send_host_file - file: ' + hostfilepath +
+					' does not exist as file or dir. cwd is: ' + os.getcwd(),
+					child=child, throw_exception=False)
 
 
 	def send_host_dir(self,
@@ -990,8 +1004,9 @@ class ShutIt(object):
 			if user != 'root':
 				shutit.login(user)
 		shutit.send('cp ' + target_path + ' /artifacts')
-		shutil.copyfile(os.path.join(artifacts_dir,filename),os.path.join(host_path,filename))
+		shutil.copyfile(os.path.join(artifacts_dir,filename),os.path.join(host_path,'{0}_'.format(shutit.cfg['build']['build_id']) + filename))
 		shutit.send('rm -f /artifacts/' + filename)
+		return os.path.join(host_path,'{0}_'.format(shutit.cfg['build']['build_id']) + filename)
 
 
 	def prompt_cfg(self, msg, sec, name, ispass=False):
@@ -1007,8 +1022,8 @@ class ShutIt(object):
 		config_parser = cfg['config_parser']
 		usercfg       = os.path.join(cfg['shutit_home'], 'config')
 
-		print util.colour('34', '\nPROMPTING FOR CONFIG: %s' % (cfgstr,))
-		print util.colour('34', '\n' + msg + '\n')
+		print util.colour('31', '\nPROMPTING FOR CONFIG: %s' % (cfgstr,))
+		print util.colour('31', '\n' + msg + '\n')
 		
 		if not sys.stdout.isatty():
 			shutit.fail('ShutIt is not in a terminal so cannot prompt ' +
@@ -1046,7 +1061,7 @@ class ShutIt(object):
 				subcp for subcp, filename, _fp in config_parser.layers
 				if filename == usercfg
 			][0]
-			if util.util_raw_input(shutit=self,prompt=util.colour('34',
+			if util.util_raw_input(shutit=self,prompt=util.colour('31',
 					'Do you want to save this to your ' +
 					'user settings? y/n: '),default='y') == 'y':
 				sec_toset, name_toset, val_toset = sec, name, val
@@ -1635,7 +1650,7 @@ class ShutIt(object):
 
 	def push_repository(self,
 	                    repository,
-	                    docker_executable='docker.io',
+	                    docker_executable='docker',
 	                    child=None,
 	                    expect=None):
 		"""Pushes the repository.
@@ -1883,6 +1898,7 @@ def init():
 	cfg['build']['interactive'] = 1 # Default to true until we know otherwise
 	cfg['build']['build_log']   = None
 	cfg['build']['report']      = ''
+	cfg['build']['report_final_messsages'] = ''
 	cfg['build']['debug']       = False
 	cfg['build']['completed']   = False
 	cfg['target']            = {}
