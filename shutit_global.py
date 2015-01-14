@@ -479,9 +479,6 @@ class ShutIt(object):
 			self.log('Sending file to' + path)
 			if log:
 				self.log('contents >>>' + contents + '<<<')
-		print 'HERE=================================='
-		print cfg['build']['delivery']
-		print 'HERE=================================='
 		if cfg['build']['delivery'] == 'bash':
 			f = open(path,'w')
 			f.write(contents)
@@ -554,9 +551,9 @@ class ShutIt(object):
 				self.send_host_dir(path, hostfilepath, expect=expect,
 					child=child, log=log)
 			else:
-			shutit.fail('send_host_file - file: ' + hostfilepath +
-				' does not exist as file or dir. cwd is: ' + os.getcwd(),
-				child=child, throw_exception=False)
+				shutit.fail('send_host_file - file: ' + hostfilepath +
+					' does not exist as file or dir. cwd is: ' + os.getcwd(),
+					child=child, throw_exception=False)
 
 
 	def send_host_dir(self,
