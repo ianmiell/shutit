@@ -916,6 +916,9 @@ def shutit_main():
 
 	shutit.log(util.build_report(shutit, '#Module: N/A (END)'), prefix=False,
 			   force_stdout=True, code='31')
+	if shutit.cfg['build']['report_user_messages'] != '':
+		shutit.log(shutit.cfg['build']['report_user_messages']), prefix=False,
+		           force_stdout=True, code='31')
 
 	if shutit.cfg['build']['interactive'] >= 3:
 		shutit.log('\n' +
@@ -955,19 +958,19 @@ def do_phone_home(msg=None,question='Error seen - would you like to inform the m
 signal.signal(signal.SIGINT, util.ctrl_c_signal_handler)
 
 if __name__ == '__main__':
-	try:
-		shutit_main()
-	except ShutItException as e:
-		print 'Error while executing: ' + str(e.message)
-		util.print_stack_trace()
-		sys.exit(1)
-	except Exception as e:
-		print e.message
-		util.print_stack_trace()
-		sys.exit(1)
-		do_phone_home({'err':str(e.message)})
-		sys.exit(1)
-	if not shutit_global.shutit.cfg['build']['completed']:
-		do_phone_home()
-		sys.exit(1)
-	sys.exit(0)
+	#try:
+	shutit_main()
+	#except ShutItException as e:
+	#	print 'Error while executing: ' + str(e.message)
+	#	util.print_stack_trace()
+	#	sys.exit(1)
+	#except Exception as e:
+	#	print e.message
+	#	util.print_stack_trace()
+	#	sys.exit(1)
+	#	do_phone_home({'err':str(e.message)})
+	#	sys.exit(1)
+	#if not shutit_global.shutit.cfg['build']['completed']:
+	#	do_phone_home()
+	#	sys.exit(1)
+	#sys.exit(0)
