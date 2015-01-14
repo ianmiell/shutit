@@ -24,19 +24,16 @@ from shutit_module import ShutItModule
 
 class digital_ocean(ShutItModule):
 
-	# Before we start the run, let's check that the access token exists.
-	def check_ready(self, shutit):
-		shutit.file_exists(shutit.cfg[self.module_id]['oauth_token_file'])
-		return True
-
 	def is_installed(self, shutit):
 		return False
 
 	def build(self, shutit):
 		# Read in the token
+		shutit.send_host_file('/tmp/access_token.dat',shutit.cfg[self.module_id]['oauth_token_file'])
 		token = open(shutit.cfg[self.module_id]['oauth_token_file']).read().strip()
 		shutit.install('curl')
 		shutit.send('curl -u "' + token + ':" -X GET "https://api.digitalocean.com/v2/droplets"')
+		shutit.pause_point('')
 		return True
 
 	def get_config(self, shutit):
@@ -50,8 +47,9 @@ class digital_ocean(ShutItModule):
 	#def stop(self, shutit):
 	#	return True
 
-	#def finalize(self, shutit):
-	#	return True
+	def finalize(self, shutit):
+		shutit.send('rm -f /tmp/access_token.dat')
+		return True
 
 	#def remove(self, shutit):
 	#	return True
