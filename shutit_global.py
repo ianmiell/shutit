@@ -1375,7 +1375,7 @@ class ShutIt(object):
 
 
 
-	def logout(self, child=None, expect=None, command=None):
+	def logout(self, child=None, expect=None, command='exit'):
 		"""Logs the user out. Assumes that login has been called.
 		If login has never been called, throw an error.
 
@@ -1383,8 +1383,6 @@ class ShutIt(object):
 		- expect             - override expect (eg for base_prompt)
 		"""
 		child = child or self.get_default_child()
-		if command == None:
-			command = 'exit'
 		if len(self.cfg['build']['login_stack']):
 			#print "LOGIN STACK TO BE POPPED"
 			#print self.cfg['build']['login_stack']
