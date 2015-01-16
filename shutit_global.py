@@ -1344,7 +1344,7 @@ class ShutIt(object):
 		self.setup_prompt(r_id,child=child)
 
 
-	def login(self, user='root', command='su -', child=None, password=None, prompt_prefix=None):
+	def login(self, user='root', command='su -', child=None, password=None, prompt_prefix=None, expect=None):
 		"""Logs the user in with the passed-in password and command.
 		Tracks the login. If used, used logout to log out again.
 		Assumes you are root when logging in, so no password required.
@@ -1363,7 +1363,11 @@ class ShutIt(object):
 			send = command + ' ' + user
 		else:
 			send = command
-		self.multisend(send,{'ontinue connecting':'yes','assword':password,'login:':password},expect=shutit.cfg['expect_prompts']['base_prompt'],check_exit=False)
+		if expect == None:
+			login_expect = shutit.cfg['expect_prompts']['base_prompt']
+		else:
+			login_expect = expect
+		self.multisend(send,{'ontinue connecting':'yes','assword':password,'login:':password},expect=login_expect,check_exit=False)
 		if prompt_prefix != None:
 			self.setup_prompt(r_id,child=child,prefix=prompt_prefix)
 		else:
