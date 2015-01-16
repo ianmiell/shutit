@@ -317,7 +317,6 @@ def get_base_config(cfg, cfg_parser):
 	cfg['target']['modules_installed']         = [] # has been installed (in this build or previously)
 	cfg['target']['modules_not_installed']     = [] # modules _known_ not to be installed
 	cfg['target']['modules_ready']             = [] # has been checked for readiness and is ready (in this build)
-	#cfg['target']['modules_removed']           = [] # has been removed (in this build or previously) TODO
 	cfg['host']['artifacts_dir']                  = cp.get('host', 'artifacts_dir')
 	cfg['host']['docker_executable']              = cp.get('host', 'docker_executable')
 	cfg['host']['dns']                            = cp.get('host', 'dns')
@@ -381,7 +380,11 @@ def get_base_config(cfg, cfg_parser):
 	if cfg['target']['hostname'] != '' and cfg['build']['net'] != '' and cfg['build']['net'] != 'bridge':
 		print('\n\ntarget/hostname or build/net configs must be blank\n\n')
 		sys.exit()
-	# TODO: delivery method checks
+	# delivery method bash and image_tag make no sense
+	if cfg['build']['delivery'] in ('bash','ssh'):
+		if cfg['target']['docker_image'] != '':
+			print('delivery method specified (' + cfg['build']['delivery'] + ') and image_tag argument make no sense')
+			sys.exit()
 	# FAILS ends
 	if cfg['target']['password'] == '':
 		cfg['target']['password'] = getpass.getpass(prompt='Input your target password: ')
@@ -1074,7 +1077,7 @@ def create_skeleton(shutit):
 				except:
 					shutit.cfg['dockerfile']['cmd'] = item[1]
 			# Other items to be run through sequentially (as they are part of the script)
-			if docker_command == "USER": #TODO
+			if docker_command == "USER":
 				# Put in the start script as well as su'ing from here - assuming order dependent?
 				shutit.cfg['dockerfile']['script'].append((docker_command, item[1]))
 				# We assume the last one seen is the one we use for the image.
@@ -1209,13 +1212,14 @@ class template(ShutItModule):
 	def get_config(self, shutit):
 		return True
 '''
+		print skel_depends
 		templatemodule += """
 def module():
 		return template(
 				""" + """\'%s.%s.%s\'""" % (skel_domain, skel_module_name, skel_module_name) + """, """ + skel_domain_hash + ".00" + """,
 				description='',
 				maintainer='""" + shutit.cfg['dockerfile']['maintainer'] + """',
-				depends=[' """ % (skel_depends) + """'] 
+				depends=['%s""" % (skel_depends) + """'] 
 		)
 """
 		# Return program to main shutit_dir
@@ -1345,7 +1349,7 @@ def module():
        WORKDIR shutit
        RUN pip install -r requirements.txt
 
-       WORKDIR ''' + skel_path + ''' <- TODO You will need to to change this
+       WORKDIR ''' + skel_path + ''' <- TODO You will likely need to to change this
        RUN /opt/shutit/shutit build --shutit_module_path /opt/shutit/library --delivery bash
 
        CMD ["/bin/bash"] 
