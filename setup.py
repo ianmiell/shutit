@@ -563,8 +563,6 @@ class setup(ShutItModule):
 		"""Removes anything performed as part of build.
 		"""
 		cfg = shutit.cfg
-		if cfg['target']['install_type'] == 'yum':
-			shutit.remove('passwd')
 		return True
 
 	def get_config(self, shutit):

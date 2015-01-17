@@ -60,7 +60,7 @@ _default_cnf = '''
 [target]
 # Root password for the target - replace with your chosen password
 # If left blank, you will be prompted for a password
-password:YOUR_TARGET_PASSWORD
+password:
 # Hostname for the target - replace with your chosen target hostname
 # (where applicable, eg docker container)
 hostname:
@@ -364,9 +364,9 @@ def get_base_config(cfg, cfg_parser):
 	# BEGIN warnings
 	# Warn if something appears not to have been overridden
 	warn = ''
-	if cfg['target']['password'][:5] == 'YOUR_':
-		warn = '# Found ' + cfg['target']['password'] + ' in your config, you may want to quit and override, eg put the following into your\n# ' + shutit_global.cwd + '/configs/' + socket.gethostname() + '_' + cfg['host']['real_user'] + '.cnf file (create if necessary):\n\n[target]\n#root password for the target host\npassword:mytargethostpassword\n\n'
-		issue_warning(warn,2)
+	#if cfg['target']['password'][:5] == 'YOUR_':
+	#	warn = '# Found ' + cfg['target']['password'] + ' in your config, you may want to quit and override, eg put the following into your\n# ' + shutit_global.cwd + '/configs/' + socket.gethostname() + '_' + cfg['host']['real_user'] + '.cnf file (create if necessary):\n\n[target]\n#root password for the target host\npassword:mytargethostpassword\n\n'
+	#	issue_warning(warn,2)
 
 	# FAILS begins
 	# rm is incompatible with repository actions
