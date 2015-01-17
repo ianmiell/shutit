@@ -462,6 +462,7 @@ def parse_args(shutit):
 	sub_parsers['build'].add_argument('--export', help='export to a tar file', const=True, default=False, action='store_const')
 	sub_parsers['build'].add_argument('--save', help='save to a tar file', const=True, default=False, action='store_const')
 	sub_parsers['build'].add_argument('--push', help='push to a repo', const=True, default=False, action='store_const')
+	sub_parsers['build'].add_argument('--deps_only', help='build deps only, tag with suffix "_deps"', const=True, default=False, action='store_const')
 
 	sub_parsers['sc'].add_argument('--history', help='show config history', const=True, default=False, action='store_const')
 
@@ -470,7 +471,7 @@ def parse_args(shutit):
 		sub_parsers[action].add_argument('-d','--delivery', help='Delivery method, aka target. "docker" container (default), configured "ssh" connection, "bash" session', default=None, choices=('docker','target','ssh','bash'))
 		sub_parsers[action].add_argument('-s', '--set', help='Override a config item, e.g. "-s target rm no". Can be specified multiple times.', default=[], action='append', nargs=3, metavar=('SEC', 'KEY', 'VAL'))
 		sub_parsers[action].add_argument('--image_tag', help='Build container from specified image - if there is a symbolic reference, please use that, eg localhost.localdomain:5000/myref', default='')
-		sub_parsers[action].add_argument('--tag_modules', help='Tag each module after it\'s successfully built regardless of the module config and based on the repository config.', default=False, const=True, action='store_const')
+		sub_parsers[action].add_argument('--tag_modules', help='''Tag each module after it's successfully built regardless of the module config and based on the repository config.''', default=False, const=True, action='store_const')
 		sub_parsers[action].add_argument('-m', '--shutit_module_path', default=None, help='List of shutit module paths, separated by colons. ShutIt registers modules by running all .py files in these directories.')
 		sub_parsers[action].add_argument('--pause', help='Pause between commands to avoid race conditions.', default='0.05', type=check_pause)
 		sub_parsers[action].add_argument('--debug', help='Show debug.', default=False, const=True, action='store_const')
@@ -594,6 +595,7 @@ def parse_args(shutit):
 	cfg['build']['ignoreimage']      = args.ignoreimage
 	cfg['build']['imageerrorok']     = args.imageerrorok
 	cfg['build']['tag_modules']      = args.tag_modules
+	cfg['build']['deps_only']        = args.deps_only
 	cfg['target']['docker_image']    = args.image_tag
 	# Finished parsing args, tutorial stuff
 	if cfg['build']['interactive'] >= 3:

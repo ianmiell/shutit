@@ -687,7 +687,8 @@ def do_build(shutit):
 		print ('\nNow building any modules that need building' +
 	 	       util.colour('31', '\n\n[Hit return to continue]\n'))
 		util.util_raw_input(shutit=shutit)
-	for module_id in module_ids(shutit):
+	module_id_list = module_ids(shutit)
+	for module_id in module_id_list:
 		module = shutit.shutit_map[module_id]
 		shutit.log('considering whether to build: ' + module.module_id,
 		           code='31')
@@ -698,12 +699,18 @@ def do_build(shutit):
 				    ' with run order: ' + str(module.run_order))
 			else:
 				# We move to the module directory to perform the build, returning immediately afterwards.
-				revert_dir = os.getcwd()
-				os.chdir(os.path.dirname(module.__module_file))
-				shutit.login(prompt_prefix=module_id)
-				build_module(shutit, module)
-				shutit.logout()
-				os.chdir(revert_dir)
+				if module_id == module_id_list[-1] and cfg['build']['deps_only']:
+					# If this is the last module, and we are only building deps, stop here.
+					cfg['build']['report'] = (cfg['build']['report'] + '\nSkipping: ' +
+					    module.module_id + ' with run order: ' + str(module.run_order) +
+					    '\n\tas this is the final module and we are building dependencies only')
+				else:
+					revert_dir = os.getcwd()
+					os.chdir(os.path.dirname(module.__module_file))
+					shutit.login(prompt_prefix=module_id)
+					build_module(shutit, module)
+					shutit.logout()
+					os.chdir(revert_dir)
 		if is_installed(shutit, module):
 			shutit.log('Starting module')
 			if not module.start(shutit):
