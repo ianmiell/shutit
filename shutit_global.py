@@ -1741,6 +1741,9 @@ class ShutIt(object):
 		if server != '':
 			repository = '%s/%s' % (server, repository)
 
+		if cfg['build']['deps_only']:
+			repo_tag = repo_tag + '_deps'
+
 		if cfg['repository']['suffix_date']:
 			suffix_date = time.strftime(cfg['repository']['suffix_format'])
 			repository = '%s%s' % (repository, suffix_date)
