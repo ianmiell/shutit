@@ -167,13 +167,14 @@ class ShutIt(object):
 			sys.exit(1)
 
 
-	def log(self, msg, code=None, pause=0, prefix=True, force_stdout=False):
+	def log(self, msg, code=None, pause=0, prefix=True, force_stdout=False, add_final_message=False):
 		"""Logging function.
 
 		- code         - Colour code for logging. Ignored if we are in serve mode.
 		- pause        - Length of time to pause after logging (default: 0)
 		- prefix       - Whether to output logging prefix (LOG: <time>) (default: True)
 		- force_stdout - If we are not in debug, put this in stdout anyway (default: False)
+		- add_final_message - Add this log line to the final message (report_final_message)
 		"""
 		if prefix:
 			prefix = 'LOG: ' + time.strftime("%Y-%m-%d %H:%M:%S", 
@@ -188,6 +189,8 @@ class ShutIt(object):
 		if self.cfg['build']['build_log']:
 			print >> cfg['build']['build_log'], msg
 			self.cfg['build']['build_log'].flush()
+		if add_final_message:
+			shutit.cfg['build']['report_final_messages'] += msg + '\n'
 		time.sleep(pause)
 
 	def multisend(self,

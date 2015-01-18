@@ -386,8 +386,6 @@ def get_base_config(cfg, cfg_parser):
 			print('delivery method specified (' + cfg['build']['delivery'] + ') and image_tag argument make no sense')
 			sys.exit()
 	# FAILS ends
-	if cfg['target']['password'] == '':
-		cfg['target']['password'] = getpass.getpass(prompt='Input your target password: ')
 
 # Returns the config dict
 def parse_args(shutit):
