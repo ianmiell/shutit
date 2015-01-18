@@ -460,7 +460,6 @@ def parse_args(shutit):
 	sub_parsers['build'].add_argument('--export', help='export to a tar file', const=True, default=False, action='store_const')
 	sub_parsers['build'].add_argument('--save', help='save to a tar file', const=True, default=False, action='store_const')
 	sub_parsers['build'].add_argument('--push', help='push to a repo', const=True, default=False, action='store_const')
-	sub_parsers['build'].add_argument('--deps_only', help='build deps only, tag with suffix "_deps"', const=True, default=False, action='store_const')
 
 	sub_parsers['sc'].add_argument('--history', help='show config history', const=True, default=False, action='store_const')
 
@@ -478,6 +477,7 @@ def parse_args(shutit):
 		sub_parsers[action].add_argument('--ignorestop', help='Ignore STOP files', const=True, default=False, action='store_const')
 		sub_parsers[action].add_argument('--ignoreimage', help='Ignore disallowed images', const=True, default=False, action='store_const')
 		sub_parsers[action].add_argument('--imageerrorok', help='Exit without error if allowed images fails (used for test scripts)', const=True, default=False, action='store_const')
+		sub_parsers[action].add_argument('--deps_only', help='build deps only, tag with suffix "_deps"', const=True, default=False, action='store_const')
 
 	args_list = sys.argv[1:]
 	if os.environ.get('SHUTIT_OPTIONS', None) and args_list[0] != 'skeleton':
