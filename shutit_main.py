@@ -688,6 +688,8 @@ def do_build(shutit):
 	 	       util.colour('31', '\n\n[Hit return to continue]\n'))
 		util.util_raw_input(shutit=shutit)
 	module_id_list = module_ids(shutit)
+	if cfg['build']['deps_only']:
+		module_id_list_build_only = filter(lambda x: cfg[x]['shutit.core.module.build'], module_id_list)
 	for module_id in module_id_list:
 		module = shutit.shutit_map[module_id]
 		shutit.log('considering whether to build: ' + module.module_id,
@@ -699,7 +701,7 @@ def do_build(shutit):
 				    ' with run order: ' + str(module.run_order))
 			else:
 				# We move to the module directory to perform the build, returning immediately afterwards.
-				if module_id == module_id_list[-1] and cfg['build']['deps_only']:
+				if module_id == module_id_list_build_only[-1] and cfg['build']['deps_only']:
 					# If this is the last module, and we are only building deps, stop here.
 					cfg['build']['report'] = (cfg['build']['report'] + '\nSkipping: ' +
 					    module.module_id + ' with run order: ' + str(module.run_order) +
