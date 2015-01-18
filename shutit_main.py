@@ -701,7 +701,7 @@ def do_build(shutit):
 				    ' with run order: ' + str(module.run_order))
 			else:
 				# We move to the module directory to perform the build, returning immediately afterwards.
-				if module_id == module_id_list_build_only[-1] and cfg['build']['deps_only']:
+				if cfg['build']['deps_only'] and module_id == module_id_list_build_only[-1]:
 					# If this is the last module, and we are only building deps, stop here.
 					cfg['build']['report'] = (cfg['build']['report'] + '\nSkipping: ' +
 					    module.module_id + ' with run order: ' + str(module.run_order) +
