@@ -742,9 +742,10 @@ class ShutIt(object):
 	                     expect=None,
 	                     child=None,
 	                     match_regexp=None,
-	                     force=False,
+	                     force=True,
 	                     literal=False):
-		"""Adds line to file if it doesn't exist (unless Force is set).
+		"""Adds line to file if it doesn't exist (unless Force is set,
+		which it is by default).
 		Creates the file if it doesn't exist.
 		Must be exactly the line passed in to match.
 		Returns True if line added, False if not.
