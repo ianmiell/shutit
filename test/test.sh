@@ -91,7 +91,7 @@ popd > /dev/null 2>&1
 
 DESC="Testing skeleton build basic with example script"
 echo $DESC
-./shutit skeleton ${NEWDIR} testing shutit.tk ${SHUTIT_DIR}/assets/example.sh shutit.tk.setup ubuntu:14.04
+./shutit skeleton ${NEWDIR} testing shutit.tk shutit.tk.setup ubuntu:14.04 ${SHUTIT_DIR}/assets/example.sh
 
 pushd ${NEWDIR}/bin
 ./test.sh
