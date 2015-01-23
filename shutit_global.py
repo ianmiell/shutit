@@ -395,7 +395,7 @@ class ShutIt(object):
 		child = child or self.get_default_child()
 		if exit_values is None:
 			exit_values = ['0']
-		# TODO: check that all values are strings.
+		# TODO: check that all exit_values are strings.
 		# Don't use send here (will mess up last_output)!
 		# Space before "echo" here is sic - we don't need this to show up in bash history
 		child.sendline(' echo EXIT_CODE:$?')
@@ -419,12 +419,11 @@ class ShutIt(object):
 				# This is a failure, so we pass in level=0
 				self.pause_point(msg + '\n\nPause point on exit_code != 0 (' +
 					res + '). CTRL-C to quit', child=child, level=0)
+			elif retry == 0:
+				shutit.fail('Exit value from command\n' + send +
+				    '\nwas:\n' + res, throw_exception=True)
 			else:
-				if retry == 0:
-					shutit.fail('Exit value from command\n' + send +
-						'\nwas:\n' + res, throw_exception=True)
-				else:
-					return False
+				return False
 		return True
 
 
