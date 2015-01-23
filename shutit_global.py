@@ -772,11 +772,7 @@ class ShutIt(object):
 		tmp_filename = '/tmp/' + random_id()
 		if match_regexp == None and re.match('.*[' + bad_chars + '].*',
 				line) != None:
-			shutit.fail('Passed problematic character to add_line_to_file.\n' +
-				'Please avoid using the following chars: ' + 
-				bad_chars +
-				'\nor supply a match_regexp argument.\nThe line was:\n' +
-				line, child=child, throw_exception=False)
+			line = line.replace('"',r'\"')
 		if not self.file_exists(filename, expect=expect, child=child):
 			# The above cat doesn't work so we touch the file if it
 			# doesn't exist already.
@@ -1866,6 +1862,17 @@ class ShutIt(object):
 			if default == None and forcenone != True:
 				self.fail('Config item: ' + option + ':\nin module:\n[' + module_id + ']\nmust be set!\n\nOften this is a deliberate requirement to place in your ~/.shutit/config file.', throw_exception=False)
 			self.cfg[module_id][option] = default
+
+
+	def get_ip_address(self, ip_family='4', ip_object='addr', command='ip', interface='eth0'):
+		"""Gets the ip address based on the args given. Assumes command exists.
+		ip_family - type of ip family, defaults to 4
+		ip_object - type of ip object, defaults to "addr"
+		command   - defaults to "ip"
+		interface - defaults to "eth0"
+		"""
+		return self.send_and_get_output(command + ' -' + ip_family + ' -o ' + ip_object + ' | grep ' + interface)
+
 
 
 	def record_config(self):
