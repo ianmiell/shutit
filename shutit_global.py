@@ -1344,7 +1344,7 @@ class ShutIt(object):
 		self.setup_prompt(r_id,child=child)
 
 
-	def login(self, user='root', command='su -', child=None, password=None, prompt_prefix=None, expect=None):
+	def login(self, command='su -', user='root', child=None, password=None, prompt_prefix=None, expect=None):
 		"""Logs the user in with the passed-in password and command.
 		Tracks the login. If used, used logout to log out again.
 		Assumes you are root when logging in, so no password required.
