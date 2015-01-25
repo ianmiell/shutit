@@ -1002,7 +1002,7 @@ class ShutIt(object):
 			shutit.send('chmod 777 /artifacts')
 			# we've done what we need to do as root, go home
 			if user != 'root':
-				shutit.login(user)
+				shutit.login(user=user)
 		shutit.send('cp ' + target_path + ' /artifacts')
 		shutil.copyfile(os.path.join(artifacts_dir,filename),os.path.join(host_path,'{0}_'.format(shutit.cfg['build']['build_id']) + filename))
 		shutit.send('rm -f /artifacts/' + filename)
@@ -1344,7 +1344,7 @@ class ShutIt(object):
 		self.setup_prompt(r_id,child=child)
 
 
-	def login(self, command='su -', user='root', child=None, password=None, prompt_prefix=None, expect=None):
+	def login(self, command='su -', user='root', child=None, password=None, prompt_prefix=None, expect=None, timeout=20):
 		"""Logs the user in with the passed-in password and command.
 		Tracks the login. If used, used logout to log out again.
 		Assumes you are root when logging in, so no password required.
@@ -1367,7 +1367,7 @@ class ShutIt(object):
 			login_expect = shutit.cfg['expect_prompts']['base_prompt']
 		else:
 			login_expect = expect
-		self.multisend(send,{'ontinue connecting':'yes','assword':password,'login:':password},expect=login_expect,check_exit=False)
+		self.multisend(send,{'ontinue connecting':'yes','assword':password,'login:':password},expect=login_expect,check_exit=False,timeout=timeout)
 		if prompt_prefix != None:
 			self.setup_prompt(r_id,child=child,prefix=prompt_prefix)
 		else:
