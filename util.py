@@ -357,6 +357,11 @@ def get_base_config(cfg, cfg_parser):
 		cfg['build']['build_log'] = open(logfile, 'a')
 		# Lock it down to the running user.
 		os.chmod(logfile,0600)
+	# delivery method bash and image_tag make no sense
+	if cfg['build']['delivery'] in ('bash','ssh'):
+		if cfg['target']['docker_image'] != '':
+			print('delivery method specified (' + cfg['build']['delivery'] + ') and image_tag argument make no sense')
+			sys.exit()
 	if cfg['target']['docker_image'] == '':
 		cfg['target']['docker_image'] = cfg['build']['base_image']
 	# END tidy configs up
@@ -380,11 +385,6 @@ def get_base_config(cfg, cfg_parser):
 	if cfg['target']['hostname'] != '' and cfg['build']['net'] != '' and cfg['build']['net'] != 'bridge':
 		print('\n\ntarget/hostname or build/net configs must be blank\n\n')
 		sys.exit()
-	# delivery method bash and image_tag make no sense
-	if cfg['build']['delivery'] in ('bash','ssh'):
-		if cfg['target']['docker_image'] != '':
-			print('delivery method specified (' + cfg['build']['delivery'] + ') and image_tag argument make no sense')
-			sys.exit()
 	# FAILS ends
 
 # Returns the config dict
