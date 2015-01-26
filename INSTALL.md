@@ -39,4 +39,4 @@ pip install -r requirements.txt
 
 ## Configuration
 
-To configure for your purposes, see: [CONFIGURATION]('http://github.com/ianmiell/shutit/CONFIGURATION.md')
+To configure for your purposes, see: [CONFIGURATION]('https://github.com/ianmiell/shutit/blob/master/CONFIGURATION.md')
