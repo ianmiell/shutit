@@ -44,7 +44,7 @@ http://ianmiell.github.io/shutit/
 INSTALLATION
 ------------
 
-See [INSTALL](http://github.com/ianmiell/shutit/INSTALL.md)
+See [INSTALL](http://github.com/ianmiell/shutit/blob/master/INSTALL.md)
 
 
 WHAT DOES IT DO?
