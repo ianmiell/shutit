@@ -521,6 +521,23 @@ class ShutIt(object):
 			self._check_exit("#send file to " + path, expect, child)
 			child.logfile_send = oldlog
 
+	def chdir(self,
+	          path,
+	          expect=None,
+	          child=None,
+	          timeout=3600,
+	          log=True):
+		"""How to change directory will depend on whether we are in delivery mode bash or docker.
+		"""
+		child = child or self.get_default_child()
+		expect = expect or self.get_default_expect()
+		if cfg['build']['delivery'] == 'bash':
+			self.send('cd ' + path, expect=expect, child=child, timeout=timeout)
+		elif cfg['build']['delivery'] == 'docker':
+			os.chdir(path)
+		else:
+			shutit.fail('chdir not supported for delivery method: ' + cfg['build']['delivery']
+
 
 	def send_host_file(self,
 	                   path,

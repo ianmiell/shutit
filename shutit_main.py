@@ -583,14 +583,14 @@ def check_ready(shutit):
 			# Move to the directory so context is correct (eg for checking for
 			# the existence of files needed for build)
 			revert_dir = os.getcwd()
-			os.chdir(os.path.dirname(module.__module_file))
+			shutit.chdir(os.path.dirname(module.__module_file))
 			if not is_ready(shutit, module):
 				errs.append((module_id + ' not ready to install.\nRead the ' +
 				            'check_ready function in the module,\nor log ' + 
 				            'messages above to determine the issue.\n\n',
 				            shutit.pexpect_children['target_child']))
 			shutit.logout()
-			os.chdir(revert_dir)
+			shutit.chdir(revert_dir)
 	return errs
 
 
@@ -708,11 +708,11 @@ def do_build(shutit):
 					    '\n\tas this is the final module and we are building dependencies only')
 				else:
 					revert_dir = os.getcwd()
-					os.chdir(os.path.dirname(module.__module_file))
+					shutit.chdir(os.path.dirname(module.__module_file))
 					shutit.login(prompt_prefix=module_id)
 					build_module(shutit, module)
 					shutit.logout()
-					os.chdir(revert_dir)
+					shutit.chdir(revert_dir)
 		if is_installed(shutit, module):
 			shutit.log('Starting module')
 			if not module.start(shutit):
@@ -845,9 +845,9 @@ def shutit_main():
 		import shutit_srv
 		cfg['build']['interactive'] = 0
 		revert_dir = os.getcwd()
-		os.chdir(sys.path[0])
+		shutit.chdir(sys.path[0])
 		shutit_srv.start()
-		os.chdir(revert_dir)
+		shutit.chdir(revert_dir)
 		return
 
 	util.load_configs(shutit)
