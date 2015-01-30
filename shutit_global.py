@@ -533,7 +533,7 @@ class ShutIt(object):
 		expect = expect or self.get_default_expect()
 		if cfg['build']['delivery'] == 'bash':
 			self.send('cd ' + path, expect=expect, child=child, timeout=timeout)
-		elif cfg['build']['delivery'] == 'target':
+		elif cfg['build']['delivery'] == 'target' or cfg['build']['delivery'] == 'ssh':
 			os.chdir(path)
 		else:
 			shutit.fail('chdir not supported for delivery method: ' + cfg['build']['delivery'])
