@@ -42,11 +42,11 @@ class vnc(ShutItModule):
 		#shutit.install('xserver-xorg')
 		#shutit.install('vnc4server')
 		#shutit.install('novnc')
-		if shutit.cfg['target']['distro'] == 'ubuntu':
-			shutit.install('ubuntu-desktop')
-			shutit.send('rm -rf /tmp/ubuntu-desktop')
-		send = 'vncserver'
-		shutit.multisend(send, {'assword:':shutit.cfg['shutit.tk.vnc.vnc']['password'], 'erify':shutit.cfg['shutit.tk.vnc.vnc']['password']}, fail_on_empty_before=False, echo=False)
+		#if shutit.cfg['target']['distro'] == 'ubuntu':
+		#	shutit.install('ubuntu-desktop')
+		#	shutit.send('rm -rf /tmp/ubuntu-desktop')
+		#send = 'vncserver'
+		#shutit.multisend(send, {'assword:':shutit.cfg['shutit.tk.vnc.vnc']['password'], 'erify':shutit.cfg['shutit.tk.vnc.vnc']['password']}, fail_on_empty_before=False, echo=False)
 		shutit.add_line_to_file('#!/bin/bash','/root/start_vnc.sh')
 		shutit.add_line_to_file('# start vnc', '/root/start_vnc.sh')
 		shutit.add_line_to_file('rm -rf /tmp/.X*', '/root/start_vnc.sh')
