@@ -36,6 +36,7 @@ class vnc(ShutItModule):
 		return shutit.file_exists('/root/start_vnc.sh')
 
 	def build(self, shutit):
+		shutit.send('pwd && ls context')
 		#shutit.install('gnome-core')
 		#shutit.install('gnome-terminal')
 		#shutit.install('openjdk-6-jre')
