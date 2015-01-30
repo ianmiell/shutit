@@ -536,7 +536,7 @@ class ShutIt(object):
 		elif cfg['build']['delivery'] == 'docker':
 			os.chdir(path)
 		else:
-			shutit.fail('chdir not supported for delivery method: ' + cfg['build']['delivery']
+			shutit.fail('chdir not supported for delivery method: ' + cfg['build']['delivery'])
 
 
 	def send_host_file(self,
