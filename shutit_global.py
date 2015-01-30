@@ -1864,7 +1864,7 @@ class ShutIt(object):
 				self.cfg[module_id][option] = self.cfg['config_parser'].get(module_id, option)
 		else:
 			if default == None and forcenone != True:
-				self.fail('Config item: ' + option + ':\nin module:\n[' + module_id + ']\nmust be set!\n\nOften this is a deliberate requirement to place in your ~/.shutit/config file.', throw_exception=False)
+				self.fail('Config item: ' + option + ':\nin module:\n[' + module_id + ']\nmust be set!\n\nOften this is a deliberate requirement to place in your ~/.shutit/config file, or you can pass in with:\n\n-s ' + module_id + ' ' + option + ' yourvalue\n\nto the build command', throw_exception=False)
 			self.cfg[module_id][option] = default
 
 
