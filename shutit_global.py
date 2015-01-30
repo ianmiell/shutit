@@ -533,7 +533,7 @@ class ShutIt(object):
 		expect = expect or self.get_default_expect()
 		if cfg['build']['delivery'] == 'bash':
 			self.send('cd ' + path, expect=expect, child=child, timeout=timeout)
-		elif cfg['build']['delivery'] == 'target':
+		elif cfg['build']['delivery'] == 'target' or cfg['build']['delivery'] == 'ssh':
 			os.chdir(path)
 		else:
 			shutit.fail('chdir not supported for delivery method: ' + cfg['build']['delivery'])
@@ -1789,8 +1789,8 @@ class ShutIt(object):
 					 check_exit=False) == 1:
 			self.send(cfg['host']['password'], expect=expect, check_exit=False,
 					  record_command=False, child=child)
-		# Tag image
-		cmd = docker_executable + ' tag $SHUTIT_TMP_VAR ' + repository_with_tag
+		# Tag image, force it by default
+		cmd = docker_executable + ' tag -f $SHUTIT_TMP_VAR ' + repository_with_tag
 		self.cfg['build']['report'] += '\nBuild tagged as: ' + repository_with_tag
 		self.send(cmd, child=child, expect=expect, check_exit=False)
 		if export or save:
