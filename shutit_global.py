@@ -563,6 +563,10 @@ class ShutIt(object):
 			elif os.path.isdir(hostfilepath):
 				# assumes that we have perms to do this
 				self.send('cp -r ' + hostfilepath + ' ' + path,expect=expect, child=child, timeout=timeout)
+			else:
+				shutit.fail('send_host_file - file: ' + hostfilepath +
+					' does not exist as file or dir. cwd is: ' + os.getcwd(),
+					child=child, throw_exception=False)
 		else:
 			if os.path.isfile(hostfilepath):
 				self.send_file(path, open(hostfilepath).read(), expect=expect, 
