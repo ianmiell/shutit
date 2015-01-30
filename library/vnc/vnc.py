@@ -36,12 +36,12 @@ class vnc(ShutItModule):
 		return shutit.file_exists('/root/start_vnc.sh')
 
 	def build(self, shutit):
-		shutit.install('gnome-core')
-		shutit.install('gnome-terminal')
-		shutit.install('openjdk-6-jre')
-		shutit.install('xserver-xorg')
-		shutit.install('vnc4server')
-		shutit.install('novnc')
+		#shutit.install('gnome-core')
+		#shutit.install('gnome-terminal')
+		#shutit.install('openjdk-6-jre')
+		#shutit.install('xserver-xorg')
+		#shutit.install('vnc4server')
+		#shutit.install('novnc')
 		if shutit.cfg['target']['distro'] == 'ubuntu':
 			shutit.install('ubuntu-desktop')
 			shutit.send('rm -rf /tmp/ubuntu-desktop')
