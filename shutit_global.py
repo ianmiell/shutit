@@ -557,12 +557,7 @@ class ShutIt(object):
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
 		if cfg['build']['delivery'] == 'bash':
-			if os.path.isfile(hostfilepath):
-				# assumes that we have perms to do this
-				self.send('cp ' + hostfilepath + ' ' + path,expect=expect, child=child, timeout=timeout)
-			elif os.path.isdir(hostfilepath):
-				# assumes that we have perms to do this
-				self.send('cp -r ' + hostfilepath + ' ' + path,expect=expect, child=child, timeout=timeout)
+			self.send('cp -r ' + hostfilepath + ' ' + path,expect=expect, child=child, timeout=timeout)
 		else:
 			if os.path.isfile(hostfilepath):
 				self.send_file(path, open(hostfilepath).read(), expect=expect, 
