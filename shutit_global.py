@@ -1371,8 +1371,6 @@ class ShutIt(object):
 		child = child or self.get_default_child()
 		r_id = random_id()
 		self.cfg['build']['login_stack'].append(r_id)
-		print 'command:' + command
-		print 'user:' + user
 		if self.cfg['build']['delivery'] == 'bash' and command == 'su -':
 			# We want to retain the directory
 			command = 'su'
@@ -1384,7 +1382,6 @@ class ShutIt(object):
 			login_expect = shutit.cfg['expect_prompts']['base_prompt']
 		else:
 			login_expect = expect
-		print 'send:' + send
 		self.multisend(send,{'ontinue connecting':'yes','assword':password,'login:':password},expect=login_expect,check_exit=False,timeout=timeout)
 		if prompt_prefix != None:
 			self.setup_prompt(r_id,child=child,prefix=prompt_prefix)
