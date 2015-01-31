@@ -36,18 +36,18 @@ class vnc(ShutItModule):
 		return shutit.file_exists('/root/start_vnc.sh')
 
 	def build(self, shutit):
-		# TODO: distr-independence
-		shutit.install('gnome-core')
-		shutit.install('gnome-terminal')
-		shutit.install('openjdk-6-jre')
-		shutit.install('xserver-xorg')
-		shutit.install('vnc4server')
-		shutit.install('novnc')
-		if shutit.cfg['target']['distro'] == 'ubuntu':
-			shutit.install('ubuntu-desktop')
-			shutit.send('rm -rf /tmp/ubuntu-desktop')
-		send = 'vncserver'
-		shutit.multisend(send, {'assword:':shutit.cfg['shutit.tk.vnc.vnc']['password'], 'erify':shutit.cfg['shutit.tk.vnc.vnc']['password']}, fail_on_empty_before=False, echo=False)
+		shutit.send('pwd && ls context')
+		#shutit.install('gnome-core')
+		#shutit.install('gnome-terminal')
+		#shutit.install('openjdk-6-jre')
+		#shutit.install('xserver-xorg')
+		#shutit.install('vnc4server')
+		#shutit.install('novnc')
+		#if shutit.cfg['target']['distro'] == 'ubuntu':
+		#	shutit.install('ubuntu-desktop')
+		#	shutit.send('rm -rf /tmp/ubuntu-desktop')
+		#send = 'vncserver'
+		#shutit.multisend(send, {'assword:':shutit.cfg['shutit.tk.vnc.vnc']['password'], 'erify':shutit.cfg['shutit.tk.vnc.vnc']['password']}, fail_on_empty_before=False, echo=False)
 		shutit.add_line_to_file('#!/bin/bash','/root/start_vnc.sh')
 		shutit.add_line_to_file('# start vnc', '/root/start_vnc.sh')
 		shutit.add_line_to_file('rm -rf /tmp/.X*', '/root/start_vnc.sh')
@@ -57,6 +57,7 @@ class vnc(ShutItModule):
 END""", '/root/start_vnc.sh')
 		shutit.add_line_to_file('echo "Did you expose ports 5901 and 6080?"', '/root/start_vnc.sh', match_regexp='echo .Did you expose ports 5901 and 6080..')
 		shutit.add_line_to_file('echo "If so, then vncviewer localhost:1 should work."', '/root/start_vnc.sh', match_regexp='echo .If so, then vncviewer localhost:1 should work..')
+		shutit.send('pwd && ls context')
 		shutit.send_host_file('/root/stop_vnc.sh','context/stop_vnc.sh')
 		shutit.send('chmod +x /root/start_vnc.sh')
 		shutit.send('chmod +x /root/stop_vnc.sh')
