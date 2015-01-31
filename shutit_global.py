@@ -1372,7 +1372,7 @@ class ShutIt(object):
 		r_id = random_id()
 		self.cfg['build']['login_stack'].append(r_id)
 		if self.cfg['build']['delivery'] == 'bash' and command == 'su -':
-			# We want to retain the directory
+			# We want to retain the current working directory
 			command = 'su'
 		if command == 'su -' or command == 'su' or command == 'login':
 			send = command + ' ' + user
