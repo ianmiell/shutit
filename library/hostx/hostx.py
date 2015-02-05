@@ -26,7 +26,7 @@ class hostx(ShutItModule):
 		return shutit.file_exists('/root/shutit_build/module_record/' + self.module_id + '/built')
 
 	def build(self, shutit):
-		shutit.send('groupadd -g ' + shutit.cfg[self.module_id]['gid'], + ' ' + shutit.cfg[self.module_id]['username'])
+		shutit.send('groupadd -g ' + shutit.cfg[self.module_id]['gid'] + ' ' + shutit.cfg[self.module_id]['username'])
 		shutit.send('useradd -d /home/' + shutit.cfg[self.module_id]['username'] + ' -s /bin/bash -m ' + shutit.cfg[self.module_id]['username'] + ' -u ' + shutit.cfg[self.module_id]['uid'] + ' -g ' + shutit.cfg[self.module_id]['gid'])
 		return True
 
