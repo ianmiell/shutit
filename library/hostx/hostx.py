@@ -18,32 +18,28 @@
 #CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 from shutit_module import ShutItModule
+import os
 
-class adduser(ShutItModule):
+class hostx(ShutItModule):
 
 	def is_installed(self, shutit):
-		return False
+		return shutit.file_exists('/root/shutit_build/module_record/' + self.module_id + '/built')
 
 	def build(self, shutit):
-		# Does something odd with the terminal which makes pexpect think the commands failed
-		shutit.send('useradd -d /home/' + shutit.cfg['shutit.tk.adduser.adduser']['user'] + ' -s /bin/bash -m ' + shutit.cfg['shutit.tk.adduser.adduser']['user'])
-		shutit.install('passwd')
-		shutit.install('sudo')
-		shutit.install('adduser')
-		shutit.set_password(shutit.cfg['shutit.tk.adduser.adduser']['password'], user=shutit.cfg['shutit.tk.adduser.adduser']['user'])
+		shutit.send('useradd -d /home/' + shutit.cfg[self.module_id]['username'] + ' -s /bin/bash -m ' + shutit.cfg[self.module_id]['username'] + ' -u ' + shutit.cfg[self.module_id]['uid'] + ' -g ' + shutit.cfg[self.module_id]['gid'])
 		return True
 
 	def get_config(self, shutit):
-		cp = shutit.cfg['config_parser']
-		# Bring the example config into the config dictionary.
-		shutit.get_config(self.module_id, 'user')
-		shutit.get_config(self.module_id, 'password')
+		shutit.get_config(self.module_id, 'username', str(os.getlogin()))
+		shutit.get_config(self.module_id, 'uid', str(os.getuid()))
+		shutit.get_config(self.module_id, 'gid', str(os.getgid()))
 		return True
 
+
 def module():
-	return adduser(
-		'shutit.tk.adduser.adduser', 0.1012,
-		description='add a configurable user',
+	return hostx(
+		'shutit.tk.hostx.hostx', 0.3265,
+		description='Share your host X server with the container',
 		depends=['shutit.tk.setup']
 	)
 

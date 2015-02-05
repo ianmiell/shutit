@@ -119,9 +119,9 @@ END""".format(root_pass), echo=False)
 		return True
 
 	def get_config(self, shutit):
-		shutit.get_config('shutit.tk.mysql.mysql', 'mysql_user','prince')
-		shutit.get_config('shutit.tk.mysql.mysql', 'mysql_user_password','underthecherrymoon')
-		shutit.get_config('shutit.tk.mysql.mysql', 'root_password','purple_rain')
+		shutit.get_config(self.module_id, 'mysql_user','prince')
+		shutit.get_config(self.module_id, 'mysql_user_password','underthecherrymoon')
+		shutit.get_config(self.module_id, 'root_password','purple_rain')
 		return True
 
 def module():

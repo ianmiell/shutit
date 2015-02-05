@@ -1,0 +1,8 @@
+# When this module is the one being built, which modules should be built along with it by default?
+# This feeds into automated testing of each module.
+[shutit.tk.hostx.hostx]
+shutit.core.module.build:yes
+# Allowed images, eg ["ubuntu:12.04"].
+# "any" is a special value meaning any image is ok, and is the default.
+# It's recommended this is locked down as far as possible.
+shutit.core.module.allowed_images:["ubuntu.*"]

@@ -76,7 +76,7 @@ END""", '/root/start_vnc.sh')
 		return True
 
 	def get_config(self, shutit):
-		shutit.get_config('shutit.tk.vnc.vnc', 'password','vncpass')
+		shutit.get_config(self.module_id, 'password','vncpass')
 		return True
 
 def module():

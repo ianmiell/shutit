@@ -10,8 +10,5 @@ RUN pip install -r requirements.txt
 WORKDIR library/win2048
 RUN ../../shutit build --shutit_module_path .. --delivery bash
 
-EXPOSE 5901
-EXPOSE 6080
-
 CMD ["/root/start_win2048.sh"]
 
