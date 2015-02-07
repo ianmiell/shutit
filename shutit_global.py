@@ -1885,8 +1885,9 @@ class ShutIt(object):
 						prompt = prompt + '\n\n' + prompt
 					answer = None
 					if boolean:
-						while answer not in ('yes','no'):
-							answer =  util.util_raw_input(shutit=self,prompt=util.colour('31',prompt + ' (boolean - input "yes" or "no"): \n'))
+						while answer not in ('yes','no',''):
+							answer =  util.util_raw_input(shutit=self,prompt=util.colour('31',prompt
+							  + ' (boolean - input "yes" or "no"): \n'))
 					else:
 						answer =  util.util_raw_input(shutit=self,prompt=util.colour('31',prompt) + ': \n')
 					if answer == '' and default != None:
