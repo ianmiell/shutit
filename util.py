@@ -306,6 +306,8 @@ def get_base_config(cfg, cfg_parser):
 		cfg['build']['conn_module']                   = cp.get('build', 'conn_module')
 	# Track logins in a stack.
 	cfg['build']['login_stack']                   = []
+	# Whether to accept default configs
+	cfg['build']['accept_defaults']               = None
 	cfg['target']['password']                  = cp.get('target', 'password')
 	cfg['target']['hostname']                  = cp.get('target', 'hostname')
 	cfg['target']['force_repo_work']           = cp.getboolean('target', 'force_repo_work')
