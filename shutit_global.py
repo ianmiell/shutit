@@ -1878,21 +1878,33 @@ class ShutIt(object):
 		else:
 			if forcenone != True:
 				if self.cfg['build']['interactive'] >= 1:
-					prompt = '\n\nPlease input a value for ' + module_id + '.' + option
-					if default != None:
-						prompt = prompt + ' (default: ' + str(default) + ')'
-					if hint != None:
-						prompt = prompt + '\n\n' + prompt
-					answer = None
-					if boolean:
+					if self.cfg['build']['accept_defaults'] == None:
+						answer = None
 						while answer not in ('yes','no',''):
-							answer =  util.util_raw_input(shutit=self,prompt=util.colour('31',prompt
-							  + ' (boolean - input "yes" or "no"): \n'))
+							answer =  util.util_raw_input(shutit=self,prompt=util.colour('31',
+							   'Do you want to accept the config option defaults? (boolean - input "yes" or "no") (default: yes): \n'))
+						if answer == 'yes' or answer == '':
+							self.cfg['build']['accept_defaults'] = True
+						else:
+							self.cfg['build']['accept_defaults'] = False
+					if self.cfg['build']['accept_defaults'] == True and default != None:
+						self.cfg[module_id][option] = default
 					else:
-						answer =  util.util_raw_input(shutit=self,prompt=util.colour('31',prompt) + ': \n')
-					if answer == '' and default != None:
-						answer = default
-					self.cfg[module_id][option] = answer
+						prompt = '\n\nPlease input a value for ' + module_id + '.' + option
+						if default != None:
+							prompt = prompt + ' (default: ' + str(default) + ')'
+						if hint != None:
+							prompt = prompt + '\n\n' + prompt
+						answer = None
+						if boolean:
+							while answer not in ('yes','no',''):
+								answer =  util.util_raw_input(shutit=self,prompt=util.colour('31',prompt
+								  + ' (boolean - input "yes" or "no"): \n'))
+						else:
+							answer =  util.util_raw_input(shutit=self,prompt=util.colour('31',prompt) + ': \n')
+						if answer == '' and default != None:
+							answer = default
+						self.cfg[module_id][option] = answer
 				else:
 					self.fail('Config item: ' + option + ':\nin module:\n[' + module_id + ']\nmust be set!\n\nOften this is a deliberate requirement to place in your ~/.shutit/config file, or you can pass in with:\n\n-s ' + module_id + ' ' + option + ' yourvalue\n\nto the build command', throw_exception=False)
 			else:
