@@ -22,7 +22,7 @@ class taigaio(ShutItModule):
 		shutit.send('adduser --gecos "" --disabled-password taiga')
 		shutit.send('echo taiga:taiga | chpasswd')
 		shutit.send('adduser taiga sudo')
-		shutit.login('taiga')
+		shutit.login(user='taiga')
 		shutit.send('git clone https://github.com/taigaio/taiga-scripts.git')
 		shutit.send('pushd taiga-scripts')
 		shutit.multisend('bash setup-server.sh', {

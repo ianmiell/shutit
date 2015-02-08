@@ -8,6 +8,6 @@ WORKDIR shutit
 RUN pip install -r requirements.txt
 
 WORKDIR /opt/shutit/library/taigaio
-RUN /opt/shutit/shutit build --shutit_module_path /opt/shutit/library --delivery bash --debug
+RUN /opt/shutit/shutit build --shutit_module_path /opt/shutit/library --delivery bash
 
 CMD ["/bin/bash"] 
