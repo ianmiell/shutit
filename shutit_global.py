@@ -1852,7 +1852,8 @@ class ShutIt(object):
 	               default=None,
 	               boolean=False,
 	               forcedefault=False,
-	               forcenone=False):
+	               forcenone=False,
+	               hint=None):
 		"""Gets a specific config from the config files, allowing for a default.
 
 		Handles booleans vs strings appropriately.
@@ -1863,6 +1864,7 @@ class ShutIt(object):
 		boolean      - whether this is a boolean value or not (default False)
 		forcedefault - if set to true, allows you to override any value already set (default False)
 		forcenone    - if set to true, allows you to set the value to None (default False)
+		hint         - if we are interactive, then show this prompt to help the user input a useful value
 		"""
 		if module_id not in self.cfg.keys():
 			self.cfg[module_id] = {}
@@ -1874,9 +1876,39 @@ class ShutIt(object):
 			else:
 				self.cfg[module_id][option] = self.cfg['config_parser'].get(module_id, option)
 		else:
-			if default == None and forcenone != True:
-				self.fail('Config item: ' + option + ':\nin module:\n[' + module_id + ']\nmust be set!\n\nOften this is a deliberate requirement to place in your ~/.shutit/config file, or you can pass in with:\n\n-s ' + module_id + ' ' + option + ' yourvalue\n\nto the build command', throw_exception=False)
-			self.cfg[module_id][option] = default
+			if forcenone != True:
+				if self.cfg['build']['interactive'] >= 1:
+					if self.cfg['build']['accept_defaults'] == None:
+						answer = None
+						while answer not in ('yes','no',''):
+							answer =  util.util_raw_input(shutit=self,prompt=util.colour('31',
+							   'Do you want to accept the config option defaults? (boolean - input "yes" or "no") (default: yes): \n'))
+						if answer == 'yes' or answer == '':
+							self.cfg['build']['accept_defaults'] = True
+						else:
+							self.cfg['build']['accept_defaults'] = False
+					if self.cfg['build']['accept_defaults'] == True and default != None:
+						self.cfg[module_id][option] = default
+					else:
+						prompt = '\n\nPlease input a value for ' + module_id + '.' + option
+						if default != None:
+							prompt = prompt + ' (default: ' + str(default) + ')'
+						if hint != None:
+							prompt = prompt + '\n\n' + prompt
+						answer = None
+						if boolean:
+							while answer not in ('yes','no',''):
+								answer =  util.util_raw_input(shutit=self,prompt=util.colour('31',prompt
+								  + ' (boolean - input "yes" or "no"): \n'))
+						else:
+							answer =  util.util_raw_input(shutit=self,prompt=util.colour('31',prompt) + ': \n')
+						if answer == '' and default != None:
+							answer = default
+						self.cfg[module_id][option] = answer
+				else:
+					self.fail('Config item: ' + option + ':\nin module:\n[' + module_id + ']\nmust be set!\n\nOften this is a deliberate requirement to place in your ~/.shutit/config file, or you can pass in with:\n\n-s ' + module_id + ' ' + option + ' yourvalue\n\nto the build command', throw_exception=False)
+			else:
+				self.cfg[module_id][option] = default
 
 
 	def get_ip_address(self, ip_family='4', ip_object='addr', command='ip', interface='eth0'):
