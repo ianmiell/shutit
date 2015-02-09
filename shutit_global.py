@@ -1881,8 +1881,9 @@ class ShutIt(object):
 					if self.cfg['build']['accept_defaults'] == None:
 						answer = None
 						while answer not in ('yes','no',''):
-							answer =  util.util_raw_input(shutit=self,prompt=util.colour('31',
-							   'Do you want to accept the config option defaults? (boolean - input "yes" or "no") (default: yes): \n'))
+							answer = util.util_raw_input(shutit=self,prompt=util.colour('31',
+							   'Do you want to accept the config option defaults? ' +
+							   '(boolean - input "yes" or "no") (default: yes): \n'))
 						if answer == 'yes' or answer == '':
 							self.cfg['build']['accept_defaults'] = True
 						else:
