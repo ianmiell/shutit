@@ -845,9 +845,9 @@ def shutit_main():
 		import shutit_srv
 		cfg['build']['interactive'] = 0
 		revert_dir = os.getcwd()
-		shutit.chdir(sys.path[0])
+		os.chdir(sys.path[0])
 		shutit_srv.start()
-		shutit.chdir(revert_dir)
+		os.chdir(revert_dir)
 		return
 
 	util.load_configs(shutit)
