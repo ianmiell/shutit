@@ -1491,18 +1491,13 @@ def print_stack_trace():
 
 
 def ctrl_c_signal_handler(signal, frame):
-	"""CTRL-C signal handler - enters a pause point if it can.
+	"""CTRL-c signal handler - enters a pause point if it can.
 	"""
-	#print "================================================================================"
-	#print frame.f_code.co_name
-	#print frame.f_code.co_varnames
-	#print "================================================================================"
-	#print frame.f_locals
 	if False and 'shutit' in frame.f_locals:
 		shutit = frame.f_locals['shutit']
 		#print shutit
 		shutit.pause_point(msg='Captured CTRL-c - entering pause point')
 	else:
-		print "CTRL-C caught, but not in context with ability to pause. CTRL-z and kill %n if you really want out."
+		print "CTRL-c caught, but not in context with ability to pause. CTRL-z and kill %n if you really want out."
 		time.sleep(1)
 
