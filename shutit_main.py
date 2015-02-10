@@ -575,6 +575,8 @@ def check_ready(shutit,check_all=False):
 	shutit.pause_point('\nNow checking whether we are ready to build modules' + 
 	                   ' configured to be built',
 	                   print_input=False, level=3)
+	# Find out who we are to see whether we need to log in and out or not. 
+	whowasi = shutit.whoami()
 	for module_id in module_ids(shutit):
 		module = shutit.shutit_map[module_id]
 		shutit.log('considering check_ready (is it ready to be built?): ' +
@@ -582,7 +584,8 @@ def check_ready(shutit,check_all=False):
 		if (check_all or cfg[module_id]['shutit.core.module.build']) and module.module_id not in shutit.cfg['target']['modules_ready'] and not is_installed(shutit,module):
 			shutit.log('checking whether module is ready to build: ' + module_id,
 			           code='31')
-			shutit.login(prompt_prefix=module_id)
+			if whowasi != 'root':
+				shutit.login(prompt_prefix=module_id)
 			# Move to the directory so context is correct (eg for checking for
 			# the existence of files needed for build)
 			revert_dir = os.getcwd()
@@ -592,7 +595,8 @@ def check_ready(shutit,check_all=False):
 				            'check_ready function in the module,\nor log ' + 
 				            'messages above to determine the issue.\n\n',
 				            shutit.pexpect_children['target_child']))
-			shutit.logout()
+			if whowasi != 'root':
+				shutit.logout()
 			shutit.chdir(revert_dir)
 	return errs
 
