@@ -250,6 +250,7 @@ def init_shutit_map(shutit):
 def config_collection(shutit):
 	"""Collect core config from config files for all seen modules.
 	"""
+	shutit.log('In config_collection')
 	cfg = shutit.cfg
 	for module_id in module_ids(shutit):
 		# Default to None so we can interpret as ifneeded
@@ -295,6 +296,7 @@ def config_collection_for_built(shutit):
 	When this is called we should know what's being built (ie after
 	dependency resolution).
 	"""
+	shutit.log('In config_collection_for_built')
 	for module_id in module_ids(shutit):
 		# Get the config even if installed or building (may be needed in other
 		# hooks, eg test).
@@ -409,6 +411,7 @@ def finalize_target(shutit):
 def resolve_dependencies(shutit, to_build, depender):
 	"""Add any required dependencies.
 	"""
+	shutit.log('In resolve_dependencies')
 	cfg = shutit.cfg
 	for dependee_id in depender.depends_on:
 		dependee = shutit.shutit_map.get(dependee_id)
@@ -561,7 +564,7 @@ def check_conflicts(shutit):
 	return errs
 
 
-def check_ready(shutit):
+def check_ready(shutit,check_all=False):
 	"""Check that all modules are ready to be built, calling check_ready on
 	each of those configured to be built and not already installed
 	(see is_installed).
@@ -576,7 +579,7 @@ def check_ready(shutit):
 		module = shutit.shutit_map[module_id]
 		shutit.log('considering check_ready (is it ready to be built?): ' +
 		           module_id, code='31')
-		if cfg[module_id]['shutit.core.module.build'] and module.module_id not in shutit.cfg['target']['modules_ready'] and not is_installed(shutit,module):
+		if (check_all or cfg[module_id]['shutit.core.module.build']) and module.module_id not in shutit.cfg['target']['modules_ready'] and not is_installed(shutit,module):
 			shutit.log('checking whether module is ready to build: ' + module_id,
 			           code='31')
 			shutit.login(prompt_prefix=module_id)
@@ -905,7 +908,10 @@ def shutit_main():
 		return
 	# Check for conflicts now.
 	errs.extend(check_conflicts(shutit))
-	errs.extend(check_ready(shutit))
+	# Cache the results of check_ready at the start.
+	errs.extend(check_ready(shutit,check_all=True))
+	print shutit.cfg['target']['modules_ready']
+	exit(1) 
 	if errs:
 		shutit.log(print_modules(shutit), code='31')
 		child = None

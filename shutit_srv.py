@@ -91,7 +91,7 @@ def update_modules(to_build, cfg):
 	# would have to override each module at the correct time.
 	shutit_main.config_collection_for_built(shutit)
 	errs.extend(shutit_main.check_conflicts(shutit))
-	errs.extend(shutit_main.check_ready(shutit))
+	errs.extend(shutit_main.check_ready(shutit,check_all=True))
 
 	STATUS['errs'] = [err[0] for err in errs]
 	STATUS['modules'] = [
