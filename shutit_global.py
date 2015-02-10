@@ -460,7 +460,7 @@ class ShutIt(object):
 			ret = self.send('. /tmp/shutit_script.sh', expect, child)
 		else:
 			ret = self.send('/tmp/shutit_script.sh', expect, child)
-		self.send('rm /tmp/shutit_script.sh', expect, child)
+		self.send('rm -f /tmp/shutit_script.sh', expect, child)
 		return ret
 
 
