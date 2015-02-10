@@ -910,8 +910,6 @@ def shutit_main():
 	errs.extend(check_conflicts(shutit))
 	# Cache the results of check_ready at the start.
 	errs.extend(check_ready(shutit,check_all=True))
-	print shutit.cfg['target']['modules_ready']
-	exit(1) 
 	if errs:
 		shutit.log(print_modules(shutit), code='31')
 		child = None
