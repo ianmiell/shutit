@@ -20,13 +20,13 @@ class prompt_command(ShutItModule):
 		shutit.send_and_expect('echo abc')
 		shutit.logout()
 		# Simple login and out
-		shutit.login('root')
+		shutit.login(user='root')
 		shutit.send('whoami')
 		shutit.logout()
 		# Multi-level login and out
-		shutit.login('root')
+		shutit.login(user='root')
 		shutit.send('whoami')
-		shutit.login('root')
+		shutit.login(user='root')
 		shutit.send('whoami')
 		shutit.logout()
 		shutit.logout()
