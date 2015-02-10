@@ -1299,11 +1299,11 @@ class ShutIt(object):
 
 
 	def remove(self,
-			   package,
-			   child=None,
-			   expect=None,
-			   options=None,
-			   timeout=3600):
+	           package,
+	           child=None,
+	           expect=None,
+	           options=None,
+	           timeout=3600):
 		"""Distro-independent remove function.
 		Takes a package name and runs relevant remove function.
 		Returns true if all ok (ie it's installed now), else false.
@@ -1338,6 +1338,14 @@ class ShutIt(object):
 		return True
 
 
+	def whoami(self, 
+	           child=None,
+	           expect=None):
+		child = child or self.get_default_child()
+		expect = expect or self.get_default_expect()
+		return self.send_and_get_output('whoami').strip()
+
+
 	def exec_shell(self, command='bash', child=None, password=None):
 		"""See login.
 
@@ -1351,9 +1359,15 @@ class ShutIt(object):
 		"""
 		child = child or self.get_default_child()
 		r_id = random_id()
-		self.cfg['build']['login_stack'].append(r_id)
+		self.login_stack_append(r_id)
 		self.send(command,expect=shutit.cfg['expect_prompts']['base_prompt'],check_exit=False)
 		self.setup_prompt(r_id,child=child)
+
+
+	def login_stack_append(self, r_id, new_user=''):
+		self.cfg['build']['login_stack'].append(r_id)
+		# Dictionary with details about login (eg whoami)
+		self.cfg['build']['logins'][r_id] = {'whoami':new_user}
 
 
 	def login(self, command='su -', user='root', child=None, password=None, prompt_prefix=None, expect=None, timeout=20):
@@ -1370,7 +1384,7 @@ class ShutIt(object):
 		"""
 		child = child or self.get_default_child()
 		r_id = random_id()
-		self.cfg['build']['login_stack'].append(r_id)
+		self.login_stack_append(r_id)
 		if self.cfg['build']['delivery'] == 'bash' and command == 'su -':
 			# We want to retain the current working directory
 			command = 'su'
@@ -1399,8 +1413,6 @@ class ShutIt(object):
 		"""
 		child = child or self.get_default_child()
 		if len(self.cfg['build']['login_stack']):
-			#print "LOGIN STACK TO BE POPPED"
-			#print self.cfg['build']['login_stack']
 			current_prompt_name = self.cfg['build']['login_stack'].pop()
 			if len(self.cfg['build']['login_stack']):
 				old_prompt_name     = self.cfg['build']['login_stack'][-1]
