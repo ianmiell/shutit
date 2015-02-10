@@ -5,12 +5,12 @@ class copy_ssh_key(ShutItModule):
 
 	def check_ready(self,shutit):
 		files = [
-			"/home/" + shutit.cfg[self.module_id]['login'] + "/.ssh/id_rsa",
-			"/home/" + shutit.cfg[self.module_id]['login'] + "/.ssh/id_rsa.pub"			
+			"~/.ssh/id_rsa",
+			"~/.ssh/id_rsa.pub"			
 		]
 
 		for f in files:
-			if not os.path.isfile(f):
+			if not os.path.isfile(os.path.expanduser(f)):
 				shutit.log('File: ' + f + ' does not exist on host', force_stdout=True)
 				return False
 
