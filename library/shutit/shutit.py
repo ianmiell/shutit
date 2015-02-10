@@ -44,6 +44,6 @@ def module():
 	return shutit(
 		'shutit.tk.shutit.shutit', 0.397,
 		description='shutit in a container',
-		depends=['shutit.tk.setup', 'shutit.tk.docker.docker', 'shutit.tk.adduser.adduser']
+		depends=['shutit.tk.setup', 'shutit.tk.docker.docker']
 	)
 
