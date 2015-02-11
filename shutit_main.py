@@ -564,7 +564,7 @@ def check_conflicts(shutit):
 	return errs
 
 
-def check_ready(shutit,check_all=False):
+def check_ready(shutit,check_all=False, throw_error=True):
 	"""Check that all modules are ready to be built, calling check_ready on
 	each of those configured to be built and not already installed
 	(see is_installed).
@@ -590,7 +590,7 @@ def check_ready(shutit,check_all=False):
 			# the existence of files needed for build)
 			revert_dir = os.getcwd()
 			shutit.chdir(os.path.dirname(module.__module_file))
-			if not is_ready(shutit, module):
+			if not is_ready(shutit, module) and throw_error:
 				errs.append((module_id + ' not ready to install.\nRead the ' +
 				            'check_ready function in the module,\nor log ' + 
 				            'messages above to determine the issue.\n\n',
@@ -925,7 +925,7 @@ def shutit_main():
 	# Check for conflicts now.
 	errs.extend(check_conflicts(shutit))
 	# Cache the results of check_ready at the start.
-	errs.extend(check_ready(shutit,check_all=True))
+	errs.extend(check_ready(shutit,check_all=True, throw_error=False))
 	if errs:
 		shutit.log(print_modules(shutit), code='31')
 		child = None
