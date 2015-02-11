@@ -964,21 +964,24 @@ class ShutIt(object):
 		"""
 		# If it's already in cache, then return True
 		if self.cfg['target']['modules_recorded_cache_valid'] == False:
-			if not self.file_exists('/root/shutit_build/module_record',directory=True):
-				self.cfg['target']['modules_recorded_cache_valid'] = True
-				return False
-			# Bit of a hack here to get round the long command showing up as the first line of the output.
-			self.send(r"""find /root/shutit_build/module_record/ -name built | sed 's/^.root.shutit_build.module_record.\([^/]*\).built/\1/' > /root/shutit_build/tmp""")
-			built = self.send_and_get_output('cat //root/shutit_build/tmp').strip()
-			self.send('rm -f /root/shutit_build/tmp')
-			built_list = built.split('\r\n')
-			self.cfg['target']['modules_recorded'] = built_list
-			print self.cfg['target']['modules_recorded']
-			self.pause_point(module_id)
+			self.cfg['target']['modules_recorded_cache_valid'] = True
+			if self.file_exists('/root/shutit_build/module_record',directory=True):
+				# Bit of a hack here to get round the long command showing up as the first line of the output.
+				self.send(r"""find /root/shutit_build/module_record/ -name built | sed 's/^.root.shutit_build.module_record.\([^/]*\).built/\1/' > /root/shutit_build/tmp""")
+				built = self.send_and_get_output('cat //root/shutit_build/tmp').strip()
+				self.send('rm -f /root/shutit_build/tmp')
+				built_list = built.split('\r\n')
+				self.cfg['target']['modules_recorded'] = built_list
+		# Modules recorded cache will be valid at this point.
 		if module_id in self.cfg['target']['modules_recorded']:
-			self.pause_point('returning true')
+			self.pause_point('returning true... ' + module_id + ' in ' + str(self.cfg['target']['modules_recorded']))
 			return True
-		return self.file_exists('/root/shutit_build/module_record/' + module_id + '/built')
+		else:
+			# Now check the real-time list of modules
+			if module_id in shutit.cfg['target']['modules_installed']:
+				self.pause_point('returning true')
+				return True
+			return False
 
 
 	def ls(self, directory):
