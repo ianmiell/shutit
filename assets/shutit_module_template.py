@@ -5,15 +5,14 @@ import os
 
 class template(ShutItModule):
 
-	# Run the build part of the module, which should ensure the module
-	# has been set up.
-	# If is_installed determines that the module is already there,
-	# this is not run.
-	#
 	# Should return True if it has succeeded in building, else False.
 	def build(self, shutit):
-		# Line number 16 should be the next one (so bash scripts can be inserted properly)
+		# Line number 11 should be the next one (so bash scripts can be inserted properly)
 
+		# Run the build part of the module, which should ensure the module
+		# has been set up.
+		# If is_installed determines that the module is already there,
+		# this is not run.
 		# DELETE THIS SECTION WHEN UNDERSTOOD - BEGIN
 		shutit.send_and_expect('touch /tmp/deleteme')
 		shutit.send_and_expect('touch /tmp/target_touched.sh')
