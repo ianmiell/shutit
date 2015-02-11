@@ -962,9 +962,9 @@ class ShutIt(object):
 	def is_shutit_installed(self, module_id):
 		"""Helper proc to determine whether shutit has installed already here by placing a file in the db. 
 		"""
-		# If it's already in cache, then return True
+		# If it's already in cache, then return True.
+		# By default the cache is invalidated.
 		if self.cfg['target']['modules_recorded_cache_valid'] == False:
-			self.cfg['target']['modules_recorded_cache_valid'] = True
 			if self.file_exists('/root/shutit_build/module_record',directory=True):
 				# Bit of a hack here to get round the long command showing up as the first line of the output.
 				self.send(r"""find /root/shutit_build/module_record/ -name built | sed 's/^.root.shutit_build.module_record.\([^/]*\).built/\1/' > /root/shutit_build/tmp""")
@@ -972,15 +972,12 @@ class ShutIt(object):
 				self.send('rm -f /root/shutit_build/tmp')
 				built_list = built.split('\r\n')
 				self.cfg['target']['modules_recorded'] = built_list
-		# Modules recorded cache will be valid at this point.
-		if module_id in self.cfg['target']['modules_recorded']:
-			self.pause_point('returning true... ' + module_id + ' in ' + str(self.cfg['target']['modules_recorded']))
+			# Either there was no directory (so the cache is valid), or we've built the cache, so mark as good.
+			self.cfg['target']['modules_recorded_cache_valid'] = True
+		# Modules recorded cache will be valid at this point, so check the pre-recorded modules and the in-this-run installed cache.
+		if module_id in self.cfg['target']['modules_recorded'] or module_id in shutit.cfg['target']['modules_installed']:
 			return True
 		else:
-			# Now check the real-time list of modules
-			if module_id in shutit.cfg['target']['modules_installed']:
-				self.pause_point('returning true')
-				return True
 			return False
 
 
