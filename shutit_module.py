@@ -213,7 +213,6 @@ class ShutItModule(object):
 		"""
 		return True
 
-	@abstractmethod
 	def is_installed(self, shutit):
 		"""Determines whether the module has been built in this target host
 		already.
@@ -222,7 +221,7 @@ class ShutItModule(object):
 		
 		Required.
 		"""
-		pass
+		return shutit.is_shutit_installed(self.module_id)
 
 	@abstractmethod
 	def build(self, shutit):
