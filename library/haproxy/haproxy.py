@@ -7,16 +7,11 @@ from shutit_module import ShutItModule
 
 class haproxy(ShutItModule):
 
-	def is_installed(self, shutit):
-		return False
-
 	def build(self, shutit):
-		# #### CONFIG #####
 		shutit.send('export HAPROXY_VERSION=1.5-dev22')
 		shutit.send('export HAPROXY=haproxy-$HAPROXY_VERSION')
 		shutit.send('export TMP_DIR=/tmp')
 		shutit.send('export SSL_SUBJ=/C=CA/ST=QC/L=Saguenay/O=Dis/CN=alanb.ca')
-		# #### END CONFIG #####
 		# Compile and Install haproxy 1.5
 		shutit.send('apt-get install -y wget build-essential libssl-dev openssl')
 		shutit.send('wget -O $TMP_DIR/$HAPROXY.tar.gz http://haproxy.1wt.eu/download/1.5/src/devel/$HAPROXY.tar.gz')
@@ -34,18 +29,6 @@ class haproxy(ShutItModule):
 		shutit.send('chown haproxy.haproxy /etc/ssl/certs/server.pem')
 		shutit.send('mkdir /etc/haproxy')
 		shutit.send_host_file('/etc/haproxy/haproxy.conf', 'context/./haproxy.conf')
-		return True
-
-	def finalize(self, shutit):
-		return True
-
-	def test(self, shutit):
-		return True
-
-	def is_installed(self, shutit):
-		return False
-
-	def get_config(self, shutit):
 		return True
 
 def module():

@@ -25,9 +25,6 @@ import os
 
 class apache_proxypass(ShutItModule):
 	
-	def is_installed(self, shutit):
-		return False
-
 	def build(self, shutit):
 		# Based on: http://www.jamescoyle.net/how-to/116-simple-apache-reverse-proxy-example
 		shutit.install('apache2')

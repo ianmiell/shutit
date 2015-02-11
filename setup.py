@@ -330,7 +330,7 @@ class ConnDocker(ShutItConnModule):
 				res = target_child.expect(expect, 9999)
 				continue
 		# Get the cid
-		time.sleep(5) # cidfile creation is sometimes slow...
+		time.sleep(1) # cidfile creation is sometimes slow...
 		shutit.log('Slept')
 		cid = open(cfg['build']['cidfile']).read()
 		shutit.log('Opening file')

@@ -81,7 +81,7 @@ class template(ShutItModule):
 	# Should return True if it is certain it's there, else False.
 	# File placed in root automatically by shutit core as a helper.
 	def is_installed(self, shutit):
-		return shutit.file_exists('/root/shutit_build/module_record/' + self.module_id + '/built')
+		return shutit.is_shutit_installed(self.module_id)
 
 	# get_config
 	#

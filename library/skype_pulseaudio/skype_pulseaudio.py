@@ -3,10 +3,6 @@
 from shutit_module import ShutItModule
 
 class skype_pulseaudio(ShutItModule):
-
-	def is_installed(self, shutit):
-		return False
-
 	def build(self, shutit):
 		shutit.send('export DEBIAN_FRONTEND=noninteractive')
 		shutit.send('dpkg --add-architecture i386')
@@ -30,17 +26,6 @@ class skype_pulseaudio(ShutItModule):
 		shutit.send('chmod 755 /usr/local/bin/skype-pulseaudio')
 		return True
 
-	def finalize(self, shutit):
-		return True
-
-	def test(self, shutit):
-		return True
-
-	def is_installed(self, shutit):
-		return False
-
-	def get_config(self, shutit):
-		return True
 
 def module():
 		return skype_pulseaudio(

@@ -5,9 +5,6 @@ from shutit_module import ShutItModule
 
 class wine(ShutItModule):
 
-	def is_installed(self, shutit):
-		return False
-
 	def build(self, shutit):
 		shutit.install('python-software-properties')
 		shutit.install('software-properties-common')
@@ -16,18 +13,6 @@ class wine(ShutItModule):
 		shutit.send('apt-get update -y')
 		shutit.install('wine1.7')
 		shutit.install('winetricks')
-		return True
-
-	def finalize(self, shutit):
-		return True
-
-	def test(self, shutit):
-		return True
-
-	def is_installed(self, shutit):
-		return False
-
-	def get_config(self, shutit):
 		return True
 
 def module():

@@ -3,12 +3,6 @@ import os
 
 class ssh_key(ShutItModule):
 
-	def check_ready(self, shutit):
-		return True
-
-	def is_installed(self, shutit):
-		return False
-
 	def build(self, shutit):
 		shutit.install('openssh-client')
 		shutit.send("ssh-keygen -P '' -f '/root/.ssh/id_rsa'")
@@ -28,8 +22,6 @@ class ssh_key(ShutItModule):
 	def test(self, shutit):
 		d = {'authenticity':'yes'}
 		shutit.multisend('ssh localhost',d,expect=shutit.cfg['expect_prompts']['base_prompt'],check_exit=False)
-		
-
 		#expect = ['authenticity', shutit.cfg['expect_prompts']['base_prompt']]
 		#send = 'ssh localhost'
 		#while True:

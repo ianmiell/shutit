@@ -6,9 +6,6 @@ from shutit_module import ShutItModule
 
 class puppet(ShutItModule):
 
-	def is_installed(self, shutit):
-		return False
-
 	def build(self, shutit):
 		shutit.install('puppet')
 		shutit.install('puppetmaster') # Only for master
@@ -28,18 +25,6 @@ class puppet(ShutItModule):
 		# TODO: p 14 
 		# service puppetmaster start (non-debian)
 		# invoke-rc.d puppetmaster start (debian)
-		return True
-
-	def finalize(self, shutit):
-		return True
-
-	def test(self, shutit):
-		return True
-
-	def is_installed(self, shutit):
-		return False
-
-	def get_config(self, shutit):
 		return True
 
 def module():

@@ -24,9 +24,6 @@ from shutit_module import ShutItModule
 
 class ansible(ShutItModule):
 
-	def is_installed(self, shutit):
-		return False
-
 	def build(self, shutit):
 		shutit.install('git')
 		shutit.install('python2.7-dev')

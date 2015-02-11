@@ -24,9 +24,6 @@ from shutit_module import ShutItModule
 
 class jenkins(ShutItModule):
 
-	def is_installed(self,shutit):
-		return False
-
 	def build(self,shutit):
 		shutit.install('wget')
 		shutit.send('wget -q -O - http://pkg.jenkins-ci.org/debian/jenkins-ci.org.key | apt-key add -')

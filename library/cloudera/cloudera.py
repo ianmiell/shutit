@@ -5,9 +5,6 @@ from shutit_module import ShutItModule
 
 class cloudera(ShutItModule):
 
-	def is_installed(self, shutit):
-		return False
-
 	def build(self, shutit):
 		shutit.install('curl')
 		# add CDH repo
@@ -21,18 +18,6 @@ class cloudera(ShutItModule):
 		shutit.add_to_bashrc('export JAVA_HOME=/usr/lib/jvm/java-7-oracle-cloudera')
 		shutit.add_to_bashrc('export PATH=$JAVA_HOME/bin:$PATH')
 		shutit.install('cloudera-manager-daemons cloudera-manager-server',force=True)
-		return True
-
-	def finalize(self, shutit):
-		return True
-
-	def test(self, shutit):
-		return True
-
-	def is_installed(self, shutit):
-		return False
-
-	def get_config(self, shutit):
 		return True
 
 def module():

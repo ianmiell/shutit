@@ -193,6 +193,7 @@ class ShutIt(object):
 			shutit.cfg['build']['report_final_messages'] += msg + '\n'
 		time.sleep(pause)
 
+
 	def multisend(self,
 	              send,
 	              send_dict,
@@ -958,6 +959,28 @@ class ShutIt(object):
 			return False
 
 
+	def is_shutit_installed(self, module_id):
+		"""Helper proc to determine whether shutit has installed already here by placing a file in the db. 
+		"""
+		# If it's already in cache, then return True
+		if self.cfg['target']['modules_recorded_cache_valid'] == False:
+			if not self.file_exists('/root/shutit_build/module_record',directory=True):
+				self.cfg['target']['modules_recorded_cache_valid'] = True
+				return False
+			# Bit of a hack here to get round the long command showing up as the first line of the output.
+			self.send(r"""find /root/shutit_build/module_record/ -name built | sed 's/^.root.shutit_build.module_record.\([^/]*\).built/\1/' > /root/shutit_build/tmp""")
+			built = self.send_and_get_output('cat //root/shutit_build/tmp').strip()
+			self.send('rm -f /root/shutit_build/tmp')
+			built_list = built.split('\r\n')
+			self.cfg['target']['modules_recorded'] = built_list
+			print self.cfg['target']['modules_recorded']
+			self.pause_point(module_id)
+		if module_id in self.cfg['target']['modules_recorded']:
+			self.pause_point('returning true')
+			return True
+		return self.file_exists('/root/shutit_build/module_record/' + module_id + '/built')
+
+
 	def ls(self, directory):
 		"""Helper proc to list files in a directory
 
@@ -1206,18 +1229,23 @@ class ShutIt(object):
 		return None
 
 
-	def send_and_get_output(self, send, expect=None, child=None, retry=3):
+	def send_and_get_output(self, send, expect=None, child=None, retry=3, strip=True):
 		"""Returns the output of a command run.
 		send() is called, and exit is not checked.
 
-		- send   - See send()
-		- expect - See send()
-		- child  - See send()
+	    - send   - See send()
+	    - expect - See send()
+	    - child  - See send()
+	    - retry  - Number of times to retry command (default 3)
+	    - strip  - Whether to strip output (defaults to true)
 		"""
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
-		self.send(send, check_exit=False, retry=3)
-		return shutit.get_default_child().before.strip(send)
+		self.send(send, check_exit=False, retry=3,echo=False)
+		if strip:
+			return shutit.get_default_child().before.strip(send).strip()
+		else:
+			return shutit.get_default_child().before.strip(send)
 
 
 	def install(self,

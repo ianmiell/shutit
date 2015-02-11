@@ -1,11 +1,7 @@
-
 # Created from dockerfile: /space/git/dockerfiles_repos/dockerfile-examples/nodejs/Dockerfile
 from shutit_module import ShutItModule
 
 class nodejs(ShutItModule):
-
-	def is_installed(self, shutit):
-		return False
 
 	def build(self, shutit):
 		shutit.install('lsb-release')
@@ -16,18 +12,6 @@ class nodejs(ShutItModule):
 		shutit.install('nodejs')
 		shutit.send('mkdir /var/www')
 		shutit.send_host_file('/var/www/app.js', 'context/app.js')
-		return True
-
-	def finalize(self, shutit):
-		return True
-
-	def test(self, shutit):
-		return True
-
-	def is_installed(self, shutit):
-		return False
-
-	def get_config(self, shutit):
 		return True
 
 def module():

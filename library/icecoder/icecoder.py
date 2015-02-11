@@ -1,11 +1,7 @@
-
 # Created from dockerfile: /space/git/dockerfiles_repos/dockerfile-examples/icecoder/Dockerfile
 from shutit_module import ShutItModule
 
 class icecoder(ShutItModule):
-
-	def is_installed(self, shutit):
-		return False
 
 	def build(self, shutit):
 		shutit.install('apache2')
@@ -26,18 +22,6 @@ class icecoder(ShutItModule):
 		shutit.send('mkdir /var/www/projects')
 		shutit.send('chown -R www-data /var/www/projects')
 		shutit.send('chmod g+s /var/www/projects')
-		return True
-
-	def finalize(self, shutit):
-		return True
-
-	def test(self, shutit):
-		return True
-
-	def is_installed(self, shutit):
-		return False
-
-	def get_config(self, shutit):
 		return True
 
 def module():

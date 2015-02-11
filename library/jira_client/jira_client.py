@@ -24,9 +24,6 @@ from shutit_module import ShutItModule
 
 class jira_client(ShutItModule):
 
-	def is_installed(self,shutit):
-		return False
-
 	def build(self,shutit):
 		shutit.install('python')
 		shutit.install('python-pip')

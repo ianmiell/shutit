@@ -1,11 +1,7 @@
-
 # Created from dockerfile: ./Dockerfile
 from shutit_module import ShutItModule
 
 class plex(ShutItModule):
-
-	def is_installed(self, shutit):
-		return False
 
 	def build(self, shutit):
 		shutit.install('wget')
@@ -18,18 +14,6 @@ class plex(ShutItModule):
 		shutit.send('sed -i "s/rlimit-nproc=3/#rlimit-nproc=3/" /etc/avahi/avahi-daemon.conf')
 		shutit.send_host_file('/start.sh', 'context/./start.sh')
 		shutit.send('chmod u+x /start.sh')
-		return True
-
-	def finalize(self, shutit):
-		return True
-
-	def test(self, shutit):
-		return True
-
-	def is_installed(self, shutit):
-		return False
-
-	def get_config(self, shutit):
 		return True
 
 def module():

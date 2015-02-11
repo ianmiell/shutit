@@ -4,9 +4,6 @@ from shutit_module import ShutItModule
 
 class minimal_linux(ShutItModule):
 
-	def is_installed(self, shutit):
-		return False
-
 	def build(self, shutit):
 		shutit.send('export KERNEL_VERSION=' + shutit.cfg[self.module_id]['version'])
 		shutit.install('wget')
@@ -48,15 +45,6 @@ class minimal_linux(ShutItModule):
 		shutit.send('xorriso -as mkisofs -l -J -R -V sven -no-emul-boot -boot-load-size 4 -boot-info-table -b boot/isolinux.bin -c boot/boot.cat -isohybrid-mbr /usr/lib/syslinux/isohdpfx.bin -o /sven.iso /tmp/iso')
 		shutit.send('popd')
 		return True
-
-	def finalize(self, shutit):
-		return True
-
-	def test(self, shutit):
-		return True
-
-	def is_installed(self, shutit):
-		return False
 
 	def get_config(self, shutit):
 		shutit.get_config(self.module_id,'version','3.14.12')

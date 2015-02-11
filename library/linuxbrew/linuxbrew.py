@@ -7,11 +7,6 @@ from shutit_module import ShutItModule
 
 class linuxbrew(ShutItModule):
 
-
-	def is_installed(self, shutit):
-		return False
-
-
 	def build(self, shutit):
 		shutit.install('ruby')
 		shutit.install('gcc')
@@ -30,26 +25,6 @@ class linuxbrew(ShutItModule):
 		shutit.send('''echo 'export PATH="$HOME/.linuxbrew/bin:$PATH"' >> ~/.bashrc''')
 		shutit.send('''echo 'export LD_LIBRARY_PATH="$HOME/.linuxbrew/lib:$LD_LIBRARY_PATH"' >> ~/.bashrc''')
 		return True
-
-	#def get_config(self, shutit):
-	#	return True
-
-	#def check_ready(self, shutit):
-	#	return True
-	
-	#def start(self, shutit):
-	#	return True
-
-	#def stop(self, shutit):
-	#    return True
-	#def finalize(self, shutit):
-	#	return True
-
-	#def remove(self, shutit):
-	#	return True
-
-	#def test(self, shutit):
-	#	return True
 
 def module():
 	return linuxbrew(

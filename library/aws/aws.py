@@ -51,11 +51,6 @@ class aws(ShutItModule):
 		shutit.get_config(self.module_id, 'secret_access_key', '')
 		return True
 
-	def is_installed(self,shutit):
-		if shutit.file_exists('/usr/local/bin/aws'):
-			return True
-		return False
-
 def module():
 	return aws(
 		'shutit.tk.aws.aws', 0.00123,

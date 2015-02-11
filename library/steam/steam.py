@@ -4,9 +4,6 @@ from shutit_module import ShutItModule
 
 class steam(ShutItModule):
 
-	def is_installed(self, shutit):
-		return False
-
 	def build(self, shutit):
 		shutit.install('steam-launcher')
 		shutit.send('echo "deb http://repo.steampowered.com/steam precise steam" > /etc/apt/sources.list.d/steam.list')
@@ -20,18 +17,6 @@ class steam(ShutItModule):
 		shutit.send('chmod 0440 /etc/sudoers.d/steam')
 		shutit.send('adduser --disabled-password --gecos "Steam" steam')
 		shutit.send('adduser steam video')
-		return True
-
-	def finalize(self, shutit):
-		return True
-
-	def test(self, shutit):
-		return True
-
-	def is_installed(self, shutit):
-		return False
-
-	def get_config(self, shutit):
 		return True
 
 def module():

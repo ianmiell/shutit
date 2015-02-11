@@ -4,9 +4,6 @@ from shutit_module import ShutItModule
 
 class arangodb(ShutItModule):
 
-	def is_installed(self, shutit):
-		return False
-
 	def build(self, shutit):
 		shutit.install('wget')
 		shutit.send('export ARANGO_URL=http://www.arangodb.org/repositories/arangodb2/xUbuntu_14.04')

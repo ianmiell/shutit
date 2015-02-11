@@ -3,9 +3,6 @@ from shutit_module import ShutItModule
 
 class minecraft(ShutItModule):
 
-	def is_installed(self, shutit):
-		return False
-
 	def build(self, shutit):
 		shutit.install('lsb-release')
 		shutit.install('software-properties-common')
@@ -20,18 +17,6 @@ class minecraft(ShutItModule):
 		shutit.send('wget -O /minecraft/minecraft.jar https://s3.amazonaws.com/Minecraft.Download/versions/1.7.4/minecraft_server.1.7.4.jar')
 		shutit.send('pushd /minecraft')
 		shutit.send('popd')
-		return True
-
-	def finalize(self, shutit):
-		return True
-
-	def test(self, shutit):
-		return True
-
-	def is_installed(self, shutit):
-		return False
-
-	def get_config(self, shutit):
 		return True
 
 def module():

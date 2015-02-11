@@ -5,9 +5,6 @@ from shutit_module import ShutItModule
 
 class redis(ShutItModule):
 
-	def is_installed(self, shutit):
-		return False
-
 	def build(self, shutit):
 		# https://github.com/dockerfile/redis
 		shutit.install('make')
@@ -28,18 +25,6 @@ class redis(ShutItModule):
 		shutit.send("""sed -i 's/^\(logfile .*\)$/# \\1/' /etc/redis/redis.conf""")
 		shutit.send('popd')
 		shutit.send('popd')
-		return True
-
-	def finalize(self, shutit):
-		return True
-
-	def test(self, shutit):
-		return True
-
-	def is_installed(self, shutit):
-		return False
-
-	def get_config(self, shutit):
 		return True
 
 def module():

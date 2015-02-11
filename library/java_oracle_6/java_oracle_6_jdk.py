@@ -4,9 +4,6 @@ from shutit_module import ShutItModule
 
 class java_oracle_6_jdk(ShutItModule):
 
-	def is_installed(self, shutit):
-		return False
-
 	def build(self, shutit):
 		# accept-java-license
 		shutit.send('echo /usr/bin/debconf shared/accepted-oracle-license-v1-1 select true | /usr/bin/debconf-set-selections')
@@ -24,15 +21,6 @@ class java_oracle_6_jdk(ShutItModule):
 	def finalize(self, shutit):
 		shutit.send('apt-get autoremove -yq')
 		shutit.send('apt-get clean -yq')
-		return True
-
-	def test(self, shutit):
-		return True
-
-	def is_installed(self, shutit):
-		return False
-
-	def get_config(self, shutit):
 		return True
 
 def module():

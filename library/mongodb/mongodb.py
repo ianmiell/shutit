@@ -3,9 +3,6 @@ from shutit_module import ShutItModule
 
 class mongodb(ShutItModule):
 
-	def is_installed(self, shutit):
-		return False
-
 	def build(self, shutit):
 		shutit.install('adduser')
 		shutit.send('apt-key adv --keyserver keyserver.ubuntu.com --recv 7F0CEB10')
@@ -13,10 +10,6 @@ class mongodb(ShutItModule):
 		shutit.send('apt-get update')
 		shutit.send('apt-get -y install mongodb-10gen')
 		return True
-
-	def finalize(self, shutit):
-		return True
-
 
 def module():
 		return mongodb(

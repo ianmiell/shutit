@@ -4,9 +4,6 @@ from shutit_module import ShutItModule
 
 class graphite(ShutItModule):
 
-	def is_installed(self, shutit):
-		return False
-
 	def build(self, shutit):
 		shutit.send('echo \'deb http://us.archive.ubuntu.com/ubuntu/ precise universe\' >> /etc/apt/sources.list')
 		shutit.send('apt-get -y update')
@@ -26,18 +23,6 @@ class graphite(ShutItModule):
 		shutit.send('chmod 0775 /var/lib/graphite/storage /var/lib/graphite/storage/whisper')
 		shutit.send('chmod 0664 /var/lib/graphite/storage/graphite.db')
 		shutit.send('cd /var/lib/graphite/webapp/graphite && python manage.py syncdb --noinput')
-		return True
-
-	def finalize(self, shutit):
-		return True
-
-	def test(self, shutit):
-		return True
-
-	def is_installed(self, shutit):
-		return False
-
-	def get_config(self, shutit):
 		return True
 
 def module():

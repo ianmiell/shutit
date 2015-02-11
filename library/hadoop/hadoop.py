@@ -6,11 +6,6 @@ from shutit_module import ShutItModule
 
 class hadoop(ShutItModule):
 
-
-	def is_installed(self, shutit):
-		return False
-
-
 	def build(self, shutit):
 		shutit.install('ssh')
 		shutit.install('rsync')
@@ -28,24 +23,6 @@ class hadoop(ShutItModule):
 	def get_config(self, shutit):
 		shutit.get_config(self.module_id,'version','2.5.1')
 		return True
-
-	#def check_ready(self, shutit):
-	#	return True
-	
-	#def start(self, shutit):
-	#	return True
-
-	#def stop(self, shutit):
-	#	return True
-
-	#def finalize(self, shutit):
-	#	return True
-
-	#def remove(self, shutit):
-	#	return True
-
-	#def test(self, shutit):
-	#	return True
 
 def module():
 	return hadoop(

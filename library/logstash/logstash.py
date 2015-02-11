@@ -4,9 +4,6 @@ from shutit_module import ShutItModule
 
 class logstash(ShutItModule):
 
-	def is_installed(self, shutit):
-		return False
-
 	def build(self, shutit):
 		shutit.send('export DEBIAN_FRONTEND=noninteractive')
 		shutit.send('export LUMBERJACK_TAG=MYTAG')
@@ -20,18 +17,6 @@ class logstash(ShutItModule):
 		shutit.send_host_file('/opt/certs/logstash-forwarder.crt', 'context/certs/logstash-forwarder.crt')
 		shutit.send_host_file('/opt/certs/logstash-forwarder.key', 'context/certs/logstash-forwarder.key')
 		shutit.send_host_file('/opt/collectd-types.db', 'context/collectd-types.db')
-		return True
-
-	def finalize(self, shutit):
-		return True
-
-	def test(self, shutit):
-		return True
-
-	def is_installed(self, shutit):
-		return False
-
-	def get_config(self, shutit):
 		return True
 
 def module():

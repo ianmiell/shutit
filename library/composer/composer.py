@@ -24,9 +24,6 @@ from shutit_module import ShutItModule
 
 class composer(ShutItModule):
 
-	def is_installed(self, shutit):
-		return shutit.file_exists('/usr/bin/composer')
-
 	def build(self, shutit):
 		shutit.install('curl')
 		shutit.install('php5')

@@ -1,12 +1,8 @@
-
 # Created from dockerfile: /tmp/a/Dockerfile
 # Maintainer:              Joao Paulo Dubas &quot;joao.dubas@gmail.com&quot;
 from shutit_module import ShutItModule
 
 class orientdb(ShutItModule):
-
-	def is_installed(self, shutit):
-		return False
 
 	def build(self, shutit):
 		shutit.install('wget')
@@ -23,15 +19,6 @@ class orientdb(ShutItModule):
 
 	def finalize(self, shutit):
 		shutit.send('rm -rf /opt/downloads/linux /var/lib/apt/lists/* /tmp/* /var/tmp/*')
-		return True
-
-	def test(self, shutit):
-		return True
-
-	def is_installed(self, shutit):
-		return False
-
-	def get_config(self, shutit):
 		return True
 
 def module():

@@ -4,9 +4,6 @@ from shutit_module import ShutItModule
 
 class docpad(ShutItModule):
 
-	def is_installed(self, shutit):
-		return False
-
 	def build(self, shutit):
 		shutit.install('software-properties-common')
 		# No add-apt-repository available on
@@ -18,18 +15,6 @@ class docpad(ShutItModule):
 		shutit.install('nodejs')
 		#shutit.install('git')
 		shutit.send('npm install -g docpad@6.44')
-		return True
-
-	def finalize(self, shutit):
-		return True
-
-	def test(self, shutit):
-		return True
-
-	def is_installed(self, shutit):
-		return False
-
-	def get_config(self, shutit):
 		return True
 
 def module():

@@ -8,11 +8,6 @@ from shutit_module import ShutItModule
 
 class psty(ShutItModule):
 
-
-	def is_installed(self, shutit):
-		return False
-
-
 	def build(self, shutit):
 		shutit.install('python')
 		shutit.install('git')
@@ -21,12 +16,6 @@ class psty(ShutItModule):
 		shutit.send('mkdir -p /var/psty_dir')
 		return True
 
-	#def get_config(self, shutit):
-	#	return True
-
-	#def check_ready(self, shutit):
-	#	return True
-	
 	def start(self, shutit):
 		shutit.send('pushd /opt/pigshell')
 		shutit.send('nohup python psty.py -a -d /var/psty_dir &')
@@ -35,15 +24,6 @@ class psty(ShutItModule):
 	def stop(self, shutit):
 		shutit.send('''ps -ef | grep "python psty -a -d /var/psty_dir" | grep -v grep | awk '{print $1}' | xargs -r kill''')
 		return True
-
-	#def finalize(self, shutit):
-	#	return True
-
-	#def remove(self, shutit):
-	#	return True
-
-	#def test(self, shutit):
-	#	return True
 
 def module():
 	return psty(

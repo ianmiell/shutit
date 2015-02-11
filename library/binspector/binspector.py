@@ -6,9 +6,6 @@ from shutit_module import ShutItModule
 
 class binspector(ShutItModule):
 
-	def is_installed(self, shutit):
-		return False
-
 	def build(self, shutit):
 		shutit.install('curl')
 		shutit.install('git')

@@ -24,9 +24,6 @@ from shutit_module import ShutItModule
 
 class casperjs(ShutItModule):
 
-	def is_installed(self, shutit):
-		return shutit.file_exists('/opt/casperjs', directory=True)
-
 	def build(self, shutit):
 		shutit.install('git')
 		shutit.run_script("""

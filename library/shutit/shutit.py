@@ -21,9 +21,6 @@ from shutit_module import ShutItModule
 
 class shutit(ShutItModule):
 
-	def is_installed(self, shutit):
-		return shutit.file_exists('/opt/shutit', directory=True)
-
 	def build(self, shutit):
 		shutit.install('git')
 		shutit.install('python-pip')
@@ -33,10 +30,6 @@ class shutit(ShutItModule):
 		shutit.send('pip install -r requirements.txt')
 		shutit.send('find . | grep cnf | xargs chmod 0600')
 		shutit.add_to_bashrc('export PATH=$PATH:/opt/shutit')
-		return True
-
-	def test(self, shutit):
-		# TODO: test it works
 		return True
 
 def module():

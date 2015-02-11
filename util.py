@@ -321,6 +321,9 @@ def get_base_config(cfg, cfg_parser):
 	cfg['target']['modules_installed']         = [] # has been installed (in this build or previously)
 	cfg['target']['modules_not_installed']     = [] # modules _known_ not to be installed
 	cfg['target']['modules_ready']             = [] # has been checked for readiness and is ready (in this build)
+	# installed file info
+	cfg['target']['modules_recorded']             = []
+	cfg['target']['modules_recorded_cache_valid'] = False
 	cfg['host']['artifacts_dir']                  = cp.get('host', 'artifacts_dir')
 	cfg['host']['docker_executable']              = cp.get('host', 'docker_executable')
 	cfg['host']['dns']                            = cp.get('host', 'dns')
