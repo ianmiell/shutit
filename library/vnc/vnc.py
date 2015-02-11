@@ -1,3 +1,5 @@
+from shutit_module import ShutItModule
+
 import base64
 
 #From: https://groups.google.com/forum/#!topic/docker-user/D0n-lURDn0o
