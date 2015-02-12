@@ -128,7 +128,7 @@ You are now in your bespoke container!
 
 ### Step 6: Mix and match ###
 
-Let's add mysql to the container build. Change this in your **shutit_module.py:**
+Let's add mysql to the container build. Change this in your **my_module.py:**
 
 ```python
 depends=['shutit.tk.setup']
@@ -140,15 +140,9 @@ to:
 depends=['shutit.tk.setup','shutit.tk.mysql.mysql']
 ```
 
-And change the **build.sh** to include the module in the path
-
-```sh
-/path/to/shutit build -m /path/to/shutit/library/mysql
-```
-
 Rebuild and re-run to get the same container with mysql installed.
 
 ```sh
-$ SHUTIT=/path/to/shutit/shutit ./build.sh
+$ ./build.sh
 $ ./run.sh
 ```
