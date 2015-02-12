@@ -146,3 +146,5 @@ Rebuild and re-run to get the same container with mysql installed.
 $ ./build.sh
 $ ./run.sh
 ```
+
+Didn't work for you? It's probably my fault, not yours. Mail me: ian.miell@gmail.com
