@@ -105,7 +105,7 @@ It also gives a simple example of each part of the build lifecycle. **Add a pack
 
 ```sh
 $ cd $HOME/shutit_modules/my_module/bin
-$ SHUTIT=/absolute/path/to/shutit_dir/shutit ./build.sh
+$ ./build.sh
 Do you want to accept the config option defaults? (boolean - input "yes" or "no") (default: yes): 
 [hit return to accept defaults]
 Running: docker --version
