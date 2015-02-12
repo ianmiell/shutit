@@ -128,6 +128,8 @@ $ ./run.sh
 root@138ed0fd3728:/#
 ```
 
+NOTE: If you use "sudo docker", or "docker.io" or some other command to run docker, then you will need to alter run.sh accordingly.
+
 You are now in your bespoke container!
 
 ### Step 6: Mix and match ###
