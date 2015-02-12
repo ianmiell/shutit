@@ -215,8 +215,8 @@ ShutIt works in the following way:
      - loads more to come
 
 If you have an existing bash script it is relatively trivial to port to this 
-to get going with docker and start shipping containers (see create\_skeleton.sh
-below). You can also use this to prototype builds before porting to whatever
+to get going with docker and start shipping containers. 
+You can also use this to prototype builds before porting to whatever
 configuration management tool you ultimately choose.
 
 As a by-product of this design, you can use it in a similar way to chef/puppet
@@ -412,113 +412,24 @@ General help:
 
 ```
 $ shutit -h
-usage: shutit [-h] {build,sc,serve,skeleton} ...
-
-ShutIt - a tool for managing complex Docker deployments. To view help for a
-specific subcommand, type ./shutit <subcommand> -h
-
-positional arguments:
-  {build,sc,serve,skeleton}
-                        Action to perform. Defaults to 'build'.
-
-optional arguments:
-  -h, --help            show this help message and exit
 ```
 
-
-Build module:
+Build:
 
 ```
-$ shutit build -h
-usage: shutit build [-h] [--export] [--save] [--push] [--config CONFIG]
-                    [-s SEC KEY VAL] [--image_tag IMAGE_TAG]
-                    [-m SHUTIT_MODULE_PATH] [--pause PAUSE] [--debug]
-                    [--interactive INTERACTIVE] [--ignorestop] [--ignoreimage]
-
-optional arguments:
-  -h, --help            show this help message and exit
-  --export              export to a tar file
-  --save                save to a tar file
-  --push                push to a repo
-  --config CONFIG       Config file for setup config. Must be with perms 0600.
-                        Multiple arguments allowed; config files considered in
-                        order.
-  -s SEC KEY VAL, --set SEC KEY VAL
-                        Override a config item, e.g. "-s container rm no". Can
-                        be specified multiple times.
-  --image_tag IMAGE_TAG
-                        Build container using specified image - if there is a
-                        symbolic reference, please use that, eg
-                        localhost.localdomain:5000/myref
-  -m SHUTIT_MODULE_PATH, --shutit_module_path SHUTIT_MODULE_PATH
-                        List of shutit module paths, separated by colons.
-                        ShutIt registers modules by running all .py files in
-                        these directories.
-  --pause PAUSE         Pause between commands to avoid race conditions.
-  --debug               Show debug.
-  --interactive INTERACTIVE
-                        Level of interactive. 0 = none, 1 = honour pause
-                        points and config prompting, 2 = query user on each
-                        module, 3 = tutorial mode
-  --ignorestop          ignore STOP* files
-  --ignoreimage         ignore disallowed images
+$ shutit sc -h
 ```
 
 Create new skeleton module:
 
 ```
 $ shutit skeleton -h
-usage: shutit skeleton [-h] [--example] [-d DOCKERFILE]
-                       module_directory module_name domain [script]
-
-positional arguments:
-  module_directory      absolute path to new directory for module
-  module_name           name for your module
-  domain                arbitrary but unique domain for namespacing your
-                        module, eg com.mycorp
-  script                pre-existing shell script to integrate into module
-                        (optional)
-
-optional arguments:
-  -h, --help            show this help message and exit
-  --example             add an example implementation with model calls to
-                        ShutIt API
-  -d DOCKERFILE, --dockerfile DOCKERFILE
-
 ```
 
 Show computed configuration:
 
 ```
 $ shutit sc -h
-usage: shutit sc [-h] [--history] [--config CONFIG] [-s SEC KEY VAL]
-                  [--image_tag IMAGE_TAG] [-m SHUTIT_MODULE_PATH]
-                  [--pause PAUSE] [--debug] [--interactive INTERACTIVE]
-                  [--ignorestop]
- optional arguments:
-   -h, --help            show this help message and exit
-   --history             show config history
-   --config CONFIG       Config file for setup config. Must be with perms 0600.
-                         Multiple arguments allowed; config files considered in
-                         order.
-   -s SEC KEY VAL, --set SEC KEY VAL
-                         Override a config item, e.g. "-s container rm no". Can
-                         be specified multiple times.
-   --image_tag IMAGE_TAG
-                         Build container using specified image - if there is a
-                         symbolic reference, please use that, eg
-                         localhost.localdomain:5000/myref
-   -m SHUTIT_MODULE_PATH, --shutit_module_path SHUTIT_MODULE_PATH
-                         List of shutit module paths, separated by colons.
-                         ShutIt registers modules by running all .py files in
-                         these directories.
-   --pause PAUSE         Pause between commands to avoid race conditions.
-   --debug               Show debug.
-   --interactive INTERACTIVE
-                         Level of interactive. 0 = none, 1 = honour pause
-                         points and config prompting, 2 = query user on each
-                         module, 3 = tutorial mode
-   --ignorestop          ignore STOP* files
 ```
 
 
@@ -530,251 +441,6 @@ usage: shutit sc [-h] [--history] [--config CONFIG] [-s SEC KEY VAL]
 The shutit object represents a build with an associated config. In theory multiple builds could be represented within one run, but this is functionality yet to be implemented. 
 
 Calling methods on the object effect and affect the build in various ways and help manage the build process for you.
-
-Help on methods on the shutit object (defined in shutit_global.py):
-
-```
-       add_line_to_file(self, line, filename, expect=None, child=None, match_regexp=None, truncate=False, force=False, literal=False)
-           Adds line to file if it doesn't exist (unless Force is set).
-           Creates the file if it doesn't exist (unless truncate is set).
-           Must be exactly the line passed in to match.
-           Returns True if line added, False if not.
-           If you have a lot of non-unique lines to add, it's a good idea to have a sentinel value to
-           add first, and then if that returns true, force the remainder.
-           
-           - line         - Line to add.
-           - filename     - Filename to add it to.
-           - match_regexp - If supplied, a regexp to look for in the file instead of the line itself, handy if the line has awkward characters in it.
-           - truncate     - Truncate or create the file before doing anything else
-           - force        - Always write the line to the file
-           - literal      - If true, then simply grep for the exact string without bash interpretation
-       
-       add_to_bashrc(self, line, expect=None, child=None)
-           Takes care of adding a line to everyone's bashrc.
-       
-       do_repository_work(self, repo_name, expect=None, docker_executable='docker', password=None, force=None)
-           Commit, tag, push, tar the container based on the configuration we have.
-       
-       fail(self, msg, child=None)
-           Handles a failure, pausing if a pexpect child object is passed in.
-       
-       file_exists(self, filename, expect=None, child=None, directory=False)
-           Return True if file exists, else False
-       
-       get_config(self, module_id, option, default, boolean=False)
-           # Pass-through function for convenience
-       
-       get_default_check_exit(self)
-           Returns default value of check_exit. See send method.
-       
-       get_default_child(self)
-           Returns the currently-set default pexpect child.
-       
-       get_default_expect(self)
-           Returns the currently-set default pexpect string (usually a prompt).
-       
-       get_distro_info(self, child=None)
-           Get information about which distro we are using.
-           
-           Fails if distro could not be determined.
-           Should be called with the container is started up, and uses as core info as possible.
-       
-       get_file_perms(self, filename, expect=None, child=None)
-           Returns the file permission as an octal string.
-       
-       get_output(self, child=None)
-           Helper function to get latest output.
-       
-       get_re_from_child(self, string, regexp)
-           Get regular expression from the first of the lines passed in in string that matched.
-           Returns None if none of the lines matched.
-       
-       install(self, package, child=None, expect=None, options=None, timeout=3600)
-           Distro-independent install function.
-           Takes a package name and runs the relevant install function.
-           Returns true if all ok (ie it's installed), else false
-       
-       is_user_id_available(self, user_id, child=None, expect=None)
-           Determine whether a user_id for a user is available.
-       
-       log(self, msg, code=None, pause=0, prefix=True, force_stdout=False)
-           Logging function.
-           
-           code         - Colour code for logging. Ignored if we are in serve mode.
-           pause        - Length of time to pause after logging (default: 0)
-           prefix       - Whether to output logging prefix (LOG: <time>) (default: True)
-           force_stdout - If we are not in debug, put this in stdout anyway (default: False)
-
-       login(self, user='root', command='su -', child=None, password=None)
-           Logs the user in with the passed-in password and command.
-           Tracks the login. If used, used logout to log out again.
-           Assumes you are root when logging in, so no password required.
-           If not, override the default command for multi-level logins.
-           If passwords are required, see setup_prompt() and revert_prompt()
-           
-           user     - User to login with
-           command  - Command to login with
-           child    - See send()
-       
-       logout(self, child=None)
-           Logs the user out. Assumes that login has been called.
-           If login has never been called, throw an error.
-           
-           - child              - See send()
-       
-       ls(self, directory)
-           Helper proc to list files in a directory
-           
-           Returns list of files.
-           
-           directory - directory to list
-
-       mount_tmp(self)
-           mount a temporary file system as a workaround for the AUFS /tmp issues
-           not necessary if running devicemapper
-       
-       module_method_end(self)
-           Gets called automatically by the metaclass decorator in
-           shutit_module when a module method is finished.
-           This allows setting defaults for the 'scope' of a method.
-       
-       module_method_start(self)
-           Gets called automatically by the metaclass decorator in
-           shutit_module when a module method is called.
-           This allows setting defaults for the 'scope' of a method.
-       
-       package_installed(self, package, expect=None, child=None)
-           Returns True if we can be sure the package is installed.
-       
-       pause_point(self, msg, child=None, print_input=True, expect='', level=1)
-           Inserts a pause in the build session which allows the user to try things out before continuing.
-       
-       prompt_cfg(self, msg, sec, name, ispass=False)
-           Prompt for a config value, possibly saving it to the user-level cfg
-       
-       push_repository(self, repository, docker_executable='docker', child=None, expect=None)
-           Pushes the repository.
-           
-           - repository        - 
-           - docker_executable -
-       
-       record_config(self)
-           # Put the config in a file in the container.
-       
-       remove(self, package, child=None, expect=None, options=None, timeout=3600)
-           Distro-independent remove function.
-           Takes a package name and runs relevant remove function.
-           Returns true if all ok (ie it's installed now), else false
-       
-       revert_prompt(self, old_prompt_name, new_expect=None, child=None)
-           Reverts the prompt to the previous value (passed-in).
-           
-           It should be fairly rare to need this. Most of the time you would just
-           exit a subshell rather than resetting the prompt.
-       
-       run_script(self, script, expect=None, child=None, in_shell=True)
-           Run the passed-in string on the container's command line.
-           
-           - script   - 
-           - expect   - 
-           - child    - 
-           - in_shell -
-       
-       send = send_and_expect(self, send, expect=None, child=None, timeout=3600, check_exit=None, fail_on_empty_before=True, record_command=None, exit_values=None, echo=None)
-       
-       send_and_expect(self, send, expect=None, child=None, timeout=3600, check_exit=None, fail_on_empty_before=True, record_command=None, exit_values=None, echo=None)
-           Send string to the container prompt, and wait until the expected string is seen before returning.
-           The expected string will default to the currently-set default expected string (see get_default_expect)
-           
-           Returns the pexpect return value (ie which expected string in the list matched):
-           
-           child                      - pexpect child to issue command to.
-           send                       - String to send, ie the command being issued.
-           expect                     - String that we expect to see in the output. Usually a prompt.
-                                        Defaults to currently-set expect string (see set_default_expect)
-           timeout                    - Timeout on response (default=3600 seconds).
-           check_exit                 - Whether to check the shell exit code of the passed-in command.
-                                        If the exit value was non-zero an error is thrown.
-                                        (default=None, which takes the currently-configured check_exit value)
-                                        See also fail_on_empty_before.
-           fail_on_empty_before       - If debug is set, fail on empty match output string (default=True)
-                                        If this is set to False, then we don't check the exit value of the 
-                                        command.
-           record_command             - Whether to record the command for output at end (default=True)
-                                        As a safety measure, if the command matches any 'password's then we 
-                                        don't record it.
-           exit_values                - Array of acceptable exit values (default [0])
-       
-       send_and_get_output(self, send, expect=None, child=None)
-           Returns the output of a command run.
-       
-       send_file(self, path, contents, expect=None, child=None, log=True)
-           Sends the passed-in string as a file to the passed-in path on the container.
-           
-           - path     - Target location of file in container.
-           - contents - Contents of file as a string. See log.
-           - expect   - 
-           - child    - 
-           - log      - Log the file contents if in debug.
-       
-       send_host_dir(self, path, hostfilepath, expect=None, child=None, log=True)
-           Send file from host machine to given path
-           - path         - path to send file to
-           - hostfilepath - path to file from host to send to container
-           - expect       - arg to pass to send_file (default None)
-           - child        - arg to pass to send_file (default None)
-           - log          - arg to pass to send_file (default True)
-       
-       send_host_file(self, path, hostfilepath, expect=None, child=None, log=True)
-           Send file from host machine to given path
-           - path         - path to send file to
-           - hostfilepath - path to file from host to send to container
-           - expect       - arg to pass to send_file (default None)
-           - child        - arg to pass to send_file (default None)
-           - log          - arg to pass to send_file (default True)
-       
-       set_default_child(self, child)
-           Sets the default pexpect child.
-       
-       set_default_expect(self, expect=None, check_exit=True)
-           Sets the default pexpect string (usually a prompt).
-           Defaults to the configured root_prompt.
-       
-       set_password(self, password, user='', child=None, expect=None)
-           Sets the password for the current user or passed-in user.
-       
-       setup_prompt(self, prompt_name, prefix='TMP', child=None, set_default_expect=True)
-           Use this when you've opened a new shell to set the PS1 to something sane.
-       
-       user_exists(self, user, expect=None, child=None)
-           Returns true if the specified username exists
-       
-       ----------------------------------------------------------------------
-       Data descriptors defined here:
-       
-       __dict__
-           dictionary for instance variables (if defined)
-       
-       __weakref__
-           list of weak references to the object (if defined)
-
-FUNCTIONS
-    init()
-        Initialize the shutit object. Called when imported.
-    
-    random_id(size=5, chars='abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789')
-        Generates a random string of given size from the given chars.
-
-DATA
-    cfg = {'action': {}, 'build': {'build_id': 'lp01728_imiell_1405067894....
-    cwd = '/space/git/shutit'
-    pexpect_children = {}
-    shutit = <shutit_global.ShutIt object>
-    shutit_command_history = []
-    shutit_main_dir = '/space/git/shutit'
-    shutit_map = {}
-    shutit_modules = set([])
-```
 
 ### Configuration
 
