@@ -16,6 +16,6 @@ def module():
 		GLOBALLY_UNIQUE_STRING, FLOAT,
 		description='',
 		maintainer='',
-		depends=['shutit.tk.setup']
+		depends=[DEPENDS]
 	)
 
