@@ -100,9 +100,9 @@ shutit_module_path:.
 # Repository information
 [repository]
 # Whether to tag
-tag:no
+tag:yes
 # Whether to suffix the date to the tag
-suffix_date:yes
+suffix_date:no
 # Suffix format (default is epoch seconds (%s), but %Y%m%d_%H%M%S is an option if the length is ok with the index)
 suffix_format:%s
 # tag name
