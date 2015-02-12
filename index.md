@@ -36,8 +36,10 @@ Join us!
 git clone https://github.com/ianmiell/shutit.git
 cd shutit
 pip install -r requirements.txt
-# Add shutit to your path
-echo "export PATH=/PATH/TO/shutit_dir:${PATH}" >> ~/.bashrc
+# Add shutit to your path - YOU WILL NEED TO CHANGE THIS!
+echo "export PATH=/PATH/TO/shutit:${PATH}" >> ~/.bashrc
+# Source the env
+. ~/.bashrc
 ```
 
 ### Step 2: Create a new module ###
@@ -93,8 +95,10 @@ It also gives a simple example of each part of the build lifecycle. **Add a pack
                 shutit.install('passwd')
                 # Install mlocate
                 shutit.install('mlocate')
-                # Install added by you
-                shutit.install('your chosen package here')
+				# Issue a simple command
+                shutit.send('touch /tmp/newfile')
+                # Install added by you if desired
+                #shutit.install('your chosen package here')
                 return True
 [...]
 ```
@@ -142,9 +146,12 @@ depends=['shutit.tk.setup','shutit.tk.mysql.mysql']
 
 Rebuild and re-run to get the same container with mysql installed.
 
+
 ```sh
 $ ./build.sh
 $ ./run.sh
 ```
+
+NOTE: If you use "sudo docker", or "docker.io" or some other command to run docker, then you will need to alter run.sh accordingly.
 
 Didn't work for you? It's probably my fault, not yours. Mail me: ian.miell@gmail.com
