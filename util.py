@@ -1232,7 +1232,6 @@ class template(ShutItModule):
 	def get_config(self, shutit):
 		return True
 '''
-		print skel_depends
 		templatemodule += """
 def module():
 		return template(
@@ -1254,6 +1253,7 @@ def module():
 		).replace('template', skel_module_name
 		).replace('GLOBALLY_UNIQUE_STRING', '\'%s.%s.%s\'' % (skel_domain, skel_module_name, skel_module_name)
 		).replace('FLOAT', skel_domain_hash + '.00'
+		).replace('DEPENDS', skel_depends
 	)
 	readme = skel_module_name + ': description of module directory in here'
 	buildsh = textwrap.dedent('''\
