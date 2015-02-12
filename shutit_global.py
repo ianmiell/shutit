@@ -381,11 +381,11 @@ class ShutIt(object):
 
 
 	def _check_exit(self,
-					send,
-					expect=None,
-					child=None,
-					timeout=3600,
-					exit_values=None,
+	                send,
+	                expect=None,
+	                child=None,
+	                timeout=3600,
+	                exit_values=None,
 	                retry=0,
 	                retbool=False):
 		"""Internal function to check the exit value of the shell. Do not use.
@@ -419,7 +419,7 @@ class ShutIt(object):
 				return False
 			elif cfg['build']['interactive'] >= 1:
 				# This is a failure, so we pass in level=0
-				self.pause_point(msg + '\n\nPause point on exit_code != 0 (' +
+				self.pause_point(msg + '\n\nInteractive, so not retrying.\nPause point on exit_code != 0 (' +
 					res + '). CTRL-C to quit', child=child, level=0)
 			elif retry == 1:
 				shutit.fail('Exit value from command\n' + send +
