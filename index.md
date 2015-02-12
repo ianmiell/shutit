@@ -36,12 +36,14 @@ Join us!
 git clone https://github.com/ianmiell/shutit.git
 cd shutit
 pip install -r requirements.txt
+# Add shutit to your path
+echo "export PATH=/PATH/TO/shutit_dir:${PATH}" >> ~/.bashrc
 ```
 
 ### Step 2: Create a new module ###
 
 ```sh
-./shutit skeleton --example $HOME/shutit_modules/my_module my_module my.domain.com
+./shutit skeleton $HOME/shutit_modules/my_module my_module my.domain.com shutit.tk ubuntu
 cd $HOME/shutit_modules/my_module
 ```
 
@@ -82,16 +84,19 @@ The example module contains examples of many common tasks when installing, e.g.
  - pause_point           - allow you to stop during a build and inspect before continuing
  - handle logins/logouts - to make for safer automated interactions with eg unexpected prompts
 
-It also gives a simple example of each part of the build lifecycle. **Add a package to install to shutit_module.py**
+It also gives a simple example of each part of the build lifecycle. **Add a package to install to my_module.py**
 
 ```python
-# Make sure passwd is installed
-shutit.install('passwd')
-# Install mlocate
-shutit.install('mlocate')
-
-# Install added by you
-shutit.install('your chosen package here')
+[...]
+        def build(self, shutit):
+                # Make sure passwd is installed
+                shutit.install('passwd')
+                # Install mlocate
+                shutit.install('mlocate')
+                # Install added by you
+                shutit.install('your chosen package here')
+                return True
+[...]
 ```
 
 ### Step 4: Build your module ###
@@ -101,11 +106,15 @@ shutit.install('your chosen package here')
 ```sh
 $ cd $HOME/shutit_modules/my_module/bin
 $ SHUTIT=/absolute/path/to/shutit_dir/shutit ./build.sh
-SHUTIT_BACKUP_PS1=$PS1 && unset PROMPT_COMMAND && PS1="SHUTIT_PROMPT_REAL_USER#195886238"
-SHUTIT_BACKUP_PS1=$PS1 && unset PROMPT_COMMAND && PS1="SHUTIT_PROMPT_REAL_USER#195886238"
-set PROMPT_COMMAND && PS1="SHUTIT_PROMPT_REAL_USER#195886238"CKUP_PS1=$PS1 && un 
-SHUTIT_PROMPT_REAL_USER#195886238SHUTIT_BACKUP_PS1=$PS1 && unset PROMPT_COMMAND && PS1="SHUTIT_PROMPT_PRE_BUILD#1454501189"
-PT_PRE_BUILD#1454501189"& unset PROMPT_COMMAND && PS1="SHUTIT_PROM
+Do you want to accept the config option defaults? (boolean - input "yes" or "no") (default: yes): 
+[hit return to accept defaults]
+Running: docker --version
+
+
+Command being run is:
+
+docker run --cidfile=/tmp/shutit/cidfilesroot_cidfile_btsync2_root_1423730928.72.724633 --privileged=true -v=/root/shutit/artifacts:/artifacts -t -i ubuntu /bin/bash
+[...]
 ```
 
 ### Step 5: Run your module ###
