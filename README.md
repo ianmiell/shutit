@@ -109,18 +109,7 @@ What ShutIt does to manage this is:
 
 These correspond to the various functions that can be implemented.
 
-ShutIt provides a means for auto-generation of modules (either bare ones, or from existing Dockerfiles) with:
-
-```
-shutit skeleton [-d Dockerfile] <directory to create module in> <domain>
-```
-
-eg:
-
-```
-shutit skeleton /home/me/shutit_modules/com/mycorp/mongo com.mycorp
-```
-
+ShutIt provides a means for auto-generation of modules (either bare ones, or from existing Dockerfiles) with its skeleton command. See [here](http://ianmiell.github.io/shutit/) for an example.
 
 CAN I CONTRIBUTE?
 -----------------
@@ -135,10 +124,8 @@ shutit-users@groups.google.com
 Dependencies
 --------------
 - python 2.7+
+- pip
 - See [here](https://gist.github.com/ianmiell/947ff3fabc44ace617c6) for a minimal build.
-
-apt-get install git python-bottle docker.io python-pexpect
-git clone https://github.com/ianmiell/shutit.git && cd shutit
 
 
 Videos:
@@ -160,8 +147,7 @@ Docs:
 -----
 
 - [Walkthrough](http://ianmiell.github.io/shutit/)
-
-
+- [Config](https://github.com/ianmiell/shutit/blob/master/util.py#L55)
 
 
 REALLY QUICK OVERVIEW
@@ -192,7 +178,7 @@ cd library/mysql
 
 Overview
 --------
-While evaluating Docker for my [corp](http://www.openbet.com) I reached a point where
+While evaluating Docker for my I reached a point where
 using Dockerfiles was somewhat painful or verbose for complex and/or long and/or
 configurable interactions. So we wrote our own.
 
@@ -794,157 +780,7 @@ DATA
 
 Configuration is specified in .cnf files.
 
-These are divided up into sections:
-
-#### Sections
-
-##### container
-
-Config pertaining to the container.
-
-Defaults from util.tcl:
-
-```
-# Details relating to the container you are building itself
-[container]
-# Root password for the container - replace with your chosen password
-# If left blank, you will be prompted for a password
-password:YOUR_CONTAINER_PASSWORD
-# Hostname for the container - replace with your chosen container name
-hostname:
-force_repo_work:no
-locale:en_US.UTF-8
-# space separated list of ports to expose
-# e.g. "ports:2222:22 8080:80" would expose container ports 22 and 80 as the
-# host's 2222 and 8080
-ports:
-# Name to give the container. Empty means "let docker default a name".
-name:
-# Whether to remove the container when finished.
-rm:no
-```
-
-##### host
-
-Config pertaining to the container.
-
-```
-# Information specific to the host on which the build runs.
-[host]
-# Folder with files you want to copy from in your build.
-# Often a good idea to have a central folder for this per host
-# in your /path/to/shutit/configs/`hostname`_`username`.cnf
-# If set to blank, then defaults to /path/to/shutit/artifacts (preferred)
-# If set to "artifacts", then defaults to the artifacts folder in the cwd.
-artifacts_dir:
-# Docker executable on your host machine
-docker_executable:docker
-# space separated list of dns servers to use
-dns:
-# Password for the username above on the host (only needed if sudo is needed)
-password:
-# Log file - will be set to 0600 perms, and defaults to /tmp/<YOUR_USERNAME>_shutit_log_<timestamp>
-# A timestamp will be added to the end of the filename.
-logfile:
-```
-
-##### repository
-
-Config pertaining to the persistence of the container, enabling commit, tag, save and push.
-
-Defaults from util.tcl:
-
-```
-# Repository information
-[repository]
-# Whether to tag
-tag:no
-# Whether to suffix the date to the tag
-suffix_date:yes
-# Suffix format (default is epoch seconds (%s), but %Y%m%d_%H%M%S is an option if the length is ok with the index)
-suffix_format:%s
-# tag name
-name:my_module
-# Whether to tar up the docker image exported
-export:no
-# Whether to tar up the docker image saved
-save:no
-# Whether to push to the server
-push:no
-# User on registry to namespace repo - can be set to blank if not docker.io
-user:
-#Must be set if push is true/yes and user is not blank
-password:YOUR_INDEX_PASSWORD_OR_BLANK
-#Must be set if push is true/yes and user is not blank
-email:YOUR_INDEX_EMAIL_OR_BLANK
-# repository server
-# make blank if you want this to be sent to the main docker index on docker.io
-server:
-# tag suffix, defaults to "latest", eg registry/username/repository:latest.
-# empty is also "latest"
-tag_name:latest
-```
-
-##### build
-
-Config pertaining to the build process.
-
-Defaults from util.tcl:
-
-```
-# Aspects of build process
-[build]
-build_log:no
-# Run container in privileged mode
-privileged:no
-# lxc-conf arg, eg
-#lxc_conf:lxc.aa_profile=unconfined
-lxc_conf:
-# Base image can be over-ridden by --image_tag defaults to this.
-base_image:ubuntu:14.04
-# Whether to perform tests. 
-dotest:yes
-# --net argument, eg "bridge", "none", "container:<name|id>" or "host". Empty means use default (bridge).
-net:
-```
-
-##### shutit.tk.setup
-
-Config pertaining to the base setup of the container before any modules are run.
-
-#### Per-module config
-
-For each module, extra configs are created by default. These are:
-
-- tagmodule
-
-Whether to tag the module at the end of its build. Useful for debugging to return to a certain point if necessary.
-
-The format of the tag is "module id"\_"module run order"
-
-- build
-
-Whether to build this module. 
-
-Dependency management will auto-set this for you, but you may want to ensure a module always gets built (eg a debugging tool not directly related to your application).
-
-- remove
-
-Whether to invoke the remove function within the module before the build starts.
-
-You can set these eg:
-
-```
-[com.mycorp.mymodule.modulename]
-# Whether to tag the module at the end of its build.
-shutit.core.module.tag:no
-# eg to add in a module that 
-shutit.core.module.build:no
-# Whether to remove the module before building (if is\_installed returns true)
-shutit.core.module.remove:no
-```
-
-[Github]: https://github.com/ianmiell/shutit
+Default config is shown [here](https://github.com/ianmiell/shutit/blob/master/util.py#L55)
 
 
 Directory Structure
@@ -961,9 +797,6 @@ large.
 Within each module directory the following directories are placed as part of
 `./shutit skeleton`.
 
-- test
-    - should contain ```test_`hostname`.sh``` executables which exit with a 
-            code of 0 if all is ok.
 - configs
     - default configuration files are placed here.
 - context
@@ -982,10 +815,6 @@ configs/README.md                  - README for filling out if required
 run.sh                             - Script to run modules built with build.sh
 build.sh                           - Script to build the module
 ```
-
-Configuration
---------
-See config files (in configs dirs) for guidance on setting config.
 
 Tests
 --------
