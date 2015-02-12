@@ -35,7 +35,7 @@ Join us!
 #install docker
 git clone https://github.com/ianmiell/shutit.git
 cd shutit
-pip install -r requirements.txt
+pip install --user -r requirements.txt
 # Add shutit to your path - YOU WILL NEED TO CHANGE THIS!
 echo "export PATH=/PATH/TO/shutit:${PATH}" >> ~/.bashrc
 # Source the env
