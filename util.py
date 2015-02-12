@@ -106,7 +106,7 @@ suffix_date:no
 # Suffix format (default is epoch seconds (%s), but %Y%m%d_%H%M%S is an option if the length is ok with the index)
 suffix_format:%s
 # tag name
-name:my_repository_name
+name:my_module
 # Whether to tar up the docker image exported
 export:no
 # Whether to tar up the docker image saved
