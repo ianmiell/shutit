@@ -45,7 +45,7 @@ echo "export PATH=/PATH/TO/shutit:${PATH}" >> ~/.bashrc
 ### Step 2: Create a new module ###
 
 ```sh
-./shutit skeleton $HOME/shutit_modules/my_module my_module my.domain.com shutit.tk ubuntu
+./shutit skeleton $HOME/shutit_modules/my_module my_module my.domain.com --depends shutit.tk --image_tag ubuntu
 cd $HOME/shutit_modules/my_module
 ```
 
