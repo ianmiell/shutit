@@ -458,9 +458,9 @@ def parse_args(shutit):
 	sub_parsers['skeleton'].add_argument('module_directory', help='absolute path to new directory for module')
 	sub_parsers['skeleton'].add_argument('module_name', help='name for your module')
 	sub_parsers['skeleton'].add_argument('domain', help='arbitrary but unique domain for namespacing your module, eg com.mycorp')
-	sub_parsers['skeleton'].add_argument('depends', help='module id to depend on, default shutit.tk.setup (optional)', default='shutit.tk.setup')
-	sub_parsers['skeleton'].add_argument('base_image', help='from image, default ubuntu:14.04 (optional)', default='ubuntu:14.04')
-	sub_parsers['skeleton'].add_argument('script', help='pre-existing shell script to integrate into module (optional)', nargs='?', default=None)
+	sub_parsers['skeleton'].add_argument('--depends', help='module id to depend on, default shutit.tk.setup (optional)', default='shutit.tk.setup')
+	sub_parsers['skeleton'].add_argument('--base_image', help='from image, default ubuntu:14.04 (optional)', default='ubuntu:14.04')
+	sub_parsers['skeleton'].add_argument('--script', help='pre-existing shell script to integrate into module (optional)', nargs='?', default=None)
 	sub_parsers['skeleton'].add_argument('--example', help='add an example implementation with model calls to ShutIt API', default=False, const=True, action='store_const')
 	sub_parsers['skeleton'].add_argument('-d', '--dockerfile', default=None)
 
