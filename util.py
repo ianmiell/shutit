@@ -448,7 +448,8 @@ def parse_args(shutit):
 				"%s is an invalid pause (must be >= 0.05)" % value)
 		return ivalue
 
-	parser = argparse.ArgumentParser(description='ShutIt - a tool for managing complex Docker deployments.\n\nTo view help for a specific subcommand, type ./shutit <subcommand> -h')
+	parser = argparse.ArgumentParser(description='ShutIt - a tool for managing complex Docker deployments.\n\nTo view help for a specific subcommand, type ./shutit <subcommand> -h',prog="ShutIt")
+	parser.add_argument('--version', action='version', version='%(prog)s 0.7')
 	subparsers = parser.add_subparsers(dest='action', help='Action to perform - build=deploy to target, serve=run a shutit web server, skeleton=construct a skeleton module, sc=show configuration as read in. Defaults to \'build\'.')
 
 	sub_parsers = dict()
