@@ -1940,7 +1940,7 @@ class ShutIt(object):
 						if default != None:
 							prompt = prompt + ' (default: ' + str(default) + ')'
 						if hint != None:
-							prompt = prompt + '\n\n' + prompt
+							prompt = prompt + '\n\n' + hint
 						answer = None
 						if boolean:
 							while answer not in ('yes','no',''):
