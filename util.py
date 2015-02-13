@@ -1474,16 +1474,31 @@ def util_raw_input(shutit=None, prompt='', default=None):
 	"""Handles raw_input calls, and switches off interactivity if there is apparently
 	no controlling terminal (or there are any other problems)
 	"""
+	msg = ''
 	if shutit and shutit.cfg['build']['interactive'] == 0:
 		return default
+	try:
+		if os.getpgrp() != os.tcgetpgrp(sys.stdout.fileno()):
+			#cf http://stackoverflow.com/questions/24861351/how-to-detect-if-python-script-is-being-run-as-a-background-process
+			msg = 'pgrp != tcpgrp, assuming running in background.'
+			if shutit:
+				shutit.log(msg)
+				shutit.cfg['build']['interactive'] = 0
+			return default
+	except:
+		msg = 'Problems pgrp, assuming running in background.'
+		if shutit:
+			shutit.log(msg)
+			shutit.cfg['build']['interactive'] = 0
+			return default
 	try:
 		return raw_input(prompt)
 	except:
 		msg = 'Problems getting raw input, assuming no controlling terminal.'
-		if shutit:
-			shutit.log(msg)
-			shutit.cfg['build']['interactive'] = 0
-		return default
+	if shutit:
+		shutit.log(msg)
+		shutit.cfg['build']['interactive'] = 0
+	return default
 
 
 def print_stack_trace():
