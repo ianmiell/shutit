@@ -1917,20 +1917,25 @@ class ShutIt(object):
 				self.cfg[module_id][option] = self.cfg['config_parser'].get(module_id, option)
 		else:
 			if forcenone != True:
-				if self.cfg['build']['interactive'] >= 1:
+				if self.cfg['build']['interactive'] > 0:
 					if self.cfg['build']['accept_defaults'] == None:
 						answer = None
-						while answer not in ('yes','no',''):
+						# util_raw_input may change the interactive level, so guard for this.
+						while answer not in ('yes','no','') and self.cfg['build']['interactive'] > 0:
 							answer = util.util_raw_input(shutit=self,prompt=util.colour('31',
 							   'Do you want to accept the config option defaults? ' +
 							   '(boolean - input "yes" or "no") (default: yes): \n'))
-						if answer == 'yes' or answer == '':
+						# util_raw_input may change the interactive level, so guard for this.
+						if answer == 'yes' or answer == '' or self.cfg['build']['interactive'] < 1:
 							self.cfg['build']['accept_defaults'] = True
 						else:
 							self.cfg['build']['accept_defaults'] = False
 					if self.cfg['build']['accept_defaults'] == True and default != None:
 						self.cfg[module_id][option] = default
 					else:
+						# util_raw_input may change the interactive level, so guard for this.
+						if self.cfg['build']['interactive'] < 1:
+							shutit.fail('Cannot continue. ' + module_id + '.' + option + ' config requires a value and no default is supplied. Adding "-s ' + module_id + ' ' + option + ' [your desired value]" to the shutit invocation will set this.')
 						prompt = '\n\nPlease input a value for ' + module_id + '.' + option
 						if default != None:
 							prompt = prompt + ' (default: ' + str(default) + ')'
