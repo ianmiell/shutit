@@ -1060,7 +1060,7 @@ class ShutIt(object):
 		print util.colour('31', '\nPROMPTING FOR CONFIG: %s' % (cfgstr,))
 		print util.colour('31', '\n' + msg + '\n')
 		
-		if not sys.stdout.isatty():
+		if not util.determine_interactive(shutit):
 			shutit.fail('ShutIt is not in a terminal so cannot prompt ' +
 				'for values.', throw_exception=False)
 
@@ -1121,7 +1121,7 @@ class ShutIt(object):
 		"""Implements a step-through function, using pause_point.
 		"""
 		child = child or self.get_default_child()
-		if (not sys.stdout.isatty() or not self.cfg['build']['interactive'] or 
+		if (not util.determine_interactive(self) or not self.cfg['build']['interactive'] or 
 			self.cfg['build']['interactive'] < level):
 			return
 		self.cfg['build']['step_through'] = value
@@ -1142,7 +1142,7 @@ class ShutIt(object):
 		- level       - Minimum level to invoke the pause_point at
 		"""
 		child = child or self.get_default_child()
-		if (not sys.stdout.isatty() or not self.cfg['build']['interactive'] or 
+		if (not util.determine_interactive(self) or self.cfg['build']['interactive'] < 1 or 
 			self.cfg['build']['interactive'] < level):
 			return
 		if child and print_input:

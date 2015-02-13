@@ -1477,28 +1477,38 @@ def util_raw_input(shutit=None, prompt='', default=None):
 	msg = ''
 	if shutit and shutit.cfg['build']['interactive'] == 0:
 		return default
-	try:
-		if os.getpgrp() != os.tcgetpgrp(sys.stdout.fileno()):
-			#cf http://stackoverflow.com/questions/24861351/how-to-detect-if-python-script-is-being-run-as-a-background-process
-			msg = 'pgrp != tcpgrp, assuming running in background.'
-			if shutit:
-				shutit.log(msg)
-				shutit.cfg['build']['interactive'] = 0
-			return default
-	except:
-		msg = 'Problems pgrp, assuming running in background.'
-		if shutit:
-			shutit.log(msg)
-			shutit.cfg['build']['interactive'] = 0
-			return default
+	if not determine_interactive(shutit):
+		return default
 	try:
 		return raw_input(prompt)
 	except:
 		msg = 'Problems getting raw input, assuming no controlling terminal.'
 	if shutit:
-		shutit.log(msg)
-		shutit.cfg['build']['interactive'] = 0
+		set_noninteractive(shutit,msg=msg)
 	return default
+
+
+def determine_interactive(shutit=None):
+	"""Determine whether we're in an interactive context.
+	Sets interactivity off if appropriate.
+	cf http://stackoverflow.com/questions/24861351/how-to-detect-if-python-script-is-being-run-as-a-background-process
+	"""
+	try:
+		if not sys.stdout.isatty() or os.getpgrp() != os.tcgetpgrp(sys.stdout.fileno()):
+			if shutit != None:
+				set_noninteractive(shutit)
+			return False
+	except:
+		if shutit != None:
+			set_noninteractive(shutit,msg='Problems determining interactivity, assuming not.')
+		return False
+	return True
+
+
+def set_noninteractive(shutit,msg="setting non-interactive"):
+	shutit.log(msg)
+	shutit.cfg['build']['interactive'] = 0
+	return
 
 
 def print_stack_trace():
