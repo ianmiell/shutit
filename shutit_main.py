@@ -848,7 +848,7 @@ def shutit_main():
 
 	# Try and ensure shutit is on the path - makes onboarding easier
 	# Only do this if we're in a terminal
-	if sys.stdout.isatty() and spawn.find_executable('shutit') is None:
+	if util.determine_interactive() and spawn.find_executable('shutit') is None:
 		setup_shutit_path()
 
 	shutit = shutit_global.shutit
