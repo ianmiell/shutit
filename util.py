@@ -526,13 +526,6 @@ def parse_args(shutit):
 		}
 		return
 
-	if cfg['action']['show_config'] or cfg['action']['show_modules'] or cfg['action']['show_deps'] or cfg['build']['debug']:
-		cfg['build']['show_config_path'] = '/tmp/shutit/show_config/' + cfg['build']['build_id']
-		if os.path.exists(cfg['build']['show_config_path']):
-			print(cfg['build']['show_config_path'] + ' exists. Please move and re-run.')
-			sys.exit()
-		os.makedirs(cfg['build']['show_config_path'])
-
 	shutit_home = cfg['shutit_home'] = os.path.expanduser('~/.shutit')
 	# We're not creating a skeleton, so make sure we have the infrastructure
 	# in place for a user-level storage area
@@ -589,7 +582,15 @@ def parse_args(shutit):
 	cfg['build']['tag_modules']      = args.tag_modules
 	cfg['build']['deps_only']        = args.deps_only
 	cfg['target']['docker_image']    = args.image_tag
-	# Finished parsing args, tutorial stuff
+	# Finished parsing args.
+	# Sort out config path
+	if cfg['build']['interactive'] >= 3 or cfg['action']['show_config'] or cfg['action']['show_modules'] or cfg['action']['show_deps'] or cfg['build']['debug']:
+		cfg['build']['show_config_path'] = '/tmp/shutit/show_config/' + cfg['build']['build_id']
+		if os.path.exists(cfg['build']['show_config_path']):
+			print(cfg['build']['show_config_path'] + ' exists. Please move and re-run.')
+			sys.exit()
+		os.makedirs(cfg['build']['show_config_path'])
+	# Tutorial stuff.
 	if cfg['build']['interactive'] >= 3:
 		print textwrap.dedent("""\
 			================================================================================
