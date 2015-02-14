@@ -877,7 +877,7 @@ def shutit_main():
 
 	errs = []
 	errs.extend(check_deps(shutit))
-	if cfg['action']['show_config']:
+	if cfg['action']['show_deps']:
 		# Show dependency graph
 		digraph = 'digraph depgraph {\n'
 		digraph = digraph + '\n'.join([
@@ -904,7 +904,7 @@ def shutit_main():
 		shutit.log('\n================================================================================\n', force_stdout=True)
 	# Dependency validation done, now collect configs of those marked for build.
 	config_collection_for_built(shutit)
-	if cfg['action']['show_config']:
+	if cfg['action']['show_config'] or cfg['build']['debug']:
 		shutit.log(util.print_config(cfg, history=cfg['build']['cfghistory']),
 				   force_stdout=True)
 		# Set build completed
