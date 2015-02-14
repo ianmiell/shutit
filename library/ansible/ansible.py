@@ -58,6 +58,6 @@ def module():
 	return ansible(
 		'shutit.tk.ansible.ansible', 0.7656,
 		description='',
-		depends=['shutit.tk.setup', 'shutit.tk.ssh_server.ssh_server','shutit.tk.ssh_key.ssh_key']
+		depends=['shutit.tk.setup', 'shutit.tk.ssh_key.ssh_key']
 	)
 
