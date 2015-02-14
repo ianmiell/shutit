@@ -37,7 +37,8 @@ WHAT DOES IT DO?
 ----------------
 
 
-![Example Setup](https://drive.google.com/file/d/0BxpQ6mx0IOLnOHlVRU1HMEVvc0k/view?usp=sharing)
+![Example Setup]
+(https://drive.google.com/file/d/0BxpQ6mx0IOLnOHlVRU1HMEVvc0k/view?usp=sharing)
 
 We start with a "Unit of Build", similar to a Dockerfile.
 
