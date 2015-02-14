@@ -432,6 +432,17 @@ Show computed configuration:
 $ shutit list_configs -h
 ```
 
+Show computed dependencies:
+
+```
+$ shutit list_deps -h
+```
+
+Show available modules:
+
+```
+$ shutit list_modules -h
+```
 
 
 ## ShutIt API
