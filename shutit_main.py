@@ -837,10 +837,10 @@ def shutit_main():
 
 	Handles the configured actions:
 
-	- skeleton    - create skeleton module
-	- serve       - run as a server
-	- list-config - output computed configuration
-	- depgraph    - output digraph of module dependencies
+	- skeleton     - create skeleton module
+	- serve        - run as a server
+	- list-configs - output computed configuration
+	- depgraph     - output digraph of module dependencies
 	"""
 	if sys.version_info.major == 2:
 		if sys.version_info.minor < 7:
@@ -886,7 +886,7 @@ def shutit_main():
 			if module_id in shutit.cfg and shutit.cfg[module_id]['shutit.core.module.build']
 		])
 		digraph = digraph + '\n}'
-		f = file(cfg['build']['show_config_path'] + '/digraph.txt','w')
+		f = file(cfg['build']['log_config_path'] + '/digraph.txt','w')
 		f.write(digraph)
 		f.close()
 		digraph_all = 'digraph depgraph {\n'
@@ -894,7 +894,7 @@ def shutit_main():
 			make_dep_graph(module) for module_id, module in shutit.shutit_map.items()
 		])
 		digraph_all = digraph_all + '\n}'
-		f = file(cfg['build']['show_config_path'] + '/digraph_all.txt','w')
+		f = file(cfg['build']['log_config_path'] + '/digraph_all.txt','w')
 		f.write(digraph_all)
 		f.close()
 		shutit.log('\n================================================================================\n' + digraph_all, force_stdout=True)
@@ -908,22 +908,22 @@ def shutit_main():
 		sys.exit(0)
 	# Dependency validation done, now collect configs of those marked for build.
 	config_collection_for_built(shutit)
-	if cfg['action']['show_config'] or cfg['build']['debug']:
-		shutit.log(util.print_config(cfg, history=cfg['build']['cfghistory']),
+	if cfg['action']['list_configs'] or cfg['build']['debug']:
+		shutit.log(util.print_config(cfg, history=cfg['list_configs']['cfghistory']),
 				   force_stdout=True)
 		# Set build completed
 		cfg['build']['completed'] = True
-		f = file(cfg['build']['show_config_path'] + '/cfg.txt','w')
-		f.write(util.print_config(cfg, history=cfg['build']['cfghistory']))
+		f = file(cfg['build']['log_config_path'] + '/cfg.txt','w')
+		f.write(util.print_config(cfg, history=cfg['list_configs']['cfghistory']))
 		f.close()
 		shutit.log('================================================================================', force_stdout=True)
-		shutit.log('Config details placed in: ' + cfg['build']['show_config_path'], force_stdout=True)
+		shutit.log('Config details placed in: ' + cfg['build']['log_config_path'], force_stdout=True)
 		shutit.log('================================================================================', force_stdout=True)
-		shutit.log('To render the digraph of this build into an image run eg:\n\ndot -Tgv -o ' + cfg['build']['show_config_path'] + '/digraph.gv ' + cfg['build']['show_config_path'] + '/digraph.txt && dot -Tpdf -o digraph.pdf ' + cfg['build']['show_config_path'] + '/digraph.gv\n\n', force_stdout=True)
+		shutit.log('To render the digraph of this build into an image run eg:\n\ndot -Tgv -o ' + cfg['build']['log_config_path'] + '/digraph.gv ' + cfg['build']['log_config_path'] + '/digraph.txt && dot -Tpdf -o digraph.pdf ' + cfg['build']['log_config_path'] + '/digraph.gv\n\n', force_stdout=True)
 		shutit.log('================================================================================', force_stdout=True)
-		shutit.log('To render the digraph of all visible modules into an image, run eg:\n\ndot -Tgv -o ' + cfg['build']['show_config_path'] + '/digraph_all.gv ' + cfg['build']['show_config_path'] + '/digraph_all.txt && dot -Tpdf -o digraph_all.pdf ' + cfg['build']['show_config_path'] + '/digraph_all.gv\n\n', force_stdout=True)
+		shutit.log('To render the digraph of all visible modules into an image, run eg:\n\ndot -Tgv -o ' + cfg['build']['log_config_path'] + '/digraph_all.gv ' + cfg['build']['log_config_path'] + '/digraph_all.txt && dot -Tpdf -o digraph_all.pdf ' + cfg['build']['log_config_path'] + '/digraph_all.gv\n\n', force_stdout=True)
 		shutit.log('================================================================================', force_stdout=True)
-		shutit.log('\nConfiguration details have been written to the folder: ' + cfg['build']['show_config_path'] + '\n', force_stdout=True)
+		shutit.log('\nConfiguration details have been written to the folder: ' + cfg['build']['log_config_path'] + '\n', force_stdout=True)
 		shutit.log('================================================================================', force_stdout=True)
 		return
 	# Check for conflicts now.

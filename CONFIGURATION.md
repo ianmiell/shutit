@@ -111,14 +111,14 @@ shutit.core.module.allowed_images:[.*]
 ## Tools
 
 ```sh
-shutit list-config -m /path/to/modules
+shutit list-configs -m /path/to/modules
 ```
 
 Runs a built to the point where its configuration is calculated.
 
 
 ```sh
-shutit list-config -m /path/to/modules --history
+shutit list-configs -m /path/to/modules --history
 ```
 
 Also tells you where the configuration was taken from.

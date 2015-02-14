@@ -2021,6 +2021,9 @@ def init():
 	cfg['expect_prompts']       = {}
 	cfg['users']                = {}
 	cfg['dockerfile']           = {}
+	cfg['list_modules']         = {}
+	cfg['list_configs']         = {}
+	cfg['list_deps']            = {}
 	cfg['build']['install_type_map'] = {'ubuntu':'apt',
 	                                    'debian':'apt',
 	                                    'steamos':'apt',
