@@ -1,7 +1,5 @@
-
-
 [ShutIt](http://shutit.tk)
-===============
+==========================
 Complex Docker Builds Made Simple
 
 ShutIt is a tool for managing your build process that is both structured and flexible:
@@ -41,10 +39,7 @@ See here:
 
 http://ianmiell.github.io/shutit/
 
-INSTALLATION
-------------
-
-See [INSTALL](http://github.com/ianmiell/shutit/blob/master/INSTALL.md)
+[INSTALLATION](http://github.com/ianmiell/shutit/blob/master/INSTALL.md)
 
 
 WHAT DOES IT DO?
@@ -121,12 +116,6 @@ Mailing List
 https://groups.google.com/forum/#!forum/shutit-users
 shutit-users@groups.google.com
 
-Dependencies
---------------
-- python 2.7+
-- pip
-- See [here](https://gist.github.com/ianmiell/947ff3fabc44ace617c6) for a minimal build.
-
 
 Videos:
 -------
@@ -147,6 +136,7 @@ Docs:
 -----
 
 - [Walkthrough](http://ianmiell.github.io/shutit/)
+
 - [Config](https://github.com/ianmiell/shutit/blob/master/util.py#L55)
 
 
@@ -171,7 +161,7 @@ I WANT TO SEE EXAMPLES
 See in ```library/*```
 eg
 ```
-cd library/mysql
+cd library/mysql/bin
 ./build.sh
 ./run.sh
 ```
@@ -406,7 +396,7 @@ Module conflicts
 
 
 	
-## Invocation
+## Help
 
 General help:
 
@@ -432,25 +422,8 @@ Show computed configuration:
 $ shutit list-configs -h
 ```
 
-
-
-## ShutIt API
-
-### Introduction
-
-The shutit object represents a build with an associated config. In theory multiple builds could be represented within one run, but this is functionality yet to be implemented. 
-
-Calling methods on the object effect and affect the build in various ways and help manage the build process for you.
-
-### Configuration
-
-Configuration is specified in .cnf files.
-
-Default config is shown [here](https://github.com/ianmiell/shutit/blob/master/util.py#L55)
-
-
 Directory Structure
---------
+-------------------
 Each module directory should contain modules that are grouped together somehow
 and all/most often built as an atomic unit.
 This grouping is left to the user to decide, but generally speaking a module
@@ -482,24 +455,9 @@ run.sh                             - Script to run modules built with build.sh
 build.sh                           - Script to build the module
 ```
 
-Tests
---------
-Run 
+[Tests](http://github.com/ianmiell/shutit/blob/master/TEST.md)
 
-```
-cd test && ./test.sh
-```
-
-Known Issues
---------------
-Since a core technology used in this application is pexpect - and a typical
-usage pattern is to expect the prompt to return. Unusual shell
-prompts and escape sequences have been known to cause problems.
-Use the ```shutit.setup_prompt()``` function to help manage this by setting up
-a more sane prompt.
-Use of ```COMMAND_PROMPT``` with ```echo -ne``` has been seen to cause problems
-with overwriting of shells and pexpect patterns.
-
+[Known Issues](http://github.com/ianmiell/shutit/blob/master/BUGS.md)
 
 Licence
 ------------
