@@ -429,7 +429,7 @@ $ shutit skeleton -h
 Show computed configuration:
 
 ```
-$ shutit list-config -h
+$ shutit list-configs -h
 ```
 
 
