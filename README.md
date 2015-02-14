@@ -32,15 +32,6 @@ Flexible:
 - Can pause during build or on error to interact, then continue with build
 
 
-REALLY QUICK START
-------------------
-
-See here:
-
-http://ianmiell.github.io/shutit/
-
-[INSTALLATION](http://github.com/ianmiell/shutit/blob/master/INSTALL.md)
-
 
 WHAT DOES IT DO?
 ----------------
@@ -106,38 +97,12 @@ These correspond to the various functions that can be implemented.
 
 ShutIt provides a means for auto-generation of modules (either bare ones, or from existing Dockerfiles) with its skeleton command. See [here](http://ianmiell.github.io/shutit/) for an example.
 
-CAN I CONTRIBUTE?
------------------
 
-We always need help, and with a potentially infinite number of libraries required, it's likely you will be able to contribute. Just mail ian.miell@gmail.com if you want to be assigned a mentor. [He won't bite](https://www.youtube.com/watch?v=zVUPmmUU3yY) 
+[REALLY QUICK START](http://ianmiell.github.io/shutit)
 
-Mailing List
-------------
-https://groups.google.com/forum/#!forum/shutit-users
-shutit-users@groups.google.com
+[INSTALLATION](http://github.com/ianmiell/shutit/blob/master/INSTALL.md)
 
-
-Videos:
--------
-
-- [Talk on ShutIt](https://www.youtube.com/watch?v=zVUPmmUU3yY) 
-
-- [Setting up a ShutIt server in 3 minutes](https://www.youtube.com/watch?v=ForTMTUMp3s)
-
-- [Steps for above](https://gist.github.com/ianmiell/947ff3fabc44ace617c6)
-
-- [Configuring and uploading a MySql container](https://www.youtube.com/watch?v=snd2gdsEYTQ)
-
-- [Building a win2048 container](https://www.youtube.com/watch?v=Wagof_wnRRY) cf: [Blog](http://zwischenzugs.wordpress.com/2014/05/09/docker-shutit-and-the-perfect-2048-game/)
-
-
-
-Docs:
------
-
-- [Walkthrough](http://ianmiell.github.io/shutit/)
-
-- [Config](https://github.com/ianmiell/shutit/blob/master/util.py#L55)
+[ShutIt API](http://github.com/ianmiell/shutit/blob/master/API.md)
 
 
 REALLY QUICK OVERVIEW
@@ -435,7 +400,6 @@ $ shutit list_modules -h
 ```
 
 
-## ShutIt API
 
 ### Introduction
 
@@ -450,7 +414,6 @@ Configuration is specified in .cnf files.
 Default config is shown [here](https://github.com/ianmiell/shutit/blob/master/util.py#L55)
 
 
->>>>>>> 13e27d8b8d09d87231bcb0cb25f17a92b58cde83
 Directory Structure
 -------------------
 Each module directory should contain modules that are grouped together somehow
@@ -487,6 +450,17 @@ build.sh                           - Script to build the module
 [Tests](http://github.com/ianmiell/shutit/blob/master/TEST.md)
 
 [Known Issues](http://github.com/ianmiell/shutit/blob/master/BUGS.md)
+
+CAN I CONTRIBUTE?
+-----------------
+
+We always need help, and with a potentially infinite number of libraries required, it's likely you will be able to contribute. Just mail ian.miell@gmail.com if you want to be assigned a mentor. [He won't bite](https://www.youtube.com/watch?v=zVUPmmUU3yY) 
+
+Mailing List
+------------
+https://groups.google.com/forum/#!forum/shutit-users
+shutit-users@groups.google.com
+
 
 Licence
 ------------
