@@ -417,7 +417,7 @@ $ shutit -h
 Build:
 
 ```
-$ shutit sc -h
+$ shutit build -h
 ```
 
 Create new skeleton module:
@@ -429,7 +429,7 @@ $ shutit skeleton -h
 Show computed configuration:
 
 ```
-$ shutit sc -h
+$ shutit list-config -h
 ```
 
 

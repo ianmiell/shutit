@@ -839,7 +839,7 @@ def shutit_main():
 
 	- skeleton    - create skeleton module
 	- serve       - run as a server
-	- sc          - output computed configuration
+	- list-config - output computed configuration
 	- depgraph    - output digraph of module dependencies
 	"""
 	if sys.version_info.major == 2:
