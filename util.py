@@ -541,6 +541,7 @@ def parse_args(shutit):
 
 	# Default this to False as it's not always set.
 	cfg['list_configs']['cfghistory'] = False
+	cfg['list_modules']['long']       = False
 	# Persistence-related arguments.
 	if cfg['action']['build']:
 		cfg['repository']['push']   = args.push
