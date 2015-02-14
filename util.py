@@ -415,7 +415,7 @@ def parse_args(shutit):
 	cfg['host']['real_user_id'] = pexpect.run('id -u ' + cfg['host']['real_user']).strip()
 
 	# These are in order of their creation
-	actions = ['build', 'list-config', 'serve', 'skeleton']
+	actions = ['build', 'list-config', 'list-modules', 'serve', 'skeleton']
 
 	# COMPAT 2014-05-15 - build is the default if there is no action specified
 	# and we've not asked for help and we've called via 'shutit_main.py'
@@ -454,7 +454,7 @@ def parse_args(shutit):
 
 	sub_parsers['list-config'].add_argument('--history', help='show config history', const=True, default=False, action='store_const')
 
-	for action in ['build', 'serve', 'list-config']:
+	for action in ['build', 'serve', 'list-config', 'list-modules']:
 		sub_parsers[action].add_argument('--config', help='Config file for setup config. Must be with perms 0600. Multiple arguments allowed; config files considered in order.', default=[], action='append')
 		sub_parsers[action].add_argument('-d','--delivery', help='Delivery method, aka target. "docker" container (default), configured "ssh" connection, "bash" session', default=None, choices=('docker','target','ssh','bash'))
 		sub_parsers[action].add_argument('-s', '--set', help='Override a config item, e.g. "-s target rm no". Can be specified multiple times.', default=[], action='append', nargs=3, metavar=('SEC', 'KEY', 'VAL'))
@@ -501,10 +501,11 @@ def parse_args(shutit):
 	args = parser.parse_args(args_list)
 
 	# What are we asking shutit to do?
-	cfg['action']['show_config'] =   args.action == 'list-config'
-	cfg['action']['serve'] =         args.action == 'serve'
-	cfg['action']['skeleton'] =      args.action == 'skeleton'
-	cfg['action']['build'] =         args.action == 'build'
+	cfg['action']['show_config']  = args.action == 'list-config'
+	cfg['action']['show_modules'] = args.action == 'list-modules'
+	cfg['action']['serve']        = args.action == 'serve'
+	cfg['action']['skeleton']     = args.action == 'skeleton'
+	cfg['action']['build']        = args.action == 'build'
 
 	# This mode is a bit special - it's the only one with different arguments
 	if cfg['action']['skeleton']:
@@ -523,7 +524,7 @@ def parse_args(shutit):
 		}
 		return
 
-	if cfg['action']['show_config']:
+	if cfg['action']['show_config'] or cfg['action']['show_modules']:
 		cfg['build']['show_config_path'] = '/tmp/shutit/show_config/' + cfg['build']['build_id']
 		if os.path.exists(cfg['build']['show_config_path']):
 			print(cfg['build']['show_config_path'] + ' exists. Please move and re-run.')
@@ -770,7 +771,7 @@ def load_shutit_modules(shutit):
 	for shutit_module_path in shutit.cfg['host']['shutit_module_path']:
 		load_all_from_path(shutit, shutit_module_path)
 	# Now we should have all modules.
-	if shutit.cfg['action']['show_config']:
+	if shutit.cfg['action']['show_modules']:
 		msg = "Modules in order:\n"
 		a = {}
 		for m in shutit.shutit_modules:
