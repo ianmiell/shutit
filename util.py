@@ -538,6 +538,8 @@ def parse_args(shutit):
 			0o600
 		))
 
+	# Default this to False as it's not always set.
+	cfg['build']['cfghistory'] = False
 	# Persistence-related arguments.
 	if cfg['action']['build']:
 		cfg['repository']['push']   = args.push
