@@ -878,7 +878,7 @@ def shutit_main():
 
 	errs = []
 	errs.extend(check_deps(shutit))
-	if cfg['action']['show_config']:
+	if cfg['action']['show_deps']:
 		# Show dependency graph
 		digraph = 'digraph depgraph {\n'
 		digraph = digraph + '\n'.join([
@@ -898,14 +898,17 @@ def shutit_main():
 		f.write(digraph_all)
 		f.close()
 		shutit.log('\n================================================================================\n' + digraph_all, force_stdout=True)
-		shutit.log('\nAbove is the digraph for all modules seen in this shutit invocation. Use graphviz to render into an image, eg\n\n\tshutit depgraph -m library | dot -Tpng -o depgraph.png', force_stdout=True)
+		shutit.log('\nAbove is the digraph for all modules seen in this shutit invocation. Use graphviz to render into an image, eg\n\n\tshutit depgraph -m library | dot -Tpng -o depgraph.png\n', force_stdout=True)
 		shutit.log('\n================================================================================\n', force_stdout=True)
 		shutit.log('\n\n' + digraph, force_stdout=True)
 		shutit.log('\n================================================================================\n' + digraph, force_stdout=True)
+		shutit.log('\nAbove is the digraph for all modules configured to be built in this shutit invocation. Use graphviz to render into an image, eg\n\n\tshutit depgraph -m library | dot -Tpng -o depgraph.png\n', force_stdout=True)
 		shutit.log('\n================================================================================\n', force_stdout=True)
+		# Exit now
+		sys.exit(0)
 	# Dependency validation done, now collect configs of those marked for build.
 	config_collection_for_built(shutit)
-	if cfg['action']['show_config']:
+	if cfg['action']['show_config'] or cfg['build']['debug']:
 		shutit.log(util.print_config(cfg, history=cfg['build']['cfghistory']),
 				   force_stdout=True)
 		# Set build completed
