@@ -415,7 +415,7 @@ def parse_args(shutit):
 	cfg['host']['real_user_id'] = pexpect.run('id -u ' + cfg['host']['real_user']).strip()
 
 	# These are in order of their creation
-	actions = ['build', 'list-config', 'list-modules', 'serve', 'skeleton']
+	actions = ['build', 'list-config', 'list-modules', 'list-deps', 'serve', 'skeleton']
 
 	# COMPAT 2014-05-15 - build is the default if there is no action specified
 	# and we've not asked for help and we've called via 'shutit_main.py'
@@ -434,7 +434,7 @@ def parse_args(shutit):
 
 	parser = argparse.ArgumentParser(description='ShutIt - a tool for managing complex Docker deployments.\n\nTo view help for a specific subcommand, type ./shutit <subcommand> -h',prog="ShutIt")
 	parser.add_argument('--version', action='version', version='%(prog)s 0.7')
-	subparsers = parser.add_subparsers(dest='action', help='Action to perform - build=deploy to target, serve=run a shutit web server, skeleton=construct a skeleton module, list-config=show configuration as read in. Defaults to \'build\'.')
+	subparsers = parser.add_subparsers(dest='action', help='''Action to perform - build=deploy to target, serve=run a shutit web server, skeleton=construct a skeleton module, list-config=show configuration as read in, list-modules=show modules available, list-deps=show dep graph ready for graphviz. Defaults to 'build'.''')
 
 	sub_parsers = dict()
 	for action in actions:
@@ -455,7 +455,7 @@ def parse_args(shutit):
 
 	sub_parsers['list-config'].add_argument('--history', help='show config history', const=True, default=False, action='store_const')
 
-	for action in ['build', 'serve', 'list-config', 'list-modules']:
+	for action in ['build', 'serve', 'list-config', 'list-modules', 'list-deps']:
 		sub_parsers[action].add_argument('--config', help='Config file for setup config. Must be with perms 0600. Multiple arguments allowed; config files considered in order.', default=[], action='append')
 		sub_parsers[action].add_argument('-d','--delivery', help='Delivery method, aka target. "docker" container (default), configured "ssh" connection, "bash" session', default=None, choices=('docker','target','ssh','bash'))
 		sub_parsers[action].add_argument('-s', '--set', help='Override a config item, e.g. "-s target rm no". Can be specified multiple times.', default=[], action='append', nargs=3, metavar=('SEC', 'KEY', 'VAL'))
@@ -504,6 +504,7 @@ def parse_args(shutit):
 	# What are we asking shutit to do?
 	cfg['action']['show_config']  = args.action == 'list-config'
 	cfg['action']['show_modules'] = args.action == 'list-modules'
+	cfg['action']['show_deps']    = args.action == 'list-deps'
 	cfg['action']['serve']        = args.action == 'serve'
 	cfg['action']['skeleton']     = args.action == 'skeleton'
 	cfg['action']['build']        = args.action == 'build'
@@ -525,7 +526,7 @@ def parse_args(shutit):
 		}
 		return
 
-	if cfg['action']['show_config'] or cfg['action']['show_modules']:
+	if cfg['action']['show_config'] or cfg['action']['show_modules'] or cfg['action']['show_deps'] or cfg['build']['debug']:
 		cfg['build']['show_config_path'] = '/tmp/shutit/show_config/' + cfg['build']['build_id']
 		if os.path.exists(cfg['build']['show_config_path']):
 			print(cfg['build']['show_config_path'] + ' exists. Please move and re-run.')
@@ -715,7 +716,7 @@ def load_configs(shutit):
 		configs.append(run_config_file)
 	# Image to use to start off. The script should be idempotent, so running it
 	# on an already built image should be ok, and is advised to reduce diff space required.
-	if cfg['build']['interactive'] >= 3 or cfg['action']['show_config']:
+	if cfg['build']['interactive'] >= 3 or cfg['action']['show_config'] or cfg['build']['debug']:
 		msg = ''
 		print textwrap.dedent("""\n""") + textwrap.dedent("""Looking at config files in the following order:""")
 		for c in configs:
@@ -726,7 +727,7 @@ def load_configs(shutit):
 		if cfg['build']['interactive'] >= 3:
 			print textwrap.dedent("""\n""") + msg + textwrap.dedent(colour('31', '\n\n[Hit return to continue]'))
 			util_raw_input(shutit=shutit)
-		if cfg['action']['show_config']:
+		if cfg['action']['show_config'] or cfg['build']['debug']:
 			f = file(cfg['build']['show_config_path'] + '/config_file_order.txt','w')
 			f.write(msg)
 			f.close()
@@ -772,7 +773,7 @@ def load_shutit_modules(shutit):
 	for shutit_module_path in shutit.cfg['host']['shutit_module_path']:
 		load_all_from_path(shutit, shutit_module_path)
 	# Now we should have all modules.
-	if shutit.cfg['action']['show_modules']:
+	if shutit.cfg['action']['show_modules'] or shutit.cfg['build']['debug']:
 		msg = "Modules in order:\n"
 		a = {}
 		for m in shutit.shutit_modules:
