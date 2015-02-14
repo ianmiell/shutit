@@ -839,7 +839,7 @@ def shutit_main():
 
 	- skeleton     - create skeleton module
 	- serve        - run as a server
-	- list-configs - output computed configuration
+	- list_configs - output computed configuration
 	- depgraph     - output digraph of module dependencies
 	"""
 	if sys.version_info.major == 2:
@@ -878,7 +878,7 @@ def shutit_main():
 
 	errs = []
 	errs.extend(check_deps(shutit))
-	if cfg['action']['show_deps']:
+	if cfg['action']['list_deps']:
 		# Show dependency graph
 		digraph = 'digraph depgraph {\n'
 		digraph = digraph + '\n'.join([
