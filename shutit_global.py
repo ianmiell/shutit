@@ -1398,7 +1398,7 @@ class ShutIt(object):
 		self.cfg['build']['logins'][r_id] = {'whoami':new_user}
 
 
-	def login(self, command='su -', user='root', child=None, password=None, prompt_prefix=None, expect=None, timeout=20):
+	def login(self, user='root', command='su -', child=None, password=None, prompt_prefix=None, expect=None, timeout=20):
 		"""Logs the user in with the passed-in password and command.
 		Tracks the login. If used, used logout to log out again.
 		Assumes you are root when logging in, so no password required.
