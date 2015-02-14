@@ -433,7 +433,7 @@ def parse_args(shutit):
 		return ivalue
 
 	parser = argparse.ArgumentParser(description='ShutIt - a tool for managing complex Docker deployments.\n\nTo view help for a specific subcommand, type ./shutit <subcommand> -h')
-	subparsers = parser.add_subparsers(dest='action', help='Action to perform - build=deploy to target, serve=run a shutit web server, skeleton=construct a skeleton module, list-config=show configuration as read in. Defaults to \'build\'.')
+	subparsers = parser.add_subparsers(dest='action', help='''Action to perform - build=deploy to target, serve=run a shutit web server, skeleton=construct a skeleton module, list-config=show configuration as read in, list-modules=show modules available, list-deps=show dep graph ready for graphviz. Defaults to 'build'.''')
 
 	sub_parsers = dict()
 	for action in actions:
