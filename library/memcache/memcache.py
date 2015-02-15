@@ -14,9 +14,12 @@ class memcache(ShutItModule):
 
 	def start(self,shutit):
 		shutit.send('/root/start_memcache.sh')
+		return True
 
 	def stop(self,shutit):
 		shutit.send('/root/stop_memcache.sh')
+		return True
+
 
 def module():
 	return memcache(
