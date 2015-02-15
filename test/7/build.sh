@@ -16,3 +16,9 @@ fi
 # This file tests your build, leaving the container intact when done.
 
 $SHUTIT build --debug
+$SHUTIT list_configs
+$SHUTIT list_configs --history
+$SHUTIT list_deps
+$SHUTIT list_modules
+$SHUTIT list_modules --long
+
