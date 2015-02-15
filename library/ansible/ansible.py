@@ -43,7 +43,6 @@ class ansible(ShutItModule):
 		return True
 
 	def test(self, shutit):
-		shutit.pause_point('')
 		send = 'ansible all -m ping'
 		expect=['assword', shutit.cfg['expect_prompts']['base_prompt'],'authenticity of host']
 		while True:
