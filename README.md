@@ -35,6 +35,11 @@ Flexible:
 
 WHAT DOES IT DO?
 ----------------
+
+
+![Example Setup]
+(https://github.com/ianmiell/shutit/blob/gh-pages/images/ShutIt.png)
+
 We start with a "Unit of Build", similar to a Dockerfile.
 
 Unit of Build for Mongodb:
