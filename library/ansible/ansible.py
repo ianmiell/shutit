@@ -32,6 +32,7 @@ class ansible(ShutItModule):
 		shutit.install('sshpass')
 		shutit.send('pushd /opt')
 		shutit.send('git clone git://github.com/ansible/ansible.git')
+		shutit.send('git submodule update --init --recursive')
 		shutit.send('source /opt/ansible/hacking/env-setup')
 		shutit.add_to_bashrc('source /opt/ansible/hacking/env-setup')
 		shutit.send('easy_install pip')
@@ -42,6 +43,7 @@ class ansible(ShutItModule):
 		return True
 
 	def test(self, shutit):
+		shutit.pause_point('')
 		send = 'ansible all -m ping'
 		expect=['assword', shutit.cfg['expect_prompts']['base_prompt'],'authenticity of host']
 		while True:
