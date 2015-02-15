@@ -578,6 +578,9 @@ def check_ready(shutit,check_all=False, throw_error=True):
 	                   print_input=False, level=3)
 	# Find out who we are to see whether we need to log in and out or not. 
 	whowasi = shutit.whoami()
+	# Login at least once to get any exports.
+	if whowasi != 'root':
+		shutit.login(prompt_prefix=module_id)
 	for module_id in module_ids(shutit):
 		module = shutit.shutit_map[module_id]
 		shutit.log('considering check_ready (is it ready to be built?): ' +
@@ -599,6 +602,8 @@ def check_ready(shutit,check_all=False, throw_error=True):
 			if whowasi != 'root':
 				shutit.logout()
 			shutit.chdir(revert_dir)
+	if whowasi != 'root':
+		shutit.logout()
 	return errs
 
 
@@ -611,6 +616,9 @@ def do_remove(shutit):
 	shutit.pause_point('\nNow removing any modules that need removing',
 					   print_input=False, level=3)
 	whowasi = shutit.whoami()
+	# Login at least once to get the exports.
+	if whowasi != 'root':
+		shutit.login(prompt_prefix=module_id)
 	for module_id in module_ids(shutit):
 		module = shutit.shutit_map[module_id]
 		shutit.log('considering whether to remove: ' + module_id, code='31')
@@ -631,6 +639,8 @@ def do_remove(shutit):
 				shutit.cfg['target']['modules_not_installed'].append(module.module_id)
 			if whowasi != 'root':
 				shutit.logout()
+	if whowasi != 'root':
+		shutit.logout()
 			
 
 
@@ -699,7 +709,6 @@ def do_build(shutit):
 	 	       util.colour('31', '\n\n[Hit return to continue]\n'))
 		util.util_raw_input(shutit=shutit)
 	module_id_list = module_ids(shutit)
-	whowasi = shutit.whoami()
 	if cfg['build']['deps_only']:
 		module_id_list_build_only = filter(lambda x: cfg[x]['shutit.core.module.build'], module_id_list)
 	for module_id in module_id_list:
@@ -721,11 +730,9 @@ def do_build(shutit):
 				else:
 					revert_dir = os.getcwd()
 					shutit.chdir(os.path.dirname(module.__module_file))
-					if whowasi != 'root':
-						shutit.login(prompt_prefix=module_id)
+					shutit.login(prompt_prefix=module_id)
 					build_module(shutit, module)
-					if whowasi != 'root':
-						shutit.logout()
+					shutit.logout()
 					shutit.chdir(revert_dir)
 		if is_installed(shutit, module):
 			shutit.log('Starting module')
@@ -750,6 +757,9 @@ def do_test(shutit):
 	stop_all(shutit)
 	start_all(shutit)
 	whowasi = shutit.whoami()
+	# Login at least once to get the exports.
+	if whowasi != 'root':
+		shutit.login(prompt_prefix=module_id)
 	for module_id in module_ids(shutit, rev=True):
 		module = shutit.shutit_map[module_id]
 		# Only test if it's installed.
@@ -762,6 +772,8 @@ def do_test(shutit):
 				child=shutit.pexpect_children['target_child'])
 			if whowasi != 'root':
 				shutit.logout()
+	if whowasi != 'root':
+		shutit.logout()
 
 
 def do_finalize(shutit):
@@ -783,6 +795,9 @@ def do_finalize(shutit):
 		      util.colour('31', '\n\n[Hit return to continue]\n'))
 		util.util_raw_input(shutit=shutit)
 	whowasi = shutit.whoami()
+	# Login at least once to get the exports.
+	if whowasi != 'root':
+		shutit.login(prompt_prefix=module_id)
 	for module_id in module_ids(shutit, rev=True):
 		module = shutit.shutit_map[module_id]
 		# Only finalize if it's thought to be installed.
@@ -794,6 +809,8 @@ def do_finalize(shutit):
 			                child=shutit.pexpect_children['target_child'])
 			if whowasi != 'root':
 				shutit.logout()
+	if whowasi != 'root':
+		shutit.logout()
 
 
 def shutit_module_init(shutit):
