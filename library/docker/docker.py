@@ -20,9 +20,7 @@ class docker(ShutItModule):
 		shutit.send('chmod +x /usr/bin/wrapdocker')
 		start_docker = """cat > /root/start_docker.sh << 'END'
 #!/bin/bash
-/root/start_ssh_server.sh
 /usr/bin/wrapdocker &
-echo "SSH Server up"
 echo "Docker daemon running"
 END"""
 		shutit.send(start_docker)
@@ -49,6 +47,6 @@ def module():
 	return docker(
 		'shutit.tk.docker.docker', 0.396,
 		description="docker server (communicates with host's docker daemon)",
-		depends=['shutit.tk.setup', 'shutit.tk.ssh_server.ssh_server']
+		depends=['shutit.tk.setup']
 	)
 
