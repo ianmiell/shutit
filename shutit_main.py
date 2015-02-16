@@ -565,7 +565,7 @@ def check_conflicts(shutit):
 	return errs
 
 
-def check_ready(shutit,check_all=False, throw_error=True):
+def check_ready(shutit, throw_error=True):
 	"""Check that all modules are ready to be built, calling check_ready on
 	each of those configured to be built and not already installed
 	(see is_installed).
@@ -585,7 +585,7 @@ def check_ready(shutit,check_all=False, throw_error=True):
 		module = shutit.shutit_map[module_id]
 		shutit.log('considering check_ready (is it ready to be built?): ' +
 		           module_id, code='31')
-		if (check_all or cfg[module_id]['shutit.core.module.build']) and module.module_id not in shutit.cfg['target']['modules_ready'] and not is_installed(shutit,module):
+		if cfg[module_id]['shutit.core.module.build'] and module.module_id not in shutit.cfg['target']['modules_ready'] and not is_installed(shutit,module):
 			shutit.log('checking whether module is ready to build: ' + module_id,
 			           code='31')
 			if whowasi != 'root':
@@ -946,7 +946,7 @@ def shutit_main():
 	# Check for conflicts now.
 	errs.extend(check_conflicts(shutit))
 	# Cache the results of check_ready at the start.
-	errs.extend(check_ready(shutit,check_all=True, throw_error=False))
+	errs.extend(check_ready(shutit, throw_error=False))
 	if errs:
 		shutit.log(print_modules(shutit), code='31')
 		child = None
