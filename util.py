@@ -540,9 +540,10 @@ def parse_args(shutit):
 			0o600
 		))
 
-	# Default this to False as it's not always set.
+	# Default this to False as it's not always set (mostly for --debug calls).
 	cfg['list_configs']['cfghistory'] = False
 	cfg['list_modules']['long']       = False
+	cfg['list_modules']['sort']       = None
 	# Persistence-related arguments.
 	if cfg['action']['build']:
 		cfg['repository']['push']   = args.push
