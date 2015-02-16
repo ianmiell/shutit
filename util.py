@@ -455,6 +455,7 @@ def parse_args(shutit):
 
 	sub_parsers['list_configs'].add_argument('--history', help='show config history', const=True, default=False, action='store_const')
 	sub_parsers['list_modules'].add_argument('--long', help='show extended module info, including ordering', const=True, default=False, action='store_const')
+	sub_parsers['list_modules'].add_argument('--sort', help='order the modules seen, default to module id', default='id', choices=('id','run_order'))
 
 	for action in ['build', 'serve', 'list_configs', 'list_modules', 'list_deps']:
 		sub_parsers[action].add_argument('--config', help='Config file for setup config. Must be with perms 0600. Multiple arguments allowed; config files considered in order.', default=[], action='append')
@@ -551,6 +552,7 @@ def parse_args(shutit):
 		cfg['list_configs']['cfghistory'] = args.history
 	elif cfg['action']['list_modules']:
 		cfg['list_modules']['long'] = args.long
+		cfg['list_modules']['sort'] = args.sort
 
 	# What are we building on? Convert arg to conn_module we use.
 	if args.delivery == 'docker' or args.delivery == 'target':
@@ -781,14 +783,18 @@ def load_shutit_modules(shutit):
 		load_all_from_path(shutit, shutit_module_path)
 	# Now we should have all modules.
 	if shutit.cfg['action']['list_modules'] or shutit.cfg['build']['debug']:
-		# list of modules ids and other details
-		# (depending on whether --long was specified or not)
+		# list of module ids and other details
 		# will also contain column headers
 		table_list = []
 
 		if shutit.cfg['list_modules']['long']:
 			# --long table: sort modules by run order
 			table_list.append(["Order","Module ID","Description","Run Order"])
+		else:
+			# "short" table ==> sort module by module_id
+			table_list.append(["Module ID","Description"])
+
+		if shutit.cfg['list_modules']['sort'] == 'run_order':
 			a = {}
 			for m in shutit.shutit_modules:
 				a.update({m.module_id:m.run_order})
@@ -799,25 +805,30 @@ def load_shutit_modules(shutit):
 				for m in shutit.shutit_modules:
 					if m.run_order == k:
 						count = count + 1
-						table_list.append([str(count),m.module_id,m.description,str(m.run_order)])
-		else:
-			# "short" table ==> sort module by module_id
-			table_list.append(["Module ID","Description"])
+						if shutit.cfg['list_modules']['long']:
+							table_list.append([str(count),m.module_id,m.description,str(m.run_order)])
+						else:
+							table_list.append([m.module_id,m.description])
+		elif shutit.cfg['list_modules']['sort'] == 'id':
 			a = []
 			for m in shutit.shutit_modules:
 				a.append(m.module_id)
 			a.sort()
+			count = 0
 			for k in a:
 				for m in shutit.shutit_modules:
 					if m.module_id == k:
-						table_list.append([m.module_id,m.description])
+						count = count + 1
+						if shutit.cfg['list_modules']['long']:
+							table_list.append([str(count),m.module_id,m.description,str(m.run_order)])
+						else:
+							table_list.append([m.module_id,m.description])
 
 		# format table for display
 		import texttable
 		table = texttable.Texttable()
 		table.add_rows(table_list)
 		msg = table.draw()
-
 		print msg
 		f = file(shutit.cfg['build']['log_config_path'] + '/module_order.txt','w')
 		f.write(msg)
