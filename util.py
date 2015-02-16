@@ -781,34 +781,43 @@ def load_shutit_modules(shutit):
 		load_all_from_path(shutit, shutit_module_path)
 	# Now we should have all modules.
 	if shutit.cfg['action']['list_modules'] or shutit.cfg['build']['debug']:
-		import texttable
-		table_short_list = []
-		title_short_list = ["Module ID","Description"]
-		table_short_list.append(title_short_list)
-		table_long_list = []
-		title_long_list = ["Order","Module ID","Description","Run Order"]
-		table_long_list.append(title_long_list)
-		a = {}
-		for m in shutit.shutit_modules:
-			a.update({m.module_id:m.run_order})
-		b = a.values()
-		b.sort()
-		l = []
-		count = 0
-		for k in b:
-			for m in shutit.shutit_modules:
-				if m.run_order == k:
-					count = count + 1
-					table_short_list.append([m.module_id,m.description])
-					table_long_list.append([str(count),m.module_id,m.description,str(m.run_order)])
-		table_long  = texttable.Texttable()
-		table_short = texttable.Texttable()
-		table_long.add_rows(table_long_list)
-		table_short.add_rows(table_short_list)
+		# list of modules ids and other details
+		# (depending on whether --long was specified or not)
+		# will also contain column headers
+		table_list = []
+
 		if shutit.cfg['list_modules']['long']:
-			msg = table_long.draw()
+			# --long table: sort modules by run order
+			table_list.append(["Order","Module ID","Description","Run Order"])
+			a = {}
+			for m in shutit.shutit_modules:
+				a.update({m.module_id:m.run_order})
+			b = a.values()
+			b.sort()
+			count = 0
+			for k in b:
+				for m in shutit.shutit_modules:
+					if m.run_order == k:
+						count = count + 1
+						table_list.append([str(count),m.module_id,m.description,str(m.run_order)])
 		else:
-			msg = table_short.draw()
+			# "short" table ==> sort module by module_id
+			table_list.append(["Module ID","Description"])
+			a = []
+			for m in shutit.shutit_modules:
+				a.append(m.module_id)
+			a.sort()
+			for k in a:
+				for m in shutit.shutit_modules:
+					if m.module_id == k:
+						table_list.append([m.module_id,m.description])
+
+		# format table for display
+		import texttable
+		table = texttable.Texttable()
+		table.add_rows(table_list)
+		msg = table.draw()
+
 		print msg
 		f = file(shutit.cfg['build']['log_config_path'] + '/module_order.txt','w')
 		f.write(msg)
