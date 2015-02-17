@@ -21,4 +21,7 @@ $SHUTIT list_configs --history
 $SHUTIT list_deps
 $SHUTIT list_modules
 $SHUTIT list_modules --long
+$SHUTIT list_modules --sort id
+$SHUTIT list_modules --sort run_order
+$SHUTIT list_modules --long --sort run_order
 

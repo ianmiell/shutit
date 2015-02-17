@@ -106,20 +106,20 @@ class ShutItModule(object):
 
 	Build order:
 
-	- Gather core config (build, remove, tag)
-	- Gather module-specific config
-	- FOR MODULE 0
-		- Build module 0
-	- FOR ALL MODULES:
-	- Determine dependency requirements are met
-	- Determine conflict requirements are met.
-		- Remove any modules that are configured for removal.
-		- Build if not installed
-		- Do repo work if not installed (commit, tag, push)
-		- Test all modules (in reverse)
-		- Finalize all modules
-	- FOR MODULE 0
-		- Do repo work on build
+		- Gather core config (build, remove, tag)
+		- Gather module-specific config
+		- FOR MODULE 0
+			- Build module 0
+		- FOR ALL MODULES:
+		- Determine dependency requirements are met
+		- Determine conflict requirements are met.
+			- Remove any modules that are configured for removal.
+			- Build if not installed
+			- Do repo work if not installed (commit, tag, push)
+			- Test all modules (in reverse)
+			- Finalize all modules
+		- FOR MODULE 0
+			- Do repo work on build
 	"""
 	__metaclass__ = ShutItMeta
 

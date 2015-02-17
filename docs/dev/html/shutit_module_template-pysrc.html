@@ -1,0 +1,276 @@
+<?xml version="1.0" encoding="ascii"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+          "DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <title>shutit_module_template</title>
+  <link rel="stylesheet" href="epydoc.css" type="text/css" />
+  <script type="text/javascript" src="epydoc.js"></script>
+</head>
+
+<body bgcolor="white" text="black" link="blue" vlink="#204080"
+      alink="#204080">
+<!-- ==================== NAVIGATION BAR ==================== -->
+<table class="navbar" border="0" width="100%" cellpadding="0"
+       bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="middle">
+
+  <!-- Tree link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="module-tree.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Index link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="identifier-index.html">Indices</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Help link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+
+      <th class="navbar" width="100%"></th>
+  </tr>
+</table>
+<table width="100%" cellpadding="0" cellspacing="0">
+  <tr valign="top">
+    <td width="100%">
+      <span class="breadcrumbs">
+        Module&nbsp;shutit_module_template
+      </span>
+    </td>
+    <td>
+      <table cellpadding="0" cellspacing="0">
+        <!-- hide/show private -->
+        <tr><td align="right"><span class="options">[<a href="javascript:void(0);" class="privatelink"
+    onclick="toggle_private();">hide&nbsp;private</a>]</span></td></tr>
+        <tr><td align="right"><span class="options"
+            >[<a href="frames.html" target="_top">frames</a
+            >]&nbsp;|&nbsp;<a href="shutit_module_template-pysrc.html"
+            target="_top">no&nbsp;frames</a>]</span></td></tr>
+      </table>
+    </td>
+  </tr>
+</table>
+<h1 class="epydoc">Source Code for <a href="shutit_module_template-module.html">Module shutit_module_template</a></h1>
+<pre class="py-src">
+<a name="L1"></a><tt class="py-lineno">  1</tt>  <tt class="py-line"><tt class="py-docstring">"""ShutIt module. See http://shutit.tk</tt> </tt>
+<a name="L2"></a><tt class="py-lineno">  2</tt>  <tt class="py-line"><tt class="py-docstring">"""</tt> </tt>
+<a name="L3"></a><tt class="py-lineno">  3</tt>  <tt class="py-line"><tt class="py-keyword">from</tt> <tt class="py-name">shutit_module</tt> <tt class="py-keyword">import</tt> <tt id="link-0" class="py-name" targets="Class shutit_module.ShutItModule=shutit_module.ShutItModule-class.html"><a title="shutit_module.ShutItModule" class="py-name" href="#" onclick="return doclink('link-0', 'ShutItModule', 'link-0');">ShutItModule</a></tt> </tt>
+<a name="L4"></a><tt class="py-lineno">  4</tt>  <tt class="py-line"><tt class="py-keyword">import</tt> <tt class="py-name">os</tt> </tt>
+<a name="L5"></a><tt class="py-lineno">  5</tt>  <tt class="py-line"> </tt>
+<a name="template"></a><div id="template-def"><a name="L6"></a><tt class="py-lineno">  6</tt> <a class="py-toggle" href="#" id="template-toggle" onclick="return toggle('template');">-</a><tt class="py-line"><tt class="py-keyword">class</tt> <a class="py-def-name" href="shutit_module_template.template-class.html">template</a><tt class="py-op">(</tt><tt class="py-base-class">ShutItModule</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="template-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="template-expanded"><a name="L7"></a><tt class="py-lineno">  7</tt>  <tt class="py-line"> </tt>
+<a name="L8"></a><tt class="py-lineno">  8</tt>  <tt class="py-line">        <tt class="py-comment"># Should return True if it has succeeded in building, else False.</tt> </tt>
+<a name="template.build"></a><div id="template.build-def"><a name="L9"></a><tt class="py-lineno">  9</tt> <a class="py-toggle" href="#" id="template.build-toggle" onclick="return toggle('template.build');">-</a><tt class="py-line">        <tt class="py-keyword">def</tt> <a class="py-def-name" href="shutit_module_template.template-class.html#build">build</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">,</tt> <tt class="py-param">shutit</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="template.build-collapsed" style="display:none;" pad="+++" indent="++++++++++++"></div><div id="template.build-expanded"><a name="L10"></a><tt class="py-lineno"> 10</tt>  <tt class="py-line">                <tt class="py-comment"># Line number 11 should be the next one (so bash scripts can be inserted properly)</tt> </tt>
+<a name="L11"></a><tt class="py-lineno"> 11</tt>  <tt class="py-line"> </tt>
+<a name="L12"></a><tt class="py-lineno"> 12</tt>  <tt class="py-line">                <tt class="py-comment"># Run the build part of the module, which should ensure the module</tt> </tt>
+<a name="L13"></a><tt class="py-lineno"> 13</tt>  <tt class="py-line">                <tt class="py-comment"># has been set up.</tt> </tt>
+<a name="L14"></a><tt class="py-lineno"> 14</tt>  <tt class="py-line">                <tt class="py-comment"># If is_installed determines that the module is already there,</tt> </tt>
+<a name="L15"></a><tt class="py-lineno"> 15</tt>  <tt class="py-line">                <tt class="py-comment"># this is not run.</tt> </tt>
+<a name="L16"></a><tt class="py-lineno"> 16</tt>  <tt class="py-line">                <tt class="py-comment"># DELETE THIS SECTION WHEN UNDERSTOOD - BEGIN</tt> </tt>
+<a name="L17"></a><tt class="py-lineno"> 17</tt>  <tt class="py-line">                <tt class="py-name">shutit</tt><tt class="py-op">.</tt><tt class="py-name">send_and_expect</tt><tt class="py-op">(</tt><tt class="py-string">'touch /tmp/deleteme'</tt><tt class="py-op">)</tt> </tt>
+<a name="L18"></a><tt class="py-lineno"> 18</tt>  <tt class="py-line">                <tt class="py-name">shutit</tt><tt class="py-op">.</tt><tt class="py-name">send_and_expect</tt><tt class="py-op">(</tt><tt class="py-string">'touch /tmp/target_touched.sh'</tt><tt class="py-op">)</tt> </tt>
+<a name="L19"></a><tt class="py-lineno"> 19</tt>  <tt class="py-line">                <tt class="py-name">shutit</tt><tt class="py-op">.</tt><tt class="py-name">add_line_to_file</tt><tt class="py-op">(</tt><tt class="py-string">'#This line should only appear once in the file'</tt><tt class="py-op">,</tt><tt class="py-string">'/tmp/target_touched.sh'</tt><tt class="py-op">)</tt> </tt>
+<a name="L20"></a><tt class="py-lineno"> 20</tt>  <tt class="py-line">                <tt class="py-name">shutit</tt><tt class="py-op">.</tt><tt class="py-name">add_line_to_file</tt><tt class="py-op">(</tt><tt class="py-string">'#This line should only appear once in the file'</tt><tt class="py-op">,</tt><tt class="py-string">'/tmp/target_touched.sh'</tt><tt class="py-op">)</tt> </tt>
+<a name="L21"></a><tt class="py-lineno"> 21</tt>  <tt class="py-line">                <tt class="py-comment"># We add the match_regexp because the string has a quote in it.</tt> </tt>
+<a name="L22"></a><tt class="py-lineno"> 22</tt>  <tt class="py-line">                <tt class="py-name">shutit</tt><tt class="py-op">.</tt><tt class="py-name">add_line_to_file</tt><tt class="py-op">(</tt><tt class="py-string">'echo "hello target"'</tt><tt class="py-op">,</tt><tt class="py-string">'/tmp/target_touched.sh'</tt><tt class="py-op">,</tt><tt class="py-name">match_regexp</tt><tt class="py-op">=</tt><tt class="py-string">'echo .hello target.'</tt><tt class="py-op">)</tt> </tt>
+<a name="L23"></a><tt class="py-lineno"> 23</tt>  <tt class="py-line">                <tt class="py-name">shutit</tt><tt class="py-op">.</tt><tt class="py-name">add_line_to_file</tt><tt class="py-op">(</tt><tt class="py-string">'sleep 10000000 &amp;'</tt><tt class="py-op">,</tt><tt class="py-string">'/tmp/target_touched.sh'</tt><tt class="py-op">)</tt> </tt>
+<a name="L24"></a><tt class="py-lineno"> 24</tt>  <tt class="py-line">                <tt class="py-name">shutit</tt><tt class="py-op">.</tt><tt class="py-name">send_and_expect</tt><tt class="py-op">(</tt><tt class="py-string">'chmod +x /tmp/target_touched.sh'</tt><tt class="py-op">)</tt> </tt>
+<a name="L25"></a><tt class="py-lineno"> 25</tt>  <tt class="py-line">                <tt class="py-comment"># Make sure passwd is installed</tt> </tt>
+<a name="L26"></a><tt class="py-lineno"> 26</tt>  <tt class="py-line">                <tt class="py-name">shutit</tt><tt class="py-op">.</tt><tt class="py-name">install</tt><tt class="py-op">(</tt><tt class="py-string">'passwd'</tt><tt class="py-op">)</tt> </tt>
+<a name="L27"></a><tt class="py-lineno"> 27</tt>  <tt class="py-line">                <tt class="py-name">shutit</tt><tt class="py-op">.</tt><tt class="py-name">install</tt><tt class="py-op">(</tt><tt class="py-string">'sudo'</tt><tt class="py-op">)</tt> </tt>
+<a name="L28"></a><tt class="py-lineno"> 28</tt>  <tt class="py-line">                <tt class="py-comment"># Install mlocate</tt> </tt>
+<a name="L29"></a><tt class="py-lineno"> 29</tt>  <tt class="py-line">                <tt class="py-name">shutit</tt><tt class="py-op">.</tt><tt class="py-name">install</tt><tt class="py-op">(</tt><tt class="py-string">'mlocate'</tt><tt class="py-op">)</tt> </tt>
+<a name="L30"></a><tt class="py-lineno"> 30</tt>  <tt class="py-line">                <tt class="py-comment"># Example of distro-specific password update</tt> </tt>
+<a name="L31"></a><tt class="py-lineno"> 31</tt>  <tt class="py-line">                <tt class="py-comment"># record_command=False prevents the password being output at the end on debug. However, if it matches a password stored in config, </tt> </tt>
+<a name="L32"></a><tt class="py-lineno"> 32</tt>  <tt class="py-line">                <tt class="py-comment"># it will automatically redact it.</tt> </tt>
+<a name="L33"></a><tt class="py-lineno"> 33</tt>  <tt class="py-line">                <tt class="py-keyword">if</tt> <tt class="py-name">shutit</tt><tt class="py-op">.</tt><tt class="py-name">cfg</tt><tt class="py-op">[</tt><tt class="py-string">'target'</tt><tt class="py-op">]</tt><tt class="py-op">[</tt><tt class="py-string">'install_type'</tt><tt class="py-op">]</tt> <tt class="py-op">==</tt> <tt class="py-string">'apt'</tt><tt class="py-op">:</tt> <tt class="py-comment"># apt-based password update</tt> </tt>
+<a name="L34"></a><tt class="py-lineno"> 34</tt>  <tt class="py-line">                        <tt class="py-comment"># "check_exit" checks the exit code of the command you are running.</tt> </tt>
+<a name="L35"></a><tt class="py-lineno"> 35</tt>  <tt class="py-line">                        <tt class="py-comment"># We can't check the exit code as the command will not return when we see 'Retype new' on the terminal.</tt> </tt>
+<a name="L36"></a><tt class="py-lineno"> 36</tt>  <tt class="py-line">                        <tt class="py-name">shutit</tt><tt class="py-op">.</tt><tt class="py-name">send_and_expect</tt><tt class="py-op">(</tt><tt class="py-string">'passwd'</tt><tt class="py-op">,</tt><tt class="py-string">'Enter new'</tt><tt class="py-op">,</tt><tt class="py-name">check_exit</tt><tt class="py-op">=</tt><tt class="py-name">False</tt><tt class="py-op">)</tt> </tt>
+<a name="L37"></a><tt class="py-lineno"> 37</tt>  <tt class="py-line">                        <tt class="py-comment"># echo=False ensured it's not output on to the running terminal</tt> </tt>
+<a name="L38"></a><tt class="py-lineno"> 38</tt>  <tt class="py-line">                        <tt class="py-name">shutit</tt><tt class="py-op">.</tt><tt class="py-name">send_and_expect</tt><tt class="py-op">(</tt><tt class="py-name">shutit</tt><tt class="py-op">.</tt><tt class="py-name">cfg</tt><tt class="py-op">[</tt><tt class="py-string">'target'</tt><tt class="py-op">]</tt><tt class="py-op">[</tt><tt class="py-string">'password'</tt><tt class="py-op">]</tt><tt class="py-op">,</tt><tt class="py-string">'Retype new'</tt><tt class="py-op">,</tt><tt class="py-name">check_exit</tt><tt class="py-op">=</tt><tt class="py-name">False</tt><tt class="py-op">,</tt><tt class="py-name">echo</tt><tt class="py-op">=</tt><tt class="py-name">False</tt><tt class="py-op">)</tt> </tt>
+<a name="L39"></a><tt class="py-lineno"> 39</tt>  <tt class="py-line">                        <tt class="py-name">shutit</tt><tt class="py-op">.</tt><tt class="py-name">send_and_expect</tt><tt class="py-op">(</tt><tt class="py-name">shutit</tt><tt class="py-op">.</tt><tt class="py-name">cfg</tt><tt class="py-op">[</tt><tt class="py-string">'target'</tt><tt class="py-op">]</tt><tt class="py-op">[</tt><tt class="py-string">'password'</tt><tt class="py-op">]</tt><tt class="py-op">,</tt><tt class="py-name">echo</tt><tt class="py-op">=</tt><tt class="py-name">False</tt><tt class="py-op">)</tt> </tt>
+<a name="L40"></a><tt class="py-lineno"> 40</tt>  <tt class="py-line">                <tt class="py-keyword">elif</tt> <tt class="py-name">shutit</tt><tt class="py-op">.</tt><tt class="py-name">cfg</tt><tt class="py-op">[</tt><tt class="py-string">'target'</tt><tt class="py-op">]</tt><tt class="py-op">[</tt><tt class="py-string">'install_type'</tt><tt class="py-op">]</tt> <tt class="py-op">==</tt> <tt class="py-string">'yum'</tt><tt class="py-op">:</tt> <tt class="py-comment"># yum-based password update</tt> </tt>
+<a name="L41"></a><tt class="py-lineno"> 41</tt>  <tt class="py-line">                        <tt class="py-comment"># Check_exit checks the exit code of the command you are running.</tt> </tt>
+<a name="L42"></a><tt class="py-lineno"> 42</tt>  <tt class="py-line">                        <tt class="py-comment"># We can't check the exit code as the command will not return when we see 'ew password' on the terminal.</tt> </tt>
+<a name="L43"></a><tt class="py-lineno"> 43</tt>  <tt class="py-line">                        <tt class="py-name">shutit</tt><tt class="py-op">.</tt><tt class="py-name">send_and_expect</tt><tt class="py-op">(</tt><tt class="py-string">'passwd'</tt><tt class="py-op">,</tt><tt class="py-string">'ew password'</tt><tt class="py-op">,</tt><tt class="py-name">check_exit</tt><tt class="py-op">=</tt><tt class="py-name">False</tt><tt class="py-op">)</tt> </tt>
+<a name="L44"></a><tt class="py-lineno"> 44</tt>  <tt class="py-line">                        <tt class="py-name">shutit</tt><tt class="py-op">.</tt><tt class="py-name">send_and_expect</tt><tt class="py-op">(</tt><tt class="py-name">shutit</tt><tt class="py-op">.</tt><tt class="py-name">cfg</tt><tt class="py-op">[</tt><tt class="py-string">'target'</tt><tt class="py-op">]</tt><tt class="py-op">[</tt><tt class="py-string">'password'</tt><tt class="py-op">]</tt><tt class="py-op">,</tt><tt class="py-string">'ew password'</tt><tt class="py-op">,</tt><tt class="py-name">check_exit</tt><tt class="py-op">=</tt><tt class="py-name">False</tt><tt class="py-op">,</tt><tt class="py-name">echo</tt><tt class="py-op">=</tt><tt class="py-name">False</tt><tt class="py-op">)</tt> </tt>
+<a name="L45"></a><tt class="py-lineno"> 45</tt>  <tt class="py-line">                        <tt class="py-name">shutit</tt><tt class="py-op">.</tt><tt class="py-name">send_and_expect</tt><tt class="py-op">(</tt><tt class="py-name">shutit</tt><tt class="py-op">.</tt><tt class="py-name">cfg</tt><tt class="py-op">[</tt><tt class="py-string">'target'</tt><tt class="py-op">]</tt><tt class="py-op">[</tt><tt class="py-string">'password'</tt><tt class="py-op">]</tt><tt class="py-op">,</tt><tt class="py-name">echo</tt><tt class="py-op">=</tt><tt class="py-name">False</tt><tt class="py-op">)</tt> </tt>
+<a name="L46"></a><tt class="py-lineno"> 46</tt>  <tt class="py-line">                <tt class="py-comment"># You can put multiple items you might expect in a list and handle accordingly:</tt> </tt>
+<a name="L47"></a><tt class="py-lineno"> 47</tt>  <tt class="py-line">                <tt class="py-name">shutit</tt><tt class="py-op">.</tt><tt class="py-name">multisend</tt><tt class="py-op">(</tt><tt class="py-string">'sudo ls'</tt><tt class="py-op">,</tt><tt class="py-op">{</tt><tt class="py-string">'assword'</tt><tt class="py-op">:</tt><tt class="py-name">shutit</tt><tt class="py-op">.</tt><tt class="py-name">cfg</tt><tt class="py-op">[</tt><tt class="py-string">'target'</tt><tt class="py-op">]</tt><tt class="py-op">[</tt><tt class="py-string">'password'</tt><tt class="py-op">]</tt><tt class="py-op">}</tt><tt class="py-op">,</tt><tt class="py-name">echo</tt><tt class="py-op">=</tt><tt class="py-name">False</tt><tt class="py-op">,</tt><tt class="py-name">check_exit</tt><tt class="py-op">=</tt><tt class="py-name">False</tt><tt class="py-op">)</tt> </tt>
+<a name="L48"></a><tt class="py-lineno"> 48</tt>  <tt class="py-line">                <tt class="py-comment"># example of resource use (simple file, copy README.md into the target)</tt> </tt>
+<a name="L49"></a><tt class="py-lineno"> 49</tt>  <tt class="py-line">                <tt class="py-name">shutit</tt><tt class="py-op">.</tt><tt class="py-name">send_file</tt><tt class="py-op">(</tt><tt class="py-string">'/tmp/copiedfile'</tt><tt class="py-op">,</tt><tt class="py-name">file</tt><tt class="py-op">.</tt><tt class="py-name">read</tt><tt class="py-op">(</tt><tt class="py-name">file</tt><tt class="py-op">(</tt><tt class="py-name">os</tt><tt class="py-op">.</tt><tt class="py-name">path</tt><tt class="py-op">.</tt><tt class="py-name">abspath</tt><tt class="py-op">(</tt><tt class="py-name">os</tt><tt class="py-op">.</tt><tt class="py-name">path</tt><tt class="py-op">.</tt><tt class="py-name">dirname</tt><tt class="py-op">(</tt><tt class="py-name">__file__</tt><tt class="py-op">)</tt><tt class="py-op">)</tt> <tt class="py-op">+</tt> <tt class="py-string">'/README.md'</tt><tt class="py-op">)</tt><tt class="py-op">)</tt><tt class="py-op">)</tt> </tt>
+<a name="L50"></a><tt class="py-lineno"> 50</tt>  <tt class="py-line">                <tt class="py-comment"># example of bespoke config use</tt> </tt>
+<a name="L51"></a><tt class="py-lineno"> 51</tt>  <tt class="py-line">                <tt class="py-comment"># Example of login/logout handling</tt> </tt>
+<a name="L52"></a><tt class="py-lineno"> 52</tt>  <tt class="py-line">                <tt class="py-name">shutit</tt><tt class="py-op">.</tt><tt class="py-name">login</tt><tt class="py-op">(</tt><tt class="py-string">'root'</tt><tt class="py-op">)</tt> </tt>
+<a name="L53"></a><tt class="py-lineno"> 53</tt>  <tt class="py-line">                <tt class="py-name">shutit</tt><tt class="py-op">.</tt><tt class="py-name">send_and_expect</tt><tt class="py-op">(</tt><tt class="py-string">'echo "a command and some output"'</tt><tt class="py-op">)</tt> </tt>
+<a name="L54"></a><tt class="py-lineno"> 54</tt>  <tt class="py-line">                <tt class="py-name">shutit</tt><tt class="py-op">.</tt><tt class="py-name">logout</tt><tt class="py-op">(</tt><tt class="py-op">)</tt> </tt>
+<a name="L55"></a><tt class="py-lineno"> 55</tt>  <tt class="py-line"> </tt>
+<a name="L56"></a><tt class="py-lineno"> 56</tt>  <tt class="py-line">                <tt class="py-comment"># Example of temporary debugging</tt> </tt>
+<a name="L57"></a><tt class="py-lineno"> 57</tt>  <tt class="py-line">                <tt class="py-name">orig_debug_val</tt> <tt class="py-op">=</tt> <tt class="py-name">shutit</tt><tt class="py-op">.</tt><tt class="py-name">cfg</tt><tt class="py-op">[</tt><tt class="py-string">'build'</tt><tt class="py-op">]</tt><tt class="py-op">[</tt><tt class="py-string">'debug'</tt><tt class="py-op">]</tt> </tt>
+<a name="L58"></a><tt class="py-lineno"> 58</tt>  <tt class="py-line">                <tt class="py-name">shutit</tt><tt class="py-op">.</tt><tt class="py-name">cfg</tt><tt class="py-op">[</tt><tt class="py-string">'build'</tt><tt class="py-op">]</tt><tt class="py-op">[</tt><tt class="py-string">'debug'</tt><tt class="py-op">]</tt> <tt class="py-op">=</tt> <tt class="py-name">True</tt> </tt>
+<a name="L59"></a><tt class="py-lineno"> 59</tt>  <tt class="py-line">                <tt class="py-name">shutit</tt><tt class="py-op">.</tt><tt class="py-name">send_and_expect</tt><tt class="py-op">(</tt><tt class="py-string">'echo "Command to look at debug output"'</tt><tt class="py-op">)</tt> </tt>
+<a name="L60"></a><tt class="py-lineno"> 60</tt>  <tt class="py-line">                <tt class="py-name">shutit</tt><tt class="py-op">.</tt><tt class="py-name">send_and_expect</tt><tt class="py-op">(</tt><tt class="py-string">'echo "Another command to look at debug output"'</tt><tt class="py-op">)</tt> </tt>
+<a name="L61"></a><tt class="py-lineno"> 61</tt>  <tt class="py-line">                <tt class="py-name">shutit</tt><tt class="py-op">.</tt><tt class="py-name">cfg</tt><tt class="py-op">[</tt><tt class="py-string">'build'</tt><tt class="py-op">]</tt><tt class="py-op">[</tt><tt class="py-string">'debug'</tt><tt class="py-op">]</tt> <tt class="py-op">=</tt> <tt class="py-name">orig_debug_val</tt> </tt>
+<a name="L62"></a><tt class="py-lineno"> 62</tt>  <tt class="py-line">                <tt class="py-name">shutit</tt><tt class="py-op">.</tt><tt class="py-name">pause_point</tt><tt class="py-op">(</tt><tt class="py-string">"""</tt> </tt>
+<a name="L63"></a><tt class="py-lineno"> 63</tt>  <tt class="py-line"><tt class="py-string">                                When you're done, "Ctrl" and "]" at the same time.</tt> </tt>
+<a name="L64"></a><tt class="py-lineno"> 64</tt>  <tt class="py-line"><tt class="py-string"></tt> </tt>
+<a name="L65"></a><tt class="py-lineno"> 65</tt>  <tt class="py-line"><tt class="py-string">                                You should then see your inputted lines in the output.</tt> </tt>
+<a name="L66"></a><tt class="py-lineno"> 66</tt>  <tt class="py-line"><tt class="py-string"></tt> </tt>
+<a name="L67"></a><tt class="py-lineno"> 67</tt>  <tt class="py-line"><tt class="py-string">                                Add them to the module file before the pause_point line as </tt> </tt>
+<a name="L68"></a><tt class="py-lineno"> 68</tt>  <tt class="py-line"><tt class="py-string">                                "shutit.send_and_expect" lines (copy and paste), following</tt> </tt>
+<a name="L69"></a><tt class="py-lineno"> 69</tt>  <tt class="py-line"><tt class="py-string">                                the examples above this one in the file.</tt> </tt>
+<a name="L70"></a><tt class="py-lineno"> 70</tt>  <tt class="py-line"><tt class="py-string"></tt> </tt>
+<a name="L71"></a><tt class="py-lineno"> 71</tt>  <tt class="py-line"><tt class="py-string">                                Then "Ctrl" and "]" at the same time again to return to the script.</tt> </tt>
+<a name="L72"></a><tt class="py-lineno"> 72</tt>  <tt class="py-line"><tt class="py-string">                                Eventually you'll get a docker export to a tar file in your </tt> </tt>
+<a name="L73"></a><tt class="py-lineno"> 73</tt>  <tt class="py-line"><tt class="py-string">                                configured artifacts folder."""</tt><tt class="py-op">)</tt> </tt>
+<a name="L74"></a><tt class="py-lineno"> 74</tt>  <tt class="py-line">                <tt class="py-comment"># DELETE THIS SECTION WHEN UNDERSTOOD - DONE</tt> </tt>
+<a name="L75"></a><tt class="py-lineno"> 75</tt>  <tt class="py-line">                <tt class="py-keyword">return</tt> <tt class="py-name">True</tt> </tt>
+</div><a name="L76"></a><tt class="py-lineno"> 76</tt>  <tt class="py-line"> </tt>
+<a name="L77"></a><tt class="py-lineno"> 77</tt>  <tt class="py-line">        <tt class="py-comment"># Determines whether the module has been built in this target</tt> </tt>
+<a name="L78"></a><tt class="py-lineno"> 78</tt>  <tt class="py-line">        <tt class="py-comment"># already.</tt> </tt>
+<a name="L79"></a><tt class="py-lineno"> 79</tt>  <tt class="py-line">        <tt class="py-comment">#</tt> </tt>
+<a name="L80"></a><tt class="py-lineno"> 80</tt>  <tt class="py-line">        <tt class="py-comment"># Should return True if it is certain it's there, else False.</tt> </tt>
+<a name="L81"></a><tt class="py-lineno"> 81</tt>  <tt class="py-line">        <tt class="py-comment"># File placed in root automatically by shutit core as a helper.</tt> </tt>
+<a name="template.is_installed"></a><div id="template.is_installed-def"><a name="L82"></a><tt class="py-lineno"> 82</tt> <a class="py-toggle" href="#" id="template.is_installed-toggle" onclick="return toggle('template.is_installed');">-</a><tt class="py-line">        <tt class="py-keyword">def</tt> <a class="py-def-name" href="shutit_module_template.template-class.html#is_installed">is_installed</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">,</tt> <tt class="py-param">shutit</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="template.is_installed-collapsed" style="display:none;" pad="+++" indent="++++++++++++"></div><div id="template.is_installed-expanded"><a name="L83"></a><tt class="py-lineno"> 83</tt>  <tt class="py-line">                <tt class="py-keyword">return</tt> <tt class="py-name">shutit</tt><tt class="py-op">.</tt><tt class="py-name">is_shutit_installed</tt><tt class="py-op">(</tt><tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">module_id</tt><tt class="py-op">)</tt> </tt>
+</div><a name="L84"></a><tt class="py-lineno"> 84</tt>  <tt class="py-line"> </tt>
+<a name="L85"></a><tt class="py-lineno"> 85</tt>  <tt class="py-line">        <tt class="py-comment"># get_config</tt> </tt>
+<a name="L86"></a><tt class="py-lineno"> 86</tt>  <tt class="py-line">        <tt class="py-comment">#</tt> </tt>
+<a name="L87"></a><tt class="py-lineno"> 87</tt>  <tt class="py-line">        <tt class="py-comment"># each object can handle config here</tt> </tt>
+<a name="L88"></a><tt class="py-lineno"> 88</tt>  <tt class="py-line">        <tt class="py-comment"># OPTIONAL part of lifecycle - uncomment to include</tt> </tt>
+<a name="template.get_config"></a><div id="template.get_config-def"><a name="L89"></a><tt class="py-lineno"> 89</tt> <a class="py-toggle" href="#" id="template.get_config-toggle" onclick="return toggle('template.get_config');">-</a><tt class="py-line">        <tt class="py-keyword">def</tt> <a class="py-def-name" href="shutit_module_template.template-class.html#get_config">get_config</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">,</tt> <tt class="py-param">shutit</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="template.get_config-collapsed" style="display:none;" pad="+++" indent="++++++++++++"></div><div id="template.get_config-expanded"><a name="L90"></a><tt class="py-lineno"> 90</tt>  <tt class="py-line">                <tt class="py-name">shutit</tt><tt class="py-op">.</tt><tt id="link-1" class="py-name" targets="Method shutit_module_template.template.get_config()=shutit_module_template.template-class.html#get_config"><a title="shutit_module_template.template.get_config" class="py-name" href="#" onclick="return doclink('link-1', 'get_config', 'link-1');">get_config</a></tt><tt class="py-op">(</tt><tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">module_id</tt><tt class="py-op">,</tt><tt class="py-string">'test_config'</tt><tt class="py-op">,</tt><tt class="py-string">'some_default_value'</tt><tt class="py-op">)</tt> </tt>
+<a name="L91"></a><tt class="py-lineno"> 91</tt>  <tt class="py-line">                <tt class="py-keyword">return</tt> <tt class="py-name">True</tt> </tt>
+</div></div><a name="L92"></a><tt class="py-lineno"> 92</tt>  <tt class="py-line"> </tt>
+<a name="L93"></a><tt class="py-lineno"> 93</tt>  <tt class="py-line">        <tt class="py-comment"># check_ready</tt> </tt>
+<a name="L94"></a><tt class="py-lineno"> 94</tt>  <tt class="py-line">        <tt class="py-comment"># </tt> </tt>
+<a name="L95"></a><tt class="py-lineno"> 95</tt>  <tt class="py-line">        <tt class="py-comment"># Check whether we are ready to build this module.</tt> </tt>
+<a name="L96"></a><tt class="py-lineno"> 96</tt>  <tt class="py-line">        <tt class="py-comment"># </tt> </tt>
+<a name="L97"></a><tt class="py-lineno"> 97</tt>  <tt class="py-line">        <tt class="py-comment"># This is called before the build, to ensure modules have </tt> </tt>
+<a name="L98"></a><tt class="py-lineno"> 98</tt>  <tt class="py-line">        <tt class="py-comment"># their requirements in place (eg files required to be mounted </tt> </tt>
+<a name="L99"></a><tt class="py-lineno"> 99</tt>  <tt class="py-line">        <tt class="py-comment"># in /artifacts). Checking whether the build will happen (and</tt> </tt>
+<a name="L100"></a><tt class="py-lineno">100</tt>  <tt class="py-line">        <tt class="py-comment"># therefore whether the check should take place) will be </tt> </tt>
+<a name="L101"></a><tt class="py-lineno">101</tt>  <tt class="py-line">        <tt class="py-comment"># determined by the framework.</tt> </tt>
+<a name="L102"></a><tt class="py-lineno">102</tt>  <tt class="py-line">        <tt class="py-comment"># </tt> </tt>
+<a name="L103"></a><tt class="py-lineno">103</tt>  <tt class="py-line">        <tt class="py-comment"># Should return True if it ready, else False.</tt> </tt>
+<a name="L104"></a><tt class="py-lineno">104</tt>  <tt class="py-line">        <tt class="py-comment"># OPTIONAL part of lifecycle - uncomment to include</tt> </tt>
+<a name="L105"></a><tt class="py-lineno">105</tt>  <tt class="py-line">        <tt class="py-comment">#def check_ready(self, shutit):</tt> </tt>
+<a name="L106"></a><tt class="py-lineno">106</tt>  <tt class="py-line">        <tt class="py-comment">#    """This help string is printed if we're not ready.</tt> </tt>
+<a name="L107"></a><tt class="py-lineno">107</tt>  <tt class="py-line">        <tt class="py-comment">#    Advice to failure should be placed here.</tt> </tt>
+<a name="L108"></a><tt class="py-lineno">108</tt>  <tt class="py-line">        <tt class="py-comment">#    """</tt> </tt>
+<a name="L109"></a><tt class="py-lineno">109</tt>  <tt class="py-line">        <tt class="py-comment">#    return shutit.file_exists('/artifacts/README.md')</tt> </tt>
+<a name="L110"></a><tt class="py-lineno">110</tt>  <tt class="py-line"> </tt>
+<a name="L111"></a><tt class="py-lineno">111</tt>  <tt class="py-line">        <tt class="py-comment"># start</tt> </tt>
+<a name="L112"></a><tt class="py-lineno">112</tt>  <tt class="py-line">        <tt class="py-comment">#</tt> </tt>
+<a name="L113"></a><tt class="py-lineno">113</tt>  <tt class="py-line">        <tt class="py-comment"># Run when module should be installed (is_installed() or configured to build is true)</tt> </tt>
+<a name="L114"></a><tt class="py-lineno">114</tt>  <tt class="py-line">        <tt class="py-comment"># Run after repo work.</tt> </tt>
+<a name="L115"></a><tt class="py-lineno">115</tt>  <tt class="py-line">        <tt class="py-comment"># OPTIONAL part of lifecycle - uncomment to include</tt> </tt>
+<a name="L116"></a><tt class="py-lineno">116</tt>  <tt class="py-line">        <tt class="py-comment">#def start(self, shutit):</tt> </tt>
+<a name="L117"></a><tt class="py-lineno">117</tt>  <tt class="py-line">        <tt class="py-comment">#    # example of starting something</tt> </tt>
+<a name="L118"></a><tt class="py-lineno">118</tt>  <tt class="py-line">        <tt class="py-comment">#    shutit.send_and_expect('cat /tmp/target_touched.sh')</tt> </tt>
+<a name="L119"></a><tt class="py-lineno">119</tt>  <tt class="py-line">        <tt class="py-comment">#    shutit.send_and_expect('sh /tmp/target_touched.sh')</tt> </tt>
+<a name="L120"></a><tt class="py-lineno">120</tt>  <tt class="py-line">        <tt class="py-comment">#    return True</tt> </tt>
+<a name="L121"></a><tt class="py-lineno">121</tt>  <tt class="py-line"> </tt>
+<a name="L122"></a><tt class="py-lineno">122</tt>  <tt class="py-line">        <tt class="py-comment"># stop</tt> </tt>
+<a name="L123"></a><tt class="py-lineno">123</tt>  <tt class="py-line">        <tt class="py-comment">#</tt> </tt>
+<a name="L124"></a><tt class="py-lineno">124</tt>  <tt class="py-line">        <tt class="py-comment"># Run when module should be stopped.</tt> </tt>
+<a name="L125"></a><tt class="py-lineno">125</tt>  <tt class="py-line">        <tt class="py-comment"># Run before repo work, and before finalize is called.</tt> </tt>
+<a name="L126"></a><tt class="py-lineno">126</tt>  <tt class="py-line">        <tt class="py-comment"># OPTIONAL part of lifecycle - uncomment to include</tt> </tt>
+<a name="L127"></a><tt class="py-lineno">127</tt>  <tt class="py-line">        <tt class="py-comment">#def stop(self, shutit):</tt> </tt>
+<a name="L128"></a><tt class="py-lineno">128</tt>  <tt class="py-line">        <tt class="py-comment">#    # example of stopping something</tt> </tt>
+<a name="L129"></a><tt class="py-lineno">129</tt>  <tt class="py-line">        <tt class="py-comment">#    shutit.send_and_expect("""ps -ef | grep -v grep | grep target_touched.sh | awk '{print $1}' | sed 's/\([0-9][0-9]*\)/kill \\1/' | sh""")</tt> </tt>
+<a name="L130"></a><tt class="py-lineno">130</tt>  <tt class="py-line">        <tt class="py-comment">#    return True</tt> </tt>
+<a name="L131"></a><tt class="py-lineno">131</tt>  <tt class="py-line"> </tt>
+<a name="L132"></a><tt class="py-lineno">132</tt>  <tt class="py-line">        <tt class="py-comment"># finalize</tt> </tt>
+<a name="L133"></a><tt class="py-lineno">133</tt>  <tt class="py-line">        <tt class="py-comment">#</tt> </tt>
+<a name="L134"></a><tt class="py-lineno">134</tt>  <tt class="py-line">        <tt class="py-comment"># Finalize the module, ie do things that need doing before we exit.</tt> </tt>
+<a name="L135"></a><tt class="py-lineno">135</tt>  <tt class="py-line">        <tt class="py-comment"># OPTIONAL part of lifecycle - uncomment to include</tt> </tt>
+<a name="L136"></a><tt class="py-lineno">136</tt>  <tt class="py-line">        <tt class="py-comment">#def finalize(self, shutit):</tt> </tt>
+<a name="L137"></a><tt class="py-lineno">137</tt>  <tt class="py-line">        <tt class="py-comment">#    # Right at the end we want to ensure the locate db is up to date.</tt> </tt>
+<a name="L138"></a><tt class="py-lineno">138</tt>  <tt class="py-line">        <tt class="py-comment">#    shutit.send_and_expect('updatedb')</tt> </tt>
+<a name="L139"></a><tt class="py-lineno">139</tt>  <tt class="py-line">        <tt class="py-comment">#    return True</tt> </tt>
+<a name="L140"></a><tt class="py-lineno">140</tt>  <tt class="py-line"> </tt>
+<a name="L141"></a><tt class="py-lineno">141</tt>  <tt class="py-line">        <tt class="py-comment"># remove</tt> </tt>
+<a name="L142"></a><tt class="py-lineno">142</tt>  <tt class="py-line">        <tt class="py-comment"># </tt> </tt>
+<a name="L143"></a><tt class="py-lineno">143</tt>  <tt class="py-line">        <tt class="py-comment"># Remove the module, which should ensure the module has been deleted </tt> </tt>
+<a name="L144"></a><tt class="py-lineno">144</tt>  <tt class="py-line">        <tt class="py-comment"># from the system.</tt> </tt>
+<a name="L145"></a><tt class="py-lineno">145</tt>  <tt class="py-line">        <tt class="py-comment"># OPTIONAL part of lifecycle - uncomment to include</tt> </tt>
+<a name="L146"></a><tt class="py-lineno">146</tt>  <tt class="py-line">        <tt class="py-comment">#def remove(self, shutit):</tt> </tt>
+<a name="L147"></a><tt class="py-lineno">147</tt>  <tt class="py-line">        <tt class="py-comment">#    shutit.send_and_expect('rm -f /tmp/target_touched.sh')</tt> </tt>
+<a name="L148"></a><tt class="py-lineno">148</tt>  <tt class="py-line">        <tt class="py-comment">#    shutit.send_and_expect('rm -f /tmp/README.md')</tt> </tt>
+<a name="L149"></a><tt class="py-lineno">149</tt>  <tt class="py-line">        <tt class="py-comment">#    # TODO: remove the installed apps DEPENDS on install tracking being available.</tt> </tt>
+<a name="L150"></a><tt class="py-lineno">150</tt>  <tt class="py-line">        <tt class="py-comment">#    return True</tt> </tt>
+<a name="L151"></a><tt class="py-lineno">151</tt>  <tt class="py-line"> </tt>
+<a name="L152"></a><tt class="py-lineno">152</tt>  <tt class="py-line">        <tt class="py-comment"># test</tt> </tt>
+<a name="L153"></a><tt class="py-lineno">153</tt>  <tt class="py-line">        <tt class="py-comment">#</tt> </tt>
+<a name="L154"></a><tt class="py-lineno">154</tt>  <tt class="py-line">        <tt class="py-comment"># Test the module is OK.</tt> </tt>
+<a name="L155"></a><tt class="py-lineno">155</tt>  <tt class="py-line">        <tt class="py-comment"># Should return True if all is OK, else False.</tt> </tt>
+<a name="L156"></a><tt class="py-lineno">156</tt>  <tt class="py-line">        <tt class="py-comment"># This is run regardless of whether the module is installed or not.</tt> </tt>
+<a name="L157"></a><tt class="py-lineno">157</tt>  <tt class="py-line">        <tt class="py-comment"># OPTIONAL part of lifecycle - uncomment to include</tt> </tt>
+<a name="L158"></a><tt class="py-lineno">158</tt>  <tt class="py-line">        <tt class="py-comment">#def test(self, shutit):</tt> </tt>
+<a name="L159"></a><tt class="py-lineno">159</tt>  <tt class="py-line">        <tt class="py-comment">#    return shutit.package_installed('mlocate') and shutit.package_installed('passwd')</tt> </tt>
+<a name="L160"></a><tt class="py-lineno">160</tt>  <tt class="py-line"> </tt>
+<a name="L161"></a><tt class="py-lineno">161</tt>  <tt class="py-line"><tt class="py-comment"># template(string,float)</tt> </tt>
+<a name="L162"></a><tt class="py-lineno">162</tt>  <tt class="py-line"><tt class="py-comment"># string : Any string you believe to identify this module uniquely, </tt> </tt>
+<a name="L163"></a><tt class="py-lineno">163</tt>  <tt class="py-line"><tt class="py-comment">#          eg com.my_corp.my_module_dir.my_module</tt> </tt>
+<a name="L164"></a><tt class="py-lineno">164</tt>  <tt class="py-line"><tt class="py-comment"># float:   Float value for ordering module builds, must be &gt; 0.0</tt> </tt>
+<a name="module"></a><div id="module-def"><a name="L165"></a><tt class="py-lineno">165</tt> <a class="py-toggle" href="#" id="module-toggle" onclick="return toggle('module');">-</a><tt class="py-line"><tt class="py-keyword">def</tt> <a class="py-def-name" href="shutit_module_template-module.html#module">module</a><tt class="py-op">(</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="module-collapsed" style="display:none;" pad="+++" indent="++++"></div><div id="module-expanded"><a name="L166"></a><tt class="py-lineno">166</tt>  <tt class="py-line">        <tt class="py-keyword">return</tt> <tt id="link-2" class="py-name" targets="Class shutit_module_template.template=shutit_module_template.template-class.html,Class shutit_module_template_bare.template=shutit_module_template_bare.template-class.html"><a title="shutit_module_template.template
+shutit_module_template_bare.template" class="py-name" href="#" onclick="return doclink('link-2', 'template', 'link-2');">template</a></tt><tt class="py-op">(</tt> </tt>
+<a name="L167"></a><tt class="py-lineno">167</tt>  <tt class="py-line">                <tt class="py-name">GLOBALLY_UNIQUE_STRING</tt><tt class="py-op">,</tt> <tt class="py-name">FLOAT</tt><tt class="py-op">,</tt> </tt>
+<a name="L168"></a><tt class="py-lineno">168</tt>  <tt class="py-line">                <tt class="py-name">maintainer</tt><tt class="py-op">=</tt><tt class="py-string">''</tt><tt class="py-op">,</tt> </tt>
+<a name="L169"></a><tt class="py-lineno">169</tt>  <tt class="py-line">                <tt class="py-name">description</tt><tt class="py-op">=</tt><tt class="py-string">''</tt><tt class="py-op">,</tt> </tt>
+<a name="L170"></a><tt class="py-lineno">170</tt>  <tt class="py-line">                <tt class="py-name">depends</tt><tt class="py-op">=</tt><tt class="py-op">[</tt><tt class="py-string">'shutit.tk.setup'</tt><tt class="py-op">]</tt> </tt>
+<a name="L171"></a><tt class="py-lineno">171</tt>  <tt class="py-line">        <tt class="py-op">)</tt> </tt>
+</div><a name="L172"></a><tt class="py-lineno">172</tt>  <tt class="py-line"> </tt><script type="text/javascript">
+<!--
+expandto(location.href);
+// -->
+</script>
+</pre>
+<br />
+<!-- ==================== NAVIGATION BAR ==================== -->
+<table class="navbar" border="0" width="100%" cellpadding="0"
+       bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="middle">
+
+  <!-- Tree link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="module-tree.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Index link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="identifier-index.html">Indices</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Help link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+
+      <th class="navbar" width="100%"></th>
+  </tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%%">
+  <tr>
+    <td align="left" class="footer">
+    Generated by Epydoc 3.0.1 on Tue Feb 17 12:28:24 2015
+    </td>
+    <td align="right" class="footer">
+      <a target="mainFrame" href="http://epydoc.sourceforge.net"
+        >http://epydoc.sourceforge.net</a>
+    </td>
+  </tr>
+</table>
+
+<script type="text/javascript">
+  <!--
+  // Private objects are initially displayed (because if
+  // javascript is turned off then we want them to be
+  // visible); but by default, we want to hide them.  So hide
+  // them unless we have a cookie that says to show them.
+  checkCookie();
+  // -->
+</script>
+</body>
+</html>
