@@ -854,10 +854,10 @@ def shutit_main():
 
 	Handles the configured actions:
 
-	    - skeleton     - create skeleton module
-	    - serve        - run as a server
-	    - list_configs - output computed configuration
-	    - depgraph     - output digraph of module dependencies
+	- skeleton     - create skeleton module
+	- serve        - run as a server
+	- list_configs - output computed configuration
+	- depgraph     - output digraph of module dependencies
 	"""
 	if sys.version_info.major == 2:
 		if sys.version_info.minor < 7:
