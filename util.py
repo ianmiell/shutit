@@ -404,14 +404,14 @@ def parse_args(shutit):
 
 	Environment variables:
 	SHUTIT_OPTIONS:
-		Loads command line options from the environment (if set).
-		Behaves like GREP_OPTIONS:
+	Loads command line options from the environment (if set).
+	Behaves like GREP_OPTIONS:
 		- space separated list of arguments
 		- backslash before a space escapes the space separation
 		- backslash before a backslash is interpreted as a single backslash
 		- all other backslashes are treated literally
-		eg ' a\ b c\\ \\d \\\e\' becomes '', 'a b', 'c\', '\d', '\\e\'
-		SHUTIT_OPTIONS is ignored if we are creating a skeleton
+	eg ' a\ b c\\ \\d \\\e\' becomes '', 'a b', 'c\', '\d', '\\e\'
+	SHUTIT_OPTIONS is ignored if we are creating a skeleton
 	"""
 	cfg = shutit.cfg
 	cfg['host']['real_user_id'] = pexpect.run('id -u ' + cfg['host']['real_user']).strip()

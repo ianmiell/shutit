@@ -27,15 +27,19 @@
       <th>&nbsp;&nbsp;&nbsp;<a
         href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
 
-      <th class="navbar" width="100%"></th>
+  <!-- Project homepage -->
+      <th class="navbar" align="right" width="100%">
+        <table border="0" cellpadding="0" cellspacing="0">
+          <tr><th class="navbar" align="center"
+            >ShutIt</th>
+          </tr></table></th>
   </tr>
 </table>
 <table width="100%" cellpadding="0" cellspacing="0">
   <tr valign="top">
     <td width="100%">
       <span class="breadcrumbs">
-        shutit_module ::
-        ShutItModule ::
+        <a href="shutit_module-module.html">Module&nbsp;shutit_module</a> ::
         Class&nbsp;ShutItModule
       </span>
     </td>
@@ -53,7 +57,7 @@
   </tr>
 </table>
 <!-- ==================== CLASS DESCRIPTION ==================== -->
-<h1 class="epydoc">Class ShutItModule</h1><p class="nomargin-top"></p>
+<h1 class="epydoc">Class ShutItModule</h1><p class="nomargin-top"><span class="codelink"><a href="shutit_module-pysrc.html#ShutItModule">source&nbsp;code</a></span></p>
 <pre class="base-tree">
 object --+
          |
@@ -63,32 +67,63 @@ object --+
 <dl><dt>Known Subclasses:</dt>
 <dd>
       <ul class="subclass-list">
-<li><a href="shutit_module_template_bare.template-class.html">shutit_module_template_bare.template</a></li><li>, <a href="shutit_module_template.template-class.html">shutit_module_template.template</a></li>  </ul>
+<li><a href="setup.ShutItConnModule-class.html">setup.ShutItConnModule</a></li><li>, <a href="setup.setup-class.html">setup.setup</a></li>  </ul>
 </dd></dl>
 
 <hr />
-<pre class="literalblock">
-Class that takes a ShutIt object and defines what a ShutIt module must
-implement to be registered.
-
-Build order:
-
-- Gather core config (build, remove, tag)
-- Gather module-specific config
-- FOR MODULE 0
-        - Build module 0
-- FOR ALL MODULES:
-- Determine dependency requirements are met
-- Determine conflict requirements are met.
-        - Remove any modules that are configured for removal.
-        - Build if not installed
-        - Do repo work if not installed (commit, tag, push)
-        - Test all modules (in reverse)
-        - Finalize all modules
-- FOR MODULE 0
-        - Do repo work on build
-
-</pre>
+<p>Class that takes a ShutIt object and defines what a ShutIt module must
+  implement to be registered.</p>
+  <p>Build order:</p>
+  <ul>
+    <li>
+      Gather core config (build, remove, tag)
+    </li>
+    <li>
+      Gather module-specific config
+    </li>
+    <li>
+      FOR MODULE 0
+      <ul>
+        <li>
+          Build module 0
+        </li>
+      </ul>
+    </li>
+    <li>
+      FOR ALL MODULES:
+    </li>
+    <li>
+      Determine dependency requirements are met
+    </li>
+    <li>
+      Determine conflict requirements are met.
+      <ul>
+        <li>
+          Remove any modules that are configured for removal.
+        </li>
+        <li>
+          Build if not installed
+        </li>
+        <li>
+          Do repo work if not installed (commit, tag, push)
+        </li>
+        <li>
+          Test all modules (in reverse)
+        </li>
+        <li>
+          Finalize all modules
+        </li>
+      </ul>
+    </li>
+    <li>
+      FOR MODULE 0
+      <ul>
+        <li>
+          Do repo work on build
+        </li>
+      </ul>
+    </li>
+  </ul>
 
 <!-- ==================== NESTED CLASSES ==================== -->
 <a name="section-NestedClasses"></a>
@@ -149,63 +184,7 @@ Build order:
         <span class="summary-sig-arg">conflicts</span>=<span class="summary-sig-default">None</span>)</span><br />
       Constructor.</td>
           <td align="right" valign="top">
-            
-            
-          </td>
-        </tr>
-      </table>
-      
-    </td>
-  </tr>
-<tr>
-    <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">&nbsp;</span>
-    </td><td class="summary">
-      <table width="100%" cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td><span class="summary-sig"><a href="shutit_module.ShutItModule-class.html#build" class="summary-sig-name">build</a>(<span class="summary-sig-arg">self</span>,
-        <span class="summary-sig-arg">shutit</span>)</span><br />
-      Runs the build part of the module, which should ensure the module has
-      been set up.</td>
-          <td align="right" valign="top">
-            
-            
-          </td>
-        </tr>
-      </table>
-      
-    </td>
-  </tr>
-<tr>
-    <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">&nbsp;</span>
-    </td><td class="summary">
-      <table width="100%" cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td><span class="summary-sig"><a href="shutit_module.ShutItModule-class.html#check_ready" class="summary-sig-name">check_ready</a>(<span class="summary-sig-arg">self</span>,
-        <span class="summary-sig-arg">shutit</span>)</span><br />
-      Checks whether we are ready to build this module.</td>
-          <td align="right" valign="top">
-            
-            
-          </td>
-        </tr>
-      </table>
-      
-    </td>
-  </tr>
-<tr>
-    <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">&nbsp;</span>
-    </td><td class="summary">
-      <table width="100%" cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td><span class="summary-sig"><a name="finalize"></a><span class="summary-sig-name">finalize</span>(<span class="summary-sig-arg">self</span>,
-        <span class="summary-sig-arg">shutit</span>)</span><br />
-      Finalize the module, ie do things that need doing after final module 
-      has been run and before we exit, eg updatedb.</td>
-          <td align="right" valign="top">
-            
+            <span class="codelink"><a href="shutit_module-pysrc.html#ShutItModule.__init__">source&nbsp;code</a></span>
             
           </td>
         </tr>
@@ -223,7 +202,7 @@ Build order:
         <span class="summary-sig-arg">shutit</span>)</span><br />
       Gets all config items necessary for this module to be built</td>
           <td align="right" valign="top">
-            
+            <span class="codelink"><a href="shutit_module-pysrc.html#ShutItModule.get_config">source&nbsp;code</a></span>
             
           </td>
         </tr>
@@ -237,12 +216,11 @@ Build order:
     </td><td class="summary">
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td><span class="summary-sig"><a href="shutit_module.ShutItModule-class.html#is_installed" class="summary-sig-name">is_installed</a>(<span class="summary-sig-arg">self</span>,
+          <td><span class="summary-sig"><a href="shutit_module.ShutItModule-class.html#check_ready" class="summary-sig-name">check_ready</a>(<span class="summary-sig-arg">self</span>,
         <span class="summary-sig-arg">shutit</span>)</span><br />
-      Determines whether the module has been built in this target host 
-      already.</td>
+      Checks whether we are ready to build this module.</td>
           <td align="right" valign="top">
-            
+            <span class="codelink"><a href="shutit_module-pysrc.html#ShutItModule.check_ready">source&nbsp;code</a></span>
             
           </td>
         </tr>
@@ -261,7 +239,7 @@ Build order:
       Remove the module, which should ensure the module has been deleted 
       from the system.</td>
           <td align="right" valign="top">
-            
+            <span class="codelink"><a href="shutit_module-pysrc.html#ShutItModule.remove">source&nbsp;code</a></span>
             
           </td>
         </tr>
@@ -280,7 +258,7 @@ Build order:
       Run when module should be installed (is_installed() or configured to 
       build is true) Run after repository work.</td>
           <td align="right" valign="top">
-            
+            <span class="codelink"><a href="shutit_module-pysrc.html#ShutItModule.start">source&nbsp;code</a></span>
             
           </td>
         </tr>
@@ -298,7 +276,45 @@ Build order:
         <span class="summary-sig-arg">shutit</span>)</span><br />
       Runs when module should be stopped.</td>
           <td align="right" valign="top">
+            <span class="codelink"><a href="shutit_module-pysrc.html#ShutItModule.stop">source&nbsp;code</a></span>
             
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="shutit_module.ShutItModule-class.html#is_installed" class="summary-sig-name">is_installed</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">shutit</span>)</span><br />
+      Determines whether the module has been built in this target host 
+      already.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="shutit_module-pysrc.html#ShutItModule.is_installed">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="shutit_module.ShutItModule-class.html#build" class="summary-sig-name">build</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">shutit</span>)</span><br />
+      Runs the build part of the module, which should ensure the module has
+      been set up.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="shutit_module-pysrc.html#ShutItModule.build">source&nbsp;code</a></span>
             
           </td>
         </tr>
@@ -316,7 +332,26 @@ Build order:
         <span class="summary-sig-arg">shutit</span>)</span><br />
       Tests the module is OK.</td>
           <td align="right" valign="top">
+            <span class="codelink"><a href="shutit_module-pysrc.html#ShutItModule.test">source&nbsp;code</a></span>
             
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="finalize"></a><span class="summary-sig-name">finalize</span>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">shutit</span>)</span><br />
+      Finalize the module, ie do things that need doing after final module 
+      has been run and before we exit, eg updatedb.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="shutit_module-pysrc.html#ShutItModule.finalize">source&nbsp;code</a></span>
             
           </td>
         </tr>
@@ -371,14 +406,14 @@ Build order:
     <td width="15%" align="right" valign="top" class="summary">
       <span class="summary-type">&nbsp;</span>
     </td><td class="summary">
-        <a name="_abc_cache"></a><span class="summary-name">_abc_cache</span> = <code title="&lt;_weakrefset.WeakSet object at 0x7ff2653b0550&gt;">&lt;_weakrefset.WeakSet object at 0x7ff2653b0550&gt;</code>
+        <a name="_abc_cache"></a><span class="summary-name">_abc_cache</span> = <code title="&lt;_weakrefset.WeakSet object at 0x7f23bc6a2110&gt;">&lt;_weakrefset.WeakSet object at 0x7f23bc6a2110&gt;</code>
     </td>
   </tr>
 <tr class="private">
     <td width="15%" align="right" valign="top" class="summary">
       <span class="summary-type">&nbsp;</span>
     </td><td class="summary">
-        <a href="shutit_module.ShutItModule-class.html#_abc_negative_cache" class="summary-name" onclick="show_private();">_abc_negative_cache</a> = <code title="&lt;_weakrefset.WeakSet object at 0x7ff2653b0610&gt;">&lt;_weakrefset.WeakSet object at 0x7ff2653<code class="variable-ellipsis">...</code></code>
+        <a href="shutit_module.ShutItModule-class.html#_abc_negative_cache" class="summary-name" onclick="show_private();">_abc_negative_cache</a> = <code title="&lt;_weakrefset.WeakSet object at 0x7f23bc6a21d0&gt;">&lt;_weakrefset.WeakSet object at 0x7f23bc6<code class="variable-ellipsis">...</code></code>
     </td>
   </tr>
 <tr class="private">
@@ -392,7 +427,7 @@ Build order:
     <td width="15%" align="right" valign="top" class="summary">
       <span class="summary-type">&nbsp;</span>
     </td><td class="summary">
-        <a name="_abc_registry"></a><span class="summary-name">_abc_registry</span> = <code title="&lt;_weakrefset.WeakSet object at 0x7ff2653b0490&gt;">&lt;_weakrefset.WeakSet object at 0x7ff2653b0490&gt;</code>
+        <a name="_abc_registry"></a><span class="summary-name">_abc_registry</span> = <code title="&lt;_weakrefset.WeakSet object at 0x7f23bc6a2050&gt;">&lt;_weakrefset.WeakSet object at 0x7f23bc6a2050&gt;</code>
     </td>
   </tr>
 </table>
@@ -456,7 +491,7 @@ Build order:
     <br /><em class="fname">(Constructor)</em>
   </h3>
   </td><td align="right" valign="top"
-    >&nbsp;
+    ><span class="codelink"><a href="shutit_module-pysrc.html#ShutItModule.__init__">source&nbsp;code</a></span>&nbsp;
     </td>
   </tr></table>
   
@@ -466,30 +501,6 @@ Build order:
     <dt>Overrides:
         object.__init__
     </dt>
-  </dl>
-</td></tr></table>
-</div>
-<a name="build"></a>
-<div>
-<table class="details" border="1" cellpadding="3"
-       cellspacing="0" width="100%" bgcolor="white">
-<tr><td>
-  <table width="100%" cellpadding="0" cellspacing="0" border="0">
-  <tr valign="top"><td>
-  <h3 class="epydoc"><span class="sig"><span class="sig-name">build</span>(<span class="sig-arg">self</span>,
-        <span class="sig-arg">shutit</span>)</span>
-  </h3>
-  </td><td align="right" valign="top"
-    >&nbsp;
-    </td>
-  </tr></table>
-  
-  <p>Runs the build part of the module, which should ensure the module has 
-  been set up. If is_installed determines that the module is already there,
-  this is not run.</p>
-  <p>Returns True if it has succeeded in building, else False.</p>
-  <p>Required.</p>
-  <dl class="fields">
   </dl>
 </td></tr></table>
 </div>
@@ -504,7 +515,7 @@ Build order:
         <span class="sig-arg">shutit</span>)</span>
   </h3>
   </td><td align="right" valign="top"
-    >&nbsp;
+    ><span class="codelink"><a href="shutit_module-pysrc.html#ShutItModule.check_ready">source&nbsp;code</a></span>&nbsp;
     </td>
   </tr></table>
   
@@ -515,29 +526,6 @@ Build order:
   happen at all (and therefore whether the check should take place) will be
   determined by the framework.</p>
   <p>Should return True if it's ready to run, else False.</p>
-  <dl class="fields">
-  </dl>
-</td></tr></table>
-</div>
-<a name="is_installed"></a>
-<div>
-<table class="details" border="1" cellpadding="3"
-       cellspacing="0" width="100%" bgcolor="white">
-<tr><td>
-  <table width="100%" cellpadding="0" cellspacing="0" border="0">
-  <tr valign="top"><td>
-  <h3 class="epydoc"><span class="sig"><span class="sig-name">is_installed</span>(<span class="sig-arg">self</span>,
-        <span class="sig-arg">shutit</span>)</span>
-  </h3>
-  </td><td align="right" valign="top"
-    >&nbsp;
-    </td>
-  </tr></table>
-  
-  <p>Determines whether the module has been built in this target host 
-  already.</p>
-  <p>Returns True if it is certain it's there, else False.</p>
-  <p>Required.</p>
   <dl class="fields">
   </dl>
 </td></tr></table>
@@ -553,7 +541,7 @@ Build order:
         <span class="sig-arg">shutit</span>)</span>
   </h3>
   </td><td align="right" valign="top"
-    >&nbsp;
+    ><span class="codelink"><a href="shutit_module-pysrc.html#ShutItModule.remove">source&nbsp;code</a></span>&nbsp;
     </td>
   </tr></table>
   
@@ -575,7 +563,7 @@ Build order:
         <span class="sig-arg">shutit</span>)</span>
   </h3>
   </td><td align="right" valign="top"
-    >&nbsp;
+    ><span class="codelink"><a href="shutit_module-pysrc.html#ShutItModule.start">source&nbsp;code</a></span>&nbsp;
     </td>
   </tr></table>
   
@@ -597,13 +585,64 @@ Build order:
         <span class="sig-arg">shutit</span>)</span>
   </h3>
   </td><td align="right" valign="top"
-    >&nbsp;
+    ><span class="codelink"><a href="shutit_module-pysrc.html#ShutItModule.stop">source&nbsp;code</a></span>&nbsp;
     </td>
   </tr></table>
   
   <p>Runs when module should be stopped. Runs before repo work, and before 
   finalize is called. Returns True if all stopped ok.</p>
   <dl class="fields">
+  </dl>
+</td></tr></table>
+</div>
+<a name="is_installed"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">is_installed</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">shutit</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="shutit_module-pysrc.html#ShutItModule.is_installed">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Determines whether the module has been built in this target host 
+  already.</p>
+  <p>Returns True if it is certain it's there, else False.</p>
+  <p>Required.</p>
+  <dl class="fields">
+  </dl>
+</td></tr></table>
+</div>
+<a name="build"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">build</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">shutit</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="shutit_module-pysrc.html#ShutItModule.build">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Runs the build part of the module, which should ensure the module has 
+  been set up. If is_installed determines that the module is already there,
+  this is not run.</p>
+  <p>Returns True if it has succeeded in building, else False.</p>
+  <p>Required.</p>
+  <dl class="fields">
+    <dt>Decorators:</dt>
+    <dd><ul class="nomargin-top">
+        <li><code>@abstractmethod</code></li>
+    </ul></dd>
   </dl>
 </td></tr></table>
 </div>
@@ -618,7 +657,7 @@ Build order:
         <span class="sig-arg">shutit</span>)</span>
   </h3>
   </td><td align="right" valign="top"
-    >&nbsp;
+    ><span class="codelink"><a href="shutit_module-pysrc.html#ShutItModule.test">source&nbsp;code</a></span>&nbsp;
     </td>
   </tr></table>
   
@@ -659,7 +698,7 @@ Build order:
   <dl class="fields">
     <dt>Value:</dt>
       <dd><table><tr><td><pre class="variable">
-&lt;_weakrefset.WeakSet object at 0x7ff2653b0610&gt;
+&lt;_weakrefset.WeakSet object at 0x7f23bc6a21d0&gt;
 </pre></td></tr></table>
 </dd>
   </dl>
@@ -683,13 +722,18 @@ Build order:
       <th>&nbsp;&nbsp;&nbsp;<a
         href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
 
-      <th class="navbar" width="100%"></th>
+  <!-- Project homepage -->
+      <th class="navbar" align="right" width="100%">
+        <table border="0" cellpadding="0" cellspacing="0">
+          <tr><th class="navbar" align="center"
+            >ShutIt</th>
+          </tr></table></th>
   </tr>
 </table>
 <table border="0" cellpadding="0" cellspacing="0" width="100%%">
   <tr>
     <td align="left" class="footer">
-    Generated by Epydoc 3.0.1 on Tue Feb 17 12:28:24 2015
+    Generated by Epydoc 3.0.1 on Tue Feb 17 12:47:47 2015
     </td>
     <td align="right" class="footer">
       <a target="mainFrame" href="http://epydoc.sourceforge.net"
