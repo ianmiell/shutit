@@ -594,7 +594,7 @@ def check_ready(shutit, throw_error=True):
 			# the existence of files needed for build)
 			revert_dir = os.getcwd()
 			cfg['target']['module_root_dir'] = os.path.dirname(module.__module_file)
-			shutit.chdir(cfg['target']['module_root_dir']))
+			shutit.chdir(cfg['target']['module_root_dir'])
 			if not is_ready(shutit, module) and throw_error:
 				errs.append((module_id + ' not ready to install.\nRead the ' +
 				            'check_ready function in the module,\nor log ' + 
