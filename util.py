@@ -324,6 +324,8 @@ def get_base_config(cfg, cfg_parser):
 	# installed file info
 	cfg['target']['modules_recorded']             = []
 	cfg['target']['modules_recorded_cache_valid'] = False
+	# Directory to revert to when delivering in bash and reversion to context required.
+	cfg['target']['module_root_dir']              = '/'
 	cfg['host']['artifacts_dir']                  = cp.get('host', 'artifacts_dir')
 	cfg['host']['docker_executable']              = cp.get('host', 'docker_executable')
 	cfg['host']['dns']                            = cp.get('host', 'dns')

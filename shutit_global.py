@@ -558,7 +558,9 @@ class ShutIt(object):
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
 		if cfg['build']['delivery'] == 'bash':
+			self.send('pushd ' + cfg['target']['module_root_dir'])
 			self.send('cp -r ' + hostfilepath + ' ' + path,expect=expect, child=child, timeout=timeout)
+			self.send('popd')
 		else:
 			if os.path.isfile(hostfilepath):
 				self.send_file(path, open(hostfilepath).read(), expect=expect, 
