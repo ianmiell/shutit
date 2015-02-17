@@ -1,27 +1,27 @@
 """Utility object for sending emails reports via shutit
 
-Example code:
+Example code::
 
-e = shutit.get_emailer('shutit.tk.mysql.mysql',shutit)
-for line in ['your message line 1', 'your message line 2']:
-   e.add_line(line)
-for attach in ['/tmp/filetoattach1','/tmp/filetoattach2']:
-   e.attach(attach)
-e.send()
+	e = shutit.get_emailer('shutit.tk.mysql.mysql',shutit)
+	for line in ['your message line 1', 'your message line 2']:
+		e.add_line(line)
+	for attach in ['/tmp/filetoattach1','/tmp/filetoattach2']:
+		e.attach(attach)
+	e.send()
 
-Example cfg:
+Example cfg::
 
-[shutit.tk.mysql.mysql]
-shutit.core.alerting.emailer.mailto:recipient@example.com
-shutit.core.alerting.emailer.mailfrom:sender@example.com
-shutit.core.alerting.emailer.smtp_server:localhost
-shutit.core.alerting.emailer.subject:Shutit Report
-shutit.core.alerting.emailer.signature:--Angry Shutit
-shutit.core.alerting.emailer.compress:yes
-shutit.core.alerting.emailer.username:
-shutit.core.alerting.emailer.password:
-shutit.core.alerting.emailer.safe_mode: True
-shutit.core.alerting.emailer.mailto_maintainer: True
+	[shutit.tk.mysql.mysql]
+	shutit.core.alerting.emailer.mailto:recipient@example.com
+	shutit.core.alerting.emailer.mailfrom:sender@example.com
+	shutit.core.alerting.emailer.smtp_server:localhost
+	shutit.core.alerting.emailer.subject:Shutit Report
+	shutit.core.alerting.emailer.signature:--Angry Shutit
+	shutit.core.alerting.emailer.compress:yes
+	shutit.core.alerting.emailer.username:
+	shutit.core.alerting.emailer.password:
+	shutit.core.alerting.emailer.safe_mode: True
+	shutit.core.alerting.emailer.mailto_maintainer: True
 
 """
 
