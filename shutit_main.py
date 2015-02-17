@@ -593,7 +593,8 @@ def check_ready(shutit, throw_error=True):
 			# Move to the directory so context is correct (eg for checking for
 			# the existence of files needed for build)
 			revert_dir = os.getcwd()
-			shutit.chdir(os.path.dirname(module.__module_file))
+			cfg['target']['module_root_dir'] = os.path.dirname(module.__module_file)
+			shutit.chdir(cfg['target']['module_root_dir'])
 			if not is_ready(shutit, module) and throw_error:
 				errs.append((module_id + ' not ready to install.\nRead the ' +
 				            'check_ready function in the module,\nor log ' + 
@@ -729,7 +730,8 @@ def do_build(shutit):
 					    '\n\tas this is the final module and we are building dependencies only')
 				else:
 					revert_dir = os.getcwd()
-					shutit.chdir(os.path.dirname(module.__module_file))
+					cfg['target']['module_root_dir'] = os.path.dirname(module.__module_file)
+					shutit.chdir(cfg['target']['module_root_dir'])
 					shutit.login(prompt_prefix=module_id)
 					build_module(shutit, module)
 					shutit.logout()
@@ -854,10 +856,10 @@ def shutit_main():
 
 	Handles the configured actions:
 
-	- skeleton     - create skeleton module
-	- serve        - run as a server
-	- list_configs - output computed configuration
-	- depgraph     - output digraph of module dependencies
+		- skeleton     - create skeleton module
+		- serve        - run as a server
+		- list_configs - output computed configuration
+		- depgraph     - output digraph of module dependencies
 	"""
 	if sys.version_info.major == 2:
 		if sys.version_info.minor < 7:

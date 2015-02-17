@@ -1,0 +1,446 @@
+<?xml version="1.0" encoding="ascii"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+          "DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <title>alerting.emailer.Emailer</title>
+  <link rel="stylesheet" href="epydoc.css" type="text/css" />
+  <script type="text/javascript" src="epydoc.js"></script>
+</head>
+
+<body bgcolor="white" text="black" link="blue" vlink="#204080"
+      alink="#204080">
+<!-- ==================== NAVIGATION BAR ==================== -->
+<table class="navbar" border="0" width="100%" cellpadding="0"
+       bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="middle">
+
+  <!-- Tree link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="module-tree.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Index link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="identifier-index.html">Indices</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Help link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Project homepage -->
+      <th class="navbar" align="right" width="100%">
+        <table border="0" cellpadding="0" cellspacing="0">
+          <tr><th class="navbar" align="center"
+            >ShutIt</th>
+          </tr></table></th>
+  </tr>
+</table>
+<table width="100%" cellpadding="0" cellspacing="0">
+  <tr valign="top">
+    <td width="100%">
+      <span class="breadcrumbs">
+        <a href="alerting-module.html">Package&nbsp;alerting</a> ::
+        <a href="alerting.emailer-module.html">Module&nbsp;emailer</a> ::
+        Class&nbsp;Emailer
+      </span>
+    </td>
+    <td>
+      <table cellpadding="0" cellspacing="0">
+        <!-- hide/show private -->
+        <tr><td align="right"><span class="options">[<a href="javascript:void(0);" class="privatelink"
+    onclick="toggle_private();">hide&nbsp;private</a>]</span></td></tr>
+        <tr><td align="right"><span class="options"
+            >[<a href="frames.html" target="_top">frames</a
+            >]&nbsp;|&nbsp;<a href="alerting.emailer.Emailer-class.html"
+            target="_top">no&nbsp;frames</a>]</span></td></tr>
+      </table>
+    </td>
+  </tr>
+</table>
+<!-- ==================== CLASS DESCRIPTION ==================== -->
+<h1 class="epydoc">Class Emailer</h1><p class="nomargin-top"><span class="codelink"><a href="alerting.emailer-pysrc.html#Emailer">source&nbsp;code</a></span></p>
+<p>Emailer class definition</p>
+
+<!-- ==================== INSTANCE METHODS ==================== -->
+<a name="section-InstanceMethods"></a>
+<table class="summary" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="table-header">
+  <td colspan="2" class="table-header">
+    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+      <tr valign="top">
+        <td align="left"><span class="table-header">Instance Methods</span></td>
+        <td align="right" valign="top"
+         ><span class="options">[<a href="#section-InstanceMethods"
+         class="privatelink" onclick="toggle_private();"
+         >hide private</a>]</span></td>
+      </tr>
+    </table>
+  </td>
+</tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="alerting.emailer.Emailer-class.html#__init__" class="summary-sig-name">__init__</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">cfg_section</span>,
+        <span class="summary-sig-arg">shutit</span>)</span><br />
+      Initialise the emailer object
+cfg_section - section in shutit config to look for email configuration items
+                          allowing easier config according to shutit_module.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="alerting.emailer-pysrc.html#Emailer.__init__">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="alerting.emailer.Emailer-class.html#__set_config" class="summary-sig-name" onclick="show_private();">__set_config</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">cfg_section</span>)</span><br />
+      Set a local config array up according to defaults and main shutit 
+      configuration</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="alerting.emailer-pysrc.html#Emailer.__set_config">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="__get_smtp"></a><span class="summary-sig-name">__get_smtp</span>(<span class="summary-sig-arg">self</span>)</span><br />
+      Return the appropraite smtplib depending on wherther we're using TLS</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="alerting.emailer-pysrc.html#Emailer.__get_smtp">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="add_line"></a><span class="summary-sig-name">add_line</span>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">line</span>)</span><br />
+      Add a single line to the email body</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="alerting.emailer-pysrc.html#Emailer.add_line">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="add_body"></a><span class="summary-sig-name">add_body</span>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">msg</span>)</span><br />
+      Add an entire email body as a string, will be split on newlines and 
+      overwrite anything currently in the body (e.g added by add_lines)</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="alerting.emailer-pysrc.html#Emailer.add_body">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="alerting.emailer.Emailer-class.html#attach" class="summary-sig-name">attach</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">filename</span>,
+        <span class="summary-sig-arg">filetype</span>=<span class="summary-sig-default">&quot;txt&quot;</span>)</span><br />
+      Attach a file - currently needs to be entered as root (shutit)</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="alerting.emailer-pysrc.html#Emailer.attach">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="__compose"></a><span class="summary-sig-name">__compose</span>(<span class="summary-sig-arg">self</span>)</span><br />
+      Compose the message, pulling together body, attachments etc</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="alerting.emailer-pysrc.html#Emailer.__compose">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="alerting.emailer.Emailer-class.html#send" class="summary-sig-name">send</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">attachment_failure</span>=<span class="summary-sig-default">False</span>)</span><br />
+      Send the email according to the configured setup</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="alerting.emailer-pysrc.html#Emailer.send">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+</table>
+<!-- ==================== STATIC METHODS ==================== -->
+<a name="section-StaticMethods"></a>
+<table class="summary" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="table-header">
+  <td colspan="2" class="table-header">
+    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+      <tr valign="top">
+        <td align="left"><span class="table-header">Static Methods</span></td>
+        <td align="right" valign="top"
+         ><span class="options">[<a href="#section-StaticMethods"
+         class="privatelink" onclick="toggle_private();"
+         >hide private</a>]</span></td>
+      </tr>
+    </table>
+  </td>
+</tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="__gzip"></a><span class="summary-sig-name">__gzip</span>(<span class="summary-sig-arg">filename</span>)</span><br />
+      Compress a file returning the new filename (.gz)</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="alerting.emailer-pysrc.html#Emailer.__gzip">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+</table>
+<!-- ==================== METHOD DETAILS ==================== -->
+<a name="section-MethodDetails"></a>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="table-header">
+  <td colspan="2" class="table-header">
+    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+      <tr valign="top">
+        <td align="left"><span class="table-header">Method Details</span></td>
+        <td align="right" valign="top"
+         ><span class="options">[<a href="#section-MethodDetails"
+         class="privatelink" onclick="toggle_private();"
+         >hide private</a>]</span></td>
+      </tr>
+    </table>
+  </td>
+</tr>
+</table>
+<a name="__init__"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">__init__</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">cfg_section</span>,
+        <span class="sig-arg">shutit</span>)</span>
+    <br /><em class="fname">(Constructor)</em>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="alerting.emailer-pysrc.html#Emailer.__init__">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <pre class="literalblock">
+Initialise the emailer object
+cfg_section - section in shutit config to look for email configuration items
+                          allowing easier config according to shutit_module.
+                          e.g. 'com.my_module','shutit.core.alerting.emailer.subject': My Module Build Failed!
+                          Config Items:
+                          shutit.core.alerting.emailer.mailto      - address to send the mail to (no default)
+                          shutit.core.alerting.emailer.mailfrom    - address to send the mail from (angry@shutit.tk)
+                          shutit.core.alerting.emailer.smtp_server - server to send the mail (localhost)
+                          shutit.core.alerting.emailer.smtp_port   - port to contact the smtp server on (587)
+                          shutit.core.alerting.emailer.use_tls     - should we use tls to connect (True)
+                          shutit.core.alerting.emailer.subject     - subject of the email (Shutit Report)
+                          shutit.core.alerting.emailer.signature   - --Angry Shutit
+                          shutit.core.alerting.emailer.compress    - gzip attachments? (True)
+                          shutit.core.alerting.emailer.username    - mail username
+                          shutit.core.alerting.emailer.password    - mail password
+                          shutit.core.alerting.emailer.safe_mode   - don't fail the build if we get an exception
+                          shutit.core.alerting.emailer.mailto_maintainer - email the maintainer of the module as
+                                                                                                                           well as the shutit.core.alerting.emailer.mailto address
+        
+
+</pre>
+  <dl class="fields">
+  </dl>
+</td></tr></table>
+</div>
+<a name="__set_config"></a>
+<div class="private">
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">__set_config</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">cfg_section</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="alerting.emailer-pysrc.html#Emailer.__set_config">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Set a local config array up according to defaults and main shutit 
+  configuration</p>
+  <p>cfg_section - see __init__</p>
+  <dl class="fields">
+  </dl>
+</td></tr></table>
+</div>
+<a name="attach"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">attach</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">filename</span>,
+        <span class="sig-arg">filetype</span>=<span class="sig-default">&quot;txt&quot;</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="alerting.emailer-pysrc.html#Emailer.attach">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Attach a file - currently needs to be entered as root (shutit)</p>
+  <p>Filename - absolute path, relative to the target host! filetype - 
+  MIMEApplication._subtype</p>
+  <dl class="fields">
+  </dl>
+</td></tr></table>
+</div>
+<a name="send"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">send</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">attachment_failure</span>=<span class="sig-default">False</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="alerting.emailer-pysrc.html#Emailer.send">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <pre class="literalblock">
+Send the email according to the configured setup
+
+attachment_failure - used to indicate a recursive call after the
+                                             smtp server has refused based on file size.
+                                             Should not be used externally
+
+</pre>
+  <dl class="fields">
+  </dl>
+</td></tr></table>
+</div>
+<br />
+<!-- ==================== NAVIGATION BAR ==================== -->
+<table class="navbar" border="0" width="100%" cellpadding="0"
+       bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="middle">
+
+  <!-- Tree link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="module-tree.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Index link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="identifier-index.html">Indices</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Help link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Project homepage -->
+      <th class="navbar" align="right" width="100%">
+        <table border="0" cellpadding="0" cellspacing="0">
+          <tr><th class="navbar" align="center"
+            >ShutIt</th>
+          </tr></table></th>
+  </tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%%">
+  <tr>
+    <td align="left" class="footer">
+    Generated by Epydoc 3.0.1 on Tue Feb 17 12:38:04 2015
+    </td>
+    <td align="right" class="footer">
+      <a target="mainFrame" href="http://epydoc.sourceforge.net"
+        >http://epydoc.sourceforge.net</a>
+    </td>
+  </tr>
+</table>
+
+<script type="text/javascript">
+  <!--
+  // Private objects are initially displayed (because if
+  // javascript is turned off then we want them to be
+  // visible); but by default, we want to hide them.  So hide
+  // them unless we have a cookie that says to show them.
+  checkCookie();
+  // -->
+</script>
+</body>
+</html>

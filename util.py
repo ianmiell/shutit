@@ -324,6 +324,8 @@ def get_base_config(cfg, cfg_parser):
 	# installed file info
 	cfg['target']['modules_recorded']             = []
 	cfg['target']['modules_recorded_cache_valid'] = False
+	# Directory to revert to when delivering in bash and reversion to context required.
+	cfg['target']['module_root_dir']              = '/'
 	cfg['host']['artifacts_dir']                  = cp.get('host', 'artifacts_dir')
 	cfg['host']['docker_executable']              = cp.get('host', 'docker_executable')
 	cfg['host']['dns']                            = cp.get('host', 'dns')
@@ -402,14 +404,14 @@ def parse_args(shutit):
 
 	Environment variables:
 	SHUTIT_OPTIONS:
-		Loads command line options from the environment (if set).
-		Behaves like GREP_OPTIONS:
+	Loads command line options from the environment (if set).
+	Behaves like GREP_OPTIONS:
 		- space separated list of arguments
 		- backslash before a space escapes the space separation
 		- backslash before a backslash is interpreted as a single backslash
 		- all other backslashes are treated literally
-		eg ' a\ b c\\ \\d \\\e\' becomes '', 'a b', 'c\', '\d', '\\e\'
-		SHUTIT_OPTIONS is ignored if we are creating a skeleton
+	eg ' a\ b c\\ \\d \\\e\' becomes '', 'a b', 'c\', '\d', '\\e\'
+	SHUTIT_OPTIONS is ignored if we are creating a skeleton
 	"""
 	cfg = shutit.cfg
 	cfg['host']['real_user_id'] = pexpect.run('id -u ' + cfg['host']['real_user']).strip()
@@ -540,9 +542,10 @@ def parse_args(shutit):
 			0o600
 		))
 
-	# Default this to False as it's not always set.
+	# Default this to False as it's not always set (mostly for --debug calls).
 	cfg['list_configs']['cfghistory'] = False
 	cfg['list_modules']['long']       = False
+	cfg['list_modules']['sort']       = None
 	# Persistence-related arguments.
 	if cfg['action']['build']:
 		cfg['repository']['push']   = args.push
