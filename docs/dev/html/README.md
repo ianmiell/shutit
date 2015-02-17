@@ -1,5 +1,4 @@
-From the root folder:
 ```sh
-epydoc --html -v -o docs/dev/html .py */*.py
+epydoc --html -v -n ShutIt -o . ../../../*py
 ```
 

@@ -27,7 +27,12 @@
       <th>&nbsp;&nbsp;&nbsp;<a
         href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
 
-      <th class="navbar" width="100%"></th>
+  <!-- Project homepage -->
+      <th class="navbar" align="right" width="100%">
+        <table border="0" cellpadding="0" cellspacing="0">
+          <tr><th class="navbar" align="center"
+            >ShutIt</th>
+          </tr></table></th>
   </tr>
 </table>
 <table width="100%" cellpadding="0" cellspacing="0">
@@ -52,11 +57,11 @@
 </b></center><br />
 <h1 class="epydoc">Class Hierarchy</h1>
 <ul class="nomargin-top">
-    <li> <strong class="uidlink"><a href="test.Bunch-class.html">test.Bunch</a></strong>:
-      <em class="summary">TODO</em>
+    <li> <strong class="uidlink">ConfigParser.RawConfigParser</strong>
+    <ul>
+    <li> <strong class="uidlink"><a href="util.LayerConfigParser-class.html">util.LayerConfigParser</a></strong>
     </li>
-    <li> <strong class="uidlink"><a href="alerting.emailer.Emailer-class.html">alerting.emailer.Emailer</a></strong>:
-      <em class="summary">Emailer class definition</em>
+    </ul>
     </li>
     <li> <strong class="uidlink">object</strong>:
       <em class="summary">The most base type</em>
@@ -67,37 +72,42 @@
     <li> <strong class="uidlink">exceptions.Exception</strong>:
       <em class="summary">Common base class for all non-exit exceptions.</em>
     <ul>
-    <li> <strong class="uidlink"><a href="test.ShutItTestException-class.html">test.ShutItTestException</a></strong>:
-      <em class="summary">TODO</em>
-    </li>
-    <li> <strong class="uidlink">exceptions.StandardError</strong>:
-      <em class="summary">Base class for all standard Python exceptions that do not represent
-        interpreter exiting.</em>
+    <li> <strong class="uidlink"><a href="shutit_module.ShutItException-class.html">shutit_module.ShutItException</a></strong>:
+      <em class="summary">Placeholder exception.</em>
     <ul>
-    <li> <strong class="uidlink"><a href="exceptions.AssertionError-class.html">exceptions.AssertionError</a></strong>:
-      <em class="summary">Assertion failed.</em>
+    <li> <strong class="uidlink"><a href="shutit_module.ShutItFailException-class.html">shutit_module.ShutItFailException</a></strong>:
+      <em class="summary">Placeholder exception.</em>
+    </li>
+    <li> <strong class="uidlink"><a href="shutit_module.ShutItModuleError-class.html">shutit_module.ShutItModuleError</a></strong>:
+      <em class="summary">Placeholder exception.</em>
     </li>
     </ul>
     </li>
     </ul>
     </li>
     </ul>
+    </li>
+    <li> <strong class="uidlink"><a href="shutit_global.ShutIt-class.html">shutit_global.ShutIt</a></strong>:
+      <em class="summary">ShutIt build class.</em>
     </li>
     <li> <strong class="uidlink"><a href="shutit_module.ShutItModule-class.html">shutit_module.ShutItModule</a></strong>:
-      <em class="summary">Class that takes a ShutIt object and defines what a ShutIt module must
-implement to be registered.</em>
+      <em class="summary">Class that takes a ShutIt object and defines what a ShutIt module 
+        must implement to be registered.</em>
     <ul>
-    <li> <strong class="uidlink"><a href="shutit_module_template_bare.template-class.html">shutit_module_template_bare.template</a></strong>
+    <li> <strong class="uidlink"><a href="setup.ShutItConnModule-class.html">setup.ShutItConnModule</a></strong>
+    <ul>
+    <li> <strong class="uidlink"><a href="setup.ConnBash-class.html">setup.ConnBash</a></strong>:
+      <em class="summary">Connects ShutIt to a machine via bash.</em>
     </li>
-    <li> <strong class="uidlink"><a href="shutit_module_template.template-class.html">shutit_module_template.template</a></strong>
+    <li> <strong class="uidlink"><a href="setup.ConnDocker-class.html">setup.ConnDocker</a></strong>:
+      <em class="summary">Connects ShutIt to docker daemon and starts the container.</em>
+    </li>
+    <li> <strong class="uidlink"><a href="setup.ConnSSH-class.html">setup.ConnSSH</a></strong>:
+      <em class="summary">Connects ShutIt to a machine via ssh.</em>
     </li>
     </ul>
     </li>
-    <li> <strong class="uidlink">unittest.case.TestCase</strong>:
-      <em class="summary">A class whose instances are single test cases.</em>
-    <ul>
-    <li> <strong class="uidlink"><a href="test.TestShutItDepChecking-class.html">test.TestShutItDepChecking</a></strong>:
-      <em class="summary">TODO</em>
+    <li> <strong class="uidlink"><a href="setup.setup-class.html">setup.setup</a></strong>
     </li>
     </ul>
     </li>
@@ -136,13 +146,18 @@ implement to be registered.</em>
       <th>&nbsp;&nbsp;&nbsp;<a
         href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
 
-      <th class="navbar" width="100%"></th>
+  <!-- Project homepage -->
+      <th class="navbar" align="right" width="100%">
+        <table border="0" cellpadding="0" cellspacing="0">
+          <tr><th class="navbar" align="center"
+            >ShutIt</th>
+          </tr></table></th>
   </tr>
 </table>
 <table border="0" cellpadding="0" cellspacing="0" width="100%%">
   <tr>
     <td align="left" class="footer">
-    Generated by Epydoc 3.0.1 on Tue Feb 17 12:28:24 2015
+    Generated by Epydoc 3.0.1 on Tue Feb 17 12:47:47 2015
     </td>
     <td align="right" class="footer">
       <a target="mainFrame" href="http://epydoc.sourceforge.net"
