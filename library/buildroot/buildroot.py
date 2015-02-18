@@ -39,7 +39,8 @@ class buildroot(ShutItModule):
 		shutit.send('unset CXX')
 		shutit.send_host_file('/opt/buildroot/buildroot/.config','context/config.shutitdist.base')
 		shutit.send('cd buildroot')
-		shutit.send('make -T xterm')
+		shutit.send('export TERM=xterm')
+		shutit.send('make')
 		return True
 
 def module():
