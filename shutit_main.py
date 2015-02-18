@@ -580,7 +580,7 @@ def check_ready(shutit, throw_error=True):
 	whowasi = shutit.whoami()
 	# Login at least once to get any exports.
 	if whowasi == 'root':
-		shutit.login(prompt_prefix=module_id)
+		shutit.login()
 	for module_id in module_ids(shutit):
 		module = shutit.shutit_map[module_id]
 		shutit.log('considering check_ready (is it ready to be built?): ' +
@@ -619,7 +619,7 @@ def do_remove(shutit):
 	whowasi = shutit.whoami()
 	# Login at least once to get the exports.
 	if whowasi == 'root':
-		shutit.login(prompt_prefix=module_id)
+		shutit.login()
 	for module_id in module_ids(shutit):
 		module = shutit.shutit_map[module_id]
 		shutit.log('considering whether to remove: ' + module_id, code='31')
@@ -761,7 +761,7 @@ def do_test(shutit):
 	whowasi = shutit.whoami()
 	# Login at least once to get the exports.
 	if whowasi == 'root':
-		shutit.login(prompt_prefix=module_id)
+		shutit.login()
 	for module_id in module_ids(shutit, rev=True):
 		module = shutit.shutit_map[module_id]
 		# Only test if it's installed.
@@ -799,11 +799,11 @@ def do_finalize(shutit):
 	whowasi = shutit.whoami()
 	# Login at least once to get the exports.
 	if whowasi == 'root':
-		shutit.login(prompt_prefix=module_id)
+		shutit.login()
 	for module_id in module_ids(shutit, rev=True):
 		module = shutit.shutit_map[module_id]
 		# Only finalize if it's thought to be installed.
-		if is_installed(shutit, shutit.shutit_map[module_id]):
+		if is_installd(shutit, shutit.shutit_map[module_id]):
 			if whowasi != 'root':
 				shutit.login(prompt_prefix=module_id)
 			if not shutit.shutit_map[module_id].finalize(shutit):
