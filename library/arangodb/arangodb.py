@@ -5,7 +5,7 @@ from shutit_module import ShutItModule
 class arangodb(ShutItModule):
 
 	def build(self, shutit):
-		shutit.install('wget')
+		shutit.install('wget apt-transport-https')
 		shutit.send('export ARANGO_URL=http://www.arangodb.org/repositories/arangodb2/xUbuntu_14.04')
 		shutit.send('echo "deb $ARANGO_URL/ /" >> /etc/apt/sources.list.d/arangodb.list')
 		shutit.send('wget $ARANGO_URL/Release.key')
