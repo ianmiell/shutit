@@ -28,6 +28,7 @@ class buildroot(ShutItModule):
 		shutit.install('dblatex')
 		shutit.install('graphviz')
 		shutit.install('python-matplotlib')
+		shutit.install('cpio')
 		shutit.send('mkdir -p /opt/buildroot')
 		shutit.send('pushd /opt/buildroot')
 		shutit.send('wget http://buildroot.uclibc.org/downloads/buildroot-2014.08.tar.gz')
@@ -38,7 +39,7 @@ class buildroot(ShutItModule):
 		shutit.send('unset CXX')
 		shutit.send_host_file('/opt/buildroot/buildroot/.config','context/config.shutitdist.base')
 		shutit.send('cd buildroot')
-		shutit.send('make')
+		shutit.send('make -T xterm')
 		return True
 
 def module():

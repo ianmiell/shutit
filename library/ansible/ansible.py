@@ -30,8 +30,9 @@ class ansible(ShutItModule):
 		shutit.install('python-pip')
 		shutit.install('python-simplejson')
 		shutit.install('sshpass')
-		shutit.send('pushd /opt')
+		shutit.send('cd /opt')
 		shutit.send('git clone git://github.com/ansible/ansible.git')
+		shutit.send('cd ansible')
 		shutit.send('git submodule update --init --recursive')
 		shutit.send('source /opt/ansible/hacking/env-setup')
 		shutit.add_to_bashrc('source /opt/ansible/hacking/env-setup')
@@ -39,20 +40,10 @@ class ansible(ShutItModule):
 		shutit.send('pip install paramiko PyYAML jinja2 httplib2')
 		shutit.send('echo "127.0.0.1" > /opt/ansible_hosts')
 		shutit.add_to_bashrc('export ANSIBLE_HOSTS=/opt/ansible_hosts')
-		shutit.send('popd')
 		return True
 
 	def test(self, shutit):
-		send = 'ansible all -m ping'
-		expect=['assword', shutit.cfg['expect_prompts']['base_prompt'],'authenticity of host']
-		while True:
-			res = shutit.send(send, expect=expect)
-			if res == 1:
-				break
-			elif res == 0:
-				send = shutit.cfg['target']['password']
-			elif res == 2:
-				send = 'yes'
+		shutit.multisend('ansible all -m ping', {'assword':shutit.cfg['target']['password'],'authenticity of host':'yes'})
 		return True
 
 def module():
