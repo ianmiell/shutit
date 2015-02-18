@@ -18,7 +18,6 @@ class couchdb(ShutItModule):
 		shutit.send('cd /tmp/apache-couchdb-*')
 		shutit.send('./configure --prefix=/usr')
 		shutit.send('make install')
-		shutit.send('printf "[httpd]\nport = 8101\nbind_address = 0.0.0.0" > /usr/local/etc/couchdb/local.d/docker.ini')
 		return True
 
 	def get_config(self, shutit):
