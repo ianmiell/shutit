@@ -803,7 +803,7 @@ def do_finalize(shutit):
 	for module_id in module_ids(shutit, rev=True):
 		module = shutit.shutit_map[module_id]
 		# Only finalize if it's thought to be installed.
-		if is_installd(shutit, shutit.shutit_map[module_id]):
+		if is_installed(shutit, shutit.shutit_map[module_id]):
 			if whowasi != 'root':
 				shutit.login(prompt_prefix=module_id)
 			if not shutit.shutit_map[module_id].finalize(shutit):
