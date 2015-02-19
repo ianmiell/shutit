@@ -106,10 +106,10 @@ ShutIt provides a means for auto-generation of modules (either bare ones, or fro
 [REALLY QUICK START](http://ianmiell.github.io/shutit)
 ====================
 
-[INSTALLATION](http://github.com/ianmiell/shutit/blob/master/INSTALL.md)
+[INSTALLATION](http://github.com/ianmiell/shutit/blob/master/docs/INSTALL.md)
 ==============
 
-[ShutIt API](http://github.com/ianmiell/shutit/blob/master/API.md)
+[ShutIt API](http://github.com/ianmiell/shutit/blob/master/docs/API.md)
 ============
 
 
@@ -208,11 +208,11 @@ systems stick with chef/puppet. If you're a programmer who wants to manage a
 bunch of existing scripts in a painless way, keep on reading.
 
 
-[ShutIt User Guide](http://github.com/ianmiell/shutit/blob/master/USER_GUIDE.md)
+[ShutIt User Guide](http://github.com/ianmiell/shutit/blob/master/docs/USER_GUIDE.md)
 
-[Tests](http://github.com/ianmiell/shutit/blob/master/TEST.md)
+[Tests](http://github.com/ianmiell/shutit/blob/master/docs/TEST.md)
 
-[Known Issues](http://github.com/ianmiell/shutit/blob/master/BUGS.md)
+[Known Issues](http://github.com/ianmiell/shutit/blob/master/docs/BUGS.md)
 
 CAN I CONTRIBUTE?
 -----------------
