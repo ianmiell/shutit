@@ -1,7 +1,0 @@
-# This file should be changed only by the maintainer.
-# When this module is the one being built, which modules should be built along with it by default?
-# This feeds into automated testing of each module.
-[shutit.tk.ansible.ansible]
-shutit.core.module.build:yes
-shutit.core.module.allowed_images:["ubuntu:12.04","ubuntu:14.04"]
-
