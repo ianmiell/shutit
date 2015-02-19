@@ -7,7 +7,7 @@ RUN git clone https://github.com/ianmiell/shutit.git
 WORKDIR shutit
 RUN pip install -r requirements.txt
 
-WORKDIR /opt/shutit/library/win2048
+WORKDIR /opt/shutit/library/puppet
 RUN /opt/shutit/shutit build --shutit_module_path /opt/shutit/library --delivery bash
 
 CMD ["/bin/bash"] 
