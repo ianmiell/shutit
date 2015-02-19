@@ -30,9 +30,9 @@ class django(ShutItModule):
 		shutit.install('libjpeg62-turbo-dev')
 		shutit.install('zlib1g-dev')
 		shutit.install('libfreetype6-dev')
-		shutit.install('liblcms1-dev')
+		shutit.install('liblcms2-dev')
 		shutit.install('libwebp-dev')
-		shutit.install('libtiff-dev')
+		shutit.install('libtiff5-dev')
 		shutit.install('easy_install django')
 		return True
 
