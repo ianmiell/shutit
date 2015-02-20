@@ -39,7 +39,7 @@ WHAT DOES IT DO?
 ![Example Setup]
 (https://github.com/ianmiell/shutit/blob/gh-pages/images/ShutIt.png)
 
-We start with a "Unit of Build", similar to a Dockerfile.
+We start with a "ShutIt Module", similar to a Dockerfile.
 
 In the image above there are five of these. They each have the following attributes:
 
@@ -58,7 +58,7 @@ This is a core function of ShutIt - to manage dependencies and image building fo
 But it doesn't just run build steps, it also manages The ShutIt Lifecycle to make the build more robust and flexible.
 
 The ShutIt Lifecycle
---------------------
+====================
 
 - gathers all the modules it can find in its path and determines their ordering
 - for all modules, it gathers any build-specific config (e.g. passwords etc.)
@@ -71,8 +71,8 @@ The ShutIt Lifecycle
 
 These correspond to the various functions that can be implemented.
 
-Auto-Generate MOdules
----------------------
+Auto-Generate Modules
+=====================
 
 ShutIt provides a means for auto-generation of modules (either bare ones, or from existing Dockerfiles) with its skeleton command. See [here](http://ianmiell.github.io/shutit/) for an example.
 
