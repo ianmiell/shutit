@@ -8,6 +8,8 @@ class ssh_key(ShutItModule):
 
 	def build(self, shutit):
 		shutit.install('openssh-client')
+		shutit.install('openssh-server')
+		shutit.send('service ssh restart')
 		shutit.send("ssh-keygen -P '' -f '/root/.ssh/id_rsa'")
 		shutit.send('cat /root/.ssh/id_rsa.pub >> /root/.ssh/authorized_keys')
 		return True
@@ -16,6 +18,7 @@ class ssh_key(ShutItModule):
 		# We don't want to leave keys lying around.
 		if shutit.cfg[self.module_id]['remove_keys']:
 			shutit.send('rm -rf /root/.ssh')
+		shutit.send('service ssh stop')
 		return True
 
 	def get_config(self, shutit):
