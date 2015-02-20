@@ -1,0 +1,642 @@
+<?xml version="1.0" encoding="ascii"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+          "DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <title>test.pystone</title>
+  <link rel="stylesheet" href="epydoc.css" type="text/css" />
+  <script type="text/javascript" src="epydoc.js"></script>
+</head>
+
+<body bgcolor="white" text="black" link="blue" vlink="#204080"
+      alink="#204080">
+<!-- ==================== NAVIGATION BAR ==================== -->
+<table class="navbar" border="0" width="100%" cellpadding="0"
+       bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="middle">
+
+  <!-- Tree link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="module-tree.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Index link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="identifier-index.html">Indices</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Help link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Project homepage -->
+      <th class="navbar" align="right" width="100%">
+        <table border="0" cellpadding="0" cellspacing="0">
+          <tr><th class="navbar" align="center"
+            >ShutIt</th>
+          </tr></table></th>
+  </tr>
+</table>
+<table width="100%" cellpadding="0" cellspacing="0">
+  <tr valign="top">
+    <td width="100%">
+      <span class="breadcrumbs">
+        <a href="test-module.html">Package&nbsp;test</a> ::
+        Module&nbsp;pystone
+      </span>
+    </td>
+    <td>
+      <table cellpadding="0" cellspacing="0">
+        <!-- hide/show private -->
+        <tr><td align="right"><span class="options">[<a href="javascript:void(0);" class="privatelink"
+    onclick="toggle_private();">hide&nbsp;private</a>]</span></td></tr>
+        <tr><td align="right"><span class="options"
+            >[<a href="frames.html" target="_top">frames</a
+            >]&nbsp;|&nbsp;<a href="test.pystone-module.html"
+            target="_top">no&nbsp;frames</a>]</span></td></tr>
+      </table>
+    </td>
+  </tr>
+</table>
+<!-- ==================== MODULE DESCRIPTION ==================== -->
+<h1 class="epydoc">Module pystone</h1><p class="nomargin-top"><span class="codelink"><a href="test.pystone-pysrc.html">source&nbsp;code</a></span></p>
+<pre class="literalblock">
+
+&quot;PYSTONE&quot; Benchmark Program
+
+Version:        Python/1.1 (corresponds to C/1.1 plus 2 Pystone fixes)
+
+Author:         Reinhold P. Weicker,  CACM Vol 27, No 10, 10/84 pg. 1013.
+
+                Translated from ADA to C by Rick Richardson.
+                Every method to preserve ADA-likeness has been used,
+                at the expense of C-ness.
+
+                Translated from C to Python by Guido van Rossum.
+
+Version History:
+
+                Version 1.1 corrects two bugs in version 1.0:
+
+                First, it leaked memory: in Proc1(), NextRecord ends
+                up having a pointer to itself.  I have corrected this
+                by zapping NextRecord.PtrComp at the end of Proc1().
+
+                Second, Proc3() used the operator != to compare a
+                record to None.  This is rather inefficient and not
+                true to the intention of the original benchmark (where
+                a pointer comparison to None is intended; the !=
+                operator attempts to find a method __cmp__ to do value
+                comparison of the record).  Version 1.1 runs 5-10
+                percent faster than version 1.0, so benchmark figures
+                of different versions can't be compared directly.
+
+</pre>
+
+<hr />
+<div class="fields">      <p><strong>Version:</strong>
+        1.1
+      </p>
+</div><!-- ==================== CLASSES ==================== -->
+<a name="section-Classes"></a>
+<table class="summary" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="table-header">
+  <td colspan="2" class="table-header">
+    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+      <tr valign="top">
+        <td align="left"><span class="table-header">Classes</span></td>
+        <td align="right" valign="top"
+         ><span class="options">[<a href="#section-Classes"
+         class="privatelink" onclick="toggle_private();"
+         >hide private</a>]</span></td>
+      </tr>
+    </table>
+  </td>
+</tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a href="test.pystone.Record-class.html" class="summary-name">Record</a>
+    </td>
+  </tr>
+</table>
+<!-- ==================== FUNCTIONS ==================== -->
+<a name="section-Functions"></a>
+<table class="summary" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="table-header">
+  <td colspan="2" class="table-header">
+    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+      <tr valign="top">
+        <td align="left"><span class="table-header">Functions</span></td>
+        <td align="right" valign="top"
+         ><span class="options">[<a href="#section-Functions"
+         class="privatelink" onclick="toggle_private();"
+         >hide private</a>]</span></td>
+      </tr>
+    </table>
+  </td>
+</tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="main"></a><span class="summary-sig-name">main</span>(<span class="summary-sig-arg">loops</span>=<span class="summary-sig-default">50000</span>)</span></td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="test.pystone-pysrc.html#main">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="pystones"></a><span class="summary-sig-name">pystones</span>(<span class="summary-sig-arg">loops</span>=<span class="summary-sig-default">50000</span>)</span></td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="test.pystone-pysrc.html#pystones">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="Proc0"></a><span class="summary-sig-name">Proc0</span>(<span class="summary-sig-arg">loops</span>=<span class="summary-sig-default">50000</span>)</span></td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="test.pystone-pysrc.html#Proc0">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="Proc1"></a><span class="summary-sig-name">Proc1</span>(<span class="summary-sig-arg">PtrParIn</span>)</span></td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="test.pystone-pysrc.html#Proc1">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="Proc2"></a><span class="summary-sig-name">Proc2</span>(<span class="summary-sig-arg">IntParIO</span>)</span></td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="test.pystone-pysrc.html#Proc2">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="Proc3"></a><span class="summary-sig-name">Proc3</span>(<span class="summary-sig-arg">PtrParOut</span>)</span></td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="test.pystone-pysrc.html#Proc3">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="Proc4"></a><span class="summary-sig-name">Proc4</span>()</span></td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="test.pystone-pysrc.html#Proc4">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="Proc5"></a><span class="summary-sig-name">Proc5</span>()</span></td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="test.pystone-pysrc.html#Proc5">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="Proc6"></a><span class="summary-sig-name">Proc6</span>(<span class="summary-sig-arg">EnumParIn</span>)</span></td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="test.pystone-pysrc.html#Proc6">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="Proc7"></a><span class="summary-sig-name">Proc7</span>(<span class="summary-sig-arg">IntParI1</span>,
+        <span class="summary-sig-arg">IntParI2</span>)</span></td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="test.pystone-pysrc.html#Proc7">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="Proc8"></a><span class="summary-sig-name">Proc8</span>(<span class="summary-sig-arg">Array1Par</span>,
+        <span class="summary-sig-arg">Array2Par</span>,
+        <span class="summary-sig-arg">IntParI1</span>,
+        <span class="summary-sig-arg">IntParI2</span>)</span></td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="test.pystone-pysrc.html#Proc8">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="Func1"></a><span class="summary-sig-name">Func1</span>(<span class="summary-sig-arg">CharPar1</span>,
+        <span class="summary-sig-arg">CharPar2</span>)</span></td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="test.pystone-pysrc.html#Func1">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="Func2"></a><span class="summary-sig-name">Func2</span>(<span class="summary-sig-arg">StrParI1</span>,
+        <span class="summary-sig-arg">StrParI2</span>)</span></td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="test.pystone-pysrc.html#Func2">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="Func3"></a><span class="summary-sig-name">Func3</span>(<span class="summary-sig-arg">EnumParIn</span>)</span></td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="test.pystone-pysrc.html#Func3">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+</table>
+<!-- ==================== VARIABLES ==================== -->
+<a name="section-Variables"></a>
+<table class="summary" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="table-header">
+  <td colspan="2" class="table-header">
+    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+      <tr valign="top">
+        <td align="left"><span class="table-header">Variables</span></td>
+        <td align="right" valign="top"
+         ><span class="options">[<a href="#section-Variables"
+         class="privatelink" onclick="toggle_private();"
+         >hide private</a>]</span></td>
+      </tr>
+    </table>
+  </td>
+</tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a name="LOOPS"></a><span class="summary-name">LOOPS</span> = <code title="50000">50000</code>
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a name="Ident5"></a><span class="summary-name">Ident5</span> = <code title="5">5</code>
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a name="Ident4"></a><span class="summary-name">Ident4</span> = <code title="4">4</code>
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a name="Ident3"></a><span class="summary-name">Ident3</span> = <code title="3">3</code>
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a name="Ident2"></a><span class="summary-name">Ident2</span> = <code title="2">2</code>
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a name="Ident1"></a><span class="summary-name">Ident1</span> = <code title="1">1</code>
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a name="TRUE"></a><span class="summary-name">TRUE</span> = <code title="1">1</code>
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a name="FALSE"></a><span class="summary-name">FALSE</span> = <code title="0">0</code>
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a name="IntGlob"></a><span class="summary-name">IntGlob</span> = <code title="0">0</code>
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a name="BoolGlob"></a><span class="summary-name">BoolGlob</span> = <code title="0">0</code>
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a name="Char1Glob"></a><span class="summary-name">Char1Glob</span> = <code title="'\x00'"><code class="variable-quote">'</code><code class="variable-string">\x00</code><code class="variable-quote">'</code></code>
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a name="Char2Glob"></a><span class="summary-name">Char2Glob</span> = <code title="'\x00'"><code class="variable-quote">'</code><code class="variable-string">\x00</code><code class="variable-quote">'</code></code>
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a href="test.pystone-module.html#Array1Glob" class="summary-name">Array1Glob</a> = <code title="[0,
+ 0,
+ 0,
+ 0,
+ 0,
+ 0,
+ 0,
+ 0,
+..."><code class="variable-group">[</code>0<code class="variable-op">, </code>0<code class="variable-op">, </code>0<code class="variable-op">, </code>0<code class="variable-op">, </code>0<code class="variable-op">, </code>0<code class="variable-op">, </code>0<code class="variable-op">, </code>0<code class="variable-op">, </code>0<code class="variable-op">, </code>0<code class="variable-op">, </code>0<code class="variable-op">, </code>0<code class="variable-op">, </code>0<code class="variable-op">, </code>0<code class="variable-op">, </code>0<code class="variable-op">, </code>0<code class="variable-op">, </code><code class="variable-ellipsis">...</code></code>
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a href="test.pystone-module.html#Array2Glob" class="summary-name">Array2Glob</a> = <code title="[[0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+..."><code class="variable-group">[</code><code class="variable-group">[</code>0<code class="variable-op">, </code>0<code class="variable-op">, </code>0<code class="variable-op">, </code>0<code class="variable-op">, </code>0<code class="variable-op">, </code>0<code class="variable-op">, </code>0<code class="variable-op">, </code>0<code class="variable-op">, </code>0<code class="variable-op">, </code>0<code class="variable-op">, </code>0<code class="variable-op">, </code>0<code class="variable-op">, </code>0<code class="variable-op">, </code>0<code class="variable-op">, </code>0<code class="variable-op">, </code>0<code class="variable-op">,</code><code class="variable-ellipsis">...</code></code>
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a name="PtrGlb"></a><span class="summary-name">PtrGlb</span> = <code title="None">None</code>
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a name="PtrGlbNext"></a><span class="summary-name">PtrGlbNext</span> = <code title="None">None</code>
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a name="__package__"></a><span class="summary-name">__package__</span> = <code title="'test'"><code class="variable-quote">'</code><code class="variable-string">test</code><code class="variable-quote">'</code></code>
+    </td>
+  </tr>
+</table>
+<!-- ==================== VARIABLES DETAILS ==================== -->
+<a name="section-VariablesDetails"></a>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="table-header">
+  <td colspan="2" class="table-header">
+    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+      <tr valign="top">
+        <td align="left"><span class="table-header">Variables Details</span></td>
+        <td align="right" valign="top"
+         ><span class="options">[<a href="#section-VariablesDetails"
+         class="privatelink" onclick="toggle_private();"
+         >hide private</a>]</span></td>
+      </tr>
+    </table>
+  </td>
+</tr>
+</table>
+<a name="Array1Glob"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <h3 class="epydoc">Array1Glob</h3>
+  
+  <dl class="fields">
+  </dl>
+  <dl class="fields">
+    <dt>Value:</dt>
+      <dd><table><tr><td><pre class="variable">
+<code class="variable-group">[</code>0<code class="variable-op">,</code>
+ 0<code class="variable-op">,</code>
+ 0<code class="variable-op">,</code>
+ 0<code class="variable-op">,</code>
+ 0<code class="variable-op">,</code>
+ 0<code class="variable-op">,</code>
+ 0<code class="variable-op">,</code>
+ 0<code class="variable-op">,</code>
+<code class="variable-ellipsis">...</code>
+</pre></td></tr></table>
+</dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="Array2Glob"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <h3 class="epydoc">Array2Glob</h3>
+  
+  <dl class="fields">
+  </dl>
+  <dl class="fields">
+    <dt>Value:</dt>
+      <dd><table><tr><td><pre class="variable">
+<code class="variable-group">[</code><code class="variable-group">[</code>0<code class="variable-op">,</code>
+  0<code class="variable-op">,</code>
+  0<code class="variable-op">,</code>
+  0<code class="variable-op">,</code>
+  0<code class="variable-op">,</code>
+  0<code class="variable-op">,</code>
+  0<code class="variable-op">,</code>
+  0<code class="variable-op">,</code>
+<code class="variable-ellipsis">...</code>
+</pre></td></tr></table>
+</dd>
+  </dl>
+</td></tr></table>
+</div>
+<br />
+<!-- ==================== NAVIGATION BAR ==================== -->
+<table class="navbar" border="0" width="100%" cellpadding="0"
+       bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="middle">
+
+  <!-- Tree link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="module-tree.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Index link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="identifier-index.html">Indices</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Help link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Project homepage -->
+      <th class="navbar" align="right" width="100%">
+        <table border="0" cellpadding="0" cellspacing="0">
+          <tr><th class="navbar" align="center"
+            >ShutIt</th>
+          </tr></table></th>
+  </tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%%">
+  <tr>
+    <td align="left" class="footer">
+    Generated by Epydoc 3.0.1 on Tue Feb 17 12:38:04 2015
+    </td>
+    <td align="right" class="footer">
+      <a target="mainFrame" href="http://epydoc.sourceforge.net"
+        >http://epydoc.sourceforge.net</a>
+    </td>
+  </tr>
+</table>
+
+<script type="text/javascript">
+  <!--
+  // Private objects are initially displayed (because if
+  // javascript is turned off then we want them to be
+  // visible); but by default, we want to hide them.  So hide
+  // them unless we have a cookie that says to show them.
+  checkCookie();
+  // -->
+</script>
+</body>
+</html>
