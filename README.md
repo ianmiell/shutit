@@ -36,58 +36,29 @@ Flexible:
 WHAT DOES IT DO?
 ----------------
 
-
 ![Example Setup]
 (https://github.com/ianmiell/shutit/blob/gh-pages/images/ShutIt.png)
 
 We start with a "Unit of Build", similar to a Dockerfile.
 
-Unit of Build for Mongodb:
+In the image above there are five of these. They each have the following attributes:
 
-```
-module:com.mycorp.mongo.mongodb
-run order: 1234.1234
-|---------------------------------------------------------------------------------------------------------------------------|
-|apt-key adv --keyserver keyserver.ubuntu.com --recv 7F0CEB10                                                               |
-|echo "deb http://downloads-distro.mongodb.org/repo/ubuntu-upstart dist 10gen" | tee -a /etc/apt/sources.list.d/10gen.list  |
-|apt-get update                                                                                                             |
-|apt-get -y install apt-utils                                                                                               |
-|apt-get -y install mongodb-10gen                                                                                           |
-|---------------------------------------------------------------------------------------------------------------------------|
-```
+- a list of zero or more dependencies on other modules
+- a unique number that represents its ordering within the available modules
+- a set of steps (bash commands) for building the module
 
-We call this a ShutIt module. In this case, we'll give this the id: 
+In the image we imagine a scenario where we want to build our blog into a docker image, with all its attendant content and config.
 
-```
-com.mycorp.mongo.mongodb
-```
+We instruct shutit to build the MyBlog module, and it runs the build as per the image on the right.
 
-and the run order
+The container environment is set up, the modules are ordered, and the build steps are run. Finally, the image is committed, tagged and pushed as configured.
 
-```
-1234.1234
-```
+This is a core function of ShutIt - to manage dependencies and image building for complex image setups.
 
-Say we want to plug these together with other modules. ShutIt allows you do this.
+But it doesn't just run build steps, it also manages The ShutIt Lifecycle to make the build more robust and flexible.
 
-But what if one module depends on another, eg mymongomodule which trivially adds a line to a config?
-
-Unit of Build for MyMongoDB (com.mycorp.mongo.mymongodb):
-
-```
-module: com.mycorp.mongo.mymongodb
-run order: 1235.1235
-|-----------------------------------------------|
-|(depend on com.mycorp.mongo.mongodb)           |
-|echo "config item" >> /etc/somewhere/somefile  |
-|-----------------------------------------------|
-```
-
-and give it a run order of 1235.1235. Note that the run order is higher, as we depend on the com.mycorp.mongo.mongodb module being there (ShutIt checks all this for you).
-
-As you plug together more and more modules, you'll find you need a build lifecycle to manage how these modules interact and build.
-
-What ShutIt does to manage this is:
+The ShutIt Lifecycle
+--------------------
 
 - gathers all the modules it can find in its path and determines their ordering
 - for all modules, it gathers any build-specific config (e.g. passwords etc.)
@@ -99,6 +70,9 @@ What ShutIt does to manage this is:
 - do any configured committing, tagging and pushing of the image
 
 These correspond to the various functions that can be implemented.
+
+Auto-Generate MOdules
+---------------------
 
 ShutIt provides a means for auto-generation of modules (either bare ones, or from existing Dockerfiles) with its skeleton command. See [here](http://ianmiell.github.io/shutit/) for an example.
 
