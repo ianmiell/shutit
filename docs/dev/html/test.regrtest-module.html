@@ -1,0 +1,979 @@
+<?xml version="1.0" encoding="ascii"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+          "DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <title>test.regrtest</title>
+  <link rel="stylesheet" href="epydoc.css" type="text/css" />
+  <script type="text/javascript" src="epydoc.js"></script>
+</head>
+
+<body bgcolor="white" text="black" link="blue" vlink="#204080"
+      alink="#204080">
+<!-- ==================== NAVIGATION BAR ==================== -->
+<table class="navbar" border="0" width="100%" cellpadding="0"
+       bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="middle">
+
+  <!-- Tree link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="module-tree.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Index link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="identifier-index.html">Indices</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Help link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Project homepage -->
+      <th class="navbar" align="right" width="100%">
+        <table border="0" cellpadding="0" cellspacing="0">
+          <tr><th class="navbar" align="center"
+            >ShutIt</th>
+          </tr></table></th>
+  </tr>
+</table>
+<table width="100%" cellpadding="0" cellspacing="0">
+  <tr valign="top">
+    <td width="100%">
+      <span class="breadcrumbs">
+        <a href="test-module.html">Package&nbsp;test</a> ::
+        Module&nbsp;regrtest
+      </span>
+    </td>
+    <td>
+      <table cellpadding="0" cellspacing="0">
+        <!-- hide/show private -->
+        <tr><td align="right"><span class="options">[<a href="javascript:void(0);" class="privatelink"
+    onclick="toggle_private();">hide&nbsp;private</a>]</span></td></tr>
+        <tr><td align="right"><span class="options"
+            >[<a href="frames.html" target="_top">frames</a
+            >]&nbsp;|&nbsp;<a href="test.regrtest-module.html"
+            target="_top">no&nbsp;frames</a>]</span></td></tr>
+      </table>
+    </td>
+  </tr>
+</table>
+<!-- ==================== MODULE DESCRIPTION ==================== -->
+<h1 class="epydoc">Module regrtest</h1><p class="nomargin-top"><span class="codelink"><a href="test.regrtest-pysrc.html">source&nbsp;code</a></span></p>
+<pre class="literalblock">
+
+Usage:
+
+python -m test.regrtest [options] [test_name1 [test_name2 ...]]
+python path/to/Lib/test/regrtest.py [options] [test_name1 [test_name2 ...]]
+
+
+If no arguments or options are provided, finds all files matching
+the pattern &quot;test_*&quot; in the Lib/test subdirectory and runs
+them in alphabetical order (but see -M and -u, below, for exceptions).
+
+For more rigorous testing, it is useful to use the following
+command line:
+
+python -E -tt -Wd -3 -m test.regrtest [options] [test_name1 ...]
+
+
+Options:
+
+-h/--help       -- print this text and exit
+
+Verbosity
+
+-v/--verbose    -- run tests in verbose mode with output to stdout
+-w/--verbose2   -- re-run failed tests in verbose mode
+-W/--verbose3   -- re-run failed tests in verbose mode immediately
+-q/--quiet      -- no output unless one or more tests fail
+-S/--slow       -- print the slowest 10 tests
+   --header     -- print header with interpreter info
+
+Selecting tests
+
+-r/--randomize  -- randomize test execution order (see below)
+   --randseed   -- pass a random seed to reproduce a previous random run
+-f/--fromfile   -- read names of tests to run from a file (see below)
+-x/--exclude    -- arguments are tests to *exclude*
+-s/--single     -- single step through a set of tests (see below)
+-u/--use RES1,RES2,...
+                -- specify which special resource intensive tests to run
+-M/--memlimit LIMIT
+                -- run very large memory-consuming tests
+
+Special runs
+
+-l/--findleaks  -- if GC is available detect tests that leak memory
+-L/--runleaks   -- run the leaks(1) command just before exit
+-R/--huntrleaks RUNCOUNTS
+                -- search for reference leaks (needs debug build, v. slow)
+-j/--multiprocess PROCESSES
+                -- run PROCESSES processes at once
+-T/--coverage   -- turn on code coverage tracing using the trace module
+-D/--coverdir DIRECTORY
+                -- Directory where coverage files are put
+-N/--nocoverdir -- Put coverage files alongside modules
+-t/--threshold THRESHOLD
+                -- call gc.set_threshold(THRESHOLD)
+-F/--forever    -- run the specified tests in a loop, until an error happens
+
+
+Additional Option Details:
+
+-r randomizes test execution order. You can use --randseed=int to provide a
+int seed value for the randomizer; this is useful for reproducing troublesome
+test orders.
+
+-s On the first invocation of regrtest using -s, the first test file found
+or the first test file given on the command line is run, and the name of
+the next test is recorded in a file named pynexttest.  If run from the
+Python build directory, pynexttest is located in the 'build' subdirectory,
+otherwise it is located in tempfile.gettempdir().  On subsequent runs,
+the test in pynexttest is run, and the next test is written to pynexttest.
+When the last test has been run, pynexttest is deleted.  In this way it
+is possible to single step through the test files.  This is useful when
+doing memory analysis on the Python interpreter, which process tends to
+consume too many resources to run the full regression test non-stop.
+
+-f reads the names of tests from the file given as f's argument, one
+or more test names per line.  Whitespace is ignored.  Blank lines and
+lines beginning with '#' are ignored.  This is especially useful for
+whittling down failures involving interactions among tests.
+
+-L causes the leaks(1) command to be run just before exit if it exists.
+leaks(1) is available on Mac OS X and presumably on some other
+FreeBSD-derived systems.
+
+-R runs each test several times and examines sys.gettotalrefcount() to
+see if the test appears to be leaking references.  The argument should
+be of the form stab:run:fname where 'stab' is the number of times the
+test is run to let gettotalrefcount settle down, 'run' is the number
+of times further it is run and 'fname' is the name of the file the
+reports are written to.  These parameters all have defaults (5, 4 and
+&quot;reflog.txt&quot; respectively), and the minimal invocation is '-R :'.
+
+-M runs tests that require an exorbitant amount of memory. These tests
+typically try to ascertain containers keep working when containing more than
+2 billion objects, which only works on 64-bit systems. There are also some
+tests that try to exhaust the address space of the process, which only makes
+sense on 32-bit systems with at least 2Gb of memory. The passed-in memlimit,
+which is a string in the form of '2.5Gb', determines howmuch memory the
+tests will limit themselves to (but they may go slightly over.) The number
+shouldn't be more memory than the machine has (including swap memory). You
+should also keep in mind that swap memory is generally much, much slower
+than RAM, and setting memlimit to all available RAM or higher will heavily
+tax the machine. On the other hand, it is no use running these tests with a
+limit of less than 2.5Gb, and many require more than 20Gb. Tests that expect
+to use more than memlimit memory will be skipped. The big-memory tests
+generally run very, very long.
+
+-u is used to specify which special resource intensive tests to run,
+such as those requiring large file support or network connectivity.
+The argument is a comma-separated list of words indicating the
+resources to test.  Currently only the following are defined:
+
+    all -       Enable all special resources.
+
+    audio -     Tests that use the audio device.  (There are known
+                cases of broken audio drivers that can crash Python or
+                even the Linux kernel.)
+
+    curses -    Tests that use curses and will modify the terminal's
+                state and output modes.
+
+    largefile - It is okay to run some test that may create huge
+                files.  These tests can take a long time and may
+                consume &gt;2GB of disk space temporarily.
+
+    network -   It is okay to run tests that use external network
+                resource, e.g. testing SSL support for sockets.
+
+    bsddb -     It is okay to run the bsddb testsuite, which takes
+                a long time to complete.
+
+    decimal -   Test the decimal module against a large suite that
+                verifies compliance with standards.
+
+    cpu -       Used for certain CPU-heavy tests.
+
+    subprocess  Run all tests for the subprocess module.
+
+    urlfetch -  It is okay to download files required on testing.
+
+    gui -       Run tests that require a running GUI.
+
+    xpickle -   Test pickle and cPickle against Python 2.4, 2.5 and 2.6 to
+                test backwards compatibility. These tests take a long time
+                to run.
+
+To enable all resources except one, use '-uall,-&lt;resource&gt;'.  For
+example, to run all the tests except for the bsddb tests, give the
+option '-uall,-bsddb'.
+
+</pre>
+
+<!-- ==================== CLASSES ==================== -->
+<a name="section-Classes"></a>
+<table class="summary" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="table-header">
+  <td colspan="2" class="table-header">
+    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+      <tr valign="top">
+        <td align="left"><span class="table-header">Classes</span></td>
+        <td align="right" valign="top"
+         ><span class="options">[<a href="#section-Classes"
+         class="privatelink" onclick="toggle_private();"
+         >hide private</a>]</span></td>
+      </tr>
+    </table>
+  </td>
+</tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a href="test.regrtest.saved_test_environment-class.html" class="summary-name">saved_test_environment</a><br />
+      Save bits of the test environment and restore them at block exit.
+    </td>
+  </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a href="test.regrtest._ExpectedSkips-class.html" class="summary-name" onclick="show_private();">_ExpectedSkips</a>
+    </td>
+  </tr>
+</table>
+<!-- ==================== FUNCTIONS ==================== -->
+<a name="section-Functions"></a>
+<table class="summary" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="table-header">
+  <td colspan="2" class="table-header">
+    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+      <tr valign="top">
+        <td align="left"><span class="table-header">Functions</span></td>
+        <td align="right" valign="top"
+         ><span class="options">[<a href="#section-Functions"
+         class="privatelink" onclick="toggle_private();"
+         >hide private</a>]</span></td>
+      </tr>
+    </table>
+  </td>
+</tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="usage"></a><span class="summary-sig-name">usage</span>(<span class="summary-sig-arg">code</span>,
+        <span class="summary-sig-arg">msg</span>=<span class="summary-sig-default"><code class="variable-quote">'</code><code class="variable-string"></code><code class="variable-quote">'</code></span>)</span></td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="test.regrtest-pysrc.html#usage">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="test.regrtest-module.html#main" class="summary-sig-name">main</a>(<span class="summary-sig-arg">tests</span>=<span class="summary-sig-default">None</span>,
+        <span class="summary-sig-arg">testdir</span>=<span class="summary-sig-default">None</span>,
+        <span class="summary-sig-arg">verbose</span>=<span class="summary-sig-default">0</span>,
+        <span class="summary-sig-arg">quiet</span>=<span class="summary-sig-default">False</span>,
+        <span class="summary-sig-arg">exclude</span>=<span class="summary-sig-default">False</span>,
+        <span class="summary-sig-arg">single</span>=<span class="summary-sig-default">False</span>,
+        <span class="summary-sig-arg">randomize</span>=<span class="summary-sig-default">False</span>,
+        <span class="summary-sig-arg">fromfile</span>=<span class="summary-sig-default">None</span>,
+        <span class="summary-sig-arg">findleaks</span>=<span class="summary-sig-default">False</span>,
+        <span class="summary-sig-arg">use_resources</span>=<span class="summary-sig-default">None</span>,
+        <span class="summary-sig-arg">trace</span>=<span class="summary-sig-default">False</span>,
+        <span class="summary-sig-arg">coverdir</span>=<span class="summary-sig-default"><code class="variable-quote">'</code><code class="variable-string">coverage</code><code class="variable-quote">'</code></span>,
+        <span class="summary-sig-arg">runleaks</span>=<span class="summary-sig-default">False</span>,
+        <span class="summary-sig-arg">huntrleaks</span>=<span class="summary-sig-default">False</span>,
+        <span class="summary-sig-arg">verbose2</span>=<span class="summary-sig-default">False</span>,
+        <span class="summary-sig-arg">print_slow</span>=<span class="summary-sig-default">False</span>,
+        <span class="summary-sig-arg">random_seed</span>=<span class="summary-sig-default">None</span>,
+        <span class="summary-sig-arg">use_mp</span>=<span class="summary-sig-default">None</span>,
+        <span class="summary-sig-arg">verbose3</span>=<span class="summary-sig-default">False</span>,
+        <span class="summary-sig-arg">forever</span>=<span class="summary-sig-default">False</span>,
+        <span class="summary-sig-arg">header</span>=<span class="summary-sig-default">False</span>)</span><br />
+      Execute a test suite.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="test.regrtest-pysrc.html#main">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="findtests"></a><span class="summary-sig-name">findtests</span>(<span class="summary-sig-arg">testdir</span>=<span class="summary-sig-default">None</span>,
+        <span class="summary-sig-arg">stdtests</span>=<span class="summary-sig-default"><code class="variable-group">[</code><code class="variable-quote">'</code><code class="variable-string">test_grammar</code><code class="variable-quote">'</code><code class="variable-op">, </code><code class="variable-quote">'</code><code class="variable-string">test_opcodes</code><code class="variable-quote">'</code><code class="variable-op">, </code><code class="variable-quote">'</code><code class="variable-string">test_dict</code><code class="variable-quote">'</code><code class="variable-op">, </code><code class="variable-quote">'</code><code class="variable-string">test_builtin</code><code class="variable-quote">'</code><code class="variable-op">, </code><code class="variable-ellipsis">...</code></span>,
+        <span class="summary-sig-arg">nottests</span>=<span class="summary-sig-default"><code class="variable-group">set([</code><code class="variable-quote">'</code><code class="variable-string">test_future1</code><code class="variable-quote">'</code><code class="variable-op">, </code><code class="variable-quote">'</code><code class="variable-string">test_future2</code><code class="variable-quote">'</code><code class="variable-op">, </code><code class="variable-quote">'</code><code class="variable-string">test_support</code><code class="variable-quote">'</code><code class="variable-group">])</code></span>)</span><br />
+      Return a list of all applicable test modules.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="test.regrtest-pysrc.html#findtests">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="test.regrtest-module.html#runtest" class="summary-sig-name">runtest</a>(<span class="summary-sig-arg">test</span>,
+        <span class="summary-sig-arg">verbose</span>,
+        <span class="summary-sig-arg">quiet</span>,
+        <span class="summary-sig-arg">huntrleaks</span>=<span class="summary-sig-default">False</span>,
+        <span class="summary-sig-arg">use_resources</span>=<span class="summary-sig-default">None</span>)</span><br />
+      Run a single test.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="test.regrtest-pysrc.html#runtest">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="runtest_inner"></a><span class="summary-sig-name">runtest_inner</span>(<span class="summary-sig-arg">test</span>,
+        <span class="summary-sig-arg">verbose</span>,
+        <span class="summary-sig-arg">quiet</span>,
+        <span class="summary-sig-arg">huntrleaks</span>=<span class="summary-sig-default">False</span>)</span></td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="test.regrtest-pysrc.html#runtest_inner">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="cleanup_test_droppings"></a><span class="summary-sig-name">cleanup_test_droppings</span>(<span class="summary-sig-arg">testname</span>,
+        <span class="summary-sig-arg">verbose</span>)</span></td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="test.regrtest-pysrc.html#cleanup_test_droppings">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="test.regrtest-module.html#dash_R" class="summary-sig-name">dash_R</a>(<span class="summary-sig-arg">the_module</span>,
+        <span class="summary-sig-arg">test</span>,
+        <span class="summary-sig-arg">indirect_test</span>,
+        <span class="summary-sig-arg">huntrleaks</span>)</span><br />
+      Run a test multiple times, looking for reference leaks.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="test.regrtest-pysrc.html#dash_R">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="dash_R_cleanup"></a><span class="summary-sig-name">dash_R_cleanup</span>(<span class="summary-sig-arg">fs</span>,
+        <span class="summary-sig-arg">ps</span>,
+        <span class="summary-sig-arg">pic</span>,
+        <span class="summary-sig-arg">zdc</span>,
+        <span class="summary-sig-arg">abcs</span>)</span></td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="test.regrtest-pysrc.html#dash_R_cleanup">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="findtestdir"></a><span class="summary-sig-name">findtestdir</span>(<span class="summary-sig-arg">path</span>=<span class="summary-sig-default">None</span>)</span></td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="test.regrtest-pysrc.html#findtestdir">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="removepy"></a><span class="summary-sig-name">removepy</span>(<span class="summary-sig-arg">names</span>)</span></td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="test.regrtest-pysrc.html#removepy">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="count"></a><span class="summary-sig-name">count</span>(<span class="summary-sig-arg">n</span>,
+        <span class="summary-sig-arg">word</span>)</span></td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="test.regrtest-pysrc.html#count">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="test.regrtest-module.html#printlist" class="summary-sig-name">printlist</a>(<span class="summary-sig-arg">x</span>,
+        <span class="summary-sig-arg">width</span>=<span class="summary-sig-default">70</span>,
+        <span class="summary-sig-arg">indent</span>=<span class="summary-sig-default">4</span>)</span><br />
+      Print the elements of iterable x to stdout.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="test.regrtest-pysrc.html#printlist">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+</table>
+<!-- ==================== VARIABLES ==================== -->
+<a name="section-Variables"></a>
+<table class="summary" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="table-header">
+  <td colspan="2" class="table-header">
+    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+      <tr valign="top">
+        <td align="left"><span class="table-header">Variables</span></td>
+        <td align="right" valign="top"
+         ><span class="options">[<a href="#section-Variables"
+         class="privatelink" onclick="toggle_private();"
+         >hide private</a>]</span></td>
+      </tr>
+    </table>
+  </td>
+</tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a name="newsoft"></a><span class="summary-name">newsoft</span> = <code title="min(hard, max(soft, 1024* 2048))">min(hard, max(soft, 1024* 2048))</code>
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a name="PASSED"></a><span class="summary-name">PASSED</span> = <code title="1">1</code>
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a name="FAILED"></a><span class="summary-name">FAILED</span> = <code title="0">0</code>
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a name="ENV_CHANGED"></a><span class="summary-name">ENV_CHANGED</span> = <code title="-1">-1</code>
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a name="SKIPPED"></a><span class="summary-name">SKIPPED</span> = <code title="-2">-2</code>
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a name="RESOURCE_DENIED"></a><span class="summary-name">RESOURCE_DENIED</span> = <code title="-3">-3</code>
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a name="INTERRUPTED"></a><span class="summary-name">INTERRUPTED</span> = <code title="-4">-4</code>
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a href="test.regrtest-module.html#RESOURCE_NAMES" class="summary-name">RESOURCE_NAMES</a> = <code title="('audio',
+ 'curses',
+ 'largefile',
+ 'network',
+ 'bsddb',
+ 'decimal',
+ 'cpu',
+ 'subprocess',
+..."><code class="variable-group">(</code><code class="variable-quote">'</code><code class="variable-string">audio</code><code class="variable-quote">'</code><code class="variable-op">, </code><code class="variable-quote">'</code><code class="variable-string">curses</code><code class="variable-quote">'</code><code class="variable-op">, </code><code class="variable-quote">'</code><code class="variable-string">largefile</code><code class="variable-quote">'</code><code class="variable-op">, </code><code class="variable-quote">'</code><code class="variable-string">network</code><code class="variable-quote">'</code><code class="variable-op">, </code><code class="variable-quote">'</code><code class="variable-ellipsis">...</code></code>
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a name="TEMPDIR"></a><span class="summary-name">TEMPDIR</span> = <code title="'/tmp'"><code class="variable-quote">'</code><code class="variable-string">/tmp</code><code class="variable-quote">'</code></code>
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a href="test.regrtest-module.html#STDTESTS" class="summary-name">STDTESTS</a> = <code title="['test_grammar',
+ 'test_opcodes',
+ 'test_dict',
+ 'test_builtin',
+ 'test_exceptions',
+ 'test_types',
+ 'test_unittest',
+ 'test_doctest',
+..."><code class="variable-group">[</code><code class="variable-quote">'</code><code class="variable-string">test_grammar</code><code class="variable-quote">'</code><code class="variable-op">, </code><code class="variable-quote">'</code><code class="variable-string">test_opcodes</code><code class="variable-quote">'</code><code class="variable-op">, </code><code class="variable-quote">'</code><code class="variable-string">test_dict</code><code class="variable-quote">'</code><code class="variable-op">, </code><code class="variable-quote">'</code><code class="variable-string">test</code><code class="variable-ellipsis">...</code></code>
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a name="NOTTESTS"></a><span class="summary-name">NOTTESTS</span> = <code title="set(['test_future1', 'test_future2', 'test_support'])"><code class="variable-group">set([</code><code class="variable-quote">'</code><code class="variable-string">test_future1</code><code class="variable-quote">'</code><code class="variable-op">, </code><code class="variable-quote">'</code><code class="variable-string">test_future2</code><code class="variable-quote">'</code><code class="variable-op">, </code><code class="variable-quote">'</code><code class="variable-string">test_support</code><code class="variable-quote">'</code><code class="variable-group">])</code></code>
+    </td>
+  </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a href="test.regrtest-module.html#_expectations" class="summary-name" onclick="show_private();">_expectations</a> = <code title="{'aix5': '''
+        test_bsddb
+        test_bsddb185
+        test_bsddb3
+        test_bz2
+        test_dl
+        test_epoll
+        test_gdbm
+..."><code class="variable-group">{</code><code class="variable-quote">'</code><code class="variable-string">aix5</code><code class="variable-quote">'</code><code class="variable-op">: </code><code class="variable-quote">'</code><code class="variable-string">\n        test_bsddb\n        test_b</code><code class="variable-ellipsis">...</code></code>
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a name="__package__"></a><span class="summary-name">__package__</span> = <code title="'test'"><code class="variable-quote">'</code><code class="variable-string">test</code><code class="variable-quote">'</code></code>
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a name="module"></a><span class="summary-name">module</span> = <code title="None">None</code>
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a href="test.regrtest-module.html#path" class="summary-name">path</a> = <code title="'/usr/local/lib/python2.7/dist-packages/Pygments-1.6-py2.7.egg/pygment\
+s/lexers'"><code class="variable-quote">'</code><code class="variable-string">/usr/local/lib/python2.7/dist-packages/Pygments-1.6-py</code><code class="variable-ellipsis">...</code></code>
+    </td>
+  </tr>
+</table>
+<!-- ==================== FUNCTION DETAILS ==================== -->
+<a name="section-FunctionDetails"></a>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="table-header">
+  <td colspan="2" class="table-header">
+    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+      <tr valign="top">
+        <td align="left"><span class="table-header">Function Details</span></td>
+        <td align="right" valign="top"
+         ><span class="options">[<a href="#section-FunctionDetails"
+         class="privatelink" onclick="toggle_private();"
+         >hide private</a>]</span></td>
+      </tr>
+    </table>
+  </td>
+</tr>
+</table>
+<a name="main"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">main</span>(<span class="sig-arg">tests</span>=<span class="sig-default">None</span>,
+        <span class="sig-arg">testdir</span>=<span class="sig-default">None</span>,
+        <span class="sig-arg">verbose</span>=<span class="sig-default">0</span>,
+        <span class="sig-arg">quiet</span>=<span class="sig-default">False</span>,
+        <span class="sig-arg">exclude</span>=<span class="sig-default">False</span>,
+        <span class="sig-arg">single</span>=<span class="sig-default">False</span>,
+        <span class="sig-arg">randomize</span>=<span class="sig-default">False</span>,
+        <span class="sig-arg">fromfile</span>=<span class="sig-default">None</span>,
+        <span class="sig-arg">findleaks</span>=<span class="sig-default">False</span>,
+        <span class="sig-arg">use_resources</span>=<span class="sig-default">None</span>,
+        <span class="sig-arg">trace</span>=<span class="sig-default">False</span>,
+        <span class="sig-arg">coverdir</span>=<span class="sig-default"><code class="variable-quote">'</code><code class="variable-string">coverage</code><code class="variable-quote">'</code></span>,
+        <span class="sig-arg">runleaks</span>=<span class="sig-default">False</span>,
+        <span class="sig-arg">huntrleaks</span>=<span class="sig-default">False</span>,
+        <span class="sig-arg">verbose2</span>=<span class="sig-default">False</span>,
+        <span class="sig-arg">print_slow</span>=<span class="sig-default">False</span>,
+        <span class="sig-arg">random_seed</span>=<span class="sig-default">None</span>,
+        <span class="sig-arg">use_mp</span>=<span class="sig-default">None</span>,
+        <span class="sig-arg">verbose3</span>=<span class="sig-default">False</span>,
+        <span class="sig-arg">forever</span>=<span class="sig-default">False</span>,
+        <span class="sig-arg">header</span>=<span class="sig-default">False</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="test.regrtest-pysrc.html#main">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Execute a test suite.</p>
+  <p>This also parses command-line options and modifies its behavior 
+  accordingly.</p>
+  <p>tests -- a list of strings containing test names (optional) testdir --
+  the directory in which to look for tests (optional)</p>
+  <p>Users other than the Python test suite will certainly want to specify 
+  testdir; if it's omitted, the directory containing the Python test suite 
+  is searched for.</p>
+  <p>If the tests argument is omitted, the tests listed on the command-line
+  will be used.  If that's empty, too, then all *.py files beginning with 
+  test_ will be used.</p>
+  <p>The other default arguments (verbose, quiet, exclude, single, 
+  randomize, findleaks, use_resources, trace, coverdir, print_slow, and 
+  random_seed) allow programmers calling main() directly to set the values 
+  that would normally be set by flags on the command line.</p>
+  <dl class="fields">
+  </dl>
+</td></tr></table>
+</div>
+<a name="runtest"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">runtest</span>(<span class="sig-arg">test</span>,
+        <span class="sig-arg">verbose</span>,
+        <span class="sig-arg">quiet</span>,
+        <span class="sig-arg">huntrleaks</span>=<span class="sig-default">False</span>,
+        <span class="sig-arg">use_resources</span>=<span class="sig-default">None</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="test.regrtest-pysrc.html#runtest">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <pre class="literalblock">
+Run a single test.
+
+test -- the name of the test
+verbose -- if true, print more messages
+quiet -- if true, don't print 'skipped' messages (probably redundant)
+test_times -- a list of (time, test_name) pairs
+huntrleaks -- run multiple times to test for leaks; requires a debug
+              build; a triple corresponding to -R's three arguments
+Returns one of the test result constants:
+    INTERRUPTED      KeyboardInterrupt when run under -j
+    RESOURCE_DENIED  test skipped because resource denied
+    SKIPPED          test skipped for some other reason
+    ENV_CHANGED      test failed because it changed the execution environment
+    FAILED           test failed
+    PASSED           test passed
+
+</pre>
+  <dl class="fields">
+  </dl>
+</td></tr></table>
+</div>
+<a name="dash_R"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">dash_R</span>(<span class="sig-arg">the_module</span>,
+        <span class="sig-arg">test</span>,
+        <span class="sig-arg">indirect_test</span>,
+        <span class="sig-arg">huntrleaks</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="test.regrtest-pysrc.html#dash_R">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <pre class="literalblock">
+Run a test multiple times, looking for reference leaks.
+
+Returns:
+    False if the test didn't leak references; True if we detected refleaks.
+
+</pre>
+  <dl class="fields">
+  </dl>
+</td></tr></table>
+</div>
+<a name="printlist"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">printlist</span>(<span class="sig-arg">x</span>,
+        <span class="sig-arg">width</span>=<span class="sig-default">70</span>,
+        <span class="sig-arg">indent</span>=<span class="sig-default">4</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="test.regrtest-pysrc.html#printlist">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Print the elements of iterable x to stdout.</p>
+  <p>Optional arg width (default 70) is the maximum line length. Optional 
+  arg indent (default 4) is the number of blanks with which to begin each 
+  line.</p>
+  <dl class="fields">
+  </dl>
+</td></tr></table>
+</div>
+<br />
+<!-- ==================== VARIABLES DETAILS ==================== -->
+<a name="section-VariablesDetails"></a>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="table-header">
+  <td colspan="2" class="table-header">
+    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+      <tr valign="top">
+        <td align="left"><span class="table-header">Variables Details</span></td>
+        <td align="right" valign="top"
+         ><span class="options">[<a href="#section-VariablesDetails"
+         class="privatelink" onclick="toggle_private();"
+         >hide private</a>]</span></td>
+      </tr>
+    </table>
+  </td>
+</tr>
+</table>
+<a name="RESOURCE_NAMES"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <h3 class="epydoc">RESOURCE_NAMES</h3>
+  
+  <dl class="fields">
+  </dl>
+  <dl class="fields">
+    <dt>Value:</dt>
+      <dd><table><tr><td><pre class="variable">
+<code class="variable-group">(</code><code class="variable-quote">'</code><code class="variable-string">audio</code><code class="variable-quote">'</code><code class="variable-op">,</code>
+ <code class="variable-quote">'</code><code class="variable-string">curses</code><code class="variable-quote">'</code><code class="variable-op">,</code>
+ <code class="variable-quote">'</code><code class="variable-string">largefile</code><code class="variable-quote">'</code><code class="variable-op">,</code>
+ <code class="variable-quote">'</code><code class="variable-string">network</code><code class="variable-quote">'</code><code class="variable-op">,</code>
+ <code class="variable-quote">'</code><code class="variable-string">bsddb</code><code class="variable-quote">'</code><code class="variable-op">,</code>
+ <code class="variable-quote">'</code><code class="variable-string">decimal</code><code class="variable-quote">'</code><code class="variable-op">,</code>
+ <code class="variable-quote">'</code><code class="variable-string">cpu</code><code class="variable-quote">'</code><code class="variable-op">,</code>
+ <code class="variable-quote">'</code><code class="variable-string">subprocess</code><code class="variable-quote">'</code><code class="variable-op">,</code>
+<code class="variable-ellipsis">...</code>
+</pre></td></tr></table>
+</dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="STDTESTS"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <h3 class="epydoc">STDTESTS</h3>
+  
+  <dl class="fields">
+  </dl>
+  <dl class="fields">
+    <dt>Value:</dt>
+      <dd><table><tr><td><pre class="variable">
+<code class="variable-group">[</code><code class="variable-quote">'</code><code class="variable-string">test_grammar</code><code class="variable-quote">'</code><code class="variable-op">,</code>
+ <code class="variable-quote">'</code><code class="variable-string">test_opcodes</code><code class="variable-quote">'</code><code class="variable-op">,</code>
+ <code class="variable-quote">'</code><code class="variable-string">test_dict</code><code class="variable-quote">'</code><code class="variable-op">,</code>
+ <code class="variable-quote">'</code><code class="variable-string">test_builtin</code><code class="variable-quote">'</code><code class="variable-op">,</code>
+ <code class="variable-quote">'</code><code class="variable-string">test_exceptions</code><code class="variable-quote">'</code><code class="variable-op">,</code>
+ <code class="variable-quote">'</code><code class="variable-string">test_types</code><code class="variable-quote">'</code><code class="variable-op">,</code>
+ <code class="variable-quote">'</code><code class="variable-string">test_unittest</code><code class="variable-quote">'</code><code class="variable-op">,</code>
+ <code class="variable-quote">'</code><code class="variable-string">test_doctest</code><code class="variable-quote">'</code><code class="variable-op">,</code>
+<code class="variable-ellipsis">...</code>
+</pre></td></tr></table>
+</dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="_expectations"></a>
+<div class="private">
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <h3 class="epydoc">_expectations</h3>
+  
+  <dl class="fields">
+  </dl>
+  <dl class="fields">
+    <dt>Value:</dt>
+      <dd><table><tr><td><pre class="variable">
+<code class="variable-group">{</code><code class="variable-quote">'</code><code class="variable-string">aix5</code><code class="variable-quote">'</code><code class="variable-op">: </code><code class="variable-quote">'''</code><code class="variable-string"></code>
+<code class="variable-string">        test_bsddb</code>
+<code class="variable-string">        test_bsddb185</code>
+<code class="variable-string">        test_bsddb3</code>
+<code class="variable-string">        test_bz2</code>
+<code class="variable-string">        test_dl</code>
+<code class="variable-string">        test_epoll</code>
+<code class="variable-string">        test_gdbm</code>
+<code class="variable-ellipsis">...</code>
+</pre></td></tr></table>
+</dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="path"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <h3 class="epydoc">path</h3>
+  
+  <dl class="fields">
+  </dl>
+  <dl class="fields">
+    <dt>Value:</dt>
+      <dd><table><tr><td><pre class="variable">
+<code class="variable-quote">'</code><code class="variable-string">/usr/local/lib/python2.7/dist-packages/Pygments-1.6-py2.7.egg/pygment</code><span class="variable-linewrap"><img src="crarr.png" alt="\" /></span>
+<code class="variable-string">s/lexers</code><code class="variable-quote">'</code>
+</pre></td></tr></table>
+</dd>
+  </dl>
+</td></tr></table>
+</div>
+<br />
+<!-- ==================== NAVIGATION BAR ==================== -->
+<table class="navbar" border="0" width="100%" cellpadding="0"
+       bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="middle">
+
+  <!-- Tree link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="module-tree.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Index link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="identifier-index.html">Indices</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Help link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Project homepage -->
+      <th class="navbar" align="right" width="100%">
+        <table border="0" cellpadding="0" cellspacing="0">
+          <tr><th class="navbar" align="center"
+            >ShutIt</th>
+          </tr></table></th>
+  </tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%%">
+  <tr>
+    <td align="left" class="footer">
+    Generated by Epydoc 3.0.1 on Tue Feb 17 12:38:04 2015
+    </td>
+    <td align="right" class="footer">
+      <a target="mainFrame" href="http://epydoc.sourceforge.net"
+        >http://epydoc.sourceforge.net</a>
+    </td>
+  </tr>
+</table>
+
+<script type="text/javascript">
+  <!--
+  // Private objects are initially displayed (because if
+  // javascript is turned off then we want them to be
+  // visible); but by default, we want to hide them.  So hide
+  // them unless we have a cookie that says to show them.
+  checkCookie();
+  // -->
+</script>
+</body>
+</html>

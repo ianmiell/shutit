@@ -1,0 +1,2226 @@
+<?xml version="1.0" encoding="ascii"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+          "DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <title>test.test_support</title>
+  <link rel="stylesheet" href="epydoc.css" type="text/css" />
+  <script type="text/javascript" src="epydoc.js"></script>
+</head>
+
+<body bgcolor="white" text="black" link="blue" vlink="#204080"
+      alink="#204080">
+<!-- ==================== NAVIGATION BAR ==================== -->
+<table class="navbar" border="0" width="100%" cellpadding="0"
+       bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="middle">
+
+  <!-- Tree link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="module-tree.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Index link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="identifier-index.html">Indices</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Help link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Project homepage -->
+      <th class="navbar" align="right" width="100%">
+        <table border="0" cellpadding="0" cellspacing="0">
+          <tr><th class="navbar" align="center"
+            >ShutIt</th>
+          </tr></table></th>
+  </tr>
+</table>
+<table width="100%" cellpadding="0" cellspacing="0">
+  <tr valign="top">
+    <td width="100%">
+      <span class="breadcrumbs">
+        <a href="test-module.html">Package&nbsp;test</a> ::
+        Module&nbsp;test_support
+      </span>
+    </td>
+    <td>
+      <table cellpadding="0" cellspacing="0">
+        <!-- hide/show private -->
+        <tr><td align="right"><span class="options">[<a href="javascript:void(0);" class="privatelink"
+    onclick="toggle_private();">hide&nbsp;private</a>]</span></td></tr>
+        <tr><td align="right"><span class="options"
+            >[<a href="frames.html" target="_top">frames</a
+            >]&nbsp;|&nbsp;<a href="test.test_support-module.html"
+            target="_top">no&nbsp;frames</a>]</span></td></tr>
+      </table>
+    </td>
+  </tr>
+</table>
+<!-- ==================== MODULE DESCRIPTION ==================== -->
+<h1 class="epydoc">Module test_support</h1><p class="nomargin-top"><span class="codelink"><a href="test.test_support-pysrc.html">source&nbsp;code</a></span></p>
+<p>Supporting definitions for the Python regression tests.</p>
+
+<!-- ==================== CLASSES ==================== -->
+<a name="section-Classes"></a>
+<table class="summary" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="table-header">
+  <td colspan="2" class="table-header">
+    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+      <tr valign="top">
+        <td align="left"><span class="table-header">Classes</span></td>
+        <td align="right" valign="top"
+         ><span class="options">[<a href="#section-Classes"
+         class="privatelink" onclick="toggle_private();"
+         >hide private</a>]</span></td>
+      </tr>
+    </table>
+  </td>
+</tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a href="test.test_support.Error-class.html" class="summary-name">Error</a><br />
+      Base class for regression test exceptions.
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a href="test.test_support.TestFailed-class.html" class="summary-name">TestFailed</a><br />
+      Test failed.
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a href="test.test_support.ResourceDenied-class.html" class="summary-name">ResourceDenied</a><br />
+      Test skipped because it requested a disallowed resource.
+    </td>
+  </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a href="test.test_support.WarningsRecorder-class.html" class="summary-name" onclick="show_private();">WarningsRecorder</a><br />
+      Convenience wrapper for the warnings list returned on entry to the 
+        warnings.catch_warnings() context manager.
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a href="test.test_support.CleanImport-class.html" class="summary-name">CleanImport</a><br />
+      Context manager to force import to return a new module reference.
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a href="test.test_support.EnvironmentVarGuard-class.html" class="summary-name">EnvironmentVarGuard</a><br />
+      Class to help protect the environment variable properly.
+    </td>
+  </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a href="test.test_support.DirsOnSysPath-class.html" class="summary-name" onclick="show_private();">DirsOnSysPath</a><br />
+      Context manager to temporarily add directories to sys.path.
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a href="test.test_support.TransientResource-class.html" class="summary-name">TransientResource</a><br />
+      Raise ResourceDenied if an exception is raised while the context 
+        manager is in effect that matches the specified exception and 
+        attributes.
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a href="test.test_support.BasicTestRunner-class.html" class="summary-name">BasicTestRunner</a>
+    </td>
+  </tr>
+</table>
+<!-- ==================== FUNCTIONS ==================== -->
+<a name="section-Functions"></a>
+<table class="summary" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="table-header">
+  <td colspan="2" class="table-header">
+    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+      <tr valign="top">
+        <td align="left"><span class="table-header">Functions</span></td>
+        <td align="right" valign="top"
+         ><span class="options">[<a href="#section-Functions"
+         class="privatelink" onclick="toggle_private();"
+         >hide private</a>]</span></td>
+      </tr>
+    </table>
+  </td>
+</tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="test.test_support-module.html#_ignore_deprecated_imports" class="summary-sig-name" onclick="show_private();">_ignore_deprecated_imports</a>(<span class="summary-sig-arg">*args</span>,
+        <span class="summary-sig-arg">**kwds</span>)</span><br />
+      Context manager to suppress package and module deprecation warnings 
+      when importing them.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="test.test_support-pysrc.html#_ignore_deprecated_imports">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="test.test_support-module.html#import_module" class="summary-sig-name">import_module</a>(<span class="summary-sig-arg">name</span>,
+        <span class="summary-sig-arg">deprecated</span>=<span class="summary-sig-default">False</span>)</span><br />
+      Import and return the module to be tested, raising SkipTest if it is 
+      not available.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="test.test_support-pysrc.html#import_module">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="test.test_support-module.html#_save_and_remove_module" class="summary-sig-name" onclick="show_private();">_save_and_remove_module</a>(<span class="summary-sig-arg">name</span>,
+        <span class="summary-sig-arg">orig_modules</span>)</span><br />
+      Helper function to save and remove a module from sys.modules</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="test.test_support-pysrc.html#_save_and_remove_module">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="test.test_support-module.html#_save_and_block_module" class="summary-sig-name" onclick="show_private();">_save_and_block_module</a>(<span class="summary-sig-arg">name</span>,
+        <span class="summary-sig-arg">orig_modules</span>)</span><br />
+      Helper function to save and block a module in sys.modules</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="test.test_support-pysrc.html#_save_and_block_module">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="test.test_support-module.html#import_fresh_module" class="summary-sig-name">import_fresh_module</a>(<span class="summary-sig-arg">name</span>,
+        <span class="summary-sig-arg">fresh</span>=<span class="summary-sig-default"><code class="variable-group">(</code><code class="variable-group">)</code></span>,
+        <span class="summary-sig-arg">blocked</span>=<span class="summary-sig-default"><code class="variable-group">(</code><code class="variable-group">)</code></span>,
+        <span class="summary-sig-arg">deprecated</span>=<span class="summary-sig-default">False</span>)</span><br />
+      Imports and returns a module, deliberately bypassing the sys.modules 
+      cache and importing a fresh copy of the module.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="test.test_support-pysrc.html#import_fresh_module">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="get_attribute"></a><span class="summary-sig-name">get_attribute</span>(<span class="summary-sig-arg">obj</span>,
+        <span class="summary-sig-arg">name</span>)</span><br />
+      Get an attribute, raising SkipTest if AttributeError is raised.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="test.test_support-pysrc.html#get_attribute">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="record_original_stdout"></a><span class="summary-sig-name">record_original_stdout</span>(<span class="summary-sig-arg">stdout</span>)</span></td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="test.test_support-pysrc.html#record_original_stdout">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="get_original_stdout"></a><span class="summary-sig-name">get_original_stdout</span>()</span></td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="test.test_support-pysrc.html#get_original_stdout">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="unload"></a><span class="summary-sig-name">unload</span>(<span class="summary-sig-arg">name</span>)</span></td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="test.test_support-pysrc.html#unload">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="_waitfor"></a><span class="summary-sig-name">_waitfor</span>(<span class="summary-sig-arg">func</span>,
+        <span class="summary-sig-arg">pathname</span>,
+        <span class="summary-sig-arg">waitall</span>=<span class="summary-sig-default">False</span>)</span></td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="test.test_support-pysrc.html#_waitfor">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="unlink"></a><span class="summary-sig-name">unlink</span>(<span class="summary-sig-arg">filename</span>)</span></td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="test.test_support-pysrc.html#unlink">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="rmdir"></a><span class="summary-sig-name">rmdir</span>(<span class="summary-sig-arg">dirname</span>)</span></td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="test.test_support-pysrc.html#rmdir">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="rmtree"></a><span class="summary-sig-name">rmtree</span>(<span class="summary-sig-arg">path</span>)</span></td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="test.test_support-pysrc.html#rmtree">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="forget"></a><span class="summary-sig-name">forget</span>(<span class="summary-sig-arg">modname</span>)</span><br />
+      &quot;Forget&quot; a module was ever imported by removing it from 
+      sys.modules and deleting any .pyc and .pyo files.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="test.test_support-pysrc.html#forget">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="_is_gui_available"></a><span class="summary-sig-name">_is_gui_available</span>()</span></td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="test.test_support-pysrc.html#_is_gui_available">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="test.test_support-module.html#is_resource_enabled" class="summary-sig-name">is_resource_enabled</a>(<span class="summary-sig-arg">resource</span>)</span><br />
+      Test whether a resource is enabled.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="test.test_support-pysrc.html#is_resource_enabled">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="test.test_support-module.html#requires" class="summary-sig-name">requires</a>(<span class="summary-sig-arg">resource</span>,
+        <span class="summary-sig-arg">msg</span>=<span class="summary-sig-default">None</span>)</span><br />
+      Raise ResourceDenied if the specified resource is not available.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="test.test_support-pysrc.html#requires">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="test.test_support-module.html#find_unused_port" class="summary-sig-name">find_unused_port</a>(<span class="summary-sig-arg">family</span>=<span class="summary-sig-default">2</span>,
+        <span class="summary-sig-arg">socktype</span>=<span class="summary-sig-default">1</span>)</span><br />
+      Returns an unused port that should be suitable for binding.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="test.test_support-pysrc.html#find_unused_port">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="test.test_support-module.html#bind_port" class="summary-sig-name">bind_port</a>(<span class="summary-sig-arg">sock</span>,
+        <span class="summary-sig-arg">host</span>=<span class="summary-sig-default"><code class="variable-quote">'</code><code class="variable-string">127.0.0.1</code><code class="variable-quote">'</code></span>)</span><br />
+      Bind the socket to a free port and return the port number.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="test.test_support-pysrc.html#bind_port">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="fcmp"></a><span class="summary-sig-name">fcmp</span>(<span class="summary-sig-arg">x</span>,
+        <span class="summary-sig-arg">y</span>)</span></td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="test.test_support-pysrc.html#fcmp">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="test.test_support-module.html#temp_cwd" class="summary-sig-name">temp_cwd</a>(<span class="summary-sig-arg">*args</span>,
+        <span class="summary-sig-arg">**kwds</span>)</span><br />
+      Context manager that creates a temporary directory and set it as CWD.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="test.test_support-pysrc.html#temp_cwd">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="test.test_support-module.html#findfile" class="summary-sig-name">findfile</a>(<span class="summary-sig-arg">file</span>,
+        <span class="summary-sig-arg">here</span>=<span class="summary-sig-default"><code class="variable-quote">'</code><code class="variable-string">/usr/lib/python2.7/test/test_support.pyc</code><code class="variable-quote">'</code></span>,
+        <span class="summary-sig-arg">subdir</span>=<span class="summary-sig-default">None</span>)</span><br />
+      Try to find a file on sys.path and the working directory.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="test.test_support-pysrc.html#findfile">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="sortdict"></a><span class="summary-sig-name">sortdict</span>(<span class="summary-sig-arg">dict</span>)</span><br />
+      Like repr(dict), but in sorted order.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="test.test_support-pysrc.html#sortdict">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="make_bad_fd"></a><span class="summary-sig-name">make_bad_fd</span>()</span><br />
+      Create an invalid file descriptor by opening and closing a file and 
+      return its fd.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="test.test_support-pysrc.html#make_bad_fd">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="check_syntax_error"></a><span class="summary-sig-name">check_syntax_error</span>(<span class="summary-sig-arg">testcase</span>,
+        <span class="summary-sig-arg">statement</span>)</span></td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="test.test_support-pysrc.html#check_syntax_error">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="open_urlresource"></a><span class="summary-sig-name">open_urlresource</span>(<span class="summary-sig-arg">url</span>,
+        <span class="summary-sig-arg">check</span>=<span class="summary-sig-default">None</span>)</span></td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="test.test_support-pysrc.html#open_urlresource">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="test.test_support-module.html#_filterwarnings" class="summary-sig-name" onclick="show_private();">_filterwarnings</a>(<span class="summary-sig-arg">filters</span>,
+        <span class="summary-sig-arg">quiet</span>=<span class="summary-sig-default">False</span>)</span><br />
+      Catch the warnings, then check if all the expected warnings have been
+      raised and re-raise unexpected warnings.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="test.test_support-pysrc.html#_filterwarnings">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="test.test_support-module.html#check_warnings" class="summary-sig-name">check_warnings</a>(<span class="summary-sig-arg">*args</span>,
+        <span class="summary-sig-arg">**kwds</span>)</span><br />
+      Context manager to silence warnings.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="test.test_support-pysrc.html#check_warnings">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="test.test_support-module.html#check_py3k_warnings" class="summary-sig-name">check_py3k_warnings</a>(<span class="summary-sig-arg">*args</span>,
+        <span class="summary-sig-arg">**kwds</span>)</span><br />
+      Context manager to silence py3k warnings.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="test.test_support-pysrc.html#check_py3k_warnings">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="test.test_support-module.html#transient_internet" class="summary-sig-name">transient_internet</a>(<span class="summary-sig-arg">*args</span>,
+        <span class="summary-sig-arg">**kwds</span>)</span><br />
+      Return a context manager that raises ResourceDenied when various 
+      issues with the Internet connection manifest themselves as 
+      exceptions.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="test.test_support-pysrc.html#transient_internet">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="test.test_support-module.html#captured_output" class="summary-sig-name">captured_output</a>(<span class="summary-sig-arg">*args</span>,
+        <span class="summary-sig-arg">**kwds</span>)</span><br />
+      Return a context manager used by captured_stdout and captured_stdin 
+      that temporarily replaces the sys stream *stream_name* with a 
+      StringIO.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="test.test_support-pysrc.html#captured_output">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="test.test_support-module.html#captured_stdout" class="summary-sig-name">captured_stdout</a>()</span><br />
+      Capture the output of sys.stdout:</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="test.test_support-pysrc.html#captured_stdout">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="captured_stderr"></a><span class="summary-sig-name">captured_stderr</span>()</span></td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="test.test_support-pysrc.html#captured_stderr">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="captured_stdin"></a><span class="summary-sig-name">captured_stdin</span>()</span></td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="test.test_support-pysrc.html#captured_stdin">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="test.test_support-module.html#gc_collect" class="summary-sig-name" onclick="show_private();">gc_collect</a>()</span><br />
+      Force as many objects as possible to be collected.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="test.test_support-pysrc.html#gc_collect">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="calcobjsize"></a><span class="summary-sig-name">calcobjsize</span>(<span class="summary-sig-arg">fmt</span>)</span></td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="test.test_support-pysrc.html#calcobjsize">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="calcvobjsize"></a><span class="summary-sig-name">calcvobjsize</span>(<span class="summary-sig-arg">fmt</span>)</span></td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="test.test_support-pysrc.html#calcvobjsize">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="check_sizeof"></a><span class="summary-sig-name">check_sizeof</span>(<span class="summary-sig-arg">test</span>,
+        <span class="summary-sig-arg">o</span>,
+        <span class="summary-sig-arg">size</span>)</span></td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="test.test_support-pysrc.html#check_sizeof">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="run_with_locale"></a><span class="summary-sig-name">run_with_locale</span>(<span class="summary-sig-arg">catstr</span>,
+        <span class="summary-sig-arg">*locales</span>)</span></td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="test.test_support-pysrc.html#run_with_locale">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="set_memlimit"></a><span class="summary-sig-name">set_memlimit</span>(<span class="summary-sig-arg">limit</span>)</span></td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="test.test_support-pysrc.html#set_memlimit">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="test.test_support-module.html#bigmemtest" class="summary-sig-name">bigmemtest</a>(<span class="summary-sig-arg">minsize</span>,
+        <span class="summary-sig-arg">memuse</span>,
+        <span class="summary-sig-arg">overhead</span>=<span class="summary-sig-default">5242880</span>)</span><br />
+      Decorator for bigmem tests.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="test.test_support-pysrc.html#bigmemtest">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="precisionbigmemtest"></a><span class="summary-sig-name">precisionbigmemtest</span>(<span class="summary-sig-arg">size</span>,
+        <span class="summary-sig-arg">memuse</span>,
+        <span class="summary-sig-arg">overhead</span>=<span class="summary-sig-default">5242880</span>,
+        <span class="summary-sig-arg">dry_run</span>=<span class="summary-sig-default">True</span>)</span></td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="test.test_support-pysrc.html#precisionbigmemtest">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="bigaddrspacetest"></a><span class="summary-sig-name">bigaddrspacetest</span>(<span class="summary-sig-arg">f</span>)</span><br />
+      Decorator for tests that fill the address space.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="test.test_support-pysrc.html#bigaddrspacetest">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="_id"></a><span class="summary-sig-name">_id</span>(<span class="summary-sig-arg">obj</span>)</span></td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="test.test_support-pysrc.html#_id">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="requires_resource"></a><span class="summary-sig-name">requires_resource</span>(<span class="summary-sig-arg">resource</span>)</span></td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="test.test_support-pysrc.html#requires_resource">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="cpython_only"></a><span class="summary-sig-name">cpython_only</span>(<span class="summary-sig-arg">test</span>)</span><br />
+      Decorator for tests only applicable on CPython.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="test.test_support-pysrc.html#cpython_only">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="impl_detail"></a><span class="summary-sig-name">impl_detail</span>(<span class="summary-sig-arg">msg</span>=<span class="summary-sig-default">None</span>,
+        <span class="summary-sig-arg">**guards</span>)</span></td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="test.test_support-pysrc.html#impl_detail">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="_parse_guards"></a><span class="summary-sig-name">_parse_guards</span>(<span class="summary-sig-arg">guards</span>)</span></td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="test.test_support-pysrc.html#_parse_guards">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="test.test_support-module.html#check_impl_detail" class="summary-sig-name">check_impl_detail</a>(<span class="summary-sig-arg">**guards</span>)</span><br />
+      This function returns True or False depending on the host platform.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="test.test_support-pysrc.html#check_impl_detail">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="_run_suite"></a><span class="summary-sig-name">_run_suite</span>(<span class="summary-sig-arg">suite</span>)</span><br />
+      Run tests from a unittest.TestSuite-derived class.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="test.test_support-pysrc.html#_run_suite">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="run_unittest"></a><span class="summary-sig-name">run_unittest</span>(<span class="summary-sig-arg">*classes</span>)</span><br />
+      Run tests from unittest.TestCase-derived classes.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="test.test_support-pysrc.html#run_unittest">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="test.test_support-module.html#run_doctest" class="summary-sig-name">run_doctest</a>(<span class="summary-sig-arg">module</span>,
+        <span class="summary-sig-arg">verbosity</span>=<span class="summary-sig-default">None</span>)</span><br />
+      Run doctest on the given module.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="test.test_support-pysrc.html#run_doctest">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="threading_setup"></a><span class="summary-sig-name">threading_setup</span>()</span></td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="test.test_support-pysrc.html#threading_setup">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="threading_cleanup"></a><span class="summary-sig-name">threading_cleanup</span>(<span class="summary-sig-arg">nb_threads</span>)</span></td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="test.test_support-pysrc.html#threading_cleanup">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="test.test_support-module.html#reap_threads" class="summary-sig-name" onclick="show_private();">reap_threads</a>(<span class="summary-sig-arg">func</span>)</span><br />
+      Use this function when threads are being used.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="test.test_support-pysrc.html#reap_threads">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="test.test_support-module.html#reap_children" class="summary-sig-name">reap_children</a>()</span><br />
+      Use this function at the end of test_main() whenever sub-processes 
+      are started.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="test.test_support-pysrc.html#reap_children">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="test.test_support-module.html#swap_attr" class="summary-sig-name" onclick="show_private();">swap_attr</a>(<span class="summary-sig-arg">*args</span>,
+        <span class="summary-sig-arg">**kwds</span>)</span><br />
+      Temporary swap out an attribute with a new object.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="test.test_support-pysrc.html#swap_attr">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="test.test_support-module.html#py3k_bytes" class="summary-sig-name">py3k_bytes</a>(<span class="summary-sig-arg">b</span>)</span><br />
+      Emulate the py3k bytes() constructor.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="test.test_support-pysrc.html#py3k_bytes">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="args_from_interpreter_flags"></a><span class="summary-sig-name">args_from_interpreter_flags</span>()</span><br />
+      Return a list of command-line arguments reproducing the current 
+      settings in sys.flags.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="test.test_support-pysrc.html#args_from_interpreter_flags">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="test.test_support-module.html#strip_python_stderr" class="summary-sig-name">strip_python_stderr</a>(<span class="summary-sig-arg">stderr</span>)</span><br />
+      Strip the stderr of a Python process from potential debug output 
+      emitted by the interpreter.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="test.test_support-pysrc.html#strip_python_stderr">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+</table>
+<!-- ==================== VARIABLES ==================== -->
+<a name="section-Variables"></a>
+<table class="summary" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="table-header">
+  <td colspan="2" class="table-header">
+    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+      <tr valign="top">
+        <td align="left"><span class="table-header">Variables</span></td>
+        <td align="right" valign="top"
+         ><span class="options">[<a href="#section-Variables"
+         class="privatelink" onclick="toggle_private();"
+         >hide private</a>]</span></td>
+      </tr>
+    </table>
+  </td>
+</tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a name="verbose"></a><span class="summary-name">verbose</span> = <code title="1">1</code>
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a name="use_resources"></a><span class="summary-name">use_resources</span> = <code title="None">None</code>
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a name="max_memuse"></a><span class="summary-name">max_memuse</span> = <code title="0">0</code>
+    </td>
+  </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a name="real_max_memuse"></a><span class="summary-name">real_max_memuse</span> = <code title="0">0</code>
+    </td>
+  </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a name="_original_stdout"></a><span class="summary-name">_original_stdout</span> = <code title="None">None</code>
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a name="HOST"></a><span class="summary-name">HOST</span> = <code title="'127.0.0.1'"><code class="variable-quote">'</code><code class="variable-string">127.0.0.1</code><code class="variable-quote">'</code></code>
+    </td>
+  </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a name="HOSTv6"></a><span class="summary-name">HOSTv6</span> = <code title="'::1'"><code class="variable-quote">'</code><code class="variable-string">::1</code><code class="variable-quote">'</code></code>
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a name="FUZZ"></a><span class="summary-name">FUZZ</span> = <code title="1e-06">1e-06</code>
+    </td>
+  </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a name="PIPE_MAX_SIZE"></a><span class="summary-name">PIPE_MAX_SIZE</span> = <code title="4194305">4194305</code>
+    </td>
+  </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a name="SOCK_MAX_SIZE"></a><span class="summary-name">SOCK_MAX_SIZE</span> = <code title="16777217">16777217</code>
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a name="have_unicode"></a><span class="summary-name">have_unicode</span> = <code title="True">True</code>
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a name="is_jython"></a><span class="summary-name">is_jython</span> = <code title="False">False</code>
+    </td>
+  </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a name="FS_NONASCII"></a><span class="summary-name">FS_NONASCII</span> = <code title="u'&#230;'"><code class="variable-quote">u'</code><code class="variable-string">&#230;</code><code class="variable-quote">'</code></code>
+    </td>
+  </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a name="TESTFN_UNICODE"></a><span class="summary-name">TESTFN_UNICODE</span> = <code title="u'@test-&#224;&#242;'"><code class="variable-quote">u'</code><code class="variable-string">@test-&#224;&#242;</code><code class="variable-quote">'</code></code>
+    </td>
+  </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a name="TESTFN_ENCODING"></a><span class="summary-name">TESTFN_ENCODING</span> = <code title="'UTF-8'"><code class="variable-quote">'</code><code class="variable-string">UTF-8</code><code class="variable-quote">'</code></code>
+    </td>
+  </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a name="TESTFN_UNENCODABLE"></a><span class="summary-name">TESTFN_UNENCODABLE</span> = <code title="None">None</code>
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a name="TESTFN"></a><span class="summary-name">TESTFN</span> = <code title="'@test_19010_tmp'"><code class="variable-quote">'</code><code class="variable-string">@test_19010_tmp</code><code class="variable-quote">'</code></code>
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a name="SAVEDCWD"></a><span class="summary-name">SAVEDCWD</span> = <code title="'/space/git/shutit'"><code class="variable-quote">'</code><code class="variable-string">/space/git/shutit</code><code class="variable-quote">'</code></code>
+    </td>
+  </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a name="_header"></a><span class="summary-name">_header</span> = <code title="'2P'"><code class="variable-quote">'</code><code class="variable-string">2P</code><code class="variable-quote">'</code></code>
+    </td>
+  </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a name="_vheader"></a><span class="summary-name">_vheader</span> = <code title="'2PP'"><code class="variable-quote">'</code><code class="variable-string">2PP</code><code class="variable-quote">'</code></code>
+    </td>
+  </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a name="_TPFLAGS_HAVE_GC"></a><span class="summary-name">_TPFLAGS_HAVE_GC</span> = <code title="16384">16384</code>
+    </td>
+  </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a name="_TPFLAGS_HEAPTYPE"></a><span class="summary-name">_TPFLAGS_HEAPTYPE</span> = <code title="512">512</code>
+    </td>
+  </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a name="_1M"></a><span class="summary-name">_1M</span> = <code title="1048576">1048576</code>
+    </td>
+  </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a name="_1G"></a><span class="summary-name">_1G</span> = <code title="1073741824">1073741824</code>
+    </td>
+  </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a name="_2G"></a><span class="summary-name">_2G</span> = <code title="2147483648">2147483648</code>
+    </td>
+  </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a name="_4G"></a><span class="summary-name">_4G</span> = <code title="4294967296">4294967296</code>
+    </td>
+  </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a name="MAX_Py_ssize_t"></a><span class="summary-name">MAX_Py_ssize_t</span> = <code title="9223372036854775807">9223372036854775807</code>
+    </td>
+  </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a name="HAVE_DOCSTRINGS"></a><span class="summary-name">HAVE_DOCSTRINGS</span> = <code title="1">1</code>
+    </td>
+  </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a name="__package__"></a><span class="summary-name">__package__</span> = <code title="'test'"><code class="variable-quote">'</code><code class="variable-string">test</code><code class="variable-quote">'</code></code>
+    </td>
+  </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a name="character"></a><span class="summary-name">character</span> = <code title="u'&#230;'"><code class="variable-quote">u'</code><code class="variable-string">&#230;</code><code class="variable-quote">'</code></code>
+    </td>
+  </tr>
+</table>
+<!-- ==================== FUNCTION DETAILS ==================== -->
+<a name="section-FunctionDetails"></a>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="table-header">
+  <td colspan="2" class="table-header">
+    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+      <tr valign="top">
+        <td align="left"><span class="table-header">Function Details</span></td>
+        <td align="right" valign="top"
+         ><span class="options">[<a href="#section-FunctionDetails"
+         class="privatelink" onclick="toggle_private();"
+         >hide private</a>]</span></td>
+      </tr>
+    </table>
+  </td>
+</tr>
+</table>
+<a name="_ignore_deprecated_imports"></a>
+<div class="private">
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">_ignore_deprecated_imports</span>(<span class="sig-arg">*args</span>,
+        <span class="sig-arg">**kwds</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="test.test_support-pysrc.html#_ignore_deprecated_imports">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Context manager to suppress package and module deprecation warnings 
+  when importing them.</p>
+  <p>If ignore is False, this context manager has no effect.</p>
+  <dl class="fields">
+    <dt>Decorators:</dt>
+    <dd><ul class="nomargin-top">
+        <li><code>@contextlib.contextmanager</code></li>
+    </ul></dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="import_module"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">import_module</span>(<span class="sig-arg">name</span>,
+        <span class="sig-arg">deprecated</span>=<span class="sig-default">False</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="test.test_support-pysrc.html#import_module">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Import and return the module to be tested, raising SkipTest if it is 
+  not available.</p>
+  <p>If deprecated is True, any module or package deprecation messages will
+  be suppressed.</p>
+  <dl class="fields">
+  </dl>
+</td></tr></table>
+</div>
+<a name="_save_and_remove_module"></a>
+<div class="private">
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">_save_and_remove_module</span>(<span class="sig-arg">name</span>,
+        <span class="sig-arg">orig_modules</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="test.test_support-pysrc.html#_save_and_remove_module">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Helper function to save and remove a module from sys.modules</p>
+  <p>Raise ImportError if the module can't be imported.</p>
+  <dl class="fields">
+  </dl>
+</td></tr></table>
+</div>
+<a name="_save_and_block_module"></a>
+<div class="private">
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">_save_and_block_module</span>(<span class="sig-arg">name</span>,
+        <span class="sig-arg">orig_modules</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="test.test_support-pysrc.html#_save_and_block_module">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Helper function to save and block a module in sys.modules</p>
+  <p>Return True if the module was in sys.modules, False otherwise.</p>
+  <dl class="fields">
+  </dl>
+</td></tr></table>
+</div>
+<a name="import_fresh_module"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">import_fresh_module</span>(<span class="sig-arg">name</span>,
+        <span class="sig-arg">fresh</span>=<span class="sig-default"><code class="variable-group">(</code><code class="variable-group">)</code></span>,
+        <span class="sig-arg">blocked</span>=<span class="sig-default"><code class="variable-group">(</code><code class="variable-group">)</code></span>,
+        <span class="sig-arg">deprecated</span>=<span class="sig-default">False</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="test.test_support-pysrc.html#import_fresh_module">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Imports and returns a module, deliberately bypassing the sys.modules 
+  cache and importing a fresh copy of the module. Once the import is 
+  complete, the sys.modules cache is restored to its original state.</p>
+  <p>Modules named in fresh are also imported anew if needed by the import.
+  If one of these modules can't be imported, None is returned.</p>
+  <p>Importing of modules named in blocked is prevented while the fresh 
+  import takes place.</p>
+  <p>If deprecated is True, any module or package deprecation messages will
+  be suppressed.</p>
+  <dl class="fields">
+  </dl>
+</td></tr></table>
+</div>
+<a name="is_resource_enabled"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">is_resource_enabled</span>(<span class="sig-arg">resource</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="test.test_support-pysrc.html#is_resource_enabled">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Test whether a resource is enabled.  Known resources are set by 
+  regrtest.py.</p>
+  <dl class="fields">
+  </dl>
+</td></tr></table>
+</div>
+<a name="requires"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">requires</span>(<span class="sig-arg">resource</span>,
+        <span class="sig-arg">msg</span>=<span class="sig-default">None</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="test.test_support-pysrc.html#requires">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Raise ResourceDenied if the specified resource is not available.</p>
+  <p>If the caller's module is __main__ then automatically return True.  
+  The possibility of False being returned occurs when regrtest.py is 
+  executing.</p>
+  <dl class="fields">
+  </dl>
+</td></tr></table>
+</div>
+<a name="find_unused_port"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">find_unused_port</span>(<span class="sig-arg">family</span>=<span class="sig-default">2</span>,
+        <span class="sig-arg">socktype</span>=<span class="sig-default">1</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="test.test_support-pysrc.html#find_unused_port">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Returns an unused port that should be suitable for binding.  This is 
+  achieved by creating a temporary socket with the same family and type as 
+  the 'sock' parameter (default is AF_INET, SOCK_STREAM), and binding it to
+  the specified host address (defaults to 0.0.0.0) with the port set to 0, 
+  eliciting an unused ephemeral port from the OS.  The temporary socket is 
+  then closed and deleted, and the ephemeral port is returned.</p>
+  <p>Either this method or bind_port() should be used for any tests where a
+  server socket needs to be bound to a particular port for the duration of 
+  the test.  Which one to use depends on whether the calling code is 
+  creating a python socket, or if an unused port needs to be provided in a 
+  constructor or passed to an external program (i.e. the -accept argument 
+  to openssl's s_server mode).  Always prefer bind_port() over 
+  find_unused_port() where possible.  Hard coded ports should *NEVER* be 
+  used.  As soon as a server socket is bound to a hard coded port, the 
+  ability to run multiple instances of the test simultaneously on the same 
+  host is compromised, which makes the test a ticking time bomb in a 
+  buildbot environment. On Unix buildbots, this may simply manifest as a 
+  failed test, which can be recovered from without intervention in most 
+  cases, but on Windows, the entire python process can completely and 
+  utterly wedge, requiring someone to log in to the buildbot and manually 
+  kill the affected process.</p>
+  <p>(This is easy to reproduce on Windows, unfortunately, and can be 
+  traced to the SO_REUSEADDR socket option having different semantics on 
+  Windows versus Unix/Linux.  On Unix, you can't have two AF_INET 
+  SOCK_STREAM sockets bind, listen and then accept connections on identical
+  host/ports.  An EADDRINUSE socket.error will be raised at some point 
+  (depending on the platform and the order bind and listen were called on 
+  each socket).</p>
+  <p>However, on Windows, if SO_REUSEADDR is set on the sockets, no 
+  EADDRINUSE will ever be raised when attempting to bind two identical 
+  host/ports. When accept() is called on each socket, the second caller's 
+  process will steal the port from the first caller, leaving them both in 
+  an awkwardly wedged state where they'll no longer respond to any signals 
+  or graceful kills, and must be forcibly killed via 
+  OpenProcess()/TerminateProcess().</p>
+  <p>The solution on Windows is to use the SO_EXCLUSIVEADDRUSE socket 
+  option instead of SO_REUSEADDR, which effectively affords the same 
+  semantics as SO_REUSEADDR on Unix.  Given the propensity of Unix 
+  developers in the Open Source world compared to Windows ones, this is a 
+  common mistake.  A quick look over OpenSSL's 0.9.8g source shows that 
+  they use SO_REUSEADDR when openssl.exe is called with the 's_server' 
+  option, for example. See http://bugs.python.org/issue2550 for more info.
+  The following site also has a very thorough description about the 
+  implications of both REUSEADDR and EXCLUSIVEADDRUSE on Windows: 
+  http://msdn2.microsoft.com/en-us/library/ms740621(VS.85).aspx)</p>
+  <p>XXX: although this approach is a vast improvement on previous attempts
+  to elicit unused ports, it rests heavily on the assumption that the 
+  ephemeral port returned to us by the OS won't immediately be dished back 
+  out to some other process when we close and delete our temporary socket 
+  but before our calling code has a chance to bind the returned port.  We 
+  can deal with this issue if/when we come across it.</p>
+  <dl class="fields">
+  </dl>
+</td></tr></table>
+</div>
+<a name="bind_port"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">bind_port</span>(<span class="sig-arg">sock</span>,
+        <span class="sig-arg">host</span>=<span class="sig-default"><code class="variable-quote">'</code><code class="variable-string">127.0.0.1</code><code class="variable-quote">'</code></span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="test.test_support-pysrc.html#bind_port">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Bind the socket to a free port and return the port number.  Relies on 
+  ephemeral ports in order to ensure we are using an unbound port.  This is
+  important as many tests may be running simultaneously, especially in a 
+  buildbot environment.  This method raises an exception if the sock.family
+  is AF_INET and sock.type is SOCK_STREAM, *and* the socket has 
+  SO_REUSEADDR or SO_REUSEPORT set on it.  Tests should *never* set these 
+  socket options for TCP/IP sockets.  The only case for setting these 
+  options is testing multicasting via multiple UDP sockets.</p>
+  <p>Additionally, if the SO_EXCLUSIVEADDRUSE socket option is available 
+  (i.e. on Windows), it will be set on the socket.  This will prevent 
+  anyone else from bind()'ing to our host/port for the duration of the 
+  test.</p>
+  <dl class="fields">
+  </dl>
+</td></tr></table>
+</div>
+<a name="temp_cwd"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">temp_cwd</span>(<span class="sig-arg">*args</span>,
+        <span class="sig-arg">**kwds</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="test.test_support-pysrc.html#temp_cwd">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Context manager that creates a temporary directory and set it as 
+  CWD.</p>
+  <p>The new CWD is created in the current directory and it's named *name*.
+  If *quiet* is False (default) and it's not possible to create or change 
+  the CWD, an error is raised.  If it's True, only a warning is raised and 
+  the original CWD is used.</p>
+  <dl class="fields">
+    <dt>Decorators:</dt>
+    <dd><ul class="nomargin-top">
+        <li><code>@contextlib.contextmanager</code></li>
+    </ul></dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="findfile"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">findfile</span>(<span class="sig-arg">file</span>,
+        <span class="sig-arg">here</span>=<span class="sig-default"><code class="variable-quote">'</code><code class="variable-string">/usr/lib/python2.7/test/test_support.pyc</code><code class="variable-quote">'</code></span>,
+        <span class="sig-arg">subdir</span>=<span class="sig-default">None</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="test.test_support-pysrc.html#findfile">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Try to find a file on sys.path and the working directory.  If it is 
+  not found the argument passed to the function is returned (this does not 
+  necessarily signal failure; could still be the legitimate path).</p>
+  <dl class="fields">
+  </dl>
+</td></tr></table>
+</div>
+<a name="_filterwarnings"></a>
+<div class="private">
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">_filterwarnings</span>(<span class="sig-arg">filters</span>,
+        <span class="sig-arg">quiet</span>=<span class="sig-default">False</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="test.test_support-pysrc.html#_filterwarnings">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Catch the warnings, then check if all the expected warnings have been 
+  raised and re-raise unexpected warnings. If 'quiet' is True, only 
+  re-raise the unexpected warnings.</p>
+  <dl class="fields">
+  </dl>
+</td></tr></table>
+</div>
+<a name="check_warnings"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">check_warnings</span>(<span class="sig-arg">*args</span>,
+        <span class="sig-arg">**kwds</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="test.test_support-pysrc.html#check_warnings">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <pre class="literalblock">
+Context manager to silence warnings.
+
+Accept 2-tuples as positional arguments:
+    (&quot;message regexp&quot;, WarningCategory)
+
+Optional argument:
+ - if 'quiet' is True, it does not fail if a filter catches nothing
+    (default True without argument,
+     default False if some filters are defined)
+
+Without argument, it defaults to:
+    check_warnings((&quot;&quot;, Warning), quiet=True)
+
+</pre>
+  <dl class="fields">
+    <dt>Decorators:</dt>
+    <dd><ul class="nomargin-top">
+        <li><code>@contextlib.contextmanager</code></li>
+    </ul></dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="check_py3k_warnings"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">check_py3k_warnings</span>(<span class="sig-arg">*args</span>,
+        <span class="sig-arg">**kwds</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="test.test_support-pysrc.html#check_py3k_warnings">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <pre class="literalblock">
+Context manager to silence py3k warnings.
+
+Accept 2-tuples as positional arguments:
+    (&quot;message regexp&quot;, WarningCategory)
+
+Optional argument:
+ - if 'quiet' is True, it does not fail if a filter catches nothing
+    (default False)
+
+Without argument, it defaults to:
+    check_py3k_warnings((&quot;&quot;, DeprecationWarning), quiet=False)
+
+</pre>
+  <dl class="fields">
+    <dt>Decorators:</dt>
+    <dd><ul class="nomargin-top">
+        <li><code>@contextlib.contextmanager</code></li>
+    </ul></dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="transient_internet"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">transient_internet</span>(<span class="sig-arg">*args</span>,
+        <span class="sig-arg">**kwds</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="test.test_support-pysrc.html#transient_internet">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Return a context manager that raises ResourceDenied when various 
+  issues with the Internet connection manifest themselves as 
+  exceptions.</p>
+  <dl class="fields">
+    <dt>Decorators:</dt>
+    <dd><ul class="nomargin-top">
+        <li><code>@contextlib.contextmanager</code></li>
+    </ul></dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="captured_output"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">captured_output</span>(<span class="sig-arg">*args</span>,
+        <span class="sig-arg">**kwds</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="test.test_support-pysrc.html#captured_output">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Return a context manager used by captured_stdout and captured_stdin 
+  that temporarily replaces the sys stream *stream_name* with a 
+  StringIO.</p>
+  <dl class="fields">
+    <dt>Decorators:</dt>
+    <dd><ul class="nomargin-top">
+        <li><code>@contextlib.contextmanager</code></li>
+    </ul></dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="captured_stdout"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">captured_stdout</span>()</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="test.test_support-pysrc.html#captured_stdout">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <pre class="literalblock">
+Capture the output of sys.stdout:
+
+with captured_stdout() as s:
+    print &quot;hello&quot;
+self.assertEqual(s.getvalue(), &quot;hello&quot;)
+
+</pre>
+  <dl class="fields">
+  </dl>
+</td></tr></table>
+</div>
+<a name="gc_collect"></a>
+<div class="private">
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">gc_collect</span>()</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="test.test_support-pysrc.html#gc_collect">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Force as many objects as possible to be collected.</p>
+  <p>In non-CPython implementations of Python, this is needed because 
+  timely deallocation is not guaranteed by the garbage collector.  (Even in
+  CPython this can be the case in case of reference cycles.)  This means 
+  that __del__ methods may be called later than expected and weakrefs may 
+  remain alive for longer than expected.  This function tries its best to 
+  force all garbage objects to disappear.</p>
+  <dl class="fields">
+  </dl>
+</td></tr></table>
+</div>
+<a name="bigmemtest"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">bigmemtest</span>(<span class="sig-arg">minsize</span>,
+        <span class="sig-arg">memuse</span>,
+        <span class="sig-arg">overhead</span>=<span class="sig-default">5242880</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="test.test_support-pysrc.html#bigmemtest">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Decorator for bigmem tests.</p>
+  <p>'minsize' is the minimum useful size for the test (in arbitrary, 
+  test-interpreted units.) 'memuse' is the number of 'bytes per size' for 
+  the test, or a good estimate of it. 'overhead' specifies fixed overhead, 
+  independent of the testsize, and defaults to 5Mb.</p>
+  <p>The decorator tries to guess a good value for 'size' and passes it to 
+  the decorated test function. If minsize * memuse is more than the allowed
+  memory use (as defined by max_memuse), the test is skipped. Otherwise, 
+  minsize is adjusted upward to use up to max_memuse.</p>
+  <dl class="fields">
+  </dl>
+</td></tr></table>
+</div>
+<a name="check_impl_detail"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">check_impl_detail</span>(<span class="sig-arg">**guards</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="test.test_support-pysrc.html#check_impl_detail">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <pre class="literalblock">
+This function returns True or False depending on the host platform.
+Examples:
+   if check_impl_detail():               # only on CPython (default)
+   if check_impl_detail(jython=True):    # only on Jython
+   if check_impl_detail(cpython=False):  # everywhere except on CPython
+
+</pre>
+  <dl class="fields">
+  </dl>
+</td></tr></table>
+</div>
+<a name="run_doctest"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">run_doctest</span>(<span class="sig-arg">module</span>,
+        <span class="sig-arg">verbosity</span>=<span class="sig-default">None</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="test.test_support-pysrc.html#run_doctest">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Run doctest on the given module.  Return (#failures, #tests).</p>
+  <p>If optional argument verbosity is not specified (or is None), pass 
+  test_support's belief about verbosity on to doctest.  Else doctest's 
+  usual behavior is used (it searches sys.argv for -v).</p>
+  <dl class="fields">
+  </dl>
+</td></tr></table>
+</div>
+<a name="reap_threads"></a>
+<div class="private">
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">reap_threads</span>(<span class="sig-arg">func</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="test.test_support-pysrc.html#reap_threads">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Use this function when threads are being used.  This will ensure that 
+  the threads are cleaned up even when the test fails. If threading is 
+  unavailable this function does nothing.</p>
+  <dl class="fields">
+  </dl>
+</td></tr></table>
+</div>
+<a name="reap_children"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">reap_children</span>()</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="test.test_support-pysrc.html#reap_children">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Use this function at the end of test_main() whenever sub-processes are
+  started.  This will help ensure that no extra children (zombies) stick 
+  around to hog resources and create problems when looking for 
+  refleaks.</p>
+  <dl class="fields">
+  </dl>
+</td></tr></table>
+</div>
+<a name="swap_attr"></a>
+<div class="private">
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">swap_attr</span>(<span class="sig-arg">*args</span>,
+        <span class="sig-arg">**kwds</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="test.test_support-pysrc.html#swap_attr">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <pre class="literalblock">
+Temporary swap out an attribute with a new object.
+
+Usage:
+    with swap_attr(obj, &quot;attr&quot;, 5):
+        ...
+
+    This will set obj.attr to 5 for the duration of the with: block,
+    restoring the old value at the end of the block. If `attr` doesn't
+    exist on `obj`, it will be created and then deleted at the end of the
+    block.
+
+</pre>
+  <dl class="fields">
+    <dt>Decorators:</dt>
+    <dd><ul class="nomargin-top">
+        <li><code>@contextlib.contextmanager</code></li>
+    </ul></dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="py3k_bytes"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">py3k_bytes</span>(<span class="sig-arg">b</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="test.test_support-pysrc.html#py3k_bytes">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Emulate the py3k bytes() constructor.</p>
+  <p>NOTE: This is only a best effort function.</p>
+  <dl class="fields">
+  </dl>
+</td></tr></table>
+</div>
+<a name="strip_python_stderr"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">strip_python_stderr</span>(<span class="sig-arg">stderr</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="test.test_support-pysrc.html#strip_python_stderr">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Strip the stderr of a Python process from potential debug output 
+  emitted by the interpreter.</p>
+  <p>This will typically be run on the result of the communicate() method 
+  of a subprocess.Popen object.</p>
+  <dl class="fields">
+  </dl>
+</td></tr></table>
+</div>
+<br />
+<!-- ==================== NAVIGATION BAR ==================== -->
+<table class="navbar" border="0" width="100%" cellpadding="0"
+       bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="middle">
+
+  <!-- Tree link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="module-tree.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Index link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="identifier-index.html">Indices</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Help link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Project homepage -->
+      <th class="navbar" align="right" width="100%">
+        <table border="0" cellpadding="0" cellspacing="0">
+          <tr><th class="navbar" align="center"
+            >ShutIt</th>
+          </tr></table></th>
+  </tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%%">
+  <tr>
+    <td align="left" class="footer">
+    Generated by Epydoc 3.0.1 on Tue Feb 17 12:38:04 2015
+    </td>
+    <td align="right" class="footer">
+      <a target="mainFrame" href="http://epydoc.sourceforge.net"
+        >http://epydoc.sourceforge.net</a>
+    </td>
+  </tr>
+</table>
+
+<script type="text/javascript">
+  <!--
+  // Private objects are initially displayed (because if
+  // javascript is turned off then we want them to be
+  // visible); but by default, we want to hide them.  So hide
+  // them unless we have a cookie that says to show them.
+  checkCookie();
+  // -->
+</script>
+</body>
+</html>
