@@ -4,7 +4,7 @@ from shutit_module import ShutItModule
 class django(ShutItModule):
 
 	def build(self, shutit):
-		shutit.send('apt-get install -y -q software-properties-common')
+		shutit.install('software-properties-common')
 		#shutit.send('add-apt-repository -y "deb http://archive.ubuntu.com/ubuntu $(lsb_release -sc) universe"')
 		shutit.install('vim')
 		shutit.install('nano')
@@ -21,19 +21,18 @@ class django(ShutItModule):
 		shutit.install('apache2')
 		shutit.install('libapache2-mod-php5')
 		shutit.install('python-software-properties')
-		shutit.install('python')
 		shutit.install('python-setuptools')
 		shutit.install('python-virtualenv')
 		shutit.install('python-dev')
 		shutit.install('python-distribute')
 		shutit.install('python-pip')
-		shutit.install('libjpeg62-turbo-dev')
+		shutit.install('libjpeg8-turbo-dev')
 		shutit.install('zlib1g-dev')
 		shutit.install('libfreetype6-dev')
 		shutit.install('liblcms2-dev')
 		shutit.install('libwebp-dev')
 		shutit.install('libtiff5-dev')
-		shutit.install('easy_install django')
+		shutit.send('easy_install django')
 		return True
 
 def module():

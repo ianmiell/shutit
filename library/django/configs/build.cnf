@@ -2,8 +2,8 @@
 # This feeds into automated testing of each module.
 [shutit.tk.django.django]
 shutit.core.module.build:yes
-shutit.core.module.allowed_images:["ubuntu:raring"]
+shutit.core.module.allowed_images:["ubuntu:14.04"]
 
 # Aspects of build process
 [build]
-base_image:ubuntu:raring
+base_image:ubuntu:14.04
