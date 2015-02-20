@@ -815,16 +815,6 @@ def do_finalize(shutit):
 		shutit.logout()
 
 
-def shutit_module_init(shutit):
-	"""Initialize.
-	"""
-	util.load_mod_from_file(shutit, os.path.join(shutit.shutit_main_dir,
-							'setup.py'))
-	util.load_shutit_modules(shutit)
-	init_shutit_map(shutit)
-	config_collection(shutit)
-
-
 def setup_shutit_path():
 	# try the current directory, the .. directory, or the ../shutit directory, the ~/shutit
 	res = util.util_raw_input(prompt='shutit appears not to be on your path - should try and we find it and add it to your ~/.bashrc (Y/n)?')
@@ -891,7 +881,15 @@ def shutit_main():
 
 	util.load_configs(shutit)
 
-	shutit_module_init(shutit)
+	util.load_mod_from_file(shutit, os.path.join(shutit.shutit_main_dir, 'setup.py'))
+	util.load_shutit_modules(shutit)
+
+	if cfg['action']['list_modules']:
+		util.list_modules(shutit)
+		sys.exit(0)
+
+	init_shutit_map(shutit)
+	config_collection(shutit)
 
 	conn_target(shutit)
 
