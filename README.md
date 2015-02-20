@@ -2,7 +2,7 @@
 ==========================
 Complex Docker Builds Made Simple
 
-ShutIt is a tool for managing your build process that is both structured and flexible
+ShutIt is a tool for managing your image building process that is both structured and flexible.
 
 Really Quick Overview
 =====================
@@ -12,7 +12,7 @@ You'll be interested in this if you:
 
 - Find dockerfiles a great idea, but limiting in practice.
 
-- Want to build stateless containers for production.
+- Want to build stateless containers for developmennt, testing, and production.
 
 - Want to [build everything from source](https://github.com/ianmiell/shutit-distro/blob/master/README.md) in a way that's comprehensible.
 
