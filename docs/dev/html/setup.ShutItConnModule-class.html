@@ -3,7 +3,7 @@
           "DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
-  <title>shutit_module.ShutItMeta</title>
+  <title>setup.ShutItConnModule</title>
   <link rel="stylesheet" href="epydoc.css" type="text/css" />
   <script type="text/javascript" src="epydoc.js"></script>
 </head>
@@ -39,8 +39,8 @@
   <tr valign="top">
     <td width="100%">
       <span class="breadcrumbs">
-        <a href="shutit_module-module.html">Module&nbsp;shutit_module</a> ::
-        Class&nbsp;ShutItMeta
+        <a href="setup-module.html">Module&nbsp;setup</a> ::
+        Class&nbsp;ShutItConnModule
       </span>
     </td>
     <td>
@@ -50,28 +50,29 @@
     onclick="toggle_private();">hide&nbsp;private</a>]</span></td></tr>
         <tr><td align="right"><span class="options"
             >[<a href="frames.html" target="_top">frames</a
-            >]&nbsp;|&nbsp;<a href="shutit_module.ShutItMeta-class.html"
+            >]&nbsp;|&nbsp;<a href="setup.ShutItConnModule-class.html"
             target="_top">no&nbsp;frames</a>]</span></td></tr>
       </table>
     </td>
   </tr>
 </table>
-<!-- ==================== TYPE DESCRIPTION ==================== -->
-<h1 class="epydoc">Type ShutItMeta</h1><p class="nomargin-top"><span class="codelink"><a href="shutit_module-pysrc.html#ShutItMeta">source&nbsp;code</a></span></p>
+<!-- ==================== CLASS DESCRIPTION ==================== -->
+<h1 class="epydoc">Class ShutItConnModule</h1><p class="nomargin-top"><span class="codelink"><a href="setup-pysrc.html#ShutItConnModule">source&nbsp;code</a></span></p>
 <pre class="base-tree">
-object --+        
-         |        
-      type --+    
-             |    
-   abc.ABCMeta --+
-                 |
-                <strong class="uidshort">ShutItMeta</strong>
+                object --+    
+                         |    
+<a href="shutit_module.ShutItModule-class.html">shutit_module.ShutItModule</a> --+
+                             |
+                            <strong class="uidshort">ShutItConnModule</strong>
 </pre>
 
-<hr />
-<p>Abstract class that defines what a ShutIt module must implement to be 
-  registered.</p>
+<dl><dt>Known Subclasses:</dt>
+<dd>
+      <ul class="subclass-list">
+<li><a href="setup.ConnBash-class.html">ConnBash</a></li><li>, <a href="setup.ConnDocker-class.html">ConnDocker</a></li><li>, <a href="setup.ConnSSH-class.html">ConnSSH</a></li>  </ul>
+</dd></dl>
 
+<hr />
 <!-- ==================== NESTED CLASSES ==================== -->
 <a name="section-NestedClasses"></a>
 <table class="summary" border="1" cellpadding="3"
@@ -89,13 +90,11 @@ object --+
     </table>
   </td>
 </tr>
-<tr>
-    <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">&nbsp;</span>
-    </td><td class="summary">
-        <a href="shutit_module.ShutItModule-class.html" class="summary-name">ShutItModule</a><br />
-      Class that takes a ShutIt object and defines what a ShutIt module 
-        must implement to be registered.
+  <tr>
+    <td colspan="2" class="summary">
+    <p class="indent-wrapped-lines"><b>Inherited from <code><a href="shutit_module.ShutItModule-class.html">shutit_module.ShutItModule</a></code></b>:
+      <code><a href="shutit_module.ShutItMeta-class.html">__metaclass__</a></code>
+      </p>
     </td>
   </tr>
 </table>
@@ -116,80 +115,105 @@ object --+
     </table>
   </td>
 </tr>
-  <tr>
-    <td colspan="2" class="summary">
-    <p class="indent-wrapped-lines"><b>Inherited from <code>abc.ABCMeta</code></b>:
-      <code>__instancecheck__</code>,
-      <code>__subclasscheck__</code>,
-      <code>register</code>
-      </p>
-    <div class="private">    <p class="indent-wrapped-lines"><b>Inherited from <code>abc.ABCMeta</code></b> (private):
-      <code>_dump_registry</code>
-      </p></div>
-    <p class="indent-wrapped-lines"><b>Inherited from <code>type</code></b>:
-      <code>__call__</code>,
-      <code>__delattr__</code>,
-      <code>__eq__</code>,
-      <code>__ge__</code>,
-      <code>__getattribute__</code>,
-      <code>__gt__</code>,
-      <code>__hash__</code>,
-      <code>__init__</code>,
-      <code>__le__</code>,
-      <code>__lt__</code>,
-      <code>__ne__</code>,
-      <code>__repr__</code>,
-      <code>__setattr__</code>,
-      <code>__subclasses__</code>,
-      <code>mro</code>
-      </p>
-    <p class="indent-wrapped-lines"><b>Inherited from <code>object</code></b>:
-      <code>__format__</code>,
-      <code>__reduce__</code>,
-      <code>__reduce_ex__</code>,
-      <code>__sizeof__</code>,
-      <code>__str__</code>,
-      <code>__subclasshook__</code>
-      </p>
-    </td>
-  </tr>
-</table>
-<!-- ==================== STATIC METHODS ==================== -->
-<a name="section-StaticMethods"></a>
-<table class="summary" border="1" cellpadding="3"
-       cellspacing="0" width="100%" bgcolor="white">
-<tr bgcolor="#70b0f0" class="table-header">
-  <td colspan="2" class="table-header">
-    <table border="0" cellpadding="0" cellspacing="0" width="100%">
-      <tr valign="top">
-        <td align="left"><span class="table-header">Static Methods</span></td>
-        <td align="right" valign="top"
-         ><span class="options">[<a href="#section-StaticMethods"
-         class="privatelink" onclick="toggle_private();"
-         >hide private</a>]</span></td>
-      </tr>
-    </table>
-  </td>
-</tr>
 <tr>
     <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">a new object with type S, a subtype of T</span>
+      <span class="summary-type">&nbsp;</span>
     </td><td class="summary">
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td><span class="summary-sig"><a href="shutit_module.ShutItMeta-class.html#__new__" class="summary-sig-name">__new__</a>(<span class="summary-sig-arg">mcs</span>,
-        <span class="summary-sig-arg">name</span>,
-        <span class="summary-sig-arg">bases</span>,
-        <span class="summary-sig-arg">local</span>)</span><br />
-      Checks this is a ShutItModule, and wraps any ShutItModule methods 
-      that have been overridden in the subclass.</td>
+          <td><span class="summary-sig"><a href="setup.ShutItConnModule-class.html#__init__" class="summary-sig-name">__init__</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">*args</span>,
+        <span class="summary-sig-arg">**kwargs</span>)</span><br />
+      Constructor.</td>
           <td align="right" valign="top">
-            <span class="codelink"><a href="shutit_module-pysrc.html#ShutItMeta.__new__">source&nbsp;code</a></span>
+            <span class="codelink"><a href="setup-pysrc.html#ShutItConnModule.__init__">source&nbsp;code</a></span>
             
           </td>
         </tr>
       </table>
       
+    </td>
+  </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="_setup_prompts"></a><span class="summary-sig-name">_setup_prompts</span>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">shutit</span>,
+        <span class="summary-sig-arg">target_child</span>)</span></td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="setup-pysrc.html#ShutItConnModule._setup_prompts">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="_add_begin_build_info"></a><span class="summary-sig-name">_add_begin_build_info</span>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">shutit</span>,
+        <span class="summary-sig-arg">command</span>)</span></td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="setup-pysrc.html#ShutItConnModule._add_begin_build_info">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="_add_end_build_info"></a><span class="summary-sig-name">_add_end_build_info</span>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">shutit</span>)</span></td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="setup-pysrc.html#ShutItConnModule._add_end_build_info">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2" class="summary">
+    <p class="indent-wrapped-lines"><b>Inherited from <code><a href="shutit_module.ShutItModule-class.html">shutit_module.ShutItModule</a></code></b>:
+      <code><a href="shutit_module.ShutItModule-class.html#build">build</a></code>,
+      <code><a href="shutit_module.ShutItModule-class.html#check_ready">check_ready</a></code>,
+      <code><a href="shutit_module.ShutItModule-class.html#finalize">finalize</a></code>,
+      <code><a href="shutit_module.ShutItModule-class.html#get_config">get_config</a></code>,
+      <code><a href="shutit_module.ShutItModule-class.html#is_installed">is_installed</a></code>,
+      <code><a href="shutit_module.ShutItModule-class.html#remove">remove</a></code>,
+      <code><a href="shutit_module.ShutItModule-class.html#start">start</a></code>,
+      <code><a href="shutit_module.ShutItModule-class.html#stop">stop</a></code>,
+      <code><a href="shutit_module.ShutItModule-class.html#test">test</a></code>
+      </p>
+    <p class="indent-wrapped-lines"><b>Inherited from <code>object</code></b>:
+      <code>__delattr__</code>,
+      <code>__format__</code>,
+      <code>__getattribute__</code>,
+      <code>__hash__</code>,
+      <code>__new__</code>,
+      <code>__reduce__</code>,
+      <code>__reduce_ex__</code>,
+      <code>__repr__</code>,
+      <code>__setattr__</code>,
+      <code>__sizeof__</code>,
+      <code>__str__</code>,
+      <code>__subclasshook__</code>
+      </p>
     </td>
   </tr>
 </table>
@@ -212,8 +236,14 @@ object --+
 </tr>
   <tr>
     <td colspan="2" class="summary">
-    <div class="private">    <p class="indent-wrapped-lines"><b>Inherited from <code>abc.ABCMeta</code></b> (private):
-      <code>_abc_invalidation_counter</code>
+    <p class="indent-wrapped-lines"><b>Inherited from <code><a href="shutit_module.ShutItModule-class.html">shutit_module.ShutItModule</a></code></b>:
+      <code><a href="shutit_module.ShutItModule-class.html#__abstractmethods__">__abstractmethods__</a></code>
+      </p>
+    <div class="private">    <p class="indent-wrapped-lines"><b>Inherited from <code><a href="shutit_module.ShutItModule-class.html">shutit_module.ShutItModule</a></code></b> (private):
+      <code><a href="shutit_module.ShutItModule-class.html#_abc_cache" onclick="show_private();">_abc_cache</a></code>,
+      <code><a href="shutit_module.ShutItModule-class.html#_abc_negative_cache" onclick="show_private();">_abc_negative_cache</a></code>,
+      <code><a href="shutit_module.ShutItModule-class.html#_abc_negative_cache_version" onclick="show_private();">_abc_negative_cache_version</a></code>,
+      <code><a href="shutit_module.ShutItModule-class.html#_abc_registry" onclick="show_private();">_abc_registry</a></code>
       </p></div>
     </td>
   </tr>
@@ -237,18 +267,6 @@ object --+
 </tr>
   <tr>
     <td colspan="2" class="summary">
-    <p class="indent-wrapped-lines"><b>Inherited from <code>type</code></b>:
-      <code>__abstractmethods__</code>,
-      <code>__base__</code>,
-      <code>__bases__</code>,
-      <code>__basicsize__</code>,
-      <code>__dictoffset__</code>,
-      <code>__flags__</code>,
-      <code>__itemsize__</code>,
-      <code>__mro__</code>,
-      <code>__name__</code>,
-      <code>__weakrefoffset__</code>
-      </p>
     <p class="indent-wrapped-lines"><b>Inherited from <code>object</code></b>:
       <code>__class__</code>
       </p>
@@ -273,30 +291,29 @@ object --+
   </td>
 </tr>
 </table>
-<a name="__new__"></a>
+<a name="__init__"></a>
 <div>
 <table class="details" border="1" cellpadding="3"
        cellspacing="0" width="100%" bgcolor="white">
 <tr><td>
   <table width="100%" cellpadding="0" cellspacing="0" border="0">
   <tr valign="top"><td>
-  <h3 class="epydoc"><span class="sig"><span class="sig-name">__new__</span>(<span class="sig-arg">mcs</span>,
-        <span class="sig-arg">name</span>,
-        <span class="sig-arg">bases</span>,
-        <span class="sig-arg">local</span>)</span>
-    <br /><em class="fname">Static Method</em>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">__init__</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">*args</span>,
+        <span class="sig-arg">**kwargs</span>)</span>
+    <br /><em class="fname">(Constructor)</em>
   </h3>
   </td><td align="right" valign="top"
-    ><span class="codelink"><a href="shutit_module-pysrc.html#ShutItMeta.__new__">source&nbsp;code</a></span>&nbsp;
+    ><span class="codelink"><a href="setup-pysrc.html#ShutItConnModule.__init__">source&nbsp;code</a></span>&nbsp;
     </td>
   </tr></table>
   
-  <p>Checks this is a ShutItModule, and wraps any ShutItModule methods that
-  have been overridden in the subclass.</p>
+  <p>Constructor. Sets up module_id, run_order, deps and conflicts. Also 
+  checks types for safety.</p>
   <dl class="fields">
-    <dt>Returns: a new object with type S, a subtype of T</dt>
     <dt>Overrides:
-        object.__new__
+        object.__init__
+        <dd><em class="note">(inherited documentation)</em></dd>
     </dt>
   </dl>
 </td></tr></table>
