@@ -14,7 +14,7 @@ class vnc(ShutItModule):
 	def build(self, shutit):
 		shutit.install('gnome-core')
 		shutit.install('gnome-terminal')
-		shutit.install('openjdk-6-jre')
+		shutit.install('openjdk-7-jre')
 		shutit.install('xserver-xorg')
 		shutit.install('vnc4server')
 		shutit.install('novnc')

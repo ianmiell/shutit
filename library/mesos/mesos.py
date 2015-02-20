@@ -7,7 +7,7 @@ class mesos(ShutItModule):
 	def build(self, shutit):
 		shutit.install('git')
 		shutit.install('build-essential')
-		shutit.install('openjdk-6-jdk')
+		shutit.install('openjdk-7-jdk')
 		shutit.install('python-dev')
 		shutit.install('python-boto')
 		shutit.install('libcurl4-nss-dev')

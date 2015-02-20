@@ -9,7 +9,7 @@ class logstash(ShutItModule):
 		shutit.send('export LUMBERJACK_TAG=MYTAG')
 		shutit.send('export ELASTICWORKERS=1')
 		shutit.install('wget')
-		shutit.install('openjdk-6-jre')
+		shutit.install('openjdk-7-jre')
 		shutit.send('wget https://download.elasticsearch.org/logstash/logstash/logstash-1.3.3-flatjar.jar -O /opt/logstash.jar --no-check-certificate 2>/dev/null')
 		shutit.send_host_file('/usr/local/bin/run.sh', 'context/run.sh')
 		shutit.send('chmod +x /usr/local/bin/run.sh')
