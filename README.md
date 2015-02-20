@@ -2,39 +2,27 @@
 ==========================
 Complex Docker Builds Made Simple
 
-ShutIt is a tool for managing your build process that is both structured and flexible:
+ShutIt is a tool for managing your build process that is both structured and flexible
 
-Structured:
+Really Quick Overview
+=====================
+You'll be interested in this if you:
 
-- Modular structure
-- Manages the startup and setup of your container ready for the build
-- Has a lifecycle that can manage different parts of the lifecycle, eg:
-	- Pre-requisites check
-	- "Already installed?" check
-	- Gather config
-	- Start module
-	- Stop module
-	- Test module
-	- Finalize container
-- Allows you to set config
-- Allows you to manage modules per distro (if needed)
-- Forces you to define an order for the modules
-- Puts record of build process into container
-- Enables continuous regression testing
+- Are a programmer who wants highly configurable containers for differing use cases and environments.
 
-Flexible:
+- Find dockerfiles a great idea, but limiting in practice.
 
-- Modules model shell interactions, with all the freedom and control that implies
-- Modules can be plugged together like legos
-- GUI allows to you build and download images for your own needs (see http://shutit.tk)
-- Module scripts are in python, allowing full language control
-- Many helper functions for common interaction patterns
-- Can pause during build or on error to interact, then continue with build
+- Want to build stateless containers for production.
+
+- Want to [build everything from source](https://github.com/ianmiell/shutit-distro/blob/master/README.md) in a way that's comprehensible.
+
+- Want to take your scripts and turn them into stateless containers quickly, without needing to maintain (or learn) a configuration management solution designed for moving target systems.
+
+- Are interested in "phoenix deployment" using Docker.
 
 
-
-WHAT DOES IT DO?
-----------------
+What Does it Do?
+================
 
 ![Example Setup]
 (https://github.com/ianmiell/shutit/blob/gh-pages/images/ShutIt.png)
@@ -77,45 +65,21 @@ Auto-Generate Modules
 ShutIt provides a means for auto-generation of modules (either bare ones, or from existing Dockerfiles) with its skeleton command. See [here](http://ianmiell.github.io/shutit/) for an example.
 
 
-[REALLY QUICK START](http://ianmiell.github.io/shutit)
+[Really Quick Start](http://ianmiell.github.io/shutit)
 ====================
 
-[INSTALLATION](http://github.com/ianmiell/shutit/blob/master/docs/INSTALL.md)
-==============
 
 [ShutIt API](http://github.com/ianmiell/shutit/blob/master/docs/API.md)
 ============
 
+[Insallation](http://github.com/ianmiell/shutit/blob/master/docs/INSTALL.md)
+==============
 
-REALLY QUICK OVERVIEW
----------------------
-You'll be interested in this if you:
 
-- Want to take your scripts and turn them into stateless containers quickly,
-without needing to learn or maintain a configuration management solution.
 
-- Are a programmer who wants highly configurable containers for
-differing use cases and environments.
-
-- Find dockerfiles a great idea, but limiting in practice.
-
-- Want to build stateless containers for production.
-
-- Are interested in "phoenix deployment" using Docker.
-
-I WANT TO SEE EXAMPLES
-----------------------
-See in ```library/*```
-eg
-```
-cd library/mysql/bin
-./build.sh
-./run.sh
-```
-
-Overview
---------
-While evaluating Docker for my I reached a point where
+Background
+----------
+While evaluating Docker for my $corp we reached a point where
 using Dockerfiles was somewhat painful or verbose for complex and/or long and/or
 configurable interactions. So we wrote our own.
 
