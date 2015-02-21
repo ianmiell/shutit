@@ -26,7 +26,7 @@ class django(ShutItModule):
 		shutit.install('python-dev')
 		shutit.install('python-distribute')
 		shutit.install('python-pip')
-		shutit.install('libjpeg8-turbo-dev')
+		shutit.install('libjpeg8-dev')
 		shutit.install('zlib1g-dev')
 		shutit.install('libfreetype6-dev')
 		shutit.install('liblcms2-dev')
