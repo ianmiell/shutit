@@ -10,8 +10,8 @@ class weave(ShutItModule):
 		#shutit.install('conntracker')
 		shutit.install('wget')
 		shutit.install('ethtool')
-		shutit.send('sudo wget -O /usr/local/bin/weave https://raw.githubusercontent.com/zettio/weave/master/weave')
-		shutit.send('sudo chmod a+x /usr/local/bin/weave')
+		shutit.send('wget -O /usr/local/bin/weave https://raw.githubusercontent.com/zettio/weave/master/weave')
+		shutit.send('chmod a+x /usr/local/bin/weave')
 		return True
 
 	def start(self, shutit):
