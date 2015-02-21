@@ -29,7 +29,7 @@ What Does it Do?
 
 We start with a "ShutIt Module", similar to a Dockerfile.
 
-In the image above there are five of these. They each have the following attributes:
+In the image above there are five of these. At a high level they each have the following attributes:
 
 - a list of zero or more dependencies on other modules
 - a unique number that represents its ordering within the available modules
@@ -37,7 +37,7 @@ In the image above there are five of these. They each have the following attribu
 
 In the image we imagine a scenario where we want to build our blog into a docker image, with all its attendant content and config.
 
-We instruct shutit to build the MyBlog module, and it runs the build as per the image on the right.
+We instruct ShutIt to build the MyBlog module, and it runs the build as per the image on the right.
 
 The container environment is set up, the modules are ordered, and the build steps are run. Finally, the image is committed, tagged and pushed as configured.
 

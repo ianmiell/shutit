@@ -39,11 +39,15 @@ import package_map
 import datetime
 from shutit_module import ShutItFailException
 
-
 def random_id(size=8, chars=string.ascii_letters + string.digits):
 	"""Generates a random string of given size from the given chars.
-	size    - size of random string
-	chars   - constituent pool of characters to draw random characters from
+
+	@param size:  The size of the random string.
+	@param chars: Constituent pool of characters to draw random characters from.
+	@type size:   number
+	@type chars:  string
+	@rtype:       string
+	@return:      The string of random characters.
 	"""
 	return ''.join(random.choice(chars) for _ in range(size))
 
