@@ -12,9 +12,9 @@ You'll be interested in this if you:
 
 - Find dockerfiles a great idea, but limiting in practice.
 
-- Want to build stateless containers for developmennt, testing, and production.
+- Want to build stateless containers for development, testing, and production.
 
-- Want to [build everything from source](https://github.com/ianmiell/shutit-distro/blob/master/README.md) in a way that's comprehensible.
+- Want to [build everything from source](https://github.com/ianmiell/shutit-distro/blob/master/README.md) in a way that's comprehensible and auditable.
 
 - Want to take your scripts and turn them into stateless containers quickly, without needing to maintain (or learn) a configuration management solution designed for moving target systems.
 
@@ -152,8 +152,8 @@ bunch of existing scripts in a painless way, keep on reading.
 
 [Known Issues](http://github.com/ianmiell/shutit/blob/master/docs/BUGS.md)
 
-CAN I CONTRIBUTE?
------------------
+Contributing
+------------
 
 We always need help, and with a potentially infinite number of libraries required, it's likely you will be able to contribute. Just mail ian.miell@gmail.com if you want to be assigned a mentor. [He won't bite](https://www.youtube.com/watch?v=zVUPmmUU3yY) 
 
