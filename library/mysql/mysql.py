@@ -20,7 +20,7 @@ END""".format(root_pass), echo=False)
 		shutit.send('mysqld &')
 		shutit.send('sleep 2')
 		shutit.send('mysql_install_db --user=mysql --basedir=/usr --datadir=/var/mysql/database')
-		# http://stackoverflow.com/questions/15663001/remote-connections-mysql-ubuntu
+back
 		shutit.send("perl -p -i -e 's/^bind.*/bind-address = 0.0.0.0/' /etc/mysql/my.cnf")
 		mysql_user = shutit.cfg['shutit.tk.mysql.mysql']['mysql_user']
 		res = shutit.send('mysql -p', expect=['assword', 'mysql>'])
@@ -66,7 +66,7 @@ END""".format(root_pass), echo=False)
 		shutit.remove('libmysqlclient-dev')
 		shutit.remove('mysql-common')
 		shutit.send('/root/stop_mysql.sh')
-		#http://stackoverflow.com/questions/10853004/removing-mysql-5-5-completely et al
+back
 		shutit.send('rm -rf /var/lib/mysql')
 		shutit.send('rm -rf /etc/mysql')
 		shutit.send('deluser mysql', check_exit=False)
