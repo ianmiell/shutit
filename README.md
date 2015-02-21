@@ -72,7 +72,7 @@ ShutIt provides a means for auto-generation of modules (either bare ones, or fro
 [ShutIt API](http://github.com/ianmiell/shutit/blob/master/docs/API.md)
 ============
 
-[Insallation](http://github.com/ianmiell/shutit/blob/master/docs/INSTALL.md)
+[Installation](http://github.com/ianmiell/shutit/blob/master/docs/INSTALL.md)
 ==============
 
 
