@@ -20,7 +20,7 @@ END""".format(root_pass), echo=False)
 		shutit.send('mysqld &')
 		shutit.send('sleep 2')
 		shutit.send('mysql_install_db --user=mysql --basedir=/usr --datadir=/var/mysql/database')
-back
+		#http://stackoverflow.com/questions/10853004/removing-mysql-5-5-completely et al
 		shutit.send("perl -p -i -e 's/^bind.*/bind-address = 0.0.0.0/' /etc/mysql/my.cnf")
 		mysql_user = shutit.cfg['shutit.tk.mysql.mysql']['mysql_user']
 		res = shutit.send('mysql -p', expect=['assword', 'mysql>'])
