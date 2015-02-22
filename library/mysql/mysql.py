@@ -66,7 +66,6 @@ END""".format(root_pass), echo=False)
 		shutit.remove('libmysqlclient-dev')
 		shutit.remove('mysql-common')
 		shutit.send('/root/stop_mysql.sh')
-back
 		shutit.send('rm -rf /var/lib/mysql')
 		shutit.send('rm -rf /etc/mysql')
 		shutit.send('deluser mysql', check_exit=False)
