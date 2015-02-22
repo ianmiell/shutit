@@ -29,6 +29,7 @@ class osquery(ShutItModule):
 		shutit.install('libtool')
 		shutit.install('automake')
 		shutit.install('cmake')
+		shutit.install('clang')
 		shutit.install('uuid-dev')
 		shutit.install('libudev-dev')
 		shutit.install('librpm-dev')
