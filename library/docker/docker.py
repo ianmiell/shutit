@@ -38,7 +38,7 @@ END"""
 		return True
 
 	def stop(self, shutit):
-		shutit.send('/usr/bin/killall docker')
+		shutit.send('/usr/bin/killall docker',check_exit=False) # could return 1 if none exist
 		return True
 		
 

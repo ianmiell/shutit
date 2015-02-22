@@ -51,7 +51,7 @@ class ssh_server(ShutItModule):
 		return True
 	
 	def get_config(self, shutit):
-		shutit.get_config(self.module_id, 'password', hint='root password for the image')
+		shutit.get_config(self.module_id, 'password', 'changeme', hint='root password for the image')
 		return True
 
 

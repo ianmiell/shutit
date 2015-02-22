@@ -10,6 +10,7 @@ class ttygif(ShutItModule):
 		shutit.install('git')
 		shutit.install('imagemagick')
 		shutit.install('ttyrec')
+		shutit.install('build-essential')
 		shutit.send('pushd /opt')
 		shutit.send('git clone https://github.com/icholy/ttygif.git')
 		shutit.send('pushd /opt/ttygif')
@@ -26,6 +27,6 @@ def module():
 		'shutit.tk.ttygif.ttygif', 0.35136139681,
 		description='Turn terminal sessions into gifs',
 		maintainer='ian.miell@gmail.com',
-		depends=['shutit.tk.setup','shutit.tk.toolchain.toolchain','shutit.tk.vnc.vnc']
+		depends=['shutit.tk.setup','shutit.tk.vnc.vnc']
 	)
 

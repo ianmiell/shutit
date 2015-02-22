@@ -1,7 +1,7 @@
-FROM debian:jessie
+FROM fedora:20
 
-RUN apt-get update
-RUN apt-get install -y -qq curl git python-pip
+RUN yum update -y
+RUN yum install -y -qq curl git python-pip
 WORKDIR /opt
 RUN git clone https://github.com/ianmiell/shutit.git
 WORKDIR shutit
