@@ -13,15 +13,13 @@ class pigshell(ShutItModule):
 		shutit.install('make')
 		shutit.send('npm install marked --save && echo ""')
 		shutit.send('npm install jshint && echo ""')
-		shutit.install('ruby-dev') # required to get ronn install to work - see http://hire.chrisjlee.net/node/229
+		shutit.install('ruby2.1-dev') # required to get ronn install to work - see http://hire.chrisjlee.net/node/229
 		shutit.send('gem install ronn')
-		shutit.send('pushd /opt')
+		shutit.send('cd /opt')
 		shutit.send('git clone https://github.com/ganeshv/pegjs')
-		shutit.send('pushd pigshell')
+		shutit.send('cd pigshell')
 		shutit.send('export PATH=${PATH}:/opt/pegjs/bin:/root/node_modules/marked/bin/')
 		shutit.send('make')
-		shutit.send('popd')
-		shutit.send('popd')
 		return True
 
 def module():
