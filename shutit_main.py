@@ -978,11 +978,11 @@ def shutit_main():
 		           'called ' + shutit.cfg['target']['name'] +
 		           ' and a new image if you chose to commit it.\n\n' + 
 		           'Look and play with the following files from the newly-created ' + 
-		           'module directory to dig deeper:\n\n    configs/default.cnf\n    ' + 
+		           'module directory to dig deeper:\n\n    configs/build.cnf\n    ' + 
 		           '*.py\n\nYou can rebuild at any time by running the supplied ' + 
-		           './build.sh and run with the supplied ./run.sh.\n\nThere\'s a ' + 
-		           'default test runner in test.sh\n\n' + 
-		           'You can inspect the details of the build in the target\'s ' + 
+		           './build.sh and run with the supplied ./run.sh. These may need ' + 
+		           'tweaking for your particular environment, eg sudo\n\n' +
+		           'You can inspect the details of the build in the target image\'s ' + 
 		           '/root/shutit_build directory.', force_stdout=True, code='31')
 
 	# Mark the build as completed
