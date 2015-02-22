@@ -114,6 +114,8 @@ class ShutIt(object):
 
 	def get_default_child(self):
 		"""Returns the currently-set default pexpect child.
+
+		@return: default pexpect child object
 		"""
 		if self._default_child[-1] is None:
 			shutit.fail("Couldn't get default child")
@@ -122,6 +124,8 @@ class ShutIt(object):
 
 	def get_default_expect(self):
 		"""Returns the currently-set default pexpect string (usually a prompt).
+
+		@return: default pexpect string
 		"""
 		if self._default_expect[-1] is None:
 			shutit.fail("Couldn't get default expect")
@@ -130,6 +134,9 @@ class ShutIt(object):
 
 	def get_default_check_exit(self):
 		"""Returns default value of check_exit. See send method.
+
+		@rtype:  boolean
+		@return: Default check_exit value
 		"""
 		if self._default_check_exit[-1] is None:
 			shutit.fail("Couldn't get default check exit")
@@ -138,6 +145,8 @@ class ShutIt(object):
 
 	def set_default_child(self, child):
 		"""Sets the default pexpect child.
+
+		@param child: pexpect child to set as default
 		"""
 		self._default_child[-1] = child
 
@@ -146,6 +155,11 @@ class ShutIt(object):
 		"""Sets the default pexpect string (usually a prompt).
 		Defaults to the configured root_prompt if no
 		argument is passed.
+
+		@param expect: String to expect in the output
+		@type expect: string
+		@param check_exit: Whether to check the exit value of the command
+		@type check_exit: boolean
 		"""
 		if expect == None:
 			expect = self.cfg['expect_prompts']['root_prompt']
