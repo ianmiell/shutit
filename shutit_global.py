@@ -170,6 +170,10 @@ class ShutIt(object):
 	# TODO: Manage exits of builds on error
 	def fail(self, msg, child=None, throw_exception=True):
 		"""Handles a failure, pausing if a pexpect child object is passed in.
+
+		@param child: pexpect child to work on
+		@param throw_exception: Whether to throw an exception.
+		@type throw_exception: boolean
 		"""
 		# Note: we must not default to a child here
 		if child is not None:
@@ -188,11 +192,11 @@ class ShutIt(object):
 	def log(self, msg, code=None, pause=0, prefix=True, force_stdout=False, add_final_message=False):
 		"""Logging function.
 
-				- code         - Colour code for logging. Ignored if we are in serve mode.
-				- pause        - Length of time to pause after logging (default: 0)
-				- prefix       - Whether to output logging prefix (LOG: <time>) (default: True)
-				- force_stdout - If we are not in debug, put this in stdout anyway (default: False)
-				- add_final_message - Add this log line to the final message (report_final_message)
+		@param code:              Colour code for logging. Ignored if we are in serve mode
+		@param pause:             Length of time to pause after logging
+		@param prefix:            Whether to output logging prefix (LOG: <time>)
+		@param force_stdout:      If we are not in debug, put this in stdout anyway
+		@param add_final_message: Add this log line to the final message output to the user
 		"""
 		if prefix:
 			prefix = 'LOG: ' + time.strftime("%Y-%m-%d %H:%M:%S", 
@@ -226,8 +230,7 @@ class ShutIt(object):
 		"""Multisend. Same as send, except it takes multiple sends and expects in a dict that are
 		processed while waiting for the end "expect" argument supplied.
 
-		Arguments as per send(), except:
-
+		@see send
 			- send_dict - dict of sends and expects, eg: {'interim prompt:','some input','other prompt','some other input'}
 			- expect - final expect we want to see. defaults to child.get_default_expect()
 		"""
