@@ -706,8 +706,8 @@ class ShutIt(object):
 		Must be exactly the line passed in to match.
 		Returns True if there were no problems, False if there were.
 	
-		@param line:          Line to add.
-		@param filename       Filename to add it to.
+		@param line:          Line to remove.
+		@param filename       Filename to remove it from.
 		@param expect:        See send()
 		@param child:         See send()
 		@param match_regexp:  If supplied, a regexp to look for in the file
