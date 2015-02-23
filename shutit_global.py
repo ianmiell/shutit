@@ -1921,13 +1921,21 @@ class ShutIt(object):
 
 		Handles booleans vs strings appropriately.
 
-			- module_id    - module id this relates to, eg com.mycorp.mymodule.mymodule
-			- option       - config item to set
-			- default      - default value if not set in files
-			- boolean      - whether this is a boolean value or not (default False)
-			- forcedefault - if set to true, allows you to override any value already set (default False)
-			- forcenone    - if set to true, allows you to set the value to None (default False)
-			- hint         - if we are interactive, then show this prompt to help the user input a useful value
+		@param module_id:    module id this relates to, eg com.mycorp.mymodule.mymodule
+		@param option:       config item to set
+		@param default:      default value if not set in files
+		@param boolean:      whether this is a boolean value or not (default False)
+		@param forcedefault: if set to true, allows you to override any value already set (default False)
+		@param forcenone:    if set to true, allows you to set the value to None (default False)
+		@param hint:         if we are interactive, then show this prompt to help the user input a useful value
+
+		@type module_id:     string
+		@type option:        string
+		@type default:       string
+		@type boolean:       boolean
+		@type forcedefault:  boolean
+		@type forcenone:     boolean
+		@type hint:          string
 		"""
 		if module_id not in self.cfg.keys():
 			self.cfg[module_id] = {}
