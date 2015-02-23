@@ -264,50 +264,48 @@ class ShutIt(object):
 		"""Send string as a shell command, and wait until the expected output
 		is seen (either a string or any from a list of strings) before
 		returning. The expected string will default to the currently-set
-		default expected string (see get_default_expect)
+		default expected string (see get_default_expect())
 
-		Returns the pexpect return value (ie which expected string in the list
-		matched)
+		@param send:                  String to send, ie the command being
+		                              issued. If set to None, we consume up to
+		                              the expect string, which is useful if we
+		                              just matched output that came before a
+		                              standard command that returns to the
+		                              prompt.
+		@param expect:                String that we expect to see in the
+		                              output. Usually a prompt. Defaults to
+		                              currently-set expect string (see
+		                              set_default_expect)
+		@param child:                 pexpect child to issue command to.
+		@param timeout:               Timeout on response
+			                          (default=3600 seconds).
+		@param check_exit:            Whether to check the shell exit code of
+			                          the passed-in command.  If the exit value
+			                          was non-zero an error is thrown.
+			                          (default=None, which takes the
+			                          currently-configured check_exit value)
+			                          See also fail_on_empty_before.
+		@param fail_on_empty_before:  If debug is set, fail on empty match
+			                          output string (default=True)
+			                          If this is set to False, then we don't
+			                          check the exit value of the command.
+		@param record_command:        Whether to record the command for output
+			                          at end (default=True). As a safety
+			                          measure, if the command matches any
+			                          'password's then we don't record it.
+		@param exit_values:           Array of acceptable exit values as strings
+			                          (default ['0'])
+		@param echo:                  Whether to suppress any logging output
+			                          from pexpect to the terminal or not.
+			                          We don't record the command if this is
+			                          set to False unless record_command is
+			                          explicitly passed in as True.
+		@param retry:                 Number of times to retry the command if
+			                          the first attempt doesn't work. Useful if
+			                          going to the network.
 
-		Arguments:
-
-				- child                      - pexpect child to issue command to.
-				- send                       - String to send, ie the command being
-			                               issued. If set to None, we consume up to
-			                               the expect string, which is useful if we
-			                               just matched output that came before a
-			                               standard command that returns to the
-			                               prompt.
-				- expect                     - String that we expect to see in the
-			                               output. Usually a prompt. Defaults to
-			                               currently-set expect string (see
-			                               set_default_expect)
-				- timeout                    - Timeout on response
-			                               (default=3600 seconds).
-				- check_exit                 - Whether to check the shell exit code of
-			                               the passed-in command.  If the exit value
-			                               was non-zero an error is thrown.
-			                               (default=None, which takes the
-			                               currently-configured check_exit value)
-			                               See also fail_on_empty_before.
-				- fail_on_empty_before       - If debug is set, fail on empty match
-			                               output string (default=True)
-			                               If this is set to False, then we don't
-			                               check the exit value of the command.
-				- record_command             - Whether to record the command for output
-			                               at end (default=True). As a safety
-			                               measure, if the command matches any
-			                               'password's then we don't record it.
-				- exit_values                - Array of acceptable exit values as strings
-			                               (default ['0'])
-				- echo                       - Whether to suppress any logging output
-			                               from pexpect to the terminal or not.
-			                               We don't record the command if this is
-			                               set to False unless record_command is
-			                               explicitly passed in as True.
-				- retry                      - Number of times to retry the command if
-			                               the first attempt doesn't work. Useful if
-			                               going to the network.
+		@rtype:  string
+		@return: The pexpect return value (ie which expected string in the list matched)
 		"""
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
