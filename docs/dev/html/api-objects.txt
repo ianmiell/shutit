@@ -22,7 +22,6 @@ shutit_global.random_id	shutit_global-module.html#random_id
 shutit_main	shutit_main-module.html
 shutit_main.do_test	shutit_main-module.html#do_test
 shutit_main.allowed_image	shutit_main-module.html#allowed_image
-shutit_main.shutit_module_init	shutit_main-module.html#shutit_module_init
 shutit_main.is_installed	shutit_main-module.html#is_installed
 shutit_main.allowed_module_ids	shutit_main-module.html#allowed_module_ids
 shutit_main.do_finalize	shutit_main-module.html#do_finalize
@@ -64,6 +63,7 @@ util.print_config	util-module.html#print_config
 util.determine_interactive	util-module.html#determine_interactive
 util.set_pexpect_child	util-module.html#set_pexpect_child
 util.create_skeleton	util-module.html#create_skeleton
+util.list_modules	util-module.html#list_modules
 util.set_noninteractive	util-module.html#set_noninteractive
 util.build_report	util-module.html#build_report
 util.__package__	util-module.html#__package__
@@ -100,7 +100,7 @@ setup.ShutItConnModule._add_begin_build_info	setup.ShutItConnModule-class.html#_
 shutit_module.ShutItModule.check_ready	shutit_module.ShutItModule-class.html#check_ready
 setup.ShutItConnModule._setup_prompts	setup.ShutItConnModule-class.html#_setup_prompts
 shutit_module.ShutItModule.remove	shutit_module.ShutItModule-class.html#remove
-shutit_module.ShutItModule._abc_negative_cache_version	shutit_module.ShutItModule-class.html#_abc_negative_cache_version
+setup.ShutItConnModule._abc_negative_cache_version	setup.ShutItConnModule-class.html#_abc_negative_cache_version
 shutit_module.ShutItModule._abc_registry	shutit_module.ShutItModule-class.html#_abc_registry
 setup.ConnDocker	setup.ConnDocker-class.html
 setup.ConnDocker._check_docker	setup.ConnDocker-class.html#_check_docker
@@ -121,7 +121,7 @@ setup.ShutItConnModule._add_begin_build_info	setup.ShutItConnModule-class.html#_
 shutit_module.ShutItModule.check_ready	shutit_module.ShutItModule-class.html#check_ready
 setup.ShutItConnModule._setup_prompts	setup.ShutItConnModule-class.html#_setup_prompts
 shutit_module.ShutItModule.remove	shutit_module.ShutItModule-class.html#remove
-shutit_module.ShutItModule._abc_negative_cache_version	shutit_module.ShutItModule-class.html#_abc_negative_cache_version
+setup.ShutItConnModule._abc_negative_cache_version	setup.ShutItConnModule-class.html#_abc_negative_cache_version
 shutit_module.ShutItModule._abc_registry	shutit_module.ShutItModule-class.html#_abc_registry
 setup.ConnSSH	setup.ConnSSH-class.html
 shutit_module.ShutItModule.__metaclass__	shutit_module.ShutItMeta-class.html
@@ -141,7 +141,7 @@ setup.ShutItConnModule._add_begin_build_info	setup.ShutItConnModule-class.html#_
 shutit_module.ShutItModule.check_ready	shutit_module.ShutItModule-class.html#check_ready
 setup.ShutItConnModule._setup_prompts	setup.ShutItConnModule-class.html#_setup_prompts
 shutit_module.ShutItModule.remove	shutit_module.ShutItModule-class.html#remove
-shutit_module.ShutItModule._abc_negative_cache_version	shutit_module.ShutItModule-class.html#_abc_negative_cache_version
+setup.ShutItConnModule._abc_negative_cache_version	setup.ShutItConnModule-class.html#_abc_negative_cache_version
 shutit_module.ShutItModule._abc_registry	shutit_module.ShutItModule-class.html#_abc_registry
 setup.ShutItConnModule	setup.ShutItConnModule-class.html
 shutit_module.ShutItModule.__metaclass__	shutit_module.ShutItMeta-class.html
@@ -161,7 +161,7 @@ setup.ShutItConnModule._add_begin_build_info	setup.ShutItConnModule-class.html#_
 shutit_module.ShutItModule.check_ready	shutit_module.ShutItModule-class.html#check_ready
 setup.ShutItConnModule._setup_prompts	setup.ShutItConnModule-class.html#_setup_prompts
 shutit_module.ShutItModule.remove	shutit_module.ShutItModule-class.html#remove
-shutit_module.ShutItModule._abc_negative_cache_version	shutit_module.ShutItModule-class.html#_abc_negative_cache_version
+setup.ShutItConnModule._abc_negative_cache_version	setup.ShutItConnModule-class.html#_abc_negative_cache_version
 shutit_module.ShutItModule._abc_registry	shutit_module.ShutItModule-class.html#_abc_registry
 setup.setup	setup.setup-class.html
 shutit_module.ShutItModule.__metaclass__	shutit_module.ShutItMeta-class.html
@@ -178,7 +178,7 @@ shutit_module.ShutItModule.stop	shutit_module.ShutItModule-class.html#stop
 setup.setup.get_config	setup.setup-class.html#get_config
 shutit_module.ShutItModule.check_ready	shutit_module.ShutItModule-class.html#check_ready
 setup.setup.remove	setup.setup-class.html#remove
-shutit_module.ShutItModule._abc_negative_cache_version	shutit_module.ShutItModule-class.html#_abc_negative_cache_version
+setup.setup._abc_negative_cache_version	setup.setup-class.html#_abc_negative_cache_version
 shutit_module.ShutItModule._abc_registry	shutit_module.ShutItModule-class.html#_abc_registry
 shutit_global.ShutIt	shutit_global.ShutIt-class.html
 shutit_global.ShutIt.get_emailer	shutit_global.ShutIt-class.html#get_emailer
