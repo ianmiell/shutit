@@ -145,7 +145,7 @@ object --+
     </td><td class="summary">
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td><span class="summary-sig"><a name="get_default_child"></a><span class="summary-sig-name">get_default_child</span>(<span class="summary-sig-arg">self</span>)</span><br />
+          <td><span class="summary-sig"><a href="shutit_global.ShutIt-class.html#get_default_child" class="summary-sig-name">get_default_child</a>(<span class="summary-sig-arg">self</span>)</span><br />
       Returns the currently-set default pexpect child.</td>
           <td align="right" valign="top">
             <span class="codelink"><a href="shutit_global-pysrc.html#ShutIt.get_default_child">source&nbsp;code</a></span>
@@ -162,7 +162,7 @@ object --+
     </td><td class="summary">
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td><span class="summary-sig"><a name="get_default_expect"></a><span class="summary-sig-name">get_default_expect</span>(<span class="summary-sig-arg">self</span>)</span><br />
+          <td><span class="summary-sig"><a href="shutit_global.ShutIt-class.html#get_default_expect" class="summary-sig-name">get_default_expect</a>(<span class="summary-sig-arg">self</span>)</span><br />
       Returns the currently-set default pexpect string (usually a prompt).</td>
           <td align="right" valign="top">
             <span class="codelink"><a href="shutit_global-pysrc.html#ShutIt.get_default_expect">source&nbsp;code</a></span>
@@ -175,7 +175,7 @@ object --+
   </tr>
 <tr>
     <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">&nbsp;</span>
+      <span class="summary-type">boolean</span>
     </td><td class="summary">
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
@@ -196,7 +196,7 @@ object --+
     </td><td class="summary">
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td><span class="summary-sig"><a name="set_default_child"></a><span class="summary-sig-name">set_default_child</span>(<span class="summary-sig-arg">self</span>,
+          <td><span class="summary-sig"><a href="shutit_global.ShutIt-class.html#set_default_child" class="summary-sig-name">set_default_child</a>(<span class="summary-sig-arg">self</span>,
         <span class="summary-sig-arg">child</span>)</span><br />
       Sets the default pexpect child.</td>
           <td align="right" valign="top">
@@ -233,7 +233,7 @@ object --+
     </td><td class="summary">
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td><span class="summary-sig"><a name="fail"></a><span class="summary-sig-name">fail</span>(<span class="summary-sig-arg">self</span>,
+          <td><span class="summary-sig"><a href="shutit_global.ShutIt-class.html#fail" class="summary-sig-name">fail</a>(<span class="summary-sig-arg">self</span>,
         <span class="summary-sig-arg">msg</span>,
         <span class="summary-sig-arg">child</span>=<span class="summary-sig-default">None</span>,
         <span class="summary-sig-arg">throw_exception</span>=<span class="summary-sig-default">True</span>)</span><br />
@@ -1470,6 +1470,49 @@ sane.</td>
   </dl>
 </td></tr></table>
 </div>
+<a name="get_default_child"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">get_default_child</span>(<span class="sig-arg">self</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="shutit_global-pysrc.html#ShutIt.get_default_child">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Returns the currently-set default pexpect child.</p>
+  <dl class="fields">
+    <dt>Returns:</dt>
+        <dd>default pexpect child object</dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="get_default_expect"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">get_default_expect</span>(<span class="sig-arg">self</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="shutit_global-pysrc.html#ShutIt.get_default_expect">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Returns the currently-set default pexpect string (usually a 
+  prompt).</p>
+  <dl class="fields">
+    <dt>Returns:</dt>
+        <dd>default pexpect string</dd>
+  </dl>
+</td></tr></table>
+</div>
 <a name="get_default_check_exit"></a>
 <div>
 <table class="details" border="1" cellpadding="3"
@@ -1486,6 +1529,32 @@ sane.</td>
   
   <p>Returns default value of check_exit. See send method.</p>
   <dl class="fields">
+    <dt>Returns: boolean</dt>
+        <dd>Default check_exit value</dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="set_default_child"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">set_default_child</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">child</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="shutit_global-pysrc.html#ShutIt.set_default_child">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Sets the default pexpect child.</p>
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>child</code></strong> - pexpect child to set as default</li>
+    </ul></dd>
   </dl>
 </td></tr></table>
 </div>
@@ -1508,6 +1577,38 @@ sane.</td>
   <p>Sets the default pexpect string (usually a prompt). Defaults to the 
   configured root_prompt if no argument is passed.</p>
   <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>expect</code></strong> (string) - String to expect in the output</li>
+        <li><strong class="pname"><code>check_exit</code></strong> (boolean) - Whether to check the exit value of the command</li>
+    </ul></dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="fail"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">fail</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">msg</span>,
+        <span class="sig-arg">child</span>=<span class="sig-default">None</span>,
+        <span class="sig-arg">throw_exception</span>=<span class="sig-default">True</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="shutit_global-pysrc.html#ShutIt.fail">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Handles a failure, pausing if a pexpect child object is passed in.</p>
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>child</code></strong> - pexpect child to work on</li>
+        <li><strong class="pname"><code>throw_exception</code></strong> (boolean) - Whether to throw an exception.</li>
+    </ul></dd>
   </dl>
 </td></tr></table>
 </div>
@@ -1531,17 +1632,16 @@ sane.</td>
     </td>
   </tr></table>
   
-  <pre class="literalblock">
-Logging function.
-
-- code         - Colour code for logging. Ignored if we are in serve mode.
-- pause        - Length of time to pause after logging (default: 0)
-- prefix       - Whether to output logging prefix (LOG: &lt;time&gt;) (default: True)
-- force_stdout - If we are not in debug, put this in stdout anyway (default: False)
-- add_final_message - Add this log line to the final message (report_final_message)
-
-</pre>
+  <p>Logging function.</p>
   <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>code</code></strong> - Colour code for logging. Ignored if we are in serve mode</li>
+        <li><strong class="pname"><code>pause</code></strong> - Length of time to pause after logging</li>
+        <li><strong class="pname"><code>prefix</code></strong> - Whether to output logging prefix (LOG: &lt;time&gt;)</li>
+        <li><strong class="pname"><code>force_stdout</code></strong> - If we are not in debug, put this in stdout anyway</li>
+        <li><strong class="pname"><code>add_final_message</code></strong> - Add this log line to the final message output to the user</li>
+    </ul></dd>
   </dl>
 </td></tr></table>
 </div>
@@ -1572,7 +1672,7 @@ Logging function.
   <p>Multisend. Same as send, except it takes multiple sends and expects in
   a dict that are processed while waiting for the end &quot;expect&quot; 
   argument supplied.</p>
-  <p>Arguments as per send(), except:</p>
+  <p>@see send</p>
   <ul>
     <li>
       send_dict - dict of sends and expects, eg: {'interim prompt:','some 
@@ -3026,7 +3126,7 @@ Pushes the repository.
 <table border="0" cellpadding="0" cellspacing="0" width="100%%">
   <tr>
     <td align="left" class="footer">
-    Generated by Epydoc 3.0.1 on Fri Feb 20 13:08:12 2015
+    Generated by Epydoc 3.0.1 on Sun Feb 22 17:06:22 2015
     </td>
     <td align="right" class="footer">
       <a target="mainFrame" href="http://epydoc.sourceforge.net"
