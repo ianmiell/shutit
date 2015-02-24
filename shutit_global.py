@@ -1478,9 +1478,7 @@ class ShutIt(object):
 		return True
 
 
-	def whoami(self, 
-	           child=None,
-	           expect=None):
+	def whoami(self, child=None, expect=None):
 		"""Returns the current user by executing "whoami".
 
 		@param child:    See send()
