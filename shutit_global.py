@@ -431,10 +431,10 @@ class ShutIt(object):
 						 and stripped before being run.
 		@param expect:   See send()
 		@param child:    See send()
-		@param is_child: Indicate whether we are in a shell or not. (Default: True)
+		@param in_shell: Indicate whether we are in a shell or not. (Default: True)
 
 		@type script:    string
-		@type is_child:  boolean
+		@type in_shell:  boolean
 		"""
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
@@ -1327,14 +1327,16 @@ class ShutIt(object):
 
 
 	def send_and_get_output(self, send, expect=None, child=None, retry=3, strip=True):
-		"""Returns the output of a command run.
-		send() is called, and exit is not checked.
+		"""Returns the output of a command run. send() is called, and exit is not checked.
 
-	    - send   - See send()
-	    - expect - See send()
-	    - child  - See send()
-	    - retry  - Number of times to retry command (default 3)
-	    - strip  - Whether to strip output (defaults to true)
+		@param send:     See send()
+		@param expect:   See send()
+		@param child:    See send()
+		@param retry:    Number of times to retry command (default 3)
+		@param strip:    Whether to strip output (defaults to True)
+
+		@type retry:     integer
+		@type strip:     boolean
 		"""
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
@@ -1356,17 +1358,26 @@ class ShutIt(object):
 	            reinstall=False):
 		"""Distro-independent install function.
 		Takes a package name and runs the relevant install function.
-		Returns true if all ok (ie it's installed), else false.
 
-			- package    - Package to install, which is run through package_map
-			- expect     - See send()
-			- child      - See send()
-			- timeout    - Timeout to wait for finish of install.
-			- options    - Dictionary for specific options per install tool.
-		               Overrides any arguments passed into this function.
-			- force      - force if necessary
-			- check_exit - If False, failure to install is ok (default True)
-			- reinstall  - Advise a reinstall where possible (default False)
+		@param package:    Package to install, which is run through package_map
+		@param expect:     See send()
+		@param child:      See send()
+		@param timeout:    Timeout (s) to wait for finish of install. Defaults to 3600.
+		@param options:    Dictionary for specific options per install tool.
+		                   Overrides any arguments passed into this function.
+		@param force:      Force if necessary. Defaults to False
+		@param check_exit: If False, failure to install is ok (default True)
+		@param reinstall:  Advise a reinstall where possible (default False)
+
+		@type package:     string
+		@type timeout:     integer
+		@type options:     dict
+		@type force:       boolean
+		@type check_exit:  boolean
+		@type reinstall:   boolean
+
+		@return: True if all ok (ie it's installed), else False.
+		@rtype: boolean
 		"""
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
@@ -1431,14 +1442,17 @@ class ShutIt(object):
 	           timeout=3600):
 		"""Distro-independent remove function.
 		Takes a package name and runs relevant remove function.
-		Returns true if all ok (ie it's installed now), else false.
 
-			- package  - Package to install, which is run through package_map.
-			- expect   - See send()
-			- child    - See send()
-			- options  - Dict of options to pass to the remove command,
-		             mapped by install_type.
-			- timeout  - See send()
+		@param package:  Package to remove, which is run through package_map.
+		@param expect:   See send()
+		@param child:    See send()
+		@param options:  Dict of options to pass to the remove command,
+		                 mapped by install_type.
+		@param timeout:  See send(). Default: 3600
+
+		@return: True if all ok (i.e. the package was successfully removed),
+		         False otherwise.
+		@rtype: boolean
 		"""
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
@@ -1466,21 +1480,32 @@ class ShutIt(object):
 	def whoami(self, 
 	           child=None,
 	           expect=None):
+		"""Returns the current user by executing "whoami".
+
+		@param child:    See send()
+		@param expect:   See send()
+
+		@return: the output of "whoami"
+		@rtype: string
+		"""
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
 		return self.send_and_get_output('whoami').strip()
 
 
 	def exec_shell(self, command='bash', child=None, password=None):
-		"""See login.
+		"""See login().
 
 		This is the same, except it simply execs a shell, acting like a login.
 		Useful eg if you've just ssh'd in and need to refresh the shell in a 
 		simple exec_shell()/exit_shell() combo.
 
-		user     - User to login with
-		command  - Command to login with
-		child    - See send()
+		@param command:  Command to login with. Default: "bash"
+		@param child:    See send()
+		@param password: Password.
+
+		@type command:   string
+		@type password:  string
 		"""
 		child = child or self.get_default_child()
 		r_id = random_id()
@@ -1502,10 +1527,19 @@ class ShutIt(object):
 		If not, override the default command for multi-level logins.
 		If passwords are required, see setup_prompt() and revert_prompt()
 
-		user      - User to login with
-		command   - Command to login with
-		child     - See send()
-		prompt_prefix - Prefix to use in prompt setup
+		@param user:            User to login with. Default: root
+		@param command:         Command to login with. Default: "su -"
+		@param child:           See send()
+		@param password:        Password.
+		@param prompt_prefix:   Prefix to use in prompt setup.
+		@param expect:          See send()
+		@param timeout:         How long to wait for a response. Default: 20.
+
+		@type user:             string
+		@type command:          string
+		@type password:         string
+		@type prompt_prefix:    string
+		@type timeout:          integer
 		"""
 		child = child or self.get_default_child()
 		r_id = random_id()
@@ -1568,21 +1602,26 @@ class ShutIt(object):
 		If you want simple login and logout, please use login() and logout()
 		within this module.
 
-		Typically it would be used in this boilerplate pattern
+		Typically it would be used in this boilerplate pattern::
 
-		shutit.send('su - auser',
-		            expect=shutit.cfg['expect_prompts']['base_prompt'],
-		            check_exit=False)
-		shutit.setup_prompt('tmp_prompt')
-		shutit.send('some command')
-		[...]
-		shutit.set_default_expect()
-		shutit.send('exit')
+		    shutit.send('su - auser',
+		        expect=shutit.cfg['expect_prompts']['base_prompt'],
+		        check_exit=False)
+		    shutit.setup_prompt('tmp_prompt')
+		    shutit.send('some command')
+		    [...]
+		    shutit.set_default_expect()
+		    shutit.send('exit')
 
-			- prompt_name        - Reference name for prompt.
-			- prefix             - Prompt prefix.
-			- child              - See send()
-			- set_default_expect - Whether to set the default expect to the new prompt.
+		@param prompt_name:         Reference name for prompt.
+		@param prefix:              Prompt prefix. Default: 'TMP'
+		@param child:               See send()
+		@param set_default_expect:  Whether to set the default expect
+		                            to the new prompt. Default: True
+
+		@type prompt_name:          string
+		@type prefix:               string
+		@type set_default_expect:   boolean
 		"""
 		child = child or self.get_default_child()
 		local_prompt = 'SHUTIT_' + prefix + '#' + random_id() + '>'
@@ -1634,10 +1673,22 @@ class ShutIt(object):
 		Should be called with the container is started up, and uses as core info
 		as possible.
 
-			- child              - See send()
-			- container          - If True, we are in the container shell,
-		                       otherwise we are gathering info about another
-		                       shell
+		Note: if the install type is apt, it issues the following:
+		    - apt-get update
+		    - apt-get install -y -qq lsb-release
+
+		@param child:       See send()
+		@param container:   If True, we are in the container shell,
+		                    otherwise we are gathering info about another
+		                    shell. Defaults to True.
+
+		@type container:    boolean
+
+		@return: A dict with the following keys: 
+		    - install_type
+			- distro
+			- distro_version
+		@rtype: dict
 		"""
 		child = child or self.get_default_child()
 		install_type   = ''
@@ -1734,6 +1785,8 @@ class ShutIt(object):
 
 
 	def lsb_release(self, child=None):
+		"""Get distro information from lsb_release.
+		"""
 		child = child or self.get_default_child()
 		#          v the space is intentional, to avoid polluting bash history.
 		self.send(' lsb_release -a',check_exit=False)
@@ -1753,10 +1806,12 @@ class ShutIt(object):
 	def set_password(self, password, user='', child=None, expect=None):
 		"""Sets the password for the current user or passed-in user.
 
-			- password - 
-			- user     - 
-			- expect   - See send()
-			- child    - See send()
+		As a side effect, installs the "password" package.
+
+		@param user:        username to set the password for. Defaults to '' (i.e. current user)
+		@param password:    password to set for the user
+		@param expect:      See send()
+		@param child:       See send()
 		"""
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
@@ -1787,11 +1842,17 @@ class ShutIt(object):
 
 
 	def is_user_id_available(self, user_id, child=None, expect=None):
-		"""Determine whether a user_id for a user is available.
+		"""Determine whether the specified user_id available.
 
-			- user_id  - 
-			- expect   - See send()
-			- child    - See send()
+		@param user_id:  User id to be checked.
+		@param expect:   See send()
+		@param child:    See send()
+
+		@type user_id:   integer
+
+		@rtype:          boolean
+		@return:         True is the specified user id is not used yet,
+		                 False if it's already been assigned to a user.
 		"""
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
@@ -1811,10 +1872,13 @@ class ShutIt(object):
 	                    expect=None):
 		"""Pushes the repository.
 
-			- repository        - 
-			- docker_executable -
-			- expect            - See send()
-			- child             - See send()
+		@param repository:          Repository to push.
+		@param docker_executable:   Defaults to 'docker'
+		@param expect:              See send()
+		@param child:               See send()
+
+		@type repository:           string
+		@type docker_executable:    string
 		"""
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
@@ -1851,11 +1915,16 @@ class ShutIt(object):
 		"""Commit, tag, push, tar a docker container based on the configuration we
 		have.
 
-			- repo_name         - 
-			- expect            - See send()
-			- docker_executable - 
-			- password          - 
-			- force             - 
+		@param repo_name:           Name of the repository.
+		@param expect:              See send()
+		@param docker_executable:   Defaults to 'docker.io'
+		@param password:
+		@param force:
+
+		@type repo_name:            string
+		@type docker_executable:    string
+		@type password:             string
+		@type force:                boolean
 		"""
 		expect = expect or self.get_default_expect()
 		tag    = cfg['repository']['tag']
@@ -2067,10 +2136,16 @@ class ShutIt(object):
 
 	def get_ip_address(self, ip_family='4', ip_object='addr', command='ip', interface='eth0'):
 		"""Gets the ip address based on the args given. Assumes command exists.
-		ip_family - type of ip family, defaults to 4
-		ip_object - type of ip object, defaults to "addr"
-		command   - defaults to "ip"
-		interface - defaults to "eth0"
+
+		@param ip_family:   type of ip family, defaults to 4
+		@param ip_object:   type of ip object, defaults to "addr"
+		@param command:     defaults to "ip"
+		@param interface:   defaults to "eth0"
+
+		@type ip_family:    string
+		@type ip_object:    string
+		@type command:      string
+		@type interface:    string
 		"""
 		return self.send_and_get_output(command + ' -' + ip_family + ' -o ' + ip_object + ' | grep ' + interface)
 
