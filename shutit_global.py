@@ -1054,8 +1054,9 @@ class ShutIt(object):
 		"""Helper proc to list files in a directory
 
 		@param directory:   directory to list.
-		                    The build fails if the directory
-		                    doesn't exist.
+		                    If the directory doesn't exist,
+		                    shutit.fail() is called (i.e.
+		                    the build fails.)
 
 		@type directory:    string
 
