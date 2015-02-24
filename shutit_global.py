@@ -230,7 +230,8 @@ class ShutIt(object):
 		"""Multisend. Same as send, except it takes multiple sends and expects in a dict that are
 		processed while waiting for the end "expect" argument supplied.
 
-		@see send
+		see send
+
 			- send_dict - dict of sends and expects, eg: {'interim prompt:','some input','other prompt','some other input'}
 			- expect - final expect we want to see. defaults to child.get_default_expect()
 		"""
@@ -264,48 +265,23 @@ class ShutIt(object):
 		"""Send string as a shell command, and wait until the expected output
 		is seen (either a string or any from a list of strings) before
 		returning. The expected string will default to the currently-set
-		default expected string (see get_default_expect())
+		default expected string (see get_default_expect)
 
-		@param send:                  String to send, ie the command being
-		                              issued. If set to None, we consume up to
-		                              the expect string, which is useful if we
-		                              just matched output that came before a
-		                              standard command that returns to the
-		                              prompt.
-		@param expect:                String that we expect to see in the
-		                              output. Usually a prompt. Defaults to
-		                              currently-set expect string (see
-		                              set_default_expect)
-		@param child:                 pexpect child to issue command to.
-		@param timeout:               Timeout on response
-			                          (default=3600 seconds).
-		@param check_exit:            Whether to check the shell exit code of
-			                          the passed-in command.  If the exit value
-			                          was non-zero an error is thrown.
-			                          (default=None, which takes the
-			                          currently-configured check_exit value)
-			                          See also fail_on_empty_before.
-		@param fail_on_empty_before:  If debug is set, fail on empty match
-			                          output string (default=True)
-			                          If this is set to False, then we don't
-			                          check the exit value of the command.
-		@param record_command:        Whether to record the command for output
-			                          at end (default=True). As a safety
-			                          measure, if the command matches any
-			                          'password's then we don't record it.
-		@param exit_values:           Array of acceptable exit values as strings
-			                          (default ['0'])
-		@param echo:                  Whether to suppress any logging output
-			                          from pexpect to the terminal or not.
-			                          We don't record the command if this is
-			                          set to False unless record_command is
-			                          explicitly passed in as True.
-		@param retry:                 Number of times to retry the command if
-			                          the first attempt doesn't work. Useful if
-			                          going to the network.
+		Returns the pexpect return value (ie which expected string in the list
+		matched)
 
-		@rtype:  string
+		@param child: pexpect child to issue command to.
+		@param send: String to send, ie the command being issued. If set to None, we consume up to the expect string, which is useful if we just matched output that came before a standard command that returns to the prompt.
+		@param expect: String that we expect to see in the output. Usually a prompt. Defaults to currently-set expect string (see set_default_expect)
+		@param timeout: Timeout on response
+		@param check_exit: Whether to check the shell exit code of the passed-in command.  If the exit value was non-zero an error is thrown.  (default=None, which takes the currently-configured check_exit value) See also fail_on_empty_before.
+		@param fail_on_empty_before: If debug is set, fail on empty match output string (default=True) If this is set to False, then we don't check the exit value of the command.
+		@param record_command: Whether to record the command for output at end. As a safety measure, if the command matches any 'password's then we don't record it.
+		@param exit_values: Array of acceptable exit values as strings
+		@param echo: Whether to suppress any logging output from pexpect to the terminal or not.  We don't record the command if this is set to False unless record_command is explicitly passed in as True.
+		@param retry: Number of times to retry the command if the first attempt doesn't work. Useful if going to the network.
 		@return: The pexpect return value (ie which expected string in the list matched)
+		@rtype: string
 		"""
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
@@ -451,11 +427,14 @@ class ShutIt(object):
 	def run_script(self, script, expect=None, child=None, in_shell=True):
 		"""Run the passed-in string as a script on the target's command line.
 
-				- script   - String representing the script. It will be de-indented
+		@param script:   String representing the script. It will be de-indented
 						 and stripped before being run.
-				- expect   - See send()
-				- child    - See send()
-				- in_shell - Indicate whether we are in a shell or not.
+		@param expect:   See send()
+		@param child:    See send()
+		@param is_child: Indicate whether we are in a shell or not. (Default: True)
+
+		@type script:    string
+		@type is_child:  boolean
 		"""
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
@@ -488,11 +467,15 @@ class ShutIt(object):
 		"""Sends the passed-in string as a file to the passed-in path on the
 		target.
 
-				- path     - Target location of file on target.
-				- contents - Contents of file as a string. See log.
-				- expect   - See send()
-				- child    - See send()
-				- log      - Log the file contents if in debug.
+		@param path:        Target location of file on target.
+		@param contents:    Contents of file as a string. See log.
+		@param expect:      See send()
+		@param child:       See send()
+		@param log:         Log the file contents if in debug.
+
+		@type path:         string
+		@type contents:     string
+		@type log:          boolean
 		"""
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
@@ -568,11 +551,15 @@ class ShutIt(object):
 	                   log=True):
 		"""Send file from host machine to given path
 
-				- path         - Path to send file to.
-				- hostfilepath - Path to file from host to send to target.
-				- expect       - See send()
-				- child        - See send()
-				- log          - arg to pass to send_file (default True)
+		@param path:          Path to send file to.
+		@param hostfilepath:  Path to file from host to send to target.
+		@param expect:        See send()
+		@param child:         See send()
+		@param log:           arg to pass to send_file (default True)
+
+		@type path:           string
+		@type hostfilepath:   string
+		@type log:            boolean
 		"""
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
@@ -602,11 +589,15 @@ class ShutIt(object):
 		"""Send directory and all contents recursively from host machine to
 		given path.  It will automatically make directories on the target.
 
-				- path         - Path to send directory to
-				- hostfilepath - Path to file from host to send to target
-				- expect       - See send()
-				- child        - See send()
-				- log          - Arg to pass to send_file (default True)
+		@param path:          Path to send directory to
+		@param hostfilepath:  Path to file from host to send to target
+		@param expect:        See send()
+		@param child:         See send()
+		@param log:           Arg to pass to send_file (default True)
+
+		@type path:          string
+		@type hostfilepath:  string
+		@type log:           boolean
 		"""
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
@@ -630,10 +621,15 @@ class ShutIt(object):
 
 
 	def host_file_exists(self, filename, directory=False):
-		"""Return True if file exists on the host, else false
+		"""Return True if file exists on the host, else False
 
-				- filename     - Filename to determine the existence of.
-				- directory    - Indicate that the file expected is a directory.
+		@param filename:   Filename to determine the existence of.
+		@param directory:  Indicate that the file expected is a directory. (Default: False)
+
+		@type filename:    string
+		@type directory:   boolean
+
+		@rtype: boolean
 		"""
 
 		if directory:
@@ -646,10 +642,15 @@ class ShutIt(object):
 	def file_exists(self, filename, expect=None, child=None, directory=False):
 		"""Return True if file exists on the target host, else False
 
-				- filename     - Filename to determine the existence of.
-				- expect       - See send()
-				- child        - See send()
-				- directory    - Indicate that the file is a directory.
+		@param filename:   Filename to determine the existence of.
+		@param expect:     See send()
+		@param child:      See send()
+		@param directory:  Indicate that the file is a directory.
+
+		@type filename:    string
+		@type directory:   boolean
+
+		@rtype: boolean
 		"""
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
@@ -677,9 +678,13 @@ class ShutIt(object):
 		"""Returns the permissions of the file on the target as an octal
 		string triplet.
 
-				- filename  - Filename to get permissions of.
-				- expect    - See send()
-				- child     - See send()
+		@param filename:  Filename to get permissions of.
+		@param expect:    See send()
+		@param child:     See send()
+
+		@type filename:   string
+
+		@rtype:           string
 		"""
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
@@ -701,15 +706,23 @@ class ShutIt(object):
 		Must be exactly the line passed in to match.
 		Returns True if there were no problems, False if there were.
 	
-			- line         - Line to add.
-			- filename     - Filename to add it to.
-			- expect       - See send()
-			- child        - See send()
-			- match_regexp - If supplied, a regexp to look for in the file
-						 instead of the line itself,
-						 handy if the line has awkward characters in it.
-			- literal      - If true, then simply grep for the exact string without
-						 bash interpretation.
+		@param line:          Line to remove.
+		@param filename       Filename to remove it from.
+		@param expect:        See send()
+		@param child:         See send()
+		@param match_regexp:  If supplied, a regexp to look for in the file
+		                      instead of the line itself,
+		                      handy if the line has awkward characters in it.
+		@param literal:       If true, then simply grep for the exact string without
+		                      bash interpretation. (Default: False)
+
+		@type line:           string
+		@type filename:       string
+		@type match_regexp:   string
+		@type literal:        boolean
+
+		@return:              True if the line was matched and deleted, False otherwise.
+		@rtype:               boolean
 		"""
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
@@ -787,16 +800,21 @@ class ShutIt(object):
 		have a sentinel value to add first, and then if that returns true,
 		force the remainder.
 	
-			- line         - Line to add.
-			- filename     - Filename to add it to.
-			- expect       - See send()
-			- child        - See send()
-			- match_regexp - If supplied, a regexp to look for in the file
-		                 instead of the line itself,
-		                 handy if the line has awkward characters in it.
-			- force        - Always write the line to the file.
-			- literal      - If true, then simply grep for the exact string without
-		                 bash interpretation.
+		@param line:          Line to add.
+		@param filename       Filename to add it to.
+		@param expect:        See send()
+		@param child:         See send()
+		@param match_regexp:  If supplied, a regexp to look for in the file
+		                      instead of the line itself,
+		                      handy if the line has awkward characters in it.
+		@param force:         Always write the line to the file.
+		@param literal:       If true, then simply grep for the exact string without
+		                      bash interpretation. (Default: False)
+
+		@type line:           string
+		@type filename:       string
+		@type match_regexp:   string
+		@type literal:        boolean
 		"""
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
@@ -879,9 +897,12 @@ class ShutIt(object):
 		"""Takes care of adding a line to everyone's bashrc
 		(/etc/bash.bashrc, /etc/profile).
 
-			- line   - Line to add.
-			- expect - See send()
-			- child  - See send()
+		@param line:          Line to add.
+		@param expect:        See send()
+		@param child:         See send()
+		@param match_regexp:  See add_line_to_file()
+
+		@return:              See add_line_to_file()
 		"""
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
@@ -903,9 +924,30 @@ class ShutIt(object):
 	            echo=False,
 	            retry=3):
 		"""Handles the getting of a url for you.
-		filename is filename, eg ajar.jar
-		locations is a list of mirrors, 
-		eg get_util('somejar.jar',['ftp://loc.org','http://anotherloc.com/jars'])"""
+
+		Example:
+		get_url('somejar.jar', ['ftp://loc.org','http://anotherloc.com/jars'])
+
+		@param filename:             name of the file to download
+		@param locations:            list of URLs whence the file can be downloaded
+		@param command:              program to use to download the file (Default: wget)
+		@param expect:               See send()
+		@param child:                See send()
+		@param timeout:              See send()
+		@param fail_on_empty_before: See send()
+		@param record_command:       See send()
+		@param exit_values:          See send()
+		@param echo:                 See send()
+		@param retry:                How many times to retry the download
+		                             in case of failure. Default: 3
+
+		@type filename:              string
+		@type locations:             list of strings
+		@type retry:                 integer
+
+		@return: True if the download was completed successfully, False otherwise.
+		@rtype: boolean
+		"""
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
 		if len(locations) == 0 or type(locations) != list:
@@ -935,9 +977,13 @@ class ShutIt(object):
 	def user_exists(self, user, expect=None, child=None):
 		"""Returns true if the specified username exists.
 		
-			- user   - username to check for
-			- expect - See send()
-			- child  - See send()
+		@param user:   username to check for
+		@param expect: See send()
+		@param child:  See send()
+
+		@type user:    string
+
+		@rtype:        boolean
 		"""
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
@@ -958,9 +1004,11 @@ class ShutIt(object):
 	def package_installed(self, package, expect=None, child=None):
 		"""Returns True if we can be sure the package is installed.
 
-			- package - Package as a string, eg 'wget'.
-			- expect  - See send()
-			- child   - See send()
+		@param package:   Package as a string, eg 'wget'.
+		@param expect:    See send()
+		@param child:     See send()
+
+		@rtype:           boolean
 		"""
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
@@ -1005,9 +1053,13 @@ class ShutIt(object):
 	def ls(self, directory):
 		"""Helper proc to list files in a directory
 
-		Returns list of files.
+		@param directory:   directory to list.
+		                    The build fails if the directory
+		                    doesn't exist.
 
-		directory - directory to list
+		@type directory:    string
+
+		@rtype:             list of strings
 		"""
 		# should this blow up?
 		if not shutit.file_exists(directory,directory=True):
@@ -1030,8 +1082,8 @@ class ShutIt(object):
 
 
 	def mount_tmp(self):
-		"""mount a temporary file system as a workaround for the AUFS /tmp issues
-			not necessary if running devicemapper
+		"""mount a temporary file system as a workaround for the AUFS /tmp issues.
+		Not necessary if running devicemapper.
 		"""
 		shutit.send('mkdir -p /tmpbak') # Needed?
 		shutit.send('touch /tmp/' + cfg['build']['build_id']) # Needed?
@@ -1045,8 +1097,14 @@ class ShutIt(object):
 	def get_file(self,target_path,host_path):
 		"""Copy a file from the target machine to the host machine, via the artifacts mount
 
-		target_path - path to file in the target
-		host_path      - path to file on the host machine (e.g. copy test)
+		@param target_path: path to file in the target
+		@param host_path:   path to file on the host machine (e.g. copy test)
+
+		@type target_path: string
+		@type host_path:   string
+
+		@return:           ???
+		@rtype:            string
 		"""
 		filename = os.path.basename(target_path)
 		artifacts_dir = shutit.cfg['host']['artifacts_dir']
@@ -1069,10 +1127,19 @@ class ShutIt(object):
 		"""Prompt for a config value, optionally saving it to the user-level
 		cfg. Only runs if we are in an interactive mode.
 
-		msg    - Message to display to user.
-		sec    - Section of config to add to.
-		name   - Config item name.
-		ispass - Hide the input from the terminal.
+		@param msg:    Message to display to user.
+		@param sec:    Section of config to add to.
+		@param name:   Config item name.
+		@param ispass: If True, hide the input from the terminal.
+		               Default: False.
+
+		@type msg:     string
+		@type sec:     string
+		@type name:    string
+		@type ispass:  boolean
+
+		@return: the value entered by the user
+		@rtype:  string
 		"""
 		cfgstr        = '[%s]/%s' % (sec, name)
 		config_parser = cfg['config_parser']
@@ -1156,11 +1223,20 @@ class ShutIt(object):
 		Designed to help debug the build, or drop to on failure so the
 		situation can be debugged.
 
-			- msg         - Message to display to user on pause point.
-			- child       - See send()
-			- print_input - Whether to take input at this point (ie interact), or
-						simply pause pending any input.
-			- level       - Minimum level to invoke the pause_point at
+		@param msg:          Message to display to user on pause point.
+		@param child:        See send()
+		@param print_input:  Whether to take input at this point (i.e. interact), or
+		                     simply pause pending any input.
+		                     Default: True
+		@param level:        Minimum level to invoke the pause_point at.
+		                     Default: 1
+		@param resize:       If True, try to resize terminal.
+		                     Default: False
+
+		@type msg:           string
+		@type print_input:   boolean
+		@type level:         integer
+		@type resize:        boolean
 		"""
 		child = child or self.get_default_child()
 		if (not util.determine_interactive(self) or self.cfg['build']['interactive'] < 1 or 
