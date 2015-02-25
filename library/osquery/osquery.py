@@ -9,6 +9,7 @@ class osquery(ShutItModule):
 	def build(self, shutit):
 		shutit.install('software-properties-common')
 		shutit.install('apt-transport-https')
+		shutit.install('cmake')
 		shutit.send('apt-key adv --keyserver keyserver.ubuntu.com --recv-keys C9D8B80B')
 		shutit.send('add-apt-repository "deb https://osquery-packages.s3.amazonaws.com/trusty trusty main"')
 		shutit.send('apt-get update')
