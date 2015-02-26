@@ -150,7 +150,7 @@ ssh_cmd:
 
 # Aspects of build process
 [build]
-build_log:no
+build_log:yes
 # How to connect to target
 conn_module:shutit.tk.conn_docker
 # Run any docker container in privileged mode
