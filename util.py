@@ -363,6 +363,7 @@ def get_base_config(cfg, cfg_parser):
 		logfile = os.path.join('/tmp/', 'shutit_log_' + cfg['build']['build_id'])
 	else:
 		logfile = logfile + '_' + cfg['build']['build_id']
+	cfg['host']['logfile'] = logfile
 	if cfg['build']['build_log']:
 		cfg['build']['build_log'] = open(logfile, 'a')
 		# Lock it down to the running user.
