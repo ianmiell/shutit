@@ -25,7 +25,6 @@ from shutit_module import ShutItModule
 class aws(ShutItModule):
 
 	def is_installed(self,shutit):
-		shutit.cfg[self.module_id]['region']
 		return False
 
 
