@@ -2079,12 +2079,6 @@ class ShutIt(object):
 		@type forcenone:     boolean
 		@type hint:          string
 		"""
-		# If the value already exists, return it. This is get_config, after all.
-		# This is officially cool. I checked: (EAFP)
-		try:
-			return self.cfg[module_id][option]
-		except:
-			pass
 		if module_id not in self.cfg.keys():
 			self.cfg[module_id] = {}
 		if not cfg['config_parser'].has_section(module_id):
