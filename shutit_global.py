@@ -1769,6 +1769,7 @@ class ShutIt(object):
 			# if we've determined that now
 			if install_type == 'apt':
 				self.send('apt-get update')
+				self.cfg['build']['do_update'] = False
 				self.send('apt-get install -y -qq lsb-release')
 				d = self.lsb_release()
 				install_type   = d['install_type']
