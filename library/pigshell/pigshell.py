@@ -9,11 +9,11 @@ class pigshell(ShutItModule):
 	def build(self, shutit):
 		shutit.install('apache2')
 		shutit.install('git')
+		shutit.install('ruby2.0-dev') # required to get ronn install to work - see http://hire.chrisjlee.net/node/229
 		shutit.install('rubygems-integration')
 		shutit.install('make')
 		shutit.send('npm install marked --save && echo ""')
 		shutit.send('npm install jshint && echo ""')
-		shutit.install('ruby2.0-dev') # required to get ronn install to work - see http://hire.chrisjlee.net/node/229
 		shutit.send('gem install ronn')
 		shutit.send('cd /opt')
 		shutit.send('git clone https://github.com/ganeshv/pegjs')
