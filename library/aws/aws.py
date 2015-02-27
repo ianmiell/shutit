@@ -24,6 +24,10 @@ from shutit_module import ShutItModule
 
 class aws(ShutItModule):
 
+	def is_installed(self,shutit):
+		return False
+
+
 	def build(self,shutit):
 		shutit.install('wget')
 		shutit.install('zip')
