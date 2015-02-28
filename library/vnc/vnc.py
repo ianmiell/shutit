@@ -9,7 +9,7 @@ class vnc(ShutItModule):
 	def check_ready(self, shutit):
 		"""Only apt-based systems are supported support atm
 		"""
-		return shutit.cfg['target']['install_type'] == 'apt'
+		return shutit.collect_config('target','install_type') == 'apt'
 
 	def build(self, shutit):
 		shutit.install('gnome-core')
@@ -18,17 +18,18 @@ class vnc(ShutItModule):
 		shutit.install('xserver-xorg')
 		shutit.install('vnc4server')
 		shutit.install('novnc')
-		if shutit.cfg['target']['distro'] == 'ubuntu':
+		if shutit.collect_config('target','distro') == 'ubuntu':
 			shutit.install('ubuntu-desktop')
 			shutit.send('rm -rf /tmp/ubuntu-desktop')
 		send = 'vncserver'
-		shutit.multisend(send, {'assword:':shutit.cfg['shutit.tk.vnc.vnc']['password'], 'erify':shutit.cfg['shutit.tk.vnc.vnc']['password']}, fail_on_empty_before=False, echo=False)
+		password = shutit.collect_config(self.module_id,'password')
+		shutit.multisend(send, {'assword:':password, 'erify':password}, fail_on_empty_before=False, echo=False)
 		shutit.add_line_to_file('#!/bin/bash','/root/start_vnc.sh')
 		shutit.add_line_to_file('# start vnc', '/root/start_vnc.sh')
 		shutit.add_line_to_file('rm -rf /tmp/.X*', '/root/start_vnc.sh')
 		shutit.add_line_to_file("""vncserver << END
-""" + shutit.cfg['shutit.tk.vnc.vnc']['password'] + """
-""" + shutit.cfg['shutit.tk.vnc.vnc']['password'] + """
+""" + password + """
+""" + password + """
 END""", '/root/start_vnc.sh')
 		shutit.add_line_to_file('echo "Did you expose ports 5901 and 6080?"', '/root/start_vnc.sh', match_regexp='echo .Did you expose ports 5901 and 6080..')
 		shutit.add_line_to_file('echo "If so, then vncviewer localhost:1 should work."', '/root/start_vnc.sh', match_regexp='echo .If so, then vncviewer localhost:1 should work..')
