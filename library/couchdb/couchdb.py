@@ -11,7 +11,7 @@ class couchdb(ShutItModule):
 		shutit.send('apt-get install -y erlang-dev erlang-manpages erlang-base-hipe erlang-eunit erlang-nox erlang-xmerl erlang-inets')
 		shutit.send('apt-get install -y libmozjs185-dev libicu-dev libcurl4-gnutls-dev libtool wget')
 		shutit.send('cd /tmp')
-		shutit.get_url('apache-couchdb-' + shutit.collect_config(self.module_id,'version') + '.tar.gz',['http://www.apache.org/dist/couchdb/source/' + shutit.collect_config(self.module_id,'version'))
+		shutit.get_url('apache-couchdb-' + shutit.collect_config(self.module_id,'version') + '.tar.gz',['http://www.apache.org/dist/couchdb/source/' + shutit.collect_config(self.module_id,'version')])
 		shutit.send('tar -zxf apache-couchdb-' + shutit.collect_config(self.module_id,'version') + '.tar.gz')
 		shutit.send('cd /tmp && tar xvzf apache-couchdb-' + shutit.collect_config(self.module_id,'version') + '.tar.gz')
 		shutit.send('apt-get install -y make')
