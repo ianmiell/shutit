@@ -8,7 +8,7 @@ class mesos(ShutItModule):
 
 
 	def build(self, shutit):
-		shutit.install('build-essential openjdk-6-jdk python-dev python-boto libcurl4-nss-dev libsasl2-dev maven libapr1-dev libsvn-dev')
+		shutit.install('build-essential openjdk-6-jdk python-dev python-boto libcurl4-nss-dev libsasl2-dev maven libapr1-dev libsvn-dev wget')
 		shutit.send('wget -qO- http://www.apache.org/dist/mesos/0.20.1/mesos-0.20.1.tar.gz | tar -zxf -')
 		shutit.send('cd mesos*')
 		shutit.send('mkdir build')
