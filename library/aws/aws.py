@@ -42,10 +42,10 @@ class aws(ShutItModule):
 		shutit.send('./awscli-bundle/install -i /usr/local/aws -b /usr/local/bin/aws')
 		shutit.send('complete -C aws_completer aws')
 		shutit.send('aws configure',expect="Access Key ID")
-		shutit.send(shutit.collect_config(self.module_id,'access_key_id'),expect="Secret Access Key")
-		shutit.send(shutit.collect_config(self.module_id,'secret_access_key'),expect="Default region name")
-		shutit.send(shutit.collect_config(self.module_id,'region'),expect="Default output format")
-		shutit.send(shutit.collect_config(self.module_id,'output'))
+		shutit.send(shutit.cfg[self.module_id]['access_key_id'],expect="Secret Access Key")
+		shutit.send(shutit.cfg[self.module_id]['secret_access_key'],expect="Default region name")
+		shutit.send(shutit.cfg[self.module_id]['region'],expect="Default output format")
+		shutit.send(shutit.cfg[self.module_id]['output'])
 		return True
 
 	def get_config(self, shutit):

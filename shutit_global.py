@@ -2052,24 +2052,6 @@ class ShutIt(object):
 			                          '\nPushed repository: ' + repository)
 
 
-	def collect_config(self, module_id, option):
-		"""Returns the config item, retrieving the config if necessary using [module_id].get_config.
-
-		@param module_id:    module id this relates to, eg com.mycorp.mymodule.mymodule
-		@param option:       config item to set
-		"""
-		try:
-			return self.cfg[module_id][option]
-		except:
-			# option not available, so call get_config on the module before trying again.
-			self.shutit_map[module_id].get_config(shutit)
-			try:
-				return self.cfg[module_id][option]
-			except:
-				self.fail('Config item: ' + option + ':\nin module:\n[' + module_id + ']\nappears to be unset!', throw_exception=False)
-				
-
-
 	def get_config(self,
 	               module_id,
 	               option,
@@ -2098,11 +2080,6 @@ class ShutIt(object):
 		@type forcenone:     boolean
 		@type hint:          string
 		"""
-		# First see whether it's already been set. This is quite possible.
-		try:
-			return self.cfg[module_id][option]
-		except:
-			pass
 		if module_id not in self.cfg.keys():
 			self.cfg[module_id] = {}
 		if not cfg['config_parser'].has_section(module_id):

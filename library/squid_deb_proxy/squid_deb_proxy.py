@@ -32,8 +32,7 @@ class squid_deb_proxy(ShutItModule):
 		# We seem to need to remove this so that our settings work. Since this is not a "real" machine, I think.
 		shutit.send('rm -f /usr/share/squid-deb-proxy-client/apt-avahi-discover')
 		shutit.send("""route -n | awk '/^0.0.0.0/ {print $2}' | tee /tmp/hostip""", check_exit=False)
-		host_proxy_port = shutit.collect_config(self.module_id,'host_proxy_port')
-		shutit.send("""echo "HEAD /" | nc `cat /tmp/hostip` """ + host_proxy_port + """ | grep squid-deb-proxy && (echo "Acquire::http::Proxy \\"http://$(cat /tmp/hostip):""" + host_proxy_port + """\\";" > /etc/apt/apt.conf.d/30proxy) && (echo "Acquire::http::Proxy::ppa.launchpad.net DIRECT;" >> /etc/apt/apt.conf.d/30proxy) || echo 'No squid-deb-proxy detected on docker host'""", check_exit=True)
+		shutit.send("""echo "HEAD /" | nc `cat /tmp/hostip` """ + shutit.cfg['shutit.tk.squid_deb_proxy.squid_deb_proxy']['host_proxy_port'] + """ | grep squid-deb-proxy && (echo "Acquire::http::Proxy \\"http://$(cat /tmp/hostip):""" + shutit.cfg['shutit.tk.squid_deb_proxy.squid_deb_proxy']['host_proxy_port'] + """\\";" > /etc/apt/apt.conf.d/30proxy) && (echo "Acquire::http::Proxy::ppa.launchpad.net DIRECT;" >> /etc/apt/apt.conf.d/30proxy) || echo 'No squid-deb-proxy detected on docker host'""", check_exit=True)
 		shutit.send('rm -f /tmp/hostip')
 		shutit.send('/root/start_avahi_daemon.sh', check_exit=False)
 		return True

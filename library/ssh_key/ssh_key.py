@@ -16,7 +16,7 @@ class ssh_key(ShutItModule):
 
 	def finalize(self, shutit):
 		# We don't want to leave keys lying around.
-		if shutit.collect_config(self.module_id,'remove_keys'):
+		if shutit.cfg[self.module_id]['remove_keys']:
 			shutit.send('rm -rf /root/.ssh')
 		shutit.send('service ssh stop')
 		return True
@@ -27,7 +27,7 @@ class ssh_key(ShutItModule):
 
 	def test(self, shutit):
 		d = {'authenticity':'yes'}
-		shutit.multisend('ssh localhost',d,expect=shutit.collect_config('expect_prompts','base_prompt'),check_exit=False)
+		shutit.multisend('ssh localhost',d,expect=shutit.cfg['expect_prompts']['base_prompt'],check_exit=False)
 		shutit.send('exit')
 		return True
 

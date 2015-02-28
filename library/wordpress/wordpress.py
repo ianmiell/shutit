@@ -26,7 +26,7 @@ END"""
 <?php
 define('DB_NAME', 'wordpress');
 define('DB_USER', 'wordpress');
-define('DB_PASSWord', """ + shutit.collect_config(self.module_id,'password') + """
+define('DB_PASSWord', """ + shutit.cfg['shutit.tk.wordpress.wordpress']['password'] + """
 define('DB_HOST', 'localhost');
 define('WP_CONTEnt_dir', '/var/lib/wordpress/wp-content');
 ?>
@@ -41,7 +41,7 @@ IDENTIFIED BY 'yourpasswordhere';
 FLUSH PRIVILEGES;
 END"""
 		shutit.send(sql)
-		shutit.send('cat /tmp/sql | mysql -u' + shutit.collect_config('shutit.tk.mysql.mysql','mysql_user') + ' -p' + shutit.collect_config('shutit.tk.mysql.mysql','mysql_user_password') + ' && rm /tmp/sql', check_exit=False, record_command=False)
+		shutit.send('cat /tmp/sql | mysql -u' + shutit.cfg['shutit.tk.mysql.mysql']['mysql_user'] + ' -p' + shutit.cfg['shutit.tk.mysql.mysql']['mysql_user_password'] + ' && rm /tmp/sql', check_exit=False, record_command=False)
 		return True
 
 	def start(self, shutit):
