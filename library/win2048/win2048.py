@@ -10,13 +10,14 @@ class win2048(ShutItModule):
 		shutit.install('vim')
 		shutit.install('scrot')
 		shutit.install('wget')
+		password = shutit.collect_config('shutit.tk.vnc.vnc','password')
 		shutit.send("""cat > /root/start_win2048.sh << 'ENDS'
 #!/bin/bash
 # start vnc
 rm -rf /tmp/.X*
 vncserver << END
-""" + shutit.cfg['shutit.tk.vnc.vnc']['password'] + """
-""" + shutit.cfg['shutit.tk.vnc.vnc']['password'] + """
+""" + password + """
+""" + password + """
 END
 echo "Did you expose ports 5901 and 6080?"
 echo "If so, then vnclient localhost:1 should work."

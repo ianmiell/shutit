@@ -9,9 +9,9 @@ class gmailer(ShutItModule):
 		shutit.install('mailutils')
 		shutit.install('ssmtp')
 		shutit.send("""cat > /etc/ssmtp/ssmtp.conf << END
-root=""" + shutit.cfg[self.module_id]['email'] + """
-AuthUser=""" + shutit.cfg[self.module_id]['email'] + """
-AuthPass=""" + shutit.cfg[self.module_id]['password'] + """
+root=""" + shutit.collect_config(self.module_id,'email') + """
+AuthUser=""" + shutit.collect_config(self.module_id,'email') + """
+AuthPass=""" + shutit.collect_config(self.module_id,'password') + """
 mailhub=smtp.gmail.com:587
 rewriteDomain=
 hostname=smtp.gmail.com:587
