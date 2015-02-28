@@ -151,6 +151,7 @@ ssh_cmd:
 # Aspects of build process
 [build]
 build_log:yes
+eatmydata: no
 # How to connect to target
 conn_module:shutit.tk.conn_docker
 # Run any docker container in privileged mode
@@ -302,6 +303,7 @@ def get_base_config(cfg, cfg_parser):
 	cfg['build']['completed']                     = False
 	cfg['build']['step_through']                  = False
 	cfg['build']['check_exit']                    = True
+	cfg['build']['eatmydata']                     = cp.getboolean('build', 'eatmydata')
 	# Take a command-line arg if given, else default.
 	if cfg['build']['conn_module'] == None:
 		cfg['build']['conn_module']                   = cp.get('build', 'conn_module')

@@ -1390,7 +1390,18 @@ class ShutIt(object):
 			return True
 		opts = ''
 		if install_type == 'apt':
+
+			# install eatmydata if required
+			#TODO this should be done just once per build!
+			if self.cfg['build']['eatmydata']:
+				self.send('which eatmydata || apt-get install eatmydata')
+
 			cmd = 'apt-get install'
+
+			# use eatmydata if requested
+			if self.cfg['build']['eatmydata']:
+				cmd = 'eatmydata ' + cmd
+
 			if 'apt' in options:
 				opts = options['apt']
 			else:
