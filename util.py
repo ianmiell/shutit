@@ -276,7 +276,7 @@ def get_configs(shutit, configs):
 		else:
 			cp.read(config)
 	# Treat allowed_images as a special, additive case
-	shutit.cfg['build']['allowed_images'] = cp.get_config_set('build', 'allowed_images')
+	shutit.cfg['build']['shutit.core.module.allowed_images'] = cp.get_config_set('build', 'shutit.core.module.allowed_images')
 	return cp
 
 def issue_warning(msg, wait):
