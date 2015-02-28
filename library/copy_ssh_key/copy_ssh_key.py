@@ -21,13 +21,12 @@ class copy_ssh_key(ShutItModule):
 		return False
 
 	def build(self,shutit):
-		shutit.send('useradd -d /home/' + shutit.cfg[self.module_id]['login'] + ' -s /bin/bash -m ' + shutit.cfg[self.module_id]['login'])
+		shutit.send('useradd -d /home/' + shutit.collect_config(self.module_id,'login') + ' -s /bin/bash -m ' + shutit.collect_config(self.module_id,'login'))
 		shutit.install('passwd')
 		shutit.install('sudo')
 		shutit.install('adduser')
-		shutit.set_password(shutit.cfg[self.module_id]['login'], user=shutit.cfg[self.module_id]['login'])
-		cfg = shutit.cfg
-		shutit.login(shutit.cfg[self.module_id]['login'])
+		shutit.set_password(shutit.collect_config(self.module_id,'login'), user=shutit.collect_config(self.module_id,'login'))
+		shutit.login(shutit.collect_config(self.module_id,'login'))
 		shutit.send('mkdir -p ~/.ssh')
 		file_perms = {
 			"~/.ssh/id_rsa"     : "0600",
@@ -43,12 +42,11 @@ class copy_ssh_key(ShutItModule):
 	def finalize(self,shutit):
 		# We don't want to leave keys lying around.
 		# The real user module should remove these but let's take no chances.
-		for login in shutit.cfg[self.module_id]['login']:
+		for login in shutit.collect_config(self.module_id,'login'):
 			shutit.send('rm -rf ~' + login + '/.ssh')
 		return True
 
 	def get_config(self,shutit):
-		cfg = shutit.cfg
 		# SSH passphrase, default to empty
 		shutit.get_config(self.module_id,'passphrase','')
 		shutit.get_config(self.module_id,'login')
