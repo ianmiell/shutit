@@ -2,6 +2,7 @@
 # This feeds into automated testing of each module.
 [shutit.tk.apache_proxypass.apache_proxypass]
 shutit.core.module.build:yes
-shutit.core.module.allowed_images:["ubuntu.*"]
+shutit.core.module.allowed_images:["ubuntu:14.04"]
 
-
+[build]
+base_image:ubuntu:14.04
