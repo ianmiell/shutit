@@ -151,7 +151,7 @@ ssh_cmd:
 # Aspects of build process
 [build]
 build_log:yes
-eatmydata: no
+eatmydata: yes
 # How to connect to target
 conn_module:shutit.tk.conn_docker
 # Run any docker container in privileged mode
