@@ -942,6 +942,7 @@ def shutit_main():
 		shutit.log('================================================================================', force_stdout=True)
 		shutit.log('\nConfiguration details have been written to the folder: ' + cfg['build']['log_config_path'] + '\n', force_stdout=True)
 		shutit.log('================================================================================', force_stdout=True)
+	if cfg['action']['list_configs']:
 		return
 	# Check for conflicts now.
 	errs.extend(check_conflicts(shutit))
