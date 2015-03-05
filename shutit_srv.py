@@ -93,7 +93,7 @@ def update_modules(to_build, cfg):
 	errs.extend(shutit_main.check_conflicts(shutit))
 	# Cache first
 	errs.extend(shutit_main.check_ready(shutit, throw_error=False))
-	errs.extend(shutit_main.check_ready(shutit)
+	errs.extend(shutit_main.check_ready(shutit))
 
 	STATUS['errs'] = [err[0] for err in errs]
 	STATUS['modules'] = [
