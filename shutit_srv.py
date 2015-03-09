@@ -217,7 +217,11 @@ def shutit_reset():
 
 		# The rest of the loading from shutit_main
 		util.load_configs(shutit)
-		shutit_main.shutit_module_init(shutit)
+		util.load_mod_from_file(shutit, os.path.join(shutit.shutit_main_dir, 'setup.py'))
+		util.load_shutit_modules(shutit)
+		shutit_main.init_shutit_map(shutit)
+		shutit_main.config_collection(shutit)
+
 		# Here we can set the starting image.
 		if STATUS['image_tag'] != '':
 			shutit.cfg['target']['docker_image'] = STATUS['image_tag']
