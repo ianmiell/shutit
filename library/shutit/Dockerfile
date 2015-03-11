@@ -2,12 +2,13 @@ FROM debian:jessie
 
 RUN apt-get update
 RUN apt-get install -y -qq curl git python-pip
-WORKDIR /opt
+WORKDIR /tmp/opt
 RUN git clone https://github.com/ianmiell/shutit.git
 WORKDIR shutit
 RUN pip install -r requirements.txt
 
-WORKDIR /opt/shutit/library/shutit
-RUN /opt/shutit/shutit build --shutit_module_path /opt/shutit/library --delivery bash
+WORKDIR /tmp/opt/shutit/library/shutit
+RUN /tmp/opt/shutit/shutit build --shutit_module_path /tmp/opt/shutit/library --delivery bash
+RUN rm -rf /tmp/opt
 
 CMD ["/bin/bash"] 
