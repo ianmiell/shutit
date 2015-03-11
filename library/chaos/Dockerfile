@@ -10,4 +10,4 @@ RUN pip install -r requirements.txt
 WORKDIR /opt/shutit/library/chaos
 RUN /opt/shutit/shutit build --shutit_module_path /opt/shutit/library --delivery bash
 
-CMD ["/bin/bash"] 
+CMD ["/root/work.sh"] 
