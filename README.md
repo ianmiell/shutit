@@ -68,17 +68,22 @@ ShutIt provides a means for auto-generation of modules (either bare ones, or fro
 [Really Quick Start](http://ianmiell.github.io/shutit)
 ====================
 
+[Full User Guide](http://github.com/ianmiell/shutit/blob/master/docs/USER_GUIDE.md)
+==============
 
-[ShutIt API](http://github.com/ianmiell/shutit/blob/master/docs/API.md)
-============
+[API](http://github.com/ianmiell/shutit/blob/master/docs/API.md)
+======
 
 [Installation](http://github.com/ianmiell/shutit/blob/master/docs/INSTALL.md)
 ==============
 
 
+Known Issues
+=============
+Since a core technology used in this application is pexpect - and a typical usage pattern is to expect the prompt to return. Unusual shell prompts and escape sequences have been known to cause problems. Use the shutit.setup_prompt() function to help manage this by setting up a more sane prompt. Use of COMMAND_PROMPT with echo -ne has been seen to cause problems with overwriting of shells and pexpect patterns.
 
 Background
-----------
+==========
 While evaluating Docker for my $corp we reached a point where
 using Dockerfiles was somewhat painful or verbose for complex and/or long and/or
 configurable interactions. So we wrote our own.
@@ -146,16 +151,13 @@ systems stick with chef/puppet. If you're a programmer who wants to manage a
 bunch of existing scripts in a painless way, keep on reading.
 
 
-[ShutIt User Guide](http://github.com/ianmiell/shutit/blob/master/docs/USER_GUIDE.md)
-
-[Tests](http://github.com/ianmiell/shutit/blob/master/docs/TEST.md)
-
-[Known Issues](http://github.com/ianmiell/shutit/blob/master/docs/BUGS.md)
 
 Contributing
-------------
+============
 
 We always need help, and with a potentially infinite number of libraries required, it's likely you will be able to contribute. Just mail ian.miell@gmail.com if you want to be assigned a mentor. [He won't bite](https://www.youtube.com/watch?v=zVUPmmUU3yY) 
+
+[Tests](http://github.com/ianmiell/shutit/blob/master/docs/TEST.md)
 
 Mailing List
 ------------
