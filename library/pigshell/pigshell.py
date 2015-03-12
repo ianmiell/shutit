@@ -11,6 +11,7 @@ class pigshell(ShutItModule):
 		shutit.install('git')
 		shutit.install('rubygems-integration')
 		shutit.install('make')
+		shutit.install('libstdc++-4.9-dev')
 		shutit.send('npm install marked --save && echo ""')
 		shutit.send('npm install jshint && echo ""')
 		shutit.install('ruby2.0-dev') # required to get ronn install to work - see http://hire.chrisjlee.net/node/229
