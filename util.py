@@ -52,6 +52,7 @@ import shutil
 import manhole
 from shutit_module import ShutItFailException
 import operator
+import threading
 
 _default_cnf = '''
 ################################################################################
@@ -1575,14 +1576,26 @@ def print_stack_trace():
 	print '================================================================================'
 
 
+in_ctrlc = False
+def ctrlc_background():
+	global in_ctrlc
+	in_ctrlc = True
+	time.sleep(1)
+	in_ctrlc = False
 def ctrl_c_signal_handler(signal, frame):
 	"""CTRL-c signal handler - enters a pause point if it can.
 	"""
+	if in_ctrlc:
+		print "CTRL-c quit!"
+		# Unfortunately we have 'except' blocks catching all exceptions,
+		# so we can't use sys.exit
+		os._exit(1)
 	if False and 'shutit' in frame.f_locals:
 		shutit = frame.f_locals['shutit']
 		#print shutit
 		shutit.pause_point(msg='Captured CTRL-c - entering pause point')
 	else:
-		print "CTRL-c caught, but not in context with ability to pause. CTRL-z and kill %n if you really want out."
-		time.sleep(1)
-
+		t = threading.Thread(target=ctrlc_background)
+		t.daemon = True
+		t.start()
+		print "CTRL-c caught, but not in context with ability to pause. CTRL-c twice to quit."
