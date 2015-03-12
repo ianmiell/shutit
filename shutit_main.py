@@ -801,7 +801,6 @@ def do_finalize(shutit):
 	if whowasi == 'root':
 		shutit.login()
 	for module_id in module_ids(shutit, rev=True):
-		module = shutit.shutit_map[module_id]
 		# Only finalize if it's thought to be installed.
 		if is_installed(shutit, shutit.shutit_map[module_id]):
 			if whowasi != 'root':
@@ -815,10 +814,14 @@ def do_finalize(shutit):
 		shutit.logout()
 
 
-def setup_shutit_path():
+def setup_shutit_path(cfg):
 	# try the current directory, the .. directory, or the ../shutit directory, the ~/shutit
+	if not cfg['host']['add_shutit_to_path']:
+		return
 	res = util.util_raw_input(prompt='shutit appears not to be on your path - should try and we find it and add it to your ~/.bashrc (Y/n)?')
 	if res in ['n','N']:
+		with open(os.path.join(cfg['shutit_home'], 'config'), 'a') as f:
+			f.write('\n[host]\nadd_shutit_to_path: no\n')
 		return
 	path_to_shutit = ''
 	for d in ['.','..','~','~/shutit']:
@@ -855,11 +858,6 @@ def shutit_main():
 		if sys.version_info.minor < 7:
 			shutit_global.shutit.fail('Python version must be 2.7+')
 
-	# Try and ensure shutit is on the path - makes onboarding easier
-	# Only do this if we're in a terminal
-	if util.determine_interactive() and spawn.find_executable('shutit') is None:
-		setup_shutit_path()
-
 	shutit = shutit_global.shutit
 	cfg = shutit.cfg
 
@@ -880,6 +878,11 @@ def shutit_main():
 		return
 
 	util.load_configs(shutit)
+
+	# Try and ensure shutit is on the path - makes onboarding easier
+	# Only do this if we're in a terminal
+	if util.determine_interactive() and spawn.find_executable('shutit') is None:
+		setup_shutit_path(cfg)
 
 	util.load_mod_from_file(shutit, os.path.join(shutit.shutit_main_dir, 'setup.py'))
 	util.load_shutit_modules(shutit)
