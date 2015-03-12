@@ -9,17 +9,14 @@
 # This feeds into automated testing of each module.
 [shutit.tk.pigshell.psty]
 shutit.core.module.build:yes
-shutit.core.module.allowed_images:["ubuntu:14.04"]
+shutit.core.module.allowed_images:["ubuntu:14.10"]
 [shutit.tk.pigshell.pigshell]
 shutit.core.module.build:yes
-shutit.core.module.allowed_images:["ubuntu:14.04"]
-# We want to add vnc even though it's not a dependency (ie its orthogonal in build terms)
-[shutit.tk.vnc.vnc]
-shutit.core.module.build:yes
+shutit.core.module.allowed_images:["ubuntu:14.10"]
 
 # Allowed images as a regexp, eg ["ubuntu:12.*"], or [".*"], or ["centos"].
 # It's recommended this is locked down as far as possible.
 
 # Aspects of build process
 [build]
-base_image:ubuntu:14.04
+base_image:ubuntu:14.10
