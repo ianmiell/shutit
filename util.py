@@ -80,6 +80,8 @@ rm:no
 
 # Information specific to the host on which the build runs.
 [host]
+# Ask the user if they want shutit on their path
+add_shutit_to_path: yes
 # Folder with files you want to copy from in your build.
 # Often a good idea to have a central folder for this per host
 # in your /path/to/shutit/configs/`hostname`_`username`.cnf
@@ -327,6 +329,7 @@ def get_base_config(cfg, cfg_parser):
 	cfg['target']['modules_recorded_cache_valid'] = False
 	# Directory to revert to when delivering in bash and reversion to context required.
 	cfg['target']['module_root_dir']              = '/'
+	cfg['host']['add_shutit_to_path']             = cp.getboolean('host', 'add_shutit_to_path')
 	cfg['host']['artifacts_dir']                  = cp.get('host', 'artifacts_dir')
 	cfg['host']['docker_executable']              = cp.get('host', 'docker_executable')
 	cfg['host']['dns']                            = cp.get('host', 'dns')
