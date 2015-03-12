@@ -444,22 +444,22 @@ def parse_args(shutit):
 	for action in actions:
 		sub_parsers[action] = subparsers.add_parser(action)
 
-	sub_parsers['skeleton'].add_argument('module_directory', help='absolute path to new directory for module')
-	sub_parsers['skeleton'].add_argument('module_name', help='name for your module')
-	sub_parsers['skeleton'].add_argument('domain', help='arbitrary but unique domain for namespacing your module, eg com.mycorp')
-	sub_parsers['skeleton'].add_argument('--depends', help='module id to depend on, default shutit.tk.setup (optional)', default='shutit.tk.setup')
-	sub_parsers['skeleton'].add_argument('--base_image', help='from image, default ubuntu:14.04 (optional)', default='ubuntu:14.04')
-	sub_parsers['skeleton'].add_argument('--script', help='pre-existing shell script to integrate into module (optional)', nargs='?', default=None)
-	sub_parsers['skeleton'].add_argument('--example', help='add an example implementation with model calls to ShutIt API', default=False, const=True, action='store_const')
+	sub_parsers['skeleton'].add_argument('module_directory', help='Absolute path to new directory for module')
+	sub_parsers['skeleton'].add_argument('module_name', help='Name for your module. Single word and lower case, eg: mymysql')
+	sub_parsers['skeleton'].add_argument('domain', help='Arbitrary but unique domain for namespacing your module, eg com.mycorp')
+	sub_parsers['skeleton'].add_argument('--depends', help='Module id to depend on, default shutit.tk.setup (optional)', default='shutit.tk.setup')
+	sub_parsers['skeleton'].add_argument('--base_image', help='FROM image, default ubuntu:14.04 (optional)', default='ubuntu:14.04')
+	sub_parsers['skeleton'].add_argument('--script', help='Pre-existing shell script to integrate into module (optional)', nargs='?', default=None)
+	sub_parsers['skeleton'].add_argument('--example', help='Add an example implementation with model calls to ShutIt API (optional)', default=False, const=True, action='store_const')
 	sub_parsers['skeleton'].add_argument('-d', '--dockerfile', default=None)
 
-	sub_parsers['build'].add_argument('--export', help='export to a tar file', const=True, default=False, action='store_const')
-	sub_parsers['build'].add_argument('--save', help='save to a tar file', const=True, default=False, action='store_const')
-	sub_parsers['build'].add_argument('--push', help='push to a repo', const=True, default=False, action='store_const')
+	sub_parsers['build'].add_argument('--export', help='Perform docker export to a tar file', const=True, default=False, action='store_const')
+	sub_parsers['build'].add_argument('--save', help='Perform docker save to a tar file', const=True, default=False, action='store_const')
+	sub_parsers['build'].add_argument('--push', help='Push to a repo', const=True, default=False, action='store_const')
 
-	sub_parsers['list_configs'].add_argument('--history', help='show config history', const=True, default=False, action='store_const')
-	sub_parsers['list_modules'].add_argument('--long', help='show extended module info, including ordering', const=True, default=False, action='store_const')
-	sub_parsers['list_modules'].add_argument('--sort', help='order the modules seen, default to module id', default='id', choices=('id','run_order'))
+	sub_parsers['list_configs'].add_argument('--history', help='Show config with history', const=True, default=False, action='store_const')
+	sub_parsers['list_modules'].add_argument('--long', help='Show extended module info, including ordering', const=True, default=False, action='store_const')
+	sub_parsers['list_modules'].add_argument('--sort', help='Order the modules seen, default to module id', default='id', choices=('id','run_order'))
 
 	for action in ['build', 'serve', 'list_configs', 'list_modules', 'list_deps']:
 		sub_parsers[action].add_argument('--config', help='Config file for setup config. Must be with perms 0600. Multiple arguments allowed; config files considered in order.', default=[], action='append')
@@ -1378,6 +1378,9 @@ def module():
 		# Aspects of build process
 		[build]
 		base_image:''' + shutit.cfg['dockerfile']['base_image'] + '''
+
+		[repository]
+		name:''' + skel_module_name + '''
 		''')
 	pushcnf = textwrap.dedent('''\
 		###############################################################################
@@ -1392,7 +1395,6 @@ def module():
 		rm:false
 
 		[repository]
-		name:''' + skel_module_name + '''
 		# COPY THESE TO YOUR ~/.shutit/config FILE AND FILL OUT ITEMS IN CAPS
 		#user:YOUR_USERNAME
 		## Fill these out in server- and username-specific config (also in this directory)
