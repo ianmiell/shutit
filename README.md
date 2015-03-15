@@ -1,8 +1,12 @@
 [ShutIt](http://shutit.tk)
 ==========================
-Complex Docker Builds Made Simple
+Complex Docker Builds Made Simple.
 
 ShutIt is a tool for managing your image building process that is both structured and flexible.
+
+If you want to know more about Docker, see the
+[official site](https://www.docker.com/) or take a look at the book by the
+creators of ShutIt - [Docker in Practice](http://docker-in-practice.github.io/).
 
 Really Quick Overview
 =====================
