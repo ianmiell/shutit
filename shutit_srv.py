@@ -36,7 +36,7 @@ from bottle import route, request, response, static_file
 import shutit_main
 import shutit_global
 from shutit_module import ShutItException
-import util
+import shutit_util
 
 ORIG_MOD_CFG = None
 shutit = None
@@ -212,11 +212,11 @@ def shutit_reset():
 
 		# This has already happened but we have to do it again on top of our new
 		# shutit object
-		util.parse_args(shutit)
+		shutit_util.parse_args(shutit)
 		shutit.cfg['build']['interactive'] = 0
 
 		# The rest of the loading from shutit_main
-		util.load_configs(shutit)
+		shutit_util.load_configs(shutit)
 		shutit_main.shutit_module_init(shutit)
 		# Here we can set the starting image.
 		if STATUS['image_tag'] != '':
