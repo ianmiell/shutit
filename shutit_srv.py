@@ -36,7 +36,7 @@ from bottle import route, request, response, static_file
 import shutit_main
 import shutit_global
 from shutit_module import ShutItException
-import util
+import shutit_util
 
 ORIG_MOD_CFG = None
 shutit = None
@@ -212,16 +212,15 @@ def shutit_reset():
 
 		# This has already happened but we have to do it again on top of our new
 		# shutit object
-		util.parse_args(shutit)
+		shutit_util.parse_args(shutit)
 		shutit.cfg['build']['interactive'] = 0
 
 		# The rest of the loading from shutit_main
-		util.load_configs(shutit)
-		util.load_mod_from_file(shutit, os.path.join(shutit.shutit_main_dir, 'setup.py'))
-		util.load_shutit_modules(shutit)
+		shutit_util.load_configs(shutit)
+		shutit_util.load_mod_from_file(shutit, os.path.join(shutit.shutit_main_dir, 'setup.py'))
+		shutit_util.load_shutit_modules(shutit)
 		shutit_main.init_shutit_map(shutit)
 		shutit_main.config_collection(shutit)
-
 		# Here we can set the starting image.
 		if STATUS['image_tag'] != '':
 			shutit.cfg['target']['docker_image'] = STATUS['image_tag']

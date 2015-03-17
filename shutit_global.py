@@ -28,7 +28,7 @@ import os
 import shutil
 import socket
 import time
-import util
+import shutit_util
 import random
 import string
 import re
@@ -204,7 +204,7 @@ class ShutIt(object):
 			msg = prefix + ' ' + str(msg)
 		# Don't colour message if we are in serve mode.
 		if code != None and not self.cfg['action']['serve']:
-			msg = util.colour(code, msg)
+			msg = shutit_util.colour(code, msg)
 		if self.cfg['build']['debug'] or force_stdout:
 			print >> sys.stdout, msg
 			sys.stdout.flush()
@@ -1119,7 +1119,7 @@ class ShutIt(object):
 			if user != 'root':
 				shutit.login(user=user)
 		shutit.send('cp ' + target_path + ' /artifacts')
-		shutil.copyfile(os.path.join(artifacts_dir,filename),os.path.join(host_path,'{0}_'.format(shutit.cfg['build']['build_id']) + filename))
+		shshutit_util.copyfile(os.path.join(artifacts_dir,filename),os.path.join(host_path,'{0}_'.format(shutit.cfg['build']['build_id']) + filename))
 		shutit.send('rm -f /artifacts/' + filename)
 		return os.path.join(host_path,'{0}_'.format(shutit.cfg['build']['build_id']) + filename)
 
@@ -1146,10 +1146,10 @@ class ShutIt(object):
 		config_parser = cfg['config_parser']
 		usercfg       = os.path.join(cfg['shutit_home'], 'config')
 
-		print util.colour('31', '\nPROMPTING FOR CONFIG: %s' % (cfgstr,))
-		print util.colour('31', '\n' + msg + '\n')
+		print shutit_util.colour('31', '\nPROMPTING FOR CONFIG: %s' % (cfgstr,))
+		print shutit_util.colour('31', '\n' + msg + '\n')
 		
-		if not util.determine_interactive(shutit):
+		if not shutit_util.determine_interactive(shutit):
 			shutit.fail('ShutIt is not in a terminal so cannot prompt ' +
 				'for values.', throw_exception=False)
 
@@ -1173,7 +1173,7 @@ class ShutIt(object):
 		if ispass:
 			val = getpass.getpass('>> ')
 		else:
-			val = util.util_raw_input(shutit=self,prompt='>> ')
+			val = shutit_util.util_raw_input(shutit=self,prompt='>> ')
 		is_excluded = (
 			config_parser.has_option('save_exclude', sec) and
 			name in config_parser.get('save_exclude', sec).split()
@@ -1185,7 +1185,7 @@ class ShutIt(object):
 				subcp for subcp, filename, _fp in config_parser.layers
 				if filename == usercfg
 			][0]
-			if util.util_raw_input(shutit=self,prompt=util.colour('31',
+			if shutit_util.util_raw_input(shutit=self,prompt=shutit_util.colour('31',
 					'Do you want to save this to your ' +
 					'user settings? y/n: '),default='y') == 'y':
 				sec_toset, name_toset, val_toset = sec, name, val
@@ -1210,7 +1210,7 @@ class ShutIt(object):
 		"""Implements a step-through function, using pause_point.
 		"""
 		child = child or self.get_default_child()
-		if (not util.determine_interactive(self) or not self.cfg['build']['interactive'] or 
+		if (not shutit_util.determine_interactive(self) or not self.cfg['build']['interactive'] or 
 			self.cfg['build']['interactive'] < level):
 			return
 		self.cfg['build']['step_through'] = value
@@ -1240,19 +1240,19 @@ class ShutIt(object):
 		@type resize:        boolean
 		"""
 		child = child or self.get_default_child()
-		if (not util.determine_interactive(self) or self.cfg['build']['interactive'] < 1 or 
+		if (not shutit_util.determine_interactive(self) or self.cfg['build']['interactive'] < 1 or 
 			self.cfg['build']['interactive'] < level):
 			return
 		if child and print_input:
 			if resize:
-				print (util.colour('31','\nPause point:\n' +
+				print (shutit_util.colour('31','\nPause point:\n' +
 					'resize==True, so attempting to resize terminal.\n\n' +
 					'If you are not at a shell prompt when calling pause_point, then pass in resize=False.'))
 				shutit.send_host_file('/tmp/resize',self.shutit_main_dir+'/assets/resize', child=child, log=False)
 				shutit.send(' chmod 755 /tmp/resize')
 				child.sendline(' sleep 2 && /tmp/resize')
-			print (util.colour('31', '\nPause point:\n') + 
-				msg + util.colour('31','\nYou can now type in commands and ' +
+			print (shutit_util.colour('31', '\nPause point:\n') + 
+				msg + shutit_util.colour('31','\nYou can now type in commands and ' +
 				'alter the state of the target.\nHit return to see the ' +
 				'prompt\nHit CTRL and ] at the same time to continue with ' +
 				'build\n\nHit CTRL and u to save the state\n'))
@@ -1265,8 +1265,8 @@ class ShutIt(object):
 			child.logfile_send = oldlog
 		else:
 			print msg
-			print util.colour('31', '\n\n[Hit return to continue]\n')
-			util.util_raw_input(shutit=self)
+			print shutit_util.colour('31', '\n\n[Hit return to continue]\n')
+			shutit_util.util_raw_input(shutit=self)
 
 
 	def _pause_input_filter(self, input_string):
@@ -1577,7 +1577,7 @@ class ShutIt(object):
 				self.set_default_expect(self.cfg['expect_prompts'][old_prompt_name])
 			else:
 				# If none are on the stack, we assume we're going to the root_prompt
-				# set up in setup.py
+				# set up in shutit_setup.py
 				self.set_default_expect()
 		else:
 			self.fail('Logout called without corresponding login', throw_exception=False)
@@ -2096,7 +2096,7 @@ class ShutIt(object):
 						answer = None
 						# util_raw_input may change the interactive level, so guard for this.
 						while answer not in ('yes','no','') and self.cfg['build']['interactive'] > 0:
-							answer = util.util_raw_input(shutit=self,prompt=util.colour('31',
+							answer = shutit_util.util_raw_input(shutit=self,prompt=shutit_util.colour('31',
 							   'Do you want to accept the config option defaults? ' +
 							   '(boolean - input "yes" or "no") (default: yes): \n'))
 						# util_raw_input may change the interactive level, so guard for this.
@@ -2118,10 +2118,10 @@ class ShutIt(object):
 						answer = None
 						if boolean:
 							while answer not in ('yes','no',''):
-								answer =  util.util_raw_input(shutit=self,prompt=util.colour('31',prompt
+								answer =  shutit_util.util_raw_input(shutit=self,prompt=shutit_util.colour('31',prompt
 								  + ' (boolean - input "yes" or "no"): \n'))
 						else:
-							answer =  util.util_raw_input(shutit=self,prompt=util.colour('31',prompt) + ': \n')
+							answer =  shutit_util.util_raw_input(shutit=self,prompt=shutit_util.colour('31',prompt) + ': \n')
 						if answer == '' and default != None:
 							answer = default
 						self.cfg[module_id][option] = answer
@@ -2157,7 +2157,7 @@ class ShutIt(object):
 		self.send_file(self.cfg['build']['build_db_dir'] +
 					   '/' + self.cfg['build']['build_id'] +
 					   '/' + self.cfg['build']['build_id'] +
-					   '.cfg', util.print_config(self.cfg))
+					   '.cfg', shutit_util.print_config(self.cfg))
 
 
 	def get_emailer(self, cfg_section):
