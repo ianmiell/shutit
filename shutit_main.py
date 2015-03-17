@@ -27,7 +27,7 @@
 
 from shutit_module import ShutItModule, ShutItException, ShutItFailException
 import ConfigParser
-import util
+import shutit_util
 import urllib
 import shutit_global
 import sys
@@ -100,8 +100,8 @@ def stop_all(shutit, run_order=-1):
 	cfg = shutit.cfg
 	if cfg['build']['interactive'] >= 3:
 		print('\nRunning stop on all modules' + \
-			util.colour('31', '\n\n[Hit return to continue]'))
-		util.util_raw_input(shutit=shutit)
+			shutit_util.colour('31', '\n\n[Hit return to continue]'))
+		shutit_util.util_raw_input(shutit=shutit)
 	# sort them so they're stopped in reverse order
 	for module_id in module_ids(shutit, rev=True):
 		shutit_module_obj = shutit.shutit_map[module_id]
@@ -121,8 +121,8 @@ def start_all(shutit, run_order=-1):
 	cfg = shutit.cfg
 	if cfg['build']['interactive'] >= 3:
 		print('\nRunning start on all modules' + 
-			util.colour('31', '\n\n[Hit return to continue]\n'))
-		util.util_raw_input(shutit=shutit)
+			shutit_util.colour('31', '\n\n[Hit return to continue]\n'))
+		shutit_util.util_raw_input(shutit=shutit)
 	# sort them so they're started in order
 	for module_id in module_ids(shutit):
 		shutit_module_obj = shutit.shutit_map[module_id]
@@ -243,9 +243,9 @@ def init_shutit_map(shutit):
 		shutit.fail('No module with run_order=0 specified! This is required.')
 
 	if cfg['build']['interactive'] >= 3:
-		print(util.colour('31', 'Module id and run order checks OK' + 
+		print(shutit_util.colour('31', 'Module id and run order checks OK' + 
 		                  '\n\n[Hit return to continue]\n'))
-		util.util_raw_input(shutit=shutit)
+		shutit_util.util_raw_input(shutit=shutit)
 
 
 def config_collection(shutit):
@@ -387,9 +387,9 @@ def conn_target(shutit):
 	# Set up the target in pexpect.
 	if shutit.cfg['build']['interactive'] >= 3:
 		print('\nRunning the conn module (' +
-			shutit.shutit_main_dir + '/setup.py)' + util.colour('31',
+			shutit.shutit_main_dir + '/setup.py)' + shutit_util.colour('31',
 				'\n\n[Hit return to continue]\n'))
-		util.util_raw_input(shutit=shutit)
+		shutit_util.util_raw_input(shutit=shutit)
 	conn_module.get_config(shutit)
 	conn_module.build(shutit)
 
@@ -668,14 +668,14 @@ def build_module(shutit, module):
 	cfg['build']['report'] = (cfg['build']['report'] + '\nCompleted module: ' +
 	                          module.module_id)
 	if cfg[module.module_id]['shutit.core.module.tag'] or cfg['build']['interactive'] >= 3:
-		shutit.log(util.build_report(shutit, '#Module:' + module.module_id),
+		shutit.log(shutit_util.build_report(shutit, '#Module:' + module.module_id),
 		           code='31')
 	if (not cfg[module.module_id]['shutit.core.module.tag'] and
 		cfg['build']['interactive'] >= 2):
 		shutit.log("\n\nDo you want to save state now we\'re at the " +
 		           "end of this module? (" + module.module_id +
 		           ") (input y/n)", force_stdout=True, code='31')
-		cfg[module.module_id]['shutit.core.module.tag'] = (util.util_raw_input(shutit=shutit,default='y') == 'y')
+		cfg[module.module_id]['shutit.core.module.tag'] = (shutit_util.util_raw_input(shutit=shutit,default='y') == 'y')
 	if cfg[module.module_id]['shutit.core.module.tag'] or cfg['build']['tag_modules']:
 		shutit.log(module.module_id +
 		           ' configured to be tagged, doing repository work',
@@ -693,7 +693,7 @@ def build_module(shutit, module):
 	if cfg['build']['interactive'] >= 2:
 		shutit.log("\n\nDo you want to stop interactive mode? (input y/n)\n",
 		           force_stdout=True,code='31')
-		if util.util_raw_input(shutit=shutit,default='y') == 'y':
+		if shutit_util.util_raw_input(shutit=shutit,default='y') == 'y':
 			cfg['build']['interactive'] = 0
 
 
@@ -703,11 +703,11 @@ def do_build(shutit):
 	"""
 	cfg = shutit.cfg
 	shutit.log('PHASE: build, repository work', code='31')
-	shutit.log(util.print_config(shutit.cfg))
+	shutit.log(shutit_util.print_config(shutit.cfg))
 	if cfg['build']['interactive'] >= 3:
 		print ('\nNow building any modules that need building' +
-	 	       util.colour('31', '\n\n[Hit return to continue]\n'))
-		util.util_raw_input(shutit=shutit)
+	 	       shutit_util.colour('31', '\n\n[Hit return to continue]\n'))
+		shutit_util.util_raw_input(shutit=shutit)
 	module_id_list = module_ids(shutit)
 	if cfg['build']['deps_only']:
 		module_id_list_build_only = filter(lambda x: cfg[x]['shutit.core.module.build'], module_id_list)
@@ -751,9 +751,9 @@ def do_test(shutit):
 	# Test in reverse order
 	shutit.log('PHASE: test', code='31')
 	if cfg['build']['interactive'] >= 3:
-		print '\nNow doing test phase' + util.colour('31',
+		print '\nNow doing test phase' + shutit_util.colour('31',
 			'\n\n[Hit return to continue]\n')
-		util.util_raw_input(shutit=shutit)
+		shutit_util.util_raw_input(shutit=shutit)
 	stop_all(shutit)
 	start_all(shutit)
 	whowasi = shutit.whoami()
@@ -783,17 +783,17 @@ def do_finalize(shutit):
 	cfg = shutit.cfg
 	# Stop all the modules
 	if cfg['build']['interactive'] >= 3:
-		print('\nStopping all modules before finalize phase' + util.colour('31',
+		print('\nStopping all modules before finalize phase' + shutit_util.colour('31',
 		      '\n\n[Hit return to continue]\n'))
-		util.util_raw_input(shutit=shutit)
+		shutit_util.util_raw_input(shutit=shutit)
 	stop_all(shutit)
 	# Finalize in reverse order
 	shutit.log('PHASE: finalize', code='31')
 	if cfg['build']['interactive'] >= 3:
 		print('\nNow doing finalize phase, which we do when all builds are ' +
 		      'complete and modules are stopped' +
-		      util.colour('31', '\n\n[Hit return to continue]\n'))
-		util.util_raw_input(shutit=shutit)
+		      shutit_util.colour('31', '\n\n[Hit return to continue]\n'))
+		shutit_util.util_raw_input(shutit=shutit)
 	whowasi = shutit.whoami()
 	# Login at least once to get the exports.
 	if whowasi != 'root':
@@ -816,16 +816,16 @@ def do_finalize(shutit):
 def shutit_module_init(shutit):
 	"""Initialize.
 	"""
-	util.load_mod_from_file(shutit, os.path.join(shutit.shutit_main_dir,
+	shutit_util.load_mod_from_file(shutit, os.path.join(shutit.shutit_main_dir,
 							'setup.py'))
-	util.load_shutit_modules(shutit)
+	shutit_util.load_shutit_modules(shutit)
 	init_shutit_map(shutit)
 	config_collection(shutit)
 
 
 def setup_shutit_path():
 	# try the current directory, the .. directory, or the ../shutit directory, the ~/shutit
-	res = util.util_raw_input(prompt='shutit appears not to be on your path - should try and we find it and add it to your ~/.bashrc (Y/n)?')
+	res = shutit_util.util_raw_input(prompt='shutit appears not to be on your path - should try and we find it and add it to your ~/.bashrc (Y/n)?')
 	if res in ['n','N']:
 		return
 	path_to_shutit = ''
@@ -835,7 +835,7 @@ def setup_shutit_path():
 			continue
 		path_to_shutit = path
 	while path_to_shutit == '':
-		d = util.util_raw_input(prompt='cannot auto-find shutit - please input the path to your shutit dir\n')
+		d = shutit_util.util_raw_input(prompt='cannot auto-find shutit - please input the path to your shutit dir\n')
 		path = os.path.abspath(d + '/shutit')
 		if not os.path.isfile(path):
 			continue
@@ -845,7 +845,7 @@ def setup_shutit_path():
 		with open(bashrc, "a") as myfile:
 			#http://unix.stackexchange.com/questions/26676/how-to-check-if-a-shell-is-login-interactive-batch
 			myfile.write('\nexport PATH="$PATH:' + os.path.dirname(path_to_shutit) + '"\n')
-		util.util_raw_input(prompt='\nPath set up - please open new terminal and re-run command\n')
+		shutit_util.util_raw_input(prompt='\nPath set up - please open new terminal and re-run command\n')
 		sys.exit()
 
 
@@ -865,16 +865,16 @@ def shutit_main():
 
 	# Try and ensure shutit is on the path - makes onboarding easier
 	# Only do this if we're in a terminal
-	if util.determine_interactive() and spawn.find_executable('shutit') is None:
+	if shutit_util.determine_interactive() and spawn.find_executable('shutit') is None:
 		setup_shutit_path()
 
 	shutit = shutit_global.shutit
 	cfg = shutit.cfg
 
-	util.parse_args(shutit)
+	shutit_util.parse_args(shutit)
 
 	if cfg['action']['skeleton']:
-		util.create_skeleton(shutit)
+		shutit_util.create_skeleton(shutit)
 		cfg['build']['completed'] = True
 		return
 
@@ -887,7 +887,7 @@ def shutit_main():
 		os.chdir(revert_dir)
 		return
 
-	util.load_configs(shutit)
+	shutit_util.load_configs(shutit)
 
 	shutit_module_init(shutit)
 
@@ -926,12 +926,12 @@ def shutit_main():
 	# Dependency validation done, now collect configs of those marked for build.
 	config_collection_for_built(shutit)
 	if cfg['action']['list_configs'] or cfg['build']['debug']:
-		shutit.log(util.print_config(cfg, history=cfg['list_configs']['cfghistory']),
+		shutit.log(shutit_util.print_config(cfg, history=cfg['list_configs']['cfghistory']),
 				   force_stdout=True)
 		# Set build completed
 		cfg['build']['completed'] = True
 		f = file(cfg['build']['log_config_path'] + '/cfg.txt','w')
-		f.write(util.print_config(cfg, history=cfg['list_configs']['cfghistory']))
+		f.write(shutit_util.print_config(cfg, history=cfg['list_configs']['cfghistory']))
 		f.close()
 		shutit.log('================================================================================', force_stdout=True)
 		shutit.log('Config details placed in: ' + cfg['build']['log_config_path'], force_stdout=True)
@@ -964,7 +964,7 @@ def shutit_main():
 
 	finalize_target(shutit)
 
-	shutit.log(util.build_report(shutit, '#Module: N/A (END)'), prefix=False,
+	shutit.log(shutit_util.build_report(shutit, '#Module: N/A (END)'), prefix=False,
 			   force_stdout=True, code='31')
 
 	# Show final report messages (ie messages to show after standard report).
@@ -999,7 +999,7 @@ def do_phone_home(msg=None,question='Error seen - would you like to inform the m
 	if shutit_global.shutit.cfg['build']['interactive'] == 0:
 		return
 	msg.update({'shutitrunstatus':'fail','pwd':os.getcwd(),'user':os.environ.get('LOGNAME', '')})
-	if question != '' and util.util_raw_input(prompt=question + ' (Y/n)\n') not in ('y','Y',''):
+	if question != '' and shutit_util.util_raw_input(prompt=question + ' (Y/n)\n') not in ('y','Y',''):
 		return
 	try:
 		urllib.urlopen("http://shutit.tk?" + urllib.urlencode(msg))
@@ -1007,7 +1007,7 @@ def do_phone_home(msg=None,question='Error seen - would you like to inform the m
 		shutit_global.shutit.log('failed to send message: ' + str(e.message))
 
 
-signal.signal(signal.SIGINT, util.ctrl_c_signal_handler)
+signal.signal(signal.SIGINT, shutit_util.ctrl_c_signal_handler)
 
 if __name__ == '__main__':
 	shutit_main()

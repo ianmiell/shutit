@@ -38,7 +38,7 @@ from shutit_module import ShutItModule
 import pexpect
 import sys
 import os
-import util
+import shutit_util
 import time
 import re
 import subprocess
@@ -109,10 +109,10 @@ class ShutItConnModule(ShutItModule):
 		    cfg['build']['build_id'])
 		shutit.send_file(cfg['build']['build_db_dir'] + '/' + \
 		    cfg['build']['build_id'] + '/build.log', \
-		    util.get_commands(shutit))
+		    shutit_util.get_commands(shutit))
 		shutit.send_file(cfg['build']['build_db_dir'] + '/' + \
 		    cfg['build']['build_id'] + '/build_commands.sh', \
-		    util.get_commands(shutit))
+		    shutit_util.get_commands(shutit))
 		shutit.add_line_to_file(cfg['build']['build_id'], \
 		    cfg['build']['build_db_dir'] + '/builds')
 
@@ -303,8 +303,8 @@ class ConnDocker(ShutItConnModule):
 			      '\nor config:\n\n    [target]\n    docker_image:<image>)\n\n' +
 			      'Base image in this case is:\n\n    ' + 
 			      cfg['target']['docker_image'] +
-			      '\n\n' + util.colour('31', '\n[Hit return to continue]'))
-			util.util_raw_input(shutit=shutit)
+			      '\n\n' + shutit_util.colour('31', '\n[Hit return to continue]'))
+			shutit_util.util_raw_input(shutit=shutit)
 		shutit.cfg['build']['docker_command'] = ' '.join(docker_command)
 		shutit.log('\n\nCommand being run is:\n\n' + shutit.cfg['build']['docker_command'],
 		force_stdout=True, prefix=False)
@@ -464,8 +464,8 @@ class ConnSSH(ShutItConnModule):
 		ssh_command = ['ssh'] + opts + [host_arg, cmd_arg]
 		if cfg['build']['interactive'] >= 3:
 			print('\n\nAbout to connect to host.' +
-				'\n\n' + util.colour('31', '\n[Hit return to continue]'))
-			util.util_raw_input(shutit=shutit)
+				'\n\n' + shutit_util.colour('31', '\n[Hit return to continue]'))
+			shutit_util.util_raw_input(shutit=shutit)
 		shutit.cfg['build']['ssh_command'] = ' '.join(ssh_command)
 		shutit.log('\n\nCommand being run is:\n\n' + shutit.cfg['build']['ssh_command'],
 			force_stdout=True, prefix=False)

@@ -83,7 +83,7 @@ myname:myvalue
 
 ## Global Configuration Sections
 
-These are documented in the util.py file (search for "Default core config file for ShutIt.").
+These are documented in the shutit_util.py file (search for "Default core config file for ShutIt.").
 
 ## Global Configuaration Names
 
