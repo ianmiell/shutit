@@ -217,7 +217,7 @@ def shutit_reset():
 
 		# The rest of the loading from shutit_main
 		shutit_util.load_configs(shutit)
-		shutit_util.load_mod_from_file(shutit, os.path.join(shutit.shutit_main_dir, 'setup.py'))
+		shutit_util.load_mod_from_file(shutit, os.path.join(shutit.shutit_main_dir, 'shutit_setup.py'))
 		shutit_util.load_shutit_modules(shutit)
 		shutit_main.init_shutit_map(shutit)
 		shutit_main.config_collection(shutit)
