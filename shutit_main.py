@@ -387,7 +387,7 @@ def conn_target(shutit):
 	# Set up the target in pexpect.
 	if shutit.cfg['build']['interactive'] >= 3:
 		print('\nRunning the conn module (' +
-			shutit.shutit_main_dir + '/setup.py)' + shutit_util.colour('31',
+			shutit.shutit_main_dir + '/shutit_setup.py)' + shutit_util.colour('31',
 				'\n\n[Hit return to continue]\n'))
 		shutit_util.util_raw_input(shutit=shutit)
 	conn_module.get_config(shutit)
@@ -398,7 +398,7 @@ def finalize_target(shutit):
 	"""Finalize the target using the core finalize method.
 	"""
 	shutit.pause_point('\nFinalizing the target module (' +
-		shutit.shutit_main_dir + '/setup.py)', print_input=False, level=3)
+		shutit.shutit_main_dir + '/shutit_setup.py)', print_input=False, level=3)
 	# Can assume conn_module exists at this point
 	for mod in shutit.conn_modules:
 		if mod.module_id == shutit.cfg['build']['conn_module']:
@@ -817,7 +817,7 @@ def shutit_module_init(shutit):
 	"""Initialize.
 	"""
 	shutit_util.load_mod_from_file(shutit, os.path.join(shutit.shutit_main_dir,
-							'setup.py'))
+							'shutit_setup.py'))
 	shutit_util.load_shutit_modules(shutit)
 	init_shutit_map(shutit)
 	config_collection(shutit)

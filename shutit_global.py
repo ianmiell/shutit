@@ -1447,7 +1447,7 @@ class ShutIt(object):
 				self.set_default_expect(self.cfg['expect_prompts'][old_prompt_name])
 			else:
 				# If none are on the stack, we assume we're going to the root_prompt
-				# set up in setup.py
+				# set up in shutit_setup.py
 				self.set_default_expect()
 		else:
 			self.fail('Logout called without corresponding login', throw_exception=False)
