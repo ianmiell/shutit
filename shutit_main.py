@@ -881,14 +881,14 @@ def shutit_main():
 
 	# Try and ensure shutit is on the path - makes onboarding easier
 	# Only do this if we're in a terminal
-	if util.determine_interactive() and spawn.find_executable('shutit') is None:
+	if shutit_util.determine_interactive() and spawn.find_executable('shutit') is None:
 		setup_shutit_path(cfg)
 
-	util.load_mod_from_file(shutit, os.path.join(shutit.shutit_main_dir, 'setup.py'))
-	util.load_shutit_modules(shutit)
+	shutit_util.load_mod_from_file(shutit, os.path.join(shutit.shutit_main_dir, 'shutit_setup.py'))
+	shutit_util.load_shutit_modules(shutit)
 
 	if cfg['action']['list_modules']:
-		util.list_modules(shutit)
+		shutit_util.list_modules(shutit)
 		sys.exit(0)
 
 	init_shutit_map(shutit)
