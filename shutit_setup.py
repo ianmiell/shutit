@@ -1,15 +1,13 @@
 """
+shutit.tk.setup (core ShutIt setup module)
+
 Nomenclature:
+    - Host machine: Machine on which this pexpect script is run.
+    - Target:       Environment on which we deploy (docker container, ssh, or bash shell)
+    - Container:    Docker container created to run the modules on.
 
-Host machine
-  Machine on which this pexpect script is run.
-Target
-  Environment on which we deploy (docker container, ssh, or bash shell)
-Container
-  Docker container created to run the modules on.
-
-target_child    - pexpect-spawned child created to build on target
-host_child      - pexpect spawned child living on the host machine
+    - target_child    pexpect-spawned child created to build on target
+    - host_child      pexpect spawned child living on the host machine
 """
 
 #The MIT License (MIT)
