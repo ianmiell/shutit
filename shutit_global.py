@@ -177,7 +177,7 @@ class ShutIt(object):
 		"""
 		# Note: we must not default to a child here
 		if child is not None:
-			self.pause_point('Pause point on fail: ' + msg, child=child)
+			self.pause_point('Pause point on fail: ' + msg, child=child, colour='31')
 		print >> sys.stderr, 'ERROR!'
 		print >> sys.stderr
 		if throw_exception:
@@ -1146,8 +1146,8 @@ class ShutIt(object):
 		config_parser = cfg['config_parser']
 		usercfg       = os.path.join(cfg['shutit_home'], 'config')
 
-		print shutit_util.colour('31', '\nPROMPTING FOR CONFIG: %s' % (cfgstr,))
-		print shutit_util.colour('31', '\n' + msg + '\n')
+		print shutit_util.colour('32', '\nPROMPTING FOR CONFIG: %s' % (cfgstr,))
+		print shutit_util.colour('32', '\n' + msg + '\n')
 		
 		if not shutit_util.determine_interactive(shutit):
 			shutit.fail('ShutIt is not in a terminal so cannot prompt ' +
@@ -1185,7 +1185,7 @@ class ShutIt(object):
 				subcp for subcp, filename, _fp in config_parser.layers
 				if filename == usercfg
 			][0]
-			if shutit_util.util_raw_input(shutit=self,prompt=shutit_util.colour('31',
+			if shutit_util.util_raw_input(shutit=self,prompt=shutit_util.colour('32',
 					'Do you want to save this to your ' +
 					'user settings? y/n: '),default='y') == 'y':
 				sec_toset, name_toset, val_toset = sec, name, val
@@ -1217,7 +1217,7 @@ class ShutIt(object):
 		self.pause_point(msg, child=child, print_input=print_input, level=level, resize=False)
 
 
-	def pause_point(self, msg='', child=None, print_input=True, level=1, resize=False):
+	def pause_point(self, msg='', child=None, print_input=True, level=1, resize=False, colour='32'):
 		"""Inserts a pause in the build session, which allows the user to try
 		things out before continuing. Ignored if we are not in an interactive
 		mode, or the interactive level is less than the passed-in one.
@@ -1233,6 +1233,7 @@ class ShutIt(object):
 		                     Default: 1
 		@param resize:       If True, try to resize terminal.
 		                     Default: False
+		@param colour:       Colour to print message (typically 31 for red, 32 for green)
 
 		@type msg:           string
 		@type print_input:   boolean
@@ -1245,14 +1246,14 @@ class ShutIt(object):
 			return
 		if child and print_input:
 			if resize:
-				print (shutit_util.colour('31','\nPause point:\n' +
+				print (shutit_util.colour('32','\nPause point:\n' +
 					'resize==True, so attempting to resize terminal.\n\n' +
 					'If you are not at a shell prompt when calling pause_point, then pass in resize=False.'))
 				shutit.send_host_file('/tmp/resize',self.shutit_main_dir+'/assets/resize', child=child, log=False)
 				shutit.send(' chmod 755 /tmp/resize')
 				child.sendline(' sleep 2 && /tmp/resize')
-			print (shutit_util.colour('31', '\nPause point:\n') + 
-				msg + shutit_util.colour('31','\nYou can now type in commands and ' +
+			print (shutit_util.colour('32', '\nPause point:\n') + 
+				msg + shutit_util.colour('32','\nYou can now type in commands and ' +
 				'alter the state of the target.\nHit return to see the ' +
 				'prompt\nHit CTRL and ] at the same time to continue with ' +
 				'build\n\nHit CTRL and u to save the state\n'))
@@ -1265,7 +1266,7 @@ class ShutIt(object):
 			child.logfile_send = oldlog
 		else:
 			print msg
-			print shutit_util.colour('31', '\n\n[Hit return to continue]\n')
+			print shutit_util.colour('32', '\n\n[Hit return to continue]\n')
 			shutit_util.util_raw_input(shutit=self)
 
 
@@ -2011,10 +2012,10 @@ class ShutIt(object):
 							 child=child) == 1:
 					self.send(password, expect=expect, child=child)
 				self.log('\nDeposited bzip2 of exported container into ' +
-						 bzfile, code='31')
+						 bzfile, code='32')
 				self.log('\nRun:\n\nbunzip2 -c ' + bzfile +
 						 ' | sudo docker import -\n\n' +
-						 'to get this imported into docker.', code='31')
+						 'to get this imported into docker.', code='32')
 				cfg['build']['report'] += ('\nDeposited bzip2 of exported' +
 										  ' container into ' + bzfile)
 				cfg['build']['report'] += ('\nRun:\n\nbunzip2 -c ' + bzfile +
@@ -2032,11 +2033,11 @@ class ShutIt(object):
 							 timeout=99999, child=child) == 1:
 					self.send(password, expect=expect, child=child)
 				self.log('\nDeposited bzip2 of exported container into ' +
-						 bzfile, code='31')
+						 bzfile, code='32')
 				self.log('\nRun:\n\nbunzip2 -c ' + bzfile +
 						 ' | sudo docker import -\n\n' + 
 						 'to get this imported into docker.',
-						 code='31')
+						 code='32')
 				cfg['build']['report'] += ('\nDeposited bzip2 of exported ' + 
 										  'container into ' + bzfile)
 				cfg['build']['report'] += ('\nRun:\n\nbunzip2 -c ' + bzfile +
@@ -2096,7 +2097,7 @@ class ShutIt(object):
 						answer = None
 						# util_raw_input may change the interactive level, so guard for this.
 						while answer not in ('yes','no','') and self.cfg['build']['interactive'] > 0:
-							answer = shutit_util.util_raw_input(shutit=self,prompt=shutit_util.colour('31',
+							answer = shutit_util.util_raw_input(shutit=self,prompt=shutit_util.colour('32',
 							   'Do you want to accept the config option defaults? ' +
 							   '(boolean - input "yes" or "no") (default: yes): \n'))
 						# util_raw_input may change the interactive level, so guard for this.
@@ -2118,10 +2119,10 @@ class ShutIt(object):
 						answer = None
 						if boolean:
 							while answer not in ('yes','no',''):
-								answer =  shutit_util.util_raw_input(shutit=self,prompt=shutit_util.colour('31',prompt
+								answer =  shutit_util.util_raw_input(shutit=self,prompt=shutit_util.colour('32',prompt
 								  + ' (boolean - input "yes" or "no"): \n'))
 						else:
-							answer =  shutit_util.util_raw_input(shutit=self,prompt=shutit_util.colour('31',prompt) + ': \n')
+							answer =  shutit_util.util_raw_input(shutit=self,prompt=shutit_util.colour('32',prompt) + ': \n')
 						if answer == '' and default != None:
 							answer = default
 						self.cfg[module_id][option] = answer

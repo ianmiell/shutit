@@ -395,7 +395,7 @@ def get_base_config(cfg, cfg_parser):
 		sys.exit()
 	if warn != '' and cfg['build']['debug']:
 		issue_warning('Showing config as read in. This can also be done by calling with list_configs:',2)
-		shutit_global.shutit.log(print_config(cfg), force_stdout=True, code='31')
+		shutit_global.shutit.log(print_config(cfg), force_stdout=True, code='32')
 		time.sleep(1)
 	if cfg['target']['hostname'] != '' and cfg['build']['net'] != '' and cfg['build']['net'] != 'bridge':
 		print('\n\ntarget/hostname or build/net configs must be blank\n\n')
@@ -643,7 +643,7 @@ def parse_args(shutit):
 			
 			-s section name value
 			================================================================================
-			""" + colour('31', '\n[Hit return to continue]'))
+			""" + colour('32', '\n[Hit return to continue]'))
 		util_raw_input()
 		print textwrap.dedent("""\
 			================================================================================
@@ -680,7 +680,7 @@ def parse_args(shutit):
 			See shutit_module.py for more detailed documentation on these.
 
 			================================================================================
-			""" + colour('31', '\n[Hit return to continue]'))
+			""" + colour('32', '\n[Hit return to continue]'))
 		util_raw_input()
 		print textwrap.dedent("""\
 			================================================================================
@@ -698,7 +698,7 @@ def parse_args(shutit):
 			To escape a pause point when it happens, hit the "CTRL" and the "]"
 			key simultaneously.
 			================================================================================
-			""" + colour('31', '\n[Hit return to continue]'))
+			""" + colour('32', '\n[Hit return to continue]'))
 		util_raw_input()
 	# Set up trace as fast as possible.
 	if shutit.cfg['build']['trace']:
@@ -743,7 +743,7 @@ def load_configs(shutit):
 			msg = msg + '    \n' + c
 			shutit.log('    ' + c)
 		if cfg['build']['interactive'] >= 3:
-			print textwrap.dedent("""\n""") + msg + textwrap.dedent(colour('31', '\n\n[Hit return to continue]'))
+			print textwrap.dedent("""\n""") + msg + textwrap.dedent(colour('32', '\n\n[Hit return to continue]'))
 			util_raw_input(shutit=shutit)
 		if cfg['action']['list_configs'] or cfg['build']['debug']:
 			f = file(cfg['build']['log_config_path'] + '/config_file_order.txt','w')
