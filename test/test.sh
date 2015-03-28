@@ -132,7 +132,7 @@ do
 				echo "================================================================================"
 				if [ x$SHUTIT_PARALLEL_BUILD = 'x' ]
 				then
-					cmd="./test.sh 2>&1 | tee /tmp/shutit_logs/$$/shutit_core_test_$(date +%s)"
+					cmd="echo y | ./test.sh 2>&1 | tee /tmp/shutit_logs/$$/shutit_core_test_$(date +%s)"
 					echo "================================================================================"
 					echo "RUNNING: $cmd"
 					echo "================================================================================"
@@ -151,7 +151,7 @@ do
 				else
 					# TODO
 					#http://stackoverflow.com/questions/356100/how-to-wait-in-bash-for-several-subprocesses-to-finish-and-return-exit-code-0
-					./test.sh 2>&1 | tee /tmp/shutit_logs/$$/shutit_core_test_$(date +%s)
+					echo y | ./test.sh 2>&1 | tee /tmp/shutit_logs/$$/shutit_core_test_$(date +%s)
 					JOB=$!
 					PIDS[$JOB]="$JOB: $dist $d"
 				fi
@@ -182,7 +182,7 @@ fi
 if [[ $TESTS != 'basic' ]]
 then
 	pushd  ${SHUTIT_DIR}/library/bin
-	./test.sh 
+	echo y | ./test.sh 
 	if [[ $? != 0 ]]
 	then
 		cleanup hard
