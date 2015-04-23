@@ -541,11 +541,13 @@ def parse_args(shutit):
 	if not os.path.isdir(shutit_home):
 		os.mkdir(shutit_home, 0o700)
 	if not os.path.isfile(os.path.join(shutit_home, 'config')):
-		os.close(os.open(
+		f = os.open(
 			os.path.join(shutit_home, 'config'),
 			os.O_WRONLY | os.O_CREAT,
 			0o600
-		))
+		)
+		os.write(f,_default_cnf)
+		os.close(f)
 
 	# Default this to False as it's not always set (mostly for --debug calls).
 	cfg['list_configs']['cfghistory'] = False
