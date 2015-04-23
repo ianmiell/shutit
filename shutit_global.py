@@ -1555,7 +1555,8 @@ class ShutIt(object):
 			login_expect = shutit.cfg['expect_prompts']['base_prompt']
 		else:
 			login_expect = expect
-		self.multisend(send,{'ontinue connecting':'yes','assword':password,'login:':password},expect=login_expect,check_exit=False,timeout=timeout)
+		# We don't fail on empty before as many login programs mess with the output.
+		self.multisend(send,{'ontinue connecting':'yes','assword':password,'login:':password},expect=login_expect,check_exit=False,timeout=timeout,fail_on_empty_before=False)
 		if prompt_prefix != None:
 			self.setup_prompt(r_id,child=child,prefix=prompt_prefix)
 		else:
