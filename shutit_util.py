@@ -575,7 +575,7 @@ def parse_args(shutit):
 		cfg['build']['conn_module'] = 'shutit.tk.conn_bash'
 		cfg['build']['delivery']    = 'bash'
 		if os.geteuid() != 0:
-    		shutit.fail("To run in bash you need to be root.")
+			shutit.fail("To run in bash you need to be root.")
 	elif args.delivery == None:
 		cfg['build']['conn_module'] = None
 		cfg['build']['delivery']    = 'target'
