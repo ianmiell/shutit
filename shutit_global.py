@@ -844,11 +844,12 @@ class ShutIt(object):
 		if match_regexp == None and re.match('.*[' + bad_chars + '].*',
 				line) != None:
 			line = line.replace('"',r'\"')
+		created_file = False
 		if not self.file_exists(filename, expect=expect, child=child):
-			# The above cat doesn't work so we touch the file if it
-			# doesn't exist already.
+			# We touch the file if it doesn't exist already.
 			self.send('touch ' + filename, expect=expect, child=child,
 				check_exit=False)
+			created_file = True
 		elif not force:
 			if literal:
 				if match_regexp == None:
@@ -902,11 +903,13 @@ class ShutIt(object):
 			res = self.get_re_from_child(child.before, '^([0-9]+)$')
 		if res == '0' or force:
 			self.send('cat >> ' + filename + """ <<< '""" + line.replace("'",r"""'"'"'""") + """'""",
-				expect=expect, child=child, check_exit=False)
-			self.send('rm -f ' + tmp_filename, expect=expect, child=child, check_exit=False)
+				expect=expect, child=child, check_exit=False, escape=True)
+			if created_file:
+				self.send('rm -f ' + tmp_filename, expect=expect, child=child, check_exit=False)
 			return True
 		else:
-			self.send('rm -f ' + tmp_filename, expect=expect, child=child, check_exit=False)
+			if created_file:
+				self.send('rm -f ' + tmp_filename, expect=expect, child=child, check_exit=False)
 			return False
 
 
