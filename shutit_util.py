@@ -521,7 +521,7 @@ def parse_args(shutit):
 	# This mode is a bit special - it's the only one with different arguments
 	if cfg['action']['skeleton']:
 		if (args.dockerfile and (args.script or args.example)) or (args.example and args.script):
-			shutit_global.shutit.fail('Cannot have any two of script, -d/--dockerfile Dockerfile or --example as arguments')
+			shutit.fail('Cannot have any two of script, -d/--dockerfile Dockerfile or --example as arguments')
 		cfg['skeleton'] = {
 			'path':        args.module_directory,
 			'module_name': args.module_name,
@@ -574,6 +574,8 @@ def parse_args(shutit):
 	elif args.delivery == 'bash':
 		cfg['build']['conn_module'] = 'shutit.tk.conn_bash'
 		cfg['build']['delivery']    = 'bash'
+		if os.geteuid() != 0:
+    		shutit.fail("To run in bash you need to be root.")
 	elif args.delivery == None:
 		cfg['build']['conn_module'] = None
 		cfg['build']['delivery']    = 'target'
