@@ -486,9 +486,15 @@ class ShutIt(object):
 			if log:
 				self.log('contents >>>' + contents + '<<<')
 		if cfg['build']['delivery'] == 'bash':
-			f = open(path,'w')
-			f.write(contents)
-			f.close()
+			# TODO: make this smarter wrt login to different envs etc
+			# or maybe add_line_to_file is the better approach.
+			if False:
+				f = open(path,'w')
+				f.write(contents)
+				f.close()
+			else:
+				for line in contents.split():
+					self.add_line_to_file(line, path)
 		else:
 			# Try and echo as little as possible
 			oldlog = child.logfile_send
@@ -882,7 +888,7 @@ class ShutIt(object):
 					  check_exit=False)
 			res = self.get_re_from_child(child.before, '^([0-9]+)$')
 		if res == '0' or force:
-			self.send('cat >> ' + filename + """ <<< '""" + line + """'""",
+			self.send('cat >> ' + filename + """ <<< '""" + line.replace("'",r"""'"'"'""") + """'""",
 				expect=expect, child=child, check_exit=False)
 			self.send('rm -f ' + tmp_filename, expect=expect, child=child,
 				exit_values=['0', '1'])
