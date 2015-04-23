@@ -49,7 +49,6 @@ import hashlib
 import urlparse
 import urllib2
 import shutil
-import manhole
 from shutit_module import ShutItFailException
 import operator
 import threading
@@ -768,16 +767,21 @@ def load_configs(shutit):
 	get_base_config(cfg, cfg_parser)
 	if cfg['build']['debug']:
 		# Set up the manhole.
-		manhole.install(
-			verbose=True,
-			patch_fork=True,
-			activate_on=None,
-			oneshot_on=None,
-			sigmask=manhole.ALL_SIGNALS,
-			socket_path=None,
-			reinstall_delay=0.5,
-			locals=None
-		)
+		try:
+			import manhole
+			manhole.install(
+				verbose=True,
+				patch_fork=True,
+				activate_on=None,
+				oneshot_on=None,
+				sigmask=manhole.ALL_SIGNALS,
+				socket_path=None,
+				reinstall_delay=0.5,
+				locals=None
+			)
+		except:
+			# TODO: message
+			pass
 
 
 def load_shutit_modules(shutit):
