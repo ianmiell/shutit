@@ -1608,6 +1608,14 @@ def print_stack_trace():
 	print '================================================================================'
 
 
+# get the ordinal for a given char, in a friendly way
+def get_wide_hex(char):
+	if len(char) != 2:
+		return r'\x' + hex(ord(char))[2:]
+	return r'\u' + hex(0x10000 + (ord(char[0]) - 0xD800) * 0x400 + (ord(char[1]) - 0xDC00))[2:]
+
+
+
 in_ctrlc = False
 def ctrlc_background():
 	global in_ctrlc

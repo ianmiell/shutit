@@ -261,6 +261,7 @@ class ShutIt(object):
 	         record_command=True,
 	         exit_values=None,
 	         echo=False,
+	         escape=False,
 	         retry=3):
 		"""Send string as a shell command, and wait until the expected output
 		is seen (either a string or any from a list of strings) before
@@ -279,6 +280,7 @@ class ShutIt(object):
 		@param record_command: Whether to record the command for output at end. As a safety measure, if the command matches any 'password's then we don't record it.
 		@param exit_values: Array of acceptable exit values as strings
 		@param echo: Whether to suppress any logging output from pexpect to the terminal or not.  We don't record the command if this is set to False unless record_command is explicitly passed in as True.
+		@param escape: Whether to escape the characters in a bash-friendly way, ie $'\Uxxxxxx'
 		@param retry: Number of times to retry the command if the first attempt doesn't work. Useful if going to the network.
 		@return: The pexpect return value (ie which expected string in the list matched)
 		@rtype: string
@@ -328,16 +330,27 @@ class ShutIt(object):
 			self.log('Expecting>>>' + str(expect) + '<<<')
 		# Don't echo if echo passed in as False
 		while retry > 0:
+			if escape:
+				escaped_str = "eval $'"
+				for char in send:
+					escaped_str += shutit_util.get_wide_hex(char)
+				escaped_str += "'"
 			if echo == False:
 				oldlog = child.logfile_send
 				child.logfile_send = None
-				child.sendline(send)
+				if escape:
+					child.sendline(escaped_str)
+				else:
+					child.sendline(send)
 				expect_res = child.expect(expect, timeout)
 				child.logfile_send = oldlog
 			else:
 				# If we're sending something, send it.
 				if send != None:
-					child.sendline(send)
+					if escape:
+						child.sendline(escaped_str)
+					else:
+						child.sendline(send)
 				expect_res = child.expect(expect, timeout)
 			if cfg['build']['debug']:
 				self.log('child.before>>>' + child.before + '<<<')
@@ -890,12 +903,10 @@ class ShutIt(object):
 		if res == '0' or force:
 			self.send('cat >> ' + filename + """ <<< '""" + line.replace("'",r"""'"'"'""") + """'""",
 				expect=expect, child=child, check_exit=False)
-			self.send('rm -f ' + tmp_filename, expect=expect, child=child,
-				exit_values=['0', '1'])
+			self.send('rm -f ' + tmp_filename, expect=expect, child=child, check_exit=False)
 			return True
 		else:
-			self.send('rm -f ' + tmp_filename, expect=expect, child=child,
-				exit_values=['0', '1'])
+			self.send('rm -f ' + tmp_filename, expect=expect, child=child, check_exit=False)
 			return False
 
 
