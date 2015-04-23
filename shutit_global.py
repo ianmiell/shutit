@@ -1119,7 +1119,7 @@ class ShutIt(object):
 			if user != 'root':
 				shutit.login(user=user)
 		shutit.send('cp ' + target_path + ' /artifacts')
-		shshutit_util.copyfile(os.path.join(artifacts_dir,filename),os.path.join(host_path,'{0}_'.format(shutit.cfg['build']['build_id']) + filename))
+		shutil.copyfile(os.path.join(artifacts_dir,filename),os.path.join(host_path,'{0}_'.format(shutit.cfg['build']['build_id']) + filename))
 		shutit.send('rm -f /artifacts/' + filename)
 		return os.path.join(host_path,'{0}_'.format(shutit.cfg['build']['build_id']) + filename)
 
