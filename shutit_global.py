@@ -893,11 +893,11 @@ class ShutIt(object):
 								  exit_values=['0', '1'])
 				self.send('cat ' + tmp_filename + ' | wc -l',
 						  expect=expect, child=child, exit_values=['0', '1'],
-						  check_exit=False)
+						  check_exit=False, escape=True)
 				res = self.get_re_from_child(child.before, '^([0-9]+)$')
 			if res == '0' or force:
 				self.send('cat >> ' + filename + """ <<< '""" + line.replace("'",r"""'"'"'""") + """'""",
-					expect=expect, child=child, check_exit=False)
+					expect=expect, child=child, check_exit=False, escape=True)
 				if created_file:
 					self.send('rm -f ' + tmp_filename, expect=expect, child=child, exit_values=['0', '1'])
 			else:
