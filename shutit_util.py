@@ -1089,7 +1089,6 @@ def create_skeleton(shutit):
 	os.mkdir(os.path.join(skel_path, 'configs'))
 	os.mkdir(os.path.join(skel_path, 'context'))
 	os.mkdir(os.path.join(skel_path, 'bin'))
-	os.mkdir(os.path.join(skel_path, 'dockerfile'))
 
 	templatemodule_path   = os.path.join(skel_path, skel_module_name + '.py')
 	readme_path           = os.path.join(skel_path, 'README.md')
