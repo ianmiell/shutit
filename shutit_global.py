@@ -840,11 +840,8 @@ class ShutIt(object):
 		expect = expect or self.get_default_expect()
 		# assume we're going to add it
 		res = '0'
-		bad_chars    = '"'
 		tmp_filename = '/tmp/' + random_id()
-		if match_regexp == None and re.match('.*[' + bad_chars + '].*',
-				line) != None:
-			line = line.replace('"',r'\"')
+
 		if type(line) == str:
 			lines = [line]
 		elif type(line) == list:
@@ -869,11 +866,7 @@ class ShutIt(object):
 							  expect=expect,
 							  child=child,
 							  exit_values=['0', '1'])
-		print lines
 		for line in lines:
-			print line
-			if match_regexp == None and re.match('.*[' + bad_chars + '].*', line) != None:
-				line = line.replace('"',r'\"')
 			if not force:
 				if literal:
 					if match_regexp == None:
