@@ -814,12 +814,13 @@ class ShutIt(object):
 		which it is by default).
 		Creates the file if it doesn't exist.
 		Must be exactly the line passed in to match.
-		Returns True if line added, False if not.
+		Returns True if line(s) added OK, False if not.
 		If you have a lot of non-unique lines to add, it's a good idea to
 		have a sentinel value to add first, and then if that returns true,
 		force the remainder.
 	
-		@param line:          Line to add.
+		@param line:          Line to add. If a list, processed per-item,
+		                      and match_regexp ignored.
 		@param filename       Filename to add it to.
 		@param expect:        See send()
 		@param child:         See send()
@@ -844,13 +845,18 @@ class ShutIt(object):
 		if match_regexp == None and re.match('.*[' + bad_chars + '].*',
 				line) != None:
 			line = line.replace('"',r'\"')
+		if type(line) == str:
+			lines = [line]
+		elif type(line) == list:
+			lines = line
+			match_regexp = None
 		created_file = False
 		if not self.file_exists(filename, expect=expect, child=child):
 			# We touch the file if it doesn't exist already.
 			self.send('touch ' + filename, expect=expect, child=child,
 				check_exit=False)
 			created_file = True
-		elif not force:
+		if not force:
 			if literal:
 				if match_regexp == None:
 					#            v the space is intentional, to avoid polluting bash history.
@@ -863,54 +869,49 @@ class ShutIt(object):
 							  expect=expect,
 							  child=child,
 							  exit_values=['0', '1'])
-				else:
-					#            v the space is intentional, to avoid polluting bash history.
-					self.send(""" grep -w '^""" + 
-							  match_regexp + 
-							  """$' """ +
-							  filename +
-							  ' > ' +
-							  tmp_filename,
-							  expect=expect,
-							  child=child, 
-							  exit_values=['0', '1'])
+		print lines
+		for line in lines:
+			print line
+			if match_regexp == None and re.match('.*[' + bad_chars + '].*', line) != None:
+				line = line.replace('"',r'\"')
+			if not force:
+				if literal:
+					if match_regexp == None:
+						#            v the space is intentional, to avoid polluting bash history.
+						self.send(""" grep -w '^""" + 
+								  line +
+								  """$' """ +
+								  filename +
+								  ' > ' + 
+								  tmp_filename, 
+								  expect=expect,
+								  child=child,
+								  exit_values=['0', '1'])
+					else:
+						#            v the space is intentional, to avoid polluting bash history.
+						self.send(""" grep -w '^""" + 
+								  match_regexp + 
+								  """$' """ +
+								  filename +
+								  ' > ' +
+								  tmp_filename,
+								  expect=expect,
+								  child=child, 
+								  exit_values=['0', '1'])
+				self.send('cat ' + tmp_filename + ' | wc -l',
+						  expect=expect, child=child, exit_values=['0', '1'],
+						  check_exit=False)
+				res = self.get_re_from_child(child.before, '^([0-9]+)$')
+			if res == '0' or force:
+				self.send('cat >> ' + filename + """ <<< '""" + line.replace("'",r"""'"'"'""") + """'""",
+					expect=expect, child=child, check_exit=False)
+				if created_file:
+					self.send('rm -f ' + tmp_filename, expect=expect, child=child, exit_values=['0', '1'])
 			else:
-				if match_regexp == None:
-					#          v the space is intentional, to avoid polluting bash history.
-					self.send(' grep -w "^' +
-							  line +
-							  '$" ' +
-							  filename +
-							  ' > ' +
-							  tmp_filename,
-							  expect=expect,
-							  child=child,
-							  exit_values=['0', '1'])
-				else:
-					#          v the space is intentional, to avoid polluting bash history.
-					self.send(' grep -w "^' +
-							  match_regexp +
-							  '$" ' +
-							  filename +
-							  ' > ' +
-							  tmp_filename,
-							  expect=expect,
-							  child=child,
-							  exit_values=['0', '1'])
-			self.send('cat ' + tmp_filename + ' | wc -l',
-					  expect=expect, child=child, exit_values=['0', '1'],
-					  check_exit=False)
-			res = self.get_re_from_child(child.before, '^([0-9]+)$')
-		if res == '0' or force:
-			self.send('cat >> ' + filename + """ <<< '""" + line.replace("'",r"""'"'"'""") + """'""",
-				expect=expect, child=child, check_exit=False, escape=True)
-			if created_file:
-				self.send('rm -f ' + tmp_filename, expect=expect, child=child, check_exit=False)
-			return True
-		else:
-			if created_file:
-				self.send('rm -f ' + tmp_filename, expect=expect, child=child, check_exit=False)
-			return False
+				if created_file:
+					self.send('rm -f ' + tmp_filename, expect=expect, child=child, exit_values=['0','1'])
+				return False
+		return True
 
 
 	def add_to_bashrc(self, line, expect=None, child=None, match_regexp=None):
