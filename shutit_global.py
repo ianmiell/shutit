@@ -898,12 +898,12 @@ class ShutIt(object):
 			if res == '0' or force:
 				self.send('cat >> ' + filename + """ <<< '""" + line.replace("'",r"""'"'"'""") + """'""",
 					expect=expect, child=child, check_exit=False, escape=True)
-				if created_file:
-					self.send('rm -f ' + tmp_filename, expect=expect, child=child, exit_values=['0', '1'])
 			else:
 				if created_file:
 					self.send('rm -f ' + tmp_filename, expect=expect, child=child, exit_values=['0','1'])
 				return False
+			if created_file:
+				self.send('rm -f ' + tmp_filename, expect=expect, child=child, exit_values=['0', '1'])
 		return True
 
 
