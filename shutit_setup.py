@@ -103,16 +103,17 @@ class ShutItConnModule(ShutItModule):
 	def _add_end_build_info(self, shutit):
 		cfg = shutit.cfg
 		# Put build info into the target
-		shutit.send('mkdir -p ' + cfg['build']['build_db_dir'] + '/' + \
-		    cfg['build']['build_id'])
-		shutit.send_file(cfg['build']['build_db_dir'] + '/' + \
-		    cfg['build']['build_id'] + '/build.log', \
-		    shutit_util.get_commands(shutit))
-		shutit.send_file(cfg['build']['build_db_dir'] + '/' + \
-		    cfg['build']['build_id'] + '/build_commands.sh', \
-		    shutit_util.get_commands(shutit))
-		shutit.add_line_to_file(cfg['build']['build_id'], \
-		    cfg['build']['build_db_dir'] + '/builds')
+		if shutit.cfg['build']['delivery'] == 'target':
+			shutit.send('mkdir -p ' + cfg['build']['build_db_dir'] + '/' + \
+			    cfg['build']['build_id'])
+			shutit.send_file(cfg['build']['build_db_dir'] + '/' + \
+			    cfg['build']['build_id'] + '/build.log', \
+			    shutit_util.get_commands(shutit))
+			shutit.send_file(cfg['build']['build_db_dir'] + '/' + \
+			    cfg['build']['build_id'] + '/build_commands.sh', \
+			    shutit_util.get_commands(shutit))
+			shutit.add_line_to_file(cfg['build']['build_id'], \
+			    cfg['build']['build_db_dir'] + '/builds')
 
 
 class ConnDocker(ShutItConnModule):

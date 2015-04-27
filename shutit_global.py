@@ -506,7 +506,7 @@ class ShutIt(object):
 				f.write(contents)
 				f.close()
 			else:
-				for line in contents.split('\n'):
+				for line in contents.split():
 					self.add_line_to_file(line, path)
 		else:
 			# Try and echo as little as possible

@@ -58,52 +58,52 @@ fi
 find ${SHUTIT_DIR} -name '*.cnf' | grep '/configs/[^/]*.cnf' | xargs chmod 600
 cleanup hard
 
-DESC="Testing skeleton build with Dockerfile"
-echo $DESC
-./shutit skeleton -d assets/dockerfile/Dockerfile ${NEWDIR} testing shutit.tk --depends shutit.tk.setup --base_image ubuntu:14.04
-pushd ${NEWDIR}/bin
-./test.sh
-if [[ "x$?" != "x0" ]]
-then
-	echo "FAILED ON $DESC"
-	cleanup hard
-	exit 1
-fi
-cleanup hard
-rm -rf ${NEWDIR}
-popd > /dev/null 2>&1
-
-DESC="Testing skeleton build basic bare"
-echo $DESC
-./shutit skeleton ${NEWDIR} testing shutit.tk --depends shutit.tk.setup --base_image ubuntu:14.04
-pushd ${NEWDIR}/bin
-./test.sh
-if [[ "x$?" != "x0" ]]
-then
-	echo "FAILED ON $DESC"
-	cleanup hard
-	exit 1
-fi
-cleanup hard
-rm -rf ${NEWDIR}
-popd > /dev/null 2>&1
-
-
-DESC="Testing skeleton build basic with example script"
-echo $DESC
-./shutit skeleton ${NEWDIR} testing shutit.tk --depends shutit.tk.setup --base_image ubuntu:14.04 --script ${SHUTIT_DIR}/assets/example.sh
-
-pushd ${NEWDIR}/bin
-./test.sh
-if [[ "x$?" != "x0" ]]
-then
-	echo "FAILED ON $DESC"
-	cleanup hard
-	exit 1
-fi
-cleanup hard
-rm -rf ${NEWDIR}
-popd > /dev/null 2>&1
+#DESC="Testing skeleton build with Dockerfile"
+#echo $DESC
+#./shutit skeleton -d assets/dockerfile/Dockerfile ${NEWDIR} testing shutit.tk --depends shutit.tk.setup --base_image ubuntu:14.04
+#pushd ${NEWDIR}/bin
+#./test.sh
+#if [[ "x$?" != "x0" ]]
+#then
+#	echo "FAILED ON $DESC"
+#	cleanup hard
+#	exit 1
+#fi
+#cleanup hard
+#rm -rf ${NEWDIR}
+#popd > /dev/null 2>&1
+#
+#DESC="Testing skeleton build basic bare"
+#echo $DESC
+#./shutit skeleton ${NEWDIR} testing shutit.tk --depends shutit.tk.setup --base_image ubuntu:14.04
+#pushd ${NEWDIR}/bin
+#./test.sh
+#if [[ "x$?" != "x0" ]]
+#then
+#	echo "FAILED ON $DESC"
+#	cleanup hard
+#	exit 1
+#fi
+#cleanup hard
+#rm -rf ${NEWDIR}
+#popd > /dev/null 2>&1
+#
+#
+#DESC="Testing skeleton build basic with example script"
+#echo $DESC
+#./shutit skeleton ${NEWDIR} testing shutit.tk --depends shutit.tk.setup --base_image ubuntu:14.04 --script ${SHUTIT_DIR}/assets/example.sh
+#
+#pushd ${NEWDIR}/bin
+#./test.sh
+#if [[ "x$?" != "x0" ]]
+#then
+#	echo "FAILED ON $DESC"
+#	cleanup hard
+#	exit 1
+#fi
+#cleanup hard
+#rm -rf ${NEWDIR}
+#popd > /dev/null 2>&1
 
 
 # General tests
@@ -113,10 +113,11 @@ PIDS=()
 DISTROS=${SHUTITTEST_DISTROS:-ubuntu:12.04}
 for dist in $DISTROS
 do
-	for d in $(ls test | grep -v configs)
+	ls -d test/[0-9]
+	for d in $(ls -d test/[0-9])
 	do
-		[ -d ${SHUTIT_DIR}/test/$d ] || continue
-		pushd ${SHUTIT_DIR}/test/$d/bin > /dev/null 2>&1
+		[ -d ${SHUTIT_DIR}/$d ] || continue
+		pushd ${SHUTIT_DIR}/$d/bin
 		if [[ -a STOPTEST ]]
 		then
 			echo "STOPTEST file found in $(pwd)"
@@ -136,7 +137,7 @@ do
 					echo "================================================================================"
 					echo "RUNNING: $cmd"
 					echo "================================================================================"
-					$cmd
+					eval $cmd
 					RES=$?
 					if [[ "x$RES" != "x0" ]]
 					then
@@ -159,7 +160,7 @@ do
 			fi
 		fi
 		report
-		popd > /dev/null 2>&1
+		popd
 	done
 done
 
