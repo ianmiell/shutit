@@ -116,7 +116,7 @@ do
 	for d in $(ls test | grep -v configs)
 	do
 		[ -d ${SHUTIT_DIR}/test/$d ] || continue
-		pushd ${SHUTIT_DIR}/test/$d > /dev/null 2>&1
+		pushd ${SHUTIT_DIR}/test/$d/bin > /dev/null 2>&1
 		if [[ -a STOPTEST ]]
 		then
 			echo "STOPTEST file found in $(pwd)"
@@ -132,7 +132,7 @@ do
 				echo "================================================================================"
 				if [ x$SHUTIT_PARALLEL_BUILD = 'x' ]
 				then
-					cmd="echo y | ./test.sh 2>&1 | tee /tmp/shutit_logs/$$/shutit_core_test_$(date +%s)"
+					cmd="echo yes | ./test.sh 2>&1 | tee /tmp/shutit_logs/$$/shutit_core_test_$(date +%s)"
 					echo "================================================================================"
 					echo "RUNNING: $cmd"
 					echo "================================================================================"
@@ -151,7 +151,7 @@ do
 				else
 					# TODO
 					#http://stackoverflow.com/questions/356100/how-to-wait-in-bash-for-several-subprocesses-to-finish-and-return-exit-code-0
-					echo y | ./test.sh 2>&1 | tee /tmp/shutit_logs/$$/shutit_core_test_$(date +%s)
+					echo yes | ./test.sh 2>&1 | tee /tmp/shutit_logs/$$/shutit_core_test_$(date +%s)
 					JOB=$!
 					PIDS[$JOB]="$JOB: $dist $d"
 				fi
