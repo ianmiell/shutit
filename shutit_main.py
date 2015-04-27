@@ -632,12 +632,13 @@ def do_remove(shutit):
 				shutit.fail(module_id + ' failed on remove',
 				child=shutit.pexpect_children['target_child'])
 			else:
-				# Create a directory and files to indicate this has been removed.
-				shutit.send('mkdir -p /root/shutit_build/module_record/' + module.module_id + ' && rm -f /root/shutit_build/module_record/' + module.module_id + '/built && touch /root/shutit_build/module_record/' + module.module_id + '/removed')
-				# Remove from "installed" cache
-				shutit.cfg['target']['modules_installed'].remove(module.module_id)
-				# Add to "not installed" cache
-				shutit.cfg['target']['modules_not_installed'].append(module.module_id)
+				if cfg['build']['delivery'] == 'target':
+					# Create a directory and files to indicate this has been removed.
+					shutit.send('mkdir -p /root/shutit_build/module_record/' + module.module_id + ' && rm -f /root/shutit_build/module_record/' + module.module_id + '/built && touch /root/shutit_build/module_record/' + module.module_id + '/removed')
+					# Remove from "installed" cache
+					shutit.cfg['target']['modules_installed'].remove(module.module_id)
+					# Add to "not installed" cache
+					shutit.cfg['target']['modules_not_installed'].append(module.module_id)
 			if whowasi != 'root':
 				shutit.logout()
 	if whowasi == 'root':
@@ -658,8 +659,9 @@ def build_module(shutit, module):
 		shutit.fail(module.module_id + ' failed on build',
 		            child=shutit.pexpect_children['target_child'])
 	else:
-		# Create a directory and files to indicate this has been built.
-		shutit.send('mkdir -p /root/shutit_build/module_record/' + module.module_id + ' && touch /root/shutit_build/module_record/' + module.module_id + '/built && rm -f /root/shutit_build/module_record/' + module.module_id + '/removed')
+		if cfg['build']['delivery'] == 'target':
+			# Create a directory and files to indicate this has been built.
+			shutit.send('mkdir -p /root/shutit_build/module_record/' + module.module_id + ' && touch /root/shutit_build/module_record/' + module.module_id + '/built && rm -f /root/shutit_build/module_record/' + module.module_id + '/removed')
 		# Put it into "installed" cache
 		shutit.cfg['target']['modules_installed'].append(module.module_id)
 		# Remove from "not installed" cache
