@@ -2107,12 +2107,12 @@ class ShutIt(object):
 					if self.cfg['build']['accept_defaults'] == None:
 						answer = None
 						# util_raw_input may change the interactive level, so guard for this.
-						while answer not in ('yes','no','') and self.cfg['build']['interactive'] > 0:
+						while answer not in ('yes','no','') and self.cfg['build']['interactive'] > 1:
 							answer = shutit_util.util_raw_input(shutit=self,prompt=shutit_util.colour('32',
 							   'Do you want to accept the config option defaults? ' +
 							   '(boolean - input "yes" or "no") (default: yes): \n'))
 						# util_raw_input may change the interactive level, so guard for this.
-						if answer == 'yes' or answer == '' or self.cfg['build']['interactive'] < 1:
+						if answer == 'yes' or answer == '' or self.cfg['build']['interactive'] < 2:
 							self.cfg['build']['accept_defaults'] = True
 						else:
 							self.cfg['build']['accept_defaults'] = False
