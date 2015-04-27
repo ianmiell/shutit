@@ -86,17 +86,18 @@ class ShutItConnModule(ShutItModule):
 
 	def _add_begin_build_info(self, shutit, command):
 		cfg = shutit.cfg
-		# Create the build directory and put the config in it.
-		shutit.send('mkdir -p ' + cfg['build']['build_db_dir'] + \
-			 '/' + cfg['build']['build_id'])
-		# Record the command we ran and the python env if in debug.
-		if shutit.cfg['build']['debug']:
-			shutit.send_file(cfg['build']['build_db_dir'] + '/' + \
-			    cfg['build']['build_id'] + '/python_env.sh', \
-			    str(sys.__dict__), log=False)
-			shutit.send_file(cfg['build']['build_db_dir'] + '/' + \
-			    cfg['build']['build_id'] + '/command.sh', \
-			    ' '.join(command), log=False)
+		if shutit.cfg['build']['delivery'] == 'target':
+			# Create the build directory and put the config in it.
+			shutit.send('mkdir -p ' + cfg['build']['build_db_dir'] + \
+				 '/' + cfg['build']['build_id'])
+			# Record the command we ran and the python env if in debug.
+			if shutit.cfg['build']['debug']:
+				shutit.send_file(cfg['build']['build_db_dir'] + '/' + \
+				    cfg['build']['build_id'] + '/python_env.sh', \
+				    str(sys.__dict__), log=False)
+				shutit.send_file(cfg['build']['build_db_dir'] + '/' + \
+				    cfg['build']['build_id'] + '/command.sh', \
+				    ' '.join(command), log=False)
 		shutit.pause_point('Anything you want to do now the ' +
 		    'target is connected to?', level=2)
 

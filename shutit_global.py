@@ -841,35 +841,21 @@ class ShutIt(object):
 		# assume we're going to add it
 		res = '0'
 		tmp_filename = '/tmp/' + random_id()
-
 		if type(line) == str:
 			lines = [line]
 		elif type(line) == list:
 			lines = line
 			match_regexp = None
-		created_file = False
-		if not self.file_exists(filename, expect=expect, child=child):
-			# We touch the file if it doesn't exist already.
-			self.send('touch ' + filename, expect=expect, child=child,
-				check_exit=False)
-			created_file = True
-		if not force:
-			if literal:
-				if match_regexp == None:
-					#            v the space is intentional, to avoid polluting bash history.
-					self.send(""" grep -w '^""" + 
-							  line +
-							  """$' """ +
-							  filename +
-							  ' > ' + 
-							  tmp_filename, 
-							  expect=expect,
-							  child=child,
-							  exit_values=['0', '1'])
 		for line in lines:
+			created_file = False
 			if not force:
 				if literal:
 					if match_regexp == None:
+						if not self.file_exists(filename, expect=expect, child=child):
+							# We touch the file if it doesn't exist already.
+							self.send('touch ' + filename, expect=expect, child=child,
+								check_exit=False)
+							created_file = True
 						#            v the space is intentional, to avoid polluting bash history.
 						self.send(""" grep -w '^""" + 
 								  line +
@@ -881,6 +867,11 @@ class ShutIt(object):
 								  child=child,
 								  exit_values=['0', '1'])
 					else:
+						if not self.file_exists(filename, expect=expect, child=child):
+							# We touch the file if it doesn't exist already.
+							self.send('touch ' + filename, expect=expect, child=child,
+								check_exit=False)
+							created_file = True
 						#            v the space is intentional, to avoid polluting bash history.
 						self.send(""" grep -w '^""" + 
 								  match_regexp + 
@@ -891,6 +882,11 @@ class ShutIt(object):
 								  expect=expect,
 								  child=child, 
 								  exit_values=['0', '1'])
+				if not self.file_exists(filename, expect=expect, child=child):
+					# We touch the file if it doesn't exist already.
+					self.send('touch ' + filename, expect=expect, child=child,
+						check_exit=False)
+					created_file = True
 				self.send('cat ' + tmp_filename + ' | wc -l',
 						  expect=expect, child=child, exit_values=['0', '1'],
 						  check_exit=False, escape=True)
@@ -898,12 +894,12 @@ class ShutIt(object):
 			if res == '0' or force:
 				self.send('cat >> ' + filename + """ <<< '""" + line.replace("'",r"""'"'"'""") + """'""",
 					expect=expect, child=child, check_exit=False, escape=True)
+				if created_file:
+					self.send('rm -f ' + tmp_filename, expect=expect, child=child, exit_values=['0', '1'])
 			else:
 				if created_file:
 					self.send('rm -f ' + tmp_filename, expect=expect, child=child, exit_values=['0','1'])
 				return False
-			if created_file:
-				self.send('rm -f ' + tmp_filename, expect=expect, child=child, exit_values=['0', '1'])
 		return True
 
 
