@@ -462,8 +462,8 @@ class ShutIt(object):
 		script = '\n'.join(lines)
 		script = textwrap.dedent(script)
 		# Send the script and run it in the manner specified
-		if in_shell:
-			script = ('set -o xtrace \n\n' + script + '\n\nset +o xtrace')
+		if self.cfg['build']['delivery'] == 'target' and in_shell:
+				script = ('set -o xtrace \n\n' + script + '\n\nset +o xtrace')
 		self.send_file('/tmp/shutit_script.sh', script)
 		self.send('chmod +x /tmp/shutit_script.sh', expect, child)
 		self.shutit_command_history.append\
@@ -506,7 +506,7 @@ class ShutIt(object):
 				f.write(contents)
 				f.close()
 			else:
-				for line in contents.split():
+				for line in contents.split('\n'):
 					self.add_line_to_file(line, path)
 		else:
 			# Try and echo as little as possible
