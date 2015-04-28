@@ -299,7 +299,7 @@ object --+
   </tr>
 <tr>
     <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">&nbsp;</span>
+      <span class="summary-type">string</span>
     </td><td class="summary">
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
@@ -313,6 +313,7 @@ object --+
         <span class="summary-sig-arg">record_command</span>=<span class="summary-sig-default">True</span>,
         <span class="summary-sig-arg">exit_values</span>=<span class="summary-sig-default">None</span>,
         <span class="summary-sig-arg">echo</span>=<span class="summary-sig-default">False</span>,
+        <span class="summary-sig-arg">escape</span>=<span class="summary-sig-default">False</span>,
         <span class="summary-sig-arg">retry</span>=<span class="summary-sig-default">3</span>)</span><br />
       Send string as a shell command, and wait until the expected output is
       seen (either a string or any from a list of strings) before 
@@ -328,7 +329,7 @@ object --+
   </tr>
 <tr>
     <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">&nbsp;</span>
+      <span class="summary-type">string</span>
     </td><td class="summary">
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
@@ -342,6 +343,7 @@ object --+
         <span class="summary-sig-arg">record_command</span>=<span class="summary-sig-default">True</span>,
         <span class="summary-sig-arg">exit_values</span>=<span class="summary-sig-default">None</span>,
         <span class="summary-sig-arg">echo</span>=<span class="summary-sig-default">False</span>,
+        <span class="summary-sig-arg">escape</span>=<span class="summary-sig-default">False</span>,
         <span class="summary-sig-arg">retry</span>=<span class="summary-sig-default">3</span>)</span><br />
       Send string as a shell command, and wait until the expected output is
       seen (either a string or any from a list of strings) before 
@@ -494,14 +496,14 @@ object --+
   </tr>
 <tr>
     <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">&nbsp;</span>
+      <span class="summary-type">boolean</span>
     </td><td class="summary">
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
           <td><span class="summary-sig"><a href="shutit_global.ShutIt-class.html#host_file_exists" class="summary-sig-name">host_file_exists</a>(<span class="summary-sig-arg">self</span>,
         <span class="summary-sig-arg">filename</span>,
         <span class="summary-sig-arg">directory</span>=<span class="summary-sig-default">False</span>)</span><br />
-      Return True if file exists on the host, else false</td>
+      Return True if file exists on the host, else False</td>
           <td align="right" valign="top">
             <span class="codelink"><a href="shutit_global-pysrc.html#ShutIt.host_file_exists">source&nbsp;code</a></span>
             
@@ -513,7 +515,7 @@ object --+
   </tr>
 <tr>
     <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">&nbsp;</span>
+      <span class="summary-type">boolean</span>
     </td><td class="summary">
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
@@ -534,7 +536,7 @@ object --+
   </tr>
 <tr>
     <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">&nbsp;</span>
+      <span class="summary-type">string</span>
     </td><td class="summary">
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
@@ -555,7 +557,7 @@ object --+
   </tr>
 <tr>
     <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">&nbsp;</span>
+      <span class="summary-type">boolean</span>
     </td><td class="summary">
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
@@ -625,7 +627,7 @@ object --+
   </tr>
 <tr>
     <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">&nbsp;</span>
+      <span class="summary-type">boolean</span>
     </td><td class="summary">
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
@@ -653,7 +655,7 @@ object --+
   </tr>
 <tr>
     <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">&nbsp;</span>
+      <span class="summary-type">boolean</span>
     </td><td class="summary">
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
@@ -673,7 +675,7 @@ object --+
   </tr>
 <tr>
     <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">&nbsp;</span>
+      <span class="summary-type">boolean</span>
     </td><td class="summary">
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
@@ -712,7 +714,7 @@ object --+
   </tr>
 <tr>
     <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">&nbsp;</span>
+      <span class="summary-type">list of strings</span>
     </td><td class="summary">
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
@@ -734,9 +736,9 @@ object --+
     </td><td class="summary">
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td><span class="summary-sig"><a name="mount_tmp"></a><span class="summary-sig-name">mount_tmp</span>(<span class="summary-sig-arg">self</span>)</span><br />
+          <td><span class="summary-sig"><a href="shutit_global.ShutIt-class.html#mount_tmp" class="summary-sig-name">mount_tmp</a>(<span class="summary-sig-arg">self</span>)</span><br />
       mount a temporary file system as a workaround for the AUFS /tmp 
-      issues not necessary if running devicemapper</td>
+      issues.</td>
           <td align="right" valign="top">
             <span class="codelink"><a href="shutit_global-pysrc.html#ShutIt.mount_tmp">source&nbsp;code</a></span>
             
@@ -748,7 +750,7 @@ object --+
   </tr>
 <tr>
     <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">&nbsp;</span>
+      <span class="summary-type">string</span>
     </td><td class="summary">
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
@@ -768,7 +770,7 @@ object --+
   </tr>
 <tr>
     <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">&nbsp;</span>
+      <span class="summary-type">string</span>
     </td><td class="summary">
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
@@ -821,7 +823,8 @@ object --+
         <span class="summary-sig-arg">child</span>=<span class="summary-sig-default">None</span>,
         <span class="summary-sig-arg">print_input</span>=<span class="summary-sig-default">True</span>,
         <span class="summary-sig-arg">level</span>=<span class="summary-sig-default">1</span>,
-        <span class="summary-sig-arg">resize</span>=<span class="summary-sig-default">False</span>)</span><br />
+        <span class="summary-sig-arg">resize</span>=<span class="summary-sig-default">False</span>,
+        <span class="summary-sig-arg">colour</span>=<span class="summary-sig-default"><code class="variable-quote">'</code><code class="variable-string">32</code><code class="variable-quote">'</code></span>)</span><br />
       Inserts a pause in the build session, which allows the user to try 
       things out before continuing.</td>
           <td align="right" valign="top">
@@ -913,7 +916,7 @@ object --+
   </tr>
 <tr>
     <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">&nbsp;</span>
+      <span class="summary-type">boolean</span>
     </td><td class="summary">
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
@@ -938,7 +941,7 @@ object --+
   </tr>
 <tr>
     <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">&nbsp;</span>
+      <span class="summary-type">boolean</span>
     </td><td class="summary">
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
@@ -960,13 +963,14 @@ object --+
   </tr>
 <tr>
     <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">&nbsp;</span>
+      <span class="summary-type">string</span>
     </td><td class="summary">
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td><span class="summary-sig"><a name="whoami"></a><span class="summary-sig-name">whoami</span>(<span class="summary-sig-arg">self</span>,
+          <td><span class="summary-sig"><a href="shutit_global.ShutIt-class.html#whoami" class="summary-sig-name">whoami</a>(<span class="summary-sig-arg">self</span>,
         <span class="summary-sig-arg">child</span>=<span class="summary-sig-default">None</span>,
-        <span class="summary-sig-arg">expect</span>=<span class="summary-sig-default">None</span>)</span></td>
+        <span class="summary-sig-arg">expect</span>=<span class="summary-sig-default">None</span>)</span><br />
+      Returns the current user by executing &quot;whoami&quot;.</td>
           <td align="right" valign="top">
             <span class="codelink"><a href="shutit_global-pysrc.html#ShutIt.whoami">source&nbsp;code</a></span>
             
@@ -986,7 +990,7 @@ object --+
         <span class="summary-sig-arg">command</span>=<span class="summary-sig-default"><code class="variable-quote">'</code><code class="variable-string">bash</code><code class="variable-quote">'</code></span>,
         <span class="summary-sig-arg">child</span>=<span class="summary-sig-default">None</span>,
         <span class="summary-sig-arg">password</span>=<span class="summary-sig-default">None</span>)</span><br />
-      See login.</td>
+      See login().</td>
           <td align="right" valign="top">
             <span class="codelink"><a href="shutit_global-pysrc.html#ShutIt.exec_shell">source&nbsp;code</a></span>
             
@@ -1089,8 +1093,8 @@ object --+
         <span class="summary-sig-arg">prefix</span>=<span class="summary-sig-default"><code class="variable-quote">'</code><code class="variable-string">TMP</code><code class="variable-quote">'</code></span>,
         <span class="summary-sig-arg">child</span>=<span class="summary-sig-default">None</span>,
         <span class="summary-sig-arg">set_default_expect</span>=<span class="summary-sig-default">True</span>)</span><br />
-      Use this when you've opened a new shell to set the PS1 to something
-sane.</td>
+      Use this when you've opened a new shell to set the PS1 to something 
+      sane.</td>
           <td align="right" valign="top">
             <span class="codelink"><a href="shutit_global-pysrc.html#ShutIt.setup_prompt">source&nbsp;code</a></span>
             
@@ -1122,7 +1126,7 @@ sane.</td>
   </tr>
 <tr>
     <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">&nbsp;</span>
+      <span class="summary-type">dict</span>
     </td><td class="summary">
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
@@ -1146,7 +1150,8 @@ sane.</td>
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
           <td><span class="summary-sig"><a name="lsb_release"></a><span class="summary-sig-name">lsb_release</span>(<span class="summary-sig-arg">self</span>,
-        <span class="summary-sig-arg">child</span>=<span class="summary-sig-default">None</span>)</span></td>
+        <span class="summary-sig-arg">child</span>=<span class="summary-sig-default">None</span>)</span><br />
+      Get distro information from lsb_release.</td>
           <td align="right" valign="top">
             <span class="codelink"><a href="shutit_global-pysrc.html#ShutIt.lsb_release">source&nbsp;code</a></span>
             
@@ -1179,7 +1184,7 @@ sane.</td>
   </tr>
 <tr>
     <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">&nbsp;</span>
+      <span class="summary-type">boolean</span>
     </td><td class="summary">
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
@@ -1187,7 +1192,7 @@ sane.</td>
         <span class="summary-sig-arg">user_id</span>,
         <span class="summary-sig-arg">child</span>=<span class="summary-sig-default">None</span>,
         <span class="summary-sig-arg">expect</span>=<span class="summary-sig-default">None</span>)</span><br />
-      Determine whether a user_id for a user is available.</td>
+      Determine whether the specified user_id available.</td>
           <td align="right" valign="top">
             <span class="codelink"><a href="shutit_global-pysrc.html#ShutIt.is_user_id_available">source&nbsp;code</a></span>
             
@@ -1672,7 +1677,7 @@ sane.</td>
   <p>Multisend. Same as send, except it takes multiple sends and expects in
   a dict that are processed while waiting for the end &quot;expect&quot; 
   argument supplied.</p>
-  <p>@see send</p>
+  <p>see send</p>
   <ul>
     <li>
       send_dict - dict of sends and expects, eg: {'interim prompt:','some 
@@ -1704,6 +1709,7 @@ sane.</td>
         <span class="sig-arg">record_command</span>=<span class="sig-default">True</span>,
         <span class="sig-arg">exit_values</span>=<span class="sig-default">None</span>,
         <span class="sig-arg">echo</span>=<span class="sig-default">False</span>,
+        <span class="sig-arg">escape</span>=<span class="sig-default">False</span>,
         <span class="sig-arg">retry</span>=<span class="sig-default">3</span>)</span>
   </h3>
   </td><td align="right" valign="top"
@@ -1717,58 +1723,39 @@ sane.</td>
   string (see get_default_expect)</p>
   <p>Returns the pexpect return value (ie which expected string in the list
   matched)</p>
-  <p>Arguments:</p>
-  <ul>
-    <li>
-      child                      - pexpect child to issue command to.
-    </li>
-    <li>
-      send                       - String to send, ie the command being 
-      issued. If set to None, we consume up to the expect string, which is 
-      useful if we just matched output that came before a standard command 
-      that returns to the prompt.
-    </li>
-    <li>
-      expect                     - String that we expect to see in the 
-      output. Usually a prompt. Defaults to currently-set expect string 
-      (see set_default_expect)
-    </li>
-    <li>
-      timeout                    - Timeout on response (default=3600 
-      seconds).
-    </li>
-    <li>
-      check_exit                 - Whether to check the shell exit code of 
-      the passed-in command.  If the exit value was non-zero an error is 
-      thrown. (default=None, which takes the currently-configured 
-      check_exit value) See also fail_on_empty_before.
-    </li>
-    <li>
-      fail_on_empty_before       - If debug is set, fail on empty match 
-      output string (default=True) If this is set to False, then we don't 
-      check the exit value of the command.
-    </li>
-    <li>
-      record_command             - Whether to record the command for output
-      at end (default=True). As a safety measure, if the command matches 
-      any 'password's then we don't record it.
-    </li>
-    <li>
-      exit_values                - Array of acceptable exit values as 
-      strings (default ['0'])
-    </li>
-    <li>
-      echo                       - Whether to suppress any logging output 
-      from pexpect to the terminal or not. We don't record the command if 
-      this is set to False unless record_command is explicitly passed in as
-      True.
-    </li>
-    <li>
-      retry                      - Number of times to retry the command if 
-      the first attempt doesn't work. Useful if going to the network.
-    </li>
-  </ul>
   <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>child</code></strong> - pexpect child to issue command to.</li>
+        <li><strong class="pname"><code>send</code></strong> - String to send, ie the command being issued. If set to None, we 
+          consume up to the expect string, which is useful if we just 
+          matched output that came before a standard command that returns 
+          to the prompt.</li>
+        <li><strong class="pname"><code>expect</code></strong> - String that we expect to see in the output. Usually a prompt. 
+          Defaults to currently-set expect string (see set_default_expect)</li>
+        <li><strong class="pname"><code>timeout</code></strong> - Timeout on response</li>
+        <li><strong class="pname"><code>check_exit</code></strong> - Whether to check the shell exit code of the passed-in command.  
+          If the exit value was non-zero an error is thrown.  
+          (default=None, which takes the currently-configured check_exit 
+          value) See also fail_on_empty_before.</li>
+        <li><strong class="pname"><code>fail_on_empty_before</code></strong> - If debug is set, fail on empty match output string (default=True)
+          If this is set to False, then we don't check the exit value of 
+          the command.</li>
+        <li><strong class="pname"><code>record_command</code></strong> - Whether to record the command for output at end. As a safety 
+          measure, if the command matches any 'password's then we don't 
+          record it.</li>
+        <li><strong class="pname"><code>exit_values</code></strong> - Array of acceptable exit values as strings</li>
+        <li><strong class="pname"><code>echo</code></strong> - Whether to suppress any logging output from pexpect to the 
+          terminal or not.  We don't record the command if this is set to 
+          False unless record_command is explicitly passed in as True.</li>
+        <li><strong class="pname"><code>escape</code></strong> - Whether to escape the characters in a bash-friendly way, ie 
+          $'\Uxxxxxx'</li>
+        <li><strong class="pname"><code>retry</code></strong> - Number of times to retry the command if the first attempt doesn't
+          work. Useful if going to the network.</li>
+    </ul></dd>
+    <dt>Returns: string</dt>
+        <dd>The pexpect return value (ie which expected string in the list 
+          matched)</dd>
   </dl>
 </td></tr></table>
 </div>
@@ -1789,6 +1776,7 @@ sane.</td>
         <span class="sig-arg">record_command</span>=<span class="sig-default">True</span>,
         <span class="sig-arg">exit_values</span>=<span class="sig-default">None</span>,
         <span class="sig-arg">echo</span>=<span class="sig-default">False</span>,
+        <span class="sig-arg">escape</span>=<span class="sig-default">False</span>,
         <span class="sig-arg">retry</span>=<span class="sig-default">3</span>)</span>
   </h3>
   </td><td align="right" valign="top"
@@ -1802,58 +1790,39 @@ sane.</td>
   string (see get_default_expect)</p>
   <p>Returns the pexpect return value (ie which expected string in the list
   matched)</p>
-  <p>Arguments:</p>
-  <ul>
-    <li>
-      child                      - pexpect child to issue command to.
-    </li>
-    <li>
-      send                       - String to send, ie the command being 
-      issued. If set to None, we consume up to the expect string, which is 
-      useful if we just matched output that came before a standard command 
-      that returns to the prompt.
-    </li>
-    <li>
-      expect                     - String that we expect to see in the 
-      output. Usually a prompt. Defaults to currently-set expect string 
-      (see set_default_expect)
-    </li>
-    <li>
-      timeout                    - Timeout on response (default=3600 
-      seconds).
-    </li>
-    <li>
-      check_exit                 - Whether to check the shell exit code of 
-      the passed-in command.  If the exit value was non-zero an error is 
-      thrown. (default=None, which takes the currently-configured 
-      check_exit value) See also fail_on_empty_before.
-    </li>
-    <li>
-      fail_on_empty_before       - If debug is set, fail on empty match 
-      output string (default=True) If this is set to False, then we don't 
-      check the exit value of the command.
-    </li>
-    <li>
-      record_command             - Whether to record the command for output
-      at end (default=True). As a safety measure, if the command matches 
-      any 'password's then we don't record it.
-    </li>
-    <li>
-      exit_values                - Array of acceptable exit values as 
-      strings (default ['0'])
-    </li>
-    <li>
-      echo                       - Whether to suppress any logging output 
-      from pexpect to the terminal or not. We don't record the command if 
-      this is set to False unless record_command is explicitly passed in as
-      True.
-    </li>
-    <li>
-      retry                      - Number of times to retry the command if 
-      the first attempt doesn't work. Useful if going to the network.
-    </li>
-  </ul>
   <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>child</code></strong> - pexpect child to issue command to.</li>
+        <li><strong class="pname"><code>send</code></strong> - String to send, ie the command being issued. If set to None, we 
+          consume up to the expect string, which is useful if we just 
+          matched output that came before a standard command that returns 
+          to the prompt.</li>
+        <li><strong class="pname"><code>expect</code></strong> - String that we expect to see in the output. Usually a prompt. 
+          Defaults to currently-set expect string (see set_default_expect)</li>
+        <li><strong class="pname"><code>timeout</code></strong> - Timeout on response</li>
+        <li><strong class="pname"><code>check_exit</code></strong> - Whether to check the shell exit code of the passed-in command.  
+          If the exit value was non-zero an error is thrown.  
+          (default=None, which takes the currently-configured check_exit 
+          value) See also fail_on_empty_before.</li>
+        <li><strong class="pname"><code>fail_on_empty_before</code></strong> - If debug is set, fail on empty match output string (default=True)
+          If this is set to False, then we don't check the exit value of 
+          the command.</li>
+        <li><strong class="pname"><code>record_command</code></strong> - Whether to record the command for output at end. As a safety 
+          measure, if the command matches any 'password's then we don't 
+          record it.</li>
+        <li><strong class="pname"><code>exit_values</code></strong> - Array of acceptable exit values as strings</li>
+        <li><strong class="pname"><code>echo</code></strong> - Whether to suppress any logging output from pexpect to the 
+          terminal or not.  We don't record the command if this is set to 
+          False unless record_command is explicitly passed in as True.</li>
+        <li><strong class="pname"><code>escape</code></strong> - Whether to escape the characters in a bash-friendly way, ie 
+          $'\Uxxxxxx'</li>
+        <li><strong class="pname"><code>retry</code></strong> - Number of times to retry the command if the first attempt doesn't
+          work. Useful if going to the network.</li>
+    </ul></dd>
+    <dt>Returns: string</dt>
+        <dd>The pexpect return value (ie which expected string in the list 
+          matched)</dd>
   </dl>
 </td></tr></table>
 </div>
@@ -1902,17 +1871,16 @@ sane.</td>
     </td>
   </tr></table>
   
-  <pre class="literalblock">
-Run the passed-in string as a script on the target's command line.
-
-- script   - String representing the script. It will be de-indented
-                 and stripped before being run.
-- expect   - See send()
-- child    - See send()
-- in_shell - Indicate whether we are in a shell or not.
-
-</pre>
+  <p>Run the passed-in string as a script on the target's command line.</p>
   <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>script</code></strong> (string) - String representing the script. It will be de-indented and 
+          stripped before being run.</li>
+        <li><strong class="pname"><code>expect</code></strong> - See send()</li>
+        <li><strong class="pname"><code>child</code></strong> - See send()</li>
+        <li><strong class="pname"><code>in_shell</code></strong> (boolean) - Indicate whether we are in a shell or not. (Default: True)</li>
+    </ul></dd>
   </dl>
 </td></tr></table>
 </div>
@@ -1937,24 +1905,15 @@ Run the passed-in string as a script on the target's command line.
   
   <p>Sends the passed-in string as a file to the passed-in path on the 
   target.</p>
-  <ul>
-    <li>
-      path     - Target location of file on target.
-    </li>
-    <li>
-      contents - Contents of file as a string. See log.
-    </li>
-    <li>
-      expect   - See send()
-    </li>
-    <li>
-      child    - See send()
-    </li>
-    <li>
-      log      - Log the file contents if in debug.
-    </li>
-  </ul>
   <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>path</code></strong> (string) - Target location of file on target.</li>
+        <li><strong class="pname"><code>contents</code></strong> (string) - Contents of file as a string. See log.</li>
+        <li><strong class="pname"><code>expect</code></strong> - See send()</li>
+        <li><strong class="pname"><code>child</code></strong> - See send()</li>
+        <li><strong class="pname"><code>log</code></strong> (boolean) - Log the file contents if in debug.</li>
+    </ul></dd>
   </dl>
 </td></tr></table>
 </div>
@@ -1978,17 +1937,16 @@ Run the passed-in string as a script on the target's command line.
     </td>
   </tr></table>
   
-  <pre class="literalblock">
-Send file from host machine to given path
-
-- path         - Path to send file to.
-- hostfilepath - Path to file from host to send to target.
-- expect       - See send()
-- child        - See send()
-- log          - arg to pass to send_file (default True)
-
-</pre>
+  <p>Send file from host machine to given path</p>
   <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>path</code></strong> (string) - Path to send file to.</li>
+        <li><strong class="pname"><code>hostfilepath</code></strong> (string) - Path to file from host to send to target.</li>
+        <li><strong class="pname"><code>expect</code></strong> - See send()</li>
+        <li><strong class="pname"><code>child</code></strong> - See send()</li>
+        <li><strong class="pname"><code>log</code></strong> (boolean) - arg to pass to send_file (default True)</li>
+    </ul></dd>
   </dl>
 </td></tr></table>
 </div>
@@ -2013,24 +1971,15 @@ Send file from host machine to given path
   
   <p>Send directory and all contents recursively from host machine to given
   path.  It will automatically make directories on the target.</p>
-  <ul>
-    <li>
-      path         - Path to send directory to
-    </li>
-    <li>
-      hostfilepath - Path to file from host to send to target
-    </li>
-    <li>
-      expect       - See send()
-    </li>
-    <li>
-      child        - See send()
-    </li>
-    <li>
-      log          - Arg to pass to send_file (default True)
-    </li>
-  </ul>
   <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>path</code></strong> (string) - Path to send directory to</li>
+        <li><strong class="pname"><code>hostfilepath</code></strong> (string) - Path to file from host to send to target</li>
+        <li><strong class="pname"><code>expect</code></strong> - See send()</li>
+        <li><strong class="pname"><code>child</code></strong> - See send()</li>
+        <li><strong class="pname"><code>log</code></strong> (boolean) - Arg to pass to send_file (default True)</li>
+    </ul></dd>
   </dl>
 </td></tr></table>
 </div>
@@ -2050,14 +1999,14 @@ Send file from host machine to given path
     </td>
   </tr></table>
   
-  <pre class="literalblock">
-Return True if file exists on the host, else false
-
-- filename     - Filename to determine the existence of.
-- directory    - Indicate that the file expected is a directory.
-
-</pre>
+  <p>Return True if file exists on the host, else False</p>
   <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>filename</code></strong> (string) - Filename to determine the existence of.</li>
+        <li><strong class="pname"><code>directory</code></strong> (boolean) - Indicate that the file expected is a directory. (Default: False)</li>
+    </ul></dd>
+    <dt>Returns: boolean</dt>
   </dl>
 </td></tr></table>
 </div>
@@ -2079,16 +2028,16 @@ Return True if file exists on the host, else false
     </td>
   </tr></table>
   
-  <pre class="literalblock">
-Return True if file exists on the target host, else False
-
-- filename     - Filename to determine the existence of.
-- expect       - See send()
-- child        - See send()
-- directory    - Indicate that the file is a directory.
-
-</pre>
+  <p>Return True if file exists on the target host, else False</p>
   <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>filename</code></strong> (string) - Filename to determine the existence of.</li>
+        <li><strong class="pname"><code>expect</code></strong> - See send()</li>
+        <li><strong class="pname"><code>child</code></strong> - See send()</li>
+        <li><strong class="pname"><code>directory</code></strong> (boolean) - Indicate that the file is a directory.</li>
+    </ul></dd>
+    <dt>Returns: boolean</dt>
   </dl>
 </td></tr></table>
 </div>
@@ -2111,18 +2060,14 @@ Return True if file exists on the target host, else False
   
   <p>Returns the permissions of the file on the target as an octal string 
   triplet.</p>
-  <ul>
-    <li>
-      filename  - Filename to get permissions of.
-    </li>
-    <li>
-      expect    - See send()
-    </li>
-    <li>
-      child     - See send()
-    </li>
-  </ul>
   <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>filename</code></strong> (string) - Filename to get permissions of.</li>
+        <li><strong class="pname"><code>expect</code></strong> - See send()</li>
+        <li><strong class="pname"><code>child</code></strong> - See send()</li>
+    </ul></dd>
+    <dt>Returns: string</dt>
   </dl>
 </td></tr></table>
 </div>
@@ -2149,29 +2094,20 @@ Return True if file exists on the target host, else False
   <p>Removes line from file, if it exists. Must be exactly the line passed 
   in to match. Returns True if there were no problems, False if there 
   were.</p>
-  <ul>
-    <li>
-      line         - Line to add.
-    </li>
-    <li>
-      filename     - Filename to add it to.
-    </li>
-    <li>
-      expect       - See send()
-    </li>
-    <li>
-      child        - See send()
-    </li>
-    <li>
-      match_regexp - If supplied, a regexp to look for in the file instead 
-      of the line itself, handy if the line has awkward characters in it.
-    </li>
-    <li>
-      literal      - If true, then simply grep for the exact string without
-      bash interpretation.
-    </li>
-  </ul>
   <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>line</code></strong> (string) - Line to remove. @param filename       Filename to remove it from.</li>
+        <li><strong class="pname"><code>expect</code></strong> - See send()</li>
+        <li><strong class="pname"><code>child</code></strong> - See send()</li>
+        <li><strong class="pname"><code>match_regexp</code></strong> (string) - If supplied, a regexp to look for in the file instead of the line
+          itself, handy if the line has awkward characters in it.</li>
+        <li><strong class="pname"><code>literal</code></strong> (boolean) - If true, then simply grep for the exact string without bash 
+          interpretation. (Default: False)</li>
+        <li><strong class="pname"><code>filename</code></strong> (string)</li>
+    </ul></dd>
+    <dt>Returns: boolean</dt>
+        <dd>True if the line was matched and deleted, False otherwise.</dd>
   </dl>
 </td></tr></table>
 </div>
@@ -2198,36 +2134,24 @@ Return True if file exists on the target host, else False
   
   <p>Adds line to file if it doesn't exist (unless Force is set, which it 
   is by default). Creates the file if it doesn't exist. Must be exactly the
-  line passed in to match. Returns True if line added, False if not. If you
-  have a lot of non-unique lines to add, it's a good idea to have a 
+  line passed in to match. Returns True if line(s) added OK, False if not. 
+  If you have a lot of non-unique lines to add, it's a good idea to have a 
   sentinel value to add first, and then if that returns true, force the 
   remainder.</p>
-  <ul>
-    <li>
-      line         - Line to add.
-    </li>
-    <li>
-      filename     - Filename to add it to.
-    </li>
-    <li>
-      expect       - See send()
-    </li>
-    <li>
-      child        - See send()
-    </li>
-    <li>
-      match_regexp - If supplied, a regexp to look for in the file instead 
-      of the line itself, handy if the line has awkward characters in it.
-    </li>
-    <li>
-      force        - Always write the line to the file.
-    </li>
-    <li>
-      literal      - If true, then simply grep for the exact string without
-      bash interpretation.
-    </li>
-  </ul>
   <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>line</code></strong> (string) - Line to add. If a list, processed per-item, and match_regexp 
+          ignored.</li>
+        <li><strong class="pname"><code>filename</code></strong> (string) - Filename to add it to.</li>
+        <li><strong class="pname"><code>expect</code></strong> - See send()</li>
+        <li><strong class="pname"><code>child</code></strong> - See send()</li>
+        <li><strong class="pname"><code>match_regexp</code></strong> (string) - If supplied, a regexp to look for in the file instead of the line
+          itself, handy if the line has awkward characters in it.</li>
+        <li><strong class="pname"><code>force</code></strong> - Always write the line to the file.</li>
+        <li><strong class="pname"><code>literal</code></strong> (boolean) - If true, then simply grep for the exact string without bash 
+          interpretation. (Default: False)</li>
+    </ul></dd>
   </dl>
 </td></tr></table>
 </div>
@@ -2251,18 +2175,16 @@ Return True if file exists on the target host, else False
   
   <p>Takes care of adding a line to everyone's bashrc (/etc/bash.bashrc, 
   /etc/profile).</p>
-  <ul>
-    <li>
-      line   - Line to add.
-    </li>
-    <li>
-      expect - See send()
-    </li>
-    <li>
-      child  - See send()
-    </li>
-  </ul>
   <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>line</code></strong> - Line to add.</li>
+        <li><strong class="pname"><code>expect</code></strong> - See send()</li>
+        <li><strong class="pname"><code>child</code></strong> - See send()</li>
+        <li><strong class="pname"><code>match_regexp</code></strong> - See add_line_to_file()</li>
+    </ul></dd>
+    <dt>Returns:</dt>
+        <dd>See add_line_to_file()</dd>
   </dl>
 </td></tr></table>
 </div>
@@ -2291,10 +2213,27 @@ Return True if file exists on the target host, else False
     </td>
   </tr></table>
   
-  <p>Handles the getting of a url for you. filename is filename, eg 
-  ajar.jar locations is a list of mirrors, eg 
-  get_util('somejar.jar',['ftp://loc.org','http://anotherloc.com/jars'])</p>
+  <p>Handles the getting of a url for you.</p>
+  <p>Example: get_url('somejar.jar', 
+  ['ftp://loc.org','http://anotherloc.com/jars'])</p>
   <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>filename</code></strong> (string) - name of the file to download</li>
+        <li><strong class="pname"><code>locations</code></strong> (list of strings) - list of URLs whence the file can be downloaded</li>
+        <li><strong class="pname"><code>command</code></strong> - program to use to download the file (Default: wget)</li>
+        <li><strong class="pname"><code>expect</code></strong> - See send()</li>
+        <li><strong class="pname"><code>child</code></strong> - See send()</li>
+        <li><strong class="pname"><code>timeout</code></strong> - See send()</li>
+        <li><strong class="pname"><code>fail_on_empty_before</code></strong> - See send()</li>
+        <li><strong class="pname"><code>record_command</code></strong> - See send()</li>
+        <li><strong class="pname"><code>exit_values</code></strong> - See send()</li>
+        <li><strong class="pname"><code>echo</code></strong> - See send()</li>
+        <li><strong class="pname"><code>retry</code></strong> (integer) - How many times to retry the download in case of failure. Default:
+          3</li>
+    </ul></dd>
+    <dt>Returns: boolean</dt>
+        <dd>True if the download was completed successfully, False otherwise.</dd>
   </dl>
 </td></tr></table>
 </div>
@@ -2315,15 +2254,15 @@ Return True if file exists on the target host, else False
     </td>
   </tr></table>
   
-  <pre class="literalblock">
-Returns true if the specified username exists.
-
-- user   - username to check for
-- expect - See send()
-- child  - See send()
-
-</pre>
+  <p>Returns true if the specified username exists.</p>
   <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>user</code></strong> (string) - username to check for</li>
+        <li><strong class="pname"><code>expect</code></strong> - See send()</li>
+        <li><strong class="pname"><code>child</code></strong> - See send()</li>
+    </ul></dd>
+    <dt>Returns: boolean</dt>
   </dl>
 </td></tr></table>
 </div>
@@ -2344,15 +2283,15 @@ Returns true if the specified username exists.
     </td>
   </tr></table>
   
-  <pre class="literalblock">
-Returns True if we can be sure the package is installed.
-
-- package - Package as a string, eg 'wget'.
-- expect  - See send()
-- child   - See send()
-
-</pre>
+  <p>Returns True if we can be sure the package is installed.</p>
   <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>package</code></strong> - Package as a string, eg 'wget'.</li>
+        <li><strong class="pname"><code>expect</code></strong> - See send()</li>
+        <li><strong class="pname"><code>child</code></strong> - See send()</li>
+    </ul></dd>
+    <dt>Returns: boolean</dt>
   </dl>
 </td></tr></table>
 </div>
@@ -2372,8 +2311,32 @@ Returns True if we can be sure the package is installed.
   </tr></table>
   
   <p>Helper proc to list files in a directory</p>
-  <p>Returns list of files.</p>
-  <p>directory - directory to list</p>
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>directory</code></strong> (string) - directory to list. If the directory doesn't exist, shutit.fail() 
+          is called (i.e. the build fails.)</li>
+    </ul></dd>
+    <dt>Returns: list of strings</dt>
+  </dl>
+</td></tr></table>
+</div>
+<a name="mount_tmp"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">mount_tmp</span>(<span class="sig-arg">self</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="shutit_global-pysrc.html#ShutIt.mount_tmp">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>mount a temporary file system as a workaround for the AUFS /tmp 
+  issues. Not necessary if running devicemapper.</p>
   <dl class="fields">
   </dl>
 </td></tr></table>
@@ -2396,9 +2359,14 @@ Returns True if we can be sure the package is installed.
   
   <p>Copy a file from the target machine to the host machine, via the 
   artifacts mount</p>
-  <p>target_path - path to file in the target host_path      - path to file
-  on the host machine (e.g. copy test)</p>
   <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>target_path</code></strong> (string) - path to file in the target</li>
+        <li><strong class="pname"><code>host_path</code></strong> (string) - path to file on the host machine (e.g. copy test)</li>
+    </ul></dd>
+    <dt>Returns: string</dt>
+        <dd>???</dd>
   </dl>
 </td></tr></table>
 </div>
@@ -2422,10 +2390,16 @@ Returns True if we can be sure the package is installed.
   
   <p>Prompt for a config value, optionally saving it to the user-level cfg.
   Only runs if we are in an interactive mode.</p>
-  <p>msg    - Message to display to user. sec    - Section of config to add
-  to. name   - Config item name. ispass - Hide the input from the 
-  terminal.</p>
   <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>msg</code></strong> (string) - Message to display to user.</li>
+        <li><strong class="pname"><code>sec</code></strong> (string) - Section of config to add to.</li>
+        <li><strong class="pname"><code>name</code></strong> (string) - Config item name.</li>
+        <li><strong class="pname"><code>ispass</code></strong> (boolean) - If True, hide the input from the terminal. Default: False.</li>
+    </ul></dd>
+    <dt>Returns: string</dt>
+        <dd>the value entered by the user</dd>
   </dl>
 </td></tr></table>
 </div>
@@ -2441,7 +2415,8 @@ Returns True if we can be sure the package is installed.
         <span class="sig-arg">child</span>=<span class="sig-default">None</span>,
         <span class="sig-arg">print_input</span>=<span class="sig-default">True</span>,
         <span class="sig-arg">level</span>=<span class="sig-default">1</span>,
-        <span class="sig-arg">resize</span>=<span class="sig-default">False</span>)</span>
+        <span class="sig-arg">resize</span>=<span class="sig-default">False</span>,
+        <span class="sig-arg">colour</span>=<span class="sig-default"><code class="variable-quote">'</code><code class="variable-string">32</code><code class="variable-quote">'</code></span>)</span>
   </h3>
   </td><td align="right" valign="top"
     ><span class="codelink"><a href="shutit_global-pysrc.html#ShutIt.pause_point">source&nbsp;code</a></span>&nbsp;
@@ -2453,22 +2428,17 @@ Returns True if we can be sure the package is installed.
   mode, or the interactive level is less than the passed-in one. Designed 
   to help debug the build, or drop to on failure so the situation can be 
   debugged.</p>
-  <ul>
-    <li>
-      msg         - Message to display to user on pause point.
-    </li>
-    <li>
-      child       - See send()
-    </li>
-    <li>
-      print_input - Whether to take input at this point (ie interact), or 
-      simply pause pending any input.
-    </li>
-    <li>
-      level       - Minimum level to invoke the pause_point at
-    </li>
-  </ul>
   <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>msg</code></strong> (string) - Message to display to user on pause point.</li>
+        <li><strong class="pname"><code>child</code></strong> - See send()</li>
+        <li><strong class="pname"><code>print_input</code></strong> (boolean) - Whether to take input at this point (i.e. interact), or simply 
+          pause pending any input. Default: True</li>
+        <li><strong class="pname"><code>level</code></strong> (integer) - Minimum level to invoke the pause_point at. Default: 1</li>
+        <li><strong class="pname"><code>resize</code></strong> (boolean) - If True, try to resize terminal. Default: False</li>
+        <li><strong class="pname"><code>colour</code></strong> - Colour to print message (typically 31 for red, 32 for green)</li>
+    </ul></dd>
   </dl>
 </td></tr></table>
 </div>
@@ -2550,19 +2520,17 @@ Returns True if we can be sure the package is installed.
     </td>
   </tr></table>
   
-  <pre class="literalblock">
-Returns the output of a command run.
-    send() is called, and exit is not checked.
-
-- send   - See send()
-- expect - See send()
-- child  - See send()
-- retry  - Number of times to retry command (default 3)
-- strip  - Whether to strip output (defaults to true)
-    
-
-</pre>
+  <p>Returns the output of a command run. send() is called, and exit is not
+  checked.</p>
   <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>send</code></strong> - See send()</li>
+        <li><strong class="pname"><code>expect</code></strong> - See send()</li>
+        <li><strong class="pname"><code>child</code></strong> - See send()</li>
+        <li><strong class="pname"><code>retry</code></strong> (integer) - Number of times to retry command (default 3)</li>
+        <li><strong class="pname"><code>strip</code></strong> (boolean) - Whether to strip output (defaults to True)</li>
+    </ul></dd>
   </dl>
 </td></tr></table>
 </div>
@@ -2589,36 +2557,22 @@ Returns the output of a command run.
   </tr></table>
   
   <p>Distro-independent install function. Takes a package name and runs the
-  relevant install function. Returns true if all ok (ie it's installed), 
-  else false.</p>
-  <ul>
-    <li>
-      package    - Package to install, which is run through package_map
-    </li>
-    <li>
-      expect     - See send()
-    </li>
-    <li>
-      child      - See send()
-    </li>
-    <li>
-      timeout    - Timeout to wait for finish of install.
-    </li>
-    <li>
-      options    - Dictionary for specific options per install tool. 
-      Overrides any arguments passed into this function.
-    </li>
-    <li>
-      force      - force if necessary
-    </li>
-    <li>
-      check_exit - If False, failure to install is ok (default True)
-    </li>
-    <li>
-      reinstall  - Advise a reinstall where possible (default False)
-    </li>
-  </ul>
+  relevant install function.</p>
   <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>package</code></strong> (string) - Package to install, which is run through package_map</li>
+        <li><strong class="pname"><code>expect</code></strong> - See send()</li>
+        <li><strong class="pname"><code>child</code></strong> - See send()</li>
+        <li><strong class="pname"><code>timeout</code></strong> (integer) - Timeout (s) to wait for finish of install. Defaults to 3600.</li>
+        <li><strong class="pname"><code>options</code></strong> (dict) - Dictionary for specific options per install tool. Overrides any 
+          arguments passed into this function.</li>
+        <li><strong class="pname"><code>force</code></strong> (boolean) - Force if necessary. Defaults to False</li>
+        <li><strong class="pname"><code>check_exit</code></strong> (boolean) - If False, failure to install is ok (default True)</li>
+        <li><strong class="pname"><code>reinstall</code></strong> (boolean) - Advise a reinstall where possible (default False)</li>
+    </ul></dd>
+    <dt>Returns: boolean</dt>
+        <dd>True if all ok (ie it's installed), else False.</dd>
   </dl>
 </td></tr></table>
 </div>
@@ -2642,27 +2596,48 @@ Returns the output of a command run.
   </tr></table>
   
   <p>Distro-independent remove function. Takes a package name and runs 
-  relevant remove function. Returns true if all ok (ie it's installed now),
-  else false.</p>
-  <ul>
-    <li>
-      package  - Package to install, which is run through package_map.
-    </li>
-    <li>
-      expect   - See send()
-    </li>
-    <li>
-      child    - See send()
-    </li>
-    <li>
-      options  - Dict of options to pass to the remove command, mapped by 
-      install_type.
-    </li>
-    <li>
-      timeout  - See send()
-    </li>
-  </ul>
+  relevant remove function.</p>
   <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>package</code></strong> - Package to remove, which is run through package_map.</li>
+        <li><strong class="pname"><code>expect</code></strong> - See send()</li>
+        <li><strong class="pname"><code>child</code></strong> - See send()</li>
+        <li><strong class="pname"><code>options</code></strong> - Dict of options to pass to the remove command, mapped by 
+          install_type.</li>
+        <li><strong class="pname"><code>timeout</code></strong> - See send(). Default: 3600</li>
+    </ul></dd>
+    <dt>Returns: boolean</dt>
+        <dd>True if all ok (i.e. the package was successfully removed), False
+          otherwise.</dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="whoami"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">whoami</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">child</span>=<span class="sig-default">None</span>,
+        <span class="sig-arg">expect</span>=<span class="sig-default">None</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="shutit_global-pysrc.html#ShutIt.whoami">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Returns the current user by executing &quot;whoami&quot;.</p>
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>child</code></strong> - See send()</li>
+        <li><strong class="pname"><code>expect</code></strong> - See send()</li>
+    </ul></dd>
+    <dt>Returns: string</dt>
+        <dd>the output of &quot;whoami&quot;</dd>
   </dl>
 </td></tr></table>
 </div>
@@ -2683,13 +2658,17 @@ Returns the output of a command run.
     </td>
   </tr></table>
   
-  <p>See login.</p>
+  <p>See login().</p>
   <p>This is the same, except it simply execs a shell, acting like a login.
   Useful eg if you've just ssh'd in and need to refresh the shell in a 
   simple exec_shell()/exit_shell() combo.</p>
-  <p>user     - User to login with command  - Command to login with child
-  - See send()</p>
   <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>command</code></strong> (string) - Command to login with. Default: &quot;bash&quot;</li>
+        <li><strong class="pname"><code>child</code></strong> - See send()</li>
+        <li><strong class="pname"><code>password</code></strong> (string) - Password.</li>
+    </ul></dd>
   </dl>
 </td></tr></table>
 </div>
@@ -2719,9 +2698,17 @@ Returns the output of a command run.
   logging in, so no password required. If not, override the default command
   for multi-level logins. If passwords are required, see setup_prompt() and
   revert_prompt()</p>
-  <p>user      - User to login with command   - Command to login with child
-  - See send() prompt_prefix - Prefix to use in prompt setup</p>
   <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>user</code></strong> (string) - User to login with. Default: root</li>
+        <li><strong class="pname"><code>command</code></strong> (string) - Command to login with. Default: &quot;su -&quot;</li>
+        <li><strong class="pname"><code>child</code></strong> - See send()</li>
+        <li><strong class="pname"><code>password</code></strong> (string) - Password.</li>
+        <li><strong class="pname"><code>prompt_prefix</code></strong> (string) - Prefix to use in prompt setup.</li>
+        <li><strong class="pname"><code>expect</code></strong> - See send()</li>
+        <li><strong class="pname"><code>timeout</code></strong> (integer) - How long to wait for a response. Default: 20.</li>
+    </ul></dd>
   </dl>
 </td></tr></table>
 </div>
@@ -2805,32 +2792,31 @@ Returns the output of a command run.
     </td>
   </tr></table>
   
-  <pre class="literalblock">
-Use this when you've opened a new shell to set the PS1 to something
-sane. By default, it sets up the default expect so you don't have to
-worry about it and can just call shutit.send('a command').
-
-If you want simple login and logout, please use login() and logout()
-within this module.
-
-Typically it would be used in this boilerplate pattern
-
-shutit.send('su - auser',
-            expect=shutit.cfg['expect_prompts']['base_prompt'],
-            check_exit=False)
-shutit.setup_prompt('tmp_prompt')
-shutit.send('some command')
-[...]
-shutit.set_default_expect()
-shutit.send('exit')
-
-        - prompt_name        - Reference name for prompt.
-        - prefix             - Prompt prefix.
-        - child              - See send()
-        - set_default_expect - Whether to set the default expect to the new prompt.
-
+  <p>Use this when you've opened a new shell to set the PS1 to something 
+  sane. By default, it sets up the default expect so you don't have to 
+  worry about it and can just call shutit.send('a command').</p>
+  <p>If you want simple login and logout, please use login() and logout() 
+  within this module.</p>
+  <p>Typically it would be used in this boilerplate pattern:</p>
+<pre class="literalblock">
+   shutit.send('su - auser',
+       expect=shutit.cfg['expect_prompts']['base_prompt'],
+       check_exit=False)
+   shutit.setup_prompt('tmp_prompt')
+   shutit.send('some command')
+   [...]
+   shutit.set_default_expect()
+   shutit.send('exit')
 </pre>
   <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>prompt_name</code></strong> (string) - Reference name for prompt.</li>
+        <li><strong class="pname"><code>prefix</code></strong> (string) - Prompt prefix. Default: 'TMP'</li>
+        <li><strong class="pname"><code>child</code></strong> - See send()</li>
+        <li><strong class="pname"><code>set_default_expect</code></strong> (boolean) - Whether to set the default expect to the new prompt. Default: 
+          True</li>
+    </ul></dd>
   </dl>
 </td></tr></table>
 </div>
@@ -2888,16 +2874,37 @@ shutit.send('exit')
   <p>Get information about which distro we are using.</p>
   <p>Fails if distro could not be determined. Should be called with the 
   container is started up, and uses as core info as possible.</p>
+  <p>Note: if the install type is apt, it issues the following:</p>
   <ul>
     <li>
-      child              - See send()
+      apt-get update
     </li>
     <li>
-      container          - If True, we are in the container shell, 
-      otherwise we are gathering info about another shell
+      apt-get install -y -qq lsb-release
     </li>
   </ul>
   <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>child</code></strong> - See send()</li>
+        <li><strong class="pname"><code>container</code></strong> (boolean) - If True, we are in the container shell, otherwise we are 
+          gathering info about another shell. Defaults to True.</li>
+    </ul></dd>
+    <dt>Returns: dict</dt>
+        <dd>A dict with the following keys:
+          <ul>
+            <li>
+              install_type
+              <ul>
+                <li>
+                  distro
+                </li>
+                <li>
+                  distro_version
+                </li>
+              </ul>
+            </li>
+          </ul></dd>
   </dl>
 </td></tr></table>
 </div>
@@ -2919,16 +2926,17 @@ shutit.send('exit')
     </td>
   </tr></table>
   
-  <pre class="literalblock">
-Sets the password for the current user or passed-in user.
-
-- password - 
-- user     - 
-- expect   - See send()
-- child    - See send()
-
-</pre>
+  <p>Sets the password for the current user or passed-in user.</p>
+  <p>As a side effect, installs the &quot;password&quot; package.</p>
   <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>user</code></strong> - username to set the password for. Defaults to '' (i.e. current 
+          user)</li>
+        <li><strong class="pname"><code>password</code></strong> - password to set for the user</li>
+        <li><strong class="pname"><code>expect</code></strong> - See send()</li>
+        <li><strong class="pname"><code>child</code></strong> - See send()</li>
+    </ul></dd>
   </dl>
 </td></tr></table>
 </div>
@@ -2949,15 +2957,17 @@ Sets the password for the current user or passed-in user.
     </td>
   </tr></table>
   
-  <pre class="literalblock">
-Determine whether a user_id for a user is available.
-
-- user_id  - 
-- expect   - See send()
-- child    - See send()
-
-</pre>
+  <p>Determine whether the specified user_id available.</p>
   <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>user_id</code></strong> (integer) - User id to be checked.</li>
+        <li><strong class="pname"><code>expect</code></strong> - See send()</li>
+        <li><strong class="pname"><code>child</code></strong> - See send()</li>
+    </ul></dd>
+    <dt>Returns: boolean</dt>
+        <dd>True is the specified user id is not used yet, False if it's 
+          already been assigned to a user.</dd>
   </dl>
 </td></tr></table>
 </div>
@@ -2979,16 +2989,15 @@ Determine whether a user_id for a user is available.
     </td>
   </tr></table>
   
-  <pre class="literalblock">
-Pushes the repository.
-
-- repository        - 
-- docker_executable -
-- expect            - See send()
-- child             - See send()
-
-</pre>
+  <p>Pushes the repository.</p>
   <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>repository</code></strong> (string) - Repository to push.</li>
+        <li><strong class="pname"><code>docker_executable</code></strong> (string) - Defaults to 'docker'</li>
+        <li><strong class="pname"><code>expect</code></strong> - See send()</li>
+        <li><strong class="pname"><code>child</code></strong> - See send()</li>
+    </ul></dd>
   </dl>
 </td></tr></table>
 </div>
@@ -3014,24 +3023,15 @@ Pushes the repository.
   
   <p>Commit, tag, push, tar a docker container based on the configuration 
   we have.</p>
-  <ul>
-    <li>
-      repo_name         -
-    </li>
-    <li>
-      expect            - See send()
-    </li>
-    <li>
-      docker_executable -
-    </li>
-    <li>
-      password          -
-    </li>
-    <li>
-      force             -
-    </li>
-  </ul>
   <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>repo_name</code></strong> (string) - Name of the repository.</li>
+        <li><strong class="pname"><code>expect</code></strong> - See send()</li>
+        <li><strong class="pname"><code>docker_executable</code></strong> (string) - Defaults to 'docker.io'</li>
+        <li><strong class="pname"><code>password</code></strong> (string)</li>
+        <li><strong class="pname"><code>force</code></strong> (boolean)</li>
+    </ul></dd>
   </dl>
 </td></tr></table>
 </div>
@@ -3059,15 +3059,20 @@ Pushes the repository.
   <p>Gets a specific config from the config files, allowing for a 
   default.</p>
   <p>Handles booleans vs strings appropriately.</p>
-  <p>module_id    - module id this relates to, eg 
-  com.mycorp.mymodule.mymodule option       - config item to set default
-  - default value if not set in files boolean      - whether this is a 
-  boolean value or not (default False) forcedefault - if set to true, 
-  allows you to override any value already set (default False) forcenone
-  - if set to true, allows you to set the value to None (default False) 
-  hint         - if we are interactive, then show this prompt to help the 
-  user input a useful value</p>
   <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>module_id</code></strong> (string) - module id this relates to, eg com.mycorp.mymodule.mymodule</li>
+        <li><strong class="pname"><code>option</code></strong> (string) - config item to set</li>
+        <li><strong class="pname"><code>default</code></strong> (string) - default value if not set in files</li>
+        <li><strong class="pname"><code>boolean</code></strong> (boolean) - whether this is a boolean value or not (default False)</li>
+        <li><strong class="pname"><code>forcedefault</code></strong> (boolean) - if set to true, allows you to override any value already set 
+          (default False)</li>
+        <li><strong class="pname"><code>forcenone</code></strong> (boolean) - if set to true, allows you to set the value to None (default 
+          False)</li>
+        <li><strong class="pname"><code>hint</code></strong> (string) - if we are interactive, then show this prompt to help the user 
+          input a useful value</li>
+    </ul></dd>
   </dl>
 </td></tr></table>
 </div>
@@ -3089,11 +3094,16 @@ Pushes the repository.
     </td>
   </tr></table>
   
-  <p>Gets the ip address based on the args given. Assumes command exists. 
-  ip_family - type of ip family, defaults to 4 ip_object - type of ip 
-  object, defaults to &quot;addr&quot; command   - defaults to 
-  &quot;ip&quot; interface - defaults to &quot;eth0&quot;</p>
+  <p>Gets the ip address based on the args given. Assumes command 
+  exists.</p>
   <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>ip_family</code></strong> (string) - type of ip family, defaults to 4</li>
+        <li><strong class="pname"><code>ip_object</code></strong> (string) - type of ip object, defaults to &quot;addr&quot;</li>
+        <li><strong class="pname"><code>command</code></strong> (string) - defaults to &quot;ip&quot;</li>
+        <li><strong class="pname"><code>interface</code></strong> (string) - defaults to &quot;eth0&quot;</li>
+    </ul></dd>
   </dl>
 </td></tr></table>
 </div>
@@ -3126,7 +3136,7 @@ Pushes the repository.
 <table border="0" cellpadding="0" cellspacing="0" width="100%%">
   <tr>
     <td align="left" class="footer">
-    Generated by Epydoc 3.0.1 on Sun Feb 22 17:06:22 2015
+    Generated by Epydoc 3.0.1 on Tue Apr 28 20:00:36 2015
     </td>
     <td align="right" class="footer">
       <a target="mainFrame" href="http://epydoc.sourceforge.net"

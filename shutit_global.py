@@ -810,7 +810,8 @@ class ShutIt(object):
 	                     match_regexp=None,
 	                     force=True,
 	                     literal=False):
-		"""Adds line to file if it doesn't exist (unless Force is set,
+		"""
+		Adds line to file if it doesn't exist (unless Force is set,
 		which it is by default).
 		Creates the file if it doesn't exist.
 		Must be exactly the line passed in to match.
@@ -821,7 +822,7 @@ class ShutIt(object):
 	
 		@param line:          Line to add. If a list, processed per-item,
 		                      and match_regexp ignored.
-		@param filename       Filename to add it to.
+		@param filename:      Filename to add it to.
 		@param expect:        See send()
 		@param child:         See send()
 		@param match_regexp:  If supplied, a regexp to look for in the file

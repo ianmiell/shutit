@@ -252,9 +252,10 @@ def shutit_reset():
 	thread.start()
 
 def start():
-	"""Start the ShutIt server.
+	"""	
+		Start the ShutIt server.
 
-	Environment variables:
+		Environment variables:
 		SHUTIT_HOST - hostname for the server (default: localhost)
 		SHUTIT_PORT - port for the server (default: 8080)
 	"""
