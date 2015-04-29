@@ -1338,6 +1338,32 @@ class ShutIt(object):
 		return None
 
 
+	def send_and_match_output(self, send, matches, expect=None, child=None, retry=3, strip=True):
+		"""Returns true if the output of the command matches any of the strings in 
+		the matches list of regexp strings. Handles matching on a per-line basis
+		and does not cross lines.
+
+		@param send:     See send()
+		@param expect:   See send()
+		@param child:    See send()
+		@param retry:    Number of times to retry command (default 3)
+		@param strip:    Whether to strip output (defaults to True)
+
+		@type send:      string
+		@type matches:   list
+		@type retry:     integer
+		@type strip:     boolean
+		"""
+		child = child or self.get_default_child()
+		expect = expect or self.get_default_expect()
+		output = shutit.send_and_get_output(send, child=child, retry=retry, strip=strip)
+		for line in output.split('\n'):
+			for match in matches:
+				return True
+		return False
+
+
+
 	def send_and_get_output(self, send, expect=None, child=None, retry=3, strip=True):
 		"""Returns the output of a command run. send() is called, and exit is not checked.
 
