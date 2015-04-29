@@ -64,10 +64,10 @@ An example folder structure:
 │   ├── run.sh
 │   └── test.sh
 ├── configs
+│   ├── push.cnf
 │   └── build.cnf
 ├── context
-├── dockerfile
-│   └── Dockerfile
+├── Dockerfile
 ├── my_module.py
 └── README.md
 ```
@@ -108,8 +108,6 @@ It also gives a simple example of each part of the build lifecycle. **Add a pack
 ```sh
 $ cd $HOME/shutit_modules/my_module/bin
 $ ./build.sh
-Do you want to accept the config option defaults? (boolean - input "yes" or "no") (default: yes): 
-[hit return to accept defaults]
 Running: docker --version
 
 
@@ -118,6 +116,20 @@ Command being run is:
 docker run --cidfile=/tmp/shutit/cidfilesroot_cidfile_btsync2_root_1423730928.72.724633 --privileged=true -v=/root/shutit/artifacts:/artifacts -t -i ubuntu /bin/bash
 [...]
 ```
+
+NOTE: If at this point you get an error to do with 'permission denied', then you may need to configure ShutIt to call 'sudo docker' instead of docker. Open the ~/.shutit/config file, and change this line
+
+```
+docker_executable:docker
+```
+
+For example if you run with sudo, and the executable is 'docker.io':
+
+```
+docker_executable:sudo docker.io
+```
+
+
 
 ### Step 5: Run your module ###
 
