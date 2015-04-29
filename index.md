@@ -36,9 +36,7 @@ Join us!
 git clone https://github.com/ianmiell/shutit.git
 cd shutit
 pip install --user -r requirements.txt
-# Add shutit to your path - YOU WILL NEED TO CHANGE THIS!
 echo "export PATH=$(pwd):${PATH}" >> ~/.bashrc
-# Source the env
 . ~/.bashrc
 ```
 
