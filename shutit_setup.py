@@ -529,8 +529,8 @@ class setup(ShutItModule):
 		return False
 
 	def build(self, shutit):
-		"""Initializes target ready for build, setting password
-		and updating package management.
+		"""Initializes target ready for build
+		and updating package management if in container.
 		"""
 		do_update = shutit.cfg[self.module_id]['do_update']
 		shutit.send("touch ~/.bashrc")
@@ -544,9 +544,9 @@ class setup(ShutItModule):
 		# Ignore leading-space commands in the history.
 		shutit.add_to_bashrc('export HISTCONTROL=ignorespace:cmdhist')
 		shutit.add_to_bashrc('export LANG=' + shutit.cfg['target']['locale'])
-		if shutit.cfg['target']['install_type'] == 'apt':
+		if shutit.cfg['target']['install_type'] == 'apt' and shutit.cfg['build']['delivery'] == 'target':
 			shutit.add_to_bashrc('export DEBIAN_FRONTEND=noninteractive')
-			if do_update:
+			if do_update and shutit.cfg['build']['delivery'] == 'target':
 				shutit.send('apt-get update', timeout=9999, check_exit=False)
 			shutit.install('lsb-release')
 			shutit.lsb_release()
