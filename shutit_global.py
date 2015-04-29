@@ -1779,7 +1779,7 @@ class ShutIt(object):
 			# The call to self.package_installed with lsb-release above 
 			# may fail if it doesn't know the install type, so
 			# if we've determined that now
-			if install_type == 'apt':
+			if install_type == 'apt' and self.cfg['build']['delivery'] == 'target':
 				self.send('apt-get update')
 				self.cfg['build']['do_update'] = False
 				self.send('apt-get install -y -qq lsb-release')
@@ -2166,10 +2166,11 @@ class ShutIt(object):
 	def record_config(self):
 		""" Put the config in a file in the target.
 		"""
-		self.send_file(self.cfg['build']['build_db_dir'] +
-					   '/' + self.cfg['build']['build_id'] +
-					   '/' + self.cfg['build']['build_id'] +
-					   '.cfg', shutit_util.print_config(self.cfg))
+		if self.cfg['build']['delivery'] == 'target':
+			self.send_file(self.cfg['build']['build_db_dir'] +
+						   '/' + self.cfg['build']['build_id'] +
+						   '/' + self.cfg['build']['build_id'] +
+						   '.cfg', shutit_util.print_config(self.cfg))
 
 
 	def get_emailer(self, cfg_section):
