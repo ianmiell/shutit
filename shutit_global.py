@@ -168,7 +168,7 @@ class ShutIt(object):
 
 
 	# TODO: Manage exits of builds on error
-	def fail(self, msg, child=None, throw_exception=True):
+	def fail(self, msg, child=None, throw_exception=False):
 		"""Handles a failure, pausing if a pexpect child object is passed in.
 
 		@param child: pexpect child to work on
@@ -186,7 +186,9 @@ class ShutIt(object):
 			# This is an "OK" failure, ie we don't need to throw an exception.
 			# However, it's still a failure, so return 1
 			print msg
+			print 'about to exit'
 			sys.exit(1)
+			print 'never'
 
 
 	def log(self, msg, code=None, pause=0, prefix=True, force_stdout=False, add_final_message=False):
@@ -1525,7 +1527,10 @@ class ShutIt(object):
 		self.setup_prompt(r_id,child=child)
 
 
-	def login_stack_append(self, r_id, new_user=''):
+	def login_stack_append(self, r_id, child=None, expect=None, new_user=''):
+		child = child or self.get_default_child()
+		expect = expect or self.get_default_expect()
+		self.send('touch /tmp/shutit_stack_' + r_id, expect=expect, child=child, check_exit=False)
 		self.cfg['build']['login_stack'].append(r_id)
 		# Dictionary with details about login (eg whoami)
 		self.cfg['build']['logins'][r_id] = {'whoami':new_user}
@@ -1584,8 +1589,10 @@ class ShutIt(object):
 			- expect             - override expect (eg for base_prompt)
 		"""
 		child = child or self.get_default_child()
+		old_expect = expect or self.get_default_expect()
 		if len(self.cfg['build']['login_stack']):
 			current_prompt_name = self.cfg['build']['login_stack'].pop()
+			self.send('rm -f /tmp/shutit_stack_' + current_prompt_name, expect=old_expect, child=child, check_exit=False)
 			if len(self.cfg['build']['login_stack']):
 				old_prompt_name     = self.cfg['build']['login_stack'][-1]
 				self.set_default_expect(self.cfg['expect_prompts'][old_prompt_name])
