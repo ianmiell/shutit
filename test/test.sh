@@ -110,11 +110,10 @@ popd > /dev/null 2>&1
 mkdir -p /tmp/shutit_logs/$$
 declare -A PIDS
 PIDS=()
-DISTROS=${SHUTITTEST_DISTROS:-ubuntu:12.04}
+DISTROS=${SHUTITTEST_DISTROS:-ubuntu:14.04}
 for dist in $DISTROS
 do
-	ls -d test/[0-9]
-	for d in $(ls -d test/[0-9])
+	for d in $(ls -d test/[8-9])
 	do
 		[ -d ${SHUTIT_DIR}/$d ] || continue
 		pushd ${SHUTIT_DIR}/$d/bin
@@ -133,15 +132,11 @@ do
 				echo "================================================================================"
 				if [ x$SHUTIT_PARALLEL_BUILD = 'x' ]
 				then
-					cmd="./test.sh 2>&1 | tee /tmp/shutit_logs/$$/shutit_core_test_$(date +%s)"
-					echo "================================================================================"
-					echo "RUNNING: $cmd"
-					echo "================================================================================"
-					eval $cmd
+					./test.sh
 					RES=$?
 					if [[ "x$RES" != "x0" ]]
 					then
-						echo "FAILURE |$RES| in: $(pwd) running $cmd"
+						echo "FAILURE |$RES| in: $(pwd) running test.sh"
 						cleanup hard
 						exit 1
 					fi
@@ -152,7 +147,7 @@ do
 				else
 					# TODO
 					#http://stackoverflow.com/questions/356100/how-to-wait-in-bash-for-several-subprocesses-to-finish-and-return-exit-code-0
-					./test.sh 2>&1 | tee /tmp/shutit_logs/$$/shutit_core_test_$(date +%s)
+					./test.sh
 					JOB=$!
 					PIDS[$JOB]="$JOB: $dist $d"
 				fi
