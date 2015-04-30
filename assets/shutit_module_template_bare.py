@@ -25,6 +25,9 @@ class template(ShutItModule):
 		# shutit.pause_point(msg='') - give control of the terminal to the user
 		# shutit.step_through(msg='') - give control to the user and allow them to step through commands
 		# shutit.send_and_get_output(send) - returns the output of the sent command
+		# shutit.send_and_match_output(self, send, matches, child=None, retry=3, strip=True):
+		# shutit.send_and_match_output(send, matches) - returns True if any lines in output match any of 
+		#                                               the regexp strings in the matches list
 		# shutit.install(package) - install a package
 		# shutit.remove(package) - remove a package
 		# shutit.login(user='root', command='su -') - log user in with given command, and set up prompt and expects

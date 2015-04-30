@@ -1280,6 +1280,9 @@ class template(ShutItModule):
         #                                      to be seen before continuing. By default this is managed
         #                                      by ShutIt with shell prompts.
 		# shutit.multisend(send,send_dict)   - Send a command, dict contains {expect1:response1,expect2:response2,...}
+        # shutit.send_and_match_output(send, matches) 
+		#                                    - Returns True if any lines in output match any of 
+		#                                      the regexp strings in the matches list
 		# shutit.log(msg)                    - Send a message to the log
 		# shutit.run_script(script)          - Run the passed-in string as a script
 		# shutit.send_file(path, contents)   - Send file to path on target with given contents as a string
@@ -1309,8 +1312,7 @@ class template(ShutItModule):
         #                                    - Set password for a given user on target
 		# shutit.get_config(module_id,option,default=None)
         #                                    - Get configuration value
-		# shutit.get_ip_address()
-        #                                    - Returns the ip address of the target
+		# shutit.get_ip_address()            - Returns the ip address of the target
 		return True
 '''
 		# Gather and place finalize bit
