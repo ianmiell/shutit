@@ -1555,6 +1555,7 @@ class ShutIt(object):
 		child = child or self.get_default_child()
 		r_id = random_id()
 		self.login_stack_append(r_id)
+		# TODO: create a file on this host with that /tmp/shutit_stack.r_id so we can check we're at the right point in the stack.
 		if self.cfg['build']['delivery'] == 'bash' and command == 'su -':
 			# We want to retain the current working directory
 			command = 'su'
