@@ -529,36 +529,37 @@ class setup(ShutItModule):
 		return False
 
 	def build(self, shutit):
-		"""Initializes target ready for build, setting password
-		and updating package management.
+		"""Initializes target ready for build
+		and updating package management if in container.
 		"""
 		do_update = shutit.cfg[self.module_id]['do_update']
-		shutit.send("touch ~/.bashrc")
-		# Remvoe the 
-		shutit.send("sed -i 's/.*HISTSIZE=[0-9]*$//' ~/.bashrc") 
-		# eg centos doesn't have this
-		if shutit.file_exists('/etc/bash.bashrc'):
-			shutit.send("sed -i 's/.*HISTSIZE=[0-9]*$//' /etc/bash.bashrc") 
-		shutit.send("sed -i 's/.*HISTSIZE=[0-9]*$//' /etc/profile") 
-		shutit.add_to_bashrc('export HISTSIZE=99999999')
-		# Ignore leading-space commands in the history.
-		shutit.add_to_bashrc('export HISTCONTROL=ignorespace:cmdhist')
-		shutit.add_to_bashrc('export LANG=' + shutit.cfg['target']['locale'])
-		if shutit.cfg['target']['install_type'] == 'apt':
-			shutit.add_to_bashrc('export DEBIAN_FRONTEND=noninteractive')
-			if do_update:
-				shutit.send('apt-get update', timeout=9999, check_exit=False)
-			shutit.install('lsb-release')
-			shutit.lsb_release()
-			shutit.send('dpkg-divert --local --rename --add /sbin/initctl')
-			shutit.send('ln -f -s /bin/true /sbin/initctl')
-		elif shutit.cfg['target']['install_type'] == 'yum':
-			if do_update:
-				# yum updates are so often "bad" that we let exit codes of 1
-				# through. TODO: make this more sophisticated
-				shutit.send('yum update -y', timeout=9999, exit_values=['0', '1'])
-		shutit.pause_point('Anything you want to do to the target host ' + 
-			'before the build starts?', level=2)
+		if shutit.cfg['build']['delivery'] == 'target':
+			shutit.send("touch ~/.bashrc")
+			# Remvoe the 
+			shutit.send("sed -i 's/.*HISTSIZE=[0-9]*$//' ~/.bashrc") 
+			# eg centos doesn't have this
+			if shutit.file_exists('/etc/bash.bashrc'):
+				shutit.send("sed -i 's/.*HISTSIZE=[0-9]*$//' /etc/bash.bashrc") 
+			shutit.send("sed -i 's/.*HISTSIZE=[0-9]*$//' /etc/profile") 
+			shutit.add_to_bashrc('export HISTSIZE=99999999')
+			# Ignore leading-space commands in the history.
+			shutit.add_to_bashrc('export HISTCONTROL=ignorespace:cmdhist')
+			shutit.add_to_bashrc('export LANG=' + shutit.cfg['target']['locale'])
+			if shutit.cfg['target']['install_type'] == 'apt':
+				shutit.add_to_bashrc('export DEBIAN_FRONTEND=noninteractive')
+				if do_update and shutit.cfg['build']['delivery'] == 'target':
+					shutit.send('apt-get update', timeout=9999, check_exit=False)
+				shutit.install('lsb-release')
+				shutit.lsb_release()
+				shutit.send('dpkg-divert --local --rename --add /sbin/initctl')
+				shutit.send('ln -f -s /bin/true /sbin/initctl')
+			elif shutit.cfg['target']['install_type'] == 'yum':
+				if do_update:
+					# yum updates are so often "bad" that we let exit codes of 1
+					# through. TODO: make this more sophisticated
+					shutit.send('yum update -y', timeout=9999, exit_values=['0', '1'])
+			shutit.pause_point('Anything you want to do to the target host ' + 
+				'before the build starts?', level=2)
 		return True
 
 	def remove(self, shutit):

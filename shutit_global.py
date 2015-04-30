@@ -1339,6 +1339,32 @@ class ShutIt(object):
 		return None
 
 
+	def send_and_match_output(self, send, matches, expect=None, child=None, retry=3, strip=True):
+		"""Returns true if the output of the command matches any of the strings in 
+		the matches list of regexp strings. Handles matching on a per-line basis
+		and does not cross lines.
+
+		@param send:     See send()
+		@param expect:   See send()
+		@param child:    See send()
+		@param retry:    Number of times to retry command (default 3)
+		@param strip:    Whether to strip output (defaults to True)
+
+		@type send:      string
+		@type matches:   list
+		@type retry:     integer
+		@type strip:     boolean
+		"""
+		child = child or self.get_default_child()
+		expect = expect or self.get_default_expect()
+		output = shutit.send_and_get_output(send, child=child, retry=retry, strip=strip)
+		for line in output.split('\n'):
+			for match in matches:
+				return True
+		return False
+
+
+
 	def send_and_get_output(self, send, expect=None, child=None, retry=3, strip=True):
 		"""Returns the output of a command run. send() is called, and exit is not checked.
 
@@ -1780,7 +1806,7 @@ class ShutIt(object):
 			# The call to self.package_installed with lsb-release above 
 			# may fail if it doesn't know the install type, so
 			# if we've determined that now
-			if install_type == 'apt':
+			if install_type == 'apt' and self.cfg['build']['delivery'] == 'target':
 				self.send('apt-get update')
 				self.cfg['build']['do_update'] = False
 				self.send('apt-get install -y -qq lsb-release')
@@ -2167,10 +2193,11 @@ class ShutIt(object):
 	def record_config(self):
 		""" Put the config in a file in the target.
 		"""
-		self.send_file(self.cfg['build']['build_db_dir'] +
-					   '/' + self.cfg['build']['build_id'] +
-					   '/' + self.cfg['build']['build_id'] +
-					   '.cfg', shutit_util.print_config(self.cfg))
+		if self.cfg['build']['delivery'] == 'target':
+			self.send_file(self.cfg['build']['build_db_dir'] +
+						   '/' + self.cfg['build']['build_id'] +
+						   '/' + self.cfg['build']['build_id'] +
+						   '.cfg', shutit_util.print_config(self.cfg))
 
 
 	def get_emailer(self, cfg_section):
