@@ -232,9 +232,9 @@ class ConnDocker(ShutItConnModule):
 		docker = cfg['host']['docker_executable'].split(' ')
 
 		# Always-required options
-		if not os.path.exists('/tmp/shutit/cidfiles'):
-			os.makedirs('/tmp/shutit/cidfiles')
-		cfg['build']['cidfile'] = '/tmp/shutit/cidfiles' + cfg['host']['username'] +\
+		if not os.path.exists(cfg['build']['shutit_state_dir'] + '/cidfiles'):
+			os.makedirs(cfg['build']['shutit_state_dir'] + '/cidfiles')
+		cfg['build']['cidfile'] = cfg['build']['shutit_state_dir'] + '/cidfiles' + cfg['host']['username'] +\
 		    '_cidfile_' + cfg['build']['build_id']
 		cidfile_arg = '--cidfile=' + cfg['build']['cidfile']
 
