@@ -1100,7 +1100,7 @@ class ShutIt(object):
 		Not necessary if running devicemapper.
 		"""
 		shutit.send('mkdir -p /tmpbak') # Needed?
-		shutit.send('touch /tmp/' + cfg['build']['build_id']) # Needed?
+		shutit.send('touch ' + cfg['build']['shutit_state_dir'] + '/' + cfg['build']['build_id']) # Needed?
 		shutit.send('cp -r /tmp/* /tmpbak') # Needed?
 		shutit.send('mount -t tmpfs tmpfs /tmp')
 		shutit.send('cp -r /tmpbak/* /tmp') # Needed?
@@ -1556,7 +1556,7 @@ class ShutIt(object):
 	def login_stack_append(self, r_id, child=None, expect=None, new_user=''):
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
-		self.send('mkdir -p ' + self.cfg['build']['shutit_state_dir'] + r_id, expect=expect, child=child, check_exit=False)
+		self.send('mkdir -p ' + self.cfg['build']['shutit_state_dir'], expect=expect, child=child, check_exit=False)
 		self.send('touch ' + self.cfg['build']['shutit_state_dir'] + '/shutit_stack_' + r_id, expect=expect, child=child, check_exit=False)
 		self.cfg['build']['login_stack'].append(r_id)
 		# Dictionary with details about login (eg whoami)
