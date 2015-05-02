@@ -1619,7 +1619,7 @@ class ShutIt(object):
 		old_expect = expect or self.get_default_expect()
 		if len(self.cfg['build']['login_stack']):
 			current_prompt_name = self.cfg['build']['login_stack'].pop()
-			self.send('rm -f ' + sef.cfg['build']['shutit_state_dir'] + '/shutit_stack_' + current_prompt_name, expect=old_expect, child=child, check_exit=False)
+			self.send('rm -f ' + self.cfg['build']['shutit_state_dir'] + '/shutit_stack_' + current_prompt_name, expect=old_expect, child=child, check_exit=False)
 			if len(self.cfg['build']['login_stack']):
 				old_prompt_name     = self.cfg['build']['login_stack'][-1]
 				self.set_default_expect(self.cfg['expect_prompts'][old_prompt_name])
