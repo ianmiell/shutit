@@ -304,6 +304,7 @@ def get_base_config(cfg, cfg_parser):
 	cfg['build']['completed']                     = False
 	cfg['build']['step_through']                  = False
 	cfg['build']['check_exit']                    = True
+	cfg['build']['shutit_state_dir']              = '/tmp/shutit'
 	# Take a command-line arg if given, else default.
 	if cfg['build']['conn_module'] == None:
 		cfg['build']['conn_module']                   = cp.get('build', 'conn_module')
@@ -605,7 +606,7 @@ def parse_args(shutit):
 	# Finished parsing args.
 	# Sort out config path
 	if cfg['build']['interactive'] >= 3 or cfg['action']['list_configs'] or cfg['action']['list_modules'] or cfg['action']['list_deps'] or cfg['build']['debug']:
-		cfg['build']['log_config_path'] = '/tmp/shutit/config/' + cfg['build']['build_id']
+		cfg['build']['log_config_path'] = cfg['build']['shutit_state_dir'] + '/config/' + cfg['build']['build_id']
 		if os.path.exists(cfg['build']['log_config_path']):
 			print(cfg['build']['log_config_path'] + ' exists. Please move and re-run.')
 			sys.exit()
@@ -1509,11 +1510,10 @@ def module():
 		# sed1 ensures no confusion with double quotes
 		# sed2 replaces script lines with shutit code
 		# sed3 uses treble quotes for simpler escaping of strings
-		sbsi = '/tmp/shutit_bash_script_include_' + str(int(time.time()))
+		sbsi = cfg['build']['shutit_state_dir'] + '/shutit_bash_script_include_' + str(int(time.time()))
 		skel_mod_path = os.path.join(skel_path, skel_module_name + '.py')
 		# TODO: we probably don't need all these external programs any more
 		calls = [
-				#egrep -v '^[\s]*$' myscript.sh | grep -v '^#' | sed "s/"$/" /;s/^/		shutit.send("""/;s/$/""")/" > /tmp/shutit_bash_script_include_1400206744
 			r'''egrep -v '^[\s]*$' ''' + skel_script + r''' | grep -v '^#' | sed "s/\"$/\" /;s/^/\t\tshutit.send(\"\"\"/;s/$/\"\"\")/" > ''' + sbsi,
 			r'''sed "10r ''' + sbsi + '" ' + skel_mod_path + ' > ' + skel_mod_path + '.new''',
 			r'''mv ''' + skel_mod_path + '''.new ''' + skel_mod_path
