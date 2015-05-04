@@ -234,7 +234,7 @@ class ConnDocker(ShutItConnModule):
 		# Always-required options
 		if not os.path.exists(cfg['build']['shutit_state_dir'] + '/cidfiles'):
 			os.makedirs(cfg['build']['shutit_state_dir'] + '/cidfiles')
-		cfg['build']['cidfile'] = cfg['build']['shutit_state_dir'] + '/cidfiles' + cfg['host']['username'] +\
+		cfg['build']['cidfile'] = cfg['build']['shutit_state_dir'] + '/cidfiles/' + cfg['host']['username'] +\
 		    '_cidfile_' + cfg['build']['build_id']
 		cidfile_arg = '--cidfile=' + cfg['build']['cidfile']
 
