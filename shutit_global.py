@@ -466,15 +466,16 @@ class ShutIt(object):
 		# Send the script and run it in the manner specified
 		if self.cfg['build']['delivery'] == 'target' and in_shell:
 				script = ('set -o xtrace \n\n' + script + '\n\nset +o xtrace')
-		self.send_file(self.cfg['build']['shutit_state_dir'] + '/shutit_script.sh', script)
-		self.send('chmod +x ' + self.cfg['build']['shutit_state_dir'] + '/shutit_script.sh', expect, child)
+		self.send('mkdir -p ' + self.cfg['build']['shutit_state_dir'] + '/scripts', expect, child)
+		self.send_file(self.cfg['build']['shutit_state_dir'] + '/scripts/shutit_script.sh', script)
+		self.send('chmod +x ' + self.cfg['build']['shutit_state_dir'] + '/scripts/shutit_script.sh', expect, child)
 		self.shutit_command_history.append\
 			('    ' + script.replace('\n', '\n    '))
 		if in_shell:
-			ret = self.send('. ' + self.cfg['build']['shutit_state_dir'] + '/shutit_script.sh', expect, child)
+			ret = self.send('. ' + self.cfg['build']['shutit_state_dir'] + '/scripts/shutit_script.sh', expect, child)
 		else:
-			ret = self.send(self.cfg['build']['shutit_state_dir'] + '/shutit_script.sh', expect, child)
-		self.send('rm -f ' + self.cfg['build']['shutit_state_dir'] + '/shutit_script.sh', expect, child)
+			ret = self.send(self.cfg['build']['shutit_state_dir'] + '/scripts/shutit_script.sh', expect, child)
+		self.send('rm -f ' + self.cfg['build']['shutit_state_dir'] + '/scripts/shutit_script.sh', expect, child)
 		return ret
 
 
@@ -1096,16 +1097,14 @@ class ShutIt(object):
 
 
 	def mount_tmp(self):
-		"""mount a temporary file system as a workaround for the AUFS /tmp issues.
+		"""mount a temporary file system as a workaround for AUFS /tmp issues.
 		Not necessary if running devicemapper.
 		"""
-		shutit.send('mkdir -p /tmpbak') # Needed?
-		shutit.send('touch /tmp/' + cfg['build']['build_id']) # Needed?
-		shutit.send('cp -r /tmp/* /tmpbak') # Needed?
+		shutit.send('mkdir -p /tmpbak')
+		shutit.send('cp -r /tmp/* /tmpbak')
 		shutit.send('mount -t tmpfs tmpfs /tmp')
-		shutit.send('cp -r /tmpbak/* /tmp') # Needed?
-		shutit.send('rm -rf /tmpbak') # Needed?
-		shutit.send('rm -f /tmp/' + cfg['build']['build_id']) # Needed?
+		shutit.send('cp -r /tmpbak/* /tmp')
+		shutit.send('rm -rf /tmpbak')
 
 
 	def get_file(self,target_path,host_path):
@@ -1556,7 +1555,7 @@ class ShutIt(object):
 	def login_stack_append(self, r_id, child=None, expect=None, new_user=''):
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
-		self.send('mkdir -p ' + self.cfg['build']['shutit_state_dir'] + r_id + ' && touch ' + self.cfg['build']['shutit_state_dir'] + '/shutit_stack_' + r_id + ' && chmod 777 ' + self.cfg['build']['shutit_state_dir'] + '/shutit_stack_' + r_id, expect=expect, child=child, check_exit=False)
+		self.send('mkdir -p ' + self.cfg['build']['shutit_state_dir'] + '/environments && touch ' + self.cfg['build']['shutit_state_dir'] + '/shutit_stack_' + r_id + ' && chmod 777 ' + self.cfg['build']['shutit_state_dir'] + '/environments/shutit_stack_' + r_id, expect=expect, child=child, check_exit=False)
 		self.cfg['build']['login_stack'].append(r_id)
 		# Dictionary with details about login (eg whoami)
 		self.cfg['build']['logins'][r_id] = {'whoami':new_user}
@@ -1618,7 +1617,7 @@ class ShutIt(object):
 		old_expect = expect or self.get_default_expect()
 		if len(self.cfg['build']['login_stack']):
 			current_prompt_name = self.cfg['build']['login_stack'].pop()
-			self.send('rm -f ' + sef.cfg['build']['shutit_state_dir'] + '/shutit_stack_' + current_prompt_name, expect=old_expect, child=child, check_exit=False)
+			self.send('rm -f ' + self.cfg['build']['shutit_state_dir'] + '/environments/shutit_stack_' + current_prompt_name, expect=old_expect, child=child, check_exit=False)
 			if len(self.cfg['build']['login_stack']):
 				old_prompt_name     = self.cfg['build']['login_stack'][-1]
 				self.set_default_expect(self.cfg['expect_prompts'][old_prompt_name])
