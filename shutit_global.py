@@ -1050,7 +1050,7 @@ class ShutIt(object):
 			if self.file_exists('/root/shutit_build/module_record',directory=True):
 				# Bit of a hack here to get round the long command showing up as the first line of the output.
 				self.send(r"""find /root/shutit_build/module_record/ -name built | sed 's/^.root.shutit_build.module_record.\([^/]*\).built/\1/' > /root/shutit_build/tmp""")
-				built = self.send_and_get_output('cat //root/shutit_build/tmp').strip()
+				built = self.send_and_get_output('cat /root/shutit_build/tmp').strip()
 				self.send('rm -f /root/shutit_build/tmp')
 				built_list = built.split('\r\n')
 				self.cfg['target']['modules_recorded'] = built_list
@@ -1556,8 +1556,7 @@ class ShutIt(object):
 	def login_stack_append(self, r_id, child=None, expect=None, new_user=''):
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
-		self.send('mkdir -p ' + self.cfg['build']['shutit_state_dir'] + r_id, expect=expect, child=child, check_exit=False)
-		self.send('touch ' + self.cfg['build']['shutit_state_dir'] + '/shutit_stack_' + r_id, expect=expect, child=child, check_exit=False)
+		self.send('mkdir -p ' + self.cfg['build']['shutit_state_dir'] + r_id + ' && touch ' + self.cfg['build']['shutit_state_dir'] + '/shutit_stack_' + r_id + ' && chmod 777 ' + self.cfg['build']['shutit_state_dir'] + '/shutit_stack_' + r_id, expect=expect, child=child, check_exit=False)
 		self.cfg['build']['login_stack'].append(r_id)
 		# Dictionary with details about login (eg whoami)
 		self.cfg['build']['logins'][r_id] = {'whoami':new_user}
