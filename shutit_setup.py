@@ -533,7 +533,7 @@ class setup(ShutItModule):
 		and updating package management if in container.
 		"""
 		do_update = shutit.cfg[self.module_id]['do_update']
-		if shutit.cfg['build']['delivery'] == 'target':
+		if shutit.cfg['build']['delivery'] in ('target','dockerfile'):
 			shutit.send("touch ~/.bashrc")
 			# Remvoe the 
 			shutit.send("sed -i 's/.*HISTSIZE=[0-9]*$//' ~/.bashrc") 
@@ -547,7 +547,7 @@ class setup(ShutItModule):
 			shutit.add_to_bashrc('export LANG=' + shutit.cfg['target']['locale'])
 			if shutit.cfg['target']['install_type'] == 'apt':
 				shutit.add_to_bashrc('export DEBIAN_FRONTEND=noninteractive')
-				if do_update and shutit.cfg['build']['delivery'] == 'target':
+				if do_update and shutit.cfg['build']['delivery'] in ('target','dockerfile'):
 					shutit.send('apt-get update', timeout=9999, check_exit=False)
 				shutit.install('lsb-release')
 				shutit.lsb_release()
