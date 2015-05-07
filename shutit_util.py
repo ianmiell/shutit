@@ -585,6 +585,8 @@ def parse_args(shutit):
 		cfg['build']['conn_module'] = None
 		cfg['build']['delivery']    = 'target'
 
+	print cfg['build']['conn_module']
+
 	# Get these early for this part of the build.
 	# These should never be config arguments, since they are needed before config is passed in.
 	if args.shutit_module_path is not None:
