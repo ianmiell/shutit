@@ -577,7 +577,7 @@ def parse_args(shutit):
 		cfg['build']['delivery']    = 'ssh'
 	elif args.delivery == 'bash' or args.delivery == 'dockerfile':
 		cfg['build']['conn_module'] = 'shutit.tk.conn_bash'
-		cfg['build']['delivery']    = 'bash'
+		cfg['build']['delivery']    = args.delivery
 		if os.geteuid() != 0:
 			shutit.fail("To run in bash you need to be root.")
 	elif args.delivery == None:
