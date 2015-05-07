@@ -479,7 +479,7 @@ class ShutIt(object):
 		return ret
 
 
-	def send_file(self, path, contents, expect=None, child=None, log=True):
+	def send_file(self, path, contents, expect=None, child=None, log=True, truncate=False):
 		"""Sends the passed-in string as a file to the passed-in path on the
 		target.
 
@@ -501,10 +501,14 @@ class ShutIt(object):
 			self.log('Sending file to' + path)
 			if log:
 				self.log('contents >>>' + contents + '<<<')
+		if truncate and self.file_exists(path):
+			self.send('rm -f ' + path, expect=expect, child=child)
 		if cfg['build']['delivery'] == 'bash':
 			# TODO: make this smarter wrt login to different envs etc
 			# or maybe add_line_to_file is the better approach.
 			if False:
+				if truncate:
+					pass
 				f = open(path,'w')
 				f.write(contents)
 				f.close()
@@ -556,7 +560,7 @@ class ShutIt(object):
 		"""
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
-		if cfg['build']['delivery'] == 'bash':
+		if cfg['build']['delivery'] in ('bash','dockerfile'):
 			self.send('cd ' + path, expect=expect, child=child, timeout=timeout)
 		elif cfg['build']['delivery'] == 'target' or cfg['build']['delivery'] == 'ssh':
 			os.chdir(path)
@@ -585,7 +589,7 @@ class ShutIt(object):
 		"""
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
-		if cfg['build']['delivery'] == 'bash':
+		if cfg['build']['delivery'] in ('bash','dockerfile'):
 			self.send('pushd ' + cfg['target']['module_root_dir'])
 			self.send('cp -r ' + hostfilepath + ' ' + path,expect=expect, child=child, timeout=timeout)
 			self.send('popd')
