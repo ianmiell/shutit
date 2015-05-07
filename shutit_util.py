@@ -570,9 +570,6 @@ def parse_args(shutit):
 	if args.delivery == 'docker' or args.delivery == 'target':
 		cfg['build']['conn_module'] = 'shutit.tk.conn_docker'
 		cfg['build']['delivery']    = 'target'
-	elif args.delivery == 'dockerfile':
-		cfg['build']['conn_module'] = 'shutit.tk.conn_docker'
-		cfg['build']['delivery']    = 'dockerfile'
 	elif args.delivery == 'ssh':
 		cfg['build']['conn_module'] = 'shutit.tk.conn_ssh'
 		cfg['build']['delivery']    = 'ssh'
