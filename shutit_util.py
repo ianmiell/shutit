@@ -575,7 +575,7 @@ def parse_args(shutit):
 	elif args.delivery == 'ssh':
 		cfg['build']['conn_module'] = 'shutit.tk.conn_ssh'
 		cfg['build']['delivery']    = 'ssh'
-	elif args.delivery == 'bash':
+	elif args.delivery == 'bash' or args.delivery == 'dockerfile':
 		cfg['build']['conn_module'] = 'shutit.tk.conn_bash'
 		cfg['build']['delivery']    = 'bash'
 		if os.geteuid() != 0:
