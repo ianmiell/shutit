@@ -1559,7 +1559,7 @@ class ShutIt(object):
 	def login_stack_append(self, r_id, child=None, expect=None, new_user=''):
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
-		self.send('mkdir -p ' + self.cfg['build']['shutit_state_dir'] + '/environments && touch ' + self.cfg['build']['shutit_state_dir'] + '/shutit_stack_' + r_id + ' && chmod 777 ' + self.cfg['build']['shutit_state_dir'] + '/environments/shutit_stack_' + r_id, expect=expect, child=child, check_exit=False)
+		self.send('mkdir -p ' + self.cfg['build']['shutit_state_dir'] + '/environments && touch ' + self.cfg['build']['shutit_state_dir'] + '/environments/shutit_stack_' + r_id + ' && chmod 777 ' + self.cfg['build']['shutit_state_dir'] + '/environments/shutit_stack_' + r_id, expect=expect, child=child, check_exit=False)
 		self.cfg['build']['login_stack'].append(r_id)
 		# Dictionary with details about login (eg whoami)
 		self.cfg['build']['logins'][r_id] = {'whoami':new_user}
