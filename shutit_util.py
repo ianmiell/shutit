@@ -467,7 +467,7 @@ def parse_args(shutit):
 
 	for action in ['build', 'serve', 'list_configs', 'list_modules', 'list_deps']:
 		sub_parsers[action].add_argument('--config', help='Config file for setup config. Must be with perms 0600. Multiple arguments allowed; config files considered in order.', default=[], action='append')
-		sub_parsers[action].add_argument('-d','--delivery', help='Delivery method, aka target. "docker" container (default), configured "ssh" connection, "bash" session', default=None, choices=('docker','dockerfile','target','ssh','bash','dockerfile'))
+		sub_parsers[action].add_argument('-d','--delivery', help='Delivery method, aka target. "docker" container (default), configured "ssh" connection, "bash" session', default=None, choices=('docker','dockerfile','target','ssh','bash'))
 		sub_parsers[action].add_argument('-s', '--set', help='Override a config item, e.g. "-s target rm no". Can be specified multiple times.', default=[], action='append', nargs=3, metavar=('SEC', 'KEY', 'VAL'))
 		sub_parsers[action].add_argument('--image_tag', help='Build container from specified image - if there is a symbolic reference, please use that, eg localhost.localdomain:5000/myref', default='')
 		sub_parsers[action].add_argument('--tag_modules', help='''Tag each module after it's successfully built regardless of the module config and based on the repository config.''', default=False, const=True, action='store_const')
@@ -566,23 +566,23 @@ def parse_args(shutit):
 		cfg['list_modules']['sort'] = args.sort
 
 	# What are we building on? Convert arg to conn_module we use.
+	print args.delivery
 	if args.delivery == 'docker' or args.delivery == 'target':
 		cfg['build']['conn_module'] = 'shutit.tk.conn_docker'
 		cfg['build']['delivery']    = 'target'
-	elif args.delivery == 'dockerfile':
-		cfg['build']['conn_module'] = 'shutit.tk.conn_docker'
-		cfg['build']['delivery']    = 'dockerfile'
 	elif args.delivery == 'ssh':
 		cfg['build']['conn_module'] = 'shutit.tk.conn_ssh'
 		cfg['build']['delivery']    = 'ssh'
 	elif args.delivery == 'bash' or args.delivery == 'dockerfile':
 		cfg['build']['conn_module'] = 'shutit.tk.conn_bash'
-		cfg['build']['delivery']    = 'bash'
+		cfg['build']['delivery']    = args.delivery
 		if os.geteuid() != 0:
 			shutit.fail("To run in bash you need to be root.")
 	elif args.delivery == None:
 		cfg['build']['conn_module'] = None
 		cfg['build']['delivery']    = 'target'
+
+	print cfg['build']['conn_module']
 
 	# Get these early for this part of the build.
 	# These should never be config arguments, since they are needed before config is passed in.
