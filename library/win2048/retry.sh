@@ -10,7 +10,7 @@ fi
 while [ 1 ]
 do
 	echo "Running with: $keys being pressed on image: $image"
-	sudo docker run -t -i -p 5902:5901 -p 6081:6080 -e keys="$keys" -e HOME=/root $image /root/start_vnc.sh
+	sudo docker run -t -i -p 5901:5901 -p 6080:6080 -e keys="$keys" -e HOME=/root $image /root/start_win2048.sh
 	echo "CTRL-C now to exit"
 	sleep 2
 done

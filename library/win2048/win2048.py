@@ -45,16 +45,16 @@ then
 	for k in $keys
 	do    
 		echo "pressing $k"
-		sleep 1
+		sleep 10
 		#Hit key, eg Down for down arrow
 		xdotool key KP_${k}
 	done
 	#Wait for game over to appear
 	echo "Waiting for game over"
-	sleep 5
+	sleep 10
 	xdotool key KP_Page_Down
 	echo "Pushing page down key"
-	sleep 2
+	sleep 10
 	# Take a screenshot, which either has "try again on it, or doesn't"
 	scrot -q 100 -u /root/a.png
 	# extract the pat file
