@@ -1621,6 +1621,7 @@ class ShutIt(object):
 			- child              - See send()
 			- expect             - override expect (eg for base_prompt)
 		"""
+		# TODO: check that we are where we expect to be, ie /tmp/shutit/environments file is there
 		child = child or self.get_default_child()
 		old_expect = expect or self.get_default_expect()
 		if len(self.cfg['build']['login_stack']):
