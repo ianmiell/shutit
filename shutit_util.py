@@ -310,7 +310,7 @@ def get_base_config(cfg, cfg_parser):
 		cfg['build']['conn_module']                   = cp.get('build', 'conn_module')
 	# Track logins in a stack and details in logins.
 	cfg['build']['login_stack']                   = []
-	cfg['build']['logins']                        = []
+	cfg['build']['logins']                        = {}
 	# Whether to accept default configs
 	cfg['build']['accept_defaults']               = None
 	cfg['target']['password']                  = cp.get('target', 'password')
