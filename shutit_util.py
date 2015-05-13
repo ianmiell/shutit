@@ -298,7 +298,6 @@ def get_base_config(cfg, cfg_parser):
 	cfg['build']['lxc_conf']                      = cp.get('build', 'lxc_conf')
 	cfg['build']['build_log']                     = cp.getboolean('build', 'build_log')
 	cfg['build']['base_image']                    = cp.get('build', 'base_image')
-	cfg['build']['build_db_dir']                  = '/root/shutit_build'
 	cfg['build']['dotest']                        = cp.get('build', 'dotest')
 	cfg['build']['net']                           = cp.get('build', 'net')
 	cfg['build']['completed']                     = False
@@ -306,6 +305,7 @@ def get_base_config(cfg, cfg_parser):
 	cfg['build']['check_exit']                    = True
 	cfg['build']['shutit_state_dir']              = '/tmp/shutit'
 	# Take a command-line arg if given, else default.
+	cfg['build']['build_db_dir']                  = '/tmp/shutit/build_db'
 	if cfg['build']['conn_module'] == None:
 		cfg['build']['conn_module']                   = cp.get('build', 'conn_module')
 	# Track logins in a stack and details in logins.
