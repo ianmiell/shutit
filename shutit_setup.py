@@ -335,10 +335,12 @@ class ConnDocker(ShutItConnModule):
 				res = target_child.expect(expect, 9999)
 				continue
 		# Get the cid
-		time.sleep(1) # cidfile creation is sometimes slow...
-		shutit.log('Slept')
-		cid = open(cfg['build']['cidfile']).read()
-		shutit.log('Opening file')
+		while True:
+			try:
+				cid = open(cfg['build']['cidfile']).read()
+				break
+			except:
+				sleep(1)
 		if cid == '' or re.match('^[a-z0-9]+$', cid) == None:
 			shutit.fail('Could not get container_id - quitting. ' +
 			            'Check whether ' +
