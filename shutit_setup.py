@@ -83,8 +83,8 @@ class ShutItConnModule(ShutItModule):
 		# Set the login stack to have this root environment with a unique id of origin, so that 
 		# we can use native python for eg copying files in rather than more expensive
 		# pexpect.
-		#shutit.login_stack_append('origin')
-		shutit.setup_prompt('pre_build', prefix='PRE_BUILD')
+		shutit.setup_prompt('origin', prefix='ORIGIN')
+		shutit.login_stack_append('origin')
 		shutit.get_distro_info()
 		shutit.setup_prompt('root_prompt', prefix='ROOT')
 
