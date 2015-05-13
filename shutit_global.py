@@ -2266,6 +2266,7 @@ def init():
 	cfg['list_modules']         = {}
 	cfg['list_configs']         = {}
 	cfg['list_deps']            = {}
+	cfg['build']['shutit_state_dir'] = '/tmp/shutit'
 	cfg['build']['install_type_map'] = {'ubuntu':'apt',
 	                                    'debian':'apt',
 	                                    'steamos':'apt',
