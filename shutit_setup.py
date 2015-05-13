@@ -84,9 +84,9 @@ class ShutItConnModule(ShutItModule):
 		# we can use native python for eg copying files in rather than more expensive
 		# pexpect.
 		shutit.setup_prompt('origin', prefix='ORIGIN')
-		shutit.login_stack_append('origin')
 		shutit.get_distro_info()
-		shutit.setup_prompt('root_prompt', prefix='ROOT')
+		shutit.setup_prompt('root', prefix='ROOT')
+		shutit.login_stack_append('root')
 
 	def _add_begin_build_info(self, shutit, command):
 		cfg = shutit.cfg

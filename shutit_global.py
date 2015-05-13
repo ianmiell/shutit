@@ -153,7 +153,7 @@ class ShutIt(object):
 
 	def set_default_expect(self, expect=None, check_exit=True):
 		"""Sets the default pexpect string (usually a prompt).
-		Defaults to the configured root_prompt if no
+		Defaults to the configured root prompt if no
 		argument is passed.
 
 		@param expect: String to expect in the output
@@ -162,7 +162,7 @@ class ShutIt(object):
 		@type check_exit: boolean
 		"""
 		if expect == None:
-			expect = self.cfg['expect_prompts']['root_prompt']
+			expect = self.cfg['expect_prompts']['root']
 		self._default_expect[-1] = expect
 		self._default_check_exit[-1] = check_exit
 
@@ -1626,7 +1626,7 @@ class ShutIt(object):
 				old_prompt_name     = self.cfg['build']['login_stack'][-1]
 				self.set_default_expect(self.cfg['expect_prompts'][old_prompt_name])
 			else:
-				# If none are on the stack, we assume we're going to the root_prompt
+				# If none are on the stack, we assume we're going to the root prompt
 				# set up in shutit_setup.py
 				self.set_default_expect()
 		else:
