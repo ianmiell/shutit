@@ -634,7 +634,7 @@ def do_remove(shutit):
 			else:
 				if cfg['build']['delivery'] in ('target','dockerfile'):
 					# Create a directory and files to indicate this has been removed.
-					shutit.send('mkdir -p /root/shutit_build/module_record/' + module.module_id + ' && rm -f /root/shutit_build/module_record/' + module.module_id + '/built && touch /root/shutit_build/module_record/' + module.module_id + '/removed')
+					shutit.send('mkdir -p ' + shutit.cfg['build']['build_db_dir'] + '/module_record/' + module.module_id + ' && rm -f ' + shutit.cfg['build']['build_db_dir'] + '/module_record/' + module.module_id + '/built && touch ' + shutit.cfg['build']['build_db_dir'] + '/module_record/' + module.module_id + '/removed')
 					# Remove from "installed" cache
 					shutit.cfg['target']['modules_installed'].remove(module.module_id)
 					# Add to "not installed" cache
@@ -661,7 +661,7 @@ def build_module(shutit, module):
 	else:
 		if cfg['build']['delivery'] in ('target','dockerfile'):
 			# Create a directory and files to indicate this has been built.
-			shutit.send('mkdir -p /root/shutit_build/module_record/' + module.module_id + ' && touch /root/shutit_build/module_record/' + module.module_id + '/built && rm -f /root/shutit_build/module_record/' + module.module_id + '/removed')
+			shutit.send('mkdir -p ' + cfg['build']['build_db_dir'] + '/module_record/' + module.module_id + ' && touch ' + cfg['build']['build_db_dir'] + '/module_record/' + module.module_id + '/built && rm -f ' + cfg['build']['build_db_dir'] + '/module_record/' + module.module_id + '/removed')
 		# Put it into "installed" cache
 		shutit.cfg['target']['modules_installed'].append(module.module_id)
 		# Remove from "not installed" cache
@@ -992,7 +992,7 @@ def shutit_main():
 		           './build.sh and run with the supplied ./run.sh. These may need ' + 
 		           'tweaking for your particular environment, eg sudo\n\n' +
 		           'You can inspect the details of the build in the target image\'s ' + 
-		           '/root/shutit_build directory.', force_stdout=True, code='32')
+		           shutit.cfg['build']['build_db_dir'] + ' directory.', force_stdout=True, code='32')
 
 	# Mark the build as completed
 	shutit.cfg['build']['completed'] = True
