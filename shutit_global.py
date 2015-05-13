@@ -1791,7 +1791,18 @@ class ShutIt(object):
 		#                 { 'path' : '/usr/sbin/pkgadd',     'name' : 'svr4pkg' },
 		#                 { 'path' : '/usr/bin/pkg',         'name' : 'pkg' },
 		#    ]
-		if self.package_installed('lsb-release'):
+		if self.cfg['build']['distro_override'] != '':
+			key = self.cfg['build']['distro_override']
+			install_type = cfg['build']['install_type_map'][key]
+			distro_version = ''
+			if install_type == 'apt' and self.cfg['build']['delivery'] == 'target':
+				self.send('apt-get update')
+				self.cfg['build']['do_update'] = False
+				self.send('apt-get install -y -qq lsb-release')
+				d = self.lsb_release()
+				distro         = d['distro']
+				distro_version = d['distro_version']
+		elif self.package_installed('lsb-release'):
 			d = self.lsb_release()
 			install_type   = d['install_type']
 			distro         = d['distro']
