@@ -310,7 +310,6 @@ def get_base_config(cfg, cfg_parser):
 		cfg['build']['conn_module']                   = cp.get('build', 'conn_module')
 	# Track logins in a stack and details in logins.
 	cfg['build']['login_stack']                   = []
-	cfg['build']['logins']                        = {}
 	# Whether to accept default configs
 	cfg['build']['accept_defaults']               = None
 	cfg['target']['password']                  = cp.get('target', 'password')
@@ -788,7 +787,7 @@ def load_configs(shutit):
 				locals=None
 			)
 		except:
-			# TODO: message
+			shutit.log('No manhole package available, skipping import')
 			pass
 
 
@@ -1258,8 +1257,6 @@ class template(ShutItModule):
 					localfile = dockerfile_args[0]
 					# Local file location on build:
 					buildstagefile = 'context/' + dockerfile_args[0]
-					## TODO replace with sha1
-					#tmpstr = 'aksljdfhaksfhd'
 					#if localfile[-4:] == '.tar':
 					#	build += """\n\t\tshutit.send_file('""" + outfile + '/' + localfile + """')"""
 					#elif localfile[-4:] == '.bz2':
