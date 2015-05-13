@@ -242,8 +242,12 @@ class ShutIt(object):
 		
 		send_iteration = send
 		expect_list = send_dict.keys()
-		# Put breakout item in last.
-		expect_list.append(expect)
+		# Put breakout item(s) in last.
+		if type(expect) == str:
+			expect_list.append(expect)
+		elif type(expect) == str:
+			for item in expect:
+				expect_list.append(item)
 		while True:
 			# If it's the last item in the list, it's the breakout one.
 			res = self.send(send_iteration, expect=expect_list, child=child, check_exit=check_exit, fail_on_empty_before=fail_on_empty_before, timeout=timeout, record_command=record_command, exit_values=exit_values, echo=echo)
