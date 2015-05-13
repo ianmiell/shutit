@@ -247,7 +247,7 @@ class ShutIt(object):
 		if type(expect) == str:
 			expect_list.append(expect)
 			n_breakout_items = 1
-		elif type(expect) == str:
+		elif type(expect) == list:
 			for item in expect:
 				expect_list.append(item)
 				n_breakout_items += 1
