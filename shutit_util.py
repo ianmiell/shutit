@@ -303,9 +303,7 @@ def get_base_config(cfg, cfg_parser):
 	cfg['build']['completed']                     = False
 	cfg['build']['step_through']                  = False
 	cfg['build']['check_exit']                    = True
-	cfg['build']['shutit_state_dir']              = '/tmp/shutit'
 	# Take a command-line arg if given, else default.
-	cfg['build']['build_db_dir']                  = '/tmp/shutit/build_db'
 	if cfg['build']['conn_module'] == None:
 		cfg['build']['conn_module']                   = cp.get('build', 'conn_module')
 	# Track logins in a stack and details in logins.
@@ -364,7 +362,7 @@ def get_base_config(cfg, cfg_parser):
 	elif cfg['host']['artifacts_dir'] == '':
 		cfg['host']['artifacts_dir'] = os.path.join(shutit_global.shutit_main_dir, 'artifacts')
 	if cfg['host']['logfile'] == '':
-		logfile = os.path.join('/tmp/', 'shutit_log_' + cfg['build']['build_id'])
+		logfile = os.path.join(cfg['build']['shutit_state_dir'] + '/', 'shutit_log_' + cfg['build']['build_id'])
 	else:
 		logfile = logfile + '_' + cfg['build']['build_id']
 	cfg['host']['logfile'] = logfile
