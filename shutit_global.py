@@ -1062,9 +1062,9 @@ class ShutIt(object):
 		if cfg['target']['modules_recorded_cache_valid'] == False:
 			if self.file_exists(cfg['build']['build_db_dir'] + '/module_record',directory=True):
 				# Bit of a hack here to get round the long command showing up as the first line of the output.
-				self.send(r"""find """ + cfg['build']['build_db_dir'] + """/module_record/ -name built | sed 's@^.""" + cfg['build']['build_db_dir'] + """/module_record.\([^/]*\).built@\1@' > """ + cfg['build']['build_db_dir'] + """/tmp""")
-				built = self.send_and_get_output('cat ' + cfg['build']['build_db_dir'] + '/tmp').strip()
-				self.send('rm -f ' + cfg['build']['build_db_dir'] + '/tmp')
+				self.send(r"""find """ + cfg['build']['build_db_dir'] + """/module_record/ -name built | sed 's@^.""" + cfg['build']['build_db_dir'] + """/module_record.\([^/]*\).built@\1@' > """ + cfg['build']['build_db_dir'] + '/' + cfg['build']['build_id'])
+				built = self.send_and_get_output('cat ' + cfg['build']['build_db_dir'] + '/' + cfg['build']['build_id']).strip()
+				self.send('rm -f ' + cfg['build']['build_db_dir'] + '/' + cfg['build']['build_id'])
 				built_list = built.split('\r\n')
 				self.cfg['target']['modules_recorded'] = built_list
 			# Either there was no directory (so the cache is valid), or we've built the cache, so mark as good.
@@ -2276,6 +2276,8 @@ def init():
 	cfg['list_configs']         = {}
 	cfg['list_deps']            = {}
 	cfg['build']['shutit_state_dir'] = '/tmp/shutit'
+	# Take a command-line arg if given, else default.
+	cfg['build']['build_db_dir']     = '/tmp/shutit/build_db'
 	cfg['build']['install_type_map'] = {'ubuntu':'apt',
 	                                    'debian':'apt',
 	                                    'steamos':'apt',
