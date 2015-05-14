@@ -137,19 +137,20 @@ def is_installed(shutit, shutit_module_obj):
 	"""Returns true if this module is installed.
 	Uses cache where possible.
 	"""
+	cfg = shutit.cfg
 	# Cache first
-	if shutit_module_obj.module_id in shutit.cfg['target']['modules_installed']:
+	if shutit_module_obj.module_id in cfg['target']['modules_installed']:
 		return True
-	if shutit_module_obj.module_id in shutit.cfg['target']['modules_not_installed']:
+	if shutit_module_obj.module_id in cfg['target']['modules_not_installed']:
 		return False
 	# Is it installed?
 	if shutit_module_obj.is_installed(shutit):
-		shutit.cfg['target']['modules_installed'].append(shutit_module_obj.module_id)
+		cfg['target']['modules_installed'].append(shutit_module_obj.module_id)
 		return True
 	# If not installed, and not in cache, add it.
 	else:
-		if shutit_module_obj.module_id not in shutit.cfg['target']['modules_not_installed']:
-			shutit.cfg['target']['modules_not_installed'].append(shutit_module_obj.module_id)
+		if shutit_module_obj.module_id not in cfg['target']['modules_not_installed']:
+			cfg['target']['modules_not_installed'].append(shutit_module_obj.module_id)
 		return False
 
 
@@ -157,7 +158,8 @@ def is_to_be_built_or_is_installed(shutit, shutit_module_obj):
 	"""Returns true if this module is configured to be built,
 	or if it is already installed.
 	"""
-	if shutit.cfg[shutit_module_obj.module_id]['shutit.core.module.build']:
+	cfg = shutit.cfg
+	if cfg[shutit_module_obj.module_id]['shutit.core.module.build']:
 		return True
 	return is_installed(shutit, shutit_module_obj)
 
@@ -166,12 +168,13 @@ def is_ready(shutit, shutit_module_obj):
 	"""Returns true if this module is ready to be built.
 	Caches the result (as it's assumed not to change during the build).
 	"""
-	if shutit_module_obj.module_id in shutit.cfg['target']['modules_ready']:
+	cfg = shutit.cfg
+	if shutit_module_obj.module_id in cfg['target']['modules_ready']:
 		shutit.log('is_ready: returning True from cache')
 		return True
 	ready = shutit_module_obj.check_ready(shutit)
 	if ready:
-		shutit.cfg['target']['modules_ready'].append(shutit_module_obj.module_id)
+		cfg['target']['modules_ready'].append(shutit_module_obj.module_id)
 		return True
 	else:
 		return False
@@ -271,7 +274,7 @@ def config_collection(shutit):
 					for option in config_parser.options(section):
 						if option == 'shutit.core.module.allowed_images':
 							override = False
-							for mod, opt, val in shutit.cfg['build']['config_overrides']:
+							for mod, opt, val in cfg['build']['config_overrides']:
 								# skip overrides
 								if mod == module_id and opt == option:
 									override = True
@@ -297,6 +300,7 @@ def config_collection_for_built(shutit):
 	When this is called we should know what's being built (ie after
 	dependency resolution).
 	"""
+	cfg = shutit.cfg
 	shutit.log('In config_collection_for_built')
 	for module_id in module_ids(shutit):
 		# Get the config even if installed or building (may be needed in other
@@ -306,7 +310,7 @@ def config_collection_for_built(shutit):
 				shutit.fail(module_id + ' failed on get_config')
 		# Collect the build.cfg if we are building here.
 		# If this file exists, process it.
-		if shutit.cfg[module_id]['shutit.core.module.build']:
+		if cfg[module_id]['shutit.core.module.build']:
 			module = shutit.shutit_map[module_id]
 			cfg_file = os.path.dirname(module.__module_file) + '/configs/build.cnf'
 			if os.path.isfile(cfg_file):
@@ -317,13 +321,13 @@ def config_collection_for_built(shutit):
 					if section == module_id:
 						for option in config_parser.options(section):
 							override = False
-							for mod, opt, val in shutit.cfg['build']['config_overrides']:
+							for mod, opt, val in cfg['build']['config_overrides']:
 								# skip overrides
 								if mod == module_id and opt == option:
 									override = True
 							if override:
 								continue
-							is_bool = (type(shutit.cfg[module_id][option]) == bool)
+							is_bool = (type(cfg[module_id][option]) == bool)
 							if is_bool:
 								value = config_parser.getboolean(section,option)
 							else:
@@ -335,20 +339,20 @@ def config_collection_for_built(shutit):
 	# Check the allowed_images against the base_image
 	passed = True
 	for module_id in module_ids(shutit):
-		if (shutit.cfg[module_id]['shutit.core.module.build'] and
-		   (shutit.cfg[module_id]['shutit.core.module.allowed_images'] and
-		    shutit.cfg['target']['docker_image'] not in shutit.cfg[module_id]['shutit.core.module.allowed_images'])):
+		if (cfg[module_id]['shutit.core.module.build'] and
+		   (cfg[module_id]['shutit.core.module.allowed_images'] and
+		    cfg['target']['docker_image'] not in cfg[module_id]['shutit.core.module.allowed_images'])):
 			if not allowed_image(shutit,module_id):
 				passed = False
 				print('\n\nWARNING!\n\nAllowed images for ' + module_id + ' are: ' +
-				      str(shutit.cfg[module_id]['shutit.core.module.allowed_images']) +
+				      str(cfg[module_id]['shutit.core.module.allowed_images']) +
 				      ' but the configured image is: ' +
-				      shutit.cfg['target']['docker_image'] +
+				      cfg['target']['docker_image'] +
 				      '\n\nIs your shutit_module_path set correctly?' +
 				      '\n\nIf you want to ignore this, ' + 
 				      'pass in the --ignoreimage flag to shutit.\n\n')
 	if not passed:
-		if shutit.cfg['build']['imageerrorok']:
+		if cfg['build']['imageerrorok']:
 			# useful for test scripts
 			print('Exiting on allowed images error, with return status 0')
 			sys.exit(0)
@@ -359,15 +363,16 @@ def config_collection_for_built(shutit):
 def allowed_image(shutit,module_id):
 	"""Given a module id and a shutit object, determine whether the image is allowed to be built.
 	"""
+	cfg = shutit.cfg
 	shutit.log("In allowed_image: " + module_id)
-	if shutit.cfg['build']['ignoreimage']:
+	if cfg['build']['ignoreimage']:
 		shutit.log("ignoreimage == true, returning true" + module_id,force_stdout=True)
 		return True
-	shutit.log(str(shutit.cfg[module_id]['shutit.core.module.allowed_images']))
-	if shutit.cfg[module_id]['shutit.core.module.allowed_images']:
+	shutit.log(str(cfg[module_id]['shutit.core.module.allowed_images']))
+	if cfg[module_id]['shutit.core.module.allowed_images']:
 		# Try allowed images as regexps
-		for regexp in shutit.cfg[module_id]['shutit.core.module.allowed_images']:
-			if re.match('^' + regexp + '$', shutit.cfg['target']['docker_image']):
+		for regexp in cfg[module_id]['shutit.core.module.allowed_images']:
+			if re.match('^' + regexp + '$', cfg['target']['docker_image']):
 				return True
 	return False
 	
@@ -376,16 +381,17 @@ def allowed_image(shutit,module_id):
 def conn_target(shutit):
 	"""Connect to the target.
 	"""
+	cfg = shutit.cfg
 	conn_module = None
 	for mod in shutit.conn_modules:
-		if mod.module_id == shutit.cfg['build']['conn_module']:
+		if mod.module_id == cfg['build']['conn_module']:
 			conn_module = mod
 			break
 	if conn_module is None:
-		shutit.fail('Couldn\'t find conn_module ' + shutit.cfg['build']['conn_module'])
+		shutit.fail('Couldn\'t find conn_module ' + cfg['build']['conn_module'])
 
 	# Set up the target in pexpect.
-	if shutit.cfg['build']['interactive'] >= 3:
+	if cfg['build']['interactive'] >= 3:
 		print('\nRunning the conn module (' +
 			shutit.shutit_main_dir + '/shutit_setup.py)' + shutit_util.colour('32',
 				'\n\n[Hit return to continue]\n'))
@@ -397,11 +403,12 @@ def conn_target(shutit):
 def finalize_target(shutit):
 	"""Finalize the target using the core finalize method.
 	"""
+	cfg = shutit.cfg
 	shutit.pause_point('\nFinalizing the target module (' +
 		shutit.shutit_main_dir + '/shutit_setup.py)', print_input=False, level=3)
 	# Can assume conn_module exists at this point
 	for mod in shutit.conn_modules:
-		if mod.module_id == shutit.cfg['build']['conn_module']:
+		if mod.module_id == cfg['build']['conn_module']:
 			conn_module = mod
 			break
 	conn_module.finalize(shutit)
@@ -430,7 +437,7 @@ def check_dependee_exists(shutit, depender, dependee, dependee_id):
 	# If the module id isn't there, there's a problem.
 	if dependee == None:
 		return ('module: \n\n' + dependee_id + '\n\nnot found in paths: ' +
-		        str(shutit.cfg['host']['shutit_module_path']) +
+		        str(cfg['host']['shutit_module_path']) +
 		        ' but needed for ' + depender.module_id +
 		        '\nCheck your --shutit_module_path setting and ensure that ' +
 		        'all modules configured to be built are in that path setting, ' +
@@ -443,8 +450,9 @@ def check_dependee_exists(shutit, depender, dependee, dependee_id):
 def check_dependee_build(shutit, depender, dependee, dependee_id):
 	"""Checks whether a depended on module is configured to be built.
 	"""
+	cfg = shutit.cfg
 	# If depender is installed or will be installed, so must the dependee
-	if not (shutit.cfg[dependee.module_id]['shutit.core.module.build'] or
+	if not (cfg[dependee.module_id]['shutit.core.module.build'] or
 	        is_to_be_built_or_is_installed(shutit,dependee)):
 		return ('depender module id:\n\n[' + depender.module_id + ']\n\n' +
 		        'is configured: "build:yes" or is already built ' +
@@ -585,7 +593,7 @@ def check_ready(shutit, throw_error=True):
 		module = shutit.shutit_map[module_id]
 		shutit.log('considering check_ready (is it ready to be built?): ' +
 		           module_id, code='32')
-		if cfg[module_id]['shutit.core.module.build'] and module.module_id not in shutit.cfg['target']['modules_ready'] and not is_installed(shutit,module):
+		if cfg[module_id]['shutit.core.module.build'] and module.module_id not in cfg['target']['modules_ready'] and not is_installed(shutit,module):
 			shutit.log('checking whether module is ready to build: ' + module_id,
 			           code='32')
 			if whowasi != 'root':
@@ -634,11 +642,11 @@ def do_remove(shutit):
 			else:
 				if cfg['build']['delivery'] in ('target','dockerfile'):
 					# Create a directory and files to indicate this has been removed.
-					shutit.send('mkdir -p ' + shutit.cfg['build']['build_db_dir'] + '/module_record/' + module.module_id + ' && rm -f ' + shutit.cfg['build']['build_db_dir'] + '/module_record/' + module.module_id + '/built && touch ' + shutit.cfg['build']['build_db_dir'] + '/module_record/' + module.module_id + '/removed')
+					shutit.send('mkdir -p ' + cfg['build']['build_db_dir'] + '/module_record/' + module.module_id + ' && rm -f ' + cfg['build']['build_db_dir'] + '/module_record/' + module.module_id + '/built && touch ' + cfg['build']['build_db_dir'] + '/module_record/' + module.module_id + '/removed')
 					# Remove from "installed" cache
-					shutit.cfg['target']['modules_installed'].remove(module.module_id)
+					cfg['target']['modules_installed'].remove(module.module_id)
 					# Add to "not installed" cache
-					shutit.cfg['target']['modules_not_installed'].append(module.module_id)
+					cfg['target']['modules_not_installed'].append(module.module_id)
 			if whowasi != 'root':
 				shutit.logout()
 	if whowasi == 'root':
@@ -663,9 +671,9 @@ def build_module(shutit, module):
 			# Create a directory and files to indicate this has been built.
 			shutit.send('mkdir -p ' + cfg['build']['build_db_dir'] + '/module_record/' + module.module_id + ' && touch ' + cfg['build']['build_db_dir'] + '/module_record/' + module.module_id + '/built && rm -f ' + cfg['build']['build_db_dir'] + '/module_record/' + module.module_id + '/removed')
 		# Put it into "installed" cache
-		shutit.cfg['target']['modules_installed'].append(module.module_id)
+		cfg['target']['modules_installed'].append(module.module_id)
 		# Remove from "not installed" cache
-		shutit.cfg['target']['modules_not_installed'].remove(module.module_id)
+		cfg['target']['modules_not_installed'].remove(module.module_id)
 	shutit.pause_point('\nPausing to allow inspect of build for: ' +
 	                   module.module_id, print_input=True, level=2)
 	cfg['build']['report'] = (cfg['build']['report'] + '\nCompleted module: ' +
@@ -706,7 +714,7 @@ def do_build(shutit):
 	"""
 	cfg = shutit.cfg
 	shutit.log('PHASE: build, repository work', code='32')
-	shutit.log(shutit_util.print_config(shutit.cfg))
+	shutit.log(shutit_util.print_config(cfg))
 	if cfg['build']['interactive'] >= 3:
 		print ('\nNow building any modules that need building' +
 	 	       shutit_util.colour('32', '\n\n[Hit return to continue]\n'))
@@ -905,7 +913,7 @@ def shutit_main():
 		digraph = 'digraph depgraph {\n'
 		digraph = digraph + '\n'.join([
 			make_dep_graph(module) for module_id, module in shutit.shutit_map.items()
-			if module_id in shutit.cfg and shutit.cfg[module_id]['shutit.core.module.build']
+			if module_id in cfg and cfg[module_id]['shutit.core.module.build']
 		])
 		digraph = digraph + '\n}'
 		f = file(cfg['build']['log_config_path'] + '/digraph.txt','w')
@@ -974,17 +982,17 @@ def shutit_main():
 			   force_stdout=True, code='32')
 
 	if cfg['build']['build_log']:
-		shutit.cfg['build']['report_final_messages'] += "Build log file: " + cfg['host']['logfile']
+		cfg['build']['report_final_messages'] += "Build log file: " + cfg['host']['logfile']
 
 	# Show final report messages (ie messages to show after standard report).
-	if shutit.cfg['build']['report_final_messages'] != '':
-		shutit.log(shutit.cfg['build']['report_final_messages'], prefix=False,
+	if cfg['build']['report_final_messages'] != '':
+		shutit.log(cfg['build']['report_final_messages'], prefix=False,
 		           force_stdout=True, code='32')
 
-	if shutit.cfg['build']['interactive'] >= 3:
+	if cfg['build']['interactive'] >= 3:
 		shutit.log('\n' +
 		           'The build is complete. You should now have a target ' + 
-		           'called ' + shutit.cfg['target']['name'] +
+		           'called ' + cfg['target']['name'] +
 		           ' and a new image if you chose to commit it.\n\n' + 
 		           'Look and play with the following files from the newly-created ' + 
 		           'module directory to dig deeper:\n\n    configs/build.cnf\n    ' + 
@@ -992,10 +1000,10 @@ def shutit_main():
 		           './build.sh and run with the supplied ./run.sh. These may need ' + 
 		           'tweaking for your particular environment, eg sudo\n\n' +
 		           'You can inspect the details of the build in the target image\'s ' + 
-		           shutit.cfg['build']['build_db_dir'] + ' directory.', force_stdout=True, code='32')
+		           cfg['build']['build_db_dir'] + ' directory.', force_stdout=True, code='32')
 
 	# Mark the build as completed
-	shutit.cfg['build']['completed'] = True
+	cfg['build']['completed'] = True
 
 
 def do_phone_home(msg=None,question='Error seen - would you like to inform the maintainers?'):
@@ -1003,9 +1011,10 @@ def do_phone_home(msg=None,question='Error seen - would you like to inform the m
 	msg - message to send home
 	question - question to ask - assumes Y/y for send message, else no
 	"""
+	cfg = shutit.cfg
 	if msg is None:
 		msg = {}
-	if shutit_global.shutit.cfg['build']['interactive'] == 0:
+	if shutit_global.cfg['build']['interactive'] == 0:
 		return
 	msg.update({'shutitrunstatus':'fail','pwd':os.getcwd(),'user':os.environ.get('LOGNAME', '')})
 	if question != '' and shutit_util.util_raw_input(prompt=question + ' (Y/n)\n') not in ('y','Y',''):

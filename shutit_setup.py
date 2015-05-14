@@ -90,12 +90,12 @@ class ShutItConnModule(ShutItModule):
 
 	def _add_begin_build_info(self, shutit, command):
 		cfg = shutit.cfg
-		if shutit.cfg['build']['delivery'] == 'target':
+		if cfg['build']['delivery'] == 'target':
 			# Create the build directory and put the config in it.
 			shutit.send('mkdir -p ' + cfg['build']['build_db_dir'] + \
 				 '/' + cfg['build']['build_id'])
 			# Record the command we ran and the python env if in debug.
-			if shutit.cfg['build']['debug']:
+			if cfg['build']['debug']:
 				shutit.send_file(cfg['build']['build_db_dir'] + '/' + \
 				    cfg['build']['build_id'] + '/python_env.sh', \
 				    str(sys.__dict__), log=False)
@@ -108,7 +108,7 @@ class ShutItConnModule(ShutItModule):
 	def _add_end_build_info(self, shutit):
 		cfg = shutit.cfg
 		# Put build info into the target
-		if shutit.cfg['build']['delivery'] == 'target':
+		if cfg['build']['delivery'] == 'target':
 			shutit.send('mkdir -p ' + cfg['build']['build_db_dir'] + '/' + \
 			    cfg['build']['build_id'])
 			shutit.send_file(cfg['build']['build_db_dir'] + '/' + \
@@ -310,8 +310,8 @@ class ConnDocker(ShutItConnModule):
 			      cfg['target']['docker_image'] +
 			      '\n\n' + shutit_util.colour('32', '\n[Hit return to continue]'))
 			shutit_util.util_raw_input(shutit=shutit)
-		shutit.cfg['build']['docker_command'] = ' '.join(docker_command)
-		shutit.log('\n\nCommand being run is:\n\n' + shutit.cfg['build']['docker_command'],
+		cfg['build']['docker_command'] = ' '.join(docker_command)
+		shutit.log('\n\nCommand being run is:\n\n' + cfg['build']['docker_command'],
 		force_stdout=True, prefix=False)
 		shutit.log('\n\nThis may download the image, please be patient\n\n',
 		force_stdout=True, prefix=False)
@@ -473,8 +473,8 @@ class ConnSSH(ShutItConnModule):
 			print('\n\nAbout to connect to host.' +
 				'\n\n' + shutit_util.colour('32', '\n[Hit return to continue]'))
 			shutit_util.util_raw_input(shutit=shutit)
-		shutit.cfg['build']['ssh_command'] = ' '.join(ssh_command)
-		shutit.log('\n\nCommand being run is:\n\n' + shutit.cfg['build']['ssh_command'],
+		cfg['build']['ssh_command'] = ' '.join(ssh_command)
+		shutit.log('\n\nCommand being run is:\n\n' + cfg['build']['ssh_command'],
 			force_stdout=True, prefix=False)
 		target_child = pexpect.spawn(ssh_command[0], ssh_command[1:])
 		expect = ['assword', cfg['expect_prompts']['base_prompt'].strip()]
@@ -538,8 +538,9 @@ class setup(ShutItModule):
 		"""Initializes target ready for build
 		and updating package management if in container.
 		"""
-		do_update = shutit.cfg[self.module_id]['do_update']
-		if shutit.cfg['build']['delivery'] in ('target','dockerfile'):
+		cfg = shutit.cfg
+		do_update = cfg[self.module_id]['do_update']
+		if cfg['build']['delivery'] in ('target','dockerfile'):
 			shutit.send("touch ~/.bashrc")
 			# Remvoe the 
 			shutit.send("sed -i 's/.*HISTSIZE=[0-9]*$//' ~/.bashrc") 
@@ -550,16 +551,16 @@ class setup(ShutItModule):
 			shutit.add_to_bashrc('export HISTSIZE=99999999')
 			# Ignore leading-space commands in the history.
 			shutit.add_to_bashrc('export HISTCONTROL=ignorespace:cmdhist')
-			shutit.add_to_bashrc('export LANG=' + shutit.cfg['target']['locale'])
-			if shutit.cfg['target']['install_type'] == 'apt':
+			shutit.add_to_bashrc('export LANG=' + cfg['target']['locale'])
+			if cfg['target']['install_type'] == 'apt':
 				shutit.add_to_bashrc('export DEBIAN_FRONTEND=noninteractive')
-				if do_update and shutit.cfg['build']['delivery'] in ('target','dockerfile'):
+				if do_update and cfg['build']['delivery'] in ('target','dockerfile'):
 					shutit.send('apt-get update', timeout=9999, check_exit=False)
 				shutit.install('lsb-release')
 				shutit.lsb_release()
 				shutit.send('dpkg-divert --local --rename --add /sbin/initctl')
 				shutit.send('ln -f -s /bin/true /sbin/initctl')
-			elif shutit.cfg['target']['install_type'] == 'yum':
+			elif cfg['target']['install_type'] == 'yum':
 				if do_update:
 					# yum updates are so often "bad" that we let exit codes of 1
 					# through. TODO: make this more sophisticated
@@ -571,7 +572,6 @@ class setup(ShutItModule):
 	def remove(self, shutit):
 		"""Removes anything performed as part of build.
 		"""
-		cfg = shutit.cfg
 		return True
 
 	def get_config(self, shutit):
