@@ -250,6 +250,7 @@ def get_configs(shutit, configs):
 	"""Reads config files in, checking their security first
 	(in case passwords/sensitive info is in them).
 	"""
+	cfg = shutit.cfg
 	cp       = LayerConfigParser()
 	fail_str = ''
 	files    = []
@@ -260,12 +261,12 @@ def get_configs(shutit, configs):
 			fail_str = fail_str + '\nchmod 0600 ' + config_file
 			files.append(config_file)
 	if fail_str != '':
-		if shutit.cfg['build']['interactive'] > 0:
+		if cfg['build']['interactive'] > 0:
 			fail_str = 'Files are not secure, mode should be 0600. Running the following commands to correct:\n' + fail_str + '\n'
 			# Actually show this to the user before failing...
 			shutit.log(fail_str, force_stdout=True)
 			shutit.log('\n\nDo you want me to run this for you? (input y/n)\n', force_stdout=True)
-		if shutit.cfg['build']['interactive'] == 0 or util_raw_input(shutit=shutit,default='y') == 'y':
+		if cfg['build']['interactive'] == 0 or util_raw_input(shutit=shutit,default='y') == 'y':
 			for f in files:
 				shutit.log('Correcting insecure file permissions on: ' + f, force_stdout=True)
 				os.chmod(f,0600)
@@ -278,7 +279,7 @@ def get_configs(shutit, configs):
 		else:
 			cp.read(config)
 	# Treat allowed_images as a special, additive case
-	shutit.cfg['build']['shutit.core.module.allowed_images'] = cp.get_config_set('build', 'shutit.core.module.allowed_images')
+	cfg['build']['shutit.core.module.allowed_images'] = cp.get_config_set('build', 'shutit.core.module.allowed_images')
 	return cp
 
 def issue_warning(msg, wait):
@@ -705,7 +706,7 @@ def parse_args(shutit):
 			""" + colour('32', '\n[Hit return to continue]'))
 		util_raw_input()
 	# Set up trace as fast as possible.
-	if shutit.cfg['build']['trace']:
+	if cfg['build']['trace']:
 		def tracefunc(frame, event, arg, indent=[0]):
 			if event == "call":
 				shutit.log("-> call function: " + frame.f_code.co_name + " " + str(frame.f_code.co_varnames),force_stdout=True)
@@ -793,11 +794,12 @@ def load_shutit_modules(shutit):
 	"""Responsible for loading the shutit modules based on the configured module
 	paths.
 	"""
-	if shutit.cfg['build']['debug']:
+	cfg = shutit.cfg
+	if cfg['build']['debug']:
 		shutit.log('ShutIt module paths now: ')
-		shutit.log(shutit.cfg['host']['shutit_module_path'])
+		shutit.log(cfg['host']['shutit_module_path'])
 		time.sleep(1)
-	for shutit_module_path in shutit.cfg['host']['shutit_module_path']:
+	for shutit_module_path in cfg['host']['shutit_module_path']:
 		load_all_from_path(shutit, shutit_module_path)
 
 
@@ -817,18 +819,18 @@ def list_modules(shutit):
 
 	Dependencies: texttable, operator
 	"""
+	cfg = shutit.cfg
 	# list of module ids and other details
 	# will also contain column headers
 	table_list = []
-
-	if shutit.cfg['list_modules']['long']:
+	if cfg['list_modules']['long']:
 		# --long table: sort modules by run order
 		table_list.append(["Order","Module ID","Description","Run Order"])
 	else:
 		# "short" table ==> sort module by module_id
 		table_list.append(["Module ID","Description"])
 
-	if shutit.cfg['list_modules']['sort'] == 'run_order':
+	if cfg['list_modules']['sort'] == 'run_order':
 		a = {}
 		for m in shutit.shutit_modules:
 			a.update({m.module_id:m.run_order})
@@ -842,11 +844,11 @@ def list_modules(shutit):
 			for m in shutit.shutit_modules:
 				if m.module_id == k:
 					count = count + 1
-					if shutit.cfg['list_modules']['long']:
+					if cfg['list_modules']['long']:
 						table_list.append([str(count),m.module_id,m.description,str(m.run_order)])
 					else:
 						table_list.append([m.module_id,m.description])
-	elif shutit.cfg['list_modules']['sort'] == 'id':
+	elif cfg['list_modules']['sort'] == 'id':
 		a = []
 		for m in shutit.shutit_modules:
 			a.append(m.module_id)
@@ -856,7 +858,7 @@ def list_modules(shutit):
 			for m in shutit.shutit_modules:
 				if m.module_id == k:
 					count = count + 1
-					if shutit.cfg['list_modules']['long']:
+					if cfg['list_modules']['long']:
 						table_list.append([str(count),m.module_id,m.description,str(m.run_order)])
 					else:
 						table_list.append([m.module_id,m.description])
@@ -867,7 +869,7 @@ def list_modules(shutit):
 	table.add_rows(table_list)
 	msg = table.draw()
 	print msg
-	f = file(shutit.cfg['build']['log_config_path'] + '/module_order.txt','w')
+	f = file(cfg['build']['log_config_path'] + '/module_order.txt','w')
 	f.write(msg)
 	f.close()
 
@@ -932,7 +934,7 @@ def load_all_from_path(shutit, path):
 		return
 	if not os.path.exists(path):
 		return
-	if os.path.exists(path + '/STOPBUILD') and not shutit.cfg['build']['ignorestop']:
+	if os.path.exists(path + '/STOPBUILD') and not cfg['build']['ignorestop']:
 		shutit.log('Ignoring directory: ' + path + ' as it has a STOPBUILD file in it. Pass --ignorestop to shutit run to override.', force_stdout=True)
 		return
 	for sub in glob.glob(os.path.join(path, '*')):
@@ -951,6 +953,7 @@ def load_mod_from_file(shutit, fpath):
 	(automatically inserting the module into shutit_global) or it's not a shutit
 	module.
 	"""
+	cfg = shutit.cfg
 	fpath = os.path.abspath(fpath)
 	file_ext = os.path.splitext(os.path.split(fpath)[-1])[-1]
 	if file_ext.lower() != '.py':
@@ -970,7 +973,7 @@ def load_mod_from_file(shutit, fpath):
 	if len(existingmodules) > 0:
 		return
 	# Looks like it's ok to load this file
-	if shutit.cfg['build']['debug']:
+	if cfg['build']['debug']:
 		shutit.log('Loading source for: ' + fpath)
 
 	# Add this directory to the python path iff not already there.
@@ -984,7 +987,7 @@ def load_mod_from_file(shutit, fpath):
 	targets = [
 		('module', shutit.shutit_modules), ('conn_module', shutit.conn_modules)
 	]
-	shutit.cfg['build']['source'] = {}
+	cfg['build']['source'] = {}
 	for attr, target in targets:
 		modulefunc = getattr(pymod, attr, None)
 		# Old style or not a shutit module, nothing else to do
@@ -997,7 +1000,7 @@ def load_mod_from_file(shutit, fpath):
 			setattr(module, '__module_file', fpath)
 			ShutItModule.register(module.__class__)
 			target.add(module)
-			shutit.cfg['build']['source'][fpath] = open(fpath).read()
+			cfg['build']['source'][fpath] = open(fpath).read()
 
 
 # Build report
@@ -1005,6 +1008,7 @@ def build_report(shutit, msg=''):
 	"""Resposible for constructing a report to be output as part of the build.
 	Retrurns report as a string.
 	"""
+	cfg = shutit.cfg
 	s = ''
 	s += '################################################################################\n'
 	s += '# COMMAND HISTORY BEGIN ' + shutit_global.cfg['build']['build_id'] + '\n'
@@ -1019,8 +1023,8 @@ def build_report(shutit, msg=''):
 	else:
 		s += '# Nothing to report\n'
 
-	if 'container_id' in shutit.cfg['target']:
-		s += '# CONTAINER_ID: ' + shutit.cfg['target']['container_id'] + '\n'
+	if 'container_id' in cfg['target']:
+		s += '# CONTAINER_ID: ' + cfg['target']['container_id'] + '\n'
 	s += '# BUILD REPORT FOR BUILD END ' + shutit_global.cfg['build']['build_id'] + '\n'
 	s += '###############################################################################\n'
 	return s
@@ -1050,29 +1054,30 @@ def create_skeleton(shutit):
 	"""Helper function to create a standard module directory ready to run
 	and tinker with.
 	"""
+	cfg = shutit.cfg
 	shutit_dir = sys.path[0]
 
 	# Set up local directories
-	skel_path        = shutit.cfg['skeleton']['path']
-	skel_module_name = shutit.cfg['skeleton']['module_name']
-	skel_domain      = shutit.cfg['skeleton']['domain']
-	skel_domain_hash = shutit.cfg['skeleton']['domainhash']
-	skel_depends     = shutit.cfg['skeleton']['depends']
-	skel_base_image  = shutit.cfg['skeleton']['base_image']
-	skel_script      = shutit.cfg['skeleton']['script']
-	skel_example     = shutit.cfg['skeleton']['example']
-	skel_dockerfile  = shutit.cfg['skeleton']['dockerfile']
+	skel_path        = cfg['skeleton']['path']
+	skel_module_name = cfg['skeleton']['module_name']
+	skel_domain      = cfg['skeleton']['domain']
+	skel_domain_hash = cfg['skeleton']['domainhash']
+	skel_depends     = cfg['skeleton']['depends']
+	skel_base_image  = cfg['skeleton']['base_image']
+	skel_script      = cfg['skeleton']['script']
+	skel_example     = cfg['skeleton']['example']
+	skel_dockerfile  = cfg['skeleton']['dockerfile']
 	# Set up dockerfile cfg
-	shutit.cfg['dockerfile']['base_image'] = skel_base_image
-	shutit.cfg['dockerfile']['cmd']        = '/bin/bash'
-	shutit.cfg['dockerfile']['user']       = ''
-	shutit.cfg['dockerfile']['maintainer'] = ''
-	shutit.cfg['dockerfile']['entrypoint'] = ''
-	shutit.cfg['dockerfile']['expose']     = []
-	shutit.cfg['dockerfile']['env']        = []
-	shutit.cfg['dockerfile']['volume']     = []
-	shutit.cfg['dockerfile']['onbuild']    = []
-	shutit.cfg['dockerfile']['script']     = []
+	cfg['dockerfile']['base_image'] = skel_base_image
+	cfg['dockerfile']['cmd']        = '/bin/bash'
+	cfg['dockerfile']['user']       = ''
+	cfg['dockerfile']['maintainer'] = ''
+	cfg['dockerfile']['entrypoint'] = ''
+	cfg['dockerfile']['expose']     = []
+	cfg['dockerfile']['env']        = []
+	cfg['dockerfile']['volume']     = []
+	cfg['dockerfile']['onbuild']    = []
+	cfg['dockerfile']['script']     = []
 
 	# Check setup
 	if len(skel_path) == 0 or skel_path[0] != '/':
@@ -1123,7 +1128,7 @@ def create_skeleton(shutit):
 			# Change to this context
 			os.chdir(dockerfile_dirname)
 		# Wipe the command as we expect one in the file.
-		shutit.cfg['dockerfile']['cmd']        = ''
+		cfg['dockerfile']['cmd']        = ''
 		dockerfile_list = parse_dockerfile(shutit, dockerfile_contents)
 		# Set defaults from given dockerfile
 		for item in dockerfile_list:
@@ -1131,71 +1136,71 @@ def create_skeleton(shutit):
 			docker_command = item[0].upper()
 			if docker_command == 'FROM':
 				# Should be only one of these
-				shutit.cfg['dockerfile']['base_image'] = item[1]
+				cfg['dockerfile']['base_image'] = item[1]
 			elif docker_command == "ONBUILD":
 				# Maps to finalize :) - can we have more than one of these? assume yes
 				# This contains within it one of the above commands, so we need to abstract this out.
-				shutit.cfg['dockerfile']['onbuild'].append(item[1])
+				cfg['dockerfile']['onbuild'].append(item[1])
 			elif docker_command == "MAINTAINER":
-				shutit.cfg['dockerfile']['maintainer'] = item[1]
+				cfg['dockerfile']['maintainer'] = item[1]
 			elif docker_command == "VOLUME":
 				# Put in the run.sh.
 				try:
-					shutit.cfg['dockerfile']['volume'].append(' '.join(json.loads(item[1])))
+					cfg['dockerfile']['volume'].append(' '.join(json.loads(item[1])))
 				except:
-					shutit.cfg['dockerfile']['volume'].append(item[1])
+					cfg['dockerfile']['volume'].append(item[1])
 			elif docker_command == 'EXPOSE':
 				# Put in the run.sh.
-				shutit.cfg['dockerfile']['expose'].append(item[1])
+				cfg['dockerfile']['expose'].append(item[1])
 			elif docker_command == "ENTRYPOINT":
 				# Put in the run.sh? Yes, if it exists it goes at the front of cmd
 				try:
-					shutit.cfg['dockerfile']['entrypoint'] = ' '.join(json.loads(item[1]))
+					cfg['dockerfile']['entrypoint'] = ' '.join(json.loads(item[1]))
 				except:
-					shutit.cfg['dockerfile']['entrypoint'] = item[1]
+					cfg['dockerfile']['entrypoint'] = item[1]
 			elif docker_command == "CMD":
 				# Put in the run.sh
 				try:
-					shutit.cfg['dockerfile']['cmd'] = ' '.join(json.loads(item[1]))
+					cfg['dockerfile']['cmd'] = ' '.join(json.loads(item[1]))
 				except:
-					shutit.cfg['dockerfile']['cmd'] = item[1]
+					cfg['dockerfile']['cmd'] = item[1]
 			# Other items to be run through sequentially (as they are part of the script)
 			if docker_command == "USER":
 				# Put in the start script as well as su'ing from here - assuming order dependent?
-				shutit.cfg['dockerfile']['script'].append((docker_command, item[1]))
+				cfg['dockerfile']['script'].append((docker_command, item[1]))
 				# We assume the last one seen is the one we use for the image.
 				# Put this in the default start script.
-				shutit.cfg['dockerfile']['user']        = item[1]
+				cfg['dockerfile']['user']        = item[1]
 			elif docker_command == 'ENV':
 				# Put in the run.sh.
-				shutit.cfg['dockerfile']['script'].append((docker_command, item[1]))
+				cfg['dockerfile']['script'].append((docker_command, item[1]))
 				# Set in the build
-				shutit.cfg['dockerfile']['env'].append(item[1])
+				cfg['dockerfile']['env'].append(item[1])
 			elif docker_command == "RUN":
 				# Only handle simple commands for now and ignore the fact that Dockerfiles run 
 				# with /bin/sh -c rather than bash. 
 				try:
-					shutit.cfg['dockerfile']['script'].append((docker_command, ' '.join(json.loads(item[1]))))
+					cfg['dockerfile']['script'].append((docker_command, ' '.join(json.loads(item[1]))))
 				except:
-					shutit.cfg['dockerfile']['script'].append((docker_command, item[1]))
+					cfg['dockerfile']['script'].append((docker_command, item[1]))
 			elif docker_command == "ADD":
 				# Send file - is this potentially got from the web? Is that the difference between this and COPY?
-				shutit.cfg['dockerfile']['script'].append((docker_command, item[1]))
+				cfg['dockerfile']['script'].append((docker_command, item[1]))
 			elif docker_command == "COPY":
 				# Send file
-				shutit.cfg['dockerfile']['script'].append((docker_command, item[1]))
+				cfg['dockerfile']['script'].append((docker_command, item[1]))
 			elif docker_command == "WORKDIR":
 				# Push and pop
-				shutit.cfg['dockerfile']['script'].append((docker_command, item[1]))
+				cfg['dockerfile']['script'].append((docker_command, item[1]))
 			elif docker_command == "COMMENT":
 				# Push and pop
-				shutit.cfg['dockerfile']['script'].append((docker_command, item[1]))
+				cfg['dockerfile']['script'].append((docker_command, item[1]))
 		# We now have the script, so let's construct it inline here
 		templatemodule = ''
 		# Header.
 		templatemodule += '''
 # Created from dockerfile: ''' + skel_dockerfile + '''
-# Maintainer:              ''' + shutit.cfg['dockerfile']['maintainer'] + '''
+# Maintainer:              ''' + cfg['dockerfile']['maintainer'] + '''
 from shutit_module import ShutItModule
 
 class template(ShutItModule):
@@ -1207,7 +1212,7 @@ class template(ShutItModule):
 		build     = ''
 		numpushes = 0
 		wgetgot   = False
-		for item in shutit.cfg['dockerfile']['script']:
+		for item in cfg['dockerfile']['script']:
 			dockerfile_command = item[0].upper()
 			dockerfile_args    = item[1].split()
 			cmd = ' '.join(dockerfile_args).replace("'", "\\'")
@@ -1316,7 +1321,7 @@ class template(ShutItModule):
 '''
 		# Gather and place finalize bit
 		finalize = ''
-		for line in shutit.cfg['dockerfile']['onbuild']:
+		for line in cfg['dockerfile']['onbuild']:
 			finalize += '\n\t\tshutit.send(\'' + line + '\''
 		templatemodule += '''
 	def finalize(self, shutit):''' + finalize + '''
@@ -1336,7 +1341,7 @@ def module():
 		return template(
 				""" + """\'%s.%s.%s\'""" % (skel_domain, skel_module_name, skel_module_name) + """, """ + skel_domain_hash + ".00" + """,
 				description='',
-				maintainer='""" + shutit.cfg['dockerfile']['maintainer'] + """',
+				maintainer='""" + cfg['dockerfile']['maintainer'] + """',
 				depends=['%s""" % (skel_depends) + """'] 
 		)
 """
@@ -1386,23 +1391,23 @@ def module():
 		./build.sh "$@"
 		''')
 	volumes_arg = ''
-	for varg in shutit.cfg['dockerfile']['volume']:
+	for varg in cfg['dockerfile']['volume']:
 		volumes_arg += ' -v ' + varg + ':' + varg
 	ports_arg = ''
-	if type(shutit.cfg['dockerfile']['expose']) == str:
-		for parg in shutit.cfg['dockerfile']['expose']:
+	if type(cfg['dockerfile']['expose']) == str:
+		for parg in cfg['dockerfile']['expose']:
 			ports_arg += ' -p ' + parg + ':' + parg
 	else:
-		for parg in shutit.cfg['dockerfile']['expose']:
+		for parg in cfg['dockerfile']['expose']:
 			for port in parg.split():
 				ports_arg += ' -p ' + port + ':' + port
 	env_arg = ''
-	for earg in shutit.cfg['dockerfile']['env']:
+	for earg in cfg['dockerfile']['env']:
 		env_arg += ' -e ' + earg.split()[0] + ':' + earg.split()[1]
 	runsh = textwrap.dedent('''\
 		#!/bin/bash
 		# Example for running
-		docker run -t -i''' + ports_arg + volumes_arg + env_arg + ' ' + skel_module_name + ' ' + shutit.cfg['dockerfile']['entrypoint'] + ' ' + shutit.cfg['dockerfile']['cmd'] + '\n')
+		docker run -t -i''' + ports_arg + volumes_arg + env_arg + ' ' + skel_module_name + ' ' + cfg['dockerfile']['entrypoint'] + ' ' + cfg['dockerfile']['cmd'] + '\n')
 	buildpushsh = textwrap.dedent('''\
 		export SHUTIT_OPTIONS="$SHUTIT_OPTIONS --config configs/push.cnf -s repository push yes"
 		./build.sh "$@"
@@ -1421,11 +1426,11 @@ def module():
 		shutit.core.module.build:yes
 		# Allowed images as a regexp, eg ["ubuntu:12.*"], or [".*"], or ["centos"].
 		# It's recommended this is locked down as far as possible.
-		shutit.core.module.allowed_images:["''' + shutit.cfg['dockerfile']['base_image'] + '''"]
+		shutit.core.module.allowed_images:["''' + cfg['dockerfile']['base_image'] + '''"]
 
 		# Aspects of build process
 		[build]
-		base_image:''' + shutit.cfg['dockerfile']['base_image'] + '''
+		base_image:''' + cfg['dockerfile']['base_image'] + '''
 
 		[repository]
 		name:''' + skel_module_name + '''
@@ -1461,7 +1466,7 @@ def module():
 		#suffix_format:%s
 		''')
 	builddockerfile = textwrap.dedent('''\
-       FROM ''' + shutit.cfg['dockerfile']['base_image'] + '''
+       FROM ''' + cfg['dockerfile']['base_image'] + '''
 
        RUN apt-get update
        RUN apt-get install -y -qq curl git python-pip
@@ -1573,8 +1578,9 @@ def util_raw_input(shutit=None, prompt='', default=None):
 	"""Handles raw_input calls, and switches off interactivity if there is apparently
 	no controlling terminal (or there are any other problems)
 	"""
+	cfg = shutit.cfg
 	msg = ''
-	if shutit and shutit.cfg['build']['interactive'] == 0:
+	if shutit and cfg['build']['interactive'] == 0:
 		return default
 	if not determine_interactive(shutit):
 		return default
@@ -1605,8 +1611,9 @@ def determine_interactive(shutit=None):
 
 
 def set_noninteractive(shutit,msg="setting non-interactive"):
+	cfg = shutit.cfg
 	shutit.log(msg)
-	shutit.cfg['build']['interactive'] = 0
+	cfg['build']['interactive'] = 0
 	return
 
 
