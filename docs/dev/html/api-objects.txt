@@ -129,6 +129,7 @@ shutit_global.ShutIt.get_file_perms	shutit_global.ShutIt-class.html#get_file_per
 shutit_global.ShutIt.set_default_expect	shutit_global.ShutIt-class.html#set_default_expect
 shutit_global.ShutIt.run_script	shutit_global.ShutIt-class.html#run_script
 shutit_global.ShutIt.add_line_to_file	shutit_global.ShutIt-class.html#add_line_to_file
+shutit_global.ShutIt.is_user_id_available	shutit_global.ShutIt-class.html#is_user_id_available
 shutit_global.ShutIt.get_output	shutit_global.ShutIt-class.html#get_output
 shutit_global.ShutIt.multisend	shutit_global.ShutIt-class.html#multisend
 shutit_global.ShutIt.package_installed	shutit_global.ShutIt-class.html#package_installed
@@ -151,7 +152,7 @@ shutit_global.ShutIt.whoami	shutit_global.ShutIt-class.html#whoami
 shutit_global.ShutIt.set_default_child	shutit_global.ShutIt-class.html#set_default_child
 shutit_global.ShutIt.get_re_from_child	shutit_global.ShutIt-class.html#get_re_from_child
 shutit_global.ShutIt.file_exists	shutit_global.ShutIt-class.html#file_exists
-shutit_global.ShutIt.is_user_id_available	shutit_global.ShutIt-class.html#is_user_id_available
+shutit_global.ShutIt.send_and_match_output	shutit_global.ShutIt-class.html#send_and_match_output
 shutit_global.ShutIt.module_method_start	shutit_global.ShutIt-class.html#module_method_start
 shutit_global.ShutIt.send_file	shutit_global.ShutIt-class.html#send_file
 shutit_global.ShutIt.mount_tmp	shutit_global.ShutIt-class.html#mount_tmp

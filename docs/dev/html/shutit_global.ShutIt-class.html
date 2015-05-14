@@ -236,7 +236,7 @@ object --+
           <td><span class="summary-sig"><a href="shutit_global.ShutIt-class.html#fail" class="summary-sig-name">fail</a>(<span class="summary-sig-arg">self</span>,
         <span class="summary-sig-arg">msg</span>,
         <span class="summary-sig-arg">child</span>=<span class="summary-sig-default">None</span>,
-        <span class="summary-sig-arg">throw_exception</span>=<span class="summary-sig-default">True</span>)</span><br />
+        <span class="summary-sig-arg">throw_exception</span>=<span class="summary-sig-default">False</span>)</span><br />
       Handles a failure, pausing if a pexpect child object is passed in.</td>
           <td align="right" valign="top">
             <span class="codelink"><a href="shutit_global-pysrc.html#ShutIt.fail">source&nbsp;code</a></span>
@@ -413,7 +413,8 @@ object --+
         <span class="summary-sig-arg">contents</span>,
         <span class="summary-sig-arg">expect</span>=<span class="summary-sig-default">None</span>,
         <span class="summary-sig-arg">child</span>=<span class="summary-sig-default">None</span>,
-        <span class="summary-sig-arg">log</span>=<span class="summary-sig-default">True</span>)</span><br />
+        <span class="summary-sig-arg">log</span>=<span class="summary-sig-default">True</span>,
+        <span class="summary-sig-arg">truncate</span>=<span class="summary-sig-default">False</span>)</span><br />
       Sends the passed-in string as a file to the passed-in path on the 
       target.</td>
           <td align="right" valign="top">
@@ -737,8 +738,7 @@ object --+
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
           <td><span class="summary-sig"><a href="shutit_global.ShutIt-class.html#mount_tmp" class="summary-sig-name">mount_tmp</a>(<span class="summary-sig-arg">self</span>)</span><br />
-      mount a temporary file system as a workaround for the AUFS /tmp 
-      issues.</td>
+      mount a temporary file system as a workaround for AUFS /tmp issues.</td>
           <td align="right" valign="top">
             <span class="codelink"><a href="shutit_global-pysrc.html#ShutIt.mount_tmp">source&nbsp;code</a></span>
             
@@ -898,6 +898,30 @@ object --+
     </td><td class="summary">
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
+          <td><span class="summary-sig"><a href="shutit_global.ShutIt-class.html#send_and_match_output" class="summary-sig-name">send_and_match_output</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">send</span>,
+        <span class="summary-sig-arg">matches</span>,
+        <span class="summary-sig-arg">expect</span>=<span class="summary-sig-default">None</span>,
+        <span class="summary-sig-arg">child</span>=<span class="summary-sig-default">None</span>,
+        <span class="summary-sig-arg">retry</span>=<span class="summary-sig-default">3</span>,
+        <span class="summary-sig-arg">strip</span>=<span class="summary-sig-default">True</span>)</span><br />
+      Returns true if the output of the command matches any of the strings 
+      in the matches list of regexp strings.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="shutit_global-pysrc.html#ShutIt.send_and_match_output">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
           <td><span class="summary-sig"><a href="shutit_global.ShutIt-class.html#send_and_get_output" class="summary-sig-name">send_and_get_output</a>(<span class="summary-sig-arg">self</span>,
         <span class="summary-sig-arg">send</span>,
         <span class="summary-sig-arg">expect</span>=<span class="summary-sig-default">None</span>,
@@ -1008,6 +1032,8 @@ object --+
         <tr>
           <td><span class="summary-sig"><a name="login_stack_append"></a><span class="summary-sig-name">login_stack_append</span>(<span class="summary-sig-arg">self</span>,
         <span class="summary-sig-arg">r_id</span>,
+        <span class="summary-sig-arg">child</span>=<span class="summary-sig-default">None</span>,
+        <span class="summary-sig-arg">expect</span>=<span class="summary-sig-default">None</span>,
         <span class="summary-sig-arg">new_user</span>=<span class="summary-sig-default"><code class="variable-quote">'</code><code class="variable-string"></code><code class="variable-quote">'</code></span>)</span></td>
           <td align="right" valign="top">
             <span class="codelink"><a href="shutit_global-pysrc.html#ShutIt.login_stack_append">source&nbsp;code</a></span>
@@ -1580,7 +1606,7 @@ object --+
   </tr></table>
   
   <p>Sets the default pexpect string (usually a prompt). Defaults to the 
-  configured root_prompt if no argument is passed.</p>
+  configured root prompt if no argument is passed.</p>
   <dl class="fields">
     <dt>Parameters:</dt>
     <dd><ul class="nomargin-top">
@@ -1600,7 +1626,7 @@ object --+
   <h3 class="epydoc"><span class="sig"><span class="sig-name">fail</span>(<span class="sig-arg">self</span>,
         <span class="sig-arg">msg</span>,
         <span class="sig-arg">child</span>=<span class="sig-default">None</span>,
-        <span class="sig-arg">throw_exception</span>=<span class="sig-default">True</span>)</span>
+        <span class="sig-arg">throw_exception</span>=<span class="sig-default">False</span>)</span>
   </h3>
   </td><td align="right" valign="top"
     ><span class="codelink"><a href="shutit_global-pysrc.html#ShutIt.fail">source&nbsp;code</a></span>&nbsp;
@@ -1896,7 +1922,8 @@ object --+
         <span class="sig-arg">contents</span>,
         <span class="sig-arg">expect</span>=<span class="sig-default">None</span>,
         <span class="sig-arg">child</span>=<span class="sig-default">None</span>,
-        <span class="sig-arg">log</span>=<span class="sig-default">True</span>)</span>
+        <span class="sig-arg">log</span>=<span class="sig-default">True</span>,
+        <span class="sig-arg">truncate</span>=<span class="sig-default">False</span>)</span>
   </h3>
   </td><td align="right" valign="top"
     ><span class="codelink"><a href="shutit_global-pysrc.html#ShutIt.send_file">source&nbsp;code</a></span>&nbsp;
@@ -2335,8 +2362,8 @@ object --+
     </td>
   </tr></table>
   
-  <p>mount a temporary file system as a workaround for the AUFS /tmp 
-  issues. Not necessary if running devicemapper.</p>
+  <p>mount a temporary file system as a workaround for AUFS /tmp issues. 
+  Not necessary if running devicemapper.</p>
   <dl class="fields">
   </dl>
 </td></tr></table>
@@ -2498,6 +2525,42 @@ object --+
     </li>
   </ul>
   <dl class="fields">
+  </dl>
+</td></tr></table>
+</div>
+<a name="send_and_match_output"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">send_and_match_output</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">send</span>,
+        <span class="sig-arg">matches</span>,
+        <span class="sig-arg">expect</span>=<span class="sig-default">None</span>,
+        <span class="sig-arg">child</span>=<span class="sig-default">None</span>,
+        <span class="sig-arg">retry</span>=<span class="sig-default">3</span>,
+        <span class="sig-arg">strip</span>=<span class="sig-default">True</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="shutit_global-pysrc.html#ShutIt.send_and_match_output">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Returns true if the output of the command matches any of the strings 
+  in the matches list of regexp strings. Handles matching on a per-line 
+  basis and does not cross lines.</p>
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>send</code></strong> (string) - See send()</li>
+        <li><strong class="pname"><code>expect</code></strong> - See send()</li>
+        <li><strong class="pname"><code>child</code></strong> - See send()</li>
+        <li><strong class="pname"><code>retry</code></strong> (integer) - Number of times to retry command (default 3)</li>
+        <li><strong class="pname"><code>strip</code></strong> (boolean) - Whether to strip output (defaults to True)</li>
+        <li><strong class="pname"><code>matches</code></strong> (list)</li>
+    </ul></dd>
   </dl>
 </td></tr></table>
 </div>
@@ -3136,7 +3199,7 @@ object --+
 <table border="0" cellpadding="0" cellspacing="0" width="100%%">
   <tr>
     <td align="left" class="footer">
-    Generated by Epydoc 3.0.1 on Thu Apr 30 07:20:52 2015
+    Generated by Epydoc 3.0.1 on Thu May 14 08:30:35 2015
     </td>
     <td align="right" class="footer">
       <a target="mainFrame" href="http://epydoc.sourceforge.net"
