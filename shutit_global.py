@@ -233,9 +233,17 @@ class ShutIt(object):
 		"""Multisend. Same as send, except it takes multiple sends and expects in a dict that are
 		processed while waiting for the end "expect" argument supplied.
 
-		see send
+		@param send_dict:            dict of sends and expects, eg: {'interim prompt:','some input','other prompt','some other input'}
+		@param expect:               String or list of strings of final expected output that returns from this function. See send()
+		@param send:                 See send()
+		@param child:                See send()
+		@param timeout:              See send()
+		@param check_exit:           See send()
+		@param fail_on_empty_before: See send()
+		@param record_command:       See send()
+		@param exit_values:          See send()
+		@param echo:                 See send()
 
-			- send_dict - dict of sends and expects, eg: {'interim prompt:','some input','other prompt','some other input'}
 			- expect - final expect we want to see. defaults to child.get_default_expect()
 		"""
 		expect = expect or self.get_default_expect()
@@ -281,9 +289,9 @@ class ShutIt(object):
 		Returns the pexpect return value (ie which expected string in the list
 		matched)
 
-		@param child: pexpect child to issue command to.
 		@param send: String to send, ie the command being issued. If set to None, we consume up to the expect string, which is useful if we just matched output that came before a standard command that returns to the prompt.
 		@param expect: String that we expect to see in the output. Usually a prompt. Defaults to currently-set expect string (see set_default_expect)
+		@param child: pexpect child to issue command to.
 		@param timeout: Timeout on response
 		@param check_exit: Whether to check the shell exit code of the passed-in command.  If the exit value was non-zero an error is thrown.  (default=None, which takes the currently-configured check_exit value) See also fail_on_empty_before.
 		@param fail_on_empty_before: If debug is set, fail on empty match output string (default=True) If this is set to False, then we don't check the exit value of the command.
@@ -565,6 +573,12 @@ class ShutIt(object):
 	          timeout=3600,
 	          log=True):
 		"""How to change directory will depend on whether we are in delivery mode bash or docker.
+
+		@param path:          Path to send file to.
+		@param expect:        See send()
+		@param child:         See send()
+		@param timeout:       Timeout on response
+		@param log:           Arg to pass to send_file (default True)
 		"""
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
@@ -1614,6 +1628,7 @@ class ShutIt(object):
 		else:
 			login_expect = expect
 		# We don't fail on empty before as many login programs mess with the output.
+		# In this special case of login we expect either the prompt, or 'user@' as this has been seen to work.
 		self.multisend(send,{'ontinue connecting':'yes','assword':password,'login:':password},expect=[login_expect,user+'@'],check_exit=False,timeout=timeout,fail_on_empty_before=False)
 		if prompt_prefix != None:
 			self.setup_prompt(r_id,child=child,prefix=prompt_prefix)
