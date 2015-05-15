@@ -363,9 +363,10 @@ def get_base_config(cfg, cfg_parser):
 	elif cfg['host']['artifacts_dir'] == '':
 		cfg['host']['artifacts_dir'] = os.path.join(shutit_global.shutit_main_dir, 'artifacts')
 	if cfg['host']['logfile'] == '':
+		os.mkdir(cfg['build']['shutit_state_dir'])
 		logfile = os.path.join(cfg['build']['shutit_state_dir'] + '/', 'shutit_log_' + cfg['build']['build_id'])
 	else:
-		logfile = logfile + '_' + cfg['build']['build_id']
+		logfile = cfg['host']['logfile'] + '_' + cfg['build']['build_id']
 	cfg['host']['logfile'] = logfile
 	if cfg['build']['build_log']:
 		cfg['build']['build_log'] = open(logfile, 'a')
