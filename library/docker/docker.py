@@ -31,7 +31,7 @@ END"""
 	def check_ready(self, shutit):
 		"""Only apt-based systems are supported support atm.
 		"""
-		return shutit.cfg['target']['install_type'] == 'apt'
+		return shutit.get_current_environment()['install_type'] == 'apt'
 
 	def start(self, shutit):
 		shutit.send('/root/start_docker.sh')

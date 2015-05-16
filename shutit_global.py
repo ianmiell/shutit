@@ -205,6 +205,11 @@ class ShutIt(object):
 			cfg['build']['report_final_messages'] += msg + '\n'
 		time.sleep(pause)
 
+
+	def get_current_environment(self):
+		cfg = self.cfg
+		return cfg['environment'][cfg['build']['current_environment_id']]
+
 	def setup_environment(self, prefix, expect=None, child=None):
 		"""If we are in a new environment then set up a new data structure.
 		A new environment is a new machine environment, whether that's
