@@ -113,7 +113,7 @@ PIDS=()
 DISTROS=${SHUTITTEST_DISTROS:-ubuntu:14.04}
 for dist in $DISTROS
 do
-	for d in $(ls -d test/[8-9])
+	for d in $(ls -d test)
 	do
 		[ -d ${SHUTIT_DIR}/$d ] || continue
 		pushd ${SHUTIT_DIR}/$d/bin
