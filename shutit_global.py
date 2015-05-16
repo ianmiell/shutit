@@ -1497,7 +1497,7 @@ class ShutIt(object):
 		cfg = self.cfg
 		if options is None: options = {}
 		# TODO: config of maps of packages
-		install_type = cfg['environment'][cfg['buid']['current_environment_id']]['install_type']
+		install_type = cfg['environment'][cfg['build']['current_environment_id']]['install_type']
 		if install_type == 'src':
 			# If this is a src build, we assume it's already installed.
 			return True
