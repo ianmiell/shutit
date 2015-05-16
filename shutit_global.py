@@ -553,8 +553,6 @@ class ShutIt(object):
 			self.log('Sending file to' + path)
 			if log:
 				self.log('contents >>>' + contents + '<<<')
-		if truncate and self.file_exists(path):
-			self.send('rm -f ' + path, expect=expect, child=child)
 		if cfg['build']['delivery'] == 'bash':
 			# If we're on the root env (ie the same one that python is running on,
 			# then use python.
@@ -565,6 +563,8 @@ class ShutIt(object):
 				f.write(contents)
 				f.close()
 			else:
+				if truncate and self.file_exists(path):
+					self.send('rm -f ' + path, expect=expect, child=child)
 				for line in contents.split('\n'):
 					self.add_line_to_file(line, path)
 		else:
