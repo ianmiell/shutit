@@ -216,8 +216,8 @@ class ShutIt(object):
 		expect = expect or self.get_default_expect()
 		cfg = self.cfg
 		environment_id_dir = cfg['build']['shutit_state_dir'] + '/environment_id'
-		if self.file_exists(cfg['build']['shutit_state_dir'] + '/environment_id',expect=expect,child=child,directory=True):
-			files = self.ls(cfg['build']['shutit_state_dir'])
+		if self.file_exists(environment_id_dir,expect=expect,child=child,directory=True):
+			files = self.ls(environment_id_dir)
 			if len(files) != 1 or type(files) != list:
 				self.fail('Wrong number of files in environment_id_dir: ' + environment_id_dir)
 			environment_id = files[0]
@@ -235,11 +235,11 @@ class ShutIt(object):
 		cfg['environment'][environment_id]['modules_recorded']             = []
 		cfg['environment'][environment_id]['modules_recorded_cache_valid'] = False
 		cfg['environment'][environment_id]['setup']                        = False
-		cfg['build']['current_environment_id'] = environment_id
+		cfg['build']['current_environment_id']                             = environment_id
 		self.get_distro_info(environment_id)
-		send('mkdir -p ' + environment_id_dir)
+		self.send('mkdir -p ' + environment_id_dir)
 		fname = environment_id_dir + '/' + environment_id
-		send('touch ' + fname)
+		self.send('touch ' + fname)
 		cfg['environment'][environment_id]['setup']                        = True
 		return environment_id
 
