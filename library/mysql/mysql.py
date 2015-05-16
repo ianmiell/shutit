@@ -5,7 +5,7 @@ class mysql(ShutItModule):
 	def build(self, shutit):
 		root_pass = shutit.cfg['shutit.tk.mysql.mysql']['root_password']
 		shutit.install('sudo')
-		if shutit.cfg['target']['install_type'] == 'apt':
+		if shutit.get_current_environment()['install_type'] == 'apt':
 			shutit.send("""debconf-set-selections << 'END'
 mysql-server mysql-server/root_password password {0}
 END""".format(root_pass), echo=False)
@@ -69,7 +69,7 @@ END""".format(root_pass), echo=False)
 		shutit.send('rm -rf /var/lib/mysql')
 		shutit.send('rm -rf /etc/mysql')
 		shutit.send('deluser mysql', check_exit=False)
-		install_type = shutit.cfg['target']['install_type']
+		install_type = shutit.get_current_environment()['install_type']
 		if install_type == 'apt':
 			shutit.send('apt-get -qq -y autoremove')
 			shutit.send('apt-get -qq -y autoclean')
