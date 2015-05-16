@@ -559,9 +559,9 @@ class ShutIt(object):
 			# If we're on the root env (ie the same one that python is running on,
 			# then use python.
 			if cfg['build']['current_environment_id'] == 'ORIGIN_ENV':
-				if truncate:
-					pass
 				f = open(path,'w')
+				if truncate:
+					f.truncate(0)
 				f.write(contents)
 				f.close()
 			else:
