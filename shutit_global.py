@@ -1733,6 +1733,9 @@ class ShutIt(object):
 		    shutit.set_default_expect()
 		    shutit.send('exit')
 
+		This function is assumed to be called whenever there is a change
+		of environment.
+
 		@param prompt_name:         Reference name for prompt.
 		@param prefix:              Prompt prefix. Default: 'default'
 		@param child:               See send()
@@ -1753,7 +1756,7 @@ class ShutIt(object):
 		# Set the cols value, as unpleasant escapes are put in the output if the
 		# input is > n chars wide.
 		self.send(
-			(" export SHUTIT_BACKUP_PS1_%s=$PS1 && PS1='%s' && unset PROMPT_COMMAND && stty cols " + str(cfg['target']['stty_cols'])) %
+			(" export SHUTIT_BACKUP_PS1_%s=$PS1 && PS1='%s' && unset PROMPT_COMMAND && stty cols " + str(cfg['build']['stty_cols'])) %
 				(prompt_name, local_prompt),
 				# The newline in the list is a hack. On my work laptop this line hangs
 				# and times out very frequently. This workaround seems to work, but I

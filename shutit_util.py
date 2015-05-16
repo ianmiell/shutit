@@ -68,7 +68,6 @@ password:
 # Hostname for the target - replace with your chosen target hostname
 # (where applicable, eg docker container)
 hostname:
-force_repo_work:no
 locale:en_US.UTF-8
 # space separated list of ports to expose
 # e.g. "ports:2222:22 8080:80" would expose container ports 22 and 80 as the
@@ -312,6 +311,7 @@ def get_base_config(cfg, cfg_parser):
 	"""
 	cfg['config_parser'] = cp = cfg_parser
 	# BEGIN Read from config files
+	# build - details relating to the build
 	cfg['build']['privileged']                    = cp.getboolean('build', 'privileged')
 	cfg['build']['lxc_conf']                      = cp.get('build', 'lxc_conf')
 	cfg['build']['build_log']                     = cp.getboolean('build', 'build_log')
@@ -322,6 +322,8 @@ def get_base_config(cfg, cfg_parser):
 	cfg['build']['step_through']                  = False
 	cfg['build']['check_exit']                    = True
 	cfg['build']['shutit_state_dir']              = '/tmp/shutit/' + cfg['build']['build_id']
+	# Width of terminal to set up on login.
+	cfg['build']['stty_cols']                     = 320
 	# Take a command-line arg if given, else default.
 	cfg['build']['build_db_dir']                  = cfg['build']['shutit_state_dir'] + '/build_db'
 	if cfg['build']['conn_module'] == None:
@@ -333,14 +335,13 @@ def get_base_config(cfg, cfg_parser):
 	cfg['build']['accept_defaults']               = None
 	# See shutit_global.check_environment
 	cfg['build']['current_environment_id']        = None
-	cfg['target']['password']                  = cp.get('target', 'password')
+	# target - the target of the build, ie the container
 	cfg['target']['hostname']                  = cp.get('target', 'hostname')
-	cfg['target']['force_repo_work']           = cp.getboolean('target', 'force_repo_work')
 	cfg['target']['locale']                    = cp.get('target', 'locale')
 	cfg['target']['ports']                     = cp.get('target', 'ports')
 	cfg['target']['name']                      = cp.get('target', 'name')
 	cfg['target']['rm']                        = cp.getboolean('target', 'rm')
-	cfg['target']['stty_cols']                 = 320
+	# host - the host on which the shutit script is run
 	cfg['host']['add_shutit_to_path']             = cp.getboolean('host', 'add_shutit_to_path')
 	cfg['host']['artifacts_dir']                  = cp.get('host', 'artifacts_dir')
 	cfg['host']['docker_executable']              = cp.get('host', 'docker_executable')
@@ -348,6 +349,7 @@ def get_base_config(cfg, cfg_parser):
 	cfg['host']['password']                       = cp.get('host', 'password')
 	cfg['host']['logfile']                        = cp.get('host', 'logfile')
 	cfg['host']['shutit_module_path']             = cp.get('host', 'shutit_module_path').split(':')
+	# repository - information relating to repository/registry
 	cfg['repository']['name']                     = cp.get('repository', 'name')
 	cfg['repository']['server']                   = cp.get('repository', 'server')
 	cfg['repository']['push']                     = cp.getboolean('repository', 'push')
@@ -363,7 +365,7 @@ def get_base_config(cfg, cfg_parser):
 	# END Read from config files
 
 	# BEGIN Standard expects
-	# It's important that these have '.*' in them at the start, so that the matched data is reliablly 'after' in the
+	# It's important that these have '.*' in them at the start, so that the matched data is reliably 'after' in the
 	# child object. Use these where possible to make things more consistent.
 	# Attempt to capture any starting prompt (when starting) with this regexp.
 	cfg['expect_prompts']['base_prompt']          = '\r\n.*[@#$] '
@@ -396,10 +398,6 @@ def get_base_config(cfg, cfg_parser):
 	# BEGIN warnings
 	# Warn if something appears not to have been overridden
 	warn = ''
-	#if cfg['target']['password'][:5] == 'YOUR_':
-	#	warn = '# Found ' + cfg['target']['password'] + ' in your config, you may want to quit and override, eg put the following into your\n# ' + shutit_global.cwd + '/configs/' + socket.gethostname() + '_' + cfg['host']['real_user'] + '.cnf file (create if necessary):\n\n[target]\n#root password for the target host\npassword:mytargethostpassword\n\n'
-	#	issue_warning(warn,2)
-
 	# FAILS begins
 	# rm is incompatible with repository actions
 	if cfg['target']['rm'] and (cfg['repository']['tag'] or cfg['repository']['push'] or cfg['repository']['save'] or cfg['repository']['export']):
