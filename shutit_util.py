@@ -52,6 +52,8 @@ import shutil
 from shutit_module import ShutItFailException
 import operator
 import threading
+import string
+import random
 
 _default_cnf = '''
 ################################################################################
@@ -288,6 +290,21 @@ def issue_warning(msg, wait):
 	print >> sys.stderr, msg
 	time.sleep(wait)
 
+
+def random_id(size=8, chars=string.ascii_letters + string.digits):
+	"""Generates a random string of given size from the given chars.
+	
+	@param size:  The size of the random string.
+	@param chars: Constituent pool of characters to draw random characters from.
+	@type size:   number
+	@type chars:  string
+	@rtype:       string
+	@return:      The string of random characters.
+	"""
+	return ''.join(random.choice(chars) for _ in range(size))
+
+
+
 # Manage config settings, returning a dict representing the settings
 # that have been sanity-checked.
 def get_base_config(cfg, cfg_parser):
@@ -304,7 +321,9 @@ def get_base_config(cfg, cfg_parser):
 	cfg['build']['completed']                     = False
 	cfg['build']['step_through']                  = False
 	cfg['build']['check_exit']                    = True
+	cfg['build']['shutit_state_dir']              = '/tmp/shutit/' + cfg['build']['build_id']
 	# Take a command-line arg if given, else default.
+	cfg['build']['build_db_dir']                  = cfg['build']['shutit_state_dir'] + '/build_db'
 	if cfg['build']['conn_module'] == None:
 		cfg['build']['conn_module']                   = cp.get('build', 'conn_module')
 	# Track logins in a stack and details in logins.
@@ -312,6 +331,8 @@ def get_base_config(cfg, cfg_parser):
 	cfg['build']['logins']                        = {}
 	# Whether to accept default configs
 	cfg['build']['accept_defaults']               = None
+	# See shutit_global.check_environment
+	cfg['build']['current_environment_id']        = None
 	cfg['target']['password']                  = cp.get('target', 'password')
 	cfg['target']['hostname']                  = cp.get('target', 'hostname')
 	cfg['target']['force_repo_work']           = cp.getboolean('target', 'force_repo_work')
@@ -320,15 +341,6 @@ def get_base_config(cfg, cfg_parser):
 	cfg['target']['name']                      = cp.get('target', 'name')
 	cfg['target']['rm']                        = cp.getboolean('target', 'rm')
 	cfg['target']['stty_cols']                 = 320
-	# installed and removed cache
-	cfg['target']['modules_installed']         = [] # has been installed (in this build or previously)
-	cfg['target']['modules_not_installed']     = [] # modules _known_ not to be installed
-	cfg['target']['modules_ready']             = [] # has been checked for readiness and is ready (in this build)
-	# installed file info
-	cfg['target']['modules_recorded']             = []
-	cfg['target']['modules_recorded_cache_valid'] = False
-	# Directory to revert to when delivering in bash and reversion to context required.
-	cfg['target']['module_root_dir']              = '/'
 	cfg['host']['add_shutit_to_path']             = cp.getboolean('host', 'add_shutit_to_path')
 	cfg['host']['artifacts_dir']                  = cp.get('host', 'artifacts_dir')
 	cfg['host']['docker_executable']              = cp.get('host', 'docker_executable')
@@ -363,8 +375,8 @@ def get_base_config(cfg, cfg_parser):
 	elif cfg['host']['artifacts_dir'] == '':
 		cfg['host']['artifacts_dir'] = os.path.join(shutit_global.shutit_main_dir, 'artifacts')
 	if cfg['host']['logfile'] == '':
-		os.mkdir(cfg['build']['shutit_state_dir'])
-		logfile = os.path.join(cfg['build']['shutit_state_dir'] + '/', 'shutit_log_' + cfg['build']['build_id'])
+		os.makedirs(cfg['build']['shutit_state_dir'])
+		logfile = os.path.join(cfg['build']['shutit_state_dir'], 'shutit_build.log')
 	else:
 		logfile = cfg['host']['logfile'] + '_' + cfg['build']['build_id']
 	cfg['host']['logfile'] = logfile

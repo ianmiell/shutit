@@ -75,16 +75,15 @@ class ShutItConnModule(ShutItModule):
 		shutit.log('Setting default child done')
 		shutit.log('Setting up default prompt on host child')
 		shutit.log('Setting up prompt')
-		shutit.setup_prompt('real_user_prompt', prefix='REAL_USER')
+		shutit.setup_prompt('real_user_prompt', prefix='REAL_USER', setup_environment=False)
 		shutit.log('Setting up prompt done')
 		# target child
 		shutit.set_default_child(target_child)
 		shutit.log('Setting up default prompt on target child')
 		# Set the login stack to have this root environment with a unique id of origin, so that 
 		# we can use native python for eg copying files in rather than more expensive
-		# pexpect.
-		shutit.setup_prompt('origin', prefix='ORIGIN')
-		shutit.get_distro_info()
+		# pexpect. TODO: review this when environments work done
+		shutit.setup_prompt('origin', prefix='ORIGIN', setup_environment=False)
 		shutit.setup_prompt('root', prefix='ROOT')
 		shutit.login_stack_append('root')
 
@@ -552,7 +551,7 @@ class setup(ShutItModule):
 			# Ignore leading-space commands in the history.
 			shutit.add_to_bashrc('export HISTCONTROL=ignorespace:cmdhist')
 			shutit.add_to_bashrc('export LANG=' + cfg['target']['locale'])
-			if cfg['target']['install_type'] == 'apt':
+			if cfg['environment'][cfg['build']['current_environment_id']]['install_type'] == 'apt':
 				shutit.add_to_bashrc('export DEBIAN_FRONTEND=noninteractive')
 				if do_update and cfg['build']['delivery'] in ('target','dockerfile'):
 					shutit.send('apt-get update', timeout=9999, check_exit=False)
@@ -560,7 +559,7 @@ class setup(ShutItModule):
 				shutit.lsb_release()
 				shutit.send('dpkg-divert --local --rename --add /sbin/initctl')
 				shutit.send('ln -f -s /bin/true /sbin/initctl')
-			elif cfg['target']['install_type'] == 'yum':
+			elif cfg['environment'][cfg['build']['current_environment_id']]['install_type'] == 'yum':
 				if do_update:
 					# yum updates are so often "bad" that we let exit codes of 1
 					# through. TODO: make this more sophisticated
