@@ -553,16 +553,15 @@ class ShutIt(object):
 			self.log('Sending file to' + path)
 			if log:
 				self.log('contents >>>' + contents + '<<<')
-		if cfg['build']['delivery'] == 'bash':
+		if cfg['build']['current_environment_id'] == 'ORIGIN_ENV':
+			f = open(path,'w')
+			if truncate:
+				f.truncate(0)
+			f.write(contents)
+			f.close()
+		elif cfg['build']['delivery'] == 'bash':
 			# If we're on the root env (ie the same one that python is running on,
 			# then use python.
-			if cfg['build']['current_environment_id'] == 'ORIGIN_ENV':
-				f = open(path,'w')
-				if truncate:
-					f.truncate(0)
-				f.write(contents)
-				f.close()
-			else:
 				if truncate and self.file_exists(path):
 					self.send('rm -f ' + path, expect=expect, child=child)
 				for line in contents.split('\n'):
