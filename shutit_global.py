@@ -205,7 +205,7 @@ class ShutIt(object):
 			cfg['build']['report_final_messages'] += msg + '\n'
 		time.sleep(pause)
 
-	def setup_environment(self, expect=None, child=None):
+	def setup_environment(self, prefix, expect=None, child=None):
 		"""If we are in a new environment then set up a new data structure.
 		A new environment is a new machine environment, whether that's
 		over ssh, docker, whatever.
@@ -224,7 +224,7 @@ class ShutIt(object):
 			if cfg['build']['current_environment_id'] != environment_id:
 				self.fail('environment id mismatch: ' + environment_id + ' and: ' + cfg['build']['current_environment_id'])
 			return environment_id
-		environment_id = shutit_util.random_id()
+		environment_id = prefix + '_' + shutit_util.random_id()
 		cfg['environment'][environment_id] = {}
     	# Directory to revert to when delivering in bash and reversion to context required.
 		cfg['environment'][environment_id]['module_root_dir']              = '/'
@@ -1711,7 +1711,7 @@ class ShutIt(object):
 
 	def setup_prompt(self,
 	                 prompt_name,
-	                 prefix='TMP',
+	                 prefix='default',
 	                 child=None,
 	                 set_default_expect=True,
 	                 setup_environment=True):
@@ -1734,7 +1734,7 @@ class ShutIt(object):
 		    shutit.send('exit')
 
 		@param prompt_name:         Reference name for prompt.
-		@param prefix:              Prompt prefix. Default: 'TMP'
+		@param prefix:              Prompt prefix. Default: 'default'
 		@param child:               See send()
 		@param set_default_expect:  Whether to set the default expect
 		                            to the new prompt. Default: True
@@ -1766,7 +1766,7 @@ class ShutIt(object):
 			self.set_default_expect(cfg['expect_prompts'][prompt_name])
 		# Ensure environment is set up OK.
 		if setup_environment:
-			self.setup_environment()
+			self.setup_environment(prefix)
 
 
 	def revert_prompt(self, old_prompt_name, new_expect=None, child=None):
