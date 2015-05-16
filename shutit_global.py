@@ -29,7 +29,6 @@ import shutil
 import socket
 import time
 import shutit_util
-import random
 import string
 import re
 import textwrap
@@ -38,19 +37,6 @@ import getpass
 import package_map
 import datetime
 from shutit_module import ShutItFailException
-
-def random_id(size=8, chars=string.ascii_letters + string.digits):
-	"""Generates a random string of given size from the given chars.
-
-	@param size:  The size of the random string.
-	@param chars: Constituent pool of characters to draw random characters from.
-	@type size:   number
-	@type chars:  string
-	@rtype:       string
-	@return:      The string of random characters.
-	"""
-	return ''.join(random.choice(chars) for _ in range(size))
-
 
 class ShutIt(object):
 	"""ShutIt build class.
@@ -161,8 +147,9 @@ class ShutIt(object):
 		@param check_exit: Whether to check the exit value of the command
 		@type check_exit: boolean
 		"""
+		cfg = self.cfg
 		if expect == None:
-			expect = self.cfg['expect_prompts']['root']
+			expect = cfg['expect_prompts']['root']
 		self._default_expect[-1] = expect
 		self._default_check_exit[-1] = check_exit
 
@@ -206,17 +193,56 @@ class ShutIt(object):
 				time.localtime())
 			msg = prefix + ' ' + str(msg)
 		# Don't colour message if we are in serve mode.
-		if code != None and not self.cfg['action']['serve']:
+		if code != None and not cfg['action']['serve']:
 			msg = shutit_util.colour(code, msg)
-		if self.cfg['build']['debug'] or force_stdout:
+		if cfg['build']['debug'] or force_stdout:
 			print >> sys.stdout, msg
 			sys.stdout.flush()
-		if self.cfg['build']['build_log']:
+		if cfg['build']['build_log']:
 			print >> cfg['build']['build_log'], msg
-			self.cfg['build']['build_log'].flush()
+			cfg['build']['build_log'].flush()
 		if add_final_message:
 			cfg['build']['report_final_messages'] += msg + '\n'
 		time.sleep(pause)
+
+	def setup_environment(self, expect=None, child=None):
+		"""If we are in a new environment then set up a new data structure.
+		A new environment is a new machine environment, whether that's
+		over ssh, docker, whatever.
+		If we are not in a new environment ensure the env_id is correct.
+		Returns the environment id every time.
+		"""
+		child = child or self.get_default_child()
+		expect = expect or self.get_default_expect()
+		cfg = self.cfg
+		environment_id_dir = cfg['build']['shutit_state_dir'] + '/environment_id'
+		if self.file_exists(cfg['build']['shutit_state_dir'] + '/environment_id',expect=expect,child=child,directory=True):
+			files = self.ls(cfg['build']['shutit_state_dir'])
+			if len(files) != 1 or type(files) != list:
+				self.fail('Wrong number of files in environment_id_dir: ' + environment_id_dir)
+			environment_id = files[0]
+			if cfg['build']['current_environment_id'] != environment_id:
+				self.fail('environment id mismatch: ' + environment_id + ' and: ' + cfg['build']['current_environment_id'])
+			return environment_id
+		environment_id = shutit_util.random_id()
+		cfg['environment'][environment_id] = {}
+    	# Directory to revert to when delivering in bash and reversion to context required.
+		cfg['environment'][environment_id]['module_root_dir']              = '/'
+		cfg['environment'][environment_id]['modules_installed']            = [] # has been installed (in this build)
+		cfg['environment'][environment_id]['modules_not_installed']        = [] # modules _known_ not to be installed
+		cfg['environment'][environment_id]['modules_ready']                = [] # has been checked for readiness and is ready (in this build)
+    	# installed file info
+		cfg['environment'][environment_id]['modules_recorded']             = []
+		cfg['environment'][environment_id]['modules_recorded_cache_valid'] = False
+		cfg['environment'][environment_id]['setup']                        = False
+		cfg['build']['current_environment_id'] = environment_id
+		self.get_distro_info(environment_id)
+		send('mkdir -p ' + environment_id_dir)
+		fname = environment_id_dir + '/' + environment_id
+		send('touch ' + fname)
+		cfg['environment'][environment_id]['setup']                        = True
+		return environment_id
+
 
 
 	def multisend(self,
@@ -305,6 +331,7 @@ class ShutIt(object):
 		"""
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
+		cfg = self.cfg
 		# If check_exit is not passed in
 		# - if the expect matches the default, use the default check exit
 		# - otherwise, default to doing the check
@@ -416,6 +443,7 @@ class ShutIt(object):
 	                retbool=False):
 		"""Internal function to check the exit value of the shell. Do not use.
 		"""
+		cfg = self.cfg
 		if cfg['build']['check_exit'] == False:
 			self.log('check_exit configured off, returning')
 			return
@@ -469,6 +497,7 @@ class ShutIt(object):
 		"""
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
+		cfg = self.cfg
 		# Trim any whitespace lines from start and end of script, then dedent
 		lines = script.split('\n')
 		while len(lines) > 0 and re.match('^[ \t]*$', lines[0]):
@@ -480,18 +509,18 @@ class ShutIt(object):
 		script = '\n'.join(lines)
 		script = textwrap.dedent(script)
 		# Send the script and run it in the manner specified
-		if self.cfg['build']['delivery'] == 'target' and in_shell:
+		if cfg['build']['delivery'] == 'target' and in_shell:
 				script = ('set -o xtrace \n\n' + script + '\n\nset +o xtrace')
-		self.send('mkdir -p ' + self.cfg['build']['shutit_state_dir'] + '/scripts', expect, child)
-		self.send_file(self.cfg['build']['shutit_state_dir'] + '/scripts/shutit_script.sh', script)
-		self.send('chmod +x ' + self.cfg['build']['shutit_state_dir'] + '/scripts/shutit_script.sh', expect, child)
+		self.send('mkdir -p ' + cfg['build']['shutit_state_dir'] + '/scripts', expect, child)
+		self.send_file(cfg['build']['shutit_state_dir'] + '/scripts/shutit_script.sh', script)
+		self.send('chmod +x ' + cfg['build']['shutit_state_dir'] + '/scripts/shutit_script.sh', expect, child)
 		self.shutit_command_history.append\
 			('    ' + script.replace('\n', '\n    '))
 		if in_shell:
-			ret = self.send('. ' + self.cfg['build']['shutit_state_dir'] + '/scripts/shutit_script.sh', expect, child)
+			ret = self.send('. ' + cfg['build']['shutit_state_dir'] + '/scripts/shutit_script.sh', expect, child)
 		else:
-			ret = self.send(self.cfg['build']['shutit_state_dir'] + '/scripts/shutit_script.sh', expect, child)
-		self.send('rm -f ' + self.cfg['build']['shutit_state_dir'] + '/scripts/shutit_script.sh', expect, child)
+			ret = self.send(cfg['build']['shutit_state_dir'] + '/scripts/shutit_script.sh', expect, child)
+		self.send('rm -f ' + cfg['build']['shutit_state_dir'] + '/scripts/shutit_script.sh', expect, child)
 		return ret
 
 
@@ -511,6 +540,7 @@ class ShutIt(object):
 		"""
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
+		cfg = self.cfg
 		if cfg['build']['debug']:
 			self.log('=====================================================' + 
 				'===========================')
@@ -582,6 +612,7 @@ class ShutIt(object):
 		"""
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
+		cfg = self.cfg
 		if cfg['build']['delivery'] in ('bash','dockerfile'):
 			self.send('cd ' + path, expect=expect, child=child, timeout=timeout)
 		elif cfg['build']['delivery'] == 'target' or cfg['build']['delivery'] == 'ssh':
@@ -611,6 +642,7 @@ class ShutIt(object):
 		"""
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
+		cfg = self.cfg
 		if cfg['build']['delivery'] in ('bash','dockerfile'):
 			self.send('pushd ' + cfg['target']['module_root_dir'])
 			self.send('cp -r ' + hostfilepath + ' ' + path,expect=expect, child=child, timeout=timeout)
@@ -775,7 +807,7 @@ class ShutIt(object):
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
 		# assume we're going to add it
-		tmp_filename = '/tmp/' + random_id()
+		tmp_filename = '/tmp/' + shutit_util.random_id()
 		if self.file_exists(filename, expect=expect, child=child):
 			if literal:
 				if match_regexp == None:
@@ -870,7 +902,7 @@ class ShutIt(object):
 		expect = expect or self.get_default_expect()
 		# assume we're going to add it
 		res = '0'
-		tmp_filename = '/tmp/' + random_id()
+		tmp_filename = '/tmp/' + shutit_util.random_id()
 		if type(line) == str:
 			lines = [line]
 		elif type(line) == list:
@@ -1052,11 +1084,12 @@ class ShutIt(object):
 		"""
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
-		if self.cfg['target']['install_type'] == 'apt':
+		cfg = self.cfg
+		if cfg['environment'][cfg['build']['current_environment_id']]['install_type'] == 'apt':
 			#            v the space is intentional, to avoid polluting bash history.
 			self.send(""" dpkg -l | awk '{print $2}' | grep "^""" +
 				package + """$" | wc -l""", expect, check_exit=False)
-		elif self.cfg['target']['install_type'] == 'yum':
+		elif cfg['environment'][cfg['build']['current_environment_id']]['install_type'] == 'yum':
 			#            v the space is intentional, to avoid polluting bash history.
 			self.send(""" yum list installed | awk '{print $1}' | grep "^""" +
 				package + """$" | wc -l""", expect, check_exit=False)
@@ -1074,18 +1107,18 @@ class ShutIt(object):
 		# If it's already in cache, then return True.
 		# By default the cache is invalidated.
 		cfg = self.cfg
-		if cfg['target']['modules_recorded_cache_valid'] == False:
+		if cfg['environment'][cfg['build']['current_environment_id']]['modules_recorded_cache_valid'] == False:
 			if self.file_exists(cfg['build']['build_db_dir'] + '/module_record',directory=True):
 				# Bit of a hack here to get round the long command showing up as the first line of the output.
 				self.send(r"""find """ + cfg['build']['build_db_dir'] + """/module_record/ -name built | sed 's@^.""" + cfg['build']['build_db_dir'] + """/module_record.\([^/]*\).built@\1@' > """ + cfg['build']['build_db_dir'] + '/' + cfg['build']['build_id'])
 				built = self.send_and_get_output('cat ' + cfg['build']['build_db_dir'] + '/' + cfg['build']['build_id']).strip()
 				self.send('rm -f ' + cfg['build']['build_db_dir'] + '/' + cfg['build']['build_id'])
 				built_list = built.split('\r\n')
-				self.cfg['target']['modules_recorded'] = built_list
+				cfg['environment'][cfg['build']['current_environment_id']]['modules_recorded'] = built_list
 			# Either there was no directory (so the cache is valid), or we've built the cache, so mark as good.
-			self.cfg['target']['modules_recorded_cache_valid'] = True
+			cfg['environment'][cfg['build']['current_environment_id']]['modules_recorded_cache_valid'] = True
 		# Modules recorded cache will be valid at this point, so check the pre-recorded modules and the in-this-run installed cache.
-		if module_id in self.cfg['target']['modules_recorded'] or module_id in cfg['target']['modules_installed']:
+		if module_id in cfg['environment'][cfg['build']['current_environment_id']]['modules_recorded'] or module_id in cfg['environment'][cfg['build']['current_environment_id']]['modules_installed']:
 			return True
 		else:
 			return False
@@ -1146,8 +1179,8 @@ class ShutIt(object):
 		@return:           ???
 		@rtype:            string
 		"""
-		cfg = self.cfg
 		filename = os.path.basename(target_path)
+		cfg = self.cfg
 		artifacts_dir = cfg['host']['artifacts_dir']
 		if shutit.get_file_perms('/artifacts') != "777":
 			user = shutit.send_and_get_output('whoami').strip()
@@ -1182,6 +1215,7 @@ class ShutIt(object):
 		@return: the value entered by the user
 		@rtype:  string
 		"""
+		cfg = self.cfg
 		cfgstr        = '[%s]/%s' % (sec, name)
 		config_parser = cfg['config_parser']
 		usercfg       = os.path.join(cfg['shutit_home'], 'config')
@@ -1250,10 +1284,11 @@ class ShutIt(object):
 		"""Implements a step-through function, using pause_point.
 		"""
 		child = child or self.get_default_child()
-		if (not shutit_util.determine_interactive(self) or not self.cfg['build']['interactive'] or 
-			self.cfg['build']['interactive'] < level):
+		cfg = self.cfg
+		if (not shutit_util.determine_interactive(self) or not cfg['build']['interactive'] or 
+			cfg['build']['interactive'] < level):
 			return
-		self.cfg['build']['step_through'] = value
+		cfg['build']['step_through'] = value
 		self.pause_point(msg, child=child, print_input=print_input, level=level, resize=False)
 
 
@@ -1281,8 +1316,9 @@ class ShutIt(object):
 		@type resize:        boolean
 		"""
 		child = child or self.get_default_child()
-		if (not shutit_util.determine_interactive(self) or self.cfg['build']['interactive'] < 1 or 
-			self.cfg['build']['interactive'] < level):
+		cfg = self.cfg
+		if (not shutit_util.determine_interactive(self) or cfg['build']['interactive'] < 1 or 
+			cfg['build']['interactive'] < level):
 			return
 		if child and print_input:
 			if resize:
@@ -1313,14 +1349,15 @@ class ShutIt(object):
 	def _pause_input_filter(self, input_string):
 		"""Input filter for pause point to catch special keystrokes"""
 		# Can get errors with eg up/down chars
+		cfg = self.cfg
 		if len(input_string) == 1:
 			# Picked CTRL-u as the rarest one accepted by terminals.
 			if ord(input_string) == 21:
 				self.log('\n\nCTRL and u caught, forcing a tag at least\n\n',
 					force_stdout=True)
 				self.do_repository_work('tagged_by_shutit',
-					password=self.cfg['host']['password'],
-					docker_executable=self.cfg['host']['docker_executable'],
+					password=cfg['host']['password'],
+					docker_executable=cfg['host']['docker_executable'],
 					force=True)
 				self.log('\n\nCommit and tag done\n\nCTRL-] to continue with' + 
 					' build. Hit return for a promp.', force_stdout=True)
@@ -1335,7 +1372,8 @@ class ShutIt(object):
 			- child       - See send()
 		"""
 		child = child or self.get_default_child()
-		return self.cfg['build']['last_output']
+		cfg = self.cfg
+		return cfg['build']['last_output']
 
 
 	def get_re_from_child(self, string, regexp):
@@ -1349,6 +1387,7 @@ class ShutIt(object):
 			- string - string to search through lines of
 			- regexp - regexp to search for per line
 		"""
+		cfg = self.cfg
 		if cfg['build']['debug']:
 			self.log('get_re_from_child:')
 			self.log(string)
@@ -1449,9 +1488,10 @@ class ShutIt(object):
 		"""
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
+		cfg = self.cfg
 		if options is None: options = {}
 		# TODO: config of maps of packages
-		install_type = self.cfg['target']['install_type']
+		install_type = cfg['environment'][cfg['buid']['current_environment_id']]['install_type']
 		if install_type == 'src':
 			# If this is a src build, we assume it's already installed.
 			return True
@@ -1462,7 +1502,7 @@ class ShutIt(object):
 				opts = options['apt']
 			else:
 				opts = '-y'
-				if not self.cfg['build']['debug']:
+				if not cfg['build']['debug']:
 					opts += ' -qq'
 				if force:
 					opts += ' --force-yes'
@@ -1481,7 +1521,7 @@ class ShutIt(object):
 			return False
 		# Get mapped package.
 		package = package_map.map_package(package,
-			self.cfg['target']['install_type'])
+			cfg['environment'][cfg['build']['current_environment_id']]['install_type'])
 		# Let's be tolerant of failure eg due to network.
 		# This is especially helpful with automated testing.
 		if package != '':
@@ -1524,8 +1564,9 @@ class ShutIt(object):
 		"""
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
+		cfg = self.cfg
 		if options is None: options = {}
-		install_type = self.cfg['target']['install_type']
+		install_type = cfg['environment'][cfg['build']['current_environment_id']]['install_type']
 		if install_type == 'src':
 			# If this is a src build, we assume it's already installed.
 			return True
@@ -1540,7 +1581,7 @@ class ShutIt(object):
 			return False
 		# Get mapped package.
 		package = package_map.map_package(package,
-			self.cfg['target']['install_type'])
+			cfg['environment'][cfg['build']['current_environment_id']]['install_type'])
 		self.send('%s %s %s' % (cmd, opts, package), expect, timeout=timeout, exit_values=['0','100'])
 		return True
 
@@ -1574,7 +1615,7 @@ class ShutIt(object):
 		@type password:  string
 		"""
 		child = child or self.get_default_child()
-		r_id = random_id()
+		r_id = shutit_util.random_id()
 		cfg = self.cfg
 		self.login_stack_append(r_id)
 		self.send(command,expect=cfg['expect_prompts']['base_prompt'],check_exit=False)
@@ -1584,10 +1625,10 @@ class ShutIt(object):
 	def login_stack_append(self, r_id, child=None, expect=None, new_user=''):
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
-		self.send('mkdir -p ' + self.cfg['build']['shutit_state_dir'] + '/environments && touch ' + self.cfg['build']['shutit_state_dir'] + '/environments/shutit_stack_' + r_id + ' && chmod 777 ' + self.cfg['build']['shutit_state_dir'] + '/environments/shutit_stack_' + r_id, expect=expect, child=child, check_exit=False)
-		self.cfg['build']['login_stack'].append(r_id)
+		self.send('mkdir -p ' + cfg['build']['shutit_state_dir'] + '/environments && touch ' + cfg['build']['shutit_state_dir'] + '/environments/shutit_stack_' + r_id + ' && chmod 777 ' + cfg['build']['shutit_state_dir'] + '/environments/shutit_stack_' + r_id, expect=expect, child=child, check_exit=False)
+		cfg['build']['login_stack'].append(r_id)
 		# Dictionary with details about login (eg whoami)
-		self.cfg['build']['logins'][r_id] = {'whoami':new_user}
+		cfg['build']['logins'][r_id] = {'whoami':new_user}
 
 
 	def login(self, user='root', command='su -', child=None, password=None, prompt_prefix=None, expect=None, timeout=20):
@@ -1612,11 +1653,11 @@ class ShutIt(object):
 		@type timeout:          integer
 		"""
 		child = child or self.get_default_child()
-		r_id = random_id()
+		r_id = shutit_util.random_id()
 		self.login_stack_append(r_id)
 		cfg = self.cfg
 		# TODO: create a file on this host with that /tmp/shutit_stack.r_id so we can check we're at the right point in the stack.
-		if self.cfg['build']['delivery'] == 'bash' and command == 'su -':
+		if cfg['build']['delivery'] == 'bash' and command == 'su -':
 			# We want to retain the current working directory
 			command = 'su'
 		if command == 'su -' or command == 'su' or command == 'login':
@@ -1647,12 +1688,13 @@ class ShutIt(object):
 		# TODO: check that we are where we expect to be, ie /tmp/shutit/environments file is there
 		child = child or self.get_default_child()
 		old_expect = expect or self.get_default_expect()
-		if len(self.cfg['build']['login_stack']):
-			current_prompt_name = self.cfg['build']['login_stack'].pop()
-			self.send('rm -f ' + self.cfg['build']['shutit_state_dir'] + '/environments/shutit_stack_' + current_prompt_name, expect=old_expect, child=child, check_exit=False)
-			if len(self.cfg['build']['login_stack']):
-				old_prompt_name     = self.cfg['build']['login_stack'][-1]
-				self.set_default_expect(self.cfg['expect_prompts'][old_prompt_name])
+		cfg = self.cfg
+		if len(cfg['build']['login_stack']):
+			current_prompt_name = cfg['build']['login_stack'].pop()
+			self.send('rm -f ' + cfg['build']['shutit_state_dir'] + '/environments/shutit_stack_' + current_prompt_name, expect=old_expect, child=child, check_exit=False)
+			if len(cfg['build']['login_stack']):
+				old_prompt_name     = cfg['build']['login_stack'][-1]
+				self.set_default_expect(cfg['expect_prompts'][old_prompt_name])
 			else:
 				# If none are on the stack, we assume we're going to the root prompt
 				# set up in shutit_setup.py
@@ -1671,7 +1713,8 @@ class ShutIt(object):
 	                 prompt_name,
 	                 prefix='TMP',
 	                 child=None,
-	                 set_default_expect=True):
+	                 set_default_expect=True,
+	                 setup_environment=True):
 		"""Use this when you've opened a new shell to set the PS1 to something
 		sane. By default, it sets up the default expect so you don't have to
 		worry about it and can just call shutit.send('a command').
@@ -1695,14 +1738,15 @@ class ShutIt(object):
 		@param child:               See send()
 		@param set_default_expect:  Whether to set the default expect
 		                            to the new prompt. Default: True
+		@param setup_environment:   Whether to setup the environment config
 
 		@type prompt_name:          string
 		@type prefix:               string
 		@type set_default_expect:   boolean
 		"""
 		child = child or self.get_default_child()
+		local_prompt = 'SHUTIT_' + prefix + '#' + shutit_util.random_id() + '>'
 		cfg = self.cfg
-		local_prompt = 'SHUTIT_' + prefix + '#' + random_id() + '>'
 		cfg['expect_prompts'][prompt_name] = local_prompt
 		# Set up the PS1 value.
 		# Unset the PROMPT_COMMAND as this can cause nasty surprises in the output.
@@ -1714,12 +1758,15 @@ class ShutIt(object):
 				# The newline in the list is a hack. On my work laptop this line hangs
 				# and times out very frequently. This workaround seems to work, but I
 				# haven't figured out why yet - imiell.
-				expect=['\r\n' + self.cfg['expect_prompts'][prompt_name]],
+				expect=['\r\n' + cfg['expect_prompts'][prompt_name]],
 				fail_on_empty_before=False, timeout=5, child=child)
 		if set_default_expect:
 			shutit.log('Resetting default expect to: ' +
 				cfg['expect_prompts'][prompt_name])
 			self.set_default_expect(cfg['expect_prompts'][prompt_name])
+		# Ensure environment is set up OK.
+		if setup_environment:
+			self.setup_environment()
 
 
 	def revert_prompt(self, old_prompt_name, new_expect=None, child=None):
@@ -1742,10 +1789,12 @@ class ShutIt(object):
 		if not new_expect:
 			shutit.log('Resetting default expect to default')
 			self.set_default_expect()
+		self.setup_environment()
 
 
-	def get_distro_info(self, child=None, container=True):
-		"""Get information about which distro we are using.
+	def get_distro_info(self, environment_id, child=None, container=True):
+		"""Get information about which distro we are using,
+		placing it in the cfg['environment'][environment_id] as a side effect.
 
 		Fails if distro could not be determined.
 		Should be called with the container is started up, and uses as core info
@@ -1761,21 +1810,15 @@ class ShutIt(object):
 		                    shell. Defaults to True.
 
 		@type container:    boolean
-
-		@return: A dict with the following keys: 
-		    - install_type
-			- distro
-			- distro_version
-		@rtype: dict
 		"""
 		child = child or self.get_default_child()
 		install_type   = ''
 		distro         = ''
 		distro_version = ''
-		if container:
-			cfg['target']['install_type']      = ''
-			cfg['target']['distro']            = ''
-			cfg['target']['distro_version']    = ''
+		cfg = self.cfg
+		cfg['environment'][environment_id]['install_type']      = ''
+		cfg['environment'][environment_id]['distro']            = ''
+		cfg['environment'][environment_id]['distro_version']    = ''
 		# A list of OS Family members
 		# RedHat    = RedHat, Fedora, CentOS, Scientific, SLC, Ascendos, CloudLinux, PSBM, OracleLinux, OVS, OEL, Amazon, XenServer 
 		# Debian    = Ubuntu, Debian
@@ -1820,18 +1863,18 @@ class ShutIt(object):
 		#                 { 'path' : '/usr/sbin/pkgadd',     'name' : 'svr4pkg' },
 		#                 { 'path' : '/usr/bin/pkg',         'name' : 'pkg' },
 		#    ]
-		if self.cfg['build']['distro_override'] != '':
-			key = self.cfg['build']['distro_override']
+		if cfg['build']['distro_override'] != '':
+			key = cfg['build']['distro_override']
 			install_type = cfg['build']['install_type_map'][key]
 			distro_version = ''
-			if install_type == 'apt' and self.cfg['build']['delivery'] == 'target':
+			if install_type == 'apt' and cfg['build']['delivery'] == 'target':
 				self.send('apt-get update')
-				self.cfg['build']['do_update'] = False
+				cfg['build']['do_update'] = False
 				self.send('apt-get install -y -qq lsb-release')
 				d = self.lsb_release()
 				distro         = d['distro']
 				distro_version = d['distro_version']
-		elif self.package_installed('lsb-release'):
+		elif cfg['environment'][environment_id]['setup'] and self.package_installed('lsb-release'):
 			d = self.lsb_release()
 			install_type   = d['install_type']
 			distro         = d['distro']
@@ -1857,9 +1900,9 @@ class ShutIt(object):
 			# The call to self.package_installed with lsb-release above 
 			# may fail if it doesn't know the install type, so
 			# if we've determined that now
-			if install_type == 'apt' and self.cfg['build']['delivery'] == 'target':
+			if install_type == 'apt' and cfg['build']['delivery'] == 'target':
 				self.send('apt-get update')
-				self.cfg['build']['do_update'] = False
+				cfg['build']['do_update'] = False
 				self.send('apt-get install -y -qq lsb-release')
 				d = self.lsb_release()
 				install_type   = d['install_type']
@@ -1867,17 +1910,17 @@ class ShutIt(object):
 				distro_version = d['distro_version']
 		# We should have the distro info now, let's assign to target config 
 		# if this is not a one-off.
-		if container:
-			cfg['target']['install_type']   = install_type
-			cfg['target']['distro']         = distro
-			cfg['target']['distro_version'] = distro_version
-		return {'install_type':install_type,'distro':distro,'distro_version':distro_version}
+		cfg['environment'][environment_id]['install_type']   = install_type
+		cfg['environment'][environment_id]['distro']         = distro
+		cfg['environment'][environment_id]['distro_version'] = distro_version
+		return
 
 
 	def lsb_release(self, child=None):
 		"""Get distro information from lsb_release.
 		"""
 		child = child or self.get_default_child()
+		cfg = self.cfg
 		#          v the space is intentional, to avoid polluting bash history.
 		self.send(' lsb_release -a',check_exit=False)
 		dist_string = self.get_re_from_child(child.before,
@@ -1906,7 +1949,8 @@ class ShutIt(object):
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
 		self.install('passwd')
-		if cfg['target']['install_type'] == 'apt':
+		cfg = self.cfg
+		if cfg['environment'][cfg['build']['current_environment_id']]['install_type'] == 'apt':
 			self.send('passwd ' + user,
 					  expect='Enter new', child=child, check_exit=False)
 			self.send(password, child=child, expect='Retype new',
@@ -1917,7 +1961,7 @@ class ShutIt(object):
 			#W: Failed to fetch http://archive.ubuntu.com/ubuntu/dists/precise/main/source/Sources  Hash Sum mismatch
 			# It seems that doing apt-utils before apt-get update is a problem
 			#self.install('apt-utils')
-		elif cfg['target']['install_type'] == 'yum':
+		elif cfg['environment'][cfg['build']['current_environment_id']]['install_type'] == 'yum':
 			self.send('passwd ' + user, child=child, expect='ew password',
 					  check_exit=False)
 			self.send(password, child=child, expect='ew password',
@@ -1972,6 +2016,7 @@ class ShutIt(object):
 		"""
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
+		cfg = self.cfg
 		send = docker_executable + ' push ' + repository
 		expect_list = ['Username', 'Password', 'Email', expect]
 		timeout = 99999
@@ -2017,6 +2062,7 @@ class ShutIt(object):
 		@type force:                boolean
 		"""
 		expect = expect or self.get_default_expect()
+		cfg = self.cfg
 		tag    = cfg['repository']['tag']
 		push   = cfg['repository']['push']
 		export = cfg['repository']['export']
@@ -2082,7 +2128,7 @@ class ShutIt(object):
 					  record_command=False, child=child)
 		# Tag image, force it by default
 		cmd = docker_executable + ' tag -f $SHUTIT_TMP_VAR ' + repository_with_tag
-		self.cfg['build']['report'] += '\nBuild tagged as: ' + repository_with_tag
+		cfg['build']['report'] += '\nBuild tagged as: ' + repository_with_tag
 		self.send(cmd, child=child, expect=expect, check_exit=False)
 		if export or save:
 			self.pause_point('We are now exporting the container to a ' + 
@@ -2170,35 +2216,36 @@ class ShutIt(object):
 		@type forcenone:     boolean
 		@type hint:          string
 		"""
-		if module_id not in self.cfg.keys():
-			self.cfg[module_id] = {}
+		cfg = self.cfg
+		if module_id not in cfg.keys():
+			cfg[module_id] = {}
 		if not cfg['config_parser'].has_section(module_id):
-			self.cfg['config_parser'].add_section(module_id)
-		if not forcedefault and self.cfg['config_parser'].has_option(module_id, option):
+			cfg['config_parser'].add_section(module_id)
+		if not forcedefault and cfg['config_parser'].has_option(module_id, option):
 			if boolean:
-				self.cfg[module_id][option] = self.cfg['config_parser'].getboolean(module_id, option)
+				cfg[module_id][option] = cfg['config_parser'].getboolean(module_id, option)
 			else:
-				self.cfg[module_id][option] = self.cfg['config_parser'].get(module_id, option)
+				cfg[module_id][option] = cfg['config_parser'].get(module_id, option)
 		else:
 			if forcenone != True:
-				if self.cfg['build']['interactive'] > 0:
-					if self.cfg['build']['accept_defaults'] == None:
+				if cfg['build']['interactive'] > 0:
+					if cfg['build']['accept_defaults'] == None:
 						answer = None
 						# util_raw_input may change the interactive level, so guard for this.
-						while answer not in ('yes','no','') and self.cfg['build']['interactive'] > 1:
+						while answer not in ('yes','no','') and cfg['build']['interactive'] > 1:
 							answer = shutit_util.util_raw_input(shutit=self,prompt=shutit_util.colour('32',
 							   'Do you want to accept the config option defaults? ' +
 							   '(boolean - input "yes" or "no") (default: yes): \n'))
 						# util_raw_input may change the interactive level, so guard for this.
-						if answer == 'yes' or answer == '' or self.cfg['build']['interactive'] < 2:
-							self.cfg['build']['accept_defaults'] = True
+						if answer == 'yes' or answer == '' or cfg['build']['interactive'] < 2:
+							cfg['build']['accept_defaults'] = True
 						else:
-							self.cfg['build']['accept_defaults'] = False
-					if self.cfg['build']['accept_defaults'] == True and default != None:
-						self.cfg[module_id][option] = default
+							cfg['build']['accept_defaults'] = False
+					if cfg['build']['accept_defaults'] == True and default != None:
+						cfg[module_id][option] = default
 					else:
 						# util_raw_input may change the interactive level, so guard for this.
-						if self.cfg['build']['interactive'] < 1:
+						if cfg['build']['interactive'] < 1:
 							shutit.fail('Cannot continue. ' + module_id + '.' + option + ' config requires a value and no default is supplied. Adding "-s ' + module_id + ' ' + option + ' [your desired value]" to the shutit invocation will set this.')
 						prompt = '\n\nPlease input a value for ' + module_id + '.' + option
 						if default != None:
@@ -2214,14 +2261,14 @@ class ShutIt(object):
 							answer =  shutit_util.util_raw_input(shutit=self,prompt=shutit_util.colour('32',prompt) + ': \n')
 						if answer == '' and default != None:
 							answer = default
-						self.cfg[module_id][option] = answer
+						cfg[module_id][option] = answer
 				else:
 					if default != None:
-						self.cfg[module_id][option] = default
+						cfg[module_id][option] = default
 					else:
 						self.fail('Config item: ' + option + ':\nin module:\n[' + module_id + ']\nmust be set!\n\nOften this is a deliberate requirement to place in your ~/.shutit/config file, or you can pass in with:\n\n-s ' + module_id + ' ' + option + ' yourvalue\n\nto the build command', throw_exception=False)
 			else:
-				self.cfg[module_id][option] = default
+				cfg[module_id][option] = default
 
 
 	def get_ip_address(self, ip_family='4', ip_object='addr', command='ip', interface='eth0'):
@@ -2244,11 +2291,12 @@ class ShutIt(object):
 	def record_config(self):
 		""" Put the config in a file in the target.
 		"""
-		if self.cfg['build']['delivery'] == 'target':
-			self.send_file(self.cfg['build']['build_db_dir'] +
-						   '/' + self.cfg['build']['build_id'] +
-						   '/' + self.cfg['build']['build_id'] +
-						   '.cfg', shutit_util.print_config(self.cfg))
+		cfg = self.cfg
+		if cfg['build']['delivery'] == 'target':
+			self.send_file(cfg['build']['build_db_dir'] +
+						   '/' + cfg['build']['build_id'] +
+						   '/' + cfg['build']['build_id'] +
+						   '.cfg', shutit_util.print_config(cfg))
 
 
 	def get_emailer(self, cfg_section):
@@ -2286,7 +2334,8 @@ def init():
 	cfg['build']['report_final_messages'] = ''
 	cfg['build']['debug']       = False
 	cfg['build']['completed']   = False
-	cfg['target']            = {}
+	cfg['target']               = {}
+	cfg['environment']          = {}
 	cfg['host']                 = {}
 	cfg['repository']           = {}
 	cfg['expect_prompts']       = {}
