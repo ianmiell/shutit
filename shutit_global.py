@@ -200,6 +200,7 @@ class ShutIt(object):
 		@param force_stdout:      If we are not in debug, put this in stdout anyway
 		@param add_final_message: Add this log line to the final message output to the user
 		"""
+		cfg = self.cfg
 		if prefix:
 			prefix = 'LOG: ' + time.strftime("%Y-%m-%d %H:%M:%S", 
 				time.localtime())
@@ -214,7 +215,7 @@ class ShutIt(object):
 			print >> cfg['build']['build_log'], msg
 			self.cfg['build']['build_log'].flush()
 		if add_final_message:
-			shutit.cfg['build']['report_final_messages'] += msg + '\n'
+			cfg['build']['report_final_messages'] += msg + '\n'
 		time.sleep(pause)
 
 
@@ -232,9 +233,17 @@ class ShutIt(object):
 		"""Multisend. Same as send, except it takes multiple sends and expects in a dict that are
 		processed while waiting for the end "expect" argument supplied.
 
-		see send
+		@param send_dict:            dict of sends and expects, eg: {'interim prompt:','some input','other prompt','some other input'}
+		@param expect:               String or list of strings of final expected output that returns from this function. See send()
+		@param send:                 See send()
+		@param child:                See send()
+		@param timeout:              See send()
+		@param check_exit:           See send()
+		@param fail_on_empty_before: See send()
+		@param record_command:       See send()
+		@param exit_values:          See send()
+		@param echo:                 See send()
 
-			- send_dict - dict of sends and expects, eg: {'interim prompt:','some input','other prompt','some other input'}
 			- expect - final expect we want to see. defaults to child.get_default_expect()
 		"""
 		expect = expect or self.get_default_expect()
@@ -280,9 +289,9 @@ class ShutIt(object):
 		Returns the pexpect return value (ie which expected string in the list
 		matched)
 
-		@param child: pexpect child to issue command to.
 		@param send: String to send, ie the command being issued. If set to None, we consume up to the expect string, which is useful if we just matched output that came before a standard command that returns to the prompt.
 		@param expect: String that we expect to see in the output. Usually a prompt. Defaults to currently-set expect string (see set_default_expect)
+		@param child: pexpect child to issue command to.
 		@param timeout: Timeout on response
 		@param check_exit: Whether to check the shell exit code of the passed-in command.  If the exit value was non-zero an error is thrown.  (default=None, which takes the currently-configured check_exit value) See also fail_on_empty_before.
 		@param fail_on_empty_before: If debug is set, fail on empty match output string (default=True) If this is set to False, then we don't check the exit value of the command.
@@ -564,6 +573,12 @@ class ShutIt(object):
 	          timeout=3600,
 	          log=True):
 		"""How to change directory will depend on whether we are in delivery mode bash or docker.
+
+		@param path:          Path to send file to.
+		@param expect:        See send()
+		@param child:         See send()
+		@param timeout:       Timeout on response
+		@param log:           Arg to pass to send_file (default True)
 		"""
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
@@ -1062,15 +1077,15 @@ class ShutIt(object):
 		if cfg['target']['modules_recorded_cache_valid'] == False:
 			if self.file_exists(cfg['build']['build_db_dir'] + '/module_record',directory=True):
 				# Bit of a hack here to get round the long command showing up as the first line of the output.
-				self.send(r"""find """ + cfg['build']['build_db_dir'] + """/module_record/ -name built | sed 's@^.""" + cfg['build']['build_db_dir'] + """/module_record.\([^/]*\).built@\1@' > """ + cfg['build']['build_db_dir'] + """/tmp""")
-				built = self.send_and_get_output('cat ' + cfg['build']['build_db_dir'] + '/tmp').strip()
-				self.send('rm -f ' + cfg['build']['build_db_dir'] + '/tmp')
+				self.send(r"""find """ + cfg['build']['build_db_dir'] + """/module_record/ -name built | sed 's@^.""" + cfg['build']['build_db_dir'] + """/module_record.\([^/]*\).built@\1@' > """ + cfg['build']['build_db_dir'] + '/' + cfg['build']['build_id'])
+				built = self.send_and_get_output('cat ' + cfg['build']['build_db_dir'] + '/' + cfg['build']['build_id']).strip()
+				self.send('rm -f ' + cfg['build']['build_db_dir'] + '/' + cfg['build']['build_id'])
 				built_list = built.split('\r\n')
 				self.cfg['target']['modules_recorded'] = built_list
 			# Either there was no directory (so the cache is valid), or we've built the cache, so mark as good.
 			self.cfg['target']['modules_recorded_cache_valid'] = True
 		# Modules recorded cache will be valid at this point, so check the pre-recorded modules and the in-this-run installed cache.
-		if module_id in self.cfg['target']['modules_recorded'] or module_id in shutit.cfg['target']['modules_installed']:
+		if module_id in self.cfg['target']['modules_recorded'] or module_id in cfg['target']['modules_installed']:
 			return True
 		else:
 			return False
@@ -1131,8 +1146,9 @@ class ShutIt(object):
 		@return:           ???
 		@rtype:            string
 		"""
+		cfg = self.cfg
 		filename = os.path.basename(target_path)
-		artifacts_dir = shutit.cfg['host']['artifacts_dir']
+		artifacts_dir = cfg['host']['artifacts_dir']
 		if shutit.get_file_perms('/artifacts') != "777":
 			user = shutit.send_and_get_output('whoami').strip()
 			# revert to root to do attachments
@@ -1143,9 +1159,9 @@ class ShutIt(object):
 			if user != 'root':
 				shutit.login(user=user)
 		shutit.send('cp ' + target_path + ' /artifacts')
-		shutil.copyfile(os.path.join(artifacts_dir,filename),os.path.join(host_path,'{0}_'.format(shutit.cfg['build']['build_id']) + filename))
+		shutil.copyfile(os.path.join(artifacts_dir,filename),os.path.join(host_path,'{0}_'.format(cfg['build']['build_id']) + filename))
 		shutit.send('rm -f /artifacts/' + filename)
-		return os.path.join(host_path,'{0}_'.format(shutit.cfg['build']['build_id']) + filename)
+		return os.path.join(host_path,'{0}_'.format(cfg['build']['build_id']) + filename)
 
 
 	def prompt_cfg(self, msg, sec, name, ispass=False):
@@ -1559,8 +1575,9 @@ class ShutIt(object):
 		"""
 		child = child or self.get_default_child()
 		r_id = random_id()
+		cfg = self.cfg
 		self.login_stack_append(r_id)
-		self.send(command,expect=shutit.cfg['expect_prompts']['base_prompt'],check_exit=False)
+		self.send(command,expect=cfg['expect_prompts']['base_prompt'],check_exit=False)
 		self.setup_prompt(r_id,child=child)
 
 
@@ -1597,6 +1614,7 @@ class ShutIt(object):
 		child = child or self.get_default_child()
 		r_id = random_id()
 		self.login_stack_append(r_id)
+		cfg = self.cfg
 		# TODO: create a file on this host with that /tmp/shutit_stack.r_id so we can check we're at the right point in the stack.
 		if self.cfg['build']['delivery'] == 'bash' and command == 'su -':
 			# We want to retain the current working directory
@@ -1606,10 +1624,11 @@ class ShutIt(object):
 		else:
 			send = command
 		if expect == None:
-			login_expect = shutit.cfg['expect_prompts']['base_prompt']
+			login_expect = cfg['expect_prompts']['base_prompt']
 		else:
 			login_expect = expect
 		# We don't fail on empty before as many login programs mess with the output.
+		# In this special case of login we expect either the prompt, or 'user@' as this has been seen to work.
 		self.multisend(send,{'ontinue connecting':'yes','assword':password,'login:':password},expect=[login_expect,user+'@'],check_exit=False,timeout=timeout,fail_on_empty_before=False)
 		if prompt_prefix != None:
 			self.setup_prompt(r_id,child=child,prefix=prompt_prefix)
@@ -1682,14 +1701,15 @@ class ShutIt(object):
 		@type set_default_expect:   boolean
 		"""
 		child = child or self.get_default_child()
+		cfg = self.cfg
 		local_prompt = 'SHUTIT_' + prefix + '#' + random_id() + '>'
-		shutit.cfg['expect_prompts'][prompt_name] = local_prompt
+		cfg['expect_prompts'][prompt_name] = local_prompt
 		# Set up the PS1 value.
 		# Unset the PROMPT_COMMAND as this can cause nasty surprises in the output.
 		# Set the cols value, as unpleasant escapes are put in the output if the
 		# input is > n chars wide.
 		self.send(
-			(" export SHUTIT_BACKUP_PS1_%s=$PS1 && PS1='%s' && unset PROMPT_COMMAND && stty cols " + str(shutit.cfg['target']['stty_cols'])) %
+			(" export SHUTIT_BACKUP_PS1_%s=$PS1 && PS1='%s' && unset PROMPT_COMMAND && stty cols " + str(cfg['target']['stty_cols'])) %
 				(prompt_name, local_prompt),
 				# The newline in the list is a hack. On my work laptop this line hangs
 				# and times out very frequently. This workaround seems to work, but I
@@ -1698,8 +1718,8 @@ class ShutIt(object):
 				fail_on_empty_before=False, timeout=5, child=child)
 		if set_default_expect:
 			shutit.log('Resetting default expect to: ' +
-				shutit.cfg['expect_prompts'][prompt_name])
-			self.set_default_expect(shutit.cfg['expect_prompts'][prompt_name])
+				cfg['expect_prompts'][prompt_name])
+			self.set_default_expect(cfg['expect_prompts'][prompt_name])
 
 
 	def revert_prompt(self, old_prompt_name, new_expect=None, child=None):
@@ -2276,6 +2296,8 @@ def init():
 	cfg['list_configs']         = {}
 	cfg['list_deps']            = {}
 	cfg['build']['shutit_state_dir'] = '/tmp/shutit'
+	# Take a command-line arg if given, else default.
+	cfg['build']['build_db_dir']     = '/tmp/shutit/build_db'
 	cfg['build']['install_type_map'] = {'ubuntu':'apt',
 	                                    'debian':'apt',
 	                                    'steamos':'apt',
