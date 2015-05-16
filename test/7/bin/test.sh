@@ -13,4 +13,6 @@ then
     echo "  ./test.sh <path_to_shutit_dir>"
     exit
 fi
-./build.sh $1
+pushd ..
+../../shutit build
+popd

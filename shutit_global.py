@@ -1115,7 +1115,8 @@ class ShutIt(object):
 		if cfg['environment'][cfg['build']['current_environment_id']]['modules_recorded_cache_valid'] == False:
 			if self.file_exists(cfg['build']['build_db_dir'] + '/module_record',directory=True):
 				# Bit of a hack here to get round the long command showing up as the first line of the output.
-				self.send(r"""find """ + cfg['build']['build_db_dir'] + """/module_record/ -name built | sed 's@^.""" + cfg['build']['build_db_dir'] + """/module_record.\([^/]*\).built@\1@' > """ + cfg['build']['build_db_dir'] + '/' + cfg['build']['build_id'])
+				cmd = 'find ' + cfg['build']['build_db_dir'] + r"""/module_record/ -name built | sed 's@^.""" + cfg['build']['build_db_dir'] + r"""/module_record.\([^/]*\).built@\1@' > """ + cfg['build']['build_db_dir'] + '/' + cfg['build']['build_id']
+				self.send(cmd)
 				built = self.send_and_get_output('cat ' + cfg['build']['build_db_dir'] + '/' + cfg['build']['build_id']).strip()
 				self.send('rm -f ' + cfg['build']['build_db_dir'] + '/' + cfg['build']['build_id'])
 				built_list = built.split('\r\n')
@@ -1630,7 +1631,6 @@ class ShutIt(object):
 	def login_stack_append(self, r_id, child=None, expect=None, new_user=''):
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
-		self.send('mkdir -p ' + cfg['build']['shutit_state_dir'] + '/environments && touch ' + cfg['build']['shutit_state_dir'] + '/environments/shutit_stack_' + r_id + ' && chmod 777 ' + cfg['build']['shutit_state_dir'] + '/environments/shutit_stack_' + r_id, expect=expect, child=child, check_exit=False)
 		cfg['build']['login_stack'].append(r_id)
 		# Dictionary with details about login (eg whoami)
 		cfg['build']['logins'][r_id] = {'whoami':new_user}
@@ -1690,13 +1690,11 @@ class ShutIt(object):
 			- child              - See send()
 			- expect             - override expect (eg for base_prompt)
 		"""
-		# TODO: check that we are where we expect to be, ie /tmp/shutit/environments file is there
 		child = child or self.get_default_child()
 		old_expect = expect or self.get_default_expect()
 		cfg = self.cfg
 		if len(cfg['build']['login_stack']):
 			current_prompt_name = cfg['build']['login_stack'].pop()
-			self.send('rm -f ' + cfg['build']['shutit_state_dir'] + '/environments/shutit_stack_' + current_prompt_name, expect=old_expect, child=child, check_exit=False)
 			if len(cfg['build']['login_stack']):
 				old_prompt_name     = cfg['build']['login_stack'][-1]
 				self.set_default_expect(cfg['expect_prompts'][old_prompt_name])
