@@ -75,16 +75,13 @@ class ShutItConnModule(ShutItModule):
 		shutit.log('Setting default child done')
 		shutit.log('Setting up default prompt on host child')
 		shutit.log('Setting up prompt')
-		shutit.setup_prompt('real_user_prompt', prefix='REAL_USER', setup_environment=False)
+		# ORIGIN_ENV is a special case of the prompt maintained for performance reasons, don't change.
+		shutit.setup_prompt('real_user_prompt', prefix='ORIGIN_ENV')
 		shutit.log('Setting up prompt done')
 		# target child
 		shutit.set_default_child(target_child)
 		shutit.log('Setting up default prompt on target child')
-		# Set the login stack to have this root environment with a unique id of origin, so that 
-		# we can use native python for eg copying files in rather than more expensive
-		# pexpect. TODO: review this when environments work done
-		shutit.setup_prompt('origin', prefix='ORIGIN', setup_environment=False)
-		shutit.setup_prompt('root', prefix='ROOT')
+		shutit.setup_prompt('root')
 		shutit.login_stack_append('root')
 
 	def _add_begin_build_info(self, shutit, command):

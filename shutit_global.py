@@ -224,7 +224,12 @@ class ShutIt(object):
 			if cfg['build']['current_environment_id'] != environment_id:
 				self.fail('environment id mismatch: ' + environment_id + ' and: ' + cfg['build']['current_environment_id'])
 			return environment_id
-		environment_id = prefix + '_' + shutit_util.random_id()
+		# Root is a special case
+		if prefix == 'ORIGIN_ENV':
+			environment_id = prefix
+		else:
+			environment_id = shutit_util.random_id()
+		cfg['build']['current_environment_id']                             = environment_id
 		cfg['environment'][environment_id] = {}
     	# Directory to revert to when delivering in bash and reversion to context required.
 		cfg['environment'][environment_id]['module_root_dir']              = '/'
@@ -235,8 +240,9 @@ class ShutIt(object):
 		cfg['environment'][environment_id]['modules_recorded']             = []
 		cfg['environment'][environment_id]['modules_recorded_cache_valid'] = False
 		cfg['environment'][environment_id]['setup']                        = False
-		cfg['build']['current_environment_id']                             = environment_id
-		self.get_distro_info(environment_id)
+		# Exempt the ORIGIN_ENV from getting distro info
+		if prefix != 'ORIGIN_ENV':
+			self.get_distro_info(environment_id)
 		self.send('mkdir -p ' + environment_id_dir)
 		fname = environment_id_dir + '/' + environment_id
 		self.send('touch ' + fname)
@@ -550,9 +556,9 @@ class ShutIt(object):
 		if truncate and self.file_exists(path):
 			self.send('rm -f ' + path, expect=expect, child=child)
 		if cfg['build']['delivery'] == 'bash':
-			# TODO: make this smarter wrt login to different envs etc
-			# or maybe add_line_to_file is the better approach.
-			if False:
+			# If we're on the root env (ie the same one that python is running on,
+			# then use python.
+			if cfg['build']['current_environment_id'] == 'ORIGIN_ENV':
 				if truncate:
 					pass
 				f = open(path,'w')
