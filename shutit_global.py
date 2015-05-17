@@ -1883,6 +1883,7 @@ class ShutIt(object):
 				cfg['build']['do_update'] = False
 				self.send('apt-get install -y -qq lsb-release')
 				d = self.lsb_release()
+				distro_version = d['install_type']
 				distro         = d['distro']
 				distro_version = d['distro_version']
 		elif cfg['environment'][environment_id]['setup'] and self.package_installed('lsb-release'):
