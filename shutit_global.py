@@ -298,9 +298,9 @@ class ShutIt(object):
 				expect_list.append(item)
 				n_breakout_items += 1
 		while True:
-			# If it's the last item in the list, it's the breakout one.
+			# If it's the last n items in the list, it's the breakout one.
 			res = self.send(send_iteration, expect=expect_list, child=child, check_exit=check_exit, fail_on_empty_before=fail_on_empty_before, timeout=timeout, record_command=record_command, exit_values=exit_values, echo=echo)
-			if res == len(expect_list) - n_breakout_items:
+			if res >= len(expect_list) - n_breakout_items:
 				break
 			else:
 				send_iteration = send_dict[expect_list[res]]
