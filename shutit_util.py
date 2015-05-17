@@ -1585,7 +1585,7 @@ def parse_dockerfile(shutit, contents):
 				full_line = ''
 	return ret
 
-def util_raw_input(shutit=None, prompt='', default=None, noecho=False):
+def util_raw_input(shutit=None, prompt='', default=None, ispass=False):
 	"""Handles raw_input calls, and switches off interactivity if there is apparently
 	no controlling terminal (or there are any other problems)
 	"""
@@ -1596,7 +1596,8 @@ def util_raw_input(shutit=None, prompt='', default=None, noecho=False):
 	if not determine_interactive(shutit):
 		return default
 	try:
-		if noecho:
+		if ispass:
+			print prompt + '\n'
 			return getpass.getpass()
 		else:
 			return raw_input(prompt)

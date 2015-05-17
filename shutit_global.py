@@ -2269,7 +2269,8 @@ class ShutIt(object):
 								answer =  shutit_util.util_raw_input(shutit=self,prompt=shutit_util.colour('32',prompt
 								  + ' (boolean - input "yes" or "no"): \n'))
 						else:
-							answer =  shutit_util.util_raw_input(shutit=self,prompt=shutit_util.colour('32',prompt) + ': \n')
+							# TODO: assume pass only if pass in the name?
+							answer =  shutit_util.util_raw_input(shutit=self,ispass=True,prompt=shutit_util.colour('32',prompt) + ': \n')
 						if answer == '' and default != None:
 							answer = default
 						cfg[module_id][option] = answer
