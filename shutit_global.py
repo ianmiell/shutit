@@ -228,7 +228,7 @@ class ShutIt(object):
 					for f in files:
 						if f != 'ORIGIN_ENV':
 							environment_id_dir = f
-							cfg['build']['current_environment_id'] = environment_id:
+							cfg['build']['current_environment_id'] = environment_id
 							break
 				else:
 					self.fail('Wrong number of files in environment_id_dir: ' + environment_id_dir)
