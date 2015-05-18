@@ -224,11 +224,18 @@ class ShutIt(object):
 		if self.file_exists(environment_id_dir,expect=expect,child=child,directory=True):
 			files = self.ls(environment_id_dir)
 			if len(files) != 1 or type(files) != list:
-				self.fail('Wrong number of files in environment_id_dir: ' + environment_id_dir)
+				if len(files) == 2 and (files[0] == 'ORIGIN_ENV' or files[1] == 'ORIGIN_ENV'):
+					for f in files:
+						if f != 'ORIGIN_ENV':
+							files = [f]
+							break
+				else:
+					self.fail('Wrong number of files in environment_id_dir: ' + environment_id_dir)
 			environment_id = files[0]
 			if cfg['build']['current_environment_id'] != environment_id:
 				self.fail('environment id mismatch: ' + environment_id + ' and: ' + cfg['build']['current_environment_id'])
-			return environment_id
+			if not environment_id == 'ORIGIN_ENV':
+				return environment_id
 		# Root is a special case
 		if prefix == 'ORIGIN_ENV':
 			environment_id = prefix
@@ -236,12 +243,12 @@ class ShutIt(object):
 			environment_id = shutit_util.random_id()
 		cfg['build']['current_environment_id']                             = environment_id
 		cfg['environment'][environment_id] = {}
-    	# Directory to revert to when delivering in bash and reversion to context required.
+		# Directory to revert to when delivering in bash and reversion to context required.
 		cfg['environment'][environment_id]['module_root_dir']              = '/'
 		cfg['environment'][environment_id]['modules_installed']            = [] # has been installed (in this build)
 		cfg['environment'][environment_id]['modules_not_installed']        = [] # modules _known_ not to be installed
 		cfg['environment'][environment_id]['modules_ready']                = [] # has been checked for readiness and is ready (in this build)
-    	# installed file info
+		# Installed file info
 		cfg['environment'][environment_id]['modules_recorded']             = []
 		cfg['environment'][environment_id]['modules_recorded_cache_valid'] = False
 		cfg['environment'][environment_id]['setup']                        = False
@@ -1577,6 +1584,7 @@ class ShutIt(object):
 		expect = expect or self.get_default_expect()
 		cfg = self.cfg
 		if options is None: options = {}
+		print cfg['environment'][cfg['build']['current_environment_id']]
 		install_type = cfg['environment'][cfg['build']['current_environment_id']]['install_type']
 		if install_type == 'src':
 			# If this is a src build, we assume it's already installed.
@@ -1683,7 +1691,7 @@ class ShutIt(object):
 			login_expect = expect
 		# We don't fail on empty before as many login programs mess with the output.
 		# In this special case of login we expect either the prompt, or 'user@' as this has been seen to work.
-		self.multisend(send,{'ontinue connecting':'yes','assword':password,'login:':password},expect=[login_expect,user+'@'],check_exit=False,timeout=timeout,fail_on_empty_before=False)
+		self.multisend(send,{'ontinue connecting':'yes','assword':password,'login:':password},expect=[login_expect,user+'@','\r\n.*[@#$]'],check_exit=False,timeout=timeout,fail_on_empty_before=False)
 		if prompt_prefix != None:
 			self.setup_prompt(r_id,child=child,prefix=prompt_prefix)
 		else:
