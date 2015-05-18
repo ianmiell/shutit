@@ -227,11 +227,12 @@ class ShutIt(object):
 				if len(files) == 2 and (files[0] == 'ORIGIN_ENV' or files[1] == 'ORIGIN_ENV'):
 					for f in files:
 						if f != 'ORIGIN_ENV':
-							files = [f]
+							environment_id_dir = f
+							cfg['build']['current_environment_id'] = environment_id:
 							break
 				else:
 					self.fail('Wrong number of files in environment_id_dir: ' + environment_id_dir)
-			environment_id = files[0]
+					environment_id = files[0]
 			if cfg['build']['current_environment_id'] != environment_id:
 				self.fail('environment id mismatch: ' + environment_id + ' and: ' + cfg['build']['current_environment_id'])
 			if not environment_id == 'ORIGIN_ENV':
