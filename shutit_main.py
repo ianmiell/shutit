@@ -650,7 +650,8 @@ def do_remove(shutit):
 					# Create a directory and files to indicate this has been removed.
 					shutit.send('mkdir -p ' + cfg['build']['build_db_dir'] + '/module_record/' + module.module_id + ' && rm -f ' + cfg['build']['build_db_dir'] + '/module_record/' + module.module_id + '/built && touch ' + cfg['build']['build_db_dir'] + '/module_record/' + module.module_id + '/removed')
 					# Remove from "installed" cache
-					cfg['environment'][cfg['build']['current_environment_id']]['modules_installed'].remove(module.module_id)
+					if module.module_id in cfg['environment'][cfg['build']['current_environment_id']]['modules_installed']:
+						cfg['environment'][cfg['build']['current_environment_id']]['modules_installed'].remove(module.module_id)
 					# Add to "not installed" cache
 					cfg['environment'][cfg['build']['current_environment_id']]['modules_not_installed'].append(module.module_id)
 			if whowasi != 'root':
