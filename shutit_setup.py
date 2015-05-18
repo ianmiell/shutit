@@ -537,17 +537,6 @@ class setup(ShutItModule):
 		cfg = shutit.cfg
 		do_update = cfg[self.module_id]['do_update']
 		if cfg['build']['delivery'] in ('target','dockerfile'):
-			shutit.send("touch ~/.bashrc")
-			# Remvoe the 
-			shutit.send("sed -i 's/.*HISTSIZE=[0-9]*$//' ~/.bashrc") 
-			# eg centos doesn't have this
-			if shutit.file_exists('/etc/bash.bashrc'):
-				shutit.send("sed -i 's/.*HISTSIZE=[0-9]*$//' /etc/bash.bashrc") 
-			shutit.send("sed -i 's/.*HISTSIZE=[0-9]*$//' /etc/profile") 
-			shutit.add_to_bashrc('export HISTSIZE=99999999')
-			# Ignore leading-space commands in the history.
-			shutit.add_to_bashrc('export HISTCONTROL=ignorespace:cmdhist')
-			shutit.add_to_bashrc('export LANG=' + cfg['target']['locale'])
 			if cfg['environment'][cfg['build']['current_environment_id']]['install_type'] == 'apt':
 				shutit.add_to_bashrc('export DEBIAN_FRONTEND=noninteractive')
 				if do_update and cfg['build']['delivery'] in ('target','dockerfile'):
