@@ -233,6 +233,8 @@ class ShutIt(object):
 				else:
 					self.fail('Wrong number of files in environment_id_dir: ' + environment_id_dir)
 					environment_id = files[0]
+			else:
+				environment_id = files[0]
 			if cfg['build']['current_environment_id'] != environment_id:
 				self.fail('environment id mismatch: ' + environment_id + ' and: ' + cfg['build']['current_environment_id'])
 			if not environment_id == 'ORIGIN_ENV':
