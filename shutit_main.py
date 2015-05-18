@@ -680,7 +680,8 @@ def build_module(shutit, module):
 		# Put it into "installed" cache
 		cfg['environment'][cfg['build']['current_environment_id']]['modules_installed'].append(module.module_id)
 		# Remove from "not installed" cache
-		cfg['environment'][cfg['build']['current_environment_id']]['modules_not_installed'].remove(module.module_id)
+		if module.module_id in cfg['environment'][cfg['build']['current_environment_id']]['modules_not_installed']:
+			cfg['environment'][cfg['build']['current_environment_id']]['modules_not_installed'].remove(module.module_id)
 	shutit.pause_point('\nPausing to allow inspect of build for: ' +
 	                   module.module_id, print_input=True, level=2)
 	cfg['build']['report'] = (cfg['build']['report'] + '\nCompleted module: ' +
