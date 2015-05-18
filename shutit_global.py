@@ -1666,6 +1666,9 @@ class ShutIt(object):
 		r_id = shutit_util.random_id()
 		self.login_stack_append(r_id)
 		cfg = self.cfg
+		# Be helpful.
+		if ' ' in user:
+			self.fail('user has space in it - did you mean: login(command="' + user + '")?')
 		# TODO: create a file on this host with that /tmp/shutit_stack.r_id so we can check we're at the right point in the stack.
 		if cfg['build']['delivery'] == 'bash' and command == 'su -':
 			# We want to retain the current working directory
@@ -1772,7 +1775,7 @@ class ShutIt(object):
 				expect=['\r\n' + cfg['expect_prompts'][prompt_name]],
 				fail_on_empty_before=False, timeout=5, child=child)
 		if set_default_expect:
-			shutit.log('Resetting default expect to: ' +
+			self.log('Resetting default expect to: ' +
 				cfg['expect_prompts'][prompt_name])
 			self.set_default_expect(cfg['expect_prompts'][prompt_name])
 		# Ensure environment is set up OK.
@@ -1798,7 +1801,7 @@ class ShutIt(object):
 				(old_prompt_name, old_prompt_name),
 				expect=expect, check_exit=False, fail_on_empty_before=False)
 		if not new_expect:
-			shutit.log('Resetting default expect to default')
+			self.log('Resetting default expect to default')
 			self.set_default_expect()
 		self.setup_environment()
 
@@ -1876,6 +1879,7 @@ class ShutIt(object):
 		#    ]
 		if cfg['build']['distro_override'] != '':
 			key = cfg['build']['distro_override']
+			distro = cfg['build']['distro_override']
 			install_type = cfg['build']['install_type_map'][key]
 			distro_version = ''
 			if install_type == 'apt' and cfg['build']['delivery'] == 'target':
@@ -1907,7 +1911,7 @@ class ShutIt(object):
 					distro       = 'centos'
 					install_type = 'yum'
 			if (install_type == '' or distro == ''):
-				shutit.fail('Could not determine Linux distro information. ' + 
+				self.fail('Could not determine Linux distro information. ' + 
 							'Please inform ShutIt maintainers.', child=child)
 			# The call to self.package_installed with lsb-release above 
 			# may fail if it doesn't know the install type, so
