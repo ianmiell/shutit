@@ -227,7 +227,7 @@ class ShutIt(object):
 				if len(files) == 2 and (files[0] == 'ORIGIN_ENV' or files[1] == 'ORIGIN_ENV'):
 					for f in files:
 						if f != 'ORIGIN_ENV':
-							environment_id_dir = f
+							environment_id = f
 							cfg['build']['current_environment_id'] = environment_id
 							break
 				else:
