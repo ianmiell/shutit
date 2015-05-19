@@ -38,9 +38,15 @@ class test10(ShutItModule):
 			shutit.fail('test10 failed')
 		if shutit.send_and_match_output('echo "A STRING"','NO MATCH'):
 			shutit.fail('test10 failed')
-		if not shutit.send_and_match_output(r'echo "A STRING\nTWO LINES"','A STRING'):
+		if not shutit.send_and_match_output(r'''cat > /dev/stdout << END
+A STRING
+TWO LINES"
+END''','A STRING'):
 			shutit.fail('test10 failed')
-		if shutit.send_and_match_output(r'echo "A STRING\nTWO LINES"','NO MATCH'):
+		if shutit.send_and_match_output(r'''cat > /dev/stdout << END
+A STRING
+TWO LINES
+END''','NO MATCH'):
 			shutit.fail('test10 failed')
 		return True
 
