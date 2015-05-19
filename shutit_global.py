@@ -2286,7 +2286,7 @@ class ShutIt(object):
 								  + ' (boolean - input "yes" or "no"): \n'))
 								if answer == 'yes':
 									answer = True
-								else answer == 'no':
+								else if answer == 'no':
 									answer = False
 						else:
 							# TODO: assume pass only if pass in the name?
