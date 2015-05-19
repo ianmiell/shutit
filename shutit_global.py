@@ -1447,9 +1447,8 @@ class ShutIt(object):
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
 		output = shutit.send_and_get_output(send, child=child, retry=retry, strip=strip)
-		for line in output.split('\n'):
-			for match in matches:
-				return True
+		if self.get_re_from_child(output, matches):
+			return True
 		return False
 
 
