@@ -2286,8 +2286,10 @@ class ShutIt(object):
 								  + ' (boolean - input "yes" or "no"): \n'))
 								if answer == 'yes':
 									answer = True
+									break
 								elif answer == 'no':
 									answer = False
+									break
 						else:
 							# TODO: assume pass only if pass in the name?
 							answer =  shutit_util.util_raw_input(shutit=self,ispass=True,prompt=shutit_util.colour('32',prompt) + ': \n')
