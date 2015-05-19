@@ -8,6 +8,6 @@ WORKDIR shutit
 RUN pip install -r requirements.txt
 
 WORKDIR /opt/shutit/library/ssh_server
-RUN /opt/shutit/shutit build --shutit_module_path /opt/shutit/library --delivery bash
+RUN /opt/shutit/shutit build --shutit_module_path /opt/shutit/library --delivery dockerfile
 
 CMD ["/bin/bash"] 
