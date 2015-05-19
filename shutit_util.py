@@ -1484,8 +1484,10 @@ def module():
        WORKDIR shutit
        RUN pip install -r requirements.txt
 
-       WORKDIR ''' + skel_path + ''' <- TODO You will likely need to to change this
-       RUN /opt/shutit/shutit build --shutit_module_path /opt/shutit/library --delivery bash
+       # Change the next two lines to build your ShutIt module.
+       RUN git clone https://github.com/yourname/yourshutitproject.git
+       WORKDIR ''' + skel_path + ''' 
+       RUN /opt/shutit/shutit build --shutit_module_path /opt/shutit/library --delivery dockerfile
 
        CMD ["/bin/bash"] 
 		''')
