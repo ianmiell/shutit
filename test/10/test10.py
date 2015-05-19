@@ -4,7 +4,7 @@
 from shutit_module import ShutItModule
 
 
-class test9(ShutItModule):
+class test10(ShutItModule):
 
 
 	def build(self, shutit):
@@ -32,11 +32,21 @@ class test9(ShutItModule):
 		# shutit.set_password(password, user='') - set password for a given user on target
 		# shutit.get_config(module_id,option,default=None) - get configuration value
 		# shutit.get_ip_address() - returns the ip address of the target
+		if not shutit.send_and_match_output('echo "A STRING"','A STR'):
+			shutit.fail('test10 failed')
+		if not shutit.send_and_match_output('echo "A STRING"','A STRING'):
+			shutit.fail('test10 failed')
+		if shutit.send_and_match_output('echo "A STRING"','NO MATCH'):
+			shutit.fail('test10 failed')
+		if not shutit.send_and_match_output(r'echo "A STRING\nTWO LINES"','A STRING'):
+			shutit.fail('test10 failed')
+		if shutit.send_and_match_output(r'echo "A STRING\nTWO LINES"','NO MATCH'):
+			shutit.fail('test10 failed')
 		return True
 
 def module():
-	return test9(
-		'shutit.tk.test9.test9', 782914092.00,
+	return test10(
+		'shutit.tk.test10.test10', 782914092.00,
 		description='',
 		maintainer='',
 		depends=['shutit.tk.setup']

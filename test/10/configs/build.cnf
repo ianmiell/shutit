@@ -7,7 +7,7 @@
 ###############################################################################
 # When this module is the one being built, which modules should be built along with it by default?
 # This feeds into automated testing of each module.
-[shutit.tk.test9.test9]
+[shutit.tk.test10.test10]
 shutit.core.module.build:yes
 # Allowed images as a regexp, eg ["ubuntu:12.*"], or [".*"], or ["centos"].
 # It's recommended this is locked down as far as possible.
@@ -18,4 +18,4 @@ shutit.core.module.allowed_images:["ubuntu:14.04"]
 base_image:ubuntu:14.04
 
 [repository]
-name:test9
+name:test10
