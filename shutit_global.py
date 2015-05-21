@@ -426,7 +426,8 @@ class ShutIt(object):
 					shutit.fail('before empty after sending: ' + str(send) +
 						'\n\nThis is expected after some commands that take a ' + 
 						'password.\nIf so, add fail_on_empty_before=False to ' + 
-						'the send call', child=child)
+						'the send call.\n\nIf that is not the problem, did you ' +
+				        'send an empty string to a prompt by mistake?', child=child)
 			elif fail_on_empty_before == False:
 				# Don't check exit if fail_on_empty_before is False
 				self.log('' + child.before + '<<<')
@@ -477,7 +478,7 @@ class ShutIt(object):
 		# Space before "echo" here is sic - we don't need this to show up in bash history
 		child.sendline(' echo EXIT_CODE:$?')
 		child.expect(expect, timeout)
-		res = self.get_re_from_child(child.before, 
+		res = self.match_string(child.before, 
 			'^EXIT_CODE:([0-9][0-9]?[0-9]?)$')
 		if res not in exit_values or res == None:
 			if res == None:
@@ -759,7 +760,7 @@ class ShutIt(object):
 		self.send(test +
 			' && echo FILEXIST-""FILFIN || echo FILNEXIST-""FILFIN',
 			expect=expect, child=child, check_exit=False, record_command=False)
-		res = self.get_re_from_child(child.before,
+		res = self.match_string(child.before,
 			'^(FILEXIST|FILNEXIST)-FILFIN$')
 		ret = False
 		if res == 'FILEXIST':
@@ -790,7 +791,7 @@ class ShutIt(object):
 		expect = expect or self.get_default_expect()
 		cmd = 'stat -c %a ' + filename
 		self.send(cmd, expect, child=child, check_exit=False)
-		res = self.get_re_from_child(child.before, '([0-9][0-9][0-9])')
+		res = self.match_string(child.before, '([0-9][0-9][0-9])')
 		return res
 
 
@@ -972,7 +973,7 @@ class ShutIt(object):
 				self.send('cat ' + tmp_filename + ' | wc -l',
 						  expect=expect, child=child, exit_values=['0', '1'],
 						  check_exit=False, escape=True)
-				res = self.get_re_from_child(child.before, '^([0-9]+)$')
+				res = self.match_string(child.before, '^([0-9]+)$')
 			if res == '0' or force:
 				self.send('cat >> ' + filename + """ <<< '""" + line.replace("'",r"""'"'"'""") + """'""",
 					expect=expect, child=child, check_exit=False, escape=True)
@@ -1115,7 +1116,7 @@ class ShutIt(object):
 				package + """$" | wc -l""", expect, check_exit=False)
 		else:
 			return False
-		if self.get_re_from_child(child.before, '^([0-9]+)$') != '0':
+		if self.match_string(child.before, '^([0-9]+)$') != '0':
 			return True
 		else:
 			return False
@@ -1397,20 +1398,25 @@ class ShutIt(object):
 		return cfg['build']['last_output']
 
 
-	def get_re_from_child(self, string, regexp):
+	def match_string(self, string, regexp):
 		"""Get regular expression from the first of the lines passed
-		in in string that matched.
+		in in string that matched. Handles first group of regexp as
+		a return value.
+
+		@param string: String to match on
+		@param regexp: Regexp to check (per-line) against string
+
+		@type: string: string
+		@type: regexp: string
 
 		Returns None if none of the lines matched.
 
 		Returns True if there are no groups selected in the regexp.
-
-			- string - string to search through lines of
-			- regexp - regexp to search for per line
+		        else returns matching group (ie non-None)
 		"""
 		cfg = self.cfg
 		if cfg['build']['debug']:
-			self.log('get_re_from_child:')
+			self.log('match_string:')
 			self.log(string)
 			self.log(regexp)
 		lines = string.split('\r\n')
@@ -1426,6 +1432,8 @@ class ShutIt(object):
 				else:
 					return True
 		return None
+	# alias for back-compatibility
+	get_re_from_child = match_string
 
 
 	def send_and_match_output(self, send, matches, expect=None, child=None, retry=3, strip=True):
@@ -1434,6 +1442,7 @@ class ShutIt(object):
 		and does not cross lines.
 
 		@param send:     See send()
+		@param matches:  String - or list of strings - of regexp(s) to check
 		@param expect:   See send()
 		@param child:    See send()
 		@param retry:    Number of times to retry command (default 3)
@@ -1447,8 +1456,11 @@ class ShutIt(object):
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
 		output = shutit.send_and_get_output(send, child=child, retry=retry, strip=strip)
-		if self.get_re_from_child(output, matches) != None:
-			return True
+		if type(matches) == str:
+			matches = [matches]
+		for match in matches:
+			if self.match_string(output, match) != None:
+				return True
 		return False
 
 
@@ -1910,14 +1922,14 @@ class ShutIt(object):
 			    #          v the space is intentional, to avoid polluting bash history.
 				self.send(' cat /etc/issue | grep -i "' + key + '" | wc -l',
 					check_exit=False)
-				if self.get_re_from_child(child.before, '^([0-9]+)$') == '1':
+				if self.match_string(child.before, '^([0-9]+)$') == '1':
 					distro       = key
 					install_type = cfg['build']['install_type_map'][key]
 					break
 			if (install_type == '' or distro == ''):
 			    #          v the space is intentional, to avoid polluting bash history.
 				self.send(' cat /etc/issue',check_exit=False)
-				if self.get_re_from_child(child.before,'^Kernel .*r on an .*m$'):
+				if self.match_string(child.before,'^Kernel .*r on an .*m$'):
 					distro       = 'centos'
 					install_type = 'yum'
 			if (install_type == '' or distro == ''):
@@ -1949,9 +1961,9 @@ class ShutIt(object):
 		cfg = self.cfg
 		#          v the space is intentional, to avoid polluting bash history.
 		self.send(' lsb_release -a',check_exit=False)
-		dist_string = self.get_re_from_child(child.before,
+		dist_string = self.match_string(child.before,
 			'^Distributor[\s]*ID:[\s]*(.*)$')
-		version_string = self.get_re_from_child(child.before,
+		version_string = self.match_string(child.before,
 			'^Release:[\s*](.*)$')
 		d = {}
 		if dist_string:
@@ -2019,7 +2031,7 @@ class ShutIt(object):
 		#          v the space is intentional, to avoid polluting bash history.
 		self.send(' cut -d: -f3 /etc/paswd | grep -w ^' + user_id + '$ | wc -l',
 				  child=child, expect=expect, check_exit=False)
-		if self.get_re_from_child(child.before, '^([0-9]+)$') == '1':
+		if self.match_string(child.before, '^([0-9]+)$') == '1':
 			return False
 		else:
 			return True
