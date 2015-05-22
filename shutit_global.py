@@ -986,6 +986,57 @@ class ShutIt(object):
 		return True
 
 
+
+	def insert_text(self, text, fname, pattern, expect=None, child=None):
+		"""Insert a chunk of text after the first matching pattern in file fname.
+
+		Returns 0 if there was no match for the regexp, 1 if it was matched
+		and replaced, and -1 if the file did not exist or there was some other
+		problem.
+
+		@param text:          Text to insert.
+		@param fname:         Filename to insert text to
+		@param pattern:       regexp to match and insert after
+		@param expect:        See send()
+		@param child:         See send()
+		"""
+		child = child or self.get_default_child()
+		expect = expect or self.get_default_expect()
+		random_id = shutit_util.random_id()
+		#find matching line number (n)
+		#TODO: replace pattern with \"
+		line_number = self.send_and_get_output(r'''grep -n -m 1 "''' + pattern + '''" ''' + fname + ''' | cut -d: -f1''').strip()
+		# if no match, return False
+		if line_number == '':
+			#no output - no match
+			return 0
+		if line_number[0] not in ('1','2','3','4','5','6','7','8','9'):
+			#something went wrong
+			return -1
+		# split text up by line
+		text_list = text.split('\n')
+		#how many lines added?
+		num_lines = len(text_list)
+		#create diff file (f)
+		file_text = ''
+		#On first line put (n)+'a'+((n)+1)+','+((n)+(m))
+		file_text = line_number + 'a' + str(int(line_number)+1) + ',' + str(int(line_number) + num_lines)
+		#then put, for each line, '> ' + line added file (f)
+		for line in text_list:
+			file_text += '\n> ' + line
+		file_text += '\n'
+		diff_fname = '/tmp/shutit_' + random_id
+		self.send_file(diff_fname, file_text, expect=expect, child=child)
+		#install patch - TODO: make more elegant
+		self.install('patch')
+		#run: patch fname (f)
+		self.send('patch ' + fname + ' ' + diff_fname, expect=expect, child=child)
+		#delete diff file
+		self.send('rm -f ' + diff_fname, check_exit=False, expect=expect, child=child)
+		return 1
+
+
+
 	def add_to_bashrc(self, line, expect=None, child=None, match_regexp=None):
 		"""Takes care of adding a line to everyone's bashrc
 		(/etc/bash.bashrc, /etc/profile).
@@ -1406,13 +1457,13 @@ class ShutIt(object):
 		@param string: String to match on
 		@param regexp: Regexp to check (per-line) against string
 
-		@type: string: string
-		@type: regexp: string
+		@type string: string
+		@type regexp: string
 
 		Returns None if none of the lines matched.
 
 		Returns True if there are no groups selected in the regexp.
-		        else returns matching group (ie non-None)
+		else returns matching group (ie non-None)
 		"""
 		cfg = self.cfg
 		if cfg['build']['debug']:

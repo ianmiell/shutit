@@ -1318,13 +1318,15 @@ class template(ShutItModule):
 		# shutit.pause_point(msg='')         - Give control of the terminal to the user
 		# shutit.step_through(msg='')        - Give control to the user and allow them to step through commands
         #
-        # SENDING FILES
+        # SENDING FILES/TEXT
 		# shutit.send_file(path, contents)   - Send file to path on target with given contents as a string
 		# shutit.send_host_file(path, hostfilepath)
         #                                    - Send file from host machine to path on the target
 		# shutit.send_host_dir(path, hostfilepath)
         #                                    - Send directory and contents to path on the target
-        #
+		# shutit.insert_text(text, fname, pattern)
+        #                                    - Insert text into file fname after the first occurrence of 
+        #                                      regexp pattern.
         # ENVIRONMENT QUERYING
 		# shutit.host_file_exists(filename, directory=False)
         #                                    - Returns True if file exists on host

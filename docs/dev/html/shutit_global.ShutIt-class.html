@@ -276,6 +276,42 @@ object --+
     </td><td class="summary">
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
+          <td><span class="summary-sig"><a name="get_current_environment"></a><span class="summary-sig-name">get_current_environment</span>(<span class="summary-sig-arg">self</span>)</span></td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="shutit_global-pysrc.html#ShutIt.get_current_environment">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="shutit_global.ShutIt-class.html#setup_environment" class="summary-sig-name">setup_environment</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">prefix</span>,
+        <span class="summary-sig-arg">expect</span>=<span class="summary-sig-default">None</span>,
+        <span class="summary-sig-arg">child</span>=<span class="summary-sig-default">None</span>)</span><br />
+      If we are in a new environment then set up a new data structure.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="shutit_global-pysrc.html#ShutIt.setup_environment">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
           <td><span class="summary-sig"><a href="shutit_global.ShutIt-class.html#multisend" class="summary-sig-name">multisend</a>(<span class="summary-sig-arg">self</span>,
         <span class="summary-sig-arg">send</span>,
         <span class="summary-sig-arg">send_dict</span>,
@@ -432,7 +468,7 @@ object --+
     </td><td class="summary">
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td><span class="summary-sig"><a name="chdir"></a><span class="summary-sig-name">chdir</span>(<span class="summary-sig-arg">self</span>,
+          <td><span class="summary-sig"><a href="shutit_global.ShutIt-class.html#chdir" class="summary-sig-name">chdir</a>(<span class="summary-sig-arg">self</span>,
         <span class="summary-sig-arg">path</span>,
         <span class="summary-sig-arg">expect</span>=<span class="summary-sig-default">None</span>,
         <span class="summary-sig-arg">child</span>=<span class="summary-sig-default">None</span>,
@@ -597,6 +633,29 @@ object --+
       is by default).</td>
           <td align="right" valign="top">
             <span class="codelink"><a href="shutit_global-pysrc.html#ShutIt.add_line_to_file">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="shutit_global.ShutIt-class.html#insert_text" class="summary-sig-name">insert_text</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">text</span>,
+        <span class="summary-sig-arg">fname</span>,
+        <span class="summary-sig-arg">pattern</span>,
+        <span class="summary-sig-arg">expect</span>=<span class="summary-sig-default">None</span>,
+        <span class="summary-sig-arg">child</span>=<span class="summary-sig-default">None</span>)</span><br />
+      Insert a chunk of text after the first matching pattern in file 
+      fname.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="shutit_global-pysrc.html#ShutIt.insert_text">source&nbsp;code</a></span>
             
           </td>
         </tr>
@@ -878,13 +937,33 @@ object --+
     </td><td class="summary">
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
+          <td><span class="summary-sig"><a href="shutit_global.ShutIt-class.html#match_string" class="summary-sig-name">match_string</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">string</span>,
+        <span class="summary-sig-arg">regexp</span>)</span><br />
+      Get regular expression from the first of the lines passed in in 
+      string that matched.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="shutit_global-pysrc.html#ShutIt.match_string">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
           <td><span class="summary-sig"><a href="shutit_global.ShutIt-class.html#get_re_from_child" class="summary-sig-name">get_re_from_child</a>(<span class="summary-sig-arg">self</span>,
         <span class="summary-sig-arg">string</span>,
         <span class="summary-sig-arg">regexp</span>)</span><br />
       Get regular expression from the first of the lines passed in in 
       string that matched.</td>
           <td align="right" valign="top">
-            <span class="codelink"><a href="shutit_global-pysrc.html#ShutIt.get_re_from_child">source&nbsp;code</a></span>
+            <span class="codelink"><a href="shutit_global-pysrc.html#ShutIt.match_string">source&nbsp;code</a></span>
             
           </td>
         </tr>
@@ -1116,9 +1195,10 @@ object --+
         <tr>
           <td><span class="summary-sig"><a href="shutit_global.ShutIt-class.html#setup_prompt" class="summary-sig-name">setup_prompt</a>(<span class="summary-sig-arg">self</span>,
         <span class="summary-sig-arg">prompt_name</span>,
-        <span class="summary-sig-arg">prefix</span>=<span class="summary-sig-default"><code class="variable-quote">'</code><code class="variable-string">TMP</code><code class="variable-quote">'</code></span>,
+        <span class="summary-sig-arg">prefix</span>=<span class="summary-sig-default"><code class="variable-quote">'</code><code class="variable-string">default</code><code class="variable-quote">'</code></span>,
         <span class="summary-sig-arg">child</span>=<span class="summary-sig-default">None</span>,
-        <span class="summary-sig-arg">set_default_expect</span>=<span class="summary-sig-default">True</span>)</span><br />
+        <span class="summary-sig-arg">set_default_expect</span>=<span class="summary-sig-default">True</span>,
+        <span class="summary-sig-arg">setup_environment</span>=<span class="summary-sig-default">True</span>)</span><br />
       Use this when you've opened a new shell to set the PS1 to something 
       sane.</td>
           <td align="right" valign="top">
@@ -1152,14 +1232,16 @@ object --+
   </tr>
 <tr>
     <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">dict</span>
+      <span class="summary-type">&nbsp;</span>
     </td><td class="summary">
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
           <td><span class="summary-sig"><a href="shutit_global.ShutIt-class.html#get_distro_info" class="summary-sig-name">get_distro_info</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">environment_id</span>,
         <span class="summary-sig-arg">child</span>=<span class="summary-sig-default">None</span>,
         <span class="summary-sig-arg">container</span>=<span class="summary-sig-default">True</span>)</span><br />
-      Get information about which distro we are using.</td>
+      Get information about which distro we are using, placing it in the 
+      cfg['environment'][environment_id] as a side effect.</td>
           <td align="right" valign="top">
             <span class="codelink"><a href="shutit_global-pysrc.html#ShutIt.get_distro_info">source&nbsp;code</a></span>
             
@@ -1676,6 +1758,31 @@ object --+
   </dl>
 </td></tr></table>
 </div>
+<a name="setup_environment"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">setup_environment</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">prefix</span>,
+        <span class="sig-arg">expect</span>=<span class="sig-default">None</span>,
+        <span class="sig-arg">child</span>=<span class="sig-default">None</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="shutit_global-pysrc.html#ShutIt.setup_environment">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>If we are in a new environment then set up a new data structure. A new
+  environment is a new machine environment, whether that's over ssh, 
+  docker, whatever. If we are not in a new environment ensure the env_id is
+  correct. Returns the environment id every time.</p>
+  <dl class="fields">
+  </dl>
+</td></tr></table>
+</div>
 <a name="multisend"></a>
 <div>
 <table class="details" border="1" cellpadding="3"
@@ -1703,18 +1810,28 @@ object --+
   <p>Multisend. Same as send, except it takes multiple sends and expects in
   a dict that are processed while waiting for the end &quot;expect&quot; 
   argument supplied.</p>
-  <p>see send</p>
-  <ul>
-    <li>
-      send_dict - dict of sends and expects, eg: {'interim prompt:','some 
-      input','other prompt','some other input'}
-    </li>
-    <li>
-      expect - final expect we want to see. defaults to 
-      child.get_default_expect()
-    </li>
-  </ul>
   <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>send_dict</code></strong> - dict of sends and expects, eg: {'interim prompt:','some 
+          input','other prompt','some other input'}</li>
+        <li><strong class="pname"><code>expect</code></strong> - String or list of strings of final expected output that returns 
+          from this function. See send()</li>
+        <li><strong class="pname"><code>send</code></strong> - See send()</li>
+        <li><strong class="pname"><code>child</code></strong> - See send()</li>
+        <li><strong class="pname"><code>timeout</code></strong> - See send()</li>
+        <li><strong class="pname"><code>check_exit</code></strong> - See send()</li>
+        <li><strong class="pname"><code>fail_on_empty_before</code></strong> - See send()</li>
+        <li><strong class="pname"><code>record_command</code></strong> - See send()</li>
+        <li><strong class="pname"><code>exit_values</code></strong> - See send()</li>
+        <li><strong class="pname"><code>echo</code></strong> - See send()
+          <ul>
+            <li>
+              expect - final expect we want to see. defaults to 
+              child.get_default_expect()
+            </li>
+          </ul></li>
+    </ul></dd>
   </dl>
 </td></tr></table>
 </div>
@@ -1752,13 +1869,13 @@ object --+
   <dl class="fields">
     <dt>Parameters:</dt>
     <dd><ul class="nomargin-top">
-        <li><strong class="pname"><code>child</code></strong> - pexpect child to issue command to.</li>
         <li><strong class="pname"><code>send</code></strong> - String to send, ie the command being issued. If set to None, we 
           consume up to the expect string, which is useful if we just 
           matched output that came before a standard command that returns 
           to the prompt.</li>
         <li><strong class="pname"><code>expect</code></strong> - String that we expect to see in the output. Usually a prompt. 
           Defaults to currently-set expect string (see set_default_expect)</li>
+        <li><strong class="pname"><code>child</code></strong> - pexpect child to issue command to.</li>
         <li><strong class="pname"><code>timeout</code></strong> - Timeout on response</li>
         <li><strong class="pname"><code>check_exit</code></strong> - Whether to check the shell exit code of the passed-in command.  
           If the exit value was non-zero an error is thrown.  
@@ -1819,13 +1936,13 @@ object --+
   <dl class="fields">
     <dt>Parameters:</dt>
     <dd><ul class="nomargin-top">
-        <li><strong class="pname"><code>child</code></strong> - pexpect child to issue command to.</li>
         <li><strong class="pname"><code>send</code></strong> - String to send, ie the command being issued. If set to None, we 
           consume up to the expect string, which is useful if we just 
           matched output that came before a standard command that returns 
           to the prompt.</li>
         <li><strong class="pname"><code>expect</code></strong> - String that we expect to see in the output. Usually a prompt. 
           Defaults to currently-set expect string (see set_default_expect)</li>
+        <li><strong class="pname"><code>child</code></strong> - pexpect child to issue command to.</li>
         <li><strong class="pname"><code>timeout</code></strong> - Timeout on response</li>
         <li><strong class="pname"><code>check_exit</code></strong> - Whether to check the shell exit code of the passed-in command.  
           If the exit value was non-zero an error is thrown.  
@@ -1940,6 +2057,39 @@ object --+
         <li><strong class="pname"><code>expect</code></strong> - See send()</li>
         <li><strong class="pname"><code>child</code></strong> - See send()</li>
         <li><strong class="pname"><code>log</code></strong> (boolean) - Log the file contents if in debug.</li>
+    </ul></dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="chdir"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">chdir</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">path</span>,
+        <span class="sig-arg">expect</span>=<span class="sig-default">None</span>,
+        <span class="sig-arg">child</span>=<span class="sig-default">None</span>,
+        <span class="sig-arg">timeout</span>=<span class="sig-default">3600</span>,
+        <span class="sig-arg">log</span>=<span class="sig-default">True</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="shutit_global-pysrc.html#ShutIt.chdir">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>How to change directory will depend on whether we are in delivery mode
+  bash or docker.</p>
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>path</code></strong> - Path to send file to.</li>
+        <li><strong class="pname"><code>expect</code></strong> - See send()</li>
+        <li><strong class="pname"><code>child</code></strong> - See send()</li>
+        <li><strong class="pname"><code>timeout</code></strong> - Timeout on response</li>
+        <li><strong class="pname"><code>log</code></strong> - Arg to pass to send_file (default True)</li>
     </ul></dd>
   </dl>
 </td></tr></table>
@@ -2178,6 +2328,42 @@ object --+
         <li><strong class="pname"><code>force</code></strong> - Always write the line to the file.</li>
         <li><strong class="pname"><code>literal</code></strong> (boolean) - If true, then simply grep for the exact string without bash 
           interpretation. (Default: False)</li>
+    </ul></dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="insert_text"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">insert_text</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">text</span>,
+        <span class="sig-arg">fname</span>,
+        <span class="sig-arg">pattern</span>,
+        <span class="sig-arg">expect</span>=<span class="sig-default">None</span>,
+        <span class="sig-arg">child</span>=<span class="sig-default">None</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="shutit_global-pysrc.html#ShutIt.insert_text">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Insert a chunk of text after the first matching pattern in file 
+  fname.</p>
+  <p>Returns 0 if there was no match for the regexp, 1 if it was matched 
+  and replaced, and -1 if the file did not exist or there was some other 
+  problem.</p>
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>text</code></strong> - Text to insert.</li>
+        <li><strong class="pname"><code>fname</code></strong> - Filename to insert text to</li>
+        <li><strong class="pname"><code>pattern</code></strong> - regexp to match and insert after</li>
+        <li><strong class="pname"><code>expect</code></strong> - See send()</li>
+        <li><strong class="pname"><code>child</code></strong> - See send()</li>
     </ul></dd>
   </dl>
 </td></tr></table>
@@ -2496,6 +2682,36 @@ object --+
   </dl>
 </td></tr></table>
 </div>
+<a name="match_string"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">match_string</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">string</span>,
+        <span class="sig-arg">regexp</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="shutit_global-pysrc.html#ShutIt.match_string">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Get regular expression from the first of the lines passed in in string
+  that matched. Handles first group of regexp as a return value.</p>
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>string</code></strong> (string) - String to match on</li>
+        <li><strong class="pname"><code>regexp</code></strong> (string
+          <p>Returns None if none of the lines matched.</p>
+          <p>Returns True if there are no groups selected in the regexp. 
+          else returns matching group (ie non-None)</p>) - Regexp to check (per-line) against string</li>
+    </ul></dd>
+  </dl>
+</td></tr></table>
+</div>
 <a name="get_re_from_child"></a>
 <div>
 <table class="details" border="1" cellpadding="3"
@@ -2508,23 +2724,21 @@ object --+
         <span class="sig-arg">regexp</span>)</span>
   </h3>
   </td><td align="right" valign="top"
-    ><span class="codelink"><a href="shutit_global-pysrc.html#ShutIt.get_re_from_child">source&nbsp;code</a></span>&nbsp;
+    ><span class="codelink"><a href="shutit_global-pysrc.html#ShutIt.match_string">source&nbsp;code</a></span>&nbsp;
     </td>
   </tr></table>
   
   <p>Get regular expression from the first of the lines passed in in string
-  that matched.</p>
-  <p>Returns None if none of the lines matched.</p>
-  <p>Returns True if there are no groups selected in the regexp.</p>
-  <ul>
-    <li>
-      string - string to search through lines of
-    </li>
-    <li>
-      regexp - regexp to search for per line
-    </li>
-  </ul>
+  that matched. Handles first group of regexp as a return value.</p>
   <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>string</code></strong> (string) - String to match on</li>
+        <li><strong class="pname"><code>regexp</code></strong> (string
+          <p>Returns None if none of the lines matched.</p>
+          <p>Returns True if there are no groups selected in the regexp. 
+          else returns matching group (ie non-None)</p>) - Regexp to check (per-line) against string</li>
+    </ul></dd>
   </dl>
 </td></tr></table>
 </div>
@@ -2555,11 +2769,11 @@ object --+
     <dt>Parameters:</dt>
     <dd><ul class="nomargin-top">
         <li><strong class="pname"><code>send</code></strong> (string) - See send()</li>
+        <li><strong class="pname"><code>matches</code></strong> (list) - String - or list of strings - of regexp(s) to check</li>
         <li><strong class="pname"><code>expect</code></strong> - See send()</li>
         <li><strong class="pname"><code>child</code></strong> - See send()</li>
         <li><strong class="pname"><code>retry</code></strong> (integer) - Number of times to retry command (default 3)</li>
         <li><strong class="pname"><code>strip</code></strong> (boolean) - Whether to strip output (defaults to True)</li>
-        <li><strong class="pname"><code>matches</code></strong> (list)</li>
     </ul></dd>
   </dl>
 </td></tr></table>
@@ -2846,9 +3060,10 @@ object --+
   <tr valign="top"><td>
   <h3 class="epydoc"><span class="sig"><span class="sig-name">setup_prompt</span>(<span class="sig-arg">self</span>,
         <span class="sig-arg">prompt_name</span>,
-        <span class="sig-arg">prefix</span>=<span class="sig-default"><code class="variable-quote">'</code><code class="variable-string">TMP</code><code class="variable-quote">'</code></span>,
+        <span class="sig-arg">prefix</span>=<span class="sig-default"><code class="variable-quote">'</code><code class="variable-string">default</code><code class="variable-quote">'</code></span>,
         <span class="sig-arg">child</span>=<span class="sig-default">None</span>,
-        <span class="sig-arg">set_default_expect</span>=<span class="sig-default">True</span>)</span>
+        <span class="sig-arg">set_default_expect</span>=<span class="sig-default">True</span>,
+        <span class="sig-arg">setup_environment</span>=<span class="sig-default">True</span>)</span>
   </h3>
   </td><td align="right" valign="top"
     ><span class="codelink"><a href="shutit_global-pysrc.html#ShutIt.setup_prompt">source&nbsp;code</a></span>&nbsp;
@@ -2871,14 +3086,17 @@ object --+
    shutit.set_default_expect()
    shutit.send('exit')
 </pre>
+  <p>This function is assumed to be called whenever there is a change of 
+  environment.</p>
   <dl class="fields">
     <dt>Parameters:</dt>
     <dd><ul class="nomargin-top">
         <li><strong class="pname"><code>prompt_name</code></strong> (string) - Reference name for prompt.</li>
-        <li><strong class="pname"><code>prefix</code></strong> (string) - Prompt prefix. Default: 'TMP'</li>
+        <li><strong class="pname"><code>prefix</code></strong> (string) - Prompt prefix. Default: 'default'</li>
         <li><strong class="pname"><code>child</code></strong> - See send()</li>
         <li><strong class="pname"><code>set_default_expect</code></strong> (boolean) - Whether to set the default expect to the new prompt. Default: 
           True</li>
+        <li><strong class="pname"><code>setup_environment</code></strong> - Whether to setup the environment config</li>
     </ul></dd>
   </dl>
 </td></tr></table>
@@ -2926,6 +3144,7 @@ object --+
   <table width="100%" cellpadding="0" cellspacing="0" border="0">
   <tr valign="top"><td>
   <h3 class="epydoc"><span class="sig"><span class="sig-name">get_distro_info</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">environment_id</span>,
         <span class="sig-arg">child</span>=<span class="sig-default">None</span>,
         <span class="sig-arg">container</span>=<span class="sig-default">True</span>)</span>
   </h3>
@@ -2934,7 +3153,8 @@ object --+
     </td>
   </tr></table>
   
-  <p>Get information about which distro we are using.</p>
+  <p>Get information about which distro we are using, placing it in the 
+  cfg['environment'][environment_id] as a side effect.</p>
   <p>Fails if distro could not be determined. Should be called with the 
   container is started up, and uses as core info as possible.</p>
   <p>Note: if the install type is apt, it issues the following:</p>
@@ -2953,21 +3173,6 @@ object --+
         <li><strong class="pname"><code>container</code></strong> (boolean) - If True, we are in the container shell, otherwise we are 
           gathering info about another shell. Defaults to True.</li>
     </ul></dd>
-    <dt>Returns: dict</dt>
-        <dd>A dict with the following keys:
-          <ul>
-            <li>
-              install_type
-              <ul>
-                <li>
-                  distro
-                </li>
-                <li>
-                  distro_version
-                </li>
-              </ul>
-            </li>
-          </ul></dd>
   </dl>
 </td></tr></table>
 </div>
@@ -3199,7 +3404,7 @@ object --+
 <table border="0" cellpadding="0" cellspacing="0" width="100%%">
   <tr>
     <td align="left" class="footer">
-    Generated by Epydoc 3.0.1 on Thu May 14 08:30:35 2015
+    Generated by Epydoc 3.0.1 on Fri May 22 19:29:27 2015
     </td>
     <td align="right" class="footer">
       <a target="mainFrame" href="http://epydoc.sourceforge.net"
