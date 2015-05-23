@@ -303,6 +303,23 @@ def random_id(size=8, chars=string.ascii_letters + string.digits):
 	return ''.join(random.choice(chars) for _ in range(size))
 
 
+def random_word(size=6):
+	"""Returns a random word.
+	"""
+	word_file = "/usr/share/dict/words"
+	words = open(word_file).read().splitlines()
+	filtered_words = []
+	for word in words:
+		if len(word) == size:
+			ok = True
+			for c in word:
+				if c not in string.lowercase:
+					ok = False
+					break
+			if ok:
+				filtered_words.append(word)
+	return filtered_words[int(random.random() * (len(filtered_words) - 1))]
+
 
 # Manage config settings, returning a dict representing the settings
 # that have been sanity-checked.
@@ -458,9 +475,9 @@ def parse_args(shutit):
 	for action in actions:
 		sub_parsers[action] = subparsers.add_parser(action)
 
-	sub_parsers['skeleton'].add_argument('module_directory', help='Absolute path to new directory for module')
-	sub_parsers['skeleton'].add_argument('module_name', help='Name for your module. Single word and lower case, eg: mymysql')
-	sub_parsers['skeleton'].add_argument('domain', help='Arbitrary but unique domain for namespacing your module, eg com.mycorp')
+	sub_parsers['skeleton'].add_argument('--module_directory', help='Absolute path to new directory for module',default='')
+	sub_parsers['skeleton'].add_argument('--module_name', help='Name for your module. Single word and lower case, eg: mymysql',default='')
+	sub_parsers['skeleton'].add_argument('--domain', help='Arbitrary but unique domain for namespacing your module, eg com.mycorp',default='')
 	sub_parsers['skeleton'].add_argument('--depends', help='Module id to depend on, default shutit.tk.setup (optional)', default='shutit.tk.setup')
 	sub_parsers['skeleton'].add_argument('--base_image', help='FROM image, default ubuntu:14.04 (optional)', default='ubuntu:14.04')
 	sub_parsers['skeleton'].add_argument('--script', help='Pre-existing shell script to integrate into module (optional)', nargs='?', default=None)
@@ -534,11 +551,26 @@ def parse_args(shutit):
 	if cfg['action']['skeleton']:
 		if (args.dockerfile and (args.script or args.example)) or (args.example and args.script):
 			shutit.fail('Cannot have any two of script, -d/--dockerfile Dockerfile or --example as arguments')
+		if args.module_directory == '':
+			default_dir = os.getcwd() + '/' + random_word()
+			module_directory = util_raw_input(prompt='Input a new directory name for this module.\nDefault: ' + default_dir + '\n', default=default_dir)
+		else:
+			module_directory = args.module_directory
+		if args.module_name == '':
+			default_module_name = module_directory.split('/')[-1]
+			module_name = util_raw_input(prompt='Input module name.\nDefault: ' + default_module_name + '\n', default=default_module_name)
+		else:
+			module_name = args.module_name
+		if args.domain == '':
+			default_domain_name = os.getcwd().split('/')[-1] + '.' + module_name
+			domain = util_raw_input(prompt='Input a unique domain.\nDefault: ' + default_domain_name + '\n', default=default_domain_name)
+		else:
+			domain = args.domain
 		cfg['skeleton'] = {
-			'path':        args.module_directory,
-			'module_name': args.module_name,
+			'path':        module_directory,
+			'module_name': module_name,
 			'base_image':  args.base_image,
-			'domain':      args.domain,
+			'domain':      domain,
 			'domainhash':  str(get_hash(args.domain)),
 			'depends':     args.depends,
 			'script':      args.script,
@@ -1569,8 +1601,7 @@ def module():
 
 	to just go ahead and build it.
 
-	An image called ''' + skel_module_name + ''' will be created either way, and
-	can be run with the run.sh command.
+	An image called ''' + skel_module_name + '''will be created and can be run with the run.sh command in bin/.
 	================================================================================''')
 
 
@@ -1604,9 +1635,8 @@ def util_raw_input(shutit=None, prompt='', default=None, ispass=False):
 	"""Handles raw_input calls, and switches off interactivity if there is apparently
 	no controlling terminal (or there are any other problems)
 	"""
-	cfg = shutit.cfg
 	msg = ''
-	if shutit and cfg['build']['interactive'] == 0:
+	if shutit and shutit.cfg['build']['interactive'] == 0:
 		return default
 	if not determine_interactive(shutit):
 		return default
@@ -1615,7 +1645,11 @@ def util_raw_input(shutit=None, prompt='', default=None, ispass=False):
 			print prompt + '\n'
 			return getpass.getpass()
 		else:
-			return raw_input(prompt)
+			resp = raw_input(prompt).strip()
+			if resp == '':
+				return default
+			else:
+				return resp
 	except:
 		msg = 'Problems getting raw input, assuming no controlling terminal.'
 	if shutit:
