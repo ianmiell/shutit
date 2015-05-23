@@ -965,8 +965,8 @@ class ShutIt(object):
 
 
 
-	def insert_text(self, text, fname, pattern, expect=None, child=None):
-		"""Insert a chunk of text after the first matching pattern in file fname.
+	def insert_text(self, text, fname, pattern, expect=None, child=None, before=False):
+		"""Insert a chunk of text after (or before) the first matching pattern in file fname.
 
 		Returns 0 if there was no match for the regexp, 1 if it was matched
 		and replaced, and -1 if the file did not exist or there was some other
@@ -977,6 +977,7 @@ class ShutIt(object):
 		@param pattern:       regexp to match and insert after
 		@param expect:        See send()
 		@param child:         See send()
+		@param before:        Whether to place the text before or after the matched text.
 		"""
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
@@ -997,11 +998,16 @@ class ShutIt(object):
 		num_lines = len(text_list)
 		#create diff file (f)
 		file_text = ''
-		#On first line put (n)+'a'+((n)+1)+','+((n)+(m))
-		file_text = line_number + 'a' + str(int(line_number)+1) + ',' + str(int(line_number) + num_lines)
+		# Place before or after matching text.
+		if before:
+			file_text = str(int(line_number)-1) + 'a' + str(int(line_number)-1) + ',' + str(int(line_number)-2 + num_lines)
+			for line in text_list:
+				file_text += '\n> ' + line
+		else:
+			file_text = line_number + 'a' + str(int(line_number)+1) + ',' + str(int(line_number) + num_lines)
+			for line in text_list:
+				file_text += '\n> ' + line
 		#then put, for each line, '> ' + line added file (f)
-		for line in text_list:
-			file_text += '\n> ' + line
 		file_text += '\n'
 		diff_fname = '/tmp/shutit_' + random_id
 		self.send_file(diff_fname, file_text, expect=expect, child=child)
@@ -2329,8 +2335,10 @@ class ShutIt(object):
 							elif answer == 'no':
 								answer = False
 						else:
-							# TODO: assume pass only if pass in the name?
-							answer =  shutit_util.util_raw_input(shutit=self,ispass=True,prompt=shutit_util.colour('32',prompt) + ': \n')
+							if re.search('assw',option) == None:
+								answer =  shutit_util.util_raw_input(shutit=self,prompt=shutit_util.colour('32',prompt) + ': \n')
+							else:
+								answer =  shutit_util.util_raw_input(shutit=self,ispass=True,prompt=shutit_util.colour('32',prompt) + ': \n')
 						if answer == '' and default != None:
 							answer = default
 						cfg[module_id][option] = answer
@@ -2409,6 +2417,7 @@ def init():
 	cfg['target']               = {}
 	cfg['environment']          = {}
 	cfg['host']                 = {}
+	cfg['host']['shutit_path']  = sys.path[0]
 	cfg['repository']           = {}
 	cfg['expect_prompts']       = {}
 	cfg['users']                = {}
