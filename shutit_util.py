@@ -572,7 +572,7 @@ def parse_args(shutit):
 			'module_name': module_name,
 			'base_image':  args.base_image,
 			'domain':      domain,
-			'domainhash':  str(get_hash(args.domain)),
+			'domainhash':  str(get_hash(domain)),
 			'depends':     args.depends,
 			'script':      args.script,
 			'example':     args.example,
