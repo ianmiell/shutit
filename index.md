@@ -43,7 +43,7 @@ echo "export PATH=$(pwd):${PATH}" >> ~/.bashrc
 ### Step 2: Create a new module ###
 
 ```sh
-./shutit skeleton $HOME/shutit_modules/my_module my_module my.domain.com --depends shutit.tk.setup --base_image ubuntu
+./shutit skeleton --module_directory $HOME/shutit_modules/my_module --module_name my_module --domain my.domain.com --depends shutit.tk.setup --base_image ubuntu
 cd $HOME/shutit_modules/my_module
 ```
 
