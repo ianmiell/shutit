@@ -482,6 +482,7 @@ def parse_args(shutit):
 	sub_parsers['skeleton'].add_argument('--base_image', help='FROM image, default ubuntu:14.04 (optional)', default='ubuntu:14.04')
 	sub_parsers['skeleton'].add_argument('--script', help='Pre-existing shell script to integrate into module (optional)', nargs='?', default=None)
 	sub_parsers['skeleton'].add_argument('--example', help='Add an example implementation with model calls to ShutIt API (optional)', default=False, const=True, action='store_const')
+	sub_parsers['skeleton'].add_argument('--output_dir', help='Just output the created directory', default=False, const=True, action='store_const')
 	sub_parsers['skeleton'].add_argument('-d', '--dockerfile', default=None)
 
 	sub_parsers['build'].add_argument('--export', help='Perform docker export to a tar file', const=True, default=False, action='store_const')
@@ -553,17 +554,17 @@ def parse_args(shutit):
 			shutit.fail('Cannot have any two of script, -d/--dockerfile Dockerfile or --example as arguments')
 		if args.module_directory == '':
 			default_dir = os.getcwd() + '/' + random_word()
-			module_directory = util_raw_input(prompt='Input a new directory name for this module.\nDefault: ' + default_dir + '\n', default=default_dir)
+			module_directory = util_raw_input(prompt='# Input a new directory name for this module.\n# Default: ' + default_dir + '\n', default=default_dir)
 		else:
 			module_directory = args.module_directory
 		if args.module_name == '':
 			default_module_name = module_directory.split('/')[-1]
-			module_name = util_raw_input(prompt='Input module name.\nDefault: ' + default_module_name + '\n', default=default_module_name)
+			module_name = util_raw_input(prompt='# Input module name.\n# Default: ' + default_module_name + '\n', default=default_module_name)
 		else:
 			module_name = args.module_name
 		if args.domain == '':
 			default_domain_name = os.getcwd().split('/')[-1] + '.' + module_name
-			domain = util_raw_input(prompt='Input a unique domain.\nDefault: ' + default_domain_name + '\n', default=default_domain_name)
+			domain = util_raw_input(prompt='# Input a unique domain.\n# Default: ' + default_domain_name + '\n', default=default_domain_name)
 		else:
 			domain = args.domain
 		cfg['skeleton'] = {
@@ -575,7 +576,8 @@ def parse_args(shutit):
 			'depends':     args.depends,
 			'script':      args.script,
 			'example':     args.example,
-			'dockerfile':  args.dockerfile
+			'dockerfile':  args.dockerfile,
+			'output_dir':  args.output_dir
 		}
 		return
 
@@ -1108,6 +1110,7 @@ def create_skeleton(shutit):
 	skel_script      = cfg['skeleton']['script']
 	skel_example     = cfg['skeleton']['example']
 	skel_dockerfile  = cfg['skeleton']['dockerfile']
+	skel_output_dir  = cfg['skeleton']['output_dir']
 	# Set up dockerfile cfg
 	cfg['dockerfile']['base_image'] = skel_base_image
 	cfg['dockerfile']['cmd']        = '/bin/bash'
@@ -1589,17 +1592,20 @@ def module():
 			'cp', os.path.join(shutit_dir, '.gitignore'), '.gitignore'
 		], cwd=skel_path)
 
-	print textwrap.dedent('''\
-	================================================================================
-	Run:
-
-		cd ''' + skel_path + '''/bin && ./build.sh
-
-	to build.
-
-	An image called ''' + skel_module_name + ''' will be created
-	and can be run with the run.sh command in bin/.
-	================================================================================''')
+	if skel_output_dir:
+		print skel_path
+	else:
+		print textwrap.dedent('''\
+		================================================================================
+		Run:
+	
+			cd ''' + skel_path + '''/bin && ./build.sh
+	
+		to build.
+	
+		An image called ''' + skel_module_name + ''' will be created
+		and can be run with the run.sh command in bin/.
+		================================================================================''')
 
 
 # Parses the dockerfile (passed in as a string)
