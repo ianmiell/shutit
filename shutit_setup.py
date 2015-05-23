@@ -76,7 +76,7 @@ class ShutItConnModule(ShutItModule):
 		shutit.log('Setting up default prompt on host child')
 		shutit.log('Setting up prompt')
 		# ORIGIN_ENV is a special case of the prompt maintained for performance reasons, don't change.
-		shutit.setup_prompt('real_user_prompt', prefix='ORIGIN_ENV')
+		shutit.setup_prompt('origin_prompt', prefix='ORIGIN_ENV')
 		shutit.log('Setting up prompt done')
 		# target child
 		shutit.set_default_child(target_child)
@@ -367,7 +367,7 @@ class ConnDocker(ShutItConnModule):
 		cfg = shutit.cfg
 		host_child = shutit.pexpect_children['host_child']
 		shutit.set_default_child(host_child)
-		shutit.set_default_expect(cfg['expect_prompts']['real_user_prompt'])
+		shutit.set_default_expect(cfg['expect_prompts']['origin_prompt'])
 		# Tag and push etc
 		shutit.pause_point('\nDoing final committing/tagging on the overall \
 		                   target and creating the artifact.', \

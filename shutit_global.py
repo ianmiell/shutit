@@ -583,39 +583,17 @@ class ShutIt(object):
 				for line in contents.split('\n'):
 					self.add_line_to_file(line, path)
 		else:
-			# Try and echo as little as possible
-			oldlog = child.logfile_send
-			child.logfile_send = None
-			# Prepare to send the contents as base64 so we don't have to worry about
-			# special shell characters
-			# TODO: hide the gory details:
-			# http://stackoverflow.com/questions/5633472
-			#stty_orig=`stty -g`
-			#stty $stty_orig && echo forcenewline
-			contents64 = base64.standard_b64encode(contents)
-			# if replace funny chars
+			host_child = shutit.pexpect_children['host_child']
 			path = path.replace(' ', '\ ')
-			child.sendline("base64 --decode > " + path)
-			child.expect('\r\n')
-			# We have to batch the file up to avoid hitting pipe buffer limit. This
-			# is 4k on modern machines (it seems), but we choose 4000b for safety
-			# https://github.com/pexpect/pexpect/issues/55
-			batchsize = 4000
-			for batch in range(0, len(contents64), batchsize):
-				child.sendline(contents64[batch:batch + batchsize])
-			# Make sure we've synced the prompt before we send EOF. I don't know why
-			# this requires three sendlines to generate 2x'\r\n'.
-			# Note: we can't rely on a '\r\n' from the batching because the file
-			# being sent may validly be empty.
-			child.sendline()
-			child.sendline()
-			child.sendline()
-			child.expect('\r\n\r\n', timeout=999999)
-			child.sendeof()
-			# Done sending the file
-			child.expect(expect)
-			self._check_exit("#send file to " + path, expect, child)
-			child.logfile_send = oldlog
+			# get host session
+			tmpfile = '/tmp/shutit_tmp'
+			f = open(tmpfile,'w')
+			f.truncate(0)
+			f.write(contents)
+			f.close()
+			shutit.send('cat ' + tmpfile + ' | ' + cfg['host']['docker_executable'] + ' exec -i ' + cfg['target']['container_id'] + " bash -c 'cat > " + path + "'", child=host_child, expect=cfg['expect_prompts']['origin_prompt'])
+			os.remove(tmpfile)
+
 
 	def chdir(self,
 	          path,
@@ -715,7 +693,7 @@ class ShutIt(object):
 			for fname in files:
 				hostfullfname = os.path.join(root, fname)
 				targetfname = os.path.join(path, fname)
-				self.log('send_host_dir sending file hostfullfname to ' + 
+				self.log('send_host_dir sending file ' + hostfullfname + ' to ' + 
 					'target file: ' + targetfname)
 				self.send_file(targetfname, open(hostfullfname).read(), 
 					expect=expect, child=child, log=log)
@@ -2164,7 +2142,7 @@ class ShutIt(object):
 				return
 
 		child     = self.pexpect_children['host_child']
-		expect    = cfg['expect_prompts']['real_user_prompt']
+		expect    = cfg['expect_prompts']['origin_prompt']
 		server    = cfg['repository']['server']
 		repo_user = cfg['repository']['user']
 		repo_tag  = cfg['repository']['tag_name']
