@@ -128,6 +128,7 @@ email:YOUR_INDEX_EMAIL_OR_BLANK
 server:
 # tag suffix, defaults to "latest", eg registry/username/repository:latest.
 # empty is also "latest"
+repo_name:
 tag_name:latest
 
 # Root setup script
@@ -329,29 +330,29 @@ def get_base_config(cfg, cfg_parser):
 	cfg['config_parser'] = cp = cfg_parser
 	# BEGIN Read from config files
 	# build - details relating to the build
-	cfg['build']['privileged']                    = cp.getboolean('build', 'privileged')
-	cfg['build']['lxc_conf']                      = cp.get('build', 'lxc_conf')
-	cfg['build']['build_log']                     = cp.getboolean('build', 'build_log')
-	cfg['build']['base_image']                    = cp.get('build', 'base_image')
-	cfg['build']['dotest']                        = cp.get('build', 'dotest')
-	cfg['build']['net']                           = cp.get('build', 'net')
-	cfg['build']['completed']                     = False
-	cfg['build']['step_through']                  = False
-	cfg['build']['check_exit']                    = True
-	cfg['build']['shutit_state_dir']              = '/tmp/shutit/' + cfg['build']['build_id']
+	cfg['build']['privileged']                 = cp.getboolean('build', 'privileged')
+	cfg['build']['lxc_conf']                   = cp.get('build', 'lxc_conf')
+	cfg['build']['build_log']                  = cp.getboolean('build', 'build_log')
+	cfg['build']['base_image']                 = cp.get('build', 'base_image')
+	cfg['build']['dotest']                     = cp.get('build', 'dotest')
+	cfg['build']['net']                        = cp.get('build', 'net')
+	cfg['build']['completed']                  = False
+	cfg['build']['step_through']               = False
+	cfg['build']['check_exit']                 = True
+	cfg['build']['shutit_state_dir']           = '/tmp/shutit/' + cfg['build']['build_id']
 	# Width of terminal to set up on login.
-	cfg['build']['stty_cols']                     = 320
+	cfg['build']['stty_cols']                  = 320
 	# Take a command-line arg if given, else default.
-	cfg['build']['build_db_dir']                  = cfg['build']['shutit_state_dir'] + '/build_db'
+	cfg['build']['build_db_dir']               = cfg['build']['shutit_state_dir'] + '/build_db'
 	if cfg['build']['conn_module'] == None:
-		cfg['build']['conn_module']                   = cp.get('build', 'conn_module')
+		cfg['build']['conn_module']            = cp.get('build', 'conn_module')
 	# Track logins in a stack and details in logins.
-	cfg['build']['login_stack']                   = []
-	cfg['build']['logins']                        = {}
+	cfg['build']['login_stack']                = []
+	cfg['build']['logins']                     = {}
 	# Whether to accept default configs
-	cfg['build']['accept_defaults']               = None
+	cfg['build']['accept_defaults']            = None
 	# See shutit_global.check_environment
-	cfg['build']['current_environment_id']        = None
+	cfg['build']['current_environment_id']     = None
 	# target - the target of the build, ie the container
 	cfg['target']['hostname']                  = cp.get('target', 'hostname')
 	cfg['target']['locale']                    = cp.get('target', 'locale')
@@ -359,33 +360,33 @@ def get_base_config(cfg, cfg_parser):
 	cfg['target']['name']                      = cp.get('target', 'name')
 	cfg['target']['rm']                        = cp.getboolean('target', 'rm')
 	# host - the host on which the shutit script is run
-	cfg['host']['add_shutit_to_path']             = cp.getboolean('host', 'add_shutit_to_path')
-	cfg['host']['artifacts_dir']                  = cp.get('host', 'artifacts_dir')
-	cfg['host']['docker_executable']              = cp.get('host', 'docker_executable')
-	cfg['host']['dns']                            = cp.get('host', 'dns')
-	cfg['host']['password']                       = cp.get('host', 'password')
-	cfg['host']['logfile']                        = cp.get('host', 'logfile')
-	cfg['host']['shutit_module_path']             = cp.get('host', 'shutit_module_path').split(':')
+	cfg['host']['add_shutit_to_path']          = cp.getboolean('host', 'add_shutit_to_path')
+	cfg['host']['artifacts_dir']               = cp.get('host', 'artifacts_dir')
+	cfg['host']['docker_executable']           = cp.get('host', 'docker_executable')
+	cfg['host']['dns']                         = cp.get('host', 'dns')
+	cfg['host']['password']                    = cp.get('host', 'password')
+	cfg['host']['logfile']                     = cp.get('host', 'logfile')
+	cfg['host']['shutit_module_path']          = cp.get('host', 'shutit_module_path').split(':')
 	# repository - information relating to repository/registry
-	cfg['repository']['name']                     = cp.get('repository', 'name')
-	cfg['repository']['server']                   = cp.get('repository', 'server')
-	cfg['repository']['push']                     = cp.getboolean('repository', 'push')
-	cfg['repository']['tag']                      = cp.getboolean('repository', 'tag')
-	cfg['repository']['export']                   = cp.getboolean('repository', 'export')
-	cfg['repository']['save']                     = cp.getboolean('repository', 'save')
-	cfg['repository']['suffix_date']              = cp.getboolean('repository', 'suffix_date')
-	cfg['repository']['suffix_format']            = cp.get('repository', 'suffix_format')
-	cfg['repository']['user']                     = cp.get('repository', 'user')
-	cfg['repository']['password']                 = cp.get('repository', 'password')
-	cfg['repository']['email']                    = cp.get('repository', 'email')
-	cfg['repository']['tag_name']                 = cp.get('repository', 'tag_name')
+	cfg['repository']['name']                  = cp.get('repository', 'name')
+	cfg['repository']['server']                = cp.get('repository', 'server')
+	cfg['repository']['push']                  = cp.getboolean('repository', 'push')
+	cfg['repository']['tag']                   = cp.getboolean('repository', 'tag')
+	cfg['repository']['export']                = cp.getboolean('repository', 'export')
+	cfg['repository']['save']                  = cp.getboolean('repository', 'save')
+	cfg['repository']['suffix_date']           = cp.getboolean('repository', 'suffix_date')
+	cfg['repository']['suffix_format']         = cp.get('repository', 'suffix_format')
+	cfg['repository']['user']                  = cp.get('repository', 'user')
+	cfg['repository']['password']              = cp.get('repository', 'password')
+	cfg['repository']['email']                 = cp.get('repository', 'email')
+	cfg['repository']['tag_name']              = cp.get('repository', 'tag_name')
 	# END Read from config files
 
 	# BEGIN Standard expects
 	# It's important that these have '.*' in them at the start, so that the matched data is reliably 'after' in the
 	# child object. Use these where possible to make things more consistent.
 	# Attempt to capture any starting prompt (when starting) with this regexp.
-	cfg['expect_prompts']['base_prompt']          = '\r\n.*[@#$] '
+	cfg['expect_prompts']['base_prompt']       = '\r\n.*[@#$] '
 	# END Standard expects
 
 	# BEGIN tidy configs up

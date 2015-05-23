@@ -50,6 +50,10 @@ e''','/tmp/nonexistent','^a') != -1:
 c
 d
 e''','/tmp/a','^$')
+		shutit.insert_text('''b
+c
+d
+e''','/tmp/a','^d$',before=True)
 		return True
 
 def module():
