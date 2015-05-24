@@ -2117,7 +2117,7 @@ class ShutIt(object):
 	                       repo_name,
 	                       repo_tag=None,
 	                       expect=None,
-	                       docker_executable='docker.io',
+	                       docker_executable='docker',
 	                       password=None,
 	                       force=None):
 		"""Commit, tag, push, tar a docker container based on the configuration we
@@ -2125,7 +2125,7 @@ class ShutIt(object):
 
 		@param repo_name:           Name of the repository.
 		@param expect:              See send()
-		@param docker_executable:   Defaults to 'docker.io'
+		@param docker_executable:   Defaults to 'docker'
 		@param password:
 		@param force:
 
