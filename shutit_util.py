@@ -307,19 +307,9 @@ def random_id(size=8, chars=string.ascii_letters + string.digits):
 def random_word(size=6):
 	"""Returns a random word.
 	"""
-	word_file = "/usr/share/dict/words"
+	word_file = shutit_global.shutit.cfg['host']['shutit_path'] + '/assets/words'
 	words = open(word_file).read().splitlines()
-	filtered_words = []
-	for word in words:
-		if len(word) == size:
-			ok = True
-			for c in word:
-				if c not in string.lowercase:
-					ok = False
-					break
-			if ok:
-				filtered_words.append(word)
-	return filtered_words[int(random.random() * (len(filtered_words) - 1))]
+	return words[int(random.random() * (len(words) - 1))]
 
 
 # Manage config settings, returning a dict representing the settings
