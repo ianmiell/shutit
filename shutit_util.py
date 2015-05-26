@@ -1362,11 +1362,6 @@ class template(ShutItModule):
 		# shutit.package_installed(package)  - Returns True if the package exists on the target
 		# shutit.set_password(password, user='')
         #                                    - Set password for a given user on target
-        #
-        # CONFIGURATION
-		# shutit.get_config(module_id,option,default=None,boolean=False)
-        #                                    - Get configuration value, boolean indicates whether the item is 
-        #                                      a boolean type
 		return True
 '''
 		# Gather and place finalize bit
@@ -1384,7 +1379,15 @@ class template(ShutItModule):
 		return False
 
 	def get_config(self, shutit):
+		# CONFIGURATION
+		# shutit.get_config(module_id,option,default=None,boolean=False)
+		#                                    - Get configuration value, boolean indicates whether the item is 
+		#                                      a boolean type, eg get the config with:
+		# shutit.get_config(self.module_id, 'myconfig', default='a value')
+		#                                      and reference in your code with:
+		# shutit.cfg[self.module_id]['myconfig']
 		return True
+
 '''
 		templatemodule += """
 def module():

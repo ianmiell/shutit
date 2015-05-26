@@ -56,12 +56,29 @@ class template(ShutItModule):
 		# shutit.package_installed(package)  - Returns True if the package exists on the target
 		# shutit.set_password(password, user='')
 		#                                    - Set password for a given user on target
-		#
+		return True
+
+	def get_config(self, shutit):
 		# CONFIGURATION
 		# shutit.get_config(module_id,option,default=None,boolean=False)
 		#                                    - Get configuration value, boolean indicates whether the item is 
-		#                                      a boolean type
+		#                                      a boolean type, eg get the config with:
+		# shutit.get_config(self.module_id, 'myconfig', default='a value')
+		#                                      and reference in your code with:
+		# shutit.cfg[self.module_id]['myconfig']
 		return True
+
+	def test(self, shutit):
+		# For test cycle part of the ShutIt build.
+		return True
+
+	def finalize(self, shutit):
+		# Any cleanup required at the end.
+		return True
+	
+	def is_installed(self, shutit):
+		return False
+
 
 def module():
 	return template(

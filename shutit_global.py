@@ -2414,6 +2414,7 @@ def init():
 	cfg['build']['report_final_messages'] = ''
 	cfg['build']['debug']       = False
 	cfg['build']['completed']   = False
+	cfg['build']['distro_override'] = ''
 	cfg['target']               = {}
 	cfg['environment']          = {}
 	cfg['host']                 = {}
