@@ -81,11 +81,6 @@ ShutIt provides a means for auto-generation of modules (either bare ones, or fro
 [Installation](http://github.com/ianmiell/shutit/blob/master/docs/INSTALL.md)
 ==============
 
-
-Known Issues
-=============
-Since a core technology used in this application is pexpect - and a typical usage pattern is to expect the prompt to return. Unusual shell prompts and escape sequences have been known to cause problems. Use the shutit.setup_prompt() function to help manage this by setting up a more sane prompt. Use of COMMAND_PROMPT with echo -ne has been seen to cause problems with overwriting of shells and pexpect patterns.
-
 Background
 ==========
 While evaluating Docker for my $corp we reached a point where
@@ -167,6 +162,11 @@ Mailing List
 ------------
 https://groups.google.com/forum/#!forum/shutit-users
 shutit-users@groups.google.com
+
+Known Issues
+=============
+Since a core technology used in this application is pexpect - and a typical usage pattern is to expect the prompt to return. Unusual shell prompts and escape sequences have been known to cause problems. Use the shutit.setup_prompt() function to help manage this by setting up a more sane prompt. Use of COMMAND_PROMPT with echo -ne has been seen to cause problems with overwriting of shells and pexpect patterns.
+
 
 
 Licence
