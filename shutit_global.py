@@ -643,7 +643,7 @@ class ShutIt(object):
 		expect = expect or self.get_default_expect()
 		cfg = self.cfg
 		if cfg['build']['delivery'] in ('bash','dockerfile'):
-			self.send('pushd ' + cfg['target']['module_root_dir'])
+			self.send('pushd ' + cfg['environment']['current_environment_id']['module_root_dir'])
 			self.send('cp -r ' + hostfilepath + ' ' + path,expect=expect, child=child, timeout=timeout)
 			self.send('popd')
 		else:

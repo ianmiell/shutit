@@ -1126,6 +1126,7 @@ def create_skeleton(shutit):
 	if len(skel_domain) == 0:
 		shutit.fail('Must supply a domain for your module, eg com.yourname.madeupdomainsuffix')
 
+	print skel_path
 	os.makedirs(skel_path)
 	os.mkdir(os.path.join(skel_path, 'configs'))
 	os.mkdir(os.path.join(skel_path, 'context'))
