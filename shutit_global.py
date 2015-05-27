@@ -575,7 +575,7 @@ class ShutIt(object):
 				f.truncate(0)
 			f.write(contents)
 			f.close()
-		elif cfg['build']['delivery'] == 'bash':
+		elif cfg['build']['delivery'] in ('bash','dockerfile'):
 			# If we're on the root env (ie the same one that python is running on,
 			# then use python.
 				if truncate and self.file_exists(path):
@@ -643,7 +643,7 @@ class ShutIt(object):
 		expect = expect or self.get_default_expect()
 		cfg = self.cfg
 		if cfg['build']['delivery'] in ('bash','dockerfile'):
-			self.send('pushd ' + cfg['environment']['current_environment_id']['module_root_dir'])
+			self.send('pushd ' + cfg['environment'][[cfg['build']['current_environment_id']]['module_root_dir'])
 			self.send('cp -r ' + hostfilepath + ' ' + path,expect=expect, child=child, timeout=timeout)
 			self.send('popd')
 		else:
