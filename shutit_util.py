@@ -391,7 +391,7 @@ def get_base_config(cfg, cfg_parser):
 		logfile = cfg['host']['logfile'] + '_' + cfg['build']['build_id']
 	cfg['host']['logfile'] = logfile
 	if cfg['build']['build_log']:
-		cfg['build']['build_log'] = open(logfile, 'a')
+		cfg['build']['build_log_file'] = open(logfile, 'a')
 		# Lock it down to the running user.
 		os.chmod(logfile,0600)
 	# delivery method bash and image_tag make no sense

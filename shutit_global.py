@@ -198,9 +198,9 @@ class ShutIt(object):
 		if cfg['build']['debug'] or force_stdout:
 			print >> sys.stdout, msg
 			sys.stdout.flush()
-		if cfg['build']['build_log']:
-			print >> cfg['build']['build_log'], msg
-			cfg['build']['build_log'].flush()
+		if cfg['build']['build_log'] and cfg['build']['build_log_file'] != None:
+			print >> cfg['build']['build_log_file'], msg
+			cfg['build']['build_log_file'].flush()
 		if add_final_message:
 			cfg['build']['report_final_messages'] += msg + '\n'
 		time.sleep(pause)
@@ -2415,6 +2415,7 @@ def init():
 	cfg['build']                = {}
 	cfg['build']['interactive'] = 1 # Default to true until we know otherwise
 	cfg['build']['build_log']   = None
+	cfg['build']['build_log_file']   = None
 	cfg['build']['report']      = ''
 	cfg['build']['report_final_messages'] = ''
 	cfg['build']['debug']       = False
