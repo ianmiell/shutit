@@ -373,8 +373,6 @@ class ConnDocker(ShutItConnModule):
 		                   target and creating the artifact.', \
 		                   child=shutit.pexpect_children['host_child'], \
 		                   print_input=False, level=3)
-		print cfg['repository']['name']
-		sys.exit(1)
 		shutit.do_repository_work(cfg['repository']['name'], \
 		           docker_executable=cfg['host']['docker_executable'], \
 		           password=cfg['host']['password'])
