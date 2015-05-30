@@ -548,11 +548,16 @@ def parse_args(shutit):
 			module_directory = util_raw_input(prompt='# Input a new directory name for this module.\n# Default: ' + default_dir + '\n', default=default_dir)
 		else:
 			module_directory = args.module_directory
-		if args.module_name == '':
-			default_module_name = module_directory.split('/')[-1]
-			module_name = util_raw_input(prompt='# Input module name.\n# Default: ' + default_module_name + '\n', default=default_module_name)
-		else:
-			module_name = args.module_name
+		while True:
+			if args.module_name == '':
+				default_module_name = module_directory.split('/')[-1]
+				module_name = util_raw_input(prompt='# Input module name.\n# Default: ' + default_module_name + '\n', default=default_module_name)
+			else:
+				module_name = args.module_name
+			if not re.match('^[a-z][a-z0-9-_.]*',module_name):
+				print 'You can only have [a-z][a-z0-9-_.]* in your module_name'
+			else:
+				break
 		if args.domain == '':
 			default_domain_name = os.getcwd().split('/')[-1] + '.' + module_name
 			domain = util_raw_input(prompt='# Input a unique domain.\n# Default: ' + default_domain_name + '\n', default=default_domain_name)
