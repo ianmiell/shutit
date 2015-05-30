@@ -63,8 +63,6 @@ echo $DESC
 ./shutit skeleton -d assets/dockerfile/Dockerfile --module_directory ${NEWDIR} --module_name testing --domain shutit.tk --depends shutit.tk.setup --base_image ubuntu:14.04
 pushd ${NEWDIR}/bin
 ./test.sh
-echo $?
-exit 1
 if [[ "x$?" != "x0" ]]
 then
 	echo "FAILED ON $DESC: $?"
