@@ -1340,7 +1340,9 @@ class template(ShutItModule):
 		# shutit.get_ip_address()            - Returns the ip address of the target
         #
         # LOGGING AND DEBUG
-		# shutit.log(msg)                    - Send a message to the log
+		# shutit.log(msg,add_final_message=False) -
+		#                                      Send a message to the log. add_final_message adds message to
+		#                                      output at end of build
 		# shutit.pause_point(msg='')         - Give control of the terminal to the user
 		# shutit.step_through(msg='')        - Give control to the user and allow them to step through commands
         #
