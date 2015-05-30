@@ -1,0 +1,219 @@
+/space/git/shutit/test/13 /space/git/shutit/test/13/bin
+Running: docker --version
+
+
+Command being run is:
+
+docker run --cidfile=/tmp/shutit/osboxes_imiell_1432932139.02.20286/cidfiles/imiell_cidfile_osboxes_imiell_1432932139.02.20286 -v=/space/git/shutit/artifacts:/artifacts -t -i ubuntu:14.04 /bin/bash
+
+
+This may download the image, please be patient
+
+
+]0;root@1e62ea69ee10: /root@1e62ea69ee10:/#
+ export SHUTIT_BACKUP_PS1_origin_prompt=$PS1 && PS1='SHUTIT_ORIGIN_ENV#Ej6v4qjI>' && unset PROMPT_COMMAND && stty cols 320
+]0;imiell@osboxes: /space/git/shutit/test/13imiell@osboxes:/space/git/shutit/test/13$  export SHUTIT_BACKUP_PS1_origin_promp t=$PS1 && PS1='SHUTIT_ORIGIN_ENV#Ej6v4qjI>' && unset PROMPT_COMMAND && stty cols  320
+SHUTIT_ORIGIN_ENV#Ej6v4qjI> test -d /tmp/shutit/osboxes_imiell_1432932139.02.20286/environment_id && echo FILEXIST-""FILFIN || echo FILNEXIST-""FILFIN
+FILNEXIST-FILFIN
+SHUTIT_ORIGIN_ENV#Ej6v4qjI>mkdir -p /tmp/shutit/osboxes_imiell_1432932139.02.20286/environment_id
+SHUTIT_ORIGIN_ENV#Ej6v4qjI> echo EXIT_CODE:$?
+ echo EXIT_CODE:$?
+EXIT_CODE:0
+SHUTIT_ORIGIN_ENV#Ej6v4qjI>touch /tmp/shutit/osboxes_imiell_1432932139.02.20286/environment_id/ORIGIN_ENV
+SHUTIT_ORIGIN_ENV#Ej6v4qjI> echo EXIT_CODE:$?
+ echo EXIT_CODE:$?
+EXIT_CODE:0
+SHUTIT_ORIGIN_ENV#Ej6v4qjI> export SHUTIT_BACKUP_PS1_root=$PS1 && PS1='SHUTIT_default# Cqk2yZUi>' && unset PROMPT_COMMAND && stty cols 320
+SHUTIT_default#Cqk2yZUi> test -d /tmp/shutit/osboxes_imiell_1432932139.02.20286/environment_id && echo FILEXIST-""FILFIN || echo FILNEXIST-""FILFIN
+FILNEXIST-FILFIN
+SHUTIT_default#Cqk2yZUi> cat /etc/issue | grep -i "red hat" | wc -l
+0
+SHUTIT_default#Cqk2yZUi> cat /etc/issue | grep -i "shutit" | wc -l
+0
+SHUTIT_default#Cqk2yZUi> cat /etc/issue | grep -i "fedora" | wc -l
+0
+SHUTIT_default#Cqk2yZUi> cat /etc/issue | grep -i "centos" | wc -l
+0
+SHUTIT_default#Cqk2yZUi> cat /etc/issue | grep -i "steamos" | wc -l
+0
+SHUTIT_default#Cqk2yZUi> cat /etc/issue | grep -i "ubuntu" | wc -l
+1
+SHUTIT_default#Cqk2yZUi>apt-get update
+0% [Working]            Ign http://archive.ubuntu.com trusty InRelease
+            12% [Working]             Ign http://archive.ubuntu.com trusty-updates InRelease
+20% [Working]             Ign http://archive.ubuntu.com trusty-security InRelease
+25% [Working]             Hit http://archive.ubuntu.com trusty Release.gpg
+50% [Working]             Get:1 http://archive.ubuntu.com trusty-updates Release.gpg [933 B]
+             0% [1 Release.gpg 0 B/933 B 0%]                               100% [Working]              Get:2 http://archive.ubuntu.com trusty-security Release.gpg [933 B]
+              50% [2 Release.gpg 0 B/933 B 0%]                                100% [Working]              Hit http://archive.ubuntu.com trusty Release
+100% [Working]              Get:3 http://archive.ubuntu.com trusty-updates Release [63.5 kB]
+100% [Working]              100% [Release gpgv 58.5 kB] [Waiting for headers]                                                 Get:4 http://archive.ubuntu.com trusty-security Release [63.5 kB]
+                                                 71% [Release gpgv 58.5 kB] [4 Release 25.6 kB/63.5 kB 40%]                                                          100% [Release gpgv 58.5 kB]                           100% [Working]              100% [3 Release gpgv 63.5 kB] [Waiting for headers]                                                   Get:5 http://archive.ubuntu.com trusty/main Sources [1335 kB]
+                                                   13% [3 Release gpgv 63.5 kB] [5 Sources 61.4 kB/1335 kB 5%]                                                           23% [5 Sources 201 kB/1335 kB 15%]                                  23% [4 Release gpgv 63.5 kB] [5 Sources 201 kB/1335 kB 15%]                                                           36% [5 Sources 392 kB/1335 kB 29%]                                  100% [Working]              100% [5 Sources 0 B] [Waiting for headers]                                          Get:6 http://archive.ubuntu.com trusty/restricted Sources [5335 B]
+                                          100% [5 Sources 1335 kB] [6 Sources 5335 B/5335 B 100%]                                                       100% [5 Sources 1335 kB] [Waiting for headers]                                              Get:7 http://archive.ubuntu.com trusty/universe Sources [7926 kB]
+                                              16% [5 Sources 1335 kB] [7 Sources 21.2 kB/7926 kB 0%]                                                      37% [5 Sources 1335 kB] [7 Sources 2001 kB/7926 kB 25%]53% [5 Sources 1335 kB] [7 Sources 3508 kB/7926 kB 44%]                                                       55% [7 Sources 3716 kB/7926 kB 47%]                                   55% [6 Sources 0 B] [7 Sources 3716 kB/7926 kB 47%]                                                   55% [7 Sources 3716 kB/7926 kB 47%]                                   100% [7 Sources 7926 kB/7926 kB 100%]                                     100% [Working]              100% [7 Sources 0 B]                    Get:8 http://archive.ubuntu.com trusty/main amd64 Packages [1743 kB]
+                    85% [7 Sources 7926 kB] [8 Packages 61.4 kB/1743 kB 4%]                                                       100% [7 Sources 7926 kB]                        Get:9 http://archive.ubuntu.com trusty/restricted amd64 Packages [16.0 kB]
+                        100% [7 Sources 7926 kB] [9 Packages 16.0 kB/16.0 kB 100%]                                                          100% [7 Sources 7926 kB]                        Get:10 http://archive.ubuntu.com trusty/universe amd64 Packages [7589 kB]
+                        60% [7 Sources 7926 kB] [10 Packages 35.6 kB/7589 kB 0%]                                                        68% [7 Sources 7926 kB] [10 Packages 1608 kB/7589 kB 21%]78% [7 Sources 7926 kB] [10 Packages 3391 kB/7589 kB 45%]                                                         91% [7 Sources 7926 kB] [10 Packages 5934 kB/7589 kB 78%]          2775 kB/s 0s100% [7 Sources 7926 kB]                                           2775 kB/s 0s                                                                               Get:11 http://archive.ubuntu.com trusty-updates/main Sources [261 kB]
+99% [7 Sources 7926 kB] [11 Sources 16.9 kB/261 kB 6%]             2775 kB/s 0s100% [7 Sources 7926 kB]                                           2775 kB/s 0s                                                                               Get:12 http://archive.ubuntu.com trusty-updates/restricted Sources [3158 B]
+100% [7 Sources 7926 kB] [12 Sources 3158 B/3158 B 100%]           2775 kB/s 0s100% [7 Sources 7926 kB] [Waiting for headers]                     2775 kB/s 0s                                                                               Get:13 http://archive.ubuntu.com trusty-updates/universe Sources [148 kB]
+99% [7 Sources 7926 kB] [13 Sources 16.9 kB/148 kB 11%]            2775 kB/s 0s100% [7 Sources 7926 kB]                                           2775 kB/s 0s                                                                               Get:14 http://archive.ubuntu.com trusty-updates/main amd64 Packages [641 kB]
+97% [7 Sources 7926 kB] [14 Packages 85.8 kB/641 kB 13%]           2775 kB/s 0s100% [7 Sources 7926 kB]                                           2775 kB/s 0s                                                                               Get:15 http://archive.ubuntu.com trusty-updates/restricted amd64 Packages [18.1 kB]
+100% [7 Sources 7926 kB] [15 Packages 8288 B/18.1 kB 46%]          2775 kB/s 0s100% [7 Sources 7926 kB] [Waiting for headers]                     2775 kB/s 0s                                                                               Get:16 http://archive.ubuntu.com trusty-updates/universe amd64 Packages [365 kB]
+99% [7 Sources 7926 kB] [16 Packages 102 kB/365 kB 28%]            2775 kB/s 0s100% [7 Sources 7926 kB]                                           2775 kB/s 0s                                                                               Get:17 http://archive.ubuntu.com trusty-security/main Sources [102 kB]
+100% [7 Sources 7926 kB] [17 Sources 68.6 kB/102 kB 67%]           2775 kB/s 0s100% [7 Sources 7926 kB]                                           2775 kB/s 0s                                                                               Get:18 http://archive.ubuntu.com trusty-security/restricted Sources [1874 B]
+100% [7 Sources 7926 kB] [18 Sources 1874 B/1874 B 100%]           2775 kB/s 0s100% [7 Sources 7926 kB] [Waiting for headers]                     2775 kB/s 0s                                                                               Get:19 http://archive.ubuntu.com trusty-security/universe Sources [28.4 kB]
+100% [7 Sources 7926 kB] [19 Sources 28.4 kB/28.4 kB 100%]         2775 kB/s 0s100% [7 Sources 7926 kB] [Waiting for headers]                     2775 kB/s 0s                                                                               Get:20 http://archive.ubuntu.com trusty-security/main amd64 Packages [347 kB]
+98% [7 Sources 7926 kB] [20 Packages 25.5 kB/347 kB 7%]            2775 kB/s 0s100% [7 Sources 7926 kB]                                           2775 kB/s 0s                                                                               Get:21 http://archive.ubuntu.com trusty-security/restricted amd64 Packages [14.8 kB]
+100% [7 Sources 7926 kB] [21 Packages 14.8 kB/14.8 kB 100%]        2775 kB/s 0s100% [7 Sources 7926 kB]                                           2775 kB/s 0s                                                                               Get:22 http://archive.ubuntu.com trusty-security/universe amd64 Packages [135 kB]
+100% [7 Sources 7926 kB] [22 Packages 54.2 kB/135 kB 40%]          2775 kB/s 0s100% [7 Sources 7926 kB]                                           2775 kB/s 0s100% [7 Sources 7926 kB]                                           2775 kB/s 0s100% [Working]                                                     2775 kB/s 0s100% [8 Packages 0 B]                                              2775 kB/s 0s100% [Working]                                                     2775 kB/s 0s100% [9 Packages 0 B]                                              2775 kB/s 0s100% [Working]                                                     2775 kB/s 0s100% [10 Packages 0 B]                                             2775 kB/s 0s100% [10 Packages 7589 kB]                                         2775 kB/s 0s100% [10 Packages 7589 kB]                                         2775 kB/s 0s100% [Working]                                                     2775 kB/s 0s100% [11 Sources 0 B]                                              2775 kB/s 0s100% [Working]                                                     2775 kB/s 0s100% [12 Sources 0 B]                                              2775 kB/s 0s100% [Working]                                                     2775 kB/s 0s100% [13 Sources 0 B]                                              2775 kB/s 0s100% [Working]                                                     2775 kB/s 0s100% [14 Packages 0 B]                                             2775 kB/s 0s100% [Working]                                                     2775 kB/s 0s100% [15 Packages 0 B]                                             2775 kB/s 0s100% [Working]                                                     2775 kB/s 0s100% [16 Packages 0 B]                                             2775 kB/s 0s100% [Working]                                                     2775 kB/s 0s100% [17 Sources 0 B]                                              2775 kB/s 0s100% [Working]                                                     2775 kB/s 0s100% [18 Sources 0 B]                                              2775 kB/s 0s100% [Working]                                                     2775 kB/s 0s100% [19 Sources 0 B]                                              2775 kB/s 0s100% [Working]                                                     2775 kB/s 0s100% [20 Packages 0 B]                                             2775 kB/s 0s100% [Working]                                                     2775 kB/s 0s100% [21 Packages 0 B]                                             2775 kB/s 0s100% [Working]                                                     2775 kB/s 0s100% [22 Packages 0 B]                                             2775 kB/s 0s100% [Working]                                                     2775 kB/s 0s                                                                               Fetched 20.8 MB in 10s (2031 kB/s)
+Reading package lists... 0%Reading package lists... 0%Reading package lists... 0%Reading package lists... 0%Reading package lists... 0%Reading package lists... 0%Reading package lists... 0%Reading package lists... 0%Reading package lists... 0%Reading package lists... 0%Reading package lists... 0%Reading package lists... 0%Reading package lists... 0%Reading package lists... 0%Reading package lists... 0%Reading package lists... 0%Reading package lists... 0%Reading package lists... 0%Reading package lists... 0%Reading package lists... 0%Reading package lists... 52%Reading package lists... Done
+SHUTIT_default#Cqk2yZUi> echo EXIT_CODE:$?
+ echo EXIT_CODE:$?
+EXIT_CODE:0
+SHUTIT_default#Cqk2yZUi>apt-get install -y -qq lsb-release
+SHUTIT_default#Cqk2yZUi> echo EXIT_CODE:$?
+ echo EXIT_CODE:$?
+EXIT_CODE:0
+SHUTIT_default#Cqk2yZUi> lsb_release -a
+No LSB modules are available.
+Distributor ID:	Ubuntu
+Description:	Ubuntu 14.04.2 LTS
+Release:	14.04
+Codename:	trusty
+SHUTIT_default#Cqk2yZUi>mkdir -p /tmp/shutit/osboxes_imiell_1432932139.02.20286/environment_id
+SHUTIT_default#Cqk2yZUi> echo EXIT_CODE:$?
+ echo EXIT_CODE:$?
+EXIT_CODE:0
+SHUTIT_default#Cqk2yZUi>touch /tmp/shutit/osboxes_imiell_1432932139.02.20286/environment_id/LpNQx4Mk
+SHUTIT_default#Cqk2yZUi> echo EXIT_CODE:$?
+ echo EXIT_CODE:$?
+EXIT_CODE:0
+SHUTIT_default#Cqk2yZUi>mkdir -p /tmp/shutit/osboxes_imiell_1432932139.02.20286/build_db/osboxes_imiell_1432932139.02.20286
+SHUTIT_default#Cqk2yZUi> echo EXIT_CODE:$?
+ echo EXIT_CODE:$?
+EXIT_CODE:0
+SHUTIT_default#Cqk2yZUi> test -d /tmp/shutit/osboxes_imiell_1432932139.02.20286/build_db/module_record && echo FILEXIST-""FILFIN || echo FILNEXIST-""FILFIN
+FILNEXIST-FILFIN
+SHUTIT_default#Cqk2yZUi> test -a /root/start_ssh_server.sh && echo FILEXIST-""FILFIN || echo FILNEXIST-""FILFIN
+FILNEXIST-FILFIN
+SHUTIT_default#Cqk2yZUi>bash
+bash
+]0;root@1e62ea69ee10: /root@1e62ea69ee10:/#  export SHUTIT_BACKUP_PS1_TBsKZsMp=$PS1 && PS1='SHUTIT_shutit.tk.setup#wl3ctdV1>' && unset PROMPT_COMMAND && stty cols 320
+SHUTIT_shutit.tk.setup#wl3ctdV1> test -d /tmp/shutit/osboxes_imiell_1432932139.02.20286/environment_id && echo FILEXIST-""FILFIN || echo FILNEXIST-""FILFIN
+FILEXIST-FILFIN
+SHUTIT_shutit.tk.setup#wl3ctdV1> test -d /tmp/shutit/osboxes_imiell_1432932139.02.20286/environment_id && echo FILEXIST-""FILFIN || echo FILNEXIST-""FILFIN
+FILEXIST-FILFIN
+SHUTIT_shutit.tk.setup#wl3ctdV1>ls /tmp/shutit/osboxes_imiell_1432932139.02.20286/environment_id
+LpNQx4Mk
+SHUTIT_shutit.tk.setup#wl3ctdV1>exit
+exit
+SHUTIT_default#Cqk2yZUi>bash
+bash
+]0;root@1e62ea69ee10: /root@1e62ea69ee10:/#  export SHUTIT_BACKUP_PS1_yS9Yc7sv=$PS1 && PS1='SHUTIT_shutit.tk.test13.test13#Ihhb5FAV>' && unset PROMPT_COMMAND && stty cols 320
+SHUTIT_shutit.tk.test13.test13#Ihhb5FAV> test -d /tmp/shutit/osboxes_imiell_1432932139.02.20286/environment_id && echo FILEXIST-""FILFIN || echo FILNEXIST-""FILFIN
+FILEXIST-FILFIN
+SHUTIT_shutit.tk.test13.test13#Ihhb5FAV> test -d /tmp/shutit/osboxes_imiell_1432932139.02.20286/environment_id && echo FILEXIST-""FILFIN || echo FILNEXIST-""FILFIN
+FILEXIST-FILFIN
+SHUTIT_shutit.tk.test13.test13#Ihhb5FAV>ls /tmp/shutit/osboxes_imiell_1432932139.02.20286/environment_id
+LpNQx4Mk
+SHUTIT_shutit.tk.test13.test13#Ihhb5FAV>exit
+exit
+SHUTIT_default#Cqk2yZUi>cat /tmp/shutit_tmp | docker exec -i 1e62ea69ee10b51404ad3d3b4f730deb1697c861930892c22953ddb9298575eb bash -c 'cat > /tmp/shutit/osboxes_imiell_1432932139.02.20286/build_db/osboxes_imiell_1432932139.02.20286/osboxes_imiell_1432932139.02.20286.cfg'
+SHUTIT_ORIGIN_ENV#Ej6v4qjI>bash
+bash
+]0;root@1e62ea69ee10: /root@1e62ea69ee10:/#  export SHUTIT_BACKUP_PS1_AhLBrjuk=$PS1 && PS1='SHUTIT_shutit.tk.setup#XDW8TgZR>' && unset PROMPT_COMMAND && stty cols 320
+SHUTIT_shutit.tk.setup#XDW8TgZR> test -d /tmp/shutit/osboxes_imiell_1432932139.02.20286/environment_id && echo FILEXIST-""FILFIN || echo FILNEXIST-""FILFIN
+FILEXIST-FILFIN
+SHUTIT_shutit.tk.setup#XDW8TgZR> test -d /tmp/shutit/osboxes_imiell_1432932139.02.20286/environment_id && echo FILEXIST-""FILFIN || echo FILNEXIST-""FILFIN
+FILEXIST-FILFIN
+SHUTIT_shutit.tk.setup#XDW8TgZR>ls /tmp/shutit/osboxes_imiell_1432932139.02.20286/environment_id
+LpNQx4Mk
+SHUTIT_shutit.tk.setup#XDW8TgZR>eval $'\x63\x61\x74\x20\x3e\x3e\x20\x24\x7b\x48\x4f\x4d\x45\x7d\x2f\x2e\x62\x61\x73\x68\x72\x63\x20\x3c\x3c\x3c\x20\x27\x65\x78\x70\x6f\x72\x74\x20\x44\x45\x42\x49\x41\x4e\x5f\x46\x52\x4f\x4e\x54\x45\x4e\x44\x3d\x6e\x6f\x6e\x69\x6e\x74\x65\x72\x61\x63\x74\x69\x76\x65\x27'
+SHUTIT_shutit.tk.setup#XDW8TgZR>eval $'\x63\x61\x74\x20\x3e\x3e\x20\x2f\x65\x74\x63\x2f\x62\x61\x73\x68\x2e\x62\x61\x73\x68\x72\x63\x20\x3c\x3c\x3c\x20\x27\x65\x78\x70\x6f\x72\x74\x20\x44\x45\x42\x49\x41\x4e\x5f\x46\x52\x4f\x4e\x54\x45\x4e\x44\x3d\x6e\x6f\x6e\x69\x6e\x74\x65\x72\x61\x63\x74\x69\x76\x65\x27'
+SHUTIT_shutit.tk.setup#XDW8TgZR>eval $'\x63\x61\x74\x20\x3e\x3e\x20\x2f\x65\x74\x63\x2f\x70\x72\x6f\x66\x69\x6c\x65\x20\x3c\x3c\x3c\x20\x27\x65\x78\x70\x6f\x72\x74\x20\x44\x45\x42\x49\x41\x4e\x5f\x46\x52\x4f\x4e\x54\x45\x4e\x44\x3d\x6e\x6f\x6e\x69\x6e\x74\x65\x72\x61\x63\x74\x69\x76\x65\x27'
+SHUTIT_shutit.tk.setup#XDW8TgZR>apt-get update
+0% [Working]            Ign http://archive.ubuntu.com trusty InRelease
+            12% [Working]             Ign http://archive.ubuntu.com trusty-updates InRelease
+20% [Working]             Ign http://archive.ubuntu.com trusty-security InRelease
+25% [Working]             Hit http://archive.ubuntu.com trusty Release.gpg
+50% [Working]             Hit http://archive.ubuntu.com trusty-updates Release.gpg
+56% [Working]             Hit http://archive.ubuntu.com trusty-security Release.gpg
+60% [Working]             Hit http://archive.ubuntu.com trusty Release
+60% [Working]             Hit http://archive.ubuntu.com trusty-updates Release
+60% [Working]             60% [Release gpgv 58.5 kB] [Waiting for headers]                                                44% [Waiting for headers]                         44% [Release gpgv 63.5 kB] [Waiting for headers]                                                36% [Waiting for headers]                         Hit http://archive.ubuntu.com trusty-security Release
+                         36% [Working]             36% [Release gpgv 63.5 kB] [Waiting for headers]                                                32% [Waiting for headers]                         Hit http://archive.ubuntu.com trusty/main Sources
+32% [Waiting for headers]                         Hit http://archive.ubuntu.com trusty/restricted Sources
+                         Hit http://archive.ubuntu.com trusty/universe Sources
+                         Hit http://archive.ubuntu.com trusty/main amd64 Packages
+                         Hit http://archive.ubuntu.com trusty/restricted amd64 Packages
+                         Hit http://archive.ubuntu.com trusty/universe amd64 Packages
+                         Hit http://archive.ubuntu.com trusty-updates/main Sources
+                         Hit http://archive.ubuntu.com trusty-updates/restricted Sources
+32% [Waiting for headers]                         Hit http://archive.ubuntu.com trusty-updates/universe Sources
+32% [Waiting for headers]                         32% [Sources 0 B] [Waiting for headers]                                       Hit http://archive.ubuntu.com trusty-updates/main amd64 Packages
+                                       32% [Sources 1335 kB]                     100% [Waiting for headers]                          100% [Sources 0 B] [Waiting for headers]                                        100% [Waiting for headers]                          100% [Sources 0 B] [Waiting for headers]                                        Hit http://archive.ubuntu.com trusty-updates/restricted amd64 Packages
+                                        100% [Sources 7926 kB]                      Hit http://archive.ubuntu.com trusty-updates/universe amd64 Packages
+100% [Sources 7926 kB]                      Hit http://archive.ubuntu.com trusty-security/main Sources
+100% [Sources 7926 kB]                      Hit http://archive.ubuntu.com trusty-security/restricted Sources
+                      100% [Sources 7926 kB] [Waiting for headers]                                            Hit http://archive.ubuntu.com trusty-security/universe Sources
+                                            100% [Sources 7926 kB]                      Hit http://archive.ubuntu.com trusty-security/main amd64 Packages
+100% [Sources 7926 kB]                      Hit http://archive.ubuntu.com trusty-security/restricted amd64 Packages
+100% [Sources 7926 kB]                      Hit http://archive.ubuntu.com trusty-security/universe amd64 Packages
+100% [Sources 7926 kB]100% [Sources 7926 kB]                      100% [Working]              100% [Packages 0 B]                   100% [Working]              100% [Packages 0 B]                   100% [Working]              100% [Packages 0 B]                   100% [Packages 7589 kB]                       100% [Working]              100% [Sources 0 B]                  100% [Working]100% [Working]              100% [Sources 148 kB]                     100% [Working]              100% [Packages 0 B]                   100% [Working]              100% [Packages 0 B]                   100% [Working]              100% [Packages 0 B]                   100% [Working]              100% [Sources 0 B]                  100% [Working]              100% [Sources 0 B]                  100% [Working]              100% [Sources 0 B]                  100% [Working]              100% [Packages 0 B]                   100% [Working]              100% [Packages 0 B]                   100% [Working]              100% [Packages 0 B]                   100% [Working]              Reading package lists... 0%Reading package lists... 0%Reading package lists... 0%Reading package lists... 0%Reading package lists... 0%Reading package lists... 0%Reading package lists... 0%Reading package lists... 0%Reading package lists... 0%Reading package lists... 0%Reading package lists... 0%Reading package lists... 0%Reading package lists... 0%Reading package lists... 0%Reading package lists... 0%Reading package lists... 0%Reading package lists... 0%Reading package lists... 0%Reading package lists... 0%Reading package lists... 0%Reading package lists... 52%Reading package lists... Done
+SHUTIT_shutit.tk.setup#XDW8TgZR>apt-get install -y -qq lsb-release
+SHUTIT_shutit.tk.setup#XDW8TgZR> echo EXIT_CODE:$?
+ echo EXIT_CODE:$?
+EXIT_CODE:0
+SHUTIT_shutit.tk.setup#XDW8TgZR> lsb_release -a
+No LSB modules are available.
+Distributor ID:	Ubuntu
+Description:	Ubuntu 14.04.2 LTS
+Release:	14.04
+Codename:	trusty
+SHUTIT_shutit.tk.setup#XDW8TgZR>dpkg-divert --local --rename --add /sbin/initctl
+Leaving 'local diversion of /sbin/initctl to /sbin/initctl.distrib'
+SHUTIT_shutit.tk.setup#XDW8TgZR> echo EXIT_CODE:$?
+ echo EXIT_CODE:$?
+EXIT_CODE:0
+SHUTIT_shutit.tk.setup#XDW8TgZR>ln -f -s /bin/true /sbin/initctl
+SHUTIT_shutit.tk.setup#XDW8TgZR> echo EXIT_CODE:$?
+ echo EXIT_CODE:$?
+EXIT_CODE:0
+SHUTIT_shutit.tk.setup#XDW8TgZR>mkdir -p /tmp/shutit/osboxes_imiell_1432932139.02.20286/build_db/module_record/shutit.tk.setup && touch /tmp/shutit/osboxes_imiell_1432932139.02.20286/build_db/module_record/shutit.tk.setup/built && rm -f /tmp/shutit/osboxes_imiell_1432932139.02.20286/build_db/module_record/shutit.tk.set up/removed
+SHUTIT_shutit.tk.setup#XDW8TgZR> echo EXIT_CODE:$?
+ echo EXIT_CODE:$?
+EXIT_CODE:0
+SHUTIT_shutit.tk.setup#XDW8TgZR>exit
+exit
+SHUTIT_default#Cqk2yZUi>bash
+bash
+]0;root@1e62ea69ee10: /root@1e62ea69ee10:/#  export SHUTIT_BACKUP_PS1_PM2QoN7o=$PS1 && PS1='SHUTIT_shutit.tk.test13.test13#nKgayKUM>' && unset PROMPT_COMMAND && stty cols 320
+SHUTIT_shutit.tk.test13.test13#nKgayKUM> test -d /tmp/shutit/osboxes_imiell_1432932139.02.20286/environment_id && echo FILEXIST-""FILFIN || echo FILNEXIST-""FILFIN
+FILEXIST-FILFIN
+SHUTIT_shutit.tk.test13.test13#nKgayKUM> test -d /tmp/shutit/osboxes_imiell_1432932139.02.20286/environment_id && echo FILEXIST-""FILFIN || echo FILNEXIST-""FILFIN
+FILEXIST-FILFIN
+SHUTIT_shutit.tk.test13.test13#nKgayKUM>ls /tmp/shutit/osboxes_imiell_1432932139.02.20286/environment_id
+LpNQx4Mk
+SHUTIT_shutit.tk.test13.test13#nKgayKUM>cat /tmp/shutit_tmp | docker exec -i 1e62ea69ee10b51404ad3d3b4f730deb1697c861930892c22953ddb9298575eb bash -c 'cat > /tmp/a'
+SHUTIT_ORIGIN_ENV#Ej6v4qjI>md5sum /tmp/a
+b2280b7f6a0b2293eac436e0c070f7f3  /tmp/a
+SHUTIT_shutit.tk.test13.test13#nKgayKUM>grep -n -m 1 "a" /tmp/a | cut -d: -f1
+1
+SHUTIT_shutit.tk.test13.test13#nKgayKUM>cat /tmp/a
+a
+b
+c
+d
+eSHUTIT_shutit.tk.test13.test13#nKgayKUM>a
+b
+c
+d
+e
+---------------
+b
+c
+---------------
+-1
+cat /tmp/shutit_tmp | docker exec -i 1e62ea69ee10b51404ad3d3b4f730deb1697c861930892c22953ddb9298575eb bash -c 'cat > /tmp/shutit_KjDDZz7l'
+SHUTIT_ORIGIN_ENV#Ej6v4qjI>apt-get install -y -qq patch
