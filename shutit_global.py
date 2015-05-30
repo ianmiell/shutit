@@ -967,8 +967,8 @@ class ShutIt(object):
 	def insert_text(self, text, fname, pattern, expect=None, child=None, before=False, force=False):
 		"""Insert a chunk of text after (or before) the first matching pattern in file fname.
 
-		Returns 0 if there was no match for the regexp, 1 if it was matched
-		and replaced, and -1 if the file did not exist or there was some other
+		Returns None if there was no match for the regexp, True if it was matched
+		and replaced, and False if the file did not exist or there was some other
 		problem.
 
 		@param text:          Text to insert.
@@ -988,17 +988,17 @@ class ShutIt(object):
 		# If no match, return False
 		if line_number == '':
 			# No output - no match
-			return 0
+			return None
 		if line_number[0] not in ('1','2','3','4','5','6','7','8','9'):
 			# Something went wrong
-			return -1
+			return False
 		ftext = self.send_and_get_output('cat ' + fname)
 		# Replace the file text's ^M-newlines with simple newlines
 		ftext = ftext.replace('\r\n','\n')
 		# If we are not forcing and the text is already in the file, then don't insert.
 		# TODO: look only after/before the pattern matches
 		if not force and ftext.find(text) != -1:
-			return 0
+			return None
 		# Split text up by line
 		text_list = text.split('\n')
 		# How many lines added?
@@ -1024,7 +1024,7 @@ class ShutIt(object):
 		self.send('patch ' + fname + ' ' + diff_fname, expect=expect, child=child)
 		# Delete diff file
 		self.send('rm -f ' + diff_fname, check_exit=False, expect=expect, child=child)
-		return 1
+		return True
 
 
 
