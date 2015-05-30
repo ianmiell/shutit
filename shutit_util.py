@@ -544,7 +544,7 @@ def parse_args(shutit):
 		if (args.dockerfile and (args.script or args.example)) or (args.example and args.script):
 			shutit.fail('Cannot have any two of script, -d/--dockerfile Dockerfile or --example as arguments')
 		if args.module_directory == '':
-			default_dir = os.getcwd() + '/' + random_word()
+			default_dir = '/tmp/' + random_word()
 			module_directory = util_raw_input(prompt='# Input a new directory name for this module.\n# Default: ' + default_dir + '\n', default=default_dir)
 		else:
 			module_directory = args.module_directory
@@ -1125,8 +1125,7 @@ def create_skeleton(shutit):
 		shutit.fail('Module names must comply with python classname standards: cf: http://stackoverflow.com/questions/10120295/valid-characters-in-a-python-class-name')
 	if len(skel_domain) == 0:
 		shutit.fail('Must supply a domain for your module, eg com.yourname.madeupdomainsuffix')
-
-	print skel_path
+	
 	os.makedirs(skel_path)
 	os.mkdir(os.path.join(skel_path, 'configs'))
 	os.mkdir(os.path.join(skel_path, 'context'))
