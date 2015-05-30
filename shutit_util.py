@@ -544,7 +544,7 @@ def parse_args(shutit):
 		if (args.dockerfile and (args.script or args.example)) or (args.example and args.script):
 			shutit.fail('Cannot have any two of script, -d/--dockerfile Dockerfile or --example as arguments')
 		if args.module_directory == '':
-			default_dir = '/tmp/' + random_word()
+			default_dir = '/tmp/shutit_' + random_word()
 			module_directory = util_raw_input(prompt='# Input a new directory name for this module.\n# Default: ' + default_dir + '\n', default=default_dir)
 		else:
 			module_directory = args.module_directory
