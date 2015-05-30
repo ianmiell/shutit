@@ -473,7 +473,6 @@ class ShutIt(object):
 		child = child or self.get_default_child()
 		if exit_values is None:
 			exit_values = ['0']
-		# TODO: check that all exit_values are strings.
 		# Don't use send here (will mess up last_output)!
 		# Space before "echo" here is sic - we don't need this to show up in bash history
 		child.sendline(' echo EXIT_CODE:$?')
@@ -983,15 +982,15 @@ class ShutIt(object):
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
 		random_id = shutit_util.random_id()
-		#find matching line number (n)
-		#TODO: replace pattern with \"
+		# Find matching line number (n)
+		# TODO: replace " in pattern with \"
 		line_number = self.send_and_get_output(r'''grep -n -m 1 "''' + pattern + '''" ''' + fname + ''' | cut -d: -f1''').strip()
-		# if no match, return False
+		# If no match, return False
 		if line_number == '':
-			#no output - no match
+			# No output - no match
 			return 0
 		if line_number[0] not in ('1','2','3','4','5','6','7','8','9'):
-			#something went wrong
+			# Something went wrong
 			return -1
 		ftext = self.send_and_get_output('cat ' + fname)
 		# Replace the file text's ^M-newlines with simple newlines
@@ -1000,11 +999,11 @@ class ShutIt(object):
 		# TODO: look only after/before the pattern matches
 		if not force and ftext.find(text) != -1:
 			return 0
-		# split text up by line
+		# Split text up by line
 		text_list = text.split('\n')
-		#how many lines added?
+		# How many lines added?
 		num_lines = len(text_list)
-		#create diff file (f)
+		# Create diff file (f)
 		file_text = ''
 		# Place before or after matching text.
 		if before:
@@ -1015,15 +1014,15 @@ class ShutIt(object):
 			file_text = line_number + 'a' + str(int(line_number)+1) + ',' + str(int(line_number) + num_lines)
 			for line in text_list:
 				file_text += '\n> ' + line
-		#then put, for each line, '> ' + line added file (f)
+		# Then put, for each line, '> ' + line added file (f)
 		file_text += '\n'
 		diff_fname = '/tmp/shutit_' + random_id
 		self.send_file(diff_fname, file_text, expect=expect, child=child)
-		#install patch - TODO: make more elegant
+		# Install patch - TODO: make more elegant
 		self.install('patch')
-		#run: patch fname (f)
+		# Run: patch fname (f)
 		self.send('patch ' + fname + ' ' + diff_fname, expect=expect, child=child)
-		#delete diff file
+		# Delete diff file
 		self.send('rm -f ' + diff_fname, check_exit=False, expect=expect, child=child)
 		return 1
 
@@ -1565,7 +1564,6 @@ class ShutIt(object):
 		expect = expect or self.get_default_expect()
 		cfg = self.cfg
 		if options is None: options = {}
-		# TODO: config of maps of packages
 		install_type = cfg['environment'][cfg['build']['current_environment_id']]['install_type']
 		if install_type == 'src':
 			# If this is a src build, we assume it's already installed.
@@ -1734,7 +1732,6 @@ class ShutIt(object):
 		# Be helpful.
 		if ' ' in user:
 			self.fail('user has space in it - did you mean: login(command="' + user + '")?')
-		# TODO: create a file on this host with that /tmp/shutit_stack.r_id so we can check we're at the right point in the stack.
 		if cfg['build']['delivery'] == 'bash' and command == 'su -':
 			# We want to retain the current working directory
 			command = 'su'
