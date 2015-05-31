@@ -239,21 +239,16 @@ class ConnDocker(ShutItConnModule):
 		cidfile_arg = '--cidfile=' + cfg['build']['cidfile']
 
 		# Singly-specified options
-		privileged_arg = ''
-		lxc_conf_arg   = ''
-		name_arg       = ''
-		hostname_arg   = ''
-		volume_arg     = ''
-		rm_arg         = ''
-		net_arg        = ''
+		privileged_arg   = ''
+		lxc_conf_arg     = ''
+		name_arg         = ''
+		hostname_arg     = ''
+		volume_arg       = ''
+		rm_arg           = ''
+		net_arg          = ''
+		mount_docker_arg = ''
 		if cfg['build']['privileged']:
 			privileged_arg = '--privileged=true'
-		#else:
-			# TODO: put in to ensure serve always works. --cap-add is now an option.
-			# Need better solution in place, eg refresh builder when build
-			# needs privileged
-			#if cfg['action']['serve']:
-			#	privileged_arg = '--privileged=true'
 		if cfg['build']['lxc_conf'] != '':
 			lxc_conf_arg = '--lxc-conf=' + cfg['build']['lxc_conf']
 		if cfg['target']['name'] != '':
@@ -264,6 +259,8 @@ class ConnDocker(ShutItConnModule):
 			volume_arg = '-v=' + cfg['host']['artifacts_dir'] + ':/artifacts'
 		if cfg['build']['net'] != '':
 			net_arg        = '--net="' + cfg['build']['net'] + '"'
+		if cfg['build']['mount_docker']:
+			mount_docker_arg = '-v=/var/run/docker.sock:/var/run/docker.sock'
 		# Incompatible with do_repository_work
 		if cfg['target']['rm']:
 			rm_arg = '--rm=true'
@@ -289,6 +286,7 @@ class ConnDocker(ShutItConnModule):
 				volume_arg,
 				rm_arg,
 				net_arg,
+				mount_docker_arg,
 				] + port_args + dns_args + [
 				'-t',
 				'-i',
