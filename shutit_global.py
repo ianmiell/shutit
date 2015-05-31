@@ -1639,7 +1639,6 @@ class ShutIt(object):
 		expect = expect or self.get_default_expect()
 		cfg = self.cfg
 		if options is None: options = {}
-		print cfg['environment'][cfg['build']['current_environment_id']]
 		install_type = cfg['environment'][cfg['build']['current_environment_id']]['install_type']
 		if install_type == 'src':
 			# If this is a src build, we assume it's already installed.
@@ -2389,6 +2388,17 @@ class ShutIt(object):
 		"""
 		from alerting import emailer
 		return emailer.Emailer(cfg_section, self)
+
+
+	
+	def query_config(self, item):
+		"""Consistent and back-compatible API for asking for config information.
+		"""
+		# Is the docker socket mounted?
+		if item == 'mount_docker':
+			return self.cfg['build']['mount_docker']
+		else:
+			self.fail('query_config: item "' + item + '" not handled')
 
 
 def init():
