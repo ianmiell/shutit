@@ -919,6 +919,8 @@ class ShutIt(object):
 							created_file = True
 						#            v the space is intentional, to avoid polluting bash history.
 						replaced_line = line.replace("'","""'"'"'""")
+						replaced_line = line.replace("[",r"\[")
+						replaced_line = line.replace("]",r"\]")
 						self.send(""" grep -w '^""" + 
 								  replaced_line +
 								  """$' """ +
