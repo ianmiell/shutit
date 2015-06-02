@@ -579,8 +579,10 @@ class ShutIt(object):
 			# then use python.
 				if truncate and self.file_exists(path):
 					self.send('rm -f ' + path, expect=expect, child=child)
-				for line in contents.split('\n'):
-					self.add_line_to_file(line, path)
+				randomd_id = shutit.random_id()
+				shutit.send('cat > ' + path + ' << END_' + random_id + '''
+''' + contents + '''
+END_''' + random_id)
 		else:
 			host_child = shutit.pexpect_children['host_child']
 			path = path.replace(' ', '\ ')
@@ -1023,27 +1025,22 @@ class ShutIt(object):
 		file_text = ''
 		# Place/delete before or after matching text.
 		start_line_before = str(int(line_number)-1)
-		end_line_before = str(int(line_number)-2 + num_lines)
-		start_line_after = str(int(line_number)+1)
-		end_line_after = str(int(line_number) + num_lines)
+		end_line_before   = str(int(line_number)-2 + num_lines)
+		start_line_after  = str(int(line_number)+1)
+		end_line_after    = str(int(line_number) + num_lines)
 		if delete:
 			action = 'd'
-			prefix = '<'
+			prefix = '< '
 			file_text = start_line_before + ',' + end_line_before + action + start_line_before
-			for line in text_list:
-				file_text += '\n' + prefix + ' ' + line
 		else:
 			action = 'a'
-			prefix = '>'
+			prefix = '> '
 			if before:
 				file_text = start_line_before + action + start_line_before + ',' + end_line_before
-				for line in text_list:
-					file_text += '\n' + prefix + ' ' + line
 			else:
-				file_text = line_number + action + start_line_before + ',' + start_line_after
-				for line in text_list:
-					file_text += '\n' + prefix + ' ' + line
-		# Then put, for each line, '> ' + line added file (f)
+				file_text = line_number + action + start_line_after + ',' + end_line_after
+		for line in text_list:
+			file_text += '\n' + prefix + line
 		file_text += '\n'
 		diff_fname = '/tmp/shutit_' + random_id
 		self.send_file(diff_fname, file_text, expect=expect, child=child)

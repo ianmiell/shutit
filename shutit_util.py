@@ -1713,6 +1713,7 @@ def ctrlc_background():
 def ctrl_c_signal_handler(signal, frame):
 	"""CTRL-c signal handler - enters a pause point if it can.
 	"""
+	print_frame_recurse(frame)
 	if in_ctrlc:
 		print "CTRL-c quit!"
 		# Unfortunately we have 'except' blocks catching all exceptions,
@@ -1726,3 +1727,15 @@ def ctrl_c_signal_handler(signal, frame):
 		t.daemon = True
 		t.start()
 		print "CTRL-c caught, but not in context with ability to pause. CTRL-c twice to quit."
+
+
+def print_frame_recurse(frame):
+	while True:
+		shutit.log('=============================================================================')
+		shutit.log(frame.f_locals)
+		if not frame.f_back:
+			break
+		else:
+			frame = frame.f_back
+
+
