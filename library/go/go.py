@@ -61,15 +61,14 @@ class go(ShutItModule):
 		shutit.install('build-essential')
 		shutit.install('git')
 		shutit.send('mkdir -p /opt/go')
-		shutit.send('cd /tmp')
+		shutit.send('cd /root')
 		shutit.send('git clone https://go.googlesource.com/go')
 		shutit.send('cd go')
 		shutit.send('git checkout ' + shutit.cfg[self.module_id]['go_version'])
 		shutit.send('cd src')
 		shutit.send('./all.bash')
-		shutit.send('mv /tmp/go/bin/go /usr/bin')
-		shutit.send('mv /tmp/go/bin/gofmt /usr/bin')
-		shutit.send('rm -rf /tmp/go')
+		shutit.send('mv /root/go/bin/go /usr/bin')
+		shutit.send('mv /root/go/bin/gofmt /usr/bin')
 		shutit.add_to_bashrc('export GOPATH=/opt/go')
 		return True
 
