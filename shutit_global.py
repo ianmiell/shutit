@@ -956,9 +956,6 @@ class ShutIt(object):
 						  check_exit=False, escape=True)
 				res = self.match_string(child.before, '^([0-9]+)$')
 			if res == '0' or force:
-				# Add in preceding newline safely.
-				self.send('echo "" >> ' + filename,
-					expect=expect, child=child, check_exit=False, escape=True)
 				self.send('cat >> ' + filename + """ <<< '""" + line.replace("'",r"""'"'"'""") + """'""",
 					expect=expect, child=child, check_exit=False, escape=True)
 				if created_file:
