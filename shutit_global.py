@@ -968,6 +968,10 @@ class ShutIt(object):
 
 
 	def delete_text(self, text, fname, pattern=None, expect=None, child=None, before=False, force=False):
+		"""Delete a chunk of text from a file.
+
+		See insert_text.
+		"""
 		return self.insert_text(text, fname, pattern, expect, child, before, force, delete=True)
 
 	def insert_text(self, text, fname, pattern=None, expect=None, child=None, before=False, force=False, delete=False):
@@ -1017,24 +1021,26 @@ class ShutIt(object):
 		num_lines = len(text_list)
 		# Create diff file (f)
 		file_text = ''
+		# Place/delete before or after matching text.
+		start_line_before = str(int(line_number)-1)
+		end_line_before = str(int(line_number)-2 + num_lines)
+		start_line_after = str(int(line_number)+1)
+		end_line_after = str(int(line_number) + num_lines)
 		if delete:
 			action = 'd'
 			prefix = '<'
-		else:
-			action = 'a'
-			prefix = '>'
-		# Place/delete before or after matching text.
-		if delete:
-			file_text = str(int(line_number)-1) + ',' + str(int(line_number)-2 + num_lines) + action + str(int(line_number)-1)
+			file_text = start_line_before + ',' + end_line_before + action + start_line_before
 			for line in text_list:
 				file_text += '\n' + prefix + ' ' + line
 		else:
+			action = 'a'
+			prefix = '>'
 			if before:
-				file_text = str(int(line_number)-1) + action + str(int(line_number)-1) + ',' + str(int(line_number)-2 + num_lines)
+				file_text = start_line_before + action + start_line_before + ',' + end_line_before
 				for line in text_list:
 					file_text += '\n' + prefix + ' ' + line
 			else:
-				file_text = line_number + action + str(int(line_number)+1) + ',' + str(int(line_number) + num_lines)
+				file_text = line_number + action + start_line_before + ',' + start_line_after
 				for line in text_list:
 					file_text += '\n' + prefix + ' ' + line
 		# Then put, for each line, '> ' + line added file (f)
