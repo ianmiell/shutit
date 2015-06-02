@@ -98,7 +98,7 @@ class go(ShutItModule):
 
 def module():
 	return go(
-		'shutit.tk.go.go', 782914092.00,
+		'shutit.tk.go.go', 782914092.012135245124,
 		description='',
 		maintainer='',
 		depends=['shutit.tk.setup']

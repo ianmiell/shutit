@@ -247,6 +247,7 @@ class ConnDocker(ShutItConnModule):
 		rm_arg           = ''
 		net_arg          = ''
 		mount_docker_arg = ''
+		shell_arg        = '/bin/bash'
 		if cfg['build']['privileged']:
 			privileged_arg = '--privileged=true'
 		if cfg['build']['lxc_conf'] != '':
@@ -264,7 +265,8 @@ class ConnDocker(ShutItConnModule):
 		# Incompatible with do_repository_work
 		if cfg['target']['rm']:
 			rm_arg = '--rm=true'
-
+		if cfg['build']['base_image'] in ('alpine'):
+			shell_arg = '/bin/ash'
 		# Multiply-specified options
 		port_args  = []
 		dns_args   = []
@@ -291,7 +293,7 @@ class ConnDocker(ShutItConnModule):
 				'-t',
 				'-i',
 				cfg['target']['docker_image'],
-				'/bin/bash'
+				shell_arg
 			] if arg != ''
 		]
 		if cfg['build']['interactive'] >= 3:
@@ -309,7 +311,6 @@ class ConnDocker(ShutItConnModule):
 		force_stdout=True, prefix=False)
 		shutit.log('\n\nThis may download the image, please be patient\n\n',
 		force_stdout=True, prefix=False)
-
 		target_child = pexpect.spawn(docker_command[0], docker_command[1:])
 		expect = ['assword', cfg['expect_prompts']['base_prompt'].strip(), \
 		          'Waiting', 'ulling', 'endpoint', 'Download']

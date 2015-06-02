@@ -867,11 +867,11 @@ class ShutIt(object):
 	                     expect=None,
 	                     child=None,
 	                     match_regexp=None,
-	                     force=True,
+	                     force=False,
 	                     literal=False):
 		"""
 		Adds line to file if it doesn't exist (unless Force is set,
-		which it is by default).
+		which it is not by default).
 		Creates the file if it doesn't exist.
 		Must be exactly the line passed in to match.
 		Returns True if line(s) added OK, False if not.
@@ -909,7 +909,8 @@ class ShutIt(object):
 		for line in lines:
 			created_file = False
 			if not force:
-				if literal:
+				# Not sure why this was switched off, but 
+				if literal or True:
 					if match_regexp == None:
 						if not self.file_exists(filename, expect=expect, child=child):
 							# We touch the file if it doesn't exist already.
@@ -917,8 +918,9 @@ class ShutIt(object):
 								check_exit=False)
 							created_file = True
 						#            v the space is intentional, to avoid polluting bash history.
+						replaced_line = line.replace("'","""'"'"'""")
 						self.send(""" grep -w '^""" + 
-								  line +
+								  replaced_line +
 								  """$' """ +
 								  filename +
 								  ' > ' + 
@@ -952,6 +954,9 @@ class ShutIt(object):
 						  check_exit=False, escape=True)
 				res = self.match_string(child.before, '^([0-9]+)$')
 			if res == '0' or force:
+				# Add in preceding newline safely.
+				self.send('echo "" >> ' + filename,
+					expect=expect, child=child, check_exit=False, escape=True)
 				self.send('cat >> ' + filename + """ <<< '""" + line.replace("'",r"""'"'"'""") + """'""",
 					expect=expect, child=child, check_exit=False, escape=True)
 				if created_file:
@@ -963,9 +968,12 @@ class ShutIt(object):
 		return True
 
 
+	def delete_text(self, text, fname, pattern=None, expect=None, child=None, before=False, force=False):
+		return self.insert_text(text, fname, pattern, expect, child, before, force, delete=True)
 
-	def insert_text(self, text, fname, pattern, expect=None, child=None, before=False, force=False):
-		"""Insert a chunk of text after (or before) the first matching pattern in file fname.
+	def insert_text(self, text, fname, pattern=None, expect=None, child=None, before=False, force=False, delete=False):
+		"""Insert a chunk of text at the end of a file, or after (or before) the first matching pattern
+		in given file fname.
 
 		Returns None if there was no match for the regexp, True if it was matched
 		and replaced, and False if the file did not exist or there was some other
@@ -973,47 +981,63 @@ class ShutIt(object):
 
 		@param text:          Text to insert.
 		@param fname:         Filename to insert text to
-		@param pattern:       regexp to match and insert after
+		@param pattern:       regexp to match and insert after. If none, put at end of file.
 		@param expect:        See send()
 		@param child:         See send()
 		@param before:        Whether to place the text before or after the matched text.
 		@param force:         Force the insertion even if the text is in the file.
+		@param delete:        Delete text from file rather than insert
 		"""
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
 		random_id = shutit_util.random_id()
 		# Find matching line number (n)
-		# TODO: replace " in pattern with \"
-		line_number = self.send_and_get_output(r'''grep -n -m 1 "''' + pattern + '''" ''' + fname + ''' | cut -d: -f1''').strip()
-		# If no match, return False
-		if line_number == '':
-			# No output - no match
-			return None
-		if line_number[0] not in ('1','2','3','4','5','6','7','8','9'):
-			# Something went wrong
-			return False
+		if pattern == None:
+			line_number = self.send_and_get_output('cat ' + fname + ' | wc -l')
+		else:
+			line_number = self.send_and_get_output(r'''grep -n -m 1 "''' + pattern + '''" ''' + fname + ''' | cut -d: -f1''').strip()
+			# If no match, return False
+			if line_number == '':
+				# No output - no match
+				return None
+			if line_number[0] not in ('1','2','3','4','5','6','7','8','9'):
+				# Something went wrong
+				return False
 		ftext = self.send_and_get_output('cat ' + fname)
 		# Replace the file text's ^M-newlines with simple newlines
 		ftext = ftext.replace('\r\n','\n')
 		# If we are not forcing and the text is already in the file, then don't insert.
 		# TODO: look only after/before the pattern matches
-		if not force and ftext.find(text) != -1:
+		if not force and not delete and ftext.find(text) != -1:
+			return None
+		if delete and ftext.find(text) == -1:
 			return None
 		# Split text up by line
 		text_list = text.split('\n')
-		# How many lines added?
+		# How many lines affected?
 		num_lines = len(text_list)
 		# Create diff file (f)
 		file_text = ''
-		# Place before or after matching text.
-		if before:
-			file_text = str(int(line_number)-1) + 'a' + str(int(line_number)-1) + ',' + str(int(line_number)-2 + num_lines)
-			for line in text_list:
-				file_text += '\n> ' + line
+		if delete:
+			action = 'd'
+			prefix = '<'
 		else:
-			file_text = line_number + 'a' + str(int(line_number)+1) + ',' + str(int(line_number) + num_lines)
+			action = 'a'
+			prefix = '>'
+		# Place/delete before or after matching text.
+		if delete:
+			file_text = str(int(line_number)-1) + ',' + str(int(line_number)-2 + num_lines) + action + str(int(line_number)-1)
 			for line in text_list:
-				file_text += '\n> ' + line
+				file_text += '\n' + prefix + ' ' + line
+		else:
+			if before:
+				file_text = str(int(line_number)-1) + action + str(int(line_number)-1) + ',' + str(int(line_number)-2 + num_lines)
+				for line in text_list:
+					file_text += '\n' + prefix + ' ' + line
+			else:
+				file_text = line_number + action + str(int(line_number)+1) + ',' + str(int(line_number) + num_lines)
+				for line in text_list:
+					file_text += '\n' + prefix + ' ' + line
 		# Then put, for each line, '> ' + line added file (f)
 		file_text += '\n'
 		diff_fname = '/tmp/shutit_' + random_id
@@ -1589,6 +1613,10 @@ class ShutIt(object):
 				opts += ' -y'
 			if reinstall:
 				opts += ' reinstall'
+		elif install_type == 'apk':
+			cmd = 'apk add'
+			if 'apk' in options:
+				opts = options['apk']
 		else:
 			# Not handled
 			return False
@@ -1649,6 +1677,10 @@ class ShutIt(object):
 		elif install_type == 'yum':
 			cmd = 'yum erase'
 			opts = options['yum'] if 'yum' in options else '-y'
+		elif install_type == 'apk':
+			cmd = 'apk del'
+			if 'apk' in options:
+				opts = options['apk']
 		else:
 			# Not handled
 			return False
@@ -1923,15 +1955,13 @@ class ShutIt(object):
 		#    # A list of dicts.  If there is a platform with more than one
 		#    # package manager, put the preferred one last.  If there is an
 		#    # ansible module, use that as the value for the 'name' key.
-		#    PKG_MGRS = [ { 'path' : '/usr/bin/yum',         'name' : 'yum' },
-		#                 { 'path' : '/usr/bin/apt-get',     'name' : 'apt' },
+		#    PKG_MGRS = [ 
 		#                 { 'path' : '/usr/bin/zypper',      'name' : 'zypper' },
 		#                 { 'path' : '/usr/sbin/urpmi',      'name' : 'urpmi' },
 		#                 { 'path' : '/usr/bin/pacman',      'name' : 'pacman' },
 		#                 { 'path' : '/bin/opkg',            'name' : 'opkg' },
 		#                 { 'path' : '/opt/local/bin/pkgin', 'name' : 'pkgin' },
 		#                 { 'path' : '/opt/local/bin/port',  'name' : 'macports' },
-		#                 { 'path' : '/sbin/apk',            'name' : 'apk' },
 		#                 { 'path' : '/usr/sbin/pkg',        'name' : 'pkgng' },
 		#                 { 'path' : '/usr/sbin/swlist',     'name' : 'SD-UX' },
 		#                 { 'path' : '/usr/bin/emerge',      'name' : 'portage' },
@@ -1948,9 +1978,23 @@ class ShutIt(object):
 				cfg['build']['do_update'] = False
 				self.send('apt-get install -y -qq lsb-release')
 				d = self.lsb_release()
-				distro_version = d['install_type']
+				install_type   = d['install_type']
 				distro         = d['distro']
 				distro_version = d['distro_version']
+			elif install_type == 'yum' and cfg['build']['delivery'] == 'target':
+				self.send('yum update -y')
+				cfg['build']['do_update'] = False
+				d = self.lsb_release()
+				install_type   = d['install_type']
+				distro         = d['distro']
+				distro_version = d['distro_version']
+			elif install_type == 'apk' and cfg['build']['delivery'] == 'target':
+				cfg['build']['do_update'] = False
+				self.send('apk update')
+				self.send('apk add bash')
+				install_type   = 'apk'
+				distro         = 'alpine'
+				distro_version = '1.0'
 		elif cfg['environment'][environment_id]['setup'] and self.package_installed('lsb-release'):
 			d = self.lsb_release()
 			install_type   = d['install_type']
@@ -1985,6 +2029,20 @@ class ShutIt(object):
 				install_type   = d['install_type']
 				distro         = d['distro']
 				distro_version = d['distro_version']
+			elif install_type == 'yum' and cfg['build']['delivery'] == 'target':
+				self.send('yum update -y')
+				cfg['build']['do_update'] = False
+				d = self.lsb_release()
+				install_type   = d['install_type']
+				distro         = d['distro']
+				distro_version = d['distro_version']
+			elif install_type == 'apk' and cfg['build']['delivery'] == 'target':
+				cfg['build']['do_update'] = False
+				self.send('apk update')
+				self.send('apk install bash')
+				install_type   = 'apk'
+				distro         = 'alpine'
+				distro_version = '1.0'
 		# We should have the distro info now, let's assign to target config 
 		# if this is not a one-off.
 		cfg['environment'][environment_id]['install_type']   = install_type
@@ -2451,6 +2509,7 @@ def init():
 	                                    'red hat':'yum',
 	                                    'centos':'yum',
 	                                    'fedora':'yum',
+	                                    'alpine':'apk',
 	                                    'shutit':'src'}
 
 	# If no LOGNAME available,
