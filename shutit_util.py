@@ -1713,14 +1713,15 @@ def ctrlc_background():
 def ctrl_c_signal_handler(signal, frame):
 	"""CTRL-c signal handler - enters a pause point if it can.
 	"""
-	print_frame_recurse(frame)
 	if in_ctrlc:
 		print "CTRL-c quit!"
 		# Unfortunately we have 'except' blocks catching all exceptions,
 		# so we can't use sys.exit
 		os._exit(1)
-	if False and 'shutit' in frame.f_locals:
-		shutit = frame.f_locals['shutit']
+	shutit_frame = get_shutit_frame(frame)
+	if shutit_frame:
+		print shutit_frame.f_locals
+		shutit = shutit_frame.f_locals['shutit']
 		shutit.pause_point(msg='Captured CTRL-c - entering pause point')
 	else:
 		t = threading.Thread(target=ctrlc_background)
@@ -1729,10 +1730,18 @@ def ctrl_c_signal_handler(signal, frame):
 		print "CTRL-c caught, but not in context with ability to pause. CTRL-c twice to quit."
 
 
+def get_shutit_frame(frame):
+	if not frame.f_back:
+		return None
+	else:
+		if 'shutit' in frame.f_locals:
+			return frame
+		return get_shutit_frame(frame.f_back)
+
 def print_frame_recurse(frame):
 	while True:
-		shutit.log('=============================================================================')
-		shutit.log(frame.f_locals)
+		print '============================================================================='
+		print frame.f_locals
 		if not frame.f_back:
 			break
 		else:
