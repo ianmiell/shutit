@@ -1428,7 +1428,7 @@ END_''' + random_id)
 			try:
 				child.interact(input_filter=self._pause_input_filter)
 			except Exception as e:
-				shutit.fail('Failed to interact, probably because this is run non-interactively.\n' + str(e))
+				shutit.fail('Failed to interact, probably because this is run non-interactively,\nor was previously CTRL-C\'d\n' + str(e))
 			child.logfile_send = oldlog
 		else:
 			print msg

@@ -1720,7 +1720,6 @@ def ctrl_c_signal_handler(signal, frame):
 		os._exit(1)
 	shutit_frame = get_shutit_frame(frame)
 	if shutit_frame:
-		print shutit_frame.f_locals
 		shutit = shutit_frame.f_locals['shutit']
 		shutit.pause_point(msg='Captured CTRL-c - entering pause point')
 	else:
