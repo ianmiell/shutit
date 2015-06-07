@@ -583,7 +583,7 @@ class ShutIt(object):
 			# then use python.
 				if truncate and self.file_exists(path):
 					self.send('rm -f ' + path, expect=expect, child=child)
-				randomd_id = shutit.random_id()
+				random_id = shutit_util.random_id()
 				shutit.send('cat > ' + path + ' << END_' + random_id + '''
 ''' + contents + '''
 END_''' + random_id)
