@@ -401,6 +401,7 @@ class ShutIt(object):
 				for char in send:
 					escaped_str += shutit_util.get_wide_hex(char)
 				escaped_str += "'"
+				self.log('\nThis string was sent safely: ' + send, force_stdout=True)
 			if echo == False:
 				oldlog = child.logfile_send
 				child.logfile_send = None
