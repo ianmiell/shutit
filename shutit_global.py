@@ -1990,7 +1990,18 @@ END_''' + random_id)
 			elif install_type == 'yum' and cfg['build']['delivery'] == 'target':
 				self.send('yum update -y')
 				cfg['build']['do_update'] = False
-				d = self.lsb_release()
+				if self.file_exists('/etc/redhat-release'):
+					output = self.send_and_get_output('cat /etc/redhat-release')
+					if re.match('^centos.*$', output.lower()):
+						self.send('yum install -y redhat-lsb')
+					elif re.match('^red hat.*$', output.lower()):
+						self.send('yum install -y redhat-lsb')
+					elif re.match('^fedora.*$', output.lower()):
+						self.send('yum install -y redhat-lsb')
+					else:
+						self.send('yum install -y redhat-lsb')
+				else:
+					self.send('yum install -y lsb-release')
 				install_type   = d['install_type']
 				distro         = d['distro']
 				distro_version = d['distro_version']
@@ -2038,6 +2049,18 @@ END_''' + random_id)
 			elif install_type == 'yum' and cfg['build']['delivery'] == 'target':
 				self.send('yum update -y')
 				cfg['build']['do_update'] = False
+				if self.file_exists('/etc/redhat-release'):
+					output = self.send_and_get_output('cat /etc/redhat-release')
+					if re.match('^centos.*$', output.lower()):
+						self.send('yum install -y redhat-lsb')
+					elif re.match('^redhat.*$', output.lower()):
+						self.send('yum install -y redhat-lsb')
+					elif re.match('^fedora.*$', output.lower()):
+						self.send('yum install -y redhat-lsb')
+					else:
+						self.send('yum install -y redhat-lsb')
+				else:
+					self.send('yum install -y lsb-release')
 				d = self.lsb_release()
 				install_type   = d['install_type']
 				distro         = d['distro']
@@ -2513,6 +2536,7 @@ def init():
 	                                    'debian':'apt',
 	                                    'steamos':'apt',
 	                                    'red hat':'yum',
+	                                    'oracleserver':'yum',
 	                                    'centos':'yum',
 	                                    'fedora':'yum',
 	                                    'alpine':'apk',
