@@ -450,6 +450,9 @@ class ShutIt(object):
 			break
 		if cfg['build']['step_through']:
 			self.pause_point('pause point: stepping through')
+		if cfg['build']['ctrlc_stop']:
+			cfg['build']['ctrlc_stop'] = False
+			self.pause_point('pause point: interrupted by CTRL-c')
 		return expect_res
 	# alias send to send_and_expect
 	send_and_expect = send
