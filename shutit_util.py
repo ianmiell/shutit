@@ -328,6 +328,7 @@ def get_base_config(cfg, cfg_parser):
 	cfg['build']['net']                        = cp.get('build', 'net')
 	cfg['build']['completed']                  = False
 	cfg['build']['step_through']               = False
+	cfg['build']['ctrlc_stop']                 = False
 	cfg['build']['check_exit']                 = True
 	cfg['build']['shutit_state_dir']           = '/tmp/shutit/' + cfg['build']['build_id']
 	# Width of terminal to set up on login.
@@ -1719,14 +1720,17 @@ def ctrl_c_signal_handler(signal, frame):
 		# so we can't use sys.exit
 		os._exit(1)
 	shutit_frame = get_shutit_frame(frame)
+	print '\n' + '*' * 80
+	print "CTRL-c caught"
 	if shutit_frame:
 		shutit = shutit_frame.f_locals['shutit']
-		shutit.pause_point(msg='Captured CTRL-c - entering pause point')
-	else:
-		t = threading.Thread(target=ctrlc_background)
-		t.daemon = True
-		t.start()
-		print "CTRL-c caught, but not in context with ability to pause. CTRL-c twice to quit."
+		shutit.cfg['build']['ctrlc_stop'] = True
+		print "You may need to wait for the command to complete for a pause point"
+	print "CTRL-c twice to quit."
+	print '*' * 80
+	t = threading.Thread(target=ctrlc_background)
+	t.daemon = True
+	t.start()
 
 
 def get_shutit_frame(frame):
@@ -1738,12 +1742,11 @@ def get_shutit_frame(frame):
 		return get_shutit_frame(frame.f_back)
 
 def print_frame_recurse(frame):
-	while True:
+	if not frame.f_back:
+		return
+	else:
 		print '============================================================================='
 		print frame.f_locals
-		if not frame.f_back:
-			break
-		else:
-			frame = frame.f_back
+		print_frame_recurse(frame.f_back)
 
 
