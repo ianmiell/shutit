@@ -2038,7 +2038,7 @@ END_''' + random_id)
 				distro         = d['distro']
 				distro_version = d['distro_version']
 			elif install_type == 'yum' and cfg['build']['delivery'] == 'target':
-				self.send('yum update -y')
+				self.send('yum update -y',exit_values=['0','1'])
 				cfg['build']['do_update'] = False
 				if self.file_exists('/etc/redhat-release'):
 					output = self.send_and_get_output('cat /etc/redhat-release')
@@ -2097,7 +2097,7 @@ END_''' + random_id)
 				distro         = d['distro']
 				distro_version = d['distro_version']
 			elif install_type == 'yum' and cfg['build']['delivery'] == 'target':
-				self.send('yum update -y')
+				self.send('yum update -y',exit_values=['0','1'])
 				cfg['build']['do_update'] = False
 				if self.file_exists('/etc/redhat-release'):
 					output = self.send_and_get_output('cat /etc/redhat-release')
