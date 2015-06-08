@@ -48,8 +48,6 @@ e""",'/tmp/a')
 			shutit.fail('md5sum wrong 5')
 		if md5sum1 == md5sum2:
 			shutit.fail('file was not changed 5')
-
-
 		return True
 
 	def get_config(self, shutit):

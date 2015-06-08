@@ -315,6 +315,56 @@ class ShutIt(object):
 			else:
 				send_iteration = send_dict[expect_list[res]]
 
+	def send_until(self,
+	               send,
+	               regexps,
+	               wait_until_seen=True,
+	               expect=None,
+	               child=None,
+	               cadence=5,
+	               retries=100,
+	               fail_on_empty_before=True,
+	               record_command=True,
+	               echo=False,
+	               escape=False):
+		"""Send string on a regular cadence until a string is either seen
+			@param send:                 See send()
+			@param regexps:              List of regexps to wait for.
+			@param wait_until_seen:      If True, wait until this a regexp is seen in the output. If False
+			                             wait until a regexp is _not_ seen in the output
+			@param expect:               See send()
+			@param child:                See send()
+			@param timeout:              See send()
+			@param check_exit:           See send()
+			@param fail_on_empty_before: See send()
+			@param record_command:       See send()
+			@param exit_values:          See send()
+			@param echo:                 See send()
+		"""
+		child = child or self.get_default_child()
+		expect = expect or self.get_default_expect()
+		cfg = self.cfg
+		if type(regexps) != list:
+			self.fail('regexps should be list')
+		while retries > 0:
+			retries -= 1
+			output = self.send_and_get_output(send, expect=expect, child=child, retry=1, strip=True)
+			if wait_until_seen:
+				for regexp in regexps:
+					if self.match_string(output, regexp):
+						return True
+			else:
+				# Only return if _not_ seen in the output
+				found = False
+				for regexp in regexps:
+					if self.match_string(output, regexp):
+						found = True
+						break
+				if found != True:
+					return True
+			time.sleep(cadence)
+
+	         
   
 	def send(self,
 	         send,

@@ -4,7 +4,7 @@
 from shutit_module import ShutItModule
 
 
-class template(ShutItModule):
+class test15(ShutItModule):
 
 
 	def build(self, shutit):
@@ -59,6 +59,10 @@ class template(ShutItModule):
 		# shutit.package_installed(package)  - Returns True if the package exists on the target
 		# shutit.set_password(password, user='')
 		#                                    - Set password for a given user on target
+		shutit.send('sleep 15 && touch /tmp/asdfghjkl &')
+		shutit.send_until('ls /tmp',['.*asdfghjk.*'])
+		shutit.send('sleep 15 && rm /tmp/asdfghjkl &')
+		shutit.send_until('ls /tmp',['.*asdfghjk.*'],wait_until_seen=False)
 		return True
 
 	def get_config(self, shutit):
@@ -84,10 +88,10 @@ class template(ShutItModule):
 
 
 def module():
-	return template(
-		GLOBALLY_UNIQUE_STRING, FLOAT,
+	return test15(
+		'shutit.tk.test15.test15', 782914092.00,
 		description='',
 		maintainer='',
-		depends=['DEPENDS']
+		depends=['shutit.tk.setup']
 	)
 
