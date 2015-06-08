@@ -441,9 +441,9 @@ class ShutIt(object):
 				self.shutit_command_history.append(send)
 		if cfg['build']['debug'] and send != None:
 			self.log('===================================================' + 
-				'=============================')
-			self.log('Sending>>>' + send + '<<<')
-			self.log('Expecting>>>' + str(expect) + '<<<')
+				'=============================',code=32)
+			self.log('Sending>>>' + send + '<<<',code=31)
+			self.log('Expecting>>>' + str(expect) + '<<<',code=32)
 		# Don't echo if echo passed in as False
 		while retry > 0:
 			if escape:
@@ -476,8 +476,8 @@ $'"""
 						child.sendline(send)
 				expect_res = child.expect(expect, timeout)
 			if cfg['build']['debug']:
-				self.log('child.before>>>' + child.before + '<<<')
-				self.log('child.after>>>' + child.after + '<<<')
+				self.log('child.before>>>' + child.before + '<<<',code=31)
+				self.log('child.after>>>' + child.after + '<<<',code=32)
 			if fail_on_empty_before == True:
 				if child.before.strip() == '':
 					shutit.fail('before empty after sending: ' + str(send) +
