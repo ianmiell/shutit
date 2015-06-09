@@ -387,6 +387,7 @@ def get_base_config(cfg, cfg_parser):
 		cfg['host']['artifacts_dir'] = os.path.join(shutit_global.shutit_main_dir, 'artifacts')
 	if cfg['host']['logfile'] == '':
 		os.makedirs(cfg['build']['shutit_state_dir'])
+		os.chmod(cfg['build']['shutit_state_dir']),777)
 		logfile = os.path.join(cfg['build']['shutit_state_dir'], 'shutit_build.log')
 	else:
 		logfile = cfg['host']['logfile'] + '_' + cfg['build']['build_id']
