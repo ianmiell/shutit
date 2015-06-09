@@ -448,11 +448,15 @@ class ShutIt(object):
 		while retry > 0:
 			if escape:
 				escaped_str = "eval $'"
-				_count = 0
+				_count = 7
 				for char in send:
-					_count += 1
-					escaped_str += shutit_util.get_wide_hex(char)
-					if _count == 15:
+					if char in string.ascii_letters:
+						escaped_str += char
+						_count += 1
+					else:
+						escaped_str += shutit_util.get_wide_hex(char)
+						_count += 4
+					if _count > 75:
 						escaped_str += r"""'\
 $'"""
 						_count = 0
