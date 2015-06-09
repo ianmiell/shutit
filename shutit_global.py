@@ -448,8 +448,14 @@ class ShutIt(object):
 		while retry > 0:
 			if escape:
 				escaped_str = "eval $'"
+				_count = 0
 				for char in send:
+					_count += 1
 					escaped_str += shutit_util.get_wide_hex(char)
+					if _count == 15:
+						escaped_str += r"""'\
+$'"""
+						_count = 0
 				escaped_str += "'"
 				self.log('\nThis string was sent safely: ' + send, force_stdout=True)
 			if echo == False:
@@ -2042,14 +2048,8 @@ END_''' + random_id)
 				cfg['build']['do_update'] = False
 				if self.file_exists('/etc/redhat-release'):
 					output = self.send_and_get_output('cat /etc/redhat-release')
-					if re.match('^centos.*$', output.lower()):
-						self.send('yum install -y redhat-lsb')
-					elif re.match('^red hat.*$', output.lower()):
-						self.send('yum install -y redhat-lsb')
-					elif re.match('^fedora.*$', output.lower()):
-						self.send('yum install -y redhat-lsb')
-					else:
-						self.send('yum install -y redhat-lsb')
+					if re.match('^centos.*$', output.lower()) or re.match('^red hat.*$', output.lower()) or re.match('^fedora.*$', output.lower()) or True:
+						self.send_and_match_output('yum install -y -t redhat-lsb','Complete!')
 				else:
 					self.send('yum install -y lsb-release')
 				install_type   = d['install_type']
@@ -2101,14 +2101,8 @@ END_''' + random_id)
 				cfg['build']['do_update'] = False
 				if self.file_exists('/etc/redhat-release'):
 					output = self.send_and_get_output('cat /etc/redhat-release')
-					if re.match('^centos.*$', output.lower()):
-						self.send('yum install -y redhat-lsb')
-					elif re.match('^redhat.*$', output.lower()):
-						self.send('yum install -y redhat-lsb')
-					elif re.match('^fedora.*$', output.lower()):
-						self.send('yum install -y redhat-lsb')
-					else:
-						self.send('yum install -y redhat-lsb')
+					if re.match('^centos.*$', output.lower()) or re.match('^red hat.*$', output.lower()) or re.match('^fedora.*$', output.lower()) or True:
+						self.send_and_match_output('yum install -y -t redhat-lsb','Complete!')
 				else:
 					self.send('yum install -y lsb-release')
 				d = self.lsb_release()
