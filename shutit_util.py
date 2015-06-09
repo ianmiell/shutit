@@ -1079,7 +1079,9 @@ def get_commands(shutit):
 	s = ''
 	for c in shutit.shutit_command_history:
 		if type(c) == str:
-			s += c + '\n'
+			#Ignore commands with leading spaces
+			if c[0] != ' ':
+				s += c + '\n'
 	return s
 
 

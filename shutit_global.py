@@ -457,7 +457,7 @@ class ShutIt(object):
 					else:
 						escaped_str += shutit_util.get_wide_hex(char)
 						_count += 4
-					if _count > 75:
+					if _count > cfg['build']['stty_cols'] - 50:
 						escaped_str += r"""'\
 $'"""
 						_count = 0
@@ -467,19 +467,53 @@ $'"""
 				oldlog = child.logfile_send
 				child.logfile_send = None
 				if escape:
-					child.sendline(escaped_str)
+					if len(escaped_str) + 50 > cfg['build']['stty_cols']:
+						fname = self._create_command_file(child,expect,escaped_str,timeout)
+						res = self.send(fname,expect=expect,child=child,timeout=timeout,check_exit=check_exit,fail_on_empty_before=False,record_command=False,exit_values=exit_values,echo=echo,escape=False,retry=retry)
+						child.sendline('rm -f ' + fname)
+						child.expect(expect)
+						return res
+					else:
+						child.sendline(escaped_str)
+						expect_res = child.expect(expect, timeout)
 				else:
-					child.sendline(send)
-				expect_res = child.expect(expect, timeout)
+					if len(send) + 50 > cfg['build']['stty_cols']:
+						fname = self._create_command_file(child,expect,send,timeout)
+						res = self.send(fname,expect=expect,child=child,timeout=timeout,check_exit=check_exit,fail_on_empty_before=False,record_command=False,exit_values=exit_values,echo=echo,escape=False,retry=retry)
+						child.sendline('rm -f ' + fname)
+						child.expect(expect)
+						return res
+					else:
+						child.sendline(send)
+						expect_res = child.expect(expect, timeout)
 				child.logfile_send = oldlog
 			else:
 				# If we're sending something, send it.
-				if send != None:
-					if escape:
-						child.sendline(escaped_str)
+				# TODO: if the string being sent is > width of the terminal, 
+				#       then chunk it, send it to a file, and eval it
+				#cfg['build']['stty_cols']                  = 320 - 50?
+				if escape:
+					if len(escaped_str) + 50 > cfg['build']['stty_cols']:
+						fname = self._create_command_file(child,expect,escaped_str,timeout)
+						res = self.send(fname,expect=expect,child=child,timeout=timeout,check_exit=check_exit,fail_on_empty_before=False,record_command=False,exit_values=exit_values,echo=echo,escape=False,retry=retry)
+						child.sendline('rm -f ' + fname)
+						child.expect(expect)
+						child.sendline('rm -f ' + fname)
+						child.expect(expect)
+						return res
 					else:
 						child.sendline(send)
-				expect_res = child.expect(expect, timeout)
+						expect_res = child.expect(expect, timeout)
+				else:
+					if len(send) + 50 > cfg['build']['stty_cols']:
+						fname = self._create_command_file(child,expect,send,timeout)
+						res = self.send(fname,expect=expect,child=child,timeout=timeout,check_exit=check_exit,fail_on_empty_before=False,record_command=False,exit_values=exit_values,echo=echo,escape=False,retry=retry)
+						child.sendline('rm -f ' + fname)
+						child.expect(expect)
+						return res
+					else:
+						child.sendline(send)
+						expect_res = child.expect(expect, timeout)
 			if cfg['build']['debug']:
 				self.log('child.before>>>' + child.before + '<<<',code=31)
 				self.log('child.after>>>' + child.after + '<<<',code=32)
@@ -520,6 +554,28 @@ $'"""
 	send_and_expect = send
 
 
+	def _create_command_file(self, child, expect, send, timeout):
+		"""Internal function. Do not use.
+
+		Takes a long command, and puts it in an executable file ready to run. Returns the filename.
+		"""
+		random_id = shutit_util.random_id()
+		fname = '/tmp/shutit/tmp_' + random_id
+		working_str = send
+		child.sendline('truncate --size 0 '+ fname)
+		child.expect(expect, timeout)
+		while len(working_str) > 0:
+			curr_str = working_str[:50]
+			working_str = working_str[50:]
+			child.sendline('''head -c -1 >> ''' + fname + """ << 'END_""" + random_id + """'
+""" + curr_str + """
+END_""" + random_id)
+			child.expect(expect, timeout)
+		child.sendline('chmod +x ' + fname)
+		child.expect(expect, timeout)
+		return fname
+		
+
 	def _check_exit(self,
 	                send,
 	                expect=None,
@@ -548,7 +604,7 @@ $'"""
 			if res == None:
 				res = str(res)
 			self.log('child.after: \n' + child.after + '\n')
-			self.log('Exit value from command+\n' + str(send) + '\nwas:\n' + res)
+			self.log('Exit value from command:\n' + str(send) + '\nwas:\n' + res)
 			msg = ('\nWARNING: command:\n' + send + 
 				  '\nreturned unaccepted exit code: ' + 
 				  res + 
