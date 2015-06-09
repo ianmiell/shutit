@@ -655,6 +655,7 @@ def parse_args(shutit):
 			print(cfg['build']['log_config_path'] + ' exists. Please move and re-run.')
 			sys.exit()
 		os.makedirs(cfg['build']['log_config_path'])
+		os.chmod(cfg['build']['log_config_path'],777)
 	# Tutorial stuff.
 	if cfg['build']['interactive'] >= 3:
 		print textwrap.dedent("""\

@@ -259,6 +259,7 @@ class ShutIt(object):
 		if prefix != 'ORIGIN_ENV':
 			self.get_distro_info(environment_id)
 		self.send('mkdir -p ' + environment_id_dir)
+		self.send('chmod 777 ' + environment_id_dir)
 		fname = environment_id_dir + '/' + environment_id
 		self.send('touch ' + fname)
 		cfg['environment'][environment_id]['setup']                        = True
@@ -597,6 +598,7 @@ $'"""
 		if cfg['build']['delivery'] == 'target' and in_shell:
 				script = ('set -o xtrace \n\n' + script + '\n\nset +o xtrace')
 		self.send('mkdir -p ' + cfg['build']['shutit_state_dir'] + '/scripts', expect, child)
+		self.send('chmod 777 ' + cfg['build']['shutit_state_dir'] + '/scripts', expect, child)
 		self.send_file(cfg['build']['shutit_state_dir'] + '/scripts/shutit_script.sh', script)
 		self.send('chmod +x ' + cfg['build']['shutit_state_dir'] + '/scripts/shutit_script.sh', expect, child)
 		self.shutit_command_history.append\
