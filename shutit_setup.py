@@ -89,7 +89,7 @@ class ShutItConnModule(ShutItModule):
 		if cfg['build']['delivery'] == 'target':
 			shutit.send('chmod -R 777 ' + cfg['build']['shutit_state_dir'])
 			# Create the build directory and put the config in it.
-			shutit.send('mkdir -p ' + cfg['build']['build_db_dir'] + \
+			shutit.send(' mkdir -p ' + cfg['build']['build_db_dir'] + \
 				 '/' + cfg['build']['build_id'])
 			# Record the command we ran and the python env if in debug.
 			if cfg['build']['debug']:
@@ -106,7 +106,7 @@ class ShutItConnModule(ShutItModule):
 		cfg = shutit.cfg
 		# Put build info into the target
 		if cfg['build']['delivery'] == 'target':
-			shutit.send('mkdir -p ' + cfg['build']['build_db_dir'] + '/' + \
+			shutit.send(' mkdir -p ' + cfg['build']['build_db_dir'] + '/' + \
 			    cfg['build']['build_id'])
 			shutit.send_file(cfg['build']['build_db_dir'] + '/' + \
 			    cfg['build']['build_id'] + '/build.log', \

@@ -636,7 +636,7 @@ def do_remove(shutit):
 			else:
 				if cfg['build']['delivery'] in ('target','dockerfile'):
 					# Create a directory and files to indicate this has been removed.
-					shutit.send('mkdir -p ' + cfg['build']['build_db_dir'] + '/module_record/' + module.module_id + ' && rm -f ' + cfg['build']['build_db_dir'] + '/module_record/' + module.module_id + '/built && touch ' + cfg['build']['build_db_dir'] + '/module_record/' + module.module_id + '/removed')
+					shutit.send(' mkdir -p ' + cfg['build']['build_db_dir'] + '/module_record/' + module.module_id + ' && rm -f ' + cfg['build']['build_db_dir'] + '/module_record/' + module.module_id + '/built && touch ' + cfg['build']['build_db_dir'] + '/module_record/' + module.module_id + '/removed')
 					# Remove from "installed" cache
 					if module.module_id in cfg['environment'][cfg['build']['current_environment_id']]['modules_installed']:
 						cfg['environment'][cfg['build']['current_environment_id']]['modules_installed'].remove(module.module_id)
@@ -661,7 +661,7 @@ def build_module(shutit, module):
 	else:
 		if cfg['build']['delivery'] in ('target','dockerfile'):
 			# Create a directory and files to indicate this has been built.
-			shutit.send('mkdir -p ' + cfg['build']['build_db_dir'] + '/module_record/' + module.module_id + ' && touch ' + cfg['build']['build_db_dir'] + '/module_record/' + module.module_id + '/built && rm -f ' + cfg['build']['build_db_dir'] + '/module_record/' + module.module_id + '/removed')
+			shutit.send(' mkdir -p ' + cfg['build']['build_db_dir'] + '/module_record/' + module.module_id + ' && touch ' + cfg['build']['build_db_dir'] + '/module_record/' + module.module_id + '/built && rm -f ' + cfg['build']['build_db_dir'] + '/module_record/' + module.module_id + '/removed')
 		# Put it into "installed" cache
 		cfg['environment'][cfg['build']['current_environment_id']]['modules_installed'].append(module.module_id)
 		# Remove from "not installed" cache
