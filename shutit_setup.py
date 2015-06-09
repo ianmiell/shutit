@@ -87,6 +87,7 @@ class ShutItConnModule(ShutItModule):
 	def _add_begin_build_info(self, shutit, command):
 		cfg = shutit.cfg
 		if cfg['build']['delivery'] == 'target':
+			shutit.send('chmod -R 777 ' + cfg['build']['shutit_state_dir'])
 			# Create the build directory and put the config in it.
 			shutit.send('mkdir -p ' + cfg['build']['build_db_dir'] + \
 				 '/' + cfg['build']['build_id'])
