@@ -35,7 +35,8 @@ e
 			shutit.fail('file was changed 3')
 
 		md5sum1 = shutit.send_and_get_output('md5sum /tmp/a')
-		shutit.delete_text("a",'/tmp/a')
+		shutit.delete_text("""a
+""",'/tmp/a')
 		md5sum2 = shutit.send_and_get_output('md5sum /tmp/a')
 		if md5sum1 == md5sum2:
 			shutit.fail('file was not changed 4')
@@ -44,7 +45,7 @@ e
 		shutit.delete_text("""d
 e""",'/tmp/a')
 		md5sum2 = shutit.send_and_get_output('md5sum /tmp/a')
-		if md5sum2 != '3a7a52a60d0413b5614fb9b889b6a3d4  /tmp/a':
+		if md5sum2 != '2752cb286ec60927e1517d707ee5019e  /tmp/a':
 			shutit.fail('md5sum wrong 5')
 		if md5sum1 == md5sum2:
 			shutit.fail('file was not changed 5')
