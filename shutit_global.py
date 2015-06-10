@@ -36,6 +36,7 @@ import base64
 import getpass
 import package_map
 import datetime
+import pexpect
 from shutit_module import ShutItFailException
 
 class ShutIt(object):
@@ -477,9 +478,9 @@ $'"""
 							return res
 						else:
 							child.sendline(escaped_str)
-							expect_res = child.expect(expect, timeout)
+							expect_res = self._expect_allow_interrupt(child, expect, timeout)
 					else:
-						expect_res = child.expect(expect, timeout)
+						expect_res = self._expect_allow_interrupt(child, expect, timeout)
 				else:
 					if send != None:
 						if len(send) + 20 > cfg['build']['stty_cols']:
@@ -490,9 +491,9 @@ $'"""
 							return res
 						else:
 							child.sendline(send)
-							expect_res = child.expect(expect, timeout)
+							expect_res = self._expect_allow_interrupt(child, expect, timeout)
 					else:
-						expect_res = child.expect(expect, timeout)
+						expect_res = self._expect_allow_interrupt(child, expect, timeout)
 				child.logfile_send = oldlog
 			else:
 				if escape:
@@ -505,9 +506,9 @@ $'"""
 							return res
 						else:
 							child.sendline(escaped_str)
-							expect_res = child.expect(expect, timeout)
+							expect_res = self._expect_allow_interrupt(child, expect, timeout)
 					else:
-						expect_res = child.expect(expect, timeout)
+						expect_res = self._expect_allow_interrupt(child, expect, timeout)
 				else:
 					if send != None:
 						if len(send) + 20 > cfg['build']['stty_cols']:
@@ -518,9 +519,9 @@ $'"""
 							return res
 						else:
 							child.sendline(send)
-							expect_res = child.expect(expect, timeout)
+							expect_res = self._expect_allow_interrupt(child, expect, timeout)
 					else:
-						expect_res = child.expect(expect, timeout)
+						expect_res = self._expect_allow_interrupt(child, expect, timeout)
 			if cfg['build']['debug']:
 				self.log('child.before>>>' + child.before + '<<<',code=31)
 				self.log('child.after>>>' + child.after + '<<<',code=32)
@@ -561,6 +562,54 @@ $'"""
 	send_and_expect = send
 
 
+	def _expect_allow_interrupt(self, child, expect, timeout, iteration_s=1):
+		"""This function allows you to interrupt the run at more or less any 
+		point by breaking up the timeout 
+		"""
+		accum_timeout = 0
+		# For testing
+		#timeout = 1
+		if type(expect) == str:
+			expect = [expect]
+		if timeout < 1:
+			timeout = 1
+		if iteration_s > timeout:
+			iteration_s = timeout - 1
+		if iteration_s < 1:
+			iteration_s = 1
+		timed_out = True
+		while accum_timeout < timeout:
+			res = child.expect(expect + [pexpect.TIMEOUT], timeout=iteration_s)
+			if res == len(expect):
+				if cfg['build']['ctrlc_stop']:
+					timed_out = False
+					cfg['build']['crtlc_stop'] = False
+					break
+				accum_timeout += iteration_s
+			else:
+				return res
+		if timed_out == True and not shutit_util.determine_interactive(self):
+			self.log('\nCommand timed out, trying to get terminal back for you',code=31,force_stdout=True)
+			self.fail('Timed out and could not recover')
+		else:
+			if shutit_util.determine_interactive(self):
+				child.send('\x03')
+				res = child.expect(expect + [pexpect.TIMEOUT],timeout=1)
+				if res == len(expect):
+					child.send('\x1a')
+					res = child.expect(expect + [pexpect.TIMEOUT],timeout=1)
+					if res == len(expect):
+						self.fail('CTRL-C hit and could not recover')
+				self.pause_point('CTRL-C hit during command, which has been cancelled',child=child)
+				return res
+			else:
+				if timed_out:
+					self.fail('Timed out and interactive, but could not recover')
+				else:
+					self.fail('CTRL-C hit and could not recover')
+		self.fail('Should not get here (_expect_allow_interrupt)')
+
+
 	def _create_command_file(self, child, expect, send, timeout):
 		"""Internal function. Do not use.
 
@@ -570,7 +619,7 @@ $'"""
 		fname = '/tmp/shutit/tmp_' + random_id
 		working_str = send
 		child.sendline('truncate --size 0 '+ fname)
-		child.expect(expect, timeout)
+		child.expect(expect)
 		size = self.cfg['build']['stty_cols'] - 20
 		while len(working_str) > 0:
 			curr_str = working_str[:size]
@@ -578,9 +627,9 @@ $'"""
 			child.sendline('''head -c -1 >> ''' + fname + """ << 'END_""" + random_id + """'
 """ + curr_str + """
 END_""" + random_id)
-			child.expect(expect, timeout)
+			child.expect(expect)
 		child.sendline('chmod +x ' + fname)
-		child.expect(expect, timeout)
+		child.expect(expect)
 		return fname
 		
 
@@ -605,7 +654,7 @@ END_""" + random_id)
 		# Don't use send here (will mess up last_output)!
 		# Space before "echo" here is sic - we don't need this to show up in bash history
 		child.sendline(' echo EXIT_CODE:$?')
-		child.expect(expect, timeout)
+		child.expect(expect)
 		res = self.match_string(child.before, 
 			'^EXIT_CODE:([0-9][0-9]?[0-9]?)$')
 		if res not in exit_values or res == None:
