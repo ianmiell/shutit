@@ -1165,6 +1165,17 @@ END_''' + random_id)
 		and replaced, and False if the file did not exist or there was some other
 		problem.
 
+		Note that the text you delete is very literal, and won't make assumptions about 
+		newlines. For example, if you remove: '''b'''
+		from the file: '''a
+b
+c'''
+		you will end up with: '''a
+
+c'''
+		and NOT: '''a
+c'''
+
 		@param text:          Text to insert.
 		@param fname:         Filename to insert text to
 		@param pattern:       regexp to match and insert after. If none, put at end of file.
@@ -1177,18 +1188,6 @@ END_''' + random_id)
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
 		random_id = shutit_util.random_id()
-		# Find matching line number (n)
-		if pattern == None:
-			line_number = self.send_and_get_output('cat ' + fname + ' | wc -l')
-		else:
-			line_number = self.send_and_get_output(r'''grep -n -m 1 "''' + pattern + '''" ''' + fname + ''' | cut -d: -f1''').strip()
-			# If no match, return False
-			if line_number == '':
-				# No output - no match
-				return None
-			if line_number[0] not in ('1','2','3','4','5','6','7','8','9'):
-				# Something went wrong
-				return False
 		# TODO: binary files?
 		ftext = self.send_and_get_output('cat ' + fname)
 		# Replace the file text's ^M-newlines with simple newlines
@@ -1199,39 +1198,28 @@ END_''' + random_id)
 			return None
 		if delete and ftext.find(text) == -1:
 			return None
-		# Split text up by line
-		text_list = text.split('\n')
-		# How many lines affected?
-		num_lines = len(text_list)
-		# Create diff file (f)
-		file_text = ''
-		# Place/delete before or after matching text.
-		start_line_before = str(int(line_number)-1)
-		end_line_before   = str(int(line_number)-2 + num_lines)
-		start_line_after  = str(int(line_number)+1)
-		end_line_after    = str(int(line_number) + num_lines)
 		if delete:
-			action = 'd'
-			prefix = '< '
-			file_text = start_line_before + ',' + end_line_before + action + start_line_before
-		else:
-			action = 'a'
-			prefix = '> '
-			if before:
-				file_text = start_line_before + action + start_line_before + ',' + end_line_before
+			loc = string.find(ftext, text)
+			if loc == -1:
+				# No output - no match
+				return None
 			else:
-				file_text = line_number + action + start_line_after + ',' + end_line_after
-		for line in text_list:
-			file_text += '\n' + prefix + line
-		file_text += '\n'
-		diff_fname = '/tmp/shutit_' + random_id
-		self.send_file(diff_fname, file_text, expect=expect, child=child)
-		# Install patch - TODO: make more elegant
-		self.install('patch')
-		# Run: patch fname (f)
-		self.send('patch ' + fname + ' ' + diff_fname, expect=expect, child=child)
-		# Delete diff file
-		self.send('rm -f ' + diff_fname, check_exit=False, expect=expect, child=child)
+				new_text = ftext[:loc] + ftext[loc+len(text):]
+		else:
+			if pattern != None:
+				sre_match = re.search(pattern,ftext)
+				if sre_match == None:
+					# No output - no match
+					return None
+				else:
+					if before:
+						cut_point = sre_match.start()
+					else:
+						cut_point = sre_match.end()
+			else:
+				cut_point = len(ftext)
+			new_text = ftext[:cut_point] + text + ftext[cut_point:]
+		self.send_file(fname,new_text,expect=expect,child=child,truncate=True)
 		return True
 
 
