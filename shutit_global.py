@@ -1670,7 +1670,8 @@ END_''' + random_id)
 		@param expect:   See send()
 		@param child:    See send()
 		@param retry:    Number of times to retry command (default 3)
-		@param strip:    Whether to strip output (defaults to True)
+		@param strip:    Whether to strip output (defaults to True). Strips whitespace
+		                 and ansi terminal codes
 
 		@type retry:     integer
 		@type strip:     boolean
@@ -1679,7 +1680,10 @@ END_''' + random_id)
 		expect = expect or self.get_default_expect()
 		self.send(send, check_exit=False, retry=3,echo=False)
 		if strip:
-			return shutit.get_default_child().before.strip(send).strip()
+			ansi_escape = re.compile(r'\x1b[^m]*m')
+			string_with_termcodes = shutit.get_default_child().before.strip(send).strip()
+			string_without_termcodes = ansi_escape.sub('', string_with_termcodes)
+			return string_without_termcodes.strip()
 		else:
 			return shutit.get_default_child().before.strip(send)
 
