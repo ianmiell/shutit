@@ -387,7 +387,7 @@ def get_base_config(cfg, cfg_parser):
 		cfg['host']['artifacts_dir'] = os.path.join(shutit_global.shutit_main_dir, 'artifacts')
 	if cfg['host']['logfile'] == '':
 		os.makedirs(cfg['build']['shutit_state_dir'])
-		os.chmod(cfg['build']['shutit_state_dir'],777)
+		os.chmod(cfg['build']['shutit_state_dir'],0777)
 		logfile = os.path.join(cfg['build']['shutit_state_dir'], 'shutit_build.log')
 	else:
 		logfile = cfg['host']['logfile'] + '_' + cfg['build']['build_id']
@@ -655,7 +655,7 @@ def parse_args(shutit):
 			print(cfg['build']['log_config_path'] + ' exists. Please move and re-run.')
 			sys.exit()
 		os.makedirs(cfg['build']['log_config_path'])
-		os.chmod(cfg['build']['log_config_path'],777)
+		os.chmod(cfg['build']['log_config_path'],0777)
 	# Tutorial stuff.
 	if cfg['build']['interactive'] >= 3:
 		print textwrap.dedent("""\

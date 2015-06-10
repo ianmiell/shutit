@@ -469,7 +469,7 @@ $'"""
 				if escape:
 					# 'None' escaped_str's are possible from multisends with nothing to send.
 					if escaped_str != None:
-						if len(escaped_str) + 50 > cfg['build']['stty_cols']:
+						if len(escaped_str) + 20 > cfg['build']['stty_cols']:
 							fname = self._create_command_file(child,expect,escaped_str,timeout)
 							res = self.send(fname,expect=expect,child=child,timeout=timeout,check_exit=check_exit,fail_on_empty_before=False,record_command=False,exit_values=exit_values,echo=echo,escape=False,retry=retry)
 							child.sendline('rm -f ' + fname)
@@ -482,7 +482,7 @@ $'"""
 						expect_res = child.expect(expect, timeout)
 				else:
 					if send != None:
-						if len(send) + 50 > cfg['build']['stty_cols']:
+						if len(send) + 20 > cfg['build']['stty_cols']:
 							fname = self._create_command_file(child,expect,send,timeout)
 							res = self.send(fname,expect=expect,child=child,timeout=timeout,check_exit=check_exit,fail_on_empty_before=False,record_command=False,exit_values=exit_values,echo=echo,escape=False,retry=retry)
 							child.sendline('rm -f ' + fname)
@@ -495,13 +495,9 @@ $'"""
 						expect_res = child.expect(expect, timeout)
 				child.logfile_send = oldlog
 			else:
-				# If we're sending something, send it.
-				# TODO: if the string being sent is > width of the terminal, 
-				#       then chunk it, send it to a file, and eval it
-				#cfg['build']['stty_cols']                  = 320 - 50?
 				if escape:
 					if escaped_str != None:
-						if len(escaped_str) + 50 > cfg['build']['stty_cols']:
+						if len(escaped_str) + 20 > cfg['build']['stty_cols']:
 							fname = self._create_command_file(child,expect,escaped_str,timeout)
 							res = self.send(fname,expect=expect,child=child,timeout=timeout,check_exit=check_exit,fail_on_empty_before=False,record_command=False,exit_values=exit_values,echo=echo,escape=False,retry=retry)
 							child.sendline('rm -f ' + fname)
@@ -514,7 +510,7 @@ $'"""
 						expect_res = child.expect(expect, timeout)
 				else:
 					if send != None:
-						if len(send) + 50 > cfg['build']['stty_cols']:
+						if len(send) + 20 > cfg['build']['stty_cols']:
 							fname = self._create_command_file(child,expect,send,timeout)
 							res = self.send(fname,expect=expect,child=child,timeout=timeout,check_exit=check_exit,fail_on_empty_before=False,record_command=False,exit_values=exit_values,echo=echo,escape=False,retry=retry)
 							child.sendline('rm -f ' + fname)
@@ -575,9 +571,10 @@ $'"""
 		working_str = send
 		child.sendline('truncate --size 0 '+ fname)
 		child.expect(expect, timeout)
+		size = self.cfg['build']['stty_cols'] - 20
 		while len(working_str) > 0:
-			curr_str = working_str[:50]
-			working_str = working_str[50:]
+			curr_str = working_str[:size]
+			working_str = working_str[size:]
 			child.sendline('''head -c -1 >> ''' + fname + """ << 'END_""" + random_id + """'
 """ + curr_str + """
 END_""" + random_id)
