@@ -467,24 +467,31 @@ $'"""
 				oldlog = child.logfile_send
 				child.logfile_send = None
 				if escape:
-					if len(escaped_str) + 50 > cfg['build']['stty_cols']:
-						fname = self._create_command_file(child,expect,escaped_str,timeout)
-						res = self.send(fname,expect=expect,child=child,timeout=timeout,check_exit=check_exit,fail_on_empty_before=False,record_command=False,exit_values=exit_values,echo=echo,escape=False,retry=retry)
-						child.sendline('rm -f ' + fname)
-						child.expect(expect)
-						return res
+					# 'None' escaped_str's are possible from multisends with nothing to send.
+					if escaped_str != None:
+						if len(escaped_str) + 50 > cfg['build']['stty_cols']:
+							fname = self._create_command_file(child,expect,escaped_str,timeout)
+							res = self.send(fname,expect=expect,child=child,timeout=timeout,check_exit=check_exit,fail_on_empty_before=False,record_command=False,exit_values=exit_values,echo=echo,escape=False,retry=retry)
+							child.sendline('rm -f ' + fname)
+							child.expect(expect)
+							return res
+						else:
+							child.sendline(escaped_str)
+							expect_res = child.expect(expect, timeout)
 					else:
-						child.sendline(escaped_str)
 						expect_res = child.expect(expect, timeout)
 				else:
-					if len(send) + 50 > cfg['build']['stty_cols']:
-						fname = self._create_command_file(child,expect,send,timeout)
-						res = self.send(fname,expect=expect,child=child,timeout=timeout,check_exit=check_exit,fail_on_empty_before=False,record_command=False,exit_values=exit_values,echo=echo,escape=False,retry=retry)
-						child.sendline('rm -f ' + fname)
-						child.expect(expect)
-						return res
+					if send != None:
+						if len(send) + 50 > cfg['build']['stty_cols']:
+							fname = self._create_command_file(child,expect,send,timeout)
+							res = self.send(fname,expect=expect,child=child,timeout=timeout,check_exit=check_exit,fail_on_empty_before=False,record_command=False,exit_values=exit_values,echo=echo,escape=False,retry=retry)
+							child.sendline('rm -f ' + fname)
+							child.expect(expect)
+							return res
+						else:
+							child.sendline(send)
+							expect_res = child.expect(expect, timeout)
 					else:
-						child.sendline(send)
 						expect_res = child.expect(expect, timeout)
 				child.logfile_send = oldlog
 			else:
@@ -493,26 +500,30 @@ $'"""
 				#       then chunk it, send it to a file, and eval it
 				#cfg['build']['stty_cols']                  = 320 - 50?
 				if escape:
-					if len(escaped_str) + 50 > cfg['build']['stty_cols']:
-						fname = self._create_command_file(child,expect,escaped_str,timeout)
-						res = self.send(fname,expect=expect,child=child,timeout=timeout,check_exit=check_exit,fail_on_empty_before=False,record_command=False,exit_values=exit_values,echo=echo,escape=False,retry=retry)
-						child.sendline('rm -f ' + fname)
-						child.expect(expect)
-						child.sendline('rm -f ' + fname)
-						child.expect(expect)
-						return res
+					if escaped_str != None:
+						if len(escaped_str) + 50 > cfg['build']['stty_cols']:
+							fname = self._create_command_file(child,expect,escaped_str,timeout)
+							res = self.send(fname,expect=expect,child=child,timeout=timeout,check_exit=check_exit,fail_on_empty_before=False,record_command=False,exit_values=exit_values,echo=echo,escape=False,retry=retry)
+							child.sendline('rm -f ' + fname)
+							child.expect(expect)
+							return res
+						else:
+							child.sendline(escaped_str)
+							expect_res = child.expect(expect, timeout)
 					else:
-						child.sendline(send)
 						expect_res = child.expect(expect, timeout)
 				else:
-					if len(send) + 50 > cfg['build']['stty_cols']:
-						fname = self._create_command_file(child,expect,send,timeout)
-						res = self.send(fname,expect=expect,child=child,timeout=timeout,check_exit=check_exit,fail_on_empty_before=False,record_command=False,exit_values=exit_values,echo=echo,escape=False,retry=retry)
-						child.sendline('rm -f ' + fname)
-						child.expect(expect)
-						return res
+					if send != None:
+						if len(send) + 50 > cfg['build']['stty_cols']:
+							fname = self._create_command_file(child,expect,send,timeout)
+							res = self.send(fname,expect=expect,child=child,timeout=timeout,check_exit=check_exit,fail_on_empty_before=False,record_command=False,exit_values=exit_values,echo=echo,escape=False,retry=retry)
+							child.sendline('rm -f ' + fname)
+							child.expect(expect)
+							return res
+						else:
+							child.sendline(send)
+							expect_res = child.expect(expect, timeout)
 					else:
-						child.sendline(send)
 						expect_res = child.expect(expect, timeout)
 			if cfg['build']['debug']:
 				self.log('child.before>>>' + child.before + '<<<',code=31)
