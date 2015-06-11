@@ -470,7 +470,7 @@ $'"""
 				if escape:
 					# 'None' escaped_str's are possible from multisends with nothing to send.
 					if escaped_str != None:
-						if len(escaped_str) + 20 > cfg['build']['stty_cols']:
+						if len(escaped_str) + 25 > cfg['build']['stty_cols']:
 							fname = self._create_command_file(child,expect,escaped_str,timeout)
 							res = self.send(fname,expect=expect,child=child,timeout=timeout,check_exit=check_exit,fail_on_empty_before=False,record_command=False,exit_values=exit_values,echo=echo,escape=False,retry=retry)
 							child.sendline('rm -f ' + fname)
@@ -483,7 +483,7 @@ $'"""
 						expect_res = self._expect_allow_interrupt(child, expect, timeout)
 				else:
 					if send != None:
-						if len(send) + 20 > cfg['build']['stty_cols']:
+						if len(send) + 25 > cfg['build']['stty_cols']:
 							fname = self._create_command_file(child,expect,send,timeout)
 							res = self.send(fname,expect=expect,child=child,timeout=timeout,check_exit=check_exit,fail_on_empty_before=False,record_command=False,exit_values=exit_values,echo=echo,escape=False,retry=retry)
 							child.sendline('rm -f ' + fname)
@@ -498,7 +498,7 @@ $'"""
 			else:
 				if escape:
 					if escaped_str != None:
-						if len(escaped_str) + 20 > cfg['build']['stty_cols']:
+						if len(escaped_str) + 25 > cfg['build']['stty_cols']:
 							fname = self._create_command_file(child,expect,escaped_str,timeout)
 							res = self.send(fname,expect=expect,child=child,timeout=timeout,check_exit=check_exit,fail_on_empty_before=False,record_command=False,exit_values=exit_values,echo=echo,escape=False,retry=retry)
 							child.sendline('rm -f ' + fname)
@@ -511,7 +511,7 @@ $'"""
 						expect_res = self._expect_allow_interrupt(child, expect, timeout)
 				else:
 					if send != None:
-						if len(send) + 20 > cfg['build']['stty_cols']:
+						if len(send) + 25 > cfg['build']['stty_cols']:
 							fname = self._create_command_file(child,expect,send,timeout)
 							res = self.send(fname,expect=expect,child=child,timeout=timeout,check_exit=check_exit,fail_on_empty_before=False,record_command=False,exit_values=exit_values,echo=echo,escape=False,retry=retry)
 							child.sendline('rm -f ' + fname)
@@ -620,7 +620,7 @@ $'"""
 		working_str = send
 		child.sendline('truncate --size 0 '+ fname)
 		child.expect(expect)
-		size = self.cfg['build']['stty_cols'] - 20
+		size = self.cfg['build']['stty_cols'] - 25
 		while len(working_str) > 0:
 			curr_str = working_str[:size]
 			working_str = working_str[size:]
