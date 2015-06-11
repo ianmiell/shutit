@@ -1187,6 +1187,7 @@ END_''' + random_id)
 			if line_number[0] not in ('1','2','3','4','5','6','7','8','9'):
 				# Something went wrong
 				return False
+		# TODO: binary files?
 		ftext = self.send_and_get_output('cat ' + fname)
 		# Replace the file text's ^M-newlines with simple newlines
 		ftext = ftext.replace('\r\n','\n')
@@ -1629,7 +1630,7 @@ END_''' + random_id)
 					docker_executable=cfg['host']['docker_executable'],
 					force=True)
 				self.log('\n\nCommit and tag done\n\nCTRL-] to continue with' + 
-					' build. Hit return for a promp.', force_stdout=True)
+					' build. Hit return for a prompt.', force_stdout=True)
 		return input_string
 
 
