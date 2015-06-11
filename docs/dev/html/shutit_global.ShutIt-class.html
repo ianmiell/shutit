@@ -335,6 +335,34 @@ object --+
   </tr>
 <tr>
     <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="shutit_global.ShutIt-class.html#send_until" class="summary-sig-name">send_until</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">send</span>,
+        <span class="summary-sig-arg">regexps</span>,
+        <span class="summary-sig-arg">wait_until_seen</span>=<span class="summary-sig-default">True</span>,
+        <span class="summary-sig-arg">expect</span>=<span class="summary-sig-default">None</span>,
+        <span class="summary-sig-arg">child</span>=<span class="summary-sig-default">None</span>,
+        <span class="summary-sig-arg">cadence</span>=<span class="summary-sig-default">5</span>,
+        <span class="summary-sig-arg">retries</span>=<span class="summary-sig-default">100</span>,
+        <span class="summary-sig-arg">fail_on_empty_before</span>=<span class="summary-sig-default">True</span>,
+        <span class="summary-sig-arg">record_command</span>=<span class="summary-sig-default">True</span>,
+        <span class="summary-sig-arg">echo</span>=<span class="summary-sig-default">False</span>,
+        <span class="summary-sig-arg">escape</span>=<span class="summary-sig-default">False</span>)</span><br />
+      Send string on a regular cadence until a string is either seen</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="shutit_global-pysrc.html#ShutIt.send_until">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
       <span class="summary-type">string</span>
     </td><td class="summary">
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
@@ -386,6 +414,49 @@ object --+
       returning.</td>
           <td align="right" valign="top">
             <span class="codelink"><a href="shutit_global-pysrc.html#ShutIt.send">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="_expect_allow_interrupt"></a><span class="summary-sig-name">_expect_allow_interrupt</span>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">child</span>,
+        <span class="summary-sig-arg">expect</span>,
+        <span class="summary-sig-arg">timeout</span>,
+        <span class="summary-sig-arg">iteration_s</span>=<span class="summary-sig-default">1</span>)</span><br />
+      This function allows you to interrupt the run at more or less any 
+      point by breaking up the timeout</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="shutit_global-pysrc.html#ShutIt._expect_allow_interrupt">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="shutit_global.ShutIt-class.html#_create_command_file" class="summary-sig-name" onclick="show_private();">_create_command_file</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">child</span>,
+        <span class="summary-sig-arg">expect</span>,
+        <span class="summary-sig-arg">send</span>,
+        <span class="summary-sig-arg">timeout</span>)</span><br />
+      Internal function.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="shutit_global-pysrc.html#ShutIt._create_command_file">source&nbsp;code</a></span>
             
           </td>
         </tr>
@@ -627,12 +698,36 @@ object --+
         <span class="summary-sig-arg">expect</span>=<span class="summary-sig-default">None</span>,
         <span class="summary-sig-arg">child</span>=<span class="summary-sig-default">None</span>,
         <span class="summary-sig-arg">match_regexp</span>=<span class="summary-sig-default">None</span>,
-        <span class="summary-sig-arg">force</span>=<span class="summary-sig-default">True</span>,
+        <span class="summary-sig-arg">force</span>=<span class="summary-sig-default">False</span>,
         <span class="summary-sig-arg">literal</span>=<span class="summary-sig-default">False</span>)</span><br />
       Adds line to file if it doesn't exist (unless Force is set, which it 
-      is by default).</td>
+      is not by default).</td>
           <td align="right" valign="top">
             <span class="codelink"><a href="shutit_global-pysrc.html#ShutIt.add_line_to_file">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="shutit_global.ShutIt-class.html#delete_text" class="summary-sig-name">delete_text</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">text</span>,
+        <span class="summary-sig-arg">fname</span>,
+        <span class="summary-sig-arg">pattern</span>=<span class="summary-sig-default">None</span>,
+        <span class="summary-sig-arg">expect</span>=<span class="summary-sig-default">None</span>,
+        <span class="summary-sig-arg">child</span>=<span class="summary-sig-default">None</span>,
+        <span class="summary-sig-arg">before</span>=<span class="summary-sig-default">False</span>,
+        <span class="summary-sig-arg">force</span>=<span class="summary-sig-default">False</span>)</span><br />
+      Delete a chunk of text from a file.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="shutit_global-pysrc.html#ShutIt.delete_text">source&nbsp;code</a></span>
             
           </td>
         </tr>
@@ -649,11 +744,14 @@ object --+
           <td><span class="summary-sig"><a href="shutit_global.ShutIt-class.html#insert_text" class="summary-sig-name">insert_text</a>(<span class="summary-sig-arg">self</span>,
         <span class="summary-sig-arg">text</span>,
         <span class="summary-sig-arg">fname</span>,
-        <span class="summary-sig-arg">pattern</span>,
+        <span class="summary-sig-arg">pattern</span>=<span class="summary-sig-default">None</span>,
         <span class="summary-sig-arg">expect</span>=<span class="summary-sig-default">None</span>,
-        <span class="summary-sig-arg">child</span>=<span class="summary-sig-default">None</span>)</span><br />
-      Insert a chunk of text after the first matching pattern in file 
-      fname.</td>
+        <span class="summary-sig-arg">child</span>=<span class="summary-sig-default">None</span>,
+        <span class="summary-sig-arg">before</span>=<span class="summary-sig-default">False</span>,
+        <span class="summary-sig-arg">force</span>=<span class="summary-sig-default">False</span>,
+        <span class="summary-sig-arg">delete</span>=<span class="summary-sig-default">False</span>)</span><br />
+      Insert a chunk of text at the end of a file, or after (or before) the first matching pattern
+                in given file fname.</td>
           <td align="right" valign="top">
             <span class="codelink"><a href="shutit_global-pysrc.html#ShutIt.insert_text">source&nbsp;code</a></span>
             
@@ -1341,7 +1439,7 @@ object --+
         <span class="summary-sig-arg">repo_name</span>,
         <span class="summary-sig-arg">repo_tag</span>=<span class="summary-sig-default">None</span>,
         <span class="summary-sig-arg">expect</span>=<span class="summary-sig-default">None</span>,
-        <span class="summary-sig-arg">docker_executable</span>=<span class="summary-sig-default"><code class="variable-quote">'</code><code class="variable-string">docker.io</code><code class="variable-quote">'</code></span>,
+        <span class="summary-sig-arg">docker_executable</span>=<span class="summary-sig-default"><code class="variable-quote">'</code><code class="variable-string">docker</code><code class="variable-quote">'</code></span>,
         <span class="summary-sig-arg">password</span>=<span class="summary-sig-default">None</span>,
         <span class="summary-sig-arg">force</span>=<span class="summary-sig-default">None</span>)</span><br />
       Commit, tag, push, tar a docker container based on the configuration 
@@ -1428,6 +1526,24 @@ object --+
       Sends an email using the mailer</td>
           <td align="right" valign="top">
             <span class="codelink"><a href="shutit_global-pysrc.html#ShutIt.get_emailer">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="query_config"></a><span class="summary-sig-name">query_config</span>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">item</span>)</span><br />
+      Consistent and back-compatible API for asking for config information.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="shutit_global-pysrc.html#ShutIt.query_config">source&nbsp;code</a></span>
             
           </td>
         </tr>
@@ -1835,6 +1951,51 @@ object --+
   </dl>
 </td></tr></table>
 </div>
+<a name="send_until"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">send_until</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">send</span>,
+        <span class="sig-arg">regexps</span>,
+        <span class="sig-arg">wait_until_seen</span>=<span class="sig-default">True</span>,
+        <span class="sig-arg">expect</span>=<span class="sig-default">None</span>,
+        <span class="sig-arg">child</span>=<span class="sig-default">None</span>,
+        <span class="sig-arg">cadence</span>=<span class="sig-default">5</span>,
+        <span class="sig-arg">retries</span>=<span class="sig-default">100</span>,
+        <span class="sig-arg">fail_on_empty_before</span>=<span class="sig-default">True</span>,
+        <span class="sig-arg">record_command</span>=<span class="sig-default">True</span>,
+        <span class="sig-arg">echo</span>=<span class="sig-default">False</span>,
+        <span class="sig-arg">escape</span>=<span class="sig-default">False</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="shutit_global-pysrc.html#ShutIt.send_until">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Send string on a regular cadence until a string is either seen</p>
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>send</code></strong> - See send()</li>
+        <li><strong class="pname"><code>regexps</code></strong> - List of regexps to wait for.</li>
+        <li><strong class="pname"><code>wait_until_seen</code></strong> - If True, wait until this a regexp is seen in the output. If False
+          wait until a regexp is _not_ seen in the output</li>
+        <li><strong class="pname"><code>expect</code></strong> - See send()</li>
+        <li><strong class="pname"><code>child</code></strong> - See send()</li>
+        <li><strong class="pname"><code>timeout</code></strong> - See send()</li>
+        <li><strong class="pname"><code>check_exit</code></strong> - See send()</li>
+        <li><strong class="pname"><code>fail_on_empty_before</code></strong> - See send()</li>
+        <li><strong class="pname"><code>record_command</code></strong> - See send()</li>
+        <li><strong class="pname"><code>exit_values</code></strong> - See send()</li>
+        <li><strong class="pname"><code>echo</code></strong> - See send()</li>
+    </ul></dd>
+  </dl>
+</td></tr></table>
+</div>
 <a name="send"></a>
 <div>
 <table class="details" border="1" cellpadding="3"
@@ -1966,6 +2127,31 @@ object --+
     <dt>Returns: string</dt>
         <dd>The pexpect return value (ie which expected string in the list 
           matched)</dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="_create_command_file"></a>
+<div class="private">
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">_create_command_file</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">child</span>,
+        <span class="sig-arg">expect</span>,
+        <span class="sig-arg">send</span>,
+        <span class="sig-arg">timeout</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="shutit_global-pysrc.html#ShutIt._create_command_file">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Internal function. Do not use.</p>
+  <p>Takes a long command, and puts it in an executable file ready to run. 
+  Returns the filename.</p>
+  <dl class="fields">
   </dl>
 </td></tr></table>
 </div>
@@ -2301,7 +2487,7 @@ object --+
         <span class="sig-arg">expect</span>=<span class="sig-default">None</span>,
         <span class="sig-arg">child</span>=<span class="sig-default">None</span>,
         <span class="sig-arg">match_regexp</span>=<span class="sig-default">None</span>,
-        <span class="sig-arg">force</span>=<span class="sig-default">True</span>,
+        <span class="sig-arg">force</span>=<span class="sig-default">False</span>,
         <span class="sig-arg">literal</span>=<span class="sig-default">False</span>)</span>
   </h3>
   </td><td align="right" valign="top"
@@ -2310,11 +2496,11 @@ object --+
   </tr></table>
   
   <p>Adds line to file if it doesn't exist (unless Force is set, which it 
-  is by default). Creates the file if it doesn't exist. Must be exactly the
-  line passed in to match. Returns True if line(s) added OK, False if not. 
-  If you have a lot of non-unique lines to add, it's a good idea to have a 
-  sentinel value to add first, and then if that returns true, force the 
-  remainder.</p>
+  is not by default). Creates the file if it doesn't exist. Must be exactly
+  the line passed in to match. Returns True if line(s) added OK, False if 
+  not. If you have a lot of non-unique lines to add, it's a good idea to 
+  have a sentinel value to add first, and then if that returns true, force 
+  the remainder.</p>
   <dl class="fields">
     <dt>Parameters:</dt>
     <dd><ul class="nomargin-top">
@@ -2332,6 +2518,33 @@ object --+
   </dl>
 </td></tr></table>
 </div>
+<a name="delete_text"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">delete_text</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">text</span>,
+        <span class="sig-arg">fname</span>,
+        <span class="sig-arg">pattern</span>=<span class="sig-default">None</span>,
+        <span class="sig-arg">expect</span>=<span class="sig-default">None</span>,
+        <span class="sig-arg">child</span>=<span class="sig-default">None</span>,
+        <span class="sig-arg">before</span>=<span class="sig-default">False</span>,
+        <span class="sig-arg">force</span>=<span class="sig-default">False</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="shutit_global-pysrc.html#ShutIt.delete_text">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Delete a chunk of text from a file.</p>
+  <p>See insert_text.</p>
+  <dl class="fields">
+  </dl>
+</td></tr></table>
+</div>
 <a name="insert_text"></a>
 <div>
 <table class="details" border="1" cellpadding="3"
@@ -2342,29 +2555,49 @@ object --+
   <h3 class="epydoc"><span class="sig"><span class="sig-name">insert_text</span>(<span class="sig-arg">self</span>,
         <span class="sig-arg">text</span>,
         <span class="sig-arg">fname</span>,
-        <span class="sig-arg">pattern</span>,
+        <span class="sig-arg">pattern</span>=<span class="sig-default">None</span>,
         <span class="sig-arg">expect</span>=<span class="sig-default">None</span>,
-        <span class="sig-arg">child</span>=<span class="sig-default">None</span>)</span>
+        <span class="sig-arg">child</span>=<span class="sig-default">None</span>,
+        <span class="sig-arg">before</span>=<span class="sig-default">False</span>,
+        <span class="sig-arg">force</span>=<span class="sig-default">False</span>,
+        <span class="sig-arg">delete</span>=<span class="sig-default">False</span>)</span>
   </h3>
   </td><td align="right" valign="top"
     ><span class="codelink"><a href="shutit_global-pysrc.html#ShutIt.insert_text">source&nbsp;code</a></span>&nbsp;
     </td>
   </tr></table>
   
-  <p>Insert a chunk of text after the first matching pattern in file 
-  fname.</p>
-  <p>Returns 0 if there was no match for the regexp, 1 if it was matched 
-  and replaced, and -1 if the file did not exist or there was some other 
-  problem.</p>
+  <pre class="literalblock">
+Insert a chunk of text at the end of a file, or after (or before) the first matching pattern
+                in given file fname.
+
+                Returns None if there was no match for the regexp, True if it was matched
+                and replaced, and False if the file did not exist or there was some other
+                problem.
+
+                Note that the text you delete is very literal, and won't make assumptions about 
+                newlines. For example, if you remove: '''b'''
+                from the file: '''a
+b
+c'''
+                you will end up with: '''a
+
+c'''
+                and NOT: '''a
+c'''
+
+                @param text:          Text to insert.
+                @param fname:         Filename to insert text to
+                @param pattern:       regexp to match and insert after. If none, put at end of file.
+                @param expect:        See send()
+                @param child:         See send()
+                @param before:        Whether to place the text before or after the matched text.
+                @param force:         Force the insertion even if the text is in the file.
+                @param delete:        Delete text from file rather than insert
+                
+
+</pre>
   <dl class="fields">
-    <dt>Parameters:</dt>
-    <dd><ul class="nomargin-top">
-        <li><strong class="pname"><code>text</code></strong> - Text to insert.</li>
-        <li><strong class="pname"><code>fname</code></strong> - Filename to insert text to</li>
-        <li><strong class="pname"><code>pattern</code></strong> - regexp to match and insert after</li>
-        <li><strong class="pname"><code>expect</code></strong> - See send()</li>
-        <li><strong class="pname"><code>child</code></strong> - See send()</li>
-    </ul></dd>
   </dl>
 </td></tr></table>
 </div>
@@ -2806,7 +3039,8 @@ object --+
         <li><strong class="pname"><code>expect</code></strong> - See send()</li>
         <li><strong class="pname"><code>child</code></strong> - See send()</li>
         <li><strong class="pname"><code>retry</code></strong> (integer) - Number of times to retry command (default 3)</li>
-        <li><strong class="pname"><code>strip</code></strong> (boolean) - Whether to strip output (defaults to True)</li>
+        <li><strong class="pname"><code>strip</code></strong> (boolean) - Whether to strip output (defaults to True). Strips whitespace and
+          ansi terminal codes</li>
     </ul></dd>
   </dl>
 </td></tr></table>
@@ -3280,7 +3514,7 @@ object --+
         <span class="sig-arg">repo_name</span>,
         <span class="sig-arg">repo_tag</span>=<span class="sig-default">None</span>,
         <span class="sig-arg">expect</span>=<span class="sig-default">None</span>,
-        <span class="sig-arg">docker_executable</span>=<span class="sig-default"><code class="variable-quote">'</code><code class="variable-string">docker.io</code><code class="variable-quote">'</code></span>,
+        <span class="sig-arg">docker_executable</span>=<span class="sig-default"><code class="variable-quote">'</code><code class="variable-string">docker</code><code class="variable-quote">'</code></span>,
         <span class="sig-arg">password</span>=<span class="sig-default">None</span>,
         <span class="sig-arg">force</span>=<span class="sig-default">None</span>)</span>
   </h3>
@@ -3296,7 +3530,7 @@ object --+
     <dd><ul class="nomargin-top">
         <li><strong class="pname"><code>repo_name</code></strong> (string) - Name of the repository.</li>
         <li><strong class="pname"><code>expect</code></strong> - See send()</li>
-        <li><strong class="pname"><code>docker_executable</code></strong> (string) - Defaults to 'docker.io'</li>
+        <li><strong class="pname"><code>docker_executable</code></strong> (string) - Defaults to 'docker'</li>
         <li><strong class="pname"><code>password</code></strong> (string)</li>
         <li><strong class="pname"><code>force</code></strong> (boolean)</li>
     </ul></dd>
@@ -3404,7 +3638,7 @@ object --+
 <table border="0" cellpadding="0" cellspacing="0" width="100%%">
   <tr>
     <td align="left" class="footer">
-    Generated by Epydoc 3.0.1 on Fri May 22 19:29:27 2015
+    Generated by Epydoc 3.0.1 on Thu Jun 11 19:29:03 2015
     </td>
     <td align="right" class="footer">
       <a target="mainFrame" href="http://epydoc.sourceforge.net"
