@@ -346,6 +346,8 @@ class ShutIt(object):
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
 		cfg = self.cfg
+		if type(regexps) == str:
+			regexps = [regexps]
 		if type(regexps) != list:
 			self.fail('regexps should be list')
 		while retries > 0:
