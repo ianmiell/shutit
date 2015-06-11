@@ -332,9 +332,7 @@ def get_base_config(cfg, cfg_parser):
 	cfg['build']['check_exit']                 = True
 	cfg['build']['shutit_state_dir']           = '/tmp/shutit/' + cfg['build']['build_id']
 	# Width of terminal to set up on login and assume for other cases.
-	# It seems that setting to 80 is safe for all cases. Change this at your peril, esp
-	# when ssh'ing.
-	cfg['build']['stty_cols']                  = 80
+	cfg['build']['stty_cols']                  = 320
 	# Take a command-line arg if given, else default.
 	cfg['build']['build_db_dir']               = cfg['build']['shutit_state_dir'] + '/build_db'
 	if cfg['build']['conn_module'] == None:
