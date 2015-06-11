@@ -748,7 +748,10 @@ END_""" + random_id)
 				'===========================')
 			self.log('Sending file to' + path)
 			if log:
-				self.log('contents >>>' + contents + '<<<')
+				for c in contents:
+					if c not in string.ascii_letters:
+						print_contents = string.replace(contents,c,'?')
+				self.log('contents >>>' + print_contents + '<<<')
 		if cfg['build']['current_environment_id'] == 'ORIGIN_ENV':
 			f = open(path,'w')
 			if truncate:
@@ -1188,6 +1191,8 @@ c'''
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
 		random_id = shutit_util.random_id()
+		if not self.file_exists(fname):
+			return False
 		# TODO: binary files?
 		ftext = self.send_and_get_output('cat ' + fname)
 		# Replace the file text's ^M-newlines with simple newlines
