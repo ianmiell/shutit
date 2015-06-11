@@ -1663,19 +1663,11 @@ END_''' + random_id)
 		else returns matching group (ie non-None)
 		"""
 		cfg = self.cfg
-		if cfg['build']['debug']:
-			self.log('match_string:')
-			self.log(string)
-			self.log(regexp)
 		lines = string.split('\r\n')
 		for line in lines:
-			if cfg['build']['debug']:
-				self.log('trying: ' + line + ' against regexp: ' + regexp)
 			match = re.match(regexp, line)
 			if match != None:
 				if len(match.groups()) > 0:
-					if cfg['build']['debug']:
-						self.log('returning: ' + match.group(1))
 					return match.group(1)
 				else:
 					return True
