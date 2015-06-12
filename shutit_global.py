@@ -1409,7 +1409,7 @@ c'''
 		if not shutit.file_exists(directory,directory=True):
 			shutit.fail('ls: directory\n\n' + directory + '\n\ndoes not exist',
 			    throw_exception=False)
-		files = shutit.send_and_get_output('ls ' + directory)
+		files = shutit.send_and_get_output(' ls ' + directory)
 		files = files.split(' ')
 		# cleanout garbage from the terminal - all of this is necessary cause there are
 		# random return characters in the middle of the file names
@@ -1939,9 +1939,9 @@ c'''
 			login_expect = expect
 		# We don't fail on empty before as many login programs mess with the output.
 		# In this special case of login we expect either the prompt, or 'user@' as this has been seen to work.
-		if user == 'bash':
+		if user == 'bash' and command == 'su -':
 			print '\n' + 80 * '='
-			shutit.log('user is bash - if you see problems below, did you mean: login(command="' + user + '")?')
+			shutit.log('WARNING! user is bash - if you see problems below, did you mean: login(command="' + user + '")?',force_stdout=True)
 			print '\n' + 80 * '='
 		self.multisend(send,{'ontinue connecting':'yes','assword':password,'login:':password},expect=[login_expect,user+'@','\r\n.*[@#$]'],check_exit=False,timeout=timeout,fail_on_empty_before=False)
 		if prompt_prefix != None:
