@@ -381,7 +381,8 @@ class ShutIt(object):
 	         exit_values=None,
 	         echo=False,
 	         escape=False,
-	         retry=3):
+	         retry=3,
+	         note=None):
 		"""Send string as a shell command, and wait until the expected output
 		is seen (either a string or any from a list of strings) before
 		returning. The expected string will default to the currently-set
@@ -400,7 +401,8 @@ class ShutIt(object):
 		@param exit_values: Array of acceptable exit values as strings
 		@param echo: Whether to suppress any logging output from pexpect to the terminal or not.  We don't record the command if this is set to False unless record_command is explicitly passed in as True.
 		@param escape: Whether to escape the characters in a bash-friendly way, ie $'\Uxxxxxx'
-		@param retry: Number of times to retry the command if the first attempt doesn't work. Useful if going to the network.
+		@param retry: Number of times to retry the command if the first attempt doesn't work. Useful if going to the network
+		@param note: If a note is passed in, and we are in walkthrough mode, pause with the note printed
 		@return: The pexpect return value (ie which expected string in the list matched)
 		@rtype: string
 		"""
@@ -410,6 +412,8 @@ class ShutIt(object):
 		# If check_exit is not passed in
 		# - if the expect matches the default, use the default check exit
 		# - otherwise, default to doing the check
+		if cfg['build']['walkthrough'] and note != None:
+			shutit.pause_point('\n' + 80*'=' + '\n' + note + '\n' + 80*'=' + '\n', colour=31)
 		if check_exit == None:
 			if expect == self.get_default_expect():
 				check_exit = self.get_default_check_exit()
@@ -1557,7 +1561,7 @@ c'''
 		self.pause_point(msg, child=child, print_input=print_input, level=level, resize=False)
 
 
-	def pause_point(self, msg='', child=None, print_input=True, level=1, resize=False, colour='32'):
+	def pause_point(self, msg='', child=None, print_input=True, level=1, resize=False, colour='32', default_msg=None):
 		"""Inserts a pause in the build session, which allows the user to try
 		things out before continuing. Ignored if we are not in an interactive
 		mode, or the interactive level is less than the passed-in one.
@@ -1574,6 +1578,7 @@ c'''
 		@param resize:       If True, try to resize terminal.
 		                     Default: False
 		@param colour:       Colour to print message (typically 31 for red, 32 for green)
+		@param default_msg:  Whether to print the standard blurb
 
 		@type msg:           string
 		@type print_input:   boolean
@@ -1587,17 +1592,21 @@ c'''
 			return
 		if child and print_input:
 			if resize:
-				print (shutit_util.colour('32','\nPause point:\n' +
-					'resize==True, so attempting to resize terminal.\n\n' +
-					'If you are not at a shell prompt when calling pause_point, then pass in resize=False.'))
+				if preamble == None:
+					print (shutit_util.colour(colour,'\nPause point:\n' +
+						'resize==True, so attempting to resize terminal.\n\n' +
+						'If you are not at a shell prompt when calling pause_point, then pass in resize=False.'))
 				shutit.send_host_file('/tmp/resize',self.shutit_main_dir+'/assets/resize', child=child, log=False)
 				shutit.send(' chmod 755 /tmp/resize')
 				child.sendline(' sleep 2 && /tmp/resize')
-			print (shutit_util.colour('32', '\nPause point:\n') + 
-				msg + shutit_util.colour('32','\nYou can now type in commands and ' +
-				'alter the state of the target.\nHit return to see the ' +
-				'prompt\nHit CTRL and ] at the same time to continue with ' +
-				'build\n\nHit CTRL and u to save the state\n'))
+			if default_msg == None:
+				print (shutit_util.colour(colour, msg) +
+				     shutit_util.colour(colour,'\nYou can now type in commands and ' +
+					'alter the state of the target.\nHit return to see the ' +
+					'prompt\nHit CTRL and ] at the same time to continue with ' +
+					'build\n\nHit CTRL and u to save the state to a docker image\n'))
+			else:
+				print shutit_util.colour(colour, msg) + '\n' + default_msg + '\n'
 			oldlog = child.logfile_send
 			child.logfile_send = None
 			try:
@@ -1624,7 +1633,7 @@ c'''
 					password=cfg['host']['password'],
 					docker_executable=cfg['host']['docker_executable'],
 					force=True)
-				self.log('\n\nCommit and tag done\n\nCTRL-] to continue with' + 
+				self.log('\n\nCommit and tag done\n\nHit CTRL and ] to continue with' + 
 					' build. Hit return for a prompt.', force_stdout=True)
 		return input_string
 
@@ -1878,31 +1887,10 @@ c'''
 		return self.send_and_get_output('whoami').strip()
 
 
-	def exec_shell(self, command='bash', child=None, password=None):
-		"""See login().
-
-		This is the same, except it simply execs a shell, acting like a login.
-		Useful eg if you've just ssh'd in and need to refresh the shell in a 
-		simple exec_shell()/exit_shell() combo.
-
-		@param command:  Command to login with. Default: "bash"
-		@param child:    See send()
-		@param password: Password.
-
-		@type command:   string
-		@type password:  string
-		"""
-		child = child or self.get_default_child()
-		r_id = shutit_util.random_id()
-		cfg = self.cfg
-		self.login_stack_append(r_id)
-		self.send(command,expect=cfg['expect_prompts']['base_prompt'],check_exit=False)
-		self.setup_prompt(r_id,child=child)
-
-
 	def login_stack_append(self, r_id, child=None, expect=None, new_user=''):
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
+		cfg = self.cfg
 		cfg['build']['login_stack'].append(r_id)
 		# Dictionary with details about login (eg whoami)
 		cfg['build']['logins'][r_id] = {'whoami':new_user}
@@ -1931,6 +1919,8 @@ c'''
 		"""
 		child = child or self.get_default_child()
 		r_id = shutit_util.random_id()
+		if prompt_prefix == None:
+			prompt_prefix = r_id
 		self.login_stack_append(r_id)
 		cfg = self.cfg
 		# Be helpful.
@@ -1949,6 +1939,10 @@ c'''
 			login_expect = expect
 		# We don't fail on empty before as many login programs mess with the output.
 		# In this special case of login we expect either the prompt, or 'user@' as this has been seen to work.
+		if user == 'bash':
+			print '\n' + 80 * '='
+			shutit.log('user is bash - if you see problems below, did you mean: login(command="' + user + '")?')
+			print '\n' + 80 * '='
 		self.multisend(send,{'ontinue connecting':'yes','assword':password,'login:':password},expect=[login_expect,user+'@','\r\n.*[@#$]'],check_exit=False,timeout=timeout,fail_on_empty_before=False)
 		if prompt_prefix != None:
 			self.setup_prompt(r_id,child=child,prefix=prompt_prefix)
@@ -2663,27 +2657,29 @@ def init():
 	shutit_main_dir = os.path.abspath(os.path.dirname(__file__))
 	cwd = os.getcwd()
 	cfg = {}
-	cfg['action']               = {}
-	cfg['build']                = {}
-	cfg['build']['interactive'] = 1 # Default to true until we know otherwise
-	cfg['build']['build_log']   = None
-	cfg['build']['build_log_file']   = None
-	cfg['build']['report']      = ''
+	cfg['action']                         = {}
+	cfg['build']                          = {}
+	cfg['build']['interactive']           = 1 # Default to true until we know otherwise
+	cfg['build']['build_log']             = None
+	cfg['build']['build_log_file']        = None
+	cfg['build']['report']                = ''
 	cfg['build']['report_final_messages'] = ''
-	cfg['build']['debug']       = False
-	cfg['build']['completed']   = False
-	cfg['build']['distro_override'] = ''
-	cfg['target']               = {}
-	cfg['environment']          = {}
-	cfg['host']                 = {}
-	cfg['host']['shutit_path']  = sys.path[0]
-	cfg['repository']           = {}
-	cfg['expect_prompts']       = {}
-	cfg['users']                = {}
-	cfg['dockerfile']           = {}
-	cfg['list_modules']         = {}
-	cfg['list_configs']         = {}
-	cfg['list_deps']            = {}
+	cfg['build']['debug']                 = False
+	cfg['build']['completed']             = False
+	cfg['build']['distro_override']       = ''
+	# Whether to honour 'walkthrough' requests
+	cfg['build']['walkthrough']           = False
+	cfg['target']                         = {}
+	cfg['environment']                    = {}
+	cfg['host']                           = {}
+	cfg['host']['shutit_path']            = sys.path[0]
+	cfg['repository']                     = {}
+	cfg['expect_prompts']                 = {}
+	cfg['users']                          = {}
+	cfg['dockerfile']                     = {}
+	cfg['list_modules']                   = {}
+	cfg['list_configs']                   = {}
+	cfg['list_deps']                      = {}
 	cfg['build']['shutit_state_dir'] = '/tmp/shutit'
 	# Take a command-line arg if given, else default.
 	cfg['build']['build_db_dir']     = '/tmp/shutit/build_db'

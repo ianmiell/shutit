@@ -483,6 +483,7 @@ def parse_args(shutit):
 	sub_parsers['build'].add_argument('--push', help='Push to a repo', const=True, default=False, action='store_const')
 	sub_parsers['build'].add_argument('--distro', help='Specify the distro type', default='', choices=('ubuntu','debian','alpine','steamos','red hat','centos','fedora','shutit'))
 	sub_parsers['build'].add_argument('--mount_docker', help='Mount the docker socket', default=False, action='store_const', const=True)
+	sub_parsers['build'].add_argument('-w','--walkthrough', help='Run in walkthrough mode', default=False, action='store_const', const=True)
 
 	sub_parsers['list_configs'].add_argument('--history', help='Show config with history', const=True, default=False, action='store_const')
 	sub_parsers['list_modules'].add_argument('--long', help='Show extended module info, including ordering', const=True, default=False, action='store_const')
@@ -605,6 +606,7 @@ def parse_args(shutit):
 		cfg['repository']['save']   = args.save
 		cfg['build']['distro_override'] = args.distro
 		cfg['build']['mount_docker']    = args.mount_docker
+		cfg['build']['walkthrough']     = args.walkthrough
 	elif cfg['action']['list_configs']:
 		cfg['list_configs']['cfghistory'] = args.history
 	elif cfg['action']['list_modules']:
