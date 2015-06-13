@@ -43,12 +43,14 @@ As your preferred user:
 shutit skeleton
 ```
 
-and accept the defaults and follow the instructions to go to your new skeleton module.
+and accept the defaults and follow the instructions to go to your new skeleton module and do your first build. Wait for it to complete.
 
 
 ### Step 3: Modify the Skeleton Module ###
 
-For example, to install mlocate and create a file only if it doesn't exist, change the .py file in your skeleton directory:
+Now you can change your module to do what you want it to.
+
+To install mlocate and create a file if only if it doesn't exist, change the .py file in your skeleton directory:
 
 ```python
 [...]
@@ -69,7 +71,6 @@ You can find a cheat sheet for ShutIt
 **Build module:**
 
 ```sh
-$ cd bin
 $ ./build.sh
 Running: docker --version
 
@@ -98,7 +99,7 @@ Problems? See Troubleshooting section below.
 
 ### Step 6: Mix and Match ###
 
-Let's add mysql to the container build. Change this in your skeleton build:
+Let's add mysql to the container build. Change this in your skeleton module's .py file:
 
 ```python
 depends=['shutit.tk.setup']
@@ -114,8 +115,11 @@ Rebuild and re-run to get the same container with mysql installed.
 
 
 ```sh
-$ ./build.sh
-$ ./run.sh
+cd $HOME
+git clone https://github.com/ianmiell/shutit.git
+cd -
+./build.sh --shutit_module_path $HOME/shutit/library
+./run.sh
 ```
 
 Problems? See Troubleshooting section below.
