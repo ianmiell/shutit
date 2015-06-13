@@ -1236,8 +1236,12 @@ c'''
 		random_id = shutit_util.random_id()
 		if not self.file_exists(fname):
 			return False
-		# TODO: binary files?
-		ftext = self.send_and_get_output('cat ' + fname)
+		cmd = 'cat'
+		if self.command_available('base64'):
+			cmd = 'base64'
+		ftext = self.send_and_get_output(cmd + ' ' + fname)
+		if cmd == 'base64':
+			ftext = base64.b64decode(ftext)
 		# Replace the file text's ^M-newlines with simple newlines
 		ftext = ftext.replace('\r\n','\n')
 		# If we are not forcing and the text is already in the file, then don't insert.
@@ -1415,6 +1419,18 @@ c'''
 			return True
 		else:
 			return False
+
+
+	def command_available(self, command, expect=None, child=None, note=None):
+		child = child or self.get_default_child()
+		expect = expect or self.get_default_expect()
+		cfg = self.cfg
+		self._handle_note(note)
+		if self.send_and_get_output('command -v ' + command) != '':
+			return True
+		else:
+			return False
+		
 
 
 	def is_shutit_installed(self, module_id, note=None):
@@ -1693,19 +1709,6 @@ c'''
 				self.log('\n\nCommit and tag done\n\nHit CTRL and ] to continue with' + 
 					' build. Hit return for a prompt.', force_stdout=True)
 		return input_string
-
-
-	# TODO: candidate for removal?
-	def get_output(self, child=None):
-		"""Helper function to get output from latest command run.
-		Use with care - if you are expecting something other than 
-		a prompt, this may not return what you might expect.
-
-			- child       - See send()
-		"""
-		child = child or self.get_default_child()
-		cfg = self.cfg
-		return cfg['build']['last_output']
 
 
 	def match_string(self, string, regexp):
@@ -2219,7 +2222,8 @@ c'''
 			if install_type == 'apt' and cfg['build']['delivery'] == 'target':
 				self.send('apt-get update')
 				cfg['build']['do_update'] = False
-				self.send('apt-get install -y -qq lsb-release')
+				if not self.command_available('lsb_release'):
+					self.send('apt-get install -y -qq lsb-release')
 				d = self.lsb_release()
 				install_type   = d['install_type']
 				distro         = d['distro']
@@ -2232,7 +2236,8 @@ c'''
 					if re.match('^centos.*$', output.lower()) or re.match('^red hat.*$', output.lower()) or re.match('^fedora.*$', output.lower()) or True:
 						self.send_and_match_output('yum install -y -t redhat-lsb','Complete!')
 				else:
-					self.send('yum install -y lsb-release')
+					if not self.command_available('lsb_release'):
+						self.send('yum install -y lsb-release')
 				install_type   = d['install_type']
 				distro         = d['distro']
 				distro_version = d['distro_version']
@@ -2243,7 +2248,7 @@ c'''
 				install_type   = 'apk'
 				distro         = 'alpine'
 				distro_version = '1.0'
-		elif cfg['environment'][environment_id]['setup'] and self.package_installed('lsb-release'):
+		elif cfg['environment'][environment_id]['setup'] and self.command_available('lsb_release'):
 			d = self.lsb_release()
 			install_type   = d['install_type']
 			distro         = d['distro']
@@ -2272,7 +2277,8 @@ c'''
 			if install_type == 'apt' and cfg['build']['delivery'] == 'target':
 				self.send('apt-get update')
 				cfg['build']['do_update'] = False
-				self.send('apt-get install -y -qq lsb-release')
+				if not self.command_available('lsb_release'):
+					self.send('apt-get install -y -qq lsb-release')
 				d = self.lsb_release()
 				install_type   = d['install_type']
 				distro         = d['distro']
@@ -2285,7 +2291,8 @@ c'''
 					if re.match('^centos.*$', output.lower()) or re.match('^red hat.*$', output.lower()) or re.match('^fedora.*$', output.lower()) or True:
 						self.send_and_match_output('yum install -y -t redhat-lsb','Complete!')
 				else:
-					self.send('yum install -y lsb-release')
+					if not self.command_available('lsb_release'):
+						self.send('yum install -y lsb-release')
 				d = self.lsb_release()
 				install_type   = d['install_type']
 				distro         = d['distro']
