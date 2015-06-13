@@ -58,9 +58,9 @@ class go(ShutItModule):
 		# shutit.package_installed(package)  - Returns True if the package exists on the target
 		# shutit.set_password(password, user='')
 		#                                    - Set password for a given user on target
-		shutit.install('build-essential')
+		shutit.install('build-essential',note='Install essential build tools and git')
 		shutit.install('git')
-		shutit.send('cd /root',note='''We've install the essential build tools and git; now check out go source code''')
+		shutit.send('cd /root',note='''We've installed the essential build tools and git; now check out go source code''')
 		shutit.send('git clone https://go.googlesource.com/go')
 		shutit.send('cd go')
 		shutit.send('git checkout ' + shutit.cfg[self.module_id]['go_version'],note='Choose a specific version; in this case: ' + shutit.cfg[self.module_id]['go_version'])
@@ -68,8 +68,9 @@ class go(ShutItModule):
 		shutit.send('./all.bash',note='Run the build script "all.bash"',check_exit=False)
 		shutit.send('mv /root/go/bin/go /usr/bin',note='Now move the binaries to standard paths')
 		shutit.send('mv /root/go/bin/gofmt /usr/bin')
-		shutit.send('mkdir -p /opt/go',note='Add a go directory and a GOPATH to the environment.')
+		shutit.send('mkdir -p /opt/go')
 		shutit.add_to_bashrc('export GOPATH=/opt/go')
+		shutit.send('mkdir -p /opt/go',note='Add a GOPATH to the environment.')
 		shutit.send('rm -rf /root/go',note='Clean up source code')
 		return True
 

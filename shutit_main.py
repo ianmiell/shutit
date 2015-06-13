@@ -964,7 +964,7 @@ def shutit_main():
 	# Show final report messages (ie messages to show after standard report).
 	if cfg['build']['report_final_messages'] != '':
 		shutit.log(cfg['build']['report_final_messages'], prefix=False,
-		           force_stdout=True, code='32')
+		           force_stdout=True, code='31')
 
 	if cfg['build']['interactive'] >= 3:
 		shutit.log('\n' +

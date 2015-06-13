@@ -105,7 +105,7 @@ class ShutIt(object):
 		@return: default pexpect child object
 		"""
 		if self._default_child[-1] is None:
-			shutit.fail("Couldn't get default child")
+			self.fail("Couldn't get default child")
 		return self._default_child[-1]
 
 
@@ -115,7 +115,7 @@ class ShutIt(object):
 		@return: default pexpect string
 		"""
 		if self._default_expect[-1] is None:
-			shutit.fail("Couldn't get default expect")
+			self.fail("Couldn't get default expect")
 		return self._default_expect[-1]
 
 
@@ -126,7 +126,7 @@ class ShutIt(object):
 		@return: Default check_exit value
 		"""
 		if self._default_check_exit[-1] is None:
-			shutit.fail("Couldn't get default check exit")
+			self.fail("Couldn't get default check exit")
 		return self._default_check_exit[-1]
 
 
@@ -278,7 +278,8 @@ class ShutIt(object):
 	              fail_on_empty_before=True,
 	              record_command=True,
 	              exit_values=None,
-	              echo=None):
+	              echo=None,
+	              note=None):
 		"""Multisend. Same as send, except it takes multiple sends and expects in a dict that are
 		processed while waiting for the end "expect" argument supplied.
 
@@ -292,11 +293,11 @@ class ShutIt(object):
 		@param record_command:       See send()
 		@param exit_values:          See send()
 		@param echo:                 See send()
-
-			- expect - final expect we want to see. defaults to child.get_default_expect()
+		@param note:                 See send()
 		"""
 		expect = expect or self.get_default_expect()
 		child = child or self.get_default_child()
+		self._handle_note(note)
 		
 		send_iteration = send
 		expect_list = send_dict.keys()
@@ -328,24 +329,28 @@ class ShutIt(object):
 	               fail_on_empty_before=True,
 	               record_command=True,
 	               echo=False,
-	               escape=False):
+	               escape=False,
+	               note=None):
 		"""Send string on a regular cadence until a string is either seen
-			@param send:                 See send()
-			@param regexps:              List of regexps to wait for.
-			@param wait_until_seen:      If True, wait until this a regexp is seen in the output. If False
-			                             wait until a regexp is _not_ seen in the output
-			@param expect:               See send()
-			@param child:                See send()
-			@param timeout:              See send()
-			@param check_exit:           See send()
-			@param fail_on_empty_before: See send()
-			@param record_command:       See send()
-			@param exit_values:          See send()
-			@param echo:                 See send()
+
+		@param send:                 See send()
+		@param regexps:              List of regexps to wait for.
+		@param wait_until_seen:      If True, wait until this a regexp is seen in the output. If False
+		                             wait until a regexp is _not_ seen in the output
+		@param expect:               See send()
+		@param child:                See send()
+		@param timeout:              See send()
+		@param check_exit:           See send()
+		@param fail_on_empty_before: See send()
+		@param record_command:       See send()
+		@param exit_values:          See send()
+		@param echo:                 See send()
+		@param note:                 See send()
 		"""
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
 		cfg = self.cfg
+		self._handle_note(note)
 		if type(regexps) == str:
 			regexps = [regexps]
 		if type(regexps) != list:
@@ -409,11 +414,10 @@ class ShutIt(object):
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
 		cfg = self.cfg
+		self._handle_note(note)
 		# If check_exit is not passed in
 		# - if the expect matches the default, use the default check exit
 		# - otherwise, default to doing the check
-		if cfg['build']['walkthrough'] and note != None:
-			shutit.pause_point('\n' + 80*'=' + '\n' + note + '\n' + 80*'=' + '\n', colour=31)
 		if check_exit == None:
 			if expect == self.get_default_expect():
 				check_exit = self.get_default_check_exit()
@@ -533,7 +537,7 @@ $'"""
 				self.log('child.after>>>' + child.after + '<<<',code=32)
 			if fail_on_empty_before == True:
 				if child.before.strip() == '':
-					shutit.fail('before empty after sending: ' + str(send) +
+					self.fail('before empty after sending: ' + str(send) +
 						'\n\nThis is expected after some commands that take a ' + 
 						'password.\nIf so, add fail_on_empty_before=False to ' + 
 						'the send call.\n\nIf that is not the problem, did you ' +
@@ -566,6 +570,15 @@ $'"""
 		return expect_res
 	# alias send to send_and_expect
 	send_and_expect = send
+
+
+	def _handle_note(self, note):
+		"""Handle notes and walkthrough option.
+
+		@param note:                 See send()
+		"""
+		if self.cfg['build']['walkthrough'] and note != None:
+			self.pause_point('\n' + 80*'=' + '\n' + note + '\n' + 80*'=' + '\n', colour=31)
 
 
 	def _expect_allow_interrupt(self, child, expect, timeout, iteration_s=1):
@@ -681,14 +694,14 @@ END_""" + random_id)
 				self.pause_point(msg + '\n\nInteractive, so not retrying.\nPause point on exit_code != 0 (' +
 					res + '). CTRL-C to quit', child=child, level=0)
 			elif retry == 1:
-				shutit.fail('Exit value from command\n' + send +
+				self.fail('Exit value from command\n' + send +
 				    '\nwas:\n' + res, throw_exception=True)
 			else:
 				return False
 		return True
 
 
-	def run_script(self, script, expect=None, child=None, in_shell=True):
+	def run_script(self, script, expect=None, child=None, in_shell=True, note=None):
 		"""Run the passed-in string as a script on the target's command line.
 
 		@param script:   String representing the script. It will be de-indented
@@ -696,13 +709,15 @@ END_""" + random_id)
 		@param expect:   See send()
 		@param child:    See send()
 		@param in_shell: Indicate whether we are in a shell or not. (Default: True)
+		@param note:     See send()
 
 		@type script:    string
 		@type in_shell:  boolean
 		"""
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
-		cfg = self.cfg
+	 	cfg = self.cfg
+		self._handle_note(note)
 		# Trim any whitespace lines from start and end of script, then dedent
 		lines = script.split('\n')
 		while len(lines) > 0 and re.match('^[ \t]*$', lines[0]):
@@ -730,7 +745,7 @@ END_""" + random_id)
 		return ret
 
 
-	def send_file(self, path, contents, expect=None, child=None, log=True, truncate=False):
+	def send_file(self, path, contents, expect=None, child=None, log=True, truncate=False, note=None):
 		"""Sends the passed-in string as a file to the passed-in path on the
 		target.
 
@@ -739,6 +754,7 @@ END_""" + random_id)
 		@param expect:      See send()
 		@param child:       See send()
 		@param log:         Log the file contents if in debug.
+		@param note:        See send()
 
 		@type path:         string
 		@type contents:     string
@@ -747,9 +763,9 @@ END_""" + random_id)
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
 		cfg = self.cfg
+		self._handle_note(note)
 		if cfg['build']['debug']:
-			self.log('=====================================================' + 
-				'===========================')
+			self.log('='*80)
 			self.log('Sending file to' + path)
 			if log:
 				for c in contents:
@@ -768,11 +784,11 @@ END_""" + random_id)
 				if truncate and self.file_exists(path):
 					self.send('rm -f ' + path, expect=expect, child=child)
 				random_id = shutit_util.random_id()
-				shutit.send('cat > ' + path + ' << END_' + random_id + '''
+				self.send('cat > ' + path + ' << END_' + random_id + '''
 ''' + contents + '''
 END_''' + random_id)
 		else:
-			host_child = shutit.pexpect_children['host_child']
+			host_child = self.pexpect_children['host_child']
 			path = path.replace(' ', '\ ')
 			# get host session
 			tmpfile = '/tmp/shutit_tmp'
@@ -780,7 +796,7 @@ END_''' + random_id)
 			f.truncate(0)
 			f.write(contents)
 			f.close()
-			shutit.send('cat ' + tmpfile + ' | ' + cfg['host']['docker_executable'] + ' exec -i ' + cfg['target']['container_id'] + " bash -c 'cat > " + path + "'", child=host_child, expect=cfg['expect_prompts']['origin_prompt'])
+			self.send('cat ' + tmpfile + ' | ' + cfg['host']['docker_executable'] + ' exec -i ' + cfg['target']['container_id'] + " bash -c 'cat > " + path + "'", child=host_child, expect=cfg['expect_prompts']['origin_prompt'])
 			os.remove(tmpfile)
 
 
@@ -789,7 +805,8 @@ END_''' + random_id)
 	          expect=None,
 	          child=None,
 	          timeout=3600,
-	          log=True):
+	          log=True,
+	          note=None):
 		"""How to change directory will depend on whether we are in delivery mode bash or docker.
 
 		@param path:          Path to send file to.
@@ -797,16 +814,18 @@ END_''' + random_id)
 		@param child:         See send()
 		@param timeout:       Timeout on response
 		@param log:           Arg to pass to send_file (default True)
+		@param note:          See send()
 		"""
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
 		cfg = self.cfg
+		self._handle_note(note)
 		if cfg['build']['delivery'] in ('bash','dockerfile'):
 			self.send('cd ' + path, expect=expect, child=child, timeout=timeout)
 		elif cfg['build']['delivery'] == 'target' or cfg['build']['delivery'] == 'ssh':
 			os.chdir(path)
 		else:
-			shutit.fail('chdir not supported for delivery method: ' + cfg['build']['delivery'])
+			self.fail('chdir not supported for delivery method: ' + cfg['build']['delivery'])
 
 
 	def send_host_file(self,
@@ -815,7 +834,8 @@ END_''' + random_id)
 	                   expect=None,
 	                   child=None,
 	                   timeout=3600,
-	                   log=True):
+	                   log=True,
+	                   note=None):
 		"""Send file from host machine to given path
 
 		@param path:          Path to send file to.
@@ -823,6 +843,7 @@ END_''' + random_id)
 		@param expect:        See send()
 		@param child:         See send()
 		@param log:           arg to pass to send_file (default True)
+		@param note:          See send()
 
 		@type path:           string
 		@type hostfilepath:   string
@@ -831,6 +852,7 @@ END_''' + random_id)
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
 		cfg = self.cfg
+		self._handle_note(note)
 		if cfg['build']['delivery'] in ('bash','dockerfile'):
 			self.send('pushd ' + cfg['environment'][cfg['build']['current_environment_id']]['module_root_dir'])
 			self.send('cp -r ' + hostfilepath + ' ' + path,expect=expect, child=child, timeout=timeout)
@@ -843,7 +865,7 @@ END_''' + random_id)
 				self.send_host_dir(path, hostfilepath, expect=expect,
 					child=child, log=log)
 			else:
-				shutit.fail('send_host_file - file: ' + hostfilepath +
+				self.fail('send_host_file - file: ' + hostfilepath +
 					' does not exist as file or dir. cwd is: ' + os.getcwd(),
 					child=child, throw_exception=False)
 
@@ -853,7 +875,8 @@ END_''' + random_id)
 					  hostfilepath,
 					  expect=None,
 					  child=None,
-					  log=True):
+					  log=True,
+	                  note=None):
 		"""Send directory and all contents recursively from host machine to
 		given path.  It will automatically make directories on the target.
 
@@ -862,6 +885,7 @@ END_''' + random_id)
 		@param expect:        See send()
 		@param child:         See send()
 		@param log:           Arg to pass to send_file (default True)
+		@param note:          See send()
 
 		@type path:          string
 		@type hostfilepath:  string
@@ -870,6 +894,7 @@ END_''' + random_id)
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
 		self.log('entered send_host_dir in: ' + os.getcwd())
+		self._handle_note(note)
 		for root, subfolders, files in os.walk(hostfilepath):
 			subfolders.sort()
 			files.sort()
@@ -888,18 +913,19 @@ END_''' + random_id)
 					expect=expect, child=child, log=log)
 
 
-	def host_file_exists(self, filename, directory=False):
+	def host_file_exists(self, filename, directory=False, note=None):
 		"""Return True if file exists on the host, else False
 
 		@param filename:   Filename to determine the existence of.
 		@param directory:  Indicate that the file expected is a directory. (Default: False)
+		@param note:       See send()
 
 		@type filename:    string
 		@type directory:   boolean
 
 		@rtype: boolean
 		"""
-
+		self._handle_note(note)
 		if directory:
 			return os.path.isdir(filename)
 		else:
@@ -907,13 +933,14 @@ END_''' + random_id)
 
 
 
-	def file_exists(self, filename, expect=None, child=None, directory=False):
+	def file_exists(self, filename, expect=None, child=None, directory=False, note=None):
 		"""Return True if file exists on the target host, else False
 
 		@param filename:   Filename to determine the existence of.
 		@param expect:     See send()
 		@param child:      See send()
 		@param directory:  Indicate that the file is a directory.
+		@param note:       See send()
 
 		@type filename:    string
 		@type directory:   boolean
@@ -922,6 +949,7 @@ END_''' + random_id)
 		"""
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
+		self._handle_note(note)
 		#       v the space is intentional, to avoid polluting bash history.
 		test = ' test %s %s' % ('-d' if directory is True else '-a', filename)
 		self.send(test +
@@ -942,13 +970,14 @@ END_''' + random_id)
 		return ret
 
 
-	def get_file_perms(self, filename, expect=None, child=None):
+	def get_file_perms(self, filename, expect=None, child=None, note=None):
 		"""Returns the permissions of the file on the target as an octal
 		string triplet.
 
 		@param filename:  Filename to get permissions of.
 		@param expect:    See send()
 		@param child:     See send()
+		@param note:      See send()
 
 		@type filename:   string
 
@@ -956,6 +985,7 @@ END_''' + random_id)
 		"""
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
+		self._handle_note(note)
 		cmd = 'stat -c %a ' + filename
 		self.send(cmd, expect, child=child, check_exit=False)
 		res = self.match_string(child.before, '([0-9][0-9][0-9])')
@@ -969,7 +999,8 @@ END_''' + random_id)
 							  expect=None,
 							  child=None,
 							  match_regexp=None,
-							  literal=False):
+							  literal=False,
+	                          note=None):
 		"""Removes line from file, if it exists.
 		Must be exactly the line passed in to match.
 		Returns True if there were no problems, False if there were.
@@ -983,6 +1014,7 @@ END_''' + random_id)
 		                      handy if the line has awkward characters in it.
 		@param literal:       If true, then simply grep for the exact string without
 		                      bash interpretation. (Default: False)
+		@param note:          See send()
 
 		@type line:           string
 		@type filename:       string
@@ -994,6 +1026,7 @@ END_''' + random_id)
 		"""
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
+		self._handle_note(note)
 		# assume we're going to add it
 		tmp_filename = '/tmp/' + shutit_util.random_id()
 		if self.file_exists(filename, expect=expect, child=child):
@@ -1058,7 +1091,8 @@ END_''' + random_id)
 	                     child=None,
 	                     match_regexp=None,
 	                     force=False,
-	                     literal=False):
+	                     literal=False,
+	                     note=None):
 		"""
 		Adds line to file if it doesn't exist (unless Force is set,
 		which it is not by default).
@@ -1080,6 +1114,7 @@ END_''' + random_id)
 		@param force:         Always write the line to the file.
 		@param literal:       If true, then simply grep for the exact string without
 		                      bash interpretation. (Default: False)
+		@param note:          See send()
 
 		@type line:           string
 		@type filename:       string
@@ -1088,6 +1123,7 @@ END_''' + random_id)
 		"""
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
+		self._handle_note(note)
 		# assume we're going to add it
 		res = '0'
 		tmp_filename = '/tmp/' + shutit_util.random_id()
@@ -1157,14 +1193,14 @@ END_''' + random_id)
 		return True
 
 
-	def delete_text(self, text, fname, pattern=None, expect=None, child=None, before=False, force=False):
+	def delete_text(self, text, fname, pattern=None, expect=None, child=None, before=False, force=False, note=None):
 		"""Delete a chunk of text from a file.
 
 		See insert_text.
 		"""
 		return self.insert_text(text, fname, pattern, expect, child, before, force, delete=True)
 
-	def insert_text(self, text, fname, pattern=None, expect=None, child=None, before=False, force=False, delete=False):
+	def insert_text(self, text, fname, pattern=None, expect=None, child=None, before=False, force=False, delete=False, note=None):
 		"""Insert a chunk of text at the end of a file, or after (or before) the first matching pattern
 		in given file fname.
 
@@ -1191,9 +1227,11 @@ c'''
 		@param before:        Whether to place the text before or after the matched text.
 		@param force:         Force the insertion even if the text is in the file.
 		@param delete:        Delete text from file rather than insert
+		@param note:          See send()
 		"""
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
+		self._handle_note(note)
 		random_id = shutit_util.random_id()
 		if not self.file_exists(fname):
 			return False
@@ -1233,7 +1271,7 @@ c'''
 
 
 
-	def add_to_bashrc(self, line, expect=None, child=None, match_regexp=None):
+	def add_to_bashrc(self, line, expect=None, child=None, match_regexp=None, note=None):
 		"""Takes care of adding a line to everyone's bashrc
 		(/etc/bash.bashrc, /etc/profile).
 
@@ -1241,11 +1279,13 @@ c'''
 		@param expect:        See send()
 		@param child:         See send()
 		@param match_regexp:  See add_line_to_file()
+		@param note:          See send()
 
 		@return:              See add_line_to_file()
 		"""
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
+		self._handle_note(note)
 		self.add_line_to_file(line, '${HOME}/.bashrc', expect=expect, match_regexp=match_regexp) # This won't work for root - TODO
 		self.add_line_to_file(line, '/etc/bash.bashrc', expect=expect, match_regexp=match_regexp)
 		return self.add_line_to_file(line, '/etc/profile', expect=expect, match_regexp=match_regexp)
@@ -1262,7 +1302,8 @@ c'''
 	            record_command=True,
 	            exit_values=None,
 	            echo=False,
-	            retry=3):
+	            retry=3,
+	            note=None):
 		"""Handles the getting of a url for you.
 
 		Example:
@@ -1280,6 +1321,7 @@ c'''
 		@param echo:                 See send()
 		@param retry:                How many times to retry the download
 		                             in case of failure. Default: 3
+		@param note:                 See send()
 
 		@type filename:              string
 		@type locations:             list of strings
@@ -1290,6 +1332,7 @@ c'''
 		"""
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
+		self._handle_note(note)
 		if len(locations) == 0 or type(locations) != list:
 			raise ShutItFailException('Locations should be a list containing base of the url.')
 		retry_orig = retry
@@ -1314,12 +1357,13 @@ c'''
 
 
 
-	def user_exists(self, user, expect=None, child=None):
+	def user_exists(self, user, expect=None, child=None, note=None):
 		"""Returns true if the specified username exists.
 		
 		@param user:   username to check for
 		@param expect: See send()
 		@param child:  See send()
+		@param note:   See send()
 
 		@type user:    string
 
@@ -1327,32 +1371,35 @@ c'''
 		"""
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
-		exist = False
-		if user == '': return exist
-		ret = shutit.send(
+		self._handle_note(note)
+		exists = False
+		if user == '': return exists
+		ret = self.send(
 			#v the space is intentional, to avoid polluting bash history.
 			' id %s && echo E""XIST || echo N""XIST' % user,
 			expect=['NXIST', 'EXIST'], child=child
 		)
 		if ret:
-			exist = True
+			exists = True
 		# sync with the prompt
 		child.expect(expect)
-		return exist
+		return exists
 
 
-	def package_installed(self, package, expect=None, child=None):
+	def package_installed(self, package, expect=None, child=None, note=None):
 		"""Returns True if we can be sure the package is installed.
 
 		@param package:   Package as a string, eg 'wget'.
 		@param expect:    See send()
 		@param child:     See send()
+		@param note:      See send()
 
 		@rtype:           boolean
 		"""
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
 		cfg = self.cfg
+		self._handle_note(note)
 		if cfg['environment'][cfg['build']['current_environment_id']]['install_type'] == 'apt':
 			#            v the space is intentional, to avoid polluting bash history.
 			self.send(""" dpkg -l | awk '{print $2}' | grep "^""" +
@@ -1369,12 +1416,17 @@ c'''
 			return False
 
 
-	def is_shutit_installed(self, module_id):
+	def is_shutit_installed(self, module_id, note=None):
 		"""Helper proc to determine whether shutit has installed already here by placing a file in the db. 
+
+	
+		@param module_id: Identifying string of shutit module
+		@param note:      See send()
 		"""
 		# If it's already in cache, then return True.
 		# By default the cache is invalidated.
 		cfg = self.cfg
+		self._handle_note(note)
 		if cfg['environment'][cfg['build']['current_environment_id']]['modules_recorded_cache_valid'] == False:
 			if self.file_exists(cfg['build']['build_db_dir'] + '/module_record',directory=True):
 				# Bit of a hack here to get round the long command showing up as the first line of the output.
@@ -1393,23 +1445,25 @@ c'''
 			return False
 
 
-	def ls(self, directory):
+	def ls(self, directory, note=None):
 		"""Helper proc to list files in a directory
 
 		@param directory:   directory to list.
 		                    If the directory doesn't exist,
 		                    shutit.fail() is called (i.e.
 		                    the build fails.)
+		@param note:        See send()
 
 		@type directory:    string
 
 		@rtype:             list of strings
 		"""
 		# should this blow up?
-		if not shutit.file_exists(directory,directory=True):
-			shutit.fail('ls: directory\n\n' + directory + '\n\ndoes not exist',
+		self._handle_note(note)
+		if not self.file_exists(directory,directory=True):
+			self.fail('ls: directory\n\n' + directory + '\n\ndoes not exist',
 			    throw_exception=False)
-		files = shutit.send_and_get_output(' ls ' + directory)
+		files = self.send_and_get_output(' ls ' + directory)
 		files = files.split(' ')
 		# cleanout garbage from the terminal - all of this is necessary cause there are
 		# random return characters in the middle of the file names
@@ -1429,18 +1483,19 @@ c'''
 		"""mount a temporary file system as a workaround for AUFS /tmp issues.
 		Not necessary if running devicemapper.
 		"""
-		shutit.send('mkdir -p /tmpbak')
-		shutit.send('cp -r /tmp/* /tmpbak')
-		shutit.send('mount -t tmpfs tmpfs /tmp')
-		shutit.send('cp -r /tmpbak/* /tmp')
-		shutit.send('rm -rf /tmpbak')
+		self.send('mkdir -p /tmpbak')
+		self.send('cp -r /tmp/* /tmpbak')
+		self.send('mount -t tmpfs tmpfs /tmp')
+		self.send('cp -r /tmpbak/* /tmp')
+		self.send('rm -rf /tmpbak')
 
 
-	def get_file(self,target_path,host_path):
+	def get_file(self,target_path,host_path,note=None):
 		"""Copy a file from the target machine to the host machine, via the artifacts mount
 
 		@param target_path: path to file in the target
 		@param host_path:   path to file on the host machine (e.g. copy test)
+		@param note:        See send()
 
 		@type target_path: string
 		@type host_path:   string
@@ -1450,19 +1505,20 @@ c'''
 		"""
 		filename = os.path.basename(target_path)
 		cfg = self.cfg
+		self._handle_note(note)
 		artifacts_dir = cfg['host']['artifacts_dir']
-		if shutit.get_file_perms('/artifacts') != "777":
-			user = shutit.send_and_get_output('whoami').strip()
+		if self.get_file_perms('/artifacts') != "777":
+			user = self.send_and_get_output('whoami').strip()
 			# revert to root to do attachments
 			if user != 'root':
-				shutit.logout()
-			shutit.send('chmod 777 /artifacts')
+				self.logout()
+			self.send('chmod 777 /artifacts')
 			# we've done what we need to do as root, go home
 			if user != 'root':
-				shutit.login(user=user)
-		shutit.send('cp ' + target_path + ' /artifacts')
+				self.login(user=user)
+		self.send('cp ' + target_path + ' /artifacts')
 		shutil.copyfile(os.path.join(artifacts_dir,filename),os.path.join(host_path,'{0}_'.format(cfg['build']['build_id']) + filename))
-		shutit.send('rm -f /artifacts/' + filename)
+		self.send('rm -f /artifacts/' + filename)
 		return os.path.join(host_path,'{0}_'.format(cfg['build']['build_id']) + filename)
 
 
@@ -1493,7 +1549,7 @@ c'''
 		print shutit_util.colour('32', '\n' + msg + '\n')
 		
 		if not shutit_util.determine_interactive(shutit):
-			shutit.fail('ShutIt is not in a terminal so cannot prompt ' +
+			self.fail('ShutIt is not in a terminal so cannot prompt ' +
 				'for values.', throw_exception=False)
 
 		if config_parser.has_option(sec, name):
@@ -1596,8 +1652,8 @@ c'''
 					print (shutit_util.colour(colour,'\nPause point:\n' +
 						'resize==True, so attempting to resize terminal.\n\n' +
 						'If you are not at a shell prompt when calling pause_point, then pass in resize=False.'))
-				shutit.send_host_file('/tmp/resize',self.shutit_main_dir+'/assets/resize', child=child, log=False)
-				shutit.send(' chmod 755 /tmp/resize')
+				self.send_host_file('/tmp/resize',self.shutit_main_dir+'/assets/resize', child=child, log=False)
+				self.send(' chmod 755 /tmp/resize')
 				child.sendline(' sleep 2 && /tmp/resize')
 			if default_msg == None:
 				print (shutit_util.colour(colour, msg) +
@@ -1612,7 +1668,7 @@ c'''
 			try:
 				child.interact(input_filter=self._pause_input_filter)
 			except Exception as e:
-				shutit.fail('Failed to interact, probably because this is run non-interactively,\nor was previously CTRL-C\'d\n' + str(e))
+				self.fail('Failed to interact, probably because this is run non-interactively,\nor was previously CTRL-C\'d\n' + str(e))
 			child.logfile_send = oldlog
 		else:
 			print msg
@@ -1638,6 +1694,7 @@ c'''
 		return input_string
 
 
+	# TODO: candidate for removal?
 	def get_output(self, child=None):
 		"""Helper function to get output from latest command run.
 		Use with care - if you are expecting something other than 
@@ -1680,7 +1737,7 @@ c'''
 	get_re_from_child = match_string
 
 
-	def send_and_match_output(self, send, matches, expect=None, child=None, retry=3, strip=True):
+	def send_and_match_output(self, send, matches, expect=None, child=None, retry=3, strip=True, note=None):
 		"""Returns true if the output of the command matches any of the strings in 
 		the matches list of regexp strings. Handles matching on a per-line basis
 		and does not cross lines.
@@ -1691,6 +1748,7 @@ c'''
 		@param child:    See send()
 		@param retry:    Number of times to retry command (default 3)
 		@param strip:    Whether to strip output (defaults to True)
+		@param note:     See send()
 
 		@type send:      string
 		@type matches:   list
@@ -1699,7 +1757,8 @@ c'''
 		"""
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
-		output = shutit.send_and_get_output(send, child=child, retry=retry, strip=strip)
+		self._handle_note(note)
+		output = self.send_and_get_output(send, child=child, retry=retry, strip=strip)
 		if type(matches) == str:
 			matches = [matches]
 		for match in matches:
@@ -1709,7 +1768,7 @@ c'''
 
 
 
-	def send_and_get_output(self, send, expect=None, child=None, retry=3, strip=True):
+	def send_and_get_output(self, send, expect=None, child=None, retry=3, strip=True, note=None):
 		"""Returns the output of a command run. send() is called, and exit is not checked.
 
 		@param send:     See send()
@@ -1718,20 +1777,22 @@ c'''
 		@param retry:    Number of times to retry command (default 3)
 		@param strip:    Whether to strip output (defaults to True). Strips whitespace
 		                 and ansi terminal codes
+		@param note:     See send()
 
 		@type retry:     integer
 		@type strip:     boolean
 		"""
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
+		self._handle_note(note)
 		self.send(send, check_exit=False, retry=3,echo=False)
 		if strip:
 			ansi_escape = re.compile(r'\x1b[^m]*m')
-			string_with_termcodes = shutit.get_default_child().before.strip(send).strip()
+			string_with_termcodes = self.get_default_child().before.strip(send).strip()
 			string_without_termcodes = ansi_escape.sub('', string_with_termcodes)
 			return string_without_termcodes.strip()
 		else:
-			return shutit.get_default_child().before.strip(send)
+			return self.get_default_child().before.strip(send)
 
 
 	def install(self,
@@ -1742,7 +1803,8 @@ c'''
 	            timeout=3600,
 	            force=False,
 	            check_exit=True,
-	            reinstall=False):
+	            reinstall=False,
+	            note=None):
 		"""Distro-independent install function.
 		Takes a package name and runs the relevant install function.
 
@@ -1755,6 +1817,7 @@ c'''
 		@param force:      Force if necessary. Defaults to False
 		@param check_exit: If False, failure to install is ok (default True)
 		@param reinstall:  Advise a reinstall where possible (default False)
+		@param note:       See send()
 
 		@type package:     string
 		@type timeout:     integer
@@ -1769,6 +1832,7 @@ c'''
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
 		cfg = self.cfg
+		self._handle_note(note)
 		if options is None: options = {}
 		install_type = cfg['environment'][cfg['build']['current_environment_id']]['install_type']
 		if install_type == 'src':
@@ -1830,7 +1894,8 @@ c'''
 	           child=None,
 	           expect=None,
 	           options=None,
-	           timeout=3600):
+	           timeout=3600,
+	           note=None):
 		"""Distro-independent remove function.
 		Takes a package name and runs relevant remove function.
 
@@ -1840,6 +1905,7 @@ c'''
 		@param options:  Dict of options to pass to the remove command,
 		                 mapped by install_type.
 		@param timeout:  See send(). Default: 3600
+		@param note:     See send()
 
 		@return: True if all ok (i.e. the package was successfully removed),
 		         False otherwise.
@@ -1848,6 +1914,7 @@ c'''
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
 		cfg = self.cfg
+		self._handle_note(note)
 		if options is None: options = {}
 		install_type = cfg['environment'][cfg['build']['current_environment_id']]['install_type']
 		if install_type == 'src':
@@ -1873,17 +1940,19 @@ c'''
 		return True
 
 
-	def whoami(self, child=None, expect=None):
+	def whoami(self, child=None, expect=None, note=None):
 		"""Returns the current user by executing "whoami".
 
 		@param child:    See send()
 		@param expect:   See send()
+		@param note:     See send()
 
 		@return: the output of "whoami"
 		@rtype: string
 		"""
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
+		self._handle_note(note)
 		return self.send_and_get_output('whoami').strip()
 
 
@@ -1896,7 +1965,7 @@ c'''
 		cfg['build']['logins'][r_id] = {'whoami':new_user}
 
 
-	def login(self, user='root', command='su -', child=None, password=None, prompt_prefix=None, expect=None, timeout=20):
+	def login(self, user='root', command='su -', child=None, password=None, prompt_prefix=None, expect=None, timeout=20, note=None):
 		"""Logs the user in with the passed-in password and command.
 		Tracks the login. If used, used logout to log out again.
 		Assumes you are root when logging in, so no password required.
@@ -1910,6 +1979,7 @@ c'''
 		@param prompt_prefix:   Prefix to use in prompt setup.
 		@param expect:          See send()
 		@param timeout:         How long to wait for a response. Default: 20.
+		@param note:            See send()
 
 		@type user:             string
 		@type command:          string
@@ -1918,6 +1988,8 @@ c'''
 		@type timeout:          integer
 		"""
 		child = child or self.get_default_child()
+		# We don't get the default expect here, as it's either passed in, or a base default regexp.
+		self._handle_note(note)
 		r_id = shutit_util.random_id()
 		if prompt_prefix == None:
 			prompt_prefix = r_id
@@ -1941,7 +2013,7 @@ c'''
 		# In this special case of login we expect either the prompt, or 'user@' as this has been seen to work.
 		if user == 'bash' and command == 'su -':
 			print '\n' + 80 * '='
-			shutit.log('WARNING! user is bash - if you see problems below, did you mean: login(command="' + user + '")?',force_stdout=True)
+			self.log('WARNING! user is bash - if you see problems below, did you mean: login(command="' + user + '")?',force_stdout=True)
 			print '\n' + 80 * '='
 		self.multisend(send,{'ontinue connecting':'yes','assword':password,'login:':password},expect=[login_expect,user+'@','\r\n.*[@#$]'],check_exit=False,timeout=timeout,fail_on_empty_before=False)
 		if prompt_prefix != None:
@@ -1951,16 +2023,19 @@ c'''
 
 
 
-	def logout(self, child=None, expect=None, command='exit'):
+	def logout(self, child=None, expect=None, command='exit', note=None):
 		"""Logs the user out. Assumes that login has been called.
 		If login has never been called, throw an error.
 
-			- child              - See send()
-			- expect             - override expect (eg for base_prompt)
+			@param child:           See send()
+			@param expect:          See send()
+			@param command:         Command to run to log out (default=exit)
+			@param note:            See send()
 		"""
 		child = child or self.get_default_child()
 		old_expect = expect or self.get_default_expect()
 		cfg = self.cfg
+		self._handle_note(note)
 		if len(cfg['build']['login_stack']):
 			current_prompt_name = cfg['build']['login_stack'].pop()
 			if len(cfg['build']['login_stack']):
@@ -2249,7 +2324,7 @@ c'''
 		return d
 
 
-	def set_password(self, password, user='', child=None, expect=None):
+	def set_password(self, password, user='', child=None, expect=None, note=None):
 		"""Sets the password for the current user or passed-in user.
 
 		As a side effect, installs the "password" package.
@@ -2258,9 +2333,11 @@ c'''
 		@param password:    password to set for the user
 		@param expect:      See send()
 		@param child:       See send()
+		@param note:        See send()
 		"""
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
+		self._handle_note(note)
 		self.install('passwd')
 		cfg = self.cfg
 		if cfg['environment'][cfg['build']['current_environment_id']]['install_type'] == 'apt':
@@ -2288,12 +2365,13 @@ c'''
 			self.send(password, child=child, expect=expect, echo=False)
 
 
-	def is_user_id_available(self, user_id, child=None, expect=None):
+	def is_user_id_available(self, user_id, child=None, expect=None, note=None):
 		"""Determine whether the specified user_id available.
 
 		@param user_id:  User id to be checked.
 		@param expect:   See send()
 		@param child:    See send()
+		@param note:     See send()
 
 		@type user_id:   integer
 
@@ -2303,6 +2381,7 @@ c'''
 		"""
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
+		self._handle_note(note)
 		#          v the space is intentional, to avoid polluting bash history.
 		self.send(' cut -d: -f3 /etc/paswd | grep -w ^' + user_id + '$ | wc -l',
 				  child=child, expect=expect, check_exit=False)
@@ -2404,9 +2483,9 @@ c'''
 			repository = repository_tar = ''
 
 		if not repository:
-			shutit.fail('Could not form valid repository name', child=child, throw_exception=False)
+			self.fail('Could not form valid repository name', child=child, throw_exception=False)
 		if (export or save) and not repository_tar:
-			shutit.fail('Could not form valid tar name', child=child, throw_exception=False)
+			self.fail('Could not form valid tar name', child=child, throw_exception=False)
 
 		if server != '':
 			repository = '%s/%s' % (server, repository)
@@ -2428,7 +2507,7 @@ c'''
 		repository_with_tag = repository_with_tag.lower()
 
 		if server == '' and len(repository) > 30 and push:
-			shutit.fail("""repository name: '""" + repository +
+			self.fail("""repository name: '""" + repository +
 				"""' too long to push. If using suffix_date consider shortening, or consider""" +
 			    """ adding "-s repository push no" to your arguments to prevent pushing.""",
 				child=child, throw_exception=False)
@@ -2559,7 +2638,7 @@ c'''
 					else:
 						# util_raw_input may change the interactive level, so guard for this.
 						if cfg['build']['interactive'] < 1:
-							shutit.fail('Cannot continue. ' + module_id + '.' + option + ' config requires a value and no default is supplied. Adding "-s ' + module_id + ' ' + option + ' [your desired value]" to the shutit invocation will set this.')
+							self.fail('Cannot continue. ' + module_id + '.' + option + ' config requires a value and no default is supplied. Adding "-s ' + module_id + ' ' + option + ' [your desired value]" to the shutit invocation will set this.')
 						prompt = '\n\nPlease input a value for ' + module_id + '.' + option
 						if default != None:
 							prompt = prompt + ' (default: ' + str(default) + ')'
@@ -2591,19 +2670,21 @@ c'''
 				cfg[module_id][option] = default
 
 
-	def get_ip_address(self, ip_family='4', ip_object='addr', command='ip', interface='eth0'):
+	def get_ip_address(self, ip_family='4', ip_object='addr', command='ip', interface='eth0', note=None):
 		"""Gets the ip address based on the args given. Assumes command exists.
 
 		@param ip_family:   type of ip family, defaults to 4
 		@param ip_object:   type of ip object, defaults to "addr"
 		@param command:     defaults to "ip"
 		@param interface:   defaults to "eth0"
+		@param note:        See send()
 
 		@type ip_family:    string
 		@type ip_object:    string
 		@type command:      string
 		@type interface:    string
 		"""
+		self._handle_note(note)
 		return self.send_and_get_output(command + ' -' + ip_family + ' -o ' + ip_object + ' | grep ' + interface)
 
 
