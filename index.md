@@ -4,17 +4,15 @@ markdown: 1
 ---
 # ShutIt #
 
-Configuration management for the future.
+Configuration management for programmers.
 
 ## Why? ##
 
-Interested in Docker? Find Dockerfiles limiting?
+Interested in Docker? Find Dockerfiles limiting? Want to automate a shell script with all the power of a real programming language?
 
 Are you a programmer annoyed by the obfuscation and indirection Chef/Puppet/Ansible brings to a simple series of commands?
 
 Interested in stable stateless deployments?
-
-Join us!
 
 ## Features ##
 
@@ -28,123 +26,79 @@ Join us!
  - Extensive debugging tools to make reproducible builds easier
  - Util functions for common tasks (that work across distros)
 
-### Step 1: Get the source ###
-```sh
-#install git
-#install python-pip
-#install docker
-git clone https://github.com/ianmiell/shutit.git
-cd shutit
-pip install --user -r requirements.txt
-echo "export PATH=$(pwd):${PATH}" >> ~/.bashrc
-. ~/.bashrc
-```
-
-### Step 2: Create a new module ###
+### Step 1: Get ShutIt ###
 
 ```sh
-./shutit skeleton --module_directory $HOME/shutit_modules/my_module --module_name my_module --domain my.domain.com --depends shutit.tk.setup --base_image ubuntu
-cd $HOME/shutit_modules/my_module
+pip install shutit
 ```
 
-Folder structure:
+Run the above as root, and ensuring python-pip and docker are already installed.
 
- - **/bin**        - helpful template scripts
- - **/configs**    - config for your module *(see example below)*
- - **/context**    - files you may want to insert into your container or use as part of the build
- - **/dockerfile** - ready-made dockerfile to build the app from a dockerfile if desired
 
-An example folder structure:
+### Step 2: Create a Skeleton ShutIt Module ###
 
-```
-./my_module
-├── bin
-│   ├── build_and_push.sh
-│   ├── build.sh
-│   ├── run.sh
-│   └── test.sh
-├── configs
-│   ├── push.cnf
-│   └── build.cnf
-├── context
-├── Dockerfile
-├── my_module.py
-└── README.md
+As your preferred user:
+
+```sh
+shutit skeleton
 ```
 
-### Step 3: Modify the example module ###
+and accept the defaults and follow the instructions to go to your new skeleton module.
 
-The example module contains examples of many common tasks when installing, e.g.
 
- - install               - installs packages based on distro ('passwd' install in skeleton --example above)
- - password handling     - automate the inputting of passwords (changing 'password' in skeleton --example above)
- - config to set up apps - allows you to specify build parameters
- - add line to file      - incrementally construct files
- - send file             - or send them in one shot
- - pause_point           - allow you to stop during a build and inspect before continuing
- - handle logins/logouts - to make for safer automated interactions with eg unexpected prompts
+### Step 3: Modify the Skeleton Module ###
 
-It also gives a simple example of each part of the build lifecycle. **Add a package to install to my_module.py**
+For example, to install mlocate and create a file only if it doesn't exist, change the .py file in your skeleton directory:
 
 ```python
 [...]
         def build(self, shutit):
-                # Make sure passwd is installed
-                shutit.install('passwd')
                 # Install mlocate
                 shutit.install('mlocate')
 				# Issue a simple command
-                shutit.send('touch /tmp/newfile')
-                # Install added by you if desired
-                #shutit.install('your chosen package here')
+				if not shutit.file_exists('/tmp/newfile'):
+                	shutit.send('touch /tmp/newfile')
                 return True
 [...]
 ```
 
-### Step 4: Build your module ###
+You can find a cheat sheet for ShutIt
+
+### Step 4: Build Your Module ###
 
 **Build module:**
 
 ```sh
-$ cd $HOME/shutit_modules/my_module/bin
+$ cd bin
 $ ./build.sh
 Running: docker --version
 
 
 Command being run is:
 
-docker run --cidfile=/tmp/shutit/cidfilesroot_cidfile_btsync2_root_1423730928.72.724633 --privileged=true -v=/root/shutit/artifacts:/artifacts -t -i ubuntu /bin/bash
+docker run -v=/root/shutit/artifacts:/artifacts -t -i ubuntu /bin/bash
 [...]
 ```
 
-NOTE: If at this point you get an error to do with 'permission denied', then you may need to configure ShutIt to call 'sudo docker' instead of docker. Open the ~/.shutit/config file, and change this line
-
-```
-docker_executable:docker
-```
-
-For example if you run with sudo, and the executable is 'docker.io':
-
-```
-docker_executable:sudo docker.io
-```
+Problems? See Troubleshooting section below.
 
 
 
-### Step 5: Run your module ###
+### Step 5: Run Your Module ###
 
 ```sh
 $ ./run.sh
 root@138ed0fd3728:/#
 ```
 
-NOTE: If you use "sudo docker", or "docker.io" or some other command to run docker, then you will need to alter run.sh accordingly.
-
 You are now in your bespoke container!
 
-### Step 6: Mix and match ###
+Problems? See Troubleshooting section below.
 
-Let's add mysql to the container build. Change this in your **my_module.py:**
+
+### Step 6: Mix and Match ###
+
+Let's add mysql to the container build. Change this in your skeleton build:
 
 ```python
 depends=['shutit.tk.setup']
@@ -164,6 +118,33 @@ $ ./build.sh
 $ ./run.sh
 ```
 
-NOTE: If you use "sudo docker", or "docker.io" or some other command to run docker, then you will need to alter run.sh accordingly.
+Problems? See Troubleshooting section below.
+
+
+
+## Troubeshooting ##
+
+### 'Permission denied' ###
+
+If at this point you get an error to do with 'permission denied', then you may need to configure ShutIt to call 'sudo docker' instead of docker. Open the ~/.shutit/config file, and change this line
+
+```
+docker_executable:docker
+```
+
+For example if you run with sudo, and the executable is 'docker.io':
+
+```
+docker_executable:sudo docker.io
+```
+
+
+### 'Use sudo docker/docker.io to run docker?' ###
+
+If you use "sudo docker", or "docker.io" or some other command to run docker, then you might need to alter run.sh accordingly.
+
+
+
+### Something else? ###
 
 Didn't work for you? It's probably my fault, not yours. Mail me: ian.miell@gmail.com
