@@ -1612,10 +1612,9 @@ def module():
 	# Are we creating a new folder inside an existing git repo?
 	if subprocess.call(['git', 'status'], stderr=open(os.devnull, 'wb'), stdout=open(os.devnull, 'wb')) != 0:
 		subprocess.check_call(['git', 'init'], cwd=skel_path, stderr=open(os.devnull, 'wb'), stdout=open(os.devnull, 'wb'))
-		# TODO: make this work with pip
-		#subprocess.check_call([
-		#	'cp', os.path.join(shutit_dir, '.gitignore'), '.gitignore'
-		#], cwd=skel_path)
+		subprocess.check_call([
+			'cp', find_asset('.gitignore'), '.gitignore'
+		], cwd=skel_path)
 
 	if skel_output_dir:
 		print skel_path

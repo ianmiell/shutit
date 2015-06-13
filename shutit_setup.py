@@ -535,7 +535,7 @@ class setup(ShutItModule):
 		and updating package management if in container.
 		"""
 		cfg = shutit.cfg
-		do_update = cfg[self.module_id]['do_update']
+		do_update = cfg['build']['do_update']
 		if cfg['build']['delivery'] in ('target','dockerfile'):
 			if cfg['environment'][cfg['build']['current_environment_id']]['install_type'] == 'apt':
 				shutit.add_to_bashrc('export DEBIAN_FRONTEND=noninteractive')
