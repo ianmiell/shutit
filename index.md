@@ -126,7 +126,7 @@ Problems? See Troubleshooting section below.
 
 
 
-## Troubeshooting ##
+## Troubleshooting ##
 
 ### 'Permission denied' ###
 
