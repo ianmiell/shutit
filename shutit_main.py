@@ -200,23 +200,23 @@ def init_shutit_map(shutit):
 	if len([mod for mod in modules if mod.run_order > 0]) < 1:
 		shutit.log(modules)
 		path = ':'.join(cfg['host']['shutit_module_path'])
+		shutit.log('\nIf you are new to ShutIt, see:\n\n\thttp://ianmiell.github.io/shutit/\n\nor try running\n\n\tshutit skeleton\n\n',code=31,prefix=False,force_stdout=True)
 		if path == '':
-			shutit.fail('No modules aside from core ones found and no ShutIt' + 
+			shutit.fail('No ShutIt modules aside from core ones found and no ShutIt' + 
 			            ' module path given. ' + 
-			            '\nDid you set --shutit_module_path/-m' + 
-			            ' wrongly?')
+			            '\nDid you set --shutit_module_path/-m wrongly?\n')
 		elif path == '.':
 			shutit.fail('No modules aside from core ones found and no ShutIt' + 
-			            ' module path given apart from default (.).\nDid you' + 
-			            ' set--shutit_module_path/-m? Is there a STOP* file' + 
-			            ' in your . dir?')
+			            ' module path given apart from default (.).\n\n- Did you' + 
+			            ' set --shutit_module_path/-m?\n- Is there a STOP* file' + 
+			            ' in your . dir?\n')
 		else:
 			shutit.fail('No modules aside from core ones found and no ShutIt ' +
 			            'modules in path:\n\n' + path +
 			            '\n\nor their subfolders. Check your ' + 
 			            '--shutit_module_path/-m setting and check that there are ' + 
-			            'ShutItmodules below without STOP* files in any relevant ' + 
-			            'directories.')
+			            'ShutIt modules below without STOP* files in any relevant ' + 
+			            'directories.\n')
 
 	shutit.log('PHASE: base setup', code='32')
 	if cfg['build']['interactive'] >= 3:
@@ -832,7 +832,7 @@ def setup_shutit_path(cfg):
 		sys.exit()
 
 
-def shutit_main():
+def main():
 	"""Main ShutIt function.
 
 	Handles the configured actions:
@@ -1005,4 +1005,4 @@ def do_phone_home(msg=None,question='Error seen - would you like to inform the m
 signal.signal(signal.SIGINT, shutit_util.ctrl_c_signal_handler)
 
 if __name__ == '__main__':
-	shutit_main()
+	main()
