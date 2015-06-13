@@ -64,7 +64,7 @@ To install mlocate and create a file if only if it doesn't exist, change the .py
 [...]
 ```
 
-You can find a cheat sheet for ShutIt
+You can find a cheat sheet for ShutIt in the module's .py file to help you create the build you want.
 
 ### Step 4: Build Your Module ###
 
