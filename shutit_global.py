@@ -166,7 +166,7 @@ class ShutIt(object):
 		# Note: we must not default to a child here
 		if child is not None:
 			self.pause_point('Pause point on fail: ' + msg, child=child, colour='31')
-		print >> sys.stderr, 'ERROR!'
+		print >> sys.stderr, 'Error caught.'
 		print >> sys.stderr
 		if throw_exception:
 			raise ShutItFailException(msg)
@@ -634,12 +634,13 @@ $'"""
 
 		Takes a long command, and puts it in an executable file ready to run. Returns the filename.
 		"""
+		cfg = self.cfg
 		random_id = shutit_util.random_id()
-		fname = '/tmp/shutit/tmp_' + random_id
+		fname = cfg['build']['shutit_state_dir_base'] + '/tmp_' + random_id
 		working_str = send
 		child.sendline('truncate --size 0 '+ fname)
 		child.expect(expect)
-		size = self.cfg['build']['stty_cols'] - 25
+		size = cfg['build']['stty_cols'] - 25
 		while len(working_str) > 0:
 			curr_str = working_str[:size]
 			working_str = working_str[size:]
@@ -791,7 +792,7 @@ END_''' + random_id)
 			host_child = self.pexpect_children['host_child']
 			path = path.replace(' ', '\ ')
 			# get host session
-			tmpfile = '/tmp/shutit_tmp'
+			tmpfile = cfg['build']['shutit_state_dir_base'] + 'tmp_' + shutit_util.random_id()
 			f = open(tmpfile,'w')
 			f.truncate(0)
 			f.write(contents)
@@ -2761,9 +2762,6 @@ def init():
 	cfg['list_modules']                   = {}
 	cfg['list_configs']                   = {}
 	cfg['list_deps']                      = {}
-	cfg['build']['shutit_state_dir'] = '/tmp/shutit'
-	# Take a command-line arg if given, else default.
-	cfg['build']['build_db_dir']     = '/tmp/shutit/build_db'
 	cfg['build']['install_type_map'] = {'ubuntu':'apt',
 	                                    'debian':'apt',
 	                                    'steamos':'apt',
@@ -2789,6 +2787,9 @@ def init():
 			                          'please set to your username.', throw_exception=False)
 	cfg['host']['real_user'] = os.environ.get('SUDO_USER',
 											  cfg['host']['username'])
+	cfg['build']['shutit_state_dir_base'] = '/tmp/shutit_' + cfg['host']['username']
+	# Take a command-line arg if given, else default.
+	cfg['build']['build_db_dir']     = cfg['build']['shutit_state_dir_base'] + '/build_db'
 	cfg['build']['build_id'] = (socket.gethostname() + '_' +
 	                            cfg['host']['real_user'] + '_' +
 	                            str(time.time()) + '.' +

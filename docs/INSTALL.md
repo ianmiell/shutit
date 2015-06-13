@@ -1,4 +1,19 @@
-# Installing ShutIt
+# Installing ShutIt Quickly
+
+## Installing with pip
+
+```sh
+pip install shutit
+```
+
+## Configuration
+
+To configure for your purposes, see: [CONFIGURATION]('https://github.com/ianmiell/shutit/blob/master/CONFIGURATION.md')
+
+
+
+
+# Other install methods
 
 ## Installing using Docker
 
@@ -17,7 +32,7 @@ root$ shutit build -m ..
 ```
 
 
-## Installing on your host machine:
+## From source
 
 apt-get:
 
@@ -37,6 +52,3 @@ cd shutit
 pip install -r requirements.txt
 ```
 
-## Configuration
-
-To configure for your purposes, see: [CONFIGURATION]('https://github.com/ianmiell/shutit/blob/master/CONFIGURATION.md')

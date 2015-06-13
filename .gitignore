@@ -49,3 +49,6 @@ secring.gpg
 examples/digital_ocean/context/access_token.dat
 # Show Config
 show_config/*
+build/*
+dist/*
+shutit.egg*

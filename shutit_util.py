@@ -307,9 +307,19 @@ def random_id(size=8, chars=string.ascii_letters + string.digits):
 def random_word(size=6):
 	"""Returns a random word.
 	"""
-	word_file = shutit_global.shutit.cfg['host']['shutit_path'] + '/assets/words'
+	word_file = find_asset('words')
 	words = open(word_file).read().splitlines()
 	return words[int(random.random() * (len(words) - 1))]
+
+
+def find_asset(filename):
+	filenames = ('/usr/share/dict/'+filename, sys.prefix+'/local/shutit_assets/'+filename, shutit_global.shutit.cfg['host']['shutit_path']+'/assets/'+filename, os.path.join(sys.path[0],'assets',filename))
+	for iter_filename in filenames:
+		if os.access(iter_filename,os.F_OK):
+			return iter_filename
+	return filename
+		
+	
 
 
 # Manage config settings, returning a dict representing the settings
@@ -330,7 +340,7 @@ def get_base_config(cfg, cfg_parser):
 	cfg['build']['step_through']               = False
 	cfg['build']['ctrlc_stop']                 = False
 	cfg['build']['check_exit']                 = True
-	cfg['build']['shutit_state_dir']           = '/tmp/shutit/' + cfg['build']['build_id']
+	cfg['build']['shutit_state_dir']           = cfg['build']['shutit_state_dir_base'] + '/' + cfg['build']['build_id']
 	# Width of terminal to set up on login and assume for other cases.
 	cfg['build']['stty_cols']                  = 320
 	# Take a command-line arg if given, else default.
@@ -386,7 +396,10 @@ def get_base_config(cfg, cfg_parser):
 	elif cfg['host']['artifacts_dir'] == '':
 		cfg['host']['artifacts_dir'] = os.path.join(shutit_global.shutit_main_dir, 'artifacts')
 	if cfg['host']['logfile'] == '':
-		os.makedirs(cfg['build']['shutit_state_dir'])
+		if not os.access(cfg['build']['shutit_state_dir_base'],os.F_OK):
+			os.mkdir(cfg['build']['shutit_state_dir_base'])
+		if not os.access(cfg['build']['shutit_state_dir'],os.F_OK):
+			os.mkdir(cfg['build']['shutit_state_dir'])
 		os.chmod(cfg['build']['shutit_state_dir'],0777)
 		logfile = os.path.join(cfg['build']['shutit_state_dir'], 'shutit_build.log')
 	else:
@@ -1419,9 +1432,9 @@ def module():
 			os.chdir(shutit_dir)
 
 	elif skel_example:
-		templatemodule = open(os.path.join(shutit_dir, 'assets', 'shutit_module_template.py')).read()
+		templatemodule = open(find_asset('shutit_module_template.py')).read()
 	else:
-		templatemodule = open(os.path.join(shutit_dir, 'assets', 'shutit_module_template_bare.py')).read()
+		templatemodule = open(find_asset('shutit_module_template_bare.py')).read()
 	templatemodule = (templatemodule
 		).replace('template', skel_module_name
 		).replace('GLOBALLY_UNIQUE_STRING', '\'%s.%s.%s\'' % (skel_domain, skel_module_name, skel_module_name)
@@ -1599,9 +1612,10 @@ def module():
 	# Are we creating a new folder inside an existing git repo?
 	if subprocess.call(['git', 'status'], stderr=open(os.devnull, 'wb'), stdout=open(os.devnull, 'wb')) != 0:
 		subprocess.check_call(['git', 'init'], cwd=skel_path, stderr=open(os.devnull, 'wb'), stdout=open(os.devnull, 'wb'))
-		subprocess.check_call([
-			'cp', os.path.join(shutit_dir, '.gitignore'), '.gitignore'
-		], cwd=skel_path)
+		# TODO: make this work with pip
+		#subprocess.check_call([
+		#	'cp', os.path.join(shutit_dir, '.gitignore'), '.gitignore'
+		#], cwd=skel_path)
 
 	if skel_output_dir:
 		print skel_path
