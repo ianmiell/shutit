@@ -62,25 +62,25 @@ class Emailer():
 		cfg_section,
 		shutit
 	):
-	"""Initialise the emailer object
-	cfg_section - section in shutit config to look for email configuration items
-	              allowing easier config according to shutit_module.
-	              e.g. 'com.my_module','shutit.core.alerting.emailer.subject': My Module Build Failed!
-	              Config Items:
-	              shutit.core.alerting.emailer.mailto      - address to send the mail to (no default)
-	              shutit.core.alerting.emailer.mailfrom    - address to send the mail from (angry@shutit.tk)
-	              shutit.core.alerting.emailer.smtp_server - server to send the mail (localhost)
-	              shutit.core.alerting.emailer.smtp_port   - port to contact the smtp server on (587)
-	              shutit.core.alerting.emailer.use_tls     - should we use tls to connect (True)
-	              shutit.core.alerting.emailer.subject     - subject of the email (Shutit Report)
-	              shutit.core.alerting.emailer.signature   - --Angry Shutit
-	              shutit.core.alerting.emailer.compress    - gzip attachments? (True)
-	              shutit.core.alerting.emailer.username    - mail username
-	              shutit.core.alerting.emailer.password    - mail password
-	              shutit.core.alerting.emailer.safe_mode   - don't fail the build if we get an exception
-	              shutit.core.alerting.emailer.mailto_maintainer - email the maintainer of the module as
-	                                                               well as the shutit.core.alerting.emailer.mailto address
-	"""
+		"""Initialise the emailer object
+		cfg_section - section in shutit config to look for email configuration items
+		              allowing easier config according to shutit_module.
+		              e.g. 'com.my_module','shutit.core.alerting.emailer.subject': My Module Build Failed!
+		              Config Items:
+		              shutit.core.alerting.emailer.mailto      - address to send the mail to (no default)
+		              shutit.core.alerting.emailer.mailfrom    - address to send the mail from (angry@shutit.tk)
+		              shutit.core.alerting.emailer.smtp_server - server to send the mail (localhost)
+		              shutit.core.alerting.emailer.smtp_port   - port to contact the smtp server on (587)
+		              shutit.core.alerting.emailer.use_tls     - should we use tls to connect (True)
+		              shutit.core.alerting.emailer.subject     - subject of the email (Shutit Report)
+		              shutit.core.alerting.emailer.signature   - --Angry Shutit
+		              shutit.core.alerting.emailer.compress    - gzip attachments? (True)
+		              shutit.core.alerting.emailer.username    - mail username
+		              shutit.core.alerting.emailer.password    - mail password
+		              shutit.core.alerting.emailer.safe_mode   - don't fail the build if we get an exception
+		              shutit.core.alerting.emailer.mailto_maintainer - email the maintainer of the module as
+		                                                               well as the shutit.core.alerting.emailer.mailto address
+		"""
 		self.shutit    = shutit
 		self.config    = {}
 		self.__set_config(cfg_section)
