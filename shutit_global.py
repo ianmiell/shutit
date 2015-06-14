@@ -1261,14 +1261,15 @@ c'''
 				else:
 					if before:
 						cut_point = sre_match.start()
-						if not force and ftext[cut_point-len(text):].find(text) != 0:
+						if not force and ftext[cut_point-len(text):].find(text) > 0:
 							return None
 					else:
 						cut_point = sre_match.end()
 						# If the text is already there and we're not forcing it, return None.
-						if not force and ftext[cut_point:].find(text) != 0:
+						if not force and ftext[cut_point:].find(text) > 0:
 							return None
 			else:
+				# append
 				cut_point = len(ftext)
 			new_text = ftext[:cut_point] + text + ftext[cut_point:]
 		self.send_file(fname,new_text,expect=expect,child=child,truncate=True)
@@ -2795,6 +2796,8 @@ def init():
 	cfg['host']['real_user'] = os.environ.get('SUDO_USER',
 											  cfg['host']['username'])
 	cfg['build']['shutit_state_dir_base'] = '/tmp/shutit_' + cfg['host']['username']
+	cfg['build']['shutit_state_dir']           = cfg['build']['shutit_state_dir_base'] + '/' + cfg['build']['build_id']
+	cfg['build']['build_db_dir']               = cfg['build']['shutit_state_dir'] + '/build_db'
 	# Take a command-line arg if given, else default.
 	cfg['build']['build_db_dir']     = cfg['build']['shutit_state_dir_base'] + '/build_db'
 	cfg['build']['build_id'] = (socket.gethostname() + '_' +
