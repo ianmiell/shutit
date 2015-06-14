@@ -1,5 +1,7 @@
 [ShutIt](http://shutit.tk)
 ==========================
+
+[![Join the chat at https://gitter.im/ianmiell/shutit](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/ianmiell/shutit?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 Complex Docker Builds Made Simple.
 
 ShutIt is a tool for managing your image building process that is both structured and flexible.
