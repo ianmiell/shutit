@@ -2796,14 +2796,12 @@ def init():
 	cfg['host']['real_user'] = os.environ.get('SUDO_USER',
 											  cfg['host']['username'])
 	cfg['build']['shutit_state_dir_base'] = '/tmp/shutit_' + cfg['host']['username']
-	cfg['build']['shutit_state_dir']           = cfg['build']['shutit_state_dir_base'] + '/' + cfg['build']['build_id']
-	cfg['build']['build_db_dir']               = cfg['build']['shutit_state_dir'] + '/build_db'
-	# Take a command-line arg if given, else default.
-	cfg['build']['build_db_dir']     = cfg['build']['shutit_state_dir_base'] + '/build_db'
 	cfg['build']['build_id'] = (socket.gethostname() + '_' +
 	                            cfg['host']['real_user'] + '_' +
 	                            str(time.time()) + '.' +
 	                            str(datetime.datetime.now().microsecond))
+	cfg['build']['shutit_state_dir']           = cfg['build']['shutit_state_dir_base'] + '/' + cfg['build']['build_id']
+	cfg['build']['build_db_dir']               = cfg['build']['shutit_state_dir'] + '/build_db'
 
 	return ShutIt(
 		pexpect_children=pexpect_children,
