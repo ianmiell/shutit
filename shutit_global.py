@@ -1970,7 +1970,7 @@ c'''
 		cfg['build']['logins'][r_id] = {'whoami':new_user}
 
 
-	def login(self, user='root', command='su -', child=None, password=None, prompt_prefix=None, expect=None, timeout=20, note=None):
+	def login(self, user='root', command='su -', child=None, password=None, prompt_prefix=None, expect=None, timeout=20, note=None, go_home=True):
 		"""Logs the user in with the passed-in password and command.
 		Tracks the login. If used, used logout to log out again.
 		Assumes you are root when logging in, so no password required.
@@ -1985,6 +1985,7 @@ c'''
 		@param expect:          See send()
 		@param timeout:         How long to wait for a response. Default: 20.
 		@param note:            See send()
+		@param go_home:         Whether to automatically cd to home.
 
 		@type user:             string
 		@type command:          string
@@ -2025,6 +2026,8 @@ c'''
 			self.setup_prompt(r_id,child=child,prefix=prompt_prefix)
 		else:
 			self.setup_prompt(r_id,child=child)
+		if go_home:
+			self.send('cd',child=child,check_exit=False)
 
 
 
