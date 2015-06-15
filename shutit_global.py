@@ -1245,13 +1245,8 @@ c'''
 		# Replace the file text's ^M-newlines with simple newlines
 		ftext = ftext.replace('\r\n','\n')
 		# If we are not forcing and the text is already in the file, then don't insert.
-		# TODO: look only after/before the pattern matches
-		if not force and not delete and ftext.find(text) != -1:
-			return None
-		if delete and ftext.find(text) == -1:
-			return None
 		if delete:
-			loc = string.find(ftext, text)
+			loc = ftext.find(text)
 			if loc == -1:
 				# No output - no match
 				return None
@@ -1266,9 +1261,15 @@ c'''
 				else:
 					if before:
 						cut_point = sre_match.start()
+						if not force and ftext[cut_point-len(text):].find(text) > 0:
+							return None
 					else:
 						cut_point = sre_match.end()
+						# If the text is already there and we're not forcing it, return None.
+						if not force and ftext[cut_point:].find(text) > 0:
+							return None
 			else:
+				# append
 				cut_point = len(ftext)
 			new_text = ftext[:cut_point] + text + ftext[cut_point:]
 		self.send_file(fname,new_text,expect=expect,child=child,truncate=True)
@@ -2755,6 +2756,7 @@ def init():
 	cfg['build']['report_final_messages'] = ''
 	cfg['build']['debug']                 = False
 	cfg['build']['completed']             = False
+	cfg['build']['do_update']             = True
 	cfg['build']['distro_override']       = ''
 	# Whether to honour 'walkthrough' requests
 	cfg['build']['walkthrough']           = False
@@ -2795,12 +2797,12 @@ def init():
 	cfg['host']['real_user'] = os.environ.get('SUDO_USER',
 											  cfg['host']['username'])
 	cfg['build']['shutit_state_dir_base'] = '/tmp/shutit_' + cfg['host']['username']
-	# Take a command-line arg if given, else default.
-	cfg['build']['build_db_dir']     = cfg['build']['shutit_state_dir_base'] + '/build_db'
 	cfg['build']['build_id'] = (socket.gethostname() + '_' +
 	                            cfg['host']['real_user'] + '_' +
 	                            str(time.time()) + '.' +
 	                            str(datetime.datetime.now().microsecond))
+	cfg['build']['shutit_state_dir']           = cfg['build']['shutit_state_dir_base'] + '/' + cfg['build']['build_id']
+	cfg['build']['build_db_dir']               = cfg['build']['shutit_state_dir'] + '/build_db'
 
 	return ShutIt(
 		pexpect_children=pexpect_children,
