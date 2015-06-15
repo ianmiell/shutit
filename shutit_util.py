@@ -340,11 +340,9 @@ def get_base_config(cfg, cfg_parser):
 	cfg['build']['step_through']               = False
 	cfg['build']['ctrlc_stop']                 = False
 	cfg['build']['check_exit']                 = True
-	cfg['build']['shutit_state_dir']           = cfg['build']['shutit_state_dir_base'] + '/' + cfg['build']['build_id']
 	# Width of terminal to set up on login and assume for other cases.
 	cfg['build']['stty_cols']                  = 320
 	# Take a command-line arg if given, else default.
-	cfg['build']['build_db_dir']               = cfg['build']['shutit_state_dir'] + '/build_db'
 	if cfg['build']['conn_module'] == None:
 		cfg['build']['conn_module']            = cp.get('build', 'conn_module')
 	# Track logins in a stack and details in logins.
