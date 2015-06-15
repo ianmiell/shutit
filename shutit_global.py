@@ -1245,13 +1245,8 @@ c'''
 		# Replace the file text's ^M-newlines with simple newlines
 		ftext = ftext.replace('\r\n','\n')
 		# If we are not forcing and the text is already in the file, then don't insert.
-		# TODO: look only after/before the pattern matches
-		if not force and not delete and ftext.find(text) != -1:
-			return None
-		if delete and ftext.find(text) == -1:
-			return None
 		if delete:
-			loc = string.find(ftext, text)
+			loc = ftext.find(text)
 			if loc == -1:
 				# No output - no match
 				return None
@@ -1266,8 +1261,13 @@ c'''
 				else:
 					if before:
 						cut_point = sre_match.start()
+						if not force and ftext[cut_point-len(text):].find(text) != 0:
+							return None
 					else:
 						cut_point = sre_match.end()
+						# If the text is already there and we're not forcing it, return None.
+						if not force and ftext[cut_point:].find(text) != 0:
+							return None
 			else:
 				cut_point = len(ftext)
 			new_text = ftext[:cut_point] + text + ftext[cut_point:]
