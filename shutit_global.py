@@ -1227,6 +1227,9 @@ END_''' + random_id)
 		# If replace and delete FAIL
 		if replace and delete:
 			shutit.fail('cannot pass replace=True and delete=True to insert_text')
+		single_line = True
+		if len(text.split('\n')) > 1:
+			single_line = False
 		cmd = 'cat'
 		if self.command_available('base64'):
 			cmd = 'base64'
@@ -1322,6 +1325,9 @@ END_''' + random_id)
 								return None
 							newtext1 = ftext[:cut_point]
 							newtext2 = ftext[cut_point:]
+					#If this is line-oriented and we're inserting a line, then add a newline afterwards
+					if single_line:
+						text += '\n'
 			else:
 				# Append to file absent a pattern.
 				cut_point = len(ftext)
