@@ -67,6 +67,17 @@ d
 		if shutit.send_and_get_output('md5sum /tmp/a') != '47ece2e49e5c0333677fc34e044d8257  /tmp/a':
 			shutit.fail('test11.5 failed')
 
+		# simple replace to end
+		shutit.send('cat > /tmp/a <<< "a"')
+		shutit.replace_text('''b
+c
+d
+''','/tmp/a','a')
+		shutit.send('cat /tmp/a')
+		shutit.pause_point('')
+		if shutit.send_and_get_output('md5sum /tmp/a') != '4e392c10508f911b8110b5ee5f3e5c76  /tmp/a':
+			shutit.fail('test11.5 failed')
+
 		return True
 
 def module():
