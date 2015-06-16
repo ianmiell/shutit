@@ -62,7 +62,7 @@ class test15(ShutItModule):
 		shutit.send('sleep 15 && touch /tmp/asdfghjkl &')
 		shutit.send_until('ls /tmp',['.*asdfghjk.*'])
 		shutit.send('sleep 15 && rm /tmp/asdfghjkl &')
-		shutit.send_until('ls /tmp',['.*asdfghjk.*'],wait_until_seen=False)
+		shutit.send_until('ls /tmp',['.*asdfghjk.*'],not_there=True)
 		return True
 
 	def get_config(self, shutit):
