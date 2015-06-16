@@ -30,14 +30,14 @@ END
 
 		res1 = shutit.send_and_get_output('md5sum /tmp/a')
 		shutit.insert_text(r'''b
-c''','/tmp/a','a')
+c''','/tmp/a','a',line_oriented=False)
 		res2 = shutit.send_and_get_output('md5sum /tmp/a')
 		if res1 != res2:
 			shutit.fail('file was altered')
 
 		res1 = shutit.send_and_get_output('md5sum /tmp/a')
 		shutit.insert_text('''c
-c''','/tmp/a','a')
+c''','/tmp/a','a',line_oriented=False)
 		res2 = shutit.send_and_get_output('md5sum /tmp/a')
 		if res1 == res2:
 			shutit.fail('file not altered')
