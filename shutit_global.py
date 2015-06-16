@@ -1214,17 +1214,6 @@ END_''' + random_id)
 		and replaced, and False if the file did not exist or there was some other
 		problem.
 
-		Note that the text you delete is very literal, and won't make assumptions about 
-		newlines. For example, if you remove: '''b'''
-		from the file: '''a
-b
-c'''
-		you will end up with: '''a
-
-c'''
-		and NOT: '''a
-c'''
-
 		@param text:          Text to insert.
 		@param fname:         Filename to insert text to
 		@param pattern:       Regexp for a line to match and insert after/before/replace.
@@ -1240,7 +1229,6 @@ c'''
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
 		self._handle_note(note)
-		random_id = shutit_util.random_id()
 		if not self.file_exists(fname):
 			return False
 		# If replace and no pattern FAIL
@@ -1272,7 +1260,6 @@ c'''
 				if replace:
 					if sre_match == None:
 						cut_point = len(ftext)
-						# insert into a newline
 						newtext1 = ftext[:cut_point]
 						newtext2 = ftext[cut_point:]
 					else:
