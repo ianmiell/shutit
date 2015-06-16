@@ -6,10 +6,13 @@ class wordpress(ShutItModule):
 
 	def build(self, shutit):
 		shutit.install('apache2 wget php5-gd libssh2-php')
-		shutit.send('wget -qO- http://wordpress.org/latest.tar.gz > tar -zxvf -')
+		shutit.send('wget -qO- http://wordpress.org/latest.tar.gz | tar -zxvf -')
 		shutit.send('cd wordpress')
 		shutit.send('cp wp-config-sample.php wp-config.php')
-
+		shutit.replace_text('''define('DB_NAME', 'wordpress');''','wp-config.php',r'.*DB_NAME.*;')
+		shutit.pause_point('wp-config.php')
+#define('DB_USER', 'wordpressuser');
+#define('DB_PASSWORD', 'password');
 
 		apache_site = """cat > /etc/apache2/sites-available/wordpress << END
 		Alias /blog /usr/share/wordpress

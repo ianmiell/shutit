@@ -42,7 +42,7 @@ e''','/tmp/nonexistent','^a') != False:
 b
 c
 d
-e''','/tmp/a','^$') != None:
+e''','/tmp/a','^asfasfa$') != None:
 			shutit.send('cat /tmp/a')
 			shutit.fail('test11.3 failed')
 
@@ -68,14 +68,23 @@ d
 			shutit.fail('test11.5 failed')
 
 		# simple replace
-		shutit.send('cat > /tmp/a <<< "a"')
+		shutit.send('cat > /tmp/11.6 <<< "a"')
 		shutit.replace_text('''b
 c
 d
-''','/tmp/a','a')
-		shutit.send('cat /tmp/a')
-		if shutit.send_and_get_output('md5sum /tmp/a') != '4e392c10508f911b8110b5ee5f3e5c76  /tmp/a':
+''','/tmp/11.6','^a$')
+		shutit.send('cat /tmp/11.6')
+		if shutit.send_and_get_output('md5sum /tmp/11.6') != '4e392c10508f911b8110b5ee5f3e5c76  /tmp/11.6':
 			shutit.fail('test11.6 failed')
+
+		# simple replace with non-matching pattern
+		shutit.send('cat > /tmp/11.7 <<< "a"')
+		shutit.replace_text('''b
+c
+d
+''','/tmp/11.7','willnotmatch')
+		if shutit.send_and_get_output('md5sum /tmp/11.7') != '47ece2e49e5c0333677fc34e044d8257  /tmp/11.7':
+			shutit.fail('test11.7 failed')
 
 		return True
 
