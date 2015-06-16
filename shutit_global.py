@@ -1227,13 +1227,14 @@ c'''
 
 		@param text:          Text to insert.
 		@param fname:         Filename to insert text to
-		@param pattern:       regexp to match and insert after. If none, put at end of file.
+		@param pattern:       Regexp for a line to match and insert after/before/replace.
+		                      If none, put at end of file.
 		@param expect:        See send()
 		@param child:         See send()
 		@param before:        Whether to place the text before or after the matched text.
 		@param force:         Force the insertion even if the text is in the file.
 		@param delete:        Delete text from file rather than insert
-		@param replace:       Replace matched text with passed-in text
+		@param replace:       Replace matched text with passed-in text. If nothing matches, then append.
 		@param note:          See send()
 		"""
 		child = child or self.get_default_child()
@@ -1266,16 +1267,23 @@ c'''
 				new_text = ftext[:loc] + ftext[loc+len(text):]
 		else:
 			if pattern != None:
-				sre_match = re.search(pattern,ftext)
-				if sre_match == None:
-					# No output - no match
-					return None
-				else:
-					if replace:
+				# cf: http://stackoverflow.com/questions/9411041/matching-ranges-of-lines-in-python-like-sed-ranges
+				sre_match = re.search(pattern,ftext,re.DOTALL|re.MULTILINE)
+				if replace:
+					if sre_match == None:
+						cut_point = len(ftext)
+						# insert into a newline
+						newtext1 = ftext[:cut_point]
+						newtext2 = ftext[cut_point:]
+					else:
 						cut_point = sre_match.start()
 						cut_point_after = sre_match.end()
 						newtext1 = ftext[:cut_point]
 						newtext2 = ftext[cut_point_after:]
+				else:
+					if sre_match == None:
+						# No output - no match
+						return None
 					elif before:
 						cut_point = sre_match.start()
 						# If the text is already there and we're not forcing it, return None.
@@ -1698,7 +1706,7 @@ c'''
 				self.send(' chmod 755 /tmp/resize')
 				child.sendline(' sleep 2 && /tmp/resize')
 			if default_msg == None:
-				print (shutit_util.colour(colour, msg) +
+				print '\n' + (shutit_util.colour(colour, msg) +
 				     shutit_util.colour(colour,'\nYou can now type in commands and ' +
 					'alter the state of the target.\nHit return to see the ' +
 					'prompt\nHit CTRL and ] at the same time to continue with ' +
