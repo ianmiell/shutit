@@ -1194,19 +1194,7 @@ END_''' + random_id)
 		return True
 
 
-	def delete_text(self, text, fname, pattern=None, expect=None, child=None, before=False, force=False, note=None):
-		"""Delete a chunk of text from a file.
-
-		See insert_text.
-		"""
-		return self.insert_text(text, fname, pattern, expect, child, before, force, delete=True)
-	def replace_text(self, text, fname, pattern=None, expect=None, child=None, before=False, force=False, note=None):
-		"""Replace a chunk of text from a file.
-
-		See insert_text.
-		"""
-		return self.insert_text(text, fname, pattern, expect, child, before, force, replace=True)
-	def insert_text(self, text, fname, pattern=None, expect=None, child=None, before=False, force=False, delete=False, note=None, replace=False):
+	def insert_text(self, text, fname, pattern=None, expect=None, child=None, before=False, force=False, delete=False, note=None, replace=False, line_oriented=True):
 		"""Insert a chunk of text at the end of a file, or after (or before) the first matching pattern
 		in given file fname.
 
@@ -1225,6 +1213,8 @@ END_''' + random_id)
 		@param delete:        Delete text from file rather than insert
 		@param replace:       Replace matched text with passed-in text. If nothing matches, then append.
 		@param note:          See send()
+		@param line_oriented: Consider the pattern on a per-line basis (default True).
+		                      Can match any continuous section of the line, eg 'b.*d' will match the line: 'abcde'
 		"""
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
@@ -1255,36 +1245,83 @@ END_''' + random_id)
 				new_text = ftext[:loc] + ftext[loc+len(text):]
 		else:
 			if pattern != None:
-				# cf: http://stackoverflow.com/questions/9411041/matching-ranges-of-lines-in-python-like-sed-ranges
-				sre_match = re.search(pattern,ftext,re.DOTALL|re.MULTILINE)
-				if replace:
-					if sre_match == None:
-						cut_point = len(ftext)
-						newtext1 = ftext[:cut_point]
-						newtext2 = ftext[cut_point:]
+				if line_oriented == False:
+					# cf: http://stackoverflow.com/questions/9411041/matching-ranges-of-lines-in-python-like-sed-ranges
+					sre_match = re.search(pattern,ftext,re.DOTALL|re.MULTILINE)
+					if replace:
+						if sre_match == None:
+							cut_point = len(ftext)
+							newtext1 = ftext[:cut_point]
+							newtext2 = ftext[cut_point:]
+						else:
+							cut_point = sre_match.start()
+							cut_point_after = sre_match.end()
+							newtext1 = ftext[:cut_point]
+							newtext2 = ftext[cut_point_after:]
 					else:
-						cut_point = sre_match.start()
-						cut_point_after = sre_match.end()
-						newtext1 = ftext[:cut_point]
-						newtext2 = ftext[cut_point_after:]
+						if sre_match == None:
+							# No output - no match
+							return None
+						elif before:
+							cut_point = sre_match.start()
+							# If the text is already there and we're not forcing it, return None.
+							if not force and ftext[cut_point-len(text):].find(text) > 0:
+								return None
+							newtext1 = ftext[:cut_point]
+							newtext2 = ftext[cut_point:]
+						else:
+							cut_point = sre_match.end()
+							# If the text is already there and we're not forcing it, return None.
+							if not force and ftext[cut_point:].find(text) > 0:
+								return None
+							newtext1 = ftext[:cut_point]
+							newtext2 = ftext[cut_point:]
 				else:
-					if sre_match == None:
-						# No output - no match
-						return None
-					elif before:
-						cut_point = sre_match.start()
-						# If the text is already there and we're not forcing it, return None.
-						if not force and ftext[cut_point-len(text):].find(text) > 0:
-							return None
-						newtext1 = ftext[:cut_point]
-						newtext2 = ftext[cut_point:]
+					lines = ftext.split('\n')
+					cut_point   = 0
+					line_length = 0
+					matched     = False
+					for line in lines:
+						#Help the user out to make this properly line-oriented
+						pattern_before=''
+						pattern_after=''
+						if len(line) == 0 or line[0] != '^':
+							pattern_before = '^.*'
+						if len(line) == 0 or line[-1] != '$':
+							pattern_after = '.*$'
+						new_pattern = pattern_before+pattern+pattern_after
+						match = re.search(new_pattern, line)
+						line_length = len(line)
+						if match != None:
+							matched=True
+							break
+						# Update cut point to next line, including newline in original text
+						cut_point += line_length+1
+					if replace:
+						if not matched:
+							cut_point = len(ftext)
+							newtext1 = ftext[:cut_point]
+							newtext2 = ftext[cut_point:]
+						else:
+							newtext1 = ftext[:cut_point]
+							newtext2 = ftext[cut_point+line_length+1:]
 					else:
-						cut_point = sre_match.end()
-						# If the text is already there and we're not forcing it, return None.
-						if not force and ftext[cut_point:].find(text) > 0:
+						if not matched:
+							# No match, return none
 							return None
-						newtext1 = ftext[:cut_point]
-						newtext2 = ftext[cut_point:]
+						elif before:
+							# If the text is already there and we're not forcing it, return None.
+							if not force and ftext[cut_point-len(text):].find(text) > 0:
+								return None
+							newtext1 = ftext[:cut_point]
+							newtext2 = ftext[cut_point:]
+						else:
+							cut_point += line_length
+							# If the text is already there and we're not forcing it, return None.
+							if not force and ftext[cut_point:].find(text) > 0:
+								return None
+							newtext1 = ftext[:cut_point]
+							newtext2 = ftext[cut_point:]
 			else:
 				# Append to file absent a pattern.
 				cut_point = len(ftext)
@@ -1293,6 +1330,20 @@ END_''' + random_id)
 			new_text = newtext1 + text + newtext2
 		self.send_file(fname,new_text,expect=expect,child=child,truncate=True)
 		return True
+
+	def delete_text(self, text, fname, pattern=None, expect=None, child=None, before=False, force=False, note=None, line_oriented=True):
+		"""Delete a chunk of text from a file.
+
+		See insert_text.
+		"""
+		return self.insert_text(text, fname, pattern, expect, child, before, force, delete=True, line_oriented=line_oriented)
+
+	def replace_text(self, text, fname, pattern=None, expect=None, child=None, before=False, force=False, note=None, line_oriented=True):
+		"""Replace a chunk of text from a file.
+
+		See insert_text.
+		"""
+		return self.insert_text(text, fname, pattern, expect, child, before, force, replace=True, line_oriented=line_oriented)
 
 
 
