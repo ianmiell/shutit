@@ -321,7 +321,7 @@ class ShutIt(object):
 	def send_until(self,
 	               send,
 	               regexps,
-	               wait_until_seen=True,
+	               not_there=False,
 	               expect=None,
 	               child=None,
 	               cadence=5,
@@ -335,8 +335,8 @@ class ShutIt(object):
 
 		@param send:                 See send()
 		@param regexps:              List of regexps to wait for.
-		@param wait_until_seen:      If True, wait until this a regexp is seen in the output. If False
-		                             wait until a regexp is _not_ seen in the output
+		@param not_there:            If True, wait until this a regexp is not seen in the output. If False
+		                             wait until a regexp is seen in the output (default)
 		@param expect:               See send()
 		@param child:                See send()
 		@param timeout:              See send()
@@ -358,7 +358,7 @@ class ShutIt(object):
 		while retries > 0:
 			retries -= 1
 			output = self.send_and_get_output(send, expect=expect, child=child, retry=1, strip=True)
-			if wait_until_seen:
+			if not not_there:
 				for regexp in regexps:
 					if self.match_string(output, regexp):
 						return True
@@ -1200,8 +1200,13 @@ END_''' + random_id)
 		See insert_text.
 		"""
 		return self.insert_text(text, fname, pattern, expect, child, before, force, delete=True)
+	def replace_text(self, text, fname, pattern=None, expect=None, child=None, before=False, force=False, note=None):
+		"""Replace a chunk of text from a file.
 
-	def insert_text(self, text, fname, pattern=None, expect=None, child=None, before=False, force=False, delete=False, note=None):
+		See insert_text.
+		"""
+		return self.insert_text(text, fname, pattern, expect, child, before, force, replace=True)
+	def insert_text(self, text, fname, pattern=None, expect=None, child=None, before=False, force=False, delete=False, note=None, replace=False):
 		"""Insert a chunk of text at the end of a file, or after (or before) the first matching pattern
 		in given file fname.
 
@@ -1228,6 +1233,7 @@ c'''
 		@param before:        Whether to place the text before or after the matched text.
 		@param force:         Force the insertion even if the text is in the file.
 		@param delete:        Delete text from file rather than insert
+		@param replace:       Replace matched text with passed-in text
 		@param note:          See send()
 		"""
 		child = child or self.get_default_child()
@@ -1236,6 +1242,12 @@ c'''
 		random_id = shutit_util.random_id()
 		if not self.file_exists(fname):
 			return False
+		# If replace and no pattern FAIL
+		if replace and not pattern:
+			shutit.fail('replace=True requires a pattern to be passed in')
+		# If replace and delete FAIL
+		if replace and delete:
+			shutit.fail('cannot pass replace=True and delete=True to insert_text')
 		cmd = 'cat'
 		if self.command_available('base64'):
 			cmd = 'base64'
@@ -1259,19 +1271,31 @@ c'''
 					# No output - no match
 					return None
 				else:
-					if before:
+					if replace:
 						cut_point = sre_match.start()
+						cut_point_after = sre_match.end()
+						newtext1 = ftext[:cut_point]
+						newtext2 = ftext[cut_point_after:]
+					elif before:
+						cut_point = sre_match.start()
+						# If the text is already there and we're not forcing it, return None.
 						if not force and ftext[cut_point-len(text):].find(text) > 0:
 							return None
+						newtext1 = ftext[:cut_point]
+						newtext2 = ftext[cut_point:]
 					else:
 						cut_point = sre_match.end()
 						# If the text is already there and we're not forcing it, return None.
 						if not force and ftext[cut_point:].find(text) > 0:
 							return None
+						newtext1 = ftext[:cut_point]
+						newtext2 = ftext[cut_point:]
 			else:
-				# append
+				# Append to file absent a pattern.
 				cut_point = len(ftext)
-			new_text = ftext[:cut_point] + text + ftext[cut_point:]
+				newtext1 = ftext[:cut_point]
+				newtext2 = ftext[cut_point:]
+			new_text = newtext1 + text + newtext2
 		self.send_file(fname,new_text,expect=expect,child=child,truncate=True)
 		return True
 

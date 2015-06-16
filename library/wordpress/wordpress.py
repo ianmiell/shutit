@@ -1,10 +1,16 @@
 from shutit_module import ShutItModule
 
+#https://www.digitalocean.com/community/tutorials/how-to-install-wordpress-on-ubuntu-14-04
+
 class wordpress(ShutItModule):
 
 	def build(self, shutit):
-		shutit.install('apache2')
-		shutit.install('wordpress')
+		shutit.install('apache2 wget php5-gd libssh2-php')
+		shutit.send('wget -qO- http://wordpress.org/latest.tar.gz > tar -zxvf -')
+		shutit.send('cd wordpress')
+		shutit.send('cp wp-config-sample.php wp-config.php')
+
+
 		apache_site = """cat > /etc/apache2/sites-available/wordpress << END
 		Alias /blog /usr/share/wordpress
 		Alias /blog/wp-content /var/lib/wordpress/wp-content
@@ -26,7 +32,7 @@ END"""
 <?php
 define('DB_NAME', 'wordpress');
 define('DB_USER', 'wordpress');
-define('DB_PASSWord', """ + shutit.cfg['shutit.tk.wordpress.wordpress']['password'] + """
+define('DB_PASSWord', """ + shutit.cfg['shutit.tk.wordpress.wordpress']['password'] + """)
 define('DB_HOST', 'localhost');
 define('WP_CONTEnt_dir', '/var/lib/wordpress/wp-content');
 ?>
