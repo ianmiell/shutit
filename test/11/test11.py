@@ -180,6 +180,18 @@ END''')
 		shutit.replace_text('a new line','/tmp/11.9','new')
 		if shutit.send_and_get_output('md5sum /tmp/11.9') != 'a9caca3131db43f6edb241c898d1ba69  /tmp/11.9':
 			shutit.fail('test11.9.2 failed')
+
+
+		shutit.send('''cat > /tmp/11.10 << END
+a line
+another line
+END''')
+		shutit.replace_text('a new line','/tmp/11.10','new')
+		shutit.insert_text('yet another line','/tmp/11.10')
+		shutit.replace_text('a new line','/tmp/11.10','new')
+		shutit.delete_text('yet another line','/tmp/11.10')
+		if shutit.send_and_get_output('md5sum /tmp/11.10') != 'a9caca3131db43f6edb241c898d1ba69  /tmp/11.10':
+			shutit.fail('test11.10.2 failed')
 		return True
 
 def module():
