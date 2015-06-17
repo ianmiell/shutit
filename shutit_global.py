@@ -1297,31 +1297,24 @@ END_''' + random_id)
 							break
 						# Update cut point to next line, including newline in original text
 						cut_point += line_length+1
-					if replace:
-						if not matched:
-							cut_point = len(ftext)
-							newtext1 = ftext[:cut_point]
-							newtext2 = ftext[cut_point:]
-						else:
-							newtext1 = ftext[:cut_point]
-							newtext2 = ftext[cut_point+line_length+1:]
-					else:
-						if not matched:
-							# No match, return none
+					if not replace and not matched:
+						# No match, return none
+						return None
+					if replace and not matched:
+						cut_point = len(ftext)
+					elif not replace and not before:
+						cut_point += line_length
+					newtext1 = ftext[:cut_point]
+					newtext2 = ftext[cut_point:]
+					if replace and matched:
+						newtext2 = ftext[cut_point+line_length+1:]
+					elif not force:
+						# If the text is already there and we're not forcing it, return None.
+						if before and ftext[cut_point-len(text):].find(text) > 0:
 							return None
-						elif before:
-							# If the text is already there and we're not forcing it, return None.
-							if not force and ftext[cut_point-len(text):].find(text) > 0:
-								return None
-							newtext1 = ftext[:cut_point]
-							newtext2 = ftext[cut_point:]
-						else:
-							cut_point += line_length
-							# If the text is already there and we're not forcing it, return None.
-							if not force and ftext[cut_point:].find(text) > 0:
-								return None
-							newtext1 = ftext[:cut_point]
-							newtext2 = ftext[cut_point:]
+						# If the text is already there and we're not forcing it, return None.
+						if not before and ftext[cut_point:].find(text) > 0:
+							return None
 			else:
 				# Append to file absent a pattern.
 				cut_point = len(ftext)
