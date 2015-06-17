@@ -1227,6 +1227,9 @@ END_''' + random_id)
 		# If replace and delete FAIL
 		if replace and delete:
 			shutit.fail('cannot pass replace=True and delete=True to insert_text')
+		single_line = True
+		if len(text.split('\n')) > 1:
+			single_line = False
 		cmd = 'cat'
 		if self.command_available('base64'):
 			cmd = 'base64'
@@ -1281,6 +1284,7 @@ END_''' + random_id)
 					cut_point   = 0
 					line_length = 0
 					matched     = False
+					print 'here'
 					for line in lines:
 						#Help the user out to make this properly line-oriented
 						pattern_before=''
@@ -1297,6 +1301,7 @@ END_''' + random_id)
 							break
 						# Update cut point to next line, including newline in original text
 						cut_point += line_length+1
+<<<<<<< HEAD
 					if not replace and not matched:
 						# No match, return none
 						return None
@@ -1315,6 +1320,41 @@ END_''' + random_id)
 						# If the text is already there and we're not forcing it, return None.
 						if not before and ftext[cut_point:].find(text) > 0:
 							return None
+=======
+					print 'replace: ' + str(replace)
+					print 'matched: ' + str(matched)
+					if replace:
+						if not matched:
+							cut_point = len(ftext)
+							newtext1 = ftext[:cut_point]
+							newtext2 = ftext[cut_point:]
+						else:
+							newtext1 = ftext[:cut_point]
+							newtext2 = ftext[cut_point+line_length+1:]
+						#If this is line-oriented and we're inserting (not replacing) a line, then add a newline afterwards
+						if single_line:
+							text += '\n'
+					else:
+						if not matched:
+							# No match, return none
+							return None
+						elif before:
+							# If the text is already there and we're not forcing it, return None.
+							if not force and ftext[cut_point-len(text):].find(text) > 0:
+								return None
+							newtext1 = ftext[:cut_point]
+							newtext2 = ftext[cut_point:]
+						else:
+							cut_point += line_length
+							# If the text is already there and we're not forcing it, return None.
+							if not force and ftext[cut_point:].find(text) > 0:
+								return None
+							newtext1 = ftext[:cut_point]
+							newtext2 = ftext[cut_point:]
+						#If this is line-oriented and we're inserting (not replacing) a line, then add a newline afterwards
+						if single_line:
+							text += '\n'
+>>>>>>> df23a1b4ef826eb6d375f190a88b0d34b19167f3
 			else:
 				# Append to file absent a pattern.
 				cut_point = len(ftext)
