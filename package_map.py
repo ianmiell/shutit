@@ -32,6 +32,7 @@ PACKAGE_MAP = {
 	'adduser':               {'apt':'adduser',           'yum':''},
 	'php5':                  {'apt':'php5',              'yum':'php'},
 	'ruby-dev':              {'apt':'ruby-dev',          'yum':'ruby-devel'},
+	'git':                   {'emerge':'dev-vcs/git'},
 }
 
 def map_package(package, install_type):

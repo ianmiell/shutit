@@ -1549,11 +1549,8 @@ def module():
        FROM ''' + cfg['dockerfile']['base_image'] + '''
 
        RUN apt-get update
-       RUN apt-get install -y -qq curl git python-pip
-       WORKDIR /opt
-       RUN git clone https://github.com/ianmiell/shutit.git
-       WORKDIR shutit
-       RUN pip install -r requirements.txt
+       RUN apt-get install -y -qq git python-pip
+       RUN pip install shutit
 
        WORKDIR /opt
        # Change the next two lines to build your ShutIt module.

@@ -1935,6 +1935,10 @@ END_''' + random_id)
 			cmd = 'apk add'
 			if 'apk' in options:
 				opts = options['apk']
+		elif install_type == 'emerge':
+			cmd = 'emerge'
+			if 'emerge' in options:
+				opts = options['emerge']
 		else:
 			# Not handled
 			return False
@@ -2002,6 +2006,10 @@ END_''' + random_id)
 			cmd = 'apk del'
 			if 'apk' in options:
 				opts = options['apk']
+		elif install_type == 'emerge':
+			cmd = 'emerge -cav'
+			if 'emerge' in options:
+				opts = options['emerge']
 		else:
 			# Not handled
 			return False
@@ -2244,15 +2252,13 @@ END_''' + random_id)
 		cfg['environment'][environment_id]['distro']            = ''
 		cfg['environment'][environment_id]['distro_version']    = ''
 		# A list of OS Family members
-		# RedHat    = RedHat, Fedora, CentOS, Scientific, SLC, Ascendos, CloudLinux, PSBM, OracleLinux, OVS, OEL, Amazon, XenServer 
-		# Debian    = Ubuntu, Debian
+		# RedHat    = Scientific, SLC, Ascendos, CloudLinux, PSBM, OracleLinux, OVS, OEL, Amazon, XenServer 
 		# Suse      = SLES, SLED, OpenSuSE, Suse
 		# Gentoo    = Gentoo, Funtoo
 		# Archlinux = Archlinux
 		# Mandrake  = Mandriva, Mandrake
 		# Solaris   = Solaris, Nexenta, OmniOS, OpenIndiana, SmartOS
 		# AIX       = AIX
-		# Alpine    = Alpine
 		# Darwin    = MacOSX
 		# FreeBSD   = FreeBSD
 		# HP-UK     = HPUX
@@ -2267,7 +2273,6 @@ END_''' + random_id)
 		#                    '/etc/SuSE-release': 'SuSE',
 		#                    '/etc/gentoo-release': 'Gentoo',
 		#                    '/etc/os-release': 'Debian' }
-		#    SELINUX_MODE_DICT = { 1: 'enforcing', 0: 'permissive', -1: 'disabled' }
 		#
 		#    # A list of dicts.  If there is a platform with more than one
 		#    # package manager, put the preferred one last.  If there is an
@@ -2281,7 +2286,6 @@ END_''' + random_id)
 		#                 { 'path' : '/opt/local/bin/port',  'name' : 'macports' },
 		#                 { 'path' : '/usr/sbin/pkg',        'name' : 'pkgng' },
 		#                 { 'path' : '/usr/sbin/swlist',     'name' : 'SD-UX' },
-		#                 { 'path' : '/usr/bin/emerge',      'name' : 'portage' },
 		#                 { 'path' : '/usr/sbin/pkgadd',     'name' : 'svr4pkg' },
 		#                 { 'path' : '/usr/bin/pkg',         'name' : 'pkg' },
 		#    ]
@@ -2319,6 +2323,11 @@ END_''' + random_id)
 				install_type   = 'apk'
 				distro         = 'alpine'
 				distro_version = '1.0'
+			elif install_type == 'emerge' and cfg['build']['delivery'] == 'target':
+				self.send('emerge --sync')
+				install_type = 'emerge'
+				distro = 'gentoo'
+				distro_version = '1.0'
 		elif cfg['environment'][environment_id]['setup'] and self.command_available('lsb_release'):
 			d = self.lsb_release()
 			install_type   = d['install_type']
@@ -2333,13 +2342,17 @@ END_''' + random_id)
 					distro       = key
 					install_type = cfg['build']['install_type_map'][key]
 					break
-			if (install_type == '' or distro == ''):
+			if install_type == '' or distro == '':
 			    #          v the space is intentional, to avoid polluting bash history.
 				self.send(' cat /etc/issue',check_exit=False)
 				if self.match_string(child.before,'^Kernel .*r on an .*m$'):
 					distro       = 'centos'
 					install_type = 'yum'
-			if (install_type == '' or distro == ''):
+				else:
+					if self.send_and_get_output(' cat /etc/os-release | grep ^NAME | grep Gentoo | wc -l') == '1':
+						distro       = 'gentoo'
+						install_type = 'emerge'
+			if install_type == '' or distro == '':
 				self.fail('Could not determine Linux distro information. ' + 
 							'Please inform ShutIt maintainers.', child=child)
 			# The call to self.package_installed with lsb-release above 
@@ -2374,6 +2387,11 @@ END_''' + random_id)
 				self.send('apk install bash')
 				install_type   = 'apk'
 				distro         = 'alpine'
+				distro_version = '1.0'
+			elif install_type == 'emerge' and cfg['build']['delivery'] == 'target':
+				self.send('emerge --sync')
+				install_type = 'emerge'
+				distro = 'gentoo'
 				distro_version = '1.0'
 		# We should have the distro info now, let's assign to target config 
 		# if this is not a one-off.
@@ -2849,7 +2867,8 @@ def init():
 	                                    'centos':'yum',
 	                                    'fedora':'yum',
 	                                    'alpine':'apk',
-	                                    'shutit':'src'}
+	                                    'shutit':'src',
+	                                    'gentoo':'emerge'}
 
 	# If no LOGNAME available,
 	cfg['host']['username'] = os.environ.get('LOGNAME', '')
