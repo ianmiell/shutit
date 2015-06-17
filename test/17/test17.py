@@ -59,7 +59,6 @@ class test17(ShutItModule):
 		# shutit.package_installed(package)  - Returns True if the package exists on the target
 		# shutit.set_password(password, user='')
 		#                                    - Set password for a given user on target
-		shutit.install('git')
 		return True
 
 	def get_config(self, shutit):
