@@ -1284,6 +1284,7 @@ END_''' + random_id)
 					cut_point   = 0
 					line_length = 0
 					matched     = False
+					print 'here'
 					for line in lines:
 						#Help the user out to make this properly line-oriented
 						pattern_before=''
@@ -1300,6 +1301,8 @@ END_''' + random_id)
 							break
 						# Update cut point to next line, including newline in original text
 						cut_point += line_length+1
+					print 'replace: ' + str(replace)
+					print 'matched: ' + str(matched)
 					if replace:
 						if not matched:
 							cut_point = len(ftext)
@@ -1308,6 +1311,9 @@ END_''' + random_id)
 						else:
 							newtext1 = ftext[:cut_point]
 							newtext2 = ftext[cut_point+line_length+1:]
+						#If this is line-oriented and we're inserting (not replacing) a line, then add a newline afterwards
+						if single_line:
+							text += '\n'
 					else:
 						if not matched:
 							# No match, return none
@@ -1325,9 +1331,9 @@ END_''' + random_id)
 								return None
 							newtext1 = ftext[:cut_point]
 							newtext2 = ftext[cut_point:]
-					#If this is line-oriented and we're inserting a line, then add a newline afterwards
-					if single_line:
-						text += '\n'
+						#If this is line-oriented and we're inserting (not replacing) a line, then add a newline afterwards
+						if single_line:
+							text += '\n'
 			else:
 				# Append to file absent a pattern.
 				cut_point = len(ftext)
