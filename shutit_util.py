@@ -313,7 +313,7 @@ def random_word(size=6):
 
 
 def find_asset(filename):
-	filenames = ('/usr/share/dict/'+filename, sys.prefix+'/local/shutit_assets/'+filename, sys.prefix+'/shutit_assets/', shutit_global.shutit.cfg['host']['shutit_path']+'/assets/'+filename, os.path.join(sys.path[0],'assets',filename))
+	filenames = ('/usr/share/dict/'+filename, sys.prefix+'/local/shutit_assets/'+filename, sys.prefix+'/shutit_assets/'+filename, shutit_global.shutit.cfg['host']['shutit_path']+'/assets/'+filename, os.path.join(sys.path[0],'assets',filename))
 	for iter_filename in filenames:
 		if os.access(iter_filename,os.F_OK):
 			return iter_filename
