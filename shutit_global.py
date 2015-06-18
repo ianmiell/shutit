@@ -169,14 +169,19 @@ class ShutIt(object):
 		print >> sys.stderr, 'Error caught.'
 		print >> sys.stderr
 		if throw_exception:
-			raise ShutItFailException(msg)
+			if shutit_util.determine_interactive(self):
+				self.pause_point('FAIL: ' + msg)
+			else:
+				raise ShutItFailException(msg)
 		else:
 			# This is an "OK" failure, ie we don't need to throw an exception.
 			# However, it's still a failure, so return 1
-			print msg
-			print 'about to exit'
-			sys.exit(1)
-			print 'never'
+			if shutit_util.determine_interactive(self):
+				self.pause_point('FAIL: ' + msg)
+			else:
+				print msg
+				print 'about to exit'
+				sys.exit(1)
 
 
 	def log(self, msg, code=None, pause=0, prefix=True, force_stdout=False, add_final_message=False):
@@ -1284,7 +1289,6 @@ END_''' + random_id)
 					cut_point   = 0
 					line_length = 0
 					matched     = False
-					print 'here'
 					for line in lines:
 						#Help the user out to make this properly line-oriented
 						pattern_before=''
@@ -1759,6 +1763,7 @@ END_''' + random_id)
 			print msg
 			print shutit_util.colour('32', '\n\n[Hit return to continue]\n')
 			shutit_util.util_raw_input(shutit=self)
+		cfg['build']['ctrlc_stop'] = False
 
 
 	def _pause_input_filter(self, input_string):
