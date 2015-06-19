@@ -1323,11 +1323,16 @@ END_''' + random_id)
 						# If the text is already there and we're not forcing it, return None.
 						if not before and ftext[cut_point:].find(text) > 0:
 							return None
+					if len(newtext1) > 0 and newtext1[-1] != '\n':
+						newtext1 += '\n'
 			else:
 				# Append to file absent a pattern.
 				cut_point = len(ftext)
 				newtext1 = ftext[:cut_point]
 				newtext2 = ftext[cut_point:]
+			# If adding or replacing at the end of the file, then ensure we have a newline at the end
+			if newtext2 == '' and len(text) > 0 and text[-1] != '\n':
+				newtext2 = '\n'
 			new_text = newtext1 + text + newtext2
 		self.send_file(fname,new_text,expect=expect,child=child,truncate=True)
 		return True
