@@ -95,8 +95,7 @@ d
 		################################################################################
 		# simple insert 
 		shutit.send('cat > /tmp/a <<< "a"')
-		shutit.insert_text('''
-b
+		shutit.insert_text('''b
 c
 d''','/tmp/a','a')
 		shutit.send('cat /tmp/a')
@@ -105,8 +104,7 @@ d''','/tmp/a','a')
 
 		# simple insert with regexp
 		shutit.send('cat > /tmp/a <<< "abcde"')
-		shutit.insert_text('''
-b
+		shutit.insert_text('''b
 c
 d''','/tmp/a','b.d')
 		if shutit.send_and_get_output('md5sum /tmp/a') != 'fd5505764070ee318d08b5ca03b46075  /tmp/a':
@@ -114,8 +112,7 @@ d''','/tmp/a','b.d')
 
 
 		# non-existent file
-		if shutit.insert_text('''
-b
+		if shutit.insert_text('''b
 c
 d
 e''','/tmp/nonexistent','^a') != False:
@@ -123,8 +120,7 @@ e''','/tmp/nonexistent','^a') != False:
 
 		# Insert to non-existent line.
 		shutit.send('cat > /tmp/a <<< "a"')
-		if shutit.insert_text('''
-b
+		if shutit.insert_text('''b
 c
 d
 e''','/tmp/a','^asfasfa$') != None:
@@ -172,6 +168,7 @@ d
 			shutit.fail('test11.8.2 failed')
 
 
+		# double send
 		shutit.send('''cat > /tmp/11.9 << END
 a line
 another line
@@ -181,17 +178,30 @@ END''')
 		if shutit.send_and_get_output('md5sum /tmp/11.9') != 'a9caca3131db43f6edb241c898d1ba69  /tmp/11.9':
 			shutit.fail('test11.9.2 failed')
 
-
+		# replace (append), replace, insert, replace, delete
 		shutit.send('''cat > /tmp/11.10 << END
 a line
 another line
 END''')
+		shutit.replace_text('a new line','/tmp/11.10','new')
 		shutit.replace_text('a new line','/tmp/11.10','new')
 		shutit.insert_text('yet another line','/tmp/11.10')
 		shutit.replace_text('a new line','/tmp/11.10','new')
 		shutit.delete_text('yet another line','/tmp/11.10')
 		if shutit.send_and_get_output('md5sum /tmp/11.10') != 'a9caca3131db43f6edb241c898d1ba69  /tmp/11.10':
 			shutit.fail('test11.10.2 failed')
+
+		# everything we can think of
+		shutit.send('''cat > /tmp/11.11 << END
+first line
+second line
+fourth line
+END''')
+		shutit.insert_text('third line','/tmp/11.11','second line')
+		shutit.insert_text('third line','/tmp/11.11','second line')
+		shutit.insert_text('fifth line','/tmp/11.11','fourth line')
+		if shutit.send_and_get_output('md5sum /tmp/11.11') != '3538d04b11225ee34267767861c7e60c  /tmp/11.11':
+			shutit.fail('test11.11.2 failed')
 		return True
 
 def module():
