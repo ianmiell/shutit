@@ -32,14 +32,6 @@ d''','/tmp/a','b.d',line_oriented=False)
 			shutit.fail('test11.2 failed')
 
 
-		# non-existent file
-		if shutit.insert_text('''
-b
-c
-d
-e''','/tmp/nonexistent','^a',line_oriented=False) != False:
-			shutit.fail('test11.3 failed')
-
 		# Insert to non-existent line.
 		shutit.send('cat > /tmp/a <<< "a"')
 		if shutit.insert_text('''
@@ -111,13 +103,6 @@ d''','/tmp/a','b.d')
 			shutit.fail('test11.1.2 failed')
 
 
-		# non-existent file
-		if shutit.insert_text('''b
-c
-d
-e''','/tmp/nonexistent','^a') != False:
-			shutit.fail('test11.3.2 failed')
-
 		# Insert to non-existent line.
 		shutit.send('cat > /tmp/a <<< "a"')
 		if shutit.insert_text('''b
@@ -132,8 +117,7 @@ e''','/tmp/a','^asfasfa$') != None:
 		shutit.send_file('/tmp/a',"""a
 d""")
 		shutit.insert_text('''b
-c
-''','/tmp/a','^d$',before=True)
+c''','/tmp/a','^d$',before=True)
 		shutit.send('cat /tmp/a')
 		if shutit.send_and_get_output('md5sum /tmp/a') != 'aedeb9f7ddf76f45747fe5f7f6d211dd  /tmp/a':
 			shutit.fail('test11.5.2 failed')
@@ -142,8 +126,7 @@ c
 		shutit.send('cat > /tmp/a <<< "a"')
 		shutit.insert_text('''b
 c
-d
-''','/tmp/a')
+d''','/tmp/a')
 		shutit.send('cat /tmp/a')
 		if shutit.send_and_get_output('md5sum /tmp/a') != '47ece2e49e5c0333677fc34e044d8257  /tmp/a':
 			shutit.fail('test11.6.2 failed')
@@ -152,8 +135,7 @@ d
 		shutit.send('cat > /tmp/11.7 <<< "a"')
 		shutit.replace_text('''b
 c
-d
-''','/tmp/11.7','^a$')
+d''','/tmp/11.7','^a$')
 		shutit.send('cat /tmp/11.7')
 		if shutit.send_and_get_output('md5sum /tmp/11.7') != '621998bb3ef787c4ac1408b5b9c8bef5  /tmp/11.7':
 			shutit.fail('test11.7.2 failed')
@@ -162,8 +144,7 @@ d
 		shutit.send('cat > /tmp/11.8 <<< "a"')
 		shutit.replace_text('''b
 c
-d
-''','/tmp/11.8','willnotmatch')
+d''','/tmp/11.8','willnotmatch')
 		if shutit.send_and_get_output('md5sum /tmp/11.8') != '47ece2e49e5c0333677fc34e044d8257  /tmp/11.8':
 			shutit.fail('test11.8.2 failed')
 
@@ -197,11 +178,17 @@ first line
 second line
 fourth line
 END''')
-		shutit.insert_text('third line','/tmp/11.11','second line')
+		shutit.insert_text('third line','/tmp/11.11','^sec')
 		shutit.insert_text('third line','/tmp/11.11','second line')
 		shutit.insert_text('fifth line','/tmp/11.11','fourth line')
 		if shutit.send_and_get_output('md5sum /tmp/11.11') != '3538d04b11225ee34267767861c7e60c  /tmp/11.11':
-			shutit.fail('test11.11.2 failed')
+			shutit.fail('test11.11.2.1 failed')
+		shutit.replace_text('fifth line','/tmp/11.11','^fif')
+		if shutit.send_and_get_output('md5sum /tmp/11.11') != '3538d04b11225ee34267767861c7e60c  /tmp/11.11':
+			shutit.fail('test11.11.2.2 failed')
+		shutit.replace_text('third line','/tmp/11.11','^thi')
+		if shutit.send_and_get_output('md5sum /tmp/11.11') != '3538d04b11225ee34267767861c7e60c  /tmp/11.11':
+			shutit.fail('test11.11.2.3 failed')
 		return True
 
 def module():
