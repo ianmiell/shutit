@@ -1158,7 +1158,7 @@ END_''' + random_id)
 				# No output - no match
 				return None
 			else:
-				new_text = ftext[:loc] + ftext[loc+len(text):]
+				new_text = ftext[:loc] + ftext[loc+len(text)+1:]
 		else:
 			if pattern != None:
 				if line_oriented == False:
@@ -1213,6 +1213,8 @@ END_''' + random_id)
 							break
 						# Update cut point to next line, including newline in original text
 						cut_point += line_length+1
+					#print 'cut_point:'
+					#print cut_point
 					if not replace and not matched:
 						# No match, return none
 						return None
@@ -1222,8 +1224,12 @@ END_''' + random_id)
 						cut_point += line_length
 					newtext1 = ftext[:cut_point]
 					newtext2 = ftext[cut_point:]
+					#print 'nt1'
+					#print newtext1
+					#print 'nt2'
+					#print newtext2
 					if replace and matched:
-						newtext2 = ftext[cut_point+line_length+1:]
+						newtext2 = ftext[cut_point+line_length:]
 					elif not force:
 						# If the text is already there and we're not forcing it, return None.
 						if before and ftext[cut_point-len(text):].find(text) > 0:
@@ -1233,6 +1239,12 @@ END_''' + random_id)
 							return None
 					if len(newtext1) > 0 and newtext1[-1] != '\n':
 						newtext1 += '\n'
+					if len(newtext2) > 0 and newtext2[0] != '\n':
+						newtext2 = '\n' + newtext2
+					#print 'nt1'
+					#print newtext1
+					#print 'nt2'
+					#print newtext2
 			else:
 				# Append to file absent a pattern.
 				cut_point = len(ftext)
