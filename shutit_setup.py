@@ -114,7 +114,7 @@ class ShutItConnModule(ShutItModule):
 			shutit.send_file(cfg['build']['build_db_dir'] + '/' + \
 			    cfg['build']['build_id'] + '/build_commands.sh', \
 			    shutit_util.get_commands(shutit))
-			shutit.add_line_to_file(cfg['build']['build_id'], \
+			shutit.insert_text(cfg['build']['build_id'], \
 			    cfg['build']['build_db_dir'] + '/builds')
 
 

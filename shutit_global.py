@@ -264,10 +264,10 @@ class ShutIt(object):
 		# Exempt the ORIGIN_ENV from getting distro info
 		if prefix != 'ORIGIN_ENV':
 			self.get_distro_info(environment_id)
-		self.send('mkdir -p ' + environment_id_dir)
-		self.send('chmod 777 ' + environment_id_dir)
+		self.send('mkdir -p ' + environment_id_dir, child=child, expect=expect)
+		self.send('chmod 777 ' + environment_id_dir, child=child, expect=expect)
 		fname = environment_id_dir + '/' + environment_id
-		self.send('touch ' + fname)
+		self.send('touch ' + fname, child=child, expect=expect)
 		cfg['environment'][environment_id]['setup']                        = True
 		return environment_id
 
@@ -1090,116 +1090,19 @@ END_''' + random_id)
 		return True
 						 
 
-	def add_line_to_file(self,
-	                     line,
-	                     filename, 
-	                     expect=None,
-	                     child=None,
-	                     match_regexp=None,
-	                     force=False,
-	                     literal=False,
-	                     note=None):
-		"""
-		Adds line to file if it doesn't exist (unless Force is set,
-		which it is not by default).
-		Creates the file if it doesn't exist.
-		Must be exactly the line passed in to match.
-		Returns True if line(s) added OK, False if not.
-		If you have a lot of non-unique lines to add, it's a good idea to
-		have a sentinel value to add first, and then if that returns true,
-		force the remainder.
-	
-		@param line:          Line to add. If a list, processed per-item,
-		                      and match_regexp ignored.
-		@param filename:      Filename to add it to.
-		@param expect:        See send()
-		@param child:         See send()
-		@param match_regexp:  If supplied, a regexp to look for in the file
-		                      instead of the line itself,
-		                      handy if the line has awkward characters in it.
-		@param force:         Always write the line to the file.
-		@param literal:       If true, then simply grep for the exact string without
-		                      bash interpretation. (Default: False)
-		@param note:          See send()
-
-		@type line:           string
-		@type filename:       string
-		@type match_regexp:   string
-		@type literal:        boolean
-		"""
-		child = child or self.get_default_child()
-		expect = expect or self.get_default_expect()
-		self._handle_note(note)
-		# assume we're going to add it
-		res = '0'
-		tmp_filename = '/tmp/' + shutit_util.random_id()
-		if type(line) == str:
-			lines = [line]
-		elif type(line) == list:
-			lines = line
-			match_regexp = None
-		for line in lines:
-			created_file = False
-			if not force:
-				# Not sure why this was switched off, but 
-				if literal or True:
-					if match_regexp == None:
-						if not self.file_exists(filename, expect=expect, child=child):
-							# We touch the file if it doesn't exist already.
-							self.send('touch ' + filename, expect=expect, child=child,
-								check_exit=False)
-							created_file = True
-						#            v the space is intentional, to avoid polluting bash history.
-						replaced_line = line.replace("'","""'"'"'""")
-						replaced_line = replaced_line.replace("[",r"\[")
-						replaced_line = replaced_line.replace("]",r"\]")
-						self.send(""" grep -w '^""" + 
-								  replaced_line +
-								  """$' """ +
-								  filename +
-								  ' > ' + 
-								  tmp_filename, 
-								  expect=expect,
-								  child=child,
-								  exit_values=['0', '1'])
-					else:
-						if not self.file_exists(filename, expect=expect, child=child):
-							# We touch the file if it doesn't exist already.
-							self.send('touch ' + filename, expect=expect, child=child,
-								check_exit=False)
-							created_file = True
-						#            v the space is intentional, to avoid polluting bash history.
-						self.send(""" grep -w '^""" + 
-								  match_regexp + 
-								  """$' """ +
-								  filename +
-								  ' > ' +
-								  tmp_filename,
-								  expect=expect,
-								  child=child, 
-								  exit_values=['0', '1'])
-				if not self.file_exists(filename, expect=expect, child=child):
-					# We touch the file if it doesn't exist already.
-					self.send('touch ' + filename, expect=expect, child=child,
-						check_exit=False)
-					created_file = True
-				self.send('cat ' + tmp_filename + ' | wc -l',
-						  expect=expect, child=child, exit_values=['0', '1'],
-						  check_exit=False, escape=True)
-				res = self.match_string(child.before, '^([0-9]+)$')
-			if res == '0' or force:
-				self.send('cat >> ' + filename + """ <<< '""" + line.replace("'",r"""'"'"'""") + """'""",
-					expect=expect, child=child, check_exit=False, escape=True)
-				if created_file:
-					self.send('rm -f ' + tmp_filename, expect=expect, child=child, exit_values=['0', '1'])
-			else:
-				if created_file:
-					self.send('rm -f ' + tmp_filename, expect=expect, child=child, exit_values=['0','1'])
-				return False
-		return True
-
-
-	def insert_text(self, text, fname, pattern=None, expect=None, child=None, before=False, force=False, delete=False, note=None, replace=False, line_oriented=True):
+	def insert_text(self,
+	                text,
+	                fname,
+	                pattern=None,
+	                expect=None,
+	                child=None,
+	                before=False,
+	                force=False,
+	                delete=False,
+	                note=None,
+	                replace=False,
+	                line_oriented=True,
+	                create=True):
 		"""Insert a chunk of text at the end of a file, or after (or before) the first matching pattern
 		in given file fname.
 
@@ -1224,23 +1127,28 @@ END_''' + random_id)
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
 		self._handle_note(note)
-		if not self.file_exists(fname):
-			return False
-		# If replace and no pattern FAIL
-		if replace and not pattern:
-			shutit.fail('replace=True requires a pattern to be passed in')
-		# If replace and delete FAIL
-		if replace and delete:
-			shutit.fail('cannot pass replace=True and delete=True to insert_text')
-		single_line = True
+		fexists = self.file_exists(fname)
+		if not fexists:
+			if create:
+				self.send('touch ' + fname,expect=expect,child=child)
+			else:
+				shutit.fail(fname + ' does not exist and create=False')
+		if replace:
+			# If replace and no pattern FAIL
+			if not pattern:
+				shutit.fail('replace=True requires a pattern to be passed in')
+			# If replace and delete FAIL
+			if delete:
+				shutit.fail('cannot pass replace=True and delete=True to insert_text')
 		if len(text.split('\n')) > 1:
 			single_line = False
-		cmd = 'cat'
+		else:
+			single_line = True
 		if self.command_available('base64'):
-			cmd = 'base64'
-		ftext = self.send_and_get_output(cmd + ' ' + fname)
-		if cmd == 'base64':
+			ftext = self.send_and_get_output('base64' + ' ' + fname)
 			ftext = base64.b64decode(ftext)
+		else:
+			ftext = self.send_and_get_output('cat' + ' ' + fname)
 		# Replace the file text's ^M-newlines with simple newlines
 		ftext = ftext.replace('\r\n','\n')
 		# If we are not forcing and the text is already in the file, then don't insert.
@@ -1350,6 +1258,54 @@ END_''' + random_id)
 		See insert_text.
 		"""
 		return self.insert_text(text, fname, pattern, expect, child, before, force, replace=True, line_oriented=line_oriented)
+
+
+	def add_line_to_file(self, line, filename, expect=None, child=None, match_regexp=None, force=False, literal=False, note=None):
+		"""Deprecated.
+
+		Use replace/insert_text instead.
+
+		Adds line to file if it doesn't exist (unless Force is set,
+		which it is not by default).
+		Creates the file if it doesn't exist.
+		Must be exactly the line passed in to match.
+		Returns True if line(s) added OK, False if not.
+		If you have a lot of non-unique lines to add, it's a good idea to
+		have a sentinel value to add first, and then if that returns true,
+		force the remainder.
+
+		@param line:          Line to add. If a list, processed per-item,
+		                      and match_regexp ignored.
+		@param filename:      Filename to add it to.
+		@param expect:        See send()
+		@param child:         See send()
+		@param match_regexp:  If supplied, a regexp to look for in the file
+		                      instead of the line itself,
+		                      handy if the line has awkward characters in it.
+		@param force:         Always write the line to the file.
+		@param literal:       If true, then simply grep for the exact string without
+		                      bash interpretation. (Default: False)
+		@param note:          See send()
+
+		@type line:           string
+		@type filename:       string
+		@type match_regexp:   string
+		@type literal:        boolean
+
+		"""
+		if type(line) == str:
+			lines = [line]
+		elif type(line) == list:
+			lines = line
+			match_regexp = None
+		if match_regexp == None:
+			match_regexp = line
+		for line in lines:
+			if not self.replace_text(line, filename, pattern=match_regexp, child=child, expect=expect, note=note):
+				return False
+		return True
+
+
 
 
 
