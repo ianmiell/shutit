@@ -49,6 +49,7 @@ class ShutItFailException(ShutItException):
 	pass
 
 
+
 def shutit_method_scope(func):
 	"""Notifies the ShutIt object whenever we call a shutit module method.
 	This allows setting values for the 'scope' of a function.
