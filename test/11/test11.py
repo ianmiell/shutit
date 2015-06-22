@@ -189,6 +189,14 @@ END''')
 		shutit.replace_text('third line','/tmp/11.11','^thi')
 		if shutit.send_and_get_output('md5sum /tmp/11.11') != '3538d04b11225ee34267767861c7e60c  /tmp/11.11':
 			shutit.fail('test11.11.2.3 failed')
+
+
+		shutit.send('''cat > /tmp/11.12 << END
+$num_instances=1
+END''')
+		shutit.replace_text('$num_instances=3','/tmp/11.12','num_instances')
+		if shutit.send_and_get_output('md5sum /tmp/11.12') != 'dc86deb5d312f33bf3cdb2a1c95c2c82  /tmp/11.12':
+			shutit.fail('test 11.12 failed')
 		return True
 
 def module():
