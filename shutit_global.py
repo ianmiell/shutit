@@ -790,7 +790,7 @@ END_""" + random_id)
 				if truncate and self.file_exists(path):
 					self.send('rm -f ' + path, expect=expect, child=child)
 				random_id = shutit_util.random_id()
-				self.send('cat > ' + path + ' << END_' + random_id + '''
+				self.send('cat > ' + path + " << 'END_'" + random_id + '''
 ''' + contents + '''
 END_''' + random_id)
 		else:
@@ -1245,6 +1245,7 @@ END_''' + random_id)
 					#print newtext1
 					#print 'nt2'
 					#print newtext2
+					#print text
 			else:
 				# Append to file absent a pattern.
 				cut_point = len(ftext)
@@ -1254,6 +1255,8 @@ END_''' + random_id)
 			if newtext2 == '' and len(text) > 0 and text[-1] != '\n':
 				newtext2 = '\n'
 			new_text = newtext1 + text + newtext2
+			#print 'NEWTEXT'
+			#print new_text
 		self.send_file(fname,new_text,expect=expect,child=child,truncate=True)
 		return True
 
@@ -1718,11 +1721,14 @@ END_''' + random_id)
 				self.send(' chmod 755 /tmp/resize')
 				child.sendline(' sleep 2 && /tmp/resize')
 			if default_msg == None:
-				print '\n' + (shutit_util.colour(colour, msg) +
-				     shutit_util.colour(colour,'\nYou can now type in commands and ' +
+				pp_msg = shutit_util.colour(colour,'\nYou can now type in commands and ' +
 					'alter the state of the target.\nHit return to see the ' +
 					'prompt\nHit CTRL and ] at the same time to continue with ' +
-					'build\n\nHit CTRL and u to save the state to a docker image\n'))
+					'build\n')
+				# TODO - only if in Docker container
+				if True:
+					pp_msg += '\nHit CTRL and u to save the state to a docker image\n'
+				print '\n' + (shutit_util.colour(colour, msg) + shutit_util.colour(colour,pp_msg))
 			else:
 				print shutit_util.colour(colour, msg) + '\n' + default_msg + '\n'
 			oldlog = child.logfile_send
@@ -1917,6 +1923,10 @@ END_''' + random_id)
 			cmd = 'emerge'
 			if 'emerge' in options:
 				opts = options['emerge']
+		elif install_type == 'docker':
+			cmd = 'docker pull'
+			if 'docker' in options:
+				opts = options['docker']
 		else:
 			# Not handled
 			return False
@@ -1988,6 +1998,10 @@ END_''' + random_id)
 			cmd = 'emerge -cav'
 			if 'emerge' in options:
 				opts = options['emerge']
+		elif install_type == 'docker':
+			cmd = 'docker rmi'
+			if 'docker' in options:
+				opts = options['docker']
 		else:
 			# Not handled
 			return False
@@ -2245,7 +2259,6 @@ END_''' + random_id)
 		#                    '/etc/vmware-release': 'VMwareESX',
 		#                    '/etc/openwrt_release': 'OpenWrt',
 		#                    '/etc/system-release': 'OtherLinux',
-		#                    '/etc/alpine-release': 'Alpine',
 		#                    '/etc/release': 'Solaris',
 		#                    '/etc/arch-release': 'Archlinux',
 		#                    '/etc/SuSE-release': 'SuSE',
@@ -2306,6 +2319,9 @@ END_''' + random_id)
 				install_type = 'emerge'
 				distro = 'gentoo'
 				distro_version = '1.0'
+			elif install_type == 'docker' and cfg['build']['delivery'] == 'target':
+				distro = 'coreos'
+				distro_version = '1.0'
 		elif cfg['environment'][environment_id]['setup'] and self.command_available('lsb_release'):
 			d = self.lsb_release()
 			install_type   = d['install_type']
@@ -2330,6 +2346,9 @@ END_''' + random_id)
 					if self.send_and_get_output(' cat /etc/os-release | grep ^NAME | grep Gentoo | wc -l') == '1':
 						distro       = 'gentoo'
 						install_type = 'emerge'
+					elif self.file_exists('/etc/coreos',directory=True):
+						distro       = 'coreos'
+						install_type = 'docker'
 			if install_type == '' or distro == '':
 				self.fail('Could not determine Linux distro information. ' + 
 							'Please inform ShutIt maintainers.', child=child)
@@ -2655,6 +2674,32 @@ END_''' + random_id)
 			                          '\nPushed repository: ' + repository)
 
 
+	def get_input(self, msg, default='', valid=[], boolean=False, ispass=False):
+		"""Gets input from the user, and returns the answer.
+
+		@param msg:       message to send to user
+		@param default:   default value if nothing entered
+		@param valid:     valid input values (default == empty list == anything allowed)
+		@param boolean:   whether return value should be boolean
+		@param ispass:    True if this is a password (ie whether to not echo input)
+		"""
+		if boolean and valid == []:
+			valid = ('yes','y','Y','1','true','no','n','N','0','false')
+		answer = shutit_util.util_raw_input(prompt=shutit_util.colour('32',msg),ispass=ispass)
+		if valid != []:
+			while answer not in valid:
+				print 'Answer must be one of: ' + str(valid)
+				answer = shutit_util.util_raw_input(prompt=shutit_util.colour('32',msg),ispass=ispass)
+		if boolean and answer in ('yes','y','Y','1','true'):
+			return True
+		if boolean and answer in ('no','n','N','0','false'):
+			return False
+		if answer == '':
+			return default
+		else:
+			return answer
+
+
 	def get_config(self,
 	               module_id,
 	               option,
@@ -2846,6 +2891,7 @@ def init():
 	                                    'fedora':'yum',
 	                                    'alpine':'apk',
 	                                    'shutit':'src',
+	                                    'coreos':'docker',
 	                                    'gentoo':'emerge'}
 
 	# If no LOGNAME available,

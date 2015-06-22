@@ -1658,13 +1658,14 @@ def util_raw_input(shutit=None, prompt='', default=None, ispass=False):
 	no controlling terminal (or there are any other problems)
 	"""
 	msg = ''
+	prompt = '\n' + prompt + '\n'
 	if shutit and shutit.cfg['build']['interactive'] == 0:
 		return default
 	if not determine_interactive(shutit):
 		return default
 	try:
 		if ispass:
-			print prompt + '\n'
+			print prompt
 			return getpass.getpass()
 		else:
 			resp = raw_input(prompt).strip()
