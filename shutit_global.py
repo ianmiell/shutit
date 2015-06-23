@@ -624,7 +624,7 @@ $'"""
 					res = child.expect(expect + [pexpect.TIMEOUT],timeout=1)
 					if res == len(expect):
 						self.fail('CTRL-C hit and could not recover')
-				self.pause_point('CTRL-C hit during command, which has been cancelled',child=child)
+				self.pause_point('CTRL-C hit during command; the command has been cancelled',child=child)
 				return res
 			else:
 				if timed_out:
@@ -682,6 +682,10 @@ END_""" + random_id)
 		child.expect(expect)
 		res = self.match_string(child.before, 
 			'^EXIT_CODE:([0-9][0-9]?[0-9]?)$')
+		if res == None:
+			# Try after - for some reason needed after login
+			res = self.match_string(child.after, 
+				'^EXIT_CODE:([0-9][0-9]?[0-9]?)$')
 		if res not in exit_values or res == None:
 			if res == None:
 				res = str(res)
@@ -1090,7 +1094,9 @@ END_''' + random_id)
 		return True
 						 
 
-	def insert_text(self,
+
+
+	def change_text(self,
 	                text,
 	                fname,
 	                pattern=None,
@@ -1103,8 +1109,8 @@ END_''' + random_id)
 	                replace=False,
 	                line_oriented=True,
 	                create=True):
-		"""Insert a chunk of text at the end of a file, or after (or before) the first matching pattern
-		in given file fname.
+
+		"""Change text in a file.
 
 		Returns None if there was no match for the regexp, True if it was matched
 		and replaced, and False if the file did not exist or there was some other
@@ -1123,6 +1129,8 @@ END_''' + random_id)
 		@param note:          See send()
 		@param line_oriented: Consider the pattern on a per-line basis (default True).
 		                      Can match any continuous section of the line, eg 'b.*d' will match the line: 'abcde'
+		                      If not line_oriented, the regexp is considered on with the flags re.DOTALL, re.MULTILINE
+		                      enabled
 		"""
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
@@ -1183,15 +1191,19 @@ END_''' + random_id)
 							# If the text is already there and we're not forcing it, return None.
 							if not force and ftext[cut_point-len(text):].find(text) > 0:
 								return None
-							newtext1 = ftext[:cut_point]
-							newtext2 = ftext[cut_point:]
 						else:
 							cut_point = sre_match.end()
 							# If the text is already there and we're not forcing it, return None.
 							if not force and ftext[cut_point:].find(text) > 0:
 								return None
-							newtext1 = ftext[:cut_point]
-							newtext2 = ftext[cut_point:]
+						newtext1 = ftext[:cut_point]
+						newtext2 = ftext[cut_point:]
+					#print 'cut_point:'
+					#print cut_point
+					#print 'nt1'
+					#print newtext1
+					#print 'nt2'
+					#print newtext2
 				else:
 					lines = ftext.split('\n')
 					cut_point   = 0
@@ -1260,19 +1272,34 @@ END_''' + random_id)
 		self.send_file(fname,new_text,expect=expect,child=child,truncate=True)
 		return True
 
+	def insert_text(self,
+	                text,
+	                fname,
+	                pattern=None,
+	                expect=None,
+	                child=None,
+	                before=False,
+	                force=False,
+	                note=None,
+	                replace=False,
+	                line_oriented=True,
+	                create=True):
+		"""Insert a chunk of text at the end of a file, or after (or before) the first matching pattern
+		in given file fname.
+		See change_text"""
+		self.change_text(text=text, fname=fname, pattern=pattern, expect=expect, child=child, before=before, force=force, note=note, line_oriented=line_oriented, create=create, replace=replace, delete=False)
+
 	def delete_text(self, text, fname, pattern=None, expect=None, child=None, before=False, force=False, note=None, line_oriented=True):
 		"""Delete a chunk of text from a file.
-
 		See insert_text.
 		"""
-		return self.insert_text(text, fname, pattern, expect, child, before, force, delete=True, line_oriented=line_oriented)
+		return self.change_text(text, fname, pattern, expect, child, before, force, delete=True, line_oriented=line_oriented)
 
 	def replace_text(self, text, fname, pattern=None, expect=None, child=None, before=False, force=False, note=None, line_oriented=True):
 		"""Replace a chunk of text from a file.
-
 		See insert_text.
 		"""
-		return self.insert_text(text, fname, pattern, expect, child, before, force, replace=True, line_oriented=line_oriented)
+		return self.change_text(text, fname, pattern, expect, child, before, force, line_oriented=line_oriented, replace=True)
 
 
 	def add_line_to_file(self, line, filename, expect=None, child=None, match_regexp=None, force=False, literal=False, note=None):
@@ -1313,11 +1340,16 @@ END_''' + random_id)
 		elif type(line) == list:
 			lines = line
 			match_regexp = None
-		if match_regexp == None:
-			match_regexp = line
+		fail = False
 		for line in lines:
-			if not self.replace_text(line, filename, pattern=match_regexp, child=child, expect=expect, note=note):
-				return False
+			if match_regexp == None:
+				this_match_regexp = line
+			else:
+				this_match_regexp = match_regexp
+			if not self.replace_text(line, filename, pattern=this_match_regexp, child=child, expect=expect, note=note):
+				fail = True
+		if fail:
+			return False
 		return True
 
 
@@ -1711,37 +1743,40 @@ END_''' + random_id)
 		if (not shutit_util.determine_interactive(self) or cfg['build']['interactive'] < 1 or 
 			cfg['build']['interactive'] < level):
 			return
-		if child and print_input:
-			if resize:
-				if preamble == None:
-					print (shutit_util.colour(colour,'\nPause point:\n' +
-						'resize==True, so attempting to resize terminal.\n\n' +
-						'If you are not at a shell prompt when calling pause_point, then pass in resize=False.'))
-				self.send_host_file('/tmp/resize',self.shutit_main_dir+'/assets/resize', child=child, log=False)
-				self.send(' chmod 755 /tmp/resize')
-				child.sendline(' sleep 2 && /tmp/resize')
-			if default_msg == None:
-				pp_msg = shutit_util.colour(colour,'\nYou can now type in commands and ' +
-					'alter the state of the target.\nHit return to see the ' +
-					'prompt\nHit CTRL and ] at the same time to continue with ' +
-					'build\n')
-				# TODO - only if in Docker container
-				if True:
-					pp_msg += '\nHit CTRL and u to save the state to a docker image\n'
-				print '\n' + (shutit_util.colour(colour, msg) + shutit_util.colour(colour,pp_msg))
+		if child:
+			if print_input:
+				if resize:
+					if preamble == None:
+						print (shutit_util.colour(colour,'\nPause point:\n' +
+							'resize==True, so attempting to resize terminal.\n\n' +
+							'If you are not at a shell prompt when calling pause_point, then pass in resize=False.'))
+					self.send_host_file('/tmp/resize',self.shutit_main_dir+'/assets/resize', child=child, log=False)
+					self.send(' chmod 755 /tmp/resize')
+					child.sendline(' sleep 2 && /tmp/resize')
+				if default_msg == None:
+					pp_msg = shutit_util.colour(colour,'\nYou can now type in commands and ' +
+						'alter the state of the target.\nHit return to see the ' +
+						'prompt\nHit CTRL and ] at the same time to continue with ' +
+						'build\n')
+					# TODO - only if in Docker container
+					if False:
+						pp_msg += '\nHit CTRL and u to save the state to a docker image\n'
+					print '\n' + (shutit_util.colour(colour, msg) + shutit_util.colour(colour,pp_msg))
+				else:
+					print shutit_util.colour(colour, msg) + '\n' + default_msg + '\n'
+				oldlog = child.logfile_send
+				child.logfile_send = None
+				try:
+					child.interact(input_filter=self._pause_input_filter)
+				except Exception as e:
+					self.fail('Failed to interact, probably because this is run non-interactively,\nor was previously CTRL-C\'d\n' + str(e))
+				child.logfile_send = oldlog
 			else:
-				print shutit_util.colour(colour, msg) + '\n' + default_msg + '\n'
-			oldlog = child.logfile_send
-			child.logfile_send = None
-			try:
-				child.interact(input_filter=self._pause_input_filter)
-			except Exception as e:
-				self.fail('Failed to interact, probably because this is run non-interactively,\nor was previously CTRL-C\'d\n' + str(e))
-			child.logfile_send = oldlog
+				pass
 		else:
 			print msg
-			print shutit_util.colour('32', '\n\n[Hit return to continue]\n')
-			shutit_util.util_raw_input(shutit=self)
+			print 'Nothing to interact with, so quitting to presumably the original shell'
+			sys.exit(1)
 		cfg['build']['ctrlc_stop'] = False
 
 
@@ -1841,7 +1876,9 @@ END_''' + random_id)
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
 		self._handle_note(note)
-		self.send(send, check_exit=False, retry=3,echo=False)
+		# Don't check exit, as that will pollute the output. Also, it's quite likely the
+		# submitted command is intended to fail.
+		self.send(send, child=child, expect=expect, check_exit=False, retry=retry, echo=False)
 		if strip:
 			ansi_escape = re.compile(r'\x1b[^m]*m')
 			string_with_termcodes = self.get_default_child().before.strip(send).strip()
@@ -2037,7 +2074,16 @@ END_''' + random_id)
 		cfg['build']['logins'][r_id] = {'whoami':new_user}
 
 
-	def login(self, user='root', command='su -', child=None, password=None, prompt_prefix=None, expect=None, timeout=20, note=None, go_home=True):
+	def login(self,
+	          user='root',
+	          command='su -',
+	          child=None,
+	          password=None,
+	          prompt_prefix=None,
+	          expect=None,
+	          timeout=20,
+	          note=None,
+	          go_home=True):
 		"""Logs the user in with the passed-in password and command.
 		Tracks the login. If used, used logout to log out again.
 		Assumes you are root when logging in, so no password required.
@@ -2089,6 +2135,8 @@ END_''' + random_id)
 			self.log('WARNING! user is bash - if you see problems below, did you mean: login(command="' + user + '")?',force_stdout=True)
 			print '\n' + 80 * '='
 		self.multisend(send,{'ontinue connecting':'yes','assword':password,'login:':password},expect=[login_expect,user+'@','\r\n.*[@#$]'],check_exit=False,timeout=timeout,fail_on_empty_before=False)
+		if not self._check_exit(send,expect=[login_expect,user+'@','\r\n.*[@#$]']):
+			self.pause_point('Login failed?')
 		if prompt_prefix != None:
 			self.setup_prompt(r_id,child=child,prefix=prompt_prefix)
 		else:
@@ -2098,7 +2146,7 @@ END_''' + random_id)
 
 
 
-	def logout(self, child=None, expect=None, command='exit', note=None):
+	def logout(self, child=None, expect=None, command='exit', note=None, timeout=5):
 		"""Logs the user out. Assumes that login has been called.
 		If login has never been called, throw an error.
 
@@ -2124,7 +2172,7 @@ END_''' + random_id)
 			self.fail('Logout called without corresponding login', throw_exception=False)
 		# No point in checking exit here, the exit code will be
 		# from the previous command from the logged in session
-		self.send(command, expect=expect, check_exit=False)
+		self.send(command, expect=expect, check_exit=False, timeout=timeout)
 	# alias exit_shell to logout
 	exit_shell = logout
 
@@ -2246,7 +2294,6 @@ END_''' + random_id)
 		# A list of OS Family members
 		# RedHat    = Scientific, SLC, Ascendos, CloudLinux, PSBM, OracleLinux, OVS, OEL, Amazon, XenServer 
 		# Suse      = SLES, SLED, OpenSuSE, Suse
-		# Gentoo    = Gentoo, Funtoo
 		# Archlinux = Archlinux
 		# Mandrake  = Mandriva, Mandrake
 		# Solaris   = Solaris, Nexenta, OmniOS, OpenIndiana, SmartOS
