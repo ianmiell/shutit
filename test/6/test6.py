@@ -16,9 +16,6 @@ class test6(ShutItModule):
 	def build(self, shutit):
 		shutit.send_and_expect('touch /tmp/test6')
 		shutit.send_and_expect('echo some output')
-		import re
-		if re.findall('^some output', shutit.get_output(), flags=re.MULTILINE):
-			return True
 		return False
 
 def module():

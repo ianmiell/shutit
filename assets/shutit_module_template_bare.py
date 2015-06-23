@@ -33,6 +33,7 @@ class template(ShutItModule):
 		# shutit.add_to_bashrc(line)         - Add a line to bashrc
 		# shutit.get_url(fname, locations)   - Get a file via url from locations specified in a list
 		# shutit.get_ip_address()            - Returns the ip address of the target
+		# shutit.command_available(command)  - Returns true if the command is available to run
 		#
 		# LOGGING AND DEBUG
 		# shutit.log(msg,add_final_message=False) -
