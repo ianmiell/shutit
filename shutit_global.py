@@ -1090,7 +1090,9 @@ END_''' + random_id)
 		return True
 						 
 
-	def insert_text(self,
+
+
+	def change_text(self,
 	                text,
 	                fname,
 	                pattern=None,
@@ -1103,8 +1105,8 @@ END_''' + random_id)
 	                replace=False,
 	                line_oriented=True,
 	                create=True):
-		"""Insert a chunk of text at the end of a file, or after (or before) the first matching pattern
-		in given file fname.
+
+		"""Change text in a file.
 
 		Returns None if there was no match for the regexp, True if it was matched
 		and replaced, and False if the file did not exist or there was some other
@@ -1123,6 +1125,8 @@ END_''' + random_id)
 		@param note:          See send()
 		@param line_oriented: Consider the pattern on a per-line basis (default True).
 		                      Can match any continuous section of the line, eg 'b.*d' will match the line: 'abcde'
+		                      If not line_oriented, the regexp is considered on with the flags re.DOTALL, re.MULTILINE
+		                      enabled
 		"""
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
@@ -1183,15 +1187,19 @@ END_''' + random_id)
 							# If the text is already there and we're not forcing it, return None.
 							if not force and ftext[cut_point-len(text):].find(text) > 0:
 								return None
-							newtext1 = ftext[:cut_point]
-							newtext2 = ftext[cut_point:]
 						else:
 							cut_point = sre_match.end()
 							# If the text is already there and we're not forcing it, return None.
 							if not force and ftext[cut_point:].find(text) > 0:
 								return None
-							newtext1 = ftext[:cut_point]
-							newtext2 = ftext[cut_point:]
+						newtext1 = ftext[:cut_point]
+						newtext2 = ftext[cut_point:]
+					#print 'cut_point:'
+					#print cut_point
+					#print 'nt1'
+					#print newtext1
+					#print 'nt2'
+					#print newtext2
 				else:
 					lines = ftext.split('\n')
 					cut_point   = 0
@@ -1260,19 +1268,34 @@ END_''' + random_id)
 		self.send_file(fname,new_text,expect=expect,child=child,truncate=True)
 		return True
 
+	def insert_text(self,
+	                text,
+	                fname,
+	                pattern=None,
+	                expect=None,
+	                child=None,
+	                before=False,
+	                force=False,
+	                note=None,
+	                replace=False,
+	                line_oriented=True,
+	                create=True):
+		"""Insert a chunk of text at the end of a file, or after (or before) the first matching pattern
+		in given file fname.
+		See change_text"""
+		self.change_text(text=text, fname=fname, pattern=pattern, expect=expect, child=child, before=before, force=force, note=note, line_oriented=line_oriented, create=create, replace=replace, delete=False)
+
 	def delete_text(self, text, fname, pattern=None, expect=None, child=None, before=False, force=False, note=None, line_oriented=True):
 		"""Delete a chunk of text from a file.
-
 		See insert_text.
 		"""
-		return self.insert_text(text, fname, pattern, expect, child, before, force, delete=True, line_oriented=line_oriented)
+		return self.change_text(text, fname, pattern, expect, child, before, force, delete=True, line_oriented=line_oriented)
 
 	def replace_text(self, text, fname, pattern=None, expect=None, child=None, before=False, force=False, note=None, line_oriented=True):
 		"""Replace a chunk of text from a file.
-
 		See insert_text.
 		"""
-		return self.insert_text(text, fname, pattern, expect, child, before, force, replace=True, line_oriented=line_oriented)
+		return self.change_text(text, fname, pattern, expect, child, before, force, line_oriented=line_oriented, replace=True)
 
 
 	def add_line_to_file(self, line, filename, expect=None, child=None, match_regexp=None, force=False, literal=False, note=None):
