@@ -7,4 +7,4 @@ then
 	echo "Must be run as test.sh or ./test.sh"
 	exit
 fi
-./build.sh --delivery bash
+./build.sh --delivery bash "$@"

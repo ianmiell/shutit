@@ -62,7 +62,7 @@ DESC="Testing skeleton build with Dockerfile"
 echo $DESC
 ./shutit skeleton -d assets/dockerfile/Dockerfile --module_directory ${NEWDIR} --module_name testing --domain shutit.tk --depends shutit.tk.setup --base_image ubuntu:14.04
 pushd ${NEWDIR}/bin
-./test.sh
+./test.sh --interactive 0
 if [[ "x$?" != "x0" ]]
 then
 	echo "FAILED ON $DESC: $?"
@@ -77,7 +77,7 @@ DESC="Testing skeleton build basic bare"
 echo $DESC
 ./shutit skeleton --module_directory ${NEWDIR} --module_name testing --domain shutit.tk --depends shutit.tk.setup --base_image ubuntu:14.04
 pushd ${NEWDIR}/bin
-./test.sh
+./test.sh --interactive 0
 if [[ "x$?" != "x0" ]]
 then
 	echo "FAILED ON $DESC"
@@ -94,7 +94,7 @@ echo $DESC
 ./shutit skeleton --module_directory ${NEWDIR} --module_name testing --domain shutit.tk --depends shutit.tk.setup --base_image ubuntu:14.04 --script ${SHUTIT_DIR}/assets/example.sh
 
 pushd ${NEWDIR}/bin
-./test.sh
+./test.sh --interactive 0
 if [[ "x$?" != "x0" ]]
 then
 	echo "FAILED ON $DESC"
@@ -113,7 +113,7 @@ PIDS=()
 DISTROS=${SHUTITTEST_DISTROS:-ubuntu:14.04}
 for dist in $DISTROS
 do
-	for d in $(ls -d test/[0-9][0-9]*)
+	for d in $(ls -d test/[0-9]* | sort -n)
 	do
 		[ -d ${SHUTIT_DIR}/$d ] || continue
 		pushd ${SHUTIT_DIR}/$d/bin
@@ -132,7 +132,7 @@ do
 				echo "================================================================================"
 				if [ x$SHUTIT_PARALLEL_BUILD = 'x' ]
 				then
-					./test.sh
+					./test.sh --interactive 0
 					RES=$?
 					if [[ "x$RES" != "x0" ]]
 					then
@@ -147,7 +147,7 @@ do
 				else
 					# TODO
 					#http://stackoverflow.com/questions/356100/how-to-wait-in-bash-for-several-subprocesses-to-finish-and-return-exit-code-0
-					./test.sh
+					./test.sh --interactive 0
 					JOB=$!
 					PIDS[$JOB]="$JOB: $dist $d"
 				fi
@@ -178,7 +178,7 @@ fi
 if [[ $TESTS != 'basic' ]]
 then
 	pushd  ${SHUTIT_DIR}/library/bin
-	echo y | ./test.sh 
+	echo y | ./test.sh  --interactive 0
 	if [[ $? != 0 ]]
 	then
 		cleanup hard

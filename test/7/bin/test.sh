@@ -14,5 +14,5 @@ then
     exit
 fi
 pushd ..
-../../shutit build
-popd
+../../shutit build "$@"
+
