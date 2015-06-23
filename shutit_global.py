@@ -1313,11 +1313,16 @@ END_''' + random_id)
 		elif type(line) == list:
 			lines = line
 			match_regexp = None
-		if match_regexp == None:
-			match_regexp = line
+		fail = False
 		for line in lines:
-			if not self.replace_text(line, filename, pattern=match_regexp, child=child, expect=expect, note=note):
-				return False
+			if match_regexp == None:
+				this_match_regexp = line
+			else:
+				this_match_regexp = match_regexp
+			if not self.replace_text(line, filename, pattern=this_match_regexp, child=child, expect=expect, note=note):
+				fail = True
+		if fail:
+			return False
 		return True
 
 
@@ -1711,37 +1716,40 @@ END_''' + random_id)
 		if (not shutit_util.determine_interactive(self) or cfg['build']['interactive'] < 1 or 
 			cfg['build']['interactive'] < level):
 			return
-		if child and print_input:
-			if resize:
-				if preamble == None:
-					print (shutit_util.colour(colour,'\nPause point:\n' +
-						'resize==True, so attempting to resize terminal.\n\n' +
-						'If you are not at a shell prompt when calling pause_point, then pass in resize=False.'))
-				self.send_host_file('/tmp/resize',self.shutit_main_dir+'/assets/resize', child=child, log=False)
-				self.send(' chmod 755 /tmp/resize')
-				child.sendline(' sleep 2 && /tmp/resize')
-			if default_msg == None:
-				pp_msg = shutit_util.colour(colour,'\nYou can now type in commands and ' +
-					'alter the state of the target.\nHit return to see the ' +
-					'prompt\nHit CTRL and ] at the same time to continue with ' +
-					'build\n')
-				# TODO - only if in Docker container
-				if True:
-					pp_msg += '\nHit CTRL and u to save the state to a docker image\n'
-				print '\n' + (shutit_util.colour(colour, msg) + shutit_util.colour(colour,pp_msg))
+		if child:
+			if print_input:
+				if resize:
+					if preamble == None:
+						print (shutit_util.colour(colour,'\nPause point:\n' +
+							'resize==True, so attempting to resize terminal.\n\n' +
+							'If you are not at a shell prompt when calling pause_point, then pass in resize=False.'))
+					self.send_host_file('/tmp/resize',self.shutit_main_dir+'/assets/resize', child=child, log=False)
+					self.send(' chmod 755 /tmp/resize')
+					child.sendline(' sleep 2 && /tmp/resize')
+				if default_msg == None:
+					pp_msg = shutit_util.colour(colour,'\nYou can now type in commands and ' +
+						'alter the state of the target.\nHit return to see the ' +
+						'prompt\nHit CTRL and ] at the same time to continue with ' +
+						'build\n')
+					# TODO - only if in Docker container
+					if False:
+						pp_msg += '\nHit CTRL and u to save the state to a docker image\n'
+					print '\n' + (shutit_util.colour(colour, msg) + shutit_util.colour(colour,pp_msg))
+				else:
+					print shutit_util.colour(colour, msg) + '\n' + default_msg + '\n'
+				oldlog = child.logfile_send
+				child.logfile_send = None
+				try:
+					child.interact(input_filter=self._pause_input_filter)
+				except Exception as e:
+					self.fail('Failed to interact, probably because this is run non-interactively,\nor was previously CTRL-C\'d\n' + str(e))
+				child.logfile_send = oldlog
 			else:
-				print shutit_util.colour(colour, msg) + '\n' + default_msg + '\n'
-			oldlog = child.logfile_send
-			child.logfile_send = None
-			try:
-				child.interact(input_filter=self._pause_input_filter)
-			except Exception as e:
-				self.fail('Failed to interact, probably because this is run non-interactively,\nor was previously CTRL-C\'d\n' + str(e))
-			child.logfile_send = oldlog
+				pass
 		else:
 			print msg
-			print shutit_util.colour('32', '\n\n[Hit return to continue]\n')
-			shutit_util.util_raw_input(shutit=self)
+			print 'Nothing to interact with, so quitting to presumably the original shell'
+			sys.exit(1)
 		cfg['build']['ctrlc_stop'] = False
 
 
