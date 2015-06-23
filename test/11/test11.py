@@ -197,6 +197,33 @@ END''')
 		shutit.replace_text('$num_instances=3','/tmp/11.12','num_instances')
 		if shutit.send_and_get_output('md5sum /tmp/11.12') != 'dc86deb5d312f33bf3cdb2a1c95c2c82  /tmp/11.12':
 			shutit.fail('test 11.12 failed')
+
+
+		################################################################################
+		# MULTILINES
+		################################################################################
+		file_text = '''A file with
+some text in.
+It's not very interesting,
+^but has some interesting lines$
+
+and lines with nothing in it,
+    
+just spaces, and just tabs
+		
+some repeated lines
+and
+some repeated lines
+and lines with 'some text in' it again.
+last line
+'''
+
+		fname='/tmp/multi.11.3.1'
+		shutit.send_file(fname,file_text,truncate=True)
+		shutit.insert_text('''a new line1
+a new line2''',fname,'''again.*last line.*''',line_oriented=False)
+		if shutit.send_and_get_output('md5sum ' + fname) != '14b694054d4f5908ab7a96789d2c9451  '  + fname:
+			shutit.fail('test ' + fname + 'failed')
 		return True
 
 def module():
