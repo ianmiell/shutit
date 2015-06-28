@@ -624,7 +624,7 @@ $'"""
 					res = child.expect(expect + [pexpect.TIMEOUT],timeout=1)
 					if res == len(expect):
 						self.fail('CTRL-C hit and could not recover')
-				self.pause_point('CTRL-C hit during command, which has been cancelled',child=child)
+				self.pause_point('CTRL-C hit during command; the command has been cancelled',child=child)
 				return res
 			else:
 				if timed_out:
@@ -682,6 +682,10 @@ END_""" + random_id)
 		child.expect(expect)
 		res = self.match_string(child.before, 
 			'^EXIT_CODE:([0-9][0-9]?[0-9]?)$')
+		if res == None:
+			# Try after - for some reason needed after login
+			res = self.match_string(child.after, 
+				'^EXIT_CODE:([0-9][0-9]?[0-9]?)$')
 		if res not in exit_values or res == None:
 			if res == None:
 				res = str(res)
@@ -1872,7 +1876,9 @@ END_''' + random_id)
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
 		self._handle_note(note)
-		self.send(send, check_exit=False, retry=3,echo=False)
+		# Don't check exit, as that will pollute the output. Also, it's quite likely the
+		# submitted command is intended to fail.
+		self.send(send, child=child, expect=expect, check_exit=False, retry=retry, echo=False)
 		if strip:
 			ansi_escape = re.compile(r'\x1b[^m]*m')
 			string_with_termcodes = self.get_default_child().before.strip(send).strip()
@@ -2068,7 +2074,16 @@ END_''' + random_id)
 		cfg['build']['logins'][r_id] = {'whoami':new_user}
 
 
-	def login(self, user='root', command='su -', child=None, password=None, prompt_prefix=None, expect=None, timeout=20, note=None, go_home=True):
+	def login(self,
+	          user='root',
+	          command='su -',
+	          child=None,
+	          password=None,
+	          prompt_prefix=None,
+	          expect=None,
+	          timeout=20,
+	          note=None,
+	          go_home=True):
 		"""Logs the user in with the passed-in password and command.
 		Tracks the login. If used, used logout to log out again.
 		Assumes you are root when logging in, so no password required.
@@ -2120,6 +2135,8 @@ END_''' + random_id)
 			self.log('WARNING! user is bash - if you see problems below, did you mean: login(command="' + user + '")?',force_stdout=True)
 			print '\n' + 80 * '='
 		self.multisend(send,{'ontinue connecting':'yes','assword':password,'login:':password},expect=[login_expect,user+'@','\r\n.*[@#$]'],check_exit=False,timeout=timeout,fail_on_empty_before=False)
+		if not self._check_exit(send,expect=[login_expect,user+'@','\r\n.*[@#$]']):
+			self.pause_point('Login failed?')
 		if prompt_prefix != None:
 			self.setup_prompt(r_id,child=child,prefix=prompt_prefix)
 		else:
@@ -2129,7 +2146,7 @@ END_''' + random_id)
 
 
 
-	def logout(self, child=None, expect=None, command='exit', note=None):
+	def logout(self, child=None, expect=None, command='exit', note=None, timeout=5):
 		"""Logs the user out. Assumes that login has been called.
 		If login has never been called, throw an error.
 
@@ -2155,7 +2172,7 @@ END_''' + random_id)
 			self.fail('Logout called without corresponding login', throw_exception=False)
 		# No point in checking exit here, the exit code will be
 		# from the previous command from the logged in session
-		self.send(command, expect=expect, check_exit=False)
+		self.send(command, expect=expect, check_exit=False, timeout=timeout)
 	# alias exit_shell to logout
 	exit_shell = logout
 
@@ -2277,7 +2294,6 @@ END_''' + random_id)
 		# A list of OS Family members
 		# RedHat    = Scientific, SLC, Ascendos, CloudLinux, PSBM, OracleLinux, OVS, OEL, Amazon, XenServer 
 		# Suse      = SLES, SLED, OpenSuSE, Suse
-		# Gentoo    = Gentoo, Funtoo
 		# Archlinux = Archlinux
 		# Mandrake  = Mandriva, Mandrake
 		# Solaris   = Solaris, Nexenta, OmniOS, OpenIndiana, SmartOS
