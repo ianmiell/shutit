@@ -541,7 +541,8 @@ class setup(ShutItModule):
 				shutit.add_to_bashrc('export DEBIAN_FRONTEND=noninteractive')
 				if do_update and cfg['build']['delivery'] in ('target','dockerfile'):
 					shutit.send('apt-get update', timeout=9999, check_exit=False)
-				shutit.install('lsb-release')
+				if not shutit.command_available('lsb_release'):
+					shutit.install('lsb-release')
 				shutit.lsb_release()
 				shutit.send('dpkg-divert --local --rename --add /sbin/initctl')
 				shutit.send('ln -f -s /bin/true /sbin/initctl')
