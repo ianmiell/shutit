@@ -721,7 +721,7 @@ def do_build(shutit):
 		           code='32')
 		if cfg[module.module_id]['shutit.core.module.build']:
 			if cfg['build']['delivery'] not in module.ok_delivery_methods:
-				shutit.fail('Module: ' + module.module_id + ' can only be built with one of these --delivery methods: ' + module.ok_delivery_methods + '\nSee shutit build -h for more info, or try adding: --delivery <method> to your shutit invocation')
+				shutit.fail('Module: ' + module.module_id + ' can only be built with one of these --delivery methods: ' + str(module.ok_delivery_methods) + '\nSee shutit build -h for more info, or try adding: --delivery <method> to your shutit invocation')
 			if is_installed(shutit,module):
 				cfg['build']['report'] = (cfg['build']['report'] +
 				    '\nBuilt already: ' + module.module_id +
