@@ -783,20 +783,26 @@ END_""" + random_id)
 						print_contents = string.replace(contents,c,'?')
 				self.log('contents >>>' + print_contents + '<<<')
 		if cfg['build']['current_environment_id'] == 'ORIGIN_ENV':
+			# If we're on the root env (ie the same one that python is running on,
+			# then use python.
 			f = open(path,'w')
 			if truncate:
 				f.truncate(0)
 			f.write(contents)
 			f.close()
 		elif cfg['build']['delivery'] in ('bash','dockerfile'):
-			# If we're on the root env (ie the same one that python is running on,
-			# then use python.
-				if truncate and self.file_exists(path):
-					self.send('rm -f ' + path, expect=expect, child=child)
-				random_id = shutit_util.random_id()
-				self.send('cat > ' + path + " << 'END_'" + random_id + '''
-''' + contents + '''
+			if truncate and self.file_exists(path):
+				self.send('rm -f ' + path, expect=expect, child=child)
+			random_id = shutit_util.random_id()
+			shell_contents = contents
+			# switch off tab-completion
+			self.send('''bind '\C-i:self-insert' ''')
+			self.send('head -c -1 > ' + path + " << 'END_" + random_id + """'
+""" + contents + '''
 END_''' + random_id)
+			# switch back on tab-completion
+			# this makes the assumption that tab-completion was on.
+			self.send('''bind '\C-i:complete' ''')
 		else:
 			host_child = self.pexpect_children['host_child']
 			path = path.replace(' ', '\ ')
@@ -1198,10 +1204,14 @@ END_''' + random_id)
 								return None
 						newtext1 = ftext[:cut_point]
 						newtext2 = ftext[cut_point:]
+					#print 'ftext'
+					#print ftext
 					#print 'cut_point:'
 					#print cut_point
 					#print 'nt1'
 					#print newtext1
+					#print 'text'
+					#print text
 					#print 'nt2'
 					#print newtext2
 				else:
@@ -2130,12 +2140,13 @@ END_''' + random_id)
 			login_expect = expect
 		# We don't fail on empty before as many login programs mess with the output.
 		# In this special case of login we expect either the prompt, or 'user@' as this has been seen to work.
+		general_expect = [login_expect,user+'@','\r\n.*[@#$]']
 		if user == 'bash' and command == 'su -':
 			print '\n' + 80 * '='
 			self.log('WARNING! user is bash - if you see problems below, did you mean: login(command="' + user + '")?',force_stdout=True)
 			print '\n' + 80 * '='
-		self.multisend(send,{'ontinue connecting':'yes','assword':password,'login:':password},expect=[login_expect,user+'@','\r\n.*[@#$]'],check_exit=False,timeout=timeout,fail_on_empty_before=False)
-		if not self._check_exit(send,expect=[login_expect,user+'@','\r\n.*[@#$]']):
+		self.multisend(send,{'ontinue connecting':'yes','assword':password,'login:':password},expect=general_expect,check_exit=False,timeout=timeout,fail_on_empty_before=False)
+		if not self._check_exit(send,expect=general_expect):
 			self.pause_point('Login failed?')
 		if prompt_prefix != None:
 			self.setup_prompt(r_id,child=child,prefix=prompt_prefix)
