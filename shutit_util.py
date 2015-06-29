@@ -309,8 +309,10 @@ def random_word(size=6):
 	"""
 	word_file = find_asset('words')
 	words = open(word_file).read().splitlines()
-	return words[int(random.random() * (len(words) - 1))]
-
+	word = ''
+	while len(word) != 6:
+		word = words[int(random.random() * (len(words) - 1))]
+	return word
 
 def find_asset(filename):
 	filenames = ('/usr/share/dict/'+filename, sys.prefix+'/local/shutit_assets/'+filename, sys.prefix+'/shutit_assets/'+filename, shutit_global.shutit.cfg['host']['shutit_path']+'/assets/'+filename, os.path.join(sys.path[0],'assets',filename), '/usr/local/shutit_assets/'+filename)

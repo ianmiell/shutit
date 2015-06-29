@@ -180,7 +180,7 @@ class ShutIt(object):
 				self.pause_point('FAIL: ' + msg)
 			else:
 				print msg
-				print 'about to exit'
+				print 'Error seen, exiting with status 1'
 				sys.exit(1)
 
 
@@ -707,7 +707,7 @@ END_""" + random_id)
 					res + '). CTRL-C to quit', child=child, level=0)
 			elif retry == 1:
 				self.fail('Exit value from command\n' + send +
-				    '\nwas:\n' + res, throw_exception=True)
+				    '\nwas:\n' + res, throw_exception=False)
 			else:
 				return False
 		return True
