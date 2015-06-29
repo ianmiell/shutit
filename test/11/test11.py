@@ -18,7 +18,6 @@ class test11(ShutItModule):
 b
 c
 d''','/tmp/a','a',line_oriented=False)
-		shutit.send('cat /tmp/a')
 		if shutit.send_and_get_output('md5sum /tmp/a') != '47ece2e49e5c0333677fc34e044d8257  /tmp/a':
 			shutit.fail('test11.1 failed')
 
@@ -39,7 +38,6 @@ b
 c
 d
 e''','/tmp/a','^asfasfa$',line_oriented=False) != None:
-			shutit.send('cat /tmp/a')
 			shutit.fail('test11.3 failed')
 
 
@@ -49,7 +47,6 @@ d""")
 		shutit.insert_text('''b
 c
 ''','/tmp/a','d',before=True,line_oriented=False)
-		shutit.send('cat /tmp/a')
 		if shutit.send_and_get_output('md5sum /tmp/a') != 'aedeb9f7ddf76f45747fe5f7f6d211dd  /tmp/a':
 			shutit.fail('test11.4 failed')
 
@@ -59,7 +56,6 @@ c
 c
 d
 ''','/tmp/a',line_oriented=False)
-		shutit.send('cat /tmp/a')
 		if shutit.send_and_get_output('md5sum /tmp/a') != '47ece2e49e5c0333677fc34e044d8257  /tmp/a':
 			shutit.fail('test11.5 failed')
 
@@ -69,7 +65,6 @@ d
 c
 d
 ''','/tmp/11.6','^a$',line_oriented=False)
-		shutit.send('cat /tmp/11.6')
 		if shutit.send_and_get_output('md5sum /tmp/11.6') != '4e392c10508f911b8110b5ee5f3e5c76  /tmp/11.6':
 			shutit.fail('test11.6 failed')
 
@@ -90,7 +85,6 @@ d
 		shutit.insert_text('''b
 c
 d''','/tmp/a','a')
-		shutit.send('cat /tmp/a')
 		if shutit.send_and_get_output('md5sum /tmp/a') != '47ece2e49e5c0333677fc34e044d8257  /tmp/a':
 			shutit.fail('test11.1.1 failed')
 
@@ -109,7 +103,6 @@ d''','/tmp/a','b.d')
 c
 d
 e''','/tmp/a','^asfasfa$') != None:
-			shutit.send('cat /tmp/a')
 			shutit.fail('test11.4.2 failed')
 
 
@@ -118,7 +111,6 @@ e''','/tmp/a','^asfasfa$') != None:
 d""")
 		shutit.insert_text('''b
 c''','/tmp/a','^d$',before=True)
-		shutit.send('cat /tmp/a')
 		if shutit.send_and_get_output('md5sum /tmp/a') != 'aedeb9f7ddf76f45747fe5f7f6d211dd  /tmp/a':
 			shutit.fail('test11.5.2 failed')
 
@@ -127,7 +119,6 @@ c''','/tmp/a','^d$',before=True)
 		shutit.insert_text('''b
 c
 d''','/tmp/a')
-		shutit.send('cat /tmp/a')
 		if shutit.send_and_get_output('md5sum /tmp/a') != '47ece2e49e5c0333677fc34e044d8257  /tmp/a':
 			shutit.fail('test11.6.2 failed')
 
@@ -136,8 +127,7 @@ d''','/tmp/a')
 		shutit.replace_text('''b
 c
 d''','/tmp/11.7','^a$')
-		shutit.send('cat /tmp/11.7')
-		if shutit.send_and_get_output('md5sum /tmp/11.7') != '621998bb3ef787c4ac1408b5b9c8bef5  /tmp/11.7':
+		if shutit.send_and_get_output('md5sum /tmp/a') != '47ece2e49e5c0333677fc34e044d8257  /tmp/a':
 			shutit.fail('test11.7.2 failed')
 
 		# simple replace with non-matching pattern
@@ -224,6 +214,25 @@ last line
 a new line2''',fname,'''again.*last line.*''',line_oriented=False)
 		if shutit.send_and_get_output('md5sum ' + fname) != '14b694054d4f5908ab7a96789d2c9451  '  + fname:
 			shutit.fail('test ' + fname + 'failed')
+
+		fname='/tmp/multi.11.3.2'
+		shutit.send_file(fname,file_text,truncate=True)
+		shutit.replace_text('''a new line1''',fname,'''a new line1''')
+		if shutit.send_and_get_output('md5sum ' + fname) != 'd129f9a99dc3bb5ba2c40687c41f12c9  '  + fname:
+			shutit.fail('test ' + fname + '.1 failed')
+		shutit.replace_text('''a new line1''',fname,'''a new line1''')
+		if shutit.send_and_get_output('md5sum ' + fname) != 'd129f9a99dc3bb5ba2c40687c41f12c9  '  + fname:
+			shutit.fail('test ' + fname + '.2 failed')
+		shutit.replace_text('''a new line2''',fname,'''a new line2''')
+		if shutit.send_and_get_output('md5sum ' + fname) != '14b694054d4f5908ab7a96789d2c9451  '  + fname:
+			shutit.fail('test ' + fname + '.3 failed')
+		shutit.replace_text('''just spaces, and just tablets''',fname,'''and just tabs''')
+		if shutit.send_and_get_output('md5sum ' + fname) != '81a023611fb684823f2998ce97da5a23  '  + fname:
+			shutit.fail('test ' + fname + '.4 failed')
+		shutit.replace_text('''just spaces, and just tabs''',fname,'''and just tablets''')
+		if shutit.send_and_get_output('md5sum ' + fname) != '14b694054d4f5908ab7a96789d2c9451  '  + fname:
+			shutit.fail('test ' + fname + '.5 failed')
+
 		return True
 
 def module():
