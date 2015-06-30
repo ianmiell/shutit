@@ -242,7 +242,8 @@ class ShutIt(object):
 			else:
 				environment_id = files[0]
 			if cfg['build']['current_environment_id'] != environment_id:
-				self.fail('environment id mismatch: ' + environment_id + ' and: ' + cfg['build']['current_environment_id'])
+				pass
+				#self.fail('environment id mismatch: ' + environment_id + ' and: ' + cfg['build']['current_environment_id'])
 			if not environment_id == 'ORIGIN_ENV':
 				return environment_id
 		# Root is a special case
