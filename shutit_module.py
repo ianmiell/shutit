@@ -126,7 +126,7 @@ class ShutItModule(object):
 
 	def __init__(self, module_id, run_order,
 	             description='', maintainer='', depends=None, conflicts=None,
-	             delivery_methods=['target','dockerfile','bash','docker']):
+	             delivery_methods=[]):
 		"""Constructor.
 		Sets up module_id, run_order, deps and conflicts.
 		Also checks types for safety.
@@ -168,6 +168,11 @@ class ShutItModule(object):
 			self.conflicts_with = [conflict for conflict in conflicts]
 		self.description = description
 		self.maintainer  = maintainer
+		if delivery_methods == [] or delivery_methods == '':
+			# default to all
+			delivery_methods = ['target','dockerfile','bash','docker']
+		if type(delivery_methods) == str:
+			delivery_methods = [delivery_methods]
 		self.ok_delivery_methods = delivery_methods
 
 
