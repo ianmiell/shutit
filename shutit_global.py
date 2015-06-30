@@ -1974,6 +1974,10 @@ END_''' + random_id)
 			cmd = 'docker pull'
 			if 'docker' in options:
 				opts = options['docker']
+		elif install_type == 'brew':
+			cmd = 'brew install'
+			if 'brew' in options:
+				opts = options['brew']
 		else:
 			# Not handled
 			return False
@@ -2049,6 +2053,10 @@ END_''' + random_id)
 			cmd = 'docker rmi'
 			if 'docker' in options:
 				opts = options['docker']
+		elif install_type == 'brew':
+			cmd = 'brew uninstall'
+			if 'brew' in options:
+				opts = options['brew']
 		else:
 			# Not handled
 			return False
@@ -2408,6 +2416,7 @@ END_''' + random_id)
 						install_type = 'docker'
 				if self.send_and_get_output("uname -a | awk '{print $1}'") == 'Darwin':
 					distro = 'osx'
+					install_type = 'brew'
 			if install_type == '' or distro == '':
 				self.fail('Could not determine Linux distro information. ' + 
 							'Please inform ShutIt maintainers.', child=child)

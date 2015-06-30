@@ -33,6 +33,7 @@ PACKAGE_MAP = {
 	'php5':                  {'apt':'php5',              'yum':'php'},
 	'ruby-dev':              {'apt':'ruby-dev',          'yum':'ruby-devel'},
 	'git':                   {'emerge':'dev-vcs/git'},
+	'vagrant':               {'brew':'Caskroom/cask/vagrant'},
 }
 
 def map_package(package, install_type):
