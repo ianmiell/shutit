@@ -105,6 +105,16 @@ cleanup hard
 rm -rf ${NEWDIR}
 popd > /dev/null 2>&1
 
+pushd ${SHUTIT_DIR}/test/11
+shutit build -d bash
+RES=$?
+if [[ "x$RES" != "x0" ]]
+then
+	echo "FAILURE |$RES| in: $(pwd) running test.sh"
+	cleanup hard
+	exit 1
+fi
+popd
 
 # General tests
 mkdir -p /tmp/shutit_logs/$$
