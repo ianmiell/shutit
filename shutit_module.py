@@ -125,7 +125,8 @@ class ShutItModule(object):
 	__metaclass__ = ShutItMeta
 
 	def __init__(self, module_id, run_order,
-			description='', maintainer='', depends=None, conflicts=None):
+	             description='', maintainer='', depends=None, conflicts=None,
+	             delivery_methods=['target','dockerfile','bash','docker']):
 		"""Constructor.
 		Sets up module_id, run_order, deps and conflicts.
 		Also checks types for safety.
@@ -167,6 +168,7 @@ class ShutItModule(object):
 			self.conflicts_with = [conflict for conflict in conflicts]
 		self.description = description
 		self.maintainer  = maintainer
+		self.ok_delivery_methods = delivery_methods
 
 
 	########################################################################
