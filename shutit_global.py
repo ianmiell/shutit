@@ -212,9 +212,6 @@ class ShutIt(object):
 		time.sleep(pause)
 
 
-	def get_current_environment(self):
-		cfg = self.cfg
-		return cfg['environment'][cfg['build']['current_environment_id']]
 
 	def setup_environment(self, prefix, expect=None, child=None):
 		"""If we are in a new environment then set up a new data structure.
@@ -238,12 +235,12 @@ class ShutIt(object):
 							break
 				else:
 					self.fail('Wrong number of files in environment_id_dir: ' + environment_id_dir)
-					environment_id = files[0]
 			else:
 				environment_id = files[0]
 			if cfg['build']['current_environment_id'] != environment_id:
-				pass
-				#self.fail('environment id mismatch: ' + environment_id + ' and: ' + cfg['build']['current_environment_id'])
+				# Clean out any trace of this new environment, and return the already-existing one.
+				self.send('rm -rf ' + environment_id_dir + '/environment_id/' + environment_id, child=child, expect=expect)
+				return cfg['build']['current_environment_id']
 			if not environment_id == 'ORIGIN_ENV':
 				return environment_id
 		# Root is a special case
@@ -271,6 +268,10 @@ class ShutIt(object):
 		self.send('touch ' + fname, child=child, expect=expect)
 		cfg['environment'][environment_id]['setup']                        = True
 		return environment_id
+
+	def get_current_environment(self):
+		cfg = self.cfg
+		return cfg['environment'][cfg['build']['current_environment_id']]
 
 
 
