@@ -28,6 +28,9 @@ class prompt_command(ShutItModule):
 		shutit.send('whoami')
 		shutit.login(user='root')
 		shutit.send('whoami')
+		shutit.login(user='libuuid')
+		shutit.send('whoami')
+		shutit.logout()
 		shutit.logout()
 		shutit.logout()
 		return True
