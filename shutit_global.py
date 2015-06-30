@@ -2309,7 +2309,6 @@ END_''' + random_id)
 		# Mandrake  = Mandriva, Mandrake
 		# Solaris   = Solaris, Nexenta, OmniOS, OpenIndiana, SmartOS
 		# AIX       = AIX
-		# Darwin    = MacOSX
 		# FreeBSD   = FreeBSD
 		# HP-UK     = HPUX
 
@@ -2407,6 +2406,8 @@ END_''' + random_id)
 					elif self.file_exists('/etc/coreos',directory=True):
 						distro       = 'coreos'
 						install_type = 'docker'
+				if self.send_and_get_output("uname -a | awk '{print $1}'") == 'Darwin':
+					distro = 'osx'
 			if install_type == '' or distro == '':
 				self.fail('Could not determine Linux distro information. ' + 
 							'Please inform ShutIt maintainers.', child=child)
@@ -2950,7 +2951,8 @@ def init():
 	                                    'alpine':'apk',
 	                                    'shutit':'src',
 	                                    'coreos':'docker',
-	                                    'gentoo':'emerge'}
+	                                    'gentoo':'emerge',
+	                                    'osx':'brew'}
 
 	# If no LOGNAME available,
 	cfg['host']['username'] = os.environ.get('LOGNAME', '')
