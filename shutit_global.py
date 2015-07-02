@@ -394,7 +394,8 @@ class ShutIt(object):
 	         echo=False,
 	         escape=False,
 	         retry=3,
-	         note=None):
+	         note=None,
+	         assume_gnu=True):
 		"""Send string as a shell command, and wait until the expected output
 		is seen (either a string or any from a list of strings) before
 		returning. The expected string will default to the currently-set
@@ -415,6 +416,7 @@ class ShutIt(object):
 		@param escape: Whether to escape the characters in a bash-friendly way, ie $'\Uxxxxxx'
 		@param retry: Number of times to retry the command if the first attempt doesn't work. Useful if going to the network
 		@param note: If a note is passed in, and we are in walkthrough mode, pause with the note printed
+		@param assume_gnu: Assume the gnu version of commands, which are not in OSx by default (for example)
 		@return: The pexpect return value (ie which expected string in the list matched)
 		@rtype: string
 		"""
@@ -424,6 +426,13 @@ class ShutIt(object):
 		self._handle_note(note)
 		if timeout == None:
 			timeout = 3600
+
+		# Handle OSX to get the GNU version of the command
+		if assume_gnu:
+			cmd_arr = send.split()
+			if len(cmd_arr) and cmd_arr[0] in ('md5sum','sed'):
+				send =string.join([self._get_command(cmd_arr[0])] + cmd_arr[1:])
+			
 		# If check_exit is not passed in
 		# - if the expect matches the default, use the default check exit
 		# - otherwise, default to doing the check
@@ -638,11 +647,13 @@ $'"""
 		self.fail('Should not get here (_expect_allow_interrupt)')
 
 
-	def _get_head_command(self):
-		if self.cfg['environment'][cfg['build']['current_environment_id']]['distro'] == 'osx':
-			return '''PATH="/usr/local/opt/coreutils/libexec/gnubin:$PATH" head '''
-		else:
-			return 'head '
+	def _get_command(self, command):
+		if command in ('head','md5sum'):
+			if self.cfg['environment'][cfg['build']['current_environment_id']]['distro'] == 'osx':
+				return '''PATH="/usr/local/opt/coreutils/libexec/gnubin:$PATH" ''' + command + ' '
+			else:
+				return 'head '
+
 
 	def _create_command_file(self, child, expect, send, timeout):
 		"""Internal function. Do not use.
@@ -807,7 +818,7 @@ END_""" + random_id)
 			shell_contents = contents
 			# switch off tab-completion
 			self.send('''bind '\C-i:self-insert' ''')
-			self.send('head -c -1 > ' + path + " << 'END_" + random_id + """'
+			self.send(self._get_command('head') + ' -c -1 > ' + path + " << 'END_" + random_id + """'
 """ + contents + '''
 END_''' + random_id)
 			# switch back on tab-completion
