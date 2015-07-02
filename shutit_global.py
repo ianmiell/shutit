@@ -430,7 +430,7 @@ class ShutIt(object):
 		# Handle OSX to get the GNU version of the command
 		if assume_gnu:
 			cmd_arr = send.split()
-			if len(cmd_arr) and cmd_arr[0] in ('md5sum','sed'):
+			if len(cmd_arr) and cmd_arr[0] in ('md5sum','sed','head'):
 				send =string.join([self._get_command(cmd_arr[0])] + cmd_arr[1:])
 			
 		# If check_exit is not passed in
@@ -648,11 +648,13 @@ $'"""
 
 
 	def _get_command(self, command):
+		cfg = self.cfg
 		if command in ('head','md5sum'):
-			if self.cfg['environment'][cfg['build']['current_environment_id']]['distro'] == 'osx':
+			if cfg['environment'][cfg['build']['current_environment_id']]['distro'] == 'osx':
 				return '''PATH="/usr/local/opt/coreutils/libexec/gnubin:$PATH" ''' + command + ' '
 			else:
 				return 'head '
+		return command
 
 
 	def _create_command_file(self, child, expect, send, timeout):
@@ -670,7 +672,7 @@ $'"""
 		while len(working_str) > 0:
 			curr_str = working_str[:size]
 			working_str = working_str[size:]
-			child.sendline(self._get_head_command() + ''' -c -1 >> ''' + fname + """ << 'END_""" + random_id + """'
+			child.sendline(self._get_command('head') + ''' -c -1 >> ''' + fname + """ << 'END_""" + random_id + """'
 """ + curr_str + """
 END_""" + random_id)
 			child.expect(expect)
@@ -817,13 +819,13 @@ END_""" + random_id)
 			random_id = shutit_util.random_id()
 			shell_contents = contents
 			# switch off tab-completion
-			self.send('''bind '\C-i:self-insert' ''')
+			self.send('''bind '\C-i:self-insert' ''',check_exit=False)
 			self.send(self._get_command('head') + ' -c -1 > ' + path + " << 'END_" + random_id + """'
 """ + contents + '''
 END_''' + random_id)
 			# switch back on tab-completion
 			# this makes the assumption that tab-completion was on.
-			self.send('''bind '\C-i:complete' ''')
+			self.send('''bind '\C-i:complete' ''',check_exit=False)
 		else:
 			host_child = self.pexpect_children['host_child']
 			path = path.replace(' ', '\ ')
@@ -1910,13 +1912,24 @@ END_''' + random_id)
 		# Don't check exit, as that will pollute the output. Also, it's quite likely the
 		# submitted command is intended to fail.
 		self.send(send, child=child, expect=expect, check_exit=False, retry=retry, echo=False, timeout=timeout)
+		# TODO: make this better by creating a call to get the actual command sent.
+		before = self.get_default_child().before
+		try:
+			if cfg['environment'][cfg['build']['current_environment_id']]['distro'] == 'osx':
+				before_list = before.split('\r\n')
+				before_list = before_list[1:]
+				before = string.join(before_list,'\r\n')
+			else:
+				before = before.strip(send)
+		except:
+			before = before.strip(send)
 		if strip:
 			ansi_escape = re.compile(r'\x1b[^m]*m')
-			string_with_termcodes = self.get_default_child().before.strip(send).strip()
+			string_with_termcodes = before.strip()
 			string_without_termcodes = ansi_escape.sub('', string_with_termcodes)
 			return string_without_termcodes.strip()
 		else:
-			return self.get_default_child().before.strip(send)
+			return before
 
 
 	def install(self,
