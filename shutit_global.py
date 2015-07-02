@@ -542,8 +542,8 @@ $'"""
 					else:
 						expect_res = self._expect_allow_interrupt(child, expect, timeout)
 			if cfg['build']['debug']:
-				self.log('child.before>>>' + child.before + '<<<',code=31)
-				self.log('child.after>>>' + child.after + '<<<',code=32)
+				self.log('\nchild.before>>>' + child.before + '<<<',code=31)
+				self.log('\nchild.after>>>' + child.after + '<<<',code=32)
 			if fail_on_empty_before == True:
 				if child.before.strip() == '':
 					self.fail('before empty after sending: ' + str(send) +
