@@ -233,6 +233,12 @@ a new line2''',fname,'''again.*last line.*''',line_oriented=False)
 		if shutit.send_and_get_output('md5sum ' + fname) != '14b694054d4f5908ab7a96789d2c9451  '  + fname:
 			shutit.fail('test ' + fname + '.5 failed')
 
+		fname='/tmp/multi.11.3.1'
+		shutit.send_file(fname,file_text,truncate=True)
+		shutit.replace_text('^but has some interesting lines',fname,'^but has some interesting.*$')
+		shutit.pause_point('')
+
+
 		return True
 
 def module():
