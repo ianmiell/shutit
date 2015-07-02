@@ -429,9 +429,7 @@ class ShutIt(object):
 
 		# Handle OSX to get the GNU version of the command
 		if assume_gnu:
-			cmd_arr = send.split()
-			if len(cmd_arr) and cmd_arr[0] in ('md5sum','sed','head'):
-				send =string.join([self._get_command(cmd_arr[0])] + cmd_arr[1:])
+			send = self._get_send_command(send)
 			
 		# If check_exit is not passed in
 		# - if the expect matches the default, use the default check exit
@@ -589,6 +587,13 @@ $'"""
 	# alias send to send_and_expect
 	send_and_expect = send
 
+	
+	def _get_send_command(self, send):
+		"""Internal helper function to get command that's really sent"""
+		cmd_arr = send.split()
+		if len(cmd_arr) and cmd_arr[0] in ('md5sum','sed','head'):
+			send = string.join([self._get_command(cmd_arr[0])] + cmd_arr[1:])
+		return send
 
 	def _handle_note(self, note):
 		"""Handle notes and walkthrough option.
@@ -1911,8 +1916,7 @@ END_''' + random_id)
 		self._handle_note(note)
 		# Don't check exit, as that will pollute the output. Also, it's quite likely the
 		# submitted command is intended to fail.
-		self.send(send, child=child, expect=expect, check_exit=False, retry=retry, echo=False, timeout=timeout)
-		# TODO: make this better by creating a call to get the actual command sent.
+		self.send(self._get_send_command(send), child=child, expect=expect, check_exit=False, retry=retry, echo=False, timeout=timeout)
 		before = self.get_default_child().before
 		try:
 			if cfg['environment'][cfg['build']['current_environment_id']]['distro'] == 'osx':
