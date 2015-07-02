@@ -386,7 +386,7 @@ class ShutIt(object):
 	         send,
 	         expect=None,
 	         child=None,
-	         timeout=3600,
+	         timeout=None,
 	         check_exit=None,
 	         fail_on_empty_before=True,
 	         record_command=True,
@@ -422,6 +422,8 @@ class ShutIt(object):
 		expect = expect or self.get_default_expect()
 		cfg = self.cfg
 		self._handle_note(note)
+		if timeout == None:
+			timeout = 3600
 		# If check_exit is not passed in
 		# - if the expect matches the default, use the default check exit
 		# - otherwise, default to doing the check
@@ -636,6 +638,12 @@ $'"""
 		self.fail('Should not get here (_expect_allow_interrupt)')
 
 
+	def _get_head_command(self):
+		if self.cfg['environment'][cfg['build']['current_environment_id']]['distro'] == 'osx':
+			return '''PATH="/usr/local/opt/coreutils/libexec/gnubin:$PATH" head '''
+		else:
+			return 'head '
+
 	def _create_command_file(self, child, expect, send, timeout):
 		"""Internal function. Do not use.
 
@@ -651,7 +659,7 @@ $'"""
 		while len(working_str) > 0:
 			curr_str = working_str[:size]
 			working_str = working_str[size:]
-			child.sendline('''head -c -1 >> ''' + fname + """ << 'END_""" + random_id + """'
+			child.sendline(self._get_head_command() + ''' -c -1 >> ''' + fname + """ << 'END_""" + random_id + """'
 """ + curr_str + """
 END_""" + random_id)
 			child.expect(expect)
@@ -1871,7 +1879,7 @@ END_''' + random_id)
 
 
 
-	def send_and_get_output(self, send, expect=None, child=None, retry=3, strip=True, note=None):
+	def send_and_get_output(self, send, expect=None, child=None, timeout=None, retry=3, strip=True, note=None):
 		"""Returns the output of a command run. send() is called, and exit is not checked.
 
 		@param send:     See send()
@@ -1890,7 +1898,7 @@ END_''' + random_id)
 		self._handle_note(note)
 		# Don't check exit, as that will pollute the output. Also, it's quite likely the
 		# submitted command is intended to fail.
-		self.send(send, child=child, expect=expect, check_exit=False, retry=retry, echo=False)
+		self.send(send, child=child, expect=expect, check_exit=False, retry=retry, echo=False, timeout=timeout)
 		if strip:
 			ansi_escape = re.compile(r'\x1b[^m]*m')
 			string_with_termcodes = self.get_default_child().before.strip(send).strip()
@@ -2285,6 +2293,24 @@ END_''' + random_id)
 		self.setup_environment()
 
 
+	def get_memory(self, child=None, expect=None, note=None):
+		"""Returns memory available for use in k as an int"""
+		child = child or self.get_default_child()
+		old_expect = expect or self.get_default_expect()
+		cfg = self.cfg
+		self._handle_note(note)
+		if cfg['environment'][cfg['build']['current_environment_id']]['distro'] == 'osx':
+			memavail = self.send_and_get_output("""vm_stat | grep ^Pages.free: | awk '{print $3}' | tr -d '.'""",child=child,expect=expect,timeout=3)
+			memavail = int(memavail)
+			memavail *= 4
+		else:
+			memavail = self.send_and_get_output("""cat /proc/meminfo  | grep MemAvailable | awk '{print $2}'""",child=child,expect=expect,timeout=3)
+			memavail = int(memavail)
+		return memavail
+
+		
+
+
 	def get_distro_info(self, environment_id, child=None, container=True):
 		"""Get information about which distro we are using,
 		placing it in the cfg['environment'][environment_id] as a side effect.
@@ -2419,6 +2445,11 @@ END_''' + random_id)
 				if self.send_and_get_output("uname -a | awk '{print $1}'") == 'Darwin':
 					distro = 'osx'
 					install_type = 'brew'
+					if not self.command_available('brew'):
+						self.fail('ShutiIt requires brew be installed. See http://brew.sh for details on installation.')
+					for package in ('coreutils','findutils','gnu-tar','gnu-sed','gawk','gnutls','gnu-indent','gnu-getopt'):
+						if self.send_and_get_output('brew list | grep -w ' + package) == '':
+							self.send('brew install ' + package)
 			if install_type == '' or distro == '':
 				self.fail('Could not determine Linux distro information. ' + 
 							'Please inform ShutIt maintainers.', child=child)
@@ -2768,6 +2799,8 @@ END_''' + random_id)
 			return default
 		else:
 			return answer
+
+
 
 
 	def get_config(self,
