@@ -24,10 +24,6 @@ some repeated lines
 and lines with 'some text in' it again.
 last line
 '''
-		#fname='/tmp/multi.11.3.1'
-		#shutit.send_file(fname,file_text,truncate=True)
-		#sshutit.replace_text('^but has some interesting lines',fname,'^but has some interesting.*$')
-		#sshutit.pause_point('')
 		################################################################################
 		# NON-LINE-ORIENTED TESTS
 		################################################################################

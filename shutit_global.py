@@ -1252,9 +1252,9 @@ END_''' + random_id)
 						#Help the user out to make this properly line-oriented
 						pattern_before=''
 						pattern_after=''
-						if len(line) == 0 or line[0] != '^':
+						if len(pattern) == 0 or pattern[0] != '^':
 							pattern_before = '^.*'
-						if len(line) == 0 or line[-1] != '$':
+						if len(pattern) == 0 or pattern[-1] != '$':
 							pattern_after = '.*$'
 						new_pattern = pattern_before+pattern+pattern_after
 						match = re.search(new_pattern, line)
@@ -2450,28 +2450,26 @@ END_''' + random_id)
 			distro         = d['distro']
 			distro_version = d['distro_version']
 		else:
-			for key in cfg['build']['install_type_map'].keys():
-			    #          v the space is intentional, to avoid polluting bash history.
-				self.send(' cat /etc/issue | grep -i "' + key + '" | wc -l',
-					check_exit=False)
-				if self.match_string(child.before, '^([0-9]+)$') == '1':
-					distro       = key
-					install_type = cfg['build']['install_type_map'][key]
-					break
+			if self.file_exists('/etc/issue'):
+				issue_output = self.send_and_get_output(' cat /etc/issue').lower()
+				for key in cfg['build']['install_type_map'].keys():
+					if issue_output.find(key) != -1:
+						distro       = key
+						install_type = cfg['build']['install_type_map'][key]
+						break
 			if install_type == '' or distro == '':
-			    #          v the space is intentional, to avoid polluting bash history.
-				self.send(' cat /etc/issue',check_exit=False)
-				if self.match_string(child.before,'^Kernel .*r on an .*m$'):
-					distro       = 'centos'
-					install_type = 'yum'
-				else:
-					if self.send_and_get_output(' cat /etc/os-release | grep ^NAME | grep Gentoo | wc -l') == '1':
+				if self.file_exists('/etc/os-release'):
+					os_name = self.send_and_get_output(' cat /etc/os-release | grep ^NAME').lower()
+					if os_name.find('centos') != -1:
+						distro       = 'centos'
+						install_type = 'yum'
+					elif os_name.find('gentoo') != -1:
 						distro       = 'gentoo'
 						install_type = 'emerge'
-					elif self.file_exists('/etc/coreos',directory=True):
-						distro       = 'coreos'
-						install_type = 'docker'
-				if self.send_and_get_output("uname -a | awk '{print $1}'") == 'Darwin':
+				elif self.file_exists('/etc/coreos',directory=True):
+					distro       = 'coreos'
+					install_type = 'docker'
+				elif self.send_and_get_output("uname -a | awk '{print $1}'") == 'Darwin':
 					distro = 'osx'
 					install_type = 'brew'
 					if not self.command_available('brew'):
@@ -2479,9 +2477,9 @@ END_''' + random_id)
 					for package in ('coreutils','findutils','gnu-tar','gnu-sed','gawk','gnutls','gnu-indent','gnu-getopt'):
 						if self.send_and_get_output('brew list | grep -w ' + package) == '':
 							self.send('brew install ' + package)
-			if install_type == '' or distro == '':
-				self.fail('Could not determine Linux distro information. ' + 
-							'Please inform ShutIt maintainers.', child=child)
+				if install_type == '' or distro == '':
+					self.fail('Could not determine Linux distro information. ' + 
+								'Please inform ShutIt maintainers.', child=child)
 			# The call to self.package_installed with lsb-release above 
 			# may fail if it doesn't know the install type, so
 			# if we've determined that now

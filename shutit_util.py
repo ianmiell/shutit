@@ -1598,6 +1598,9 @@ def module():
 		# sed3 uses treble quotes for simpler escaping of strings
 		sbsi = cfg['build']['shutit_state_dir'] + '/shutit_bash_script_include_' + str(int(time.time()))
 		skel_mod_path = os.path.join(skel_path, skel_module_name + '.py')
+		# Take the sript (in python)
+
+
 		# TODO: we probably don't need all these external programs any more
 		calls = [
 			r'''egrep -v '^[\s]*$' ''' + skel_script + r''' | grep -v '^#' | sed "s/\"$/\" /;s/^/\t\tshutit.send(\"\"\"/;s/$/\"\"\")/" > ''' + sbsi,
