@@ -1591,28 +1591,52 @@ def module():
 			multi-line commands need to be handled more carefully.
 			================================================================================''')
 
-		# egrep removes leading space
-		# grep removes comments
-		# sed1 ensures no confusion with double quotes
-		# sed2 replaces script lines with shutit code
-		# sed3 uses treble quotes for simpler escaping of strings
 		sbsi = cfg['build']['shutit_state_dir'] + '/shutit_bash_script_include_' + str(int(time.time()))
 		skel_mod_path = os.path.join(skel_path, skel_module_name + '.py')
-		# TODO: we probably don't need all these external programs any more
-		calls = [
-			r'''egrep -v '^[\s]*$' ''' + skel_script + r''' | grep -v '^#' | sed "s/\"$/\" /;s/^/\t\tshutit.send(\"\"\"/;s/$/\"\"\")/" > ''' + sbsi,
-			r'''sed "10r ''' + sbsi + '" ' + skel_mod_path + ' > ' + skel_mod_path + '.new''',
-			r'''mv ''' + skel_mod_path + '''.new ''' + skel_mod_path
-		]
-		for call in calls:
-			subprocess.check_call(['bash', '-c', call])
+		# Read in new file
+		script_list = open(skel_script).read().splitlines()
+		skel_mod_path_list = open(skel_mod_path).read().splitlines()
+		new_script = []
+		for line in script_list:
+			# remove leading space
+			line = line.strip()
+			# ignore empty lines
+			# ignore lines with leading #
+			if len(line) == 0 or line[0] == '#':
+				continue
+			# surround with send command and space
+			line = "\t\tshutit.send('''" + line + "''')"
+			# double quotes (?)
+			new_script.append(line)
+		# insert code into relevant part of skel_mod_path
+		final_script = ''
+		def_build_found = False
+		# Go through each line of the base file
+		for line in skel_mod_path_list:
+			# Set trip switch to on once we find def build
+			if string.find(line,'def build') != -1:
+				def_build_found = True
+			# If we're in the build method, and at the return line....
+			if def_build_found and string.find(line,'return True') != -1:
+				# ...script in
+				for new_script_line in new_script:
+					final_script += new_script_line + '\r\n'
+				# Set trip switch back to off
+				def_build_found = False
+			# Add line to final script
+			final_script += line + '\r\n'
+		open(skel_mod_path,'w').write(final_script)
 
 	# Are we creating a new folder inside an existing git repo?
 	if subprocess.call(['git', 'status'], stderr=open(os.devnull, 'wb'), stdout=open(os.devnull, 'wb')) != 0:
 		subprocess.check_call(['git', 'init'], cwd=skel_path, stderr=open(os.devnull, 'wb'), stdout=open(os.devnull, 'wb'))
-		subprocess.check_call([
-			'cp', find_asset('.gitignore'), '.gitignore'
-		], cwd=skel_path)
+		try:
+			subprocess.check_call([
+				'cp', find_asset('.gitignore'), '.gitignore'
+			], cwd=skel_path)
+		except:
+			#gitignore is not essential
+			pass
 
 	if skel_output_dir:
 		print skel_path
