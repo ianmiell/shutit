@@ -592,7 +592,8 @@ $'"""
 		"""Internal helper function to get command that's really sent"""
 		cmd_arr = send.split()
 		if len(cmd_arr) and cmd_arr[0] in ('md5sum','sed','head'):
-			send = string.join(self._get_command(cmd_arr[0]) + send[len(self._get_command(cmd_arr[0])):],'')
+			cmd = self._get_command(cmd_arr[0])
+			send = string.join(cmd + send[len(cmd_arr[0]):],'')
 		return send
 
 	def _handle_note(self, note):
