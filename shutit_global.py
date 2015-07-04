@@ -2466,9 +2466,9 @@ END_''' + random_id)
 					elif os_name.find('gentoo') != -1:
 						distro       = 'gentoo'
 						install_type = 'emerge'
-				elif self.file_exists('/etc/coreos',directory=True):
-					distro       = 'coreos'
-					install_type = 'docker'
+					elif os_name.find('coreos') != -1:
+						distro       = 'coreos'
+						install_type = 'docker'
 				elif self.send_and_get_output("uname -a | awk '{print $1}'") == 'Darwin':
 					distro = 'osx'
 					install_type = 'brew'
