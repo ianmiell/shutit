@@ -590,6 +590,8 @@ $'"""
 	
 	def _get_send_command(self, send):
 		"""Internal helper function to get command that's really sent"""
+		if send == None:
+			return send
 		cmd_arr = send.split()
 		if len(cmd_arr) and cmd_arr[0] in ('md5sum','sed','head'):
 			cmd = self._get_command(cmd_arr[0])
