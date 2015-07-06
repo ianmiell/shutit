@@ -2465,6 +2465,9 @@ END_''' + random_id)
 					if os_name.find('centos') != -1:
 						distro       = 'centos'
 						install_type = 'yum'
+					elif os_name.find('red hat') != -1:
+						distro       = 'red hat'
+						install_type = 'yum'
 					elif os_name.find('gentoo') != -1:
 						distro       = 'gentoo'
 						install_type = 'emerge'
