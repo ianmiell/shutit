@@ -1,5 +1,0 @@
-[shutit.tk.vnc.vnc]
-shutit.core.module.build:yes
-shutit.core.module.allowed_images:["ubuntu.*","debian.*"]
-
-

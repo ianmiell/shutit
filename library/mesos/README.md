@@ -1,1 +1,0 @@
-mesos: description of module directory in here

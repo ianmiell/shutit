@@ -1,9 +1,0 @@
-# When this module is the one being built, which modules should be built along with it by default?
-# This feeds into automated testing of each module.
-[shutit.tk.couchdb.couchdb]
-shutit.core.module.build:yes
-shutit.core.module.allowed_images:["ubuntu"]
-
-# Aspects of build process
-[build]
-base_image:ubuntu

@@ -1,8 +1,0 @@
-# When this module is the one being built, which modules should be built along with it by default?
-# This feeds into automated testing of each module.
-[shutit.tk.btsync.btsync]
-shutit.core.module.build:yes
-shutit.core.module.allowed_images:["ubuntu"]
-
-[build]
-base_image:ubuntu

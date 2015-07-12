@@ -1,8 +1,0 @@
-# When this module is the one being built, which modules should be built along with it by default?
-# This feeds into automated testing of each module.
-[shutit.tk.docker.docker]
-shutit.core.module.build:yes
-shutit.core.module.allowed_images:["ubuntu:14.04","ubuntu:12.04","debian:jessie"]
-
-[dockerfile]
-volume:/var/lib/docker
