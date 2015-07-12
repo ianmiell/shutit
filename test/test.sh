@@ -184,21 +184,6 @@ then
 	done
 fi
 
-# Library tests
-if [[ $TESTS != 'basic' ]]
-then
-	pushd  ${SHUTIT_DIR}/library/bin
-	echo y | ./test.sh  --interactive 0
-	if [[ $? != 0 ]]
-	then
-		cleanup hard
-		exit 1
-	fi
-	popd > /dev/null 2>&1
-	cleanup nothard
-	report
-fi
-
 report
 cleanup hard
 

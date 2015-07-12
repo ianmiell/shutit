@@ -10,6 +10,6 @@ RUN pip install -r requirements.txt
 # Change the next two lines to build your ShutIt module.
 RUN git clone https://github.com/yourname/yourshutitproject.git
 WORKDIR /space/git/shutit/test/14 
-RUN /opt/shutit/shutit build --shutit_module_path /opt/shutit/library --delivery dockerfile
+RUN /opt/shutit/shutit build --delivery dockerfile
 
 CMD ["/bin/bash"] 

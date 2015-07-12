@@ -907,11 +907,11 @@ def main():
 		f.write(digraph_all)
 		f.close()
 		shutit.log('\n================================================================================\n' + digraph_all, force_stdout=True)
-		shutit.log('\nAbove is the digraph for all modules seen in this shutit invocation. Use graphviz to render into an image, eg\n\n\tshutit depgraph -m library | dot -Tpng -o depgraph.png\n', force_stdout=True)
+		shutit.log('\nAbove is the digraph for all modules seen in this shutit invocation. Use graphviz to render into an image, eg\n\n\tshutit depgraph -m mylibrary | dot -Tpng -o depgraph.png\n', force_stdout=True)
 		shutit.log('\n================================================================================\n', force_stdout=True)
 		shutit.log('\n\n' + digraph, force_stdout=True)
 		shutit.log('\n================================================================================\n' + digraph, force_stdout=True)
-		shutit.log('\nAbove is the digraph for all modules configured to be built in this shutit invocation. Use graphviz to render into an image, eg\n\n\tshutit depgraph -m library | dot -Tpng -o depgraph.png\n', force_stdout=True)
+		shutit.log('\nAbove is the digraph for all modules configured to be built in this shutit invocation. Use graphviz to render into an image, eg\n\n\tshutit depgraph -m mylibrary | dot -Tpng -o depgraph.png\n', force_stdout=True)
 		shutit.log('\n================================================================================\n', force_stdout=True)
 		# Exit now
 		sys.exit(0)

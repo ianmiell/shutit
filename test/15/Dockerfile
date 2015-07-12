@@ -11,6 +11,6 @@ WORKDIR /opt
 # Change the next two lines to build your ShutIt module.
 RUN git clone https://github.com/yourname/yourshutitproject.git
 WORKDIR /opt/yourshutitproject
-RUN /opt/shutit/shutit build --shutit_module_path /opt/shutit/library --delivery dockerfile
+RUN /opt/shutit/shutit --delivery dockerfile
 
 CMD ["/bin/bash"] 
