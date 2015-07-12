@@ -999,11 +999,10 @@ END_''' + random_id)
 		self._handle_note(note)
 		#       v the space is intentional, to avoid polluting bash history.
 		test = ' test %s %s' % ('-d' if directory is True else '-a', filename)
-		self.send(test +
+		output = self.send_and_get_output(test +
 			' && echo FILEXIST-""FILFIN || echo FILNEXIST-""FILFIN',
-			expect=expect, child=child, check_exit=False, record_command=False)
-		res = self.match_string(child.before,
-			'^(FILEXIST|FILNEXIST)-FILFIN$')
+			expect=expect, child=child, record_command=False)
+		res = self.match_string(output, '^(FILEXIST|FILNEXIST)-FILFIN$')
 		ret = False
 		if res == 'FILEXIST':
 			ret = True
@@ -1013,7 +1012,7 @@ END_''' + random_id)
 			# Change to log?
 			print repr('before>>>>:%s<<<< after:>>>>%s<<<<' %
 				(child.before, child.after))
-			self.pause_point('Did not see FIL(N)?EXIST in before', child)
+			self.pause_point('Did not see FIL(N)?EXIST in output:\n' + output, child)
 		return ret
 
 
@@ -1900,7 +1899,7 @@ END_''' + random_id)
 
 
 
-	def send_and_get_output(self, send, expect=None, child=None, timeout=None, retry=3, strip=True, note=None):
+	def send_and_get_output(self, send, expect=None, child=None, timeout=None, retry=3, strip=True, note=None, record_command=False):
 		"""Returns the output of a command run. send() is called, and exit is not checked.
 
 		@param send:     See send()
@@ -1919,7 +1918,7 @@ END_''' + random_id)
 		self._handle_note(note)
 		# Don't check exit, as that will pollute the output. Also, it's quite likely the
 		# submitted command is intended to fail.
-		self.send(self._get_send_command(send), child=child, expect=expect, check_exit=False, retry=retry, echo=False, timeout=timeout)
+		self.send(self._get_send_command(send), child=child, expect=expect, check_exit=False, retry=retry, echo=False, timeout=timeout, record_command=record_command)
 		before = self.get_default_child().before
 		try:
 			if cfg['environment'][cfg['build']['current_environment_id']]['distro'] == 'osx':
