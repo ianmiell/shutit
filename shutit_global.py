@@ -2335,6 +2335,8 @@ END_''' + random_id)
 			memavail *= 4
 		else:
 			memavail = self.send_and_get_output("""cat /proc/meminfo  | grep MemAvailable | awk '{print $2}'""",child=child,expect=expect,timeout=3)
+			if memavail == '':
+				memavail = self.send_and_get_output("""free | grep buffers | awk '{print $3}'""",child=child,expect=expect,timeout=3)
 			memavail = int(memavail)
 		return memavail
 
