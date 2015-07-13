@@ -1792,4 +1792,11 @@ def print_frame_recurse(frame):
 		print frame.f_locals
 		print_frame_recurse(frame.f_back)
 
-
+def check_regexp(regex):
+	result = True
+	try:
+		re.compile(input);
+		result = True
+	except:
+		result = False
+	return result

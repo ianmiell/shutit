@@ -367,12 +367,16 @@ class ShutIt(object):
 			output = self.send_and_get_output(send, expect=expect, child=child, retry=1, strip=True)
 			if not not_there:
 				for regexp in regexps:
+					if not shutit_util.check_regexp(regexp):
+						shutit.fail('Illegal regexp found in send_until call: ' + regexp)
 					if self.match_string(output, regexp):
 						return True
 			else:
 				# Only return if _not_ seen in the output
 				found = False
 				for regexp in regexps:
+					if not shutit_util.check_regexp(regexp):
+						shutit.fail('Illegal regexp found in send_until call: ' + regexp)
 					if self.match_string(output, regexp):
 						found = True
 						break
@@ -1089,6 +1093,8 @@ END_''' + random_id)
 							  child=child,
 							  exit_values=['0', '1'])
 				else:
+					if not shutit_util.check_regexp(match_regexp):
+						shutit.fail('Illegal regexp found in remove_line_from_file call: ' + match_regexp)
 					#            v the space is intentional, to avoid polluting bash history.
 					self.send(""" grep -v '^""" + 
 							  match_regexp + 
@@ -1112,6 +1118,8 @@ END_''' + random_id)
 							  child=child,
 							  exit_values=['0', '1'])
 				else:
+					if not shutit_util.check_regexp(match_regexp):
+						shutit.fail('Illegal regexp found in remove_line_from_file call: ' + match_regexp)
 					#          v the space is intentional, to avoid polluting bash history.
 					self.send(' grep -v "^' +
 							  match_regexp +
@@ -1206,6 +1214,8 @@ END_''' + random_id)
 		else:
 			if pattern != None:
 				if line_oriented == False:
+					if not shutit_util.check_regexp(pattern):
+						shutit.fail('Illegal regexp found in change_text call: ' + pattern)
 					# cf: http://stackoverflow.com/questions/9411041/matching-ranges-of-lines-in-python-like-sed-ranges
 					sre_match = re.search(pattern,ftext,re.DOTALL|re.MULTILINE)
 					if replace:
@@ -1249,6 +1259,8 @@ END_''' + random_id)
 					cut_point   = 0
 					line_length = 0
 					matched     = False
+					if not shutit_util.check_regexp(pattern):
+						shutit.fail('Illegal regexp found in change_text call: ' + pattern)
 					for line in lines:
 						#Help the user out to make this properly line-oriented
 						pattern_before=''
@@ -1411,6 +1423,8 @@ END_''' + random_id)
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
 		self._handle_note(note)
+		if not shutit_util.check_regexp(match_regexp):
+			shutit.fail('Illegal regexp found in add_to_bashrc call: ' + match_regexp)
 		self.add_line_to_file(line, '${HOME}/.bashrc', expect=expect, match_regexp=match_regexp) # This won't work for root - TODO
 		self.add_line_to_file(line, '/etc/bash.bashrc', expect=expect, match_regexp=match_regexp)
 		return self.add_line_to_file(line, '/etc/profile', expect=expect, match_regexp=match_regexp)
@@ -1857,6 +1871,8 @@ END_''' + random_id)
 		cfg = self.cfg
 		lines = string.split('\r\n')
 		#print lines
+		if not shutit_util.check_regexp(regexp):
+			shutit.fail('Illegal regexp found in match_string call: ' + regexp)
 		for line in lines:
 			#print line
 			#print regexp
@@ -2132,7 +2148,7 @@ END_''' + random_id)
 
 
 	def get_env_pass(self,user,msg):
-		"""Gets a password from the user if one is not already recorded.
+		"""Gets a password from the user if one is not already recorded for this environment.
 
 		@param user:    username we are getting password for
 		@param msg:     message to put out there
