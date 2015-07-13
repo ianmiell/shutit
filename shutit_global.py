@@ -1989,7 +1989,7 @@ END_''' + random_id)
 		whoiam = self.whoami()
 		if whoiam != 'root':
 			cmd = 'sudo '
-			pw = self.get_env_pass(whoiam)
+			pw = self.get_env_pass(whoiam,'Please input your sudo password in case it is needed (for user: ' + whoiam + ')\nJust hit return if you do not want to submit a password.\n')
 		else:
 			cmd = ''
 			pw = ''
@@ -2089,7 +2089,7 @@ END_''' + random_id)
 		install_type = cfg['environment'][cfg['build']['current_environment_id']]['install_type']
 		if whoiam != 'root':
 			cmd = 'sudo '
-			pw = self.get_env_pass(whoiam)
+			pw = self.get_env_pass(whoiam,'Please input your sudo password in case it is needed (for user: ' + whoiam + ')\nJust hit return if you do not want to submit a password.\n')
 		else:
 			cmd = ''
 			pw = ''
@@ -2131,12 +2131,14 @@ END_''' + random_id)
 		return True
 
 
-	def get_env_pass(self,user):
+	def get_env_pass(self,user,msg):
 		"""Gets a password from the user if one is not already recorded.
 
 		@param user:    username we are getting password for
+		@param msg:     message to put out there
 		"""
 		cfg = self.cfg
+		# Test for the existence of the data structure.
 		try:
 			cfg['environment'][cfg['build']['current_environment_id']][user]
 		except:
@@ -2144,7 +2146,7 @@ END_''' + random_id)
 		try:
 			cfg['environment'][cfg['build']['current_environment_id']][user]['password']
 		except:
-			cfg['environment'][cfg['build']['current_environment_id']][user]['password'] = shutit.get_input('Please input your sudo password in case it is needed (for user: ' + user + ')\nJust hit return if you do not want to submit a password.\n',ispass=True)
+			cfg['environment'][cfg['build']['current_environment_id']][user]['password'] = shutit.get_input(msg,ispass=True)
 		return cfg['environment'][cfg['build']['current_environment_id']][user]['password']
 
 
