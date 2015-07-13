@@ -375,6 +375,8 @@ def allowed_image(shutit,module_id):
 	if cfg[module_id]['shutit.core.module.allowed_images']:
 		# Try allowed images as regexps
 		for regexp in cfg[module_id]['shutit.core.module.allowed_images']:
+			if not shutit_util.check_regexp(regexp):
+				shutit.fail('Illegal regexp found in allowed_images: ' + regexp)
 			if re.match('^' + regexp + '$', cfg['target']['docker_image']):
 				return True
 	return False
