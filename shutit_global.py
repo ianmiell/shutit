@@ -2003,7 +2003,7 @@ END_''' + random_id)
 			return True
 		opts = ''
 		whoiam = self.whoami()
-		if whoiam != 'root':
+		if whoiam != 'root' and install_type != 'brew':
 			cmd = 'sudo '
 			pw = self.get_env_pass(whoiam,'Please input your sudo password in case it is needed (for user: ' + whoiam + ')\nJust hit return if you do not want to submit a password.\n')
 		else:
@@ -2042,7 +2042,7 @@ END_''' + random_id)
 			if 'docker' in options:
 				opts = options['docker']
 		elif install_type == 'brew':
-			cmd = cmd + 'brew install'
+			cmd = 'brew install'
 			if 'brew' in options:
 				opts = options['brew']
 		else:
@@ -2103,7 +2103,7 @@ END_''' + random_id)
 		self._handle_note(note)
 		if options is None: options = {}
 		install_type = cfg['environment'][cfg['build']['current_environment_id']]['install_type']
-		if whoiam != 'root':
+		if whoiam != 'root' and install_type != 'brew':
 			cmd = 'sudo '
 			pw = self.get_env_pass(whoiam,'Please input your sudo password in case it is needed (for user: ' + whoiam + ')\nJust hit return if you do not want to submit a password.\n')
 		else:
@@ -2131,7 +2131,7 @@ END_''' + random_id)
 			if 'docker' in options:
 				opts = options['docker']
 		elif install_type == 'brew':
-			cmd = cmd + 'brew uninstall'
+			cmd = 'brew uninstall'
 			if 'brew' in options:
 				opts = options['brew']
 		else:
