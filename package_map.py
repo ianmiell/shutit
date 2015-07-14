@@ -34,6 +34,7 @@ PACKAGE_MAP = {
 	'ruby-dev':              {'apt':'ruby-dev',          'yum':'ruby-devel'},
 	'git':                   {'emerge':'dev-vcs/git'},
 	'vagrant':               {'brew':'Caskroom/cask/vagrant'},
+	'build-essential':       {'brew':'make gcc'},
 }
 
 def map_package(package, install_type):
