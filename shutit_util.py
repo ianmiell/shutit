@@ -1793,6 +1793,7 @@ def print_frame_recurse(frame):
 		print_frame_recurse(frame.f_back)
 
 def check_regexp(regex):
+	return True
 	result = True
 	try:
 		re.compile(input);
