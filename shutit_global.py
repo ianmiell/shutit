@@ -613,7 +613,7 @@ $'"""
 
 	def _expect_allow_interrupt(self, child, expect, timeout, iteration_s=1):
 		"""This function allows you to interrupt the run at more or less any 
-		point by breaking up the timeout 
+		point by breaking up the timeout into interative chunks.
 		"""
 		accum_timeout = 0
 		# For testing
