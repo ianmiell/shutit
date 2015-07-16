@@ -34,6 +34,7 @@ PACKAGE_MAP = {
 	'ruby-dev':              {'apt':'ruby-dev',          'yum':'ruby-devel',    'brew':'ruby-build'},
 	'git':                   {'emerge':'dev-vcs/git'},
 	'vagrant':               {'brew':'Caskroom/cask/vagrant'},
+	'virtualbox':            {'brew':'Caskroom/cask/virtualbox'},
 	'build-essential':       {'brew':'gcc'},
 }
 
