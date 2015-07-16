@@ -613,7 +613,7 @@ $'"""
 
 	def _expect_allow_interrupt(self, child, expect, timeout, iteration_s=1):
 		"""This function allows you to interrupt the run at more or less any 
-		point by breaking up the timeout 
+		point by breaking up the timeout into interative chunks.
 		"""
 		accum_timeout = 0
 		# For testing
@@ -648,8 +648,8 @@ $'"""
 					child.send('\x1a')
 					res = child.expect(expect + [pexpect.TIMEOUT],timeout=1)
 					if res == len(expect):
-						self.fail('CTRL-C hit and could not recover')
-				self.pause_point('CTRL-C hit during command; the command has been cancelled',child=child)
+						self.fail('CTRL-C hit after timeout and could not recover')
+				self.pause_point('CTRL-C hit after timeout detected; the command has been cancelled',child=child)
 				return res
 			else:
 				if timed_out:

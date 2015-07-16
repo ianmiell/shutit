@@ -1784,6 +1784,7 @@ def get_shutit_frame(frame):
 			return frame
 		return get_shutit_frame(frame.f_back)
 
+
 def print_frame_recurse(frame):
 	if not frame.f_back:
 		return
@@ -1792,10 +1793,11 @@ def print_frame_recurse(frame):
 		print frame.f_locals
 		print_frame_recurse(frame.f_back)
 
+
 def check_regexp(regex):
 	try:
 		re.compile(regex);
 		result = True
-	except:
+	except re.error:
 		result = False
 	return result
