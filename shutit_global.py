@@ -198,6 +198,8 @@ class ShutIt(object):
 			prefix = 'LOG: ' + time.strftime("%Y-%m-%d %H:%M:%S", 
 				time.localtime())
 			logmsg = prefix + ' ' + str(msg)
+		else:
+			logmsg = msg
 		# Don't colour message if we are in serve mode.
 		if code != None and not cfg['action']['serve']:
 			logmsg = shutit_util.colour(code, logmsg)
