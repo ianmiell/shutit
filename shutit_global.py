@@ -104,6 +104,9 @@ class ShutIt(object):
 
 		@return: default pexpect child object
 		"""
+		if self._default_child == None:
+			self.log('Default child not set yet, exiting')
+			sys.exit(1)
 		if self._default_child[-1] is None:
 			self.fail("Couldn't get default child")
 		return self._default_child[-1]
@@ -198,6 +201,8 @@ class ShutIt(object):
 			prefix = 'LOG: ' + time.strftime("%Y-%m-%d %H:%M:%S", 
 				time.localtime())
 			logmsg = prefix + ' ' + str(msg)
+		else:
+			logmsg = msg
 		# Don't colour message if we are in serve mode.
 		if code != None and not cfg['action']['serve']:
 			logmsg = shutit_util.colour(code, logmsg)
