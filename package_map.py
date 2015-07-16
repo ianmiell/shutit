@@ -36,6 +36,7 @@ PACKAGE_MAP = {
 	'vagrant':               {'brew':'Caskroom/cask/vagrant'},
 	'virtualbox':            {'brew':'Caskroom/cask/virtualbox'},
 	'build-essential':       {'brew':'gcc'},
+	'sudo':                  {'brew':''},
 }
 
 def map_package(package, install_type):
