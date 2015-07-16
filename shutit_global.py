@@ -2161,6 +2161,7 @@ END_''' + random_id)
 		self._handle_note(note)
 		user = user or self.whoami()
 		cfg = self.cfg
+		msg = msg or 'Please input the sudo password for user: ' + user
 		# Test for the existence of the data structure.
 		try:
 			cfg['environment'][cfg['build']['current_environment_id']][user]
