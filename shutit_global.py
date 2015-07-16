@@ -197,15 +197,15 @@ class ShutIt(object):
 		if prefix:
 			prefix = 'LOG: ' + time.strftime("%Y-%m-%d %H:%M:%S", 
 				time.localtime())
-			msg = prefix + ' ' + str(msg)
+			logmsg = prefix + ' ' + str(msg)
 		# Don't colour message if we are in serve mode.
 		if code != None and not cfg['action']['serve']:
-			msg = shutit_util.colour(code, msg)
+			logmsg = shutit_util.colour(code, logmsg)
 		if cfg['build']['debug'] or force_stdout:
-			print >> sys.stdout, msg
+			print >> sys.stdout, logmsg
 			sys.stdout.flush()
 		if cfg['build']['build_log'] and cfg['build']['build_log_file'] != None:
-			print >> cfg['build']['build_log_file'], msg
+			print >> cfg['build']['build_log_file'], logmsg
 			cfg['build']['build_log_file'].flush()
 		if add_final_message:
 			cfg['build']['report_final_messages'] += msg + '\n'
