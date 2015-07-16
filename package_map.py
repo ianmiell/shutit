@@ -31,7 +31,7 @@ PACKAGE_MAP = {
 	'apache2':               {'apt':'apache2',           'yum':'httpd'},
 	'adduser':               {'apt':'adduser',           'yum':''},
 	'php5':                  {'apt':'php5',              'yum':'php'},
-	'ruby-dev':              {'apt':'ruby-dev',          'yum':'ruby-devel'},
+	'ruby-dev':              {'apt':'ruby-dev',          'yum':'ruby-devel',    'brew':'ruby-build'},
 	'git':                   {'emerge':'dev-vcs/git'},
 	'vagrant':               {'brew':'Caskroom/cask/vagrant'},
 	'build-essential':       {'brew':'gcc'},

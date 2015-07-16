@@ -380,7 +380,7 @@ class ShutIt(object):
 					if self.match_string(output, regexp):
 						found = True
 						break
-				if found != True:
+				if found == True:
 					return True
 			time.sleep(cadence)
 
@@ -2004,6 +2004,8 @@ END_''' + random_id)
 		opts = ''
 		whoiam = self.whoami()
 		if whoiam != 'root' and install_type != 'brew':
+			if not self.command_available('sudo',child=child,expect=expect):
+				self.pause_point('Please install sudo and then continue with CTRL-]',child=child,expect=expect)
 			cmd = 'sudo '
 			pw = self.get_env_pass(whoiam,'Please input your sudo password in case it is needed (for user: ' + whoiam + ')\nJust hit return if you do not want to submit a password.\n')
 		else:
@@ -2147,12 +2149,17 @@ END_''' + random_id)
 		return True
 
 
-	def get_env_pass(self,user,msg):
+	def get_env_pass(self,user=None,msg=None,child=None,expect=None,note=None):
 		"""Gets a password from the user if one is not already recorded for this environment.
 
 		@param user:    username we are getting password for
 		@param msg:     message to put out there
 		"""
+		#TODO: username per host/username
+		child = child or self.get_default_child()
+		expect = expect or self.get_default_expect()
+		self._handle_note(note)
+		user = user or self.whoami()
 		cfg = self.cfg
 		# Test for the existence of the data structure.
 		try:
@@ -2162,6 +2169,7 @@ END_''' + random_id)
 		try:
 			cfg['environment'][cfg['build']['current_environment_id']][user]['password']
 		except:
+			#TODO: if interactive and unset, else
 			cfg['environment'][cfg['build']['current_environment_id']][user]['password'] = shutit.get_input(msg,ispass=True)
 		return cfg['environment'][cfg['build']['current_environment_id']][user]['password']
 
