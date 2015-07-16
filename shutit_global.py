@@ -2049,6 +2049,8 @@ END_''' + random_id)
 			cmd = 'brew install'
 			if 'brew' in options:
 				opts = options['brew']
+			else:
+				opts += ' --force'
 		else:
 			# Not handled
 			return False
@@ -2138,6 +2140,8 @@ END_''' + random_id)
 			cmd = 'brew uninstall'
 			if 'brew' in options:
 				opts = options['brew']
+			else:
+				opts += ' --force'
 		else:
 			# Not handled
 			return False
