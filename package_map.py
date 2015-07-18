@@ -35,7 +35,7 @@ PACKAGE_MAP = {
 	'git':                   {'emerge':'dev-vcs/git'},
 	'vagrant':               {'brew':'Caskroom/cask/vagrant'},
 	'virtualbox':            {'brew':'Caskroom/cask/virtualbox'},
-	'build-essential':       {'brew':'gcc'},
+	'build-essential':       {'brew':'gcc', 'yum':'gcc make'},
 	'sudo':                  {'brew':''},
 }
 
