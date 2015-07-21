@@ -1795,6 +1795,9 @@ def print_frame_recurse(frame):
 
 
 def check_regexp(regex):
+	if regex == None:
+		# Is this ok?
+		return True
 	try:
 		re.compile(regex);
 		result = True

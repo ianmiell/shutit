@@ -375,16 +375,17 @@ class ShutIt(object):
 						return True
 			else:
 				# Only return if _not_ seen in the output
-				found = False
+				missing = False
 				for regexp in regexps:
 					if not shutit_util.check_regexp(regexp):
 						shutit.fail('Illegal regexp found in send_until call: ' + regexp)
-					if self.match_string(output, regexp):
-						found = True
+					if not self.match_string(output, regexp):
+						missing = True
 						break
-				if found == True:
+				if missing:
 					return True
 			time.sleep(cadence)
+		return False
 
 	         
   
