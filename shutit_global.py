@@ -378,16 +378,17 @@ class ShutIt(object):
 						return True
 			else:
 				# Only return if _not_ seen in the output
-				found = False
+				missing = False
 				for regexp in regexps:
 					if not shutit_util.check_regexp(regexp):
 						shutit.fail('Illegal regexp found in send_until call: ' + regexp)
-					if self.match_string(output, regexp):
-						found = True
+					if not self.match_string(output, regexp):
+						missing = True
 						break
-				if found == True:
+				if missing:
 					return True
 			time.sleep(cadence)
+		return False
 
 	         
   
@@ -2052,6 +2053,8 @@ END_''' + random_id)
 			cmd = 'brew install'
 			if 'brew' in options:
 				opts = options['brew']
+			else:
+				opts += ' --force'
 		else:
 			# Not handled
 			return False
@@ -2110,6 +2113,7 @@ END_''' + random_id)
 		self._handle_note(note)
 		if options is None: options = {}
 		install_type = cfg['environment'][cfg['build']['current_environment_id']]['install_type']
+		whoiam = self.whoami()
 		if whoiam != 'root' and install_type != 'brew':
 			cmd = 'sudo '
 			pw = self.get_env_pass(whoiam,'Please input your sudo password in case it is needed (for user: ' + whoiam + ')\nJust hit return if you do not want to submit a password.\n')
@@ -2141,6 +2145,8 @@ END_''' + random_id)
 			cmd = 'brew uninstall'
 			if 'brew' in options:
 				opts = options['brew']
+			else:
+				opts += ' --force'
 		else:
 			# Not handled
 			return False
