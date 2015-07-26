@@ -105,7 +105,7 @@ class ShutIt(object):
 		@return: default pexpect child object
 		"""
 		if self._default_child[-1] is None:
-			self.fail("Couldn't get default child")
+			print "Couldn't get default child, quitting"
 		return self._default_child[-1]
 
 
@@ -115,7 +115,7 @@ class ShutIt(object):
 		@return: default pexpect string
 		"""
 		if self._default_expect[-1] is None:
-			self.fail("Couldn't get default expect")
+			self.fail("Couldn't get default expect, quitting")
 		return self._default_expect[-1]
 
 
@@ -163,11 +163,9 @@ class ShutIt(object):
 		@param throw_exception: Whether to throw an exception.
 		@type throw_exception: boolean
 		"""
-		# Note: we must not default to a child here
 		if child is not None:
 			self.pause_point('Pause point on fail: ' + msg, child=child, colour='31')
-		print >> sys.stderr, 'Error caught.'
-		print >> sys.stderr
+		print >> sys.stderr, 'Error caught: ' + msg
 		if throw_exception:
 			if shutit_util.determine_interactive(self):
 				self.pause_point('FAIL: ' + msg)
@@ -1787,6 +1785,7 @@ END_''' + random_id)
 		                     Default: 1
 		@param resize:       If True, try to resize terminal.
 		                     Default: False
+		shutit.pause_point('')
 		@param colour:       Colour to print message (typically 31 for red, 32 for green)
 		@param default_msg:  Whether to print the standard blurb
 
@@ -1794,8 +1793,16 @@ END_''' + random_id)
 		@type print_input:   boolean
 		@type level:         integer
 		@type resize:        boolean
+
+		@return:             True if pause point handled ok, else false
 		"""
-		child = child or self.get_default_child()
+		ok=True
+		try:
+			child = child or self.get_default_child()
+		except Exception:
+			ok=False
+		if not ok:
+			return False
 		cfg = self.cfg
 		if (not shutit_util.determine_interactive(self) or cfg['build']['interactive'] < 1 or 
 			cfg['build']['interactive'] < level):
@@ -1835,6 +1842,7 @@ END_''' + random_id)
 			print 'Nothing to interact with, so quitting to presumably the original shell'
 			sys.exit(1)
 		cfg['build']['ctrlc_stop'] = False
+		return True
 
 
 	def _pause_input_filter(self, input_string):
@@ -1950,7 +1958,7 @@ END_''' + random_id)
 				before = string.join(before_list,'\r\n')
 			else:
 				before = before.strip(send)
-		except:
+		except Exception:
 			before = before.strip(send)
 		if strip:
 			ansi_escape = re.compile(r'\x1b[^m]*m')
@@ -2173,11 +2181,11 @@ END_''' + random_id)
 		# Test for the existence of the data structure.
 		try:
 			cfg['environment'][cfg['build']['current_environment_id']][user]
-		except:
+		except Exception:
 			cfg['environment'][cfg['build']['current_environment_id']][user] = {}
 		try:
 			cfg['environment'][cfg['build']['current_environment_id']][user]['password']
-		except:
+		except Exception:
 			#TODO: if interactive and unset, else
 			cfg['environment'][cfg['build']['current_environment_id']][user]['password'] = shutit.get_input(msg,ispass=True)
 		return cfg['environment'][cfg['build']['current_environment_id']][user]['password']
@@ -3113,7 +3121,7 @@ def init():
 		try:
 			if os.getlogin() != '':
 				cfg['host']['username'] = os.getlogin()
-		except:
+		except Exception:
 			import getpass
 			cfg['host']['username'] = getpass.getuser()
 		if cfg['host']['username'] == '':
