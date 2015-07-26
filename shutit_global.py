@@ -1434,7 +1434,7 @@ END_''' + random_id)
 	def get_url(self,
 	            filename,
 	            locations,
-	            command='wget',
+	            command='curl',
 	            expect=None,
 	            child=None,
 	            timeout=3600,
@@ -1476,12 +1476,19 @@ END_''' + random_id)
 		if len(locations) == 0 or type(locations) != list:
 			raise ShutItFailException('Locations should be a list containing base of the url.')
 		retry_orig = retry
+		if not shutit.command_available(command):
+			shutit.install('curl')
+			if not shutit.command_available('curl'):
+				shutit.install('wget')
+				command = 'wget -qO- '
+				if not shutit.command_available('wget'):
+					shutit.fail('Could not install curl or wget, inform maintainers.')
 		for location in locations:
 			retry = retry_orig
 			if location[-1] == '/':
 				location = location[0:-1]
 			while retry >= 0:
-				send = command + ' ' + location + '/' + filename
+				send = command + ' ' + location + '/' + filename + ' > ' + filename
 				self.send(send,check_exit=False,child=child,expect=expect,timeout=timeout,fail_on_empty_before=fail_on_empty_before,record_command=record_command,echo=echo)
 				if not self._check_exit(send, expect, child, timeout, exit_values, retbool=True):
 					self.log('Sending: ' + send + '\nfailed, retrying')
