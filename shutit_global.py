@@ -263,7 +263,7 @@ class ShutIt(object):
 		if prefix != 'ORIGIN_ENV':
 			self.get_distro_info(environment_id)
 		self.send('mkdir -p ' + environment_id_dir, child=child, expect=expect)
-		self.send('chmod 777 ' + environment_id_dir, child=child, expect=expect)
+		self.send('chmod -R 777 ' + cfg['build']['shutit_state_dir_base'])
 		fname = environment_id_dir + '/' + environment_id
 		self.send('touch ' + fname, child=child, expect=expect)
 		cfg['environment'][environment_id]['setup']                        = True
