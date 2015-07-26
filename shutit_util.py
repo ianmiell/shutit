@@ -400,6 +400,7 @@ def get_base_config(cfg, cfg_parser):
 			os.mkdir(cfg['build']['shutit_state_dir_base'])
 		if not os.access(cfg['build']['shutit_state_dir'],os.F_OK):
 			os.mkdir(cfg['build']['shutit_state_dir'])
+		os.chmod(cfg['build']['shutit_state_dir_base'],0777)
 		os.chmod(cfg['build']['shutit_state_dir'],0777)
 		logfile = os.path.join(cfg['build']['shutit_state_dir'], 'shutit_build.log')
 	else:
