@@ -335,7 +335,11 @@ class ConnDocker(ShutItConnModule):
 			try:
 				cid = open(cfg['build']['cidfile']).read()
 				break
+<<<<<<< HEAD
 			except:
+=======
+			except Exception:
+>>>>>>> 36c312af0815940bc0d5e18d700d230bba3cbbb4
 				sleep(1)
 		if cid == '' or re.match('^[a-z0-9]+$', cid) == None:
 			shutit.fail('Could not get container_id - quitting. ' +

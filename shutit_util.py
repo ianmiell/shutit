@@ -400,6 +400,7 @@ def get_base_config(cfg, cfg_parser):
 			os.mkdir(cfg['build']['shutit_state_dir_base'])
 		if not os.access(cfg['build']['shutit_state_dir'],os.F_OK):
 			os.mkdir(cfg['build']['shutit_state_dir'])
+		os.chmod(cfg['build']['shutit_state_dir_base'],0777)
 		os.chmod(cfg['build']['shutit_state_dir'],0777)
 		logfile = os.path.join(cfg['build']['shutit_state_dir'], 'shutit_build.log')
 	else:
@@ -413,7 +414,7 @@ def get_base_config(cfg, cfg_parser):
 	if cfg['build']['delivery'] in ('bash','ssh'):
 		if cfg['target']['docker_image'] != '':
 			print('delivery method specified (' + cfg['build']['delivery'] + ') and image_tag argument make no sense')
-			sys.exit()
+			sys.exit(1)
 	if cfg['target']['docker_image'] == '':
 		cfg['target']['docker_image'] = cfg['build']['base_image']
 	# END tidy configs up
@@ -425,14 +426,14 @@ def get_base_config(cfg, cfg_parser):
 	# rm is incompatible with repository actions
 	if cfg['target']['rm'] and (cfg['repository']['tag'] or cfg['repository']['push'] or cfg['repository']['save'] or cfg['repository']['export']):
 		print("Can't have [target]/rm and [repository]/(push/save/export) set to true")
-		sys.exit()
+		sys.exit(1)
 	if warn != '' and cfg['build']['debug']:
 		issue_warning('Showing config as read in. This can also be done by calling with list_configs:',2)
 		shutit_global.shutit.log(print_config(cfg), force_stdout=True, code='32')
 		time.sleep(1)
 	if cfg['target']['hostname'] != '' and cfg['build']['net'] != '' and cfg['build']['net'] != 'bridge':
 		print('\n\ntarget/hostname or build/net configs must be blank\n\n')
-		sys.exit()
+		sys.exit(1)
 	# FAILS ends
 
 # Returns the config dict
@@ -668,7 +669,7 @@ def parse_args(shutit):
 		cfg['build']['log_config_path'] = cfg['build']['shutit_state_dir'] + '/config/' + cfg['build']['build_id']
 		if os.path.exists(cfg['build']['log_config_path']):
 			print(cfg['build']['log_config_path'] + ' exists. Please move and re-run.')
-			sys.exit()
+			sys.exit(1)
 		os.makedirs(cfg['build']['log_config_path'])
 		os.chmod(cfg['build']['log_config_path'],0777)
 	# Tutorial stuff.
@@ -844,7 +845,7 @@ def load_configs(shutit):
 				reinstall_delay=0.5,
 				locals=None
 			)
-		except:
+		except Exception:
 			shutit.log('No manhole package available, skipping import')
 			pass
 
@@ -967,7 +968,7 @@ def print_config(cfg, hide_password=True, history=False):
 					if history:
 						try:
 							line += (30-len(line)) * ' ' + ' # ' + cp.whereset(k, k1)
-						except:
+						except Exception:
 							# Assume this is because it was never set by a config parser.
 							line += (30-len(line)) * ' ' + ' # ' + "defaults in code"
 					s += line + '\n'
@@ -1180,7 +1181,7 @@ def create_skeleton(shutit):
 			dockerfile_contents = open(skel_dockerfile).read()
 			dockerfile_dirname = os.path.dirname(skel_dockerfile)
 			if dockerfile_dirname == '':
-				shutit.fail('Dockerfile must be absolute')
+				dockerfile_dirname = './'
 			if os.path.exists(dockerfile_dirname):
 				shutil.rmtree(skel_path + '/context')
 				shutil.copytree(dockerfile_dirname, skel_path + '/context')
@@ -1209,7 +1210,7 @@ def create_skeleton(shutit):
 				# Put in the run.sh.
 				try:
 					cfg['dockerfile']['volume'].append(' '.join(json.loads(item[1])))
-				except:
+				except Exception:
 					cfg['dockerfile']['volume'].append(item[1])
 			elif docker_command == 'EXPOSE':
 				# Put in the run.sh.
@@ -1218,13 +1219,13 @@ def create_skeleton(shutit):
 				# Put in the run.sh? Yes, if it exists it goes at the front of cmd
 				try:
 					cfg['dockerfile']['entrypoint'] = ' '.join(json.loads(item[1]))
-				except:
+				except Exception:
 					cfg['dockerfile']['entrypoint'] = item[1]
 			elif docker_command == "CMD":
 				# Put in the run.sh
 				try:
 					cfg['dockerfile']['cmd'] = ' '.join(json.loads(item[1]))
-				except:
+				except Exception:
 					cfg['dockerfile']['cmd'] = item[1]
 			# Other items to be run through sequentially (as they are part of the script)
 			if docker_command == "USER":
@@ -1243,7 +1244,7 @@ def create_skeleton(shutit):
 				# with /bin/sh -c rather than bash. 
 				try:
 					cfg['dockerfile']['script'].append((docker_command, ' '.join(json.loads(item[1]))))
-				except:
+				except Exception:
 					cfg['dockerfile']['script'].append((docker_command, item[1]))
 			elif docker_command == "ADD":
 				# Send file - is this potentially got from the web? Is that the difference between this and COPY?
@@ -1634,7 +1635,7 @@ def module():
 			subprocess.check_call([
 				'cp', find_asset('.gitignore'), '.gitignore'
 			], cwd=skel_path)
-		except:
+		except Exception:
 			#gitignore is not essential
 			pass
 
@@ -1700,7 +1701,7 @@ def util_raw_input(shutit=None, prompt='', default=None, ispass=False):
 				return default
 			else:
 				return resp
-	except:
+	except Exception:
 		msg = 'Problems getting raw input, assuming no controlling terminal.'
 	if shutit:
 		set_noninteractive(shutit,msg=msg)
@@ -1717,7 +1718,7 @@ def determine_interactive(shutit=None):
 			if shutit != None:
 				set_noninteractive(shutit)
 			return False
-	except:
+	except Exception:
 		if shutit != None:
 			set_noninteractive(shutit,msg='Problems determining interactivity, assuming not.')
 		return False

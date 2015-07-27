@@ -105,8 +105,7 @@ class ShutIt(object):
 		@return: default pexpect child object
 		"""
 		if self._default_child == None:
-			self.log('Default child not set yet, exiting')
-			sys.exit(1)
+			self.fail('Default child not set yet, exiting')
 		if self._default_child[-1] is None:
 			self.fail("Couldn't get default child")
 		return self._default_child[-1]
@@ -118,7 +117,7 @@ class ShutIt(object):
 		@return: default pexpect string
 		"""
 		if self._default_expect[-1] is None:
-			self.fail("Couldn't get default expect")
+			self.fail("Couldn't get default expect, quitting")
 		return self._default_expect[-1]
 
 
@@ -169,7 +168,7 @@ class ShutIt(object):
 		# Note: we must not default to a child here
 		if child is not None:
 			self.pause_point('Pause point on fail: ' + msg, child=child, colour='31')
-		print >> sys.stderr, 'Error caught.'
+		print >> sys.stderr, 'Error caught: ' + msg
 		print >> sys.stderr
 		if throw_exception:
 			if shutit_util.determine_interactive(self):
@@ -268,7 +267,7 @@ class ShutIt(object):
 		if prefix != 'ORIGIN_ENV':
 			self.get_distro_info(environment_id)
 		self.send('mkdir -p ' + environment_id_dir, child=child, expect=expect)
-		self.send('chmod 777 ' + environment_id_dir, child=child, expect=expect)
+		self.send('chmod -R 777 ' + cfg['build']['shutit_state_dir_base'])
 		fname = environment_id_dir + '/' + environment_id
 		self.send('touch ' + fname, child=child, expect=expect)
 		cfg['environment'][environment_id]['setup']                        = True
@@ -1439,7 +1438,11 @@ END_''' + random_id)
 	def get_url(self,
 	            filename,
 	            locations,
+<<<<<<< HEAD
 	            command='wget',
+=======
+	            command='curl',
+>>>>>>> 36c312af0815940bc0d5e18d700d230bba3cbbb4
 	            expect=None,
 	            child=None,
 	            timeout=3600,
@@ -1481,12 +1484,26 @@ END_''' + random_id)
 		if len(locations) == 0 or type(locations) != list:
 			raise ShutItFailException('Locations should be a list containing base of the url.')
 		retry_orig = retry
+<<<<<<< HEAD
+=======
+		if not shutit.command_available(command):
+			shutit.install('curl')
+			if not shutit.command_available('curl'):
+				shutit.install('wget')
+				command = 'wget -qO- '
+				if not shutit.command_available('wget'):
+					shutit.fail('Could not install curl or wget, inform maintainers.')
+>>>>>>> 36c312af0815940bc0d5e18d700d230bba3cbbb4
 		for location in locations:
 			retry = retry_orig
 			if location[-1] == '/':
 				location = location[0:-1]
 			while retry >= 0:
+<<<<<<< HEAD
 				send = command + ' ' + location + '/' + filename
+=======
+				send = command + ' ' + location + '/' + filename + ' > ' + filename
+>>>>>>> 36c312af0815940bc0d5e18d700d230bba3cbbb4
 				self.send(send,check_exit=False,child=child,expect=expect,timeout=timeout,fail_on_empty_before=fail_on_empty_before,record_command=record_command,echo=echo)
 				if not self._check_exit(send, expect, child, timeout, exit_values, retbool=True):
 					self.log('Sending: ' + send + '\nfailed, retrying')
@@ -1790,6 +1807,10 @@ END_''' + random_id)
 		                     Default: 1
 		@param resize:       If True, try to resize terminal.
 		                     Default: False
+<<<<<<< HEAD
+=======
+		shutit.pause_point('')
+>>>>>>> 36c312af0815940bc0d5e18d700d230bba3cbbb4
 		@param colour:       Colour to print message (typically 31 for red, 32 for green)
 		@param default_msg:  Whether to print the standard blurb
 
@@ -1797,8 +1818,21 @@ END_''' + random_id)
 		@type print_input:   boolean
 		@type level:         integer
 		@type resize:        boolean
+<<<<<<< HEAD
 		"""
 		child = child or self.get_default_child()
+=======
+
+		@return:             True if pause point handled ok, else false
+		"""
+		ok=True
+		try:
+			child = child or self.get_default_child()
+		except Exception:
+			ok=False
+		if not ok:
+			return False
+>>>>>>> 36c312af0815940bc0d5e18d700d230bba3cbbb4
 		cfg = self.cfg
 		if (not shutit_util.determine_interactive(self) or cfg['build']['interactive'] < 1 or 
 			cfg['build']['interactive'] < level):
@@ -1838,6 +1872,10 @@ END_''' + random_id)
 			print 'Nothing to interact with, so quitting to presumably the original shell'
 			sys.exit(1)
 		cfg['build']['ctrlc_stop'] = False
+<<<<<<< HEAD
+=======
+		return True
+>>>>>>> 36c312af0815940bc0d5e18d700d230bba3cbbb4
 
 
 	def _pause_input_filter(self, input_string):
@@ -1953,7 +1991,11 @@ END_''' + random_id)
 				before = string.join(before_list,'\r\n')
 			else:
 				before = before.strip(send)
+<<<<<<< HEAD
 		except:
+=======
+		except Exception:
+>>>>>>> 36c312af0815940bc0d5e18d700d230bba3cbbb4
 			before = before.strip(send)
 		if strip:
 			ansi_escape = re.compile(r'\x1b[^m]*m')
@@ -2176,11 +2218,19 @@ END_''' + random_id)
 		# Test for the existence of the data structure.
 		try:
 			cfg['environment'][cfg['build']['current_environment_id']][user]
+<<<<<<< HEAD
 		except:
 			cfg['environment'][cfg['build']['current_environment_id']][user] = {}
 		try:
 			cfg['environment'][cfg['build']['current_environment_id']][user]['password']
 		except:
+=======
+		except Exception:
+			cfg['environment'][cfg['build']['current_environment_id']][user] = {}
+		try:
+			cfg['environment'][cfg['build']['current_environment_id']][user]['password']
+		except Exception:
+>>>>>>> 36c312af0815940bc0d5e18d700d230bba3cbbb4
 			#TODO: if interactive and unset, else
 			cfg['environment'][cfg['build']['current_environment_id']][user]['password'] = shutit.get_input(msg,ispass=True)
 		return cfg['environment'][cfg['build']['current_environment_id']][user]['password']
@@ -3117,7 +3167,7 @@ def init():
 		try:
 			if os.getlogin() != '':
 				cfg['host']['username'] = os.getlogin()
-		except:
+		except Exception:
 			import getpass
 			cfg['host']['username'] = getpass.getuser()
 		if cfg['host']['username'] == '':
