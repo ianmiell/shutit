@@ -3082,6 +3082,7 @@ def init():
 	cfg['build']['report_final_messages'] = ''
 	cfg['build']['debug']                 = False
 	cfg['build']['completed']             = False
+	cfg['build']['mount_docker']          = False
 	cfg['build']['do_update']             = True
 	cfg['build']['distro_override']       = ''
 	# Whether to honour 'walkthrough' requests
