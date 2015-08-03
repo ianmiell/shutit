@@ -104,6 +104,8 @@ class ShutIt(object):
 
 		@return: default pexpect child object
 		"""
+		if self._default_child == None:
+			self.fail('Default child not set yet, exiting')
 		if self._default_child[-1] is None:
 			self.fail("Couldn't get default child")
 		return self._default_child[-1]
@@ -115,7 +117,7 @@ class ShutIt(object):
 		@return: default pexpect string
 		"""
 		if self._default_expect[-1] is None:
-			self.fail("Couldn't get default expect")
+			self.fail("Couldn't get default expect, quitting")
 		return self._default_expect[-1]
 
 
@@ -166,7 +168,7 @@ class ShutIt(object):
 		# Note: we must not default to a child here
 		if child is not None:
 			self.pause_point('Pause point on fail: ' + msg, child=child, colour='31')
-		print >> sys.stderr, 'Error caught.'
+		print >> sys.stderr, 'Error caught: ' + msg
 		print >> sys.stderr
 		if throw_exception:
 			if shutit_util.determine_interactive(self):
@@ -265,7 +267,7 @@ class ShutIt(object):
 		if prefix != 'ORIGIN_ENV':
 			self.get_distro_info(environment_id)
 		self.send('mkdir -p ' + environment_id_dir, child=child, expect=expect)
-		self.send('chmod 777 ' + environment_id_dir, child=child, expect=expect)
+		self.send('chmod -R 777 ' + cfg['build']['shutit_state_dir_base'])
 		fname = environment_id_dir + '/' + environment_id
 		self.send('touch ' + fname, child=child, expect=expect)
 		cfg['environment'][environment_id]['setup']                        = True
@@ -375,16 +377,17 @@ class ShutIt(object):
 						return True
 			else:
 				# Only return if _not_ seen in the output
-				found = False
+				missing = False
 				for regexp in regexps:
 					if not shutit_util.check_regexp(regexp):
 						shutit.fail('Illegal regexp found in send_until call: ' + regexp)
-					if self.match_string(output, regexp):
-						found = True
+					if not self.match_string(output, regexp):
+						missing = True
 						break
-				if found == True:
+				if missing:
 					return True
 			time.sleep(cadence)
+		return False
 
 	         
   
@@ -1435,7 +1438,7 @@ END_''' + random_id)
 	def get_url(self,
 	            filename,
 	            locations,
-	            command='wget',
+	            command='curl',
 	            expect=None,
 	            child=None,
 	            timeout=3600,
@@ -1477,12 +1480,19 @@ END_''' + random_id)
 		if len(locations) == 0 or type(locations) != list:
 			raise ShutItFailException('Locations should be a list containing base of the url.')
 		retry_orig = retry
+		if not shutit.command_available(command):
+			shutit.install('curl')
+			if not shutit.command_available('curl'):
+				shutit.install('wget')
+				command = 'wget -qO- '
+				if not shutit.command_available('wget'):
+					shutit.fail('Could not install curl or wget, inform maintainers.')
 		for location in locations:
 			retry = retry_orig
 			if location[-1] == '/':
 				location = location[0:-1]
 			while retry >= 0:
-				send = command + ' ' + location + '/' + filename
+				send = command + ' ' + location + '/' + filename + ' > ' + filename
 				self.send(send,check_exit=False,child=child,expect=expect,timeout=timeout,fail_on_empty_before=fail_on_empty_before,record_command=record_command,echo=echo)
 				if not self._check_exit(send, expect, child, timeout, exit_values, retbool=True):
 					self.log('Sending: ' + send + '\nfailed, retrying')
@@ -1793,8 +1803,18 @@ END_''' + random_id)
 		@type print_input:   boolean
 		@type level:         integer
 		@type resize:        boolean
+
+		@return:             True if pause point handled ok, else false
 		"""
 		child = child or self.get_default_child()
+
+		ok=True
+		try:
+			child = child or self.get_default_child()
+		except Exception:
+			ok=False
+		if not ok:
+			return False
 		cfg = self.cfg
 		if (not shutit_util.determine_interactive(self) or cfg['build']['interactive'] < 1 or 
 			cfg['build']['interactive'] < level):
@@ -1834,6 +1854,7 @@ END_''' + random_id)
 			print 'Nothing to interact with, so quitting to presumably the original shell'
 			sys.exit(1)
 		cfg['build']['ctrlc_stop'] = False
+		return True
 
 
 	def _pause_input_filter(self, input_string):
@@ -1949,7 +1970,7 @@ END_''' + random_id)
 				before = string.join(before_list,'\r\n')
 			else:
 				before = before.strip(send)
-		except:
+		except Exception:
 			before = before.strip(send)
 		if strip:
 			ansi_escape = re.compile(r'\x1b[^m]*m')
@@ -2109,6 +2130,7 @@ END_''' + random_id)
 		self._handle_note(note)
 		if options is None: options = {}
 		install_type = cfg['environment'][cfg['build']['current_environment_id']]['install_type']
+		whoiam = self.whoami()
 		if whoiam != 'root' and install_type != 'brew':
 			cmd = 'sudo '
 			pw = self.get_env_pass(whoiam,'Please input your sudo password in case it is needed (for user: ' + whoiam + ')\nJust hit return if you do not want to submit a password.\n')
@@ -2175,7 +2197,7 @@ END_''' + random_id)
 			cfg['environment'][cfg['build']['current_environment_id']][user] = {}
 		try:
 			cfg['environment'][cfg['build']['current_environment_id']][user]['password']
-		except:
+		except Exception:
 			#TODO: if interactive and unset, else
 			cfg['environment'][cfg['build']['current_environment_id']][user]['password'] = shutit.get_input(msg,ispass=True)
 		return cfg['environment'][cfg['build']['current_environment_id']][user]['password']
@@ -3077,6 +3099,7 @@ def init():
 	cfg['build']['report_final_messages'] = ''
 	cfg['build']['debug']                 = False
 	cfg['build']['completed']             = False
+	cfg['build']['mount_docker']          = False
 	cfg['build']['do_update']             = True
 	cfg['build']['distro_override']       = ''
 	# Whether to honour 'walkthrough' requests
@@ -3111,7 +3134,7 @@ def init():
 		try:
 			if os.getlogin() != '':
 				cfg['host']['username'] = os.getlogin()
-		except:
+		except Exception:
 			import getpass
 			cfg['host']['username'] = getpass.getuser()
 		if cfg['host']['username'] == '':
