@@ -192,6 +192,21 @@ END''')
 		################################################################################
 		# MULTILINES
 		################################################################################
+		file_text = '''A file with
+some text in.
+It's not very interesting,
+^but has some interesting lines$
+
+and lines with nothing in it,
+    
+just spaces, and just tabs
+               
+some repeated lines
+and
+some repeated lines
+and lines with 'some text in' it again.
+last line
+'''
 
 		fname='/tmp/multi.11.3.1'
 		shutit.send_file(fname,file_text,truncate=True)
@@ -217,9 +232,6 @@ a new line2''',fname,'''again.*last line.*''',line_oriented=False)
 		shutit.replace_text('''just spaces, and just tabs''',fname,'''and just tablets''')
 		if shutit.send_and_get_output('md5sum ' + fname) != '14b694054d4f5908ab7a96789d2c9451  '  + fname:
 			shutit.fail('test ' + fname + '.5 failed')
-
-
-
 		return True
 
 def module():
