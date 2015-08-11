@@ -795,7 +795,7 @@ END_""" + random_id)
 		return ret
 
 
-	def send_file(self, path, contents, expect=None, child=None, log=True, truncate=False, note=None):
+	def send_file(self, path, contents, expect=None, child=None, log=True, truncate=False, note=None, user=None, group=None):
 		"""Sends the passed-in string as a file to the passed-in path on the
 		target.
 
@@ -805,6 +805,8 @@ END_""" + random_id)
 		@param child:       See send()
 		@param log:         Log the file contents if in debug.
 		@param note:        See send()
+		@param user:        Set ownership to this user (defaults to whoami)
+		@param group:       Set group to this user (defaults to first group in groups)
 
 		@type path:         string
 		@type contents:     string
@@ -814,6 +816,10 @@ END_""" + random_id)
 		expect = expect or self.get_default_expect()
 		cfg = self.cfg
 		self._handle_note(note)
+		if user == None:
+			user = self.whoami()
+		if group == None:
+			group = self.whoarewe()
 		if cfg['build']['debug']:
 			self.log('='*80)
 			self.log('Sending file to' + path)
@@ -853,6 +859,8 @@ END_''' + random_id)
 			f.write(contents)
 			f.close()
 			self.send('cat ' + tmpfile + ' | ' + cfg['host']['docker_executable'] + ' exec -i ' + cfg['target']['container_id'] + " bash -c 'cat > " + path + "'", child=host_child, expect=cfg['expect_prompts']['origin_prompt'])
+			self.send('chown ' + user + ' ' + path, child=child, expect=expect)
+			self.send('chgrp ' + group + ' ' + path, child=child, expect=expect)
 			os.remove(tmpfile)
 
 
@@ -891,7 +899,9 @@ END_''' + random_id)
 	                   child=None,
 	                   timeout=3600,
 	                   log=True,
-	                   note=None):
+	                   note=None,
+	                   user=None,
+	                   group=None):
 		"""Send file from host machine to given path
 
 		@param path:          Path to send file to.
@@ -900,6 +910,8 @@ END_''' + random_id)
 		@param child:         See send()
 		@param log:           arg to pass to send_file (default True)
 		@param note:          See send()
+		@param user:          Set ownership to this user (defaults to whoami)
+		@param group:         Set group to this user (defaults to first group in groups)
 
 		@type path:           string
 		@type hostfilepath:   string
@@ -909,17 +921,23 @@ END_''' + random_id)
 		expect = expect or self.get_default_expect()
 		cfg = self.cfg
 		self._handle_note(note)
+		if user == None:
+			user = self.whoami()
+		if group == None:
+			group = self.whoarewe()
 		if cfg['build']['delivery'] in ('bash','dockerfile'):
 			self.send('pushd ' + cfg['environment'][cfg['build']['current_environment_id']]['module_root_dir'])
 			self.send('cp -r ' + hostfilepath + ' ' + path,expect=expect, child=child, timeout=timeout)
-			self.send('popd')
+			self.send('chown ' + user + ' ' + hostfilepath + ' ' + path,expect=expect, child=child, timeout=timeout)
+			self.send('chgrp ' + group + ' ' + hostfilepath + ' ' + path,expect=expect, child=child, timeout=timeout)
+			self.send('popd', expect=expect, child=child, timeout=timeout)
 		else:
 			if os.path.isfile(hostfilepath):
 				self.send_file(path, open(hostfilepath).read(), expect=expect, 
-					child=child, log=log)
+					child=child, log=log, user=user, group=group)
 			elif os.path.isdir(hostfilepath):
 				self.send_host_dir(path, hostfilepath, expect=expect,
-					child=child, log=log)
+					child=child, log=log, user=user, group=group)
 			else:
 				self.fail('send_host_file - file: ' + hostfilepath +
 					' does not exist as file or dir. cwd is: ' + os.getcwd(),
@@ -932,7 +950,9 @@ END_''' + random_id)
 					  expect=None,
 					  child=None,
 					  log=True,
-	                  note=None):
+	                  note=None,
+	                  user=None,
+	                  group=None):
 		"""Send directory and all contents recursively from host machine to
 		given path.  It will automatically make directories on the target.
 
@@ -942,6 +962,8 @@ END_''' + random_id)
 		@param child:         See send()
 		@param log:           Arg to pass to send_file (default True)
 		@param note:          See send()
+		@param user:          Set ownership to this user (defaults to whoami)
+		@param group:         Set group to this user (defaults to first group in groups)
 
 		@type path:          string
 		@type hostfilepath:  string
@@ -951,6 +973,10 @@ END_''' + random_id)
 		expect = expect or self.get_default_expect()
 		self.log('entered send_host_dir in: ' + os.getcwd())
 		self._handle_note(note)
+		if user == None:
+			user = self.whoami()
+		if group == None:
+			group = self.whoarewe()
 		for root, subfolders, files in os.walk(hostfilepath):
 			subfolders.sort()
 			files.sort()
@@ -966,7 +992,7 @@ END_''' + random_id)
 				self.log('send_host_dir sending file ' + hostfullfname + ' to ' + 
 					'target file: ' + targetfname)
 				self.send_file(targetfname, open(hostfullfname).read(), 
-					expect=expect, child=child, log=log)
+					expect=expect, child=child, log=log, user=user, group=group)
 
 
 	def host_file_exists(self, filename, directory=False, note=None):
@@ -2218,6 +2244,22 @@ END_''' + random_id)
 		self._handle_note(note)
 		return self.send_and_get_output('whoami').strip()
 
+
+	def whoarewe(self, child=None, expect=None, note=None):
+		"""Returns the current group by executing "groups",
+	    taking the first one
+
+		@param child:    See send()
+		@param expect:   See send()
+		@param note:     See send()
+
+		@return: the output of "whoami"
+		@rtype: string
+		"""
+		child = child or self.get_default_child()
+		expect = expect or self.get_default_expect()
+		self._handle_note(note)
+		return self.send_and_get_output("groups | cut -f 1 -d ' '").strip()
 
 	def login_stack_append(self, r_id, child=None, expect=None, new_user=''):
 		child = child or self.get_default_child()

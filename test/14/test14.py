@@ -15,7 +15,8 @@ c
 d
 e
 '''
-		shutit.send_file('/tmp/a',a)
+		shutit.send_file('/tmp/a',a,user='daemon',group='daemon')
+		shutit.pause_point('')
 		md5sum1 = shutit.send_and_get_output('md5sum /tmp/a')
 		shutit.add_line_to_file('e','/tmp/a')
 		md5sum2 = shutit.send_and_get_output('md5sum /tmp/a')
