@@ -167,7 +167,7 @@ def module():
 		GLOBALLY_UNIQUE_STRING, FLOAT,
 		maintainer='',
 		description='',
-		delivery_methods=[],
+		delivery_methods=['DELIVERY'],
 		depends=['shutit.tk.setup']
 	)
 

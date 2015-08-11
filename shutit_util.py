@@ -305,17 +305,23 @@ def random_id(size=8, chars=string.ascii_letters + string.digits):
 
 
 def random_word(size=6):
-	"""Returns a random word.
+	"""Returns a random word in lower case.
 	"""
 	word_file = find_asset('words')
 	words = open(word_file).read().splitlines()
 	word = ''
-	while len(word) != 6:
+	while len(word) != 6 or word.find("'") > -1:
 		word = words[int(random.random() * (len(words) - 1))]
-	return word
+	return word.lower()
 
 def find_asset(filename):
-	filenames = ('/usr/share/dict/'+filename, sys.prefix+'/local/shutit_assets/'+filename, shutit_global.shutit_main_dir+'/'+filename, sys.prefix+'/shutit_assets/'+filename, shutit_global.shutit.cfg['host']['shutit_path']+'/assets/'+filename, os.path.join(sys.path[0],'assets',filename), '/usr/local/shutit_assets/'+filename)
+	filenames = ('/usr/share/dict/'+filename,
+	             sys.prefix+'/local/shutit_assets/'+filename,
+	             shutit_global.shutit_main_dir+'/'+filename,
+	             sys.prefix+'/shutit_assets/'+filename,
+	             shutit_global.shutit.cfg['host']['shutit_path']+'/assets/'+filename,
+	             os.path.join(sys.path[0],'assets',filename),
+	             '/usr/local/shutit_assets/'+filename)
 	for iter_filename in filenames:
 		if os.access(iter_filename,os.F_OK):
 			return iter_filename
@@ -490,7 +496,8 @@ def parse_args(shutit):
 	sub_parsers['skeleton'].add_argument('--script', help='Pre-existing shell script to integrate into module (optional)', nargs='?', default=None)
 	sub_parsers['skeleton'].add_argument('--example', help='Add an example implementation with model calls to ShutIt API (optional)', default=False, const=True, action='store_const')
 	sub_parsers['skeleton'].add_argument('--output_dir', help='Just output the created directory', default=False, const=True, action='store_const')
-	sub_parsers['skeleton'].add_argument('-d', '--dockerfile', default=None)
+	sub_parsers['skeleton'].add_argument('--dockerfile', default=None)
+	sub_parsers['skeleton'].add_argument('--delivery', help='Delivery method, aka target. "docker" container (default), configured "ssh" connection, "bash" session', default=None, choices=('docker','dockerfile','target','ssh','bash'))
 
 	sub_parsers['build'].add_argument('--export', help='Perform docker export to a tar file', const=True, default=False, action='store_const')
 	sub_parsers['build'].add_argument('--save', help='Perform docker save to a tar file', const=True, default=False, action='store_const')
@@ -581,6 +588,14 @@ def parse_args(shutit):
 			domain = util_raw_input(prompt='# Input a unique domain.\n# Default: ' + default_domain_name + '\n', default=default_domain_name)
 		else:
 			domain = args.domain
+		if args.delivery == None:
+			default_delivery = 'bash'
+			delivery = ''
+			allowed = ('docker','dockerfile','target','ssh','bash')
+			while delivery not in allowed:
+				delivery = util_raw_input(prompt='# Input a delivery method from: ' + str(allowed) + '.\n# Default: ' + default_delivery + '\n', default=default_delivery)
+		else:
+			delivery = args.delivery
 		cfg['skeleton'] = {
 			'path':        module_directory,
 			'module_name': module_name,
@@ -591,7 +606,8 @@ def parse_args(shutit):
 			'script':      args.script,
 			'example':     args.example,
 			'dockerfile':  args.dockerfile,
-			'output_dir':  args.output_dir
+			'output_dir':  args.output_dir,
+			'delivery':    delivery
 		}
 		return
 
@@ -1130,6 +1146,7 @@ def create_skeleton(shutit):
 	skel_example     = cfg['skeleton']['example']
 	skel_dockerfile  = cfg['skeleton']['dockerfile']
 	skel_output_dir  = cfg['skeleton']['output_dir']
+	skel_delivery    = cfg['skeleton']['delivery']
 	# Set up dockerfile cfg
 	cfg['dockerfile']['base_image'] = skel_base_image
 	cfg['dockerfile']['cmd']        = '/bin/bash'
@@ -1424,7 +1441,7 @@ def module():
 		return template(
 				""" + """\'%s.%s.%s\'""" % (skel_domain, skel_module_name, skel_module_name) + """, """ + skel_domain_hash + ".00" + """,
 				description='',
-				delivery_methods=[],
+				delivery_methods=[(""" + skel_delivery + """)],
 				maintainer='""" + cfg['dockerfile']['maintainer'] + """',
 				depends=['%s""" % (skel_depends) + """'] 
 		)
@@ -1442,6 +1459,7 @@ def module():
 		).replace('GLOBALLY_UNIQUE_STRING', '\'%s.%s.%s\'' % (skel_domain, skel_module_name, skel_module_name)
 		).replace('FLOAT', skel_domain_hash + '.00'
 		).replace('DEPENDS', skel_depends
+		).replace('DELIVERY', skel_delivery
 	)
 	readme = skel_module_name + ': description of module directory in here'
 	buildsh = textwrap.dedent('''\
