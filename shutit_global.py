@@ -858,6 +858,8 @@ END_''' + random_id)
 			f.truncate(0)
 			f.write(contents)
 			f.close()
+			# Create file so it has appropriate permissions
+			self.send('touch ' + path, child=child, expect=expect)
 			self.send('cat ' + tmpfile + ' | ' + cfg['host']['docker_executable'] + ' exec -i ' + cfg['target']['container_id'] + " bash -c 'cat > " + path + "'", child=host_child, expect=cfg['expect_prompts']['origin_prompt'])
 			self.send('chown ' + user + ' ' + path, child=child, expect=expect)
 			self.send('chgrp ' + group + ' ' + path, child=child, expect=expect)
