@@ -60,7 +60,7 @@ cleanup hard
 
 DESC="Testing skeleton build with Dockerfile"
 echo $DESC
-./shutit skeleton -d assets/dockerfile/Dockerfile --module_directory ${NEWDIR} --module_name testing --domain shutit.tk --depends shutit.tk.setup --base_image ubuntu:14.04
+./shutit skeleton --dockerfile assets/dockerfile/Dockerfile --module_directory ${NEWDIR} --module_name testing --domain shutit.tk --depends shutit.tk.setup --base_image ubuntu:14.04 --delivery docker
 pushd ${NEWDIR}/bin
 ./test.sh --interactive 0
 if [[ "x$?" != "x0" ]]
@@ -75,7 +75,7 @@ popd > /dev/null 2>&1
 
 DESC="Testing skeleton build basic bare"
 echo $DESC
-./shutit skeleton --module_directory ${NEWDIR} --module_name testing --domain shutit.tk --depends shutit.tk.setup --base_image ubuntu:14.04
+./shutit skeleton --module_directory ${NEWDIR} --module_name testing --domain shutit.tk --depends shutit.tk.setup --base_image ubuntu:14.04 --delivery docker
 pushd ${NEWDIR}/bin
 ./test.sh --interactive 0
 if [[ "x$?" != "x0" ]]
@@ -91,7 +91,7 @@ popd > /dev/null 2>&1
 
 DESC="Testing skeleton build basic with example script"
 echo $DESC
-./shutit skeleton --module_directory ${NEWDIR} --module_name testing --domain shutit.tk --depends shutit.tk.setup --base_image ubuntu:14.04 --script ${SHUTIT_DIR}/assets/example.sh
+./shutit skeleton --module_directory ${NEWDIR} --module_name testing --domain shutit.tk --depends shutit.tk.setup --base_image ubuntu:14.04 --script ${SHUTIT_DIR}/assets/example.sh --delivery docker
 
 pushd ${NEWDIR}/bin
 ./test.sh --interactive 0
@@ -106,7 +106,7 @@ rm -rf ${NEWDIR}
 popd > /dev/null 2>&1
 
 pushd ${SHUTIT_DIR}/test/11
-shutit build -d bash
+shutit build --delivery bash
 RES=$?
 if [[ "x$RES" != "x0" ]]
 then

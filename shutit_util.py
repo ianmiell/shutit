@@ -1441,7 +1441,7 @@ def module():
 		return template(
 				""" + """\'%s.%s.%s\'""" % (skel_domain, skel_module_name, skel_module_name) + """, """ + skel_domain_hash + ".00" + """,
 				description='',
-				delivery_methods=[(""" + skel_delivery + """)],
+				delivery_methods=[('""" + skel_delivery + """')],
 				maintainer='""" + cfg['dockerfile']['maintainer'] + """',
 				depends=['%s""" % (skel_depends) + """'] 
 		)
