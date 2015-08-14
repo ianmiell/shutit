@@ -1173,8 +1173,9 @@ def create_skeleton(shutit):
 	
 	os.makedirs(skel_path)
 	os.mkdir(os.path.join(skel_path, 'configs'))
-	os.mkdir(os.path.join(skel_path, 'context'))
 	os.mkdir(os.path.join(skel_path, 'bin'))
+	if skel_delivery != 'bash':
+		os.mkdir(os.path.join(skel_path, 'context'))
 
 	templatemodule_path   = os.path.join(skel_path, skel_module_name + '.py')
 	readme_path           = os.path.join(skel_path, 'README.md')
@@ -1584,21 +1585,22 @@ def module():
 		''')
 
 	open(templatemodule_path, 'w').write(templatemodule)
-	open(readme_path, 'w').write(readme)
-	open(builddockerfile_path, 'w').write(builddockerfile)
 	open(buildsh_path, 'w').write(buildsh)
 	os.chmod(buildsh_path, os.stat(buildsh_path).st_mode | 0111) # chmod +x
-	open(testsh_path, 'w').write(testsh)
-	os.chmod(testsh_path, os.stat(testsh_path).st_mode | 0111) # chmod +x
-	open(runsh_path, 'w').write(runsh)
-	os.chmod(runsh_path, os.stat(runsh_path).st_mode | 0111) # chmod +x
-	open(buildpushsh_path, 'w').write(buildpushsh)
-	os.chmod(buildpushsh_path, os.stat(buildpushsh_path).st_mode | 0111) # chmod +x
-	# build.cnf should be read-only (maintainer changes only)
 	open(buildcnf_path, 'w').write(buildcnf)
 	os.chmod(buildcnf_path, 0400)
-	open(pushcnf_path, 'w').write(pushcnf)
-	os.chmod(pushcnf_path, 0600)
+	if skel_delivery != 'bash':
+		open(buildpushsh_path, 'w').write(buildpushsh)
+		os.chmod(buildpushsh_path, os.stat(buildpushsh_path).st_mode | 0111) # chmod +x
+		# build.cnf should be read-only (maintainer changes only)
+		open(pushcnf_path, 'w').write(pushcnf)
+		os.chmod(pushcnf_path, 0600)
+		open(testsh_path, 'w').write(testsh)
+		os.chmod(testsh_path, os.stat(testsh_path).st_mode | 0111) # chmod +x
+		open(builddockerfile_path, 'w').write(builddockerfile)
+		open(readme_path, 'w').write(readme)
+		open(runsh_path, 'w').write(runsh)
+		os.chmod(runsh_path, os.stat(runsh_path).st_mode | 0111) # chmod +x
 
 	if skel_script is not None:
 		print textwrap.dedent('''\
