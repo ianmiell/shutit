@@ -8,9 +8,11 @@ Configuration management for programmers.
 
 ## Why? ##
 
-Interested in Docker? Find Dockerfiles limiting? Want to automate a shell script with all the power of a real programming language?
+Interested in Docker? Find Dockerfiles limiting? Want to automate a shell script
+with all the power of a real programming language?
 
-Are you a programmer annoyed by the obfuscation and indirection Chef/Puppet/Ansible brings to a simple series of commands?
+Are you a programmer annoyed by the obfuscation and indirection
+Chef/Puppet/Ansible brings to a simple series of commands?
 
 Interested in stable stateless deployments?
 
@@ -43,14 +45,26 @@ As your preferred user:
 shutit skeleton
 ```
 
-and accept the defaults and follow the instructions to go to your new skeleton module and do your first build. Wait for it to complete.
+and accept the defaults until you get to the 'delivery method' section,
+where you input 'docker' to build within a Docker container:
+
+```sh
+# Input a delivery method from: ('docker', 'dockerfile', 'target', 'ssh', 'bash').
+# Default: bash
+
+docker
+```
+
+Follow the instructions to go to your new skeleton module and do your first
+build. Wait for it to complete.
 
 
 ### Step 3: Modify the Skeleton Module ###
 
 Now you can change your module to do what you want it to.
 
-To install mlocate and create a file if only if it doesn't exist, change the .py file in your skeleton directory:
+To install mlocate and create a file if only if it doesn't exist, change the
+.py file in your skeleton directory:
 
 ```python
 [...]
@@ -64,7 +78,8 @@ To install mlocate and create a file if only if it doesn't exist, change the .py
 [...]
 ```
 
-You can find a cheat sheet for ShutIt in the module's .py file to help you create the build you want.
+You can find a cheat sheet for ShutIt in the module's .py file to help you
+create the build you want.
 
 ### Step 4: Build Your Module ###
 
@@ -99,7 +114,8 @@ Problems? See Troubleshooting section below.
 
 ### Step 6: Mix and Match ###
 
-Let's add mysql to the container build. Change this in your skeleton module's .py file:
+Let's add mysql to the container build. Change this in your skeleton module's
+.py file:
 
 ```python
 depends=['shutit.tk.setup']
@@ -130,7 +146,9 @@ Problems? See Troubleshooting section below.
 
 ### 'Permission denied' ###
 
-If at this point you get an error to do with 'permission denied', then you may need to configure ShutIt to call 'sudo docker' instead of docker. Open the ~/.shutit/config file, and change this line
+If at this point you get an error to do with 'permission denied', then you may
+need to configure ShutIt to call 'sudo docker' instead of docker. Open the
+~/.shutit/config file, and change this line
 
 ```
 docker_executable:docker
@@ -145,10 +163,12 @@ docker_executable:sudo docker.io
 
 ### 'Use sudo docker/docker.io to run docker?' ###
 
-If you use "sudo docker", or "docker.io" or some other command to run docker, then you might need to alter run.sh accordingly.
+If you use "sudo docker", or "docker.io" or some other command to run docker,
+then you might need to alter run.sh accordingly.
 
 
 
 ### Something else? ###
 
-Didn't work for you? It's probably my fault, not yours. Mail me: ian.miell@gmail.com
+Didn't work for you? It's probably my fault, not yours. Mail me:
+ian.miell@gmail.com
