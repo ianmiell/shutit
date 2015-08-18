@@ -51,6 +51,12 @@ class template(ShutItModule):
 		# shutit.insert_text(text, fname, pattern)
 		#                                    - Insert text into file fname after the first occurrence of 
 		#                                      regexp pattern.
+		# shutit.delete_text(text, fname, pattern)
+		#                                    - Delete text from file fname after the first occurrence of
+		#                                      regexp pattern.
+		# shutit.replace_text(text, fname, pattern)
+		#                                    - Replace text from file fname after the first occurrence of
+		#                                      regexp pattern.
 		# ENVIRONMENT QUERYING
 		# shutit.host_file_exists(filename, directory=False)
 		#                                    - Returns True if file exists on host
