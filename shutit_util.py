@@ -164,7 +164,7 @@ privileged:no
 lxc_conf:
 # Base image can be over-ridden by --image_tag defaults to this.
 base_image:ubuntu:14.04
-# Whether to perform tests. 
+# Whether to perform tests.
 dotest:yes
 # --net argument to docker, eg "bridge", "none", "container:<name|id>" or "host". Empty means use default (bridge).
 net:
@@ -757,7 +757,7 @@ def parse_args(shutit):
 			The module_id is a string that uniquely identifies the module.
 
 			The run_order is a float that defines the order in which the module should be
-			run relative to other modules. This guarantees a deterministic ordering of 
+			run relative to other modules. This guarantees a deterministic ordering of
 			the modules run.
 
 			See shutit_module.py for more detailed documentation on these.
@@ -912,7 +912,7 @@ def list_modules(shutit):
 		a = {}
 		for m in shutit.shutit_modules:
 			a.update({m.module_id:m.run_order})
-		# sort dict by run_order; see http://stackoverflow.com/questions/613183/sort-a-python-dictionary-by-value 
+		# sort dict by run_order; see http://stackoverflow.com/questions/613183/sort-a-python-dictionary-by-value
 		b = sorted(a.items(), key=operator.itemgetter(1))
 		count = 0
 		# now b is a list of tuples (module_id, run_order)
@@ -968,7 +968,7 @@ def print_config(cfg, hide_password=True, history=False):
 				keys2.sort()
 			for k1 in keys2:
 					line = ''
-					line += k1 + ':' 
+					line += k1 + ':'
 					# If we want to hide passwords, we do so using a sha512
 					# done an aritrary number of times (27).
 					if hide_password and (k1 == 'password' or k1 == 'passphrase'):
@@ -990,7 +990,7 @@ def print_config(cfg, hide_password=True, history=False):
 							# Assume this is because it was never set by a config parser.
 							line += (30-len(line)) * ' ' + ' # ' + "defaults in code"
 					s += line + '\n'
-	return s 
+	return s
 
 def set_pexpect_child(key, child):
 	"""Set a pexpect child in the global dictionary by key.
@@ -1151,7 +1151,7 @@ def create_skeleton(shutit):
 	skel_delivery    = cfg['skeleton']['delivery']
 	# Set up dockerfile cfg
 	cfg['dockerfile']['base_image'] = skel_base_image
-	cfg['dockerfile']['cmd']        = '/bin/bash'
+	cfg['dockerfile']['cmd']        = """/bin/sh -c 'sleep infinity'"""
 	cfg['dockerfile']['user']       = ''
 	cfg['dockerfile']['maintainer'] = ''
 	cfg['dockerfile']['entrypoint'] = ''
@@ -1178,6 +1178,7 @@ def create_skeleton(shutit):
 	os.mkdir(os.path.join(skel_path, 'bin'))
 	if skel_delivery != 'bash':
 		os.mkdir(os.path.join(skel_path, 'context'))
+		os.mkdir(os.path.join(skel_path, 'haproxy'))
 
 	templatemodule_path   = os.path.join(skel_path, skel_module_name + '.py')
 	readme_path           = os.path.join(skel_path, 'README.md')
@@ -1189,6 +1190,9 @@ def create_skeleton(shutit):
 	buildcnf_path         = os.path.join(skel_path, 'configs', 'build.cnf')
 	pushcnf_path          = os.path.join(skel_path, 'configs', 'push.cnf')
 	builddockerfile_path  = os.path.join(skel_path, 'Dockerfile')
+	if skel_delivery != 'bash':
+		haproxycnf_path          = os.path.join(skel_path, 'haproxy', 'haproxy.cfg')
+		haproxydockerfile_path   = os.path.join(skel_path, 'haproxy', 'Dockerfile')
 
 	if skel_dockerfile:
 		if os.path.basename(skel_dockerfile) != 'Dockerfile':
@@ -1261,8 +1265,8 @@ def create_skeleton(shutit):
 				# Set in the build
 				cfg['dockerfile']['env'].append(item[1])
 			elif docker_command == "RUN":
-				# Only handle simple commands for now and ignore the fact that Dockerfiles run 
-				# with /bin/sh -c rather than bash. 
+				# Only handle simple commands for now and ignore the fact that Dockerfiles run
+				# with /bin/sh -c rather than bash.
 				try:
 					cfg['dockerfile']['script'].append((docker_command, ' '.join(json.loads(item[1]))))
 				except Exception:
@@ -1371,8 +1375,8 @@ class template(ShutItModule):
         #                                      by ShutIt with shell prompts.
 		# shutit.multisend(send,send_dict)   - Send a command, dict contains {expect1:response1,expect2:response2,...}
 		# shutit.send_and_get_output(send)   - Returns the output of the sent command
-        # shutit.send_and_match_output(send, matches) 
-		#                                    - Returns True if any lines in output match any of 
+        # shutit.send_and_match_output(send, matches)
+		#                                    - Returns True if any lines in output match any of
 		#                                      the regexp strings in the matches list
 		# shutit.run_script(script)          - Run the passed-in string as a script
 		# shutit.install(package)            - Install a package
@@ -1382,7 +1386,7 @@ class template(ShutItModule):
         #                                      Use this if your env (or more specifically, prompt) changes at all,
         #                                      eg reboot, bash, ssh
 		# shutit.logout(command='exit')      - Clean up from a login.
-        # 
+        #
         # COMMAND HELPER FUNCTIONS
 		# shutit.add_to_bashrc(line)         - Add a line to bashrc
 		# shutit.get_url(fname, locations)   - Get a file via url from locations specified in a list
@@ -1402,13 +1406,13 @@ class template(ShutItModule):
 		# shutit.send_host_dir(path, hostfilepath)
         #                                    - Send directory and contents to path on the target
 		# shutit.insert_text(text, fname, pattern)
-        #                                    - Insert text into file fname after the first occurrence of 
+        #                                    - Insert text into file fname after the first occurrence of
         #                                      regexp pattern.
 		# shutit.delete_text(text, fname, pattern)
-        #                                    - Delete text from file fname after the first occurrence of 
+        #                                    - Delete text from file fname after the first occurrence of
         #                                      regexp pattern.
 		# shutit.replace_text(text, fname, pattern)
-        #                                    - Replace text from file fname after the first occurrence of 
+        #                                    - Replace text from file fname after the first occurrence of
         #                                      regexp pattern.
         # ENVIRONMENT QUERYING
 		# shutit.host_file_exists(filename, directory=False)
@@ -1438,7 +1442,7 @@ class template(ShutItModule):
 	def get_config(self, shutit):
 		# CONFIGURATION
 		# shutit.get_config(module_id,option,default=None,boolean=False)
-		#                                    - Get configuration value, boolean indicates whether the item is 
+		#                                    - Get configuration value, boolean indicates whether the item is
 		#                                      a boolean type, eg get the config with:
 		# shutit.get_config(self.module_id, 'myconfig', default='a value')
 		#                                      and reference in your code with:
@@ -1453,7 +1457,7 @@ def module():
 				description='',
 				delivery_methods=[('""" + skel_delivery + """')],
 				maintainer='""" + cfg['dockerfile']['maintainer'] + """',
-				depends=['%s""" % (skel_depends) + """'] 
+				depends=['%s""" % (skel_depends) + """']
 		)
 """
 		# Return program to main shutit_dir
@@ -1519,7 +1523,25 @@ def module():
 	runsh = textwrap.dedent('''\
 		#!/bin/bash
 		# Example for running
-		docker run -ti''' + ports_arg + volumes_arg + env_arg + ' ' + skel_module_name + ' ' + cfg['dockerfile']['entrypoint'] + ' ' + cfg['dockerfile']['cmd'] + '\n')
+		DOCKER=${DOCKER:-docker}
+		IMAGE_NAME=%s
+		CONTAINER_NAME=$IMAGE_NAME
+		DOCKER_ARGS=''
+		while getopts "i:c:a:" opt
+		do
+			case "$opt" in
+			i)
+				IMAGE_NAME=$OPTARG
+				;;
+			c)
+				CONTAINER_NAME=$OPTARG
+				;;
+			a)
+				DOCKER_ARGS=$OPTARG
+				;;
+			esac
+		done
+		${DOCKER} run -d --name ${CONTAINER_NAME}''' % (skel_module_name,) + ports_arg + volumes_arg + env_arg + ' ${DOCKER_ARGS} ${IMAGE_NAME} ' + cfg['dockerfile']['entrypoint'] + ' ' + cfg['dockerfile']['cmd'] + '\n')
 	buildpushsh = textwrap.dedent('''\
 		export SHUTIT_OPTIONS="$SHUTIT_OPTIONS --config configs/push.cnf -s repository push yes"
 		./build.sh "$@"
@@ -1549,11 +1571,82 @@ def module():
 		''')
 	phoenixsh = textwrap.dedent('''\
 #!/bin/bash
-./build.sh
+set -e
 DOCKER=${DOCKER:-docker}
-# Kill the name of the container.
-$DOCKER rm -f %s
-./run.sh %s/%s''' % (skel_module_name,skel_module_name,skel_module_name))
+CONTAINER_BASE_NAME=${CONTAINER_BASE_NAME:-%s}
+# haproxy image suffix
+#                             Sent on to:
+#                             HA_BACKEND_PORT_A
+#                                   +
+#                                   |
+#            +------------------+   |    +----------------+
+#            |                  |   |    |  Container A   |
+#            |                  +---v---->  Open on port: |
+#            |    HAProxy       |        |  CONTAINER_PORT|
+#            |    Container     |        |                |
+#            |                  |        +----------------+
+#Request+---->received          |
+#            |on port:          |        +----------------+
+#            |HA_PROXY_PORT     |        |  Container B   |
+#            |                  +---+---->  Open on port: |
+#            |                  |   ^    |  CONTAINER_PORT|
+#            |                  |   |    |                |
+#            +------------------+   |    +----------------+
+#                                   |
+#                                   +
+#                              Sent on to:
+#                              HA_BACKEND_PORT_B
+#
+HA_PROXY_CONTAINER_SUFFIX=${HA_PROXY_CONTAINER_SUFFIX:-haproxy}
+# The port on which your haproxy image is configured to receive requests from inside
+HA_PROXY_PORT=${HA_PROXY_PORT:-8080}
+# The port on which your backend 'a' is configured to receive requests on the host
+HA_BACKEND_PORT_A=${HA_BACKEND_PORT_A:-8081}
+# The port on which your backend 'b' is configured to receive requests on the host
+HA_BACKEND_PORT_B=${HA_BACKEND_PORT_B:-8082}
+# The port on which your service container receives requests
+CONTAINER_PORT=${CONTAINER_PORT:-80}
+
+# Set up haproxy.
+# Remove proxy if it's died. If it doesn't exist, rebuild it first.
+HAPROXY=$($DOCKER ps --filter=name=${CONTAINER_BASE_NAME}_haproxy -q)
+if [[ $HAPROXY = '' ]]
+then
+	HAPROXY=$($DOCKER ps --filter=name=${CONTAINER_BASE_NAME}_${HA_PROXY_CONTAINER_SUFFIX} -q -a)
+	if [[ $HAPROXY != '' ]]
+	then
+		$DOCKER rm -f ${CONTAINER_BASE_NAME}_${HA_PROXY_CONTAINER_SUFFIX}
+	fi
+	pushd ../haproxy
+	sed "s/HA_PROXY_PORT/${HA_PROXY_PORT}/g;s/HA_BACKEND_PORT_A/${HA_BACKEND_PORT_A}/g;s/HA_BACKEND_PORT_B/${HA_BACKEND_PORT_B}/g" haproxy.cfg.template > haproxy.cfg
+	$DOCKER build -t ${CONTAINER_BASE_NAME}_${HA_PROXY_CONTAINER_SUFFIX} .
+	$DOCKER run -d --net=host --name ${CONTAINER_BASE_NAME}_${HA_PROXY_CONTAINER_SUFFIX} ${CONTAINER_BASE_NAME}_${HA_PROXY_CONTAINER_SUFFIX}
+	popd
+fi
+
+# Cleanup any left-over containers, build the new one, rename the old one,
+# rename the new one, delete the old one.
+$DOCKER rm -f ${CONTAINER_BASE_NAME}_old > /dev/null 2>&1 || /bin/true
+./build.sh -s repository tag yes -s repository name ${CONTAINER_BASE_NAME}
+# If there's a running instance, gather the used port, and move any old container
+USED_PORT=''
+NEW_PORT=${HA_BACKEND_PORT_A}
+if [[ $($DOCKER ps --filter=name="${CONTAINER_BASE_NAME}$" -q -a) != '' ]]
+then
+	$DOCKER rm -f ${CONTAINER_BASE_NAME}_old > /dev/null 2>&1 || /bin/true
+	USED_PORT=$($DOCKER inspect -f '{{range $p, $conf := .NetworkSettings.Ports}}{{(index $conf 0).HostPort}} {{end}}' $CONTAINER_BASE_NAME)
+	# Decide which port to use
+	if [[ "$USED_PORT" -eq "${HA_BACKEND_PORT_A}" ]]
+	then
+		NEW_PORT=${HA_BACKEND_PORT_B}
+	fi
+	$DOCKER rename ${CONTAINER_BASE_NAME} ${CONTAINER_BASE_NAME}_old
+fi
+# The random id is required - suspected docker bug
+RANDOM_ID=$RANDOM
+./run.sh -i "${CONTAINER_BASE_NAME}" -c "${CONTAINER_BASE_NAME}_${RANDOM_ID}" -a "-p ${NEW_PORT}:${CONTAINER_PORT}"
+$DOCKER rm -f ${CONTAINER_BASE_NAME}_old > /dev/null 2>&1 || /bin/true
+$DOCKER rename ${CONTAINER_BASE_NAME}_${RANDOM_ID} ${CONTAINER_BASE_NAME}''' % (skel_module_name))
 	pushcnf = textwrap.dedent('''\
 		###############################################################################
 		# PLEASE NOTE: This file should be changed only by the maintainer.
@@ -1584,6 +1677,23 @@ $DOCKER rm -f %s
 		#suffix_date:no
 		#suffix_format:%s
 		''')
+	haproxycnf = textwrap.dedent('''\
+		global
+		    maxconn 256
+		defaults
+		    mode tcp
+		frontend front_door
+			bind *:HA_PROXY_PORT
+			default_backend nodes
+			timeout client 10m
+		backend nodes
+			timeout connect 2s
+			timeout server  10m
+			server server1 127.0.0.1:HA_BACKEND_PORT_A maxconn 32 check
+			server server2 127.0.0.1:HA_BACKEND_PORT_B maxconn 32 check''')
+	haproxydockerfile = textwrap.dedent('''\
+		FROM haproxy:1.5
+		COPY haproxy.cfg /usr/local/etc/haproxy/haproxy.cfg''')
 	builddockerfile = textwrap.dedent('''\
        FROM ''' + cfg['dockerfile']['base_image'] + '''
 
@@ -1597,7 +1707,7 @@ $DOCKER rm -f %s
        WORKDIR /opt/yourshutitproject
        RUN /opt/shutit/shutit build --delivery dockerfile
 
-       CMD ["/bin/bash"] 
+       CMD ["/bin/bash"]
 		''')
 
 	open(templatemodule_path, 'w').write(templatemodule)
@@ -1619,6 +1729,9 @@ $DOCKER rm -f %s
 		os.chmod(runsh_path, os.stat(runsh_path).st_mode | 0111) # chmod +x
 		open(phoenixsh_path, 'w').write(phoenixsh)
 		os.chmod(phoenixsh_path, os.stat(phoenixsh_path).st_mode | 0111) # chmod +x
+		open(haproxycnf_path, 'w').write(haproxycnf)
+		open(haproxycnf_path + '.template', 'w').write(haproxycnf)
+		open(haproxydockerfile_path, 'w').write(haproxydockerfile)
 
 	if skel_script is not None:
 		print textwrap.dedent('''\

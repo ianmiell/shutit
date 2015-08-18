@@ -39,6 +39,12 @@ PACKAGE_MAP = {
 	'sudo':                  {'brew':''},
 }
 
+def map_packages(package_str, install_type):
+	res = ''
+	for package in package_str.split():
+		res = res + ' ' + map_package(package,install_type)
+	return res
+
 def map_package(package, install_type):
 	"""If package mapping exists, then return it, else return package.
 	"""

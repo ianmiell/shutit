@@ -2107,8 +2107,8 @@ END_''' + random_id)
 		else:
 			# Not handled
 			return False
-		# Get mapped package.
-		package = package_map.map_package(package,
+		# Get mapped packages.
+		package = package_map.map_packages(package,
 			cfg['environment'][cfg['build']['current_environment_id']]['install_type'])
 		# Let's be tolerant of failure eg due to network.
 		# This is especially helpful with automated testing.
@@ -2689,7 +2689,7 @@ END_''' + random_id)
 			'^Release:[\s*](.*)$')
 		d = {}
 		if dist_string:
-			d['distro']         = dist_string.lower()
+			d['distro']         = dist_string.lower().strip()
 			d['distro_version'] = version_string
 			d['install_type'] = (
 				cfg['build']['install_type_map'][dist_string.lower()])
@@ -2718,11 +2718,6 @@ END_''' + random_id)
 			self.send(password, child=child, expect='Retype new',
 					  check_exit=False, echo=False)
 			self.send(password, child=child, expect=expect, echo=False)
-			#Considered harmful as it broke builds due to keyring error
-			#W: GPG error: http://ppa.launchpad.net precise Release: The following signatures couldn't be verified because the public key is not available: NO_PUBKEY B70731143DD9F856
-			#W: Failed to fetch http://archive.ubuntu.com/ubuntu/dists/precise/main/source/Sources  Hash Sum mismatch
-			# It seems that doing apt-utils before apt-get update is a problem
-			#self.install('apt-utils')
 		elif cfg['environment'][cfg['build']['current_environment_id']]['install_type'] == 'yum':
 			self.send('passwd ' + user, child=child, expect='ew password',
 					  check_exit=False)
