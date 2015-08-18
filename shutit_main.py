@@ -636,7 +636,7 @@ def do_remove(shutit):
 				shutit.fail(module_id + ' failed on remove',
 				child=shutit.pexpect_children['target_child'])
 			else:
-				if cfg['build']['delivery'] in ('target','dockerfile'):
+				if cfg['build']['delivery'] in ('docker','dockerfile'):
 					# Create a directory and files to indicate this has been removed.
 					shutit.send(' mkdir -p ' + cfg['build']['build_db_dir'] + '/module_record/' + module.module_id + ' && rm -f ' + cfg['build']['build_db_dir'] + '/module_record/' + module.module_id + '/built && touch ' + cfg['build']['build_db_dir'] + '/module_record/' + module.module_id + '/removed')
 					# Remove from "installed" cache
@@ -661,7 +661,7 @@ def build_module(shutit, module):
 		shutit.fail(module.module_id + ' failed on build',
 		            child=shutit.pexpect_children['target_child'])
 	else:
-		if cfg['build']['delivery'] in ('target','dockerfile'):
+		if cfg['build']['delivery'] in ('docker','dockerfile'):
 			# Create a directory and files to indicate this has been built.
 			shutit.send(' mkdir -p ' + cfg['build']['build_db_dir'] + '/module_record/' + module.module_id + ' && touch ' + cfg['build']['build_db_dir'] + '/module_record/' + module.module_id + '/built && rm -f ' + cfg['build']['build_db_dir'] + '/module_record/' + module.module_id + '/removed')
 		# Put it into "installed" cache

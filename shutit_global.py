@@ -779,7 +779,7 @@ END_""" + random_id)
 		script = '\n'.join(lines)
 		script = textwrap.dedent(script)
 		# Send the script and run it in the manner specified
-		if cfg['build']['delivery'] == 'target' and in_shell:
+		if cfg['build']['delivery'] in ('docker','dockerfile') and in_shell:
 				script = ('set -o xtrace \n\n' + script + '\n\nset +o xtrace')
 		self.send('mkdir -p ' + cfg['build']['shutit_state_dir'] + '/scripts', expect, child)
 		self.send('chmod 777 ' + cfg['build']['shutit_state_dir'] + '/scripts', expect, child)
@@ -888,7 +888,7 @@ END_''' + random_id)
 		self._handle_note(note)
 		if cfg['build']['delivery'] in ('bash','dockerfile'):
 			self.send('cd ' + path, expect=expect, child=child, timeout=timeout)
-		elif cfg['build']['delivery'] == 'target' or cfg['build']['delivery'] == 'ssh':
+		elif cfg['build']['delivery'] in ('docker','ssh'):
 			os.chdir(path)
 		else:
 			self.fail('chdir not supported for delivery method: ' + cfg['build']['delivery'])
@@ -2550,7 +2550,7 @@ END_''' + random_id)
 			distro = cfg['build']['distro_override']
 			install_type = cfg['build']['install_type_map'][key]
 			distro_version = ''
-			if install_type == 'apt' and cfg['build']['delivery'] == 'target':
+			if install_type == 'apt' and cfg['build']['delivery'] in ('docker','dockerfile'):
 				self.send('apt-get update')
 				cfg['build']['do_update'] = False
 				if not self.command_available('lsb_release'):
@@ -2559,7 +2559,7 @@ END_''' + random_id)
 				install_type   = d['install_type']
 				distro         = d['distro']
 				distro_version = d['distro_version']
-			elif install_type == 'yum' and cfg['build']['delivery'] == 'target':
+			elif install_type == 'yum' and cfg['build']['delivery'] in ('docker', 'dockerfile'):
 				self.send('yum update -y',exit_values=['0','1'])
 				cfg['build']['do_update'] = False
 				if self.file_exists('/etc/redhat-release'):
@@ -2572,19 +2572,19 @@ END_''' + random_id)
 				install_type   = d['install_type']
 				distro         = d['distro']
 				distro_version = d['distro_version']
-			elif install_type == 'apk' and cfg['build']['delivery'] == 'target':
+			elif install_type == 'apk' and cfg['build']['delivery'] in ('docker','dockerfile'):
 				cfg['build']['do_update'] = False
 				self.send('apk update')
 				self.send('apk add bash')
 				install_type   = 'apk'
 				distro         = 'alpine'
 				distro_version = '1.0'
-			elif install_type == 'emerge' and cfg['build']['delivery'] == 'target':
+			elif install_type == 'emerge' and cfg['build']['delivery'] in ('docker','dockerfile'):
 				self.send('emerge --sync')
 				install_type = 'emerge'
 				distro = 'gentoo'
 				distro_version = '1.0'
-			elif install_type == 'docker' and cfg['build']['delivery'] == 'target':
+			elif install_type == 'docker' and cfg['build']['delivery'] in ('docker','dockerfile'):
 				distro = 'coreos'
 				distro_version = '1.0'
 		elif cfg['environment'][environment_id]['setup'] and self.command_available('lsb_release'):
@@ -2629,7 +2629,7 @@ END_''' + random_id)
 			# The call to self.package_installed with lsb-release above 
 			# may fail if it doesn't know the install type, so
 			# if we've determined that now
-			if install_type == 'apt' and cfg['build']['delivery'] == 'target':
+			if install_type == 'apt' and cfg['build']['delivery'] in ('docker','dockerfile'):
 				self.send('apt-get update')
 				cfg['build']['do_update'] = False
 				if not self.command_available('lsb_release'):
@@ -2638,7 +2638,7 @@ END_''' + random_id)
 				install_type   = d['install_type']
 				distro         = d['distro']
 				distro_version = d['distro_version']
-			elif install_type == 'yum' and cfg['build']['delivery'] == 'target':
+			elif install_type == 'yum' and cfg['build']['delivery'] in ('docker','dockerfile'):
 				self.send('yum update -y',exit_values=['0','1'])
 				cfg['build']['do_update'] = False
 				if self.file_exists('/etc/redhat-release'):
@@ -2652,14 +2652,14 @@ END_''' + random_id)
 				install_type   = d['install_type']
 				distro         = d['distro']
 				distro_version = d['distro_version']
-			elif install_type == 'apk' and cfg['build']['delivery'] == 'target':
+			elif install_type == 'apk' and cfg['build']['delivery'] in ('docker','dockerfile'):
 				cfg['build']['do_update'] = False
 				self.send('apk update')
 				self.send('apk install bash')
 				install_type   = 'apk'
 				distro         = 'alpine'
 				distro_version = '1.0'
-			elif install_type == 'emerge' and cfg['build']['delivery'] == 'target':
+			elif install_type == 'emerge' and cfg['build']['delivery'] in ('docker','dockerfile'):
 				self.send('emerge --sync')
 				install_type = 'emerge'
 				distro = 'gentoo'
@@ -3089,7 +3089,7 @@ END_''' + random_id)
 		""" Put the config in a file in the target.
 		"""
 		cfg = self.cfg
-		if cfg['build']['delivery'] == 'target':
+		if cfg['build']['delivery'] in ('docker','dockerfile'):
 			self.send_file(cfg['build']['build_db_dir'] +
 						   '/' + cfg['build']['build_id'] +
 						   '/' + cfg['build']['build_id'] +

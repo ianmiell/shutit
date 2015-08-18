@@ -86,7 +86,7 @@ class ShutItConnModule(ShutItModule):
 
 	def _add_begin_build_info(self, shutit, command):
 		cfg = shutit.cfg
-		if cfg['build']['delivery'] == 'target':
+		if cfg['build']['delivery'] in ('docker','dockerfile'):
 			shutit.send('chmod -R 777 ' + cfg['build']['shutit_state_dir'])
 			# Create the build directory and put the config in it.
 			shutit.send(' mkdir -p ' + cfg['build']['build_db_dir'] + \
@@ -105,7 +105,7 @@ class ShutItConnModule(ShutItModule):
 	def _add_end_build_info(self, shutit):
 		cfg = shutit.cfg
 		# Put build info into the target
-		if cfg['build']['delivery'] == 'target':
+		if cfg['build']['delivery'] in ('docker','dockerfile'):
 			shutit.send(' mkdir -p ' + cfg['build']['build_db_dir'] + '/' + \
 			    cfg['build']['build_id'])
 			shutit.send_file(cfg['build']['build_db_dir'] + '/' + \
@@ -536,10 +536,10 @@ class setup(ShutItModule):
 		"""
 		cfg = shutit.cfg
 		do_update = cfg['build']['do_update']
-		if cfg['build']['delivery'] in ('target','dockerfile'):
+		if cfg['build']['delivery'] in ('docker','dockerfile'):
 			if cfg['environment'][cfg['build']['current_environment_id']]['install_type'] == 'apt':
 				shutit.add_to_bashrc('export DEBIAN_FRONTEND=noninteractive')
-				if do_update and cfg['build']['delivery'] in ('target','dockerfile'):
+				if do_update and cfg['build']['delivery'] in ('docker','dockerfile'):
 					shutit.send('apt-get update', timeout=9999, check_exit=False)
 				if not shutit.command_available('lsb_release'):
 					shutit.install('lsb-release')

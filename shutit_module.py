@@ -170,7 +170,7 @@ class ShutItModule(object):
 		self.maintainer  = maintainer
 		if delivery_methods == [] or delivery_methods == '':
 			# default to all
-			delivery_methods = ['target','dockerfile','bash','docker']
+			delivery_methods = ['ssh','dockerfile','bash','docker']
 		if type(delivery_methods) == str:
 			delivery_methods = [delivery_methods]
 		self.ok_delivery_methods = delivery_methods
