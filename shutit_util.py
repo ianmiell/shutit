@@ -589,9 +589,13 @@ def parse_args(shutit):
 		else:
 			domain = args.domain
 		if args.delivery == None:
-			default_delivery = 'bash'
+			import platform
+			# If on mac, default to bash, else docker
+			if platform.system() == 'Darwin':
+				default_delivery = 'bash'
+			else:
+				default_delivery = 'docker'
 			delivery = ''
-			# TODO: if on mac, default to bash, else docker
 			allowed = ('docker','dockerfile','target','ssh','bash')
 			while delivery not in allowed:
 				delivery = util_raw_input(prompt='# Input a delivery method from: ' + str(allowed) + '.\n# Default: ' + default_delivery + '\n\ndocker = build within a docker image\ndockerfile = call "shutit build" from within a dockerfile\ntarget = same as "docker" (deprecated)\nssh = ssh to target and build\nbash = run commands directly within bash\n', default=default_delivery)
