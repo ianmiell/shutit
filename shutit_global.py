@@ -1921,7 +1921,11 @@ END_''' + random_id)
 		"""
 		cfg = self.cfg
 		lines = string.split('\r\n')
-		#print lines
+		# sometimes they're separated by just a carriage return...
+		new_lines = []
+		for line in lines:
+			new_lines = new_lines + line.split('\r')
+		lines = new_lines
 		if not shutit_util.check_regexp(regexp):
 			shutit.fail('Illegal regexp found in match_string call: ' + regexp)
 		for line in lines:
