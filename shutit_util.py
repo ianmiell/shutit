@@ -591,9 +591,10 @@ def parse_args(shutit):
 		if args.delivery == None:
 			default_delivery = 'bash'
 			delivery = ''
+			# TODO: if on mac, default to bash, else docker
 			allowed = ('docker','dockerfile','target','ssh','bash')
 			while delivery not in allowed:
-				delivery = util_raw_input(prompt='# Input a delivery method from: ' + str(allowed) + '.\n# Default: ' + default_delivery + '\n', default=default_delivery)
+				delivery = util_raw_input(prompt='# Input a delivery method from: ' + str(allowed) + '.\n# Default: ' + default_delivery + '\n\ndocker = build within a docker image\ndockerfile = call "shutit build" from within a dockerfile\ntarget = same as "docker" (deprecated)\nssh = ssh to target and build\nbash = run commands directly within bash\n', default=default_delivery)
 		else:
 			delivery = args.delivery
 		cfg['skeleton'] = {
@@ -1182,6 +1183,7 @@ def create_skeleton(shutit):
 	buildsh_path          = os.path.join(skel_path, 'bin', 'build.sh')
 	testsh_path           = os.path.join(skel_path, 'bin', 'test.sh')
 	runsh_path            = os.path.join(skel_path, 'bin', 'run.sh')
+	phoenixsh_path        = os.path.join(skel_path, 'bin', 'phoenix.sh')
 	buildpushsh_path      = os.path.join(skel_path, 'bin', 'build_and_push.sh')
 	buildcnf_path         = os.path.join(skel_path, 'configs', 'build.cnf')
 	pushcnf_path          = os.path.join(skel_path, 'configs', 'push.cnf')
@@ -1510,7 +1512,7 @@ def module():
 	runsh = textwrap.dedent('''\
 		#!/bin/bash
 		# Example for running
-		docker run -t -i''' + ports_arg + volumes_arg + env_arg + ' ' + skel_module_name + ' ' + cfg['dockerfile']['entrypoint'] + ' ' + cfg['dockerfile']['cmd'] + '\n')
+		docker run -ti''' + ports_arg + volumes_arg + env_arg + ' ' + skel_module_name + ' ' + cfg['dockerfile']['entrypoint'] + ' ' + cfg['dockerfile']['cmd'] + '\n')
 	buildpushsh = textwrap.dedent('''\
 		export SHUTIT_OPTIONS="$SHUTIT_OPTIONS --config configs/push.cnf -s repository push yes"
 		./build.sh "$@"
@@ -1538,6 +1540,13 @@ def module():
 		[repository]
 		name:''' + skel_module_name + '''
 		''')
+	phoenixsh = textwrap.dedent('''\
+#!/bin/bash
+./build.sh
+DOCKER=${DOCKER:-docker}
+# Kill the name of the container.
+$DOCKER rm -f %s
+./run.sh %s/%s''' % (skel_module_name,skel_module_name,skel_module_name))
 	pushcnf = textwrap.dedent('''\
 		###############################################################################
 		# PLEASE NOTE: This file should be changed only by the maintainer.
@@ -1601,6 +1610,8 @@ def module():
 		open(readme_path, 'w').write(readme)
 		open(runsh_path, 'w').write(runsh)
 		os.chmod(runsh_path, os.stat(runsh_path).st_mode | 0111) # chmod +x
+		open(phoenixsh_path, 'w').write(phoenixsh)
+		os.chmod(phoenixsh_path, os.stat(phoenixsh_path).st_mode | 0111) # chmod +x
 
 	if skel_script is not None:
 		print textwrap.dedent('''\
