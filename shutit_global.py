@@ -2107,8 +2107,8 @@ END_''' + random_id)
 		else:
 			# Not handled
 			return False
-		# Get mapped package.
-		package = package_map.map_package(package,
+		# Get mapped packages.
+		package = package_map.map_packages(package,
 			cfg['environment'][cfg['build']['current_environment_id']]['install_type'])
 		# Let's be tolerant of failure eg due to network.
 		# This is especially helpful with automated testing.
