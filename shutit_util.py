@@ -315,16 +315,20 @@ def random_word(size=6):
 	return word.lower()
 
 def find_asset(filename):
-	filenames = ('/usr/share/dict/'+filename,
-	             sys.prefix+'/local/shutit_assets/'+filename,
-	             shutit_global.shutit_main_dir+'/'+filename,
-	             sys.prefix+'/shutit_assets/'+filename,
-	             shutit_global.shutit.cfg['host']['shutit_path']+'/assets/'+filename,
-	             os.path.join(sys.path[0],'assets',filename),
-	             '/usr/local/shutit_assets/'+filename)
-	for iter_filename in filenames:
-		if os.access(iter_filename,os.F_OK):
-			return iter_filename
+	dirs = ('/usr/share/dict',
+	        sys.prefix,
+	        os.path.join(sys.prefix,'local'),
+	        shutit_global.shutit_main_dir,
+	        shutit_global.shutit.cfg['host']['shutit_path'],
+	        '/usr/local')
+	dirs = dirs + sys.path
+	for iter_dir in dirs:
+		if os.access(os.path.join(iter_dir,filename),os.F_OK):
+			return os.path.join(iter_dir,filename)
+		if os.access(os.path.join(os.path.join(iter_dir,'assets'),filename),os.F_OK):
+			return os.path.join(os.path.join(iter_dir,'assets'),filename)
+		if os.access(os.path.join(os.path.join(iter_dir,'shutit_assets'),filename),os.F_OK):
+			return os.path.join(os.path.join(iter_dir,'shutit_assets'),filename)
 	return filename
 		
 	
