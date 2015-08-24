@@ -361,7 +361,7 @@ class ShutIt(object):
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
 		cfg = self.cfg
-		self._handle_note(note)
+		self._handle_note(note, 'Command: ' + send + '\nUntil one of these seen:' + str(regexps))
 		if type(regexps) == str:
 			regexps = [regexps]
 		if type(regexps) != list:
@@ -432,7 +432,7 @@ class ShutIt(object):
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
 		cfg = self.cfg
-		self._handle_note(note)
+		self._handle_note(note, 'Command is: ' + str(send))
 		if timeout == None:
 			timeout = 3600
 
@@ -607,13 +607,14 @@ $'"""
 			send = string.join(cmd + send[len(cmd_arr[0]):],'')
 		return send
 
-	def _handle_note(self, note):
+	def _handle_note(self, note, append=''):
 		"""Handle notes and walkthrough option.
 
 		@param note:                 See send()
 		"""
 		if self.cfg['build']['walkthrough'] and note != None:
-			self.pause_point('\n' + 80*'=' + '\n' + note + '\n' + 80*'=' + '\n', colour=31)
+			self.pause_point('\n' + 80*'=' + '\n' + note + '\n' + 80*'=' +
+			                 '\n\n' + append + '\n', colour=31)
 
 
 	def _expect_allow_interrupt(self, child, expect, timeout, iteration_s=1):
@@ -767,7 +768,7 @@ END_""" + random_id)
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
 	 	cfg = self.cfg
-		self._handle_note(note)
+		self._handle_note(note, 'Script: ' + str(script))
 		# Trim any whitespace lines from start and end of script, then dedent
 		lines = script.split('\n')
 		while len(lines) > 0 and re.match('^[ \t]*$', lines[0]):
@@ -815,7 +816,7 @@ END_""" + random_id)
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
 		cfg = self.cfg
-		self._handle_note(note)
+		self._handle_note(note, 'Sending contents to path: ' + path)
 		if user == None:
 			user = self.whoami()
 		if group == None:
@@ -885,7 +886,7 @@ END_''' + random_id)
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
 		cfg = self.cfg
-		self._handle_note(note)
+		self._handle_note(note, 'Changing to path: ' + path)
 		if cfg['build']['delivery'] in ('bash','dockerfile'):
 			self.send('cd ' + path, expect=expect, child=child, timeout=timeout)
 		elif cfg['build']['delivery'] in ('docker','ssh'):
@@ -922,7 +923,7 @@ END_''' + random_id)
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
 		cfg = self.cfg
-		self._handle_note(note)
+		self._handle_note(note, 'Sending file from host: ' + hostfilepath + '\nTo: ' + path)
 		if user == None:
 			user = self.whoami()
 		if group == None:
@@ -974,7 +975,7 @@ END_''' + random_id)
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
 		self.log('entered send_host_dir in: ' + os.getcwd())
-		self._handle_note(note)
+		self._handle_note(note, 'Sending host directory: ' + hostfilepath + '\nTo: ' + path)
 		if user == None:
 			user = self.whoami()
 		if group == None:
@@ -1009,7 +1010,7 @@ END_''' + random_id)
 
 		@rtype: boolean
 		"""
-		self._handle_note(note)
+		self._handle_note(note, 'Looking for filename on host: ' + filename)
 		if directory:
 			return os.path.isdir(filename)
 		else:
@@ -1033,7 +1034,7 @@ END_''' + random_id)
 		"""
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
-		self._handle_note(note)
+		self._handle_note(note, 'Looking for filename in current environment: ' + filename)
 		#       v the space is intentional, to avoid polluting bash history.
 		test = ' test %s %s' % ('-d' if directory is True else '-a', filename)
 		output = self.send_and_get_output(test +
@@ -1277,16 +1278,6 @@ END_''' + random_id)
 								return None
 						newtext1 = ftext[:cut_point]
 						newtext2 = ftext[cut_point:]
-					#print 'ftext'
-					#print ftext
-					#print 'cut_point:'
-					#print cut_point
-					#print 'nt1'
-					#print newtext1
-					#print 'text'
-					#print text
-					#print 'nt2'
-					#print newtext2
 				else:
 					lines = ftext.split('\n')
 					cut_point   = 0
@@ -1310,8 +1301,6 @@ END_''' + random_id)
 							break
 						# Update cut point to next line, including newline in original text
 						cut_point += line_length+1
-					#print 'cut_point:'
-					#print cut_point
 					if not replace and not matched:
 						# No match, return none
 						return None
@@ -1321,10 +1310,6 @@ END_''' + random_id)
 						cut_point += line_length
 					newtext1 = ftext[:cut_point]
 					newtext2 = ftext[cut_point:]
-					#print 'nt1'
-					#print newtext1
-					#print 'nt2'
-					#print newtext2
 					if replace and matched:
 						newtext2 = ftext[cut_point+line_length:]
 					elif not force:
@@ -1338,11 +1323,6 @@ END_''' + random_id)
 						newtext1 += '\n'
 					if len(newtext2) > 0 and newtext2[0] != '\n':
 						newtext2 = '\n' + newtext2
-					#print 'nt1'
-					#print newtext1
-					#print 'nt2'
-					#print newtext2
-					#print text
 			else:
 				# Append to file absent a pattern.
 				cut_point = len(ftext)
@@ -1352,8 +1332,6 @@ END_''' + random_id)
 			if newtext2 == '' and len(text) > 0 and text[-1] != '\n':
 				newtext2 = '\n'
 			new_text = newtext1 + text + newtext2
-			#print 'NEWTEXT'
-			#print new_text
 		self.send_file(fname,new_text,expect=expect,child=child,truncate=True)
 		return True
 
@@ -1990,7 +1968,7 @@ END_''' + random_id)
 		"""
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
-		self._handle_note(note)
+		self._handle_note(note, 'Command: ' + str(send))
 		# Don't check exit, as that will pollute the output. Also, it's quite likely the
 		# submitted command is intended to fail.
 		self.send(self._get_send_command(send), child=child, expect=expect, check_exit=False, retry=retry, echo=False, timeout=timeout, record_command=record_command)

@@ -315,12 +315,13 @@ def random_word(size=6):
 	return word.lower()
 
 def find_asset(filename):
-	dirs = ('/usr/share/dict',
+	dirs = ['/usr/share/dict',
 	        sys.prefix,
 	        os.path.join(sys.prefix,'local'),
 	        shutit_global.shutit_main_dir,
+	        os.path.join(shutit_global.shutit_main_dir,'../../..'),
 	        shutit_global.shutit.cfg['host']['shutit_path'],
-	        '/usr/local')
+	        '/usr/local']
 	dirs = dirs + sys.path
 	for iter_dir in dirs:
 		if os.access(os.path.join(iter_dir,filename),os.F_OK):
@@ -1613,7 +1614,7 @@ CONTAINER_PORT=${CONTAINER_PORT:-80}
 
 # Set up haproxy.
 # Remove proxy if it's died. If it doesn't exist, rebuild it first.
-HAPROXY=$($DOCKER ps --filter=name=${CONTAINER_BASE_NAME}_haproxy -q)
+HAPROXY=$($DOCKER ps --filter=name=${CONTAINER_BASE_NAME}_${HA_PROXY_CONTAINER_SUFFIX} -q)
 if [[ $HAPROXY = '' ]]
 then
 	HAPROXY=$($DOCKER ps --filter=name=${CONTAINER_BASE_NAME}_${HA_PROXY_CONTAINER_SUFFIX} -q -a)
