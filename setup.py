@@ -83,7 +83,7 @@ setup(
 	# need to place data files outside of your packages. See:
 	# http://docs.python.org/3.4/distutils/setupscript.html#installing-additional-files # noqa
 	# In this case, 'data_file' will be installed into '<sys.prefix>/my_data'
-	data_files=[('shutit_assets',['assets/words']),('shutit_assets',['assets/shutit_module_template_bare.py']),('shutit_assets',['assets/shutit_module_template.py']),('shutit_assets',['assets/resize']),('shutit_assets',['.gitignore'])],
+	data_files=[('shutit_assets',['assets/words']),('shutit_assets',['assets/shutit_module_template_bare.py']),('shutit_assets',['assets/resize']),('shutit_assets',['.gitignore'])],
 
 	# To provide executable scripts, use entry points in preference to the
 	# "scripts" keyword. Entry points provide cross-platform support and allow

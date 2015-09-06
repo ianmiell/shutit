@@ -429,6 +429,8 @@ class ShutIt(object):
 		@return: The pexpect return value (ie which expected string in the list matched)
 		@rtype: string
 		"""
+		if type(expect) == dict:
+			return self.multisend(send=send,send_dict=expect,expect=self.get_default_expect,child=child,timeout=timeout,check_exit=check_exit,fail_on_empty_before=fail_on_empty_before,record_command=record_command,exit_values=exit_values,echo=echo,note=note)
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
 		cfg = self.cfg
@@ -439,6 +441,7 @@ class ShutIt(object):
 		# Handle OSX to get the GNU version of the command
 		if assume_gnu:
 			send = self._get_send_command(send)
+
 			
 		# If check_exit is not passed in
 		# - if the expect matches the default, use the default check exit

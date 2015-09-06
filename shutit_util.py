@@ -499,7 +499,6 @@ def parse_args(shutit):
 	sub_parsers['skeleton'].add_argument('--depends', help='Module id to depend on, default shutit.tk.setup (optional)', default='shutit.tk.setup')
 	sub_parsers['skeleton'].add_argument('--base_image', help='FROM image, default ubuntu:14.04 (optional)', default='ubuntu:14.04')
 	sub_parsers['skeleton'].add_argument('--script', help='Pre-existing shell script to integrate into module (optional)', nargs='?', default=None)
-	sub_parsers['skeleton'].add_argument('--example', help='Add an example implementation with model calls to ShutIt API (optional)', default=False, const=True, action='store_const')
 	sub_parsers['skeleton'].add_argument('--output_dir', help='Just output the created directory', default=False, const=True, action='store_const')
 	sub_parsers['skeleton'].add_argument('--dockerfile', default=None)
 	sub_parsers['skeleton'].add_argument('--delivery', help='Delivery method, aka target. "docker" container (default), configured "ssh" connection, "bash" session', default=None, choices=('docker','dockerfile','ssh','bash'))
@@ -571,8 +570,8 @@ def parse_args(shutit):
 
 	# This mode is a bit special - it's the only one with different arguments
 	if cfg['action']['skeleton']:
-		if (args.dockerfile and (args.script or args.example)) or (args.example and args.script):
-			shutit.fail('Cannot have any two of script, -d/--dockerfile Dockerfile or --example as arguments')
+		if args.dockerfile and args.script:
+			shutit.fail('Cannot have any two of script, -d/--dockerfile Dockerfile as arguments')
 		if args.module_directory == '':
 			default_dir = '/tmp/shutit_' + random_word()
 			module_directory = util_raw_input(prompt='# Input a new directory name for this module.\n# Default: ' + default_dir + '\n', default=default_dir)
@@ -614,7 +613,6 @@ def parse_args(shutit):
 			'domainhash':  str(get_hash(domain)),
 			'depends':     args.depends,
 			'script':      args.script,
-			'example':     args.example,
 			'dockerfile':  args.dockerfile,
 			'output_dir':  args.output_dir,
 			'delivery':    delivery
@@ -1150,7 +1148,6 @@ def create_skeleton(shutit):
 	skel_depends     = cfg['skeleton']['depends']
 	skel_base_image  = cfg['skeleton']['base_image']
 	skel_script      = cfg['skeleton']['script']
-	skel_example     = cfg['skeleton']['example']
 	skel_dockerfile  = cfg['skeleton']['dockerfile']
 	skel_output_dir  = cfg['skeleton']['output_dir']
 	skel_delivery    = cfg['skeleton']['delivery']
@@ -1469,8 +1466,6 @@ def module():
 		if dockerfile_dirname:
 			os.chdir(shutit_dir)
 
-	elif skel_example:
-		templatemodule = open(find_asset('shutit_module_template.py')).read()
 	else:
 		templatemodule = open(find_asset('shutit_module_template_bare.py')).read()
 	templatemodule = (templatemodule
