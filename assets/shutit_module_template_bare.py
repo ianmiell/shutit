@@ -7,7 +7,6 @@ from shutit_module import ShutItModule
 class template(ShutItModule):
 
 
-	def build(self, shutit):
 		# Some useful API calls for reference. See shutit's docs for more info and options:
 		#
 		# ISSUING BASH COMMANDS
@@ -66,6 +65,12 @@ class template(ShutItModule):
 		# shutit.package_installed(package)  - Returns True if the package exists on the target
 		# shutit.set_password(password, user='')
 		#                                    - Set password for a given user on target
+		#
+		# USER INTERACTION
+		# shutit.get_input(msg,default,valid[],boolean?,ispass?)
+		#                                    - Get input from user and return output
+		# shutit.fail(msg)                   - Fail the program and exit with status 1
+		# 
 		return True
 
 	def get_config(self, shutit):

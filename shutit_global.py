@@ -430,7 +430,8 @@ class ShutIt(object):
 		@rtype: string
 		"""
 		if type(expect) == dict:
-			return self.multisend(send=send,send_dict=expect,expect=self.get_default_expect,child=child,timeout=timeout,check_exit=check_exit,fail_on_empty_before=fail_on_empty_before,record_command=record_command,exit_values=exit_values,echo=echo,note=note)
+			print 'passing to multisend'
+			return self.multisend(send=send,send_dict=expect,expect=self.get_default_expect(),child=child,timeout=timeout,check_exit=check_exit,fail_on_empty_before=fail_on_empty_before,record_command=record_command,exit_values=exit_values,echo=echo,note=note)
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
 		cfg = self.cfg
