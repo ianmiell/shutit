@@ -2029,10 +2029,15 @@ END_''' + random_id)
 		@return: True if all ok (ie it's installed), else False.
 		@rtype: boolean
 		"""
+		# If separated by spaces, install separately
+		if package.find(' ') != -1:
+			for p in package.split(' '):
+				self.install(p,child,expect,options,timeout,force,check_exit,reinstall,note)
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
 		cfg = self.cfg
 		self._handle_note(note)
+				
 		if options is None: options = {}
 		install_type = cfg['environment'][cfg['build']['current_environment_id']]['install_type']
 		if install_type == 'src':
@@ -2138,6 +2143,10 @@ END_''' + random_id)
 		         False otherwise.
 		@rtype: boolean
 		"""
+		# If separated by spaces, remove separately
+		if package.find(' ') != -1:
+			for p in package.split(' '):
+				self.install(p,child,expect,options,timeout,force,check_exit,reinstall,note)
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
 		cfg = self.cfg
