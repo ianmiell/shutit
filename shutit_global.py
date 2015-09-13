@@ -105,9 +105,11 @@ class ShutIt(object):
 		@return: default pexpect child object
 		"""
 		if self._default_child == None:
-			self.fail('Default child not set yet, exiting')
+			print 'Default child not set yet, exiting'
+			sys.exit(1)
 		if self._default_child[-1] is None:
-			self.fail("Couldn't get default child")
+			print '''Couldn't get default child'''
+			sys.exit(1)
 		return self._default_child[-1]
 
 
@@ -157,7 +159,6 @@ class ShutIt(object):
 		self._default_check_exit[-1] = check_exit
 
 
-	# TODO: Manage exits of builds on error
 	def fail(self, msg, child=None, throw_exception=False):
 		"""Handles a failure, pausing if a pexpect child object is passed in.
 
@@ -1816,15 +1817,16 @@ END_''' + random_id)
 
 		@return:             True if pause point handled ok, else false
 		"""
-		child = child or self.get_default_child()
-
 		ok=True
 		try:
 			child = child or self.get_default_child()
 		except Exception:
 			ok=False
 		if not ok:
-			return False
+			# If we get an exception here, assume we are exiting following a
+			# problem before we have a child.
+			print 'asd'
+			sys.exit(1)
 		cfg = self.cfg
 		if (not shutit_util.determine_interactive(self) or cfg['build']['interactive'] < 1 or 
 			cfg['build']['interactive'] < level):
@@ -2206,7 +2208,6 @@ END_''' + random_id)
 		@param user:    username we are getting password for
 		@param msg:     message to put out there
 		"""
-		#TODO: username per host/username
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
 		self._handle_note(note)
@@ -2221,7 +2222,7 @@ END_''' + random_id)
 		try:
 			cfg['environment'][cfg['build']['current_environment_id']][user]['password']
 		except Exception:
-			#TODO: if interactive and unset, else
+			# Try and get input, if we are not interactive, this should fail.
 			cfg['environment'][cfg['build']['current_environment_id']][user]['password'] = shutit.get_input(msg,ispass=True)
 		return cfg['environment'][cfg['build']['current_environment_id']][user]['password']
 
