@@ -244,7 +244,7 @@ class ConnDocker(ShutItConnModule):
 		lxc_conf_arg     = ''
 		name_arg         = ''
 		hostname_arg     = ''
-		volume_arg       = ''
+		artifact_arg       = ''
 		rm_arg           = ''
 		net_arg          = ''
 		mount_docker_arg = ''
@@ -258,7 +258,7 @@ class ConnDocker(ShutItConnModule):
 		if cfg['target']['hostname'] != '':
 			hostname_arg = '-h=' + cfg['target']['hostname']
 		if cfg['host']['artifacts_dir'] != '':
-			volume_arg = '-v=' + cfg['host']['artifacts_dir'] + ':/artifacts'
+			artifacts_arg = '-v=' + cfg['host']['artifacts_dir'] + ':/artifacts'
 		if cfg['build']['net'] != '':
 			net_arg        = '--net="' + cfg['build']['net'] + '"'
 		if cfg['build']['mount_docker']:
@@ -271,12 +271,15 @@ class ConnDocker(ShutItConnModule):
 		# Multiply-specified options
 		port_args  = []
 		dns_args   = []
-		ports_list = cfg['target']['ports'].strip().split()
-		dns_list   = cfg['host']['dns'].strip().split()
+		volumes_list = cfg['target']['volumes'].strip().split()
+		ports_list   = cfg['target']['ports'].strip().split()
+		dns_list     = cfg['host']['dns'].strip().split()
 		for portmap in ports_list:
 			port_args.append('-p=' + portmap)
 		for dns in dns_list:
 			dns_args.append('--dns=' + dns)
+		for volume in volumes_list:
+			volume_args.append('-v=' + volume)
 
 		docker_command = docker + [
 			arg for arg in [
@@ -286,7 +289,8 @@ class ConnDocker(ShutItConnModule):
 				lxc_conf_arg,
 				name_arg,
 				hostname_arg,
-				volume_arg,
+				artifact_arg,
+				volume_args,
 				rm_arg,
 				net_arg,
 				mount_docker_arg,

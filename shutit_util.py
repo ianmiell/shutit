@@ -369,6 +369,7 @@ def get_base_config(cfg, cfg_parser):
 	cfg['target']['hostname']                  = cp.get('target', 'hostname')
 	cfg['target']['locale']                    = cp.get('target', 'locale')
 	cfg['target']['ports']                     = cp.get('target', 'ports')
+	cfg['target']['volumes']                   = cp.get('target', 'volumes')
 	cfg['target']['name']                      = cp.get('target', 'name')
 	cfg['target']['rm']                        = cp.getboolean('target', 'rm')
 	# host - the host on which the shutit script is run
