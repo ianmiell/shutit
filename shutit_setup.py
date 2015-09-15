@@ -269,8 +269,9 @@ class ConnDocker(ShutItConnModule):
 		if cfg['build']['base_image'] in ('alpine','busybox'):
 			shell_arg = '/bin/ash'
 		# Multiply-specified options
-		port_args  = []
-		dns_args   = []
+		port_args     = []
+		dns_args      = []
+		volume_args   = []
 		volumes_list = cfg['target']['volumes'].strip().split()
 		ports_list   = cfg['target']['ports'].strip().split()
 		dns_list     = cfg['host']['dns'].strip().split()
@@ -290,11 +291,10 @@ class ConnDocker(ShutItConnModule):
 				name_arg,
 				hostname_arg,
 				artifact_arg,
-				volume_args,
 				rm_arg,
 				net_arg,
 				mount_docker_arg,
-				] + port_args + dns_args + [
+				] + volume_args + port_args + dns_args + [
 				'-t',
 				'-i',
 				cfg['target']['docker_image'],

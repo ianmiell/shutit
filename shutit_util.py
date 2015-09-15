@@ -73,6 +73,8 @@ locale:en_US.UTF-8
 # e.g. "ports:2222:22 8080:80" would expose container ports 22 and 80 as the
 # host's 2222 and 8080 (where applicable)
 ports:
+# volume arguments, eg /tmp/postgres:/var/lib/postgres:ro
+volumes:
 # Name to give the docker container (where applicable).
 # Empty means "let docker default a name".
 name:
@@ -1573,6 +1575,10 @@ def module():
 		# Aspects of build process
 		[build]
 		base_image:''' + cfg['dockerfile']['base_image'] + '''
+
+		# Volume arguments wanted as part of the build
+		[target]
+		volumes:
 
 		[repository]
 		name:''' + skel_module_name + '''
