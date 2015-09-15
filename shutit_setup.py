@@ -266,7 +266,7 @@ class ConnDocker(ShutItConnModule):
 		# Incompatible with do_repository_work
 		if cfg['target']['rm']:
 			rm_arg = '--rm=true'
-		if cfg['build']['base_image'] in ('alpine'):
+		if cfg['build']['base_image'] in ('alpine','busybox'):
 			shell_arg = '/bin/ash'
 		# Multiply-specified options
 		port_args  = []

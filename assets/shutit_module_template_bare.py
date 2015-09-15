@@ -7,6 +7,7 @@ from shutit_module import ShutItModule
 class template(ShutItModule):
 
 
+	def build(self, shutit):
 		# Some useful API calls for reference. See shutit's docs for more info and options:
 		#
 		# ISSUING BASH COMMANDS

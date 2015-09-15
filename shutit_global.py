@@ -1505,12 +1505,11 @@ END_''' + random_id)
 			while retry >= 0:
 				send = command + ' ' + location + '/' + filename + ' > ' + filename
 				self.send(send,check_exit=False,child=child,expect=expect,timeout=timeout,fail_on_empty_before=fail_on_empty_before,record_command=record_command,echo=echo)
-				if not self._check_exit(send, expect, child, timeout, exit_values, retbool=True):
+				if retry == 0:
+					self._check_exit(send, expect, child, timeout, exit_values, retbool=False)
+				elif not self._check_exit(send, expect, child, timeout, exit_values, retbool=True):
 					self.log('Sending: ' + send + '\nfailed, retrying')
 					retry = retry - 1
-					if retry == 0:
-						# Don't quit, let's break out of this location
-						break
 					continue
 				# If we get here, all is ok.
 				return True
