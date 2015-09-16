@@ -3079,7 +3079,8 @@ END_''' + random_id)
 		""" Put the config in a file in the target.
 		"""
 		cfg = self.cfg
-		if cfg['build']['delivery'] in ('docker','dockerfile'):
+		# appears to break in dockerfile (cf TMM)
+		if cfg['build']['delivery'] in ('docker'):
 			self.send_file(cfg['build']['build_db_dir'] +
 						   '/' + cfg['build']['build_id'] +
 						   '/' + cfg['build']['build_id'] +
