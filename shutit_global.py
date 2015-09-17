@@ -3080,7 +3080,7 @@ END_''' + random_id)
 		"""
 		cfg = self.cfg
 		# appears to break in dockerfile (cf TMM)
-		if cfg['build']['delivery'] in ('docker'):
+		if cfg['build']['delivery'] in ('docker','dockerfile'):
 			self.send_file(cfg['build']['build_db_dir'] +
 						   '/' + cfg['build']['build_id'] +
 						   '/' + cfg['build']['build_id'] +
