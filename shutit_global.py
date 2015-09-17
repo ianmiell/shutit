@@ -849,6 +849,7 @@ END_""" + random_id)
 			shell_contents = contents
 			# switch off tab-completion
 			self.send('''bind '\C-i:self-insert' ''',check_exit=False)
+			# TODO: BUG: blows up when the contents are large.
 			self.send(self._get_command('head') + ' -c -1 > ' + path + " << 'END_" + random_id + """'
 """ + contents + '''
 END_''' + random_id)

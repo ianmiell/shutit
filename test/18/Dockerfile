@@ -8,6 +8,6 @@ WORKDIR /opt
 # Change the next two lines to build your ShutIt module.
 RUN git clone https://github.com/ianmiell/shutit
 WORKDIR /opt/shutit/test/18
-RUN /opt/shutit/shutit build --delivery dockerfile
+RUN /opt/shutit/shutit build --delivery dockerfile --debug
 
 CMD ["/bin/bash"]
