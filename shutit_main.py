@@ -25,7 +25,7 @@
 """
 
 
-from shutit_module import ShutItModule, ShutItException, ShutItFailException
+from shutit_module import ShutItModule, ShutItFailException
 import ConfigParser
 import shutit_util
 import urllib
@@ -766,7 +766,6 @@ def do_test(shutit):
 	stop_all(shutit)
 	start_all(shutit)
 	for module_id in module_ids(shutit, rev=True):
-		module = shutit.shutit_map[module_id]
 		# Only test if it's installed.
 		if is_installed(shutit, shutit.shutit_map[module_id]):
 			shutit.log('RUNNING TEST ON: ' + module_id, code='32')
@@ -992,7 +991,6 @@ def do_phone_home(msg=None,question='Error seen - would you like to inform the m
 	msg - message to send home
 	question - question to ask - assumes Y/y for send message, else no
 	"""
-	cfg = shutit.cfg
 	if msg is None:
 		msg = {}
 	if shutit_global.cfg['build']['interactive'] == 0:
