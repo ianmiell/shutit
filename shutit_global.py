@@ -1818,7 +1818,6 @@ END_''' + random_id)
 		if not ok:
 			# If we get an exception here, assume we are exiting following a
 			# problem before we have a child.
-			print 'asd'
 			sys.exit(1)
 		cfg = self.cfg
 		if (not shutit_util.determine_interactive(self) or cfg['build']['interactive'] < 1 or 
