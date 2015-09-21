@@ -658,8 +658,8 @@ $'"""
 					child.send('\x1a')
 					res = child.expect(expect + [pexpect.TIMEOUT],timeout=1)
 					if res == len(expect):
-						self.fail('CTRL-C hit after timeout and could not recover')
-				self.pause_point('CTRL-C hit after timeout detected; the command has been cancelled',child=child)
+						self.fail('CTRL-C sent by ShutIt following a timeout, and could not recover')
+				self.pause_point('CTRL-C sent by ShutIt following a timeout; the command has been cancelled',child=child)
 				return res
 			else:
 				if timed_out:
