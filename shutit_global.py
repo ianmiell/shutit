@@ -640,9 +640,9 @@ $'"""
 		while accum_timeout < timeout:
 			res = child.expect(expect + [pexpect.TIMEOUT], timeout=iteration_s)
 			if res == len(expect):
-				if shutit.cfg['build']['ctrlc_stop']:
+				if cfg['build']['ctrlc_stop']:
 					timed_out = False
-					shutit.cfg['build']['crtlc_stop'] = False
+					cfg['build']['crtlc_stop'] = False
 					break
 				accum_timeout += iteration_s
 			else:
@@ -845,6 +845,7 @@ END_""" + random_id)
 			if truncate and self.file_exists(path):
 				self.send('rm -f ' + path, expect=expect, child=child)
 			random_id = shutit_util.random_id()
+			shell_contents = contents
 			# switch off tab-completion
 			self.send('''bind '\C-i:self-insert' ''',check_exit=False)
 			# TODO: BUG: blows up when the contents are large.
@@ -1230,6 +1231,10 @@ END_''' + random_id)
 			# If replace and delete FAIL
 			if delete:
 				shutit.fail('cannot pass replace=True and delete=True to insert_text')
+		if len(text.split('\n')) > 1:
+			single_line = False
+		else:
+			single_line = True
 		if self.command_available('base64'):
 			ftext = self.send_and_get_output('base64' + ' ' + fname)
 			ftext = base64.b64decode(ftext)
@@ -1826,7 +1831,7 @@ END_''' + random_id)
 		if child:
 			if print_input:
 				if resize:
-					if default_msg == None:
+					if preamble == None:
 						print (shutit_util.colour(colour,'\nPause point:\n' +
 							'resize==True, so attempting to resize terminal.\n\n' +
 							'If you are not at a shell prompt when calling pause_point, then pass in resize=False.'))
@@ -1970,7 +1975,6 @@ END_''' + random_id)
 		# submitted command is intended to fail.
 		self.send(self._get_send_command(send), child=child, expect=expect, check_exit=False, retry=retry, echo=False, timeout=timeout, record_command=record_command)
 		before = self.get_default_child().before
-		cfg = shutit.cfg
 		try:
 			if cfg['environment'][cfg['build']['current_environment_id']]['distro'] == 'osx':
 				before_list = before.split('\r\n')
