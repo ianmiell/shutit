@@ -271,15 +271,18 @@ class ConnDocker(ShutItConnModule):
 		port_args     = []
 		dns_args      = []
 		volume_args   = []
-		volumes_list = cfg['target']['volumes'].strip().split()
-		ports_list   = cfg['target']['ports'].strip().split()
-		dns_list     = cfg['host']['dns'].strip().split()
+		volumes_list      = cfg['target']['volumes'].strip().split()
+		volumes_from_list = cfg['target']['volumes_from'].strip().split()
+		ports_list        = cfg['target']['ports'].strip().split()
+		dns_list          = cfg['host']['dns'].strip().split()
 		for portmap in ports_list:
 			port_args.append('-p=' + portmap)
 		for dns in dns_list:
 			dns_args.append('--dns=' + dns)
 		for volume in volumes_list:
 			volume_args.append('-v=' + volume)
+		for volumes_from in volumes_from_list:
+			volumes_from_args.append('--volumes-from=' + volumes_from)
 
 		docker_command = docker + [
 			arg for arg in [
@@ -293,7 +296,7 @@ class ConnDocker(ShutItConnModule):
 				rm_arg,
 				net_arg,
 				mount_docker_arg,
-				] + volume_args + port_args + dns_args + [
+				] + volume_args + volumes_from_args + port_args + dns_args + [
 				'-t',
 				'-i',
 				cfg['target']['docker_image'],

@@ -75,6 +75,8 @@ locale:en_US.UTF-8
 ports:
 # volume arguments, eg /tmp/postgres:/var/lib/postgres:ro
 volumes:
+# volumes-from arguments
+volumes-from:
 # Name to give the docker container (where applicable).
 # Empty means "let docker default a name".
 name:
@@ -372,6 +374,7 @@ def get_base_config(cfg, cfg_parser):
 	cfg['target']['locale']                    = cp.get('target', 'locale')
 	cfg['target']['ports']                     = cp.get('target', 'ports')
 	cfg['target']['volumes']                   = cp.get('target', 'volumes')
+	cfg['target']['volumes-from']              = cp.get('target', 'volumes-from')
 	cfg['target']['name']                      = cp.get('target', 'name')
 	cfg['target']['rm']                        = cp.getboolean('target', 'rm')
 	# host - the host on which the shutit script is run
