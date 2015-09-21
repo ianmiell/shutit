@@ -37,9 +37,10 @@ import pexpect
 import sys
 import os
 import shutit_util
+import time
 import re
 import subprocess
-import time
+import os
 from distutils import spawn
 
 
@@ -257,7 +258,7 @@ class ConnDocker(ShutItConnModule):
 		if cfg['target']['hostname'] != '':
 			hostname_arg = '-h=' + cfg['target']['hostname']
 		if cfg['host']['artifacts_dir'] != '':
-			artifact_arg = '-v=' + cfg['host']['artifacts_dir'] + ':/artifacts'
+			artifacts_arg = '-v=' + cfg['host']['artifacts_dir'] + ':/artifacts'
 		if cfg['build']['net'] != '':
 			net_arg        = '--net="' + cfg['build']['net'] + '"'
 		if cfg['build']['mount_docker']:
@@ -343,7 +344,7 @@ class ConnDocker(ShutItConnModule):
 				cid = open(cfg['build']['cidfile']).read()
 				break
 			except Exception:
-				time.sleep(1)
+				sleep(1)
 		if cid == '' or re.match('^[a-z0-9]+$', cid) == None:
 			shutit.fail('Could not get container_id - quitting. ' +
 			            'Check whether ' +
@@ -507,7 +508,7 @@ class ConnSSH(ShutItConnModule):
 		# Finish with the host
 		shutit.set_default_child(shutit.pexpect_children['host_child'])
 		# Final exits
-		self.host_child.sendline('exit') # Exit raw bash
+		host_child.sendline('exit') # Exit raw bash
 		return True
 
 

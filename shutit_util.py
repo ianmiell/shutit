@@ -1021,7 +1021,7 @@ def load_all_from_path(shutit, path):
 		return
 	if not os.path.exists(path):
 		return
-	if os.path.exists(path + '/STOPBUILD') and not shutit.cfg['build']['ignorestop']:
+	if os.path.exists(path + '/STOPBUILD') and not cfg['build']['ignorestop']:
 		shutit.log('Ignoring directory: ' + path + ' as it has a STOPBUILD file in it. Pass --ignorestop to shutit run to override.', force_stdout=True)
 		return
 	for sub in glob.glob(os.path.join(path, '*')):
@@ -1760,6 +1760,7 @@ $DOCKER rename ${CONTAINER_BASE_NAME}_${RANDOM_ID} ${CONTAINER_BASE_NAME}''' % (
 			multi-line commands need to be handled more carefully.
 			================================================================================''')
 
+		sbsi = cfg['build']['shutit_state_dir'] + '/shutit_bash_script_include_' + str(int(time.time()))
 		skel_mod_path = os.path.join(skel_path, skel_module_name + '.py')
 		# Read in new file
 		script_list = open(skel_script).read().splitlines()

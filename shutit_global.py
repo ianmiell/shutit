@@ -361,6 +361,7 @@ class ShutIt(object):
 		"""
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
+		cfg = self.cfg
 		self._handle_note(note, 'Command: ' + send + '\nUntil one of these seen:' + str(regexps))
 		if type(regexps) == str:
 			regexps = [regexps]
@@ -1575,6 +1576,7 @@ END_''' + random_id)
 	def command_available(self, command, expect=None, child=None, note=None):
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
+		cfg = self.cfg
 		self._handle_note(note)
 		if self.send_and_get_output('command -v ' + command) != '':
 			return True
@@ -1895,6 +1897,7 @@ END_''' + random_id)
 		Returns True if there are no groups selected in the regexp.
 		else returns matching group (ie non-None)
 		"""
+		cfg = self.cfg
 		lines = string.split('\r\n')
 		# sometimes they're separated by just a carriage return...
 		new_lines = []
@@ -2121,10 +2124,7 @@ END_''' + random_id)
 	           expect=None,
 	           options=None,
 	           timeout=3600,
-	           note=None, 
-               force=False, 
-               check_exit=True,
-               reinstall=False):
+	           note=None):
 		"""Distro-independent remove function.
 		Takes a package name and runs relevant remove function.
 
@@ -2346,9 +2346,11 @@ END_''' + random_id)
 			@param note:            See send()
 		"""
 		child = child or self.get_default_child()
+		old_expect = expect or self.get_default_expect()
 		cfg = self.cfg
 		self._handle_note(note)
 		if len(cfg['build']['login_stack']):
+			current_prompt_name = cfg['build']['login_stack'].pop()
 			if len(cfg['build']['login_stack']):
 				old_prompt_name     = cfg['build']['login_stack'][-1]
 				self.set_default_expect(cfg['expect_prompts'][old_prompt_name])
@@ -2455,6 +2457,7 @@ END_''' + random_id)
 	def get_memory(self, child=None, expect=None, note=None):
 		"""Returns memory available for use in k as an int"""
 		child = child or self.get_default_child()
+		old_expect = expect or self.get_default_expect()
 		cfg = self.cfg
 		self._handle_note(note)
 		if cfg['environment'][cfg['build']['current_environment_id']]['distro'] == 'osx':
@@ -3166,7 +3169,7 @@ def init():
 			import getpass
 			cfg['host']['username'] = getpass.getuser()
 		if cfg['host']['username'] == '':
-			shutit.fail('LOGNAME not set in the environment, ' +
+			shutit_global.shutit.fail('LOGNAME not set in the environment, ' +
 			                          'and login unavailable in python; ' +
 			                          'please set to your username.', throw_exception=False)
 	cfg['host']['real_user'] = os.environ.get('SUDO_USER',
