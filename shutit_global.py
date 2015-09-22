@@ -290,6 +290,7 @@ class ShutIt(object):
 	              fail_on_empty_before=True,
 	              record_command=True,
 	              exit_values=None,
+	              escape=False,
 	              echo=None,
 	              note=None):
 		"""Multisend. Same as send, except it takes multiple sends and expects in a dict that are
@@ -324,11 +325,12 @@ class ShutIt(object):
 				n_breakout_items += 1
 		while True:
 			# If it's the last n items in the list, it's the breakout one.
-			res = self.send(send_iteration, expect=expect_list, child=child, check_exit=check_exit, fail_on_empty_before=fail_on_empty_before, timeout=timeout, record_command=record_command, exit_values=exit_values, echo=echo)
+			res = self.send(send_iteration, expect=expect_list, child=child, check_exit=check_exit, fail_on_empty_before=fail_on_empty_before, timeout=timeout, record_command=record_command, exit_values=exit_values, echo=echo, escape=escape)
 			if res >= len(expect_list) - n_breakout_items:
 				break
 			else:
 				send_iteration = send_dict[expect_list[res]]
+
 
 	def send_until(self,
 	               send,
@@ -431,7 +433,6 @@ class ShutIt(object):
 		@rtype: string
 		"""
 		if type(expect) == dict:
-			print 'passing to multisend'
 			return self.multisend(send=send,send_dict=expect,expect=self.get_default_expect(),child=child,timeout=timeout,check_exit=check_exit,fail_on_empty_before=fail_on_empty_before,record_command=record_command,exit_values=exit_values,echo=echo,note=note)
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
@@ -2271,6 +2272,7 @@ END_''' + random_id)
 	          prompt_prefix=None,
 	          expect=None,
 	          timeout=20,
+	          escape=True,
 	          note=None,
 	          go_home=True):
 		"""Logs the user in with the passed-in password and command.
@@ -2282,6 +2284,8 @@ END_''' + random_id)
 		@param user:            User to login with. Default: root
 		@param command:         Command to login with. Default: "su -"
 		@param child:           See send()
+		@param escape:          See send(). We default to true here in case
+		                        it matches an expect we add.
 		@param password:        Password.
 		@param prompt_prefix:   Prefix to use in prompt setup.
 		@param expect:          See send()
@@ -2324,7 +2328,7 @@ END_''' + random_id)
 			print '\n' + 80 * '='
 			self.log('WARNING! user is bash - if you see problems below, did you mean: login(command="' + user + '")?',force_stdout=True)
 			print '\n' + 80 * '='
-		self.multisend(send,{'ontinue connecting':'yes','assword':password,'login:':password},expect=general_expect,check_exit=False,timeout=timeout,fail_on_empty_before=False)
+		self.multisend(send,{'ontinue connecting':'yes','assword':password,'login:':password},expect=general_expect,check_exit=False,timeout=timeout,fail_on_empty_before=False,escape=escape)
 		#if not self._check_exit(send,expect=general_expect):
 		#	self.pause_point('Login failed?')
 		if prompt_prefix != None:
