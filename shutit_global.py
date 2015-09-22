@@ -2323,7 +2323,11 @@ END_''' + random_id)
 			login_expect = expect
 		# We don't fail on empty before as many login programs mess with the output.
 		# In this special case of login we expect either the prompt, or 'user@' as this has been seen to work.
-		general_expect = [login_expect,user+'@','\r\n.*[@#$]']
+		
+		general_expect = [login_expect]
+		if not string.find(command,'ssh') == 0:
+			general_expect = general_expect + [user+'@']
+			general_expect = general_expect + ['\r\n.*[@#$]']
 		if user == 'bash' and command == 'su -':
 			print '\n' + 80 * '='
 			self.log('WARNING! user is bash - if you see problems below, did you mean: login(command="' + user + '")?',force_stdout=True)
