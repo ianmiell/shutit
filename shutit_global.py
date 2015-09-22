@@ -2272,7 +2272,7 @@ END_''' + random_id)
 	          prompt_prefix=None,
 	          expect=None,
 	          timeout=20,
-	          escape=True,
+	          escape=False,
 	          note=None,
 	          go_home=True):
 		"""Logs the user in with the passed-in password and command.
