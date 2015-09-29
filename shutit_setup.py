@@ -89,8 +89,8 @@ class ShutItConnModule(ShutItModule):
 		if cfg['build']['delivery'] in ('docker','dockerfile'):
 			shutit.send('chmod -R 777 ' + cfg['build']['shutit_state_dir'])
 			# Create the build directory and put the config in it.
-			shutit.send(' mkdir -p ' + cfg['build']['build_db_dir'] + \
-				 '/' + cfg['build']['build_id'])
+			#shutit.send(' mkdir -p ' + cfg['build']['build_db_dir'] + \
+			#	 '/' + cfg['build']['build_id'])
 			# Record the command we ran and the python env if in debug.
 			if cfg['build']['debug']:
 				shutit.send_file(cfg['build']['build_db_dir'] + '/' + \
@@ -298,7 +298,7 @@ class ConnDocker(ShutItConnModule):
 				rm_arg,
 				net_arg,
 				mount_docker_arg,
-				] + volume_args + volumes_from_args + port_args + dns_args + [
+			] + volume_args + volumes_from_args + port_args + dns_args + [
 				'-t',
 				'-i',
 				cfg['target']['docker_image'],
