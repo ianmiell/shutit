@@ -843,13 +843,12 @@ END_""" + random_id)
 				f.truncate(0)
 			f.write(contents)
 			f.close()
-		elif cfg['build']['delivery'] in ('bash','dockerfile'):
+		elif cfg['build']['delivery'] in ('bash'):
 			if truncate and self.file_exists(path):
 				self.send('rm -f ' + path, expect=expect, child=child)
 			random_id = shutit_util.random_id()
 			# switch off tab-completion
 			self.send('''bind '\C-i:self-insert' ''',check_exit=False)
-			# TODO: BUG: blows up when the contents are large.
 			self.send(self._get_command('head') + ' -c -1 > ' + path + " << 'END_" + random_id + """'
 """ + contents + '''
 END_''' + random_id)
