@@ -843,7 +843,7 @@ END_""" + random_id)
 				f.truncate(0)
 			f.write(contents)
 			f.close()
-		elif cfg['build']['delivery'] in ('bash'):
+		elif cfg['build']['delivery'] in ('bash','dockerfile'):
 			if truncate and self.file_exists(path):
 				self.send('rm -f ' + path, expect=expect, child=child)
 			random_id = shutit_util.random_id()

@@ -86,7 +86,7 @@ class ShutItConnModule(ShutItModule):
 
 	def _add_begin_build_info(self, shutit, command):
 		cfg = shutit.cfg
-		if cfg['build']['delivery'] in ('docker','dockerfile'):
+		if cfg['build']['delivery'] in ('docker'):
 			shutit.send('chmod -R 777 ' + cfg['build']['shutit_state_dir'])
 			# TODO: debug this, fails on dockerfile builds, eg otto
 			# Create the build directory and put the config in it.
@@ -106,7 +106,7 @@ class ShutItConnModule(ShutItModule):
 	def _add_end_build_info(self, shutit):
 		cfg = shutit.cfg
 		# Put build info into the target
-		if cfg['build']['delivery'] in ('docker','dockerfile'):
+		if cfg['build']['delivery'] in ('docker'):
 			shutit.send(' mkdir -p ' + cfg['build']['build_db_dir'] + '/' + \
 			    cfg['build']['build_id'])
 			shutit.send_file(cfg['build']['build_db_dir'] + '/' + \
