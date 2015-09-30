@@ -919,7 +919,7 @@ def main():
 		sys.exit(0)
 	# Dependency validation done, now collect configs of those marked for build.
 	config_collection_for_built(shutit)
-	if cfg['action']['list_configs'] or cfg['build']['debug']:
+	if False and (cfg['action']['list_configs'] or cfg['build']['debug']):
 		shutit.log(shutit_util.print_config(cfg, history=cfg['list_configs']['cfghistory']),
 				   force_stdout=True)
 		# Set build completed
