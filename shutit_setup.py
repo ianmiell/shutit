@@ -88,17 +88,18 @@ class ShutItConnModule(ShutItModule):
 		cfg = shutit.cfg
 		if cfg['build']['delivery'] in ('docker','dockerfile'):
 			shutit.send('chmod -R 777 ' + cfg['build']['shutit_state_dir'])
+			# TODO: debug this, fails on dockerfile builds, eg otto
 			# Create the build directory and put the config in it.
-			#shutit.send(' mkdir -p ' + cfg['build']['build_db_dir'] + \
-			#	 '/' + cfg['build']['build_id'])
+			shutit.send(' mkdir -p ' + cfg['build']['build_db_dir'] + \
+				 '/' + cfg['build']['build_id'])
 			# Record the command we ran and the python env if in debug.
-			#if cfg['build']['debug']:
-			#	shutit.send_file(cfg['build']['build_db_dir'] + '/' + \
-			#	    cfg['build']['build_id'] + '/python_env.sh', \
-			#	    str(sys.__dict__), log=False)
-			#	shutit.send_file(cfg['build']['build_db_dir'] + '/' + \
-			#	    cfg['build']['build_id'] + '/command.sh', \
-			#	    ' '.join(command), log=False)
+			if cfg['build']['debug']:
+				shutit.send_file(cfg['build']['build_db_dir'] + '/' + \
+				    cfg['build']['build_id'] + '/python_env.sh', \
+				    str(sys.__dict__), log=False)
+				shutit.send_file(cfg['build']['build_db_dir'] + '/' + \
+				    cfg['build']['build_id'] + '/command.sh', \
+				    ' '.join(command), log=False)
 		shutit.pause_point('Anything you want to do now the ' +
 		    'target is connected to?', level=2)
 
