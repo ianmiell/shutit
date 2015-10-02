@@ -52,3 +52,5 @@ show_config/*
 build/*
 dist/*
 shutit.egg*
+.eric6*
+shutit.e4p
