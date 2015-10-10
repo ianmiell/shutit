@@ -1499,7 +1499,7 @@ def module():
 			exit 1
 		fi
 		pushd ..
-		$SHUTIT build "$@"
+		$SHUTIT build -d ''' + skel_delivery + ''' "$@"
 		if [[ $? != 0 ]]
 		then
 			popd
