@@ -245,7 +245,11 @@ class ShutIt(object):
 								cfg['build']['current_environment_id'] = 'ORIGIN_ENV'
 							break
 				else:
-					self.fail('Wrong number of files in environment_id_dir: ' + environment_id_dir)
+					# See above re: cygwin
+					if file_exists('/cygdrive'):
+						cfg['build']['current_environment_id'] = 'ORIGIN_ENV'
+					else:
+						self.fail('Wrong number of files in environment_id_dir: ' + environment_id_dir)
 			else:
 				environment_id = files[0]
 			if cfg['build']['current_environment_id'] != environment_id:
@@ -2328,7 +2332,6 @@ END_''' + random_id)
 			login_expect = expect
 		# We don't fail on empty before as many login programs mess with the output.
 		# In this special case of login we expect either the prompt, or 'user@' as this has been seen to work.
-		
 		general_expect = [login_expect]
 		# Add in a match if we see user+ and then the login matches. Be careful not to match against 'user+@...password:'
 		general_expect = general_expect + [user+'@.*'+'[@#$]']
