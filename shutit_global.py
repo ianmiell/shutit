@@ -246,12 +246,15 @@ class ShutIt(object):
 							break
 				else:
 					# See above re: cygwin
-					if file_exists('/cygdrive'):
+					if self.file_exists('/cygdrive'):
 						cfg['build']['current_environment_id'] = 'ORIGIN_ENV'
 					else:
 						self.fail('Wrong number of files in environment_id_dir: ' + environment_id_dir)
 			else:
-				environment_id = files[0]
+				if self.file_exists('/cygdrive'):
+					environment_id = 'ORIGIN_ENV'
+				else:
+					environment_id = files[0]
 			if cfg['build']['current_environment_id'] != environment_id:
 				# Clean out any trace of this new environment, and return the already-existing one.
 				self.send('rm -rf ' + environment_id_dir + '/environment_id/' + environment_id, child=child, expect=expect)
@@ -2343,7 +2346,8 @@ END_''' + random_id)
 			print '\n' + 80 * '='
 			self.log('WARNING! user is bash - if you see problems below, did you mean: login(command="' + user + '")?',force_stdout=True)
 			print '\n' + 80 * '='
-		self.multisend(send,{'ontinue connecting':'yes','assword':password,'login:':password},expect=general_expect,check_exit=False,timeout=timeout,fail_on_empty_before=False,escape=escape)
+		# r'[^t] login:' - be sure not to match 'last login:'
+		self.multisend(send,{'ontinue connecting':'yes','assword':password,r'[^t] login:':password},expect=general_expect,check_exit=False,timeout=timeout,fail_on_empty_before=False,escape=escape)
 		#if not self._check_exit(send,expect=general_expect):
 		#	self.pause_point('Login failed?')
 		if prompt_prefix != None:
