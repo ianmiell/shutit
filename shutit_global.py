@@ -237,6 +237,12 @@ class ShutIt(object):
 						if f != 'ORIGIN_ENV':
 							environment_id = f
 							cfg['build']['current_environment_id'] = environment_id
+							# Workaround for CygWin terminal issues. If the envid isn't in the cfg item
+							# Then crudely assume it is. This will drop through and the assume we are in the origin env.
+							try:
+								cfg['environment'][cfg['build']['current_environment_id']]
+							except Exception:
+								cfg['build']['current_environment_id'] = 'ORIGIN_ENV'
 							break
 				else:
 					self.fail('Wrong number of files in environment_id_dir: ' + environment_id_dir)
@@ -2300,7 +2306,7 @@ END_''' + random_id)
 		"""
 		child = child or self.get_default_child()
 		# We don't get the default expect here, as it's either passed in, or a base default regexp.
-		self._handle_note(note)
+		self._handle_note(note, append='command: "' + command + '", as user: "' + user + '"')
 		r_id = shutit_util.random_id()
 		if prompt_prefix == None:
 			prompt_prefix = r_id
@@ -2324,9 +2330,12 @@ END_''' + random_id)
 		# In this special case of login we expect either the prompt, or 'user@' as this has been seen to work.
 		
 		general_expect = [login_expect]
+		# Add in a match if we see user+ and then the login matches. Be careful not to match against 'user+@...password:'
+		general_expect = general_expect + [user+'@.*'+'[@#$]']
+		# If not an ssh login, then we can match against user + @sign because it won't clash with 'user@adasdas password:'
 		if not string.find(command,'ssh') == 0:
 			general_expect = general_expect + [user+'@']
-			general_expect = general_expect + ['\r\n.*[@#$]']
+			general_expect = general_expect + ['.*[@#$]']
 		if user == 'bash' and command == 'su -':
 			print '\n' + 80 * '='
 			self.log('WARNING! user is bash - if you see problems below, did you mean: login(command="' + user + '")?',force_stdout=True)
@@ -2509,7 +2518,6 @@ END_''' + random_id)
 		cfg['environment'][environment_id]['distro']            = ''
 		cfg['environment'][environment_id]['distro_version']    = ''
 		# A list of OS Family members
-		# RedHat    = Scientific, SLC, Ascendos, CloudLinux, PSBM, OracleLinux, OVS, OEL, Amazon, XenServer 
 		# Suse      = SLES, SLED, OpenSuSE, Suse
 		# Archlinux = Archlinux
 		# Mandrake  = Mandriva, Mandrake
@@ -2517,7 +2525,6 @@ END_''' + random_id)
 		# AIX       = AIX
 		# FreeBSD   = FreeBSD
 		# HP-UK     = HPUX
-
 		#    OSDIST_DICT = { '/etc/redhat-release': 'RedHat',
 		#                    '/etc/vmware-release': 'VMwareESX',
 		#                    '/etc/openwrt_release': 'OpenWrt',
@@ -2527,10 +2534,7 @@ END_''' + random_id)
 		#                    '/etc/SuSE-release': 'SuSE',
 		#                    '/etc/gentoo-release': 'Gentoo',
 		#                    '/etc/os-release': 'Debian' }
-		#
-		#    # A list of dicts.  If there is a platform with more than one
-		#    # package manager, put the preferred one last.  If there is an
-		#    # ansible module, use that as the value for the 'name' key.
+		#    # A list of dicts.  If there is a platform with more than one package manager, put the preferred one last.  If there is an ansible module, use that as the value for the 'name' key.
 		#    PKG_MGRS = [ 
 		#                 { 'path' : '/usr/bin/zypper',      'name' : 'zypper' },
 		#                 { 'path' : '/usr/sbin/urpmi',      'name' : 'urpmi' },
@@ -2598,6 +2602,9 @@ END_''' + random_id)
 						distro       = key
 						install_type = cfg['build']['install_type_map'][key]
 						break
+			elif self.file_exists('/cygdrive'):
+				distro       = 'cygwin'
+				install_type = 'apt-cyg'
 			if install_type == '' or distro == '':
 				if self.file_exists('/etc/os-release'):
 					os_name = self.send_and_get_output(' cat /etc/os-release | grep ^NAME').lower()
@@ -3164,7 +3171,8 @@ def init():
 	                                    'shutit':'src',
 	                                    'coreos':'docker',
 	                                    'gentoo':'emerge',
-	                                    'osx':'brew'}
+	                                    'osx':'brew',
+	                                    'cygwin':'apt-cyg'}
 
 	# If no LOGNAME available,
 	cfg['host']['username'] = os.environ.get('LOGNAME', '')
