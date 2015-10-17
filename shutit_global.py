@@ -632,8 +632,13 @@ $'"""
 		@param note:                 See send()
 		"""
 		if self.cfg['build']['walkthrough'] and note != None:
-			self.pause_point('\n' + 80*'=' + '\n' + note + '\n' + 80*'=' +
-			                 '\n\n' + append + '\n', colour=31)
+			wait = self.cfg['build']['walkthrough_wait']
+			if wait >= 0:
+				self.pause_point('\n' + 80*'=' + '\n' + note + '\n' + 80*'=' +
+			                    '\n\n' + append + '\n', colour=31, wait=wait)
+			else:
+				self.pause_point('\n' + 80*'=' + '\n' + note + '\n' + 80*'=' +
+			                    '\n\n' + append + '\n', colour=31)
 
 
 	def _expect_allow_interrupt(self, child, expect, timeout, iteration_s=1):
@@ -1799,7 +1804,15 @@ END_''' + random_id)
 		self.pause_point(msg, child=child, print_input=print_input, level=level, resize=False)
 
 
-	def pause_point(self, msg='', child=None, print_input=True, level=1, resize=False, colour='32', default_msg=None):
+	def pause_point(self,
+	                msg='',
+	                child=None,
+	                print_input=True,
+	                level=1,
+	                resize=False,
+	                colour='32',
+	                default_msg=None,
+	                wait=-1):
 		"""Inserts a pause in the build session, which allows the user to try
 		things out before continuing. Ignored if we are not in an interactive
 		mode, or the interactive level is less than the passed-in one.
@@ -1817,11 +1830,13 @@ END_''' + random_id)
 		                     Default: False
 		@param colour:       Colour to print message (typically 31 for red, 32 for green)
 		@param default_msg:  Whether to print the standard blurb
+		@param wait:         Wait a few seconds rather than for input
 
 		@type msg:           string
 		@type print_input:   boolean
 		@type level:         integer
 		@type resize:        boolean
+		@type wait:          decimal
 
 		@return:             True if pause point handled ok, else false
 		"""
@@ -1861,10 +1876,13 @@ END_''' + random_id)
 					print shutit_util.colour(colour, msg) + '\n' + default_msg + '\n'
 				oldlog = child.logfile_send
 				child.logfile_send = None
-				try:
-					child.interact(input_filter=self._pause_input_filter)
-				except Exception as e:
-					self.fail('Failed to interact, probably because this is run non-interactively,\nor was previously CTRL-C\'d\n' + str(e))
+				if wait < 0:
+					try:
+						child.interact(input_filter=self._pause_input_filter)
+					except Exception as e:
+						self.fail('Failed to interact, probably because this is run non-interactively,\nor was previously CTRL-C\'d\n' + str(e))
+				else:
+					time.sleep(wait)
 				child.logfile_send = oldlog
 			else:
 				pass
@@ -3156,6 +3174,7 @@ def init():
 	cfg['build']['distro_override']       = ''
 	# Whether to honour 'walkthrough' requests
 	cfg['build']['walkthrough']           = False
+	cfg['build']['walkthrough_wait']      = -1
 	cfg['target']                         = {}
 	cfg['environment']                    = {}
 	cfg['host']                           = {}
