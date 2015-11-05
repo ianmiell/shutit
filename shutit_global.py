@@ -2059,8 +2059,11 @@ END_''' + random_id)
 		"""
 		# If separated by spaces, install separately
 		if package.find(' ') != -1:
+			ok = True
 			for p in package.split(' '):
-				self.install(p,child,expect,options,timeout,force,check_exit,reinstall,note)
+				if not self.install(p,child,expect,options,timeout,force,check_exit,reinstall,note):
+					ok = False
+			return ok
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
 		cfg = self.cfg
