@@ -238,14 +238,14 @@ class ShutIt(object):
 							environment_id = f
 							cfg['build']['current_environment_id'] = environment_id
 							# Workaround for CygWin terminal issues. If the envid isn't in the cfg item
-							# Then crudely assume it is. This will drop through and the assume we are in the origin env.
+							# Then crudely assume it is. This will drop through and then assume we are in the origin env.
 							try:
 								cfg['environment'][cfg['build']['current_environment_id']]
 							except Exception:
 								cfg['build']['current_environment_id'] = 'ORIGIN_ENV'
 							break
 				else:
-					# See above re: cygwin
+					# See comment above re: cygwin.
 					if self.file_exists('/cygdrive'):
 						cfg['build']['current_environment_id'] = 'ORIGIN_ENV'
 					else:
@@ -261,7 +261,7 @@ class ShutIt(object):
 				return cfg['build']['current_environment_id']
 			if not environment_id == 'ORIGIN_ENV':
 				return environment_id
-		# Root is a special case
+		# Origin environment is a special case.
 		if prefix == 'ORIGIN_ENV':
 			environment_id = prefix
 		else:

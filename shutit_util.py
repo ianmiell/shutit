@@ -457,7 +457,7 @@ def get_base_config(cfg, cfg_parser):
 def parse_args(shutit):
 	"""Responsible for parsing arguments.
 
-	TODO: precendence of configs documented
+	TODO: precedence of configs documented
 
 	Environment variables:
 	SHUTIT_OPTIONS:
@@ -533,7 +533,7 @@ def parse_args(shutit):
 		sub_parsers[action].add_argument('--trace', help='Trace function calls', const=True, default=False, action='store_const')
 		sub_parsers[action].add_argument('--interactive', help='Level of interactive. 0 = none, 1 = honour pause points and config prompting, 2 = query user on each module, 3 = tutorial mode', default='1')
 		sub_parsers[action].add_argument('--ignorestop', help='Ignore STOP files', const=True, default=False, action='store_const')
-		sub_parsers[action].add_argument('--ignoreimage', help='Ignore disallowed images', const=True, default=False, action='store_const')
+		sub_parsers[action].add_argument('--ignoreimage', help='Ignore disallowed images', const=True, default=None, action='store_const')
 		sub_parsers[action].add_argument('--imageerrorok', help='Exit without error if allowed images fails (used for test scripts)', const=True, default=False, action='store_const')
 		sub_parsers[action].add_argument('--deps_only', help='build deps only, tag with suffix "_deps"', const=True, default=False, action='store_const')
 
@@ -671,6 +671,12 @@ def parse_args(shutit):
 	elif args.delivery == 'bash' or args.delivery == 'dockerfile':
 		cfg['build']['conn_module'] = 'shutit.tk.conn_bash'
 		cfg['build']['delivery']    = args.delivery
+	# If the image_tag has been set then ride roughshod over the ignoreimage value if not supplied
+	if args.image_tag != '' and args.ignoreimage == None:
+		args.ignoreimage = True
+	# If ignoreimage is still not set, then default it to False
+	if args.ignoreimage == None:
+		args.ignoreimage = False
 
 	# Get these early for this part of the build.
 	# These should never be config arguments, since they are needed before config is passed in.
