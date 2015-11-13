@@ -450,7 +450,7 @@ class ShutIt(object):
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
 		cfg = self.cfg
-		self._handle_note(note, 'Command is: ' + str(send))
+		self._handle_note(note, 'Command is:\n\n\t' + str(send))
 		if timeout == None:
 			timeout = 3600
 
@@ -635,10 +635,12 @@ $'"""
 			wait = self.cfg['build']['walkthrough_wait']
 			if wait >= 0:
 				self.pause_point('\n' + 80*'=' + '\n' + note + '\n' + 80*'=' +
-			                    '\n\n' + append + '\n', colour=31, wait=wait)
+				                 80*'=' + '\n' + append + '\n' + 80*'=',
+				                 colour=31, wait=wait)
 			else:
 				self.pause_point('\n' + 80*'=' + '\n' + note + '\n' + 80*'=' +
-			                    '\n\n' + append + '\n', colour=31)
+				                 80*'=' + '\n' + append + '\n' + 80*'=',
+				                 colour=31)
 
 
 	def _expect_allow_interrupt(self, child, expect, timeout, iteration_s=1):
@@ -2451,7 +2453,7 @@ END_''' + random_id)
 		@type set_default_expect:   boolean
 		"""
 		child = child or self.get_default_child()
-		local_prompt = 'SHUTIT_' + prefix + '#' + shutit_util.random_id() + '>'
+		local_prompt = prefix + '#' + shutit_util.random_id() + '> '
 		cfg = self.cfg
 		cfg['expect_prompts'][prompt_name] = local_prompt
 		# Set up the PS1 value.
