@@ -10,6 +10,6 @@ Calling methods on the object effect and affect the build in various ways and he
 
 Configuration is specified in .cnf files.
 
-Default config is shown [here](https://github.com/ianmiell/shutit/blob/master/util.py#L55)
+Default config is shown [here](https://github.com/ianmiell/shutit/blob/master/shutit_util.py#L55)
 
 
