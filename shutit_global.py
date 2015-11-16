@@ -1865,7 +1865,8 @@ END_''' + random_id)
 					self.send_host_file('/tmp/resize',self.shutit_main_dir+'/assets/resize', child=child, log=False)
 					self.send(' chmod 755 /tmp/resize')
 					child.sendline(' sleep 2 && /tmp/resize')
-				if default_msg == None:
+				if default_msg == None and not cfg['build']['walkthrough']:
+					# TODO: switch off in video mode
 					pp_msg = shutit_util.colour(colour,'\nYou can now type in commands and ' +
 						'alter the state of the target.\nHit return to see the ' +
 						'prompt\nHit CTRL and ] at the same time to continue with ' +
