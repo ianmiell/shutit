@@ -635,12 +635,11 @@ $'"""
 			wait = self.cfg['build']['walkthrough_wait']
 			if wait >= 0:
 				self.pause_point('\n' + 80*'=' + '\n' + note + '\n' + 80*'=' +
-				                 80*'=' + '\n' + append + '\n' + 80*'=',
+				                 '\n' + append + '\n' + 80*'=',
 				                 colour=31, wait=wait)
 			else:
 				self.pause_point('\n' + 80*'=' + '\n' + note + '\n' + 80*'=' +
-				                 80*'=' + '\n' + append + '\n' + 80*'=',
-				                 colour=31)
+				                 '\n' + append + '\n' + 80*'=', colour=31)
 
 
 	def _expect_allow_interrupt(self, child, expect, timeout, iteration_s=1):
@@ -2306,7 +2305,7 @@ END_''' + random_id)
 	          password=None,
 	          prompt_prefix=None,
 	          expect=None,
-	          timeout=20,
+	          timeout=180,
 	          escape=False,
 	          note=None,
 	          go_home=True):
