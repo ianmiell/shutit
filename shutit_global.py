@@ -1857,14 +1857,14 @@ END_''' + random_id)
 		if child:
 			if print_input:
 				if resize:
-					if default_msg == None:
+					if default_msg == None and not cfg['build']['walkthrough'] and cfg['build']['walkthrough_wait'] >= 0:
 						print (shutit_util.colour(colour,'\nPause point:\n' +
 							'resize==True, so attempting to resize terminal.\n\n' +
 							'If you are not at a shell prompt when calling pause_point, then pass in resize=False.'))
 					self.send_host_file('/tmp/resize',self.shutit_main_dir+'/assets/resize', child=child, log=False)
 					self.send(' chmod 755 /tmp/resize')
 					child.sendline(' sleep 2 && /tmp/resize')
-				if default_msg == None:
+				if default_msg == None and not cfg['build']['walkthrough'] and cfg['build']['walkthrough_wait'] >= 0:
 					pp_msg = shutit_util.colour(colour,'\nYou can now type in commands and ' +
 						'alter the state of the target.\nHit return to see the ' +
 						'prompt\nHit CTRL and ] at the same time to continue with ' +
