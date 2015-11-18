@@ -1864,7 +1864,7 @@ END_''' + random_id)
 					self.send_host_file('/tmp/resize',self.shutit_main_dir+'/assets/resize', child=child, log=False)
 					self.send(' chmod 755 /tmp/resize')
 					child.sendline(' sleep 2 && /tmp/resize')
-				if default_msg == None 
+				if default_msg == None:
 					if not cfg['build']['walkthrough'] and cfg['build']['walkthrough_wait'] >= 0:
 						pp_msg = shutit_util.colour(colour,'\nYou can now type in commands and ' +
 							'alter the state of the target.\nHit return to see the ' +
