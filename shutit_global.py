@@ -635,12 +635,11 @@ $'"""
 			wait = self.cfg['build']['walkthrough_wait']
 			if wait >= 0:
 				self.pause_point('\n' + 80*'=' + '\n' + note + '\n' + 80*'=' +
-				                 80*'=' + '\n' + append + '\n' + 80*'=',
+				                 '\n' + append + '\n' + 80*'=',
 				                 colour=31, wait=wait)
 			else:
 				self.pause_point('\n' + 80*'=' + '\n' + note + '\n' + 80*'=' +
-				                 80*'=' + '\n' + append + '\n' + 80*'=',
-				                 colour=31)
+				                 '\n' + append + '\n' + 80*'=', colour=31)
 
 
 	def _expect_allow_interrupt(self, child, expect, timeout, iteration_s=1):
@@ -1858,23 +1857,25 @@ END_''' + random_id)
 		if child:
 			if print_input:
 				if resize:
-					if default_msg == None:
+					if default_msg == None and not cfg['build']['walkthrough'] and cfg['build']['walkthrough_wait'] >= 0:
 						print (shutit_util.colour(colour,'\nPause point:\n' +
 							'resize==True, so attempting to resize terminal.\n\n' +
 							'If you are not at a shell prompt when calling pause_point, then pass in resize=False.'))
 					self.send_host_file('/tmp/resize',self.shutit_main_dir+'/assets/resize', child=child, log=False)
 					self.send(' chmod 755 /tmp/resize')
 					child.sendline(' sleep 2 && /tmp/resize')
-				if default_msg == None and not cfg['build']['walkthrough']:
-					# TODO: switch off in video mode
-					pp_msg = shutit_util.colour(colour,'\nYou can now type in commands and ' +
-						'alter the state of the target.\nHit return to see the ' +
-						'prompt\nHit CTRL and ] at the same time to continue with ' +
-						'build\n')
-					# TODO - only if in Docker container
-					if False:
-						pp_msg += '\nHit CTRL and u to save the state to a docker image\n'
-					print '\n' + (shutit_util.colour(colour, msg) + shutit_util.colour(colour,pp_msg))
+				if default_msg == None:
+					if not cfg['build']['walkthrough'] and cfg['build']['walkthrough_wait'] >= 0:
+						pp_msg = shutit_util.colour(colour,'\nYou can now type in commands and ' +
+							'alter the state of the target.\nHit return to see the ' +
+							'prompt\nHit CTRL and ] at the same time to continue with ' +
+							'build\n')
+						# TODO - only if in Docker container
+						if False:
+							pp_msg += '\nHit CTRL and u to save the state to a docker image\n'
+						print '\n' + (shutit_util.colour(colour, msg) + shutit_util.colour(colour,pp_msg))
+					else:
+						print '\n' + (shutit_util.colour(colour, msg))
 				else:
 					print shutit_util.colour(colour, msg) + '\n' + default_msg + '\n'
 				oldlog = child.logfile_send
@@ -2307,7 +2308,7 @@ END_''' + random_id)
 	          password=None,
 	          prompt_prefix=None,
 	          expect=None,
-	          timeout=20,
+	          timeout=180,
 	          escape=False,
 	          note=None,
 	          go_home=True):
