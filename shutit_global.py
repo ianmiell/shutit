@@ -1875,7 +1875,7 @@ END_''' + random_id)
 							pp_msg += '\nHit CTRL and u to save the state to a docker image\n'
 						print '\n' + (shutit_util.colour(colour, msg) + shutit_util.colour(colour,pp_msg))
 					else:
-						print '\n' + (shutit_util.colour(colour, msg)
+						print '\n' + (shutit_util.colour(colour, msg))
 				else:
 					print shutit_util.colour(colour, msg) + '\n' + default_msg + '\n'
 				oldlog = child.logfile_send
