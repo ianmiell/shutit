@@ -1864,15 +1864,16 @@ END_''' + random_id)
 					self.send_host_file('/tmp/resize',self.shutit_main_dir+'/assets/resize', child=child, log=False)
 					self.send(' chmod 755 /tmp/resize')
 					child.sendline(' sleep 2 && /tmp/resize')
-				if default_msg == None and not cfg['build']['walkthrough'] and cfg['build']['walkthrough_wait'] >= 0:
-					pp_msg = shutit_util.colour(colour,'\nYou can now type in commands and ' +
-						'alter the state of the target.\nHit return to see the ' +
-						'prompt\nHit CTRL and ] at the same time to continue with ' +
-						'build\n')
-					# TODO - only if in Docker container
-					if False:
-						pp_msg += '\nHit CTRL and u to save the state to a docker image\n'
-					print '\n' + (shutit_util.colour(colour, msg) + shutit_util.colour(colour,pp_msg))
+				if default_msg == None 
+					if not cfg['build']['walkthrough'] and cfg['build']['walkthrough_wait'] >= 0:
+						pp_msg = shutit_util.colour(colour,'\nYou can now type in commands and ' +
+							'alter the state of the target.\nHit return to see the ' +
+							'prompt\nHit CTRL and ] at the same time to continue with ' +
+							'build\n')
+						# TODO - only if in Docker container
+						if False:
+							pp_msg += '\nHit CTRL and u to save the state to a docker image\n'
+						print '\n' + (shutit_util.colour(colour, msg) + shutit_util.colour(colour,pp_msg))
 				else:
 					print shutit_util.colour(colour, msg) + '\n' + default_msg + '\n'
 				oldlog = child.logfile_send
