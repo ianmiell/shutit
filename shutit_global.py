@@ -2346,7 +2346,6 @@ END_''' + random_id)
 		"""
 		child = child or self.get_default_child()
 		# We don't get the default expect here, as it's either passed in, or a base default regexp.
-		self._handle_note(note, append='command: "' + command + '", as user: "' + user + '"')
 		r_id = shutit_util.random_id()
 		if prompt_prefix == None:
 			prompt_prefix = r_id
@@ -2379,6 +2378,7 @@ END_''' + random_id)
 			print '\n' + 80 * '='
 			self.log('WARNING! user is bash - if you see problems below, did you mean: login(command="' + user + '")?',force_stdout=True)
 			print '\n' + 80 * '='
+		self._handle_note(note, append='command: "' + command + '", as user: "' + user + '"',training_input=send)
 		# r'[^t] login:' - be sure not to match 'last login:'
 		self.multisend(send,{'ontinue connecting':'yes','assword':password,r'[^t] login:':password},expect=general_expect,check_exit=False,timeout=timeout,fail_on_empty_before=False,escape=escape)
 		#if not self._check_exit(send,expect=general_expect):
@@ -2404,7 +2404,7 @@ END_''' + random_id)
 		child = child or self.get_default_child()
 		old_expect = expect or self.get_default_expect()
 		cfg = self.cfg
-		self._handle_note(note)
+		self._handle_note(note,training_input=command)
 		if len(cfg['build']['login_stack']):
 			current_prompt_name = cfg['build']['login_stack'].pop()
 			if len(cfg['build']['login_stack']):
