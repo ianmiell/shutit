@@ -450,7 +450,7 @@ class ShutIt(object):
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
 		cfg = self.cfg
-		self._handle_note(note, 'Command is:\n\n\t' + str(send))
+		self._handle_note(note, 'Command is:\n\n\t' + str(send), training_input=str(send))
 		if timeout == None:
 			timeout = 3600
 
@@ -628,20 +628,26 @@ $'"""
 			send = string.join(cmd + send[len(cmd_arr[0]):],'')
 		return send
 
-	def _handle_note(self, note, append=''):
+	def _handle_note(self, note, append='', training_input=''):
 		"""Handle notes and walkthrough option.
 
 		@param note:                 See send()
 		"""
-		if self.cfg['build']['walkthrough'] and note != None:
+		cfg = self.cfg
+		if cfg['build']['walkthrough'] and note != None:
 			wait = self.cfg['build']['walkthrough_wait']
 			if wait >= 0:
 				self.pause_point('\n' + 80*'=' + '\n' + note + '\n' + 80*'=' +
 				                 '\n' + append + '\n' + 80*'=',
 				                 colour=31, wait=wait)
 			else:
-				self.pause_point('\n' + 80*'=' + '\n' + note + '\n' + 80*'=' +
-				                 '\n' + append + '\n' + 80*'=', colour=31)
+				if training_input != '' and cfg['build']['training']:
+					print(shutit_util.colour('31','\n' + 80*'=' + '\n' + note + '\n' + 80*'=' + '\n' + append + '\n' + 80*'='))
+					while shutit_util.util_raw_input(shutit=self,prompt=shutit_util.colour('32','Type in the command to continue: ')) != training_input:
+						print('Wrong! Try again!')
+				else:
+					self.pause_point('\n' + 80*'=' + '\n' + note + '\n' + 80*'=' +
+					                 '\n' + append + '\n' + 80*'=', colour=31)
 
 
 	def _expect_allow_interrupt(self, child, expect, timeout, iteration_s=1):
