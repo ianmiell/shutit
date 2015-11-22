@@ -369,7 +369,6 @@ def get_base_config(cfg, cfg_parser):
 	cfg['build']['accept_defaults']            = None
 	# See shutit_global.check_environment
 	cfg['build']['current_environment_id']     = None
-	cfg['build']['video']                      = False
 	# target - the target of the build, ie the container
 	cfg['target']['hostname']                  = cp.get('target', 'hostname')
 	cfg['target']['locale']                    = cp.get('target', 'locale')
@@ -645,6 +644,7 @@ def parse_args(shutit):
 	cfg['list_configs']['cfghistory'] = False
 	cfg['list_modules']['long']       = False
 	cfg['list_modules']['sort']       = None
+	cfg['build']['video']             = False
 	# Persistence-related arguments.
 	if cfg['action']['build']:
 		cfg['repository']['push']   = args.push
