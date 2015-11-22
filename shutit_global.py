@@ -457,13 +457,15 @@ class ShutIt(object):
 		# Handle OSX to get the GNU version of the command
 		if assume_gnu:
 			send = self._get_send_command(send)
-
 			
 		# If check_exit is not passed in
 		# - if the expect matches the default, use the default check exit
 		# - otherwise, default to doing the check
 		if check_exit == None:
-			if expect == self.get_default_expect():
+			# If we are in video mode, ignore exit value
+			if cfg['build']['video']:
+				check_exit = False
+			elif expect == self.get_default_expect():
 				check_exit = self.get_default_check_exit()
 			else:
 				# If expect given doesn't match the defaults and no argument
@@ -1857,7 +1859,7 @@ END_''' + random_id)
 		if child:
 			if print_input:
 				if resize:
-					if default_msg == None and not cfg['build']['walkthrough'] and cfg['build']['walkthrough_wait'] >= 0:
+					if default_msg == None and not cfg['build']['video']:
 						print (shutit_util.colour(colour,'\nPause point:\n' +
 							'resize==True, so attempting to resize terminal.\n\n' +
 							'If you are not at a shell prompt when calling pause_point, then pass in resize=False.'))
@@ -1865,7 +1867,7 @@ END_''' + random_id)
 					self.send(' chmod 755 /tmp/resize')
 					child.sendline(' sleep 2 && /tmp/resize')
 				if default_msg == None:
-					if not cfg['build']['walkthrough'] and cfg['build']['walkthrough_wait'] >= 0:
+					if not cfg['build']['video']:
 						pp_msg = shutit_util.colour(colour,'\nYou can now type in commands and ' +
 							'alter the state of the target.\nHit return to see the ' +
 							'prompt\nHit CTRL and ] at the same time to continue with ' +
