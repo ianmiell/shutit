@@ -343,7 +343,7 @@ class ShutIt(object):
 				break
 			else:
 				send_iteration = send_dict[expect_list[res]]
-		self._handle_note_after()
+		self._handle_note_after(note=note)
 
 
 	def send_until(self,
@@ -402,10 +402,10 @@ class ShutIt(object):
 						missing = True
 						break
 				if missing:
-					self._handle_note_after()
+					self._handle_note_after(note=note)
 					return True
 			time.sleep(cadence)
-		self._handle_note_after()
+		self._handle_note_after(note=note)
 		return False
 
 	         
@@ -616,7 +616,7 @@ $'"""
 		if cfg['build']['ctrlc_stop']:
 			cfg['build']['ctrlc_stop'] = False
 			self.pause_point('pause point: interrupted by CTRL-c')
-		self._handle_note_after()
+		self._handle_note_after(note=note)
 		return expect_res
 	# alias send to send_and_expect
 	send_and_expect = send
@@ -647,7 +647,7 @@ $'"""
 				self.pause_point('\n' + 80*'=' + '\n' + note + '\n' + 80*'=' +
 				                 '\n' + append + '\n' + 80*'=', colour=31)
 
-	def _handle_note_after(self):
+	def _handle_note_after(self, note):
 		if self.cfg['build']['walkthrough'] and note != None:
 			wait = self.cfg['build']['walkthrough_wait']
 			if wait >= 0:
@@ -830,7 +830,7 @@ END_""" + random_id)
 		else:
 			ret = self.send(cfg['build']['shutit_state_dir'] + '/scripts/shutit_script.sh', expect, child)
 		self.send('rm -f ' + cfg['build']['shutit_state_dir'] + '/scripts/shutit_script.sh', expect, child)
-		self._handle_note_after()
+		self._handle_note_after(note=note)
 		return ret
 
 
@@ -902,7 +902,7 @@ END_''' + random_id)
 			self.send('chown ' + user + ' ' + path, child=child, expect=expect)
 			self.send('chgrp ' + group + ' ' + path, child=child, expect=expect)
 			os.remove(tmpfile)
-		self._handle_note_after()
+		self._handle_note_after(note=note)
 
 
 	def chdir(self,
@@ -931,7 +931,7 @@ END_''' + random_id)
 			os.chdir(path)
 		else:
 			self.fail('chdir not supported for delivery method: ' + cfg['build']['delivery'])
-		self._handle_note_after()
+		self._handle_note_after(note=note)
 
 
 	def send_host_file(self,
@@ -984,7 +984,7 @@ END_''' + random_id)
 				self.fail('send_host_file - file: ' + hostfilepath +
 					' does not exist as file or dir. cwd is: ' + os.getcwd(),
 					child=child, throw_exception=False)
-		self._handle_note_after()
+		self._handle_note_after(note=note)
 
 
 	def send_host_dir(self,
@@ -1036,7 +1036,7 @@ END_''' + random_id)
 					'target file: ' + targetfname)
 				self.send_file(targetfname, open(hostfullfname).read(), 
 					expect=expect, child=child, log=log, user=user, group=group)
-		self._handle_note_after()
+		self._handle_note_after(note=note)
 
 
 	def host_file_exists(self, filename, directory=False, note=None):
@@ -1092,7 +1092,7 @@ END_''' + random_id)
 			print repr('before>>>>:%s<<<< after:>>>>%s<<<<' %
 				(child.before, child.after))
 			self.pause_point('Did not see FIL(N)?EXIST in output:\n' + output, child)
-		self._handle_note_after()
+		self._handle_note_after(note=note)
 		return ret
 
 
@@ -1115,7 +1115,7 @@ END_''' + random_id)
 		cmd = 'stat -c %a ' + filename
 		self.send(cmd, expect, child=child, check_exit=False)
 		res = self.match_string(child.before, '([0-9][0-9][0-9])')
-		self._handle_note_after()
+		self._handle_note_after(note=note)
 		return res
 
 
@@ -1212,7 +1212,7 @@ END_''' + random_id)
 					  check_exit=False)
 			self.send('rm -f ' + tmp_filename, expect=expect, child=child,
 				exit_values=['0', '1'])
-		self._handle_note_after()
+		self._handle_note_after(note=note)
 		return True
 						 
 
@@ -1373,7 +1373,7 @@ END_''' + random_id)
 				newtext2 = '\n'
 			new_text = newtext1 + text + newtext2
 		self.send_file(fname,new_text,expect=expect,child=child,truncate=True)
-		self._handle_note_after()
+		self._handle_note_after(note=note)
 		return True
 
 	def insert_text(self,
@@ -1479,7 +1479,7 @@ END_''' + random_id)
 			shutit.fail('Illegal regexp found in add_to_bashrc call: ' + match_regexp)
 		self.add_line_to_file(line, '${HOME}/.bashrc', expect=expect, match_regexp=match_regexp) # This won't work for root - TODO
 		self.add_line_to_file(line, '/etc/bash.bashrc', expect=expect, match_regexp=match_regexp)
-		self._handle_note_after()
+		self._handle_note_after(note=note)
 		return self.add_line_to_file(line, '/etc/profile', expect=expect, match_regexp=match_regexp)
 
 
@@ -1549,7 +1549,7 @@ END_''' + random_id)
 					retry = retry - 1
 					continue
 				# If we get here, all is ok.
-				self._handle_note_after()
+				self._handle_note_after(note=note)
 				return True
 		# If we get here, it didn't work
 		return False
@@ -1582,7 +1582,7 @@ END_''' + random_id)
 			exists = True
 		# sync with the prompt
 		child.expect(expect)
-		self._handle_note_after()
+		self._handle_note_after(note=note)
 		return exists
 
 
@@ -1651,7 +1651,7 @@ END_''' + random_id)
 			# Either there was no directory (so the cache is valid), or we've built the cache, so mark as good.
 			cfg['environment'][cfg['build']['current_environment_id']]['modules_recorded_cache_valid'] = True
 		# Modules recorded cache will be valid at this point, so check the pre-recorded modules and the in-this-run installed cache.
-		self._handle_note_after()
+		self._handle_note_after(note=note)
 		if module_id in cfg['environment'][cfg['build']['current_environment_id']]['modules_recorded'] or module_id in cfg['environment'][cfg['build']['current_environment_id']]['modules_installed']:
 			return True
 		else:
@@ -1689,7 +1689,7 @@ END_''' + random_id)
 		files = f
 		# this is required again to remove the '\n's
 		files = [file.strip() for file in files]
-		self._handle_note_after()
+		self._handle_note_after(note=note)
 		return files
 
 
@@ -1733,7 +1733,7 @@ END_''' + random_id)
 		self.send('cp ' + target_path + ' /artifacts')
 		shutil.copyfile(os.path.join(artifacts_dir,filename),os.path.join(host_path,'{0}_'.format(cfg['build']['build_id']) + filename))
 		self.send('rm -f /artifacts/' + filename)
-		self._handle_note_after()
+		self._handle_note_after(note=note)
 		return os.path.join(host_path,'{0}_'.format(cfg['build']['build_id']) + filename)
 
 
@@ -2007,7 +2007,7 @@ END_''' + random_id)
 		output = self.send_and_get_output(send, child=child, retry=retry, strip=strip)
 		if type(matches) == str:
 			matches = [matches]
-		self._handle_note_after()
+		self._handle_note_after(note=note)
 		for match in matches:
 			if self.match_string(output, match) != None:
 				return True
@@ -2046,7 +2046,7 @@ END_''' + random_id)
 				before = before.strip(send)
 		except Exception:
 			before = before.strip(send)
-		self._handle_note_after()
+		self._handle_note_after(note=note)
 		if strip:
 			ansi_escape = re.compile(r'\x1b[^m]*m')
 			string_with_termcodes = before.strip()
@@ -2183,7 +2183,7 @@ END_''' + random_id)
 		else:
 			# package not required
 			pass
-		self._handle_note_after()
+		self._handle_note_after(note=note)
 		return True
 
 	def remove(self,
@@ -2262,7 +2262,7 @@ END_''' + random_id)
 			self.multisend('%s %s %s' % (cmd, opts, package), {'assword:':pw}, child=child, expect=expect, timeout=timeout, exit_values=['0','100'])
 		else:
 			self.send('%s %s %s' % (cmd, opts, package), child=child, expect=expect, timeout=timeout, exit_values=['0','100'])
-		self._handle_note_after()
+		self._handle_note_after(note=note)
 		return True
 
 
@@ -2288,7 +2288,7 @@ END_''' + random_id)
 		except Exception:
 			# Try and get input, if we are not interactive, this should fail.
 			cfg['environment'][cfg['build']['current_environment_id']][user]['password'] = shutit.get_input(msg,ispass=True)
-		self._handle_note_after()
+		self._handle_note_after(note=note)
 		return cfg['environment'][cfg['build']['current_environment_id']][user]['password']
 
 
@@ -2306,7 +2306,7 @@ END_''' + random_id)
 		expect = expect or self.get_default_expect()
 		self._handle_note(note)
 		res = self.send_and_get_output('whoami').strip()
-		self._handle_note_after()
+		self._handle_note_after(note=note)
 		return res
 
 
@@ -2326,7 +2326,7 @@ END_''' + random_id)
 		expect = expect or self.get_default_expect()
 		self._handle_note(note)
 		res = self.send_and_get_output("groups | cut -f 1 -d ' '").strip()
-		self._handle_note_after()
+		self._handle_note_after(note=note)
 		return res
 
 	def login_stack_append(self, r_id, child=None, expect=None, new_user=''):
@@ -2418,7 +2418,7 @@ END_''' + random_id)
 			self.setup_prompt(r_id,child=child)
 		if go_home:
 			self.send('cd',child=child,check_exit=False)
-		self._handle_note_after()
+		self._handle_note_after(note=note)
 
 
 
@@ -2449,7 +2449,7 @@ END_''' + random_id)
 		# No point in checking exit here, the exit code will be
 		# from the previous command from the logged in session
 		self.send(command, expect=expect, check_exit=False, timeout=timeout)
-		self._handle_note_after()
+		self._handle_note_after(note=note)
 	# alias exit_shell to logout
 	exit_shell = logout
 
@@ -2556,7 +2556,7 @@ END_''' + random_id)
 			if memavail == '':
 				memavail = self.send_and_get_output("""free | grep buffers.cache | awk '{print $3}'""",child=child,expect=expect,timeout=3)
 			memavail = int(memavail)
-		self._handle_note_after()
+		self._handle_note_after(note=note)
 		return memavail
 
 		
@@ -2803,7 +2803,7 @@ END_''' + random_id)
 			self.send(password, child=child, expect='Retype new',
 					  check_exit=False, echo=False)
 			self.send(password, child=child, expect=expect, echo=False)
-		self._handle_note_after()
+		self._handle_note_after(note=note)
 
 
 	def is_user_id_available(self, user_id, child=None, expect=None, note=None):
@@ -2826,7 +2826,7 @@ END_''' + random_id)
 		#          v the space is intentional, to avoid polluting bash history.
 		self.send(' cut -d: -f3 /etc/paswd | grep -w ^' + user_id + '$ | wc -l',
 				  child=child, expect=expect, check_exit=False)
-		self._handle_note_after()
+		self._handle_note_after(note=note)
 		if self.match_string(child.before, '^([0-9]+)$') == '1':
 			return False
 		else:
@@ -3156,7 +3156,7 @@ END_''' + random_id)
 		"""
 		self._handle_note(note)
 		res = self.send_and_get_output(command + ' -' + ip_family + ' -o ' + ip_object + ' | grep ' + interface)
-		self._handle_note_after()
+		self._handle_note_after(note=note)
 		return res
 
 
