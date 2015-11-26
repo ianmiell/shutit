@@ -377,7 +377,7 @@ class ShutIt(object):
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
 		cfg = self.cfg
-		self._handle_note(note, 'Command: ' + send + '\nUntil one of these seen:' + str(regexps))
+		self._handle_note(note, command=send + '\n\nUntil one of these seen:' + str(regexps))
 		if type(regexps) == str:
 			regexps = [regexps]
 		if type(regexps) != list:
@@ -450,7 +450,7 @@ class ShutIt(object):
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
 		cfg = self.cfg
-		self._handle_note(note, 'Command is:\n\n\t' + str(send), training_input=str(send))
+		self._handle_note(note, command=str(send), training_input=str(send))
 		if timeout == None:
 			timeout = 3600
 
@@ -628,7 +628,7 @@ $'"""
 			send = string.join(cmd + send[len(cmd_arr[0]):],'')
 		return send
 
-	def _handle_note(self, note, append='', training_input=''):
+	def _handle_note(self, note, command='', training_input=''):
 		"""Handle notes and walkthrough option.
 
 		@param note:                 See send()
@@ -636,18 +636,19 @@ $'"""
 		cfg = self.cfg
 		if cfg['build']['walkthrough'] and note != None:
 			wait = self.cfg['build']['walkthrough_wait']
+			wrap = '\n' + 80*'=' + '\n'
+			message = wrap + note + wrap
+			if command != '':
+				message += 'Command to be run is:\n\t' + command + wrap
 			if wait >= 0:
-				self.pause_point('\n' + 80*'=' + '\n' + note + '\n' + 80*'=' +
-				                 '\n' + append + '\n' + 80*'=',
-				                 colour=31, wait=wait)
+				self.pause_point(message, colour=31, wait=wait)
 			else:
 				if training_input != '' and cfg['build']['training']:
-					print(shutit_util.colour('31','\n' + 80*'=' + '\n' + note + '\n' + 80*'=' + '\n' + append + '\n' + 80*'='))
+					print(shutit_util.colour('31',message))
 					while shutit_util.util_raw_input(shutit=self,prompt=shutit_util.colour('32','Type in the command to continue: ')) != training_input:
 						print('Wrong! Try again!')
 				else:
-					self.pause_point('\n' + 80*'=' + '\n' + note + '\n' + 80*'=' +
-					                 '\n' + append + '\n' + 80*'=', colour=31)
+					self.pause_point(message, colour=31)
 
 
 	def _expect_allow_interrupt(self, child, expect, timeout, iteration_s=1):
@@ -2011,7 +2012,7 @@ END_''' + random_id)
 		"""
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
-		self._handle_note(note, 'Command: ' + str(send))
+		self._handle_note(note, command=str(send))
 		# Don't check exit, as that will pollute the output. Also, it's quite likely the
 		# submitted command is intended to fail.
 		self.send(self._get_send_command(send), child=child, expect=expect, check_exit=False, retry=retry, echo=False, timeout=timeout, record_command=record_command)
@@ -2378,7 +2379,7 @@ END_''' + random_id)
 			print '\n' + 80 * '='
 			self.log('WARNING! user is bash - if you see problems below, did you mean: login(command="' + user + '")?',force_stdout=True)
 			print '\n' + 80 * '='
-		self._handle_note(note, append='command: "' + command + '", as user: "' + user + '"',training_input=send)
+		self._handle_note(note,command=command + '", as user: "' + user + '"',training_input=send)
 		# r'[^t] login:' - be sure not to match 'last login:'
 		self.multisend(send,{'ontinue connecting':'yes','assword':password,r'[^t] login:':password},expect=general_expect,check_exit=False,timeout=timeout,fail_on_empty_before=False,escape=escape)
 		#if not self._check_exit(send,expect=general_expect):
