@@ -2693,6 +2693,9 @@ END_''' + random_id)
 					elif os_name.find('red hat') != -1:
 						distro       = 'red hat'
 						install_type = 'yum'
+					elif os_name.find('fedora') != -1:
+						distro       = 'fedora'
+						install_type = 'yum'
 					elif os_name.find('gentoo') != -1:
 						distro       = 'gentoo'
 						install_type = 'emerge'
