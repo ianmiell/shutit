@@ -610,7 +610,7 @@ def parse_args(shutit):
 			delivery = ''
 			allowed = ('docker','dockerfile','ssh','bash')
 			while delivery not in allowed:
-				delivery = util_raw_input(prompt='# Input a delivery method from: ' + str(allowed) + '.\n# Default: ' + default_delivery + '\n\ndocker = build within a docker image\ndockerfile = call "shutit build" from within a dockerfile\nssh = ssh to target and build\nbash = run commands directly within bash\n', default=default_delivery)
+				delivery = util_raw_input(prompt='# Input a delivery method from: ' + str(allowed) + '.\n# Default: ' + default_delivery + '\n\ndocker = build within a docker image\nssh = ssh to target and build\nbash = run commands directly within bash\n', default=default_delivery)
 		else:
 			delivery = args.delivery
 		cfg['skeleton'] = {
