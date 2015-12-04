@@ -1225,17 +1225,17 @@ def create_skeleton(shutit):
 	if skel_dockerfile:
 		# TODO: for each module, add
 		count = 1
-		templatemodule = dockerfile_to_shutit_module_template(cfg,skel_dockerfile,skel_path,count)
+		templatemodule = dockerfile_to_shutit_module_template(shutit,skel_dockerfile,skel_path,skel_domain,skel_module_name,skel_domain_hash,skel_delivery,skel_depends,count)
 		open(templatemodule_path, 'w').write(templatemodule)
 	else:
 		templatemodule = open(find_asset('shutit_module_template_bare.py')).read()
-	templatemodule = (templatemodule
-		).replace('template', skel_module_name
+	templatemodule = (templatemodule).replace('template', skel_module_name
 		).replace('GLOBALLY_UNIQUE_STRING', '\'%s.%s.%s\'' % (skel_domain, skel_module_name, skel_module_name)
 		).replace('FLOAT', skel_domain_hash + '.0001'
 		).replace('DEPENDS', skel_depends
-		).replace('DELIVERY', skel_delivery)
-		open(templatemodule_path, 'w').write(templatemodule)
+		).replace('DELIVERY', skel_delivery
+	)
+	open(templatemodule_path, 'w').write(templatemodule)
 	readme = skel_module_name + ': description of module directory in here'
 	buildsh = textwrap.dedent('''\
 		#!/bin/bash
@@ -1729,7 +1729,8 @@ def check_regexp(regex):
 
 # TODO: test this
 # TODO: sort out numbering
-def dockerfile_to_shutit_module_template(cfg,skel_dockerfile,skel_path,skel_domain,skel_module_name,skel_domain_hash,skel_delivery,skel_depends,order):
+def dockerfile_to_shutit_module_template(shutit,skel_dockerfile,skel_path,skel_domain,skel_module_name,skel_domain_hash,skel_delivery,skel_depends,order):
+	cfg = shutit.cfg
 	if os.path.basename(skel_dockerfile) != 'Dockerfile' and not os.path.exists(skel_dockerfile):
 		skel_dockerfile += '/Dockerfile'
 	if not os.path.exists(skel_dockerfile):
@@ -1993,7 +1994,7 @@ class template(ShutItModule):
 		return True
 
 '''
-		templatemodule += """
+	templatemodule += """
 def module():
 		return template(
 				""" + """\'%s.%s.%s\'""" % (skel_domain, skel_module_name, skel_module_name) + """, """ + skel_domain_hash + str(order * 0.0001) + """,
@@ -2006,4 +2007,5 @@ def module():
 	# Return program to main shutit_dir
 	if dockerfile_dirname:
 		os.chdir(sys.path[0])
+	return templatemodule
 
