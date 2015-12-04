@@ -466,7 +466,7 @@ class ShutIt(object):
 		# - otherwise, default to doing the check
 		if check_exit == None:
 			# If we are in video mode, ignore exit value
-			if cfg['build']['video']:
+			if cfg['build']['video'] or cfg['build']['training'] or cfg['build']['walkthrough']:
 				check_exit = False
 			elif expect == self.get_default_expect():
 				check_exit = self.get_default_check_exit()
