@@ -1165,7 +1165,6 @@ def create_skeleton(shutit):
 	and tinker with.
 	"""
 	cfg = shutit.cfg
-	shutit_dir = sys.path[0]
 
 	# Set up local directories
 	skel_path        = cfg['skeleton']['path']
@@ -1224,292 +1223,19 @@ def create_skeleton(shutit):
 		haproxydockerfile_path   = os.path.join(skel_path, 'haproxy', 'Dockerfile')
 
 	if skel_dockerfile:
-		if os.path.basename(skel_dockerfile) != 'Dockerfile':
-			skel_dockerfile += '/Dockerfile'
-		if not os.path.exists(skel_dockerfile):
-			if urlparse.urlparse(skel_dockerfile)[0] == '':
-				shutit.fail('Dockerfile "' + skel_dockerfile + '" must exist')
-			dockerfile_contents = urllib2.urlopen(skel_dockerfile).read()
-			dockerfile_dirname = None
-		else:
-			dockerfile_contents = open(skel_dockerfile).read()
-			dockerfile_dirname = os.path.dirname(skel_dockerfile)
-			if dockerfile_dirname == '':
-				dockerfile_dirname = './'
-			if os.path.exists(dockerfile_dirname):
-				shutil.rmtree(skel_path + '/context')
-				shutil.copytree(dockerfile_dirname, skel_path + '/context')
-				# Remove Dockerfile as it's not part of the context.
-				if os.path.isfile(skel_path + '/context/Dockerfile'):
-					os.remove(skel_path + '/context/Dockerfile')
-			# Change to this context
-			os.chdir(dockerfile_dirname)
-		# Wipe the command as we expect one in the file.
-		cfg['dockerfile']['cmd']        = ''
-		dockerfile_list = parse_dockerfile(shutit, dockerfile_contents)
-		# Set defaults from given dockerfile
-		for item in dockerfile_list:
-			# These items are not order-dependent and don't affect the build, so we collect them here:
-			docker_command = item[0].upper()
-			if docker_command == 'FROM':
-				# Should be only one of these
-				cfg['dockerfile']['base_image'] = item[1]
-			elif docker_command == "ONBUILD":
-				# Maps to finalize :) - can we have more than one of these? assume yes
-				# This contains within it one of the above commands, so we need to abstract this out.
-				cfg['dockerfile']['onbuild'].append(item[1])
-			elif docker_command == "MAINTAINER":
-				cfg['dockerfile']['maintainer'] = item[1]
-			elif docker_command == "VOLUME":
-				# Put in the run.sh.
-				try:
-					cfg['dockerfile']['volume'].append(' '.join(json.loads(item[1])))
-				except Exception:
-					cfg['dockerfile']['volume'].append(item[1])
-			elif docker_command == 'EXPOSE':
-				# Put in the run.sh.
-				cfg['dockerfile']['expose'].append(item[1])
-			elif docker_command == "ENTRYPOINT":
-				# Put in the run.sh? Yes, if it exists it goes at the front of cmd
-				try:
-					cfg['dockerfile']['entrypoint'] = ' '.join(json.loads(item[1]))
-				except Exception:
-					cfg['dockerfile']['entrypoint'] = item[1]
-			elif docker_command == "CMD":
-				# Put in the run.sh
-				try:
-					cfg['dockerfile']['cmd'] = ' '.join(json.loads(item[1]))
-				except Exception:
-					cfg['dockerfile']['cmd'] = item[1]
-			# Other items to be run through sequentially (as they are part of the script)
-			if docker_command == "USER":
-				# Put in the start script as well as su'ing from here - assuming order dependent?
-				cfg['dockerfile']['script'].append((docker_command, item[1]))
-				# We assume the last one seen is the one we use for the image.
-				# Put this in the default start script.
-				cfg['dockerfile']['user']        = item[1]
-			elif docker_command == 'ENV':
-				# Put in the run.sh.
-				cfg['dockerfile']['script'].append((docker_command, item[1]))
-				# Set in the build
-				cfg['dockerfile']['env'].append(item[1])
-			elif docker_command == "RUN":
-				# Only handle simple commands for now and ignore the fact that Dockerfiles run
-				# with /bin/sh -c rather than bash.
-				try:
-					cfg['dockerfile']['script'].append((docker_command, ' '.join(json.loads(item[1]))))
-				except Exception:
-					cfg['dockerfile']['script'].append((docker_command, item[1]))
-			elif docker_command == "ADD":
-				# Send file - is this potentially got from the web? Is that the difference between this and COPY?
-				cfg['dockerfile']['script'].append((docker_command, item[1]))
-			elif docker_command == "COPY":
-				# Send file
-				cfg['dockerfile']['script'].append((docker_command, item[1]))
-			elif docker_command == "WORKDIR":
-				# Push and pop
-				cfg['dockerfile']['script'].append((docker_command, item[1]))
-			elif docker_command == "COMMENT":
-				# Push and pop
-				cfg['dockerfile']['script'].append((docker_command, item[1]))
-		# We now have the script, so let's construct it inline here
-		templatemodule = ''
-		# Header.
-		templatemodule += '''
-# Created from dockerfile: ''' + skel_dockerfile + '''
-# Maintainer:              ''' + cfg['dockerfile']['maintainer'] + '''
-from shutit_module import ShutItModule
-
-class template(ShutItModule):
-
-	def is_installed(self, shutit):
-		return False
-'''
-		# build
-		build     = ''
-		numpushes = 0
-		wgetgot   = False
-		for item in cfg['dockerfile']['script']:
-			dockerfile_command = item[0].upper()
-			dockerfile_args    = item[1].split()
-			cmd = ' '.join(dockerfile_args).replace("'", "\\'")
-			if dockerfile_command == 'RUN':
-				build += """\n\t\tshutit.send('""" + cmd + """')"""
-			elif dockerfile_command == 'WORKDIR':
-				build += """\n\t\tshutit.send('pushd """ + cmd + """')"""
-				numpushes = numpushes + 1
-			elif dockerfile_command == 'COPY' or dockerfile_command == 'ADD':
-				# The <src> path must be inside the context of the build; you cannot COPY ../something /something, because the first step of a docker build is to send the context directory (and subdirectories) to the docker daemon.
-				if dockerfile_args[0][0:1] == '..' or dockerfile_args[0][0] == '/' or dockerfile_args[0][0] == '~':
-					shutit.fail('Invalid line: ' + str(dockerfile_args) + ' file must be in local subdirectory')
-				if dockerfile_args[1][-1] == '/':
-					# Dir we're COPYing or ADDing to
-					destdir  = dockerfile_args[1]
-					# File/dir we're COPYing or ADDing from
-					fromfile = dockerfile_args[0]
-					# Final file/dir
-					outfile  = destdir + fromfile
-					if os.path.isfile(fromfile):
-						outfiledir = os.path.dirname(fromfile)
-						build += """\n\t\tshutit.send('mkdir -p """ + destdir + '/' + outfiledir + """')"""
-					elif os.path.isdir(fromfile):
-						build += """\n\t\tshutit.send('mkdir -p """ + destdir + fromfile + """')"""
-				else:
-					outfile = dockerfile_args[1]
-				# If this is something we have to wget:
-				if dockerfile_command == 'ADD' and urlparse.urlparse(dockerfile_args[0])[0] != '':
-					if not wgetgot:
-						build += """\n\t\tshutit.install('wget')"""
-						wgetgot = True
-					if dockerfile_args[1][-1] == '/':
-						destdir = destdir[0:-1]
-						outpath = urlparse.urlparse(dockerfile_args[0])[2]
-						outpathdir = os.path.dirname(outpath)
-						build += """\n\t\tshutit.send('mkdir -p """ + destdir + outpathdir + """')"""
-						build += """\n\t\tshutit.send('wget -O """ + destdir + outpath + ' ' + dockerfile_args[0] + """')"""
-					else:
-						outpath  = dockerfile_args[1]
-						destdir  = os.path.dirname(dockerfile_args[1])
-						build += """\n\t\tshutit.send('mkdir -p """ + destdir + """')"""
-						build += """\n\t\tshutit.send('wget -O """ + outpath + ' ' + dockerfile_args[0] + """')"""
-				else:
-					# From the local filesystem on construction:
-					localfile = dockerfile_args[0]
-					# Local file location on build:
-					buildstagefile = 'context/' + dockerfile_args[0]
-					#if localfile[-4:] == '.tar':
-					#	build += """\n\t\tshutit.send_file('""" + outfile + '/' + localfile + """')"""
-					#elif localfile[-4:] == '.bz2':
-					#elif localfile[-3:] == '.gz':
-					#elif localfile[-3:] == '.xz':
-					if os.path.isdir(localfile):
-						build += """\n\t\tshutit.send_host_dir('""" + outfile + """', '""" + buildstagefile + """')"""
-					else:
-						build += """\n\t\tshutit.send_host_file('""" + outfile + """', '""" + buildstagefile + """')"""
-			elif dockerfile_command == 'ENV':
-				cmd = '='.join(dockerfile_args).replace("'", "\\'")
-				build += """\n\t\tshutit.send('export """ + '='.join(dockerfile_args) + """')"""
-			elif dockerfile_command == 'COMMENT':
-				build += """\n\t\t# """ + ' '.join(dockerfile_args)
-		while numpushes > 0:
-			build += """\n\t\tshutit.send('popd')"""
-			numpushes = numpushes - 1
-		templatemodule += '''
-	def build(self, shutit):''' + build + '''
-		# Some useful API calls for reference. See shutit's docs for more info and options:
-		#
-		# ISSUING BASH COMMANDS
-		# shutit.send(send,expect=<default>) - Send a command, wait for expect (string or compiled regexp)
-		#                                      to be seen before continuing. By default this is managed
-		#                                      by ShutIt with shell prompts.
-		# shutit.multisend(send,send_dict)   - Send a command, dict contains {expect1:response1,expect2:response2,...}
-		# shutit.send_and_get_output(send)   - Returns the output of the sent command
-		# shutit.send_and_match_output(send, matches)
-		#                                    - Returns True if any lines in output match any of
-		#                                      the regexp strings in the matches list
-		# shutit.send_until(send,regexps)    - Send command over and over until one of the regexps seen in the output.
-		# shutit.run_script(script)          - Run the passed-in string as a script
-		# shutit.install(package)            - Install a package
-		# shutit.remove(package)             - Remove a package
-		# shutit.login(user='root', command='su -')
-		#                                    - Log user in with given command, and set up prompt and expects.
-		#                                      Use this if your env (or more specifically, prompt) changes at all,
-		#                                      eg reboot, bash, ssh
-		# shutit.logout(command='exit')      - Clean up from a login.
-		#
-		# COMMAND HELPER FUNCTIONS
-		# shutit.add_to_bashrc(line)         - Add a line to bashrc
-		# shutit.get_url(fname, locations)   - Get a file via url from locations specified in a list
-		# shutit.get_ip_address()            - Returns the ip address of the target
-		# shutit.command_available(command)  - Returns true if the command is available to run
-		#
-		# LOGGING AND DEBUG
-		# shutit.log(msg,add_final_message=False) -
-		#                                      Send a message to the log. add_final_message adds message to
-		#                                      output at end of build
-		# shutit.pause_point(msg='')         - Give control of the terminal to the user
-		# shutit.step_through(msg='')        - Give control to the user and allow them to step through commands
-		#
-		# SENDING FILES/TEXT
-		# shutit.send_file(path, contents)   - Send file to path on target with given contents as a string
-		# shutit.send_host_file(path, hostfilepath)
-		#                                    - Send file from host machine to path on the target
-		# shutit.send_host_dir(path, hostfilepath)
-		#                                    - Send directory and contents to path on the target
-		# shutit.insert_text(text, fname, pattern)
-		#                                    - Insert text into file fname after the first occurrence of
-		#                                      regexp pattern.
-		# shutit.delete_text(text, fname, pattern)
-		#                                    - Delete text from file fname after the first occurrence of
-		#                                      regexp pattern.
-		# shutit.replace_text(text, fname, pattern)
-		#                                    - Replace text from file fname after the first occurrence of
-		#                                      regexp pattern.
-		# ENVIRONMENT QUERYING
-		# shutit.host_file_exists(filename, directory=False)
-		#                                    - Returns True if file exists on host
-		# shutit.file_exists(filename, directory=False)
-		#                                    - Returns True if file exists on target
-		# shutit.user_exists(user)           - Returns True if the user exists on the target
-		# shutit.package_installed(package)  - Returns True if the package exists on the target
-		# shutit.set_password(password, user='')
-		#                                    - Set password for a given user on target
-		#
-		# USER INTERACTION
-		# shutit.get_input(msg,default,valid[],boolean?,ispass?)
-		#                                    - Get input from user and return output
-		# shutit.fail(msg)                   - Fail the program and exit with status 1
-		#
-		return True
-'''
-		# Gather and place finalize bit
-		finalize = ''
-		for line in cfg['dockerfile']['onbuild']:
-			finalize += '\n\t\tshutit.send(\'' + line + '\''
-		templatemodule += '''
-	def finalize(self, shutit):''' + finalize + '''
-		return True
-
-	def test(self, shutit):
-		return True
-
-	def is_installed(self, shutit):
-		return False
-
-	def get_config(self, shutit):
-		# CONFIGURATION
-		# shutit.get_config(module_id,option,default=None,boolean=False)
-		#                                    - Get configuration value, boolean indicates whether the item is
-		#                                      a boolean type, eg get the config with:
-		# shutit.get_config(self.module_id, 'myconfig', default='a value')
-		#                                      and reference in your code with:
-		# shutit.cfg[self.module_id]['myconfig']
-		return True
-
-'''
-		templatemodule += """
-def module():
-		return template(
-				""" + """\'%s.%s.%s\'""" % (skel_domain, skel_module_name, skel_module_name) + """, """ + skel_domain_hash + ".00" + """,
-				description='',
-				delivery_methods=[('""" + skel_delivery + """')],
-				maintainer='""" + cfg['dockerfile']['maintainer'] + """',
-				depends=['%s""" % (skel_depends) + """']
-		)
-"""
-		# Return program to main shutit_dir
-		if dockerfile_dirname:
-			os.chdir(shutit_dir)
-
+		# TODO: for each module, add
+		count = 1
+		templatemodule = dockerfile_to_shutit_module_template(cfg,skel_dockerfile,skel_path,count)
+		open(templatemodule_path, 'w').write(templatemodule)
 	else:
 		templatemodule = open(find_asset('shutit_module_template_bare.py')).read()
 	templatemodule = (templatemodule
 		).replace('template', skel_module_name
 		).replace('GLOBALLY_UNIQUE_STRING', '\'%s.%s.%s\'' % (skel_domain, skel_module_name, skel_module_name)
-		).replace('FLOAT', skel_domain_hash + '.00'
+		).replace('FLOAT', skel_domain_hash + '.0001'
 		).replace('DEPENDS', skel_depends
-		).replace('DELIVERY', skel_delivery
-	)
+		).replace('DELIVERY', skel_delivery)
+		open(templatemodule_path, 'w').write(templatemodule)
 	readme = skel_module_name + ': description of module directory in here'
 	buildsh = textwrap.dedent('''\
 		#!/bin/bash
@@ -1749,7 +1475,6 @@ $DOCKER rename ${CONTAINER_BASE_NAME}_${RANDOM_ID} ${CONTAINER_BASE_NAME}''' % (
        CMD ["/bin/bash"]
 		''')
 
-	open(templatemodule_path, 'w').write(templatemodule)
 	open(buildsh_path, 'w').write(buildsh)
 	os.chmod(buildsh_path, os.stat(buildsh_path).st_mode | 0111) # chmod +x
 	open(buildcnf_path, 'w').write(buildcnf)
@@ -1998,3 +1723,287 @@ def check_regexp(regex):
 	except re.error:
 		result = False
 	return result
+
+
+# Takes a dockerfile filename and returns a string that represents that Dockerfile as a ShutIt module
+
+# TODO: test this
+# TODO: sort out numbering
+def dockerfile_to_shutit_module_template(cfg,skel_dockerfile,skel_path,skel_domain,skel_module_name,skel_domain_hash,skel_delivery,skel_depends,order):
+	if os.path.basename(skel_dockerfile) != 'Dockerfile' and not os.path.exists(skel_dockerfile):
+		skel_dockerfile += '/Dockerfile'
+	if not os.path.exists(skel_dockerfile):
+		if urlparse.urlparse(skel_dockerfile)[0] == '':
+			shutit.fail('Dockerfile "' + skel_dockerfile + '" must exist')
+		dockerfile_contents = urllib2.urlopen(skel_dockerfile).read()
+		dockerfile_dirname = None
+	else:
+		dockerfile_contents = open(skel_dockerfile).read()
+		dockerfile_dirname = os.path.dirname(skel_dockerfile)
+		if dockerfile_dirname == '':
+			dockerfile_dirname = './'
+		if os.path.exists(dockerfile_dirname):
+			shutil.rmtree(skel_path + '/context')
+			shutil.copytree(dockerfile_dirname, skel_path + '/context')
+			# Remove Dockerfile as it's not part of the context.
+			if os.path.isfile(skel_path + '/context/Dockerfile'):
+				os.remove(skel_path + '/context/Dockerfile')
+		# Change to this context
+		os.chdir(dockerfile_dirname)
+	# Wipe the command as we expect one in the file.
+	cfg['dockerfile']['cmd']        = ''
+	dockerfile_list = parse_dockerfile(shutit, dockerfile_contents)
+	# Set defaults from given dockerfile
+	for item in dockerfile_list:
+		# These items are not order-dependent and don't affect the build, so we collect them here:
+		docker_command = item[0].upper()
+		if docker_command == 'FROM':
+			# Should be only one of these
+			cfg['dockerfile']['base_image'] = item[1]
+		elif docker_command == "ONBUILD":
+			# Maps to finalize :) - can we have more than one of these? assume yes
+			# This contains within it one of the above commands, so we need to abstract this out.
+			cfg['dockerfile']['onbuild'].append(item[1])
+		elif docker_command == "MAINTAINER":
+			cfg['dockerfile']['maintainer'] = item[1]
+		elif docker_command == "VOLUME":
+			# Put in the run.sh.
+			try:
+				cfg['dockerfile']['volume'].append(' '.join(json.loads(item[1])))
+			except Exception:
+				cfg['dockerfile']['volume'].append(item[1])
+		elif docker_command == 'EXPOSE':
+			# Put in the run.sh.
+			cfg['dockerfile']['expose'].append(item[1])
+		elif docker_command == "ENTRYPOINT":
+			# Put in the run.sh? Yes, if it exists it goes at the front of cmd
+			try:
+				cfg['dockerfile']['entrypoint'] = ' '.join(json.loads(item[1]))
+			except Exception:
+				cfg['dockerfile']['entrypoint'] = item[1]
+		elif docker_command == "CMD":
+			# Put in the run.sh
+			try:
+				cfg['dockerfile']['cmd'] = ' '.join(json.loads(item[1]))
+			except Exception:
+				cfg['dockerfile']['cmd'] = item[1]
+		# Other items to be run through sequentially (as they are part of the script)
+		if docker_command == "USER":
+			# Put in the start script as well as su'ing from here - assuming order dependent?
+			cfg['dockerfile']['script'].append((docker_command, item[1]))
+			# We assume the last one seen is the one we use for the image.
+			# Put this in the default start script.
+			cfg['dockerfile']['user']        = item[1]
+		elif docker_command == 'ENV':
+			# Put in the run.sh.
+			cfg['dockerfile']['script'].append((docker_command, item[1]))
+			# Set in the build
+			cfg['dockerfile']['env'].append(item[1])
+		elif docker_command == "RUN":
+			# Only handle simple commands for now and ignore the fact that Dockerfiles run
+			# with /bin/sh -c rather than bash.
+			try:
+				cfg['dockerfile']['script'].append((docker_command, ' '.join(json.loads(item[1]))))
+			except Exception:
+				cfg['dockerfile']['script'].append((docker_command, item[1]))
+		elif docker_command == "ADD":
+			# Send file - is this potentially got from the web? Is that the difference between this and COPY?
+			cfg['dockerfile']['script'].append((docker_command, item[1]))
+		elif docker_command == "COPY":
+			# Send file
+			cfg['dockerfile']['script'].append((docker_command, item[1]))
+		elif docker_command == "WORKDIR":
+			# Push and pop
+			cfg['dockerfile']['script'].append((docker_command, item[1]))
+		elif docker_command == "COMMENT":
+			# Push and pop
+			cfg['dockerfile']['script'].append((docker_command, item[1]))
+	# We now have the script, so let's construct it inline here
+	templatemodule = ''
+	# Header.
+	templatemodule += '''
+# Created from dockerfile: ''' + skel_dockerfile + '''
+# Maintainer:              ''' + cfg['dockerfile']['maintainer'] + '''
+from shutit_module import ShutItModule
+
+class template(ShutItModule):
+
+	def is_installed(self, shutit):
+		return False
+'''
+	# build
+	build     = ''
+	numpushes = 0
+	wgetgot   = False
+	for item in cfg['dockerfile']['script']:
+		dockerfile_command = item[0].upper()
+		dockerfile_args    = item[1].split()
+		cmd = ' '.join(dockerfile_args).replace("'", "\\'")
+		if dockerfile_command == 'RUN':
+			build += """\n\t\tshutit.send('""" + cmd + """')"""
+		elif dockerfile_command == 'WORKDIR':
+			build += """\n\t\tshutit.send('pushd """ + cmd + """')"""
+			numpushes = numpushes + 1
+		elif dockerfile_command == 'COPY' or dockerfile_command == 'ADD':
+			# The <src> path must be inside the context of the build; you cannot COPY ../something /something, because the first step of a docker build is to send the context directory (and subdirectories) to the docker daemon.
+			if dockerfile_args[0][0:1] == '..' or dockerfile_args[0][0] == '/' or dockerfile_args[0][0] == '~':
+				shutit.fail('Invalid line: ' + str(dockerfile_args) + ' file must be in local subdirectory')
+			if dockerfile_args[1][-1] == '/':
+				# Dir we're COPYing or ADDing to
+				destdir  = dockerfile_args[1]
+				# File/dir we're COPYing or ADDing from
+				fromfile = dockerfile_args[0]
+				# Final file/dir
+				outfile  = destdir + fromfile
+				if os.path.isfile(fromfile):
+					outfiledir = os.path.dirname(fromfile)
+					build += """\n\t\tshutit.send('mkdir -p """ + destdir + '/' + outfiledir + """')"""
+				elif os.path.isdir(fromfile):
+					build += """\n\t\tshutit.send('mkdir -p """ + destdir + fromfile + """')"""
+			else:
+				outfile = dockerfile_args[1]
+			# If this is something we have to wget:
+			if dockerfile_command == 'ADD' and urlparse.urlparse(dockerfile_args[0])[0] != '':
+				if not wgetgot:
+					build += """\n\t\tshutit.install('wget')"""
+					wgetgot = True
+				if dockerfile_args[1][-1] == '/':
+					destdir = destdir[0:-1]
+					outpath = urlparse.urlparse(dockerfile_args[0])[2]
+					outpathdir = os.path.dirname(outpath)
+					build += """\n\t\tshutit.send('mkdir -p """ + destdir + outpathdir + """')"""
+					build += """\n\t\tshutit.send('wget -O """ + destdir + outpath + ' ' + dockerfile_args[0] + """')"""
+				else:
+					outpath  = dockerfile_args[1]
+					destdir  = os.path.dirname(dockerfile_args[1])
+					build += """\n\t\tshutit.send('mkdir -p """ + destdir + """')"""
+					build += """\n\t\tshutit.send('wget -O """ + outpath + ' ' + dockerfile_args[0] + """')"""
+			else:
+				# From the local filesystem on construction:
+				localfile = dockerfile_args[0]
+				# Local file location on build:
+				buildstagefile = 'context/' + dockerfile_args[0]
+				#if localfile[-4:] == '.tar':
+				#	build += """\n\t\tshutit.send_file('""" + outfile + '/' + localfile + """')"""
+				#elif localfile[-4:] == '.bz2':
+				#elif localfile[-3:] == '.gz':
+				#elif localfile[-3:] == '.xz':
+				if os.path.isdir(localfile):
+					build += """\n\t\tshutit.send_host_dir('""" + outfile + """', '""" + buildstagefile + """')"""
+				else:
+					build += """\n\t\tshutit.send_host_file('""" + outfile + """', '""" + buildstagefile + """')"""
+		elif dockerfile_command == 'ENV':
+			cmd = '='.join(dockerfile_args).replace("'", "\\'")
+			build += """\n\t\tshutit.send('export """ + '='.join(dockerfile_args) + """')"""
+		elif dockerfile_command == 'COMMENT':
+			build += """\n\t\t# """ + ' '.join(dockerfile_args)
+	while numpushes > 0:
+		build += """\n\t\tshutit.send('popd')"""
+		numpushes = numpushes - 1
+	templatemodule += '''
+	def build(self, shutit):''' + build + '''
+		# Some useful API calls for reference. See shutit's docs for more info and options:
+		#
+		# ISSUING BASH COMMANDS
+		# shutit.send(send,expect=<default>) - Send a command, wait for expect (string or compiled regexp)
+		#                                      to be seen before continuing. By default this is managed
+		#                                      by ShutIt with shell prompts.
+		# shutit.multisend(send,send_dict)   - Send a command, dict contains {expect1:response1,expect2:response2,...}
+		# shutit.send_and_get_output(send)   - Returns the output of the sent command
+		# shutit.send_and_match_output(send, matches)
+		#                                    - Returns True if any lines in output match any of
+		#                                      the regexp strings in the matches list
+		# shutit.send_until(send,regexps)    - Send command over and over until one of the regexps seen in the output.
+		# shutit.run_script(script)          - Run the passed-in string as a script
+		# shutit.install(package)            - Install a package
+		# shutit.remove(package)             - Remove a package
+		# shutit.login(user='root', command='su -')
+		#                                    - Log user in with given command, and set up prompt and expects.
+		#                                      Use this if your env (or more specifically, prompt) changes at all,
+		#                                      eg reboot, bash, ssh
+		# shutit.logout(command='exit')      - Clean up from a login.
+		#
+		# COMMAND HELPER FUNCTIONS
+		# shutit.add_to_bashrc(line)         - Add a line to bashrc
+		# shutit.get_url(fname, locations)   - Get a file via url from locations specified in a list
+		# shutit.get_ip_address()            - Returns the ip address of the target
+		# shutit.command_available(command)  - Returns true if the command is available to run
+		#
+		# LOGGING AND DEBUG
+		# shutit.log(msg,add_final_message=False) -
+		#                                      Send a message to the log. add_final_message adds message to
+		#                                      output at end of build
+		# shutit.pause_point(msg='')         - Give control of the terminal to the user
+		# shutit.step_through(msg='')        - Give control to the user and allow them to step through commands
+		#
+		# SENDING FILES/TEXT
+		# shutit.send_file(path, contents)   - Send file to path on target with given contents as a string
+		# shutit.send_host_file(path, hostfilepath)
+		#                                    - Send file from host machine to path on the target
+		# shutit.send_host_dir(path, hostfilepath)
+		#                                    - Send directory and contents to path on the target
+		# shutit.insert_text(text, fname, pattern)
+		#                                    - Insert text into file fname after the first occurrence of
+		#                                      regexp pattern.
+		# shutit.delete_text(text, fname, pattern)
+		#                                    - Delete text from file fname after the first occurrence of
+		#                                      regexp pattern.
+		# shutit.replace_text(text, fname, pattern)
+		#                                    - Replace text from file fname after the first occurrence of
+		#                                      regexp pattern.
+		# ENVIRONMENT QUERYING
+		# shutit.host_file_exists(filename, directory=False)
+		#                                    - Returns True if file exists on host
+		# shutit.file_exists(filename, directory=False)
+		#                                    - Returns True if file exists on target
+		# shutit.user_exists(user)           - Returns True if the user exists on the target
+		# shutit.package_installed(package)  - Returns True if the package exists on the target
+		# shutit.set_password(password, user='')
+		#                                    - Set password for a given user on target
+		#
+		# USER INTERACTION
+		# shutit.get_input(msg,default,valid[],boolean?,ispass?)
+		#                                    - Get input from user and return output
+		# shutit.fail(msg)                   - Fail the program and exit with status 1
+		#
+		return True
+'''
+	# Gather and place finalize bit
+	finalize = ''
+	for line in cfg['dockerfile']['onbuild']:
+		finalize += '\n\t\tshutit.send(\'' + line + '\''
+	templatemodule += '''
+	def finalize(self, shutit):''' + finalize + '''
+		return True
+
+	def test(self, shutit):
+		return True
+
+	def is_installed(self, shutit):
+		return False
+
+	def get_config(self, shutit):
+		# CONFIGURATION
+		# shutit.get_config(module_id,option,default=None,boolean=False)
+		#                                    - Get configuration value, boolean indicates whether the item is
+		#                                      a boolean type, eg get the config with:
+		# shutit.get_config(self.module_id, 'myconfig', default='a value')
+		#                                      and reference in your code with:
+		# shutit.cfg[self.module_id]['myconfig']
+		return True
+
+'''
+		templatemodule += """
+def module():
+		return template(
+				""" + """\'%s.%s.%s\'""" % (skel_domain, skel_module_name, skel_module_name) + """, """ + skel_domain_hash + str(order * 0.0001) + """,
+				description='',
+				delivery_methods=[('""" + skel_delivery + """')],
+				maintainer='""" + cfg['dockerfile']['maintainer'] + """',
+				depends=['%s""" % (skel_depends) + """']
+		)
+"""
+	# Return program to main shutit_dir
+	if dockerfile_dirname:
+		os.chdir(sys.path[0])
+
