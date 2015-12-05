@@ -1223,10 +1223,11 @@ def create_skeleton(shutit):
 
 	if skel_dockerfiles:
 		_count = 1
+		_total = len(skel_dockerfiles)
 		for skel_dockerfile in skel_dockerfiles:
 			#TODO better naming of file
 			templatemodule_path   = os.path.join(skel_path, skel_module_name + '_' + str(_count) + '.py')
-			templatemodule = dockerfile_to_shutit_module_template(shutit,skel_dockerfile,skel_path,skel_domain,skel_module_name,skel_domain_hash,skel_delivery,skel_depends,_count)
+			templatemodule = dockerfile_to_shutit_module_template(shutit,skel_dockerfile,skel_path,skel_domain,skel_module_name,skel_domain_hash,skel_delivery,skel_depends,_count,_total)
 			templatemodule = (templatemodule).replace('template', skel_module_name).replace('GLOBALLY_UNIQUE_STRING', '\'%s.%s.%s\'' % (skel_domain, skel_module_name, skel_module_name)).replace('FLOAT', skel_domain_hash + '.0001').replace('DEPENDS', skel_depends).replace('DELIVERY', skel_delivery)
 			open(templatemodule_path, 'w').write(templatemodule)
 			_count += 1
@@ -1728,7 +1729,7 @@ def check_regexp(regex):
 
 # TODO: test this
 # TODO: sort out numbering
-def dockerfile_to_shutit_module_template(shutit,skel_dockerfile,skel_path,skel_domain,skel_module_name,skel_domain_hash,skel_delivery,skel_depends,order):
+def dockerfile_to_shutit_module_template(shutit,skel_dockerfile,skel_path,skel_domain,skel_module_name,skel_domain_hash,skel_delivery,skel_depends,order,total):
 	cfg = shutit.cfg
 	if os.path.basename(skel_dockerfile) != 'Dockerfile' and not os.path.exists(skel_dockerfile):
 		skel_dockerfile += '/Dockerfile'
@@ -1999,7 +2000,8 @@ class template(ShutItModule):
 		# shutit.get_config(self.module_id, 'myconfig', default='a value')
 		#                                      and reference in your code with:
 		# shutit.cfg[self.module_id]['myconfig']'''
-	skel_module_id = '%s.%s.%s' % (skel_domain, skel_module_name, skel_module_name)
+	if total > 1:
+		skel_module_id = '%s.%s.%s_%s' % (skel_domain, skel_module_name, skel_module_name, str(order))
 	for item in cfg['dockerfile']['script']:
 		dockerfile_command = item[0].upper()
 		dockerfile_args    = item[1].split()
