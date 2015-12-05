@@ -506,7 +506,7 @@ def parse_args(shutit):
 	sub_parsers['skeleton'].add_argument('--base_image', help='FROM image, default ubuntu:14.04 (optional)', default='ubuntu:14.04')
 	sub_parsers['skeleton'].add_argument('--script', help='Pre-existing shell script to integrate into module (optional)', nargs='?', default=None)
 	sub_parsers['skeleton'].add_argument('--output_dir', help='Just output the created directory', default=False, const=True, action='store_const')
-	sub_parsers['skeleton'].add_argument('--dockerfile', default=None)
+	sub_parsers['skeleton'].add_argument('--dockerfiles', nargs='+', default=None)
 	sub_parsers['skeleton'].add_argument('--delivery', help='Delivery method, aka target. "docker" container (default), configured "ssh" connection, "bash" session', default=None, choices=('docker','dockerfile','ssh','bash'))
 
 	sub_parsers['build'].add_argument('--export', help='Perform docker export to a tar file', const=True, default=False, action='store_const')
@@ -578,8 +578,8 @@ def parse_args(shutit):
 
 	# This mode is a bit special - it's the only one with different arguments
 	if cfg['action']['skeleton']:
-		if args.dockerfile and args.script:
-			shutit.fail('Cannot have any two of script, -d/--dockerfile Dockerfile as arguments')
+		if args.dockerfiles and args.script:
+			shutit.fail('Cannot have any two of script, -d/--dockerfiles <files> as arguments')
 		if args.module_directory == '':
 			default_dir = '/tmp/shutit_' + random_word()
 			module_directory = util_raw_input(prompt='# Input a new directory name for this module.\n# Default: ' + default_dir + '\n', default=default_dir)
@@ -621,7 +621,7 @@ def parse_args(shutit):
 			'domainhash':  str(get_hash(domain)),
 			'depends':     args.depends,
 			'script':      args.script,
-			'dockerfile':  args.dockerfile,
+			'dockerfiles': args.dockerfiles,
 			'output_dir':  args.output_dir,
 			'delivery':    delivery
 		}
@@ -1174,7 +1174,7 @@ def create_skeleton(shutit):
 	skel_depends     = cfg['skeleton']['depends']
 	skel_base_image  = cfg['skeleton']['base_image']
 	skel_script      = cfg['skeleton']['script']
-	skel_dockerfile  = cfg['skeleton']['dockerfile']
+	skel_dockerfiles = cfg['skeleton']['dockerfiles']
 	skel_output_dir  = cfg['skeleton']['output_dir']
 	skel_delivery    = cfg['skeleton']['delivery']
 	# Set up dockerfile cfg
@@ -1208,7 +1208,6 @@ def create_skeleton(shutit):
 		os.mkdir(os.path.join(skel_path, 'context'))
 		os.mkdir(os.path.join(skel_path, 'haproxy'))
 
-	templatemodule_path   = os.path.join(skel_path, skel_module_name + '.py')
 	readme_path           = os.path.join(skel_path, 'README.md')
 	buildsh_path          = os.path.join(skel_path, 'bin', 'build.sh')
 	testsh_path           = os.path.join(skel_path, 'bin', 'test.sh')
@@ -1222,20 +1221,20 @@ def create_skeleton(shutit):
 		haproxycnf_path          = os.path.join(skel_path, 'haproxy', 'haproxy.cfg')
 		haproxydockerfile_path   = os.path.join(skel_path, 'haproxy', 'Dockerfile')
 
-	if skel_dockerfile:
-		# TODO: for each module, add
-		count = 1
-		templatemodule = dockerfile_to_shutit_module_template(shutit,skel_dockerfile,skel_path,skel_domain,skel_module_name,skel_domain_hash,skel_delivery,skel_depends,count)
-		open(templatemodule_path, 'w').write(templatemodule)
+	if skel_dockerfiles:
+		_count = 1
+		for skel_dockerfile in skel_dockerfiles:
+			#TODO better naming of file
+			templatemodule_path   = os.path.join(skel_path, skel_module_name + '_' + str(_count) + '.py')
+			templatemodule = dockerfile_to_shutit_module_template(shutit,skel_dockerfile,skel_path,skel_domain,skel_module_name,skel_domain_hash,skel_delivery,skel_depends,_count)
+			templatemodule = (templatemodule).replace('template', skel_module_name).replace('GLOBALLY_UNIQUE_STRING', '\'%s.%s.%s\'' % (skel_domain, skel_module_name, skel_module_name)).replace('FLOAT', skel_domain_hash + '.0001').replace('DEPENDS', skel_depends).replace('DELIVERY', skel_delivery)
+			open(templatemodule_path, 'w').write(templatemodule)
+			_count += 1
 	else:
+		templatemodule_path   = os.path.join(skel_path, skel_module_name + '.py')
 		templatemodule = open(find_asset('shutit_module_template_bare.py')).read()
-	templatemodule = (templatemodule).replace('template', skel_module_name
-		).replace('GLOBALLY_UNIQUE_STRING', '\'%s.%s.%s\'' % (skel_domain, skel_module_name, skel_module_name)
-		).replace('FLOAT', skel_domain_hash + '.0001'
-		).replace('DEPENDS', skel_depends
-		).replace('DELIVERY', skel_delivery
-	)
-	open(templatemodule_path, 'w').write(templatemodule)
+		templatemodule = (templatemodule).replace('template', skel_module_name).replace('GLOBALLY_UNIQUE_STRING', '\'%s.%s.%s\'' % (skel_domain, skel_module_name, skel_module_name)).replace('FLOAT', skel_domain_hash + '.0001').replace('DEPENDS', skel_depends).replace('DELIVERY', skel_delivery)
+		open(templatemodule_path, 'w').write(templatemodule)
 	readme = skel_module_name + ': description of module directory in here'
 	buildsh = textwrap.dedent('''\
 		#!/bin/bash
