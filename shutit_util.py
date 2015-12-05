@@ -1903,7 +1903,7 @@ class template(ShutItModule):
 		build += """\n\t\tshutit.send('popd')"""
 		numpushes = numpushes - 1
 	templatemodule += '''
-	def build(self, shutit):''' + build + '''
+	def build(self, shutit):
 		# Some useful API calls for reference. See shutit's docs for more info and options:
 		#
 		# ISSUING BASH COMMANDS
@@ -1968,6 +1968,7 @@ class template(ShutItModule):
 		#                                    - Get input from user and return output
 		# shutit.fail(msg)                   - Fail the program and exit with status 1
 		#
+''' + build + '''
 		return True
 '''
 	# Gather and place finalize bit
@@ -1984,6 +1985,12 @@ class template(ShutItModule):
 	def is_installed(self, shutit):
 		return False
 
+	def start(self, shutit):
+		return True
+
+	def stop(self, shutit):
+		return True
+
 	def get_config(self, shutit):
 		# CONFIGURATION
 		# shutit.get_config(module_id,option,default=None,boolean=False)
@@ -1997,8 +2004,8 @@ class template(ShutItModule):
 		dockerfile_command = item[0].upper()
 		dockerfile_args    = item[1].split()
 		if dockerfile_command == 'CONFIG':
-			# TODO quoting
-			templatemodule += '\n\t\tshutit.get_cfg(\'' + skel_module_id + '\',\'' + dockerfile_args[0] + '\',default=' + dockerfile_args[1] + ',boolean=' + dockerfile_args[2] + ')'
+			# TODO quoting - add a type field? literal?
+			templatemodule += '\n\t\tshutit.get_cfg(\'' + skel_module_id + '\',\'' + dockerfile_args[0] + '\',default=\.' + dockerfile_args[1] + '\',boolean=' + dockerfile_args[2] + ')'
 	templatemodule += """
 		return True
 """
