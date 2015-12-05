@@ -1818,6 +1818,8 @@ def dockerfile_to_shutit_module_template(shutit,skel_dockerfile,skel_path,skel_d
 		elif docker_command == "COMMENT":
 			# Push and pop
 			cfg['dockerfile']['script'].append((docker_command, item[1]))
+		elif docker_command == "CONFIG":
+			cfg['dockerfile']['script'].append((docker_command, item[1]))
 	# We now have the script, so let's construct it inline here
 	templatemodule = ''
 	# Header.
@@ -1971,7 +1973,7 @@ class template(ShutItModule):
 	# Gather and place finalize bit
 	finalize = ''
 	for line in cfg['dockerfile']['onbuild']:
-		finalize += '\n\t\tshutit.send(\'' + line + '\''
+		finalize += '\n\t\tshutit.send(\'' + line + ')\''
 	templatemodule += '''
 	def finalize(self, shutit):''' + finalize + '''
 		return True
@@ -1989,14 +1991,22 @@ class template(ShutItModule):
 		#                                      a boolean type, eg get the config with:
 		# shutit.get_config(self.module_id, 'myconfig', default='a value')
 		#                                      and reference in your code with:
-		# shutit.cfg[self.module_id]['myconfig']
+		# shutit.cfg[self.module_id]['myconfig']'''
+	skel_module_id = '%s.%s.%s' % (skel_domain, skel_module_name, skel_module_name)
+	for item in cfg['dockerfile']['script']:
+		dockerfile_command = item[0].upper()
+		dockerfile_args    = item[1].split()
+		if dockerfile_command == 'CONFIG':
+			# TODO quoting
+			templatemodule += '\n\t\tshutit.get_cfg(\'' + skel_module_id + '\',\'' + dockerfile_args[0] + '\',default=' + dockerfile_args[1] + ',boolean=' + dockerfile_args[2] + ')'
+	templatemodule += """
 		return True
+"""
 
-'''
 	templatemodule += """
 def module():
 		return template(
-				""" + """\'%s.%s.%s\'""" % (skel_domain, skel_module_name, skel_module_name) + """, """ + skel_domain_hash + str(order * 0.0001) + """,
+				'""" + skel_module_id + """', """ + skel_domain_hash + str(order * 0.0001) + """,
 				description='',
 				delivery_methods=[('""" + skel_delivery + """')],
 				maintainer='""" + cfg['dockerfile']['maintainer'] + """',
