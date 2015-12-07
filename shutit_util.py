@@ -1289,6 +1289,7 @@ def create_skeleton(shutit):
 		haproxycnf_path          = os.path.join(skel_path, 'haproxy', 'haproxy.cfg')
 		haproxydockerfile_path   = os.path.join(skel_path, 'haproxy', 'Dockerfile')
 
+	skel_module_ids = []
 	if skel_dockerfiles:
 		_count = 1
 		_total = len(skel_dockerfiles)
@@ -1296,7 +1297,8 @@ def create_skeleton(shutit):
 			#TODO better naming of file
 			templatemodule_path   = os.path.join(skel_path, skel_module_name + '_' + str(_count) + '.py')
 			print skel_dockerfile
-			templatemodule = dockerfile_to_shutit_module_template(shutit,skel_dockerfile,skel_path,skel_domain,skel_module_name,skel_domain_hash,skel_delivery,skel_depends,_count,_total)
+			(templatemodule,skel_module_id) = dockerfile_to_shutit_module_template(shutit,skel_dockerfile,skel_path,skel_domain,skel_module_name,skel_domain_hash,skel_delivery,skel_depends,_count,_total)
+			skel_module_ids.append(skel_module_id)
 			open(templatemodule_path, 'w').write(templatemodule)
 			_count += 1
 	else:
@@ -1375,33 +1377,67 @@ def create_skeleton(shutit):
 		export SHUTIT_OPTIONS="$SHUTIT_OPTIONS --config configs/push.cnf -s repository push yes"
 		./build.sh "$@"
 		''')
-	buildcnf = textwrap.dedent('''\
-		###############################################################################
-		# PLEASE NOTE: This file should be changed only by the maintainer.
-		# PLEASE NOTE: This file is only sourced if the "shutit build" command is run
-		#              and this file is in the relative path: configs/build.cnf
-		#              This is to ensure it is only sourced if _this_ module is the
-		#              target.
-		###############################################################################
-		# When this module is the one being built, which modules should be built along with it by default?
-		# This feeds into automated testing of each module.
-		[''' + '%s.%s.%s' % (skel_domain, skel_module_name, skel_module_name) + ''']
-		shutit.core.module.build:yes
-		# Allowed images as a regexp, eg ["ubuntu:12.*"], or [".*"], or ["centos"].
-		# It's recommended this is locked down as far as possible.
-		shutit.core.module.allowed_images:["''' + cfg['dockerfile']['base_image'] + '''"]
+	if len(skel_module_ids) == 0:
+		buildcnf = textwrap.dedent('''\
+			###############################################################################
+			# PLEASE NOTE: This file should be changed only by the maintainer.
+			# PLEASE NOTE: This file is only sourced if the "shutit build" command is run
+			#              and this file is in the relative path: configs/build.cnf
+			#              This is to ensure it is only sourced if _this_ module is the
+			#              target.
+			###############################################################################
+			# When this module is the one being built, which modules should be built along with it by default?
+			# This feeds into automated testing of each module.
+			[''' + '%s.%s.%s' % (skel_domain, skel_module_name, skel_module_name) + ''']
+			shutit.core.module.build:yes
+			# Allowed images as a regexp, eg ["ubuntu:12.*"], or [".*"], or ["centos"].
+			# It's recommended this is locked down as far as possible.
+			shutit.core.module.allowed_images:["''' + cfg['dockerfile']['base_image'] + '''"]
 
-		# Aspects of build process
-		[build]
-		base_image:''' + cfg['dockerfile']['base_image'] + '''
+			# Aspects of build process
+			[build]
+			base_image:''' + cfg['dockerfile']['base_image'] + '''
 
-		# Volume arguments wanted as part of the build
-		[target]
-		volumes:
+			# Volume arguments wanted as part of the build
+			[target]
+			volumes:
 
-		[repository]
-		name:''' + skel_module_name + '''
+			[repository]
+			name:''' + skel_module_name + '''
+			''')
+	else:
+		buildcnf = textwrap.dedent('''\
+			###############################################################################
+			# PLEASE NOTE: This file should be changed only by the maintainer.
+			# PLEASE NOTE: This file is only sourced if the "shutit build" command is run
+			#              and this file is in the relative path: configs/build.cnf
+			#              This is to ensure it is only sourced if _this_ module is the
+			#              target.
+			###############################################################################
+			# When this module is the one being built, which modules should be built along with it by default?
+			# This feeds into automated testing of each module.
 		''')
+		for skel_module_id in skel_module_ids:
+			buildcnf += textwrap.dedent('''\
+			[''' + skel_module_id + ''']
+			shutit.core.module.build:yes
+			''')
+		buildcnf += textwrap.dedent('''\
+			# Allowed images as a regexp, eg ["ubuntu:12.*"], or [".*"], or ["centos"].
+			# It's recommended this is locked down as far as possible.
+			shutit.core.module.allowed_images:["''' + cfg['dockerfile']['base_image'] + '''"]
+
+			# Aspects of build process
+			[build]
+			base_image:''' + cfg['dockerfile']['base_image'] + '''
+
+			# Volume arguments wanted as part of the build
+			[target]
+			volumes:
+
+			[repository]
+			name:''' + skel_module_name + '''
+			''')
 	phoenixsh = textwrap.dedent('''\
 #!/bin/bash
 set -e
@@ -1559,11 +1595,12 @@ $DOCKER rename ${CONTAINER_BASE_NAME}_${RANDOM_ID} ${CONTAINER_BASE_NAME}''' % (
 		open(readme_path, 'w').write(readme)
 		open(runsh_path, 'w').write(runsh)
 		os.chmod(runsh_path, os.stat(runsh_path).st_mode | 0111) # chmod +x
-		open(phoenixsh_path, 'w').write(phoenixsh)
-		os.chmod(phoenixsh_path, os.stat(phoenixsh_path).st_mode | 0111) # chmod +x
-		open(haproxycnf_path, 'w').write(haproxycnf)
-		open(haproxycnf_path + '.template', 'w').write(haproxycnf)
-		open(haproxydockerfile_path, 'w').write(haproxydockerfile)
+		# Hashed this stuff out as it's not popular. Maybe make optional as part of 'patterns' work.
+		#open(phoenixsh_path, 'w').write(phoenixsh)
+		#os.chmod(phoenixsh_path, os.stat(phoenixsh_path).st_mode | 0111) # chmod +x
+		#open(haproxycnf_path, 'w').write(haproxycnf)
+		#open(haproxycnf_path + '.template', 'w').write(haproxycnf)
+		#open(haproxydockerfile_path, 'w').write(haproxydockerfile)
 
 	if skel_script is not None:
 		print textwrap.dedent('''\
@@ -1794,9 +1831,6 @@ def check_regexp(regex):
 
 
 # Takes a dockerfile filename and returns a string that represents that Dockerfile as a ShutIt module
-
-# TODO: test this
-# TODO: sort out numbering
 def dockerfile_to_shutit_module_template(shutit,skel_dockerfile,skel_path,skel_domain,skel_module_name,skel_domain_hash,skel_delivery,skel_depends,order,total):
 	if os.path.basename(skel_dockerfile) != 'Dockerfile' and not os.path.exists(skel_dockerfile):
 		skel_dockerfile += '/Dockerfile'
@@ -1832,7 +1866,6 @@ def dockerfile_to_shutit_module_template(shutit,skel_dockerfile,skel_path,skel_d
 	local_cfg['dockerfile']['env']        = [] 
 	dockerfile_list = parse_dockerfile(shutit, dockerfile_contents)
 	# Set defaults from given dockerfile
-	print dockerfile_list
 	for item in dockerfile_list:
 		# These items are not order-dependent and don't affect the build, so we collect them here:
 		docker_command = item[0].upper()
@@ -1898,6 +1931,9 @@ def dockerfile_to_shutit_module_template(shutit,skel_dockerfile,skel_path,skel_d
 			# Push and pop
 			local_cfg['dockerfile']['script'].append((docker_command, item[1]))
 		elif docker_command == "COMMENT":
+			# Push and pop
+			local_cfg['dockerfile']['script'].append((docker_command, item[1]))
+		elif docker_command == "INSTALL":
 			# Push and pop
 			local_cfg['dockerfile']['script'].append((docker_command, item[1]))
 		elif docker_command == "CONFIG":
@@ -2067,7 +2103,7 @@ def module():
 	# Return program to main shutit_dir
 	if dockerfile_dirname:
 		os.chdir(sys.path[0])
-	return templatemodule
+	return (templatemodule, skel_module_id)
 
 
 def handle_dockerfile_line(dockerfile_command, dockerfile_args, numpushes, wgetgot):
@@ -2129,6 +2165,8 @@ def handle_dockerfile_line(dockerfile_command, dockerfile_args, numpushes, wgetg
 	elif dockerfile_command == 'ENV':
 		cmd = '='.join(dockerfile_args).replace("'", "\\'")
 		build += """\n\t\tshutit.send('export """ + '='.join(dockerfile_args) + """')"""
+	elif dockerfile_command == 'INSTALL':
+		build += """\n\t\tshutit.install('""" + ''.join(dockerfile_args) + """')"""
 	elif dockerfile_command == 'COMMENT':
 		build += """\n\t\t# """ + ' '.join(dockerfile_args)
 	elif dockerfile_command == 'CONFIG':
