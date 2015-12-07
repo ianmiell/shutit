@@ -73,6 +73,21 @@ cleanup hard
 rm -rf ${NEWDIR}
 popd > /dev/null 2>&1
 
+DESC="Testing skeleton build with two ShutItFiles"
+echo $DESC
+./shutit skeleton --dockerfiles assets/dockerfile/Dockerfile  assets/dockerfile/ShutItFile --module_directory ${NEWDIR} --module_name testing --domain shutit.tk --depends shutit.tk.setup --base_image ubuntu:14.04 --delivery docker
+pushd ${NEWDIR}/bin
+./test.sh --interactive 0
+if [[ "x$?" != "x0" ]]
+then
+	echo "FAILED ON $DESC: $?"
+	cleanup hard
+	exit 1
+fi
+cleanup hard
+rm -rf ${NEWDIR}
+popd > /dev/null 2>&1
+
 DESC="Testing skeleton build basic bare"
 echo $DESC
 ./shutit skeleton --module_directory ${NEWDIR} --module_name testing --domain shutit.tk --depends shutit.tk.setup --base_image ubuntu:14.04 --delivery docker

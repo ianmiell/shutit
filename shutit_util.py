@@ -1901,20 +1901,13 @@ def dockerfile_to_shutit_module_template(shutit,skel_dockerfile,skel_path,skel_d
 			local_cfg['dockerfile']['script'].append((docker_command, item[1]))
 		elif docker_command == "CONFIG":
 			local_cfg['dockerfile']['script'].append((docker_command, item[1]))
-		elif docker_command == "START_BEGIN":
-			local_cfg['dockerfile']['script'].append((docker_command, ''))
-		elif docker_command == "START_END":
+		elif docker_command in ("START_BEGIN","START_END","STOP_BEGIN","STOP_END","TEST_BEGIN","TEST_END"):
 			local_cfg['dockerfile']['script'].append((docker_command, ''))
 
 	# We now have the script, so let's construct it inline here
 	templatemodule = ''
 	# Header.
-	templatemodule += '\n# Created from dockerfile: ' + skel_dockerfile + '\n# Maintainer:              ' + local_cfg['dockerfile']['maintainer'] + '''\nfrom shutit_module import ShutItModule
-
-class template(ShutItModule):
-
-	def is_installed(self, shutit):
-		return False'''
+	templatemodule += '\n# Created from dockerfile: ' + skel_dockerfile + '\n# Maintainer:              ' + local_cfg['dockerfile']['maintainer'] + '\nfrom shutit_module import ShutItModule\n\nclass template(ShutItModule):\n\n\tdef is_installed(self, shutit):\n\t\treturn False'
 
 	# build
 	build     = ''
@@ -1944,16 +1937,27 @@ class template(ShutItModule):
 	templatemodule += '\n\n\tdef finalize(self, shutit):' + finalize + '\n\t\treturn True'
 
 	# test section
-	templatemodule += '''
-
-	def test(self, shutit):
-		return True'''
+	build     = ''
+	templatemodule += '\n\n\tdef test(self, shutit):'
+	numpushes = 0
+	for item in local_cfg['dockerfile']['script']:
+		dockerfile_command = item[0].upper()
+		dockerfile_args    = item[1].split()
+		section = dockerfile_get_section(dockerfile_command, section)
+		if section == 'test':
+			ret = handle_dockerfile_line(dockerfile_command, dockerfile_args, numpushes, wgetgot)
+			build     += ret[0]
+			numpushes =  ret[1]
+			wgetgot   =  ret[2]
+	if build:
+		templatemodule += '\n\t\t' + build
+	while numpushes > 0:
+		templatemodule += """\n\t\tshutit.send('popd')"""
+		numpushes      = numpushes - 1
+	templatemodule += '\n\t\treturn True'
 
 	# isinstalled section
-	templatemodule += '''
-
-	def is_installed(self, shutit):
-		return False'''
+	templatemodule += '\n\n\tdef is_installed(self, shutit):\n\t\treturn False'
 
 	# start section
 	build     = ''
