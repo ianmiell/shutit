@@ -75,7 +75,7 @@ popd > /dev/null 2>&1
 
 DESC="Testing skeleton build with two ShutItFiles"
 echo $DESC
-./shutit skeleton --dockerfiles assets/dockerfile/Dockerfile  assets/dockerfile/ShutItFile --module_directory ${NEWDIR} --module_name testing --domain shutit.tk --depends shutit.tk.setup --base_image ubuntu:14.04 --delivery docker
+./shutit skeleton --dockerfiles assets/dockerfile/Dockerfile  assets/shutitfile/ShutItFile --module_directory ${NEWDIR} --module_name testing --domain shutit.tk --depends shutit.tk.setup --base_image ubuntu:14.04 --delivery docker
 pushd ${NEWDIR}/bin
 ./test.sh --interactive 0
 if [[ "x$?" != "x0" ]]
