@@ -1829,6 +1829,7 @@ def dockerfile_to_shutit_module_template(shutit,skel_dockerfile,skel_path,skel_d
 	local_cfg['dockerfile']['expose']     = [] 
 	local_cfg['dockerfile']['entrypoint'] = [] 
 	local_cfg['dockerfile']['user']       = [] 
+	local_cfg['dockerfile']['env']        = [] 
 	dockerfile_list = parse_dockerfile(shutit, dockerfile_contents)
 	# Set defaults from given dockerfile
 	print dockerfile_list
@@ -2030,6 +2031,8 @@ def dockerfile_to_shutit_module_template(shutit,skel_dockerfile,skel_path,skel_d
 	# If the total number of modules is more than 1, then we want to number these modules.
 	if total > 1:
 		skel_module_id = '%s.%s.%s_%s' % (skel_domain, skel_module_name, skel_module_name, str(order))
+	else:
+		skel_module_id = '%s.%s.%s' % (skel_domain, skel_module_name, skel_module_name)
 	build     = ''
 	numpushes = 0
 	for item in local_cfg['dockerfile']['script']:
