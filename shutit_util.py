@@ -1274,7 +1274,8 @@ def create_skeleton(shutit):
 	os.mkdir(os.path.join(skel_path, 'bin'))
 	if skel_delivery != 'bash':
 		os.mkdir(os.path.join(skel_path, 'context'))
-		os.mkdir(os.path.join(skel_path, 'haproxy'))
+		# haproxy parked for 'patterns' work
+		#os.mkdir(os.path.join(skel_path, 'haproxy'))
 
 	readme_path           = os.path.join(skel_path, 'README.md')
 	buildsh_path          = os.path.join(skel_path, 'bin', 'build.sh')
