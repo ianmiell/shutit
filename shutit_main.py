@@ -863,7 +863,8 @@ def main():
 		import shutit_srv
 		cfg['build']['interactive'] = 0
 		revert_dir = os.getcwd()
-		os.chdir(sys.path[0])
+		# Move to path of this file
+		os.chdir(os.path.abspath(os.path.dirname(__file__)))
 		shutit_srv.start()
 		os.chdir(revert_dir)
 		return
