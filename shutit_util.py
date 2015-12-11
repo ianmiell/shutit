@@ -1297,8 +1297,7 @@ def create_skeleton(shutit):
 		for skel_dockerfile in skel_dockerfiles:
 			#TODO better naming of file
 			templatemodule_path   = os.path.join(skel_path, skel_module_name + '_' + str(_count) + '.py')
-			print skel_dockerfile
-			(templatemodule,skel_module_id) = dockerfile_to_shutit_module_template(shutit,skel_dockerfile,skel_path,skel_domain,skel_module_name,skel_domain_hash,skel_delivery,skel_depends,_count,_total)
+			(templatemodule,skel_module_id) = dockerfile_to_shutit_module_template(shutit,skel_dockerfile,skel_path,skel_domain,skel_module_name,skel_domain_hash,skel_delivery,[skel_depends],_count,_total)
 			skel_module_ids.append(skel_module_id)
 			open(templatemodule_path, 'w').write(templatemodule)
 			_count += 1
@@ -1832,7 +1831,15 @@ def check_regexp(regex):
 
 
 # Takes a dockerfile filename and returns a string that represents that Dockerfile as a ShutIt module
-def dockerfile_to_shutit_module_template(shutit,skel_dockerfile,skel_path,skel_domain,skel_module_name,skel_domain_hash,skel_delivery,skel_depends,order,total):
+def dockerfile_to_shutit_module_template(shutit,
+                                         skel_dockerfile,
+                                         skel_path,
+                                         skel_domain,
+                                         skel_module_name,
+                                         skel_domain_hash,
+                                         skel_delivery,
+                                         skel_depends,
+                                         order,total):
 	if os.path.basename(skel_dockerfile) != 'Dockerfile' and not os.path.exists(skel_dockerfile):
 		skel_dockerfile += '/Dockerfile'
 	if not os.path.exists(skel_dockerfile):
@@ -1857,14 +1864,15 @@ def dockerfile_to_shutit_module_template(shutit,skel_dockerfile,skel_path,skel_d
 	local_cfg = {}
 	local_cfg['dockerfile'] = {}
 	local_cfg['dockerfile']['cmd']        = ''
-	local_cfg['dockerfile']['script']     = [] 
-	local_cfg['dockerfile']['onbuild']    = [] 
+	local_cfg['dockerfile']['script']     = []
+	local_cfg['dockerfile']['onbuild']    = []
 	local_cfg['dockerfile']['maintainer'] = ''
-	local_cfg['dockerfile']['volume']     = [] 
-	local_cfg['dockerfile']['expose']     = [] 
-	local_cfg['dockerfile']['entrypoint'] = [] 
-	local_cfg['dockerfile']['user']       = [] 
-	local_cfg['dockerfile']['env']        = [] 
+	local_cfg['dockerfile']['volume']     = []
+	local_cfg['dockerfile']['expose']     = []
+	local_cfg['dockerfile']['entrypoint'] = []
+	local_cfg['dockerfile']['user']       = []
+	local_cfg['dockerfile']['env']        = []
+	local_cfg['dockerfile']['depends']    = []
 	dockerfile_list = parse_dockerfile(shutit, dockerfile_contents)
 	# Set defaults from given dockerfile
 	for item in dockerfile_list:
@@ -1939,6 +1947,8 @@ def dockerfile_to_shutit_module_template(shutit,skel_dockerfile,skel_path,skel_d
 			local_cfg['dockerfile']['script'].append((docker_command, item[1]))
 		elif docker_command == "CONFIG":
 			local_cfg['dockerfile']['script'].append((docker_command, item[1]))
+		elif docker_command == "DEPENDS":
+			local_cfg['dockerfile']['depends'].append((docker_command, item[1]))
 		elif docker_command in ("START_BEGIN","START_END","STOP_BEGIN","STOP_END","TEST_BEGIN","TEST_END","BUILD_BEGIN","BUILD_END","CONFIG_START","CONFIG_END","ISINSTALLED_BEGIN","ISINSTALLED_END"):
 			local_cfg['dockerfile']['script'].append((docker_command, ''))
 
@@ -2089,6 +2099,11 @@ def dockerfile_to_shutit_module_template(shutit,skel_dockerfile,skel_path,skel_d
 	templatemodule += '\n\t\treturn True'
 
 	# module section
+	depends = "'"
+	for depend in skel_depends:
+		depends += "','" + depend
+	depends += "'"
+		
 	templatemodule += """
 
 def module():
@@ -2097,7 +2112,7 @@ def module():
 				description='',
 				delivery_methods=[('""" + skel_delivery + """')],
 				maintainer='""" + local_cfg['dockerfile']['maintainer'] + """',
-				depends=['%s""" % (skel_depends) + """']
+				depends=['%s""" % (depends) + """']
 		)
 """
 
