@@ -2103,7 +2103,10 @@ def dockerfile_to_shutit_module_template(shutit,
 	templatemodule += '\n\t\treturn True'
 
 	# module section
-	depends = "'" + skel_depends + "','" + ("','").join(local_cfg['dockerfile']['depends']) + "'"
+	dockerfile_depends = []
+	for item in local_cfg['dockerfile']['depends']:
+		dockerfile_depends.append(item[1])
+	depends = "'" + skel_depends + "','" + ("','").join(dockerfile_depends) + "'"
 		
 	templatemodule += """\n\ndef module():
 		return template(
