@@ -1864,9 +1864,10 @@ def dockerfile_to_shutit_module_template(shutit,
 	local_cfg = {}
 	local_cfg['dockerfile'] = {}
 	local_cfg['dockerfile']['cmd']        = ''
+	local_cfg['dockerfile']['maintainer'] = ''
+	local_cfg['dockerfile']['module_id']  = ''
 	local_cfg['dockerfile']['script']     = []
 	local_cfg['dockerfile']['onbuild']    = []
-	local_cfg['dockerfile']['maintainer'] = ''
 	local_cfg['dockerfile']['volume']     = []
 	local_cfg['dockerfile']['expose']     = []
 	local_cfg['dockerfile']['entrypoint'] = []
@@ -1937,18 +1938,18 @@ def dockerfile_to_shutit_module_template(shutit,
 			# Send file
 			local_cfg['dockerfile']['script'].append((docker_command, item[1]))
 		elif docker_command == "WORKDIR":
-			# Push and pop
 			local_cfg['dockerfile']['script'].append((docker_command, item[1]))
 		elif docker_command == "COMMENT":
-			# Push and pop
 			local_cfg['dockerfile']['script'].append((docker_command, item[1]))
 		elif docker_command == "INSTALL":
-			# Push and pop
 			local_cfg['dockerfile']['script'].append((docker_command, item[1]))
 		elif docker_command == "CONFIG":
 			local_cfg['dockerfile']['script'].append((docker_command, item[1]))
 		elif docker_command == "DEPENDS":
 			local_cfg['dockerfile']['depends'].append((docker_command, item[1]))
+		elif docker_command == "MODULE_ID":
+			# Only one item allowed.
+			local_cfg['dockerfile']['module_id'] = item[1]
 		elif docker_command in ("START_BEGIN","START_END","STOP_BEGIN","STOP_END","TEST_BEGIN","TEST_END","BUILD_BEGIN","BUILD_END","CONFIG_START","CONFIG_END","ISINSTALLED_BEGIN","ISINSTALLED_END"):
 			local_cfg['dockerfile']['script'].append((docker_command, ''))
 
@@ -2075,11 +2076,14 @@ def dockerfile_to_shutit_module_template(shutit,
 		# shutit.get_config(self.module_id, 'myconfig', default='a value')
 		#                                      and reference in your code with:
 		# shutit.cfg[self.module_id]['myconfig']'''
-	# If the total number of modules is more than 1, then we want to number these modules.
-	if total > 1:
-		skel_module_id = '%s.%s.%s_%s' % (skel_domain, skel_module_name, skel_module_name, str(order))
+	if local_cfg['dockerfile']['module_id']:
+		module_id = local_cfg['dockerfile']['module_id']
 	else:
-		skel_module_id = '%s.%s.%s' % (skel_domain, skel_module_name, skel_module_name)
+		# If the total number of modules is more than 1, then we want to number these modules.
+		if total > 1:
+			module_id = '%s.%s.%s_%s' % (skel_domain, skel_module_name, skel_module_name, str(order))
+		else:
+			module_id = '%s.%s.%s' % (skel_domain, skel_module_name, skel_module_name)
 	build     = ''
 	numpushes = 0
 	for item in local_cfg['dockerfile']['script']:
@@ -2108,7 +2112,7 @@ def dockerfile_to_shutit_module_template(shutit,
 
 def module():
 		return template(
-				'""" + skel_module_id + """', """ + skel_domain_hash + str(order * 0.0001) + """,
+				'""" + module_id + """', """ + skel_domain_hash + str(order * 0.0001) + """,
 				description='',
 				delivery_methods=[('""" + skel_delivery + """')],
 				maintainer='""" + local_cfg['dockerfile']['maintainer'] + """',
@@ -2119,7 +2123,7 @@ def module():
 	# Return program to main shutit_dir
 	if dockerfile_dirname:
 		os.chdir(sys.path[0])
-	return (templatemodule, skel_module_id)
+	return (templatemodule, module_id)
 
 
 def handle_dockerfile_line(dockerfile_command, dockerfile_args, numpushes, wgetgot):
