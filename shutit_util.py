@@ -1297,7 +1297,7 @@ def create_skeleton(shutit):
 		for skel_dockerfile in skel_dockerfiles:
 			#TODO better naming of file
 			templatemodule_path   = os.path.join(skel_path, skel_module_name + '_' + str(_count) + '.py')
-			(templatemodule,skel_module_id) = dockerfile_to_shutit_module_template(shutit,skel_dockerfile,skel_path,skel_domain,skel_module_name,skel_domain_hash,skel_delivery,[skel_depends],_count,_total)
+			(templatemodule,skel_module_id) = dockerfile_to_shutit_module_template(shutit,skel_dockerfile,skel_path,skel_domain,skel_module_name,skel_domain_hash,skel_delivery,skel_depends,_count,_total)
 			skel_module_ids.append(skel_module_id)
 			open(templatemodule_path, 'w').write(templatemodule)
 			_count += 1
@@ -2103,22 +2103,16 @@ def dockerfile_to_shutit_module_template(shutit,
 	templatemodule += '\n\t\treturn True'
 
 	# module section
-	depends = "'"
-	for depend in skel_depends:
-		depends += "','" + depend
-	depends += "'"
+	depends = "'" + skel_depends + "','" + ("','").join(local_cfg['dockerfile']['depends']) + "'"
 		
-	templatemodule += """
-
-def module():
+	templatemodule += """\n\ndef module():
 		return template(
 				'""" + module_id + """', """ + skel_domain_hash + str(order * 0.0001) + """,
 				description='',
 				delivery_methods=[('""" + skel_delivery + """')],
 				maintainer='""" + local_cfg['dockerfile']['maintainer'] + """',
-				depends=['%s""" % (depends) + """']
-		)
-"""
+				depends=[%s""" % (depends) + """]
+		)\n"""
 
 	# Return program to main shutit_dir
 	if dockerfile_dirname:
