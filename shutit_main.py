@@ -866,7 +866,7 @@ def main():
 		# Move to path of this file
 		os.chdir(os.path.abspath(os.path.dirname(__file__)))
 		shutit_srv.start()
-		os.chdir(revert_dir)
+		os.chdir(os.path.dirname(shutit_util.find_asset('web/index.html')))
 		return
 
 	shutit_util.load_configs(shutit)

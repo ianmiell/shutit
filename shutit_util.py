@@ -387,14 +387,25 @@ def random_word(size=6):
 	return word.lower()
 
 def find_asset(filename):
-	dirs = ['/usr/share/dict',
-	        sys.prefix,
-	        os.path.join(sys.prefix,'local'),
-	        shutit_global.shutit_main_dir,
-	        os.path.join(shutit_global.shutit_main_dir,'../../..'),
-	        shutit_global.shutit.cfg['host']['shutit_path'],
-	        '/usr/local']
-	dirs = dirs + sys.path
+	(head,filename) = os.path.split(filename)
+	if head == '':
+		dirs = ['/usr/share/dict',
+		        sys.prefix,
+		        os.path.join(sys.prefix,'local'),
+		        shutit_global.shutit_main_dir,
+		        os.path.join(shutit_global.shutit_main_dir,'../../..'),
+		        shutit_global.shutit.cfg['host']['shutit_path'],
+		        '/usr/local']
+		dirs = dirs + sys.path
+	else:
+		dirs = ['/usr/share/dict' + '/' + head,
+		        sys.prefix + '/' + head,
+		        os.path.join(sys.prefix,'local') + '/' + head,
+		        shutit_global.shutit_main_dir + '/' + head,
+		        os.path.join(shutit_global.shutit_main_dir,'../../..') + '/' + head,
+		        shutit_global.shutit.cfg['host']['shutit_path'] + '/' + head,
+		        '/usr/local' + '/' + head]
+		dirs = dirs + sys.path
 	for iter_dir in dirs:
 		if os.access(os.path.join(iter_dir,filename),os.F_OK):
 			return os.path.join(iter_dir,filename)
