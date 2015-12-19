@@ -2646,7 +2646,7 @@ END_''' + random_id)
 				if self.file_exists('/etc/redhat-release'):
 					output = self.send_and_get_output('cat /etc/redhat-release')
 					if re.match('^centos.*$', output.lower()) or re.match('^red hat.*$', output.lower()) or re.match('^fedora.*$', output.lower()) or True:
-						self.send_and_match_output('yum install -y -t redhat-lsb','Complete!')
+						self.send_and_match_output('yum install -y -t redhat-lsb epel-release','Complete!')
 				else:
 					if not self.command_available('lsb_release'):
 						self.send('yum install -y lsb-release')

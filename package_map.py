@@ -29,6 +29,7 @@
 # The keys are then the canonical package names.
 PACKAGE_MAP = {
 	'apache2':               {'apt':'apache2',           'yum':'httpd'},
+	'httpd':                 {'apt':'apache2',           'yum':'httpd'},
 	'adduser':               {'apt':'adduser',           'yum':''},
 	'php5':                  {'apt':'php5',              'yum':'php'},
 	'ruby-dev':              {'apt':'ruby-dev',          'yum':'ruby-devel',    'brew':'ruby-build'},
@@ -37,6 +38,8 @@ PACKAGE_MAP = {
 	'virtualbox':            {'brew':'Caskroom/cask/virtualbox'},
 	'build-essential':       {'brew':'gcc', 'yum':'gcc make'},
 	'sudo':                  {'brew':''},
+	'netcat':                {'apt':'netcat',            'yum':'nc'},
+	'nc':                    {'apt':'netcat',            'yum':'nc'},
 }
 
 def map_packages(package_str, install_type):
