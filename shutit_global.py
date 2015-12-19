@@ -2104,6 +2104,7 @@ END_''' + random_id)
 				if not self.install(p,child,expect,options,timeout,force,check_exit,reinstall,note):
 					ok = False
 			return ok
+		# Some packages get mapped to the empty string. If so, bail out with 'success' here.
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
 		cfg = self.cfg
@@ -2170,7 +2171,7 @@ END_''' + random_id)
 			cfg['environment'][cfg['build']['current_environment_id']]['install_type'])
 		# Let's be tolerant of failure eg due to network.
 		# This is especially helpful with automated testing.
-		if package != '':
+		if package.strip() != '':
 			fails = 0
 			while True:
 				if pw != '':
@@ -2731,7 +2732,7 @@ END_''' + random_id)
 				if self.file_exists('/etc/redhat-release'):
 					output = self.send_and_get_output('cat /etc/redhat-release')
 					if re.match('^centos.*$', output.lower()) or re.match('^red hat.*$', output.lower()) or re.match('^fedora.*$', output.lower()) or True:
-						self.send_and_match_output('yum install -y -t redhat-lsb','Complete!')
+						self.send_and_match_output('yum install -y -t redhat-lsb epel-release','Complete!')
 				else:
 					if not self.command_available('lsb_release'):
 						self.send('yum install -y lsb-release')
