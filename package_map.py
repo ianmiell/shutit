@@ -36,10 +36,19 @@ PACKAGE_MAP = {
 	'git':                   {'emerge':'dev-vcs/git'},
 	'vagrant':               {'brew':'Caskroom/cask/vagrant'},
 	'virtualbox':            {'brew':'Caskroom/cask/virtualbox'},
-	'build-essential':       {'brew':'gcc', 'yum':'gcc make'},
+	'build-essential':       {'brew':'gcc', 'yum':'gcc make gcc-c++'},
 	'sudo':                  {'brew':''},
 	'netcat':                {'apt':'netcat',            'yum':'nc'},
 	'nc':                    {'apt':'netcat',            'yum':'nc'},
+	'python-dev':            {'apt':'python-dev',        'yum':'python-devel'},
+	'python-devel':          {'apt':'python-dev',        'yum':'python-devel'},
+	'mysql-devel':           {'apt':'libmysqlclient-dev', 'yum':'mysql-devel'},
+	'libmysqlclient-dev':    {'apt':'libmysqlclient-dev', 'yum':'mysql-devel'},
+	'libkrb5-dev':           {'apt':'libkrb5-dev',       'yum':'krb5-devel'},
+	'libffi-dev':            {'apt':'libffi-dev',        'yum':'libffi-devel'},
+	'libffi-devel':          {'apt':'libffi-dev',        'yum':'libffi-devel'},
+	'libsasl2-dev':          {'apt':'libsasl2-dev',      'yum':''},
+	'libssl-dev':            {'apt':'libssl-dev',        'yum':'openssl-devel'},
 }
 
 def map_packages(package_str, install_type):
