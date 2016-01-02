@@ -1980,7 +1980,7 @@ def dockerfile_to_shutit_module_template(shutit,
 		dockerfile_args    = item[1].split()
 		section = dockerfile_get_section(dockerfile_command, section)
 		if section == 'build':
-			ret = handle_dockerfile_line(dockerfile_command, dockerfile_args, numpushes, wgetgot)
+			ret = handle_dockerfile_line(shutit, dockerfile_command, dockerfile_args, numpushes, wgetgot)
 			build     += ret[0]
 			numpushes =  ret[1]
 			wgetgot   =  ret[2]
@@ -2005,7 +2005,7 @@ def dockerfile_to_shutit_module_template(shutit,
 		dockerfile_args    = item[1].split()
 		section = dockerfile_get_section(dockerfile_command, section)
 		if section == 'test':
-			ret = handle_dockerfile_line(dockerfile_command, dockerfile_args, numpushes, wgetgot)
+			ret = handle_dockerfile_line(shutit, dockerfile_command, dockerfile_args, numpushes, wgetgot)
 			build     += ret[0]
 			numpushes =  ret[1]
 			wgetgot   =  ret[2]
@@ -2025,7 +2025,7 @@ def dockerfile_to_shutit_module_template(shutit,
 		dockerfile_args    = item[1].split()
 		section = dockerfile_get_section(dockerfile_command, section)
 		if section == 'isinstalled':
-			ret = handle_dockerfile_line(dockerfile_command, dockerfile_args, numpushes, wgetgot)
+			ret = handle_dockerfile_line(shutit, dockerfile_command, dockerfile_args, numpushes, wgetgot)
 			build     += ret[0]
 			numpushes =  ret[1]
 			wgetgot   =  ret[2]
@@ -2045,7 +2045,7 @@ def dockerfile_to_shutit_module_template(shutit,
 		dockerfile_args    = item[1].split()
 		section = dockerfile_get_section(dockerfile_command, section)
 		if section == 'start':
-			ret = handle_dockerfile_line(dockerfile_command, dockerfile_args, numpushes, wgetgot)
+			ret = handle_dockerfile_line(shutit, dockerfile_command, dockerfile_args, numpushes, wgetgot)
 			build     += ret[0]
 			numpushes =  ret[1]
 			wgetgot   =  ret[2]
@@ -2065,7 +2065,7 @@ def dockerfile_to_shutit_module_template(shutit,
 		dockerfile_args    = item[1].split()
 		section = dockerfile_get_section(dockerfile_command, section)
 		if section == 'stop':
-			ret = handle_dockerfile_line(dockerfile_command, dockerfile_args, numpushes, wgetgot)
+			ret = handle_dockerfile_line(shutit, dockerfile_command, dockerfile_args, numpushes, wgetgot)
 			build     += ret[0]
 			numpushes =  ret[1]
 			wgetgot   =  ret[2]
@@ -2102,7 +2102,7 @@ def dockerfile_to_shutit_module_template(shutit,
 		dockerfile_args    = item[1].split()
 		section = dockerfile_get_section(dockerfile_command, section)
 		if section == 'config':
-			ret = handle_dockerfile_line(dockerfile_command, dockerfile_args, numpushes, wgetgot)
+			ret = handle_dockerfile_line(shutit, dockerfile_command, dockerfile_args, numpushes, wgetgot)
 			build     += ret[0]
 			numpushes =  ret[1]
 			wgetgot   =  ret[2]
@@ -2137,7 +2137,7 @@ def dockerfile_to_shutit_module_template(shutit,
 	return (templatemodule, module_id)
 
 
-def handle_dockerfile_line(dockerfile_command, dockerfile_args, numpushes, wgetgot):
+def handle_dockerfile_line(shutit, dockerfile_command, dockerfile_args, numpushes, wgetgot):
 	build = ''
 	cmd = ' '.join(dockerfile_args).replace("'", "\\'")
 	if dockerfile_command == 'RUN':
