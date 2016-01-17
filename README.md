@@ -2,9 +2,11 @@
 ==========================
 
 [![Join the chat at https://gitter.im/ianmiell/shutit](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/ianmiell/shutit?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
-Complex Docker Builds Made Simple.
+Complex Builds Made Simple.
 
-ShutIt is a tool for managing your image building process that is both structured and flexible.
+ShutIt is a tool for managing any build process that is both structured and flexible.
+
+It was originally written to manage complex Docker builds, but is a general-purpose automation tool.
 
 If you want to know more about Docker, see the
 [official site](https://www.docker.com/) or take a look at the book by the
@@ -12,19 +14,23 @@ creators of ShutIt - [Docker in Practice](http://docker-in-practice.github.io/).
 
 Really Quick Overview
 =====================
-You'll be interested in this if you:
+Some use cases:
 
 - Are a programmer who wants highly configurable containers for differing use cases and environments.
 
-- Find dockerfiles a great idea, but limiting in practice.
+- Like bash, want to automate tasks, have structure and support, but don't want to learn a configuration management framework that takes you away from the command line you know and love.
+
+- Find Dockerfiles a great idea, but limiting in practice.
 
 - Want to build stateless containers for development, testing, and production.
 
 - Want to [build everything from source](https://github.com/ianmiell/shutit-distro/blob/master/README.md) in a way that's comprehensible and auditable.
 
-- Want to take your scripts and turn them into stateless containers quickly, without needing to maintain (or learn) a configuration management solution designed for moving target systems.
+- Want to create instructive [walkthroughs](https://asciinema.org/a/30598?t=70): 
 
-- Are interested in "phoenix deployment" using Docker.
+- Want to take your scripts and turn them into stateless containers quickly, without needing to maintain (or learn) a configuration management solution designed for moving-target systems.
+
+- Are interested in "phoenix deployment".
 
 
 What Does it Do?
@@ -33,7 +39,7 @@ What Does it Do?
 ![Example Setup]
 (https://github.com/ianmiell/shutit/blob/gh-pages/images/ShutIt.png)
 
-We start with a "ShutIt Module", similar to a Dockerfile.
+We start with a "ShutIt Module", similar to a Dockerfile, or a shell script.
 
 In the image above there are five of these. At a high level they each have the following attributes:
 
@@ -87,7 +93,7 @@ Background
 ==========
 While evaluating Docker for my $corp we reached a point where
 using Dockerfiles was somewhat painful or verbose for complex and/or long and/or
-configurable interactions. So we wrote our own.
+configurable interactions. So we wrote our own automtation to build these.
 
 ShutIt works in the following way:
 
