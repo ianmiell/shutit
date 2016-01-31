@@ -87,12 +87,6 @@ rm:no
 [host]
 # Ask the user if they want shutit on their path
 add_shutit_to_path: yes
-# Folder with files you want to copy from in your build.
-# Often a good idea to have a central folder for this per host
-# in your /path/to/shutit/configs/`hostname`_`username`.cnf
-# If set to blank, then defaults to /path/to/shutit/artifacts (preferred)
-# If set to "artifacts", then defaults to the artifacts folder in the cwd.
-artifacts_dir:
 # Docker executable on your host machine
 docker_executable:docker
 # space separated list of dns servers to use
@@ -458,7 +452,6 @@ def get_base_config(cfg, cfg_parser):
 	cfg['target']['rm']                        = cp.getboolean('target', 'rm')
 	# host - the host on which the shutit script is run
 	cfg['host']['add_shutit_to_path']          = cp.getboolean('host', 'add_shutit_to_path')
-	cfg['host']['artifacts_dir']               = cp.get('host', 'artifacts_dir')
 	cfg['host']['docker_executable']           = cp.get('host', 'docker_executable')
 	cfg['host']['dns']                         = cp.get('host', 'dns')
 	cfg['host']['password']                    = cp.get('host', 'password')
@@ -486,11 +479,6 @@ def get_base_config(cfg, cfg_parser):
 	cfg['expect_prompts']['base_prompt']       = '\r\n.*[@#$] '
 	# END Standard expects
 
-	# BEGIN tidy configs up
-	if cfg['host']['artifacts_dir'] == 'artifacts':
-		cfg['host']['artifacts_dir'] = os.path.join(shutit_global.cwd, 'artifacts')
-	elif cfg['host']['artifacts_dir'] == '':
-		cfg['host']['artifacts_dir'] = os.path.join(shutit_global.shutit_main_dir, 'artifacts')
 	if cfg['host']['logfile'] == '':
 		if not os.access(cfg['build']['shutit_state_dir_base'],os.F_OK):
 			os.mkdir(cfg['build']['shutit_state_dir_base'])

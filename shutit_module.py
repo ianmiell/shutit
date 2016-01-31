@@ -188,8 +188,7 @@ class ShutItModule(object):
 		"""Checks whether we are ready to build this module.
 
 		This is called before the build, to ensure modules have
-		their requirements in place (eg files required to be available
-		in artifacts folders) before we commence the build.
+		their requirements in place before we commence the build.
 		Checking whether the build will happen at all (and
 		therefore whether the check should take place) will be
 		determined by the framework.

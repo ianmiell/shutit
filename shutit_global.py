@@ -1712,7 +1712,7 @@ END_''' + random_id)
 
 
 	def get_file(self,target_path,host_path,note=None):
-		"""Copy a file from the target machine to the host machine, via the artifacts mount
+		"""Copy a file from the target machine to the host machine
 
 		@param target_path: path to file in the target
 		@param host_path:   path to file on the host machine (e.g. copy test)
@@ -1727,19 +1727,7 @@ END_''' + random_id)
 		filename = os.path.basename(target_path)
 		cfg = self.cfg
 		self._handle_note(note)
-		artifacts_dir = cfg['host']['artifacts_dir']
-		if self.get_file_perms('/artifacts') != "777":
-			user = self.send_and_get_output('whoami').strip()
-			# revert to root to do attachments
-			if user != 'root':
-				self.logout()
-			self.send('chmod 777 /artifacts')
-			# we've done what we need to do as root, go home
-			if user != 'root':
-				self.login(user=user)
-		self.send('cp ' + target_path + ' /artifacts')
-		shutil.copyfile(os.path.join(artifacts_dir,filename),os.path.join(host_path,'{0}_'.format(cfg['build']['build_id']) + filename))
-		self.send('rm -f /artifacts/' + filename)
+		# TODO: replace with docker cp, or just straight cp
 		self._handle_note_after(note=note)
 		return os.path.join(host_path,'{0}_'.format(cfg['build']['build_id']) + filename)
 
@@ -2981,8 +2969,7 @@ END_''' + random_id)
 							 '\n[repository]\ntar:yes', print_input=False,
 							 child=child, level=3)
 			if export:
-				bzfile = (cfg['host']['artifacts_dir'] + '/' + 
-						  repository_tar + 'export.tar.bz2')
+				bzfile = (repository_tar + 'export.tar.bz2')
 				self.log('\nDepositing bzip2 of exported container into ' +
 						 bzfile)
 				if self.send(docker_executable + ' export ' +
@@ -3002,8 +2989,7 @@ END_''' + random_id)
 										  ' | sudo docker import -\n\n' +
 										  'to get this imported into docker.')
 			if save:
-				bzfile = (cfg['host']['artifacts_dir'] +
-						  '/' + repository_tar + 'save.tar.bz2')
+				bzfile = (repository_tar + 'save.tar.bz2')
 				self.log('\nDepositing bzip2 of exported container into ' +
 						 bzfile)
 				if self.send(docker_executable + ' save ' +

@@ -245,7 +245,6 @@ class ConnDocker(ShutItConnModule):
 		lxc_conf_arg     = ''
 		name_arg         = ''
 		hostname_arg     = ''
-		artifact_arg       = ''
 		rm_arg           = ''
 		net_arg          = ''
 		mount_docker_arg = ''
@@ -258,8 +257,6 @@ class ConnDocker(ShutItConnModule):
 			name_arg = '--name=' + cfg['target']['name']
 		if cfg['target']['hostname'] != '':
 			hostname_arg = '-h=' + cfg['target']['hostname']
-		if cfg['host']['artifacts_dir'] != '':
-			artifacts_arg = '-v=' + cfg['host']['artifacts_dir'] + ':/artifacts'
 		if cfg['build']['net'] != '':
 			net_arg        = '--net="' + cfg['build']['net'] + '"'
 		if cfg['build']['mount_docker']:
@@ -295,7 +292,6 @@ class ConnDocker(ShutItConnModule):
 				lxc_conf_arg,
 				name_arg,
 				hostname_arg,
-				artifact_arg,
 				rm_arg,
 				net_arg,
 				mount_docker_arg,
@@ -377,11 +373,6 @@ class ConnDocker(ShutItConnModule):
 		host_child = shutit.pexpect_children['host_child']
 		shutit.set_default_child(host_child)
 		shutit.set_default_expect(cfg['expect_prompts']['origin_prompt'])
-		# Tag and push etc
-		shutit.pause_point('\nDoing final committing/tagging on the overall \
-		                   target and creating the artifact.', \
-		                   child=shutit.pexpect_children['host_child'], \
-		                   print_input=False, level=3)
 		shutit.do_repository_work(cfg['repository']['name'], \
 		           docker_executable=cfg['host']['docker_executable'], \
 		           password=cfg['host']['password'])
