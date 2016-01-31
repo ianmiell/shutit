@@ -1721,13 +1721,21 @@ END_''' + random_id)
 		@type target_path: string
 		@type host_path:   string
 
-		@return:           ???
+		@return:           string
 		@rtype:            string
 		"""
 		filename = os.path.basename(target_path)
 		cfg = self.cfg
 		self._handle_note(note)
-		# TODO: replace with docker cp, or just straight cp
+		# Only handle for docker initially
+		if cfg['build']['delivery'] != 'docker':
+			self.fail('get_file only implemented for docker delivery methods')
+		# on the host, run:
+		#Usage:  docker cp [OPTIONS] CONTAINER:PATH LOCALPATH|-
+		# Need: host env, container id, path from and path to
+		child     = self.pexpect_children['host_child']
+		expect    = cfg['expect_prompts']['origin_prompt']
+		self.send('docker cp ' + cfg['target']['container_id'] + ':' + target_path + ' ' + host_path, child=child, expect=expect, check_exit=False)
 		self._handle_note_after(note=note)
 		return os.path.join(host_path,'{0}_'.format(cfg['build']['build_id']) + filename)
 
