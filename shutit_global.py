@@ -1721,15 +1721,15 @@ END_''' + random_id)
 		@type target_path: string
 		@type host_path:   string
 
-		@return:           string
+		@return:           boolean
 		@rtype:            string
 		"""
 		filename = os.path.basename(target_path)
 		cfg = self.cfg
 		self._handle_note(note)
-		# Only handle for docker initially
+		# Only handle for docker initially, return false in case we care
 		if cfg['build']['delivery'] != 'docker':
-			self.fail('get_file only implemented for docker delivery methods')
+			return False
 		# on the host, run:
 		#Usage:  docker cp [OPTIONS] CONTAINER:PATH LOCALPATH|-
 		# Need: host env, container id, path from and path to
@@ -1737,7 +1737,7 @@ END_''' + random_id)
 		expect    = cfg['expect_prompts']['origin_prompt']
 		self.send('docker cp ' + cfg['target']['container_id'] + ':' + target_path + ' ' + host_path, child=child, expect=expect, check_exit=False)
 		self._handle_note_after(note=note)
-		return os.path.join(host_path,'{0}_'.format(cfg['build']['build_id']) + filename)
+		return True
 
 
 	def prompt_cfg(self, msg, sec, name, ispass=False):
