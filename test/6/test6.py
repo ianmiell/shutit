@@ -16,7 +16,7 @@ class test6(ShutItModule):
 	def build(self, shutit):
 		shutit.send_and_expect('touch /tmp/test6')
 		shutit.send_and_expect('echo some output')
-		return False
+		return True
 
 def module():
 	return test6('shutit.tk.test.test6',6.1, depends=['shutit.tk.setup'])

@@ -369,7 +369,7 @@ def allowed_image(shutit,module_id):
 	shutit.log("In allowed_image: " + module_id)
 	cfg = shutit.cfg
 	if cfg['build']['ignoreimage']:
-		shutit.log("ignoreimage == true, returning true" + module_id,force_stdout=True)
+		shutit.log("ignoreimage == true, returning true" + module_id)
 		return True
 	shutit.log(str(cfg[module_id]['shutit.core.module.allowed_images']))
 	if cfg[module_id]['shutit.core.module.allowed_images']:
@@ -960,11 +960,11 @@ def main():
 
 	finalize_target(shutit)
 
-	shutit.log(shutit_util.build_report(shutit, '#Module: N/A (END)'), prefix=False,
-			   force_stdout=True, code='32')
+	shutit.log(shutit_util.build_report(shutit, '#Module: N/A (END)'),
+ 	           prefix=False, code='32')
 
 	if cfg['build']['build_log']:
-		cfg['build']['report_final_messages'] += "Build log file: " + cfg['host']['logfile']
+		cfg['build']['report_final_messages'] += "\nBuild log file: " + cfg['host']['logfile']
 
 	# Show final report messages (ie messages to show after standard report).
 	if cfg['build']['report_final_messages'] != '':

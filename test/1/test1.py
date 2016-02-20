@@ -16,7 +16,7 @@ class test1(ShutItModule):
 
 	def build(self, shutit):
 		thing.thing()
-		shutit.send_and_expect('touche /tmp/container_touched')
+		shutit.send_and_expect('touch /tmp/container_touched')
 		# to test email if desired
 		#e = shutit.get_emailer(self.module_id)
 		#for line in ['your message line 1', 'your message line 2']:

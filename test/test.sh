@@ -138,7 +138,7 @@ PIDS=()
 DISTROS=${SHUTITTEST_DISTROS:-ubuntu:14.04}
 for dist in $DISTROS
 do
-	for d in $(ls -d test/[0-9][0-9]* | sort -n)
+	for d in $(ls -d test/[0-9]* | sort -n)
 	do
 		[ -d ${SHUTIT_DIR}/$d ] || continue
 		pushd ${SHUTIT_DIR}/$d/bin
@@ -150,7 +150,7 @@ do
 			then
 				echo "/tmp/SHUTITSTOPTEST file found in /tmp"
 			else
-				# Must be done on each iteration as we ned a fresh cid per test run
+				# Must be done on each iteration as we need a fresh cid per test run
 				set_shutit_options "--image_tag $dist --interactive 0 --imageerrorok"
 				echo "================================================================================"
 				echo "SHUTIT MODULE TEST $d: In directory: `pwd` BEGIN"

@@ -257,7 +257,7 @@ class ShutIt(object):
 					environment_id = files[0]
 			if cfg['build']['current_environment_id'] != environment_id:
 				# Clean out any trace of this new environment, and return the already-existing one.
-				self.send('rm -rf ' + environment_id_dir + '/environment_id/' + environment_id, child=child, expect=expect)
+				self.send('rm -rf ' + environment_id_dir + '/environment_id/' + environment_id, child=child, expect=expect, echo=False)
 				return cfg['build']['current_environment_id']
 			if not environment_id == 'ORIGIN_ENV':
 				return environment_id
@@ -280,10 +280,10 @@ class ShutIt(object):
 		# Exempt the ORIGIN_ENV from getting distro info
 		if prefix != 'ORIGIN_ENV':
 			self.get_distro_info(environment_id)
-		self.send('mkdir -p ' + environment_id_dir, child=child, expect=expect)
-		self.send('chmod -R 777 ' + cfg['build']['shutit_state_dir_base'])
+		self.send('mkdir -p ' + environment_id_dir, child=child, expect=expect, echo=False)
+		self.send('chmod -R 777 ' + cfg['build']['shutit_state_dir_base'], echo=False)
 		fname = environment_id_dir + '/' + environment_id
-		self.send('touch ' + fname, child=child, expect=expect)
+		self.send('touch ' + fname, child=child, expect=expect, echo=False)
 		cfg['environment'][environment_id]['setup']                        = True
 		return environment_id
 
@@ -356,7 +356,7 @@ class ShutIt(object):
 	               retries=100,
 	               fail_on_empty_before=True,
 	               record_command=True,
-	               echo=False,
+	               echo=True,
 	               escape=False,
 	               note=None):
 		"""Send string on a regular cadence until a string is either seen
@@ -385,7 +385,7 @@ class ShutIt(object):
 			self.fail('regexps should be list')
 		while retries > 0:
 			retries -= 1
-			output = self.send_and_get_output(send, expect=expect, child=child, retry=1, strip=True)
+			output = self.send_and_get_output(send, expect=expect, child=child, retry=1, strip=True,echo=echo)
 			if not not_there:
 				for regexp in regexps:
 					if not shutit_util.check_regexp(regexp):
@@ -419,7 +419,7 @@ class ShutIt(object):
 	         fail_on_empty_before=True,
 	         record_command=True,
 	         exit_values=None,
-	         echo=False,
+	         echo=True,
 	         escape=False,
 	         retry=3,
 	         note=None,
@@ -522,7 +522,7 @@ class ShutIt(object):
 $'"""
 						_count = 0
 				escaped_str += "'"
-				self.log('\nThis string was sent safely: ' + send, force_stdout=True)
+				self.log('\nThis string was sent safely: ' + send, force_stdout=False)
 			if echo == False:
 				oldlog = child.logfile_send
 				child.logfile_send = None
@@ -531,7 +531,7 @@ $'"""
 					if escaped_str != None:
 						if len(escaped_str) + 25 > cfg['build']['stty_cols']:
 							fname = self._create_command_file(child,expect,escaped_str,timeout)
-							res = self.send(fname,expect=expect,child=child,timeout=timeout,check_exit=check_exit,fail_on_empty_before=False,record_command=False,exit_values=exit_values,echo=echo,escape=False,retry=retry)
+							res = self.send(fname,expect=expect,child=child,timeout=timeout,check_exit=check_exit,fail_on_empty_before=False,record_command=False,exit_values=exit_values,echo=False,escape=False,retry=retry)
 							child.sendline('rm -f ' + fname)
 							child.expect(expect)
 							return res
@@ -544,7 +544,7 @@ $'"""
 					if send != None:
 						if len(send) + 25 > cfg['build']['stty_cols']:
 							fname = self._create_command_file(child,expect,send,timeout)
-							res = self.send(fname,expect=expect,child=child,timeout=timeout,check_exit=check_exit,fail_on_empty_before=False,record_command=False,exit_values=exit_values,echo=echo,escape=False,retry=retry)
+							res = self.send(fname,expect=expect,child=child,timeout=timeout,check_exit=check_exit,fail_on_empty_before=False,record_command=False,exit_values=exit_values,echo=False,escape=False,retry=retry)
 							child.sendline('rm -f ' + fname)
 							child.expect(expect)
 							return res
@@ -559,7 +559,7 @@ $'"""
 					if escaped_str != None:
 						if len(escaped_str) + 25 > cfg['build']['stty_cols']:
 							fname = self._create_command_file(child,expect,escaped_str,timeout)
-							res = self.send(fname,expect=expect,child=child,timeout=timeout,check_exit=check_exit,fail_on_empty_before=False,record_command=False,exit_values=exit_values,echo=echo,escape=False,retry=retry)
+							res = self.send(fname,expect=expect,child=child,timeout=timeout,check_exit=check_exit,fail_on_empty_before=False,record_command=False,exit_values=exit_values,echo=False,escape=False,retry=retry)
 							child.sendline('rm -f ' + fname)
 							child.expect(expect)
 							return res
@@ -572,13 +572,17 @@ $'"""
 					if send != None:
 						if len(send) + 25 > cfg['build']['stty_cols']:
 							fname = self._create_command_file(child,expect,send,timeout)
-							res = self.send(fname,expect=expect,child=child,timeout=timeout,check_exit=check_exit,fail_on_empty_before=False,record_command=False,exit_values=exit_values,echo=echo,escape=False,retry=retry)
+							res = self.send(fname,expect=expect,child=child,timeout=timeout,check_exit=check_exit,fail_on_empty_before=False,record_command=False,exit_values=exit_values,echo=False,escape=False,retry=retry)
 							child.sendline('rm -f ' + fname)
 							child.expect(expect)
 							return res
 						else:
+							if echo:
+								self.divert_output(sys.stdout)
 							child.sendline(send)
 							expect_res = self._expect_allow_interrupt(child, expect, timeout)
+							if echo:
+								self.divert_output(None)
 					else:
 						expect_res = self._expect_allow_interrupt(child, expect, timeout)
 			if cfg['build']['debug']:
@@ -826,17 +830,17 @@ END_""" + random_id)
 		# Send the script and run it in the manner specified
 		if cfg['build']['delivery'] in ('docker','dockerfile') and in_shell:
 				script = ('set -o xtrace \n\n' + script + '\n\nset +o xtrace')
-		self.send('mkdir -p ' + cfg['build']['shutit_state_dir'] + '/scripts', expect, child)
-		self.send('chmod 777 ' + cfg['build']['shutit_state_dir'] + '/scripts', expect, child)
+		self.send('mkdir -p ' + cfg['build']['shutit_state_dir'] + '/scripts', expect, child, echo=False)
+		self.send('chmod 777 ' + cfg['build']['shutit_state_dir'] + '/scripts', expect, child, echo=False)
 		self.send_file(cfg['build']['shutit_state_dir'] + '/scripts/shutit_script.sh', script)
-		self.send('chmod +x ' + cfg['build']['shutit_state_dir'] + '/scripts/shutit_script.sh', expect, child)
+		self.send('chmod +x ' + cfg['build']['shutit_state_dir'] + '/scripts/shutit_script.sh', expect, child, echo=False)
 		self.shutit_command_history.append\
 			('    ' + script.replace('\n', '\n    '))
 		if in_shell:
-			ret = self.send('. ' + cfg['build']['shutit_state_dir'] + '/scripts/shutit_script.sh', expect, child)
+			ret = self.send('. ' + cfg['build']['shutit_state_dir'] + '/scripts/shutit_script.sh', expect, child, echo=False)
 		else:
-			ret = self.send(cfg['build']['shutit_state_dir'] + '/scripts/shutit_script.sh', expect, child)
-		self.send('rm -f ' + cfg['build']['shutit_state_dir'] + '/scripts/shutit_script.sh', expect, child)
+			ret = self.send(cfg['build']['shutit_state_dir'] + '/scripts/shutit_script.sh', expect, child, echo=False)
+		self.send('rm -f ' + cfg['build']['shutit_state_dir'] + '/scripts/shutit_script.sh', expect, child, echo=False)
 		self._handle_note_after(note=note)
 		return ret
 
@@ -884,16 +888,16 @@ END_""" + random_id)
 			f.close()
 		elif cfg['build']['delivery'] in ('bash','dockerfile'):
 			if truncate and self.file_exists(path):
-				self.send('rm -f ' + path, expect=expect, child=child)
+				self.send('rm -f ' + path, expect=expect, child=child, echo=False)
 			random_id = shutit_util.random_id()
 			# switch off tab-completion
-			self.send('''bind '\C-i:self-insert' ''',check_exit=False)
+			self.send('''bind '\C-i:self-insert' ''',check_exit=False, echo=False)
 			self.send(self._get_command('head') + ' -c -1 > ' + path + " << 'END_" + random_id + """'
 """ + contents + '''
-END_''' + random_id)
+END_''' + random_id, echo=False)
 			# switch back on tab-completion
 			# this makes the assumption that tab-completion was on.
-			self.send('''bind '\C-i:complete' ''',check_exit=False)
+			self.send('''bind '\C-i:complete' ''',check_exit=False, echo=False)
 		else:
 			host_child = self.pexpect_children['host_child']
 			path = path.replace(' ', '\ ')
@@ -904,10 +908,10 @@ END_''' + random_id)
 			f.write(contents)
 			f.close()
 			# Create file so it has appropriate permissions
-			self.send('touch ' + path, child=child, expect=expect)
-			self.send('cat ' + tmpfile + ' | ' + cfg['host']['docker_executable'] + ' exec -i ' + cfg['target']['container_id'] + " bash -c 'cat > " + path + "'", child=host_child, expect=cfg['expect_prompts']['origin_prompt'])
-			self.send('chown ' + user + ' ' + path, child=child, expect=expect)
-			self.send('chgrp ' + group + ' ' + path, child=child, expect=expect)
+			self.send('touch ' + path, child=child, expect=expect, echo=False)
+			self.send('cat ' + tmpfile + ' | ' + cfg['host']['docker_executable'] + ' exec -i ' + cfg['target']['container_id'] + " bash -c 'cat > " + path + "'", child=host_child, expect=cfg['expect_prompts']['origin_prompt'], echo=False)
+			self.send('chown ' + user + ' ' + path, child=child, expect=expect, echo=False)
+			self.send('chgrp ' + group + ' ' + path, child=child, expect=expect, echo=False)
 			os.remove(tmpfile)
 		self._handle_note_after(note=note)
 
@@ -933,7 +937,7 @@ END_''' + random_id)
 		cfg = self.cfg
 		self._handle_note(note, 'Changing to path: ' + path)
 		if cfg['build']['delivery'] in ('bash','dockerfile'):
-			self.send('cd ' + path, expect=expect, child=child, timeout=timeout)
+			self.send('cd ' + path, expect=expect, child=child, timeout=timeout, echo=False)
 		elif cfg['build']['delivery'] in ('docker','ssh'):
 			os.chdir(path)
 		else:
@@ -975,11 +979,11 @@ END_''' + random_id)
 		if group == None:
 			group = self.whoarewe()
 		if cfg['build']['delivery'] in ('bash','dockerfile'):
-			self.send('pushd ' + cfg['environment'][cfg['build']['current_environment_id']]['module_root_dir'])
-			self.send('cp -r ' + hostfilepath + ' ' + path,expect=expect, child=child, timeout=timeout)
-			self.send('chown ' + user + ' ' + hostfilepath + ' ' + path,expect=expect, child=child, timeout=timeout)
-			self.send('chgrp ' + group + ' ' + hostfilepath + ' ' + path,expect=expect, child=child, timeout=timeout)
-			self.send('popd', expect=expect, child=child, timeout=timeout)
+			self.send('pushd ' + cfg['environment'][cfg['build']['current_environment_id']]['module_root_dir'], echo=False)
+			self.send('cp -r ' + hostfilepath + ' ' + path,expect=expect, child=child, timeout=timeout, echo=False)
+			self.send('chown ' + user + ' ' + hostfilepath + ' ' + path,expect=expect, child=child, timeout=timeout, echo=False)
+			self.send('chgrp ' + group + ' ' + hostfilepath + ' ' + path,expect=expect, child=child, timeout=timeout, echo=False)
+			self.send('popd', expect=expect, child=child, timeout=timeout, echo=False)
 		else:
 			if os.path.isfile(hostfilepath):
 				self.send_file(path, open(hostfilepath).read(), expect=expect, 
@@ -1031,7 +1035,7 @@ END_''' + random_id)
 			subfolders.sort()
 			files.sort()
 			for subfolder in subfolders:
-				self.send('mkdir -p ' + path + '/' + subfolder)
+				self.send('mkdir -p ' + path + '/' + subfolder, echo=False)
 				self.log('send_host_dir recursing to: ' + hostfilepath +
 					'/' + subfolder)
 				self.send_host_dir(path + '/' + subfolder, hostfilepath +
@@ -1087,7 +1091,7 @@ END_''' + random_id)
 		test = ' test %s %s' % ('-d' if directory is True else '-a', filename)
 		output = self.send_and_get_output(test +
 			' && echo FILEXIST-""FILFIN || echo FILNEXIST-""FILFIN',
-			expect=expect, child=child, record_command=False)
+			expect=expect, child=child, record_command=False, echo=False)
 		res = self.match_string(output, '^(FILEXIST|FILNEXIST)-FILFIN$')
 		ret = False
 		if res == 'FILEXIST':
@@ -1120,7 +1124,7 @@ END_''' + random_id)
 		expect = expect or self.get_default_expect()
 		self._handle_note(note)
 		cmd = 'stat -c %a ' + filename
-		self.send(cmd, expect, child=child, check_exit=False)
+		self.send(cmd, expect, child=child, check_exit=False, echo=False)
 		res = self.match_string(child.before, '([0-9][0-9][0-9])')
 		self._handle_note_after(note=note)
 		return res
@@ -1175,7 +1179,7 @@ END_''' + random_id)
 							  tmp_filename, 
 							  expect=expect,
 							  child=child,
-							  exit_values=['0', '1'])
+							  exit_values=['0', '1'], echo=False)
 				else:
 					if not shutit_util.check_regexp(match_regexp):
 						shutit.fail('Illegal regexp found in remove_line_from_file call: ' + match_regexp)
@@ -1188,7 +1192,7 @@ END_''' + random_id)
 							  tmp_filename,
 							  expect=expect,
 							  child=child, 
-							  exit_values=['0', '1'])
+							  exit_values=['0', '1'], echo=False)
 			else:
 				if match_regexp == None:
 					#          v the space is intentional, to avoid polluting bash history.
@@ -1200,7 +1204,7 @@ END_''' + random_id)
 							  tmp_filename,
 							  expect=expect,
 							  child=child,
-							  exit_values=['0', '1'])
+							  exit_values=['0', '1'], echo=False)
 				else:
 					if not shutit_util.check_regexp(match_regexp):
 						shutit.fail('Illegal regexp found in remove_line_from_file call: ' + match_regexp)
@@ -1213,12 +1217,12 @@ END_''' + random_id)
 							  tmp_filename,
 							  expect=expect,
 							  child=child,
-							  exit_values=['0', '1'])
+							  exit_values=['0', '1'], echo=False)
 			self.send('cat ' + tmp_filename + ' > ' + filename,
 					  expect=expect, child=child,
-					  check_exit=False)
+					  check_exit=False, echo=False)
 			self.send('rm -f ' + tmp_filename, expect=expect, child=child,
-				exit_values=['0', '1'])
+				exit_values=['0', '1'], echo=False)
 		self._handle_note_after(note=note)
 		return True
 						 
@@ -1267,7 +1271,7 @@ END_''' + random_id)
 		fexists = self.file_exists(fname)
 		if not fexists:
 			if create:
-				self.send('touch ' + fname,expect=expect,child=child)
+				self.send('touch ' + fname,expect=expect,child=child, echo=False)
 			else:
 				shutit.fail(fname + ' does not exist and create=False')
 		if replace:
@@ -1278,10 +1282,10 @@ END_''' + random_id)
 			if delete:
 				shutit.fail('cannot pass replace=True and delete=True to insert_text')
 		if self.command_available('base64'):
-			ftext = self.send_and_get_output('base64' + ' ' + fname)
+			ftext = self.send_and_get_output('base64' + ' ' + fname, echo=False)
 			ftext = base64.b64decode(ftext)
 		else:
-			ftext = self.send_and_get_output('cat' + ' ' + fname)
+			ftext = self.send_and_get_output('cat' + ' ' + fname, echo=False)
 		# Replace the file text's ^M-newlines with simple newlines
 		ftext = ftext.replace('\r\n','\n')
 		# If we are not forcing and the text is already in the file, then don't insert.
@@ -1548,7 +1552,7 @@ END_''' + random_id)
 				location = location[0:-1]
 			while retry >= 0:
 				send = command + ' ' + location + '/' + filename + ' > ' + filename
-				self.send(send,check_exit=False,child=child,expect=expect,timeout=timeout,fail_on_empty_before=fail_on_empty_before,record_command=record_command,echo=echo)
+				self.send(send,check_exit=False,child=child,expect=expect,timeout=timeout,fail_on_empty_before=fail_on_empty_before,record_command=record_command,echo=False)
 				if retry == 0:
 					self._check_exit(send, expect, child, timeout, exit_values, retbool=False)
 				elif not self._check_exit(send, expect, child, timeout, exit_values, retbool=True):
@@ -1583,7 +1587,7 @@ END_''' + random_id)
 		ret = self.send(
 			#v the space is intentional, to avoid polluting bash history.
 			' id %s && echo E""XIST || echo N""XIST' % user,
-			expect=['NXIST', 'EXIST'], child=child
+			expect=['NXIST', 'EXIST'], child=child, echo=False
 		)
 		if ret:
 			exists = True
@@ -1610,11 +1614,11 @@ END_''' + random_id)
 		if cfg['environment'][cfg['build']['current_environment_id']]['install_type'] == 'apt':
 			#            v the space is intentional, to avoid polluting bash history.
 			self.send(""" dpkg -l | awk '{print $2}' | grep "^""" +
-				package + """$" | wc -l""", expect, check_exit=False)
+				package + """$" | wc -l""", expect, check_exit=False, echo=False)
 		elif cfg['environment'][cfg['build']['current_environment_id']]['install_type'] == 'yum':
 			#            v the space is intentional, to avoid polluting bash history.
 			self.send(""" yum list installed | awk '{print $1}' | grep "^""" +
-				package + """$" | wc -l""", expect, check_exit=False)
+				package + """$" | wc -l""", expect, check_exit=False, echo=False)
 		else:
 			return False
 		if self.match_string(child.before, '^([0-9]+)$') != '0':
@@ -1628,7 +1632,7 @@ END_''' + random_id)
 		expect = expect or self.get_default_expect()
 		cfg = self.cfg
 		self._handle_note(note)
-		if self.send_and_get_output('command -v ' + command) != '':
+		if self.send_and_get_output('command -v ' + command, echo=False) != '':
 			return True
 		else:
 			return False
@@ -1650,9 +1654,9 @@ END_''' + random_id)
 			if self.file_exists(cfg['build']['build_db_dir'] + '/module_record',directory=True):
 				# Bit of a hack here to get round the long command showing up as the first line of the output.
 				cmd = 'find ' + cfg['build']['build_db_dir'] + r"""/module_record/ -name built | sed 's@^.""" + cfg['build']['build_db_dir'] + r"""/module_record.\([^/]*\).built@\1@' > """ + cfg['build']['build_db_dir'] + '/' + cfg['build']['build_id']
-				self.send(cmd)
-				built = self.send_and_get_output('cat ' + cfg['build']['build_db_dir'] + '/' + cfg['build']['build_id']).strip()
-				self.send('rm -f ' + cfg['build']['build_db_dir'] + '/' + cfg['build']['build_id'])
+				self.send(cmd, echo=False)
+				built = self.send_and_get_output('cat ' + cfg['build']['build_db_dir'] + '/' + cfg['build']['build_id'], echo=False).strip()
+				self.send('rm -f ' + cfg['build']['build_db_dir'] + '/' + cfg['build']['build_id'], echo=False)
 				built_list = built.split('\r\n')
 				cfg['environment'][cfg['build']['current_environment_id']]['modules_recorded'] = built_list
 			# Either there was no directory (so the cache is valid), or we've built the cache, so mark as good.
@@ -1683,7 +1687,7 @@ END_''' + random_id)
 		if not self.file_exists(directory,directory=True):
 			self.fail('ls: directory\n\n' + directory + '\n\ndoes not exist',
 			    throw_exception=False)
-		files = self.send_and_get_output(' ls ' + directory)
+		files = self.send_and_get_output(' ls ' + directory,echo=False)
 		files = files.split(' ')
 		# cleanout garbage from the terminal - all of this is necessary cause there are
 		# random return characters in the middle of the file names
@@ -1698,17 +1702,6 @@ END_''' + random_id)
 		files = [file.strip() for file in files]
 		self._handle_note_after(note=note)
 		return files
-
-
-	def mount_tmp(self):
-		"""mount a temporary file system as a workaround for AUFS /tmp issues.
-		Not necessary if running devicemapper.
-		"""
-		self.send('mkdir -p /tmpbak')
-		self.send('cp -r /tmp/* /tmpbak')
-		self.send('mount -t tmpfs tmpfs /tmp')
-		self.send('cp -r /tmpbak/* /tmp')
-		self.send('rm -rf /tmpbak')
 
 
 	def get_file(self,target_path,host_path,note=None):
@@ -1735,7 +1728,7 @@ END_''' + random_id)
 		# Need: host env, container id, path from and path to
 		child     = self.pexpect_children['host_child']
 		expect    = cfg['expect_prompts']['origin_prompt']
-		self.send('docker cp ' + cfg['target']['container_id'] + ':' + target_path + ' ' + host_path, child=child, expect=expect, check_exit=False)
+		self.send('docker cp ' + cfg['target']['container_id'] + ':' + target_path + ' ' + host_path, child=child, expect=expect, check_exit=False, echo=False)
 		self._handle_note_after(note=note)
 		return True
 
@@ -1892,7 +1885,7 @@ END_''' + random_id)
 							'resize==True, so attempting to resize terminal.\n\n' +
 							'If you are not at a shell prompt when calling pause_point, then pass in resize=False.'))
 					self.send_host_file('/tmp/resize',self.shutit_main_dir+'/assets/resize', child=child, log=False)
-					self.send(' chmod 755 /tmp/resize')
+					self.send(' chmod 755 /tmp/resize', echo=False)
 					child.sendline(' sleep 2 && /tmp/resize')
 				if default_msg == None:
 					if not cfg['build']['video']:
@@ -1986,7 +1979,7 @@ END_''' + random_id)
 	get_re_from_child = match_string
 
 
-	def send_and_match_output(self, send, matches, expect=None, child=None, retry=3, strip=True, note=None):
+	def send_and_match_output(self, send, matches, expect=None, child=None, retry=3, strip=True, note=None, echo=True):
 		"""Returns true if the output of the command matches any of the strings in 
 		the matches list of regexp strings. Handles matching on a per-line basis
 		and does not cross lines.
@@ -2007,7 +2000,7 @@ END_''' + random_id)
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
 		self._handle_note(note)
-		output = self.send_and_get_output(send, child=child, retry=retry, strip=strip)
+		output = self.send_and_get_output(send, child=child, retry=retry, strip=strip, echo=echo)
 		if type(matches) == str:
 			matches = [matches]
 		self._handle_note_after(note=note)
@@ -2018,7 +2011,7 @@ END_''' + random_id)
 
 
 
-	def send_and_get_output(self, send, expect=None, child=None, timeout=None, retry=3, strip=True, note=None, record_command=False):
+	def send_and_get_output(self, send, expect=None, child=None, timeout=None, retry=3, strip=True, note=None, record_command=False, echo=True):
 		"""Returns the output of a command run. send() is called, and exit is not checked.
 
 		@param send:     See send()
@@ -2028,6 +2021,7 @@ END_''' + random_id)
 		@param strip:    Whether to strip output (defaults to True). Strips whitespace
 		                 and ansi terminal codes
 		@param note:     See send()
+		@param echo:     See send()
 
 		@type retry:     integer
 		@type strip:     boolean
@@ -2037,7 +2031,7 @@ END_''' + random_id)
 		self._handle_note(note, command=str(send))
 		# Don't check exit, as that will pollute the output. Also, it's quite likely the
 		# submitted command is intended to fail.
-		self.send(self._get_send_command(send), child=child, expect=expect, check_exit=False, retry=retry, echo=False, timeout=timeout, record_command=record_command)
+		self.send(self._get_send_command(send), child=child, expect=expect, check_exit=False, retry=retry, echo=echo, timeout=timeout, record_command=record_command)
 		before = self.get_default_child().before
 		cfg = shutit.cfg
 		try:
@@ -2309,7 +2303,7 @@ END_''' + random_id)
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
 		self._handle_note(note)
-		res = self.send_and_get_output('whoami').strip()
+		res = self.send_and_get_output('whoami',echo=False).strip()
 		self._handle_note_after(note=note)
 		return res
 
@@ -2329,7 +2323,7 @@ END_''' + random_id)
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
 		self._handle_note(note)
-		res = self.send_and_get_output("groups | cut -f 1 -d ' '").strip()
+		res = self.send_and_get_output("groups | cut -f 1 -d ' '",echo=False).strip()
 		self._handle_note_after(note=note)
 		return res
 
@@ -2413,7 +2407,7 @@ END_''' + random_id)
 			print '\n' + 80 * '='
 		self._handle_note(note,command=command + '", as user: "' + user + '"',training_input=send)
 		# r'[^t] login:' - be sure not to match 'last login:'
-		self.multisend(send,{'ontinue connecting':'yes','assword':password,r'[^t] login:':password},expect=general_expect,check_exit=False,timeout=timeout,fail_on_empty_before=False,escape=escape)
+		self.multisend(send,{'ontinue connecting':'yes','assword':password,r'[^t] login:':password},expect=general_expect,check_exit=False,timeout=timeout,fail_on_empty_before=False,escape=escape,echo=False)
 		#if not self._check_exit(send,expect=general_expect):
 		#	self.pause_point('Login failed?')
 		if prompt_prefix != None:
@@ -2421,7 +2415,7 @@ END_''' + random_id)
 		else:
 			self.setup_prompt(r_id,child=child)
 		if go_home:
-			self.send('cd',child=child,check_exit=False)
+			self.send('cd',child=child,check_exit=False, echo=False)
 		self._handle_note_after(note=note)
 
 
@@ -2452,7 +2446,7 @@ END_''' + random_id)
 			self.fail('Logout called without corresponding login', throw_exception=False)
 		# No point in checking exit here, the exit code will be
 		# from the previous command from the logged in session
-		self.send(command, expect=expect, check_exit=False, timeout=timeout)
+		self.send(command, expect=expect, check_exit=False, timeout=timeout,echo=False)
 		self._handle_note_after(note=note)
 	# alias exit_shell to logout
 	exit_shell = logout
@@ -2512,7 +2506,7 @@ END_''' + random_id)
 				# and times out very frequently. This workaround seems to work, but I
 				# haven't figured out why yet - imiell.
 				expect=['\r\n' + cfg['expect_prompts'][prompt_name]],
-				fail_on_empty_before=False, timeout=5, child=child)
+				fail_on_empty_before=False, timeout=5, child=child, echo=False)
 		if set_default_expect:
 			self.log('Resetting default expect to: ' +
 				cfg['expect_prompts'][prompt_name])
@@ -2538,7 +2532,7 @@ END_''' + random_id)
 		self.send(
 			(' PS1="${SHUTIT_BACKUP_PS1_%s}" && unset SHUTIT_BACKUP_PS1_%s') %
 				(old_prompt_name, old_prompt_name),
-				expect=expect, check_exit=False, fail_on_empty_before=False)
+				expect=expect, check_exit=False, fail_on_empty_before=False, echo=False)
 		if not new_expect:
 			self.log('Resetting default expect to default')
 			self.set_default_expect()
@@ -2552,13 +2546,13 @@ END_''' + random_id)
 		cfg = self.cfg
 		self._handle_note(note)
 		if cfg['environment'][cfg['build']['current_environment_id']]['distro'] == 'osx':
-			memavail = self.send_and_get_output("""vm_stat | grep ^Pages.free: | awk '{print $3}' | tr -d '.'""",child=child,expect=expect,timeout=3)
+			memavail = self.send_and_get_output("""vm_stat | grep ^Pages.free: | awk '{print $3}' | tr -d '.'""",child=child,expect=expect,timeout=3,echo=False)
 			memavail = int(memavail)
 			memavail *= 4
 		else:
-			memavail = self.send_and_get_output("""cat /proc/meminfo  | grep MemAvailable | awk '{print $2}'""",child=child,expect=expect,timeout=3)
+			memavail = self.send_and_get_output("""cat /proc/meminfo  | grep MemAvailable | awk '{print $2}'""",child=child,expect=expect,timeout=3,echo=False)
 			if memavail == '':
-				memavail = self.send_and_get_output("""free | grep buffers.cache | awk '{print $3}'""",child=child,expect=expect,timeout=3)
+				memavail = self.send_and_get_output("""free | grep buffers.cache | awk '{print $3}'""",child=child,expect=expect,timeout=3,echo=False)
 			memavail = int(memavail)
 		self._handle_note_after(note=note)
 		return memavail
@@ -2641,7 +2635,7 @@ END_''' + random_id)
 				self.send('yum update -y',exit_values=['0','1'])
 				cfg['build']['do_update'] = False
 				if self.file_exists('/etc/redhat-release'):
-					output = self.send_and_get_output('cat /etc/redhat-release')
+					output = self.send_and_get_output('cat /etc/redhat-release',echo=False)
 					if re.match('^centos.*$', output.lower()) or re.match('^red hat.*$', output.lower()) or re.match('^fedora.*$', output.lower()) or True:
 						self.send_and_match_output('yum install -y -t redhat-lsb epel-release','Complete!')
 				else:
@@ -2672,7 +2666,7 @@ END_''' + random_id)
 			distro_version = d['distro_version']
 		else:
 			if self.file_exists('/etc/issue'):
-				issue_output = self.send_and_get_output(' cat /etc/issue').lower()
+				issue_output = self.send_and_get_output(' cat /etc/issue',echo=False).lower()
 				for key in cfg['build']['install_type_map'].keys():
 					if issue_output.find(key) != -1:
 						distro       = key
@@ -2683,7 +2677,7 @@ END_''' + random_id)
 				install_type = 'apt-cyg'
 			if install_type == '' or distro == '':
 				if self.file_exists('/etc/os-release'):
-					os_name = self.send_and_get_output(' cat /etc/os-release | grep ^NAME').lower()
+					os_name = self.send_and_get_output(' cat /etc/os-release | grep ^NAME',echo=False).lower()
 					if os_name.find('centos') != -1:
 						distro       = 'centos'
 						install_type = 'yum'
@@ -2699,13 +2693,13 @@ END_''' + random_id)
 					elif os_name.find('coreos') != -1:
 						distro       = 'coreos'
 						install_type = 'docker'
-				elif self.send_and_get_output("uname -a | awk '{print $1}'") == 'Darwin':
+				elif self.send_and_get_output("uname -a | awk '{print $1}'",echo=False) == 'Darwin':
 					distro = 'osx'
 					install_type = 'brew'
 					if not self.command_available('brew'):
 						self.fail('ShutiIt requires brew be installed. See http://brew.sh for details on installation.')
 					for package in ('coreutils','findutils','gnu-tar','gnu-sed','gawk','gnutls','gnu-indent','gnu-getopt'):
-						if self.send_and_get_output('brew list | grep -w ' + package) == '':
+						if self.send_and_get_output('brew list | grep -w ' + package,echo=False) == '':
 							self.send('brew install ' + package)
 				if install_type == '' or distro == '':
 					self.fail('Could not determine Linux distro information. ' + 
@@ -2726,7 +2720,7 @@ END_''' + random_id)
 				self.send('yum update -y',exit_values=['0','1'])
 				cfg['build']['do_update'] = False
 				if self.file_exists('/etc/redhat-release'):
-					output = self.send_and_get_output('cat /etc/redhat-release')
+					output = self.send_and_get_output('cat /etc/redhat-release',echo=False)
 					if re.match('^centos.*$', output.lower()) or re.match('^red hat.*$', output.lower()) or re.match('^fedora.*$', output.lower()) or True:
 						self.send_and_match_output('yum install -y -t redhat-lsb epel-release','Complete!')
 				else:
@@ -2762,7 +2756,7 @@ END_''' + random_id)
 		child = child or self.get_default_child()
 		cfg = self.cfg
 		#          v the space is intentional, to avoid polluting bash history.
-		self.send(' lsb_release -a',check_exit=False)
+		self.send(' lsb_release -a',check_exit=False, echo=False)
 		dist_string = self.match_string(child.before,
 			'^Distributor[\s]*ID:[\s]*(.*)$')
 		version_string = self.match_string(child.before,
@@ -2832,7 +2826,7 @@ END_''' + random_id)
 		self._handle_note(note)
 		#          v the space is intentional, to avoid polluting bash history.
 		self.send(' cut -d: -f3 /etc/paswd | grep -w ^' + user_id + '$ | wc -l',
-				  child=child, expect=expect, check_exit=False)
+				  child=child, expect=expect, check_exit=False, echo=False)
 		self._handle_note_after(note=note)
 		if self.match_string(child.before, '^([0-9]+)$') == '1':
 			return False
@@ -2966,11 +2960,11 @@ END_''' + random_id)
 					 expect=[expect,'assword'], child=child, timeout=99999,
 					 check_exit=False) == 1:
 			self.send(cfg['host']['password'], expect=expect, check_exit=False,
-					  record_command=False, child=child)
+					  record_command=False, child=child, echo=False)
 		# Tag image, force it by default
 		cmd = docker_executable + ' tag -f $SHUTIT_TMP_VAR ' + repository_with_tag
 		cfg['build']['report'] += '\nBuild tagged as: ' + repository_with_tag
-		self.send(cmd, child=child, expect=expect, check_exit=False)
+		self.send(cmd, child=child, expect=expect, check_exit=False, echo=False)
 		if export or save:
 			self.pause_point('We are now exporting the container to a ' + 
 							 'bzipped tar file, as configured in ' +
@@ -3160,7 +3154,7 @@ END_''' + random_id)
 		@type interface:    string
 		"""
 		self._handle_note(note)
-		res = self.send_and_get_output(command + ' -' + ip_family + ' -o ' + ip_object + ' | grep ' + interface)
+		res = self.send_and_get_output(command + ' -' + ip_family + ' -o ' + ip_object + ' | grep ' + interface,echo=False)
 		self._handle_note_after(note=note)
 		return res
 
@@ -3194,6 +3188,15 @@ END_''' + random_id)
 			return self.cfg['build']['mount_docker']
 		else:
 			self.fail('query_config: item "' + item + '" not handled')
+
+	# eg sys.stdout or None
+	def divert_output(self, output):
+		# If in debug, always push to stdout
+		if self.cfg['build']['debug']:
+			output = sys.stdout
+		for key in self.pexpect_children.keys():
+			self.pexpect_children[key].logfile_send = output
+			self.pexpect_children[key].logfile_read = output
 
 
 def init():

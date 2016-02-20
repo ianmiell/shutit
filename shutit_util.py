@@ -2131,7 +2131,7 @@ def handle_dockerfile_line(shutit, dockerfile_command, dockerfile_args, numpushe
 	if dockerfile_command == 'RUN':
 		build += """\n\t\tshutit.send('""" + cmd + """')"""
 	elif dockerfile_command == 'WORKDIR':
-		build += """\n\t\tshutit.send('pushd """ + cmd + """')"""
+		build += """\n\t\tshutit.send('pushd """ + cmd + """',echo=False)"""
 		numpushes = numpushes + 1
 	elif dockerfile_command == 'COPY' or dockerfile_command == 'ADD':
 		# The <src> path must be inside the context of the build; you cannot COPY ../something /something, because the first step of a docker build is to send the context directory (and subdirectories) to the docker daemon.

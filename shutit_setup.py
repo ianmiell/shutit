@@ -62,8 +62,8 @@ class ShutItConnModule(ShutItModule):
 		shutit.log('Setting default expect')
 		shutit.set_default_expect(cfg['expect_prompts']['base_prompt'])
 		shutit.log('Setting default expect done')
-		host_child.logfile_send = target_child.logfile_send = sys.stdout
-		host_child.logfile_read = target_child.logfile_read = sys.stdout
+		#host_child.logfile_send = target_child.logfile_send = sys.stdout
+		#host_child.logfile_read = target_child.logfile_read = sys.stdout
 		host_child.maxread = target_child.maxread = 2000
 		host_child.searchwindowsize = target_child.searchwindowsize = 1024
 		delay = cfg['build']['command_pause']
@@ -87,11 +87,11 @@ class ShutItConnModule(ShutItModule):
 	def _add_begin_build_info(self, shutit, command):
 		cfg = shutit.cfg
 		if cfg['build']['delivery'] in ('docker'):
-			shutit.send('chmod -R 777 ' + cfg['build']['shutit_state_dir'])
+			shutit.send('chmod -R 777 ' + cfg['build']['shutit_state_dir'],echo=False)
 			# TODO: debug this, fails on dockerfile builds, eg otto
 			# Create the build directory and put the config in it.
 			shutit.send(' mkdir -p ' + cfg['build']['build_db_dir'] + \
-				 '/' + cfg['build']['build_id'])
+				 '/' + cfg['build']['build_id'], echo=False)
 			# Record the command we ran and the python env if in debug.
 			if cfg['build']['debug']:
 				shutit.send_file(cfg['build']['build_db_dir'] + '/' + \
@@ -108,7 +108,7 @@ class ShutItConnModule(ShutItModule):
 		# Put build info into the target
 		if cfg['build']['delivery'] in ('docker'):
 			shutit.send(' mkdir -p ' + cfg['build']['build_db_dir'] + '/' + \
-			    cfg['build']['build_id'])
+			    cfg['build']['build_id'], echo=False)
 			shutit.send_file(cfg['build']['build_db_dir'] + '/' + \
 			    cfg['build']['build_id'] + '/build.log', \
 			    shutit_util.get_commands(shutit))
@@ -156,7 +156,7 @@ class ConnDocker(ShutItConnModule):
 		needed_password = False
 		fail_msg = ''
 		try:
-			shutit.log('Running: ' + str_cmd, force_stdout=True, prefix=False)
+			shutit.log('Running: ' + str_cmd, force_stdout=False, prefix=False)
 			child = pexpect.spawn(check_cmd[0], check_cmd[1:],
 			timeout=cmd_timeout)
 		except pexpect.ExceptionPexpect:
@@ -314,9 +314,9 @@ class ConnDocker(ShutItConnModule):
 			shutit_util.util_raw_input(shutit=shutit)
 		cfg['build']['docker_command'] = ' '.join(docker_command)
 		shutit.log('\n\nCommand being run is:\n\n' + cfg['build']['docker_command'],
-		force_stdout=True, prefix=False)
+			force_stdout=False, prefix=False)
 		shutit.log('\n\nThis may download the image, please be patient\n\n',
-		force_stdout=True, prefix=False)
+			force_stdout=False, prefix=False)
 		target_child = pexpect.spawn(docker_command[0], docker_command[1:])
 		expect = ['assword', cfg['expect_prompts']['base_prompt'].strip(), \
 		          'Waiting', 'ulling', 'endpoint', 'Download']
@@ -328,7 +328,7 @@ class ConnDocker(ShutItConnModule):
 				shutit.log('...')
 				res = shutit.send(cfg['host']['password'], \
 				    child=target_child, expect=expect, timeout=9999, \
-				    check_exit=False, fail_on_empty_before=False)
+				    check_exit=False, fail_on_empty_before=False, echo=False)
 			elif res == 1:
 				shutit.log('Prompt found, breaking out')
 				break
@@ -471,18 +471,18 @@ class ConnSSH(ShutItConnModule):
 			shutit_util.util_raw_input(shutit=shutit)
 		cfg['build']['ssh_command'] = ' '.join(ssh_command)
 		shutit.log('\n\nCommand being run is:\n\n' + cfg['build']['ssh_command'],
-			force_stdout=True, prefix=False)
+			force_stdout=False, prefix=False)
 		target_child = pexpect.spawn(ssh_command[0], ssh_command[1:])
 		expect = ['assword', cfg['expect_prompts']['base_prompt'].strip()]
 		res = target_child.expect(expect, 10)
 		while True:
 			shutit.log(target_child.before + target_child.after, prefix=False,
-				force_stdout=True)
+				force_stdout=False)
 			if res == 0:
 				shutit.log('...')
 				res = shutit.send(ssh_pass,
 				             child=target_child, expect=expect, timeout=10,
-				             check_exit=False, fail_on_empty_before=False)
+				             check_exit=False, fail_on_empty_before=False, echo=False)
 			elif res == 1:
 				shutit.log('Prompt found, breaking out')
 				break
@@ -544,8 +544,8 @@ class setup(ShutItModule):
 				if not shutit.command_available('lsb_release'):
 					shutit.install('lsb-release')
 				shutit.lsb_release()
-				shutit.send('dpkg-divert --local --rename --add /sbin/initctl')
-				shutit.send('ln -f -s /bin/true /sbin/initctl')
+				shutit.send('dpkg-divert --local --rename --add /sbin/initctl',echo=False)
+				shutit.send('ln -f -s /bin/true /sbin/initctl',echo=False)
 			elif cfg['environment'][cfg['build']['current_environment_id']]['install_type'] == 'yum':
 				if do_update:
 					# yum updates are so often "bad" that we let exit codes of 1

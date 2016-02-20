@@ -7,4 +7,5 @@ then
 	echo "Must be run as test.sh or ./test.sh"
 	exit
 fi
+unset SHUTIT_OPTIONS
 ./build.sh --delivery bash "$@"
