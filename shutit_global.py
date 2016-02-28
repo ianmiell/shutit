@@ -2405,7 +2405,7 @@ END_''' + random_id, echo=False)
 			print '\n' + 80 * '='
 			self.log('WARNING! user is bash - if you see problems below, did you mean: login(command="' + user + '")?',force_stdout=True)
 			print '\n' + 80 * '='
-		self._handle_note(note,command=command + '", as user: "' + user + '"',training_input=send)
+		self._handle_note(note,command=command + ', as user: "' + user + '"',training_input=send)
 		# r'[^t] login:' - be sure not to match 'last login:'
 		self.multisend(send,{'ontinue connecting':'yes','assword':password,r'[^t] login:':password},expect=general_expect,check_exit=False,timeout=timeout,fail_on_empty_before=False,escape=escape,echo=False)
 		#if not self._check_exit(send,expect=general_expect):
