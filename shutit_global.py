@@ -866,13 +866,14 @@ END_""" + random_id)
 		expect = expect or self.get_default_expect()
 		cfg = self.cfg
 		self._handle_note(note, 'Sending contents to path: ' + path)
+		self.log('Sending file contents beginning:\n"' + contents[:80] + '"\n\n to file: ' + path,force_stdout=True,code=31)
 		if user == None:
 			user = self.whoami()
 		if group == None:
 			group = self.whoarewe()
 		if cfg['build']['debug']:
 			self.log('='*80)
-			self.log('Sending file to' + path)
+			self.log('Sending file to: ' + path)
 			if log:
 				for c in contents:
 					if c not in string.ascii_letters:
@@ -974,6 +975,7 @@ END_''' + random_id, echo=False)
 		expect = expect or self.get_default_expect()
 		cfg = self.cfg
 		self._handle_note(note, 'Sending file from host: ' + hostfilepath + '\nTo: ' + path)
+		self.log('Sending file from host: ' + hostfilepath + '\nTo: ' + path,force_stdout=True,code=31)
 		if user == None:
 			user = self.whoami()
 		if group == None:
@@ -1027,6 +1029,7 @@ END_''' + random_id, echo=False)
 		expect = expect or self.get_default_expect()
 		self.log('entered send_host_dir in: ' + os.getcwd())
 		self._handle_note(note, 'Sending host directory: ' + hostfilepath + '\nTo: ' + path)
+		self.log(note, 'Sending host directory: ' + hostfilepath + '\nTo: ' + path,force_stdout=True,code=31)
 		if user == None:
 			user = self.whoami()
 		if group == None:
@@ -2685,6 +2688,7 @@ END_''' + random_id, echo=False)
 						distro       = 'red hat'
 						install_type = 'yum'
 					elif os_name.find('fedora') != -1:
+						# TODO: distinguish with dnf - fedora 23+? search for dnf in here
 						distro       = 'fedora'
 						install_type = 'yum'
 					elif os_name.find('gentoo') != -1:
@@ -3252,6 +3256,7 @@ def init():
 	                                    'oracleserver':'yum',
 	                                    'centos':'yum',
 	                                    'fedora':'yum',
+	                                    'fedora_dnf':'dnf',
 	                                    'alpine':'apk',
 	                                    'shutit':'src',
 	                                    'coreos':'docker',
