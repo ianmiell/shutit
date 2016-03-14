@@ -242,7 +242,6 @@ class ConnDocker(ShutItConnModule):
 
 		# Singly-specified options
 		privileged_arg   = ''
-		lxc_conf_arg     = ''
 		name_arg         = ''
 		hostname_arg     = ''
 		rm_arg           = ''
@@ -251,8 +250,6 @@ class ConnDocker(ShutItConnModule):
 		shell_arg        = '/bin/bash'
 		if cfg['build']['privileged']:
 			privileged_arg = '--privileged=true'
-		if cfg['build']['lxc_conf'] != '':
-			lxc_conf_arg = '--lxc-conf=' + cfg['build']['lxc_conf']
 		if cfg['target']['name'] != '':
 			name_arg = '--name=' + cfg['target']['name']
 		if cfg['target']['hostname'] != '':
@@ -289,7 +286,6 @@ class ConnDocker(ShutItConnModule):
 				'run',
 				cidfile_arg,
 				privileged_arg,
-				lxc_conf_arg,
 				name_arg,
 				hostname_arg,
 				rm_arg,

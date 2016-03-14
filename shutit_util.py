@@ -157,9 +157,6 @@ build_log:yes
 conn_module:shutit.tk.conn_docker
 # Run any docker container in privileged mode
 privileged:no
-# lxc-conf arg, eg
-#lxc_conf:lxc.aa_profile=unconfined
-lxc_conf:
 # Base image can be over-ridden by --image_tag defaults to this.
 base_image:ubuntu:14.04
 # Whether to perform tests.
@@ -421,7 +418,6 @@ def get_base_config(cfg, cfg_parser):
 	# BEGIN Read from config files
 	# build - details relating to the build
 	cfg['build']['privileged']                 = cp.getboolean('build', 'privileged')
-	cfg['build']['lxc_conf']                   = cp.get('build', 'lxc_conf')
 	cfg['build']['build_log']                  = cp.getboolean('build', 'build_log')
 	cfg['build']['base_image']                 = cp.get('build', 'base_image')
 	cfg['build']['dotest']                     = cp.get('build', 'dotest')
