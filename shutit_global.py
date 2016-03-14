@@ -173,6 +173,7 @@ class ShutIt(object):
 		print >> sys.stderr
 		if throw_exception:
 			if shutit_util.determine_interactive(self):
+				# TODO: Catch case of where we hit CTRL-D repeatedly here
 				self.pause_point('FAIL: ' + msg)
 			else:
 				raise ShutItFailException(msg)
@@ -198,11 +199,11 @@ class ShutIt(object):
 		"""
 		cfg = self.cfg
 		if prefix:
-			prefix = 'LOG: ' + time.strftime("%Y-%m-%d %H:%M:%S", 
+			prefix = '\nLOG: ' + time.strftime("%Y-%m-%d %H:%M:%S", 
 				time.localtime())
 			logmsg = prefix + ' ' + str(msg)
 		else:
-			logmsg = msg
+			logmsg = '\n' + msg
 		# Don't colour message if we are in serve mode.
 		if code != None and not cfg['action']['serve']:
 			logmsg = shutit_util.colour(code, logmsg)
