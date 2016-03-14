@@ -1011,7 +1011,7 @@ def list_modules(shutit,long_output=None,sort_order=None):
 		table_list.append(["Order","Module ID","Description","Run Order","Built"])
 	else:
 		# "short" table ==> sort module by module_id
-		table_list.append(["Module ID","Description"])
+		table_list.append(["Module ID","Description","Built"])
 
 	if sort_order == 'run_order':
 		a = {}
@@ -1028,9 +1028,9 @@ def list_modules(shutit,long_output=None,sort_order=None):
 				if m.module_id == k:
 					count = count + 1
 					if long_output:
-						table_list.append([str(count),m.module_id,m.description,str(m.run_order),cfg[m.module_id]['shutit.core.module.build']])
+						table_list.append([str(count),m.module_id,m.description,str(m.run_order),str(cfg[m.module_id]['shutit.core.module.build'])])
 					else:
-						table_list.append([m.module_id,m.description])
+						table_list.append([m.module_id,m.description,str(cfg[m.module_id]['shutit.core.module.build'])])
 	elif sort_order == 'id':
 		a = []
 		for m in shutit.shutit_modules:
@@ -1042,15 +1042,15 @@ def list_modules(shutit,long_output=None,sort_order=None):
 				if m.module_id == k:
 					count = count + 1
 					if sort_order:
-						table_list.append([str(count),m.module_id,m.description,str(m.run_order),cfg[m.module_id]['shutit.core.module.build']])
+						table_list.append([str(count),m.module_id,m.description,str(m.run_order),str(cfg[m.module_id]['shutit.core.module.build'])])
 					else:
-						table_list.append([m.module_id,m.description])
+						table_list.append([m.module_id,m.description,str(cfg[m.module_id]['shutit.core.module.build'])])
 
 	# format table for display
-	table = texttable.Texttable()
+	table = texttable.Texttable(max_width=160)
 	table.add_rows(table_list)
 	msg = table.draw()
-	print msg
+	print '\n' + msg
 	if cfg['build']['log_config_path']:
 		f = file(cfg['build']['log_config_path'] + '/module_order.txt','w')
 		f.write(msg)

@@ -891,13 +891,14 @@ def main():
 	errs = []
 	if True:
 		while True:
-			shutit_util.list_modules(shutit,long_output=True,sort_order='run_order')
+			shutit_util.list_modules(shutit,long_output=False,sort_order='run_order')
 			errs.extend(check_deps(shutit))
 			# Which module do you want to toggle?
 			module_id = shutit_util.util_raw_input(prompt='Which module id do you want to toggle? (just hit return to continue)\n')
 			if module_id:
 				# TODO sanity check
 				cfg[module_id]['shutit.core.module.build'] = not cfg[module_id]['shutit.core.module.build']
+				# TODO: if true, set up config for that module
 			else:
 				break
 	else:
