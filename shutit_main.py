@@ -30,12 +30,13 @@ import ConfigParser
 import shutit_util
 import urllib
 import shutit_global
-import sys
 import os
 import json
 import re
 import signal
 from distutils import spawn
+
+
 
 
 def module_ids(shutit, rev=False):

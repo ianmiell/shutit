@@ -1001,7 +1001,7 @@ def list_modules(shutit,long_output=None,sort_order=None):
 	if long_output == None:
 		long_output = cfg['list_modules']['long']
 	if sort_order == None:
-		sort_order = cfg['list_modules']['long']
+		sort_order = cfg['list_modules']['sort']
 	if long_output:
 		# --long table: sort modules by run order
 		table_list.append(["Order","Module ID","Description","Run Order","Built"])
