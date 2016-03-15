@@ -889,7 +889,22 @@ def main():
 	conn_target(shutit)
 
 	errs = []
-	errs.extend(check_deps(shutit))
+	print cfg['build']['interactive']
+	if cfg['build']['interactive'] > 0:
+		while True:
+			shutit_util.list_modules(shutit,long_output=False,sort_order='run_order')
+			errs.extend(check_deps(shutit))
+			# Which module do you want to toggle?
+			module_id = shutit_util.util_raw_input(prompt='Which module id do you want to toggle? (just hit return to continue)\n')
+			if module_id:
+				# TODO sanity check
+				cfg[module_id]['shutit.core.module.build'] = not cfg[module_id]['shutit.core.module.build']
+				# TODO: if true, set up config for that module
+			else:
+				break
+	else:
+		errs.extend(check_deps(shutit))
+
 	if cfg['action']['list_deps']:
 		# Show dependency graph
 		digraph = 'digraph depgraph {\n'
@@ -920,6 +935,8 @@ def main():
 		sys.exit(0)
 	# Dependency validation done, now collect configs of those marked for build.
 	config_collection_for_built(shutit)
+
+
 	if False and (cfg['action']['list_configs'] or cfg['build']['debug']):
 		shutit.log(shutit_util.print_config(cfg, history=cfg['list_configs']['cfghistory']),
 				   force_stdout=True)
@@ -939,6 +956,7 @@ def main():
 		shutit.log('================================================================================', force_stdout=True)
 	if cfg['action']['list_configs']:
 		return
+
 	# Check for conflicts now.
 	errs.extend(check_conflicts(shutit))
 	# Cache the results of check_ready at the start.

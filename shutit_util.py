@@ -54,6 +54,7 @@ import operator
 import threading
 import string
 import random
+import texttable
 
 _default_cnf = '''
 ################################################################################
@@ -783,6 +784,8 @@ def parse_args(shutit):
 			sys.exit(1)
 		os.makedirs(cfg['build']['log_config_path'])
 		os.chmod(cfg['build']['log_config_path'],0777)
+	else:
+		cfg['build']['log_config_path'] = None
 	# Tutorial stuff.
 	if cfg['build']['interactive'] >= 3:
 		print textwrap.dedent("""\
@@ -922,9 +925,10 @@ def load_configs(shutit):
 			print textwrap.dedent("""\n""") + msg + textwrap.dedent(colour('32', '\n\n[Hit return to continue]'))
 			util_raw_input(shutit=shutit)
 		if cfg['action']['list_configs'] or cfg['build']['debug']:
-			f = file(cfg['build']['log_config_path'] + '/config_file_order.txt','w')
-			f.write(msg)
-			f.close()
+			if cfg['build']['log_config_path']:
+				f = file(cfg['build']['log_config_path'] + '/config_file_order.txt','w')
+				f.write(msg)
+				f.close()
 
 	# Interpret any config overrides, write to a file and add them to the
 	# list of configs to be interpreted
@@ -974,7 +978,7 @@ def load_shutit_modules(shutit):
 		load_all_from_path(shutit, shutit_module_path)
 
 
-def list_modules(shutit):
+def list_modules(shutit,long_output=None,sort_order=None):
 	"""Display a list of loaded modules.
 
 	Config items:
@@ -988,20 +992,24 @@ def list_modules(shutit):
 
 	The output is also saved to ['build']['log_config_path']/module_order.txt
 
-	Dependencies: texttable, operator
+	Dependencies: operator
 	"""
 	cfg = shutit.cfg
 	# list of module ids and other details
 	# will also contain column headers
 	table_list = []
-	if cfg['list_modules']['long']:
+	if long_output == None:
+		long_output = cfg['list_modules']['long']
+	if sort_order == None:
+		sort_order = cfg['list_modules']['long']
+	if long_output:
 		# --long table: sort modules by run order
-		table_list.append(["Order","Module ID","Description","Run Order"])
+		table_list.append(["Order","Module ID","Description","Run Order","Built"])
 	else:
 		# "short" table ==> sort module by module_id
-		table_list.append(["Module ID","Description"])
+		table_list.append(["Module ID","Description","Built"])
 
-	if cfg['list_modules']['sort'] == 'run_order':
+	if sort_order == 'run_order':
 		a = {}
 		for m in shutit.shutit_modules:
 			a.update({m.module_id:m.run_order})
@@ -1015,11 +1023,11 @@ def list_modules(shutit):
 			for m in shutit.shutit_modules:
 				if m.module_id == k:
 					count = count + 1
-					if cfg['list_modules']['long']:
-						table_list.append([str(count),m.module_id,m.description,str(m.run_order)])
+					if long_output:
+						table_list.append([str(count),m.module_id,m.description,str(m.run_order),str(cfg[m.module_id]['shutit.core.module.build'])])
 					else:
-						table_list.append([m.module_id,m.description])
-	elif cfg['list_modules']['sort'] == 'id':
+						table_list.append([m.module_id,m.description,str(cfg[m.module_id]['shutit.core.module.build'])])
+	elif sort_order == 'id':
 		a = []
 		for m in shutit.shutit_modules:
 			a.append(m.module_id)
@@ -1029,20 +1037,20 @@ def list_modules(shutit):
 			for m in shutit.shutit_modules:
 				if m.module_id == k:
 					count = count + 1
-					if cfg['list_modules']['long']:
-						table_list.append([str(count),m.module_id,m.description,str(m.run_order)])
+					if sort_order:
+						table_list.append([str(count),m.module_id,m.description,str(m.run_order),str(cfg[m.module_id]['shutit.core.module.build'])])
 					else:
-						table_list.append([m.module_id,m.description])
+						table_list.append([m.module_id,m.description,str(cfg[m.module_id]['shutit.core.module.build'])])
 
 	# format table for display
-	import texttable
-	table = texttable.Texttable()
+	table = texttable.Texttable(max_width=160)
 	table.add_rows(table_list)
 	msg = table.draw()
-	print msg
-	f = file(cfg['build']['log_config_path'] + '/module_order.txt','w')
-	f.write(msg)
-	f.close()
+	print '\n' + msg
+	if cfg['build']['log_config_path']:
+		f = file(cfg['build']['log_config_path'] + '/module_order.txt','w')
+		f.write(msg)
+		f.close()
 
 
 def print_config(cfg, hide_password=True, history=False):
