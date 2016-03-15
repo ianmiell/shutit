@@ -1053,7 +1053,7 @@ def list_modules(shutit,long_output=None,sort_order=None):
 		f.close()
 
 
-def print_config(cfg, hide_password=True, history=False):
+def print_config(cfg, hide_password=True, history=False, module_id=None):
 	"""Returns a string representing the config of this ShutIt run.
 	"""
 	cp = cfg['config_parser']
@@ -1062,6 +1062,8 @@ def print_config(cfg, hide_password=True, history=False):
 	if keys1:
 		keys1.sort()
 	for k in keys1:
+		if module_id != None and k != module_id:
+			continue
 		if type(k) == str and type(cfg[k]) == dict:
 			s += '\n[' + k + ']\n'
 			keys2 = cfg[k].keys()

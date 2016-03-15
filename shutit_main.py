@@ -34,6 +34,7 @@ import os
 import json
 import re
 import signal
+import sys
 from distutils import spawn
 
 
@@ -890,7 +891,6 @@ def main():
 	conn_target(shutit)
 
 	errs = []
-	print cfg['build']['interactive']
 	if cfg['build']['interactive'] > 0:
 		while True:
 			shutit_util.list_modules(shutit,long_output=False,sort_order='run_order')
@@ -898,9 +898,20 @@ def main():
 			# Which module do you want to toggle?
 			module_id = shutit_util.util_raw_input(prompt='Which module id do you want to toggle? (just hit return to continue)\n')
 			if module_id:
-				# TODO sanity check
 				cfg[module_id]['shutit.core.module.build'] = not cfg[module_id]['shutit.core.module.build']
-				# TODO: if true, set up config for that module
+
+				# If true, set up config for that module
+				if cfg[module_id]['shutit.core.module.build']:
+					while True:
+						print shutit_util.print_config(cfg,module_id=module_id)
+						name = shutit_util.util_raw_input(prompt='Above is the config for that module. Hit return to continue, or a config item you want to update.\n')
+						if name:
+							val = shutit_util.util_raw_input(prompt='Input the value new for that config item.\n')
+							# TODO: handle blank/None, lists, booleans etc.
+							cfg[module_id][name] = val
+				else:
+					pass
+					# TODO: if removing, get any that depend on it, and remove those too
 			else:
 				break
 	else:
