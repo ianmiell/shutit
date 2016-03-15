@@ -889,7 +889,8 @@ def main():
 	conn_target(shutit)
 
 	errs = []
-	if True:
+	print cfg['build']['interactive']
+	if cfg['build']['interactive'] > 0:
 		while True:
 			shutit_util.list_modules(shutit,long_output=False,sort_order='run_order')
 			errs.extend(check_deps(shutit))
