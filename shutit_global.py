@@ -1833,7 +1833,7 @@ END_''' + random_id, echo=False)
 
 
 	def pause_point(self,
-	                msg='',
+	                msg='SHUTIT PAUSE POINT',
 	                child=None,
 	                print_input=True,
 	                level=1,
