@@ -29,7 +29,7 @@ import sys
 import argparse
 import os
 import stat
-from ConfigParser import RawConfigParser
+import ConfigParser
 import time
 import re
 import imp
@@ -234,28 +234,28 @@ _build_section = '''
 		# shutit.fail(msg)                   - Fail the program and exit with status 1
 		#'''
 
-class LayerConfigParser(RawConfigParser):
+class LayerConfigParser(ConfigParser.RawConfigParser):
 
 	def __init__(self):
-		RawConfigParser.__init__(self)
+		ConfigParser.RawConfigParser.__init__(self)
 		self.layers = []
 
 	def read(self, filenames):
 		if type(filenames) is not list:
 			filenames = [filenames]
 		for filename in filenames:
-			cp = RawConfigParser()
+			cp = ConfigParser.RawConfigParser()
 			cp.read(filename)
 			self.layers.append((cp, filename, None))
-		return RawConfigParser.read(self, filenames)
+		return ConfigParser.RawConfigParser.read(self, filenames)
 
 	def readfp(self, fp, filename=None):
-		cp = RawConfigParser()
+		cp = ConfigParser.RawConfigParser()
 		fp.seek(0)
 		cp.readfp(fp, filename)
 		self.layers.append((cp, filename, fp))
 		fp.seek(0)
-		ret = RawConfigParser.readfp(self, fp, filename)
+		ret = ConfigParser.RawConfigParser.readfp(self, fp, filename)
 		return ret
 
 	def whereset(self, section, option):
@@ -934,7 +934,7 @@ def load_configs(shutit):
 	# list of configs to be interpreted
 	if cfg['build']['config_overrides']:
 		# We don't need layers, this is a temporary configparser
-		override_cp = RawConfigParser()
+		override_cp = ConfigParser.RawConfigParser()
 		for o_sec, o_key, o_val in cfg['build']['config_overrides']:
 			if not override_cp.has_section(o_sec):
 				override_cp.add_section(o_sec)
@@ -1004,6 +1004,7 @@ def list_modules(shutit,long_output=None,sort_order=None):
 		sort_order = cfg['list_modules']['sort']
 	if long_output:
 		# --long table: sort modules by run order
+		#table_list.append(["Order","Module ID","Description","Run Order","Built","Compatible"])
 		table_list.append(["Order","Module ID","Description","Run Order","Built"])
 	else:
 		# "short" table ==> sort module by module_id
@@ -1023,7 +1024,15 @@ def list_modules(shutit,long_output=None,sort_order=None):
 			for m in shutit.shutit_modules:
 				if m.module_id == k:
 					count = count + 1
+					#if not cfg[m.module_id]['shutit.core.module.build']:
+					#	cfg[m.module_id]['shutit.core.module.build'] = True
+					#	if config_collection_for_built(shutit,throw_error=False,silent=True):
+					#		compatible = True
+					#	else:
+					#		compatible = False
+					#	cfg[m.module_id]['shutit.core.module.build'] = False
 					if long_output:
+						#table_list.append([str(count),m.module_id,m.description,str(m.run_order),str(cfg[m.module_id]['shutit.core.module.build']),compatible])
 						table_list.append([str(count),m.module_id,m.description,str(m.run_order),str(cfg[m.module_id]['shutit.core.module.build'])])
 					else:
 						table_list.append([m.module_id,m.description,str(cfg[m.module_id]['shutit.core.module.build'])])
@@ -1037,7 +1046,14 @@ def list_modules(shutit,long_output=None,sort_order=None):
 			for m in shutit.shutit_modules:
 				if m.module_id == k:
 					count = count + 1
+					if not cfg[m.module_id]['shutit.core.module.build']:
+						cfg[m.module_id]['shutit.core.module.build'] = True
+						#if config_collection_for_built(shutit,throw_error=False,silent=True):
+						#	compatible = True
+						#else:
+						#	compatible = False
 					if sort_order:
+						#table_list.append([str(count),m.module_id,m.description,str(m.run_order),str(cfg[m.module_id]['shutit.core.module.build']),compatible])
 						table_list.append([str(count),m.module_id,m.description,str(m.run_order),str(cfg[m.module_id]['shutit.core.module.build'])])
 					else:
 						table_list.append([m.module_id,m.description,str(cfg[m.module_id]['shutit.core.module.build'])])
@@ -2210,3 +2226,219 @@ def dockerfile_get_section(dockerfile_command, current):
 		else:
 			return 'build'
 	return current
+
+
+
+def module_ids(shutit, rev=False):
+	"""Gets a list of module ids guaranteed to be sorted by run_order, ignoring conn modules
+	(run order < 0).
+	"""
+	ids = sorted(shutit.shutit_map.keys(),key=lambda module_id: shutit.shutit_map[module_id].run_order)
+	if rev:
+		return list(reversed(ids))
+	else:
+		return ids
+
+def allowed_module_ids(shutit, rev=False):
+	"""Gets a list of module ids that are allowed to be run,
+	guaranteed to be sorted by run_order, ignoring conn modules
+	(run order < 0).
+	"""
+	module_ids_list = module_ids(shutit,rev)
+	allowed_module_ids = []
+	for module_id in module_ids_list:
+		if allowed_image(shutit,module_id):
+			allowed_module_ids.append(module_id) 
+	return allowed_module_ids
+
+
+def print_modules(shutit):
+	"""Returns a string table representing the modules in the ShutIt module map.
+	"""
+	cfg = shutit.cfg
+	string = ''
+	string = string + 'Modules: \n'
+	string = string + '    Run order    Build    Remove    Module ID\n'
+	for module_id in module_ids(shutit):
+		string = string + ('    ' + str(shutit.shutit_map[module_id].run_order) +
+		                   '        ' +
+		                   str(cfg[module_id]['shutit.core.module.build']) + '    ' +
+		                   str(cfg[module_id]['shutit.core.module.remove']) + '    ' +
+		                   module_id + '\n')
+	return string
+
+def config_collection(shutit):
+	"""Collect core config from config files for all seen modules.
+	"""
+	shutit.log('In config_collection')
+	cfg = shutit.cfg
+	for module_id in module_ids(shutit):
+		# Default to None so we can interpret as ifneeded
+		shutit.get_config(module_id, 'shutit.core.module.build', None, boolean=True, forcenone=True)
+		shutit.get_config(module_id, 'shutit.core.module.remove', False, boolean=True)
+		shutit.get_config(module_id, 'shutit.core.module.tag', False, boolean=True)
+		# Default to allow any image
+		shutit.get_config(module_id, 'shutit.core.module.allowed_images', [".*"])
+		module = shutit.shutit_map[module_id]
+		cfg_file = os.path.dirname(module.__module_file) + '/configs/build.cnf'
+		if os.path.isfile(cfg_file):
+			# use shutit.get_config, forcing the passed-in default
+			config_parser = ConfigParser.ConfigParser()
+			config_parser.read(cfg_file)
+			for section in config_parser.sections():
+				if section == module_id:
+					for option in config_parser.options(section):
+						if option == 'shutit.core.module.allowed_images':
+							override = False
+							for mod, opt, val in cfg['build']['config_overrides']:
+								# skip overrides
+								if mod == module_id and opt == option:
+									override = True
+							if override:
+								continue
+							value = config_parser.get(section,option)
+							if option == 'shutit.core.module.allowed_images':
+								value = json.loads(value)
+							shutit.get_config(module_id, option,
+							                  value, forcedefault=True)
+		# ifneeded will (by default) only take effect if 'build' is not
+		# specified. It can, however, be forced to a value, but this
+		# should be unusual.
+		if cfg[module_id]['shutit.core.module.build'] is None:
+			shutit.get_config(module_id, 'shutit.core.module.build_ifneeded', True, boolean=True)
+			cfg[module_id]['shutit.core.module.build'] = False
+		else:
+			shutit.get_config(module_id, 'shutit.core.module.build_ifneeded', False, boolean=True)
+
+
+
+def disallowed_module_ids(shutit, rev=False):
+	"""Gets a list of disallowed module ids that are not allowed to be run,
+	guaranteed to be sorted by run_order, ignoring conn modules
+	(run order < 0).
+	"""
+	module_ids_list = module_ids(shutit,rev)
+	disallowed_module_ids = []
+	for module_id in module_ids_list:
+		if not allowed_image(shutit,module_id):
+			disallowed_module_ids.append(module_id) 
+	return disallowed_module_ids
+
+def is_to_be_built_or_is_installed(shutit, shutit_module_obj):
+	"""Returns true if this module is configured to be built,
+	or if it is already installed.
+	"""
+	cfg = shutit.cfg
+	if cfg[shutit_module_obj.module_id]['shutit.core.module.build']:
+		return True
+	return is_installed(shutit, shutit_module_obj)
+
+def config_collection_for_built(shutit,throw_error=True,silent=False):
+	"""Collect configuration for modules that are being built.
+	When this is called we should know what's being built (ie after
+	dependency resolution).
+	"""
+	shutit.log('In config_collection_for_built')
+	cfg = shutit.cfg
+	for module_id in module_ids(shutit):
+		# Get the config even if installed or building (may be needed in other
+		# hooks, eg test).
+		if (is_to_be_built_or_is_installed(shutit, shutit.shutit_map[module_id]) and
+			not shutit.shutit_map[module_id].get_config(shutit)):
+				shutit.fail(module_id + ' failed on get_config')
+		# Collect the build.cfg if we are building here.
+		# If this file exists, process it.
+		if cfg[module_id]['shutit.core.module.build']:
+			module = shutit.shutit_map[module_id]
+			cfg_file = os.path.dirname(module.__module_file) + '/configs/build.cnf'
+			if os.path.isfile(cfg_file):
+				# use shutit.get_config, forcing the passed-in default
+				config_parser = ConfigParser.ConfigParser()
+				config_parser.read(cfg_file)
+				for section in config_parser.sections():
+					if section == module_id:
+						for option in config_parser.options(section):
+							override = False
+							for mod, opt, val in cfg['build']['config_overrides']:
+								# skip overrides
+								if mod == module_id and opt == option:
+									override = True
+							if override:
+								continue
+							is_bool = (type(cfg[module_id][option]) == bool)
+							if is_bool:
+								value = config_parser.getboolean(section,option)
+							else:
+								value = config_parser.get(section,option)
+							if option == 'shutit.core.module.allowed_images':
+								value = json.loads(value)
+							shutit.get_config(module_id, option,
+							                  value, forcedefault=True)
+	# Check the allowed_images against the base_image
+	passed = True
+	for module_id in module_ids(shutit):
+		if (cfg[module_id]['shutit.core.module.build'] and
+		   (cfg[module_id]['shutit.core.module.allowed_images'] and
+		    cfg['target']['docker_image'] not in cfg[module_id]['shutit.core.module.allowed_images'])):
+			if not allowed_image(shutit,module_id):
+				passed = False
+				if not silent:
+					print('\n\nWARNING!\n\nAllowed images for ' + module_id + ' are: ' +
+					      str(cfg[module_id]['shutit.core.module.allowed_images']) +
+					      ' but the configured image is: ' +
+					      cfg['target']['docker_image'] +
+					      '\n\nIs your shutit_module_path set correctly?' +
+					      '\n\nIf you want to ignore this, ' + 
+					      'pass in the --ignoreimage flag to shutit.\n\n')
+	if not passed:
+		if not throw_error:
+			return False
+		if cfg['build']['imageerrorok']:
+			# useful for test scripts
+			print('Exiting on allowed images error, with return status 0')
+			sys.exit(0)
+		else:
+			raise ShutItFailException('Allowed images checking failed')
+	return True
+
+
+def is_installed(shutit, shutit_module_obj):
+	"""Returns true if this module is installed.
+	Uses cache where possible.
+	"""
+	cfg = shutit.cfg
+	# Cache first
+	cfg = shutit.cfg
+	if shutit_module_obj.module_id in cfg['environment'][cfg['build']['current_environment_id']]['modules_installed']:
+		return True
+	if shutit_module_obj.module_id in cfg['environment'][cfg['build']['current_environment_id']]['modules_not_installed']:
+		return False
+	# Is it installed?
+	if shutit_module_obj.is_installed(shutit):
+		cfg['environment'][cfg['build']['current_environment_id']]['modules_installed'].append(shutit_module_obj.module_id)
+		return True
+	# If not installed, and not in cache, add it.
+	else:
+		if shutit_module_obj.module_id not in cfg['environment'][cfg['build']['current_environment_id']]['modules_not_installed']:
+			cfg['environment'][cfg['build']['current_environment_id']]['modules_not_installed'].append(shutit_module_obj.module_id)
+		return False
+
+
+def allowed_image(shutit,module_id):
+	"""Given a module id and a shutit object, determine whether the image is allowed to be built.
+	"""
+	cfg = shutit.cfg
+	shutit.log("In allowed_image: " + module_id)
+	cfg = shutit.cfg
+	if cfg['build']['ignoreimage']:
+		shutit.log("ignoreimage == true, returning true" + module_id)
+		return True
+	shutit.log(str(cfg[module_id]['shutit.core.module.allowed_images']))
+	if cfg[module_id]['shutit.core.module.allowed_images']:
+		# Try allowed images as regexps
+		for regexp in cfg[module_id]['shutit.core.module.allowed_images']:
+			if not check_regexp(regexp):
+				shutit.fail('Illegal regexp found in allowed_images: ' + regexp)
+			if re.match('^' + regexp + '$', cfg['target']['docker_image']):
+				return True
+	return False

@@ -26,7 +26,6 @@
 
 
 from shutit_module import ShutItModule, ShutItException, ShutItFailException
-import ConfigParser
 import shutit_util
 import urllib
 import shutit_global
@@ -36,61 +35,6 @@ import re
 import signal
 import sys
 from distutils import spawn
-
-
-
-
-def module_ids(shutit, rev=False):
-	"""Gets a list of module ids guaranteed to be sorted by run_order, ignoring conn modules
-	(run order < 0).
-	"""
-	ids = sorted(shutit.shutit_map.keys(),key=lambda module_id: shutit.shutit_map[module_id].run_order)
-	if rev:
-		return list(reversed(ids))
-	else:
-		return ids
-
-
-def allowed_module_ids(shutit, rev=False):
-	"""Gets a list of module ids that are allowed to be run,
-	guaranteed to be sorted by run_order, ignoring conn modules
-	(run order < 0).
-	"""
-	module_ids_list = module_ids(shutit,rev)
-	allowed_module_ids = []
-	for module_id in module_ids_list:
-		if allowed_image(shutit,module_id):
-			allowed_module_ids.append(module_id) 
-	return allowed_module_ids
-
-
-def disallowed_module_ids(shutit, rev=False):
-	"""Gets a list of disallowed module ids that are not allowed to be run,
-	guaranteed to be sorted by run_order, ignoring conn modules
-	(run order < 0).
-	"""
-	module_ids_list = module_ids(shutit,rev)
-	disallowed_module_ids = []
-	for module_id in module_ids_list:
-		if not allowed_image(shutit,module_id):
-			disallowed_module_ids.append(module_id) 
-	return disallowed_module_ids
-
-
-def print_modules(shutit):
-	"""Returns a string table representing the modules in the ShutIt module map.
-	"""
-	cfg = shutit.cfg
-	string = ''
-	string = string + 'Modules: \n'
-	string = string + '    Run order    Build    Remove    Module ID\n'
-	for module_id in module_ids(shutit):
-		string = string + ('    ' + str(shutit.shutit_map[module_id].run_order) +
-		                   '        ' +
-		                   str(cfg[module_id]['shutit.core.module.build']) + '    ' +
-		                   str(cfg[module_id]['shutit.core.module.remove']) + '    ' +
-		                   module_id + '\n')
-	return string
 
 
 # run_order of -1 means 'stop everything'
@@ -105,10 +49,10 @@ def stop_all(shutit, run_order=-1):
 			shutit_util.colour('32', '\n\n[Hit return to continue]'))
 		shutit_util.util_raw_input(shutit=shutit)
 	# sort them so they're stopped in reverse order
-	for module_id in module_ids(shutit, rev=True):
+	for module_id in shutit_util.module_ids(shutit, rev=True):
 		shutit_module_obj = shutit.shutit_map[module_id]
 		if run_order == -1 or shutit_module_obj.run_order <= run_order:
-			if is_installed(shutit, shutit_module_obj):
+			if shutit_util.is_installed(shutit, shutit_module_obj):
 				if not shutit_module_obj.stop(shutit):
 					shutit.fail('failed to stop: ' + \
 						module_id, child=shutit.pexpect_children['target_child'])
@@ -126,45 +70,17 @@ def start_all(shutit, run_order=-1):
 			shutit_util.colour('32', '\n\n[Hit return to continue]\n'))
 		shutit_util.util_raw_input(shutit=shutit)
 	# sort them so they're started in order
-	for module_id in module_ids(shutit):
+	for module_id in shutit_util.module_ids(shutit):
 		shutit_module_obj = shutit.shutit_map[module_id]
 		if run_order == -1 or shutit_module_obj.run_order <= run_order:
-			if is_installed(shutit, shutit_module_obj):
+			if shutit_util.is_installed(shutit, shutit_module_obj):
 				if not shutit_module_obj.start(shutit):
 					shutit.fail('failed to start: ' + module_id, \
 						child=shutit.pexpect_children['target_child'])
 
 
-def is_installed(shutit, shutit_module_obj):
-	"""Returns true if this module is installed.
-	Uses cache where possible.
-	"""
-	cfg = shutit.cfg
-	# Cache first
-	cfg = shutit.cfg
-	if shutit_module_obj.module_id in cfg['environment'][cfg['build']['current_environment_id']]['modules_installed']:
-		return True
-	if shutit_module_obj.module_id in cfg['environment'][cfg['build']['current_environment_id']]['modules_not_installed']:
-		return False
-	# Is it installed?
-	if shutit_module_obj.is_installed(shutit):
-		cfg['environment'][cfg['build']['current_environment_id']]['modules_installed'].append(shutit_module_obj.module_id)
-		return True
-	# If not installed, and not in cache, add it.
-	else:
-		if shutit_module_obj.module_id not in cfg['environment'][cfg['build']['current_environment_id']]['modules_not_installed']:
-			cfg['environment'][cfg['build']['current_environment_id']]['modules_not_installed'].append(shutit_module_obj.module_id)
-		return False
 
 
-def is_to_be_built_or_is_installed(shutit, shutit_module_obj):
-	"""Returns true if this module is configured to be built,
-	or if it is already installed.
-	"""
-	cfg = shutit.cfg
-	if cfg[shutit_module_obj.module_id]['shutit.core.module.build']:
-		return True
-	return is_installed(shutit, shutit_module_obj)
 
 
 def is_ready(shutit, shutit_module_obj):
@@ -254,137 +170,6 @@ def init_shutit_map(shutit):
 		shutit_util.util_raw_input(shutit=shutit)
 
 
-def config_collection(shutit):
-	"""Collect core config from config files for all seen modules.
-	"""
-	shutit.log('In config_collection')
-	cfg = shutit.cfg
-	for module_id in module_ids(shutit):
-		# Default to None so we can interpret as ifneeded
-		shutit.get_config(module_id, 'shutit.core.module.build', None, boolean=True, forcenone=True)
-		shutit.get_config(module_id, 'shutit.core.module.remove', False, boolean=True)
-		shutit.get_config(module_id, 'shutit.core.module.tag', False, boolean=True)
-		# Default to allow any image
-		shutit.get_config(module_id, 'shutit.core.module.allowed_images', [".*"])
-		module = shutit.shutit_map[module_id]
-		cfg_file = os.path.dirname(module.__module_file) + '/configs/build.cnf'
-		if os.path.isfile(cfg_file):
-			# use shutit.get_config, forcing the passed-in default
-			config_parser = ConfigParser.ConfigParser()
-			config_parser.read(cfg_file)
-			for section in config_parser.sections():
-				if section == module_id:
-					for option in config_parser.options(section):
-						if option == 'shutit.core.module.allowed_images':
-							override = False
-							for mod, opt, val in cfg['build']['config_overrides']:
-								# skip overrides
-								if mod == module_id and opt == option:
-									override = True
-							if override:
-								continue
-							value = config_parser.get(section,option)
-							if option == 'shutit.core.module.allowed_images':
-								value = json.loads(value)
-							shutit.get_config(module_id, option,
-							                  value, forcedefault=True)
-		# ifneeded will (by default) only take effect if 'build' is not
-		# specified. It can, however, be forced to a value, but this
-		# should be unusual.
-		if cfg[module_id]['shutit.core.module.build'] is None:
-			shutit.get_config(module_id, 'shutit.core.module.build_ifneeded', True, boolean=True)
-			cfg[module_id]['shutit.core.module.build'] = False
-		else:
-			shutit.get_config(module_id, 'shutit.core.module.build_ifneeded', False, boolean=True)
-
-
-def config_collection_for_built(shutit):
-	"""Collect configuration for modules that are being built.
-	When this is called we should know what's being built (ie after
-	dependency resolution).
-	"""
-	cfg = shutit.cfg
-	shutit.log('In config_collection_for_built')
-	cfg = shutit.cfg
-	for module_id in module_ids(shutit):
-		# Get the config even if installed or building (may be needed in other
-		# hooks, eg test).
-		if (is_to_be_built_or_is_installed(shutit, shutit.shutit_map[module_id]) and
-			not shutit.shutit_map[module_id].get_config(shutit)):
-				shutit.fail(module_id + ' failed on get_config')
-		# Collect the build.cfg if we are building here.
-		# If this file exists, process it.
-		if cfg[module_id]['shutit.core.module.build']:
-			module = shutit.shutit_map[module_id]
-			cfg_file = os.path.dirname(module.__module_file) + '/configs/build.cnf'
-			if os.path.isfile(cfg_file):
-				# use shutit.get_config, forcing the passed-in default
-				config_parser = ConfigParser.ConfigParser()
-				config_parser.read(cfg_file)
-				for section in config_parser.sections():
-					if section == module_id:
-						for option in config_parser.options(section):
-							override = False
-							for mod, opt, val in cfg['build']['config_overrides']:
-								# skip overrides
-								if mod == module_id and opt == option:
-									override = True
-							if override:
-								continue
-							is_bool = (type(cfg[module_id][option]) == bool)
-							if is_bool:
-								value = config_parser.getboolean(section,option)
-							else:
-								value = config_parser.get(section,option)
-							if option == 'shutit.core.module.allowed_images':
-								value = json.loads(value)
-							shutit.get_config(module_id, option,
-							                  value, forcedefault=True)
-	# Check the allowed_images against the base_image
-	passed = True
-	for module_id in module_ids(shutit):
-		if (cfg[module_id]['shutit.core.module.build'] and
-		   (cfg[module_id]['shutit.core.module.allowed_images'] and
-		    cfg['target']['docker_image'] not in cfg[module_id]['shutit.core.module.allowed_images'])):
-			if not allowed_image(shutit,module_id):
-				passed = False
-				print('\n\nWARNING!\n\nAllowed images for ' + module_id + ' are: ' +
-				      str(cfg[module_id]['shutit.core.module.allowed_images']) +
-				      ' but the configured image is: ' +
-				      cfg['target']['docker_image'] +
-				      '\n\nIs your shutit_module_path set correctly?' +
-				      '\n\nIf you want to ignore this, ' + 
-				      'pass in the --ignoreimage flag to shutit.\n\n')
-	if not passed:
-		if cfg['build']['imageerrorok']:
-			# useful for test scripts
-			print('Exiting on allowed images error, with return status 0')
-			sys.exit(0)
-		else:
-			raise ShutItFailException('Allowed images checking failed')
-
-
-def allowed_image(shutit,module_id):
-	"""Given a module id and a shutit object, determine whether the image is allowed to be built.
-	"""
-	cfg = shutit.cfg
-	shutit.log("In allowed_image: " + module_id)
-	cfg = shutit.cfg
-	if cfg['build']['ignoreimage']:
-		shutit.log("ignoreimage == true, returning true" + module_id)
-		return True
-	shutit.log(str(cfg[module_id]['shutit.core.module.allowed_images']))
-	if cfg[module_id]['shutit.core.module.allowed_images']:
-		# Try allowed images as regexps
-		for regexp in cfg[module_id]['shutit.core.module.allowed_images']:
-			if not shutit_util.check_regexp(regexp):
-				shutit.fail('Illegal regexp found in allowed_images: ' + regexp)
-			if re.match('^' + regexp + '$', cfg['target']['docker_image']):
-				return True
-	return False
-	
-
-
 def conn_target(shutit):
 	"""Connect to the target.
 	"""
@@ -463,7 +248,7 @@ def check_dependee_build(shutit, depender, dependee, dependee_id):
 	# If depender is installed or will be installed, so must the dependee
 	cfg = shutit.cfg
 	if not (cfg[dependee.module_id]['shutit.core.module.build'] or
-	        is_to_be_built_or_is_installed(shutit,dependee)):
+	        shutit_util.is_to_be_built_or_is_installed(shutit,dependee)):
 		return ('depender module id:\n\n[' + depender.module_id + ']\n\n' +
 		        'is configured: "build:yes" or is already built ' +
 		        'but dependee module_id:\n\n[' + dependee_id + ']\n\n' +
@@ -546,7 +331,7 @@ def check_deps(shutit):
 
 	if cfg['build']['debug']:
 		shutit.log('Modules configured to be built (in order) are: ', code='32')
-		for module_id in module_ids(shutit):
+		for module_id in shutit_util.module_ids(shutit):
 			module = shutit.shutit_map[module_id]
 			if cfg[module_id]['shutit.core.module.build']:
 				shutit.log(module_id + '    ' + str(module.run_order), code='32')
@@ -564,7 +349,7 @@ def check_conflicts(shutit):
 	errs = []
 	shutit.pause_point('\nNow checking for conflicts between modules',
 	                   print_input=False, level=3)
-	for module_id in module_ids(shutit):
+	for module_id in shutit_util.module_ids(shutit):
 		if not cfg[module_id]['shutit.core.module.build']:
 			continue
 		conflicter = shutit.shutit_map[module_id]
@@ -574,9 +359,9 @@ def check_conflicts(shutit):
 			if conflictee_obj == None:
 				continue
 			if ((cfg[conflicter.module_id]['shutit.core.module.build'] or
-			     is_to_be_built_or_is_installed(shutit,conflicter)) and
+			     shutit_util.is_to_be_built_or_is_installed(shutit,conflicter)) and
 			    (cfg[conflictee_obj.module_id]['shutit.core.module.build'] or
-			     is_to_be_built_or_is_installed(shutit,conflictee_obj))):
+			     shutit_util.is_to_be_built_or_is_installed(shutit,conflictee_obj))):
 			    errs.append(('conflicter module id: ' + conflicter.module_id +
 	                    ' is configured to be built or is already built but ' +
 	                    'conflicts with module_id: ' + conflictee_obj.module_id,))
@@ -586,7 +371,7 @@ def check_conflicts(shutit):
 def check_ready(shutit, throw_error=True):
 	"""Check that all modules are ready to be built, calling check_ready on
 	each of those configured to be built and not already installed
-	(see is_installed).
+	(see shutit_util.is_installed).
 	"""
 	cfg = shutit.cfg
 	shutit.log('PHASE: check_ready', code='32')
@@ -595,11 +380,11 @@ def check_ready(shutit, throw_error=True):
 	                   ' configured to be built',
 	                   print_input=False, level=3)
 	# Find out who we are to see whether we need to log in and out or not. 
-	for module_id in module_ids(shutit):
+	for module_id in shutit_util.module_ids(shutit):
 		module = shutit.shutit_map[module_id]
 		shutit.log('considering check_ready (is it ready to be built?): ' +
 		           module_id, code='32')
-		if cfg[module_id]['shutit.core.module.build'] and module.module_id not in cfg['environment'][cfg['build']['current_environment_id']]['modules_ready'] and not is_installed(shutit,module):
+		if cfg[module_id]['shutit.core.module.build'] and module.module_id not in cfg['environment'][cfg['build']['current_environment_id']]['modules_ready'] and not shutit_util.is_installed(shutit,module):
 			shutit.log('checking whether module is ready to build: ' + module_id,
 			           code='32')
 			shutit.login(prompt_prefix=module_id,command='bash')
@@ -627,7 +412,7 @@ def do_remove(shutit):
 	shutit.pause_point('\nNow removing any modules that need removing',
 					   print_input=False, level=3)
 	# Login at least once to get the exports.
-	for module_id in module_ids(shutit):
+	for module_id in shutit_util.module_ids(shutit):
 		module = shutit.shutit_map[module_id]
 		shutit.log('considering whether to remove: ' + module_id, code='32')
 		if cfg[module_id]['shutit.core.module.remove']:
@@ -716,7 +501,7 @@ def do_build(shutit):
 		print ('\nNow building any modules that need building' +
 	 	       shutit_util.colour('32', '\n\n[Hit return to continue]\n'))
 		shutit_util.util_raw_input(shutit=shutit)
-	module_id_list = module_ids(shutit)
+	module_id_list = shutit_util.module_ids(shutit)
 	if cfg['build']['deps_only']:
 		module_id_list_build_only = filter(lambda x: cfg[x]['shutit.core.module.build'], module_id_list)
 	for module_id in module_id_list:
@@ -726,7 +511,7 @@ def do_build(shutit):
 		if cfg[module.module_id]['shutit.core.module.build']:
 			if cfg['build']['delivery'] not in module.ok_delivery_methods:
 				shutit.fail('Module: ' + module.module_id + ' can only be built with one of these --delivery methods: ' + str(module.ok_delivery_methods) + '\nSee shutit build -h for more info, or try adding: --delivery <method> to your shutit invocation')
-			if is_installed(shutit,module):
+			if shutit_util.is_installed(shutit,module):
 				cfg['build']['report'] = (cfg['build']['report'] +
 				    '\nBuilt already: ' + module.module_id +
 				    ' with run order: ' + str(module.run_order))
@@ -745,7 +530,7 @@ def do_build(shutit):
 					build_module(shutit, module)
 					shutit.logout()
 					shutit.chdir(revert_dir)
-		if is_installed(shutit, module):
+		if shutit_util.is_installed(shutit, module):
 			shutit.log('Starting module')
 			if not module.start(shutit):
 				shutit.fail(module.module_id + ' failed on start',
@@ -767,10 +552,10 @@ def do_test(shutit):
 		shutit_util.util_raw_input(shutit=shutit)
 	stop_all(shutit)
 	start_all(shutit)
-	for module_id in module_ids(shutit, rev=True):
+	for module_id in shutit_util.module_ids(shutit, rev=True):
 		module = shutit.shutit_map[module_id]
 		# Only test if it's installed.
-		if is_installed(shutit, shutit.shutit_map[module_id]):
+		if shutit_util.is_installed(shutit, shutit.shutit_map[module_id]):
 			shutit.log('RUNNING TEST ON: ' + module_id, code='32')
 			shutit.login(prompt_prefix=module_id,command='bash')
 			if not shutit.shutit_map[module_id].test(shutit):
@@ -798,9 +583,9 @@ def do_finalize(shutit):
 		      shutit_util.colour('32', '\n\n[Hit return to continue]\n'))
 		shutit_util.util_raw_input(shutit=shutit)
 	# Login at least once to get the exports.
-	for module_id in module_ids(shutit, rev=True):
+	for module_id in shutit_util.module_ids(shutit, rev=True):
 		# Only finalize if it's thought to be installed.
-		if is_installed(shutit, shutit.shutit_map[module_id]):
+		if shutit_util.is_installed(shutit, shutit.shutit_map[module_id]):
 			shutit.login(prompt_prefix=module_id,command='bash')
 			if not shutit.shutit_map[module_id].finalize(shutit):
 				shutit.fail(module_id + ' failed on finalize',
@@ -886,35 +671,14 @@ def main():
 		sys.exit(0)
 
 	init_shutit_map(shutit)
-	config_collection(shutit)
+	shutit_util.config_collection(shutit)
 
 	conn_target(shutit)
 
-	errs = []
 	if cfg['build']['interactive'] > 0:
-		while True:
-			shutit_util.list_modules(shutit,long_output=False,sort_order='run_order')
-			errs.extend(check_deps(shutit))
-			# Which module do you want to toggle?
-			module_id = shutit_util.util_raw_input(prompt='Which module id do you want to toggle? (just hit return to continue)\n')
-			if module_id:
-				cfg[module_id]['shutit.core.module.build'] = not cfg[module_id]['shutit.core.module.build']
-
-				# If true, set up config for that module
-				if cfg[module_id]['shutit.core.module.build']:
-					while True:
-						print shutit_util.print_config(cfg,module_id=module_id)
-						name = shutit_util.util_raw_input(prompt='Above is the config for that module. Hit return to continue, or a config item you want to update.\n')
-						if name:
-							val = shutit_util.util_raw_input(prompt='Input the value new for that config item.\n')
-							# TODO: handle blank/None, lists, booleans etc.
-							cfg[module_id][name] = val
-				else:
-					pass
-					# TODO: if removing, get any that depend on it, and remove those too
-			else:
-				break
+		errs = do_interactive_modules(shutit)
 	else:
+		errs = []
 		errs.extend(check_deps(shutit))
 
 	if cfg['action']['list_deps']:
@@ -946,7 +710,7 @@ def main():
 		# Exit now
 		sys.exit(0)
 	# Dependency validation done, now collect configs of those marked for build.
-	config_collection_for_built(shutit)
+	shutit_util.config_collection_for_built(shutit)
 
 
 	if False and (cfg['action']['list_configs'] or cfg['build']['debug']):
@@ -1036,6 +800,79 @@ def do_phone_home(msg=None,question='Error seen - would you like to inform the m
 	except Exception as e:
 		shutit_global.shutit.log('failed to send message: ' + str(e.message))
 
+def do_interactive_modules(shutit):
+	cfg = shutit.cfg
+	errs = []
+	while True:
+		shutit_util.list_modules(shutit,long_output=False,sort_order='run_order')
+		# Which module do you want to toggle?
+		# TODO: show only 'compatible' modules (ie build type and base images etc)
+		module_id = shutit_util.util_raw_input(prompt='Which module id do you want to toggle?\n(just hit return to continue with build)\n')
+		if module_id:
+			try:
+				cfg[module_id]
+			except:
+				print 'Please input a valid module id'
+				continue
+			cfg[module_id]['shutit.core.module.build'] = not cfg[module_id]['shutit.core.module.build']
+			##TODO: why does this not work?
+			#errs.extend(check_deps(shutit))
+			#errs.extend(check_conflicts(shutit))
+			#if not shutit_util.config_collection_for_built(shutit,throw_error=False):
+			#	shutit_util.util_raw_input(prompt='Hit return to continue.\n')
+			#	continue
+			# If true, set up config for that module
+			if cfg[module_id]['shutit.core.module.build']:
+				while True:
+					print shutit_util.print_config(cfg,module_id=module_id)
+					name = shutit_util.util_raw_input(prompt='Above is the config for that module. Hit return to continue, or a config item you want to update.\n')
+					if name:
+						doing_list = False
+						while True:
+							if doing_list:
+								val_type = shutit_util.util_raw_input(prompt='Input the type for the next list item: b(oolean), s(tring).\n')
+								if val_type not in ('b','s',''):
+									continue
+							else:
+								val_type = shutit_util.util_raw_input(prompt='Input the type for that config item: b(oolean), s(tring), l(ist).\n')
+								if val_type not in ('b','s','l',''):
+									continue
+							if val_type == 's':
+								val = shutit_util.util_raw_input(prompt='Input the value new for that config item.\n')
+								if doing_list:
+									newcfg_list.append(val)	
+								else:
+									break
+							elif val_type == 'b':
+								val = shutit_util.util_raw_input(prompt='Input the value new for the boolean (t/f).\n')
+								if doing_list:
+									if val == 't':
+										newcfg_list.append(True)
+									elif val == 'f':
+										newcfg_list.append(False)
+									else:
+										print 'Input t or f please'
+										continue
+								else:
+									break
+							elif val_type == 'l':
+								doing_list = True
+								newcfg_list = []
+							elif val_type == '':
+								break
+						# TODO: handle blank/None
+						if doing_list:
+							cfg[module_id][name] = newcfg_list
+						else:
+							cfg[module_id][name] = val
+					else:
+						break
+			else:
+				pass
+				# TODO: if removing, get any that depend on it, and remove those too
+		else:
+			break
+	return errs
 
 signal.signal(signal.SIGINT, shutit_util.ctrl_c_signal_handler)
 

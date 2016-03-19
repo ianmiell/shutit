@@ -89,7 +89,7 @@ def update_modules(to_build, cfg):
 	# There is a complexity here in that module configs may depend on
 	# configs from other modules (!). We assume this won't happen as we
 	# would have to override each module at the correct time.
-	shutit_main.config_collection_for_built(shutit)
+	shutit_util.config_collection_for_built(shutit)
 	errs.extend(shutit_main.check_conflicts(shutit))
 	# Cache first
 	errs.extend(shutit_main.check_ready(shutit, throw_error=False))
@@ -227,7 +227,7 @@ def shutit_reset():
 		else:
 			STATUS['image_tag'] = shutit.cfg['target']['docker_image']
 		shutit_main.conn_target(shutit)
-		shutit_main.config_collection_for_built(shutit)
+		shutit_util.config_collection_for_built(shutit)
 
 		# Some hacks for server mode
 		shutit.cfg['build']['build_log_file'] = StringIO.StringIO()

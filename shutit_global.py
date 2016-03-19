@@ -360,7 +360,7 @@ class ShutIt(object):
 	               echo=True,
 	               escape=False,
 	               note=None):
-		"""Send string on a regular cadence until a string is either seen
+		"""Send string on a regular cadence until a string is either seen, or the timeout is triggered.
 
 		@param send:                 See send()
 		@param regexps:              List of regexps to wait for.
@@ -801,7 +801,7 @@ END_""" + random_id)
 		return True
 
 
-	def run_script(self, script, expect=None, child=None, in_shell=True, note=None):
+	def run_script(self, script, expect=None, child=None, in_shell=True, note=None, log=True):
 		"""Run the passed-in string as a script on the target's command line.
 
 		@param script:   String representing the script. It will be de-indented
@@ -818,6 +818,7 @@ END_""" + random_id)
 		expect = expect or self.get_default_expect()
 	 	cfg = self.cfg
 		self._handle_note(note, 'Script: ' + str(script))
+		self.log('Running script beginning:\n"' + script[:80],force_stdout=log,code=31)
 		# Trim any whitespace lines from start and end of script, then dedent
 		lines = script.split('\n')
 		while len(lines) > 0 and re.match('^[ \t]*$', lines[0]):
@@ -867,7 +868,7 @@ END_""" + random_id)
 		expect = expect or self.get_default_expect()
 		cfg = self.cfg
 		self._handle_note(note, 'Sending contents to path: ' + path)
-		self.log('Sending file contents beginning:\n"' + contents[:80] + '"\n\n to file: ' + path,force_stdout=True,code=31)
+		self.log('Sending file contents beginning:\n"' + contents[:80] + '"\n\n to file: ' + path,force_stdout=log,code=31)
 		if user == None:
 			user = self.whoami()
 		if group == None:
@@ -938,6 +939,7 @@ END_''' + random_id, echo=False)
 		expect = expect or self.get_default_expect()
 		cfg = self.cfg
 		self._handle_note(note, 'Changing to path: ' + path)
+		self.log('Changing directory to path: "' + path,force_stdout=True,code=31)
 		if cfg['build']['delivery'] in ('bash','dockerfile'):
 			self.send('cd ' + path, expect=expect, child=child, timeout=timeout, echo=False)
 		elif cfg['build']['delivery'] in ('docker','ssh'):
