@@ -1028,7 +1028,7 @@ def list_modules(shutit,long_output=None,sort_order=None):
 					compatible = True
 					if not cfg[m.module_id]['shutit.core.module.build']:
 						cfg[m.module_id]['shutit.core.module.build'] = True
-						if determine_compatibility(shutit,m.module_id):
+						if determine_compatibility(shutit,m.module_id) == 0:
 							compatible = True
 						else:
 							compatible = False
@@ -1052,7 +1052,7 @@ def list_modules(shutit,long_output=None,sort_order=None):
 					compatible = True
 					if not cfg[m.module_id]['shutit.core.module.build']:
 						cfg[m.module_id]['shutit.core.module.build'] = True
-						if determine_compatibility(shutit,m.module_id):
+						if determine_compatibility(shutit,m.module_id) == 0:
 							compatible = True
 						else:
 							compatible = False
@@ -2411,9 +2411,13 @@ def config_collection_for_built(shutit,throw_error=True,silent=False):
 
 def determine_compatibility(shutit,module_id):
 	cfg = shutit.cfg
+	# Allowed images
 	if (cfg[module_id]['shutit.core.module.allowed_images'] and cfg['target']['docker_image'] not in cfg[module_id]['shutit.core.module.allowed_images']) and not allowed_image(shutit,module_id):
-			return False
-	return True
+			return 1
+	# Build methods
+	if cfg[module_id]['shutit.core.module.build'] and cfg['build']['delivery'] not in module.ok_delivery_methods:
+		return 2
+	return 0
 
 
 def is_installed(shutit, shutit_module_obj):
