@@ -1004,11 +1004,12 @@ def list_modules(shutit,long_output=None,sort_order=None):
 		sort_order = cfg['list_modules']['sort']
 	if long_output:
 		# --long table: sort modules by run order
-		#table_list.append(["Order","Module ID","Description","Run Order","Built","Compatible"])
-		table_list.append(["Order","Module ID","Description","Run Order","Built"])
+		table_list.append(["Order","Module ID","Description","Run Order","Built","Compatible"])
+		#table_list.append(["Order","Module ID","Description","Run Order","Built"])
 	else:
 		# "short" table ==> sort module by module_id
-		table_list.append(["Module ID","Description","Built"])
+		#table_list.append(["Module ID","Description","Built"])
+		table_list.append(["Module ID","Description","Built","Compatible"])
 
 	if sort_order == 'run_order':
 		a = {}
@@ -1024,18 +1025,20 @@ def list_modules(shutit,long_output=None,sort_order=None):
 			for m in shutit.shutit_modules:
 				if m.module_id == k:
 					count = count + 1
-					#if not cfg[m.module_id]['shutit.core.module.build']:
-					#	cfg[m.module_id]['shutit.core.module.build'] = True
-					#	if config_collection_for_built(shutit,throw_error=False,silent=True):
-					#		compatible = True
-					#	else:
-					#		compatible = False
-					#	cfg[m.module_id]['shutit.core.module.build'] = False
+					compatible = True
+					if not cfg[m.module_id]['shutit.core.module.build']:
+						cfg[m.module_id]['shutit.core.module.build'] = True
+						if determine_compatibility(shutit,m.module_id):
+							compatible = True
+						else:
+							compatible = False
+						cfg[m.module_id]['shutit.core.module.build'] = False
 					if long_output:
-						#table_list.append([str(count),m.module_id,m.description,str(m.run_order),str(cfg[m.module_id]['shutit.core.module.build']),compatible])
-						table_list.append([str(count),m.module_id,m.description,str(m.run_order),str(cfg[m.module_id]['shutit.core.module.build'])])
+						table_list.append([str(count),m.module_id,m.description,str(m.run_order),str(cfg[m.module_id]['shutit.core.module.build']),str(compatible)])
+						#table_list.append([str(count),m.module_id,m.description,str(m.run_order),str(cfg[m.module_id]['shutit.core.module.build'])])
 					else:
-						table_list.append([m.module_id,m.description,str(cfg[m.module_id]['shutit.core.module.build'])])
+						#table_list.append([m.module_id,m.description,str(cfg[m.module_id]['shutit.core.module.build'])])
+						table_list.append([m.module_id,m.description,str(cfg[m.module_id]['shutit.core.module.build']),str(compatible)])
 	elif sort_order == 'id':
 		a = []
 		for m in shutit.shutit_modules:
@@ -1046,17 +1049,19 @@ def list_modules(shutit,long_output=None,sort_order=None):
 			for m in shutit.shutit_modules:
 				if m.module_id == k:
 					count = count + 1
+					compatible = True
 					if not cfg[m.module_id]['shutit.core.module.build']:
 						cfg[m.module_id]['shutit.core.module.build'] = True
-						#if config_collection_for_built(shutit,throw_error=False,silent=True):
-						#	compatible = True
-						#else:
-						#	compatible = False
+						if determine_compatibility(shutit,m.module_id):
+							compatible = True
+						else:
+							compatible = False
 					if sort_order:
-						#table_list.append([str(count),m.module_id,m.description,str(m.run_order),str(cfg[m.module_id]['shutit.core.module.build']),compatible])
-						table_list.append([str(count),m.module_id,m.description,str(m.run_order),str(cfg[m.module_id]['shutit.core.module.build'])])
+						table_list.append([str(count),m.module_id,m.description,str(m.run_order),str(cfg[m.module_id]['shutit.core.module.build']),str(compatible)])
+						#table_list.append([str(count),m.module_id,m.description,str(m.run_order),str(cfg[m.module_id]['shutit.core.module.build'])])
 					else:
-						table_list.append([m.module_id,m.description,str(cfg[m.module_id]['shutit.core.module.build'])])
+						#table_list.append([m.module_id,m.description,str(cfg[m.module_id]['shutit.core.module.build'])])
+						table_list.append([m.module_id,m.description,str(cfg[m.module_id]['shutit.core.module.build']),str(compatible)])
 
 	# format table for display
 	table = texttable.Texttable(max_width=160)
@@ -2267,6 +2272,7 @@ def print_modules(shutit):
 		                   module_id + '\n')
 	return string
 
+
 def config_collection(shutit):
 	"""Collect core config from config files for all seen modules.
 	"""
@@ -2311,7 +2317,6 @@ def config_collection(shutit):
 			shutit.get_config(module_id, 'shutit.core.module.build_ifneeded', False, boolean=True)
 
 
-
 def disallowed_module_ids(shutit, rev=False):
 	"""Gets a list of disallowed module ids that are not allowed to be run,
 	guaranteed to be sorted by run_order, ignoring conn modules
@@ -2324,6 +2329,7 @@ def disallowed_module_ids(shutit, rev=False):
 			disallowed_module_ids.append(module_id) 
 	return disallowed_module_ids
 
+
 def is_to_be_built_or_is_installed(shutit, shutit_module_obj):
 	"""Returns true if this module is configured to be built,
 	or if it is already installed.
@@ -2332,6 +2338,7 @@ def is_to_be_built_or_is_installed(shutit, shutit_module_obj):
 	if cfg[shutit_module_obj.module_id]['shutit.core.module.build']:
 		return True
 	return is_installed(shutit, shutit_module_obj)
+
 
 def config_collection_for_built(shutit,throw_error=True,silent=False):
 	"""Collect configuration for modules that are being built.
@@ -2399,6 +2406,13 @@ def config_collection_for_built(shutit,throw_error=True,silent=False):
 			sys.exit(0)
 		else:
 			raise ShutItFailException('Allowed images checking failed')
+	return True
+
+
+def determine_compatibility(shutit,module_id):
+	cfg = shutit.cfg
+	if (cfg[module_id]['shutit.core.module.allowed_images'] and cfg['target']['docker_image'] not in cfg[module_id]['shutit.core.module.allowed_images']) and not allowed_image(shutit,module_id):
+			return False
 	return True
 
 

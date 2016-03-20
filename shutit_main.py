@@ -818,9 +818,10 @@ def do_interactive_modules(shutit):
 			##TODO: why does this not work?
 			#errs.extend(check_deps(shutit))
 			#errs.extend(check_conflicts(shutit))
-			#if not shutit_util.config_collection_for_built(shutit,throw_error=False):
-			#	shutit_util.util_raw_input(prompt='Hit return to continue.\n')
-			#	continue
+			if not shutit_util.config_collection_for_built(shutit,throw_error=False):
+				cfg[module_id]['shutit.core.module.build'] = not cfg[module_id]['shutit.core.module.build']
+				shutit_util.util_raw_input(prompt='Hit return to continue.\n')
+				continue
 			# If true, set up config for that module
 			if cfg[module_id]['shutit.core.module.build']:
 				while True:
