@@ -818,7 +818,7 @@ END_""" + random_id)
 		expect = expect or self.get_default_expect()
 	 	cfg = self.cfg
 		self._handle_note(note, 'Script: ' + str(script))
-		self.log('Running script beginning:\n"' + script[:80],force_stdout=log,code=31)
+		self.log('Running script beginning:\n"' + script[:80] + '[...]',code=31)
 		# Trim any whitespace lines from start and end of script, then dedent
 		lines = script.split('\n')
 		while len(lines) > 0 and re.match('^[ \t]*$', lines[0]):
@@ -868,14 +868,13 @@ END_""" + random_id)
 		expect = expect or self.get_default_expect()
 		cfg = self.cfg
 		self._handle_note(note, 'Sending contents to path: ' + path)
-		self.log('Sending file contents beginning:\n"' + contents[:80] + '"\n\n to file: ' + path,force_stdout=log,code=31)
+		self.log('Sending file contents beginning:\n"' + contents[:80] + '"\n\n to file: ' + path,code=31)
 		if user == None:
 			user = self.whoami()
 		if group == None:
 			group = self.whoarewe()
 		if cfg['build']['debug']:
 			self.log('='*80)
-			self.log('Sending file to: ' + path)
 			if log:
 				for c in contents:
 					if c not in string.ascii_letters:
@@ -939,7 +938,7 @@ END_''' + random_id, echo=False)
 		expect = expect or self.get_default_expect()
 		cfg = self.cfg
 		self._handle_note(note, 'Changing to path: ' + path)
-		self.log('Changing directory to path: "' + path,force_stdout=True,code=31)
+		self.log('Changing directory to path: "' + path,code=31)
 		if cfg['build']['delivery'] in ('bash','dockerfile'):
 			self.send('cd ' + path, expect=expect, child=child, timeout=timeout, echo=False)
 		elif cfg['build']['delivery'] in ('docker','ssh'):
@@ -978,7 +977,7 @@ END_''' + random_id, echo=False)
 		expect = expect or self.get_default_expect()
 		cfg = self.cfg
 		self._handle_note(note, 'Sending file from host: ' + hostfilepath + '\nTo: ' + path)
-		self.log('Sending file from host: ' + hostfilepath + '\nTo: ' + path,force_stdout=True,code=31)
+		self.log('Sending file from host: ' + hostfilepath + '\nTo: ' + path,code=31)
 		if user == None:
 			user = self.whoami()
 		if group == None:
@@ -1032,7 +1031,7 @@ END_''' + random_id, echo=False)
 		expect = expect or self.get_default_expect()
 		self.log('entered send_host_dir in: ' + os.getcwd())
 		self._handle_note(note, 'Sending host directory: ' + hostfilepath + '\nTo: ' + path)
-		self.log(note, 'Sending host directory: ' + hostfilepath + '\nTo: ' + path,force_stdout=True,code=31)
+		self.log(note, 'Sending host directory: ' + hostfilepath + '\nTo: ' + path,code=31)
 		if user == None:
 			user = self.whoami()
 		if group == None:
