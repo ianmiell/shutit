@@ -675,7 +675,7 @@ def main():
 
 	conn_target(shutit)
 
-	if cfg['build']['interactive'] > 0:
+	if cfg['build']['interactive'] > 0 and cfg['build']['choose_config']:
 		errs = do_interactive_modules(shutit)
 	else:
 		errs = []

@@ -579,6 +579,7 @@ def parse_args(shutit):
 	sub_parsers['build'].add_argument('--distro', help='Specify the distro type', default='', choices=('ubuntu','debian','alpine','steamos','red hat','centos','fedora','shutit'))
 	sub_parsers['build'].add_argument('--mount_docker', help='Mount the docker socket', default=False, action='store_const', const=True)
 	sub_parsers['build'].add_argument('-w','--walkthrough', help='Run in walkthrough mode', default=False, action='store_const', const=True)
+	sub_parsers['build'].add_argument('-c','--choose_config', help='Choose configuration interactively', default=False, action='store_const', const=True)
 	sub_parsers['build'].add_argument('--video', help='Run in video mode. Same as walkthrough, but waits n seconds rather than for input', nargs=1, default=-1)
 	sub_parsers['build'].add_argument('--training', help='Run in "training" mode, where correct input is required at key points', default=False, action='store_const', const=True)
 
@@ -711,13 +712,14 @@ def parse_args(shutit):
 	cfg['list_modules']['sort']       = None
 	cfg['build']['video']             = False
 	cfg['build']['training']        = False
-	# Persistence-related arguments.
+	# Persistence- and build-related arguments.
 	if cfg['action']['build']:
 		cfg['repository']['push']   = args.push
 		cfg['repository']['export'] = args.export
 		cfg['repository']['save']   = args.save
 		cfg['build']['distro_override'] = args.distro
 		cfg['build']['mount_docker']    = args.mount_docker
+		cfg['build']['choose_config']   = args.choose_config
 		cfg['build']['walkthrough']     = args.walkthrough
 		cfg['build']['training']      = args.training
 		if cfg['build']['training'] and not cfg['build']['walkthrough']:

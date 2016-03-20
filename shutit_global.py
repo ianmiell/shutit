@@ -2412,7 +2412,7 @@ END_''' + random_id, echo=False)
 			print '\n' + 80 * '='
 		self._handle_note(note,command=command + ', as user: "' + user + '"',training_input=send)
 		# r'[^t] login:' - be sure not to match 'last login:'
-		self.multisend(send,{'ontinue connecting':'yes','assword':password,r'[^t] login:':password},expect=general_expect,check_exit=False,timeout=timeout,fail_on_empty_before=False,escape=escape,echo=False)
+		self.multisend(send,{'ontinue connecting':'yes','assword':password,r'[^t] login:':password},expect=general_expect,check_exit=False,timeout=timeout,fail_on_empty_before=False,escape=escape)
 		#if not self._check_exit(send,expect=general_expect):
 		#	self.pause_point('Login failed?')
 		if prompt_prefix != None:
