@@ -1,1 +1,9 @@
-shutit_main.py
+#!/usr/bin/env python
+from os import path
+import sys
+rootdir = path.abspath(path.dirname(__file__))
+sys.path.append(rootdir + '/src')
+import shutit_main
+                                                                                                                                                 
+if __name__ == '__main__':                                                                                                                                                    
+    shutit_main.main()
