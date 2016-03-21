@@ -806,7 +806,6 @@ def do_interactive_modules(shutit):
 	while True:
 		shutit_util.list_modules(shutit,long_output=False,sort_order='run_order')
 		# Which module do you want to toggle?
-		# TODO: show only 'compatible' modules (ie build type and base images etc)
 		module_id = shutit_util.util_raw_input(prompt='Which module id do you want to toggle?\n(just hit return to continue with build)\n')
 		if module_id:
 			try:
@@ -815,15 +814,13 @@ def do_interactive_modules(shutit):
 				print 'Please input a valid module id'
 				continue
 			cfg[module_id]['shutit.core.module.build'] = not cfg[module_id]['shutit.core.module.build']
-			##TODO: why does this not work?
-			#errs.extend(check_deps(shutit))
-			#errs.extend(check_conflicts(shutit))
 			if not shutit_util.config_collection_for_built(shutit,throw_error=False):
 				cfg[module_id]['shutit.core.module.build'] = not cfg[module_id]['shutit.core.module.build']
 				shutit_util.util_raw_input(prompt='Hit return to continue.\n')
 				continue
 			# If true, set up config for that module
 			if cfg[module_id]['shutit.core.module.build']:
+				# TODO: does this catch all the ones switched on? Once done, get configs for all those.
 				while True:
 					print shutit_util.print_config(cfg,module_id=module_id)
 					name = shutit_util.util_raw_input(prompt='Above is the config for that module. Hit return to continue, or a config item you want to update.\n')

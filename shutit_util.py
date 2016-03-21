@@ -2417,7 +2417,7 @@ def determine_compatibility(shutit,module_id):
 	if (cfg[module_id]['shutit.core.module.allowed_images'] and cfg['target']['docker_image'] not in cfg[module_id]['shutit.core.module.allowed_images']) and not allowed_image(shutit,module_id):
 			return 1
 	# Build methods
-	if cfg[module_id]['shutit.core.module.build'] and cfg['build']['delivery'] not in module.ok_delivery_methods:
+	if cfg[module_id]['shutit.core.module.build'] and cfg['build']['delivery'] not in shutit.shutit_map[module_id].ok_delivery_methods:
 		return 2
 	return 0
 
