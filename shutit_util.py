@@ -55,6 +55,7 @@ import threading
 import string
 import random
 import texttable
+import readline
 
 _default_cnf = '''
 ################################################################################
@@ -1729,10 +1730,13 @@ def parse_dockerfile(shutit, contents):
 				full_line = ''
 	return ret
 
-def util_raw_input(shutit=None, prompt='', default=None, ispass=False):
+def util_raw_input(shutit=None, prompt='', default=None, ispass=False, use_readline=True):
 	"""Handles raw_input calls, and switches off interactivity if there is apparently
 	no controlling terminal (or there are any other problems)
 	"""
+	if use_readline:
+		readline.read_init_file('/etc/inputrc')
+		readline.parse_and_bind('tab: complete')
 	msg = ''
 	prompt = '\n' + prompt + '\n'
 	if shutit and shutit.cfg['build']['interactive'] == 0:

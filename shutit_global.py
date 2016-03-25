@@ -37,6 +37,7 @@ import getpass
 import package_map
 import datetime
 import pexpect
+import md5
 from shutit_module import ShutItFailException
 
 class ShutIt(object):
@@ -411,6 +412,50 @@ class ShutIt(object):
 
 	         
   
+	def golf(self,
+             task_desc,
+             expect_regexps=None,
+             md5sum=None,
+	         child=None,
+	         timeout=None,
+	         check_exit=None,
+	         fail_on_empty_before=True,
+	         record_command=True,
+	         exit_values=None,
+	         echo=True,
+	         escape=False):
+		"""Set the user a task to complete, success being determined by matching the output.
+
+		Either pass in regexp(s) desired from the output as a string or a list, or an md5sum of the output wanted.
+		"""
+		child = child or self.get_default_child()
+		is_md5sum = False
+		if expect_regexps and md5sum:
+			self.fail('Must not pass both expect_regexps and md5sum in')
+		if expect_regexps:
+			if type(expect_regexps) == str:
+				expect_regexps = [expect_regexps]
+			if type(expect_regexps) != list:
+				self.fail('expect_regexps should be list')
+		elif md5sum:
+			is_md5sum = True
+			expect_regexps = [md5sum]
+		else:
+			self.fail('Must pass either expect_regexps or md5sum in')
+		ok = False
+		while not ok:
+			send = self.get_input(task_desc)
+			if not send or send.strip() == '':
+				continue
+			output = self.send_and_get_output(send,child=child,timeout=timeout,retry=1,record_command=record_command,echo=echo)
+			if is_md5sum:
+				output = md5.md5(output).hexdigest()
+			for regexp in expect_regexps:
+				if self.match_string(output,regexp):
+					ok = True
+					break
+ 
+
 	def send(self,
 	         send,
 	         expect=None,
@@ -2016,7 +2061,16 @@ END_''' + random_id, echo=False)
 
 
 
-	def send_and_get_output(self, send, expect=None, child=None, timeout=None, retry=3, strip=True, note=None, record_command=False, echo=True):
+	def send_and_get_output(self,
+	                        send,
+	                        expect=None,
+	                        child=None,
+	                        timeout=None,
+	                        retry=3,
+	                        strip=True,
+	                        note=None,
+	                        record_command=False,
+	                        echo=True):
 		"""Returns the output of a command run. send() is called, and exit is not checked.
 
 		@param send:     See send()
@@ -2037,8 +2091,8 @@ END_''' + random_id, echo=False)
 		# Don't check exit, as that will pollute the output. Also, it's quite likely the
 		# submitted command is intended to fail.
 		self.send(self._get_send_command(send), child=child, expect=expect, check_exit=False, retry=retry, echo=echo, timeout=timeout, record_command=record_command)
-		before = self.get_default_child().before
-		cfg = shutit.cfg
+		before = child.before
+		cfg = self.cfg
 		try:
 			if cfg['environment'][cfg['build']['current_environment_id']]['distro'] == 'osx':
 				before_list = before.split('\r\n')
