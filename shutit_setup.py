@@ -560,7 +560,6 @@ class setup(ShutItModule):
 		"""Gets the configured core pacakges, and whether to perform the package
 		management update.
 		"""
-		shutit.get_config(self.module_id, 'do_update', True, boolean=True)
 		return True
 
 

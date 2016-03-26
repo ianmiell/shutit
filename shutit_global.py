@@ -414,8 +414,10 @@ class ShutIt(object):
   
 	def golf(self,
              task_desc,
-             expect_regexps=None,
-             md5sum=None,
+             expect=None,
+             hints=[],
+             congratulations=None,
+	         expect_type='exact',
 	         child=None,
 	         timeout=None,
 	         check_exit=None,
@@ -428,18 +430,20 @@ class ShutIt(object):
 
 		Either pass in regexp(s) desired from the output as a string or a list, or an md5sum of the output wanted.
 		"""
+
+		# TODO: bash path completion
+		# TODO: don't catch CTRL-C
+		# TODO: hints
 		child = child or self.get_default_child()
-		is_md5sum = False
-		if expect_regexps and md5sum:
-			self.fail('Must not pass both expect_regexps and md5sum in')
-		if expect_regexps:
-			if type(expect_regexps) == str:
-				expect_regexps = [expect_regexps]
-			if type(expect_regexps) != list:
+		if expect_type == 'regexp':
+			if type(expect) == str:
+				expect = [expect]
+			if type(expect) != list:
 				self.fail('expect_regexps should be list')
-		elif md5sum:
-			is_md5sum = True
-			expect_regexps = [md5sum]
+		elif expect_type == 'md5sum':
+			pass
+		elif expect_type == 'exact':
+			pass
 		else:
 			self.fail('Must pass either expect_regexps or md5sum in')
 		ok = False
@@ -448,12 +452,18 @@ class ShutIt(object):
 			if not send or send.strip() == '':
 				continue
 			output = self.send_and_get_output(send,child=child,timeout=timeout,retry=1,record_command=record_command,echo=echo)
-			if is_md5sum:
+			if expect_type == 'md5sum':
 				output = md5.md5(output).hexdigest()
-			for regexp in expect_regexps:
-				if self.match_string(output,regexp):
-					ok = True
+				if output == expect:
 					break
+			elif expect_type == 'exact':
+				if output == expect:
+					break
+			elif expect_type == 'regexp':
+				for regexp in expect:
+					if self.match_string(output,regexp):
+						ok = True
+						break
  
 
 	def send(self,
@@ -956,7 +966,11 @@ END_''' + random_id, echo=False)
 			f.close()
 			# Create file so it has appropriate permissions
 			self.send('touch ' + path, child=child, expect=expect, echo=False)
-			self.send('cat ' + tmpfile + ' | ' + cfg['host']['docker_executable'] + ' exec -i ' + cfg['target']['container_id'] + " bash -c 'cat > " + path + "'", child=host_child, expect=cfg['expect_prompts']['origin_prompt'], echo=False)
+			# If path is not absolute, add $HOME to it.
+			if path[0] != '/':
+				self.send('cat ' + tmpfile + ' | ' + cfg['host']['docker_executable'] + ' exec -i ' + cfg['target']['container_id'] + " bash -c 'cat > $HOME/" + path + "'", child=host_child, expect=cfg['expect_prompts']['origin_prompt'], echo=False)
+			else:
+				self.send('cat ' + tmpfile + ' | ' + cfg['host']['docker_executable'] + ' exec -i ' + cfg['target']['container_id'] + " bash -c 'cat > " + path + "'", child=host_child, expect=cfg['expect_prompts']['origin_prompt'], echo=False)
 			self.send('chown ' + user + ' ' + path, child=child, expect=expect, echo=False)
 			self.send('chgrp ' + group + ' ' + path, child=child, expect=expect, echo=False)
 			os.remove(tmpfile)
@@ -2681,7 +2695,7 @@ END_''' + random_id, echo=False)
 			distro = cfg['build']['distro_override']
 			install_type = cfg['build']['install_type_map'][key]
 			distro_version = ''
-			if install_type == 'apt' and cfg['build']['delivery'] in ('docker','dockerfile'):
+			if install_type == 'apt' and cfg['build']['delivery'] in ('docker','dockerfile') and cfg['build']['do_update']:
 				self.send('apt-get update')
 				cfg['build']['do_update'] = False
 				if not self.command_available('lsb_release'):
@@ -2768,7 +2782,8 @@ END_''' + random_id, echo=False)
 			# may fail if it doesn't know the install type, so
 			# if we've determined that now
 			if install_type == 'apt' and cfg['build']['delivery'] in ('docker','dockerfile'):
-				self.send('apt-get update')
+				if cfg['build']['do_update']:
+					self.send('apt-get update')
 				cfg['build']['do_update'] = False
 				if not self.command_available('lsb_release'):
 					self.send('apt-get install -y -qq lsb-release')
@@ -2777,7 +2792,8 @@ END_''' + random_id, echo=False)
 				distro         = d['distro']
 				distro_version = d['distro_version']
 			elif install_type == 'yum' and cfg['build']['delivery'] in ('docker','dockerfile'):
-				self.send('yum update -y',exit_values=['0','1'])
+				if cfg['build']['do_update']:
+					self.send('yum update -y',exit_values=['0','1'])
 				cfg['build']['do_update'] = False
 				if self.file_exists('/etc/redhat-release'):
 					output = self.send_and_get_output('cat /etc/redhat-release',echo=False)
@@ -2791,14 +2807,16 @@ END_''' + random_id, echo=False)
 				distro         = d['distro']
 				distro_version = d['distro_version']
 			elif install_type == 'apk' and cfg['build']['delivery'] in ('docker','dockerfile'):
-				cfg['build']['do_update'] = False
+				if cfg['build']['do_update']:
+					cfg['build']['do_update'] = False
 				self.send('apk update')
 				self.send('apk install bash')
 				install_type   = 'apk'
 				distro         = 'alpine'
 				distro_version = '1.0'
 			elif install_type == 'emerge' and cfg['build']['delivery'] in ('docker','dockerfile'):
-				self.send('emerge --sync')
+				if cfg['build']['do_update']:
+					self.send('emerge --sync')
 				install_type = 'emerge'
 				distro = 'gentoo'
 				distro_version = '1.0'

@@ -712,7 +712,8 @@ def parse_args(shutit):
 	cfg['list_modules']['long']       = False
 	cfg['list_modules']['sort']       = None
 	cfg['build']['video']             = False
-	cfg['build']['training']        = False
+	cfg['build']['training']          = False
+	cfg['build']['choose_config']     = False
 	# Persistence- and build-related arguments.
 	if cfg['action']['build']:
 		cfg['repository']['push']   = args.push
@@ -720,9 +721,9 @@ def parse_args(shutit):
 		cfg['repository']['save']   = args.save
 		cfg['build']['distro_override'] = args.distro
 		cfg['build']['mount_docker']    = args.mount_docker
-		cfg['build']['choose_config']   = args.choose_config
 		cfg['build']['walkthrough']     = args.walkthrough
 		cfg['build']['training']      = args.training
+		cfg['build']['choose_config']     = args.choose_config
 		if cfg['build']['training'] and not cfg['build']['walkthrough']:
 			print('\n--training implies --walkthrough, setting --walkthrough on!\n')
 			cfg['build']['walkthrough'] = True
@@ -918,7 +919,6 @@ def load_configs(shutit):
 	# on an already built image should be ok, and is advised to reduce diff space required.
 	if cfg['build']['interactive'] >= 3 or cfg['action']['list_configs'] or cfg['build']['debug']:
 		msg = ''
-		print textwrap.dedent("""\n""") + textwrap.dedent("""Looking at config files in the following order:""")
 		for c in configs:
 			if type(c) is tuple:
 				c = c[0]
