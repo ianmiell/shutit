@@ -416,7 +416,7 @@ class ShutIt(object):
              task_desc,
              expect=None,
              hints=[],
-             congratulations=None,
+             congratulations='OK',
 	         expect_type='exact',
 	         child=None,
 	         timeout=None,
@@ -425,7 +425,9 @@ class ShutIt(object):
 	         record_command=True,
 	         exit_values=None,
 	         echo=True,
-	         escape=False):
+	         escape=False,
+	         pause=1,
+	         print_md5=False):
 		"""Set the user a task to complete, success being determined by matching the output.
 
 		Either pass in regexp(s) desired from the output as a string or a list, or an md5sum of the output wanted.
@@ -451,8 +453,10 @@ class ShutIt(object):
 			if not send or send.strip() == '':
 				continue
 			output = self.send_and_get_output(send,child=child,timeout=timeout,retry=1,record_command=record_command,echo=echo)
+			md5sum_output = md5.md5(output).hexdigest()
+			shutit.log('output: ' + output + '\n is md5sum: ' + md5sum_output,force_stdout=print_md5)
 			if expect_type == 'md5sum':
-				output = md5.md5(output).hexdigest()
+				output = md5sum_output
 				if output == expect:
 					ok = True
 			elif expect_type == 'exact':
@@ -464,7 +468,8 @@ class ShutIt(object):
 						ok = True
 						break
 		if congratulations:
-			print congratulations
+			print '\n\n' + shutit_util.colour('32',congratulations) + '\n'
+		time.sleep(pause)
  
 
 	def send(self,
@@ -2696,10 +2701,10 @@ END_''' + random_id, echo=False)
 			distro = cfg['build']['distro_override']
 			install_type = cfg['build']['install_type_map'][key]
 			distro_version = ''
-			if install_type == 'apt' and cfg['build']['delivery'] in ('docker','dockerfile') and cfg['build']['do_update']:
-				self.send('apt-get update')
+			if install_type == 'apt' and cfg['build']['delivery'] in ('docker','dockerfile'):
 				cfg['build']['do_update'] = False
 				if not self.command_available('lsb_release'):
+					self.send('apt-get update')
 					self.send('apt-get install -y -qq lsb-release')
 				d = self.lsb_release()
 				install_type   = d['install_type']
@@ -2783,18 +2788,15 @@ END_''' + random_id, echo=False)
 			# may fail if it doesn't know the install type, so
 			# if we've determined that now
 			if install_type == 'apt' and cfg['build']['delivery'] in ('docker','dockerfile'):
-				if cfg['build']['do_update']:
-					self.send('apt-get update')
 				cfg['build']['do_update'] = False
 				if not self.command_available('lsb_release'):
+					self.send('apt-get update')
 					self.send('apt-get install -y -qq lsb-release')
 				d = self.lsb_release()
 				install_type   = d['install_type']
 				distro         = d['distro']
 				distro_version = d['distro_version']
 			elif install_type == 'yum' and cfg['build']['delivery'] in ('docker','dockerfile'):
-				if cfg['build']['do_update']:
-					self.send('yum update -y',exit_values=['0','1'])
 				cfg['build']['do_update'] = False
 				if self.file_exists('/etc/redhat-release'):
 					output = self.send_and_get_output('cat /etc/redhat-release',echo=False)
