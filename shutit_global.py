@@ -430,7 +430,6 @@ class ShutIt(object):
 
 		Either pass in regexp(s) desired from the output as a string or a list, or an md5sum of the output wanted.
 		"""
-
 		# TODO: bash path completion
 		# TODO: don't catch CTRL-C
 		# TODO: hints
@@ -455,15 +454,17 @@ class ShutIt(object):
 			if expect_type == 'md5sum':
 				output = md5.md5(output).hexdigest()
 				if output == expect:
-					break
+					ok = True
 			elif expect_type == 'exact':
 				if output == expect:
-					break
+					ok = True
 			elif expect_type == 'regexp':
 				for regexp in expect:
 					if self.match_string(output,regexp):
 						ok = True
 						break
+		if congratulations:
+			print congratulations
  
 
 	def send(self,
@@ -742,7 +743,7 @@ $'"""
 			if res == len(expect):
 				if shutit.cfg['build']['ctrlc_stop']:
 					timed_out = False
-					shutit.cfg['build']['crtlc_stop'] = False
+					shutit.cfg['build']['ctrlc_stop'] = False
 					break
 				accum_timeout += iteration_s
 			else:

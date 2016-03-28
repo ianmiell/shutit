@@ -1823,8 +1823,8 @@ def ctrl_c_signal_handler(signal, frame):
 	print "CTRL-c caught"
 	if shutit_frame:
 		shutit = shutit_frame.f_locals['shutit']
-		shutit.cfg['build']['ctrlc_stop'] = True
 		print "You may need to wait for the command to complete for a pause point"
+		shutit.cfg['build']['ctrlc_stop'] = True
 	print "CTRL-c twice to quit."
 	print '*' * 80
 	t = threading.Thread(target=ctrlc_background)
