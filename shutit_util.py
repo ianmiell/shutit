@@ -396,6 +396,8 @@ def parse_args(shutit):
 	sub_parsers['skeleton'].add_argument('--script', help='Pre-existing shell script to integrate into module (optional)', nargs='?', default=None)
 	sub_parsers['skeleton'].add_argument('--output_dir', help='Just output the created directory', default=False, const=True, action='store_const')
 	sub_parsers['skeleton'].add_argument('--dockerfiles', nargs='+', default=None)
+	sub_parsers['skeleton'].add_argument('--template_branch', help='Template branch to use', default='')
+	sub_parsers['skeleton'].add_argument('--template_repo', help='Template git repository to use', default='https://github.com/ianmiell/shutit-templates')
 	sub_parsers['skeleton'].add_argument('--delivery', help='Delivery method, aka target. "docker" container (default), configured "ssh" connection, "bash" session', default=None, choices=('docker','dockerfile','ssh','bash'))
 
 	sub_parsers['build'].add_argument('--export', help='Perform docker export to a tar file', const=True, default=False, action='store_const')
@@ -490,6 +492,7 @@ def parse_args(shutit):
 			domain = util_raw_input(prompt='# Input a unique domain.\n# Default: ' + default_domain_name + '\n', default=default_domain_name)
 		else:
 			domain = args.domain
+		# Sort out delivery method.
 		if args.delivery == None:
 			import platform
 			# If on mac, default to bash, else docker
@@ -504,16 +507,20 @@ def parse_args(shutit):
 		else:
 			delivery = args.delivery
 		cfg['skeleton'] = {
-			'path':        module_directory,
-			'module_name': module_name,
-			'base_image':  args.base_image,
-			'domain':      domain,
-			'domain_hash':  str(get_hash(domain)),
-			'depends':     args.depends,
-			'script':      args.script,
-			'dockerfiles': args.dockerfiles,
-			'output_dir':  args.output_dir,
-			'delivery':    delivery
+			'path':                  module_directory,
+			'module_name':           module_name,
+			'base_image':            args.base_image,
+			'domain':                domain,
+			'domain_hash':           str(get_hash(domain)),
+			'depends':               args.depends,
+			'script':                args.script,
+			'dockerfiles':           args.dockerfiles,
+			'output_dir':            args.output_dir,
+			'delivery':              delivery,
+			'template_repo':         args.template_repo,
+			'template_branch':       args.template_branch,
+			'template_folder':       'shutit_templates',
+			'template_setup_script': 'setup.sh'
 		}
 		return
 
@@ -1083,14 +1090,10 @@ def get_hash(string):
 
 
 def create_skeleton(shutit):
-	"""Creates 
-	and tinker with.
+	"""Creates module based on a template supplied as a git repo.
 	"""
 	cfg = shutit.cfg
 
-	template_repo         = 'https://github.com/ianmiell/shutit-templates'
-	template_branch       = 'master'
-	template_folder       = 'shutit_templates'
 	template_setup_script = 'setup.sh'
 	# Set up local directories
 	skel_path        = cfg['skeleton']['path']
@@ -1098,13 +1101,10 @@ def create_skeleton(shutit):
 	skel_domain      = cfg['skeleton']['domain']
 	skel_domain_hash = cfg['skeleton']['domain_hash']
 	skel_depends     = cfg['skeleton']['depends']
-	skel_base_image  = cfg['skeleton']['base_image']
 	skel_dockerfiles = cfg['skeleton']['dockerfiles']
-	skel_output_dir  = cfg['skeleton']['output_dir']
 	skel_delivery    = cfg['skeleton']['delivery']
-	skel_repo        = None
 	# Set up dockerfile cfg
-	cfg['dockerfile']['base_image'] = skel_base_image
+	cfg['dockerfile']['base_image'] = cfg['skeleton']['base_image']
 	cfg['dockerfile']['cmd']        = """/bin/sh -c 'sleep infinity'"""
 	cfg['dockerfile']['user']       = ''
 	cfg['dockerfile']['maintainer'] = ''
@@ -1114,6 +1114,10 @@ def create_skeleton(shutit):
 	cfg['dockerfile']['volume']     = []
 	cfg['dockerfile']['onbuild']    = []
 	cfg['dockerfile']['script']     = []
+
+	# Figure out defaults
+	if cfg['skeleton']['template_branch'] == '':
+		cfg['skeleton']['template_branch'] = cfg['skeleton']['delivery']
 
 	# Check setup
 	if len(skel_path) == 0 or skel_path[0] != '/':
@@ -1126,6 +1130,7 @@ def create_skeleton(shutit):
 		shutit.fail('Module names must comply with python classname standards: cf: http://stackoverflow.com/questions/10120295/valid-characters-in-a-python-class-name')
 	if len(skel_domain) == 0:
 		shutit.fail('Must supply a domain for your module, eg com.yourname.madeupdomainsuffix')
+
 
 	# arguments
 	cfg['skeleton']['volumes_arg'] = ''
@@ -1142,14 +1147,13 @@ def create_skeleton(shutit):
 	cfg['skeleton']['env_arg'] = ''
 	for earg in cfg['dockerfile']['env']:
 		cfg['skeleton']['env_arg'] += ' -e ' + earg.split()[0] + ':' + earg.split()[1]
-	
+
+	# Create folders and process templates.
 	os.makedirs(skel_path)
 	os.chdir(skel_path)
-	if skel_repo == None:
-		skel_repo = template_repo + ' -b ' + template_branch + ' --depth 1 ' + template_folder
-	os.system('git clone ' + skel_repo)
-	os.system('rm -rf ' + template_folder + '/.git')
-	templates=jinja2.Environment(loader=jinja2.FileSystemLoader(template_folder))
+	os.system('git clone ' + cfg['skeleton']['template_repo'] + ' -b ' + cfg['skeleton']['template_branch'] + ' --depth 1 ' + cfg['skeleton']['template_folder'])
+	os.system('rm -rf ' + cfg['skeleton']['template_folder'] + '/.git')
+	templates=jinja2.Environment(loader=jinja2.FileSystemLoader(cfg['skeleton']['template_folder']))
 	templates_list = templates.list_templates()
 	for template_item in templates_list:
 		directory = os.path.dirname(template_item)
@@ -1160,12 +1164,12 @@ def create_skeleton(shutit):
 		f.write(template_str)
 		f.close()
 	os.system('chmod +x ' + template_setup_script + ' && ./' + template_setup_script + ' && rm -f ' + template_setup_script)
-	os.system('rm -rf ' + template_folder)
+	os.system('rm -rf ' + cfg['skeleton']['template_folder'])
 
 	# Return program to original path
 	os.chdir(sys.path[0])
 
-	if skel_output_dir:
+	if cfg['skeleton']['output_dir']:
 		print skel_path
 
 # TODO: Deal with skel_dockerfiles example separately
