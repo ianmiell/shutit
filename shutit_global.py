@@ -434,7 +434,7 @@ class ShutIt(object):
 		"""
 		# TODO: bash path completion
 		# TODO: don't catch CTRL-C
-		print shutit_util.colour('32','''Challenge!''')
+		print shutit_util.colour('32','''\nChallenge!''')
 		if len(hints):
 			print shutit_util.colour('32','''Type 'help' or 'h' to get a hint''')
 		time.sleep(pause)
@@ -459,7 +459,8 @@ class ShutIt(object):
 				if len(hints):
 					print shutit_util.colour('32',hints.pop(0))
 				else:
-					print shutit_util.colout('32','No hints left, sorry!')
+					print shutit_util.colour('32','No hints left, sorry!')
+				continue
 			output = self.send_and_get_output(send,child=child,timeout=timeout,retry=1,record_command=record_command,echo=echo)
 			md5sum_output = md5.md5(output).hexdigest()
 			shutit.log('output: ' + output + '\n is md5sum: ' + md5sum_output,force_stdout=print_md5)
