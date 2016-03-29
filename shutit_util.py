@@ -508,7 +508,7 @@ def parse_args(shutit):
 			'module_name': module_name,
 			'base_image':  args.base_image,
 			'domain':      domain,
-			'domainhash':  str(get_hash(domain)),
+			'domain_hash':  str(get_hash(domain)),
 			'depends':     args.depends,
 			'script':      args.script,
 			'dockerfiles': args.dockerfiles,
@@ -1081,20 +1081,24 @@ def get_hash(string):
 	"""
 	return abs(binascii.crc32(string))
 
+
 def create_skeleton(shutit):
-	"""Helper function to create a standard module directory ready to run
+	"""Creates 
 	and tinker with.
 	"""
 	cfg = shutit.cfg
 
+	template_repo         = 'https://github.com/ianmiell/shutit-templates'
+	template_branch       = 'master'
+	template_folder       = 'shutit_templates'
+	template_setup_script = 'setup.sh'
 	# Set up local directories
 	skel_path        = cfg['skeleton']['path']
 	skel_module_name = cfg['skeleton']['module_name']
 	skel_domain      = cfg['skeleton']['domain']
-	skel_domain_hash = cfg['skeleton']['domainhash']
+	skel_domain_hash = cfg['skeleton']['domain_hash']
 	skel_depends     = cfg['skeleton']['depends']
 	skel_base_image  = cfg['skeleton']['base_image']
-	skel_script      = cfg['skeleton']['script']
 	skel_dockerfiles = cfg['skeleton']['dockerfiles']
 	skel_output_dir  = cfg['skeleton']['output_dir']
 	skel_delivery    = cfg['skeleton']['delivery']
@@ -1122,39 +1126,49 @@ def create_skeleton(shutit):
 		shutit.fail('Module names must comply with python classname standards: cf: http://stackoverflow.com/questions/10120295/valid-characters-in-a-python-class-name')
 	if len(skel_domain) == 0:
 		shutit.fail('Must supply a domain for your module, eg com.yourname.madeupdomainsuffix')
+
+	# arguments
+	cfg['skeleton']['volumes_arg'] = ''
+	for varg in cfg['dockerfile']['volume']:
+		cfg['skeleton']['volumes_arg'] += ' -v ' + varg + ':' + varg
+	cfg['skeleton']['ports_arg'] = ''
+	if type(cfg['dockerfile']['expose']) == str:
+		for parg in cfg['dockerfile']['expose']:
+			cfg['skeleton']['ports_arg'] += ' -p ' + parg + ':' + parg
+	else:
+		for parg in cfg['dockerfile']['expose']:
+			for port in parg.split():
+				cfg['skeleton']['ports_arg'] += ' -p ' + port + ':' + port
+	cfg['skeleton']['env_arg'] = ''
+	for earg in cfg['dockerfile']['env']:
+		cfg['skeleton']['env_arg'] += ' -e ' + earg.split()[0] + ':' + earg.split()[1]
 	
 	os.makedirs(skel_path)
 	os.chdir(skel_path)
 	if skel_repo == None:
-		skel_repo = 'https://github.com/ianmiell/shutit-templates -b master --depth 1 templates'
+		skel_repo = template_repo + ' -b ' + template_branch + ' --depth 1 ' + template_folder
 	os.system('git clone ' + skel_repo)
-	os.system('rm -rf templates/.git')
-	templates=jinja2.Environment(loader=jinja2.FileSystemLoader('templates'))
+	os.system('rm -rf ' + template_folder + '/.git')
+	templates=jinja2.Environment(loader=jinja2.FileSystemLoader(template_folder))
 	templates_list = templates.list_templates()
 	for template_item in templates_list:
-		template_str = templates.get_template(template_item).render()
-		print template_str
-	#for f in a.list_templates:
-	#	TODO: os.path.dirname
-	#	      make the directory
-	#	      write the file to it
+		directory = os.path.dirname(template_item)
+		if directory != '' and not os.path.exists(directory):
+			os.mkdir(os.path.dirname(template_item))
+		template_str = templates.get_template(template_item).render(cfg)
+		f = open(template_item,'w')
+		f.write(template_str)
+		f.close()
+	os.system('chmod +x ' + template_setup_script + ' && ./' + template_setup_script + ' && rm -f ' + template_setup_script)
+	os.system('rm -rf ' + template_folder)
 
 	# Return program to original path
 	os.chdir(sys.path[0])
-#	os.mkdir(os.path.join(skel_path, 'configs'))
-#	os.mkdir(os.path.join(skel_path, 'bin'))
-#	if skel_delivery != 'bash':
-#		os.mkdir(os.path.join(skel_path, 'context'))
-#
-#	readme_path           = os.path.join(skel_path, 'README.md')
-#	buildsh_path          = os.path.join(skel_path, 'bin', 'build.sh')
-#	testsh_path           = os.path.join(skel_path, 'bin', 'test.sh')
-#	runsh_path            = os.path.join(skel_path, 'bin', 'run.sh')
-#	buildpushsh_path      = os.path.join(skel_path, 'bin', 'build_and_push.sh')
-#	buildcnf_path         = os.path.join(skel_path, 'configs', 'build.cnf')
-#	pushcnf_path          = os.path.join(skel_path, 'configs', 'push.cnf')
-#	builddockerfile_path  = os.path.join(skel_path, 'Dockerfile')
-#
+
+	if skel_output_dir:
+		print skel_path
+
+# TODO: Deal with skel_dockerfiles example separately
 #	skel_module_ids = []
 #	if skel_dockerfiles:
 #		_count = 1
@@ -1166,278 +1180,23 @@ def create_skeleton(shutit):
 #			skel_module_ids.append(skel_module_id)
 #			open(templatemodule_path, 'w').write(templatemodule)
 #			_count += 1
-#	else:
-#		templatemodule_path   = os.path.join(skel_path, skel_module_name + '.py')
-#		templatemodule = open(find_asset(skel_template)).read()
-#		templatemodule = (templatemodule).replace('template', skel_module_name).replace('GLOBALLY_UNIQUE_STRING', '\'%s.%s.%s\'' % (skel_domain, skel_module_name, skel_module_name)).replace('FLOAT', skel_domain_hash + '.0001').replace('DEPENDS', skel_depends).replace('DELIVERY', skel_delivery)
-#		open(templatemodule_path, 'w').write(templatemodule)
-#	readme = skel_module_name + ': description of module directory in here'
-#
-#	buildsh = textwrap.dedent('''\
-#		#!/bin/bash
-#		[[ -z "$SHUTIT" ]] && SHUTIT="$1/shutit"
-#		[[ ! -a "$SHUTIT" ]] || [[ -z "$SHUTIT" ]] && SHUTIT="$(which shutit)"
-#		if [[ ! -a "$SHUTIT" ]]
-#		then
-#			echo "Must have shutit on path, eg export PATH=$PATH:/path/to/shutit_dir"
-#			exit 1
-#		fi
-#		pushd ..
-#		$SHUTIT build -d ''' + skel_delivery + ''' "$@"
-#		if [[ $? != 0 ]]
-#		then
-#			popd
-#			exit 1
-#		fi
-#		popd
-#		''')
-#	testsh = textwrap.dedent('''\
-#		#!/bin/bash
-#		# Test the building of this module
-#		if [ $0 != test.sh ] && [ $0 != ./test.sh ]
-#		then
-#			echo
-#			echo "Called as: $0"
-#			echo "Must be run as test.sh or ./test.sh"
-#			exit
-#		fi
-#		./build.sh "$@"
-#		''')
-#	volumes_arg = ''
-#	for varg in cfg['dockerfile']['volume']:
-#		volumes_arg += ' -v ' + varg + ':' + varg
-#	ports_arg = ''
-#	if type(cfg['dockerfile']['expose']) == str:
-#		for parg in cfg['dockerfile']['expose']:
-#			ports_arg += ' -p ' + parg + ':' + parg
-#	else:
-#		for parg in cfg['dockerfile']['expose']:
-#			for port in parg.split():
-#				ports_arg += ' -p ' + port + ':' + port
-#	env_arg = ''
-#	for earg in cfg['dockerfile']['env']:
-#		env_arg += ' -e ' + earg.split()[0] + ':' + earg.split()[1]
-#	runsh = textwrap.dedent('''\
-#		#!/bin/bash
-#		# Example for running
-#		DOCKER=${DOCKER:-docker}
-#		IMAGE_NAME=%s
-#		CONTAINER_NAME=$IMAGE_NAME
-#		DOCKER_ARGS=''
-#		while getopts "i:c:a:" opt
-#		do
-#			case "$opt" in
-#			i)
-#				IMAGE_NAME=$OPTARG
-#				;;
-#			c)
-#				CONTAINER_NAME=$OPTARG
-#				;;
-#			a)
-#				DOCKER_ARGS=$OPTARG
-#				;;
-#			esac
-#		done
-#		${DOCKER} run -d --name ${CONTAINER_NAME}''' % (skel_module_name,) + ports_arg + volumes_arg + env_arg + ' ${DOCKER_ARGS} ${IMAGE_NAME} ' + cfg['dockerfile']['entrypoint'] + ' ' + cfg['dockerfile']['cmd'] + '\n')
-#	buildpushsh = textwrap.dedent('''\
-#		export SHUTIT_OPTIONS="$SHUTIT_OPTIONS --config configs/push.cnf -s repository push yes"
-#		./build.sh "$@"
-#		''')
-#	if len(skel_module_ids) == 0:
-#		buildcnf = textwrap.dedent('''\
-#			###############################################################################
-#			# PLEASE NOTE: This file should be changed only by the maintainer.
-#			# PLEASE NOTE: This file is only sourced if the "shutit build" command is run
-#			#              and this file is in the relative path: configs/build.cnf
-#			#              This is to ensure it is only sourced if _this_ module is the
-#			#              target.
-#			###############################################################################
-#			# When this module is the one being built, which modules should be built along with it by default?
-#			# This feeds into automated testing of each module.
-#			[''' + '%s.%s.%s' % (skel_domain, skel_module_name, skel_module_name) + ''']
-#			shutit.core.module.build:yes
-#			# Allowed images as a regexp, eg ["ubuntu:12.*"], or [".*"], or ["centos"].
-#			# It's recommended this is locked down as far as possible.
-#			shutit.core.module.allowed_images:["''' + cfg['dockerfile']['base_image'] + '''"]
-#
-#			# Aspects of build process
-#			[build]
-#			base_image:''' + cfg['dockerfile']['base_image'] + '''
-#
-#			# Volume arguments wanted as part of the build
-#			[target]
-#			volumes:
-#
-#			[repository]
-#			name:''' + skel_module_name + '''
-#			''')
-#	else:
-#		buildcnf = textwrap.dedent('''\
-#			###############################################################################
-#			# PLEASE NOTE: This file should be changed only by the maintainer.
-#			# PLEASE NOTE: This file is only sourced if the "shutit build" command is run
-#			#              and this file is in the relative path: configs/build.cnf
-#			#              This is to ensure it is only sourced if _this_ module is the
-#			#              target.
-#			###############################################################################
-#			# When this module is the one being built, which modules should be built along with it by default?
-#			# This feeds into automated testing of each module.
-#		''')
+#	if len(skel_module_ids) > 0:
+#		buildcnf = ''
 #		for skel_module_id in skel_module_ids:
 #			buildcnf += textwrap.dedent('''\
 #			[''' + skel_module_id + ''']
 #			shutit.core.module.build:yes
 #			''')
 #		buildcnf += textwrap.dedent('''\
-#			# Allowed images as a regexp, eg ["ubuntu:12.*"], or [".*"], or ["centos"].
-#			# It's recommended this is locked down as far as possible.
 #			shutit.core.module.allowed_images:["''' + cfg['dockerfile']['base_image'] + '''"]
-#
-#			# Aspects of build process
 #			[build]
 #			base_image:''' + cfg['dockerfile']['base_image'] + '''
-#
-#			# Volume arguments wanted as part of the build
 #			[target]
 #			volumes:
-#
 #			[repository]
 #			name:''' + skel_module_name + '''
 #			''')
-#	pushcnf = textwrap.dedent('''\
-#		###############################################################################
-#		# PLEASE NOTE: This file should be changed only by the maintainer.
-#		# PLEASE NOTE: IF YOU WANT TO CHANGE THE CONFIG, PASS IN
-#		#              --config configfilename
-#		#              OR ADD DETAILS TO YOUR
-#		#              ~/.shutit/config
-#		#              FILE
-#		###############################################################################
-#		[target]
-#		rm:false
-#
-#		[repository]
-#		# COPY THESE TO YOUR ~/.shutit/config FILE AND FILL OUT ITEMS IN CAPS
-#		#user:YOUR_USERNAME
-#		## Fill these out in server- and username-specific config (also in this directory)
-#		#password:YOUR_REGISTRY_PASSWORD_OR_BLANK
-#		## Fill these out in server- and username-specific config (also in this directory)
-#		#email:YOUR_REGISTRY_EMAIL_OR_BLANK
-#		#tag:no
-#		#push:yes
-#		#save:no
-#		#export:no
-#		##server:REMOVE_ME_FOR_DOCKER_INDEX
-#		## tag suffix, defaults to "latest", eg registry/username/repository:latest.
-#		## empty is also "latest"
-#		#tag_name:latest
-#		#suffix_date:no
-#		#suffix_format:%s
-#		''')
-#	builddockerfile = textwrap.dedent('''\
-#       FROM ''' + cfg['dockerfile']['base_image'] + '''
-#
-#       RUN apt-get update
-#       RUN apt-get install -y -qq git python-pip
-#       RUN pip install shutit
-#
-#       WORKDIR /opt
-#       # Change the next two lines to build your ShutIt module.
-#       RUN git clone https://github.com/yourname/yourshutitproject.git
-#       WORKDIR /opt/yourshutitproject
-#       RUN shutit build --delivery dockerfile
-#
-#       CMD ["/bin/bash"]
-#		''')
-#
-#	open(buildsh_path, 'w').write(buildsh)
-#	os.chmod(buildsh_path, os.stat(buildsh_path).st_mode | 0111) # chmod +x
-#	open(buildcnf_path, 'w').write(buildcnf)
-#	os.chmod(buildcnf_path, 0400)
-#	if skel_delivery != 'bash':
-#		open(buildpushsh_path, 'w').write(buildpushsh)
-#		os.chmod(buildpushsh_path, os.stat(buildpushsh_path).st_mode | 0111) # chmod +x
-#		# build.cnf should be read-only (maintainer changes only)
-#		open(pushcnf_path, 'w').write(pushcnf)
-#		os.chmod(pushcnf_path, 0600)
-#		open(testsh_path, 'w').write(testsh)
-#		os.chmod(testsh_path, os.stat(testsh_path).st_mode | 0111) # chmod +x
-#		open(builddockerfile_path, 'w').write(builddockerfile)
-#		open(readme_path, 'w').write(readme)
-#		open(runsh_path, 'w').write(runsh)
-#		os.chmod(runsh_path, os.stat(runsh_path).st_mode | 0111) # chmod +x
-#
-#	if skel_script is not None:
-#		print textwrap.dedent('''\
-#			================================================================================
-#			Please note that your bash script in:
-#			''' + skel_script + '''
-#			should be a simple set of one-liners
-#			that return to the prompt. Anything fancy with ifs, backslashes or other
-#			multi-line commands need to be handled more carefully.
-#			================================================================================''')
-#
-#		sbsi = cfg['build']['shutit_state_dir'] + '/shutit_bash_script_include_' + str(int(time.time()))
-#		skel_mod_path = os.path.join(skel_path, skel_module_name + '.py')
-#		# Read in new file
-#		script_list = open(skel_script).read().splitlines()
-#		skel_mod_path_list = open(skel_mod_path).read().splitlines()
-#		new_script = []
-#		for line in script_list:
-#			# remove leading space
-#			line = line.strip()
-#			# ignore empty lines
-#			# ignore lines with leading #
-#			if len(line) == 0 or line[0] == '#':
-#				continue
-#			# surround with send command and space
-#			line = "\t\tshutit.send('''" + line + "''')"
-#			# double quotes (?)
-#			new_script.append(line)
-#		# insert code into relevant part of skel_mod_path
-#		final_script = ''
-#		def_build_found = False
-#		# Go through each line of the base file
-#		for line in skel_mod_path_list:
-#			# Set trip switch to on once we find def build
-#			if string.find(line,'def build') != -1:
-#				def_build_found = True
-#			# If we're in the build method, and at the return line....
-#			if def_build_found and string.find(line,'return True') != -1:
-#				# ...script in
-#				for new_script_line in new_script:
-#					final_script += new_script_line + '\r\n'
-#				# Set trip switch back to off
-#				def_build_found = False
-#			# Add line to final script
-#			final_script += line + '\r\n'
-#		open(skel_mod_path,'w').write(final_script)
-#
-#	# Are we creating a new folder inside an existing git repo?
-#	if subprocess.call(['git', 'status'], stderr=open(os.devnull, 'wb'), stdout=open(os.devnull, 'wb')) != 0:
-#		subprocess.check_call(['git', 'init'], cwd=skel_path, stderr=open(os.devnull, 'wb'), stdout=open(os.devnull, 'wb'))
-#		try:
-#			subprocess.check_call([
-#				'cp', find_asset('.gitignore'), '.gitignore'
-#			], cwd=skel_path)
-#		except Exception:
-#			#gitignore is not essential
-#			pass
 
-	if skel_output_dir:
-		print skel_path
-	else:
-		print textwrap.dedent('''\
-		================================================================================
-		Run:
-	
-			cd ''' + skel_path + '''/bin && ./build.sh
-	
-		to build.
-	
-		An image called ''' + skel_module_name + ''' will be created
-		and can be run with the run.sh command in bin/.
-		================================================================================''')
 
 
 # Parses the dockerfile (passed in as a string)
