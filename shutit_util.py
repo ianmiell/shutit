@@ -492,16 +492,21 @@ def parse_args(shutit):
 			domain = util_raw_input(prompt='# Input a unique domain.\n# Default: ' + default_domain_name + '\n', default=default_domain_name)
 		else:
 			domain = args.domain
+		# Figure out defaults.
+		# If no template branch supplied, then assume it's the same as delivery.
+		if args.template_branch == '':
+			template_branch = util_raw_input(prompt='# Input a ShutIt pattern.\nDefault: bash\n\ndocker: a docker build\nbash: a shell script\nvagrant: a vagrant setup',default='bash')
+		else:
+			template_branch = args.template_branch
+
 		# Sort out delivery method.
 		if args.delivery == None:
-			import platform
-			# If on mac, default to bash, else docker
-			if platform.system() == 'Darwin':
-				default_delivery = 'bash'
-			else:
+			if template_branch == 'docker':
 				default_delivery = 'docker'
-			delivery = ''
+			else:
+				default_delivery = 'bash'
 			allowed = ('docker','dockerfile','ssh','bash')
+			delivery = ''
 			while delivery not in allowed:
 				delivery = util_raw_input(prompt='# Input a delivery method from: ' + str(allowed) + '.\n# Default: ' + default_delivery + '\n\ndocker = build within a docker image\nssh = ssh to target and build\nbash = run commands directly within bash\n', default=default_delivery)
 		else:
@@ -518,7 +523,7 @@ def parse_args(shutit):
 			'output_dir':            args.output_dir,
 			'delivery':              delivery,
 			'template_repo':         args.template_repo,
-			'template_branch':       args.template_branch,
+			'template_branch':       template_branch,
 			'template_folder':       'shutit_templates',
 			'template_setup_script': 'setup.sh'
 		}
@@ -1115,13 +1120,6 @@ def create_skeleton(shutit):
 	cfg['dockerfile']['onbuild']    = []
 	cfg['dockerfile']['script']     = []
 
-	# Figure out defaults.
-	# If no template branch supplied, then assume it's the same as delivery.
-	if cfg['skeleton']['template_branch'] == '':
-		if cfg['skeleton']['delivery'] == 'ssh' or cfg['skeleton']['delivery'] == 'dockerfile':
-			cfg['skeleton']['template_branch'] = 'bash'
-		else:
-			cfg['skeleton']['template_branch'] = cfg['skeleton']['delivery']
 
 	# Check setup
 	if len(skel_path) == 0 or skel_path[0] != '/':
