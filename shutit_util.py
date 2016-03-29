@@ -495,7 +495,7 @@ def parse_args(shutit):
 		# Figure out defaults.
 		# If no template branch supplied, then assume it's the same as delivery.
 		if args.template_branch == '':
-			template_branch = util_raw_input(prompt='# Input a ShutIt pattern.\nDefault: bash\n\ndocker: a docker build\nbash: a shell script\nvagrant: a vagrant setup',default='bash')
+			template_branch = util_raw_input(prompt='# Input a ShutIt pattern.\nDefault: bash\n\ndocker: a docker build\nbash: a shell script\nvagrant: a vagrant setup\n',default='bash')
 		else:
 			template_branch = args.template_branch
 
