@@ -1274,6 +1274,13 @@ def create_skeleton(shutit):
 	skel_dockerfiles = cfg['skeleton']['dockerfiles']
 	skel_output_dir  = cfg['skeleton']['output_dir']
 	skel_delivery    = cfg['skeleton']['delivery']
+	skel_repo        = None
+	if skel_repo == None:
+		skel_template    = 'shutit_module_template_bare.py'
+	else:
+		# TODO - clone repo, read manifest, copy in files
+		# TODO - default to default
+		pass
 	# Set up dockerfile cfg
 	cfg['dockerfile']['base_image'] = skel_base_image
 	cfg['dockerfile']['cmd']        = """/bin/sh -c 'sleep infinity'"""
@@ -1332,7 +1339,7 @@ def create_skeleton(shutit):
 			_count += 1
 	else:
 		templatemodule_path   = os.path.join(skel_path, skel_module_name + '.py')
-		templatemodule = open(find_asset('shutit_module_template_bare.py')).read()
+		templatemodule = open(find_asset(skel_template)).read()
 		templatemodule = (templatemodule).replace('template', skel_module_name).replace('GLOBALLY_UNIQUE_STRING', '\'%s.%s.%s\'' % (skel_domain, skel_module_name, skel_module_name)).replace('FLOAT', skel_domain_hash + '.0001').replace('DEPENDS', skel_depends).replace('DELIVERY', skel_delivery)
 		open(templatemodule_path, 'w').write(templatemodule)
 	readme = skel_module_name + ': description of module directory in here'
