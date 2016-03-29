@@ -181,7 +181,8 @@ object --+
         <span class="summary-sig-arg">description</span>=<span class="summary-sig-default"><code class="variable-quote">'</code><code class="variable-string"></code><code class="variable-quote">'</code></span>,
         <span class="summary-sig-arg">maintainer</span>=<span class="summary-sig-default"><code class="variable-quote">'</code><code class="variable-string"></code><code class="variable-quote">'</code></span>,
         <span class="summary-sig-arg">depends</span>=<span class="summary-sig-default">None</span>,
-        <span class="summary-sig-arg">conflicts</span>=<span class="summary-sig-default">None</span>)</span><br />
+        <span class="summary-sig-arg">conflicts</span>=<span class="summary-sig-default">None</span>,
+        <span class="summary-sig-arg">delivery_methods</span>=<span class="summary-sig-default"><code class="variable-group">[</code><code class="variable-group">]</code></span>)</span><br />
       Constructor.</td>
           <td align="right" valign="top">
             <span class="codelink"><a href="shutit_module-pysrc.html#ShutItModule.__init__">source&nbsp;code</a></span>
@@ -406,14 +407,14 @@ object --+
     <td width="15%" align="right" valign="top" class="summary">
       <span class="summary-type">&nbsp;</span>
     </td><td class="summary">
-        <a name="_abc_cache"></a><span class="summary-name">_abc_cache</span> = <code title="&lt;_weakrefset.WeakSet object at 0x7f160ac74b90&gt;">&lt;_weakrefset.WeakSet object at 0x7f160ac74b90&gt;</code>
+        <a name="_abc_cache"></a><span class="summary-name">_abc_cache</span> = <code title="&lt;_weakrefset.WeakSet object&gt;">&lt;_weakrefset.WeakSet object&gt;</code>
     </td>
   </tr>
 <tr class="private">
     <td width="15%" align="right" valign="top" class="summary">
       <span class="summary-type">&nbsp;</span>
     </td><td class="summary">
-        <a href="shutit_module.ShutItModule-class.html#_abc_negative_cache" class="summary-name" onclick="show_private();">_abc_negative_cache</a> = <code title="&lt;_weakrefset.WeakSet object at 0x7f160ac74c50&gt;">&lt;_weakrefset.WeakSet object at 0x7f160ac<code class="variable-ellipsis">...</code></code>
+        <a name="_abc_negative_cache"></a><span class="summary-name">_abc_negative_cache</span> = <code title="&lt;_weakrefset.WeakSet object&gt;">&lt;_weakrefset.WeakSet object&gt;</code>
     </td>
   </tr>
 <tr class="private">
@@ -427,7 +428,7 @@ object --+
     <td width="15%" align="right" valign="top" class="summary">
       <span class="summary-type">&nbsp;</span>
     </td><td class="summary">
-        <a name="_abc_registry"></a><span class="summary-name">_abc_registry</span> = <code title="&lt;_weakrefset.WeakSet object at 0x7f160ac74ad0&gt;">&lt;_weakrefset.WeakSet object at 0x7f160ac74ad0&gt;</code>
+        <a name="_abc_registry"></a><span class="summary-name">_abc_registry</span> = <code title="&lt;_weakrefset.WeakSet object&gt;">&lt;_weakrefset.WeakSet object&gt;</code>
     </td>
   </tr>
 </table>
@@ -487,7 +488,8 @@ object --+
         <span class="sig-arg">description</span>=<span class="sig-default"><code class="variable-quote">'</code><code class="variable-string"></code><code class="variable-quote">'</code></span>,
         <span class="sig-arg">maintainer</span>=<span class="sig-default"><code class="variable-quote">'</code><code class="variable-string"></code><code class="variable-quote">'</code></span>,
         <span class="sig-arg">depends</span>=<span class="sig-default">None</span>,
-        <span class="sig-arg">conflicts</span>=<span class="sig-default">None</span>)</span>
+        <span class="sig-arg">conflicts</span>=<span class="sig-default">None</span>,
+        <span class="sig-arg">delivery_methods</span>=<span class="sig-default"><code class="variable-group">[</code><code class="variable-group">]</code></span>)</span>
     <br /><em class="fname">(Constructor)</em>
   </h3>
   </td><td align="right" valign="top"
@@ -521,10 +523,9 @@ object --+
   
   <p>Checks whether we are ready to build this module.</p>
   <p>This is called before the build, to ensure modules have their 
-  requirements in place (eg files required to be available in artifacts 
-  folders) before we commence the build. Checking whether the build will 
-  happen at all (and therefore whether the check should take place) will be
-  determined by the framework.</p>
+  requirements in place before we commence the build. Checking whether the 
+  build will happen at all (and therefore whether the check should take 
+  place) will be determined by the framework.</p>
   <p>Should return True if it's ready to run, else False.</p>
   <dl class="fields">
   </dl>
@@ -668,43 +669,6 @@ object --+
 </td></tr></table>
 </div>
 <br />
-<!-- ==================== CLASS VARIABLE DETAILS ==================== -->
-<a name="section-ClassVariableDetails"></a>
-<table class="details" border="1" cellpadding="3"
-       cellspacing="0" width="100%" bgcolor="white">
-<tr bgcolor="#70b0f0" class="table-header">
-  <td colspan="2" class="table-header">
-    <table border="0" cellpadding="0" cellspacing="0" width="100%">
-      <tr valign="top">
-        <td align="left"><span class="table-header">Class Variable Details</span></td>
-        <td align="right" valign="top"
-         ><span class="options">[<a href="#section-ClassVariableDetails"
-         class="privatelink" onclick="toggle_private();"
-         >hide private</a>]</span></td>
-      </tr>
-    </table>
-  </td>
-</tr>
-</table>
-<a name="_abc_negative_cache"></a>
-<div class="private">
-<table class="details" border="1" cellpadding="3"
-       cellspacing="0" width="100%" bgcolor="white">
-<tr><td>
-  <h3 class="epydoc">_abc_negative_cache</h3>
-  
-  <dl class="fields">
-  </dl>
-  <dl class="fields">
-    <dt>Value:</dt>
-      <dd><table><tr><td><pre class="variable">
-&lt;_weakrefset.WeakSet object at 0x7f160ac74c50&gt;
-</pre></td></tr></table>
-</dd>
-  </dl>
-</td></tr></table>
-</div>
-<br />
 <!-- ==================== NAVIGATION BAR ==================== -->
 <table class="navbar" border="0" width="100%" cellpadding="0"
        bgcolor="#a0c0ff" cellspacing="0">
@@ -733,7 +697,8 @@ object --+
 <table border="0" cellpadding="0" cellspacing="0" width="100%%">
   <tr>
     <td align="left" class="footer">
-    Generated by Epydoc 3.0.1 on Thu Jun 11 19:29:03 2015
+    Generated by Epydoc 3.0.1
+    on Tue Mar 29 17:25:37 2016
     </td>
     <td align="right" class="footer">
       <a target="mainFrame" href="http://epydoc.sourceforge.net"

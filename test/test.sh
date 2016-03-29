@@ -47,12 +47,6 @@ then
 	exit 1
 fi
 
-if [[ "$(sed -n '10p' assets/shutit_module_template_bare.py)" != "	def build(self, shutit):" ]]
-then
-	echo "Line 10 of assets/shutit_module_template_bare.py should be as test.sh specifies"
-	exit 1
-fi
-
 #PYTHONPATH=$(pwd) python test/test.py 
 
 find ${SHUTIT_DIR} -name '*.cnf' | grep '/configs/[^/]*.cnf' | xargs chmod 600

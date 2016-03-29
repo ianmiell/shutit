@@ -198,9 +198,25 @@
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
           <td><span class="summary-sig"><a name="random_word"></a><span class="summary-sig-name">random_word</span>(<span class="summary-sig-arg">size</span>=<span class="summary-sig-default">6</span>)</span><br />
-      Returns a random word.</td>
+      Returns a random word in lower case.</td>
           <td align="right" valign="top">
             <span class="codelink"><a href="shutit_util-pysrc.html#random_word">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="find_asset"></a><span class="summary-sig-name">find_asset</span>(<span class="summary-sig-arg">filename</span>)</span></td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="shutit_util-pysrc.html#find_asset">source&nbsp;code</a></span>
             
           </td>
         </tr>
@@ -284,7 +300,9 @@
     </td><td class="summary">
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td><span class="summary-sig"><a href="shutit_util-module.html#list_modules" class="summary-sig-name">list_modules</a>(<span class="summary-sig-arg">shutit</span>)</span><br />
+          <td><span class="summary-sig"><a href="shutit_util-module.html#list_modules" class="summary-sig-name">list_modules</a>(<span class="summary-sig-arg">shutit</span>,
+        <span class="summary-sig-arg">long_output</span>=<span class="summary-sig-default">None</span>,
+        <span class="summary-sig-arg">sort_order</span>=<span class="summary-sig-default">None</span>)</span><br />
       Display a list of loaded modules.</td>
           <td align="right" valign="top">
             <span class="codelink"><a href="shutit_util-pysrc.html#list_modules">source&nbsp;code</a></span>
@@ -303,7 +321,8 @@
         <tr>
           <td><span class="summary-sig"><a name="print_config"></a><span class="summary-sig-name">print_config</span>(<span class="summary-sig-arg">cfg</span>,
         <span class="summary-sig-arg">hide_password</span>=<span class="summary-sig-default">True</span>,
-        <span class="summary-sig-arg">history</span>=<span class="summary-sig-default">False</span>)</span><br />
+        <span class="summary-sig-arg">history</span>=<span class="summary-sig-default">False</span>,
+        <span class="summary-sig-arg">module_id</span>=<span class="summary-sig-default">None</span>)</span><br />
       Returns a string representing the config of this ShutIt run.</td>
           <td align="right" valign="top">
             <span class="codelink"><a href="shutit_util-pysrc.html#print_config">source&nbsp;code</a></span>
@@ -449,8 +468,7 @@
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
           <td><span class="summary-sig"><a name="create_skeleton"></a><span class="summary-sig-name">create_skeleton</span>(<span class="summary-sig-arg">shutit</span>)</span><br />
-      Helper function to create a standard module directory ready to run 
-      and tinker with.</td>
+      Creates module based on a template supplied as a git repo.</td>
           <td align="right" valign="top">
             <span class="codelink"><a href="shutit_util-pysrc.html#create_skeleton">source&nbsp;code</a></span>
             
@@ -486,7 +504,8 @@
           <td><span class="summary-sig"><a name="util_raw_input"></a><span class="summary-sig-name">util_raw_input</span>(<span class="summary-sig-arg">shutit</span>=<span class="summary-sig-default">None</span>,
         <span class="summary-sig-arg">prompt</span>=<span class="summary-sig-default"><code class="variable-quote">'</code><code class="variable-string"></code><code class="variable-quote">'</code></span>,
         <span class="summary-sig-arg">default</span>=<span class="summary-sig-default">None</span>,
-        <span class="summary-sig-arg">ispass</span>=<span class="summary-sig-default">False</span>)</span><br />
+        <span class="summary-sig-arg">ispass</span>=<span class="summary-sig-default">False</span>,
+        <span class="summary-sig-arg">use_readline</span>=<span class="summary-sig-default">True</span>)</span><br />
       Handles raw_input calls, and switches off interactivity if there is 
       apparently no controlling terminal (or there are any other problems)</td>
           <td align="right" valign="top">
@@ -630,6 +649,269 @@
       
     </td>
   </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="check_regexp"></a><span class="summary-sig-name">check_regexp</span>(<span class="summary-sig-arg">regex</span>)</span></td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="shutit_util-pysrc.html#check_regexp">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="dockerfile_to_shutit_module_template"></a><span class="summary-sig-name">dockerfile_to_shutit_module_template</span>(<span class="summary-sig-arg">shutit</span>,
+        <span class="summary-sig-arg">skel_dockerfile</span>,
+        <span class="summary-sig-arg">skel_path</span>,
+        <span class="summary-sig-arg">skel_domain</span>,
+        <span class="summary-sig-arg">skel_module_name</span>,
+        <span class="summary-sig-arg">skel_domain_hash</span>,
+        <span class="summary-sig-arg">skel_delivery</span>,
+        <span class="summary-sig-arg">skel_depends</span>,
+        <span class="summary-sig-arg">order</span>,
+        <span class="summary-sig-arg">total</span>)</span></td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="shutit_util-pysrc.html#dockerfile_to_shutit_module_template">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="handle_dockerfile_line"></a><span class="summary-sig-name">handle_dockerfile_line</span>(<span class="summary-sig-arg">shutit</span>,
+        <span class="summary-sig-arg">dockerfile_command</span>,
+        <span class="summary-sig-arg">dockerfile_args</span>,
+        <span class="summary-sig-arg">numpushes</span>,
+        <span class="summary-sig-arg">wgetgot</span>)</span></td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="shutit_util-pysrc.html#handle_dockerfile_line">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="dockerfile_get_section"></a><span class="summary-sig-name">dockerfile_get_section</span>(<span class="summary-sig-arg">dockerfile_command</span>,
+        <span class="summary-sig-arg">current</span>)</span></td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="shutit_util-pysrc.html#dockerfile_get_section">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="module_ids"></a><span class="summary-sig-name">module_ids</span>(<span class="summary-sig-arg">shutit</span>,
+        <span class="summary-sig-arg">rev</span>=<span class="summary-sig-default">False</span>)</span><br />
+      Gets a list of module ids guaranteed to be sorted by run_order, 
+      ignoring conn modules (run order &lt; 0).</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="shutit_util-pysrc.html#module_ids">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="allowed_module_ids"></a><span class="summary-sig-name">allowed_module_ids</span>(<span class="summary-sig-arg">shutit</span>,
+        <span class="summary-sig-arg">rev</span>=<span class="summary-sig-default">False</span>)</span><br />
+      Gets a list of module ids that are allowed to be run, guaranteed to 
+      be sorted by run_order, ignoring conn modules (run order &lt; 0).</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="shutit_util-pysrc.html#allowed_module_ids">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="print_modules"></a><span class="summary-sig-name">print_modules</span>(<span class="summary-sig-arg">shutit</span>)</span><br />
+      Returns a string table representing the modules in the ShutIt module 
+      map.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="shutit_util-pysrc.html#print_modules">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="config_collection"></a><span class="summary-sig-name">config_collection</span>(<span class="summary-sig-arg">shutit</span>)</span><br />
+      Collect core config from config files for all seen modules.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="shutit_util-pysrc.html#config_collection">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="disallowed_module_ids"></a><span class="summary-sig-name">disallowed_module_ids</span>(<span class="summary-sig-arg">shutit</span>,
+        <span class="summary-sig-arg">rev</span>=<span class="summary-sig-default">False</span>)</span><br />
+      Gets a list of disallowed module ids that are not allowed to be run, 
+      guaranteed to be sorted by run_order, ignoring conn modules (run 
+      order &lt; 0).</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="shutit_util-pysrc.html#disallowed_module_ids">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="is_to_be_built_or_is_installed"></a><span class="summary-sig-name">is_to_be_built_or_is_installed</span>(<span class="summary-sig-arg">shutit</span>,
+        <span class="summary-sig-arg">shutit_module_obj</span>)</span><br />
+      Returns true if this module is configured to be built, or if it is 
+      already installed.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="shutit_util-pysrc.html#is_to_be_built_or_is_installed">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="shutit_util-module.html#config_collection_for_built" class="summary-sig-name">config_collection_for_built</a>(<span class="summary-sig-arg">shutit</span>,
+        <span class="summary-sig-arg">throw_error</span>=<span class="summary-sig-default">True</span>,
+        <span class="summary-sig-arg">silent</span>=<span class="summary-sig-default">False</span>)</span><br />
+      Collect configuration for modules that are being built.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="shutit_util-pysrc.html#config_collection_for_built">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="determine_compatibility"></a><span class="summary-sig-name">determine_compatibility</span>(<span class="summary-sig-arg">shutit</span>,
+        <span class="summary-sig-arg">module_id</span>)</span></td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="shutit_util-pysrc.html#determine_compatibility">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="shutit_util-module.html#is_installed" class="summary-sig-name">is_installed</a>(<span class="summary-sig-arg">shutit</span>,
+        <span class="summary-sig-arg">shutit_module_obj</span>)</span><br />
+      Returns true if this module is installed.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="shutit_util-pysrc.html#is_installed">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="allowed_image"></a><span class="summary-sig-name">allowed_image</span>(<span class="summary-sig-arg">shutit</span>,
+        <span class="summary-sig-arg">module_id</span>)</span><br />
+      Given a module id and a shutit object, determine whether the image is
+      allowed to be built.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="shutit_util-pysrc.html#allowed_image">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
 </table>
 <!-- ==================== VARIABLES ==================== -->
 <a name="section-Variables"></a>
@@ -648,6 +930,13 @@
     </table>
   </td>
 </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a name="in_ctrlc"></a><span class="summary-name">in_ctrlc</span> = <code title="False">False</code>
+    </td>
+  </tr>
 <tr class="private">
     <td width="15%" align="right" valign="top" class="summary">
       <span class="summary-type">&nbsp;</span>
@@ -663,11 +952,19 @@
 ..."><code class="variable-quote">'</code><code class="variable-string">\n############################################</code><code class="variable-ellipsis">...</code></code>
     </td>
   </tr>
-<tr>
+<tr class="private">
     <td width="15%" align="right" valign="top" class="summary">
       <span class="summary-type">&nbsp;</span>
     </td><td class="summary">
-        <a name="in_ctrlc"></a><span class="summary-name">in_ctrlc</span> = <code title="False">False</code>
+        <a href="shutit_util-module.html#_build_section" class="summary-name" onclick="show_private();">_build_section</a> = <code title="'''
+
+\tdef build(self, shutit):
+\t\t# Some useful API calls for reference. See shutit\'s docs for more\
+ info and options:
+\t\t#
+\t\t# ISSUING BASH COMMANDS
+\t\t# shutit.send(send,expect=&lt;default&gt;) - Send a command, wait for ex\
+..."><code class="variable-quote">'</code><code class="variable-string">\n\n\tdef build(self, shutit):\n\t\t# Some u</code><code class="variable-ellipsis">...</code></code>
     </td>
   </tr>
 <tr>
@@ -758,7 +1055,7 @@
   </tr></table>
   
   <p>Responsible for parsing arguments.</p>
-  <p>TODO: precendence of configs documented</p>
+  <p>TODO: precedence of configs documented</p>
   <p>Environment variables: SHUTIT_OPTIONS: Loads command line options from
   the environment (if set). Behaves like GREP_OPTIONS:</p>
   <ul>
@@ -808,7 +1105,9 @@
 <tr><td>
   <table width="100%" cellpadding="0" cellspacing="0" border="0">
   <tr valign="top"><td>
-  <h3 class="epydoc"><span class="sig"><span class="sig-name">list_modules</span>(<span class="sig-arg">shutit</span>)</span>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">list_modules</span>(<span class="sig-arg">shutit</span>,
+        <span class="sig-arg">long_output</span>=<span class="sig-default">None</span>,
+        <span class="sig-arg">sort_order</span>=<span class="sig-default">None</span>)</span>
   </h3>
   </td><td align="right" valign="top"
     ><span class="codelink"><a href="shutit_util-pysrc.html#list_modules">source&nbsp;code</a></span>&nbsp;
@@ -837,7 +1136,7 @@
   </ul>
   <p>The output is also saved to 
   ['build']['log_config_path']/module_order.txt</p>
-  <p>Dependencies: texttable, operator</p>
+  <p>Dependencies: operator</p>
   <dl class="fields">
   </dl>
 </td></tr></table>
@@ -930,6 +1229,50 @@
   </dl>
 </td></tr></table>
 </div>
+<a name="config_collection_for_built"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">config_collection_for_built</span>(<span class="sig-arg">shutit</span>,
+        <span class="sig-arg">throw_error</span>=<span class="sig-default">True</span>,
+        <span class="sig-arg">silent</span>=<span class="sig-default">False</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="shutit_util-pysrc.html#config_collection_for_built">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Collect configuration for modules that are being built. When this is 
+  called we should know what's being built (ie after dependency 
+  resolution).</p>
+  <dl class="fields">
+  </dl>
+</td></tr></table>
+</div>
+<a name="is_installed"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">is_installed</span>(<span class="sig-arg">shutit</span>,
+        <span class="sig-arg">shutit_module_obj</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="shutit_util-pysrc.html#is_installed">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Returns true if this module is installed. Uses cache where 
+  possible.</p>
+  <dl class="fields">
+  </dl>
+</td></tr></table>
+</div>
 <br />
 <!-- ==================== VARIABLES DETAILS ==================== -->
 <a name="section-VariablesDetails"></a>
@@ -975,6 +1318,32 @@
   </dl>
 </td></tr></table>
 </div>
+<a name="_build_section"></a>
+<div class="private">
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <h3 class="epydoc">_build_section</h3>
+  
+  <dl class="fields">
+  </dl>
+  <dl class="fields">
+    <dt>Value:</dt>
+      <dd><table><tr><td><pre class="variable">
+<code class="variable-quote">'''</code><code class="variable-string"></code>
+<code class="variable-string"></code>
+<code class="variable-string">\tdef build(self, shutit):</code>
+<code class="variable-string">\t\t# Some useful API calls for reference. See shutit\'s docs for more</code><span class="variable-linewrap"><img src="crarr.png" alt="\" /></span>
+<code class="variable-string"> info and options:</code>
+<code class="variable-string">\t\t#</code>
+<code class="variable-string">\t\t# ISSUING BASH COMMANDS</code>
+<code class="variable-string">\t\t# shutit.send(send,expect=&lt;default&gt;) - Send a command, wait for ex</code><span class="variable-linewrap"><img src="crarr.png" alt="\" /></span>
+<code class="variable-ellipsis">...</code>
+</pre></td></tr></table>
+</dd>
+  </dl>
+</td></tr></table>
+</div>
 <br />
 <!-- ==================== NAVIGATION BAR ==================== -->
 <table class="navbar" border="0" width="100%" cellpadding="0"
@@ -1004,7 +1373,8 @@
 <table border="0" cellpadding="0" cellspacing="0" width="100%%">
   <tr>
     <td align="left" class="footer">
-    Generated by Epydoc 3.0.1 on Thu Jun 11 19:29:03 2015
+    Generated by Epydoc 3.0.1
+    on Tue Mar 29 17:25:37 2016
     </td>
     <td align="right" class="footer">
       <a target="mainFrame" href="http://epydoc.sourceforge.net"
