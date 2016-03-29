@@ -56,184 +56,8 @@ import string
 import random
 import texttable
 import readline
+import jinja2
 
-_default_cnf = '''
-################################################################################
-# Default core config file for ShutIt.
-################################################################################
-
-# Details relating to the target you are building to (container, ssh or bash)
-[target]
-# Root password for the target - replace with your chosen password
-# If left blank, you will be prompted for a password
-password:
-# Hostname for the target - replace with your chosen target hostname
-# (where applicable, eg docker container)
-hostname:
-locale:en_US.UTF-8
-# space separated list of ports to expose
-# e.g. "ports:2222:22 8080:80" would expose container ports 22 and 80 as the
-# host's 2222 and 8080 (where applicable)
-ports:
-# volume arguments, eg /tmp/postgres:/var/lib/postgres:ro
-volumes:
-# volumes-from arguments
-volumes_from:
-# Name to give the docker container (where applicable).
-# Empty means "let docker default a name".
-name:
-# Whether to remove the docker container when finished (where applicable).
-rm:no
-
-# Information specific to the host on which the build runs.
-[host]
-# Ask the user if they want shutit on their path
-add_shutit_to_path: yes
-# Docker executable on your host machine
-docker_executable:docker
-# space separated list of dns servers to use
-dns:
-# Password for the username above on the host (only needed if sudo is needed)
-password:
-# Log file - will be set to 0600 perms, and defaults to /tmp/<YOUR_USERNAME>_shutit_log_<timestamp>
-# A timestamp will be added to the end of the filename.
-logfile:
-# ShutIt paths to look up modules in separated by ":", eg /path1/here:/opt/path2/there
-shutit_module_path:.
-
-# Repository information
-[repository]
-# Whether to tag
-tag:yes
-# Whether to suffix the date to the tag
-suffix_date:no
-# Suffix format (default is epoch seconds (%s), but %Y%m%d_%H%M%S is an option if the length is ok with the index)
-suffix_format:%s
-# tag name
-name:my_module
-# Whether to tar up the docker image exported
-export:no
-# Whether to tar up the docker image saved
-save:no
-# Whether to push to the server
-push:no
-# User on registry to namespace repo - can be set to blank if not docker.io
-user:
-#Must be set if push is true/yes and user is not blank
-password:YOUR_INDEX_PASSWORD_OR_BLANK
-#Must be set if push is true/yes and user is not blank
-email:YOUR_INDEX_EMAIL_OR_BLANK
-# repository server
-# make blank if you want this to be sent to the main docker index on docker.io
-server:
-# tag suffix, defaults to "latest", eg registry/username/repository:latest.
-# empty is also "latest"
-repo_name:
-tag_name:latest
-
-# Root setup script
-# Each module should set these in a config
-[shutit.tk.setup]
-shutit.core.module.build:yes
-# Modules may rely on the below settings, only change for debugging.
-do_update:yes
-
-[shutit.tk.conn_bash]
-# None
-
-[shutit.tk.conn_ssh]
-# Required
-ssh_host:
-# All other configs are optional
-ssh_port:
-ssh_user:
-password:
-ssh_key:
-# (what to execute on the target to get a root shell)
-ssh_cmd:
-
-# Aspects of build process
-[build]
-build_log:yes
-# How to connect to target
-conn_module:shutit.tk.conn_docker
-# Run any docker container in privileged mode
-privileged:no
-# Base image can be over-ridden by --image_tag defaults to this.
-base_image:ubuntu:14.04
-# Whether to perform tests.
-dotest:yes
-# --net argument to docker, eg "bridge", "none", "container:<name|id>" or "host". Empty means use default (bridge).
-net:
-'''
-
-_build_section = '''
-
-	def build(self, shutit):
-		# Some useful API calls for reference. See shutit's docs for more info and options:
-		#
-		# ISSUING BASH COMMANDS
-		# shutit.send(send,expect=<default>) - Send a command, wait for expect (string or compiled regexp)
-		#                                      to be seen before continuing. By default this is managed
-		#                                      by ShutIt with shell prompts.
-		# shutit.multisend(send,send_dict)   - Send a command, dict contains {expect1:response1,expect2:response2,...}
-		# shutit.send_and_get_output(send)   - Returns the output of the sent command
-		# shutit.send_and_match_output(send, matches)
-		#                                    - Returns True if any lines in output match any of
-		#                                      the regexp strings in the matches list
-		# shutit.send_until(send,regexps)    - Send command over and over until one of the regexps seen in the output.
-		# shutit.run_script(script)          - Run the passed-in string as a script
-		# shutit.install(package)            - Install a package
-		# shutit.remove(package)             - Remove a package
-		# shutit.login(user='root', command='su -')
-		#                                    - Log user in with given command, and set up prompt and expects.
-		#                                      Use this if your env (or more specifically, prompt) changes at all,
-		#                                      eg reboot, bash, ssh
-		# shutit.logout(command='exit')      - Clean up from a login.
-		#
-		# COMMAND HELPER FUNCTIONS
-		# shutit.add_to_bashrc(line)         - Add a line to bashrc
-		# shutit.get_url(fname, locations)   - Get a file via url from locations specified in a list
-		# shutit.get_ip_address()            - Returns the ip address of the target
-		# shutit.command_available(command)  - Returns true if the command is available to run
-		#
-		# LOGGING AND DEBUG
-		# shutit.log(msg,add_final_message=False) -
-		#                                      Send a message to the log. add_final_message adds message to
-		#                                      output at end of build
-		# shutit.pause_point(msg='')         - Give control of the terminal to the user
-		# shutit.step_through(msg='')        - Give control to the user and allow them to step through commands
-		#
-		# SENDING FILES/TEXT
-		# shutit.send_file(path, contents)   - Send file to path on target with given contents as a string
-		# shutit.send_host_file(path, hostfilepath)
-		#                                    - Send file from host machine to path on the target
-		# shutit.send_host_dir(path, hostfilepath)
-		#                                    - Send directory and contents to path on the target
-		# shutit.insert_text(text, fname, pattern)
-		#                                    - Insert text into file fname after the first occurrence of
-		#                                      regexp pattern.
-		# shutit.delete_text(text, fname, pattern)
-		#                                    - Delete text from file fname after the first occurrence of
-		#                                      regexp pattern.
-		# shutit.replace_text(text, fname, pattern)
-		#                                    - Replace text from file fname after the first occurrence of
-		#                                      regexp pattern.
-		# ENVIRONMENT QUERYING
-		# shutit.host_file_exists(filename, directory=False)
-		#                                    - Returns True if file exists on host
-		# shutit.file_exists(filename, directory=False)
-		#                                    - Returns True if file exists on target
-		# shutit.user_exists(user)           - Returns True if the user exists on the target
-		# shutit.package_installed(package)  - Returns True if the package exists on the target
-		# shutit.set_password(password, user='')
-		#                                    - Set password for a given user on target
-		#
-		# USER INTERACTION
-		# shutit.get_input(msg,default,valid[],boolean?,ispass?)
-		#                                    - Get input from user and return output
-		# shutit.fail(msg)                   - Fail the program and exit with status 1
-		#'''
 
 class LayerConfigParser(ConfigParser.RawConfigParser):
 
@@ -1275,12 +1099,6 @@ def create_skeleton(shutit):
 	skel_output_dir  = cfg['skeleton']['output_dir']
 	skel_delivery    = cfg['skeleton']['delivery']
 	skel_repo        = None
-	if skel_repo == None:
-		skel_template    = 'shutit_module_template_bare.py'
-	else:
-		# TODO - clone repo, read manifest, copy in files
-		# TODO - default to default
-		pass
 	# Set up dockerfile cfg
 	cfg['dockerfile']['base_image'] = skel_base_image
 	cfg['dockerfile']['cmd']        = """/bin/sh -c 'sleep infinity'"""
@@ -1306,394 +1124,305 @@ def create_skeleton(shutit):
 		shutit.fail('Must supply a domain for your module, eg com.yourname.madeupdomainsuffix')
 	
 	os.makedirs(skel_path)
-	os.mkdir(os.path.join(skel_path, 'configs'))
-	os.mkdir(os.path.join(skel_path, 'bin'))
-	if skel_delivery != 'bash':
-		os.mkdir(os.path.join(skel_path, 'context'))
-		# haproxy parked for 'patterns' work
-		#os.mkdir(os.path.join(skel_path, 'haproxy'))
+	os.chdir(skel_path)
+	if skel_repo == None:
+		skel_repo = 'https://github.com/ianmiell/shutit-templates -b master --depth 1 templates'
+	os.system('git clone ' + skel_repo)
+	os.system('rm -rf templates/.git')
+	templates=jinja2.Environment(loader=jinja2.FileSystemLoader('templates'))
+	templates_list = templates.list_templates()
+	for template_item in templates_list:
+		template_str = templates.get_template(template_item).render()
+		print template_str
+	#for f in a.list_templates:
+	#	TODO: os.path.dirname
+	#	      make the directory
+	#	      write the file to it
 
-	readme_path           = os.path.join(skel_path, 'README.md')
-	buildsh_path          = os.path.join(skel_path, 'bin', 'build.sh')
-	testsh_path           = os.path.join(skel_path, 'bin', 'test.sh')
-	runsh_path            = os.path.join(skel_path, 'bin', 'run.sh')
-	phoenixsh_path        = os.path.join(skel_path, 'bin', 'phoenix.sh')
-	buildpushsh_path      = os.path.join(skel_path, 'bin', 'build_and_push.sh')
-	buildcnf_path         = os.path.join(skel_path, 'configs', 'build.cnf')
-	pushcnf_path          = os.path.join(skel_path, 'configs', 'push.cnf')
-	builddockerfile_path  = os.path.join(skel_path, 'Dockerfile')
-	if skel_delivery != 'bash':
-		haproxycnf_path          = os.path.join(skel_path, 'haproxy', 'haproxy.cfg')
-		haproxydockerfile_path   = os.path.join(skel_path, 'haproxy', 'Dockerfile')
-
-	skel_module_ids = []
-	if skel_dockerfiles:
-		_count = 1
-		_total = len(skel_dockerfiles)
-		for skel_dockerfile in skel_dockerfiles:
-			#TODO better naming of file
-			templatemodule_path   = os.path.join(skel_path, skel_module_name + '_' + str(_count) + '.py')
-			(templatemodule,skel_module_id) = dockerfile_to_shutit_module_template(shutit,skel_dockerfile,skel_path,skel_domain,skel_module_name,skel_domain_hash,skel_delivery,skel_depends,_count,_total)
-			skel_module_ids.append(skel_module_id)
-			open(templatemodule_path, 'w').write(templatemodule)
-			_count += 1
-	else:
-		templatemodule_path   = os.path.join(skel_path, skel_module_name + '.py')
-		templatemodule = open(find_asset(skel_template)).read()
-		templatemodule = (templatemodule).replace('template', skel_module_name).replace('GLOBALLY_UNIQUE_STRING', '\'%s.%s.%s\'' % (skel_domain, skel_module_name, skel_module_name)).replace('FLOAT', skel_domain_hash + '.0001').replace('DEPENDS', skel_depends).replace('DELIVERY', skel_delivery)
-		open(templatemodule_path, 'w').write(templatemodule)
-	readme = skel_module_name + ': description of module directory in here'
-	buildsh = textwrap.dedent('''\
-		#!/bin/bash
-		[[ -z "$SHUTIT" ]] && SHUTIT="$1/shutit"
-		[[ ! -a "$SHUTIT" ]] || [[ -z "$SHUTIT" ]] && SHUTIT="$(which shutit)"
-		if [[ ! -a "$SHUTIT" ]]
-		then
-			echo "Must have shutit on path, eg export PATH=$PATH:/path/to/shutit_dir"
-			exit 1
-		fi
-		pushd ..
-		$SHUTIT build -d ''' + skel_delivery + ''' "$@"
-		if [[ $? != 0 ]]
-		then
-			popd
-			exit 1
-		fi
-		popd
-		''')
-	testsh = textwrap.dedent('''\
-		#!/bin/bash
-		# Test the building of this module
-		if [ $0 != test.sh ] && [ $0 != ./test.sh ]
-		then
-			echo
-			echo "Called as: $0"
-			echo "Must be run as test.sh or ./test.sh"
-			exit
-		fi
-		./build.sh "$@"
-		''')
-	volumes_arg = ''
-	for varg in cfg['dockerfile']['volume']:
-		volumes_arg += ' -v ' + varg + ':' + varg
-	ports_arg = ''
-	if type(cfg['dockerfile']['expose']) == str:
-		for parg in cfg['dockerfile']['expose']:
-			ports_arg += ' -p ' + parg + ':' + parg
-	else:
-		for parg in cfg['dockerfile']['expose']:
-			for port in parg.split():
-				ports_arg += ' -p ' + port + ':' + port
-	env_arg = ''
-	for earg in cfg['dockerfile']['env']:
-		env_arg += ' -e ' + earg.split()[0] + ':' + earg.split()[1]
-	runsh = textwrap.dedent('''\
-		#!/bin/bash
-		# Example for running
-		DOCKER=${DOCKER:-docker}
-		IMAGE_NAME=%s
-		CONTAINER_NAME=$IMAGE_NAME
-		DOCKER_ARGS=''
-		while getopts "i:c:a:" opt
-		do
-			case "$opt" in
-			i)
-				IMAGE_NAME=$OPTARG
-				;;
-			c)
-				CONTAINER_NAME=$OPTARG
-				;;
-			a)
-				DOCKER_ARGS=$OPTARG
-				;;
-			esac
-		done
-		${DOCKER} run -d --name ${CONTAINER_NAME}''' % (skel_module_name,) + ports_arg + volumes_arg + env_arg + ' ${DOCKER_ARGS} ${IMAGE_NAME} ' + cfg['dockerfile']['entrypoint'] + ' ' + cfg['dockerfile']['cmd'] + '\n')
-	buildpushsh = textwrap.dedent('''\
-		export SHUTIT_OPTIONS="$SHUTIT_OPTIONS --config configs/push.cnf -s repository push yes"
-		./build.sh "$@"
-		''')
-	if len(skel_module_ids) == 0:
-		buildcnf = textwrap.dedent('''\
-			###############################################################################
-			# PLEASE NOTE: This file should be changed only by the maintainer.
-			# PLEASE NOTE: This file is only sourced if the "shutit build" command is run
-			#              and this file is in the relative path: configs/build.cnf
-			#              This is to ensure it is only sourced if _this_ module is the
-			#              target.
-			###############################################################################
-			# When this module is the one being built, which modules should be built along with it by default?
-			# This feeds into automated testing of each module.
-			[''' + '%s.%s.%s' % (skel_domain, skel_module_name, skel_module_name) + ''']
-			shutit.core.module.build:yes
-			# Allowed images as a regexp, eg ["ubuntu:12.*"], or [".*"], or ["centos"].
-			# It's recommended this is locked down as far as possible.
-			shutit.core.module.allowed_images:["''' + cfg['dockerfile']['base_image'] + '''"]
-
-			# Aspects of build process
-			[build]
-			base_image:''' + cfg['dockerfile']['base_image'] + '''
-
-			# Volume arguments wanted as part of the build
-			[target]
-			volumes:
-
-			[repository]
-			name:''' + skel_module_name + '''
-			''')
-	else:
-		buildcnf = textwrap.dedent('''\
-			###############################################################################
-			# PLEASE NOTE: This file should be changed only by the maintainer.
-			# PLEASE NOTE: This file is only sourced if the "shutit build" command is run
-			#              and this file is in the relative path: configs/build.cnf
-			#              This is to ensure it is only sourced if _this_ module is the
-			#              target.
-			###############################################################################
-			# When this module is the one being built, which modules should be built along with it by default?
-			# This feeds into automated testing of each module.
-		''')
-		for skel_module_id in skel_module_ids:
-			buildcnf += textwrap.dedent('''\
-			[''' + skel_module_id + ''']
-			shutit.core.module.build:yes
-			''')
-		buildcnf += textwrap.dedent('''\
-			# Allowed images as a regexp, eg ["ubuntu:12.*"], or [".*"], or ["centos"].
-			# It's recommended this is locked down as far as possible.
-			shutit.core.module.allowed_images:["''' + cfg['dockerfile']['base_image'] + '''"]
-
-			# Aspects of build process
-			[build]
-			base_image:''' + cfg['dockerfile']['base_image'] + '''
-
-			# Volume arguments wanted as part of the build
-			[target]
-			volumes:
-
-			[repository]
-			name:''' + skel_module_name + '''
-			''')
-	phoenixsh = textwrap.dedent('''\
-#!/bin/bash
-set -e
-DOCKER=${DOCKER:-docker}
-CONTAINER_BASE_NAME=${CONTAINER_BASE_NAME:-%s}
-# haproxy image suffix
-#                             Sent on to:
-#                             HA_BACKEND_PORT_A
-#                                   +
-#                                   |
-#            +------------------+   |    +----------------+
-#            |                  |   |    |  Container A   |
-#            |                  +---v---->  Open on port: |
-#            |    HAProxy       |        |  CONTAINER_PORT|
-#            |    Container     |        |                |
-#            |                  |        +----------------+
-#Request+---->received          |
-#            |on port:          |        +----------------+
-#            |HA_PROXY_PORT     |        |  Container B   |
-#            |                  +---+---->  Open on port: |
-#            |                  |   ^    |  CONTAINER_PORT|
-#            |                  |   |    |                |
-#            +------------------+   |    +----------------+
-#                                   |
-#                                   +
-#                              Sent on to:
-#                              HA_BACKEND_PORT_B
+	# Return program to original path
+	os.chdir(sys.path[0])
+#	os.mkdir(os.path.join(skel_path, 'configs'))
+#	os.mkdir(os.path.join(skel_path, 'bin'))
+#	if skel_delivery != 'bash':
+#		os.mkdir(os.path.join(skel_path, 'context'))
 #
-HA_PROXY_CONTAINER_SUFFIX=${HA_PROXY_CONTAINER_SUFFIX:-haproxy}
-# The port on which your haproxy image is configured to receive requests from inside
-HA_PROXY_PORT=${HA_PROXY_PORT:-8080}
-# The port on which your backend 'a' is configured to receive requests on the host
-HA_BACKEND_PORT_A=${HA_BACKEND_PORT_A:-8081}
-# The port on which your backend 'b' is configured to receive requests on the host
-HA_BACKEND_PORT_B=${HA_BACKEND_PORT_B:-8082}
-# The port on which your service container receives requests
-CONTAINER_PORT=${CONTAINER_PORT:-80}
-
-# Set up haproxy.
-# Remove proxy if it's died. If it doesn't exist, rebuild it first.
-HAPROXY=$($DOCKER ps --filter=name=${CONTAINER_BASE_NAME}_${HA_PROXY_CONTAINER_SUFFIX} -q)
-if [[ $HAPROXY = '' ]]
-then
-	HAPROXY=$($DOCKER ps --filter=name=${CONTAINER_BASE_NAME}_${HA_PROXY_CONTAINER_SUFFIX} -q -a)
-	if [[ $HAPROXY != '' ]]
-	then
-		$DOCKER rm -f ${CONTAINER_BASE_NAME}_${HA_PROXY_CONTAINER_SUFFIX}
-	fi
-	pushd ../haproxy
-	sed "s/HA_PROXY_PORT/${HA_PROXY_PORT}/g;s/HA_BACKEND_PORT_A/${HA_BACKEND_PORT_A}/g;s/HA_BACKEND_PORT_B/${HA_BACKEND_PORT_B}/g" haproxy.cfg.template > haproxy.cfg
-	$DOCKER build -t ${CONTAINER_BASE_NAME}_${HA_PROXY_CONTAINER_SUFFIX} .
-	$DOCKER run -d --net=host --name ${CONTAINER_BASE_NAME}_${HA_PROXY_CONTAINER_SUFFIX} ${CONTAINER_BASE_NAME}_${HA_PROXY_CONTAINER_SUFFIX}
-	popd
-fi
-
-# Cleanup any left-over containers, build the new one, rename the old one,
-# rename the new one, delete the old one.
-$DOCKER rm -f ${CONTAINER_BASE_NAME}_old > /dev/null 2>&1 || /bin/true
-./build.sh -s repository tag yes -s repository name ${CONTAINER_BASE_NAME}
-# If there's a running instance, gather the used port, and move any old container
-USED_PORT=''
-NEW_PORT=${HA_BACKEND_PORT_A}
-if [[ $($DOCKER ps --filter=name="${CONTAINER_BASE_NAME}$" -q -a) != '' ]]
-then
-	$DOCKER rm -f ${CONTAINER_BASE_NAME}_old > /dev/null 2>&1 || /bin/true
-	USED_PORT=$($DOCKER inspect -f '{{range $p, $conf := .NetworkSettings.Ports}}{{(index $conf 0).HostPort}} {{end}}' $CONTAINER_BASE_NAME)
-	# Decide which port to use
-	if [[ "$USED_PORT" -eq "${HA_BACKEND_PORT_A}" ]]
-	then
-		NEW_PORT=${HA_BACKEND_PORT_B}
-	fi
-	$DOCKER rename ${CONTAINER_BASE_NAME} ${CONTAINER_BASE_NAME}_old
-fi
-# The random id is required - suspected docker bug
-RANDOM_ID=$RANDOM
-./run.sh -i "${CONTAINER_BASE_NAME}" -c "${CONTAINER_BASE_NAME}_${RANDOM_ID}" -a "-p ${NEW_PORT}:${CONTAINER_PORT}"
-$DOCKER rm -f ${CONTAINER_BASE_NAME}_old > /dev/null 2>&1 || /bin/true
-$DOCKER rename ${CONTAINER_BASE_NAME}_${RANDOM_ID} ${CONTAINER_BASE_NAME}''' % (skel_module_name))
-	pushcnf = textwrap.dedent('''\
-		###############################################################################
-		# PLEASE NOTE: This file should be changed only by the maintainer.
-		# PLEASE NOTE: IF YOU WANT TO CHANGE THE CONFIG, PASS IN
-		#              --config configfilename
-		#              OR ADD DETAILS TO YOUR
-		#              ~/.shutit/config
-		#              FILE
-		###############################################################################
-		[target]
-		rm:false
-
-		[repository]
-		# COPY THESE TO YOUR ~/.shutit/config FILE AND FILL OUT ITEMS IN CAPS
-		#user:YOUR_USERNAME
-		## Fill these out in server- and username-specific config (also in this directory)
-		#password:YOUR_REGISTRY_PASSWORD_OR_BLANK
-		## Fill these out in server- and username-specific config (also in this directory)
-		#email:YOUR_REGISTRY_EMAIL_OR_BLANK
-		#tag:no
-		#push:yes
-		#save:no
-		#export:no
-		##server:REMOVE_ME_FOR_DOCKER_INDEX
-		## tag suffix, defaults to "latest", eg registry/username/repository:latest.
-		## empty is also "latest"
-		#tag_name:latest
-		#suffix_date:no
-		#suffix_format:%s
-		''')
-	haproxycnf = textwrap.dedent('''\
-		global
-		    maxconn 256
-		defaults
-		    mode tcp
-		frontend front_door
-			bind *:HA_PROXY_PORT
-			default_backend nodes
-			timeout client 10m
-		backend nodes
-			timeout connect 2s
-			timeout server  10m
-			server server1 127.0.0.1:HA_BACKEND_PORT_A maxconn 32 check
-			server server2 127.0.0.1:HA_BACKEND_PORT_B maxconn 32 check''')
-	haproxydockerfile = textwrap.dedent('''\
-		FROM haproxy:1.5
-		COPY haproxy.cfg /usr/local/etc/haproxy/haproxy.cfg''')
-	builddockerfile = textwrap.dedent('''\
-       FROM ''' + cfg['dockerfile']['base_image'] + '''
-
-       RUN apt-get update
-       RUN apt-get install -y -qq git python-pip
-       RUN pip install shutit
-
-       WORKDIR /opt
-       # Change the next two lines to build your ShutIt module.
-       RUN git clone https://github.com/yourname/yourshutitproject.git
-       WORKDIR /opt/yourshutitproject
-       RUN shutit build --delivery dockerfile
-
-       CMD ["/bin/bash"]
-		''')
-
-	open(buildsh_path, 'w').write(buildsh)
-	os.chmod(buildsh_path, os.stat(buildsh_path).st_mode | 0111) # chmod +x
-	open(buildcnf_path, 'w').write(buildcnf)
-	os.chmod(buildcnf_path, 0400)
-	if skel_delivery != 'bash':
-		open(buildpushsh_path, 'w').write(buildpushsh)
-		os.chmod(buildpushsh_path, os.stat(buildpushsh_path).st_mode | 0111) # chmod +x
-		# build.cnf should be read-only (maintainer changes only)
-		open(pushcnf_path, 'w').write(pushcnf)
-		os.chmod(pushcnf_path, 0600)
-		open(testsh_path, 'w').write(testsh)
-		os.chmod(testsh_path, os.stat(testsh_path).st_mode | 0111) # chmod +x
-		open(builddockerfile_path, 'w').write(builddockerfile)
-		open(readme_path, 'w').write(readme)
-		open(runsh_path, 'w').write(runsh)
-		os.chmod(runsh_path, os.stat(runsh_path).st_mode | 0111) # chmod +x
-		# Hashed this stuff out as it's not popular. Maybe make optional as part of 'patterns' work.
-		#open(phoenixsh_path, 'w').write(phoenixsh)
-		#os.chmod(phoenixsh_path, os.stat(phoenixsh_path).st_mode | 0111) # chmod +x
-		#open(haproxycnf_path, 'w').write(haproxycnf)
-		#open(haproxycnf_path + '.template', 'w').write(haproxycnf)
-		#open(haproxydockerfile_path, 'w').write(haproxydockerfile)
-
-	if skel_script is not None:
-		print textwrap.dedent('''\
-			================================================================================
-			Please note that your bash script in:
-			''' + skel_script + '''
-			should be a simple set of one-liners
-			that return to the prompt. Anything fancy with ifs, backslashes or other
-			multi-line commands need to be handled more carefully.
-			================================================================================''')
-
-		sbsi = cfg['build']['shutit_state_dir'] + '/shutit_bash_script_include_' + str(int(time.time()))
-		skel_mod_path = os.path.join(skel_path, skel_module_name + '.py')
-		# Read in new file
-		script_list = open(skel_script).read().splitlines()
-		skel_mod_path_list = open(skel_mod_path).read().splitlines()
-		new_script = []
-		for line in script_list:
-			# remove leading space
-			line = line.strip()
-			# ignore empty lines
-			# ignore lines with leading #
-			if len(line) == 0 or line[0] == '#':
-				continue
-			# surround with send command and space
-			line = "\t\tshutit.send('''" + line + "''')"
-			# double quotes (?)
-			new_script.append(line)
-		# insert code into relevant part of skel_mod_path
-		final_script = ''
-		def_build_found = False
-		# Go through each line of the base file
-		for line in skel_mod_path_list:
-			# Set trip switch to on once we find def build
-			if string.find(line,'def build') != -1:
-				def_build_found = True
-			# If we're in the build method, and at the return line....
-			if def_build_found and string.find(line,'return True') != -1:
-				# ...script in
-				for new_script_line in new_script:
-					final_script += new_script_line + '\r\n'
-				# Set trip switch back to off
-				def_build_found = False
-			# Add line to final script
-			final_script += line + '\r\n'
-		open(skel_mod_path,'w').write(final_script)
-
-	# Are we creating a new folder inside an existing git repo?
-	if subprocess.call(['git', 'status'], stderr=open(os.devnull, 'wb'), stdout=open(os.devnull, 'wb')) != 0:
-		subprocess.check_call(['git', 'init'], cwd=skel_path, stderr=open(os.devnull, 'wb'), stdout=open(os.devnull, 'wb'))
-		try:
-			subprocess.check_call([
-				'cp', find_asset('.gitignore'), '.gitignore'
-			], cwd=skel_path)
-		except Exception:
-			#gitignore is not essential
-			pass
+#	readme_path           = os.path.join(skel_path, 'README.md')
+#	buildsh_path          = os.path.join(skel_path, 'bin', 'build.sh')
+#	testsh_path           = os.path.join(skel_path, 'bin', 'test.sh')
+#	runsh_path            = os.path.join(skel_path, 'bin', 'run.sh')
+#	buildpushsh_path      = os.path.join(skel_path, 'bin', 'build_and_push.sh')
+#	buildcnf_path         = os.path.join(skel_path, 'configs', 'build.cnf')
+#	pushcnf_path          = os.path.join(skel_path, 'configs', 'push.cnf')
+#	builddockerfile_path  = os.path.join(skel_path, 'Dockerfile')
+#
+#	skel_module_ids = []
+#	if skel_dockerfiles:
+#		_count = 1
+#		_total = len(skel_dockerfiles)
+#		for skel_dockerfile in skel_dockerfiles:
+#			#TODO better naming of file
+#			templatemodule_path   = os.path.join(skel_path, skel_module_name + '_' + str(_count) + '.py')
+#			(templatemodule,skel_module_id) = dockerfile_to_shutit_module_template(shutit,skel_dockerfile,skel_path,skel_domain,skel_module_name,skel_domain_hash,skel_delivery,skel_depends,_count,_total)
+#			skel_module_ids.append(skel_module_id)
+#			open(templatemodule_path, 'w').write(templatemodule)
+#			_count += 1
+#	else:
+#		templatemodule_path   = os.path.join(skel_path, skel_module_name + '.py')
+#		templatemodule = open(find_asset(skel_template)).read()
+#		templatemodule = (templatemodule).replace('template', skel_module_name).replace('GLOBALLY_UNIQUE_STRING', '\'%s.%s.%s\'' % (skel_domain, skel_module_name, skel_module_name)).replace('FLOAT', skel_domain_hash + '.0001').replace('DEPENDS', skel_depends).replace('DELIVERY', skel_delivery)
+#		open(templatemodule_path, 'w').write(templatemodule)
+#	readme = skel_module_name + ': description of module directory in here'
+#
+#	buildsh = textwrap.dedent('''\
+#		#!/bin/bash
+#		[[ -z "$SHUTIT" ]] && SHUTIT="$1/shutit"
+#		[[ ! -a "$SHUTIT" ]] || [[ -z "$SHUTIT" ]] && SHUTIT="$(which shutit)"
+#		if [[ ! -a "$SHUTIT" ]]
+#		then
+#			echo "Must have shutit on path, eg export PATH=$PATH:/path/to/shutit_dir"
+#			exit 1
+#		fi
+#		pushd ..
+#		$SHUTIT build -d ''' + skel_delivery + ''' "$@"
+#		if [[ $? != 0 ]]
+#		then
+#			popd
+#			exit 1
+#		fi
+#		popd
+#		''')
+#	testsh = textwrap.dedent('''\
+#		#!/bin/bash
+#		# Test the building of this module
+#		if [ $0 != test.sh ] && [ $0 != ./test.sh ]
+#		then
+#			echo
+#			echo "Called as: $0"
+#			echo "Must be run as test.sh or ./test.sh"
+#			exit
+#		fi
+#		./build.sh "$@"
+#		''')
+#	volumes_arg = ''
+#	for varg in cfg['dockerfile']['volume']:
+#		volumes_arg += ' -v ' + varg + ':' + varg
+#	ports_arg = ''
+#	if type(cfg['dockerfile']['expose']) == str:
+#		for parg in cfg['dockerfile']['expose']:
+#			ports_arg += ' -p ' + parg + ':' + parg
+#	else:
+#		for parg in cfg['dockerfile']['expose']:
+#			for port in parg.split():
+#				ports_arg += ' -p ' + port + ':' + port
+#	env_arg = ''
+#	for earg in cfg['dockerfile']['env']:
+#		env_arg += ' -e ' + earg.split()[0] + ':' + earg.split()[1]
+#	runsh = textwrap.dedent('''\
+#		#!/bin/bash
+#		# Example for running
+#		DOCKER=${DOCKER:-docker}
+#		IMAGE_NAME=%s
+#		CONTAINER_NAME=$IMAGE_NAME
+#		DOCKER_ARGS=''
+#		while getopts "i:c:a:" opt
+#		do
+#			case "$opt" in
+#			i)
+#				IMAGE_NAME=$OPTARG
+#				;;
+#			c)
+#				CONTAINER_NAME=$OPTARG
+#				;;
+#			a)
+#				DOCKER_ARGS=$OPTARG
+#				;;
+#			esac
+#		done
+#		${DOCKER} run -d --name ${CONTAINER_NAME}''' % (skel_module_name,) + ports_arg + volumes_arg + env_arg + ' ${DOCKER_ARGS} ${IMAGE_NAME} ' + cfg['dockerfile']['entrypoint'] + ' ' + cfg['dockerfile']['cmd'] + '\n')
+#	buildpushsh = textwrap.dedent('''\
+#		export SHUTIT_OPTIONS="$SHUTIT_OPTIONS --config configs/push.cnf -s repository push yes"
+#		./build.sh "$@"
+#		''')
+#	if len(skel_module_ids) == 0:
+#		buildcnf = textwrap.dedent('''\
+#			###############################################################################
+#			# PLEASE NOTE: This file should be changed only by the maintainer.
+#			# PLEASE NOTE: This file is only sourced if the "shutit build" command is run
+#			#              and this file is in the relative path: configs/build.cnf
+#			#              This is to ensure it is only sourced if _this_ module is the
+#			#              target.
+#			###############################################################################
+#			# When this module is the one being built, which modules should be built along with it by default?
+#			# This feeds into automated testing of each module.
+#			[''' + '%s.%s.%s' % (skel_domain, skel_module_name, skel_module_name) + ''']
+#			shutit.core.module.build:yes
+#			# Allowed images as a regexp, eg ["ubuntu:12.*"], or [".*"], or ["centos"].
+#			# It's recommended this is locked down as far as possible.
+#			shutit.core.module.allowed_images:["''' + cfg['dockerfile']['base_image'] + '''"]
+#
+#			# Aspects of build process
+#			[build]
+#			base_image:''' + cfg['dockerfile']['base_image'] + '''
+#
+#			# Volume arguments wanted as part of the build
+#			[target]
+#			volumes:
+#
+#			[repository]
+#			name:''' + skel_module_name + '''
+#			''')
+#	else:
+#		buildcnf = textwrap.dedent('''\
+#			###############################################################################
+#			# PLEASE NOTE: This file should be changed only by the maintainer.
+#			# PLEASE NOTE: This file is only sourced if the "shutit build" command is run
+#			#              and this file is in the relative path: configs/build.cnf
+#			#              This is to ensure it is only sourced if _this_ module is the
+#			#              target.
+#			###############################################################################
+#			# When this module is the one being built, which modules should be built along with it by default?
+#			# This feeds into automated testing of each module.
+#		''')
+#		for skel_module_id in skel_module_ids:
+#			buildcnf += textwrap.dedent('''\
+#			[''' + skel_module_id + ''']
+#			shutit.core.module.build:yes
+#			''')
+#		buildcnf += textwrap.dedent('''\
+#			# Allowed images as a regexp, eg ["ubuntu:12.*"], or [".*"], or ["centos"].
+#			# It's recommended this is locked down as far as possible.
+#			shutit.core.module.allowed_images:["''' + cfg['dockerfile']['base_image'] + '''"]
+#
+#			# Aspects of build process
+#			[build]
+#			base_image:''' + cfg['dockerfile']['base_image'] + '''
+#
+#			# Volume arguments wanted as part of the build
+#			[target]
+#			volumes:
+#
+#			[repository]
+#			name:''' + skel_module_name + '''
+#			''')
+#	pushcnf = textwrap.dedent('''\
+#		###############################################################################
+#		# PLEASE NOTE: This file should be changed only by the maintainer.
+#		# PLEASE NOTE: IF YOU WANT TO CHANGE THE CONFIG, PASS IN
+#		#              --config configfilename
+#		#              OR ADD DETAILS TO YOUR
+#		#              ~/.shutit/config
+#		#              FILE
+#		###############################################################################
+#		[target]
+#		rm:false
+#
+#		[repository]
+#		# COPY THESE TO YOUR ~/.shutit/config FILE AND FILL OUT ITEMS IN CAPS
+#		#user:YOUR_USERNAME
+#		## Fill these out in server- and username-specific config (also in this directory)
+#		#password:YOUR_REGISTRY_PASSWORD_OR_BLANK
+#		## Fill these out in server- and username-specific config (also in this directory)
+#		#email:YOUR_REGISTRY_EMAIL_OR_BLANK
+#		#tag:no
+#		#push:yes
+#		#save:no
+#		#export:no
+#		##server:REMOVE_ME_FOR_DOCKER_INDEX
+#		## tag suffix, defaults to "latest", eg registry/username/repository:latest.
+#		## empty is also "latest"
+#		#tag_name:latest
+#		#suffix_date:no
+#		#suffix_format:%s
+#		''')
+#	builddockerfile = textwrap.dedent('''\
+#       FROM ''' + cfg['dockerfile']['base_image'] + '''
+#
+#       RUN apt-get update
+#       RUN apt-get install -y -qq git python-pip
+#       RUN pip install shutit
+#
+#       WORKDIR /opt
+#       # Change the next two lines to build your ShutIt module.
+#       RUN git clone https://github.com/yourname/yourshutitproject.git
+#       WORKDIR /opt/yourshutitproject
+#       RUN shutit build --delivery dockerfile
+#
+#       CMD ["/bin/bash"]
+#		''')
+#
+#	open(buildsh_path, 'w').write(buildsh)
+#	os.chmod(buildsh_path, os.stat(buildsh_path).st_mode | 0111) # chmod +x
+#	open(buildcnf_path, 'w').write(buildcnf)
+#	os.chmod(buildcnf_path, 0400)
+#	if skel_delivery != 'bash':
+#		open(buildpushsh_path, 'w').write(buildpushsh)
+#		os.chmod(buildpushsh_path, os.stat(buildpushsh_path).st_mode | 0111) # chmod +x
+#		# build.cnf should be read-only (maintainer changes only)
+#		open(pushcnf_path, 'w').write(pushcnf)
+#		os.chmod(pushcnf_path, 0600)
+#		open(testsh_path, 'w').write(testsh)
+#		os.chmod(testsh_path, os.stat(testsh_path).st_mode | 0111) # chmod +x
+#		open(builddockerfile_path, 'w').write(builddockerfile)
+#		open(readme_path, 'w').write(readme)
+#		open(runsh_path, 'w').write(runsh)
+#		os.chmod(runsh_path, os.stat(runsh_path).st_mode | 0111) # chmod +x
+#
+#	if skel_script is not None:
+#		print textwrap.dedent('''\
+#			================================================================================
+#			Please note that your bash script in:
+#			''' + skel_script + '''
+#			should be a simple set of one-liners
+#			that return to the prompt. Anything fancy with ifs, backslashes or other
+#			multi-line commands need to be handled more carefully.
+#			================================================================================''')
+#
+#		sbsi = cfg['build']['shutit_state_dir'] + '/shutit_bash_script_include_' + str(int(time.time()))
+#		skel_mod_path = os.path.join(skel_path, skel_module_name + '.py')
+#		# Read in new file
+#		script_list = open(skel_script).read().splitlines()
+#		skel_mod_path_list = open(skel_mod_path).read().splitlines()
+#		new_script = []
+#		for line in script_list:
+#			# remove leading space
+#			line = line.strip()
+#			# ignore empty lines
+#			# ignore lines with leading #
+#			if len(line) == 0 or line[0] == '#':
+#				continue
+#			# surround with send command and space
+#			line = "\t\tshutit.send('''" + line + "''')"
+#			# double quotes (?)
+#			new_script.append(line)
+#		# insert code into relevant part of skel_mod_path
+#		final_script = ''
+#		def_build_found = False
+#		# Go through each line of the base file
+#		for line in skel_mod_path_list:
+#			# Set trip switch to on once we find def build
+#			if string.find(line,'def build') != -1:
+#				def_build_found = True
+#			# If we're in the build method, and at the return line....
+#			if def_build_found and string.find(line,'return True') != -1:
+#				# ...script in
+#				for new_script_line in new_script:
+#					final_script += new_script_line + '\r\n'
+#				# Set trip switch back to off
+#				def_build_found = False
+#			# Add line to final script
+#			final_script += line + '\r\n'
+#		open(skel_mod_path,'w').write(final_script)
+#
+#	# Are we creating a new folder inside an existing git repo?
+#	if subprocess.call(['git', 'status'], stderr=open(os.devnull, 'wb'), stdout=open(os.devnull, 'wb')) != 0:
+#		subprocess.check_call(['git', 'init'], cwd=skel_path, stderr=open(os.devnull, 'wb'), stdout=open(os.devnull, 'wb'))
+#		try:
+#			subprocess.check_call([
+#				'cp', find_asset('.gitignore'), '.gitignore'
+#			], cwd=skel_path)
+#		except Exception:
+#			#gitignore is not essential
+#			pass
 
 	if skel_output_dir:
 		print skel_path
@@ -2473,3 +2202,183 @@ def allowed_image(shutit,module_id):
 			if re.match('^' + regexp + '$', cfg['target']['docker_image']):
 				return True
 	return False
+
+
+# Static strings
+_default_cnf = '''
+################################################################################
+# Default core config file for ShutIt.
+################################################################################
+
+# Details relating to the target you are building to (container, ssh or bash)
+[target]
+# Root password for the target - replace with your chosen password
+# If left blank, you will be prompted for a password
+password:
+# Hostname for the target - replace with your chosen target hostname
+# (where applicable, eg docker container)
+hostname:
+locale:en_US.UTF-8
+# space separated list of ports to expose
+# e.g. "ports:2222:22 8080:80" would expose container ports 22 and 80 as the
+# host's 2222 and 8080 (where applicable)
+ports:
+# volume arguments, eg /tmp/postgres:/var/lib/postgres:ro
+volumes:
+# volumes-from arguments
+volumes_from:
+# Name to give the docker container (where applicable).
+# Empty means "let docker default a name".
+name:
+# Whether to remove the docker container when finished (where applicable).
+rm:no
+
+# Information specific to the host on which the build runs.
+[host]
+# Ask the user if they want shutit on their path
+add_shutit_to_path: yes
+# Docker executable on your host machine
+docker_executable:docker
+# space separated list of dns servers to use
+dns:
+# Password for the username above on the host (only needed if sudo is needed)
+password:
+# Log file - will be set to 0600 perms, and defaults to /tmp/<YOUR_USERNAME>_shutit_log_<timestamp>
+# A timestamp will be added to the end of the filename.
+logfile:
+# ShutIt paths to look up modules in separated by ":", eg /path1/here:/opt/path2/there
+shutit_module_path:.
+
+# Repository information
+[repository]
+# Whether to tag
+tag:yes
+# Whether to suffix the date to the tag
+suffix_date:no
+# Suffix format (default is epoch seconds (%s), but %Y%m%d_%H%M%S is an option if the length is ok with the index)
+suffix_format:%s
+# tag name
+name:my_module
+# Whether to tar up the docker image exported
+export:no
+# Whether to tar up the docker image saved
+save:no
+# Whether to push to the server
+push:no
+# User on registry to namespace repo - can be set to blank if not docker.io
+user:
+#Must be set if push is true/yes and user is not blank
+password:YOUR_INDEX_PASSWORD_OR_BLANK
+#Must be set if push is true/yes and user is not blank
+email:YOUR_INDEX_EMAIL_OR_BLANK
+# repository server
+# make blank if you want this to be sent to the main docker index on docker.io
+server:
+# tag suffix, defaults to "latest", eg registry/username/repository:latest.
+# empty is also "latest"
+repo_name:
+tag_name:latest
+
+# Root setup script
+# Each module should set these in a config
+[shutit.tk.setup]
+shutit.core.module.build:yes
+# Modules may rely on the below settings, only change for debugging.
+do_update:yes
+
+[shutit.tk.conn_bash]
+# None
+
+[shutit.tk.conn_ssh]
+# Required
+ssh_host:
+# All other configs are optional
+ssh_port:
+ssh_user:
+password:
+ssh_key:
+# (what to execute on the target to get a root shell)
+ssh_cmd:
+
+# Aspects of build process
+[build]
+build_log:yes
+# How to connect to target
+conn_module:shutit.tk.conn_docker
+# Run any docker container in privileged mode
+privileged:no
+# Base image can be over-ridden by --image_tag defaults to this.
+base_image:ubuntu:14.04
+# Whether to perform tests.
+dotest:yes
+# --net argument to docker, eg "bridge", "none", "container:<name|id>" or "host". Empty means use default (bridge).
+net:
+'''
+
+_build_section = '''
+
+	def build(self, shutit):
+		# Some useful API calls for reference. See shutit's docs for more info and options:
+		#
+		# ISSUING BASH COMMANDS
+		# shutit.send(send,expect=<default>) - Send a command, wait for expect (string or compiled regexp)
+		#                                      to be seen before continuing. By default this is managed
+		#                                      by ShutIt with shell prompts.
+		# shutit.multisend(send,send_dict)   - Send a command, dict contains {expect1:response1,expect2:response2,...}
+		# shutit.send_and_get_output(send)   - Returns the output of the sent command
+		# shutit.send_and_match_output(send, matches)
+		#                                    - Returns True if any lines in output match any of
+		#                                      the regexp strings in the matches list
+		# shutit.send_until(send,regexps)    - Send command over and over until one of the regexps seen in the output.
+		# shutit.run_script(script)          - Run the passed-in string as a script
+		# shutit.install(package)            - Install a package
+		# shutit.remove(package)             - Remove a package
+		# shutit.login(user='root', command='su -')
+		#                                    - Log user in with given command, and set up prompt and expects.
+		#                                      Use this if your env (or more specifically, prompt) changes at all,
+		#                                      eg reboot, bash, ssh
+		# shutit.logout(command='exit')      - Clean up from a login.
+		#
+		# COMMAND HELPER FUNCTIONS
+		# shutit.add_to_bashrc(line)         - Add a line to bashrc
+		# shutit.get_url(fname, locations)   - Get a file via url from locations specified in a list
+		# shutit.get_ip_address()            - Returns the ip address of the target
+		# shutit.command_available(command)  - Returns true if the command is available to run
+		#
+		# LOGGING AND DEBUG
+		# shutit.log(msg,add_final_message=False) -
+		#                                      Send a message to the log. add_final_message adds message to
+		#                                      output at end of build
+		# shutit.pause_point(msg='')         - Give control of the terminal to the user
+		# shutit.step_through(msg='')        - Give control to the user and allow them to step through commands
+		#
+		# SENDING FILES/TEXT
+		# shutit.send_file(path, contents)   - Send file to path on target with given contents as a string
+		# shutit.send_host_file(path, hostfilepath)
+		#                                    - Send file from host machine to path on the target
+		# shutit.send_host_dir(path, hostfilepath)
+		#                                    - Send directory and contents to path on the target
+		# shutit.insert_text(text, fname, pattern)
+		#                                    - Insert text into file fname after the first occurrence of
+		#                                      regexp pattern.
+		# shutit.delete_text(text, fname, pattern)
+		#                                    - Delete text from file fname after the first occurrence of
+		#                                      regexp pattern.
+		# shutit.replace_text(text, fname, pattern)
+		#                                    - Replace text from file fname after the first occurrence of
+		#                                      regexp pattern.
+		# ENVIRONMENT QUERYING
+		# shutit.host_file_exists(filename, directory=False)
+		#                                    - Returns True if file exists on host
+		# shutit.file_exists(filename, directory=False)
+		#                                    - Returns True if file exists on target
+		# shutit.user_exists(user)           - Returns True if the user exists on the target
+		# shutit.package_installed(package)  - Returns True if the package exists on the target
+		# shutit.set_password(password, user='')
+		#                                    - Set password for a given user on target
+		#
+		# USER INTERACTION
+		# shutit.get_input(msg,default,valid[],boolean?,ispass?)
+		#                                    - Get input from user and return output
+		# shutit.fail(msg)                   - Fail the program and exit with status 1
+		#'''
