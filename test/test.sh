@@ -54,7 +54,7 @@ cleanup hard
 
 DESC="Testing skeleton build with Dockerfile"
 echo $DESC
-./shutit skeleton --dockerfile assets/dockerfile/Dockerfile --module_directory ${NEWDIR} --module_name testing --domain shutit.tk --depends shutit.tk.setup --base_image ubuntu:14.04 --delivery docker
+./shutit skeleton --dockerfile assets/dockerfile/Dockerfile --module_directory ${NEWDIR} --module_name testing --domain shutit.tk --depends shutit.tk.setup --base_image ubuntu:14.04 --delivery docker --template_branch docker
 pushd ${NEWDIR}/bin
 ./test.sh --interactive 0
 if [[ "x$?" != "x0" ]]
@@ -69,7 +69,7 @@ popd > /dev/null 2>&1
 
 DESC="Testing skeleton build with two ShutItFiles"
 echo $DESC
-./shutit skeleton --dockerfiles assets/dockerfile/Dockerfile  assets/shutitfile/ShutItFile --module_directory ${NEWDIR} --module_name testing --domain shutit.tk --depends shutit.tk.setup --base_image ubuntu:14.04 --delivery docker
+./shutit skeleton --dockerfiles assets/dockerfile/Dockerfile  assets/shutitfile/ShutItFile --module_directory ${NEWDIR} --module_name testing --domain shutit.tk --depends shutit.tk.setup --base_image ubuntu:14.04 --delivery docker --template_branch docker
 pushd ${NEWDIR}/bin
 ./test.sh --interactive 0
 if [[ "x$?" != "x0" ]]
@@ -84,7 +84,7 @@ popd > /dev/null 2>&1
 
 DESC="Testing skeleton build basic bare"
 echo $DESC
-./shutit skeleton --module_directory ${NEWDIR} --module_name testing --domain shutit.tk --depends shutit.tk.setup --base_image ubuntu:14.04 --delivery docker
+./shutit skeleton --module_directory ${NEWDIR} --module_name testing --domain shutit.tk --depends shutit.tk.setup --base_image ubuntu:14.04 --delivery docker --template_branch docker
 pushd ${NEWDIR}/bin
 ./test.sh --interactive 0
 if [[ "x$?" != "x0" ]]
@@ -100,7 +100,7 @@ popd > /dev/null 2>&1
 
 DESC="Testing skeleton build basic with example script"
 echo $DESC
-./shutit skeleton --module_directory ${NEWDIR} --module_name testing --domain shutit.tk --depends shutit.tk.setup --base_image ubuntu:14.04 --script ${SHUTIT_DIR}/assets/example.sh --delivery docker
+./shutit skeleton --module_directory ${NEWDIR} --module_name testing --domain shutit.tk --depends shutit.tk.setup --base_image ubuntu:14.04 --script ${SHUTIT_DIR}/assets/example.sh --delivery docker --template_branch docker
 
 pushd ${NEWDIR}/bin
 ./test.sh --interactive 0
