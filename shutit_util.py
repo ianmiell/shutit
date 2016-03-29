@@ -1115,9 +1115,13 @@ def create_skeleton(shutit):
 	cfg['dockerfile']['onbuild']    = []
 	cfg['dockerfile']['script']     = []
 
-	# Figure out defaults
+	# Figure out defaults.
+	# If no template branch supplied, then assume it's the same as delivery.
 	if cfg['skeleton']['template_branch'] == '':
-		cfg['skeleton']['template_branch'] = cfg['skeleton']['delivery']
+		if cfg['skeleton']['delivery'] == 'ssh' or cfg['skeleton']['delivery'] == 'dockerfile':
+			cfg['skeleton']['template_branch'] = 'bash'
+		else:
+			cfg['skeleton']['template_branch'] = cfg['skeleton']['delivery']
 
 	# Check setup
 	if len(skel_path) == 0 or skel_path[0] != '/':
@@ -1172,7 +1176,7 @@ def create_skeleton(shutit):
 	if cfg['skeleton']['output_dir']:
 		print skel_path
 
-# TODO: Deal with skel_dockerfiles example separately
+# TODO: Deal with skel_dockerfiles example separately/later
 #	skel_module_ids = []
 #	if skel_dockerfiles:
 #		_count = 1
