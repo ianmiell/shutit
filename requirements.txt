@@ -3,3 +3,4 @@ bottle>=0.1
 pynsca>=1.5
 manhole>=0.1
 texttable>=0.1
+jinja2>=0.1
