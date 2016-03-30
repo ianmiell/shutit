@@ -2,7 +2,7 @@
 name: shutit.tk
 url: http://shutit.tk
 
-markdown: redcarpet
+markdown: kramdown
 pygments: true
 
 # Some useful details
