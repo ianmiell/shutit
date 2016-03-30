@@ -21,17 +21,14 @@ Automation framework for programmers.
  - Lifecycle allows for testing and finalization
  - Extensive debugging tools to make reproducible runs easier
  - Utility functions for common tasks (that work across distros)
-
- - 'Training mode' ideal for 
-
-[Git Trainer](https://asciinema.org/a/32807?t=70)
-
+ - 'Training mode', forces users to type in commands
+![Git Trainer](https://asciinema.org/a/32807?t=70)
  - 'Video mode', ideal for demos
-
 [Automating Docker Security Checks](https://asciinema.org/a/32001?t=120)
+ - 'Golf mode' - set challenges for users
+[grep scales](https://github.com/ianmiell/grep-scales)
 
 Many more examples explained [here](https://zwischenzugs.wordpress.com):
-
 
 
 ### Step 1: Get ShutIt ###
