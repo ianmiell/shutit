@@ -39,6 +39,7 @@ import datetime
 import pexpect
 import md5
 from shutit_module import ShutItFailException
+import logging
 
 class ShutIt(object):
 	"""ShutIt build class.
@@ -189,34 +190,22 @@ class ShutIt(object):
 				sys.exit(1)
 
 
-	def log(self, msg, code=None, pause=0, prefix=True, force_stdout=False, add_final_message=False):
+	def log(self, msg, code=None, add_final_message=False, level=logging.INFO):
 		"""Logging function.
 
 		@param code:              Colour code for logging. Ignored if we are in serve mode
-		@param pause:             Length of time to pause after logging
-		@param prefix:            Whether to output logging prefix (LOG: <time>)
-		@param force_stdout:      If we are not in debug, put this in stdout anyway
 		@param add_final_message: Add this log line to the final message output to the user
+		@param level:             Python log level
 		"""
 		cfg = self.cfg
-		if prefix:
-			prefix = '\nLOG: ' + time.strftime("%Y-%m-%d %H:%M:%S", 
-				time.localtime())
-			logmsg = prefix + ' ' + str(msg)
-		else:
-			logmsg = '\n' + msg
 		# Don't colour message if we are in serve mode.
 		if code != None and not cfg['action']['serve']:
-			logmsg = shutit_util.colour(code, logmsg)
-		if cfg['build']['debug'] or force_stdout:
-			print >> sys.stdout, logmsg
-			sys.stdout.flush()
-		if cfg['build']['build_log'] and cfg['build']['build_log_file'] != None:
-			print >> cfg['build']['build_log_file'], logmsg
-			cfg['build']['build_log_file'].flush()
+			logmsg = shutit_util.colour(code, msg)
+		else:
+			logmsg = msg
+		logging.log(level,logmsg)
 		if add_final_message:
 			cfg['build']['report_final_messages'] += msg + '\n'
-		time.sleep(pause)
 
 
 
@@ -426,8 +415,7 @@ class ShutIt(object):
 	         exit_values=None,
 	         echo=True,
 	         escape=False,
-	         pause=1,
-	         print_md5=False):
+	         pause=1):
 		"""Set the user a task to complete, success being determined by matching the output.
 
 		Either pass in regexp(s) desired from the output as a string or a list, or an md5sum of the output wanted.
@@ -463,7 +451,7 @@ class ShutIt(object):
 				continue
 			output = self.send_and_get_output(send,child=child,timeout=timeout,retry=1,record_command=record_command,echo=echo)
 			md5sum_output = md5.md5(output).hexdigest()
-			shutit.log('output: ' + output + '\n is md5sum: ' + md5sum_output,force_stdout=print_md5)
+			self.log('output: ' + output + '\n is md5sum: ' + md5sum_output,level=logging.DEBUG)
 			if expect_type == 'md5sum':
 				output = md5sum_output
 				if output == expect:
@@ -571,11 +559,10 @@ class ShutIt(object):
 						break
 			if ok_to_record:
 				self.shutit_command_history.append(send)
-		if cfg['build']['debug'] and send != None:
-			self.log('===================================================' + 
-				'=============================',code=32)
-			self.log('Sending>>>' + send + '<<<',code=31)
-			self.log('Expecting>>>' + str(expect) + '<<<',code=32)
+		if send != None:
+			self.log('================================================================================',level=logging.DEBUG,code=32)
+			self.log('Sending>>>' + send + '<<<',level=logging.DEBUG,code=31)
+			self.log('Expecting>>>' + str(expect) + '<<<',level=logging.DEBUG,code=32)
 		# Don't echo if echo passed in as False
 		while retry > 0:
 			if escape:
@@ -593,7 +580,7 @@ class ShutIt(object):
 $'"""
 						_count = 0
 				escaped_str += "'"
-				self.log('\nThis string was sent safely: ' + send, force_stdout=False)
+				self.log('\nThis string was sent safely: ' + send, level=logging.DEBUG)
 			if echo == False:
 				oldlog = child.logfile_send
 				child.logfile_send = None
@@ -656,9 +643,8 @@ $'"""
 								self.divert_output(None)
 					else:
 						expect_res = self._expect_allow_interrupt(child, expect, timeout)
-			if cfg['build']['debug']:
-				self.log('\nchild.before>>>' + child.before + '<<<',code=31)
-				self.log('\nchild.after>>>' + child.after + '<<<',code=32)
+			self.log('\nchild.before>>>' + child.before + '<<<',level=logging.DEBUG,code=31)
+			self.log('\nchild.after>>>' + child.after + '<<<',level=logging.DEBUG,code=32)
 			if fail_on_empty_before == True:
 				if child.before.strip() == '':
 					self.fail('before empty after sending: ' + str(send) +
@@ -668,7 +654,7 @@ $'"""
 				        'send an empty string to a prompt by mistake?', child=child)
 			elif fail_on_empty_before == False:
 				# Don't check exit if fail_on_empty_before is False
-				self.log('' + child.before + '<<<')
+				self.log('' + child.before + '<<<', level=logging.DEBUG)
 				check_exit = False
 				for prompt in cfg['expect_prompts']:
 					if prompt == expect:
@@ -681,7 +667,7 @@ $'"""
 			if check_exit == True:
 				# store the output
 				if not self._check_exit(send, expect, child, timeout, exit_values, retry=retry):
-					self.log('Sending: ' + send + '\nfailed, retrying')
+					self.log('Sending: ' + send + '\nfailed, retrying', level=logging.DEBUG)
 					retry = retry - 1
 					assert(retry > 0)
 					continue
@@ -763,7 +749,7 @@ $'"""
 			else:
 				return res
 		if timed_out == True and not shutit_util.determine_interactive(self):
-			self.log('\nCommand timed out, trying to get terminal back for you',code=31,force_stdout=True)
+			self.log('\nCommand timed out, trying to get terminal back for you',code=31, level=logging.DEBUG)
 			self.fail('Timed out and could not recover')
 		else:
 			if shutit_util.determine_interactive(self):
@@ -830,7 +816,7 @@ END_""" + random_id)
 		"""
 		cfg = self.cfg
 		if cfg['build']['check_exit'] == False:
-			self.log('check_exit configured off, returning')
+			self.log('check_exit configured off, returning', level=logging.DEBUG)
 			return
 		expect = expect or self.get_default_expect()
 		child = child or self.get_default_child()
@@ -849,8 +835,8 @@ END_""" + random_id)
 		if res not in exit_values or res == None:
 			if res == None:
 				res = str(res)
-			self.log('child.after: \n' + child.after + '\n')
-			self.log('Exit value from command:\n' + str(send) + '\nwas:\n' + res)
+			self.log('child.after: \n' + child.after + '\n', level=logging.DEBUG)
+			self.log('Exit value from command:\n' + str(send) + '\nwas:\n' + res, level=logging.DEBUG)
 			msg = ('\nWARNING: command:\n' + send + 
 				  '\nreturned unaccepted exit code: ' + 
 				  res + 
@@ -871,7 +857,7 @@ END_""" + random_id)
 		return True
 
 
-	def run_script(self, script, expect=None, child=None, in_shell=True, note=None, log=True):
+	def run_script(self, script, expect=None, child=None, in_shell=True, note=None):
 		"""Run the passed-in string as a script on the target's command line.
 
 		@param script:   String representing the script. It will be de-indented
@@ -888,7 +874,7 @@ END_""" + random_id)
 		expect = expect or self.get_default_expect()
 	 	cfg = self.cfg
 		self._handle_note(note, 'Script: ' + str(script))
-		self.log('Running script beginning:\n"' + script[:80] + '[...]',code=31)
+		self.log('Running script beginning:\n"' + script[:80] + '[...]',code=31, level=logging.DEBUG)
 		# Trim any whitespace lines from start and end of script, then dedent
 		lines = script.split('\n')
 		while len(lines) > 0 and re.match('^[ \t]*$', lines[0]):
@@ -917,39 +903,36 @@ END_""" + random_id)
 		return ret
 
 
-	def send_file(self, path, contents, expect=None, child=None, log=True, truncate=False, note=None, user=None, group=None):
+	def send_file(self, path, contents, expect=None, child=None, truncate=False, note=None, user=None, group=None):
 		"""Sends the passed-in string as a file to the passed-in path on the
 		target.
 
 		@param path:        Target location of file on target.
-		@param contents:    Contents of file as a string. See log.
+		@param contents:    Contents of file as a string.
 		@param expect:      See send()
 		@param child:       See send()
-		@param log:         Log the file contents if in debug.
 		@param note:        See send()
 		@param user:        Set ownership to this user (defaults to whoami)
 		@param group:       Set group to this user (defaults to first group in groups)
 
 		@type path:         string
 		@type contents:     string
-		@type log:          boolean
 		"""
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
 		cfg = self.cfg
 		self._handle_note(note, 'Sending contents to path: ' + path)
-		self.log('Sending file contents beginning:\n"' + contents[:80] + '"\n\n to file: ' + path,code=31)
+		self.log('Sending file contents beginning:\n"' + contents[:80] + '"\n\n to file: ' + path,code=31, level=logging.DEBUG)
 		if user == None:
 			user = self.whoami()
 		if group == None:
 			group = self.whoarewe()
-		if cfg['build']['debug']:
-			self.log('='*80)
-			if log:
-				for c in contents:
-					if c not in string.ascii_letters:
-						print_contents = string.replace(contents,c,'?')
-				self.log('contents >>>' + print_contents + '<<<')
+		self.log('='*80,level=logging.DEBUG)
+		print_contents=''
+		for c in contents:
+			if c not in string.ascii_letters:
+				print_contents = string.replace(contents,c,'?')
+		self.log('contents >>>' + print_contents + '<<<',level=logging.DEBUG)
 		if cfg['build']['current_environment_id'] == 'ORIGIN_ENV':
 			# If we're on the root env (ie the same one that python is running on,
 			# then use python.
@@ -997,7 +980,6 @@ END_''' + random_id, echo=False)
 	          expect=None,
 	          child=None,
 	          timeout=3600,
-	          log=True,
 	          note=None):
 		"""How to change directory will depend on whether we are in delivery mode bash or docker.
 
@@ -1005,14 +987,13 @@ END_''' + random_id, echo=False)
 		@param expect:        See send()
 		@param child:         See send()
 		@param timeout:       Timeout on response
-		@param log:           Arg to pass to send_file (default True)
 		@param note:          See send()
 		"""
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
 		cfg = self.cfg
 		self._handle_note(note, 'Changing to path: ' + path)
-		self.log('Changing directory to path: "' + path,code=31)
+		self.log('Changing directory to path: "' + path,code=31, level=logging.DEBUG)
 		if cfg['build']['delivery'] in ('bash','dockerfile'):
 			self.send('cd ' + path, expect=expect, child=child, timeout=timeout, echo=False)
 		elif cfg['build']['delivery'] in ('docker','ssh'):
@@ -1028,7 +1009,6 @@ END_''' + random_id, echo=False)
 	                   expect=None,
 	                   child=None,
 	                   timeout=3600,
-	                   log=True,
 	                   note=None,
 	                   user=None,
 	                   group=None):
@@ -1038,20 +1018,18 @@ END_''' + random_id, echo=False)
 		@param hostfilepath:  Path to file from host to send to target.
 		@param expect:        See send()
 		@param child:         See send()
-		@param log:           arg to pass to send_file (default True)
 		@param note:          See send()
 		@param user:          Set ownership to this user (defaults to whoami)
 		@param group:         Set group to this user (defaults to first group in groups)
 
 		@type path:           string
 		@type hostfilepath:   string
-		@type log:            boolean
 		"""
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
 		cfg = self.cfg
 		self._handle_note(note, 'Sending file from host: ' + hostfilepath + '\nTo: ' + path)
-		self.log('Sending file from host: ' + hostfilepath + '\nTo: ' + path,code=31)
+		self.log('Sending file from host: ' + hostfilepath + '\nTo: ' + path,code=31, level=logging.DEBUG)
 		if user == None:
 			user = self.whoami()
 		if group == None:
@@ -1065,10 +1043,10 @@ END_''' + random_id, echo=False)
 		else:
 			if os.path.isfile(hostfilepath):
 				self.send_file(path, open(hostfilepath).read(), expect=expect, 
-					child=child, log=log, user=user, group=group)
+					child=child, user=user, group=group)
 			elif os.path.isdir(hostfilepath):
 				self.send_host_dir(path, hostfilepath, expect=expect,
-					child=child, log=log, user=user, group=group)
+					child=child, user=user, group=group)
 			else:
 				self.fail('send_host_file - file: ' + hostfilepath +
 					' does not exist as file or dir. cwd is: ' + os.getcwd(),
@@ -1081,7 +1059,6 @@ END_''' + random_id, echo=False)
 					  hostfilepath,
 					  expect=None,
 					  child=None,
-					  log=True,
 	                  note=None,
 	                  user=None,
 	                  group=None):
@@ -1092,20 +1069,18 @@ END_''' + random_id, echo=False)
 		@param hostfilepath:  Path to file from host to send to target
 		@param expect:        See send()
 		@param child:         See send()
-		@param log:           Arg to pass to send_file (default True)
 		@param note:          See send()
 		@param user:          Set ownership to this user (defaults to whoami)
 		@param group:         Set group to this user (defaults to first group in groups)
 
 		@type path:          string
 		@type hostfilepath:  string
-		@type log:           boolean
 		"""
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
-		self.log('entered send_host_dir in: ' + os.getcwd())
+		self.log('entered send_host_dir in: ' + os.getcwd(), level=logging.DEBUG)
 		self._handle_note(note, 'Sending host directory: ' + hostfilepath + '\nTo: ' + path)
-		self.log(note, 'Sending host directory: ' + hostfilepath + '\nTo: ' + path,code=31)
+		self.log(note, 'Sending host directory: ' + hostfilepath + '\nTo: ' + path,code=31, level=logging.DEBUG)
 		if user == None:
 			user = self.whoami()
 		if group == None:
@@ -1116,16 +1091,16 @@ END_''' + random_id, echo=False)
 			for subfolder in subfolders:
 				self.send('mkdir -p ' + path + '/' + subfolder, echo=False)
 				self.log('send_host_dir recursing to: ' + hostfilepath +
-					'/' + subfolder)
+					'/' + subfolder, level=logging.DEBUG)
 				self.send_host_dir(path + '/' + subfolder, hostfilepath +
-					'/' + subfolder, expect=expect, child=child, log=log)
+					'/' + subfolder, expect=expect, child=child)
 			for fname in files:
 				hostfullfname = os.path.join(root, fname)
 				targetfname = os.path.join(path, fname)
 				self.log('send_host_dir sending file ' + hostfullfname + ' to ' + 
-					'target file: ' + targetfname)
+					'target file: ' + targetfname, level=logging.DEBUG)
 				self.send_file(targetfname, open(hostfullfname).read(), 
-					expect=expect, child=child, log=log, user=user, group=group)
+					expect=expect, child=child, user=user, group=group)
 		self._handle_note_after(note=note)
 
 
@@ -1635,7 +1610,7 @@ END_''' + random_id, echo=False)
 				if retry == 0:
 					self._check_exit(send, expect, child, timeout, exit_values, retbool=False)
 				elif not self._check_exit(send, expect, child, timeout, exit_values, retbool=True):
-					self.log('Sending: ' + send + '\nfailed, retrying')
+					self.log('Sending: ' + send + '\nfailed, retrying', level=logging.DEBUG)
 					retry = retry - 1
 					continue
 				# If we get here, all is ok.
@@ -1963,7 +1938,7 @@ END_''' + random_id, echo=False)
 						print (shutit_util.colour(colour,'\nPause point:\n' +
 							'resize==True, so attempting to resize terminal.\n\n' +
 							'If you are not at a shell prompt when calling pause_point, then pass in resize=False.'))
-					self.send_host_file('/tmp/resize',self.shutit_main_dir+'/assets/resize', child=child, log=False)
+					self.send_host_file('/tmp/resize',self.shutit_main_dir+'/assets/resize', child=child)
 					self.send(' chmod 755 /tmp/resize', echo=False)
 					child.sendline(' sleep 2 && /tmp/resize')
 				if default_msg == None:
@@ -2007,14 +1982,13 @@ END_''' + random_id, echo=False)
 		if len(input_string) == 1:
 			# Picked CTRL-u as the rarest one accepted by terminals.
 			if ord(input_string) == 21:
-				self.log('\n\nCTRL and u caught, forcing a tag at least\n\n',
-					force_stdout=True)
+				self.log('\n\nCTRL and u caught, forcing a tag at least\n\n')
 				self.do_repository_work('tagged_by_shutit',
 					password=cfg['host']['password'],
 					docker_executable=cfg['host']['docker_executable'],
 					force=True)
 				self.log('\n\nCommit and tag done\n\nHit CTRL and ] to continue with' + 
-					' build. Hit return for a prompt.', force_stdout=True)
+					' build. Hit return for a prompt.')
 		return input_string
 
 
@@ -2209,7 +2183,7 @@ END_''' + random_id, echo=False)
 				opts = options['apt']
 			else:
 				opts = '-y'
-				if not cfg['build']['debug']:
+				if not cfg['build']['loglevel'] == logging.DEBUG:
 					opts += ' -qq'
 				if force:
 					opts += ' --force-yes'
@@ -2490,9 +2464,7 @@ END_''' + random_id, echo=False)
 			general_expect = general_expect + [user+'@']
 			general_expect = general_expect + ['.*[@#$]']
 		if user == 'bash' and command == 'su -':
-			print '\n' + 80 * '='
-			self.log('WARNING! user is bash - if you see problems below, did you mean: login(command="' + user + '")?',force_stdout=True)
-			print '\n' + 80 * '='
+			self.log('WARNING! user is bash - if you see problems below, did you mean: login(command="' + user + '")?',level=loglevel.WARNING)
 		self._handle_note(note,command=command + ', as user: "' + user + '"',training_input=send)
 		# r'[^t] login:' - be sure not to match 'last login:'
 		self.multisend(send,{'ontinue connecting':'yes','assword':password,r'[^t] login:':password},expect=general_expect,check_exit=False,timeout=timeout,fail_on_empty_before=False,escape=escape)
@@ -2597,7 +2569,7 @@ END_''' + random_id, echo=False)
 				fail_on_empty_before=False, timeout=5, child=child, echo=False)
 		if set_default_expect:
 			self.log('Resetting default expect to: ' +
-				cfg['expect_prompts'][prompt_name])
+				cfg['expect_prompts'][prompt_name],level=logging.DEBUG)
 			self.set_default_expect(cfg['expect_prompts'][prompt_name])
 		# Ensure environment is set up OK.
 		if setup_environment:
@@ -2622,7 +2594,7 @@ END_''' + random_id, echo=False)
 				(old_prompt_name, old_prompt_name),
 				expect=expect, check_exit=False, fail_on_empty_before=False, echo=False)
 		if not new_expect:
-			self.log('Resetting default expect to default')
+			self.log('Resetting default expect to default',level=logging.DEBUG)
 			self.set_default_expect()
 		self.setup_environment()
 
@@ -2945,7 +2917,7 @@ END_''' + random_id, echo=False)
 		send = docker_executable + ' push ' + repository
 		expect_list = ['Username', 'Password', 'Email', expect]
 		timeout = 99999
-		self.log('Running: ' + send, force_stdout=True, prefix=False)
+		self.log('Running: ' + send,level=logging.DEBUG)
 		res = self.send(send, expect=expect_list, child=child, timeout=timeout,
 		                check_exit=False, fail_on_empty_before=False)
 		while True:
@@ -3063,7 +3035,7 @@ END_''' + random_id, echo=False)
 			if export:
 				bzfile = (repository_tar + 'export.tar.bz2')
 				self.log('\nDepositing bzip2 of exported container into ' +
-						 bzfile)
+						 bzfile,level=logging.DEBUG)
 				if self.send(docker_executable + ' export ' +
 							 cfg['target']['container_id'] +
 							 ' | bzip2 - > ' + bzfile,
@@ -3071,10 +3043,10 @@ END_''' + random_id, echo=False)
 							 child=child) == 1:
 					self.send(password, expect=expect, child=child)
 				self.log('\nDeposited bzip2 of exported container into ' +
-						 bzfile, code='32')
+						 bzfile, code='32',level=logging.DEBUG)
 				self.log('\nRun:\n\nbunzip2 -c ' + bzfile +
 						 ' | sudo docker import -\n\n' +
-						 'to get this imported into docker.', code='32')
+						 'to get this imported into docker.', code='32',level=logging.DEBUG)
 				cfg['build']['report'] += ('\nDeposited bzip2 of exported' +
 										  ' container into ' + bzfile)
 				cfg['build']['report'] += ('\nRun:\n\nbunzip2 -c ' + bzfile +
@@ -3083,7 +3055,7 @@ END_''' + random_id, echo=False)
 			if save:
 				bzfile = (repository_tar + 'save.tar.bz2')
 				self.log('\nDepositing bzip2 of exported container into ' +
-						 bzfile)
+						 bzfile,level=logging.DEBUG)
 				if self.send(docker_executable + ' save ' +
 							 cfg['target']['container_id'] +
 							 ' | bzip2 - > ' + bzfile,
@@ -3091,11 +3063,11 @@ END_''' + random_id, echo=False)
 							 timeout=99999, child=child) == 1:
 					self.send(password, expect=expect, child=child)
 				self.log('\nDeposited bzip2 of exported container into ' +
-						 bzfile, code='32')
+						 bzfile, code='32',level=logging.DEBUG)
 				self.log('\nRun:\n\nbunzip2 -c ' + bzfile +
 						 ' | sudo docker import -\n\n' + 
 						 'to get this imported into docker.',
-						 code='32')
+						 code='32',level=logging.DEBUG)
 				cfg['build']['report'] += ('\nDeposited bzip2 of exported ' + 
 										  'container into ' + bzfile)
 				cfg['build']['report'] += ('\nRun:\n\nbunzip2 -c ' + bzfile +
@@ -3281,9 +3253,6 @@ END_''' + random_id, echo=False)
 
 	# eg sys.stdout or None
 	def divert_output(self, output):
-		# If in debug, always push to stdout
-		if self.cfg['build']['debug']:
-			output = sys.stdout
 		for key in self.pexpect_children.keys():
 			self.pexpect_children[key].logfile_send = output
 			self.pexpect_children[key].logfile_read = output
@@ -3312,11 +3281,9 @@ def init():
 	cfg['action']                         = {}
 	cfg['build']                          = {}
 	cfg['build']['interactive']           = 1 # Default to true until we know otherwise
-	cfg['build']['build_log']             = None
-	cfg['build']['build_log_file']        = None
 	cfg['build']['report']                = ''
 	cfg['build']['report_final_messages'] = ''
-	cfg['build']['debug']                 = False
+	cfg['build']['loglevel']              = logging.INFO
 	cfg['build']['completed']             = False
 	cfg['build']['mount_docker']          = False
 	cfg['build']['do_update']             = True

@@ -57,6 +57,7 @@ import random
 import texttable
 import readline
 import jinja2
+import logging
 
 
 class LayerConfigParser(ConfigParser.RawConfigParser):
@@ -155,11 +156,11 @@ def get_configs(shutit, configs):
 		if cfg['build']['interactive'] > 0:
 			fail_str = 'Files are not secure, mode should be 0600. Running the following commands to correct:\n' + fail_str + '\n'
 			# Actually show this to the user before failing...
-			shutit.log(fail_str, force_stdout=True)
-			shutit.log('\n\nDo you want me to run this for you? (input y/n)\n', force_stdout=True)
+			shutit.log(fail_str)
+			shutit.log('\nDo you want me to run this for you? (input y/n)')
 		if cfg['build']['interactive'] == 0 or util_raw_input(shutit=shutit,default='y') == 'y':
 			for f in files:
-				shutit.log('Correcting insecure file permissions on: ' + f, force_stdout=True)
+				shutit.log('Correcting insecure file permissions on: ' + f)
 				os.chmod(f,0600)
 			# recurse
 			return get_configs(shutit, configs)
@@ -172,12 +173,6 @@ def get_configs(shutit, configs):
 	# Treat allowed_images as a special, additive case
 	cfg['build']['shutit.core.module.allowed_images'] = cp.get_config_set('build', 'shutit.core.module.allowed_images')
 	return cp
-
-def issue_warning(msg, wait):
-	"""Issues a warning to stderr.
-	"""
-	print >> sys.stderr, msg
-	time.sleep(wait)
 
 
 def random_id(size=8, chars=string.ascii_letters + string.digits):
@@ -244,7 +239,6 @@ def get_base_config(cfg, cfg_parser):
 	# BEGIN Read from config files
 	# build - details relating to the build
 	cfg['build']['privileged']                 = cp.getboolean('build', 'privileged')
-	cfg['build']['build_log']                  = cp.getboolean('build', 'build_log')
 	cfg['build']['base_image']                 = cp.get('build', 'base_image')
 	cfg['build']['dotest']                     = cp.get('build', 'dotest')
 	cfg['build']['net']                        = cp.get('build', 'net')
@@ -302,20 +296,18 @@ def get_base_config(cfg, cfg_parser):
 	# END Standard expects
 
 	if cfg['host']['logfile'] == '':
+		logformat='%(levelname)s: %(message)s'
+		# TODO: state dir?
 		if not os.access(cfg['build']['shutit_state_dir_base'],os.F_OK):
 			os.mkdir(cfg['build']['shutit_state_dir_base'])
 		if not os.access(cfg['build']['shutit_state_dir'],os.F_OK):
 			os.mkdir(cfg['build']['shutit_state_dir'])
 		os.chmod(cfg['build']['shutit_state_dir_base'],0777)
 		os.chmod(cfg['build']['shutit_state_dir'],0777)
-		logfile = os.path.join(cfg['build']['shutit_state_dir'], 'shutit_build.log')
+		logging.basicConfig(format=logformat,level=cfg['build']['loglevel'])
 	else:
-		logfile = cfg['host']['logfile'] + '_' + cfg['build']['build_id']
-	cfg['host']['logfile'] = logfile
-	if cfg['build']['build_log']:
-		cfg['build']['build_log_file'] = open(logfile, 'a')
-		# Lock it down to the running user.
-		os.chmod(logfile,0600)
+		logformat='%(asctime)s %(levelname)s: %(message)s'
+		logging.basicConfig(format=logformat,filename=cfg['host']['logfile'],level=cfg['build']['loglevel'])
 	# delivery method bash and image_tag make no sense
 	if cfg['build']['delivery'] in ('bash','ssh'):
 		if cfg['target']['docker_image'] != '':
@@ -333,9 +325,9 @@ def get_base_config(cfg, cfg_parser):
 	if cfg['target']['rm'] and (cfg['repository']['tag'] or cfg['repository']['push'] or cfg['repository']['save'] or cfg['repository']['export']):
 		print("Can't have [target]/rm and [repository]/(push/save/export) set to true")
 		sys.exit(1)
-	if warn != '' and cfg['build']['debug']:
-		issue_warning('Showing config as read in. This can also be done by calling with list_configs:',2)
-		shutit_global.shutit.log(print_config(cfg), force_stdout=True, code='32')
+	if warn != '':
+		shutit.log('Showing config as read in. This can also be done by calling with list_configs:',level=logging.WARNING)
+		shutit_global.shutit.log(print_config(cfg), code='32',level=logging.WARNING)
 		time.sleep(1)
 	if cfg['target']['hostname'] != '' and cfg['build']['net'] != '' and cfg['build']['net'] != 'bridge':
 		print('\n\ntarget/hostname or build/net configs must be blank\n\n')
@@ -421,8 +413,8 @@ def parse_args(shutit):
 		sub_parsers[action].add_argument('--image_tag', help='Build container from specified image - if there is a symbolic reference, please use that, eg localhost.localdomain:5000/myref', default='')
 		sub_parsers[action].add_argument('--tag_modules', help='''Tag each module after it's successfully built regardless of the module config and based on the repository config.''', default=False, const=True, action='store_const')
 		sub_parsers[action].add_argument('-m', '--shutit_module_path', default=None, help='List of shutit module paths, separated by colons. ShutIt registers modules by running all .py files in these directories.')
+		sub_parsers[action].add_argument('--log','-l', help='Log level (DEBUG, INFO (default), WARNING, ERROR, CRITICAL)', const=True, default='INFO', action='store_const')
 		sub_parsers[action].add_argument('--pause', help='Pause between commands to avoid race conditions.', default='0.05', type=check_pause)
-		sub_parsers[action].add_argument('--debug', help='Show debug.', default=False, const=True, action='store_const')
 		sub_parsers[action].add_argument('--trace', help='Trace function calls', const=True, default=False, action='store_const')
 		sub_parsers[action].add_argument('--interactive', help='Level of interactive. 0 = none, 1 = honour pause points and config prompting, 2 = query user on each module, 3 = tutorial mode', default='1')
 		sub_parsers[action].add_argument('--ignorestop', help='Ignore STOP files', const=True, default=False, action='store_const')
@@ -543,7 +535,21 @@ def parse_args(shutit):
 		os.write(f,_default_cnf)
 		os.close(f)
 
-	# Default this to False as it's not always set (mostly for --debug calls).
+	# Logging
+	if args.log == 'DEBUG':
+		cfg['build']['loglevel'] = logging.DEBUG
+	elif args.log == 'ERROR':
+		cfg['build']['loglevel'] = logging.ERROR
+	elif args.log == 'WARNING':
+		cfg['build']['loglevel'] = logging.DEBUG
+	elif args.log == 'CRITICAL':
+		cfg['build']['loglevel'] = logging.CRITICAL
+	elif args.log == 'INFO':
+		cfg['build']['loglevel'] = logging.INFO
+	else:
+		cfg['build']['loglevel'] = logging.INFO
+
+	# Default this to False as it's not always set (mostly for debug logging).
 	cfg['list_configs']['cfghistory'] = False
 	cfg['list_modules']['long']       = False
 	cfg['list_modules']['sort']       = None
@@ -598,12 +604,10 @@ def parse_args(shutit):
 	if args.shutit_module_path is not None:
 		module_paths = args.shutit_module_path.split(':')
 		if '.' not in module_paths:
-			if cfg['build']['debug']:
-				shutit_global.shutit.log('Working directory path not included, adding...')
-				time.sleep(1)
+			shutit.log('Working directory path not included, adding...',level=logging.DEBUG)
+			time.sleep(1)
 			module_paths.append('.')
 		args.set.append(('host', 'shutit_module_path', ':'.join(module_paths)))
-	cfg['build']['debug']            = args.debug
 	cfg['build']['trace']            = args.trace
 	cfg['build']['interactive']      = int(args.interactive)
 	cfg['build']['command_pause']    = float(args.pause)
@@ -617,7 +621,7 @@ def parse_args(shutit):
 	cfg['target']['docker_image']    = args.image_tag
 	# Finished parsing args.
 	# Sort out config path
-	if cfg['build']['interactive'] >= 3 or cfg['action']['list_configs'] or cfg['action']['list_modules'] or cfg['action']['list_deps'] or cfg['build']['debug']:
+	if cfg['build']['interactive'] >= 3 or cfg['action']['list_configs'] or cfg['action']['list_modules'] or cfg['action']['list_deps'] or cfg['build']['loglevel'] == logging.DEBUG:
 		cfg['build']['log_config_path'] = cfg['build']['shutit_state_dir'] + '/config/' + cfg['build']['build_id']
 		if os.path.exists(cfg['build']['log_config_path']):
 			print(cfg['build']['log_config_path'] + ' exists. Please move and re-run.')
@@ -723,9 +727,9 @@ def parse_args(shutit):
 	if cfg['build']['trace']:
 		def tracefunc(frame, event, arg, indent=[0]):
 			if event == "call":
-				shutit.log("-> call function: " + frame.f_code.co_name + " " + str(frame.f_code.co_varnames),force_stdout=True)
+				shutit.log("-> call function: " + frame.f_code.co_name + " " + str(frame.f_code.co_varnames),level=logging.DEBUG)
 			elif event == "return":
-				shutit.log("<- exit function: " + frame.f_code.co_name,force_stdout=True)
+				shutit.log("<- exit function: " + frame.f_code.co_name,level=logging.DEBUG)
 			return tracefunc
 		sys.settrace(tracefunc)
 
@@ -753,17 +757,17 @@ def load_configs(shutit):
 		configs.append(run_config_file)
 	# Image to use to start off. The script should be idempotent, so running it
 	# on an already built image should be ok, and is advised to reduce diff space required.
-	if cfg['build']['interactive'] >= 3 or cfg['action']['list_configs'] or cfg['build']['debug']:
+	if cfg['build']['interactive'] >= 3 or cfg['action']['list_configs'] or cfg['build']['loglevel'] == logging.DEBUG:
 		msg = ''
 		for c in configs:
 			if type(c) is tuple:
 				c = c[0]
 			msg = msg + '    \n' + c
-			shutit.log('    ' + c)
+			shutit.log('    ' + c,level=logging.DEBUG)
 		if cfg['build']['interactive'] >= 3:
 			print textwrap.dedent("""\n""") + msg + textwrap.dedent(colour('32', '\n\n[Hit return to continue]'))
 			util_raw_input(shutit=shutit)
-		if cfg['action']['list_configs'] or cfg['build']['debug']:
+		if cfg['action']['list_configs'] or cfg['build']['loglevel'] == logging.DEBUG:
 			if cfg['build']['log_config_path']:
 				f = file(cfg['build']['log_config_path'] + '/config_file_order.txt','w')
 				f.write(msg)
@@ -785,7 +789,7 @@ def load_configs(shutit):
 
 	cfg_parser = get_configs(shutit, configs)
 	get_base_config(cfg, cfg_parser)
-	if cfg['build']['debug']:
+	if cfg['build']['loglevel'] == logging.DEBUG:
 		# Set up the manhole.
 		try:
 			import manhole
@@ -800,7 +804,7 @@ def load_configs(shutit):
 				locals=None
 			)
 		except Exception:
-			shutit.log('No manhole package available, skipping import')
+			shutit.log('No manhole package available, skipping import',level=logging.DEBUG)
 			pass
 
 
@@ -809,9 +813,9 @@ def load_shutit_modules(shutit):
 	paths.
 	"""
 	cfg = shutit.cfg
-	if cfg['build']['debug']:
-		shutit.log('ShutIt module paths now: ')
-		shutit.log(cfg['host']['shutit_module_path'])
+	if cfg['build']['loglevel'] == logging.DEBUG:
+		shutit.log('ShutIt module paths now: ',level=logging.DEBUG)
+		shutit.log(cfg['host']['shutit_module_path'],level=logging.DEBUG)
 		time.sleep(1)
 	for shutit_module_path in cfg['host']['shutit_module_path']:
 		load_all_from_path(shutit, shutit_module_path)
@@ -976,7 +980,7 @@ def load_all_from_path(shutit, path):
 	if not os.path.exists(path):
 		return
 	if os.path.exists(path + '/STOPBUILD') and not cfg['build']['ignorestop']:
-		shutit.log('Ignoring directory: ' + path + ' as it has a STOPBUILD file in it. Pass --ignorestop to shutit run to override.', force_stdout=True)
+		shutit.log('Ignoring directory: ' + path + ' as it has a STOPBUILD file in it. Pass --ignorestop to shutit run to override.',level=logging.DEBUG)
 		return
 	for sub in glob.glob(os.path.join(path, '*')):
 		subpath = os.path.join(path, sub)
@@ -1000,7 +1004,7 @@ def load_mod_from_file(shutit, fpath):
 	if file_ext.lower() != '.py':
 		return
 	if re.match(shutit_global.cwd + '\/context\/.*',fpath):
-		shutit.log('Ignoring file: "' + fpath + '" as this appears to be part of the context directory')
+		shutit.log('Ignoring file: "' + fpath + '" as this appears to be part of the context directory',level=logging.DEBUG)
 		return
 	# Do we already have modules from this file? If so we know we can skip.
 	# Note that this attribute will only be set for 'new style' module loading,
@@ -1014,8 +1018,7 @@ def load_mod_from_file(shutit, fpath):
 	if len(existingmodules) > 0:
 		return
 	# Looks like it's ok to load this file
-	if cfg['build']['debug']:
-		shutit.log('Loading source for: ' + fpath)
+	shutit.log('Loading source for: ' + fpath,level=logging.DEBUG)
 
 	# Add this directory to the python path iff not already there.
 	directory = os.path.dirname(fpath)
@@ -1227,7 +1230,7 @@ def parse_dockerfile(shutit, contents):
 				if m1:
 					ret.append(['COMMENT', m1.group(1)])
 				else:
-					shutit.log("Ignored line in parse_dockerfile: " + l)
+					shutit.log("Ignored line in parse_dockerfile: " + l,level=logging.DEBUG)
 				full_line = ''
 	return ret
 
@@ -1283,7 +1286,7 @@ def determine_interactive(shutit=None):
 
 def set_noninteractive(shutit,msg="setting non-interactive"):
 	cfg = shutit.cfg
-	shutit.log(msg)
+	shutit.log(msg,level=logging.DEBUG)
 	cfg['build']['interactive'] = 0
 	return
 
@@ -1783,7 +1786,7 @@ def print_modules(shutit):
 def config_collection(shutit):
 	"""Collect core config from config files for all seen modules.
 	"""
-	shutit.log('In config_collection')
+	shutit.log('In config_collection',level=logging.DEBUG)
 	cfg = shutit.cfg
 	for module_id in module_ids(shutit):
 		# Default to None so we can interpret as ifneeded
@@ -1852,7 +1855,7 @@ def config_collection_for_built(shutit,throw_error=True,silent=False):
 	When this is called we should know what's being built (ie after
 	dependency resolution).
 	"""
-	shutit.log('In config_collection_for_built')
+	shutit.log('In config_collection_for_built',level=logging.DEBUG)
 	cfg = shutit.cfg
 	for module_id in module_ids(shutit):
 		# Get the config even if installed or building (may be needed in other
@@ -1953,12 +1956,12 @@ def allowed_image(shutit,module_id):
 	"""Given a module id and a shutit object, determine whether the image is allowed to be built.
 	"""
 	cfg = shutit.cfg
-	shutit.log("In allowed_image: " + module_id)
+	shutit.log("In allowed_image: " + module_id,level=logging.DEBUG)
 	cfg = shutit.cfg
 	if cfg['build']['ignoreimage']:
-		shutit.log("ignoreimage == true, returning true" + module_id)
+		shutit.log("ignoreimage == true, returning true" + module_id,level=logging.DEBUG)
 		return True
-	shutit.log(str(cfg[module_id]['shutit.core.module.allowed_images']))
+	shutit.log(str(cfg[module_id]['shutit.core.module.allowed_images']),level=logging.DEBUG)
 	if cfg[module_id]['shutit.core.module.allowed_images']:
 		# Try allowed images as regexps
 		for regexp in cfg[module_id]['shutit.core.module.allowed_images']:
@@ -2067,7 +2070,6 @@ ssh_cmd:
 
 # Aspects of build process
 [build]
-build_log:yes
 # How to connect to target
 conn_module:shutit.tk.conn_docker
 # Run any docker container in privileged mode

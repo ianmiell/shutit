@@ -37,6 +37,7 @@ import shutit_main
 import shutit_global
 from shutit_module import ShutItException
 import shutit_util
+import logging
 
 ORIG_MOD_CFG = None
 shutit = None
@@ -138,7 +139,8 @@ def log():
 		log          = ''
 	else:
 		command_list = shutit.shutit_command_history[cmd_offset:]
-		log = shutit.cfg['build']['build_log_file'].getvalue()[log_offset:]
+		# TODO: sort out log
+		log = ''
 	# Working around issues with encoding in a cowardly way.
 	return json.dumps({
 		"cmds": command_list,
@@ -230,7 +232,6 @@ def shutit_reset():
 		shutit_util.config_collection_for_built(shutit)
 
 		# Some hacks for server mode
-		shutit.cfg['build']['build_log_file'] = StringIO.StringIO()
 		shutit.cfg['build']['interactive'] = 0
 		STATUS['cid'] = shutit.cfg['target']['container_id']
 		for module_id in shutit.shutit_map:

@@ -42,6 +42,7 @@ import re
 import subprocess
 import os
 from distutils import spawn
+import logging
 
 
 class ShutItConnModule(ShutItModule):
@@ -52,16 +53,16 @@ class ShutItConnModule(ShutItModule):
 	def _setup_prompts(self, shutit, target_child):
 		cfg = shutit.cfg
 		# Now let's have a host_child
-		shutit.log('Creating host child')
-		shutit.log('Spawning host child')
+		shutit.log('Creating host child',level=logging.DEBUG)
+		shutit.log('Spawning host child',level=logging.DEBUG)
 		host_child = pexpect.spawn('/bin/bash')
-		shutit.log('Spawning done')
+		shutit.log('Spawning done',level=logging.DEBUG)
 		# Some pexpect settings
 		shutit.pexpect_children['host_child'] = host_child
 		shutit.pexpect_children['target_child'] = target_child
-		shutit.log('Setting default expect')
+		shutit.log('Setting default expect',level=logging.DEBUG)
 		shutit.set_default_expect(cfg['expect_prompts']['base_prompt'])
-		shutit.log('Setting default expect done')
+		shutit.log('Setting default expect done',level=logging.DEBUG)
 		#host_child.logfile_send = target_child.logfile_send = sys.stdout
 		#host_child.logfile_read = target_child.logfile_read = sys.stdout
 		host_child.maxread = target_child.maxread = 2000
@@ -70,17 +71,17 @@ class ShutItConnModule(ShutItModule):
 		host_child.delaybeforesend = target_child.delaybeforesend = delay
 		# Set up prompts and let the user do things before the build
 		# host child
-		shutit.log('Setting default child')
+		shutit.log('Setting default child',level=logging.DEBUG)
 		shutit.set_default_child(host_child)
-		shutit.log('Setting default child done')
-		shutit.log('Setting up default prompt on host child')
-		shutit.log('Setting up prompt')
+		shutit.log('Setting default child done',level=logging.DEBUG)
+		shutit.log('Setting up default prompt on host child',level=logging.DEBUG)
+		shutit.log('Setting up prompt',level=logging.DEBUG)
 		# ORIGIN_ENV is a special case of the prompt maintained for performance reasons, don't change.
 		shutit.setup_prompt('origin_prompt', prefix='ORIGIN_ENV')
-		shutit.log('Setting up prompt done')
+		shutit.log('Setting up prompt done',level=logging.DEBUG)
 		# target child
 		shutit.set_default_child(target_child)
-		shutit.log('Setting up default prompt on target child')
+		shutit.log('Setting up default prompt on target child',level=logging.DEBUG)
 		shutit.setup_prompt('root')
 		shutit.login_stack_append('root')
 
@@ -93,13 +94,13 @@ class ShutItConnModule(ShutItModule):
 			shutit.send(' mkdir -p ' + cfg['build']['build_db_dir'] + \
 				 '/' + cfg['build']['build_id'], echo=False)
 			# Record the command we ran and the python env if in debug.
-			if cfg['build']['debug']:
+			if cfg['build']['loglevel'] == logging.DEBUG:
 				shutit.send_file(cfg['build']['build_db_dir'] + '/' + \
 				    cfg['build']['build_id'] + '/python_env.sh', \
-				    str(sys.__dict__), log=False)
+				    str(sys.__dict__))
 				shutit.send_file(cfg['build']['build_db_dir'] + '/' + \
 				    cfg['build']['build_id'] + '/command.sh', \
-				    ' '.join(command), log=False)
+				    ' '.join(command))
 		shutit.pause_point('Anything you want to do now the ' +
 		    'target is connected to?', level=2)
 
@@ -156,7 +157,7 @@ class ConnDocker(ShutItConnModule):
 		needed_password = False
 		fail_msg = ''
 		try:
-			shutit.log('Running: ' + str_cmd, force_stdout=False, prefix=False)
+			shutit.log('Running: ' + str_cmd,level=logging.DEBUG)
 			child = pexpect.spawn(check_cmd[0], check_cmd[1:],
 			timeout=cmd_timeout)
 		except pexpect.ExceptionPexpect:
@@ -309,24 +310,20 @@ class ConnDocker(ShutItConnModule):
 			      '\n\n' + shutit_util.colour('32', '\n[Hit return to continue]'))
 			shutit_util.util_raw_input(shutit=shutit)
 		cfg['build']['docker_command'] = ' '.join(docker_command)
-		shutit.log('\n\nCommand being run is:\n\n' + cfg['build']['docker_command'],
-			force_stdout=False, prefix=False)
-		shutit.log('\n\nThis may download the image, please be patient\n\n',
-			force_stdout=False, prefix=False)
+		shutit.log('\n\nCommand being run is:\n\n' + cfg['build']['docker_command'],level=logging.DEBUG)
+		shutit.log('\n\nThis may download the image, please be patient\n\n',level=logging.DEBUG)
 		target_child = pexpect.spawn(docker_command[0], docker_command[1:])
 		expect = ['assword', cfg['expect_prompts']['base_prompt'].strip(), \
 		          'Waiting', 'ulling', 'endpoint', 'Download']
 		res = target_child.expect(expect, 9999)
 		while True:
-			shutit.log(target_child.before + target_child.after, prefix=False,
-				force_stdout=True)
+			shutit.log(target_child.before + target_child.after,level=logging.DEBUG)
 			if res == 0:
-				shutit.log('...')
 				res = shutit.send(cfg['host']['password'], \
 				    child=target_child, expect=expect, timeout=9999, \
 				    check_exit=False, fail_on_empty_before=False, echo=False)
 			elif res == 1:
-				shutit.log('Prompt found, breaking out')
+				shutit.log('Prompt found, breaking out',level=logging.DEBUG)
 				break
 			else:
 				res = target_child.expect(expect, 9999)
@@ -349,7 +346,7 @@ class ConnDocker(ShutItConnModule):
 			            cfg['target']['ports'] + ' | awk \'{print $1}\' | ' +
 			            'xargs ' + cfg['host']['docker_executable'] + ' kill\nto + '
 			            'resolve a port clash\n')
-		shutit.log('cid: ' + cid)
+		shutit.log('cid: ' + cid,level=logging.DEBUG)
 		cfg['target']['container_id'] = cid
 
 		self._setup_prompts(shutit, target_child)
@@ -466,21 +463,19 @@ class ConnSSH(ShutItConnModule):
 				'\n\n' + shutit_util.colour('32', '\n[Hit return to continue]'))
 			shutit_util.util_raw_input(shutit=shutit)
 		cfg['build']['ssh_command'] = ' '.join(ssh_command)
-		shutit.log('\n\nCommand being run is:\n\n' + cfg['build']['ssh_command'],
-			force_stdout=False, prefix=False)
+		shutit.log('\n\nCommand being run is:\n\n' + cfg['build']['ssh_command'],level=logging.DEBUG)
 		target_child = pexpect.spawn(ssh_command[0], ssh_command[1:])
 		expect = ['assword', cfg['expect_prompts']['base_prompt'].strip()]
 		res = target_child.expect(expect, 10)
 		while True:
-			shutit.log(target_child.before + target_child.after, prefix=False,
-				force_stdout=False)
+			shutit.log(target_child.before + target_child.after,level=logging.DEBUG)
 			if res == 0:
-				shutit.log('...')
+				shutit.log('...',level=logging.DEBUG)
 				res = shutit.send(ssh_pass,
 				             child=target_child, expect=expect, timeout=10,
 				             check_exit=False, fail_on_empty_before=False, echo=False)
 			elif res == 1:
-				shutit.log('Prompt found, breaking out')
+				shutit.log('Prompt found, breaking out',level=logging.DEBUG)
 				break
 		self._setup_prompts(shutit, target_child)
 		self._add_begin_build_info(shutit, ssh_command)
