@@ -4,25 +4,25 @@
 [![Join the chat at https://gitter.im/ianmiell/shutit](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/ianmiell/shutit?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 Complex Builds Made Simple.
 
-ShutIt is a tool for managing any build process that is both structured and flexible.
+ShutIt is an automation tool that models a user's actions. Think of it as a programmable sysadmin.
 
-It was originally written to manage complex Docker builds, but is a general-purpose automation tool.
+It can manage any process that is both structured and flexible.
+
+It was originally written to manage complex Docker builds, but is a now general-purpose automation tool that supports bash, Docker, Vagrant, ssh and arbitrary build contexts.
 
 If you want to know more about Docker, see the
 [official site](https://www.docker.com/) or take a look at the book by the
 creators of ShutIt - [Docker in Practice](http://docker-in-practice.github.io/).
 
+It is also an educational tool, as it can produce videos of demos, capture reproducible steps required to set environments up, and even challenge you to get the right output (see [grep-scales](https://github.com/ianmiell/grep-scales).
+
 Really Quick Overview
 =====================
 Some use cases:
 
-- Are a programmer who wants highly configurable containers for differing use cases and environments.
+- You like bash, want to automate tasks, have structure and support, but don't want to learn a configuration management framework that takes you away from the command line you know and love.
 
-- Like bash, want to automate tasks, have structure and support, but don't want to learn a configuration management framework that takes you away from the command line you know and love.
-
-- Find Dockerfiles a great idea, but limiting in practice.
-
-- Want to build stateless containers for development, testing, and production.
+- Are a programmer who wants highly configurable stateless containers development, testing, and production.
 
 - Want to [build everything from source](https://github.com/ianmiell/shutit-distro/blob/master/README.md) in a way that's comprehensible and auditable.
 
@@ -39,7 +39,7 @@ What Does it Do?
 ![Example Setup]
 (https://github.com/ianmiell/shutit/blob/gh-pages/images/ShutIt.png)
 
-We start with a "ShutIt Module", similar to a Dockerfile, or a shell script.
+We start with a "ShutIt Module", similar to a or a shell script, or a Dockerfile.
 
 In the image above there are five of these. At a high level they each have the following attributes:
 
@@ -57,6 +57,7 @@ This is a core function of ShutIt - to manage dependencies and image building fo
 
 But it doesn't just run build steps, it also manages The ShutIt Lifecycle to make the build more robust and flexible.
 
+
 The ShutIt Lifecycle
 ====================
 
@@ -70,6 +71,7 @@ The ShutIt Lifecycle
 - do any configured committing, tagging and pushing of the image
 
 These correspond to the various functions that can be implemented.
+
 
 Auto-Generate Modules
 =====================
@@ -88,76 +90,6 @@ ShutIt provides a means for auto-generation of modules (either bare ones, or fro
 
 [Installation](http://github.com/ianmiell/shutit/blob/master/docs/INSTALL.md)
 ==============
-
-Background
-==========
-While evaluating Docker for my $corp we reached a point where
-using Dockerfiles was somewhat painful or verbose for complex and/or long and/or
-configurable interactions. So we wrote our own automtation to build these.
-
-ShutIt works in the following way:
-
-- It runs a docker container (base image configurable)
-- Within this container it runs through configurable set of modules (each with
-  a globally unique module id) that runs in a defined order with a standard
-  lifecycle:
-     - dependency checking
-     - conflict checking
-     - remove configured modules
-     - build configured modules
-     - tag (and optionally push) configured modules (to return to that point
-       of the build if desired)
-     - test
-     - finalize module ready for closure (ie not going to start/stop anything)
-     - tag (and optionally push) finished container
-- These modules must implement an abstract base class that forces the user to
-  follow a lifecycle (like many test frameworks)
-- It's written in python
-- It's got a bunch of utility functions already written, eg:
-     - pause_point (stop during build and give shell until you decide to 
-       return to the script (v useful for debugging))
-     - add_line_to_file (if line is not already there)
-     - add_to_bashrc (to add something to everyone's login)
-     - setup_prompt (to handle shell prompt oddities in a 
-       reliable/predictable way)
-     - is user_id_available
-     - set_password (package-management aware)
-     - file_exists
-     - get_file_perms
-     - package_installed (determine whether package is already installed)
-     - loads more to come
-
-If you have an existing bash script it is relatively trivial to port to this 
-to get going with docker and start shipping containers. 
-You can also use this to prototype builds before porting to whatever
-configuration management tool you ultimately choose.
-
-As a by-product of this design, you can use it in a similar way to chef/puppet
-(by taking an existing container and configuring it to remove and build a
-specific module), but it's not designed primarily for this purpose.
-
-Chef/Puppet were suggested as alternatives, but for several reasons I didn't go
-with them:
-
-- I had to deliver something useful, and fast (spare time evaluation), so 
-  taking time out to learn chef was not an option
-- It struck me that what I was trying to do was the opposite of what chef is
-  trying to do, ie I'm building static containers for a homogeneous environment
-  rather than defining state for a heterogeneous machine estate and hoping
-  it'll all work out
-- I was very familiar with (p)expect, which was a good fit for this job and
-  relatively easy to debug
-- Anecdotally I'd heard that chef debugging was painful ("It works 100% of the
-  time 60% of the time")
-- I figured we could move quite easily to whatever CM tool was considered
-  appropriate once we had a deterministic set of steps that also documented
-  server requirements
-
-If you are a sysadmin looking for something to manage dynamic, moving target
-systems stick with chef/puppet. If you're a programmer who wants to manage a
-bunch of existing scripts in a painless way, keep on reading.
-
-
 
 Contributing
 ============
