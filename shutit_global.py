@@ -279,9 +279,7 @@ class ShutIt(object):
 		return environment_id
 
 	def get_current_environment(self):
-		cfg = self.cfg
-		return cfg['environment'][cfg['build']['current_environment_id']]
-
+		return self.cfg['environment'][self.cfg['build']['current_environment_id']]
 
 
 	def multisend(self,
@@ -370,6 +368,7 @@ class ShutIt(object):
 		expect = expect or self.get_default_expect()
 		cfg = self.cfg
 		self._handle_note(note, command=send + '\n\nUntil one of these seen:' + str(regexps))
+		self.log('Sending: "' + send + '" until one of these regexps seen:' + str(regexps),logging.INFO)
 		if type(regexps) == str:
 			regexps = [regexps]
 		if type(regexps) != list:
@@ -874,7 +873,7 @@ END_""" + random_id)
 		expect = expect or self.get_default_expect()
 	 	cfg = self.cfg
 		self._handle_note(note, 'Script: ' + str(script))
-		self.log('Running script beginning:\n"' + script[:80] + '[...]',code=31, level=logging.DEBUG)
+		self.log('Running script beginning: "' + string.join(script.split())[:30] + ' [...]', level=logging.INFO)
 		# Trim any whitespace lines from start and end of script, then dedent
 		lines = script.split('\n')
 		while len(lines) > 0 and re.match('^[ \t]*$', lines[0]):
@@ -922,12 +921,11 @@ END_""" + random_id)
 		expect = expect or self.get_default_expect()
 		cfg = self.cfg
 		self._handle_note(note, 'Sending contents to path: ' + path)
-		self.log('Sending file contents beginning:\n"' + contents[:80] + '"\n\n to file: ' + path,code=31, level=logging.DEBUG)
+		self.log('Sending file contents beginning: "' + string.join(contents.split())[:30] + ' [...]" to file: ' + path, level=logging.INFO)
 		if user == None:
 			user = self.whoami()
 		if group == None:
 			group = self.whoarewe()
-		self.log('='*80,level=logging.DEBUG)
 		print_contents=''
 		for c in contents:
 			if c not in string.ascii_letters:
@@ -993,7 +991,7 @@ END_''' + random_id, echo=False)
 		expect = expect or self.get_default_expect()
 		cfg = self.cfg
 		self._handle_note(note, 'Changing to path: ' + path)
-		self.log('Changing directory to path: "' + path,code=31, level=logging.DEBUG)
+		self.log('Changing directory to path: "' + path, level=logging.DEBUG)
 		if cfg['build']['delivery'] in ('bash','dockerfile'):
 			self.send('cd ' + path, expect=expect, child=child, timeout=timeout, echo=False)
 		elif cfg['build']['delivery'] in ('docker','ssh'):
@@ -1029,7 +1027,7 @@ END_''' + random_id, echo=False)
 		expect = expect or self.get_default_expect()
 		cfg = self.cfg
 		self._handle_note(note, 'Sending file from host: ' + hostfilepath + '\nTo: ' + path)
-		self.log('Sending file from host: ' + hostfilepath + '\nTo: ' + path,code=31, level=logging.DEBUG)
+		self.log('Sending file from host: ' + hostfilepath + '\nTo: ' + path, level=logging.INFO)
 		if user == None:
 			user = self.whoami()
 		if group == None:
@@ -1078,9 +1076,8 @@ END_''' + random_id, echo=False)
 		"""
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
-		self.log('entered send_host_dir in: ' + os.getcwd(), level=logging.DEBUG)
 		self._handle_note(note, 'Sending host directory: ' + hostfilepath + '\nTo: ' + path)
-		self.log(note, 'Sending host directory: ' + hostfilepath + '\nTo: ' + path,code=31, level=logging.DEBUG)
+		self.log('Sending host directory: ' + hostfilepath + '\nTo: ' + path, level=logging.INFO)
 		if user == None:
 			user = self.whoami()
 		if group == None:
@@ -3042,11 +3039,10 @@ END_''' + random_id, echo=False)
 							 expect=[expect, 'assword'], timeout=99999,
 							 child=child) == 1:
 					self.send(password, expect=expect, child=child)
-				self.log('\nDeposited bzip2 of exported container into ' +
-						 bzfile, code='32',level=logging.DEBUG)
+				self.log('\nDeposited bzip2 of exported container into ' + bzfile, level=logging.DEBUG)
 				self.log('\nRun:\n\nbunzip2 -c ' + bzfile +
 						 ' | sudo docker import -\n\n' +
-						 'to get this imported into docker.', code='32',level=logging.DEBUG)
+						 'to get this imported into docker.', level=logging.DEBUG)
 				cfg['build']['report'] += ('\nDeposited bzip2 of exported' +
 										  ' container into ' + bzfile)
 				cfg['build']['report'] += ('\nRun:\n\nbunzip2 -c ' + bzfile +
@@ -3063,11 +3059,11 @@ END_''' + random_id, echo=False)
 							 timeout=99999, child=child) == 1:
 					self.send(password, expect=expect, child=child)
 				self.log('\nDeposited bzip2 of exported container into ' +
-						 bzfile, code='32',level=logging.DEBUG)
+						 bzfile, level=logging.DEBUG)
 				self.log('\nRun:\n\nbunzip2 -c ' + bzfile +
 						 ' | sudo docker import -\n\n' + 
 						 'to get this imported into docker.',
-						 code='32',level=logging.DEBUG)
+						 level=logging.DEBUG)
 				cfg['build']['report'] += ('\nDeposited bzip2 of exported ' + 
 										  'container into ' + bzfile)
 				cfg['build']['report'] += ('\nRun:\n\nbunzip2 -c ' + bzfile +

@@ -295,8 +295,24 @@ def get_base_config(cfg, cfg_parser):
 	cfg['expect_prompts']['base_prompt']       = '\r\n.*[@#$] '
 	# END Standard expects
 
+	#|  %(name)s            Name of the logger (logging channel)
+	#|  %(levelno)s         Numeric logging level for the message (DEBUG, INFO, WARNING, ERROR, CRITICAL)
+	#|  %(levelname)s       Text logging level for the message ("DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL")
+	#|  %(pathname)s        Full pathname of the source file where the logging call was issued (if available)
+	#|  %(filename)s        Filename portion of pathname
+	#|  %(module)s          Module (name portion of filename)
+	#|  %(lineno)d          Source line number where the logging call was issued (if available)
+	#|  %(funcName)s        Function name
+	#|  %(created)f         Time when the LogRecord was created (time.time() return value)
+	#|  %(asctime)s         Textual time when the LogRecord was created
+	#|  %(msecs)d           Millisecond portion of the creation time
+	#|  %(relativeCreated)d Time in milliseconds when the LogRecord was created, relative to the time the logging module was loaded (typically at application startup time)
+	#|  %(thread)d          Thread ID (if available)
+	#|  %(threadName)s      Thread name (if available)
+	#|  %(process)d         Process ID (if available)
+	#|  %(message)s         The result of record.getMessage(), computed just as the record is emitted
+	logformat='%(asctime)s %(relativeCreated)s %(levelname)s: %(message)s'
 	if cfg['host']['logfile'] == '':
-		logformat='%(levelname)s: %(message)s'
 		# TODO: state dir?
 		if not os.access(cfg['build']['shutit_state_dir_base'],os.F_OK):
 			os.mkdir(cfg['build']['shutit_state_dir_base'])
@@ -306,7 +322,6 @@ def get_base_config(cfg, cfg_parser):
 		os.chmod(cfg['build']['shutit_state_dir'],0777)
 		logging.basicConfig(format=logformat,level=cfg['build']['loglevel'])
 	else:
-		logformat='%(asctime)s %(levelname)s: %(message)s'
 		logging.basicConfig(format=logformat,filename=cfg['host']['logfile'],level=cfg['build']['loglevel'])
 	# delivery method bash and image_tag make no sense
 	if cfg['build']['delivery'] in ('bash','ssh'):
@@ -327,7 +342,7 @@ def get_base_config(cfg, cfg_parser):
 		sys.exit(1)
 	if warn != '':
 		shutit.log('Showing config as read in. This can also be done by calling with list_configs:',level=logging.WARNING)
-		shutit_global.shutit.log(print_config(cfg), code='32',level=logging.WARNING)
+		shutit.log(print_config(cfg), level=logging.WARNING)
 		time.sleep(1)
 	if cfg['target']['hostname'] != '' and cfg['build']['net'] != '' and cfg['build']['net'] != 'bridge':
 		print('\n\ntarget/hostname or build/net configs must be blank\n\n')
