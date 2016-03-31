@@ -320,9 +320,31 @@ def get_base_config(cfg, cfg_parser):
 			os.mkdir(cfg['build']['shutit_state_dir'])
 		os.chmod(cfg['build']['shutit_state_dir_base'],0777)
 		os.chmod(cfg['build']['shutit_state_dir'],0777)
-		logging.basicConfig(format=logformat,level=cfg['build']['loglevel'])
+		if cfg['build']['loglevel'] == 'DEBUG':
+			logging.basicConfig(format=logformat,level=logging.DEBUG)
+		elif cfg['build']['loglevel'] == 'ERROR':
+			logging.basicConfig(format=logformat,level=logging.ERROR)
+		elif cfg['build']['loglevel'] in ('WARN','WARNING'):
+			logging.basicConfig(format=logformat,level=logging.WARNING)
+		elif cfg['build']['loglevel'] == 'CRITICAL':
+			logging.basicConfig(format=logformat,level=logging.WARNING)
+		elif cfg['build']['loglevel'] == 'INFO':
+			logging.basicConfig(format=logformat,level=logging.INFO)
+		else:
+			logging.basicConfig(format=logformat,level=logging.INFO)
 	else:
-		logging.basicConfig(format=logformat,filename=cfg['host']['logfile'],level=cfg['build']['loglevel'])
+		if cfg['build']['loglevel'] == 'DEBUG':
+			logging.basicConfig(format=logformat,filename=cfg['host']['logfile'],level=logging.DEBUG)
+		elif cfg['build']['loglevel'] == 'ERROR':
+			logging.basicConfig(format=logformat,filename=cfg['host']['logfile'],level=logging.ERROR)
+		elif cfg['build']['loglevel'] in ('WARN','WARNING'):
+			logging.basicConfig(format=logformat,filename=cfg['host']['logfile'],level=logging.WARNING)
+		elif cfg['build']['loglevel'] == 'CRITICAL':
+			logging.basicConfig(format=logformat,filename=cfg['host']['logfile'],level=logging.WARNING)
+		elif cfg['build']['loglevel'] == 'INFO':
+			logging.basicConfig(format=logformat,filename=cfg['host']['logfile'],level=logging.INFO)
+		else:
+			logging.basicConfig(format=logformat,filename=cfg['host']['logfile'],level=logging.INFO)
 	# delivery method bash and image_tag make no sense
 	if cfg['build']['delivery'] in ('bash','ssh'):
 		if cfg['target']['docker_image'] != '':
@@ -551,18 +573,7 @@ def parse_args(shutit):
 		os.close(f)
 
 	# Logging
-	if args.log == 'DEBUG':
-		cfg['build']['loglevel'] = logging.DEBUG
-	elif args.log == 'ERROR':
-		cfg['build']['loglevel'] = logging.ERROR
-	elif args.log == 'WARNING':
-		cfg['build']['loglevel'] = logging.WARNING
-	elif args.log == 'CRITICAL':
-		cfg['build']['loglevel'] = logging.CRITICAL
-	elif args.log == 'INFO':
-		cfg['build']['loglevel'] = logging.INFO
-	else:
-		cfg['build']['loglevel'] = logging.INFO
+	cfg['build']['loglevel'] = args.log
 
 	# Default this to False as it's not always set (mostly for debug logging).
 	cfg['list_configs']['cfghistory'] = False
