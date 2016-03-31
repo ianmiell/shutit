@@ -311,7 +311,7 @@ def get_base_config(cfg, cfg_parser):
 	#|  %(threadName)s      Thread name (if available)
 	#|  %(process)d         Process ID (if available)
 	#|  %(message)s         The result of record.getMessage(), computed just as the record is emitted
-	logformat='%(asctime)s %(relativeCreated)s %(levelname)s: %(message)s'
+	logformat='%(asctime)s %(levelname)s: %(message)s'
 	if cfg['host']['logfile'] == '':
 		# TODO: state dir?
 		if not os.access(cfg['build']['shutit_state_dir_base'],os.F_OK):
