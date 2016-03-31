@@ -345,7 +345,7 @@ class ShutIt(object):
 	               retries=100,
 	               fail_on_empty_before=True,
 	               record_command=True,
-	               echo=True,
+	               echo=False,
 	               escape=False,
 	               note=None):
 		"""Send string on a regular cadence until a string is either seen, or the timeout is triggered.
@@ -477,7 +477,7 @@ class ShutIt(object):
 	         fail_on_empty_before=True,
 	         record_command=True,
 	         exit_values=None,
-	         echo=True,
+	         echo=False,
 	         escape=False,
 	         retry=3,
 	         note=None,
@@ -559,6 +559,7 @@ class ShutIt(object):
 			if ok_to_record:
 				self.shutit_command_history.append(send)
 		if send != None:
+			self.log('Sending: ' + send,level=logging.INFO)
 			self.log('================================================================================',level=logging.DEBUG,code=32)
 			self.log('Sending>>>' + send + '<<<',level=logging.DEBUG,code=31)
 			self.log('Expecting>>>' + str(expect) + '<<<',level=logging.DEBUG,code=32)
@@ -2030,7 +2031,7 @@ END_''' + random_id, echo=False)
 	get_re_from_child = match_string
 
 
-	def send_and_match_output(self, send, matches, expect=None, child=None, retry=3, strip=True, note=None, echo=True):
+	def send_and_match_output(self, send, matches, expect=None, child=None, retry=3, strip=True, note=None, echo=False):
 		"""Returns true if the output of the command matches any of the strings in 
 		the matches list of regexp strings. Handles matching on a per-line basis
 		and does not cross lines.
@@ -2051,13 +2052,16 @@ END_''' + random_id, echo=False)
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
 		self._handle_note(note)
+		self.log('Matching output from: "' + send + '" to one of these regexps:' + str(matches),logging.INFO)
 		output = self.send_and_get_output(send, child=child, retry=retry, strip=strip, echo=echo)
 		if type(matches) == str:
 			matches = [matches]
 		self._handle_note_after(note=note)
 		for match in matches:
 			if self.match_string(output, match) != None:
+				self.log('Matched output, return True',logging.DEBUG)
 				return True
+		self.log('Failed to match output, return False',logging.DEBUG)
 		return False
 
 
@@ -2071,7 +2075,7 @@ END_''' + random_id, echo=False)
 	                        strip=True,
 	                        note=None,
 	                        record_command=False,
-	                        echo=True):
+	                        echo=False):
 		"""Returns the output of a command run. send() is called, and exit is not checked.
 
 		@param send:     See send()
@@ -2089,6 +2093,7 @@ END_''' + random_id, echo=False)
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
 		self._handle_note(note, command=str(send))
+		self.log('Retrieving output from command: ' + send,logging.INFO)
 		# Don't check exit, as that will pollute the output. Also, it's quite likely the
 		# submitted command is intended to fail.
 		self.send(self._get_send_command(send), child=child, expect=expect, check_exit=False, retry=retry, echo=echo, timeout=timeout, record_command=record_command)
