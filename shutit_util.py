@@ -556,7 +556,7 @@ def parse_args(shutit):
 	elif args.log == 'ERROR':
 		cfg['build']['loglevel'] = logging.ERROR
 	elif args.log == 'WARNING':
-		cfg['build']['loglevel'] = logging.DEBUG
+		cfg['build']['loglevel'] = logging.WARNING
 	elif args.log == 'CRITICAL':
 		cfg['build']['loglevel'] = logging.CRITICAL
 	elif args.log == 'INFO':
