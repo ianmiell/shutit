@@ -1033,10 +1033,11 @@ END_''' + random_id, echo=False)
 		if group == None:
 			group = self.whoarewe()
 		if cfg['build']['delivery'] in ('bash','dockerfile'):
+			retdir = self.send_and_get_output('pwd')
 			self.send('pushd ' + cfg['environment'][cfg['build']['current_environment_id']]['module_root_dir'], echo=False)
-			self.send('cp -r ' + hostfilepath + ' ' + path,expect=expect, child=child, timeout=timeout, echo=False)
-			self.send('chown ' + user + ' ' + hostfilepath + ' ' + path,expect=expect, child=child, timeout=timeout, echo=False)
-			self.send('chgrp ' + group + ' ' + hostfilepath + ' ' + path,expect=expect, child=child, timeout=timeout, echo=False)
+			self.send('cp -r ' + hostfilepath + ' ' + retdir + '/' + path,expect=expect, child=child, timeout=timeout, echo=False)
+			self.send('chown ' + user + ' ' + hostfilepath + ' ' + retdir + '/' + path,expect=expect, child=child, timeout=timeout, echo=False)
+			self.send('chgrp ' + group + ' ' + hostfilepath + ' ' + retdir + '/' + path,expect=expect, child=child, timeout=timeout, echo=False)
 			self.send('popd', expect=expect, child=child, timeout=timeout, echo=False)
 		else:
 			if os.path.isfile(hostfilepath):
