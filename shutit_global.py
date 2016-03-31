@@ -1937,7 +1937,7 @@ END_''' + random_id, echo=False)
 						print (shutit_util.colour(colour,'\nPause point:\n' +
 							'resize==True, so attempting to resize terminal.\n\n' +
 							'If you are not at a shell prompt when calling pause_point, then pass in resize=False.'))
-					self.send_host_file('/tmp/resize',self.shutit_main_dir+'/assets/resize', child=child)
+					self.send_host_file('/tmp/resize',self.shutit_main_dir+'resize', child=child)
 					self.send(' chmod 755 /tmp/resize', echo=False)
 					child.sendline(' sleep 2 && /tmp/resize')
 				if default_msg == None:
