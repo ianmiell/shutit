@@ -496,6 +496,8 @@ def parse_args(shutit):
 	cfg['action']['serve']        = args.action == 'serve'
 	cfg['action']['skeleton']     = args.action == 'skeleton'
 	cfg['action']['build']        = args.action == 'build'
+	# Logging
+	cfg['build']['loglevel'] = args.log
 
 	# This mode is a bit special - it's the only one with different arguments
 	if cfg['action']['skeleton']:
@@ -572,8 +574,6 @@ def parse_args(shutit):
 		os.write(f,_default_cnf)
 		os.close(f)
 
-	# Logging
-	cfg['build']['loglevel'] = args.log
 
 	# Default this to False as it's not always set (mostly for debug logging).
 	cfg['list_configs']['cfghistory'] = False
