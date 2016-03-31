@@ -94,7 +94,6 @@ shutit_util.parse_dockerfile	shutit_util-module.html#parse_dockerfile
 shutit_util.get_shutit_frame	shutit_util-module.html#get_shutit_frame
 shutit_util.module_ids	shutit_util-module.html#module_ids
 shutit_util.dockerfile_to_shutit_module_template	shutit_util-module.html#dockerfile_to_shutit_module_template
-shutit_util.issue_warning	shutit_util-module.html#issue_warning
 shutit_util.ctrlc_background	shutit_util-module.html#ctrlc_background
 shutit_util.find_asset	shutit_util-module.html#find_asset
 shutit_util.check_regexp	shutit_util-module.html#check_regexp
