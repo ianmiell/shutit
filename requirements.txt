@@ -1,6 +1,7 @@
 pexpect>=2.0,<3.0
 bottle>=0.1
-pynsca>=1.5
 manhole>=0.1
+pynsca>=1.5
 texttable>=0.1
 jinja2>=0.1
+

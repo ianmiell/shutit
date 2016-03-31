@@ -17,7 +17,7 @@ setup(
 	# the version across setup.py and the project code, see
 	# https://packaging.python.org/en/latest/single_source_version.html
 
-	version='0.9.2',
+	version='0.9.3',
 	description='An automation tool designed for complex Docker builds',
 	long_description=long_description,
 
@@ -62,7 +62,7 @@ setup(
 	# your project is installed. For an analysis of "install_requires" vs pip's
 	# requirements files see:
 	# https://packaging.python.org/en/latest/requirements.html
-	install_requires=['pexpect>=2.0,<3.0','bottle>0.1','pynsca>=1.5','texttable>=0.1'],
+	install_requires=['pexpect>=2.0,<3.0','bottle>=0.1','jinja2>=0.1','pynsca>=1.5','texttable>=0.1'],
 
 
 	# List additional groups of dependencies here (e.g. development
