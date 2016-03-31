@@ -85,39 +85,28 @@ class ShutItConnModule(ShutItModule):
 		shutit.setup_prompt('root')
 		shutit.login_stack_append('root')
 
-	def _add_begin_build_info(self, shutit, command):
+	def _add_begin_build_info(self, shutit, command, loglevel=logging.DEBUG):
 		cfg = shutit.cfg
 		if cfg['build']['delivery'] in ('docker'):
-			shutit.send('chmod -R 777 ' + cfg['build']['shutit_state_dir'],echo=False)
+			shutit.send('chmod -R 777 ' + cfg['build']['shutit_state_dir'],echo=False,loglevel=loglevel)
 			# TODO: debug this, fails on dockerfile builds, eg otto
 			# Create the build directory and put the config in it.
-			shutit.send(' mkdir -p ' + cfg['build']['build_db_dir'] + \
-				 '/' + cfg['build']['build_id'], echo=False)
+			shutit.send(' mkdir -p ' + cfg['build']['build_db_dir'] + '/' + cfg['build']['build_id'], echo=False, loglevel=loglevel)
 			# Record the command we ran and the python env if in debug.
 			if cfg['build']['loglevel'] == logging.DEBUG:
-				shutit.send_file(cfg['build']['build_db_dir'] + '/' + \
-				    cfg['build']['build_id'] + '/python_env.sh', \
-				    str(sys.__dict__))
-				shutit.send_file(cfg['build']['build_db_dir'] + '/' + \
-				    cfg['build']['build_id'] + '/command.sh', \
-				    ' '.join(command))
+				shutit.send_file(cfg['build']['build_db_dir'] + '/' + cfg['build']['build_id'] + '/python_env.sh', str(sys.__dict__), loglevel=loglevel)
+				shutit.send_file(cfg['build']['build_db_dir'] + '/' + cfg['build']['build_id'] + '/command.sh', ' '.join(command), loglevel=loglevel)
 		shutit.pause_point('Anything you want to do now the ' +
 		    'target is connected to?', level=2)
 
-	def _add_end_build_info(self, shutit):
+	def _add_end_build_info(self, shutit, loglevel=logging.DEBUG):
 		cfg = shutit.cfg
 		# Put build info into the target
 		if cfg['build']['delivery'] in ('docker'):
-			shutit.send(' mkdir -p ' + cfg['build']['build_db_dir'] + '/' + \
-			    cfg['build']['build_id'], echo=False)
-			shutit.send_file(cfg['build']['build_db_dir'] + '/' + \
-			    cfg['build']['build_id'] + '/build.log', \
-			    shutit_util.get_commands(shutit))
-			shutit.send_file(cfg['build']['build_db_dir'] + '/' + \
-			    cfg['build']['build_id'] + '/build_commands.sh', \
-			    shutit_util.get_commands(shutit))
-			shutit.insert_text(cfg['build']['build_id'], \
-			    cfg['build']['build_db_dir'] + '/builds')
+			shutit.send(' mkdir -p ' + cfg['build']['build_db_dir'] + '/' + cfg['build']['build_id'], echo=False, loglevel=loglevel)
+			shutit.send_file(cfg['build']['build_db_dir'] + '/'+ cfg['build']['build_id'] + '/build.log', shutit_util.get_commands(shutit), loglevel=loglevel)
+			shutit.send_file(cfg['build']['build_db_dir'] + '/' + cfg['build']['build_id'] + '/build_commands.sh', shutit_util.get_commands(shutit), loglevel=loglevel)
+			shutit.insert_text(cfg['build']['build_id'], cfg['build']['build_db_dir'] + '/builds', loglevel=loglevel)
 
 
 class ConnDocker(ShutItConnModule):
@@ -223,7 +212,7 @@ class ConnDocker(ShutItConnModule):
 
 		return True
 
-	def build(self, shutit):
+	def build(self, shutit, loglevel=logging.DEBUG):
 		"""Sets up the target ready for building.
 		"""
 		# Uncomment for testing for "failure" cases.
@@ -317,11 +306,9 @@ class ConnDocker(ShutItConnModule):
 		          'Waiting', 'ulling', 'endpoint', 'Download']
 		res = target_child.expect(expect, 9999)
 		while True:
-			shutit.log(target_child.before + target_child.after,level=logging.DEBUG)
+			shutit.log(target_child.before + target_child.after,level=loglevel)
 			if res == 0:
-				res = shutit.send(cfg['host']['password'], \
-				    child=target_child, expect=expect, timeout=9999, \
-				    check_exit=False, fail_on_empty_before=False, echo=False)
+				res = shutit.send(cfg['host']['password'], child=target_child, expect=expect, timeout=9999, check_exit=False, fail_on_empty_before=False, echo=False, loglevel=loglevel)
 			elif res == 1:
 				shutit.log('Prompt found, breaking out',level=logging.DEBUG)
 				break
@@ -428,7 +415,7 @@ class ConnSSH(ShutItConnModule):
 		shutit.get_config(self.module_id, 'ssh_cmd', '')
 		return True
 
-	def build(self, shutit):
+	def build(self, shutit, loglevel=logging.DEBUG):
 		"""Sets up the machine ready for building.
 		"""
 		cfg = shutit.cfg
@@ -471,9 +458,7 @@ class ConnSSH(ShutItConnModule):
 			shutit.log(target_child.before + target_child.after,level=logging.DEBUG)
 			if res == 0:
 				shutit.log('...',level=logging.DEBUG)
-				res = shutit.send(ssh_pass,
-				             child=target_child, expect=expect, timeout=10,
-				             check_exit=False, fail_on_empty_before=False, echo=False)
+				res = shutit.send(ssh_pass, child=target_child, expect=expect, timeout=10, check_exit=False, fail_on_empty_before=False, echo=False, loglevel=loglevel)
 			elif res == 1:
 				shutit.log('Prompt found, breaking out',level=logging.DEBUG)
 				break
@@ -521,7 +506,7 @@ class setup(ShutItModule):
 		"""
 		return False
 
-	def build(self, shutit):
+	def build(self, shutit, loglevel=logging.DEBUG):
 		"""Initializes target ready for build
 		and updating package management if in container.
 		"""
@@ -531,19 +516,18 @@ class setup(ShutItModule):
 			if cfg['environment'][cfg['build']['current_environment_id']]['install_type'] == 'apt':
 				shutit.add_to_bashrc('export DEBIAN_FRONTEND=noninteractive')
 				if do_update and cfg['build']['delivery'] in ('docker','dockerfile'):
-					shutit.send('apt-get update', timeout=9999, check_exit=False)
+					shutit.send('apt-get update', timeout=9999, check_exit=False, loglevel=loglevel)
 				if not shutit.command_available('lsb_release'):
 					shutit.install('lsb-release')
 				shutit.lsb_release()
-				shutit.send('dpkg-divert --local --rename --add /sbin/initctl',echo=False)
-				shutit.send('ln -f -s /bin/true /sbin/initctl',echo=False)
+				shutit.send('dpkg-divert --local --rename --add /sbin/initctl',echo=False, loglevel=loglevel)
+				shutit.send('ln -f -s /bin/true /sbin/initctl',echo=False, loglevel=loglevel)
 			elif cfg['environment'][cfg['build']['current_environment_id']]['install_type'] == 'yum':
 				if do_update:
 					# yum updates are so often "bad" that we let exit codes of 1
 					# through. TODO: make this more sophisticated
-					shutit.send('yum update -y', timeout=9999, exit_values=['0', '1'])
-			shutit.pause_point('Anything you want to do to the target host ' + 
-				'before the build starts?', level=2)
+					shutit.send('yum update -y', timeout=9999, exit_values=['0', '1'], loglevel=loglevel)
+			shutit.pause_point('Anything you want to do to the target host ' + 'before the build starts?', level=2)
 		return True
 
 	def remove(self, shutit):

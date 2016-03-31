@@ -399,12 +399,12 @@ def check_ready(shutit, throw_error=True):
 	return errs
 
 
-def do_remove(shutit):
+def do_remove(shutit, loglevel=logging.DEBUG):
 	"""Remove modules by calling remove method on those configured for removal.
 	"""
 	cfg = shutit.cfg
 	# Now get the run_order keys in order and go.
-	shutit.log('PHASE: remove', level=logging.DEBUG)
+	shutit.log('PHASE: remove', level=loglevel)
 	shutit.pause_point('\nNow removing any modules that need removing',
 					   print_input=False, level=3)
 	# Login at least once to get the exports.
@@ -421,7 +421,7 @@ def do_remove(shutit):
 			else:
 				if cfg['build']['delivery'] in ('docker','dockerfile'):
 					# Create a directory and files to indicate this has been removed.
-					shutit.send(' mkdir -p ' + cfg['build']['build_db_dir'] + '/module_record/' + module.module_id + ' && rm -f ' + cfg['build']['build_db_dir'] + '/module_record/' + module.module_id + '/built && touch ' + cfg['build']['build_db_dir'] + '/module_record/' + module.module_id + '/removed')
+					shutit.send(' mkdir -p ' + cfg['build']['build_db_dir'] + '/module_record/' + module.module_id + ' && rm -f ' + cfg['build']['build_db_dir'] + '/module_record/' + module.module_id + '/built && touch ' + cfg['build']['build_db_dir'] + '/module_record/' + module.module_id + '/removed', loglevel=loglevel)
 					# Remove from "installed" cache
 					if module.module_id in cfg['environment'][cfg['build']['current_environment_id']]['modules_installed']:
 						cfg['environment'][cfg['build']['current_environment_id']]['modules_installed'].remove(module.module_id)
@@ -431,7 +431,7 @@ def do_remove(shutit):
 			
 
 
-def build_module(shutit, module):
+def build_module(shutit, module, loglevel=logging.DEBUG):
 	"""Build passed-in module.
 	"""
 	cfg = shutit.cfg
@@ -442,7 +442,7 @@ def build_module(shutit, module):
 	else:
 		if cfg['build']['delivery'] in ('docker','dockerfile'):
 			# Create a directory and files to indicate this has been built.
-			shutit.send(' mkdir -p ' + cfg['build']['build_db_dir'] + '/module_record/' + module.module_id + ' && touch ' + cfg['build']['build_db_dir'] + '/module_record/' + module.module_id + '/built && rm -f ' + cfg['build']['build_db_dir'] + '/module_record/' + module.module_id + '/removed')
+			shutit.send(' mkdir -p ' + cfg['build']['build_db_dir'] + '/module_record/' + module.module_id + ' && touch ' + cfg['build']['build_db_dir'] + '/module_record/' + module.module_id + '/built && rm -f ' + cfg['build']['build_db_dir'] + '/module_record/' + module.module_id + '/removed', loglevel=loglevel)
 		# Put it into "installed" cache
 		cfg['environment'][cfg['build']['current_environment_id']]['modules_installed'].append(module.module_id)
 		# Remove from "not installed" cache
