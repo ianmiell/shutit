@@ -410,7 +410,6 @@ def parse_args(shutit):
 
 	parser = argparse.ArgumentParser(description='ShutIt - a tool for managing complex Docker deployments.\n\nTo view help for a specific subcommand, type ./shutit <subcommand> -h',prog="ShutIt")
 	parser.add_argument('--version', action='version', version='%(prog)s 0.7')
-	parser.add_argument('--log','-l', help='Log level (DEBUG, INFO (default), WARNING, ERROR, CRITICAL)', default='INFO')
 	subparsers = parser.add_subparsers(dest='action', help='''Action to perform - build=deploy to target, serve=run a shutit web server, skeleton=construct a skeleton module, list_configs=show configuration as read in, list_modules=show modules available, list_deps=show dep graph ready for graphviz. Defaults to 'build'.''')
 
 	sub_parsers = dict()
@@ -428,6 +427,7 @@ def parse_args(shutit):
 	sub_parsers['skeleton'].add_argument('--template_branch', help='Template branch to use', default='')
 	sub_parsers['skeleton'].add_argument('--template_repo', help='Template git repository to use', default='https://github.com/ianmiell/shutit-templates')
 	sub_parsers['skeleton'].add_argument('--delivery', help='Delivery method, aka target. "docker" container (default), configured "ssh" connection, "bash" session', default=None, choices=('docker','dockerfile','ssh','bash'))
+	sub_parsers['skeleton'].add_argument('--log','-l', help='Log level (DEBUG, INFO (default), WARNING, ERROR, CRITICAL)', default='INFO')
 
 	sub_parsers['build'].add_argument('--export', help='Perform docker export to a tar file', const=True, default=False, action='store_const')
 	sub_parsers['build'].add_argument('--save', help='Perform docker save to a tar file', const=True, default=False, action='store_const')
@@ -444,6 +444,7 @@ def parse_args(shutit):
 	sub_parsers['list_modules'].add_argument('--sort', help='Order the modules seen, default to module id', default='id', choices=('id','run_order'))
 
 	for action in ['build', 'serve', 'list_configs', 'list_modules', 'list_deps']:
+		sub_parsers[action].add_argument('--log','-l', help='Log level (DEBUG, INFO (default), WARNING, ERROR, CRITICAL)', default='INFO')
 		sub_parsers[action].add_argument('--config', help='Config file for setup config. Must be with perms 0600. Multiple arguments allowed; config files considered in order.', default=[], action='append')
 		sub_parsers[action].add_argument('-d','--delivery', help='Delivery method, aka target. "docker" container (default), configured "ssh" connection, "bash" session', default=None, choices=('docker','dockerfile','ssh','bash'))
 		sub_parsers[action].add_argument('-s', '--set', help='Override a config item, e.g. "-s target rm no". Can be specified multiple times.', default=[], action='append', nargs=3, metavar=('SEC', 'KEY', 'VAL'))
@@ -1274,7 +1275,7 @@ def util_raw_input(shutit=None, prompt='', default=None, ispass=False, use_readl
 		readline.read_init_file('/etc/inputrc')
 		readline.parse_and_bind('tab: complete')
 	msg = ''
-	prompt = '\r' + prompt
+	prompt = '\n' + prompt
 	if shutit and shutit.cfg['build']['interactive'] == 0:
 		return default
 	if not determine_interactive(shutit):
