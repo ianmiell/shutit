@@ -908,7 +908,7 @@ END_""" + random_id)
 		return ret
 
 
-	def send_file(self, path, contents, expect=None, child=None, truncate=False, note=None, user=None, group=None, loglevel=logging.DEBUG):
+	def send_file(self, path, contents, expect=None, child=None, truncate=False, note=None, user=None, group=None, loglevel=logging.INFO):
 		"""Sends the passed-in string as a file to the passed-in path on the
 		target.
 
@@ -927,7 +927,7 @@ END_""" + random_id)
 		expect = expect or self.get_default_expect()
 		cfg = self.cfg
 		self._handle_note(note, 'Sending contents to path: ' + path)
-		self.log('Sending file contents beginning: "' + string.join(contents.split())[:30] + ' [...]" to file: ' + path, level=logging.INFO)
+		self.log('Sending file contents beginning: "' + string.join(contents.split())[:30] + ' [...]" to file: ' + path, level=loglevel)
 		if user == None:
 			user = self.whoami()
 		if group == None:
@@ -1017,7 +1017,7 @@ END_''' + random_id, echo=False,loglevel=loglevel)
 	                   note=None,
 	                   user=None,
 	                   group=None,
-	                   loglevel=logging.DEBUG):
+	                   loglevel=logging.INFO):
 		"""Send file from host machine to given path
 
 		@param path:          Path to send file to.
@@ -1035,7 +1035,7 @@ END_''' + random_id, echo=False,loglevel=loglevel)
 		expect = expect or self.get_default_expect()
 		cfg = self.cfg
 		self._handle_note(note, 'Sending file from host: ' + hostfilepath + '\nTo: ' + path)
-		self.log('Sending file from host: ' + hostfilepath + '\nTo: ' + path, level=logging.INFO)
+		self.log('Sending file from host: ' + hostfilepath + '\nTo: ' + path, level=loglevel)
 		if user == None:
 			user = self.whoami()
 		if group == None:
