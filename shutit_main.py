@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#i!/usr/bin/env python
 #The MIT License (MIT)
 #
 #Copyright (C) 2014 OpenBet Limited
@@ -415,7 +415,7 @@ def do_remove(shutit, loglevel=logging.DEBUG):
 			shutit.log('removing: ' + module_id, level=logging.DEBUG)
 			shutit.login(prompt_prefix=module_id,command='bash')
 			if not module.remove(shutit):
-				shutit.log(print_modules(shutit), level=logging.DEBUG)
+				shutit.log(shutit_util.print_modules(shutit), level=logging.DEBUG)
 				shutit.fail(module_id + ' failed on remove',
 				child=shutit.pexpect_children['target_child'])
 			else:
@@ -721,7 +721,7 @@ def main():
 	# Cache the results of check_ready at the start.
 	errs.extend(check_ready(shutit, throw_error=False))
 	if errs:
-		shutit.log(print_modules(shutit), level=logging.ERROR)
+		shutit.log(shutit_util.print_modules(shutit), level=logging.ERROR)
 		child = None
 		for err in errs:
 			shutit.log(err[0], level=logging.ERROR)
