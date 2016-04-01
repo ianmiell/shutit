@@ -519,7 +519,7 @@ class ShutIt(object):
 		if timeout == None:
 			timeout = 3600
 
-		if loglevel <= logging.DEBUG:
+		if logging.getLogger().getEffectiveLevel() <= logging.DEBUG:
 			echo=True
 
 		# Handle OSX to get the GNU version of the command
@@ -2143,7 +2143,7 @@ END_''' + random_id, echo=False,loglevel=loglevel)
 				opts = options['apt']
 			else:
 				opts = '-y'
-				if not cfg['build']['loglevel'] == logging.DEBUG:
+				if not cfg['build']['loglevel'] <= logging.DEBUG:
 					opts += ' -qq'
 				if force:
 					opts += ' --force-yes'

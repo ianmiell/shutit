@@ -93,7 +93,7 @@ class ShutItConnModule(ShutItModule):
 			# Create the build directory and put the config in it.
 			shutit.send(' mkdir -p ' + cfg['build']['build_db_dir'] + '/' + cfg['build']['build_id'], echo=False, loglevel=loglevel)
 			# Record the command we ran and the python env if in debug.
-			if cfg['build']['loglevel'] == logging.DEBUG:
+			if cfg['build']['loglevel'] <= logging.DEBUG:
 				shutit.send_file(cfg['build']['build_db_dir'] + '/' + cfg['build']['build_id'] + '/python_env.sh', str(sys.__dict__), loglevel=loglevel)
 				shutit.send_file(cfg['build']['build_db_dir'] + '/' + cfg['build']['build_id'] + '/command.sh', ' '.join(command), loglevel=loglevel)
 		shutit.pause_point('Anything you want to do now the ' +

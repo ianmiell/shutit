@@ -344,6 +344,7 @@ def get_base_config(cfg, cfg_parser):
 			logging.basicConfig(format=logformat,filename=cfg['host']['logfile'],level=logging.INFO)
 		else:
 			logging.basicConfig(format=logformat,filename=cfg['host']['logfile'],level=logging.INFO)
+	cfg['build']['loglevel'] = logging.getLogger().getEffectiveLevel()
 	# delivery method bash and image_tag make no sense
 	if cfg['build']['delivery'] in ('bash','ssh'):
 		if cfg['target']['docker_image'] != '':
@@ -799,7 +800,7 @@ def load_configs(shutit):
 		if cfg['build']['interactive'] >= 3:
 			print textwrap.dedent("""\n""") + msg + textwrap.dedent(colour('32', '\n\n[Hit return to continue]'))
 			util_raw_input(shutit=shutit)
-		if cfg['action']['list_configs'] or cfg['build']['loglevel'] == logging.DEBUG:
+		if cfg['action']['list_configs'] or cfg['build']['loglevel'] <= logging.DEBUG:
 			if cfg['build']['log_config_path']:
 				f = file(cfg['build']['log_config_path'] + '/config_file_order.txt','w')
 				f.write(msg)
@@ -821,7 +822,7 @@ def load_configs(shutit):
 
 	cfg_parser = get_configs(shutit, configs)
 	get_base_config(cfg, cfg_parser)
-	if cfg['build']['loglevel'] == logging.DEBUG:
+	if cfg['build']['loglevel'] <= logging.DEBUG:
 		# Set up the manhole.
 		try:
 			import manhole
@@ -845,7 +846,7 @@ def load_shutit_modules(shutit):
 	paths.
 	"""
 	cfg = shutit.cfg
-	if cfg['build']['loglevel'] == logging.DEBUG:
+	if cfg['build']['loglevel'] <= logging.DEBUG:
 		shutit.log('ShutIt module paths now: ',level=logging.DEBUG)
 		shutit.log(cfg['host']['shutit_module_path'],level=logging.DEBUG)
 	for shutit_module_path in cfg['host']['shutit_module_path']:

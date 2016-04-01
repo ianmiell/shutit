@@ -697,7 +697,7 @@ def main():
 	shutit_util.config_collection_for_built(shutit)
 
 
-	if cfg['action']['list_configs'] or cfg['build']['loglevel'] == logging.DEBUG:
+	if cfg['action']['list_configs'] or cfg['build']['loglevel'] <= logging.DEBUG:
 		shutit.log(shutit_util.print_config(cfg, history=cfg['list_configs']['cfghistory']))
 		# Set build completed
 		cfg['build']['completed'] = True
