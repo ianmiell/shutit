@@ -499,13 +499,13 @@ def parse_args(shutit):
 			shutit.fail('Cannot have any two of script, -d/--dockerfiles <files> as arguments')
 		if args.module_directory == '':
 			default_dir = '/tmp/shutit_' + random_word()
-			module_directory = util_raw_input(prompt='# Input a new directory name for this module.\n# Default: ' + default_dir + '\n', default=default_dir)
+			module_directory = util_raw_input(prompt='# Input a new directory name for this module to be placed in.\n# Default: ' + default_dir + '\n', default=default_dir)
 		else:
 			module_directory = args.module_directory
 		while True:
 			if args.module_name == '':
 				default_module_name = module_directory.split('/')[-1]
-				module_name = util_raw_input(prompt='# Input module name.\n# Default: ' + default_module_name + '\n', default=default_module_name)
+				module_name = util_raw_input(prompt='# Input module name, eg (mymodule).\n# Default: ' + default_module_name + '\n', default=default_module_name)
 			else:
 				module_name = args.module_name
 			if not re.match('^[a-z][a-z0-9-_.]*',module_name):
@@ -514,7 +514,7 @@ def parse_args(shutit):
 				break
 		if args.domain == '':
 			default_domain_name = os.getcwd().split('/')[-1] + '.' + module_name
-			domain = util_raw_input(prompt='# Input a unique domain.\n# Default: ' + default_domain_name + '\n', default=default_domain_name)
+			domain = util_raw_input(prompt='# Input a unique domain, eg (com.yourcorp).\n# Default: ' + default_domain_name + '\n', default=default_domain_name)
 		else:
 			domain = args.domain
 		# Figure out defaults.
@@ -523,8 +523,8 @@ def parse_args(shutit):
 			template_branch = util_raw_input(prompt='''# Input a ShutIt pattern.
 Default: bash
 
-docker:            a docker build
 bash:              a shell script
+docker:            a docker image build
 vagrant:           a vagrant setup
 vagrant_multinode: a vagrant multinode setup
 ''',default='bash')
