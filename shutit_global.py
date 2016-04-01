@@ -519,6 +519,9 @@ class ShutIt(object):
 		if timeout == None:
 			timeout = 3600
 
+		if loglevel <= logging.DEBUG:
+			echo=True
+
 		# Handle OSX to get the GNU version of the command
 		if assume_gnu:
 			send = self._get_send_command(send)
