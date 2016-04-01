@@ -370,6 +370,7 @@ def get_base_config(cfg, cfg_parser):
 		sys.exit(1)
 	# FAILS ends
 
+
 # Returns the config dict
 def parse_args(shutit):
 	"""Responsible for parsing arguments.
@@ -581,7 +582,6 @@ vagrant_multinode: a vagrant multinode setup
 		os.write(f,_default_cnf)
 		os.close(f)
 
-
 	# Default this to False as it's not always set (mostly for debug logging).
 	cfg['list_configs']['cfghistory'] = False
 	cfg['list_modules']['long']       = False
@@ -638,7 +638,6 @@ vagrant_multinode: a vagrant multinode setup
 		module_paths = args.shutit_module_path.split(':')
 		if '.' not in module_paths:
 			shutit.log('Working directory path not included, adding...',level=logging.DEBUG)
-			time.sleep(1)
 			module_paths.append('.')
 		args.set.append(('host', 'shutit_module_path', ':'.join(module_paths)))
 	cfg['build']['trace']            = args.trace
@@ -849,7 +848,6 @@ def load_shutit_modules(shutit):
 	if cfg['build']['loglevel'] == logging.DEBUG:
 		shutit.log('ShutIt module paths now: ',level=logging.DEBUG)
 		shutit.log(cfg['host']['shutit_module_path'],level=logging.DEBUG)
-		time.sleep(1)
 	for shutit_module_path in cfg['host']['shutit_module_path']:
 		load_all_from_path(shutit, shutit_module_path)
 
