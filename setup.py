@@ -17,7 +17,7 @@ setup(
 	# the version across setup.py and the project code, see
 	# https://packaging.python.org/en/latest/single_source_version.html
 
-	version='0.9.5',
+	version='0.9.6',
 	description='An automation tool designed for complex Docker builds',
 	long_description=long_description,
 
@@ -83,7 +83,7 @@ setup(
 	# need to place data files outside of your packages. See:
 	# http://docs.python.org/3.4/distutils/setupscript.html#installing-additional-files # noqa
 	# In this case, 'data_file' will be installed into '<sys.prefix>/my_data'
-	data_files=[('shutit_assets',['words']),('shutit_assets',['.gitignore']),('shutit_assets',['web/index.html']),('shutit_assets',['web/JSXTransformer-0.10.0.js']),('shutit_assets',['web/react-0.10.0.min.js'])],
+	data_files=[],
 
 	# To provide executable scripts, use entry points in preference to the
 	# "scripts" keyword. Entry points provide cross-platform support and allow
