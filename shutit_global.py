@@ -423,7 +423,7 @@ class ShutIt(object):
 		Either pass in regexp(s) desired from the output as a string or a list, or an md5sum of the output wanted.
 		"""
 		# TODO: bash path completion
-		# TODO: don't catch CTRL-C
+		# TODO: don't catch CTRL-C?
 		print shutit_util.colour('32','''\nChallenge!''')
 		if len(hints):
 			print shutit_util.colour('32','''Type 'help' or 'h' to get a hint''')
@@ -1795,8 +1795,7 @@ END_''' + random_id, echo=False,loglevel=loglevel)
 			config_parser.has_option('save_exclude', sec) and
 			name in config_parser.get('save_exclude', sec).split()
 		)
-		# TODO: ideally we would remember the prompted config item for this
-		# invocation of shutit
+		# TODO: ideally we would remember the prompted config item for this invocation of shutit
 		if not is_excluded:
 			usercp = [
 				subcp for subcp, filename, _fp in config_parser.layers

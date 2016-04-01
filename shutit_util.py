@@ -366,8 +366,6 @@ def get_base_config(cfg, cfg_parser):
 def parse_args(shutit):
 	"""Responsible for parsing arguments.
 
-	TODO: precedence of configs documented
-
 	Environment variables:
 	SHUTIT_OPTIONS:
 	Loads command line options from the environment (if set).
@@ -1208,7 +1206,6 @@ def create_skeleton(shutit):
 #		_count = 1
 #		_total = len(skel_dockerfiles)
 #		for skel_dockerfile in skel_dockerfiles:
-#			#TODO better naming of file
 #			templatemodule_path   = os.path.join(skel_path, skel_module_name + '_' + str(_count) + '.py')
 #			(templatemodule,skel_module_id) = dockerfile_to_shutit_module_template(shutit,skel_dockerfile,skel_path,skel_domain,skel_module_name,skel_domain_hash,skel_delivery,skel_depends,_count,_total)
 #			skel_module_ids.append(skel_module_id)
