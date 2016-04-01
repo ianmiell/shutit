@@ -518,8 +518,8 @@ class ShutIt(object):
 		self._handle_note(note, command=str(send), training_input=str(send))
 		if timeout == None:
 			timeout = 3600
-
-		if logging.getLogger().getEffectiveLevel() <= logging.DEBUG:
+		
+		if cfg['build']['loglevel'] <= logging.DEBUG:
 			echo=True
 
 		# Handle OSX to get the GNU version of the command

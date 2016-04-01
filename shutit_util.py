@@ -226,8 +226,49 @@ def find_asset(filename):
 		if os.access(os.path.join(os.path.join(iter_dir,'shutit_assets'),filename),os.F_OK):
 			return os.path.join(os.path.join(iter_dir,'shutit_assets'),filename)
 	return filename
-		
-	
+
+
+# Set up logging
+# 
+def setup_logging(shutit):
+	cfg = shutit.cfg
+	# If loglevel is an int, this has already been set up.
+	if type(cfg['build']['loglevel']) == int:
+		return
+	logformat='%(asctime)s %(levelname)s: %(message)s'
+	if cfg['host']['logfile'] == '':
+		if not os.access(cfg['build']['shutit_state_dir_base'],os.F_OK):
+			os.mkdir(cfg['build']['shutit_state_dir_base'])
+		if not os.access(cfg['build']['shutit_state_dir'],os.F_OK):
+			os.mkdir(cfg['build']['shutit_state_dir'])
+		os.chmod(cfg['build']['shutit_state_dir_base'],0777)
+		os.chmod(cfg['build']['shutit_state_dir'],0777)
+		if cfg['build']['loglevel'] == 'DEBUG':
+			logging.basicConfig(format=logformat,level=logging.DEBUG)
+		elif cfg['build']['loglevel'] == 'ERROR':
+			logging.basicConfig(format=logformat,level=logging.ERROR)
+		elif cfg['build']['loglevel'] in ('WARN','WARNING'):
+			logging.basicConfig(format=logformat,level=logging.WARNING)
+		elif cfg['build']['loglevel'] == 'CRITICAL':
+			logging.basicConfig(format=logformat,level=logging.CRITICAL)
+		elif cfg['build']['loglevel'] == 'INFO':
+			logging.basicConfig(format=logformat,level=logging.INFO)
+		else:
+			logging.basicConfig(format=logformat,level=logging.INFO)
+	else:
+		if cfg['build']['loglevel'] == 'DEBUG':
+			logging.basicConfig(format=logformat,filename=cfg['host']['logfile'],level=logging.DEBUG)
+		elif cfg['build']['loglevel'] == 'ERROR':
+			logging.basicConfig(format=logformat,filename=cfg['host']['logfile'],level=logging.ERROR)
+		elif cfg['build']['loglevel'] in ('WARN','WARNING'):
+			logging.basicConfig(format=logformat,filename=cfg['host']['logfile'],level=logging.WARNING)
+		elif cfg['build']['loglevel'] == 'CRITICAL':
+			logging.basicConfig(format=logformat,filename=cfg['host']['logfile'],level=logging.CRITICAL)
+		elif cfg['build']['loglevel'] == 'INFO':
+			logging.basicConfig(format=logformat,filename=cfg['host']['logfile'],level=logging.INFO)
+		else:
+			logging.basicConfig(format=logformat,filename=cfg['host']['logfile'],level=logging.INFO)
+	cfg['build']['loglevel'] = logging.getLogger().getEffectiveLevel()
 
 
 # Manage config settings, returning a dict representing the settings
@@ -295,57 +336,6 @@ def get_base_config(cfg, cfg_parser):
 	cfg['expect_prompts']['base_prompt']       = '\r\n.*[@#$] '
 	# END Standard expects
 
-	#|  %(name)s            Name of the logger (logging channel)
-	#|  %(levelno)s         Numeric logging level for the message (DEBUG, INFO, WARNING, ERROR, CRITICAL)
-	#|  %(levelname)s       Text logging level for the message ("DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL")
-	#|  %(pathname)s        Full pathname of the source file where the logging call was issued (if available)
-	#|  %(filename)s        Filename portion of pathname
-	#|  %(module)s          Module (name portion of filename)
-	#|  %(lineno)d          Source line number where the logging call was issued (if available)
-	#|  %(funcName)s        Function name
-	#|  %(created)f         Time when the LogRecord was created (time.time() return value)
-	#|  %(asctime)s         Textual time when the LogRecord was created
-	#|  %(msecs)d           Millisecond portion of the creation time
-	#|  %(relativeCreated)d Time in milliseconds when the LogRecord was created, relative to the time the logging module was loaded (typically at application startup time)
-	#|  %(thread)d          Thread ID (if available)
-	#|  %(threadName)s      Thread name (if available)
-	#|  %(process)d         Process ID (if available)
-	#|  %(message)s         The result of record.getMessage(), computed just as the record is emitted
-	logformat='%(asctime)s %(levelname)s: %(message)s'
-	if cfg['host']['logfile'] == '':
-		if not os.access(cfg['build']['shutit_state_dir_base'],os.F_OK):
-			os.mkdir(cfg['build']['shutit_state_dir_base'])
-		if not os.access(cfg['build']['shutit_state_dir'],os.F_OK):
-			os.mkdir(cfg['build']['shutit_state_dir'])
-		os.chmod(cfg['build']['shutit_state_dir_base'],0777)
-		os.chmod(cfg['build']['shutit_state_dir'],0777)
-		if cfg['build']['loglevel'] == 'DEBUG':
-			logging.basicConfig(format=logformat,level=logging.DEBUG)
-		elif cfg['build']['loglevel'] == 'ERROR':
-			logging.basicConfig(format=logformat,level=logging.ERROR)
-		elif cfg['build']['loglevel'] in ('WARN','WARNING'):
-			logging.basicConfig(format=logformat,level=logging.WARNING)
-		elif cfg['build']['loglevel'] == 'CRITICAL':
-			logging.basicConfig(format=logformat,level=logging.WARNING)
-		elif cfg['build']['loglevel'] == 'INFO':
-			logging.basicConfig(format=logformat,level=logging.INFO)
-		else:
-			logging.basicConfig(format=logformat,level=logging.INFO)
-	else:
-		if cfg['build']['loglevel'] == 'DEBUG':
-			logging.basicConfig(format=logformat,filename=cfg['host']['logfile'],level=logging.DEBUG)
-		elif cfg['build']['loglevel'] == 'ERROR':
-			logging.basicConfig(format=logformat,filename=cfg['host']['logfile'],level=logging.ERROR)
-		elif cfg['build']['loglevel'] in ('WARN','WARNING'):
-			logging.basicConfig(format=logformat,filename=cfg['host']['logfile'],level=logging.WARNING)
-		elif cfg['build']['loglevel'] == 'CRITICAL':
-			logging.basicConfig(format=logformat,filename=cfg['host']['logfile'],level=logging.WARNING)
-		elif cfg['build']['loglevel'] == 'INFO':
-			logging.basicConfig(format=logformat,filename=cfg['host']['logfile'],level=logging.INFO)
-		else:
-			logging.basicConfig(format=logformat,filename=cfg['host']['logfile'],level=logging.INFO)
-	cfg['build']['loglevel'] = logging.getLogger().getEffectiveLevel()
-	# delivery method bash and image_tag make no sense
 	if cfg['build']['delivery'] in ('bash','ssh'):
 		if cfg['target']['docker_image'] != '':
 			print('delivery method specified (' + cfg['build']['delivery'] + ') and image_tag argument make no sense')
@@ -446,7 +436,8 @@ def parse_args(shutit):
 	sub_parsers['list_modules'].add_argument('--sort', help='Order the modules seen, default to module id', default='id', choices=('id','run_order'))
 
 	for action in ['build', 'serve', 'list_configs', 'list_modules', 'list_deps']:
-		sub_parsers[action].add_argument('--log','-l', help='Log level (DEBUG, INFO (default), WARNING, ERROR, CRITICAL)', default='INFO')
+		sub_parsers[action].add_argument('-l','--log',default='INFO', help='Log level (DEBUG, INFO (default), WARNING, ERROR, CRITICAL)')
+		sub_parsers[action].add_argument('-o','--logfile',default='', help='Logfile')
 		sub_parsers[action].add_argument('--config', help='Config file for setup config. Must be with perms 0600. Multiple arguments allowed; config files considered in order.', default=[], action='append')
 		sub_parsers[action].add_argument('-d','--delivery', help='Delivery method, aka target. "docker" container (default), configured "ssh" connection, "bash" session', default=None, choices=('docker','dockerfile','ssh','bash'))
 		sub_parsers[action].add_argument('-s', '--set', help='Override a config item, e.g. "-s target rm no". Can be specified multiple times.', default=[], action='append', nargs=3, metavar=('SEC', 'KEY', 'VAL'))
@@ -499,7 +490,9 @@ def parse_args(shutit):
 	cfg['action']['skeleton']     = args.action == 'skeleton'
 	cfg['action']['build']        = args.action == 'build'
 	# Logging
+	cfg['host']['logfile']   = args.logfile
 	cfg['build']['loglevel'] = args.log
+	setup_logging(shutit)
 
 	# This mode is a bit special - it's the only one with different arguments
 	if cfg['action']['skeleton']:
@@ -638,7 +631,6 @@ vagrant_multinode: a vagrant multinode setup
 	if args.shutit_module_path is not None:
 		module_paths = args.shutit_module_path.split(':')
 		if '.' not in module_paths:
-			shutit.log('Working directory path not included, adding...',level=logging.DEBUG)
 			module_paths.append('.')
 		args.set.append(('host', 'shutit_module_path', ':'.join(module_paths)))
 	cfg['build']['trace']            = args.trace
