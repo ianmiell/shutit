@@ -41,6 +41,7 @@ import md5
 from shutit_module import ShutItFailException
 import logging
 
+
 class ShutIt(object):
 	"""ShutIt build class.
 	Represents an instance of a ShutIt build with associated config.
@@ -208,7 +209,6 @@ class ShutIt(object):
 			cfg['build']['report_final_messages'] += msg + '\n'
 
 
-
 	def setup_environment(self, prefix, expect=None, child=None, loglevel=logging.DEBUG):
 		"""If we are in a new environment then set up a new data structure.
 		A new environment is a new machine environment, whether that's
@@ -277,6 +277,7 @@ class ShutIt(object):
 		self.send('touch ' + fname, child=child, expect=expect, echo=False, loglevel=loglevel)
 		cfg['environment'][environment_id]['setup']                        = True
 		return environment_id
+
 
 	def get_current_environment(self):
 		return self.cfg['environment'][self.cfg['build']['current_environment_id']]
@@ -400,8 +401,7 @@ class ShutIt(object):
 		self._handle_note_after(note=note)
 		return False
 
-	         
-  
+
 	def golf(self,
              task_desc,
              expect=None,
@@ -469,7 +469,7 @@ class ShutIt(object):
 		if congratulations:
 			print '\n\n' + shutit_util.colour('32',congratulations) + '\n'
 		time.sleep(pause)
- 
+
 
 	def send(self,
 	         send,
@@ -552,7 +552,7 @@ class ShutIt(object):
 			for i in cfg.keys():
 				if isinstance(cfg[i], dict):
 					for j in cfg[i].keys():
-						if ((j == 'password' or j == 'passphrase') 
+						if ((j == 'password' or j == 'passphrase')
 								and cfg[i][j] == send):
 							self.shutit_command_history.append \
 								('#redacted command, password')
@@ -653,8 +653,8 @@ $'"""
 			if fail_on_empty_before == True:
 				if child.before.strip() == '':
 					self.fail('before empty after sending: ' + str(send) +
-						'\n\nThis is expected after some commands that take a ' + 
-						'password.\nIf so, add fail_on_empty_before=False to ' + 
+						'\n\nThis is expected after some commands that take a ' +
+						'password.\nIf so, add fail_on_empty_before=False to ' +
 						'the send call.\n\nIf that is not the problem, did you ' +
 				        'send an empty string to a prompt by mistake?', child=child)
 			elif fail_on_empty_before == False:
@@ -698,6 +698,7 @@ $'"""
 			send = string.join(cmd + send[len(cmd_arr[0]):],'')
 		return send
 
+
 	def _handle_note(self, note, command='', training_input=''):
 		"""Handle notes and walkthrough option.
 
@@ -720,6 +721,7 @@ $'"""
 				else:
 					self.pause_point(message, colour=31)
 
+
 	def _handle_note_after(self, note):
 		if self.cfg['build']['walkthrough'] and note != None:
 			wait = self.cfg['build']['walkthrough_wait']
@@ -728,7 +730,7 @@ $'"""
 
 
 	def _expect_allow_interrupt(self, child, expect, timeout, iteration_s=1):
-		"""This function allows you to interrupt the run at more or less any 
+		"""This function allows you to interrupt the run at more or less any
 		point by breaking up the timeout into interative chunks.
 		"""
 		accum_timeout = 0
@@ -832,21 +834,21 @@ END_""" + random_id)
 		# Space before "echo" here is sic - we don't need this to show up in bash history
 		child.sendline(' echo EXIT_CODE:$?')
 		child.expect(expect)
-		res = self.match_string(child.before, 
+		res = self.match_string(child.before,
 			'^EXIT_CODE:([0-9][0-9]?[0-9]?)$')
 		if res == None:
 			# Try after - for some reason needed after login
-			res = self.match_string(child.after, 
+			res = self.match_string(child.after,
 				'^EXIT_CODE:([0-9][0-9]?[0-9]?)$')
 		if res not in exit_values or res == None:
 			if res == None:
 				res = str(res)
 			self.log('child.after: \n' + child.after + '\n', level=logging.DEBUG)
 			self.log('Exit value from command:\n' + str(send) + '\nwas:\n' + res, level=logging.DEBUG)
-			msg = ('\nWARNING: command:\n' + send + 
-				  '\nreturned unaccepted exit code: ' + 
-				  res + 
-				  '\nIf this is expected, pass in check_exit=False or ' + 
+			msg = ('\nWARNING: command:\n' + send +
+				  '\nreturned unaccepted exit code: ' +
+				  res +
+				  '\nIf this is expected, pass in check_exit=False or ' +
 				  'an exit_values array into the send function call.')
 			cfg['build']['report'] = cfg['build']['report'] + msg
 			if retbool:
@@ -1099,7 +1101,7 @@ END_''' + random_id, echo=False,loglevel=loglevel)
 			for fname in files:
 				hostfullfname = os.path.join(root, fname)
 				targetfname = os.path.join(path, fname)
-				self.log('send_host_dir sending file ' + hostfullfname + ' to ' + 
+				self.log('send_host_dir sending file ' + hostfullfname + ' to ' +
 					'target file: ' + targetfname, level=logging.DEBUG)
 				self.send_file(targetfname, open(hostfullfname).read(), expect=expect, child=child, user=user, group=group, loglevel=loglevel)
 		self._handle_note_after(note=note)
@@ -1122,7 +1124,6 @@ END_''' + random_id, echo=False,loglevel=loglevel)
 			return os.path.isdir(filename)
 		else:
 			return os.path.isfile(filename)
-
 
 
 	def file_exists(self, filename, expect=None, child=None, directory=False, note=None, loglevel=logging.DEBUG):
@@ -1181,7 +1182,6 @@ END_''' + random_id, echo=False,loglevel=loglevel)
 		res = self.match_string(child.before, '([0-9][0-9][0-9])')
 		self._handle_note_after(note=note)
 		return res
-
 
 
 	def remove_line_from_file(self,
@@ -1244,8 +1244,6 @@ END_''' + random_id, echo=False,loglevel=loglevel)
 			self.send('rm -f ' + tmp_filename, expect=expect, child=child, exit_values=['0', '1'], echo=False, loglevel=loglevel)
 		self._handle_note_after(note=note)
 		return True
-						 
-
 
 
 	def change_text(self,
@@ -1407,17 +1405,20 @@ END_''' + random_id, echo=False,loglevel=loglevel)
 		self._handle_note_after(note=note)
 		return True
 
+
 	def insert_text(self, text, fname, pattern=None, expect=None, child=None, before=False, force=False, note=None, replace=False, line_oriented=True, create=True, loglevel=logging.DEBUG):
 		"""Insert a chunk of text at the end of a file, or after (or before) the first matching pattern
 		in given file fname.
 		See change_text"""
 		self.change_text(text=text, fname=fname, pattern=pattern, expect=expect, child=child, before=before, force=force, note=note, line_oriented=line_oriented, create=create, replace=replace, delete=False, loglevel=loglevel)
 
+
 	def delete_text(self, text, fname, pattern=None, expect=None, child=None, before=False, force=False, note=None, line_oriented=True, loglevel=logging.DEBUG):
 		"""Delete a chunk of text from a file.
 		See insert_text.
 		"""
 		return self.change_text(text, fname, pattern, expect, child, before, force, delete=True, line_oriented=line_oriented, loglevel=loglevel)
+
 
 	def replace_text(self, text, fname, pattern=None, expect=None, child=None, before=False, force=False, note=None, line_oriented=True, loglevel=logging.DEBUG):
 		"""Replace a chunk of text from a file.
@@ -1475,9 +1476,6 @@ END_''' + random_id, echo=False,loglevel=loglevel)
 		if fail:
 			return False
 		return True
-
-
-
 
 
 	def add_to_bashrc(self, line, expect=None, child=None, match_regexp=None, note=None, loglevel=logging.DEBUG):
@@ -1576,7 +1574,6 @@ END_''' + random_id, echo=False,loglevel=loglevel)
 		return False
 
 
-
 	def user_exists(self, user, expect=None, child=None, note=None,loglevel=logging.DEBUG):
 		"""Returns true if the specified username exists.
 		
@@ -1645,11 +1642,10 @@ END_''' + random_id, echo=False,loglevel=loglevel)
 			return True
 		else:
 			return False
-		
 
 
 	def is_shutit_installed(self, module_id, note=None, loglevel=logging.DEBUG):
-		"""Helper proc to determine whether shutit has installed already here by placing a file in the db. 
+		"""Helper proc to determine whether shutit has installed already here by placing a file in the db.
 	
 		@param module_id: Identifying string of shutit module
 		@param note:      See send()
@@ -1829,7 +1825,7 @@ END_''' + random_id, echo=False,loglevel=loglevel)
 		"""
 		child = child or self.get_default_child()
 		cfg = self.cfg
-		if (not shutit_util.determine_interactive(self) or not cfg['build']['interactive'] or 
+		if (not shutit_util.determine_interactive(self) or not cfg['build']['interactive'] or
 			cfg['build']['interactive'] < level):
 			return
 		cfg['build']['step_through'] = value
@@ -1883,7 +1879,7 @@ END_''' + random_id, echo=False,loglevel=loglevel)
 			# problem before we have a child.
 			sys.exit(1)
 		cfg = self.cfg
-		if (not shutit_util.determine_interactive(self) or cfg['build']['interactive'] < 1 or 
+		if (not shutit_util.determine_interactive(self) or cfg['build']['interactive'] < 1 or
 			cfg['build']['interactive'] < level):
 			return
 		if child:
@@ -1942,7 +1938,7 @@ END_''' + random_id, echo=False,loglevel=loglevel)
 					password=cfg['host']['password'],
 					docker_executable=cfg['host']['docker_executable'],
 					force=True)
-				self.log('\n\nCommit and tag done\n\nHit CTRL and ] to continue with' + 
+				self.log('\n\nCommit and tag done\n\nHit CTRL and ] to continue with' +
 					' build. Hit return for a prompt.')
 		return input_string
 
@@ -1988,7 +1984,7 @@ END_''' + random_id, echo=False,loglevel=loglevel)
 
 
 	def send_and_match_output(self, send, matches, expect=None, child=None, retry=3, strip=True, note=None, echo=False, loglevel=logging.DEBUG):
-		"""Returns true if the output of the command matches any of the strings in 
+		"""Returns true if the output of the command matches any of the strings in
 		the matches list of regexp strings. Handles matching on a per-line basis
 		and does not cross lines.
 
@@ -2019,7 +2015,6 @@ END_''' + random_id, echo=False,loglevel=loglevel)
 				return True
 		self.log('Failed to match output, return False',logging.DEBUG)
 		return False
-
 
 
 	def send_and_get_output(self,
@@ -2204,6 +2199,7 @@ END_''' + random_id, echo=False,loglevel=loglevel)
 		self._handle_note_after(note=note)
 		return True
 
+
 	def remove(self,
 	           package,
 	           child=None,
@@ -2328,7 +2324,6 @@ END_''' + random_id, echo=False,loglevel=loglevel)
 		return res
 
 
-
 	def whoarewe(self, child=None, expect=None, note=None, loglevel=logging.DEBUG):
 		"""Returns the current group by executing "groups",
 	    taking the first one
@@ -2346,6 +2341,7 @@ END_''' + random_id, echo=False,loglevel=loglevel)
 		res = self.send_and_get_output("groups | cut -f 1 -d ' '",echo=False, loglevel=loglevel).strip()
 		self._handle_note_after(note=note)
 		return res
+
 
 	def login_stack_append(self, r_id, child=None, expect=None, new_user=''):
 		child = child or self.get_default_child()
@@ -2438,7 +2434,6 @@ END_''' + random_id, echo=False,loglevel=loglevel)
 		self._handle_note_after(note=note)
 
 
-
 	def logout(self, child=None, expect=None, command='exit', note=None, timeout=5, loglevel=logging.DEBUG):
 		"""Logs the user out. Assumes that login has been called.
 		If login has never been called, throw an error.
@@ -2469,7 +2464,6 @@ END_''' + random_id, echo=False,loglevel=loglevel)
 		self._handle_note_after(note=note)
 	# alias exit_shell to logout
 	exit_shell = logout
-
 
 
 	def setup_prompt(self,
@@ -2542,8 +2536,8 @@ END_''' + random_id, echo=False,loglevel=loglevel)
 		It should be fairly rare to need this. Most of the time you would just
 		exit a subshell rather than resetting the prompt.
 
-			- old_prompt_name - 
-			- new_expect      - 
+			- old_prompt_name -
+			- new_expect      -
 			- child           - See send()
 		"""
 		child = child or self.get_default_child()
@@ -2576,8 +2570,6 @@ END_''' + random_id, echo=False,loglevel=loglevel)
 			memavail = int(memavail)
 		self._handle_note_after(note=note)
 		return memavail
-
-		
 
 
 	def get_distro_info(self, environment_id, child=None, container=True, loglevel=logging.DEBUG):
@@ -2625,7 +2617,7 @@ END_''' + random_id, echo=False,loglevel=loglevel)
 		#                    '/etc/gentoo-release': 'Gentoo',
 		#                    '/etc/os-release': 'Debian' }
 		#    # A list of dicts.  If there is a platform with more than one package manager, put the preferred one last.  If there is an ansible module, use that as the value for the 'name' key.
-		#    PKG_MGRS = [ 
+		#    PKG_MGRS = [
 		#                 { 'path' : '/usr/bin/zypper',      'name' : 'zypper' },
 		#                 { 'path' : '/usr/sbin/urpmi',      'name' : 'urpmi' },
 		#                 { 'path' : '/usr/bin/pacman',      'name' : 'pacman' },
@@ -2723,9 +2715,9 @@ END_''' + random_id, echo=False,loglevel=loglevel)
 						if self.send_and_get_output('brew list | grep -w ' + package,echo=False, loglevel=loglevel) == '':
 							self.send('brew install ' + package,loglevel=loglevel)
 				if install_type == '' or distro == '':
-					self.fail('Could not determine Linux distro information. ' + 
+					self.fail('Could not determine Linux distro information. ' +
 								'Please inform ShutIt maintainers.', child=child)
-			# The call to self.package_installed with lsb-release above 
+			# The call to self.package_installed with lsb-release above
 			# may fail if it doesn't know the install type, so
 			# if we've determined that now
 			if install_type == 'apt' and cfg['build']['delivery'] in ('docker','dockerfile'):
@@ -2764,7 +2756,7 @@ END_''' + random_id, echo=False,loglevel=loglevel)
 				install_type = 'emerge'
 				distro = 'gentoo'
 				distro_version = '1.0'
-		# We should have the distro info now, let's assign to target config 
+		# We should have the distro info now, let's assign to target config
 		# if this is not a one-off.
 		cfg['environment'][environment_id]['install_type']   = install_type
 		cfg['environment'][environment_id]['distro']         = distro
@@ -2972,7 +2964,7 @@ END_''' + random_id, echo=False,loglevel=loglevel)
 		cfg['build']['report'] += '\nBuild tagged as: ' + repository_with_tag
 		self.send(cmd, child=child, expect=expect, check_exit=False, echo=False, loglevel=loglevel)
 		if export or save:
-			self.pause_point('We are now exporting the container to a ' + 
+			self.pause_point('We are now exporting the container to a ' +
 							 'bzipped tar file, as configured in ' +
 							 '\n[repository]\ntar:yes', print_input=False,
 							 child=child, level=3)
@@ -3000,13 +2992,13 @@ END_''' + random_id, echo=False,loglevel=loglevel)
 				self.log('\nDeposited bzip2 of exported container into ' +
 						 bzfile, level=logging.DEBUG)
 				self.log('\nRun:\n\nbunzip2 -c ' + bzfile +
-						 ' | sudo docker import -\n\n' + 
+						 ' | sudo docker import -\n\n' +
 						 'to get this imported into docker.',
 						 level=logging.DEBUG)
-				cfg['build']['report'] += ('\nDeposited bzip2 of exported ' + 
+				cfg['build']['report'] += ('\nDeposited bzip2 of exported ' +
 										  'container into ' + bzfile)
 				cfg['build']['report'] += ('\nRun:\n\nbunzip2 -c ' + bzfile +
-										   ' | sudo docker import -\n\n' + 
+										   ' | sudo docker import -\n\n' +
 										   'to get this imported into docker.')
 		if cfg['repository']['push'] == True:
 			# Pass the child explicitly as it's the host child.
@@ -3042,8 +3034,6 @@ END_''' + random_id, echo=False,loglevel=loglevel)
 			return default
 		else:
 			return answer
-
-
 
 
 	def get_config(self,
@@ -3156,7 +3146,6 @@ END_''' + random_id, echo=False,loglevel=loglevel)
 		return res
 
 
-
 	def record_config(self, loglevel=logging.DEBUG):
 		""" Put the config in a file in the target.
 		"""
@@ -3173,7 +3162,6 @@ END_''' + random_id, echo=False,loglevel=loglevel)
 		return emailer.Emailer(cfg_section, self)
 
 
-	
 	def query_config(self, item):
 		"""Consistent and back-compatible API for asking for config information.
 		"""
@@ -3182,6 +3170,7 @@ END_''' + random_id, echo=False,loglevel=loglevel)
 			return self.cfg['build']['mount_docker']
 		else:
 			self.fail('query_config: item "' + item + '" not handled')
+
 
 	# eg sys.stdout or None
 	def divert_output(self, output):

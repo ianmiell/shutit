@@ -525,7 +525,14 @@ def parse_args(shutit):
 		# Figure out defaults.
 		# If no template branch supplied, then assume it's the same as delivery.
 		if args.template_branch == '':
-			template_branch = util_raw_input(prompt='# Input a ShutIt pattern.\nDefault: bash\n\ndocker: a docker build\nbash: a shell script\nvagrant: a vagrant setup\n',default='bash')
+			template_branch = util_raw_input(prompt='''# Input a ShutIt pattern.
+Default: bash
+
+docker:            a docker build
+bash:              a shell script
+vagrant:           a vagrant setup
+vagrant_multinode: a vagrant multinode setup
+''',default='bash')
 		else:
 			template_branch = args.template_branch
 
@@ -1267,7 +1274,7 @@ def util_raw_input(shutit=None, prompt='', default=None, ispass=False, use_readl
 		readline.read_init_file('/etc/inputrc')
 		readline.parse_and_bind('tab: complete')
 	msg = ''
-	prompt = '\n' + prompt + '\n'
+	prompt = '\r' + prompt
 	if shutit and shutit.cfg['build']['interactive'] == 0:
 		return default
 	if not determine_interactive(shutit):
