@@ -277,7 +277,8 @@ object --+
           <td><span class="summary-sig"><a href="shutit_global.ShutIt-class.html#setup_environment" class="summary-sig-name">setup_environment</a>(<span class="summary-sig-arg">self</span>,
         <span class="summary-sig-arg">prefix</span>,
         <span class="summary-sig-arg">expect</span>=<span class="summary-sig-default">None</span>,
-        <span class="summary-sig-arg">child</span>=<span class="summary-sig-default">None</span>)</span><br />
+        <span class="summary-sig-arg">child</span>=<span class="summary-sig-default">None</span>,
+        <span class="summary-sig-arg">loglevel</span>=<span class="summary-sig-default">10</span>)</span><br />
       If we are in a new environment then set up a new data structure.</td>
           <td align="right" valign="top">
             <span class="codelink"><a href="shutit_global-pysrc.html#ShutIt.setup_environment">source&nbsp;code</a></span>
@@ -322,7 +323,8 @@ object --+
         <span class="summary-sig-arg">exit_values</span>=<span class="summary-sig-default">None</span>,
         <span class="summary-sig-arg">escape</span>=<span class="summary-sig-default">False</span>,
         <span class="summary-sig-arg">echo</span>=<span class="summary-sig-default">None</span>,
-        <span class="summary-sig-arg">note</span>=<span class="summary-sig-default">None</span>)</span><br />
+        <span class="summary-sig-arg">note</span>=<span class="summary-sig-default">None</span>,
+        <span class="summary-sig-arg">loglevel</span>=<span class="summary-sig-default">10</span>)</span><br />
       Multisend.</td>
           <td align="right" valign="top">
             <span class="codelink"><a href="shutit_global-pysrc.html#ShutIt.multisend">source&nbsp;code</a></span>
@@ -351,7 +353,8 @@ object --+
         <span class="summary-sig-arg">record_command</span>=<span class="summary-sig-default">True</span>,
         <span class="summary-sig-arg">echo</span>=<span class="summary-sig-default">False</span>,
         <span class="summary-sig-arg">escape</span>=<span class="summary-sig-default">False</span>,
-        <span class="summary-sig-arg">note</span>=<span class="summary-sig-default">None</span>)</span><br />
+        <span class="summary-sig-arg">note</span>=<span class="summary-sig-default">None</span>,
+        <span class="summary-sig-arg">loglevel</span>=<span class="summary-sig-default">20</span>)</span><br />
       Send string on a regular cadence until a string is either seen, or 
       the timeout is triggered.</td>
           <td align="right" valign="top">
@@ -383,7 +386,8 @@ object --+
         <span class="summary-sig-arg">exit_values</span>=<span class="summary-sig-default">None</span>,
         <span class="summary-sig-arg">echo</span>=<span class="summary-sig-default">True</span>,
         <span class="summary-sig-arg">escape</span>=<span class="summary-sig-default">False</span>,
-        <span class="summary-sig-arg">pause</span>=<span class="summary-sig-default">1</span>)</span><br />
+        <span class="summary-sig-arg">pause</span>=<span class="summary-sig-default">1</span>,
+        <span class="summary-sig-arg">loglevel</span>=<span class="summary-sig-default">10</span>)</span><br />
       Set the user a task to complete, success being determined by matching
       the output.</td>
           <td align="right" valign="top">
@@ -414,7 +418,8 @@ object --+
         <span class="summary-sig-arg">escape</span>=<span class="summary-sig-default">False</span>,
         <span class="summary-sig-arg">retry</span>=<span class="summary-sig-default">3</span>,
         <span class="summary-sig-arg">note</span>=<span class="summary-sig-default">None</span>,
-        <span class="summary-sig-arg">assume_gnu</span>=<span class="summary-sig-default">True</span>)</span><br />
+        <span class="summary-sig-arg">assume_gnu</span>=<span class="summary-sig-default">True</span>,
+        <span class="summary-sig-arg">loglevel</span>=<span class="summary-sig-default">20</span>)</span><br />
       Send string as a shell command, and wait until the expected output is
       seen (either a string or any from a list of strings) before 
       returning.</td>
@@ -446,7 +451,8 @@ object --+
         <span class="summary-sig-arg">escape</span>=<span class="summary-sig-default">False</span>,
         <span class="summary-sig-arg">retry</span>=<span class="summary-sig-default">3</span>,
         <span class="summary-sig-arg">note</span>=<span class="summary-sig-default">None</span>,
-        <span class="summary-sig-arg">assume_gnu</span>=<span class="summary-sig-default">True</span>)</span><br />
+        <span class="summary-sig-arg">assume_gnu</span>=<span class="summary-sig-default">True</span>,
+        <span class="summary-sig-arg">loglevel</span>=<span class="summary-sig-default">20</span>)</span><br />
       Send string as a shell command, and wait until the expected output is
       seen (either a string or any from a list of strings) before 
       returning.</td>
@@ -587,7 +593,8 @@ object --+
         <span class="summary-sig-arg">timeout</span>=<span class="summary-sig-default">3600</span>,
         <span class="summary-sig-arg">exit_values</span>=<span class="summary-sig-default">None</span>,
         <span class="summary-sig-arg">retry</span>=<span class="summary-sig-default">0</span>,
-        <span class="summary-sig-arg">retbool</span>=<span class="summary-sig-default">False</span>)</span><br />
+        <span class="summary-sig-arg">retbool</span>=<span class="summary-sig-default">False</span>,
+        <span class="summary-sig-arg">loglevel</span>=<span class="summary-sig-default">10</span>)</span><br />
       Internal function to check the exit value of the shell.</td>
           <td align="right" valign="top">
             <span class="codelink"><a href="shutit_global-pysrc.html#ShutIt._check_exit">source&nbsp;code</a></span>
@@ -609,7 +616,8 @@ object --+
         <span class="summary-sig-arg">expect</span>=<span class="summary-sig-default">None</span>,
         <span class="summary-sig-arg">child</span>=<span class="summary-sig-default">None</span>,
         <span class="summary-sig-arg">in_shell</span>=<span class="summary-sig-default">True</span>,
-        <span class="summary-sig-arg">note</span>=<span class="summary-sig-default">None</span>)</span><br />
+        <span class="summary-sig-arg">note</span>=<span class="summary-sig-default">None</span>,
+        <span class="summary-sig-arg">loglevel</span>=<span class="summary-sig-default">10</span>)</span><br />
       Run the passed-in string as a script on the target's command line.</td>
           <td align="right" valign="top">
             <span class="codelink"><a href="shutit_global-pysrc.html#ShutIt.run_script">source&nbsp;code</a></span>
@@ -634,7 +642,8 @@ object --+
         <span class="summary-sig-arg">truncate</span>=<span class="summary-sig-default">False</span>,
         <span class="summary-sig-arg">note</span>=<span class="summary-sig-default">None</span>,
         <span class="summary-sig-arg">user</span>=<span class="summary-sig-default">None</span>,
-        <span class="summary-sig-arg">group</span>=<span class="summary-sig-default">None</span>)</span><br />
+        <span class="summary-sig-arg">group</span>=<span class="summary-sig-default">None</span>,
+        <span class="summary-sig-arg">loglevel</span>=<span class="summary-sig-default">20</span>)</span><br />
       Sends the passed-in string as a file to the passed-in path on the 
       target.</td>
           <td align="right" valign="top">
@@ -657,7 +666,8 @@ object --+
         <span class="summary-sig-arg">expect</span>=<span class="summary-sig-default">None</span>,
         <span class="summary-sig-arg">child</span>=<span class="summary-sig-default">None</span>,
         <span class="summary-sig-arg">timeout</span>=<span class="summary-sig-default">3600</span>,
-        <span class="summary-sig-arg">note</span>=<span class="summary-sig-default">None</span>)</span><br />
+        <span class="summary-sig-arg">note</span>=<span class="summary-sig-default">None</span>,
+        <span class="summary-sig-arg">loglevel</span>=<span class="summary-sig-default">10</span>)</span><br />
       How to change directory will depend on whether we are in delivery 
       mode bash or docker.</td>
           <td align="right" valign="top">
@@ -683,7 +693,8 @@ object --+
         <span class="summary-sig-arg">timeout</span>=<span class="summary-sig-default">3600</span>,
         <span class="summary-sig-arg">note</span>=<span class="summary-sig-default">None</span>,
         <span class="summary-sig-arg">user</span>=<span class="summary-sig-default">None</span>,
-        <span class="summary-sig-arg">group</span>=<span class="summary-sig-default">None</span>)</span><br />
+        <span class="summary-sig-arg">group</span>=<span class="summary-sig-default">None</span>,
+        <span class="summary-sig-arg">loglevel</span>=<span class="summary-sig-default">20</span>)</span><br />
       Send file from host machine to given path</td>
           <td align="right" valign="top">
             <span class="codelink"><a href="shutit_global-pysrc.html#ShutIt.send_host_file">source&nbsp;code</a></span>
@@ -707,7 +718,8 @@ object --+
         <span class="summary-sig-arg">child</span>=<span class="summary-sig-default">None</span>,
         <span class="summary-sig-arg">note</span>=<span class="summary-sig-default">None</span>,
         <span class="summary-sig-arg">user</span>=<span class="summary-sig-default">None</span>,
-        <span class="summary-sig-arg">group</span>=<span class="summary-sig-default">None</span>)</span><br />
+        <span class="summary-sig-arg">group</span>=<span class="summary-sig-default">None</span>,
+        <span class="summary-sig-arg">loglevel</span>=<span class="summary-sig-default">10</span>)</span><br />
       Send directory and all contents recursively from host machine to 
       given path.</td>
           <td align="right" valign="top">
@@ -750,7 +762,8 @@ object --+
         <span class="summary-sig-arg">expect</span>=<span class="summary-sig-default">None</span>,
         <span class="summary-sig-arg">child</span>=<span class="summary-sig-default">None</span>,
         <span class="summary-sig-arg">directory</span>=<span class="summary-sig-default">False</span>,
-        <span class="summary-sig-arg">note</span>=<span class="summary-sig-default">None</span>)</span><br />
+        <span class="summary-sig-arg">note</span>=<span class="summary-sig-default">None</span>,
+        <span class="summary-sig-arg">loglevel</span>=<span class="summary-sig-default">10</span>)</span><br />
       Return True if file exists on the target host, else False</td>
           <td align="right" valign="top">
             <span class="codelink"><a href="shutit_global-pysrc.html#ShutIt.file_exists">source&nbsp;code</a></span>
@@ -771,7 +784,8 @@ object --+
         <span class="summary-sig-arg">filename</span>,
         <span class="summary-sig-arg">expect</span>=<span class="summary-sig-default">None</span>,
         <span class="summary-sig-arg">child</span>=<span class="summary-sig-default">None</span>,
-        <span class="summary-sig-arg">note</span>=<span class="summary-sig-default">None</span>)</span><br />
+        <span class="summary-sig-arg">note</span>=<span class="summary-sig-default">None</span>,
+        <span class="summary-sig-arg">loglevel</span>=<span class="summary-sig-default">10</span>)</span><br />
       Returns the permissions of the file on the target as an octal string 
       triplet.</td>
           <td align="right" valign="top">
@@ -796,7 +810,8 @@ object --+
         <span class="summary-sig-arg">child</span>=<span class="summary-sig-default">None</span>,
         <span class="summary-sig-arg">match_regexp</span>=<span class="summary-sig-default">None</span>,
         <span class="summary-sig-arg">literal</span>=<span class="summary-sig-default">False</span>,
-        <span class="summary-sig-arg">note</span>=<span class="summary-sig-default">None</span>)</span><br />
+        <span class="summary-sig-arg">note</span>=<span class="summary-sig-default">None</span>,
+        <span class="summary-sig-arg">loglevel</span>=<span class="summary-sig-default">10</span>)</span><br />
       Removes line from file, if it exists.</td>
           <td align="right" valign="top">
             <span class="codelink"><a href="shutit_global-pysrc.html#ShutIt.remove_line_from_file">source&nbsp;code</a></span>
@@ -825,7 +840,8 @@ object --+
         <span class="summary-sig-arg">note</span>=<span class="summary-sig-default">None</span>,
         <span class="summary-sig-arg">replace</span>=<span class="summary-sig-default">False</span>,
         <span class="summary-sig-arg">line_oriented</span>=<span class="summary-sig-default">True</span>,
-        <span class="summary-sig-arg">create</span>=<span class="summary-sig-default">True</span>)</span><br />
+        <span class="summary-sig-arg">create</span>=<span class="summary-sig-default">True</span>,
+        <span class="summary-sig-arg">loglevel</span>=<span class="summary-sig-default">10</span>)</span><br />
       Change text in a file.</td>
           <td align="right" valign="top">
             <span class="codelink"><a href="shutit_global-pysrc.html#ShutIt.change_text">source&nbsp;code</a></span>
@@ -853,7 +869,8 @@ object --+
         <span class="summary-sig-arg">note</span>=<span class="summary-sig-default">None</span>,
         <span class="summary-sig-arg">replace</span>=<span class="summary-sig-default">False</span>,
         <span class="summary-sig-arg">line_oriented</span>=<span class="summary-sig-default">True</span>,
-        <span class="summary-sig-arg">create</span>=<span class="summary-sig-default">True</span>)</span><br />
+        <span class="summary-sig-arg">create</span>=<span class="summary-sig-default">True</span>,
+        <span class="summary-sig-arg">loglevel</span>=<span class="summary-sig-default">10</span>)</span><br />
       Insert a chunk of text at the end of a file, or after (or before) the
       first matching pattern in given file fname.</td>
           <td align="right" valign="top">
@@ -880,7 +897,8 @@ object --+
         <span class="summary-sig-arg">before</span>=<span class="summary-sig-default">False</span>,
         <span class="summary-sig-arg">force</span>=<span class="summary-sig-default">False</span>,
         <span class="summary-sig-arg">note</span>=<span class="summary-sig-default">None</span>,
-        <span class="summary-sig-arg">line_oriented</span>=<span class="summary-sig-default">True</span>)</span><br />
+        <span class="summary-sig-arg">line_oriented</span>=<span class="summary-sig-default">True</span>,
+        <span class="summary-sig-arg">loglevel</span>=<span class="summary-sig-default">10</span>)</span><br />
       Delete a chunk of text from a file.</td>
           <td align="right" valign="top">
             <span class="codelink"><a href="shutit_global-pysrc.html#ShutIt.delete_text">source&nbsp;code</a></span>
@@ -906,7 +924,8 @@ object --+
         <span class="summary-sig-arg">before</span>=<span class="summary-sig-default">False</span>,
         <span class="summary-sig-arg">force</span>=<span class="summary-sig-default">False</span>,
         <span class="summary-sig-arg">note</span>=<span class="summary-sig-default">None</span>,
-        <span class="summary-sig-arg">line_oriented</span>=<span class="summary-sig-default">True</span>)</span><br />
+        <span class="summary-sig-arg">line_oriented</span>=<span class="summary-sig-default">True</span>,
+        <span class="summary-sig-arg">loglevel</span>=<span class="summary-sig-default">10</span>)</span><br />
       Replace a chunk of text from a file.</td>
           <td align="right" valign="top">
             <span class="codelink"><a href="shutit_global-pysrc.html#ShutIt.replace_text">source&nbsp;code</a></span>
@@ -931,7 +950,8 @@ object --+
         <span class="summary-sig-arg">match_regexp</span>=<span class="summary-sig-default">None</span>,
         <span class="summary-sig-arg">force</span>=<span class="summary-sig-default">False</span>,
         <span class="summary-sig-arg">literal</span>=<span class="summary-sig-default">False</span>,
-        <span class="summary-sig-arg">note</span>=<span class="summary-sig-default">None</span>)</span><br />
+        <span class="summary-sig-arg">note</span>=<span class="summary-sig-default">None</span>,
+        <span class="summary-sig-arg">loglevel</span>=<span class="summary-sig-default">10</span>)</span><br />
       Deprecated.</td>
           <td align="right" valign="top">
             <span class="codelink"><a href="shutit_global-pysrc.html#ShutIt.add_line_to_file">source&nbsp;code</a></span>
@@ -953,7 +973,8 @@ object --+
         <span class="summary-sig-arg">expect</span>=<span class="summary-sig-default">None</span>,
         <span class="summary-sig-arg">child</span>=<span class="summary-sig-default">None</span>,
         <span class="summary-sig-arg">match_regexp</span>=<span class="summary-sig-default">None</span>,
-        <span class="summary-sig-arg">note</span>=<span class="summary-sig-default">None</span>)</span><br />
+        <span class="summary-sig-arg">note</span>=<span class="summary-sig-default">None</span>,
+        <span class="summary-sig-arg">loglevel</span>=<span class="summary-sig-default">10</span>)</span><br />
       Takes care of adding a line to everyone's bashrc (/etc/bash.bashrc, 
       /etc/profile).</td>
           <td align="right" valign="top">
@@ -983,7 +1004,8 @@ object --+
         <span class="summary-sig-arg">exit_values</span>=<span class="summary-sig-default">None</span>,
         <span class="summary-sig-arg">echo</span>=<span class="summary-sig-default">False</span>,
         <span class="summary-sig-arg">retry</span>=<span class="summary-sig-default">3</span>,
-        <span class="summary-sig-arg">note</span>=<span class="summary-sig-default">None</span>)</span><br />
+        <span class="summary-sig-arg">note</span>=<span class="summary-sig-default">None</span>,
+        <span class="summary-sig-arg">loglevel</span>=<span class="summary-sig-default">10</span>)</span><br />
       Handles the getting of a url for you.</td>
           <td align="right" valign="top">
             <span class="codelink"><a href="shutit_global-pysrc.html#ShutIt.get_url">source&nbsp;code</a></span>
@@ -1004,7 +1026,8 @@ object --+
         <span class="summary-sig-arg">user</span>,
         <span class="summary-sig-arg">expect</span>=<span class="summary-sig-default">None</span>,
         <span class="summary-sig-arg">child</span>=<span class="summary-sig-default">None</span>,
-        <span class="summary-sig-arg">note</span>=<span class="summary-sig-default">None</span>)</span><br />
+        <span class="summary-sig-arg">note</span>=<span class="summary-sig-default">None</span>,
+        <span class="summary-sig-arg">loglevel</span>=<span class="summary-sig-default">10</span>)</span><br />
       Returns true if the specified username exists.</td>
           <td align="right" valign="top">
             <span class="codelink"><a href="shutit_global-pysrc.html#ShutIt.user_exists">source&nbsp;code</a></span>
@@ -1025,7 +1048,8 @@ object --+
         <span class="summary-sig-arg">package</span>,
         <span class="summary-sig-arg">expect</span>=<span class="summary-sig-default">None</span>,
         <span class="summary-sig-arg">child</span>=<span class="summary-sig-default">None</span>,
-        <span class="summary-sig-arg">note</span>=<span class="summary-sig-default">None</span>)</span><br />
+        <span class="summary-sig-arg">note</span>=<span class="summary-sig-default">None</span>,
+        <span class="summary-sig-arg">loglevel</span>=<span class="summary-sig-default">10</span>)</span><br />
       Returns True if we can be sure the package is installed.</td>
           <td align="right" valign="top">
             <span class="codelink"><a href="shutit_global-pysrc.html#ShutIt.package_installed">source&nbsp;code</a></span>
@@ -1046,7 +1070,8 @@ object --+
         <span class="summary-sig-arg">command</span>,
         <span class="summary-sig-arg">expect</span>=<span class="summary-sig-default">None</span>,
         <span class="summary-sig-arg">child</span>=<span class="summary-sig-default">None</span>,
-        <span class="summary-sig-arg">note</span>=<span class="summary-sig-default">None</span>)</span></td>
+        <span class="summary-sig-arg">note</span>=<span class="summary-sig-default">None</span>,
+        <span class="summary-sig-arg">loglevel</span>=<span class="summary-sig-default">10</span>)</span></td>
           <td align="right" valign="top">
             <span class="codelink"><a href="shutit_global-pysrc.html#ShutIt.command_available">source&nbsp;code</a></span>
             
@@ -1064,7 +1089,8 @@ object --+
         <tr>
           <td><span class="summary-sig"><a href="shutit_global.ShutIt-class.html#is_shutit_installed" class="summary-sig-name">is_shutit_installed</a>(<span class="summary-sig-arg">self</span>,
         <span class="summary-sig-arg">module_id</span>,
-        <span class="summary-sig-arg">note</span>=<span class="summary-sig-default">None</span>)</span><br />
+        <span class="summary-sig-arg">note</span>=<span class="summary-sig-default">None</span>,
+        <span class="summary-sig-arg">loglevel</span>=<span class="summary-sig-default">10</span>)</span><br />
       Helper proc to determine whether shutit has installed already here by
       placing a file in the db.</td>
           <td align="right" valign="top">
@@ -1084,7 +1110,8 @@ object --+
         <tr>
           <td><span class="summary-sig"><a href="shutit_global.ShutIt-class.html#ls" class="summary-sig-name">ls</a>(<span class="summary-sig-arg">self</span>,
         <span class="summary-sig-arg">directory</span>,
-        <span class="summary-sig-arg">note</span>=<span class="summary-sig-default">None</span>)</span><br />
+        <span class="summary-sig-arg">note</span>=<span class="summary-sig-default">None</span>,
+        <span class="summary-sig-arg">loglevel</span>=<span class="summary-sig-default">10</span>)</span><br />
       Helper proc to list files in a directory</td>
           <td align="right" valign="top">
             <span class="codelink"><a href="shutit_global-pysrc.html#ShutIt.ls">source&nbsp;code</a></span>
@@ -1104,7 +1131,8 @@ object --+
           <td><span class="summary-sig"><a href="shutit_global.ShutIt-class.html#get_file" class="summary-sig-name">get_file</a>(<span class="summary-sig-arg">self</span>,
         <span class="summary-sig-arg">target_path</span>,
         <span class="summary-sig-arg">host_path</span>,
-        <span class="summary-sig-arg">note</span>=<span class="summary-sig-default">None</span>)</span><br />
+        <span class="summary-sig-arg">note</span>=<span class="summary-sig-default">None</span>,
+        <span class="summary-sig-arg">loglevel</span>=<span class="summary-sig-default">10</span>)</span><br />
       Copy a file from the target machine to the host machine</td>
           <td align="right" valign="top">
             <span class="codelink"><a href="shutit_global-pysrc.html#ShutIt.get_file">source&nbsp;code</a></span>
@@ -1173,7 +1201,8 @@ object --+
         <span class="summary-sig-arg">resize</span>=<span class="summary-sig-default">False</span>,
         <span class="summary-sig-arg">colour</span>=<span class="summary-sig-default"><code class="variable-quote">'</code><code class="variable-string">32</code><code class="variable-quote">'</code></span>,
         <span class="summary-sig-arg">default_msg</span>=<span class="summary-sig-default">None</span>,
-        <span class="summary-sig-arg">wait</span>=<span class="summary-sig-default">-1</span>)</span><br />
+        <span class="summary-sig-arg">wait</span>=<span class="summary-sig-default">-1</span>,
+        <span class="summary-sig-arg">loglevel</span>=<span class="summary-sig-default">20</span>)</span><br />
       Inserts a pause in the build session, which allows the user to try 
       things out before continuing.</td>
           <td align="right" valign="top">
@@ -1257,7 +1286,8 @@ object --+
         <span class="summary-sig-arg">retry</span>=<span class="summary-sig-default">3</span>,
         <span class="summary-sig-arg">strip</span>=<span class="summary-sig-default">True</span>,
         <span class="summary-sig-arg">note</span>=<span class="summary-sig-default">None</span>,
-        <span class="summary-sig-arg">echo</span>=<span class="summary-sig-default">False</span>)</span><br />
+        <span class="summary-sig-arg">echo</span>=<span class="summary-sig-default">False</span>,
+        <span class="summary-sig-arg">loglevel</span>=<span class="summary-sig-default">10</span>)</span><br />
       Returns true if the output of the command matches any of the strings 
       in the matches list of regexp strings.</td>
           <td align="right" valign="top">
@@ -1284,7 +1314,8 @@ object --+
         <span class="summary-sig-arg">strip</span>=<span class="summary-sig-default">True</span>,
         <span class="summary-sig-arg">note</span>=<span class="summary-sig-default">None</span>,
         <span class="summary-sig-arg">record_command</span>=<span class="summary-sig-default">False</span>,
-        <span class="summary-sig-arg">echo</span>=<span class="summary-sig-default">False</span>)</span><br />
+        <span class="summary-sig-arg">echo</span>=<span class="summary-sig-default">False</span>,
+        <span class="summary-sig-arg">loglevel</span>=<span class="summary-sig-default">10</span>)</span><br />
       Returns the output of a command run.</td>
           <td align="right" valign="top">
             <span class="codelink"><a href="shutit_global-pysrc.html#ShutIt.send_and_get_output">source&nbsp;code</a></span>
@@ -1310,7 +1341,8 @@ object --+
         <span class="summary-sig-arg">force</span>=<span class="summary-sig-default">False</span>,
         <span class="summary-sig-arg">check_exit</span>=<span class="summary-sig-default">True</span>,
         <span class="summary-sig-arg">reinstall</span>=<span class="summary-sig-default">False</span>,
-        <span class="summary-sig-arg">note</span>=<span class="summary-sig-default">None</span>)</span><br />
+        <span class="summary-sig-arg">note</span>=<span class="summary-sig-default">None</span>,
+        <span class="summary-sig-arg">loglevel</span>=<span class="summary-sig-default">10</span>)</span><br />
       Distro-independent install function.</td>
           <td align="right" valign="top">
             <span class="codelink"><a href="shutit_global-pysrc.html#ShutIt.install">source&nbsp;code</a></span>
@@ -1376,7 +1408,8 @@ object --+
           <td><span class="summary-sig"><a href="shutit_global.ShutIt-class.html#whoami" class="summary-sig-name">whoami</a>(<span class="summary-sig-arg">self</span>,
         <span class="summary-sig-arg">child</span>=<span class="summary-sig-default">None</span>,
         <span class="summary-sig-arg">expect</span>=<span class="summary-sig-default">None</span>,
-        <span class="summary-sig-arg">note</span>=<span class="summary-sig-default">None</span>)</span><br />
+        <span class="summary-sig-arg">note</span>=<span class="summary-sig-default">None</span>,
+        <span class="summary-sig-arg">loglevel</span>=<span class="summary-sig-default">10</span>)</span><br />
       Returns the current user by executing &quot;whoami&quot;.</td>
           <td align="right" valign="top">
             <span class="codelink"><a href="shutit_global-pysrc.html#ShutIt.whoami">source&nbsp;code</a></span>
@@ -1396,7 +1429,8 @@ object --+
           <td><span class="summary-sig"><a href="shutit_global.ShutIt-class.html#whoarewe" class="summary-sig-name">whoarewe</a>(<span class="summary-sig-arg">self</span>,
         <span class="summary-sig-arg">child</span>=<span class="summary-sig-default">None</span>,
         <span class="summary-sig-arg">expect</span>=<span class="summary-sig-default">None</span>,
-        <span class="summary-sig-arg">note</span>=<span class="summary-sig-default">None</span>)</span><br />
+        <span class="summary-sig-arg">note</span>=<span class="summary-sig-default">None</span>,
+        <span class="summary-sig-arg">loglevel</span>=<span class="summary-sig-default">10</span>)</span><br />
       Returns the current group by executing &quot;groups&quot;, taking the
       first one</td>
           <td align="right" valign="top">
@@ -1444,7 +1478,8 @@ object --+
         <span class="summary-sig-arg">timeout</span>=<span class="summary-sig-default">180</span>,
         <span class="summary-sig-arg">escape</span>=<span class="summary-sig-default">False</span>,
         <span class="summary-sig-arg">note</span>=<span class="summary-sig-default">None</span>,
-        <span class="summary-sig-arg">go_home</span>=<span class="summary-sig-default">True</span>)</span><br />
+        <span class="summary-sig-arg">go_home</span>=<span class="summary-sig-default">True</span>,
+        <span class="summary-sig-arg">loglevel</span>=<span class="summary-sig-default">10</span>)</span><br />
       Logs the user in with the passed-in password and command.</td>
           <td align="right" valign="top">
             <span class="codelink"><a href="shutit_global-pysrc.html#ShutIt.login">source&nbsp;code</a></span>
@@ -1466,7 +1501,8 @@ object --+
         <span class="summary-sig-arg">expect</span>=<span class="summary-sig-default">None</span>,
         <span class="summary-sig-arg">command</span>=<span class="summary-sig-default"><code class="variable-quote">'</code><code class="variable-string">exit</code><code class="variable-quote">'</code></span>,
         <span class="summary-sig-arg">note</span>=<span class="summary-sig-default">None</span>,
-        <span class="summary-sig-arg">timeout</span>=<span class="summary-sig-default">5</span>)</span><br />
+        <span class="summary-sig-arg">timeout</span>=<span class="summary-sig-default">5</span>,
+        <span class="summary-sig-arg">loglevel</span>=<span class="summary-sig-default">10</span>)</span><br />
       Logs the user out.</td>
           <td align="right" valign="top">
             <span class="codelink"><a href="shutit_global-pysrc.html#ShutIt.logout">source&nbsp;code</a></span>
@@ -1488,7 +1524,8 @@ object --+
         <span class="summary-sig-arg">expect</span>=<span class="summary-sig-default">None</span>,
         <span class="summary-sig-arg">command</span>=<span class="summary-sig-default"><code class="variable-quote">'</code><code class="variable-string">exit</code><code class="variable-quote">'</code></span>,
         <span class="summary-sig-arg">note</span>=<span class="summary-sig-default">None</span>,
-        <span class="summary-sig-arg">timeout</span>=<span class="summary-sig-default">5</span>)</span><br />
+        <span class="summary-sig-arg">timeout</span>=<span class="summary-sig-default">5</span>,
+        <span class="summary-sig-arg">loglevel</span>=<span class="summary-sig-default">10</span>)</span><br />
       Logs the user out.</td>
           <td align="right" valign="top">
             <span class="codelink"><a href="shutit_global-pysrc.html#ShutIt.logout">source&nbsp;code</a></span>
@@ -1510,7 +1547,8 @@ object --+
         <span class="summary-sig-arg">prefix</span>=<span class="summary-sig-default"><code class="variable-quote">'</code><code class="variable-string">default</code><code class="variable-quote">'</code></span>,
         <span class="summary-sig-arg">child</span>=<span class="summary-sig-default">None</span>,
         <span class="summary-sig-arg">set_default_expect</span>=<span class="summary-sig-default">True</span>,
-        <span class="summary-sig-arg">setup_environment</span>=<span class="summary-sig-default">True</span>)</span><br />
+        <span class="summary-sig-arg">setup_environment</span>=<span class="summary-sig-default">True</span>,
+        <span class="summary-sig-arg">loglevel</span>=<span class="summary-sig-default">10</span>)</span><br />
       Use this when you've opened a new shell to set the PS1 to something 
       sane.</td>
           <td align="right" valign="top">
@@ -1571,7 +1609,8 @@ object --+
           <td><span class="summary-sig"><a href="shutit_global.ShutIt-class.html#get_distro_info" class="summary-sig-name">get_distro_info</a>(<span class="summary-sig-arg">self</span>,
         <span class="summary-sig-arg">environment_id</span>,
         <span class="summary-sig-arg">child</span>=<span class="summary-sig-default">None</span>,
-        <span class="summary-sig-arg">container</span>=<span class="summary-sig-default">True</span>)</span><br />
+        <span class="summary-sig-arg">container</span>=<span class="summary-sig-default">True</span>,
+        <span class="summary-sig-arg">loglevel</span>=<span class="summary-sig-default">10</span>)</span><br />
       Get information about which distro we are using, placing it in the 
       cfg['environment'][environment_id] as a side effect.</td>
           <td align="right" valign="top">
@@ -1590,7 +1629,8 @@ object --+
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
           <td><span class="summary-sig"><a name="lsb_release"></a><span class="summary-sig-name">lsb_release</span>(<span class="summary-sig-arg">self</span>,
-        <span class="summary-sig-arg">child</span>=<span class="summary-sig-default">None</span>)</span><br />
+        <span class="summary-sig-arg">child</span>=<span class="summary-sig-default">None</span>,
+        <span class="summary-sig-arg">loglevel</span>=<span class="summary-sig-default">10</span>)</span><br />
       Get distro information from lsb_release.</td>
           <td align="right" valign="top">
             <span class="codelink"><a href="shutit_global-pysrc.html#ShutIt.lsb_release">source&nbsp;code</a></span>
@@ -1633,7 +1673,8 @@ object --+
         <span class="summary-sig-arg">user_id</span>,
         <span class="summary-sig-arg">child</span>=<span class="summary-sig-default">None</span>,
         <span class="summary-sig-arg">expect</span>=<span class="summary-sig-default">None</span>,
-        <span class="summary-sig-arg">note</span>=<span class="summary-sig-default">None</span>)</span><br />
+        <span class="summary-sig-arg">note</span>=<span class="summary-sig-default">None</span>,
+        <span class="summary-sig-arg">loglevel</span>=<span class="summary-sig-default">10</span>)</span><br />
       Determine whether the specified user_id available.</td>
           <td align="right" valign="top">
             <span class="codelink"><a href="shutit_global-pysrc.html#ShutIt.is_user_id_available">source&nbsp;code</a></span>
@@ -1654,7 +1695,8 @@ object --+
         <span class="summary-sig-arg">repository</span>,
         <span class="summary-sig-arg">docker_executable</span>=<span class="summary-sig-default"><code class="variable-quote">'</code><code class="variable-string">docker</code><code class="variable-quote">'</code></span>,
         <span class="summary-sig-arg">child</span>=<span class="summary-sig-default">None</span>,
-        <span class="summary-sig-arg">expect</span>=<span class="summary-sig-default">None</span>)</span><br />
+        <span class="summary-sig-arg">expect</span>=<span class="summary-sig-default">None</span>,
+        <span class="summary-sig-arg">loglevel</span>=<span class="summary-sig-default">20</span>)</span><br />
       Pushes the repository.</td>
           <td align="right" valign="top">
             <span class="codelink"><a href="shutit_global-pysrc.html#ShutIt.push_repository">source&nbsp;code</a></span>
@@ -1677,7 +1719,8 @@ object --+
         <span class="summary-sig-arg">expect</span>=<span class="summary-sig-default">None</span>,
         <span class="summary-sig-arg">docker_executable</span>=<span class="summary-sig-default"><code class="variable-quote">'</code><code class="variable-string">docker</code><code class="variable-quote">'</code></span>,
         <span class="summary-sig-arg">password</span>=<span class="summary-sig-default">None</span>,
-        <span class="summary-sig-arg">force</span>=<span class="summary-sig-default">None</span>)</span><br />
+        <span class="summary-sig-arg">force</span>=<span class="summary-sig-default">None</span>,
+        <span class="summary-sig-arg">loglevel</span>=<span class="summary-sig-default">10</span>)</span><br />
       Commit, tag, push, tar a docker container based on the configuration 
       we have.</td>
           <td align="right" valign="top">
@@ -1746,7 +1789,8 @@ object --+
         <span class="summary-sig-arg">ip_object</span>=<span class="summary-sig-default"><code class="variable-quote">'</code><code class="variable-string">addr</code><code class="variable-quote">'</code></span>,
         <span class="summary-sig-arg">command</span>=<span class="summary-sig-default"><code class="variable-quote">'</code><code class="variable-string">ip</code><code class="variable-quote">'</code></span>,
         <span class="summary-sig-arg">interface</span>=<span class="summary-sig-default"><code class="variable-quote">'</code><code class="variable-string">eth0</code><code class="variable-quote">'</code></span>,
-        <span class="summary-sig-arg">note</span>=<span class="summary-sig-default">None</span>)</span><br />
+        <span class="summary-sig-arg">note</span>=<span class="summary-sig-default">None</span>,
+        <span class="summary-sig-arg">loglevel</span>=<span class="summary-sig-default">10</span>)</span><br />
       Gets the ip address based on the args given.</td>
           <td align="right" valign="top">
             <span class="codelink"><a href="shutit_global-pysrc.html#ShutIt.get_ip_address">source&nbsp;code</a></span>
@@ -1763,7 +1807,8 @@ object --+
     </td><td class="summary">
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td><span class="summary-sig"><a name="record_config"></a><span class="summary-sig-name">record_config</span>(<span class="summary-sig-arg">self</span>)</span><br />
+          <td><span class="summary-sig"><a name="record_config"></a><span class="summary-sig-name">record_config</span>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">loglevel</span>=<span class="summary-sig-default">10</span>)</span><br />
       Put the config in a file in the target.</td>
           <td align="right" valign="top">
             <span class="codelink"><a href="shutit_global-pysrc.html#ShutIt.record_config">source&nbsp;code</a></span>
@@ -2156,7 +2201,8 @@ object --+
   <h3 class="epydoc"><span class="sig"><span class="sig-name">setup_environment</span>(<span class="sig-arg">self</span>,
         <span class="sig-arg">prefix</span>,
         <span class="sig-arg">expect</span>=<span class="sig-default">None</span>,
-        <span class="sig-arg">child</span>=<span class="sig-default">None</span>)</span>
+        <span class="sig-arg">child</span>=<span class="sig-default">None</span>,
+        <span class="sig-arg">loglevel</span>=<span class="sig-default">10</span>)</span>
   </h3>
   </td><td align="right" valign="top"
     ><span class="codelink"><a href="shutit_global-pysrc.html#ShutIt.setup_environment">source&nbsp;code</a></span>&nbsp;
@@ -2190,7 +2236,8 @@ object --+
         <span class="sig-arg">exit_values</span>=<span class="sig-default">None</span>,
         <span class="sig-arg">escape</span>=<span class="sig-default">False</span>,
         <span class="sig-arg">echo</span>=<span class="sig-default">None</span>,
-        <span class="sig-arg">note</span>=<span class="sig-default">None</span>)</span>
+        <span class="sig-arg">note</span>=<span class="sig-default">None</span>,
+        <span class="sig-arg">loglevel</span>=<span class="sig-default">10</span>)</span>
   </h3>
   </td><td align="right" valign="top"
     ><span class="codelink"><a href="shutit_global-pysrc.html#ShutIt.multisend">source&nbsp;code</a></span>&nbsp;
@@ -2239,7 +2286,8 @@ object --+
         <span class="sig-arg">record_command</span>=<span class="sig-default">True</span>,
         <span class="sig-arg">echo</span>=<span class="sig-default">False</span>,
         <span class="sig-arg">escape</span>=<span class="sig-default">False</span>,
-        <span class="sig-arg">note</span>=<span class="sig-default">None</span>)</span>
+        <span class="sig-arg">note</span>=<span class="sig-default">None</span>,
+        <span class="sig-arg">loglevel</span>=<span class="sig-default">20</span>)</span>
   </h3>
   </td><td align="right" valign="top"
     ><span class="codelink"><a href="shutit_global-pysrc.html#ShutIt.send_until">source&nbsp;code</a></span>&nbsp;
@@ -2289,7 +2337,8 @@ object --+
         <span class="sig-arg">exit_values</span>=<span class="sig-default">None</span>,
         <span class="sig-arg">echo</span>=<span class="sig-default">True</span>,
         <span class="sig-arg">escape</span>=<span class="sig-default">False</span>,
-        <span class="sig-arg">pause</span>=<span class="sig-default">1</span>)</span>
+        <span class="sig-arg">pause</span>=<span class="sig-default">1</span>,
+        <span class="sig-arg">loglevel</span>=<span class="sig-default">10</span>)</span>
   </h3>
   </td><td align="right" valign="top"
     ><span class="codelink"><a href="shutit_global-pysrc.html#ShutIt.golf">source&nbsp;code</a></span>&nbsp;
@@ -2324,7 +2373,8 @@ object --+
         <span class="sig-arg">escape</span>=<span class="sig-default">False</span>,
         <span class="sig-arg">retry</span>=<span class="sig-default">3</span>,
         <span class="sig-arg">note</span>=<span class="sig-default">None</span>,
-        <span class="sig-arg">assume_gnu</span>=<span class="sig-default">True</span>)</span>
+        <span class="sig-arg">assume_gnu</span>=<span class="sig-default">True</span>,
+        <span class="sig-arg">loglevel</span>=<span class="sig-default">20</span>)</span>
   </h3>
   </td><td align="right" valign="top"
     ><span class="codelink"><a href="shutit_global-pysrc.html#ShutIt.send">source&nbsp;code</a></span>&nbsp;
@@ -2397,7 +2447,8 @@ object --+
         <span class="sig-arg">escape</span>=<span class="sig-default">False</span>,
         <span class="sig-arg">retry</span>=<span class="sig-default">3</span>,
         <span class="sig-arg">note</span>=<span class="sig-default">None</span>,
-        <span class="sig-arg">assume_gnu</span>=<span class="sig-default">True</span>)</span>
+        <span class="sig-arg">assume_gnu</span>=<span class="sig-default">True</span>,
+        <span class="sig-arg">loglevel</span>=<span class="sig-default">20</span>)</span>
   </h3>
   </td><td align="right" valign="top"
     ><span class="codelink"><a href="shutit_global-pysrc.html#ShutIt.send">source&nbsp;code</a></span>&nbsp;
@@ -2515,7 +2566,8 @@ object --+
         <span class="sig-arg">timeout</span>=<span class="sig-default">3600</span>,
         <span class="sig-arg">exit_values</span>=<span class="sig-default">None</span>,
         <span class="sig-arg">retry</span>=<span class="sig-default">0</span>,
-        <span class="sig-arg">retbool</span>=<span class="sig-default">False</span>)</span>
+        <span class="sig-arg">retbool</span>=<span class="sig-default">False</span>,
+        <span class="sig-arg">loglevel</span>=<span class="sig-default">10</span>)</span>
   </h3>
   </td><td align="right" valign="top"
     ><span class="codelink"><a href="shutit_global-pysrc.html#ShutIt._check_exit">source&nbsp;code</a></span>&nbsp;
@@ -2540,7 +2592,8 @@ object --+
         <span class="sig-arg">expect</span>=<span class="sig-default">None</span>,
         <span class="sig-arg">child</span>=<span class="sig-default">None</span>,
         <span class="sig-arg">in_shell</span>=<span class="sig-default">True</span>,
-        <span class="sig-arg">note</span>=<span class="sig-default">None</span>)</span>
+        <span class="sig-arg">note</span>=<span class="sig-default">None</span>,
+        <span class="sig-arg">loglevel</span>=<span class="sig-default">10</span>)</span>
   </h3>
   </td><td align="right" valign="top"
     ><span class="codelink"><a href="shutit_global-pysrc.html#ShutIt.run_script">source&nbsp;code</a></span>&nbsp;
@@ -2576,7 +2629,8 @@ object --+
         <span class="sig-arg">truncate</span>=<span class="sig-default">False</span>,
         <span class="sig-arg">note</span>=<span class="sig-default">None</span>,
         <span class="sig-arg">user</span>=<span class="sig-default">None</span>,
-        <span class="sig-arg">group</span>=<span class="sig-default">None</span>)</span>
+        <span class="sig-arg">group</span>=<span class="sig-default">None</span>,
+        <span class="sig-arg">loglevel</span>=<span class="sig-default">20</span>)</span>
   </h3>
   </td><td align="right" valign="top"
     ><span class="codelink"><a href="shutit_global-pysrc.html#ShutIt.send_file">source&nbsp;code</a></span>&nbsp;
@@ -2611,7 +2665,8 @@ object --+
         <span class="sig-arg">expect</span>=<span class="sig-default">None</span>,
         <span class="sig-arg">child</span>=<span class="sig-default">None</span>,
         <span class="sig-arg">timeout</span>=<span class="sig-default">3600</span>,
-        <span class="sig-arg">note</span>=<span class="sig-default">None</span>)</span>
+        <span class="sig-arg">note</span>=<span class="sig-default">None</span>,
+        <span class="sig-arg">loglevel</span>=<span class="sig-default">10</span>)</span>
   </h3>
   </td><td align="right" valign="top"
     ><span class="codelink"><a href="shutit_global-pysrc.html#ShutIt.chdir">source&nbsp;code</a></span>&nbsp;
@@ -2647,7 +2702,8 @@ object --+
         <span class="sig-arg">timeout</span>=<span class="sig-default">3600</span>,
         <span class="sig-arg">note</span>=<span class="sig-default">None</span>,
         <span class="sig-arg">user</span>=<span class="sig-default">None</span>,
-        <span class="sig-arg">group</span>=<span class="sig-default">None</span>)</span>
+        <span class="sig-arg">group</span>=<span class="sig-default">None</span>,
+        <span class="sig-arg">loglevel</span>=<span class="sig-default">20</span>)</span>
   </h3>
   </td><td align="right" valign="top"
     ><span class="codelink"><a href="shutit_global-pysrc.html#ShutIt.send_host_file">source&nbsp;code</a></span>&nbsp;
@@ -2683,7 +2739,8 @@ object --+
         <span class="sig-arg">child</span>=<span class="sig-default">None</span>,
         <span class="sig-arg">note</span>=<span class="sig-default">None</span>,
         <span class="sig-arg">user</span>=<span class="sig-default">None</span>,
-        <span class="sig-arg">group</span>=<span class="sig-default">None</span>)</span>
+        <span class="sig-arg">group</span>=<span class="sig-default">None</span>,
+        <span class="sig-arg">loglevel</span>=<span class="sig-default">10</span>)</span>
   </h3>
   </td><td align="right" valign="top"
     ><span class="codelink"><a href="shutit_global-pysrc.html#ShutIt.send_host_dir">source&nbsp;code</a></span>&nbsp;
@@ -2747,7 +2804,8 @@ object --+
         <span class="sig-arg">expect</span>=<span class="sig-default">None</span>,
         <span class="sig-arg">child</span>=<span class="sig-default">None</span>,
         <span class="sig-arg">directory</span>=<span class="sig-default">False</span>,
-        <span class="sig-arg">note</span>=<span class="sig-default">None</span>)</span>
+        <span class="sig-arg">note</span>=<span class="sig-default">None</span>,
+        <span class="sig-arg">loglevel</span>=<span class="sig-default">10</span>)</span>
   </h3>
   </td><td align="right" valign="top"
     ><span class="codelink"><a href="shutit_global-pysrc.html#ShutIt.file_exists">source&nbsp;code</a></span>&nbsp;
@@ -2779,7 +2837,8 @@ object --+
         <span class="sig-arg">filename</span>,
         <span class="sig-arg">expect</span>=<span class="sig-default">None</span>,
         <span class="sig-arg">child</span>=<span class="sig-default">None</span>,
-        <span class="sig-arg">note</span>=<span class="sig-default">None</span>)</span>
+        <span class="sig-arg">note</span>=<span class="sig-default">None</span>,
+        <span class="sig-arg">loglevel</span>=<span class="sig-default">10</span>)</span>
   </h3>
   </td><td align="right" valign="top"
     ><span class="codelink"><a href="shutit_global-pysrc.html#ShutIt.get_file_perms">source&nbsp;code</a></span>&nbsp;
@@ -2814,7 +2873,8 @@ object --+
         <span class="sig-arg">child</span>=<span class="sig-default">None</span>,
         <span class="sig-arg">match_regexp</span>=<span class="sig-default">None</span>,
         <span class="sig-arg">literal</span>=<span class="sig-default">False</span>,
-        <span class="sig-arg">note</span>=<span class="sig-default">None</span>)</span>
+        <span class="sig-arg">note</span>=<span class="sig-default">None</span>,
+        <span class="sig-arg">loglevel</span>=<span class="sig-default">10</span>)</span>
   </h3>
   </td><td align="right" valign="top"
     ><span class="codelink"><a href="shutit_global-pysrc.html#ShutIt.remove_line_from_file">source&nbsp;code</a></span>&nbsp;
@@ -2861,7 +2921,8 @@ object --+
         <span class="sig-arg">note</span>=<span class="sig-default">None</span>,
         <span class="sig-arg">replace</span>=<span class="sig-default">False</span>,
         <span class="sig-arg">line_oriented</span>=<span class="sig-default">True</span>,
-        <span class="sig-arg">create</span>=<span class="sig-default">True</span>)</span>
+        <span class="sig-arg">create</span>=<span class="sig-default">True</span>,
+        <span class="sig-arg">loglevel</span>=<span class="sig-default">10</span>)</span>
   </h3>
   </td><td align="right" valign="top"
     ><span class="codelink"><a href="shutit_global-pysrc.html#ShutIt.change_text">source&nbsp;code</a></span>&nbsp;
@@ -2913,7 +2974,8 @@ object --+
         <span class="sig-arg">note</span>=<span class="sig-default">None</span>,
         <span class="sig-arg">replace</span>=<span class="sig-default">False</span>,
         <span class="sig-arg">line_oriented</span>=<span class="sig-default">True</span>,
-        <span class="sig-arg">create</span>=<span class="sig-default">True</span>)</span>
+        <span class="sig-arg">create</span>=<span class="sig-default">True</span>,
+        <span class="sig-arg">loglevel</span>=<span class="sig-default">10</span>)</span>
   </h3>
   </td><td align="right" valign="top"
     ><span class="codelink"><a href="shutit_global-pysrc.html#ShutIt.insert_text">source&nbsp;code</a></span>&nbsp;
@@ -2942,7 +3004,8 @@ object --+
         <span class="sig-arg">before</span>=<span class="sig-default">False</span>,
         <span class="sig-arg">force</span>=<span class="sig-default">False</span>,
         <span class="sig-arg">note</span>=<span class="sig-default">None</span>,
-        <span class="sig-arg">line_oriented</span>=<span class="sig-default">True</span>)</span>
+        <span class="sig-arg">line_oriented</span>=<span class="sig-default">True</span>,
+        <span class="sig-arg">loglevel</span>=<span class="sig-default">10</span>)</span>
   </h3>
   </td><td align="right" valign="top"
     ><span class="codelink"><a href="shutit_global-pysrc.html#ShutIt.delete_text">source&nbsp;code</a></span>&nbsp;
@@ -2970,7 +3033,8 @@ object --+
         <span class="sig-arg">before</span>=<span class="sig-default">False</span>,
         <span class="sig-arg">force</span>=<span class="sig-default">False</span>,
         <span class="sig-arg">note</span>=<span class="sig-default">None</span>,
-        <span class="sig-arg">line_oriented</span>=<span class="sig-default">True</span>)</span>
+        <span class="sig-arg">line_oriented</span>=<span class="sig-default">True</span>,
+        <span class="sig-arg">loglevel</span>=<span class="sig-default">10</span>)</span>
   </h3>
   </td><td align="right" valign="top"
     ><span class="codelink"><a href="shutit_global-pysrc.html#ShutIt.replace_text">source&nbsp;code</a></span>&nbsp;
@@ -2997,7 +3061,8 @@ object --+
         <span class="sig-arg">match_regexp</span>=<span class="sig-default">None</span>,
         <span class="sig-arg">force</span>=<span class="sig-default">False</span>,
         <span class="sig-arg">literal</span>=<span class="sig-default">False</span>,
-        <span class="sig-arg">note</span>=<span class="sig-default">None</span>)</span>
+        <span class="sig-arg">note</span>=<span class="sig-default">None</span>,
+        <span class="sig-arg">loglevel</span>=<span class="sig-default">10</span>)</span>
   </h3>
   </td><td align="right" valign="top"
     ><span class="codelink"><a href="shutit_global-pysrc.html#ShutIt.add_line_to_file">source&nbsp;code</a></span>&nbsp;
@@ -3042,7 +3107,8 @@ object --+
         <span class="sig-arg">expect</span>=<span class="sig-default">None</span>,
         <span class="sig-arg">child</span>=<span class="sig-default">None</span>,
         <span class="sig-arg">match_regexp</span>=<span class="sig-default">None</span>,
-        <span class="sig-arg">note</span>=<span class="sig-default">None</span>)</span>
+        <span class="sig-arg">note</span>=<span class="sig-default">None</span>,
+        <span class="sig-arg">loglevel</span>=<span class="sig-default">10</span>)</span>
   </h3>
   </td><td align="right" valign="top"
     ><span class="codelink"><a href="shutit_global-pysrc.html#ShutIt.add_to_bashrc">source&nbsp;code</a></span>&nbsp;
@@ -3084,7 +3150,8 @@ object --+
         <span class="sig-arg">exit_values</span>=<span class="sig-default">None</span>,
         <span class="sig-arg">echo</span>=<span class="sig-default">False</span>,
         <span class="sig-arg">retry</span>=<span class="sig-default">3</span>,
-        <span class="sig-arg">note</span>=<span class="sig-default">None</span>)</span>
+        <span class="sig-arg">note</span>=<span class="sig-default">None</span>,
+        <span class="sig-arg">loglevel</span>=<span class="sig-default">10</span>)</span>
   </h3>
   </td><td align="right" valign="top"
     ><span class="codelink"><a href="shutit_global-pysrc.html#ShutIt.get_url">source&nbsp;code</a></span>&nbsp;
@@ -3127,7 +3194,8 @@ object --+
         <span class="sig-arg">user</span>,
         <span class="sig-arg">expect</span>=<span class="sig-default">None</span>,
         <span class="sig-arg">child</span>=<span class="sig-default">None</span>,
-        <span class="sig-arg">note</span>=<span class="sig-default">None</span>)</span>
+        <span class="sig-arg">note</span>=<span class="sig-default">None</span>,
+        <span class="sig-arg">loglevel</span>=<span class="sig-default">10</span>)</span>
   </h3>
   </td><td align="right" valign="top"
     ><span class="codelink"><a href="shutit_global-pysrc.html#ShutIt.user_exists">source&nbsp;code</a></span>&nbsp;
@@ -3158,7 +3226,8 @@ object --+
         <span class="sig-arg">package</span>,
         <span class="sig-arg">expect</span>=<span class="sig-default">None</span>,
         <span class="sig-arg">child</span>=<span class="sig-default">None</span>,
-        <span class="sig-arg">note</span>=<span class="sig-default">None</span>)</span>
+        <span class="sig-arg">note</span>=<span class="sig-default">None</span>,
+        <span class="sig-arg">loglevel</span>=<span class="sig-default">10</span>)</span>
   </h3>
   </td><td align="right" valign="top"
     ><span class="codelink"><a href="shutit_global-pysrc.html#ShutIt.package_installed">source&nbsp;code</a></span>&nbsp;
@@ -3187,7 +3256,8 @@ object --+
   <tr valign="top"><td>
   <h3 class="epydoc"><span class="sig"><span class="sig-name">is_shutit_installed</span>(<span class="sig-arg">self</span>,
         <span class="sig-arg">module_id</span>,
-        <span class="sig-arg">note</span>=<span class="sig-default">None</span>)</span>
+        <span class="sig-arg">note</span>=<span class="sig-default">None</span>,
+        <span class="sig-arg">loglevel</span>=<span class="sig-default">10</span>)</span>
   </h3>
   </td><td align="right" valign="top"
     ><span class="codelink"><a href="shutit_global-pysrc.html#ShutIt.is_shutit_installed">source&nbsp;code</a></span>&nbsp;
@@ -3214,7 +3284,8 @@ object --+
   <tr valign="top"><td>
   <h3 class="epydoc"><span class="sig"><span class="sig-name">ls</span>(<span class="sig-arg">self</span>,
         <span class="sig-arg">directory</span>,
-        <span class="sig-arg">note</span>=<span class="sig-default">None</span>)</span>
+        <span class="sig-arg">note</span>=<span class="sig-default">None</span>,
+        <span class="sig-arg">loglevel</span>=<span class="sig-default">10</span>)</span>
   </h3>
   </td><td align="right" valign="top"
     ><span class="codelink"><a href="shutit_global-pysrc.html#ShutIt.ls">source&nbsp;code</a></span>&nbsp;
@@ -3243,7 +3314,8 @@ object --+
   <h3 class="epydoc"><span class="sig"><span class="sig-name">get_file</span>(<span class="sig-arg">self</span>,
         <span class="sig-arg">target_path</span>,
         <span class="sig-arg">host_path</span>,
-        <span class="sig-arg">note</span>=<span class="sig-default">None</span>)</span>
+        <span class="sig-arg">note</span>=<span class="sig-default">None</span>,
+        <span class="sig-arg">loglevel</span>=<span class="sig-default">10</span>)</span>
   </h3>
   </td><td align="right" valign="top"
     ><span class="codelink"><a href="shutit_global-pysrc.html#ShutIt.get_file">source&nbsp;code</a></span>&nbsp;
@@ -3311,7 +3383,8 @@ object --+
         <span class="sig-arg">resize</span>=<span class="sig-default">False</span>,
         <span class="sig-arg">colour</span>=<span class="sig-default"><code class="variable-quote">'</code><code class="variable-string">32</code><code class="variable-quote">'</code></span>,
         <span class="sig-arg">default_msg</span>=<span class="sig-default">None</span>,
-        <span class="sig-arg">wait</span>=<span class="sig-default">-1</span>)</span>
+        <span class="sig-arg">wait</span>=<span class="sig-default">-1</span>,
+        <span class="sig-arg">loglevel</span>=<span class="sig-default">20</span>)</span>
   </h3>
   </td><td align="right" valign="top"
     ><span class="codelink"><a href="shutit_global-pysrc.html#ShutIt.pause_point">source&nbsp;code</a></span>&nbsp;
@@ -3416,7 +3489,8 @@ object --+
         <span class="sig-arg">retry</span>=<span class="sig-default">3</span>,
         <span class="sig-arg">strip</span>=<span class="sig-default">True</span>,
         <span class="sig-arg">note</span>=<span class="sig-default">None</span>,
-        <span class="sig-arg">echo</span>=<span class="sig-default">False</span>)</span>
+        <span class="sig-arg">echo</span>=<span class="sig-default">False</span>,
+        <span class="sig-arg">loglevel</span>=<span class="sig-default">10</span>)</span>
   </h3>
   </td><td align="right" valign="top"
     ><span class="codelink"><a href="shutit_global-pysrc.html#ShutIt.send_and_match_output">source&nbsp;code</a></span>&nbsp;
@@ -3456,7 +3530,8 @@ object --+
         <span class="sig-arg">strip</span>=<span class="sig-default">True</span>,
         <span class="sig-arg">note</span>=<span class="sig-default">None</span>,
         <span class="sig-arg">record_command</span>=<span class="sig-default">False</span>,
-        <span class="sig-arg">echo</span>=<span class="sig-default">False</span>)</span>
+        <span class="sig-arg">echo</span>=<span class="sig-default">False</span>,
+        <span class="sig-arg">loglevel</span>=<span class="sig-default">10</span>)</span>
   </h3>
   </td><td align="right" valign="top"
     ><span class="codelink"><a href="shutit_global-pysrc.html#ShutIt.send_and_get_output">source&nbsp;code</a></span>&nbsp;
@@ -3496,7 +3571,8 @@ object --+
         <span class="sig-arg">force</span>=<span class="sig-default">False</span>,
         <span class="sig-arg">check_exit</span>=<span class="sig-default">True</span>,
         <span class="sig-arg">reinstall</span>=<span class="sig-default">False</span>,
-        <span class="sig-arg">note</span>=<span class="sig-default">None</span>)</span>
+        <span class="sig-arg">note</span>=<span class="sig-default">None</span>,
+        <span class="sig-arg">loglevel</span>=<span class="sig-default">10</span>)</span>
   </h3>
   </td><td align="right" valign="top"
     ><span class="codelink"><a href="shutit_global-pysrc.html#ShutIt.install">source&nbsp;code</a></span>&nbsp;
@@ -3603,7 +3679,8 @@ object --+
   <h3 class="epydoc"><span class="sig"><span class="sig-name">whoami</span>(<span class="sig-arg">self</span>,
         <span class="sig-arg">child</span>=<span class="sig-default">None</span>,
         <span class="sig-arg">expect</span>=<span class="sig-default">None</span>,
-        <span class="sig-arg">note</span>=<span class="sig-default">None</span>)</span>
+        <span class="sig-arg">note</span>=<span class="sig-default">None</span>,
+        <span class="sig-arg">loglevel</span>=<span class="sig-default">10</span>)</span>
   </h3>
   </td><td align="right" valign="top"
     ><span class="codelink"><a href="shutit_global-pysrc.html#ShutIt.whoami">source&nbsp;code</a></span>&nbsp;
@@ -3633,7 +3710,8 @@ object --+
   <h3 class="epydoc"><span class="sig"><span class="sig-name">whoarewe</span>(<span class="sig-arg">self</span>,
         <span class="sig-arg">child</span>=<span class="sig-default">None</span>,
         <span class="sig-arg">expect</span>=<span class="sig-default">None</span>,
-        <span class="sig-arg">note</span>=<span class="sig-default">None</span>)</span>
+        <span class="sig-arg">note</span>=<span class="sig-default">None</span>,
+        <span class="sig-arg">loglevel</span>=<span class="sig-default">10</span>)</span>
   </h3>
   </td><td align="right" valign="top"
     ><span class="codelink"><a href="shutit_global-pysrc.html#ShutIt.whoarewe">source&nbsp;code</a></span>&nbsp;
@@ -3671,7 +3749,8 @@ object --+
         <span class="sig-arg">timeout</span>=<span class="sig-default">180</span>,
         <span class="sig-arg">escape</span>=<span class="sig-default">False</span>,
         <span class="sig-arg">note</span>=<span class="sig-default">None</span>,
-        <span class="sig-arg">go_home</span>=<span class="sig-default">True</span>)</span>
+        <span class="sig-arg">go_home</span>=<span class="sig-default">True</span>,
+        <span class="sig-arg">loglevel</span>=<span class="sig-default">10</span>)</span>
   </h3>
   </td><td align="right" valign="top"
     ><span class="codelink"><a href="shutit_global-pysrc.html#ShutIt.login">source&nbsp;code</a></span>&nbsp;
@@ -3713,7 +3792,8 @@ object --+
         <span class="sig-arg">expect</span>=<span class="sig-default">None</span>,
         <span class="sig-arg">command</span>=<span class="sig-default"><code class="variable-quote">'</code><code class="variable-string">exit</code><code class="variable-quote">'</code></span>,
         <span class="sig-arg">note</span>=<span class="sig-default">None</span>,
-        <span class="sig-arg">timeout</span>=<span class="sig-default">5</span>)</span>
+        <span class="sig-arg">timeout</span>=<span class="sig-default">5</span>,
+        <span class="sig-arg">loglevel</span>=<span class="sig-default">10</span>)</span>
   </h3>
   </td><td align="right" valign="top"
     ><span class="codelink"><a href="shutit_global-pysrc.html#ShutIt.logout">source&nbsp;code</a></span>&nbsp;
@@ -3745,7 +3825,8 @@ object --+
         <span class="sig-arg">expect</span>=<span class="sig-default">None</span>,
         <span class="sig-arg">command</span>=<span class="sig-default"><code class="variable-quote">'</code><code class="variable-string">exit</code><code class="variable-quote">'</code></span>,
         <span class="sig-arg">note</span>=<span class="sig-default">None</span>,
-        <span class="sig-arg">timeout</span>=<span class="sig-default">5</span>)</span>
+        <span class="sig-arg">timeout</span>=<span class="sig-default">5</span>,
+        <span class="sig-arg">loglevel</span>=<span class="sig-default">10</span>)</span>
   </h3>
   </td><td align="right" valign="top"
     ><span class="codelink"><a href="shutit_global-pysrc.html#ShutIt.logout">source&nbsp;code</a></span>&nbsp;
@@ -3777,7 +3858,8 @@ object --+
         <span class="sig-arg">prefix</span>=<span class="sig-default"><code class="variable-quote">'</code><code class="variable-string">default</code><code class="variable-quote">'</code></span>,
         <span class="sig-arg">child</span>=<span class="sig-default">None</span>,
         <span class="sig-arg">set_default_expect</span>=<span class="sig-default">True</span>,
-        <span class="sig-arg">setup_environment</span>=<span class="sig-default">True</span>)</span>
+        <span class="sig-arg">setup_environment</span>=<span class="sig-default">True</span>,
+        <span class="sig-arg">loglevel</span>=<span class="sig-default">10</span>)</span>
   </h3>
   </td><td align="right" valign="top"
     ><span class="codelink"><a href="shutit_global-pysrc.html#ShutIt.setup_prompt">source&nbsp;code</a></span>&nbsp;
@@ -3860,7 +3942,8 @@ object --+
   <h3 class="epydoc"><span class="sig"><span class="sig-name">get_distro_info</span>(<span class="sig-arg">self</span>,
         <span class="sig-arg">environment_id</span>,
         <span class="sig-arg">child</span>=<span class="sig-default">None</span>,
-        <span class="sig-arg">container</span>=<span class="sig-default">True</span>)</span>
+        <span class="sig-arg">container</span>=<span class="sig-default">True</span>,
+        <span class="sig-arg">loglevel</span>=<span class="sig-default">10</span>)</span>
   </h3>
   </td><td align="right" valign="top"
     ><span class="codelink"><a href="shutit_global-pysrc.html#ShutIt.get_distro_info">source&nbsp;code</a></span>&nbsp;
@@ -3935,7 +4018,8 @@ object --+
         <span class="sig-arg">user_id</span>,
         <span class="sig-arg">child</span>=<span class="sig-default">None</span>,
         <span class="sig-arg">expect</span>=<span class="sig-default">None</span>,
-        <span class="sig-arg">note</span>=<span class="sig-default">None</span>)</span>
+        <span class="sig-arg">note</span>=<span class="sig-default">None</span>,
+        <span class="sig-arg">loglevel</span>=<span class="sig-default">10</span>)</span>
   </h3>
   </td><td align="right" valign="top"
     ><span class="codelink"><a href="shutit_global-pysrc.html#ShutIt.is_user_id_available">source&nbsp;code</a></span>&nbsp;
@@ -3968,7 +4052,8 @@ object --+
         <span class="sig-arg">repository</span>,
         <span class="sig-arg">docker_executable</span>=<span class="sig-default"><code class="variable-quote">'</code><code class="variable-string">docker</code><code class="variable-quote">'</code></span>,
         <span class="sig-arg">child</span>=<span class="sig-default">None</span>,
-        <span class="sig-arg">expect</span>=<span class="sig-default">None</span>)</span>
+        <span class="sig-arg">expect</span>=<span class="sig-default">None</span>,
+        <span class="sig-arg">loglevel</span>=<span class="sig-default">20</span>)</span>
   </h3>
   </td><td align="right" valign="top"
     ><span class="codelink"><a href="shutit_global-pysrc.html#ShutIt.push_repository">source&nbsp;code</a></span>&nbsp;
@@ -4000,7 +4085,8 @@ object --+
         <span class="sig-arg">expect</span>=<span class="sig-default">None</span>,
         <span class="sig-arg">docker_executable</span>=<span class="sig-default"><code class="variable-quote">'</code><code class="variable-string">docker</code><code class="variable-quote">'</code></span>,
         <span class="sig-arg">password</span>=<span class="sig-default">None</span>,
-        <span class="sig-arg">force</span>=<span class="sig-default">None</span>)</span>
+        <span class="sig-arg">force</span>=<span class="sig-default">None</span>,
+        <span class="sig-arg">loglevel</span>=<span class="sig-default">10</span>)</span>
   </h3>
   </td><td align="right" valign="top"
     ><span class="codelink"><a href="shutit_global-pysrc.html#ShutIt.do_repository_work">source&nbsp;code</a></span>&nbsp;
@@ -4106,7 +4192,8 @@ object --+
         <span class="sig-arg">ip_object</span>=<span class="sig-default"><code class="variable-quote">'</code><code class="variable-string">addr</code><code class="variable-quote">'</code></span>,
         <span class="sig-arg">command</span>=<span class="sig-default"><code class="variable-quote">'</code><code class="variable-string">ip</code><code class="variable-quote">'</code></span>,
         <span class="sig-arg">interface</span>=<span class="sig-default"><code class="variable-quote">'</code><code class="variable-string">eth0</code><code class="variable-quote">'</code></span>,
-        <span class="sig-arg">note</span>=<span class="sig-default">None</span>)</span>
+        <span class="sig-arg">note</span>=<span class="sig-default">None</span>,
+        <span class="sig-arg">loglevel</span>=<span class="sig-default">10</span>)</span>
   </h3>
   </td><td align="right" valign="top"
     ><span class="codelink"><a href="shutit_global-pysrc.html#ShutIt.get_ip_address">source&nbsp;code</a></span>&nbsp;
@@ -4157,7 +4244,7 @@ object --+
   <tr>
     <td align="left" class="footer">
     Generated by Epydoc 3.0.1
-    on Thu Mar 31 12:08:47 2016
+    on Fri Apr  1 07:57:11 2016
     </td>
     <td align="right" class="footer">
       <a target="mainFrame" href="http://epydoc.sourceforge.net"
