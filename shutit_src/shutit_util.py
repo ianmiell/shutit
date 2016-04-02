@@ -1179,7 +1179,7 @@ def create_skeleton(shutit):
 	# Create folders and process templates.
 	os.makedirs(skel_path)
 	os.chdir(skel_path)
-	os.system('git clone ' + cfg['skeleton']['template_repo'] + ' -b ' + cfg['skeleton']['template_branch'] + ' --depth 1 ' + cfg['skeleton']['template_folder'])
+	os.system('git clone -q ' + cfg['skeleton']['template_repo'] + ' -b ' + cfg['skeleton']['template_branch'] + ' --depth 1 ' + cfg['skeleton']['template_folder'])
 	os.system('rm -rf ' + cfg['skeleton']['template_folder'] + '/.git')
 	templates=jinja2.Environment(loader=jinja2.FileSystemLoader(cfg['skeleton']['template_folder']))
 	templates_list = templates.list_templates()
@@ -1191,14 +1191,17 @@ def create_skeleton(shutit):
 		f = open(template_item,'w')
 		f.write(template_str)
 		f.close()
-	os.system('chmod +x ' + template_setup_script + ' && ./' + template_setup_script + ' && rm -f ' + template_setup_script)
-	os.system('rm -rf ' + cfg['skeleton']['template_folder'])
+	if cfg['skeleton']['output_dir']:
+		print skel_path
+		os.system('chmod +x ' + template_setup_script + ' && ./' + template_setup_script + ' > /dev/null 2>&1 && rm -f ' + template_setup_script)
+		os.system('rm -rf ' + cfg['skeleton']['template_folder'])
+	else:
+		os.system('chmod +x ' + template_setup_script + ' && ./' + template_setup_script + ' && rm -f ' + template_setup_script)
+		os.system('rm -rf ' + cfg['skeleton']['template_folder'])
 
 	# Return program to original path
 	os.chdir(sys.path[0])
 
-	if cfg['skeleton']['output_dir']:
-		print skel_path
 
 # TODO: Deal with skel_dockerfiles example separately/later
 #	skel_module_ids = []
