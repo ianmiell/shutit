@@ -153,7 +153,7 @@ def get_configs(shutit, configs):
 			fail_str = fail_str + '\nchmod 0600 ' + config_file
 			files.append(config_file)
 	if fail_str != '':
-		if cfg['build']['interactive'] > 0:
+		if cfg['build']['interactive'] > 1:
 			fail_str = 'Files are not secure, mode should be 0600. Running the following commands to correct:\n' + fail_str + '\n'
 			# Actually show this to the user before failing...
 			shutit.log(fail_str)
