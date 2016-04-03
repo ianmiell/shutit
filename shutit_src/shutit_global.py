@@ -938,10 +938,6 @@ END_""" + random_id)
 		if group == None:
 			group = self.whoarewe()
 		print_contents=''
-		for c in contents:
-			if c not in string.ascii_letters:
-				print_contents = string.replace(contents,c,'?')
-		self.log('contents >>>' + print_contents + '<<<',level=logging.DEBUG)
 		if cfg['build']['current_environment_id'] == 'ORIGIN_ENV':
 			# If we're on the root env (ie the same one that python is running on,
 			# then use python.
