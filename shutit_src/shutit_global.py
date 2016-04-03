@@ -937,7 +937,6 @@ END_""" + random_id)
 			user = self.whoami()
 		if group == None:
 			group = self.whoarewe()
-		print_contents=''
 		if cfg['build']['current_environment_id'] == 'ORIGIN_ENV':
 			# If we're on the root env (ie the same one that python is running on,
 			# then use python.
@@ -1085,6 +1084,7 @@ END_''' + random_id, echo=False,loglevel=loglevel)
 		expect = expect or self.get_default_expect()
 		self._handle_note(note, 'Sending host directory: ' + hostfilepath + '\nTo: ' + path)
 		self.log('Sending host directory: ' + hostfilepath + '\nTo: ' + path, level=logging.INFO)
+		self.send('mkdir -p ' + path, echo=False, loglevel=loglevel)
 		if user == None:
 			user = self.whoami()
 		if group == None:
