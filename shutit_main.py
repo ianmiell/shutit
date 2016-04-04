@@ -620,7 +620,9 @@ def main():
 
 	shutit = shutit_global.shutit
 	cfg = shutit.cfg
+	print 'ShutIt Started'
 	shutit_util.parse_args(shutit)
+	print 'Arguments parsed'
 
 	if cfg['action']['skeleton']:
 		shutit_util.create_skeleton(shutit)
@@ -637,6 +639,7 @@ def main():
 		os.chdir(os.path.dirname(shutit_util.find_asset('web/index.html')))
 		return
 
+	print 'Loading configs'
 	shutit_util.load_configs(shutit)
 
 	# Try and ensure shutit is on the path - makes onboarding easier

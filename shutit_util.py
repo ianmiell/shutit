@@ -158,12 +158,16 @@ def get_configs(shutit, configs):
 			# Actually show this to the user before failing...
 			shutit.log(fail_str)
 			shutit.log('\nDo you want me to run this for you? (input y/n)')
-		if cfg['build']['interactive'] == 0 or util_raw_input(shutit=shutit,default='y') == 'y':
+			if cfg['build']['interactive'] == 0 or util_raw_input(shutit=shutit,default='y') == 'y':
+				for f in files:
+					shutit.log('Correcting insecure file permissions on: ' + f)
+					os.chmod(f,0600)
+				# recurse
+				return get_configs(shutit, configs)
+		else:
 			for f in files:
 				shutit.log('Correcting insecure file permissions on: ' + f)
 				os.chmod(f,0600)
-			# recurse
-			return get_configs(shutit, configs)
 		shutit.fail(fail_str)
 	for config in configs:
 		if type(config) is tuple:
