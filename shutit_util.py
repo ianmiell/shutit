@@ -364,7 +364,6 @@ def get_base_config(cfg, cfg_parser):
 
 # Returns the config dict
 def parse_args(shutit):
-	shutit.log('asd',level=logging.DEBUG)
 	"""Responsible for parsing arguments.
 
 	Environment variables:
