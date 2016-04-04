@@ -364,6 +364,7 @@ def get_base_config(cfg, cfg_parser):
 
 # Returns the config dict
 def parse_args(shutit):
+	shutit.log('asd',level=logging.DEBUG)
 	"""Responsible for parsing arguments.
 
 	Environment variables:
@@ -504,7 +505,7 @@ def parse_args(shutit):
 			module_directory = args.module_directory
 		while True:
 			if args.module_name == '':
-				default_module_name = module_directory.split('/')[-1]
+				default_module_name = module_directory.split('/')[-1].replace('-','_')
 				module_name = util_raw_input(prompt='# Input module name, eg (mymodule).\n# Default: ' + default_module_name + '\n', default=default_module_name)
 			else:
 				module_name = args.module_name
