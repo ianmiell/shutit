@@ -168,6 +168,8 @@ def get_configs(shutit, configs):
 			for f in files:
 				shutit.log('Correcting insecure file permissions on: ' + f)
 				os.chmod(f,0600)
+			# recurse
+			return get_configs(shutit, configs)
 		shutit.fail(fail_str)
 	for config in configs:
 		if type(config) is tuple:
