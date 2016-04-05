@@ -194,17 +194,12 @@ class ShutIt(object):
 	def log(self, msg, code=None, add_final_message=False, level=logging.INFO):
 		"""Logging function.
 
-		@param code:              Colour code for logging. Ignored if we are in serve mode
+		@param code:              Colour code for logging.
 		@param add_final_message: Add this log line to the final message output to the user
 		@param level:             Python log level
 		"""
 		cfg = self.cfg
-		# Don't colour message if we are in serve mode.
-		if code != None and not cfg['action']['serve']:
-			logmsg = shutit_util.colour(code, msg)
-		else:
-			logmsg = msg
-		logging.log(level,logmsg)
+		logging.log(level,msg)
 		if add_final_message:
 			cfg['build']['report_final_messages'] += msg + '\n'
 
