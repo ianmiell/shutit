@@ -407,6 +407,7 @@ class ShutIt(object):
              expect=None,
              hints=[],
              congratulations='OK',
+             failed='FAILED',
 	         expect_type='exact',
 	         child=None,
 	         timeout=None,
@@ -466,6 +467,8 @@ class ShutIt(object):
 					if self.match_string(output,regexp):
 						ok = True
 						break
+			if failed:
+				print '\n\n' + shutit_util.colour('32',failed) + '\n'
 		if congratulations:
 			print '\n\n' + shutit_util.colour('32',congratulations) + '\n'
 		time.sleep(pause)
