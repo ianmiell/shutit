@@ -427,7 +427,7 @@ class ShutIt(object):
 		# TODO: don't catch CTRL-C?
 		print shutit_util.colour('32','''\nChallenge!''')
 		if len(hints):
-			print shutit_util.colour('32','''Type 'help' or 'h' to get a hint''')
+			print shutit_util.colour('32','''Type 'help' or 'h' to get a hint, exit to skip''')
 		time.sleep(pause)
 		child = child or self.get_default_child()
 		if expect_type == 'regexp':
@@ -443,7 +443,7 @@ class ShutIt(object):
 			self.fail('Must pass either expect_regexps or md5sum in')
 		ok = False
 		while not ok:
-			send = self.get_input(task_desc)
+			send = self.get_input(task_desc + '=> ')
 			if not send or send.strip() == '':
 				continue
 			if send == 'help' or send == 'h':
@@ -452,6 +452,8 @@ class ShutIt(object):
 				else:
 					print shutit_util.colour('32','No hints left, sorry!')
 				continue
+			if send == 'exit':
+				return
 			output = self.send_and_get_output(send,child=child,timeout=timeout,retry=1,record_command=record_command,echo=echo, loglevel=loglevel)
 			md5sum_output = md5.md5(output).hexdigest()
 			self.log('output: ' + output + '\n is md5sum: ' + md5sum_output,level=logging.DEBUG)
