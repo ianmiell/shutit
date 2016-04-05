@@ -469,7 +469,7 @@ class ShutIt(object):
 					if self.match_string(output,regexp):
 						ok = True
 						break
-			if failed:
+			if not ok and failed:
 				print '\n\n' + shutit_util.colour('32',failed) + '\n'
 		if congratulations:
 			print '\n\n' + shutit_util.colour('32',congratulations) + '\n'
