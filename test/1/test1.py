@@ -15,7 +15,6 @@ class test1(ShutItModule):
 		return False
 
 	def build(self, shutit):
-		shutit.install('wget')
 		thing.thing()
 		shutit.send_and_expect('touch /tmp/container_touched')
 		# to test email if desired

@@ -610,7 +610,6 @@ def main():
 	Handles the configured actions:
 
 		- skeleton     - create skeleton module
-		- serve        - run as a server
 		- list_configs - output computed configuration
 		- depgraph     - output digraph of module dependencies
 	"""
@@ -627,16 +626,6 @@ def main():
 	if cfg['action']['skeleton']:
 		shutit_util.create_skeleton(shutit)
 		cfg['build']['completed'] = True
-		return
-
-	if cfg['action']['serve']:
-		import shutit_srv
-		cfg['build']['interactive'] = 0
-		revert_dir = os.getcwd()
-		# Move to path of this file
-		os.chdir(os.path.abspath(os.path.dirname(__file__)))
-		shutit_srv.start()
-		os.chdir(os.path.dirname(shutit_util.find_asset('web/index.html')))
 		return
 
 	print 'Loading configs'

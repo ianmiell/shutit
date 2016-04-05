@@ -387,7 +387,7 @@ def parse_args(shutit):
 	cfg['host']['real_user_id'] = pexpect.run('id -u ' + cfg['host']['real_user']).strip()
 
 	# These are in order of their creation
-	actions = ['build', 'list_configs', 'list_modules', 'list_deps', 'serve', 'skeleton']
+	actions = ['build', 'list_configs', 'list_modules', 'list_deps', 'skeleton']
 
 	# COMPAT 2014-05-15 - build is the default if there is no action specified
 	# and we've not asked for help and we've called via 'shutit_main.py'
@@ -406,7 +406,7 @@ def parse_args(shutit):
 
 	parser = argparse.ArgumentParser(description='ShutIt - a tool for managing complex Docker deployments.\n\nTo view help for a specific subcommand, type ./shutit <subcommand> -h',prog="ShutIt")
 	parser.add_argument('--version', action='version', version='%(prog)s 0.7')
-	subparsers = parser.add_subparsers(dest='action', help='''Action to perform - build=deploy to target, serve=run a shutit web server, skeleton=construct a skeleton module, list_configs=show configuration as read in, list_modules=show modules available, list_deps=show dep graph ready for graphviz. Defaults to 'build'.''')
+	subparsers = parser.add_subparsers(dest='action', help='''Action to perform - build=deploy to target, skeleton=construct a skeleton module, list_configs=show configuration as read in, list_modules=show modules available, list_deps=show dep graph ready for graphviz. Defaults to 'build'.''')
 
 	sub_parsers = dict()
 	for action in actions:
@@ -440,7 +440,7 @@ def parse_args(shutit):
 	sub_parsers['list_modules'].add_argument('--long', help='Show extended module info, including ordering', const=True, default=False, action='store_const')
 	sub_parsers['list_modules'].add_argument('--sort', help='Order the modules seen, default to module id', default='id', choices=('id','run_order'))
 
-	for action in ['build', 'serve', 'list_configs', 'list_modules', 'list_deps']:
+	for action in ['build', 'list_configs', 'list_modules', 'list_deps']:
 		sub_parsers[action].add_argument('-l','--log',default='INFO', help='Log level (DEBUG, INFO (default), WARNING, ERROR, CRITICAL)')
 		sub_parsers[action].add_argument('-o','--logfile',default='', help='Log output to this file')
 		sub_parsers[action].add_argument('--config', help='Config file for setup config. Must be with perms 0600. Multiple arguments allowed; config files considered in order.', default=[], action='append')
@@ -491,7 +491,6 @@ def parse_args(shutit):
 	cfg['action']['list_configs'] = args.action == 'list_configs'
 	cfg['action']['list_modules'] = args.action == 'list_modules'
 	cfg['action']['list_deps']    = args.action == 'list_deps'
-	cfg['action']['serve']        = args.action == 'serve'
 	cfg['action']['skeleton']     = args.action == 'skeleton'
 	cfg['action']['build']        = args.action == 'build'
 	# Logging
