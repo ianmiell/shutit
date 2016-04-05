@@ -651,6 +651,8 @@ $'"""
 								self.divert_output(None)
 					else:
 						expect_res = self._expect_allow_interrupt(child, expect, timeout)
+			logged_output = ''.join((child.before + child.after).split('\n'))[:30]
+			self.log('Output: ' + logged_output,level=loglevel)
 			self.log('\nchild.before>>>' + child.before + '<<<',level=logging.DEBUG,code=31)
 			self.log('\nchild.after>>>' + child.after + '<<<',level=logging.DEBUG,code=32)
 			if fail_on_empty_before == True:
@@ -905,9 +907,9 @@ END_""" + random_id)
 		self.send('chmod +x ' + cfg['build']['shutit_state_dir'] + '/scripts/shutit_script.sh', expect=expect, child=child, echo=False,loglevel=loglevel)
 		self.shutit_command_history.append('    ' + script.replace('\n', '\n    '))
 		if in_shell:
-			ret = self.send('. ' + cfg['build']['shutit_state_dir'] + '/scripts/shutit_script.sh', expect=expect, child=child, echo=False,loglevel=loglevel)
+			ret = self.send('. ' + cfg['build']['shutit_state_dir'] + '/scripts/shutit_script.sh', expect=expect, child=child, echo=False,loglevel=logging.INFO)
 		else:
-			ret = self.send(cfg['build']['shutit_state_dir'] + '/scripts/shutit_script.sh', expect=expect, child=child, echo=False,loglevel=loglevel)
+			ret = self.send(cfg['build']['shutit_state_dir'] + '/scripts/shutit_script.sh', expect=expect, child=child, echo=False,loglevel=loggging.INFO)
 		self.send('rm -f ' + cfg['build']['shutit_state_dir'] + '/scripts/shutit_script.sh', expect=expect, child=child, echo=False,loglevel=loglevel)
 		self._handle_note_after(note=note)
 		return ret
