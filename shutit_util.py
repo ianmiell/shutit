@@ -448,7 +448,7 @@ def parse_args(shutit):
 		sub_parsers[action].add_argument('-s', '--set', help='Override a config item, e.g. "-s target rm no". Can be specified multiple times.', default=[], action='append', nargs=3, metavar=('SEC', 'KEY', 'VAL'))
 		sub_parsers[action].add_argument('--image_tag', help='Build container from specified image - if there is a symbolic reference, please use that, eg localhost.localdomain:5000/myref', default='')
 		sub_parsers[action].add_argument('--tag_modules', help='''Tag each module after it's successfully built regardless of the module config and based on the repository config.''', default=False, const=True, action='store_const')
-		sub_parsers[action].add_argument('-m', '--shutit_module_path', default=None, help='List of shutit module paths, separated by colons. ShutIt registers modules by running all .py files in these directories.')
+		sub_parsers[action].add_argument('-m', '--shutit_module_path', default='', help='List of shutit module paths, separated by colons. ShutIt registers modules by running all .py files in these directories.')
 		sub_parsers[action].add_argument('--pause', help='Pause between commands to avoid race conditions.', default='0.05', type=check_pause)
 		sub_parsers[action].add_argument('--trace', help='Trace function calls', const=True, default=False, action='store_const')
 		sub_parsers[action].add_argument('--interactive', help='Level of interactive. 0 = none, 1 = honour pause points and config prompting, 2 = query user on each module, 3 = tutorial mode', default='1')
@@ -633,11 +633,12 @@ vagrant_multinode: a vagrant multinode setup
 
 	# Get these early for this part of the build.
 	# These should never be config arguments, since they are needed before config is passed in.
-	if args.shutit_module_path is not None:
+	if args.shutit_module_path != '':
 		module_paths = args.shutit_module_path.split(':')
-		if '.' not in module_paths:
-			module_paths.append('.')
 		args.set.append(('host', 'shutit_module_path', ':'.join(module_paths)))
+	else:
+		module_paths = []
+		module_paths.append('.')
 	cfg['build']['trace']            = args.trace
 	cfg['build']['interactive']      = int(args.interactive)
 	cfg['build']['command_pause']    = float(args.pause)
