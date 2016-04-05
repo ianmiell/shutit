@@ -254,7 +254,7 @@ class ShutIt(object):
 			environment_id = shutit_util.random_id()
 		cfg['build']['current_environment_id']                             = environment_id
 		cfg['environment'][environment_id] = {}
-		# Directory to revert to when delivering in bash and reversion to context required.
+		# Directory to revert to when delivering in bash and reversion to directory required.
 		cfg['environment'][environment_id]['module_root_dir']              = '/'
 		cfg['environment'][environment_id]['modules_installed']            = [] # has been installed (in this build)
 		cfg['environment'][environment_id]['modules_not_installed']        = [] # modules _known_ not to be installed
@@ -354,11 +354,8 @@ class ShutIt(object):
 		                             wait until a regexp is seen in the output (default)
 		@param expect:               See send()
 		@param child:                See send()
-		@param timeout:              See send()
-		@param check_exit:           See send()
 		@param fail_on_empty_before: See send()
 		@param record_command:       See send()
-		@param exit_values:          See send()
 		@param echo:                 See send()
 		@param note:                 See send()
 		"""

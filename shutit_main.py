@@ -119,23 +119,13 @@ def init_shutit_map(shutit):
 	if len([mod for mod in modules if mod.run_order > 0]) < 1:
 		shutit.log(modules,level=logging.DEBUG)
 		path = ':'.join(cfg['host']['shutit_module_path'])
-		shutit.log('\nIf you are new to ShutIt, see:\n\n\thttp://ianmiell.github.io/shutit/\n\nor try running\n\n\tshutit skeleton\n\n',code=32,level=logging.DEBUG)
+		shutit.log('\nIf you are new to ShutIt, see:\n\n\thttp://ianmiell.github.io/shutit/\n\nor try running\n\n\tshutit skeleton\n\n',code=32,level=logging.INFO)
 		if path == '':
-			shutit.fail('No ShutIt modules aside from core ones found and no ShutIt' + 
-			            ' module path given. ' + 
-			            '\nDid you set --shutit_module_path/-m wrongly?\n')
+			shutit.fail('No ShutIt modules aside from core ones found and no ShutIt module path given.\nDid you set --shutit_module_path/-m wrongly?\n')
 		elif path == '.':
-			shutit.fail('No modules aside from core ones found and no ShutIt' + 
-			            ' module path given apart from default (.).\n\n- Did you' + 
-			            ' set --shutit_module_path/-m?\n- Is there a STOP* file' + 
-			            ' in your . dir?\n')
+			shutit.fail('No modules aside from core ones found and no ShutIt module path given apart from default (.).\n\n- Did you set --shutit_module_path/-m?\n- Is there a STOP* file in your . dir?')
 		else:
-			shutit.fail('No modules aside from core ones found and no ShutIt ' +
-			            'modules in path:\n\n' + path +
-			            '\n\nor their subfolders. Check your ' + 
-			            '--shutit_module_path/-m setting and check that there are ' + 
-			            'ShutIt modules below without STOP* files in any relevant ' + 
-			            'directories.\n')
+			shutit.fail('No modules aside from core ones found and no ShutIt modules in path:\n\n' + path + '\n\nor their subfolders. Check your --shutit_module_path/-m setting and check that there are ShutIt modules below without STOP* files in any relevant directories.')
 
 	shutit.log('PHASE: base setup', level=logging.DEBUG)
 	if cfg['build']['interactive'] >= 3:
@@ -149,13 +139,9 @@ def init_shutit_map(shutit):
 	for module in modules:
 		assert isinstance(module, ShutItModule)
 		if module.module_id in shutit.shutit_map:
-			shutit.fail('Duplicated module id: ' + module.module_id + 
-			            '\n\nYou may want to check your --shutit_module_path setting')
+			shutit.fail('Duplicated module id: ' + module.module_id + '\n\nYou may want to check your --shutit_module_path setting')
 		if module.run_order in run_orders:
-			shutit.fail('Duplicate run order: ' + str(module.run_order) +
-			            ' for ' + module.module_id + ' and ' +
-			            run_orders[module.run_order].module_id + 
-			            '\n\nYou may want to check your --shutit_module_path setting')
+			shutit.fail('Duplicate run order: ' + str(module.run_order) + ' for ' + module.module_id + ' and ' + run_orders[module.run_order].module_id + '\n\nYou may want to check your --shutit_module_path setting')
 		if module.run_order == 0:
 			has_core_module = True
 		shutit.shutit_map[module.module_id] = run_orders[module.run_order] = module
@@ -164,8 +150,7 @@ def init_shutit_map(shutit):
 		shutit.fail('No module with run_order=0 specified! This is required.')
 
 	if cfg['build']['interactive'] >= 3:
-		print(shutit_util.colour('32', 'Module id and run order checks OK' + 
-		                  '\n\n[Hit return to continue]\n'))
+		print(shutit_util.colour('32', 'Module id and run order checks OK\n\n[Hit return to continue]\n'))
 		shutit_util.util_raw_input(shutit=shutit)
 
 
@@ -384,8 +369,7 @@ def check_ready(shutit, throw_error=True):
 		if cfg[module_id]['shutit.core.module.build'] and module.module_id not in cfg['environment'][cfg['build']['current_environment_id']]['modules_ready'] and not shutit_util.is_installed(shutit,module):
 			shutit.log('checking whether module is ready to build: ' + module_id, level=logging.DEBUG)
 			shutit.login(prompt_prefix=module_id,command='bash')
-			# Move to the directory so context is correct (eg for checking for
-			# the existence of files needed for build)
+			# Move to the correct directory (eg for checking for the existence of files needed for build)
 			revert_dir = os.getcwd()
 			cfg['environment'][cfg['build']['current_environment_id']]['module_root_dir'] = os.path.dirname(module.__module_file)
 			shutit.chdir(cfg['environment'][cfg['build']['current_environment_id']]['module_root_dir'])

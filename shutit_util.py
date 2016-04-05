@@ -1035,10 +1035,16 @@ def load_mod_from_file(shutit, fpath):
 	file_ext = os.path.splitext(os.path.split(fpath)[-1])[-1]
 	if file_ext.lower() != '.py':
 		return
-	if re.match(shutit_global.cwd + '\/context\/.*',fpath):
-		shutit.log('Ignoring file: "' + fpath + '" as this appears to be part of the context directory',level=logging.DEBUG)
+	with open(fpath) as f:
+		content = f.read().splitlines()
+	ok = False
+	for line in content:
+		if line.strip() == 'from shutit_module import ShutItModule':
+			ok = True
+			break
+	if not ok:
+		shutit.log('Rejected file: ' + fpath,level=logging.INFO)
 		return
-	# Do we already have modules from this file? If so we know we can skip.
 	# Note that this attribute will only be set for 'new style' module loading,
 	# this should be ok because 'old style' loading checks for duplicate
 	# existing modules.
@@ -1048,6 +1054,7 @@ def load_mod_from_file(shutit, fpath):
 		if getattr(m, '__module_file', None) == fpath
 	]
 	if len(existingmodules) > 0:
+		shutit.log('Module already seen: ' + fpath,level=logging.DEBUG)
 		return
 	# Looks like it's ok to load this file
 	shutit.log('Loading source for: ' + fpath,level=logging.DEBUG)
@@ -1299,7 +1306,7 @@ def util_raw_input(shutit=None, prompt='', default=None, ispass=False, use_readl
 
 
 def determine_interactive(shutit=None):
-	"""Determine whether we're in an interactive context.
+	"""Determine whether we're in an interactive shell.
 	Sets interactivity off if appropriate.
 	cf http://stackoverflow.com/questions/24861351/how-to-detect-if-python-script-is-being-run-as-a-background-process
 	"""
@@ -1422,6 +1429,7 @@ def dockerfile_to_shutit_module_template(shutit,
 		dockerfile_dirname = os.path.dirname(skel_dockerfile)
 		if dockerfile_dirname == '':
 			dockerfile_dirname = './'
+		# TODO: is this still needed?
 		if os.path.exists(dockerfile_dirname):
 			shutil.rmtree(skel_path + '/context')
 			shutil.copytree(dockerfile_dirname, skel_path + '/context')
