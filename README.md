@@ -14,7 +14,7 @@ If you want to know more about Docker, see the
 [official site](https://www.docker.com/) or take a look at the book by the
 creators of ShutIt - [Docker in Practice](http://docker-in-practice.github.io/).
 
-It is also an educational tool, as it can produce videos of demos, capture reproducible steps required to set environments up, and even challenge you to get the right output (see [grep-scales](https://github.com/ianmiell/grep-scales).
+It is also an educational tool, as it can produce videos of demos, capture reproducible steps required to set environments up, and even challenge you to get the right output (see [grep-scales](https://github.com/ianmiell/grep-scales)).
 
 Really Quick Overview
 =====================
