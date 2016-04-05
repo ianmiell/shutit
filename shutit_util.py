@@ -1208,7 +1208,6 @@ def create_skeleton(shutit):
 		f.write(template_str)
 		f.close()
 	if cfg['skeleton']['output_dir']:
-		print skel_path
 		os.system('chmod +x ' + template_setup_script + ' && ./' + template_setup_script + ' > /dev/null 2>&1 && rm -f ' + template_setup_script)
 		os.system('rm -rf ' + cfg['skeleton']['template_folder'])
 	else:
