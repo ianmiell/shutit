@@ -582,12 +582,16 @@ vagrant_multinode: a vagrant multinode setup
 		os.close(f)
 
 	# Default this to False as it's not always set (mostly for debug logging).
-	cfg['list_configs']['cfghistory'] = False
-	cfg['list_modules']['long']       = False
-	cfg['list_modules']['sort']       = None
-	cfg['build']['video']             = False
-	cfg['build']['training']          = False
-	cfg['build']['choose_config']     = False
+	cfg['list_configs']['cfghistory']  = False
+	cfg['list_modules']['long']        = False
+	cfg['list_modules']['sort']        = None
+	cfg['build']['video']              = False
+	cfg['build']['training']           = False
+	cfg['build']['choose_config']      = False
+	cfg['build']['apt_update_done']    = False
+	cfg['build']['yum_update_done']    = False
+	cfg['build']['emerge_update_done'] = False
+	cfg['build']['apk_update_done']    = False
 	# Persistence- and build-related arguments.
 	if cfg['action']['build']:
 		cfg['repository']['push']   = args.push
@@ -2082,8 +2086,6 @@ tag_name:latest
 # Each module should set these in a config
 [shutit.tk.setup]
 shutit.core.module.build:yes
-# Modules may rely on the below settings, only change for debugging.
-do_update:yes
 
 [shutit.tk.conn_bash]
 # None

@@ -511,22 +511,18 @@ class setup(ShutItModule):
 		and updating package management if in container.
 		"""
 		cfg = shutit.cfg
-		do_update = cfg['build']['do_update']
 		if cfg['build']['delivery'] in ('docker','dockerfile'):
 			if cfg['environment'][cfg['build']['current_environment_id']]['install_type'] == 'apt':
 				shutit.add_to_bashrc('export DEBIAN_FRONTEND=noninteractive')
-				if do_update and cfg['build']['delivery'] in ('docker','dockerfile'):
-					shutit.send('apt-get update', timeout=9999, check_exit=False, loglevel=loglevel)
 				if not shutit.command_available('lsb_release'):
 					shutit.install('lsb-release')
 				shutit.lsb_release()
 				shutit.send('dpkg-divert --local --rename --add /sbin/initctl',echo=False, loglevel=loglevel)
 				shutit.send('ln -f -s /bin/true /sbin/initctl',echo=False, loglevel=loglevel)
 			elif cfg['environment'][cfg['build']['current_environment_id']]['install_type'] == 'yum':
-				if do_update:
-					# yum updates are so often "bad" that we let exit codes of 1
-					# through. TODO: make this more sophisticated
-					shutit.send('yum update -y', timeout=9999, exit_values=['0', '1'], loglevel=loglevel)
+				# yum updates are so often "bad" that we let exit codes of 1
+				# through. TODO: make this more sophisticated
+				shutit.send('yum update -y', timeout=9999, exit_values=['0', '1'], loglevel=loglevel)
 			shutit.pause_point('Anything you want to do to the target host ' + 'before the build starts?', level=2)
 		return True
 

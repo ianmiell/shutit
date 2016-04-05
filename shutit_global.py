@@ -2143,6 +2143,8 @@ END_''' + random_id, echo=False,loglevel=loglevel)
 			cmd = ''
 			pw = ''
 		if install_type == 'apt':
+			if not cfg['build']['apt_update_done']:
+				self.send('apt-get update',loglevel=logging.INFO)
 			cmd = cmd + 'apt-get install'
 			if 'apt' in options:
 				opts = options['apt']
@@ -2643,17 +2645,19 @@ END_''' + random_id, echo=False,loglevel=loglevel)
 			install_type = cfg['build']['install_type_map'][key]
 			distro_version = ''
 			if install_type == 'apt' and cfg['build']['delivery'] in ('docker','dockerfile'):
-				cfg['build']['do_update'] = False
 				if not self.command_available('lsb_release'):
-					self.send('apt-get update',loglevel=loglevel)
-					self.send('apt-get install -y -qq lsb-release',loglevel=loglevel)
+					if not cfg['build']['apt_update_done']:
+						self.send('apt-get update',loglevel=logging.INFO)
+						cfg['build']['apt_update_done'] = True
+						self.send('apt-get install -y -qq lsb-release',loglevel=loglevel)
 				d = self.lsb_release()
 				install_type   = d['install_type']
 				distro         = d['distro']
 				distro_version = d['distro_version']
 			elif install_type == 'yum' and cfg['build']['delivery'] in ('docker', 'dockerfile'):
-				self.send('yum update -y',exit_values=['0','1'],loglevel=loglevel)
-				cfg['build']['do_update'] = False
+				if not cfg['build']['yum_update_done']:
+					cfg['build']['yum_update_done'] = True
+					self.send('yum update -y',exit_values=['0','1'],loglevel=logging.INFO)
 				if self.file_exists('/etc/redhat-release'):
 					output = self.send_and_get_output('cat /etc/redhat-release',echo=False, loglevel=loglevel)
 					if re.match('^centos.*$', output.lower()) or re.match('^red hat.*$', output.lower()) or re.match('^fedora.*$', output.lower()) or True:
@@ -2665,8 +2669,9 @@ END_''' + random_id, echo=False,loglevel=loglevel)
 				distro         = d['distro']
 				distro_version = d['distro_version']
 			elif install_type == 'apk' and cfg['build']['delivery'] in ('docker','dockerfile'):
-				cfg['build']['do_update'] = False
-				self.send('apk update',loglevel=loglevel)
+				if not cfg['build']['apk_update_done']:
+					cfg['build']['apk_update_done'] = True
+					self.send('apk update',loglevel=logging.INFO)
 				self.send('apk add bash',loglevel=loglevel)
 				install_type   = 'apk'
 				distro         = 'alpine'
@@ -2729,16 +2734,18 @@ END_''' + random_id, echo=False,loglevel=loglevel)
 			# may fail if it doesn't know the install type, so
 			# if we've determined that now
 			if install_type == 'apt' and cfg['build']['delivery'] in ('docker','dockerfile'):
-				cfg['build']['do_update'] = False
 				if not self.command_available('lsb_release'):
-					self.send('apt-get update',loglevel=loglevel)
+					if not cfg['build']['apt_update_done']:
+						self.send('apt-get update',loglevel=loglevel)
+						cfg['build']['apt_update_done'] = True
+						self.send('apt-get install -y -qq lsb-release',loglevel=loglevel)
+					cfg['build']['apt_update_done'] = True
 					self.send('apt-get install -y -qq lsb-release',loglevel=loglevel)
 				d = self.lsb_release()
 				install_type   = d['install_type']
 				distro         = d['distro']
 				distro_version = d['distro_version']
 			elif install_type == 'yum' and cfg['build']['delivery'] in ('docker','dockerfile'):
-				cfg['build']['do_update'] = False
 				if self.file_exists('/etc/redhat-release'):
 					output = self.send_and_get_output('cat /etc/redhat-release',echo=False, loglevel=loglevel)
 					if re.match('^centos.*$', output.lower()) or re.match('^red hat.*$', output.lower()) or re.match('^fedora.*$', output.lower()) or True:
@@ -2751,16 +2758,16 @@ END_''' + random_id, echo=False,loglevel=loglevel)
 				distro         = d['distro']
 				distro_version = d['distro_version']
 			elif install_type == 'apk' and cfg['build']['delivery'] in ('docker','dockerfile'):
-				if cfg['build']['do_update']:
-					cfg['build']['do_update'] = False
-				self.send('apk update',loglevel=loglevel)
+				if not cfg['build']['apk_update_done']:
+					cfg['build']['apk_update_done'] = True
+					self.send('apk update',loglevel=logging.INFO)
 				self.send('apk install bash',loglevel=loglevel)
 				install_type   = 'apk'
 				distro         = 'alpine'
 				distro_version = '1.0'
 			elif install_type == 'emerge' and cfg['build']['delivery'] in ('docker','dockerfile'):
-				if cfg['build']['do_update']:
-					self.send('emerge --sync',loglevel=loglevel)
+				if not cfg['build']['emerge_update_done']:
+					self.send('emerge --sync',loglevel=logging.INFO)
 				install_type = 'emerge'
 				distro = 'gentoo'
 				distro_version = '1.0'
@@ -3215,7 +3222,6 @@ def init():
 	cfg['build']['loglevel']              = logging.INFO
 	cfg['build']['completed']             = False
 	cfg['build']['mount_docker']          = False
-	cfg['build']['do_update']             = True
 	cfg['build']['distro_override']       = ''
 	# Whether to honour 'walkthrough' requests
 	cfg['build']['walkthrough']           = False

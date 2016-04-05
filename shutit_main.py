@@ -649,7 +649,7 @@ def main():
 
 	shutit_util.load_mod_from_file(shutit, os.path.join(shutit.shutit_main_dir, 'shutit_setup.py'))
 	shutit_util.load_shutit_modules(shutit)
-	shutit.log('ShutIt modules loaded.',logging.INFO)
+	shutit.log('ShutIt modules loaded',logging.INFO)
 
 	if cfg['action']['list_modules']:
 		shutit_util.list_modules(shutit)
@@ -657,10 +657,10 @@ def main():
 
 	init_shutit_map(shutit)
 	shutit_util.config_collection(shutit)
-	shutit.log('Configuration loaded.',logging.INFO)
+	shutit.log('Configuration loaded',logging.INFO)
 
 	conn_target(shutit)
-	shutit.log('Connected to target.',logging.INFO)
+	shutit.log('Connected to target',logging.INFO)
 
 	if cfg['build']['interactive'] > 0 and cfg['build']['choose_config']:
 		errs = do_interactive_modules(shutit)
