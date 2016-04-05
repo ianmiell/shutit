@@ -651,7 +651,7 @@ $'"""
 								self.divert_output(None)
 					else:
 						expect_res = self._expect_allow_interrupt(child, expect, timeout)
-			logged_output = ''.join((child.before + child.after).split('\n'))[:30]
+			logged_output = ''.join((child.before + child.after).split('\n'))[:30] + ' [...]'
 			self.log('Output: ' + logged_output,level=loglevel)
 			self.log('\nchild.before>>>' + child.before + '<<<',level=logging.DEBUG,code=31)
 			self.log('\nchild.after>>>' + child.after + '<<<',level=logging.DEBUG,code=32)
