@@ -418,8 +418,9 @@ class ShutIt(object):
 		# TODO: bash path completion
 		# TODO: don't catch CTRL-C?
 		print shutit_util.colour('32','''\nChallenge!''')
+		help_text = shutit_util.colour('32','''Type 'help' or 'h' to get a hint, exit to skip.''')
 		if len(hints):
-			print shutit_util.colour('32','''Type 'help' or 'h' to get a hint, exit to skip''')
+			print help_text
 		time.sleep(pause)
 		child = child or self.get_default_child()
 		if expect_type == 'regexp':
@@ -440,8 +441,10 @@ class ShutIt(object):
 				continue
 			if send == 'help' or send == 'h':
 				if len(hints):
+					print help_text
 					print shutit_util.colour('32',hints.pop(0))
 				else:
+					print help_text
 					print shutit_util.colour('32','No hints left, sorry!')
 				continue
 			if send == 'exit':
