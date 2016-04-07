@@ -419,10 +419,7 @@ class ShutIt(object):
 		# don't catch CTRL-C, pass it through.
 		shutit.cfg['build']['ctrlc_passthrough'] = True
 		print shutit_util.colour('32','''\nChallenge!''')
-		help_text = shutit_util.colour('32','''Type 'help' or 'h' to get a hint, exit to skip.''')
-		if len(hints):
-			print help_text
-		time.sleep(pause)
+		help_text = shutit_util.colour('32','''\nType 'help' or 'h' to get a hint, exit to skip.''')
 		child = child or self.get_default_child()
 		if expect_type == 'regexp':
 			if type(expect) == str:
@@ -437,16 +434,20 @@ class ShutIt(object):
 			self.fail('Must pass either expect_regexps or md5sum in')
 		ok = False
 		while not ok:
-			send = self.get_input(task_desc + '=> ')
+			if len(hints):
+				print shutit_util.colour('32',help_text)
+			time.sleep(pause)
+			send = self.get_input(task_desc + ' => ')
 			if not send or send.strip() == '':
 				continue
-			if send == 'help' or send == 'h':
+			if send in ('help','h'):
 				if len(hints):
 					print help_text
 					print shutit_util.colour('32',hints.pop(0))
 				else:
 					print help_text
 					print shutit_util.colour('32','No hints left, sorry!')
+				time.sleep(pause)
 				continue
 			if send == 'exit':
 				shutit.cfg['build']['ctrlc_passthrough'] = False
