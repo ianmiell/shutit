@@ -392,8 +392,7 @@ def parse_args(shutit):
 	# COMPAT 2014-05-15 - build is the default if there is no action specified
 	# and we've not asked for help and we've called via 'shutit_main.py'
 	if len(sys.argv) == 1 or (len(sys.argv) > 1 and sys.argv[1] not in actions
-			and '-h' not in sys.argv and '--help' not in sys.argv
-			and os.path.basename(sys.argv[0]) == 'shutit_main.py'):
+			and '-h' not in sys.argv and '--help' not in sys.argv):
 		sys.argv.insert(1, 'build')
 
 	# Pexpect documentation says systems have issues with pauses < 0.05
