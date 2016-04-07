@@ -292,6 +292,7 @@ def get_base_config(cfg, cfg_parser):
 	cfg['build']['completed']                  = False
 	cfg['build']['step_through']               = False
 	cfg['build']['ctrlc_stop']                 = False
+	cfg['build']['ctrlc_passthrough']          = False
 	cfg['build']['check_exit']                 = True
 	# Width of terminal to set up on login and assume for other cases.
 	cfg['build']['stty_cols']                  = 320
@@ -1346,7 +1347,7 @@ def get_wide_hex(char):
 	return r'\u' + hex(0x10000 + (ord(char[0]) - 0xD800) * 0x400 + (ord(char[1]) - 0xDC00))[2:]
 
 
-
+# CTRL-C HANDLING CODE STARTS
 in_ctrlc = False
 def ctrlc_background():
 	global in_ctrlc
@@ -1361,13 +1362,20 @@ def ctrl_c_signal_handler(signal, frame):
 		# Unfortunately we have 'except' blocks catching all exceptions,
 		# so we can't use sys.exit
 		os._exit(1)
-	shutit_frame = get_shutit_frame(frame)
 	print '\n' + '*' * 80
 	print "CTRL-c caught"
+	shutit_frame = get_shutit_frame(frame)
 	if shutit_frame:
 		shutit = shutit_frame.f_locals['shutit']
+		if shutit.cfg['build']['ctrlc_passthrough']:
+			# TODO: do this when we want to switch off CTRL-C
+			shutit.get_default_child().sendline(r'')
+			return
 		print "You may need to wait for the command to complete for a pause point"
 		shutit.cfg['build']['ctrlc_stop'] = True
+		# TODO: do this when we want to switch off CTRL-C
+		shutit.get_default_child().sendline(r'')
+		return
 	print "CTRL-c twice to quit."
 	print '*' * 80
 	t = threading.Thread(target=ctrlc_background)
@@ -1382,6 +1390,7 @@ def get_shutit_frame(frame):
 		if 'shutit' in frame.f_locals:
 			return frame
 		return get_shutit_frame(frame.f_back)
+# CTRL-C HANDLING CODE ENDS
 
 
 def print_frame_recurse(frame):

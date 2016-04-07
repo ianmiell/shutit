@@ -416,7 +416,8 @@ class ShutIt(object):
 		Either pass in regexp(s) desired from the output as a string or a list, or an md5sum of the output wanted.
 		"""
 		# TODO: bash path completion
-		# TODO: don't catch CTRL-C?
+		# don't catch CTRL-C, pass it through.
+		shutit.cfg['build']['ctrlc_passthrough'] = True
 		print shutit_util.colour('32','''\nChallenge!''')
 		help_text = shutit_util.colour('32','''Type 'help' or 'h' to get a hint, exit to skip.''')
 		if len(hints):
@@ -448,6 +449,7 @@ class ShutIt(object):
 					print shutit_util.colour('32','No hints left, sorry!')
 				continue
 			if send == 'exit':
+				shutit.cfg['build']['ctrlc_passthrough'] = False
 				return
 			output = self.send_and_get_output(send,child=child,timeout=timeout,retry=1,record_command=record_command,echo=echo, loglevel=loglevel)
 			md5sum_output = md5.md5(output).hexdigest()
@@ -469,6 +471,7 @@ class ShutIt(object):
 		if congratulations:
 			print '\n\n' + shutit_util.colour('32',congratulations) + '\n'
 		time.sleep(pause)
+		shutit.cfg['build']['ctrlc_passthrough'] = False
 
 
 	def send(self,
