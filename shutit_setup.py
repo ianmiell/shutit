@@ -299,8 +299,8 @@ class ConnDocker(ShutItConnModule):
 			      '\n\n' + shutit_util.colour('32', '\n[Hit return to continue]'))
 			shutit_util.util_raw_input(shutit=shutit)
 		cfg['build']['docker_command'] = ' '.join(docker_command)
-		shutit.log('\n\nCommand being run is:\n\n' + cfg['build']['docker_command'],level=logging.DEBUG)
-		shutit.log('\n\nThis may download the image, please be patient\n\n',level=logging.DEBUG)
+		shutit.log('Command being run is: ' + cfg['build']['docker_command'],level=logging.INFO)
+		shutit.log('This may download the image, please be patient',level=logging.INFO)
 		target_child = pexpect.spawn(docker_command[0], docker_command[1:])
 		expect = ['assword', cfg['expect_prompts']['base_prompt'].strip(), \
 		          'Waiting', 'ulling', 'endpoint', 'Download']
@@ -450,7 +450,7 @@ class ConnSSH(ShutItConnModule):
 				'\n\n' + shutit_util.colour('32', '\n[Hit return to continue]'))
 			shutit_util.util_raw_input(shutit=shutit)
 		cfg['build']['ssh_command'] = ' '.join(ssh_command)
-		shutit.log('\n\nCommand being run is:\n\n' + cfg['build']['ssh_command'],level=logging.DEBUG)
+		shutit.log('Command being run is: ' + cfg['build']['ssh_command'],level=logging.INFO)
 		target_child = pexpect.spawn(ssh_command[0], ssh_command[1:])
 		expect = ['assword', cfg['expect_prompts']['base_prompt'].strip()]
 		res = target_child.expect(expect, 10)
