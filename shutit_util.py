@@ -1347,6 +1347,14 @@ def get_wide_hex(char):
 	return r'\u' + hex(0x10000 + (ord(char[0]) - 0xD800) * 0x400 + (ord(char[1]) - 0xDC00))[2:]
 
 
+# CTRL-\ HANDLING CODE STARTS
+def ctrl_quit_signal_handler(signal, frame):
+	print 'CRTL-\ caught, hard-exiting ShutIt'
+	# TODO: reset terminal?
+	os._exit(1)
+# CTRL-\ HANDLING CODE ENDS
+
+
 # CTRL-C HANDLING CODE STARTS
 in_ctrlc = False
 def ctrlc_background():
@@ -1354,6 +1362,8 @@ def ctrlc_background():
 	in_ctrlc = True
 	time.sleep(1)
 	in_ctrlc = False
+
+
 def ctrl_c_signal_handler(signal, frame):
 	"""CTRL-c signal handler - enters a pause point if it can.
 	"""
@@ -1362,20 +1372,18 @@ def ctrl_c_signal_handler(signal, frame):
 		# Unfortunately we have 'except' blocks catching all exceptions,
 		# so we can't use sys.exit
 		os._exit(1)
-	print '\n' + '*' * 80
-	print "CTRL-c caught"
 	shutit_frame = get_shutit_frame(frame)
 	if shutit_frame:
 		shutit = shutit_frame.f_locals['shutit']
 		if shutit.cfg['build']['ctrlc_passthrough']:
-			# TODO: do this when we want to switch off CTRL-C
+			print 'If in challenge mode, type exit to skip the challenge.'
 			shutit.get_default_child().sendline(r'')
 			return
 		print "You may need to wait for the command to complete for a pause point"
 		shutit.cfg['build']['ctrlc_stop'] = True
-		# TODO: do this when we want to switch off CTRL-C
-		shutit.get_default_child().sendline(r'')
 		return
+	print '\n' + '*' * 80
+	print "CTRL-c caught"
 	print "CTRL-c twice to quit."
 	print '*' * 80
 	t = threading.Thread(target=ctrlc_background)

@@ -826,6 +826,7 @@ def do_interactive_modules(shutit):
 	return errs
 
 signal.signal(signal.SIGINT, shutit_util.ctrl_c_signal_handler)
+signal.signal(signal.SIGQUIT, shutit_util.ctrl_quit_signal_handler)
 
 if __name__ == '__main__':
 	main()

@@ -370,7 +370,7 @@ class ShutIt(object):
 			self.fail('regexps should be list')
 		while retries > 0:
 			retries -= 1
-			output = self.send_and_get_output(send, expect=expect, child=child, retry=1, strip=True,echo=echo, loglevel=loglevel)
+			output = self.send_and_get_output(send, expect=expect, child=child, retry=1, strip=True,echo=echo, loglevel=loglevel, fail_on_empty_before=False)
 			if not not_there:
 				for regexp in regexps:
 					if not shutit_util.check_regexp(regexp):
@@ -394,7 +394,7 @@ class ShutIt(object):
 		return False
 
 
-	def golf(self,
+	def challenge(self,
              task_desc,
              expect=None,
              hints=[],
@@ -452,7 +452,7 @@ class ShutIt(object):
 			if send == 'exit':
 				shutit.cfg['build']['ctrlc_passthrough'] = False
 				return
-			output = self.send_and_get_output(send,child=child,timeout=timeout,retry=1,record_command=record_command,echo=echo, loglevel=loglevel)
+			output = self.send_and_get_output(send,child=child,timeout=timeout,retry=1,record_command=record_command,echo=echo, loglevel=loglevel, fail_on_empty_before=False)
 			md5sum_output = md5.md5(output).hexdigest()
 			self.log('output: ' + output + '\n is md5sum: ' + md5sum_output,level=logging.DEBUG)
 			if expect_type == 'md5sum':
@@ -473,6 +473,9 @@ class ShutIt(object):
 			print '\n\n' + shutit_util.colour('32',congratulations) + '\n'
 		time.sleep(pause)
 		shutit.cfg['build']['ctrlc_passthrough'] = False
+	# Alternate names
+	practice = challenge
+	golf     = challenge
 
 
 	def send(self,
@@ -1699,7 +1702,7 @@ END_''' + random_id, echo=False,loglevel=loglevel)
 		if not self.file_exists(directory,directory=True):
 			self.fail('ls: directory\n\n' + directory + '\n\ndoes not exist',
 			    throw_exception=False)
-		files = self.send_and_get_output(' ls ' + directory,echo=False, loglevel=loglevel)
+		files = self.send_and_get_output(' ls ' + directory,echo=False, loglevel=loglevel, fail_on_empty_before=False)
 		files = files.split(' ')
 		# cleanout garbage from the terminal - all of this is necessary cause there are
 		# random return characters in the middle of the file names
@@ -1882,8 +1885,8 @@ END_''' + random_id, echo=False,loglevel=loglevel)
 		except Exception:
 			ok=False
 		if not ok:
-			# If we get an exception here, assume we are exiting following a
-			# problem before we have a child.
+			# If we get an exception here, assume we are exiting following a problem before we have a child.
+			print 'Exception caught in pause_point, exiting'
 			sys.exit(1)
 		cfg = self.cfg
 		if (not shutit_util.determine_interactive(self) or cfg['build']['interactive'] < 1 or
@@ -1937,16 +1940,16 @@ END_''' + random_id, echo=False,loglevel=loglevel)
 		"""Input filter for pause point to catch special keystrokes"""
 		# Can get errors with eg up/down chars
 		cfg = self.cfg
+		print 'HERE'
+		print ord(input_string)
 		if len(input_string) == 1:
 			# Picked CTRL-u as the rarest one accepted by terminals.
+			print 'asd'
 			if ord(input_string) == 21:
+				print 'asd1'
 				self.log('\n\nCTRL and u caught, forcing a tag at least\n\n')
-				self.do_repository_work('tagged_by_shutit',
-					password=cfg['host']['password'],
-					docker_executable=cfg['host']['docker_executable'],
-					force=True)
-				self.log('\n\nCommit and tag done\n\nHit CTRL and ] to continue with' +
-					' build. Hit return for a prompt.')
+				self.do_repository_work('tagged_by_shutit', password=cfg['host']['password'], docker_executable=cfg['host']['docker_executable'], force=True)
+				self.log('\n\nCommit and tag done\n\nHit CTRL and ] to continue with build. Hit return for a prompt.')
 		return input_string
 
 
@@ -2034,6 +2037,7 @@ END_''' + random_id, echo=False,loglevel=loglevel)
 	                        note=None,
 	                        record_command=False,
 	                        echo=False,
+	                        fail_on_empty_before=True,
 	                        loglevel=logging.DEBUG):
 		"""Returns the output of a command run. send() is called, and exit is not checked.
 
@@ -2055,7 +2059,7 @@ END_''' + random_id, echo=False,loglevel=loglevel)
 		self.log('Retrieving output from command: ' + send,level=loglevel)
 		# Don't check exit, as that will pollute the output. Also, it's quite likely the
 		# submitted command is intended to fail.
-		self.send(self._get_send_command(send), child=child, expect=expect, check_exit=False, retry=retry, echo=echo, timeout=timeout, record_command=record_command, loglevel=loglevel)
+		self.send(self._get_send_command(send), child=child, expect=expect, check_exit=False, retry=retry, echo=echo, timeout=timeout, record_command=record_command, loglevel=loglevel, fail_on_empty_before=fail_on_empty_before)
 		before = child.before
 		cfg = self.cfg
 		try:
