@@ -450,9 +450,9 @@ class ShutIt(object):
 				time.sleep(pause)
 				continue
 			if send in ('shutitreset'):
-				challenge_done(result='reset',follow_on_context=follow_on_context)
+				self.challenge_done(result='reset',follow_on_context=follow_on_context)
 			if send == 'exit':
-				challenge_done(result='exited',follow_on_context=follow_on_context)
+				self.challenge_done(result='exited',follow_on_context=follow_on_context)
 				return
 			output = self.send_and_get_output(send,child=child,timeout=timeout,retry=1,record_command=record_command,echo=echo, loglevel=loglevel, fail_on_empty_before=False)
 			md5sum_output = md5.md5(output).hexdigest()
@@ -2552,7 +2552,7 @@ END_''' + random_id, echo=False,loglevel=loglevel)
 		# Set the cols value, as unpleasant escapes are put in the output if the
 		# input is > n chars wide.
 		self.send(
-			(" export SHUTIT_BACKUP_PS1_%s=$PS1 && PS1='%s' && unset PROMPT_COMMAND && stty cols " + str(cfg['build']['stty_cols'])) %
+			(" export SHUTIT_BACKUP_PS1_%s=$PS1 && PS1='%s' && unset PROMPT_COMMAND && stty sane && stty cols " + str(cfg['build']['stty_cols'])) %
 				(prompt_name, local_prompt),
 				# The newline in the list is a hack. On my work laptop this line hangs
 				# and times out very frequently. This workaround seems to work, but I
