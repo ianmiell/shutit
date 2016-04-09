@@ -176,20 +176,13 @@ class ShutIt(object):
 		print >> sys.stderr, 'Error caught: ' + msg
 		print >> sys.stderr
 		if throw_exception:
-			if shutit_util.determine_interactive(self):
-				# TODO: Catch case of where we hit CTRL-D repeatedly here
-				self.pause_point('FAIL: ' + msg)
-			else:
-				raise ShutItFailException(msg)
+			raise ShutItFailException(msg)
 		else:
 			# This is an "OK" failure, ie we don't need to throw an exception.
 			# However, it's still a failure, so return 1
-			if shutit_util.determine_interactive(self):
-				self.pause_point('FAIL: ' + msg)
-			else:
-				print msg
-				print 'Error seen, exiting with status 1'
-				sys.exit(1)
+			print msg
+			print 'Error seen, exiting with status 1'
+			sys.exit(1)
 
 
 	def log(self, msg, code=None, add_final_message=False, level=logging.INFO):
@@ -648,7 +641,7 @@ $'"""
 							fname = self._create_command_file(child,expect,escaped_str,timeout)
 							res = self.send(fname,expect=expect,child=child,timeout=timeout,check_exit=check_exit,fail_on_empty_before=False,record_command=False,exit_values=exit_values,echo=False,escape=False,retry=retry,loglevel=loglevel)
 							child.sendline('rm -f ' + fname)
-							child.expect(expect)
+							self.child_expect(child,expect)
 							return res
 						else:
 							child.sendline(escaped_str)
@@ -661,7 +654,7 @@ $'"""
 							fname = self._create_command_file(child,expect,send,timeout)
 							res = self.send(fname,expect=expect,child=child,timeout=timeout,check_exit=check_exit,fail_on_empty_before=False,record_command=False,exit_values=exit_values,echo=False,escape=False,retry=retry,loglevel=loglevel)
 							child.sendline('rm -f ' + fname)
-							child.expect(expect)
+							self.child_expect(child,expect)
 							return res
 						else:
 							child.sendline(send)
@@ -676,7 +669,7 @@ $'"""
 							fname = self._create_command_file(child,expect,escaped_str,timeout)
 							res = self.send(fname,expect=expect,child=child,timeout=timeout,check_exit=check_exit,fail_on_empty_before=False,record_command=False,exit_values=exit_values,echo=False,escape=False,retry=retry,loglevel=loglevel)
 							child.sendline('rm -f ' + fname)
-							child.expect(expect)
+							self.child_expect(child,expect)
 							return res
 						else:
 							child.sendline(escaped_str)
@@ -689,7 +682,7 @@ $'"""
 							fname = self._create_command_file(child,expect,send,timeout)
 							res = self.send(fname,expect=expect,child=child,timeout=timeout,check_exit=check_exit,fail_on_empty_before=False,record_command=False,exit_values=exit_values,echo=False,escape=False,retry=retry,loglevel=loglevel)
 							child.sendline('rm -f ' + fname)
-							child.expect(expect)
+							self.child_expect(child,expect)
 							return res
 						else:
 							if echo:
@@ -700,13 +693,17 @@ $'"""
 								self.divert_output(None)
 					else:
 						expect_res = self._expect_allow_interrupt(child, expect, timeout)
-			logged_output = ''.join((child.before + child.after).split('\n'))
-			logged_output = logged_output.replace(send,'',1)
-			logged_output = logged_output.replace('\r','')
-			logged_output = logged_output[:30] + ' [...]'
-			self.log('Output: ' + logged_output,level=loglevel)
-			self.log('\nchild.before>>>' + child.before + '<<<',level=logging.DEBUG,code=31)
-			self.log('\nchild.after>>>' + child.after + '<<<',level=logging.DEBUG,code=32)
+			# Handles 'cannot concatenate 'str' and 'type' objects' errors
+			try:
+				logged_output = ''.join((child.before + child.after).split('\n'))
+				logged_output = logged_output.replace(send,'',1)
+				logged_output = logged_output.replace('\r','')
+				logged_output = logged_output[:30] + ' [...]'
+				self.log('Output: ' + logged_output,level=loglevel)
+				self.log('\nchild.before>>>' + child.before + '<<<',level=logging.DEBUG,code=31)
+				self.log('\nchild.after>>>' + child.after + '<<<',level=logging.DEBUG,code=32)
+			except:
+				pass
 			if fail_on_empty_before == True:
 				if child.before.strip() == '':
 					self.fail('before empty after sending: ' + str(send) +
@@ -803,7 +800,7 @@ $'"""
 			iteration_s = 1
 		timed_out = True
 		while accum_timeout < timeout:
-			res = child.expect(expect + [pexpect.TIMEOUT], timeout=iteration_s)
+			res = self.child_expect(child, expect, timeout=iteration_s)
 			if res == len(expect):
 				if shutit.cfg['build']['ctrlc_stop']:
 					timed_out = False
@@ -818,10 +815,10 @@ $'"""
 		else:
 			if shutit_util.determine_interactive(self):
 				child.send('\x03')
-				res = child.expect(expect + [pexpect.TIMEOUT],timeout=1)
+				res = self.child_expect(child, expect,timeout=1)
 				if res == len(expect):
 					child.send('\x1a')
-					res = child.expect(expect + [pexpect.TIMEOUT],timeout=1)
+					res = self.child_expect(child,expect,timeout=1)
 					if res == len(expect):
 						self.fail('CTRL-C sent by ShutIt following a timeout, and could not recover')
 				self.pause_point('CTRL-C sent by ShutIt following a timeout; the command has been cancelled',child=child)
@@ -854,7 +851,7 @@ $'"""
 		fname = cfg['build']['shutit_state_dir_base'] + '/tmp_' + random_id
 		working_str = send
 		child.sendline('truncate --size 0 '+ fname)
-		child.expect(expect)
+		self.child_expect(child,expect)
 		size = cfg['build']['stty_cols'] - 25
 		while len(working_str) > 0:
 			curr_str = working_str[:size]
@@ -862,9 +859,9 @@ $'"""
 			child.sendline(self._get_command('head') + ''' -c -1 >> ''' + fname + """ << 'END_""" + random_id + """'
 """ + curr_str + """
 END_""" + random_id)
-			child.expect(expect)
+			self.child_expect(child,expect)
 		child.sendline('chmod +x ' + fname)
-		child.expect(expect)
+		self.child_expect(child,expect)
 		return fname
 		
 
@@ -890,23 +887,17 @@ END_""" + random_id)
 		# Don't use send here (will mess up last_output)!
 		# Space before "echo" here is sic - we don't need this to show up in bash history
 		child.sendline(' echo EXIT_CODE:$?')
-		child.expect(expect)
-		res = self.match_string(child.before,
-			'^EXIT_CODE:([0-9][0-9]?[0-9]?)$')
+		self.child_expect(child,expect)
+		res = self.match_string(child.before, '^EXIT_CODE:([0-9][0-9]?[0-9]?)$')
 		if res == None:
 			# Try after - for some reason needed after login
-			res = self.match_string(child.after,
-				'^EXIT_CODE:([0-9][0-9]?[0-9]?)$')
+			res = self.match_string(child.after, '^EXIT_CODE:([0-9][0-9]?[0-9]?)$')
 		if res not in exit_values or res == None:
 			if res == None:
 				res = str(res)
-			self.log('child.after: \n' + child.after + '\n', level=logging.DEBUG)
+			self.log('child.after: \n' + str(child.after) + '\n', level=logging.DEBUG)
 			self.log('Exit value from command:\n' + str(send) + '\nwas:\n' + res, level=logging.DEBUG)
-			msg = ('\nWARNING: command:\n' + send +
-				  '\nreturned unaccepted exit code: ' +
-				  res +
-				  '\nIf this is expected, pass in check_exit=False or ' +
-				  'an exit_values array into the send function call.')
+			msg = ('\nWARNING: command:\n' + send + '\nreturned unaccepted exit code: ' + res + '\nIf this is expected, pass in check_exit=False or an exit_values array into the send function call.')
 			cfg['build']['report'] = cfg['build']['report'] + msg
 			if retbool:
 				return False
@@ -1653,7 +1644,7 @@ END_''' + random_id, echo=False,loglevel=loglevel)
 		if ret:
 			exists = True
 		# sync with the prompt
-		child.expect(expect)
+		self.child_expect(child,expect)
 		self._handle_note_after(note=note)
 		return exists
 
@@ -1938,18 +1929,13 @@ END_''' + random_id, echo=False,loglevel=loglevel)
 			if print_input:
 				if resize:
 					if default_msg == None and not cfg['build']['video']:
-						print (shutit_util.colour(colour,'\nPause point:\n' +
-							'resize==True, so attempting to resize terminal.\n\n' +
-							'If you are not at a shell prompt when calling pause_point, then pass in resize=False.'))
+						print (shutit_util.colour(colour,'\nPause point:\nresize==True, so attempting to resize terminal.\n\nIf you are not at a shell prompt when calling pause_point, then pass in resize=False.'))
 					self.send_host_file('/tmp/resize',self.shutit_main_dir+'resize', child=child, loglevel=loglevel)
 					self.send(' chmod 755 /tmp/resize', echo=False,loglevel=loglevel)
 					child.sendline(' sleep 2 && /tmp/resize')
 				if default_msg == None:
 					if not cfg['build']['video']:
-						pp_msg = shutit_util.colour(colour,'\nYou can now type in commands and ' +
-							'alter the state of the target.\nHit return to see the ' +
-							'prompt\nHit CTRL and ] at the same time to continue with ' +
-							'build\n')
+						pp_msg = shutit_util.colour(colour,'\nYou can now type in commands and alter the state of the target.\nHit return to see the prompt\nHit CTRL and ] at the same time to continue with build\n')
 						if cfg['build']['delivery'] == 'docker':
 							pp_msg += '\nHit CTRL and u to save the state to a docker image\n'
 						print '\n' + (shutit_util.colour(colour, msg) + shutit_util.colour(colour,pp_msg))
@@ -1959,11 +1945,13 @@ END_''' + random_id, echo=False,loglevel=loglevel)
 					print shutit_util.colour(colour, msg) + '\n' + default_msg + '\n'
 				oldlog = child.logfile_send
 				child.logfile_send = None
+				# Just hit return to show we have a shell, echo the prompt, and suppress logging.
+				self.send('',fail_on_empty_before=False,echo=True,loglevel=0)
 				if wait < 0:
 					try:
 						child.interact(input_filter=self._pause_input_filter)
 					except Exception as e:
-						self.fail('Failed to interact, probably because this is run non-interactively,\nor was previously CTRL-C\'d\n' + str(e))
+						self.fail('Failed to interact, quitting.\n' + str(e))
 				else:
 					time.sleep(wait)
 				child.logfile_send = oldlog
@@ -2007,6 +1995,8 @@ END_''' + random_id, echo=False,loglevel=loglevel)
 		else returns matching group (ie non-None)
 		"""
 		cfg = self.cfg
+		if type(string) != str:
+			return None
 		lines = string.split('\r\n')
 		# sometimes they're separated by just a carriage return...
 		new_lines = []
@@ -2173,7 +2163,7 @@ END_''' + random_id, echo=False,loglevel=loglevel)
 		whoiam = self.whoami()
 		if whoiam != 'root' and install_type != 'brew':
 			if not self.command_available('sudo',child=child,expect=expect):
-				self.pause_point('Please install sudo and then continue with CTRL-]',child=child,expect=expect)
+				self.pause_point('Please install sudo and then continue with CTRL-]',child=child)
 			cmd = 'sudo '
 			pw = self.get_env_pass(whoiam,'Please input your sudo password in case it is needed (for user: ' + whoiam + ')\nJust hit return if you do not want to submit a password.\n')
 		else:
@@ -3242,6 +3232,13 @@ END_''' + random_id, echo=False,loglevel=loglevel)
 		for key in self.pexpect_children.keys():
 			self.pexpect_children[key].logfile_send = output
 			self.pexpect_children[key].logfile_read = output
+
+
+	# Handle child expects, with EOF and TIMEOUT handled
+	def child_expect(self, child, expect, timeout=None):
+		if type(expect) == str:
+			expect = [expect]
+		return child.expect(expect + [pexpect.TIMEOUT] + [pexpect.EOF], timeout=timeout)
 
 
 def init():

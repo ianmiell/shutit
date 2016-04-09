@@ -1352,6 +1352,10 @@ def get_wide_hex(char):
 def ctrl_quit_signal_handler(signal, frame):
 	print 'CRTL-\ caught, hard-exiting ShutIt'
 	# TODO: reset terminal?
+	shutit_frame = get_shutit_frame(frame)
+	if shutit_frame:
+		shutit = shutit_frame.f_locals['shutit']
+		shutit.do_finalize()
 	os._exit(1)
 # CTRL-\ HANDLING CODE ENDS
 
