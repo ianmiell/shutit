@@ -1904,14 +1904,6 @@ $'"""
 					self.send_host_file('/tmp/fixterm',self.shutit_main_dir+'/fixterm/fixterm', child=child, loglevel=loglevel)
 					self.send(' chmod 755 /tmp/fixterm', echo=False,loglevel=loglevel)
 					self.send(' export PROMPT_COMMAND="/tmp/fixterm && unset PROMPT_COMMAND && rm /tmp/fixterm"',loglevel=0)
-					#child.sendline(' sleep 2 && /tmp/fixterm &')
-					#self.send(' cat /tmp/resize')
-					#child.sendline('/tmp/resize')
-					#self.send('',fail_on_empty_before=False)
-					#child.send('history')
-					# From resize source: ESCAPE("7") ESCAPE("[r") ESCAPE("[999;999H") ESCAPE("[6n"), ESCAPE("[18t")
-					#child.sendline(r"echo -ne '\e7\e[r\e[999;999H\e[6n\e[18t' > out")
-					#child.setwinsize(400,400)
 				if default_msg == None:
 					if not cfg['build']['video']:
 						pp_msg = shutit_util.colour(colour,'\nYou can now type in commands and alter the state of the target.\nHit return to see the prompt\nHit CTRL and ] at the same time to continue with build\n')
