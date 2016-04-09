@@ -476,7 +476,7 @@ class ShutIt(object):
 			if not ok and failed:
 				print '\n\n' + shutit_util.colour('32','failed') + '\n'
 				self.challenge_done(result='failed')
-				return
+				continue
 	# Alternate names
 	practice = challenge
 	golf     = challenge
