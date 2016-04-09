@@ -1954,6 +1954,7 @@ END_''' + random_id, echo=False,loglevel=loglevel)
 						self.fail('Failed to interact, quitting.\n' + str(e))
 				else:
 					time.sleep(wait)
+				self.log('CTRL-] caught, continuing with run...',logging.INFO)
 				child.logfile_send = oldlog
 			else:
 				pass
