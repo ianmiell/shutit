@@ -176,8 +176,7 @@ def finalize_target(shutit):
 	"""Finalize the target using the core finalize method.
 	"""
 	cfg = shutit.cfg
-	shutit.pause_point('\nFinalizing the target module (' +
-		shutit.shutit_main_dir + '/shutit_setup.py)', print_input=False, level=3)
+	shutit.pause_point('\nFinalizing the target module (' + shutit.shutit_main_dir + '/shutit_setup.py)', print_input=False, level=3)
 	# Can assume conn_module exists at this point
 	for mod in shutit.conn_modules:
 		if mod.module_id == cfg['build']['conn_module']:
@@ -492,9 +491,7 @@ def do_finalize(shutit):
 	# Finalize in reverse order
 	shutit.log('PHASE: finalize', level=logging.DEBUG)
 	if cfg['build']['interactive'] >= 3:
-		print('\nNow doing finalize phase, which we do when all builds are ' +
-		      'complete and modules are stopped' +
-		      shutit_util.colour('32', '\n\n[Hit return to continue]\n'))
+		print('\nNow doing finalize phase, which we do when all builds are ' + 'complete and modules are stopped' + shutit_util.colour('32', '\n\n[Hit return to continue]\n'))
 		shutit_util.util_raw_input(shutit=shutit)
 	# Login at least once to get the exports.
 	for module_id in shutit_util.module_ids(shutit, rev=True):

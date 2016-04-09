@@ -124,16 +124,13 @@ class ShutItModule(object):
 	"""
 	__metaclass__ = ShutItMeta
 
-	def __init__(self, module_id, run_order,
-	             description='', maintainer='', depends=None, conflicts=None,
-	             delivery_methods=[]):
+	def __init__(self, module_id, run_order, description='', maintainer='', depends=None, conflicts=None, delivery_methods=[]):
 		"""Constructor.
 		Sets up module_id, run_order, deps and conflicts.
 		Also checks types for safety.
 		"""
 		# Module id for the module (a string).
-		# Following the Java standard is recommended,
-		# eg 'com.bigcorp.project.alpha.mymodule'
+		# Following the Java standard is recommended, eg 'com.bigcorp.project.alpha.mymodule'
 		# Duplicate module ids are rejected if within the configured
 		# shutit_module_path.
 		self.module_id = module_id
@@ -232,10 +229,7 @@ class ShutItModule(object):
 
 	@abstractmethod
 	def build(self, shutit):
-		"""Runs the build part of the module, which should ensure the module
-		has been set up.
-		If is_installed determines that the module is already there,
-		this is not run.
+		"""Runs the build part of the module, which should ensure the module has been set up.  If is_installed determines that the module is already there, this is not run.
 		
 		Returns True if it has succeeded in building, else False.
 		

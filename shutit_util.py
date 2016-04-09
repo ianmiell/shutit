@@ -213,7 +213,8 @@ def find_asset(filename):
 		        shutit_global.shutit_main_dir,
 		        os.path.join(shutit_global.shutit_main_dir,'../../..'),
 		        shutit_global.shutit.cfg['host']['shutit_path'],
-		        '/usr/local']
+		        '/usr/local'
+		       ]
 		dirs = dirs + sys.path
 	else:
 		dirs = ['/usr/share/dict' + '/' + head,
@@ -222,7 +223,8 @@ def find_asset(filename):
 		        shutit_global.shutit_main_dir + '/' + head,
 		        os.path.join(shutit_global.shutit_main_dir,'../../..') + '/' + head,
 		        shutit_global.shutit.cfg['host']['shutit_path'] + '/' + head,
-		        '/usr/local' + '/' + head]
+		        '/usr/local' + '/' + head
+		       ]
 		dirs = dirs + sys.path
 	for iter_dir in dirs:
 		if os.access(os.path.join(iter_dir,filename),os.F_OK):
@@ -573,11 +575,7 @@ vagrant_multinode: a vagrant multinode setup
 	if not os.path.isdir(shutit_home):
 		os.mkdir(shutit_home, 0o700)
 	if not os.path.isfile(os.path.join(shutit_home, 'config')):
-		f = os.open(
-			os.path.join(shutit_home, 'config'),
-			os.O_WRONLY | os.O_CREAT,
-			0o600
-		)
+		f = os.open(os.path.join(shutit_home, 'config'), os.O_WRONLY | os.O_CREAT, 0o600)
 		os.write(f,_default_cnf)
 		os.close(f)
 
@@ -776,8 +774,7 @@ def load_configs(shutit):
 	# Get root default config.
 	configs = [('defaults', StringIO.StringIO(_default_cnf))]
 	# Add the shutit global host- and user-specific config file.
-	configs.append(os.path.join(shutit.shutit_main_dir,
-		'configs/' + socket.gethostname() + '_' + cfg['host']['real_user'] + '.cnf'))
+	configs.append(os.path.join(shutit.shutit_main_dir, 'configs/' + socket.gethostname() + '_' + cfg['host']['real_user'] + '.cnf'))
 	configs.append(os.path.join(cfg['shutit_home'], 'config'))
 	# Add the local build.cnf
 	configs.append('configs/build.cnf')
@@ -785,8 +782,7 @@ def load_configs(shutit):
 	for config_file_name in cfg['build']['extra_configs']:
 		run_config_file = os.path.expanduser(config_file_name)
 		if not os.path.isfile(run_config_file):
-			print('Did not recognise ' + run_config_file +
-			      ' as a file - do you need to touch ' + run_config_file + '?')
+			print('Did not recognise ' + run_config_file + ' as a file - do you need to touch ' + run_config_file + '?')
 			sys.exit()
 		configs.append(run_config_file)
 	# Image to use to start off. The script should be idempotent, so running it
@@ -1046,9 +1042,7 @@ def load_mod_from_file(shutit, fpath):
 	if not ok:
 		shutit.log('Rejected file: ' + fpath,level=logging.INFO)
 		return
-	# Note that this attribute will only be set for 'new style' module loading,
-	# this should be ok because 'old style' loading checks for duplicate
-	# existing modules.
+	# Note that this attribute will only be set for 'new style' module loading, # this should be ok because 'old style' loading checks for duplicate # existing modules.
 	# TODO: this is quadratic complexity
 	existingmodules = [
 		m for m in shutit.shutit_modules
@@ -1374,8 +1368,7 @@ def ctrl_c_signal_handler(signal, frame):
 	"""
 	if in_ctrlc:
 		print "CTRL-c quit!"
-		# Unfortunately we have 'except' blocks catching all exceptions,
-		# so we can't use sys.exit
+		# Unfortunately we have 'except' blocks catching all exceptions, so we can't use sys.exit
 		os._exit(1)
 	shutit_frame = get_shutit_frame(frame)
 	if shutit_frame:
@@ -1817,9 +1810,7 @@ def module_ids(shutit, rev=False):
 		return ids
 
 def allowed_module_ids(shutit, rev=False):
-	"""Gets a list of module ids that are allowed to be run,
-	guaranteed to be sorted by run_order, ignoring conn modules
-	(run order < 0).
+	"""Gets a list of module ids that are allowed to be run, guaranteed to be sorted by run_order, ignoring conn modules (run order < 0).
 	"""
 	module_ids_list = module_ids(shutit,rev)
 	allowed_module_ids = []
@@ -1837,11 +1828,7 @@ def print_modules(shutit):
 	string = string + 'Modules: \n'
 	string = string + '    Run order    Build    Remove    Module ID\n'
 	for module_id in module_ids(shutit):
-		string = string + ('    ' + str(shutit.shutit_map[module_id].run_order) +
-		                   '        ' +
-		                   str(cfg[module_id]['shutit.core.module.build']) + '    ' +
-		                   str(cfg[module_id]['shutit.core.module.remove']) + '    ' +
-		                   module_id + '\n')
+		string = string + ('    ' + str(shutit.shutit_map[module_id].run_order) + '        ' + str(cfg[module_id]['shutit.core.module.build']) + '    ' + str(cfg[module_id]['shutit.core.module.remove']) + '    ' + module_id + '\n')
 	return string
 
 
@@ -1877,8 +1864,7 @@ def config_collection(shutit):
 							value = config_parser.get(section,option)
 							if option == 'shutit.core.module.allowed_images':
 								value = json.loads(value)
-							shutit.get_config(module_id, option,
-							                  value, forcedefault=True)
+							shutit.get_config(module_id, option, value, forcedefault=True)
 		# ifneeded will (by default) only take effect if 'build' is not
 		# specified. It can, however, be forced to a value, but this
 		# should be unusual.
@@ -1890,9 +1876,7 @@ def config_collection(shutit):
 
 
 def disallowed_module_ids(shutit, rev=False):
-	"""Gets a list of disallowed module ids that are not allowed to be run,
-	guaranteed to be sorted by run_order, ignoring conn modules
-	(run order < 0).
+	"""Gets a list of disallowed module ids that are not allowed to be run, guaranteed to be sorted by run_order, ignoring conn modules (run order < 0).
 	"""
 	module_ids_list = module_ids(shutit,rev)
 	disallowed_module_ids = []
@@ -1903,8 +1887,7 @@ def disallowed_module_ids(shutit, rev=False):
 
 
 def is_to_be_built_or_is_installed(shutit, shutit_module_obj):
-	"""Returns true if this module is configured to be built,
-	or if it is already installed.
+	"""Returns true if this module is configured to be built, or if it is already installed.
 	"""
 	cfg = shutit.cfg
 	if cfg[shutit_module_obj.module_id]['shutit.core.module.build']:
@@ -1951,8 +1934,7 @@ def config_collection_for_built(shutit,throw_error=True,silent=False):
 								value = config_parser.get(section,option)
 							if option == 'shutit.core.module.allowed_images':
 								value = json.loads(value)
-							shutit.get_config(module_id, option,
-							                  value, forcedefault=True)
+							shutit.get_config(module_id, option, value, forcedefault=True)
 	# Check the allowed_images against the base_image
 	passed = True
 	for module_id in module_ids(shutit):
@@ -1962,13 +1944,7 @@ def config_collection_for_built(shutit,throw_error=True,silent=False):
 			if not allowed_image(shutit,module_id):
 				passed = False
 				if not silent:
-					print('\n\nWARNING!\n\nAllowed images for ' + module_id + ' are: ' +
-					      str(cfg[module_id]['shutit.core.module.allowed_images']) +
-					      ' but the configured image is: ' +
-					      cfg['target']['docker_image'] +
-					      '\n\nIs your shutit_module_path set correctly?' +
-					      '\n\nIf you want to ignore this, ' + 
-					      'pass in the --ignoreimage flag to shutit.\n\n')
+					print('\n\nWARNING!\n\nAllowed images for ' + module_id + ' are: ' + str(cfg[module_id]['shutit.core.module.allowed_images']) + ' but the configured image is: ' + cfg['target']['docker_image'] + '\n\nIs your shutit_module_path set correctly?\n\nIf you want to ignore this, pass in the --ignoreimage flag to shutit.\n\n')
 	if not passed:
 		if not throw_error:
 			return False

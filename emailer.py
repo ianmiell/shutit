@@ -57,11 +57,7 @@ class Emailer():
 	""" Emailer class definition
 	"""
 
-	def __init__(
-		self,
-		cfg_section,
-		shutit
-	):
+	def __init__( self, cfg_section, shutit):
 		"""Initialise the emailer object
 		cfg_section - section in shutit config to look for email configuration items, allowing easier config according to shutit_module.
 		e.g. 'com.my_module','shutit.core.alerting.emailer.subject': My Module Build Failed!
@@ -141,16 +137,10 @@ class Emailer():
 		"""
 		use_tls = self.config['shutit.core.alerting.emailer.use_tls']
 		if use_tls:
-			smtp = SMTP(
-				self.config['shutit.core.alerting.emailer.smtp_server'],
-				self.config['shutit.core.alerting.emailer.smtp_port']
-			)
+			smtp = SMTP(self.config['shutit.core.alerting.emailer.smtp_server'], self.config['shutit.core.alerting.emailer.smtp_port'])
 			smtp.starttls()
 		else:
-			smtp = SMTP_SSL(
-				self.config['shutit.core.alerting.emailer.smtp_server'],
-				self.config['shutit.core.alerting.emailer.smtp_port']
-			)
+			smtp = SMTP_SSL(self.config['shutit.core.alerting.emailer.smtp_server'], self.config['shutit.core.alerting.emailer.smtp_port'])
 		return smtp
 
 	def add_line(self, line):
@@ -180,11 +170,7 @@ class Emailer():
 		file_pointer = open(host_fn, 'rb')
 		attach = MIMEApplication(file_pointer.read(), _subtype=filetype)
 		file_pointer.close()
-		attach.add_header(
-			'Content-Disposition',
-			'attachment',
-			filename=os.path.basename(filename)
-		)
+		attach.add_header('Content-Disposition', 'attachment', filename=os.path.basename(filename))
 		self.attaches.append(attach)
 
 	def __compose(self):
@@ -215,10 +201,7 @@ class Emailer():
 		   Should not be used externally
 		"""
 		if not self.config['shutit.core.alerting.emailer.send_mail']:
-			self.shutit.log(
-				'emailer.send: Not configured to send mail!',
-				force_stdout=True
-			)
+			self.shutit.log('emailer.send: Not configured to send mail!', force_stdout=True)
 			return True
 		msg = self.__compose()
 		mailto = [self.config['shutit.core.alerting.emailer.mailto']]
@@ -229,34 +212,20 @@ class Emailer():
 			mailto.append(self.config['shutit.core.alerting.emailer.maintainer'])
 		try:
 			self.shutit.log('Attempting to send email', force_stdout=True)
-			smtp.sendmail(
-				self.config['shutit.core.alerting.emailer.mailfrom'],
-				mailto,
-				msg.as_string()
-			)
+			smtp.sendmail(self.config['shutit.core.alerting.emailer.mailfrom'], mailto, msg.as_string())
 		except SMTPSenderRefused as refused:
 			code = refused.args[0]
 			if code == 552 and not attachment_failure:
-				self.shutit.log(
-					"Mailserver rejected message due to " + \
-					"oversize attachments, attempting to resend without",
-					force_stdout=True
-				)
+				self.shutit.log("Mailserver rejected message due to " + "oversize attachments, attempting to resend without", force_stdout=True)
 				self.attaches = []
 				self.lines.append("Oversized attachments not sent")
 				self.send(attachment_failure=True)
 			else:
-				self.shutit.log(
-					"Unhandled SMTP error:" + str(refused),
-					force_stdout=True
-				)
+				self.shutit.log("Unhandled SMTP error:" + str(refused), force_stdout=True)
 				if not self.config['shutit.core.alerting.emailer.safe_mode']:
 					raise refused
 		except Exception as error:
-			self.shutit.log(
-				'Unhandled exception: ' + str(error),
-				force_stdout=True
-			)
+			self.shutit.log('Unhandled exception: ' + str(error), force_stdout=True)
 			if not self.config['shutit.core.alerting.emailer.safe_mode']:
 				raise error
 		finally:

@@ -2,9 +2,9 @@
 shutit.tk.setup (core ShutIt setup module)
 
 Nomenclature:
-    - Host machine: Machine on which this pexpect script is run.
-    - Target:       Environment on which we deploy (docker container, ssh, or bash shell)
-    - Container:    Docker container created to run the modules on.
+    - Host machine:   Machine on which this script is run.
+    - Target:         Environment to which we deploy (docker container, ssh, or bash shell)
+    - Container:      Docker container created to run the modules on.
 
     - target_child    pexpect-spawned child created to build on target
     - host_child      pexpect spawned child living on the host machine
@@ -96,8 +96,7 @@ class ShutItConnModule(ShutItModule):
 			if cfg['build']['loglevel'] <= logging.DEBUG:
 				shutit.send_file(cfg['build']['build_db_dir'] + '/' + cfg['build']['build_id'] + '/python_env.sh', str(sys.__dict__), loglevel=loglevel)
 				shutit.send_file(cfg['build']['build_db_dir'] + '/' + cfg['build']['build_id'] + '/command.sh', ' '.join(command), loglevel=loglevel)
-		shutit.pause_point('Anything you want to do now the ' +
-		    'target is connected to?', level=2)
+		shutit.pause_point('Anything you want to do now the target is connected to?', level=2)
 
 	def _add_end_build_info(self, shutit, loglevel=logging.DEBUG):
 		cfg = shutit.cfg
@@ -145,12 +144,10 @@ class ConnDocker(ShutItConnModule):
 		fail_msg = ''
 		try:
 			shutit.log('Running: ' + str_cmd,level=logging.DEBUG)
-			child = pexpect.spawn(check_cmd[0], check_cmd[1:],
-			timeout=cmd_timeout)
+			child = pexpect.spawn(check_cmd[0], check_cmd[1:], timeout=cmd_timeout)
 		except pexpect.ExceptionPexpect:
 			msg = ('Failed to run %s (not sure why this has happened)...try a different docker executable?') % (str_cmd,)
-			cfg['host']['docker_executable'] = shutit.prompt_cfg(msg,
-			    'host', 'docker_executable')
+			cfg['host']['docker_executable'] = shutit.prompt_cfg(msg, 'host', 'docker_executable')
 			return False
 		try:
 			if shutit.child_expect(child,'assword') == 0:
@@ -447,18 +444,9 @@ def conn_module():
 	"""Connects ShutIt to something
 	"""
 	return [
-		ConnDocker(
-			'shutit.tk.conn_docker', -0.1,
-			description='Connect ShutIt to docker'
-		),
-		ConnSSH(
-			'shutit.tk.conn_ssh', -0.1,
-			description='Connect ShutIt to a host via ssh'
-		),
-		ConnBash(
-			'shutit.tk.conn_bash', -0.1,
-			description='Connect ShutIt to a host via bash'
-		),
+		ConnDocker('shutit.tk.conn_docker', -0.1, description='Connect ShutIt to docker'),
+		ConnSSH('shutit.tk.conn_ssh', -0.1, description='Connect ShutIt to a host via ssh'),
+		ConnBash('shutit.tk.conn_bash', -0.1, description='Connect ShutIt to a host via bash'),
 	]
 
 
