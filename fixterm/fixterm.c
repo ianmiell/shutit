@@ -14,7 +14,6 @@ struct termio old_term;
 void set_raw() {
     struct termio new_term;
     if (ioctl(1, TCGETA, &old_term) == -1) {
-        fprintf(stderr, "error: cannot get tty status\n");
         exit(10);
     }
     memcpy(&new_term, &old_term, sizeof(struct termio));
@@ -22,43 +21,30 @@ void set_raw() {
     new_term.c_cc[VMIN] = 0;
     new_term.c_cc[VTIME] = 0;
     if (ioctl(1, TCSETA, &new_term) == -1) {
-        fprintf(stderr, "error: cannot put terminal in raw mode\n");
-        exit(10);
+        exit(11);
     }
 }
 
 void set_cooked() {
     if (ioctl(1, TCSETA, &old_term) == -1) {
-        fprintf(stderr, "error: cannot return terminal to cooked mode\n");
-        exit(10);
+        exit(12);
     }
 }
 
 void set_window_size(int w, int h) {
     struct winsize ws;
     if (ioctl(1, TIOCGWINSZ, &ws) == -1) {
-        fprintf(
-            stderr,
-            "error: cannot query the terminal's current notion of its "
-            "window size\n"
-        );
         set_cooked();
-        exit(10);
+        exit(13);
     }
     ws.ws_col = w;
     ws.ws_row = h;
     if (ioctl(1, TIOCSWINSZ, &ws) == -1) {
-        fprintf(stderr, "error: cannot set the window size\n");
         set_cooked();
-        exit(10);
+        exit(14);
     }
 }
 void handle_alarm(int x) {
-    fprintf(
-        stderr,
-        "error: timeout while waiting for a response from your "
-        "terminal.\n"
-    );
     set_cooked();
     exit(2);
 }
@@ -151,7 +137,6 @@ int main(int argc, char **argv) {
         width = params[2];
     } else {
         set_cooked();
-        fprintf(stderr, "error: received unexpected parameters.\n");
         exit(13);
     }
     set_window_size(width, height);
@@ -159,16 +144,5 @@ int main(int argc, char **argv) {
     exit(0);
 parse_error:
     set_cooked();
-    if (buffer == bp) {
-        fprintf(
-            stderr,
-            "error: no response received from your terminal.\n"
-        );
-    } else {
-        fprintf(
-            stderr,
-            "error: cannot parse the response from your terminal.\n"
-        );
-    }
     exit(1);
 }
