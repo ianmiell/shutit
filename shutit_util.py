@@ -158,7 +158,7 @@ def get_configs(shutit, configs):
 			fail_str = 'Files are not secure, mode should be 0600. Running the following commands to correct:\n' + fail_str + '\n'
 			# Actually show this to the user before failing...
 			shutit.log(fail_str)
-			shutit.log('\nDo you want me to run this for you? (input y/n)')
+			shutit.log('Do you want me to run this for you? (input y/n)')
 			if cfg['build']['interactive'] == 0 or util_raw_input(shutit=shutit,default='y') == 'y':
 				for f in files:
 					shutit.log('Correcting insecure file permissions on: ' + f)
@@ -1368,23 +1368,20 @@ def ctrl_c_signal_handler(signal, frame):
 	"""CTRL-c signal handler - enters a pause point if it can.
 	"""
 	if in_ctrlc:
-		print "CTRL-c quit!"
 		# Unfortunately we have 'except' blocks catching all exceptions, so we can't use sys.exit
 		os._exit(1)
 	shutit_frame = get_shutit_frame(frame)
 	if shutit_frame:
 		shutit = shutit_frame.f_locals['shutit']
 		if shutit.cfg['build']['ctrlc_passthrough']:
-			print 'If in challenge mode, type exit to skip the challenge.'
 			shutit.get_default_child().sendline(r'')
 			return
-		print "You may need to wait for the command to complete for a pause point"
+		print colour(31,"\rYou may need to wait for a command to complete before a pause point is available. Alternatively, CTRL-\ to quit.")
 		shutit.cfg['build']['ctrlc_stop'] = True
 		return
-	print '\n' + '*' * 80
-	print "CTRL-c caught"
-	print "CTRL-c twice to quit."
-	print '*' * 80
+	print colour(31,'\n' + '*' * 80)
+	print colour(31,"CTRL-c caught, CTRL-c twice to quit.")
+	print colour(31,'*' * 80)
 	t = threading.Thread(target=ctrlc_background)
 	t.daemon = True
 	t.start()
@@ -1904,8 +1901,7 @@ def config_collection_for_built(shutit,throw_error=True,silent=False):
 	shutit.log('In config_collection_for_built',level=logging.DEBUG)
 	cfg = shutit.cfg
 	for module_id in module_ids(shutit):
-		# Get the config even if installed or building (may be needed in other
-		# hooks, eg test).
+		# Get the config even if installed or building (may be needed in other hooks, eg test).
 		if (is_to_be_built_or_is_installed(shutit, shutit.shutit_map[module_id]) and
 			not shutit.shutit_map[module_id].get_config(shutit)):
 				shutit.fail(module_id + ' failed on get_config')

@@ -355,8 +355,8 @@ class ShutIt(object):
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
 		cfg = self.cfg
-		self._handle_note(note, command=send + '\n\nUntil one of these seen:' + str(regexps))
-		self.log('Sending: "' + send + '" until one of these regexps seen:' + str(regexps),level=loglevel)
+		self._handle_note(note, command=send + ' until one of these seen: ' + str(regexps))
+		self.log('Sending: "' + send + '" until one of these regexps seen: ' + str(regexps),level=loglevel)
 		if type(regexps) == str:
 			regexps = [regexps]
 		if type(regexps) != list:
@@ -461,7 +461,7 @@ class ShutIt(object):
 					return
 				output = self.send_and_get_output(send,child=child,timeout=timeout,retry=1,record_command=record_command,echo=echo, loglevel=loglevel, fail_on_empty_before=False)
 				md5sum_output = md5.md5(output).hexdigest()
-				self.log('output: ' + output + '\n is md5sum: ' + md5sum_output,level=logging.DEBUG)
+				self.log('output: ' + output + ' is md5sum: ' + md5sum_output,level=logging.DEBUG)
 				if expect_type == 'md5sum':
 					output = md5sum_output
 					if output == expect:
@@ -639,7 +639,7 @@ class ShutIt(object):
 $'"""
 						_count = 0
 				escaped_str += "'"
-				self.log('\nThis string was sent safely: ' + send, level=logging.DEBUG)
+				self.log('This string was sent safely: ' + send, level=logging.DEBUG)
 			if echo == False:
 				oldlog = child.logfile_send
 				child.logfile_send = None
@@ -709,8 +709,8 @@ $'"""
 				logged_output = logged_output.replace('\r','')
 				logged_output = logged_output[:30] + ' [...]'
 				self.log('Output: ' + logged_output,level=loglevel)
-				self.log('\nchild.before>>>' + child.before + '<<<',level=logging.DEBUG,code=31)
-				self.log('\nchild.after>>>' + child.after + '<<<',level=logging.DEBUG,code=32)
+				self.log('child.before>>>' + child.before + '<<<',level=logging.DEBUG,code=31)
+				self.log('child.after>>>' + child.after + '<<<',level=logging.DEBUG,code=32)
 			except:
 				pass
 			if fail_on_empty_before == True:
@@ -730,7 +730,7 @@ $'"""
 			if check_exit == True:
 				# store the output
 				if not self._check_exit(send, expect, child, timeout, exit_values, retry=retry):
-					self.log('Sending: ' + send + '\nfailed, retrying', level=logging.DEBUG)
+					self.log('Sending: ' + send + ' : failed, retrying', level=logging.DEBUG)
 					retry = retry - 1
 					assert(retry > 0)
 					continue
@@ -812,7 +812,7 @@ $'"""
 			else:
 				return res
 		if timed_out == True and not shutit_util.determine_interactive(self):
-			self.log('\nCommand timed out, trying to get terminal back for you',code=31, level=logging.DEBUG)
+			self.log('Command timed out, trying to get terminal back for you',code=31, level=logging.DEBUG)
 			self.fail('Timed out and could not recover')
 		else:
 			if shutit_util.determine_interactive(self):
@@ -895,8 +895,8 @@ $'"""
 		if res not in exit_values or res == None:
 			if res == None:
 				res = str(res)
-			self.log('child.after: \n' + str(child.after) + '\n', level=logging.DEBUG)
-			self.log('Exit value from command:\n' + str(send) + '\nwas:\n' + res, level=logging.DEBUG)
+			self.log('child.after: ' + str(child.after), level=logging.DEBUG)
+			self.log('Exit value from command: ' + str(send) + ' was:' + res, level=logging.DEBUG)
 			msg = ('\nWARNING: command:\n' + send + '\nreturned unaccepted exit code: ' + res + '\nIf this is expected, pass in check_exit=False or an exit_values array into the send function call.')
 			cfg['build']['report'] = cfg['build']['report'] + msg
 			if retbool:
@@ -1076,8 +1076,8 @@ $'"""
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
 		cfg = self.cfg
-		self._handle_note(note, 'Sending file from host: ' + hostfilepath + '\nTo: ' + path)
-		self.log('Sending file from host: ' + hostfilepath + '\nTo: ' + path, level=loglevel)
+		self._handle_note(note, 'Sending file from host: ' + hostfilepath + ' to target path: ' + path)
+		self.log('Sending file from host: ' + hostfilepath + ' to: ' + path, level=loglevel)
 		if user == None:
 			user = self.whoami()
 		if group == None:
@@ -1124,8 +1124,8 @@ $'"""
 		"""
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
-		self._handle_note(note, 'Sending host directory: ' + hostfilepath + '\nTo: ' + path)
-		self.log('Sending host directory: ' + hostfilepath + '\nTo: ' + path, level=logging.INFO)
+		self._handle_note(note, 'Sending host directory: ' + hostfilepath + ' to target path: ' + path)
+		self.log('Sending host directory: ' + hostfilepath + ' to: ' + path, level=logging.INFO)
 		self.send('mkdir -p ' + path, echo=False, loglevel=loglevel)
 		if user == None:
 			user = self.whoami()
@@ -1596,7 +1596,7 @@ $'"""
 				if retry == 0:
 					self._check_exit(send, expect, child, timeout, exit_values, retbool=False)
 				elif not self._check_exit(send, expect, child, timeout, exit_values, retbool=True):
-					self.log('Sending: ' + send + '\nfailed, retrying', level=logging.DEBUG)
+					self.log('Sending: ' + send + ' failed, retrying', level=logging.DEBUG)
 					retry = retry - 1
 					continue
 				# If we get here, all is ok.
@@ -2969,20 +2969,20 @@ $'"""
 			self.pause_point('We are now exporting the container to a bzipped tar file, as configured in\n[repository]\ntar:yes', print_input=False, child=child, level=3)
 			if export:
 				bzfile = (repository_tar + 'export.tar.bz2')
-				self.log('\nDepositing bzip2 of exported container into ' + bzfile,level=logging.DEBUG)
+				self.log('Depositing bzip2 of exported container into ' + bzfile,level=logging.DEBUG)
 				if self.send(docker_executable + ' export ' + cfg['target']['container_id'] + ' | bzip2 - > ' + bzfile, expect=[expect, 'assword'], timeout=99999, child=child, loglevel=loglevel) == 1:
 					self.send(password, expect=expect, child=child, loglevel=loglevel)
-				self.log('\nDeposited bzip2 of exported container into ' + bzfile, level=loglevel)
-				self.log('\nRun:\n\nbunzip2 -c ' + bzfile + ' | sudo docker import -\n\nto get this imported into docker.', level=logging.DEBUG)
+				self.log('Deposited bzip2 of exported container into ' + bzfile, level=loglevel)
+				self.log('Run: bunzip2 -c ' + bzfile + ' | sudo docker import - to get this imported into docker.', level=logging.DEBUG)
 				cfg['build']['report'] += ('\nDeposited bzip2 of exported container into ' + bzfile)
 				cfg['build']['report'] += ('\nRun:\n\nbunzip2 -c ' + bzfile + ' | sudo docker import -\n\nto get this imported into docker.')
 			if save:
 				bzfile = (repository_tar + 'save.tar.bz2')
-				self.log('\nDepositing bzip2 of exported container into ' + bzfile,level=logging.DEBUG)
+				self.log('Depositing bzip2 of exported container into ' + bzfile,level=logging.DEBUG)
 				if self.send(docker_executable + ' save ' + cfg['target']['container_id'] + ' | bzip2 - > ' + bzfile, expect=[expect, 'assword'], timeout=99999, child=child, loglevel=loglevel) == 1:
 					self.send(password, expect=expect, child=child, loglevel=loglevel)
-				self.log('\nDeposited bzip2 of exported container into ' + bzfile, level=logging.DEBUG)
-				self.log('\nRun:\n\nbunzip2 -c ' + bzfile + ' | sudo docker import -\n\nto get this imported into docker.', level=logging.DEBUG)
+				self.log('Deposited bzip2 of exported container into ' + bzfile, level=logging.DEBUG)
+				self.log('Run: bunzip2 -c ' + bzfile + ' | sudo docker import - to get this imported into docker.', level=logging.DEBUG)
 				cfg['build']['report'] += ('\nDeposited bzip2 of exported container into ' + bzfile)
 				cfg['build']['report'] += ('\nRun:\n\nbunzip2 -c ' + bzfile + ' | sudo docker import -\n\nto get this imported into docker.')
 		if cfg['repository']['push'] == True:
