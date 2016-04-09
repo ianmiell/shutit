@@ -172,9 +172,9 @@ class ShutIt(object):
 		# Note: we must not default to a child here
 		if child is not None:
 			self.pause_point('Pause point on fail: ' + msg, child=child, colour='31')
-		print >> sys.stderr, 'Error caught: ' + msg
-		print >> sys.stderr
 		if throw_exception:
+			print >> sys.stderr, 'Error caught: ' + msg
+			print >> sys.stderr
 			raise ShutItFailException(msg)
 		else:
 			# This is an "OK" failure, ie we don't need to throw an exception.
@@ -394,6 +394,7 @@ class ShutIt(object):
                   congratulations='OK',
                   failed='FAILED',
 	              expect_type='exact',
+	              challenge_type='command',
 	              child=None,
 	              timeout=None,
 	              check_exit=None,
@@ -414,68 +415,72 @@ class ShutIt(object):
 		                             ok_container_name    = if passed, send user to this container
 		                             reset_container_name = if resetting, send user to this container
 		"""
-		# TODO: bash path completion
-		# don't catch CTRL-C, pass it through.
-		self.cfg['build']['ctrlc_passthrough'] = True
-		print shutit_util.colour('32','''\nChallenge!''')
-		help_text = shutit_util.colour('32','''\nType 'help' or 'h' to get a hint, 'exit' to skip, 'shutitreset' to reset state.''')
-		child = child or self.get_default_child()
-		if expect_type == 'regexp':
-			if type(expect) == str:
-				expect = [expect]
-			if type(expect) != list:
-				self.fail('expect_regexps should be list')
-		elif expect_type == 'md5sum':
-			pass
-		elif expect_type == 'exact':
-			pass
-		else:
-			self.fail('Must pass either expect_regexps or md5sum in')
-		ok = False
-		while not ok:
-			if len(hints):
-				print shutit_util.colour('32',help_text)
-			time.sleep(pause)
-			send = self.get_input(task_desc + ' => ')
-			if not send or send.strip() == '':
-				continue
-			if send in ('help','h'):
-				if len(hints):
-					print help_text
-					print shutit_util.colour('32',hints.pop(0))
-				else:
-					print help_text
-					print shutit_util.colour('32','No hints left, sorry!')
-				time.sleep(pause)
-				continue
-			if send == 'shutitreset':
-				self.challenge_done(result='reset',follow_on_context=follow_on_context)
-				continue
-			if send == 'shutitquit':
-				self.challenge_done(result='reset',follow_on_context=follow_on_context)
-				sys.exit(1)
-			if send == 'exit':
-				self.challenge_done(result='exited',follow_on_context=follow_on_context)
-				return
-			output = self.send_and_get_output(send,child=child,timeout=timeout,retry=1,record_command=record_command,echo=echo, loglevel=loglevel, fail_on_empty_before=False)
-			md5sum_output = md5.md5(output).hexdigest()
-			self.log('output: ' + output + '\n is md5sum: ' + md5sum_output,level=logging.DEBUG)
-			if expect_type == 'md5sum':
-				output = md5sum_output
-				if output == expect:
-					ok = True
+		if challenge_type == 'command':
+			# TODO: bash path completion
+			# don't catch CTRL-C, pass it through.
+			self.cfg['build']['ctrlc_passthrough'] = True
+			print shutit_util.colour('32','''\nChallenge!''')
+			help_text = shutit_util.colour('32','''\nType 'help' or 'h' to get a hint, 'exit' to skip, 'shutitreset' to reset state.''')
+			child = child or self.get_default_child()
+			if expect_type == 'regexp':
+				if type(expect) == str:
+					expect = [expect]
+				if type(expect) != list:
+					self.fail('expect_regexps should be list')
+			elif expect_type == 'md5sum':
+				pass
 			elif expect_type == 'exact':
-				if output == expect:
-					ok = True
-			elif expect_type == 'regexp':
-				for regexp in expect:
-					if self.match_string(output,regexp):
+				pass
+			else:
+				self.fail('Must pass either expect_regexps or md5sum in')
+			ok = False
+			while not ok:
+				if len(hints):
+					print shutit_util.colour('32',help_text)
+				time.sleep(pause)
+				send = self.get_input(task_desc + ' => ')
+				if not send or send.strip() == '':
+					continue
+				if send in ('help','h'):
+					if len(hints):
+						print help_text
+						print shutit_util.colour('32',hints.pop(0))
+					else:
+						print help_text
+						print shutit_util.colour('32','No hints left, sorry!')
+					time.sleep(pause)
+					continue
+				if send == 'shutitreset':
+					self.challenge_done(result='reset',follow_on_context=follow_on_context)
+					continue
+				if send == 'shutitquit':
+					self.challenge_done(result='reset',follow_on_context=follow_on_context)
+					sys.exit(1)
+				if send == 'exit':
+					self.challenge_done(result='exited',follow_on_context=follow_on_context)
+					return
+				output = self.send_and_get_output(send,child=child,timeout=timeout,retry=1,record_command=record_command,echo=echo, loglevel=loglevel, fail_on_empty_before=False)
+				md5sum_output = md5.md5(output).hexdigest()
+				self.log('output: ' + output + '\n is md5sum: ' + md5sum_output,level=logging.DEBUG)
+				if expect_type == 'md5sum':
+					output = md5sum_output
+					if output == expect:
 						ok = True
-						break
-			if not ok and failed:
-				print '\n\n' + shutit_util.colour('32','failed') + '\n'
-				self.challenge_done(result='failed')
-				continue
+				elif expect_type == 'exact':
+					if output == expect:
+						ok = True
+				elif expect_type == 'regexp':
+					for regexp in expect:
+						if self.match_string(output,regexp):
+							ok = True
+							break
+				if not ok and failed:
+					print '\n\n' + shutit_util.colour('32','failed') + '\n'
+					self.challenge_done(result='failed')
+					continue
+		else:
+			self.fail('Challenge type: ' + challenge_type + ' not supported')
+		# TODO: challenge type, dir state. Pausepoint, and when done, it checks your working.
 	# Alternate names
 	practice = challenge
 	golf     = challenge
@@ -1846,7 +1851,7 @@ $'"""
 	                child=None,
 	                print_input=True,
 	                level=1,
-	                resize=False,
+	                resize=True,
 	                colour='32',
 	                default_msg=None,
 	                wait=-1,
@@ -1896,9 +1901,17 @@ $'"""
 				if resize:
 					if default_msg == None and not cfg['build']['video']:
 						print (shutit_util.colour(colour,'\nPause point:\nresize==True, so attempting to resize terminal.\n\nIf you are not at a shell prompt when calling pause_point, then pass in resize=False.'))
-					self.send_host_file('/tmp/resize',self.shutit_main_dir+'resize', child=child, loglevel=loglevel)
-					self.send(' chmod 755 /tmp/resize', echo=False,loglevel=loglevel)
-					child.sendline(' sleep 2 && /tmp/resize')
+					self.send_host_file('/tmp/fixterm',self.shutit_main_dir+'/fixterm/fixterm', child=child, loglevel=loglevel)
+					self.send(' chmod 755 /tmp/fixterm', echo=False,loglevel=loglevel)
+					self.send(' export PROMPT_COMMAND="/tmp/fixterm && unset PROMPT_COMMAND && rm /tmp/fixterm"',loglevel=0)
+					#child.sendline(' sleep 2 && /tmp/fixterm &')
+					#self.send(' cat /tmp/resize')
+					#child.sendline('/tmp/resize')
+					#self.send('',fail_on_empty_before=False)
+					#child.send('history')
+					# From resize source: ESCAPE("7") ESCAPE("[r") ESCAPE("[999;999H") ESCAPE("[6n"), ESCAPE("[18t")
+					#child.sendline(r"echo -ne '\e7\e[r\e[999;999H\e[6n\e[18t' > out")
+					#child.setwinsize(400,400)
 				if default_msg == None:
 					if not cfg['build']['video']:
 						pp_msg = shutit_util.colour(colour,'\nYou can now type in commands and alter the state of the target.\nHit return to see the prompt\nHit CTRL and ] at the same time to continue with build\n')

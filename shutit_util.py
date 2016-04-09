@@ -58,6 +58,7 @@ import texttable
 import readline
 import jinja2
 import logging
+import shutit_main
 
 
 class LayerConfigParser(ConfigParser.RawConfigParser):
@@ -1349,7 +1350,7 @@ def ctrl_quit_signal_handler(signal, frame):
 	shutit_frame = get_shutit_frame(frame)
 	if shutit_frame:
 		shutit = shutit_frame.f_locals['shutit']
-		shutit.do_finalize()
+		shutit_main.do_finalize(shutit)
 	os._exit(1)
 # CTRL-\ HANDLING CODE ENDS
 
