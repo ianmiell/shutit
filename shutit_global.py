@@ -40,6 +40,7 @@ import pexpect
 import md5
 from shutit_module import ShutItFailException
 import logging
+import shutit_main
 
 
 class ShutIt(object):
@@ -68,7 +69,7 @@ class ShutIt(object):
 		self.cwd                    = kwargs['cwd']
 		self.shutit_command_history = kwargs['shutit_command_history']
 		self.shutit_map             = kwargs['shutit_map']
-		# These are new members we dont have to provide compaitibility for
+		# These are new members we dont have to provide compatibility for
 		self.conn_modules = set()
 
 		# Hidden attributes
@@ -395,29 +396,32 @@ class ShutIt(object):
 
 
 	def challenge(self,
-             task_desc,
-             expect=None,
-             hints=[],
-             congratulations='OK',
-             failed='FAILED',
-	         expect_type='exact',
-	         child=None,
-	         timeout=None,
-	         check_exit=None,
-	         fail_on_empty_before=True,
-	         record_command=True,
-	         exit_values=None,
-	         echo=True,
-	         escape=False,
-	         pause=1,
-	         loglevel=logging.DEBUG):
+                  task_desc,
+                  expect=None,
+                  hints=[],
+                  congratulations='OK',
+                  failed='FAILED',
+	              expect_type='exact',
+	              child=None,
+	              timeout=None,
+	              check_exit=None,
+	              fail_on_empty_before=True,
+	              record_command=True,
+	              exit_values=None,
+	              echo=True,
+	              escape=False,
+	              pause=1,
+	              loglevel=logging.DEBUG,
+	              follow_on_context={}):
 		"""Set the user a task to complete, success being determined by matching the output.
 
 		Either pass in regexp(s) desired from the output as a string or a list, or an md5sum of the output wanted.
+
+		@param follow_on_context     On success, move to this context. A dict of information about that context.
 		"""
 		# TODO: bash path completion
 		# don't catch CTRL-C, pass it through.
-		shutit.cfg['build']['ctrlc_passthrough'] = True
+		self.cfg['build']['ctrlc_passthrough'] = True
 		print shutit_util.colour('32','''\nChallenge!''')
 		help_text = shutit_util.colour('32','''\nType 'help' or 'h' to get a hint, exit to skip.''')
 		child = child or self.get_default_child()
@@ -450,7 +454,7 @@ class ShutIt(object):
 				time.sleep(pause)
 				continue
 			if send == 'exit':
-				shutit.cfg['build']['ctrlc_passthrough'] = False
+				self.cfg['build']['ctrlc_passthrough'] = False
 				return
 			output = self.send_and_get_output(send,child=child,timeout=timeout,retry=1,record_command=record_command,echo=echo, loglevel=loglevel, fail_on_empty_before=False)
 			md5sum_output = md5.md5(output).hexdigest()
@@ -472,7 +476,15 @@ class ShutIt(object):
 		if congratulations:
 			print '\n\n' + shutit_util.colour('32',congratulations) + '\n'
 		time.sleep(pause)
-		shutit.cfg['build']['ctrlc_passthrough'] = False
+		self.cfg['build']['ctrlc_passthrough'] = False
+		if follow_on_context != {}:
+			if follow_on_context.get('context') == 'docker':
+				container_name = follow_on_context.get('container_name')
+				if not container_name:
+					self.fail('Follow-on context not handled - no container_name given')
+				self.replace_container(container_name)
+			else:
+				self.fail('Follow-on context not handled')
 	# Alternate names
 	practice = challenge
 	golf     = challenge
@@ -1908,8 +1920,7 @@ END_''' + random_id, echo=False,loglevel=loglevel)
 							'alter the state of the target.\nHit return to see the ' +
 							'prompt\nHit CTRL and ] at the same time to continue with ' +
 							'build\n')
-						# TODO - only if in Docker container
-						if False:
+						if cfg['build']['delivery'] == 'docker':
 							pp_msg += '\nHit CTRL and u to save the state to a docker image\n'
 						print '\n' + (shutit_util.colour(colour, msg) + shutit_util.colour(colour,pp_msg))
 					else:
@@ -1940,16 +1951,12 @@ END_''' + random_id, echo=False,loglevel=loglevel)
 		"""Input filter for pause point to catch special keystrokes"""
 		# Can get errors with eg up/down chars
 		cfg = self.cfg
-		print 'HERE'
-		print ord(input_string)
 		if len(input_string) == 1:
 			# Picked CTRL-u as the rarest one accepted by terminals.
-			print 'asd'
-			if ord(input_string) == 21:
-				print 'asd1'
-				self.log('\n\nCTRL and u caught, forcing a tag at least\n\n')
+			if ord(input_string) == 21 and cfg['build']['delivery'] == 'docker':
+				self.log('CTRL and u caught, forcing a tag at least')
 				self.do_repository_work('tagged_by_shutit', password=cfg['host']['password'], docker_executable=cfg['host']['docker_executable'], force=True)
-				self.log('\n\nCommit and tag done\n\nHit CTRL and ] to continue with build. Hit return for a prompt.')
+				self.log('Commit and tag done. Hit CTRL and ] to continue with build. Hit return for a prompt.')
 		return input_string
 
 
@@ -1979,10 +1986,7 @@ END_''' + random_id, echo=False,loglevel=loglevel)
 		if not shutit_util.check_regexp(regexp):
 			shutit.fail('Illegal regexp found in match_string call: ' + regexp)
 		for line in lines:
-			#print line
-			#print regexp
 			match = re.match(regexp, line)
-			#print match
 			if match != None:
 				if len(match.groups()) > 0:
 					return match.group(1)
@@ -2892,6 +2896,19 @@ END_''' + random_id, echo=False,loglevel=loglevel)
 				res = self.send(cfg['repository']['password'], child=child, expect=expect_list, timeout=timeout, check_exit=False, fail_on_empty_before=Falsel,loglevel=loglevel)
 			elif res == 2:
 				res = self.send(cfg['repository']['email'], child=child, expect=expect_list, timeout=timeout, check_exit=False, fail_on_empty_before=False, loglevel=loglevel)
+
+
+	def replace_container(self, new_target_image_name):
+		cfg = self.cfg
+		# MVP: kill off container and log into new one
+		container_id = cfg['target']['container_id']
+		shutit_main.finalize_target(self)
+		host_child = self.pexpect_children['host_child']
+		self.send('docker rm -f ' + container_id,child=host_child,expect=cfg['expect_prompts']['origin_prompt'])
+		# start up new container and connect to it
+		cfg['target']['docker_image'] = new_target_image_name
+		shutit_main.conn_target(self)
+		return
 
 
 	def do_repository_work(self,

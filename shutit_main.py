@@ -169,9 +169,7 @@ def conn_target(shutit):
 
 	# Set up the target in pexpect.
 	if cfg['build']['interactive'] >= 3:
-		print('\nRunning the conn module (' +
-			shutit.shutit_main_dir + '/shutit_setup.py)' + shutit_util.colour('32',
-				'\n\n[Hit return to continue]\n'))
+		print('\nRunning the conn module (' + shutit.shutit_main_dir + '/shutit_setup.py)' + shutit_util.colour('32', '\n\n[Hit return to continue]\n'))
 		shutit_util.util_raw_input(shutit=shutit)
 	conn_module.get_config(shutit)
 	conn_module.build(shutit)
@@ -825,8 +823,10 @@ def do_interactive_modules(shutit):
 			break
 	return errs
 
-signal.signal(signal.SIGINT, shutit_util.ctrl_c_signal_handler)
-signal.signal(signal.SIGQUIT, shutit_util.ctrl_quit_signal_handler)
+def setup_signals():
+	signal.signal(signal.SIGINT, shutit_util.ctrl_c_signal_handler)
+	signal.signal(signal.SIGQUIT, shutit_util.ctrl_quit_signal_handler)
 
 if __name__ == '__main__':
+	setup_signals()
 	main()

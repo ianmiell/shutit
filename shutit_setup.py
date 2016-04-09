@@ -133,8 +133,7 @@ class ConnDocker(ShutItConnModule):
 		# but deals with the common case of 'docker.io' being wrong.
 		docker = cfg['host']['docker_executable'].split(' ')
 		if spawn.find_executable(docker[0]) is None:
-			msg = ('Didn\'t find %s on the path, what is the ' +\
-			       'executable name (or full path) of docker?') % (docker[0],)
+			msg = ('Didn\'t find %s on the path, what is the executable name (or full path) of docker?') % (docker[0],)
 			cfg['host']['docker_executable'] = \
 				shutit.prompt_cfg(msg, 'host', 'docker_executable')
 			return False
@@ -150,8 +149,7 @@ class ConnDocker(ShutItConnModule):
 			child = pexpect.spawn(check_cmd[0], check_cmd[1:],
 			timeout=cmd_timeout)
 		except pexpect.ExceptionPexpect:
-			msg = ('Failed to run %s (not sure why this has happened)...try ' +
-			       'a different docker executable?') % (str_cmd,)
+			msg = ('Failed to run %s (not sure why this has happened)...try a different docker executable?') % (str_cmd,)
 			cfg['host']['docker_executable'] = shutit.prompt_cfg(msg,
 			    'host', 'docker_executable')
 			return False
@@ -159,10 +157,8 @@ class ConnDocker(ShutItConnModule):
 			if child.expect(['assword', pexpect.EOF]) == 0:
 				needed_password = True
 				if cfg['host']['password'] == '':
-					msg = ('Running "%s" has prompted for a password, please ' +
-					       'enter your host password') % (str_cmd,)
-					cfg['host']['password'] = shutit.prompt_cfg(msg, 'host',
-					    'password', ispass=True)
+					msg = ('Running "%s" has prompted for a password, please enter your host password') % (str_cmd,)
+					cfg['host']['password'] = shutit.prompt_cfg(msg, 'host', 'password', ispass=True)
 				child.sendline(cfg['host']['password'])
 				child.expect(pexpect.EOF)
 		except pexpect.ExceptionPexpect:
@@ -177,14 +173,10 @@ class ConnDocker(ShutItConnModule):
 			# the password is right or not so we know what we need to prompt
 			# for. At the moment we assume the password if it was asked for.
 			if needed_password:
-				msg = (fail_msg + ', your host password or ' +
-				       'docker_executable config may be wrong (I will assume ' +
-				       'password).\nPlease confirm your host password.')
+				msg = (fail_msg + ', your host password or docker_executable config may be wrong (I will assume password).\nPlease confirm your host password.')
 				sec, name, ispass = 'host', 'password', True
 			else:
-				msg = (fail_msg + ', your docker_executable ' +
-				       'setting seems to be wrong.\nPlease confirm your docker ' +
-				       'executable, eg "sudo docker".')
+				msg = (fail_msg + ', your docker_executable setting seems to be wrong.\nPlease confirm your docker executable, eg "sudo docker".')
 				sec, name, ispass = 'host', 'docker_executable', False
 			cfg[sec][name] = shutit.prompt_cfg(msg, sec, name, ispass=ispass)
 			return False
@@ -302,8 +294,7 @@ class ConnDocker(ShutItConnModule):
 		shutit.log('Command being run is: ' + cfg['build']['docker_command'],level=logging.INFO)
 		shutit.log('This may download the image, please be patient',level=logging.INFO)
 		target_child = pexpect.spawn(docker_command[0], docker_command[1:])
-		expect = ['assword', cfg['expect_prompts']['base_prompt'].strip(), \
-		          'Waiting', 'ulling', 'endpoint', 'Download']
+		expect = ['assword', cfg['expect_prompts']['base_prompt'].strip(), 'Waiting', 'ulling', 'endpoint', 'Download']
 		res = target_child.expect(expect, 9999)
 		while True:
 			shutit.log(target_child.before + target_child.after,level=loglevel)
