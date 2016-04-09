@@ -975,7 +975,9 @@ $'"""
 		expect = expect or self.get_default_expect()
 		cfg = self.cfg
 		self._handle_note(note, 'Sending contents to path: ' + path)
-		self.log('Sending file contents beginning: "' + string.join(contents.split())[:30] + ' [...]" to file: ' + path, level=loglevel)
+		split_contents = string.join(contents.split())
+		strings_from_file = re.findall("[^\x00-\x1F\x7F-\xFF]{30,}", split_contents)
+		self.log('Sending file contents beginning: "' + str(strings_from_file) + ' [...]" to file: ' + path, level=loglevel)
 		if user == None:
 			user = self.whoami()
 		if group == None:
@@ -1899,16 +1901,15 @@ $'"""
 		if child:
 			if print_input:
 				if resize:
-					if default_msg == None and not cfg['build']['video']:
-						print (shutit_util.colour(colour,'\nPause point:\nresize==True, so attempting to resize terminal.\n\nIf you are not at a shell prompt when calling pause_point, then pass in resize=False.'))
 					self.send_host_file('/tmp/fixterm',self.shutit_main_dir+'/fixterm/fixterm', child=child, loglevel=loglevel)
-					self.send(' chmod 755 /tmp/fixterm', echo=False,loglevel=loglevel)
+					self.send(' chmod 777 /tmp/fixterm', echo=False,loglevel=loglevel)
+					# Arrange for fixterm to be run when there is a terminal, and then deleted.
 					self.send(' export PROMPT_COMMAND="/tmp/fixterm && unset PROMPT_COMMAND && rm /tmp/fixterm"',loglevel=0)
 				if default_msg == None:
 					if not cfg['build']['video']:
-						pp_msg = shutit_util.colour(colour,'\nYou can now type in commands and alter the state of the target.\nHit return to see the prompt\nHit CTRL and ] at the same time to continue with build\n')
+						pp_msg = '\nYou can now type in commands and alter the state of the target.\nHit:\n\t- return once to get a prompt and correctly resize the terminal\n\t- CTRL and ] at the same time to continue with build.'
 						if cfg['build']['delivery'] == 'docker':
-							pp_msg += '\nHit CTRL and u to save the state to a docker image\n'
+							pp_msg += '\n\t- CTRL and u to save the state to a docker image'
 						print '\n' + (shutit_util.colour(colour, msg) + shutit_util.colour(colour,pp_msg))
 					else:
 						print '\n' + (shutit_util.colour(colour, msg))
@@ -1916,8 +1917,6 @@ $'"""
 					print shutit_util.colour(colour, msg) + '\n' + default_msg + '\n'
 				oldlog = child.logfile_send
 				child.logfile_send = None
-				# Just hit return to show we have a shell, echo the prompt, and suppress logging.
-				self.send('',fail_on_empty_before=False,echo=True,loglevel=0)
 				if wait < 0:
 					try:
 						child.interact(input_filter=self._pause_input_filter)
