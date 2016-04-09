@@ -418,12 +418,15 @@ class ShutIt(object):
 		Either pass in regexp(s) desired from the output as a string or a list, or an md5sum of the output wanted.
 
 		@param follow_on_context     On success, move to this context. A dict of information about that context.
+		                             context              = the type of context, eg docker, bash
+		                             ok_container_name    = if passed, send user to this container
+		                             reset_container_name = if resetting, send user to this container
 		"""
 		# TODO: bash path completion
 		# don't catch CTRL-C, pass it through.
 		self.cfg['build']['ctrlc_passthrough'] = True
 		print shutit_util.colour('32','''\nChallenge!''')
-		help_text = shutit_util.colour('32','''\nType 'help' or 'h' to get a hint, exit to skip.''')
+		help_text = shutit_util.colour('32','''\nType 'help' or 'h' to get a hint, 'exit' to skip, 'shutitreset' to reset state.''')
 		child = child or self.get_default_child()
 		if expect_type == 'regexp':
 			if type(expect) == str:
@@ -453,8 +456,10 @@ class ShutIt(object):
 					print shutit_util.colour('32','No hints left, sorry!')
 				time.sleep(pause)
 				continue
+			if send in ('shutitreset'):
+				challenge_done(result='reset',follow_on_context=follow_on_context)
 			if send == 'exit':
-				self.cfg['build']['ctrlc_passthrough'] = False
+				challenge_done(result='exited',follow_on_context=follow_on_context)
 				return
 			output = self.send_and_get_output(send,child=child,timeout=timeout,retry=1,record_command=record_command,echo=echo, loglevel=loglevel, fail_on_empty_before=False)
 			md5sum_output = md5.md5(output).hexdigest()
@@ -472,22 +477,47 @@ class ShutIt(object):
 						ok = True
 						break
 			if not ok and failed:
-				print '\n\n' + shutit_util.colour('32',failed) + '\n'
-		if congratulations:
-			print '\n\n' + shutit_util.colour('32',congratulations) + '\n'
-		time.sleep(pause)
-		self.cfg['build']['ctrlc_passthrough'] = False
-		if follow_on_context != {}:
-			if follow_on_context.get('context') == 'docker':
-				container_name = follow_on_context.get('container_name')
-				if not container_name:
-					self.fail('Follow-on context not handled - no container_name given')
-				self.replace_container(container_name)
-			else:
-				self.fail('Follow-on context not handled')
+				self.challenge_done(result='failed')
+				return
 	# Alternate names
 	practice = challenge
 	golf     = challenge
+
+
+	def challenge_done(self, result=None, congratulations=None, follow_on_context={}):
+		if result == 'ok':
+			if congratulations:
+				print '\n\n' + shutit_util.colour('32',congratulations) + '\n'
+			time.sleep(pause)
+			self.cfg['build']['ctrlc_passthrough'] = False
+			if follow_on_context != {}:
+				if follow_on_context.get('context') == 'docker':
+					container_name = follow_on_context.get('ok_container_name')
+					if not container_name:
+						self.fail('Follow-on context not handled - no container_name given')
+					self.replace_container(container_name)
+				else:
+					self.fail('Follow-on context not handled on pass')
+			return
+		elif result == 'failed':
+			print '\n\n' + shutit_util.colour('32',failed) + '\n'
+			self.cfg['build']['ctrlc_passthrough'] = False
+			return
+		elif result == 'exited':
+			self.cfg['build']['ctrlc_passthrough'] = False
+			return
+		elif result == 'reset':
+			if follow_on_context != {}:
+				if follow_on_context.get('context') == 'docker':
+					container_name = follow_on_context.get('reset_container_name')
+					if not container_name:
+						shutit.log('No reset context available, carrying on.',logging.INFO)
+						return
+					self.replace_container(container_name)
+					shutit.log('State restored.',logging.INFO)
+				else:
+					self.fail('Follow-on context not handled on reset')
+		self.fail('result: ' + result + ' not handled')
 
 
 	def send(self,

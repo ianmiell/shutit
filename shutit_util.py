@@ -249,6 +249,7 @@ def setup_logging(shutit):
 			os.mkdir(cfg['build']['shutit_state_dir'])
 		os.chmod(cfg['build']['shutit_state_dir_base'],0777)
 		os.chmod(cfg['build']['shutit_state_dir'],0777)
+		cfg['build']['loglevel'] = cfg['build']['loglevel'].upper()
 		if cfg['build']['loglevel'] == 'DEBUG':
 			logging.basicConfig(format=logformat,level=logging.DEBUG)
 		elif cfg['build']['loglevel'] == 'ERROR':
@@ -441,7 +442,7 @@ def parse_args(shutit):
 	sub_parsers['list_modules'].add_argument('--sort', help='Order the modules seen, default to module id', default='id', choices=('id','run_order'))
 
 	for action in ['build', 'list_configs', 'list_modules', 'list_deps']:
-		sub_parsers[action].add_argument('-l','--log',default='INFO', help='Log level (DEBUG, INFO (default), WARNING, ERROR, CRITICAL)')
+		sub_parsers[action].add_argument('-l','--log',default='INFO', help='Log level (DEBUG, INFO (default), WARNING, ERROR, CRITICAL)',choices=('DEBUG','INFO','WARNING','ERROR','CRITICAL','debug','info','warning','error','critical'))
 		sub_parsers[action].add_argument('-o','--logfile',default='', help='Log output to this file')
 		sub_parsers[action].add_argument('--config', help='Config file for setup config. Must be with perms 0600. Multiple arguments allowed; config files considered in order.', default=[], action='append')
 		sub_parsers[action].add_argument('-d','--delivery', help='Delivery method, aka target. "docker" container (default), configured "ssh" connection, "bash" session', default=None, choices=('docker','dockerfile','ssh','bash'))
