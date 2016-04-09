@@ -448,8 +448,12 @@ class ShutIt(object):
 					print shutit_util.colour('32','No hints left, sorry!')
 				time.sleep(pause)
 				continue
-			if send in ('shutitreset'):
+			if send == 'shutitreset':
 				self.challenge_done(result='reset',follow_on_context=follow_on_context)
+				continue
+			if send == 'shutitquit':
+				self.challenge_done(result='reset',follow_on_context=follow_on_context)
+				sys.exit(1)
 			if send == 'exit':
 				self.challenge_done(result='exited',follow_on_context=follow_on_context)
 				return
@@ -469,8 +473,9 @@ class ShutIt(object):
 						ok = True
 						break
 			if not ok and failed:
+				print '\n\n' + shutit_util.colour('32','failed') + '\n'
 				self.challenge_done(result='failed')
-				return
+				continue
 	# Alternate names
 	practice = challenge
 	golf     = challenge
@@ -492,7 +497,6 @@ class ShutIt(object):
 					self.fail('Follow-on context not handled on pass')
 			return
 		elif result == 'failed':
-			print '\n\n' + shutit_util.colour('32',failed) + '\n'
 			self.cfg['build']['ctrlc_passthrough'] = False
 			return
 		elif result == 'exited':
@@ -509,6 +513,7 @@ class ShutIt(object):
 					shutit.log('State restored.',logging.INFO)
 				else:
 					self.fail('Follow-on context not handled on reset')
+			return
 		self.fail('result: ' + result + ' not handled')
 
 
