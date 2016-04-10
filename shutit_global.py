@@ -523,17 +523,10 @@ class ShutIt(object):
 				if follow_on_context.get('context') == 'docker':
 					container_name = follow_on_context.get('ok_container_name')
 					if not container_name:
-<<<<<<< HEAD
 						self.log('No reset context available, carrying on.',level=logging.DEBUG)
 					else:
 						self.replace_container(container_name)
 						self.log('State restored.',level=logging.INFO)
-=======
-						shutit.log('No reset context available, carrying on.',level=logging.DEBUG)
-					else:
-						self.replace_container(container_name)
-						shutit.log('State restored.',level=logging.INFO)
->>>>>>> c56b181134fed6fb0c142cdef7a67be23f3efaf9
 				else:
 					self.fail('Follow-on context not handled on pass')
 			return
@@ -548,17 +541,10 @@ class ShutIt(object):
 				if follow_on_context.get('context') == 'docker':
 					container_name = follow_on_context.get('reset_container_name')
 					if not container_name:
-<<<<<<< HEAD
 						self.log('No reset context available, carrying on.',level=logging.DEBUG)
 					else:
 						self.replace_container(container_name)
 						self.log('State restored.',level=logging.INFO)
-=======
-						shutit.log('No reset context available, carrying on.',level=logging.DEBUG)
-					else:
-						self.replace_container(container_name)
-						shutit.log('State restored.',level=logging.INFO)
->>>>>>> c56b181134fed6fb0c142cdef7a67be23f3efaf9
 				else:
 					self.fail('Follow-on context not handled on reset')
 			return
@@ -1974,15 +1960,9 @@ $'"""
 			else:
 				pass
 		else:
-<<<<<<< HEAD
 			self.log(msg,level=logging.DEBUG)
 			self.log('Nothing to interact with, so quitting to presumably the original shell',level=logging.DEBUG)
-			sys.exit(1)
-=======
-			shutit.log(msg,level=logging.DEBUG)
-			shutit.log('Nothing to interact with, so quitting to presumably the original shell',level=logging.DEBUG)
 			shutit_util.handle_exit(exit_code=1)
->>>>>>> c56b181134fed6fb0c142cdef7a67be23f3efaf9
 		cfg['build']['ctrlc_stop'] = False
 		return True
 
