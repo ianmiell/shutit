@@ -1367,10 +1367,16 @@ def ctrlc_background():
 def ctrl_c_signal_handler(signal, frame):
 	"""CTRL-c signal handler - enters a pause point if it can.
 	"""
-	if in_ctrlc:
-		# Unfortunately we have 'except' blocks catching all exceptions, so we can't use sys.exit or handle_exit
-		os._exit(1)
 	shutit_frame = get_shutit_frame(frame)
+	if in_ctrlc:
+		msg = 'CTRL-C hit twice, quitting'
+		if shutit_frame:
+			print '\n'
+			shutit = shutit_frame.f_locals['shutit']
+			shutit.log(msg,level=logging.CRITICAL)
+		else:
+			print msg
+		handle_exit(exit_code=1)
 	if shutit_frame:
 		shutit = shutit_frame.f_locals['shutit']
 		if shutit.cfg['build']['ctrlc_passthrough']:
@@ -1378,6 +1384,9 @@ def ctrl_c_signal_handler(signal, frame):
 			return
 		print colour(31,"\rYou may need to wait for a command to complete before a pause point is available. Alternatively, CTRL-\ to quit.")
 		shutit.cfg['build']['ctrlc_stop'] = True
+		t = threading.Thread(target=ctrlc_background)
+		t.daemon = True
+		t.start()
 		return
 	print colour(31,'\n' + '*' * 80)
 	print colour(31,"CTRL-c caught, CTRL-c twice to quit.")
