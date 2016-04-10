@@ -1932,7 +1932,7 @@ $'"""
 		if child:
 			if print_input:
 				if resize:
-					self.send_host_file('/tmp/fixterm',self.shutit_main_dir+'/fixterm/fixterm', child=child, loglevel=loglevel)
+					self.send_host_file('/tmp/fixterm',self.shutit_main_dir+'/fixterm', child=child, loglevel=loglevel)
 					self.send(' chmod 777 /tmp/fixterm', echo=False,loglevel=loglevel)
 					# Arrange for fixterm to be run when there is a terminal, and then deleted.
 					self.send(' export PROMPT_COMMAND="/tmp/fixterm && unset PROMPT_COMMAND && rm /tmp/fixterm"',loglevel=0)
@@ -1953,9 +1953,9 @@ $'"""
 						child.interact(input_filter=self._pause_input_filter)
 					except Exception as e:
 						self.fail('Terminating ShutIt.\n' + str(e))
+						self.log('CTRL-] caught, continuing with run...',logging.INFO)
 				else:
 					time.sleep(wait)
-				self.log('CTRL-] caught, continuing with run...',logging.INFO)
 				child.logfile_send = oldlog
 			else:
 				pass
