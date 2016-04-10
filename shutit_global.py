@@ -523,10 +523,10 @@ class ShutIt(object):
 				if follow_on_context.get('context') == 'docker':
 					container_name = follow_on_context.get('ok_container_name')
 					if not container_name:
-						shutit.log('No reset context available, carrying on.',logging.DEBUG)
+						shutit.log('No reset context available, carrying on.',level=logging.DEBUG)
 					else:
 						self.replace_container(container_name)
-						shutit.log('State restored.',logging.INFO)
+						shutit.log('State restored.',level=logging.INFO)
 				else:
 					self.fail('Follow-on context not handled on pass')
 			return
@@ -541,10 +541,10 @@ class ShutIt(object):
 				if follow_on_context.get('context') == 'docker':
 					container_name = follow_on_context.get('reset_container_name')
 					if not container_name:
-						shutit.log('No reset context available, carrying on.',logging.DEBUG)
+						shutit.log('No reset context available, carrying on.',level=logging.DEBUG)
 					else:
 						self.replace_container(container_name)
-						shutit.log('State restored.',logging.INFO)
+						shutit.log('State restored.',level=logging.INFO)
 				else:
 					self.fail('Follow-on context not handled on reset')
 			return
@@ -1953,22 +1953,16 @@ $'"""
 						child.interact(input_filter=self._pause_input_filter)
 					except Exception as e:
 						self.fail('Terminating ShutIt.\n' + str(e))
-						self.log('CTRL-] caught, continuing with run...',logging.INFO)
+						self.log('CTRL-] caught, continuing with run...',level=logging.INFO)
 				else:
 					time.sleep(wait)
 				child.logfile_send = oldlog
 			else:
 				pass
 		else:
-<<<<<<< HEAD
-			print msg
-			print 'Nothing to interact with, so quitting to presumably the original shell'
+			shutit.log(msg,level=logging.DEBUG)
+			shutit.log('Nothing to interact with, so quitting to presumably the original shell',level=logging.DEBUG)
 			shutit_util.handle_exit(exit_code=1)
-=======
-			shutit.log(msg,logging.DEBUG)
-			shutit.log('Nothing to interact with, so quitting to presumably the original shell',logging.DEBUG)
-			sys.exit(1)
->>>>>>> 37621d2fae6000a1c70a7b4ada4e5581df0b2427
 		cfg['build']['ctrlc_stop'] = False
 		return True
 
@@ -2046,16 +2040,16 @@ $'"""
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
 		self._handle_note(note)
-		self.log('Matching output from: "' + send + '" to one of these regexps:' + str(matches),logging.INFO)
+		self.log('Matching output from: "' + send + '" to one of these regexps:' + str(matches),level=logging.INFO)
 		output = self.send_and_get_output(send, child=child, retry=retry, strip=strip, echo=echo, loglevel=loglevel)
 		if type(matches) == str:
 			matches = [matches]
 		self._handle_note_after(note=note)
 		for match in matches:
 			if self.match_string(output, match) != None:
-				self.log('Matched output, return True',logging.DEBUG)
+				self.log('Matched output, return True',level=logging.DEBUG)
 				return True
-		self.log('Failed to match output, return False',logging.DEBUG)
+		self.log('Failed to match output, return False',level=logging.DEBUG)
 		return False
 
 
