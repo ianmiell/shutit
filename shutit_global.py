@@ -109,10 +109,10 @@ class ShutIt(object):
 		"""
 		if self._default_child == None:
 			print 'Default child not set yet, exiting'
-			sys.exit(1)
+			shutit_util.handle_exit(exit_code=1)
 		if self._default_child[-1] is None:
 			print '''Couldn't get default child'''
-			sys.exit(1)
+			shutit_util.handle_exit(exit_code=1)
 		return self._default_child[-1]
 
 
@@ -181,7 +181,7 @@ class ShutIt(object):
 			# However, it's still a failure, so return 1
 			self.log(msg,level=logging.DEBUG)
 			self.log('Error seen, exiting with status 1',level=logging.DEBUG)
-			sys.exit(1)
+			shutit_util.handle_exit(exit_code=1)
 
 
 	def log(self, msg, code=None, add_final_message=False, level=logging.INFO):
@@ -458,7 +458,7 @@ class ShutIt(object):
 					continue
 				if send == 'shutitquit':
 					self.challenge_done(result='reset',follow_on_context=follow_on_context)
-					sys.exit(1)
+					shutit_util.handle_exit(exit_code=1)
 				if send == 'exit':
 					self.challenge_done(result='exited',follow_on_context=follow_on_context)
 					return
@@ -523,10 +523,17 @@ class ShutIt(object):
 				if follow_on_context.get('context') == 'docker':
 					container_name = follow_on_context.get('ok_container_name')
 					if not container_name:
+<<<<<<< HEAD
 						self.log('No reset context available, carrying on.',level=logging.DEBUG)
 					else:
 						self.replace_container(container_name)
 						self.log('State restored.',level=logging.INFO)
+=======
+						shutit.log('No reset context available, carrying on.',level=logging.DEBUG)
+					else:
+						self.replace_container(container_name)
+						shutit.log('State restored.',level=logging.INFO)
+>>>>>>> c56b181134fed6fb0c142cdef7a67be23f3efaf9
 				else:
 					self.fail('Follow-on context not handled on pass')
 			return
@@ -541,10 +548,17 @@ class ShutIt(object):
 				if follow_on_context.get('context') == 'docker':
 					container_name = follow_on_context.get('reset_container_name')
 					if not container_name:
+<<<<<<< HEAD
 						self.log('No reset context available, carrying on.',level=logging.DEBUG)
 					else:
 						self.replace_container(container_name)
 						self.log('State restored.',level=logging.INFO)
+=======
+						shutit.log('No reset context available, carrying on.',level=logging.DEBUG)
+					else:
+						self.replace_container(container_name)
+						shutit.log('State restored.',level=logging.INFO)
+>>>>>>> c56b181134fed6fb0c142cdef7a67be23f3efaf9
 				else:
 					self.fail('Follow-on context not handled on reset')
 			return
@@ -1924,7 +1938,7 @@ $'"""
 		if not ok:
 			# If we get an exception here, assume we are exiting following a problem before we have a child.
 			print 'Exception caught in pause_point, exiting'
-			sys.exit(1)
+			shutit_util.handle_exit(exit_code=1)
 		cfg = self.cfg
 		if (not shutit_util.determine_interactive(self) or cfg['build']['interactive'] < 1 or
 			cfg['build']['interactive'] < level):
@@ -1960,9 +1974,15 @@ $'"""
 			else:
 				pass
 		else:
+<<<<<<< HEAD
 			self.log(msg,level=logging.DEBUG)
 			self.log('Nothing to interact with, so quitting to presumably the original shell',level=logging.DEBUG)
 			sys.exit(1)
+=======
+			shutit.log(msg,level=logging.DEBUG)
+			shutit.log('Nothing to interact with, so quitting to presumably the original shell',level=logging.DEBUG)
+			shutit_util.handle_exit(exit_code=1)
+>>>>>>> c56b181134fed6fb0c142cdef7a67be23f3efaf9
 		cfg['build']['ctrlc_stop'] = False
 		return True
 

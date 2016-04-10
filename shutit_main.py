@@ -525,7 +525,7 @@ def setup_shutit_path(cfg):
 			#http://unix.stackexchange.com/questions/26676/how-to-check-if-a-shell-is-login-interactive-batch
 			myfile.write('\nexport PATH="$PATH:' + os.path.dirname(path_to_shutit) + '"\n')
 		shutit_util.util_raw_input(prompt='\nPath set up - please open new terminal and re-run command\n')
-		sys.exit()
+		shutit_util.handle_exit()
 
 
 def main():
@@ -561,18 +561,18 @@ def main():
 
 	shutit_util.load_mod_from_file(shutit, os.path.join(shutit.shutit_main_dir, 'shutit_setup.py'))
 	shutit_util.load_shutit_modules(shutit)
-	shutit.log('ShutIt modules loaded',logging.INFO)
+	shutit.log('ShutIt modules loaded',level=logging.INFO)
 
 	if cfg['action']['list_modules']:
 		shutit_util.list_modules(shutit)
-		sys.exit(0)
+		shutit_util.handle_exit()
 
 	init_shutit_map(shutit)
 	shutit_util.config_collection(shutit)
-	shutit.log('Configuration loaded',logging.INFO)
+	shutit.log('Configuration loaded',level=logging.INFO)
 
 	conn_target(shutit)
-	shutit.log('Connected to target',logging.INFO)
+	shutit.log('Connected to target',level=logging.INFO)
 
 	if cfg['build']['interactive'] > 0 and cfg['build']['choose_config']:
 		errs = do_interactive_modules(shutit)
@@ -602,7 +602,7 @@ def main():
 		shutit.log('\nAbove is the digraph for all modules configured to be built in this shutit invocation. Use graphviz to render into an image, eg\n\n\tshutit depgraph -m mylibrary | dot -Tpng -o depgraph.png\n')
 		shutit.log('\n================================================================================\n')
 		# Exit now
-		sys.exit(0)
+		shutit_util.handle_exit()
 	# Dependency validation done, now collect configs of those marked for build.
 	shutit_util.config_collection_for_built(shutit)
 
@@ -657,6 +657,7 @@ def main():
 
 	# Mark the build as completed
 	cfg['build']['completed'] = True
+	shutit.log('ShutIt run finished',level=logging.INFO)
 
 
 def do_phone_home(msg=None,question='Error seen - would you like to inform the maintainers?'):
@@ -753,7 +754,7 @@ def setup_signals():
 	signal.signal(signal.SIGINT, shutit_util.ctrl_c_signal_handler)
 	signal.signal(signal.SIGQUIT, shutit_util.ctrl_quit_signal_handler)
 
-shutit_version = '0.9.40'
+shutit_version = '0.9.41'
 if __name__ == '__main__':
 	setup_signals()
 	main()

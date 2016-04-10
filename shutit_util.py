@@ -350,7 +350,7 @@ def get_base_config(cfg, cfg_parser):
 	if cfg['build']['delivery'] in ('bash','ssh'):
 		if cfg['target']['docker_image'] != '':
 			print('delivery method specified (' + cfg['build']['delivery'] + ') and image_tag argument make no sense')
-			sys.exit(1)
+			handle_exit(exit_code=1)
 	if cfg['target']['docker_image'] == '':
 		cfg['target']['docker_image'] = cfg['build']['base_image']
 	# END tidy configs up
@@ -362,14 +362,14 @@ def get_base_config(cfg, cfg_parser):
 	# rm is incompatible with repository actions
 	if cfg['target']['rm'] and (cfg['repository']['tag'] or cfg['repository']['push'] or cfg['repository']['save'] or cfg['repository']['export']):
 		print("Can't have [target]/rm and [repository]/(push/save/export) set to true")
-		sys.exit(1)
+		handle_exit(exit_code=1)
 	if warn != '':
 		shutit.log('Showing config as read in. This can also be done by calling with list_configs:',level=logging.WARNING)
 		shutit.log(print_config(cfg), level=logging.WARNING)
 		time.sleep(1)
 	if cfg['target']['hostname'] != '' and cfg['build']['net'] != '' and cfg['build']['net'] != 'bridge':
 		print('\n\ntarget/hostname or build/net configs must be blank\n\n')
-		sys.exit(1)
+		handle_exit(exit_code=1)
 	# FAILS ends
 
 
@@ -613,7 +613,7 @@ vagrant_multinode: a vagrant multinode setup
 			cfg['build']['video']            = True
 			if cfg['build']['training']:
 				print('--video and --training mode incompatible')
-				sys.exit(1)
+				handle_exit(exit_code=1)
 	elif cfg['action']['list_configs']:
 		cfg['list_configs']['cfghistory'] = args.history
 	elif cfg['action']['list_modules']:
@@ -661,7 +661,7 @@ vagrant_multinode: a vagrant multinode setup
 		cfg['build']['log_config_path'] = cfg['build']['shutit_state_dir'] + '/config/' + cfg['build']['build_id']
 		if os.path.exists(cfg['build']['log_config_path']):
 			print(cfg['build']['log_config_path'] + ' exists. Please move and re-run.')
-			sys.exit(1)
+			handle_exit(exit_code=1)
 		os.makedirs(cfg['build']['log_config_path'])
 		os.chmod(cfg['build']['log_config_path'],0777)
 	else:
@@ -787,7 +787,7 @@ def load_configs(shutit):
 		run_config_file = os.path.expanduser(config_file_name)
 		if not os.path.isfile(run_config_file):
 			print('Did not recognise ' + run_config_file + ' as a file - do you need to touch ' + run_config_file + '?')
-			sys.exit()
+			handle_exit(exit_code=0)
 		configs.append(run_config_file)
 	# Image to use to start off. The script should be idempotent, so running it
 	# on an already built image should be ok, and is advised to reduce diff space required.
@@ -1370,10 +1370,16 @@ def ctrlc_background():
 def ctrl_c_signal_handler(signal, frame):
 	"""CTRL-c signal handler - enters a pause point if it can.
 	"""
-	if in_ctrlc:
-		# Unfortunately we have 'except' blocks catching all exceptions, so we can't use sys.exit
-		os._exit(1)
 	shutit_frame = get_shutit_frame(frame)
+	if in_ctrlc:
+		msg = 'CTRL-C hit twice, quitting'
+		if shutit_frame:
+			print '\n'
+			shutit = shutit_frame.f_locals['shutit']
+			shutit.log(msg,level=logging.CRITICAL)
+		else:
+			print msg
+		handle_exit(exit_code=1)
 	if shutit_frame:
 		shutit = shutit_frame.f_locals['shutit']
 		if shutit.cfg['build']['ctrlc_passthrough']:
@@ -1381,6 +1387,9 @@ def ctrl_c_signal_handler(signal, frame):
 			return
 		print colour(31,"\rYou may need to wait for a command to complete before a pause point is available. Alternatively, CTRL-\ to quit.")
 		shutit.cfg['build']['ctrlc_stop'] = True
+		t = threading.Thread(target=ctrlc_background)
+		t.daemon = True
+		t.start()
 		return
 	print colour(31,'\n' + '*' * 80)
 	print colour(31,"CTRL-c caught, CTRL-c twice to quit.")
@@ -1951,7 +1960,7 @@ def config_collection_for_built(shutit,throw_error=True,silent=False):
 		if cfg['build']['imageerrorok']:
 			# useful for test scripts
 			print('Exiting on allowed images error, with return status 0')
-			sys.exit(0)
+			handle_exit(exit_code=1)
 		else:
 			raise ShutItFailException('Allowed images checking failed')
 	return True
@@ -2008,6 +2017,13 @@ def allowed_image(shutit,module_id):
 			if re.match('^' + regexp + '$', cfg['target']['docker_image']):
 				return True
 	return False
+
+
+def handle_exit(shutit=None,exit_code=0):
+	if not shutit:
+		sys.exit(exit_code)
+	else:
+		sys.exit(exit_code)
 
 
 # Static strings
