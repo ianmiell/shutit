@@ -179,8 +179,8 @@ class ShutIt(object):
 		else:
 			# This is an "OK" failure, ie we don't need to throw an exception.
 			# However, it's still a failure, so return 1
-			self.log(msg,loglevel=logging.DEBUG)
-			self.log('Error seen, exiting with status 1',loglevel=logging.DEBUG)
+			self.log(msg,level=logging.DEBUG)
+			self.log('Error seen, exiting with status 1',level=logging.DEBUG)
 			sys.exit(1)
 
 
@@ -523,10 +523,10 @@ class ShutIt(object):
 				if follow_on_context.get('context') == 'docker':
 					container_name = follow_on_context.get('ok_container_name')
 					if not container_name:
-						shutit.log('No reset context available, carrying on.',logging.DEBUG)
+						self.log('No reset context available, carrying on.',level=logging.DEBUG)
 					else:
 						self.replace_container(container_name)
-						shutit.log('State restored.',logging.INFO)
+						self.log('State restored.',level=logging.INFO)
 				else:
 					self.fail('Follow-on context not handled on pass')
 			return
@@ -541,10 +541,10 @@ class ShutIt(object):
 				if follow_on_context.get('context') == 'docker':
 					container_name = follow_on_context.get('reset_container_name')
 					if not container_name:
-						shutit.log('No reset context available, carrying on.',logging.DEBUG)
+						self.log('No reset context available, carrying on.',level=logging.DEBUG)
 					else:
 						self.replace_container(container_name)
-						shutit.log('State restored.',logging.INFO)
+						self.log('State restored.',level=logging.INFO)
 				else:
 					self.fail('Follow-on context not handled on reset')
 			return
@@ -1953,15 +1953,15 @@ $'"""
 						child.interact(input_filter=self._pause_input_filter)
 					except Exception as e:
 						self.fail('Terminating ShutIt.\n' + str(e))
-						self.log('CTRL-] caught, continuing with run...',logging.INFO)
+						self.log('CTRL-] caught, continuing with run...',level=logging.INFO)
 				else:
 					time.sleep(wait)
 				child.logfile_send = oldlog
 			else:
 				pass
 		else:
-			shutit.log(msg,logging.DEBUG)
-			shutit.log('Nothing to interact with, so quitting to presumably the original shell',logging.DEBUG)
+			self.log(msg,level=logging.DEBUG)
+			self.log('Nothing to interact with, so quitting to presumably the original shell',level=logging.DEBUG)
 			sys.exit(1)
 		cfg['build']['ctrlc_stop'] = False
 		return True
@@ -1974,9 +1974,9 @@ $'"""
 		if len(input_string) == 1:
 			# Picked CTRL-u as the rarest one accepted by terminals.
 			if ord(input_string) == 21 and cfg['build']['delivery'] == 'docker':
-				self.log('CTRL and u caught, forcing a tag at least')
+				self.log('CTRL and u caught, forcing a tag at least',level=logging.INFO)
 				self.do_repository_work('tagged_by_shutit', password=cfg['host']['password'], docker_executable=cfg['host']['docker_executable'], force=True)
-				self.log('Commit and tag done. Hit CTRL and ] to continue with build. Hit return for a prompt.')
+				self.log('Commit and tag done. Hit CTRL and ] to continue with build. Hit return for a prompt.',level=logging.INFO)
 		return input_string
 
 
@@ -2040,16 +2040,16 @@ $'"""
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
 		self._handle_note(note)
-		self.log('Matching output from: "' + send + '" to one of these regexps:' + str(matches),logging.INFO)
+		self.log('Matching output from: "' + send + '" to one of these regexps:' + str(matches),level=logging.INFO)
 		output = self.send_and_get_output(send, child=child, retry=retry, strip=strip, echo=echo, loglevel=loglevel)
 		if type(matches) == str:
 			matches = [matches]
 		self._handle_note_after(note=note)
 		for match in matches:
 			if self.match_string(output, match) != None:
-				self.log('Matched output, return True',logging.DEBUG)
+				self.log('Matched output, return True',level=logging.DEBUG)
 				return True
-		self.log('Failed to match output, return False',logging.DEBUG)
+		self.log('Failed to match output, return False',level=logging.DEBUG)
 		return False
 
 
@@ -2155,7 +2155,7 @@ $'"""
 		cfg = self.cfg
 		self._handle_note(note)
 				
-		self.log('Installing package: ' + package,loglevel)
+		self.log('Installing package: ' + package,level=loglevel)
 		if options is None: options = {}
 		install_type = cfg['environment'][cfg['build']['current_environment_id']]['install_type']
 		if install_type == 'src':
