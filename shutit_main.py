@@ -46,8 +46,7 @@ def stop_all(shutit, run_order=-1):
 	"""
 	cfg = shutit.cfg
 	if cfg['build']['interactive'] >= 3:
-		print('\nRunning stop on all modules' + \
-			shutit_util.colour('32', '\n\n[Hit return to continue]'))
+		print('\nRunning stop on all modules' + shutit_util.colour('32', '\n\n[Hit return to continue]'))
 		shutit_util.util_raw_input(shutit=shutit)
 	# sort them so they're stopped in reverse order
 	for module_id in shutit_util.module_ids(shutit, rev=True):
@@ -358,8 +357,7 @@ def do_remove(shutit, loglevel=logging.DEBUG):
 			shutit.login(prompt_prefix=module_id,command='bash')
 			if not module.remove(shutit):
 				shutit.log(shutit_util.print_modules(shutit), level=logging.DEBUG)
-				shutit.fail(module_id + ' failed on remove',
-				child=shutit.pexpect_children['target_child'])
+				shutit.fail(module_id + ' failed on remove', child=shutit.pexpect_children['target_child'])
 			else:
 				if cfg['build']['delivery'] in ('docker','dockerfile'):
 					# Create a directory and files to indicate this has been removed.
@@ -399,8 +397,7 @@ def build_module(shutit, module, loglevel=logging.DEBUG):
 		cfg[module.module_id]['shutit.core.module.tag'] = (shutit_util.util_raw_input(shutit=shutit,default='y') == 'y')
 	if cfg[module.module_id]['shutit.core.module.tag'] or cfg['build']['tag_modules']:
 		shutit.log(module.module_id + ' configured to be tagged, doing repository work',level=logging.INFO)
-		# Stop all before we tag to avoid file changing errors,
-		# and clean up pid files etc..
+		# Stop all before we tag to avoid file changing errors, and clean up pid files etc..
 		stop_all(shutit, module.run_order)
 		shutit.do_repository_work(str(module.module_id) + '_' + str(module.run_order), password=cfg['host']['password'], docker_executable=cfg['host']['docker_executable'], force=True)
 		# Start all after we tag to ensure services are up as expected.
@@ -461,8 +458,7 @@ def do_test(shutit):
 	# Test in reverse order
 	shutit.log('PHASE: test', level=logging.DEBUG)
 	if cfg['build']['interactive'] >= 3:
-		print '\nNow doing test phase' + shutit_util.colour('32',
-			'\n\n[Hit return to continue]\n')
+		print '\nNow doing test phase' + shutit_util.colour('32', '\n\n[Hit return to continue]\n')
 		shutit_util.util_raw_input(shutit=shutit)
 	stop_all(shutit)
 	start_all(shutit)
@@ -484,8 +480,7 @@ def do_finalize(shutit):
 	cfg = shutit.cfg
 	# Stop all the modules
 	if cfg['build']['interactive'] >= 3:
-		print('\nStopping all modules before finalize phase' + shutit_util.colour('32',
-		      '\n\n[Hit return to continue]\n'))
+		print('\nStopping all modules before finalize phase' + shutit_util.colour('32', '\n\n[Hit return to continue]\n'))
 		shutit_util.util_raw_input(shutit=shutit)
 	stop_all(shutit)
 	# Finalize in reverse order
@@ -550,7 +545,6 @@ def main():
 	cfg = shutit.cfg
 	print 'ShutIt Started'
 	shutit_util.parse_args(shutit)
-	print 'Arguments parsed'
 
 	if cfg['action']['skeleton']:
 		shutit_util.create_skeleton(shutit)
@@ -759,6 +753,7 @@ def setup_signals():
 	signal.signal(signal.SIGINT, shutit_util.ctrl_c_signal_handler)
 	signal.signal(signal.SIGQUIT, shutit_util.ctrl_quit_signal_handler)
 
+shutit_version = '0.9.40'
 if __name__ == '__main__':
 	setup_signals()
 	main()

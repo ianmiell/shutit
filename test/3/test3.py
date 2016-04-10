@@ -14,7 +14,7 @@ class test3(ShutItModule):
 		return False
 
 	def build(self, shutit):
-		shutit.install('openssh-server')
+		shutit.install('wget')
 		return True
 
 def module():

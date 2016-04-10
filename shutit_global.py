@@ -179,8 +179,8 @@ class ShutIt(object):
 		else:
 			# This is an "OK" failure, ie we don't need to throw an exception.
 			# However, it's still a failure, so return 1
-			print msg
-			print 'Error seen, exiting with status 1'
+			self.log(msg,loglevel=logging.DEBUG)
+			self.log('Error seen, exiting with status 1',loglevel=logging.DEBUG)
 			shutit_util.handle_exit(exit_code=1)
 
 
@@ -414,30 +414,33 @@ class ShutIt(object):
 		                             context              = the type of context, eg docker, bash
 		                             ok_container_name    = if passed, send user to this container
 		                             reset_container_name = if resetting, send user to this container
+		@param challenge_type        Behaviour of challenge made to user
+		                             command = check for output of single command
+		                             golf    = user gets a pause point, and when leaving, command follow_on_context['check_command'] is run to check the output
 		"""
+		# don't catch CTRL-C, pass it through.
+		self.cfg['build']['ctrlc_passthrough'] = True
+		if expect_type == 'regexp':
+			if type(expect) == str:
+				expect = [expect]
+			if type(expect) != list:
+				self.fail('expect_regexps should be list')
+		elif expect_type == 'md5sum':
+			pass
+		elif expect_type == 'exact':
+			pass
+		else:
+			self.fail('Must pass either expect_regexps or md5sum in')
+		child = child or self.get_default_child()
 		if challenge_type == 'command':
-			# TODO: bash path completion
-			# don't catch CTRL-C, pass it through.
-			self.cfg['build']['ctrlc_passthrough'] = True
-			print shutit_util.colour('32','''\nChallenge!''')
 			help_text = shutit_util.colour('32','''\nType 'help' or 'h' to get a hint, 'exit' to skip, 'shutitreset' to reset state.''')
-			child = child or self.get_default_child()
-			if expect_type == 'regexp':
-				if type(expect) == str:
-					expect = [expect]
-				if type(expect) != list:
-					self.fail('expect_regexps should be list')
-			elif expect_type == 'md5sum':
-				pass
-			elif expect_type == 'exact':
-				pass
-			else:
-				self.fail('Must pass either expect_regexps or md5sum in')
 			ok = False
 			while not ok:
+				print shutit_util.colour('32','''\nChallenge!''')
 				if len(hints):
 					print shutit_util.colour('32',help_text)
 				time.sleep(pause)
+				# TODO: bash path completion
 				send = self.get_input(task_desc + ' => ')
 				if not send or send.strip() == '':
 					continue
@@ -478,15 +481,39 @@ class ShutIt(object):
 					print '\n\n' + shutit_util.colour('32','failed') + '\n'
 					self.challenge_done(result='failed')
 					continue
+		elif challenge_type == 'golf':
+			# pause, and when done, it checks your working based on check_command.
+			ok = False
+			while not ok:
+				# TODO: message
+				self.pause_point('PAUSING')
+				check_command = follow_on_context.get('check_command')
+				output = self.send_and_get_output(check_command,child=child,timeout=timeout,retry=1,record_command=record_command,echo=echo, loglevel=loglevel, fail_on_empty_before=False)
+				if expect_type == 'md5sum':
+					output = md5sum_output
+					if output == expect:
+						ok = True
+				elif expect_type == 'exact':
+					if output == expect:
+						ok = True
+				elif expect_type == 'regexp':
+					for regexp in expect:
+						if self.match_string(output,regexp):
+							ok = True
+							break
+				if not ok and failed:
+					print '\n\n' + shutit_util.colour('32','failed') + '\n'
+					self.challenge_done(result='failed')
+					continue
 		else:
 			self.fail('Challenge type: ' + challenge_type + ' not supported')
-		# TODO: challenge type, dir state. Pausepoint, and when done, it checks your working.
+		self.challenge_done(result='ok',follow_on_context=follow_on_context)
 	# Alternate names
 	practice = challenge
 	golf     = challenge
 
 
-	def challenge_done(self, result=None, congratulations=None, follow_on_context={}):
+	def challenge_done(self, result=None, congratulations=None, follow_on_context={},pause=1):
 		if result == 'ok':
 			if congratulations:
 				print '\n\n' + shutit_util.colour('32',congratulations) + '\n'
@@ -496,8 +523,10 @@ class ShutIt(object):
 				if follow_on_context.get('context') == 'docker':
 					container_name = follow_on_context.get('ok_container_name')
 					if not container_name:
-						self.fail('Follow-on context not handled - no container_name given')
-					self.replace_container(container_name)
+						shutit.log('No reset context available, carrying on.',logging.DEBUG)
+					else:
+						self.replace_container(container_name)
+						shutit.log('State restored.',logging.INFO)
 				else:
 					self.fail('Follow-on context not handled on pass')
 			return
@@ -512,14 +541,15 @@ class ShutIt(object):
 				if follow_on_context.get('context') == 'docker':
 					container_name = follow_on_context.get('reset_container_name')
 					if not container_name:
-						shutit.log('No reset context available, carrying on.',logging.INFO)
-						return
-					self.replace_container(container_name)
-					shutit.log('State restored.',logging.INFO)
+						shutit.log('No reset context available, carrying on.',logging.DEBUG)
+					else:
+						self.replace_container(container_name)
+						shutit.log('State restored.',logging.INFO)
 				else:
 					self.fail('Follow-on context not handled on reset')
 			return
-		self.fail('result: ' + result + ' not handled')
+		else:
+			self.fail('result: ' + result + ' not handled')
 
 
 	def send(self,
@@ -975,9 +1005,10 @@ $'"""
 		expect = expect or self.get_default_expect()
 		cfg = self.cfg
 		self._handle_note(note, 'Sending contents to path: ' + path)
-		split_contents = string.join(contents.split())
-		strings_from_file = re.findall("[^\x00-\x1F\x7F-\xFF]{30,}", split_contents)
-		self.log('Sending file contents beginning: "' + str(strings_from_file) + ' [...]" to file: ' + path, level=loglevel)
+		split_contents = ''.join((contents.split()))
+		# TODO: make more efficient
+		strings_from_file = re.findall("[^\x00-\x1F\x7F-\xFF]", split_contents)
+		self.log('Sending file contents beginning: "' + ''.join(strings_from_file)[:30] + ' [...]" to file: ' + path, level=loglevel)
 		if user == None:
 			user = self.whoami()
 		if group == None:
@@ -1921,7 +1952,7 @@ $'"""
 					try:
 						child.interact(input_filter=self._pause_input_filter)
 					except Exception as e:
-						self.fail('Failed to interact, quitting.\n' + str(e))
+						self.fail('Terminating ShutIt.\n' + str(e))
 						self.log('CTRL-] caught, continuing with run...',logging.INFO)
 				else:
 					time.sleep(wait)
@@ -1929,9 +1960,15 @@ $'"""
 			else:
 				pass
 		else:
+<<<<<<< HEAD
 			print msg
 			print 'Nothing to interact with, so quitting to presumably the original shell'
 			shutit_util.handle_exit(exit_code=1)
+=======
+			shutit.log(msg,logging.DEBUG)
+			shutit.log('Nothing to interact with, so quitting to presumably the original shell',logging.DEBUG)
+			sys.exit(1)
+>>>>>>> 37621d2fae6000a1c70a7b4ada4e5581df0b2427
 		cfg['build']['ctrlc_stop'] = False
 		return True
 

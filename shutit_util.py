@@ -392,7 +392,7 @@ def parse_args(shutit):
 	cfg['host']['real_user_id'] = pexpect.run('id -u ' + cfg['host']['real_user']).strip()
 
 	# These are in order of their creation
-	actions = ['build', 'list_configs', 'list_modules', 'list_deps', 'skeleton']
+	actions = ['build', 'list_configs', 'list_modules', 'list_deps', 'skeleton', 'version']
 
 	# COMPAT 2014-05-15 - build is the default if there is no action specified
 	# and we've not asked for help and we've called via 'shutit_main.py'
@@ -409,8 +409,8 @@ def parse_args(shutit):
 		return ivalue
 
 	parser = argparse.ArgumentParser(description='ShutIt - a tool for managing complex Docker deployments.\n\nTo view help for a specific subcommand, type ./shutit <subcommand> -h',prog="ShutIt")
-	parser.add_argument('--version', action='version', version='%(prog)s 0.7')
 	subparsers = parser.add_subparsers(dest='action', help='''Action to perform - build=deploy to target, skeleton=construct a skeleton module, list_configs=show configuration as read in, list_modules=show modules available, list_deps=show dep graph ready for graphviz. Defaults to 'build'.''')
+	
 
 	sub_parsers = dict()
 	for action in actions:
@@ -490,6 +490,9 @@ def parse_args(shutit):
 				env_args_list[-1] = env_args_list[-1] + item
 		args_list[1:1] = env_args_list
 	args = parser.parse_args(args_list)
+	if args.action == 'version':
+		print 'ShutIt version: ' + shutit_main.shutit_version
+		sys.exit(0)
 
 	# What are we asking shutit to do?
 	cfg['action']['list_configs'] = args.action == 'list_configs'
