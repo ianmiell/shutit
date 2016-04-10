@@ -197,7 +197,7 @@ class ConnDocker(ShutItConnModule):
 		"""Sets up the target ready for building.
 		"""
 		# Uncomment for testing for "failure" cases.
-		#sys.exit(1)
+		#shutit_util.handle_exit(exit_code=1)
 		while not self._check_docker(shutit):
 			pass
 

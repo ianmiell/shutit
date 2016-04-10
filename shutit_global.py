@@ -109,10 +109,10 @@ class ShutIt(object):
 		"""
 		if self._default_child == None:
 			print 'Default child not set yet, exiting'
-			sys.exit(1)
+			shutit_util.handle_exit(exit_code=1)
 		if self._default_child[-1] is None:
 			print '''Couldn't get default child'''
-			sys.exit(1)
+			shutit_util.handle_exit(exit_code=1)
 		return self._default_child[-1]
 
 
@@ -181,7 +181,7 @@ class ShutIt(object):
 			# However, it's still a failure, so return 1
 			print msg
 			print 'Error seen, exiting with status 1'
-			sys.exit(1)
+			shutit_util.handle_exit(exit_code=1)
 
 
 	def log(self, msg, code=None, add_final_message=False, level=logging.INFO):
@@ -455,7 +455,7 @@ class ShutIt(object):
 					continue
 				if send == 'shutitquit':
 					self.challenge_done(result='reset',follow_on_context=follow_on_context)
-					sys.exit(1)
+					shutit_util.handle_exit(exit_code=1)
 				if send == 'exit':
 					self.challenge_done(result='exited',follow_on_context=follow_on_context)
 					return
@@ -1893,7 +1893,7 @@ $'"""
 		if not ok:
 			# If we get an exception here, assume we are exiting following a problem before we have a child.
 			print 'Exception caught in pause_point, exiting'
-			sys.exit(1)
+			shutit_util.handle_exit(exit_code=1)
 		cfg = self.cfg
 		if (not shutit_util.determine_interactive(self) or cfg['build']['interactive'] < 1 or
 			cfg['build']['interactive'] < level):
@@ -1931,7 +1931,7 @@ $'"""
 		else:
 			print msg
 			print 'Nothing to interact with, so quitting to presumably the original shell'
-			sys.exit(1)
+			shutit_util.handle_exit(exit_code=1)
 		cfg['build']['ctrlc_stop'] = False
 		return True
 
