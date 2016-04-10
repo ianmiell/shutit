@@ -184,17 +184,22 @@ class ShutIt(object):
 			shutit_util.handle_exit(exit_code=1)
 
 
-	def log(self, msg, code=None, add_final_message=False, level=logging.INFO):
+	def log(self, msg, code=None, add_final_message=False, level=logging.INFO, transient=False):
 		"""Logging function.
 
 		@param code:              Colour code for logging.
 		@param add_final_message: Add this log line to the final message output to the user
 		@param level:             Python log level
+		@param transient:         Just write to terminal, no new line
 		"""
-		cfg = self.cfg
-		logging.log(level,msg)
-		if add_final_message:
-			cfg['build']['report_final_messages'] += msg + '\n'
+		if transient:
+			sys.stdout.write(msg)
+			return
+		else:
+			cfg = self.cfg
+			logging.log(level,msg)
+			if add_final_message:
+				cfg['build']['report_final_messages'] += msg + '\n'
 
 
 	def setup_environment(self, prefix, expect=None, child=None, loglevel=logging.DEBUG):
