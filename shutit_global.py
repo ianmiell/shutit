@@ -1922,9 +1922,9 @@ $'"""
 						child.interact(input_filter=self._pause_input_filter)
 					except Exception as e:
 						self.fail('Failed to interact, quitting.\n' + str(e))
+						self.log('CTRL-] caught, continuing with run...',logging.INFO)
 				else:
 					time.sleep(wait)
-				self.log('CTRL-] caught, continuing with run...',logging.INFO)
 				child.logfile_send = oldlog
 			else:
 				pass
