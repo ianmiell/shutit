@@ -10,10 +10,12 @@ Automation framework for programmers.
 
  - Shell-based (minimal learning curve)
  - [Pattern-based](https://github.com/ianmiell/shutit-templates) extensible framework
+ - Use your python skills to make it work the way you want
  - Available patterns include:
    - bash builds
    - Docker builds
    - Vagrant builds
+   - Vagrant multinode builds
  - Modular
    - [Build an OS from scratch step by step](https://zwischenzugs.wordpress.com/2015/01/12/make-your-own-bespoke-docker-image/)
  - Outputs include a series of shell commands you can port to other CM tools
@@ -24,10 +26,10 @@ Automation framework for programmers.
    - [Understanding Docker Namespaces](https://zwischenzugs.wordpress.com/2015/11/21/understanding-docker-network-namespaces/)
  - 'Video mode', ideal for demos
    - [Automating Docker Security Checks](https://asciinema.org/a/32001?t=120)
- - 'Golf mode' - set challenges for users
+ - 'Challenge mode' - set command challenges for users
    - [grep scales](https://github.com/ianmiell/grep-scales)
+ - 'Golf mode' - set task challenges for users
  - ShutIt [Lifecycle](https://github.com/ianmiell/shutit/blob/master/README.md) allows for configuration, testing, modularity, and finalization
- - Use your python skills to make it work the way you want
 
 Many more examples explained [here](https://zwischenzugs.wordpress.com):
 
@@ -85,7 +87,6 @@ branch = shutit.send_and_get_output("git status -s -b | grep '##' | awk '{print 
 # If the branch is not correct, check out the correct branch
 if branch != 'gh-pages':
 	shutit.send('git checkout gh-pages')
-
 ```
 
 # Step 4: Use a template
