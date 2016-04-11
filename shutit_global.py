@@ -823,8 +823,7 @@ $'"""
 
 
 	def _expect_allow_interrupt(self, child, expect, timeout, iteration_s=1):
-		"""This function allows you to interrupt the run at more or less any
-		point by breaking up the timeout into interative chunks.
+		"""This function allows you to interrupt the run at more or less any point by breaking up the timeout into interactive chunks.
 		"""
 		accum_timeout = 0
 		if type(expect) == str:
@@ -1010,8 +1009,8 @@ $'"""
 		expect = expect or self.get_default_expect()
 		cfg = self.cfg
 		self._handle_note(note, 'Sending contents to path: ' + path)
-		split_contents = ''.join((contents.split()))
-		# TODO: make more efficient
+		# make more efficient by only looking at first 10000 chars, stop when we get to 30 chars rather than reading whole file.
+		split_contents = ''.join((contents[:10000].split()))
 		strings_from_file = re.findall("[^\x00-\x1F\x7F-\xFF]", split_contents)
 		self.log('Sending file contents beginning: "' + ''.join(strings_from_file)[:30] + ' [...]" to file: ' + path, level=loglevel)
 		if user == None:
