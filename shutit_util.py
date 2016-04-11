@@ -492,7 +492,7 @@ def parse_args(shutit):
 	args = parser.parse_args(args_list)
 	if args.action == 'version':
 		print 'ShutIt version: ' + shutit_main.shutit_version
-		sys.exit(0)
+		handle_exit(exit_code=0)
 
 	# What are we asking shutit to do?
 	cfg['action']['list_configs'] = args.action == 'list_configs'
@@ -2019,10 +2019,14 @@ def allowed_image(shutit,module_id):
 	return False
 
 
-def handle_exit(shutit=None,exit_code=0):
+def handle_exit(shutit=None,exit_code=0,loglevel=logging.DEBUG,msg=None):
+	if not msg:
+		msg = 'Exiting with error code: ' + str(exit_code)
 	if not shutit:
+		print msg
 		sys.exit(exit_code)
 	else:
+		shutit.log('Exiting with error code: ' + str(exit_code),level=loglevel)
 		sys.exit(exit_code)
 
 
