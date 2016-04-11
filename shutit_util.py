@@ -1349,12 +1349,11 @@ def get_wide_hex(char):
 # CTRL-\ HANDLING CODE STARTS
 def ctrl_quit_signal_handler(signal, frame):
 	print 'CRTL-\ caught, hard-exiting ShutIt'
-	# TODO: reset terminal?
 	shutit_frame = get_shutit_frame(frame)
 	if shutit_frame:
 		shutit = shutit_frame.f_locals['shutit']
 		shutit_main.do_finalize(shutit)
-	os._exit(1)
+	handle_exit(exit_code=1)
 # CTRL-\ HANDLING CODE ENDS
 
 
@@ -2024,10 +2023,14 @@ def handle_exit(shutit=None,exit_code=0,loglevel=logging.DEBUG,msg=None):
 		msg = 'Exiting with error code: ' + str(exit_code)
 	if not shutit:
 		print msg
-		sys.exit(exit_code)
+		print 'Resetting terminal'
 	else:
 		shutit.log('Exiting with error code: ' + str(exit_code),level=loglevel)
-		sys.exit(exit_code)
+		shutit.log('Resetting terminal',level=loglevel)
+	os.system('stty sane')
+	sys.exit(exit_code)
+	# If we are still here, there was a problem, so take stronger measures
+	os._exit(1)
 
 
 # Static strings
