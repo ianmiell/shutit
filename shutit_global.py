@@ -490,10 +490,12 @@ class ShutIt(object):
 			# pause, and when done, it checks your working based on check_command.
 			ok = False
 			while not ok:
-				# TODO: message
-				self.pause_point('PAUSING')
+				# TODO: hints
+				self.pause_point('PAUSING') # TODO: message
 				check_command = follow_on_context.get('check_command')
 				output = self.send_and_get_output(check_command,child=child,timeout=timeout,retry=1,record_command=record_command,echo=echo, loglevel=loglevel, fail_on_empty_before=False)
+				md5sum_output = md5.md5(output).hexdigest()
+				self.log('output: ' + output + ' is md5sum: ' + md5sum_output,level=logging.DEBUG)
 				if expect_type == 'md5sum':
 					output = md5sum_output
 					if output == expect:
@@ -1935,11 +1937,12 @@ $'"""
 			return
 		if child:
 			if print_input:
-				if resize:
-					self.send_host_file('/tmp/fixterm',self.shutit_main_dir+'/fixterm', child=child, loglevel=loglevel)
-					self.send(' chmod 777 /tmp/fixterm', echo=False,loglevel=loglevel)
+				fixterm_filename = '/tmp/shutit_fixterm'
+				if resize and not self.file_exists(fixterm_filename):
+					self.send_host_file(fixterm_filename,self.shutit_main_dir+'/fixterm', child=child, loglevel=loglevel)
+					self.send(' chmod 777 ' + fixterm_filename, echo=False,loglevel=loglevel)
 					# Arrange for fixterm to be run when there is a terminal, and then deleted.
-					self.send(' export PROMPT_COMMAND="/tmp/fixterm && unset PROMPT_COMMAND && rm /tmp/fixterm"',loglevel=0)
+					self.send(' export PROMPT_COMMAND="' + fixterm_filename + ' && unset PROMPT_COMMAND"',loglevel=0)
 				if default_msg == None:
 					if not cfg['build']['video']:
 						pp_msg = '\nYou can now type in commands and alter the state of the target.\nHit:\n\t- return once to get a prompt and correctly resize the terminal\n\t- CTRL and ] at the same time to continue with build.'
