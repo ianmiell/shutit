@@ -41,6 +41,7 @@ import md5
 from shutit_module import ShutItFailException
 import logging
 import shutit_main
+import shutit_assets
 
 
 class ShutIt(object):
@@ -1939,7 +1940,7 @@ $'"""
 			if print_input:
 				fixterm_filename = '/tmp/shutit_fixterm'
 				if resize and not self.file_exists(fixterm_filename):
-					self.send_host_file(fixterm_filename,self.shutit_main_dir+'/fixterm', child=child, loglevel=loglevel)
+					self.send_file(fixterm_filename,shutit_assets.get_fixterm(), child=child, loglevel=loglevel)
 					self.send(' chmod 777 ' + fixterm_filename, echo=False,loglevel=loglevel)
 					# Arrange for fixterm to be run when there is a terminal, and then deleted.
 					self.send(' export PROMPT_COMMAND="' + fixterm_filename + ' && unset PROMPT_COMMAND"',loglevel=0)
