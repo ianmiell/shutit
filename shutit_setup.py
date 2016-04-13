@@ -301,8 +301,8 @@ class ConnDocker(ShutItConnModule):
 
 		self._setup_prompts(shutit, target_child)
 		self._add_begin_build_info(shutit, docker_command)
-
 		return True
+
 
 	def finalize(self, shutit):
 		"""Finalizes the target, exiting for us back to the original shell

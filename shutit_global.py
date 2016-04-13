@@ -460,13 +460,13 @@ class ShutIt(object):
 					time.sleep(pause)
 					continue
 				if send == 'shutitreset':
-					self.challenge_done(result='reset',follow_on_context=follow_on_context)
+					self._challenge_done(result='reset',follow_on_context=follow_on_context)
 					continue
 				if send == 'shutitquit':
-					self.challenge_done(result='reset',follow_on_context=follow_on_context)
+					self._challenge_done(result='reset',follow_on_context=follow_on_context)
 					shutit_util.handle_exit(exit_code=1)
 				if send == 'exit':
-					self.challenge_done(result='exited',follow_on_context=follow_on_context)
+					self._challenge_done(result='exited',follow_on_context=follow_on_context)
 					return
 				output = self.send_and_get_output(send,child=child,timeout=timeout,retry=1,record_command=record_command,echo=echo, loglevel=loglevel, fail_on_empty_before=False)
 				md5sum_output = md5.md5(output).hexdigest()
@@ -485,7 +485,7 @@ class ShutIt(object):
 							break
 				if not ok and failed:
 					print '\n\n' + shutit_util.colour('32','failed') + '\n'
-					self.challenge_done(result='failed')
+					self._challenge_done(result='failed')
 					continue
 		elif challenge_type == 'golf':
 			# pause, and when done, it checks your working based on check_command.
@@ -511,17 +511,17 @@ class ShutIt(object):
 							break
 				if not ok and failed:
 					print '\n\n' + shutit_util.colour('32','failed') + '\n'
-					self.challenge_done(result='failed')
+					self._challenge_done(result='failed')
 					continue
 		else:
 			self.fail('Challenge type: ' + challenge_type + ' not supported')
-		self.challenge_done(result='ok',follow_on_context=follow_on_context)
+		self._challenge_done(result='ok',follow_on_context=follow_on_context,congratulations=congratulations)
 	# Alternate names
 	practice = challenge
 	golf     = challenge
 
 
-	def challenge_done(self, result=None, congratulations=None, follow_on_context={},pause=1):
+	def _challenge_done(self, result=None, congratulations=None, follow_on_context={},pause=1):
 		if result == 'ok':
 			if congratulations:
 				print '\n\n' + shutit_util.colour('32',congratulations) + '\n'
@@ -2917,6 +2917,8 @@ $'"""
 		# start up new container and connect to it
 		cfg['target']['docker_image'] = new_target_image_name
 		shutit_main.conn_target(self)
+		# Set up prompt
+		self.setup_prompt('root')
 		return
 
 
