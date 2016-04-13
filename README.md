@@ -1,6 +1,7 @@
 [ShutIt](http://shutit.tk)
 ==========================
 
+
 [![Join the chat at https://gitter.im/ianmiell/shutit](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/ianmiell/shutit?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 Complex Builds Made Simple.
 
@@ -108,6 +109,7 @@ Known Issues
 Since a core technology used in this application is pexpect - and a typical usage pattern is to expect the prompt to return. Unusual shell prompts and escape sequences have been known to cause problems. Use the shutit.setup_prompt() function to help manage this by setting up a more sane prompt. Use of COMMAND_PROMPT with echo -ne has been seen to cause problems with overwriting of shells and pexpect patterns.
 
 
+[![ScreenShot](https://raw.github.com/GabLeRoux/WebMole/master/ressources/WebMole_Youtube_Video.png)](https://www.youtube.com/watch?v=gsEtaX207a4)
 
 Licence
 ------------
