@@ -375,8 +375,8 @@ def build_module(shutit, module, loglevel=logging.DEBUG):
 	"""Build passed-in module.
 	"""
 	cfg = shutit.cfg
-	shutit.log('building: ' + module.module_id + ' with run order: ' + str(module.run_order), level=logging.INFO)
-	cfg['build']['report'] = (cfg['build']['report'] + '\nBuilding: ' + module.module_id + ' with run order: ' + str(module.run_order))
+	shutit.log('Building ShutIt module: ' + module.module_id + ' with run order: ' + str(module.run_order), level=logging.INFO)
+	cfg['build']['report'] = (cfg['build']['report'] + '\nBuilding ShutIt module: ' + module.module_id + ' with run order: ' + str(module.run_order))
 	if not module.build(shutit):
 		shutit.fail(module.module_id + ' failed on build', child=shutit.pexpect_children['target_child'])
 	else:
@@ -755,7 +755,7 @@ def setup_signals():
 	signal.signal(signal.SIGINT, shutit_util.ctrl_c_signal_handler)
 	signal.signal(signal.SIGQUIT, shutit_util.ctrl_quit_signal_handler)
 
-shutit_version = '0.9.47'
+shutit_version = '0.9.48'
 if __name__ == '__main__':
 	setup_signals()
 	main()

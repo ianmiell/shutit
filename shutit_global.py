@@ -492,9 +492,9 @@ class ShutIt(object):
 		elif challenge_type == 'golf':
 			# pause, and when done, it checks your working based on check_command.
 			ok = False
-			self.log(shutit_util.colour('32','''\nHit CTRL-h for help.'''),transient=True)
+			# TODO: hints
+			#self.log(shutit_util.colour('32','''\nHit CTRL-h for help.'''),transient=True)
 			while not ok:
-				# TODO: hints
 				self.pause_point(shutit_util.colour('31',task_desc),colour='31') # TODO: message
 				check_command = follow_on_context.get('check_command')
 				output = self.send_and_get_output(check_command,child=child,timeout=timeout,retry=1,record_command=record_command,echo=echo, loglevel=loglevel, fail_on_empty_before=False)
@@ -1944,10 +1944,10 @@ $'"""
 				fixterm_filename = '/tmp/shutit_fixterm'
 				if resize:
 					if not self.file_exists(fixterm_filename):
-						self.send_file(fixterm_filename,shutit_assets.get_fixterm(), child=child, loglevel=loglevel)
-						self.send(' chmod 777 ' + fixterm_filename, echo=False,loglevel=loglevel)
+						self.send_file(fixterm_filename,shutit_assets.get_fixterm(), child=child, loglevel=logging.DEBUG)
+						self.send(' chmod 777 ' + fixterm_filename, echo=False,loglevel=logging.DEBUG)
 					# Arrange for fixterm to be run when there is a terminal, and then deleted.
-					self.send(' export PROMPT_COMMAND="' + fixterm_filename + ' && unset PROMPT_COMMAND"',loglevel=0)
+					self.send(' export PROMPT_COMMAND="' + fixterm_filename + ' && unset PROMPT_COMMAND"',loglevel=logging.DEBUG)
 				if default_msg == None:
 					if not cfg['build']['video']:
 						pp_msg = '\nYou can now type in commands and alter the state of the target.\nHit:\n\t- return once to get a prompt and correctly resize the terminal\n\t- CTRL and ] at the same time to continue with build.'
@@ -2114,12 +2114,14 @@ $'"""
 			string_with_termcodes = before.strip()
 			string_without_termcodes = ansi_escape.sub('', string_with_termcodes)
 			string_without_termcodes_stripped = string_without_termcodes.strip()
-			for c in string_without_termcodes_stripped:
-				self.log((str(hex(ord(c))) + ' '),level=logging.DEBUG)
+			if False:
+				for c in string_without_termcodes_stripped:
+					self.log((str(hex(ord(c))) + ' '),level=logging.DEBUG)
 			return string_without_termcodes_stripped
 		else:
-			for c in before:
-				self.log((str(hex(ord(c))) + ' '),level=logging.DEBUG)
+			if False:
+				for c in before:
+					self.log((str(hex(ord(c))) + ' '),level=logging.DEBUG)
 			return before
 
 

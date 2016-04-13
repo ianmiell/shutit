@@ -1044,7 +1044,7 @@ def load_mod_from_file(shutit, fpath):
 			ok = True
 			break
 	if not ok:
-		shutit.log('Rejected file: ' + fpath,level=logging.INFO)
+		shutit.log('Rejected file: ' + fpath,level=logging.DEBUG)
 		return
 	# Note that this attribute will only be set for 'new style' module loading, # this should be ok because 'old style' loading checks for duplicate # existing modules.
 	# TODO: this is quadratic complexity
