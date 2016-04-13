@@ -755,7 +755,7 @@ def setup_signals():
 	signal.signal(signal.SIGINT, shutit_util.ctrl_c_signal_handler)
 	signal.signal(signal.SIGQUIT, shutit_util.ctrl_quit_signal_handler)
 
-shutit_version = '0.9.46'
+shutit_version = '0.9.47'
 if __name__ == '__main__':
 	setup_signals()
 	main()

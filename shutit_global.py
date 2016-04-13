@@ -2115,11 +2115,11 @@ $'"""
 			string_without_termcodes = ansi_escape.sub('', string_with_termcodes)
 			string_without_termcodes_stripped = string_without_termcodes.strip()
 			for c in string_without_termcodes_stripped:
-				self.log((str(hex(ord(c))) + ' '),level=loglevel.DEBUG)
+				self.log((str(hex(ord(c))) + ' '),level=logging.DEBUG)
 			return string_without_termcodes_stripped
 		else:
 			for c in before:
-				self.log((str(hex(ord(c))) + ' '),level=loglevel.DEBUG)
+				self.log((str(hex(ord(c))) + ' '),level=logging.DEBUG)
 			return before
 
 
