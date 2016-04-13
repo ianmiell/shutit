@@ -449,7 +449,7 @@ class ShutIt(object):
 					self.log(shutit_util.colour('32',help_text),transient=True)
 				time.sleep(pause)
 				# TODO: bash path completion
-				send = self.get_input(task_desc + ' => ')
+				send = self.get_input(task_desc + ' => ',colour='31')
 				if not send or send.strip() == '':
 					continue
 				if send in ('help','h'):
@@ -495,12 +495,13 @@ class ShutIt(object):
 			self.log(shutit_util.colour('32','''\nHit CTRL-h for help.'''),transient=True)
 			while not ok:
 				# TODO: hints
-				self.pause_point(task_desc) # TODO: message
+				self.pause_point(shutit_util.colour('31',task_desc),colour='31') # TODO: message
 				check_command = follow_on_context.get('check_command')
 				output = self.send_and_get_output(check_command,child=child,timeout=timeout,retry=1,record_command=record_command,echo=echo, loglevel=loglevel, fail_on_empty_before=False)
+				self.log('output: ' + output,level=logging.DEBUG)
 				md5sum_output = md5.md5(output).hexdigest()
-				self.log('output: ' + output + ' is md5sum: ' + md5sum_output,level=logging.DEBUG)
 				if expect_type == 'md5sum':
+					self.log('output: ' + output + ' is md5sum: ' + md5sum_output,level=logging.DEBUG)
 					output = md5sum_output
 					if output == expect:
 						ok = True
@@ -1941,9 +1942,10 @@ $'"""
 		if child:
 			if print_input:
 				fixterm_filename = '/tmp/shutit_fixterm'
-				if resize and not self.file_exists(fixterm_filename):
-					self.send_file(fixterm_filename,shutit_assets.get_fixterm(), child=child, loglevel=loglevel)
-					self.send(' chmod 777 ' + fixterm_filename, echo=False,loglevel=loglevel)
+				if resize:
+					if not self.file_exists(fixterm_filename):
+						self.send_file(fixterm_filename,shutit_assets.get_fixterm(), child=child, loglevel=loglevel)
+						self.send(' chmod 777 ' + fixterm_filename, echo=False,loglevel=loglevel)
 					# Arrange for fixterm to be run when there is a terminal, and then deleted.
 					self.send(' export PROMPT_COMMAND="' + fixterm_filename + ' && unset PROMPT_COMMAND"',loglevel=0)
 				if default_msg == None:
@@ -2093,8 +2095,7 @@ $'"""
 		expect = expect or self.get_default_expect()
 		self._handle_note(note, command=str(send))
 		self.log('Retrieving output from command: ' + send,level=loglevel)
-		# Don't check exit, as that will pollute the output. Also, it's quite likely the
-		# submitted command is intended to fail.
+		# Don't check exit, as that will pollute the output. Also, it's quite likely the submitted command is intended to fail.
 		self.send(self._get_send_command(send), child=child, expect=expect, check_exit=False, retry=retry, echo=echo, timeout=timeout, record_command=record_command, loglevel=loglevel, fail_on_empty_before=fail_on_empty_before)
 		before = child.before
 		cfg = self.cfg
@@ -2112,8 +2113,13 @@ $'"""
 			ansi_escape = re.compile(r'\x1b[^m]*m')
 			string_with_termcodes = before.strip()
 			string_without_termcodes = ansi_escape.sub('', string_with_termcodes)
-			return string_without_termcodes.strip()
+			string_without_termcodes_stripped = string_without_termcodes.strip()
+			for c in string_without_termcodes_stripped:
+				self.log((str(hex(ord(c))) + ' '),level=loglevel.DEBUG)
+			return string_without_termcodes_stripped
 		else:
+			for c in before:
+				self.log((str(hex(ord(c))) + ' '),level=loglevel.DEBUG)
 			return before
 
 
@@ -3034,7 +3040,7 @@ $'"""
 			cfg['build']['report'] = (cfg['build']['report'] + '\nPushed repository: ' + repository)
 
 
-	def get_input(self, msg, default='', valid=[], boolean=False, ispass=False):
+	def get_input(self, msg, default='', valid=[], boolean=False, ispass=False, colour='32'):
 		"""Gets input from the user, and returns the answer.
 
 		@param msg:       message to send to user
@@ -3049,7 +3055,7 @@ $'"""
 		if valid != []:
 			while answer not in valid:
 				shutit.log('Answer must be one of: ' + str(valid),transient=True)
-				answer = shutit_util.util_raw_input(prompt=shutit_util.colour('32',msg),ispass=ispass)
+				answer = shutit_util.util_raw_input(prompt=shutit_util.colour(colour,msg),ispass=ispass)
 		if boolean and answer in ('yes','y','Y','1','true'):
 			return True
 		if boolean and answer in ('no','n','N','0','false'):
