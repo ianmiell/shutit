@@ -543,7 +543,7 @@ def main():
 
 	shutit = shutit_global.shutit
 	cfg = shutit.cfg
-	shutit.log('ShutIt Started... ',transient=True)
+	shutit.log('ShutIt Started... ',transient=True,newline=False)
 	shutit_util.parse_args(shutit)
 
 	if cfg['action']['skeleton']:
@@ -551,7 +551,7 @@ def main():
 		cfg['build']['completed'] = True
 		return
 
-	shutit.log('Loading configs...\n',transient=True)
+	shutit.log('Loading configs...',transient=True)
 	shutit_util.load_configs(shutit)
 
 	# Try and ensure shutit is on the path - makes onboarding easier

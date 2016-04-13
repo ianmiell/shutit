@@ -109,10 +109,10 @@ class ShutIt(object):
 		@return: default pexpect child object
 		"""
 		if self._default_child == None:
-			print 'Default child not set yet, exiting'
+			self.log('Default child not set yet, exiting',transient=True)
 			shutit_util.handle_exit(exit_code=1)
 		if self._default_child[-1] is None:
-			print '''Couldn't get default child'''
+			self.log('''Couldn't get default child''',transient=True)
 			shutit_util.handle_exit(exit_code=1)
 		return self._default_child[-1]
 
@@ -185,7 +185,7 @@ class ShutIt(object):
 			shutit_util.handle_exit(exit_code=1)
 
 
-	def log(self, msg, code=None, add_final_message=False, level=logging.INFO, transient=False):
+	def log(self, msg, code=None, add_final_message=False, level=logging.INFO, transient=False, newline=True):
 		"""Logging function.
 
 		@param code:              Colour code for logging.
@@ -194,6 +194,8 @@ class ShutIt(object):
 		@param transient:         Just write to terminal, no new line
 		"""
 		if transient:
+			if newline:
+				msg += '\n'
 			sys.stdout.write(msg)
 			return
 		else:
@@ -424,6 +426,7 @@ class ShutIt(object):
 		                             command = check for output of single command
 		                             golf    = user gets a pause point, and when leaving, command follow_on_context['check_command'] is run to check the output
 		"""
+		child = child or self.get_default_child()
 		# don't catch CTRL-C, pass it through.
 		self.cfg['build']['ctrlc_passthrough'] = True
 		if expect_type == 'regexp':
@@ -437,14 +440,13 @@ class ShutIt(object):
 			pass
 		else:
 			self.fail('Must pass either expect_regexps or md5sum in')
-		child = child or self.get_default_child()
 		if challenge_type == 'command':
 			help_text = shutit_util.colour('32','''\nType 'help' or 'h' to get a hint, 'exit' to skip, 'shutitreset' to reset state.''')
 			ok = False
 			while not ok:
-				print shutit_util.colour('32','''\nChallenge!''')
+				self.log(shutit_util.colour('32','''\nChallenge!'''),transient=True)
 				if len(hints):
-					print shutit_util.colour('32',help_text)
+					self.log(shutit_util.colour('32',help_text),transient=True)
 				time.sleep(pause)
 				# TODO: bash path completion
 				send = self.get_input(task_desc + ' => ')
@@ -452,11 +454,11 @@ class ShutIt(object):
 					continue
 				if send in ('help','h'):
 					if len(hints):
-						print help_text
-						print shutit_util.colour('32',hints.pop(0))
+						self.log(help_text,transient=True)
+						self.log(shutit_util.colour('32',hints.pop(0)),transient=True)
 					else:
-						print help_text
-						print shutit_util.colour('32','No hints left, sorry!')
+						self.log(help_text,transient=True)
+						self.log(shutit_util.colour('32','No hints left, sorry!'),transient=True)
 					time.sleep(pause)
 					continue
 				if send == 'shutitreset':
@@ -484,15 +486,16 @@ class ShutIt(object):
 							ok = True
 							break
 				if not ok and failed:
-					print '\n\n' + shutit_util.colour('32','failed') + '\n'
+					self.log('\n\n' + shutit_util.colour('32','failed') + '\n',transient=True)
 					self._challenge_done(result='failed')
 					continue
 		elif challenge_type == 'golf':
 			# pause, and when done, it checks your working based on check_command.
 			ok = False
+			self.log(shutit_util.colour('32','''\nHit CTRL-h for help.'''),transient=True)
 			while not ok:
 				# TODO: hints
-				self.pause_point('PAUSING') # TODO: message
+				self.pause_point(task_desc) # TODO: message
 				check_command = follow_on_context.get('check_command')
 				output = self.send_and_get_output(check_command,child=child,timeout=timeout,retry=1,record_command=record_command,echo=echo, loglevel=loglevel, fail_on_empty_before=False)
 				md5sum_output = md5.md5(output).hexdigest()
@@ -510,7 +513,7 @@ class ShutIt(object):
 							ok = True
 							break
 				if not ok and failed:
-					print '\n\n' + shutit_util.colour('32','failed') + '\n'
+					shutit.log('\n\n' + shutit_util.colour('32','failed') + '\n',transient=True)
 					self._challenge_done(result='failed')
 					continue
 		else:
@@ -524,7 +527,7 @@ class ShutIt(object):
 	def _challenge_done(self, result=None, congratulations=None, follow_on_context={},pause=1):
 		if result == 'ok':
 			if congratulations:
-				print '\n\n' + shutit_util.colour('32',congratulations) + '\n'
+				self.log('\n\n' + shutit_util.colour('32',congratulations) + '\n',transient=True)
 			time.sleep(pause)
 			self.cfg['build']['ctrlc_passthrough'] = False
 			if follow_on_context != {}:
@@ -1231,8 +1234,7 @@ $'"""
 			pass
 		else:
 			# Change to log?
-			print repr('before>>>>:%s<<<< after:>>>>%s<<<<' %
-				(child.before, child.after))
+			self.log(repr('before>>>>:%s<<<< after:>>>>%s<<<<' % (child.before, child.after)),transient=True)
 			self.pause_point('Did not see FIL(N)?EXIST in output:\n' + output, child)
 		self._handle_note_after(note=note)
 		return ret
@@ -1822,8 +1824,8 @@ $'"""
 		config_parser = cfg['config_parser']
 		usercfg       = os.path.join(cfg['shutit_home'], 'config')
 
-		print shutit_util.colour('32', '\nPROMPTING FOR CONFIG: %s' % (cfgstr,))
-		print shutit_util.colour('32', '\n' + msg + '\n')
+		self.log(shutit_util.colour('32', '\nPROMPTING FOR CONFIG: %s' % (cfgstr,)),transient=True)
+		self.log(shutit_util.colour('32', '\n' + msg + '\n'),transient=True)
 		
 		if not shutit_util.determine_interactive(shutit):
 			self.fail('ShutIt is not in a terminal so cannot prompt for values.', throw_exception=False)
@@ -1930,7 +1932,7 @@ $'"""
 			ok=False
 		if not ok:
 			# If we get an exception here, assume we are exiting following a problem before we have a child.
-			print 'Exception caught in pause_point, exiting'
+			self.log('Exception caught in pause_point, exiting',transient=True)
 			shutit_util.handle_exit(exit_code=1)
 		cfg = self.cfg
 		if (not shutit_util.determine_interactive(self) or cfg['build']['interactive'] < 1 or
@@ -1949,11 +1951,11 @@ $'"""
 						pp_msg = '\nYou can now type in commands and alter the state of the target.\nHit:\n\t- return once to get a prompt and correctly resize the terminal\n\t- CTRL and ] at the same time to continue with build.'
 						if cfg['build']['delivery'] == 'docker':
 							pp_msg += '\n\t- CTRL and u to save the state to a docker image'
-						print '\n' + (shutit_util.colour(colour, msg) + shutit_util.colour(colour,pp_msg))
+						self.log('\n' + (shutit_util.colour(colour, msg) + shutit_util.colour(colour,pp_msg)),transient=True)
 					else:
-						print '\n' + (shutit_util.colour(colour, msg))
+						self.log('\n' + (shutit_util.colour(colour, msg)),transient=True)
 				else:
-					print shutit_util.colour(colour, msg) + '\n' + default_msg + '\n'
+					self.log(shutit_util.colour(colour, msg) + '\n' + default_msg + '\n',transient=True)
 				oldlog = child.logfile_send
 				child.logfile_send = None
 				if wait < 0:
@@ -3046,7 +3048,7 @@ $'"""
 		answer = shutit_util.util_raw_input(prompt=shutit_util.colour('32',msg),ispass=ispass)
 		if valid != []:
 			while answer not in valid:
-				print 'Answer must be one of: ' + str(valid)
+				shutit.log('Answer must be one of: ' + str(valid),transient=True)
 				answer = shutit_util.util_raw_input(prompt=shutit_util.colour('32',msg),ispass=ispass)
 		if boolean and answer in ('yes','y','Y','1','true'):
 			return True
