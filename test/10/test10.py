@@ -33,21 +33,21 @@ class test10(ShutItModule):
 		# shutit.get_config(module_id,option,default=None) - get configuration value
 		# shutit.get_ip_address() - returns the ip address of the target
 		if not shutit.send_and_match_output('echo "A STRING"','A STR'):
-			shutit.fail('test10 failed')
+			shutit.fail('test10.1 failed')
 		if not shutit.send_and_match_output('echo "A STRING"','A STRING'):
-			shutit.fail('test10 failed')
+			shutit.fail('test10.2 failed')
 		if shutit.send_and_match_output('echo "A STRING"','NO MATCH'):
-			shutit.fail('test10 failed')
+			shutit.fail('test10.3 failed')
 		if not shutit.send_and_match_output(r'''cat > /dev/stdout << END
 A STRING
 TWO LINES"
 END''','A STRING'):
-			shutit.fail('test10 failed')
+			shutit.fail('test10.4 failed')
 		if shutit.send_and_match_output(r'''cat > /dev/stdout << END
 A STRING
 TWO LINES
 END''','NO MATCH'):
-			shutit.fail('test10 failed')
+			shutit.fail('test10.5 failed')
 		return True
 
 def module():

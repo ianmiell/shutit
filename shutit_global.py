@@ -2016,6 +2016,9 @@ $'"""
 		new_lines = []
 		for line in lines:
 			new_lines = new_lines + line.split('\r')
+		# and sometimes they're separated by just a newline...
+		for line in lines:
+			new_lines = new_lines + line.split('\n')
 		lines = new_lines
 		if not shutit_util.check_regexp(regexp):
 			shutit.fail('Illegal regexp found in match_string call: ' + regexp)
@@ -2031,7 +2034,16 @@ $'"""
 	get_re_from_child = match_string
 
 
-	def send_and_match_output(self, send, matches, expect=None, child=None, retry=3, strip=True, note=None, echo=False, loglevel=logging.DEBUG):
+	def send_and_match_output(self,
+	                          send,
+	                          matches,
+	                          expect=None,
+	                          child=None,
+	                          retry=3,
+	                          strip=True,
+	                          note=None,
+	                          echo=False,
+	                          loglevel=logging.DEBUG):
 		"""Returns true if the output of the command matches any of the strings in
 		the matches list of regexp strings. Handles matching on a per-line basis
 		and does not cross lines.
@@ -2099,6 +2111,7 @@ $'"""
 		self.send(self._get_send_command(send), child=child, expect=expect, check_exit=False, retry=retry, echo=echo, timeout=timeout, record_command=record_command, loglevel=loglevel, fail_on_empty_before=fail_on_empty_before)
 		before = child.before
 		cfg = self.cfg
+		# Correct problem with first char in OSX.
 		try:
 			if cfg['environment'][cfg['build']['current_environment_id']]['distro'] == 'osx':
 				before_list = before.split('\r\n')
@@ -2114,10 +2127,12 @@ $'"""
 			string_with_termcodes = before.strip()
 			string_without_termcodes = ansi_escape.sub('', string_with_termcodes)
 			string_without_termcodes_stripped = string_without_termcodes.strip()
+			# Strip out \rs to make it output the same as a typical CL. This could be optional.
+			string_without_termcodes_stripped_no_cr = string_without_termcodes_stripped.replace('\r','')
 			if False:
-				for c in string_without_termcodes_stripped:
+				for c in string_without_termcodes_stripped_no_cr:
 					self.log((str(hex(ord(c))) + ' '),level=logging.DEBUG)
-			return string_without_termcodes_stripped
+			return string_without_termcodes_stripped_no_cr
 		else:
 			if False:
 				for c in before:
