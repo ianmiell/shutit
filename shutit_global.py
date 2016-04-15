@@ -429,12 +429,14 @@ class ShutIt(object):
 		child = child or self.get_default_child()
 		# don't catch CTRL-C, pass it through.
 		self.cfg['build']['ctrlc_passthrough'] = True
+		preserve_newline = False
 		if expect_type == 'regexp':
 			if type(expect) == str:
 				expect = [expect]
 			if type(expect) != list:
 				self.fail('expect_regexps should be list')
 		elif expect_type == 'md5sum':
+			preserve_newline = True
 			pass
 		elif expect_type == 'exact':
 			pass
@@ -470,7 +472,7 @@ class ShutIt(object):
 				if send == 'exit':
 					self._challenge_done(result='exited',follow_on_context=follow_on_context)
 					return
-				output = self.send_and_get_output(send,child=child,timeout=timeout,retry=1,record_command=record_command,echo=echo, loglevel=loglevel, fail_on_empty_before=False)
+				output = self.send_and_get_output(send,child=child,timeout=timeout,retry=1,record_command=record_command,echo=echo, loglevel=loglevel, fail_on_empty_before=False, preserve_newline=preserve_newline)
 				md5sum_output = md5.md5(output).hexdigest()
 				self.log('output: ' + output + ' is md5sum: ' + md5sum_output,level=logging.DEBUG)
 				if expect_type == 'md5sum':
@@ -496,8 +498,9 @@ class ShutIt(object):
 			#self.log(shutit_util.colour('32','''\nHit CTRL-h for help.'''),transient=True)
 			while not ok:
 				self.pause_point(shutit_util.colour('31',task_desc),colour='31') # TODO: message
+				shutit.log('State submitted, checking your work...',level=logging.INFO)
 				check_command = follow_on_context.get('check_command')
-				output = self.send_and_get_output(check_command,child=child,timeout=timeout,retry=1,record_command=record_command,echo=echo, loglevel=loglevel, fail_on_empty_before=False)
+				output = self.send_and_get_output(check_command,child=child,timeout=timeout,retry=1,record_command=record_command,echo=False, loglevel=loglevel, fail_on_empty_before=False, preserve_newline=preserve_newline)
 				self.log('output: ' + output,level=logging.DEBUG)
 				md5sum_output = md5.md5(output).hexdigest()
 				if expect_type == 'md5sum':
@@ -750,7 +753,7 @@ $'"""
 				logged_output = logged_output.replace(send,'',1)
 				logged_output = logged_output.replace('\r','')
 				logged_output = logged_output[:30] + ' [...]'
-				self.log('Output: ' + logged_output,level=loglevel)
+				self.log('Output (squashed): ' + logged_output,level=loglevel)
 				self.log('child.before>>>' + child.before + '<<<',level=logging.DEBUG,code=31)
 				self.log('child.after>>>' + child.after + '<<<',level=logging.DEBUG,code=32)
 			except:
@@ -2084,6 +2087,7 @@ $'"""
 	                        timeout=None,
 	                        retry=3,
 	                        strip=True,
+	                        preserve_newline=False,
 	                        note=None,
 	                        record_command=False,
 	                        echo=False,
@@ -2110,6 +2114,10 @@ $'"""
 		# Don't check exit, as that will pollute the output. Also, it's quite likely the submitted command is intended to fail.
 		self.send(self._get_send_command(send), child=child, expect=expect, check_exit=False, retry=retry, echo=echo, timeout=timeout, record_command=record_command, loglevel=loglevel, fail_on_empty_before=fail_on_empty_before)
 		before = child.before
+		if preserve_newline == True and before[-1] == '\n':
+			preserve_newline = True
+		else:
+			preserve_newline = False
 		cfg = self.cfg
 		# Correct problem with first char in OSX.
 		try:
@@ -2126,13 +2134,16 @@ $'"""
 			ansi_escape = re.compile(r'\x1b[^m]*m')
 			string_with_termcodes = before.strip()
 			string_without_termcodes = ansi_escape.sub('', string_with_termcodes)
-			string_without_termcodes_stripped = string_without_termcodes.strip()
+			#string_without_termcodes_stripped = string_without_termcodes.strip()
 			# Strip out \rs to make it output the same as a typical CL. This could be optional.
-			string_without_termcodes_stripped_no_cr = string_without_termcodes_stripped.replace('\r','')
+			string_without_termcodes_stripped_no_cr = string_without_termcodes.replace('\r','')
 			if False:
 				for c in string_without_termcodes_stripped_no_cr:
 					self.log((str(hex(ord(c))) + ' '),level=logging.DEBUG)
-			return string_without_termcodes_stripped_no_cr
+			if preserve_newline:
+				return string_without_termcodes_stripped_no_cr + '\n'
+			else:
+				return string_without_termcodes_stripped_no_cr
 		else:
 			if False:
 				for c in before:
@@ -2934,11 +2945,11 @@ $'"""
 
 	def replace_container(self, new_target_image_name):
 		cfg = self.cfg
-		# MVP: kill off container and log into new one
+		self.log('Replacing container, please wait...',level=logging.INFO)
 		container_id = cfg['target']['container_id']
 		shutit_main.finalize_target(self)
 		host_child = self.pexpect_children['host_child']
-		self.send('docker rm -f ' + container_id,child=host_child,expect=cfg['expect_prompts']['origin_prompt'])
+		self.send('docker rm -f ' + container_id,child=host_child,expect=cfg['expect_prompts']['origin_prompt'],loglevel=logging.DEBUG)
 		# start up new container and connect to it
 		cfg['target']['docker_image'] = new_target_image_name
 		shutit_main.conn_target(self)
