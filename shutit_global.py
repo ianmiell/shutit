@@ -501,9 +501,22 @@ class ShutIt(object):
 			ok = False
 			# hints
 			if len(hints):
-				self.log(shutit_util.colour('32','''\nHit CTRL-h for help.'''),transient=True)
+				task_desc += '\r\n\r\nHit CTRL-h for help'
 			while not ok:
 				self.pause_point(shutit_util.colour('31',task_desc),colour='31') # TODO: message
+				if cfg['SHUTIT_SIGNAL']['ID'] == 8:
+					if len(cfg['build']['pause_point_hints']):
+						self.log(shutit_util.colour('31','\r\nHINT:\r\n\r\n' + cfg['build']['pause_point_hints'].pop(0)),transient=True)
+					else:
+						self.log(shutit_util.colour('31','\r\n\r\n' + 'No hints available!'),transient=True)
+					time.sleep(1)
+					# clear the signal
+					cfg['SHUTIT_SIGNAL']['ID'] = 0
+					continue
+				if cfg['SHUTIT_SIGNAL']['ID'] == 8:
+					# TODO: implement reset, by recursing, then returning?
+					# clear the signal
+					cfg['SHUTIT_SIGNAL']['ID'] = 0
 				shutit.log('State submitted, checking your work...',level=logging.INFO)
 				check_command = follow_on_context.get('check_command')
 				output = self.send_and_get_output(check_command,child=child,timeout=timeout,retry=1,record_command=record_command,echo=False, loglevel=loglevel, fail_on_empty_before=False, preserve_newline=preserve_newline)
@@ -1957,26 +1970,24 @@ $'"""
 			return
 		if child:
 			if print_input:
-				fixterm_filename = '/tmp/shutit_fixterm'
 				if resize:
+					fixterm_filename = '/tmp/shutit_fixterm'
 					if not self.file_exists(fixterm_filename):
 						self.send_file(fixterm_filename,shutit_assets.get_fixterm(), child=child, loglevel=logging.DEBUG)
 						self.send(' chmod 777 ' + fixterm_filename, echo=False,loglevel=logging.DEBUG)
-					# Arrange for fixterm to be run when there is a terminal, and then deleted.
-					self.send(' export PROMPT_COMMAND="' + fixterm_filename + ' && unset PROMPT_COMMAND"',loglevel=logging.DEBUG)
+					child.sendline(fixterm_filename)
 				if default_msg == None:
 					if not cfg['build']['video']:
-						pp_msg = '\r\n\r\nYou can now type in commands and alter the state of the target.\r\nHit:\r\n\t- CTRL and ] at the same time to continue with build.'
+						pp_msg = '\r\nYou now have a standard shell. Hit CTRL and then ] at the same to continue ShutIt run.'
 						if cfg['build']['delivery'] == 'docker':
-							pp_msg += '\r\n\t- CTRL and u to save the state to a docker image'
-						self.log('\r\n' + (shutit_util.colour(colour, msg) + shutit_util.colour(colour,pp_msg)),transient=True)
+							pp_msg += '\r\nHit CTRL and u to save the state to a docker image'
+						self.log('\r\n' + 80*'=' + '\r\n' + shutit_util.colour(colour,msg) +'\r\n'+80*'='+'\r\n' + shutit_util.colour(colour,pp_msg),transient=True)
 					else:
 						self.log('\r\n' + (shutit_util.colour(colour, msg)),transient=True)
 				else:
 					self.log(shutit_util.colour(colour, msg) + '\r\n' + default_msg + '\r\n',transient=True)
 				oldlog = child.logfile_send
 				child.logfile_send = None
-				child.sendline('')
 				if wait < 0:
 					try:
 						child.interact(input_filter=self._pause_input_filter)
@@ -2008,11 +2019,14 @@ $'"""
 				self.log('Commit and tag done. Hit CTRL and ] to continue with build. Hit return for a prompt.',level=logging.INFO)
 			# CTRL-h
 			if ord(input_string) == 8:
-				if len(cfg['build']['pause_point_hints']):
-					self.log(shutit_util.colour('32','\r\n' + cfg['build']['pause_point_hints'].pop(0) + '\r\n'),transient=True)
-				else:
-					self.log(shutit_util.colour('32','\r\n' + 'No hints available.' + '\r\n'),transient=True)
-				return ''
+				cfg['SHUTIT_SIGNAL']['ID'] = 8
+				# Return the escape from pexpect char
+				return '\x1d'
+			# CTRL-g
+			if ord(input_string) == 7:
+				cfg['SHUTIT_SIGNAL']['ID'] = 7
+				# Return the escape from pexpect char
+				return '\x1d'
 		return input_string
 
 
@@ -3282,6 +3296,7 @@ def init():
 	shutit_main_dir = os.path.abspath(os.path.dirname(__file__))
 	cwd = os.getcwd()
 	cfg = {}
+	cfg['SHUTIT_SIGNAL']                  = {}
 	cfg['action']                         = {}
 	cfg['build']                          = {}
 	cfg['build']['interactive']           = 1 # Default to true until we know otherwise

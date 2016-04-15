@@ -300,8 +300,8 @@ def get_base_config(cfg, cfg_parser):
 	cfg['build']['check_exit']                 = True
 	# Width of terminal to set up on login and assume for other cases.
 	cfg['build']['stty_cols']                  = 320
-	# Hints to make available during pause points
-	cfg['build']['pause_point_hints']          = []
+	# Signals are set here, which is useful for context-switching callbacks.
+	cfg['SHUTIT_SIGNAL']['ID']                 = 0
 	# Take a command-line arg if given, else default.
 	if cfg['build']['conn_module'] == None:
 		cfg['build']['conn_module']            = cp.get('build', 'conn_module')
