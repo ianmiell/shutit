@@ -442,6 +442,10 @@ class ShutIt(object):
 			pass
 		else:
 			self.fail('Must pass either expect_regexps or md5sum in')
+		if len(hints):
+			cfg['build']['pause_point_hints'] = hints
+		else:
+			cfg['build']['pause_point_hints'] = []
 		if challenge_type == 'command':
 			help_text = shutit_util.colour('32','''\nType 'help' or 'h' to get a hint, 'exit' to skip, 'shutitreset' to reset state.''')
 			ok = False
@@ -471,6 +475,7 @@ class ShutIt(object):
 					shutit_util.handle_exit(exit_code=1)
 				if send == 'exit':
 					self._challenge_done(result='exited',follow_on_context=follow_on_context)
+					cfg['build']['pause_point_hints'] = []
 					return
 				output = self.send_and_get_output(send,child=child,timeout=timeout,retry=1,record_command=record_command,echo=echo, loglevel=loglevel, fail_on_empty_before=False, preserve_newline=preserve_newline)
 				md5sum_output = md5.md5(output).hexdigest()
@@ -494,8 +499,9 @@ class ShutIt(object):
 		elif challenge_type == 'golf':
 			# pause, and when done, it checks your working based on check_command.
 			ok = False
-			# TODO: hints
-			#self.log(shutit_util.colour('32','''\nHit CTRL-h for help.'''),transient=True)
+			# hints
+			if len(hints):
+				self.log(shutit_util.colour('32','''\nHit CTRL-h for help.'''),transient=True)
 			while not ok:
 				self.pause_point(shutit_util.colour('31',task_desc),colour='31') # TODO: message
 				shutit.log('State submitted, checking your work...',level=logging.INFO)
@@ -523,6 +529,8 @@ class ShutIt(object):
 		else:
 			self.fail('Challenge type: ' + challenge_type + ' not supported')
 		self._challenge_done(result='ok',follow_on_context=follow_on_context,congratulations=congratulations)
+		# Tidy up hints
+		cfg['build']['pause_point_hints'] = []
 	# Alternate names
 	practice = challenge
 	golf     = challenge
@@ -1968,6 +1976,7 @@ $'"""
 					self.log(shutit_util.colour(colour, msg) + '\n' + default_msg + '\n',transient=True)
 				oldlog = child.logfile_send
 				child.logfile_send = None
+				child.sendline('')
 				if wait < 0:
 					try:
 						child.interact(input_filter=self._pause_input_filter)
@@ -1997,6 +2006,13 @@ $'"""
 				self.log('CTRL and u caught, forcing a tag at least',level=logging.INFO)
 				self.do_repository_work('tagged_by_shutit', password=cfg['host']['password'], docker_executable=cfg['host']['docker_executable'], force=True)
 				self.log('Commit and tag done. Hit CTRL and ] to continue with build. Hit return for a prompt.',level=logging.INFO)
+			# CTRL-h
+			if ord(input_string) == 8:
+				if len(cfg['build']['pause_point_hints']):
+					self.log(shutit_util.colour('32','\r\n' + cfg['build']['pause_point_hints'].pop(0) + '\r\n'),transient=True)
+				else:
+					self.log(shutit_util.colour('32','\r\n' + 'No hints available.' + '\r\n'),transient=True)
+				return ''
 		return input_string
 
 
