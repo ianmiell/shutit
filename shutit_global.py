@@ -1000,7 +1000,16 @@ $'"""
 		return ret
 
 
-	def send_file(self, path, contents, expect=None, child=None, truncate=False, note=None, user=None, group=None, loglevel=logging.INFO):
+	def send_file(self,
+	              path,
+	              contents,
+	              expect=None,
+	              child=None,
+	              truncate=False,
+	              note=None,
+	              user=None,
+	              group=None,
+	              loglevel=logging.INFO):
 		"""Sends the passed-in string as a file to the passed-in path on the
 		target.
 
@@ -1038,12 +1047,8 @@ $'"""
 			if truncate and self.file_exists(path):
 				self.send('rm -f ' + path, expect=expect, child=child, echo=False,loglevel=loglevel)
 			random_id = shutit_util.random_id()
-			# switch off tab-completion
-			self.send('''bind '\C-i:self-insert' ''',check_exit=False, echo=False,loglevel=loglevel)
-			self.send(self._get_command('head') + ' -c -1 > ' + path + " << 'END_" + random_id + """'\n""" + contents + '''\nEND_''' + random_id, echo=False,loglevel=loglevel)
-			# switch back on tab-completion
-			# this makes the assumption that tab-completion was on.
-			self.send('''bind '\C-i:complete' ''',check_exit=False, echo=False,loglevel=loglevel)
+			self.send(self._get_command('head') + ' -c -1 > ' + path + "." + random_id + " << 'END_" + random_id + """'\n""" + base64.b64encode(contents) + '''\nEND_''' + random_id, echo=False,loglevel=loglevel)
+			self.send('cat ' + path + '.' + random_id + ' | base64 -d > ' + path, echo=False,loglevel=loglevel)
 		else:
 			host_child = self.pexpect_children['host_child']
 			path = path.replace(' ', '\ ')
@@ -1383,10 +1388,10 @@ $'"""
 			if delete:
 				shutit.fail('cannot pass replace=True and delete=True to insert_text')
 		if self.command_available('base64'):
-			ftext = self.send_and_get_output('base64' + ' ' + fname, echo=False, loglevel=loglevel)
+			ftext = self.send_and_get_output('base64 ' + fname, echo=False, loglevel=loglevel)
 			ftext = base64.b64decode(ftext)
 		else:
-			ftext = self.send_and_get_output('cat' + ' ' + fname, echo=False, loglevel=loglevel)
+			ftext = self.send_and_get_output('cat ' + fname, echo=False, loglevel=loglevel)
 		# Replace the file text's ^M-newlines with simple newlines
 		ftext = ftext.replace('\r\n','\n')
 		# If we are not forcing and the text is already in the file, then don't insert.
