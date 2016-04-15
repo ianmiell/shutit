@@ -1966,14 +1966,14 @@ $'"""
 					self.send(' export PROMPT_COMMAND="' + fixterm_filename + ' && unset PROMPT_COMMAND"',loglevel=logging.DEBUG)
 				if default_msg == None:
 					if not cfg['build']['video']:
-						pp_msg = '\nYou can now type in commands and alter the state of the target.\nHit:\n\t- return once to get a prompt and correctly resize the terminal\n\t- CTRL and ] at the same time to continue with build.'
+						pp_msg = '\r\n\r\nYou can now type in commands and alter the state of the target.\r\nHit:\r\n\t- CTRL and ] at the same time to continue with build.'
 						if cfg['build']['delivery'] == 'docker':
-							pp_msg += '\n\t- CTRL and u to save the state to a docker image'
-						self.log('\n' + (shutit_util.colour(colour, msg) + shutit_util.colour(colour,pp_msg)),transient=True)
+							pp_msg += '\r\n\t- CTRL and u to save the state to a docker image'
+						self.log('\r\n' + (shutit_util.colour(colour, msg) + shutit_util.colour(colour,pp_msg)),transient=True)
 					else:
-						self.log('\n' + (shutit_util.colour(colour, msg)),transient=True)
+						self.log('\r\n' + (shutit_util.colour(colour, msg)),transient=True)
 				else:
-					self.log(shutit_util.colour(colour, msg) + '\n' + default_msg + '\n',transient=True)
+					self.log(shutit_util.colour(colour, msg) + '\r\n' + default_msg + '\r\n',transient=True)
 				oldlog = child.logfile_send
 				child.logfile_send = None
 				child.sendline('')
