@@ -1362,13 +1362,21 @@ def ctrl_quit_signal_handler(signal, frame):
 # CTRL-C HANDLING CODE STARTS
 in_ctrlc = False
 def ctrlc_background():
+	global ctrl_c_calls
 	global in_ctrlc
+	ctrl_c_calls += 1
+	if ctrl_c_calls > 10:
+		handle_exit(exit_code=1)
 	in_ctrlc = True
 	time.sleep(1)
 	in_ctrlc = False
 
 
 def ctrl_c_signal_handler(signal, frame):
+	global ctrl_c_calls
+	ctrl_c_calls += 1
+	if ctrl_c_calls > 10:
+		handle_exit(exit_code=1)
 	"""CTRL-c signal handler - enters a pause point if it can.
 	"""
 	shutit_frame = get_shutit_frame(frame)
@@ -1391,6 +1399,8 @@ def ctrl_c_signal_handler(signal, frame):
 		t = threading.Thread(target=ctrlc_background)
 		t.daemon = True
 		t.start()
+		# Reset the ctrl-c calls
+		ctrl_c_calls = 0
 		return
 	print colour(31,'\n' + '*' * 80)
 	print colour(31,"CTRL-c caught, CTRL-c twice to quit.")
@@ -1398,15 +1408,22 @@ def ctrl_c_signal_handler(signal, frame):
 	t = threading.Thread(target=ctrlc_background)
 	t.daemon = True
 	t.start()
+	# Reset the ctrl-c calls
+	ctrl_c_calls = 0
 
 
 def get_shutit_frame(frame):
+	global ctrl_c_calls
+	ctrl_c_calls += 1
+	if ctrl_c_calls > 10:
+		handle_exit(exit_code=1)
 	if not frame.f_back:
 		return None
 	else:
 		if 'shutit' in frame.f_locals:
 			return frame
 		return get_shutit_frame(frame.f_back)
+ctrl_c_calls = 0
 # CTRL-C HANDLING CODE ENDS
 
 

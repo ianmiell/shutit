@@ -1,4 +1,4 @@
-pexpect>=2.0,<3.0
+pexpect>=4.0
 manhole>=0.1
 pynsca>=1.5
 texttable>=0.1

@@ -506,14 +506,14 @@ class ShutIt(object):
 				self.pause_point(shutit_util.colour('31',task_desc),colour='31') # TODO: message
 				if cfg['SHUTIT_SIGNAL']['ID'] == 8:
 					if len(cfg['build']['pause_point_hints']):
-						self.log(shutit_util.colour('31','\r\nHINT:\r\n\r\n' + cfg['build']['pause_point_hints'].pop(0)),transient=True)
+						self.log(shutit_util.colour('31','\r\n========= HINT ==========\r\n\r\n' + cfg['build']['pause_point_hints'].pop(0)),transient=True)
 					else:
 						self.log(shutit_util.colour('31','\r\n\r\n' + 'No hints available!'),transient=True)
 					time.sleep(1)
 					# clear the signal
 					cfg['SHUTIT_SIGNAL']['ID'] = 0
 					continue
-				if cfg['SHUTIT_SIGNAL']['ID'] == 8:
+				if cfg['SHUTIT_SIGNAL']['ID'] == 7:
 					# TODO: implement reset, by recursing, then returning?
 					# clear the signal
 					cfg['SHUTIT_SIGNAL']['ID'] = 0
@@ -1236,7 +1236,13 @@ $'"""
 			return os.path.isfile(filename)
 
 
-	def file_exists(self, filename, expect=None, child=None, directory=False, note=None, loglevel=logging.DEBUG):
+	def file_exists(self,
+	                filename,
+	                expect=None,
+	                child=None,
+	                directory=False,
+	                note=None,
+	                loglevel=logging.DEBUG):
 		"""Return True if file exists on the target host, else False
 
 		@param filename:   Filename to determine the existence of.
@@ -1265,7 +1271,7 @@ $'"""
 		else:
 			# Change to log?
 			self.log(repr('before>>>>:%s<<<< after:>>>>%s<<<<' % (child.before, child.after)),transient=True)
-			self.pause_point('Did not see FIL(N)?EXIST in output:\n' + output, child)
+			self.fail('Did not see FIL(N)?EXIST in output:\n' + output)
 		self._handle_note_after(note=note)
 		return ret
 
@@ -1990,10 +1996,11 @@ $'"""
 				child.logfile_send = None
 				if wait < 0:
 					try:
-						child.interact(input_filter=self._pause_input_filter)
+						retval = child.interact(input_filter=self._pause_input_filter)
+						if retval == None:
+							self.log('\r\nCTRL-] caught, continuing with run...',level=logging.INFO,transient=True)
 					except Exception as e:
 						self.fail('Terminating ShutIt.\n' + str(e))
-						self.log('CTRL-] caught, continuing with run...',level=logging.INFO)
 				else:
 					time.sleep(wait)
 				child.logfile_send = oldlog
