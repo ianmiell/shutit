@@ -402,14 +402,6 @@ def parse_args(shutit):
 			and '-h' not in sys.argv and '--help' not in sys.argv):
 		sys.argv.insert(1, 'build')
 
-	# Pexpect documentation says systems have issues with pauses < 0.05
-	def check_pause(value):
-		ivalue = float(value)
-		if ivalue < 0.05:
-			raise argparse.ArgumentTypeError(
-				"%s is an invalid pause (must be >= 0.05)" % value)
-		return ivalue
-
 	parser = argparse.ArgumentParser(description='ShutIt - a tool for managing complex Docker deployments.\n\nTo view help for a specific subcommand, type ./shutit <subcommand> -h',prog="ShutIt")
 	subparsers = parser.add_subparsers(dest='action', help='''Action to perform - build=deploy to target, skeleton=construct a skeleton module, list_configs=show configuration as read in, list_modules=show modules available, list_deps=show dep graph ready for graphviz. Defaults to 'build'.''')
 	
@@ -455,7 +447,6 @@ def parse_args(shutit):
 		sub_parsers[action].add_argument('--image_tag', help='Build container from specified image - if there is a symbolic reference, please use that, eg localhost.localdomain:5000/myref', default='')
 		sub_parsers[action].add_argument('--tag_modules', help='''Tag each module after it's successfully built regardless of the module config and based on the repository config.''', default=False, const=True, action='store_const')
 		sub_parsers[action].add_argument('-m', '--shutit_module_path', default=None, help='List of shutit module paths, separated by colons. ShutIt registers modules by running all .py files in these directories.')
-		sub_parsers[action].add_argument('--pause', help='Pause between commands to avoid race conditions.', default='0.05', type=check_pause)
 		sub_parsers[action].add_argument('--trace', help='Trace function calls', const=True, default=False, action='store_const')
 		sub_parsers[action].add_argument('--interactive', help='Level of interactive. 0 = none, 1 = honour pause points and config prompting, 2 = query user on each module, 3 = tutorial mode', default='1')
 		sub_parsers[action].add_argument('--ignorestop', help='Ignore STOP files', const=True, default=False, action='store_const')
@@ -648,7 +639,6 @@ vagrant_multinode: a vagrant multinode setup
 		args.set.append(('host', 'shutit_module_path', ':'.join(module_paths)))
 	cfg['build']['trace']            = args.trace
 	cfg['build']['interactive']      = int(args.interactive)
-	cfg['build']['command_pause']    = float(args.pause)
 	cfg['build']['extra_configs']    = args.config
 	cfg['build']['config_overrides'] = args.set
 	cfg['build']['ignorestop']       = args.ignorestop
@@ -2051,6 +2041,26 @@ def handle_exit(shutit=None,exit_code=0,loglevel=logging.DEBUG,msg=None):
 	sys.exit(exit_code)
 	# If we are still here, there was a problem, so take stronger measures
 	os._exit(1)
+
+def spawn_child(command,args=[],
+                timeout=30,
+                maxread=2000,
+	            searchwindowsize=None,
+                logfile=None,
+                cwd=None,
+                env=None,
+                ignore_sighup=False,
+                echo=True,
+                preexec_fn=None,
+                encoding=None,
+                codec_errors='strict',
+                dimensions=None,
+                delaybeforesend=0):
+	"""spawn a child, and manage the delaybefore send setting to 0"""
+	child = pexpect.spawn(command,args=args,timeout=timeout,maxread=maxread,searchwindowsize=searchwindowsize, logfile=logfile, cwd=cwd, env=env, ignore_sighup=ignore_sighup, echo=echo, preexec_fn=preexec_fn, encoding=encoding, codec_errors=codec_errors, dimensions=dimensions)
+	child.delaybeforesend=delaybeforesend
+	return child
+
 
 
 # Static strings

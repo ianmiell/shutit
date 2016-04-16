@@ -55,7 +55,9 @@ class ShutItConnModule(ShutItModule):
 		# Now let's have a host_child
 		shutit.log('Creating host child',level=logging.DEBUG)
 		shutit.log('Spawning host child',level=logging.DEBUG)
-		host_child = pexpect.spawn('/bin/bash')
+		host_child = shutit_util.spawn_child('/bin/bash')
+		# Set delaybeforesend to 0
+		host_child.delaybeforesend=0
 		shutit.log('Spawning done',level=logging.DEBUG)
 		# Some pexpect settings
 		shutit.pexpect_children['host_child'] = host_child
@@ -65,10 +67,6 @@ class ShutItConnModule(ShutItModule):
 		shutit.log('Setting default expect done',level=logging.DEBUG)
 		#host_child.logfile_send = target_child.logfile_send = sys.stdout
 		#host_child.logfile_read = target_child.logfile_read = sys.stdout
-		host_child.maxread = target_child.maxread = 2000
-		host_child.searchwindowsize = target_child.searchwindowsize = 1024
-		delay = cfg['build']['command_pause']
-		host_child.delaybeforesend = target_child.delaybeforesend = delay
 		# Set up prompts and let the user do things before the build
 		# host child
 		shutit.log('Setting default child',level=logging.DEBUG)
@@ -89,24 +87,11 @@ class ShutItConnModule(ShutItModule):
 		cfg = shutit.cfg
 		if cfg['build']['delivery'] in ('docker'):
 			shutit.send('chmod -R 777 ' + cfg['build']['shutit_state_dir'],echo=False,loglevel=loglevel)
-			# TODO: debug this, fails on dockerfile builds, eg otto
-			# Create the build directory and put the config in it.
 			shutit.send(' mkdir -p ' + cfg['build']['build_db_dir'] + '/' + cfg['build']['build_id'], echo=False, loglevel=loglevel)
-			# Record the command we ran and the python env if in debug.
-			if cfg['build']['loglevel'] <= logging.DEBUG:
-				shutit.send_file(cfg['build']['build_db_dir'] + '/' + cfg['build']['build_id'] + '/python_env.sh', str(sys.__dict__), loglevel=loglevel)
-				shutit.send_file(cfg['build']['build_db_dir'] + '/' + cfg['build']['build_id'] + '/command.sh', ' '.join(command), loglevel=loglevel)
 		shutit.pause_point('Anything you want to do now the target is connected to?', level=2)
 
 	def _add_end_build_info(self, shutit, loglevel=logging.DEBUG):
 		cfg = shutit.cfg
-		# Put build info into the target
-		if cfg['build']['delivery'] in ('docker'):
-			shutit.send(' mkdir -p ' + cfg['build']['build_db_dir'] + '/' + cfg['build']['build_id'], echo=False, loglevel=loglevel)
-			shutit.send_file(cfg['build']['build_db_dir'] + '/'+ cfg['build']['build_id'] + '/build.log', shutit_util.get_commands(shutit), loglevel=loglevel)
-			shutit.send_file(cfg['build']['build_db_dir'] + '/' + cfg['build']['build_id'] + '/build_commands.sh', shutit_util.get_commands(shutit), loglevel=loglevel)
-			shutit.insert_text(cfg['build']['build_id'], cfg['build']['build_db_dir'] + '/builds', loglevel=loglevel)
-
 
 class ConnDocker(ShutItConnModule):
 	"""Connects ShutIt to docker daemon and starts the container.
@@ -144,7 +129,7 @@ class ConnDocker(ShutItConnModule):
 		fail_msg = ''
 		try:
 			shutit.log('Running: ' + str_cmd,level=logging.DEBUG)
-			child = pexpect.spawn(check_cmd[0], check_cmd[1:], timeout=cmd_timeout)
+			child = shutit_util.spawn_child(check_cmd[0], check_cmd[1:], timeout=cmd_timeout)
 		except pexpect.ExceptionPexpect:
 			msg = ('Failed to run %s (not sure why this has happened)...try a different docker executable?') % (str_cmd,)
 			cfg['host']['docker_executable'] = shutit.prompt_cfg(msg, 'host', 'docker_executable')
@@ -179,7 +164,7 @@ class ConnDocker(ShutItConnModule):
 
 		#check_cmd = docker + ['info']
 		#str_cmd = ' '.join(check_cmd)
-		#child = pexpect.spawn(check_cmd[0], check_cmd[1:], timeout=cmd_timeout)
+		#child = shutit_util.spawn_child(check_cmd[0], check_cmd[1:], timeout=cmd_timeout)
 		#try:
 		#	if shutit.child_expect(child,'assword') == 0:
 		#		child.sendline(cfg['host']['password'])
@@ -274,7 +259,7 @@ class ConnDocker(ShutItConnModule):
 		cfg['build']['docker_command'] = ' '.join(docker_command)
 		shutit.log('Command being run is: ' + cfg['build']['docker_command'],level=logging.DEBUG)
 		shutit.log('Downloading image, please be patient',level=logging.INFO)
-		target_child = pexpect.spawn(docker_command[0], docker_command[1:])
+		target_child = shutit_util.spawn_child(docker_command[0], docker_command[1:])
 		expect = ['assword', cfg['expect_prompts']['base_prompt'].strip(), 'Waiting', 'ulling', 'endpoint', 'Download']
 		res = shutit.child_expect(target_child,expect, timeout=9999)
 		while True:
@@ -341,7 +326,7 @@ class ConnBash(ShutItConnModule):
 		"""
 		cfg = shutit.cfg
 		command = '/bin/bash'
-		target_child = pexpect.spawn(command)
+		target_child = shutit_util.spawn_child(command)
 		shutit.child_expect(target_child,cfg['expect_prompts']['base_prompt'].strip(), timeout=10)
 		self._setup_prompts(shutit, target_child)
 		self._add_begin_build_info(shutit, command)
@@ -411,7 +396,7 @@ class ConnSSH(ShutItConnModule):
 			shutit_util.util_raw_input(shutit=shutit)
 		cfg['build']['ssh_command'] = ' '.join(ssh_command)
 		shutit.log('Command being run is: ' + cfg['build']['ssh_command'],level=logging.INFO)
-		target_child = pexpect.spawn(ssh_command[0], ssh_command[1:])
+		target_child = shutit_util.spawn_child(ssh_command[0], ssh_command[1:])
 		expect = ['assword', cfg['expect_prompts']['base_prompt'].strip()]
 		res = shutit.child_expect(target_child,expect, timeout=10)
 		while True:

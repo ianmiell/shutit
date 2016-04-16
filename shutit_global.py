@@ -427,7 +427,7 @@ class ShutIt(object):
 		child = child or self.get_default_child()
 		# don't catch CTRL-C, pass it through.
 		self.cfg['build']['ctrlc_passthrough'] = True
-		preserve_newline = False
+		preserve_newline                       = False
 		if expect_type == 'regexp':
 			if type(expect) == str:
 				expect = [expect]
@@ -499,9 +499,11 @@ class ShutIt(object):
 			ok = False
 			# hints
 			if len(hints):
-				task_desc += '\r\n\r\nHit CTRL-h for help, CTRL-g to reset state'
+				task_desc_new = task_desc + '\r\n\r\nHit CTRL-h for help, CTRL-g to reset state'
+			else:
+				task_desc_new = task_desc
 			while not ok:
-				self.pause_point(shutit_util.colour('31',task_desc),colour='31') # TODO: message
+				self.pause_point(shutit_util.colour('31',task_desc_new),colour='31') # TODO: message
 				if cfg['SHUTIT_SIGNAL']['ID'] == 8:
 					if len(cfg['build']['pause_point_hints']):
 						self.log(shutit_util.colour('31','\r\n========= HINT ==========\r\n\r\n' + cfg['build']['pause_point_hints'].pop(0)),transient=True)
@@ -513,6 +515,7 @@ class ShutIt(object):
 					continue
 				if cfg['SHUTIT_SIGNAL']['ID'] == 7:
 					self.log(shutit_util.colour('31','\r\n========= RESETTING STATE ==========\r\n\r\n'),transient=True)
+					self._challenge_done(result='reset', follow_on_context=follow_on_context)
 					self.challenge(
 						task_desc=task_desc,
 						expect=expect,
@@ -534,6 +537,7 @@ class ShutIt(object):
 						follow_on_context=follow_on_context
 					)
 					cfg['SHUTIT_SIGNAL']['ID'] = 0
+					# clear the signal
 					return
 				shutit.log('State submitted, checking your work...',level=logging.INFO)
 				check_command = follow_on_context.get('check_command')
@@ -577,7 +581,7 @@ class ShutIt(object):
 				if follow_on_context.get('context') == 'docker':
 					container_name = follow_on_context.get('ok_container_name')
 					if not container_name:
-						self.log('No reset context available, carrying on.',level=logging.DEBUG)
+						self.log('No reset context available, carrying on.',level=logging.INFO)
 					else:
 						self.replace_container(container_name)
 						self.log('State restored.',level=logging.INFO)
@@ -604,6 +608,7 @@ class ShutIt(object):
 			return
 		else:
 			self.fail('result: ' + result + ' not handled')
+		self.fail('_challenge_done should not get here')
 
 
 	def send(self,
@@ -1099,9 +1104,9 @@ $'"""
 			self.send('touch ' + path, child=child, expect=expect, echo=False,loglevel=loglevel)
 			# If path is not absolute, add $HOME to it.
 			if path[0] != '/':
-				self.send('touch ' + path + ' && cat ' + tmpfile + ' | ' + cfg['host']['docker_executable'] + ' exec -i ' + cfg['target']['container_id'] + " bash -c 'cat > $HOME/" + path + "'", child=host_child, expect=cfg['expect_prompts']['origin_prompt'], echo=False,loglevel=loglevel)
+				self.send('cat ' + tmpfile + ' | ' + cfg['host']['docker_executable'] + ' exec -i ' + cfg['target']['container_id'] + " bash -c 'cat > $HOME/" + path + "'", child=host_child, expect=cfg['expect_prompts']['origin_prompt'], echo=False,loglevel=loglevel)
 			else:
-				self.send('touch ' + path + ' && cat ' + tmpfile + ' | ' + cfg['host']['docker_executable'] + ' exec -i ' + cfg['target']['container_id'] + " bash -c 'cat > " + path + "'", child=host_child, expect=cfg['expect_prompts']['origin_prompt'], echo=False,loglevel=loglevel)
+				self.send('cat ' + tmpfile + ' | ' + cfg['host']['docker_executable'] + ' exec -i ' + cfg['target']['container_id'] + " bash -c 'cat > " + path + "'", child=host_child, expect=cfg['expect_prompts']['origin_prompt'], echo=False,loglevel=loglevel)
 			self.send('chown ' + user + ' ' + path + ' && chgrp ' + group + ' ' + path, child=child, expect=expect, echo=False,loglevel=loglevel)
 			os.remove(tmpfile)
 		self._handle_note_after(note=note)
@@ -1621,7 +1626,7 @@ $'"""
 		self.add_line_to_file(line, '${HOME}/.bashrc', expect=expect, match_regexp=match_regexp, loglevel=loglevel) # This won't work for root - TODO
 		self.add_line_to_file(line, '/etc/bash.bashrc', expect=expect, match_regexp=match_regexp, loglevel=loglevel)
 		self._handle_note_after(note=note)
-		return self.add_line_to_file(line, '/etc/profile', expect=expect, match_regexp=match_regexp, loglevel=loglevel)
+		return
 
 
 	def get_url(self,
@@ -2463,19 +2468,19 @@ $'"""
 
 
 	def whoarewe(self, child=None, expect=None, note=None, loglevel=logging.DEBUG):
-		"""Returns the current group by executing "groups", taking the first one
+		"""Returns the current group.
 
 		@param child:    See send()
 		@param expect:   See send()
 		@param note:     See send()
 
-		@return: the output of "whoami"
+		@return: the first group found
 		@rtype: string
 		"""
 		child = child or self.get_default_child()
 		expect = expect or self.get_default_expect()
 		self._handle_note(note)
-		res = self.send_and_get_output("groups | cut -f 1 -d ' '",echo=False, loglevel=loglevel).strip()
+		res = self.send_and_get_output('id -n -g',echo=False, loglevel=loglevel).strip()
 		self._handle_note_after(note=note)
 		return res
 
@@ -2803,8 +2808,9 @@ $'"""
 			distro         = d['distro']
 			distro_version = d['distro_version']
 		else:
-			if self.file_exists('/etc/issue'):
-				issue_output = self.send_and_get_output(' cat /etc/issue',echo=False, loglevel=loglevel).lower()
+			# Don't check for existence of file to save a little time.
+			issue_output = self.send_and_get_output(' cat /etc/issue',echo=False, loglevel=loglevel).lower()
+			if not re.match('.*No such file.*',issue_output):
 				for key in cfg['build']['install_type_map'].keys():
 					if issue_output.find(key) != -1:
 						distro       = key
@@ -3021,8 +3027,7 @@ $'"""
 	                       password=None,
 	                       force=None,
 	                       loglevel=logging.DEBUG):
-		"""Commit, tag, push, tar a docker container based on the configuration we
-		have.
+		"""Commit, tag, push, tar a docker container based on the configuration we have.
 
 		@param repo_name:           Name of the repository.
 		@param expect:              See send()
@@ -3260,9 +3265,6 @@ $'"""
 		""" Put the config in a file in the target.
 		"""
 		cfg = self.cfg
-		# appears to break in dockerfile (cf TMM)
-		if cfg['build']['delivery'] in ('docker'):
-			self.send_file(cfg['build']['build_db_dir'] + '/' + cfg['build']['build_id'] + '/' + cfg['build']['build_id'] + '.cfg', shutit_util.print_config(cfg), loglevel=loglevel)
 
 
 	def get_emailer(self, cfg_section):

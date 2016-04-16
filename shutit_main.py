@@ -653,7 +653,7 @@ def main():
 		shutit.log(cfg['build']['report_final_messages'], level=logging.INFO)
 
 	if cfg['build']['interactive'] >= 3:
-		shutit.log('\n' + 'The build is complete. You should now have a target called ' + cfg['target']['name'] + ' and a new image if you chose to commit it.\n\nLook and play with the following files from the newly-created module directory to dig deeper:\n\n    configs/build.cnf\n    *.py\n\nYou can rebuild at any time by running the supplied ./build.sh and run with the supplied ./run.sh. These may need tweaking for your particular environment, eg sudo\n\nYou can inspect the details of the build in the target image\'s ' + cfg['build']['build_db_dir'] + ' directory.', code='32', level=logging.DEBUG)
+		shutit.log('\n' + 'The build is complete. You should now have a target called ' + cfg['target']['name'] + ' and a new image if you chose to commit it.\n\nLook and play with the following files from the newly-created module directory to dig deeper:\n\n    configs/build.cnf\n    *.py\n\nYou can rebuild at any time by running the supplied ./build.sh and run with the supplied ./run.sh. These may need tweaking for your particular environment, eg sudo', code='32', level=logging.DEBUG)
 
 	# Mark the build as completed
 	cfg['build']['completed'] = True
