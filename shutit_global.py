@@ -501,7 +501,7 @@ class ShutIt(object):
 			ok = False
 			# hints
 			if len(hints):
-				task_desc += '\r\n\r\nHit CTRL-h for help'
+				task_desc += '\r\n\r\nHit CTRL-h for help, CTRL-g to reset state'
 			while not ok:
 				self.pause_point(shutit_util.colour('31',task_desc),colour='31') # TODO: message
 				if cfg['SHUTIT_SIGNAL']['ID'] == 8:
@@ -514,9 +514,29 @@ class ShutIt(object):
 					cfg['SHUTIT_SIGNAL']['ID'] = 0
 					continue
 				if cfg['SHUTIT_SIGNAL']['ID'] == 7:
-					# TODO: implement reset, by recursing, then returning?
-					# clear the signal
+					self.log(shutit_util.colour('31','\r\n========= RESETTING STATE ==========\r\n\r\n'),transient=True)
+					self.challenge(
+						task_desc=task_desc,
+						expect=expect,
+						hints=hints,
+						congratulations=congratulations,
+						failed=failed,
+						expect_type=expect_type,
+						challenge_type=challenge_type,
+						child=child,
+						timeout=timeout,
+						check_exit=check_exit,
+						fail_on_empty_before=fail_on_empty_before,
+						record_command=record_command,
+						exit_values=exit_values,
+						echo=echo,
+						escape=escape,
+						pause=pause,
+						loglevel=loglevel,
+						follow_on_context=follow_on_context
+					)
 					cfg['SHUTIT_SIGNAL']['ID'] = 0
+					return
 				shutit.log('State submitted, checking your work...',level=logging.INFO)
 				check_command = follow_on_context.get('check_command')
 				output = self.send_and_get_output(check_command,child=child,timeout=timeout,retry=1,record_command=record_command,echo=False, loglevel=loglevel, fail_on_empty_before=False, preserve_newline=preserve_newline)
