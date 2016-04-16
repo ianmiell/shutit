@@ -267,10 +267,8 @@ class ShutIt(object):
 		# Exempt the ORIGIN_ENV from getting distro info
 		if prefix != 'ORIGIN_ENV':
 			self.get_distro_info(environment_id)
-		self.send('mkdir -p ' + environment_id_dir, child=child, expect=expect, echo=False, loglevel=loglevel)
-		self.send('chmod -R 777 ' + cfg['build']['shutit_state_dir_base'], echo=False, loglevel=loglevel)
 		fname = environment_id_dir + '/' + environment_id
-		self.send('touch ' + fname, child=child, expect=expect, echo=False, loglevel=loglevel)
+		self.send('mkdir -p ' + environment_id_dir + ' && chmod -R 777 ' + cfg['build']['shutit_state_dir_base'] + ' && touch ' + fname, child=child, expect=expect, echo=False, loglevel=loglevel)
 		cfg['environment'][environment_id]['setup']                        = True
 		return environment_id
 
@@ -1027,16 +1025,14 @@ $'"""
 		# Send the script and run it in the manner specified
 		if cfg['build']['delivery'] in ('docker','dockerfile') and in_shell:
 				script = ('set -o xtrace \n\n' + script + '\n\nset +o xtrace')
-		self.send('mkdir -p ' + cfg['build']['shutit_state_dir'] + '/scripts', expect=expect, child=child, echo=False,loglevel=loglevel)
-		self.send('chmod 777 ' + cfg['build']['shutit_state_dir'] + '/scripts', expect=expect, child=child, echo=False,loglevel=loglevel)
+		self.send('mkdir -p ' + cfg['build']['shutit_state_dir'] + '/scripts && chmod 777 ' + cfg['build']['shutit_state_dir'] + '/scripts', expect=expect, child=child, echo=False,loglevel=loglevel)
 		self.send_file(cfg['build']['shutit_state_dir'] + '/scripts/shutit_script.sh', script, loglevel=loglevel)
 		self.send('chmod +x ' + cfg['build']['shutit_state_dir'] + '/scripts/shutit_script.sh', expect=expect, child=child, echo=False,loglevel=loglevel)
 		self.shutit_command_history.append('    ' + script.replace('\n', '\n    '))
 		if in_shell:
-			ret = self.send('. ' + cfg['build']['shutit_state_dir'] + '/scripts/shutit_script.sh', expect=expect, child=child, echo=False,loglevel=logging.INFO)
+			ret = self.send('. ' + cfg['build']['shutit_state_dir'] + '/scripts/shutit_script.sh && rm -f ' + cfg['build']['shutit_state_dir'] + '/scripts/shutit_script.sh && rm -f ' + cfg['build']['shutit_state_dir'] + '/scripts/shutit_script.sh', expect=expect, child=child, echo=False,loglevel=loglevel)
 		else:
-			ret = self.send(cfg['build']['shutit_state_dir'] + '/scripts/shutit_script.sh', expect=expect, child=child, echo=False,loglevel=loggging.INFO)
-		self.send('rm -f ' + cfg['build']['shutit_state_dir'] + '/scripts/shutit_script.sh', expect=expect, child=child, echo=False,loglevel=loglevel)
+			ret = self.send(cfg['build']['shutit_state_dir'] + '/scripts/shutit_script.sh && rm -f ' + cfg['build']['shutit_state_dir'] + '/scripts/shutit_script.sh', expect=expect, child=child, echo=False,loglevel=loglevel)
 		self._handle_note_after(note=note)
 		return ret
 
@@ -1103,11 +1099,10 @@ $'"""
 			self.send('touch ' + path, child=child, expect=expect, echo=False,loglevel=loglevel)
 			# If path is not absolute, add $HOME to it.
 			if path[0] != '/':
-				self.send('cat ' + tmpfile + ' | ' + cfg['host']['docker_executable'] + ' exec -i ' + cfg['target']['container_id'] + " bash -c 'cat > $HOME/" + path + "'", child=host_child, expect=cfg['expect_prompts']['origin_prompt'], echo=False,loglevel=loglevel)
+				self.send('touch ' + path + ' && cat ' + tmpfile + ' | ' + cfg['host']['docker_executable'] + ' exec -i ' + cfg['target']['container_id'] + " bash -c 'cat > $HOME/" + path + "'", child=host_child, expect=cfg['expect_prompts']['origin_prompt'], echo=False,loglevel=loglevel)
 			else:
-				self.send('cat ' + tmpfile + ' | ' + cfg['host']['docker_executable'] + ' exec -i ' + cfg['target']['container_id'] + " bash -c 'cat > " + path + "'", child=host_child, expect=cfg['expect_prompts']['origin_prompt'], echo=False,loglevel=loglevel)
-			self.send('chown ' + user + ' ' + path, child=child, expect=expect, echo=False,loglevel=loglevel)
-			self.send('chgrp ' + group + ' ' + path, child=child, expect=expect, echo=False,loglevel=loglevel)
+				self.send('touch ' + path + ' && cat ' + tmpfile + ' | ' + cfg['host']['docker_executable'] + ' exec -i ' + cfg['target']['container_id'] + " bash -c 'cat > " + path + "'", child=host_child, expect=cfg['expect_prompts']['origin_prompt'], echo=False,loglevel=loglevel)
+			self.send('chown ' + user + ' ' + path + ' && chgrp ' + group + ' ' + path, child=child, expect=expect, echo=False,loglevel=loglevel)
 			os.remove(tmpfile)
 		self._handle_note_after(note=note)
 
@@ -2766,9 +2761,8 @@ $'"""
 			if install_type == 'apt' and cfg['build']['delivery'] in ('docker','dockerfile'):
 				if not self.command_available('lsb_release'):
 					if not cfg['build']['apt_update_done']:
-						self.send('apt-get update',loglevel=logging.INFO)
 						cfg['build']['apt_update_done'] = True
-						self.send('apt-get install -y -qq lsb-release',loglevel=loglevel)
+						self.send('apt-get update && apt-get install -y -qq lsb-release',loglevel=loglevel)
 				d = self.lsb_release()
 				install_type   = d['install_type']
 				distro         = d['distro']
@@ -2854,9 +2848,8 @@ $'"""
 			if install_type == 'apt' and cfg['build']['delivery'] in ('docker','dockerfile'):
 				if not self.command_available('lsb_release'):
 					if not cfg['build']['apt_update_done']:
-						self.send('apt-get update',loglevel=loglevel)
 						cfg['build']['apt_update_done'] = True
-						self.send('apt-get install -y -qq lsb-release',loglevel=loglevel)
+						self.send('apt-get update && apt-get install -y -qq lsb-release',loglevel=loglevel)
 					cfg['build']['apt_update_done'] = True
 					self.send('apt-get install -y -qq lsb-release',loglevel=loglevel)
 				d = self.lsb_release()
