@@ -2032,11 +2032,13 @@ def handle_exit(shutit=None,exit_code=0,loglevel=logging.DEBUG,msg=None):
 	if not msg:
 		msg = 'Exiting with error code: ' + str(exit_code)
 	if not shutit:
-		print msg
-		print 'Resetting terminal'
+		if exit_code != 0:
+			print msg
+			print 'Resetting terminal'
 	else:
-		shutit.log('Exiting with error code: ' + str(exit_code),level=loglevel)
-		shutit.log('Resetting terminal',level=loglevel)
+		if exit_code != 0:
+			shutit.log('Exiting with error code: ' + str(exit_code),level=loglevel)
+			shutit.log('Resetting terminal',level=loglevel)
 	os.system('stty sane')
 	sys.exit(exit_code)
 	# If we are still here, there was a problem, so take stronger measures
@@ -2060,6 +2062,16 @@ def spawn_child(command,args=[],
 	child = pexpect.spawn(command,args=args,timeout=timeout,maxread=maxread,searchwindowsize=searchwindowsize, logfile=logfile, cwd=cwd, env=env, ignore_sighup=ignore_sighup, echo=echo, preexec_fn=preexec_fn, encoding=encoding, codec_errors=codec_errors, dimensions=dimensions)
 	child.delaybeforesend=delaybeforesend
 	return child
+
+def sendline(child,
+             line,
+             delaybeforesend=0):
+	"""Handles sending of line to pexpect object, setting delaybeforesend if necessary.
+	"""
+	prev_delaybeforesend = child.delaybeforesend
+	child.delaybeforesend = delaybeforesend
+	child.sendline(line)
+	child.delaybeforesend = prev_delaybeforesend
 
 
 

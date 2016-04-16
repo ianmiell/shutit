@@ -86,8 +86,7 @@ class ShutItConnModule(ShutItModule):
 	def _add_begin_build_info(self, shutit, command, loglevel=logging.DEBUG):
 		cfg = shutit.cfg
 		if cfg['build']['delivery'] in ('docker'):
-			shutit.send('chmod -R 777 ' + cfg['build']['shutit_state_dir'],echo=False,loglevel=loglevel)
-			shutit.send(' mkdir -p ' + cfg['build']['build_db_dir'] + '/' + cfg['build']['build_id'], echo=False, loglevel=loglevel)
+			shutit.send('chmod -R 777 ' + cfg['build']['shutit_state_dir'] + ' && mkdir -p ' + cfg['build']['build_db_dir'] + '/' + cfg['build']['build_id'], echo=False, loglevel=loglevel)
 		shutit.pause_point('Anything you want to do now the target is connected to?', level=2)
 
 	def _add_end_build_info(self, shutit, loglevel=logging.DEBUG):
@@ -453,8 +452,7 @@ class setup(ShutItModule):
 				if not shutit.command_available('lsb_release'):
 					shutit.install('lsb-release')
 				shutit.lsb_release()
-				shutit.send('dpkg-divert --local --rename --add /sbin/initctl',echo=False, loglevel=loglevel)
-				shutit.send('ln -f -s /bin/true /sbin/initctl',echo=False, loglevel=loglevel)
+				shutit.send('dpkg-divert --local --rename --add /sbin/initctl && ln -f -s /bin/true /sbin/initctl',echo=False, loglevel=loglevel)
 			elif cfg['environment'][cfg['build']['current_environment_id']]['install_type'] == 'yum':
 				# yum updates are so often "bad" that we let exit codes of 1
 				# through. TODO: make this more sophisticated
