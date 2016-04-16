@@ -1024,6 +1024,7 @@ def load_all_from_path(shutit, path):
 		elif os.path.isdir(subpath):
 			load_all_from_path(shutit, subpath)
 
+
 def load_mod_from_file(shutit, fpath):
 	"""Loads modules from a .py file into ShutIt if there are no modules from
 	this file already.
