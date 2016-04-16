@@ -3,19 +3,17 @@
 
 
 [![Join the chat at https://gitter.im/ianmiell/shutit](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/ianmiell/shutit?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
-Complex Builds Made Simple.
+A versatile automation framework.
 
-ShutIt is an automation tool that models a user's actions. Think of it as a programmable sysadmin.
+ShutIt is an automation tool that models a user's actions on a terminal.
 
-It can manage any process that is both structured and flexible.
+It can automate any process that can be run by a human on the command line with little effort.
 
 It was originally written to manage complex Docker builds, but is a now general-purpose automation tool that supports bash, Docker, Vagrant, ssh and arbitrary build contexts.
 
-If you want to know more about Docker, see the
-[official site](https://www.docker.com/) or take a look at the book by the
-creators of ShutIt - [Docker in Practice](http://docker-in-practice.github.io/).
+If you want to know more about Docker, see the [official site](https://www.docker.com/) or take a look at the book by the creators of ShutIt - [Docker in Practice](http://docker-in-practice.github.io/).
 
-It is also an educational tool, as it can produce videos of demos, capture reproducible steps required to set environments up, and even challenge you to get the right output (see [grep-scales](https://github.com/ianmiell/grep-scales)).
+ShutIt is also an educational tool, as it can produce videos of demos, capture reproducible steps required to set environments up, and even challenge you to get the right output (see [grep-scales](https://github.com/ianmiell/grep-scales)).
 
 Really Quick Overview
 =====================
