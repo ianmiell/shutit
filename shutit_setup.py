@@ -50,7 +50,7 @@ class ShutItConnModule(ShutItModule):
 	def __init__(self, *args, **kwargs):
 		super(ShutItConnModule, self).__init__(*args, **kwargs)
 
-	def _setup_prompts(self, shutit, target_child):
+	def setup_host_child(self, shutit):
 		cfg = shutit.cfg
 		# Now let's have a host_child
 		shutit.log('Creating host child',level=logging.DEBUG)
@@ -59,38 +59,24 @@ class ShutItConnModule(ShutItModule):
 		# Set delaybeforesend to 0
 		host_child.delaybeforesend=0
 		shutit.log('Spawning done',level=logging.DEBUG)
-		# Some pexpect settings
 		shutit.pexpect_children['host_child'] = host_child
-		shutit.pexpect_children['target_child'] = target_child
-		shutit.log('Setting default expect',level=logging.DEBUG)
-		shutit.set_default_expect(cfg['expect_prompts']['base_prompt'])
-		shutit.log('Setting default expect done',level=logging.DEBUG)
-		#host_child.logfile_send = target_child.logfile_send = sys.stdout
-		#host_child.logfile_read = target_child.logfile_read = sys.stdout
 		# Set up prompts and let the user do things before the build
-		# host child
-		shutit.log('Setting default child',level=logging.DEBUG)
+		shutit.set_default_expect(cfg['expect_prompts']['base_prompt'])
 		shutit.set_default_child(host_child)
-		shutit.log('Setting default child done',level=logging.DEBUG)
-		shutit.log('Setting up default prompt on host child',level=logging.DEBUG)
-		shutit.log('Setting up prompt',level=logging.DEBUG)
 		# ORIGIN_ENV is a special case of the prompt maintained for performance reasons, don't change.
 		shutit.setup_prompt('origin_prompt', prefix='ORIGIN_ENV')
-		shutit.log('Setting up prompt done',level=logging.DEBUG)
+
+	def setup_target_child(self, shutit, target_child):
+		cfg = shutit.cfg
+		# Some pexpect settings
+		shutit.pexpect_children['target_child'] = target_child
+		shutit.set_default_expect(cfg['expect_prompts']['base_prompt'])
 		# target child
 		shutit.set_default_child(target_child)
-		shutit.log('Setting up default prompt on target child',level=logging.DEBUG)
 		shutit.setup_prompt('root')
+		# TODO: what if this is called twice?
 		shutit.login_stack_append('root')
 
-	def _add_begin_build_info(self, shutit, command, loglevel=logging.DEBUG):
-		cfg = shutit.cfg
-		if cfg['build']['delivery'] in ('docker'):
-			shutit.send('chmod -R 777 ' + cfg['build']['shutit_state_dir'] + ' && mkdir -p ' + cfg['build']['build_db_dir'] + '/' + cfg['build']['build_id'], echo=False, loglevel=loglevel)
-		shutit.pause_point('Anything you want to do now the target is connected to?', level=2)
-
-	def _add_end_build_info(self, shutit, loglevel=logging.DEBUG):
-		cfg = shutit.cfg
 
 class ConnDocker(ShutItConnModule):
 	"""Connects ShutIt to docker daemon and starts the container.
@@ -161,39 +147,25 @@ class ConnDocker(ShutItConnModule):
 			cfg[sec][name] = shutit.prompt_cfg(msg, sec, name, ispass=ispass)
 			return False
 
-		#check_cmd = docker + ['info']
-		#str_cmd = ' '.join(check_cmd)
-		#child = shutit_util.spawn_child(check_cmd[0], check_cmd[1:], timeout=cmd_timeout)
-		#try:
-		#	if shutit.child_expect(child,'assword') == 0:
-		#		child.sendline(cfg['host']['password'])
-		#		shutit.child_expect(child,[])
-		#except pexpect.ExceptionPexpect:
-		#	shutit.fail('"' + str_cmd + '" did not complete in ' +str(cmd_timeout) + 's, is the docker daemon overloaded?')
-		#child.close()
-		#if child.exitstatus != 0:
-		#	msg = ('"' + str_cmd + '" didn\'t return a 0 exit code, is the docker daemon running? Do you need to set the docker_executable config to use sudo? Please confirm the docker executable.')
-		#	cfg['host']['docker_executable'] = shutit.prompt_cfg(msg, 'host docker_executable')
-
 		return True
 
-	def build(self, shutit, loglevel=logging.DEBUG):
-		"""Sets up the target ready for building.
-		"""
-		# Uncomment for testing for "failure" cases.
-		#shutit_util.handle_exit(exit_code=1)
-		while not self._check_docker(shutit):
-			pass
+	def destroy_container(self, shutit, loglevel=logging.DEBUG):
+		cfg = shutit.cfg
+		container_id = cfg['target']['container_id']
+		target_child = shutit.pexpect_children['target_child']
+		# Close connection
+		target_child.close()
+		host_child = shutit.pexpect_children['host_child']
+		shutit.send('docker rm -f ' + container_id + ' && rm -f ' + cfg['build']['cidfile'],child=host_child,expect=cfg['expect_prompts']['origin_prompt'],loglevel=loglevel)
 
+	def start_container(self, shutit, loglevel=logging.DEBUG):
 		cfg = shutit.cfg
 		docker = cfg['host']['docker_executable'].split(' ')
-
 		# Always-required options
 		if not os.path.exists(cfg['build']['shutit_state_dir'] + '/cidfiles'):
 			os.makedirs(cfg['build']['shutit_state_dir'] + '/cidfiles')
 		cfg['build']['cidfile'] = cfg['build']['shutit_state_dir'] + '/cidfiles/' + cfg['host']['username'] + '_cidfile_' + cfg['build']['build_id']
 		cidfile_arg = '--cidfile=' + cfg['build']['cidfile']
-
 		# Singly-specified options
 		privileged_arg   = ''
 		name_arg         = ''
@@ -283,8 +255,18 @@ class ConnDocker(ShutItConnModule):
 		shutit.log('cid: ' + cid,level=logging.DEBUG)
 		cfg['target']['container_id'] = cid
 
-		self._setup_prompts(shutit, target_child)
-		self._add_begin_build_info(shutit, docker_command)
+		return target_child
+
+
+
+	def build(self, shutit, loglevel=logging.DEBUG):
+		"""Sets up the target ready for building.
+		"""
+		cfg = shutit.cfg
+		target_child = self.start_container(shutit, loglevel=loglevel)
+		self.setup_host_child(shutit)
+		self.setup_target_child(shutit, target_child)
+		shutit.send('chmod -R 777 ' + cfg['build']['shutit_state_dir'] + ' && mkdir -p ' + cfg['build']['build_db_dir'] + '/' + cfg['build']['build_id'], echo=False, loglevel=loglevel)
 		return True
 
 
@@ -292,7 +274,6 @@ class ConnDocker(ShutItConnModule):
 		"""Finalizes the target, exiting for us back to the original shell
 		and performing any repository work required.
 		"""
-		self._add_end_build_info(shutit)
 		# Finish with the target
 		shutit.pexpect_children['target_child'].sendline('exit')
 
@@ -304,6 +285,10 @@ class ConnDocker(ShutItConnModule):
 		# Final exits
 		host_child.sendline('rm -f ' + cfg['build']['cidfile']) # Exit raw bash
 		host_child.sendline('exit') # Exit raw bash
+		return True
+
+
+	def get_config(self, shutit):
 		return True
 
 
@@ -327,15 +312,14 @@ class ConnBash(ShutItConnModule):
 		command = '/bin/bash'
 		target_child = shutit_util.spawn_child(command)
 		shutit.child_expect(target_child,cfg['expect_prompts']['base_prompt'].strip(), timeout=10)
-		self._setup_prompts(shutit, target_child)
-		self._add_begin_build_info(shutit, command)
+		self.setup_host_child(shutit)
+		self.setup_target_child(shutit, target_child)
 		return True
 
 	def finalize(self, shutit):
 		"""Finalizes the target, exiting for us back to the original shell
 		and performing any repository work required.
 		"""
-		self._add_end_build_info(shutit)
 		# Finish with the target
 		shutit.pexpect_children['target_child'].sendline('exit')
 		return True
@@ -406,18 +390,16 @@ class ConnSSH(ShutItConnModule):
 			elif res == 1:
 				shutit.log('Prompt found, breaking out',level=logging.DEBUG)
 				break
-		self._setup_prompts(shutit, target_child)
-		self._add_begin_build_info(shutit, ssh_command)
+		self.setup_host_child(shutit)
+		self.setup_target_child(shutit, target_child)
 		return True
 
 	def finalize(self, shutit):
 		"""Finalizes the target, exiting for us back to the original shell
 		and performing any repository work required.
 		"""
-		self._add_end_build_info(shutit)
 		# Finish with the target
 		shutit.pexpect_children['target_child'].sendline('exit')
-		# Finish with the host
 		shutit.set_default_child(shutit.pexpect_children['host_child'])
 		# Final exits
 		host_child.sendline('exit') # Exit raw bash
@@ -442,8 +424,7 @@ class setup(ShutItModule):
 		return False
 
 	def build(self, shutit, loglevel=logging.DEBUG):
-		"""Initializes target ready for build
-		and updating package management if in container.
+		"""Initializes target ready for build and updating package management if in container.
 		"""
 		cfg = shutit.cfg
 		if cfg['build']['delivery'] in ('docker','dockerfile'):

@@ -153,7 +153,6 @@ def init_shutit_map(shutit):
 def conn_target(shutit):
 	"""Connect to the target.
 	"""
-	cfg = shutit.cfg
 	conn_module = None
 	cfg = shutit.cfg
 	for mod in shutit.conn_modules:

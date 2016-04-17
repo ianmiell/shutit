@@ -524,6 +524,8 @@ class ShutIt(object):
 				if cfg['SHUTIT_SIGNAL']['ID'] == 7:
 					self.log(shutit_util.colour('31','\r\n========= RESETTING STATE ==========\r\n\r\n'),transient=True)
 					self._challenge_done(result='reset', follow_on_context=follow_on_context)
+					# clear the signal
+					cfg['SHUTIT_SIGNAL']['ID'] = 0
 					self.challenge(
 						task_desc=task_desc,
 						expect=expect,
@@ -532,7 +534,7 @@ class ShutIt(object):
 						failed=failed,
 						expect_type=expect_type,
 						challenge_type=challenge_type,
-						child=child,
+						child=None,
 						timeout=timeout,
 						check_exit=check_exit,
 						fail_on_empty_before=fail_on_empty_before,
@@ -545,8 +547,6 @@ class ShutIt(object):
 	                    delaybeforesend=0,
 						follow_on_context=follow_on_context
 					)
-					cfg['SHUTIT_SIGNAL']['ID'] = 0
-					# clear the signal
 					return
 				shutit.log('State submitted, checking your work...',level=logging.INFO)
 				check_command = follow_on_context.get('check_command')
@@ -3120,17 +3120,19 @@ $'"""
 	def replace_container(self,
 	                      new_target_image_name,
 	                      delaybeforesend=0):
+		"""Replaces a container. Assumes we are in Docker context\n"""
 		cfg = self.cfg
 		self.log('Replacing container, please wait...',level=logging.INFO)
-		container_id = cfg['target']['container_id']
-		shutit_main.finalize_target(self)
-		host_child = self.pexpect_children['host_child']
-		self.send('docker rm -f ' + container_id,child=host_child,expect=cfg['expect_prompts']['origin_prompt'],loglevel=logging.DEBUG,delaybeforesend=delaybeforesend)
-		# start up new container and connect to it
-		cfg['target']['docker_image'] = new_target_image_name
-		shutit_main.conn_target(self)
-		# Set up prompt
-		self.setup_prompt('root')
+		conn_module = None
+		for mod in shutit.conn_modules:
+			if mod.module_id == cfg['build']['conn_module']:
+				conn_module = mod
+				break
+		if conn_module is None:
+			self.fail('''Couldn't find conn_module ''' + cfg['build']['conn_module'])
+		conn_module.destroy_container(self)
+		target_child = conn_module.start_container(shutit)
+		conn_module.setup_target_child(self,target_child)
 		return
 
 
