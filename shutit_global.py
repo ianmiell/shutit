@@ -2077,9 +2077,8 @@ $'"""
 				child.logfile_send = None
 				if wait < 0:
 					try:
-						retval = child.interact(input_filter=self._pause_input_filter)
-						if retval == None:
-							self.log('\r\nCTRL-] caught, continuing with run...',level=logging.INFO,transient=True)
+						child.interact(input_filter=self._pause_input_filter)
+						self.handle_pause_point_signals()
 					except Exception as e:
 						self.fail('Terminating ShutIt.\n' + str(e))
 				else:
@@ -2105,17 +2104,37 @@ $'"""
 				self.log('CTRL and u caught, forcing a tag at least',level=logging.INFO)
 				self.do_repository_work('tagged_by_shutit', password=cfg['host']['password'], docker_executable=cfg['host']['docker_executable'], force=True)
 				self.log('Commit and tag done. Hit CTRL and ] to continue with build. Hit return for a prompt.',level=logging.INFO)
+			# CTRL-d
+			elif ord(input_string) == 4:
+				cfg['SHUTIT_SIGNAL']['ID'] = 4
+				# Return the escape from pexpect char
+				return '\x1d'
 			# CTRL-h
-			if ord(input_string) == 8:
+			elif ord(input_string) == 8:
 				cfg['SHUTIT_SIGNAL']['ID'] = 8
 				# Return the escape from pexpect char
 				return '\x1d'
 			# CTRL-g
-			if ord(input_string) == 7:
+			elif ord(input_string) == 7:
 				cfg['SHUTIT_SIGNAL']['ID'] = 7
 				# Return the escape from pexpect char
 				return '\x1d'
+			# CTRL-]
+			elif ord(input_string) == 29:
+				cfg['SHUTIT_SIGNAL']['ID'] = 29
+				# Return the escape from pexpect char
+				return '\x1d'
 		return input_string
+
+
+	def handle_pause_point_signals(self):
+		cfg = self.cfg
+		if cfg['SHUTIT_SIGNAL']['ID'] == 4:
+			shutit.fail('CTRL-d caught, quitting')
+			cfg['SHUTIT_SIGNAL']['ID'] = 0
+		elif cfg['SHUTIT_SIGNAL']['ID'] == 29:
+			self.log('\r\nCTRL-] caught, continuing with run...',level=logging.INFO,transient=True)
+			cfg['SHUTIT_SIGNAL']['ID'] = 0
 
 
 	def match_string(self, string, regexp):
