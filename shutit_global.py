@@ -3151,7 +3151,7 @@ $'"""
 		if conn_module is None:
 			self.fail('''Couldn't find conn_module ''' + cfg['build']['conn_module'])
 		conn_module.destroy_container(self)
-		cfg['build']['base_image'] = new_target_image_name
+		cfg['target']['docker_image'] = new_target_image_name
 		target_child = conn_module.start_container(shutit)
 		conn_module.setup_target_child(self,target_child)
 		return
