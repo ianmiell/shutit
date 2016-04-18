@@ -592,7 +592,6 @@ class ShutIt(object):
 					if not container_name:
 						self.log('No reset context available, carrying on.',level=logging.INFO)
 					else:
-						print container_name
 						self.replace_container(container_name)
 						self.log('State restored.',level=logging.INFO)
 				else:
@@ -3153,7 +3152,34 @@ $'"""
 		conn_module.destroy_container(self)
 		cfg['target']['docker_image'] = new_target_image_name
 		target_child = conn_module.start_container(shutit)
-		conn_module.setup_target_child(self,target_child)
+
+		# We then need to set up:
+		#      - default_expect (root one)
+		#      - default_child (new one)
+		#      - login_stack (login with bash)
+		# MAKING SURE: root shell has correct prompt
+
+		# CLEAR:
+		# default expect
+		# default child
+		# login stack
+		self._default_expect = []
+		self._default_child = []
+		cfg['build']['login_stack'] = []
+
+		# SET UP:
+		self.pexpect_children['target_child'] = target_child
+		# default child - needs two as we are mid-module build function
+		self._default_child = [target_child, target_child]
+		# default expect - needs two as we are mid-module build function
+		self._default_expect = [cfg['expect_prompts']['base_prompt']]
+		self.setup_prompt('root')
+		self.login_stack_append('root')
+		# Don't go home in case the workdir is different in the docker image
+		self.login(command='bash',go_home=False)
+		if len(self._default_expect) != 1:
+			self.fail('ASSERT FAILURE')
+		self._default_expect = [self._default_expect[0],self._default_expect[0]]
 		return
 
 
