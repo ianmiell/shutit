@@ -57,9 +57,7 @@ def shutit_method_scope(func):
 	def wrapper(self, shutit):
 		"""Wrapper to call a shutit module method, notifying the ShutIt object.
 		"""
-		shutit.module_method_start()
 		ret = func(self, shutit)
-		shutit.module_method_end()
 		return ret
 	return wrapper
 

@@ -78,31 +78,6 @@ class ShutIt(object):
 		self._default_check_exit = [None]
 
 
-	def module_method_start(self):
-		"""Gets called automatically by the metaclass decorator in
-		shutit_module when a module method is called.
-		This allows setting defaults for the 'scope' of a method.
-		"""
-		if self._default_child[-1] is not None:
-			self._default_child.append(self._default_child[-1])
-		if self._default_expect[-1] is not None:
-			self._default_expect.append(self._default_expect[-1])
-		if self._default_check_exit[-1] is not None:
-			self._default_check_exit.append(self._default_check_exit[-1])
-
-
-	def module_method_end(self):
-		"""Gets called automatically by the metaclass decorator in
-		shutit_module when a module method is finished.
-		This allows setting defaults for the 'scope' of a method.
-		"""
-		if len(self._default_child) != 1:
-			self._default_child.pop()
-		if len(self._default_expect) != 1:
-			self._default_expect.pop()
-			self._default_check_exit.pop()
-
-
 	def get_default_child(self):
 		"""Returns the currently-set default pexpect child.
 
@@ -3188,7 +3163,8 @@ $'"""
 		# set the target child up
 		self.pexpect_children['target_child'] = target_child
 		# default child - needs two as we are mid-module build function
-		self._default_child = [target_child, target_child]
+		#self._default_child = [target_child, target_child]
+		self._default_child = [target_child]
 		
 		# set up the prompt on startup
 		self._default_expect = [cfg['expect_prompts']['base_prompt']]
