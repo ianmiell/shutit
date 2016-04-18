@@ -72,7 +72,6 @@ class ShutItConnModule(ShutItModule):
 		# target child
 		shutit.set_default_child(target_child)
 		shutit.setup_prompt('root')
-		# TODO: what if this is called twice?
 		shutit.login_stack_append('root')
 
 
@@ -144,17 +143,18 @@ class ConnDocker(ShutItConnModule):
 				sec, name, ispass = 'host', 'docker_executable', False
 			cfg[sec][name] = shutit.prompt_cfg(msg, sec, name, ispass=ispass)
 			return False
-
 		return True
+
 
 	def destroy_container(self, shutit, loglevel=logging.DEBUG):
 		cfg = shutit.cfg
 		container_id = cfg['target']['container_id']
 		target_child = shutit.pexpect_children['target_child']
-		# Close connection
+		# Close connection.
 		target_child.close()
 		host_child = shutit.pexpect_children['host_child']
 		shutit.send('docker rm -f ' + container_id + ' && rm -f ' + cfg['build']['cidfile'],child=host_child,expect=cfg['expect_prompts']['origin_prompt'],loglevel=loglevel)
+
 
 	def start_container(self, shutit, loglevel=logging.DEBUG):
 		cfg = shutit.cfg
@@ -252,9 +252,7 @@ class ConnDocker(ShutItConnModule):
 			shutit.fail('Could not get container_id - quitting. Check whether other containers may be clashing on port allocation or name.\nYou might want to try running: sudo docker kill ' + cfg['target']['name'] + '; sudo docker rm ' + cfg['target']['name'] + '\nto resolve a name clash or: ' + cfg['host']['docker_executable'] + ' ps -a | grep ' + cfg['target']['ports'] + " | awk '{print $1}' | " + 'xargs ' + cfg['host']['docker_executable'] + ' kill\nto ' + 'resolve a port clash\n')
 		shutit.log('cid: ' + cid,level=logging.DEBUG)
 		cfg['target']['container_id'] = cid
-
 		return target_child
-
 
 
 	def build(self, shutit, loglevel=logging.DEBUG):

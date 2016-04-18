@@ -3150,9 +3150,12 @@ $'"""
 	def replace_container(self,
 	                      new_target_image_name,
 	                      delaybeforesend=0):
-		"""Replaces a container. Assumes we are in Docker context\n"""
+		"""Replaces a container. Assumes we are in Docker context
+		"""
 		cfg = self.cfg
 		self.log('Replacing container, please wait...',level=logging.INFO)
+
+		# Destroy existing container.
 		conn_module = None
 		for mod in shutit.conn_modules:
 			if mod.module_id == cfg['build']['conn_module']:
@@ -3161,6 +3164,8 @@ $'"""
 		if conn_module is None:
 			self.fail('''Couldn't find conn_module ''' + cfg['build']['conn_module'])
 		conn_module.destroy_container(self)
+		
+		# Start up a new container.
 		cfg['target']['docker_image'] = new_target_image_name
 		target_child = conn_module.start_container(shutit)
 
@@ -3174,22 +3179,28 @@ $'"""
 		# default expect
 		# default child
 		# login stack
-		self._default_expect = []
-		self._default_child = []
-		cfg['build']['login_stack'] = []
+		self._default_expect                  = []
+		self._default_child                   = []
+		cfg['build']['login_stack']           = []
+		self.pexpect_children['target_child'] = None
 
 		# SET UP:
+		# set the target child up
 		self.pexpect_children['target_child'] = target_child
 		# default child - needs two as we are mid-module build function
 		self._default_child = [target_child, target_child]
-		# default expect - needs two as we are mid-module build function
+		
+		# set up the prompt on startup
 		self._default_expect = [cfg['expect_prompts']['base_prompt']]
 		self.setup_prompt('root')
 		self.login_stack_append('root')
-		# Don't go home in case the workdir is different in the docker image
+
+		# Log in and let ShutIt take care of the prompt.
+		# Don't go home in case the workdir is different in the docker image!
 		self.login(command='bash',go_home=False)
+
 		if len(self._default_expect) != 1:
-			self.fail('ASSERT FAILURE')
+			self.fail('ASSERT FAILURE default_expect not 1 item long.')
 		self._default_expect = [self._default_expect[0],self._default_expect[0]]
 		return
 
