@@ -3196,6 +3196,8 @@ $'"""
 		self.login_stack_append('root')
 
 		# Log in and let ShutIt take care of the prompt.
+		# We need to do this as we are mid-module build function and it is 
+		# expected to be two layers in.
 		# Don't go home in case the workdir is different in the docker image!
 		self.login(command='bash',go_home=False)
 
