@@ -507,7 +507,7 @@ class ShutIt(object):
 			ok = False
 			# hints
 			if len(hints):
-				task_desc_new = task_desc + '\r\n\r\nHit CTRL-h for help, CTRL-g to reset state'
+				task_desc_new = task_desc + '\r\n\r\nHit CTRL-h for help, CTRL-g to reset state, CTRL-s to skip'
 			else:
 				task_desc_new = task_desc
 			while not ok:
@@ -549,7 +549,10 @@ class ShutIt(object):
 					)
 					return
 				elif cfg['SHUTIT_SIGNAL']['ID'] == 19:
+					# Clear the signal.
 					cfg['SHUTIT_SIGNAL']['ID'] = 0
+					# Skip test.
+					shutit.log('Test skipped',level=logging.INFO)
 					break
 				shutit.log('State submitted, checking your work...',level=logging.INFO)
 				check_command = follow_on_context.get('check_command')
