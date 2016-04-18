@@ -521,7 +521,7 @@ class ShutIt(object):
 					# clear the signal
 					cfg['SHUTIT_SIGNAL']['ID'] = 0
 					continue
-				if cfg['SHUTIT_SIGNAL']['ID'] == 7:
+				elif cfg['SHUTIT_SIGNAL']['ID'] == 7:
 					self.log(shutit_util.colour('31','\r\n========= RESETTING STATE ==========\r\n\r\n'),transient=True)
 					self._challenge_done(result='reset', follow_on_context=follow_on_context)
 					# clear the signal
@@ -548,6 +548,9 @@ class ShutIt(object):
 						follow_on_context=follow_on_context
 					)
 					return
+				elif cfg['SHUTIT_SIGNAL']['ID'] == 19:
+					cfg['SHUTIT_SIGNAL']['ID'] = 0
+					break
 				shutit.log('State submitted, checking your work...',level=logging.INFO)
 				check_command = follow_on_context.get('check_command')
 				output = self.send_and_get_output(check_command,child=child,timeout=timeout,retry=1,record_command=record_command,echo=False, loglevel=loglevel, fail_on_empty_before=False, preserve_newline=preserve_newline, delaybeforesend=delaybeforesend)
@@ -2117,6 +2120,11 @@ $'"""
 			# CTRL-g
 			elif ord(input_string) == 7:
 				cfg['SHUTIT_SIGNAL']['ID'] = 7
+				# Return the escape from pexpect char
+				return '\x1d'
+			# CTRL-s
+			elif ord(input_string) == 19:
+				cfg['SHUTIT_SIGNAL']['ID'] = 19
 				# Return the escape from pexpect char
 				return '\x1d'
 			# CTRL-]
