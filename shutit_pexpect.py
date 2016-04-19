@@ -34,9 +34,13 @@ class ShutItPexpectChild(object):
 		self.check_exit             = True
 		self.expect                 = shutit.cfg['expect_prompts']['base_prompt']
 		self.pexpect_child          = None
+<<<<<<< cd3365d58b1086c76ae589538e83cd95deca56f9
 		TODO: maintain list of expect children in ShutIt
 		# TODO: check pexpect_child_id is unique
 		self.pexpect_child          = pexpect_child_id
+=======
+		self.pexpect_child_id       = pexpect_child_id
+>>>>>>> latest
 		TODO: move login stack into here and login_stack_append
 		TODO: update login function
 		self.login_stack            = None
@@ -75,6 +79,7 @@ class ShutItPexpectChild(object):
 		                     codec_errors=codec_errors,
 		                     dimensions=dimensions)
 		self.pexpect_child.delaybeforesend=delaybeforesend
+<<<<<<< cd3365d58b1086c76ae589538e83cd95deca56f9
 		TODO: check this is appropriate data structure
 		shutit.pexpect_children.append({self.pexpect_child_id:self.pexpect_child})
 		return True
@@ -82,6 +87,14 @@ class ShutItPexpectChild(object):
 
 	TODO: replace get_default_child/set_default_child and expect with get_current_session or similar
 	TODO: replace set default expect with 'set default pexpect child/expect'
+=======
+		shutit.add_shutit_pexpect_child(self)
+		return True
+
+
+	#DONE: replace get_default_child/set_default_child and expect with get_current_session or similar - shutit.current_shutit_pexpect_child
+	#DONE: replace set default expect with 'set default pexpect child/expect'
+>>>>>>> latest
 	TODO: replace shutit.child_expect
 	TODO: replace child.send and child.sendline
 	TODO: replace shutit.login and logout and manage that in here

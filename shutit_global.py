@@ -62,13 +62,14 @@ class ShutIt(object):
 		"""
 		# These used to be in shutit_global, so we pass them in as args so
 		# the original reference can be put in shutit_global
-		self.pexpect_children       = kwargs['pexpect_children']
-		self.shutit_modules         = kwargs['shutit_modules']
-		self.shutit_main_dir        = kwargs['shutit_main_dir']
-		self.cfg                    = kwargs['cfg']
-		self.cwd                    = kwargs['cwd']
-		self.shutit_command_history = kwargs['shutit_command_history']
-		self.shutit_map             = kwargs['shutit_map']
+		self.current_shutit_pexpect_child = kwargs['current_shutit_pexpect_child']
+		self.pexpect_children             = kwargs['pexpect_children']
+		self.shutit_modules               = kwargs['shutit_modules']
+		self.shutit_main_dir              = kwargs['shutit_main_dir']
+		self.cfg                          = kwargs['cfg']
+		self.cwd                          = kwargs['cwd']
+		self.shutit_command_history       = kwargs['shutit_command_history']
+		self.shutit_map                   = kwargs['shutit_map']
 		# These are new members we dont have to provide compatibility for
 		self.conn_modules = set()
 
@@ -78,50 +79,40 @@ class ShutIt(object):
 		self._default_check_exit = [None]
 
 
-	def get_default_child(self):
+	def get_current_shutit_pexpect_child(self):
 		"""Returns the currently-set default pexpect child.
 
-		@return: default pexpect child object
+		@return: default shutit pexpect child object
 		"""
-		if self._default_child == None:
-			self.log('Default child not set yet, exiting',transient=True)
-			shutit_util.handle_exit(exit_code=1)
-		if self._default_child[-1] is None:
-			self.log('''Couldn't get default child''',transient=True)
-			shutit_util.handle_exit(exit_code=1)
-		return self._default_child[-1]
+		return self.current_shutit_pexpect_child
 
 
-	def get_default_expect(self):
+	def get_default_shutit_pexpect_child_expect(self):
 		"""Returns the currently-set default pexpect string (usually a prompt).
 
 		@return: default pexpect string
 		"""
-		if self._default_expect[-1] is None:
-			self.fail("Couldn't get default expect, quitting")
-		return self._default_expect[-1]
+		return self.current_shutit_pexpect_child.default_expect
 
 
-	def get_default_check_exit(self):
+	def get_default_shutit_pexpect_child_check_exit(self):
 		"""Returns default value of check_exit. See send method.
 
 		@rtype:  boolean
 		@return: Default check_exit value
 		"""
-		if self._default_check_exit[-1] is None:
-			self.fail("Couldn't get default check exit")
-		return self._default_check_exit[-1]
+		return self.current_shutit_pexpect_child.check_exit
 
 
-	def set_default_child(self, child):
+	def set_default_shutit_pexpect_child(self, shutit_pexpect_child):
 		"""Sets the default pexpect child.
 
 		@param child: pexpect child to set as default
 		"""
-		self._default_child[-1] = child
+		self.current_shutit_pexpect_child = shutit_pexpect_child
 
 
-	def set_default_expect(self, expect=None, check_exit=True):
+	def set_default_shutit_pexpect_child_expect(self, expect=None, check_exit=True):
 		"""Sets the default pexpect string (usually a prompt).
 		Defaults to the configured root prompt if no
 		argument is passed.
@@ -131,11 +122,10 @@ class ShutIt(object):
 		@param check_exit: Whether to check the exit value of the command
 		@type check_exit: boolean
 		"""
-		cfg = self.cfg
 		if expect == None:
-			expect = cfg['expect_prompts']['root']
-		self._default_expect[-1] = expect
-		self._default_check_exit[-1] = check_exit
+			self.current_shutit_pexpect_child.default_expect = self.cfg['expect_prompts']['root']
+		else:
+			self.current_shutit_pexpect_child.default_expect = expect
 
 
 	def fail(self, msg, child=None, throw_exception=False):
@@ -192,8 +182,8 @@ class ShutIt(object):
 		If we are not in a new environment ensure the env_id is correct.
 		Returns the environment id every time.
 		"""
-		child = child or self.get_default_child()
-		expect = expect or self.get_default_expect()
+		child = child or self.get_current_shutit_pexpect_child().pexpect_child
+		expect = expect or self.get_current_shutit_pexpect_child().default_expect
 		cfg = self.cfg
 		environment_id_dir = cfg['build']['shutit_state_dir'] + '/environment_id'
 		if self.file_exists(environment_id_dir,expect=expect,child=child,directory=True):
@@ -287,8 +277,8 @@ class ShutIt(object):
 		@param echo:                 See send()
 		@param note:                 See send()
 		"""
-		expect = expect or self.get_default_expect()
-		child = child or self.get_default_child()
+		child = child or self.get_current_shutit_pexpect_child().pexpect_child
+		expect = expect or self.get_current_shutit_pexpect_child().default_expect
 		self._handle_note(note)
 		
 		send_iteration = send
@@ -340,8 +330,8 @@ class ShutIt(object):
 		@param echo:                 See send()
 		@param note:                 See send()
 		"""
-		child = child or self.get_default_child()
-		expect = expect or self.get_default_expect()
+		child = child or self.get_current_shutit_pexpect_child().pexpect_child
+		expect = expect or self.get_current_shutit_pexpect_child().default_expect
 		cfg = self.cfg
 		self._handle_note(note, command=send + ' until one of these seen: ' + str(regexps))
 		self.log('Sending: "' + send + '" until one of these regexps seen: ' + str(regexps),level=loglevel)
@@ -407,7 +397,7 @@ class ShutIt(object):
 		                             command = check for output of single command
 		                             golf    = user gets a pause point, and when leaving, command follow_on_context['check_command'] is run to check the output
 		"""
-		child = child or self.get_default_child()
+		child = child or self.get_current_shutit_pexpect_child().pexpect_child
 		# don't catch CTRL-C, pass it through.
 		self.cfg['build']['ctrlc_passthrough'] = True
 		preserve_newline                       = False
@@ -626,7 +616,7 @@ class ShutIt(object):
 		matched)
 
 		@param send: String to send, ie the command being issued. If set to None, we consume up to the expect string, which is useful if we just matched output that came before a standard command that returns to the prompt.
-		@param expect: String that we expect to see in the output. Usually a prompt. Defaults to currently-set expect string (see set_default_expect)
+		@param expect: String that we expect to see in the output. Usually a prompt. Defaults to currently-set expect string (see set_default_shutit_pexpect_child_expect)
 		@param child: pexpect child to issue command to.
 		@param timeout: Timeout on response
 		@param check_exit: Whether to check the shell exit code of the passed-in command.  If the exit value was non-zero an error is thrown.  (default=None, which takes the currently-configured check_exit value) See also fail_on_empty_before.
@@ -643,8 +633,8 @@ class ShutIt(object):
 		"""
 		if type(expect) == dict:
 			return self.multisend(send=send,send_dict=expect,expect=self.get_default_expect(),child=child,timeout=timeout,check_exit=check_exit,fail_on_empty_before=fail_on_empty_before,record_command=record_command,exit_values=exit_values,echo=echo,note=note,loglevel=loglevel,delaybeforesend=delaybeforesend)
-		child = child or self.get_default_child()
-		expect = expect or self.get_default_expect()
+		child = child or self.get_current_shutit_pexpect_child().pexpect_child
+		expect = expect or self.get_current_shutit_pexpect_child().default_expect
 		cfg = self.cfg
 		self._handle_note(note, command=str(send), training_input=str(send))
 		if timeout == None:
@@ -957,8 +947,8 @@ $'"""
 		if cfg['build']['check_exit'] == False:
 			self.log('check_exit configured off, returning', level=logging.DEBUG)
 			return
-		expect = expect or self.get_default_expect()
-		child = child or self.get_default_child()
+		expect = expect or self.get_current_shutit_pexpect_child().default_expect
+		child = child or self.get_current_shutit_pexpect_child().pexpect_child
 		if exit_values is None:
 			exit_values = ['0']
 		# Don't use send here (will mess up last_output)!
@@ -1008,8 +998,8 @@ $'"""
 		@type script:    string
 		@type in_shell:  boolean
 		"""
-		child = child or self.get_default_child()
-		expect = expect or self.get_default_expect()
+		child = child or self.get_current_shutit_pexpect_child().pexpect_child
+		expect = expect or self.get_current_shutit_pexpect_child().default_expect
 	 	cfg = self.cfg
 		self._handle_note(note, 'Script: ' + str(script))
 		self.log('Running script beginning: "' + string.join(script.split())[:30] + ' [...]', level=logging.INFO)
@@ -1063,8 +1053,8 @@ $'"""
 		@type path:         string
 		@type contents:     string
 		"""
-		child = child or self.get_default_child()
-		expect = expect or self.get_default_expect()
+		child = child or self.get_current_shutit_pexpect_child().pexpect_child
+		expect = expect or self.get_current_shutit_pexpect_child().default_expect
 		cfg = self.cfg
 		self._handle_note(note, 'Sending contents to path: ' + path)
 		# make more efficient by only looking at first 10000 chars, stop when we get to 30 chars rather than reading whole file.
@@ -1125,8 +1115,8 @@ $'"""
 		@param timeout:       Timeout on response
 		@param note:          See send()
 		"""
-		child = child or self.get_default_child()
-		expect = expect or self.get_default_expect()
+		child = child or self.get_current_shutit_pexpect_child().pexpect_child
+		expect = expect or self.get_current_shutit_pexpect_child().default_expect
 		cfg = self.cfg
 		self._handle_note(note, 'Changing to path: ' + path)
 		self.log('Changing directory to path: "' + path, level=logging.DEBUG)
@@ -1163,8 +1153,8 @@ $'"""
 		@type path:           string
 		@type hostfilepath:   string
 		"""
-		child = child or self.get_default_child()
-		expect = expect or self.get_default_expect()
+		child = child or self.get_current_shutit_pexpect_child().pexpect_child
+		expect = expect or self.get_current_shutit_pexpect_child().default_expect
 		cfg = self.cfg
 		self._handle_note(note, 'Sending file from host: ' + hostfilepath + ' to target path: ' + path)
 		self.log('Sending file from host: ' + hostfilepath + ' to: ' + path, level=loglevel)
@@ -1213,8 +1203,8 @@ $'"""
 		@type path:          string
 		@type hostfilepath:  string
 		"""
-		child = child or self.get_default_child()
-		expect = expect or self.get_default_expect()
+		child = child or self.get_current_shutit_pexpect_child().pexpect_child
+		expect = expect or self.get_current_shutit_pexpect_child().default_expect
 		self._handle_note(note, 'Sending host directory: ' + hostfilepath + ' to target path: ' + path)
 		self.log('Sending host directory: ' + hostfilepath + ' to: ' + path, level=logging.INFO)
 		self.send(' mkdir -p ' + path, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
@@ -1277,8 +1267,8 @@ $'"""
 
 		@rtype: boolean
 		"""
-		child = child or self.get_default_child()
-		expect = expect or self.get_default_expect()
+		child = child or self.get_current_shutit_pexpect_child().pexpect_child
+		expect = expect or self.get_current_shutit_pexpect_child().default_expect
 		self._handle_note(note, 'Looking for filename in current environment: ' + filename)
 		#       v the space is intentional, to avoid polluting bash history.
 		test = ' test %s %s' % ('-d' if directory is True else '-a', filename)
@@ -1316,8 +1306,8 @@ $'"""
 
 		@rtype:           string
 		"""
-		child = child or self.get_default_child()
-		expect = expect or self.get_default_expect()
+		child = child or self.get_current_shutit_pexpect_child().pexpect_child
+		expect = expect or self.get_current_shutit_pexpect_child().default_expect
 		self._handle_note(note)
 		cmd = 'stat -c %a ' + filename
 		self.send(' ' + cmd, expect, child=child, check_exit=False, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
@@ -1359,8 +1349,8 @@ $'"""
 		@return:              True if the line was matched and deleted, False otherwise.
 		@rtype:               boolean
 		"""
-		child = child or self.get_default_child()
-		expect = expect or self.get_default_expect()
+		child = child or self.get_current_shutit_pexpect_child().pexpect_child
+		expect = expect or self.get_current_shutit_pexpect_child().default_expect
 		self._handle_note(note)
 		# assume we're going to add it
 		tmp_filename = '/tmp/' + shutit_util.random_id()
@@ -1427,8 +1417,8 @@ $'"""
 		                      If not line_oriented, the regexp is considered on with the flags re.DOTALL, re.MULTILINE
 		                      enabled
 		"""
-		child = child or self.get_default_child()
-		expect = expect or self.get_default_expect()
+		child = child or self.get_current_shutit_pexpect_child().pexpect_child
+		expect = expect or self.get_current_shutit_pexpect_child().default_expect
 		self._handle_note(note)
 		fexists = self.file_exists(fname)
 		if not fexists:
@@ -1627,8 +1617,8 @@ $'"""
 
 		@return:              See add_line_to_file()
 		"""
-		child = child or self.get_default_child()
-		expect = expect or self.get_default_expect()
+		child = child or self.get_current_shutit_pexpect_child().pexpect_child
+		expect = expect or self.get_current_shutit_pexpect_child().default_expect
 		self._handle_note(note)
 		if not shutit_util.check_regexp(match_regexp):
 			shutit.fail('Illegal regexp found in add_to_bashrc call: ' + match_regexp)
@@ -1679,8 +1669,8 @@ $'"""
 		@return: True if the download was completed successfully, False otherwise.
 		@rtype: boolean
 		"""
-		child = child or self.get_default_child()
-		expect = expect or self.get_default_expect()
+		child = child or self.get_current_shutit_pexpect_child().pexpect_child
+		expect = expect or self.get_current_shutit_pexpect_child().default_expect
 		self._handle_note(note)
 		if len(locations) == 0 or type(locations) != list:
 			raise ShutItFailException('Locations should be a list containing base of the url.')
@@ -1730,8 +1720,8 @@ $'"""
 
 		@rtype:        boolean
 		"""
-		child = child or self.get_default_child()
-		expect = expect or self.get_default_expect()
+		child = child or self.get_current_shutit_pexpect_child().pexpect_child
+		expect = expect or self.get_current_shutit_pexpect_child().default_expect
 		self._handle_note(note)
 		exists = False
 		if user == '': return exists
@@ -1761,8 +1751,8 @@ $'"""
 
 		@rtype:           boolean
 		"""
-		child = child or self.get_default_child()
-		expect = expect or self.get_default_expect()
+		child = child or self.get_current_shutit_pexpect_child().pexpect_child
+		expect = expect or self.get_current_shutit_pexpect_child().default_expect
 		cfg = self.cfg
 		self._handle_note(note)
 		if cfg['environment'][cfg['build']['current_environment_id']]['install_type'] == 'apt':
@@ -1786,8 +1776,8 @@ $'"""
 	                      note=None,
 	                      delaybeforesend=0,
 	                      loglevel=logging.DEBUG):
-		child = child or self.get_default_child()
-		expect = expect or self.get_default_expect()
+		child = child or self.get_current_shutit_pexpect_child().pexpect_child
+		expect = expect or self.get_current_shutit_pexpect_child().default_expect
 		cfg = self.cfg
 		self._handle_note(note)
 		if self.send_and_get_output('command -v ' + command, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend) != '':
@@ -1976,7 +1966,7 @@ $'"""
 	def step_through(self, msg='', child=None, level=1, print_input=True, value=True):
 		"""Implements a step-through function, using pause_point.
 		"""
-		child = child or self.get_default_child()
+		child = child or self.get_current_shutit_pexpect_child().pexpect_child
 		cfg = self.cfg
 		if (not shutit_util.determine_interactive(self) or not cfg['build']['interactive'] or
 			cfg['build']['interactive'] < level):
@@ -2025,7 +2015,7 @@ $'"""
 		"""
 		ok=True
 		try:
-			child = child or self.get_default_child()
+			child = child or self.get_current_shutit_pexpect_child().pexpect_child
 		except Exception:
 			ok=False
 		if not ok:
@@ -2195,8 +2185,8 @@ $'"""
 		@type retry:     integer
 		@type strip:     boolean
 		"""
-		child = child or self.get_default_child()
-		expect = expect or self.get_default_expect()
+		child = child or self.get_current_shutit_pexpect_child().pexpect_child
+		expect = expect or self.get_current_shutit_pexpect_child().default_expect
 		self._handle_note(note)
 		self.log('Matching output from: "' + send + '" to one of these regexps:' + str(matches),level=logging.INFO)
 		output = self.send_and_get_output(send, child=child, retry=retry, strip=strip, echo=echo, loglevel=loglevel, delaybeforesend=delaybeforesend)
@@ -2239,8 +2229,8 @@ $'"""
 		@type retry:     integer
 		@type strip:     boolean
 		"""
-		child = child or self.get_default_child()
-		expect = expect or self.get_default_expect()
+		child = child or self.get_current_shutit_pexpect_child().pexpect_child
+		expect = expect or self.get_current_shutit_pexpect_child().default_expect
 		self._handle_note(note, command=str(send))
 		self.log('Retrieving output from command: ' + send,level=loglevel)
 		# Don't check exit, as that will pollute the output. Also, it's quite likely the submitted command is intended to fail.
@@ -2327,8 +2317,8 @@ $'"""
 					ok = False
 			return ok
 		# Some packages get mapped to the empty string. If so, bail out with 'success' here.
-		child = child or self.get_default_child()
-		expect = expect or self.get_default_expect()
+		child = child or self.get_current_shutit_pexpect_child().pexpect_child
+		expect = expect or self.get_current_shutit_pexpect_child().default_expect
 		cfg = self.cfg
 		self._handle_note(note)
 				
@@ -2442,8 +2432,8 @@ $'"""
 		if package.find(' ') != -1:
 			for p in package.split(' '):
 				self.install(p,child,expect,options,timeout,force,check_exit,reinstall,note)
-		child = child or self.get_default_child()
-		expect = expect or self.get_default_expect()
+		child = child or self.get_current_shutit_pexpect_child().pexpect_child
+		expect = expect or self.get_current_shutit_pexpect_child().default_expect
 		cfg = self.cfg
 		self._handle_note(note)
 		if options is None: options = {}
@@ -2501,8 +2491,8 @@ $'"""
 		@param user:    username we are getting password for
 		@param msg:     message to put out there
 		"""
-		child = child or self.get_default_child()
-		expect = expect or self.get_default_expect()
+		child = child or self.get_current_shutit_pexpect_child().pexpect_child
+		expect = expect or self.get_current_shutit_pexpect_child().default_expect
 		self._handle_note(note)
 		user = user or self.whoami()
 		cfg = self.cfg
@@ -2536,8 +2526,8 @@ $'"""
 		@return: the output of "whoami"
 		@rtype: string
 		"""
-		child = child or self.get_default_child()
-		expect = expect or self.get_default_expect()
+		child = child or self.get_current_shutit_pexpect_child().pexpect_child
+		expect = expect or self.get_current_shutit_pexpect_child().default_expect
 		self._handle_note(note)
 		res = self.send_and_get_output('whoami',echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend).strip()
 		self._handle_note_after(note=note)
@@ -2559,8 +2549,8 @@ $'"""
 		@return: the first group found
 		@rtype: string
 		"""
-		child = child or self.get_default_child()
-		expect = expect or self.get_default_expect()
+		child = child or self.get_current_shutit_pexpect_child().pexpect_child
+		expect = expect or self.get_current_shutit_pexpect_child().default_expect
 		self._handle_note(note)
 		res = self.send_and_get_output('id -n -g',echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend).strip()
 		self._handle_note_after(note=note)
@@ -2568,8 +2558,8 @@ $'"""
 
 
 	def login_stack_append(self, r_id, child=None, expect=None, new_user=''):
-		child = child or self.get_default_child()
-		expect = expect or self.get_default_expect()
+		child = child or self.get_current_shutit_pexpect_child().pexpect_child
+		expect = expect or self.get_current_shutit_pexpect_child().default_expect
 		cfg = self.cfg
 		cfg['build']['login_stack'].append(r_id)
 		# Dictionary with details about login (eg whoami)
@@ -2613,7 +2603,7 @@ $'"""
 		@type prompt_prefix:    string
 		@type timeout:          integer
 		"""
-		child = child or self.get_default_child()
+		child = child or self.get_current_shutit_pexpect_child().pexpect_child
 		# We don't get the default expect here, as it's either passed in, or a base default regexp.
 		r_id = shutit_util.random_id()
 		if prompt_prefix == None:
@@ -2675,19 +2665,19 @@ $'"""
 			@param command:         Command to run to log out (default=exit)
 			@param note:            See send()
 		"""
-		child = child or self.get_default_child()
-		old_expect = expect or self.get_default_expect()
+		child = child or self.get_current_shutit_pexpect_child().pexpect_child
+		old_expect = expect or self.get_current_shutit_pexpect_child().default_expect
 		cfg = self.cfg
 		self._handle_note(note,training_input=command)
 		if len(cfg['build']['login_stack']):
 			current_prompt_name = cfg['build']['login_stack'].pop()
 			if len(cfg['build']['login_stack']):
 				old_prompt_name     = cfg['build']['login_stack'][-1]
-				self.set_default_expect(cfg['expect_prompts'][old_prompt_name])
+				self.set_default_shutit_pexpect_child_expect(cfg['expect_prompts'][old_prompt_name])
 			else:
 				# If none are on the stack, we assume we're going to the root prompt
 				# set up in shutit_setup.py
-				self.set_default_expect()
+				self.set_default_shutit_pexpect_child_expect()
 		else:
 			self.fail('Logout called without corresponding login', throw_exception=False)
 		# No point in checking exit here, the exit code will be
@@ -2719,7 +2709,7 @@ $'"""
 		    shutit.setup_prompt('tmp_prompt')
 		    shutit.send('some command')
 		    [...]
-		    shutit.set_default_expect()
+		    shutit.set_default_shutit_pexpect_child_expect()
 		    shutit.send('exit')
 
 		This function is assumed to be called whenever there is a change
@@ -2736,7 +2726,7 @@ $'"""
 		@type prefix:               string
 		@type set_default_expect:   boolean
 		"""
-		child = child or self.get_default_child()
+		child = child or self.get_current_shutit_pexpect_child().pexpect_child
 		local_prompt = prefix + '#' + shutit_util.random_id() + '> '
 		cfg = self.cfg
 		cfg['expect_prompts'][prompt_name] = local_prompt
@@ -2750,7 +2740,7 @@ $'"""
 		self.send((" export SHUTIT_BACKUP_PS1_%s=$PS1 && PS1='%s' && unset PROMPT_COMMAND && stty sane && stty cols " + str(cfg['build']['stty_cols'])) % (prompt_name, local_prompt), expect=['\r\n' + cfg['expect_prompts'][prompt_name]], fail_on_empty_before=False, timeout=5, child=child, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
 		if set_default_expect:
 			self.log('Resetting default expect to: ' + cfg['expect_prompts'][prompt_name],level=logging.DEBUG)
-			self.set_default_expect(cfg['expect_prompts'][prompt_name])
+			self.set_default_shutit_pexpect_child_expect(cfg['expect_prompts'][prompt_name])
 		# Ensure environment is set up OK.
 		if setup_environment:
 			self.setup_environment(prefix)
@@ -2770,13 +2760,13 @@ $'"""
 			- new_expect      -
 			- child           - See send()
 		"""
-		child = child or self.get_default_child()
-		expect = new_expect or self.get_default_expect()
+		child = child or self.get_current_shutit_pexpect_child().pexpect_child
+		expect = expect or self.get_current_shutit_pexpect_child().default_expect
 		#	  v the space is intentional, to avoid polluting bash history.
 		self.send((' PS1="${SHUTIT_BACKUP_PS1_%s}" && unset SHUTIT_BACKUP_PS1_%s') % (old_prompt_name, old_prompt_name), expect=expect, check_exit=False, fail_on_empty_before=False, echo=False, loglevel=logging.DEBUG,delaybeforesend=delaybeforesend)
 		if not new_expect:
 			self.log('Resetting default expect to default',level=logging.DEBUG)
-			self.set_default_expect()
+			self.set_default_shutit_pexpect_child_expect()
 		self.setup_environment()
 
 
@@ -2786,8 +2776,8 @@ $'"""
 	               delaybeforesend=0,
 	               note=None):
 		"""Returns memory available for use in k as an int"""
-		child = child or self.get_default_child()
-		old_expect = expect or self.get_default_expect()
+		child = child or self.get_current_shutit_pexpect_child().pexpect_child
+		old_expect = expect or self.get_current_shutit_pexpect_child().default_expect
 		cfg = self.cfg
 		self._handle_note(note)
 		if cfg['environment'][cfg['build']['current_environment_id']]['distro'] == 'osx':
@@ -2824,7 +2814,7 @@ $'"""
 
 		@type container:    boolean
 		"""
-		child = child or self.get_default_child()
+		child = child or self.get_current_shutit_pexpect_child().pexpect_child
 		install_type   = ''
 		distro         = ''
 		distro_version = ''
@@ -3006,7 +2996,7 @@ $'"""
 	                loglevel=logging.DEBUG):
 		"""Get distro information from lsb_release.
 		"""
-		child = child or self.get_default_child()
+		child = child or self.get_current_shutit_pexpect_child().pexpect_child
 		cfg = self.cfg
 		#          v the space is intentional, to avoid polluting bash history.
 		self.send(' lsb_release -a',check_exit=False, echo=False, loglevel=loglevel,delaybeforesend=delaybeforesend)
@@ -3037,8 +3027,8 @@ $'"""
 		@param child:       See send()
 		@param note:        See send()
 		"""
-		child = child or self.get_default_child()
-		expect = expect or self.get_default_expect()
+		child = child or self.get_current_shutit_pexpect_child().pexpect_child
+		expect = expect or self.get_current_shutit_pexpect_child().default_expect
 		self._handle_note(note)
 		self.install('passwd')
 		cfg = self.cfg
@@ -3076,8 +3066,8 @@ $'"""
 		@rtype:          boolean
 		@return:         True is the specified user id is not used yet, False if it's already been assigned to a user.
 		"""
-		child = child or self.get_default_child()
-		expect = expect or self.get_default_expect()
+		child = child or self.get_current_shutit_pexpect_child().pexpect_child
+		expect = expect or self.get_current_shutit_pexpect_child().default_expect
 		self._handle_note(note)
 		#          v the space is intentional, to avoid polluting bash history.
 		self.send(' cut -d: -f3 /etc/paswd | grep -w ^' + user_id + '$ | wc -l', child=child, expect=expect, check_exit=False, echo=False, loglevel=loglevel,delaybeforesend=delaybeforesend)
@@ -3105,8 +3095,8 @@ $'"""
 		@type repository:           string
 		@type docker_executable:    string
 		"""
-		child = child or self.get_default_child()
-		expect = expect or self.get_default_expect()
+		child = child or self.get_current_shutit_pexpect_child().pexpect_child
+		expect = expect or self.get_current_shutit_pexpect_child().default_expect
 		cfg = self.cfg
 		send = docker_executable + ' push ' + repository
 		expect_list = ['Username', 'Password', 'Email', expect]
@@ -3207,7 +3197,7 @@ $'"""
 		@type password:             string
 		@type force:                boolean
 		"""
-		expect = expect or self.get_default_expect()
+		expect = expect or self.get_current_shutit_pexpect_child().default_expect
 		cfg = self.cfg
 		tag    = cfg['repository']['tag']
 		push   = cfg['repository']['push']
@@ -3471,6 +3461,21 @@ $'"""
 			expect = [expect]
 		return child.expect(expect + [pexpect.TIMEOUT] + [pexpect.EOF], timeout=timeout)
 
+	def add_shutit_pexpect_child(self, shutit_pexpect_child):
+		pexpect_child_id = shutit_pexpect_child.pexpect_child_id
+		# Check id is unique
+		if self.pexpect_children.has_key(pexpect_child_id) and self.pexpect_children[pexpect_child_id] != shutit_pexpect_child:
+			shutit.fail('shutit_pexpect_child already added and differs from passed-in object')
+		self.pexpect_children.update({pexpect_child_id:shutit_pexpect_child})
+
+	def remove_shutit_pexpect_child(self, shutit_pexpect_child_id=None, shutit_pexpect_child=None):
+		if shutit_pexpect_child_id == None and shutit_pexpect_child == None:
+			shutit.fail('Must pass value into remove_pexpect_child.'
+		if shutit_pexpect_child_id == None:
+			shutit_pexpect_child_id = shutit_pexpect_child.pexpect_child_id
+		del self.pexpect_children[shutit_pexpect_child_id]
+		
+
 
 def init():
 	"""Initialize the shutit object. Called when imported.
@@ -3483,10 +3488,11 @@ def init():
 	global shutit_command_history
 	global shutit_map
 
-	pexpect_children       = {}
-	shutit_map             = {}
-	shutit_modules         = set()
-	shutit_command_history = []
+	current_shutit_pexpect_child = None
+	pexpect_children             = {}
+	shutit_map                   = {}
+	shutit_modules               = set()
+	shutit_command_history       = []
 	# Store the root directory of this application.
 	# http://stackoverflow.com/questions/5137497
 	shutit_main_dir = os.path.abspath(os.path.dirname(__file__))
@@ -3550,6 +3556,7 @@ def init():
 
 	return ShutIt(
 		pexpect_children=pexpect_children,
+		current_shutit_pexpect_child=current_shutit_pexpect_child,
 		shutit_modules=shutit_modules,
 		shutit_main_dir=shutit_main_dir,
 		cfg=cfg,
