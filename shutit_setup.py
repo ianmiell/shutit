@@ -54,13 +54,12 @@ class ShutItConnModule(ShutItModule):
 		cfg = shutit.cfg
 		# Now let's have a host_child
 		shutit.log('Spawning host child',level=logging.DEBUG)
-		host_child = shutit_util.spawn_child('/bin/bash')
-		# Set delaybeforesend to 0
-		host_child.delaybeforesend=0
-		shutit.pexpect_children['host_child'] = host_child
+		pexpect_child = ShutItPexpectChild(shutit,'host_child')
+		pexpect_child.spawn_child('/bin/bash')
+TODO: 
 		# Set up prompts and let the user do things before the build
-		shutit.set_default_expect(cfg['expect_prompts']['base_prompt'])
-		shutit.set_default_child(host_child)
+		shutit.set_default_shutit_pexpect_child_expect(cfg['expect_prompts']['base_prompt'])
+		shutit.set_default_shutit_pexpect_child(host_child)
 		# ORIGIN_ENV is a special case of the prompt maintained for performance reasons, don't change.
 		shutit.setup_prompt('origin_prompt', prefix='ORIGIN_ENV')
 
@@ -68,9 +67,9 @@ class ShutItConnModule(ShutItModule):
 		cfg = shutit.cfg
 		# Some pexpect settings
 		shutit.pexpect_children['target_child'] = target_child
-		shutit.set_default_expect(cfg['expect_prompts']['base_prompt'])
+		shutit.set_default_shutit_pexpect_child_expect(cfg['expect_prompts']['base_prompt'])
 		# target child
-		shutit.set_default_child(target_child)
+		shutit.set_default_shutit_pexpect_child(target_child)
 		shutit.setup_prompt('root')
 		shutit.login_stack_append('root')
 
@@ -275,8 +274,8 @@ class ConnDocker(ShutItConnModule):
 
 		cfg = shutit.cfg
 		host_child = shutit.pexpect_children['host_child']
-		shutit.set_default_child(host_child)
-		shutit.set_default_expect(cfg['expect_prompts']['origin_prompt'])
+		shutit.set_default_shutit_pexpect_child(host_child)
+		shutit.set_default_shutit_pexpect_child_expect(cfg['expect_prompts']['origin_prompt'])
 		shutit.do_repository_work(cfg['repository']['name'], docker_executable=cfg['host']['docker_executable'], password=cfg['host']['password'])
 		# Final exits
 		host_child.sendline('rm -f ' + cfg['build']['cidfile']) # Exit raw bash
@@ -396,7 +395,7 @@ class ConnSSH(ShutItConnModule):
 		"""
 		# Finish with the target
 		shutit.pexpect_children['target_child'].sendline('exit')
-		shutit.set_default_child(shutit.pexpect_children['host_child'])
+		shutit.set_default_shutit_pexpect_child(shutit.pexpect_children['host_child'])
 		# Final exits
 		host_child.sendline('exit') # Exit raw bash
 		return True
