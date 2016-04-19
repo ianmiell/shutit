@@ -2060,24 +2060,6 @@ def handle_exit(shutit=None,exit_code=0,loglevel=logging.DEBUG,msg=None):
 	# If we are still here, there was a problem, so take stronger measures
 	os._exit(1)
 
-def spawn_child(command,args=[],
-                timeout=30,
-                maxread=2000,
-	            searchwindowsize=None,
-                logfile=None,
-                cwd=None,
-                env=None,
-                ignore_sighup=False,
-                echo=True,
-                preexec_fn=None,
-                encoding=None,
-                codec_errors='strict',
-                dimensions=None,
-                delaybeforesend=0):
-	"""spawn a child, and manage the delaybefore send setting to 0"""
-	child = pexpect.spawn(command,args=args,timeout=timeout,maxread=maxread,searchwindowsize=searchwindowsize, logfile=logfile, cwd=cwd, env=env, ignore_sighup=ignore_sighup, echo=echo, preexec_fn=preexec_fn, encoding=encoding, codec_errors=codec_errors, dimensions=dimensions)
-	child.delaybeforesend=delaybeforesend
-	return child
 
 def sendline(child,
              line,
