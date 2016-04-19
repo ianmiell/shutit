@@ -54,10 +54,9 @@ class ShutItConnModule(ShutItModule):
 		cfg = shutit.cfg
 		# Now let's have a host_child
 		shutit.log('Spawning host child',level=logging.DEBUG)
-		host_child = shutit_util.spawn_child('/bin/bash')
-		# Set delaybeforesend to 0
-		host_child.delaybeforesend=0
-		shutit.pexpect_children['host_child'] = host_child
+		pexpect_child = ShutItPexpectChild(shutit,'host_child')
+		pexpect_child.spawn_child('/bin/bash')
+TODO: 
 		# Set up prompts and let the user do things before the build
 		shutit.set_default_expect(cfg['expect_prompts']['base_prompt'])
 		shutit.set_default_child(host_child)
