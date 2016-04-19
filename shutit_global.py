@@ -46,7 +46,7 @@ import shutit_assets
 
 class ShutIt(object):
 	"""ShutIt build class.
-	Represents an instance of a ShutIt build with associated config.
+	Represents an instance of a ShutIt run/session/build with associated config.
 	"""
 
 	def __init__(self, **kwargs):
