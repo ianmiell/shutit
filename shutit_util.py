@@ -1274,7 +1274,8 @@ def util_raw_input(shutit=None, prompt='', default=None, ispass=False, use_readl
 		readline.read_init_file('/etc/inputrc')
 		readline.parse_and_bind('tab: complete')
 	msg = ''
-	prompt = '\n' + prompt
+	prompt = '\r\n' + prompt
+	sanitize_terminal()
 	if shutit and shutit.cfg['build']['interactive'] == 0:
 		return default
 	if not determine_interactive(shutit):
@@ -2039,7 +2040,7 @@ def handle_exit(shutit=None,exit_code=0,loglevel=logging.DEBUG,msg=None):
 		if exit_code != 0:
 			shutit.log('Exiting with error code: ' + str(exit_code),level=loglevel)
 			shutit.log('Resetting terminal',level=loglevel)
-	os.system('stty sane')
+	sanitize_terminal()
 	sys.exit(exit_code)
 	# If we are still here, there was a problem, so take stronger measures
 	os._exit(1)
@@ -2072,6 +2073,9 @@ def sendline(child,
 	child.delaybeforesend = delaybeforesend
 	child.sendline(line)
 	child.delaybeforesend = prev_delaybeforesend
+
+def sanitize_terminal():
+	os.system('stty sane')
 
 
 

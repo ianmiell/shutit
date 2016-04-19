@@ -2087,9 +2087,14 @@ $'"""
 				self.log('Commit and tag done. Hit CTRL and ] to continue with build. Hit return for a prompt.',level=logging.INFO)
 			# CTRL-d
 			elif ord(input_string) == 4:
+				cfg['SHUTIT_SIGNAL']['ID'] = 0
 				cfg['SHUTIT_SIGNAL']['ID'] = 4
-				# Return the escape from pexpect char
-				return '\x1d'
+				if self.get_input('CTRL-d caught, are you sure you want to quit this ShutIt run?\n\r=> ',default='n',boolean=True):
+					self.fail('CTRL-d caught, quitting')
+				if self.get_input('Do you want to pass through the CTRL-d to the ShutIt session?\n\r=> ',default='n',boolean=True):
+					return '\x04'
+				# Return nothing
+				return ''
 			# CTRL-h
 			elif ord(input_string) == 8:
 				cfg['SHUTIT_SIGNAL']['ID'] = 8
@@ -2115,12 +2120,9 @@ $'"""
 
 	def handle_pause_point_signals(self):
 		cfg = self.cfg
-		if cfg['SHUTIT_SIGNAL']['ID'] == 4:
-			shutit.fail('CTRL-d caught, quitting')
+		if cfg['SHUTIT_SIGNAL']['ID'] == 29:
 			cfg['SHUTIT_SIGNAL']['ID'] = 0
-		elif cfg['SHUTIT_SIGNAL']['ID'] == 29:
 			self.log('\r\nCTRL-] caught, continuing with run...',level=logging.INFO,transient=True)
-			cfg['SHUTIT_SIGNAL']['ID'] = 0
 
 
 	def match_string(self, string, regexp):
