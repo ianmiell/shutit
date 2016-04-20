@@ -10,7 +10,6 @@ Automation framework for programmers.
 
  - Shell-based (minimal learning curve)
  - [Pattern-based](https://github.com/ianmiell/shutit-templates) extensible framework
- - Use your python skills to make it work the way you want
  - Available patterns include:
    - bash builds
    - Docker builds
@@ -18,9 +17,6 @@ Automation framework for programmers.
    - Vagrant multinode builds
  - Modular
    - [Build an OS from scratch step by step](https://zwischenzugs.wordpress.com/2015/01/12/make-your-own-bespoke-docker-image/)
- - Outputs include a series of shell commands you can port to other CM tools
- - Extensive debugging tools to make reproducible runs easier
- - Utility functions for common tasks (that work across distros)
  - 'Training mode', forces users to type in commands
    - [Git Trainer](https://asciinema.org/a/32807?t=70)
    - [Understanding Docker Namespaces](https://zwischenzugs.wordpress.com/2015/11/21/understanding-docker-network-namespaces/)
@@ -29,7 +25,11 @@ Automation framework for programmers.
  - 'Challenge mode' - set command challenges for users
    - [grep scales](https://github.com/ianmiell/grep-scales)
  - 'Golf mode' - set task challenges for users
+   - [Git rebase challenge](ianmiell.github.io/git-rebase-tutorial)
  - ShutIt [Lifecycle](https://github.com/ianmiell/shutit/blob/master/README.md) allows for configuration, testing, modularity, and finalization
+ - Use your python skills to make it work the way you want
+ - Outputs include a series of shell commands you can port to other CM tools
+ - Utility functions for common tasks (that work across distros)
 
 Many more examples explained [here](https://zwischenzugs.wordpress.com):
 
