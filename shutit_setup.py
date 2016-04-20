@@ -66,7 +66,7 @@ TODO:
 	def setup_target_child(self, shutit, target_child):
 		cfg = shutit.cfg
 		# Some pexpect settings
-		shutit.pexpect_children['target_child'] = target_child
+		shutit.shutit_pexpect_children['target_child'] = target_child
 		shutit.set_default_shutit_pexpect_child_expect(cfg['expect_prompts']['base_prompt'])
 		# target child
 		shutit.set_default_shutit_pexpect_child(target_child)
@@ -116,13 +116,13 @@ class ConnDocker(ShutItConnModule):
 			cfg['host']['docker_executable'] = shutit.prompt_cfg(msg, 'host', 'docker_executable')
 			return False
 		try:
-			if shutit.child_expect(child,'assword') == 0:
+if shutit.child_expect(child,'assword') == 0:
 				needed_password = True
 				if cfg['host']['password'] == '':
 					msg = ('Running "%s" has prompted for a password, please enter your host password') % (str_cmd,)
 					cfg['host']['password'] = shutit.prompt_cfg(msg, 'host', 'password', ispass=True)
-				child.sendline(cfg['host']['password'])
-				shutit.child_expect(child,[])
+child.sendline(cfg['host']['password'])
+shutit.child_expect(child,[])
 		except pexpect.ExceptionPexpect:
 			fail_msg = '"%s" did not complete in %ss' % (str_cmd, cmd_timeout)
 		child.close()
@@ -148,10 +148,10 @@ class ConnDocker(ShutItConnModule):
 	def destroy_container(self, shutit, loglevel=logging.DEBUG):
 		cfg = shutit.cfg
 		container_id = cfg['target']['container_id']
-		target_child = shutit.pexpect_children['target_child']
+		target_child = shutit.shutit_pexpect_children['target_child']
 		# Close connection.
 		target_child.close()
-		host_child = shutit.pexpect_children['host_child']
+		host_child = shutit.shutit_pexpect_children['host_child']
 		shutit.send('docker rm -f ' + container_id + ' && rm -f ' + cfg['build']['cidfile'],child=host_child,expect=cfg['expect_prompts']['origin_prompt'],loglevel=loglevel)
 
 
@@ -229,7 +229,7 @@ class ConnDocker(ShutItConnModule):
 		shutit.log('Downloading image, please be patient',level=logging.INFO)
 		target_child = shutit_util.spawn_child(docker_command[0], docker_command[1:])
 		expect = ['assword', cfg['expect_prompts']['base_prompt'].strip(), 'Waiting', 'ulling', 'endpoint', 'Download']
-		res = shutit.child_expect(target_child,expect, timeout=9999)
+res = shutit.child_expect(target_child,expect, timeout=9999)
 		while True:
 			shutit.log(target_child.before + target_child.after,level=loglevel)
 			if res == 0:
@@ -238,7 +238,7 @@ class ConnDocker(ShutItConnModule):
 				shutit.log('Prompt found, breaking out',level=logging.DEBUG)
 				break
 			else:
-				res = shutit.child_expect(target_child,expect, timeout=9999)
+res = shutit.child_expect(target_child,expect, timeout=9999)
 				continue
 		# Get the cid
 		while True:
@@ -270,16 +270,16 @@ class ConnDocker(ShutItConnModule):
 		and performing any repository work required.
 		"""
 		# Finish with the target
-		shutit.pexpect_children['target_child'].sendline('exit')
+		shutit.shutit_pexpect_children['target_child'].sendline('exit')
 
 		cfg = shutit.cfg
-		host_child = shutit.pexpect_children['host_child']
+		host_child = shutit.shutit_pexpect_children['host_child']
 		shutit.set_default_shutit_pexpect_child(host_child)
 		shutit.set_default_shutit_pexpect_child_expect(cfg['expect_prompts']['origin_prompt'])
 		shutit.do_repository_work(cfg['repository']['name'], docker_executable=cfg['host']['docker_executable'], password=cfg['host']['password'])
 		# Final exits
-		host_child.sendline('rm -f ' + cfg['build']['cidfile']) # Exit raw bash
-		host_child.sendline('exit') # Exit raw bash
+host_child.sendline('rm -f ' + cfg['build']['cidfile']) # Exit raw bash
+host_child.sendline('exit') # Exit raw bash
 		return True
 
 
@@ -306,7 +306,7 @@ class ConnBash(ShutItConnModule):
 		cfg = shutit.cfg
 		command = '/bin/bash'
 		target_child = shutit_util.spawn_child(command)
-		shutit.child_expect(target_child,cfg['expect_prompts']['base_prompt'].strip(), timeout=10)
+shutit.child_expect(target_child,cfg['expect_prompts']['base_prompt'].strip(), timeout=10)
 		self.setup_host_child(shutit)
 		self.setup_target_child(shutit, target_child)
 		return True
@@ -316,7 +316,7 @@ class ConnBash(ShutItConnModule):
 		and performing any repository work required.
 		"""
 		# Finish with the target
-		shutit.pexpect_children['target_child'].sendline('exit')
+		shutit.shutit_pexpect_children['target_child'].sendline('exit')
 		return True
 
 
@@ -376,7 +376,7 @@ class ConnSSH(ShutItConnModule):
 		shutit.log('Command being run is: ' + cfg['build']['ssh_command'],level=logging.INFO)
 		target_child = shutit_util.spawn_child(ssh_command[0], ssh_command[1:])
 		expect = ['assword', cfg['expect_prompts']['base_prompt'].strip()]
-		res = shutit.child_expect(target_child,expect, timeout=10)
+res = shutit.child_expect(target_child,expect, timeout=10)
 		while True:
 			shutit.log(target_child.before + target_child.after,level=logging.DEBUG)
 			if res == 0:
@@ -394,10 +394,10 @@ class ConnSSH(ShutItConnModule):
 		and performing any repository work required.
 		"""
 		# Finish with the target
-		shutit.pexpect_children['target_child'].sendline('exit')
-		shutit.set_default_shutit_pexpect_child(shutit.pexpect_children['host_child'])
+		shutit.shutit_pexpect_children['target_child'].sendline('exit')
+		shutit.set_default_shutit_pexpect_child(shutit.shutit_pexpect_children['host_child'])
 		# Final exits
-		host_child.sendline('exit') # Exit raw bash
+host_child.sendline('exit') # Exit raw bash
 		return True
 
 

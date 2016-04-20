@@ -141,7 +141,7 @@ class ShutItModule(object):
 		# Module 0 is special. It is expected to:
 		#   - Set up a target (see shutit_setup.py)
 		#   - Set up pexpect children with relevant keys and populate
-		#     shutit_global.pexpect_children.
+		#     shutit_global.shutit_pexpect_children.
 		if (isinstance(run_order, float) or
 			isinstance(run_order, str) or
 			isinstance(run_order, int)):

@@ -297,7 +297,6 @@ def get_base_config(cfg, cfg_parser):
 	cfg['build']['step_through']               = False
 	cfg['build']['ctrlc_stop']                 = False
 	cfg['build']['ctrlc_passthrough']          = False
-	cfg['build']['check_exit']                 = True
 	# Width of terminal to set up on login and assume for other cases.
 	cfg['build']['stty_cols']                  = 320
 	# Signals are set here, which is useful for context-switching callbacks.
@@ -996,15 +995,17 @@ def print_config(cfg, hide_password=True, history=False, module_id=None):
 					s += line + '\n'
 	return s
 
+TODO: check this
 def set_pexpect_child(key, child):
 	"""Set a pexpect child in the global dictionary by key.
 	"""
-	shutit_global.pexpect_children.update({key:child})
+	shutit_global.shutit_pexpect_children.update({key:child})
 
+TODO: check this
 def get_pexpect_child(key):
 	"""Get a pexpect child in the global dictionary by key.
 	"""
-	return shutit_global.pexpect_children[key]
+	return shutit_global.shutit_pexpect_children[key]
 
 def load_all_from_path(shutit, path):
 	"""Dynamically imports files within the same directory (in the end, the path).
@@ -1399,7 +1400,7 @@ def ctrl_c_signal_handler(signal, frame):
 	if shutit_frame:
 		shutit = shutit_frame.f_locals['shutit']
 		if shutit.cfg['build']['ctrlc_passthrough']:
-			shutit.get_default_child().sendline(r'')
+			shutit.self.get_current_shutit_pexpect_child().pexpect_child.sendline(r'')
 			return
 		print colour(31,"\rYou may need to wait for a command to complete before a pause point is available. Alternatively, CTRL-\ to quit.")
 		shutit.cfg['build']['ctrlc_stop'] = True
