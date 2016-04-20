@@ -72,8 +72,9 @@ class ShutItPexpectChild(object):
 		                     encoding=encoding,
 		                     codec_errors=codec_errors,
 		                     dimensions=dimensions)
+		TODO: check this is appropriate data structure
 		self.pexpect_child.delaybeforesend=delaybeforesend
-		shutit.add_shutit_pexpect_child(self)
+		shutit.pexpect_children.append({self.pexpect_child_id:self.pexpect_child})
 		return True
 
 
