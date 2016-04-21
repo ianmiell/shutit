@@ -308,6 +308,8 @@ TODO: calls to util.send, and copy over code fom there
 	#TODO: move shutit.login and logout and manage that in here
 	#TODO: add a shutit.login function that passes through to default
 	#TODO: move setup_environment
+	#TODO: child.interact
+	#TODO: child.before / child.after
 	TODO: check shutit_pexpect_children references make sense (ie expect correct object)
 	TODO: replace shutit.child_expect
 	TODO: replace child.send and child.sendline
@@ -315,8 +317,6 @@ TODO: calls to util.send, and copy over code fom there
 	TODO: replace shutit_global.pexpect_children / self.pexpect_children
 	TODO: replace get_pexpect_child
 	TODO: child.logfile_send?
-	TODO: child.interact
-	TODO: child.before / child.after
 	TODO: child.expect
 	TODO: setup_host_child
 	TODO: setup_target_child

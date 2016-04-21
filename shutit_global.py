@@ -768,21 +768,21 @@ $'"""
 						expect_res = self._expect_allow_interrupt(child, expect, timeout)
 			# Handles 'cannot concatenate 'str' and 'type' objects' errors
 			try:
-				logged_output = ''.join((child.before + child.after).split('\n'))
+				logged_output = ''.join((shutit_pexpect_child.before + shutit_pexpect_child.after).split('\n'))
 				logged_output = logged_output.replace(send,'',1)
 				logged_output = logged_output.replace('\r','')
 				logged_output = logged_output[:30] + ' [...]'
 				self.log('Output (squashed): ' + logged_output,level=loglevel)
-				self.log('child.before>>>' + child.before + '<<<',level=logging.DEBUG,code=31)
-				self.log('child.after>>>' + child.after + '<<<',level=logging.DEBUG,code=32)
+				self.log('shutit_pexpect_child.before>>>' + shutit_pexpect_child.before + '<<<',level=logging.DEBUG,code=31)
+				self.log('shutit_pexpect_child.after>>>' + shutit_pexpect_child.after + '<<<',level=logging.DEBUG,code=32)
 			except:
 				pass
 			if fail_on_empty_before == True:
-				if child.before.strip() == '':
+				if shutit_pexpect_child.before.strip() == '':
 					self.fail('before empty after sending: ' + str(send) + '\n\nThis is expected after some commands that take a password.\nIf so, add fail_on_empty_before=False to the send call.\n\nIf that is not the problem, did you send an empty string to a prompt by mistake?', shutit_pexpect_child=shutit_pexpect_child)
 			elif fail_on_empty_before == False:
 				# Don't check exit if fail_on_empty_before is False
-				self.log('' + child.before + '<<<', level=logging.DEBUG)
+				self.log('' + shutit_pexpect_child.before + '<<<', level=logging.DEBUG)
 				check_exit = False
 				for prompt in cfg['expect_prompts']:
 					if prompt == expect:
@@ -790,7 +790,7 @@ $'"""
 						self.setup_prompt('reset_tmp_prompt', shutit_pexpect_child=shutit_pexpect_child)
 						shutit_pexpect_child.revert_prompt('reset_tmp_prompt', expect)
 			# Last output - remove the first line, as it is the previous command.
-			cfg['build']['last_output'] = '\n'.join(child.before.split('\n')[1:])
+			cfg['build']['last_output'] = '\n'.join(shutit_pexpect_child.before.split('\n')[1:])
 			if check_exit == True:
 				# store the output
 TODO _check_exit
@@ -953,14 +953,14 @@ TODO: get the check_exit value from the shutit_pepxect_child object
 		# Space before "echo" here is sic - we don't need this to show up in bash history
 		shutit_util.sendline(child,' echo EXIT_CODE:$?')
 		shutit_pexpect_child.expect(expect)
-		res = self.match_string(child.before, '^EXIT_CODE:([0-9][0-9]?[0-9]?)$')
+		res = self.match_string(shutit_pexpect_child.before, '^EXIT_CODE:([0-9][0-9]?[0-9]?)$')
 		if res == None:
 			# Try after - for some reason needed after login
-			res = self.match_string(child.after, '^EXIT_CODE:([0-9][0-9]?[0-9]?)$')
+			res = self.match_string(shutit_pexpect_child.after, '^EXIT_CODE:([0-9][0-9]?[0-9]?)$')
 		if res not in exit_values or res == None:
 			if res == None:
 				res = str(res)
-			self.log('child.after: ' + str(child.after), level=logging.DEBUG)
+			self.log('shutit_pexpect_child.after: ' + str(shutit_pexpect_child.after), level=logging.DEBUG)
 			self.log('Exit value from command: ' + str(send) + ' was:' + res, level=logging.DEBUG)
 			msg = ('\nWARNING: command:\n' + send + '\nreturned unaccepted exit code: ' + res + '\nIf this is expected, pass in check_exit=False or an exit_values array into the send function call.')
 			cfg['build']['report'] = cfg['build']['report'] + msg
@@ -1279,7 +1279,7 @@ host_child = self.shutit_pexpect_children['host_child']
 			pass
 		else:
 			# Change to log?
-			self.log(repr('before>>>>:%s<<<< after:>>>>%s<<<<' % (child.before, shutit_pexpect_child.after)),transient=True)
+			self.log(repr('before>>>>:%s<<<< after:>>>>%s<<<<' % (shutit_pexpect_child.before, shutit_pexpect_child.after)),transient=True)
 			self.fail('Did not see FIL(N)?EXIST in output:\n' + output)
 		self._handle_note_after(note=note)
 		return ret
@@ -1309,7 +1309,7 @@ host_child = self.shutit_pexpect_children['host_child']
 		self._handle_note(note)
 		cmd = 'stat -c %a ' + filename
 		self.send(cmd, expect, shutit_pexpect_child=shutit_pexpect_child, check_exit=False, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
-		res = self.match_string(child.before, '([0-9][0-9][0-9])')
+		res = self.match_string(shutit_pexpect_child.before, '([0-9][0-9][0-9])')
 		self._handle_note_after(note=note)
 		return res
 
@@ -1761,7 +1761,7 @@ host_child = self.shutit_pexpect_children['host_child']
 			self.send(""" yum list installed | awk '{print $1}' | grep "^""" + package + """$" | wc -l""", expect, check_exit=False, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
 		else:
 			return False
-		if self.match_string(child.before, '^([0-9]+)$') != '0':
+		if self.match_string(shutit_pexpect_child.before, '^([0-9]+)$') != '0':
 			return True
 		else:
 			return False
@@ -2024,14 +2024,14 @@ child     = self.shutit_pexpect_children['host_child']
 		if (not shutit_util.determine_interactive(self) or cfg['build']['interactive'] < 1 or
 			cfg['build']['interactive'] < level):
 			return
-		if child:
+		if shutit_pexpect_child:
 			if print_input:
 				if resize:
 					fixterm_filename = '/tmp/shutit_fixterm'
 					if not self.file_exists(fixterm_filename):
 						self.send_file(fixterm_filename,shutit_assets.get_fixterm(), shutit_pexpect_child=shutit_pexpect_child, loglevel=logging.DEBUG, delaybeforesend=delaybeforesend)
 						self.send(' chmod 777 ' + fixterm_filename, echo=False,loglevel=logging.DEBUG, delaybeforesend=delaybeforesend)
-					shutit_util.sendline(child,fixterm_filename, delaybeforesend=delaybeforesend)
+					shutit_util.sendline(shutit_pexpect_child,fixterm_filename, delaybeforesend=delaybeforesend)
 				if default_msg == None:
 					if not cfg['build']['video']:
 						pp_msg = '\r\nYou now have a standard shell. Hit CTRL and then ] at the same to continue ShutIt run.'
@@ -2042,17 +2042,17 @@ child     = self.shutit_pexpect_children['host_child']
 						self.log('\r\n' + (shutit_util.colour(colour, msg)),transient=True)
 				else:
 					self.log(shutit_util.colour(colour, msg) + '\r\n' + default_msg + '\r\n',transient=True)
-				oldlog = child.logfile_send
-				child.logfile_send = None
+				oldlog = shutit_pexpect_child.logfile_send
+				shutit_pexpect_child.logfile_send = None
 				if wait < 0:
 					try:
-						child.interact(input_filter=self._pause_input_filter)
+						shutit_pexpect_child.interact(input_filter=self._pause_input_filter)
 						self.handle_pause_point_signals()
 					except Exception as e:
 						self.fail('Terminating ShutIt.\n' + str(e))
 				else:
 					time.sleep(wait)
-				child.logfile_send = oldlog
+				shutit_pexpect_child.logfile_send = oldlog
 			else:
 				pass
 		else:
@@ -2233,7 +2233,7 @@ child     = self.shutit_pexpect_children['host_child']
 		self.log('Retrieving output from command: ' + send,level=loglevel)
 		# Don't check exit, as that will pollute the output. Also, it's quite likely the submitted command is intended to fail.
 		self.send(self._get_send_command(send), shutit_pexpect_child=shutit_pexpect_child, expect=expect, check_exit=False, retry=retry, echo=echo, timeout=timeout, record_command=record_command, loglevel=loglevel, fail_on_empty_before=fail_on_empty_before, delaybeforesend=delaybeforesend)
-		before = child.before
+		before = shutit_pexpect_child.before
 		if preserve_newline == True and before[-1] == '\n':
 			preserve_newline = True
 		else:
@@ -2839,8 +2839,8 @@ child     = self.shutit_pexpect_children['host_child']
 		cfg = self.cfg
 		#          v the space is intentional, to avoid polluting bash history.
 		self.send(' lsb_release -a',check_exit=False, echo=False, loglevel=loglevel,delaybeforesend=delaybeforesend)
-		dist_string = self.match_string(child.before, '^Distributor[\s]*ID:[\s]*(.*)$')
-		version_string = self.match_string(child.before, '^Release:[\s*](.*)$')
+		dist_string = self.match_string(shutit_pexpect_child.before, '^Distributor[\s]*ID:[\s]*(.*)$')
+		version_string = self.match_string(shutit_pexpect_child.before, '^Release:[\s*](.*)$')
 		d = {}
 		if dist_string:
 			d['distro']         = dist_string.lower().strip()
@@ -2911,7 +2911,7 @@ child     = self.shutit_pexpect_children['host_child']
 		#          v the space is intentional, to avoid polluting bash history.
 		self.send(' cut -d: -f3 /etc/paswd | grep -w ^' + user_id + '$ | wc -l', shutit_pexpect_child=shutit_pexpect_child, expect=expect, check_exit=False, echo=False, loglevel=loglevel,delaybeforesend=delaybeforesend)
 		self._handle_note_after(note=note)
-		if self.match_string(child.before, '^([0-9]+)$') == '1':
+		if self.match_string(shutit_pexpect_child.before, '^([0-9]+)$') == '1':
 			return False
 		else:
 			return True
