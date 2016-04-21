@@ -107,15 +107,13 @@ class ShutIt(object):
 		self.current_shutit_pexpect_child = shutit_pexpect_child
 
 
-	def set_default_shutit_pexpect_child_expect(self, expect=None, check_exit=True):
+	def set_default_shutit_pexpect_child_expect(self, expect=None):
 		"""Sets the default pexpect string (usually a prompt).
 		Defaults to the configured root prompt if no
 		argument is passed.
 
 		@param expect: String to expect in the output
 		@type expect: string
-		@param check_exit: Whether to check the exit value of the command
-		@type check_exit: boolean
 		"""
 		if expect == None:
 			self.current_shutit_pexpect_child.default_expect = self.cfg['expect_prompts']['root']
@@ -589,6 +587,7 @@ class ShutIt(object):
 	def send(self,
 	         send,
 	         expect=None,
+	         child=None,
 	         shutit_pexpect_child=None,
 	         timeout=None,
 	         check_exit=None,
@@ -625,6 +624,9 @@ class ShutIt(object):
 		@return: The pexpect return value (ie which expected string in the list matched)
 		@rtype: string
 		"""
+		# If child passed in, get the owning parent object.
+		if child != None:
+			shutit_pexpect_child=get_shutit_pexpect_child(child)
 		if type(expect) == dict:
 			return self.multisend(send=send,send_dict=expect,expect=self.get_default_shutit_pexpect_child_expect(),shutit_pexpect_child=shutit_pexpect_child,timeout=timeout,check_exit=check_exit,fail_on_empty_before=fail_on_empty_before,record_command=record_command,exit_values=exit_values,echo=echo,note=note,loglevel=loglevel,delaybeforesend=delaybeforesend)
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_child().pexpect_child
@@ -786,7 +788,7 @@ $'"""
 					if prompt == expect:
 						# Reset prompt
 						self.setup_prompt('reset_tmp_prompt', shutit_pexpect_child=shutit_pexpect_child)
-						self.revert_prompt('reset_tmp_prompt', expect, shutit_pexpect_child=shutit_pexpect_child)
+						shutit_pexpect_child.revert_prompt('reset_tmp_prompt', expect)
 			# Last output - remove the first line, as it is the previous command.
 			cfg['build']['last_output'] = '\n'.join(child.before.split('\n')[1:])
 			if check_exit == True:
@@ -2553,91 +2555,25 @@ child     = self.shutit_pexpect_children['host_child']
 		return res
 
 
-	def login(self,
-	          user='root',
-	          command='su -',
-	          shutit_pexpect_child=None,
-	          password=None,
-	          prompt_prefix=None,
-	          expect=None,
-	          timeout=180,
-	          escape=False,
-	          note=None,
-	          go_home=True,
-	          delaybeforesend=0.05,
-	          loglevel=logging.DEBUG):
-		"""Logs the user in with the passed-in password and command.
-		Tracks the login. If used, used logout to log out again.
-		Assumes you are root when logging in, so no password required.
-		If not, override the default command for multi-level logins.
-		If passwords are required, see setup_prompt() and revert_prompt()
-
-		@param user:            User to login with. Default: root
-		@param command:         Command to login with. Default: "su -"
-		@param shutit_pexpect_child:           See send()
-		@param escape:          See send(). We default to true here in case
-		                        it matches an expect we add.
-		@param password:        Password.
-		@param prompt_prefix:   Prefix to use in prompt setup.
-		@param expect:          See send()
-		@param timeout:         How long to wait for a response. Default: 20.
-		@param note:            See send()
-		@param go_home:         Whether to automatically cd to home.
-
-		@type user:             string
-		@type command:          string
-		@type password:         string
-		@type prompt_prefix:    string
-		@type timeout:          integer
+    def login(self,                                                                                                                                                                
+              user='root',                                                                                                                                                         
+              command='su -',                                                                                                                                                      
+              password=None,                                                                                                                                                       
+              prompt_prefix=None,                                                                                                                                                  
+              expect=None,                                                                                                                                                         
+              timeout=180,                                                                                                                                                         
+              escape=False,                                                                                                                                                        
+              note=None,                                                                                                                                                           
+              go_home=True,                                                                                                                                                        
+              delaybeforesend=0.05,                                                                                                                                                
+              loglevel=logging.DEBUG):    
+		"""Logs user in on default child.
 		"""
-		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_child().pexpect_child
-		# We don't get the default expect here, as it's either passed in, or a base default regexp.
-		r_id = shutit_util.random_id()
-		if prompt_prefix == None:
-			prompt_prefix = r_id
-		self.login_stack_append(r_id)
-		cfg = self.cfg
-		# Be helpful.
-		if ' ' in user:
-			self.fail('user has space in it - did you mean: login(command="' + user + '")?')
-		if cfg['build']['delivery'] == 'bash' and command == 'su -':
-			# We want to retain the current working directory
-			command = 'su'
-		if command == 'su -' or command == 'su' or command == 'login':
-			send = command + ' ' + user
-		else:
-			send = command
-		if expect == None:
-			login_expect = cfg['expect_prompts']['base_prompt']
-		else:
-			login_expect = expect
-		# We don't fail on empty before as many login programs mess with the output.
-		# In this special case of login we expect either the prompt, or 'user@' as this has been seen to work.
-		general_expect = [login_expect]
-		# Add in a match if we see user+ and then the login matches. Be careful not to match against 'user+@...password:'
-		general_expect = general_expect + [user+'@.*'+'[@#$]']
-		# If not an ssh login, then we can match against user + @sign because it won't clash with 'user@adasdas password:'
-		if not string.find(command,'ssh') == 0:
-			general_expect = general_expect + [user+'@']
-			general_expect = general_expect + ['.*[@#$]']
-		if user == 'bash' and command == 'su -':
-			self.log('WARNING! user is bash - if you see problems below, did you mean: login(command="' + user + '")?',level=loglevel.WARNING)
-		self._handle_note(note,command=command + ', as user: "' + user + '"',training_input=send)
-		# r'[^t] login:' - be sure not to match 'last login:'
-		self.multisend(send,{'ontinue connecting':'yes','assword':password,r'[^t] login:':password},expect=general_expect,check_exit=False,timeout=timeout,fail_on_empty_before=False,escape=escape)
-		#if not self._check_exit(send,expect=general_expect):
-		#	self.pause_point('Login failed?')
-		if prompt_prefix != None:
-			self.setup_prompt(r_id,shutit_pexpect_child=shutit_pexpect_child,prefix=prompt_prefix)
-		else:
-			self.setup_prompt(r_id,shutit_pexpect_child=shutit_pexpect_child)
-		if go_home:
-			self.send('cd',shutit_pexpect_child=shutit_pexpect_child,check_exit=False, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
-		self._handle_note_after(note=note)
+		shutit_pexpect_child = self.get_current_shutit_pexpect_child().pexpect_child
+		shutit_pexpect_child.login(user=user,command=command,password=password,prompt_prefix=prompt_prefix,expect=expect,timeout=timeout,escape=escape,note=note,go_home,delaybeforesend=delaybeforesend,loglevel=loglevel)
 
 
 	def logout(self,
-	           shutit_pexpect_child=None,
 	           expect=None,
 	           command='exit',
 	           note=None,
@@ -2647,114 +2583,30 @@ child     = self.shutit_pexpect_children['host_child']
 		"""Logs the user out. Assumes that login has been called.
 		If login has never been called, throw an error.
 
-			@param shutit_pexpect_child:           See send()
 			@param expect:          See send()
 			@param command:         Command to run to log out (default=exit)
 			@param note:            See send()
 		"""
-		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_child().pexpect_child
-		old_expect = expect or self.get_current_shutit_pexpect_child().default_expect
-		cfg = self.cfg
-		self._handle_note(note,training_input=command)
-		if len(cfg['build']['login_stack']):
-			current_prompt_name = cfg['build']['login_stack'].pop()
-			if len(cfg['build']['login_stack']):
-				old_prompt_name     = cfg['build']['login_stack'][-1]
-				self.set_default_shutit_pexpect_child_expect(cfg['expect_prompts'][old_prompt_name])
-			else:
-				# If none are on the stack, we assume we're going to the root prompt
-				# set up in shutit_setup.py
-				self.set_default_shutit_pexpect_child_expect()
-		else:
-			self.fail('Logout called without corresponding login', throw_exception=False)
-		# No point in checking exit here, the exit code will be
-		# from the previous command from the logged in session
-		self.send(command, shutit_pexpect_child=shutit_pexpect_child, expect=expect, check_exit=False, timeout=timeout,echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
-		self._handle_note_after(note=note)
-	# alias exit_shell to logout
+		shutit_pexpect_child = self.get_current_shutit_pexpect_child().pexpect_child
+		shutit_pexpect_child.logout(expect=expect,command=command,note=note,timeout=timeout,delaybeforesend=delaybeforesend,loglevel=loglevel)
 	exit_shell = logout
 
 
 	def setup_prompt(self,
 	                 prompt_name,
 	                 prefix='default',
+	                 child=child,
 	                 shutit_pexpect_child=None,
 	                 set_default_expect=True,
 	                 setup_environment=True,
 	                 delaybeforesend=0,
 	                 loglevel=logging.DEBUG):
-		"""Use this when you've opened a new shell to set the PS1 to something
-		sane. By default, it sets up the default expect so you don't have to
-		worry about it and can just call shutit.send('a command').
-
-		If you want simple login and logout, please use login() and logout()
-		within this module.
-
-		Typically it would be used in this boilerplate pattern::
-
-		    shutit.send('su - auser', expect=shutit.cfg['expect_prompts']['base_prompt'], check_exit=False)
-		    shutit.setup_prompt('tmp_prompt')
-		    shutit.send('some command')
-		    [...]
-		    shutit.set_default_shutit_pexpect_child_expect()
-		    shutit.send('exit')
-
-		This function is assumed to be called whenever there is a change
-		of environment.
-
-		@param prompt_name:         Reference name for prompt.
-		@param prefix:              Prompt prefix. Default: 'default'
-		@param shutit_pexpect_child:               See send()
-		@param set_default_expect:  Whether to set the default expect
-		                            to the new prompt. Default: True
-		@param setup_environment:   Whether to setup the environment config
-
-		@type prompt_name:          string
-		@type prefix:               string
-		@type set_default_expect:   boolean
+		""" See shutit_pexpect.
 		"""
+		if child != None:
+			shutit_pexpect_child = self.get_shutit_pexpect_child(child)
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_child().pexpect_child
-		local_prompt = prefix + '#' + shutit_util.random_id() + '> '
-		cfg = self.cfg
-		cfg['expect_prompts'][prompt_name] = local_prompt
-		# Set up the PS1 value.
-		# Unset the PROMPT_COMMAND as this can cause nasty surprises in the output.
-		# Set the cols value, as unpleasant escapes are put in the output if the
-		# input is > n chars wide.
-		# The newline in the expect list is a hack. On my work laptop this line hangs
-		# and times out very frequently. This workaround seems to work, but I
-		# haven't figured out why yet - imiell.
-		self.send((" export SHUTIT_BACKUP_PS1_%s=$PS1 && PS1='%s' && unset PROMPT_COMMAND && stty sane && stty cols " + str(cfg['build']['stty_cols'])) % (prompt_name, local_prompt), expect=['\r\n' + cfg['expect_prompts'][prompt_name]], fail_on_empty_before=False, timeout=5, shutit_pexpect_child=shutit_pexpect_child, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
-		if set_default_expect:
-			self.log('Resetting default expect to: ' + cfg['expect_prompts'][prompt_name],level=logging.DEBUG)
-			self.set_default_shutit_pexpect_child_expect(cfg['expect_prompts'][prompt_name])
-		# Ensure environment is set up OK.
-		if setup_environment:
-			self.setup_environment(prefix)
-
-
-	def revert_prompt(self,
-	                  old_prompt_name,
-	                  new_expect=None,
-	                  delaybeforesend=0,
-	                  shutit_pexpect_child=None):
-		"""Reverts the prompt to the previous value (passed-in).
-
-		It should be fairly rare to need this. Most of the time you would just
-		exit a subshell rather than resetting the prompt.
-
-			- old_prompt_name -
-			- new_expect      -
-			- child           - See send()
-		"""
-		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_child().pexpect_child
-		expect = expect or self.get_current_shutit_pexpect_child().default_expect
-		#	  v the space is intentional, to avoid polluting bash history.
-		self.send((' PS1="${SHUTIT_BACKUP_PS1_%s}" && unset SHUTIT_BACKUP_PS1_%s') % (old_prompt_name, old_prompt_name), expect=expect, check_exit=False, fail_on_empty_before=False, echo=False, loglevel=logging.DEBUG,delaybeforesend=delaybeforesend)
-		if not new_expect:
-			self.log('Resetting default expect to default',level=logging.DEBUG)
-			self.set_default_shutit_pexpect_child_expect()
-		self.setup_environment()
+		shutit_pexpect_child.setup(prompt_name,prefix=prefix,child=child,set_default_expect=set_default_expect,setup_environment=setup_environment,delaybeforesend=delaybeforesend,loglevel=loglevel)
 
 
 	def get_memory(self,
