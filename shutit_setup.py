@@ -54,21 +54,22 @@ class ShutItConnModule(ShutItModule):
 		cfg = shutit.cfg
 		# Now let's have a host_child
 		shutit.log('Spawning host child',level=logging.DEBUG)
-		shutit_pexpect_child = ShutItPexpectChild(shutit,'host_child')
-		shutit_pexpect_child.spawn_child('/bin/bash')
+		shutit_pexpect_session = ShutItPexpectSession(shutit,'host_child')
+		shutit_pexpect_session.spawn_child('/bin/bash')
 		# Set up prompts and let the user do things before the build
-		shutit.set_default_shutit_pexpect_child(shutit_pexpect_child)
-		shutit.set_default_shutit_pexpect_child_expect(cfg['expect_prompts']['base_prompt'])
+		shutit.set_default_shutit_pexpect_session(shutit_pexpect_child)
+		shutit.set_default_shutit_pexpect_session_expect(cfg['expect_prompts']['base_prompt'])
 		# ORIGIN_ENV is a special case of the prompt maintained for performance reasons, don't change.
 		shutit_pexpect_child.setup_prompt('origin_prompt', prefix='ORIGIN_ENV')
 
 	def setup_target_child(self, shutit, target_child):
 		cfg = shutit.cfg
 		# Some pexpect settings
+TODO: change to set_blah
 shutit.shutit_pexpect_children['target_child'] = target_child
-		shutit.set_default_shutit_pexpect_child_expect(cfg['expect_prompts']['base_prompt'])
+		shutit.set_default_shutit_pexpect_session_expect(cfg['expect_prompts']['base_prompt'])
 		# target child
-		shutit.set_default_shutit_pexpect_child(target_child)
+		shutit.set_default_shutit_pexpect_session(target_child)
 shutit.setup_prompt('root')
 shutit.login_stack_append('root')
 
@@ -148,12 +149,12 @@ if child.exitstatus != 0:
 
 	def destroy_container(self, shutit, loglevel=logging.DEBUG):
 		cfg = shutit.cfg
-		container_id = cfg['target']['container_id']
-		target_child = shutit.shutit_pexpect_children['target_child']
+# TODO: container id in session
+container_id = cfg['target']['container_id']
 		# Close connection.
-		target_child.close()
-		host_child = shutit.shutit_pexpect_children['host_child']
-		shutit.send('docker rm -f ' + container_id + ' && rm -f ' + cfg['build']['cidfile'],child=host_child,expect=cfg['expect_prompts']['origin_prompt'],loglevel=loglevel)
+		shutit.get_shutit_pexpect_session_from_id('target_child').pexpect_child.close()
+		host_child = shutit.get_shutit_pexpect_session_from_id('host_child').pexpect_child
+		shutit.send(' docker rm -f ' + container_id + ' && rm -f ' + cfg['build']['cidfile'],child=host_child,expect=cfg['expect_prompts']['origin_prompt'],loglevel=loglevel)
 
 
 	def start_container(self, shutit, loglevel=logging.DEBUG):
@@ -228,7 +229,8 @@ if child.exitstatus != 0:
 		cfg['build']['docker_command'] = ' '.join(docker_command)
 		shutit.log('Command being run is: ' + cfg['build']['docker_command'],level=logging.DEBUG)
 		shutit.log('Downloading image, please be patient',level=logging.INFO)
-		target_child = shutit_util.spawn_child(docker_command[0], docker_command[1:])
+target_child_session = shutit_util.spawn_child(docker_command[0], docker_command[1:])
+target_child = ...
 		expect = ['assword', cfg['expect_prompts']['base_prompt'].strip(), 'Waiting', 'ulling', 'endpoint', 'Download']
 res = shutit.child_expect(target_child,expect, timeout=9999)
 		while True:
@@ -271,16 +273,17 @@ res = shutit.child_expect(target_child,expect, timeout=9999)
 		and performing any repository work required.
 		"""
 		# Finish with the target
-		shutit.shutit_pexpect_children['target_child'].sendline('exit')
+		
+		shutit.get_shutit_pexpect_session_from_id('target_child').sendline('exit')
 
 		cfg = shutit.cfg
-		host_child = shutit.shutit_pexpect_children['host_child']
-		shutit.set_default_shutit_pexpect_child(host_child)
-		shutit.set_default_shutit_pexpect_child_expect(cfg['expect_prompts']['origin_prompt'])
+		host_child = shutit.get_shutit_pexpect_session_from_id('host_child').pexpect_child
+		shutit.set_default_shutit_pexpect_session(host_child)
+		shutit.set_default_shutit_pexpect_session_expect(cfg['expect_prompts']['origin_prompt'])
 		shutit.do_repository_work(cfg['repository']['name'], docker_executable=cfg['host']['docker_executable'], password=cfg['host']['password'])
 		# Final exits
-host_child.sendline('rm -f ' + cfg['build']['cidfile']) # Exit raw bash
-host_child.sendline('exit') # Exit raw bash
+		host_child.sendline('rm -f ' + cfg['build']['cidfile']) # Exit raw bash
+		host_child.sendline('exit') # Exit raw bash
 		return True
 
 
@@ -317,7 +320,7 @@ shutit.child_expect(target_child,cfg['expect_prompts']['base_prompt'].strip(), t
 		and performing any repository work required.
 		"""
 		# Finish with the target
-		shutit.shutit_pexpect_children['target_child'].sendline('exit')
+		shutit.get_shutit_pexpect_session_from_id('target_child').sendline('exit')
 		return True
 
 
@@ -395,10 +398,10 @@ res = shutit.child_expect(target_child,expect, timeout=10)
 		and performing any repository work required.
 		"""
 		# Finish with the target
-		shutit.shutit_pexpect_children['target_child'].sendline('exit')
-		shutit.set_default_shutit_pexpect_child(shutit.shutit_pexpect_children['host_child'])
+		shutit.get_shutit_pexpect_session_from_id('target_child').sendline('exit')
+		shutit.set_default_shutit_pexpect_session(shutit.get_shutit_pexpect_session_from_id('host_child'))
 		# Final exits
-host_child.sendline('exit') # Exit raw bash
+		host_child.sendline('exit') # Exit raw bash
 		return True
 
 

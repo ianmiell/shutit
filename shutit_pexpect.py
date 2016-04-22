@@ -26,17 +26,17 @@ import pexpect
 import shutit_util
 
 
-class ShutItPexpectChild(object):
+class ShutItPexpectSession(object):
 
 	def __init__(self,
 				 shutit,
-				 pexpect_child_id):
+				 pexpect_session_id):
 		"""
 		"""
 		self.check_exit          = True
 		self.expect              = shutit.cfg['expect_prompts']['base_prompt']
 		self.pexpect_child       = None
-		self.pexpect_child_id    = pexpect_child_id
+		self.pexpect_session_id  = pexpect_session_id
 		self.login_stack         = []
 		self.shutit_object       = shutit
 
@@ -76,7 +76,7 @@ class ShutItPexpectChild(object):
 							 codec_errors=codec_errors,
 							 dimensions=dimensions)
 		self.pexpect_child.delaybeforesend=delaybeforesend
-		self.shutit_object.pexpect_children.append({self.pexpect_child_id:self.pexpect_child})
+		self.shutit_object.pexpect_children.append({self.pexpect_session_id:self.pexpect_child})
 		return self.pexpect_child
 
 
@@ -186,7 +186,7 @@ class ShutItPexpectChild(object):
 			else:
 				# If none are on the stack, we assume we're going to the root prompt
 				# set up in shutit_setup.py
-				self.set_default_shutit_pexpect_child_expect()
+				self.set_default_shutit_pexpect_session_expect()
 		else:
 			self.fail('Logout called without corresponding login', throw_exception=False)
 		# No point in checking exit here, the exit code will be
@@ -223,7 +223,7 @@ class ShutItPexpectChild(object):
             shutit.setup_prompt('tmp_prompt')
             shutit.send('some command')
             [...]
-            shutit.set_default_shutit_pexpect_child_expect()
+            shutit.set_default_shutit_pexpect_session_expect()
             shutit.send('exit')
 
         This function is assumed to be called whenever there is a change
@@ -253,7 +253,7 @@ class ShutItPexpectChild(object):
         self.send((" export SHUTIT_BACKUP_PS1_%s=$PS1 && PS1='%s' && unset PROMPT_COMMAND && stty sane && stty cols " + str(cfg['build']['stty_cols'])) % (prompt_name, local_prompt), expect=['\r\n' + cfg['expect_prompts'][prompt_name]], fail_on_empty_before=False, timeout=5, shutit_pexpect_child=shutit_pexpect_child, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
         if set_default_expect:
             self.log('Resetting default expect to: ' + cfg['expect_prompts'][prompt_name],level=logging.DEBUG)
-            self.set_default_shutit_pexpect_child_expect(cfg['expect_prompts'][prompt_name])
+            self.set_default_shutit_pexpect_session_expect(cfg['expect_prompts'][prompt_name])
         # Ensure environment is set up OK.
         if setup_environment:
             self.setup_environment(prefix)
@@ -277,7 +277,7 @@ class ShutItPexpectChild(object):
         self.shutit_object.send((' PS1="${SHUTIT_BACKUP_PS1_%s}" && unset SHUTIT_BACKUP_PS1_%s') % (old_prompt_name, old_prompt_name), expect=expect, check_exit=False, fail_on_empty_before=False, echo=False, loglevel=logging.DEBUG,delaybeforesend=delaybeforesend)                                                                                      
         if not new_expect:                                                                                                                                                         
             self.log('Resetting default expect to default',level=logging.DEBUG)                                                                                                    
-            self.set_default_shutit_pexpect_child_expect()                                                                                                                         
+            self.set_default_shutit_pexpect_session_expect()                                                                                                                         
         self.setup_environment()       
 
 
@@ -303,7 +303,7 @@ class ShutItPexpectChild(object):
 
 
 	#DONE: update references to check exit etc
-	#DONE: replace get_default_child/set_default_child and expect with get_current_session or similar - shutit.current_shutit_pexpect_child
+	#DONE: replace get_default_child/set_default_child and expect with get_current_session or similar - shutit.current_shutit_pexpect_session
 	#DONE: replace set default expect with 'set default pexpect child/expect'
 	#DONE: move login stack into here and login_stack_append
 	#DONE: update login, logout function
@@ -318,7 +318,7 @@ class ShutItPexpectChild(object):
 	#DONE: replace get_pexpect_child
 	#DONE: replace child.send and child.sendline
 	#DONE: replace shutit_global.pexpect_children / self.pexpect_children
-	TODO: rename shutit_pexpect_child
+	#DONE: rename shutit_pexpect_child
 
 	TODO: replace refernces to 'host_child' and 'target_child'
 

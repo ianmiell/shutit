@@ -1383,7 +1383,7 @@ def ctrl_c_signal_handler(signal, frame):
 	if shutit_frame:
 		shutit = shutit_frame.f_locals['shutit']
 		if shutit.cfg['build']['ctrlc_passthrough']:
-			shutit.self.get_current_shutit_pexpect_child().pexpect_child.sendline(r'')
+			shutit.self.get_current_shutit_pexpect_session().pexpect_child.sendline(r'')
 			return
 		print colour(31,"\rYou may need to wait for a command to complete before a pause point is available. Alternatively, CTRL-\ to quit.")
 		shutit.cfg['build']['ctrlc_stop'] = True
