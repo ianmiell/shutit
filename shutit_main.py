@@ -54,7 +54,7 @@ def stop_all(shutit, run_order=-1):
 		if run_order == -1 or shutit_module_obj.run_order <= run_order:
 			if shutit_util.is_installed(shutit, shutit_module_obj):
 				if not shutit_module_obj.stop(shutit):
-					shutit.fail('failed to stop: ' + module_id, child=shutit.shutit_pexpect_children['target_child'])
+shutit.fail('failed to stop: ' + module_id, child=shutit.shutit_pexpect_children['target_child'])
 
 
 # Start all apps less than the supplied run_order
@@ -73,7 +73,7 @@ def start_all(shutit, run_order=-1):
 		if run_order == -1 or shutit_module_obj.run_order <= run_order:
 			if shutit_util.is_installed(shutit, shutit_module_obj):
 				if not shutit_module_obj.start(shutit):
-					shutit.fail('failed to start: ' + module_id, child=shutit.shutit_pexpect_children['target_child'])
+shutit.fail('failed to start: ' + module_id, child=shutit.shutit_pexpect_children['target_child'])
 
 
 
@@ -334,7 +334,7 @@ def check_ready(shutit, throw_error=True):
 			cfg['environment'][cfg['build']['current_environment_id']]['module_root_dir'] = os.path.dirname(module.__module_file)
 			shutit.chdir(cfg['environment'][cfg['build']['current_environment_id']]['module_root_dir'])
 			if not is_ready(shutit, module) and throw_error:
-				errs.append((module_id + ' not ready to install.\nRead the check_ready function in the module,\nor log messages above to determine the issue.\n\n', shutit.shutit_pexpect_children['target_child']))
+errs.append((module_id + ' not ready to install.\nRead the check_ready function in the module,\nor log messages above to determine the issue.\n\n', shutit.shutit_pexpect_children['target_child']))
 			shutit.logout()
 			shutit.chdir(revert_dir)
 	return errs
@@ -356,7 +356,7 @@ def do_remove(shutit, loglevel=logging.DEBUG):
 			shutit.login(prompt_prefix=module_id,command='bash')
 			if not module.remove(shutit):
 				shutit.log(shutit_util.print_modules(shutit), level=logging.DEBUG)
-				shutit.fail(module_id + ' failed on remove', child=shutit.shutit_pexpect_children['target_child'])
+shutit.fail(module_id + ' failed on remove', child=shutit.shutit_pexpect_children['target_child'])
 			else:
 				if cfg['build']['delivery'] in ('docker','dockerfile'):
 					# Create a directory and files to indicate this has been removed.
@@ -377,7 +377,7 @@ def build_module(shutit, module, loglevel=logging.DEBUG):
 	shutit.log('Building ShutIt module: ' + module.module_id + ' with run order: ' + str(module.run_order), level=logging.INFO)
 	cfg['build']['report'] = (cfg['build']['report'] + '\nBuilding ShutIt module: ' + module.module_id + ' with run order: ' + str(module.run_order))
 	if not module.build(shutit):
-		shutit.fail(module.module_id + ' failed on build', child=shutit.shutit_pexpect_children['target_child'])
+shutit.fail(module.module_id + ' failed on build', child=shutit.shutit_pexpect_children['target_child'])
 	else:
 		if cfg['build']['delivery'] in ('docker','dockerfile'):
 			# Create a directory and files to indicate this has been built.
@@ -444,7 +444,7 @@ def do_build(shutit):
 		if shutit_util.is_installed(shutit, module):
 			shutit.log('Starting module',level=logging.DEBUG)
 			if not module.start(shutit):
-				shutit.fail(module.module_id + ' failed on start', child=shutit.shutit_pexpect_children['target_child'])
+shutit.fail(module.module_id + ' failed on start', child=shutit.shutit_pexpect_children['target_child'])
 
 
 def do_test(shutit):
@@ -468,7 +468,7 @@ def do_test(shutit):
 			shutit.log('RUNNING TEST ON: ' + module_id, level=logging.DEBUG)
 			shutit.login(prompt_prefix=module_id,command='bash')
 			if not shutit.shutit_map[module_id].test(shutit):
-				shutit.fail(module_id + ' failed on test', child=shutit.shutit_pexpect_children['target_child'])
+shutit.fail(module_id + ' failed on test', child=shutit.shutit_pexpect_children['target_child'])
 			shutit.logout()
 
 
@@ -493,7 +493,7 @@ def do_finalize(shutit):
 		if shutit_util.is_installed(shutit, shutit.shutit_map[module_id]):
 			shutit.login(prompt_prefix=module_id,command='bash')
 			if not shutit.shutit_map[module_id].finalize(shutit):
-				shutit.fail(module_id + ' failed on finalize', child=shutit.shutit_pexpect_children['target_child'])
+shutit.fail(module_id + ' failed on finalize', child=shutit.shutit_pexpect_children['target_child'])
 			shutit.logout()
 
 
