@@ -33,12 +33,12 @@ class ShutItPexpectChild(object):
 				 pexpect_child_id):
 		"""
 		"""
-		self.check_exit			 = True
-		self.expect				 = shutit.cfg['expect_prompts']['base_prompt']
-		self.pexpect_child		  = None
-		self.pexpect_child_id	   = pexpect_child_id
-		self.login_stack			= []
-		self.shutit_object		  = shutit
+		self.check_exit          = True
+		self.expect              = shutit.cfg['expect_prompts']['base_prompt']
+		self.pexpect_child       = None
+		self.pexpect_child_id    = pexpect_child_id
+		self.login_stack         = []
+		self.shutit_object       = shutit
 
 
 	def spawn_child(self,
@@ -57,7 +57,8 @@ class ShutItPexpectChild(object):
 					codec_errors='strict',
 					dimensions=None,
 					delaybeforesend=0):
-		"""spawn a child, and manage the delaybefore send setting to 0"""
+		"""spawn a child, and manage the delaybefore send setting to 0
+		"""
 		if self.pexpect_child != None:
 			shutit_util.handle_exit(exit_code=1,msg='Cannot overwrite pexpect_child in object')
 		self.pexpect_child = pexpect.spawn(command,
@@ -76,7 +77,7 @@ class ShutItPexpectChild(object):
 							 dimensions=dimensions)
 		self.pexpect_child.delaybeforesend=delaybeforesend
 		self.shutit_object.pexpect_children.append({self.pexpect_child_id:self.pexpect_child})
-		return True
+		return self.pexpect_child
 
 
 
@@ -280,14 +281,15 @@ class ShutItPexpectChild(object):
         self.setup_environment()       
 
 
-	def send(self, string):
-TODO: calls to util.send, and copy over code fom there
+	def send(self, string, delaybeforesend=0):
+    	prev_delaybeforesend = self.pexpect_child.delaybeforesend
+		self.pexpect_child.delaybeforesend = delaybeforesend
 		self.pexpect_child.send(string)
+		self.pexpect_child.delaybeforesend = prev_delaybeforesend
 
 
-	def sendline(self, string):
-TODO: calls to util.send, and copy over code fom there
-		self.pexpect_child.sendline(string)
+	def sendline(self, string, delaybeforesend=0):
+		self.send(string+'\n',delaybeforesend=delaybeforesend)
 
 
 	def expect(self,
@@ -304,33 +306,28 @@ TODO: calls to util.send, and copy over code fom there
 	#DONE: replace get_default_child/set_default_child and expect with get_current_session or similar - shutit.current_shutit_pexpect_child
 	#DONE: replace set default expect with 'set default pexpect child/expect'
 	#DONE: move login stack into here and login_stack_append
-	#TODO: update login, logout function
-	#TODO: move shutit.login and logout and manage that in here
-	#TODO: add a shutit.login function that passes through to default
-	#TODO: move setup_environment
-	#TODO: child.interact
-	#TODO: child.before / child.after
-	TODO: check shutit_pexpect_children references make sense (ie expect correct object)
-	TODO: replace shutit.child_expect
-	TODO: replace child.send and child.sendline
+	#DONE: update login, logout function
+	#DONE: move shutit.login and logout and manage that in here
+	#DONE: add a shutit.login function that passes through to default
+	#DONE: move setup_environment
+	#DONE: child.interact
+	#DONE: child.before / child.after
+	#DONE: setup_host_child
+	#DONE: child.expect
+	#DONE: child.logfile_send?
+	#DONE: replace get_pexpect_child
+	#DONE: replace child.send and child.sendline
+	#DONE: replace shutit_global.pexpect_children / self.pexpect_children
+	TODO: rename shutit_pexpect_child
+
 	TODO: replace refernces to 'host_child' and 'target_child'
-	TODO: replace shutit_global.pexpect_children / self.pexpect_children
-	TODO: replace get_pexpect_child
-	TODO: child.logfile_send?
-	TODO: child.expect
-	TODO: setup_host_child
+
 	TODO: setup_target_child
-	TODO: child.close()
-	TODO: child.exitstatus
-	TODO: self.start_container
+	TODO: child.exitstatus TODO: self.start_container TODO: child.close()
 	TODO: _default_child, _default_expect
+	TODO: replace shutit.child_expect
+	TODO: check shutit_pexpect_children references make sense (ie expect correct object)
 
-	FINALLY: any mention of child!
-
-
-	def spawn_child
-		TODO: move function from util into here, or make args into init
-			  replace spawns in code
-
+	TODO: review items in cfg and see if they make more sense in the pexpect object
 
 
