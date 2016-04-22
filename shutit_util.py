@@ -932,8 +932,20 @@ def list_modules(shutit,long_output=None,sort_order=None):
 						table_list.append([m.module_id,m.description,str(cfg[m.module_id]['shutit.core.module.build']),str(compatible)])
 
 	# format table for display
-	table = texttable.Texttable(max_width=160)
+	table = texttable.Texttable()
 	table.add_rows(table_list)
+	# Base length of table on length of strings
+	colwidths = []
+	for item in table_list:
+		for n in range(0,len(item)):
+			# default to 10 chars
+			colwidths.append(10)
+		break
+	for item in table_list:
+		for n in range(0,len(item)-1):
+			if len(str(item[n])) > colwidths[n]:
+				colwidths[n] = len(str(item[n]))
+	table.set_cols_width(colwidths)
 	msg = table.draw()
 	print '\n' + msg
 	if cfg['build']['log_config_path']:
