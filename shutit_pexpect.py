@@ -321,6 +321,7 @@ class ShutItPexpectSession(object):
 	#DONE: rename shutit_pexpect_child
 
 	TODO: replace refernces to 'host_child' and 'target_child'
+	TODO: replace 'target' in cfg
 
 	TODO: setup_target_child
 	TODO: child.exitstatus TODO: self.start_container TODO: child.close()
