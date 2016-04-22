@@ -224,7 +224,7 @@ class ShutIt(object):
 					environment_id = files[0]
 			if cfg['build']['current_environment_id'] != environment_id:
 				# Clean out any trace of this new environment, and return the already-existing one.
-				self.send('rm -rf ' + environment_id_dir + '/environment_id/' + environment_id, child=child, expect=expect, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
+				self.send(' rm -rf ' + environment_id_dir + '/environment_id/' + environment_id, child=child, expect=expect, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
 				return cfg['build']['current_environment_id']
 			if not environment_id == 'ORIGIN_ENV':
 				return environment_id
@@ -248,7 +248,7 @@ class ShutIt(object):
 		if prefix != 'ORIGIN_ENV':
 			self.get_distro_info(environment_id)
 		fname = environment_id_dir + '/' + environment_id
-		self.send('mkdir -p ' + environment_id_dir + ' && chmod -R 777 ' + cfg['build']['shutit_state_dir_base'] + ' && touch ' + fname, child=child, expect=expect, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
+		self.send(' mkdir -p ' + environment_id_dir + ' && chmod -R 777 ' + cfg['build']['shutit_state_dir_base'] + ' && touch ' + fname, child=child, expect=expect, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
 		cfg['environment'][environment_id]['setup']                        = True
 		return environment_id
 
@@ -934,9 +934,9 @@ $'"""
 		while len(working_str) > 0:
 			curr_str = working_str[:size]
 			working_str = working_str[size:]
-			shutit_util.sendline(child,self._get_command('head') + ''' -c -1 >> ''' + fname + """ << 'END_""" + random_id + """'\n""" + curr_str + """\nEND_""" + random_id)
+			shutit_util.sendline(' ' + child,self._get_command('head') + ''' -c -1 >> ''' + fname + """ << 'END_""" + random_id + """'\n""" + curr_str + """\nEND_""" + random_id)
 			self.child_expect(child,expect)
-		shutit_util.sendline(child,'chmod +x ' + fname)
+		shutit_util.sendline(child,' chmod +x ' + fname)
 		self.child_expect(child,expect)
 		return fname
 
@@ -1026,14 +1026,14 @@ $'"""
 		# Send the script and run it in the manner specified
 		if cfg['build']['delivery'] in ('docker','dockerfile') and in_shell:
 				script = ('set -o xtrace \n\n' + script + '\n\nset +o xtrace')
-		self.send('mkdir -p ' + cfg['build']['shutit_state_dir'] + '/scripts && chmod 777 ' + cfg['build']['shutit_state_dir'] + '/scripts', expect=expect, child=child, echo=False,loglevel=loglevel, delaybeforesend=delaybeforesend)
+		self.send(' mkdir -p ' + cfg['build']['shutit_state_dir'] + '/scripts && chmod 777 ' + cfg['build']['shutit_state_dir'] + '/scripts', expect=expect, child=child, echo=False,loglevel=loglevel, delaybeforesend=delaybeforesend)
 		self.send_file(cfg['build']['shutit_state_dir'] + '/scripts/shutit_script.sh', script, loglevel=loglevel, delaybeforesend=delaybeforesend)
-		self.send('chmod +x ' + cfg['build']['shutit_state_dir'] + '/scripts/shutit_script.sh', expect=expect, child=child, echo=False,loglevel=loglevel, delaybeforesend=delaybeforesend)
+		self.send(' chmod +x ' + cfg['build']['shutit_state_dir'] + '/scripts/shutit_script.sh', expect=expect, child=child, echo=False,loglevel=loglevel, delaybeforesend=delaybeforesend)
 		self.shutit_command_history.append('    ' + script.replace('\n', '\n    '))
 		if in_shell:
-			ret = self.send('. ' + cfg['build']['shutit_state_dir'] + '/scripts/shutit_script.sh && rm -f ' + cfg['build']['shutit_state_dir'] + '/scripts/shutit_script.sh && rm -f ' + cfg['build']['shutit_state_dir'] + '/scripts/shutit_script.sh', expect=expect, child=child, echo=False,loglevel=loglevel, delaybeforesend=delaybeforesend)
+			ret = self.send(' . ' + cfg['build']['shutit_state_dir'] + '/scripts/shutit_script.sh && rm -f ' + cfg['build']['shutit_state_dir'] + '/scripts/shutit_script.sh && rm -f ' + cfg['build']['shutit_state_dir'] + '/scripts/shutit_script.sh', expect=expect, child=child, echo=False,loglevel=loglevel, delaybeforesend=delaybeforesend)
 		else:
-			ret = self.send(cfg['build']['shutit_state_dir'] + '/scripts/shutit_script.sh && rm -f ' + cfg['build']['shutit_state_dir'] + '/scripts/shutit_script.sh', expect=expect, child=child, echo=False,loglevel=loglevel, delaybeforesend=delaybeforesend)
+			ret = self.send(' ' + cfg['build']['shutit_state_dir'] + '/scripts/shutit_script.sh && rm -f ' + cfg['build']['shutit_state_dir'] + '/scripts/shutit_script.sh', expect=expect, child=child, echo=False,loglevel=loglevel, delaybeforesend=delaybeforesend)
 		self._handle_note_after(note=note)
 		return ret
 
@@ -1084,10 +1084,10 @@ $'"""
 			f.close()
 		elif cfg['build']['delivery'] in ('bash','dockerfile'):
 			if truncate and self.file_exists(path):
-				self.send('rm -f ' + path, expect=expect, child=child, echo=False,loglevel=loglevel, delaybeforesend=delaybeforesend)
+				self.send(' rm -f ' + path, expect=expect, child=child, echo=False,loglevel=loglevel, delaybeforesend=delaybeforesend)
 			random_id = shutit_util.random_id()
-			self.send(self._get_command('head') + ' -c -1 > ' + path + "." + random_id + " << 'END_" + random_id + """'\n""" + base64.b64encode(contents) + '''\nEND_''' + random_id, echo=False,loglevel=loglevel, delaybeforesend=delaybeforesend)
-			self.send('cat ' + path + '.' + random_id + ' | base64 -d > ' + path, echo=False,loglevel=loglevel, delaybeforesend=delaybeforesend)
+			self.send(' ' + self._get_command('head') + ' -c -1 > ' + path + "." + random_id + " << 'END_" + random_id + """'\n""" + base64.b64encode(contents) + '''\nEND_''' + random_id, echo=False,loglevel=loglevel, delaybeforesend=delaybeforesend)
+			self.send(' cat ' + path + '.' + random_id + ' | base64 -d > ' + path, echo=False,loglevel=loglevel, delaybeforesend=delaybeforesend)
 		else:
 			host_child = self.pexpect_children['host_child']
 			path = path.replace(' ', '\ ')
@@ -1098,13 +1098,13 @@ $'"""
 			f.write(contents)
 			f.close()
 			# Create file so it has appropriate permissions
-			self.send('touch ' + path, child=child, expect=expect, echo=False,loglevel=loglevel, delaybeforesend=delaybeforesend)
+			self.send(' touch ' + path, child=child, expect=expect, echo=False,loglevel=loglevel, delaybeforesend=delaybeforesend)
 			# If path is not absolute, add $HOME to it.
 			if path[0] != '/':
-				self.send('cat ' + tmpfile + ' | ' + cfg['host']['docker_executable'] + ' exec -i ' + cfg['target']['container_id'] + " bash -c 'cat > $HOME/" + path + "'", child=host_child, expect=cfg['expect_prompts']['origin_prompt'], echo=False,loglevel=loglevel, delaybeforesend=delaybeforesend)
+				self.send(' cat ' + tmpfile + ' | ' + cfg['host']['docker_executable'] + ' exec -i ' + cfg['target']['container_id'] + " bash -c 'cat > $HOME/" + path + "'", child=host_child, expect=cfg['expect_prompts']['origin_prompt'], echo=False,loglevel=loglevel, delaybeforesend=delaybeforesend)
 			else:
-				self.send('cat ' + tmpfile + ' | ' + cfg['host']['docker_executable'] + ' exec -i ' + cfg['target']['container_id'] + " bash -c 'cat > " + path + "'", child=host_child, expect=cfg['expect_prompts']['origin_prompt'], echo=False,loglevel=loglevel, delaybeforesend=delaybeforesend)
-			self.send('chown ' + user + ' ' + path + ' && chgrp ' + group + ' ' + path, child=child, expect=expect, echo=False,loglevel=loglevel, delaybeforesend=delaybeforesend)
+				self.send(' cat ' + tmpfile + ' | ' + cfg['host']['docker_executable'] + ' exec -i ' + cfg['target']['container_id'] + " bash -c 'cat > " + path + "'", child=host_child, expect=cfg['expect_prompts']['origin_prompt'], echo=False,loglevel=loglevel, delaybeforesend=delaybeforesend)
+			self.send(' chown ' + user + ' ' + path + ' && chgrp ' + group + ' ' + path, child=child, expect=expect, echo=False,loglevel=loglevel, delaybeforesend=delaybeforesend)
 			os.remove(tmpfile)
 		self._handle_note_after(note=note)
 
@@ -1131,7 +1131,7 @@ $'"""
 		self._handle_note(note, 'Changing to path: ' + path)
 		self.log('Changing directory to path: "' + path, level=logging.DEBUG)
 		if cfg['build']['delivery'] in ('bash','dockerfile'):
-			self.send('cd ' + path, expect=expect, child=child, timeout=timeout, echo=False,loglevel=loglevel, delaybeforesend=delaybeforesend)
+			self.send(' cd ' + path, expect=expect, child=child, timeout=timeout, echo=False,loglevel=loglevel, delaybeforesend=delaybeforesend)
 		elif cfg['build']['delivery'] in ('docker','ssh'):
 			os.chdir(path)
 		else:
@@ -1174,11 +1174,11 @@ $'"""
 			group = self.whoarewe()
 		if cfg['build']['delivery'] in ('bash','dockerfile'):
 			retdir = self.send_and_get_output('pwd',loglevel=loglevel, delaybeforesend=delaybeforesend)
-			self.send('pushd ' + cfg['environment'][cfg['build']['current_environment_id']]['module_root_dir'], echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
-			self.send('cp -r ' + hostfilepath + ' ' + retdir + '/' + path,expect=expect, child=child, timeout=timeout, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
-			self.send('chown ' + user + ' ' + hostfilepath + ' ' + retdir + '/' + path,expect=expect, child=child, timeout=timeout, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
-			self.send('chgrp ' + group + ' ' + hostfilepath + ' ' + retdir + '/' + path,expect=expect, child=child, timeout=timeout, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
-			self.send('popd', expect=expect, child=child, timeout=timeout, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
+			self.send(' pushd ' + cfg['environment'][cfg['build']['current_environment_id']]['module_root_dir'], echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
+			self.send(' cp -r ' + hostfilepath + ' ' + retdir + '/' + path,expect=expect, child=child, timeout=timeout, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
+			self.send(' chown ' + user + ' ' + hostfilepath + ' ' + retdir + '/' + path,expect=expect, child=child, timeout=timeout, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
+			self.send(' chgrp ' + group + ' ' + hostfilepath + ' ' + retdir + '/' + path,expect=expect, child=child, timeout=timeout, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
+			self.send(' popd', expect=expect, child=child, timeout=timeout, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
 		else:
 			if os.path.isfile(hostfilepath):
 				self.send_file(path, open(hostfilepath).read(), expect=expect, child=child, user=user, group=group,loglevel=loglevel, delaybeforesend=delaybeforesend)
@@ -1217,7 +1217,7 @@ $'"""
 		expect = expect or self.get_default_expect()
 		self._handle_note(note, 'Sending host directory: ' + hostfilepath + ' to target path: ' + path)
 		self.log('Sending host directory: ' + hostfilepath + ' to: ' + path, level=logging.INFO)
-		self.send('mkdir -p ' + path, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
+		self.send(' mkdir -p ' + path, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
 		if user == None:
 			user = self.whoami()
 		if group == None:
@@ -1226,7 +1226,7 @@ $'"""
 			subfolders.sort()
 			files.sort()
 			for subfolder in subfolders:
-				self.send('mkdir -p ' + path + '/' + subfolder, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
+				self.send(' mkdir -p ' + path + '/' + subfolder, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
 				self.log('send_host_dir recursing to: ' + hostfilepath + '/' + subfolder, level=logging.DEBUG)
 				self.send_host_dir(path + '/' + subfolder, hostfilepath + '/' + subfolder, expect=expect, child=child, loglevel=loglevel, delaybeforesend=delaybeforesend)
 			for fname in files:
@@ -1320,7 +1320,7 @@ $'"""
 		expect = expect or self.get_default_expect()
 		self._handle_note(note)
 		cmd = 'stat -c %a ' + filename
-		self.send(cmd, expect, child=child, check_exit=False, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
+		self.send(' ' + cmd, expect, child=child, check_exit=False, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
 		res = self.match_string(child.before, '([0-9][0-9][0-9])')
 		self._handle_note_after(note=note)
 		return res
@@ -1383,8 +1383,8 @@ $'"""
 						shutit.fail('Illegal regexp found in remove_line_from_file call: ' + match_regexp)
 					#          v the space is intentional, to avoid polluting bash history.
 					self.send(' grep -v "^' + match_regexp + '$" ' + filename + ' > ' + tmp_filename, expect=expect, child=child, exit_values=['0', '1'], echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
-			self.send('cat ' + tmp_filename + ' > ' + filename, expect=expect, child=child, check_exit=False, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
-			self.send('rm -f ' + tmp_filename, expect=expect, child=child, exit_values=['0', '1'], echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
+			self.send(' cat ' + tmp_filename + ' > ' + filename, expect=expect, child=child, check_exit=False, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
+			self.send(' rm -f ' + tmp_filename, expect=expect, child=child, exit_values=['0', '1'], echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
 		self._handle_note_after(note=note)
 		return True
 
@@ -1433,7 +1433,7 @@ $'"""
 		fexists = self.file_exists(fname)
 		if not fexists:
 			if create:
-				self.send('touch ' + fname,expect=expect,child=child, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
+				self.send(' touch ' + fname,expect=expect,child=child, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
 			else:
 				shutit.fail(fname + ' does not exist and create=False')
 		if replace:
@@ -1814,9 +1814,9 @@ $'"""
 			if self.file_exists(cfg['build']['build_db_dir'] + '/module_record',directory=True):
 				# Bit of a hack here to get round the long command showing up as the first line of the output.
 				cmd = 'find ' + cfg['build']['build_db_dir'] + r"""/module_record/ -name built | sed 's@^.""" + cfg['build']['build_db_dir'] + r"""/module_record.\([^/]*\).built@\1@' > """ + cfg['build']['build_db_dir'] + '/' + cfg['build']['build_id']
-				self.send(cmd, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
+				self.send(' ' + cmd, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
 				built = self.send_and_get_output('cat ' + cfg['build']['build_db_dir'] + '/' + cfg['build']['build_id'], echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend).strip()
-				self.send('rm -f ' + cfg['build']['build_db_dir'] + '/' + cfg['build']['build_id'], echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
+				self.send(' rm -f ' + cfg['build']['build_db_dir'] + '/' + cfg['build']['build_id'], echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
 				built_list = built.split('\r\n')
 				cfg['environment'][cfg['build']['current_environment_id']]['modules_recorded'] = built_list
 			# Either there was no directory (so the cache is valid), or we've built the cache, so mark as good.
@@ -1893,7 +1893,7 @@ $'"""
 		# Need: host env, container id, path from and path to
 		child     = self.pexpect_children['host_child']
 		expect    = cfg['expect_prompts']['origin_prompt']
-		self.send('docker cp ' + cfg['target']['container_id'] + ':' + target_path + ' ' + host_path, child=child, expect=expect, check_exit=False, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
+		self.send(' docker cp ' + cfg['target']['container_id'] + ':' + target_path + ' ' + host_path, child=child, expect=expect, check_exit=False, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
 		self._handle_note_after(note=note)
 		return True
 
