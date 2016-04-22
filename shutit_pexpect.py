@@ -329,7 +329,6 @@ class ShutItPexpectSession(object):
 	TODO: replace shutit.child_expect
 	TODO: check shutit_pexpect_children references make sense (ie expect correct object)
 
-
 	TODO: review items in cfg and see if they make more sense in the pexpect object
 
 
