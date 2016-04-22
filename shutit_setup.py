@@ -54,24 +54,23 @@ class ShutItConnModule(ShutItModule):
 		cfg = shutit.cfg
 		# Now let's have a host_child
 		shutit.log('Spawning host child',level=logging.DEBUG)
-		pexpect_child = ShutItPexpectChild(shutit,'host_child')
-		pexpect_child.spawn_child('/bin/bash')
-TODO: 
+		shutit_pexpect_child = ShutItPexpectChild(shutit,'host_child')
+		shutit_pexpect_child.spawn_child('/bin/bash')
 		# Set up prompts and let the user do things before the build
+		shutit.set_default_shutit_pexpect_child(shutit_pexpect_child)
 		shutit.set_default_shutit_pexpect_child_expect(cfg['expect_prompts']['base_prompt'])
-		shutit.set_default_shutit_pexpect_child(host_child)
 		# ORIGIN_ENV is a special case of the prompt maintained for performance reasons, don't change.
-		shutit.setup_prompt('origin_prompt', prefix='ORIGIN_ENV')
+		shutit_pexpect_child.setup_prompt('origin_prompt', prefix='ORIGIN_ENV')
 
 	def setup_target_child(self, shutit, target_child):
 		cfg = shutit.cfg
 		# Some pexpect settings
-		shutit.shutit_pexpect_children['target_child'] = target_child
+shutit.shutit_pexpect_children['target_child'] = target_child
 		shutit.set_default_shutit_pexpect_child_expect(cfg['expect_prompts']['base_prompt'])
 		# target child
 		shutit.set_default_shutit_pexpect_child(target_child)
-		shutit.setup_prompt('root')
-		shutit.login_stack_append('root')
+shutit.setup_prompt('root')
+shutit.login_stack_append('root')
 
 
 class ConnDocker(ShutItConnModule):
@@ -110,7 +109,9 @@ class ConnDocker(ShutItConnModule):
 		fail_msg = ''
 		try:
 			shutit.log('Running: ' + str_cmd,level=logging.DEBUG)
-			child = shutit_util.spawn_child(check_cmd[0], check_cmd[1:], timeout=cmd_timeout)
+			shutit_pexpect_child = ShutItPexpectChild(shutit,'tmp_child')
+			shutit_pexpect_child.spawn_child(check_cmd[0], check_cmd[1:], timeout=cmd_timeout)
+TODO: make this work
 		except pexpect.ExceptionPexpect:
 			msg = ('Failed to run %s (not sure why this has happened)...try a different docker executable?') % (str_cmd,)
 			cfg['host']['docker_executable'] = shutit.prompt_cfg(msg, 'host', 'docker_executable')
@@ -125,8 +126,8 @@ child.sendline(cfg['host']['password'])
 shutit.child_expect(child,[])
 		except pexpect.ExceptionPexpect:
 			fail_msg = '"%s" did not complete in %ss' % (str_cmd, cmd_timeout)
-		child.close()
-		if child.exitstatus != 0:
+child.close()
+if child.exitstatus != 0:
 			fail_msg = '"%s" didn\'t return a 0 exit code' % (str_cmd,)
 
 		if fail_msg:

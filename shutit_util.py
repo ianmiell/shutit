@@ -995,13 +995,11 @@ def print_config(cfg, hide_password=True, history=False, module_id=None):
 					s += line + '\n'
 	return s
 
-TODO: check this
 def set_pexpect_child(key, child):
 	"""Set a pexpect child in the global dictionary by key.
 	"""
 	shutit_global.shutit_pexpect_children.update({key:child})
 
-TODO: check this
 def get_pexpect_child(key):
 	"""Get a pexpect child in the global dictionary by key.
 	"""

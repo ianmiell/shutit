@@ -624,9 +624,6 @@ class ShutIt(object):
 		@return: The pexpect return value (ie which expected string in the list matched)
 		@rtype: string
 		"""
-		# If child passed in, get the owning parent object.
-		if child != None:
-			shutit_pexpect_child=get_shutit_pexpect_child(child)
 		if type(expect) == dict:
 			return self.multisend(send=send,send_dict=expect,expect=self.get_default_shutit_pexpect_child_expect(),shutit_pexpect_child=shutit_pexpect_child,timeout=timeout,check_exit=check_exit,fail_on_empty_before=fail_on_empty_before,record_command=record_command,exit_values=exit_values,echo=echo,note=note,loglevel=loglevel,delaybeforesend=delaybeforesend)
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_child().pexpect_child
@@ -705,8 +702,8 @@ $'"""
 				escaped_str += "'"
 				self.log('This string was sent safely: ' + send, level=logging.DEBUG)
 			if echo == False:
-				oldlog = child.logfile_send
-				child.logfile_send = None
+				oldlog = shutit_pexpect_child.logfile_send
+				shutit_pexpect_child.logfile_send = None
 				if escape:
 					# 'None' escaped_str's are possible from multisends with nothing to send.
 					if escaped_str != None:
@@ -734,7 +731,7 @@ $'"""
 							expect_res = self._expect_allow_interrupt(child, expect, timeout)
 					else:
 						expect_res = self._expect_allow_interrupt(child, expect, timeout)
-				child.logfile_send = oldlog
+				shutit_expect_child.logfile_send = oldlog
 			else:
 				if escape:
 					if escaped_str != None:
@@ -2985,7 +2982,6 @@ child     = self.shutit_pexpect_children['host_child']
 		# default expect
 		# default child
 		# login stack
-	self._default_expect                  = []
 	cfg['build']['login_stack']           = []
 	self.shutit_pexpect_children['target_child'] = None
 
@@ -2994,10 +2990,10 @@ child     = self.shutit_pexpect_children['host_child']
 	self.shutit_pexpect_children['target_child'] = target_child
 		# default child - needs two as we are mid-module build function
 TODO - set the current chid
-	self._default_child = [target_child]
+self._default_child = [target_child]
 		
 		# set up the prompt on startup
-	self._default_expect = [cfg['expect_prompts']['base_prompt']]
+self._default_expect = [cfg['expect_prompts']['base_prompt']]
 		self.setup_prompt('root')
 		self.login_stack_append('root')
 
@@ -3007,9 +3003,7 @@ TODO - set the current chid
 		# Don't go home in case the workdir is different in the docker image!
 		self.login(command='bash',go_home=False)
 
-	if len(self._default_expect) != 1:
-		self.fail('ASSERT FAILURE default_expect not 1 item long.')
-	self._default_expect = [self._default_expect[0],self._default_expect[0]]
+self._default_expect = [self._default_expect[0],self._default_expect[0]]
 		return
 
 
@@ -3289,8 +3283,8 @@ TODO - set the current chid
 	# eg sys.stdout or None
 	def divert_output(self, output):
 		for key in self.shutit_pexpect_children.keys():
-			self.shutit_pexpect_children[key].logfile_send = output
-			self.shutit_pexpect_children[key].logfile_read = output
+			self.shutit_pexpect_children[key].pexpect_child.logfile_send = output
+			self.shutit_pexpect_children[key].pexpect_child.logfile_read = output
 
 
 	def add_shutit_pexpect_child(self, shutit_pexpect_child):
@@ -3316,6 +3310,12 @@ TODO - set the current chid
 			if self.shutit_pexpect_children[key] == child:
 				return key
 
+	def get_shutit_pexpect_child_from_id(self, shutit_pexpect_id):
+		"""
+		"""
+		for key in self.shutit_pexpect_children:
+			if self.shutit_pexpect_children[key].shutit_pexpect_id == shutit_pexpect_id:
+				return self.shutit_pexpect_children[key]
 
 def init():
 	"""Initialize the shutit object. Called when imported.
