@@ -1271,7 +1271,10 @@ def util_raw_input(shutit=None, prompt='', default=None, ispass=False, use_readl
 	no controlling terminal (or there are any other problems)
 	"""
 	if use_readline:
-		readline.read_init_file('/etc/inputrc')
+		try:
+			readline.read_init_file('/etc/inputrc')
+		except:
+			pass
 		readline.parse_and_bind('tab: complete')
 	msg = ''
 	prompt = '\r\n' + prompt
