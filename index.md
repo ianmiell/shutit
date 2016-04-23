@@ -37,7 +37,7 @@ Many more examples explained [here](https://zwischenzugs.wordpress.com):
 ### Step 1: Get ShutIt ###
 
 ```sh
-pip install shutit
+[sudo] pip install https://github.com/ianmiell/shutit/archive/master.zip
 ```
 
 Run the above as root, and ensuring python-pip and docker are already installed.
