@@ -1054,6 +1054,7 @@ $'"""
 		"""
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
 		expect = expect or self.get_current_shutit_pexpect_session().default_expect
+		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
 		cfg = self.cfg
 		self._handle_note(note, 'Sending contents to path: ' + path)
 		# make more efficient by only looking at first 10000 chars, stop when we get to 30 chars rather than reading whole file.
@@ -1061,7 +1062,7 @@ $'"""
 		strings_from_file = re.findall("[^\x00-\x1F\x7F-\xFF]", split_contents)
 		self.log('Sending file contents beginning: "' + ''.join(strings_from_file)[:30] + ' [...]" to file: ' + path, level=loglevel)
 		if user == None:
-			user = self.whoami()
+			user = shutit_pexpect_session.whoami()
 		if group == None:
 			group = self.whoarewe()
 		if cfg['build']['current_environment_id'] == 'ORIGIN_ENV':
@@ -1154,11 +1155,12 @@ $'"""
 		"""
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
 		expect = expect or self.get_current_shutit_pexpect_session().default_expect
+		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
 		cfg = self.cfg
 		self._handle_note(note, 'Sending file from host: ' + hostfilepath + ' to target path: ' + path)
 		self.log('Sending file from host: ' + hostfilepath + ' to: ' + path, level=loglevel)
 		if user == None:
-			user = self.whoami()
+			user = shutit_pexpect_session.whoami()
 		if group == None:
 			group = self.whoarewe()
 		if cfg['build']['delivery'] in ('bash','dockerfile'):
@@ -1204,11 +1206,12 @@ $'"""
 		"""
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
 		expect = expect or self.get_current_shutit_pexpect_session().default_expect
+		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
 		self._handle_note(note, 'Sending host directory: ' + hostfilepath + ' to target path: ' + path)
 		self.log('Sending host directory: ' + hostfilepath + ' to: ' + path, level=logging.INFO)
 		self.send(' mkdir -p ' + path, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
 		if user == None:
-			user = self.whoami()
+			user = shutit_pexpect_session.whoami()
 		if group == None:
 			group = self.whoarewe()
 		for root, subfolders, files in os.walk(hostfilepath):
@@ -2277,6 +2280,7 @@ $'"""
 		# Some packages get mapped to the empty string. If so, bail out with 'success' here.
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
 		expect = expect or self.get_current_shutit_pexpect_session().default_expect
+		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
 		cfg = self.cfg
 		self._handle_note(note)
 				
@@ -2287,7 +2291,7 @@ $'"""
 			# If this is a src build, we assume it's already installed.
 			return True
 		opts = ''
-		whoiam = self.whoami()
+		whoiam = shutit_pexpect_session.whoami()
 		if whoiam != 'root' and install_type != 'brew':
 			if not self.command_available('sudo',shutit_pexpect_child=shutit_pexpect_child,expect=expect):
 				self.pause_point('Please install sudo and then continue with CTRL-]',shutit_pexpect_child=shutit_pexpect_child)
@@ -2392,11 +2396,12 @@ $'"""
 				self.install(p,child,expect,options,timeout,force,check_exit,reinstall,note)
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
 		expect = expect or self.get_current_shutit_pexpect_session().default_expect
+		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
 		cfg = self.cfg
 		self._handle_note(note)
 		if options is None: options = {}
 		install_type = cfg['environment'][cfg['build']['current_environment_id']]['install_type']
-		whoiam = self.whoami()
+		whoiam = shutit_pexpect_session.whoami()
 		if whoiam != 'root' and install_type != 'brew':
 			cmd = 'sudo '
 			pw = self.get_env_pass(whoiam,'Please input your sudo password in case it is needed (for user: ' + whoiam + ')\nJust hit return if you do not want to submit a password.\n')
@@ -2451,8 +2456,9 @@ $'"""
 		"""
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
 		expect = expect or self.get_current_shutit_pexpect_session().default_expect
+		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
 		self._handle_note(note)
-		user = user or self.whoami()
+		user = user or shutit_pexpect_session.whoami()
 		cfg = self.cfg
 		msg = msg or 'Please input the sudo password for user: ' + user
 		# Test for the existence of the data structure.
@@ -2467,29 +2473,6 @@ $'"""
 			cfg['environment'][cfg['build']['current_environment_id']][user]['password'] = shutit.get_input(msg,ispass=True)
 		self._handle_note_after(note=note)
 		return cfg['environment'][cfg['build']['current_environment_id']][user]['password']
-
-
-	def whoami(self,
-	           shutit_pexpect_child=None,
-	           expect=None,
-	           note=None,
-	           delaybeforesend=0,
-	           loglevel=logging.DEBUG):
-		"""Returns the current user by executing "whoami".
-
-		@param shutit_pexpect_child:    See send()
-		@param expect:   See send()
-		@param note:     See send()
-
-		@return: the output of "whoami"
-		@rtype: string
-		"""
-		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
-		expect = expect or self.get_current_shutit_pexpect_session().default_expect
-		self._handle_note(note)
-		res = self.send_and_get_output('whoami',echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend).strip()
-		self._handle_note_after(note=note)
-		return res
 
 
 	def whoarewe(self,

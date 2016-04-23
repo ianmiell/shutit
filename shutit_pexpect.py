@@ -387,6 +387,28 @@ class ShutItPexpectSession(object):
 		return
 
 
+	def whoami(self,
+	           expect=None,
+	           note=None,
+	           delaybeforesend=0,
+	           loglevel=logging.DEBUG):
+		"""Returns the current user by executing "whoami".
+
+		@param shutit_pexpect_child:    See send()
+		@param expect:   See send()
+		@param note:     See send()
+
+		@return: the output of "whoami"
+		@rtype: string
+		"""
+		self.shutit_object._handle_note(note)
+		res = self.shutit_object.send_and_get_output('whoami',shutit_pexpect_child=self.pexpect_child,echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend).strip()
+		self.shutit_object._handle_note_after(note=note)
+		return res
+
+
+
+
 	#TODO: move setup_environment - create environment object
 	#TODO: review items in cfg and see if they make more sense in the pexpect object
 	#TODO: replace 'target' in cfg
