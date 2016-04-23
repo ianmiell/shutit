@@ -2781,7 +2781,7 @@ $'"""
 		if dist_string:
 			d['distro']         = dist_string.lower().strip()
 			d['distro_version'] = version_string
-			d['install_type'] = (package_installed.INSTALL_TYPE_MAP[dist_string.lower()])
+			d['install_type'] = (package_map.INSTALL_TYPE_MAP[dist_string.lower()])
 		return d
 
 
