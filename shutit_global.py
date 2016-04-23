@@ -2630,7 +2630,7 @@ $'"""
 		if cfg['build']['distro_override'] != '':
 			key = cfg['build']['distro_override']
 			distro = cfg['build']['distro_override']
-			install_type = cfg['build']['install_type_map'][key]
+			install_type = package_map.INSTALL_TYPE_MAP[key]
 			distro_version = ''
 			if install_type == 'apt' and cfg['build']['delivery'] in ('docker','dockerfile'):
 				if not self.command_available('lsb_release'):
@@ -2680,10 +2680,10 @@ $'"""
 			# Don't check for existence of file to save a little time.
 			issue_output = self.send_and_get_output(' cat /etc/issue',echo=False, loglevel=loglevel,delaybeforesend=delaybeforesend).lower()
 			if not re.match('.*No such file.*',issue_output):
-				for key in cfg['build']['install_type_map'].keys():
+				for key in package_map.INSTALL_TYPE_MAP.keys():
 					if issue_output.find(key) != -1:
 						distro       = key
-						install_type = cfg['build']['install_type_map'][key]
+						install_type = package_map.INSTALL_TYPE_MAP[key]
 						break
 			elif self.file_exists('/cygdrive'):
 				distro       = 'cygwin'
@@ -2781,7 +2781,7 @@ $'"""
 		if dist_string:
 			d['distro']         = dist_string.lower().strip()
 			d['distro_version'] = version_string
-			d['install_type'] = (cfg['build']['install_type_map'][dist_string.lower()])
+			d['install_type'] = (package_installed.INSTALL_TYPE_MAP[dist_string.lower()])
 		return d
 
 
@@ -3271,25 +3271,10 @@ def init():
 	cfg['host']['shutit_path']            = sys.path[0]
 	cfg['repository']                     = {}
 	cfg['expect_prompts']                 = {}
-	cfg['users']                          = {}
 	cfg['dockerfile']                     = {}
 	cfg['list_modules']                   = {}
 	cfg['list_configs']                   = {}
 	cfg['list_deps']                      = {}
-	cfg['build']['install_type_map'] = {'ubuntu':'apt',
-	                                    'debian':'apt',
-	                                    'steamos':'apt',
-	                                    'red hat':'yum',
-	                                    'oracleserver':'yum',
-	                                    'centos':'yum',
-	                                    'fedora':'yum',
-	                                    'fedora_dnf':'dnf',
-	                                    'alpine':'apk',
-	                                    'shutit':'src',
-	                                    'coreos':'docker',
-	                                    'gentoo':'emerge',
-	                                    'osx':'brew',
-	                                    'cygwin':'apt-cyg'}
 
 	# If no LOGNAME available,
 	cfg['host']['username'] = os.environ.get('LOGNAME', '')

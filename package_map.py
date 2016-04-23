@@ -51,6 +51,24 @@ PACKAGE_MAP = {
 	'libssl-dev':            {'apt':'libssl-dev',        'yum':'openssl-devel'},
 }
 
+INSTALL_TYPE_MAP = {'ubuntu':'apt',
+	                'debian':'apt',
+	                'steamos':'apt',
+	                'red hat':'yum',
+	                'oracleserver':'yum',
+	                'centos':'yum',
+	                'fedora':'yum',
+	                'fedora_dnf':'dnf',
+	                'alpine':'apk',
+	                'shutit':'src',
+	                'coreos':'docker',
+	                'gentoo':'emerge',
+	                'osx':'brew',
+	                'cygwin':'apt-cyg'}
+
+
+
+
 def map_packages(package_str, install_type):
 	res = ''
 	for package in package_str.split():
