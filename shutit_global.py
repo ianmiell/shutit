@@ -834,6 +834,8 @@ $'"""
 				return command + ' '
 		return command
 
+
+	# TODO: move this
 	def _create_command_file(self, shutit_pexpect_child, expect, send, timeout):
 		"""Internal function. Do not use.
 
@@ -857,7 +859,7 @@ $'"""
 		return fname
 
 
-
+	# TODO: move this
 	def _check_exit(self,
 	                send,
 	                expect=None,
@@ -1027,6 +1029,7 @@ $'"""
 		self._handle_note_after(note=note)
 
 
+	# TODO: move this, pass through
 	def chdir(self,
 	          path,
 	          expect=None,
@@ -1158,7 +1161,7 @@ $'"""
 
 
 	def host_file_exists(self, filename, directory=False, note=None):
-		"""Return True if file exists on the host, else False
+		"""Return True if file exists on the host (ie where shutit was run from), else False
 
 		@param filename:   Filename to determine the existence of.
 		@param directory:  Indicate that the file expected is a directory. (Default: False)
@@ -1558,6 +1561,7 @@ $'"""
 		return
 
 
+	# TODO: move this, pass through
 	def get_url(self,
 	            filename,
 	            locations,
