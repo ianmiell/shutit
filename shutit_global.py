@@ -2148,6 +2148,7 @@ $'"""
 		"""
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
 		expect = expect or self.get_current_shutit_pexpect_session().default_expect
+		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
 		self._handle_note(note)
 		self.log('Matching output from: "' + send + '" to one of these regexps:' + str(matches),level=logging.INFO)
 		output = self.send_and_get_output(send, shutit_pexpect_child=shutit_pexpect_child, retry=retry, strip=strip, echo=echo, loglevel=loglevel, delaybeforesend=delaybeforesend)
@@ -2155,7 +2156,7 @@ $'"""
 			matches = [matches]
 		self._handle_note_after(note=note)
 		for match in matches:
-			if self.match_string(output, match) != None:
+			if shutit_pexpect_session.match_string(output, match) != None:
 				self.log('Matched output, return True',level=logging.DEBUG)
 				return True
 		self.log('Failed to match output, return False',level=logging.DEBUG)
@@ -2772,7 +2773,6 @@ $'"""
 		"""Get distro information from lsb_release.
 		"""
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
-		cfg = self.cfg
 		#          v the space is intentional, to avoid polluting bash history.
 		self.send(' lsb_release -a',check_exit=False, echo=False, loglevel=loglevel,delaybeforesend=delaybeforesend)
 		dist_string = shutit_util.match_string(shutit_pexpect_child.before, '^Distributor[\s]*ID:[\s]*(.*)$')
