@@ -340,7 +340,7 @@ class ShutIt(object):
 				for regexp in regexps:
 					if not shutit_util.check_regexp(regexp):
 						shutit.fail('Illegal regexp found in send_until call: ' + regexp)
-					if self.match_string(output, regexp):
+					if shutit_util.match_string(output, regexp):
 						return True
 			else:
 				# Only return if _not_ seen in the output
@@ -348,7 +348,7 @@ class ShutIt(object):
 				for regexp in regexps:
 					if not shutit_util.check_regexp(regexp):
 						shutit.fail('Illegal regexp found in send_until call: ' + regexp)
-					if not self.match_string(output, regexp):
+					if not shutit_util.match_string(output, regexp):
 						missing = True
 						break
 				if missing:
@@ -455,7 +455,7 @@ class ShutIt(object):
 						ok = True
 				elif expect_type == 'regexp':
 					for regexp in expect:
-						if self.match_string(output,regexp):
+						if shutit_util.match_string(output,regexp):
 							ok = True
 							break
 				if not ok and failed:
@@ -529,7 +529,7 @@ class ShutIt(object):
 						ok = True
 				elif expect_type == 'regexp':
 					for regexp in expect:
-						if self.match_string(output,regexp):
+						if shutit_util.match_string(output,regexp):
 							ok = True
 							break
 				if not ok and failed:
@@ -954,10 +954,10 @@ $'"""
 		# Space before "echo" here is sic - we don't need this to show up in bash history
 		shutit_pexpect_session.sendline(' echo EXIT_CODE:$?')
 		shutit_pexpect_session.expect(expect)
-		res = self.match_string(shutit_pexpect_child.before, '^EXIT_CODE:([0-9][0-9]?[0-9]?)$')
+		res = shutit_util.match_string(shutit_pexpect_child.before, '^EXIT_CODE:([0-9][0-9]?[0-9]?)$')
 		if res == None:
 			# Try after - for some reason needed after login
-			res = self.match_string(shutit_pexpect_child.after, '^EXIT_CODE:([0-9][0-9]?[0-9]?)$')
+			res = shutit_util.match_string(shutit_pexpect_child.after, '^EXIT_CODE:([0-9][0-9]?[0-9]?)$')
 		if res not in exit_values or res == None:
 			if res == None:
 				res = str(res)
@@ -1272,7 +1272,7 @@ $'"""
 		#       v the space is intentional, to avoid polluting bash history.
 		test = ' test %s %s' % ('-d' if directory is True else '-a', filename)
 		output = self.send_and_get_output(test + ' && echo FILEXIST-""FILFIN || echo FILNEXIST-""FILFIN', expect=expect, shutit_pexpect_child=shutit_pexpect_child, record_command=False, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
-		res = self.match_string(output, '^(FILEXIST|FILNEXIST)-FILFIN$')
+		res = shutit_util.match_string(output, '^(FILEXIST|FILNEXIST)-FILFIN$')
 		ret = False
 		if res == 'FILEXIST':
 			ret = True
@@ -1310,7 +1310,7 @@ $'"""
 		self._handle_note(note)
 		cmd = 'stat -c %a ' + filename
 		self.send(' ' + cmd, expect, shutit_pexpect_child=shutit_pexpect_child, check_exit=False, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
-		res = self.match_string(shutit_pexpect_child.before, '([0-9][0-9][0-9])')
+		res = shutit_util.match_string(shutit_pexpect_child.before, '([0-9][0-9][0-9])')
 		self._handle_note_after(note=note)
 		return res
 
@@ -1762,7 +1762,7 @@ $'"""
 			self.send(""" yum list installed | awk '{print $1}' | grep "^""" + package + """$" | wc -l""", expect, check_exit=False, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
 		else:
 			return False
-		if self.match_string(shutit_pexpect_child.before, '^([0-9]+)$') != '0':
+		if shutit_util.match_string(shutit_pexpect_child.before, '^([0-9]+)$') != '0':
 			return True
 		else:
 			return False
@@ -2113,48 +2113,6 @@ $'"""
 		if cfg['SHUTIT_SIGNAL']['ID'] == 29:
 			cfg['SHUTIT_SIGNAL']['ID'] = 0
 			self.log('\r\nCTRL-] caught, continuing with run...',level=logging.INFO,transient=True)
-
-
-	def match_string(self, string, regexp):
-		"""Get regular expression from the first of the lines passed
-		in in string that matched. Handles first group of regexp as
-		a return value.
-
-		@param string: String to match on
-		@param regexp: Regexp to check (per-line) against string
-
-		@type string: string
-		@type regexp: string
-
-		Returns None if none of the lines matched.
-
-		Returns True if there are no groups selected in the regexp.
-		else returns matching group (ie non-None)
-		"""
-		cfg = self.cfg
-		if type(string) != str:
-			return None
-		lines = string.split('\r\n')
-		# sometimes they're separated by just a carriage return...
-		new_lines = []
-		for line in lines:
-			new_lines = new_lines + line.split('\r')
-		# and sometimes they're separated by just a newline...
-		for line in lines:
-			new_lines = new_lines + line.split('\n')
-		lines = new_lines
-		if not shutit_util.check_regexp(regexp):
-			shutit.fail('Illegal regexp found in match_string call: ' + regexp)
-		for line in lines:
-			match = re.match(regexp, line)
-			if match != None:
-				if len(match.groups()) > 0:
-					return match.group(1)
-				else:
-					return True
-		return None
-	# alias for back-compatibility
-	get_re_from_child = match_string
 
 
 	def send_and_match_output(self,
@@ -2852,8 +2810,8 @@ $'"""
 		cfg = self.cfg
 		#          v the space is intentional, to avoid polluting bash history.
 		self.send(' lsb_release -a',check_exit=False, echo=False, loglevel=loglevel,delaybeforesend=delaybeforesend)
-		dist_string = self.match_string(shutit_pexpect_child.before, '^Distributor[\s]*ID:[\s]*(.*)$')
-		version_string = self.match_string(shutit_pexpect_child.before, '^Release:[\s*](.*)$')
+		dist_string = shutit_util.match_string(shutit_pexpect_child.before, '^Distributor[\s]*ID:[\s]*(.*)$')
+		version_string = shutit_util.match_string(shutit_pexpect_child.before, '^Release:[\s*](.*)$')
 		d = {}
 		if dist_string:
 			d['distro']         = dist_string.lower().strip()
@@ -2924,7 +2882,7 @@ $'"""
 		#          v the space is intentional, to avoid polluting bash history.
 		self.send(' cut -d: -f3 /etc/paswd | grep -w ^' + user_id + '$ | wc -l', shutit_pexpect_child=shutit_pexpect_child, expect=expect, check_exit=False, echo=False, loglevel=loglevel,delaybeforesend=delaybeforesend)
 		self._handle_note_after(note=note)
-		if self.match_string(shutit_pexpect_child.before, '^([0-9]+)$') == '1':
+		if shutit_util.match_string(shutit_pexpect_child.before, '^([0-9]+)$') == '1':
 			return False
 		else:
 			return True

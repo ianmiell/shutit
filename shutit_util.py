@@ -238,7 +238,7 @@ def find_asset(filename):
 
 
 # Set up logging
-# 
+#
 def setup_logging(shutit):
 	cfg = shutit.cfg
 	# If loglevel is an int, this has already been set up.
@@ -1850,7 +1850,7 @@ def allowed_module_ids(shutit, rev=False):
 	allowed_module_ids = []
 	for module_id in module_ids_list:
 		if allowed_image(shutit,module_id):
-			allowed_module_ids.append(module_id) 
+			allowed_module_ids.append(module_id)
 	return allowed_module_ids
 
 
@@ -1916,7 +1916,7 @@ def disallowed_module_ids(shutit, rev=False):
 	disallowed_module_ids = []
 	for module_id in module_ids_list:
 		if not allowed_image(shutit,module_id):
-			disallowed_module_ids.append(module_id) 
+			disallowed_module_ids.append(module_id)
 	return disallowed_module_ids
 
 
@@ -2072,6 +2072,47 @@ def sendline(child,
 
 def sanitize_terminal():
 	os.system('stty sane')
+
+
+def match_string(string, regexp):
+	"""Get regular expression from the first of the lines passed
+	in in string that matched. Handles first group of regexp as
+	a return value.
+	
+	@param string: String to match on
+	@param regexp: Regexp to check (per-line) against string
+	
+	@type string: string
+	@type regexp: string
+	
+	Returns None if none of the lines matched.
+	
+	Returns True if there are no groups selected in the regexp.
+	else returns matching group (ie non-None)
+	"""
+	if type(string) != str:
+		return None
+	lines = string.split('\r\n')
+	# sometimes they're separated by just a carriage return...
+	new_lines = []
+	for line in lines:
+		new_lines = new_lines + line.split('\r')
+	# and sometimes they're separated by just a newline...
+	for line in lines:
+		new_lines = new_lines + line.split('\n')
+	lines = new_lines
+	if not check_regexp(regexp):
+		shutit.fail('Illegal regexp found in match_string call: ' + regexp)
+	for line in lines:
+		match = re.match(regexp, line)
+		if match != None:
+			if len(match.groups()) > 0:
+				return match.group(1)
+			else:
+				return True
+	return None
+# alias for back-compatibility
+get_re_from_child = match_string
 
 
 
