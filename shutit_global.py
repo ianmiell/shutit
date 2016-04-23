@@ -2156,7 +2156,7 @@ $'"""
 			matches = [matches]
 		self._handle_note_after(note=note)
 		for match in matches:
-			if shutit_pexpect_session.match_string(output, match) != None:
+			if shutit_util.match_string(output, match) != None:
 				self.log('Matched output, return True',level=logging.DEBUG)
 				return True
 		self.log('Failed to match output, return False',level=logging.DEBUG)
