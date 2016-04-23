@@ -152,7 +152,6 @@ class ShutItPexpectSession(object):
 		r_id = shutit_util.random_id()
 		if prompt_prefix == None:
 			prompt_prefix = r_id
-		self.login_stack_append(r_id)
 		cfg = self.shutit_object.cfg
 		# Be helpful.
 		if ' ' in user:
@@ -188,6 +187,7 @@ class ShutItPexpectSession(object):
 			self.setup_prompt(r_id)
 		if go_home:
 			self.shutit_object.send('cd',shutit_pexpect_child=self.pexpect_child,check_exit=False, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
+		self.login_stack_append(r_id)
 		self.shutit_object._handle_note_after(note=note)
 
 
@@ -238,7 +238,6 @@ class ShutItPexpectSession(object):
 	                 prompt_name,
 	                 prefix='default',
 	                 set_default_expect=True,
-	                 setup_environment=True,
 	                 delaybeforesend=0,
 	                 loglevel=logging.DEBUG):
 		"""Use this when you've opened a new shell to set the PS1 to something
@@ -265,7 +264,6 @@ class ShutItPexpectSession(object):
 		@param shutit_pexpect_child:               See send()
 		@param set_default_expect:  Whether to set the default expect
 		                            to the new prompt. Default: True
-		@param setup_environment:   Whether to setup the environment config
 		
 		@type prompt_name:          string
 		@type prefix:               string
@@ -286,8 +284,7 @@ class ShutItPexpectSession(object):
 		    self.shutit_object.log('Resetting default expect to: ' + cfg['expect_prompts'][prompt_name],level=logging.DEBUG)
 		    self.shutit_object.set_default_shutit_pexpect_session_expect(cfg['expect_prompts'][prompt_name])
 		# Ensure environment is set up OK.
-		if setup_environment:
-		    self.shutit_object.setup_environment(prefix,shutit_pexpect_child=self.pexpect_child)
+		self.shutit_object.setup_environment(prefix,shutit_pexpect_child=self.pexpect_child)
 
 
 	def revert_prompt(self,

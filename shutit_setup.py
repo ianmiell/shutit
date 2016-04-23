@@ -60,7 +60,9 @@ class ShutItConnModule(ShutItModule):
 		shutit.set_default_shutit_pexpect_session(shutit_pexpect_session)
 		shutit.set_default_shutit_pexpect_session_expect(cfg['expect_prompts']['base_prompt'])
 		# ORIGIN_ENV is a special case of the prompt maintained for performance reasons, don't change.
-		shutit_pexpect_session.setup_prompt('origin_prompt', prefix='ORIGIN_ENV')
+		prefix = 'ORIGIN_ENV'
+		shutit_pexpect_session.setup_prompt('origin_prompt', prefix=prefix)
+		shutit_pexpect_session.login_stack_append(prefix)
 
 	def setup_target_child(self, shutit, target_child):
 		cfg = shutit.cfg
@@ -70,8 +72,9 @@ class ShutItConnModule(ShutItModule):
 		shutit.set_default_shutit_pexpect_session_expect(cfg['expect_prompts']['base_prompt'])
 		# target child
 		shutit.set_default_shutit_pexpect_session(shutit_pexpect_session)
-		shutit_pexpect_session.setup_prompt('root')
-		shutit_pexpect_session.login_stack_append('root')
+		prefix='root'
+		shutit_pexpect_session.setup_prompt('root',prefix=prefix)
+		shutit_pexpect_session.login_stack_append(prefix)
 
 
 class ConnDocker(ShutItConnModule):
