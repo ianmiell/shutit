@@ -854,6 +854,7 @@ $'"""
 	def _expect_allow_interrupt(self, shutit_pexpect_child, expect, timeout, iteration_s=1):
 		"""This function allows you to interrupt the run at more or less any point by breaking up the timeout into interactive chunks.
 		"""
+		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
 		accum_timeout = 0
 		if type(expect) == str:
 			expect = [expect]
@@ -865,7 +866,7 @@ $'"""
 			iteration_s = 1
 		timed_out = True
 		while accum_timeout < timeout:
-			res = shutit_pexpect_child.expect(expect, timeout=iteration_s)
+			res = shutit_pexpect_session.expect(expect, timeout=iteration_s)
 			if res == len(expect):
 				if shutit.cfg['build']['ctrlc_stop']:
 					timed_out = False
