@@ -787,7 +787,7 @@ $'"""
 				for prompt in cfg['expect_prompts']:
 					if prompt == expect:
 						# Reset prompt
-						self.setup_prompt('reset_tmp_prompt', shutit_pexpect_child=shutit_pexpect_child)
+						shutit_pexpect_session.setup_prompt('reset_tmp_prompt')
 						shutit_pexpect_child.revert_prompt('reset_tmp_prompt', expect)
 			# Last output - remove the first line, as it is the previous command.
 			cfg['build']['last_output'] = '\n'.join(shutit_pexpect_child.before.split('\n')[1:])
@@ -2540,27 +2540,9 @@ $'"""
 			@param command:         Command to run to log out (default=exit)
 			@param note:            See send()
 		"""
-		shutit_pexpect_child = self.get_current_shutit_pexpect_session().pexpect_child
-		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
+		shutit_pexpect_session = self.get_current_shutit_pexpect_session()
 		shutit_pexpect_session.logout(expect=expect,command=command,note=note,timeout=timeout,delaybeforesend=delaybeforesend,loglevel=loglevel)
 	exit_shell = logout
-
-
-	def setup_prompt(self,
-	                 prompt_name,
-	                 prefix='default',
-	                 child=None,
-	                 shutit_pexpect_child=None,
-	                 set_default_expect=True,
-	                 setup_environment=True,
-	                 delaybeforesend=0,
-	                 loglevel=logging.DEBUG):
-		""" See shutit_pexpect.
-		"""
-		if child != None:
-			shutit_pexpect_child = self.get_shutit_pexpect_session_from_child(child).pexpect_child
-		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
-		shutit_pexpect_child.setup(prompt_name,prefix=prefix,child=child,set_default_expect=set_default_expect,setup_environment=setup_environment,delaybeforesend=delaybeforesend,loglevel=loglevel)
 
 
 	def get_memory(self,
