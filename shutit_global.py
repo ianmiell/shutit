@@ -2032,7 +2032,7 @@ $'"""
 					if not self.file_exists(fixterm_filename):
 						self.send_file(fixterm_filename,shutit_assets.get_fixterm(), shutit_pexpect_child=shutit_pexpect_child, loglevel=logging.DEBUG, delaybeforesend=delaybeforesend)
 						self.send(' chmod 777 ' + fixterm_filename, echo=False,loglevel=logging.DEBUG, delaybeforesend=delaybeforesend)
-					shutit_pexpect_session.sendline(shutit_pexpect_child,' ' + fixterm_filename, delaybeforesend=delaybeforesend)
+					shutit_pexpect_session.sendline(' ' + fixterm_filename, delaybeforesend=delaybeforesend)
 				if default_msg == None:
 					if not cfg['build']['video']:
 						pp_msg = '\r\nYou now have a standard shell. Hit CTRL and then ] at the same to continue ShutIt run.'
