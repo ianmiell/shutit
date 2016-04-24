@@ -30,8 +30,6 @@ import shutit_util
 import urllib
 import shutit_global
 import os
-import json
-import re
 import signal
 import sys
 import logging
@@ -200,27 +198,26 @@ def resolve_dependencies(shutit, to_build, depender):
 	return True
 
 
-def check_dependee_exists(shutit, depender, dependee, dependee_id):
+def check_dependee_exists(depender, dependee, dependee_id):
 	"""Checks whether a depended-on module is available.
 	"""
-	cfg = shutit.cfg
+	cfg = shutit_global.shutit.cfg
 	# If the module id isn't there, there's a problem.
 	if dependee == None:
 		return ('module: \n\n' + dependee_id + '\n\nnot found in paths: ' + str(cfg['host']['shutit_module_path']) + ' but needed for ' + depender.module_id + '\nCheck your --shutit_module_path setting and ensure that all modules configured to be built are in that path setting, eg "--shutit_module_path /path/to/other/module/:."\n\nAlso check that the module is configured to be built with the correct module id in that module\'s configs/build.cnf file.\n\nSee also help.')
 
 
-def check_dependee_build(shutit, depender, dependee, dependee_id):
+def check_dependee_build(depender, dependee, dependee_id):
 	"""Checks whether a depended on module is configured to be built.
 	"""
-	cfg = shutit.cfg
+	cfg = shutit_global.shutit.cfg
 	# If depender is installed or will be installed, so must the dependee
-	cfg = shutit.cfg
 	if not (cfg[dependee.module_id]['shutit.core.module.build'] or
-	        shutit_util.is_to_be_built_or_is_installed(shutit,dependee)):
+	        shutit_util.is_to_be_built_or_is_installed(shutit_global.shutit,dependee)):
 		return ('depender module id:\n\n[' + depender.module_id + ']\n\nis configured: "build:yes" or is already built but dependee module_id:\n\n[' + dependee_id + ']\n\n is not configured: "build:yes"')
 
 
-def check_dependee_order(_shutit, depender, dependee, dependee_id):
+def check_dependee_order(depender, dependee, dependee_id):
 	"""Checks whether run orders are in the appropriate order.
 	"""
 	# If it depends on a module id, then the module id should be higher up
@@ -271,9 +268,9 @@ def check_deps(shutit):
 		for dependee_id in depender.depends_on:
 			triples.append((depender, shutit.shutit_map.get(dependee_id), dependee_id))
 
-	triples = err_checker([ check_dependee_exists(shutit, depender, dependee, dependee_id) for depender, dependee, dependee_id in triples ], triples)
-	triples = err_checker([ check_dependee_build(shutit, depender, dependee, dependee_id) for depender, dependee, dependee_id in triples ], triples)
-	triples = err_checker([ check_dependee_order(shutit, depender, dependee, dependee_id) for depender, dependee, dependee_id in triples ], triples)
+	triples = err_checker([ check_dependee_exists(depender, dependee, dependee_id) for depender, dependee, dependee_id in triples ], triples)
+	triples = err_checker([ check_dependee_build(depender, dependee, dependee_id) for depender, dependee, dependee_id in triples ], triples)
+	triples = err_checker([ check_dependee_order(depender, dependee, dependee_id) for depender, dependee, dependee_id in triples ], triples)
 
 	if found_errs:
 		return [(err,) for err in found_errs]
@@ -462,7 +459,6 @@ def do_test(shutit):
 	stop_all(shutit)
 	start_all(shutit)
 	for module_id in shutit_util.module_ids(shutit, rev=True):
-		module = shutit.shutit_map[module_id]
 		# Only test if it's installed.
 		if shutit_util.is_installed(shutit, shutit.shutit_map[module_id]):
 			shutit.log('RUNNING TEST ON: ' + module_id, level=logging.DEBUG)
@@ -665,7 +661,6 @@ def do_phone_home(msg=None,question='Error seen - would you like to inform the m
 	msg - message to send home
 	question - question to ask - assumes Y/y for send message, else no
 	"""
-	cfg = shutit.cfg
 	if msg is None:
 		msg = {}
 	if shutit_global.cfg['build']['interactive'] == 0:
@@ -687,7 +682,7 @@ def do_interactive_modules(shutit):
 		module_id = shutit_util.util_raw_input(prompt='Which module id do you want to toggle?\n(just hit return to continue with build)\n')
 		if module_id:
 			try:
-				cfg[module_id]
+				_=cfg[module_id]
 			except:
 				print 'Please input a valid module id'
 				continue
@@ -699,6 +694,7 @@ def do_interactive_modules(shutit):
 			# If true, set up config for that module
 			if cfg[module_id]['shutit.core.module.build']:
 				# TODO: does this catch all the ones switched on? Once done, get configs for all those.
+				newcfg_list = []
 				while True:
 					print shutit_util.print_config(cfg,module_id=module_id)
 					name = shutit_util.util_raw_input(prompt='Above is the config for that module. Hit return to continue, or a config item you want to update.\n')
