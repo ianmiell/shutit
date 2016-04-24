@@ -486,13 +486,11 @@ class ShutIt(object):
 				else:
 					self.fail('Follow-on context not handled on pass')
 			return
-		elif result == 'failed':
-			self.cfg['build']['ctrlc_passthrough'] = False
-			return
 		elif result == 'exited':
 			self.cfg['build']['ctrlc_passthrough'] = False
 			return
-		elif result == 'reset':
+		elif result in ('reset','failed'):
+			self.cfg['build']['ctrlc_passthrough'] = False
 			if follow_on_context != {}:
 				if follow_on_context.get('context') == 'docker':
 					container_name = follow_on_context.get('reset_container_name')
