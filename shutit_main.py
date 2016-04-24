@@ -582,14 +582,14 @@ def main():
 	if cfg['action']['list_deps']:
 		# Show dependency graph
 		digraph = 'digraph depgraph {\n'
-		digraph = digraph + '\n'.join([ make_dep_graph(module) for module_id, module in shutit.shutit_map.items() if module_id in cfg and cfg[module_id]['shutit.core.module.build'] ])
-		digraph = digraph + '\n}'
+		digraph += '\n'.join([ make_dep_graph(module) for module_id, module in shutit.shutit_map.items() if module_id in cfg and cfg[module_id]['shutit.core.module.build'] ])
+		digraph += '\n}'
 		f = file(cfg['build']['log_config_path'] + '/digraph.txt','w')
 		f.write(digraph)
 		f.close()
 		digraph_all = 'digraph depgraph {\n'
-		digraph_all = digraph_all + '\n'.join([ make_dep_graph(module) for module_id, module in shutit.shutit_map.items() ])
-		digraph_all = digraph_all + '\n}'
+		digraph_all += '\n'.join([ make_dep_graph(module) for module_id, module in shutit.shutit_map.items() ])
+		digraph_all += '\n}'
 		f = file(cfg['build']['log_config_path'] + '/digraph_all.txt','w')
 		f.write(digraph_all)
 		f.close()
@@ -754,7 +754,7 @@ def setup_signals():
 	signal.signal(signal.SIGINT, shutit_util.ctrl_c_signal_handler)
 	signal.signal(signal.SIGQUIT, shutit_util.ctrl_quit_signal_handler)
 
-shutit_version = '0.9.73'
+shutit_version='0.9.102'
 if __name__ == '__main__':
 	setup_signals()
 	main()

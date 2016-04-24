@@ -222,6 +222,7 @@ class ShutIt(object):
 			else:
 				send_iteration = send_dict[expect_list[res]]
 		self._handle_note_after(note=note)
+		return res
 
 
 	def send_until(self,
@@ -723,7 +724,7 @@ $'"""
 				# store the output
 				if not self._check_exit(send, expect, shutit_pexpect_child, timeout, exit_values, retry=retry):
 					self.log('Sending: ' + send + ' : failed, retrying', level=logging.DEBUG)
-					retry = retry - 1
+					retry -= 1
 					assert(retry > 0)
 					continue
 			break
@@ -894,7 +895,7 @@ $'"""
 			self.log('shutit_pexpect_child.after: ' + str(shutit_pexpect_child.after), level=logging.DEBUG)
 			self.log('Exit value from command: ' + str(send) + ' was:' + res, level=logging.DEBUG)
 			msg = ('\nWARNING: command:\n' + send + '\nreturned unaccepted exit code: ' + res + '\nIf this is expected, pass in check_exit=False or an exit_values array into the send function call.')
-			cfg['build']['report'] = cfg['build']['report'] + msg
+			cfg['build']['report'] += msg
 			if retbool:
 				return False
 			elif cfg['build']['interactive'] >= 1:
@@ -1627,7 +1628,7 @@ $'"""
 					self._check_exit(send, expect, shutit_pexpect_child, timeout, exit_values, retbool=False)
 				elif not self._check_exit(send, expect, shutit_pexpect_child, timeout, exit_values, retbool=True):
 					self.log('Sending: ' + send + ' failed, retrying', level=logging.DEBUG)
-					retry = retry - 1
+					retry -= 1
 					continue
 				# If we get here, all is ok.
 				self._handle_note_after(note=note)
@@ -2236,7 +2237,7 @@ $'"""
 		if install_type == 'apt':
 			if not cfg['build']['apt_update_done']:
 				self.send('apt-get update',loglevel=logging.INFO, delaybeforesend=delaybeforesend)
-			cmd = cmd + 'apt-get install'
+			cmd += 'apt-get install'
 			if 'apt' in options:
 				opts = options['apt']
 			else:
@@ -2248,7 +2249,7 @@ $'"""
 				if reinstall:
 					opts += ' --reinstall'
 		elif install_type == 'yum':
-			cmd = cmd + 'yum install'
+			cmd += 'yum install'
 			if 'yum' in options:
 				opts = options['yum']
 			else:
@@ -2256,19 +2257,19 @@ $'"""
 			if reinstall:
 				opts += ' reinstall'
 		elif install_type == 'apk':
-			cmd = cmd + 'apk add'
+			cmd += 'apk add'
 			if 'apk' in options:
 				opts = options['apk']
 		elif install_type == 'emerge':
-			cmd = cmd + 'emerge'
+			cmd += 'emerge'
 			if 'emerge' in options:
 				opts = options['emerge']
 		elif install_type == 'docker':
-			cmd = cmd + 'docker pull'
+			cmd += 'docker pull'
 			if 'docker' in options:
 				opts = options['docker']
 		elif install_type == 'brew':
-			cmd = 'brew install'
+			cmd += 'brew install'
 			if 'brew' in options:
 				opts = options['brew']
 			else:
@@ -2345,25 +2346,25 @@ $'"""
 			# If this is a src build, we assume it's already installed.
 			return True
 		if install_type == 'apt':
-			cmd = cmd + 'apt-get purge'
+			cmd += 'apt-get purge'
 			opts = options['apt'] if 'apt' in options else '-qq -y'
 		elif install_type == 'yum':
-			cmd = cmd + 'yum erase'
+			cmd += 'yum erase'
 			opts = options['yum'] if 'yum' in options else '-y'
 		elif install_type == 'apk':
-			cmd = cmd + 'apk del'
+			cmd += 'apk del'
 			if 'apk' in options:
 				opts = options['apk']
 		elif install_type == 'emerge':
-			cmd = cmd + 'emerge -cav'
+			cmd += 'emerge -cav'
 			if 'emerge' in options:
 				opts = options['emerge']
 		elif install_type == 'docker':
-			cmd = cmd + 'docker rmi'
+			cmd += 'docker rmi'
 			if 'docker' in options:
 				opts = options['docker']
 		elif install_type == 'brew':
-			cmd = 'brew uninstall'
+			cmd += 'brew uninstall'
 			if 'brew' in options:
 				opts = options['brew']
 			else:
@@ -2882,7 +2883,7 @@ $'"""
 			repository = '%s/%s' % (server, repository)
 
 		if cfg['build']['deps_only']:
-			repo_tag = repo_tag + '_deps'
+			repo_tag += '_deps'
 
 		if cfg['repository']['suffix_date']:
 			suffix_date = time.strftime(cfg['repository']['suffix_format'])

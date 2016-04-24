@@ -3,27 +3,27 @@
 """ShutIt utility functions.
 """
 
-#The MIT License (MIT)
-#
-#Copyright (C) 2014 OpenBet Limited
-#
-#Permission is hereby granted, free of charge, to any person obtaining a copy of
-#this software and associated documentation files (the "Software"), to deal in
-#the Software without restriction, including without limitation the rights to
-#use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
-#of the Software, and to permit persons to whom the Software is furnished to do
-#so, subject to the following conditions:
-#
-#The above copyright notice and this permission notice shall be included in all
-#copies or substantial portions of the Software.
-#
-#THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-#IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-#ITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
-#THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-#LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-#OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-#SOFTWARE.
+# The MIT License (MIT)
+# 
+# Copyright (C) 2014 OpenBet Limited
+# 
+# Permission is hereby granted, free of charge, to any person obtaining a copy of
+# this software and associated documentation files (the "Software"), to deal in
+# the Software without restriction, including without limitation the rights to
+# use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+# of the Software, and to permit persons to whom the Software is furnished to do
+# so, subject to the following conditions:
+# 
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+# 
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# ITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+# THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
 
 import sys
 import argparse
@@ -115,11 +115,13 @@ class LayerConfigParser(ConfigParser.RawConfigParser):
 				self.readfp(fp, filename)
 
 	def remove_section(self, *args, **kwargs):
-		raise NotImplementedError('Layer config parsers aren\'t directly mutable')
+		raise NotImplementedError('''Layer config parsers aren't directly mutable''')
+
 	def remove_option(self, *args, **kwargs):
-		raise NotImplementedError('Layer config parsers aren\'t directly mutable')
+		raise NotImplementedError('''Layer config parsers aren't directly mutable''')
+
 	def set(self, *args, **kwargs):
-		raise NotImplementedError('Layer config parsers aren\'t directly mutable')
+		raise NotImplementedError('''Layer config parsers aren\'t directly mutable''')
 
 def is_file_secure(file_name):
 	"""Returns false if file is considered insecure, true if secure.
@@ -144,7 +146,7 @@ def get_configs(shutit, configs):
 	(in case passwords/sensitive info is in them).
 	"""
 	cfg = shutit.cfg
-	cp       = LayerConfigParser()
+	cp  = LayerConfigParser()
 	fail_str = ''
 	files    = []
 	for config_file in configs:
@@ -475,11 +477,11 @@ def parse_args(shutit):
 			if item == ' ':
 				env_args_list.append('')
 			elif item == '\\ ':
-				env_args_list[-1] = env_args_list[-1] + ' '
+				env_args_list[-1] += ' '
 			elif item == '\\\\':
-				env_args_list[-1] = env_args_list[-1] + '\\'
+				env_args_list[-1] += '\\'
 			else:
-				env_args_list[-1] = env_args_list[-1] + item
+				env_args_list[-1] += item
 		args_list[1:1] = env_args_list
 	args = parser.parse_args(args_list)
 	if args.action == 'version':
@@ -891,7 +893,7 @@ def list_modules(shutit,long_output=None,sort_order=None):
 			k = pair[0]
 			for m in shutit.shutit_modules:
 				if m.module_id == k:
-					count = count + 1
+					count += 1
 					compatible = True
 					if not cfg[m.module_id]['shutit.core.module.build']:
 						cfg[m.module_id]['shutit.core.module.build'] = True
@@ -915,7 +917,7 @@ def list_modules(shutit,long_output=None,sort_order=None):
 		for k in a:
 			for m in shutit.shutit_modules:
 				if m.module_id == k:
-					count = count + 1
+					count = 1
 					compatible = True
 					if not cfg[m.module_id]['shutit.core.module.build']:
 						cfg[m.module_id]['shutit.core.module.build'] = True
@@ -978,7 +980,7 @@ def print_config(cfg, hide_password=True, history=False, module_id=None):
 						p = hashlib.sha512(cfg[k][k1]).hexdigest()
 						i = 27
 						while i > 0:
-							i = i - 1
+							i -= 1
 							p = hashlib.sha512(s).hexdigest()
 						line += p
 					else:
@@ -1601,7 +1603,7 @@ def dockerfile_to_shutit_module_template(shutit,
 	templatemodule += _build_section + build
 	while numpushes > 0:
 		build += '''\n\t\tshutit.send('popd')'''
-		numpushes = numpushes - 1
+		numpushes -= 1
 	templatemodule += '\n\t\treturn True'
 
 	# finalize section
@@ -1627,7 +1629,7 @@ def dockerfile_to_shutit_module_template(shutit,
 		templatemodule += '\n\t\t' + build
 	while numpushes > 0:
 		templatemodule += """\n\t\tshutit.send('popd')"""
-		numpushes      = numpushes - 1
+		numpushes      -= 1
 	templatemodule += '\n\t\treturn True'
 
 	# isinstalled section
@@ -1647,7 +1649,7 @@ def dockerfile_to_shutit_module_template(shutit,
 		templatemodule += '\n\t\t' + build
 	while numpushes > 0:
 		templatemodule += """\n\t\tshutit.send('popd')"""
-		numpushes      = numpushes - 1
+		numpushes      -= 1
 	templatemodule += '\n\t\treturn False'
 
 	# start section
@@ -1667,7 +1669,7 @@ def dockerfile_to_shutit_module_template(shutit,
 		templatemodule += '\n\t\t' + build
 	while numpushes > 0:
 		templatemodule += """\n\t\tshutit.send('popd')"""
-		numpushes      = numpushes - 1
+		numpushes      -= 1
 	templatemodule += '\n\t\treturn True'
 
 	# stop section
@@ -1687,7 +1689,7 @@ def dockerfile_to_shutit_module_template(shutit,
 		templatemodule += '\n\t\t' + build
 	while numpushes > 0:
 		templatemodule += """\n\t\tshutit.send('popd')"""
-		numpushes      = numpushes - 1
+		numpushes      -= 1
 	templatemodule += '\n\t\treturn True'
 
 	# config section
@@ -1724,7 +1726,7 @@ def dockerfile_to_shutit_module_template(shutit,
 		templatemodule += '\n\t\t' + build
 	while numpushes > 0:
 		templatemodule += """\n\t\tshutit.send('popd')"""
-		numpushes      = numpushes - 1
+		numpushes      -= 1
 	templatemodule += '\n\t\treturn True'
 
 	# module section
