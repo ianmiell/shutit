@@ -204,7 +204,7 @@ def random_word(size=6):
 	word_file = find_asset('words')
 	words = open(word_file).read().splitlines()
 	word = ''
-	while len(word) != 6 or word.find("'") > -1:
+	while len(word) != size or word.find("'") > -1:
 		word = words[int(random.random() * (len(words) - 1))]
 	return word.lower()
 
@@ -368,8 +368,8 @@ def get_base_config(cfg, cfg_parser):
 		print("Can't have [target]/rm and [repository]/(push/save/export) set to true")
 		handle_exit(exit_code=1)
 	if warn != '':
-		shutit.log('Showing config as read in. This can also be done by calling with list_configs:',level=logging.WARNING)
-		shutit.log(print_config(cfg), level=logging.WARNING)
+		shutit_global.shutit.log('Showing config as read in. This can also be done by calling with list_configs:',level=logging.WARNING)
+		shutit_global.shutit.log(print_config(cfg), level=logging.WARNING)
 		time.sleep(1)
 	if cfg['target']['hostname'] != '' and cfg['build']['net'] != '' and cfg['build']['net'] != 'bridge':
 		print('\n\ntarget/hostname or build/net configs must be blank\n\n')
@@ -1000,12 +1000,12 @@ def print_config(cfg, hide_password=True, history=False, module_id=None):
 def set_pexpect_child(key, child):
 	"""Set a pexpect child in the global dictionary by key.
 	"""
-	shutit_global.shutit_pexpect_children.update({key:child})
+	shutit_global.shutit.shutit_pexpect_children.update({key:child})
 
 def get_pexpect_child(key):
 	"""Get a pexpect child in the global dictionary by key.
 	"""
-	return shutit_global.shutit_pexpect_children[key]
+	return shutit_global.shutit.shutit_pexpect_children[key]
 
 def load_all_from_path(shutit, path):
 	"""Dynamically imports files within the same directory (in the end, the path).
@@ -1151,10 +1151,11 @@ def create_skeleton(shutit):
 	skel_path        = cfg['skeleton']['path']
 	skel_module_name = cfg['skeleton']['module_name']
 	skel_domain      = cfg['skeleton']['domain']
-	skel_domain_hash = cfg['skeleton']['domain_hash']
-	skel_depends     = cfg['skeleton']['depends']
-	skel_dockerfiles = cfg['skeleton']['dockerfiles']
-	skel_delivery    = cfg['skeleton']['delivery']
+	# TODO: rework these
+	#skel_domain_hash = cfg['skeleton']['domain_hash']
+	#skel_depends     = cfg['skeleton']['depends']
+	#skel_dockerfiles = cfg['skeleton']['dockerfiles']
+	#skel_delivery    = cfg['skeleton']['delivery']
 	# Set up dockerfile cfg
 	cfg['dockerfile']['base_image'] = cfg['skeleton']['base_image']
 	cfg['dockerfile']['cmd']        = """/bin/sh -c 'sleep infinity'"""
@@ -1356,7 +1357,7 @@ def get_wide_hex(char):
 
 
 # CTRL-\ HANDLING CODE STARTS
-def ctrl_quit_signal_handler(signal, frame):
+def ctrl_quit_signal_handler(_,frame):
 	print 'CRTL-\ caught, hard-exiting ShutIt'
 	shutit_frame = get_shutit_frame(frame)
 	if shutit_frame:
@@ -1379,7 +1380,7 @@ def ctrlc_background():
 	in_ctrlc = False
 
 
-def ctrl_c_signal_handler(signal, frame):
+def ctrl_c_signal_handler(_,frame):
 	global ctrl_c_calls
 	ctrl_c_calls += 1
 	if ctrl_c_calls > 10:
@@ -1579,9 +1580,8 @@ def dockerfile_to_shutit_module_template(shutit,
 			local_cfg['dockerfile']['script'].append((docker_command, ''))
 
 	# We now have the script, so let's construct it inline here
-	templatemodule = ''
 	# Header.
-	templatemodule += '\n# Created from dockerfile: ' + skel_dockerfile + '\n# Maintainer:              ' + local_cfg['dockerfile']['maintainer'] + '\nfrom shutit_module import ShutItModule\n\nclass template(ShutItModule):\n\n\tdef is_installed(self, shutit):\n\t\treturn False'
+	templatemodule = '\n# Created from dockerfile: ' + skel_dockerfile + '\n# Maintainer:              ' + local_cfg['dockerfile']['maintainer'] + '\nfrom shutit_module import ShutItModule\n\nclass template(ShutItModule):\n\n\tdef is_installed(self, shutit):\n\t\treturn False'
 
 	# build
 	build     = ''
@@ -1815,7 +1815,9 @@ def handle_dockerfile_line(shutit, dockerfile_command, dockerfile_args, numpushe
 	elif dockerfile_command == 'COMMENT':
 		build += """\n\t\t# """ + ' '.join(dockerfile_args)
 	elif dockerfile_command == 'CONFIG':
-		templatemodule = '\n\t\tshutit.get_config(\'' + skel_module_id + '\',\'' + dockerfile_args[0] + '\'\'\',default=\.' + dockerfile_args[1] + '\'\'\',boolean=' + dockerfile_args[2] + ')'
+		# TODO
+		pass
+		#templatemodule = '\n\t\tshutit.get_config(\'' + skel_module_id + '\',\'' + dockerfile_args[0] + '\'\'\',default=\.' + dockerfile_args[1] + '\'\'\',boolean=' + dockerfile_args[2] + ')'
 	return build, numpushes, wgetgot
 
 
@@ -2100,7 +2102,7 @@ def match_string(string_to_match, regexp):
 		new_lines = new_lines + line.split('\n')
 	lines = new_lines
 	if not check_regexp(regexp):
-		shutit.fail('Illegal regexp found in match_string call: ' + regexp)
+		shutit_global.shutit.fail('Illegal regexp found in match_string call: ' + regexp)
 	for line in lines:
 		match = re.match(regexp, line)
 		if match is not None:

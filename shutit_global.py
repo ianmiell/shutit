@@ -152,13 +152,13 @@ class ShutIt(object):
 		@param level:             Python log level
 		@param transient:         Just write to terminal, no new line
 		"""
+		global cfg
 		if transient:
 			if newline:
 				msg += '\n'
 			sys.stdout.write(msg)
 			return
 		else:
-			cfg = self.cfg
 			logging.log(level,msg)
 			if add_final_message:
 				cfg['build']['report_final_messages'] += msg + '\n'
@@ -253,9 +253,9 @@ class ShutIt(object):
 		@param echo:                 See send()
 		@param note:                 See send()
 		"""
+		global cfg
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
 		expect = expect or self.get_current_shutit_pexpect_session().default_expect
-		cfg = self.cfg
 		self._handle_note(note, command=send + ' until one of these seen: ' + str(regexps))
 		self.log('Sending: "' + send + '" until one of these regexps seen: ' + str(regexps),level=loglevel)
 		if type(regexps) == str:
@@ -505,7 +505,7 @@ class ShutIt(object):
 					if not container_name:
 						self.log('No reset context available, carrying on.',level=logging.DEBUG)
 					else:
-						pexpect.replace_container(container_name)
+						pexpect_session.replace_container(container_name)
 						self.log('State restored.',level=logging.INFO)
 				else:
 					self.fail('Follow-on context not handled on reset')
@@ -554,13 +554,13 @@ class ShutIt(object):
 		@return: The pexpect return value (ie which expected string in the list matched)
 		@rtype: string
 		"""
+		global cfg
 		if type(expect) == dict:
 			return self.multisend(send=send,send_dict=expect,expect=self.get_default_shutit_pexpect_session_expect(),shutit_pexpect_child=shutit_pexpect_child,timeout=timeout,check_exit=check_exit,fail_on_empty_before=fail_on_empty_before,record_command=record_command,exit_values=exit_values,echo=echo,note=note,loglevel=loglevel,delaybeforesend=delaybeforesend)
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
 		expect = expect or self.get_current_shutit_pexpect_session().default_expect
 		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
 		shutit.log('Sending in session: ' + self.get_shutit_pexpect_session_id(shutit_pexpect_child),level=logging.DEBUG)
-		cfg = self.cfg
 		self._handle_note(note, command=str(send), training_input=str(send))
 		if timeout == None:
 			timeout = 3600
@@ -706,7 +706,7 @@ $'"""
 				self.log('shutit_pexpect_child.after>>>' + shutit_pexpect_child.after + '<<<',level=logging.DEBUG,code=32)
 			except:
 				pass
-			if fail_on_empty_before == True:
+			if fail_on_empty_before:
 				if shutit_pexpect_child.before.strip() == '':
 					self.fail('before empty after sending: ' + str(send) + '\n\nThis is expected after some commands that take a password.\nIf so, add fail_on_empty_before=False to the send call.\n\nIf that is not the problem, did you send an empty string to a prompt by mistake?', shutit_pexpect_child=shutit_pexpect_child)
 			elif fail_on_empty_before == False:
@@ -720,7 +720,7 @@ $'"""
 						shutit_pexpect_child.revert_prompt('reset_tmp_prompt', expect)
 			# Last output - remove the first line, as it is the previous command.
 			cfg['build']['last_output'] = '\n'.join(shutit_pexpect_child.before.split('\n')[1:])
-			if check_exit == True:
+			if check_exit:
 				# store the output
 				if not self._check_exit(send, expect, shutit_pexpect_child, timeout, exit_values, retry=retry):
 					self.log('Sending: ' + send + ' : failed, retrying', level=logging.DEBUG)
@@ -755,7 +755,7 @@ $'"""
 
 		@param note:                 See send()
 		"""
-		cfg = self.cfg
+		global cfg
 		if cfg['build']['walkthrough'] and note != None:
 			wait = self.cfg['build']['walkthrough_wait']
 			wrap = '\n' + 80*'=' + '\n'
@@ -804,7 +804,7 @@ $'"""
 				accum_timeout += iteration_s
 			else:
 				return res
-		if timed_out == True and not shutit_util.determine_interactive(self):
+		if timed_out and not shutit_util.determine_interactive(self):
 			self.log('Command timed out, trying to get terminal back for you',code=31, level=logging.DEBUG)
 			self.fail('Timed out and could not recover')
 		else:
@@ -827,7 +827,7 @@ $'"""
 
 
 	def _get_command(self, command):
-		cfg = self.cfg
+		global cfg
 		if command in ('head','md5sum'):
 			if cfg['environment'][cfg['build']['current_environment_id']]['distro'] == 'osx':
 				return '''PATH="/usr/local/opt/coreutils/libexec/gnubin:$PATH" ''' + command + ' '
@@ -842,7 +842,7 @@ $'"""
 
 		Takes a long command, and puts it in an executable file ready to run. Returns the filename.
 		"""
-		cfg = self.cfg
+		global cfg
 		random_id = shutit_util.random_id()
 		fname = cfg['build']['shutit_state_dir_base'] + '/tmp_' + random_id
 		working_str = send
@@ -872,7 +872,7 @@ $'"""
 	                loglevel=logging.DEBUG):
 		"""Internal function to check the exit value of the shell. Do not use.
 		"""
-		cfg = self.cfg
+		global cfg
 		expect = expect or self.get_current_shutit_pexpect_session().default_expect
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
 		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
@@ -928,9 +928,9 @@ $'"""
 		@type script:    string
 		@type in_shell:  boolean
 		"""
+		global cfg
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
 		expect = expect or self.get_current_shutit_pexpect_session().default_expect
-	 	cfg = self.cfg
 		self._handle_note(note, 'Script: ' + str(script))
 		self.log('Running script beginning: "' + string.join(script.split())[:30] + ' [...]', level=logging.INFO)
 		# Trim any whitespace lines from start and end of script, then dedent
@@ -983,10 +983,10 @@ $'"""
 		@type path:         string
 		@type contents:     string
 		"""
+		global cfg
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
 		expect = expect or self.get_current_shutit_pexpect_session().default_expect
 		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
-		cfg = self.cfg
 		self._handle_note(note, 'Sending contents to path: ' + path)
 		# make more efficient by only looking at first 10000 chars, stop when we get to 30 chars rather than reading whole file.
 		split_contents = ''.join((contents[:10000].split()))
@@ -1047,9 +1047,9 @@ $'"""
 		@param timeout:       Timeout on response
 		@param note:          See send()
 		"""
+		global cfg
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
 		expect = expect or self.get_current_shutit_pexpect_session().default_expect
-		cfg = self.cfg
 		self._handle_note(note, 'Changing to path: ' + path)
 		self.log('Changing directory to path: "' + path + '"', level=logging.DEBUG)
 		if cfg['build']['delivery'] in ('bash','dockerfile'):
@@ -1085,10 +1085,10 @@ $'"""
 		@type path:           string
 		@type hostfilepath:   string
 		"""
+		global cfg
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
 		expect = expect or self.get_current_shutit_pexpect_session().default_expect
 		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
-		cfg = self.cfg
 		self._handle_note(note, 'Sending file from host: ' + hostfilepath + ' to target path: ' + path)
 		self.log('Sending file from host: ' + hostfilepath + ' to: ' + path, level=loglevel)
 		if user == None:
@@ -1686,9 +1686,9 @@ $'"""
 
 		@rtype:           boolean
 		"""
+		global cfg
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
 		expect = expect or self.get_current_shutit_pexpect_session().default_expect
-		cfg = self.cfg
 		self._handle_note(note)
 		if cfg['environment'][cfg['build']['current_environment_id']]['install_type'] == 'apt':
 			#            v the space is intentional, to avoid polluting bash history.
@@ -1711,9 +1711,9 @@ $'"""
 	                      note=None,
 	                      delaybeforesend=0,
 	                      loglevel=logging.DEBUG):
+		global cfg
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
 		expect = expect or self.get_current_shutit_pexpect_session().default_expect
-		cfg = self.cfg
 		self._handle_note(note)
 		if self.send_and_get_output('command -v ' + command, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend) != '':
 			return True
@@ -1733,7 +1733,7 @@ $'"""
 		"""
 		# If it's already in cache, then return True.
 		# By default the cache is invalidated.
-		cfg = self.cfg
+		global cfg
 		self._handle_note(note)
 		if cfg['environment'][cfg['build']['current_environment_id']]['modules_recorded_cache_valid'] == False:
 			if self.file_exists(cfg['build']['build_db_dir'] + '/module_record',directory=True):
@@ -1777,14 +1777,14 @@ $'"""
 		# cleanout garbage from the terminal - all of this is necessary cause there are
 		# random return characters in the middle of the file names
 		files = filter(bool, files)
-		files = [file.strip() for file in files]
+		files = [_file.strip() for _file in files]
 		f = []
-		for file in files:
-			spl = file.split('\r')
+		for _file in files:
+			spl = _file.split('\r')
 			f = f + spl
 		files = f
 		# this is required again to remove the '\n's
-		files = [file.strip() for file in files]
+		files = [_file.strip() for _file in files]
 		self._handle_note_after(note=note)
 		return files
 
@@ -1807,8 +1807,8 @@ $'"""
 		@return:           boolean
 		@rtype:            string
 		"""
+		global cfg
 		filename = os.path.basename(target_path)
-		cfg = self.cfg
 		self._handle_note(note)
 		# Only handle for docker initially, return false in case we care
 		if cfg['build']['delivery'] != 'docker':
@@ -1816,7 +1816,7 @@ $'"""
 		# on the host, run:
 		#Usage:  docker cp [OPTIONS] CONTAINER:PATH LOCALPATH|-
 		# Need: host env, container id, path from and path to
-		child     = self.get_shutit_pexpect_session_from_id('host_child').pexpect_child
+		shutit_pexpect_child     = self.get_shutit_pexpect_session_from_id('host_child').pexpect_child
 		expect    = cfg['expect_prompts']['origin_prompt']
 		self.send('docker cp ' + cfg['target']['container_id'] + ':' + target_path + ' ' + host_path, shutit_pexpect_child=shutit_pexpect_child, expect=expect, check_exit=False, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
 		self._handle_note_after(note=note)
@@ -1841,7 +1841,7 @@ $'"""
 		@return: the value entered by the user
 		@rtype:  string
 		"""
-		cfg = self.cfg
+		global cfg
 		cfgstr        = '[%s]/%s' % (sec, name)
 		config_parser = cfg['config_parser']
 		usercfg       = os.path.join(cfg['shutit_home'], 'config')
@@ -1901,8 +1901,8 @@ $'"""
 	def step_through(self, msg='', shutit_pexpect_child=None, level=1, print_input=True, value=True):
 		"""Implements a step-through function, using pause_point.
 		"""
+		global cfg
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
-		cfg = self.cfg
 		if (not shutit_util.determine_interactive(self) or not cfg['build']['interactive'] or
 			cfg['build']['interactive'] < level):
 			return
@@ -1948,6 +1948,7 @@ $'"""
 
 		@return:             True if pause point handled ok, else false
 		"""
+		global cfg
 		ok=True
 		try:
 			shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
@@ -1958,7 +1959,6 @@ $'"""
 			self.log('Exception caught in pause_point, exiting',transient=True)
 			shutit_util.handle_exit(exit_code=1)
 		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
-		cfg = self.cfg
 		if (not shutit_util.determine_interactive(self) or cfg['build']['interactive'] < 1 or
 			cfg['build']['interactive'] < level):
 			return
@@ -2004,7 +2004,7 @@ $'"""
 	def _pause_input_filter(self, input_string):
 		"""Input filter for pause point to catch special keystrokes"""
 		# Can get errors with eg up/down chars
-		cfg = self.cfg
+		global cfg
 		if len(input_string) == 1:
 			# Picked CTRL-u as the rarest one accepted by terminals.
 			if ord(input_string) == 21 and cfg['build']['delivery'] == 'docker':
@@ -2045,7 +2045,7 @@ $'"""
 
 
 	def handle_pause_point_signals(self):
-		cfg = self.cfg
+		global cfg
 		if cfg['SHUTIT_SIGNAL']['ID'] == 29:
 			cfg['SHUTIT_SIGNAL']['ID'] = 0
 			self.log('\r\nCTRL-] caught, continuing with run...',level=logging.INFO,transient=True)
@@ -2124,6 +2124,7 @@ $'"""
 		@type retry:     integer
 		@type strip:     boolean
 		"""
+		global cfg
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
 		expect = expect or self.get_current_shutit_pexpect_session().default_expect
 		self._handle_note(note, command=str(send))
@@ -2131,11 +2132,10 @@ $'"""
 		# Don't check exit, as that will pollute the output. Also, it's quite likely the submitted command is intended to fail.
 		self.send(self._get_send_command(send), shutit_pexpect_child=shutit_pexpect_child, expect=expect, check_exit=False, retry=retry, echo=echo, timeout=timeout, record_command=record_command, loglevel=loglevel, fail_on_empty_before=fail_on_empty_before, delaybeforesend=delaybeforesend)
 		before = shutit_pexpect_child.before
-		if preserve_newline == True and before[-1] == '\n':
+		if preserve_newline and before[-1] == '\n':
 			preserve_newline = True
 		else:
 			preserve_newline = False
-		cfg = self.cfg
 		# Correct problem with first char in OSX.
 		try:
 			if cfg['environment'][cfg['build']['current_environment_id']]['distro'] == 'osx':
@@ -2204,18 +2204,18 @@ $'"""
 		@return: True if all ok (ie it's installed), else False.
 		@rtype: boolean
 		"""
+		global cfg
 		# If separated by spaces, install separately
-		if package.find(' ') != -1:
-			ok = True
-			for p in package.split(' '):
-				if not self.install(p,child,expect,options,timeout,force,check_exit,reinstall,note):
-					ok = False
-			return ok
-		# Some packages get mapped to the empty string. If so, bail out with 'success' here.
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
 		expect = expect or self.get_current_shutit_pexpect_session().default_expect
 		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
-		cfg = self.cfg
+		if package.find(' ') != -1:
+			ok = True
+			for p in package.split(' '):
+				if not self.install(p,shutit_pexpect_child,expect,options,timeout,force,check_exit,reinstall,note):
+					ok = False
+			return ok
+		# Some packages get mapped to the empty string. If so, bail out with 'success' here.
 		self._handle_note(note)
 				
 		self.log('Installing package: ' + package,level=loglevel)
@@ -2324,14 +2324,14 @@ $'"""
 		         False otherwise.
 		@rtype: boolean
 		"""
+		global cfg
 		# If separated by spaces, remove separately
 		if package.find(' ') != -1:
 			for p in package.split(' '):
-				self.install(p,child,expect,options,timeout,force,check_exit,reinstall,note)
+				self.install(p,shutit_pexpect_child,expect,options,timeout,check_exit,note)
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
 		expect = expect or self.get_current_shutit_pexpect_session().default_expect
 		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
-		cfg = self.cfg
 		self._handle_note(note)
 		if options is None: options = {}
 		install_type = cfg['environment'][cfg['build']['current_environment_id']]['install_type']
@@ -2388,12 +2388,12 @@ $'"""
 		@param user:    username we are getting password for
 		@param msg:     message to put out there
 		"""
+		global cfg
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
 		expect = expect or self.get_current_shutit_pexpect_session().default_expect
 		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
 		self._handle_note(note)
 		user = user or shutit_pexpect_session.whoami()
-		cfg = self.cfg
 		msg = msg or 'Please input the sudo password for user: ' + user
 		# Test for the existence of the data structure.
 		try:
@@ -2485,16 +2485,16 @@ $'"""
 	               delaybeforesend=0,
 	               note=None):
 		"""Returns memory available for use in k as an int"""
+		global cfg
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
 		old_expect = expect or self.get_current_shutit_pexpect_session().default_expect
-		cfg = self.cfg
 		self._handle_note(note)
 		if cfg['environment'][cfg['build']['current_environment_id']]['distro'] == 'osx':
 			memavail = self.send_and_get_output("""vm_stat | grep ^Pages.free: | awk '{print $3}' | tr -d '.'""",shutit_pexpect_child=shutit_pexpect_child,expect=expect,timeout=3,echo=False, loglevel=loglevel,delaybeforesend=delaybeforesend)
 			memavail = int(memavail)
 			memavail *= 4
 		else:
-			memavail = self.send_and_get_output("""cat /proc/meminfo  | grep MemAvailable | awk '{print $2}'""",shutit_pexpect_child=shutit_pexpect_child,expect=expect,timeout=3,echo=False, loglevel=logevel,delaybeforesend=delaybeforesend)
+			memavail = self.send_and_get_output("""cat /proc/meminfo  | grep MemAvailable | awk '{print $2}'""",shutit_pexpect_child=shutit_pexpect_child,expect=expect,timeout=3,echo=False, loglevel=loglevel,delaybeforesend=delaybeforesend)
 			if memavail == '':
 				memavail = self.send_and_get_output("""free | grep buffers.cache | awk '{print $3}'""",shutit_pexpect_child=shutit_pexpect_child,expect=expect,timeout=3,echo=False, loglevel=loglevel,delaybeforesend=delaybeforesend)
 			memavail = int(memavail)
@@ -2523,11 +2523,11 @@ $'"""
 
 		@type container:    boolean
 		"""
+		global cfg
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
 		install_type   = ''
 		distro         = ''
 		distro_version = ''
-		cfg = self.cfg
 		cfg['environment'][environment_id]['install_type']      = ''
 		cfg['environment'][environment_id]['distro']            = ''
 		cfg['environment'][environment_id]['distro_version']    = ''
@@ -2735,23 +2735,23 @@ $'"""
 		@param shutit_pexpect_child:       See send()
 		@param note:        See send()
 		"""
+		global cfg
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
 		expect = expect or self.get_current_shutit_pexpect_session().default_expect
 		self._handle_note(note)
 		self.install('passwd')
-		cfg = self.cfg
 		if cfg['environment'][cfg['build']['current_environment_id']]['install_type'] == 'apt':
-			self.send('passwd ' + user, expect='Enter new', shutit_pexpect_child=shutit_pexpect_child, check_exit=False, loglevel=loglevel,delaybeforesend=delaybeforesend)
-			self.send(password, shutit_pexpect_child=shutit_pexpect_child, expect='Retype new', check_exit=False, echo=False, loglevel=loglevel,delaybeforesend=delaybeforesend)
-			self.send(password, shutit_pexpect_child=shutit_pexpect_child, expect=expect, echo=False, loglevel=loglevel,delaybeforesend=delaybeforesend)
+			self.send('passwd ' + user, expect='Enter new', shutit_pexpect_child=shutit_pexpect_child, check_exit=False, delaybeforesend=delaybeforesend)
+			self.send(password, shutit_pexpect_child=shutit_pexpect_child, expect='Retype new', check_exit=False, echo=False, delaybeforesend=delaybeforesend)
+			self.send(password, shutit_pexpect_child=shutit_pexpect_child, expect=expect, echo=False, delaybeforesend=delaybeforesend)
 		elif cfg['environment'][cfg['build']['current_environment_id']]['install_type'] == 'yum':
-			self.send('passwd ' + user, shutit_pexpect_child=shutit_pexpect_child, expect='ew password', check_exit=False,loglevel=loglevel,delaybeforesend=delaybeforesend)
-			self.send(password, shutit_pexpect_child=shutit_pexpect_child, expect='ew password', check_exit=False, echo=False, loglevel=loglevel,delaybeforesend=delaybeforesend)
-			self.send(password, shutit_pexpect_child=shutit_pexpect_child, expect=expect, echo=False, loglevel=loglevel,delaybeforesend=delaybeforesend)
+			self.send('passwd ' + user, shutit_pexpect_child=shutit_pexpect_child, expect='ew password', check_exit=False,delaybeforesend=delaybeforesend)
+			self.send(password, shutit_pexpect_child=shutit_pexpect_child, expect='ew password', check_exit=False, echo=False, delaybeforesend=delaybeforesend)
+			self.send(password, shutit_pexpect_child=shutit_pexpect_child, expect=expect, echo=False, delaybeforesend=delaybeforesend)
 		else:
-			self.send('passwd ' + user, expect='Enter new', shutit_pexpect_child=shutit_pexpect_child, check_exit=False, loglevel=loglevel,delaybeforesend=delaybeforesend)
-			self.send(password, shutit_pexpect_child=shutit_pexpect_child, expect='Retype new', check_exit=False, echo=False, loglevel=loglevel,delaybeforesend=delaybeforesend)
-			self.send(password, shutit_pexpect_child=shutit_pexpect_child, expect=expect, echo=False, loglevel=loglevel,delaybeforesend=delaybeforesend)
+			self.send('passwd ' + user, expect='Enter new', shutit_pexpect_child=shutit_pexpect_child, check_exit=False, delaybeforesend=delaybeforesend)
+			self.send(password, shutit_pexpect_child=shutit_pexpect_child, expect='Retype new', check_exit=False, echo=False, delaybeforesend=delaybeforesend)
+			self.send(password, shutit_pexpect_child=shutit_pexpect_child, expect=expect, echo=False, delaybeforesend=delaybeforesend)
 		self._handle_note_after(note=note)
 
 
@@ -2803,9 +2803,9 @@ $'"""
 		@type repository:           string
 		@type docker_executable:    string
 		"""
+		global cfg
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
 		expect = expect or self.get_current_shutit_pexpect_session().default_expect
-		cfg = self.cfg
 		send = docker_executable + ' push ' + repository
 		expect_list = ['Username', 'Password', 'Email', expect]
 		timeout = 99999
@@ -2817,7 +2817,7 @@ $'"""
 			elif res == 0:
 				res = self.send(cfg['repository']['user'], shutit_pexpect_child=shutit_pexpect_child, expect=expect_list, timeout=timeout, check_exit=False, fail_on_empty_before=False, loglevel=loglevel,delaybeforesend=delaybeforesend)
 			elif res == 1:
-				res = self.send(cfg['repository']['password'], shutit_pexpect_child=shutit_pexpect_child, expect=expect_list, timeout=timeout, check_exit=False, fail_on_empty_before=Falsel,loglevel=loglevel,delaybeforesend=delaybeforesend)
+				res = self.send(cfg['repository']['password'], shutit_pexpect_child=shutit_pexpect_child, expect=expect_list, timeout=timeout, check_exit=False, fail_on_empty_before=False,loglevel=loglevel,delaybeforesend=delaybeforesend)
 			elif res == 2:
 				res = self.send(cfg['repository']['email'], shutit_pexpect_child=shutit_pexpect_child, expect=expect_list, timeout=timeout, check_exit=False, fail_on_empty_before=False, loglevel=loglevel,delaybeforesend=delaybeforesend)
 
@@ -2845,8 +2845,8 @@ $'"""
 		@type password:             string
 		@type force:                boolean
 		"""
+		global cfg
 		expect = expect or self.get_current_shutit_pexpect_session().default_expect
-		cfg = self.cfg
 		tag    = cfg['repository']['tag']
 		push   = cfg['repository']['push']
 		export = cfg['repository']['export']
@@ -2858,7 +2858,7 @@ $'"""
 			else:
 				return
 
-		child     = self.get_shutit_pexpect_session_from_id('host_child')
+		shutit_pexpect_child = self.get_shutit_pexpect_session_from_id('host_child')
 		expect    = cfg['expect_prompts']['origin_prompt']
 		server    = cfg['repository']['server']
 		repo_user = cfg['repository']['user']
@@ -2927,7 +2927,7 @@ $'"""
 				self.log('Run: bunzip2 -c ' + bzfile + ' | sudo docker import - to get this imported into docker.', level=logging.DEBUG)
 				cfg['build']['report'] += ('\nDeposited bzip2 of exported container into ' + bzfile)
 				cfg['build']['report'] += ('\nRun:\n\nbunzip2 -c ' + bzfile + ' | sudo docker import -\n\nto get this imported into docker.')
-		if cfg['repository']['push'] == True:
+		if cfg['repository']['push']:
 			# Pass the child explicitly as it's the host child.
 			self.push_repository(repository, docker_executable=docker_executable, expect=expect, shutit_pexpect_child=shutit_pexpect_child)
 			cfg['build']['report'] = (cfg['build']['report'] + '\nPushed repository: ' + repository)
@@ -2988,7 +2988,6 @@ $'"""
 		@type forcenone:     boolean
 		@type hint:          string
 		"""
-		cfg = self.cfg
 		if module_id not in cfg.keys():
 			cfg[module_id] = {}
 		if not cfg['config_parser'].has_section(module_id):
@@ -2999,7 +2998,7 @@ $'"""
 			else:
 				cfg[module_id][option] = cfg['config_parser'].get(module_id, option)
 		else:
-			if forcenone != True:
+			if not forcenone:
 				if cfg['build']['interactive'] > 0:
 					if cfg['build']['accept_defaults'] == None:
 						answer = None
@@ -3011,7 +3010,7 @@ $'"""
 							cfg['build']['accept_defaults'] = True
 						else:
 							cfg['build']['accept_defaults'] = False
-					if cfg['build']['accept_defaults'] == True and default != None:
+					if cfg['build']['accept_defaults'] and default != None:
 						cfg[module_id][option] = default
 					else:
 						# util_raw_input may change the interactive level, so guard for this.
@@ -3077,7 +3076,7 @@ $'"""
 	def record_config(self, loglevel=logging.DEBUG):
 		""" Put the config in a file in the target.
 		"""
-		cfg = self.cfg
+		global cfg
 
 
 	def get_emailer(self, cfg_section):
@@ -3174,6 +3173,7 @@ def init():
 	# http://stackoverflow.com/questions/5137497
 	shutit_main_dir = os.path.abspath(os.path.dirname(__file__))
 	cwd = os.getcwd()
+	global cfg
 	cfg = {}
 	cfg['SHUTIT_SIGNAL']                  = {}
 	cfg['action']                         = {}
@@ -3206,7 +3206,6 @@ def init():
 			if os.getlogin() != '':
 				cfg['host']['username'] = os.getlogin()
 		except Exception:
-			import getpass
 			cfg['host']['username'] = getpass.getuser()
 		if cfg['host']['username'] == '':
 			shutit_global.shutit.fail('LOGNAME not set in the environment, ' + 'and login unavailable in python; ' + 'please set to your username.', throw_exception=False)
