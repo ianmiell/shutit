@@ -149,14 +149,12 @@ class ConnDocker(ShutItConnModule):
 		return True
 
 
-	def destroy_container(self, shutit, host_shutit_session_name, container_shutit_session_name, loglevel=logging.DEBUG):
+	def destroy_container(self, shutit, host_shutit_session_name, container_shutit_session_name, container_id, loglevel=logging.DEBUG):
 		cfg = shutit.cfg
-		# TODO: container id in session
-		container_id = cfg['target']['container_id']
 		# Close connection.
 		shutit.get_shutit_pexpect_session_from_id(container_shutit_session_name).pexpect_child.close()
 		host_child = shutit.get_shutit_pexpect_session_from_id(host_shutit_session_name).pexpect_child
-		shutit.send(' docker rm -f ' + container_id + ' && rm -f ' + cfg['build']['cidfile'],child=host_child,expect=cfg['expect_prompts']['origin_prompt'],loglevel=loglevel)
+		shutit.send(' docker rm -f ' + container_id + ' && rm -f ' + cfg['build']['cidfile'],shutit_pexpect_child=host_child,expect=cfg['expect_prompts']['origin_prompt'],loglevel=loglevel)
 
 
 	def start_container(self, shutit, shutit_session_name, loglevel=logging.DEBUG):

@@ -52,7 +52,6 @@ class ShutItPexpectSession(object):
 		"""spawn a child, and manage the delaybefore send setting to 0
 		"""
 		self.check_exit          = True
-		self.expected            = [shutit.cfg['expect_prompts']['base_prompt']]
 		self.default_expect      = [shutit.cfg['expect_prompts']['base_prompt']]
 		self.pexpect_session_id  = pexpect_session_id
 		self.login_stack         = []
@@ -107,7 +106,9 @@ class ShutItPexpectSession(object):
 		                              codec_errors=codec_errors,
 		                              dimensions=dimensions)
 		pexpect_child.delaybeforesend=delaybeforesend
+		self.shutit_object.log('sessions before: ' + str(self.shutit_object.shutit_pexpect_sessions),level=logging.DEBUG)
 		self.shutit_object.shutit_pexpect_sessions.update({self.pexpect_session_id:self})
+		self.shutit_object.log('sessions after: ' + str(self.shutit_object.shutit_pexpect_sessions),level=logging.DEBUG)
 		return pexpect_child
 
 
@@ -237,7 +238,6 @@ class ShutItPexpectSession(object):
 	def setup_prompt(self,
 	                 prompt_name,
 	                 prefix='default',
-	                 set_default_expect=True,
 	                 delaybeforesend=0,
 	                 loglevel=logging.DEBUG):
 		"""Use this when you've opened a new shell to set the PS1 to something
@@ -262,12 +262,10 @@ class ShutItPexpectSession(object):
 		@param prompt_name:         Reference name for prompt.
 		@param prefix:              Prompt prefix. Default: 'default'
 		@param shutit_pexpect_child:               See send()
-		@param set_default_expect:  Whether to set the default expect
 		                            to the new prompt. Default: True
 		
 		@type prompt_name:          string
 		@type prefix:               string
-		@type set_default_expect:   boolean
 		"""
 		local_prompt = prefix + '#' + shutit_util.random_id() + '> '
 		cfg = self.shutit_object.cfg
@@ -280,11 +278,10 @@ class ShutItPexpectSession(object):
 		# and times out very frequently. This workaround seems to work, but I
 		# haven't figured out why yet - imiell.
 		self.shutit_object.send((" export SHUTIT_BACKUP_PS1_%s=$PS1 && PS1='%s' && unset PROMPT_COMMAND && stty sane && stty cols " + str(cfg['build']['stty_cols'])) % (prompt_name, local_prompt), expect=['\r\n' + cfg['expect_prompts'][prompt_name]], fail_on_empty_before=False, timeout=5, shutit_pexpect_child=self.pexpect_child, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
-		if set_default_expect:
-		    self.shutit_object.log('Resetting default expect to: ' + cfg['expect_prompts'][prompt_name],level=logging.DEBUG)
-		    self.shutit_object.set_default_shutit_pexpect_session_expect(cfg['expect_prompts'][prompt_name])
+		self.shutit_object.log('Resetting default expect to: ' + cfg['expect_prompts'][prompt_name],level=logging.DEBUG)
+		self.default_expect = cfg['expect_prompts'][prompt_name]
 		# Ensure environment is set up OK.
-		self.setup_environment(prefix,shutit_pexpect_child=self.pexpect_child)
+		self.setup_environment(prefix)
 
 
 	def revert_prompt(self,
@@ -307,7 +304,7 @@ class ShutItPexpectSession(object):
 		if not new_expect:
 			self.shutit_object.log('Resetting default expect to default',level=logging.DEBUG)
 			self.set_default_shutit_pexpect_session_expect()
-		self.setup_environment(shutit_pexpect_child=self.pexpect_child)
+		self.setup_environment()
 
 
 	def send(self, string, delaybeforesend=0):
@@ -348,37 +345,24 @@ class ShutItPexpectSession(object):
 				break
 		if conn_module is None:
 			shutit.fail('''Couldn't find conn_module ''' + cfg['build']['conn_module'])
-		conn_module.destroy_container(self, 'host_child', 'target_child')
+		container_id = cfg['target']['container_id']
+		conn_module.destroy_container(self.shutit_object, 'host_child', 'target_child', container_id)
 		
 		# Start up a new container.
 		cfg['target']['docker_image'] = new_target_image_name
-		target_child = conn_module.start_container(shutit,shutit_pexpect_child_id)
+		target_child = conn_module.start_container(shutit,self.pexpect_session_id)
+		conn_module.setup_target_child(shutit, target_child)
 
-		# We then need to set up:
-		#      - default_expect (root one)
-		#      - default_child (new one)
-		#      - login_stack (login with bash)
-		# MAKING SURE: root shell has correct prompt
-
-		# CLEAR:
-		# default expect
-		# default child
-		# login stack
-		#self.get_shutit_pexpect_session_from_id(shutit_pexpect_child_id) = None
-
-		# SET UP:
 		# set the target child up
 		self.pexpect_child = target_child
-		#self._default_child = [target_child]
+		shutit.log('z',level=logging.DEBUG)
+		shutit.log(self.default_expect,level=logging.DEBUG)
 		
 		# set up the prompt on startup
-		self.expected = [cfg['expect_prompts']['base_prompt']]
+		self.default_expect = [cfg['expect_prompts']['base_prompt']]
 		self.setup_prompt('root')
 		self.login_stack_append('root')
-
 		# Log in and let ShutIt take care of the prompt.
-		# We need to do this as we are mid-module build function and it is
-		# expected to be two layers in.
 		# Don't go home in case the workdir is different in the docker image!
 		self.login(command='bash',go_home=False)
 		return
@@ -413,8 +397,6 @@ class ShutItPexpectSession(object):
 
 	def setup_environment(self,
 	                      prefix,
-	                      expect=None,
-	                      shutit_pexpect_child=None,
 	                      delaybeforesend=0,
 	                      loglevel=logging.DEBUG):
 		"""If we are in a new environment then set up a new data structure.
@@ -423,11 +405,11 @@ class ShutItPexpectSession(object):
 		If we are not in a new environment ensure the env_id is correct.
 		Returns the environment id every time.
 		"""
-		shutit_pexpect_child = shutit_pexpect_child or self.pexpect_child
-		expect = expect or self.default_expect
+		# Set this to be the default session.
+		self.shutit_object.set_default_shutit_pexpect_session(self)
 		cfg = self.shutit_object.cfg
 		environment_id_dir = cfg['build']['shutit_state_dir'] + '/environment_id'
-		if self.shutit_object.file_exists(environment_id_dir,expect=expect,shutit_pexpect_child=shutit_pexpect_child,directory=True):
+		if self.shutit_object.file_exists(environment_id_dir,directory=True):
 			files = self.shutit_object.ls(environment_id_dir)
 			if len(files) != 1 or type(files) != list:
 				if len(files) == 2 and (files[0] == 'ORIGIN_ENV' or files[1] == 'ORIGIN_ENV'):
@@ -455,7 +437,7 @@ class ShutItPexpectSession(object):
 					environment_id = files[0]
 			if cfg['build']['current_environment_id'] != environment_id:
 				# Clean out any trace of this new environment, and return the already-existing one.
-				self.shutit_object.send(' rm -rf ' + environment_id_dir + '/environment_id/' + environment_id, shutit_pexpect_child=shutit_pexpect_child, expect=expect, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
+				self.shutit_object.send(' rm -rf ' + environment_id_dir + '/environment_id/' + environment_id, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
 				return cfg['build']['current_environment_id']
 			if not environment_id == 'ORIGIN_ENV':
 				return environment_id
@@ -479,7 +461,7 @@ class ShutItPexpectSession(object):
 		if prefix != 'ORIGIN_ENV':
 			self.shutit_object.get_distro_info(environment_id)
 		fname = environment_id_dir + '/' + environment_id
-		self.shutit_object.send(' mkdir -p ' + environment_id_dir + ' && chmod -R 777 ' + cfg['build']['shutit_state_dir_base'] + ' && touch ' + fname, shutit_pexpect_child=shutit_pexpect_child, expect=expect, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
+		self.shutit_object.send(' mkdir -p ' + environment_id_dir + ' && chmod -R 777 ' + cfg['build']['shutit_state_dir_base'] + ' && touch ' + fname, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
 		cfg['environment'][environment_id]['setup']                        = True
 		return environment_id
 
