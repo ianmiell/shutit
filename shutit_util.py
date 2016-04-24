@@ -25,40 +25,41 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-import sys
-import argparse
-import os
-import stat
 import ConfigParser
-import time
-import re
-import imp
-import shutit_global
-from shutit_module import ShutItModule
-import pexpect
-import socket
-import textwrap
-import json
-import binascii
-import base64
-import subprocess
-import getpass
 import StringIO
+import argparse
+import base64
+import binascii
+import getpass
 import glob
 import hashlib
-import urlparse
-import urllib2
-import shutil
-from shutit_module import ShutItFailException
-import operator
-import threading
-import string
-import random
-import texttable
-import readline
-import jinja2
+import imp
+import json
 import logging
+import operator
+import os
+import random
+import re
+import readline
+import shutil
+import socket
+import stat
+import string
+import sys
+import textwrap
+import threading
+import time
+import urllib2
+import urlparse
+
+import jinja2
+import pexpect
+import texttable
+
+import shutit_global
 import shutit_main
+from shutit_module import ShutItFailException
+from shutit_module import ShutItModule
 
 
 class LayerConfigParser(ConfigParser.RawConfigParser):
@@ -304,7 +305,7 @@ def get_base_config(cfg, cfg_parser):
 	# Signals are set here, which is useful for context-switching callbacks.
 	cfg['SHUTIT_SIGNAL']['ID']                 = 0
 	# Take a command-line arg if given, else default.
-	if cfg['build']['conn_module'] == None:
+	if cfg['build']['conn_module'] is None:
 		cfg['build']['conn_module']            = cp.get('build', 'conn_module')
 	# Track logins in a stack and details in logins.
 	cfg['build']['login_stack']                = []
@@ -538,7 +539,7 @@ vagrant_multinode: a vagrant multinode setup
 			template_branch = args.template_branch
 
 		# Sort out delivery method.
-		if args.delivery == None:
+		if args.delivery is None:
 			if template_branch == 'docker':
 				default_delivery = 'docker'
 			else:
@@ -615,7 +616,7 @@ vagrant_multinode: a vagrant multinode setup
 		cfg['list_modules']['sort'] = args.sort
 
 	# What are we building on? Convert arg to conn_module we use.
-	if args.delivery == 'docker' or args.delivery == None:
+	if args.delivery == 'docker' or args.delivery is None:
 		cfg['build']['conn_module'] = 'shutit.tk.conn_docker'
 		cfg['build']['delivery']    = 'docker'
 	elif args.delivery == 'ssh':
@@ -625,10 +626,10 @@ vagrant_multinode: a vagrant multinode setup
 		cfg['build']['conn_module'] = 'shutit.tk.conn_bash'
 		cfg['build']['delivery']    = args.delivery
 	# If the image_tag has been set then ride roughshod over the ignoreimage value if not supplied
-	if args.image_tag != '' and args.ignoreimage == None:
+	if args.image_tag != '' and args.ignoreimage is None:
 		args.ignoreimage = True
 	# If ignoreimage is still not set, then default it to False
-	if args.ignoreimage == None:
+	if args.ignoreimage is None:
 		args.ignoreimage = False
 
 	# Get these early for this part of the build.
@@ -769,12 +770,12 @@ def load_configs(shutit):
 	"""
 	cfg = shutit.cfg
 	# Get root default config.
-	configs = [('defaults', StringIO.StringIO(_default_cnf))]
+	configs = [('defaults', StringIO.StringIO(_default_cnf)), os.path.join(shutit.shutit_main_dir,
+																		   'configs/' + socket.gethostname() + '_' +
+																		   cfg['host']['real_user'] + '.cnf'),
+			   os.path.join(cfg['shutit_home'], 'config'), 'configs/build.cnf']
 	# Add the shutit global host- and user-specific config file.
-	configs.append(os.path.join(shutit.shutit_main_dir, 'configs/' + socket.gethostname() + '_' + cfg['host']['real_user'] + '.cnf'))
-	configs.append(os.path.join(cfg['shutit_home'], 'config'))
 	# Add the local build.cnf
-	configs.append('configs/build.cnf')
 	# Get passed-in config(s)
 	for config_file_name in cfg['build']['extra_configs']:
 		run_config_file = os.path.expanduser(config_file_name)
@@ -867,9 +868,9 @@ def list_modules(shutit,long_output=None,sort_order=None):
 	# list of module ids and other details
 	# will also contain column headers
 	table_list = []
-	if long_output == None:
+	if long_output is None:
 		long_output = cfg['list_modules']['long']
-	if sort_order == None:
+	if sort_order is None:
 		sort_order = cfg['list_modules']['sort']
 	if long_output:
 		# --long table: sort modules by run order
@@ -913,7 +914,6 @@ def list_modules(shutit,long_output=None,sort_order=None):
 		for m in shutit.shutit_modules:
 			a.append(m.module_id)
 		a.sort()
-		count = 0
 		for k in a:
 			for m in shutit.shutit_modules:
 				if m.module_id == k:
@@ -964,7 +964,7 @@ def print_config(cfg, hide_password=True, history=False, module_id=None):
 	if keys1:
 		keys1.sort()
 	for k in keys1:
-		if module_id != None and k != module_id:
+		if module_id is not None and k != module_id:
 			continue
 		if type(k) == str and type(cfg[k]) == dict:
 			s += '\n[' + k + ']\n'
@@ -1017,7 +1017,7 @@ def load_all_from_path(shutit, path):
 		return
 	if not os.path.exists(path):
 		return
-	if os.path.exists(path + '/STOPBUILD') and not cfg['build']['ignorestop']:
+	if os.path.exists(path + '/STOPBUILD') and not shutit.cfg['build']['ignorestop']:
 		shutit.log('Ignoring directory: ' + path + ' as it has a STOPBUILD file in it. Pass --ignorestop to shutit run to override.',level=logging.DEBUG)
 		return
 	for sub in glob.glob(os.path.join(path, '*')):
@@ -1129,7 +1129,7 @@ def get_commands(shutit):
 	return s
 
 
-def get_hash(string):
+def get_hash(string_to_hash):
 	"""Helper function to get preceding integer
 	eg com.openbet == 1003189494
 	>>> import binascii
@@ -1138,7 +1138,7 @@ def get_hash(string):
 
 	Recommended means of determining run order integer part.
 	"""
-	return abs(binascii.crc32(string))
+	return abs(binascii.crc32(string_to_hash))
 
 
 def create_skeleton(shutit):
@@ -1289,7 +1289,6 @@ def util_raw_input(shutit=None, prompt='', default=None, ispass=False, use_readl
 		except:
 			pass
 		readline.parse_and_bind('tab: complete')
-	msg = ''
 	prompt = '\r\n' + prompt
 	sanitize_terminal()
 	if shutit and shutit.cfg['build']['interactive'] == 0:
@@ -1320,14 +1319,14 @@ def determine_interactive(shutit=None):
 	"""
 	try:
 		if not sys.stdout.isatty() or os.getpgrp() != os.tcgetpgrp(sys.stdout.fileno()):
-			if shutit != None:
+			if shutit is not None:
 				set_noninteractive(shutit)
 			return False
 	except Exception:
-		if shutit != None:
+		if shutit is not None:
 			set_noninteractive(shutit,msg='Problems determining interactivity, assuming not.')
 		return False
-	if shutit != None:
+	if shutit is not None:
 		if shutit.cfg['build']['interactive'] == 0:
 			return False
 	return True
@@ -1445,11 +1444,11 @@ def print_frame_recurse(frame):
 
 
 def check_regexp(regex):
-	if regex == None:
+	if regex is None:
 		# Is this ok?
 		return True
 	try:
-		re.compile(regex);
+		re.compile(regex)
 		result = True
 	except re.error:
 		result = False
@@ -1488,8 +1487,7 @@ def dockerfile_to_shutit_module_template(shutit,
 		# Change to this context
 		os.chdir(dockerfile_dirname)
 	# Wipe the command as we expect one in the file.
-	local_cfg = {}
-	local_cfg['dockerfile'] = {}
+	local_cfg = {'dockerfile': {}}
 	local_cfg['dockerfile']['cmd']        = ''
 	local_cfg['dockerfile']['maintainer'] = ''
 	local_cfg['dockerfile']['module_id']  = ''
@@ -1734,7 +1732,7 @@ def dockerfile_to_shutit_module_template(shutit,
 	for item in local_cfg['dockerfile']['depends']:
 		dockerfile_depends.append(item[1])
 	if len(dockerfile_depends):
-		depends = "'" + skel_depends + "','" + ("','").join(dockerfile_depends) + "'"
+		depends = "'" + skel_depends + "','" + "','".join(dockerfile_depends) + "'"
 	else:
 		depends = "'" + skel_depends + "'"
 		
@@ -1744,13 +1742,13 @@ def dockerfile_to_shutit_module_template(shutit,
 				description='',
 				delivery_methods=[('""" + skel_delivery + """')],
 				maintainer='""" + local_cfg['dockerfile']['maintainer'] + """',
-				depends=[%s""" % (depends) + """]
+				depends=[%s""" % depends + """]
 		)\n"""
 
 	# Return program to main shutit_dir
 	if dockerfile_dirname:
 		os.chdir(sys.path[0])
-	return (templatemodule, module_id)
+	return templatemodule, module_id
 
 
 def handle_dockerfile_line(shutit, dockerfile_command, dockerfile_args, numpushes, wgetgot):
@@ -1760,7 +1758,7 @@ def handle_dockerfile_line(shutit, dockerfile_command, dockerfile_args, numpushe
 		build += """\n\t\tshutit.send('""" + cmd + """')"""
 	elif dockerfile_command == 'WORKDIR':
 		build += """\n\t\tshutit.send('pushd """ + cmd + """',echo=False)"""
-		numpushes = numpushes + 1
+		numpushes += 1
 	elif dockerfile_command == 'COPY' or dockerfile_command == 'ADD':
 		# The <src> path must be inside the context of the build; you cannot COPY ../something /something, because the first step of a docker build is to send the context directory (and subdirectories) to the docker daemon.
 		if dockerfile_args[0][0:1] == '..' or dockerfile_args[0][0] == '/' or dockerfile_args[0][0] == '~':
@@ -1817,8 +1815,8 @@ def handle_dockerfile_line(shutit, dockerfile_command, dockerfile_args, numpushe
 	elif dockerfile_command == 'COMMENT':
 		build += """\n\t\t# """ + ' '.join(dockerfile_args)
 	elif dockerfile_command == 'CONFIG':
-		templatemodule += '\n\t\tshutit.get_config(\'' + skel_module_id + '\',\'' + dockerfile_args[0] + '\'\'\',default=\.' + dockerfile_args[1] + '\'\'\',boolean=' + dockerfile_args[2] + ')'
-	return (build,numpushes,wgetgot)
+		templatemodule = '\n\t\tshutit.get_config(\'' + skel_module_id + '\',\'' + dockerfile_args[0] + '\'\'\',default=\.' + dockerfile_args[1] + '\'\'\',boolean=' + dockerfile_args[2] + ')'
+	return build, numpushes, wgetgot
 
 
 # Get the section of the dockerfile we are in.
@@ -1849,23 +1847,25 @@ def allowed_module_ids(shutit, rev=False):
 	"""Gets a list of module ids that are allowed to be run, guaranteed to be sorted by run_order, ignoring conn modules (run order < 0).
 	"""
 	module_ids_list = module_ids(shutit,rev)
-	allowed_module_ids = []
+	_allowed_module_ids = []
 	for module_id in module_ids_list:
 		if allowed_image(shutit,module_id):
-			allowed_module_ids.append(module_id)
-	return allowed_module_ids
+			_allowed_module_ids.append(module_id)
+	return _allowed_module_ids
 
 
 def print_modules(shutit):
 	"""Returns a string table representing the modules in the ShutIt module map.
 	"""
 	cfg = shutit.cfg
-	string = ''
-	string = string + 'Modules: \n'
-	string = string + '    Run order    Build    Remove    Module ID\n'
+	module_string = ''
+	module_string += 'Modules: \n'
+	module_string += '    Run order    Build    Remove    Module ID\n'
 	for module_id in module_ids(shutit):
-		string = string + ('    ' + str(shutit.shutit_map[module_id].run_order) + '        ' + str(cfg[module_id]['shutit.core.module.build']) + '    ' + str(cfg[module_id]['shutit.core.module.remove']) + '    ' + module_id + '\n')
-	return string
+		module_string += '    ' + str(shutit.shutit_map[module_id].run_order) + '        ' + str(
+			cfg[module_id]['shutit.core.module.build']) + '    ' + str(
+			cfg[module_id]['shutit.core.module.remove']) + '    ' + module_id + '\n'
+	return module_string
 
 
 def config_collection(shutit):
@@ -1915,11 +1915,11 @@ def disallowed_module_ids(shutit, rev=False):
 	"""Gets a list of disallowed module ids that are not allowed to be run, guaranteed to be sorted by run_order, ignoring conn modules (run order < 0).
 	"""
 	module_ids_list = module_ids(shutit,rev)
-	disallowed_module_ids = []
+	_disallowed_module_ids = []
 	for module_id in module_ids_list:
 		if not allowed_image(shutit,module_id):
-			disallowed_module_ids.append(module_id)
-	return disallowed_module_ids
+			_disallowed_module_ids.append(module_id)
+	return _disallowed_module_ids
 
 
 def is_to_be_built_or_is_installed(shutit, shutit_module_obj):
@@ -2007,7 +2007,6 @@ def is_installed(shutit, shutit_module_obj):
 	"""Returns true if this module is installed.
 	Uses cache where possible.
 	"""
-	cfg = shutit.cfg
 	# Cache first
 	cfg = shutit.cfg
 	if shutit_module_obj.module_id in cfg['environment'][cfg['build']['current_environment_id']]['modules_installed']:
@@ -2028,7 +2027,6 @@ def is_installed(shutit, shutit_module_obj):
 def allowed_image(shutit,module_id):
 	"""Given a module id and a shutit object, determine whether the image is allowed to be built.
 	"""
-	cfg = shutit.cfg
 	shutit.log("In allowed_image: " + module_id,level=logging.DEBUG)
 	cfg = shutit.cfg
 	if cfg['build']['ignoreimage']:
@@ -2074,15 +2072,15 @@ def sanitize_terminal():
 	os.system('stty sane')
 
 
-def match_string(string, regexp):
+def match_string(string_to_match, regexp):
 	"""Get regular expression from the first of the lines passed
 	in in string that matched. Handles first group of regexp as
 	a return value.
 	
-	@param string: String to match on
+	@param string_to_match: String to match on
 	@param regexp: Regexp to check (per-line) against string
 	
-	@type string: string
+	@type string_to_match: string
 	@type regexp: string
 	
 	Returns None if none of the lines matched.
@@ -2090,9 +2088,9 @@ def match_string(string, regexp):
 	Returns True if there are no groups selected in the regexp.
 	else returns matching group (ie non-None)
 	"""
-	if type(string) != str:
+	if type(string_to_match) != str:
 		return None
-	lines = string.split('\r\n')
+	lines = string_to_match.split('\r\n')
 	# sometimes they're separated by just a carriage return...
 	new_lines = []
 	for line in lines:
@@ -2105,7 +2103,7 @@ def match_string(string, regexp):
 		shutit.fail('Illegal regexp found in match_string call: ' + regexp)
 	for line in lines:
 		match = re.match(regexp, line)
-		if match != None:
+		if match is not None:
 			if len(match.groups()) > 0:
 				return match.group(1)
 			else:
