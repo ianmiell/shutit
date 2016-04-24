@@ -2056,8 +2056,6 @@ def handle_exit(shutit=None,exit_code=0,loglevel=logging.DEBUG,msg=None):
 			shutit.log('Resetting terminal',level=loglevel)
 	sanitize_terminal()
 	sys.exit(exit_code)
-	# If we are still here, there was a problem, so take stronger measures
-	os._exit(1)
 
 
 def sendline(child,
