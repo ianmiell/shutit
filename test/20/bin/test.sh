@@ -1,0 +1,2 @@
+pushd ..
+../../shutit -d bash "$@"
