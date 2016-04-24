@@ -1,30 +1,29 @@
-#The MIT License (MIT)
-#
-#Copyright (C) 2014 OpenBet Limited
-#
-#Permission is hereby granted, free of charge, to any person obtaining a copy of
-#this software and associated documentation files (the "Software"), to deal in
-#the Software without restriction, including without limitation the rights to
-#use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
-#of the Software, and to permit persons to whom the Software is furnished to do
-#so, subject to the following conditions:
-#
-#The above copyright notice and this permission notice shall be included in all
-#copies or substantial portions of the Software.
-#
-#THE SOFeWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-#IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-#ITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
-#THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-#LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-#OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-#SOFTWARE.
+# The MIT License (MIT)
+# 
+# Copyright (C) 2014 OpenBet Limited
+# 
+# Permission is hereby granted, free of charge, to any person obtaining a copy of
+# this software and associated documentation files (the "Software"), to deal in
+# the Software without restriction, including without limitation the rights to
+# use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+# of the Software, and to permit persons to whom the Software is furnished to do
+# so, subject to the following conditions:
+# 
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+# 
+# THE SOFeWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# ITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+# THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
 """Represents and manages a pexpect object for ShutIt's purposes.
 """
 
 import pexpect
 import shutit_util
-import shutit_setup
 import logging
 import string
 
@@ -110,8 +109,6 @@ class ShutItPexpectSession(object):
 		self.shutit_object.shutit_pexpect_sessions.update({self.pexpect_session_id:self})
 		self.shutit_object.log('sessions after: ' + str(self.shutit_object.shutit_pexpect_sessions),level=logging.DEBUG)
 		return pexpect_child
-
-
 
 
 	def login(self,
@@ -207,10 +204,9 @@ class ShutItPexpectSession(object):
 			@param command:		 Command to run to log out (default=exit)
 			@param note:			See send()
 		"""
-		old_expect = expect or self.default_expect
 		self.shutit_object._handle_note(note,training_input=command)
 		if len(self.login_stack):
-			current_prompt_name = self.login_stack.pop()
+			_ = self.login_stack.pop()
 			if len(self.login_stack):
 				old_prompt_name	 = self.login_stack[-1]
 				# TODO: sort out global expect_prompts
@@ -220,7 +216,7 @@ class ShutItPexpectSession(object):
 				# set up in shutit_setup.py
 				self.shutit_object.set_default_shutit_pexpect_session_expect()
 		else:
-			self.fail('Logout called without corresponding login', throw_exception=False)
+			self.shutit_object.fail('Logout called without corresponding login', throw_exception=False)
 		# No point in checking exit here, the exit code will be
 		# from the previous command from the logged in session
 		self.shutit_object.send(command, shutit_pexpect_child=self.pexpect_child, expect=expect, check_exit=False, timeout=timeout,echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
@@ -228,10 +224,7 @@ class ShutItPexpectSession(object):
 
 
 	def login_stack_append(self,
-						   r_id,
-						   expect=None,
-						   new_user=''):
-		child = self.pexpect_child
+						   r_id):
 		self.login_stack.append(r_id)
 
 
@@ -287,8 +280,7 @@ class ShutItPexpectSession(object):
 	def revert_prompt(self,
 	                  old_prompt_name,
 	                  new_expect=None,
-	                  delaybeforesend=0,
-	                  shutit_pexpect_child=None):
+	                  delaybeforesend=0):
 		"""Reverts the prompt to the previous value (passed-in).
 		
 		It should be fairly rare to need this. Most of the time you would just
@@ -298,13 +290,13 @@ class ShutItPexpectSession(object):
 		    - new_expect      -
 		    - child           - See send()
 		"""
-		expect = expect or self.default_expect
+		expect = new_expect or self.default_expect
 		#     v the space is intentional, to avoid polluting bash history.
 		self.shutit_object.send((' PS1="${SHUTIT_BACKUP_PS1_%s}" && unset SHUTIT_BACKUP_PS1_%s') % (old_prompt_name, old_prompt_name), expect=expect, check_exit=False, fail_on_empty_before=False, echo=False, loglevel=logging.DEBUG,delaybeforesend=delaybeforesend)
 		if not new_expect:
 			self.shutit_object.log('Resetting default expect to default',level=logging.DEBUG)
-			self.set_default_shutit_pexpect_session_expect()
-		self.setup_environment()
+			self.shutit_object.set_default_shutit_pexpect_session_expect()
+		self.setup_environment(old_prompt_name)
 
 
 	def send(self, string, delaybeforesend=0):
@@ -329,8 +321,7 @@ class ShutItPexpectSession(object):
 
 
 	def replace_container(self,
-	                      new_target_image_name,
-	                      delaybeforesend=0):
+	                      new_target_image_name):
 		"""Replaces a container. Assumes we are in Docker context
 		"""
 		shutit = self.shutit_object
@@ -369,7 +360,6 @@ class ShutItPexpectSession(object):
 
 
 	def whoami(self,
-	           expect=None,
 	           note=None,
 	           delaybeforesend=0,
 	           loglevel=logging.DEBUG):
@@ -420,7 +410,7 @@ class ShutItPexpectSession(object):
 							# Workaround for CygWin terminal issues. If the envid isn't in the cfg item
 							# Then crudely assume it is. This will drop through and then assume we are in the origin env.
 							try:
-								cfg['environment'][cfg['build']['current_environment_id']]
+								_=cfg['environment'][cfg['build']['current_environment_id']]
 							except Exception:
 								cfg['build']['current_environment_id'] = 'ORIGIN_ENV'
 							break
