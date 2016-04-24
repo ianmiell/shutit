@@ -1906,7 +1906,7 @@ $'"""
 			cfg['build']['interactive'] < level):
 			return
 		cfg['build']['step_through'] = value
-		self.pause_point(msg, shutit_pexpect_child=shutit_pexpect_child, print_input=print_input, level=level, resize=False)
+		self.pause_point(msg, shutit_pexpect_child=shutit_pexpect_child, print_input=print_input, level=level)
 
 
 	def pause_point(self,
@@ -3136,7 +3136,6 @@ $'"""
 			shutit.fail('Wrong type in get_shutit_pexpect_session_id',throw_exception=True)
 		for key in self.shutit_pexpect_sessions:
 			if self.shutit_pexpect_sessions[key].pexpect_child == shutit_pexpect_child:
-				#print self.shutit_pexpect_sessions[key].pexpect_child
 				return key
 		shutit.fail('Should not get here in get_shutit_pexpect_session_id',throw_exception=True)
 

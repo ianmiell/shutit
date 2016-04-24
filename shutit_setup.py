@@ -310,7 +310,7 @@ class ConnBash(ShutItConnModule):
 		"""Sets up the machine ready for building.
 		"""
 		cfg = shutit.cfg
-		shutit_pexpect_session = shutit_pexpect.ShutItPexpectSession(shutit,'host_child','/bin/bash')
+		shutit_pexpect_session = shutit_pexpect.ShutItPexpectSession(shutit,'target_child','/bin/bash')
 		target_child = shutit_pexpect_session.pexpect_child
 		shutit_pexpect_session.expect(cfg['expect_prompts']['base_prompt'].strip(), timeout=10)
 		self.setup_host_child(shutit)
