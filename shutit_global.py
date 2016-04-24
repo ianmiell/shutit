@@ -25,7 +25,6 @@
 
 import sys
 import os
-import shutil
 import socket
 import time
 import shutit_util
@@ -40,9 +39,7 @@ import pexpect
 import md5
 from shutit_module import ShutItFailException
 import logging
-import shutit_main
 import shutit_assets
-import shutit_pexpect
 
 
 class ShutIt(object):
@@ -144,7 +141,7 @@ class ShutIt(object):
 			shutit_util.handle_exit(exit_code=1)
 
 
-	def log(self, msg, code=None, add_final_message=False, level=logging.INFO, transient=False, newline=True):
+	def log(self, msg, add_final_message=False, level=logging.INFO, transient=False, newline=True):
 		"""Logging function.
 
 		@param code:              Colour code for logging.
@@ -233,10 +230,7 @@ class ShutIt(object):
 	               shutit_pexpect_child=None,
 	               cadence=5,
 	               retries=100,
-	               fail_on_empty_before=True,
-	               record_command=True,
 	               echo=False,
-	               escape=False,
 	               note=None,
 	               delaybeforesend=0,
 	               loglevel=logging.INFO):
@@ -356,7 +350,7 @@ class ShutIt(object):
 				if send in ('help','h'):
 					if len(hints):
 						self.log(help_text,transient=True)
-						self.log(shutit_util.colour('32',hints.pop(0)),transient=True)
+						self.log(shutit_util.colour('32',hints.pop()),transient=True)
 					else:
 						self.log(help_text,transient=True)
 						self.log(shutit_util.colour('32','No hints left, sorry!'),transient=True)
@@ -594,7 +588,7 @@ class ShutIt(object):
 				else:
 					check_exit = True
 		ok_to_record = False
-		if echo == False and record_command == None:
+		if not echo and record_command == None:
 			record_command = False
 		if record_command == None or record_command:
 			ok_to_record = True
@@ -612,9 +606,9 @@ class ShutIt(object):
 		if send != None:
 			self.log('Sending: ' + send,level=loglevel)
 		if send != None:
-			self.log('================================================================================',level=logging.DEBUG,code=32)
-			self.log('Sending>>>' + send + '<<<',level=logging.DEBUG,code=31)
-			self.log('Expecting>>>' + str(expect) + '<<<',level=logging.DEBUG,code=32)
+			self.log('================================================================================',level=logging.DEBUG)
+			self.log('Sending>>>' + send + '<<<',level=logging.DEBUG)
+			self.log('Expecting>>>' + str(expect) + '<<<',level=logging.DEBUG)
 		# Don't echo if echo passed in as False
 		while retry > 0:
 			if escape:
@@ -633,14 +627,14 @@ $'"""
 						_count = 0
 				escaped_str += "'"
 				self.log('This string was sent safely: ' + send, level=logging.DEBUG)
-			if echo == False:
+			if not echo:
 				oldlog = shutit_pexpect_child.logfile_send
 				shutit_pexpect_child.logfile_send = None
 				if escape:
 					# 'None' escaped_str's are possible from multisends with nothing to send.
 					if escaped_str != None:
 						if len(escaped_str) + 25 > cfg['build']['stty_cols']:
-							fname = self._create_command_file(shutit_pexpect_child,expect,escaped_str,timeout)
+							fname = self._create_command_file(shutit_pexpect_child,expect,escaped_str)
 							res = self.send(fname,expect=expect,shutit_pexpect_child=shutit_pexpect_child,timeout=timeout,check_exit=check_exit,fail_on_empty_before=False,record_command=False,exit_values=exit_values,echo=False,escape=False,retry=retry,loglevel=loglevel, delaybeforesend=delaybeforesend)
 							shutit_pexpect_session.sendline('rm -f ' + fname,delaybeforesend=delaybeforesend)
 							shutit_pexpect_session.expect(expect)
@@ -653,7 +647,7 @@ $'"""
 				else:
 					if send != None:
 						if len(send) + 25 > cfg['build']['stty_cols']:
-							fname = self._create_command_file(shutit_pexpect_child,expect,send,timeout)
+							fname = self._create_command_file(shutit_pexpect_child,expect,send)
 							res = self.send(fname,expect=expect,shutit_pexpect_child=shutit_pexpect_child,timeout=timeout,check_exit=check_exit,fail_on_empty_before=False,record_command=False,exit_values=exit_values,echo=False,escape=False,retry=retry,loglevel=loglevel, delaybeforesend=delaybeforesend)
 							shutit_pexpect_session.sendline('rm -f ' + fname,delaybeforesend=delaybeforesend)
 							shutit_pexpect_child.expect(expect)
@@ -668,7 +662,7 @@ $'"""
 				if escape:
 					if escaped_str != None:
 						if len(escaped_str) + 25 > cfg['build']['stty_cols']:
-							fname = self._create_command_file(shutit_pexpect_child,expect,escaped_str,timeout)
+							fname = self._create_command_file(shutit_pexpect_child,expect,escaped_str)
 							res = self.send(fname,expect=expect,shutit_pexpect_child=shutit_pexpect_child,timeout=timeout,check_exit=check_exit,fail_on_empty_before=False,record_command=False,exit_values=exit_values,echo=False,escape=False,retry=retry,loglevel=loglevel, delaybeforesend=delaybeforesend)
 							shutit_pexpect_session.sendline('rm -f ' + fname,delaybeforesend=delaybeforesend)
 							shutit_pexpect_child.expect(expect)
@@ -681,7 +675,7 @@ $'"""
 				else:
 					if send != None:
 						if len(send) + 25 > cfg['build']['stty_cols']:
-							fname = self._create_command_file(shutit_pexpect_child,expect,send,timeout)
+							fname = self._create_command_file(shutit_pexpect_child,expect,send)
 							res = self.send(fname,expect=expect,shutit_pexpect_child=shutit_pexpect_child,timeout=timeout,check_exit=check_exit,fail_on_empty_before=False,record_command=False,exit_values=exit_values,echo=False,escape=False,retry=retry,loglevel=loglevel, delaybeforesend=delaybeforesend)
 							shutit_pexpect_session.sendline('rm -f ' + fname,delaybeforesend=delaybeforesend)
 							shutit_pexpect_child.expect(expect)
@@ -702,14 +696,14 @@ $'"""
 				logged_output = logged_output.replace('\r','')
 				logged_output = logged_output[:30] + ' [...]'
 				self.log('Output (squashed): ' + logged_output,level=loglevel)
-				self.log('shutit_pexpect_child.before>>>' + shutit_pexpect_child.before + '<<<',level=logging.DEBUG,code=31)
-				self.log('shutit_pexpect_child.after>>>' + shutit_pexpect_child.after + '<<<',level=logging.DEBUG,code=32)
+				self.log('shutit_pexpect_child.before>>>' + shutit_pexpect_child.before + '<<<',level=logging.DEBUG)
+				self.log('shutit_pexpect_child.after>>>' + shutit_pexpect_child.after + '<<<',level=logging.DEBUG)
 			except:
 				pass
 			if fail_on_empty_before:
 				if shutit_pexpect_child.before.strip() == '':
 					self.fail('before empty after sending: ' + str(send) + '\n\nThis is expected after some commands that take a password.\nIf so, add fail_on_empty_before=False to the send call.\n\nIf that is not the problem, did you send an empty string to a prompt by mistake?', shutit_pexpect_child=shutit_pexpect_child)
-			elif fail_on_empty_before == False:
+			elif not fail_on_empty_before:
 				# Don't check exit if fail_on_empty_before is False
 				self.log('' + shutit_pexpect_child.before + '<<<', level=logging.DEBUG)
 				check_exit = False
@@ -722,7 +716,7 @@ $'"""
 			cfg['build']['last_output'] = '\n'.join(shutit_pexpect_child.before.split('\n')[1:])
 			if check_exit:
 				# store the output
-				if not self._check_exit(send, expect, shutit_pexpect_child, timeout, exit_values, retry=retry):
+				if not self._check_exit(send, expect=expect, shutit_pexpect_child=shutit_pexpect_child, exit_values=exit_values, retry=retry):
 					self.log('Sending: ' + send + ' : failed, retrying', level=logging.DEBUG)
 					retry -= 1
 					assert(retry > 0)
@@ -805,7 +799,7 @@ $'"""
 			else:
 				return res
 		if timed_out and not shutit_util.determine_interactive(self):
-			self.log('Command timed out, trying to get terminal back for you',code=31, level=logging.DEBUG)
+			self.log('Command timed out, trying to get terminal back for you', level=logging.DEBUG)
 			self.fail('Timed out and could not recover')
 		else:
 			if shutit_util.determine_interactive(self):
@@ -837,7 +831,7 @@ $'"""
 
 
 	# TODO: move this
-	def _create_command_file(self, shutit_pexpect_child, expect, send, timeout):
+	def _create_command_file(self, shutit_pexpect_child, expect, send):
 		"""Internal function. Do not use.
 
 		Takes a long command, and puts it in an executable file ready to run. Returns the filename.
@@ -865,18 +859,16 @@ $'"""
 	                send,
 	                expect=None,
 	                shutit_pexpect_child=None,
-	                timeout=3600,
 	                exit_values=None,
 	                retry=0,
-	                retbool=False,
-	                loglevel=logging.DEBUG):
+	                retbool=False):
 		"""Internal function to check the exit value of the shell. Do not use.
 		"""
 		global cfg
 		expect = expect or self.get_current_shutit_pexpect_session().default_expect
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
 		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
-		if shutit_pexpect_session.check_exit == False:
+		if not shutit_pexpect_session.check_exit:
 			self.log('check_exit configured off, returning', level=logging.DEBUG)
 			return
 		if exit_values is None:
@@ -1384,7 +1376,7 @@ $'"""
 				new_text = ftext[:loc] + ftext[loc+len(text)+1:]
 		else:
 			if pattern != None:
-				if line_oriented == False:
+				if not line_oriented:
 					if not shutit_util.check_regexp(pattern):
 						shutit.fail('Illegal regexp found in change_text call: ' + pattern)
 					# cf: http://stackoverflow.com/questions/9411041/matching-ranges-of-lines-in-python-like-sed-ranges
@@ -1481,21 +1473,21 @@ $'"""
 		self.change_text(text=text, fname=fname, pattern=pattern, expect=expect, shutit_pexpect_child=shutit_pexpect_child, before=before, force=force, note=note, line_oriented=line_oriented, create=create, replace=replace, delete=False, loglevel=loglevel)
 
 
-	def delete_text(self, text, fname, pattern=None, expect=None, shutit_pexpect_child=None, before=False, force=False, note=None, line_oriented=True, loglevel=logging.DEBUG):
+	def delete_text(self, text, fname, pattern=None, expect=None, shutit_pexpect_child=None, before=False, force=False, line_oriented=True, loglevel=logging.DEBUG):
 		"""Delete a chunk of text from a file.
 		See insert_text.
 		"""
 		return self.change_text(text, fname, pattern, expect, shutit_pexpect_child, before, force, delete=True, line_oriented=line_oriented, loglevel=loglevel)
 
 
-	def replace_text(self, text, fname, pattern=None, expect=None, shutit_pexpect_child=None, before=False, force=False, note=None, line_oriented=True, loglevel=logging.DEBUG):
+	def replace_text(self, text, fname, pattern=None, expect=None, shutit_pexpect_child=None, before=False, force=False, line_oriented=True, loglevel=logging.DEBUG):
 		"""Replace a chunk of text from a file.
 		See insert_text.
 		"""
 		return self.change_text(text, fname, pattern, expect, shutit_pexpect_child, before, force, line_oriented=line_oriented, replace=True, loglevel=loglevel)
 
 
-	def add_line_to_file(self, line, filename, expect=None, shutit_pexpect_child=None, match_regexp=None, force=False, literal=False, note=None, loglevel=logging.DEBUG):
+	def add_line_to_file(self, line, filename, expect=None, shutit_pexpect_child=None, match_regexp=None, loglevel=logging.DEBUG):
 		"""Deprecated.
 
 		Use replace/insert_text instead.
@@ -1532,7 +1524,7 @@ $'"""
 				this_match_regexp = line
 			else:
 				this_match_regexp = match_regexp
-			if not self.replace_text(line, filename, pattern=this_match_regexp, shutit_pexpect_child=shutit_pexpect_child, expect=expect, note=note, loglevel=loglevel):
+			if not self.replace_text(line, filename, pattern=this_match_regexp, shutit_pexpect_child=shutit_pexpect_child, expect=expect, loglevel=loglevel):
 				fail = True
 		if fail:
 			return False
@@ -1568,12 +1560,11 @@ $'"""
 	            locations,
 	            command='curl',
 	            expect=None,
-	            child=None,
+	            shutit_pexpect_child=None,
 	            timeout=3600,
 	            fail_on_empty_before=True,
 	            record_command=True,
 	            exit_values=None,
-	            echo=False,
 	            retry=3,
 	            note=None,
 	            delaybeforesend=0,
@@ -1735,7 +1726,7 @@ $'"""
 		# By default the cache is invalidated.
 		global cfg
 		self._handle_note(note)
-		if cfg['environment'][cfg['build']['current_environment_id']]['modules_recorded_cache_valid'] == False:
+		if not cfg['environment'][cfg['build']['current_environment_id']]['modules_recorded_cache_valid']:
 			if self.file_exists(cfg['build']['build_db_dir'] + '/module_record',directory=True):
 				# Bit of a hack here to get round the long command showing up as the first line of the output.
 				cmd = 'find ' + cfg['build']['build_db_dir'] + r"""/module_record/ -name built | sed 's@^.""" + cfg['build']['build_db_dir'] + r"""/module_record.\([^/]*\).built@\1@' > """ + cfg['build']['build_db_dir'] + '/' + cfg['build']['build_id']
@@ -1808,7 +1799,6 @@ $'"""
 		@rtype:            string
 		"""
 		global cfg
-		filename = os.path.basename(target_path)
 		self._handle_note(note)
 		# Only handle for docker initially, return false in case we care
 		if cfg['build']['delivery'] != 'docker':
@@ -1919,8 +1909,7 @@ $'"""
 	                colour='32',
 	                default_msg=None,
 	                wait=-1,
-	                delaybeforesend=0,
-	                loglevel=logging.INFO):
+	                delaybeforesend=0):
 		"""Inserts a pause in the build session, which allows the user to try
 		things out before continuing. Ignored if we are not in an interactive
 		mode, or the interactive level is less than the passed-in one.
@@ -2081,7 +2070,6 @@ $'"""
 		"""
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
 		expect = expect or self.get_current_shutit_pexpect_session().default_expect
-		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
 		self._handle_note(note)
 		self.log('Matching output from: "' + send + '" to one of these regexps:' + str(matches),level=logging.INFO)
 		output = self.send_and_get_output(send, shutit_pexpect_child=shutit_pexpect_child, retry=retry, strip=strip, echo=echo, loglevel=loglevel, delaybeforesend=delaybeforesend)
@@ -2328,7 +2316,7 @@ $'"""
 		# If separated by spaces, remove separately
 		if package.find(' ') != -1:
 			for p in package.split(' '):
-				self.install(p,shutit_pexpect_child,expect,options,timeout,check_exit,note)
+				self.install(p,shutit_pexpect_child=shutit_pexpect_child,expect=expect,options=options,timeout=timeout,note=note)
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
 		expect = expect or self.get_current_shutit_pexpect_session().default_expect
 		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
@@ -2375,9 +2363,9 @@ $'"""
 		# Get mapped package.
 		package = package_map.map_package(package, cfg['environment'][cfg['build']['current_environment_id']]['install_type'])
 		if pw != '':
-			self.multisend('%s %s %s' % (cmd, opts, package), {'assword:':pw}, shutit_pexpect_child=shutit_pexpect_child, expect=expect, timeout=timeout, exit_values=['0','100'], loglevel=loglevel)
+			self.multisend('%s %s %s' % (cmd, opts, package), {'assword:':pw}, shutit_pexpect_child=shutit_pexpect_child, expect=expect, timeout=timeout, exit_values=['0','100'])
 		else:
-			self.send('%s %s %s' % (cmd, opts, package), shutit_pexpect_child=shutit_pexpect_child, expect=expect, timeout=timeout, exit_values=['0','100'], loglevel=loglevel, delaybeforesend=delaybeforesend)
+			self.send('%s %s %s' % (cmd, opts, package), shutit_pexpect_child=shutit_pexpect_child, expect=expect, timeout=timeout, exit_values=['0','100'], delaybeforesend=delaybeforesend)
 		self._handle_note_after(note=note)
 		return True
 
@@ -2397,11 +2385,11 @@ $'"""
 		msg = msg or 'Please input the sudo password for user: ' + user
 		# Test for the existence of the data structure.
 		try:
-			cfg['environment'][cfg['build']['current_environment_id']][user]
+			_=cfg['environment'][cfg['build']['current_environment_id']][user]
 		except:
 			cfg['environment'][cfg['build']['current_environment_id']][user] = {}
 		try:
-			cfg['environment'][cfg['build']['current_environment_id']][user]['password']
+			_=cfg['environment'][cfg['build']['current_environment_id']][user]['password']
 		except Exception:
 			# Try and get input, if we are not interactive, this should fail.
 			cfg['environment'][cfg['build']['current_environment_id']][user]['password'] = shutit.get_input(msg,ispass=True)
@@ -2487,16 +2475,15 @@ $'"""
 		"""Returns memory available for use in k as an int"""
 		global cfg
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
-		old_expect = expect or self.get_current_shutit_pexpect_session().default_expect
 		self._handle_note(note)
 		if cfg['environment'][cfg['build']['current_environment_id']]['distro'] == 'osx':
-			memavail = self.send_and_get_output("""vm_stat | grep ^Pages.free: | awk '{print $3}' | tr -d '.'""",shutit_pexpect_child=shutit_pexpect_child,expect=expect,timeout=3,echo=False, loglevel=loglevel,delaybeforesend=delaybeforesend)
+			memavail = self.send_and_get_output("""vm_stat | grep ^Pages.free: | awk '{print $3}' | tr -d '.'""",shutit_pexpect_child=shutit_pexpect_child,expect=expect,timeout=3,echo=False, delaybeforesend=delaybeforesend)
 			memavail = int(memavail)
 			memavail *= 4
 		else:
-			memavail = self.send_and_get_output("""cat /proc/meminfo  | grep MemAvailable | awk '{print $2}'""",shutit_pexpect_child=shutit_pexpect_child,expect=expect,timeout=3,echo=False, loglevel=loglevel,delaybeforesend=delaybeforesend)
+			memavail = self.send_and_get_output("""cat /proc/meminfo  | grep MemAvailable | awk '{print $2}'""",shutit_pexpect_child=shutit_pexpect_child,expect=expect,timeout=3,echo=False, delaybeforesend=delaybeforesend)
 			if memavail == '':
-				memavail = self.send_and_get_output("""free | grep buffers.cache | awk '{print $3}'""",shutit_pexpect_child=shutit_pexpect_child,expect=expect,timeout=3,echo=False, loglevel=loglevel,delaybeforesend=delaybeforesend)
+				memavail = self.send_and_get_output("""free | grep buffers.cache | awk '{print $3}'""",shutit_pexpect_child=shutit_pexpect_child,expect=expect,timeout=3,echo=False, delaybeforesend=delaybeforesend)
 			memavail = int(memavail)
 		self._handle_note_after(note=note)
 		return memavail
@@ -2505,7 +2492,6 @@ $'"""
 	def get_distro_info(self,
 	                    environment_id,
 	                    shutit_pexpect_child=None,
-	                    container=True,	
 	                    delaybeforesend=0,
 	                    loglevel=logging.DEBUG):
 		"""Get information about which distro we are using, placing it in the cfg['environment'][environment_id] as a side effect.
@@ -3163,6 +3149,7 @@ def init():
 	global cwd
 	global shutit_command_history
 	global shutit_map
+	global shutit
 
 	current_shutit_pexpect_session = None
 	shutit_pexpect_sessions      = {}
@@ -3208,7 +3195,7 @@ def init():
 		except Exception:
 			cfg['host']['username'] = getpass.getuser()
 		if cfg['host']['username'] == '':
-			shutit_global.shutit.fail('LOGNAME not set in the environment, ' + 'and login unavailable in python; ' + 'please set to your username.', throw_exception=False)
+			shutit.fail('LOGNAME not set in the environment, ' + 'and login unavailable in python; ' + 'please set to your username.', throw_exception=False)
 	cfg['host']['real_user'] = os.environ.get('SUDO_USER', cfg['host']['username'])
 	cfg['build']['shutit_state_dir_base'] = '/tmp/shutit_' + cfg['host']['username']
 	cfg['build']['build_id'] = (socket.gethostname() + '_' + cfg['host']['real_user'] + '_' + str(time.time()) + '.' + str(datetime.datetime.now().microsecond))
