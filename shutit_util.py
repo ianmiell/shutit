@@ -2116,6 +2116,33 @@ get_re_from_child = match_string
 
 
 
+def get_input(self, msg, default='', valid=[], boolean=False, ispass=False, colour='32'):
+	"""Gets input from the user, and returns the answer.
+
+	@param msg:       message to send to user
+	@param default:   default value if nothing entered
+	@param valid:     valid input values (default == empty list == anything allowed)
+	@param boolean:   whether return value should be boolean
+	@param ispass:    True if this is a password (ie whether to not echo input)
+	"""
+	if boolean and valid == []:
+		valid = ('yes','y','Y','1','true','no','n','N','0','false')
+	answer = shutit_util.util_raw_input(prompt=shutit_util.colour('32',msg),ispass=ispass)
+	if valid != []:
+		while answer not in valid:
+			shutit.log('Answer must be one of: ' + str(valid),transient=True)
+			answer = shutit_util.util_raw_input(prompt=shutit_util.colour(colour,msg),ispass=ispass)
+	if boolean and answer in ('yes','y','Y','1','true'):
+		return True
+	if boolean and answer in ('no','n','N','0','false'):
+		return False
+	if answer == '':
+		return default
+	else:
+		return answer
+
+
+
 # Static strings
 _default_cnf = '''
 ################################################################################

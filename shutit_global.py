@@ -344,7 +344,7 @@ class ShutIt(object):
 					self.log(shutit_util.colour('32',help_text),transient=True)
 				time.sleep(pause)
 				# TODO: bash path completion
-				send = self.get_input(task_desc + ' => ',colour='31')
+				send = shutit_util.get_input(task_desc + ' => ',colour='31')
 				if not send or send.strip() == '':
 					continue
 				if send in ('help','h'):
@@ -1936,15 +1936,7 @@ $'"""
 		@return:             True if pause point handled ok, else false
 		"""
 		global cfg
-		ok=True
-		try:
-			shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
-		except Exception:
-			ok=False
-		if not ok:
-			# If we get an exception here, assume we are exiting following a problem before we have a child.
-			self.log('Exception caught in pause_point, exiting',transient=True)
-			shutit_util.handle_exit(exit_code=1)
+		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
 		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
 		if (not shutit_util.determine_interactive(self) or cfg['build']['interactive'] < 1 or
 			cfg['build']['interactive'] < level):
@@ -2002,9 +1994,9 @@ $'"""
 			elif ord(input_string) == 4:
 				cfg['SHUTIT_SIGNAL']['ID'] = 0
 				cfg['SHUTIT_SIGNAL']['ID'] = 4
-				if self.get_input('CTRL-d caught, are you sure you want to quit this ShutIt run?\n\r=> ',default='n',boolean=True):
+				if shutit_util.get_input('CTRL-d caught, are you sure you want to quit this ShutIt run?\n\r=> ',default='n',boolean=True):
 					self.fail('CTRL-d caught, quitting')
-				if self.get_input('Do you want to pass through the CTRL-d to the ShutIt session?\n\r=> ',default='n',boolean=True):
+				if shutit_util.get_input('Do you want to pass through the CTRL-d to the ShutIt session?\n\r=> ',default='n',boolean=True):
 					return '\x04'
 				# Return nothing
 				return ''
@@ -2390,7 +2382,7 @@ $'"""
 			_=cfg['environment'][cfg['build']['current_environment_id']][user]['password']
 		except Exception:
 			# Try and get input, if we are not interactive, this should fail.
-			cfg['environment'][cfg['build']['current_environment_id']][user]['password'] = shutit.get_input(msg,ispass=True)
+			cfg['environment'][cfg['build']['current_environment_id']][user]['password'] = shutit_util.get_input(msg,ispass=True)
 		self._handle_note_after(note=note)
 		return cfg['environment'][cfg['build']['current_environment_id']][user]['password']
 
@@ -2917,31 +2909,6 @@ $'"""
 			cfg['build']['report'] = (cfg['build']['report'] + '\nPushed repository: ' + repository)
 
 
-	# TODO: move to shutit_util
-	def get_input(self, msg, default='', valid=[], boolean=False, ispass=False, colour='32'):
-		"""Gets input from the user, and returns the answer.
-
-		@param msg:       message to send to user
-		@param default:   default value if nothing entered
-		@param valid:     valid input values (default == empty list == anything allowed)
-		@param boolean:   whether return value should be boolean
-		@param ispass:    True if this is a password (ie whether to not echo input)
-		"""
-		if boolean and valid == []:
-			valid = ('yes','y','Y','1','true','no','n','N','0','false')
-		answer = shutit_util.util_raw_input(prompt=shutit_util.colour('32',msg),ispass=ispass)
-		if valid != []:
-			while answer not in valid:
-				shutit.log('Answer must be one of: ' + str(valid),transient=True)
-				answer = shutit_util.util_raw_input(prompt=shutit_util.colour(colour,msg),ispass=ispass)
-		if boolean and answer in ('yes','y','Y','1','true'):
-			return True
-		if boolean and answer in ('no','n','N','0','false'):
-			return False
-		if answer == '':
-			return default
-		else:
-			return answer
 
 
 	def get_config(self,
