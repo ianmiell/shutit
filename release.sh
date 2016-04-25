@@ -1,8 +1,11 @@
 #!/bin/bash
+# pip release scripts that auto-updates version number and keeps trying until successful
 #set -x
 set -u
+i=0
 while true
 do
+	i=$[i+1]
 	output=$(grep version= setup.py | awk -F'=' '{print $2}' | sed "s/'\([0-9][0-9]*\)\.\([0-9][0-9]*\)\.\([0-9][0-9]*\)',/\1 \2 \3/")
 	major=$(echo $output | awk '{print $1}')
 	minor=$(echo $output | awk '{print $2}')
@@ -15,4 +18,7 @@ do
 	then
 		break
 	fi
+	# wait a minute
+	sleep 60
 done
+echo Success after $i attempts

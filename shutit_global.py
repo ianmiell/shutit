@@ -740,8 +740,8 @@ $'"""
 			return send
 		cmd_arr = send.split()
 		if len(cmd_arr) and cmd_arr[0] in ('md5sum','sed','head'):
-			cmd = self._get_command(cmd_arr[0])
-			send = string.join(cmd + send[len(cmd_arr[0]):],'')
+			newcmd = self._get_command(cmd_arr[0])
+			send = send.replace(cmd_arr[0],newcmd)
 		return send
 
 
