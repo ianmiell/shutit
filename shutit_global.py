@@ -565,7 +565,7 @@ class ShutIt(object):
 
 		# Handle OSX to get the GNU version of the command
 		if assume_gnu:
-			send = self._get_send_command(send)
+			send = shutit_util.get_send_command(send)
 			
 		# If check_exit is not passed in
 		# - if the expect matches the default, use the default check exit
@@ -734,16 +734,6 @@ $'"""
 	send_and_expect = send
 
 	
-	def _get_send_command(self, send):
-		"""Internal helper function to get command that's really sent"""
-		if send == None:
-			return send
-		cmd_arr = send.split()
-		if len(cmd_arr) and cmd_arr[0] in ('md5sum','sed','head'):
-			newcmd = self._get_command(cmd_arr[0])
-			send = send.replace(cmd_arr[0],newcmd)
-		return send
-
 
 	def _handle_note(self, note, command='', training_input=''):
 		"""Handle notes and walkthrough option.
@@ -819,16 +809,6 @@ $'"""
 				else:
 					self.fail('CTRL-C hit and could not recover')
 		self.fail('Should not get here (_expect_allow_interrupt)')
-
-
-	def _get_command(self, command):
-		global cfg
-		if command in ('head','md5sum'):
-			if cfg['environment'][cfg['build']['current_environment_id']]['distro'] == 'osx':
-				return '''PATH="/usr/local/opt/coreutils/libexec/gnubin:$PATH" ''' + command + ' '
-			else:
-				return command + ' '
-		return command
 
 
 
@@ -932,7 +912,7 @@ $'"""
 			if truncate and self.file_exists(path):
 				self.send(' rm -f ' + path, expect=expect, shutit_pexpect_child=shutit_pexpect_child, echo=False,loglevel=loglevel, delaybeforesend=delaybeforesend)
 			random_id = shutit_util.random_id()
-			self.send(' ' + self._get_command('head') + ' -c -1 > ' + path + "." + random_id + " << 'END_" + random_id + """'\n""" + base64.b64encode(contents) + '''\nEND_''' + random_id, echo=False,loglevel=loglevel, delaybeforesend=delaybeforesend)
+			self.send(' ' + shutit_util.get_command('head') + ' -c -1 > ' + path + "." + random_id + " << 'END_" + random_id + """'\n""" + base64.b64encode(contents) + '''\nEND_''' + random_id, echo=False,loglevel=loglevel, delaybeforesend=delaybeforesend)
 			self.send(' cat ' + path + '.' + random_id + ' | base64 -d > ' + path, echo=False,loglevel=loglevel, delaybeforesend=delaybeforesend)
 		else:
 			host_child = self.get_shutit_pexpect_session_from_id('host_child').pexpect_child
@@ -2045,7 +2025,7 @@ $'"""
 		self._handle_note(note, command=str(send))
 		self.log('Retrieving output from command: ' + send,level=loglevel)
 		# Don't check exit, as that will pollute the output. Also, it's quite likely the submitted command is intended to fail.
-		self.send(self._get_send_command(send), shutit_pexpect_child=shutit_pexpect_child, expect=expect, check_exit=False, retry=retry, echo=echo, timeout=timeout, record_command=record_command, loglevel=loglevel, fail_on_empty_before=fail_on_empty_before, delaybeforesend=delaybeforesend)
+		self.send(shutit_util.get_send_command(send), shutit_pexpect_child=shutit_pexpect_child, expect=expect, check_exit=False, retry=retry, echo=echo, timeout=timeout, record_command=record_command, loglevel=loglevel, fail_on_empty_before=fail_on_empty_before, delaybeforesend=delaybeforesend)
 		before = shutit_pexpect_child.before
 		if preserve_newline and before[-1] == '\n':
 			preserve_newline = True

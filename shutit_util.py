@@ -2141,6 +2141,25 @@ def get_input(self, msg, default='', valid=[], boolean=False, ispass=False, colo
 	else:
 		return answer
 
+def get_send_command(send):
+	"""Internal helper function to get command that's really sent"""
+	if send == None:
+		return send
+	cmd_arr = send.split()
+	if len(cmd_arr) and cmd_arr[0] in ('md5sum','sed','head'):
+		newcmd = get_command(cmd_arr[0])
+		send = send.replace(cmd_arr[0],newcmd)
+	return send
+
+
+def get_command(self, command):
+	if command in ('head','md5sum'):
+		if shutit_global.shutit.cfg['environment'][cfg['build']['current_environment_id']]['distro'] == 'osx':
+			return '''PATH="/usr/local/opt/coreutils/libexec/gnubin:$PATH" ''' + command + ' '
+		else:
+			return command + ' '
+	return command
+
 
 
 # Static strings
