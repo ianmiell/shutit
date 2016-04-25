@@ -456,7 +456,7 @@ class ShutIt(object):
 							ok = True
 							break
 				if not ok and failed:
-					shutit.log('\n\n' + shutit_util.colour('32','failed') + '\n',transient=True)
+					shutit.log('\n\n' + shutit_util.colour('31','Failed! CTRL-g to reset state, CTRL-h for a hint') + '\n',transient=True)
 					self._challenge_done(pexpect_session,result='failed')
 					continue
 		else:
@@ -486,11 +486,13 @@ class ShutIt(object):
 				else:
 					self.fail('Follow-on context not handled on pass')
 			return
+		elif result in ('failed'):
+			self.cfg['build']['ctrlc_passthrough'] = False
+			return
 		elif result == 'exited':
 			self.cfg['build']['ctrlc_passthrough'] = False
 			return
-		elif result in ('reset','failed'):
-			self.cfg['build']['ctrlc_passthrough'] = False
+		elif result in ('reset'):
 			if follow_on_context != {}:
 				if follow_on_context.get('context') == 'docker':
 					container_name = follow_on_context.get('reset_container_name')
@@ -632,7 +634,7 @@ $'"""
 					# 'None' escaped_str's are possible from multisends with nothing to send.
 					if escaped_str != None:
 						if len(escaped_str) + 25 > cfg['build']['stty_cols']:
-							fname = self._create_command_file(shutit_pexpect_child,expect,escaped_str)
+							fname = shutit_pexpect_session.create_command_file(expect,escaped_str)
 							res = self.send(fname,expect=expect,shutit_pexpect_child=shutit_pexpect_child,timeout=timeout,check_exit=check_exit,fail_on_empty_before=False,record_command=False,exit_values=exit_values,echo=False,escape=False,retry=retry,loglevel=loglevel, delaybeforesend=delaybeforesend)
 							shutit_pexpect_session.sendline('rm -f ' + fname,delaybeforesend=delaybeforesend)
 							shutit_pexpect_session.expect(expect)
@@ -645,7 +647,7 @@ $'"""
 				else:
 					if send != None:
 						if len(send) + 25 > cfg['build']['stty_cols']:
-							fname = self._create_command_file(shutit_pexpect_child,expect,send)
+							fname = shutit_pexpect_session.create_command_file(expect,send)
 							res = self.send(fname,expect=expect,shutit_pexpect_child=shutit_pexpect_child,timeout=timeout,check_exit=check_exit,fail_on_empty_before=False,record_command=False,exit_values=exit_values,echo=False,escape=False,retry=retry,loglevel=loglevel, delaybeforesend=delaybeforesend)
 							shutit_pexpect_session.sendline('rm -f ' + fname,delaybeforesend=delaybeforesend)
 							shutit_pexpect_child.expect(expect)
@@ -660,7 +662,7 @@ $'"""
 				if escape:
 					if escaped_str != None:
 						if len(escaped_str) + 25 > cfg['build']['stty_cols']:
-							fname = self._create_command_file(shutit_pexpect_child,expect,escaped_str)
+							fname = shutit_pexpect_session.create_command_file(expect,escaped_str)
 							res = self.send(fname,expect=expect,shutit_pexpect_child=shutit_pexpect_child,timeout=timeout,check_exit=check_exit,fail_on_empty_before=False,record_command=False,exit_values=exit_values,echo=False,escape=False,retry=retry,loglevel=loglevel, delaybeforesend=delaybeforesend)
 							shutit_pexpect_session.sendline('rm -f ' + fname,delaybeforesend=delaybeforesend)
 							shutit_pexpect_child.expect(expect)
@@ -673,7 +675,7 @@ $'"""
 				else:
 					if send != None:
 						if len(send) + 25 > cfg['build']['stty_cols']:
-							fname = self._create_command_file(shutit_pexpect_child,expect,send)
+							fname = shutit_pexpect_session.create_command_file(expect,send)
 							res = self.send(fname,expect=expect,shutit_pexpect_child=shutit_pexpect_child,timeout=timeout,check_exit=check_exit,fail_on_empty_before=False,record_command=False,exit_values=exit_values,echo=False,escape=False,retry=retry,loglevel=loglevel, delaybeforesend=delaybeforesend)
 							shutit_pexpect_session.sendline('rm -f ' + fname,delaybeforesend=delaybeforesend)
 							shutit_pexpect_child.expect(expect)
@@ -714,7 +716,7 @@ $'"""
 			cfg['build']['last_output'] = '\n'.join(shutit_pexpect_child.before.split('\n')[1:])
 			if check_exit:
 				# store the output
-				if not self._check_exit(send, expect=expect, shutit_pexpect_child=shutit_pexpect_child, exit_values=exit_values, retry=retry):
+				if not shutit_pexpect_session.check_last_exit_values(send, expect=expect, exit_values=exit_values, retry=retry):
 					self.log('Sending: ' + send + ' : failed, retrying', level=logging.DEBUG)
 					retry -= 1
 					assert(retry > 0)
@@ -828,74 +830,6 @@ $'"""
 		return command
 
 
-	# TODO: move this
-	def _create_command_file(self, shutit_pexpect_child, expect, send):
-		"""Internal function. Do not use.
-
-		Takes a long command, and puts it in an executable file ready to run. Returns the filename.
-		"""
-		global cfg
-		random_id = shutit_util.random_id()
-		fname = cfg['build']['shutit_state_dir_base'] + '/tmp_' + random_id
-		working_str = send
-		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
-		shutit_pexpect_session.sendline(' truncate --size 0 '+ fname)
-		shutit_pexpect_child.expect(expect)
-		size = cfg['build']['stty_cols'] - 25
-		while len(working_str) > 0:
-			curr_str = working_str[:size]
-			working_str = working_str[size:]
-			shutit_pexpect_session.sendline(' ' + self._get_command('head') + ''' -c -1 >> ''' + fname + """ << 'END_""" + random_id + """'\n""" + curr_str + """\nEND_""" + random_id)
-			shutit_pexpect_session.expect(expect)
-		shutit_pexpect_session.sendline(' chmod +x ' + fname)
-		shutit_pexpect_session.expect(expect)
-		return fname
-
-
-	# TODO: move this
-	def _check_exit(self,
-	                send,
-	                expect=None,
-	                shutit_pexpect_child=None,
-	                exit_values=None,
-	                retry=0,
-	                retbool=False):
-		"""Internal function to check the exit value of the shell. Do not use.
-		"""
-		global cfg
-		expect = expect or self.get_current_shutit_pexpect_session().default_expect
-		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
-		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
-		if not shutit_pexpect_session.check_exit:
-			self.log('check_exit configured off, returning', level=logging.DEBUG)
-			return
-		if exit_values is None:
-			exit_values = ['0']
-		# Don't use send here (will mess up last_output)!
-		# Space before "echo" here is sic - we don't need this to show up in bash history
-		shutit_pexpect_session.sendline(' echo EXIT_CODE:$?')
-		shutit_pexpect_session.expect(expect)
-		res = shutit_util.match_string(shutit_pexpect_child.before, '^EXIT_CODE:([0-9][0-9]?[0-9]?)$')
-		if res == None:
-			# Try after - for some reason needed after login
-			res = shutit_util.match_string(shutit_pexpect_child.after, '^EXIT_CODE:([0-9][0-9]?[0-9]?)$')
-		if res not in exit_values or res == None:
-			if res == None:
-				res = str(res)
-			self.log('shutit_pexpect_child.after: ' + str(shutit_pexpect_child.after), level=logging.DEBUG)
-			self.log('Exit value from command: ' + str(send) + ' was:' + res, level=logging.DEBUG)
-			msg = ('\nWARNING: command:\n' + send + '\nreturned unaccepted exit code: ' + res + '\nIf this is expected, pass in check_exit=False or an exit_values array into the send function call.')
-			cfg['build']['report'] += msg
-			if retbool:
-				return False
-			elif cfg['build']['interactive'] >= 1:
-				# This is a failure, so we pass in level=0
-				self.pause_point(msg + '\n\nInteractive, so not retrying.\nPause point on exit_code != 0 (' + res + '). CTRL-C to quit', shutit_pexpect_child=shutit_pexpect_child, level=0)
-			elif retry == 1:
-				self.fail('Exit value from command\n' + send + '\nwas:\n' + res, throw_exception=False)
-			else:
-				return False
-		return True
 
 
 	def run_script(self,
@@ -1194,8 +1128,9 @@ $'"""
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
 		expect = expect or self.get_current_shutit_pexpect_session().default_expect
 		self._handle_note(note, 'Looking for filename in current environment: ' + filename)
+		test_type = '-d' if directory is True else '-a'
 		#       v the space is intentional, to avoid polluting bash history.
-		test = ' test %s %s' % ('-d' if directory is True else '-a', filename)
+		test = ' test %s %s' % (test_type, filename)
 		output = self.send_and_get_output(test + ' && echo FILEXIST-""FILFIN || echo FILNEXIST-""FILFIN', expect=expect, shutit_pexpect_child=shutit_pexpect_child, record_command=False, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
 		res = shutit_util.match_string(output, '^(FILEXIST|FILNEXIST)-FILFIN$')
 		ret = False
@@ -1595,6 +1530,7 @@ $'"""
 		"""
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
 		expect = expect or self.get_current_shutit_pexpect_session().default_expect
+		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
 		self._handle_note(note)
 		if len(locations) == 0 or type(locations) != list:
 			raise ShutItFailException('Locations should be a list containing base of the url.')
@@ -1614,8 +1550,8 @@ $'"""
 				send = command + ' ' + location + '/' + filename + ' > ' + filename
 				self.send(send,check_exit=False,shutit_pexpect_child=shutit_pexpect_child,expect=expect,timeout=timeout,fail_on_empty_before=fail_on_empty_before,record_command=record_command,echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
 				if retry == 0:
-					self._check_exit(send, expect, shutit_pexpect_child, timeout, exit_values, retbool=False)
-				elif not self._check_exit(send, expect, shutit_pexpect_child, timeout, exit_values, retbool=True):
+					shutit_pexpect_session.check_last_exit_values(send, expect, timeout, exit_values, retbool=False)
+				elif not shutit_pexpect_session.check_last_exit_values(send, expect, timeout, exit_values, retbool=True):
 					self.log('Sending: ' + send + ' failed, retrying', level=logging.DEBUG)
 					retry -= 1
 					continue

@@ -380,9 +380,6 @@ class ShutItPexpectSession(object):
 
 
 
-	#TODO: move setup_environment - create environment object
-	#TODO: review items in cfg and see if they make more sense in the pexpect object
-	#TODO: replace 'target' in cfg
 
 
 	def setup_environment(self,
@@ -456,3 +453,73 @@ class ShutItPexpectSession(object):
 		return environment_id
 
 
+	def create_command_file(self, expect, send):
+		"""Internal function. Do not use.
+
+		Takes a long command, and puts it in an executable file ready to run. Returns the filename.
+		"""
+		cfg = self.shutit_object.cfg
+		random_id = shutit_util.random_id()
+		fname = cfg['build']['shutit_state_dir_base'] + '/tmp_' + random_id
+		working_str = send
+		self.sendline(' truncate --size 0 '+ fname)
+		self.pexpect_child.expect(expect)
+		size = cfg['build']['stty_cols'] - 25
+		while len(working_str) > 0:
+			curr_str = working_str[:size]
+			working_str = working_str[size:]
+			self.sendline(' ' + self.shutit_object._get_command('head') + ''' -c -1 >> ''' + fname + """ << 'END_""" + random_id + """'\n""" + curr_str + """\nEND_""" + random_id)
+			self.expect(expect)
+		self.sendline(' chmod +x ' + fname)
+		self.expect(expect)
+		return fname
+
+
+
+	def check_last_exit_values(self,
+	                           send,
+	                           expect=None,
+	                           exit_values=None,
+	                           retry=0,
+	                           retbool=False):
+		"""Internal function to check the exit value of the shell. Do not use.
+		"""
+		cfg = self.shutit_object.cfg
+		expect = expect or self.default_expect
+		if not self.check_exit:
+			self.shutit_object.log('check_exit configured off, returning', level=logging.DEBUG)
+			return
+		if exit_values is None:
+			exit_values = ['0']
+		# Don't use send here (will mess up last_output)!
+		# Space before "echo" here is sic - we don't need this to show up in bash history
+		self.sendline(' echo EXIT_CODE:$?')
+		self.expect(expect)
+		res = shutit_util.match_string(self.pexpect_child.before, '^EXIT_CODE:([0-9][0-9]?[0-9]?)$')
+		if res == None:
+			# Try after - for some reason needed after login
+			res = shutit_util.match_string(self.pexpect_child.after, '^EXIT_CODE:([0-9][0-9]?[0-9]?)$')
+		if res not in exit_values or res == None:
+			if res == None:
+				res = str(res)
+			self.shutit_object.log('shutit_pexpect_child.after: ' + str(self.pexpect_child.after), level=logging.DEBUG)
+			self.shutit_object.log('Exit value from command: ' + str(send) + ' was:' + res, level=logging.DEBUG)
+			msg = ('\nWARNING: command:\n' + send + '\nreturned unaccepted exit code: ' + res + '\nIf this is expected, pass in check_exit=False or an exit_values array into the send function call.')
+			cfg['build']['report'] += msg
+			if retbool:
+				return False
+			elif cfg['build']['interactive'] >= 1:
+				# This is a failure, so we pass in level=0
+				self.shutit_object.pause_point(msg + '\n\nInteractive, so not retrying.\nPause point on exit_code != 0 (' + res + '). CTRL-C to quit', shutit_pexpect_child=self.pexpect_child, level=0)
+			elif retry == 1:
+				self.shutit_object.fail('Exit value from command\n' + send + '\nwas:\n' + res, throw_exception=False)
+			else:
+				return False
+		return True
+
+
+
+
+	#TODO: create environment object
+	#TODO: review items in cfg and see if they make more sense in the pexpect object
+	#TODO: replace 'target' in cfg
