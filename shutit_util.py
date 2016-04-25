@@ -2154,7 +2154,7 @@ def get_send_command(send):
 
 def get_command(command):
 	if command in ('head','md5sum'):
-		if shutit_global.shutit.cfg['environment'][cfg['build']['current_environment_id']]['distro'] == 'osx':
+		if shutit_global.shutit.cfg['environment'][shutit_global.shutit.cfg['build']['current_environment_id']]['distro'] == 'osx':
 			return '''PATH="/usr/local/opt/coreutils/libexec/gnubin:$PATH" ''' + command + ' '
 		else:
 			return command + ' '

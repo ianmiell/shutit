@@ -466,7 +466,7 @@ class ShutItPexpectSession(object):
 		while len(working_str) > 0:
 			curr_str = working_str[:size]
 			working_str = working_str[size:]
-			self.sendline(' ' + shutit_global.shutit._get_command('head') + ''' -c -1 >> ''' + fname + """ << 'END_""" + random_id + """'\n""" + curr_str + """\nEND_""" + random_id)
+			self.sendline(' ' + shutit_util.get_command('head') + ''' -c -1 >> ''' + fname + """ << 'END_""" + random_id + """'\n""" + curr_str + """\nEND_""" + random_id)
 			self.expect(expect)
 		self.sendline(' chmod +x ' + fname)
 		self.expect(expect)
