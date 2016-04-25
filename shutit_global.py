@@ -488,6 +488,7 @@ class ShutIt(object):
 			return
 		elif result in ('failed'):
 			self.cfg['build']['ctrlc_passthrough'] = False
+			time.sleep(1)
 			return
 		elif result == 'exited':
 			self.cfg['build']['ctrlc_passthrough'] = False
