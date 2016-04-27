@@ -231,7 +231,7 @@ class ConnDocker(ShutItConnModule):
 		was_sent = string.join(docker_command,' ')
 		shutit_pexpect_session = shutit_pexpect.ShutItPexpectSession(shutit_session_name, docker_command[0], docker_command[1:])
 		target_child = shutit_pexpect_session.pexpect_child
-		expect = ['assword', cfg['expect_prompts']['base_prompt'].strip(), 'Waiting', 'ulling', 'endpoint', 'Download']
+		expect = ['assword', cfg['expect_prompts']['base_prompt'].strip(), 'Waiting', 'ulling', 'endpoint', 'Download','o such file']
 		res = shutit_pexpect_session.expect(expect, timeout=9999)
 		while True:
 			try:
@@ -242,6 +242,9 @@ class ConnDocker(ShutItConnModule):
 				res = shutit.send(cfg['host']['password'], child=target_child, expect=expect, timeout=9999, check_exit=False, fail_on_empty_before=False, echo=False, loglevel=loglevel)
 			elif res == 1:
 				shutit.log('Prompt found, breaking out',level=logging.DEBUG)
+				break
+			elif res == 6:
+				shutit.fail('Docker not installed. Is this a mac?')
 				break
 			else:
 				res = shutit_pexpect_session.expect(expect, timeout=9999)
