@@ -39,7 +39,6 @@ import pexpect
 import md5
 from shutit_module import ShutItFailException
 import logging
-import shutit_assets
 
 
 class ShutIt(object):
@@ -1069,25 +1068,6 @@ $'"""
 		self._handle_note_after(note=note)
 
 
-	def host_file_exists(self, filename, directory=False, note=None):
-		"""Return True if file exists on the host (ie where shutit was run from), else False
-
-		@param filename:   Filename to determine the existence of.
-		@param directory:  Indicate that the file expected is a directory. (Default: False)
-		@param note:       See send()
-
-		@type filename:    string
-		@type directory:   boolean
-
-		@rtype: boolean
-		"""
-		self._handle_note(note, 'Looking for filename on host: ' + filename)
-		if directory:
-			return os.path.isdir(filename)
-		else:
-			return os.path.isfile(filename)
-
-
 	def file_exists(self,
 	                filename,
 	                expect=None,
@@ -1111,23 +1091,8 @@ $'"""
 		"""
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
 		expect = expect or self.get_current_shutit_pexpect_session().default_expect
-		self._handle_note(note, 'Looking for filename in current environment: ' + filename)
-		test_type = '-d' if directory is True else '-a'
-		#       v the space is intentional, to avoid polluting bash history.
-		test = ' test %s %s' % (test_type, filename)
-		output = self.send_and_get_output(test + ' && echo FILEXIST-""FILFIN || echo FILNEXIST-""FILFIN', expect=expect, shutit_pexpect_child=shutit_pexpect_child, record_command=False, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
-		res = shutit_util.match_string(output, '^(FILEXIST|FILNEXIST)-FILFIN$')
-		ret = False
-		if res == 'FILEXIST':
-			ret = True
-		elif res == 'FILNEXIST':
-			pass
-		else:
-			# Change to log?
-			self.log(repr('before>>>>:%s<<<< after:>>>>%s<<<<' % (shutit_pexpect_child.before, shutit_pexpect_child.after)),transient=True)
-			self.fail('Did not see FIL(N)?EXIST in output:\n' + output)
-		self._handle_note_after(note=note)
-		return ret
+		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
+		return shutit_pexpect_session.file_exists(filename=filename,expect=expect,directory=directory,note=note,delaybeforesend=delaybeforesend,loglevel=loglevel)
 
 
 	def get_file_perms(self,
@@ -1194,10 +1159,11 @@ $'"""
 		"""
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
 		expect = expect or self.get_current_shutit_pexpect_session().default_expect
+		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
 		self._handle_note(note)
 		# assume we're going to add it
 		tmp_filename = '/tmp/' + shutit_util.random_id()
-		if self.file_exists(filename, expect=expect, shutit_pexpect_child=shutit_pexpect_child):
+		if shutit_pexpect_session.file_exists(filename, expect=expect):
 			if literal:
 				if match_regexp == None:
 					#            v the space is intentional, to avoid polluting bash history.
@@ -1566,6 +1532,7 @@ $'"""
 		"""
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
 		expect = expect or self.get_current_shutit_pexpect_session().default_expect
+		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
 		self._handle_note(note)
 		exists = False
 		if user == '': return exists
