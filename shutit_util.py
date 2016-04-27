@@ -162,7 +162,7 @@ def get_configs(shutit, configs):
 			# Actually show this to the user before failing...
 			shutit.log(fail_str)
 			shutit.log('Do you want me to run this for you? (input y/n)')
-			if cfg['build']['interactive'] == 0 or util_raw_input(shutit=shutit,default='y') == 'y':
+			if cfg['build']['interactive'] == 0 or util_raw_input(default='y') == 'y':
 				for f in files:
 					shutit.log('Correcting insecure file permissions on: ' + f)
 					os.chmod(f,0600)
@@ -794,7 +794,7 @@ def load_configs(shutit):
 			shutit.log('    ' + c,level=logging.DEBUG)
 		if cfg['build']['interactive'] >= 3:
 			print textwrap.dedent("""\n""") + msg + textwrap.dedent(colour('32', '\n\n[Hit return to continue]'))
-			util_raw_input(shutit=shutit)
+			util_raw_input()
 		if cfg['action']['list_configs'] or cfg['build']['loglevel'] <= logging.DEBUG:
 			if cfg['build']['log_config_path']:
 				f = file(cfg['build']['log_config_path'] + '/config_file_order.txt','w')
@@ -1280,7 +1280,8 @@ def parse_dockerfile(shutit, contents):
 				full_line = ''
 	return ret
 
-def util_raw_input(shutit=None, prompt='', default=None, ispass=False, use_readline=True):
+
+def util_raw_input(prompt='', default=None, ispass=False, use_readline=True):
 	"""Handles raw_input calls, and switches off interactivity if there is apparently
 	no controlling terminal (or there are any other problems)
 	"""
@@ -1292,9 +1293,9 @@ def util_raw_input(shutit=None, prompt='', default=None, ispass=False, use_readl
 		readline.parse_and_bind('tab: complete')
 	prompt = '\r\n' + prompt
 	sanitize_terminal()
-	if shutit and shutit.cfg['build']['interactive'] == 0:
+	if shutit_global.shutit.cfg['build']['interactive'] == 0:
 		return default
-	if not determine_interactive(shutit):
+	if not determine_interactive():
 		return default
 	try:
 		if ispass:
@@ -1308,12 +1309,11 @@ def util_raw_input(shutit=None, prompt='', default=None, ispass=False, use_readl
 				return resp
 	except Exception:
 		msg = 'Problems getting raw input, assuming no controlling terminal.'
-	if shutit:
-		set_noninteractive(shutit,msg=msg)
+	set_noninteractive(msg=msg)
 	return default
 
 
-def determine_interactive(shutit=None):
+def determine_interactive():
 	"""Determine whether we're in an interactive shell.
 	Sets interactivity off if appropriate.
 	cf http://stackoverflow.com/questions/24861351/how-to-detect-if-python-script-is-being-run-as-a-background-process
@@ -1321,23 +1321,20 @@ def determine_interactive(shutit=None):
 	try:
 		if not sys.stdout.isatty() or os.getpgrp() != os.tcgetpgrp(sys.stdout.fileno()):
 			if shutit is not None:
-				set_noninteractive(shutit)
+				set_noninteractive()
 			return False
 	except Exception:
 		if shutit is not None:
-			set_noninteractive(shutit,msg='Problems determining interactivity, assuming not.')
+			set_noninteractive(msg='Problems determining interactivity, assuming not.')
 		return False
-	if shutit is not None:
-		if shutit.cfg['build']['interactive'] == 0:
-			return False
+	if shutit_global.shutit.cfg['build']['interactive'] == 0:
+		return False
 	return True
 
 
-def set_noninteractive(shutit,msg="setting non-interactive"):
-	cfg = shutit.cfg
-	shutit.log(msg,level=logging.DEBUG)
-	cfg['build']['interactive'] = 0
-	return
+def set_noninteractive(msg="setting non-interactive"):
+	shutit_global.shutit.log(msg,level=logging.DEBUG)
+	shutit_global.shutit.cfg['build']['interactive'] = 0
 
 
 def print_stack_trace():

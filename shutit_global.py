@@ -481,8 +481,11 @@ class ShutIt(object):
 					if not container_name:
 						self.log('No reset context available, carrying on.',level=logging.INFO)
 					else:
-						pexpect_session.replace_container(container_name)
-						self.log('State restored.',level=logging.INFO)
+						# No need for this, state can be restored
+						#pexpect_session.replace_container(container_name)
+						#self.log('State restored.',level=logging.INFO)
+						self.log('Continuing, remember you can restore to a known state with CTRL-g.',transient=True)
+						pass
 				else:
 					self.fail('Follow-on context not handled on pass')
 			return
@@ -752,7 +755,7 @@ $'"""
 			else:
 				if training_input != '' and cfg['build']['training']:
 					print(shutit_util.colour('31',message))
-					while shutit_util.util_raw_input(shutit=self,prompt=shutit_util.colour('32','Type in the command to continue: ')) != training_input:
+					while shutit_util.util_raw_input(prompt=shutit_util.colour('32','Type in the command to continue: ')) != training_input:
 						print('Wrong! Try again!')
 				else:
 					self.pause_point(message, colour=31)
@@ -789,11 +792,11 @@ $'"""
 				accum_timeout += iteration_s
 			else:
 				return res
-		if timed_out and not shutit_util.determine_interactive(self):
+		if timed_out and not shutit_util.determine_interactive():
 			self.log('Command timed out, trying to get terminal back for you', level=logging.DEBUG)
 			self.fail('Timed out and could not recover')
 		else:
-			if shutit_util.determine_interactive(self):
+			if shutit_util.determine_interactive():
 				shutit_pexpect_child.send('\x03')
 				res = shutit_pexpect_child.expect(expect,timeout=1)
 				if res == len(expect):
@@ -1754,7 +1757,7 @@ $'"""
 		self.log(shutit_util.colour('32', '\nPROMPTING FOR CONFIG: %s' % (cfgstr,)),transient=True)
 		self.log(shutit_util.colour('32', '\n' + msg + '\n'),transient=True)
 		
-		if not shutit_util.determine_interactive(shutit):
+		if not shutit_util.determine_interactive():
 			self.fail('ShutIt is not in a terminal so cannot prompt for values.', throw_exception=False)
 
 		if config_parser.has_option(sec, name):
@@ -1773,7 +1776,7 @@ $'"""
 		if ispass:
 			val = getpass.getpass('>> ')
 		else:
-			val = shutit_util.util_raw_input(shutit=self,prompt='>> ')
+			val = shutit_util.util_raw_input(prompt='>> ')
 		is_excluded = (
 			config_parser.has_option('save_exclude', sec) and
 			name in config_parser.get('save_exclude', sec).split()
@@ -1784,7 +1787,7 @@ $'"""
 				subcp for subcp, filename, _fp in config_parser.layers
 				if filename == usercfg
 			][0]
-			if shutit_util.util_raw_input(shutit=self,prompt=shutit_util.colour('32', 'Do you want to save this to your user settings? y/n: '),default='y') == 'y':
+			if shutit_util.util_raw_input(prompt=shutit_util.colour('32', 'Do you want to save this to your user settings? y/n: '),default='y') == 'y':
 				sec_toset, name_toset, val_toset = sec, name, val
 			else:
 				# Never save it
@@ -1808,7 +1811,7 @@ $'"""
 		"""
 		global cfg
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
-		if (not shutit_util.determine_interactive(self) or not cfg['build']['interactive'] or
+		if (not shutit_util.determine_interactive() or not cfg['build']['interactive'] or
 			cfg['build']['interactive'] < level):
 			return
 		cfg['build']['step_through'] = value
@@ -1853,42 +1856,13 @@ $'"""
 		@return:             True if pause point handled ok, else false
 		"""
 		global cfg
-		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
-		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
-		if (not shutit_util.determine_interactive(self) or cfg['build']['interactive'] < 1 or
+		if (not shutit_util.determine_interactive() or cfg['build']['interactive'] < 1 or
 			cfg['build']['interactive'] < level):
 			return
+		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
 		if shutit_pexpect_child:
-			if print_input:
-				if resize:
-					fixterm_filename = '/tmp/shutit_fixterm'
-					if not self.file_exists(fixterm_filename):
-						self.send_file(fixterm_filename,shutit_assets.get_fixterm(), shutit_pexpect_child=shutit_pexpect_child, loglevel=logging.DEBUG, delaybeforesend=delaybeforesend)
-						self.send(' chmod 777 ' + fixterm_filename, echo=False,loglevel=logging.DEBUG, delaybeforesend=delaybeforesend)
-					shutit_pexpect_session.sendline(' ' + fixterm_filename, delaybeforesend=delaybeforesend)
-				if default_msg == None:
-					if not cfg['build']['video']:
-						pp_msg = '\r\nYou now have a standard shell. Hit CTRL and then ] at the same to continue ShutIt run.'
-						if cfg['build']['delivery'] == 'docker':
-							pp_msg += '\r\nHit CTRL and u to save the state to a docker image'
-						self.log('\r\n' + 80*'=' + '\r\n' + shutit_util.colour(colour,msg) +'\r\n'+80*'='+'\r\n' + shutit_util.colour(colour,pp_msg),transient=True)
-					else:
-						self.log('\r\n' + (shutit_util.colour(colour, msg)),transient=True)
-				else:
-					self.log(shutit_util.colour(colour, msg) + '\r\n' + default_msg + '\r\n',transient=True)
-				oldlog = shutit_pexpect_child.logfile_send
-				shutit_pexpect_child.logfile_send = None
-				if wait < 0:
-					try:
-						shutit_pexpect_child.interact(input_filter=self._pause_input_filter)
-						self.handle_pause_point_signals()
-					except Exception as e:
-						self.fail('Terminating ShutIt.\n' + str(e))
-				else:
-					time.sleep(wait)
-				shutit_pexpect_child.logfile_send = oldlog
-			else:
-				pass
+			shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
+			shutit_pexpect_session.pause_point(msg=msg,print_input=print_input,level=level,resize=resize,colour=colour,default_msg=default_msg,wait=wait,delaybeforesend=delaybeforesend)
 		else:
 			self.log(msg,level=logging.DEBUG)
 			self.log('Nothing to interact with, so quitting to presumably the original shell',level=logging.DEBUG)
@@ -1938,13 +1912,6 @@ $'"""
 				# Return the escape from pexpect char
 				return '\x1d'
 		return input_string
-
-
-	def handle_pause_point_signals(self):
-		global cfg
-		if cfg['SHUTIT_SIGNAL']['ID'] == 29:
-			cfg['SHUTIT_SIGNAL']['ID'] = 0
-			self.log('\r\nCTRL-] caught, continuing with run...',level=logging.INFO,transient=True)
 
 
 	def send_and_match_output(self,
@@ -2872,7 +2839,7 @@ $'"""
 						answer = None
 						# util_raw_input may change the interactive level, so guard for this.
 						while answer not in ('yes','no','') and cfg['build']['interactive'] > 1:
-							answer = shutit_util.util_raw_input(shutit=self,prompt=shutit_util.colour('32', 'Do you want to accept the config option defaults? ' + '(boolean - input "yes" or "no") (default: yes): \n'),default='yes')
+							answer = shutit_util.util_raw_input(prompt=shutit_util.colour('32', 'Do you want to accept the config option defaults? ' + '(boolean - input "yes" or "no") (default: yes): \n'),default='yes')
 						# util_raw_input may change the interactive level, so guard for this.
 						if answer == 'yes' or answer == '' or cfg['build']['interactive'] < 2:
 							cfg['build']['accept_defaults'] = True
@@ -2892,16 +2859,16 @@ $'"""
 						answer = None
 						if boolean:
 							while answer not in ('yes','no'):
-								answer =  shutit_util.util_raw_input(shutit=self,prompt=shutit_util.colour('32',prompt + ' (boolean - input "yes" or "no"): \n'))
+								answer =  shutit_util.util_raw_input(prompt=shutit_util.colour('32',prompt + ' (boolean - input "yes" or "no"): \n'))
 							if answer == 'yes':
 								answer = True
 							elif answer == 'no':
 								answer = False
 						else:
 							if re.search('assw',option) == None:
-								answer =  shutit_util.util_raw_input(shutit=self,prompt=shutit_util.colour('32',prompt) + ': \n')
+								answer =  shutit_util.util_raw_input(prompt=shutit_util.colour('32',prompt) + ': \n')
 							else:
-								answer =  shutit_util.util_raw_input(shutit=self,ispass=True,prompt=shutit_util.colour('32',prompt) + ': \n')
+								answer =  shutit_util.util_raw_input(ispass=True,prompt=shutit_util.colour('32',prompt) + ': \n')
 						if answer == '' and default != None:
 							answer = default
 						cfg[module_id][option] = answer

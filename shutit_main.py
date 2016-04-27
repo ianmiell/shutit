@@ -45,7 +45,7 @@ def stop_all(shutit, run_order=-1):
 	cfg = shutit.cfg
 	if cfg['build']['interactive'] >= 3:
 		print('\nRunning stop on all modules' + shutit_util.colour('32', '\n\n[Hit return to continue]'))
-		shutit_util.util_raw_input(shutit=shutit)
+		shutit_util.util_raw_input()
 	# sort them so they're stopped in reverse order
 	for module_id in shutit_util.module_ids(shutit, rev=True):
 		shutit_module_obj = shutit.shutit_map[module_id]
@@ -64,7 +64,7 @@ def start_all(shutit, run_order=-1):
 	cfg = shutit.cfg
 	if cfg['build']['interactive'] >= 3:
 		print('\nRunning start on all modules' + shutit_util.colour('32', '\n\n[Hit return to continue]\n'))
-		shutit_util.util_raw_input(shutit=shutit)
+		shutit_util.util_raw_input()
 	# sort them so they're started in order
 	for module_id in shutit_util.module_ids(shutit):
 		shutit_module_obj = shutit.shutit_map[module_id]
@@ -145,7 +145,7 @@ def init_shutit_map(shutit):
 
 	if cfg['build']['interactive'] >= 3:
 		print(shutit_util.colour('32', 'Module id and run order checks OK\n\n[Hit return to continue]\n'))
-		shutit_util.util_raw_input(shutit=shutit)
+		shutit_util.util_raw_input()
 
 
 def conn_target(shutit):
@@ -163,7 +163,7 @@ def conn_target(shutit):
 	# Set up the target in pexpect.
 	if cfg['build']['interactive'] >= 3:
 		print('\nRunning the conn module (' + shutit.shutit_main_dir + '/shutit_setup.py)' + shutit_util.colour('32', '\n\n[Hit return to continue]\n'))
-		shutit_util.util_raw_input(shutit=shutit)
+		shutit_util.util_raw_input()
 	conn_module.get_config(shutit)
 	conn_module.build(shutit)
 
@@ -390,7 +390,7 @@ def build_module(shutit, module, loglevel=logging.DEBUG):
 		shutit.log(shutit_util.build_report(shutit, '#Module:' + module.module_id), level=logging.DEBUG)
 	if (not cfg[module.module_id]['shutit.core.module.tag'] and cfg['build']['interactive'] >= 2):
 		print ("\n\nDo you want to save state now we\'re at the " + "end of this module? (" + module.module_id + ") (input y/n)")
-		cfg[module.module_id]['shutit.core.module.tag'] = (shutit_util.util_raw_input(shutit=shutit,default='y') == 'y')
+		cfg[module.module_id]['shutit.core.module.tag'] = (shutit_util.util_raw_input(default='y') == 'y')
 	if cfg[module.module_id]['shutit.core.module.tag'] or cfg['build']['tag_modules']:
 		shutit.log(module.module_id + ' configured to be tagged, doing repository work',level=logging.INFO)
 		# Stop all before we tag to avoid file changing errors, and clean up pid files etc..
@@ -400,7 +400,7 @@ def build_module(shutit, module, loglevel=logging.DEBUG):
 		start_all(shutit, module.run_order)
 	if cfg['build']['interactive'] >= 2:
 		print ("\n\nDo you want to stop interactive mode? (input y/n)\n")
-		if shutit_util.util_raw_input(shutit=shutit,default='y') == 'y':
+		if shutit_util.util_raw_input(default='y') == 'y':
 			cfg['build']['interactive'] = 0
 
 
@@ -413,7 +413,7 @@ def do_build(shutit):
 	shutit.log(shutit_util.print_config(cfg),level=logging.DEBUG)
 	if cfg['build']['interactive'] >= 3:
 		print ('\nNow building any modules that need building' + shutit_util.colour('32', '\n\n[Hit return to continue]\n'))
-		shutit_util.util_raw_input(shutit=shutit)
+		shutit_util.util_raw_input()
 	module_id_list = shutit_util.module_ids(shutit)
 	if cfg['build']['deps_only']:
 		module_id_list_build_only = filter(lambda x: cfg[x]['shutit.core.module.build'], module_id_list)
@@ -455,7 +455,7 @@ def do_test(shutit):
 	shutit.log('PHASE: test', level=logging.DEBUG)
 	if cfg['build']['interactive'] >= 3:
 		print '\nNow doing test phase' + shutit_util.colour('32', '\n\n[Hit return to continue]\n')
-		shutit_util.util_raw_input(shutit=shutit)
+		shutit_util.util_raw_input()
 	stop_all(shutit)
 	start_all(shutit)
 	for module_id in shutit_util.module_ids(shutit, rev=True):
@@ -476,13 +476,13 @@ def do_finalize(shutit):
 	# Stop all the modules
 	if cfg['build']['interactive'] >= 3:
 		print('\nStopping all modules before finalize phase' + shutit_util.colour('32', '\n\n[Hit return to continue]\n'))
-		shutit_util.util_raw_input(shutit=shutit)
+		shutit_util.util_raw_input()
 	stop_all(shutit)
 	# Finalize in reverse order
 	shutit.log('PHASE: finalize', level=logging.DEBUG)
 	if cfg['build']['interactive'] >= 3:
 		print('\nNow doing finalize phase, which we do when all builds are ' + 'complete and modules are stopped' + shutit_util.colour('32', '\n\n[Hit return to continue]\n'))
-		shutit_util.util_raw_input(shutit=shutit)
+		shutit_util.util_raw_input()
 	# Login at least once to get the exports.
 	for module_id in shutit_util.module_ids(shutit, rev=True):
 		# Only finalize if it's thought to be installed.

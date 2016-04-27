@@ -224,7 +224,7 @@ class ConnDocker(ShutItConnModule):
 		]
 		if cfg['build']['interactive'] >= 3:
 			print('\n\nAbout to start container. Ports mapped will be: ' + ', '.join(port_args) + '\n\n[host]\nports:<value>\n\nconfig, building on the configurable base image passed in in:\n\n    --image <image>\n\nor config:\n\n    [target]\n    docker_image:<image>)\n\nBase image in this case is:\n\n    ' + cfg['target']['docker_image'] + '\n\n' + shutit_util.colour('32', '\n[Hit return to continue]'))
-			shutit_util.util_raw_input(shutit=shutit)
+			shutit_util.util_raw_input()
 		cfg['build']['docker_command'] = ' '.join(docker_command)
 		shutit.log('Command being run is: ' + cfg['build']['docker_command'],level=logging.DEBUG)
 		shutit.log('Downloading image, please be patient',level=logging.INFO)
@@ -381,7 +381,7 @@ class ConnSSH(ShutItConnModule):
 		ssh_command = ['ssh'] + opts + [host_arg, cmd_arg]
 		if cfg['build']['interactive'] >= 3:
 			print('\n\nAbout to connect to host.' + '\n\n' + shutit_util.colour('32', '\n[Hit return to continue]'))
-			shutit_util.util_raw_input(shutit=shutit)
+			shutit_util.util_raw_input()
 		cfg['build']['ssh_command'] = ' '.join(ssh_command)
 		shutit.log('Command being run is: ' + cfg['build']['ssh_command'],level=logging.INFO)
 		shutit_pexpect_session = shutit_pexpect.ShutItPexpectSession('target_child', ssh_command[0], ssh_command[1:])

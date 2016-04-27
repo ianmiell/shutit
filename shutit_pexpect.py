@@ -27,6 +27,7 @@ import shutit_util
 import logging
 import string
 import shutit_global
+import shutit_assets
 
 
 class ShutItPexpectSession(object):
@@ -511,6 +512,126 @@ class ShutItPexpectSession(object):
 				return False
 		return True
 
+
+
+	def pause_point(self,
+	                msg='SHUTIT PAUSE POINT',
+	                print_input=True,
+	                level=1,
+	                resize=True,
+	                colour='32',
+	                default_msg=None,
+	                wait=-1,
+	                delaybeforesend=0):
+		"""Inserts a pause in the build session, which allows the user to try
+		things out before continuing. Ignored if we are not in an interactive
+		mode, or the interactive level is less than the passed-in one.
+		Designed to help debug the build, or drop to on failure so the
+		situation can be debugged.
+
+		@param msg:          Message to display to user on pause point.
+		@param print_input:  Whether to take input at this point (i.e. interact), or
+		                     simply pause pending any input.
+		                     Default: True
+		@param level:        Minimum level to invoke the pause_point at.
+		                     Default: 1
+		@param resize:       If True, try to resize terminal.
+		                     Default: False
+		@param colour:       Colour to print message (typically 31 for red, 32 for green)
+		@param default_msg:  Whether to print the standard blurb
+		@param wait:         Wait a few seconds rather than for input
+
+		@type msg:           string
+		@type print_input:   boolean
+		@type level:         integer
+		@type resize:        boolean
+		@type wait:          decimal
+
+		@return:             True if pause point handled ok, else false
+		"""
+		cfg = shutit_global.shutit.cfg
+		if print_input:
+			if resize:
+				fixterm_filename = '/tmp/shutit_fixterm'
+				if not shutit_global.shutit.file_exists(fixterm_filename):
+					shutit_global.shutit.send_file(fixterm_filename,shutit_assets.get_fixterm(), shutit_pexpect_child=self.pexpect_child, loglevel=logging.DEBUG, delaybeforesend=delaybeforesend)
+					shutit_global.shutit.send(' chmod 777 ' + fixterm_filename, echo=False,loglevel=logging.DEBUG, delaybeforesend=delaybeforesend)
+				self.sendline(' ' + fixterm_filename, delaybeforesend=delaybeforesend)
+			if default_msg == None:
+				if not cfg['build']['video']:
+					pp_msg = '\r\nYou now have a standard shell. Hit CTRL and then ] at the same to continue ShutIt run.'
+					if cfg['build']['delivery'] == 'docker':
+						pp_msg += '\r\nHit CTRL and u to save the state to a docker image'
+					shutit_global.shutit.log('\r\n' + 80*'=' + '\r\n' + shutit_util.colour(colour,msg) +'\r\n'+80*'='+'\r\n' + shutit_util.colour(colour,pp_msg),transient=True)
+				else:
+					shutit_global.shutit.log('\r\n' + (shutit_util.colour(colour, msg)),transient=True)
+			else:
+				shutit_global.shutit.log(shutit_util.colour(colour, msg) + '\r\n' + default_msg + '\r\n',transient=True)
+			oldlog = self.pexpect_child.logfile_send
+			self.pexpect_child.logfile_send = None
+			if wait < 0:
+				try:
+					self.pexpect_child.interact(input_filter=self._pause_input_filter)
+					self.handle_pause_point_signals()
+				except Exception as e:
+					shutit_global.shutit.fail('Terminating ShutIt.\n' + str(e))
+			else:
+				time.sleep(wait)
+			self.pexpect_child.logfile_send = oldlog
+		else:
+			pass
+		cfg['build']['ctrlc_stop'] = False
+		return True
+
+
+	def _pause_input_filter(self, input_string):
+		"""Input filter for pause point to catch special keystrokes"""
+		# Can get errors with eg up/down chars
+		cfg = shutit_global.shutit.cfg
+		if len(input_string) == 1:
+			# Picked CTRL-u as the rarest one accepted by terminals.
+			if ord(input_string) == 21 and cfg['build']['delivery'] == 'docker':
+				shutit_global.shutit.log('CTRL and u caught, forcing a tag at least',level=logging.INFO)
+				shutit_global.shutit.do_repository_work('tagged_by_shutit', password=cfg['host']['password'], docker_executable=cfg['host']['docker_executable'], force=True)
+				shutit_global.shutit.log('Commit and tag done. Hit CTRL and ] to continue with build. Hit return for a prompt.',level=logging.INFO)
+			# CTRL-d
+			elif ord(input_string) == 4:
+				cfg['SHUTIT_SIGNAL']['ID'] = 0
+				cfg['SHUTIT_SIGNAL']['ID'] = 4
+				if shutit_util.get_input('CTRL-d caught, are you sure you want to quit this ShutIt run?\n\r=> ',default='n',boolean=True):
+					shutit_global.shutit.fail('CTRL-d caught, quitting')
+				if shutit_util.get_input('Do you want to pass through the CTRL-d to the ShutIt session?\n\r=> ',default='n',boolean=True):
+					return '\x04'
+				# Return nothing
+				return ''
+			# CTRL-h
+			elif ord(input_string) == 8:
+				cfg['SHUTIT_SIGNAL']['ID'] = 8
+				# Return the escape from pexpect char
+				return '\x1d'
+			# CTRL-g
+			elif ord(input_string) == 7:
+				cfg['SHUTIT_SIGNAL']['ID'] = 7
+				# Return the escape from pexpect char
+				return '\x1d'
+			# CTRL-s
+			elif ord(input_string) == 19:
+				cfg['SHUTIT_SIGNAL']['ID'] = 19
+				# Return the escape from pexpect char
+				return '\x1d'
+			# CTRL-]
+			elif ord(input_string) == 29:
+				cfg['SHUTIT_SIGNAL']['ID'] = 29
+				# Return the escape from pexpect char
+				return '\x1d'
+		return input_string
+
+
+	def handle_pause_point_signals(self):
+		cfg = shutit_global.shutit.cfg
+		if cfg['SHUTIT_SIGNAL']['ID'] == 29:
+			cfg['SHUTIT_SIGNAL']['ID'] = 0
+			self.log('\r\nCTRL-] caught, continuing with run...',level=logging.INFO,transient=True)
 
 
 
