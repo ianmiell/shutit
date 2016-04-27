@@ -42,6 +42,7 @@ import subprocess
 from distutils import spawn
 import logging
 import shutit_pexpect
+import string
 
 
 class ShutItConnModule(ShutItModule):
@@ -227,12 +228,16 @@ class ConnDocker(ShutItConnModule):
 		cfg['build']['docker_command'] = ' '.join(docker_command)
 		shutit.log('Command being run is: ' + cfg['build']['docker_command'],level=logging.DEBUG)
 		shutit.log('Downloading image, please be patient',level=logging.INFO)
+		was_sent = string.join(docker_command,' ')
 		shutit_pexpect_session = shutit_pexpect.ShutItPexpectSession(shutit_session_name, docker_command[0], docker_command[1:])
 		target_child = shutit_pexpect_session.pexpect_child
 		expect = ['assword', cfg['expect_prompts']['base_prompt'].strip(), 'Waiting', 'ulling', 'endpoint', 'Download']
 		res = shutit_pexpect_session.expect(expect, timeout=9999)
 		while True:
-			shutit.log(target_child.before + target_child.after,level=loglevel)
+			try:
+				shutit.log(target_child.before + target_child.after,level=loglevel)
+			except:
+				pass
 			if res == 0:
 				res = shutit.send(cfg['host']['password'], child=target_child, expect=expect, timeout=9999, check_exit=False, fail_on_empty_before=False, echo=False, loglevel=loglevel)
 			elif res == 1:
@@ -241,6 +246,9 @@ class ConnDocker(ShutItConnModule):
 			else:
 				res = shutit_pexpect_session.expect(expect, timeout=9999)
 				continue
+		# Did the pull work?
+		if not shutit_pexpect_session.check_last_exit_values(was_sent):
+			shutit_global.shutit.pause_point('Command:\n\n' + was_sent + '\n\nfailed, you have a shell to try rectifying the problem before continuing.')
 		# Get the cid
 		while True:
 			try:
@@ -431,10 +439,9 @@ class setup(ShutItModule):
 				if not shutit.command_available('lsb_release'):
 					shutit.install('lsb-release')
 				shutit.lsb_release()
-				shutit.send('dpkg-divert --local --rename --add /sbin/initctl && ln -f -s /bin/true /sbin/initctl',echo=False, loglevel=loglevel)
 			elif cfg['environment'][cfg['build']['current_environment_id']]['install_type'] == 'yum':
-				# yum updates are so often "bad" that we let exit codes of 1
-				# through. TODO: make this more sophisticated
+				# yum updates are so often "bad" that we let exit codes of 1 through.
+				# TODO: make this more sophisticated
 				shutit.send('yum update -y', timeout=9999, exit_values=['0', '1'], loglevel=loglevel)
 			shutit.pause_point('Anything you want to do to the target host ' + 'before the build starts?', level=2)
 		return True

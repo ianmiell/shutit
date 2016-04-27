@@ -636,8 +636,8 @@ $'"""
 					if escaped_str != None:
 						if len(escaped_str) + 25 > cfg['build']['stty_cols']:
 							fname = shutit_pexpect_session.create_command_file(expect,escaped_str)
-							res = self.send(fname,expect=expect,shutit_pexpect_child=shutit_pexpect_child,timeout=timeout,check_exit=check_exit,fail_on_empty_before=False,record_command=False,exit_values=exit_values,echo=False,escape=False,retry=retry,loglevel=loglevel, delaybeforesend=delaybeforesend)
-							shutit_pexpect_session.sendline('rm -f ' + fname,delaybeforesend=delaybeforesend)
+							res = self.send(' ' + fname,expect=expect,shutit_pexpect_child=shutit_pexpect_child,timeout=timeout,check_exit=check_exit,fail_on_empty_before=False,record_command=False,exit_values=exit_values,echo=False,escape=False,retry=retry,loglevel=loglevel, delaybeforesend=delaybeforesend)
+							shutit_pexpect_session.sendline(' rm -f ' + fname,delaybeforesend=delaybeforesend)
 							shutit_pexpect_session.expect(expect)
 							return res
 						else:
@@ -649,8 +649,8 @@ $'"""
 					if send != None:
 						if len(send) + 25 > cfg['build']['stty_cols']:
 							fname = shutit_pexpect_session.create_command_file(expect,send)
-							res = self.send(fname,expect=expect,shutit_pexpect_child=shutit_pexpect_child,timeout=timeout,check_exit=check_exit,fail_on_empty_before=False,record_command=False,exit_values=exit_values,echo=False,escape=False,retry=retry,loglevel=loglevel, delaybeforesend=delaybeforesend)
-							shutit_pexpect_session.sendline('rm -f ' + fname,delaybeforesend=delaybeforesend)
+							res = self.send(' ' + fname,expect=expect,shutit_pexpect_child=shutit_pexpect_child,timeout=timeout,check_exit=check_exit,fail_on_empty_before=False,record_command=False,exit_values=exit_values,echo=False,escape=False,retry=retry,loglevel=loglevel, delaybeforesend=delaybeforesend)
+							shutit_pexpect_session.sendline(' rm -f ' + fname,delaybeforesend=delaybeforesend)
 							shutit_pexpect_child.expect(expect)
 							return res
 						else:
@@ -664,8 +664,8 @@ $'"""
 					if escaped_str != None:
 						if len(escaped_str) + 25 > cfg['build']['stty_cols']:
 							fname = shutit_pexpect_session.create_command_file(expect,escaped_str)
-							res = self.send(fname,expect=expect,shutit_pexpect_child=shutit_pexpect_child,timeout=timeout,check_exit=check_exit,fail_on_empty_before=False,record_command=False,exit_values=exit_values,echo=False,escape=False,retry=retry,loglevel=loglevel, delaybeforesend=delaybeforesend)
-							shutit_pexpect_session.sendline('rm -f ' + fname,delaybeforesend=delaybeforesend)
+							res = self.send(' ' + fname,expect=expect,shutit_pexpect_child=shutit_pexpect_child,timeout=timeout,check_exit=check_exit,fail_on_empty_before=False,record_command=False,exit_values=exit_values,echo=False,escape=False,retry=retry,loglevel=loglevel, delaybeforesend=delaybeforesend)
+							shutit_pexpect_session.sendline(' rm -f ' + fname,delaybeforesend=delaybeforesend)
 							shutit_pexpect_child.expect(expect)
 							return res
 						else:
@@ -677,8 +677,8 @@ $'"""
 					if send != None:
 						if len(send) + 25 > cfg['build']['stty_cols']:
 							fname = shutit_pexpect_session.create_command_file(expect,send)
-							res = self.send(fname,expect=expect,shutit_pexpect_child=shutit_pexpect_child,timeout=timeout,check_exit=check_exit,fail_on_empty_before=False,record_command=False,exit_values=exit_values,echo=False,escape=False,retry=retry,loglevel=loglevel, delaybeforesend=delaybeforesend)
-							shutit_pexpect_session.sendline('rm -f ' + fname,delaybeforesend=delaybeforesend)
+							res = self.send(' ' + fname,expect=expect,shutit_pexpect_child=shutit_pexpect_child,timeout=timeout,check_exit=check_exit,fail_on_empty_before=False,record_command=False,exit_values=exit_values,echo=False,escape=False,retry=retry,loglevel=loglevel, delaybeforesend=delaybeforesend)
+							shutit_pexpect_session.sendline(' rm -f ' + fname,delaybeforesend=delaybeforesend)
 							shutit_pexpect_child.expect(expect)
 							return res
 						else:
@@ -1274,7 +1274,7 @@ $'"""
 			if delete:
 				shutit.fail('cannot pass replace=True and delete=True to insert_text')
 		if self.command_available('base64'):
-			ftext = self.send_and_get_output('base64 ' + fname, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
+			ftext = self.send_and_get_output(' base64 ' + fname, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
 			ftext = base64.b64decode(ftext)
 		else:
 			ftext = self.send_and_get_output('cat ' + fname, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
@@ -1621,7 +1621,7 @@ $'"""
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
 		expect = expect or self.get_current_shutit_pexpect_session().default_expect
 		self._handle_note(note)
-		if self.send_and_get_output('command -v ' + command, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend) != '':
+		if self.send_and_get_output(' command -v ' + command, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend) != '':
 			return True
 		else:
 			return False
@@ -2322,7 +2322,7 @@ $'"""
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
 		expect = expect or self.get_current_shutit_pexpect_session().default_expect
 		self._handle_note(note)
-		res = self.send_and_get_output('id -n -g',echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend).strip()
+		res = self.send_and_get_output(' id -n -g',echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend).strip()
 		self._handle_note_after(note=note)
 		return res
 

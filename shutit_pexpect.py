@@ -269,7 +269,7 @@ class ShutItPexpectSession(object):
 		# The newline in the expect list is a hack. On my work laptop this line hangs
 		# and times out very frequently. This workaround seems to work, but I
 		# haven't figured out why yet - imiell.
-		shutit_global.shutit.send((" export SHUTIT_BACKUP_PS1_%s=$PS1 && PS1='%s' && unset PROMPT_COMMAND && stty sane && stty cols " + str(cfg['build']['stty_cols'])) % (prompt_name, local_prompt), expect=['\r\n' + cfg['expect_prompts'][prompt_name]], fail_on_empty_before=False, timeout=5, shutit_pexpect_child=self.pexpect_child, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
+		shutit_global.shutit.send((" export SHUTIT_BACKUP_PS1_%s=$PS1 && PS1='%s' && unset PROMPT_COMMAND && stty sane && stty cols " + str(cfg['build']['stty_cols'])) % (prompt_name, local_prompt) + ' && export HISTCONTROL=$HISTCONTROL:ignoredups:ignorespace', expect=['\r\n' + cfg['expect_prompts'][prompt_name]], fail_on_empty_before=False, timeout=5, shutit_pexpect_child=self.pexpect_child, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
 		shutit_global.shutit.log('Resetting default expect to: ' + cfg['expect_prompts'][prompt_name],level=logging.DEBUG)
 		self.default_expect = cfg['expect_prompts'][prompt_name]
 		# Ensure environment is set up OK.
@@ -371,13 +371,9 @@ class ShutItPexpectSession(object):
 		@rtype: string
 		"""
 		shutit_global.shutit._handle_note(note)
-		res = shutit_global.shutit.send_and_get_output('whoami',shutit_pexpect_child=self.pexpect_child,echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend).strip()
+		res = shutit_global.shutit.send_and_get_output(' whoami',shutit_pexpect_child=self.pexpect_child,echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend).strip()
 		shutit_global.shutit._handle_note_after(note=note)
 		return res
-
-
-
-
 
 
 	def setup_environment(self,
