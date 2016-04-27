@@ -534,13 +534,14 @@ bash:              a shell script
 docker:            a docker image build
 vagrant:           a vagrant setup
 vagrant_multinode: a vagrant multinode setup
+docker_tutorial:   a docker-based tutorial
 ''',default='bash')
 		else:
 			template_branch = args.template_branch
 
 		# Sort out delivery method.
 		if args.delivery is None:
-			if template_branch == 'docker':
+			if template_branch in ('docker','docker_tutorial'):
 				default_delivery = 'docker'
 			else:
 				default_delivery = 'bash'
