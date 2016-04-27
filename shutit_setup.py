@@ -244,7 +244,7 @@ class ConnDocker(ShutItConnModule):
 				shutit.log('Prompt found, breaking out',level=logging.DEBUG)
 				break
 			elif res == 6:
-				shutit.fail('Docker not installed. Is this a mac? If so, tweet me: @ianmiell')
+				shutit.fail('Docker not installed. Is this a mac? If so, install Docker Toolbox - see https://docker.com')
 				break
 			else:
 				res = shutit_pexpect_session.expect(expect, timeout=9999)

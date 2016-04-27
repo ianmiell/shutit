@@ -137,7 +137,7 @@ class ShutIt(object):
 			# However, it's still a failure, so return 1
 			self.log(msg,level=logging.DEBUG)
 			self.log('Error seen, exiting with status 1',level=logging.DEBUG)
-			shutit_util.handle_exit(exit_code=1)
+			shutit_util.handle_exit(exit_code=1,msg=msg)
 
 
 	def log(self, msg, add_final_message=False, level=logging.INFO, transient=False, newline=True):
@@ -2685,7 +2685,7 @@ $'"""
 			else:
 				return
 
-		shutit_pexpect_child = self.get_shutit_pexpect_session_from_id('host_child')
+		shutit_pexpect_child = self.get_shutit_pexpect_session_from_id('host_child').pexpect_child
 		expect    = cfg['expect_prompts']['origin_prompt']
 		server    = cfg['repository']['server']
 		repo_user = cfg['repository']['user']
