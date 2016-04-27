@@ -244,7 +244,7 @@ class ConnDocker(ShutItConnModule):
 				shutit.log('Prompt found, breaking out',level=logging.DEBUG)
 				break
 			elif res == 6:
-				shutit.fail('Docker not installed. Is this a mac?')
+				shutit.fail('Docker not installed. Is this a mac? If so, tweet me: @ianmiell')
 				break
 			else:
 				res = shutit_pexpect_session.expect(expect, timeout=9999)
@@ -446,7 +446,7 @@ class setup(ShutItModule):
 				# yum updates are so often "bad" that we let exit codes of 1 through.
 				# TODO: make this more sophisticated
 				shutit.send('yum update -y', timeout=9999, exit_values=['0', '1'], loglevel=loglevel)
-			shutit.pause_point('Anything you want to do to the target host ' + 'before the build starts?', level=2)
+			shutit.pause_point('Anything you want to do to the target host ' + 'before the build starts?')
 		return True
 
 	def remove(self, shutit):
