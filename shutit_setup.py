@@ -446,7 +446,7 @@ class setup(ShutItModule):
 				# yum updates are so often "bad" that we let exit codes of 1 through.
 				# TODO: make this more sophisticated
 				shutit.send('yum update -y', timeout=9999, exit_values=['0', '1'], loglevel=loglevel)
-			shutit.pause_point('Anything you want to do to the target host ' + 'before the build starts?')
+			shutit.pause_point('Anything you want to do to the target host ' + 'before the build starts?', level=2)
 		return True
 
 	def remove(self, shutit):
