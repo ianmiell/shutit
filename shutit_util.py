@@ -2320,8 +2320,6 @@ _build_section = '''
 		#                                    - Replace text from file fname after the first occurrence of
 		#                                      regexp pattern.
 		# ENVIRONMENT QUERYING
-		# shutit.host_file_exists(filename, directory=False)
-		#                                    - Returns True if file exists on host
 		# shutit.file_exists(filename, directory=False)
 		#                                    - Returns True if file exists on target
 		# shutit.user_exists(user)           - Returns True if the user exists on the target
