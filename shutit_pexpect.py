@@ -28,6 +28,7 @@ import logging
 import string
 import shutit_global
 import shutit_assets
+import time
 
 
 class ShutItPexpectSession(object):
@@ -517,7 +518,6 @@ class ShutItPexpectSession(object):
 	def pause_point(self,
 	                msg='SHUTIT PAUSE POINT',
 	                print_input=True,
-	                level=1,
 	                resize=True,
 	                colour='32',
 	                default_msg=None,
@@ -525,7 +525,7 @@ class ShutItPexpectSession(object):
 	                delaybeforesend=0):
 		"""Inserts a pause in the build session, which allows the user to try
 		things out before continuing. Ignored if we are not in an interactive
-		mode, or the interactive level is less than the passed-in one.
+		mode.
 		Designed to help debug the build, or drop to on failure so the
 		situation can be debugged.
 
@@ -533,8 +533,6 @@ class ShutItPexpectSession(object):
 		@param print_input:  Whether to take input at this point (i.e. interact), or
 		                     simply pause pending any input.
 		                     Default: True
-		@param level:        Minimum level to invoke the pause_point at.
-		                     Default: 1
 		@param resize:       If True, try to resize terminal.
 		                     Default: False
 		@param colour:       Colour to print message (typically 31 for red, 32 for green)
@@ -543,7 +541,6 @@ class ShutItPexpectSession(object):
 
 		@type msg:           string
 		@type print_input:   boolean
-		@type level:         integer
 		@type resize:        boolean
 		@type wait:          decimal
 
@@ -633,6 +630,43 @@ class ShutItPexpectSession(object):
 			cfg['SHUTIT_SIGNAL']['ID'] = 0
 			self.log('\r\nCTRL-] caught, continuing with run...',level=logging.INFO,transient=True)
 
+
+	def file_exists(self,
+	                filename,
+	                expect=None,
+	                directory=False,
+	                note=None,
+	                delaybeforesend=0,
+	                loglevel=logging.DEBUG):
+		"""Return True if file exists on the target host, else False
+
+		@param filename:   Filename to determine the existence of.
+		@param expect:     See send()
+		@param directory:  Indicate that the file is a directory.
+		@param note:       See send()
+
+		@type filename:    string
+		@type directory:   boolean
+
+		@rtype: boolean
+		"""
+		shutit_global.shutit._handle_note(note, 'Looking for filename in current environment: ' + filename)
+		test_type = '-d' if directory is True else '-a'
+		#       v the space is intentional, to avoid polluting bash history.
+		test = ' test %s %s' % (test_type, filename)
+		output = shutit_global.shutit.send_and_get_output(test + ' && echo FILEXIST-""FILFIN || echo FILNEXIST-""FILFIN', expect=expect, shutit_pexpect_child=self.pexpect_child, record_command=False, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
+		res = shutit_util.match_string(output, '^(FILEXIST|FILNEXIST)-FILFIN$')
+		ret = False
+		if res == 'FILEXIST':
+			ret = True
+		elif res == 'FILNEXIST':
+			pass
+		else:
+			# Change to log?
+			shutit_global.shutit.log(repr('before>>>>:%s<<<< after:>>>>%s<<<<' % (self.pexpect_child.before, self.pexpect_child.after)),transient=True)
+			shutit_global.shutit.fail('Did not see FIL(N)?EXIST in output:\n' + output)
+		shutit_global.shutit._handle_note_after(note=note)
+		return ret
 
 
 	#TODO: create environment object
