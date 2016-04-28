@@ -352,7 +352,7 @@ class ShutIt(object):
 						self.log(shutit_util.colour('32',hints.pop()),transient=True)
 					else:
 						self.log(help_text,transient=True)
-						self.log(shutit_util.colour('32','No hints left, sorry!'),transient=True)
+						self.log(shutit_util.colour('32','No hints left, sorry! CTRL-g to reset state, CTRL-s to skip this step'),transient=True)
 					time.sleep(pause)
 					continue
 				if send == 'shutitreset':
@@ -483,7 +483,7 @@ class ShutIt(object):
 						# No need for this, state can be restored
 						#pexpect_session.replace_container(container_name)
 						#self.log('State restored.',level=logging.INFO)
-						self.log('Continuing, remember you can restore to a known state with CTRL-g.',transient=True)
+						self.log(shutit_util.colour('31','Continuing, remember you can restore to a known state with CTRL-g.'),transient=True)
 						pass
 				else:
 					self.fail('Follow-on context not handled on pass')

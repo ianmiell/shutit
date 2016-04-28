@@ -628,7 +628,7 @@ class ShutItPexpectSession(object):
 		cfg = shutit_global.shutit.cfg
 		if cfg['SHUTIT_SIGNAL']['ID'] == 29:
 			cfg['SHUTIT_SIGNAL']['ID'] = 0
-			self.log('\r\nCTRL-] caught, continuing with run...',level=logging.INFO,transient=True)
+			shutit_global.shutit.log('\r\nCTRL-] caught, continuing with run...',level=logging.INFO,transient=True)
 
 
 	def file_exists(self,
