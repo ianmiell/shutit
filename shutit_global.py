@@ -1829,7 +1829,7 @@ $'"""
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
 		if shutit_pexpect_child:
 			shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
-			shutit_pexpect_session.pause_point(msg=msg,print_input=print_input,level=level,resize=resize,colour=colour,default_msg=default_msg,wait=wait,delaybeforesend=delaybeforesend)
+			shutit_pexpect_session.pause_point(msg=msg,print_input=print_input,resize=resize,colour=colour,default_msg=default_msg,wait=wait,delaybeforesend=delaybeforesend)
 		else:
 			self.log(msg,level=logging.DEBUG)
 			self.log('Nothing to interact with, so quitting to presumably the original shell',level=logging.DEBUG)
