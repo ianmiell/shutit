@@ -39,6 +39,7 @@ import pexpect
 import md5
 from shutit_module import ShutItFailException
 import logging
+import shutit_util
 
 
 class ShutIt(object):
@@ -318,6 +319,7 @@ class ShutIt(object):
 		# don't catch CTRL-C, pass it through.
 		self.cfg['build']['ctrlc_passthrough'] = True
 		preserve_newline                       = False
+		skipped                                = False
 		if expect_type == 'regexp':
 			if type(expect) == str:
 				expect = [expect]
@@ -435,6 +437,7 @@ class ShutIt(object):
 					cfg['SHUTIT_SIGNAL']['ID'] = 0
 					# Skip test.
 					shutit.log('Test skipped',level=logging.INFO)
+					skipped=True
 					break
 				shutit.log('State submitted, checking your work...',level=logging.INFO)
 				check_command = follow_on_context.get('check_command')
@@ -460,7 +463,7 @@ class ShutIt(object):
 					continue
 		else:
 			self.fail('Challenge type: ' + challenge_type + ' not supported')
-		self._challenge_done(pexpect_session,result='ok',follow_on_context=follow_on_context,congratulations=congratulations)
+		self._challenge_done(pexpect_session,result='ok',follow_on_context=follow_on_context,congratulations=congratulations,skipped=skipped)
 		# Tidy up hints
 		cfg['build']['pause_point_hints'] = []
 	# Alternate names
@@ -468,7 +471,7 @@ class ShutIt(object):
 	golf     = challenge
 
 
-	def _challenge_done(self, pexpect_session, result=None, congratulations=None, follow_on_context={},pause=1):
+	def _challenge_done(self, pexpect_session, result=None, congratulations=None, follow_on_context={},pause=1,skipped=False):
 		if result == 'ok':
 			if congratulations:
 				self.log('\n\n' + shutit_util.colour('32',congratulations) + '\n',transient=True)
@@ -479,12 +482,12 @@ class ShutIt(object):
 					container_name = follow_on_context.get('ok_container_name')
 					if not container_name:
 						self.log('No reset context available, carrying on.',level=logging.INFO)
+					elif skipped:
+						# We need to ensure the correct state.
+						pexpect_session.replace_container(container_name)
+						self.log('State restored.',level=logging.INFO)
 					else:
-						# No need for this, state can be restored
-						#pexpect_session.replace_container(container_name)
-						#self.log('State restored.',level=logging.INFO)
 						self.log(shutit_util.colour('31','Continuing, remember you can restore to a known state with CTRL-g.'),transient=True)
-						pass
 				else:
 					self.fail('Follow-on context not handled on pass')
 			return
@@ -2307,6 +2310,9 @@ $'"""
 		shutit_pexpect_session.logout(expect=expect,command=command,note=note,timeout=timeout,delaybeforesend=delaybeforesend,loglevel=loglevel)
 	exit_shell = logout
 
+
+	def get_input(self, msg, default='', valid=[], boolean=False, ispass=False, colour='32'):
+		shutit_util.get_input(msg=msg,default=default,valid=valid,boolean=boolean,ispass=ispass,colour=colour)
 
 	def get_memory(self,
 	               shutit_pexpect_child=None,
