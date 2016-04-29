@@ -13,7 +13,7 @@ do
 	newpoint=$[point+1]
 	sed -i "s/\([ \s]\)*version=\(.\)$major.$minor.$point\(.\).*/\1version=\2$major.$minor.$newpoint\3,/" setup.py
 	sed -i "s/^shutit_version=\(.\)$major.$minor.[0-9][0-9]*\(.\).*/shutit_version=\1$major.$minor.$newpoint\2/" shutit_main.py
-	#python setup.py sdist bdist_wheel upload 
+	python setup.py sdist bdist_wheel upload 
 	if [[ $? = 0 ]]
 	then
 		break

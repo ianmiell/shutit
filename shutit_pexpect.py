@@ -29,6 +29,7 @@ import string
 import shutit_global
 import shutit_assets
 import time
+import os
 
 
 class ShutItPexpectSession(object):
@@ -188,6 +189,7 @@ class ShutItPexpectSession(object):
 			shutit_global.shutit.send('cd',shutit_pexpect_child=self.pexpect_child,check_exit=False, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
 		self.login_stack_append(r_id)
 		shutit_global.shutit._handle_note_after(note=note)
+
 
 
 	def logout(self,
@@ -667,6 +669,86 @@ class ShutItPexpectSession(object):
 			shutit_global.shutit.fail('Did not see FIL(N)?EXIST in output:\n' + output)
 		shutit_global.shutit._handle_note_after(note=note)
 		return ret
+
+	def chdir(self,
+	          path,
+	          expect=None,
+	          timeout=3600,
+	          note=None,
+	          delaybeforesend=0,
+	          loglevel=logging.DEBUG):
+		"""How to change directory will depend on whether we are in delivery mode bash or docker.
+
+		@param path:          Path to send file to.
+		@param expect:        See send()
+		@param shutit_pexpect_child:         See send()
+		@param timeout:       Timeout on response
+		@param note:          See send()
+		"""
+		cfg = shutit_global.shutit.cfg
+		shutit_global.shutit._handle_note(note, 'Changing to path: ' + path)
+		shutit_global.shutit.log('Changing directory to path: "' + path + '"', level=logging.DEBUG)
+		if cfg['build']['delivery'] in ('bash','dockerfile'):
+			shutit_global.shutit.send(' cd ' + path, expect=expect, shutit_pexpect_child=self.pexpect_child, timeout=timeout, echo=False,loglevel=loglevel, delaybeforesend=delaybeforesend)
+		elif cfg['build']['delivery'] in ('docker','ssh'):
+			os.chdir(path)
+		else:
+			shutit_global.shutit.fail('chdir not supported for delivery method: ' + cfg['build']['delivery'])
+		shutit_global.shutit._handle_note_after(note=note)
+
+
+
+	def get_file_perms(self,
+	                   filename,
+	                   expect=None,
+	                   note=None,
+	                   delaybeforesend=0,
+	                   loglevel=logging.DEBUG):
+		"""Returns the permissions of the file on the target as an octal
+		string triplet.
+
+		@param filename:  Filename to get permissions of.
+		@param expect:    See send()
+		@param note:      See send()
+
+		@type filename:   string
+
+		@rtype:           string
+		"""
+		shutit_global.shutit._handle_note(note)
+		cmd = 'stat -c %a ' + filename
+		shutit_global.shutit.send(' ' + cmd, expect, shutit_pexpect_child=self.pexpect_child, check_exit=False, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
+		res = shutit_util.match_string(self.pexpect_child.before, '([0-9][0-9][0-9])')
+		shutit_global.shutit._handle_note_after(note=note)
+		return res
+
+
+	def add_to_bashrc(self,
+	                  line,
+	                  expect=None,
+	                  match_regexp=None,
+	                  note=None,
+	                  loglevel=logging.DEBUG):
+		"""Takes care of adding a line to everyone's bashrc
+		(/etc/bash.bashrc, /etc/profile).
+
+		@param line:          Line to add.
+		@param expect:        See send()
+		@param match_regexp:  See add_line_to_file()
+		@param note:          See send()
+
+		@return:              See add_line_to_file()
+		"""
+		shutit_global.shutit._handle_note(note)
+		if not shutit_util.check_regexp(match_regexp):
+			shutit_global.shutit.fail('Illegal regexp found in add_to_bashrc call: ' + match_regexp)
+		# TODO: pass in pexpect_child?
+		shutit_global.shutit.add_line_to_file(line, '${HOME}/.bashrc', expect=expect, match_regexp=match_regexp, loglevel=loglevel) # This won't work for root - TODO
+		shutit_global.shutit.add_line_to_file(line, '/etc/bash.bashrc', expect=expect, match_regexp=match_regexp, loglevel=loglevel)
+
+
+
+
 
 
 	#TODO: create environment object

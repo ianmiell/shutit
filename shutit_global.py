@@ -940,7 +940,6 @@ $'"""
 		self._handle_note_after(note=note)
 
 
-	# TODO: move this, pass through
 	def chdir(self,
 	          path,
 	          expect=None,
@@ -960,15 +959,9 @@ $'"""
 		global cfg
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
 		expect = expect or self.get_current_shutit_pexpect_session().default_expect
-		self._handle_note(note, 'Changing to path: ' + path)
-		self.log('Changing directory to path: "' + path + '"', level=logging.DEBUG)
-		if cfg['build']['delivery'] in ('bash','dockerfile'):
-			self.send(' cd ' + path, expect=expect, shutit_pexpect_child=shutit_pexpect_child, timeout=timeout, echo=False,loglevel=loglevel, delaybeforesend=delaybeforesend)
-		elif cfg['build']['delivery'] in ('docker','ssh'):
-			os.chdir(path)
-		else:
-			self.fail('chdir not supported for delivery method: ' + cfg['build']['delivery'])
-		self._handle_note_after(note=note)
+		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
+		shutit_pexpect_session.chdir(path,expect=expect,timeout=timeout,note=note,delaybeforesend=delaybeforesend,loglevel=loglevel)
+		
 
 
 	def send_host_file(self,
@@ -1119,12 +1112,9 @@ $'"""
 		"""
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
 		expect = expect or self.get_current_shutit_pexpect_session().default_expect
-		self._handle_note(note)
-		cmd = 'stat -c %a ' + filename
-		self.send(' ' + cmd, expect, shutit_pexpect_child=shutit_pexpect_child, check_exit=False, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
-		res = shutit_util.match_string(shutit_pexpect_child.before, '([0-9][0-9][0-9])')
-		self._handle_note_after(note=note)
-		return res
+		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
+		return shutit_pexpect_session.get_file_perms(filename,expect=expect,note=note,delaybeforesend=delaybeforesend,loglevel=loglevel)
+
 
 
 	def remove_line_from_file(self,
@@ -1426,18 +1416,11 @@ $'"""
 		@param shutit_pexpect_child:         See send()
 		@param match_regexp:  See add_line_to_file()
 		@param note:          See send()
-
-		@return:              See add_line_to_file()
 		"""
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
 		expect = expect or self.get_current_shutit_pexpect_session().default_expect
-		self._handle_note(note)
-		if not shutit_util.check_regexp(match_regexp):
-			shutit.fail('Illegal regexp found in add_to_bashrc call: ' + match_regexp)
-		self.add_line_to_file(line, '${HOME}/.bashrc', expect=expect, match_regexp=match_regexp, loglevel=loglevel) # This won't work for root - TODO
-		self.add_line_to_file(line, '/etc/bash.bashrc', expect=expect, match_regexp=match_regexp, loglevel=loglevel)
-		self._handle_note_after(note=note)
-		return
+		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
+		shutit_pexpect_session.add_to_bashrc(line,expect=expect,match_regexp=match_regexp,note=note,loglevel=loglevel)
 
 
 	# TODO: move this, pass through
