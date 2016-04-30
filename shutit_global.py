@@ -1929,7 +1929,7 @@ $'"""
 		# If separated by spaces, install separately
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
 		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
-		return shutit_pexpect_session(package,options=options,timeout=timeout,force=force,check_exit=check_exit,reinstall=reinstall,note=note,delaybeforesend=delaybeforesend,loglevel=loglevel)
+		return shutit_pexpect_session.install(package,options=options,timeout=timeout,force=force,check_exit=check_exit,reinstall=reinstall,note=note,delaybeforesend=delaybeforesend,loglevel=loglevel)
 
 
 	# TODO: move this, pass through?
