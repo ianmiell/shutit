@@ -1423,7 +1423,6 @@ $'"""
 		shutit_pexpect_session.add_to_bashrc(line,expect=expect,match_regexp=match_regexp,note=note,loglevel=loglevel)
 
 
-	# TODO: move this, pass through
 	def get_url(self,
 	            filename,
 	            locations,
@@ -1467,35 +1466,7 @@ $'"""
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
 		expect = expect or self.get_current_shutit_pexpect_session().default_expect
 		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
-		self._handle_note(note)
-		if len(locations) == 0 or type(locations) != list:
-			raise ShutItFailException('Locations should be a list containing base of the url.')
-		retry_orig = retry
-		if not shutit.command_available(command):
-			shutit.install('curl')
-			if not shutit.command_available('curl'):
-				shutit.install('wget')
-				command = 'wget -qO- '
-				if not shutit.command_available('wget'):
-					shutit.fail('Could not install curl or wget, inform maintainers.')
-		for location in locations:
-			retry = retry_orig
-			if location[-1] == '/':
-				location = location[0:-1]
-			while retry >= 0:
-				send = command + ' ' + location + '/' + filename + ' > ' + filename
-				self.send(send,check_exit=False,shutit_pexpect_child=shutit_pexpect_child,expect=expect,timeout=timeout,fail_on_empty_before=fail_on_empty_before,record_command=record_command,echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
-				if retry == 0:
-					shutit_pexpect_session.check_last_exit_values(send, expect, timeout, exit_values, retbool=False)
-				elif not shutit_pexpect_session.check_last_exit_values(send, expect, timeout, exit_values, retbool=True):
-					self.log('Sending: ' + send + ' failed, retrying', level=logging.DEBUG)
-					retry -= 1
-					continue
-				# If we get here, all is ok.
-				self._handle_note_after(note=note)
-				return True
-		# If we get here, it didn't work
-		return False
+		return shutit_pexpect_session.get_url(filename,locations,command=command,timeout=timeout,fail_on_empty_before=fail_on_empty_before,record_command=record_command,exit_values=exit_values,retry=retry,note=note,delaybeforesend=delaybeforesend,loglevel=loglevel)
 
 
 	# TODO: move this, pass through
@@ -2543,7 +2514,6 @@ $'"""
 	                 password,
 	                 user='',
 	                 shutit_pexpect_child=None,
-	                 expect=None,
 	                 delaybeforesend=0.05,
 	                 note=None):
 		"""Sets the password for the current user or passed-in user.
@@ -2552,7 +2522,6 @@ $'"""
 
 		@param user:        username to set the password for. Defaults to '' (i.e. current user)
 		@param password:    password to set for the user
-		@param expect:      See send()
 		@param shutit_pexpect_child:       See send()
 		@param note:        See send()
 		"""
@@ -2560,7 +2529,7 @@ $'"""
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
 		# TODO: assume expect is default in session
 		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
-		shutit_pexpect_session.set_password(password,user=user,delaybeforesend=delaybeforesend=note=note)
+		shutit_pexpect_session.set_password(password,user=user,delaybeforesend=delaybeforesend,note=note)
 
 
 	def is_user_id_available(self,

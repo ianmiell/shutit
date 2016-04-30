@@ -22,14 +22,15 @@
 """Represents and manages a pexpect object for ShutIt's purposes.
 """
 
-import pexpect
-import shutit_util
 import logging
 import string
-import shutit_global
-import shutit_assets
 import time
 import os
+import pexpect
+import shutit_util
+import shutit_global
+import shutit_assets
+import shutit_module
 import package_map
 
 
@@ -768,7 +769,7 @@ class ShutItPexpectSession(object):
 		# v the space is intentional, to avoid polluting bash history.
 		shutit_global.shutit.send(' cut -d: -f3 /etc/paswd | grep -w ^' + user_id + '$ | wc -l', shutit_pexpect_child=self.pexpect_child, expect=self.default_expect, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
 		shutit_global.shutit._handle_note_after(note=note)
-		if shutit_util.match_string(shutit_pexpect_child.before, '^([0-9]+)$') == '1':
+		if shutit_util.match_string(self.pexpect_child.before, '^([0-9]+)$') == '1':
 			return False
 		else:
 			return True
@@ -826,19 +827,74 @@ class ShutItPexpectSession(object):
 
 
 
+	# TODO: move this, pass through
+	def get_url(self,
+	            filename,
+	            locations,
+	            command='curl',
+	            timeout=3600,
+	            fail_on_empty_before=True,
+	            record_command=True,
+	            exit_values=None,
+	            retry=3,
+	            note=None,
+	            delaybeforesend=0,
+	            loglevel=logging.DEBUG):
+		"""Handles the getting of a url for you.
 
-	def is_user_id_available(self,
-	                         user_id,
-	                         shutit_pexpect_child=None,
-	                         note=None,
-	                         delaybeforesend=0,
-	                         loglevel=logging.DEBUG):
-		"""Determine whether the specified user_id available.
+		Example:
+		get_url('somejar.jar', ['ftp://loc.org','http://anotherloc.com/jars'])
 
-		@param user_id:  User id to be checked.
-		@param expect:   See send()
-		@param shutit_pexpect_child:    See send()
-		@param note:     See send()
+		@param filename:             name of the file to download
+		@param locations:            list of URLs whence the file can be downloaded
+		@param command:              program to use to download the file (Default: wget)
+		@param expect:               See send()
+		@param shutit_pexpect_child:                See send()
+		@param timeout:              See send()
+		@param fail_on_empty_before: See send()
+		@param record_command:       See send()
+		@param exit_values:          See send()
+		@param echo:                 See send()
+		@param retry:                How many times to retry the download
+		                             in case of failure. Default: 3
+		@param note:                 See send()
+
+		@type filename:              string
+		@type locations:             list of strings
+		@type retry:                 integer
+
+		@return: True if the download was completed successfully, False otherwise.
+		@rtype: boolean
+		"""
+		shutit_global.shutit._handle_note(note)
+		if len(locations) == 0 or type(locations) != list:
+			raise ShutItFailException('Locations should be a list containing base of the url.')
+		retry_orig = retry
+		if not shutit_global.shutit.command_available(command):
+			shutit_global.shutit.install('curl')
+			if not shutit_global.shutit.command_available('curl'):
+				shutit_global.shutit.install('wget')
+				command = 'wget -qO- '
+				if not shutit_global.shutit.command_available('wget'):
+					shutit_global.shutit.fail('Could not install curl or wget, inform maintainers.')
+		for location in locations:
+			retry = retry_orig
+			if location[-1] == '/':
+				location = location[0:-1]
+			while retry >= 0:
+				send = command + ' ' + location + '/' + filename + ' > ' + filename
+				shutit_global.shutit.send(send,check_exit=False,shutit_pexpect_child=self.pexpect_child,expect=self.default_expect,timeout=timeout,fail_on_empty_before=fail_on_empty_before,record_command=record_command,echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
+				if retry == 0:
+					self.check_last_exit_values(send, self.default_expect, timeout, exit_values, retbool=False)
+				elif not self.check_last_exit_values(send, self.default_expect, timeout, exit_values, retbool=True):
+					shutit_global.shutit.log('Sending: ' + send + ' failed, retrying', level=logging.DEBUG)
+					retry -= 1
+					continue
+				# If we get here, all is ok.
+				shutit_global.shutit._handle_note_after(note=note)
+				return True
+		# If we get here, it didn't work
+		return False
 
 
 
