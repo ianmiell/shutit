@@ -30,6 +30,7 @@ import shutit_global
 import shutit_assets
 import time
 import os
+import package_map
 
 
 class ShutItPexpectSession(object):
@@ -746,6 +747,98 @@ class ShutItPexpectSession(object):
 		shutit_global.shutit.add_line_to_file(line, '${HOME}/.bashrc', expect=expect, match_regexp=match_regexp, loglevel=loglevel) # This won't work for root - TODO
 		shutit_global.shutit.add_line_to_file(line, '/etc/bash.bashrc', expect=expect, match_regexp=match_regexp, loglevel=loglevel)
 
+
+
+	def is_user_id_available(self,
+	                         user_id,
+	                         note=None,
+	                         delaybeforesend=0,
+	                         loglevel=logging.DEBUG):
+		"""Determine whether the specified user_id available.
+
+		@param user_id:  User id to be checked.
+		@param note:     See send()
+
+		@type user_id:   integer
+
+		@rtype:          boolean
+		@return:         True is the specified user id is not used yet, False if it's already been assigned to a user.
+		"""
+		shutit_global.shutit._handle_note(note)
+		# v the space is intentional, to avoid polluting bash history.
+		shutit_global.shutit.send(' cut -d: -f3 /etc/paswd | grep -w ^' + user_id + '$ | wc -l', shutit_pexpect_child=self.pexpect_child, expect=self.default_expect, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
+		shutit_global.shutit._handle_note_after(note=note)
+		if shutit_util.match_string(shutit_pexpect_child.before, '^([0-9]+)$') == '1':
+			return False
+		else:
+			return True
+
+
+
+	def set_password(self,
+	                 password,
+	                 user='',
+	                 delaybeforesend=0.05,
+	                 note=None):
+		"""Sets the password for the current user or passed-in user.
+
+		As a side effect, installs the "password" package.
+
+		@param user:        username to set the password for. Defaults to '' (i.e. current user)
+		@param password:    password to set for the user
+		@param note:        See send()
+		"""
+
+		cfg = shutit_global.shutit.cfg
+		shutit_global.shutit._handle_note(note)
+		shutit_global.shutit.install('passwd')
+		if cfg['environment'][cfg['build']['current_environment_id']]['install_type'] == 'apt':
+			shutit_global.shutit.send('passwd ' + user, expect='Enter new', shutit_pexpect_child=self.pexpect_child, check_exit=False, delaybeforesend=delaybeforesend)
+			shutit_global.shutit.send(password, shutit_pexpect_child=self.pexpect_child, expect='Retype new', check_exit=False, echo=False, delaybeforesend=delaybeforesend)
+			shutit_global.shutit.send(password, shutit_pexpect_child=self.pexpect_child, expect=self.default_expect, echo=False, delaybeforesend=delaybeforesend)
+		elif shutit_global.shutit['environment'][cfg['build']['current_environment_id']]['install_type'] == 'yum':
+			shutit_global.shutit.send('passwd ' + user, shutit_pexpect_child=self.pexpect_child, expect='ew password', check_exit=False,delaybeforesend=delaybeforesend)
+			shutit_global.shutit.send(password, shutit_pexpect_child=self.pexpect_child, expect='ew password', check_exit=False, echo=False, delaybeforesend=delaybeforesend)
+			shutit_global.shutit.send(password, shutit_pexpect_child=self.pexpect_child, expect=self.default_expect, echo=False, delaybeforesend=delaybeforesend)
+		else:
+			shutit_global.shutit.send('passwd ' + user, expect='Enter new', shutit_pexpect_child=self.pexpect_child, check_exit=False, delaybeforesend=delaybeforesend)
+			shutit_global.shutit.send(password, shutit_pexpect_child=self.pexpect_child, expect='Retype new', check_exit=False, echo=False, delaybeforesend=delaybeforesend)
+			shutit_global.shutit.send(password, shutit_pexpect_child=self.pexpect_child, expect=self.default_expect, echo=False, delaybeforesend=delaybeforesend)
+		shutit_global.shutit._handle_note_after(note=note)
+
+
+
+	def lsb_release(self,
+	                delaybeforesend=0,
+	                loglevel=logging.DEBUG):
+		"""Get distro information from lsb_release.
+		"""
+		#          v the space is intentional, to avoid polluting bash history.
+		shutit_global.shutit.send(' lsb_release -a',check_exit=False, echo=False, loglevel=loglevel,delaybeforesend=delaybeforesend)
+		dist_string = shutit_util.match_string(self.pexpect_child.before, '^Distributor[\s]*ID:[\s]*(.*)$')
+		version_string = shutit_util.match_string(self.pexpect_child.before, '^Release:[\s*](.*)$')
+		d = {}
+		if dist_string:
+			d['distro']         = dist_string.lower().strip()
+			d['distro_version'] = version_string
+			d['install_type'] = (package_map.INSTALL_TYPE_MAP[dist_string.lower()])
+		return d
+
+
+
+
+	def is_user_id_available(self,
+	                         user_id,
+	                         shutit_pexpect_child=None,
+	                         note=None,
+	                         delaybeforesend=0,
+	                         loglevel=logging.DEBUG):
+		"""Determine whether the specified user_id available.
+
+		@param user_id:  User id to be checked.
+		@param expect:   See send()
+		@param shutit_pexpect_child:    See send()
+		@param note:     See send()
 
 
 

@@ -1498,6 +1498,7 @@ $'"""
 		return False
 
 
+	# TODO: move this, pass through
 	def user_exists(self,
 	                user,
 	                expect=None,
@@ -1531,6 +1532,7 @@ $'"""
 		return exists
 
 
+	# TODO: move this, pass through
 	def package_installed(self,
 	                      package,
 	                      expect=None,
@@ -1565,6 +1567,7 @@ $'"""
 			return False
 
 
+	# TODO: move this, pass through
 	def command_available(self,
 	                      command,
 	                      expect=None,
@@ -1582,6 +1585,7 @@ $'"""
 			return False
 
 
+	# TODO: move this, pass through
 	def is_shutit_installed(self,
 	                        module_id,
 	                        note=None,
@@ -1615,6 +1619,7 @@ $'"""
 			return False
 
 
+	# TODO: move this, pass through
 	def ls(self,
 	       directory,
 	       note=None,
@@ -1650,6 +1655,7 @@ $'"""
 		return files
 
 
+	# TODO: move this, pass through?
 	def get_file(self,
 	             target_path,
 	             host_path,
@@ -1866,6 +1872,7 @@ $'"""
 		return input_string
 
 
+	# TODO: move this, pass through?
 	def send_and_match_output(self,
 	                          send,
 	                          matches,
@@ -1910,6 +1917,7 @@ $'"""
 		return False
 
 
+	# TODO: move this, pass through?
 	def send_and_get_output(self,
 	                        send,
 	                        expect=None,
@@ -1982,6 +1990,7 @@ $'"""
 			return before
 
 
+	# TODO: move this, pass through?
 	def install(self,
 	            package,
 	            shutit_pexpect_child=None,
@@ -2115,6 +2124,7 @@ $'"""
 		return True
 
 
+	# TODO: move this, pass through?
 	def remove(self,
 	           package,
 	           shutit_pexpect_child=None,
@@ -2196,6 +2206,7 @@ $'"""
 		return True
 
 
+	# TODO: move this, pass through?
 	def get_env_pass(self,user=None,msg=None,shutit_pexpect_child=None,expect=None,note=None):
 		"""Gets a password from the user if one is not already recorded for this environment.
 
@@ -2223,6 +2234,7 @@ $'"""
 		return cfg['environment'][cfg['build']['current_environment_id']][user]['password']
 
 
+	# TODO: move this, pass through?
 	def whoarewe(self,
 	             shutit_pexpect_child=None,
 	             expect=None,
@@ -2246,18 +2258,18 @@ $'"""
 		return res
 
 
-	def login(self,                                                                                                                                                                
-	          user='root',                                                                                                                                                         
-	          command='su -',                                                                                                                                                      
-	          password=None,                                                                                                                                                       
-	          prompt_prefix=None,                                                                                                                                                  
-	          expect=None,                                                                                                                                                         
-	          timeout=180,                                                                                                                                                         
-	          escape=False,                                                                                                                                                        
-	          note=None,                                                                                                                                                           
-	          go_home=True,                                                                                                                                                        
-	          delaybeforesend=0.05,                                                                                                                                                
-	          loglevel=logging.DEBUG):    
+	def login(self,
+	          user='root',
+	          command='su -',
+	          password=None,
+	          prompt_prefix=None,
+	          expect=None,
+	          timeout=180,
+	          escape=False,
+	          note=None,
+	          go_home=True,
+	          delaybeforesend=0.05,
+	          loglevel=logging.DEBUG):
 		"""Logs user in on default child.
 		"""
 		shutit_pexpect_session = self.get_current_shutit_pexpect_session()
@@ -2296,6 +2308,7 @@ $'"""
 	def get_input(self, msg, default='', valid=[], boolean=False, ispass=False, colour='32'):
 		shutit_util.get_input(msg=msg,default=default,valid=valid,boolean=boolean,ispass=ispass,colour=colour)
 
+	# TODO: move to shutit_pexpect
 	def get_memory(self,
 	               shutit_pexpect_child=None,
 	               expect=None,
@@ -2317,7 +2330,8 @@ $'"""
 		self._handle_note_after(note=note)
 		return memavail
 
-
+	
+	# TODO: move to shutit_pexpect
 	def get_distro_info(self,
 	                    environment_id,
 	                    shutit_pexpect_child=None,
@@ -2521,16 +2535,8 @@ $'"""
 		"""Get distro information from lsb_release.
 		"""
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
-		#          v the space is intentional, to avoid polluting bash history.
-		self.send(' lsb_release -a',check_exit=False, echo=False, loglevel=loglevel,delaybeforesend=delaybeforesend)
-		dist_string = shutit_util.match_string(shutit_pexpect_child.before, '^Distributor[\s]*ID:[\s]*(.*)$')
-		version_string = shutit_util.match_string(shutit_pexpect_child.before, '^Release:[\s*](.*)$')
-		d = {}
-		if dist_string:
-			d['distro']         = dist_string.lower().strip()
-			d['distro_version'] = version_string
-			d['install_type'] = (package_map.INSTALL_TYPE_MAP[dist_string.lower()])
-		return d
+		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
+		return shutit_pexpect_session.lsb_release(delaybeforesend=delaybeforesend,loglevel=loglevel)
 
 
 	def set_password(self,
@@ -2552,28 +2558,14 @@ $'"""
 		"""
 		global cfg
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
-		expect = expect or self.get_current_shutit_pexpect_session().default_expect
-		self._handle_note(note)
-		self.install('passwd')
-		if cfg['environment'][cfg['build']['current_environment_id']]['install_type'] == 'apt':
-			self.send('passwd ' + user, expect='Enter new', shutit_pexpect_child=shutit_pexpect_child, check_exit=False, delaybeforesend=delaybeforesend)
-			self.send(password, shutit_pexpect_child=shutit_pexpect_child, expect='Retype new', check_exit=False, echo=False, delaybeforesend=delaybeforesend)
-			self.send(password, shutit_pexpect_child=shutit_pexpect_child, expect=expect, echo=False, delaybeforesend=delaybeforesend)
-		elif cfg['environment'][cfg['build']['current_environment_id']]['install_type'] == 'yum':
-			self.send('passwd ' + user, shutit_pexpect_child=shutit_pexpect_child, expect='ew password', check_exit=False,delaybeforesend=delaybeforesend)
-			self.send(password, shutit_pexpect_child=shutit_pexpect_child, expect='ew password', check_exit=False, echo=False, delaybeforesend=delaybeforesend)
-			self.send(password, shutit_pexpect_child=shutit_pexpect_child, expect=expect, echo=False, delaybeforesend=delaybeforesend)
-		else:
-			self.send('passwd ' + user, expect='Enter new', shutit_pexpect_child=shutit_pexpect_child, check_exit=False, delaybeforesend=delaybeforesend)
-			self.send(password, shutit_pexpect_child=shutit_pexpect_child, expect='Retype new', check_exit=False, echo=False, delaybeforesend=delaybeforesend)
-			self.send(password, shutit_pexpect_child=shutit_pexpect_child, expect=expect, echo=False, delaybeforesend=delaybeforesend)
-		self._handle_note_after(note=note)
+		# TODO: assume expect is default in session
+		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
+		shutit_pexpect_session.set_password(password,user=user,delaybeforesend=delaybeforesend=note=note)
 
 
 	def is_user_id_available(self,
 	                         user_id,
 	                         shutit_pexpect_child=None,
-	                         expect=None,
 	                         note=None,
 	                         delaybeforesend=0,
 	                         loglevel=logging.DEBUG):
@@ -2590,15 +2582,8 @@ $'"""
 		@return:         True is the specified user id is not used yet, False if it's already been assigned to a user.
 		"""
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
-		expect = expect or self.get_current_shutit_pexpect_session().default_expect
-		self._handle_note(note)
-		#          v the space is intentional, to avoid polluting bash history.
-		self.send(' cut -d: -f3 /etc/paswd | grep -w ^' + user_id + '$ | wc -l', shutit_pexpect_child=shutit_pexpect_child, expect=expect, check_exit=False, echo=False, loglevel=loglevel,delaybeforesend=delaybeforesend)
-		self._handle_note_after(note=note)
-		if shutit_util.match_string(shutit_pexpect_child.before, '^([0-9]+)$') == '1':
-			return False
-		else:
-			return True
+		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
+		return shutit_pexpect_session.is_user_id_available(user_id,note=note,delaybeforesend=delaybeforesend,loglevel=loglevel)
 
 
 	def push_repository(self,
@@ -2661,6 +2646,7 @@ $'"""
 		@type force:                boolean
 		"""
 		global cfg
+		# TODO: make host and client configurable
 		expect = expect or self.get_current_shutit_pexpect_session().default_expect
 		tag    = cfg['repository']['tag']
 		push   = cfg['repository']['push']
