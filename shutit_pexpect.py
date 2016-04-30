@@ -1095,7 +1095,7 @@ class ShutItPexpectSession(object):
 			pw = ''
 		if install_type == 'apt':
 			if not cfg['build']['apt_update_done']:
-				self.send('apt-get update',loglevel=logging.INFO, delaybeforesend=delaybeforesend)
+				shutit_global.shutit.send('apt-get update',loglevel=logging.INFO, delaybeforesend=delaybeforesend)
 			cmd += 'apt-get install'
 			if 'apt' in options:
 				opts = options['apt']
@@ -1146,7 +1146,7 @@ class ShutItPexpectSession(object):
 				if pw != '':
 					res = shutit_global.shutit.multisend('%s %s %s' % (cmd, opts, package), {'assword':pw}, expect=['Unable to fetch some archives',self.default_expect], timeout=timeout, check_exit=False, shutit_pexpect_child=self.pexpect_child, loglevel=loglevel)
 				else:
-					res = self.send('%s %s %s' % (cmd, opts, package), expect=['Unable to fetch some archives',self.default_expect], timeout=timeout, check_exit=check_exit, shutit_pexpect_child=self.pexpect_child, loglevel=loglevel, delaybeforesend=delaybeforesend)
+					res = self.shutit_global.send('%s %s %s' % (cmd, opts, package), expect=['Unable to fetch some archives',self.default_expect], timeout=timeout, check_exit=check_exit, shutit_pexpect_child=self.pexpect_child, loglevel=loglevel, delaybeforesend=delaybeforesend)
 				if res == 1:
 					break
 				else:
