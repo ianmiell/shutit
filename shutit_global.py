@@ -1535,30 +1535,10 @@ $'"""
 		@param module_id: Identifying string of shutit module
 		@param note:      See send()
 		"""
-		# If it's already in cache, then return True.
-		# By default the cache is invalidated.
-		global cfg
-		self._handle_note(note)
-		if not cfg['environment'][cfg['build']['current_environment_id']]['modules_recorded_cache_valid']:
-			if self.file_exists(cfg['build']['build_db_dir'] + '/module_record',directory=True):
-				# Bit of a hack here to get round the long command showing up as the first line of the output.
-				cmd = 'find ' + cfg['build']['build_db_dir'] + r"""/module_record/ -name built | sed 's@^.""" + cfg['build']['build_db_dir'] + r"""/module_record.\([^/]*\).built@\1@' > """ + cfg['build']['build_db_dir'] + '/' + cfg['build']['build_id']
-				self.send(' ' + cmd, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
-				built = self.send_and_get_output('cat ' + cfg['build']['build_db_dir'] + '/' + cfg['build']['build_id'], echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend).strip()
-				self.send(' rm -f ' + cfg['build']['build_db_dir'] + '/' + cfg['build']['build_id'], echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
-				built_list = built.split('\r\n')
-				cfg['environment'][cfg['build']['current_environment_id']]['modules_recorded'] = built_list
-			# Either there was no directory (so the cache is valid), or we've built the cache, so mark as good.
-			cfg['environment'][cfg['build']['current_environment_id']]['modules_recorded_cache_valid'] = True
-		# Modules recorded cache will be valid at this point, so check the pre-recorded modules and the in-this-run installed cache.
-		self._handle_note_after(note=note)
-		if module_id in cfg['environment'][cfg['build']['current_environment_id']]['modules_recorded'] or module_id in cfg['environment'][cfg['build']['current_environment_id']]['modules_installed']:
-			return True
-		else:
-			return False
+		shutit_pexpect_session = self.get_current_shutit_pexpect_session()
+		return shutit_pexpect_session.is_shutit_installed(module_id,note=note,delaybeforesend=delaybeforesend,loglevel=loglevel)
 
 
-	# TODO: move this, pass through
 	def ls(self,
 	       directory,
 	       note=None,
@@ -1573,25 +1553,9 @@ $'"""
 
 		@rtype:             list of strings
 		"""
-		# should this blow up?
-		self._handle_note(note)
-		if not self.file_exists(directory,directory=True):
-			self.fail('ls: directory\n\n' + directory + '\n\ndoes not exist', throw_exception=False)
-		files = self.send_and_get_output(' ls ' + directory,echo=False, loglevel=loglevel, fail_on_empty_before=False, delaybeforesend=delaybeforesend)
-		files = files.split(' ')
-		# cleanout garbage from the terminal - all of this is necessary cause there are
-		# random return characters in the middle of the file names
-		files = filter(bool, files)
-		files = [_file.strip() for _file in files]
-		f = []
-		for _file in files:
-			spl = _file.split('\r')
-			f = f + spl
-		files = f
-		# this is required again to remove the '\n's
-		files = [_file.strip() for _file in files]
-		self._handle_note_after(note=note)
-		return files
+		shutit_pexpect_session = self.get_current_shutit_pexpect_session()
+		return shutit_pexpect_session.is_shutit_installed(directory,note=note,delaybeforesend=delaybeforesend,loglevel=loglevel)
+		
 
 
 	# TODO: move this, pass through?

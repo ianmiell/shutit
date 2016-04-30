@@ -1322,7 +1322,7 @@ def determine_interactive():
 	"""
 	try:
 		if not sys.stdout.isatty() or os.getpgrp() != os.tcgetpgrp(sys.stdout.fileno()):
-			if shutit is not None:
+			if shutit_global.shutit is not None:
 				set_noninteractive()
 			return False
 	except Exception:
