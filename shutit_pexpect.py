@@ -987,7 +987,7 @@ class ShutItPexpectSession(object):
 				cmd = 'find ' + cfg['build']['build_db_dir'] + r"""/module_record/ -name built | sed 's@^.""" + cfg['build']['build_db_dir'] + r"""/module_record.\([^/]*\).built@\1@' > """ + cfg['build']['build_db_dir'] + '/' + cfg['build']['build_id']
 				shutit_global.shutit.send(' ' + cmd, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
 				built = shutit_global.shutit.send_and_get_output('cat ' + cfg['build']['build_db_dir'] + '/' + cfg['build']['build_id'], echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend).strip()
-				shutit_global.shutit.send(' rm -f ' + cfg['build']['build_db_dir'] + '/' + cfg['build']['build_id'], echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
+				shutit_global.shutit.send(' rm -rf ' + cfg['build']['build_db_dir'] + '/' + cfg['build']['build_id'], echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
 				built_list = built.split('\r\n')
 				cfg['environment'][cfg['build']['current_environment_id']]['modules_recorded'] = built_list
 			# Either there was no directory (so the cache is valid), or we've built the cache, so mark as good.
