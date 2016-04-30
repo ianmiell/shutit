@@ -1221,6 +1221,7 @@ $'"""
 		"""
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
 		expect = expect or self.get_current_shutit_pexpect_session().default_expect
+		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
 		self._handle_note(note)
 		fexists = self.file_exists(fname)
 		if not fexists:
@@ -1235,7 +1236,7 @@ $'"""
 			# If replace and delete FAIL
 			if delete:
 				shutit.fail('cannot pass replace=True and delete=True to insert_text')
-		if self.command_available('base64'):
+		if shutit_pexpect_session.command_available('base64'):
 			ftext = self.send_and_get_output(' base64 ' + fname, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
 			ftext = base64.b64decode(ftext)
 		else:
@@ -1491,10 +1492,8 @@ $'"""
 		return shutit_pexpect_session(user,note=note,delaybeforesend=delaybeforesend,loglevel=loglevel)
 
 
-	# TODO: move this, pass through
 	def package_installed(self,
 	                      package,
-	                      expect=None,
 	                      shutit_pexpect_child=None,
 	                      note=None,
 	                      delaybeforesend=0,
@@ -1508,40 +1507,21 @@ $'"""
 
 		@rtype:           boolean
 		"""
-		global cfg
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
-		expect = expect or self.get_current_shutit_pexpect_session().default_expect
-		self._handle_note(note)
-		if cfg['environment'][cfg['build']['current_environment_id']]['install_type'] == 'apt':
-			#            v the space is intentional, to avoid polluting bash history.
-			self.send(""" dpkg -l | awk '{print $2}' | grep "^""" + package + """$" | wc -l""", expect, check_exit=False, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
-		elif cfg['environment'][cfg['build']['current_environment_id']]['install_type'] == 'yum':
-			#            v the space is intentional, to avoid polluting bash history.
-			self.send(""" yum list installed | awk '{print $1}' | grep "^""" + package + """$" | wc -l""", expect, check_exit=False, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
-		else:
-			return False
-		if shutit_util.match_string(shutit_pexpect_child.before, '^([0-9]+)$') != '0':
-			return True
-		else:
-			return False
+		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
+		return shutit_pexpect_session(package,note=note,delaybeforesend=delaybeforesend,loglevel=loglevel)
 
 
-	# TODO: move this, pass through
+
 	def command_available(self,
 	                      command,
-	                      expect=None,
 	                      shutit_pexpect_child=None,
 	                      note=None,
 	                      delaybeforesend=0,
 	                      loglevel=logging.DEBUG):
-		global cfg
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
-		expect = expect or self.get_current_shutit_pexpect_session().default_expect
-		self._handle_note(note)
-		if self.send_and_get_output(' command -v ' + command, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend) != '':
-			return True
-		else:
-			return False
+		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
+		return command_available(command,note=note,delaybeforesend=delaybeforesend,loglevel=loglevel)
 
 
 	# TODO: move this, pass through
@@ -2009,7 +1989,7 @@ $'"""
 		opts = ''
 		whoiam = shutit_pexpect_session.whoami()
 		if whoiam != 'root' and install_type != 'brew':
-			if not self.command_available('sudo',shutit_pexpect_child=shutit_pexpect_child,expect=expect):
+			if not shutit_pexpect_session.command_available('sudo',shutit_pexpect_child=shutit_pexpect_child):
 				self.pause_point('Please install sudo and then continue with CTRL-]',shutit_pexpect_child=shutit_pexpect_child)
 			cmd = 'sudo '
 			pw = self.get_env_pass(whoiam,'Please input your sudo password in case it is needed (for user: ' + whoiam + ')\nJust hit return if you do not want to submit a password.\n')
@@ -2313,6 +2293,7 @@ $'"""
 		"""
 		global cfg
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
+		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
 		install_type   = ''
 		distro         = ''
 		distro_version = ''
@@ -2355,7 +2336,7 @@ $'"""
 			install_type = package_map.INSTALL_TYPE_MAP[key]
 			distro_version = ''
 			if install_type == 'apt' and cfg['build']['delivery'] in ('docker','dockerfile'):
-				if not self.command_available('lsb_release'):
+				if not shutit_pexpect_session.command_available('lsb_release'):
 					if not cfg['build']['apt_update_done']:
 						cfg['build']['apt_update_done'] = True
 						self.send('apt-get update && apt-get install -y -qq lsb-release',loglevel=loglevel,delaybeforesend=delaybeforesend)
@@ -2372,7 +2353,7 @@ $'"""
 					if re.match('^centos.*$', output.lower()) or re.match('^red hat.*$', output.lower()) or re.match('^fedora.*$', output.lower()) or True:
 						self.send_and_match_output('yum install -y -t redhat-lsb epel-release','Complete!',loglevel=loglevel,delaybeforesend=delaybeforesend)
 				else:
-					if not self.command_available('lsb_release'):
+					if not shutit_pexpect_session.command_available('lsb_release'):
 						self.send('yum install -y lsb-release',loglevel=loglevel,delaybeforesend=delaybeforesend)
 				install_type   = d['install_type']
 				distro         = d['distro']
@@ -2393,7 +2374,7 @@ $'"""
 			elif install_type == 'docker' and cfg['build']['delivery'] in ('docker','dockerfile'):
 				distro = 'coreos'
 				distro_version = '1.0'
-		elif cfg['environment'][environment_id]['setup'] and self.command_available('lsb_release'):
+		elif cfg['environment'][environment_id]['setup'] and shutit_pexpect_session.command_available('lsb_release'):
 			d = self.lsb_release()
 			install_type   = d['install_type']
 			distro         = d['distro']
@@ -2432,7 +2413,7 @@ $'"""
 				elif self.send_and_get_output("uname -a | awk '{print $1}'",echo=False, loglevel=loglevel,delaybeforesend=delaybeforesend) == 'Darwin':
 					distro = 'osx'
 					install_type = 'brew'
-					if not self.command_available('brew'):
+					if not shutit_pexpect_session.command_available('brew'):
 						self.fail('ShutiIt requires brew be installed. See http://brew.sh for details on installation.')
 					for package in ('coreutils','findutils','gnu-tar','gnu-sed','gawk','gnutls','gnu-indent','gnu-getopt'):
 						if self.send_and_get_output('brew list | grep -w ' + package,echo=False, loglevel=loglevel,delaybeforesend=delaybeforesend) == '':
@@ -2443,7 +2424,7 @@ $'"""
 			# may fail if it doesn't know the install type, so
 			# if we've determined that now
 			if install_type == 'apt' and cfg['build']['delivery'] in ('docker','dockerfile'):
-				if not self.command_available('lsb_release'):
+				if not shutit_pexpect_session.command_available('lsb_release'):
 					if not cfg['build']['apt_update_done']:
 						cfg['build']['apt_update_done'] = True
 						self.send('apt-get update && apt-get install -y -qq lsb-release',loglevel=loglevel,delaybeforesend=delaybeforesend)
@@ -2459,7 +2440,7 @@ $'"""
 					if re.match('^centos.*$', output.lower()) or re.match('^red hat.*$', output.lower()) or re.match('^fedora.*$', output.lower()) or True:
 						self.send_and_match_output('yum install -y -t redhat-lsb epel-release','Complete!',loglevel=loglevel,delaybeforesend=delaybeforesend)
 				else:
-					if not self.command_available('lsb_release'):
+					if not shutit_pexpect_session.command_available('lsb_release'):
 						self.send('yum install -y lsb-release',loglevel=loglevel,delaybeforesend=delaybeforesend)
 				d = self.lsb_release()
 				install_type   = d['install_type']

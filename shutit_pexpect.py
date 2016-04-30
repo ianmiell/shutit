@@ -827,7 +827,6 @@ class ShutItPexpectSession(object):
 
 
 
-	# TODO: move this, pass through
 	def get_url(self,
 	            filename,
 	            locations,
@@ -870,12 +869,12 @@ class ShutItPexpectSession(object):
 		if len(locations) == 0 or type(locations) != list:
 			raise ShutItFailException('Locations should be a list containing base of the url.')
 		retry_orig = retry
-		if not shutit_global.shutit.command_available(command):
+		if not self.command_available(command):
 			shutit_global.shutit.install('curl')
-			if not shutit_global.shutit.command_available('curl'):
+			if not self.command_available('curl'):
 				shutit_global.shutit.install('wget')
 				command = 'wget -qO- '
-				if not shutit_global.shutit.command_available('wget'):
+				if not self.command_available('wget'):
 					shutit_global.shutit.fail('Could not install curl or wget, inform maintainers.')
 		for location in locations:
 			retry = retry_orig
@@ -926,7 +925,45 @@ class ShutItPexpectSession(object):
 		return exists
 
 
+	def package_installed(self,
+	                      package,
+	                      note=None,
+	                      delaybeforesend=0,
+	                      loglevel=logging.DEBUG):
+		"""Returns True if we can be sure the package is installed.
 
+		@param package:   Package as a string, eg 'wget'.
+		@param note:      See send()
+
+		@rtype:           boolean
+		"""
+		cfg = shutit_global.shutit.cfg
+		self._handle_note(note)
+		if cfg['environment'][cfg['build']['current_environment_id']]['install_type'] == 'apt':
+			#            v the space is intentional, to avoid polluting bash history.
+			shutit_global.shutit.send(""" dpkg -l | awk '{print $2}' | grep "^""" + package + """$" | wc -l""", expect=self.default_expect, check_exit=False, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
+		elif cfg['environment'][cfg['build']['current_environment_id']]['install_type'] == 'yum':
+			#            v the space is intentional, to avoid polluting bash history.
+			shutit_global.shutit.send(""" yum list installed | awk '{print $1}' | grep "^""" + package + """$" | wc -l""", expect=self.default_expect, check_exit=False, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
+		else:
+			return False
+		if shutit_util.match_string(self.pexpect_child.before, '^([0-9]+)$') != '0':
+			return True
+		else:
+			return False
+
+
+
+	def command_available(self,
+	                      command,
+	                      note=None,
+	                      delaybeforesend=0,
+	                      loglevel=logging.DEBUG):
+		self._handle_note(note)
+		if shutit_global.shutit.send_and_get_output(' command -v ' + command, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend) != '':
+			return True
+		else:
+			return False
 
 
 	#TODO: create environment object
