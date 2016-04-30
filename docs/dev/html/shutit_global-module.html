@@ -57,7 +57,8 @@
 </table>
 <!-- ==================== MODULE DESCRIPTION ==================== -->
 <h1 class="epydoc">Module shutit_global</h1><p class="nomargin-top"><span class="codelink"><a href="shutit_global-pysrc.html">source&nbsp;code</a></span></p>
-<p>Contains all the core ShutIt methods and functionality.</p>
+<p>Contains all the core ShutIt methods and functionality, and public 
+  interface off to internal objects such as shutit_pexpect.</p>
 
 <!-- ==================== CLASSES ==================== -->
 <a name="section-Classes"></a>
@@ -164,15 +165,15 @@
     <td width="15%" align="right" valign="top" class="summary">
       <span class="summary-type">&nbsp;</span>
     </td><td class="summary">
-        <a href="shutit_global-module.html#cfg" class="summary-name">cfg</a> = <code title="{'action': {},
- 'build': {'build_db_dir': '/tmp/shutit_imiell/osboxes_imiell_14598856\
-36.23.231472/build_db',
-           'build_id': 'osboxes_imiell_1459885636.23.231472',
+        <a href="shutit_global-module.html#cfg" class="summary-name">cfg</a> = <code title="{'SHUTIT_SIGNAL': {},
+ 'action': {},
+ 'build': {'build_db_dir': '/tmp/shutit_imiell/osboxes_imiell_14619513\
+84.19.192972/build_db',
+           'build_id': 'osboxes_imiell_1461951384.19.192972',
            'completed': False,
            'distro_override': '',
-           'install_type_map': {'alpine': 'apk',
-                                'centos': 'yum',
-..."><code class="variable-group">{</code><code class="variable-quote">'</code><code class="variable-string">action</code><code class="variable-quote">'</code><code class="variable-op">: </code><code class="variable-group">{</code><code class="variable-group">}</code><code class="variable-op">, </code><code class="variable-quote">'</code><code class="variable-string">build</code><code class="variable-quote">'</code><code class="variable-op">: </code><code class="variable-group">{</code><code class="variable-quote">'</code><code class="variable-string">build_db_dir</code><code class="variable-quote">'</code><code class="variable-op">: </code><code class="variable-quote">'</code><code class="variable-string">/tmp/shutit_im</code><code class="variable-ellipsis">...</code></code>
+           'interactive': 1,
+..."><code class="variable-group">{</code><code class="variable-quote">'</code><code class="variable-string">SHUTIT_SIGNAL</code><code class="variable-quote">'</code><code class="variable-op">: </code><code class="variable-group">{</code><code class="variable-group">}</code><code class="variable-op">, </code><code class="variable-quote">'</code><code class="variable-string">action</code><code class="variable-quote">'</code><code class="variable-op">: </code><code class="variable-group">{</code><code class="variable-group">}</code><code class="variable-op">, </code><code class="variable-quote">'</code><code class="variable-string">build</code><code class="variable-quote">'</code><code class="variable-op">: </code><code class="variable-group">{</code><code class="variable-quote">'</code><code class="variable-string">build_db_</code><code class="variable-ellipsis">...</code></code>
     </td>
   </tr>
 <tr>
@@ -180,13 +181,6 @@
       <span class="summary-type">&nbsp;</span>
     </td><td class="summary">
         <a name="cwd"></a><span class="summary-name">cwd</span> = <code title="'/space/git/shutit/docs'"><code class="variable-quote">'</code><code class="variable-string">/space/git/shutit/docs</code><code class="variable-quote">'</code></code>
-    </td>
-  </tr>
-<tr>
-    <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">&nbsp;</span>
-    </td><td class="summary">
-        <a name="pexpect_children"></a><span class="summary-name">pexpect_children</span> = <code title="{}"><code class="variable-group">{</code><code class="variable-group">}</code></code>
     </td>
   </tr>
 <tr>
@@ -215,6 +209,13 @@
       <span class="summary-type">&nbsp;</span>
     </td><td class="summary">
         <a name="shutit_modules"></a><span class="summary-name">shutit_modules</span> = <code title="set([])"><code class="variable-group">set([</code><code class="variable-group">])</code></code>
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a name="shutit_pexpect_sessions"></a><span class="summary-name">shutit_pexpect_sessions</span> = <code title="{}"><code class="variable-group">{</code><code class="variable-group">}</code></code>
     </td>
   </tr>
 </table>
@@ -306,14 +307,14 @@
   <dl class="fields">
     <dt>Value:</dt>
       <dd><table><tr><td><pre class="variable">
-<code class="variable-group">{</code><code class="variable-quote">'</code><code class="variable-string">action</code><code class="variable-quote">'</code><code class="variable-op">: </code><code class="variable-group">{</code><code class="variable-group">}</code><code class="variable-op">,</code>
- <code class="variable-quote">'</code><code class="variable-string">build</code><code class="variable-quote">'</code><code class="variable-op">: </code><code class="variable-group">{</code><code class="variable-quote">'</code><code class="variable-string">build_db_dir</code><code class="variable-quote">'</code><code class="variable-op">: </code><code class="variable-quote">'</code><code class="variable-string">/tmp/shutit_imiell/osboxes_imiell_14598856</code><span class="variable-linewrap"><img src="crarr.png" alt="\" /></span>
-<code class="variable-string">36.23.231472/build_db</code><code class="variable-quote">'</code><code class="variable-op">,</code>
-           <code class="variable-quote">'</code><code class="variable-string">build_id</code><code class="variable-quote">'</code><code class="variable-op">: </code><code class="variable-quote">'</code><code class="variable-string">osboxes_imiell_1459885636.23.231472</code><code class="variable-quote">'</code><code class="variable-op">,</code>
+<code class="variable-group">{</code><code class="variable-quote">'</code><code class="variable-string">SHUTIT_SIGNAL</code><code class="variable-quote">'</code><code class="variable-op">: </code><code class="variable-group">{</code><code class="variable-group">}</code><code class="variable-op">,</code>
+ <code class="variable-quote">'</code><code class="variable-string">action</code><code class="variable-quote">'</code><code class="variable-op">: </code><code class="variable-group">{</code><code class="variable-group">}</code><code class="variable-op">,</code>
+ <code class="variable-quote">'</code><code class="variable-string">build</code><code class="variable-quote">'</code><code class="variable-op">: </code><code class="variable-group">{</code><code class="variable-quote">'</code><code class="variable-string">build_db_dir</code><code class="variable-quote">'</code><code class="variable-op">: </code><code class="variable-quote">'</code><code class="variable-string">/tmp/shutit_imiell/osboxes_imiell_14619513</code><span class="variable-linewrap"><img src="crarr.png" alt="\" /></span>
+<code class="variable-string">84.19.192972/build_db</code><code class="variable-quote">'</code><code class="variable-op">,</code>
+           <code class="variable-quote">'</code><code class="variable-string">build_id</code><code class="variable-quote">'</code><code class="variable-op">: </code><code class="variable-quote">'</code><code class="variable-string">osboxes_imiell_1461951384.19.192972</code><code class="variable-quote">'</code><code class="variable-op">,</code>
            <code class="variable-quote">'</code><code class="variable-string">completed</code><code class="variable-quote">'</code><code class="variable-op">: </code>False<code class="variable-op">,</code>
            <code class="variable-quote">'</code><code class="variable-string">distro_override</code><code class="variable-quote">'</code><code class="variable-op">: </code><code class="variable-quote">'</code><code class="variable-string"></code><code class="variable-quote">'</code><code class="variable-op">,</code>
-           <code class="variable-quote">'</code><code class="variable-string">install_type_map</code><code class="variable-quote">'</code><code class="variable-op">: </code><code class="variable-group">{</code><code class="variable-quote">'</code><code class="variable-string">alpine</code><code class="variable-quote">'</code><code class="variable-op">: </code><code class="variable-quote">'</code><code class="variable-string">apk</code><code class="variable-quote">'</code><code class="variable-op">,</code>
-                                <code class="variable-quote">'</code><code class="variable-string">centos</code><code class="variable-quote">'</code><code class="variable-op">: </code><code class="variable-quote">'</code><code class="variable-string">yum</code><code class="variable-quote">'</code><code class="variable-op">,</code>
+           <code class="variable-quote">'</code><code class="variable-string">interactive</code><code class="variable-quote">'</code><code class="variable-op">: </code>1<code class="variable-op">,</code>
 <code class="variable-ellipsis">...</code>
 </pre></td></tr></table>
 </dd>
@@ -350,7 +351,7 @@
   <tr>
     <td align="left" class="footer">
     Generated by Epydoc 3.0.1
-    on Tue Apr  5 19:47:16 2016
+    on Fri Apr 29 17:36:24 2016
     </td>
     <td align="right" class="footer">
       <a target="mainFrame" href="http://epydoc.sourceforge.net"

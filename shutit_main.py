@@ -44,7 +44,7 @@ def stop_all(shutit, run_order=-1):
 	"""
 	cfg = shutit.cfg
 	if cfg['build']['interactive'] >= 3:
-		print('\nRunning stop on all modules' + shutit_util.colour('32', '\n\n[Hit return to continue]'))
+		print('\nRunning stop on all modules' + shutit_util.colourise('32', '\n\n[Hit return to continue]'))
 		shutit_util.util_raw_input()
 	# sort them so they're stopped in reverse order
 	for module_id in shutit_util.module_ids(shutit, rev=True):
@@ -63,7 +63,7 @@ def start_all(shutit, run_order=-1):
 	"""
 	cfg = shutit.cfg
 	if cfg['build']['interactive'] >= 3:
-		print('\nRunning start on all modules' + shutit_util.colour('32', '\n\n[Hit return to continue]\n'))
+		print('\nRunning start on all modules' + shutit_util.colourise('32', '\n\n[Hit return to continue]\n'))
 		shutit_util.util_raw_input()
 	# sort them so they're started in order
 	for module_id in shutit_util.module_ids(shutit):
@@ -144,7 +144,7 @@ def init_shutit_map(shutit):
 		shutit.fail('No module with run_order=0 specified! This is required.')
 
 	if cfg['build']['interactive'] >= 3:
-		print(shutit_util.colour('32', 'Module id and run order checks OK\n\n[Hit return to continue]\n'))
+		print(shutit_util.colourise('32', 'Module id and run order checks OK\n\n[Hit return to continue]\n'))
 		shutit_util.util_raw_input()
 
 
@@ -162,7 +162,7 @@ def conn_target(shutit):
 
 	# Set up the target in pexpect.
 	if cfg['build']['interactive'] >= 3:
-		print('\nRunning the conn module (' + shutit.shutit_main_dir + '/shutit_setup.py)' + shutit_util.colour('32', '\n\n[Hit return to continue]\n'))
+		print('\nRunning the conn module (' + shutit.shutit_main_dir + '/shutit_setup.py)' + shutit_util.colourise('32', '\n\n[Hit return to continue]\n'))
 		shutit_util.util_raw_input()
 	conn_module.get_config(shutit)
 	conn_module.build(shutit)
@@ -412,7 +412,7 @@ def do_build(shutit):
 	shutit.log('PHASE: build, repository work', level=logging.DEBUG)
 	shutit.log(shutit_util.print_config(cfg),level=logging.DEBUG)
 	if cfg['build']['interactive'] >= 3:
-		print ('\nNow building any modules that need building' + shutit_util.colour('32', '\n\n[Hit return to continue]\n'))
+		print ('\nNow building any modules that need building' + shutit_util.colourise('32', '\n\n[Hit return to continue]\n'))
 		shutit_util.util_raw_input()
 	module_id_list = shutit_util.module_ids(shutit)
 	if cfg['build']['deps_only']:
@@ -454,7 +454,7 @@ def do_test(shutit):
 	# Test in reverse order
 	shutit.log('PHASE: test', level=logging.DEBUG)
 	if cfg['build']['interactive'] >= 3:
-		print '\nNow doing test phase' + shutit_util.colour('32', '\n\n[Hit return to continue]\n')
+		print '\nNow doing test phase' + shutit_util.colourise('32', '\n\n[Hit return to continue]\n')
 		shutit_util.util_raw_input()
 	stop_all(shutit)
 	start_all(shutit)
@@ -475,13 +475,13 @@ def do_finalize(shutit):
 	cfg = shutit.cfg
 	# Stop all the modules
 	if cfg['build']['interactive'] >= 3:
-		print('\nStopping all modules before finalize phase' + shutit_util.colour('32', '\n\n[Hit return to continue]\n'))
+		print('\nStopping all modules before finalize phase' + shutit_util.colourise('32', '\n\n[Hit return to continue]\n'))
 		shutit_util.util_raw_input()
 	stop_all(shutit)
 	# Finalize in reverse order
 	shutit.log('PHASE: finalize', level=logging.DEBUG)
 	if cfg['build']['interactive'] >= 3:
-		print('\nNow doing finalize phase, which we do when all builds are ' + 'complete and modules are stopped' + shutit_util.colour('32', '\n\n[Hit return to continue]\n'))
+		print('\nNow doing finalize phase, which we do when all builds are ' + 'complete and modules are stopped' + shutit_util.colourise('32', '\n\n[Hit return to continue]\n'))
 		shutit_util.util_raw_input()
 	# Login at least once to get the exports.
 	for module_id in shutit_util.module_ids(shutit, rev=True):
@@ -634,7 +634,6 @@ def main():
 				child = err[1]
 		shutit.fail("Encountered some errors, quitting", shutit_pexpect_child=child)
 
-	shutit.record_config()
 	do_remove(shutit)
 	do_build(shutit)
 	do_test(shutit)

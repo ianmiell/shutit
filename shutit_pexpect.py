@@ -12,7 +12,7 @@
 # The above copyright notice and this permission notice shall be included in all
 # copies or substantial portions of the Software.
 # 
-# THE SOFeWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 # IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 # ITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
 # THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
@@ -561,11 +561,11 @@ class ShutItPexpectSession(object):
 					pp_msg = '\r\nYou now have a standard shell. Hit CTRL and then ] at the same to continue ShutIt run.'
 					if cfg['build']['delivery'] == 'docker':
 						pp_msg += '\r\nHit CTRL and u to save the state to a docker image'
-					shutit_global.shutit.log('\r\n' + 80*'=' + '\r\n' + shutit_util.colour(colour,msg) +'\r\n'+80*'='+'\r\n' + shutit_util.colour(colour,pp_msg),transient=True)
+					shutit_global.shutit.log('\r\n' + 80*'=' + '\r\n' + shutit_util.colourise(colour,msg) +'\r\n'+80*'='+'\r\n' + shutit_util.colourise(colour,pp_msg),transient=True)
 				else:
-					shutit_global.shutit.log('\r\n' + (shutit_util.colour(colour, msg)),transient=True)
+					shutit_global.shutit.log('\r\n' + (shutit_util.colourise(colour, msg)),transient=True)
 			else:
-				shutit_global.shutit.log(shutit_util.colour(colour, msg) + '\r\n' + default_msg + '\r\n',transient=True)
+				shutit_global.shutit.log(shutit_util.colourise(colour, msg) + '\r\n' + default_msg + '\r\n',transient=True)
 			oldlog = self.pexpect_child.logfile_send
 			self.pexpect_child.logfile_send = None
 			if wait < 0:

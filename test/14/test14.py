@@ -1,8 +1,6 @@
 from shutit_module import ShutItModule
 
-
 class test14(ShutItModule):
-
 
 	def build(self, shutit):
 		shutit.send('''cp /etc/resolv.conf /tmp/b''')

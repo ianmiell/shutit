@@ -1,8 +1,4 @@
-"""ShutIt module. See http://shutit.tk
-"""
-
 from shutit_module import ShutItModule
-
 
 class test13(ShutItModule):
 

@@ -446,7 +446,7 @@
     </td><td class="summary">
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td><span class="summary-sig"><a href="shutit_util-module.html#get_hash" class="summary-sig-name">get_hash</a>(<span class="summary-sig-arg">string</span>)</span><br />
+          <td><span class="summary-sig"><a href="shutit_util-module.html#get_hash" class="summary-sig-name">get_hash</a>(<span class="summary-sig-arg">string_to_hash</span>)</span><br />
       Helper function to get preceding integer eg com.openbet == 1003189494
       &gt;&gt;&gt; import binascii &gt;&gt;&gt; 
       abs(binascii.crc32('shutit.tk')) 782914092</td>
@@ -499,8 +499,7 @@
     </td><td class="summary">
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td><span class="summary-sig"><a name="util_raw_input"></a><span class="summary-sig-name">util_raw_input</span>(<span class="summary-sig-arg">shutit</span>=<span class="summary-sig-default">None</span>,
-        <span class="summary-sig-arg">prompt</span>=<span class="summary-sig-default"><code class="variable-quote">'</code><code class="variable-string"></code><code class="variable-quote">'</code></span>,
+          <td><span class="summary-sig"><a name="util_raw_input"></a><span class="summary-sig-name">util_raw_input</span>(<span class="summary-sig-arg">prompt</span>=<span class="summary-sig-default"><code class="variable-quote">'</code><code class="variable-string"></code><code class="variable-quote">'</code></span>,
         <span class="summary-sig-arg">default</span>=<span class="summary-sig-default">None</span>,
         <span class="summary-sig-arg">ispass</span>=<span class="summary-sig-default">False</span>,
         <span class="summary-sig-arg">use_readline</span>=<span class="summary-sig-default">True</span>)</span><br />
@@ -521,8 +520,8 @@
     </td><td class="summary">
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td><span class="summary-sig"><a href="shutit_util-module.html#determine_interactive" class="summary-sig-name">determine_interactive</a>(<span class="summary-sig-arg">shutit</span>=<span class="summary-sig-default">None</span>)</span><br />
-      Determine whether we're in an interactive context.</td>
+          <td><span class="summary-sig"><a href="shutit_util-module.html#determine_interactive" class="summary-sig-name">determine_interactive</a>()</span><br />
+      Determine whether we're in an interactive shell.</td>
           <td align="right" valign="top">
             <span class="codelink"><a href="shutit_util-pysrc.html#determine_interactive">source&nbsp;code</a></span>
             
@@ -538,8 +537,7 @@
     </td><td class="summary">
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td><span class="summary-sig"><a name="set_noninteractive"></a><span class="summary-sig-name">set_noninteractive</span>(<span class="summary-sig-arg">shutit</span>,
-        <span class="summary-sig-arg">msg</span>=<span class="summary-sig-default"><code class="variable-quote">'</code><code class="variable-string">setting non-interactive</code><code class="variable-quote">'</code></span>)</span></td>
+          <td><span class="summary-sig"><a name="set_noninteractive"></a><span class="summary-sig-name">set_noninteractive</span>(<span class="summary-sig-arg">msg</span>=<span class="summary-sig-default"><code class="variable-quote">'</code><code class="variable-string">setting non-interactive</code><code class="variable-quote">'</code></span>)</span></td>
           <td align="right" valign="top">
             <span class="codelink"><a href="shutit_util-pysrc.html#set_noninteractive">source&nbsp;code</a></span>
             
@@ -587,6 +585,23 @@
     </td><td class="summary">
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
+          <td><span class="summary-sig"><a name="ctrl_quit_signal_handler"></a><span class="summary-sig-name">ctrl_quit_signal_handler</span>(<span class="summary-sig-arg">_</span>,
+        <span class="summary-sig-arg">frame</span>)</span></td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="shutit_util-pysrc.html#ctrl_quit_signal_handler">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
           <td><span class="summary-sig"><a name="ctrlc_background"></a><span class="summary-sig-name">ctrlc_background</span>()</span></td>
           <td align="right" valign="top">
             <span class="codelink"><a href="shutit_util-pysrc.html#ctrlc_background">source&nbsp;code</a></span>
@@ -603,9 +618,8 @@
     </td><td class="summary">
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td><span class="summary-sig"><a name="ctrl_c_signal_handler"></a><span class="summary-sig-name">ctrl_c_signal_handler</span>(<span class="summary-sig-arg">signal</span>,
-        <span class="summary-sig-arg">frame</span>)</span><br />
-      CTRL-c signal handler - enters a pause point if it can.</td>
+          <td><span class="summary-sig"><a name="ctrl_c_signal_handler"></a><span class="summary-sig-name">ctrl_c_signal_handler</span>(<span class="summary-sig-arg">_</span>,
+        <span class="summary-sig-arg">frame</span>)</span></td>
           <td align="right" valign="top">
             <span class="codelink"><a href="shutit_util-pysrc.html#ctrl_c_signal_handler">source&nbsp;code</a></span>
             
@@ -910,6 +924,154 @@
       
     </td>
   </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="handle_exit"></a><span class="summary-sig-name">handle_exit</span>(<span class="summary-sig-arg">shutit</span>=<span class="summary-sig-default">None</span>,
+        <span class="summary-sig-arg">exit_code</span>=<span class="summary-sig-default">0</span>,
+        <span class="summary-sig-arg">loglevel</span>=<span class="summary-sig-default">10</span>,
+        <span class="summary-sig-arg">msg</span>=<span class="summary-sig-default">None</span>)</span></td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="shutit_util-pysrc.html#handle_exit">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="sendline"></a><span class="summary-sig-name">sendline</span>(<span class="summary-sig-arg">child</span>,
+        <span class="summary-sig-arg">line</span>,
+        <span class="summary-sig-arg">delaybeforesend</span>=<span class="summary-sig-default">0</span>)</span><br />
+      Handles sending of line to pexpect object, setting delaybeforesend if
+      necessary.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="shutit_util-pysrc.html#sendline">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="sanitize_terminal"></a><span class="summary-sig-name">sanitize_terminal</span>()</span></td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="shutit_util-pysrc.html#sanitize_terminal">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="shutit_util-module.html#match_string" class="summary-sig-name">match_string</a>(<span class="summary-sig-arg">string_to_match</span>,
+        <span class="summary-sig-arg">regexp</span>)</span><br />
+      Get regular expression from the first of the lines passed in in 
+      string that matched.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="shutit_util-pysrc.html#match_string">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="shutit_util-module.html#get_re_from_child" class="summary-sig-name">get_re_from_child</a>(<span class="summary-sig-arg">string_to_match</span>,
+        <span class="summary-sig-arg">regexp</span>)</span><br />
+      Get regular expression from the first of the lines passed in in 
+      string that matched.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="shutit_util-pysrc.html#match_string">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="shutit_util-module.html#get_input" class="summary-sig-name">get_input</a>(<span class="summary-sig-arg">msg</span>,
+        <span class="summary-sig-arg">default</span>=<span class="summary-sig-default"><code class="variable-quote">'</code><code class="variable-string"></code><code class="variable-quote">'</code></span>,
+        <span class="summary-sig-arg">valid</span>=<span class="summary-sig-default"><code class="variable-group">[</code><code class="variable-group">]</code></span>,
+        <span class="summary-sig-arg">boolean</span>=<span class="summary-sig-default">False</span>,
+        <span class="summary-sig-arg">ispass</span>=<span class="summary-sig-default">False</span>,
+        <span class="summary-sig-arg">colour</span>=<span class="summary-sig-default"><code class="variable-quote">'</code><code class="variable-string">32</code><code class="variable-quote">'</code></span>)</span><br />
+      Gets input from the user, and returns the answer.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="shutit_util-pysrc.html#get_input">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="get_send_command"></a><span class="summary-sig-name">get_send_command</span>(<span class="summary-sig-arg">send</span>)</span><br />
+      Internal helper function to get command that's really sent</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="shutit_util-pysrc.html#get_send_command">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="get_command"></a><span class="summary-sig-name">get_command</span>(<span class="summary-sig-arg">command</span>)</span></td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="shutit_util-pysrc.html#get_command">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
 </table>
 <!-- ==================== VARIABLES ==================== -->
 <a name="section-Variables"></a>
@@ -933,6 +1095,13 @@
       <span class="summary-type">&nbsp;</span>
     </td><td class="summary">
         <a name="in_ctrlc"></a><span class="summary-name">in_ctrlc</span> = <code title="False">False</code>
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a name="ctrl_c_calls"></a><span class="summary-name">ctrl_c_calls</span> = <code title="0">0</code>
     </td>
   </tr>
 <tr class="private">
@@ -1190,7 +1359,7 @@
 <tr><td>
   <table width="100%" cellpadding="0" cellspacing="0" border="0">
   <tr valign="top"><td>
-  <h3 class="epydoc"><span class="sig"><span class="sig-name">get_hash</span>(<span class="sig-arg">string</span>)</span>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">get_hash</span>(<span class="sig-arg">string_to_hash</span>)</span>
   </h3>
   </td><td align="right" valign="top"
     ><span class="codelink"><a href="shutit_util-pysrc.html#get_hash">source&nbsp;code</a></span>&nbsp;
@@ -1212,14 +1381,14 @@
 <tr><td>
   <table width="100%" cellpadding="0" cellspacing="0" border="0">
   <tr valign="top"><td>
-  <h3 class="epydoc"><span class="sig"><span class="sig-name">determine_interactive</span>(<span class="sig-arg">shutit</span>=<span class="sig-default">None</span>)</span>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">determine_interactive</span>()</span>
   </h3>
   </td><td align="right" valign="top"
     ><span class="codelink"><a href="shutit_util-pysrc.html#determine_interactive">source&nbsp;code</a></span>&nbsp;
     </td>
   </tr></table>
   
-  <p>Determine whether we're in an interactive context. Sets interactivity 
+  <p>Determine whether we're in an interactive shell. Sets interactivity 
   off if appropriate. cf 
   http://stackoverflow.com/questions/24861351/how-to-detect-if-python-script-is-being-run-as-a-background-process</p>
   <dl class="fields">
@@ -1267,6 +1436,96 @@
   <p>Returns true if this module is installed. Uses cache where 
   possible.</p>
   <dl class="fields">
+  </dl>
+</td></tr></table>
+</div>
+<a name="match_string"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">match_string</span>(<span class="sig-arg">string_to_match</span>,
+        <span class="sig-arg">regexp</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="shutit_util-pysrc.html#match_string">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Get regular expression from the first of the lines passed in in string
+  that matched. Handles first group of regexp as a return value.</p>
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>string_to_match</code></strong> (string) - String to match on</li>
+        <li><strong class="pname"><code>regexp</code></strong> (string
+          <p>Returns None if none of the lines matched.</p>
+          <p>Returns True if there are no groups selected in the regexp. 
+          else returns matching group (ie non-None)</p>) - Regexp to check (per-line) against string</li>
+    </ul></dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="get_re_from_child"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">get_re_from_child</span>(<span class="sig-arg">string_to_match</span>,
+        <span class="sig-arg">regexp</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="shutit_util-pysrc.html#match_string">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Get regular expression from the first of the lines passed in in string
+  that matched. Handles first group of regexp as a return value.</p>
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>string_to_match</code></strong> (string) - String to match on</li>
+        <li><strong class="pname"><code>regexp</code></strong> (string
+          <p>Returns None if none of the lines matched.</p>
+          <p>Returns True if there are no groups selected in the regexp. 
+          else returns matching group (ie non-None)</p>) - Regexp to check (per-line) against string</li>
+    </ul></dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="get_input"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">get_input</span>(<span class="sig-arg">msg</span>,
+        <span class="sig-arg">default</span>=<span class="sig-default"><code class="variable-quote">'</code><code class="variable-string"></code><code class="variable-quote">'</code></span>,
+        <span class="sig-arg">valid</span>=<span class="sig-default"><code class="variable-group">[</code><code class="variable-group">]</code></span>,
+        <span class="sig-arg">boolean</span>=<span class="sig-default">False</span>,
+        <span class="sig-arg">ispass</span>=<span class="sig-default">False</span>,
+        <span class="sig-arg">colour</span>=<span class="sig-default"><code class="variable-quote">'</code><code class="variable-string">32</code><code class="variable-quote">'</code></span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="shutit_util-pysrc.html#get_input">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Gets input from the user, and returns the answer.</p>
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>msg</code></strong> - message to send to user</li>
+        <li><strong class="pname"><code>default</code></strong> - default value if nothing entered</li>
+        <li><strong class="pname"><code>valid</code></strong> - valid input values (default == empty list == anything allowed)</li>
+        <li><strong class="pname"><code>boolean</code></strong> - whether return value should be boolean</li>
+        <li><strong class="pname"><code>ispass</code></strong> - True if this is a password (ie whether to not echo input)</li>
+    </ul></dd>
   </dl>
 </td></tr></table>
 </div>
@@ -1371,7 +1630,7 @@
   <tr>
     <td align="left" class="footer">
     Generated by Epydoc 3.0.1
-    on Tue Apr  5 19:47:16 2016
+    on Fri Apr 29 17:36:24 2016
     </td>
     <td align="right" class="footer">
       <a target="mainFrame" href="http://epydoc.sourceforge.net"

@@ -1,4 +1,5 @@
-"""Contains all the core ShutIt methods and functionality.
+"""Contains all the core ShutIt methods and functionality, and public interface
+off to internal objects such as shutit_pexpect.
 """
 
 #The MIT License (MIT)
@@ -39,7 +40,6 @@ import pexpect
 import md5
 from shutit_module import ShutItFailException
 import logging
-import shutit_util
 
 
 class ShutIt(object):
@@ -337,12 +337,12 @@ class ShutIt(object):
 		else:
 			cfg['build']['pause_point_hints'] = []
 		if challenge_type == 'command':
-			help_text = shutit_util.colour('32','''\nType 'help' or 'h' to get a hint, 'exit' to skip, 'shutitreset' to reset state.''')
+			help_text = shutit_util.colourise('32','''\nType 'help' or 'h' to get a hint, 'exit' to skip, 'shutitreset' to reset state.''')
 			ok = False
 			while not ok:
-				self.log(shutit_util.colour('32','''\nChallenge!'''),transient=True)
+				self.log(shutit_util.colourise('32','''\nChallenge!'''),transient=True)
 				if len(hints):
-					self.log(shutit_util.colour('32',help_text),transient=True)
+					self.log(shutit_util.colourise('32',help_text),transient=True)
 				time.sleep(pause)
 				# TODO: bash path completion
 				send = shutit_util.get_input(task_desc + ' => ',colour='31')
@@ -351,10 +351,10 @@ class ShutIt(object):
 				if send in ('help','h'):
 					if len(hints):
 						self.log(help_text,transient=True)
-						self.log(shutit_util.colour('32',hints.pop()),transient=True)
+						self.log(shutit_util.colourise('32',hints.pop()),transient=True)
 					else:
 						self.log(help_text,transient=True)
-						self.log(shutit_util.colour('32','No hints left, sorry! CTRL-g to reset state, CTRL-s to skip this step'),transient=True)
+						self.log(shutit_util.colourise('32','No hints left, sorry! CTRL-g to reset state, CTRL-s to skip this step'),transient=True)
 					time.sleep(pause)
 					continue
 				if send == 'shutitreset':
@@ -383,7 +383,7 @@ class ShutIt(object):
 							ok = True
 							break
 				if not ok and failed:
-					self.log('\n\n' + shutit_util.colour('32','failed') + '\n',transient=True)
+					self.log('\n\n' + shutit_util.colourise('32','failed') + '\n',transient=True)
 					self._challenge_done(pexpect_session,result='failed')
 					continue
 		elif challenge_type == 'golf':
@@ -395,18 +395,18 @@ class ShutIt(object):
 			else:
 				task_desc_new = task_desc
 			while not ok:
-				self.pause_point(shutit_util.colour('31',task_desc_new),colour='31') # TODO: message
+				self.pause_point(shutit_util.colourise('31',task_desc_new),colour='31') # TODO: message
 				if cfg['SHUTIT_SIGNAL']['ID'] == 8:
 					if len(cfg['build']['pause_point_hints']):
-						self.log(shutit_util.colour('31','\r\n========= HINT ==========\r\n\r\n' + cfg['build']['pause_point_hints'].pop(0)),transient=True)
+						self.log(shutit_util.colourise('31','\r\n========= HINT ==========\r\n\r\n' + cfg['build']['pause_point_hints'].pop(0)),transient=True)
 					else:
-						self.log(shutit_util.colour('31','\r\n\r\n' + 'No hints available!'),transient=True)
+						self.log(shutit_util.colourise('31','\r\n\r\n' + 'No hints available!'),transient=True)
 					time.sleep(1)
 					# clear the signal
 					cfg['SHUTIT_SIGNAL']['ID'] = 0
 					continue
 				elif cfg['SHUTIT_SIGNAL']['ID'] == 7:
-					self.log(shutit_util.colour('31','\r\n========= RESETTING STATE ==========\r\n\r\n'),transient=True)
+					self.log(shutit_util.colourise('31','\r\n========= RESETTING STATE ==========\r\n\r\n'),transient=True)
 					self._challenge_done(pexpect_session,result='reset', follow_on_context=follow_on_context)
 					# clear the signal
 					cfg['SHUTIT_SIGNAL']['ID'] = 0
@@ -458,7 +458,7 @@ class ShutIt(object):
 							ok = True
 							break
 				if not ok and failed:
-					shutit.log('\n\n' + shutit_util.colour('31','Failed! CTRL-g to reset state, CTRL-h for a hint') + '\n',transient=True)
+					shutit.log('\n\n' + shutit_util.colourise('31','Failed! CTRL-g to reset state, CTRL-h for a hint') + '\n',transient=True)
 					self._challenge_done(pexpect_session,result='failed')
 					continue
 		else:
@@ -474,7 +474,7 @@ class ShutIt(object):
 	def _challenge_done(self, pexpect_session, result=None, congratulations=None, follow_on_context={},pause=1,skipped=False):
 		if result == 'ok':
 			if congratulations:
-				self.log('\n\n' + shutit_util.colour('32',congratulations) + '\n',transient=True)
+				self.log('\n\n' + shutit_util.colourise('32',congratulations) + '\n',transient=True)
 			time.sleep(pause)
 			self.cfg['build']['ctrlc_passthrough'] = False
 			if follow_on_context != {}:
@@ -487,7 +487,7 @@ class ShutIt(object):
 						pexpect_session.replace_container(container_name)
 						self.log('State restored.',level=logging.INFO)
 					else:
-						self.log(shutit_util.colour('31','Continuing, remember you can restore to a known state with CTRL-g.'),transient=True)
+						self.log(shutit_util.colourise('31','Continuing, remember you can restore to a known state with CTRL-g.'),transient=True)
 				else:
 					self.fail('Follow-on context not handled on pass')
 			return
@@ -756,8 +756,8 @@ $'"""
 				self.pause_point(message, colour=31, wait=wait)
 			else:
 				if training_input != '' and cfg['build']['training']:
-					print(shutit_util.colour('31',message))
-					while shutit_util.util_raw_input(prompt=shutit_util.colour('32','Type in the command to continue: ')) != training_input:
+					print(shutit_util.colourise('31',message))
+					while shutit_util.util_raw_input(prompt=shutit_util.colourise('32','Type in the command to continue: ')) != training_input:
 						print('Wrong! Try again!')
 				else:
 					self.pause_point(message, colour=31)
@@ -1518,7 +1518,6 @@ $'"""
 		"""
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
 		expect = expect or self.get_current_shutit_pexpect_session().default_expect
-		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
 		self._handle_note(note)
 		exists = False
 		if user == '': return exists
@@ -1707,8 +1706,8 @@ $'"""
 		config_parser = cfg['config_parser']
 		usercfg       = os.path.join(cfg['shutit_home'], 'config')
 
-		self.log(shutit_util.colour('32', '\nPROMPTING FOR CONFIG: %s' % (cfgstr,)),transient=True)
-		self.log(shutit_util.colour('32', '\n' + msg + '\n'),transient=True)
+		self.log(shutit_util.colourise('32', '\nPROMPTING FOR CONFIG: %s' % (cfgstr,)),transient=True)
+		self.log(shutit_util.colourise('32', '\n' + msg + '\n'),transient=True)
 		
 		if not shutit_util.determine_interactive():
 			self.fail('ShutIt is not in a terminal so cannot prompt for values.', throw_exception=False)
@@ -1740,7 +1739,7 @@ $'"""
 				subcp for subcp, filename, _fp in config_parser.layers
 				if filename == usercfg
 			][0]
-			if shutit_util.util_raw_input(prompt=shutit_util.colour('32', 'Do you want to save this to your user settings? y/n: '),default='y') == 'y':
+			if shutit_util.util_raw_input(prompt=shutit_util.colourise('32', 'Do you want to save this to your user settings? y/n: '),default='y') == 'y':
 				sec_toset, name_toset, val_toset = sec, name, val
 			else:
 				# Never save it
@@ -2795,7 +2794,7 @@ $'"""
 						answer = None
 						# util_raw_input may change the interactive level, so guard for this.
 						while answer not in ('yes','no','') and cfg['build']['interactive'] > 1:
-							answer = shutit_util.util_raw_input(prompt=shutit_util.colour('32', 'Do you want to accept the config option defaults? ' + '(boolean - input "yes" or "no") (default: yes): \n'),default='yes')
+							answer = shutit_util.util_raw_input(prompt=shutit_util.colourise('32', 'Do you want to accept the config option defaults? ' + '(boolean - input "yes" or "no") (default: yes): \n'),default='yes')
 						# util_raw_input may change the interactive level, so guard for this.
 						if answer == 'yes' or answer == '' or cfg['build']['interactive'] < 2:
 							cfg['build']['accept_defaults'] = True
@@ -2815,16 +2814,16 @@ $'"""
 						answer = None
 						if boolean:
 							while answer not in ('yes','no'):
-								answer =  shutit_util.util_raw_input(prompt=shutit_util.colour('32',prompt + ' (boolean - input "yes" or "no"): \n'))
+								answer =  shutit_util.util_raw_input(prompt=shutit_util.colourise('32',prompt + ' (boolean - input "yes" or "no"): \n'))
 							if answer == 'yes':
 								answer = True
 							elif answer == 'no':
 								answer = False
 						else:
 							if re.search('assw',option) == None:
-								answer =  shutit_util.util_raw_input(prompt=shutit_util.colour('32',prompt) + ': \n')
+								answer =  shutit_util.util_raw_input(prompt=shutit_util.colourise('32',prompt) + ': \n')
 							else:
-								answer =  shutit_util.util_raw_input(ispass=True,prompt=shutit_util.colour('32',prompt) + ': \n')
+								answer =  shutit_util.util_raw_input(ispass=True,prompt=shutit_util.colourise('32',prompt) + ': \n')
 						if answer == '' and default != None:
 							answer = default
 						cfg[module_id][option] = answer
@@ -2837,54 +2836,11 @@ $'"""
 				cfg[module_id][option] = default
 
 
-	def get_ip_address(self,
-	                   ip_family='4',
-	                   ip_object='addr',
-	                   command='ip',
-	                   interface='eth0',
-	                   note=None,
-	                   delaybeforesend=0,
-	                   loglevel=logging.DEBUG):
-		"""Gets the ip address based on the args given. Assumes command exists.
-
-		@param ip_family:   type of ip family, defaults to 4
-		@param ip_object:   type of ip object, defaults to "addr"
-		@param command:     defaults to "ip"
-		@param interface:   defaults to "eth0"
-		@param note:        See send()
-
-		@type ip_family:    string
-		@type ip_object:    string
-		@type command:      string
-		@type interface:    string
-		"""
-		self._handle_note(note)
-		res = self.send_and_get_output(command + ' -' + ip_family + ' -o ' + ip_object + ' | grep ' + interface,echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
-		self._handle_note_after(note=note)
-		return res
-
-
-	def record_config(self, loglevel=logging.DEBUG):
-		""" Put the config in a file in the target.
-		"""
-		global cfg
-
-
 	def get_emailer(self, cfg_section):
 		"""Sends an email using the mailer
 		"""
 		from alerting import emailer
 		return emailer.Emailer(cfg_section, self)
-
-
-	def query_config(self, item):
-		"""Consistent and back-compatible API for asking for config information.
-		"""
-		# Is the docker socket mounted?
-		if item == 'mount_docker':
-			return self.cfg['build']['mount_docker']
-		else:
-			self.fail('query_config: item "' + item + '" not handled')
 
 
 	# eg sys.stdout or None

@@ -136,7 +136,7 @@ def is_file_secure(file_name):
 	return True
 
 
-def colour(code, msg):
+def colourise(code, msg):
 	"""Colourize the given string for a terminal.
 	"""
 	return '\033[%sm%s\033[0m' % (code, msg)
@@ -697,7 +697,7 @@ docker_tutorial:   a docker-based tutorial
 			
 			-s section name value
 			================================================================================
-			""" + colour('32', '\n[Hit return to continue]'))
+			""" + colourise('32', '\n[Hit return to continue]'))
 		util_raw_input()
 		print textwrap.dedent("""\
 			================================================================================
@@ -734,7 +734,7 @@ docker_tutorial:   a docker-based tutorial
 			See shutit_module.py for more detailed documentation on these.
 
 			================================================================================
-			""" + colour('32', '\n[Hit return to continue]'))
+			""" + colourise('32', '\n[Hit return to continue]'))
 		util_raw_input()
 		print textwrap.dedent("""\
 			================================================================================
@@ -752,7 +752,7 @@ docker_tutorial:   a docker-based tutorial
 			To escape a pause point when it happens, hit the "CTRL" and the "]"
 			key simultaneously.
 			================================================================================
-			""" + colour('32', '\n[Hit return to continue]'))
+			""" + colourise('32', '\n[Hit return to continue]'))
 		util_raw_input()
 	# Set up trace as fast as possible.
 	if cfg['build']['trace']:
@@ -794,7 +794,7 @@ def load_configs(shutit):
 			msg = msg + '    \n' + c
 			shutit.log('    ' + c,level=logging.DEBUG)
 		if cfg['build']['interactive'] >= 3:
-			print textwrap.dedent("""\n""") + msg + textwrap.dedent(colour('32', '\n\n[Hit return to continue]'))
+			print textwrap.dedent("""\n""") + msg + textwrap.dedent(colourise('32', '\n\n[Hit return to continue]'))
 			util_raw_input()
 		if cfg['action']['list_configs'] or cfg['build']['loglevel'] <= logging.DEBUG:
 			if cfg['build']['log_config_path']:
@@ -1310,6 +1310,7 @@ def util_raw_input(prompt='', default=None, ispass=False, use_readline=True):
 				return resp
 	except Exception:
 		msg = 'Problems getting raw input, assuming no controlling terminal.'
+	print '21'
 	set_noninteractive(msg=msg)
 	return default
 
@@ -1339,12 +1340,12 @@ def set_noninteractive(msg="setting non-interactive"):
 
 
 def print_stack_trace():
-	print '================================================================================'
-	print 'Strack trace was:\n================================================================================'
+	shutit_global.shutit.log('================================================================================',transient=True)
+	shutit_global.shutit.log('Strack trace was:\n================================================================================',transient=True)
 	import traceback
 	(a,b,c) = sys.exc_info()
 	traceback.print_tb(c)
-	print '================================================================================'
+	shutit_global.shutit.log('================================================================================',transient=True)
 
 
 # get the ordinal for a given char, in a friendly way
@@ -1400,7 +1401,7 @@ def ctrl_c_signal_handler(_,frame):
 		if shutit.cfg['build']['ctrlc_passthrough']:
 			shutit.self.get_current_shutit_pexpect_session().pexpect_child.sendline(r'')
 			return
-		print colour(31,"\rYou may need to wait for a command to complete before a pause point is available. Alternatively, CTRL-\ to quit.")
+		print colourise(31,"\rYou may need to wait for a command to complete before a pause point is available. Alternatively, CTRL-\ to quit.")
 		shutit.cfg['build']['ctrlc_stop'] = True
 		t = threading.Thread(target=ctrlc_background)
 		t.daemon = True
@@ -1408,9 +1409,9 @@ def ctrl_c_signal_handler(_,frame):
 		# Reset the ctrl-c calls
 		ctrl_c_calls = 0
 		return
-	print colour(31,'\n' + '*' * 80)
-	print colour(31,"CTRL-c caught, CTRL-c twice to quit.")
-	print colour(31,'*' * 80)
+	print colourise(31,'\n' + '*' * 80)
+	print colourise(31,"CTRL-c caught, CTRL-c twice to quit.")
+	print colourise(31,'*' * 80)
 	t = threading.Thread(target=ctrlc_background)
 	t.daemon = True
 	t.start()
@@ -2126,11 +2127,11 @@ def get_input(msg, default='', valid=[], boolean=False, ispass=False, colour='32
 	"""
 	if boolean and valid == []:
 		valid = ('yes','y','Y','1','true','no','n','N','0','false')
-	answer = util_raw_input(prompt=colour('32',msg),ispass=ispass)
+	answer = util_raw_input(prompt=colourise(colour,msg),ispass=ispass)
 	if valid != []:
 		while answer not in valid:
 			shutit_global.shutit.log('Answer must be one of: ' + str(valid),transient=True)
-			answer = util_raw_input(prompt=colour(colour,msg),ispass=ispass)
+			answer = util_raw_input(prompt=colourise(colour,msg),ispass=ispass)
 	if boolean and answer in ('yes','y','Y','1','true'):
 		return True
 	if boolean and answer in ('no','n','N','0','false'):
@@ -2296,7 +2297,6 @@ _build_section = '''
 		# COMMAND HELPER FUNCTIONS
 		# shutit.add_to_bashrc(line)         - Add a line to bashrc
 		# shutit.get_url(fname, locations)   - Get a file via url from locations specified in a list
-		# shutit.get_ip_address()            - Returns the ip address of the target
 		# shutit.command_available(command)  - Returns true if the command is available to run
 		#
 		# LOGGING AND DEBUG
