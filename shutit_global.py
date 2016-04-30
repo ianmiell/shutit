@@ -1521,7 +1521,7 @@ $'"""
 	                      loglevel=logging.DEBUG):
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
 		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
-		return command_available(command,note=note,delaybeforesend=delaybeforesend,loglevel=loglevel)
+		return shutit_pexpect_session.command_available(command,note=note,delaybeforesend=delaybeforesend,loglevel=loglevel)
 
 
 	# TODO: move this, pass through

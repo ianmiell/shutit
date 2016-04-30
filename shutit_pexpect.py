@@ -920,7 +920,7 @@ class ShutItPexpectSession(object):
 		if ret:
 			exists = True
 		# sync with the prompt
-		self.expect(expect)
+		self.expect(self.default_expect)
 		shutit_global.shutit._handle_note_after(note=note)
 		return exists
 
@@ -938,7 +938,7 @@ class ShutItPexpectSession(object):
 		@rtype:           boolean
 		"""
 		cfg = shutit_global.shutit.cfg
-		self._handle_note(note)
+		shutit_global.shutit._handle_note(note)
 		if cfg['environment'][cfg['build']['current_environment_id']]['install_type'] == 'apt':
 			#            v the space is intentional, to avoid polluting bash history.
 			shutit_global.shutit.send(""" dpkg -l | awk '{print $2}' | grep "^""" + package + """$" | wc -l""", expect=self.default_expect, check_exit=False, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
@@ -959,7 +959,7 @@ class ShutItPexpectSession(object):
 	                      note=None,
 	                      delaybeforesend=0,
 	                      loglevel=logging.DEBUG):
-		self._handle_note(note)
+		shutit_global.shutit._handle_note(note)
 		if shutit_global.shutit.send_and_get_output(' command -v ' + command, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend) != '':
 			return True
 		else:
