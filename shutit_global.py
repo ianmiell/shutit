@@ -1524,7 +1524,6 @@ $'"""
 		return shutit_pexpect_session.command_available(command,note=note,delaybeforesend=delaybeforesend,loglevel=loglevel)
 
 
-	# TODO: move this, pass through
 	def is_shutit_installed(self,
 	                        module_id,
 	                        note=None,
@@ -1558,7 +1557,6 @@ $'"""
 		
 
 
-	# TODO: move this, pass through?
 	def get_file(self,
 	             target_path,
 	             host_path,
@@ -1893,11 +1891,9 @@ $'"""
 			return before
 
 
-	# TODO: move this, pass through?
 	def install(self,
 	            package,
 	            shutit_pexpect_child=None,
-	            expect=None,
 	            options=None,
 	            timeout=3600,
 	            force=False,
@@ -1930,101 +1926,10 @@ $'"""
 		@return: True if all ok (ie it's installed), else False.
 		@rtype: boolean
 		"""
-		global cfg
 		# If separated by spaces, install separately
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
-		expect = expect or self.get_current_shutit_pexpect_session().default_expect
 		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
-		if package.find(' ') != -1:
-			ok = True
-			for p in package.split(' '):
-				if not self.install(p,shutit_pexpect_child,expect,options,timeout,force,check_exit,reinstall,note):
-					ok = False
-			return ok
-		# Some packages get mapped to the empty string. If so, bail out with 'success' here.
-		self._handle_note(note)
-				
-		self.log('Installing package: ' + package,level=loglevel)
-		if options is None: options = {}
-		install_type = cfg['environment'][cfg['build']['current_environment_id']]['install_type']
-		if install_type == 'src':
-			# If this is a src build, we assume it's already installed.
-			return True
-		opts = ''
-		whoiam = shutit_pexpect_session.whoami()
-		if whoiam != 'root' and install_type != 'brew':
-			if not shutit_pexpect_session.command_available('sudo',shutit_pexpect_child=shutit_pexpect_child):
-				self.pause_point('Please install sudo and then continue with CTRL-]',shutit_pexpect_child=shutit_pexpect_child)
-			cmd = 'sudo '
-			pw = self.get_env_pass(whoiam,'Please input your sudo password in case it is needed (for user: ' + whoiam + ')\nJust hit return if you do not want to submit a password.\n')
-		else:
-			cmd = ''
-			pw = ''
-		if install_type == 'apt':
-			if not cfg['build']['apt_update_done']:
-				self.send('apt-get update',loglevel=logging.INFO, delaybeforesend=delaybeforesend)
-			cmd += 'apt-get install'
-			if 'apt' in options:
-				opts = options['apt']
-			else:
-				opts = '-y'
-				if not cfg['build']['loglevel'] <= logging.DEBUG:
-					opts += ' -qq'
-				if force:
-					opts += ' --force-yes'
-				if reinstall:
-					opts += ' --reinstall'
-		elif install_type == 'yum':
-			cmd += 'yum install'
-			if 'yum' in options:
-				opts = options['yum']
-			else:
-				opts += ' -y'
-			if reinstall:
-				opts += ' reinstall'
-		elif install_type == 'apk':
-			cmd += 'apk add'
-			if 'apk' in options:
-				opts = options['apk']
-		elif install_type == 'emerge':
-			cmd += 'emerge'
-			if 'emerge' in options:
-				opts = options['emerge']
-		elif install_type == 'docker':
-			cmd += 'docker pull'
-			if 'docker' in options:
-				opts = options['docker']
-		elif install_type == 'brew':
-			cmd += 'brew install'
-			if 'brew' in options:
-				opts = options['brew']
-			else:
-				opts += ' --force'
-		else:
-			# Not handled
-			return False
-		# Get mapped packages.
-		package = package_map.map_packages(package, cfg['environment'][cfg['build']['current_environment_id']]['install_type'])
-		# Let's be tolerant of failure eg due to network.
-		# This is especially helpful with automated testing.
-		if package.strip() != '':
-			fails = 0
-			while True:
-				if pw != '':
-					res = self.multisend('%s %s %s' % (cmd, opts, package), {'assword':pw}, expect=['Unable to fetch some archives',expect], timeout=timeout, check_exit=False, shutit_pexpect_child=shutit_pexpect_child, loglevel=loglevel)
-				else:
-					res = self.send('%s %s %s' % (cmd, opts, package), expect=['Unable to fetch some archives',expect], timeout=timeout, check_exit=check_exit, shutit_pexpect_child=shutit_pexpect_child, loglevel=loglevel, delaybeforesend=delaybeforesend)
-				if res == 1:
-					break
-				else:
-					fails += 1
-				if fails >= 3:
-					break
-		else:
-			# package not required
-			pass
-		self._handle_note_after(note=note)
-		return True
+		return shutit_pexpect_session(package,options=options,timeout=timeout,force=force,check_exit=check_exit,reinstall=reinstall,note=note,delaybeforesend=delaybeforesend,loglevel=loglevel)
 
 
 	# TODO: move this, pass through?

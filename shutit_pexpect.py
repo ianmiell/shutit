@@ -792,7 +792,7 @@ class ShutItPexpectSession(object):
 
 		cfg = shutit_global.shutit.cfg
 		shutit_global.shutit._handle_note(note)
-		shutit_global.shutit.install('passwd')
+		self.install('passwd')
 		if cfg['environment'][cfg['build']['current_environment_id']]['install_type'] == 'apt':
 			shutit_global.shutit.send('passwd ' + user, expect='Enter new', shutit_pexpect_child=self.pexpect_child, check_exit=False, delaybeforesend=delaybeforesend)
 			shutit_global.shutit.send(password, shutit_pexpect_child=self.pexpect_child, expect='Retype new', check_exit=False, echo=False, delaybeforesend=delaybeforesend)
@@ -870,9 +870,9 @@ class ShutItPexpectSession(object):
 			raise ShutItFailException('Locations should be a list containing base of the url.')
 		retry_orig = retry
 		if not self.command_available(command):
-			shutit_global.shutit.install('curl')
+			self.install('curl')
 			if not self.command_available('curl'):
-				shutit_global.shutit.install('wget')
+				self.install('wget')
 				command = 'wget -qO- '
 				if not self.command_available('wget'):
 					shutit_global.shutit.fail('Could not install curl or wget, inform maintainers.')
@@ -1033,6 +1033,199 @@ class ShutItPexpectSession(object):
 		files = [_file.strip() for _file in files]
 		shutit_global.shutit._handle_note_after(note=note)
 		return files
+
+
+	def install(self,
+	            package,
+	            options=None,
+	            timeout=3600,
+	            force=False,
+	            check_exit=True,
+	            reinstall=False,
+	            note=None,
+	            delaybeforesend=0,
+	            loglevel=logging.DEBUG):
+		"""Distro-independent install function.
+		Takes a package name and runs the relevant install function.
+
+		@param package:    Package to install, which is run through package_map
+		@param timeout:    Timeout (s) to wait for finish of install. Defaults to 3600.
+		@param options:    Dictionary for specific options per install tool.
+		                   Overrides any arguments passed into this function.
+		@param force:      Force if necessary. Defaults to False
+		@param check_exit: If False, failure to install is ok (default True)
+		@param reinstall:  Advise a reinstall where possible (default False)
+		@param note:       See send()
+
+		@type package:     string
+		@type timeout:     integer
+		@type options:     dict
+		@type force:       boolean
+		@type check_exit:  boolean
+		@type reinstall:   boolean
+
+		@return: True if all ok (ie it's installed), else False.
+		@rtype: boolean
+		"""
+		cfg = shutit_global.shutit.cfg
+		# If separated by spaces, install separately
+		if package.find(' ') != -1:
+			ok = True
+			for p in package.split(' '):
+				if not self.install(p,options,timeout,force,check_exit,reinstall,note):
+					ok = False
+			return ok
+		# Some packages get mapped to the empty string. If so, bail out with 'success' here.
+		shutit_global.shutit._handle_note(note)
+		shutit_global.shutit.log('Installing package: ' + package,level=loglevel)
+		if options is None: options = {}
+		install_type = cfg['environment'][cfg['build']['current_environment_id']]['install_type']
+		if install_type == 'src':
+			# If this is a src build, we assume it's already installed.
+			return True
+		opts = ''
+		whoiam = self.whoami()
+		if whoiam != 'root' and install_type != 'brew':
+			if not self.command_available('sudo',shutit_pexpect_child=shutit_pexpect_child):
+				shutit_global.shutit.pause_point('Please install sudo and then continue with CTRL-]',shutit_pexpect_child=shutit_pexpect_child)
+			cmd = 'sudo '
+			pw = shutit_global.shutit.get_env_pass(whoiam,'Please input your sudo password in case it is needed (for user: ' + whoiam + ')\nJust hit return if you do not want to submit a password.\n')
+		else:
+			cmd = ''
+			pw = ''
+		if install_type == 'apt':
+			if not cfg['build']['apt_update_done']:
+				self.send('apt-get update',loglevel=logging.INFO, delaybeforesend=delaybeforesend)
+			cmd += 'apt-get install'
+			if 'apt' in options:
+				opts = options['apt']
+			else:
+				opts = '-y'
+				if not cfg['build']['loglevel'] <= logging.DEBUG:
+					opts += ' -qq'
+				if force:
+					opts += ' --force-yes'
+				if reinstall:
+					opts += ' --reinstall'
+		elif install_type == 'yum':
+			cmd += 'yum install'
+			if 'yum' in options:
+				opts = options['yum']
+			else:
+				opts += ' -y'
+			if reinstall:
+				opts += ' reinstall'
+		elif install_type == 'apk':
+			cmd += 'apk add'
+			if 'apk' in options:
+				opts = options['apk']
+		elif install_type == 'emerge':
+			cmd += 'emerge'
+			if 'emerge' in options:
+				opts = options['emerge']
+		elif install_type == 'docker':
+			cmd += 'docker pull'
+			if 'docker' in options:
+				opts = options['docker']
+		elif install_type == 'brew':
+			cmd += 'brew install'
+			if 'brew' in options:
+				opts = options['brew']
+			else:
+				opts += ' --force'
+		else:
+			# Not handled
+			return False
+		# Get mapped packages.
+		package = package_map.map_packages(package, cfg['environment'][cfg['build']['current_environment_id']]['install_type'])
+		# Let's be tolerant of failure eg due to network.
+		# This is especially helpful with automated testing.
+		if package.strip() != '':
+			fails = 0
+			while True:
+				if pw != '':
+					res = shutit_global.shutit.multisend('%s %s %s' % (cmd, opts, package), {'assword':pw}, expect=['Unable to fetch some archives',self.default_expect], timeout=timeout, check_exit=False, shutit_pexpect_child=self.pexpect_child, loglevel=loglevel)
+				else:
+					res = self.send('%s %s %s' % (cmd, opts, package), expect=['Unable to fetch some archives',self.default_expect], timeout=timeout, check_exit=check_exit, shutit_pexpect_child=self.pexpect_child, loglevel=loglevel, delaybeforesend=delaybeforesend)
+				if res == 1:
+					break
+				else:
+					fails += 1
+				if fails >= 3:
+					break
+		else:
+			# package not required
+			pass
+		shutit_global.shutit._handle_note_after(note=note)
+		return True
+
+
+	# TODO: move this, pass through?
+	def remove(self,
+	           package,
+	           shutit_pexpect_child=None,
+	           expect=None,
+	           options=None,
+	           timeout=3600,
+	           delaybeforesend=0,
+	           note=None):
+		"""Distro-independent remove function.
+		Takes a package name and runs relevant remove function.
+
+		@param package:  Package to remove, which is run through package_map.
+		@param expect:   See send()
+		@param shutit_pexpect_child:    See send()
+		@param options:  Dict of options to pass to the remove command,
+		                 mapped by install_type.
+		@param timeout:  See send(). Default: 3600
+		@param note:     See send()
+
+		@return: True if all ok (i.e. the package was successfully removed),
+		         False otherwise.
+		@rtype: boolean
+		"""
+		global cfg
+		# If separated by spaces, remove separately
+		if package.find(' ') != -1:
+			for p in package.split(' '):
+				self.install(p,shutit_pexpect_child=shutit_pexpect_child,expect=expect,options=options,timeout=timeout,note=note)
+		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
+		expect = expect or self.get_current_shutit_pexpect_session().default_expect
+		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
+		self._handle_note(note)
+		if options is None: options = {}
+		install_type = cfg['environment'][cfg['build']['current_environment_id']]['install_type']
+		whoiam = shutit_pexpect_session.whoami()
+		if whoiam != 'root' and install_type != 'brew':
+			cmd = 'sudo '
+			pw = self.get_env_pass(whoiam,'Please input your sudo password in case it is needed (for user: ' + whoiam + ')\nJust hit return if you do not want to submit a password.\n')
+		else:
+			cmd = ''
+			pw = ''
+		if install_type == 'src':
+			# If this is a src build, we assume it's already installed.
+			return True
+		if install_type == 'apt':
+			cmd += 'apt-get purge'
+			opts = options['apt'] if 'apt' in options else '-qq -y'
+		elif install_type == 'yum':
+			cmd += 'yum erase'
+			opts = options['yum'] if 'yum' in options else '-y'
+		elif install_type == 'apk':
+			cmd += 'apk del'
+			if 'apk' in options:
+				opts = options['apk']
+		elif install_type == 'emerge':
+			cmd += 'emerge -cav'
+			if 'emerge' in options:
+				opts = options['emerge']
+		elif install_type == 'docker':
+			cmd += 'docker rmi'
+			if 'docker' in options:
+				opts = options['docker']
+		elif install_type == 'brew':
+			cmd += 'brew uninstall'
+			if 'brew' in options:
 
 
 	#TODO: create environment object
