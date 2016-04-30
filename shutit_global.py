@@ -1469,10 +1469,8 @@ $'"""
 		return shutit_pexpect_session.get_url(filename,locations,command=command,timeout=timeout,fail_on_empty_before=fail_on_empty_before,record_command=record_command,exit_values=exit_values,retry=retry,note=note,delaybeforesend=delaybeforesend,loglevel=loglevel)
 
 
-	# TODO: move this, pass through
 	def user_exists(self,
 	                user,
-	                expect=None,
 	                shutit_pexpect_child=None,
 	                note=None,
 	                delaybeforesend=0,
@@ -1489,18 +1487,8 @@ $'"""
 		@rtype:        boolean
 		"""
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
-		expect = expect or self.get_current_shutit_pexpect_session().default_expect
-		self._handle_note(note)
-		exists = False
-		if user == '': return exists
-		#v the space is intentional, to avoid polluting bash history.
-		ret = self.send(' id %s && echo E""XIST || echo N""XIST' % user, expect=['NXIST', 'EXIST'], shutit_pexpect_child=shutit_pexpect_child, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
-		if ret:
-			exists = True
-		# sync with the prompt
-		shutit_pexpect_child.expect(expect)
-		self._handle_note_after(note=note)
-		return exists
+		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
+		return shutit_pexpect_session(user,note=note,delaybeforesend=delaybeforesend,loglevel=loglevel)
 
 
 	# TODO: move this, pass through

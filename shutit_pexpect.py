@@ -898,6 +898,35 @@ class ShutItPexpectSession(object):
 
 
 
+	def user_exists(self,
+	                user,
+	                note=None,
+	                delaybeforesend=0,
+ 	                loglevel=logging.DEBUG):
+		"""Returns true if the specified username exists.
+		
+		@param user:   username to check for
+		@param note:   See send()
+
+		@type user:    string
+
+		@rtype:        boolean
+		"""
+		shutit_global.shutit._handle_note(note)
+		exists = False
+		if user == '':
+			return exists
+		#v the space is intentional, to avoid polluting bash history.
+		ret = shutit_global.shutit.send(' id %s && echo E""XIST || echo N""XIST' % user, expect=['NXIST', 'EXIST'], shutit_pexpect_child=self.pexpect_child, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
+		if ret:
+			exists = True
+		# sync with the prompt
+		self.expect(expect)
+		shutit_global.shutit._handle_note_after(note=note)
+		return exists
+
+
+
 
 
 	#TODO: create environment object
