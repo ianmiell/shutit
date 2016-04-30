@@ -396,7 +396,7 @@ class ShutItPexpectSession(object):
 		shutit_global.shutit.set_default_shutit_pexpect_session(self)
 		cfg = shutit_global.shutit.cfg
 		environment_id_dir = cfg['build']['shutit_state_dir'] + '/environment_id'
-		if shutit_global.shutit.file_exists(environment_id_dir,directory=True):
+		if self.file_exists(environment_id_dir,directory=True):
 			files = shutit_global.shutit.ls(environment_id_dir)
 			if len(files) != 1 or type(files) != list:
 				if len(files) == 2 and (files[0] == 'ORIGIN_ENV' or files[1] == 'ORIGIN_ENV'):
@@ -413,12 +413,12 @@ class ShutItPexpectSession(object):
 							break
 				else:
 					# See comment above re: cygwin.
-					if shutit_global.shutit.file_exists('/cygdrive'):
+					if self.file_exists('/cygdrive'):
 						cfg['build']['current_environment_id'] = 'ORIGIN_ENV'
 					else:
 						shutit_global.shutit.fail('Wrong number of files in environment_id_dir: ' + environment_id_dir)
 			else:
-				if shutit_global.shutit.file_exists('/cygdrive'):
+				if self.file_exists('/cygdrive'):
 					environment_id = 'ORIGIN_ENV'
 				else:
 					environment_id = files[0]
@@ -554,7 +554,7 @@ class ShutItPexpectSession(object):
 		if print_input:
 			if resize:
 				fixterm_filename = '/tmp/shutit_fixterm'
-				if not shutit_global.shutit.file_exists(fixterm_filename):
+				if not self.file_exists(fixterm_filename):
 					shutit_global.shutit.send_file(fixterm_filename,shutit_assets.get_fixterm(), shutit_pexpect_child=self.pexpect_child, loglevel=logging.DEBUG, delaybeforesend=delaybeforesend)
 					shutit_global.shutit.send(' chmod 777 ' + fixterm_filename, echo=False,loglevel=logging.DEBUG, delaybeforesend=delaybeforesend)
 				self.sendline(' ' + fixterm_filename, delaybeforesend=delaybeforesend)
