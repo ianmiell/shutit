@@ -127,8 +127,9 @@ class ShutIt(object):
 		@type throw_exception: boolean
 		"""
 		# Note: we must not default to a child here
+		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
 		if shutit_pexpect_child is not None:
-			self.pause_point('Pause point on fail: ' + msg, shutit_pexpect_child=shutit_pexpect_child, colour='31')
+			shutit_pexpect_session.pause_point('Pause point on fail: ' + msg, colour='31')
 		if throw_exception:
 			print >> sys.stderr, 'Error caught: ' + msg
 			print >> sys.stderr
@@ -161,7 +162,7 @@ class ShutIt(object):
 				cfg['build']['report_final_messages'] += msg + '\n'
 
 
-
+	# TODO: sort out environments
 	def get_current_environment(self):
 		return self.cfg['environment'][self.cfg['build']['current_environment_id']]
 
@@ -198,28 +199,8 @@ class ShutIt(object):
 		"""
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
 		expect = expect or self.get_current_shutit_pexpect_session().default_expect
-		self._handle_note(note)
-		
-		send_iteration = send
-		expect_list = send_dict.keys()
-		# Put breakout item(s) in last.
-		n_breakout_items = 0
-		if type(expect) == str:
-			expect_list.append(expect)
-			n_breakout_items = 1
-		elif type(expect) == list:
-			for item in expect:
-				expect_list.append(item)
-				n_breakout_items += 1
-		while True:
-			# If it's the last n items in the list, it's the breakout one.
-			res = self.send(send_iteration, expect=expect_list, shutit_pexpect_child=shutit_pexpect_child, check_exit=check_exit, fail_on_empty_before=fail_on_empty_before, timeout=timeout, record_command=record_command, exit_values=exit_values, echo=echo, escape=escape, loglevel=loglevel, delaybeforesend=delaybeforesend)
-			if res >= len(expect_list) - n_breakout_items:
-				break
-			else:
-				send_iteration = send_dict[expect_list[res]]
-		self._handle_note_after(note=note)
-		return res
+		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
+		return shutit_pexpect_session.multisend(send,send_dict,expect=expect,timeout=timeout,check_exit=check_exit,fail_on_empty_before=fail_on_empty_before,record_command=record_command,exit_values=exit_values,escape=escape,echo=echo,note=note,delaybeforesend=delaybeforesend,loglevel=loglevel)
 
 
 	def send_until(self,
@@ -313,7 +294,7 @@ class ShutIt(object):
 		                             golf    = user gets a pause point, and when leaving, command follow_on_context['check_command'] is run to check the output
 		"""
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
-		pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
+		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
 		# don't catch CTRL-C, pass it through.
 		self.cfg['build']['ctrlc_passthrough'] = True
 		preserve_newline                       = False
@@ -338,7 +319,7 @@ class ShutIt(object):
 			help_text = shutit_util.colourise('32','''\nType 'help' or 'h' to get a hint, 'exit' to skip, 'shutitreset' to reset state.''')
 			ok = False
 			while not ok:
-				self.log(shutit_util.colourise('32','''\nChallenge!'''),transient=True)
+				sfelf.log(shutit_util.colourise('32','''\nChallenge!'''),transient=True)
 				if len(hints):
 					self.log(shutit_util.colourise('32',help_text),transient=True)
 				time.sleep(pause)
@@ -356,13 +337,13 @@ class ShutIt(object):
 					time.sleep(pause)
 					continue
 				if send == 'shutitreset':
-					self._challenge_done(pexpect_session,result='reset',follow_on_context=follow_on_context)
+					self._challenge_done(shutit_pexpect_session,result='reset',follow_on_context=follow_on_context)
 					continue
 				if send == 'shutitquit':
-					self._challenge_done(pexpect_session,result='reset',follow_on_context=follow_on_context)
+					self._challenge_done(shutit_pexpect_session,result='reset',follow_on_context=follow_on_context)
 					shutit_util.handle_exit(exit_code=1)
 				if send == 'exit':
-					self._challenge_done(pexpect_session,result='exited',follow_on_context=follow_on_context)
+					self._challenge_done(shutit_pexpect_session,result='exited',follow_on_context=follow_on_context)
 					cfg['build']['pause_point_hints'] = []
 					return
 				output = self.send_and_get_output(send,shutit_pexpect_child=shutit_pexpect_child,timeout=timeout,retry=1,record_command=record_command,echo=echo, loglevel=loglevel, fail_on_empty_before=False, preserve_newline=preserve_newline, delaybeforesend=delaybeforesend)
@@ -382,7 +363,7 @@ class ShutIt(object):
 							break
 				if not ok and failed:
 					self.log('\n\n' + shutit_util.colourise('32','failed') + '\n',transient=True)
-					self._challenge_done(pexpect_session,result='failed')
+					self._challenge_done(shutit_pexpect_session,result='failed')
 					continue
 		elif challenge_type == 'golf':
 			# pause, and when done, it checks your working based on check_command.
@@ -393,7 +374,7 @@ class ShutIt(object):
 			else:
 				task_desc_new = task_desc
 			while not ok:
-				self.pause_point(shutit_util.colourise('31',task_desc_new),colour='31') # TODO: message
+				shutit_pexpect_session.pause_point(shutit_util.colourise('31',task_desc_new),colour='31') # TODO: message
 				if cfg['SHUTIT_SIGNAL']['ID'] == 8:
 					if len(cfg['build']['pause_point_hints']):
 						self.log(shutit_util.colourise('31','\r\n========= HINT ==========\r\n\r\n' + cfg['build']['pause_point_hints'].pop(0)),transient=True)
@@ -405,7 +386,7 @@ class ShutIt(object):
 					continue
 				elif cfg['SHUTIT_SIGNAL']['ID'] == 7:
 					self.log(shutit_util.colourise('31','\r\n========= RESETTING STATE ==========\r\n\r\n'),transient=True)
-					self._challenge_done(pexpect_session,result='reset', follow_on_context=follow_on_context)
+					self._challenge_done(shutit_pexpect_session,result='reset', follow_on_context=follow_on_context)
 					# clear the signal
 					cfg['SHUTIT_SIGNAL']['ID'] = 0
 					self.challenge(
@@ -457,11 +438,11 @@ class ShutIt(object):
 							break
 				if not ok and failed:
 					shutit.log('\n\n' + shutit_util.colourise('31','Failed! CTRL-g to reset state, CTRL-h for a hint') + '\n',transient=True)
-					self._challenge_done(pexpect_session,result='failed')
+					self._challenge_done(shutit_pexpect_session,result='failed')
 					continue
 		else:
 			self.fail('Challenge type: ' + challenge_type + ' not supported')
-		self._challenge_done(pexpect_session,result='ok',follow_on_context=follow_on_context,congratulations=congratulations,skipped=skipped)
+		self._challenge_done(shutit_pexpect_session,result='ok',follow_on_context=follow_on_context,congratulations=congratulations,skipped=skipped)
 		# Tidy up hints
 		cfg['build']['pause_point_hints'] = []
 	# Alternate names
@@ -469,7 +450,7 @@ class ShutIt(object):
 	golf     = challenge
 
 
-	def _challenge_done(self, pexpect_session, result=None, congratulations=None, follow_on_context={},pause=1,skipped=False):
+	def _challenge_done(self, shutit_pexpect_session, result=None, congratulations=None, follow_on_context={},pause=1,skipped=False):
 		if result == 'ok':
 			if congratulations:
 				self.log('\n\n' + shutit_util.colourise('32',congratulations) + '\n',transient=True)
@@ -482,7 +463,7 @@ class ShutIt(object):
 						self.log('No reset context available, carrying on.',level=logging.INFO)
 					elif skipped:
 						# We need to ensure the correct state.
-						pexpect_session.replace_container(container_name)
+						shutit_pexpect_session.replace_container(container_name)
 						self.log('State restored.',level=logging.INFO)
 					else:
 						self.log(shutit_util.colourise('31','Continuing, remember you can restore to a known state with CTRL-g.'),transient=True)
@@ -503,7 +484,7 @@ class ShutIt(object):
 					if not container_name:
 						self.log('No reset context available, carrying on.',level=logging.DEBUG)
 					else:
-						pexpect_session.replace_container(container_name)
+						shutit_pexpect_session.replace_container(container_name)
 						self.log('State restored.',level=logging.INFO)
 				else:
 					self.fail('Follow-on context not handled on reset')
@@ -553,11 +534,11 @@ class ShutIt(object):
 		@rtype: string
 		"""
 		global cfg
-		if type(expect) == dict:
-			return self.multisend(send=send,send_dict=expect,expect=self.get_default_shutit_pexpect_session_expect(),shutit_pexpect_child=shutit_pexpect_child,timeout=timeout,check_exit=check_exit,fail_on_empty_before=fail_on_empty_before,record_command=record_command,exit_values=exit_values,echo=echo,note=note,loglevel=loglevel,delaybeforesend=delaybeforesend)
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
-		expect = expect or self.get_current_shutit_pexpect_session().default_expect
 		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
+		if type(expect) == dict:
+			return shutit_pexpect_session.multisend(send=send,send_dict=expect,expect=self.get_default_shutit_pexpect_session_expect(),timeout=timeout,check_exit=check_exit,fail_on_empty_before=fail_on_empty_before,record_command=record_command,exit_values=exit_values,echo=echo,note=note,loglevel=loglevel,delaybeforesend=delaybeforesend)
+		expect = expect or self.get_current_shutit_pexpect_session().default_expect
 		shutit.log('Sending in session: ' + self.get_shutit_pexpect_session_id(shutit_pexpect_child),level=logging.DEBUG)
 		self._handle_note(note, command=str(send), training_input=str(send))
 		if timeout == None:
@@ -727,10 +708,10 @@ $'"""
 					continue
 			break
 		if cfg['build']['step_through']:
-			self.pause_point('pause point: stepping through')
+			shutit_pexpect_session.pause_point('pause point: stepping through')
 		if cfg['build']['ctrlc_stop']:
 			cfg['build']['ctrlc_stop'] = False
-			self.pause_point('pause point: interrupted by CTRL-c')
+			shutit_pexpect_session.pause_point('pause point: interrupted by CTRL-c')
 		self._handle_note_after(note=note)
 		return expect_res
 	# alias send to send_and_expect
@@ -804,7 +785,7 @@ $'"""
 					res = shutit_pexpect_child.expect(expect,timeout=1)
 					if res == len(expect):
 						self.fail('CTRL-C sent by ShutIt following a timeout, and could not recover')
-				self.pause_point('CTRL-C sent by ShutIt following a timeout; the command has been cancelled',shutit_pexpect_child=shutit_pexpect_child)
+				shutit_pexpect_session.pause_point('CTRL-C sent by ShutIt following a timeout; the command has been cancelled')
 				return res
 			else:
 				if timed_out:
@@ -1666,13 +1647,13 @@ $'"""
 	def step_through(self, msg='', shutit_pexpect_child=None, level=1, print_input=True, value=True):
 		"""Implements a step-through function, using pause_point.
 		"""
-		global cfg
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
+		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
 		if (not shutit_util.determine_interactive() or not cfg['build']['interactive'] or
 			cfg['build']['interactive'] < level):
 			return
 		cfg['build']['step_through'] = value
-		self.pause_point(msg, shutit_pexpect_child=shutit_pexpect_child, print_input=print_input, level=level)
+		shutit_pexpect_session.pause_point(msg, print_input=print_input, level=level)
 
 
 	def pause_point(self,
@@ -1727,48 +1708,6 @@ $'"""
 		cfg['build']['ctrlc_stop'] = False
 		return True
 
-
-	def _pause_input_filter(self, input_string):
-		"""Input filter for pause point to catch special keystrokes"""
-		# Can get errors with eg up/down chars
-		global cfg
-		if len(input_string) == 1:
-			# Picked CTRL-u as the rarest one accepted by terminals.
-			if ord(input_string) == 21 and cfg['build']['delivery'] == 'docker':
-				self.log('CTRL and u caught, forcing a tag at least',level=logging.INFO)
-				self.do_repository_work('tagged_by_shutit', password=cfg['host']['password'], docker_executable=cfg['host']['docker_executable'], force=True)
-				self.log('Commit and tag done. Hit CTRL and ] to continue with build. Hit return for a prompt.',level=logging.INFO)
-			# CTRL-d
-			elif ord(input_string) == 4:
-				cfg['SHUTIT_SIGNAL']['ID'] = 0
-				cfg['SHUTIT_SIGNAL']['ID'] = 4
-				if shutit_util.get_input('CTRL-d caught, are you sure you want to quit this ShutIt run?\n\r=> ',default='n',boolean=True):
-					self.fail('CTRL-d caught, quitting')
-				if shutit_util.get_input('Do you want to pass through the CTRL-d to the ShutIt session?\n\r=> ',default='n',boolean=True):
-					return '\x04'
-				# Return nothing
-				return ''
-			# CTRL-h
-			elif ord(input_string) == 8:
-				cfg['SHUTIT_SIGNAL']['ID'] = 8
-				# Return the escape from pexpect char
-				return '\x1d'
-			# CTRL-g
-			elif ord(input_string) == 7:
-				cfg['SHUTIT_SIGNAL']['ID'] = 7
-				# Return the escape from pexpect char
-				return '\x1d'
-			# CTRL-s
-			elif ord(input_string) == 19:
-				cfg['SHUTIT_SIGNAL']['ID'] = 19
-				# Return the escape from pexpect char
-				return '\x1d'
-			# CTRL-]
-			elif ord(input_string) == 29:
-				cfg['SHUTIT_SIGNAL']['ID'] = 29
-				# Return the escape from pexpect char
-				return '\x1d'
-		return input_string
 
 
 	def send_and_match_output(self,
@@ -1829,7 +1768,6 @@ $'"""
 		@type retry:     integer
 		@type strip:     boolean
 		"""
-		global cfg
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
 		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
 		return shutit_pexpect_session.send_and_get_output(send,timeout=timeout,retry=retry,strip=strip,preserve_newline=preserve_newline,note=note,record_command=record_command,echo=echo,fail_on_empty_before=fail_on_empty_before,delaybeforesend=delaybeforesend,loglevel=loglevel)
@@ -1912,7 +1850,6 @@ $'"""
 		@param user:    username we are getting password for
 		@param msg:     message to put out there
 		"""
-		global cfg
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
 		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
 		return shutit_pexpect_session.get_env_pass(user=user,msg=msg,note=note)
@@ -2053,7 +1990,6 @@ $'"""
 		@param shutit_pexpect_child:       See send()
 		@param note:        See send()
 		"""
-		global cfg
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
 		# TODO: assume expect is default in session
 		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
@@ -2144,7 +2080,8 @@ $'"""
 		"""
 		global cfg
 		# TODO: make host and client configurable
-		expect = expect or self.get_current_shutit_pexpect_session().default_expect
+		shutit_pexpect_session = self.get_current_shutit_pexpect_session()
+		expect = expect or shutit_pexpect_session.default_expect
 		tag    = cfg['repository']['tag']
 		push   = cfg['repository']['push']
 		export = cfg['repository']['export']
@@ -2206,7 +2143,7 @@ $'"""
 		cfg['build']['report'] += '\nBuild tagged as: ' + repository_with_tag
 		self.send(cmd, shutit_pexpect_child=shutit_pexpect_child, expect=expect, check_exit=False, echo=False, loglevel=loglevel,delaybeforesend=delaybeforesend)
 		if export or save:
-			self.pause_point('We are now exporting the container to a bzipped tar file, as configured in\n[repository]\ntar:yes', print_input=False, shutit_pexpect_child=shutit_pexpect_child, level=3)
+			shutit_pexpect_session.pause_point('We are now exporting the container to a bzipped tar file, as configured in\n[repository]\ntar:yes', print_input=False, level=3)
 			if export:
 				bzfile = (repository_tar + 'export.tar.bz2')
 				self.log('Depositing bzip2 of exported container into ' + bzfile,level=logging.DEBUG)

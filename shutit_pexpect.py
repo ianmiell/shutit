@@ -183,7 +183,7 @@ class ShutItPexpectSession(object):
 			shutit_global.shutit.log('WARNING! user is bash - if you see problems below, did you mean: login(command="' + user + '")?',level=loglevel.WARNING)
 		shutit_global.shutit._handle_note(note,command=command + ', as user: "' + user + '"',training_input=send)
 		# r'[^t] login:' - be sure not to match 'last login:'
-		shutit_global.shutit.multisend(send,{'ontinue connecting':'yes','assword':password,r'[^t] login:':password},expect=general_expect,check_exit=False,timeout=timeout,fail_on_empty_before=False,escape=escape)
+		self.multisend(send,{'ontinue connecting':'yes','assword':password,r'[^t] login:':password},expect=general_expect,check_exit=False,timeout=timeout,fail_on_empty_before=False,escape=escape)
 		if prompt_prefix != None:
 			self.setup_prompt(r_id,prefix=prompt_prefix)
 		else:
@@ -1145,7 +1145,7 @@ class ShutItPexpectSession(object):
 			fails = 0
 			while True:
 				if pw != '':
-					res = shutit_global.shutit.multisend('%s %s %s' % (cmd, opts, package), {'assword':pw}, expect=['Unable to fetch some archives',self.default_expect], timeout=timeout, check_exit=False, shutit_pexpect_child=self.pexpect_child, loglevel=loglevel)
+					res = self.multisend('%s %s %s' % (cmd, opts, package), {'assword':pw}, expect=['Unable to fetch some archives',self.default_expect], timeout=timeout, check_exit=False, loglevel=loglevel)
 				else:
 					res = shutit_global.shutit.send('%s %s %s' % (cmd, opts, package), expect=['Unable to fetch some archives',self.default_expect], timeout=timeout, check_exit=check_exit, shutit_pexpect_child=self.pexpect_child, loglevel=loglevel, delaybeforesend=delaybeforesend)
 				if res == 1:
@@ -1246,7 +1246,7 @@ class ShutItPexpectSession(object):
 		# Get mapped package.
 		package = package_map.map_package(package, cfg['environment'][cfg['build']['current_environment_id']]['install_type'])
 		if pw != '':
-			shutit_global.shutit.multisend('%s %s %s' % (cmd, opts, package), {'assword:':pw}, shutit_pexpect_child=self.pexpect_child, timeout=timeout, exit_values=['0','100'])
+			self.multisend('%s %s %s' % (cmd, opts, package), {'assword:':pw}, timeout=timeout, exit_values=['0','100'])
 		else:
 			shutit_global.shutit.send('%s %s %s' % (cmd, opts, package), shutit_pexpect_child=self.pexpect_child, timeout=timeout, exit_values=['0','100'], delaybeforesend=delaybeforesend)
 		shutit_global.shutit._handle_note_after(note=note)
@@ -1596,6 +1596,59 @@ class ShutItPexpectSession(object):
 		cfg['environment'][environment_id]['distro']         = distro
 		cfg['environment'][environment_id]['distro_version'] = distro_version
 
+
+
+	def multisend(self,
+	              send,
+	              send_dict,
+	              expect=None,
+	              timeout=3600,
+	              check_exit=None,
+	              fail_on_empty_before=True,
+	              record_command=True,
+	              exit_values=None,
+	              escape=False,
+	              echo=None,
+	              note=None,
+	              delaybeforesend=0,
+	              loglevel=logging.DEBUG):
+		"""Multisend. Same as send, except it takes multiple sends and expects in a dict that are
+		processed while waiting for the end "expect" argument supplied.
+
+		@param send_dict:            dict of sends and expects, eg: {'interim prompt:','some input','other prompt','some other input'}
+		@param expect:               String or list of strings of final expected output that returns from this function. See send()
+		@param send:                 See send()
+		@param shutit_pexpect_child:                See send()
+		@param timeout:              See send()
+		@param check_exit:           See send()
+		@param fail_on_empty_before: See send()
+		@param record_command:       See send()
+		@param exit_values:          See send()
+		@param echo:                 See send()
+		@param note:                 See send()
+		"""
+		expect = expect or self.get_current_shutit_pexpect_session().default_expect
+		shutit_global.shutit._handle_note(note)
+		send_iteration = send
+		expect_list = send_dict.keys()
+		# Put breakout item(s) in last.
+		n_breakout_items = 0
+		if type(expect) == str:
+			expect_list.append(expect)
+			n_breakout_items = 1
+		elif type(expect) == list:
+			for item in expect:
+				expect_list.append(item)
+				n_breakout_items += 1
+		while True:
+			# If it's the last n items in the list, it's the breakout one.
+			res = shutit_global.shutit.send(send_iteration, expect=expect_list, shutit_pexpect_child=self.pexpect_child, check_exit=check_exit, fail_on_empty_before=fail_on_empty_before, timeout=timeout, record_command=record_command, exit_values=exit_values, echo=echo, escape=escape, loglevel=loglevel, delaybeforesend=delaybeforesend)
+			if res >= len(expect_list) - n_breakout_items:
+				break
+			else:
+				send_iteration = send_dict[expect_list[res]]
+		shutit_global.shutit._handle_note_after(note=note)
+		return res
 
 
 
