@@ -229,6 +229,7 @@ class ShutIt(object):
 		return shutit_pexpect_session.send_until(send,regexps,not_there=not_there,cadence=cadence,retries=retries,echo=echo,note=note,delaybeforesend=delaybeforesend,loglevel=loglevel)
 
 
+	# TODO: self.send etc
 	# TODO: move to shutit_pexpect, pass through
 	def challenge(self,
                   task_desc,
@@ -730,17 +731,17 @@ class ShutIt(object):
 		if group == None:
 			group = self.whoarewe()
 		if cfg['build']['delivery'] in ('bash','dockerfile'):
-			retdir = self.send_and_get_output('pwd',loglevel=loglevel, delaybeforesend=delaybeforesend)
-			self.send(' pushd ' + cfg['environment'][cfg['build']['current_environment_id']]['module_root_dir'], echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
-			self.send(' cp -r ' + hostfilepath + ' ' + retdir + '/' + path,expect=expect, shutit_pexpect_child=shutit_pexpect_child, timeout=timeout, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
-			self.send(' chown ' + user + ' ' + hostfilepath + ' ' + retdir + '/' + path,expect=expect, shutit_pexpect_child=shutit_pexpect_child, timeout=timeout, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
-			self.send(' chgrp ' + group + ' ' + hostfilepath + ' ' + retdir + '/' + path,expect=expect, shutit_pexpect_child=shutit_pexpect_child, timeout=timeout, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
-			self.send(' popd', expect=expect, shutit_pexpect_child=shutit_pexpect_child, timeout=timeout, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
+			retdir = shutit_pexpect_session.send_and_get_output('pwd',loglevel=loglevel, delaybeforesend=delaybeforesend)
+			shutit_pexpect_session.send(' pushd ' + cfg['environment'][cfg['build']['current_environment_id']]['module_root_dir'], echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
+			shutit_pexpect_session.send(' cp -r ' + hostfilepath + ' ' + retdir + '/' + path,expect=expect, timeout=timeout, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
+			shutit_pexpect_session.send(' chown ' + user + ' ' + hostfilepath + ' ' + retdir + '/' + path, timeout=timeout, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
+			shutit_pexpect_session.send(' chgrp ' + group + ' ' + hostfilepath + ' ' + retdir + '/' + path, timeout=timeout, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
+			shutit_pexpect_session.send(' popd', expect=expect, timeout=timeout, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
 		else:
 			if os.path.isfile(hostfilepath):
-				self.send_file(path, open(hostfilepath).read(), expect=expect, shutit_pexpect_child=shutit_pexpect_child, user=user, group=group,loglevel=loglevel, delaybeforesend=delaybeforesend)
+				shutit_pexpect_session.send_file(path, open(hostfilepath).read(), user=user, group=group,loglevel=loglevel, delaybeforesend=delaybeforesend)
 			elif os.path.isdir(hostfilepath):
-				self.send_host_dir(path, hostfilepath, expect=expect, shutit_pexpect_child=shutit_pexpect_child, user=user, group=group, loglevel=loglevel, delaybeforesend=delaybeforesend)
+				shutit_pexpect_session.send_host_dir(path, hostfilepath, user=user, group=group, loglevel=loglevel, delaybeforesend=delaybeforesend)
 			else:
 				self.fail('send_host_file - file: ' + hostfilepath + ' does not exist as file or dir. cwd is: ' + os.getcwd(), shutit_pexpect_child=shutit_pexpect_child, throw_exception=False)
 		self._handle_note_after(note=note)
@@ -776,7 +777,7 @@ class ShutIt(object):
 		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
 		self._handle_note(note, 'Sending host directory: ' + hostfilepath + ' to target path: ' + path)
 		self.log('Sending host directory: ' + hostfilepath + ' to: ' + path, level=logging.INFO)
-		self.send(' mkdir -p ' + path, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
+		shutit_pexpect_session.send(' mkdir -p ' + path, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
 		if user == None:
 			user = shutit_pexpect_session.whoami()
 		if group == None:
@@ -785,14 +786,14 @@ class ShutIt(object):
 			subfolders.sort()
 			files.sort()
 			for subfolder in subfolders:
-				self.send(' mkdir -p ' + path + '/' + subfolder, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
+				shutit_pexpect_session.send(' mkdir -p ' + path + '/' + subfolder, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
 				self.log('send_host_dir recursing to: ' + hostfilepath + '/' + subfolder, level=logging.DEBUG)
-				self.send_host_dir(path + '/' + subfolder, hostfilepath + '/' + subfolder, expect=expect, shutit_pexpect_child=shutit_pexpect_child, loglevel=loglevel, delaybeforesend=delaybeforesend)
+				shutit_pexpect_session.send_host_dir(path + '/' + subfolder, hostfilepath + '/' + subfolder, expect=expect, shutit_pexpect_child=shutit_pexpect_child, loglevel=loglevel, delaybeforesend=delaybeforesend)
 			for fname in files:
 				hostfullfname = os.path.join(root, fname)
 				targetfname = os.path.join(path, fname)
 				self.log('send_host_dir sending file ' + hostfullfname + ' to ' + 'target file: ' + targetfname, level=logging.DEBUG)
-				self.send_file(targetfname, open(hostfullfname).read(), expect=expect, shutit_pexpect_child=shutit_pexpect_child, user=user, group=group, loglevel=loglevel, delaybeforesend=delaybeforesend)
+				shutit_pexpect_session.send_file(targetfname, open(hostfullfname).read(), expect=expect, shutit_pexpect_child=shutit_pexpect_child, user=user, group=group, loglevel=loglevel, delaybeforesend=delaybeforesend)
 		self._handle_note_after(note=note)
 		return True
 
@@ -1582,7 +1583,6 @@ class ShutIt(object):
 		@param note:        See send()
 		"""
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
-		# TODO: assume expect is default in session
 		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
 		return shutit_pexpect_session.set_password(password,user=user,delaybeforesend=delaybeforesend,note=note)
 
