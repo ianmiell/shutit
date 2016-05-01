@@ -64,16 +64,15 @@ class ShutItConnModule(ShutItModule):
 		shutit_pexpect_session.setup_prompt('origin_prompt', prefix=prefix)
 		shutit_pexpect_session.login_stack_append(prefix)
 
-	def setup_target_child(self, shutit, target_child):
+	def setup_target_child(self, shutit, target_child, target_child_id='target_child',prefix='root'):
 		cfg = shutit.cfg
 		# Some pexpect settings
-		shutit_pexpect_session = shutit.get_shutit_pexpect_session_from_id('target_child')
+		shutit_pexpect_session = shutit.get_shutit_pexpect_session_from_id(target_child_id)
 		shutit_pexpect_session.pexpect_child = target_child
 		shutit.set_default_shutit_pexpect_session_expect(cfg['expect_prompts']['base_prompt'])
 		# target child
 		shutit.set_default_shutit_pexpect_session(shutit_pexpect_session)
-		prefix='root'
-		shutit_pexpect_session.setup_prompt('root',prefix=prefix)
+		shutit_pexpect_session.setup_prompt(prefix,prefix=prefix)
 		shutit_pexpect_session.login_stack_append(prefix)
 
 
