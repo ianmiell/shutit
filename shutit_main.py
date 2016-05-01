@@ -1,28 +1,32 @@
 #!/usr/bin/env python
-#The MIT License (MIT)
+# The MIT License (MIT)
 #
-#Copyright (C) 2014 OpenBet Limited
+# Copyright (C) 2014 OpenBet Limited
 #
-#Permission is hereby granted, free of charge, to any person obtaining a copy of
-#this software and associated documentation files (the "Software"), to deal in
-#the Software without restriction, including without limitation the rights to
-#use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
-#of the Software, and to permit persons to whom the Software is furnished to do
-#so, subject to the following conditions:
+# Permission is hereby granted, free of charge, to any person obtaining a copy of
+# this software and associated documentation files (the "Software"), to deal in
+# the Software without restriction, including without limitation the rights to
+# use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+# of the Software, and to permit persons to whom the Software is furnished to do
+# so, subject to the following conditions:
 #
-#The above copyright notice and this permission notice shall be included in all
-#copies or substantial portions of the Software.
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
 #
-#THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-#IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-#ITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
-#THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-#LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-#OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-#SOFTWARE.
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# ITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+# THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
+
 
 """ShutIt is a means of building stateless target hosts in a flexible and predictable way.
 """
+
+# TODO: replace passed-in shutit objects with global
 
 
 from shutit_module import ShutItModule, ShutItException, ShutItFailException
@@ -227,7 +231,7 @@ def check_dependee_order(depender, dependee, dependee_id):
 
 
 def make_dep_graph(depender):
-	"""Returns a digraph string fragment based on the passed-in module 
+	"""Returns a digraph string fragment based on the passed-in module
 	"""
 	digraph = ''
 	for dependee_id in depender.depends_on:
@@ -253,7 +257,7 @@ def check_deps(shutit):
 	# Dep checking
 	def err_checker(errs, triples):
 		"""Collate error information.
-		""" 
+		"""
 		new_triples = []
 		for err, triple in zip(errs, triples):
 			if not err:
@@ -319,7 +323,7 @@ def check_ready(shutit, throw_error=True):
 	shutit.log('PHASE: check_ready', level=logging.DEBUG)
 	errs = []
 	shutit.pause_point('\nNow checking whether we are ready to build modules configured to be built', print_input=False, level=3)
-	# Find out who we are to see whether we need to log in and out or not. 
+	# Find out who we are to see whether we need to log in and out or not.
 	for module_id in shutit_util.module_ids(shutit):
 		module = shutit.shutit_map[module_id]
 		shutit.log('considering check_ready (is it ready to be built?): ' + module_id, level=logging.DEBUG)

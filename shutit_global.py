@@ -892,7 +892,6 @@ $'"""
 
 	def chdir(self,
 	          path,
-	          expect=None,
 	          shutit_pexpect_child=None,
 	          timeout=3600,
 	          note=None,
@@ -901,15 +900,13 @@ $'"""
 		"""How to change directory will depend on whether we are in delivery mode bash or docker.
 
 		@param path:          Path to send file to.
-		@param expect:        See send()
 		@param shutit_pexpect_child:         See send()
 		@param timeout:       Timeout on response
 		@param note:          See send()
 		"""
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
-		expect = expect or self.get_current_shutit_pexpect_session().default_expect
 		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
-		shutit_pexpect_session.chdir(path,expect=expect,timeout=timeout,note=note,delaybeforesend=delaybeforesend,loglevel=loglevel)
+		shutit_pexpect_session.chdir(path,timeout=timeout,note=note,delaybeforesend=delaybeforesend,loglevel=loglevel)
 		
 
 
@@ -1125,7 +1122,6 @@ $'"""
 		return True
 
 
-	# TODO: move to shutit_pexpect, pass through
 	def change_text(self,
 	                text,
 	                fname,
@@ -1167,128 +1163,9 @@ $'"""
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
 		expect = expect or self.get_current_shutit_pexpect_session().default_expect
 		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
-		self._handle_note(note)
-		fexists = self.file_exists(fname)
-		if not fexists:
-			if create:
-				self.send(' touch ' + fname,expect=expect,shutit_pexpect_child=shutit_pexpect_child, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
-			else:
-				shutit.fail(fname + ' does not exist and create=False')
-		if replace:
-			# If replace and no pattern FAIL
-			if not pattern:
-				shutit.fail('replace=True requires a pattern to be passed in')
-			# If replace and delete FAIL
-			if delete:
-				shutit.fail('cannot pass replace=True and delete=True to insert_text')
-		if shutit_pexpect_session.command_available('base64'):
-			ftext = self.send_and_get_output(' base64 ' + fname, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
-			ftext = base64.b64decode(ftext)
-		else:
-			ftext = self.send_and_get_output('cat ' + fname, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
-		# Replace the file text's ^M-newlines with simple newlines
-		ftext = ftext.replace('\r\n','\n')
-		# If we are not forcing and the text is already in the file, then don't insert.
-		if delete:
-			loc = ftext.find(text)
-			if loc == -1:
-				# No output - no match
-				return None
-			else:
-				new_text = ftext[:loc] + ftext[loc+len(text)+1:]
-		else:
-			if pattern != None:
-				if not line_oriented:
-					if not shutit_util.check_regexp(pattern):
-						shutit.fail('Illegal regexp found in change_text call: ' + pattern)
-					# cf: http://stackoverflow.com/questions/9411041/matching-ranges-of-lines-in-python-like-sed-ranges
-					sre_match = re.search(pattern,ftext,re.DOTALL|re.MULTILINE)
-					if replace:
-						if sre_match == None:
-							cut_point = len(ftext)
-							newtext1 = ftext[:cut_point]
-							newtext2 = ftext[cut_point:]
-						else:
-							cut_point = sre_match.start()
-							cut_point_after = sre_match.end()
-							newtext1 = ftext[:cut_point]
-							newtext2 = ftext[cut_point_after:]
-					else:
-						if sre_match == None:
-							# No output - no match
-							return None
-						elif before:
-							cut_point = sre_match.start()
-							# If the text is already there and we're not forcing it, return None.
-							if not force and ftext[cut_point-len(text):].find(text) > 0:
-								return None
-						else:
-							cut_point = sre_match.end()
-							# If the text is already there and we're not forcing it, return None.
-							if not force and ftext[cut_point:].find(text) > 0:
-								return None
-						newtext1 = ftext[:cut_point]
-						newtext2 = ftext[cut_point:]
-				else:
-					lines = ftext.split('\n')
-					cut_point   = 0
-					line_length = 0
-					matched     = False
-					if not shutit_util.check_regexp(pattern):
-						shutit.fail('Illegal regexp found in change_text call: ' + pattern)
-					for line in lines:
-						#Help the user out to make this properly line-oriented
-						pattern_before=''
-						pattern_after=''
-						if len(pattern) == 0 or pattern[0] != '^':
-							pattern_before = '^.*'
-						if len(pattern) == 0 or pattern[-1] != '$':
-							pattern_after = '.*$'
-						new_pattern = pattern_before+pattern+pattern_after
-						match = re.search(new_pattern, line)
-						line_length = len(line)
-						if match != None:
-							matched=True
-							break
-						# Update cut point to next line, including newline in original text
-						cut_point += line_length+1
-					if not replace and not matched:
-						# No match, return none
-						return None
-					if replace and not matched:
-						cut_point = len(ftext)
-					elif not replace and not before:
-						cut_point += line_length
-					newtext1 = ftext[:cut_point]
-					newtext2 = ftext[cut_point:]
-					if replace and matched:
-						newtext2 = ftext[cut_point+line_length:]
-					elif not force:
-						# If the text is already there and we're not forcing it, return None.
-						if before and ftext[cut_point-len(text):].find(text) > 0:
-							return None
-						# If the text is already there and we're not forcing it, return None.
-						if not before and ftext[cut_point:].find(text) > 0:
-							return None
-					if len(newtext1) > 0 and newtext1[-1] != '\n':
-						newtext1 += '\n'
-					if len(newtext2) > 0 and newtext2[0] != '\n':
-						newtext2 = '\n' + newtext2
-			else:
-				# Append to file absent a pattern.
-				cut_point = len(ftext)
-				newtext1 = ftext[:cut_point]
-				newtext2 = ftext[cut_point:]
-			# If adding or replacing at the end of the file, then ensure we have a newline at the end
-			if newtext2 == '' and len(text) > 0 and text[-1] != '\n':
-				newtext2 = '\n'
-			new_text = newtext1 + text + newtext2
-		self.send_file(fname,new_text,expect=expect,shutit_pexpect_child=shutit_pexpect_child,truncate=True,loglevel=loglevel, delaybeforesend=delaybeforesend)
-		self._handle_note_after(note=note)
-		return True
+		return shutit_pexpect_session.change_text(text,fname,pattern=pattern,before=before,force=force,delete=delete,note=note,replace=replace,line_oriented=line_oriented,create=create,delaybeforesend=delaybeforesend,loglevel=loglevel)
 
 
-	# TODO: move to shutit_pexpect, pass through
 	def insert_text(self, text, fname, pattern=None, expect=None, shutit_pexpect_child=None, before=False, force=False, note=None, replace=False, line_oriented=True, create=True, loglevel=logging.DEBUG):
 		"""Insert a chunk of text at the end of a file, or after (or before) the first matching pattern
 		in given file fname.
@@ -1296,7 +1173,6 @@ $'"""
 		self.change_text(text=text, fname=fname, pattern=pattern, expect=expect, shutit_pexpect_child=shutit_pexpect_child, before=before, force=force, note=note, line_oriented=line_oriented, create=create, replace=replace, delete=False, loglevel=loglevel)
 
 
-	# TODO: move to shutit_pexpect, pass through
 	def delete_text(self, text, fname, pattern=None, expect=None, shutit_pexpect_child=None, before=False, force=False, line_oriented=True, loglevel=logging.DEBUG):
 		"""Delete a chunk of text from a file.
 		See insert_text.
@@ -1304,7 +1180,6 @@ $'"""
 		return self.change_text(text, fname, pattern, expect, shutit_pexpect_child, before, force, delete=True, line_oriented=line_oriented, loglevel=loglevel)
 
 
-	# TODO: move to shutit_pexpect, pass through
 	def replace_text(self, text, fname, pattern=None, expect=None, shutit_pexpect_child=None, before=False, force=False, line_oriented=True, loglevel=logging.DEBUG):
 		"""Replace a chunk of text from a file.
 		See insert_text.

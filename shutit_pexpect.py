@@ -33,6 +33,7 @@ import shutit_assets
 from shutit_module import ShutItFailException
 import package_map
 import re
+import base64
 
 
 class ShutItPexpectSession(object):
@@ -1480,7 +1481,7 @@ class ShutItPexpectSession(object):
 			elif install_type == 'docker' and cfg['build']['delivery'] in ('docker','dockerfile'):
 				distro = 'coreos'
 				distro_version = '1.0'
-		elif cfg['environment'][environment_id]['setup'] and shutit_pexpect_session.command_available('lsb_release'):
+		elif cfg['environment'][environment_id]['setup'] and self.command_available('lsb_release'):
 			d = self.lsb_release()
 			install_type   = d['install_type']
 			distro         = d['distro']
@@ -1525,7 +1526,7 @@ class ShutItPexpectSession(object):
 						if self.send_and_get_output('brew list | grep -w ' + package,echo=False, loglevel=loglevel,delaybeforesend=delaybeforesend) == '':
 							shutit_global.shutit.send('brew install ' + package,loglevel=loglevel,delaybeforesend=delaybeforesend)
 				if install_type == '' or distro == '':
-					shutit_global.shutit.fail('Could not determine Linux distro information. ' + 'Please inform ShutIt maintainers.', shutit_pexpect_child=shutit_pexpect_child)
+					shutit_global.shutit.fail('Could not determine Linux distro information. ' + 'Please inform ShutIt maintainers.', shutit_pexpect_child=self.pexpect_child)
 			# The call to self.package_installed with lsb-release above
 			# may fail if it doesn't know the install type, so
 			# if we've determined that now
@@ -1602,7 +1603,7 @@ class ShutItPexpectSession(object):
 		@param echo:                 See send()
 		@param note:                 See send()
 		"""
-		expect = expect or self.get_current_shutit_pexpect_session().default_expect
+		expect = expect or self.default_expect
 		shutit_global.shutit._handle_note(note)
 		send_iteration = send
 		expect_list = send_dict.keys()
@@ -1645,20 +1646,19 @@ class ShutItPexpectSession(object):
 		@param echo:                 See send()
 		@param note:                 See send()
 		"""
-		cfg = shutit_global.shutit.cfg
 		shutit_global.shutit._handle_note(note, command=send + ' until one of these seen: ' + str(regexps))
 		shutit_global.shutit.log('Sending: "' + send + '" until one of these regexps seen: ' + str(regexps),level=loglevel)
 		if type(regexps) == str:
 			regexps = [regexps]
 		if type(regexps) != list:
-			self.fail('regexps should be list')
+			shutit_global.shutit.fail('regexps should be list')
 		while retries > 0:
 			retries -= 1
 			output = self.send_and_get_output(send, retry=1, strip=True,echo=echo, loglevel=loglevel, fail_on_empty_before=False, delaybeforesend=delaybeforesend)
 			if not not_there:
 				for regexp in regexps:
 					if not shutit_util.check_regexp(regexp):
-						shutit.fail('Illegal regexp found in send_until call: ' + regexp)
+						shutit_global.shutit.fail('Illegal regexp found in send_until call: ' + regexp)
 					if shutit_util.match_string(output, regexp):
 						return True
 			else:
@@ -1677,6 +1677,162 @@ class ShutItPexpectSession(object):
 		shutit_global.shutit._handle_note_after(note=note)
 		return False
 
+
+	def change_text(self,
+	                text,
+	                fname,
+	                pattern=None,
+	                before=False,
+	                force=False,
+	                delete=False,
+	                note=None,
+	                replace=False,
+	                line_oriented=True,
+	                create=True,
+	                delaybeforesend=0,
+	                loglevel=logging.DEBUG):
+
+		"""Change text in a file.
+
+		Returns None if there was no match for the regexp, True if it was matched
+		and replaced, and False if the file did not exist or there was some other
+		problem.
+
+		@param text:          Text to insert.
+		@param fname:         Filename to insert text to
+		@param pattern:       Regexp for a line to match and insert after/before/replace.
+		                      If none, put at end of file.
+		@param expect:        See send()
+		@param shutit_pexpect_child:         See send()
+		@param before:        Whether to place the text before or after the matched text.
+		@param force:         Force the insertion even if the text is in the file.
+		@param delete:        Delete text from file rather than insert
+		@param replace:       Replace matched text with passed-in text. If nothing matches, then append.
+		@param note:          See send()
+		@param line_oriented: Consider the pattern on a per-line basis (default True).
+		                      Can match any continuous section of the line, eg 'b.*d' will match the line: 'abcde'
+		                      If not line_oriented, the regexp is considered on with the flags re.DOTALL, re.MULTILINE
+		                      enabled
+		"""
+		shutit_global.shutit._handle_note(note)
+		fexists = self.file_exists(fname)
+		if not fexists:
+			if create:
+				shutit_global.shutit.send(' touch ' + fname,shutit_pexpect_child=self.pexpect_child, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
+			else:
+				shutit_global.shutit.fail(fname + ' does not exist and create=False')
+		if replace:
+			# If replace and no pattern FAIL
+			if not pattern:
+				shutit_global.shutit.fail('replace=True requires a pattern to be passed in')
+			# If replace and delete FAIL
+			if delete:
+				shutit_global.shutit.fail('cannot pass replace=True and delete=True to insert_text')
+		if self.command_available('base64'):
+			ftext = self.send_and_get_output(' base64 ' + fname, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
+			ftext = base64.b64decode(ftext)
+		else:
+			ftext = self.send_and_get_output('cat ' + fname, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
+		# Replace the file text's ^M-newlines with simple newlines
+		ftext = ftext.replace('\r\n','\n')
+		# If we are not forcing and the text is already in the file, then don't insert.
+		if delete:
+			loc = ftext.find(text)
+			if loc == -1:
+				# No output - no match
+				return None
+			else:
+				new_text = ftext[:loc] + ftext[loc+len(text)+1:]
+		else:
+			if pattern != None:
+				if not line_oriented:
+					if not shutit_util.check_regexp(pattern):
+						shutit_global.shutit.fail('Illegal regexp found in change_text call: ' + pattern)
+					# cf: http://stackoverflow.com/questions/9411041/matching-ranges-of-lines-in-python-like-sed-ranges
+					sre_match = re.search(pattern,ftext,re.DOTALL|re.MULTILINE)
+					if replace:
+						if sre_match == None:
+							cut_point = len(ftext)
+							newtext1 = ftext[:cut_point]
+							newtext2 = ftext[cut_point:]
+						else:
+							cut_point = sre_match.start()
+							cut_point_after = sre_match.end()
+							newtext1 = ftext[:cut_point]
+							newtext2 = ftext[cut_point_after:]
+					else:
+						if sre_match == None:
+							# No output - no match
+							return None
+						elif before:
+							cut_point = sre_match.start()
+							# If the text is already there and we're not forcing it, return None.
+							if not force and ftext[cut_point-len(text):].find(text) > 0:
+								return None
+						else:
+							cut_point = sre_match.end()
+							# If the text is already there and we're not forcing it, return None.
+							if not force and ftext[cut_point:].find(text) > 0:
+								return None
+						newtext1 = ftext[:cut_point]
+						newtext2 = ftext[cut_point:]
+				else:
+					lines = ftext.split('\n')
+					cut_point   = 0
+					line_length = 0
+					matched     = False
+					if not shutit_util.check_regexp(pattern):
+						shutit_global.shutit.fail('Illegal regexp found in change_text call: ' + pattern)
+					for line in lines:
+						#Help the user out to make this properly line-oriented
+						pattern_before=''
+						pattern_after=''
+						if len(pattern) == 0 or pattern[0] != '^':
+							pattern_before = '^.*'
+						if len(pattern) == 0 or pattern[-1] != '$':
+							pattern_after = '.*$'
+						new_pattern = pattern_before+pattern+pattern_after
+						match = re.search(new_pattern, line)
+						line_length = len(line)
+						if match != None:
+							matched=True
+							break
+						# Update cut point to next line, including newline in original text
+						cut_point += line_length+1
+					if not replace and not matched:
+						# No match, return none
+						return None
+					if replace and not matched:
+						cut_point = len(ftext)
+					elif not replace and not before:
+						cut_point += line_length
+					newtext1 = ftext[:cut_point]
+					newtext2 = ftext[cut_point:]
+					if replace and matched:
+						newtext2 = ftext[cut_point+line_length:]
+					elif not force:
+						# If the text is already there and we're not forcing it, return None.
+						if before and ftext[cut_point-len(text):].find(text) > 0:
+							return None
+						# If the text is already there and we're not forcing it, return None.
+						if not before and ftext[cut_point:].find(text) > 0:
+							return None
+					if len(newtext1) > 0 and newtext1[-1] != '\n':
+						newtext1 += '\n'
+					if len(newtext2) > 0 and newtext2[0] != '\n':
+						newtext2 = '\n' + newtext2
+			else:
+				# Append to file absent a pattern.
+				cut_point = len(ftext)
+				newtext1 = ftext[:cut_point]
+				newtext2 = ftext[cut_point:]
+			# If adding or replacing at the end of the file, then ensure we have a newline at the end
+			if newtext2 == '' and len(text) > 0 and text[-1] != '\n':
+				newtext2 = '\n'
+			new_text = newtext1 + text + newtext2
+		shutit_global.shutit.send_file(fname,new_text,truncate=True,loglevel=loglevel, delaybeforesend=delaybeforesend)
+		shutit_global.shutit._handle_note_after(note=note)
+		return True
 
 
 	#TODO: create environment object
