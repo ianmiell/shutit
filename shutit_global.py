@@ -226,7 +226,6 @@ class ShutIt(object):
 	               send,
 	               regexps,
 	               not_there=False,
-	               expect=None,
 	               shutit_pexpect_child=None,
 	               cadence=5,
 	               retries=100,
@@ -249,7 +248,6 @@ class ShutIt(object):
 		"""
 		global cfg
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
-		expect = expect or self.get_current_shutit_pexpect_session().default_expect
 		self._handle_note(note, command=send + ' until one of these seen: ' + str(regexps))
 		self.log('Sending: "' + send + '" until one of these regexps seen: ' + str(regexps),level=loglevel)
 		if type(regexps) == str:
@@ -258,7 +256,7 @@ class ShutIt(object):
 			self.fail('regexps should be list')
 		while retries > 0:
 			retries -= 1
-			output = self.send_and_get_output(send, expect=expect, shutit_pexpect_child=shutit_pexpect_child, retry=1, strip=True,echo=echo, loglevel=loglevel, fail_on_empty_before=False, delaybeforesend=delaybeforesend)
+			output = self.send_and_get_output(send, shutit_pexpect_child=shutit_pexpect_child, retry=1, strip=True,echo=echo, loglevel=loglevel, fail_on_empty_before=False, delaybeforesend=delaybeforesend)
 			if not not_there:
 				for regexp in regexps:
 					if not shutit_util.check_regexp(regexp):
@@ -1773,11 +1771,9 @@ $'"""
 		return input_string
 
 
-	# TODO: move this, pass through?
 	def send_and_match_output(self,
 	                          send,
 	                          matches,
-	                          expect=None,
 	                          shutit_pexpect_child=None,
 	                          retry=3,
 	                          strip=True,
@@ -1803,25 +1799,12 @@ $'"""
 		@type strip:     boolean
 		"""
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
-		expect = expect or self.get_current_shutit_pexpect_session().default_expect
-		self._handle_note(note)
-		self.log('Matching output from: "' + send + '" to one of these regexps:' + str(matches),level=logging.INFO)
-		output = self.send_and_get_output(send, shutit_pexpect_child=shutit_pexpect_child, retry=retry, strip=strip, echo=echo, loglevel=loglevel, delaybeforesend=delaybeforesend)
-		if type(matches) == str:
-			matches = [matches]
-		self._handle_note_after(note=note)
-		for match in matches:
-			if shutit_util.match_string(output, match) != None:
-				self.log('Matched output, return True',level=logging.DEBUG)
-				return True
-		self.log('Failed to match output, return False',level=logging.DEBUG)
-		return False
+		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
+		return shutit_pexpect_session.send_and_match_output(send,matches,retry=retry,strip=strip,note=note,echo=echo,delaybeforesend=delaybeforesend,loglevel=loglevel)
 
 
-	# TODO: move this, pass through?
 	def send_and_get_output(self,
 	                        send,
-	                        expect=None,
 	                        shutit_pexpect_child=None,
 	                        timeout=None,
 	                        retry=3,
@@ -1836,7 +1819,6 @@ $'"""
 		"""Returns the output of a command run. send() is called, and exit is not checked.
 
 		@param send:     See send()
-		@param expect:   See send()
 		@param shutit_pexpect_child:    See send()
 		@param retry:    Number of times to retry command (default 3)
 		@param strip:    Whether to strip output (defaults to True). Strips whitespace
@@ -1849,46 +1831,8 @@ $'"""
 		"""
 		global cfg
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
-		expect = expect or self.get_current_shutit_pexpect_session().default_expect
-		self._handle_note(note, command=str(send))
-		self.log('Retrieving output from command: ' + send,level=loglevel)
-		# Don't check exit, as that will pollute the output. Also, it's quite likely the submitted command is intended to fail.
-		self.send(shutit_util.get_send_command(send), shutit_pexpect_child=shutit_pexpect_child, expect=expect, check_exit=False, retry=retry, echo=echo, timeout=timeout, record_command=record_command, loglevel=loglevel, fail_on_empty_before=fail_on_empty_before, delaybeforesend=delaybeforesend)
-		before = shutit_pexpect_child.before
-		if preserve_newline and before[-1] == '\n':
-			preserve_newline = True
-		else:
-			preserve_newline = False
-		# Correct problem with first char in OSX.
-		try:
-			if cfg['environment'][cfg['build']['current_environment_id']]['distro'] == 'osx':
-				before_list = before.split('\r\n')
-				before_list = before_list[1:]
-				before = string.join(before_list,'\r\n')
-			else:
-				before = before.strip(send)
-		except Exception:
-			before = before.strip(send)
-		self._handle_note_after(note=note)
-		if strip:
-			ansi_escape = re.compile(r'\x1b[^m]*m')
-			string_with_termcodes = before.strip()
-			string_without_termcodes = ansi_escape.sub('', string_with_termcodes)
-			#string_without_termcodes_stripped = string_without_termcodes.strip()
-			# Strip out \rs to make it output the same as a typical CL. This could be optional.
-			string_without_termcodes_stripped_no_cr = string_without_termcodes.replace('\r','')
-			if False:
-				for c in string_without_termcodes_stripped_no_cr:
-					self.log((str(hex(ord(c))) + ' '),level=logging.DEBUG)
-			if preserve_newline:
-				return string_without_termcodes_stripped_no_cr + '\n'
-			else:
-				return string_without_termcodes_stripped_no_cr
-		else:
-			if False:
-				for c in before:
-					self.log((str(hex(ord(c))) + ' '),level=logging.DEBUG)
-			return before
+		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
+		return shutit_pexpect_session.send_and_get_output(send,timeout=timeout,retry=retry,strip=strip,preserve_newline=preserve_newline,note=note,record_command=record_command,echo=echo,fail_on_empty_before=fail_on_empty_before,delaybeforesend=delaybeforesend,loglevel=loglevel)
 
 
 	def install(self,
@@ -1935,7 +1879,6 @@ $'"""
 	def remove(self,
 	           package,
 	           shutit_pexpect_child=None,
-	           expect=None,
 	           options=None,
 	           timeout=3600,
 	           delaybeforesend=0,
@@ -1944,7 +1887,6 @@ $'"""
 		Takes a package name and runs relevant remove function.
 
 		@param package:  Package to remove, which is run through package_map.
-		@param expect:   See send()
 		@param shutit_pexpect_child:    See send()
 		@param options:  Dict of options to pass to the remove command,
 		                 mapped by install_type.
@@ -1958,15 +1900,13 @@ $'"""
 		# If separated by spaces, remove separately
 		if package.find(' ') != -1:
 			for p in package.split(' '):
-				self.install(p,shutit_pexpect_child=shutit_pexpect_child,expect=expect,options=options,timeout=timeout,note=note)
+				self.install(p,shutit_pexpect_child=shutit_pexpect_child,options=options,timeout=timeout,note=note)
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
-		expect = expect or self.get_current_shutit_pexpect_session().default_expect
 		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
 		return shutit_pexpect_session.remove(package,options=options,timeout=timeout,delaybeforesend=delaybeforesend,note=note)
 
 
-	# TODO: move this, pass through?
-	def get_env_pass(self,user=None,msg=None,shutit_pexpect_child=None,expect=None,note=None):
+	def get_env_pass(self,user=None,msg=None,shutit_pexpect_child=None,note=None):
 		"""Gets a password from the user if one is not already recorded for this environment.
 
 		@param user:    username we are getting password for
@@ -1974,29 +1914,12 @@ $'"""
 		"""
 		global cfg
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
-		expect = expect or self.get_current_shutit_pexpect_session().default_expect
 		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
-		self._handle_note(note)
-		user = user or shutit_pexpect_session.whoami()
-		msg = msg or 'Please input the sudo password for user: ' + user
-		# Test for the existence of the data structure.
-		try:
-			_=cfg['environment'][cfg['build']['current_environment_id']][user]
-		except:
-			cfg['environment'][cfg['build']['current_environment_id']][user] = {}
-		try:
-			_=cfg['environment'][cfg['build']['current_environment_id']][user]['password']
-		except Exception:
-			# Try and get input, if we are not interactive, this should fail.
-			cfg['environment'][cfg['build']['current_environment_id']][user]['password'] = shutit_util.get_input(msg,ispass=True)
-		self._handle_note_after(note=note)
-		return cfg['environment'][cfg['build']['current_environment_id']][user]['password']
+		return shutit_pexpect_session.get_env_pass(user=user,msg=msg,note=note)
 
 
-	# TODO: move this, pass through?
 	def whoarewe(self,
 	             shutit_pexpect_child=None,
-	             expect=None,
 	             note=None,
 	             delaybeforesend=0,
 	             loglevel=logging.DEBUG):
@@ -2010,11 +1933,8 @@ $'"""
 		@rtype: string
 		"""
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
-		expect = expect or self.get_current_shutit_pexpect_session().default_expect
-		self._handle_note(note)
-		res = self.send_and_get_output(' id -n -g',echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend).strip()
-		self._handle_note_after(note=note)
-		return res
+		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
+		return shutit_pexpect_session.whoarewe(note=note,delaybeforesend=delaybeforesend,loglevel=loglevel)
 
 
 	def login(self,
@@ -2160,7 +2080,7 @@ $'"""
 				if self.file_exists('/etc/redhat-release'):
 					output = self.send_and_get_output('cat /etc/redhat-release',echo=False, loglevel=loglevel,delaybeforesend=delaybeforesend)
 					if re.match('^centos.*$', output.lower()) or re.match('^red hat.*$', output.lower()) or re.match('^fedora.*$', output.lower()) or True:
-						self.send_and_match_output('yum install -y -t redhat-lsb epel-release','Complete!',loglevel=loglevel,delaybeforesend=delaybeforesend)
+						shutit_pexpect_session.send_and_match_output('yum install -y -t redhat-lsb epel-release','Complete!',loglevel=loglevel,delaybeforesend=delaybeforesend)
 				else:
 					if not shutit_pexpect_session.command_available('lsb_release'):
 						self.send('yum install -y lsb-release',loglevel=loglevel,delaybeforesend=delaybeforesend)
@@ -2247,7 +2167,7 @@ $'"""
 				if self.file_exists('/etc/redhat-release'):
 					output = self.send_and_get_output('cat /etc/redhat-release',echo=False, loglevel=loglevel,delaybeforesend=delaybeforesend)
 					if re.match('^centos.*$', output.lower()) or re.match('^red hat.*$', output.lower()) or re.match('^fedora.*$', output.lower()) or True:
-						self.send_and_match_output('yum install -y -t redhat-lsb epel-release','Complete!',loglevel=loglevel,delaybeforesend=delaybeforesend)
+						shutit_pexpect_session.send_and_match_output('yum install -y -t redhat-lsb epel-release','Complete!',loglevel=loglevel,delaybeforesend=delaybeforesend)
 				else:
 					if not shutit_pexpect_session.command_available('lsb_release'):
 						self.send('yum install -y lsb-release',loglevel=loglevel,delaybeforesend=delaybeforesend)

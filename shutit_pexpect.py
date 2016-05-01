@@ -32,6 +32,7 @@ import shutit_global
 import shutit_assets
 from shutit_module import ShutItFailException
 import package_map
+import re
 
 
 class ShutItPexpectSession(object):
@@ -658,7 +659,7 @@ class ShutItPexpectSession(object):
 		test_type = '-d' if directory is True else '-a'
 		#       v the space is intentional, to avoid polluting bash history.
 		test = ' test %s %s' % (test_type, filename)
-		output = shutit_global.shutit.send_and_get_output(test + ' && echo FILEXIST-""FILFIN || echo FILNEXIST-""FILFIN', expect=expect, shutit_pexpect_child=self.pexpect_child, record_command=False, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
+		output = shutit_global.shutit.send_and_get_output(test + ' && echo FILEXIST-""FILFIN || echo FILNEXIST-""FILFIN', shutit_pexpect_child=self.pexpect_child, record_command=False, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
 		res = shutit_util.match_string(output, '^(FILEXIST|FILNEXIST)-FILFIN$')
 		ret = False
 		if res == 'FILEXIST':
@@ -1086,10 +1087,10 @@ class ShutItPexpectSession(object):
 		opts = ''
 		whoiam = self.whoami()
 		if whoiam != 'root' and install_type != 'brew':
-			if not self.command_available('sudo',shutit_pexpect_child=shutit_pexpect_child):
-				shutit_global.shutit.pause_point('Please install sudo and then continue with CTRL-]',shutit_pexpect_child=shutit_pexpect_child)
+			if not self.command_available('sudo'):
+				shutit_global.shutit.pause_point('Please install sudo and then continue with CTRL-]',shutit_pexpect_child=self.pexpect_child)
 			cmd = 'sudo '
-			pw = shutit_global.shutit.get_env_pass(whoiam,'Please input your sudo password in case it is needed (for user: ' + whoiam + ')\nJust hit return if you do not want to submit a password.\n')
+			pw = self.get_env_pass(whoiam,'Please input your sudo password in case it is needed (for user: ' + whoiam + ')\nJust hit return if you do not want to submit a password.\n')
 		else:
 			cmd = ''
 			pw = ''
@@ -1208,7 +1209,7 @@ class ShutItPexpectSession(object):
 		whoiam = self.whoami()
 		if whoiam != 'root' and install_type != 'brew':
 			cmd = 'sudo '
-			pw = shutit_global.shutit.get_env_pass(whoiam,'Please input your sudo password in case it is needed (for user: ' + whoiam + ')\nJust hit return if you do not want to submit a password.\n')
+			pw = self.get_env_pass(whoiam,'Please input your sudo password in case it is needed (for user: ' + whoiam + ')\nJust hit return if you do not want to submit a password.\n')
 		else:
 			cmd = ''
 			pw = ''
@@ -1251,6 +1252,154 @@ class ShutItPexpectSession(object):
 		shutit_global.shutit._handle_note_after(note=note)
 		return True
 
+
+
+	def send_and_match_output(self,
+	                          send,
+	                          matches,
+	                          retry=3,
+	                          strip=True,
+	                          note=None,
+	                          echo=False,
+	                          delaybeforesend=0,
+	                          loglevel=logging.DEBUG):
+		"""Returns true if the output of the command matches any of the strings in
+		the matches list of regexp strings. Handles matching on a per-line basis
+		and does not cross lines.
+
+		@param send:     See send()
+		@param matches:  String - or list of strings - of regexp(s) to check
+		@param retry:    Number of times to retry command (default 3)
+		@param strip:    Whether to strip output (defaults to True)
+		@param note:     See send()
+
+		@type send:      string
+		@type matches:   list
+		@type retry:     integer
+		@type strip:     boolean
+		"""
+		shutit_global.shutit._handle_note(note)
+		shutit_global.shutit.log('Matching output from: "' + send + '" to one of these regexps:' + str(matches),level=logging.INFO)
+		output = shutit_global.shutit.send_and_get_output(send, shutit_pexpect_child=self.pexpect_child, retry=retry, strip=strip, echo=echo, loglevel=loglevel, delaybeforesend=delaybeforesend)
+		if type(matches) == str:
+			matches = [matches]
+		shutit_global.shutit._handle_note_after(note=note)
+		for match in matches:
+			if shutit_util.match_string(output, match) != None:
+				shutit_global.shutit.log('Matched output, return True',level=logging.DEBUG)
+				return True
+		shutit_global.shutit.log('Failed to match output, return False',level=logging.DEBUG)
+		return False
+
+
+
+	def send_and_get_output(self,
+	                        send,
+	                        timeout=None,
+	                        retry=3,
+	                        strip=True,
+	                        preserve_newline=False,
+	                        note=None,
+	                        record_command=False,
+	                        echo=False,
+	                        fail_on_empty_before=True,
+	                        delaybeforesend=0,
+	                        loglevel=logging.DEBUG):
+		"""Returns the output of a command run. send() is called, and exit is not checked.
+
+		@param send:     See send()
+		@param retry:    Number of times to retry command (default 3)
+		@param strip:    Whether to strip output (defaults to True). Strips whitespace
+		                 and ansi terminal codes
+		@param note:     See send()
+		@param echo:     See send()
+
+		@type retry:     integer
+		@type strip:     boolean
+		"""
+		cfg = shutit_global.shutit.cfg
+		shutit_global.shutit._handle_note(note, command=str(send))
+		shutit_global.shutit.log('Retrieving output from command: ' + send,level=loglevel)
+		# Don't check exit, as that will pollute the output. Also, it's quite likely the submitted command is intended to fail.
+		shutit_global.shutit.send(shutit_util.get_send_command(send), shutit_pexpect_child=self.pexpect_child, check_exit=False, retry=retry, echo=echo, timeout=timeout, record_command=record_command, loglevel=loglevel, fail_on_empty_before=fail_on_empty_before, delaybeforesend=delaybeforesend)
+		before = self.pexpect_child.before
+		if preserve_newline and before[-1] == '\n':
+			preserve_newline = True
+		else:
+			preserve_newline = False
+		# Correct problem with first char in OSX.
+		try:
+			if cfg['environment'][cfg['build']['current_environment_id']]['distro'] == 'osx':
+				before_list = before.split('\r\n')
+				before_list = before_list[1:]
+				before = string.join(before_list,'\r\n')
+			else:
+				before = before.strip(send)
+		except Exception:
+			before = before.strip(send)
+		shutit_global.shutit._handle_note_after(note=note)
+		if strip:
+			ansi_escape = re.compile(r'\x1b[^m]*m')
+			string_with_termcodes = before.strip()
+			string_without_termcodes = ansi_escape.sub('', string_with_termcodes)
+			#string_without_termcodes_stripped = string_without_termcodes.strip()
+			# Strip out \rs to make it output the same as a typical CL. This could be optional.
+			string_without_termcodes_stripped_no_cr = string_without_termcodes.replace('\r','')
+			if False:
+				for c in string_without_termcodes_stripped_no_cr:
+					shutit_global.shutit.log((str(hex(ord(c))) + ' '),level=logging.DEBUG)
+			if preserve_newline:
+				return string_without_termcodes_stripped_no_cr + '\n'
+			else:
+				return string_without_termcodes_stripped_no_cr
+		else:
+			if False:
+				for c in before:
+					shutit_global.shutit.log((str(hex(ord(c))) + ' '),level=logging.DEBUG)
+			return before
+
+
+	def get_env_pass(self,user=None,msg=None,note=None):
+		"""Gets a password from the user if one is not already recorded for this environment.
+
+		@param user:    username we are getting password for
+		@param msg:     message to put out there
+		"""
+		cfg = shutit_global.shutit.cfg
+		shutit_global.shutit._handle_note(note)
+		user = user or self.whoami()
+		msg = msg or 'Please input the sudo password for user: ' + user
+		# Test for the existence of the data structure.
+		try:
+			_=cfg['environment'][cfg['build']['current_environment_id']][user]
+		except:
+			cfg['environment'][cfg['build']['current_environment_id']][user] = {}
+		try:
+			_=cfg['environment'][cfg['build']['current_environment_id']][user]['password']
+		except Exception:
+			# Try and get input, if we are not interactive, this should fail.
+			cfg['environment'][cfg['build']['current_environment_id']][user]['password'] = shutit_util.get_input(msg,ispass=True)
+		shutit_global.shutit._handle_note_after(note=note)
+		return cfg['environment'][cfg['build']['current_environment_id']][user]['password']
+
+
+	def whoarewe(self,
+	             note=None,
+	             delaybeforesend=0,
+	             loglevel=logging.DEBUG):
+		"""Returns the current group.
+
+		@param shutit_pexpect_child:    See send()
+		@param expect:   See send()
+		@param note:     See send()
+
+		@return: the first group found
+		@rtype: string
+		"""
+		shutit_global.shutit._handle_note(note)
+		res = shutit_global.shutit.send_and_get_output(' id -n -g',echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend).strip()
+		shutit_global.shutit._handle_note_after(note=note)
+		return res
 
 	#TODO: create environment object
 	#TODO: review items in cfg and see if they make more sense in the pexpect object
