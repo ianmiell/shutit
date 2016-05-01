@@ -205,7 +205,6 @@ class ShutItPexpectSession(object):
 		"""Logs the user out. Assumes that login has been called.
 		If login has never been called, throw an error.
 
-			@param shutit_pexpect_child:		   See send()
 			@param expect:		  See send()
 			@param command:		 Command to run to log out (default=exit)
 			@param note:			See send()
@@ -260,8 +259,6 @@ class ShutItPexpectSession(object):
 		
 		@param prompt_name:         Reference name for prompt.
 		@param prefix:              Prompt prefix. Default: 'default'
-		@param shutit_pexpect_child:               See send()
-		                            to the new prompt. Default: True
 		
 		@type prompt_name:          string
 		@type prefix:               string
@@ -370,8 +367,6 @@ class ShutItPexpectSession(object):
 	           loglevel=logging.DEBUG):
 		"""Returns the current user by executing "whoami".
 
-		@param shutit_pexpect_child:    See send()
-		@param expect:   See send()
 		@param note:     See send()
 
 		@return: the output of "whoami"
@@ -674,7 +669,6 @@ class ShutItPexpectSession(object):
 
 	def chdir(self,
 	          path,
-	          expect=None,
 	          timeout=3600,
 	          note=None,
 	          delaybeforesend=0,
@@ -682,8 +676,6 @@ class ShutItPexpectSession(object):
 		"""How to change directory will depend on whether we are in delivery mode bash or docker.
 
 		@param path:          Path to send file to.
-		@param expect:        See send()
-		@param shutit_pexpect_child:         See send()
 		@param timeout:       Timeout on response
 		@param note:          See send()
 		"""
@@ -691,7 +683,7 @@ class ShutItPexpectSession(object):
 		shutit_global.shutit._handle_note(note, 'Changing to path: ' + path)
 		shutit_global.shutit.log('Changing directory to path: "' + path + '"', level=logging.DEBUG)
 		if cfg['build']['delivery'] in ('bash','dockerfile'):
-			shutit_global.shutit.send(' cd ' + path, expect=expect, shutit_pexpect_child=self.pexpect_child, timeout=timeout, echo=False,loglevel=loglevel, delaybeforesend=delaybeforesend)
+			shutit_global.shutit.send(' cd ' + path, shutit_pexpect_child=self.pexpect_child, timeout=timeout, echo=False,loglevel=loglevel, delaybeforesend=delaybeforesend)
 		elif cfg['build']['delivery'] in ('docker','ssh'):
 			os.chdir(path)
 		else:
@@ -842,13 +834,10 @@ class ShutItPexpectSession(object):
 		@param filename:             name of the file to download
 		@param locations:            list of URLs whence the file can be downloaded
 		@param command:              program to use to download the file (Default: wget)
-		@param expect:               See send()
-		@param shutit_pexpect_child:                See send()
 		@param timeout:              See send()
 		@param fail_on_empty_before: See send()
 		@param record_command:       See send()
 		@param exit_values:          See send()
-		@param echo:                 See send()
 		@param retry:                How many times to retry the download
 		                             in case of failure. Default: 3
 		@param note:                 See send()
@@ -1184,8 +1173,6 @@ class ShutItPexpectSession(object):
 		Takes a package name and runs relevant remove function.
 
 		@param package:  Package to remove, which is run through package_map.
-		@param expect:   See send()
-		@param shutit_pexpect_child:    See send()
 		@param options:  Dict of options to pass to the remove command,
 		                 mapped by install_type.
 		@param timeout:  See send(). Default: 3600
@@ -1383,8 +1370,6 @@ class ShutItPexpectSession(object):
 	             loglevel=logging.DEBUG):
 		"""Returns the current group.
 
-		@param shutit_pexpect_child:    See send()
-		@param expect:   See send()
 		@param note:     See send()
 
 		@return: the first group found
@@ -1413,9 +1398,6 @@ class ShutItPexpectSession(object):
 		    - apt-get update
 		    - apt-get install -y -qq lsb-release
 
-		@param container:   If True, we are in the container shell, otherwise we are gathering info about another shell. Defaults to True.
-
-		@type container:    boolean
 		"""
 		cfg = shutit_global.shutit.cfg
 		install_type   = ''
@@ -1612,7 +1594,6 @@ class ShutItPexpectSession(object):
 		@param send_dict:            dict of sends and expects, eg: {'interim prompt:','some input','other prompt','some other input'}
 		@param expect:               String or list of strings of final expected output that returns from this function. See send()
 		@param send:                 See send()
-		@param shutit_pexpect_child:                See send()
 		@param timeout:              See send()
 		@param check_exit:           See send()
 		@param fail_on_empty_before: See send()
@@ -1661,9 +1642,6 @@ class ShutItPexpectSession(object):
 		@param regexps:              List of regexps to wait for.
 		@param not_there:            If True, wait until this a regexp is not seen in the output. If False
 		                             wait until a regexp is seen in the output (default)
-		@param expect:               See send()
-		@param fail_on_empty_before: See send()
-		@param record_command:       See send()
 		@param echo:                 See send()
 		@param note:                 See send()
 		"""

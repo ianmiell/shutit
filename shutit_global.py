@@ -144,7 +144,6 @@ class ShutIt(object):
 	def log(self, msg, add_final_message=False, level=logging.INFO, transient=False, newline=True):
 		"""Logging function.
 
-		@param code:              Colour code for logging.
 		@param add_final_message: Add this log line to the final message output to the user
 		@param level:             Python log level
 		@param transient:         Just write to terminal, no new line
@@ -219,10 +218,7 @@ class ShutIt(object):
 		@param regexps:              List of regexps to wait for.
 		@param not_there:            If True, wait until this a regexp is not seen in the output. If False
 		                             wait until a regexp is seen in the output (default)
-		@param expect:               See send()
 		@param shutit_pexpect_child:                See send()
-		@param fail_on_empty_before: See send()
-		@param record_command:       See send()
 		@param echo:                 See send()
 		@param note:                 See send()
 		"""
@@ -1332,14 +1328,10 @@ $'"""
 		@param expect:        See send()
 		@param shutit_pexpect_child:         See send()
 		@param match_regexp:  If supplied, a regexp to look for in the file instead of the line itself, handy if the line has awkward characters in it.
-		@param force:         Always write the line to the file.
-		@param literal:       If true, then simply grep for the exact string without bash interpretation. (Default: False)
-		@param note:          See send()
 
 		@type line:           string
 		@type filename:       string
 		@type match_regexp:   string
-		@type literal:        boolean
 
 		"""
 		if type(line) == str:
@@ -1400,7 +1392,6 @@ $'"""
 		@param fail_on_empty_before: See send()
 		@param record_command:       See send()
 		@param exit_values:          See send()
-		@param echo:                 See send()
 		@param retry:                How many times to retry the download
 		                             in case of failure. Default: 3
 		@param note:                 See send()
@@ -1426,7 +1417,6 @@ $'"""
 		"""Returns true if the specified username exists.
 		
 		@param user:   username to check for
-		@param expect: See send()
 		@param shutit_pexpect_child:  See send()
 		@param note:   See send()
 
@@ -1448,7 +1438,6 @@ $'"""
 		"""Returns True if we can be sure the package is installed.
 
 		@param package:   Package as a string, eg 'wget'.
-		@param expect:    See send()
 		@param shutit_pexpect_child:     See send()
 		@param note:      See send()
 
@@ -1694,7 +1683,6 @@ $'"""
 
 		@param send:     See send()
 		@param matches:  String - or list of strings - of regexp(s) to check
-		@param expect:   See send()
 		@param shutit_pexpect_child:    See send()
 		@param retry:    Number of times to retry command (default 3)
 		@param strip:    Whether to strip output (defaults to True)
@@ -1756,7 +1744,6 @@ $'"""
 		Takes a package name and runs the relevant install function.
 
 		@param package:    Package to install, which is run through package_map
-		@param expect:     See send()
 		@param shutit_pexpect_child:      See send()
 		@param timeout:    Timeout (s) to wait for finish of install. Defaults to 3600.
 		@param options:    Dictionary for specific options per install tool.
@@ -1835,7 +1822,6 @@ $'"""
 		"""Returns the current group.
 
 		@param shutit_pexpect_child:    See send()
-		@param expect:   See send()
 		@param note:     See send()
 
 		@return: the first group found
@@ -1924,9 +1910,6 @@ $'"""
 		    - apt-get install -y -qq lsb-release
 
 		@param shutit_pexpect_child:       See send()
-		@param container:   If True, we are in the container shell, otherwise we are gathering info about another shell. Defaults to True.
-
-		@type container:    boolean
 		"""
 		global cfg
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
@@ -1977,7 +1960,6 @@ $'"""
 		"""Determine whether the specified user_id available.
 
 		@param user_id:  User id to be checked.
-		@param expect:   See send()
 		@param shutit_pexpect_child:    See send()
 		@param note:     See send()
 

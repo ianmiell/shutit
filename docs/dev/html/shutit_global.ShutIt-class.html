@@ -289,7 +289,6 @@ object --+
         <span class="summary-sig-arg">send</span>,
         <span class="summary-sig-arg">regexps</span>,
         <span class="summary-sig-arg">not_there</span>=<span class="summary-sig-default">False</span>,
-        <span class="summary-sig-arg">expect</span>=<span class="summary-sig-default">None</span>,
         <span class="summary-sig-arg">shutit_pexpect_child</span>=<span class="summary-sig-default">None</span>,
         <span class="summary-sig-arg">cadence</span>=<span class="summary-sig-default">5</span>,
         <span class="summary-sig-arg">retries</span>=<span class="summary-sig-default">100</span>,
@@ -423,7 +422,7 @@ object --+
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
           <td><span class="summary-sig"><a name="_challenge_done"></a><span class="summary-sig-name">_challenge_done</span>(<span class="summary-sig-arg">self</span>,
-        <span class="summary-sig-arg">pexpect_session</span>,
+        <span class="summary-sig-arg">shutit_pexpect_session</span>,
         <span class="summary-sig-arg">result</span>=<span class="summary-sig-default">None</span>,
         <span class="summary-sig-arg">congratulations</span>=<span class="summary-sig-default">None</span>,
         <span class="summary-sig-arg">follow_on_context</span>=<span class="summary-sig-default"><code class="variable-group">{</code><code class="variable-group">}</code></span>,
@@ -704,7 +703,6 @@ object --+
         <tr>
           <td><span class="summary-sig"><a href="shutit_global.ShutIt-class.html#file_exists" class="summary-sig-name">file_exists</a>(<span class="summary-sig-arg">self</span>,
         <span class="summary-sig-arg">filename</span>,
-        <span class="summary-sig-arg">expect</span>=<span class="summary-sig-default">None</span>,
         <span class="summary-sig-arg">shutit_pexpect_child</span>=<span class="summary-sig-default">None</span>,
         <span class="summary-sig-arg">directory</span>=<span class="summary-sig-default">False</span>,
         <span class="summary-sig-arg">note</span>=<span class="summary-sig-default">None</span>,
@@ -728,7 +726,6 @@ object --+
         <tr>
           <td><span class="summary-sig"><a href="shutit_global.ShutIt-class.html#get_file_perms" class="summary-sig-name">get_file_perms</a>(<span class="summary-sig-arg">self</span>,
         <span class="summary-sig-arg">filename</span>,
-        <span class="summary-sig-arg">expect</span>=<span class="summary-sig-default">None</span>,
         <span class="summary-sig-arg">shutit_pexpect_child</span>=<span class="summary-sig-default">None</span>,
         <span class="summary-sig-arg">note</span>=<span class="summary-sig-default">None</span>,
         <span class="summary-sig-arg">delaybeforesend</span>=<span class="summary-sig-default">0</span>,
@@ -914,7 +911,6 @@ object --+
         <tr>
           <td><span class="summary-sig"><a href="shutit_global.ShutIt-class.html#add_to_bashrc" class="summary-sig-name">add_to_bashrc</a>(<span class="summary-sig-arg">self</span>,
         <span class="summary-sig-arg">line</span>,
-        <span class="summary-sig-arg">expect</span>=<span class="summary-sig-default">None</span>,
         <span class="summary-sig-arg">shutit_pexpect_child</span>=<span class="summary-sig-default">None</span>,
         <span class="summary-sig-arg">match_regexp</span>=<span class="summary-sig-default">None</span>,
         <span class="summary-sig-arg">note</span>=<span class="summary-sig-default">None</span>,
@@ -940,7 +936,6 @@ object --+
         <span class="summary-sig-arg">filename</span>,
         <span class="summary-sig-arg">locations</span>,
         <span class="summary-sig-arg">command</span>=<span class="summary-sig-default"><code class="variable-quote">'</code><code class="variable-string">curl</code><code class="variable-quote">'</code></span>,
-        <span class="summary-sig-arg">expect</span>=<span class="summary-sig-default">None</span>,
         <span class="summary-sig-arg">shutit_pexpect_child</span>=<span class="summary-sig-default">None</span>,
         <span class="summary-sig-arg">timeout</span>=<span class="summary-sig-default">3600</span>,
         <span class="summary-sig-arg">fail_on_empty_before</span>=<span class="summary-sig-default">True</span>,
@@ -968,7 +963,6 @@ object --+
         <tr>
           <td><span class="summary-sig"><a href="shutit_global.ShutIt-class.html#user_exists" class="summary-sig-name">user_exists</a>(<span class="summary-sig-arg">self</span>,
         <span class="summary-sig-arg">user</span>,
-        <span class="summary-sig-arg">expect</span>=<span class="summary-sig-default">None</span>,
         <span class="summary-sig-arg">shutit_pexpect_child</span>=<span class="summary-sig-default">None</span>,
         <span class="summary-sig-arg">note</span>=<span class="summary-sig-default">None</span>,
         <span class="summary-sig-arg">delaybeforesend</span>=<span class="summary-sig-default">0</span>,
@@ -991,7 +985,6 @@ object --+
         <tr>
           <td><span class="summary-sig"><a href="shutit_global.ShutIt-class.html#package_installed" class="summary-sig-name">package_installed</a>(<span class="summary-sig-arg">self</span>,
         <span class="summary-sig-arg">package</span>,
-        <span class="summary-sig-arg">expect</span>=<span class="summary-sig-default">None</span>,
         <span class="summary-sig-arg">shutit_pexpect_child</span>=<span class="summary-sig-default">None</span>,
         <span class="summary-sig-arg">note</span>=<span class="summary-sig-default">None</span>,
         <span class="summary-sig-arg">delaybeforesend</span>=<span class="summary-sig-default">0</span>,
@@ -1014,7 +1007,6 @@ object --+
         <tr>
           <td><span class="summary-sig"><a name="command_available"></a><span class="summary-sig-name">command_available</span>(<span class="summary-sig-arg">self</span>,
         <span class="summary-sig-arg">command</span>,
-        <span class="summary-sig-arg">expect</span>=<span class="summary-sig-default">None</span>,
         <span class="summary-sig-arg">shutit_pexpect_child</span>=<span class="summary-sig-default">None</span>,
         <span class="summary-sig-arg">note</span>=<span class="summary-sig-default">None</span>,
         <span class="summary-sig-arg">delaybeforesend</span>=<span class="summary-sig-default">0</span>,
@@ -1164,24 +1156,6 @@ object --+
       
     </td>
   </tr>
-<tr class="private">
-    <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">&nbsp;</span>
-    </td><td class="summary">
-      <table width="100%" cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td><span class="summary-sig"><a name="_pause_input_filter"></a><span class="summary-sig-name">_pause_input_filter</span>(<span class="summary-sig-arg">self</span>,
-        <span class="summary-sig-arg">input_string</span>)</span><br />
-      Input filter for pause point to catch special keystrokes</td>
-          <td align="right" valign="top">
-            <span class="codelink"><a href="shutit_global-pysrc.html#ShutIt._pause_input_filter">source&nbsp;code</a></span>
-            
-          </td>
-        </tr>
-      </table>
-      
-    </td>
-  </tr>
 <tr>
     <td width="15%" align="right" valign="top" class="summary">
       <span class="summary-type">&nbsp;</span>
@@ -1191,7 +1165,6 @@ object --+
           <td><span class="summary-sig"><a href="shutit_global.ShutIt-class.html#send_and_match_output" class="summary-sig-name">send_and_match_output</a>(<span class="summary-sig-arg">self</span>,
         <span class="summary-sig-arg">send</span>,
         <span class="summary-sig-arg">matches</span>,
-        <span class="summary-sig-arg">expect</span>=<span class="summary-sig-default">None</span>,
         <span class="summary-sig-arg">shutit_pexpect_child</span>=<span class="summary-sig-default">None</span>,
         <span class="summary-sig-arg">retry</span>=<span class="summary-sig-default">3</span>,
         <span class="summary-sig-arg">strip</span>=<span class="summary-sig-default">True</span>,
@@ -1218,7 +1191,6 @@ object --+
         <tr>
           <td><span class="summary-sig"><a href="shutit_global.ShutIt-class.html#send_and_get_output" class="summary-sig-name">send_and_get_output</a>(<span class="summary-sig-arg">self</span>,
         <span class="summary-sig-arg">send</span>,
-        <span class="summary-sig-arg">expect</span>=<span class="summary-sig-default">None</span>,
         <span class="summary-sig-arg">shutit_pexpect_child</span>=<span class="summary-sig-default">None</span>,
         <span class="summary-sig-arg">timeout</span>=<span class="summary-sig-default">None</span>,
         <span class="summary-sig-arg">retry</span>=<span class="summary-sig-default">3</span>,
@@ -1249,7 +1221,6 @@ object --+
           <td><span class="summary-sig"><a href="shutit_global.ShutIt-class.html#install" class="summary-sig-name">install</a>(<span class="summary-sig-arg">self</span>,
         <span class="summary-sig-arg">package</span>,
         <span class="summary-sig-arg">shutit_pexpect_child</span>=<span class="summary-sig-default">None</span>,
-        <span class="summary-sig-arg">expect</span>=<span class="summary-sig-default">None</span>,
         <span class="summary-sig-arg">options</span>=<span class="summary-sig-default">None</span>,
         <span class="summary-sig-arg">timeout</span>=<span class="summary-sig-default">3600</span>,
         <span class="summary-sig-arg">force</span>=<span class="summary-sig-default">False</span>,
@@ -1277,7 +1248,6 @@ object --+
           <td><span class="summary-sig"><a href="shutit_global.ShutIt-class.html#remove" class="summary-sig-name">remove</a>(<span class="summary-sig-arg">self</span>,
         <span class="summary-sig-arg">package</span>,
         <span class="summary-sig-arg">shutit_pexpect_child</span>=<span class="summary-sig-default">None</span>,
-        <span class="summary-sig-arg">expect</span>=<span class="summary-sig-default">None</span>,
         <span class="summary-sig-arg">options</span>=<span class="summary-sig-default">None</span>,
         <span class="summary-sig-arg">timeout</span>=<span class="summary-sig-default">3600</span>,
         <span class="summary-sig-arg">delaybeforesend</span>=<span class="summary-sig-default">0</span>,
@@ -1302,7 +1272,6 @@ object --+
         <span class="summary-sig-arg">user</span>=<span class="summary-sig-default">None</span>,
         <span class="summary-sig-arg">msg</span>=<span class="summary-sig-default">None</span>,
         <span class="summary-sig-arg">shutit_pexpect_child</span>=<span class="summary-sig-default">None</span>,
-        <span class="summary-sig-arg">expect</span>=<span class="summary-sig-default">None</span>,
         <span class="summary-sig-arg">note</span>=<span class="summary-sig-default">None</span>)</span><br />
       Gets a password from the user if one is not already recorded for this
       environment.</td>
@@ -1323,7 +1292,6 @@ object --+
         <tr>
           <td><span class="summary-sig"><a href="shutit_global.ShutIt-class.html#whoarewe" class="summary-sig-name">whoarewe</a>(<span class="summary-sig-arg">self</span>,
         <span class="summary-sig-arg">shutit_pexpect_child</span>=<span class="summary-sig-default">None</span>,
-        <span class="summary-sig-arg">expect</span>=<span class="summary-sig-default">None</span>,
         <span class="summary-sig-arg">note</span>=<span class="summary-sig-default">None</span>,
         <span class="summary-sig-arg">delaybeforesend</span>=<span class="summary-sig-default">0</span>,
         <span class="summary-sig-arg">loglevel</span>=<span class="summary-sig-default">10</span>)</span><br />
@@ -1441,7 +1409,6 @@ object --+
         <tr>
           <td><span class="summary-sig"><a name="get_memory"></a><span class="summary-sig-name">get_memory</span>(<span class="summary-sig-arg">self</span>,
         <span class="summary-sig-arg">shutit_pexpect_child</span>=<span class="summary-sig-default">None</span>,
-        <span class="summary-sig-arg">expect</span>=<span class="summary-sig-default">None</span>,
         <span class="summary-sig-arg">delaybeforesend</span>=<span class="summary-sig-default">0</span>,
         <span class="summary-sig-arg">note</span>=<span class="summary-sig-default">None</span>)</span><br />
       Returns memory available for use in k as an int</td>
@@ -1506,7 +1473,6 @@ object --+
         <span class="summary-sig-arg">password</span>,
         <span class="summary-sig-arg">user</span>=<span class="summary-sig-default"><code class="variable-quote">'</code><code class="variable-string"></code><code class="variable-quote">'</code></span>,
         <span class="summary-sig-arg">shutit_pexpect_child</span>=<span class="summary-sig-default">None</span>,
-        <span class="summary-sig-arg">expect</span>=<span class="summary-sig-default">None</span>,
         <span class="summary-sig-arg">delaybeforesend</span>=<span class="summary-sig-default">0.05</span>,
         <span class="summary-sig-arg">note</span>=<span class="summary-sig-default">None</span>)</span><br />
       Sets the password for the current user or passed-in user.</td>
@@ -1528,7 +1494,6 @@ object --+
           <td><span class="summary-sig"><a href="shutit_global.ShutIt-class.html#is_user_id_available" class="summary-sig-name">is_user_id_available</a>(<span class="summary-sig-arg">self</span>,
         <span class="summary-sig-arg">user_id</span>,
         <span class="summary-sig-arg">shutit_pexpect_child</span>=<span class="summary-sig-default">None</span>,
-        <span class="summary-sig-arg">expect</span>=<span class="summary-sig-default">None</span>,
         <span class="summary-sig-arg">note</span>=<span class="summary-sig-default">None</span>,
         <span class="summary-sig-arg">delaybeforesend</span>=<span class="summary-sig-default">0</span>,
         <span class="summary-sig-arg">loglevel</span>=<span class="summary-sig-default">10</span>)</span><br />
@@ -1574,7 +1539,6 @@ object --+
           <td><span class="summary-sig"><a href="shutit_global.ShutIt-class.html#do_repository_work" class="summary-sig-name">do_repository_work</a>(<span class="summary-sig-arg">self</span>,
         <span class="summary-sig-arg">repo_name</span>,
         <span class="summary-sig-arg">repo_tag</span>=<span class="summary-sig-default">None</span>,
-        <span class="summary-sig-arg">expect</span>=<span class="summary-sig-default">None</span>,
         <span class="summary-sig-arg">docker_executable</span>=<span class="summary-sig-default"><code class="variable-quote">'</code><code class="variable-string">docker</code><code class="variable-quote">'</code></span>,
         <span class="summary-sig-arg">password</span>=<span class="summary-sig-default">None</span>,
         <span class="summary-sig-arg">force</span>=<span class="summary-sig-default">None</span>,
@@ -2010,7 +1974,6 @@ object --+
   <dl class="fields">
     <dt>Parameters:</dt>
     <dd><ul class="nomargin-top">
-        <li><strong class="pname"><code>code</code></strong> - Colour code for logging.</li>
         <li><strong class="pname"><code>add_final_message</code></strong> - Add this log line to the final message output to the user</li>
         <li><strong class="pname"><code>level</code></strong> - Python log level</li>
         <li><strong class="pname"><code>transient</code></strong> - Just write to terminal, no new line</li>
@@ -2080,7 +2043,6 @@ object --+
         <span class="sig-arg">send</span>,
         <span class="sig-arg">regexps</span>,
         <span class="sig-arg">not_there</span>=<span class="sig-default">False</span>,
-        <span class="sig-arg">expect</span>=<span class="sig-default">None</span>,
         <span class="sig-arg">shutit_pexpect_child</span>=<span class="sig-default">None</span>,
         <span class="sig-arg">cadence</span>=<span class="sig-default">5</span>,
         <span class="sig-arg">retries</span>=<span class="sig-default">100</span>,
@@ -2103,10 +2065,7 @@ object --+
         <li><strong class="pname"><code>regexps</code></strong> - List of regexps to wait for.</li>
         <li><strong class="pname"><code>not_there</code></strong> - If True, wait until this a regexp is not seen in the output. If 
           False wait until a regexp is seen in the output (default)</li>
-        <li><strong class="pname"><code>expect</code></strong> - See send()</li>
         <li><strong class="pname"><code>shutit_pexpect_child</code></strong> - See send()</li>
-        <li><strong class="pname"><code>fail_on_empty_before</code></strong> - See send()</li>
-        <li><strong class="pname"><code>record_command</code></strong> - See send()</li>
         <li><strong class="pname"><code>echo</code></strong> - See send()</li>
         <li><strong class="pname"><code>note</code></strong> - See send()</li>
     </ul></dd>
@@ -2641,7 +2600,6 @@ Either pass in regexp(s) desired from the output as a string or a list, or an md
   <tr valign="top"><td>
   <h3 class="epydoc"><span class="sig"><span class="sig-name">file_exists</span>(<span class="sig-arg">self</span>,
         <span class="sig-arg">filename</span>,
-        <span class="sig-arg">expect</span>=<span class="sig-default">None</span>,
         <span class="sig-arg">shutit_pexpect_child</span>=<span class="sig-default">None</span>,
         <span class="sig-arg">directory</span>=<span class="sig-default">False</span>,
         <span class="sig-arg">note</span>=<span class="sig-default">None</span>,
@@ -2658,7 +2616,6 @@ Either pass in regexp(s) desired from the output as a string or a list, or an md
     <dt>Parameters:</dt>
     <dd><ul class="nomargin-top">
         <li><strong class="pname"><code>filename</code></strong> (string) - Filename to determine the existence of.</li>
-        <li><strong class="pname"><code>expect</code></strong> - See send()</li>
         <li><strong class="pname"><code>shutit_pexpect_child</code></strong> - See send()</li>
         <li><strong class="pname"><code>directory</code></strong> (boolean) - Indicate that the file is a directory.</li>
         <li><strong class="pname"><code>note</code></strong> - See send()</li>
@@ -2676,7 +2633,6 @@ Either pass in regexp(s) desired from the output as a string or a list, or an md
   <tr valign="top"><td>
   <h3 class="epydoc"><span class="sig"><span class="sig-name">get_file_perms</span>(<span class="sig-arg">self</span>,
         <span class="sig-arg">filename</span>,
-        <span class="sig-arg">expect</span>=<span class="sig-default">None</span>,
         <span class="sig-arg">shutit_pexpect_child</span>=<span class="sig-default">None</span>,
         <span class="sig-arg">note</span>=<span class="sig-default">None</span>,
         <span class="sig-arg">delaybeforesend</span>=<span class="sig-default">0</span>,
@@ -2693,7 +2649,6 @@ Either pass in regexp(s) desired from the output as a string or a list, or an md
     <dt>Parameters:</dt>
     <dd><ul class="nomargin-top">
         <li><strong class="pname"><code>filename</code></strong> (string) - Filename to get permissions of.</li>
-        <li><strong class="pname"><code>expect</code></strong> - See send()</li>
         <li><strong class="pname"><code>shutit_pexpect_child</code></strong> - See send()</li>
         <li><strong class="pname"><code>note</code></strong> - See send()</li>
     </ul></dd>
@@ -2926,10 +2881,6 @@ Either pass in regexp(s) desired from the output as a string or a list, or an md
         <li><strong class="pname"><code>shutit_pexpect_child</code></strong> - See send()</li>
         <li><strong class="pname"><code>match_regexp</code></strong> (string) - If supplied, a regexp to look for in the file instead of the line
           itself, handy if the line has awkward characters in it.</li>
-        <li><strong class="pname"><code>force</code></strong> - Always write the line to the file.</li>
-        <li><strong class="pname"><code>literal</code></strong> (boolean) - If true, then simply grep for the exact string without bash 
-          interpretation. (Default: False)</li>
-        <li><strong class="pname"><code>note</code></strong> - See send()</li>
     </ul></dd>
   </dl>
 </td></tr></table>
@@ -2943,7 +2894,6 @@ Either pass in regexp(s) desired from the output as a string or a list, or an md
   <tr valign="top"><td>
   <h3 class="epydoc"><span class="sig"><span class="sig-name">add_to_bashrc</span>(<span class="sig-arg">self</span>,
         <span class="sig-arg">line</span>,
-        <span class="sig-arg">expect</span>=<span class="sig-default">None</span>,
         <span class="sig-arg">shutit_pexpect_child</span>=<span class="sig-default">None</span>,
         <span class="sig-arg">match_regexp</span>=<span class="sig-default">None</span>,
         <span class="sig-arg">note</span>=<span class="sig-default">None</span>,
@@ -2960,7 +2910,6 @@ Either pass in regexp(s) desired from the output as a string or a list, or an md
     <dt>Parameters:</dt>
     <dd><ul class="nomargin-top">
         <li><strong class="pname"><code>line</code></strong> - Line to add.</li>
-        <li><strong class="pname"><code>expect</code></strong> - See send()</li>
         <li><strong class="pname"><code>shutit_pexpect_child</code></strong> - See send()</li>
         <li><strong class="pname"><code>match_regexp</code></strong> - See add_line_to_file()</li>
         <li><strong class="pname"><code>note</code></strong> - See send()</li>
@@ -2979,7 +2928,6 @@ Either pass in regexp(s) desired from the output as a string or a list, or an md
         <span class="sig-arg">filename</span>,
         <span class="sig-arg">locations</span>,
         <span class="sig-arg">command</span>=<span class="sig-default"><code class="variable-quote">'</code><code class="variable-string">curl</code><code class="variable-quote">'</code></span>,
-        <span class="sig-arg">expect</span>=<span class="sig-default">None</span>,
         <span class="sig-arg">shutit_pexpect_child</span>=<span class="sig-default">None</span>,
         <span class="sig-arg">timeout</span>=<span class="sig-default">3600</span>,
         <span class="sig-arg">fail_on_empty_before</span>=<span class="sig-default">True</span>,
@@ -3004,13 +2952,11 @@ Either pass in regexp(s) desired from the output as a string or a list, or an md
         <li><strong class="pname"><code>filename</code></strong> (string) - name of the file to download</li>
         <li><strong class="pname"><code>locations</code></strong> (list of strings) - list of URLs whence the file can be downloaded</li>
         <li><strong class="pname"><code>command</code></strong> - program to use to download the file (Default: wget)</li>
-        <li><strong class="pname"><code>expect</code></strong> - See send()</li>
         <li><strong class="pname"><code>shutit_pexpect_child</code></strong> - See send()</li>
         <li><strong class="pname"><code>timeout</code></strong> - See send()</li>
         <li><strong class="pname"><code>fail_on_empty_before</code></strong> - See send()</li>
         <li><strong class="pname"><code>record_command</code></strong> - See send()</li>
         <li><strong class="pname"><code>exit_values</code></strong> - See send()</li>
-        <li><strong class="pname"><code>echo</code></strong> - See send()</li>
         <li><strong class="pname"><code>retry</code></strong> (integer) - How many times to retry the download in case of failure. Default:
           3</li>
         <li><strong class="pname"><code>note</code></strong> - See send()</li>
@@ -3029,7 +2975,6 @@ Either pass in regexp(s) desired from the output as a string or a list, or an md
   <tr valign="top"><td>
   <h3 class="epydoc"><span class="sig"><span class="sig-name">user_exists</span>(<span class="sig-arg">self</span>,
         <span class="sig-arg">user</span>,
-        <span class="sig-arg">expect</span>=<span class="sig-default">None</span>,
         <span class="sig-arg">shutit_pexpect_child</span>=<span class="sig-default">None</span>,
         <span class="sig-arg">note</span>=<span class="sig-default">None</span>,
         <span class="sig-arg">delaybeforesend</span>=<span class="sig-default">0</span>,
@@ -3045,7 +2990,6 @@ Either pass in regexp(s) desired from the output as a string or a list, or an md
     <dt>Parameters:</dt>
     <dd><ul class="nomargin-top">
         <li><strong class="pname"><code>user</code></strong> (string) - username to check for</li>
-        <li><strong class="pname"><code>expect</code></strong> - See send()</li>
         <li><strong class="pname"><code>shutit_pexpect_child</code></strong> - See send()</li>
         <li><strong class="pname"><code>note</code></strong> - See send()</li>
     </ul></dd>
@@ -3062,7 +3006,6 @@ Either pass in regexp(s) desired from the output as a string or a list, or an md
   <tr valign="top"><td>
   <h3 class="epydoc"><span class="sig"><span class="sig-name">package_installed</span>(<span class="sig-arg">self</span>,
         <span class="sig-arg">package</span>,
-        <span class="sig-arg">expect</span>=<span class="sig-default">None</span>,
         <span class="sig-arg">shutit_pexpect_child</span>=<span class="sig-default">None</span>,
         <span class="sig-arg">note</span>=<span class="sig-default">None</span>,
         <span class="sig-arg">delaybeforesend</span>=<span class="sig-default">0</span>,
@@ -3078,7 +3021,6 @@ Either pass in regexp(s) desired from the output as a string or a list, or an md
     <dt>Parameters:</dt>
     <dd><ul class="nomargin-top">
         <li><strong class="pname"><code>package</code></strong> - Package as a string, eg 'wget'.</li>
-        <li><strong class="pname"><code>expect</code></strong> - See send()</li>
         <li><strong class="pname"><code>shutit_pexpect_child</code></strong> - See send()</li>
         <li><strong class="pname"><code>note</code></strong> - See send()</li>
     </ul></dd>
@@ -3266,7 +3208,6 @@ Either pass in regexp(s) desired from the output as a string or a list, or an md
   <h3 class="epydoc"><span class="sig"><span class="sig-name">send_and_match_output</span>(<span class="sig-arg">self</span>,
         <span class="sig-arg">send</span>,
         <span class="sig-arg">matches</span>,
-        <span class="sig-arg">expect</span>=<span class="sig-default">None</span>,
         <span class="sig-arg">shutit_pexpect_child</span>=<span class="sig-default">None</span>,
         <span class="sig-arg">retry</span>=<span class="sig-default">3</span>,
         <span class="sig-arg">strip</span>=<span class="sig-default">True</span>,
@@ -3288,7 +3229,6 @@ Either pass in regexp(s) desired from the output as a string or a list, or an md
     <dd><ul class="nomargin-top">
         <li><strong class="pname"><code>send</code></strong> (string) - See send()</li>
         <li><strong class="pname"><code>matches</code></strong> (list) - String - or list of strings - of regexp(s) to check</li>
-        <li><strong class="pname"><code>expect</code></strong> - See send()</li>
         <li><strong class="pname"><code>shutit_pexpect_child</code></strong> - See send()</li>
         <li><strong class="pname"><code>retry</code></strong> (integer) - Number of times to retry command (default 3)</li>
         <li><strong class="pname"><code>strip</code></strong> (boolean) - Whether to strip output (defaults to True)</li>
@@ -3306,7 +3246,6 @@ Either pass in regexp(s) desired from the output as a string or a list, or an md
   <tr valign="top"><td>
   <h3 class="epydoc"><span class="sig"><span class="sig-name">send_and_get_output</span>(<span class="sig-arg">self</span>,
         <span class="sig-arg">send</span>,
-        <span class="sig-arg">expect</span>=<span class="sig-default">None</span>,
         <span class="sig-arg">shutit_pexpect_child</span>=<span class="sig-default">None</span>,
         <span class="sig-arg">timeout</span>=<span class="sig-default">None</span>,
         <span class="sig-arg">retry</span>=<span class="sig-default">3</span>,
@@ -3330,7 +3269,6 @@ Either pass in regexp(s) desired from the output as a string or a list, or an md
     <dt>Parameters:</dt>
     <dd><ul class="nomargin-top">
         <li><strong class="pname"><code>send</code></strong> - See send()</li>
-        <li><strong class="pname"><code>expect</code></strong> - See send()</li>
         <li><strong class="pname"><code>shutit_pexpect_child</code></strong> - See send()</li>
         <li><strong class="pname"><code>retry</code></strong> (integer) - Number of times to retry command (default 3)</li>
         <li><strong class="pname"><code>strip</code></strong> (boolean) - Whether to strip output (defaults to True). Strips whitespace and
@@ -3351,7 +3289,6 @@ Either pass in regexp(s) desired from the output as a string or a list, or an md
   <h3 class="epydoc"><span class="sig"><span class="sig-name">install</span>(<span class="sig-arg">self</span>,
         <span class="sig-arg">package</span>,
         <span class="sig-arg">shutit_pexpect_child</span>=<span class="sig-default">None</span>,
-        <span class="sig-arg">expect</span>=<span class="sig-default">None</span>,
         <span class="sig-arg">options</span>=<span class="sig-default">None</span>,
         <span class="sig-arg">timeout</span>=<span class="sig-default">3600</span>,
         <span class="sig-arg">force</span>=<span class="sig-default">False</span>,
@@ -3372,7 +3309,6 @@ Either pass in regexp(s) desired from the output as a string or a list, or an md
     <dt>Parameters:</dt>
     <dd><ul class="nomargin-top">
         <li><strong class="pname"><code>package</code></strong> (string) - Package to install, which is run through package_map</li>
-        <li><strong class="pname"><code>expect</code></strong> - See send()</li>
         <li><strong class="pname"><code>shutit_pexpect_child</code></strong> - See send()</li>
         <li><strong class="pname"><code>timeout</code></strong> (integer) - Timeout (s) to wait for finish of install. Defaults to 3600.</li>
         <li><strong class="pname"><code>options</code></strong> (dict) - Dictionary for specific options per install tool. Overrides any 
@@ -3397,7 +3333,6 @@ Either pass in regexp(s) desired from the output as a string or a list, or an md
   <h3 class="epydoc"><span class="sig"><span class="sig-name">remove</span>(<span class="sig-arg">self</span>,
         <span class="sig-arg">package</span>,
         <span class="sig-arg">shutit_pexpect_child</span>=<span class="sig-default">None</span>,
-        <span class="sig-arg">expect</span>=<span class="sig-default">None</span>,
         <span class="sig-arg">options</span>=<span class="sig-default">None</span>,
         <span class="sig-arg">timeout</span>=<span class="sig-default">3600</span>,
         <span class="sig-arg">delaybeforesend</span>=<span class="sig-default">0</span>,
@@ -3414,7 +3349,6 @@ Either pass in regexp(s) desired from the output as a string or a list, or an md
     <dt>Parameters:</dt>
     <dd><ul class="nomargin-top">
         <li><strong class="pname"><code>package</code></strong> - Package to remove, which is run through package_map.</li>
-        <li><strong class="pname"><code>expect</code></strong> - See send()</li>
         <li><strong class="pname"><code>shutit_pexpect_child</code></strong> - See send()</li>
         <li><strong class="pname"><code>options</code></strong> - Dict of options to pass to the remove command, mapped by 
           install_type.</li>
@@ -3438,7 +3372,6 @@ Either pass in regexp(s) desired from the output as a string or a list, or an md
         <span class="sig-arg">user</span>=<span class="sig-default">None</span>,
         <span class="sig-arg">msg</span>=<span class="sig-default">None</span>,
         <span class="sig-arg">shutit_pexpect_child</span>=<span class="sig-default">None</span>,
-        <span class="sig-arg">expect</span>=<span class="sig-default">None</span>,
         <span class="sig-arg">note</span>=<span class="sig-default">None</span>)</span>
   </h3>
   </td><td align="right" valign="top"
@@ -3466,7 +3399,6 @@ Either pass in regexp(s) desired from the output as a string or a list, or an md
   <tr valign="top"><td>
   <h3 class="epydoc"><span class="sig"><span class="sig-name">whoarewe</span>(<span class="sig-arg">self</span>,
         <span class="sig-arg">shutit_pexpect_child</span>=<span class="sig-default">None</span>,
-        <span class="sig-arg">expect</span>=<span class="sig-default">None</span>,
         <span class="sig-arg">note</span>=<span class="sig-default">None</span>,
         <span class="sig-arg">delaybeforesend</span>=<span class="sig-default">0</span>,
         <span class="sig-arg">loglevel</span>=<span class="sig-default">10</span>)</span>
@@ -3481,7 +3413,6 @@ Either pass in regexp(s) desired from the output as a string or a list, or an md
     <dt>Parameters:</dt>
     <dd><ul class="nomargin-top">
         <li><strong class="pname"><code>shutit_pexpect_child</code></strong> - See send()</li>
-        <li><strong class="pname"><code>expect</code></strong> - See send()</li>
         <li><strong class="pname"><code>note</code></strong> - See send()</li>
     </ul></dd>
     <dt>Returns: string</dt>
@@ -3588,8 +3519,6 @@ Either pass in regexp(s) desired from the output as a string or a list, or an md
     <dt>Parameters:</dt>
     <dd><ul class="nomargin-top">
         <li><strong class="pname"><code>shutit_pexpect_child</code></strong> - See send()</li>
-        <li><strong class="pname"><code>container</code></strong> (boolean) - If True, we are in the container shell, otherwise we are 
-          gathering info about another shell. Defaults to True.</li>
     </ul></dd>
   </dl>
 </td></tr></table>
@@ -3605,7 +3534,6 @@ Either pass in regexp(s) desired from the output as a string or a list, or an md
         <span class="sig-arg">password</span>,
         <span class="sig-arg">user</span>=<span class="sig-default"><code class="variable-quote">'</code><code class="variable-string"></code><code class="variable-quote">'</code></span>,
         <span class="sig-arg">shutit_pexpect_child</span>=<span class="sig-default">None</span>,
-        <span class="sig-arg">expect</span>=<span class="sig-default">None</span>,
         <span class="sig-arg">delaybeforesend</span>=<span class="sig-default">0.05</span>,
         <span class="sig-arg">note</span>=<span class="sig-default">None</span>)</span>
   </h3>
@@ -3622,7 +3550,6 @@ Either pass in regexp(s) desired from the output as a string or a list, or an md
         <li><strong class="pname"><code>user</code></strong> - username to set the password for. Defaults to '' (i.e. current 
           user)</li>
         <li><strong class="pname"><code>password</code></strong> - password to set for the user</li>
-        <li><strong class="pname"><code>expect</code></strong> - See send()</li>
         <li><strong class="pname"><code>shutit_pexpect_child</code></strong> - See send()</li>
         <li><strong class="pname"><code>note</code></strong> - See send()</li>
     </ul></dd>
@@ -3639,7 +3566,6 @@ Either pass in regexp(s) desired from the output as a string or a list, or an md
   <h3 class="epydoc"><span class="sig"><span class="sig-name">is_user_id_available</span>(<span class="sig-arg">self</span>,
         <span class="sig-arg">user_id</span>,
         <span class="sig-arg">shutit_pexpect_child</span>=<span class="sig-default">None</span>,
-        <span class="sig-arg">expect</span>=<span class="sig-default">None</span>,
         <span class="sig-arg">note</span>=<span class="sig-default">None</span>,
         <span class="sig-arg">delaybeforesend</span>=<span class="sig-default">0</span>,
         <span class="sig-arg">loglevel</span>=<span class="sig-default">10</span>)</span>
@@ -3654,7 +3580,6 @@ Either pass in regexp(s) desired from the output as a string or a list, or an md
     <dt>Parameters:</dt>
     <dd><ul class="nomargin-top">
         <li><strong class="pname"><code>user_id</code></strong> (integer) - User id to be checked.</li>
-        <li><strong class="pname"><code>expect</code></strong> - See send()</li>
         <li><strong class="pname"><code>shutit_pexpect_child</code></strong> - See send()</li>
         <li><strong class="pname"><code>note</code></strong> - See send()</li>
     </ul></dd>
@@ -3706,7 +3631,6 @@ Either pass in regexp(s) desired from the output as a string or a list, or an md
   <h3 class="epydoc"><span class="sig"><span class="sig-name">do_repository_work</span>(<span class="sig-arg">self</span>,
         <span class="sig-arg">repo_name</span>,
         <span class="sig-arg">repo_tag</span>=<span class="sig-default">None</span>,
-        <span class="sig-arg">expect</span>=<span class="sig-default">None</span>,
         <span class="sig-arg">docker_executable</span>=<span class="sig-default"><code class="variable-quote">'</code><code class="variable-string">docker</code><code class="variable-quote">'</code></span>,
         <span class="sig-arg">password</span>=<span class="sig-default">None</span>,
         <span class="sig-arg">force</span>=<span class="sig-default">None</span>,
@@ -3724,7 +3648,6 @@ Either pass in regexp(s) desired from the output as a string or a list, or an md
     <dt>Parameters:</dt>
     <dd><ul class="nomargin-top">
         <li><strong class="pname"><code>repo_name</code></strong> (string) - Name of the repository.</li>
-        <li><strong class="pname"><code>expect</code></strong> - See send()</li>
         <li><strong class="pname"><code>docker_executable</code></strong> (string) - Defaults to 'docker'</li>
         <li><strong class="pname"><code>password</code></strong> (string)</li>
         <li><strong class="pname"><code>force</code></strong> (boolean)</li>
@@ -3803,7 +3726,7 @@ Either pass in regexp(s) desired from the output as a string or a list, or an md
   <tr>
     <td align="left" class="footer">
     Generated by Epydoc 3.0.1
-    on Fri Apr 29 17:36:24 2016
+    on Sun May  1 11:17:53 2016
     </td>
     <td align="right" class="footer">
       <a target="mainFrame" href="http://epydoc.sourceforge.net"
