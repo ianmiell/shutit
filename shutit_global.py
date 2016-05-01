@@ -34,7 +34,6 @@ import re
 import textwrap
 import base64
 import getpass
-import package_map
 import datetime
 import pexpect
 import md5
@@ -319,7 +318,7 @@ class ShutIt(object):
 			help_text = shutit_util.colourise('32','''\nType 'help' or 'h' to get a hint, 'exit' to skip, 'shutitreset' to reset state.''')
 			ok = False
 			while not ok:
-				sfelf.log(shutit_util.colourise('32','''\nChallenge!'''),transient=True)
+				self.log(shutit_util.colourise('32','''\nChallenge!'''),transient=True)
 				if len(hints):
 					self.log(shutit_util.colourise('32',help_text),transient=True)
 				time.sleep(pause)
@@ -1961,7 +1960,7 @@ $'"""
 		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
 		# TODO: environment_id should be within pexpect session object
 		# TODO: logging within pexpect session
-		shutit_pexpect_session.get_distro_info(environment_id, delaybeforesend=delaybeforesend,loglevel=logging.DEBUG)
+		shutit_pexpect_session.get_distro_info(environment_id, delaybeforesend=delaybeforesend,loglevel=loglevel)
 
 
 	def lsb_release(self,
