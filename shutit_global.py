@@ -32,7 +32,6 @@ import shutit_util
 import string
 import re
 import textwrap
-import base64
 import getpass
 import datetime
 import pexpect
@@ -102,6 +101,7 @@ class ShutIt(object):
 		@param shutit_pexpect_session: pexpect child to set as default
 		"""
 		self.current_shutit_pexpect_session = shutit_pexpect_session
+		return True
 
 
 	def set_default_shutit_pexpect_session_expect(self, expect=None):
@@ -116,6 +116,7 @@ class ShutIt(object):
 			self.current_shutit_pexpect_session.default_expect = self.cfg['expect_prompts']['root']
 		else:
 			self.current_shutit_pexpect_session.default_expect = expect
+		return True
 
 
 	def fail(self, msg, shutit_pexpect_child=None, throw_exception=False):
@@ -126,8 +127,8 @@ class ShutIt(object):
 		@type throw_exception: boolean
 		"""
 		# Note: we must not default to a child here
-		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
 		if shutit_pexpect_child is not None:
+			shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
 			shutit_pexpect_session.pause_point('Pause point on fail: ' + msg, colour='31')
 		if throw_exception:
 			print >> sys.stderr, 'Error caught: ' + msg
@@ -139,6 +140,7 @@ class ShutIt(object):
 			self.log(msg,level=logging.DEBUG)
 			self.log('Error seen, exiting with status 1',level=logging.DEBUG)
 			shutit_util.handle_exit(exit_code=1,msg=msg)
+		return False
 
 
 	def log(self, msg, add_final_message=False, level=logging.INFO, transient=False, newline=True):
@@ -153,11 +155,11 @@ class ShutIt(object):
 			if newline:
 				msg += '\n'
 			sys.stdout.write(msg)
-			return
 		else:
 			logging.log(level,msg)
 			if add_final_message:
 				cfg['build']['report_final_messages'] += msg + '\n'
+		return True
 
 
 	# TODO: sort out environments
@@ -312,7 +314,7 @@ class ShutIt(object):
 				if send == 'exit':
 					self._challenge_done(shutit_pexpect_session,result='exited',follow_on_context=follow_on_context)
 					cfg['build']['pause_point_hints'] = []
-					return
+					return True
 				output = self.send_and_get_output(send,shutit_pexpect_child=shutit_pexpect_child,timeout=timeout,retry=1,record_command=record_command,echo=echo, loglevel=loglevel, fail_on_empty_before=False, preserve_newline=preserve_newline, delaybeforesend=delaybeforesend)
 				md5sum_output = md5.md5(output).hexdigest()
 				self.log('output: ' + output + ' is md5sum: ' + md5sum_output,level=logging.DEBUG)
@@ -412,6 +414,7 @@ class ShutIt(object):
 		self._challenge_done(shutit_pexpect_session,result='ok',follow_on_context=follow_on_context,congratulations=congratulations,skipped=skipped)
 		# Tidy up hints
 		cfg['build']['pause_point_hints'] = []
+		return True
 	# Alternate names
 	practice = challenge
 	golf     = challenge
@@ -460,6 +463,7 @@ class ShutIt(object):
 		else:
 			self.fail('result: ' + result + ' not handled')
 		self.fail('_challenge_done should not get here')
+		return True
 
 
 	def send(self,
@@ -530,6 +534,7 @@ class ShutIt(object):
 						print('Wrong! Try again!')
 				else:
 					self.pause_point(message, colour=31)
+		return True
 
 
 	def _handle_note_after(self, note):
@@ -537,6 +542,7 @@ class ShutIt(object):
 			wait = self.cfg['build']['walkthrough_wait']
 			if wait >= 0:
 				time.sleep(wait)
+		return True
 
 
 	def _expect_allow_interrupt(self, shutit_pexpect_child, expect, timeout, iteration_s=1):
@@ -583,6 +589,7 @@ class ShutIt(object):
 				else:
 					self.fail('CTRL-C hit and could not recover')
 		self.fail('Should not get here (_expect_allow_interrupt)')
+		return True
 
 
 
@@ -638,11 +645,9 @@ class ShutIt(object):
 		return ret
 
 
-	# TODO: move to shutit_pexpect, pass through
 	def send_file(self,
 	              path,
 	              contents,
-	              expect=None,
 	              shutit_pexpect_child=None,
 	              truncate=False,
 	              note=None,
@@ -664,51 +669,10 @@ class ShutIt(object):
 		@type path:         string
 		@type contents:     string
 		"""
-		global cfg
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
-		expect = expect or self.get_current_shutit_pexpect_session().default_expect
 		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
-		self._handle_note(note, 'Sending contents to path: ' + path)
-		# make more efficient by only looking at first 10000 chars, stop when we get to 30 chars rather than reading whole file.
-		split_contents = ''.join((contents[:10000].split()))
-		strings_from_file = re.findall("[^\x00-\x1F\x7F-\xFF]", split_contents)
-		self.log('Sending file contents beginning: "' + ''.join(strings_from_file)[:30] + ' [...]" to file: ' + path, level=loglevel)
-		if user == None:
-			user = shutit_pexpect_session.whoami()
-		if group == None:
-			group = self.whoarewe()
-		if cfg['build']['current_environment_id'] == 'ORIGIN_ENV':
-			# If we're on the root env (ie the same one that python is running on, then use python.
-			f = open(path,'w')
-			if truncate:
-				f.truncate(0)
-			f.write(contents)
-			f.close()
-		elif cfg['build']['delivery'] in ('bash','dockerfile'):
-			if truncate and self.file_exists(path):
-				self.send(' rm -f ' + path, expect=expect, shutit_pexpect_child=shutit_pexpect_child, echo=False,loglevel=loglevel, delaybeforesend=delaybeforesend)
-			random_id = shutit_util.random_id()
-			self.send(' ' + shutit_util.get_command('head') + ' -c -1 > ' + path + "." + random_id + " << 'END_" + random_id + """'\n""" + base64.b64encode(contents) + '''\nEND_''' + random_id, echo=False,loglevel=loglevel, delaybeforesend=delaybeforesend)
-			self.send(' cat ' + path + '.' + random_id + ' | base64 -d > ' + path, echo=False,loglevel=loglevel, delaybeforesend=delaybeforesend)
-		else:
-			host_child = self.get_shutit_pexpect_session_from_id('host_child').pexpect_child
-			path = path.replace(' ', '\ ')
-			# get host session
-			tmpfile = cfg['build']['shutit_state_dir_base'] + 'tmp_' + shutit_util.random_id()
-			f = open(tmpfile,'w')
-			f.truncate(0)
-			f.write(contents)
-			f.close()
-			# Create file so it has appropriate permissions
-			self.send(' touch ' + path, shutit_pexpect_child=shutit_pexpect_child, expect=expect, echo=False,loglevel=loglevel, delaybeforesend=delaybeforesend)
-			# If path is not absolute, add $HOME to it.
-			if path[0] != '/':
-				self.send(' cat ' + tmpfile + ' | ' + cfg['host']['docker_executable'] + ' exec -i ' + cfg['target']['container_id'] + " bash -c 'cat > $HOME/" + path + "'", shutit_pexpect_child=host_child, expect=cfg['expect_prompts']['origin_prompt'], echo=False,loglevel=loglevel, delaybeforesend=delaybeforesend)
-			else:
-				self.send(' cat ' + tmpfile + ' | ' + cfg['host']['docker_executable'] + ' exec -i ' + cfg['target']['container_id'] + " bash -c 'cat > " + path + "'", shutit_pexpect_child=host_child, expect=cfg['expect_prompts']['origin_prompt'], echo=False,loglevel=loglevel, delaybeforesend=delaybeforesend)
-			self.send(' chown ' + user + ' ' + path + ' && chgrp ' + group + ' ' + path, shutit_pexpect_child=shutit_pexpect_child, expect=expect, echo=False,loglevel=loglevel, delaybeforesend=delaybeforesend)
-			os.remove(tmpfile)
-		self._handle_note_after(note=note)
+		return shutit_pexpect_session.send_file(path,contents,truncate=truncate,note=note,user=user,group=group,delaybeforesend=delaybeforesend,loglevel=loglevel)
+		
 
 
 	def chdir(self,
@@ -727,7 +691,7 @@ class ShutIt(object):
 		"""
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
 		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
-		shutit_pexpect_session.chdir(path,timeout=timeout,note=note,delaybeforesend=delaybeforesend,loglevel=loglevel)
+		return shutit_pexpect_session.chdir(path,timeout=timeout,note=note,delaybeforesend=delaybeforesend,loglevel=loglevel)
 		
 
 
@@ -780,6 +744,7 @@ class ShutIt(object):
 			else:
 				self.fail('send_host_file - file: ' + hostfilepath + ' does not exist as file or dir. cwd is: ' + os.getcwd(), shutit_pexpect_child=shutit_pexpect_child, throw_exception=False)
 		self._handle_note_after(note=note)
+		return True
 
 
 	def send_host_dir(self,
@@ -829,6 +794,7 @@ class ShutIt(object):
 				self.log('send_host_dir sending file ' + hostfullfname + ' to ' + 'target file: ' + targetfname, level=logging.DEBUG)
 				self.send_file(targetfname, open(hostfullfname).read(), expect=expect, shutit_pexpect_child=shutit_pexpect_child, user=user, group=group, loglevel=loglevel, delaybeforesend=delaybeforesend)
 		self._handle_note_after(note=note)
+		return True
 
 
 	def file_exists(self,
@@ -963,7 +929,7 @@ class ShutIt(object):
 		"""Insert a chunk of text at the end of a file, or after (or before) the first matching pattern
 		in given file fname.
 		See change_text"""
-		self.change_text(text=text, fname=fname, pattern=pattern, expect=expect, shutit_pexpect_child=shutit_pexpect_child, before=before, force=force, note=note, line_oriented=line_oriented, create=create, replace=replace, delete=False, loglevel=loglevel)
+		return self.change_text(text=text, fname=fname, pattern=pattern, expect=expect, shutit_pexpect_child=shutit_pexpect_child, before=before, force=force, note=note, line_oriented=line_oriented, create=create, replace=replace, delete=False, loglevel=loglevel)
 
 
 	def delete_text(self, text, fname, pattern=None, expect=None, shutit_pexpect_child=None, before=False, force=False, line_oriented=True, loglevel=logging.DEBUG):
@@ -1032,6 +998,7 @@ class ShutIt(object):
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
 		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
 		shutit_pexpect_session.add_to_bashrc(line,match_regexp=match_regexp,note=note,loglevel=loglevel)
+		return True
 
 
 	def get_url(self,
@@ -1279,6 +1246,7 @@ class ShutIt(object):
 			return
 		cfg['build']['step_through'] = value
 		shutit_pexpect_session.pause_point(msg, print_input=print_input, level=level)
+		return True
 
 
 	def pause_point(self,
@@ -1515,7 +1483,7 @@ class ShutIt(object):
 		"""Logs user in on default child.
 		"""
 		shutit_pexpect_session = self.get_current_shutit_pexpect_session()
-		shutit_pexpect_session.login(user=user,
+		return shutit_pexpect_session.login(user=user,
 		                             command=command,
 		                             password=password,
 		                             prompt_prefix=prompt_prefix,
@@ -1543,7 +1511,7 @@ class ShutIt(object):
 			@param note:            See send()
 		"""
 		shutit_pexpect_session = self.get_current_shutit_pexpect_session()
-		shutit_pexpect_session.logout(expect=expect,command=command,note=note,timeout=timeout,delaybeforesend=delaybeforesend,loglevel=loglevel)
+		return shutit_pexpect_session.logout(expect=expect,command=command,note=note,timeout=timeout,delaybeforesend=delaybeforesend,loglevel=loglevel)
 	exit_shell = logout
 
 
@@ -1584,7 +1552,7 @@ class ShutIt(object):
 		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
 		# TODO: environment_id should be within pexpect session object
 		# TODO: logging within pexpect session
-		shutit_pexpect_session.get_distro_info(environment_id, delaybeforesend=delaybeforesend,loglevel=loglevel)
+		return shutit_pexpect_session.get_distro_info(environment_id, delaybeforesend=delaybeforesend,loglevel=loglevel)
 
 
 	def lsb_release(self,
@@ -1616,7 +1584,7 @@ class ShutIt(object):
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
 		# TODO: assume expect is default in session
 		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
-		shutit_pexpect_session.set_password(password,user=user,delaybeforesend=delaybeforesend,note=note)
+		return shutit_pexpect_session.set_password(password,user=user,delaybeforesend=delaybeforesend,note=note)
 
 
 	def is_user_id_available(self,
@@ -1675,6 +1643,7 @@ class ShutIt(object):
 				res = self.send(cfg['repository']['password'], shutit_pexpect_child=shutit_pexpect_child, expect=expect_list, timeout=timeout, check_exit=False, fail_on_empty_before=False,loglevel=loglevel,delaybeforesend=delaybeforesend)
 			elif res == 2:
 				res = self.send(cfg['repository']['email'], shutit_pexpect_child=shutit_pexpect_child, expect=expect_list, timeout=timeout, check_exit=False, fail_on_empty_before=False, loglevel=loglevel,delaybeforesend=delaybeforesend)
+		return True
 
 
 
@@ -1710,7 +1679,7 @@ class ShutIt(object):
 			if force:
 				tag = True
 			else:
-				return
+				return True
 
 		shutit_pexpect_child = self.get_shutit_pexpect_session_from_id('host_child').pexpect_child
 		expect    = cfg['expect_prompts']['origin_prompt']
@@ -1785,6 +1754,7 @@ class ShutIt(object):
 			# Pass the child explicitly as it's the host child.
 			self.push_repository(repository, docker_executable=docker_executable, expect=expect, shutit_pexpect_child=shutit_pexpect_child)
 			cfg['build']['report'] = (cfg['build']['report'] + '\nPushed repository: ' + repository)
+		return True
 
 
 
@@ -1873,6 +1843,7 @@ class ShutIt(object):
 						self.fail('Config item: ' + option + ':\nin module:\n[' + module_id + ']\nmust be set!\n\nOften this is a deliberate requirement to place in your ~/.shutit/config file, or you can pass in with:\n\n-s ' + module_id + ' ' + option + ' yourvalue\n\nto the build command', throw_exception=False)
 			else:
 				cfg[module_id][option] = default
+		return True
 
 
 	def get_emailer(self, cfg_section):
@@ -1887,6 +1858,7 @@ class ShutIt(object):
 		for key in self.shutit_pexpect_sessions.keys():
 			self.shutit_pexpect_sessions[key].pexpect_child.logfile_send = output
 			self.shutit_pexpect_sessions[key].pexpect_child.logfile_read = output
+		return True
 
 
 	def add_shutit_pexpect_session(self, shutit_pexpect_child):
@@ -1894,7 +1866,7 @@ class ShutIt(object):
 		# Check id is unique
 		if self.shutit_pexpect_sessions.has_key(pexpect_session_id) and self.shutit_pexpect_sessions[pexpect_session_id] != shutit_pexpect_child:
 			shutit.fail('shutit_pexpect_child already added and differs from passed-in object',throw_exception=True)
-		self.shutit_pexpect_sessions.update({pexpect_session_id:shutit_pexpect_child})
+		return self.shutit_pexpect_sessions.update({pexpect_session_id:shutit_pexpect_child})
 
 
 	def remove_shutit_pexpect_session(self, shutit_pexpect_session_id=None, shutit_pexpect_child=None):
@@ -1903,6 +1875,7 @@ class ShutIt(object):
 		if shutit_pexpect_session_id == None:
 			shutit_pexpect_session_id = shutit_pexpect_child.pexpect_session_id
 		del self.shutit_pexpect_sessions[shutit_pexpect_session_id]
+		return True
 
 	
 	def get_shutit_pexpect_session_from_child(self, shutit_pexpect_child):
@@ -1919,7 +1892,8 @@ class ShutIt(object):
 			#print shutit_pexpect_child
 			if self.shutit_pexpect_sessions[key].pexpect_child == shutit_pexpect_child:
 				return self.shutit_pexpect_sessions[key]
-		shutit.fail('Should not get here in get_shutit_pexpect_session',throw_exception=True)
+		return shutit.fail('Should not get here in get_shutit_pexpect_session',throw_exception=True)
+
 
 	def get_shutit_pexpect_session_id(self, shutit_pexpect_child):
 		"""Given a pexpect child object, return the shutit_pexpect_session_id object.
@@ -1929,7 +1903,8 @@ class ShutIt(object):
 		for key in self.shutit_pexpect_sessions:
 			if self.shutit_pexpect_sessions[key].pexpect_child == shutit_pexpect_child:
 				return key
-		shutit.fail('Should not get here in get_shutit_pexpect_session_id',throw_exception=True)
+		return shutit.fail('Should not get here in get_shutit_pexpect_session_id',throw_exception=True)
+
 
 	def get_shutit_pexpect_session_from_id(self, shutit_pexpect_id):
 		"""
@@ -1937,7 +1912,8 @@ class ShutIt(object):
 		for key in self.shutit_pexpect_sessions:
 			if self.shutit_pexpect_sessions[key].pexpect_session_id == shutit_pexpect_id:
 				return self.shutit_pexpect_sessions[key]
-		shutit.fail('Should not get here in get_shutit_pexpect_session_from_id',throw_exception=True)
+		return shutit.fail('Should not get here in get_shutit_pexpect_session_from_id',throw_exception=True)
+
 
 def init():
 	"""Initialize the shutit object. Called when imported.

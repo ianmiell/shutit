@@ -34,6 +34,7 @@ from shutit_module import ShutItFailException
 import package_map
 import re
 import base64
+import sys
 
 
 class ShutItPexpectSession(object):
@@ -193,6 +194,7 @@ class ShutItPexpectSession(object):
 			self.send('cd',check_exit=False, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
 		self.login_stack_append(r_id)
 		shutit_global.shutit._handle_note_after(note=note)
+		return True
 
 
 
@@ -232,6 +234,7 @@ class ShutItPexpectSession(object):
 	def login_stack_append(self,
 						   r_id):
 		self.login_stack.append(r_id)
+		return True
 
 
 	def setup_prompt(self,
@@ -279,6 +282,7 @@ class ShutItPexpectSession(object):
 		self.default_expect = cfg['expect_prompts'][prompt_name]
 		# Ensure environment is set up OK.
 		self.setup_environment(prefix)
+		return True
 
 
 	def revert_prompt(self,
@@ -308,10 +312,12 @@ class ShutItPexpectSession(object):
 		self.pexpect_child.delaybeforesend = delaybeforesend
 		self.pexpect_child.send(string)
 		self.pexpect_child.delaybeforesend = prev_delaybeforesend
+		return True
 
 
 	def sendline(self, string, delaybeforesend=0):
 		self.pexpect_send(string+'\n',delaybeforesend=delaybeforesend)
+		return True
 
 
 	def expect(self,
@@ -359,7 +365,7 @@ class ShutItPexpectSession(object):
 		# Log in and let ShutIt take care of the prompt.
 		# Don't go home in case the workdir is different in the docker image!
 		self.login(command='bash',go_home=False)
-		return
+		return True
 
 
 	def whoami(self,
@@ -485,7 +491,7 @@ class ShutItPexpectSession(object):
 		expect = expect or self.default_expect
 		if not self.check_exit:
 			shutit_global.shutit.log('check_exit configured off, returning', level=logging.DEBUG)
-			return
+			return True
 		if exit_values is None:
 			exit_values = ['0']
 		# Don't use send here (will mess up last_output)!
@@ -630,6 +636,7 @@ class ShutItPexpectSession(object):
 		if cfg['SHUTIT_SIGNAL']['ID'] == 29:
 			cfg['SHUTIT_SIGNAL']['ID'] = 0
 			shutit_global.shutit.log('\r\nCTRL-] caught, continuing with run...',level=logging.INFO,transient=True)
+		return True
 
 
 	def file_exists(self,
@@ -690,6 +697,7 @@ class ShutItPexpectSession(object):
 		else:
 			shutit_global.shutit.fail('chdir not supported for delivery method: ' + cfg['build']['delivery'])
 		shutit_global.shutit._handle_note_after(note=note)
+		return True
 
 
 
@@ -735,6 +743,7 @@ class ShutItPexpectSession(object):
 			shutit_global.shutit.fail('Illegal regexp found in add_to_bashrc call: ' + match_regexp)
 		shutit_global.shutit.add_line_to_file(line, '${HOME}/.bashrc', match_regexp=match_regexp, loglevel=loglevel) # This won't work for root - TODO
 		shutit_global.shutit.add_line_to_file(line, '/etc/bash.bashrc', match_regexp=match_regexp, loglevel=loglevel)
+		return True
 
 
 
@@ -794,6 +803,7 @@ class ShutItPexpectSession(object):
 			self.send(password, expect='Retype new', check_exit=False, echo=False, delaybeforesend=delaybeforesend)
 			self.send(password, expect=self.default_expect, echo=False, delaybeforesend=delaybeforesend)
 		shutit_global.shutit._handle_note_after(note=note)
+		return True
 
 
 
@@ -1572,6 +1582,7 @@ class ShutItPexpectSession(object):
 		cfg['environment'][environment_id]['install_type']   = install_type
 		cfg['environment'][environment_id]['distro']         = distro
 		cfg['environment'][environment_id]['distro_version'] = distro_version
+		return True
 
 
 
@@ -1934,7 +1945,7 @@ class ShutItPexpectSession(object):
 		"""
 		cfg = shutit_global.shutit.cfg
 		if type(expect) == dict:
-			return self.multisend(send=send,send_dict=expect,expect=self.get_default_shutit_pexpect_session_expect(),timeout=timeout,check_exit=check_exit,fail_on_empty_before=fail_on_empty_before,record_command=record_command,exit_values=exit_values,echo=echo,note=note,loglevel=loglevel,delaybeforesend=delaybeforesend)
+			return self.multisend(send=send,send_dict=expect,expect=shutit_global.shutit.get_default_shutit_pexpect_session_expect(),timeout=timeout,check_exit=check_exit,fail_on_empty_before=fail_on_empty_before,record_command=record_command,exit_values=exit_values,echo=echo,note=note,loglevel=loglevel,delaybeforesend=delaybeforesend)
 		expect = expect or self.default_expect
 		shutit_global.shutit.log('Sending in session: ' + self.pexpect_session_id,level=logging.DEBUG)
 		shutit_global.shutit._handle_note(note, command=str(send), training_input=str(send))
@@ -2064,7 +2075,7 @@ $'"""
 							return res
 						else:
 							if echo:
-								self.divert_output(sys.stdout)
+								shutit_global.shutit.divert_output(sys.stdout)
 							self.sendline(send,delaybeforesend=delaybeforesend)
 							expect_res = shutit_global.shutit._expect_allow_interrupt(self.pexpect_child, expect, timeout)
 							if echo:
@@ -2114,7 +2125,74 @@ $'"""
 	# alias send to send_and_expect
 	send_and_expect = send
 
-	
+
+
+	def send_file(self,
+	              path,
+	              contents,
+	              truncate=False,
+	              note=None,
+	              user=None,
+	              group=None,
+	              delaybeforesend=0,
+	              loglevel=logging.INFO):
+		"""Sends the passed-in string as a file to the passed-in path on the
+		target.
+
+		@param path:        Target location of file on target.
+		@param contents:    Contents of file as a string.
+		@param note:        See send()
+		@param user:        Set ownership to this user (defaults to whoami)
+		@param group:       Set group to this user (defaults to first group in groups)
+
+		@type path:         string
+		@type contents:     string
+		"""
+		cfg = shutit_global.shutit.cfg
+		shutit_global.shutit._handle_note(note, 'Sending contents to path: ' + path)
+		# make more efficient by only looking at first 10000 chars, stop when we get to 30 chars rather than reading whole file.
+		split_contents = ''.join((contents[:10000].split()))
+		strings_from_file = re.findall("[^\x00-\x1F\x7F-\xFF]", split_contents)
+		shutit_global.shutit.log('Sending file contents beginning: "' + ''.join(strings_from_file)[:30] + ' [...]" to file: ' + path, level=loglevel)
+		if user == None:
+			user = self.whoami()
+		if group == None:
+			group = self.whoarewe()
+		if cfg['build']['current_environment_id'] == 'ORIGIN_ENV':
+			# If we're on the root env (ie the same one that python is running on, then use python.
+			f = open(path,'w')
+			if truncate:
+				f.truncate(0)
+			f.write(contents)
+			f.close()
+		elif cfg['build']['delivery'] in ('bash','dockerfile'):
+			if truncate and self.file_exists(path):
+				self.send(' rm -f ' + path, echo=False,loglevel=loglevel, delaybeforesend=delaybeforesend)
+			random_id = shutit_util.random_id()
+			self.send(' ' + shutit_util.get_command('head') + ' -c -1 > ' + path + "." + random_id + " << 'END_" + random_id + """'\n""" + base64.b64encode(contents) + '''\nEND_''' + random_id, echo=False,loglevel=loglevel, delaybeforesend=delaybeforesend)
+			self.send(' cat ' + path + '.' + random_id + ' | base64 -d > ' + path, echo=False,loglevel=loglevel, delaybeforesend=delaybeforesend)
+		else:
+			host_child = shutit_global.shutit.get_shutit_pexpect_session_from_id('host_child').pexpect_child
+			path = path.replace(' ', '\ ')
+			# get host session
+			tmpfile = cfg['build']['shutit_state_dir_base'] + 'tmp_' + shutit_util.random_id()
+			f = open(tmpfile,'w')
+			f.truncate(0)
+			f.write(contents)
+			f.close()
+			# Create file so it has appropriate permissions
+			self.send(' touch ' + path, echo=False,loglevel=loglevel, delaybeforesend=delaybeforesend)
+			# If path is not absolute, add $HOME to it.
+			if path[0] != '/':
+				shutit_global.shutit.send(' cat ' + tmpfile + ' | ' + cfg['host']['docker_executable'] + ' exec -i ' + cfg['target']['container_id'] + " bash -c 'cat > $HOME/" + path + "'", shutit_pexpect_child=host_child, expect=cfg['expect_prompts']['origin_prompt'], echo=False,loglevel=loglevel, delaybeforesend=delaybeforesend)
+			else:
+				shutit_global.shutit.send(' cat ' + tmpfile + ' | ' + cfg['host']['docker_executable'] + ' exec -i ' + cfg['target']['container_id'] + " bash -c 'cat > " + path + "'", shutit_pexpect_child=host_child, expect=cfg['expect_prompts']['origin_prompt'], echo=False,loglevel=loglevel, delaybeforesend=delaybeforesend)
+			self.send(' chown ' + user + ' ' + path + ' && chgrp ' + group + ' ' + path, echo=False,loglevel=loglevel, delaybeforesend=delaybeforesend)
+			os.remove(tmpfile)
+		shutit_global.shutit._handle_note_after(note=note)
+		return True
+
+
 	#TODO: create environment object
 	#TODO: review items in cfg and see if they make more sense in the pexpect object
 	#TODO: replace 'target' in cfg
