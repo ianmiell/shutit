@@ -35,6 +35,7 @@ import package_map
 import re
 import base64
 import sys
+import textwrap
 
 
 class ShutItPexpectSession(object):
@@ -352,19 +353,6 @@ class ShutItPexpectSession(object):
 		cfg['target']['docker_image'] = new_target_image_name
 		target_child = conn_module.start_container(shutit_global.shutit,self.pexpect_session_id)
 		conn_module.setup_target_child(shutit_global.shutit, target_child)
-
-		# set the target child up
-		self.pexpect_child = target_child
-		shutit_global.shutit.log('z',level=logging.DEBUG)
-		shutit_global.shutit.log(self.default_expect,level=logging.DEBUG)
-		
-		# set up the prompt on startup
-		self.default_expect = [cfg['expect_prompts']['base_prompt']]
-		self.setup_prompt('root')
-		self.login_stack_append('root')
-		# Log in and let ShutIt take care of the prompt.
-		# Don't go home in case the workdir is different in the docker image!
-		self.login(command='bash',go_home=False)
 		return True
 
 
@@ -2191,6 +2179,102 @@ $'"""
 			os.remove(tmpfile)
 		shutit_global.shutit._handle_note_after(note=note)
 		return True
+
+
+	def run_script(self,
+	               script,
+	               in_shell=True,
+	               note=None,
+	               delaybeforesend=0,
+	               loglevel=logging.DEBUG):
+		"""Run the passed-in string as a script on the target's command line.
+
+		@param script:   String representing the script. It will be de-indented
+						 and stripped before being run.
+		@param in_shell: Indicate whether we are in a shell or not. (Default: True)
+		@param note:     See send()
+
+		@type script:    string
+		@type in_shell:  boolean
+		"""
+		cfg = shutit_global.shutit.cfg
+		shutit_global.shutit._handle_note(note, 'Script: ' + str(script))
+		shutit_global.shutit.log('Running script beginning: "' + string.join(script.split())[:30] + ' [...]', level=logging.INFO)
+		# Trim any whitespace lines from start and end of script, then dedent
+		lines = script.split('\n')
+		while len(lines) > 0 and re.match('^[ \t]*$', lines[0]):
+			lines = lines[1:]
+		while len(lines) > 0 and re.match('^[ \t]*$', lines[-1]):
+			lines = lines[:-1]
+		if len(lines) == 0:
+			return True
+		script = '\n'.join(lines)
+		script = textwrap.dedent(script)
+		# Send the script and run it in the manner specified
+		if cfg['build']['delivery'] in ('docker','dockerfile') and in_shell:
+			script = ('set -o xtrace \n\n' + script + '\n\nset +o xtrace')
+		self.send(' mkdir -p ' + cfg['build']['shutit_state_dir'] + '/scripts && chmod 777 ' + cfg['build']['shutit_state_dir'] + '/scripts', echo=False,loglevel=loglevel, delaybeforesend=delaybeforesend)
+		self.send_file(cfg['build']['shutit_state_dir'] + '/scripts/shutit_script.sh', script, loglevel=loglevel, delaybeforesend=delaybeforesend)
+		self.send(' chmod +x ' + cfg['build']['shutit_state_dir'] + '/scripts/shutit_script.sh', echo=False,loglevel=loglevel, delaybeforesend=delaybeforesend)
+		shutit_global.shutit.shutit_command_history.append('    ' + script.replace('\n', '\n    '))
+		if in_shell:
+			ret = self.send(' . ' + cfg['build']['shutit_state_dir'] + '/scripts/shutit_script.sh && rm -f ' + cfg['build']['shutit_state_dir'] + '/scripts/shutit_script.sh && rm -f ' + cfg['build']['shutit_state_dir'] + '/scripts/shutit_script.sh', echo=False,loglevel=loglevel, delaybeforesend=delaybeforesend)
+		else:
+			ret = self.send(' ' + cfg['build']['shutit_state_dir'] + '/scripts/shutit_script.sh && rm -f ' + cfg['build']['shutit_state_dir'] + '/scripts/shutit_script.sh', echo=False,loglevel=loglevel, delaybeforesend=delaybeforesend)
+		shutit_global.shutit._handle_note_after(note=note)
+		return ret
+
+
+	def _challenge_done(self,
+	                    result=None,
+	                    congratulations=None,
+	                    follow_on_context={},
+	                    pause=1,
+	                    skipped=False):
+		cfg = shutit_global.shutit.cfg
+		if result == 'ok':
+			if congratulations:
+				shutit_global.shutit.log('\n\n' + shutit_util.colourise('32',congratulations) + '\n',transient=True)
+			time.sleep(pause)
+			cfg['build']['ctrlc_passthrough'] = False
+			if follow_on_context != {}:
+				if follow_on_context.get('context') == 'docker':
+					container_name = follow_on_context.get('ok_container_name')
+					if not container_name:
+						shutit_global.shutit.log('No reset context available, carrying on.',level=logging.INFO)
+					elif skipped:
+						# We need to ensure the correct state.
+						self.replace_container(container_name)
+						shutit_global.shutit.log('State restored.',level=logging.INFO)
+					else:
+						shutit_global.shutit.log(shutit_util.colourise('31','Continuing, remember you can restore to a known state with CTRL-g.'),transient=True)
+				else:
+					shutit_global.shutit.fail('Follow-on context not handled on pass')
+			return True
+		elif result in ('failed'):
+			cfg['build']['ctrlc_passthrough'] = False
+			time.sleep(1)
+			return
+		elif result == 'exited':
+			cfg['build']['ctrlc_passthrough'] = False
+			return
+		elif result in ('reset'):
+			if follow_on_context != {}:
+				if follow_on_context.get('context') == 'docker':
+					container_name = follow_on_context.get('reset_container_name')
+					if not container_name:
+						shutit_global.shutit.log('No reset context available, carrying on.',level=logging.DEBUG)
+					else:
+						self.replace_container(container_name)
+						shutit_global.shutit.log('State restored.',level=logging.INFO)
+				else:
+					shutit_global.shutit.fail('Follow-on context not handled on reset')
+			return True
+		else:
+			shutit_global.shutit.fail('result: ' + result + ' not handled')
+		shutit_global.shutit.fail('_challenge_done should not get here')
+		return True
+
 
 
 	#TODO: create environment object

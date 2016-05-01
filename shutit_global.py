@@ -29,9 +29,7 @@ import os
 import socket
 import time
 import shutit_util
-import string
 import re
-import textwrap
 import getpass
 import datetime
 import pexpect
@@ -307,13 +305,13 @@ class ShutIt(object):
 					time.sleep(pause)
 					continue
 				if send == 'shutitreset':
-					self._challenge_done(shutit_pexpect_session,result='reset',follow_on_context=follow_on_context)
+					shutit_pexpect_session._challenge_done(result='reset',follow_on_context=follow_on_context)
 					continue
 				if send == 'shutitquit':
-					self._challenge_done(shutit_pexpect_session,result='reset',follow_on_context=follow_on_context)
+					shutit_pexpect_session._challenge_done(result='reset',follow_on_context=follow_on_context)
 					shutit_util.handle_exit(exit_code=1)
 				if send == 'exit':
-					self._challenge_done(shutit_pexpect_session,result='exited',follow_on_context=follow_on_context)
+					shutit_pexpect_session._challenge_done(result='exited',follow_on_context=follow_on_context)
 					cfg['build']['pause_point_hints'] = []
 					return True
 				output = self.send_and_get_output(send,shutit_pexpect_child=shutit_pexpect_child,timeout=timeout,retry=1,record_command=record_command,echo=echo, loglevel=loglevel, fail_on_empty_before=False, preserve_newline=preserve_newline, delaybeforesend=delaybeforesend)
@@ -333,7 +331,7 @@ class ShutIt(object):
 							break
 				if not ok and failed:
 					self.log('\n\n' + shutit_util.colourise('32','failed') + '\n',transient=True)
-					self._challenge_done(shutit_pexpect_session,result='failed')
+					shutit_pexpect_session._challenge_done(result='failed')
 					continue
 		elif challenge_type == 'golf':
 			# pause, and when done, it checks your working based on check_command.
@@ -356,7 +354,7 @@ class ShutIt(object):
 					continue
 				elif cfg['SHUTIT_SIGNAL']['ID'] == 7:
 					self.log(shutit_util.colourise('31','\r\n========= RESETTING STATE ==========\r\n\r\n'),transient=True)
-					self._challenge_done(shutit_pexpect_session,result='reset', follow_on_context=follow_on_context)
+					shutit_pexpect_session._challenge_done(result='reset', follow_on_context=follow_on_context)
 					# clear the signal
 					cfg['SHUTIT_SIGNAL']['ID'] = 0
 					self.challenge(
@@ -380,7 +378,7 @@ class ShutIt(object):
 	                    delaybeforesend=0,
 						follow_on_context=follow_on_context
 					)
-					return
+					return True
 				elif cfg['SHUTIT_SIGNAL']['ID'] == 19:
 					# Clear the signal.
 					cfg['SHUTIT_SIGNAL']['ID'] = 0
@@ -408,11 +406,11 @@ class ShutIt(object):
 							break
 				if not ok and failed:
 					shutit.log('\n\n' + shutit_util.colourise('31','Failed! CTRL-g to reset state, CTRL-h for a hint') + '\n',transient=True)
-					self._challenge_done(shutit_pexpect_session,result='failed')
+					shutit_pexpect_session._challenge_done(result='failed')
 					continue
 		else:
 			self.fail('Challenge type: ' + challenge_type + ' not supported')
-		self._challenge_done(shutit_pexpect_session,result='ok',follow_on_context=follow_on_context,congratulations=congratulations,skipped=skipped)
+		shutit_pexpect_session._challenge_done(result='ok',follow_on_context=follow_on_context,congratulations=congratulations,skipped=skipped)
 		# Tidy up hints
 		cfg['build']['pause_point_hints'] = []
 		return True
@@ -420,51 +418,6 @@ class ShutIt(object):
 	practice = challenge
 	golf     = challenge
 
-
-	# TODO: move to shutit_pexpect
-	def _challenge_done(self, shutit_pexpect_session, result=None, congratulations=None, follow_on_context={},pause=1,skipped=False):
-		if result == 'ok':
-			if congratulations:
-				self.log('\n\n' + shutit_util.colourise('32',congratulations) + '\n',transient=True)
-			time.sleep(pause)
-			self.cfg['build']['ctrlc_passthrough'] = False
-			if follow_on_context != {}:
-				if follow_on_context.get('context') == 'docker':
-					container_name = follow_on_context.get('ok_container_name')
-					if not container_name:
-						self.log('No reset context available, carrying on.',level=logging.INFO)
-					elif skipped:
-						# We need to ensure the correct state.
-						shutit_pexpect_session.replace_container(container_name)
-						self.log('State restored.',level=logging.INFO)
-					else:
-						self.log(shutit_util.colourise('31','Continuing, remember you can restore to a known state with CTRL-g.'),transient=True)
-				else:
-					self.fail('Follow-on context not handled on pass')
-			return
-		elif result in ('failed'):
-			self.cfg['build']['ctrlc_passthrough'] = False
-			time.sleep(1)
-			return
-		elif result == 'exited':
-			self.cfg['build']['ctrlc_passthrough'] = False
-			return
-		elif result in ('reset'):
-			if follow_on_context != {}:
-				if follow_on_context.get('context') == 'docker':
-					container_name = follow_on_context.get('reset_container_name')
-					if not container_name:
-						self.log('No reset context available, carrying on.',level=logging.DEBUG)
-					else:
-						shutit_pexpect_session.replace_container(container_name)
-						self.log('State restored.',level=logging.INFO)
-				else:
-					self.fail('Follow-on context not handled on reset')
-			return
-		else:
-			self.fail('result: ' + result + ' not handled')
-		self.fail('_challenge_done should not get here')
-		return True
 
 
 	def send(self,
@@ -593,12 +546,8 @@ class ShutIt(object):
 		return True
 
 
-
-
-	# TODO: move to shutit_pexpect, pass through
 	def run_script(self,
 	               script,
-	               expect=None,
 	               shutit_pexpect_child=None,
 	               in_shell=True,
 	               note=None,
@@ -608,7 +557,6 @@ class ShutIt(object):
 
 		@param script:   String representing the script. It will be de-indented
 						 and stripped before being run.
-		@param expect:   See send()
 		@param shutit_pexpect_child:    See send()
 		@param in_shell: Indicate whether we are in a shell or not. (Default: True)
 		@param note:     See send()
@@ -618,32 +566,8 @@ class ShutIt(object):
 		"""
 		global cfg
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
-		expect = expect or self.get_current_shutit_pexpect_session().default_expect
-		self._handle_note(note, 'Script: ' + str(script))
-		self.log('Running script beginning: "' + string.join(script.split())[:30] + ' [...]', level=logging.INFO)
-		# Trim any whitespace lines from start and end of script, then dedent
-		lines = script.split('\n')
-		while len(lines) > 0 and re.match('^[ \t]*$', lines[0]):
-			lines = lines[1:]
-		while len(lines) > 0 and re.match('^[ \t]*$', lines[-1]):
-			lines = lines[:-1]
-		if len(lines) == 0:
-			return True
-		script = '\n'.join(lines)
-		script = textwrap.dedent(script)
-		# Send the script and run it in the manner specified
-		if cfg['build']['delivery'] in ('docker','dockerfile') and in_shell:
-				script = ('set -o xtrace \n\n' + script + '\n\nset +o xtrace')
-		self.send(' mkdir -p ' + cfg['build']['shutit_state_dir'] + '/scripts && chmod 777 ' + cfg['build']['shutit_state_dir'] + '/scripts', expect=expect, shutit_pexpect_child=shutit_pexpect_child, echo=False,loglevel=loglevel, delaybeforesend=delaybeforesend)
-		self.send_file(cfg['build']['shutit_state_dir'] + '/scripts/shutit_script.sh', script, loglevel=loglevel, delaybeforesend=delaybeforesend)
-		self.send(' chmod +x ' + cfg['build']['shutit_state_dir'] + '/scripts/shutit_script.sh', expect=expect, shutit_pexpect_child=shutit_pexpect_child, echo=False,loglevel=loglevel, delaybeforesend=delaybeforesend)
-		self.shutit_command_history.append('    ' + script.replace('\n', '\n    '))
-		if in_shell:
-			ret = self.send(' . ' + cfg['build']['shutit_state_dir'] + '/scripts/shutit_script.sh && rm -f ' + cfg['build']['shutit_state_dir'] + '/scripts/shutit_script.sh && rm -f ' + cfg['build']['shutit_state_dir'] + '/scripts/shutit_script.sh', expect=expect, shutit_pexpect_child=shutit_pexpect_child, echo=False,loglevel=loglevel, delaybeforesend=delaybeforesend)
-		else:
-			ret = self.send(' ' + cfg['build']['shutit_state_dir'] + '/scripts/shutit_script.sh && rm -f ' + cfg['build']['shutit_state_dir'] + '/scripts/shutit_script.sh', expect=expect, shutit_pexpect_child=shutit_pexpect_child, echo=False,loglevel=loglevel, delaybeforesend=delaybeforesend)
-		self._handle_note_after(note=note)
-		return ret
+		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
+		return shutit_pexpect_session.run_script(script,in_shell=in_shell,note=note,delaybeforesend=delaybeforesend,loglevel=loglevel)
 
 
 	def send_file(self,
