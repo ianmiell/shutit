@@ -638,7 +638,6 @@ class ShutItPexpectSession(object):
 
 	def file_exists(self,
 	                filename,
-	                expect=None,
 	                directory=False,
 	                note=None,
 	                delaybeforesend=0,
@@ -646,7 +645,6 @@ class ShutItPexpectSession(object):
 		"""Return True if file exists on the target host, else False
 
 		@param filename:   Filename to determine the existence of.
-		@param expect:     See send()
 		@param directory:  Indicate that the file is a directory.
 		@param note:       See send()
 
@@ -672,6 +670,7 @@ class ShutItPexpectSession(object):
 			shutit_global.shutit.fail('Did not see FIL(N)?EXIST in output:\n' + output)
 		shutit_global.shutit._handle_note_after(note=note)
 		return ret
+
 
 	def chdir(self,
 	          path,
@@ -703,7 +702,6 @@ class ShutItPexpectSession(object):
 
 	def get_file_perms(self,
 	                   filename,
-	                   expect=None,
 	                   note=None,
 	                   delaybeforesend=0,
 	                   loglevel=logging.DEBUG):
@@ -711,7 +709,6 @@ class ShutItPexpectSession(object):
 		string triplet.
 
 		@param filename:  Filename to get permissions of.
-		@param expect:    See send()
 		@param note:      See send()
 
 		@type filename:   string
@@ -720,7 +717,7 @@ class ShutItPexpectSession(object):
 		"""
 		shutit_global.shutit._handle_note(note)
 		cmd = 'stat -c %a ' + filename
-		shutit_global.shutit.send(' ' + cmd, expect, shutit_pexpect_child=self.pexpect_child, check_exit=False, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
+		shutit_global.shutit.send(' ' + cmd, shutit_pexpect_child=self.pexpect_child, check_exit=False, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
 		res = shutit_util.match_string(self.pexpect_child.before, '([0-9][0-9][0-9])')
 		shutit_global.shutit._handle_note_after(note=note)
 		return res
@@ -728,7 +725,6 @@ class ShutItPexpectSession(object):
 
 	def add_to_bashrc(self,
 	                  line,
-	                  expect=None,
 	                  match_regexp=None,
 	                  note=None,
 	                  loglevel=logging.DEBUG):
@@ -736,7 +732,6 @@ class ShutItPexpectSession(object):
 		(/etc/bash.bashrc, /etc/profile).
 
 		@param line:          Line to add.
-		@param expect:        See send()
 		@param match_regexp:  See add_line_to_file()
 		@param note:          See send()
 
@@ -745,9 +740,8 @@ class ShutItPexpectSession(object):
 		shutit_global.shutit._handle_note(note)
 		if not shutit_util.check_regexp(match_regexp):
 			shutit_global.shutit.fail('Illegal regexp found in add_to_bashrc call: ' + match_regexp)
-		# TODO: pass in pexpect_child?
-		shutit_global.shutit.add_line_to_file(line, '${HOME}/.bashrc', expect=expect, match_regexp=match_regexp, loglevel=loglevel) # This won't work for root - TODO
-		shutit_global.shutit.add_line_to_file(line, '/etc/bash.bashrc', expect=expect, match_regexp=match_regexp, loglevel=loglevel)
+		shutit_global.shutit.add_line_to_file(line, '${HOME}/.bashrc', match_regexp=match_regexp, loglevel=loglevel) # This won't work for root - TODO
+		shutit_global.shutit.add_line_to_file(line, '/etc/bash.bashrc', match_regexp=match_regexp, loglevel=loglevel)
 
 
 
@@ -1649,6 +1643,61 @@ class ShutItPexpectSession(object):
 				send_iteration = send_dict[expect_list[res]]
 		shutit_global.shutit._handle_note_after(note=note)
 		return res
+
+
+	def send_until(self,
+	               send,
+	               regexps,
+	               not_there=False,
+	               cadence=5,
+	               retries=100,
+	               echo=False,
+	               note=None,
+	               delaybeforesend=0,
+	               loglevel=logging.INFO):
+		"""Send string on a regular cadence until a string is either seen, or the timeout is triggered.
+
+		@param send:                 See send()
+		@param regexps:              List of regexps to wait for.
+		@param not_there:            If True, wait until this a regexp is not seen in the output. If False
+		                             wait until a regexp is seen in the output (default)
+		@param expect:               See send()
+		@param fail_on_empty_before: See send()
+		@param record_command:       See send()
+		@param echo:                 See send()
+		@param note:                 See send()
+		"""
+		cfg = shutit_global.shutit.cfg
+		shutit_global.shutit._handle_note(note, command=send + ' until one of these seen: ' + str(regexps))
+		shutit_global.shutit.log('Sending: "' + send + '" until one of these regexps seen: ' + str(regexps),level=loglevel)
+		if type(regexps) == str:
+			regexps = [regexps]
+		if type(regexps) != list:
+			self.fail('regexps should be list')
+		while retries > 0:
+			retries -= 1
+			output = self.send_and_get_output(send, retry=1, strip=True,echo=echo, loglevel=loglevel, fail_on_empty_before=False, delaybeforesend=delaybeforesend)
+			if not not_there:
+				for regexp in regexps:
+					if not shutit_util.check_regexp(regexp):
+						shutit.fail('Illegal regexp found in send_until call: ' + regexp)
+					if shutit_util.match_string(output, regexp):
+						return True
+			else:
+				# Only return if _not_ seen in the output
+				missing = False
+				for regexp in regexps:
+					if not shutit_util.check_regexp(regexp):
+						shutit_global.shutit.fail('Illegal regexp found in send_until call: ' + regexp)
+					if not shutit_util.match_string(output, regexp):
+						missing = True
+						break
+				if missing:
+					shutit_global.shutit._handle_note_after(note=note)
+					return True
+			time.sleep(cadence)
+		shutit_global.shutit._handle_note_after(note=note)
+		return False
 
 
 

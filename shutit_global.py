@@ -226,40 +226,12 @@ class ShutIt(object):
 		@param echo:                 See send()
 		@param note:                 See send()
 		"""
-		global cfg
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
-		self._handle_note(note, command=send + ' until one of these seen: ' + str(regexps))
-		self.log('Sending: "' + send + '" until one of these regexps seen: ' + str(regexps),level=loglevel)
-		if type(regexps) == str:
-			regexps = [regexps]
-		if type(regexps) != list:
-			self.fail('regexps should be list')
-		while retries > 0:
-			retries -= 1
-			output = self.send_and_get_output(send, shutit_pexpect_child=shutit_pexpect_child, retry=1, strip=True,echo=echo, loglevel=loglevel, fail_on_empty_before=False, delaybeforesend=delaybeforesend)
-			if not not_there:
-				for regexp in regexps:
-					if not shutit_util.check_regexp(regexp):
-						shutit.fail('Illegal regexp found in send_until call: ' + regexp)
-					if shutit_util.match_string(output, regexp):
-						return True
-			else:
-				# Only return if _not_ seen in the output
-				missing = False
-				for regexp in regexps:
-					if not shutit_util.check_regexp(regexp):
-						shutit.fail('Illegal regexp found in send_until call: ' + regexp)
-					if not shutit_util.match_string(output, regexp):
-						missing = True
-						break
-				if missing:
-					self._handle_note_after(note=note)
-					return True
-			time.sleep(cadence)
-		self._handle_note_after(note=note)
-		return False
+		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
+		return shutit_pexpect_session.send_until(send,regexps,not_there=not_there,cadence=cadence,retries=retries,echo=echo,note=note,delaybeforesend=delaybeforesend,loglevel=loglevel)
 
 
+	# TODO: move to shutit_pexpect, pass through
 	def challenge(self,
                   task_desc,
                   expect=None,
@@ -449,6 +421,7 @@ class ShutIt(object):
 	golf     = challenge
 
 
+	# TODO: move to shutit_pexpect
 	def _challenge_done(self, shutit_pexpect_session, result=None, congratulations=None, follow_on_context={},pause=1,skipped=False):
 		if result == 'ok':
 			if congratulations:
@@ -493,6 +466,7 @@ class ShutIt(object):
 		self.fail('_challenge_done should not get here')
 
 
+	# TODO: move to shutit_pexpect, pass through
 	def send(self,
 	         send,
 	         expect=None,
@@ -796,6 +770,7 @@ $'"""
 
 
 
+	# TODO: move to shutit_pexpect, pass through
 	def run_script(self,
 	               script,
 	               expect=None,
@@ -846,6 +821,7 @@ $'"""
 		return ret
 
 
+	# TODO: move to shutit_pexpect, pass through
 	def send_file(self,
 	              path,
 	              contents,
@@ -934,7 +910,6 @@ $'"""
 		@param timeout:       Timeout on response
 		@param note:          See send()
 		"""
-		global cfg
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
 		expect = expect or self.get_current_shutit_pexpect_session().default_expect
 		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
@@ -1044,7 +1019,6 @@ $'"""
 
 	def file_exists(self,
 	                filename,
-	                expect=None,
 	                shutit_pexpect_child=None,
 	                directory=False,
 	                note=None,
@@ -1053,7 +1027,6 @@ $'"""
 		"""Return True if file exists on the target host, else False
 
 		@param filename:   Filename to determine the existence of.
-		@param expect:     See send()
 		@param shutit_pexpect_child:      See send()
 		@param directory:  Indicate that the file is a directory.
 		@param note:       See send()
@@ -1064,14 +1037,12 @@ $'"""
 		@rtype: boolean
 		"""
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
-		expect = expect or self.get_current_shutit_pexpect_session().default_expect
 		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
-		return shutit_pexpect_session.file_exists(filename=filename,expect=expect,directory=directory,note=note,delaybeforesend=delaybeforesend,loglevel=loglevel)
+		return shutit_pexpect_session.file_exists(filename=filename,directory=directory,note=note,delaybeforesend=delaybeforesend,loglevel=loglevel)
 
 
 	def get_file_perms(self,
 	                   filename,
-	                   expect=None,
 	                   shutit_pexpect_child=None,
 	                   note=None,
 	                   delaybeforesend=0,
@@ -1080,7 +1051,6 @@ $'"""
 		string triplet.
 
 		@param filename:  Filename to get permissions of.
-		@param expect:    See send()
 		@param shutit_pexpect_child:     See send()
 		@param note:      See send()
 
@@ -1089,12 +1059,12 @@ $'"""
 		@rtype:           string
 		"""
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
-		expect = expect or self.get_current_shutit_pexpect_session().default_expect
 		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
-		return shutit_pexpect_session.get_file_perms(filename,expect=expect,note=note,delaybeforesend=delaybeforesend,loglevel=loglevel)
+		return shutit_pexpect_session.get_file_perms(filename,note=note,delaybeforesend=delaybeforesend,loglevel=loglevel)
 
 
 
+	# TODO: move to shutit_pexpect, pass through
 	def remove_line_from_file(self,
 							  line,
 							  filename,
@@ -1159,6 +1129,7 @@ $'"""
 		return True
 
 
+	# TODO: move to shutit_pexpect, pass through
 	def change_text(self,
 	                text,
 	                fname,
@@ -1321,6 +1292,7 @@ $'"""
 		return True
 
 
+	# TODO: move to shutit_pexpect, pass through
 	def insert_text(self, text, fname, pattern=None, expect=None, shutit_pexpect_child=None, before=False, force=False, note=None, replace=False, line_oriented=True, create=True, loglevel=logging.DEBUG):
 		"""Insert a chunk of text at the end of a file, or after (or before) the first matching pattern
 		in given file fname.
@@ -1328,6 +1300,7 @@ $'"""
 		self.change_text(text=text, fname=fname, pattern=pattern, expect=expect, shutit_pexpect_child=shutit_pexpect_child, before=before, force=force, note=note, line_oriented=line_oriented, create=create, replace=replace, delete=False, loglevel=loglevel)
 
 
+	# TODO: move to shutit_pexpect, pass through
 	def delete_text(self, text, fname, pattern=None, expect=None, shutit_pexpect_child=None, before=False, force=False, line_oriented=True, loglevel=logging.DEBUG):
 		"""Delete a chunk of text from a file.
 		See insert_text.
@@ -1335,6 +1308,7 @@ $'"""
 		return self.change_text(text, fname, pattern, expect, shutit_pexpect_child, before, force, delete=True, line_oriented=line_oriented, loglevel=loglevel)
 
 
+	# TODO: move to shutit_pexpect, pass through
 	def replace_text(self, text, fname, pattern=None, expect=None, shutit_pexpect_child=None, before=False, force=False, line_oriented=True, loglevel=logging.DEBUG):
 		"""Replace a chunk of text from a file.
 		See insert_text.
@@ -1386,27 +1360,24 @@ $'"""
 		return True
 
 
-	def add_to_bashrc(self, line, expect=None, shutit_pexpect_child=None, match_regexp=None, note=None, loglevel=logging.DEBUG):
+	def add_to_bashrc(self, line, shutit_pexpect_child=None, match_regexp=None, note=None, loglevel=logging.DEBUG):
 		"""Takes care of adding a line to everyone's bashrc
 		(/etc/bash.bashrc, /etc/profile).
 
 		@param line:          Line to add.
-		@param expect:        See send()
 		@param shutit_pexpect_child:         See send()
 		@param match_regexp:  See add_line_to_file()
 		@param note:          See send()
 		"""
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
-		expect = expect or self.get_current_shutit_pexpect_session().default_expect
 		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
-		shutit_pexpect_session.add_to_bashrc(line,expect=expect,match_regexp=match_regexp,note=note,loglevel=loglevel)
+		shutit_pexpect_session.add_to_bashrc(line,match_regexp=match_regexp,note=note,loglevel=loglevel)
 
 
 	def get_url(self,
 	            filename,
 	            locations,
 	            command='curl',
-	            expect=None,
 	            shutit_pexpect_child=None,
 	            timeout=3600,
 	            fail_on_empty_before=True,
@@ -1424,7 +1395,6 @@ $'"""
 		@param filename:             name of the file to download
 		@param locations:            list of URLs whence the file can be downloaded
 		@param command:              program to use to download the file (Default: wget)
-		@param expect:               See send()
 		@param shutit_pexpect_child:                See send()
 		@param timeout:              See send()
 		@param fail_on_empty_before: See send()
@@ -1443,7 +1413,6 @@ $'"""
 		@rtype: boolean
 		"""
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
-		expect = expect or self.get_current_shutit_pexpect_session().default_expect
 		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
 		return shutit_pexpect_session.get_url(filename,locations,command=command,timeout=timeout,fail_on_empty_before=fail_on_empty_before,record_command=record_command,exit_values=exit_values,retry=retry,note=note,delaybeforesend=delaybeforesend,loglevel=loglevel)
 
@@ -1843,7 +1812,11 @@ $'"""
 		return shutit_pexpect_session.remove(package,options=options,timeout=timeout,delaybeforesend=delaybeforesend,note=note)
 
 
-	def get_env_pass(self,user=None,msg=None,shutit_pexpect_child=None,note=None):
+	def get_env_pass(self,
+	                 user=None,
+	                 msg=None,
+	                 shutit_pexpect_child=None,
+	                 note=None):
 		"""Gets a password from the user if one is not already recorded for this environment.
 
 		@param user:    username we are getting password for
@@ -2058,7 +2031,6 @@ $'"""
 	def do_repository_work(self,
 	                       repo_name,
 	                       repo_tag=None,
-	                       expect=None,
 	                       docker_executable='docker',
 	                       password=None,
 	                       force=None,
@@ -2067,7 +2039,6 @@ $'"""
 		"""Commit, tag, push, tar a docker container based on the configuration we have.
 
 		@param repo_name:           Name of the repository.
-		@param expect:              See send()
 		@param docker_executable:   Defaults to 'docker'
 		@param password:
 		@param force:
@@ -2080,7 +2051,6 @@ $'"""
 		global cfg
 		# TODO: make host and client configurable
 		shutit_pexpect_session = self.get_current_shutit_pexpect_session()
-		expect = expect or shutit_pexpect_session.default_expect
 		tag    = cfg['repository']['tag']
 		push   = cfg['repository']['push']
 		export = cfg['repository']['export']
