@@ -1160,6 +1160,97 @@ class ShutItPexpectSession(object):
 		return True
 
 
+	def get_memory(self,
+	               delaybeforesend=0,
+	               note=None):
+		"""Returns memory available for use in k as an int"""
+		cfg = shutit_global.shutit.cfg
+		shutit_global.shutit._handle_note(note)
+		if cfg['environment'][cfg['build']['current_environment_id']]['distro'] == 'osx':
+			memavail = shutit_global.shutit.send_and_get_output("""vm_stat | grep ^Pages.free: | awk '{print $3}' | tr -d '.'""",shutit_pexpect_child=self.pexpect_child,timeout=3,echo=False, delaybeforesend=delaybeforesend)
+			memavail = int(memavail)
+			memavail *= 4
+		else:
+			memavail = shutit_global.shutit.send_and_get_output("""cat /proc/meminfo  | grep MemAvailable | awk '{print $2}'""",shutit_pexpect_child=self.pexpect_child,timeout=3,echo=False, delaybeforesend=delaybeforesend)
+			if memavail == '':
+				memavail = shutit_global.shutit.send_and_get_output("""free | grep buffers.cache | awk '{print $3}'""",shutit_pexpect_child=self.pexpect_child,timeout=3,echo=False, delaybeforesend=delaybeforesend)
+			memavail = int(memavail)
+		shutit_global.shutit._handle_note_after(note=note)
+		return memavail
+
+
+	def remove(self,
+	           package,
+	           options=None,
+	           timeout=3600,
+	           delaybeforesend=0,
+	           note=None):
+		"""Distro-independent remove function.
+		Takes a package name and runs relevant remove function.
+
+		@param package:  Package to remove, which is run through package_map.
+		@param expect:   See send()
+		@param shutit_pexpect_child:    See send()
+		@param options:  Dict of options to pass to the remove command,
+		                 mapped by install_type.
+		@param timeout:  See send(). Default: 3600
+		@param note:     See send()
+
+		@return: True if all ok (i.e. the package was successfully removed),
+		         False otherwise.
+		@rtype: boolean
+		"""
+		cfg = shutit_global.shutit.cfg
+		# If separated by spaces, remove separately
+		shutit_global.shutit._handle_note(note)
+		if options is None: options = {}
+		install_type = cfg['environment'][cfg['build']['current_environment_id']]['install_type']
+		whoiam = self.whoami()
+		if whoiam != 'root' and install_type != 'brew':
+			cmd = 'sudo '
+			pw = shutit_global.shutit.get_env_pass(whoiam,'Please input your sudo password in case it is needed (for user: ' + whoiam + ')\nJust hit return if you do not want to submit a password.\n')
+		else:
+			cmd = ''
+			pw = ''
+		if install_type == 'src':
+			# If this is a src build, we assume it's already installed.
+			return True
+		if install_type == 'apt':
+			cmd += 'apt-get purge'
+			opts = options['apt'] if 'apt' in options else '-qq -y'
+		elif install_type == 'yum':
+			cmd += 'yum erase'
+			opts = options['yum'] if 'yum' in options else '-y'
+		elif install_type == 'apk':
+			cmd += 'apk del'
+			if 'apk' in options:
+				opts = options['apk']
+		elif install_type == 'emerge':
+			cmd += 'emerge -cav'
+			if 'emerge' in options:
+				opts = options['emerge']
+		elif install_type == 'docker':
+			cmd += 'docker rmi'
+			if 'docker' in options:
+				opts = options['docker']
+		elif install_type == 'brew':
+			cmd += 'brew uninstall'
+			if 'brew' in options:
+				opts = options['brew']
+			else:
+				opts += ' --force'
+		else:
+			# Not handled
+			return False
+		# Get mapped package.
+		package = package_map.map_package(package, cfg['environment'][cfg['build']['current_environment_id']]['install_type'])
+		if pw != '':
+			shutit_global.shutit.multisend('%s %s %s' % (cmd, opts, package), {'assword:':pw}, shutit_pexpect_child=self.pexpect_child, timeout=timeout, exit_values=['0','100'])
+		else:
+			shutit_global.shutit.send('%s %s %s' % (cmd, opts, package), shutit_pexpect_child=self.pexpect_child, timeout=timeout, exit_values=['0','100'], delaybeforesend=delaybeforesend)
+		shutit_global.shutit._handle_note_after(note=note)
+		return True
+
 
 	#TODO: create environment object
 	#TODO: review items in cfg and see if they make more sense in the pexpect object
