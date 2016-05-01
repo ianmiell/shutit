@@ -240,7 +240,7 @@ class ConnDocker(ShutItConnModule):
 			except:
 				pass
 			if res == 0:
-				res = shutit.send(cfg['host']['password'], child=target_child, expect=expect, timeout=9999, check_exit=False, fail_on_empty_before=False, echo=False, loglevel=loglevel)
+				res = shutit.send(cfg['host']['password'], shutit_pexpect_child=target_child, expect=expect, timeout=9999, check_exit=False, fail_on_empty_before=False, echo=False, loglevel=loglevel)
 			elif res == 1:
 				shutit.log('Prompt found, breaking out',level=logging.DEBUG)
 				break
@@ -274,7 +274,7 @@ class ConnDocker(ShutItConnModule):
 		target_child = self.start_container(shutit, 'target_child', loglevel=loglevel)
 		self.setup_host_child(shutit)
 		self.setup_target_child(shutit, target_child)
-		shutit.send('chmod -R 777 ' + cfg['build']['shutit_state_dir'] + ' && mkdir -p ' + cfg['build']['build_db_dir'] + '/' + cfg['build']['build_id'], echo=False, loglevel=loglevel)
+		shutit.send('chmod -R 777 ' + cfg['build']['shutit_state_dir'] + ' && mkdir -p ' + cfg['build']['build_db_dir'] + '/' + cfg['build']['build_id'], shutit_pexpect_child=target_child, echo=False, loglevel=loglevel)
 		return True
 
 
@@ -396,7 +396,7 @@ class ConnSSH(ShutItConnModule):
 			shutit.log(target_child.before + target_child.after,level=logging.DEBUG)
 			if res == 0:
 				shutit.log('...',level=logging.DEBUG)
-				res = shutit.send(ssh_pass, child=target_child, expect=expect, timeout=10, check_exit=False, fail_on_empty_before=False, echo=False, loglevel=loglevel)
+				res = shutit.send(ssh_pass, shutit_pexpect_child=target_child, expect=expect, timeout=10, check_exit=False, fail_on_empty_before=False, echo=False, loglevel=loglevel)
 			elif res == 1:
 				shutit.log('Prompt found, breaking out',level=logging.DEBUG)
 				break

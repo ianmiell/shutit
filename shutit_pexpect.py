@@ -190,7 +190,7 @@ class ShutItPexpectSession(object):
 		else:
 			self.setup_prompt(r_id)
 		if go_home:
-			shutit_global.shutit.send('cd',shutit_pexpect_child=self.pexpect_child,check_exit=False, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
+			self.send('cd',check_exit=False, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
 		self.login_stack_append(r_id)
 		shutit_global.shutit._handle_note_after(note=note)
 
@@ -225,7 +225,7 @@ class ShutItPexpectSession(object):
 			shutit_global.shutit.fail('Logout called without corresponding login', throw_exception=False)
 		# No point in checking exit here, the exit code will be
 		# from the previous command from the logged in session
-		shutit_global.shutit.send(command, shutit_pexpect_child=self.pexpect_child, expect=expect, check_exit=False, timeout=timeout,echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
+		self.send(command, expect=expect, check_exit=False, timeout=timeout,echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
 		shutit_global.shutit._handle_note_after(note=note)
 
 
@@ -274,7 +274,7 @@ class ShutItPexpectSession(object):
 		# The newline in the expect list is a hack. On my work laptop this line hangs
 		# and times out very frequently. This workaround seems to work, but I
 		# haven't figured out why yet - imiell.
-		shutit_global.shutit.send((" export SHUTIT_BACKUP_PS1_%s=$PS1 && PS1='%s' && unset PROMPT_COMMAND && stty sane && stty cols " + str(cfg['build']['stty_cols'])) % (prompt_name, local_prompt) + ' && export HISTCONTROL=$HISTCONTROL:ignoredups:ignorespace', expect=['\r\n' + cfg['expect_prompts'][prompt_name]], fail_on_empty_before=False, timeout=5, shutit_pexpect_child=self.pexpect_child, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
+		self.send((" export SHUTIT_BACKUP_PS1_%s=$PS1 && PS1='%s' && unset PROMPT_COMMAND && stty sane && stty cols " + str(cfg['build']['stty_cols'])) % (prompt_name, local_prompt) + ' && export HISTCONTROL=$HISTCONTROL:ignoredups:ignorespace', expect=['\r\n' + cfg['expect_prompts'][prompt_name]], fail_on_empty_before=False, timeout=5, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
 		shutit_global.shutit.log('Resetting default expect to: ' + cfg['expect_prompts'][prompt_name],level=logging.DEBUG)
 		self.default_expect = cfg['expect_prompts'][prompt_name]
 		# Ensure environment is set up OK.
@@ -296,14 +296,14 @@ class ShutItPexpectSession(object):
 		"""
 		expect = new_expect or self.default_expect
 		#     v the space is intentional, to avoid polluting bash history.
-		shutit_global.shutit.send((' PS1="${SHUTIT_BACKUP_PS1_%s}" && unset SHUTIT_BACKUP_PS1_%s') % (old_prompt_name, old_prompt_name), expect=expect, check_exit=False, fail_on_empty_before=False, echo=False, loglevel=logging.DEBUG,delaybeforesend=delaybeforesend)
+		self.send((' PS1="${SHUTIT_BACKUP_PS1_%s}" && unset SHUTIT_BACKUP_PS1_%s') % (old_prompt_name, old_prompt_name), expect=expect, check_exit=False, fail_on_empty_before=False, echo=False, loglevel=logging.DEBUG,delaybeforesend=delaybeforesend)
 		if not new_expect:
 			shutit_global.shutit.log('Resetting default expect to default',level=logging.DEBUG)
 			shutit_global.shutit.set_default_shutit_pexpect_session_expect()
 		self.setup_environment(old_prompt_name)
 
 
-	def send(self, string, delaybeforesend=0):
+	def pexpect_send(self, string, delaybeforesend=0):
 		prev_delaybeforesend = self.pexpect_child.delaybeforesend
 		self.pexpect_child.delaybeforesend = delaybeforesend
 		self.pexpect_child.send(string)
@@ -311,7 +311,7 @@ class ShutItPexpectSession(object):
 
 
 	def sendline(self, string, delaybeforesend=0):
-		self.send(string+'\n',delaybeforesend=delaybeforesend)
+		self.pexpect_send(string+'\n',delaybeforesend=delaybeforesend)
 
 
 	def expect(self,
@@ -421,7 +421,7 @@ class ShutItPexpectSession(object):
 					environment_id = files[0]
 			if cfg['build']['current_environment_id'] != environment_id:
 				# Clean out any trace of this new environment, and return the already-existing one.
-				shutit_global.shutit.send(' rm -rf ' + environment_id_dir + '/environment_id/' + environment_id, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
+				self.send(' rm -rf ' + environment_id_dir + '/environment_id/' + environment_id, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
 				return cfg['build']['current_environment_id']
 			if not environment_id == 'ORIGIN_ENV':
 				return environment_id
@@ -445,7 +445,7 @@ class ShutItPexpectSession(object):
 		if prefix != 'ORIGIN_ENV':
 			shutit_global.shutit.get_distro_info(environment_id)
 		fname = environment_id_dir + '/' + environment_id
-		shutit_global.shutit.send(' mkdir -p ' + environment_id_dir + ' && chmod -R 777 ' + cfg['build']['shutit_state_dir_base'] + ' && touch ' + fname, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
+		self.send(' mkdir -p ' + environment_id_dir + ' && chmod -R 777 ' + cfg['build']['shutit_state_dir_base'] + ' && touch ' + fname, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
 		cfg['environment'][environment_id]['setup']                        = True
 		return environment_id
 
@@ -552,8 +552,8 @@ class ShutItPexpectSession(object):
 			if resize:
 				fixterm_filename = '/tmp/shutit_fixterm'
 				if not self.file_exists(fixterm_filename):
-					shutit_global.shutit.send_file(fixterm_filename,shutit_assets.get_fixterm(), shutit_pexpect_child=self.pexpect_child, loglevel=logging.DEBUG, delaybeforesend=delaybeforesend)
-					shutit_global.shutit.send(' chmod 777 ' + fixterm_filename, echo=False,loglevel=logging.DEBUG, delaybeforesend=delaybeforesend)
+					shutit_global.shutit.send_file(fixterm_filename,shutit_assets.get_fixterm(), loglevel=logging.DEBUG, delaybeforesend=delaybeforesend)
+					self.send(' chmod 777 ' + fixterm_filename, echo=False,loglevel=logging.DEBUG, delaybeforesend=delaybeforesend)
 				self.sendline(' ' + fixterm_filename, delaybeforesend=delaybeforesend)
 			if default_msg == None:
 				if not cfg['build']['video']:
@@ -684,7 +684,7 @@ class ShutItPexpectSession(object):
 		shutit_global.shutit._handle_note(note, 'Changing to path: ' + path)
 		shutit_global.shutit.log('Changing directory to path: "' + path + '"', level=logging.DEBUG)
 		if cfg['build']['delivery'] in ('bash','dockerfile'):
-			shutit_global.shutit.send(' cd ' + path, shutit_pexpect_child=self.pexpect_child, timeout=timeout, echo=False,loglevel=loglevel, delaybeforesend=delaybeforesend)
+			self.send(' cd ' + path, timeout=timeout, echo=False,loglevel=loglevel, delaybeforesend=delaybeforesend)
 		elif cfg['build']['delivery'] in ('docker','ssh'):
 			os.chdir(path)
 		else:
@@ -710,7 +710,7 @@ class ShutItPexpectSession(object):
 		"""
 		shutit_global.shutit._handle_note(note)
 		cmd = 'stat -c %a ' + filename
-		shutit_global.shutit.send(' ' + cmd, shutit_pexpect_child=self.pexpect_child, check_exit=False, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
+		self.send(' ' + cmd, check_exit=False, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
 		res = shutit_util.match_string(self.pexpect_child.before, '([0-9][0-9][0-9])')
 		shutit_global.shutit._handle_note_after(note=note)
 		return res
@@ -755,7 +755,7 @@ class ShutItPexpectSession(object):
 		"""
 		shutit_global.shutit._handle_note(note)
 		# v the space is intentional, to avoid polluting bash history.
-		shutit_global.shutit.send(' cut -d: -f3 /etc/paswd | grep -w ^' + user_id + '$ | wc -l', shutit_pexpect_child=self.pexpect_child, expect=self.default_expect, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
+		self.send(' cut -d: -f3 /etc/paswd | grep -w ^' + user_id + '$ | wc -l', expect=self.default_expect, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
 		shutit_global.shutit._handle_note_after(note=note)
 		if shutit_util.match_string(self.pexpect_child.before, '^([0-9]+)$') == '1':
 			return False
@@ -782,17 +782,17 @@ class ShutItPexpectSession(object):
 		shutit_global.shutit._handle_note(note)
 		self.install('passwd')
 		if cfg['environment'][cfg['build']['current_environment_id']]['install_type'] == 'apt':
-			shutit_global.shutit.send('passwd ' + user, expect='Enter new', shutit_pexpect_child=self.pexpect_child, check_exit=False, delaybeforesend=delaybeforesend)
-			shutit_global.shutit.send(password, shutit_pexpect_child=self.pexpect_child, expect='Retype new', check_exit=False, echo=False, delaybeforesend=delaybeforesend)
-			shutit_global.shutit.send(password, shutit_pexpect_child=self.pexpect_child, expect=self.default_expect, echo=False, delaybeforesend=delaybeforesend)
+			self.send('passwd ' + user, expect='Enter new', check_exit=False, delaybeforesend=delaybeforesend)
+			self.send(password, expect='Retype new', check_exit=False, echo=False, delaybeforesend=delaybeforesend)
+			self.send(password, expect=self.default_expect, echo=False, delaybeforesend=delaybeforesend)
 		elif shutit_global.shutit['environment'][cfg['build']['current_environment_id']]['install_type'] == 'yum':
-			shutit_global.shutit.send('passwd ' + user, shutit_pexpect_child=self.pexpect_child, expect='ew password', check_exit=False,delaybeforesend=delaybeforesend)
-			shutit_global.shutit.send(password, shutit_pexpect_child=self.pexpect_child, expect='ew password', check_exit=False, echo=False, delaybeforesend=delaybeforesend)
-			shutit_global.shutit.send(password, shutit_pexpect_child=self.pexpect_child, expect=self.default_expect, echo=False, delaybeforesend=delaybeforesend)
+			self.send('passwd ' + user, expect='ew password', check_exit=False,delaybeforesend=delaybeforesend)
+			self.send(password, expect='ew password', check_exit=False, echo=False, delaybeforesend=delaybeforesend)
+			self.send(password, expect=self.default_expect, echo=False, delaybeforesend=delaybeforesend)
 		else:
-			shutit_global.shutit.send('passwd ' + user, expect='Enter new', shutit_pexpect_child=self.pexpect_child, check_exit=False, delaybeforesend=delaybeforesend)
-			shutit_global.shutit.send(password, shutit_pexpect_child=self.pexpect_child, expect='Retype new', check_exit=False, echo=False, delaybeforesend=delaybeforesend)
-			shutit_global.shutit.send(password, shutit_pexpect_child=self.pexpect_child, expect=self.default_expect, echo=False, delaybeforesend=delaybeforesend)
+			self.send('passwd ' + user, expect='Enter new', check_exit=False, delaybeforesend=delaybeforesend)
+			self.send(password, expect='Retype new', check_exit=False, echo=False, delaybeforesend=delaybeforesend)
+			self.send(password, expect=self.default_expect, echo=False, delaybeforesend=delaybeforesend)
 		shutit_global.shutit._handle_note_after(note=note)
 
 
@@ -803,7 +803,7 @@ class ShutItPexpectSession(object):
 		"""Get distro information from lsb_release.
 		"""
 		#          v the space is intentional, to avoid polluting bash history.
-		shutit_global.shutit.send(' lsb_release -a',check_exit=False, echo=False, loglevel=loglevel,delaybeforesend=delaybeforesend)
+		self.send(' lsb_release -a',check_exit=False, echo=False, loglevel=loglevel,delaybeforesend=delaybeforesend)
 		dist_string = shutit_util.match_string(self.pexpect_child.before, '^Distributor[\s]*ID:[\s]*(.*)$')
 		version_string = shutit_util.match_string(self.pexpect_child.before, '^Release:[\s*](.*)$')
 		d = {}
@@ -867,7 +867,7 @@ class ShutItPexpectSession(object):
 				location = location[0:-1]
 			while retry >= 0:
 				send = command + ' ' + location + '/' + filename + ' > ' + filename
-				shutit_global.shutit.send(send,check_exit=False,shutit_pexpect_child=self.pexpect_child,expect=self.default_expect,timeout=timeout,fail_on_empty_before=fail_on_empty_before,record_command=record_command,echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
+				self.send(send,check_exit=False,expect=self.default_expect,timeout=timeout,fail_on_empty_before=fail_on_empty_before,record_command=record_command,echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
 				if retry == 0:
 					self.check_last_exit_values(send, self.default_expect, timeout, exit_values, retbool=False)
 				elif not self.check_last_exit_values(send, self.default_expect, timeout, exit_values, retbool=True):
@@ -901,7 +901,7 @@ class ShutItPexpectSession(object):
 		if user == '':
 			return exists
 		#v the space is intentional, to avoid polluting bash history.
-		ret = shutit_global.shutit.send(' id %s && echo E""XIST || echo N""XIST' % user, expect=['NXIST', 'EXIST'], shutit_pexpect_child=self.pexpect_child, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
+		ret = self.send(' id %s && echo E""XIST || echo N""XIST' % user, expect=['NXIST', 'EXIST'], echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
 		if ret:
 			exists = True
 		# sync with the prompt
@@ -926,10 +926,10 @@ class ShutItPexpectSession(object):
 		shutit_global.shutit._handle_note(note)
 		if cfg['environment'][cfg['build']['current_environment_id']]['install_type'] == 'apt':
 			#            v the space is intentional, to avoid polluting bash history.
-			shutit_global.shutit.send(""" dpkg -l | awk '{print $2}' | grep "^""" + package + """$" | wc -l""", expect=self.default_expect, check_exit=False, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
+			self.send(""" dpkg -l | awk '{print $2}' | grep "^""" + package + """$" | wc -l""", expect=self.default_expect, check_exit=False, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
 		elif cfg['environment'][cfg['build']['current_environment_id']]['install_type'] == 'yum':
 			#            v the space is intentional, to avoid polluting bash history.
-			shutit_global.shutit.send(""" yum list installed | awk '{print $1}' | grep "^""" + package + """$" | wc -l""", expect=self.default_expect, check_exit=False, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
+			self.send(""" yum list installed | awk '{print $1}' | grep "^""" + package + """$" | wc -l""", expect=self.default_expect, check_exit=False, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
 		else:
 			return False
 		if shutit_util.match_string(self.pexpect_child.before, '^([0-9]+)$') != '0':
@@ -970,9 +970,9 @@ class ShutItPexpectSession(object):
 			if self.file_exists(cfg['build']['build_db_dir'] + '/module_record',directory=True):
 				# Bit of a hack here to get round the long command showing up as the first line of the output.
 				cmd = 'find ' + cfg['build']['build_db_dir'] + r"""/module_record/ -name built | sed 's@^.""" + cfg['build']['build_db_dir'] + r"""/module_record.\([^/]*\).built@\1@' > """ + cfg['build']['build_db_dir'] + '/' + cfg['build']['build_id']
-				shutit_global.shutit.send(' ' + cmd, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
+				self.send(' ' + cmd, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
 				built = self.send_and_get_output('cat ' + cfg['build']['build_db_dir'] + '/' + cfg['build']['build_id'], echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend).strip()
-				shutit_global.shutit.send(' rm -rf ' + cfg['build']['build_db_dir'] + '/' + cfg['build']['build_id'], echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
+				self.send(' rm -rf ' + cfg['build']['build_db_dir'] + '/' + cfg['build']['build_id'], echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
 				built_list = built.split('\r\n')
 				cfg['environment'][cfg['build']['current_environment_id']]['modules_recorded'] = built_list
 			# Either there was no directory (so the cache is valid), or we've built the cache, so mark as good.
@@ -1080,7 +1080,7 @@ class ShutItPexpectSession(object):
 			pw = ''
 		if install_type == 'apt':
 			if not cfg['build']['apt_update_done']:
-				shutit_global.shutit.send('apt-get update',loglevel=logging.INFO, delaybeforesend=delaybeforesend)
+				self.send('apt-get update',loglevel=logging.INFO, delaybeforesend=delaybeforesend)
 			cmd += 'apt-get install'
 			if 'apt' in options:
 				opts = options['apt']
@@ -1131,7 +1131,7 @@ class ShutItPexpectSession(object):
 				if pw != '':
 					res = self.multisend('%s %s %s' % (cmd, opts, package), {'assword':pw}, expect=['Unable to fetch some archives',self.default_expect], timeout=timeout, check_exit=False, loglevel=loglevel)
 				else:
-					res = shutit_global.shutit.send('%s %s %s' % (cmd, opts, package), expect=['Unable to fetch some archives',self.default_expect], timeout=timeout, check_exit=check_exit, shutit_pexpect_child=self.pexpect_child, loglevel=loglevel, delaybeforesend=delaybeforesend)
+					res = self.send('%s %s %s' % (cmd, opts, package), expect=['Unable to fetch some archives',self.default_expect], timeout=timeout, check_exit=check_exit, loglevel=loglevel, delaybeforesend=delaybeforesend)
 				if res == 1:
 					break
 				else:
@@ -1230,7 +1230,7 @@ class ShutItPexpectSession(object):
 		if pw != '':
 			self.multisend('%s %s %s' % (cmd, opts, package), {'assword:':pw}, timeout=timeout, exit_values=['0','100'])
 		else:
-			shutit_global.shutit.send('%s %s %s' % (cmd, opts, package), shutit_pexpect_child=self.pexpect_child, timeout=timeout, exit_values=['0','100'], delaybeforesend=delaybeforesend)
+			self.send('%s %s %s' % (cmd, opts, package), timeout=timeout, exit_values=['0','100'], delaybeforesend=delaybeforesend)
 		shutit_global.shutit._handle_note_after(note=note)
 		return True
 
@@ -1303,7 +1303,7 @@ class ShutItPexpectSession(object):
 		shutit_global.shutit._handle_note(note, command=str(send))
 		shutit_global.shutit.log('Retrieving output from command: ' + send,level=loglevel)
 		# Don't check exit, as that will pollute the output. Also, it's quite likely the submitted command is intended to fail.
-		shutit_global.shutit.send(shutit_util.get_send_command(send), shutit_pexpect_child=self.pexpect_child, check_exit=False, retry=retry, echo=echo, timeout=timeout, record_command=record_command, loglevel=loglevel, fail_on_empty_before=fail_on_empty_before, delaybeforesend=delaybeforesend)
+		self.send(shutit_util.get_send_command(send), check_exit=False, retry=retry, echo=echo, timeout=timeout, record_command=record_command, loglevel=loglevel, fail_on_empty_before=fail_on_empty_before, delaybeforesend=delaybeforesend)
 		before = self.pexpect_child.before
 		if preserve_newline and before[-1] == '\n':
 			preserve_newline = True
@@ -1446,7 +1446,7 @@ class ShutItPexpectSession(object):
 				if not self.command_available('lsb_release'):
 					if not cfg['build']['apt_update_done']:
 						cfg['build']['apt_update_done'] = True
-						shutit_global.shutit.send('apt-get update && apt-get install -y -qq lsb-release',loglevel=loglevel,delaybeforesend=delaybeforesend)
+						self.send('apt-get update && apt-get install -y -qq lsb-release',loglevel=loglevel,delaybeforesend=delaybeforesend)
 				d = self.lsb_release()
 				install_type   = d['install_type']
 				distro         = d['distro']
@@ -1454,27 +1454,27 @@ class ShutItPexpectSession(object):
 			elif install_type == 'yum' and cfg['build']['delivery'] in ('docker', 'dockerfile'):
 				if not cfg['build']['yum_update_done']:
 					cfg['build']['yum_update_done'] = True
-					shutit_global.shutit.send('yum update -y',exit_values=['0','1'],loglevel=logging.INFO,delaybeforesend=delaybeforesend)
+					self.send('yum update -y',exit_values=['0','1'],loglevel=logging.INFO,delaybeforesend=delaybeforesend)
 				if self.file_exists('/etc/redhat-release'):
 					output = self.send_and_get_output('cat /etc/redhat-release',echo=False, loglevel=loglevel,delaybeforesend=delaybeforesend)
 					if re.match('^centos.*$', output.lower()) or re.match('^red hat.*$', output.lower()) or re.match('^fedora.*$', output.lower()) or True:
 						self.send_and_match_output('yum install -y -t redhat-lsb epel-release','Complete!',loglevel=loglevel,delaybeforesend=delaybeforesend)
 				else:
 					if not self.command_available('lsb_release'):
-						shutit_global.shutit.send('yum install -y lsb-release',loglevel=loglevel,delaybeforesend=delaybeforesend)
+						self.send('yum install -y lsb-release',loglevel=loglevel,delaybeforesend=delaybeforesend)
 				install_type   = d['install_type']
 				distro         = d['distro']
 				distro_version = d['distro_version']
 			elif install_type == 'apk' and cfg['build']['delivery'] in ('docker','dockerfile'):
 				if not cfg['build']['apk_update_done']:
 					cfg['build']['apk_update_done'] = True
-					shutit_global.shutit.send('apk update',loglevel=logging.INFO,delaybeforesend=delaybeforesend)
-				shutit_global.shutit.send('apk add bash',loglevel=loglevel,delaybeforesend=delaybeforesend)
+					self.send('apk update',loglevel=logging.INFO,delaybeforesend=delaybeforesend)
+				self.send('apk add bash',loglevel=loglevel,delaybeforesend=delaybeforesend)
 				install_type   = 'apk'
 				distro         = 'alpine'
 				distro_version = '1.0'
 			elif install_type == 'emerge' and cfg['build']['delivery'] in ('docker','dockerfile'):
-				shutit_global.shutit.send('emerge --sync',loglevel=loglevel,delaybeforesend=delaybeforesend)
+				self.send('emerge --sync',loglevel=loglevel,delaybeforesend=delaybeforesend)
 				install_type = 'emerge'
 				distro = 'gentoo'
 				distro_version = '1.0'
@@ -1524,7 +1524,7 @@ class ShutItPexpectSession(object):
 						shutit_global.shutit.fail('ShutiIt requires brew be installed. See http://brew.sh for details on installation.')
 					for package in ('coreutils','findutils','gnu-tar','gnu-sed','gawk','gnutls','gnu-indent','gnu-getopt'):
 						if self.send_and_get_output('brew list | grep -w ' + package,echo=False, loglevel=loglevel,delaybeforesend=delaybeforesend) == '':
-							shutit_global.shutit.send('brew install ' + package,loglevel=loglevel,delaybeforesend=delaybeforesend)
+							self.send('brew install ' + package,loglevel=loglevel,delaybeforesend=delaybeforesend)
 				if install_type == '' or distro == '':
 					shutit_global.shutit.fail('Could not determine Linux distro information. ' + 'Please inform ShutIt maintainers.', shutit_pexpect_child=self.pexpect_child)
 			# The call to self.package_installed with lsb-release above
@@ -1534,21 +1534,21 @@ class ShutItPexpectSession(object):
 				if not self.command_available('lsb_release'):
 					if not cfg['build']['apt_update_done']:
 						cfg['build']['apt_update_done'] = True
-						shutit_global.shutit.send('apt-get update && apt-get install -y -qq lsb-release',loglevel=loglevel,delaybeforesend=delaybeforesend)
+						self.send('apt-get update && apt-get install -y -qq lsb-release',loglevel=loglevel,delaybeforesend=delaybeforesend)
 					cfg['build']['apt_update_done'] = True
-					shutit_global.shutit.send('apt-get install -y -qq lsb-release',loglevel=loglevel,delaybeforesend=delaybeforesend)
+					self.send('apt-get install -y -qq lsb-release',loglevel=loglevel,delaybeforesend=delaybeforesend)
 				d = self.lsb_release()
 				install_type   = d['install_type']
 				distro         = d['distro']
 				distro_version = d['distro_version']
 			elif install_type == 'yum' and cfg['build']['delivery'] in ('docker','dockerfile'):
 				if self.file_exists('/etc/redhat-release'):
-					output = shutit_global.shutit.send_and_get_output('cat /etc/redhat-release',echo=False, loglevel=loglevel,delaybeforesend=delaybeforesend)
+					output = self.send_and_get_output('cat /etc/redhat-release',echo=False, loglevel=loglevel,delaybeforesend=delaybeforesend)
 					if re.match('^centos.*$', output.lower()) or re.match('^red hat.*$', output.lower()) or re.match('^fedora.*$', output.lower()) or True:
 						self.send_and_match_output('yum install -y -t redhat-lsb epel-release','Complete!',loglevel=loglevel,delaybeforesend=delaybeforesend)
 				else:
 					if not self.command_available('lsb_release'):
-						shutit_global.shutit.send('yum install -y lsb-release',loglevel=loglevel,delaybeforesend=delaybeforesend)
+						self.send('yum install -y lsb-release',loglevel=loglevel,delaybeforesend=delaybeforesend)
 				d = self.lsb_release()
 				install_type   = d['install_type']
 				distro         = d['distro']
@@ -1556,14 +1556,14 @@ class ShutItPexpectSession(object):
 			elif install_type == 'apk' and cfg['build']['delivery'] in ('docker','dockerfile'):
 				if not cfg['build']['apk_update_done']:
 					cfg['build']['apk_update_done'] = True
-					shutit_global.shutit.send('apk update',loglevel=logging.INFO,delaybeforesend=delaybeforesend)
-				shutit_global.shutit.send('apk install bash',loglevel=loglevel,delaybeforesend=delaybeforesend)
+					self.send('apk update',loglevel=logging.INFO,delaybeforesend=delaybeforesend)
+				self.send('apk install bash',loglevel=loglevel,delaybeforesend=delaybeforesend)
 				install_type   = 'apk'
 				distro         = 'alpine'
 				distro_version = '1.0'
 			elif install_type == 'emerge' and cfg['build']['delivery'] in ('docker','dockerfile'):
 				if not cfg['build']['emerge_update_done']:
-					shutit_global.shutit.send('emerge --sync',loglevel=logging.INFO,delaybeforesend=delaybeforesend)
+					self.send('emerge --sync',loglevel=logging.INFO,delaybeforesend=delaybeforesend)
 				install_type = 'emerge'
 				distro = 'gentoo'
 				distro_version = '1.0'
@@ -1618,7 +1618,7 @@ class ShutItPexpectSession(object):
 				n_breakout_items += 1
 		while True:
 			# If it's the last n items in the list, it's the breakout one.
-			res = shutit_global.shutit.send(send_iteration, expect=expect_list, shutit_pexpect_child=self.pexpect_child, check_exit=check_exit, fail_on_empty_before=fail_on_empty_before, timeout=timeout, record_command=record_command, exit_values=exit_values, echo=echo, escape=escape, loglevel=loglevel, delaybeforesend=delaybeforesend)
+			res = self.send(send_iteration, expect=expect_list, check_exit=check_exit, fail_on_empty_before=fail_on_empty_before, timeout=timeout, record_command=record_command, exit_values=exit_values, echo=echo, escape=escape, loglevel=loglevel, delaybeforesend=delaybeforesend)
 			if res >= len(expect_list) - n_breakout_items:
 				break
 			else:
@@ -1718,7 +1718,7 @@ class ShutItPexpectSession(object):
 		fexists = self.file_exists(fname)
 		if not fexists:
 			if create:
-				shutit_global.shutit.send(' touch ' + fname,shutit_pexpect_child=self.pexpect_child, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
+				self.send(' touch ' + fname, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
 			else:
 				shutit_global.shutit.fail(fname + ' does not exist and create=False')
 		if replace:
@@ -1873,27 +1873,248 @@ class ShutItPexpectSession(object):
 			if literal:
 				if match_regexp == None:
 					#            v the space is intentional, to avoid polluting bash history.
-					shutit_global.shutit.send(""" grep -v '^""" + line + """$' """ + filename + ' > ' + tmp_filename, shutit_pexpect_child=self.pexpect_child, exit_values=['0', '1'], echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
+					self.send(""" grep -v '^""" + line + """$' """ + filename + ' > ' + tmp_filename, exit_values=['0', '1'], echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
 				else:
 					if not shutit_util.check_regexp(match_regexp):
 						shutit_global.shutit.fail('Illegal regexp found in remove_line_from_file call: ' + match_regexp)
 					#            v the space is intentional, to avoid polluting bash history.
-					shutit_global.shutit.send(""" grep -v '^""" + match_regexp + """$' """ + filename + ' > ' + tmp_filename, shutit_pexpect_child=self.pexpect_child, exit_values=['0', '1'], echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
+					self.send(""" grep -v '^""" + match_regexp + """$' """ + filename + ' > ' + tmp_filename, exit_values=['0', '1'], echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
 			else:
 				if match_regexp == None:
 					#          v the space is intentional, to avoid polluting bash history.
-					shutit_global.shutit.send(' grep -v "^' + line + '$" ' + filename + ' > ' + tmp_filename, shutit_pexpect_child=self.pexpect_child, exit_values=['0', '1'], echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
+					self.send(' grep -v "^' + line + '$" ' + filename + ' > ' + tmp_filename, exit_values=['0', '1'], echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
 				else:
 					if not shutit_util.check_regexp(match_regexp):
 						shutit_global.shutit.fail('Illegal regexp found in remove_line_from_file call: ' + match_regexp)
 					#          v the space is intentional, to avoid polluting bash history.
-					shutit_global.shutit.send(' grep -v "^' + match_regexp + '$" ' + filename + ' > ' + tmp_filename, shutit_pexpect_child=self.pexpect_child, exit_values=['0', '1'], echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
-			shutit_global.shutit.send(' cat ' + tmp_filename + ' > ' + filename, shutit_pexpect_child=self.pexpect_child, check_exit=False, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
-			shutit_global.shutit.send(' rm -f ' + tmp_filename, shutit_pexpect_child=self.pexpect_child, exit_values=['0', '1'], echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
+					self.send(' grep -v "^' + match_regexp + '$" ' + filename + ' > ' + tmp_filename, exit_values=['0', '1'], echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
+			self.send(' cat ' + tmp_filename + ' > ' + filename, check_exit=False, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
+			self.send(' rm -f ' + tmp_filename, exit_values=['0', '1'], echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
 		shutit_global.shutit._handle_note_after(note=note)
 		return True
 
 
+
+	def send(self,
+	         send,
+	         expect=None,
+	         timeout=None,
+	         check_exit=None,
+	         fail_on_empty_before=True,
+	         record_command=True,
+	         exit_values=None,
+	         echo=False,
+	         escape=False,
+	         retry=3,
+	         note=None,
+	         assume_gnu=True,
+	         delaybeforesend=0,
+		     loglevel=logging.INFO):
+		"""Send string as a shell command, and wait until the expected output
+		is seen (either a string or any from a list of strings) before
+		returning. The expected string will default to the currently-set
+		default expected string (see get_default_shutit_pexpect_session_expect)
+
+		Returns the pexpect return value (ie which expected string in the list matched)
+
+		@param send: String to send, ie the command being issued. If set to None, we consume up to the expect string, which is useful if we just matched output that came before a standard command that returns to the prompt.
+		@param expect: String that we expect to see in the output. Usually a prompt. Defaults to currently-set expect string (see set_default_shutit_pexpect_session_expect)
+		@param timeout: Timeout on response
+		@param check_exit: Whether to check the shell exit code of the passed-in command.  If the exit value was non-zero an error is thrown.  (default=None, which takes the currently-configured check_exit value) See also fail_on_empty_before.
+		@param fail_on_empty_before: If debug is set, fail on empty match output string (default=True) If this is set to False, then we don't check the exit value of the command.
+		@param record_command: Whether to record the command for output at end. As a safety measure, if the command matches any 'password's then we don't record it.
+		@param exit_values: Array of acceptable exit values as strings
+		@param echo: Whether to suppress any logging output from pexpect to the terminal or not.  We don't record the command if this is set to False unless record_command is explicitly passed in as True.
+		@param escape: Whether to escape the characters in a bash-friendly way, ie $'\Uxxxxxx'
+		@param retry: Number of times to retry the command if the first attempt doesn't work. Useful if going to the network
+		@param note: If a note is passed in, and we are in walkthrough mode, pause with the note printed
+		@param assume_gnu: Assume the gnu version of commands, which are not in OSx by default (for example)
+		@return: The pexpect return value (ie which expected string in the list matched)
+		@rtype: string
+		"""
+		cfg = shutit_global.shutit.cfg
+		if type(expect) == dict:
+			return self.multisend(send=send,send_dict=expect,expect=self.get_default_shutit_pexpect_session_expect(),timeout=timeout,check_exit=check_exit,fail_on_empty_before=fail_on_empty_before,record_command=record_command,exit_values=exit_values,echo=echo,note=note,loglevel=loglevel,delaybeforesend=delaybeforesend)
+		expect = expect or self.default_expect
+		shutit_global.shutit.log('Sending in session: ' + self.pexpect_session_id,level=logging.DEBUG)
+		shutit_global.shutit._handle_note(note, command=str(send), training_input=str(send))
+		if timeout == None:
+			timeout = 3600
+		
+		if cfg['build']['loglevel'] <= logging.DEBUG:
+			echo=True
+
+		# Handle OSX to get the GNU version of the command
+		if assume_gnu:
+			send = shutit_util.get_send_command(send)
+			
+		# If check_exit is not passed in
+		# - if the expect matches the default, use the default check exit
+		# - otherwise, default to doing the check
+		if check_exit == None:
+			# If we are in video mode, ignore exit value
+			if cfg['build']['video'] or cfg['build']['training'] or cfg['build']['walkthrough']:
+				check_exit = False
+			elif expect == shutit_global.shutit.get_default_shutit_pexpect_session_expect():
+				check_exit = shutit_global.shutit.get_default_shutit_pexpect_session_check_exit()
+			else:
+				# If expect given doesn't match the defaults and no argument
+				# was passed in (ie check_exit was passed in as None), set
+				# check_exit to true iff it matches a prompt.
+				expect_matches_prompt = False
+				for prompt in cfg['expect_prompts']:
+					if prompt == expect:
+						expect_matches_prompt = True
+				if not expect_matches_prompt:
+					check_exit = False
+				else:
+					check_exit = True
+		ok_to_record = False
+		if not echo and record_command == None:
+			record_command = False
+		if record_command == None or record_command:
+			ok_to_record = True
+			for i in cfg.keys():
+				if isinstance(cfg[i], dict):
+					for j in cfg[i].keys():
+						if ((j == 'password' or j == 'passphrase') and cfg[i][j] == send):
+							shutit_global.shutit.shutit_command_history.append ('#redacted command, password')
+							ok_to_record = False
+							break
+					if not ok_to_record:
+						break
+			if ok_to_record:
+				shutit_global.shutit.shutit_command_history.append(send)
+		if send != None:
+			shutit_global.shutit.log('Sending: ' + send,level=loglevel)
+		if send != None:
+			shutit_global.shutit.log('================================================================================',level=logging.DEBUG)
+			shutit_global.shutit.log('Sending>>>' + send + '<<<',level=logging.DEBUG)
+			shutit_global.shutit.log('Expecting>>>' + str(expect) + '<<<',level=logging.DEBUG)
+		# Don't echo if echo passed in as False
+		while retry > 0:
+			if escape:
+				escaped_str = "eval $'"
+				_count = 7
+				for char in send:
+					if char in string.ascii_letters:
+						escaped_str += char
+						_count += 1
+					else:
+						escaped_str += shutit_util.get_wide_hex(char)
+						_count += 4
+					if _count > cfg['build']['stty_cols'] - 50:
+						escaped_str += r"""'\
+$'"""
+						_count = 0
+				escaped_str += "'"
+				shutit_global.shutit.log('This string was sent safely: ' + send, level=logging.DEBUG)
+			if not echo:
+				oldlog = self.pexpect_child.logfile_send
+				self.pexpect_child.logfile_send = None
+				if escape:
+					# 'None' escaped_str's are possible from multisends with nothing to send.
+					if escaped_str != None:
+						if len(escaped_str) + 25 > cfg['build']['stty_cols']:
+							fname = self.create_command_file(expect,escaped_str)
+							res = self.send(' ' + fname,expect=expect,timeout=timeout,check_exit=check_exit,fail_on_empty_before=False,record_command=False,exit_values=exit_values,echo=False,escape=False,retry=retry,loglevel=loglevel, delaybeforesend=delaybeforesend)
+							self.sendline(' rm -f ' + fname,delaybeforesend=delaybeforesend)
+							self.expect(expect)
+							return res
+						else:
+							self.sendline(escaped_str,delaybeforesend=delaybeforesend)
+							expect_res = shutit_global.shutit._expect_allow_interrupt(self.pexpect_child, expect, timeout)
+					else:
+						expect_res = shutit_global.shutit._expect_allow_interrupt(self.pexpect_child, expect, timeout)
+				else:
+					if send != None:
+						if len(send) + 25 > cfg['build']['stty_cols']:
+							fname = self.create_command_file(expect,send)
+							res = self.send(' ' + fname,expect=expect,timeout=timeout,check_exit=check_exit,fail_on_empty_before=False,record_command=False,exit_values=exit_values,echo=False,escape=False,retry=retry,loglevel=loglevel, delaybeforesend=delaybeforesend)
+							self.sendline(' rm -f ' + fname,delaybeforesend=delaybeforesend)
+							self.pexpect_child.expect(expect)
+							return res
+						else:
+							self.sendline(send,delaybeforesend=delaybeforesend)
+							expect_res = shutit_global.shutit._expect_allow_interrupt(self.pexpect_child, expect, timeout)
+					else:
+						expect_res = shutit_global.shutit._expect_allow_interrupt(self.pexpect_child, expect, timeout)
+				self.pexpect_child.logfile_send = oldlog
+			else:
+				if escape:
+					if escaped_str != None:
+						if len(escaped_str) + 25 > cfg['build']['stty_cols']:
+							fname = self.create_command_file(expect,escaped_str)
+							res = self.send(' ' + fname,expect=expect,timeout=timeout,check_exit=check_exit,fail_on_empty_before=False,record_command=False,exit_values=exit_values,echo=False,escape=False,retry=retry,loglevel=loglevel, delaybeforesend=delaybeforesend)
+							self.sendline(' rm -f ' + fname,delaybeforesend=delaybeforesend)
+							self.pexpect_child.expect(expect)
+							return res
+						else:
+							self.send(escaped_str,delaybeforesend=delaybeforesend)
+							expect_res = shutit_global.shutit._expect_allow_interrupt(self.pexpect_child, expect, timeout)
+					else:
+						expect_res = shutit_global.shutit._expect_allow_interrupt(self.pexpect_child, expect, timeout)
+				else:
+					if send != None:
+						if len(send) + 25 > cfg['build']['stty_cols']:
+							fname = self.create_command_file(expect,send)
+							res = self.send(' ' + fname,expect=expect,timeout=timeout,check_exit=check_exit,fail_on_empty_before=False,record_command=False,exit_values=exit_values,echo=False,escape=False,retry=retry,loglevel=loglevel, delaybeforesend=delaybeforesend)
+							self.sendline(' rm -f ' + fname,delaybeforesend=delaybeforesend)
+							self.pexpect_child.expect(expect)
+							return res
+						else:
+							if echo:
+								self.divert_output(sys.stdout)
+							self.sendline(send,delaybeforesend=delaybeforesend)
+							expect_res = shutit_global.shutit._expect_allow_interrupt(self.pexpect_child, expect, timeout)
+							if echo:
+								shutit_global.shutit.divert_output(None)
+					else:
+						expect_res = shutit_global.shutit._expect_allow_interrupt(self.pexpect_child, expect, timeout)
+			# Handles 'cannot concatenate 'str' and 'type' objects' errors
+			try:
+				logged_output = ''.join((self.pexpect_child.before + self.pexpect_child.after).split('\n'))
+				logged_output = logged_output.replace(send,'',1)
+				logged_output = logged_output.replace('\r','')
+				logged_output = logged_output[:30] + ' [...]'
+				shutit_global.shutit.log('Output (squashed): ' + logged_output,level=loglevel)
+				shutit_global.shutit.log('shutit_pexpect_child.before>>>' + self.pexpect_child.before + '<<<',level=logging.DEBUG)
+				shutit_global.shutit.log('shutit_pexpect_child.after>>>' + self.pexpect_child.after + '<<<',level=logging.DEBUG)
+			except:
+				pass
+			if fail_on_empty_before:
+				if self.pexpect_child.before.strip() == '':
+					shutit_global.shutit.fail('before empty after sending: ' + str(send) + '\n\nThis is expected after some commands that take a password.\nIf so, add fail_on_empty_before=False to the send call.\n\nIf that is not the problem, did you send an empty string to a prompt by mistake?', shutit_pexpect_child=self.pexpect_child)
+			elif not fail_on_empty_before:
+				# Don't check exit if fail_on_empty_before is False
+				shutit_global.shutit.log('' + self.pexpect_child.before + '<<<', level=logging.DEBUG)
+				check_exit = False
+				for prompt in cfg['expect_prompts']:
+					if prompt == expect:
+						# Reset prompt
+						self.setup_prompt('reset_tmp_prompt')
+						self.pexpect_child.revert_prompt('reset_tmp_prompt', expect)
+			# Last output - remove the first line, as it is the previous command.
+			cfg['build']['last_output'] = '\n'.join(self.pexpect_child.before.split('\n')[1:])
+			if check_exit:
+				# store the output
+				if not self.check_last_exit_values(send, expect=expect, exit_values=exit_values, retry=retry):
+					shutit_global.shutit.log('Sending: ' + send + ' : failed, retrying', level=logging.DEBUG)
+					retry -= 1
+					assert(retry > 0)
+					continue
+			break
+		if cfg['build']['step_through']:
+			self.pause_point('pause point: stepping through')
+		if cfg['build']['ctrlc_stop']:
+			cfg['build']['ctrlc_stop'] = False
+			self.pause_point('pause point: interrupted by CTRL-c')
+		shutit_global.shutit._handle_note_after(note=note)
+		return expect_res
+	# alias send to send_and_expect
+	send_and_expect = send
+
+	
 	#TODO: create environment object
 	#TODO: review items in cfg and see if they make more sense in the pexpect object
 	#TODO: replace 'target' in cfg
