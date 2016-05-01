@@ -1835,6 +1835,65 @@ class ShutItPexpectSession(object):
 		return True
 
 
+
+
+	def remove_line_from_file(self,
+							  line,
+							  filename,
+							  match_regexp=None,
+							  literal=False,
+	                          note=None,
+	                          delaybeforesend=0,
+	                          loglevel=logging.DEBUG):
+		"""Removes line from file, if it exists.
+		Must be exactly the line passed in to match.
+		Returns True if there were no problems, False if there were.
+	
+		@param line:          Line to remove.
+		@param filename       Filename to remove it from.
+		@param match_regexp:  If supplied, a regexp to look for in the file
+		                      instead of the line itself,
+		                      handy if the line has awkward characters in it.
+		@param literal:       If true, then simply grep for the exact string without
+		                      bash interpretation. (Default: False)
+		@param note:          See send()
+
+		@type line:           string
+		@type filename:       string
+		@type match_regexp:   string
+		@type literal:        boolean
+
+		@return:              True if the line was matched and deleted, False otherwise.
+		@rtype:               boolean
+		"""
+		shutit_global.shutit._handle_note(note)
+		# assume we're going to add it
+		tmp_filename = '/tmp/' + shutit_util.random_id()
+		if self.file_exists(filename):
+			if literal:
+				if match_regexp == None:
+					#            v the space is intentional, to avoid polluting bash history.
+					shutit_global.shutit.send(""" grep -v '^""" + line + """$' """ + filename + ' > ' + tmp_filename, shutit_pexpect_child=self.pexpect_child, exit_values=['0', '1'], echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
+				else:
+					if not shutit_util.check_regexp(match_regexp):
+						shutit_global.shutit.fail('Illegal regexp found in remove_line_from_file call: ' + match_regexp)
+					#            v the space is intentional, to avoid polluting bash history.
+					shutit_global.shutit.send(""" grep -v '^""" + match_regexp + """$' """ + filename + ' > ' + tmp_filename, shutit_pexpect_child=self.pexpect_child, exit_values=['0', '1'], echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
+			else:
+				if match_regexp == None:
+					#          v the space is intentional, to avoid polluting bash history.
+					shutit_global.shutit.send(' grep -v "^' + line + '$" ' + filename + ' > ' + tmp_filename, shutit_pexpect_child=self.pexpect_child, exit_values=['0', '1'], echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
+				else:
+					if not shutit_util.check_regexp(match_regexp):
+						shutit_global.shutit.fail('Illegal regexp found in remove_line_from_file call: ' + match_regexp)
+					#          v the space is intentional, to avoid polluting bash history.
+					shutit_global.shutit.send(' grep -v "^' + match_regexp + '$" ' + filename + ' > ' + tmp_filename, shutit_pexpect_child=self.pexpect_child, exit_values=['0', '1'], echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
+			shutit_global.shutit.send(' cat ' + tmp_filename + ' > ' + filename, shutit_pexpect_child=self.pexpect_child, check_exit=False, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
+			shutit_global.shutit.send(' rm -f ' + tmp_filename, shutit_pexpect_child=self.pexpect_child, exit_values=['0', '1'], echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
+		shutit_global.shutit._handle_note_after(note=note)
+		return True
+
+
 	#TODO: create environment object
 	#TODO: review items in cfg and see if they make more sense in the pexpect object
 	#TODO: replace 'target' in cfg

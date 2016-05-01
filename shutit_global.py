@@ -1057,11 +1057,9 @@ $'"""
 
 
 
-	# TODO: move to shutit_pexpect, pass through
 	def remove_line_from_file(self,
 							  line,
 							  filename,
-							  expect=None,
 							  shutit_pexpect_child=None,
 							  match_regexp=None,
 							  literal=False,
@@ -1092,34 +1090,8 @@ $'"""
 		@rtype:               boolean
 		"""
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
-		expect = expect or self.get_current_shutit_pexpect_session().default_expect
 		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
-		self._handle_note(note)
-		# assume we're going to add it
-		tmp_filename = '/tmp/' + shutit_util.random_id()
-		if shutit_pexpect_session.file_exists(filename, expect=expect):
-			if literal:
-				if match_regexp == None:
-					#            v the space is intentional, to avoid polluting bash history.
-					self.send(""" grep -v '^""" + line + """$' """ + filename + ' > ' + tmp_filename, expect=expect, shutit_pexpect_child=shutit_pexpect_child, exit_values=['0', '1'], echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
-				else:
-					if not shutit_util.check_regexp(match_regexp):
-						shutit.fail('Illegal regexp found in remove_line_from_file call: ' + match_regexp)
-					#            v the space is intentional, to avoid polluting bash history.
-					self.send(""" grep -v '^""" + match_regexp + """$' """ + filename + ' > ' + tmp_filename, expect=expect, shutit_pexpect_child=shutit_pexpect_child, exit_values=['0', '1'], echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
-			else:
-				if match_regexp == None:
-					#          v the space is intentional, to avoid polluting bash history.
-					self.send(' grep -v "^' + line + '$" ' + filename + ' > ' + tmp_filename, expect=expect, shutit_pexpect_child=shutit_pexpect_child, exit_values=['0', '1'], echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
-				else:
-					if not shutit_util.check_regexp(match_regexp):
-						shutit.fail('Illegal regexp found in remove_line_from_file call: ' + match_regexp)
-					#          v the space is intentional, to avoid polluting bash history.
-					self.send(' grep -v "^' + match_regexp + '$" ' + filename + ' > ' + tmp_filename, expect=expect, shutit_pexpect_child=shutit_pexpect_child, exit_values=['0', '1'], echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
-			self.send(' cat ' + tmp_filename + ' > ' + filename, expect=expect, shutit_pexpect_child=shutit_pexpect_child, check_exit=False, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
-			self.send(' rm -f ' + tmp_filename, expect=expect, shutit_pexpect_child=shutit_pexpect_child, exit_values=['0', '1'], echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
-		self._handle_note_after(note=note)
-		return True
+		return shutit_pexpect_session.remove_line_from_file(line,filename,match_regexp=match_regexp,literal=literal,note=note,delaybeforesend=delaybeforesend,loglevel=loglevel)
 
 
 	def change_text(self,
