@@ -378,7 +378,7 @@ class ShutItPexpectSession(object):
 		@rtype: string
 		"""
 		shutit_global.shutit._handle_note(note)
-		res = shutit_global.shutit.send_and_get_output(' whoami',shutit_pexpect_child=self.pexpect_child,echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend).strip()
+		res = self.send_and_get_output(' whoami',echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend).strip()
 		shutit_global.shutit._handle_note_after(note=note)
 		return res
 
@@ -659,7 +659,7 @@ class ShutItPexpectSession(object):
 		test_type = '-d' if directory is True else '-a'
 		#       v the space is intentional, to avoid polluting bash history.
 		test = ' test %s %s' % (test_type, filename)
-		output = shutit_global.shutit.send_and_get_output(test + ' && echo FILEXIST-""FILFIN || echo FILNEXIST-""FILFIN', shutit_pexpect_child=self.pexpect_child, record_command=False, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
+		output = self.send_and_get_output(test + ' && echo FILEXIST-""FILFIN || echo FILNEXIST-""FILFIN', record_command=False, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
 		res = shutit_util.match_string(output, '^(FILEXIST|FILNEXIST)-FILFIN$')
 		ret = False
 		if res == 'FILEXIST':
@@ -961,7 +961,7 @@ class ShutItPexpectSession(object):
 	                      delaybeforesend=0,
 	                      loglevel=logging.DEBUG):
 		shutit_global.shutit._handle_note(note)
-		if shutit_global.shutit.send_and_get_output(' command -v ' + command, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend) != '':
+		if self.send_and_get_output(' command -v ' + command, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend) != '':
 			return True
 		else:
 			return False
@@ -987,7 +987,7 @@ class ShutItPexpectSession(object):
 				# Bit of a hack here to get round the long command showing up as the first line of the output.
 				cmd = 'find ' + cfg['build']['build_db_dir'] + r"""/module_record/ -name built | sed 's@^.""" + cfg['build']['build_db_dir'] + r"""/module_record.\([^/]*\).built@\1@' > """ + cfg['build']['build_db_dir'] + '/' + cfg['build']['build_id']
 				shutit_global.shutit.send(' ' + cmd, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
-				built = shutit_global.shutit.send_and_get_output('cat ' + cfg['build']['build_db_dir'] + '/' + cfg['build']['build_id'], echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend).strip()
+				built = self.send_and_get_output('cat ' + cfg['build']['build_db_dir'] + '/' + cfg['build']['build_id'], echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend).strip()
 				shutit_global.shutit.send(' rm -rf ' + cfg['build']['build_db_dir'] + '/' + cfg['build']['build_id'], echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
 				built_list = built.split('\r\n')
 				cfg['environment'][cfg['build']['current_environment_id']]['modules_recorded'] = built_list
@@ -1019,7 +1019,7 @@ class ShutItPexpectSession(object):
 		shutit_global.shutit._handle_note(note)
 		if not self.file_exists(directory,directory=True):
 			shutit_global.shutit.fail('ls: directory\n\n' + directory + '\n\ndoes not exist', throw_exception=False)
-		files = shutit_global.shutit.send_and_get_output(' ls ' + directory,echo=False, loglevel=loglevel, fail_on_empty_before=False, delaybeforesend=delaybeforesend)
+		files = self.send_and_get_output(' ls ' + directory,echo=False, loglevel=loglevel, fail_on_empty_before=False, delaybeforesend=delaybeforesend)
 		files = files.split(' ')
 		# cleanout garbage from the terminal - all of this is necessary cause there are
 		# random return characters in the middle of the file names
@@ -1168,13 +1168,13 @@ class ShutItPexpectSession(object):
 		cfg = shutit_global.shutit.cfg
 		shutit_global.shutit._handle_note(note)
 		if cfg['environment'][cfg['build']['current_environment_id']]['distro'] == 'osx':
-			memavail = shutit_global.shutit.send_and_get_output("""vm_stat | grep ^Pages.free: | awk '{print $3}' | tr -d '.'""",shutit_pexpect_child=self.pexpect_child,timeout=3,echo=False, delaybeforesend=delaybeforesend)
+			memavail = self.send_and_get_output("""vm_stat | grep ^Pages.free: | awk '{print $3}' | tr -d '.'""",timeout=3,echo=False, delaybeforesend=delaybeforesend)
 			memavail = int(memavail)
 			memavail *= 4
 		else:
-			memavail = shutit_global.shutit.send_and_get_output("""cat /proc/meminfo  | grep MemAvailable | awk '{print $2}'""",shutit_pexpect_child=self.pexpect_child,timeout=3,echo=False, delaybeforesend=delaybeforesend)
+			memavail = self.send_and_get_output("""cat /proc/meminfo  | grep MemAvailable | awk '{print $2}'""",timeout=3,echo=False, delaybeforesend=delaybeforesend)
 			if memavail == '':
-				memavail = shutit_global.shutit.send_and_get_output("""free | grep buffers.cache | awk '{print $3}'""",shutit_pexpect_child=self.pexpect_child,timeout=3,echo=False, delaybeforesend=delaybeforesend)
+				memavail = self.send_and_get_output("""free | grep buffers.cache | awk '{print $3}'""",timeout=3,echo=False, delaybeforesend=delaybeforesend)
 			memavail = int(memavail)
 		shutit_global.shutit._handle_note_after(note=note)
 		return memavail
@@ -1280,7 +1280,7 @@ class ShutItPexpectSession(object):
 		"""
 		shutit_global.shutit._handle_note(note)
 		shutit_global.shutit.log('Matching output from: "' + send + '" to one of these regexps:' + str(matches),level=logging.INFO)
-		output = shutit_global.shutit.send_and_get_output(send, shutit_pexpect_child=self.pexpect_child, retry=retry, strip=strip, echo=echo, loglevel=loglevel, delaybeforesend=delaybeforesend)
+		output = self.send_and_get_output(send, retry=retry, strip=strip, echo=echo, loglevel=loglevel, delaybeforesend=delaybeforesend)
 		if type(matches) == str:
 			matches = [matches]
 		shutit_global.shutit._handle_note_after(note=note)
@@ -1397,9 +1397,207 @@ class ShutItPexpectSession(object):
 		@rtype: string
 		"""
 		shutit_global.shutit._handle_note(note)
-		res = shutit_global.shutit.send_and_get_output(' id -n -g',echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend).strip()
+		res = self.send_and_get_output(' id -n -g',echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend).strip()
 		shutit_global.shutit._handle_note_after(note=note)
 		return res
+
+
+
+
+	# TODO: environment_id within this object
+	def get_distro_info(self,
+	                    environment_id,
+	                    delaybeforesend=0,
+	                    loglevel=logging.DEBUG):
+		"""Get information about which distro we are using, placing it in the cfg['environment'][environment_id] as a side effect.
+
+		Fails if distro could not be determined.
+		Should be called with the container is started up, and uses as core info
+		as possible.
+
+		Note: if the install type is apt, it issues the following:
+		    - apt-get update
+		    - apt-get install -y -qq lsb-release
+
+		@param container:   If True, we are in the container shell, otherwise we are gathering info about another shell. Defaults to True.
+
+		@type container:    boolean
+		"""
+		cfg = shutit_global.shutit.cfg
+		install_type   = ''
+		distro         = ''
+		distro_version = ''
+		cfg['environment'][environment_id]['install_type']      = ''
+		cfg['environment'][environment_id]['distro']            = ''
+		cfg['environment'][environment_id]['distro_version']    = ''
+		# A list of OS Family members
+		# Suse      = SLES, SLED, OpenSuSE, Suse
+		# Archlinux = Archlinux
+		# Mandrake  = Mandriva, Mandrake
+		# Solaris   = Solaris, Nexenta, OmniOS, OpenIndiana, SmartOS
+		# AIX       = AIX
+		# FreeBSD   = FreeBSD
+		# HP-UK     = HPUX
+		#    OSDIST_DICT = { '/etc/redhat-release': 'RedHat',
+		#                    '/etc/vmware-release': 'VMwareESX',
+		#                    '/etc/openwrt_release': 'OpenWrt',
+		#                    '/etc/system-release': 'OtherLinux',
+		#                    '/etc/release': 'Solaris',
+		#                    '/etc/arch-release': 'Archlinux',
+		#                    '/etc/SuSE-release': 'SuSE',
+		#                    '/etc/gentoo-release': 'Gentoo',
+		#                    '/etc/os-release': 'Debian' }
+		#    # A list of dicts.  If there is a platform with more than one package manager, put the preferred one last.  If there is an ansible module, use that as the value for the 'name' key.
+		#    PKG_MGRS = [
+		#                 { 'path' : '/usr/bin/zypper',      'name' : 'zypper' },
+		#                 { 'path' : '/usr/sbin/urpmi',      'name' : 'urpmi' },
+		#                 { 'path' : '/usr/bin/pacman',      'name' : 'pacman' },
+		#                 { 'path' : '/bin/opkg',            'name' : 'opkg' },
+		#                 { 'path' : '/opt/local/bin/pkgin', 'name' : 'pkgin' },
+		#                 { 'path' : '/opt/local/bin/port',  'name' : 'macports' },
+		#                 { 'path' : '/usr/sbin/pkg',        'name' : 'pkgng' },
+		#                 { 'path' : '/usr/sbin/swlist',     'name' : 'SD-UX' },
+		#                 { 'path' : '/usr/sbin/pkgadd',     'name' : 'svr4pkg' },
+		#                 { 'path' : '/usr/bin/pkg',         'name' : 'pkg' },
+		#    ]
+		if cfg['build']['distro_override'] != '':
+			key = cfg['build']['distro_override']
+			distro = cfg['build']['distro_override']
+			install_type = package_map.INSTALL_TYPE_MAP[key]
+			distro_version = ''
+			if install_type == 'apt' and cfg['build']['delivery'] in ('docker','dockerfile'):
+				if not self.command_available('lsb_release'):
+					if not cfg['build']['apt_update_done']:
+						cfg['build']['apt_update_done'] = True
+						shutit_global.shutit.send('apt-get update && apt-get install -y -qq lsb-release',loglevel=loglevel,delaybeforesend=delaybeforesend)
+				d = self.lsb_release()
+				install_type   = d['install_type']
+				distro         = d['distro']
+				distro_version = d['distro_version']
+			elif install_type == 'yum' and cfg['build']['delivery'] in ('docker', 'dockerfile'):
+				if not cfg['build']['yum_update_done']:
+					cfg['build']['yum_update_done'] = True
+					shutit_global.shutit.send('yum update -y',exit_values=['0','1'],loglevel=logging.INFO,delaybeforesend=delaybeforesend)
+				if self.file_exists('/etc/redhat-release'):
+					output = self.send_and_get_output('cat /etc/redhat-release',echo=False, loglevel=loglevel,delaybeforesend=delaybeforesend)
+					if re.match('^centos.*$', output.lower()) or re.match('^red hat.*$', output.lower()) or re.match('^fedora.*$', output.lower()) or True:
+						self.send_and_match_output('yum install -y -t redhat-lsb epel-release','Complete!',loglevel=loglevel,delaybeforesend=delaybeforesend)
+				else:
+					if not self.command_available('lsb_release'):
+						shutit_global.shutit.send('yum install -y lsb-release',loglevel=loglevel,delaybeforesend=delaybeforesend)
+				install_type   = d['install_type']
+				distro         = d['distro']
+				distro_version = d['distro_version']
+			elif install_type == 'apk' and cfg['build']['delivery'] in ('docker','dockerfile'):
+				if not cfg['build']['apk_update_done']:
+					cfg['build']['apk_update_done'] = True
+					shutit_global.shutit.send('apk update',loglevel=logging.INFO,delaybeforesend=delaybeforesend)
+				shutit_global.shutit.send('apk add bash',loglevel=loglevel,delaybeforesend=delaybeforesend)
+				install_type   = 'apk'
+				distro         = 'alpine'
+				distro_version = '1.0'
+			elif install_type == 'emerge' and cfg['build']['delivery'] in ('docker','dockerfile'):
+				shutit_global.shutit.send('emerge --sync',loglevel=loglevel,delaybeforesend=delaybeforesend)
+				install_type = 'emerge'
+				distro = 'gentoo'
+				distro_version = '1.0'
+			elif install_type == 'docker' and cfg['build']['delivery'] in ('docker','dockerfile'):
+				distro = 'coreos'
+				distro_version = '1.0'
+		elif cfg['environment'][environment_id]['setup'] and shutit_pexpect_session.command_available('lsb_release'):
+			d = self.lsb_release()
+			install_type   = d['install_type']
+			distro         = d['distro']
+			distro_version = d['distro_version']
+		else:
+			# Don't check for existence of file to save a little time.
+			issue_output = self.send_and_get_output(' cat /etc/issue',echo=False, loglevel=loglevel,delaybeforesend=delaybeforesend).lower()
+			if not re.match('.*No such file.*',issue_output):
+				for key in package_map.INSTALL_TYPE_MAP.keys():
+					if issue_output.find(key) != -1:
+						distro       = key
+						install_type = package_map.INSTALL_TYPE_MAP[key]
+						break
+			elif self.file_exists('/cygdrive'):
+				distro       = 'cygwin'
+				install_type = 'apt-cyg'
+			if install_type == '' or distro == '':
+				if self.file_exists('/etc/os-release'):
+					os_name = self.send_and_get_output(' cat /etc/os-release | grep ^NAME',echo=False, loglevel=loglevel,delaybeforesend=delaybeforesend).lower()
+					if os_name.find('centos') != -1:
+						distro       = 'centos'
+						install_type = 'yum'
+					elif os_name.find('red hat') != -1:
+						distro       = 'red hat'
+						install_type = 'yum'
+					elif os_name.find('fedora') != -1:
+						# TODO: distinguish with dnf - fedora 23+? search for dnf in here
+						distro       = 'fedora'
+						install_type = 'yum'
+					elif os_name.find('gentoo') != -1:
+						distro       = 'gentoo'
+						install_type = 'emerge'
+					elif os_name.find('coreos') != -1:
+						distro       = 'coreos'
+						install_type = 'docker'
+				elif self.send_and_get_output("uname -a | awk '{print $1}'",echo=False, loglevel=loglevel,delaybeforesend=delaybeforesend) == 'Darwin':
+					distro = 'osx'
+					install_type = 'brew'
+					if not self.command_available('brew'):
+						shutit_global.shutit.fail('ShutiIt requires brew be installed. See http://brew.sh for details on installation.')
+					for package in ('coreutils','findutils','gnu-tar','gnu-sed','gawk','gnutls','gnu-indent','gnu-getopt'):
+						if self.send_and_get_output('brew list | grep -w ' + package,echo=False, loglevel=loglevel,delaybeforesend=delaybeforesend) == '':
+							shutit_global.shutit.send('brew install ' + package,loglevel=loglevel,delaybeforesend=delaybeforesend)
+				if install_type == '' or distro == '':
+					shutit_global.shutit.fail('Could not determine Linux distro information. ' + 'Please inform ShutIt maintainers.', shutit_pexpect_child=shutit_pexpect_child)
+			# The call to self.package_installed with lsb-release above
+			# may fail if it doesn't know the install type, so
+			# if we've determined that now
+			if install_type == 'apt' and cfg['build']['delivery'] in ('docker','dockerfile'):
+				if not self.command_available('lsb_release'):
+					if not cfg['build']['apt_update_done']:
+						cfg['build']['apt_update_done'] = True
+						shutit_global.shutit.send('apt-get update && apt-get install -y -qq lsb-release',loglevel=loglevel,delaybeforesend=delaybeforesend)
+					cfg['build']['apt_update_done'] = True
+					shutit_global.shutit.send('apt-get install -y -qq lsb-release',loglevel=loglevel,delaybeforesend=delaybeforesend)
+				d = self.lsb_release()
+				install_type   = d['install_type']
+				distro         = d['distro']
+				distro_version = d['distro_version']
+			elif install_type == 'yum' and cfg['build']['delivery'] in ('docker','dockerfile'):
+				if self.file_exists('/etc/redhat-release'):
+					output = shutit_global.shutit.send_and_get_output('cat /etc/redhat-release',echo=False, loglevel=loglevel,delaybeforesend=delaybeforesend)
+					if re.match('^centos.*$', output.lower()) or re.match('^red hat.*$', output.lower()) or re.match('^fedora.*$', output.lower()) or True:
+						self.send_and_match_output('yum install -y -t redhat-lsb epel-release','Complete!',loglevel=loglevel,delaybeforesend=delaybeforesend)
+				else:
+					if not self.command_available('lsb_release'):
+						shutit_global.shutit.send('yum install -y lsb-release',loglevel=loglevel,delaybeforesend=delaybeforesend)
+				d = self.lsb_release()
+				install_type   = d['install_type']
+				distro         = d['distro']
+				distro_version = d['distro_version']
+			elif install_type == 'apk' and cfg['build']['delivery'] in ('docker','dockerfile'):
+				if not cfg['build']['apk_update_done']:
+					cfg['build']['apk_update_done'] = True
+					shutit_global.shutit.send('apk update',loglevel=logging.INFO,delaybeforesend=delaybeforesend)
+				shutit_global.shutit.send('apk install bash',loglevel=loglevel,delaybeforesend=delaybeforesend)
+				install_type   = 'apk'
+				distro         = 'alpine'
+				distro_version = '1.0'
+			elif install_type == 'emerge' and cfg['build']['delivery'] in ('docker','dockerfile'):
+				if not cfg['build']['emerge_update_done']:
+					shutit_global.shutit.send('emerge --sync',loglevel=logging.INFO,delaybeforesend=delaybeforesend)
+				install_type = 'emerge'
+				distro = 'gentoo'
+				distro_version = '1.0'
+		# We should have the distro info now, let's assign to target config
+		# if this is not a one-off.
+		cfg['environment'][environment_id]['install_type']   = install_type
+		cfg['environment'][environment_id]['distro']         = distro
+		cfg['environment'][environment_id]['distro_version'] = distro_version
+
+
+
 
 	#TODO: create environment object
 	#TODO: review items in cfg and see if they make more sense in the pexpect object
