@@ -227,8 +227,6 @@ class ShutIt(object):
 		return shutit_pexpect_session.send_until(send,regexps,not_there=not_there,cadence=cadence,retries=retries,echo=echo,note=note,delaybeforesend=delaybeforesend,loglevel=loglevel)
 
 
-	# TODO: self.send etc
-	# TODO: move to shutit_pexpect, pass through
 	def challenge(self,
                   task_desc,
                   expect=None,
@@ -263,157 +261,24 @@ class ShutIt(object):
 		"""
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
 		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
-		# don't catch CTRL-C, pass it through.
-		self.cfg['build']['ctrlc_passthrough'] = True
-		preserve_newline                       = False
-		skipped                                = False
-		if expect_type == 'regexp':
-			if type(expect) == str:
-				expect = [expect]
-			if type(expect) != list:
-				self.fail('expect_regexps should be list')
-		elif expect_type == 'md5sum':
-			preserve_newline = True
-			pass
-		elif expect_type == 'exact':
-			pass
-		else:
-			self.fail('Must pass either expect_regexps or md5sum in')
-		if len(hints):
-			cfg['build']['pause_point_hints'] = hints
-		else:
-			cfg['build']['pause_point_hints'] = []
-		if challenge_type == 'command':
-			help_text = shutit_util.colourise('32','''\nType 'help' or 'h' to get a hint, 'exit' to skip, 'shutitreset' to reset state.''')
-			ok = False
-			while not ok:
-				self.log(shutit_util.colourise('32','''\nChallenge!'''),transient=True)
-				if len(hints):
-					self.log(shutit_util.colourise('32',help_text),transient=True)
-				time.sleep(pause)
-				# TODO: bash path completion
-				send = shutit_util.get_input(task_desc + ' => ',colour='31')
-				if not send or send.strip() == '':
-					continue
-				if send in ('help','h'):
-					if len(hints):
-						self.log(help_text,transient=True)
-						self.log(shutit_util.colourise('32',hints.pop()),transient=True)
-					else:
-						self.log(help_text,transient=True)
-						self.log(shutit_util.colourise('32','No hints left, sorry! CTRL-g to reset state, CTRL-s to skip this step'),transient=True)
-					time.sleep(pause)
-					continue
-				if send == 'shutitreset':
-					shutit_pexpect_session._challenge_done(result='reset',follow_on_context=follow_on_context)
-					continue
-				if send == 'shutitquit':
-					shutit_pexpect_session._challenge_done(result='reset',follow_on_context=follow_on_context)
-					shutit_util.handle_exit(exit_code=1)
-				if send == 'exit':
-					shutit_pexpect_session._challenge_done(result='exited',follow_on_context=follow_on_context)
-					cfg['build']['pause_point_hints'] = []
-					return True
-				output = self.send_and_get_output(send,shutit_pexpect_child=shutit_pexpect_child,timeout=timeout,retry=1,record_command=record_command,echo=echo, loglevel=loglevel, fail_on_empty_before=False, preserve_newline=preserve_newline, delaybeforesend=delaybeforesend)
-				md5sum_output = md5.md5(output).hexdigest()
-				self.log('output: ' + output + ' is md5sum: ' + md5sum_output,level=logging.DEBUG)
-				if expect_type == 'md5sum':
-					output = md5sum_output
-					if output == expect:
-						ok = True
-				elif expect_type == 'exact':
-					if output == expect:
-						ok = True
-				elif expect_type == 'regexp':
-					for regexp in expect:
-						if shutit_util.match_string(output,regexp):
-							ok = True
-							break
-				if not ok and failed:
-					self.log('\n\n' + shutit_util.colourise('32','failed') + '\n',transient=True)
-					shutit_pexpect_session._challenge_done(result='failed')
-					continue
-		elif challenge_type == 'golf':
-			# pause, and when done, it checks your working based on check_command.
-			ok = False
-			# hints
-			if len(hints):
-				task_desc_new = task_desc + '\r\n\r\nHit CTRL-h for help, CTRL-g to reset state, CTRL-s to skip'
-			else:
-				task_desc_new = task_desc
-			while not ok:
-				shutit_pexpect_session.pause_point(shutit_util.colourise('31',task_desc_new),colour='31') # TODO: message
-				if cfg['SHUTIT_SIGNAL']['ID'] == 8:
-					if len(cfg['build']['pause_point_hints']):
-						self.log(shutit_util.colourise('31','\r\n========= HINT ==========\r\n\r\n' + cfg['build']['pause_point_hints'].pop(0)),transient=True)
-					else:
-						self.log(shutit_util.colourise('31','\r\n\r\n' + 'No hints available!'),transient=True)
-					time.sleep(1)
-					# clear the signal
-					cfg['SHUTIT_SIGNAL']['ID'] = 0
-					continue
-				elif cfg['SHUTIT_SIGNAL']['ID'] == 7:
-					self.log(shutit_util.colourise('31','\r\n========= RESETTING STATE ==========\r\n\r\n'),transient=True)
-					shutit_pexpect_session._challenge_done(result='reset', follow_on_context=follow_on_context)
-					# clear the signal
-					cfg['SHUTIT_SIGNAL']['ID'] = 0
-					self.challenge(
-						task_desc=task_desc,
-						expect=expect,
-						hints=hints,
-						congratulations=congratulations,
-						failed=failed,
-						expect_type=expect_type,
-						challenge_type=challenge_type,
-						shutit_pexpect_child=None,
-						timeout=timeout,
-						check_exit=check_exit,
-						fail_on_empty_before=fail_on_empty_before,
-						record_command=record_command,
-						exit_values=exit_values,
-						echo=echo,
-						escape=escape,
-						pause=pause,
-						loglevel=loglevel,
-	                    delaybeforesend=0,
-						follow_on_context=follow_on_context
-					)
-					return True
-				elif cfg['SHUTIT_SIGNAL']['ID'] == 19:
-					# Clear the signal.
-					cfg['SHUTIT_SIGNAL']['ID'] = 0
-					# Skip test.
-					shutit.log('Test skipped',level=logging.INFO)
-					skipped=True
-					break
-				shutit.log('State submitted, checking your work...',level=logging.INFO)
-				check_command = follow_on_context.get('check_command')
-				output = self.send_and_get_output(check_command,shutit_pexpect_child=shutit_pexpect_child,timeout=timeout,retry=1,record_command=record_command,echo=False, loglevel=loglevel, fail_on_empty_before=False, preserve_newline=preserve_newline, delaybeforesend=delaybeforesend)
-				self.log('output: ' + output,level=logging.DEBUG)
-				md5sum_output = md5.md5(output).hexdigest()
-				if expect_type == 'md5sum':
-					self.log('output: ' + output + ' is md5sum: ' + md5sum_output,level=logging.DEBUG)
-					output = md5sum_output
-					if output == expect:
-						ok = True
-				elif expect_type == 'exact':
-					if output == expect:
-						ok = True
-				elif expect_type == 'regexp':
-					for regexp in expect:
-						if shutit_util.match_string(output,regexp):
-							ok = True
-							break
-				if not ok and failed:
-					shutit.log('\n\n' + shutit_util.colourise('31','Failed! CTRL-g to reset state, CTRL-h for a hint') + '\n',transient=True)
-					shutit_pexpect_session._challenge_done(result='failed')
-					continue
-		else:
-			self.fail('Challenge type: ' + challenge_type + ' not supported')
-		shutit_pexpect_session._challenge_done(result='ok',follow_on_context=follow_on_context,congratulations=congratulations,skipped=skipped)
-		# Tidy up hints
-		cfg['build']['pause_point_hints'] = []
-		return True
+		return shutit_pexpect_session.challenge(task_desc=task_desc,
+  		                                        expect=expect,
+		                                        hints=hints,
+		                                        congratulations=congratulations,
+		                                        failed=failed,
+		                                        expect_type=expect_type,
+		                                        challenge_type=challenge_type,
+		                                        timeout=timeout,
+		                                        check_exit=check_exit,
+		                                        fail_on_empty_before=fail_on_empty_before,
+		                                        record_command=record_command,
+		                                        exit_values=exit_values,
+		                                        echo=echo,
+		                                        escape=escape,
+		                                        pause=pause,
+		                                        loglevel=loglevel,
+	                                            delaybeforesend=0,
+		                                        follow_on_context=follow_on_context)
 	# Alternate names
 	practice = challenge
 	golf     = challenge
