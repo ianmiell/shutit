@@ -2,27 +2,27 @@
 off to internal objects such as shutit_pexpect.
 """
 
-#The MIT License (MIT)
-#
-#Copyright (C) 2014 OpenBet Limited
-#
-#Permission is hereby granted, free of charge, to any person obtaining a copy of
-#this software and associated documentation files (the "Software"), to deal in
-#the Software without restriction, including without limitation the rights to
-#use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
-#of the Software, and to permit persons to whom the Software is furnished to do
-#so, subject to the following conditions:
-#
-#The above copyright notice and this permission notice shall be included in all
-#copies or substantial portions of the Software.
-#
-#THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-#IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-#ITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
-#THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-#LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-#OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-#SOFTWARE.
+# The MIT License (MIT)
+# 
+# Copyright (C) 2014 OpenBet Limited
+# 
+# Permission is hereby granted, free of charge, to any person obtaining a copy of
+# this software and associated documentation files (the "Software"), to deal in
+# the Software without restriction, including without limitation the rights to
+# use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+# of the Software, and to permit persons to whom the Software is furnished to do
+# so, subject to the following conditions:
+# 
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+# 
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# ITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+# THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
 
 import sys
 import os
@@ -43,11 +43,10 @@ class ShutIt(object):
 	Represents an instance of a ShutIt run/session/build with associated config.
 	"""
 
-	def __init__(self, **kwargs):
+	def __init__(self, cfg):
 		"""Constructor.
 		Sets up:
 
-				- shutit_pexpect_sessions - pexpect objects representing shell interactions
 				- shutit_modules          - representation of loaded shutit modules
 				- shutit_main_dir         - directory in which shutit is located
 				- cfg                     - dictionary of configuration of build
@@ -55,14 +54,12 @@ class ShutIt(object):
 		"""
 		# These used to be in shutit_global, so we pass them in as args so
 		# the original reference can be put in shutit_global
-		self.current_shutit_pexpect_session = kwargs['current_shutit_pexpect_session']
-		self.shutit_pexpect_sessions        = kwargs['shutit_pexpect_sessions']
-		self.shutit_modules                 = kwargs['shutit_modules']
-		self.shutit_main_dir                = kwargs['shutit_main_dir']
-		self.cfg                            = kwargs['cfg']
-		self.cwd                            = kwargs['cwd']
-		self.shutit_command_history         = kwargs['shutit_command_history']
-		self.shutit_map                     = kwargs['shutit_map']
+		self.current_shutit_pexpect_session = None
+		self.shutit_pexpect_sessions        = {}
+		self.shutit_modules                 = set()
+		self.shutit_main_dir                = os.path.abspath(os.path.dirname(__file__)) 
+		self.cfg                            = cfg
+		self.shutit_map                     = {}
 		# These are new members we dont have to provide compatibility for
 		self.conn_modules = set()
 
@@ -1704,34 +1701,22 @@ class ShutIt(object):
 def init():
 	"""Initialize the shutit object. Called when imported.
 	"""
-	global shutit_pexpect_sessions
-	global shutit_modules
-	global shutit_main_dir
 	global cfg
-	global shutit_command_history
-	global shutit_map
-	global shutit
 
-	current_shutit_pexpect_session = None
-	shutit_pexpect_sessions      = {}
-	shutit_map                   = {}
-	shutit_modules               = set()
-	shutit_command_history       = []
 	# Store the root directory of this application.
 	# http://stackoverflow.com/questions/5137497
-	shutit_main_dir = os.path.abspath(os.path.dirname(__file__))
-	global cfg
 	cfg = {}
-	cfg['SHUTIT_SIGNAL']                  = {}
-	cfg['action']                         = {}
-	cfg['build']                          = {}
-	cfg['build']['interactive']           = 1 # Default to true until we know otherwise
-	cfg['build']['report']                = ''
-	cfg['build']['report_final_messages'] = ''
-	cfg['build']['loglevel']              = logging.INFO
-	cfg['build']['completed']             = False
-	cfg['build']['mount_docker']          = False
-	cfg['build']['distro_override']       = ''
+	cfg['SHUTIT_SIGNAL']                   = {}
+	cfg['action']                          = {}
+	cfg['build']                           = {}
+	cfg['build']['interactive']            = 1 # Default to true until we know otherwise
+	cfg['build']['report']                 = ''
+	cfg['build']['report_final_messages']  = ''
+	cfg['build']['loglevel']               = logging.INFO
+	cfg['build']['completed']              = False
+	cfg['build']['mount_docker']           = False
+	cfg['build']['distro_override']        = ''
+	cfg['build']['shutit_command_history'] = []
 	# Whether to honour 'walkthrough' requests
 	cfg['build']['walkthrough']           = False
 	cfg['build']['walkthrough_wait']      = -1
@@ -1755,7 +1740,7 @@ def init():
 		except Exception:
 			cfg['host']['username'] = getpass.getuser()
 		if cfg['host']['username'] == '':
-			shutit.fail('LOGNAME not set in the environment, ' + 'and login unavailable in python; ' + 'please set to your username.', throw_exception=False)
+			shutit_util.handle_exit(msg='LOGNAME not set in the environment, ' + 'and login unavailable in python; ' + 'please set to your username.', exit_code=1)
 	cfg['host']['real_user'] = os.environ.get('SUDO_USER', cfg['host']['username'])
 	cfg['build']['shutit_state_dir_base'] = '/tmp/shutit_' + cfg['host']['username']
 	cfg['build']['build_id'] = (socket.gethostname() + '_' + cfg['host']['real_user'] + '_' + str(time.time()) + '.' + str(datetime.datetime.now().microsecond))
@@ -1763,13 +1748,7 @@ def init():
 	cfg['build']['build_db_dir']               = cfg['build']['shutit_state_dir'] + '/build_db'
 
 	return ShutIt(
-		shutit_pexpect_sessions=shutit_pexpect_sessions,
-		current_shutit_pexpect_session=current_shutit_pexpect_session,
-		shutit_modules=shutit_modules,
-		shutit_main_dir=shutit_main_dir,
-		cfg=cfg,
-		shutit_command_history=shutit_command_history,
-		shutit_map=shutit_map
+		cfg=cfg
 	)
 
 shutit = init()

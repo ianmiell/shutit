@@ -1122,7 +1122,7 @@ def get_commands(shutit):
 	"""Gets command that have been run and have not been redacted.
 	"""
 	s = ''
-	for c in shutit.shutit_command_history:
+	for c in shutit.cfg['build']['shutit_command_history']:
 		if type(c) == str:
 			#Ignore commands with leading spaces
 			if c[0] != ' ':

@@ -68,7 +68,6 @@ class ShutItPexpectSession(object):
 		                                             maxread=maxread,
 		                                             searchwindowsize=searchwindowsize,
 		                                             logfile=logfile,
-		                                             cwd=cwd,
 		                                             env=env,
 		                                             ignore_sighup=ignore_sighup,
 		                                             echo=echo,
@@ -1972,13 +1971,13 @@ class ShutItPexpectSession(object):
 				if isinstance(cfg[i], dict):
 					for j in cfg[i].keys():
 						if ((j == 'password' or j == 'passphrase') and cfg[i][j] == send):
-							shutit_global.shutit.shutit_command_history.append ('#redacted command, password')
+							cfg['build']['shutit_command_history'].append ('#redacted command, password')
 							ok_to_record = False
 							break
 					if not ok_to_record:
 						break
 			if ok_to_record:
-				shutit_global.shutit.shutit_command_history.append(send)
+				cfg['build']['shutit_command_history'].append(send)
 		if send != None:
 			shutit_global.shutit.log('Sending: ' + send,level=loglevel)
 		if send != None:
@@ -2211,7 +2210,7 @@ $'"""
 		self.send(' mkdir -p ' + cfg['build']['shutit_state_dir'] + '/scripts && chmod 777 ' + cfg['build']['shutit_state_dir'] + '/scripts', echo=False,loglevel=loglevel, delaybeforesend=delaybeforesend)
 		self.send_file(cfg['build']['shutit_state_dir'] + '/scripts/shutit_script.sh', script, loglevel=loglevel, delaybeforesend=delaybeforesend)
 		self.send(' chmod +x ' + cfg['build']['shutit_state_dir'] + '/scripts/shutit_script.sh', echo=False,loglevel=loglevel, delaybeforesend=delaybeforesend)
-		shutit_global.shutit.shutit_command_history.append('    ' + script.replace('\n', '\n    '))
+		cfg['build']['shutit_command_history'].append('    ' + script.replace('\n', '\n    '))
 		if in_shell:
 			ret = self.send(' . ' + cfg['build']['shutit_state_dir'] + '/scripts/shutit_script.sh && rm -f ' + cfg['build']['shutit_state_dir'] + '/scripts/shutit_script.sh && rm -f ' + cfg['build']['shutit_state_dir'] + '/scripts/shutit_script.sh', echo=False,loglevel=loglevel, delaybeforesend=delaybeforesend)
 		else:
