@@ -104,6 +104,8 @@ class ShutIt(object):
 		self.shutit_map                     = {}
 		# These are new members we dont have to provide compatibility for
 		self.conn_modules = set()
+		# Environments are kept globally, as different sessions may re-connect to them.
+		self.shutit_pexpect_session_environments = []
 
 
 	def get_current_shutit_pexpect_session(self):

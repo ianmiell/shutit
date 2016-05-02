@@ -62,8 +62,7 @@ class ShutItPexpectSession(object):
 		self.default_expect      = [shutit_global.shutit.cfg['expect_prompts']['base_prompt']]
 		self.pexpect_session_id  = pexpect_session_id
 		self.login_stack         = []
-		# TODO: append to this when adding environment
-		self.environment_ids     = []
+		self.current_environment = None
 		self.pexpect_child       = self._spawn_child(command=command,
 		                                             args=args,
 		                                             timeout=timeout,
@@ -2477,9 +2476,7 @@ class ShutItPexpectSessionEnvironment(object):
 						if f != 'ORIGIN_ENV':
 							environment_id = f
 TODO UPDATE THIS SECTION
-LOOK UP ENVIRONMENT ID, SET THAT ONE TO _CURRENT_ ENVIRONMENT IN PEXPECT SESSION OBJECT
-AND RETURN THAT OBJECT. NEED TO GET ARRAY OF ENV OBJECTS RIGHT.
-AND ADD ENVIRONMENT ON EACH LOGIN
+LOOK UP ENVIRONMENT ID, SET THAT ONE TO _CURRENT_ ENVIRONMENT IN SHUTIT OBJECT AND RETURN THAT OBJECT. NEED TO GET ARRAY OF ENV OBJECTS RIGHT.  AND ADD ENVIRONMENT ON EACH LOGIN
 							cfg['build']['current_environment_id'] = environment_id
 							# Workaround for CygWin terminal issues. If the envid isn't in the cfg item
 							# Then crudely assume it is. This will drop through and then assume we are in the origin env.
