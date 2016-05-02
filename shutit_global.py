@@ -51,7 +51,6 @@ class ShutIt(object):
 				- shutit_modules          - representation of loaded shutit modules
 				- shutit_main_dir         - directory in which shutit is located
 				- cfg                     - dictionary of configuration of build
-				- cwd                     - working directory of build
 				- shutit_map              - maps module_ids to module objects
 		"""
 		# These used to be in shutit_global, so we pass them in as args so
@@ -1709,7 +1708,6 @@ def init():
 	global shutit_modules
 	global shutit_main_dir
 	global cfg
-	global cwd
 	global shutit_command_history
 	global shutit_map
 	global shutit
@@ -1722,7 +1720,6 @@ def init():
 	# Store the root directory of this application.
 	# http://stackoverflow.com/questions/5137497
 	shutit_main_dir = os.path.abspath(os.path.dirname(__file__))
-	cwd = os.getcwd()
 	global cfg
 	cfg = {}
 	cfg['SHUTIT_SIGNAL']                  = {}
@@ -1771,7 +1768,6 @@ def init():
 		shutit_modules=shutit_modules,
 		shutit_main_dir=shutit_main_dir,
 		cfg=cfg,
-		cwd=cwd,
 		shutit_command_history=shutit_command_history,
 		shutit_map=shutit_map
 	)
