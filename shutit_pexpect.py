@@ -62,6 +62,8 @@ class ShutItPexpectSession(object):
 		self.default_expect      = [shutit_global.shutit.cfg['expect_prompts']['base_prompt']]
 		self.pexpect_session_id  = pexpect_session_id
 		self.login_stack         = []
+		# TODO: append to this when adding environment
+		self.environment_ids     = []
 		self.pexpect_child       = self._spawn_child(command=command,
 		                                             args=args,
 		                                             timeout=timeout,
@@ -279,6 +281,7 @@ class ShutItPexpectSession(object):
 		self.default_expect = cfg['expect_prompts'][prompt_name]
 		# Ensure environment is set up OK.
 		self.setup_environment(prefix)
+		shutit_pexpect_session_env = ShutItPexpectSessionEnvironment(prefix,self)
 		return True
 
 
@@ -433,7 +436,7 @@ class ShutItPexpectSession(object):
 		cfg['environment'][environment_id]['setup']                        = False
 		# Exempt the ORIGIN_ENV from getting distro info
 		if prefix != 'ORIGIN_ENV':
-			shutit_global.shutit.get_distro_info(environment_id)
+			self.get_distro_info(environment_id)
 		fname = environment_id_dir + '/' + environment_id
 		self.send(' mkdir -p ' + environment_id_dir + ' && chmod -R 777 ' + cfg['build']['shutit_state_dir_base'] + ' && touch ' + fname, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
 		cfg['environment'][environment_id]['setup']                        = True
@@ -2457,6 +2460,71 @@ $'"""
 		return True
 
 
+class ShutItPexpectSessionEnvironment(object):
+
+	def __init__(self,
+	             prefix,
+	             shutit_pexpect_session):
+		cfg = shutit_global.shutit.cfg
+		environment_id_dir = cfg['build']['shutit_state_dir'] + '/environment_id'
+		if shutit_pexpect_session.file_exists(environment_id_dir,directory=True):
+			files = shutit_pexpect_session.ls(environment_id_dir)
+			# TODO: remainder of logic from setup_environment, culminating in the 
+			# return of a ShutItPexpectEnvironment object. See below.
+			if len(files) != 1 or type(files) != list:
+				if len(files) == 2 and (files[0] == 'ORIGIN_ENV' or files[1] == 'ORIGIN_ENV'):
+					for f in files:
+						if f != 'ORIGIN_ENV':
+							environment_id = f
+TODO UPDATE THIS SECTION
+LOOK UP ENVIRONMENT ID, SET THAT ONE TO CURRENT ENVIRONMENT IN PEXPECT SESSION OBJECT
+AND RETURN THAT OBJECT. NEED TO GET ARRAY OF ENV OBJECTS RIGHT.
+							cfg['build']['current_environment_id'] = environment_id
+							# Workaround for CygWin terminal issues. If the envid isn't in the cfg item
+							# Then crudely assume it is. This will drop through and then assume we are in the origin env.
+							try:
+								_=cfg['environment'][cfg['build']['current_environment_id']]
+							except Exception:
+								cfg['build']['current_environment_id'] = 'ORIGIN_ENV'
+							break
+				else:
+					# See comment above re: cygwin.
+					if self.file_exists('/cygdrive'):
+						cfg['build']['current_environment_id'] = 'ORIGIN_ENV'
+					else:
+						shutit_global.shutit.fail('Wrong number of files in environment_id_dir: ' + environment_id_dir)
+			else:
+				if self.file_exists('/cygdrive'):
+					environment_id = 'ORIGIN_ENV'
+				else:
+					environment_id = files[0]
+			if cfg['build']['current_environment_id'] != environment_id:
+				# Clean out any trace of this new environment, and return the already-existing one.
+				self.send(' rm -rf ' + environment_id_dir + '/environment_id/' + environment_id, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
+				return cfg['build']['current_environment_id']
+			if not environment_id == 'ORIGIN_ENV':
+				return environment_id
+			print files
+			del self
+			return
+TODO UPDATE DONE
+		if prefix == 'ORIGIN_ENV':
+			self.environment_id = prefix
+		else:
+			self.environment_id = shutit_util.random_id()
+		self.module_root_dir              = '/'
+		self.modules_installed            = [] # has been installed in this build
+		self.modules_not_installed        = [] # modules _known_ not to be installed
+		self.modules_ready                = [] # has been checked for readiness and is ready (in this build)
+		self.modules_recorded             = []
+		self.modules_recorded_cache_valid = False
+		self.setup                        = False
+		if prefix != 'ORIGIN_ENV':
+			shutit_pexpect_session.get_distro_info(environment_id)
+		shutit_pexpect_session.send(' mkdir -p ' + environment_id_dir + ' && chmod -R 777 ' + cfg['build']['shutit_state_dir_base'] + ' && touch ' + environment_id_dir + '/' + environment_id, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
+		self.setup                        = True
+		# TODO: add to list of environments in pexpect_session
+	             
 
 
 	#TODO: create environment object
