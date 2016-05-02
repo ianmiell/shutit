@@ -450,7 +450,6 @@ class ShutIt(object):
 
 		@param path:        Target location of file on target.
 		@param contents:    Contents of file as a string.
-		@param expect:      See send()
 		@param shutit_pexpect_child:       See send()
 		@param note:        See send()
 		@param user:        Set ownership to this user (defaults to whoami)
@@ -649,7 +648,6 @@ class ShutIt(object):
 	
 		@param line:          Line to remove.
 		@param filename       Filename to remove it from.
-		@param expect:        See send()
 		@param shutit_pexpect_child:         See send()
 		@param match_regexp:  If supplied, a regexp to look for in the file
 		                      instead of the line itself,

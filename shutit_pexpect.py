@@ -1701,8 +1701,6 @@ class ShutItPexpectSession(object):
 		@param fname:         Filename to insert text to
 		@param pattern:       Regexp for a line to match and insert after/before/replace.
 		                      If none, put at end of file.
-		@param expect:        See send()
-		@param shutit_pexpect_child:         See send()
 		@param before:        Whether to place the text before or after the matched text.
 		@param force:         Force the insertion even if the text is in the file.
 		@param delete:        Delete text from file rather than insert

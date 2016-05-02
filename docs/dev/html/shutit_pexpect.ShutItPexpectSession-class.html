@@ -1,0 +1,2728 @@
+<?xml version="1.0" encoding="ascii"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+          "DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <title>shutit_pexpect.ShutItPexpectSession</title>
+  <link rel="stylesheet" href="epydoc.css" type="text/css" />
+  <script type="text/javascript" src="epydoc.js"></script>
+</head>
+
+<body bgcolor="white" text="black" link="blue" vlink="#204080"
+      alink="#204080">
+<!-- ==================== NAVIGATION BAR ==================== -->
+<table class="navbar" border="0" width="100%" cellpadding="0"
+       bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="middle">
+
+  <!-- Tree link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="module-tree.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Index link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="identifier-index.html">Indices</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Help link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Project homepage -->
+      <th class="navbar" align="right" width="100%">
+        <table border="0" cellpadding="0" cellspacing="0">
+          <tr><th class="navbar" align="center"
+            >ShutIt</th>
+          </tr></table></th>
+  </tr>
+</table>
+<table width="100%" cellpadding="0" cellspacing="0">
+  <tr valign="top">
+    <td width="100%">
+      <span class="breadcrumbs">
+        <a href="shutit_pexpect-module.html">Module&nbsp;shutit_pexpect</a> ::
+        Class&nbsp;ShutItPexpectSession
+      </span>
+    </td>
+    <td>
+      <table cellpadding="0" cellspacing="0">
+        <!-- hide/show private -->
+        <tr><td align="right"><span class="options">[<a href="javascript:void(0);" class="privatelink"
+    onclick="toggle_private();">hide&nbsp;private</a>]</span></td></tr>
+        <tr><td align="right"><span class="options"
+            >[<a href="frames.html" target="_top">frames</a
+            >]&nbsp;|&nbsp;<a href="shutit_pexpect.ShutItPexpectSession-class.html"
+            target="_top">no&nbsp;frames</a>]</span></td></tr>
+      </table>
+    </td>
+  </tr>
+</table>
+<!-- ==================== CLASS DESCRIPTION ==================== -->
+<h1 class="epydoc">Class ShutItPexpectSession</h1><p class="nomargin-top"><span class="codelink"><a href="shutit_pexpect-pysrc.html#ShutItPexpectSession">source&nbsp;code</a></span></p>
+<pre class="base-tree">
+object --+
+         |
+        <strong class="uidshort">ShutItPexpectSession</strong>
+</pre>
+
+<hr />
+<!-- ==================== INSTANCE METHODS ==================== -->
+<a name="section-InstanceMethods"></a>
+<table class="summary" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="table-header">
+  <td colspan="2" class="table-header">
+    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+      <tr valign="top">
+        <td align="left"><span class="table-header">Instance Methods</span></td>
+        <td align="right" valign="top"
+         ><span class="options">[<a href="#section-InstanceMethods"
+         class="privatelink" onclick="toggle_private();"
+         >hide private</a>]</span></td>
+      </tr>
+    </table>
+  </td>
+</tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="shutit_pexpect.ShutItPexpectSession-class.html#__init__" class="summary-sig-name">__init__</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">pexpect_session_id</span>,
+        <span class="summary-sig-arg">command</span>,
+        <span class="summary-sig-arg">args</span>=<span class="summary-sig-default"><code class="variable-group">[</code><code class="variable-group">]</code></span>,
+        <span class="summary-sig-arg">timeout</span>=<span class="summary-sig-default">300</span>,
+        <span class="summary-sig-arg">maxread</span>=<span class="summary-sig-default">2000</span>,
+        <span class="summary-sig-arg">searchwindowsize</span>=<span class="summary-sig-default">None</span>,
+        <span class="summary-sig-arg">logfile</span>=<span class="summary-sig-default">None</span>,
+        <span class="summary-sig-arg">cwd</span>=<span class="summary-sig-default">None</span>,
+        <span class="summary-sig-arg">env</span>=<span class="summary-sig-default">None</span>,
+        <span class="summary-sig-arg">ignore_sighup</span>=<span class="summary-sig-default">False</span>,
+        <span class="summary-sig-arg">echo</span>=<span class="summary-sig-default">True</span>,
+        <span class="summary-sig-arg">preexec_fn</span>=<span class="summary-sig-default">None</span>,
+        <span class="summary-sig-arg">encoding</span>=<span class="summary-sig-default">None</span>,
+        <span class="summary-sig-arg">codec_errors</span>=<span class="summary-sig-default"><code class="variable-quote">'</code><code class="variable-string">strict</code><code class="variable-quote">'</code></span>,
+        <span class="summary-sig-arg">dimensions</span>=<span class="summary-sig-default">None</span>,
+        <span class="summary-sig-arg">delaybeforesend</span>=<span class="summary-sig-default">0</span>)</span><br />
+      spawn a child, and manage the delaybefore send setting to 0</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="shutit_pexpect-pysrc.html#ShutItPexpectSession.__init__">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="_spawn_child"></a><span class="summary-sig-name">_spawn_child</span>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">command</span>,
+        <span class="summary-sig-arg">args</span>=<span class="summary-sig-default"><code class="variable-group">[</code><code class="variable-group">]</code></span>,
+        <span class="summary-sig-arg">timeout</span>=<span class="summary-sig-default">30</span>,
+        <span class="summary-sig-arg">maxread</span>=<span class="summary-sig-default">2000</span>,
+        <span class="summary-sig-arg">searchwindowsize</span>=<span class="summary-sig-default">None</span>,
+        <span class="summary-sig-arg">logfile</span>=<span class="summary-sig-default">None</span>,
+        <span class="summary-sig-arg">cwd</span>=<span class="summary-sig-default">None</span>,
+        <span class="summary-sig-arg">env</span>=<span class="summary-sig-default">None</span>,
+        <span class="summary-sig-arg">ignore_sighup</span>=<span class="summary-sig-default">False</span>,
+        <span class="summary-sig-arg">echo</span>=<span class="summary-sig-default">True</span>,
+        <span class="summary-sig-arg">preexec_fn</span>=<span class="summary-sig-default">None</span>,
+        <span class="summary-sig-arg">encoding</span>=<span class="summary-sig-default">None</span>,
+        <span class="summary-sig-arg">codec_errors</span>=<span class="summary-sig-default"><code class="variable-quote">'</code><code class="variable-string">strict</code><code class="variable-quote">'</code></span>,
+        <span class="summary-sig-arg">dimensions</span>=<span class="summary-sig-default">None</span>,
+        <span class="summary-sig-arg">delaybeforesend</span>=<span class="summary-sig-default">0</span>)</span><br />
+      spawn a child, and manage the delaybefore send setting to 0</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="shutit_pexpect-pysrc.html#ShutItPexpectSession._spawn_child">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="shutit_pexpect.ShutItPexpectSession-class.html#login" class="summary-sig-name">login</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">user</span>=<span class="summary-sig-default"><code class="variable-quote">'</code><code class="variable-string">root</code><code class="variable-quote">'</code></span>,
+        <span class="summary-sig-arg">command</span>=<span class="summary-sig-default"><code class="variable-quote">'</code><code class="variable-string">su -</code><code class="variable-quote">'</code></span>,
+        <span class="summary-sig-arg">password</span>=<span class="summary-sig-default">None</span>,
+        <span class="summary-sig-arg">prompt_prefix</span>=<span class="summary-sig-default">None</span>,
+        <span class="summary-sig-arg">expect</span>=<span class="summary-sig-default">None</span>,
+        <span class="summary-sig-arg">timeout</span>=<span class="summary-sig-default">180</span>,
+        <span class="summary-sig-arg">escape</span>=<span class="summary-sig-default">False</span>,
+        <span class="summary-sig-arg">note</span>=<span class="summary-sig-default">None</span>,
+        <span class="summary-sig-arg">go_home</span>=<span class="summary-sig-default">True</span>,
+        <span class="summary-sig-arg">delaybeforesend</span>=<span class="summary-sig-default">0.05</span>,
+        <span class="summary-sig-arg">loglevel</span>=<span class="summary-sig-default">10</span>)</span><br />
+      Logs the user in with the passed-in password and command.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="shutit_pexpect-pysrc.html#ShutItPexpectSession.login">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="shutit_pexpect.ShutItPexpectSession-class.html#logout" class="summary-sig-name">logout</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">expect</span>=<span class="summary-sig-default">None</span>,
+        <span class="summary-sig-arg">command</span>=<span class="summary-sig-default"><code class="variable-quote">'</code><code class="variable-string">exit</code><code class="variable-quote">'</code></span>,
+        <span class="summary-sig-arg">note</span>=<span class="summary-sig-default">None</span>,
+        <span class="summary-sig-arg">timeout</span>=<span class="summary-sig-default">5</span>,
+        <span class="summary-sig-arg">delaybeforesend</span>=<span class="summary-sig-default">0</span>,
+        <span class="summary-sig-arg">loglevel</span>=<span class="summary-sig-default">10</span>)</span><br />
+      Logs the user out.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="shutit_pexpect-pysrc.html#ShutItPexpectSession.logout">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="login_stack_append"></a><span class="summary-sig-name">login_stack_append</span>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">r_id</span>)</span></td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="shutit_pexpect-pysrc.html#ShutItPexpectSession.login_stack_append">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="shutit_pexpect.ShutItPexpectSession-class.html#setup_prompt" class="summary-sig-name">setup_prompt</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">prompt_name</span>,
+        <span class="summary-sig-arg">prefix</span>=<span class="summary-sig-default"><code class="variable-quote">'</code><code class="variable-string">default</code><code class="variable-quote">'</code></span>,
+        <span class="summary-sig-arg">delaybeforesend</span>=<span class="summary-sig-default">0</span>,
+        <span class="summary-sig-arg">loglevel</span>=<span class="summary-sig-default">10</span>)</span><br />
+      Use this when you've opened a new shell to set the PS1 to something 
+      sane.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="shutit_pexpect-pysrc.html#ShutItPexpectSession.setup_prompt">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="shutit_pexpect.ShutItPexpectSession-class.html#revert_prompt" class="summary-sig-name">revert_prompt</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">old_prompt_name</span>,
+        <span class="summary-sig-arg">new_expect</span>=<span class="summary-sig-default">None</span>,
+        <span class="summary-sig-arg">delaybeforesend</span>=<span class="summary-sig-default">0</span>)</span><br />
+      Reverts the prompt to the previous value (passed-in).</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="shutit_pexpect-pysrc.html#ShutItPexpectSession.revert_prompt">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="pexpect_send"></a><span class="summary-sig-name">pexpect_send</span>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">string</span>,
+        <span class="summary-sig-arg">delaybeforesend</span>=<span class="summary-sig-default">0</span>)</span></td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="shutit_pexpect-pysrc.html#ShutItPexpectSession.pexpect_send">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="sendline"></a><span class="summary-sig-name">sendline</span>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">string</span>,
+        <span class="summary-sig-arg">delaybeforesend</span>=<span class="summary-sig-default">0</span>)</span></td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="shutit_pexpect-pysrc.html#ShutItPexpectSession.sendline">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="expect"></a><span class="summary-sig-name">expect</span>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">expect</span>,
+        <span class="summary-sig-arg">timeout</span>=<span class="summary-sig-default">None</span>)</span><br />
+      Handle child expects, with EOF and TIMEOUT handled</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="shutit_pexpect-pysrc.html#ShutItPexpectSession.expect">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="shutit_pexpect.ShutItPexpectSession-class.html#replace_container" class="summary-sig-name">replace_container</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">new_target_image_name</span>)</span><br />
+      Replaces a container.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="shutit_pexpect-pysrc.html#ShutItPexpectSession.replace_container">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">string</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="shutit_pexpect.ShutItPexpectSession-class.html#whoami" class="summary-sig-name">whoami</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">note</span>=<span class="summary-sig-default">None</span>,
+        <span class="summary-sig-arg">delaybeforesend</span>=<span class="summary-sig-default">0</span>,
+        <span class="summary-sig-arg">loglevel</span>=<span class="summary-sig-default">10</span>)</span><br />
+      Returns the current user by executing &quot;whoami&quot;.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="shutit_pexpect-pysrc.html#ShutItPexpectSession.whoami">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="shutit_pexpect.ShutItPexpectSession-class.html#setup_environment" class="summary-sig-name">setup_environment</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">prefix</span>,
+        <span class="summary-sig-arg">delaybeforesend</span>=<span class="summary-sig-default">0</span>,
+        <span class="summary-sig-arg">loglevel</span>=<span class="summary-sig-default">10</span>)</span><br />
+      If we are in a new environment then set up a new data structure.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="shutit_pexpect-pysrc.html#ShutItPexpectSession.setup_environment">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="shutit_pexpect.ShutItPexpectSession-class.html#create_command_file" class="summary-sig-name">create_command_file</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">expect</span>,
+        <span class="summary-sig-arg">send</span>)</span><br />
+      Internal function.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="shutit_pexpect-pysrc.html#ShutItPexpectSession.create_command_file">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="shutit_pexpect.ShutItPexpectSession-class.html#check_last_exit_values" class="summary-sig-name">check_last_exit_values</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">send</span>,
+        <span class="summary-sig-arg">expect</span>=<span class="summary-sig-default">None</span>,
+        <span class="summary-sig-arg">exit_values</span>=<span class="summary-sig-default">None</span>,
+        <span class="summary-sig-arg">retry</span>=<span class="summary-sig-default">0</span>,
+        <span class="summary-sig-arg">retbool</span>=<span class="summary-sig-default">False</span>)</span><br />
+      Internal function to check the exit value of the shell.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="shutit_pexpect-pysrc.html#ShutItPexpectSession.check_last_exit_values">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="shutit_pexpect.ShutItPexpectSession-class.html#pause_point" class="summary-sig-name">pause_point</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">msg</span>=<span class="summary-sig-default"><code class="variable-quote">'</code><code class="variable-string">SHUTIT PAUSE POINT</code><code class="variable-quote">'</code></span>,
+        <span class="summary-sig-arg">print_input</span>=<span class="summary-sig-default">True</span>,
+        <span class="summary-sig-arg">resize</span>=<span class="summary-sig-default">True</span>,
+        <span class="summary-sig-arg">colour</span>=<span class="summary-sig-default"><code class="variable-quote">'</code><code class="variable-string">32</code><code class="variable-quote">'</code></span>,
+        <span class="summary-sig-arg">default_msg</span>=<span class="summary-sig-default">None</span>,
+        <span class="summary-sig-arg">wait</span>=<span class="summary-sig-default">-1</span>,
+        <span class="summary-sig-arg">delaybeforesend</span>=<span class="summary-sig-default">0</span>)</span><br />
+      Inserts a pause in the build session, which allows the user to try 
+      things out before continuing.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="shutit_pexpect-pysrc.html#ShutItPexpectSession.pause_point">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="_pause_input_filter"></a><span class="summary-sig-name">_pause_input_filter</span>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">input_string</span>)</span><br />
+      Input filter for pause point to catch special keystrokes</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="shutit_pexpect-pysrc.html#ShutItPexpectSession._pause_input_filter">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="handle_pause_point_signals"></a><span class="summary-sig-name">handle_pause_point_signals</span>(<span class="summary-sig-arg">self</span>)</span></td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="shutit_pexpect-pysrc.html#ShutItPexpectSession.handle_pause_point_signals">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">boolean</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="shutit_pexpect.ShutItPexpectSession-class.html#file_exists" class="summary-sig-name">file_exists</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">filename</span>,
+        <span class="summary-sig-arg">directory</span>=<span class="summary-sig-default">False</span>,
+        <span class="summary-sig-arg">note</span>=<span class="summary-sig-default">None</span>,
+        <span class="summary-sig-arg">delaybeforesend</span>=<span class="summary-sig-default">0</span>,
+        <span class="summary-sig-arg">loglevel</span>=<span class="summary-sig-default">10</span>)</span><br />
+      Return True if file exists on the target host, else False</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="shutit_pexpect-pysrc.html#ShutItPexpectSession.file_exists">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="shutit_pexpect.ShutItPexpectSession-class.html#chdir" class="summary-sig-name">chdir</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">path</span>,
+        <span class="summary-sig-arg">timeout</span>=<span class="summary-sig-default">3600</span>,
+        <span class="summary-sig-arg">note</span>=<span class="summary-sig-default">None</span>,
+        <span class="summary-sig-arg">delaybeforesend</span>=<span class="summary-sig-default">0</span>,
+        <span class="summary-sig-arg">loglevel</span>=<span class="summary-sig-default">10</span>)</span><br />
+      How to change directory will depend on whether we are in delivery 
+      mode bash or docker.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="shutit_pexpect-pysrc.html#ShutItPexpectSession.chdir">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">string</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="shutit_pexpect.ShutItPexpectSession-class.html#get_file_perms" class="summary-sig-name">get_file_perms</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">filename</span>,
+        <span class="summary-sig-arg">note</span>=<span class="summary-sig-default">None</span>,
+        <span class="summary-sig-arg">delaybeforesend</span>=<span class="summary-sig-default">0</span>,
+        <span class="summary-sig-arg">loglevel</span>=<span class="summary-sig-default">10</span>)</span><br />
+      Returns the permissions of the file on the target as an octal string 
+      triplet.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="shutit_pexpect-pysrc.html#ShutItPexpectSession.get_file_perms">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="shutit_pexpect.ShutItPexpectSession-class.html#add_to_bashrc" class="summary-sig-name">add_to_bashrc</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">line</span>,
+        <span class="summary-sig-arg">match_regexp</span>=<span class="summary-sig-default">None</span>,
+        <span class="summary-sig-arg">note</span>=<span class="summary-sig-default">None</span>,
+        <span class="summary-sig-arg">loglevel</span>=<span class="summary-sig-default">10</span>)</span><br />
+      Takes care of adding a line to everyone's bashrc (/etc/bash.bashrc, 
+      /etc/profile).</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="shutit_pexpect-pysrc.html#ShutItPexpectSession.add_to_bashrc">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">boolean</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="shutit_pexpect.ShutItPexpectSession-class.html#is_user_id_available" class="summary-sig-name">is_user_id_available</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">user_id</span>,
+        <span class="summary-sig-arg">note</span>=<span class="summary-sig-default">None</span>,
+        <span class="summary-sig-arg">delaybeforesend</span>=<span class="summary-sig-default">0</span>,
+        <span class="summary-sig-arg">loglevel</span>=<span class="summary-sig-default">10</span>)</span><br />
+      Determine whether the specified user_id available.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="shutit_pexpect-pysrc.html#ShutItPexpectSession.is_user_id_available">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="shutit_pexpect.ShutItPexpectSession-class.html#set_password" class="summary-sig-name">set_password</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">password</span>,
+        <span class="summary-sig-arg">user</span>=<span class="summary-sig-default"><code class="variable-quote">'</code><code class="variable-string"></code><code class="variable-quote">'</code></span>,
+        <span class="summary-sig-arg">delaybeforesend</span>=<span class="summary-sig-default">0.05</span>,
+        <span class="summary-sig-arg">note</span>=<span class="summary-sig-default">None</span>)</span><br />
+      Sets the password for the current user or passed-in user.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="shutit_pexpect-pysrc.html#ShutItPexpectSession.set_password">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="lsb_release"></a><span class="summary-sig-name">lsb_release</span>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">delaybeforesend</span>=<span class="summary-sig-default">0</span>,
+        <span class="summary-sig-arg">loglevel</span>=<span class="summary-sig-default">10</span>)</span><br />
+      Get distro information from lsb_release.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="shutit_pexpect-pysrc.html#ShutItPexpectSession.lsb_release">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">boolean</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="shutit_pexpect.ShutItPexpectSession-class.html#get_url" class="summary-sig-name">get_url</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">filename</span>,
+        <span class="summary-sig-arg">locations</span>,
+        <span class="summary-sig-arg">command</span>=<span class="summary-sig-default"><code class="variable-quote">'</code><code class="variable-string">curl</code><code class="variable-quote">'</code></span>,
+        <span class="summary-sig-arg">timeout</span>=<span class="summary-sig-default">3600</span>,
+        <span class="summary-sig-arg">fail_on_empty_before</span>=<span class="summary-sig-default">True</span>,
+        <span class="summary-sig-arg">record_command</span>=<span class="summary-sig-default">True</span>,
+        <span class="summary-sig-arg">exit_values</span>=<span class="summary-sig-default">None</span>,
+        <span class="summary-sig-arg">retry</span>=<span class="summary-sig-default">3</span>,
+        <span class="summary-sig-arg">note</span>=<span class="summary-sig-default">None</span>,
+        <span class="summary-sig-arg">delaybeforesend</span>=<span class="summary-sig-default">0</span>,
+        <span class="summary-sig-arg">loglevel</span>=<span class="summary-sig-default">10</span>)</span><br />
+      Handles the getting of a url for you.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="shutit_pexpect-pysrc.html#ShutItPexpectSession.get_url">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">boolean</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="shutit_pexpect.ShutItPexpectSession-class.html#user_exists" class="summary-sig-name">user_exists</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">user</span>,
+        <span class="summary-sig-arg">note</span>=<span class="summary-sig-default">None</span>,
+        <span class="summary-sig-arg">delaybeforesend</span>=<span class="summary-sig-default">0</span>,
+        <span class="summary-sig-arg">loglevel</span>=<span class="summary-sig-default">10</span>)</span><br />
+      Returns true if the specified username exists.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="shutit_pexpect-pysrc.html#ShutItPexpectSession.user_exists">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">boolean</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="shutit_pexpect.ShutItPexpectSession-class.html#package_installed" class="summary-sig-name">package_installed</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">package</span>,
+        <span class="summary-sig-arg">note</span>=<span class="summary-sig-default">None</span>,
+        <span class="summary-sig-arg">delaybeforesend</span>=<span class="summary-sig-default">0</span>,
+        <span class="summary-sig-arg">loglevel</span>=<span class="summary-sig-default">10</span>)</span><br />
+      Returns True if we can be sure the package is installed.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="shutit_pexpect-pysrc.html#ShutItPexpectSession.package_installed">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="command_available"></a><span class="summary-sig-name">command_available</span>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">command</span>,
+        <span class="summary-sig-arg">note</span>=<span class="summary-sig-default">None</span>,
+        <span class="summary-sig-arg">delaybeforesend</span>=<span class="summary-sig-default">0</span>,
+        <span class="summary-sig-arg">loglevel</span>=<span class="summary-sig-default">10</span>)</span></td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="shutit_pexpect-pysrc.html#ShutItPexpectSession.command_available">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="shutit_pexpect.ShutItPexpectSession-class.html#is_shutit_installed" class="summary-sig-name">is_shutit_installed</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">module_id</span>,
+        <span class="summary-sig-arg">note</span>=<span class="summary-sig-default">None</span>,
+        <span class="summary-sig-arg">delaybeforesend</span>=<span class="summary-sig-default">0</span>,
+        <span class="summary-sig-arg">loglevel</span>=<span class="summary-sig-default">10</span>)</span><br />
+      Helper proc to determine whether shutit has installed already here by
+      placing a file in the db.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="shutit_pexpect-pysrc.html#ShutItPexpectSession.is_shutit_installed">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">list of strings</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="shutit_pexpect.ShutItPexpectSession-class.html#ls" class="summary-sig-name">ls</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">directory</span>,
+        <span class="summary-sig-arg">note</span>=<span class="summary-sig-default">None</span>,
+        <span class="summary-sig-arg">delaybeforesend</span>=<span class="summary-sig-default">0</span>,
+        <span class="summary-sig-arg">loglevel</span>=<span class="summary-sig-default">10</span>)</span><br />
+      Helper proc to list files in a directory</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="shutit_pexpect-pysrc.html#ShutItPexpectSession.ls">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">boolean</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="shutit_pexpect.ShutItPexpectSession-class.html#install" class="summary-sig-name">install</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">package</span>,
+        <span class="summary-sig-arg">options</span>=<span class="summary-sig-default">None</span>,
+        <span class="summary-sig-arg">timeout</span>=<span class="summary-sig-default">3600</span>,
+        <span class="summary-sig-arg">force</span>=<span class="summary-sig-default">False</span>,
+        <span class="summary-sig-arg">check_exit</span>=<span class="summary-sig-default">True</span>,
+        <span class="summary-sig-arg">reinstall</span>=<span class="summary-sig-default">False</span>,
+        <span class="summary-sig-arg">note</span>=<span class="summary-sig-default">None</span>,
+        <span class="summary-sig-arg">delaybeforesend</span>=<span class="summary-sig-default">0</span>,
+        <span class="summary-sig-arg">loglevel</span>=<span class="summary-sig-default">10</span>)</span><br />
+      Distro-independent install function.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="shutit_pexpect-pysrc.html#ShutItPexpectSession.install">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="get_memory"></a><span class="summary-sig-name">get_memory</span>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">delaybeforesend</span>=<span class="summary-sig-default">0</span>,
+        <span class="summary-sig-arg">note</span>=<span class="summary-sig-default">None</span>)</span><br />
+      Returns memory available for use in k as an int</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="shutit_pexpect-pysrc.html#ShutItPexpectSession.get_memory">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">boolean</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="shutit_pexpect.ShutItPexpectSession-class.html#remove" class="summary-sig-name">remove</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">package</span>,
+        <span class="summary-sig-arg">options</span>=<span class="summary-sig-default">None</span>,
+        <span class="summary-sig-arg">timeout</span>=<span class="summary-sig-default">3600</span>,
+        <span class="summary-sig-arg">delaybeforesend</span>=<span class="summary-sig-default">0</span>,
+        <span class="summary-sig-arg">note</span>=<span class="summary-sig-default">None</span>)</span><br />
+      Distro-independent remove function.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="shutit_pexpect-pysrc.html#ShutItPexpectSession.remove">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="shutit_pexpect.ShutItPexpectSession-class.html#send_and_match_output" class="summary-sig-name">send_and_match_output</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">send</span>,
+        <span class="summary-sig-arg">matches</span>,
+        <span class="summary-sig-arg">retry</span>=<span class="summary-sig-default">3</span>,
+        <span class="summary-sig-arg">strip</span>=<span class="summary-sig-default">True</span>,
+        <span class="summary-sig-arg">note</span>=<span class="summary-sig-default">None</span>,
+        <span class="summary-sig-arg">echo</span>=<span class="summary-sig-default">False</span>,
+        <span class="summary-sig-arg">delaybeforesend</span>=<span class="summary-sig-default">0</span>,
+        <span class="summary-sig-arg">loglevel</span>=<span class="summary-sig-default">10</span>)</span><br />
+      Returns true if the output of the command matches any of the strings 
+      in the matches list of regexp strings.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="shutit_pexpect-pysrc.html#ShutItPexpectSession.send_and_match_output">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="shutit_pexpect.ShutItPexpectSession-class.html#send_and_get_output" class="summary-sig-name">send_and_get_output</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">send</span>,
+        <span class="summary-sig-arg">timeout</span>=<span class="summary-sig-default">None</span>,
+        <span class="summary-sig-arg">retry</span>=<span class="summary-sig-default">3</span>,
+        <span class="summary-sig-arg">strip</span>=<span class="summary-sig-default">True</span>,
+        <span class="summary-sig-arg">preserve_newline</span>=<span class="summary-sig-default">False</span>,
+        <span class="summary-sig-arg">note</span>=<span class="summary-sig-default">None</span>,
+        <span class="summary-sig-arg">record_command</span>=<span class="summary-sig-default">False</span>,
+        <span class="summary-sig-arg">echo</span>=<span class="summary-sig-default">False</span>,
+        <span class="summary-sig-arg">fail_on_empty_before</span>=<span class="summary-sig-default">True</span>,
+        <span class="summary-sig-arg">delaybeforesend</span>=<span class="summary-sig-default">0</span>,
+        <span class="summary-sig-arg">loglevel</span>=<span class="summary-sig-default">10</span>)</span><br />
+      Returns the output of a command run.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="shutit_pexpect-pysrc.html#ShutItPexpectSession.send_and_get_output">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="shutit_pexpect.ShutItPexpectSession-class.html#get_env_pass" class="summary-sig-name">get_env_pass</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">user</span>=<span class="summary-sig-default">None</span>,
+        <span class="summary-sig-arg">msg</span>=<span class="summary-sig-default">None</span>,
+        <span class="summary-sig-arg">note</span>=<span class="summary-sig-default">None</span>)</span><br />
+      Gets a password from the user if one is not already recorded for this
+      environment.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="shutit_pexpect-pysrc.html#ShutItPexpectSession.get_env_pass">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">string</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="shutit_pexpect.ShutItPexpectSession-class.html#whoarewe" class="summary-sig-name">whoarewe</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">note</span>=<span class="summary-sig-default">None</span>,
+        <span class="summary-sig-arg">delaybeforesend</span>=<span class="summary-sig-default">0</span>,
+        <span class="summary-sig-arg">loglevel</span>=<span class="summary-sig-default">10</span>)</span><br />
+      Returns the current group.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="shutit_pexpect-pysrc.html#ShutItPexpectSession.whoarewe">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="shutit_pexpect.ShutItPexpectSession-class.html#get_distro_info" class="summary-sig-name">get_distro_info</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">environment_id</span>,
+        <span class="summary-sig-arg">delaybeforesend</span>=<span class="summary-sig-default">0</span>,
+        <span class="summary-sig-arg">loglevel</span>=<span class="summary-sig-default">10</span>)</span><br />
+      Get information about which distro we are using, placing it in the 
+      cfg['environment'][environment_id] as a side effect.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="shutit_pexpect-pysrc.html#ShutItPexpectSession.get_distro_info">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="shutit_pexpect.ShutItPexpectSession-class.html#multisend" class="summary-sig-name">multisend</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">send</span>,
+        <span class="summary-sig-arg">send_dict</span>,
+        <span class="summary-sig-arg">expect</span>=<span class="summary-sig-default">None</span>,
+        <span class="summary-sig-arg">timeout</span>=<span class="summary-sig-default">3600</span>,
+        <span class="summary-sig-arg">check_exit</span>=<span class="summary-sig-default">None</span>,
+        <span class="summary-sig-arg">fail_on_empty_before</span>=<span class="summary-sig-default">True</span>,
+        <span class="summary-sig-arg">record_command</span>=<span class="summary-sig-default">True</span>,
+        <span class="summary-sig-arg">exit_values</span>=<span class="summary-sig-default">None</span>,
+        <span class="summary-sig-arg">escape</span>=<span class="summary-sig-default">False</span>,
+        <span class="summary-sig-arg">echo</span>=<span class="summary-sig-default">None</span>,
+        <span class="summary-sig-arg">note</span>=<span class="summary-sig-default">None</span>,
+        <span class="summary-sig-arg">delaybeforesend</span>=<span class="summary-sig-default">0</span>,
+        <span class="summary-sig-arg">loglevel</span>=<span class="summary-sig-default">10</span>)</span><br />
+      Multisend.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="shutit_pexpect-pysrc.html#ShutItPexpectSession.multisend">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="shutit_pexpect.ShutItPexpectSession-class.html#send_until" class="summary-sig-name">send_until</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">send</span>,
+        <span class="summary-sig-arg">regexps</span>,
+        <span class="summary-sig-arg">not_there</span>=<span class="summary-sig-default">False</span>,
+        <span class="summary-sig-arg">cadence</span>=<span class="summary-sig-default">5</span>,
+        <span class="summary-sig-arg">retries</span>=<span class="summary-sig-default">100</span>,
+        <span class="summary-sig-arg">echo</span>=<span class="summary-sig-default">False</span>,
+        <span class="summary-sig-arg">note</span>=<span class="summary-sig-default">None</span>,
+        <span class="summary-sig-arg">delaybeforesend</span>=<span class="summary-sig-default">0</span>,
+        <span class="summary-sig-arg">loglevel</span>=<span class="summary-sig-default">20</span>)</span><br />
+      Send string on a regular cadence until a string is either seen, or 
+      the timeout is triggered.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="shutit_pexpect-pysrc.html#ShutItPexpectSession.send_until">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="shutit_pexpect.ShutItPexpectSession-class.html#change_text" class="summary-sig-name">change_text</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">text</span>,
+        <span class="summary-sig-arg">fname</span>,
+        <span class="summary-sig-arg">pattern</span>=<span class="summary-sig-default">None</span>,
+        <span class="summary-sig-arg">before</span>=<span class="summary-sig-default">False</span>,
+        <span class="summary-sig-arg">force</span>=<span class="summary-sig-default">False</span>,
+        <span class="summary-sig-arg">delete</span>=<span class="summary-sig-default">False</span>,
+        <span class="summary-sig-arg">note</span>=<span class="summary-sig-default">None</span>,
+        <span class="summary-sig-arg">replace</span>=<span class="summary-sig-default">False</span>,
+        <span class="summary-sig-arg">line_oriented</span>=<span class="summary-sig-default">True</span>,
+        <span class="summary-sig-arg">create</span>=<span class="summary-sig-default">True</span>,
+        <span class="summary-sig-arg">delaybeforesend</span>=<span class="summary-sig-default">0</span>,
+        <span class="summary-sig-arg">loglevel</span>=<span class="summary-sig-default">10</span>)</span><br />
+      Change text in a file.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="shutit_pexpect-pysrc.html#ShutItPexpectSession.change_text">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">boolean</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="shutit_pexpect.ShutItPexpectSession-class.html#remove_line_from_file" class="summary-sig-name">remove_line_from_file</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">line</span>,
+        <span class="summary-sig-arg">filename</span>,
+        <span class="summary-sig-arg">match_regexp</span>=<span class="summary-sig-default">None</span>,
+        <span class="summary-sig-arg">literal</span>=<span class="summary-sig-default">False</span>,
+        <span class="summary-sig-arg">note</span>=<span class="summary-sig-default">None</span>,
+        <span class="summary-sig-arg">delaybeforesend</span>=<span class="summary-sig-default">0</span>,
+        <span class="summary-sig-arg">loglevel</span>=<span class="summary-sig-default">10</span>)</span><br />
+      Removes line from file, if it exists.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="shutit_pexpect-pysrc.html#ShutItPexpectSession.remove_line_from_file">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">string</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="shutit_pexpect.ShutItPexpectSession-class.html#send" class="summary-sig-name">send</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">send</span>,
+        <span class="summary-sig-arg">expect</span>=<span class="summary-sig-default">None</span>,
+        <span class="summary-sig-arg">timeout</span>=<span class="summary-sig-default">None</span>,
+        <span class="summary-sig-arg">check_exit</span>=<span class="summary-sig-default">None</span>,
+        <span class="summary-sig-arg">fail_on_empty_before</span>=<span class="summary-sig-default">True</span>,
+        <span class="summary-sig-arg">record_command</span>=<span class="summary-sig-default">True</span>,
+        <span class="summary-sig-arg">exit_values</span>=<span class="summary-sig-default">None</span>,
+        <span class="summary-sig-arg">echo</span>=<span class="summary-sig-default">False</span>,
+        <span class="summary-sig-arg">escape</span>=<span class="summary-sig-default">False</span>,
+        <span class="summary-sig-arg">retry</span>=<span class="summary-sig-default">3</span>,
+        <span class="summary-sig-arg">note</span>=<span class="summary-sig-default">None</span>,
+        <span class="summary-sig-arg">assume_gnu</span>=<span class="summary-sig-default">True</span>,
+        <span class="summary-sig-arg">delaybeforesend</span>=<span class="summary-sig-default">0</span>,
+        <span class="summary-sig-arg">loglevel</span>=<span class="summary-sig-default">20</span>)</span><br />
+      Send string as a shell command, and wait until the expected output is
+      seen (either a string or any from a list of strings) before 
+      returning.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="shutit_pexpect-pysrc.html#ShutItPexpectSession.send">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">string</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="shutit_pexpect.ShutItPexpectSession-class.html#send_and_expect" class="summary-sig-name">send_and_expect</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">send</span>,
+        <span class="summary-sig-arg">expect</span>=<span class="summary-sig-default">None</span>,
+        <span class="summary-sig-arg">timeout</span>=<span class="summary-sig-default">None</span>,
+        <span class="summary-sig-arg">check_exit</span>=<span class="summary-sig-default">None</span>,
+        <span class="summary-sig-arg">fail_on_empty_before</span>=<span class="summary-sig-default">True</span>,
+        <span class="summary-sig-arg">record_command</span>=<span class="summary-sig-default">True</span>,
+        <span class="summary-sig-arg">exit_values</span>=<span class="summary-sig-default">None</span>,
+        <span class="summary-sig-arg">echo</span>=<span class="summary-sig-default">False</span>,
+        <span class="summary-sig-arg">escape</span>=<span class="summary-sig-default">False</span>,
+        <span class="summary-sig-arg">retry</span>=<span class="summary-sig-default">3</span>,
+        <span class="summary-sig-arg">note</span>=<span class="summary-sig-default">None</span>,
+        <span class="summary-sig-arg">assume_gnu</span>=<span class="summary-sig-default">True</span>,
+        <span class="summary-sig-arg">delaybeforesend</span>=<span class="summary-sig-default">0</span>,
+        <span class="summary-sig-arg">loglevel</span>=<span class="summary-sig-default">20</span>)</span><br />
+      Send string as a shell command, and wait until the expected output is
+      seen (either a string or any from a list of strings) before 
+      returning.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="shutit_pexpect-pysrc.html#ShutItPexpectSession.send">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="shutit_pexpect.ShutItPexpectSession-class.html#send_file" class="summary-sig-name">send_file</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">path</span>,
+        <span class="summary-sig-arg">contents</span>,
+        <span class="summary-sig-arg">truncate</span>=<span class="summary-sig-default">False</span>,
+        <span class="summary-sig-arg">note</span>=<span class="summary-sig-default">None</span>,
+        <span class="summary-sig-arg">user</span>=<span class="summary-sig-default">None</span>,
+        <span class="summary-sig-arg">group</span>=<span class="summary-sig-default">None</span>,
+        <span class="summary-sig-arg">delaybeforesend</span>=<span class="summary-sig-default">0</span>,
+        <span class="summary-sig-arg">loglevel</span>=<span class="summary-sig-default">20</span>)</span><br />
+      Sends the passed-in string as a file to the passed-in path on the 
+      target.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="shutit_pexpect-pysrc.html#ShutItPexpectSession.send_file">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="shutit_pexpect.ShutItPexpectSession-class.html#run_script" class="summary-sig-name">run_script</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">script</span>,
+        <span class="summary-sig-arg">in_shell</span>=<span class="summary-sig-default">True</span>,
+        <span class="summary-sig-arg">note</span>=<span class="summary-sig-default">None</span>,
+        <span class="summary-sig-arg">delaybeforesend</span>=<span class="summary-sig-default">0</span>,
+        <span class="summary-sig-arg">loglevel</span>=<span class="summary-sig-default">10</span>)</span><br />
+      Run the passed-in string as a script on the target's command line.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="shutit_pexpect-pysrc.html#ShutItPexpectSession.run_script">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="_challenge_done"></a><span class="summary-sig-name">_challenge_done</span>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">result</span>=<span class="summary-sig-default">None</span>,
+        <span class="summary-sig-arg">congratulations</span>=<span class="summary-sig-default">None</span>,
+        <span class="summary-sig-arg">follow_on_context</span>=<span class="summary-sig-default"><code class="variable-group">{</code><code class="variable-group">}</code></span>,
+        <span class="summary-sig-arg">pause</span>=<span class="summary-sig-default">1</span>,
+        <span class="summary-sig-arg">skipped</span>=<span class="summary-sig-default">False</span>)</span></td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="shutit_pexpect-pysrc.html#ShutItPexpectSession._challenge_done">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="shutit_pexpect.ShutItPexpectSession-class.html#challenge" class="summary-sig-name">challenge</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">task_desc</span>,
+        <span class="summary-sig-arg">expect</span>=<span class="summary-sig-default">None</span>,
+        <span class="summary-sig-arg">hints</span>=<span class="summary-sig-default"><code class="variable-group">[</code><code class="variable-group">]</code></span>,
+        <span class="summary-sig-arg">congratulations</span>=<span class="summary-sig-default"><code class="variable-quote">'</code><code class="variable-string">OK</code><code class="variable-quote">'</code></span>,
+        <span class="summary-sig-arg">failed</span>=<span class="summary-sig-default"><code class="variable-quote">'</code><code class="variable-string">FAILED</code><code class="variable-quote">'</code></span>,
+        <span class="summary-sig-arg">expect_type</span>=<span class="summary-sig-default"><code class="variable-quote">'</code><code class="variable-string">exact</code><code class="variable-quote">'</code></span>,
+        <span class="summary-sig-arg">challenge_type</span>=<span class="summary-sig-default"><code class="variable-quote">'</code><code class="variable-string">command</code><code class="variable-quote">'</code></span>,
+        <span class="summary-sig-arg">shutit_pexpect_child</span>=<span class="summary-sig-default">None</span>,
+        <span class="summary-sig-arg">timeout</span>=<span class="summary-sig-default">None</span>,
+        <span class="summary-sig-arg">check_exit</span>=<span class="summary-sig-default">None</span>,
+        <span class="summary-sig-arg">fail_on_empty_before</span>=<span class="summary-sig-default">True</span>,
+        <span class="summary-sig-arg">record_command</span>=<span class="summary-sig-default">True</span>,
+        <span class="summary-sig-arg">exit_values</span>=<span class="summary-sig-default">None</span>,
+        <span class="summary-sig-arg">echo</span>=<span class="summary-sig-default">True</span>,
+        <span class="summary-sig-arg">escape</span>=<span class="summary-sig-default">False</span>,
+        <span class="summary-sig-arg">pause</span>=<span class="summary-sig-default">1</span>,
+        <span class="summary-sig-arg">loglevel</span>=<span class="summary-sig-default">10</span>,
+        <span class="summary-sig-arg">delaybeforesend</span>=<span class="summary-sig-default">0</span>,
+        <span class="summary-sig-arg">follow_on_context</span>=<span class="summary-sig-default"><code class="variable-group">{</code><code class="variable-group">}</code></span>)</span><br />
+      Set the user a task to complete, success being determined by matching the output.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="shutit_pexpect-pysrc.html#ShutItPexpectSession.challenge">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2" class="summary">
+    <p class="indent-wrapped-lines"><b>Inherited from <code>object</code></b>:
+      <code>__delattr__</code>,
+      <code>__format__</code>,
+      <code>__getattribute__</code>,
+      <code>__hash__</code>,
+      <code>__new__</code>,
+      <code>__reduce__</code>,
+      <code>__reduce_ex__</code>,
+      <code>__repr__</code>,
+      <code>__setattr__</code>,
+      <code>__sizeof__</code>,
+      <code>__str__</code>,
+      <code>__subclasshook__</code>
+      </p>
+    </td>
+  </tr>
+</table>
+<!-- ==================== PROPERTIES ==================== -->
+<a name="section-Properties"></a>
+<table class="summary" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="table-header">
+  <td colspan="2" class="table-header">
+    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+      <tr valign="top">
+        <td align="left"><span class="table-header">Properties</span></td>
+        <td align="right" valign="top"
+         ><span class="options">[<a href="#section-Properties"
+         class="privatelink" onclick="toggle_private();"
+         >hide private</a>]</span></td>
+      </tr>
+    </table>
+  </td>
+</tr>
+  <tr>
+    <td colspan="2" class="summary">
+    <p class="indent-wrapped-lines"><b>Inherited from <code>object</code></b>:
+      <code>__class__</code>
+      </p>
+    </td>
+  </tr>
+</table>
+<!-- ==================== METHOD DETAILS ==================== -->
+<a name="section-MethodDetails"></a>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="table-header">
+  <td colspan="2" class="table-header">
+    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+      <tr valign="top">
+        <td align="left"><span class="table-header">Method Details</span></td>
+        <td align="right" valign="top"
+         ><span class="options">[<a href="#section-MethodDetails"
+         class="privatelink" onclick="toggle_private();"
+         >hide private</a>]</span></td>
+      </tr>
+    </table>
+  </td>
+</tr>
+</table>
+<a name="__init__"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">__init__</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">pexpect_session_id</span>,
+        <span class="sig-arg">command</span>,
+        <span class="sig-arg">args</span>=<span class="sig-default"><code class="variable-group">[</code><code class="variable-group">]</code></span>,
+        <span class="sig-arg">timeout</span>=<span class="sig-default">300</span>,
+        <span class="sig-arg">maxread</span>=<span class="sig-default">2000</span>,
+        <span class="sig-arg">searchwindowsize</span>=<span class="sig-default">None</span>,
+        <span class="sig-arg">logfile</span>=<span class="sig-default">None</span>,
+        <span class="sig-arg">cwd</span>=<span class="sig-default">None</span>,
+        <span class="sig-arg">env</span>=<span class="sig-default">None</span>,
+        <span class="sig-arg">ignore_sighup</span>=<span class="sig-default">False</span>,
+        <span class="sig-arg">echo</span>=<span class="sig-default">True</span>,
+        <span class="sig-arg">preexec_fn</span>=<span class="sig-default">None</span>,
+        <span class="sig-arg">encoding</span>=<span class="sig-default">None</span>,
+        <span class="sig-arg">codec_errors</span>=<span class="sig-default"><code class="variable-quote">'</code><code class="variable-string">strict</code><code class="variable-quote">'</code></span>,
+        <span class="sig-arg">dimensions</span>=<span class="sig-default">None</span>,
+        <span class="sig-arg">delaybeforesend</span>=<span class="sig-default">0</span>)</span>
+    <br /><em class="fname">(Constructor)</em>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="shutit_pexpect-pysrc.html#ShutItPexpectSession.__init__">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>spawn a child, and manage the delaybefore send setting to 0</p>
+  <dl class="fields">
+    <dt>Overrides:
+        object.__init__
+    </dt>
+  </dl>
+</td></tr></table>
+</div>
+<a name="login"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">login</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">user</span>=<span class="sig-default"><code class="variable-quote">'</code><code class="variable-string">root</code><code class="variable-quote">'</code></span>,
+        <span class="sig-arg">command</span>=<span class="sig-default"><code class="variable-quote">'</code><code class="variable-string">su -</code><code class="variable-quote">'</code></span>,
+        <span class="sig-arg">password</span>=<span class="sig-default">None</span>,
+        <span class="sig-arg">prompt_prefix</span>=<span class="sig-default">None</span>,
+        <span class="sig-arg">expect</span>=<span class="sig-default">None</span>,
+        <span class="sig-arg">timeout</span>=<span class="sig-default">180</span>,
+        <span class="sig-arg">escape</span>=<span class="sig-default">False</span>,
+        <span class="sig-arg">note</span>=<span class="sig-default">None</span>,
+        <span class="sig-arg">go_home</span>=<span class="sig-default">True</span>,
+        <span class="sig-arg">delaybeforesend</span>=<span class="sig-default">0.05</span>,
+        <span class="sig-arg">loglevel</span>=<span class="sig-default">10</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="shutit_pexpect-pysrc.html#ShutItPexpectSession.login">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Logs the user in with the passed-in password and command. Tracks the 
+  login. If used, used logout to log out again. Assumes you are root when 
+  logging in, so no password required. If not, override the default command
+  for multi-level logins. If passwords are required, see setup_prompt() and
+  revert_prompt()</p>
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>user</code></strong> (string) - User to login with. Default: root</li>
+        <li><strong class="pname"><code>command</code></strong> (string) - Command to login with. Default: &quot;su -&quot;</li>
+        <li><strong class="pname"><code>escape</code></strong> - See send(). We default to true here in case matches an expect we 
+          add.</li>
+        <li><strong class="pname"><code>password</code></strong> (string) - Password.</li>
+        <li><strong class="pname"><code>prompt_prefix</code></strong> (string) - Prefix to use in prompt setup.</li>
+        <li><strong class="pname"><code>expect</code></strong> - See send()</li>
+        <li><strong class="pname"><code>timeout</code></strong> (integer) - How long to wait for a response. Default: 20.</li>
+        <li><strong class="pname"><code>note</code></strong> - See send()</li>
+        <li><strong class="pname"><code>go_home</code></strong> - Whether to automatically cd to home.</li>
+    </ul></dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="logout"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">logout</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">expect</span>=<span class="sig-default">None</span>,
+        <span class="sig-arg">command</span>=<span class="sig-default"><code class="variable-quote">'</code><code class="variable-string">exit</code><code class="variable-quote">'</code></span>,
+        <span class="sig-arg">note</span>=<span class="sig-default">None</span>,
+        <span class="sig-arg">timeout</span>=<span class="sig-default">5</span>,
+        <span class="sig-arg">delaybeforesend</span>=<span class="sig-default">0</span>,
+        <span class="sig-arg">loglevel</span>=<span class="sig-default">10</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="shutit_pexpect-pysrc.html#ShutItPexpectSession.logout">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Logs the user out. Assumes that login has been called. If login has 
+  never been called, throw an error.</p>
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>expect</code></strong> - See send()</li>
+        <li><strong class="pname"><code>command</code></strong> - Command to run to log out (default=exit)</li>
+        <li><strong class="pname"><code>note</code></strong> - See send()</li>
+    </ul></dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="setup_prompt"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">setup_prompt</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">prompt_name</span>,
+        <span class="sig-arg">prefix</span>=<span class="sig-default"><code class="variable-quote">'</code><code class="variable-string">default</code><code class="variable-quote">'</code></span>,
+        <span class="sig-arg">delaybeforesend</span>=<span class="sig-default">0</span>,
+        <span class="sig-arg">loglevel</span>=<span class="sig-default">10</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="shutit_pexpect-pysrc.html#ShutItPexpectSession.setup_prompt">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Use this when you've opened a new shell to set the PS1 to something 
+  sane. By default, it sets up the default expect so you don't have to 
+  worry about it and can just call shutit.send('a command').</p>
+  <p>If you want simple login and logout, please use login() and logout() 
+  within this module.</p>
+  <p>Typically it would be used in this boilerplate pattern:</p>
+<pre class="literalblock">
+   shutit.send('su - auser', expect=shutit_global.shutit.cfg['expect_prompts']['base_prompt'], check_exit=False)
+   shutit.setup_prompt('tmp_prompt')
+   shutit.send('some command')
+   [...]
+   shutit.set_default_shutit_pexpect_session_expect()
+   shutit.send('exit')
+</pre>
+  <p>This function is assumed to be called whenever there is a change of 
+  environment.</p>
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>prompt_name</code></strong> (string) - Reference name for prompt.</li>
+        <li><strong class="pname"><code>prefix</code></strong> (string) - Prompt prefix. Default: 'default'</li>
+    </ul></dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="revert_prompt"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">revert_prompt</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">old_prompt_name</span>,
+        <span class="sig-arg">new_expect</span>=<span class="sig-default">None</span>,
+        <span class="sig-arg">delaybeforesend</span>=<span class="sig-default">0</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="shutit_pexpect-pysrc.html#ShutItPexpectSession.revert_prompt">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Reverts the prompt to the previous value (passed-in).</p>
+  <p>It should be fairly rare to need this. Most of the time you would just
+  exit a subshell rather than resetting the prompt.</p>
+  <ul>
+    <li>
+      old_prompt_name -
+    </li>
+    <li>
+      new_expect      -
+    </li>
+    <li>
+      child           - See send()
+    </li>
+  </ul>
+  <dl class="fields">
+  </dl>
+</td></tr></table>
+</div>
+<a name="replace_container"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">replace_container</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">new_target_image_name</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="shutit_pexpect-pysrc.html#ShutItPexpectSession.replace_container">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Replaces a container. Assumes we are in Docker context</p>
+  <dl class="fields">
+  </dl>
+</td></tr></table>
+</div>
+<a name="whoami"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">whoami</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">note</span>=<span class="sig-default">None</span>,
+        <span class="sig-arg">delaybeforesend</span>=<span class="sig-default">0</span>,
+        <span class="sig-arg">loglevel</span>=<span class="sig-default">10</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="shutit_pexpect-pysrc.html#ShutItPexpectSession.whoami">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Returns the current user by executing &quot;whoami&quot;.</p>
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>note</code></strong> - See send()</li>
+    </ul></dd>
+    <dt>Returns: string</dt>
+        <dd>the output of &quot;whoami&quot;</dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="setup_environment"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">setup_environment</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">prefix</span>,
+        <span class="sig-arg">delaybeforesend</span>=<span class="sig-default">0</span>,
+        <span class="sig-arg">loglevel</span>=<span class="sig-default">10</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="shutit_pexpect-pysrc.html#ShutItPexpectSession.setup_environment">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>If we are in a new environment then set up a new data structure. A new
+  environment is a new machine environment, whether that's over ssh, 
+  docker, whatever. If we are not in a new environment ensure the env_id is
+  correct. Returns the environment id every time.</p>
+  <dl class="fields">
+  </dl>
+</td></tr></table>
+</div>
+<a name="create_command_file"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">create_command_file</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">expect</span>,
+        <span class="sig-arg">send</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="shutit_pexpect-pysrc.html#ShutItPexpectSession.create_command_file">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Internal function. Do not use.</p>
+  <p>Takes a long command, and puts it in an executable file ready to run. 
+  Returns the filename.</p>
+  <dl class="fields">
+  </dl>
+</td></tr></table>
+</div>
+<a name="check_last_exit_values"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">check_last_exit_values</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">send</span>,
+        <span class="sig-arg">expect</span>=<span class="sig-default">None</span>,
+        <span class="sig-arg">exit_values</span>=<span class="sig-default">None</span>,
+        <span class="sig-arg">retry</span>=<span class="sig-default">0</span>,
+        <span class="sig-arg">retbool</span>=<span class="sig-default">False</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="shutit_pexpect-pysrc.html#ShutItPexpectSession.check_last_exit_values">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Internal function to check the exit value of the shell. Do not 
+  use.</p>
+  <dl class="fields">
+  </dl>
+</td></tr></table>
+</div>
+<a name="pause_point"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">pause_point</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">msg</span>=<span class="sig-default"><code class="variable-quote">'</code><code class="variable-string">SHUTIT PAUSE POINT</code><code class="variable-quote">'</code></span>,
+        <span class="sig-arg">print_input</span>=<span class="sig-default">True</span>,
+        <span class="sig-arg">resize</span>=<span class="sig-default">True</span>,
+        <span class="sig-arg">colour</span>=<span class="sig-default"><code class="variable-quote">'</code><code class="variable-string">32</code><code class="variable-quote">'</code></span>,
+        <span class="sig-arg">default_msg</span>=<span class="sig-default">None</span>,
+        <span class="sig-arg">wait</span>=<span class="sig-default">-1</span>,
+        <span class="sig-arg">delaybeforesend</span>=<span class="sig-default">0</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="shutit_pexpect-pysrc.html#ShutItPexpectSession.pause_point">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Inserts a pause in the build session, which allows the user to try 
+  things out before continuing. Ignored if we are not in an interactive 
+  mode. Designed to help debug the build, or drop to on failure so the 
+  situation can be debugged.</p>
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>msg</code></strong> (string) - Message to display to user on pause point.</li>
+        <li><strong class="pname"><code>print_input</code></strong> (boolean) - Whether to take input at this point (i.e. interact), or simply 
+          pause pending any input. Default: True</li>
+        <li><strong class="pname"><code>resize</code></strong> (boolean) - If True, try to resize terminal. Default: False</li>
+        <li><strong class="pname"><code>colour</code></strong> - Colour to print message (typically 31 for red, 32 for green)</li>
+        <li><strong class="pname"><code>default_msg</code></strong> - Whether to print the standard blurb</li>
+        <li><strong class="pname"><code>wait</code></strong> (decimal) - Wait a few seconds rather than for input</li>
+    </ul></dd>
+    <dt>Returns:</dt>
+        <dd>True if pause point handled ok, else false</dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="file_exists"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">file_exists</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">filename</span>,
+        <span class="sig-arg">directory</span>=<span class="sig-default">False</span>,
+        <span class="sig-arg">note</span>=<span class="sig-default">None</span>,
+        <span class="sig-arg">delaybeforesend</span>=<span class="sig-default">0</span>,
+        <span class="sig-arg">loglevel</span>=<span class="sig-default">10</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="shutit_pexpect-pysrc.html#ShutItPexpectSession.file_exists">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Return True if file exists on the target host, else False</p>
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>filename</code></strong> (string) - Filename to determine the existence of.</li>
+        <li><strong class="pname"><code>directory</code></strong> (boolean) - Indicate that the file is a directory.</li>
+        <li><strong class="pname"><code>note</code></strong> - See send()</li>
+    </ul></dd>
+    <dt>Returns: boolean</dt>
+  </dl>
+</td></tr></table>
+</div>
+<a name="chdir"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">chdir</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">path</span>,
+        <span class="sig-arg">timeout</span>=<span class="sig-default">3600</span>,
+        <span class="sig-arg">note</span>=<span class="sig-default">None</span>,
+        <span class="sig-arg">delaybeforesend</span>=<span class="sig-default">0</span>,
+        <span class="sig-arg">loglevel</span>=<span class="sig-default">10</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="shutit_pexpect-pysrc.html#ShutItPexpectSession.chdir">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>How to change directory will depend on whether we are in delivery mode
+  bash or docker.</p>
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>path</code></strong> - Path to send file to.</li>
+        <li><strong class="pname"><code>timeout</code></strong> - Timeout on response</li>
+        <li><strong class="pname"><code>note</code></strong> - See send()</li>
+    </ul></dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="get_file_perms"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">get_file_perms</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">filename</span>,
+        <span class="sig-arg">note</span>=<span class="sig-default">None</span>,
+        <span class="sig-arg">delaybeforesend</span>=<span class="sig-default">0</span>,
+        <span class="sig-arg">loglevel</span>=<span class="sig-default">10</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="shutit_pexpect-pysrc.html#ShutItPexpectSession.get_file_perms">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Returns the permissions of the file on the target as an octal string 
+  triplet.</p>
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>filename</code></strong> (string) - Filename to get permissions of.</li>
+        <li><strong class="pname"><code>note</code></strong> - See send()</li>
+    </ul></dd>
+    <dt>Returns: string</dt>
+  </dl>
+</td></tr></table>
+</div>
+<a name="add_to_bashrc"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">add_to_bashrc</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">line</span>,
+        <span class="sig-arg">match_regexp</span>=<span class="sig-default">None</span>,
+        <span class="sig-arg">note</span>=<span class="sig-default">None</span>,
+        <span class="sig-arg">loglevel</span>=<span class="sig-default">10</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="shutit_pexpect-pysrc.html#ShutItPexpectSession.add_to_bashrc">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Takes care of adding a line to everyone's bashrc (/etc/bash.bashrc, 
+  /etc/profile).</p>
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>line</code></strong> - Line to add.</li>
+        <li><strong class="pname"><code>match_regexp</code></strong> - See add_line_to_file()</li>
+        <li><strong class="pname"><code>note</code></strong> - See send()</li>
+    </ul></dd>
+    <dt>Returns:</dt>
+        <dd>See add_line_to_file()</dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="is_user_id_available"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">is_user_id_available</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">user_id</span>,
+        <span class="sig-arg">note</span>=<span class="sig-default">None</span>,
+        <span class="sig-arg">delaybeforesend</span>=<span class="sig-default">0</span>,
+        <span class="sig-arg">loglevel</span>=<span class="sig-default">10</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="shutit_pexpect-pysrc.html#ShutItPexpectSession.is_user_id_available">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Determine whether the specified user_id available.</p>
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>user_id</code></strong> (integer) - User id to be checked.</li>
+        <li><strong class="pname"><code>note</code></strong> - See send()</li>
+    </ul></dd>
+    <dt>Returns: boolean</dt>
+        <dd>True is the specified user id is not used yet, False if it's 
+          already been assigned to a user.</dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="set_password"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">set_password</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">password</span>,
+        <span class="sig-arg">user</span>=<span class="sig-default"><code class="variable-quote">'</code><code class="variable-string"></code><code class="variable-quote">'</code></span>,
+        <span class="sig-arg">delaybeforesend</span>=<span class="sig-default">0.05</span>,
+        <span class="sig-arg">note</span>=<span class="sig-default">None</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="shutit_pexpect-pysrc.html#ShutItPexpectSession.set_password">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Sets the password for the current user or passed-in user.</p>
+  <p>As a side effect, installs the &quot;password&quot; package.</p>
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>user</code></strong> - username to set the password for. Defaults to '' (i.e. current 
+          user)</li>
+        <li><strong class="pname"><code>password</code></strong> - password to set for the user</li>
+        <li><strong class="pname"><code>note</code></strong> - See send()</li>
+    </ul></dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="get_url"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">get_url</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">filename</span>,
+        <span class="sig-arg">locations</span>,
+        <span class="sig-arg">command</span>=<span class="sig-default"><code class="variable-quote">'</code><code class="variable-string">curl</code><code class="variable-quote">'</code></span>,
+        <span class="sig-arg">timeout</span>=<span class="sig-default">3600</span>,
+        <span class="sig-arg">fail_on_empty_before</span>=<span class="sig-default">True</span>,
+        <span class="sig-arg">record_command</span>=<span class="sig-default">True</span>,
+        <span class="sig-arg">exit_values</span>=<span class="sig-default">None</span>,
+        <span class="sig-arg">retry</span>=<span class="sig-default">3</span>,
+        <span class="sig-arg">note</span>=<span class="sig-default">None</span>,
+        <span class="sig-arg">delaybeforesend</span>=<span class="sig-default">0</span>,
+        <span class="sig-arg">loglevel</span>=<span class="sig-default">10</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="shutit_pexpect-pysrc.html#ShutItPexpectSession.get_url">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Handles the getting of a url for you.</p>
+  <p>Example: get_url('somejar.jar', 
+  ['ftp://loc.org','http://anotherloc.com/jars'])</p>
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>filename</code></strong> (string) - name of the file to download</li>
+        <li><strong class="pname"><code>locations</code></strong> (list of strings) - list of URLs whence the file can be downloaded</li>
+        <li><strong class="pname"><code>command</code></strong> - program to use to download the file (Default: wget)</li>
+        <li><strong class="pname"><code>timeout</code></strong> - See send()</li>
+        <li><strong class="pname"><code>fail_on_empty_before</code></strong> - See send()</li>
+        <li><strong class="pname"><code>record_command</code></strong> - See send()</li>
+        <li><strong class="pname"><code>exit_values</code></strong> - See send()</li>
+        <li><strong class="pname"><code>retry</code></strong> (integer) - How many times to retry the download in case of failure. Default:
+          3</li>
+        <li><strong class="pname"><code>note</code></strong> - See send()</li>
+    </ul></dd>
+    <dt>Returns: boolean</dt>
+        <dd>True if the download was completed successfully, False otherwise.</dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="user_exists"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">user_exists</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">user</span>,
+        <span class="sig-arg">note</span>=<span class="sig-default">None</span>,
+        <span class="sig-arg">delaybeforesend</span>=<span class="sig-default">0</span>,
+        <span class="sig-arg">loglevel</span>=<span class="sig-default">10</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="shutit_pexpect-pysrc.html#ShutItPexpectSession.user_exists">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Returns true if the specified username exists.</p>
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>user</code></strong> (string) - username to check for</li>
+        <li><strong class="pname"><code>note</code></strong> - See send()</li>
+    </ul></dd>
+    <dt>Returns: boolean</dt>
+  </dl>
+</td></tr></table>
+</div>
+<a name="package_installed"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">package_installed</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">package</span>,
+        <span class="sig-arg">note</span>=<span class="sig-default">None</span>,
+        <span class="sig-arg">delaybeforesend</span>=<span class="sig-default">0</span>,
+        <span class="sig-arg">loglevel</span>=<span class="sig-default">10</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="shutit_pexpect-pysrc.html#ShutItPexpectSession.package_installed">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Returns True if we can be sure the package is installed.</p>
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>package</code></strong> - Package as a string, eg 'wget'.</li>
+        <li><strong class="pname"><code>note</code></strong> - See send()</li>
+    </ul></dd>
+    <dt>Returns: boolean</dt>
+  </dl>
+</td></tr></table>
+</div>
+<a name="is_shutit_installed"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">is_shutit_installed</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">module_id</span>,
+        <span class="sig-arg">note</span>=<span class="sig-default">None</span>,
+        <span class="sig-arg">delaybeforesend</span>=<span class="sig-default">0</span>,
+        <span class="sig-arg">loglevel</span>=<span class="sig-default">10</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="shutit_pexpect-pysrc.html#ShutItPexpectSession.is_shutit_installed">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Helper proc to determine whether shutit has installed already here by 
+  placing a file in the db.</p>
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>module_id</code></strong> - Identifying string of shutit module</li>
+        <li><strong class="pname"><code>note</code></strong> - See send()</li>
+    </ul></dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="ls"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">ls</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">directory</span>,
+        <span class="sig-arg">note</span>=<span class="sig-default">None</span>,
+        <span class="sig-arg">delaybeforesend</span>=<span class="sig-default">0</span>,
+        <span class="sig-arg">loglevel</span>=<span class="sig-default">10</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="shutit_pexpect-pysrc.html#ShutItPexpectSession.ls">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Helper proc to list files in a directory</p>
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>directory</code></strong> (string) - directory to list.  If the directory doesn't exist, shutit.fail()
+          is called (i.e.  the build fails.)</li>
+        <li><strong class="pname"><code>note</code></strong> - See send()</li>
+    </ul></dd>
+    <dt>Returns: list of strings</dt>
+  </dl>
+</td></tr></table>
+</div>
+<a name="install"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">install</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">package</span>,
+        <span class="sig-arg">options</span>=<span class="sig-default">None</span>,
+        <span class="sig-arg">timeout</span>=<span class="sig-default">3600</span>,
+        <span class="sig-arg">force</span>=<span class="sig-default">False</span>,
+        <span class="sig-arg">check_exit</span>=<span class="sig-default">True</span>,
+        <span class="sig-arg">reinstall</span>=<span class="sig-default">False</span>,
+        <span class="sig-arg">note</span>=<span class="sig-default">None</span>,
+        <span class="sig-arg">delaybeforesend</span>=<span class="sig-default">0</span>,
+        <span class="sig-arg">loglevel</span>=<span class="sig-default">10</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="shutit_pexpect-pysrc.html#ShutItPexpectSession.install">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Distro-independent install function. Takes a package name and runs the
+  relevant install function.</p>
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>package</code></strong> (string) - Package to install, which is run through package_map</li>
+        <li><strong class="pname"><code>timeout</code></strong> (integer) - Timeout (s) to wait for finish of install. Defaults to 3600.</li>
+        <li><strong class="pname"><code>options</code></strong> (dict) - Dictionary for specific options per install tool. Overrides any 
+          arguments passed into this function.</li>
+        <li><strong class="pname"><code>force</code></strong> (boolean) - Force if necessary. Defaults to False</li>
+        <li><strong class="pname"><code>check_exit</code></strong> (boolean) - If False, failure to install is ok (default True)</li>
+        <li><strong class="pname"><code>reinstall</code></strong> (boolean) - Advise a reinstall where possible (default False)</li>
+        <li><strong class="pname"><code>note</code></strong> - See send()</li>
+    </ul></dd>
+    <dt>Returns: boolean</dt>
+        <dd>True if all ok (ie it's installed), else False.</dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="remove"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">remove</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">package</span>,
+        <span class="sig-arg">options</span>=<span class="sig-default">None</span>,
+        <span class="sig-arg">timeout</span>=<span class="sig-default">3600</span>,
+        <span class="sig-arg">delaybeforesend</span>=<span class="sig-default">0</span>,
+        <span class="sig-arg">note</span>=<span class="sig-default">None</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="shutit_pexpect-pysrc.html#ShutItPexpectSession.remove">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Distro-independent remove function. Takes a package name and runs 
+  relevant remove function.</p>
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>package</code></strong> - Package to remove, which is run through package_map.</li>
+        <li><strong class="pname"><code>options</code></strong> - Dict of options to pass to the remove command, mapped by 
+          install_type.</li>
+        <li><strong class="pname"><code>timeout</code></strong> - See send(). Default: 3600</li>
+        <li><strong class="pname"><code>note</code></strong> - See send()</li>
+    </ul></dd>
+    <dt>Returns: boolean</dt>
+        <dd>True if all ok (i.e. the package was successfully removed), False
+          otherwise.</dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="send_and_match_output"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">send_and_match_output</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">send</span>,
+        <span class="sig-arg">matches</span>,
+        <span class="sig-arg">retry</span>=<span class="sig-default">3</span>,
+        <span class="sig-arg">strip</span>=<span class="sig-default">True</span>,
+        <span class="sig-arg">note</span>=<span class="sig-default">None</span>,
+        <span class="sig-arg">echo</span>=<span class="sig-default">False</span>,
+        <span class="sig-arg">delaybeforesend</span>=<span class="sig-default">0</span>,
+        <span class="sig-arg">loglevel</span>=<span class="sig-default">10</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="shutit_pexpect-pysrc.html#ShutItPexpectSession.send_and_match_output">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Returns true if the output of the command matches any of the strings 
+  in the matches list of regexp strings. Handles matching on a per-line 
+  basis and does not cross lines.</p>
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>send</code></strong> (string) - See send()</li>
+        <li><strong class="pname"><code>matches</code></strong> (list) - String - or list of strings - of regexp(s) to check</li>
+        <li><strong class="pname"><code>retry</code></strong> (integer) - Number of times to retry command (default 3)</li>
+        <li><strong class="pname"><code>strip</code></strong> (boolean) - Whether to strip output (defaults to True)</li>
+        <li><strong class="pname"><code>note</code></strong> - See send()</li>
+    </ul></dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="send_and_get_output"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">send_and_get_output</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">send</span>,
+        <span class="sig-arg">timeout</span>=<span class="sig-default">None</span>,
+        <span class="sig-arg">retry</span>=<span class="sig-default">3</span>,
+        <span class="sig-arg">strip</span>=<span class="sig-default">True</span>,
+        <span class="sig-arg">preserve_newline</span>=<span class="sig-default">False</span>,
+        <span class="sig-arg">note</span>=<span class="sig-default">None</span>,
+        <span class="sig-arg">record_command</span>=<span class="sig-default">False</span>,
+        <span class="sig-arg">echo</span>=<span class="sig-default">False</span>,
+        <span class="sig-arg">fail_on_empty_before</span>=<span class="sig-default">True</span>,
+        <span class="sig-arg">delaybeforesend</span>=<span class="sig-default">0</span>,
+        <span class="sig-arg">loglevel</span>=<span class="sig-default">10</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="shutit_pexpect-pysrc.html#ShutItPexpectSession.send_and_get_output">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Returns the output of a command run. send() is called, and exit is not
+  checked.</p>
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>send</code></strong> - See send()</li>
+        <li><strong class="pname"><code>retry</code></strong> (integer) - Number of times to retry command (default 3)</li>
+        <li><strong class="pname"><code>strip</code></strong> (boolean) - Whether to strip output (defaults to True). Strips whitespace and
+          ansi terminal codes</li>
+        <li><strong class="pname"><code>note</code></strong> - See send()</li>
+        <li><strong class="pname"><code>echo</code></strong> - See send()</li>
+    </ul></dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="get_env_pass"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">get_env_pass</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">user</span>=<span class="sig-default">None</span>,
+        <span class="sig-arg">msg</span>=<span class="sig-default">None</span>,
+        <span class="sig-arg">note</span>=<span class="sig-default">None</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="shutit_pexpect-pysrc.html#ShutItPexpectSession.get_env_pass">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Gets a password from the user if one is not already recorded for this 
+  environment.</p>
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>user</code></strong> - username we are getting password for</li>
+        <li><strong class="pname"><code>msg</code></strong> - message to put out there</li>
+    </ul></dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="whoarewe"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">whoarewe</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">note</span>=<span class="sig-default">None</span>,
+        <span class="sig-arg">delaybeforesend</span>=<span class="sig-default">0</span>,
+        <span class="sig-arg">loglevel</span>=<span class="sig-default">10</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="shutit_pexpect-pysrc.html#ShutItPexpectSession.whoarewe">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Returns the current group.</p>
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>note</code></strong> - See send()</li>
+    </ul></dd>
+    <dt>Returns: string</dt>
+        <dd>the first group found</dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="get_distro_info"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">get_distro_info</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">environment_id</span>,
+        <span class="sig-arg">delaybeforesend</span>=<span class="sig-default">0</span>,
+        <span class="sig-arg">loglevel</span>=<span class="sig-default">10</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="shutit_pexpect-pysrc.html#ShutItPexpectSession.get_distro_info">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Get information about which distro we are using, placing it in the 
+  cfg['environment'][environment_id] as a side effect.</p>
+  <p>Fails if distro could not be determined. Should be called with the 
+  container is started up, and uses as core info as possible.</p>
+  <p>Note: if the install type is apt, it issues the following:</p>
+  <ul>
+    <li>
+      apt-get update
+    </li>
+    <li>
+      apt-get install -y -qq lsb-release
+    </li>
+  </ul>
+  <dl class="fields">
+  </dl>
+</td></tr></table>
+</div>
+<a name="multisend"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">multisend</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">send</span>,
+        <span class="sig-arg">send_dict</span>,
+        <span class="sig-arg">expect</span>=<span class="sig-default">None</span>,
+        <span class="sig-arg">timeout</span>=<span class="sig-default">3600</span>,
+        <span class="sig-arg">check_exit</span>=<span class="sig-default">None</span>,
+        <span class="sig-arg">fail_on_empty_before</span>=<span class="sig-default">True</span>,
+        <span class="sig-arg">record_command</span>=<span class="sig-default">True</span>,
+        <span class="sig-arg">exit_values</span>=<span class="sig-default">None</span>,
+        <span class="sig-arg">escape</span>=<span class="sig-default">False</span>,
+        <span class="sig-arg">echo</span>=<span class="sig-default">None</span>,
+        <span class="sig-arg">note</span>=<span class="sig-default">None</span>,
+        <span class="sig-arg">delaybeforesend</span>=<span class="sig-default">0</span>,
+        <span class="sig-arg">loglevel</span>=<span class="sig-default">10</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="shutit_pexpect-pysrc.html#ShutItPexpectSession.multisend">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Multisend. Same as send, except it takes multiple sends and expects in
+  a dict that are processed while waiting for the end &quot;expect&quot; 
+  argument supplied.</p>
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>send_dict</code></strong> - dict of sends and expects, eg: {'interim prompt:','some 
+          input','other prompt','some other input'}</li>
+        <li><strong class="pname"><code>expect</code></strong> - String or list of strings of final expected output that returns 
+          from this function. See send()</li>
+        <li><strong class="pname"><code>send</code></strong> - See send()</li>
+        <li><strong class="pname"><code>timeout</code></strong> - See send()</li>
+        <li><strong class="pname"><code>check_exit</code></strong> - See send()</li>
+        <li><strong class="pname"><code>fail_on_empty_before</code></strong> - See send()</li>
+        <li><strong class="pname"><code>record_command</code></strong> - See send()</li>
+        <li><strong class="pname"><code>exit_values</code></strong> - See send()</li>
+        <li><strong class="pname"><code>echo</code></strong> - See send()</li>
+        <li><strong class="pname"><code>note</code></strong> - See send()</li>
+    </ul></dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="send_until"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">send_until</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">send</span>,
+        <span class="sig-arg">regexps</span>,
+        <span class="sig-arg">not_there</span>=<span class="sig-default">False</span>,
+        <span class="sig-arg">cadence</span>=<span class="sig-default">5</span>,
+        <span class="sig-arg">retries</span>=<span class="sig-default">100</span>,
+        <span class="sig-arg">echo</span>=<span class="sig-default">False</span>,
+        <span class="sig-arg">note</span>=<span class="sig-default">None</span>,
+        <span class="sig-arg">delaybeforesend</span>=<span class="sig-default">0</span>,
+        <span class="sig-arg">loglevel</span>=<span class="sig-default">20</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="shutit_pexpect-pysrc.html#ShutItPexpectSession.send_until">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Send string on a regular cadence until a string is either seen, or the
+  timeout is triggered.</p>
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>send</code></strong> - See send()</li>
+        <li><strong class="pname"><code>regexps</code></strong> - List of regexps to wait for.</li>
+        <li><strong class="pname"><code>not_there</code></strong> - If True, wait until this a regexp is not seen in the output. If 
+          False wait until a regexp is seen in the output (default)</li>
+        <li><strong class="pname"><code>echo</code></strong> - See send()</li>
+        <li><strong class="pname"><code>note</code></strong> - See send()</li>
+    </ul></dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="change_text"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">change_text</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">text</span>,
+        <span class="sig-arg">fname</span>,
+        <span class="sig-arg">pattern</span>=<span class="sig-default">None</span>,
+        <span class="sig-arg">before</span>=<span class="sig-default">False</span>,
+        <span class="sig-arg">force</span>=<span class="sig-default">False</span>,
+        <span class="sig-arg">delete</span>=<span class="sig-default">False</span>,
+        <span class="sig-arg">note</span>=<span class="sig-default">None</span>,
+        <span class="sig-arg">replace</span>=<span class="sig-default">False</span>,
+        <span class="sig-arg">line_oriented</span>=<span class="sig-default">True</span>,
+        <span class="sig-arg">create</span>=<span class="sig-default">True</span>,
+        <span class="sig-arg">delaybeforesend</span>=<span class="sig-default">0</span>,
+        <span class="sig-arg">loglevel</span>=<span class="sig-default">10</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="shutit_pexpect-pysrc.html#ShutItPexpectSession.change_text">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Change text in a file.</p>
+  <p>Returns None if there was no match for the regexp, True if it was 
+  matched and replaced, and False if the file did not exist or there was 
+  some other problem.</p>
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>text</code></strong> - Text to insert.</li>
+        <li><strong class="pname"><code>fname</code></strong> - Filename to insert text to</li>
+        <li><strong class="pname"><code>pattern</code></strong> - Regexp for a line to match and insert after/before/replace. If 
+          none, put at end of file.</li>
+        <li><strong class="pname"><code>before</code></strong> - Whether to place the text before or after the matched text.</li>
+        <li><strong class="pname"><code>force</code></strong> - Force the insertion even if the text is in the file.</li>
+        <li><strong class="pname"><code>delete</code></strong> - Delete text from file rather than insert</li>
+        <li><strong class="pname"><code>replace</code></strong> - Replace matched text with passed-in text. If nothing matches, 
+          then append.</li>
+        <li><strong class="pname"><code>note</code></strong> - See send()</li>
+        <li><strong class="pname"><code>line_oriented</code></strong> - Consider the pattern on a per-line basis (default True). Can 
+          match any continuous section of the line, eg 'b.*d' will match 
+          the line: 'abcde' If not line_oriented, the regexp is considered 
+          on with the flags re.DOTALL, re.MULTILINE enabled</li>
+    </ul></dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="remove_line_from_file"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">remove_line_from_file</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">line</span>,
+        <span class="sig-arg">filename</span>,
+        <span class="sig-arg">match_regexp</span>=<span class="sig-default">None</span>,
+        <span class="sig-arg">literal</span>=<span class="sig-default">False</span>,
+        <span class="sig-arg">note</span>=<span class="sig-default">None</span>,
+        <span class="sig-arg">delaybeforesend</span>=<span class="sig-default">0</span>,
+        <span class="sig-arg">loglevel</span>=<span class="sig-default">10</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="shutit_pexpect-pysrc.html#ShutItPexpectSession.remove_line_from_file">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Removes line from file, if it exists. Must be exactly the line passed 
+  in to match. Returns True if there were no problems, False if there 
+  were.</p>
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>line</code></strong> (string) - Line to remove. @param filename       Filename to remove it from.</li>
+        <li><strong class="pname"><code>match_regexp</code></strong> (string) - If supplied, a regexp to look for in the file instead of the line
+          itself, handy if the line has awkward characters in it.</li>
+        <li><strong class="pname"><code>literal</code></strong> (boolean) - If true, then simply grep for the exact string without bash 
+          interpretation. (Default: False)</li>
+        <li><strong class="pname"><code>note</code></strong> - See send()</li>
+        <li><strong class="pname"><code>filename</code></strong> (string)</li>
+    </ul></dd>
+    <dt>Returns: boolean</dt>
+        <dd>True if the line was matched and deleted, False otherwise.</dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="send"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">send</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">send</span>,
+        <span class="sig-arg">expect</span>=<span class="sig-default">None</span>,
+        <span class="sig-arg">timeout</span>=<span class="sig-default">None</span>,
+        <span class="sig-arg">check_exit</span>=<span class="sig-default">None</span>,
+        <span class="sig-arg">fail_on_empty_before</span>=<span class="sig-default">True</span>,
+        <span class="sig-arg">record_command</span>=<span class="sig-default">True</span>,
+        <span class="sig-arg">exit_values</span>=<span class="sig-default">None</span>,
+        <span class="sig-arg">echo</span>=<span class="sig-default">False</span>,
+        <span class="sig-arg">escape</span>=<span class="sig-default">False</span>,
+        <span class="sig-arg">retry</span>=<span class="sig-default">3</span>,
+        <span class="sig-arg">note</span>=<span class="sig-default">None</span>,
+        <span class="sig-arg">assume_gnu</span>=<span class="sig-default">True</span>,
+        <span class="sig-arg">delaybeforesend</span>=<span class="sig-default">0</span>,
+        <span class="sig-arg">loglevel</span>=<span class="sig-default">20</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="shutit_pexpect-pysrc.html#ShutItPexpectSession.send">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Send string as a shell command, and wait until the expected output is 
+  seen (either a string or any from a list of strings) before returning. 
+  The expected string will default to the currently-set default expected 
+  string (see get_default_shutit_pexpect_session_expect)</p>
+  <p>Returns the pexpect return value (ie which expected string in the list
+  matched)</p>
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>send</code></strong> - String to send, ie the command being issued. If set to None, we 
+          consume up to the expect string, which is useful if we just 
+          matched output that came before a standard command that returns 
+          to the prompt.</li>
+        <li><strong class="pname"><code>expect</code></strong> - String that we expect to see in the output. Usually a prompt. 
+          Defaults to currently-set expect string (see 
+          set_default_shutit_pexpect_session_expect)</li>
+        <li><strong class="pname"><code>timeout</code></strong> - Timeout on response</li>
+        <li><strong class="pname"><code>check_exit</code></strong> - Whether to check the shell exit code of the passed-in command.  
+          If the exit value was non-zero an error is thrown.  
+          (default=None, which takes the currently-configured check_exit 
+          value) See also fail_on_empty_before.</li>
+        <li><strong class="pname"><code>fail_on_empty_before</code></strong> - If debug is set, fail on empty match output string (default=True)
+          If this is set to False, then we don't check the exit value of 
+          the command.</li>
+        <li><strong class="pname"><code>record_command</code></strong> - Whether to record the command for output at end. As a safety 
+          measure, if the command matches any 'password's then we don't 
+          record it.</li>
+        <li><strong class="pname"><code>exit_values</code></strong> - Array of acceptable exit values as strings</li>
+        <li><strong class="pname"><code>echo</code></strong> - Whether to suppress any logging output from pexpect to the 
+          terminal or not.  We don't record the command if this is set to 
+          False unless record_command is explicitly passed in as True.</li>
+        <li><strong class="pname"><code>escape</code></strong> - Whether to escape the characters in a bash-friendly way, ie 
+          $'\Uxxxxxx'</li>
+        <li><strong class="pname"><code>retry</code></strong> - Number of times to retry the command if the first attempt doesn't
+          work. Useful if going to the network</li>
+        <li><strong class="pname"><code>note</code></strong> - If a note is passed in, and we are in walkthrough mode, pause 
+          with the note printed</li>
+        <li><strong class="pname"><code>assume_gnu</code></strong> - Assume the gnu version of commands, which are not in OSx by 
+          default (for example)</li>
+    </ul></dd>
+    <dt>Returns: string</dt>
+        <dd>The pexpect return value (ie which expected string in the list 
+          matched)</dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="send_and_expect"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">send_and_expect</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">send</span>,
+        <span class="sig-arg">expect</span>=<span class="sig-default">None</span>,
+        <span class="sig-arg">timeout</span>=<span class="sig-default">None</span>,
+        <span class="sig-arg">check_exit</span>=<span class="sig-default">None</span>,
+        <span class="sig-arg">fail_on_empty_before</span>=<span class="sig-default">True</span>,
+        <span class="sig-arg">record_command</span>=<span class="sig-default">True</span>,
+        <span class="sig-arg">exit_values</span>=<span class="sig-default">None</span>,
+        <span class="sig-arg">echo</span>=<span class="sig-default">False</span>,
+        <span class="sig-arg">escape</span>=<span class="sig-default">False</span>,
+        <span class="sig-arg">retry</span>=<span class="sig-default">3</span>,
+        <span class="sig-arg">note</span>=<span class="sig-default">None</span>,
+        <span class="sig-arg">assume_gnu</span>=<span class="sig-default">True</span>,
+        <span class="sig-arg">delaybeforesend</span>=<span class="sig-default">0</span>,
+        <span class="sig-arg">loglevel</span>=<span class="sig-default">20</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="shutit_pexpect-pysrc.html#ShutItPexpectSession.send">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Send string as a shell command, and wait until the expected output is 
+  seen (either a string or any from a list of strings) before returning. 
+  The expected string will default to the currently-set default expected 
+  string (see get_default_shutit_pexpect_session_expect)</p>
+  <p>Returns the pexpect return value (ie which expected string in the list
+  matched)</p>
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>send</code></strong> - String to send, ie the command being issued. If set to None, we 
+          consume up to the expect string, which is useful if we just 
+          matched output that came before a standard command that returns 
+          to the prompt.</li>
+        <li><strong class="pname"><code>expect</code></strong> - String that we expect to see in the output. Usually a prompt. 
+          Defaults to currently-set expect string (see 
+          set_default_shutit_pexpect_session_expect)</li>
+        <li><strong class="pname"><code>timeout</code></strong> - Timeout on response</li>
+        <li><strong class="pname"><code>check_exit</code></strong> - Whether to check the shell exit code of the passed-in command.  
+          If the exit value was non-zero an error is thrown.  
+          (default=None, which takes the currently-configured check_exit 
+          value) See also fail_on_empty_before.</li>
+        <li><strong class="pname"><code>fail_on_empty_before</code></strong> - If debug is set, fail on empty match output string (default=True)
+          If this is set to False, then we don't check the exit value of 
+          the command.</li>
+        <li><strong class="pname"><code>record_command</code></strong> - Whether to record the command for output at end. As a safety 
+          measure, if the command matches any 'password's then we don't 
+          record it.</li>
+        <li><strong class="pname"><code>exit_values</code></strong> - Array of acceptable exit values as strings</li>
+        <li><strong class="pname"><code>echo</code></strong> - Whether to suppress any logging output from pexpect to the 
+          terminal or not.  We don't record the command if this is set to 
+          False unless record_command is explicitly passed in as True.</li>
+        <li><strong class="pname"><code>escape</code></strong> - Whether to escape the characters in a bash-friendly way, ie 
+          $'\Uxxxxxx'</li>
+        <li><strong class="pname"><code>retry</code></strong> - Number of times to retry the command if the first attempt doesn't
+          work. Useful if going to the network</li>
+        <li><strong class="pname"><code>note</code></strong> - If a note is passed in, and we are in walkthrough mode, pause 
+          with the note printed</li>
+        <li><strong class="pname"><code>assume_gnu</code></strong> - Assume the gnu version of commands, which are not in OSx by 
+          default (for example)</li>
+    </ul></dd>
+    <dt>Returns: string</dt>
+        <dd>The pexpect return value (ie which expected string in the list 
+          matched)</dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="send_file"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">send_file</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">path</span>,
+        <span class="sig-arg">contents</span>,
+        <span class="sig-arg">truncate</span>=<span class="sig-default">False</span>,
+        <span class="sig-arg">note</span>=<span class="sig-default">None</span>,
+        <span class="sig-arg">user</span>=<span class="sig-default">None</span>,
+        <span class="sig-arg">group</span>=<span class="sig-default">None</span>,
+        <span class="sig-arg">delaybeforesend</span>=<span class="sig-default">0</span>,
+        <span class="sig-arg">loglevel</span>=<span class="sig-default">20</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="shutit_pexpect-pysrc.html#ShutItPexpectSession.send_file">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Sends the passed-in string as a file to the passed-in path on the 
+  target.</p>
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>path</code></strong> (string) - Target location of file on target.</li>
+        <li><strong class="pname"><code>contents</code></strong> (string) - Contents of file as a string.</li>
+        <li><strong class="pname"><code>note</code></strong> - See send()</li>
+        <li><strong class="pname"><code>user</code></strong> - Set ownership to this user (defaults to whoami)</li>
+        <li><strong class="pname"><code>group</code></strong> - Set group to this user (defaults to first group in groups)</li>
+    </ul></dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="run_script"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">run_script</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">script</span>,
+        <span class="sig-arg">in_shell</span>=<span class="sig-default">True</span>,
+        <span class="sig-arg">note</span>=<span class="sig-default">None</span>,
+        <span class="sig-arg">delaybeforesend</span>=<span class="sig-default">0</span>,
+        <span class="sig-arg">loglevel</span>=<span class="sig-default">10</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="shutit_pexpect-pysrc.html#ShutItPexpectSession.run_script">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Run the passed-in string as a script on the target's command line.</p>
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>script</code></strong> (string) - String representing the script. It will be de-indented and 
+          stripped before being run.</li>
+        <li><strong class="pname"><code>in_shell</code></strong> (boolean) - Indicate whether we are in a shell or not. (Default: True)</li>
+        <li><strong class="pname"><code>note</code></strong> - See send()</li>
+    </ul></dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="challenge"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">challenge</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">task_desc</span>,
+        <span class="sig-arg">expect</span>=<span class="sig-default">None</span>,
+        <span class="sig-arg">hints</span>=<span class="sig-default"><code class="variable-group">[</code><code class="variable-group">]</code></span>,
+        <span class="sig-arg">congratulations</span>=<span class="sig-default"><code class="variable-quote">'</code><code class="variable-string">OK</code><code class="variable-quote">'</code></span>,
+        <span class="sig-arg">failed</span>=<span class="sig-default"><code class="variable-quote">'</code><code class="variable-string">FAILED</code><code class="variable-quote">'</code></span>,
+        <span class="sig-arg">expect_type</span>=<span class="sig-default"><code class="variable-quote">'</code><code class="variable-string">exact</code><code class="variable-quote">'</code></span>,
+        <span class="sig-arg">challenge_type</span>=<span class="sig-default"><code class="variable-quote">'</code><code class="variable-string">command</code><code class="variable-quote">'</code></span>,
+        <span class="sig-arg">shutit_pexpect_child</span>=<span class="sig-default">None</span>,
+        <span class="sig-arg">timeout</span>=<span class="sig-default">None</span>,
+        <span class="sig-arg">check_exit</span>=<span class="sig-default">None</span>,
+        <span class="sig-arg">fail_on_empty_before</span>=<span class="sig-default">True</span>,
+        <span class="sig-arg">record_command</span>=<span class="sig-default">True</span>,
+        <span class="sig-arg">exit_values</span>=<span class="sig-default">None</span>,
+        <span class="sig-arg">echo</span>=<span class="sig-default">True</span>,
+        <span class="sig-arg">escape</span>=<span class="sig-default">False</span>,
+        <span class="sig-arg">pause</span>=<span class="sig-default">1</span>,
+        <span class="sig-arg">loglevel</span>=<span class="sig-default">10</span>,
+        <span class="sig-arg">delaybeforesend</span>=<span class="sig-default">0</span>,
+        <span class="sig-arg">follow_on_context</span>=<span class="sig-default"><code class="variable-group">{</code><code class="variable-group">}</code></span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="shutit_pexpect-pysrc.html#ShutItPexpectSession.challenge">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <pre class="literalblock">
+Set the user a task to complete, success being determined by matching the output.
+
+Either pass in regexp(s) desired from the output as a string or a list, or an md5sum of the output wanted.
+
+@param follow_on_context     On success, move to this context. A dict of information about that context.
+                             context              = the type of context, eg docker, bash
+                             ok_container_name    = if passed, send user to this container
+                             reset_container_name = if resetting, send user to this container
+@param challenge_type        Behaviour of challenge made to user
+                             command = check for output of single command
+                             golf    = user gets a pause point, and when leaving, command follow_on_context['check_command'] is run to check the output
+
+</pre>
+  <dl class="fields">
+  </dl>
+</td></tr></table>
+</div>
+<br />
+<!-- ==================== NAVIGATION BAR ==================== -->
+<table class="navbar" border="0" width="100%" cellpadding="0"
+       bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="middle">
+
+  <!-- Tree link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="module-tree.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Index link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="identifier-index.html">Indices</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Help link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Project homepage -->
+      <th class="navbar" align="right" width="100%">
+        <table border="0" cellpadding="0" cellspacing="0">
+          <tr><th class="navbar" align="center"
+            >ShutIt</th>
+          </tr></table></th>
+  </tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%%">
+  <tr>
+    <td align="left" class="footer">
+    Generated by Epydoc 3.0.1
+    on Mon May  2 07:17:20 2016
+    </td>
+    <td align="right" class="footer">
+      <a target="mainFrame" href="http://epydoc.sourceforge.net"
+        >http://epydoc.sourceforge.net</a>
+    </td>
+  </tr>
+</table>
+
+<script type="text/javascript">
+  <!--
+  // Private objects are initially displayed (because if
+  // javascript is turned off then we want them to be
+  // visible); but by default, we want to hide them.  So hide
+  // them unless we have a cookie that says to show them.
+  checkCookie();
+  // -->
+</script>
+</body>
+</html>

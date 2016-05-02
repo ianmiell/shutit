@@ -415,28 +415,6 @@ object --+
       
     </td>
   </tr>
-<tr class="private">
-    <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">&nbsp;</span>
-    </td><td class="summary">
-      <table width="100%" cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td><span class="summary-sig"><a name="_challenge_done"></a><span class="summary-sig-name">_challenge_done</span>(<span class="summary-sig-arg">self</span>,
-        <span class="summary-sig-arg">shutit_pexpect_session</span>,
-        <span class="summary-sig-arg">result</span>=<span class="summary-sig-default">None</span>,
-        <span class="summary-sig-arg">congratulations</span>=<span class="summary-sig-default">None</span>,
-        <span class="summary-sig-arg">follow_on_context</span>=<span class="summary-sig-default"><code class="variable-group">{</code><code class="variable-group">}</code></span>,
-        <span class="summary-sig-arg">pause</span>=<span class="summary-sig-default">1</span>,
-        <span class="summary-sig-arg">skipped</span>=<span class="summary-sig-default">False</span>)</span></td>
-          <td align="right" valign="top">
-            <span class="codelink"><a href="shutit_global-pysrc.html#ShutIt._challenge_done">source&nbsp;code</a></span>
-            
-          </td>
-        </tr>
-      </table>
-      
-    </td>
-  </tr>
 <tr>
     <td width="15%" align="right" valign="top" class="summary">
       <span class="summary-type">string</span>
@@ -572,7 +550,6 @@ object --+
         <tr>
           <td><span class="summary-sig"><a href="shutit_global.ShutIt-class.html#run_script" class="summary-sig-name">run_script</a>(<span class="summary-sig-arg">self</span>,
         <span class="summary-sig-arg">script</span>,
-        <span class="summary-sig-arg">expect</span>=<span class="summary-sig-default">None</span>,
         <span class="summary-sig-arg">shutit_pexpect_child</span>=<span class="summary-sig-default">None</span>,
         <span class="summary-sig-arg">in_shell</span>=<span class="summary-sig-default">True</span>,
         <span class="summary-sig-arg">note</span>=<span class="summary-sig-default">None</span>,
@@ -597,7 +574,6 @@ object --+
           <td><span class="summary-sig"><a href="shutit_global.ShutIt-class.html#send_file" class="summary-sig-name">send_file</a>(<span class="summary-sig-arg">self</span>,
         <span class="summary-sig-arg">path</span>,
         <span class="summary-sig-arg">contents</span>,
-        <span class="summary-sig-arg">expect</span>=<span class="summary-sig-default">None</span>,
         <span class="summary-sig-arg">shutit_pexpect_child</span>=<span class="summary-sig-default">None</span>,
         <span class="summary-sig-arg">truncate</span>=<span class="summary-sig-default">False</span>,
         <span class="summary-sig-arg">note</span>=<span class="summary-sig-default">None</span>,
@@ -624,7 +600,6 @@ object --+
         <tr>
           <td><span class="summary-sig"><a href="shutit_global.ShutIt-class.html#chdir" class="summary-sig-name">chdir</a>(<span class="summary-sig-arg">self</span>,
         <span class="summary-sig-arg">path</span>,
-        <span class="summary-sig-arg">expect</span>=<span class="summary-sig-default">None</span>,
         <span class="summary-sig-arg">shutit_pexpect_child</span>=<span class="summary-sig-default">None</span>,
         <span class="summary-sig-arg">timeout</span>=<span class="summary-sig-default">3600</span>,
         <span class="summary-sig-arg">note</span>=<span class="summary-sig-default">None</span>,
@@ -750,7 +725,6 @@ object --+
           <td><span class="summary-sig"><a href="shutit_global.ShutIt-class.html#remove_line_from_file" class="summary-sig-name">remove_line_from_file</a>(<span class="summary-sig-arg">self</span>,
         <span class="summary-sig-arg">line</span>,
         <span class="summary-sig-arg">filename</span>,
-        <span class="summary-sig-arg">expect</span>=<span class="summary-sig-default">None</span>,
         <span class="summary-sig-arg">shutit_pexpect_child</span>=<span class="summary-sig-default">None</span>,
         <span class="summary-sig-arg">match_regexp</span>=<span class="summary-sig-default">None</span>,
         <span class="summary-sig-arg">literal</span>=<span class="summary-sig-default">False</span>,
@@ -2412,7 +2386,6 @@ Either pass in regexp(s) desired from the output as a string or a list, or an md
   <tr valign="top"><td>
   <h3 class="epydoc"><span class="sig"><span class="sig-name">run_script</span>(<span class="sig-arg">self</span>,
         <span class="sig-arg">script</span>,
-        <span class="sig-arg">expect</span>=<span class="sig-default">None</span>,
         <span class="sig-arg">shutit_pexpect_child</span>=<span class="sig-default">None</span>,
         <span class="sig-arg">in_shell</span>=<span class="sig-default">True</span>,
         <span class="sig-arg">note</span>=<span class="sig-default">None</span>,
@@ -2430,7 +2403,6 @@ Either pass in regexp(s) desired from the output as a string or a list, or an md
     <dd><ul class="nomargin-top">
         <li><strong class="pname"><code>script</code></strong> (string) - String representing the script. It will be de-indented and 
           stripped before being run.</li>
-        <li><strong class="pname"><code>expect</code></strong> - See send()</li>
         <li><strong class="pname"><code>shutit_pexpect_child</code></strong> - See send()</li>
         <li><strong class="pname"><code>in_shell</code></strong> (boolean) - Indicate whether we are in a shell or not. (Default: True)</li>
         <li><strong class="pname"><code>note</code></strong> - See send()</li>
@@ -2448,7 +2420,6 @@ Either pass in regexp(s) desired from the output as a string or a list, or an md
   <h3 class="epydoc"><span class="sig"><span class="sig-name">send_file</span>(<span class="sig-arg">self</span>,
         <span class="sig-arg">path</span>,
         <span class="sig-arg">contents</span>,
-        <span class="sig-arg">expect</span>=<span class="sig-default">None</span>,
         <span class="sig-arg">shutit_pexpect_child</span>=<span class="sig-default">None</span>,
         <span class="sig-arg">truncate</span>=<span class="sig-default">False</span>,
         <span class="sig-arg">note</span>=<span class="sig-default">None</span>,
@@ -2469,7 +2440,6 @@ Either pass in regexp(s) desired from the output as a string or a list, or an md
     <dd><ul class="nomargin-top">
         <li><strong class="pname"><code>path</code></strong> (string) - Target location of file on target.</li>
         <li><strong class="pname"><code>contents</code></strong> (string) - Contents of file as a string.</li>
-        <li><strong class="pname"><code>expect</code></strong> - See send()</li>
         <li><strong class="pname"><code>shutit_pexpect_child</code></strong> - See send()</li>
         <li><strong class="pname"><code>note</code></strong> - See send()</li>
         <li><strong class="pname"><code>user</code></strong> - Set ownership to this user (defaults to whoami)</li>
@@ -2487,7 +2457,6 @@ Either pass in regexp(s) desired from the output as a string or a list, or an md
   <tr valign="top"><td>
   <h3 class="epydoc"><span class="sig"><span class="sig-name">chdir</span>(<span class="sig-arg">self</span>,
         <span class="sig-arg">path</span>,
-        <span class="sig-arg">expect</span>=<span class="sig-default">None</span>,
         <span class="sig-arg">shutit_pexpect_child</span>=<span class="sig-default">None</span>,
         <span class="sig-arg">timeout</span>=<span class="sig-default">3600</span>,
         <span class="sig-arg">note</span>=<span class="sig-default">None</span>,
@@ -2505,7 +2474,6 @@ Either pass in regexp(s) desired from the output as a string or a list, or an md
     <dt>Parameters:</dt>
     <dd><ul class="nomargin-top">
         <li><strong class="pname"><code>path</code></strong> - Path to send file to.</li>
-        <li><strong class="pname"><code>expect</code></strong> - See send()</li>
         <li><strong class="pname"><code>shutit_pexpect_child</code></strong> - See send()</li>
         <li><strong class="pname"><code>timeout</code></strong> - Timeout on response</li>
         <li><strong class="pname"><code>note</code></strong> - See send()</li>
@@ -2666,7 +2634,6 @@ Either pass in regexp(s) desired from the output as a string or a list, or an md
   <h3 class="epydoc"><span class="sig"><span class="sig-name">remove_line_from_file</span>(<span class="sig-arg">self</span>,
         <span class="sig-arg">line</span>,
         <span class="sig-arg">filename</span>,
-        <span class="sig-arg">expect</span>=<span class="sig-default">None</span>,
         <span class="sig-arg">shutit_pexpect_child</span>=<span class="sig-default">None</span>,
         <span class="sig-arg">match_regexp</span>=<span class="sig-default">None</span>,
         <span class="sig-arg">literal</span>=<span class="sig-default">False</span>,
@@ -2686,7 +2653,6 @@ Either pass in regexp(s) desired from the output as a string or a list, or an md
     <dt>Parameters:</dt>
     <dd><ul class="nomargin-top">
         <li><strong class="pname"><code>line</code></strong> (string) - Line to remove. @param filename       Filename to remove it from.</li>
-        <li><strong class="pname"><code>expect</code></strong> - See send()</li>
         <li><strong class="pname"><code>shutit_pexpect_child</code></strong> - See send()</li>
         <li><strong class="pname"><code>match_regexp</code></strong> (string) - If supplied, a regexp to look for in the file instead of the line
           itself, handy if the line has awkward characters in it.</li>
@@ -3726,7 +3692,7 @@ Either pass in regexp(s) desired from the output as a string or a list, or an md
   <tr>
     <td align="left" class="footer">
     Generated by Epydoc 3.0.1
-    on Sun May  1 11:17:53 2016
+    on Mon May  2 07:17:20 2016
     </td>
     <td align="right" class="footer">
       <a target="mainFrame" href="http://epydoc.sourceforge.net"
