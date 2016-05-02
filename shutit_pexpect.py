@@ -2477,8 +2477,9 @@ class ShutItPexpectSessionEnvironment(object):
 						if f != 'ORIGIN_ENV':
 							environment_id = f
 TODO UPDATE THIS SECTION
-LOOK UP ENVIRONMENT ID, SET THAT ONE TO CURRENT ENVIRONMENT IN PEXPECT SESSION OBJECT
+LOOK UP ENVIRONMENT ID, SET THAT ONE TO _CURRENT_ ENVIRONMENT IN PEXPECT SESSION OBJECT
 AND RETURN THAT OBJECT. NEED TO GET ARRAY OF ENV OBJECTS RIGHT.
+AND ADD ENVIRONMENT ON EACH LOGIN
 							cfg['build']['current_environment_id'] = environment_id
 							# Workaround for CygWin terminal issues. If the envid isn't in the cfg item
 							# Then crudely assume it is. This will drop through and then assume we are in the origin env.
