@@ -105,8 +105,18 @@ class ShutIt(object):
 		# These are new members we dont have to provide compatibility for
 		self.conn_modules = set()
 		# Environments are kept globally, as different sessions may re-connect to them.
-		self.shutit_pexpect_session_environments = []
+		self.shutit_pexpect_session_environments = set()
 
+	def add_shutit_pexpect_session_environment(self, pexpect_session_environment):
+		self.shutit_pexpect_session_environments(pexpect_session_environment)
+
+	def get_shutit_pexpect_session_environment(self, environment_id):
+		if type(environment_id) != str:
+			self.fail('Wrong argument type in get_shutit_pexpect_session_environment')
+		for env in self.shutit_pexpect_session_environments:
+			if env.environment_id == environment_id:
+				return env
+		return None
 
 	def get_current_shutit_pexpect_session(self):
 		"""Returns the currently-set default pexpect child.
