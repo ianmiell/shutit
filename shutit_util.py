@@ -312,8 +312,6 @@ def get_base_config(cfg, cfg_parser):
 	cfg['build']['logins']                     = {}
 	# Whether to accept default configs
 	cfg['build']['accept_defaults']            = None
-	# See shutit_global.check_environment
-	cfg['build']['current_environment_id']     = None
 	# target - the target of the build, ie the container
 	cfg['target']['hostname']                  = cp.get('target', 'hostname')
 	cfg['target']['locale']                    = cp.get('target', 'locale')

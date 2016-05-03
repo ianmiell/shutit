@@ -2140,7 +2140,7 @@ $'"""
 			user = self.whoami()
 		if group == None:
 			group = self.whoarewe()
-		if cfg['build']['current_environment_id'] == 'ORIGIN_ENV':
+		if self.current_environment.environment_id == 'ORIGIN_ENV':
 			# If we're on the root env (ie the same one that python is running on, then use python.
 			f = open(path,'w')
 			if truncate:
@@ -2466,12 +2466,12 @@ class ShutItPexpectSessionEnvironment(object):
 		environment_id_dir = cfg['build']['shutit_state_dir'] + '/environment_id'
 		if shutit_pexpect_session.file_exists(environment_id_dir,directory=True):
 			files = shutit_pexpect_session.ls(environment_id_dir)
-			# TODO: remainder of logic from setup_environment, culminating in the 
-			# return of a ShutItPexpectEnvironment object. See below.
+			# TODO: remainder of logic from setup_environment, culminating in the return of a ShutItPexpectEnvironment object. See below.
 			if len(files) != 1 or type(files) != list:
 				if len(files) == 2 and (files[0] == 'ORIGIN_ENV' or files[1] == 'ORIGIN_ENV'):
 					for f in files:
 						if f != 'ORIGIN_ENV':
+							print 'not ORIGIN_ENV'
 							environment_id = f
 							# Look up this environment id
 							environment = shutit_global.shutit.get_shutit_pexpect_session_environment(environment_id)
@@ -2502,6 +2502,13 @@ class ShutItPexpectSessionEnvironment(object):
 				#	environment_id = 'ORIGIN_ENV'
 				#else:
 				environment_id = files[0]
+				environment = shutit_global.shutit.get_shutit_pexpect_session_environment(environment_id)
+				if environment:
+					# Set that object to the _current_ environment in the PexpectSession
+					# OBJECT TO _CURRENT_ ENVIRONMENT IN SHUTIT PEXPECT session OBJECT AND RETURN that object.
+					shutit_pexpect_session.current_environment = environment
+				else:
+					shutit_global.shutit.fail('Should not get here: environment reached but with unique build_id that matches, but object not in existence, ' + environment_id)
 			# as far as I can tell, this should never happen?
 			#if cfg['build']['current_environment_id'] != environment_id:
 			#	# Clean out any trace of this new environment, and return the already-existing one.
@@ -2509,6 +2516,7 @@ class ShutItPexpectSessionEnvironment(object):
 			#	return cfg['build']['current_environment_id']
 			#if not environment_id == 'ORIGIN_ENV':
 			#	return shutit_global.shutit.get_shutit_pexpect_session_environment('ORIGIN_ENV')
+			shutit_pexpect_session.current_environment = environment
 			del self
 			return shutit_global.shutit.get_shutit_pexpect_session_environment(environment_id)
 		# If not, create new env object, set it to current.
