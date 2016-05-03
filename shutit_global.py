@@ -43,7 +43,7 @@ class ShutIt(object):
 	Represents an instance of a ShutIt run/session/build with associated config.
 	"""
 
-	def __init__(self, cfg):
+	def __init__(self):
 		"""Constructor.
 		Sets up:
 
@@ -52,13 +52,55 @@ class ShutIt(object):
 				- cfg                     - dictionary of configuration of build
 				- shutit_map              - maps module_ids to module objects
 		"""
+		# Store the root directory of this application.
+		# http://stackoverflow.com/questions/5137497
+		self.cfg = {}
+		self.cfg['SHUTIT_SIGNAL']                   = {}
+		self.cfg['action']                          = {}
+		self.cfg['build']                           = {}
+		self.cfg['build']['interactive']            = 1 # Default to true until we know otherwise
+		self.cfg['build']['report']                 = ''
+		self.cfg['build']['report_final_messages']  = ''
+		self.cfg['build']['loglevel']               = logging.INFO
+		self.cfg['build']['completed']              = False
+		self.cfg['build']['mount_docker']           = False
+		self.cfg['build']['distro_override']        = ''
+		self.cfg['build']['shutit_command_history'] = []
+		# Whether to honour 'walkthrough' requests
+		self.cfg['build']['walkthrough']            = False
+		self.cfg['build']['walkthrough_wait']       = -1
+		self.cfg['target']                          = {}
+		self.cfg['environment']                     = {}
+		self.cfg['host']                            = {}
+		self.cfg['host']['shutit_path']             = sys.path[0]
+		self.cfg['repository']                      = {}
+		self.cfg['expect_prompts']                  = {}
+		self.cfg['dockerfile']                      = {}
+		self.cfg['list_modules']                    = {}
+		self.cfg['list_configs']                    = {}
+		self.cfg['list_deps']                       = {}
+		# If no LOGNAME available,
+		self.cfg['host']['username'] = os.environ.get('LOGNAME', '')
+		if self.cfg['host']['username'] == '':
+			try:
+				if os.getlogin() != '':
+					self.cfg['host']['username'] = os.getlogin()
+			except Exception:
+				self.cfg['host']['username'] = getpass.getuser()
+			if self.cfg['host']['username'] == '':
+				shutit_util.handle_exit(msg='LOGNAME not set in the environment, ' + 'and login unavailable in python; ' + 'please set to your username.', exit_code=1)
+		self.cfg['host']['real_user'] = os.environ.get('SUDO_USER', self.cfg['host']['username'])
+		self.cfg['build']['shutit_state_dir_base'] = '/tmp/shutit_' + self.cfg['host']['username']
+		self.cfg['build']['build_id'] = (socket.gethostname() + '_' + self.cfg['host']['real_user'] + '_' + str(time.time()) + '.' + str(datetime.datetime.now().microsecond))
+		self.cfg['build']['shutit_state_dir']           = self.cfg['build']['shutit_state_dir_base'] + '/' + self.cfg['build']['build_id']
+		self.cfg['build']['build_db_dir']               = self.cfg['build']['shutit_state_dir'] + '/build_db'
+
 		# These used to be in shutit_global, so we pass them in as args so
 		# the original reference can be put in shutit_global
 		self.current_shutit_pexpect_session = None
 		self.shutit_pexpect_sessions        = {}
 		self.shutit_modules                 = set()
 		self.shutit_main_dir                = os.path.abspath(os.path.dirname(__file__)) 
-		self.cfg                            = cfg
 		self.shutit_map                     = {}
 		# These are new members we dont have to provide compatibility for
 		self.conn_modules = set()
@@ -144,7 +186,6 @@ class ShutIt(object):
 		@param level:             Python log level
 		@param transient:         Just write to terminal, no new line
 		"""
-		global cfg
 		if transient:
 			if newline:
 				msg += '\n'
@@ -152,7 +193,7 @@ class ShutIt(object):
 		else:
 			logging.log(level,msg)
 			if add_final_message:
-				cfg['build']['report_final_messages'] += msg + '\n'
+				self.cfg['build']['report_final_messages'] += msg + '\n'
 		return True
 
 
@@ -333,7 +374,7 @@ class ShutIt(object):
 
 		@param note:                 See send()
 		"""
-		global cfg
+		cfg = self.cfg
 		if cfg['build']['walkthrough'] and note != None:
 			wait = self.cfg['build']['walkthrough_wait']
 			wrap = '\n' + 80*'=' + '\n'
@@ -425,7 +466,6 @@ class ShutIt(object):
 		@type script:    string
 		@type in_shell:  boolean
 		"""
-		global cfg
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
 		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
 		return shutit_pexpect_session.run_script(script,in_shell=in_shell,note=note,delaybeforesend=delaybeforesend,loglevel=loglevel)
@@ -504,7 +544,7 @@ class ShutIt(object):
 		@type path:           string
 		@type hostfilepath:   string
 		"""
-		global cfg
+		cfg = self.cfg
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
 		expect = expect or self.get_current_shutit_pexpect_session().default_expect
 		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
@@ -930,7 +970,7 @@ class ShutIt(object):
 		@return:           boolean
 		@rtype:            string
 		"""
-		global cfg
+		cfg = self.cfg
 		self._handle_note(note)
 		# Only handle for docker initially, return false in case we care
 		if cfg['build']['delivery'] != 'docker':
@@ -963,7 +1003,7 @@ class ShutIt(object):
 		@return: the value entered by the user
 		@rtype:  string
 		"""
-		global cfg
+		cfg = self.cfg
 		cfgstr        = '[%s]/%s' % (sec, name)
 		config_parser = cfg['config_parser']
 		usercfg       = os.path.join(cfg['shutit_home'], 'config')
@@ -1070,7 +1110,7 @@ class ShutIt(object):
 
 		@return:             True if pause point handled ok, else false
 		"""
-		global cfg
+		cfg = self.cfg
 		if (not shutit_util.determine_interactive() or cfg['build']['interactive'] < 1 or
 			cfg['build']['interactive'] < level):
 			return
@@ -1308,7 +1348,6 @@ class ShutIt(object):
 	               delaybeforesend=0,
 	               note=None):
 		"""Returns memory available for use in k as an int"""
-		global cfg
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
 		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
 		return shutit_pexpect_session.get_memory(delaybeforesend=delaybeforesend,note=note)
@@ -1331,7 +1370,6 @@ class ShutIt(object):
 
 		@param shutit_pexpect_child:       See send()
 		"""
-		global cfg
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
 		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
 		# TODO: environment_id should be within pexpect session object
@@ -1409,7 +1447,6 @@ class ShutIt(object):
 		@type repository:           string
 		@type docker_executable:    string
 		"""
-		global cfg
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
 		expect = expect or self.get_current_shutit_pexpect_session().default_expect
 		send = docker_executable + ' push ' + repository
@@ -1450,7 +1487,7 @@ class ShutIt(object):
 		@type password:             string
 		@type force:                boolean
 		"""
-		global cfg
+		cfg = self.cfg
 		# TODO: make host and client configurable
 		shutit_pexpect_session = self.get_current_shutit_pexpect_session()
 		tag    = cfg['repository']['tag']
@@ -1570,6 +1607,7 @@ class ShutIt(object):
 		@type forcenone:     boolean
 		@type hint:          string
 		"""
+		cfg = self.cfg
 		if module_id not in cfg.keys():
 			cfg[module_id] = {}
 		if not cfg['config_parser'].has_section(module_id):
@@ -1698,58 +1736,5 @@ class ShutIt(object):
 		return shutit.fail('Should not get here in get_shutit_pexpect_session_from_id',throw_exception=True)
 
 
-def init():
-	"""Initialize the shutit object. Called when imported.
-	"""
-	global cfg
-
-	# Store the root directory of this application.
-	# http://stackoverflow.com/questions/5137497
-	cfg = {}
-	cfg['SHUTIT_SIGNAL']                   = {}
-	cfg['action']                          = {}
-	cfg['build']                           = {}
-	cfg['build']['interactive']            = 1 # Default to true until we know otherwise
-	cfg['build']['report']                 = ''
-	cfg['build']['report_final_messages']  = ''
-	cfg['build']['loglevel']               = logging.INFO
-	cfg['build']['completed']              = False
-	cfg['build']['mount_docker']           = False
-	cfg['build']['distro_override']        = ''
-	cfg['build']['shutit_command_history'] = []
-	# Whether to honour 'walkthrough' requests
-	cfg['build']['walkthrough']           = False
-	cfg['build']['walkthrough_wait']      = -1
-	cfg['target']                         = {}
-	cfg['environment']                    = {}
-	cfg['host']                           = {}
-	cfg['host']['shutit_path']            = sys.path[0]
-	cfg['repository']                     = {}
-	cfg['expect_prompts']                 = {}
-	cfg['dockerfile']                     = {}
-	cfg['list_modules']                   = {}
-	cfg['list_configs']                   = {}
-	cfg['list_deps']                      = {}
-
-	# If no LOGNAME available,
-	cfg['host']['username'] = os.environ.get('LOGNAME', '')
-	if cfg['host']['username'] == '':
-		try:
-			if os.getlogin() != '':
-				cfg['host']['username'] = os.getlogin()
-		except Exception:
-			cfg['host']['username'] = getpass.getuser()
-		if cfg['host']['username'] == '':
-			shutit_util.handle_exit(msg='LOGNAME not set in the environment, ' + 'and login unavailable in python; ' + 'please set to your username.', exit_code=1)
-	cfg['host']['real_user'] = os.environ.get('SUDO_USER', cfg['host']['username'])
-	cfg['build']['shutit_state_dir_base'] = '/tmp/shutit_' + cfg['host']['username']
-	cfg['build']['build_id'] = (socket.gethostname() + '_' + cfg['host']['real_user'] + '_' + str(time.time()) + '.' + str(datetime.datetime.now().microsecond))
-	cfg['build']['shutit_state_dir']           = cfg['build']['shutit_state_dir_base'] + '/' + cfg['build']['build_id']
-	cfg['build']['build_db_dir']               = cfg['build']['shutit_state_dir'] + '/build_db'
-
-	return ShutIt(
-		cfg=cfg
-	)
-
-shutit = init()
+shutit = ShutIt()
 

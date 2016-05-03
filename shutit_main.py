@@ -391,7 +391,7 @@ def build_module(shutit, module, loglevel=logging.DEBUG):
 	shutit.pause_point('\nPausing to allow inspect of build for: ' + module.module_id, print_input=True, level=2)
 	cfg['build']['report'] = (cfg['build']['report'] + '\nCompleted module: ' + module.module_id)
 	if cfg[module.module_id]['shutit.core.module.tag'] or cfg['build']['interactive'] >= 3:
-		shutit.log(shutit_util.build_report(shutit, '#Module:' + module.module_id), level=logging.DEBUG)
+		shutit.log(shutit_util.build_report('#Module:' + module.module_id), level=logging.DEBUG)
 	if (not cfg[module.module_id]['shutit.core.module.tag'] and cfg['build']['interactive'] >= 2):
 		print ("\n\nDo you want to save state now we\'re at the " + "end of this module? (" + module.module_id + ") (input y/n)")
 		cfg[module.module_id]['shutit.core.module.tag'] = (shutit_util.util_raw_input(default='y') == 'y')
@@ -644,7 +644,7 @@ def main():
 	do_finalize(shutit)
 	finalize_target(shutit)
 
-	shutit.log(shutit_util.build_report(shutit, '#Module: N/A (END)'), level=logging.DEBUG)
+	shutit.log(shutit_util.build_report('#Module: N/A (END)'), level=logging.DEBUG)
 
 	# Show final report messages (ie messages to show after standard report).
 	if cfg['build']['report_final_messages'] != '':
@@ -666,7 +666,7 @@ def do_phone_home(msg=None,question='Error seen - would you like to inform the m
 	"""
 	if msg is None:
 		msg = {}
-	if shutit_global.cfg['build']['interactive'] == 0:
+	if shutit_global.shutit.cfg['build']['interactive'] == 0:
 		return
 	msg.update({'shutitrunstatus':'fail','pwd':os.getcwd(),'user':os.environ.get('LOGNAME', '')})
 	if question != '' and shutit_util.util_raw_input(prompt=question + ' (Y/n)\n') not in ('y','Y',''):

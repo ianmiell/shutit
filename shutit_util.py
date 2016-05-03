@@ -1093,36 +1093,36 @@ def load_mod_from_file(shutit, fpath):
 
 
 # Build report
-def build_report(shutit, msg=''):
+def build_report(msg=''):
 	"""Resposible for constructing a report to be output as part of the build.
 	Retrurns report as a string.
 	"""
-	cfg = shutit.cfg
+	cfg = shutit_global.shutit.cfg
 	s = ''
 	s += '################################################################################\n'
-	s += '# COMMAND HISTORY BEGIN ' + shutit_global.cfg['build']['build_id'] + '\n'
-	s += get_commands(shutit)
-	s += '# COMMAND HISTORY END ' + shutit_global.cfg['build']['build_id'] + '\n'
+	s += '# COMMAND HISTORY BEGIN ' + cfg['build']['build_id'] + '\n'
+	s += get_commands()
+	s += '# COMMAND HISTORY END ' + cfg['build']['build_id'] + '\n'
 	s += '################################################################################\n'
 	s += '################################################################################\n'
-	s += '# BUILD REPORT FOR BUILD BEGIN ' + shutit_global.cfg['build']['build_id'] + '\n'
+	s += '# BUILD REPORT FOR BUILD BEGIN ' + cfg['build']['build_id'] + '\n'
 	s += '# ' + msg + '\n'
-	if shutit_global.cfg['build']['report'] != '':
-		s += shutit_global.cfg['build']['report'] + '\n'
+	if cfg['build']['report'] != '':
+		s += cfg['build']['report'] + '\n'
 	else:
 		s += '# Nothing to report\n'
 
 	if 'container_id' in cfg['target']:
 		s += '# CONTAINER_ID: ' + cfg['target']['container_id'] + '\n'
-	s += '# BUILD REPORT FOR BUILD END ' + shutit_global.cfg['build']['build_id'] + '\n'
+	s += '# BUILD REPORT FOR BUILD END ' + cfg['build']['build_id'] + '\n'
 	s += '###############################################################################\n'
 	return s
 
-def get_commands(shutit):
+def get_commands():
 	"""Gets command that have been run and have not been redacted.
 	"""
 	s = ''
-	for c in shutit.cfg['build']['shutit_command_history']:
+	for c in shutit_global.shutit.cfg['build']['shutit_command_history']:
 		if type(c) == str:
 			#Ignore commands with leading spaces
 			if c[0] != ' ':
