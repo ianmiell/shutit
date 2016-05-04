@@ -107,7 +107,7 @@ class ShutIt(object):
 		self.shutit_pexpect_session_environments = set()
 
 	def add_shutit_pexpect_session_environment(self, pexpect_session_environment):
-		self.shutit_pexpect_session_environments(pexpect_session_environment)
+		self.shutit_pexpect_session_environments.add(pexpect_session_environment)
 
 	def get_shutit_pexpect_session_environment(self, environment_id):
 		if type(environment_id) != str:

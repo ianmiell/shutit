@@ -279,7 +279,7 @@ class ShutItPexpectSession(object):
 		shutit_global.shutit.log('Resetting default expect to: ' + cfg['expect_prompts'][prompt_name],level=logging.DEBUG)
 		self.default_expect = cfg['expect_prompts'][prompt_name]
 		# Ensure environment is set up OK.
-		shutit_pexpect_session_env = ShutItPexpectSessionEnvironment(prefix,self)
+		_ = self.init_pexpect_session_environment(prefix)
 		return True
 
 
@@ -302,7 +302,7 @@ class ShutItPexpectSession(object):
 		if not new_expect:
 			shutit_global.shutit.log('Resetting default expect to default',level=logging.DEBUG)
 			shutit_global.shutit.set_default_shutit_pexpect_session_expect()
-		shutit_pexpect_session_env = ShutItPexpectSessionEnvironment(old_prompt_name,self)
+		shutit_pexpect_session_env = self.init_pexpect_session_environment(old_prompt_name)
 
 
 	def pexpect_send(self, string, delaybeforesend=0):
@@ -496,6 +496,9 @@ class ShutItPexpectSession(object):
 				return False
 			elif cfg['build']['interactive'] >= 1:
 				# This is a failure, so we pass in level=0
+				print '=========================='
+				print send
+				print '=========================='
 				shutit_global.shutit.pause_point(msg + '\n\nInteractive, so not retrying.\nPause point on exit_code != 0 (' + res + '). CTRL-C to quit', shutit_pexpect_child=self.pexpect_child, level=0)
 			elif retry == 1:
 				shutit_global.shutit.fail('Exit value from command\n' + send + '\nwas:\n' + res, throw_exception=False)
@@ -2451,17 +2454,11 @@ $'"""
 		cfg['build']['pause_point_hints'] = []
 		return True
 
-
-class ShutItPexpectSessionEnvironment(object):
-
-	def __init__(self,
-	             prefix,
-	             shutit_pexpect_session):
+	def init_pexpect_session_environment(self, prefix):
 		cfg = shutit_global.shutit.cfg
 		environment_id_dir = cfg['build']['shutit_state_dir'] + '/environment_id'
-		if shutit_pexpect_session.file_exists(environment_id_dir,directory=True):
-			files = shutit_pexpect_session.ls(environment_id_dir)
-			# TODO: remainder of logic from setup_environment, culminating in the return of a ShutItPexpectEnvironment object. See below.
+		if self.file_exists(environment_id_dir,directory=True):
+			files = self.ls(environment_id_dir)
 			if len(files) != 1 or type(files) != list:
 				if len(files) == 2 and (files[0] == 'ORIGIN_ENV' or files[1] == 'ORIGIN_ENV'):
 					for f in files:
@@ -2473,7 +2470,7 @@ class ShutItPexpectSessionEnvironment(object):
 							if environment:
 								# Set that object to the _current_ environment in the PexpectSession
 								# OBJECT TO _CURRENT_ ENVIRONMENT IN SHUTIT PEXPECT session OBJECT AND RETURN that object.
-								shutit_pexpect_session.current_environment = environment
+								self.current_environment = environment
 							else:
 								shutit_global.shutit.fail('Should not get here: environment reached but with unique build_id that matches, but object not in existence')
 							# TODO: check against CygWin
@@ -2486,22 +2483,23 @@ class ShutItPexpectSessionEnvironment(object):
 							#break
 				else:
 					## See comment above re: cygwin.
-					#if shutit_pexpect_session.file_exists('/cygdrive'):
-					#	shutit_pexpect_session.current_environment_id = shutit_global.shutit.get_shutit_pexpect_session_environment('ORIGIN_ENV')
+					#if self.file_exists('/cygdrive'):
+					#	self.current_environment_id = shutit_global.shutit.get_shutit_pexpect_session_environment('ORIGIN_ENV')
 					#else:
 					#	shutit_global.shutit.fail('Wrong number of files in environment_id_dir: ' + environment_id_dir)
 					shutit_global.shutit.fail('Wrong number of files in environment_id_dir: ' + environment_id_dir)
 			else:
 				# TODO: check against CygWin
-				#if shutit_pexpect_session.file_exists('/cygdrive'):
+				#if self.file_exists('/cygdrive'):
 				#	environment_id = 'ORIGIN_ENV'
 				#else:
 				environment_id = files[0]
+#TODO: problem is environment_id not found here.
 				environment = shutit_global.shutit.get_shutit_pexpect_session_environment(environment_id)
 				if environment:
 					# Set that object to the _current_ environment in the PexpectSession
 					# OBJECT TO _CURRENT_ ENVIRONMENT IN SHUTIT PEXPECT session OBJECT AND RETURN that object.
-					shutit_pexpect_session.current_environment = environment
+					self.current_environment = environment
 				else:
 					shutit_global.shutit.fail('Should not get here: environment reached but with unique build_id that matches, but object not in existence, ' + environment_id)
 			# as far as I can tell, this should never happen?
@@ -2511,11 +2509,29 @@ class ShutItPexpectSessionEnvironment(object):
 			#	return cfg['build']['current_environment_id']
 			#if not environment_id == 'ORIGIN_ENV':
 			#	return shutit_global.shutit.get_shutit_pexpect_session_environment('ORIGIN_ENV')
-			shutit_pexpect_session.current_environment = environment
-			del self
+			self.current_environment = environment
 			return shutit_global.shutit.get_shutit_pexpect_session_environment(environment_id)
+		new_environment = ShutItPexpectSessionEnvironment(prefix,self)
 		# If not, create new env object, set it to current.
-		shutit_pexpect_session.current_environment = self
+		self.current_environment = new_environment
+		shutit_global.shutit.add_shutit_pexpect_session_environment(new_environment)
+		if prefix != 'ORIGIN_ENV':
+			self.get_distro_info()
+		self.send(' mkdir -p ' + environment_id_dir + ' && chmod -R 777 ' + cfg['build']['shutit_state_dir_base'] + ' && touch ' + environment_id_dir + '/' + new_environment.environment_id, echo=False)
+		return new_environment
+	            	 
+
+
+	#TODO: review items in cfg and see if they make more sense in the pexpect object
+	#TODO: replace 'target' in cfg
+
+
+class ShutItPexpectSessionEnvironment(object):
+
+
+	def __init__(self,
+	             prefix,
+	             shutit_pexpect_session):
 		if prefix == 'ORIGIN_ENV':
 			self.environment_id = prefix
 		else:
@@ -2529,11 +2545,7 @@ class ShutItPexpectSessionEnvironment(object):
 		self.install_type                 = ''
 		self.distro                       = ''
 		self.distro_version               = ''
-		if prefix != 'ORIGIN_ENV':
-			shutit_pexpect_session.get_distro_info()
-		shutit_pexpect_session.send(' mkdir -p ' + environment_id_dir + ' && chmod -R 777 ' + cfg['build']['shutit_state_dir_base'] + ' && touch ' + environment_id_dir + '/' + self.environment_id, echo=False)
-	            	 
-
+	
 
 	#TODO: review items in cfg and see if they make more sense in the pexpect object
 	#TODO: replace 'target' in cfg
