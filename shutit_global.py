@@ -70,7 +70,6 @@ class ShutIt(object):
 		self.cfg['build']['walkthrough']            = False
 		self.cfg['build']['walkthrough_wait']       = -1
 		self.cfg['target']                          = {}
-		self.cfg['environment']                     = {}
 		self.cfg['host']                            = {}
 		self.cfg['host']['shutit_path']             = sys.path[0]
 		self.cfg['repository']                      = {}
@@ -117,6 +116,9 @@ class ShutIt(object):
 			if env.environment_id == environment_id:
 				return env
 		return None
+
+	def get_current_shutit_pexpect_session_environment(self):
+		return self.get_current_shutit_pexpect_session().current_environment
 
 	def get_current_shutit_pexpect_session(self):
 		"""Returns the currently-set default pexpect child.
@@ -209,9 +211,8 @@ class ShutIt(object):
 		return True
 
 
-	# TODO: sort out environments
 	def get_current_environment(self):
-		return self.cfg['environment'][self.cfg['build']['current_environment_id']]
+		return shutit_global.shutit.get_current_shutit_pexpect_session_environment().environment_id
 
 
 	def multisend(self,
@@ -568,7 +569,7 @@ class ShutIt(object):
 			group = self.whoarewe()
 		if cfg['build']['delivery'] in ('bash','dockerfile'):
 			retdir = shutit_pexpect_session.send_and_get_output('pwd',loglevel=loglevel, delaybeforesend=delaybeforesend)
-			shutit_pexpect_session.send(' pushd ' + cfg['environment'][cfg['build']['current_environment_id']]['module_root_dir'], echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
+			shutit_pexpect_session.send(' pushd ' + shutit_pexpect_session.current_environment.module_root_dir, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
 			shutit_pexpect_session.send(' cp -r ' + hostfilepath + ' ' + retdir + '/' + path,expect=expect, timeout=timeout, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
 			shutit_pexpect_session.send(' chown ' + user + ' ' + hostfilepath + ' ' + retdir + '/' + path, timeout=timeout, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
 			shutit_pexpect_session.send(' chgrp ' + group + ' ' + hostfilepath + ' ' + retdir + '/' + path, timeout=timeout, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
@@ -1366,11 +1367,10 @@ class ShutIt(object):
 
 	
 	def get_distro_info(self,
-	                    environment_id,
 	                    shutit_pexpect_child=None,
 	                    delaybeforesend=0,
 	                    loglevel=logging.DEBUG):
-		"""Get information about which distro we are using, placing it in the cfg['environment'][environment_id] as a side effect.
+		"""Get information about which distro we are using, placing it in the environment object.
 
 		Fails if distro could not be determined.
 		Should be called with the container is started up, and uses as core info
@@ -1386,7 +1386,7 @@ class ShutIt(object):
 		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
 		# TODO: environment_id should be within pexpect session object
 		# TODO: logging within pexpect session
-		return shutit_pexpect_session.get_distro_info(environment_id, delaybeforesend=delaybeforesend,loglevel=loglevel)
+		return shutit_pexpect_session.get_distro_info(delaybeforesend=delaybeforesend,loglevel=loglevel)
 
 
 	def lsb_release(self,

@@ -437,12 +437,12 @@ class setup(ShutItModule):
 		"""
 		cfg = shutit.cfg
 		if cfg['build']['delivery'] in ('docker','dockerfile'):
-			if cfg['environment'][cfg['build']['current_environment_id']]['install_type'] == 'apt':
+			if shutit_global.shutit.get_current_shutit_pexpect_session_environment().install_type == 'apt':
 				shutit.add_to_bashrc('export DEBIAN_FRONTEND=noninteractive')
 				if not shutit.command_available('lsb_release'):
 					shutit.install('lsb-release')
 				shutit.lsb_release()
-			elif cfg['environment'][cfg['build']['current_environment_id']]['install_type'] == 'yum':
+			elif shutit_global.shutit.get_current_shutit_pexpect_session_environment().install_type == 'yum':
 				# yum updates are so often "bad" that we let exit codes of 1 through.
 				# TODO: make this more sophisticated
 				shutit.send('yum update -y', timeout=9999, exit_values=['0', '1'], loglevel=loglevel)

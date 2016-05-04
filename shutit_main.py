@@ -87,12 +87,12 @@ def is_ready(shutit, shutit_module_obj):
 	Caches the result (as it's assumed not to change during the build).
 	"""
 	cfg = shutit.cfg
-	if shutit_module_obj.module_id in cfg['environment'][cfg['build']['current_environment_id']]['modules_ready']:
+	if shutit_module_obj.module_id in shutit_global.shutit.get_current_shutit_pexpect_session_environment().modules_ready:
 		shutit.log('is_ready: returning True from cache',level=logging.DEBUG)
 		return True
 	ready = shutit_module_obj.check_ready(shutit)
 	if ready:
-		cfg['environment'][cfg['build']['current_environment_id']]['modules_ready'].append(shutit_module_obj.module_id)
+		shutit_global.shutit.get_current_shutit_pexpect_session_environment().modules_ready.append(shutit_module_obj.module_id)
 		return True
 	else:
 		return False
@@ -327,13 +327,13 @@ def check_ready(shutit, throw_error=True):
 	for module_id in shutit_util.module_ids(shutit):
 		module = shutit.shutit_map[module_id]
 		shutit.log('considering check_ready (is it ready to be built?): ' + module_id, level=logging.DEBUG)
-		if cfg[module_id]['shutit.core.module.build'] and module.module_id not in cfg['environment'][cfg['build']['current_environment_id']]['modules_ready'] and not shutit_util.is_installed(shutit,module):
+		if cfg[module_id]['shutit.core.module.build'] and module.module_id not in shutit_global.shutit.get_current_shutit_pexpect_session_environment().modules_ready and not shutit_util.is_installed(shutit,module):
 			shutit.log('checking whether module is ready to build: ' + module_id, level=logging.DEBUG)
 			shutit.login(prompt_prefix=module_id,command='bash')
 			# Move to the correct directory (eg for checking for the existence of files needed for build)
 			revert_dir = os.getcwd()
-			cfg['environment'][cfg['build']['current_environment_id']]['module_root_dir'] = os.path.dirname(module.__module_file)
-			shutit.chdir(cfg['environment'][cfg['build']['current_environment_id']]['module_root_dir'])
+			shutit_global.shutit.get_current_shutit_pexpect_session_environment().module_root_dir = os.path.dirname(module.__module_file)
+			shutit.chdir(shutit_global.shutit.get_current_shutit_pexpect_session_environment().module_root_dir)
 			if not is_ready(shutit, module) and throw_error:
 				errs.append((module_id + ' not ready to install.\nRead the check_ready function in the module,\nor log messages above to determine the issue.\n\n', shutit.get_shutit_pexpect_session_from_id('target_child')))
 			shutit.logout()
@@ -363,10 +363,10 @@ def do_remove(shutit, loglevel=logging.DEBUG):
 					# Create a directory and files to indicate this has been removed.
 					shutit.send(' mkdir -p ' + cfg['build']['build_db_dir'] + '/module_record/' + module.module_id + ' && rm -f ' + cfg['build']['build_db_dir'] + '/module_record/' + module.module_id + '/built && touch ' + cfg['build']['build_db_dir'] + '/module_record/' + module.module_id + '/removed', loglevel=loglevel)
 					# Remove from "installed" cache
-					if module.module_id in cfg['environment'][cfg['build']['current_environment_id']]['modules_installed']:
-						cfg['environment'][cfg['build']['current_environment_id']]['modules_installed'].remove(module.module_id)
+					if module.module_id in shutit_global.shutit.get_current_shutit_pexpect_session_environment().modules_installed:
+						shutit_global.shutit.get_current_shutit_pexpect_session_environment().modules_installed.remove(module.module_id)
 					# Add to "not installed" cache
-					cfg['environment'][cfg['build']['current_environment_id']]['modules_not_installed'].append(module.module_id)
+					shutit_global.shutit.get_current_shutit_pexpect_session_environment().modules_not_installed.append(module.module_id)
 			shutit.logout()
 			
 
@@ -384,10 +384,10 @@ def build_module(shutit, module, loglevel=logging.DEBUG):
 			# Create a directory and files to indicate this has been built.
 			shutit.send(' mkdir -p ' + cfg['build']['build_db_dir'] + '/module_record/' + module.module_id + ' && touch ' + cfg['build']['build_db_dir'] + '/module_record/' + module.module_id + '/built && rm -f ' + cfg['build']['build_db_dir'] + '/module_record/' + module.module_id + '/removed', loglevel=loglevel)
 		# Put it into "installed" cache
-		cfg['environment'][cfg['build']['current_environment_id']]['modules_installed'].append(module.module_id)
+		shutit_global.shutit.get_current_shutit_pexpect_session_environment().modules_installed.append(module.module_id)
 		# Remove from "not installed" cache
-		if module.module_id in cfg['environment'][cfg['build']['current_environment_id']]['modules_not_installed']:
-			cfg['environment'][cfg['build']['current_environment_id']]['modules_not_installed'].remove(module.module_id)
+		if module.module_id in shutit_global.shutit.get_current_shutit_pexpect_session_environment().modules_not_installed:
+			shutit_global.shutit.get_current_shutit_pexpect_session_environment().modules_not_installed.remove(module.module_id)
 	shutit.pause_point('\nPausing to allow inspect of build for: ' + module.module_id, print_input=True, level=2)
 	cfg['build']['report'] = (cfg['build']['report'] + '\nCompleted module: ' + module.module_id)
 	if cfg[module.module_id]['shutit.core.module.tag'] or cfg['build']['interactive'] >= 3:
@@ -436,8 +436,8 @@ def do_build(shutit):
 					cfg['build']['report'] = (cfg['build']['report'] + '\nSkipping: ' + module.module_id + ' with run order: ' + str(module.run_order) + '\n\tas this is the final module and we are building dependencies only')
 				else:
 					revert_dir = os.getcwd()
-					cfg['environment'][cfg['build']['current_environment_id']]['module_root_dir'] = os.path.dirname(module.__module_file)
-					shutit.chdir(cfg['environment'][cfg['build']['current_environment_id']]['module_root_dir'])
+					shutit_global.shutit.get_current_shutit_pexpect_session_environment().module_root_dir = os.path.dirname(module.__module_file)
+					shutit.chdir(shutit_global.shutit.get_current_shutit_pexpect_session_environment().module_root_dir)
 					shutit.login(prompt_prefix=module_id,command='bash')
 					build_module(shutit, module)
 					shutit.logout()

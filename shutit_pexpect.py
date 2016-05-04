@@ -279,7 +279,6 @@ class ShutItPexpectSession(object):
 		shutit_global.shutit.log('Resetting default expect to: ' + cfg['expect_prompts'][prompt_name],level=logging.DEBUG)
 		self.default_expect = cfg['expect_prompts'][prompt_name]
 		# Ensure environment is set up OK.
-		self.setup_environment(prefix)
 		shutit_pexpect_session_env = ShutItPexpectSessionEnvironment(prefix,self)
 		return True
 
@@ -303,7 +302,7 @@ class ShutItPexpectSession(object):
 		if not new_expect:
 			shutit_global.shutit.log('Resetting default expect to default',level=logging.DEBUG)
 			shutit_global.shutit.set_default_shutit_pexpect_session_expect()
-		self.setup_environment(old_prompt_name)
+		shutit_pexpect_session_env = ShutItPexpectSessionEnvironment(old_prompt_name,self)
 
 
 	def pexpect_send(self, string, delaybeforesend=0):
@@ -371,73 +370,73 @@ class ShutItPexpectSession(object):
 		return res
 
 
-	def setup_environment(self,
-	                      prefix,
-	                      delaybeforesend=0,
-	                      loglevel=logging.DEBUG):
-		"""If we are in a new environment then set up a new data structure.
-		A new environment is a new machine environment, whether that's
-		over ssh, docker, whatever.
-		If we are not in a new environment ensure the env_id is correct.
-		Returns the environment id every time.
-		"""
-		# Set this to be the default session.
-		shutit_global.shutit.set_default_shutit_pexpect_session(self)
-		cfg = shutit_global.shutit.cfg
-		environment_id_dir = cfg['build']['shutit_state_dir'] + '/environment_id'
-		if self.file_exists(environment_id_dir,directory=True):
-			files = self.ls(environment_id_dir)
-			if len(files) != 1 or type(files) != list:
-				if len(files) == 2 and (files[0] == 'ORIGIN_ENV' or files[1] == 'ORIGIN_ENV'):
-					for f in files:
-						if f != 'ORIGIN_ENV':
-							environment_id = f
-							cfg['build']['current_environment_id'] = environment_id
-							# Workaround for CygWin terminal issues. If the envid isn't in the cfg item
-							# Then crudely assume it is. This will drop through and then assume we are in the origin env.
-							try:
-								_=cfg['environment'][cfg['build']['current_environment_id']]
-							except Exception:
-								cfg['build']['current_environment_id'] = 'ORIGIN_ENV'
-							break
-				else:
-					# See comment above re: cygwin.
-					if self.file_exists('/cygdrive'):
-						cfg['build']['current_environment_id'] = 'ORIGIN_ENV'
-					else:
-						shutit_global.shutit.fail('Wrong number of files in environment_id_dir: ' + environment_id_dir)
-			else:
-				if self.file_exists('/cygdrive'):
-					environment_id = 'ORIGIN_ENV'
-				else:
-					environment_id = files[0]
-			if cfg['build']['current_environment_id'] != environment_id:
-				# Clean out any trace of this new environment, and return the already-existing one.
-				self.send(' rm -rf ' + environment_id_dir + '/environment_id/' + environment_id, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
-				return cfg['build']['current_environment_id']
-			if not environment_id == 'ORIGIN_ENV':
-				return environment_id
-		# Origin environment is a special case.
-		if prefix == 'ORIGIN_ENV':
-			environment_id = prefix
-		else:
-			environment_id = shutit_util.random_id()
-		cfg['build']['current_environment_id']                             = environment_id
-		cfg['environment'][environment_id] = {}
-		# Directory to revert to when delivering in bash and reversion to directory required.
-		cfg['environment'][environment_id]['module_root_dir']              = '/'
-		cfg['environment'][environment_id]['modules_installed']            = [] # has been installed (in this build)
-		cfg['environment'][environment_id]['modules_not_installed']        = [] # modules _known_ not to be installed
-		cfg['environment'][environment_id]['modules_ready']                = [] # has been checked for readiness and is ready (in this build)
-		# Installed file info
-		cfg['environment'][environment_id]['modules_recorded']             = []
-		cfg['environment'][environment_id]['modules_recorded_cache_valid'] = False
-		# Exempt the ORIGIN_ENV from getting distro info
-		if prefix != 'ORIGIN_ENV':
-			self.get_distro_info(environment_id)
-		fname = environment_id_dir + '/' + environment_id
-		self.send(' mkdir -p ' + environment_id_dir + ' && chmod -R 777 ' + cfg['build']['shutit_state_dir_base'] + ' && touch ' + fname, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
-		return environment_id
+#	def setup_environment(self,
+#	                      prefix,
+#	                      delaybeforesend=0,
+#	                      loglevel=logging.DEBUG):
+#		"""If we are in a new environment then set up a new data structure.
+#		A new environment is a new machine environment, whether that's
+#		over ssh, docker, whatever.
+#		If we are not in a new environment ensure the env_id is correct.
+#		Returns the environment id every time.
+#		"""
+#		# Set this to be the default session.
+#		shutit_global.shutit.set_default_shutit_pexpect_session(self)
+#		cfg = shutit_global.shutit.cfg
+#		environment_id_dir = cfg['build']['shutit_state_dir'] + '/environment_id'
+#		if self.file_exists(environment_id_dir,directory=True):
+#			files = self.ls(environment_id_dir)
+#			if len(files) != 1 or type(files) != list:
+#				if len(files) == 2 and (files[0] == 'ORIGIN_ENV' or files[1] == 'ORIGIN_ENV'):
+#					for f in files:
+#						if f != 'ORIGIN_ENV':
+#							environment_id = f
+#							cfg['build']['current_environment_id'] = environment_id
+#							# Workaround for CygWin terminal issues. If the envid isn't in the cfg item
+#							# Then crudely assume it is. This will drop through and then assume we are in the origin env.
+#							try:
+#								_=cfg['environment'][cfg['build']['current_environment_id']]
+#							except Exception:
+#								cfg['build']['current_environment_id'] = 'ORIGIN_ENV'
+#							break
+#				else:
+#					# See comment above re: cygwin.
+#					if self.file_exists('/cygdrive'):
+#						cfg['build']['current_environment_id'] = 'ORIGIN_ENV'
+#					else:
+#						shutit_global.shutit.fail('Wrong number of files in environment_id_dir: ' + environment_id_dir)
+#			else:
+#				if self.file_exists('/cygdrive'):
+#					environment_id = 'ORIGIN_ENV'
+#				else:
+#					environment_id = files[0]
+#			if cfg['build']['current_environment_id'] != environment_id:
+#				# Clean out any trace of this new environment, and return the already-existing one.
+#				self.send(' rm -rf ' + environment_id_dir + '/environment_id/' + environment_id, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
+#				return cfg['build']['current_environment_id']
+#			if not environment_id == 'ORIGIN_ENV':
+#				return environment_id
+#		# Origin environment is a special case.
+#		if prefix == 'ORIGIN_ENV':
+#			environment_id = prefix
+#		else:
+#			environment_id = shutit_util.random_id()
+#		cfg['build']['current_environment_id']                             = environment_id
+#		cfg['environment'][environment_id] = {}
+#		# Directory to revert to when delivering in bash and reversion to directory required.
+#		cfg['environment'][environment_id]['module_root_dir']              = '/'
+#		cfg['environment'][environment_id]['modules_installed']            = [] # has been installed (in this build)
+#		cfg['environment'][environment_id]['modules_not_installed']        = [] # modules _known_ not to be installed
+#		cfg['environment'][environment_id]['modules_ready']                = [] # has been checked for readiness and is ready (in this build)
+#		# Installed file info
+#		cfg['environment'][environment_id]['modules_recorded']             = []
+#		cfg['environment'][environment_id]['modules_recorded_cache_valid'] = False
+#		# Exempt the ORIGIN_ENV from getting distro info
+#		if prefix != 'ORIGIN_ENV':
+#			self.get_distro_info(environment_id)
+#		fname = environment_id_dir + '/' + environment_id
+#		#self.send(' mkdir -p ' + environment_id_dir + ' && chmod -R 777 ' + cfg['build']['shutit_state_dir_base'] + ' && touch ' + fname, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
+#		return environment_id
 
 
 	def create_command_file(self, expect, send):
@@ -774,11 +773,11 @@ class ShutItPexpectSession(object):
 		cfg = shutit_global.shutit.cfg
 		shutit_global.shutit._handle_note(note)
 		self.install('passwd')
-		if cfg['environment'][cfg['build']['current_environment_id']]['install_type'] == 'apt':
+		if self.current_environment.current_environment_id.install_type == 'apt':
 			self.send('passwd ' + user, expect='Enter new', check_exit=False, delaybeforesend=delaybeforesend)
 			self.send(password, expect='Retype new', check_exit=False, echo=False, delaybeforesend=delaybeforesend)
 			self.send(password, expect=self.default_expect, echo=False, delaybeforesend=delaybeforesend)
-		elif shutit_global.shutit['environment'][cfg['build']['current_environment_id']]['install_type'] == 'yum':
+		elif self.current_environment.current_environment_id.install_type == 'yum':
 			self.send('passwd ' + user, expect='ew password', check_exit=False,delaybeforesend=delaybeforesend)
 			self.send(password, expect='ew password', check_exit=False, echo=False, delaybeforesend=delaybeforesend)
 			self.send(password, expect=self.default_expect, echo=False, delaybeforesend=delaybeforesend)
@@ -918,10 +917,10 @@ class ShutItPexpectSession(object):
 		"""
 		cfg = shutit_global.shutit.cfg
 		shutit_global.shutit._handle_note(note)
-		if cfg['environment'][cfg['build']['current_environment_id']]['install_type'] == 'apt':
+		if self.current_environment.current_environment_id.install_type == 'apt':
 			#            v the space is intentional, to avoid polluting bash history.
 			self.send(""" dpkg -l | awk '{print $2}' | grep "^""" + package + """$" | wc -l""", expect=self.default_expect, check_exit=False, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
-		elif cfg['environment'][cfg['build']['current_environment_id']]['install_type'] == 'yum':
+		elif self.current_environment.current_environment_id.install_type == 'yum':
 			#            v the space is intentional, to avoid polluting bash history.
 			self.send(""" yum list installed | awk '{print $1}' | grep "^""" + package + """$" | wc -l""", expect=self.default_expect, check_exit=False, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
 		else:
@@ -960,7 +959,7 @@ class ShutItPexpectSession(object):
 		# By default the cache is invalidated.
 		cfg = shutit_global.shutit.cfg
 		shutit_global.shutit._handle_note(note)
-		if not cfg['environment'][cfg['build']['current_environment_id']]['modules_recorded_cache_valid']:
+		if not self.current_environment.current_environment_id.install_type.modules_recorded_cache_valid:
 			if self.file_exists(cfg['build']['build_db_dir'] + '/module_record',directory=True):
 				# Bit of a hack here to get round the long command showing up as the first line of the output.
 				cmd = 'find ' + cfg['build']['build_db_dir'] + r"""/module_record/ -name built | sed 's@^.""" + cfg['build']['build_db_dir'] + r"""/module_record.\([^/]*\).built@\1@' > """ + cfg['build']['build_db_dir'] + '/' + cfg['build']['build_id']
@@ -968,12 +967,12 @@ class ShutItPexpectSession(object):
 				built = self.send_and_get_output('cat ' + cfg['build']['build_db_dir'] + '/' + cfg['build']['build_id'], echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend).strip()
 				self.send(' rm -rf ' + cfg['build']['build_db_dir'] + '/' + cfg['build']['build_id'], echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
 				built_list = built.split('\r\n')
-				cfg['environment'][cfg['build']['current_environment_id']]['modules_recorded'] = built_list
+				self.current_environment.current_environment_id.install_type.modules_recorded = built_list
 			# Either there was no directory (so the cache is valid), or we've built the cache, so mark as good.
-			cfg['environment'][cfg['build']['current_environment_id']]['modules_recorded_cache_valid'] = True
+			self.current_environment.current_environment_id.install_type.modules_recorded_cache_valid = True
 		# Modules recorded cache will be valid at this point, so check the pre-recorded modules and the in-this-run installed cache.
 		shutit_global.shutit._handle_note_after(note=note)
-		if module_id in cfg['environment'][cfg['build']['current_environment_id']]['modules_recorded'] or module_id in cfg['environment'][cfg['build']['current_environment_id']]['modules_installed']:
+		if module_id in self.current_environment.current_environment_id.install_type.modules_recorded or module_id in self.current_environment.current_environment_id.install_type.modules_installed:
 			return True
 		else:
 			return False
@@ -1058,7 +1057,7 @@ class ShutItPexpectSession(object):
 		shutit_global.shutit._handle_note(note)
 		shutit_global.shutit.log('Installing package: ' + package,level=loglevel)
 		if options is None: options = {}
-		install_type = cfg['environment'][cfg['build']['current_environment_id']]['install_type']
+		install_type = self.current_environment.current_environment_id.install_type.install_type
 		if install_type == 'src':
 			# If this is a src build, we assume it's already installed.
 			return True
@@ -1116,7 +1115,7 @@ class ShutItPexpectSession(object):
 			# Not handled
 			return False
 		# Get mapped packages.
-		package = package_map.map_packages(package, cfg['environment'][cfg['build']['current_environment_id']]['install_type'])
+		package = package_map.map_packages(package, self.current_environment.current_environment_id.install_type.install_type)
 		# Let's be tolerant of failure eg due to network.
 		# This is especially helpful with automated testing.
 		if package.strip() != '':
@@ -1145,7 +1144,7 @@ class ShutItPexpectSession(object):
 		"""Returns memory available for use in k as an int"""
 		cfg = shutit_global.shutit.cfg
 		shutit_global.shutit._handle_note(note)
-		if cfg['environment'][cfg['build']['current_environment_id']]['distro'] == 'osx':
+		if self.current_environment.current_environment_id.install_type.distro == 'osx':
 			memavail = self.send_and_get_output("""vm_stat | grep ^Pages.free: | awk '{print $3}' | tr -d '.'""",timeout=3,echo=False, delaybeforesend=delaybeforesend)
 			memavail = int(memavail)
 			memavail *= 4
@@ -1181,7 +1180,7 @@ class ShutItPexpectSession(object):
 		# If separated by spaces, remove separately
 		shutit_global.shutit._handle_note(note)
 		if options is None: options = {}
-		install_type = cfg['environment'][cfg['build']['current_environment_id']]['install_type']
+		install_type = self.current_environment.current_environment_id.install_type.install_type
 		whoiam = self.whoami()
 		if whoiam != 'root' and install_type != 'brew':
 			cmd = 'sudo '
@@ -1220,7 +1219,7 @@ class ShutItPexpectSession(object):
 			# Not handled
 			return False
 		# Get mapped package.
-		package = package_map.map_package(package, cfg['environment'][cfg['build']['current_environment_id']]['install_type'])
+		package = package_map.map_package(package, self.current_environment.current_environment_id.install_type.install_type)
 		if pw != '':
 			self.multisend('%s %s %s' % (cmd, opts, package), {'assword:':pw}, timeout=timeout, exit_values=['0','100'])
 		else:
@@ -1305,7 +1304,7 @@ class ShutItPexpectSession(object):
 			preserve_newline = False
 		# Correct problem with first char in OSX.
 		try:
-			if cfg['environment'][cfg['build']['current_environment_id']]['distro'] == 'osx':
+			if self.current_environment.current_environment_id.install_type.distro == 'osx':
 				before_list = before.split('\r\n')
 				before_list = before_list[1:]
 				before = string.join(before_list,'\r\n')
@@ -1345,6 +1344,7 @@ class ShutItPexpectSession(object):
 		shutit_global.shutit._handle_note(note)
 		user = user or self.whoami()
 		msg = msg or 'Please input the sudo password for user: ' + user
+		# TODO: correct this
 		# Test for the existence of the data structure.
 		try:
 			_=cfg['environment'][cfg['build']['current_environment_id']][user]
@@ -1378,12 +1378,10 @@ class ShutItPexpectSession(object):
 
 
 
-	# TODO: environment_id within this object
 	def get_distro_info(self,
-	                    environment_id,
 	                    delaybeforesend=0,
 	                    loglevel=logging.DEBUG):
-		"""Get information about which distro we are using, placing it in the cfg['environment'][environment_id] as a side effect.
+		"""Get information about which distro we are using, placing it in the environment object.
 
 		Fails if distro could not be determined.
 		Should be called with the container is started up, and uses as core info
@@ -1398,9 +1396,6 @@ class ShutItPexpectSession(object):
 		install_type   = ''
 		distro         = ''
 		distro_version = ''
-		cfg['environment'][environment_id]['install_type']      = ''
-		cfg['environment'][environment_id]['distro']            = ''
-		cfg['environment'][environment_id]['distro_version']    = ''
 		# A list of OS Family members
 		# Suse      = SLES, SLED, OpenSuSE, Suse
 		# Archlinux = Archlinux
@@ -1563,9 +1558,9 @@ class ShutItPexpectSession(object):
 				distro_version = '1.0'
 		# We should have the distro info now, let's assign to target config
 		# if this is not a one-off.
-		cfg['environment'][environment_id]['install_type']   = install_type
-		cfg['environment'][environment_id]['distro']         = distro
-		cfg['environment'][environment_id]['distro_version'] = distro_version
+		self.current_environment.install_type   = install_type
+		self.current_environment.distro         = distro
+		self.current_environment.distro_version = distro_version
 		return True
 
 
@@ -2520,6 +2515,7 @@ class ShutItPexpectSessionEnvironment(object):
 			del self
 			return shutit_global.shutit.get_shutit_pexpect_session_environment(environment_id)
 		# If not, create new env object, set it to current.
+		shutit_pexpect_session.current_environment = self
 		if prefix == 'ORIGIN_ENV':
 			self.environment_id = prefix
 		else:
@@ -2530,13 +2526,14 @@ class ShutItPexpectSessionEnvironment(object):
 		self.modules_ready                = [] # has been checked for readiness and is ready (in this build)
 		self.modules_recorded             = []
 		self.modules_recorded_cache_valid = False
+		self.install_type                 = ''
+		self.distro                       = ''
+		self.distro_version               = ''
 		if prefix != 'ORIGIN_ENV':
-			shutit_pexpect_session.get_distro_info(environment_id)
-		shutit_pexpect_session.send(' mkdir -p ' + environment_id_dir + ' && chmod -R 777 ' + cfg['build']['shutit_state_dir_base'] + ' && touch ' + environment_id_dir + '/' + environment_id, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
-		shutit_pexpect_session.current_environment = self
+			shutit_pexpect_session.get_distro_info()
+		shutit_pexpect_session.send(' mkdir -p ' + environment_id_dir + ' && chmod -R 777 ' + cfg['build']['shutit_state_dir_base'] + ' && touch ' + environment_id_dir + '/' + self.environment_id, echo=False)
 	            	 
 
 
-	#TODO: create environment object
 	#TODO: review items in cfg and see if they make more sense in the pexpect object
 	#TODO: replace 'target' in cfg

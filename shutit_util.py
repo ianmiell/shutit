@@ -2008,18 +2008,18 @@ def is_installed(shutit, shutit_module_obj):
 	"""
 	# Cache first
 	cfg = shutit.cfg
-	if shutit_module_obj.module_id in cfg['environment'][cfg['build']['current_environment_id']]['modules_installed']:
+	if shutit_module_obj.module_id in shutit_global.shutit.get_current_shutit_pexpect_session_environment().modules_installed:
 		return True
-	if shutit_module_obj.module_id in cfg['environment'][cfg['build']['current_environment_id']]['modules_not_installed']:
+	if shutit_module_obj.module_id in shutit_global.shutit.get_current_shutit_pexpect_session_environment().modules_not_installed:
 		return False
 	# Is it installed?
 	if shutit_module_obj.is_installed(shutit):
-		cfg['environment'][cfg['build']['current_environment_id']]['modules_installed'].append(shutit_module_obj.module_id)
+		shutit_global.shutit.get_current_shutit_pexpect_session_environment().modules_installed.append(shutit_module_obj.module_id)
 		return True
 	# If not installed, and not in cache, add it.
 	else:
-		if shutit_module_obj.module_id not in cfg['environment'][cfg['build']['current_environment_id']]['modules_not_installed']:
-			cfg['environment'][cfg['build']['current_environment_id']]['modules_not_installed'].append(shutit_module_obj.module_id)
+		if shutit_module_obj.module_id not in shutit_global.shutit.get_current_shutit_pexpect_session_environment().modules_not_installed:
+			shutit_global.shutit.get_current_shutit_pexpect_session_environment().modules_not_installed.append(shutit_module_obj.module_id)
 		return False
 
 
@@ -2152,7 +2152,7 @@ def get_send_command(send):
 
 def get_command(command):
 	if command in ('head','md5sum'):
-		if shutit_global.shutit.cfg['environment'][shutit_global.shutit.cfg['build']['current_environment_id']]['distro'] == 'osx':
+		if shutit_global.shutit.get_current_shutit_pexpect_session_environment().distro == 'osx':
 			return '''PATH="/usr/local/opt/coreutils/libexec/gnubin:$PATH" ''' + command + ' '
 		else:
 			return command + ' '
