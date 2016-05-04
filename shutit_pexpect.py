@@ -776,11 +776,11 @@ class ShutItPexpectSession(object):
 		cfg = shutit_global.shutit.cfg
 		shutit_global.shutit._handle_note(note)
 		self.install('passwd')
-		if self.current_environment.current_environment_id.install_type == 'apt':
+		if self.current_environment.install_type == 'apt':
 			self.send('passwd ' + user, expect='Enter new', check_exit=False, delaybeforesend=delaybeforesend)
 			self.send(password, expect='Retype new', check_exit=False, echo=False, delaybeforesend=delaybeforesend)
 			self.send(password, expect=self.default_expect, echo=False, delaybeforesend=delaybeforesend)
-		elif self.current_environment.current_environment_id.install_type == 'yum':
+		elif self.current_environment.install_type == 'yum':
 			self.send('passwd ' + user, expect='ew password', check_exit=False,delaybeforesend=delaybeforesend)
 			self.send(password, expect='ew password', check_exit=False, echo=False, delaybeforesend=delaybeforesend)
 			self.send(password, expect=self.default_expect, echo=False, delaybeforesend=delaybeforesend)
@@ -920,10 +920,10 @@ class ShutItPexpectSession(object):
 		"""
 		cfg = shutit_global.shutit.cfg
 		shutit_global.shutit._handle_note(note)
-		if self.current_environment.current_environment_id.install_type == 'apt':
+		if self.current_environment.install_type == 'apt':
 			#            v the space is intentional, to avoid polluting bash history.
 			self.send(""" dpkg -l | awk '{print $2}' | grep "^""" + package + """$" | wc -l""", expect=self.default_expect, check_exit=False, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
-		elif self.current_environment.current_environment_id.install_type == 'yum':
+		elif self.current_environment.install_type == 'yum':
 			#            v the space is intentional, to avoid polluting bash history.
 			self.send(""" yum list installed | awk '{print $1}' | grep "^""" + package + """$" | wc -l""", expect=self.default_expect, check_exit=False, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
 		else:
@@ -962,7 +962,7 @@ class ShutItPexpectSession(object):
 		# By default the cache is invalidated.
 		cfg = shutit_global.shutit.cfg
 		shutit_global.shutit._handle_note(note)
-		if not self.current_environment.current_environment_id.install_type.modules_recorded_cache_valid:
+		if not self.current_environment.modules_recorded_cache_valid:
 			if self.file_exists(cfg['build']['build_db_dir'] + '/module_record',directory=True):
 				# Bit of a hack here to get round the long command showing up as the first line of the output.
 				cmd = 'find ' + cfg['build']['build_db_dir'] + r"""/module_record/ -name built | sed 's@^.""" + cfg['build']['build_db_dir'] + r"""/module_record.\([^/]*\).built@\1@' > """ + cfg['build']['build_db_dir'] + '/' + cfg['build']['build_id']
@@ -970,12 +970,12 @@ class ShutItPexpectSession(object):
 				built = self.send_and_get_output('cat ' + cfg['build']['build_db_dir'] + '/' + cfg['build']['build_id'], echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend).strip()
 				self.send(' rm -rf ' + cfg['build']['build_db_dir'] + '/' + cfg['build']['build_id'], echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
 				built_list = built.split('\r\n')
-				self.current_environment.current_environment_id.install_type.modules_recorded = built_list
+				self.current_environment.modules_recorded = built_list
 			# Either there was no directory (so the cache is valid), or we've built the cache, so mark as good.
-			self.current_environment.current_environment_id.install_type.modules_recorded_cache_valid = True
+			self.current_environment.modules_recorded_cache_valid = True
 		# Modules recorded cache will be valid at this point, so check the pre-recorded modules and the in-this-run installed cache.
 		shutit_global.shutit._handle_note_after(note=note)
-		if module_id in self.current_environment.current_environment_id.install_type.modules_recorded or module_id in self.current_environment.current_environment_id.install_type.modules_installed:
+		if module_id in self.current_environment.modules_recorded or module_id in self.current_environment.modules_installed:
 			return True
 		else:
 			return False
@@ -1060,7 +1060,7 @@ class ShutItPexpectSession(object):
 		shutit_global.shutit._handle_note(note)
 		shutit_global.shutit.log('Installing package: ' + package,level=loglevel)
 		if options is None: options = {}
-		install_type = self.current_environment.current_environment_id.install_type.install_type
+		install_type = self.current_environment.install_type
 		if install_type == 'src':
 			# If this is a src build, we assume it's already installed.
 			return True
@@ -1118,7 +1118,7 @@ class ShutItPexpectSession(object):
 			# Not handled
 			return False
 		# Get mapped packages.
-		package = package_map.map_packages(package, self.current_environment.current_environment_id.install_type.install_type)
+		package = package_map.map_packages(package, self.current_environment.install_type)
 		# Let's be tolerant of failure eg due to network.
 		# This is especially helpful with automated testing.
 		if package.strip() != '':
@@ -1147,7 +1147,7 @@ class ShutItPexpectSession(object):
 		"""Returns memory available for use in k as an int"""
 		cfg = shutit_global.shutit.cfg
 		shutit_global.shutit._handle_note(note)
-		if self.current_environment.current_environment_id.install_type.distro == 'osx':
+		if self.current_environment.distro == 'osx':
 			memavail = self.send_and_get_output("""vm_stat | grep ^Pages.free: | awk '{print $3}' | tr -d '.'""",timeout=3,echo=False, delaybeforesend=delaybeforesend)
 			memavail = int(memavail)
 			memavail *= 4
@@ -1183,7 +1183,7 @@ class ShutItPexpectSession(object):
 		# If separated by spaces, remove separately
 		shutit_global.shutit._handle_note(note)
 		if options is None: options = {}
-		install_type = self.current_environment.current_environment_id.install_type.install_type
+		install_type = self.current_environment.install_type
 		whoiam = self.whoami()
 		if whoiam != 'root' and install_type != 'brew':
 			cmd = 'sudo '
@@ -1222,7 +1222,7 @@ class ShutItPexpectSession(object):
 			# Not handled
 			return False
 		# Get mapped package.
-		package = package_map.map_package(package, self.current_environment.current_environment_id.install_type.install_type)
+		package = package_map.map_package(package, self.current_environment.install_type)
 		if pw != '':
 			self.multisend('%s %s %s' % (cmd, opts, package), {'assword:':pw}, timeout=timeout, exit_values=['0','100'])
 		else:
@@ -1307,7 +1307,7 @@ class ShutItPexpectSession(object):
 			preserve_newline = False
 		# Correct problem with first char in OSX.
 		try:
-			if self.current_environment.current_environment_id.install_type.distro == 'osx':
+			if self.current_environment.distro == 'osx':
 				before_list = before.split('\r\n')
 				before_list = before_list[1:]
 				before = string.join(before_list,'\r\n')
