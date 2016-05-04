@@ -1347,19 +1347,11 @@ class ShutItPexpectSession(object):
 		shutit_global.shutit._handle_note(note)
 		user = user or self.whoami()
 		msg = msg or 'Please input the sudo password for user: ' + user
-		# TODO: correct this
-		# Test for the existence of the data structure.
-		try:
-			_=cfg['environment'][cfg['build']['current_environment_id']][user]
-		except:
-			cfg['environment'][cfg['build']['current_environment_id']][user] = {}
-		try:
-			_=cfg['environment'][cfg['build']['current_environment_id']][user]['password']
-		except Exception:
-			# Try and get input, if we are not interactive, this should fail.
-			cfg['environment'][cfg['build']['current_environment_id']][user]['password'] = shutit_util.get_input(msg,ispass=True)
-		shutit_global.shutit._handle_note_after(note=note)
-		return cfg['environment'][cfg['build']['current_environment_id']][user]['password']
+		if user not in self.current_environment.users.keys():
+			self.current_environment.users.update({user:None})
+		if not self.current_environment.users[user]:
+			self.current_environment.users[user] = shutit_util.get_input(msg,ispass=True)
+		return self.current_environment.users[user]
 
 
 	def whoarewe(self,
@@ -2545,6 +2537,7 @@ class ShutItPexpectSessionEnvironment(object):
 		self.install_type                 = ''
 		self.distro                       = ''
 		self.distro_version               = ''
+		self.users                        = dict()
 	
 
 	#TODO: review items in cfg and see if they make more sense in the pexpect object
