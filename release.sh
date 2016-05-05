@@ -5,6 +5,7 @@ set -u
 i=0
 while true
 do
+	rm -rf build
 	i=$[i+1]
 	output=$(grep version= setup.py | awk -F'=' '{print $2}' | sed "s/'\([0-9][0-9]*\)\.\([0-9][0-9]*\)\.\([0-9][0-9]*\)',/\1 \2 \3/")
 	major=$(echo $output | awk '{print $1}')
