@@ -117,7 +117,7 @@ def init_shutit_map(shutit):
 	if len([mod for mod in modules if mod.run_order > 0]) < 1:
 		shutit.log(modules,level=logging.DEBUG)
 		path = ':'.join(cfg['host']['shutit_module_path'])
-		shutit.log('\nIf you are new to ShutIt, see:\n\n\thttp://ianmiell.github.io/shutit/\n\nor try running\n\n\tshutit skeleton\n\n',code=32,level=logging.INFO)
+		shutit.log('\nIf you are new to ShutIt, see:\n\n\thttp://ianmiell.github.io/shutit/\n\nor try running\n\n\tshutit skeleton\n\n',level=logging.INFO)
 		if path == '':
 			shutit.fail('No ShutIt modules aside from core ones found and no ShutIt module path given.\nDid you set --shutit_module_path/-m wrongly?\n')
 		elif path == '.':
@@ -651,7 +651,7 @@ def main():
 		shutit.log(cfg['build']['report_final_messages'], level=logging.INFO)
 
 	if cfg['build']['interactive'] >= 3:
-		shutit.log('\n' + 'The build is complete. You should now have a target called ' + cfg['target']['name'] + ' and a new image if you chose to commit it.\n\nLook and play with the following files from the newly-created module directory to dig deeper:\n\n    configs/build.cnf\n    *.py\n\nYou can rebuild at any time by running the supplied ./build.sh and run with the supplied ./run.sh. These may need tweaking for your particular environment, eg sudo', code='32', level=logging.DEBUG)
+		shutit.log('\n' + 'The build is complete. You should now have a target called ' + cfg['target']['name'] + ' and a new image if you chose to commit it.\n\nLook and play with the following files from the newly-created module directory to dig deeper:\n\n    configs/build.cnf\n    *.py\n\nYou can rebuild at any time by running the supplied ./build.sh and run with the supplied ./run.sh. These may need tweaking for your particular environment, eg sudo', level=logging.DEBUG)
 
 	# Mark the build as completed
 	cfg['build']['completed'] = True
