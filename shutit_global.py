@@ -33,7 +33,6 @@ import re
 import getpass
 import datetime
 import pexpect
-import md5
 from shutit_module import ShutItFailException
 import logging
 
@@ -75,7 +74,6 @@ class ShutIt(object):
 		self.cfg['repository']                      = {}
 		self.cfg['expect_prompts']                  = {}
 		self.cfg['dockerfile']                      = {}
-		self.cfg['list_modules']                    = {}
 		self.cfg['list_configs']                    = {}
 		self.cfg['list_deps']                       = {}
 		# If no LOGNAME available,
@@ -103,6 +101,8 @@ class ShutIt(object):
 		self.shutit_map                     = {}
 		# These are new members we dont have to provide compatibility for
 		self.conn_modules = set()
+		# Whether to list the modules seen
+		self.list_modules                           = {}
 		# Environments are kept globally, as different sessions may re-connect to them.
 		self.shutit_pexpect_session_environments = set()
 
@@ -212,7 +212,7 @@ class ShutIt(object):
 
 
 	def get_current_environment(self):
-		return shutit_global.shutit.get_current_shutit_pexpect_session_environment().environment_id
+		return self.get_current_shutit_pexpect_session_environment().environment_id
 
 
 	def multisend(self,
@@ -295,7 +295,6 @@ class ShutIt(object):
 	              escape=False,
 	              pause=1,
 	              loglevel=logging.DEBUG,
-	              delaybeforesend=0,
 	              follow_on_context={}):
 		"""Set the user a task to complete, success being determined by matching the output.
 
@@ -1076,6 +1075,7 @@ class ShutIt(object):
 	def step_through(self, msg='', shutit_pexpect_child=None, level=1, print_input=True, value=True):
 		"""Implements a step-through function, using pause_point.
 		"""
+		cfg = self.cfg
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
 		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
 		if (not shutit_util.determine_interactive() or not cfg['build']['interactive'] or
@@ -1459,6 +1459,7 @@ class ShutIt(object):
 		@type repository:           string
 		@type docker_executable:    string
 		"""
+		cfg = self.cfg
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
 		expect = expect or self.get_current_shutit_pexpect_session().default_expect
 		send = docker_executable + ' push ' + repository

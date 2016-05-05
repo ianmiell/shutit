@@ -167,6 +167,20 @@ do
 	done
 done
 
+pushd test/1
+for arg in list_modules list_configs list_deps
+do
+	../../shutit $arg
+	RES=$?
+	if [[ "x$RES" != "x0" ]]
+	then
+		echo "FAILURE |$RES| in: $(pwd) running test.sh"
+		cleanup hard
+		exit 1
+	fi
+done
+popd
+
 if [ x$SHUTIT_PARALLEL_BUILD != 'x' ]
 then
 	for P in ${!PIDS[*]}; do

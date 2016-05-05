@@ -142,10 +142,11 @@ def colourise(code, msg):
 	return '\033[%sm%s\033[0m' % (code, msg)
 
 
-def get_configs(shutit, configs):
+def get_configs(configs):
 	"""Reads config files in, checking their security first
 	(in case passwords/sensitive info is in them).
 	"""
+	shutit = shutit_global.shutit
 	cfg = shutit.cfg
 	cp  = LayerConfigParser()
 	fail_str = ''
@@ -167,13 +168,13 @@ def get_configs(shutit, configs):
 					shutit.log('Correcting insecure file permissions on: ' + f)
 					os.chmod(f,0600)
 				# recurse
-				return get_configs(shutit, configs)
+				return get_configs(configs)
 		else:
 			for f in files:
 				shutit.log('Correcting insecure file permissions on: ' + f)
 				os.chmod(f,0600)
 			# recurse
-			return get_configs(shutit, configs)
+			return get_configs(configs)
 		shutit.fail(fail_str)
 	for config in configs:
 		if type(config) is tuple:
@@ -214,8 +215,8 @@ def find_asset(filename):
 		dirs = ['/usr/share/dict',
 		        sys.prefix,
 		        os.path.join(sys.prefix,'local'),
-		        shutit_global.shutit_main_dir,
-		        os.path.join(shutit_global.shutit_main_dir,'../../..'),
+		        shutit_global.shutit.shutit_main_dir,
+		        os.path.join(shutit_global.shutit.shutit_main_dir,'../../..'),
 		        shutit_global.shutit.cfg['host']['shutit_path'],
 		        '/usr/local'
 		       ]
@@ -224,8 +225,8 @@ def find_asset(filename):
 		dirs = ['/usr/share/dict' + '/' + head,
 		        sys.prefix + '/' + head,
 		        os.path.join(sys.prefix,'local') + '/' + head,
-		        shutit_global.shutit_main_dir + '/' + head,
-		        os.path.join(shutit_global.shutit_main_dir,'../../..') + '/' + head,
+		        shutit_global.shutit.shutit_main_dir + '/' + head,
+		        os.path.join(shutit_global.shutit.shutit_main_dir,'../../..') + '/' + head,
 		        shutit_global.shutit.cfg['host']['shutit_path'] + '/' + head,
 		        '/usr/local' + '/' + head
 		       ]
@@ -376,7 +377,7 @@ def get_base_config(cfg, cfg_parser):
 
 
 # Returns the config dict
-def parse_args(shutit):
+def parse_args():
 	"""Responsible for parsing arguments.
 
 	Environment variables:
@@ -390,6 +391,7 @@ def parse_args(shutit):
 	eg ' a\ b c\\ \\d \\\e\' becomes '', 'a b', 'c\', '\d', '\\e\'
 	SHUTIT_OPTIONS is ignored if we are creating a skeleton
 	"""
+	shutit = shutit_global.shutit
 	cfg = shutit.cfg
 	cfg['host']['real_user_id'] = pexpect.run('id -u ' + cfg['host']['real_user']).strip()
 
@@ -579,8 +581,8 @@ docker_tutorial:   a docker-based tutorial
 
 	# Default this to False as it's not always set (mostly for debug logging).
 	cfg['list_configs']['cfghistory']  = False
-	cfg['list_modules']['long']        = False
-	cfg['list_modules']['sort']        = None
+	shutit.list_modules['long']        = False
+	shutit.list_modules['sort']        = None
 	cfg['build']['video']              = False
 	cfg['build']['training']           = False
 	cfg['build']['choose_config']      = False
@@ -611,8 +613,8 @@ docker_tutorial:   a docker-based tutorial
 	elif cfg['action']['list_configs']:
 		cfg['list_configs']['cfghistory'] = args.history
 	elif cfg['action']['list_modules']:
-		cfg['list_modules']['long'] = args.long
-		cfg['list_modules']['sort'] = args.sort
+		shutit.list_modules['long'] = args.long
+		shutit.list_modules['sort'] = args.sort
 
 	# What are we building on? Convert arg to conn_module we use.
 	if args.delivery == 'docker' or args.delivery is None:
@@ -763,10 +765,11 @@ docker_tutorial:   a docker-based tutorial
 		sys.settrace(tracefunc)
 
 
-def load_configs(shutit):
+def load_configs():
 	"""Responsible for loading config files into ShutIt.
 	Recurses down from configured shutit module paths.
 	"""
+	shutit = shutit_global.shutit
 	cfg = shutit.cfg
 	# Get root default config.
 	configs = [('defaults', StringIO.StringIO(_default_cnf)), os.path.join(shutit.shutit_main_dir,
@@ -814,7 +817,7 @@ def load_configs(shutit):
 		override_fd.seek(0)
 		configs.append(('overrides', override_fd))
 
-	cfg_parser = get_configs(shutit, configs)
+	cfg_parser = get_configs(configs)
 	get_base_config(cfg, cfg_parser)
 	if cfg['build']['loglevel'] <= logging.DEBUG:
 		# Set up the manhole.
@@ -835,26 +838,27 @@ def load_configs(shutit):
 			pass
 
 
-def load_shutit_modules(shutit):
+def load_shutit_modules():
 	"""Responsible for loading the shutit modules based on the configured module
 	paths.
 	"""
+	shutit = shutit_global.shutit
 	cfg = shutit.cfg
 	if cfg['build']['loglevel'] <= logging.DEBUG:
 		shutit.log('ShutIt module paths now: ',level=logging.DEBUG)
 		shutit.log(cfg['host']['shutit_module_path'],level=logging.DEBUG)
 	for shutit_module_path in cfg['host']['shutit_module_path']:
-		load_all_from_path(shutit, shutit_module_path)
+		load_all_from_path(shutit_module_path)
 
 
-def list_modules(shutit,long_output=None,sort_order=None):
+def list_modules(long_output=None,sort_order=None):
 	"""Display a list of loaded modules.
 
 	Config items:
-		- ['list_modules']['long']
+		- shutit.list_modules['long']
 		  If set, also print each module's run order value
 
-		- ['list_modules']['sort']
+		- shutit.list_modules['sort']
 		  Select the column by which the list is ordered:
 			- id: sort the list by module id
 			- run_order: sort the list by module run order
@@ -863,14 +867,15 @@ def list_modules(shutit,long_output=None,sort_order=None):
 
 	Dependencies: operator
 	"""
+	shutit = shutit_global.shutit
 	cfg = shutit.cfg
 	# list of module ids and other details
 	# will also contain column headers
 	table_list = []
 	if long_output is None:
-		long_output = cfg['list_modules']['long']
+		long_output = shutit.list_modules['long']
 	if sort_order is None:
-		sort_order = cfg['list_modules']['sort']
+		sort_order = shutit.list_modules['sort']
 	if long_output:
 		# --long table: sort modules by run order
 		table_list.append(["Order","Module ID","Description","Run Order","Built","Compatible"])
@@ -880,6 +885,7 @@ def list_modules(shutit,long_output=None,sort_order=None):
 		#table_list.append(["Module ID","Description","Built"])
 		table_list.append(["Module ID","Description","Built","Compatible"])
 
+	print shutit.shutit_modules
 	if sort_order == 'run_order':
 		a = {}
 		for m in shutit.shutit_modules:
@@ -1006,9 +1012,10 @@ def get_pexpect_child(key):
 	"""
 	return shutit_global.shutit.shutit_pexpect_children[key]
 
-def load_all_from_path(shutit, path):
+def load_all_from_path(path):
 	"""Dynamically imports files within the same directory (in the end, the path).
 	"""
+	shutit = shutit_global.shutit
 	#111: handle expanded paths
 	path = os.path.abspath(path)
 	#http://stackoverflow.com/questions/301134/dynamic-module-import-in-python
@@ -1022,12 +1029,12 @@ def load_all_from_path(shutit, path):
 	for sub in glob.glob(os.path.join(path, '*')):
 		subpath = os.path.join(path, sub)
 		if os.path.isfile(subpath):
-			load_mod_from_file(shutit, subpath)
+			load_mod_from_file(subpath)
 		elif os.path.isdir(subpath):
-			load_all_from_path(shutit, subpath)
+			load_all_from_path(subpath)
 
 
-def load_mod_from_file(shutit, fpath):
+def load_mod_from_file(fpath):
 	"""Loads modules from a .py file into ShutIt if there are no modules from
 	this file already.
 	We expect to have a callable 'module/0' which returns one or more module
@@ -1036,6 +1043,7 @@ def load_mod_from_file(shutit, fpath):
 	(automatically inserting the module into shutit_global) or it's not a shutit
 	module.
 	"""
+	shutit = shutit_global.shutit
 	cfg = shutit.cfg
 	fpath = os.path.abspath(fpath)
 	file_ext = os.path.splitext(os.path.split(fpath)[-1])[-1]
@@ -1140,9 +1148,10 @@ def get_hash(string_to_hash):
 	return abs(binascii.crc32(string_to_hash))
 
 
-def create_skeleton(shutit):
+def create_skeleton():
 	"""Creates module based on a template supplied as a git repo.
 	"""
+	shutit = shutit_global.shutit
 	cfg = shutit.cfg
 
 	template_setup_script = 'setup.sh'
@@ -1255,7 +1264,8 @@ def create_skeleton(shutit):
 
 # Parses the dockerfile (passed in as a string)
 # and info to extract, and returns a list with the information in a more canonical form, still ordered.
-def parse_dockerfile(shutit, contents):
+def parse_dockerfile(contents):
+	shutit = shutit_global.shutit
 	ret = []
 	full_line = ''
 	for l in contents.split('\n'):
@@ -1324,7 +1334,7 @@ def determine_interactive():
 				set_noninteractive()
 			return False
 	except Exception:
-		if shutit is not None:
+		if shutit_global.shutit is not None:
 			set_noninteractive(msg='Problems determining interactivity, assuming not.')
 		return False
 	if shutit_global.shutit.cfg['build']['interactive'] == 0:
@@ -1497,7 +1507,7 @@ def dockerfile_to_shutit_module_template(shutit,
 	local_cfg['dockerfile']['user']       = []
 	local_cfg['dockerfile']['env']        = []
 	local_cfg['dockerfile']['depends']    = []
-	dockerfile_list = parse_dockerfile(shutit, dockerfile_contents)
+	dockerfile_list = parse_dockerfile(dockerfile_contents)
 	# Set defaults from given dockerfile
 	for item in dockerfile_list:
 		# These items are not order-dependent and don't affect the build, so we collect them here:
@@ -1591,7 +1601,7 @@ def dockerfile_to_shutit_module_template(shutit,
 		dockerfile_args    = item[1].split()
 		section = dockerfile_get_section(dockerfile_command, section)
 		if section == 'build':
-			ret = handle_dockerfile_line(shutit, dockerfile_command, dockerfile_args, numpushes, wgetgot)
+			ret = handle_dockerfile_line(dockerfile_command, dockerfile_args, numpushes, wgetgot)
 			build     += ret[0]
 			numpushes =  ret[1]
 			wgetgot   =  ret[2]
@@ -1616,7 +1626,7 @@ def dockerfile_to_shutit_module_template(shutit,
 		dockerfile_args    = item[1].split()
 		section = dockerfile_get_section(dockerfile_command, section)
 		if section == 'test':
-			ret = handle_dockerfile_line(shutit, dockerfile_command, dockerfile_args, numpushes, wgetgot)
+			ret = handle_dockerfile_line(dockerfile_command, dockerfile_args, numpushes, wgetgot)
 			build     += ret[0]
 			numpushes =  ret[1]
 			wgetgot   =  ret[2]
@@ -1636,7 +1646,7 @@ def dockerfile_to_shutit_module_template(shutit,
 		dockerfile_args    = item[1].split()
 		section = dockerfile_get_section(dockerfile_command, section)
 		if section == 'isinstalled':
-			ret = handle_dockerfile_line(shutit, dockerfile_command, dockerfile_args, numpushes, wgetgot)
+			ret = handle_dockerfile_line(dockerfile_command, dockerfile_args, numpushes, wgetgot)
 			build     += ret[0]
 			numpushes =  ret[1]
 			wgetgot   =  ret[2]
@@ -1656,7 +1666,7 @@ def dockerfile_to_shutit_module_template(shutit,
 		dockerfile_args    = item[1].split()
 		section = dockerfile_get_section(dockerfile_command, section)
 		if section == 'start':
-			ret = handle_dockerfile_line(shutit, dockerfile_command, dockerfile_args, numpushes, wgetgot)
+			ret = handle_dockerfile_line(dockerfile_command, dockerfile_args, numpushes, wgetgot)
 			build     += ret[0]
 			numpushes =  ret[1]
 			wgetgot   =  ret[2]
@@ -1676,7 +1686,7 @@ def dockerfile_to_shutit_module_template(shutit,
 		dockerfile_args    = item[1].split()
 		section = dockerfile_get_section(dockerfile_command, section)
 		if section == 'stop':
-			ret = handle_dockerfile_line(shutit, dockerfile_command, dockerfile_args, numpushes, wgetgot)
+			ret = handle_dockerfile_line(dockerfile_command, dockerfile_args, numpushes, wgetgot)
 			build     += ret[0]
 			numpushes =  ret[1]
 			wgetgot   =  ret[2]
@@ -1713,7 +1723,7 @@ def dockerfile_to_shutit_module_template(shutit,
 		dockerfile_args    = item[1].split()
 		section = dockerfile_get_section(dockerfile_command, section)
 		if section == 'config':
-			ret = handle_dockerfile_line(shutit, dockerfile_command, dockerfile_args, numpushes, wgetgot)
+			ret = handle_dockerfile_line(dockerfile_command, dockerfile_args, numpushes, wgetgot)
 			build     += ret[0]
 			numpushes =  ret[1]
 			wgetgot   =  ret[2]
@@ -1748,7 +1758,8 @@ def dockerfile_to_shutit_module_template(shutit,
 	return templatemodule, module_id
 
 
-def handle_dockerfile_line(shutit, dockerfile_command, dockerfile_args, numpushes, wgetgot):
+def handle_dockerfile_line(dockerfile_command, dockerfile_args, numpushes, wgetgot):
+	shutit = shutit_global.shutit
 	build = ''
 	cmd = ' '.join(dockerfile_args).replace("'", "\\'")
 	if dockerfile_command == 'RUN':
@@ -1832,23 +1843,24 @@ def dockerfile_get_section(dockerfile_command, current):
 
 
 
-def module_ids(shutit, rev=False):
+def module_ids(rev=False):
 	"""Gets a list of module ids guaranteed to be sorted by run_order, ignoring conn modules
 	(run order < 0).
 	"""
+	shutit = shutit_global.shutit
 	ids = sorted(shutit.shutit_map.keys(),key=lambda module_id: shutit.shutit_map[module_id].run_order)
 	if rev:
 		return list(reversed(ids))
 	else:
 		return ids
 
-def allowed_module_ids(shutit, rev=False):
+def allowed_module_ids(rev=False):
 	"""Gets a list of module ids that are allowed to be run, guaranteed to be sorted by run_order, ignoring conn modules (run order < 0).
 	"""
-	module_ids_list = module_ids(shutit,rev)
+	module_ids_list = module_ids(rev)
 	_allowed_module_ids = []
 	for module_id in module_ids_list:
-		if allowed_image(shutit,module_id):
+		if allowed_image(module_id):
 			_allowed_module_ids.append(module_id)
 	return _allowed_module_ids
 
@@ -1860,7 +1872,7 @@ def print_modules(shutit):
 	module_string = ''
 	module_string += 'Modules: \n'
 	module_string += '    Run order    Build    Remove    Module ID\n'
-	for module_id in module_ids(shutit):
+	for module_id in module_ids():
 		module_string += '    ' + str(shutit.shutit_map[module_id].run_order) + '        ' + str(
 			cfg[module_id]['shutit.core.module.build']) + '    ' + str(
 			cfg[module_id]['shutit.core.module.remove']) + '    ' + module_id + '\n'
@@ -1872,7 +1884,7 @@ def config_collection(shutit):
 	"""
 	shutit.log('In config_collection',level=logging.DEBUG)
 	cfg = shutit.cfg
-	for module_id in module_ids(shutit):
+	for module_id in module_ids():
 		# Default to None so we can interpret as ifneeded
 		shutit.get_config(module_id, 'shutit.core.module.build', None, boolean=True, forcenone=True)
 		shutit.get_config(module_id, 'shutit.core.module.remove', False, boolean=True)
@@ -1910,13 +1922,13 @@ def config_collection(shutit):
 			shutit.get_config(module_id, 'shutit.core.module.build_ifneeded', False, boolean=True)
 
 
-def disallowed_module_ids(shutit, rev=False):
+def disallowed_module_ids(rev=False):
 	"""Gets a list of disallowed module ids that are not allowed to be run, guaranteed to be sorted by run_order, ignoring conn modules (run order < 0).
 	"""
-	module_ids_list = module_ids(shutit,rev)
+	module_ids_list = module_ids(rev)
 	_disallowed_module_ids = []
 	for module_id in module_ids_list:
-		if not allowed_image(shutit,module_id):
+		if not allowed_image(module_id):
 			_disallowed_module_ids.append(module_id)
 	return _disallowed_module_ids
 
@@ -1937,7 +1949,7 @@ def config_collection_for_built(shutit,throw_error=True,silent=False):
 	"""
 	shutit.log('In config_collection_for_built',level=logging.DEBUG)
 	cfg = shutit.cfg
-	for module_id in module_ids(shutit):
+	for module_id in module_ids():
 		# Get the config even if installed or building (may be needed in other hooks, eg test).
 		if (is_to_be_built_or_is_installed(shutit, shutit.shutit_map[module_id]) and
 			not shutit.shutit_map[module_id].get_config(shutit)):
@@ -1971,11 +1983,11 @@ def config_collection_for_built(shutit,throw_error=True,silent=False):
 							shutit.get_config(module_id, option, value, forcedefault=True)
 	# Check the allowed_images against the base_image
 	passed = True
-	for module_id in module_ids(shutit):
+	for module_id in module_ids():
 		if (cfg[module_id]['shutit.core.module.build'] and
 		   (cfg[module_id]['shutit.core.module.allowed_images'] and
 		    cfg['target']['docker_image'] not in cfg[module_id]['shutit.core.module.allowed_images'])):
-			if not allowed_image(shutit,module_id):
+			if not allowed_image(module_id):
 				passed = False
 				if not silent:
 					print('\n\nWARNING!\n\nAllowed images for ' + module_id + ' are: ' + str(cfg[module_id]['shutit.core.module.allowed_images']) + ' but the configured image is: ' + cfg['target']['docker_image'] + '\n\nIs your shutit_module_path set correctly?\n\nIf you want to ignore this, pass in the --ignoreimage flag to shutit.\n\n')
@@ -1994,7 +2006,7 @@ def config_collection_for_built(shutit,throw_error=True,silent=False):
 def determine_compatibility(shutit,module_id):
 	cfg = shutit.cfg
 	# Allowed images
-	if (cfg[module_id]['shutit.core.module.allowed_images'] and cfg['target']['docker_image'] not in cfg[module_id]['shutit.core.module.allowed_images']) and not allowed_image(shutit,module_id):
+	if (cfg[module_id]['shutit.core.module.allowed_images'] and cfg['target']['docker_image'] not in cfg[module_id]['shutit.core.module.allowed_images']) and not allowed_image(module_id):
 			return 1
 	# Build methods
 	if cfg[module_id]['shutit.core.module.build'] and cfg['build']['delivery'] not in shutit.shutit_map[module_id].ok_delivery_methods:
@@ -2007,7 +2019,6 @@ def is_installed(shutit, shutit_module_obj):
 	Uses cache where possible.
 	"""
 	# Cache first
-	cfg = shutit.cfg
 	if shutit_module_obj.module_id in shutit_global.shutit.get_current_shutit_pexpect_session_environment().modules_installed:
 		return True
 	if shutit_module_obj.module_id in shutit_global.shutit.get_current_shutit_pexpect_session_environment().modules_not_installed:
@@ -2023,9 +2034,10 @@ def is_installed(shutit, shutit_module_obj):
 		return False
 
 
-def allowed_image(shutit,module_id):
-	"""Given a module id and a shutit object, determine whether the image is allowed to be built.
+def allowed_image(module_id):
+	"""Given a module id, determine whether the image is allowed to be built.
 	"""
+	shutit = shutit_global.shutit
 	shutit.log("In allowed_image: " + module_id,level=logging.DEBUG)
 	cfg = shutit.cfg
 	if cfg['build']['ignoreimage']:

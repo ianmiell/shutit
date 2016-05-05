@@ -36,6 +36,7 @@ import re
 import base64
 import sys
 import textwrap
+import md5
 
 
 class ShutItPexpectSession(object):
@@ -302,7 +303,7 @@ class ShutItPexpectSession(object):
 		if not new_expect:
 			shutit_global.shutit.log('Resetting default expect to default',level=logging.DEBUG)
 			shutit_global.shutit.set_default_shutit_pexpect_session_expect()
-		shutit_pexpect_session_env = self.init_pexpect_session_environment(old_prompt_name)
+		_ = self.init_pexpect_session_environment(old_prompt_name)
 
 
 	def pexpect_send(self, string, delaybeforesend=0):
@@ -773,7 +774,6 @@ class ShutItPexpectSession(object):
 		@param note:        See send()
 		"""
 
-		cfg = shutit_global.shutit.cfg
 		shutit_global.shutit._handle_note(note)
 		self.install('passwd')
 		if self.current_environment.install_type == 'apt':
@@ -918,7 +918,6 @@ class ShutItPexpectSession(object):
 
 		@rtype:           boolean
 		"""
-		cfg = shutit_global.shutit.cfg
 		shutit_global.shutit._handle_note(note)
 		if self.current_environment.install_type == 'apt':
 			#            v the space is intentional, to avoid polluting bash history.
@@ -1145,7 +1144,6 @@ class ShutItPexpectSession(object):
 	               delaybeforesend=0,
 	               note=None):
 		"""Returns memory available for use in k as an int"""
-		cfg = shutit_global.shutit.cfg
 		shutit_global.shutit._handle_note(note)
 		if self.current_environment.distro == 'osx':
 			memavail = self.send_and_get_output("""vm_stat | grep ^Pages.free: | awk '{print $3}' | tr -d '.'""",timeout=3,echo=False, delaybeforesend=delaybeforesend)
@@ -1179,7 +1177,6 @@ class ShutItPexpectSession(object):
 		         False otherwise.
 		@rtype: boolean
 		"""
-		cfg = shutit_global.shutit.cfg
 		# If separated by spaces, remove separately
 		shutit_global.shutit._handle_note(note)
 		if options is None: options = {}
@@ -1295,7 +1292,6 @@ class ShutItPexpectSession(object):
 		@type retry:     integer
 		@type strip:     boolean
 		"""
-		cfg = shutit_global.shutit.cfg
 		shutit_global.shutit._handle_note(note, command=str(send))
 		shutit_global.shutit.log('Retrieving output from command: ' + send,level=loglevel)
 		# Don't check exit, as that will pollute the output. Also, it's quite likely the submitted command is intended to fail.
@@ -1343,7 +1339,6 @@ class ShutItPexpectSession(object):
 		@param user:    username we are getting password for
 		@param msg:     message to put out there
 		"""
-		cfg = shutit_global.shutit.cfg
 		shutit_global.shutit._handle_note(note)
 		user = user or self.whoami()
 		msg = msg or 'Please input the sudo password for user: ' + user
@@ -2270,7 +2265,6 @@ $'"""
                   failed='FAILED',
 	              expect_type='exact',
 	              challenge_type='command',
-	              shutit_pexpect_child=None,
 	              timeout=None,
 	              check_exit=None,
 	              fail_on_empty_before=True,
@@ -2503,7 +2497,7 @@ $'"""
 			#	return shutit_global.shutit.get_shutit_pexpect_session_environment('ORIGIN_ENV')
 			self.current_environment = environment
 			return shutit_global.shutit.get_shutit_pexpect_session_environment(environment_id)
-		new_environment = ShutItPexpectSessionEnvironment(prefix,self)
+		new_environment = ShutItPexpectSessionEnvironment(prefix)
 		# If not, create new env object, set it to current.
 		self.current_environment = new_environment
 		shutit_global.shutit.add_shutit_pexpect_session_environment(new_environment)
@@ -2522,8 +2516,7 @@ class ShutItPexpectSessionEnvironment(object):
 
 
 	def __init__(self,
-	             prefix,
-	             shutit_pexpect_session):
+	             prefix):
 		if prefix == 'ORIGIN_ENV':
 			self.environment_id = prefix
 		else:
