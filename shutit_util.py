@@ -243,7 +243,8 @@ def find_asset(filename):
 
 # Set up logging
 #
-def setup_logging(shutit):
+def setup_logging():
+	shutit = shutit_global.shutit
 	cfg = shutit.cfg
 	# If loglevel is an int, this has already been set up.
 	if type(cfg['build']['loglevel']) == int:
@@ -498,7 +499,7 @@ def parse_args():
 	# Logging
 	cfg['host']['logfile']   = args.logfile
 	cfg['build']['loglevel'] = args.log
-	setup_logging(shutit)
+	setup_logging()
 
 	# This mode is a bit special - it's the only one with different arguments
 	if cfg['action']['skeleton']:
@@ -903,7 +904,7 @@ def list_modules(long_output=None,sort_order=None):
 					compatible = True
 					if not cfg[m.module_id]['shutit.core.module.build']:
 						cfg[m.module_id]['shutit.core.module.build'] = True
-						if determine_compatibility(shutit,m.module_id) == 0:
+						if determine_compatibility(m.module_id) == 0:
 							compatible = True
 						else:
 							compatible = False
@@ -926,7 +927,7 @@ def list_modules(long_output=None,sort_order=None):
 					compatible = True
 					if not cfg[m.module_id]['shutit.core.module.build']:
 						cfg[m.module_id]['shutit.core.module.build'] = True
-						if determine_compatibility(shutit,m.module_id) == 0:
+						if determine_compatibility(m.module_id) == 0:
 							compatible = True
 						else:
 							compatible = False
@@ -1369,7 +1370,7 @@ def ctrl_quit_signal_handler(_,frame):
 	shutit_frame = get_shutit_frame(frame)
 	if shutit_frame:
 		shutit = shutit_frame.f_locals['shutit']
-		shutit_main.do_finalize(shutit)
+		shutit_main.do_finalize()
 	handle_exit(exit_code=1)
 # CTRL-\ HANDLING CODE ENDS
 
@@ -1464,8 +1465,7 @@ def check_regexp(regex):
 
 
 # Takes a dockerfile filename and returns a string that represents that Dockerfile as a ShutIt module
-def dockerfile_to_shutit_module_template(shutit,
-                                         skel_dockerfile,
+def dockerfile_to_shutit_module_template(skel_dockerfile,
                                          skel_path,
                                          skel_domain,
                                          skel_module_name,
@@ -1473,6 +1473,7 @@ def dockerfile_to_shutit_module_template(shutit,
                                          skel_delivery,
                                          skel_depends,
                                          order,total):
+	shutit = shutit_global.shutit
 	if os.path.basename(skel_dockerfile) != 'Dockerfile' and not os.path.exists(skel_dockerfile):
 		skel_dockerfile += '/Dockerfile'
 	if not os.path.exists(skel_dockerfile):
@@ -1865,7 +1866,7 @@ def allowed_module_ids(rev=False):
 	return _allowed_module_ids
 
 
-def print_modules(shutit):
+def print_modules():
 	"""Returns a string table representing the modules in the ShutIt module map.
 	"""
 	cfg = shutit.cfg
@@ -1879,9 +1880,10 @@ def print_modules(shutit):
 	return module_string
 
 
-def config_collection(shutit):
+def config_collection():
 	"""Collect core config from config files for all seen modules.
 	"""
+	shutit = shutit_global.shutit
 	shutit.log('In config_collection',level=logging.DEBUG)
 	cfg = shutit.cfg
 	for module_id in module_ids():
@@ -1933,25 +1935,26 @@ def disallowed_module_ids(rev=False):
 	return _disallowed_module_ids
 
 
-def is_to_be_built_or_is_installed(shutit, shutit_module_obj):
+def is_to_be_built_or_is_installed(shutit_module_obj):
 	"""Returns true if this module is configured to be built, or if it is already installed.
 	"""
-	cfg = shutit.cfg
+	cfg = shutit_global.shutit.cfg
 	if cfg[shutit_module_obj.module_id]['shutit.core.module.build']:
 		return True
-	return is_installed(shutit, shutit_module_obj)
+	return is_installed(shutit_module_obj)
 
 
-def config_collection_for_built(shutit,throw_error=True,silent=False):
+def config_collection_for_built(throw_error=True,silent=False):
 	"""Collect configuration for modules that are being built.
 	When this is called we should know what's being built (ie after
 	dependency resolution).
 	"""
+	shutit = shutit_global.shutit
 	shutit.log('In config_collection_for_built',level=logging.DEBUG)
 	cfg = shutit.cfg
 	for module_id in module_ids():
 		# Get the config even if installed or building (may be needed in other hooks, eg test).
-		if (is_to_be_built_or_is_installed(shutit, shutit.shutit_map[module_id]) and
+		if (is_to_be_built_or_is_installed( shutit.shutit_map[module_id]) and
 			not shutit.shutit_map[module_id].get_config(shutit)):
 				shutit.fail(module_id + ' failed on get_config')
 		# Collect the build.cfg if we are building here.
@@ -2003,7 +2006,8 @@ def config_collection_for_built(shutit,throw_error=True,silent=False):
 	return True
 
 
-def determine_compatibility(shutit,module_id):
+def determine_compatibility(module_id):
+	shutit = shutit_global.shutit
 	cfg = shutit.cfg
 	# Allowed images
 	if (cfg[module_id]['shutit.core.module.allowed_images'] and cfg['target']['docker_image'] not in cfg[module_id]['shutit.core.module.allowed_images']) and not allowed_image(module_id):
@@ -2014,10 +2018,11 @@ def determine_compatibility(shutit,module_id):
 	return 0
 
 
-def is_installed(shutit, shutit_module_obj):
+def is_installed(shutit_module_obj):
 	"""Returns true if this module is installed.
 	Uses cache where possible.
 	"""
+	shutit = shutit_global.shutit
 	# Cache first
 	if shutit_module_obj.module_id in shutit_global.shutit.get_current_shutit_pexpect_session_environment().modules_installed:
 		return True
