@@ -497,9 +497,6 @@ class ShutItPexpectSession(object):
 				return False
 			elif cfg['build']['interactive'] >= 1:
 				# This is a failure, so we pass in level=0
-				print '=========================='
-				print send
-				print '=========================='
 				shutit_global.shutit.pause_point(msg + '\n\nInteractive, so not retrying.\nPause point on exit_code != 0 (' + res + '). CTRL-C to quit', shutit_pexpect_child=self.pexpect_child, level=0)
 			elif retry == 1:
 				shutit_global.shutit.fail('Exit value from command\n' + send + '\nwas:\n' + res, throw_exception=False)
@@ -1451,6 +1448,8 @@ class ShutItPexpectSession(object):
 			# Don't check for existence of file to save a little time.
 			issue_output = self.send_and_get_output(' cat /etc/issue',echo=False, loglevel=loglevel,delaybeforesend=delaybeforesend).lower()
 			if not re.match('.*No such file.*',issue_output):
+				print package_map
+				print package_map.INSTALL_TYPE_MAP
 				for key in package_map.INSTALL_TYPE_MAP.keys():
 					if issue_output.find(key) != -1:
 						distro       = key
@@ -2517,3 +2516,4 @@ class ShutItPexpectSessionEnvironment(object):
 
 	#TODO: review items in cfg and see if they make more sense in the pexpect object
 	#TODO: replace 'target' in cfg
+print package_map.INSTALL_TYPE_MAP
