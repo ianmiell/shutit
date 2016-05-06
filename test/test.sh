@@ -23,7 +23,7 @@ TESTS=${1:-basic}
 
 pushd $(dirname ${BASH_SOURCE[0]})/.. > /dev/null 2>&1
 
-#set -x
+set -x
 
 source test/shared_test_utils.sh
 
@@ -168,9 +168,10 @@ do
 done
 
 pushd test/1
-for arg in list_modules list_configs list_deps
+for arg in "list_modules" "list_configs" "list_deps" "list_modules --long" "list_modules --sort id"
 do
-	../../shutit $arg
+	echo $arg
+	eval ../../shutit $arg
 	RES=$?
 	if [[ "x$RES" != "x0" ]]
 	then

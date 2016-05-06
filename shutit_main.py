@@ -573,14 +573,14 @@ def main():
 	shutit_util.load_shutit_modules()
 	shutit.log('ShutIt modules loaded',level=logging.INFO)
 
-	if cfg['action']['list_modules']:
-		shutit_util.list_modules()
-		shutit_util.handle_exit()
 
 	init_shutit_map(shutit)
 	shutit_util.config_collection()
 	shutit.log('Configuration loaded',level=logging.INFO)
 
+	if cfg['action']['list_modules']:
+		shutit_util.list_modules()
+		shutit_util.handle_exit()
 	conn_target(shutit)
 	shutit.log('Connected to target',level=logging.INFO)
 

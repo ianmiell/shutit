@@ -886,7 +886,6 @@ def list_modules(long_output=None,sort_order=None):
 		#table_list.append(["Module ID","Description","Built"])
 		table_list.append(["Module ID","Description","Built","Compatible"])
 
-	print shutit.shutit_modules
 	if sort_order == 'run_order':
 		a = {}
 		for m in shutit.shutit_modules:
@@ -913,7 +912,6 @@ def list_modules(long_output=None,sort_order=None):
 						table_list.append([str(count),m.module_id,m.description,str(m.run_order),str(cfg[m.module_id]['shutit.core.module.build']),str(compatible)])
 						#table_list.append([str(count),m.module_id,m.description,str(m.run_order),str(cfg[m.module_id]['shutit.core.module.build'])])
 					else:
-						#table_list.append([m.module_id,m.description,str(cfg[m.module_id]['shutit.core.module.build'])])
 						table_list.append([m.module_id,m.description,str(cfg[m.module_id]['shutit.core.module.build']),str(compatible)])
 	elif sort_order == 'id':
 		a = []
@@ -931,7 +929,7 @@ def list_modules(long_output=None,sort_order=None):
 							compatible = True
 						else:
 							compatible = False
-					if sort_order:
+					if long_output:
 						table_list.append([str(count),m.module_id,m.description,str(m.run_order),str(cfg[m.module_id]['shutit.core.module.build']),str(compatible)])
 						#table_list.append([str(count),m.module_id,m.description,str(m.run_order),str(cfg[m.module_id]['shutit.core.module.build'])])
 					else:
