@@ -1448,8 +1448,6 @@ class ShutItPexpectSession(object):
 			# Don't check for existence of file to save a little time.
 			issue_output = self.send_and_get_output(' cat /etc/issue',echo=False, loglevel=loglevel,delaybeforesend=delaybeforesend).lower()
 			if not re.match('.*No such file.*',issue_output):
-				print package_map
-				print package_map.INSTALL_TYPE_MAP
 				for key in package_map.INSTALL_TYPE_MAP.keys():
 					if issue_output.find(key) != -1:
 						distro       = key
@@ -2430,7 +2428,6 @@ $'"""
 				if len(files) == 2 and (files[0] == 'ORIGIN_ENV' or files[1] == 'ORIGIN_ENV'):
 					for f in files:
 						if f != 'ORIGIN_ENV':
-							print 'not ORIGIN_ENV'
 							environment_id = f
 							# Look up this environment id
 							environment = shutit_global.shutit.get_shutit_pexpect_session_environment(environment_id)
@@ -2516,4 +2513,3 @@ class ShutItPexpectSessionEnvironment(object):
 
 	#TODO: review items in cfg and see if they make more sense in the pexpect object
 	#TODO: replace 'target' in cfg
-print package_map.INSTALL_TYPE_MAP
