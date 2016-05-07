@@ -52,7 +52,6 @@ class ShutItConnModule(ShutItModule):
 		super(ShutItConnModule, self).__init__(*args, **kwargs)
 
 	def setup_host_child(self, shutit):
-		cfg = shutit.cfg
 		# Now let's have a host_child
 		shutit.log('Spawning host child',level=logging.DEBUG)
 		shutit_pexpect_session = shutit_pexpect.ShutItPexpectSession('host_child', '/bin/bash')
@@ -65,7 +64,6 @@ class ShutItConnModule(ShutItModule):
 		shutit_pexpect_session.login_stack_append(prefix)
 
 	def setup_target_child(self, shutit, target_child, target_child_id='target_child',prefix='root'):
-		cfg = shutit.cfg
 		# Some pexpect settings
 		shutit_pexpect_session = shutit.get_shutit_pexpect_session_from_id(target_child_id)
 		shutit_pexpect_session.pexpect_child = target_child
@@ -89,7 +87,6 @@ class ConnDocker(ShutItConnModule):
 		"""Private function. Do some docker capability checking
 		"""
 		cfg = shutit.cfg
-
 		# If we have sudo, kill any current sudo timeout. This is a bit of a
 		# hammer and somewhat unfriendly, but tells us if we need a password.
 		if spawn.find_executable('sudo') is not None:
@@ -139,11 +136,11 @@ class ConnDocker(ShutItConnModule):
 			# for. At the moment we assume the password if it was asked for.
 			if needed_password:
 				msg = (fail_msg + ', your host password or docker_executable config may be wrong (I will assume password).\nPlease confirm your host password.')
-				sec, name, ispass = 'host', 'password', True
+				name, ispass = 'password', True
 			else:
 				msg = (fail_msg + ', your docker_executable setting seems to be wrong.\nPlease confirm your docker executable, eg "sudo docker".')
-				sec, name, ispass = 'host', 'docker_executable', False
-			cfg[sec][name] = shutit.prompt_cfg(msg, sec, name, ispass=ispass)
+				name, ispass = 'docker_executable', False
+			shutit.host[name] = shutit.prompt_cfg(msg, 'host', name, ispass=ispass)
 			return False
 		return True
 

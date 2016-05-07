@@ -1012,10 +1012,9 @@ class ShutIt(object):
 		@return: the value entered by the user
 		@rtype:  string
 		"""
-		cfg = self.cfg
 		cfgstr        = '[%s]/%s' % (sec, name)
-		config_parser = cfg['config_parser']
-		usercfg       = os.path.join(cfg['shutit_home'], 'config')
+		config_parser = self.config_parser
+		usercfg       = os.path.join(self.host['shutit_path'], 'config')
 
 		self.log(shutit_util.colourise('32', '\nPROMPTING FOR CONFIG: %s' % (cfgstr,)),transient=True)
 		self.log(shutit_util.colourise('32', '\n' + msg + '\n'),transient=True)
@@ -1616,13 +1615,13 @@ class ShutIt(object):
 		cfg = self.cfg
 		if module_id not in cfg.keys():
 			cfg[module_id] = {}
-		if not cfg['config_parser'].has_section(module_id):
-			cfg['config_parser'].add_section(module_id)
-		if not forcedefault and cfg['config_parser'].has_option(module_id, option):
+		if not self.config_parser.has_section(module_id):
+			self.config_parser.add_section(module_id)
+		if not forcedefault and self.config_parser.has_option(module_id, option):
 			if boolean:
-				cfg[module_id][option] = cfg['config_parser'].getboolean(module_id, option)
+				cfg[module_id][option] = self.config_parser.getboolean(module_id, option)
 			else:
-				cfg[module_id][option] = cfg['config_parser'].get(module_id, option)
+				cfg[module_id][option] = self.config_parser.get(module_id, option)
 		else:
 			if not forcenone:
 				if self.build['interactive'] > 0:

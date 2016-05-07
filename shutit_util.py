@@ -294,7 +294,7 @@ def get_base_config(cfg_parser):
 	"""
 	shutit = shutit_global.shutit
 	cfg = shutit.cfg
-	cfg['config_parser'] = cp = cfg_parser
+	shutit.config_parser = cp = cfg_parser
 	# BEGIN Read from config files
 	# build - details relating to the build
 	shutit.build['privileged']                 = cp.getboolean('build', 'privileged')
@@ -962,7 +962,7 @@ def list_modules(long_output=None,sort_order=None):
 def print_config(cfg, hide_password=True, history=False, module_id=None):
 	"""Returns a string representing the config of this ShutIt run.
 	"""
-	cp = cfg['config_parser']
+	cp = shutit_global.shutit.config_parser
 	s = ''
 	keys1 = cfg.keys()
 	if keys1:
