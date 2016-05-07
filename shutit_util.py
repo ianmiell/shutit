@@ -147,7 +147,6 @@ def get_configs(configs):
 	(in case passwords/sensitive info is in them).
 	"""
 	shutit = shutit_global.shutit
-	cfg = shutit.cfg
 	cp  = LayerConfigParser()
 	fail_str = ''
 	files    = []
@@ -246,7 +245,6 @@ def find_asset(filename):
 #
 def setup_logging():
 	shutit = shutit_global.shutit
-	cfg = shutit.cfg
 	# If loglevel is an int, this has already been set up.
 	if type(shutit.build['loglevel']) == int:
 		return
@@ -396,7 +394,6 @@ def parse_args():
 	SHUTIT_OPTIONS is ignored if we are creating a skeleton
 	"""
 	shutit = shutit_global.shutit
-	cfg = shutit.cfg
 	shutit.host['real_user_id'] = pexpect.run('id -u ' + shutit.host['real_user']).strip()
 
 	# These are in order of their creation
@@ -555,7 +552,7 @@ docker_tutorial:   a docker-based tutorial
 				delivery = util_raw_input(prompt='# Input a delivery method from: ' + str(allowed) + '.\n# Default: ' + default_delivery + '\n\ndocker = build within a docker image\nssh = ssh to target and build\nbash = run commands directly within bash\n', default=default_delivery)
 		else:
 			delivery = args.delivery
-		cfg['skeleton'] = {
+		shutit.skeleton = {
 			'path':                  module_directory,
 			'module_name':           module_name,
 			'base_image':            args.base_image,
@@ -573,7 +570,7 @@ docker_tutorial:   a docker-based tutorial
 		}
 		return
 
-	shutit_home = cfg['shutit_home'] = os.path.expanduser('~/.shutit')
+	shutit_home = shutit.host['shutit_path'] = os.path.expanduser('~/.shutit')
 	# We're not creating a skeleton, so make sure we have the infrastructure
 	# in place for a user-level storage area
 	if not os.path.isdir(shutit_home):
@@ -776,7 +773,7 @@ def load_configs():
 	shutit = shutit_global.shutit
 	cfg = shutit.cfg
 	# Get root default config.
-	configs = [('defaults', StringIO.StringIO(_default_cnf)), os.path.join(shutit.shutit_main_dir, 'configs/' + socket.gethostname() + '_' + shutit.host['real_user'] + '.cnf'), os.path.join(cfg['shutit_home'], 'config'), 'configs/build.cnf']
+	configs = [('defaults', StringIO.StringIO(_default_cnf)), os.path.join(shutit.shutit_main_dir, 'configs/' + socket.gethostname() + '_' + shutit.host['real_user'] + '.cnf'), os.path.join(shutit.host['shutit_path'], 'config'), 'configs/build.cnf']
 	# Add the shutit global host- and user-specific config file.
 	# Add the local build.cnf
 	# Get passed-in config(s)
@@ -844,7 +841,6 @@ def load_shutit_modules():
 	paths.
 	"""
 	shutit = shutit_global.shutit
-	cfg = shutit.cfg
 	if shutit.build['loglevel'] <= logging.DEBUG:
 		shutit.log('ShutIt module paths now: ',level=logging.DEBUG)
 		shutit.log(shutit.host['shutit_module_path'],level=logging.DEBUG)
@@ -1043,7 +1039,6 @@ def load_mod_from_file(fpath):
 	module.
 	"""
 	shutit = shutit_global.shutit
-	cfg = shutit.cfg
 	fpath = os.path.abspath(fpath)
 	file_ext = os.path.splitext(os.path.split(fpath)[-1])[-1]
 	if file_ext.lower() != '.py':
@@ -1103,7 +1098,6 @@ def build_report(msg=''):
 	Retrurns report as a string.
 	"""
 	shutit = shutit_global.shutit
-	cfg = shutit.cfg
 	s = ''
 	s += '################################################################################\n'
 	s += '# COMMAND HISTORY BEGIN ' + shutit.build['build_id'] + '\n'
@@ -1152,20 +1146,18 @@ def create_skeleton():
 	"""Creates module based on a template supplied as a git repo.
 	"""
 	shutit = shutit_global.shutit
-	cfg = shutit.cfg
-
 	template_setup_script = 'setup.sh'
 	# Set up local directories
-	skel_path        = cfg['skeleton']['path']
-	skel_module_name = cfg['skeleton']['module_name']
-	skel_domain      = cfg['skeleton']['domain']
+	skel_path        = shutit.skeleton['path']
+	skel_module_name = shutit.skeleton['module_name']
+	skel_domain      = shutit.skeleton['domain']
 	# TODO: rework these
-	#skel_domain_hash = cfg['skeleton']['domain_hash']
-	#skel_depends     = cfg['skeleton']['depends']
-	#skel_dockerfiles = cfg['skeleton']['dockerfiles']
-	#skel_delivery    = cfg['skeleton']['delivery']
+	#skel_domain_hash = shutit.skeleton['domain_hash']
+	#skel_depends     = shutit.skeleton['depends']
+	#skel_dockerfiles = shutit.skeleton['dockerfiles']
+	#skel_delivery    = shutit.skeleton['delivery']
 	# Set up dockerfile cfg
-	shutit.dockerfile['base_image'] = cfg['skeleton']['base_image']
+	shutit.dockerfile['base_image'] = shutit.skeleton['base_image']
 	shutit.dockerfile['cmd']        = """/bin/sh -c 'sleep infinity'"""
 	shutit.dockerfile['user']       = ''
 	shutit.dockerfile['maintainer'] = ''
@@ -1191,42 +1183,42 @@ def create_skeleton():
 
 
 	# arguments
-	cfg['skeleton']['volumes_arg'] = ''
+	shutit.skeleton['volumes_arg'] = ''
 	for varg in shutit.dockerfile['volume']:
-		cfg['skeleton']['volumes_arg'] += ' -v ' + varg + ':' + varg
-	cfg['skeleton']['ports_arg'] = ''
+		shutit.skeleton['volumes_arg'] += ' -v ' + varg + ':' + varg
+	shutit.skeleton['ports_arg'] = ''
 	if type(shutit.dockerfile['expose']) == str:
 		for parg in shutit.dockerfile['expose']:
-			cfg['skeleton']['ports_arg'] += ' -p ' + parg + ':' + parg
+			shutit.skeleton['ports_arg'] += ' -p ' + parg + ':' + parg
 	else:
 		for parg in shutit.dockerfile['expose']:
 			for port in parg.split():
-				cfg['skeleton']['ports_arg'] += ' -p ' + port + ':' + port
-	cfg['skeleton']['env_arg'] = ''
+				shutit.skeleton['ports_arg'] += ' -p ' + port + ':' + port
+	shutit.skeleton['env_arg'] = ''
 	for earg in shutit.dockerfile['env']:
-		cfg['skeleton']['env_arg'] += ' -e ' + earg.split()[0] + ':' + earg.split()[1]
+		shutit.skeleton['env_arg'] += ' -e ' + earg.split()[0] + ':' + earg.split()[1]
 
 	# Create folders and process templates.
 	os.makedirs(skel_path)
 	os.chdir(skel_path)
-	os.system('git clone -q ' + cfg['skeleton']['template_repo'] + ' -b ' + cfg['skeleton']['template_branch'] + ' --depth 1 ' + cfg['skeleton']['template_folder'])
-	os.system('rm -rf ' + cfg['skeleton']['template_folder'] + '/.git')
-	templates=jinja2.Environment(loader=jinja2.FileSystemLoader(cfg['skeleton']['template_folder']))
+	os.system('git clone -q ' + shutit.skeleton['template_repo'] + ' -b ' + shutit.skeleton['template_branch'] + ' --depth 1 ' + shutit.skeleton['template_folder'])
+	os.system('rm -rf ' + shutit.skeleton['template_folder'] + '/.git')
+	templates=jinja2.Environment(loader=jinja2.FileSystemLoader(shutit.skeleton['template_folder']))
 	templates_list = templates.list_templates()
 	for template_item in templates_list:
 		directory = os.path.dirname(template_item)
 		if directory != '' and not os.path.exists(directory):
 			os.mkdir(os.path.dirname(template_item))
-		template_str = templates.get_template(template_item).render(cfg)
+		template_str = templates.get_template(template_item).render(shutit.cfg)
 		f = open(template_item,'w')
 		f.write(template_str)
 		f.close()
-	if cfg['skeleton']['output_dir']:
+	if shutit.skeleton['output_dir']:
 		os.system('chmod +x ' + template_setup_script + ' && ./' + template_setup_script + ' > /dev/null 2>&1 && rm -f ' + template_setup_script)
-		os.system('rm -rf ' + cfg['skeleton']['template_folder'])
+		os.system('rm -rf ' + shutit.skeleton['template_folder'])
 	else:
 		os.system('chmod +x ' + template_setup_script + ' && ./' + template_setup_script + ' && rm -f ' + template_setup_script)
-		os.system('rm -rf ' + cfg['skeleton']['template_folder'])
+		os.system('rm -rf ' + shutit.skeleton['template_folder'])
 
 	# Return program to original path
 	os.chdir(sys.path[0])

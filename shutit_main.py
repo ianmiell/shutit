@@ -505,7 +505,7 @@ def setup_shutit_path(cfg):
 		return
 	res = shutit_util.util_raw_input(prompt='shutit appears not to be on your path - should try and we find it and add it to your ~/.bashrc (Y/n)?')
 	if res in ['n','N']:
-		with open(os.path.join(cfg['shutit_home'], 'config'), 'a') as f:
+		with open(os.path.join(shutit.shutit_path, 'config'), 'a') as f:
 			f.write('\n[host]\nadd_shutit_to_path: no\n')
 		return
 	path_to_shutit = ''

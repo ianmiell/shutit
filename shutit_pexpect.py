@@ -402,7 +402,7 @@ class ShutItPexpectSession(object):
 #							# Workaround for CygWin terminal issues. If the envid isn't in the cfg item
 #							# Then crudely assume it is. This will drop through and then assume we are in the origin env.
 #							try:
-#								_=cfg['environment'][shutit.build['current_environment_id']]
+#								_=shutit.environment[shutit.build['current_environment_id']]
 #							except Exception:
 #								shutit.build['current_environment_id'] = 'ORIGIN_ENV'
 #							break
@@ -429,15 +429,15 @@ class ShutItPexpectSession(object):
 #		else:
 #			environment_id = shutit_util.random_id()
 #		shutit.build['current_environment_id']                             = environment_id
-#		cfg['environment'][environment_id] = {}
+#		shutit.environment[environment_id] = {}
 #		# Directory to revert to when delivering in bash and reversion to directory required.
-#		cfg['environment'][environment_id]['module_root_dir']              = '/'
-#		cfg['environment'][environment_id]['modules_installed']            = [] # has been installed (in this build)
-#		cfg['environment'][environment_id]['modules_not_installed']        = [] # modules _known_ not to be installed
-#		cfg['environment'][environment_id]['modules_ready']                = [] # has been checked for readiness and is ready (in this build)
+#		shutit.environment[environment_id]['module_root_dir']              = '/'
+#		shutit.environment[environment_id]['modules_installed']            = [] # has been installed (in this build)
+#		shutit.environment[environment_id]['modules_not_installed']        = [] # modules _known_ not to be installed
+#		shutit.environment[environment_id]['modules_ready']                = [] # has been checked for readiness and is ready (in this build)
 #		# Installed file info
-#		cfg['environment'][environment_id]['modules_recorded']             = []
-#		cfg['environment'][environment_id]['modules_recorded_cache_valid'] = False
+#		shutit.environment[environment_id]['modules_recorded']             = []
+#		shutit.environment[environment_id]['modules_recorded_cache_valid'] = False
 #		# Exempt the ORIGIN_ENV from getting distro info
 #		if prefix != 'ORIGIN_ENV':
 #			self.get_distro_info(environment_id)
@@ -2468,7 +2468,7 @@ $'"""
 							## Workaround for CygWin terminal issues. If the envid isn't in the cfg item
 							## Then crudely assume it is. This will drop through and then assume we are in the origin env.
 							#try:
-							#	_=cfg['environment'][shutit.build['current_environment_id']]
+							#	_=shutit.environment[shutit.build['current_environment_id']]
 							#except Exception:
 							#	shutit.build['current_environment_id'] = 'ORIGIN_ENV'
 							#break
