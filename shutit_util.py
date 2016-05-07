@@ -771,7 +771,6 @@ def load_configs():
 	Recurses down from configured shutit module paths.
 	"""
 	shutit = shutit_global.shutit
-	cfg = shutit.cfg
 	# Get root default config.
 	configs = [('defaults', StringIO.StringIO(_default_cnf)), os.path.join(shutit.shutit_main_dir, 'configs/' + socket.gethostname() + '_' + shutit.host['real_user'] + '.cnf'), os.path.join(shutit.host['shutit_path'], 'config'), 'configs/build.cnf']
 	# Add the shutit global host- and user-specific config file.
