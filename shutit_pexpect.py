@@ -159,11 +159,10 @@ class ShutItPexpectSession(object):
 		r_id = shutit_util.random_id()
 		if prompt_prefix == None:
 			prompt_prefix = r_id
-		cfg = shutit.cfg
 		# Be helpful.
 		if ' ' in user:
 			shutit.fail('user has space in it - did you mean: login(command="' + user + '")?')
-		if cfg['build']['delivery'] == 'bash' and command == 'su -':
+		if shutit.build['delivery'] == 'bash' and command == 'su -':
 			# We want to retain the current working directory
 			command = 'su'
 		if command == 'su -' or command == 'su' or command == 'login':
@@ -271,7 +270,6 @@ class ShutItPexpectSession(object):
 		@type prefix:               string
 		"""
 		shutit = shutit_global.shutit
-		cfg = shutit.cfg
 		local_prompt = prefix + '#' + shutit_util.random_id() + '> '
 		shutit.expect_prompts[prompt_name] = local_prompt
 		# Set up the PS1 value.
@@ -281,7 +279,7 @@ class ShutItPexpectSession(object):
 		# The newline in the expect list is a hack. On my work laptop this line hangs
 		# and times out very frequently. This workaround seems to work, but I
 		# haven't figured out why yet - imiell.
-		self.send((" export SHUTIT_BACKUP_PS1_%s=$PS1 && PS1='%s' && unset PROMPT_COMMAND && stty sane && stty cols " + str(cfg['build']['stty_cols'])) % (prompt_name, local_prompt) + ' && export HISTCONTROL=$HISTCONTROL:ignoredups:ignorespace', expect=['\r\n' + shutit.expect_prompts[prompt_name]], fail_on_empty_before=False, timeout=5, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
+		self.send((" export SHUTIT_BACKUP_PS1_%s=$PS1 && PS1='%s' && unset PROMPT_COMMAND && stty sane && stty cols " + str(shutit.build['stty_cols'])) % (prompt_name, local_prompt) + ' && export HISTCONTROL=$HISTCONTROL:ignoredups:ignorespace', expect=['\r\n' + shutit.expect_prompts[prompt_name]], fail_on_empty_before=False, timeout=5, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
 		shutit.log('Resetting default expect to: ' + shutit.expect_prompts[prompt_name],level=logging.DEBUG)
 		self.default_expect = shutit.expect_prompts[prompt_name]
 		# Ensure environment is set up OK.
@@ -340,17 +338,16 @@ class ShutItPexpectSession(object):
 		"""Replaces a container. Assumes we are in Docker context
 		"""
 		shutit = shutit_global.shutit
-		cfg = shutit.cfg
 		shutit.log('Replacing container, please wait...',level=logging.INFO)
 
 		# Destroy existing container.
 		conn_module = None
 		for mod in shutit.conn_modules:
-			if mod.module_id == cfg['build']['conn_module']:
+			if mod.module_id == shutit.build['conn_module']:
 				conn_module = mod
 				break
 		if conn_module is None:
-			shutit.fail('''Couldn't find conn_module ''' + cfg['build']['conn_module'])
+			shutit.fail('''Couldn't find conn_module ''' + shutit.build['conn_module'])
 		container_id = shutit.target['container_id']
 		conn_module.destroy_container(shutit, 'host_child', 'target_child', container_id)
 		
@@ -393,7 +390,7 @@ class ShutItPexpectSession(object):
 #		shutit = shutit_global.shutit
 #		shutit.set_default_shutit_pexpect_session(self)
 #		cfg = shutit.cfg
-#		environment_id_dir = cfg['build']['shutit_state_dir'] + '/environment_id'
+#		environment_id_dir = shutit.build['shutit_state_dir'] + '/environment_id'
 #		if self.file_exists(environment_id_dir,directory=True):
 #			files = self.ls(environment_id_dir)
 #			if len(files) != 1 or type(files) != list:
@@ -401,18 +398,18 @@ class ShutItPexpectSession(object):
 #					for f in files:
 #						if f != 'ORIGIN_ENV':
 #							environment_id = f
-#							cfg['build']['current_environment_id'] = environment_id
+#							shutit.build['current_environment_id'] = environment_id
 #							# Workaround for CygWin terminal issues. If the envid isn't in the cfg item
 #							# Then crudely assume it is. This will drop through and then assume we are in the origin env.
 #							try:
-#								_=cfg['environment'][cfg['build']['current_environment_id']]
+#								_=cfg['environment'][shutit.build['current_environment_id']]
 #							except Exception:
-#								cfg['build']['current_environment_id'] = 'ORIGIN_ENV'
+#								shutit.build['current_environment_id'] = 'ORIGIN_ENV'
 #							break
 #				else:
 #					# See comment above re: cygwin.
 #					if self.file_exists('/cygdrive'):
-#						cfg['build']['current_environment_id'] = 'ORIGIN_ENV'
+#						shutit.build['current_environment_id'] = 'ORIGIN_ENV'
 #					else:
 #						shutit.fail('Wrong number of files in environment_id_dir: ' + environment_id_dir)
 #			else:
@@ -420,10 +417,10 @@ class ShutItPexpectSession(object):
 #					environment_id = 'ORIGIN_ENV'
 #				else:
 #					environment_id = files[0]
-#			if cfg['build']['current_environment_id'] != environment_id:
+#			if shutit.build['current_environment_id'] != environment_id:
 #				# Clean out any trace of this new environment, and return the already-existing one.
 #				self.send(' rm -rf ' + environment_id_dir + '/environment_id/' + environment_id, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
-#				return cfg['build']['current_environment_id']
+#				return shutit.build['current_environment_id']
 #			if not environment_id == 'ORIGIN_ENV':
 #				return environment_id
 #		# Origin environment is a special case.
@@ -431,7 +428,7 @@ class ShutItPexpectSession(object):
 #			environment_id = prefix
 #		else:
 #			environment_id = shutit_util.random_id()
-#		cfg['build']['current_environment_id']                             = environment_id
+#		shutit.build['current_environment_id']                             = environment_id
 #		cfg['environment'][environment_id] = {}
 #		# Directory to revert to when delivering in bash and reversion to directory required.
 #		cfg['environment'][environment_id]['module_root_dir']              = '/'
@@ -445,7 +442,7 @@ class ShutItPexpectSession(object):
 #		if prefix != 'ORIGIN_ENV':
 #			self.get_distro_info(environment_id)
 #		fname = environment_id_dir + '/' + environment_id
-#		#self.send(' mkdir -p ' + environment_id_dir + ' && chmod -R 777 ' + cfg['build']['shutit_state_dir_base'] + ' && touch ' + fname, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
+#		#self.send(' mkdir -p ' + environment_id_dir + ' && chmod -R 777 ' + shutit.build['shutit_state_dir_base'] + ' && touch ' + fname, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
 #		return environment_id
 
 
@@ -454,13 +451,13 @@ class ShutItPexpectSession(object):
 
 		Takes a long command, and puts it in an executable file ready to run. Returns the filename.
 		"""
-		cfg = shutit_global.shutit.cfg
+		shutit = shutit_global.shutit
 		random_id = shutit_util.random_id()
-		fname = cfg['build']['shutit_state_dir_base'] + '/tmp_' + random_id
+		fname = shutit.build['shutit_state_dir_base'] + '/tmp_' + random_id
 		working_str = send
 		self.sendline(' truncate --size 0 '+ fname)
 		self.pexpect_child.expect(expect)
-		size = cfg['build']['stty_cols'] - 25
+		size = shutit.build['stty_cols'] - 25
 		while len(working_str) > 0:
 			curr_str = working_str[:size]
 			working_str = working_str[size:]
@@ -481,7 +478,6 @@ class ShutItPexpectSession(object):
 		"""Internal function to check the exit value of the shell. Do not use.
 		"""
 		shutit = shutit_global.shutit
-		cfg = shutit.cfg
 		expect = expect or self.default_expect
 		if not self.check_exit:
 			shutit.log('check_exit configured off, returning', level=logging.DEBUG)
@@ -502,10 +498,10 @@ class ShutItPexpectSession(object):
 			shutit.log('shutit_pexpect_child.after: ' + str(self.pexpect_child.after), level=logging.DEBUG)
 			shutit.log('Exit value from command: ' + str(send) + ' was:' + res, level=logging.DEBUG)
 			msg = ('\nWARNING: command:\n' + send + '\nreturned unaccepted exit code: ' + res + '\nIf this is expected, pass in check_exit=False or an exit_values array into the send function call.')
-			cfg['build']['report'] += msg
+			shutit.build['report'] += msg
 			if retbool:
 				return False
-			elif cfg['build']['interactive'] >= 1:
+			elif shutit.build['interactive'] >= 1:
 				# This is a failure, so we pass in level=0
 				shutit.pause_point(msg + '\n\nInteractive, so not retrying.\nPause point on exit_code != 0 (' + res + '). CTRL-C to quit', shutit_pexpect_child=self.pexpect_child, level=0)
 			elif retry == 1:
@@ -548,7 +544,6 @@ class ShutItPexpectSession(object):
 		@return:             True if pause point handled ok, else false
 		"""
 		shutit = shutit_global.shutit
-		cfg = shutit.cfg
 		if print_input:
 			if resize:
 				fixterm_filename = '/tmp/shutit_fixterm'
@@ -557,9 +552,9 @@ class ShutItPexpectSession(object):
 					self.send(' chmod 777 ' + fixterm_filename, echo=False,loglevel=logging.DEBUG, delaybeforesend=delaybeforesend)
 				self.sendline(' ' + fixterm_filename, delaybeforesend=delaybeforesend)
 			if default_msg == None:
-				if not cfg['build']['video']:
+				if not shutit.build['video']:
 					pp_msg = '\r\nYou now have a standard shell. Hit CTRL and then ] at the same to continue ShutIt run.'
-					if cfg['build']['delivery'] == 'docker':
+					if shutit.build['delivery'] == 'docker':
 						pp_msg += '\r\nHit CTRL and u to save the state to a docker image'
 					shutit.log('\r\n' + 80*'=' + '\r\n' + shutit_util.colourise(colour,msg) +'\r\n'+80*'='+'\r\n' + shutit_util.colourise(colour,pp_msg),transient=True)
 				else:
@@ -579,7 +574,7 @@ class ShutItPexpectSession(object):
 			self.pexpect_child.logfile_send = oldlog
 		else:
 			pass
-		cfg['build']['ctrlc_stop'] = False
+		shutit.build['ctrlc_stop'] = False
 		return True
 
 
@@ -588,10 +583,9 @@ class ShutItPexpectSession(object):
 		shutit = shutit_global.shutit
 		"""Input filter for pause point to catch special keystrokes"""
 		# Can get errors with eg up/down chars
-		cfg = shutit.cfg
 		if len(input_string) == 1:
 			# Picked CTRL-u as the rarest one accepted by terminals.
-			if ord(input_string) == 21 and cfg['build']['delivery'] == 'docker':
+			if ord(input_string) == 21 and shutit.build['delivery'] == 'docker':
 				shutit.log('CTRL and u caught, forcing a tag at least',level=logging.INFO)
 				shutit.do_repository_work('tagged_by_shutit', password=shutit.host['password'], docker_executable=shutit.host['docker_executable'], force=True)
 				shutit.log('Commit and tag done. Hit CTRL and ] to continue with build. Hit return for a prompt.',level=logging.INFO)
@@ -685,15 +679,14 @@ class ShutItPexpectSession(object):
 		@param note:          See send()
 		"""
 		shutit = shutit_global.shutit
-		cfg = shutit.cfg
 		shutit._handle_note(note, 'Changing to path: ' + path)
 		shutit.log('Changing directory to path: "' + path + '"', level=logging.DEBUG)
-		if cfg['build']['delivery'] in ('bash','dockerfile'):
+		if shutit.build['delivery'] in ('bash','dockerfile'):
 			self.send(' cd ' + path, timeout=timeout, echo=False,loglevel=loglevel, delaybeforesend=delaybeforesend)
-		elif cfg['build']['delivery'] in ('docker','ssh'):
+		elif shutit.build['delivery'] in ('docker','ssh'):
 			os.chdir(path)
 		else:
-			shutit.fail('chdir not supported for delivery method: ' + cfg['build']['delivery'])
+			shutit.fail('chdir not supported for delivery method: ' + shutit.build['delivery'])
 		shutit._handle_note_after(note=note)
 		return True
 
@@ -978,15 +971,14 @@ class ShutItPexpectSession(object):
 		# If it's already in cache, then return True.
 		# By default the cache is invalidated.
 		shutit = shutit_global.shutit
-		cfg = shutit.cfg
 		shutit._handle_note(note)
 		if not self.current_environment.modules_recorded_cache_valid:
-			if self.file_exists(cfg['build']['build_db_dir'] + '/module_record',directory=True):
+			if self.file_exists(shutit.build['build_db_dir'] + '/module_record',directory=True):
 				# Bit of a hack here to get round the long command showing up as the first line of the output.
-				cmd = 'find ' + cfg['build']['build_db_dir'] + r"""/module_record/ -name built | sed 's@^.""" + cfg['build']['build_db_dir'] + r"""/module_record.\([^/]*\).built@\1@' > """ + cfg['build']['build_db_dir'] + '/' + cfg['build']['build_id']
+				cmd = 'find ' + shutit.build['build_db_dir'] + r"""/module_record/ -name built | sed 's@^.""" + shutit.build['build_db_dir'] + r"""/module_record.\([^/]*\).built@\1@' > """ + shutit.build['build_db_dir'] + '/' + shutit.build['build_id']
 				self.send(' ' + cmd, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
-				built = self.send_and_get_output('cat ' + cfg['build']['build_db_dir'] + '/' + cfg['build']['build_id'], echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend).strip()
-				self.send(' rm -rf ' + cfg['build']['build_db_dir'] + '/' + cfg['build']['build_id'], echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
+				built = self.send_and_get_output('cat ' + shutit.build['build_db_dir'] + '/' + shutit.build['build_id'], echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend).strip()
+				self.send(' rm -rf ' + shutit.build['build_db_dir'] + '/' + shutit.build['build_id'], echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
 				built_list = built.split('\r\n')
 				self.current_environment.modules_recorded = built_list
 			# Either there was no directory (so the cache is valid), or we've built the cache, so mark as good.
@@ -1068,7 +1060,6 @@ class ShutItPexpectSession(object):
 		@rtype: boolean
 		"""
 		shutit = shutit_global.shutit
-		cfg = shutit.cfg
 		# If separated by spaces, install separately
 		if package.find(' ') != -1:
 			ok = True
@@ -1095,14 +1086,14 @@ class ShutItPexpectSession(object):
 			cmd = ''
 			pw = ''
 		if install_type == 'apt':
-			if not cfg['build']['apt_update_done']:
+			if not shutit.build['apt_update_done']:
 				self.send('apt-get update',loglevel=logging.INFO, delaybeforesend=delaybeforesend)
 			cmd += 'apt-get install'
 			if 'apt' in options:
 				opts = options['apt']
 			else:
 				opts = '-y'
-				if not cfg['build']['loglevel'] <= logging.DEBUG:
+				if not shutit.build['loglevel'] <= logging.DEBUG:
 					opts += ' -qq'
 				if force:
 					opts += ' --force-yes'
@@ -1410,7 +1401,6 @@ class ShutItPexpectSession(object):
 
 		"""
 		shutit = shutit_global.shutit
-		cfg = shutit.cfg
 		install_type   = ''
 		distro         = ''
 		distro_version = ''
@@ -1426,23 +1416,23 @@ class ShutItPexpectSession(object):
 		#    # A list of dicts.  If there is a platform with more than one package manager, put the preferred one last.  If there is an ansible module, use that as the value for the 'name' key.
 		#PKG_MGRS = [{'path':'/usr/bin/zypper','name':'zypper'},{'path':'/usr/sbin/urpmi','name':'urpmi'},{'path':'/usr/bin/pacman','name':'pacman'},{'path':'/bin/opkg','name':'opkg'},{'path':'/opt/local/bin/pkgin','name':'pkgin'},{'path':'/opt/local/bin/port','name':'macports'},{'path':'/usr/sbin/pkg','name':'pkgng'},{'path':'/usr/sbin/swlist','name':'SD-UX'},{'path':'/usr/sbin/pkgadd','name':'svr4pkg'},{'path':'/usr/bin/pkg','name':'pkg'},
 		#    ]
-		if cfg['build']['distro_override'] != '':
-			key = cfg['build']['distro_override']
-			distro = cfg['build']['distro_override']
+		if shutit.build['distro_override'] != '':
+			key = shutit.build['distro_override']
+			distro = shutit.build['distro_override']
 			install_type = package_map.INSTALL_TYPE_MAP[key]
 			distro_version = ''
-			if install_type == 'apt' and cfg['build']['delivery'] in ('docker','dockerfile'):
+			if install_type == 'apt' and shutit.build['delivery'] in ('docker','dockerfile'):
 				if not self.command_available('lsb_release'):
-					if not cfg['build']['apt_update_done']:
-						cfg['build']['apt_update_done'] = True
+					if not shutit.build['apt_update_done']:
+						shutit.build['apt_update_done'] = True
 						self.send('apt-get update && apt-get install -y -qq lsb-release',loglevel=loglevel,delaybeforesend=delaybeforesend)
 				d = self.lsb_release()
 				install_type   = d['install_type']
 				distro         = d['distro']
 				distro_version = d['distro_version']
-			elif install_type == 'yum' and cfg['build']['delivery'] in ('docker', 'dockerfile'):
-				if not cfg['build']['yum_update_done']:
-					cfg['build']['yum_update_done'] = True
+			elif install_type == 'yum' and shutit.build['delivery'] in ('docker', 'dockerfile'):
+				if not shutit.build['yum_update_done']:
+					shutit.build['yum_update_done'] = True
 					self.send('yum update -y',exit_values=['0','1'],loglevel=logging.INFO,delaybeforesend=delaybeforesend)
 				if self.file_exists('/etc/redhat-release'):
 					output = self.send_and_get_output('cat /etc/redhat-release',echo=False, loglevel=loglevel,delaybeforesend=delaybeforesend)
@@ -1454,20 +1444,20 @@ class ShutItPexpectSession(object):
 				install_type   = d['install_type']
 				distro         = d['distro']
 				distro_version = d['distro_version']
-			elif install_type == 'apk' and cfg['build']['delivery'] in ('docker','dockerfile'):
-				if not cfg['build']['apk_update_done']:
-					cfg['build']['apk_update_done'] = True
+			elif install_type == 'apk' and shutit.build['delivery'] in ('docker','dockerfile'):
+				if not shutit.build['apk_update_done']:
+					shutit.build['apk_update_done'] = True
 					self.send('apk update',loglevel=logging.INFO,delaybeforesend=delaybeforesend)
 				self.send('apk add bash',loglevel=loglevel,delaybeforesend=delaybeforesend)
 				install_type   = 'apk'
 				distro         = 'alpine'
 				distro_version = '1.0'
-			elif install_type == 'emerge' and cfg['build']['delivery'] in ('docker','dockerfile'):
+			elif install_type == 'emerge' and shutit.build['delivery'] in ('docker','dockerfile'):
 				self.send('emerge --sync',loglevel=loglevel,delaybeforesend=delaybeforesend)
 				install_type = 'emerge'
 				distro = 'gentoo'
 				distro_version = '1.0'
-			elif install_type == 'docker' and cfg['build']['delivery'] in ('docker','dockerfile'):
+			elif install_type == 'docker' and shutit.build['delivery'] in ('docker','dockerfile'):
 				distro = 'coreos'
 				distro_version = '1.0'
 		elif self.command_available('lsb_release'):
@@ -1519,18 +1509,18 @@ class ShutItPexpectSession(object):
 			# The call to self.package_installed with lsb-release above
 			# may fail if it doesn't know the install type, so
 			# if we've determined that now
-			if install_type == 'apt' and cfg['build']['delivery'] in ('docker','dockerfile'):
+			if install_type == 'apt' and shutit.build['delivery'] in ('docker','dockerfile'):
 				if not self.command_available('lsb_release'):
-					if not cfg['build']['apt_update_done']:
-						cfg['build']['apt_update_done'] = True
+					if not shutit.build['apt_update_done']:
+						shutit.build['apt_update_done'] = True
 						self.send('apt-get update && apt-get install -y -qq lsb-release',loglevel=loglevel,delaybeforesend=delaybeforesend)
-					cfg['build']['apt_update_done'] = True
+					shutit.build['apt_update_done'] = True
 					self.send('apt-get install -y -qq lsb-release',loglevel=loglevel,delaybeforesend=delaybeforesend)
 				d = self.lsb_release()
 				install_type   = d['install_type']
 				distro         = d['distro']
 				distro_version = d['distro_version']
-			elif install_type == 'yum' and cfg['build']['delivery'] in ('docker','dockerfile'):
+			elif install_type == 'yum' and shutit.build['delivery'] in ('docker','dockerfile'):
 				if self.file_exists('/etc/redhat-release'):
 					output = self.send_and_get_output('cat /etc/redhat-release',echo=False, loglevel=loglevel,delaybeforesend=delaybeforesend)
 					if re.match('^centos.*$', output.lower()) or re.match('^red hat.*$', output.lower()) or re.match('^fedora.*$', output.lower()) or True:
@@ -1542,16 +1532,16 @@ class ShutItPexpectSession(object):
 				install_type   = d['install_type']
 				distro         = d['distro']
 				distro_version = d['distro_version']
-			elif install_type == 'apk' and cfg['build']['delivery'] in ('docker','dockerfile'):
-				if not cfg['build']['apk_update_done']:
-					cfg['build']['apk_update_done'] = True
+			elif install_type == 'apk' and shutit.build['delivery'] in ('docker','dockerfile'):
+				if not shutit.build['apk_update_done']:
+					shutit.build['apk_update_done'] = True
 					self.send('apk update',loglevel=logging.INFO,delaybeforesend=delaybeforesend)
 				self.send('apk install bash',loglevel=loglevel,delaybeforesend=delaybeforesend)
 				install_type   = 'apk'
 				distro         = 'alpine'
 				distro_version = '1.0'
-			elif install_type == 'emerge' and cfg['build']['delivery'] in ('docker','dockerfile'):
-				if not cfg['build']['emerge_update_done']:
+			elif install_type == 'emerge' and shutit.build['delivery'] in ('docker','dockerfile'):
+				if not shutit.build['emerge_update_done']:
 					self.send('emerge --sync',loglevel=logging.INFO,delaybeforesend=delaybeforesend)
 				install_type = 'emerge'
 				distro = 'gentoo'
@@ -1934,7 +1924,7 @@ class ShutItPexpectSession(object):
 		if timeout == None:
 			timeout = 3600
 		
-		if cfg['build']['loglevel'] <= logging.DEBUG:
+		if shutit.build['loglevel'] <= logging.DEBUG:
 			echo=True
 
 		# Handle OSX to get the GNU version of the command
@@ -1946,7 +1936,7 @@ class ShutItPexpectSession(object):
 		# - otherwise, default to doing the check
 		if check_exit == None:
 			# If we are in video mode, ignore exit value
-			if cfg['build']['video'] or cfg['build']['training'] or cfg['build']['walkthrough']:
+			if shutit.build['video'] or shutit.build['training'] or shutit.build['walkthrough']:
 				check_exit = False
 			elif expect == shutit.get_default_shutit_pexpect_session_expect():
 				check_exit = shutit.get_default_shutit_pexpect_session_check_exit()
@@ -1971,13 +1961,13 @@ class ShutItPexpectSession(object):
 				if isinstance(cfg[i], dict):
 					for j in cfg[i].keys():
 						if ((j == 'password' or j == 'passphrase') and cfg[i][j] == send):
-							cfg['build']['shutit_command_history'].append ('#redacted command, password')
+							shutit.build['shutit_command_history'].append ('#redacted command, password')
 							ok_to_record = False
 							break
 					if not ok_to_record:
 						break
 			if ok_to_record:
-				cfg['build']['shutit_command_history'].append(send)
+				shutit.build['shutit_command_history'].append(send)
 		if send != None:
 			shutit.log('Sending: ' + send,level=loglevel)
 		if send != None:
@@ -1996,7 +1986,7 @@ class ShutItPexpectSession(object):
 					else:
 						escaped_str += shutit_util.get_wide_hex(char)
 						_count += 4
-					if _count > cfg['build']['stty_cols'] - 50:
+					if _count > shutit.build['stty_cols'] - 50:
 						escaped_str += r"""'\
 $'"""
 						_count = 0
@@ -2008,7 +1998,7 @@ $'"""
 				if escape:
 					# 'None' escaped_str's are possible from multisends with nothing to send.
 					if escaped_str != None:
-						if len(escaped_str) + 25 > cfg['build']['stty_cols']:
+						if len(escaped_str) + 25 > shutit.build['stty_cols']:
 							fname = self.create_command_file(expect,escaped_str)
 							res = self.send(' ' + fname,expect=expect,timeout=timeout,check_exit=check_exit,fail_on_empty_before=False,record_command=False,exit_values=exit_values,echo=False,escape=False,retry=retry,loglevel=loglevel, delaybeforesend=delaybeforesend)
 							self.sendline(' rm -f ' + fname,delaybeforesend=delaybeforesend)
@@ -2021,7 +2011,7 @@ $'"""
 						expect_res = shutit._expect_allow_interrupt(self.pexpect_child, expect, timeout)
 				else:
 					if send != None:
-						if len(send) + 25 > cfg['build']['stty_cols']:
+						if len(send) + 25 > shutit.build['stty_cols']:
 							fname = self.create_command_file(expect,send)
 							res = self.send(' ' + fname,expect=expect,timeout=timeout,check_exit=check_exit,fail_on_empty_before=False,record_command=False,exit_values=exit_values,echo=False,escape=False,retry=retry,loglevel=loglevel, delaybeforesend=delaybeforesend)
 							self.sendline(' rm -f ' + fname,delaybeforesend=delaybeforesend)
@@ -2036,7 +2026,7 @@ $'"""
 			else:
 				if escape:
 					if escaped_str != None:
-						if len(escaped_str) + 25 > cfg['build']['stty_cols']:
+						if len(escaped_str) + 25 > shutit.build['stty_cols']:
 							fname = self.create_command_file(expect,escaped_str)
 							res = self.send(' ' + fname,expect=expect,timeout=timeout,check_exit=check_exit,fail_on_empty_before=False,record_command=False,exit_values=exit_values,echo=False,escape=False,retry=retry,loglevel=loglevel, delaybeforesend=delaybeforesend)
 							self.sendline(' rm -f ' + fname,delaybeforesend=delaybeforesend)
@@ -2049,7 +2039,7 @@ $'"""
 						expect_res = shutit._expect_allow_interrupt(self.pexpect_child, expect, timeout)
 				else:
 					if send != None:
-						if len(send) + 25 > cfg['build']['stty_cols']:
+						if len(send) + 25 > shutit.build['stty_cols']:
 							fname = self.create_command_file(expect,send)
 							res = self.send(' ' + fname,expect=expect,timeout=timeout,check_exit=check_exit,fail_on_empty_before=False,record_command=False,exit_values=exit_values,echo=False,escape=False,retry=retry,loglevel=loglevel, delaybeforesend=delaybeforesend)
 							self.sendline(' rm -f ' + fname,delaybeforesend=delaybeforesend)
@@ -2088,7 +2078,7 @@ $'"""
 						self.setup_prompt('reset_tmp_prompt')
 						self.pexpect_child.revert_prompt('reset_tmp_prompt', expect)
 			# Last output - remove the first line, as it is the previous command.
-			cfg['build']['last_output'] = '\n'.join(self.pexpect_child.before.split('\n')[1:])
+			shutit.build['last_output'] = '\n'.join(self.pexpect_child.before.split('\n')[1:])
 			if check_exit:
 				# store the output
 				if not self.check_last_exit_values(send, expect=expect, exit_values=exit_values, retry=retry):
@@ -2097,10 +2087,10 @@ $'"""
 					assert(retry > 0)
 					continue
 			break
-		if cfg['build']['step_through']:
+		if shutit.build['step_through']:
 			self.pause_point('pause point: stepping through')
-		if cfg['build']['ctrlc_stop']:
-			cfg['build']['ctrlc_stop'] = False
+		if shutit.build['ctrlc_stop']:
+			shutit.build['ctrlc_stop'] = False
 			self.pause_point('pause point: interrupted by CTRL-c')
 		shutit._handle_note_after(note=note)
 		return expect_res
@@ -2131,7 +2121,6 @@ $'"""
 		@type contents:     string
 		"""
 		shutit = shutit_global.shutit
-		cfg = shutit.cfg
 		shutit._handle_note(note, 'Sending contents to path: ' + path)
 		# make more efficient by only looking at first 10000 chars, stop when we get to 30 chars rather than reading whole file.
 		split_contents = ''.join((contents[:10000].split()))
@@ -2148,7 +2137,7 @@ $'"""
 				f.truncate(0)
 			f.write(contents)
 			f.close()
-		elif cfg['build']['delivery'] in ('bash','dockerfile'):
+		elif shutit.build['delivery'] in ('bash','dockerfile'):
 			if truncate and self.file_exists(path):
 				self.send(' rm -f ' + path, echo=False,loglevel=loglevel, delaybeforesend=delaybeforesend)
 			random_id = shutit_util.random_id()
@@ -2158,7 +2147,7 @@ $'"""
 			host_child = shutit.get_shutit_pexpect_session_from_id('host_child').pexpect_child
 			path = path.replace(' ', '\ ')
 			# get host session
-			tmpfile = cfg['build']['shutit_state_dir_base'] + 'tmp_' + shutit_util.random_id()
+			tmpfile = shutit.build['shutit_state_dir_base'] + 'tmp_' + shutit_util.random_id()
 			f = open(tmpfile,'w')
 			f.truncate(0)
 			f.write(contents)
@@ -2193,7 +2182,6 @@ $'"""
 		@type in_shell:  boolean
 		"""
 		shutit = shutit_global.shutit
-		cfg = shutit.cfg
 		shutit._handle_note(note, 'Script: ' + str(script))
 		shutit.log('Running script beginning: "' + string.join(script.split())[:30] + ' [...]', level=logging.INFO)
 		# Trim any whitespace lines from start and end of script, then dedent
@@ -2207,16 +2195,16 @@ $'"""
 		script = '\n'.join(lines)
 		script = textwrap.dedent(script)
 		# Send the script and run it in the manner specified
-		if cfg['build']['delivery'] in ('docker','dockerfile') and in_shell:
+		if shutit.build['delivery'] in ('docker','dockerfile') and in_shell:
 			script = ('set -o xtrace \n\n' + script + '\n\nset +o xtrace')
-		self.send(' mkdir -p ' + cfg['build']['shutit_state_dir'] + '/scripts && chmod 777 ' + cfg['build']['shutit_state_dir'] + '/scripts', echo=False,loglevel=loglevel, delaybeforesend=delaybeforesend)
-		self.send_file(cfg['build']['shutit_state_dir'] + '/scripts/shutit_script.sh', script, loglevel=loglevel, delaybeforesend=delaybeforesend)
-		self.send(' chmod +x ' + cfg['build']['shutit_state_dir'] + '/scripts/shutit_script.sh', echo=False,loglevel=loglevel, delaybeforesend=delaybeforesend)
-		cfg['build']['shutit_command_history'].append('    ' + script.replace('\n', '\n    '))
+		self.send(' mkdir -p ' + shutit.build['shutit_state_dir'] + '/scripts && chmod 777 ' + shutit.build['shutit_state_dir'] + '/scripts', echo=False,loglevel=loglevel, delaybeforesend=delaybeforesend)
+		self.send_file(shutit.build['shutit_state_dir'] + '/scripts/shutit_script.sh', script, loglevel=loglevel, delaybeforesend=delaybeforesend)
+		self.send(' chmod +x ' + shutit.build['shutit_state_dir'] + '/scripts/shutit_script.sh', echo=False,loglevel=loglevel, delaybeforesend=delaybeforesend)
+		shutit.build['shutit_command_history'].append('    ' + script.replace('\n', '\n    '))
 		if in_shell:
-			ret = self.send(' . ' + cfg['build']['shutit_state_dir'] + '/scripts/shutit_script.sh && rm -f ' + cfg['build']['shutit_state_dir'] + '/scripts/shutit_script.sh && rm -f ' + cfg['build']['shutit_state_dir'] + '/scripts/shutit_script.sh', echo=False,loglevel=loglevel, delaybeforesend=delaybeforesend)
+			ret = self.send(' . ' + shutit.build['shutit_state_dir'] + '/scripts/shutit_script.sh && rm -f ' + shutit.build['shutit_state_dir'] + '/scripts/shutit_script.sh && rm -f ' + shutit.build['shutit_state_dir'] + '/scripts/shutit_script.sh', echo=False,loglevel=loglevel, delaybeforesend=delaybeforesend)
 		else:
-			ret = self.send(' ' + cfg['build']['shutit_state_dir'] + '/scripts/shutit_script.sh && rm -f ' + cfg['build']['shutit_state_dir'] + '/scripts/shutit_script.sh', echo=False,loglevel=loglevel, delaybeforesend=delaybeforesend)
+			ret = self.send(' ' + shutit.build['shutit_state_dir'] + '/scripts/shutit_script.sh && rm -f ' + shutit.build['shutit_state_dir'] + '/scripts/shutit_script.sh', echo=False,loglevel=loglevel, delaybeforesend=delaybeforesend)
 		shutit._handle_note_after(note=note)
 		return ret
 
@@ -2228,12 +2216,11 @@ $'"""
 	                    pause=1,
 	                    skipped=False):
 		shutit = shutit_global.shutit
-		cfg = shutit.cfg
 		if result == 'ok':
 			if congratulations:
 				shutit.log('\n\n' + shutit_util.colourise('32',congratulations) + '\n',transient=True)
 			time.sleep(pause)
-			cfg['build']['ctrlc_passthrough'] = False
+			shutit.build['ctrlc_passthrough'] = False
 			if follow_on_context != {}:
 				if follow_on_context.get('context') == 'docker':
 					container_name = follow_on_context.get('ok_container_name')
@@ -2249,11 +2236,11 @@ $'"""
 					shutit.fail('Follow-on context not handled on pass')
 			return True
 		elif result in ('failed'):
-			cfg['build']['ctrlc_passthrough'] = False
+			shutit.build['ctrlc_passthrough'] = False
 			time.sleep(1)
 			return
 		elif result == 'exited':
-			cfg['build']['ctrlc_passthrough'] = False
+			shutit.build['ctrlc_passthrough'] = False
 			return
 		elif result in ('reset'):
 			if follow_on_context != {}:
@@ -2307,9 +2294,8 @@ $'"""
 		                             golf    = user gets a pause point, and when leaving, command follow_on_context['check_command'] is run to check the output
 		"""
 		shutit = shutit_global.shutit
-		cfg = shutit.cfg
 		# don't catch CTRL-C, pass it through.
-		cfg['build']['ctrlc_passthrough'] = True
+		shutit.build['ctrlc_passthrough'] = True
 		preserve_newline                  = False
 		skipped                           = False
 		if expect_type == 'regexp':
@@ -2325,9 +2311,9 @@ $'"""
 		else:
 			shutit.fail('Must pass either expect_regexps or md5sum in')
 		if len(hints):
-			cfg['build']['pause_point_hints'] = hints
+			shutit.build['pause_point_hints'] = hints
 		else:
-			cfg['build']['pause_point_hints'] = []
+			shutit.build['pause_point_hints'] = []
 		if challenge_type == 'command':
 			help_text = shutit_util.colourise('32','''\nType 'help' or 'h' to get a hint, 'exit' to skip, 'shutitreset' to reset state.''')
 			ok = False
@@ -2357,7 +2343,7 @@ $'"""
 					shutit_util.handle_exit(exit_code=1)
 				if send == 'exit':
 					self._challenge_done(result='exited',follow_on_context=follow_on_context)
-					cfg['build']['pause_point_hints'] = []
+					shutit.build['pause_point_hints'] = []
 					return True
 				output = self.send_and_get_output(timeout=timeout,retry=1,record_command=record_command,echo=echo, loglevel=loglevel, fail_on_empty_before=False, preserve_newline=preserve_newline, delaybeforesend=delaybeforesend)
 				md5sum_output = md5.md5(output).hexdigest()
@@ -2389,8 +2375,8 @@ $'"""
 			while not ok:
 				self.pause_point(shutit_util.colourise('31',task_desc_new),colour='31') # TODO: message
 				if shutit.shutit_signal['ID'] == 8:
-					if len(cfg['build']['pause_point_hints']):
-						shutit.log(shutit_util.colourise('31','\r\n========= HINT ==========\r\n\r\n' + cfg['build']['pause_point_hints'].pop(0)),transient=True)
+					if len(shutit.build['pause_point_hints']):
+						shutit.log(shutit_util.colourise('31','\r\n========= HINT ==========\r\n\r\n' + shutit.build['pause_point_hints'].pop(0)),transient=True)
 					else:
 						shutit.log(shutit_util.colourise('31','\r\n\r\n' + 'No hints available!'),transient=True)
 					time.sleep(1)
@@ -2456,14 +2442,13 @@ $'"""
 			shutit.fail('Challenge type: ' + challenge_type + ' not supported')
 		self._challenge_done(result='ok',follow_on_context=follow_on_context,congratulations=congratulations,skipped=skipped)
 		# Tidy up hints
-		cfg['build']['pause_point_hints'] = []
+		shutit.build['pause_point_hints'] = []
 		return True
 
 
 	def init_pexpect_session_environment(self, prefix):
 		shutit = shutit_global.shutit
-		cfg = shutit.cfg
-		environment_id_dir = cfg['build']['shutit_state_dir'] + '/environment_id'
+		environment_id_dir = shutit.build['shutit_state_dir'] + '/environment_id'
 		if self.file_exists(environment_id_dir,directory=True):
 			files = self.ls(environment_id_dir)
 			if len(files) != 1 or type(files) != list:
@@ -2483,9 +2468,9 @@ $'"""
 							## Workaround for CygWin terminal issues. If the envid isn't in the cfg item
 							## Then crudely assume it is. This will drop through and then assume we are in the origin env.
 							#try:
-							#	_=cfg['environment'][cfg['build']['current_environment_id']]
+							#	_=cfg['environment'][shutit.build['current_environment_id']]
 							#except Exception:
-							#	cfg['build']['current_environment_id'] = 'ORIGIN_ENV'
+							#	shutit.build['current_environment_id'] = 'ORIGIN_ENV'
 							#break
 				else:
 					## See comment above re: cygwin.
@@ -2509,10 +2494,10 @@ $'"""
 				else:
 					shutit.fail('Should not get here: environment reached but with unique build_id that matches, but object not in existence, ' + environment_id)
 			# as far as I can tell, this should never happen?
-			#if cfg['build']['current_environment_id'] != environment_id:
+			#if shutit.build['current_environment_id'] != environment_id:
 			#	# Clean out any trace of this new environment, and return the already-existing one.
 			#	self.send(' rm -rf ' + environment_id_dir + '/environment_id/' + environment_id, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
-			#	return cfg['build']['current_environment_id']
+			#	return shutit.build['current_environment_id']
 			#if not environment_id == 'ORIGIN_ENV':
 			#	return shutit.get_shutit_pexpect_session_environment('ORIGIN_ENV')
 			self.current_environment = environment
@@ -2523,7 +2508,7 @@ $'"""
 		shutit.add_shutit_pexpect_session_environment(new_environment)
 		if prefix != 'ORIGIN_ENV':
 			self.get_distro_info()
-		self.send(' mkdir -p ' + environment_id_dir + ' && chmod -R 777 ' + cfg['build']['shutit_state_dir_base'] + ' && touch ' + environment_id_dir + '/' + new_environment.environment_id, echo=False)
+		self.send(' mkdir -p ' + environment_id_dir + ' && chmod -R 777 ' + shutit.build['shutit_state_dir_base'] + ' && touch ' + environment_id_dir + '/' + new_environment.environment_id, echo=False)
 		return new_environment
 	            	 
 

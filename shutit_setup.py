@@ -153,17 +153,17 @@ class ConnDocker(ShutItConnModule):
 		# Close connection.
 		shutit.get_shutit_pexpect_session_from_id(container_shutit_session_name).pexpect_child.close()
 		host_child = shutit.get_shutit_pexpect_session_from_id(host_shutit_session_name).pexpect_child
-		shutit.send(' docker rm -f ' + container_id + ' && rm -f ' + cfg['build']['cidfile'],shutit_pexpect_child=host_child,expect=shutit.expect_prompts['origin_prompt'],loglevel=loglevel)
+		shutit.send(' docker rm -f ' + container_id + ' && rm -f ' + shutit.build['cidfile'],shutit_pexpect_child=host_child,expect=shutit.expect_prompts['origin_prompt'],loglevel=loglevel)
 
 
 	def start_container(self, shutit, shutit_session_name, loglevel=logging.DEBUG):
 		cfg = shutit.cfg
 		docker = shutit.host['docker_executable'].split(' ')
 		# Always-required options
-		if not os.path.exists(cfg['build']['shutit_state_dir'] + '/cidfiles'):
-			os.makedirs(cfg['build']['shutit_state_dir'] + '/cidfiles')
-		cfg['build']['cidfile'] = cfg['build']['shutit_state_dir'] + '/cidfiles/' + shutit.host['username'] + '_cidfile_' + cfg['build']['build_id']
-		cidfile_arg = '--cidfile=' + cfg['build']['cidfile']
+		if not os.path.exists(shutit.build['shutit_state_dir'] + '/cidfiles'):
+			os.makedirs(shutit.build['shutit_state_dir'] + '/cidfiles')
+		shutit.build['cidfile'] = shutit.build['shutit_state_dir'] + '/cidfiles/' + shutit.host['username'] + '_cidfile_' + shutit.build['build_id']
+		cidfile_arg = '--cidfile=' + shutit.build['cidfile']
 		# Singly-specified options
 		privileged_arg   = ''
 		name_arg         = ''
@@ -172,20 +172,20 @@ class ConnDocker(ShutItConnModule):
 		net_arg          = ''
 		mount_docker_arg = ''
 		shell_arg        = '/bin/bash'
-		if cfg['build']['privileged']:
+		if shutit.build['privileged']:
 			privileged_arg = '--privileged=true'
 		if shutit.target['name'] != '':
 			name_arg = '--name=' + shutit.target['name']
 		if shutit.target['hostname'] != '':
 			hostname_arg = '-h=' + shutit.target['hostname']
-		if cfg['build']['net'] != '':
-			net_arg        = '--net="' + cfg['build']['net'] + '"'
-		if cfg['build']['mount_docker']:
+		if shutit.build['net'] != '':
+			net_arg        = '--net="' + shutit.build['net'] + '"'
+		if shutit.build['mount_docker']:
 			mount_docker_arg = '-v=/var/run/docker.sock:/var/run/docker.sock'
 		# Incompatible with do_repository_work
 		if shutit.target['rm']:
 			rm_arg = '--rm=true'
-		if cfg['build']['base_image'] in ('alpine','busybox'):
+		if shutit.build['base_image'] in ('alpine','busybox'):
 			shell_arg = '/bin/ash'
 		# Multiply-specified options
 		port_args         = []
@@ -222,11 +222,11 @@ class ConnDocker(ShutItConnModule):
 				shell_arg
 			] if arg != ''
 		]
-		if cfg['build']['interactive'] >= 3:
+		if shutit.build['interactive'] >= 3:
 			print('\n\nAbout to start container. Ports mapped will be: ' + ', '.join(port_args) + '\n\n[host]\nports:<value>\n\nconfig, building on the configurable base image passed in in:\n\n    --image <image>\n\nor config:\n\n    [target]\n    docker_image:<image>)\n\nBase image in this case is:\n\n    ' + shutit.target['docker_image'] + '\n\n' + shutit_util.colourise('32', '\n[Hit return to continue]'))
 			shutit_util.util_raw_input()
-		cfg['build']['docker_command'] = ' '.join(docker_command)
-		shutit.log('Command being run is: ' + cfg['build']['docker_command'],level=logging.DEBUG)
+		shutit.build['docker_command'] = ' '.join(docker_command)
+		shutit.log('Command being run is: ' + shutit.build['docker_command'],level=logging.DEBUG)
 		shutit.log('Downloading image, please be patient',level=logging.INFO)
 		was_sent = string.join(docker_command,' ')
 		shutit_pexpect_session = shutit_pexpect.ShutItPexpectSession(shutit_session_name, docker_command[0], docker_command[1:])
@@ -255,7 +255,7 @@ class ConnDocker(ShutItConnModule):
 		# Get the cid
 		while True:
 			try:
-				cid = open(cfg['build']['cidfile']).read()
+				cid = open(shutit.build['cidfile']).read()
 				break
 			except Exception:
 				time.sleep(1)
@@ -273,7 +273,7 @@ class ConnDocker(ShutItConnModule):
 		target_child = self.start_container(shutit, 'target_child', loglevel=loglevel)
 		self.setup_host_child(shutit)
 		self.setup_target_child(shutit, target_child)
-		shutit.send('chmod -R 777 ' + cfg['build']['shutit_state_dir'] + ' && mkdir -p ' + cfg['build']['build_db_dir'] + '/' + cfg['build']['build_id'], shutit_pexpect_child=target_child, echo=False, loglevel=loglevel)
+		shutit.send('chmod -R 777 ' + shutit.build['shutit_state_dir'] + ' && mkdir -p ' + shutit.build['build_db_dir'] + '/' + shutit.build['build_id'], shutit_pexpect_child=target_child, echo=False, loglevel=loglevel)
 		return True
 
 
@@ -291,7 +291,7 @@ class ConnDocker(ShutItConnModule):
 		shutit.set_default_shutit_pexpect_session_expect(shutit.expect_prompts['origin_prompt'])
 		shutit.do_repository_work(shutit.repository['name'], docker_executable=shutit.host['docker_executable'], password=shutit.host['password'])
 		# Final exits
-		host_child.sendline('rm -f ' + cfg['build']['cidfile']) # Exit raw bash
+		host_child.sendline('rm -f ' + shutit.build['cidfile']) # Exit raw bash
 		host_child.sendline('exit') # Exit raw bash
 		return True
 
@@ -382,11 +382,11 @@ class ConnSSH(ShutItConnModule):
 		if cmd_arg == '':
 			cmd_arg = 'sudo su -s /bin/bash -'
 		ssh_command = ['ssh'] + opts + [host_arg, cmd_arg]
-		if cfg['build']['interactive'] >= 3:
+		if shutit.build['interactive'] >= 3:
 			print('\n\nAbout to connect to host.' + '\n\n' + shutit_util.colourise('32', '\n[Hit return to continue]'))
 			shutit_util.util_raw_input()
-		cfg['build']['ssh_command'] = ' '.join(ssh_command)
-		shutit.log('Command being run is: ' + cfg['build']['ssh_command'],level=logging.INFO)
+		shutit.build['ssh_command'] = ' '.join(ssh_command)
+		shutit.log('Command being run is: ' + shutit.build['ssh_command'],level=logging.INFO)
 		shutit_pexpect_session = shutit_pexpect.ShutItPexpectSession('target_child', ssh_command[0], ssh_command[1:])
 		target_child = shutit_pexpect_session.pexpect_child
 		expect = ['assword', shutit.expect_prompts['base_prompt'].strip()]
@@ -436,7 +436,7 @@ class setup(ShutItModule):
 		"""Initializes target ready for build and updating package management if in container.
 		"""
 		cfg = shutit.cfg
-		if cfg['build']['delivery'] in ('docker','dockerfile'):
+		if shutit.build['delivery'] in ('docker','dockerfile'):
 			if shutit_global.shutit.get_current_shutit_pexpect_session_environment().install_type == 'apt':
 				shutit.add_to_bashrc('export DEBIAN_FRONTEND=noninteractive')
 				if not shutit.command_available('lsb_release'):

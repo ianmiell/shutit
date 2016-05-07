@@ -48,7 +48,7 @@ def stop_all(run_order=-1):
 	"""
 	shutit = shutit_global.shutit
 	cfg = shutit.cfg
-	if cfg['build']['interactive'] >= 3:
+	if shutit.build['interactive'] >= 3:
 		print('\nRunning stop on all modules' + shutit_util.colourise('32', '\n\n[Hit return to continue]'))
 		shutit_util.util_raw_input()
 	# sort them so they're stopped in reverse order
@@ -68,7 +68,7 @@ def start_all(run_order=-1):
 	"""
 	shutit = shutit_global.shutit
 	cfg = shutit.cfg
-	if cfg['build']['interactive'] >= 3:
+	if shutit.build['interactive'] >= 3:
 		print('\nRunning start on all modules' + shutit_util.colourise('32', '\n\n[Hit return to continue]\n'))
 		shutit_util.util_raw_input()
 	# sort them so they're started in order
@@ -128,7 +128,7 @@ def init_shutit_map(shutit):
 			shutit.fail('No modules aside from core ones found and no ShutIt modules in path:\n\n' + path + '\n\nor their subfolders. Check your --shutit_module_path/-m setting and check that there are ShutIt modules below without STOP* files in any relevant directories.')
 
 	shutit.log('PHASE: base setup', level=logging.DEBUG)
-	if cfg['build']['interactive'] >= 3:
+	if shutit.build['interactive'] >= 3:
 		shutit.log('\nChecking to see whether there are duplicate module ids or run orders in the visible modules.\nModules I see are:\n',level=logging.DEBUG)
 		for module in modules:
 			shutit.log(module.module_id, level=logging.DEBUG)
@@ -149,7 +149,7 @@ def init_shutit_map(shutit):
 	if not has_core_module:
 		shutit.fail('No module with run_order=0 specified! This is required.')
 
-	if cfg['build']['interactive'] >= 3:
+	if shutit.build['interactive'] >= 3:
 		print(shutit_util.colourise('32', 'Module id and run order checks OK\n\n[Hit return to continue]\n'))
 		shutit_util.util_raw_input()
 
@@ -160,14 +160,14 @@ def conn_target(shutit):
 	conn_module = None
 	cfg = shutit.cfg
 	for mod in shutit.conn_modules:
-		if mod.module_id == cfg['build']['conn_module']:
+		if mod.module_id == shutit.build['conn_module']:
 			conn_module = mod
 			break
 	if conn_module is None:
-		shutit.fail('Couldn\'t find conn_module ' + cfg['build']['conn_module'])
+		shutit.fail('Couldn\'t find conn_module ' + shutit.build['conn_module'])
 
 	# Set up the target in pexpect.
-	if cfg['build']['interactive'] >= 3:
+	if shutit.build['interactive'] >= 3:
 		print('\nRunning the conn module (' + shutit.shutit_main_dir + '/shutit_setup.py)' + shutit_util.colourise('32', '\n\n[Hit return to continue]\n'))
 		shutit_util.util_raw_input()
 	conn_module.get_config(shutit)
@@ -182,7 +182,7 @@ def finalize_target():
 	shutit.pause_point('\nFinalizing the target module (' + shutit.shutit_main_dir + '/shutit_setup.py)', print_input=False, level=3)
 	# Can assume conn_module exists at this point
 	for mod in shutit.conn_modules:
-		if mod.module_id == cfg['build']['conn_module']:
+		if mod.module_id == shutit.build['conn_module']:
 			conn_module = mod
 			break
 	conn_module.finalize(shutit)
@@ -366,9 +366,9 @@ def do_remove(loglevel=logging.DEBUG):
 				shutit.log(shutit_util.print_modules(), level=logging.DEBUG)
 				shutit.fail(module_id + ' failed on remove', shutit_pexpect_child=shutit.get_shutit_pexpect_session_from_id('target_child').pexpect_child)
 			else:
-				if cfg['build']['delivery'] in ('docker','dockerfile'):
+				if shutit.build['delivery'] in ('docker','dockerfile'):
 					# Create a directory and files to indicate this has been removed.
-					shutit.send(' mkdir -p ' + cfg['build']['build_db_dir'] + '/module_record/' + module.module_id + ' && rm -f ' + cfg['build']['build_db_dir'] + '/module_record/' + module.module_id + '/built && touch ' + cfg['build']['build_db_dir'] + '/module_record/' + module.module_id + '/removed', loglevel=loglevel)
+					shutit.send(' mkdir -p ' + shutit.build['build_db_dir'] + '/module_record/' + module.module_id + ' && rm -f ' + shutit.build['build_db_dir'] + '/module_record/' + module.module_id + '/built && touch ' + shutit.build['build_db_dir'] + '/module_record/' + module.module_id + '/removed', loglevel=loglevel)
 					# Remove from "installed" cache
 					if module.module_id in shutit_global.shutit.get_current_shutit_pexpect_session_environment().modules_installed:
 						shutit_global.shutit.get_current_shutit_pexpect_session_environment().modules_installed.remove(module.module_id)
@@ -384,36 +384,36 @@ def build_module(module, loglevel=logging.DEBUG):
 	shutit = shutit_global.shutit
 	cfg = shutit.cfg
 	shutit.log('Building ShutIt module: ' + module.module_id + ' with run order: ' + str(module.run_order), level=logging.INFO)
-	cfg['build']['report'] = (cfg['build']['report'] + '\nBuilding ShutIt module: ' + module.module_id + ' with run order: ' + str(module.run_order))
+	shutit.build['report'] = (shutit.build['report'] + '\nBuilding ShutIt module: ' + module.module_id + ' with run order: ' + str(module.run_order))
 	if not module.build(shutit):
 		shutit.fail(module.module_id + ' failed on build', shutit_pexpect_child=shutit.get_shutit_pexpect_session_from_id('target_child').pexpect_child)
 	else:
-		if cfg['build']['delivery'] in ('docker','dockerfile'):
+		if shutit.build['delivery'] in ('docker','dockerfile'):
 			# Create a directory and files to indicate this has been built.
-			shutit.send(' mkdir -p ' + cfg['build']['build_db_dir'] + '/module_record/' + module.module_id + ' && touch ' + cfg['build']['build_db_dir'] + '/module_record/' + module.module_id + '/built && rm -f ' + cfg['build']['build_db_dir'] + '/module_record/' + module.module_id + '/removed', loglevel=loglevel)
+			shutit.send(' mkdir -p ' + shutit.build['build_db_dir'] + '/module_record/' + module.module_id + ' && touch ' + shutit.build['build_db_dir'] + '/module_record/' + module.module_id + '/built && rm -f ' + shutit.build['build_db_dir'] + '/module_record/' + module.module_id + '/removed', loglevel=loglevel)
 		# Put it into "installed" cache
 		shutit_global.shutit.get_current_shutit_pexpect_session_environment().modules_installed.append(module.module_id)
 		# Remove from "not installed" cache
 		if module.module_id in shutit_global.shutit.get_current_shutit_pexpect_session_environment().modules_not_installed:
 			shutit_global.shutit.get_current_shutit_pexpect_session_environment().modules_not_installed.remove(module.module_id)
 	shutit.pause_point('\nPausing to allow inspect of build for: ' + module.module_id, print_input=True, level=2)
-	cfg['build']['report'] = (cfg['build']['report'] + '\nCompleted module: ' + module.module_id)
-	if cfg[module.module_id]['shutit.core.module.tag'] or cfg['build']['interactive'] >= 3:
+	shutit.build['report'] = (shutit.build['report'] + '\nCompleted module: ' + module.module_id)
+	if cfg[module.module_id]['shutit.core.module.tag'] or shutit.build['interactive'] >= 3:
 		shutit.log(shutit_util.build_report('#Module:' + module.module_id), level=logging.DEBUG)
-	if (not cfg[module.module_id]['shutit.core.module.tag'] and cfg['build']['interactive'] >= 2):
+	if (not cfg[module.module_id]['shutit.core.module.tag'] and shutit.build['interactive'] >= 2):
 		print ("\n\nDo you want to save state now we\'re at the " + "end of this module? (" + module.module_id + ") (input y/n)")
 		cfg[module.module_id]['shutit.core.module.tag'] = (shutit_util.util_raw_input(default='y') == 'y')
-	if cfg[module.module_id]['shutit.core.module.tag'] or cfg['build']['tag_modules']:
+	if cfg[module.module_id]['shutit.core.module.tag'] or shutit.build['tag_modules']:
 		shutit.log(module.module_id + ' configured to be tagged, doing repository work',level=logging.INFO)
 		# Stop all before we tag to avoid file changing errors, and clean up pid files etc..
 		stop_all(module.run_order)
 		shutit.do_repository_work(str(module.module_id) + '_' + str(module.run_order), password=shutit.host['password'], docker_executable=shutit.host['docker_executable'], force=True)
 		# Start all after we tag to ensure services are up as expected.
 		start_all(module.run_order)
-	if cfg['build']['interactive'] >= 2:
+	if shutit.build['interactive'] >= 2:
 		print ("\n\nDo you want to stop interactive mode? (input y/n)\n")
 		if shutit_util.util_raw_input(default='y') == 'y':
-			cfg['build']['interactive'] = 0
+			shutit.build['interactive'] = 0
 
 
 def do_build():
@@ -424,25 +424,25 @@ def do_build():
 	cfg = shutit.cfg
 	shutit.log('PHASE: build, repository work', level=logging.DEBUG)
 	shutit.log(shutit_util.print_config(cfg),level=logging.DEBUG)
-	if cfg['build']['interactive'] >= 3:
+	if shutit.build['interactive'] >= 3:
 		print ('\nNow building any modules that need building' + shutit_util.colourise('32', '\n\n[Hit return to continue]\n'))
 		shutit_util.util_raw_input()
 	module_id_list = shutit_util.module_ids()
-	if cfg['build']['deps_only']:
+	if shutit.build['deps_only']:
 		module_id_list_build_only = filter(lambda x: cfg[x]['shutit.core.module.build'], module_id_list)
 	for module_id in module_id_list:
 		module = shutit.shutit_map[module_id]
 		shutit.log('Considering whether to build: ' + module.module_id, level=logging.INFO)
 		if cfg[module.module_id]['shutit.core.module.build']:
-			if cfg['build']['delivery'] not in module.ok_delivery_methods:
+			if shutit.build['delivery'] not in module.ok_delivery_methods:
 				shutit.fail('Module: ' + module.module_id + ' can only be built with one of these --delivery methods: ' + str(module.ok_delivery_methods) + '\nSee shutit build -h for more info, or try adding: --delivery <method> to your shutit invocation')
 			if shutit_util.is_installed(module):
-				cfg['build']['report'] = (cfg['build']['report'] + '\nBuilt already: ' + module.module_id + ' with run order: ' + str(module.run_order))
+				shutit.build['report'] = (shutit.build['report'] + '\nBuilt already: ' + module.module_id + ' with run order: ' + str(module.run_order))
 			else:
 				# We move to the module directory to perform the build, returning immediately afterwards.
-				if cfg['build']['deps_only'] and module_id == module_id_list_build_only[-1]:
+				if shutit.build['deps_only'] and module_id == module_id_list_build_only[-1]:
 					# If this is the last module, and we are only building deps, stop here.
-					cfg['build']['report'] = (cfg['build']['report'] + '\nSkipping: ' + module.module_id + ' with run order: ' + str(module.run_order) + '\n\tas this is the final module and we are building dependencies only')
+					shutit.build['report'] = (shutit.build['report'] + '\nSkipping: ' + module.module_id + ' with run order: ' + str(module.run_order) + '\n\tas this is the final module and we are building dependencies only')
 				else:
 					revert_dir = os.getcwd()
 					shutit_global.shutit.get_current_shutit_pexpect_session_environment().module_root_dir = os.path.dirname(module.__module_file)
@@ -462,12 +462,12 @@ def do_test():
 	"""
 	shutit = shutit_global.shutit
 	cfg = shutit.cfg
-	if not cfg['build']['dotest']:
+	if not shutit.build['dotest']:
 		shutit.log('Tests configured off, not running',level=logging.DEBUG)
 		return
 	# Test in reverse order
 	shutit.log('PHASE: test', level=logging.DEBUG)
-	if cfg['build']['interactive'] >= 3:
+	if shutit.build['interactive'] >= 3:
 		print '\nNow doing test phase' + shutit_util.colourise('32', '\n\n[Hit return to continue]\n')
 		shutit_util.util_raw_input()
 	stop_all()
@@ -489,13 +489,13 @@ def do_finalize():
 	shutit = shutit_global.shutit
 	cfg = shutit.cfg
 	# Stop all the modules
-	if cfg['build']['interactive'] >= 3:
+	if shutit.build['interactive'] >= 3:
 		print('\nStopping all modules before finalize phase' + shutit_util.colourise('32', '\n\n[Hit return to continue]\n'))
 		shutit_util.util_raw_input()
 	stop_all()
 	# Finalize in reverse order
 	shutit.log('PHASE: finalize', level=logging.DEBUG)
-	if cfg['build']['interactive'] >= 3:
+	if shutit.build['interactive'] >= 3:
 		print('\nNow doing finalize phase, which we do when all builds are ' + 'complete and modules are stopped' + shutit_util.colourise('32', '\n\n[Hit return to continue]\n'))
 		shutit_util.util_raw_input()
 	# Login at least once to get the exports.
@@ -559,7 +559,7 @@ def main():
 
 	if shutit.action['skeleton']:
 		shutit_util.create_skeleton()
-		cfg['build']['completed'] = True
+		shutit.build['completed'] = True
 		return
 
 	shutit.log('Loading configs...',transient=True)
@@ -585,7 +585,7 @@ def main():
 	conn_target(shutit)
 	shutit.log('Connected to target',level=logging.INFO)
 
-	if cfg['build']['interactive'] > 0 and cfg['build']['choose_config']:
+	if shutit.build['interactive'] > 0 and shutit.build['choose_config']:
 		errs = do_interactive_modules()
 	else:
 		errs = []
@@ -596,13 +596,13 @@ def main():
 		digraph = 'digraph depgraph {\n'
 		digraph += '\n'.join([ make_dep_graph(module) for module_id, module in shutit.shutit_map.items() if module_id in cfg and cfg[module_id]['shutit.core.module.build'] ])
 		digraph += '\n}'
-		f = file(cfg['build']['log_config_path'] + '/digraph.txt','w')
+		f = file(shutit.build['log_config_path'] + '/digraph.txt','w')
 		f.write(digraph)
 		f.close()
 		digraph_all = 'digraph depgraph {\n'
 		digraph_all += '\n'.join([ make_dep_graph(module) for module_id, module in shutit.shutit_map.items() ])
 		digraph_all += '\n}'
-		f = file(cfg['build']['log_config_path'] + '/digraph_all.txt','w')
+		f = file(shutit.build['log_config_path'] + '/digraph_all.txt','w')
 		f.write(digraph_all)
 		f.close()
 		shutit.log('\n================================================================================\n' + digraph_all)
@@ -618,21 +618,21 @@ def main():
 	shutit_util.config_collection_for_built()
 
 
-	if shutit.action['list_configs'] or cfg['build']['loglevel'] <= logging.DEBUG:
+	if shutit.action['list_configs'] or shutit.build['loglevel'] <= logging.DEBUG:
 		shutit.log(shutit_util.print_config(cfg, history=shutit.list_configs['cfghistory']))
 		# Set build completed
-		cfg['build']['completed'] = True
-		f = file(cfg['build']['log_config_path'] + '/cfg.txt','w')
+		shutit.build['completed'] = True
+		f = file(shutit.build['log_config_path'] + '/cfg.txt','w')
 		f.write(shutit_util.print_config(cfg, history=shutit.list_configs['cfghistory']))
 		f.close()
 		shutit.log('================================================================================')
-		shutit.log('Config details placed in: ' + cfg['build']['log_config_path'])
+		shutit.log('Config details placed in: ' + shutit.build['log_config_path'])
 		shutit.log('================================================================================')
-		shutit.log('To render the digraph of this build into an image run eg:\n\ndot -Tgv -o ' + cfg['build']['log_config_path'] + '/digraph.gv ' + cfg['build']['log_config_path'] + '/digraph.txt && dot -Tpdf -o digraph.pdf ' + cfg['build']['log_config_path'] + '/digraph.gv\n\n')
+		shutit.log('To render the digraph of this build into an image run eg:\n\ndot -Tgv -o ' + shutit.build['log_config_path'] + '/digraph.gv ' + shutit.build['log_config_path'] + '/digraph.txt && dot -Tpdf -o digraph.pdf ' + shutit.build['log_config_path'] + '/digraph.gv\n\n')
 		shutit.log('================================================================================')
-		shutit.log('To render the digraph of all visible modules into an image, run eg:\n\ndot -Tgv -o ' + cfg['build']['log_config_path'] + '/digraph_all.gv ' + cfg['build']['log_config_path'] + '/digraph_all.txt && dot -Tpdf -o digraph_all.pdf ' + cfg['build']['log_config_path'] + '/digraph_all.gv\n\n')
+		shutit.log('To render the digraph of all visible modules into an image, run eg:\n\ndot -Tgv -o ' + shutit.build['log_config_path'] + '/digraph_all.gv ' + shutit.build['log_config_path'] + '/digraph_all.txt && dot -Tpdf -o digraph_all.pdf ' + shutit.build['log_config_path'] + '/digraph_all.gv\n\n')
 		shutit.log('================================================================================')
-		shutit.log('\nConfiguration details have been written to the folder: ' + cfg['build']['log_config_path'] + '\n')
+		shutit.log('\nConfiguration details have been written to the folder: ' + shutit.build['log_config_path'] + '\n')
 		shutit.log('================================================================================')
 	if shutit.action['list_configs']:
 		return
@@ -659,14 +659,14 @@ def main():
 	shutit.log(shutit_util.build_report('#Module: N/A (END)'), level=logging.DEBUG)
 
 	# Show final report messages (ie messages to show after standard report).
-	if cfg['build']['report_final_messages'] != '':
-		shutit.log(cfg['build']['report_final_messages'], level=logging.INFO)
+	if shutit.build['report_final_messages'] != '':
+		shutit.log(shutit.build['report_final_messages'], level=logging.INFO)
 
-	if cfg['build']['interactive'] >= 3:
+	if shutit.build['interactive'] >= 3:
 		shutit.log('\n' + 'The build is complete. You should now have a target called ' + shutit.target['name'] + ' and a new image if you chose to commit it.\n\nLook and play with the following files from the newly-created module directory to dig deeper:\n\n    configs/build.cnf\n    *.py\n\nYou can rebuild at any time by running the supplied ./build.sh and run with the supplied ./run.sh. These may need tweaking for your particular environment, eg sudo', level=logging.DEBUG)
 
 	# Mark the build as completed
-	cfg['build']['completed'] = True
+	shutit.build['completed'] = True
 	shutit.log('ShutIt run finished',level=logging.INFO)
 	shutit_util.handle_exit(0)
 
@@ -678,7 +678,7 @@ def do_phone_home(msg=None,question='Error seen - would you like to inform the m
 	"""
 	if msg is None:
 		msg = {}
-	if shutit_global.shutit.cfg['build']['interactive'] == 0:
+	if shutit_global.shutit.shutit.build['interactive'] == 0:
 		return
 	msg.update({'shutitrunstatus':'fail','pwd':os.getcwd(),'user':os.environ.get('LOGNAME', '')})
 	if question != '' and shutit_util.util_raw_input(prompt=question + ' (Y/n)\n') not in ('y','Y',''):

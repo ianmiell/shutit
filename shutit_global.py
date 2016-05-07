@@ -53,17 +53,17 @@ class ShutIt(object):
 		"""
 		# Store the root directory of this application.
 		# http://stackoverflow.com/questions/5137497
-		self.cfg['build']                           = {}
-		self.cfg['build']['interactive']            = 1 # Default to true until we know otherwise
-		self.cfg['build']['report']                 = ''
-		self.cfg['build']['report_final_messages']  = ''
-		self.cfg['build']['loglevel']               = logging.INFO
-		self.cfg['build']['completed']              = False
-		self.cfg['build']['mount_docker']           = False
-		self.cfg['build']['distro_override']        = ''
-		self.cfg['build']['shutit_command_history'] = []
-		self.cfg['build']['walkthrough']            = False # Whether to honour 'walkthrough' requests
-		self.cfg['build']['walkthrough_wait']       = -1
+		self.build                           = {}
+		self.build['interactive']            = 1 # Default to true until we know otherwise
+		self.build['report']                 = ''
+		self.build['report_final_messages']  = ''
+		self.build['loglevel']               = logging.INFO
+		self.build['completed']              = False
+		self.build['mount_docker']           = False
+		self.build['distro_override']        = ''
+		self.build['shutit_command_history'] = []
+		self.build['walkthrough']            = False # Whether to honour 'walkthrough' requests
+		self.build['walkthrough_wait']       = -1
 		self.repository                             = {}
 		# If no LOGNAME available,
 		self.host                            = {}
@@ -78,10 +78,10 @@ class ShutIt(object):
 			if self.host['username'] == '':
 				shutit_util.handle_exit(msg='LOGNAME not set in the environment, ' + 'and login unavailable in python; ' + 'please set to your username.', exit_code=1)
 		self.host['real_user'] = os.environ.get('SUDO_USER', self.host['username'])
-		self.cfg['build']['shutit_state_dir_base'] = '/tmp/shutit_' + self.host['username']
-		self.cfg['build']['build_id'] = (socket.gethostname() + '_' + self.host['real_user'] + '_' + str(time.time()) + '.' + str(datetime.datetime.now().microsecond))
-		self.cfg['build']['shutit_state_dir']           = self.cfg['build']['shutit_state_dir_base'] + '/' + self.cfg['build']['build_id']
-		self.cfg['build']['build_db_dir']               = self.cfg['build']['shutit_state_dir'] + '/build_db'
+		self.build['shutit_state_dir_base'] = '/tmp/shutit_' + self.host['username']
+		self.build['build_id'] = (socket.gethostname() + '_' + self.host['real_user'] + '_' + str(time.time()) + '.' + str(datetime.datetime.now().microsecond))
+		self.build['shutit_state_dir']           = self.build['shutit_state_dir_base'] + '/' + self.build['build_id']
+		self.build['build_db_dir']               = self.build['shutit_state_dir'] + '/build_db'
 
 		# These used to be in shutit_global, so we pass them in as args so
 		# the original reference can be put in shutit_global
@@ -103,6 +103,7 @@ class ShutIt(object):
 		self.list_modules                           = {}
 		# Environments are kept globally, as different sessions may re-connect to them.
 		self.shutit_pexpect_session_environments = set()
+		self.cfg = {}
 		self.cfg['dockerfile'] = self.dockerfile
 
 	def add_shutit_pexpect_session_environment(self, pexpect_session_environment):
@@ -162,7 +163,7 @@ class ShutIt(object):
 		@type expect: string
 		"""
 		if expect == None:
-			self.current_shutit_pexpect_session.default_expect = selfexpect_prompts['root']
+			self.current_shutit_pexpect_session.default_expect = self.expect_prompts['root']
 		else:
 			self.current_shutit_pexpect_session.default_expect = expect
 		return True
@@ -206,7 +207,7 @@ class ShutIt(object):
 		else:
 			logging.log(level,msg)
 			if add_final_message:
-				self.cfg['build']['report_final_messages'] += msg + '\n'
+				self.build['report_final_messages'] += msg + '\n'
 		return True
 
 
@@ -385,9 +386,8 @@ class ShutIt(object):
 
 		@param note:                 See send()
 		"""
-		cfg = self.cfg
-		if cfg['build']['walkthrough'] and note != None:
-			wait = self.cfg['build']['walkthrough_wait']
+		if self.build['walkthrough'] and note != None:
+			wait = self.build['walkthrough_wait']
 			wrap = '\n' + 80*'=' + '\n'
 			message = wrap + note + wrap
 			if command != '':
@@ -395,7 +395,7 @@ class ShutIt(object):
 			if wait >= 0:
 				self.pause_point(message, colour=31, wait=wait)
 			else:
-				if training_input != '' and cfg['build']['training']:
+				if training_input != '' and self.build['training']:
 					print(shutit_util.colourise('31',message))
 					while shutit_util.util_raw_input(prompt=shutit_util.colourise('32','Type in the command to continue: ')) != training_input:
 						print('Wrong! Try again!')
@@ -405,8 +405,8 @@ class ShutIt(object):
 
 
 	def _handle_note_after(self, note):
-		if self.cfg['build']['walkthrough'] and note != None:
-			wait = self.cfg['build']['walkthrough_wait']
+		if self.build['walkthrough'] and note != None:
+			wait = self.build['walkthrough_wait']
 			if wait >= 0:
 				time.sleep(wait)
 		return True
@@ -429,9 +429,9 @@ class ShutIt(object):
 		while accum_timeout < timeout:
 			res = shutit_pexpect_session.expect(expect, timeout=iteration_s)
 			if res == len(expect):
-				if shutit.cfg['build']['ctrlc_stop']:
+				if shutit.build['ctrlc_stop']:
 					timed_out = False
-					shutit.cfg['build']['ctrlc_stop'] = False
+					shutit.build['ctrlc_stop'] = False
 					break
 				accum_timeout += iteration_s
 			else:
@@ -555,7 +555,6 @@ class ShutIt(object):
 		@type path:           string
 		@type hostfilepath:   string
 		"""
-		cfg = self.cfg
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
 		expect = expect or self.get_current_shutit_pexpect_session().default_expect
 		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
@@ -565,7 +564,7 @@ class ShutIt(object):
 			user = shutit_pexpect_session.whoami()
 		if group == None:
 			group = self.whoarewe()
-		if cfg['build']['delivery'] in ('bash','dockerfile'):
+		if self.build['delivery'] in ('bash','dockerfile'):
 			retdir = shutit_pexpect_session.send_and_get_output('pwd',loglevel=loglevel, delaybeforesend=delaybeforesend)
 			shutit_pexpect_session.send(' pushd ' + shutit_pexpect_session.current_environment.module_root_dir, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
 			shutit_pexpect_session.send(' cp -r ' + hostfilepath + ' ' + retdir + '/' + path,expect=expect, timeout=timeout, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
@@ -981,10 +980,9 @@ class ShutIt(object):
 		@return:           boolean
 		@rtype:            string
 		"""
-		cfg = self.cfg
 		self._handle_note(note)
 		# Only handle for docker initially, return false in case we care
-		if cfg['build']['delivery'] != 'docker':
+		if self.build['delivery'] != 'docker':
 			return False
 		# on the host, run:
 		#Usage:  docker cp [OPTIONS] CONTAINER:PATH LOCALPATH|-
@@ -1074,13 +1072,12 @@ class ShutIt(object):
 	def step_through(self, msg='', shutit_pexpect_child=None, level=1, print_input=True, value=True):
 		"""Implements a step-through function, using pause_point.
 		"""
-		cfg = self.cfg
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
 		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
-		if (not shutit_util.determine_interactive() or not cfg['build']['interactive'] or
-			cfg['build']['interactive'] < level):
+		if (not shutit_util.determine_interactive() or not self.build['interactive'] or
+			self.build['interactive'] < level):
 			return
-		cfg['build']['step_through'] = value
+		self.build['step_through'] = value
 		shutit_pexpect_session.pause_point(msg, print_input=print_input, level=level)
 		return True
 
@@ -1122,9 +1119,8 @@ class ShutIt(object):
 
 		@return:             True if pause point handled ok, else false
 		"""
-		cfg = self.cfg
-		if (not shutit_util.determine_interactive() or cfg['build']['interactive'] < 1 or
-			cfg['build']['interactive'] < level):
+		if (not shutit_util.determine_interactive() or self.build['interactive'] < 1 or
+			self.build['interactive'] < level):
 			return
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
 		if shutit_pexpect_child:
@@ -1134,7 +1130,7 @@ class ShutIt(object):
 			self.log(msg,level=logging.DEBUG)
 			self.log('Nothing to interact with, so quitting to presumably the original shell',level=logging.DEBUG)
 			shutit_util.handle_exit(exit_code=1)
-		cfg['build']['ctrlc_stop'] = False
+		self.build['ctrlc_stop'] = False
 		return True
 
 
@@ -1458,7 +1454,6 @@ class ShutIt(object):
 		@type repository:           string
 		@type docker_executable:    string
 		"""
-		cfg = self.cfg
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
 		expect = expect or self.get_current_shutit_pexpect_session().default_expect
 		send = docker_executable + ' push ' + repository
@@ -1499,7 +1494,6 @@ class ShutIt(object):
 		@type password:             string
 		@type force:                boolean
 		"""
-		cfg = self.cfg
 		# TODO: make host and client configurable
 		shutit_pexpect_session = self.get_current_shutit_pexpect_session()
 		tag    = self.repository['tag']
@@ -1537,7 +1531,7 @@ class ShutIt(object):
 		if server != '':
 			repository = '%s/%s' % (server, repository)
 
-		if cfg['build']['deps_only']:
+		if self.build['deps_only']:
 			repo_tag += '_deps'
 
 		if self.repository['suffix_date']:
@@ -1560,7 +1554,7 @@ class ShutIt(object):
 			self.send(self.host['password'], expect=expect, check_exit=False, record_command=False, shutit_pexpect_child=shutit_pexpect_child, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
 		# Tag image, force it by default
 		cmd = docker_executable + ' tag -f $SHUTIT_TMP_VAR ' + repository_with_tag
-		cfg['build']['report'] += '\nBuild tagged as: ' + repository_with_tag
+		self.build['report'] += '\nBuild tagged as: ' + repository_with_tag
 		self.send(cmd, shutit_pexpect_child=shutit_pexpect_child, expect=expect, check_exit=False, echo=False, loglevel=loglevel,delaybeforesend=delaybeforesend)
 		if export or save:
 			shutit_pexpect_session.pause_point('We are now exporting the container to a bzipped tar file, as configured in\n[repository]\ntar:yes', print_input=False, level=3)
@@ -1571,8 +1565,8 @@ class ShutIt(object):
 					self.send(password, expect=expect, shutit_pexpect_child=shutit_pexpect_child, loglevel=loglevel, delaybeforesend=delaybeforesend)
 				self.log('Deposited bzip2 of exported container into ' + bzfile, level=loglevel)
 				self.log('Run: bunzip2 -c ' + bzfile + ' | sudo docker import - to get this imported into docker.', level=logging.DEBUG)
-				cfg['build']['report'] += ('\nDeposited bzip2 of exported container into ' + bzfile)
-				cfg['build']['report'] += ('\nRun:\n\nbunzip2 -c ' + bzfile + ' | sudo docker import -\n\nto get this imported into docker.')
+				self.build['report'] += ('\nDeposited bzip2 of exported container into ' + bzfile)
+				self.build['report'] += ('\nRun:\n\nbunzip2 -c ' + bzfile + ' | sudo docker import -\n\nto get this imported into docker.')
 			if save:
 				bzfile = (repository_tar + 'save.tar.bz2')
 				self.log('Depositing bzip2 of exported container into ' + bzfile,level=logging.DEBUG)
@@ -1580,12 +1574,12 @@ class ShutIt(object):
 					self.send(password, expect=expect, shutit_pexpect_child=shutit_pexpect_child, loglevel=loglevel, delaybeforesend=delaybeforesend)
 				self.log('Deposited bzip2 of exported container into ' + bzfile, level=logging.DEBUG)
 				self.log('Run: bunzip2 -c ' + bzfile + ' | sudo docker import - to get this imported into docker.', level=logging.DEBUG)
-				cfg['build']['report'] += ('\nDeposited bzip2 of exported container into ' + bzfile)
-				cfg['build']['report'] += ('\nRun:\n\nbunzip2 -c ' + bzfile + ' | sudo docker import -\n\nto get this imported into docker.')
+				self.build['report'] += ('\nDeposited bzip2 of exported container into ' + bzfile)
+				self.build['report'] += ('\nRun:\n\nbunzip2 -c ' + bzfile + ' | sudo docker import -\n\nto get this imported into docker.')
 		if self.repository['push']:
 			# Pass the child explicitly as it's the host child.
 			self.push_repository(repository, docker_executable=docker_executable, expect=expect, shutit_pexpect_child=shutit_pexpect_child)
-			cfg['build']['report'] = (cfg['build']['report'] + '\nPushed repository: ' + repository)
+			self.build['report'] = (self.build['report'] + '\nPushed repository: ' + repository)
 		return True
 
 
@@ -1631,22 +1625,22 @@ class ShutIt(object):
 				cfg[module_id][option] = cfg['config_parser'].get(module_id, option)
 		else:
 			if not forcenone:
-				if cfg['build']['interactive'] > 0:
-					if cfg['build']['accept_defaults'] == None:
+				if self.build['interactive'] > 0:
+					if self.build['accept_defaults'] == None:
 						answer = None
 						# util_raw_input may change the interactive level, so guard for this.
-						while answer not in ('yes','no','') and cfg['build']['interactive'] > 1:
+						while answer not in ('yes','no','') and self.build['interactive'] > 1:
 							answer = shutit_util.util_raw_input(prompt=shutit_util.colourise('32', 'Do you want to accept the config option defaults? ' + '(boolean - input "yes" or "no") (default: yes): \n'),default='yes')
 						# util_raw_input may change the interactive level, so guard for this.
-						if answer == 'yes' or answer == '' or cfg['build']['interactive'] < 2:
-							cfg['build']['accept_defaults'] = True
+						if answer == 'yes' or answer == '' or self.build['interactive'] < 2:
+							self.build['accept_defaults'] = True
 						else:
-							cfg['build']['accept_defaults'] = False
-					if cfg['build']['accept_defaults'] and default != None:
+							self.build['accept_defaults'] = False
+					if self.build['accept_defaults'] and default != None:
 						cfg[module_id][option] = default
 					else:
 						# util_raw_input may change the interactive level, so guard for this.
-						if cfg['build']['interactive'] < 1:
+						if self.build['interactive'] < 1:
 							self.fail('Cannot continue. ' + module_id + '.' + option + ' config requires a value and no default is supplied. Adding "-s ' + module_id + ' ' + option + ' [your desired value]" to the shutit invocation will set this.')
 						prompt = '\n\nPlease input a value for ' + module_id + '.' + option
 						if default != None:
