@@ -47,7 +47,6 @@ def stop_all(run_order=-1):
 	before committing run files etc.
 	"""
 	shutit = shutit_global.shutit
-	cfg = shutit.cfg
 	if shutit.build['interactive'] >= 3:
 		print('\nRunning stop on all modules' + shutit_util.colourise('32', '\n\n[Hit return to continue]'))
 		shutit_util.util_raw_input()
@@ -67,7 +66,6 @@ def start_all(run_order=-1):
 	target and still depended-on modules running if necessary.
 	"""
 	shutit = shutit_global.shutit
-	cfg = shutit.cfg
 	if shutit.build['interactive'] >= 3:
 		print('\nRunning start on all modules' + shutit_util.colourise('32', '\n\n[Hit return to continue]\n'))
 		shutit_util.util_raw_input()
@@ -111,10 +109,7 @@ def init_shutit_map(shutit):
 	Sets up common config.
 	Sets up map of modules.
 	"""
-	cfg = shutit.cfg
-
 	modules = shutit.shutit_modules
-
 	# Have we got anything to process outside of special modules?
 	if len([mod for mod in modules if mod.run_order > 0]) < 1:
 		shutit.log(modules,level=logging.DEBUG)
@@ -158,7 +153,6 @@ def conn_target(shutit):
 	"""Connect to the target.
 	"""
 	conn_module = None
-	cfg = shutit.cfg
 	for mod in shutit.conn_modules:
 		if mod.module_id == shutit.build['conn_module']:
 			conn_module = mod
@@ -178,7 +172,6 @@ def finalize_target():
 	"""Finalize the target using the core finalize method.
 	"""
 	shutit = shutit_global.shutit
-	cfg = shutit.cfg
 	shutit.pause_point('\nFinalizing the target module (' + shutit.shutit_main_dir + '/shutit_setup.py)', print_input=False, level=3)
 	# Can assume conn_module exists at this point
 	for mod in shutit.conn_modules:
@@ -209,10 +202,9 @@ def resolve_dependencies(to_build, depender):
 def check_dependee_exists(depender, dependee, dependee_id):
 	"""Checks whether a depended-on module is available.
 	"""
-	cfg = shutit_global.shutit.cfg
 	# If the module id isn't there, there's a problem.
 	if dependee == None:
-		return ('module: \n\n' + dependee_id + '\n\nnot found in paths: ' + str(shutit.host['shutit_module_path']) + ' but needed for ' + depender.module_id + '\nCheck your --shutit_module_path setting and ensure that all modules configured to be built are in that path setting, eg "--shutit_module_path /path/to/other/module/:."\n\nAlso check that the module is configured to be built with the correct module id in that module\'s configs/build.cnf file.\n\nSee also help.')
+		return ('module: \n\n' + dependee_id + '\n\nnot found in paths: ' + str(shutit_global.shutit.host['shutit_module_path']) + ' but needed for ' + depender.module_id + '\nCheck your --shutit_module_path setting and ensure that all modules configured to be built are in that path setting, eg "--shutit_module_path /path/to/other/module/:."\n\nAlso check that the module is configured to be built with the correct module id in that module\'s configs/build.cnf file.\n\nSee also help.')
 
 
 def check_dependee_build(depender, dependee, dependee_id):
@@ -461,7 +453,6 @@ def do_test():
 	"""Runs test phase, erroring if any return false.
 	"""
 	shutit = shutit_global.shutit
-	cfg = shutit.cfg
 	if not shutit.build['dotest']:
 		shutit.log('Tests configured off, not running',level=logging.DEBUG)
 		return
@@ -487,7 +478,6 @@ def do_finalize():
 	have been stopped.
 	"""
 	shutit = shutit_global.shutit
-	cfg = shutit.cfg
 	# Stop all the modules
 	if shutit.build['interactive'] >= 3:
 		print('\nStopping all modules before finalize phase' + shutit_util.colourise('32', '\n\n[Hit return to continue]\n'))

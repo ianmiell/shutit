@@ -86,7 +86,6 @@ class ConnDocker(ShutItConnModule):
 	def _check_docker(self, shutit):
 		"""Private function. Do some docker capability checking
 		"""
-		cfg = shutit.cfg
 		# If we have sudo, kill any current sudo timeout. This is a bit of a
 		# hammer and somewhat unfriendly, but tells us if we need a password.
 		if spawn.find_executable('sudo') is not None:
@@ -146,7 +145,6 @@ class ConnDocker(ShutItConnModule):
 
 
 	def destroy_container(self, shutit, host_shutit_session_name, container_shutit_session_name, container_id, loglevel=logging.DEBUG):
-		cfg = shutit.cfg
 		# Close connection.
 		shutit.get_shutit_pexpect_session_from_id(container_shutit_session_name).pexpect_child.close()
 		host_child = shutit.get_shutit_pexpect_session_from_id(host_shutit_session_name).pexpect_child
@@ -154,7 +152,6 @@ class ConnDocker(ShutItConnModule):
 
 
 	def start_container(self, shutit, shutit_session_name, loglevel=logging.DEBUG):
-		cfg = shutit.cfg
 		docker = shutit.host['docker_executable'].split(' ')
 		# Always-required options
 		if not os.path.exists(shutit.build['shutit_state_dir'] + '/cidfiles'):

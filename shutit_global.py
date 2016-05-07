@@ -53,6 +53,7 @@ class ShutIt(object):
 		"""
 		# Store the root directory of this application.
 		# http://stackoverflow.com/questions/5137497
+		self.config_parser                   = {}
 		self.build                           = {}
 		self.build['interactive']            = 1 # Default to true until we know otherwise
 		self.build['report']                 = ''
