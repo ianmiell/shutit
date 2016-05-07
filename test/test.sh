@@ -168,7 +168,8 @@ do
 done
 
 pushd test/1
-for arg in "list_modules" "list_configs" "list_deps" "list_modules --long" "list_modules --sort id"
+#TODO: "list_deps"
+for arg in "list_modules" "list_configs" "list_modules --long" "list_modules --sort id"
 do
 	echo $arg
 	eval ../../shutit $arg -l debug

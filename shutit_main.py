@@ -118,7 +118,7 @@ def init_shutit_map(shutit):
 	# Have we got anything to process outside of special modules?
 	if len([mod for mod in modules if mod.run_order > 0]) < 1:
 		shutit.log(modules,level=logging.DEBUG)
-		path = ':'.join(cfg['host']['shutit_module_path'])
+		path = ':'.join(shutit.host['shutit_module_path'])
 		shutit.log('\nIf you are new to ShutIt, see:\n\n\thttp://ianmiell.github.io/shutit/\n\nor try running\n\n\tshutit skeleton\n\n',level=logging.INFO)
 		if path == '':
 			shutit.fail('No ShutIt modules aside from core ones found and no ShutIt module path given.\nDid you set --shutit_module_path/-m wrongly?\n')
@@ -212,7 +212,7 @@ def check_dependee_exists(depender, dependee, dependee_id):
 	cfg = shutit_global.shutit.cfg
 	# If the module id isn't there, there's a problem.
 	if dependee == None:
-		return ('module: \n\n' + dependee_id + '\n\nnot found in paths: ' + str(cfg['host']['shutit_module_path']) + ' but needed for ' + depender.module_id + '\nCheck your --shutit_module_path setting and ensure that all modules configured to be built are in that path setting, eg "--shutit_module_path /path/to/other/module/:."\n\nAlso check that the module is configured to be built with the correct module id in that module\'s configs/build.cnf file.\n\nSee also help.')
+		return ('module: \n\n' + dependee_id + '\n\nnot found in paths: ' + str(shutit.host['shutit_module_path']) + ' but needed for ' + depender.module_id + '\nCheck your --shutit_module_path setting and ensure that all modules configured to be built are in that path setting, eg "--shutit_module_path /path/to/other/module/:."\n\nAlso check that the module is configured to be built with the correct module id in that module\'s configs/build.cnf file.\n\nSee also help.')
 
 
 def check_dependee_build(depender, dependee, dependee_id):
@@ -407,7 +407,7 @@ def build_module(module, loglevel=logging.DEBUG):
 		shutit.log(module.module_id + ' configured to be tagged, doing repository work',level=logging.INFO)
 		# Stop all before we tag to avoid file changing errors, and clean up pid files etc..
 		stop_all(module.run_order)
-		shutit.do_repository_work(str(module.module_id) + '_' + str(module.run_order), password=cfg['host']['password'], docker_executable=cfg['host']['docker_executable'], force=True)
+		shutit.do_repository_work(str(module.module_id) + '_' + str(module.run_order), password=shutit.host['password'], docker_executable=shutit.host['docker_executable'], force=True)
 		# Start all after we tag to ensure services are up as expected.
 		start_all(module.run_order)
 	if cfg['build']['interactive'] >= 2:
@@ -510,7 +510,8 @@ def do_finalize():
 
 def setup_shutit_path(cfg):
 	# try the current directory, the .. directory, or the ../shutit directory, the ~/shutit
-	if not cfg['host']['add_shutit_to_path']:
+	shutit = shutit_global.shutit
+	if not shutit.host['add_shutit_to_path']:
 		return
 	res = shutit_util.util_raw_input(prompt='shutit appears not to be on your path - should try and we find it and add it to your ~/.bashrc (Y/n)?')
 	if res in ['n','N']:
@@ -556,7 +557,7 @@ def main():
 	shutit.log('ShutIt Started... ',transient=True,newline=False)
 	shutit_util.parse_args()
 
-	if cfg['action']['skeleton']:
+	if shutit.action['skeleton']:
 		shutit_util.create_skeleton()
 		cfg['build']['completed'] = True
 		return
@@ -578,7 +579,7 @@ def main():
 	shutit_util.config_collection()
 	shutit.log('Configuration loaded',level=logging.INFO)
 
-	if cfg['action']['list_modules']:
+	if shutit.action['list_modules']:
 		shutit_util.list_modules()
 		shutit_util.handle_exit()
 	conn_target(shutit)
@@ -590,7 +591,7 @@ def main():
 		errs = []
 		errs.extend(check_deps())
 
-	if cfg['action']['list_deps']:
+	if shutit.action['list_deps']:
 		# Show dependency graph
 		digraph = 'digraph depgraph {\n'
 		digraph += '\n'.join([ make_dep_graph(module) for module_id, module in shutit.shutit_map.items() if module_id in cfg and cfg[module_id]['shutit.core.module.build'] ])
@@ -617,12 +618,12 @@ def main():
 	shutit_util.config_collection_for_built()
 
 
-	if cfg['action']['list_configs'] or cfg['build']['loglevel'] <= logging.DEBUG:
-		shutit.log(shutit_util.print_config(cfg, history=cfg['list_configs']['cfghistory']))
+	if shutit.action['list_configs'] or cfg['build']['loglevel'] <= logging.DEBUG:
+		shutit.log(shutit_util.print_config(cfg, history=shutit.list_configs['cfghistory']))
 		# Set build completed
 		cfg['build']['completed'] = True
 		f = file(cfg['build']['log_config_path'] + '/cfg.txt','w')
-		f.write(shutit_util.print_config(cfg, history=cfg['list_configs']['cfghistory']))
+		f.write(shutit_util.print_config(cfg, history=shutit.list_configs['cfghistory']))
 		f.close()
 		shutit.log('================================================================================')
 		shutit.log('Config details placed in: ' + cfg['build']['log_config_path'])
@@ -633,7 +634,7 @@ def main():
 		shutit.log('================================================================================')
 		shutit.log('\nConfiguration details have been written to the folder: ' + cfg['build']['log_config_path'] + '\n')
 		shutit.log('================================================================================')
-	if cfg['action']['list_configs']:
+	if shutit.action['list_configs']:
 		return
 
 	# Check for conflicts now.
@@ -662,7 +663,7 @@ def main():
 		shutit.log(cfg['build']['report_final_messages'], level=logging.INFO)
 
 	if cfg['build']['interactive'] >= 3:
-		shutit.log('\n' + 'The build is complete. You should now have a target called ' + cfg['target']['name'] + ' and a new image if you chose to commit it.\n\nLook and play with the following files from the newly-created module directory to dig deeper:\n\n    configs/build.cnf\n    *.py\n\nYou can rebuild at any time by running the supplied ./build.sh and run with the supplied ./run.sh. These may need tweaking for your particular environment, eg sudo', level=logging.DEBUG)
+		shutit.log('\n' + 'The build is complete. You should now have a target called ' + shutit.target['name'] + ' and a new image if you chose to commit it.\n\nLook and play with the following files from the newly-created module directory to dig deeper:\n\n    configs/build.cnf\n    *.py\n\nYou can rebuild at any time by running the supplied ./build.sh and run with the supplied ./run.sh. These may need tweaking for your particular environment, eg sudo', level=logging.DEBUG)
 
 	# Mark the build as completed
 	cfg['build']['completed'] = True
@@ -686,6 +687,7 @@ def do_phone_home(msg=None,question='Error seen - would you like to inform the m
 		urllib.urlopen("http://shutit.tk?" + urllib.urlencode(msg))
 	except Exception as e:
 		shutit_global.shutit.log('failed to send message: ' + str(e.message),level=logging.ERROR)
+
 
 def do_interactive_modules():
 	shutit = shutit_global.shutit

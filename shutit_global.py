@@ -53,9 +53,6 @@ class ShutIt(object):
 		"""
 		# Store the root directory of this application.
 		# http://stackoverflow.com/questions/5137497
-		self.cfg = {}
-		self.cfg['SHUTIT_SIGNAL']                   = {}
-		self.cfg['action']                          = {}
 		self.cfg['build']                           = {}
 		self.cfg['build']['interactive']            = 1 # Default to true until we know otherwise
 		self.cfg['build']['report']                 = ''
@@ -65,35 +62,36 @@ class ShutIt(object):
 		self.cfg['build']['mount_docker']           = False
 		self.cfg['build']['distro_override']        = ''
 		self.cfg['build']['shutit_command_history'] = []
-		# Whether to honour 'walkthrough' requests
-		self.cfg['build']['walkthrough']            = False
+		self.cfg['build']['walkthrough']            = False # Whether to honour 'walkthrough' requests
 		self.cfg['build']['walkthrough_wait']       = -1
-		self.cfg['target']                          = {}
-		self.cfg['host']                            = {}
-		self.cfg['host']['shutit_path']             = sys.path[0]
-		self.cfg['repository']                      = {}
-		self.cfg['expect_prompts']                  = {}
-		self.cfg['dockerfile']                      = {}
-		self.cfg['list_configs']                    = {}
-		self.cfg['list_deps']                       = {}
+		self.repository                             = {}
 		# If no LOGNAME available,
-		self.cfg['host']['username'] = os.environ.get('LOGNAME', '')
-		if self.cfg['host']['username'] == '':
+		self.host                            = {}
+		self.host['shutit_path']             = sys.path[0]
+		self.host['username'] = os.environ.get('LOGNAME', '')
+		if self.host['username'] == '':
 			try:
 				if os.getlogin() != '':
-					self.cfg['host']['username'] = os.getlogin()
+					self.host['username'] = os.getlogin()
 			except Exception:
-				self.cfg['host']['username'] = getpass.getuser()
-			if self.cfg['host']['username'] == '':
+				self.host['username'] = getpass.getuser()
+			if self.host['username'] == '':
 				shutit_util.handle_exit(msg='LOGNAME not set in the environment, ' + 'and login unavailable in python; ' + 'please set to your username.', exit_code=1)
-		self.cfg['host']['real_user'] = os.environ.get('SUDO_USER', self.cfg['host']['username'])
-		self.cfg['build']['shutit_state_dir_base'] = '/tmp/shutit_' + self.cfg['host']['username']
-		self.cfg['build']['build_id'] = (socket.gethostname() + '_' + self.cfg['host']['real_user'] + '_' + str(time.time()) + '.' + str(datetime.datetime.now().microsecond))
+		self.host['real_user'] = os.environ.get('SUDO_USER', self.host['username'])
+		self.cfg['build']['shutit_state_dir_base'] = '/tmp/shutit_' + self.host['username']
+		self.cfg['build']['build_id'] = (socket.gethostname() + '_' + self.host['real_user'] + '_' + str(time.time()) + '.' + str(datetime.datetime.now().microsecond))
 		self.cfg['build']['shutit_state_dir']           = self.cfg['build']['shutit_state_dir_base'] + '/' + self.cfg['build']['build_id']
 		self.cfg['build']['build_db_dir']               = self.cfg['build']['shutit_state_dir'] + '/build_db'
 
 		# These used to be in shutit_global, so we pass them in as args so
 		# the original reference can be put in shutit_global
+		self.dockerfile                     = {}
+		# Needed for templates
+		self.expect_prompts                 = {}
+		self.list_configs                   = {}
+		self.target                         = {}
+		self.shutit_signal                  = {}
+		self.action                         = {}
 		self.current_shutit_pexpect_session = None
 		self.shutit_pexpect_sessions        = {}
 		self.shutit_modules                 = set()
@@ -105,6 +103,7 @@ class ShutIt(object):
 		self.list_modules                           = {}
 		# Environments are kept globally, as different sessions may re-connect to them.
 		self.shutit_pexpect_session_environments = set()
+		self.cfg['dockerfile'] = self.dockerfile
 
 	def add_shutit_pexpect_session_environment(self, pexpect_session_environment):
 		self.shutit_pexpect_session_environments.add(pexpect_session_environment)
@@ -163,7 +162,7 @@ class ShutIt(object):
 		@type expect: string
 		"""
 		if expect == None:
-			self.current_shutit_pexpect_session.default_expect = self.cfg['expect_prompts']['root']
+			self.current_shutit_pexpect_session.default_expect = selfexpect_prompts['root']
 		else:
 			self.current_shutit_pexpect_session.default_expect = expect
 		return True
@@ -991,8 +990,8 @@ class ShutIt(object):
 		#Usage:  docker cp [OPTIONS] CONTAINER:PATH LOCALPATH|-
 		# Need: host env, container id, path from and path to
 		shutit_pexpect_child     = self.get_shutit_pexpect_session_from_id('host_child').pexpect_child
-		expect    = cfg['expect_prompts']['origin_prompt']
-		self.send('docker cp ' + cfg['target']['container_id'] + ':' + target_path + ' ' + host_path, shutit_pexpect_child=shutit_pexpect_child, expect=expect, check_exit=False, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
+		expect    = self.expect_prompts['origin_prompt']
+		self.send('docker cp ' + self.target['container_id'] + ':' + target_path + ' ' + host_path, shutit_pexpect_child=shutit_pexpect_child, expect=expect, check_exit=False, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
 		self._handle_note_after(note=note)
 		return True
 
@@ -1471,11 +1470,11 @@ class ShutIt(object):
 			if res == 3:
 				break
 			elif res == 0:
-				res = self.send(cfg['repository']['user'], shutit_pexpect_child=shutit_pexpect_child, expect=expect_list, timeout=timeout, check_exit=False, fail_on_empty_before=False, loglevel=loglevel,delaybeforesend=delaybeforesend)
+				res = self.send(self.repository['user'], shutit_pexpect_child=shutit_pexpect_child, expect=expect_list, timeout=timeout, check_exit=False, fail_on_empty_before=False, loglevel=loglevel,delaybeforesend=delaybeforesend)
 			elif res == 1:
-				res = self.send(cfg['repository']['password'], shutit_pexpect_child=shutit_pexpect_child, expect=expect_list, timeout=timeout, check_exit=False, fail_on_empty_before=False,loglevel=loglevel,delaybeforesend=delaybeforesend)
+				res = self.send(self.repository['password'], shutit_pexpect_child=shutit_pexpect_child, expect=expect_list, timeout=timeout, check_exit=False, fail_on_empty_before=False,loglevel=loglevel,delaybeforesend=delaybeforesend)
 			elif res == 2:
-				res = self.send(cfg['repository']['email'], shutit_pexpect_child=shutit_pexpect_child, expect=expect_list, timeout=timeout, check_exit=False, fail_on_empty_before=False, loglevel=loglevel,delaybeforesend=delaybeforesend)
+				res = self.send(self.repository['email'], shutit_pexpect_child=shutit_pexpect_child, expect=expect_list, timeout=timeout, check_exit=False, fail_on_empty_before=False, loglevel=loglevel,delaybeforesend=delaybeforesend)
 		return True
 
 
@@ -1503,10 +1502,10 @@ class ShutIt(object):
 		cfg = self.cfg
 		# TODO: make host and client configurable
 		shutit_pexpect_session = self.get_current_shutit_pexpect_session()
-		tag    = cfg['repository']['tag']
-		push   = cfg['repository']['push']
-		export = cfg['repository']['export']
-		save   = cfg['repository']['save']
+		tag    = self.repository['tag']
+		push   = self.repository['push']
+		export = self.repository['export']
+		save   = self.repository['save']
 		if not (push or export or save or tag):
 			# If we're forcing this, then tag as a minimum
 			if force:
@@ -1515,10 +1514,10 @@ class ShutIt(object):
 				return True
 
 		shutit_pexpect_child = self.get_shutit_pexpect_session_from_id('host_child').pexpect_child
-		expect    = cfg['expect_prompts']['origin_prompt']
-		server    = cfg['repository']['server']
-		repo_user = cfg['repository']['user']
-		repo_tag  = cfg['repository']['tag_name']
+		expect    = self.expect_prompts['origin_prompt']
+		server    = self.repository['server']
+		repo_user = self.repository['user']
+		repo_tag  = self.repository['tag_name']
 
 		if repo_user and repo_name:
 			repository = '%s/%s' % (repo_user, repo_name)
@@ -1541,8 +1540,8 @@ class ShutIt(object):
 		if cfg['build']['deps_only']:
 			repo_tag += '_deps'
 
-		if cfg['repository']['suffix_date']:
-			suffix_date = time.strftime(cfg['repository']['suffix_format'])
+		if self.repository['suffix_date']:
+			suffix_date = time.strftime(self.repository['suffix_format'])
 			repository = '%s%s' % (repository, suffix_date)
 			repository_tar = '%s%s' % (repository_tar, suffix_date)
 
@@ -1557,8 +1556,8 @@ class ShutIt(object):
 		if server == '' and len(repository) > 30 and push:
 			self.fail("""repository name: '""" + repository + """' too long to push. If using suffix_date consider shortening, or consider adding "-s repository push no" to your arguments to prevent pushing.""", shutit_pexpect_child=shutit_pexpect_child, throw_exception=False)
 
-		if self.send('SHUTIT_TMP_VAR=$(' + docker_executable + ' commit ' + cfg['target']['container_id'] + ')', expect=[expect,'assword'], shutit_pexpect_child=shutit_pexpect_child, timeout=99999, check_exit=False, loglevel=loglevel, delaybeforesend=delaybeforesend) == 1:
-			self.send(cfg['host']['password'], expect=expect, check_exit=False, record_command=False, shutit_pexpect_child=shutit_pexpect_child, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
+		if self.send('SHUTIT_TMP_VAR=$(' + docker_executable + ' commit ' + self.target['container_id'] + ')', expect=[expect,'assword'], shutit_pexpect_child=shutit_pexpect_child, timeout=99999, check_exit=False, loglevel=loglevel, delaybeforesend=delaybeforesend) == 1:
+			self.send(self.host['password'], expect=expect, check_exit=False, record_command=False, shutit_pexpect_child=shutit_pexpect_child, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
 		# Tag image, force it by default
 		cmd = docker_executable + ' tag -f $SHUTIT_TMP_VAR ' + repository_with_tag
 		cfg['build']['report'] += '\nBuild tagged as: ' + repository_with_tag
@@ -1568,7 +1567,7 @@ class ShutIt(object):
 			if export:
 				bzfile = (repository_tar + 'export.tar.bz2')
 				self.log('Depositing bzip2 of exported container into ' + bzfile,level=logging.DEBUG)
-				if self.send(docker_executable + ' export ' + cfg['target']['container_id'] + ' | bzip2 - > ' + bzfile, expect=[expect, 'assword'], timeout=99999, shutit_pexpect_child=shutit_pexpect_child, loglevel=loglevel, delaybeforesend=delaybeforesend) == 1:
+				if self.send(docker_executable + ' export ' + self.target['container_id'] + ' | bzip2 - > ' + bzfile, expect=[expect, 'assword'], timeout=99999, shutit_pexpect_child=shutit_pexpect_child, loglevel=loglevel, delaybeforesend=delaybeforesend) == 1:
 					self.send(password, expect=expect, shutit_pexpect_child=shutit_pexpect_child, loglevel=loglevel, delaybeforesend=delaybeforesend)
 				self.log('Deposited bzip2 of exported container into ' + bzfile, level=loglevel)
 				self.log('Run: bunzip2 -c ' + bzfile + ' | sudo docker import - to get this imported into docker.', level=logging.DEBUG)
@@ -1577,13 +1576,13 @@ class ShutIt(object):
 			if save:
 				bzfile = (repository_tar + 'save.tar.bz2')
 				self.log('Depositing bzip2 of exported container into ' + bzfile,level=logging.DEBUG)
-				if self.send(docker_executable + ' save ' + cfg['target']['container_id'] + ' | bzip2 - > ' + bzfile, expect=[expect, 'assword'], timeout=99999, shutit_pexpect_child=shutit_pexpect_child, loglevel=loglevel, delaybeforesend=delaybeforesend) == 1:
+				if self.send(docker_executable + ' save ' + self.target['container_id'] + ' | bzip2 - > ' + bzfile, expect=[expect, 'assword'], timeout=99999, shutit_pexpect_child=shutit_pexpect_child, loglevel=loglevel, delaybeforesend=delaybeforesend) == 1:
 					self.send(password, expect=expect, shutit_pexpect_child=shutit_pexpect_child, loglevel=loglevel, delaybeforesend=delaybeforesend)
 				self.log('Deposited bzip2 of exported container into ' + bzfile, level=logging.DEBUG)
 				self.log('Run: bunzip2 -c ' + bzfile + ' | sudo docker import - to get this imported into docker.', level=logging.DEBUG)
 				cfg['build']['report'] += ('\nDeposited bzip2 of exported container into ' + bzfile)
 				cfg['build']['report'] += ('\nRun:\n\nbunzip2 -c ' + bzfile + ' | sudo docker import -\n\nto get this imported into docker.')
-		if cfg['repository']['push']:
+		if self.repository['push']:
 			# Pass the child explicitly as it's the host child.
 			self.push_repository(repository, docker_executable=docker_executable, expect=expect, shutit_pexpect_child=shutit_pexpect_child)
 			cfg['build']['report'] = (cfg['build']['report'] + '\nPushed repository: ' + repository)

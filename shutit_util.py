@@ -210,14 +210,15 @@ def random_word(size=6):
 	return word.lower()
 
 def find_asset(filename):
+	shutit = shutit_global.shutit
 	(head,filename) = os.path.split(filename)
 	if head == '':
 		dirs = ['/usr/share/dict',
 		        sys.prefix,
 		        os.path.join(sys.prefix,'local'),
-		        shutit_global.shutit.shutit_main_dir,
+		        shutit.shutit_main_dir,
 		        os.path.join(shutit_global.shutit.shutit_main_dir,'../../..'),
-		        shutit_global.shutit.cfg['host']['shutit_path'],
+		        shutit.host['shutit_path'],
 		        '/usr/local'
 		       ]
 		dirs = dirs + sys.path
@@ -225,9 +226,9 @@ def find_asset(filename):
 		dirs = ['/usr/share/dict' + '/' + head,
 		        sys.prefix + '/' + head,
 		        os.path.join(sys.prefix,'local') + '/' + head,
-		        shutit_global.shutit.shutit_main_dir + '/' + head,
+		        shutit.shutit_main_dir + '/' + head,
 		        os.path.join(shutit_global.shutit.shutit_main_dir,'../../..') + '/' + head,
-		        shutit_global.shutit.cfg['host']['shutit_path'] + '/' + head,
+		        shutit.host['shutit_path'] + '/' + head,
 		        '/usr/local' + '/' + head
 		       ]
 		dirs = dirs + sys.path
@@ -250,7 +251,7 @@ def setup_logging():
 	if type(cfg['build']['loglevel']) == int:
 		return
 	logformat='%(asctime)s %(levelname)s: %(message)s'
-	if cfg['host']['logfile'] == '':
+	if shutit.host['logfile'] == '':
 		if not os.access(cfg['build']['shutit_state_dir_base'],os.F_OK):
 			os.mkdir(cfg['build']['shutit_state_dir_base'])
 		if not os.access(cfg['build']['shutit_state_dir'],os.F_OK):
@@ -272,25 +273,27 @@ def setup_logging():
 			logging.basicConfig(format=logformat,level=logging.INFO)
 	else:
 		if cfg['build']['loglevel'] == 'DEBUG':
-			logging.basicConfig(format=logformat,filename=cfg['host']['logfile'],level=logging.DEBUG)
+			logging.basicConfig(format=logformat,filename=shutit.host['logfile'],level=logging.DEBUG)
 		elif cfg['build']['loglevel'] == 'ERROR':
-			logging.basicConfig(format=logformat,filename=cfg['host']['logfile'],level=logging.ERROR)
+			logging.basicConfig(format=logformat,filename=shutit.host['logfile'],level=logging.ERROR)
 		elif cfg['build']['loglevel'] in ('WARN','WARNING'):
-			logging.basicConfig(format=logformat,filename=cfg['host']['logfile'],level=logging.WARNING)
+			logging.basicConfig(format=logformat,filename=shutit.host['logfile'],level=logging.WARNING)
 		elif cfg['build']['loglevel'] == 'CRITICAL':
-			logging.basicConfig(format=logformat,filename=cfg['host']['logfile'],level=logging.CRITICAL)
+			logging.basicConfig(format=logformat,filename=shutit.host['logfile'],level=logging.CRITICAL)
 		elif cfg['build']['loglevel'] == 'INFO':
-			logging.basicConfig(format=logformat,filename=cfg['host']['logfile'],level=logging.INFO)
+			logging.basicConfig(format=logformat,filename=shutit.host['logfile'],level=logging.INFO)
 		else:
-			logging.basicConfig(format=logformat,filename=cfg['host']['logfile'],level=logging.INFO)
+			logging.basicConfig(format=logformat,filename=shutit.host['logfile'],level=logging.INFO)
 	cfg['build']['loglevel'] = logging.getLogger().getEffectiveLevel()
 
 
 # Manage config settings, returning a dict representing the settings
 # that have been sanity-checked.
-def get_base_config(cfg, cfg_parser):
+def get_base_config(cfg_parser):
 	"""Responsible for getting core configuration from config files.
 	"""
+	shutit = shutit_global.shutit
+	cfg = shutit.cfg
 	cfg['config_parser'] = cp = cfg_parser
 	# BEGIN Read from config files
 	# build - details relating to the build
@@ -305,7 +308,7 @@ def get_base_config(cfg, cfg_parser):
 	# Width of terminal to set up on login and assume for other cases.
 	cfg['build']['stty_cols']                  = 320
 	# Signals are set here, which is useful for context-switching callbacks.
-	cfg['SHUTIT_SIGNAL']['ID']                 = 0
+	shutit.shutit_signal['ID']                 = 0
 	# Take a command-line arg if given, else default.
 	if cfg['build']['conn_module'] is None:
 		cfg['build']['conn_module']            = cp.get('build', 'conn_module')
@@ -315,48 +318,48 @@ def get_base_config(cfg, cfg_parser):
 	# Whether to accept default configs
 	cfg['build']['accept_defaults']            = None
 	# target - the target of the build, ie the container
-	cfg['target']['hostname']                  = cp.get('target', 'hostname')
-	cfg['target']['locale']                    = cp.get('target', 'locale')
-	cfg['target']['ports']                     = cp.get('target', 'ports')
-	cfg['target']['volumes']                   = cp.get('target', 'volumes')
-	cfg['target']['volumes_from']              = cp.get('target', 'volumes_from')
-	cfg['target']['name']                      = cp.get('target', 'name')
-	cfg['target']['rm']                        = cp.getboolean('target', 'rm')
+	shutit.target['hostname']                  = cp.get('target', 'hostname')
+	shutit.target['locale']                    = cp.get('target', 'locale')
+	shutit.target['ports']                     = cp.get('target', 'ports')
+	shutit.target['volumes']                   = cp.get('target', 'volumes')
+	shutit.target['volumes_from']              = cp.get('target', 'volumes_from')
+	shutit.target['name']                      = cp.get('target', 'name')
+	shutit.target['rm']                        = cp.getboolean('target', 'rm')
 	# host - the host on which the shutit script is run
-	cfg['host']['add_shutit_to_path']          = cp.getboolean('host', 'add_shutit_to_path')
-	cfg['host']['docker_executable']           = cp.get('host', 'docker_executable')
-	cfg['host']['dns']                         = cp.get('host', 'dns')
-	cfg['host']['password']                    = cp.get('host', 'password')
-	cfg['host']['logfile']                     = cp.get('host', 'logfile')
-	cfg['host']['shutit_module_path']          = cp.get('host', 'shutit_module_path').split(':')
+	shutit.host['add_shutit_to_path']          = cp.getboolean('host', 'add_shutit_to_path')
+	shutit.host['docker_executable']           = cp.get('host', 'docker_executable')
+	shutit.host['dns']                         = cp.get('host', 'dns')
+	shutit.host['password']                    = cp.get('host', 'password')
+	shutit.host['logfile']                     = cp.get('host', 'logfile')
+	shutit.host['shutit_module_path']          = cp.get('host', 'shutit_module_path').split(':')
 	# repository - information relating to repository/registry
-	cfg['repository']['name']                  = cp.get('repository', 'name')
-	cfg['repository']['server']                = cp.get('repository', 'server')
-	cfg['repository']['push']                  = cp.getboolean('repository', 'push')
-	cfg['repository']['tag']                   = cp.getboolean('repository', 'tag')
-	cfg['repository']['export']                = cp.getboolean('repository', 'export')
-	cfg['repository']['save']                  = cp.getboolean('repository', 'save')
-	cfg['repository']['suffix_date']           = cp.getboolean('repository', 'suffix_date')
-	cfg['repository']['suffix_format']         = cp.get('repository', 'suffix_format')
-	cfg['repository']['user']                  = cp.get('repository', 'user')
-	cfg['repository']['password']              = cp.get('repository', 'password')
-	cfg['repository']['email']                 = cp.get('repository', 'email')
-	cfg['repository']['tag_name']              = cp.get('repository', 'tag_name')
+	shutit.repository['name']                  = cp.get('repository', 'name')
+	shutit.repository['server']                = cp.get('repository', 'server')
+	shutit.repository['push']                  = cp.getboolean('repository', 'push')
+	shutit.repository['tag']                   = cp.getboolean('repository', 'tag')
+	shutit.repository['export']                = cp.getboolean('repository', 'export')
+	shutit.repository['save']                  = cp.getboolean('repository', 'save')
+	shutit.repository['suffix_date']           = cp.getboolean('repository', 'suffix_date')
+	shutit.repository['suffix_format']         = cp.get('repository', 'suffix_format')
+	shutit.repository['user']                  = cp.get('repository', 'user')
+	shutit.repository['password']              = cp.get('repository', 'password')
+	shutit.repository['email']                 = cp.get('repository', 'email')
+	shutit.repository['tag_name']              = cp.get('repository', 'tag_name')
 	# END Read from config files
 
 	# BEGIN Standard expects
 	# It's important that these have '.*' in them at the start, so that the matched data is reliably 'after' in the
 	# child object. Use these where possible to make things more consistent.
 	# Attempt to capture any starting prompt (when starting) with this regexp.
-	cfg['expect_prompts']['base_prompt']       = '\r\n.*[@#$] '
+	shutit.expect_prompts['base_prompt']       = '\r\n.*[@#$] '
 	# END Standard expects
 
 	if cfg['build']['delivery'] in ('bash','ssh'):
-		if cfg['target']['docker_image'] != '':
+		if shutit.target['docker_image'] != '':
 			print('delivery method specified (' + cfg['build']['delivery'] + ') and image_tag argument make no sense')
 			handle_exit(exit_code=1)
-	if cfg['target']['docker_image'] == '':
-		cfg['target']['docker_image'] = cfg['build']['base_image']
+	if shutit.target['docker_image'] == '':
+		shutit.target['docker_image'] = cfg['build']['base_image']
 	# END tidy configs up
 
 	# BEGIN warnings
@@ -364,14 +367,14 @@ def get_base_config(cfg, cfg_parser):
 	warn = ''
 	# FAILS begins
 	# rm is incompatible with repository actions
-	if cfg['target']['rm'] and (cfg['repository']['tag'] or cfg['repository']['push'] or cfg['repository']['save'] or cfg['repository']['export']):
+	if shutit.target['rm'] and (shutit.repository['tag'] or shutit.repository['push'] or shutit.repository['save'] or shutit.repository['export']):
 		print("Can't have [target]/rm and [repository]/(push/save/export) set to true")
 		handle_exit(exit_code=1)
 	if warn != '':
-		shutit_global.shutit.log('Showing config as read in. This can also be done by calling with list_configs:',level=logging.WARNING)
-		shutit_global.shutit.log(print_config(cfg), level=logging.WARNING)
+		shutit.log('Showing config as read in. This can also be done by calling with list_configs:',level=logging.WARNING)
+		shutit.log(print_config(cfg), level=logging.WARNING)
 		time.sleep(1)
-	if cfg['target']['hostname'] != '' and cfg['build']['net'] != '' and cfg['build']['net'] != 'bridge':
+	if shutit.target['hostname'] != '' and cfg['build']['net'] != '' and cfg['build']['net'] != 'bridge':
 		print('\n\ntarget/hostname or build/net configs must be blank\n\n')
 		handle_exit(exit_code=1)
 	# FAILS ends
@@ -394,7 +397,7 @@ def parse_args():
 	"""
 	shutit = shutit_global.shutit
 	cfg = shutit.cfg
-	cfg['host']['real_user_id'] = pexpect.run('id -u ' + cfg['host']['real_user']).strip()
+	shutit.host['real_user_id'] = pexpect.run('id -u ' + shutit.host['real_user']).strip()
 
 	# These are in order of their creation
 	actions = ['build', 'list_configs', 'list_modules', 'list_deps', 'skeleton', 'version']
@@ -491,18 +494,18 @@ def parse_args():
 		handle_exit(exit_code=0)
 
 	# What are we asking shutit to do?
-	cfg['action']['list_configs'] = args.action == 'list_configs'
-	cfg['action']['list_modules'] = args.action == 'list_modules'
-	cfg['action']['list_deps']    = args.action == 'list_deps'
-	cfg['action']['skeleton']     = args.action == 'skeleton'
-	cfg['action']['build']        = args.action == 'build'
+	shutit.action['list_configs'] = args.action == 'list_configs'
+	shutit.action['list_modules'] = args.action == 'list_modules'
+	shutit.action['list_deps']    = args.action == 'list_deps'
+	shutit.action['skeleton']     = args.action == 'skeleton'
+	shutit.action['build']        = args.action == 'build'
 	# Logging
-	cfg['host']['logfile']   = args.logfile
+	shutit.host['logfile']   = args.logfile
 	cfg['build']['loglevel'] = args.log
 	setup_logging()
 
 	# This mode is a bit special - it's the only one with different arguments
-	if cfg['action']['skeleton']:
+	if shutit.action['skeleton']:
 		if args.dockerfiles and args.script:
 			shutit.fail('Cannot have any two of script, -d/--dockerfiles <files> as arguments')
 		if args.module_directory == '':
@@ -581,7 +584,7 @@ docker_tutorial:   a docker-based tutorial
 		os.close(f)
 
 	# Default this to False as it's not always set (mostly for debug logging).
-	cfg['list_configs']['cfghistory']  = False
+	shutit.list_configs['cfghistory']  = False
 	shutit.list_modules['long']        = False
 	shutit.list_modules['sort']        = None
 	cfg['build']['video']              = False
@@ -592,10 +595,10 @@ docker_tutorial:   a docker-based tutorial
 	cfg['build']['emerge_update_done'] = False
 	cfg['build']['apk_update_done']    = False
 	# Persistence- and build-related arguments.
-	if cfg['action']['build']:
-		cfg['repository']['push']   = args.push
-		cfg['repository']['export'] = args.export
-		cfg['repository']['save']   = args.save
+	if shutit.action['build']:
+		shutit.repository['push']   = args.push
+		shutit.repository['export'] = args.export
+		shutit.repository['save']   = args.save
 		cfg['build']['distro_override'] = args.distro
 		cfg['build']['mount_docker']    = args.mount_docker
 		cfg['build']['walkthrough']     = args.walkthrough
@@ -611,9 +614,9 @@ docker_tutorial:   a docker-based tutorial
 			if cfg['build']['training']:
 				print('--video and --training mode incompatible')
 				handle_exit(exit_code=1)
-	elif cfg['action']['list_configs']:
-		cfg['list_configs']['cfghistory'] = args.history
-	elif cfg['action']['list_modules']:
+	elif shutit.action['list_configs']:
+		shutit.list_configs['cfghistory'] = args.history
+	elif shutit.action['list_modules']:
 		shutit.list_modules['long'] = args.long
 		shutit.list_modules['sort'] = args.sort
 
@@ -650,10 +653,10 @@ docker_tutorial:   a docker-based tutorial
 	cfg['build']['imageerrorok']     = args.imageerrorok
 	cfg['build']['tag_modules']      = args.tag_modules
 	cfg['build']['deps_only']        = args.deps_only
-	cfg['target']['docker_image']    = args.image_tag
+	shutit.target['docker_image']    = args.image_tag
 	# Finished parsing args.
 	# Sort out config path
-	if cfg['build']['interactive'] >= 3 or cfg['action']['list_configs'] or cfg['action']['list_modules'] or cfg['action']['list_deps'] or cfg['build']['loglevel'] == logging.DEBUG:
+	if cfg['build']['interactive'] >= 3 or shutit.action['list_configs'] or shutit.action['list_modules'] or shutit.action['list_deps'] or cfg['build']['loglevel'] == logging.DEBUG:
 		cfg['build']['log_config_path'] = cfg['build']['shutit_state_dir'] + '/config/' + cfg['build']['build_id']
 		if os.path.exists(cfg['build']['log_config_path']):
 			print(cfg['build']['log_config_path'] + ' exists. Please move and re-run.')
@@ -773,10 +776,7 @@ def load_configs():
 	shutit = shutit_global.shutit
 	cfg = shutit.cfg
 	# Get root default config.
-	configs = [('defaults', StringIO.StringIO(_default_cnf)), os.path.join(shutit.shutit_main_dir,
-																		   'configs/' + socket.gethostname() + '_' +
-																		   cfg['host']['real_user'] + '.cnf'),
-			   os.path.join(cfg['shutit_home'], 'config'), 'configs/build.cnf']
+	configs = [('defaults', StringIO.StringIO(_default_cnf)), os.path.join(shutit.shutit_main_dir, 'configs/' + socket.gethostname() + '_' + shutit.host['real_user'] + '.cnf'), os.path.join(cfg['shutit_home'], 'config'), 'configs/build.cnf']
 	# Add the shutit global host- and user-specific config file.
 	# Add the local build.cnf
 	# Get passed-in config(s)
@@ -788,7 +788,7 @@ def load_configs():
 		configs.append(run_config_file)
 	# Image to use to start off. The script should be idempotent, so running it
 	# on an already built image should be ok, and is advised to reduce diff space required.
-	if cfg['build']['interactive'] >= 3 or cfg['action']['list_configs'] or cfg['build']['loglevel'] == logging.DEBUG:
+	if cfg['build']['interactive'] >= 3 or shutit.action['list_configs'] or cfg['build']['loglevel'] == logging.DEBUG:
 		msg = ''
 		for c in configs:
 			if type(c) is tuple:
@@ -798,7 +798,7 @@ def load_configs():
 		if cfg['build']['interactive'] >= 3:
 			print textwrap.dedent("""\n""") + msg + textwrap.dedent(colourise('32', '\n\n[Hit return to continue]'))
 			util_raw_input()
-		if cfg['action']['list_configs'] or cfg['build']['loglevel'] <= logging.DEBUG:
+		if shutit.action['list_configs'] or cfg['build']['loglevel'] <= logging.DEBUG:
 			if cfg['build']['log_config_path']:
 				f = file(cfg['build']['log_config_path'] + '/config_file_order.txt','w')
 				f.write(msg)
@@ -819,7 +819,7 @@ def load_configs():
 		configs.append(('overrides', override_fd))
 
 	cfg_parser = get_configs(configs)
-	get_base_config(cfg, cfg_parser)
+	get_base_config(cfg_parser)
 	if cfg['build']['loglevel'] <= logging.DEBUG:
 		# Set up the manhole.
 		try:
@@ -847,8 +847,8 @@ def load_shutit_modules():
 	cfg = shutit.cfg
 	if cfg['build']['loglevel'] <= logging.DEBUG:
 		shutit.log('ShutIt module paths now: ',level=logging.DEBUG)
-		shutit.log(cfg['host']['shutit_module_path'],level=logging.DEBUG)
-	for shutit_module_path in cfg['host']['shutit_module_path']:
+		shutit.log(shutit.host['shutit_module_path'],level=logging.DEBUG)
+	for shutit_module_path in shutit.host['shutit_module_path']:
 		load_all_from_path(shutit_module_path)
 
 
@@ -1102,7 +1102,8 @@ def build_report(msg=''):
 	"""Resposible for constructing a report to be output as part of the build.
 	Retrurns report as a string.
 	"""
-	cfg = shutit_global.shutit.cfg
+	shutit = shutit_global.shutit
+	cfg = shutit.cfg
 	s = ''
 	s += '################################################################################\n'
 	s += '# COMMAND HISTORY BEGIN ' + cfg['build']['build_id'] + '\n'
@@ -1117,8 +1118,8 @@ def build_report(msg=''):
 	else:
 		s += '# Nothing to report\n'
 
-	if 'container_id' in cfg['target']:
-		s += '# CONTAINER_ID: ' + cfg['target']['container_id'] + '\n'
+	if 'container_id' in shutit.target:
+		s += '# CONTAINER_ID: ' + shutit.target['container_id'] + '\n'
 	s += '# BUILD REPORT FOR BUILD END ' + cfg['build']['build_id'] + '\n'
 	s += '###############################################################################\n'
 	return s
@@ -1164,16 +1165,16 @@ def create_skeleton():
 	#skel_dockerfiles = cfg['skeleton']['dockerfiles']
 	#skel_delivery    = cfg['skeleton']['delivery']
 	# Set up dockerfile cfg
-	cfg['dockerfile']['base_image'] = cfg['skeleton']['base_image']
-	cfg['dockerfile']['cmd']        = """/bin/sh -c 'sleep infinity'"""
-	cfg['dockerfile']['user']       = ''
-	cfg['dockerfile']['maintainer'] = ''
-	cfg['dockerfile']['entrypoint'] = ''
-	cfg['dockerfile']['expose']     = []
-	cfg['dockerfile']['env']        = []
-	cfg['dockerfile']['volume']     = []
-	cfg['dockerfile']['onbuild']    = []
-	cfg['dockerfile']['script']     = []
+	shutit.dockerfile['base_image'] = cfg['skeleton']['base_image']
+	shutit.dockerfile['cmd']        = """/bin/sh -c 'sleep infinity'"""
+	shutit.dockerfile['user']       = ''
+	shutit.dockerfile['maintainer'] = ''
+	shutit.dockerfile['entrypoint'] = ''
+	shutit.dockerfile['expose']     = []
+	shutit.dockerfile['env']        = []
+	shutit.dockerfile['volume']     = []
+	shutit.dockerfile['onbuild']    = []
+	shutit.dockerfile['script']     = []
 
 
 	# Check setup
@@ -1191,18 +1192,18 @@ def create_skeleton():
 
 	# arguments
 	cfg['skeleton']['volumes_arg'] = ''
-	for varg in cfg['dockerfile']['volume']:
+	for varg in shutit.dockerfile['volume']:
 		cfg['skeleton']['volumes_arg'] += ' -v ' + varg + ':' + varg
 	cfg['skeleton']['ports_arg'] = ''
-	if type(cfg['dockerfile']['expose']) == str:
-		for parg in cfg['dockerfile']['expose']:
+	if type(shutit.dockerfile['expose']) == str:
+		for parg in shutit.dockerfile['expose']:
 			cfg['skeleton']['ports_arg'] += ' -p ' + parg + ':' + parg
 	else:
-		for parg in cfg['dockerfile']['expose']:
+		for parg in shutit.dockerfile['expose']:
 			for port in parg.split():
 				cfg['skeleton']['ports_arg'] += ' -p ' + port + ':' + port
 	cfg['skeleton']['env_arg'] = ''
-	for earg in cfg['dockerfile']['env']:
+	for earg in shutit.dockerfile['env']:
 		cfg['skeleton']['env_arg'] += ' -e ' + earg.split()[0] + ':' + earg.split()[1]
 
 	# Create folders and process templates.
@@ -1250,9 +1251,9 @@ def create_skeleton():
 #			shutit.core.module.build:yes
 #			''')
 #		buildcnf += textwrap.dedent('''\
-#			shutit.core.module.allowed_images:["''' + cfg['dockerfile']['base_image'] + '''"]
+#			shutit.core.module.allowed_images:["''' + shutit.dockerfile['base_image'] + '''"]
 #			[build]
-#			base_image:''' + cfg['dockerfile']['base_image'] + '''
+#			base_image:''' + shutit.dockerfile['base_image'] + '''
 #			[target]
 #			volumes:
 #			[repository]
@@ -1327,32 +1328,35 @@ def determine_interactive():
 	Sets interactivity off if appropriate.
 	cf http://stackoverflow.com/questions/24861351/how-to-detect-if-python-script-is-being-run-as-a-background-process
 	"""
+	shutit = shutit_global.shutit
 	try:
 		if not sys.stdout.isatty() or os.getpgrp() != os.tcgetpgrp(sys.stdout.fileno()):
-			if shutit_global.shutit is not None:
+			if shutit is not None:
 				set_noninteractive()
 			return False
 	except Exception:
-		if shutit_global.shutit is not None:
+		if shutit is not None:
 			set_noninteractive(msg='Problems determining interactivity, assuming not.')
 		return False
-	if shutit_global.shutit.cfg['build']['interactive'] == 0:
+	if shutit.cfg['build']['interactive'] == 0:
 		return False
 	return True
 
 
 def set_noninteractive(msg="setting non-interactive"):
-	shutit_global.shutit.log(msg,level=logging.DEBUG)
-	shutit_global.shutit.cfg['build']['interactive'] = 0
+	shutit = shutit_global.shutit
+	shutit.log(msg,level=logging.DEBUG)
+	shutit.cfg['build']['interactive'] = 0
 
 
 def print_stack_trace():
-	shutit_global.shutit.log('================================================================================',transient=True)
-	shutit_global.shutit.log('Strack trace was:\n================================================================================',transient=True)
+	shutit = shutit_global.shutit
+	shutit.log('================================================================================',transient=True)
+	shutit.log('Strack trace was:\n================================================================================',transient=True)
 	import traceback
 	(a,b,c) = sys.exc_info()
 	traceback.print_tb(c)
-	shutit_global.shutit.log('================================================================================',transient=True)
+	shutit.log('================================================================================',transient=True)
 
 
 # get the ordinal for a given char, in a friendly way
@@ -1367,7 +1371,6 @@ def ctrl_quit_signal_handler(_,frame):
 	print 'CRTL-\ caught, hard-exiting ShutIt'
 	shutit_frame = get_shutit_frame(frame)
 	if shutit_frame:
-		shutit = shutit_frame.f_locals['shutit']
 		shutit_main.do_finalize()
 	handle_exit(exit_code=1)
 # CTRL-\ HANDLING CODE ENDS
@@ -1867,6 +1870,7 @@ def allowed_module_ids(rev=False):
 def print_modules():
 	"""Returns a string table representing the modules in the ShutIt module map.
 	"""
+	shutit = shutit_global.shutit
 	cfg = shutit.cfg
 	module_string = ''
 	module_string += 'Modules: \n'
@@ -1987,11 +1991,11 @@ def config_collection_for_built(throw_error=True,silent=False):
 	for module_id in module_ids():
 		if (cfg[module_id]['shutit.core.module.build'] and
 		   (cfg[module_id]['shutit.core.module.allowed_images'] and
-		    cfg['target']['docker_image'] not in cfg[module_id]['shutit.core.module.allowed_images'])):
+		    shutit.target['docker_image'] not in cfg[module_id]['shutit.core.module.allowed_images'])):
 			if not allowed_image(module_id):
 				passed = False
 				if not silent:
-					print('\n\nWARNING!\n\nAllowed images for ' + module_id + ' are: ' + str(cfg[module_id]['shutit.core.module.allowed_images']) + ' but the configured image is: ' + cfg['target']['docker_image'] + '\n\nIs your shutit_module_path set correctly?\n\nIf you want to ignore this, pass in the --ignoreimage flag to shutit.\n\n')
+					print('\n\nWARNING!\n\nAllowed images for ' + module_id + ' are: ' + str(cfg[module_id]['shutit.core.module.allowed_images']) + ' but the configured image is: ' + shutit.target['docker_image'] + '\n\nIs your shutit_module_path set correctly?\n\nIf you want to ignore this, pass in the --ignoreimage flag to shutit.\n\n')
 	if not passed:
 		if not throw_error:
 			return False
@@ -2008,7 +2012,7 @@ def determine_compatibility(module_id):
 	shutit = shutit_global.shutit
 	cfg = shutit.cfg
 	# Allowed images
-	if (cfg[module_id]['shutit.core.module.allowed_images'] and cfg['target']['docker_image'] not in cfg[module_id]['shutit.core.module.allowed_images']) and not allowed_image(module_id):
+	if (cfg[module_id]['shutit.core.module.allowed_images'] and shutit.target['docker_image'] not in cfg[module_id]['shutit.core.module.allowed_images']) and not allowed_image(module_id):
 			return 1
 	# Build methods
 	if cfg[module_id]['shutit.core.module.build'] and cfg['build']['delivery'] not in shutit.shutit_map[module_id].ok_delivery_methods:
@@ -2022,18 +2026,18 @@ def is_installed(shutit_module_obj):
 	"""
 	shutit = shutit_global.shutit
 	# Cache first
-	if shutit_module_obj.module_id in shutit_global.shutit.get_current_shutit_pexpect_session_environment().modules_installed:
+	if shutit_module_obj.module_id in shutit.get_current_shutit_pexpect_session_environment().modules_installed:
 		return True
-	if shutit_module_obj.module_id in shutit_global.shutit.get_current_shutit_pexpect_session_environment().modules_not_installed:
+	if shutit_module_obj.module_id in shutit.get_current_shutit_pexpect_session_environment().modules_not_installed:
 		return False
 	# Is it installed?
 	if shutit_module_obj.is_installed(shutit):
-		shutit_global.shutit.get_current_shutit_pexpect_session_environment().modules_installed.append(shutit_module_obj.module_id)
+		shutit.get_current_shutit_pexpect_session_environment().modules_installed.append(shutit_module_obj.module_id)
 		return True
 	# If not installed, and not in cache, add it.
 	else:
-		if shutit_module_obj.module_id not in shutit_global.shutit.get_current_shutit_pexpect_session_environment().modules_not_installed:
-			shutit_global.shutit.get_current_shutit_pexpect_session_environment().modules_not_installed.append(shutit_module_obj.module_id)
+		if shutit_module_obj.module_id not in shutit.get_current_shutit_pexpect_session_environment().modules_not_installed:
+			shutit.get_current_shutit_pexpect_session_environment().modules_not_installed.append(shutit_module_obj.module_id)
 		return False
 
 
@@ -2052,7 +2056,7 @@ def allowed_image(module_id):
 		for regexp in cfg[module_id]['shutit.core.module.allowed_images']:
 			if not check_regexp(regexp):
 				shutit.fail('Illegal regexp found in allowed_images: ' + regexp)
-			if re.match('^' + regexp + '$', cfg['target']['docker_image']):
+			if re.match('^' + regexp + '$', shutit.target['docker_image']):
 				return True
 	return False
 
@@ -2103,6 +2107,7 @@ def match_string(string_to_match, regexp):
 	Returns True if there are no groups selected in the regexp.
 	else returns matching group (ie non-None)
 	"""
+	shutit = shutit_global.shutit
 	if type(string_to_match) != str:
 		return None
 	lines = string_to_match.split('\r\n')
@@ -2115,7 +2120,7 @@ def match_string(string_to_match, regexp):
 		new_lines = new_lines + line.split('\n')
 	lines = new_lines
 	if not check_regexp(regexp):
-		shutit_global.shutit.fail('Illegal regexp found in match_string call: ' + regexp)
+		shutit.fail('Illegal regexp found in match_string call: ' + regexp)
 	for line in lines:
 		match = re.match(regexp, line)
 		if match is not None:
@@ -2138,12 +2143,13 @@ def get_input(msg, default='', valid=[], boolean=False, ispass=False, colour='32
 	@param boolean:   whether return value should be boolean
 	@param ispass:    True if this is a password (ie whether to not echo input)
 	"""
+	shutit = shutit_global.shutit
 	if boolean and valid == []:
 		valid = ('yes','y','Y','1','true','no','n','N','0','false')
 	answer = util_raw_input(prompt=colourise(colour,msg),ispass=ispass)
 	if valid != []:
 		while answer not in valid:
-			shutit_global.shutit.log('Answer must be one of: ' + str(valid),transient=True)
+			shutit.log('Answer must be one of: ' + str(valid),transient=True)
 			answer = util_raw_input(prompt=colourise(colour,msg),ispass=ispass)
 	if boolean and answer in ('yes','y','Y','1','true'):
 		return True
@@ -2166,8 +2172,9 @@ def get_send_command(send):
 
 
 def get_command(command):
+	shutit = shutit_global.shutit
 	if command in ('head','md5sum'):
-		if shutit_global.shutit.get_current_shutit_pexpect_session_environment().distro == 'osx':
+		if shutit.get_current_shutit_pexpect_session_environment().distro == 'osx':
 			return '''PATH="/usr/local/opt/coreutils/libexec/gnubin:$PATH" ''' + command + ' '
 		else:
 			return command + ' '

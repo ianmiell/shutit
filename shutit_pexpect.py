@@ -59,8 +59,9 @@ class ShutItPexpectSession(object):
 	             delaybeforesend=0):
 		"""spawn a child, and manage the delaybefore send setting to 0
 		"""
+		shutit = shutit_global.shutit
 		self.check_exit          = True
-		self.default_expect      = [shutit_global.shutit.cfg['expect_prompts']['base_prompt']]
+		self.default_expect      = [shutit.expect_prompts['base_prompt']]
 		self.pexpect_session_id  = pexpect_session_id
 		self.login_stack         = []
 		self.current_environment = None
@@ -97,6 +98,7 @@ class ShutItPexpectSession(object):
 					delaybeforesend=0):
 		"""spawn a child, and manage the delaybefore send setting to 0
 		"""
+		shutit = shutit_global.shutit
 		pexpect_child = pexpect.spawn(command,
 		                              args=args,
 		                              timeout=timeout,
@@ -111,9 +113,9 @@ class ShutItPexpectSession(object):
 		                              codec_errors=codec_errors,
 		                              dimensions=dimensions)
 		pexpect_child.delaybeforesend=delaybeforesend
-		shutit_global.shutit.log('sessions before: ' + str(shutit_global.shutit.shutit_pexpect_sessions),level=logging.DEBUG)
-		shutit_global.shutit.shutit_pexpect_sessions.update({self.pexpect_session_id:self})
-		shutit_global.shutit.log('sessions after: ' + str(shutit_global.shutit.shutit_pexpect_sessions),level=logging.DEBUG)
+		shutit.log('sessions before: ' + str(shutit.shutit_pexpect_sessions),level=logging.DEBUG)
+		shutit.shutit_pexpect_sessions.update({self.pexpect_session_id:self})
+		shutit.log('sessions after: ' + str(shutit.shutit_pexpect_sessions),level=logging.DEBUG)
 		return pexpect_child
 
 
@@ -153,13 +155,14 @@ class ShutItPexpectSession(object):
 		@type timeout:        integer
 		"""
 		# We don't get the default expect here, as it's either passed in, or a base default regexp.
+		shutit = shutit_global.shutit
 		r_id = shutit_util.random_id()
 		if prompt_prefix == None:
 			prompt_prefix = r_id
-		cfg = shutit_global.shutit.cfg
+		cfg = shutit.cfg
 		# Be helpful.
 		if ' ' in user:
-			shutit_global.shutit.fail('user has space in it - did you mean: login(command="' + user + '")?')
+			shutit.fail('user has space in it - did you mean: login(command="' + user + '")?')
 		if cfg['build']['delivery'] == 'bash' and command == 'su -':
 			# We want to retain the current working directory
 			command = 'su'
@@ -168,7 +171,7 @@ class ShutItPexpectSession(object):
 		else:
 			send = command
 		if expect == None:
-			login_expect = cfg['expect_prompts']['base_prompt']
+			login_expect = shutit.expect_prompts['base_prompt']
 		else:
 			login_expect = expect
 		# We don't fail on empty before as many login programs mess with the output.
@@ -181,8 +184,8 @@ class ShutItPexpectSession(object):
 			general_expect = general_expect + [user+'@']
 			general_expect = general_expect + ['.*[@#$]']
 		if user == 'bash' and command == 'su -':
-			shutit_global.shutit.log('WARNING! user is bash - if you see problems below, did you mean: login(command="' + user + '")?',level=loglevel.WARNING)
-		shutit_global.shutit._handle_note(note,command=command + ', as user: "' + user + '"',training_input=send)
+			shutit.log('WARNING! user is bash - if you see problems below, did you mean: login(command="' + user + '")?',level=loglevel.WARNING)
+		shutit._handle_note(note,command=command + ', as user: "' + user + '"',training_input=send)
 		# r'[^t] login:' - be sure not to match 'last login:'
 		self.multisend(send,{'ontinue connecting':'yes','assword':password,r'[^t] login:':password},expect=general_expect,check_exit=False,timeout=timeout,fail_on_empty_before=False,escape=escape)
 		if prompt_prefix != None:
@@ -192,7 +195,7 @@ class ShutItPexpectSession(object):
 		if go_home:
 			self.send('cd',check_exit=False, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
 		self.login_stack_append(r_id)
-		shutit_global.shutit._handle_note_after(note=note)
+		shutit._handle_note_after(note=note)
 		return True
 
 
@@ -211,23 +214,24 @@ class ShutItPexpectSession(object):
 			@param command:		 Command to run to log out (default=exit)
 			@param note:			See send()
 		"""
-		shutit_global.shutit._handle_note(note,training_input=command)
+		shutit = shutit_global.shutit
+		shutit._handle_note(note,training_input=command)
 		if len(self.login_stack):
 			_ = self.login_stack.pop()
 			if len(self.login_stack):
 				old_prompt_name	 = self.login_stack[-1]
 				# TODO: sort out global expect_prompts
-				self.default_expect = shutit_global.shutit.cfg['expect_prompts'][old_prompt_name]
+				self.default_expect = shutit.expect_prompts[old_prompt_name]
 			else:
 				# If none are on the stack, we assume we're going to the root prompt
 				# set up in shutit_setup.py
-				shutit_global.shutit.set_default_shutit_pexpect_session_expect()
+				shutit.set_default_shutit_pexpect_session_expect()
 		else:
-			shutit_global.shutit.fail('Logout called without corresponding login', throw_exception=False)
+			shutit.fail('Logout called without corresponding login', throw_exception=False)
 		# No point in checking exit here, the exit code will be
 		# from the previous command from the logged in session
 		self.send(command, expect=expect, check_exit=False, timeout=timeout,echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
-		shutit_global.shutit._handle_note_after(note=note)
+		shutit._handle_note_after(note=note)
 
 
 	def login_stack_append(self,
@@ -250,7 +254,7 @@ class ShutItPexpectSession(object):
 		
 		Typically it would be used in this boilerplate pattern::
 		
-		    shutit.send('su - auser', expect=shutit_global.shutit.cfg['expect_prompts']['base_prompt'], check_exit=False)
+		    shutit.send('su - auser', expect=shutit.expect_prompts['base_prompt'], check_exit=False)
 		    shutit.setup_prompt('tmp_prompt')
 		    shutit.send('some command')
 		    [...]
@@ -266,9 +270,10 @@ class ShutItPexpectSession(object):
 		@type prompt_name:          string
 		@type prefix:               string
 		"""
+		shutit = shutit_global.shutit
+		cfg = shutit.cfg
 		local_prompt = prefix + '#' + shutit_util.random_id() + '> '
-		cfg = shutit_global.shutit.cfg
-		cfg['expect_prompts'][prompt_name] = local_prompt
+		shutit.expect_prompts[prompt_name] = local_prompt
 		# Set up the PS1 value.
 		# Unset the PROMPT_COMMAND as this can cause nasty surprises in the output.
 		# Set the cols value, as unpleasant escapes are put in the output if the
@@ -276,9 +281,9 @@ class ShutItPexpectSession(object):
 		# The newline in the expect list is a hack. On my work laptop this line hangs
 		# and times out very frequently. This workaround seems to work, but I
 		# haven't figured out why yet - imiell.
-		self.send((" export SHUTIT_BACKUP_PS1_%s=$PS1 && PS1='%s' && unset PROMPT_COMMAND && stty sane && stty cols " + str(cfg['build']['stty_cols'])) % (prompt_name, local_prompt) + ' && export HISTCONTROL=$HISTCONTROL:ignoredups:ignorespace', expect=['\r\n' + cfg['expect_prompts'][prompt_name]], fail_on_empty_before=False, timeout=5, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
-		shutit_global.shutit.log('Resetting default expect to: ' + cfg['expect_prompts'][prompt_name],level=logging.DEBUG)
-		self.default_expect = cfg['expect_prompts'][prompt_name]
+		self.send((" export SHUTIT_BACKUP_PS1_%s=$PS1 && PS1='%s' && unset PROMPT_COMMAND && stty sane && stty cols " + str(cfg['build']['stty_cols'])) % (prompt_name, local_prompt) + ' && export HISTCONTROL=$HISTCONTROL:ignoredups:ignorespace', expect=['\r\n' + shutit.expect_prompts[prompt_name]], fail_on_empty_before=False, timeout=5, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
+		shutit.log('Resetting default expect to: ' + shutit.expect_prompts[prompt_name],level=logging.DEBUG)
+		self.default_expect = shutit.expect_prompts[prompt_name]
 		# Ensure environment is set up OK.
 		_ = self.init_pexpect_session_environment(prefix)
 		return True
@@ -297,12 +302,13 @@ class ShutItPexpectSession(object):
 		    - new_expect      -
 		    - child           - See send()
 		"""
+		shutit = shutit_global.shutit
 		expect = new_expect or self.default_expect
 		#     v the space is intentional, to avoid polluting bash history.
 		self.send((' PS1="${SHUTIT_BACKUP_PS1_%s}" && unset SHUTIT_BACKUP_PS1_%s') % (old_prompt_name, old_prompt_name), expect=expect, check_exit=False, fail_on_empty_before=False, echo=False, loglevel=logging.DEBUG,delaybeforesend=delaybeforesend)
 		if not new_expect:
-			shutit_global.shutit.log('Resetting default expect to default',level=logging.DEBUG)
-			shutit_global.shutit.set_default_shutit_pexpect_session_expect()
+			shutit.log('Resetting default expect to default',level=logging.DEBUG)
+			shutit.set_default_shutit_pexpect_session_expect()
 		_ = self.init_pexpect_session_environment(old_prompt_name)
 
 
@@ -333,24 +339,25 @@ class ShutItPexpectSession(object):
 	                      new_target_image_name):
 		"""Replaces a container. Assumes we are in Docker context
 		"""
-		cfg = shutit_global.shutit.cfg
-		shutit_global.shutit.log('Replacing container, please wait...',level=logging.INFO)
+		shutit = shutit_global.shutit
+		cfg = shutit.cfg
+		shutit.log('Replacing container, please wait...',level=logging.INFO)
 
 		# Destroy existing container.
 		conn_module = None
-		for mod in shutit_global.shutit.conn_modules:
+		for mod in shutit.conn_modules:
 			if mod.module_id == cfg['build']['conn_module']:
 				conn_module = mod
 				break
 		if conn_module is None:
-			shutit_global.shutit.fail('''Couldn't find conn_module ''' + cfg['build']['conn_module'])
-		container_id = cfg['target']['container_id']
-		conn_module.destroy_container(shutit_global.shutit, 'host_child', 'target_child', container_id)
+			shutit.fail('''Couldn't find conn_module ''' + cfg['build']['conn_module'])
+		container_id = shutit.target['container_id']
+		conn_module.destroy_container(shutit, 'host_child', 'target_child', container_id)
 		
 		# Start up a new container.
-		cfg['target']['docker_image'] = new_target_image_name
-		target_child = conn_module.start_container(shutit_global.shutit,self.pexpect_session_id)
-		conn_module.setup_target_child(shutit_global.shutit, target_child)
+		shutit.target['docker_image'] = new_target_image_name
+		target_child = conn_module.start_container(shutit,self.pexpect_session_id)
+		conn_module.setup_target_child(shutit, target_child)
 		return True
 
 
@@ -365,9 +372,10 @@ class ShutItPexpectSession(object):
 		@return: the output of "whoami"
 		@rtype: string
 		"""
-		shutit_global.shutit._handle_note(note)
+		shutit = shutit_global.shutit
+		shutit._handle_note(note)
 		res = self.send_and_get_output(' whoami',echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend).strip()
-		shutit_global.shutit._handle_note_after(note=note)
+		shutit._handle_note_after(note=note)
 		return res
 
 
@@ -382,8 +390,9 @@ class ShutItPexpectSession(object):
 #		Returns the environment id every time.
 #		"""
 #		# Set this to be the default session.
-#		shutit_global.shutit.set_default_shutit_pexpect_session(self)
-#		cfg = shutit_global.shutit.cfg
+#		shutit = shutit_global.shutit
+#		shutit.set_default_shutit_pexpect_session(self)
+#		cfg = shutit.cfg
 #		environment_id_dir = cfg['build']['shutit_state_dir'] + '/environment_id'
 #		if self.file_exists(environment_id_dir,directory=True):
 #			files = self.ls(environment_id_dir)
@@ -405,7 +414,7 @@ class ShutItPexpectSession(object):
 #					if self.file_exists('/cygdrive'):
 #						cfg['build']['current_environment_id'] = 'ORIGIN_ENV'
 #					else:
-#						shutit_global.shutit.fail('Wrong number of files in environment_id_dir: ' + environment_id_dir)
+#						shutit.fail('Wrong number of files in environment_id_dir: ' + environment_id_dir)
 #			else:
 #				if self.file_exists('/cygdrive'):
 #					environment_id = 'ORIGIN_ENV'
@@ -471,10 +480,11 @@ class ShutItPexpectSession(object):
 	                           retbool=False):
 		"""Internal function to check the exit value of the shell. Do not use.
 		"""
-		cfg = shutit_global.shutit.cfg
+		shutit = shutit_global.shutit
+		cfg = shutit.cfg
 		expect = expect or self.default_expect
 		if not self.check_exit:
-			shutit_global.shutit.log('check_exit configured off, returning', level=logging.DEBUG)
+			shutit.log('check_exit configured off, returning', level=logging.DEBUG)
 			return True
 		if exit_values is None:
 			exit_values = ['0']
@@ -489,17 +499,17 @@ class ShutItPexpectSession(object):
 		if res not in exit_values or res == None:
 			if res == None:
 				res = str(res)
-			shutit_global.shutit.log('shutit_pexpect_child.after: ' + str(self.pexpect_child.after), level=logging.DEBUG)
-			shutit_global.shutit.log('Exit value from command: ' + str(send) + ' was:' + res, level=logging.DEBUG)
+			shutit.log('shutit_pexpect_child.after: ' + str(self.pexpect_child.after), level=logging.DEBUG)
+			shutit.log('Exit value from command: ' + str(send) + ' was:' + res, level=logging.DEBUG)
 			msg = ('\nWARNING: command:\n' + send + '\nreturned unaccepted exit code: ' + res + '\nIf this is expected, pass in check_exit=False or an exit_values array into the send function call.')
 			cfg['build']['report'] += msg
 			if retbool:
 				return False
 			elif cfg['build']['interactive'] >= 1:
 				# This is a failure, so we pass in level=0
-				shutit_global.shutit.pause_point(msg + '\n\nInteractive, so not retrying.\nPause point on exit_code != 0 (' + res + '). CTRL-C to quit', shutit_pexpect_child=self.pexpect_child, level=0)
+				shutit.pause_point(msg + '\n\nInteractive, so not retrying.\nPause point on exit_code != 0 (' + res + '). CTRL-C to quit', shutit_pexpect_child=self.pexpect_child, level=0)
 			elif retry == 1:
-				shutit_global.shutit.fail('Exit value from command\n' + send + '\nwas:\n' + res, throw_exception=False)
+				shutit.fail('Exit value from command\n' + send + '\nwas:\n' + res, throw_exception=False)
 			else:
 				return False
 		return True
@@ -537,7 +547,8 @@ class ShutItPexpectSession(object):
 
 		@return:             True if pause point handled ok, else false
 		"""
-		cfg = shutit_global.shutit.cfg
+		shutit = shutit_global.shutit
+		cfg = shutit.cfg
 		if print_input:
 			if resize:
 				fixterm_filename = '/tmp/shutit_fixterm'
@@ -550,11 +561,11 @@ class ShutItPexpectSession(object):
 					pp_msg = '\r\nYou now have a standard shell. Hit CTRL and then ] at the same to continue ShutIt run.'
 					if cfg['build']['delivery'] == 'docker':
 						pp_msg += '\r\nHit CTRL and u to save the state to a docker image'
-					shutit_global.shutit.log('\r\n' + 80*'=' + '\r\n' + shutit_util.colourise(colour,msg) +'\r\n'+80*'='+'\r\n' + shutit_util.colourise(colour,pp_msg),transient=True)
+					shutit.log('\r\n' + 80*'=' + '\r\n' + shutit_util.colourise(colour,msg) +'\r\n'+80*'='+'\r\n' + shutit_util.colourise(colour,pp_msg),transient=True)
 				else:
-					shutit_global.shutit.log('\r\n' + (shutit_util.colourise(colour, msg)),transient=True)
+					shutit.log('\r\n' + (shutit_util.colourise(colour, msg)),transient=True)
 			else:
-				shutit_global.shutit.log(shutit_util.colourise(colour, msg) + '\r\n' + default_msg + '\r\n',transient=True)
+				shutit.log(shutit_util.colourise(colour, msg) + '\r\n' + default_msg + '\r\n',transient=True)
 			oldlog = self.pexpect_child.logfile_send
 			self.pexpect_child.logfile_send = None
 			if wait < 0:
@@ -562,7 +573,7 @@ class ShutItPexpectSession(object):
 					self.pexpect_child.interact(input_filter=self._pause_input_filter)
 					self.handle_pause_point_signals()
 				except Exception as e:
-					shutit_global.shutit.fail('Terminating ShutIt.\n' + str(e))
+					shutit.fail('Terminating ShutIt.\n' + str(e))
 			else:
 				time.sleep(wait)
 			self.pexpect_child.logfile_send = oldlog
@@ -573,53 +584,54 @@ class ShutItPexpectSession(object):
 
 
 	def _pause_input_filter(self, input_string):
+		
+		shutit = shutit_global.shutit
 		"""Input filter for pause point to catch special keystrokes"""
 		# Can get errors with eg up/down chars
-		cfg = shutit_global.shutit.cfg
+		cfg = shutit.cfg
 		if len(input_string) == 1:
 			# Picked CTRL-u as the rarest one accepted by terminals.
 			if ord(input_string) == 21 and cfg['build']['delivery'] == 'docker':
-				shutit_global.shutit.log('CTRL and u caught, forcing a tag at least',level=logging.INFO)
-				shutit_global.shutit.do_repository_work('tagged_by_shutit', password=cfg['host']['password'], docker_executable=cfg['host']['docker_executable'], force=True)
-				shutit_global.shutit.log('Commit and tag done. Hit CTRL and ] to continue with build. Hit return for a prompt.',level=logging.INFO)
+				shutit.log('CTRL and u caught, forcing a tag at least',level=logging.INFO)
+				shutit.do_repository_work('tagged_by_shutit', password=shutit.host['password'], docker_executable=shutit.host['docker_executable'], force=True)
+				shutit.log('Commit and tag done. Hit CTRL and ] to continue with build. Hit return for a prompt.',level=logging.INFO)
 			# CTRL-d
 			elif ord(input_string) == 4:
-				cfg['SHUTIT_SIGNAL']['ID'] = 0
-				cfg['SHUTIT_SIGNAL']['ID'] = 4
+				shutit.shutit_signal['ID'] = 4
 				if shutit_util.get_input('CTRL-d caught, are you sure you want to quit this ShutIt run?\n\r=> ',default='n',boolean=True):
-					shutit_global.shutit.fail('CTRL-d caught, quitting')
+					shutit.fail('CTRL-d caught, quitting')
 				if shutit_util.get_input('Do you want to pass through the CTRL-d to the ShutIt session?\n\r=> ',default='n',boolean=True):
 					return '\x04'
 				# Return nothing
 				return ''
 			# CTRL-h
 			elif ord(input_string) == 8:
-				cfg['SHUTIT_SIGNAL']['ID'] = 8
+				shutit.shutit_signal['ID'] = 8
 				# Return the escape from pexpect char
 				return '\x1d'
 			# CTRL-g
 			elif ord(input_string) == 7:
-				cfg['SHUTIT_SIGNAL']['ID'] = 7
+				shutit.shutit_signal['ID'] = 7
 				# Return the escape from pexpect char
 				return '\x1d'
 			# CTRL-s
 			elif ord(input_string) == 19:
-				cfg['SHUTIT_SIGNAL']['ID'] = 19
+				shutit.shutit_signal['ID'] = 19
 				# Return the escape from pexpect char
 				return '\x1d'
 			# CTRL-]
 			elif ord(input_string) == 29:
-				cfg['SHUTIT_SIGNAL']['ID'] = 29
+				shutit.shutit_signal['ID'] = 29
 				# Return the escape from pexpect char
 				return '\x1d'
 		return input_string
 
 
 	def handle_pause_point_signals(self):
-		cfg = shutit_global.shutit.cfg
-		if cfg['SHUTIT_SIGNAL']['ID'] == 29:
-			cfg['SHUTIT_SIGNAL']['ID'] = 0
-			shutit_global.shutit.log('\r\nCTRL-] caught, continuing with run...',level=logging.INFO,transient=True)
+		shutit = shutit_global.shutit
+		if shutit.shutit_signal['ID'] == 29:
+			shutit.shutit_signal['ID'] = 0
+			shutit.log('\r\nCTRL-] caught, continuing with run...',level=logging.INFO,transient=True)
 		return True
 
 
@@ -640,7 +652,8 @@ class ShutItPexpectSession(object):
 
 		@rtype: boolean
 		"""
-		shutit_global.shutit._handle_note(note, 'Looking for filename in current environment: ' + filename)
+		shutit = shutit_global.shutit
+		shutit._handle_note(note, 'Looking for filename in current environment: ' + filename)
 		test_type = '-d' if directory is True else '-a'
 		#       v the space is intentional, to avoid polluting bash history.
 		test = ' test %s %s' % (test_type, filename)
@@ -653,9 +666,9 @@ class ShutItPexpectSession(object):
 			pass
 		else:
 			# Change to log?
-			shutit_global.shutit.log(repr('before>>>>:%s<<<< after:>>>>%s<<<<' % (self.pexpect_child.before, self.pexpect_child.after)),transient=True)
-			shutit_global.shutit.fail('Did not see FIL(N)?EXIST in output:\n' + output)
-		shutit_global.shutit._handle_note_after(note=note)
+			shutit.log(repr('before>>>>:%s<<<< after:>>>>%s<<<<' % (self.pexpect_child.before, self.pexpect_child.after)),transient=True)
+			shutit.fail('Did not see FIL(N)?EXIST in output:\n' + output)
+		shutit._handle_note_after(note=note)
 		return ret
 
 
@@ -671,16 +684,17 @@ class ShutItPexpectSession(object):
 		@param timeout:       Timeout on response
 		@param note:          See send()
 		"""
-		cfg = shutit_global.shutit.cfg
-		shutit_global.shutit._handle_note(note, 'Changing to path: ' + path)
-		shutit_global.shutit.log('Changing directory to path: "' + path + '"', level=logging.DEBUG)
+		shutit = shutit_global.shutit
+		cfg = shutit.cfg
+		shutit._handle_note(note, 'Changing to path: ' + path)
+		shutit.log('Changing directory to path: "' + path + '"', level=logging.DEBUG)
 		if cfg['build']['delivery'] in ('bash','dockerfile'):
 			self.send(' cd ' + path, timeout=timeout, echo=False,loglevel=loglevel, delaybeforesend=delaybeforesend)
 		elif cfg['build']['delivery'] in ('docker','ssh'):
 			os.chdir(path)
 		else:
-			shutit_global.shutit.fail('chdir not supported for delivery method: ' + cfg['build']['delivery'])
-		shutit_global.shutit._handle_note_after(note=note)
+			shutit.fail('chdir not supported for delivery method: ' + cfg['build']['delivery'])
+		shutit._handle_note_after(note=note)
 		return True
 
 
@@ -700,11 +714,12 @@ class ShutItPexpectSession(object):
 
 		@rtype:           string
 		"""
-		shutit_global.shutit._handle_note(note)
+		shutit = shutit_global.shutit
+		shutit._handle_note(note)
 		cmd = 'stat -c %a ' + filename
 		self.send(' ' + cmd, check_exit=False, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
 		res = shutit_util.match_string(self.pexpect_child.before, '([0-9][0-9][0-9])')
-		shutit_global.shutit._handle_note_after(note=note)
+		shutit._handle_note_after(note=note)
 		return res
 
 
@@ -722,11 +737,12 @@ class ShutItPexpectSession(object):
 
 		@return:              See add_line_to_file()
 		"""
-		shutit_global.shutit._handle_note(note)
+		shutit = shutit_global.shutit
+		shutit._handle_note(note)
 		if not shutit_util.check_regexp(match_regexp):
-			shutit_global.shutit.fail('Illegal regexp found in add_to_bashrc call: ' + match_regexp)
-		shutit_global.shutit.add_line_to_file(line, '${HOME}/.bashrc', match_regexp=match_regexp, loglevel=loglevel) # This won't work for root - TODO
-		shutit_global.shutit.add_line_to_file(line, '/etc/bash.bashrc', match_regexp=match_regexp, loglevel=loglevel)
+			shutit.fail('Illegal regexp found in add_to_bashrc call: ' + match_regexp)
+		shutit.add_line_to_file(line, '${HOME}/.bashrc', match_regexp=match_regexp, loglevel=loglevel) # This won't work for root - TODO
+		shutit.add_line_to_file(line, '/etc/bash.bashrc', match_regexp=match_regexp, loglevel=loglevel)
 		return True
 
 
@@ -746,10 +762,11 @@ class ShutItPexpectSession(object):
 		@rtype:          boolean
 		@return:         True is the specified user id is not used yet, False if it's already been assigned to a user.
 		"""
-		shutit_global.shutit._handle_note(note)
+		shutit = shutit_global.shutit
+		shutit._handle_note(note)
 		# v the space is intentional, to avoid polluting bash history.
 		self.send(' cut -d: -f3 /etc/paswd | grep -w ^' + user_id + '$ | wc -l', expect=self.default_expect, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
-		shutit_global.shutit._handle_note_after(note=note)
+		shutit._handle_note_after(note=note)
 		if shutit_util.match_string(self.pexpect_child.before, '^([0-9]+)$') == '1':
 			return False
 		else:
@@ -770,8 +787,8 @@ class ShutItPexpectSession(object):
 		@param password:    password to set for the user
 		@param note:        See send()
 		"""
-
-		shutit_global.shutit._handle_note(note)
+		shutit = shutit_global.shutit
+		shutit._handle_note(note)
 		self.install('passwd')
 		if self.current_environment.install_type == 'apt':
 			self.send('passwd ' + user, expect='Enter new', check_exit=False, delaybeforesend=delaybeforesend)
@@ -785,7 +802,7 @@ class ShutItPexpectSession(object):
 			self.send('passwd ' + user, expect='Enter new', check_exit=False, delaybeforesend=delaybeforesend)
 			self.send(password, expect='Retype new', check_exit=False, echo=False, delaybeforesend=delaybeforesend)
 			self.send(password, expect=self.default_expect, echo=False, delaybeforesend=delaybeforesend)
-		shutit_global.shutit._handle_note_after(note=note)
+		shutit._handle_note_after(note=note)
 		return True
 
 
@@ -843,7 +860,8 @@ class ShutItPexpectSession(object):
 		@return: True if the download was completed successfully, False otherwise.
 		@rtype: boolean
 		"""
-		shutit_global.shutit._handle_note(note)
+		shutit = shutit_global.shutit
+		shutit._handle_note(note)
 		if len(locations) == 0 or type(locations) != list:
 			raise ShutItFailException('Locations should be a list containing base of the url.')
 		retry_orig = retry
@@ -853,7 +871,7 @@ class ShutItPexpectSession(object):
 				self.install('wget')
 				command = 'wget -qO- '
 				if not self.command_available('wget'):
-					shutit_global.shutit.fail('Could not install curl or wget, inform maintainers.')
+					shutit.fail('Could not install curl or wget, inform maintainers.')
 		for location in locations:
 			retry = retry_orig
 			if location[-1] == '/':
@@ -864,11 +882,11 @@ class ShutItPexpectSession(object):
 				if retry == 0:
 					self.check_last_exit_values(send, self.default_expect, timeout, exit_values, retbool=False)
 				elif not self.check_last_exit_values(send, self.default_expect, timeout, exit_values, retbool=True):
-					shutit_global.shutit.log('Sending: ' + send + ' failed, retrying', level=logging.DEBUG)
+					shutit.log('Sending: ' + send + ' failed, retrying', level=logging.DEBUG)
 					retry -= 1
 					continue
 				# If we get here, all is ok.
-				shutit_global.shutit._handle_note_after(note=note)
+				shutit._handle_note_after(note=note)
 				return True
 		# If we get here, it didn't work
 		return False
@@ -889,7 +907,8 @@ class ShutItPexpectSession(object):
 
 		@rtype:        boolean
 		"""
-		shutit_global.shutit._handle_note(note)
+		shutit = shutit_global.shutit
+		shutit._handle_note(note)
 		exists = False
 		if user == '':
 			return exists
@@ -899,7 +918,7 @@ class ShutItPexpectSession(object):
 			exists = True
 		# sync with the prompt
 		self.expect(self.default_expect)
-		shutit_global.shutit._handle_note_after(note=note)
+		shutit._handle_note_after(note=note)
 		return exists
 
 
@@ -915,7 +934,8 @@ class ShutItPexpectSession(object):
 
 		@rtype:           boolean
 		"""
-		shutit_global.shutit._handle_note(note)
+		shutit = shutit_global.shutit
+		shutit._handle_note(note)
 		if self.current_environment.install_type == 'apt':
 			#            v the space is intentional, to avoid polluting bash history.
 			self.send(""" dpkg -l | awk '{print $2}' | grep "^""" + package + """$" | wc -l""", expect=self.default_expect, check_exit=False, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
@@ -936,7 +956,8 @@ class ShutItPexpectSession(object):
 	                      note=None,
 	                      delaybeforesend=0,
 	                      loglevel=logging.DEBUG):
-		shutit_global.shutit._handle_note(note)
+		shutit = shutit_global.shutit
+		shutit._handle_note(note)
 		if self.send_and_get_output(' command -v ' + command, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend) != '':
 			return True
 		else:
@@ -956,8 +977,9 @@ class ShutItPexpectSession(object):
 		"""
 		# If it's already in cache, then return True.
 		# By default the cache is invalidated.
-		cfg = shutit_global.shutit.cfg
-		shutit_global.shutit._handle_note(note)
+		shutit = shutit_global.shutit
+		cfg = shutit.cfg
+		shutit._handle_note(note)
 		if not self.current_environment.modules_recorded_cache_valid:
 			if self.file_exists(cfg['build']['build_db_dir'] + '/module_record',directory=True):
 				# Bit of a hack here to get round the long command showing up as the first line of the output.
@@ -970,7 +992,7 @@ class ShutItPexpectSession(object):
 			# Either there was no directory (so the cache is valid), or we've built the cache, so mark as good.
 			self.current_environment.modules_recorded_cache_valid = True
 		# Modules recorded cache will be valid at this point, so check the pre-recorded modules and the in-this-run installed cache.
-		shutit_global.shutit._handle_note_after(note=note)
+		shutit._handle_note_after(note=note)
 		if module_id in self.current_environment.modules_recorded or module_id in self.current_environment.modules_installed:
 			return True
 		else:
@@ -991,10 +1013,11 @@ class ShutItPexpectSession(object):
 
 		@rtype:             list of strings
 		"""
+		shutit = shutit_global.shutit
 		# should this blow up?
-		shutit_global.shutit._handle_note(note)
+		shutit._handle_note(note)
 		if not self.file_exists(directory,directory=True):
-			shutit_global.shutit.fail('ls: directory\n\n' + directory + '\n\ndoes not exist', throw_exception=False)
+			shutit.fail('ls: directory\n\n' + directory + '\n\ndoes not exist', throw_exception=False)
 		files = self.send_and_get_output(' ls ' + directory,echo=False, loglevel=loglevel, fail_on_empty_before=False, delaybeforesend=delaybeforesend)
 		files = files.split(' ')
 		# cleanout garbage from the terminal - all of this is necessary cause there are
@@ -1008,7 +1031,7 @@ class ShutItPexpectSession(object):
 		files = f
 		# this is required again to remove the '\n's
 		files = [_file.strip() for _file in files]
-		shutit_global.shutit._handle_note_after(note=note)
+		shutit._handle_note_after(note=note)
 		return files
 
 
@@ -1044,7 +1067,8 @@ class ShutItPexpectSession(object):
 		@return: True if all ok (ie it's installed), else False.
 		@rtype: boolean
 		"""
-		cfg = shutit_global.shutit.cfg
+		shutit = shutit_global.shutit
+		cfg = shutit.cfg
 		# If separated by spaces, install separately
 		if package.find(' ') != -1:
 			ok = True
@@ -1053,8 +1077,8 @@ class ShutItPexpectSession(object):
 					ok = False
 			return ok
 		# Some packages get mapped to the empty string. If so, bail out with 'success' here.
-		shutit_global.shutit._handle_note(note)
-		shutit_global.shutit.log('Installing package: ' + package,level=loglevel)
+		shutit._handle_note(note)
+		shutit.log('Installing package: ' + package,level=loglevel)
 		if options is None: options = {}
 		install_type = self.current_environment.install_type
 		if install_type == 'src':
@@ -1064,7 +1088,7 @@ class ShutItPexpectSession(object):
 		whoiam = self.whoami()
 		if whoiam != 'root' and install_type != 'brew':
 			if not self.command_available('sudo'):
-				shutit_global.shutit.pause_point('Please install sudo and then continue with CTRL-]',shutit_pexpect_child=self.pexpect_child)
+				shutit.pause_point('Please install sudo and then continue with CTRL-]',shutit_pexpect_child=self.pexpect_child)
 			cmd = 'sudo '
 			pw = self.get_env_pass(whoiam,'Please input your sudo password in case it is needed (for user: ' + whoiam + ')\nJust hit return if you do not want to submit a password.\n')
 		else:
@@ -1133,7 +1157,7 @@ class ShutItPexpectSession(object):
 		else:
 			# package not required
 			pass
-		shutit_global.shutit._handle_note_after(note=note)
+		shutit._handle_note_after(note=note)
 		return True
 
 
@@ -1141,7 +1165,8 @@ class ShutItPexpectSession(object):
 	               delaybeforesend=0,
 	               note=None):
 		"""Returns memory available for use in k as an int"""
-		shutit_global.shutit._handle_note(note)
+		shutit = shutit_global.shutit
+		shutit._handle_note(note)
 		if self.current_environment.distro == 'osx':
 			memavail = self.send_and_get_output("""vm_stat | grep ^Pages.free: | awk '{print $3}' | tr -d '.'""",timeout=3,echo=False, delaybeforesend=delaybeforesend)
 			memavail = int(memavail)
@@ -1151,7 +1176,7 @@ class ShutItPexpectSession(object):
 			if memavail == '':
 				memavail = self.send_and_get_output("""free | grep buffers.cache | awk '{print $3}'""",timeout=3,echo=False, delaybeforesend=delaybeforesend)
 			memavail = int(memavail)
-		shutit_global.shutit._handle_note_after(note=note)
+		shutit._handle_note_after(note=note)
 		return memavail
 
 
@@ -1175,7 +1200,8 @@ class ShutItPexpectSession(object):
 		@rtype: boolean
 		"""
 		# If separated by spaces, remove separately
-		shutit_global.shutit._handle_note(note)
+		shutit = shutit_global.shutit
+		shutit._handle_note(note)
 		if options is None: options = {}
 		install_type = self.current_environment.install_type
 		whoiam = self.whoami()
@@ -1221,7 +1247,7 @@ class ShutItPexpectSession(object):
 			self.multisend('%s %s %s' % (cmd, opts, package), {'assword:':pw}, timeout=timeout, exit_values=['0','100'])
 		else:
 			self.send('%s %s %s' % (cmd, opts, package), timeout=timeout, exit_values=['0','100'], delaybeforesend=delaybeforesend)
-		shutit_global.shutit._handle_note_after(note=note)
+		shutit._handle_note_after(note=note)
 		return True
 
 
@@ -1250,17 +1276,18 @@ class ShutItPexpectSession(object):
 		@type retry:     integer
 		@type strip:     boolean
 		"""
-		shutit_global.shutit._handle_note(note)
-		shutit_global.shutit.log('Matching output from: "' + send + '" to one of these regexps:' + str(matches),level=logging.INFO)
+		shutit = shutit_global.shutit
+		shutit._handle_note(note)
+		shutit.log('Matching output from: "' + send + '" to one of these regexps:' + str(matches),level=logging.INFO)
 		output = self.send_and_get_output(send, retry=retry, strip=strip, echo=echo, loglevel=loglevel, delaybeforesend=delaybeforesend)
 		if type(matches) == str:
 			matches = [matches]
-		shutit_global.shutit._handle_note_after(note=note)
+		shutit._handle_note_after(note=note)
 		for match in matches:
 			if shutit_util.match_string(output, match) != None:
-				shutit_global.shutit.log('Matched output, return True',level=logging.DEBUG)
+				shutit.log('Matched output, return True',level=logging.DEBUG)
 				return True
-		shutit_global.shutit.log('Failed to match output, return False',level=logging.DEBUG)
+		shutit.log('Failed to match output, return False',level=logging.DEBUG)
 		return False
 
 
@@ -1289,8 +1316,9 @@ class ShutItPexpectSession(object):
 		@type retry:     integer
 		@type strip:     boolean
 		"""
-		shutit_global.shutit._handle_note(note, command=str(send))
-		shutit_global.shutit.log('Retrieving output from command: ' + send,level=loglevel)
+		shutit = shutit_global.shutit
+		shutit._handle_note(note, command=str(send))
+		shutit.log('Retrieving output from command: ' + send,level=loglevel)
 		# Don't check exit, as that will pollute the output. Also, it's quite likely the submitted command is intended to fail.
 		self.send(shutit_util.get_send_command(send), check_exit=False, retry=retry, echo=echo, timeout=timeout, record_command=record_command, loglevel=loglevel, fail_on_empty_before=fail_on_empty_before, delaybeforesend=delaybeforesend)
 		before = self.pexpect_child.before
@@ -1308,7 +1336,7 @@ class ShutItPexpectSession(object):
 				before = before.strip(send)
 		except Exception:
 			before = before.strip(send)
-		shutit_global.shutit._handle_note_after(note=note)
+		shutit._handle_note_after(note=note)
 		if strip:
 			ansi_escape = re.compile(r'\x1b[^m]*m')
 			string_with_termcodes = before.strip()
@@ -1318,7 +1346,7 @@ class ShutItPexpectSession(object):
 			string_without_termcodes_stripped_no_cr = string_without_termcodes.replace('\r','')
 			if False:
 				for c in string_without_termcodes_stripped_no_cr:
-					shutit_global.shutit.log((str(hex(ord(c))) + ' '),level=logging.DEBUG)
+					shutit.log((str(hex(ord(c))) + ' '),level=logging.DEBUG)
 			if preserve_newline:
 				return string_without_termcodes_stripped_no_cr + '\n'
 			else:
@@ -1326,7 +1354,7 @@ class ShutItPexpectSession(object):
 		else:
 			if False:
 				for c in before:
-					shutit_global.shutit.log((str(hex(ord(c))) + ' '),level=logging.DEBUG)
+					shutit.log((str(hex(ord(c))) + ' '),level=logging.DEBUG)
 			return before
 
 
@@ -1336,7 +1364,8 @@ class ShutItPexpectSession(object):
 		@param user:    username we are getting password for
 		@param msg:     message to put out there
 		"""
-		shutit_global.shutit._handle_note(note)
+		shutit = shutit_global.shutit
+		shutit._handle_note(note)
 		user = user or self.whoami()
 		msg = msg or 'Please input the sudo password for user: ' + user
 		if user not in self.current_environment.users.keys():
@@ -1357,9 +1386,10 @@ class ShutItPexpectSession(object):
 		@return: the first group found
 		@rtype: string
 		"""
-		shutit_global.shutit._handle_note(note)
+		shutit = shutit_global.shutit
+		shutit._handle_note(note)
 		res = self.send_and_get_output(' id -n -g',echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend).strip()
-		shutit_global.shutit._handle_note_after(note=note)
+		shutit._handle_note_after(note=note)
 		return res
 
 
@@ -1379,7 +1409,8 @@ class ShutItPexpectSession(object):
 		    - apt-get install -y -qq lsb-release
 
 		"""
-		cfg = shutit_global.shutit.cfg
+		shutit = shutit_global.shutit
+		cfg = shutit.cfg
 		install_type   = ''
 		distro         = ''
 		distro_version = ''
@@ -1479,12 +1510,12 @@ class ShutItPexpectSession(object):
 					distro = 'osx'
 					install_type = 'brew'
 					if not self.command_available('brew'):
-						shutit_global.shutit.fail('ShutiIt requires brew be installed. See http://brew.sh for details on installation.')
+						shutit.fail('ShutiIt requires brew be installed. See http://brew.sh for details on installation.')
 					for package in ('coreutils','findutils','gnu-tar','gnu-sed','gawk','gnutls','gnu-indent','gnu-getopt'):
 						if self.send_and_get_output('brew list | grep -w ' + package,echo=False, loglevel=loglevel,delaybeforesend=delaybeforesend) == '':
 							self.send('brew install ' + package,loglevel=loglevel,delaybeforesend=delaybeforesend)
 				if install_type == '' or distro == '':
-					shutit_global.shutit.fail('Could not determine Linux distro information. ' + 'Please inform ShutIt maintainers.', shutit_pexpect_child=self.pexpect_child)
+					shutit.fail('Could not determine Linux distro information. ' + 'Please inform ShutIt maintainers.', shutit_pexpect_child=self.pexpect_child)
 			# The call to self.package_installed with lsb-release above
 			# may fail if it doesn't know the install type, so
 			# if we've determined that now
@@ -1563,7 +1594,8 @@ class ShutItPexpectSession(object):
 		@param note:                 See send()
 		"""
 		expect = expect or self.default_expect
-		shutit_global.shutit._handle_note(note)
+		shutit = shutit_global.shutit
+		shutit._handle_note(note)
 		send_iteration = send
 		expect_list = send_dict.keys()
 		# Put breakout item(s) in last.
@@ -1582,7 +1614,7 @@ class ShutItPexpectSession(object):
 				break
 			else:
 				send_iteration = send_dict[expect_list[res]]
-		shutit_global.shutit._handle_note_after(note=note)
+		shutit._handle_note_after(note=note)
 		return res
 
 
@@ -1605,19 +1637,20 @@ class ShutItPexpectSession(object):
 		@param echo:                 See send()
 		@param note:                 See send()
 		"""
-		shutit_global.shutit._handle_note(note, command=send + ' until one of these seen: ' + str(regexps))
-		shutit_global.shutit.log('Sending: "' + send + '" until one of these regexps seen: ' + str(regexps),level=loglevel)
+		shutit = shutit_global.shutit
+		shutit._handle_note(note, command=send + ' until one of these seen: ' + str(regexps))
+		shutit.log('Sending: "' + send + '" until one of these regexps seen: ' + str(regexps),level=loglevel)
 		if type(regexps) == str:
 			regexps = [regexps]
 		if type(regexps) != list:
-			shutit_global.shutit.fail('regexps should be list')
+			shutit.fail('regexps should be list')
 		while retries > 0:
 			retries -= 1
 			output = self.send_and_get_output(send, retry=1, strip=True,echo=echo, loglevel=loglevel, fail_on_empty_before=False, delaybeforesend=delaybeforesend)
 			if not not_there:
 				for regexp in regexps:
 					if not shutit_util.check_regexp(regexp):
-						shutit_global.shutit.fail('Illegal regexp found in send_until call: ' + regexp)
+						shutit.fail('Illegal regexp found in send_until call: ' + regexp)
 					if shutit_util.match_string(output, regexp):
 						return True
 			else:
@@ -1625,15 +1658,15 @@ class ShutItPexpectSession(object):
 				missing = False
 				for regexp in regexps:
 					if not shutit_util.check_regexp(regexp):
-						shutit_global.shutit.fail('Illegal regexp found in send_until call: ' + regexp)
+						shutit.fail('Illegal regexp found in send_until call: ' + regexp)
 					if not shutit_util.match_string(output, regexp):
 						missing = True
 						break
 				if missing:
-					shutit_global.shutit._handle_note_after(note=note)
+					shutit._handle_note_after(note=note)
 					return True
 			time.sleep(cadence)
-		shutit_global.shutit._handle_note_after(note=note)
+		shutit._handle_note_after(note=note)
 		return False
 
 
@@ -1671,20 +1704,21 @@ class ShutItPexpectSession(object):
 		                      If not line_oriented, the regexp is considered on with the flags re.DOTALL, re.MULTILINE
 		                      enabled
 		"""
-		shutit_global.shutit._handle_note(note)
+		shutit = shutit_global.shutit
+		shutit._handle_note(note)
 		fexists = self.file_exists(fname)
 		if not fexists:
 			if create:
 				self.send(' touch ' + fname, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
 			else:
-				shutit_global.shutit.fail(fname + ' does not exist and create=False')
+				shutit.fail(fname + ' does not exist and create=False')
 		if replace:
 			# If replace and no pattern FAIL
 			if not pattern:
-				shutit_global.shutit.fail('replace=True requires a pattern to be passed in')
+				shutit.fail('replace=True requires a pattern to be passed in')
 			# If replace and delete FAIL
 			if delete:
-				shutit_global.shutit.fail('cannot pass replace=True and delete=True to insert_text')
+				shutit.fail('cannot pass replace=True and delete=True to insert_text')
 		if self.command_available('base64'):
 			ftext = self.send_and_get_output(' base64 ' + fname, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
 			ftext = base64.b64decode(ftext)
@@ -1704,7 +1738,7 @@ class ShutItPexpectSession(object):
 			if pattern != None:
 				if not line_oriented:
 					if not shutit_util.check_regexp(pattern):
-						shutit_global.shutit.fail('Illegal regexp found in change_text call: ' + pattern)
+						shutit.fail('Illegal regexp found in change_text call: ' + pattern)
 					# cf: http://stackoverflow.com/questions/9411041/matching-ranges-of-lines-in-python-like-sed-ranges
 					sre_match = re.search(pattern,ftext,re.DOTALL|re.MULTILINE)
 					if replace:
@@ -1739,7 +1773,7 @@ class ShutItPexpectSession(object):
 					line_length = 0
 					matched     = False
 					if not shutit_util.check_regexp(pattern):
-						shutit_global.shutit.fail('Illegal regexp found in change_text call: ' + pattern)
+						shutit.fail('Illegal regexp found in change_text call: ' + pattern)
 					for line in lines:
 						#Help the user out to make this properly line-oriented
 						pattern_before=''
@@ -1788,7 +1822,7 @@ class ShutItPexpectSession(object):
 				newtext2 = '\n'
 			new_text = newtext1 + text + newtext2
 		self.send_file(fname,new_text,truncate=True,loglevel=loglevel, delaybeforesend=delaybeforesend)
-		shutit_global.shutit._handle_note_after(note=note)
+		shutit._handle_note_after(note=note)
 		return True
 
 
@@ -1823,7 +1857,8 @@ class ShutItPexpectSession(object):
 		@return:              True if the line was matched and deleted, False otherwise.
 		@rtype:               boolean
 		"""
-		shutit_global.shutit._handle_note(note)
+		shutit = shutit_global.shutit
+		shutit._handle_note(note)
 		# assume we're going to add it
 		tmp_filename = '/tmp/' + shutit_util.random_id()
 		if self.file_exists(filename):
@@ -1833,7 +1868,7 @@ class ShutItPexpectSession(object):
 					self.send(""" grep -v '^""" + line + """$' """ + filename + ' > ' + tmp_filename, exit_values=['0', '1'], echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
 				else:
 					if not shutit_util.check_regexp(match_regexp):
-						shutit_global.shutit.fail('Illegal regexp found in remove_line_from_file call: ' + match_regexp)
+						shutit.fail('Illegal regexp found in remove_line_from_file call: ' + match_regexp)
 					#            v the space is intentional, to avoid polluting bash history.
 					self.send(""" grep -v '^""" + match_regexp + """$' """ + filename + ' > ' + tmp_filename, exit_values=['0', '1'], echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
 			else:
@@ -1842,12 +1877,12 @@ class ShutItPexpectSession(object):
 					self.send(' grep -v "^' + line + '$" ' + filename + ' > ' + tmp_filename, exit_values=['0', '1'], echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
 				else:
 					if not shutit_util.check_regexp(match_regexp):
-						shutit_global.shutit.fail('Illegal regexp found in remove_line_from_file call: ' + match_regexp)
+						shutit.fail('Illegal regexp found in remove_line_from_file call: ' + match_regexp)
 					#          v the space is intentional, to avoid polluting bash history.
 					self.send(' grep -v "^' + match_regexp + '$" ' + filename + ' > ' + tmp_filename, exit_values=['0', '1'], echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
 			self.send(' cat ' + tmp_filename + ' > ' + filename, check_exit=False, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
 			self.send(' rm -f ' + tmp_filename, exit_values=['0', '1'], echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
-		shutit_global.shutit._handle_note_after(note=note)
+		shutit._handle_note_after(note=note)
 		return True
 
 
@@ -1889,12 +1924,13 @@ class ShutItPexpectSession(object):
 		@return: The pexpect return value (ie which expected string in the list matched)
 		@rtype: string
 		"""
-		cfg = shutit_global.shutit.cfg
+		shutit = shutit_global.shutit
+		cfg = shutit.cfg
 		if type(expect) == dict:
-			return self.multisend(send=send,send_dict=expect,expect=shutit_global.shutit.get_default_shutit_pexpect_session_expect(),timeout=timeout,check_exit=check_exit,fail_on_empty_before=fail_on_empty_before,record_command=record_command,exit_values=exit_values,echo=echo,note=note,loglevel=loglevel,delaybeforesend=delaybeforesend)
+			return self.multisend(send=send,send_dict=expect,expect=shutit.get_default_shutit_pexpect_session_expect(),timeout=timeout,check_exit=check_exit,fail_on_empty_before=fail_on_empty_before,record_command=record_command,exit_values=exit_values,echo=echo,note=note,loglevel=loglevel,delaybeforesend=delaybeforesend)
 		expect = expect or self.default_expect
-		shutit_global.shutit.log('Sending in session: ' + self.pexpect_session_id,level=logging.DEBUG)
-		shutit_global.shutit._handle_note(note, command=str(send), training_input=str(send))
+		shutit.log('Sending in session: ' + self.pexpect_session_id,level=logging.DEBUG)
+		shutit._handle_note(note, command=str(send), training_input=str(send))
 		if timeout == None:
 			timeout = 3600
 		
@@ -1912,14 +1948,14 @@ class ShutItPexpectSession(object):
 			# If we are in video mode, ignore exit value
 			if cfg['build']['video'] or cfg['build']['training'] or cfg['build']['walkthrough']:
 				check_exit = False
-			elif expect == shutit_global.shutit.get_default_shutit_pexpect_session_expect():
-				check_exit = shutit_global.shutit.get_default_shutit_pexpect_session_check_exit()
+			elif expect == shutit.get_default_shutit_pexpect_session_expect():
+				check_exit = shutit.get_default_shutit_pexpect_session_check_exit()
 			else:
 				# If expect given doesn't match the defaults and no argument
 				# was passed in (ie check_exit was passed in as None), set
 				# check_exit to true iff it matches a prompt.
 				expect_matches_prompt = False
-				for prompt in cfg['expect_prompts']:
+				for prompt in shutit.expect_prompts:
 					if prompt == expect:
 						expect_matches_prompt = True
 				if not expect_matches_prompt:
@@ -1943,11 +1979,11 @@ class ShutItPexpectSession(object):
 			if ok_to_record:
 				cfg['build']['shutit_command_history'].append(send)
 		if send != None:
-			shutit_global.shutit.log('Sending: ' + send,level=loglevel)
+			shutit.log('Sending: ' + send,level=loglevel)
 		if send != None:
-			shutit_global.shutit.log('================================================================================',level=logging.DEBUG)
-			shutit_global.shutit.log('Sending>>>' + send + '<<<',level=logging.DEBUG)
-			shutit_global.shutit.log('Expecting>>>' + str(expect) + '<<<',level=logging.DEBUG)
+			shutit.log('================================================================================',level=logging.DEBUG)
+			shutit.log('Sending>>>' + send + '<<<',level=logging.DEBUG)
+			shutit.log('Expecting>>>' + str(expect) + '<<<',level=logging.DEBUG)
 		# Don't echo if echo passed in as False
 		while retry > 0:
 			if escape:
@@ -1965,7 +2001,7 @@ class ShutItPexpectSession(object):
 $'"""
 						_count = 0
 				escaped_str += "'"
-				shutit_global.shutit.log('This string was sent safely: ' + send, level=logging.DEBUG)
+				shutit.log('This string was sent safely: ' + send, level=logging.DEBUG)
 			if not echo:
 				oldlog = self.pexpect_child.logfile_send
 				self.pexpect_child.logfile_send = None
@@ -1980,9 +2016,9 @@ $'"""
 							return res
 						else:
 							self.sendline(escaped_str,delaybeforesend=delaybeforesend)
-							expect_res = shutit_global.shutit._expect_allow_interrupt(self.pexpect_child, expect, timeout)
+							expect_res = shutit._expect_allow_interrupt(self.pexpect_child, expect, timeout)
 					else:
-						expect_res = shutit_global.shutit._expect_allow_interrupt(self.pexpect_child, expect, timeout)
+						expect_res = shutit._expect_allow_interrupt(self.pexpect_child, expect, timeout)
 				else:
 					if send != None:
 						if len(send) + 25 > cfg['build']['stty_cols']:
@@ -1993,9 +2029,9 @@ $'"""
 							return res
 						else:
 							self.sendline(send,delaybeforesend=delaybeforesend)
-							expect_res = shutit_global.shutit._expect_allow_interrupt(self.pexpect_child, expect, timeout)
+							expect_res = shutit._expect_allow_interrupt(self.pexpect_child, expect, timeout)
 					else:
-						expect_res = shutit_global.shutit._expect_allow_interrupt(self.pexpect_child, expect, timeout)
+						expect_res = shutit._expect_allow_interrupt(self.pexpect_child, expect, timeout)
 				self.pexpect_child.logfile_send = oldlog
 			else:
 				if escape:
@@ -2008,9 +2044,9 @@ $'"""
 							return res
 						else:
 							self.send(escaped_str,delaybeforesend=delaybeforesend)
-							expect_res = shutit_global.shutit._expect_allow_interrupt(self.pexpect_child, expect, timeout)
+							expect_res = shutit._expect_allow_interrupt(self.pexpect_child, expect, timeout)
 					else:
-						expect_res = shutit_global.shutit._expect_allow_interrupt(self.pexpect_child, expect, timeout)
+						expect_res = shutit._expect_allow_interrupt(self.pexpect_child, expect, timeout)
 				else:
 					if send != None:
 						if len(send) + 25 > cfg['build']['stty_cols']:
@@ -2021,32 +2057,32 @@ $'"""
 							return res
 						else:
 							if echo:
-								shutit_global.shutit.divert_output(sys.stdout)
+								shutit.divert_output(sys.stdout)
 							self.sendline(send,delaybeforesend=delaybeforesend)
-							expect_res = shutit_global.shutit._expect_allow_interrupt(self.pexpect_child, expect, timeout)
+							expect_res = shutit._expect_allow_interrupt(self.pexpect_child, expect, timeout)
 							if echo:
-								shutit_global.shutit.divert_output(None)
+								shutit.divert_output(None)
 					else:
-						expect_res = shutit_global.shutit._expect_allow_interrupt(self.pexpect_child, expect, timeout)
+						expect_res = shutit._expect_allow_interrupt(self.pexpect_child, expect, timeout)
 			# Handles 'cannot concatenate 'str' and 'type' objects' errors
 			try:
 				logged_output = ''.join((self.pexpect_child.before + self.pexpect_child.after).split('\n'))
 				logged_output = logged_output.replace(send,'',1)
 				logged_output = logged_output.replace('\r','')
 				logged_output = logged_output[:30] + ' [...]'
-				shutit_global.shutit.log('Output (squashed): ' + logged_output,level=loglevel)
-				shutit_global.shutit.log('shutit_pexpect_child.before>>>' + self.pexpect_child.before + '<<<',level=logging.DEBUG)
-				shutit_global.shutit.log('shutit_pexpect_child.after>>>' + self.pexpect_child.after + '<<<',level=logging.DEBUG)
+				shutit.log('Output (squashed): ' + logged_output,level=loglevel)
+				shutit.log('shutit_pexpect_child.before>>>' + self.pexpect_child.before + '<<<',level=logging.DEBUG)
+				shutit.log('shutit_pexpect_child.after>>>' + self.pexpect_child.after + '<<<',level=logging.DEBUG)
 			except:
 				pass
 			if fail_on_empty_before:
 				if self.pexpect_child.before.strip() == '':
-					shutit_global.shutit.fail('before empty after sending: ' + str(send) + '\n\nThis is expected after some commands that take a password.\nIf so, add fail_on_empty_before=False to the send call.\n\nIf that is not the problem, did you send an empty string to a prompt by mistake?', shutit_pexpect_child=self.pexpect_child)
+					shutit.fail('before empty after sending: ' + str(send) + '\n\nThis is expected after some commands that take a password.\nIf so, add fail_on_empty_before=False to the send call.\n\nIf that is not the problem, did you send an empty string to a prompt by mistake?', shutit_pexpect_child=self.pexpect_child)
 			elif not fail_on_empty_before:
 				# Don't check exit if fail_on_empty_before is False
-				shutit_global.shutit.log('' + self.pexpect_child.before + '<<<', level=logging.DEBUG)
+				shutit.log('' + self.pexpect_child.before + '<<<', level=logging.DEBUG)
 				check_exit = False
-				for prompt in cfg['expect_prompts']:
+				for prompt in shutit.expect_prompts:
 					if prompt == expect:
 						# Reset prompt
 						self.setup_prompt('reset_tmp_prompt')
@@ -2056,7 +2092,7 @@ $'"""
 			if check_exit:
 				# store the output
 				if not self.check_last_exit_values(send, expect=expect, exit_values=exit_values, retry=retry):
-					shutit_global.shutit.log('Sending: ' + send + ' : failed, retrying', level=logging.DEBUG)
+					shutit.log('Sending: ' + send + ' : failed, retrying', level=logging.DEBUG)
 					retry -= 1
 					assert(retry > 0)
 					continue
@@ -2066,7 +2102,7 @@ $'"""
 		if cfg['build']['ctrlc_stop']:
 			cfg['build']['ctrlc_stop'] = False
 			self.pause_point('pause point: interrupted by CTRL-c')
-		shutit_global.shutit._handle_note_after(note=note)
+		shutit._handle_note_after(note=note)
 		return expect_res
 	# alias send to send_and_expect
 	send_and_expect = send
@@ -2094,12 +2130,13 @@ $'"""
 		@type path:         string
 		@type contents:     string
 		"""
-		cfg = shutit_global.shutit.cfg
-		shutit_global.shutit._handle_note(note, 'Sending contents to path: ' + path)
+		shutit = shutit_global.shutit
+		cfg = shutit.cfg
+		shutit._handle_note(note, 'Sending contents to path: ' + path)
 		# make more efficient by only looking at first 10000 chars, stop when we get to 30 chars rather than reading whole file.
 		split_contents = ''.join((contents[:10000].split()))
 		strings_from_file = re.findall("[^\x00-\x1F\x7F-\xFF]", split_contents)
-		shutit_global.shutit.log('Sending file contents beginning: "' + ''.join(strings_from_file)[:30] + ' [...]" to file: ' + path, level=loglevel)
+		shutit.log('Sending file contents beginning: "' + ''.join(strings_from_file)[:30] + ' [...]" to file: ' + path, level=loglevel)
 		if user == None:
 			user = self.whoami()
 		if group == None:
@@ -2118,7 +2155,7 @@ $'"""
 			self.send(' ' + shutit_util.get_command('head') + ' -c -1 > ' + path + "." + random_id + " << 'END_" + random_id + """'\n""" + base64.b64encode(contents) + '''\nEND_''' + random_id, echo=False,loglevel=loglevel, delaybeforesend=delaybeforesend)
 			self.send(' cat ' + path + '.' + random_id + ' | base64 -d > ' + path, echo=False,loglevel=loglevel, delaybeforesend=delaybeforesend)
 		else:
-			host_child = shutit_global.shutit.get_shutit_pexpect_session_from_id('host_child').pexpect_child
+			host_child = shutit.get_shutit_pexpect_session_from_id('host_child').pexpect_child
 			path = path.replace(' ', '\ ')
 			# get host session
 			tmpfile = cfg['build']['shutit_state_dir_base'] + 'tmp_' + shutit_util.random_id()
@@ -2130,12 +2167,12 @@ $'"""
 			self.send(' touch ' + path, echo=False,loglevel=loglevel, delaybeforesend=delaybeforesend)
 			# If path is not absolute, add $HOME to it.
 			if path[0] != '/':
-				shutit_global.shutit.send(' cat ' + tmpfile + ' | ' + cfg['host']['docker_executable'] + ' exec -i ' + cfg['target']['container_id'] + " bash -c 'cat > $HOME/" + path + "'", shutit_pexpect_child=host_child, expect=cfg['expect_prompts']['origin_prompt'], echo=False,loglevel=loglevel, delaybeforesend=delaybeforesend)
+				shutit.send(' cat ' + tmpfile + ' | ' + shutit.host['docker_executable'] + ' exec -i ' + shutit.target['container_id'] + " bash -c 'cat > $HOME/" + path + "'", shutit_pexpect_child=host_child, expect=shutit.expect_prompts['origin_prompt'], echo=False,loglevel=loglevel, delaybeforesend=delaybeforesend)
 			else:
-				shutit_global.shutit.send(' cat ' + tmpfile + ' | ' + cfg['host']['docker_executable'] + ' exec -i ' + cfg['target']['container_id'] + " bash -c 'cat > " + path + "'", shutit_pexpect_child=host_child, expect=cfg['expect_prompts']['origin_prompt'], echo=False,loglevel=loglevel, delaybeforesend=delaybeforesend)
+				shutit.send(' cat ' + tmpfile + ' | ' + shutit.host['docker_executable'] + ' exec -i ' + shutit.target['container_id'] + " bash -c 'cat > " + path + "'", shutit_pexpect_child=host_child, expect=shutit.expect_prompts['origin_prompt'], echo=False,loglevel=loglevel, delaybeforesend=delaybeforesend)
 			self.send(' chown ' + user + ' ' + path + ' && chgrp ' + group + ' ' + path, echo=False,loglevel=loglevel, delaybeforesend=delaybeforesend)
 			os.remove(tmpfile)
-		shutit_global.shutit._handle_note_after(note=note)
+		shutit._handle_note_after(note=note)
 		return True
 
 
@@ -2155,9 +2192,10 @@ $'"""
 		@type script:    string
 		@type in_shell:  boolean
 		"""
-		cfg = shutit_global.shutit.cfg
-		shutit_global.shutit._handle_note(note, 'Script: ' + str(script))
-		shutit_global.shutit.log('Running script beginning: "' + string.join(script.split())[:30] + ' [...]', level=logging.INFO)
+		shutit = shutit_global.shutit
+		cfg = shutit.cfg
+		shutit._handle_note(note, 'Script: ' + str(script))
+		shutit.log('Running script beginning: "' + string.join(script.split())[:30] + ' [...]', level=logging.INFO)
 		# Trim any whitespace lines from start and end of script, then dedent
 		lines = script.split('\n')
 		while len(lines) > 0 and re.match('^[ \t]*$', lines[0]):
@@ -2179,7 +2217,7 @@ $'"""
 			ret = self.send(' . ' + cfg['build']['shutit_state_dir'] + '/scripts/shutit_script.sh && rm -f ' + cfg['build']['shutit_state_dir'] + '/scripts/shutit_script.sh && rm -f ' + cfg['build']['shutit_state_dir'] + '/scripts/shutit_script.sh', echo=False,loglevel=loglevel, delaybeforesend=delaybeforesend)
 		else:
 			ret = self.send(' ' + cfg['build']['shutit_state_dir'] + '/scripts/shutit_script.sh && rm -f ' + cfg['build']['shutit_state_dir'] + '/scripts/shutit_script.sh', echo=False,loglevel=loglevel, delaybeforesend=delaybeforesend)
-		shutit_global.shutit._handle_note_after(note=note)
+		shutit._handle_note_after(note=note)
 		return ret
 
 
@@ -2189,25 +2227,26 @@ $'"""
 	                    follow_on_context={},
 	                    pause=1,
 	                    skipped=False):
-		cfg = shutit_global.shutit.cfg
+		shutit = shutit_global.shutit
+		cfg = shutit.cfg
 		if result == 'ok':
 			if congratulations:
-				shutit_global.shutit.log('\n\n' + shutit_util.colourise('32',congratulations) + '\n',transient=True)
+				shutit.log('\n\n' + shutit_util.colourise('32',congratulations) + '\n',transient=True)
 			time.sleep(pause)
 			cfg['build']['ctrlc_passthrough'] = False
 			if follow_on_context != {}:
 				if follow_on_context.get('context') == 'docker':
 					container_name = follow_on_context.get('ok_container_name')
 					if not container_name:
-						shutit_global.shutit.log('No reset context available, carrying on.',level=logging.INFO)
+						shutit.log('No reset context available, carrying on.',level=logging.INFO)
 					elif skipped:
 						# We need to ensure the correct state.
 						self.replace_container(container_name)
-						shutit_global.shutit.log('State restored.',level=logging.INFO)
+						shutit.log('State restored.',level=logging.INFO)
 					else:
-						shutit_global.shutit.log(shutit_util.colourise('31','Continuing, remember you can restore to a known state with CTRL-g.'),transient=True)
+						shutit.log(shutit_util.colourise('31','Continuing, remember you can restore to a known state with CTRL-g.'),transient=True)
 				else:
-					shutit_global.shutit.fail('Follow-on context not handled on pass')
+					shutit.fail('Follow-on context not handled on pass')
 			return True
 		elif result in ('failed'):
 			cfg['build']['ctrlc_passthrough'] = False
@@ -2221,16 +2260,16 @@ $'"""
 				if follow_on_context.get('context') == 'docker':
 					container_name = follow_on_context.get('reset_container_name')
 					if not container_name:
-						shutit_global.shutit.log('No reset context available, carrying on.',level=logging.DEBUG)
+						shutit.log('No reset context available, carrying on.',level=logging.DEBUG)
 					else:
 						self.replace_container(container_name)
-						shutit_global.shutit.log('State restored.',level=logging.INFO)
+						shutit.log('State restored.',level=logging.INFO)
 				else:
-					shutit_global.shutit.fail('Follow-on context not handled on reset')
+					shutit.fail('Follow-on context not handled on reset')
 			return True
 		else:
-			shutit_global.shutit.fail('result: ' + result + ' not handled')
-		shutit_global.shutit.fail('_challenge_done should not get here')
+			shutit.fail('result: ' + result + ' not handled')
+		shutit.fail('_challenge_done should not get here')
 		return True
 
 
@@ -2267,7 +2306,8 @@ $'"""
 		                             command = check for output of single command
 		                             golf    = user gets a pause point, and when leaving, command follow_on_context['check_command'] is run to check the output
 		"""
-		cfg = shutit_global.shutit.cfg
+		shutit = shutit_global.shutit
+		cfg = shutit.cfg
 		# don't catch CTRL-C, pass it through.
 		cfg['build']['ctrlc_passthrough'] = True
 		preserve_newline                  = False
@@ -2276,14 +2316,14 @@ $'"""
 			if type(expect) == str:
 				expect = [expect]
 			if type(expect) != list:
-				shutit_global.shutit.fail('expect_regexps should be list')
+				shutit.fail('expect_regexps should be list')
 		elif expect_type == 'md5sum':
 			preserve_newline = True
 			pass
 		elif expect_type == 'exact':
 			pass
 		else:
-			shutit_global.shutit.fail('Must pass either expect_regexps or md5sum in')
+			shutit.fail('Must pass either expect_regexps or md5sum in')
 		if len(hints):
 			cfg['build']['pause_point_hints'] = hints
 		else:
@@ -2292,9 +2332,9 @@ $'"""
 			help_text = shutit_util.colourise('32','''\nType 'help' or 'h' to get a hint, 'exit' to skip, 'shutitreset' to reset state.''')
 			ok = False
 			while not ok:
-				shutit_global.shutit.log(shutit_util.colourise('32','''\nChallenge!'''),transient=True)
+				shutit.log(shutit_util.colourise('32','''\nChallenge!'''),transient=True)
 				if len(hints):
-					shutit_global.shutit.log(shutit_util.colourise('32',help_text),transient=True)
+					shutit.log(shutit_util.colourise('32',help_text),transient=True)
 				time.sleep(pause)
 				# TODO: bash path completion
 				send = shutit_util.get_input(task_desc + ' => ',colour='31')
@@ -2302,11 +2342,11 @@ $'"""
 					continue
 				if send in ('help','h'):
 					if len(hints):
-						shutit_global.shutit.log(help_text,transient=True)
-						shutit_global.shutit.log(shutit_util.colourise('32',hints.pop()),transient=True)
+						shutit.log(help_text,transient=True)
+						shutit.log(shutit_util.colourise('32',hints.pop()),transient=True)
 					else:
-						shutit_global.shutit.log(help_text,transient=True)
-						shutit_global.shutit.log(shutit_util.colourise('32','No hints left, sorry! CTRL-g to reset state, CTRL-s to skip this step'),transient=True)
+						shutit.log(help_text,transient=True)
+						shutit.log(shutit_util.colourise('32','No hints left, sorry! CTRL-g to reset state, CTRL-s to skip this step'),transient=True)
 					time.sleep(pause)
 					continue
 				if send == 'shutitreset':
@@ -2321,7 +2361,7 @@ $'"""
 					return True
 				output = self.send_and_get_output(timeout=timeout,retry=1,record_command=record_command,echo=echo, loglevel=loglevel, fail_on_empty_before=False, preserve_newline=preserve_newline, delaybeforesend=delaybeforesend)
 				md5sum_output = md5.md5(output).hexdigest()
-				shutit_global.shutit.log('output: ' + output + ' is md5sum: ' + md5sum_output,level=logging.DEBUG)
+				shutit.log('output: ' + output + ' is md5sum: ' + md5sum_output,level=logging.DEBUG)
 				if expect_type == 'md5sum':
 					output = md5sum_output
 					if output == expect:
@@ -2335,7 +2375,7 @@ $'"""
 							ok = True
 							break
 				if not ok and failed:
-					shutit_global.shutit.log('\n\n' + shutit_util.colourise('32','failed') + '\n',transient=True)
+					shutit.log('\n\n' + shutit_util.colourise('32','failed') + '\n',transient=True)
 					self._challenge_done(result='failed')
 					continue
 		elif challenge_type == 'golf':
@@ -2348,20 +2388,20 @@ $'"""
 				task_desc_new = task_desc
 			while not ok:
 				self.pause_point(shutit_util.colourise('31',task_desc_new),colour='31') # TODO: message
-				if cfg['SHUTIT_SIGNAL']['ID'] == 8:
+				if shutit.shutit_signal['ID'] == 8:
 					if len(cfg['build']['pause_point_hints']):
-						shutit_global.shutit.log(shutit_util.colourise('31','\r\n========= HINT ==========\r\n\r\n' + cfg['build']['pause_point_hints'].pop(0)),transient=True)
+						shutit.log(shutit_util.colourise('31','\r\n========= HINT ==========\r\n\r\n' + cfg['build']['pause_point_hints'].pop(0)),transient=True)
 					else:
-						shutit_global.shutit.log(shutit_util.colourise('31','\r\n\r\n' + 'No hints available!'),transient=True)
+						shutit.log(shutit_util.colourise('31','\r\n\r\n' + 'No hints available!'),transient=True)
 					time.sleep(1)
 					# clear the signal
-					cfg['SHUTIT_SIGNAL']['ID'] = 0
+					shutit.shutit_signal['ID'] = 0
 					continue
-				elif cfg['SHUTIT_SIGNAL']['ID'] == 7:
-					shutit_global.shutit.log(shutit_util.colourise('31','\r\n========= RESETTING STATE ==========\r\n\r\n'),transient=True)
+				elif shutit.shutit_signal['ID'] == 7:
+					shutit.log(shutit_util.colourise('31','\r\n========= RESETTING STATE ==========\r\n\r\n'),transient=True)
 					self._challenge_done(result='reset', follow_on_context=follow_on_context)
 					# clear the signal
-					cfg['SHUTIT_SIGNAL']['ID'] = 0
+					shutit.shutit_signal['ID'] = 0
 					self.challenge(
 						task_desc=task_desc,
 						expect=expect,
@@ -2383,20 +2423,20 @@ $'"""
 						follow_on_context=follow_on_context
 					)
 					return True
-				elif cfg['SHUTIT_SIGNAL']['ID'] == 19:
+				elif shutit.shutit_signal['ID'] == 19:
 					# Clear the signal.
-					cfg['SHUTIT_SIGNAL']['ID'] = 0
+					shutit.shutit_signal['ID'] = 0
 					# Skip test.
-					shutit_global.shutit.log('Test skipped',level=logging.INFO)
+					shutit.log('Test skipped',level=logging.INFO)
 					skipped=True
 					break
-				shutit_global.shutit.log('State submitted, checking your work...',level=logging.INFO)
+				shutit.log('State submitted, checking your work...',level=logging.INFO)
 				check_command = follow_on_context.get('check_command')
 				output = self.send_and_get_output(check_command,timeout=timeout,retry=1,record_command=record_command,echo=False, loglevel=loglevel, fail_on_empty_before=False, preserve_newline=preserve_newline, delaybeforesend=delaybeforesend)
-				shutit_global.shutit.log('output: ' + output,level=logging.DEBUG)
+				shutit.log('output: ' + output,level=logging.DEBUG)
 				md5sum_output = md5.md5(output).hexdigest()
 				if expect_type == 'md5sum':
-					shutit_global.shutit.log('output: ' + output + ' is md5sum: ' + md5sum_output,level=logging.DEBUG)
+					shutit.log('output: ' + output + ' is md5sum: ' + md5sum_output,level=logging.DEBUG)
 					output = md5sum_output
 					if output == expect:
 						ok = True
@@ -2409,18 +2449,20 @@ $'"""
 							ok = True
 							break
 				if not ok and failed:
-					shutit_global.shutit.log('\n\n' + shutit_util.colourise('31','Failed! CTRL-g to reset state, CTRL-h for a hint') + '\n',transient=True)
+					shutit.log('\n\n' + shutit_util.colourise('31','Failed! CTRL-g to reset state, CTRL-h for a hint') + '\n',transient=True)
 					self._challenge_done(result='failed')
 					continue
 		else:
-			shutit_global.shutit.fail('Challenge type: ' + challenge_type + ' not supported')
+			shutit.fail('Challenge type: ' + challenge_type + ' not supported')
 		self._challenge_done(result='ok',follow_on_context=follow_on_context,congratulations=congratulations,skipped=skipped)
 		# Tidy up hints
 		cfg['build']['pause_point_hints'] = []
 		return True
 
+
 	def init_pexpect_session_environment(self, prefix):
-		cfg = shutit_global.shutit.cfg
+		shutit = shutit_global.shutit
+		cfg = shutit.cfg
 		environment_id_dir = cfg['build']['shutit_state_dir'] + '/environment_id'
 		if self.file_exists(environment_id_dir,directory=True):
 			files = self.ls(environment_id_dir)
@@ -2430,13 +2472,13 @@ $'"""
 						if f != 'ORIGIN_ENV':
 							environment_id = f
 							# Look up this environment id
-							environment = shutit_global.shutit.get_shutit_pexpect_session_environment(environment_id)
+							environment = shutit.get_shutit_pexpect_session_environment(environment_id)
 							if environment:
 								# Set that object to the _current_ environment in the PexpectSession
 								# OBJECT TO _CURRENT_ ENVIRONMENT IN SHUTIT PEXPECT session OBJECT AND RETURN that object.
 								self.current_environment = environment
 							else:
-								shutit_global.shutit.fail('Should not get here: environment reached but with unique build_id that matches, but object not in existence')
+								shutit.fail('Should not get here: environment reached but with unique build_id that matches, but object not in existence')
 							# TODO: check against CygWin
 							## Workaround for CygWin terminal issues. If the envid isn't in the cfg item
 							## Then crudely assume it is. This will drop through and then assume we are in the origin env.
@@ -2448,10 +2490,10 @@ $'"""
 				else:
 					## See comment above re: cygwin.
 					#if self.file_exists('/cygdrive'):
-					#	self.current_environment_id = shutit_global.shutit.get_shutit_pexpect_session_environment('ORIGIN_ENV')
+					#	self.current_environment_id = shutit.get_shutit_pexpect_session_environment('ORIGIN_ENV')
 					#else:
-					#	shutit_global.shutit.fail('Wrong number of files in environment_id_dir: ' + environment_id_dir)
-					shutit_global.shutit.fail('Wrong number of files in environment_id_dir: ' + environment_id_dir)
+					#	shutit.fail('Wrong number of files in environment_id_dir: ' + environment_id_dir)
+					shutit.fail('Wrong number of files in environment_id_dir: ' + environment_id_dir)
 			else:
 				# TODO: check against CygWin
 				#if self.file_exists('/cygdrive'):
@@ -2459,26 +2501,26 @@ $'"""
 				#else:
 				environment_id = files[0]
 #TODO: problem is environment_id not found here.
-				environment = shutit_global.shutit.get_shutit_pexpect_session_environment(environment_id)
+				environment = shutit.get_shutit_pexpect_session_environment(environment_id)
 				if environment:
 					# Set that object to the _current_ environment in the PexpectSession
 					# OBJECT TO _CURRENT_ ENVIRONMENT IN SHUTIT PEXPECT session OBJECT AND RETURN that object.
 					self.current_environment = environment
 				else:
-					shutit_global.shutit.fail('Should not get here: environment reached but with unique build_id that matches, but object not in existence, ' + environment_id)
+					shutit.fail('Should not get here: environment reached but with unique build_id that matches, but object not in existence, ' + environment_id)
 			# as far as I can tell, this should never happen?
 			#if cfg['build']['current_environment_id'] != environment_id:
 			#	# Clean out any trace of this new environment, and return the already-existing one.
 			#	self.send(' rm -rf ' + environment_id_dir + '/environment_id/' + environment_id, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
 			#	return cfg['build']['current_environment_id']
 			#if not environment_id == 'ORIGIN_ENV':
-			#	return shutit_global.shutit.get_shutit_pexpect_session_environment('ORIGIN_ENV')
+			#	return shutit.get_shutit_pexpect_session_environment('ORIGIN_ENV')
 			self.current_environment = environment
-			return shutit_global.shutit.get_shutit_pexpect_session_environment(environment_id)
+			return shutit.get_shutit_pexpect_session_environment(environment_id)
 		new_environment = ShutItPexpectSessionEnvironment(prefix)
 		# If not, create new env object, set it to current.
 		self.current_environment = new_environment
-		shutit_global.shutit.add_shutit_pexpect_session_environment(new_environment)
+		shutit.add_shutit_pexpect_session_environment(new_environment)
 		if prefix != 'ORIGIN_ENV':
 			self.get_distro_info()
 		self.send(' mkdir -p ' + environment_id_dir + ' && chmod -R 777 ' + cfg['build']['shutit_state_dir_base'] + ' && touch ' + environment_id_dir + '/' + new_environment.environment_id, echo=False)
@@ -2486,15 +2528,15 @@ $'"""
 	            	 
 
 
-	#TODO: review items in cfg and see if they make more sense in the pexpect object
-	#TODO: replace 'target' in cfg
-
-
 class ShutItPexpectSessionEnvironment(object):
 
 
 	def __init__(self,
 	             prefix):
+		"""Represents a new 'environment' in ShutIt, which corresponds to a host or any
+		machine-like location (eg docker container, ssh'd to host, or even a chroot jail
+		with a /tmp folder that has not been touched by shutit.
+		"""
 		if prefix == 'ORIGIN_ENV':
 			self.environment_id = prefix
 		else:
