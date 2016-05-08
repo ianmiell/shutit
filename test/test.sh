@@ -52,62 +52,66 @@ fi
 find ${SHUTIT_DIR} -name '*.cnf' | grep '/configs/[^/]*.cnf' | xargs chmod 600
 cleanup hard
 
-DESC="Testing vagrant build basic bare"
-echo $DESC
-./shutit skeleton --module_directory ${NEWDIR} --module_name testing \
-	--domain shutit.tk --depends shutit.tk.setup --base_image ubuntu:14.04 \
-	--delivery bash --template_branch vagrant 
-pushd ${NEWDIR}
-chmod +x destroy_vms.sh
-ls -l
-./run.sh --interactive 0
-if [[ "x$?" != "x0" ]]
+
+if [[ $(which vagrant) != '' ]]
 then
-	echo "FAILED ON $DESC"
+	DESC="Testing vagrant build basic bare"
+	echo $DESC
+	./shutit skeleton --module_directory ${NEWDIR} --module_name testing \
+		--domain shutit.tk --depends shutit.tk.setup --base_image ubuntu:14.04 \
+		--delivery bash --template_branch vagrant 
+	pushd ${NEWDIR}
+	chmod +x destroy_vms.sh
+	ls -l
+	./run.sh --interactive 0
+	if [[ "x$?" != "x0" ]]
+	then
+		echo "FAILED ON $DESC"
+		cleanup hard
+		exit 1
+	fi
 	cleanup hard
-	exit 1
-fi
-cleanup hard
-rm -rf ${NEWDIR}
-popd > /dev/null 2>&1
-
-
-DESC="Testing vagrant_multinode build basic bare"
-echo $DESC
-./shutit skeleton --module_directory ${NEWDIR} --module_name testing \
-	--domain shutit.tk --depends shutit.tk.setup --base_image ubuntu:14.04 \
-	--delivery bash --template_branch vagrant_multinode
-pushd ${NEWDIR}
-chmod +x destroy_vms.sh
-ls -l
-./run.sh --interactive 0
-if [[ "x$?" != "x0" ]]
-then
-	echo "FAILED ON $DESC"
+	rm -rf ${NEWDIR}
+	popd > /dev/null 2>&1
+	
+	
+	DESC="Testing vagrant_multinode build basic bare"
+	echo $DESC
+	./shutit skeleton --module_directory ${NEWDIR} --module_name testing \
+		--domain shutit.tk --depends shutit.tk.setup --base_image ubuntu:14.04 \
+		--delivery bash --template_branch vagrant_multinode
+	pushd ${NEWDIR}
+	chmod +x destroy_vms.sh
+	ls -l
+	./run.sh --interactive 0
+	if [[ "x$?" != "x0" ]]
+	then
+		echo "FAILED ON $DESC"
+		cleanup hard
+		exit 1
+	fi
 	cleanup hard
-	exit 1
+	rm -rf ${NEWDIR}
+	popd > /dev/null 2>&1
+	
+	
+	DESC="Testing docker_tutorial build basic bare"
+	echo $DESC
+	./shutit skeleton --module_directory ${NEWDIR} --module_name testing \
+		--domain shutit.tk --depends shutit.tk.setup --base_image ubuntu:14.04 \
+		--delivery docker --template_branch docker_tutorial
+	pushd ${NEWDIR}
+	chmod +x destroy_vms.sh
+	ls -l
+	./run.sh --interactive 0
+	if [[ "x$?" != "x0" ]]
+	then
+		echo "FAILED ON $DESC"
+		cleanup hard
+		exit 1
+	fi
+
 fi
-cleanup hard
-rm -rf ${NEWDIR}
-popd > /dev/null 2>&1
-
-
-DESC="Testing docker_tutorial build basic bare"
-echo $DESC
-./shutit skeleton --module_directory ${NEWDIR} --module_name testing \
-	--domain shutit.tk --depends shutit.tk.setup --base_image ubuntu:14.04 \
-	--delivery docker --template_branch docker_tutorial
-pushd ${NEWDIR}
-chmod +x destroy_vms.sh
-ls -l
-./run.sh --interactive 0
-if [[ "x$?" != "x0" ]]
-then
-	echo "FAILED ON $DESC"
-	cleanup hard
-	exit 1
-fi
-
 
 DESC="Testing skeleton build with Dockerfile"
 echo $DESC
