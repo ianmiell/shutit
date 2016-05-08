@@ -552,7 +552,7 @@ docker_tutorial:   a docker-based tutorial
 				delivery = util_raw_input(prompt='# Input a delivery method from: ' + str(allowed) + '.\n# Default: ' + default_delivery + '\n\ndocker = build within a docker image\nssh = ssh to target and build\nbash = run commands directly within bash\n', default=default_delivery)
 		else:
 			delivery = args.delivery
-		shutit.skeleton = {
+		shutit.cfg['skeleton'] = {
 			'path':                  module_directory,
 			'module_name':           module_name,
 			'base_image':            args.base_image,
@@ -954,6 +954,7 @@ def list_modules(long_output=None,sort_order=None):
 		f.close()
 
 
+# TODO: does this still work?
 def print_config(cfg, hide_password=True, history=False, module_id=None):
 	"""Returns a string representing the config of this ShutIt run.
 	"""
@@ -1147,16 +1148,16 @@ def create_skeleton():
 	shutit = shutit_global.shutit
 	template_setup_script = 'setup.sh'
 	# Set up local directories
-	skel_path        = shutit.skeleton['path']
-	skel_module_name = shutit.skeleton['module_name']
-	skel_domain      = shutit.skeleton['domain']
+	skel_path        = shutit.cfg['skeleton']['path']
+	skel_module_name = shutit.cfg['skeleton']['module_name']
+	skel_domain      = shutit.cfg['skeleton']['domain']
 	# TODO: rework these
-	#skel_domain_hash = shutit.skeleton['domain_hash']
-	#skel_depends     = shutit.skeleton['depends']
-	#skel_dockerfiles = shutit.skeleton['dockerfiles']
-	#skel_delivery    = shutit.skeleton['delivery']
+	#skel_domain_hash = shutit.cfg['skeleton']['domain_hash']
+	#skel_depends     = shutit.cfg['skeleton']['depends']
+	#skel_dockerfiles = shutit.cfg['skeleton']['dockerfiles']
+	#skel_delivery    = shutit.cfg['skeleton']['delivery']
 	# Set up dockerfile cfg
-	shutit.dockerfile['base_image'] = shutit.skeleton['base_image']
+	shutit.dockerfile['base_image'] = shutit.cfg['skeleton']['base_image']
 	shutit.dockerfile['cmd']        = """/bin/sh -c 'sleep infinity'"""
 	shutit.dockerfile['user']       = ''
 	shutit.dockerfile['maintainer'] = ''
@@ -1182,27 +1183,27 @@ def create_skeleton():
 
 
 	# arguments
-	shutit.skeleton['volumes_arg'] = ''
+	shutit.cfg['skeleton']['volumes_arg'] = ''
 	for varg in shutit.dockerfile['volume']:
-		shutit.skeleton['volumes_arg'] += ' -v ' + varg + ':' + varg
-	shutit.skeleton['ports_arg'] = ''
+		shutit.cfg['skeleton']['volumes_arg'] += ' -v ' + varg + ':' + varg
+	shutit.cfg['skeleton']['ports_arg'] = ''
 	if type(shutit.dockerfile['expose']) == str:
 		for parg in shutit.dockerfile['expose']:
-			shutit.skeleton['ports_arg'] += ' -p ' + parg + ':' + parg
+			shutit.cfg['skeleton']['ports_arg'] += ' -p ' + parg + ':' + parg
 	else:
 		for parg in shutit.dockerfile['expose']:
 			for port in parg.split():
-				shutit.skeleton['ports_arg'] += ' -p ' + port + ':' + port
-	shutit.skeleton['env_arg'] = ''
+				shutit.cfg['skeleton']['ports_arg'] += ' -p ' + port + ':' + port
+	shutit.cfg['skeleton']['env_arg'] = ''
 	for earg in shutit.dockerfile['env']:
-		shutit.skeleton['env_arg'] += ' -e ' + earg.split()[0] + ':' + earg.split()[1]
+		shutit.cfg['skeleton']['env_arg'] += ' -e ' + earg.split()[0] + ':' + earg.split()[1]
 
 	# Create folders and process templates.
 	os.makedirs(skel_path)
 	os.chdir(skel_path)
-	os.system('git clone -q ' + shutit.skeleton['template_repo'] + ' -b ' + shutit.skeleton['template_branch'] + ' --depth 1 ' + shutit.skeleton['template_folder'])
-	os.system('rm -rf ' + shutit.skeleton['template_folder'] + '/.git')
-	templates=jinja2.Environment(loader=jinja2.FileSystemLoader(shutit.skeleton['template_folder']))
+	os.system('git clone -q ' + shutit.cfg['skeleton']['template_repo'] + ' -b ' + shutit.cfg['skeleton']['template_branch'] + ' --depth 1 ' + shutit.cfg['skeleton']['template_folder'])
+	os.system('rm -rf ' + shutit.cfg['skeleton']['template_folder'] + '/.git')
+	templates=jinja2.Environment(loader=jinja2.FileSystemLoader(shutit.cfg['skeleton']['template_folder']))
 	templates_list = templates.list_templates()
 	for template_item in templates_list:
 		directory = os.path.dirname(template_item)
@@ -1212,12 +1213,12 @@ def create_skeleton():
 		f = open(template_item,'w')
 		f.write(template_str)
 		f.close()
-	if shutit.skeleton['output_dir']:
+	if shutit.cfg['skeleton']['output_dir']:
 		os.system('chmod +x ' + template_setup_script + ' && ./' + template_setup_script + ' > /dev/null 2>&1 && rm -f ' + template_setup_script)
-		os.system('rm -rf ' + shutit.skeleton['template_folder'])
+		os.system('rm -rf ' + shutit.cfg['skeleton']['template_folder'])
 	else:
 		os.system('chmod +x ' + template_setup_script + ' && ./' + template_setup_script + ' && rm -f ' + template_setup_script)
-		os.system('rm -rf ' + shutit.skeleton['template_folder'])
+		os.system('rm -rf ' + shutit.cfg['skeleton']['template_folder'])
 
 	# Return program to original path
 	os.chdir(sys.path[0])

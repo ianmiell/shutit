@@ -104,8 +104,9 @@ class ShutIt(object):
 		self.list_modules                           = {}
 		# Environments are kept globally, as different sessions may re-connect to them.
 		self.shutit_pexpect_session_environments = set()
-		self.cfg = {}
-		self.cfg['dockerfile'] = self.dockerfile
+		self.cfg = {}                              # used to store module information
+		self.cfg['dockerfile'] = self.dockerfile   # required for templates
+		self.cfg['skeleton']   = {}                # required for templates
 
 	def add_shutit_pexpect_session_environment(self, pexpect_session_environment):
 		self.shutit_pexpect_session_environments.add(pexpect_session_environment)

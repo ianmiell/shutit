@@ -564,8 +564,8 @@ def main():
 	shutit_util.load_shutit_modules()
 	shutit.log('ShutIt modules loaded',level=logging.INFO)
 
-
 	init_shutit_map(shutit)
+
 	shutit_util.config_collection()
 	shutit.log('Configuration loaded',level=logging.INFO)
 
