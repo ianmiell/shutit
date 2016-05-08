@@ -345,11 +345,11 @@ class ShutItPexpectSession(object):
 		if conn_module is None:
 			shutit_global.shutit.fail('''Couldn't find conn_module ''' + cfg['build']['conn_module'])
 		container_id = cfg['target']['container_id']
-		conn_module.destroy_container(shutit_global.shutit, 'host_child', 'target_child', container_id)
+		conn_module.destroy_container('host_child', 'target_child', container_id)
 		
 		# Start up a new container.
 		cfg['target']['docker_image'] = new_target_image_name
-		target_child = conn_module.start_container(shutit_global.shutit,self.pexpect_session_id)
+		target_child = conn_module.start_container(self.pexpect_session_id)
 		conn_module.setup_target_child(shutit_global.shutit, target_child)
 		return True
 

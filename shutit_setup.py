@@ -51,7 +51,8 @@ class ShutItConnModule(ShutItModule):
 	def __init__(self, *args, **kwargs):
 		super(ShutItConnModule, self).__init__(*args, **kwargs)
 
-	def setup_host_child(self, shutit):
+	def setup_host_child(self):
+		shutit = shutit_global.shutit
 		cfg = shutit.cfg
 		# Now let's have a host_child
 		shutit.log('Spawning host child',level=logging.DEBUG)
@@ -64,7 +65,8 @@ class ShutItConnModule(ShutItModule):
 		shutit_pexpect_session.setup_prompt('origin_prompt', prefix=prefix)
 		shutit_pexpect_session.login_stack_append(prefix)
 
-	def setup_target_child(self, shutit, target_child, target_child_id='target_child',prefix='root'):
+	def setup_target_child(self, target_child, target_child_id='target_child',prefix='root'):
+		shutit = shutit_global.shutit
 		cfg = shutit.cfg
 		# Some pexpect settings
 		shutit_pexpect_session = shutit.get_shutit_pexpect_session_from_id(target_child_id)
@@ -148,7 +150,8 @@ class ConnDocker(ShutItConnModule):
 		return True
 
 
-	def destroy_container(self, shutit, host_shutit_session_name, container_shutit_session_name, container_id, loglevel=logging.DEBUG):
+	def destroy_container(self, host_shutit_session_name, container_shutit_session_name, container_id, loglevel=logging.DEBUG):
+		shutit = shutit_global.shutit
 		cfg = shutit.cfg
 		# Close connection.
 		shutit.get_shutit_pexpect_session_from_id(container_shutit_session_name).pexpect_child.close()
@@ -156,7 +159,8 @@ class ConnDocker(ShutItConnModule):
 		shutit.send(' docker rm -f ' + container_id + ' && rm -f ' + cfg['build']['cidfile'],shutit_pexpect_child=host_child,expect=cfg['expect_prompts']['origin_prompt'],loglevel=loglevel)
 
 
-	def start_container(self, shutit, shutit_session_name, loglevel=logging.DEBUG):
+	def start_container(self, shutit_session_name, loglevel=logging.DEBUG):
+		shutit = shutit_global.shutit
 		cfg = shutit.cfg
 		docker = cfg['host']['docker_executable'].split(' ')
 		# Always-required options
@@ -270,9 +274,9 @@ class ConnDocker(ShutItConnModule):
 		"""Sets up the target ready for building.
 		"""
 		cfg = shutit.cfg
-		target_child = self.start_container(shutit, 'target_child', loglevel=loglevel)
-		self.setup_host_child(shutit)
-		self.setup_target_child(shutit, target_child)
+		target_child = self.start_container('target_child', loglevel=loglevel)
+		self.setup_host_child()
+		self.setup_target_child(target_child)
 		shutit.send('chmod -R 777 ' + cfg['build']['shutit_state_dir'] + ' && mkdir -p ' + cfg['build']['build_db_dir'] + '/' + cfg['build']['build_id'], shutit_pexpect_child=target_child, echo=False, loglevel=loglevel)
 		return True
 
@@ -320,8 +324,8 @@ class ConnBash(ShutItConnModule):
 		shutit_pexpect_session = shutit_pexpect.ShutItPexpectSession('target_child','/bin/bash')
 		target_child = shutit_pexpect_session.pexpect_child
 		shutit_pexpect_session.expect(cfg['expect_prompts']['base_prompt'].strip(), timeout=10)
-		self.setup_host_child(shutit)
-		self.setup_target_child(shutit, target_child)
+		self.setup_host_child()
+		self.setup_target_child(target_child)
 		return True
 
 	def finalize(self, shutit):
@@ -399,8 +403,8 @@ class ConnSSH(ShutItConnModule):
 			elif res == 1:
 				shutit.log('Prompt found, breaking out',level=logging.DEBUG)
 				break
-		self.setup_host_child(shutit)
-		self.setup_target_child(shutit, target_child)
+		self.setup_host_child()
+		self.setup_target_child(target_child)
 		return True
 
 	def finalize(self, shutit):
