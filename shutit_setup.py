@@ -160,7 +160,7 @@ class ConnDocker(ShutItConnModule):
 	def start_container(self, shutit_session_name, loglevel=logging.DEBUG):
 		shutit = shutit_global.shutit
 		cfg = shutit.cfg
-		docker = cfg['host']['docker_executable'].split(' ')
+		docker = shutit.host['docker_executable'].split(' ')
 		# Always-required options
 		if not os.path.exists(shutit.build['shutit_state_dir'] + '/cidfiles'):
 			os.makedirs(shutit.build['shutit_state_dir'] + '/cidfiles')
