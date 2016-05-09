@@ -48,9 +48,13 @@ Two types of 'challenge' exist in ShutIt:
 - scales
 - free form
 
-Scales tell you to run a specific command before continuing. This is useful when you want to get certain commands 'under your fingers'.
+Scales tell you to run a specific command before continuing. This is useful when you want to get certain commands 'under your fingers'. Here's an example:
 
-Free form exercises give you a task to perform, and free access to the shell. This is to give the user a realistic environment in which to hone their skills. You can check man pages, look around the directories, search for useful utils (even install new ones!). When you are finished, a pre-specified command is run to check the system is in an appropriate state.
+[![grep Scales](https://asciinema.org/a/41308.png)](https://asciinema.org/a/41308)
+
+Free form exercises give you a task to perform, and free access to the shell. This is to give the user a realistic environment in which to hone their skills. You can check man pages, look around the directories, search for useful utils (even install new ones!). When you are finished, a pre-specified command is run to check the system is in an appropriate state. Here's an example 
+
+[![git 101 Tutorial](https://asciinema.org/a/44937.png)](https://asciinema.org/a/44937)
 
 If using Docker and you mess the environment up, the state can be restored to a known one by hitting CTRL-G.
 
