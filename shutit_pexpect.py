@@ -546,11 +546,12 @@ class ShutItPexpectSession(object):
 		shutit = shutit_global.shutit
 		if print_input:
 			if resize:
-				fixterm_filename = '/tmp/shutit_fixterm'
-				if not self.file_exists(fixterm_filename):
-					self.send_file(fixterm_filename,shutit_assets.get_fixterm(), loglevel=logging.DEBUG, delaybeforesend=delaybeforesend)
-					self.send(' chmod 777 ' + fixterm_filename, echo=False,loglevel=logging.DEBUG, delaybeforesend=delaybeforesend)
-				self.sendline(' ' + fixterm_filename, delaybeforesend=delaybeforesend)
+				if self.current_environment.distro != 'osx':
+					fixterm_filename = '/tmp/shutit_fixterm'
+					if not self.file_exists(fixterm_filename):
+						self.send_file(fixterm_filename,shutit_assets.get_fixterm(), loglevel=logging.DEBUG, delaybeforesend=delaybeforesend)
+						self.send(' chmod 777 ' + fixterm_filename, echo=False,loglevel=logging.DEBUG, delaybeforesend=delaybeforesend)
+					self.sendline(' ' + fixterm_filename, delaybeforesend=delaybeforesend)
 			if default_msg == None:
 				if not shutit.build['video']:
 					pp_msg = '\r\nYou now have a standard shell. Hit CTRL and then ] at the same to continue ShutIt run.'
