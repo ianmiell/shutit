@@ -32,13 +32,36 @@ Some use cases:
 - Are interested in "phoenix deployment".
 
 
-What Does it Do?
-================
+What Does it Do (bash Builds)?
+==============================
+
+ShutIt acts as a modular and easy to use wrapper around [https://github.com/pexpect/pexpect](pexpect).
+
+
+What Does it Do (Tutorials)?
+============================
+
+This builds on the docker features (see below), but allows you to interrupt the run at points of your choosing with 'challenges' for the user to overcome.
+
+Two types of 'challenge' exist in ShutIt:
+
+- scales
+- free form
+
+Scales tell you to run a specific command before continuing. This is useful when you want to get certain commands 'under your fingers'.
+
+Free form exercises give you a task to perform, and free access to the shell. This is to give the user a realistic environment in which to hone their skills. You can check man pages, look around the directories, search for useful utils (even install new ones!). When you are finished, a pre-specified command is run to check the system is in an appropriate state.
+
+If using Docker and you mess the environment up, the state can be restored to a known one by hitting CTRL-G.
+
+
+What Does it Do (Docker Builds)?
+================================
 
 ![Example Setup]
 (https://github.com/ianmiell/shutit/blob/gh-pages/images/ShutIt.png)
 
-We start with a "ShutIt Module", similar to a or a shell script, or a Dockerfile.
+We start with a "ShutIt Module", similar to a or a shell script, or a Dockerfile (see bash builds above).
 
 In the image above there are five of these. At a high level they each have the following attributes:
 
@@ -55,6 +78,13 @@ The container environment is set up, the modules are ordered, and the build step
 This is a core function of ShutIt - to manage dependencies and image building for complex image setups.
 
 But it doesn't just run build steps, it also manages The ShutIt Lifecycle to make the build more robust and flexible.
+
+
+What Does it Do (Vagrant)?
+==========================
+Uses a bash build to set up a vagrant machine. This allows another kind of contained environment for more infrastructural projects than Docker allows for.
+
+There is a multinode option for Vagrant multinode projects.
 
 
 The ShutIt Lifecycle

@@ -28,8 +28,7 @@ import decimal
 import inspect
 
 
-# TODO: these don't belong here, but this module is 'top level' and doesn't
-# depend on any other shutit files.
+# TODO: these don't belong here, but this module is 'top level' and doesn't depend on any other shutit files.
 class ShutItException(Exception):
 	"""Placeholder exception. Implementation TODO.
 	"""

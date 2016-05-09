@@ -26,8 +26,6 @@
 """ShutIt is a means of building stateless target hosts in a flexible and predictable way.
 """
 
-# TODO: replace passed-in shutit objects with global
-
 
 from shutit_module import ShutItModule, ShutItException, ShutItFailException
 import shutit_util
