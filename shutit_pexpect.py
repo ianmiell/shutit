@@ -219,7 +219,6 @@ class ShutItPexpectSession(object):
 			_ = self.login_stack.pop()
 			if len(self.login_stack):
 				old_prompt_name	 = self.login_stack[-1]
-				# TODO: sort out global expect_prompts
 				self.default_expect = shutit.expect_prompts[old_prompt_name]
 			else:
 				# If none are on the stack, we assume we're going to the root prompt
@@ -723,7 +722,7 @@ class ShutItPexpectSession(object):
 	                  note=None,
 	                  loglevel=logging.DEBUG):
 		"""Takes care of adding a line to everyone's bashrc
-		(/etc/bash.bashrc, /etc/profile).
+		(/etc/bash.bashrc).
 
 		@param line:          Line to add.
 		@param match_regexp:  See add_line_to_file()
@@ -735,7 +734,7 @@ class ShutItPexpectSession(object):
 		shutit._handle_note(note)
 		if not shutit_util.check_regexp(match_regexp):
 			shutit.fail('Illegal regexp found in add_to_bashrc call: ' + match_regexp)
-		shutit.add_line_to_file(line, '${HOME}/.bashrc', match_regexp=match_regexp, loglevel=loglevel) # This won't work for root - TODO
+		shutit.add_line_to_file(line, '${HOME}/.bashrc', match_regexp=match_regexp, loglevel=loglevel)
 		shutit.add_line_to_file(line, '/etc/bash.bashrc', match_regexp=match_regexp, loglevel=loglevel)
 		return True
 
@@ -2262,7 +2261,6 @@ $'"""
 
 
 
-	# TODO: move to shutit_pexpect, pass through
 	def challenge(self,
                   task_desc,
                   expect=None,
@@ -2374,7 +2372,7 @@ $'"""
 			else:
 				task_desc_new = task_desc
 			while not ok:
-				self.pause_point(shutit_util.colourise('31',task_desc_new),colour='31') # TODO: message
+				self.pause_point(shutit_util.colourise('31',task_desc_new),colour='31')
 				if shutit.shutit_signal['ID'] == 8:
 					if len(shutit.build['pause_point_hints']):
 						shutit.log(shutit_util.colourise('31','\r\n========= HINT ==========\r\n\r\n' + shutit.build['pause_point_hints'].pop(0)),transient=True)
@@ -2486,7 +2484,6 @@ $'"""
 				#	environment_id = 'ORIGIN_ENV'
 				#else:
 				environment_id = files[0]
-#TODO: problem is environment_id not found here.
 				environment = shutit.get_shutit_pexpect_session_environment(environment_id)
 				if environment:
 					# Set that object to the _current_ environment in the PexpectSession
@@ -2539,5 +2536,3 @@ class ShutItPexpectSessionEnvironment(object):
 		self.users                        = dict()
 	
 
-	#TODO: review items in cfg and see if they make more sense in the pexpect object
-	#TODO: replace 'target' in cfg

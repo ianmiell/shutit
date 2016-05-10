@@ -368,10 +368,6 @@ def get_base_config(cfg_parser):
 	if shutit.target['rm'] and (shutit.repository['tag'] or shutit.repository['push'] or shutit.repository['save'] or shutit.repository['export']):
 		print("Can't have [target]/rm and [repository]/(push/save/export) set to true")
 		handle_exit(exit_code=1)
-	if warn != '':
-		shutit.log('Showing config as read in. This can also be done by calling with list_configs:',level=logging.WARNING)
-		shutit.log(print_config(cfg), level=logging.WARNING)
-		time.sleep(1)
 	if shutit.target['hostname'] != '' and shutit.build['net'] != '' and shutit.build['net'] != 'bridge':
 		print('\n\ntarget/hostname or build/net configs must be blank\n\n')
 		handle_exit(exit_code=1)

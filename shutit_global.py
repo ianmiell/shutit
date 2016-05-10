@@ -1380,8 +1380,6 @@ class ShutIt(object):
 		"""
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
 		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
-		# TODO: environment_id should be within pexpect session object
-		# TODO: logging within pexpect session
 		return shutit_pexpect_session.get_distro_info(delaybeforesend=delaybeforesend,loglevel=loglevel)
 
 

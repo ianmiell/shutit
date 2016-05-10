@@ -413,7 +413,6 @@ def do_build():
 	shutit = shutit_global.shutit
 	cfg = shutit.cfg
 	shutit.log('PHASE: build, repository work', level=logging.DEBUG)
-	shutit.log(shutit_util.print_config(cfg),level=logging.DEBUG)
 	if shutit.build['interactive'] >= 3:
 		print ('\nNow building any modules that need building' + shutit_util.colourise('32', '\n\n[Hit return to continue]\n'))
 		shutit_util.util_raw_input()
@@ -607,12 +606,8 @@ def main():
 
 
 	if shutit.action['list_configs'] or shutit.build['loglevel'] <= logging.DEBUG:
-		shutit.log(shutit_util.print_config(cfg, history=shutit.list_configs['cfghistory']))
 		# Set build completed
 		shutit.build['completed'] = True
-		f = file(shutit.build['log_config_path'] + '/cfg.txt','w')
-		f.write(shutit_util.print_config(cfg, history=shutit.list_configs['cfghistory']))
-		f.close()
 		shutit.log('================================================================================')
 		shutit.log('Config details placed in: ' + shutit.build['log_config_path'])
 		shutit.log('================================================================================')
