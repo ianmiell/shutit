@@ -1739,7 +1739,7 @@ def dockerfile_to_shutit_module_template(skel_dockerfile,
 		
 	templatemodule += """\n\ndef module():
 		return template(
-				'""" + module_id + """', """ + skel_domain_hash + str(order * 0.0001) + """,
+				'""" + module_id + """', """ + skel_domain_hash + str(order * 0.0001) + str(random.randint(1,999)) + """,
 				description='',
 				delivery_methods=[('""" + skel_delivery + """')],
 				maintainer='""" + local_cfg['dockerfile']['maintainer'] + """',
