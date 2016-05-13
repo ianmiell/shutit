@@ -1302,8 +1302,8 @@ class ShutIt(object):
 
 
 	def login(self,
-	          user='root',
 	          command='su -',
+	          user='root',
 	          password=None,
 	          prompt_prefix=None,
 	          expect=None,
