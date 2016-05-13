@@ -108,10 +108,17 @@ class ShutIt(object):
 		self.cfg['dockerfile'] = self.dockerfile   # required for templates
 		self.cfg['skeleton']   = {}                # required for templates
 
+
 	def add_shutit_pexpect_session_environment(self, pexpect_session_environment):
+		"""Adds an environment object to a shutit_pexpect_session object.
+		"""
 		self.shutit_pexpect_session_environments.add(pexpect_session_environment)
 
+
 	def get_shutit_pexpect_session_environment(self, environment_id):
+		"""Returns the first shutit_pexpect_session object related to the given
+		environment-id
+		"""
 		if type(environment_id) != str:
 			self.fail('Wrong argument type in get_shutit_pexpect_session_environment')
 		for env in self.shutit_pexpect_session_environments:
@@ -119,8 +126,13 @@ class ShutIt(object):
 				return env
 		return None
 
+
 	def get_current_shutit_pexpect_session_environment(self):
+		"""Returns the current environment from the currently-set default
+		pexpect child.
+		"""
 		return self.get_current_shutit_pexpect_session().current_environment
+
 
 	def get_current_shutit_pexpect_session(self):
 		"""Returns the currently-set default pexpect child.
@@ -214,6 +226,9 @@ class ShutIt(object):
 
 
 	def get_current_environment(self):
+		"""Returns the current environment id from the current
+		shutit_pexpect_session
+		"""
 		return self.get_current_shutit_pexpect_session_environment().environment_id
 
 

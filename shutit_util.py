@@ -2341,4 +2341,8 @@ _build_section = '''
 		# shutit.get_input(msg,default,valid[],boolean?,ispass?)
 		#                                    - Get input from user and return output
 		# shutit.fail(msg)                   - Fail the program and exit with status 1
+		#
+		# TUTORIALS
+		# shutit.challenge(task_desk,hints[],expect_type,challenge_type,follow_on_context{})
+		#                                    - Issue challenge to the user. See shutit_global.py
 		#'''
