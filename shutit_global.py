@@ -65,7 +65,7 @@ class ShutIt(object):
 		self.build['shutit_command_history'] = []
 		self.build['walkthrough']            = False # Whether to honour 'walkthrough' requests
 		self.build['walkthrough_wait']       = -1
-		self.repository                             = {}
+		self.repository                      = {}
 		# If no LOGNAME available,
 		self.host                            = {}
 		self.host['shutit_path']             = sys.path[0]
@@ -101,7 +101,7 @@ class ShutIt(object):
 		# These are new members we dont have to provide compatibility for
 		self.conn_modules = set()
 		# Whether to list the modules seen
-		self.list_modules                           = {}
+		self.list_modules                   = {}
 		# Environments are kept globally, as different sessions may re-connect to them.
 		self.shutit_pexpect_session_environments = set()
 		self.cfg = {}                              # used to store module information
@@ -372,22 +372,42 @@ class ShutIt(object):
 		returning. The expected string will default to the currently-set
 		default expected string (see get_default_shutit_pexpect_session_expect)
 
-		Returns the pexpect return value (ie which expected string in the list matched)
+		Returns the pexpect return value (ie which expected string in the list
+		matched)
 
-		@param send: String to send, ie the command being issued. If set to None, we consume up to the expect string, which is useful if we just matched output that came before a standard command that returns to the prompt.
-		@param expect: String that we expect to see in the output. Usually a prompt. Defaults to currently-set expect string (see set_default_shutit_pexpect_session_expect)
+		@param send: String to send, ie the command being issued. If set to
+		       None, we consume up to the expect string, which is useful if we
+		       just matched output that came before a standard command that
+		       returns to the prompt.
+		@param expect: String that we expect to see in the output. Usually a
+		       prompt. Defaults to currently-set expect string (see
+		       set_default_shutit_pexpect_session_expect)
 		@param shutit_pexpect_child: pexpect child to issue command to.
 		@param timeout: Timeout on response
-		@param check_exit: Whether to check the shell exit code of the passed-in command.  If the exit value was non-zero an error is thrown.  (default=None, which takes the currently-configured check_exit value) See also fail_on_empty_before.
-		@param fail_on_empty_before: If debug is set, fail on empty match output string (default=True) If this is set to False, then we don't check the exit value of the command.
-		@param record_command: Whether to record the command for output at end. As a safety measure, if the command matches any 'password's then we don't record it.
+		@param check_exit: Whether to check the shell exit code of the passed-in
+		       command.  If the exit value was non-zero an error is thrown.
+		       (default=None, which takes the currently-configured check_exit
+		       value) See also fail_on_empty_before.
+		@param fail_on_empty_before: If debug is set, fail on empty match output
+		       string (default=True) If this is set to False, then we don't
+		       check the exit value of the command.
+		@param record_command: Whether to record the command for output at end.
+		       As a safety measure, if the command matches any 'password's then
+		       we don't record it.
 		@param exit_values: Array of acceptable exit values as strings
-		@param echo: Whether to suppress any logging output from pexpect to the terminal or not.  We don't record the command if this is set to False unless record_command is explicitly passed in as True.
-		@param escape: Whether to escape the characters in a bash-friendly way, ie $'\Uxxxxxx'
-		@param retry: Number of times to retry the command if the first attempt doesn't work. Useful if going to the network
-		@param note: If a note is passed in, and we are in walkthrough mode, pause with the note printed
-		@param assume_gnu: Assume the gnu version of commands, which are not in OSx by default (for example)
-		@return: The pexpect return value (ie which expected string in the list matched)
+		@param echo: Whether to suppress any logging output from pexpect to the
+		       terminal or not.  We don't record the command if this is set to
+		       False unless record_command is explicitly passed in as True.
+		@param escape: Whether to escape the characters in a bash-friendly way,
+		       ie $'\Uxxxxxx'
+		@param retry: Number of times to retry the command if the first attempt
+		       doesn't work. Useful if going to the network
+		@param note: If a note is passed in, and we are in walkthrough mode,
+		       pause with the note printed
+		@param assume_gnu: Assume the gnu version of commands, which are not in
+		       OSx by default (for example)
+		@return: The pexpect return value (ie which expected string in the list
+		         matched)
 		@rtype: string
 		"""
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
@@ -429,8 +449,13 @@ class ShutIt(object):
 		return True
 
 
-	def _expect_allow_interrupt(self, shutit_pexpect_child, expect, timeout, iteration_s=1):
-		"""This function allows you to interrupt the run at more or less any point by breaking up the timeout into interactive chunks.
+	def _expect_allow_interrupt(self,
+	                            shutit_pexpect_child,
+	                            expect,
+	                            timeout,
+	                            iteration_s=1):
+		"""This function allows you to interrupt the run at more or less any
+		point by breaking up the timeout into interactive chunks.
 		"""
 		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
 		accum_timeout = 0
