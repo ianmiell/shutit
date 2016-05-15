@@ -64,7 +64,7 @@ class ShutIt(object):
 		self.build['distro_override']        = ''
 		self.build['shutit_command_history'] = []
 		self.build['walkthrough']            = False # Whether to honour 'walkthrough' requests
-		self.build['walkthrough_wait']       = -1
+		self.build['walkthrough_wait']       = -1 # mysterious problems setting this to 1 with fixterm
 		self.repository                      = {}
 		# If no LOGNAME available,
 		self.host                            = {}
@@ -275,7 +275,7 @@ class ShutIt(object):
 	               shutit_pexpect_child=None,
 	               cadence=5,
 	               retries=100,
-	               echo=False,
+	               echo=None,
 	               note=None,
 	               delaybeforesend=0,
 	               loglevel=logging.INFO):
@@ -360,7 +360,7 @@ class ShutIt(object):
 	         fail_on_empty_before=True,
 	         record_command=True,
 	         exit_values=None,
-	         echo=False,
+	         echo=None,
 	         escape=False,
 	         retry=3,
 	         note=None,
@@ -1183,7 +1183,7 @@ class ShutIt(object):
 	                          retry=3,
 	                          strip=True,
 	                          note=None,
-	                          echo=False,
+	                          echo=None,
 	                          delaybeforesend=0,
 	                          loglevel=logging.DEBUG):
 		"""Returns true if the output of the command matches any of the strings in
@@ -1216,7 +1216,7 @@ class ShutIt(object):
 	                        preserve_newline=False,
 	                        note=None,
 	                        record_command=False,
-	                        echo=False,
+	                        echo=None,
 	                        fail_on_empty_before=True,
 	                        delaybeforesend=0,
 	                        loglevel=logging.DEBUG):
@@ -1357,16 +1357,16 @@ class ShutIt(object):
 		"""
 		shutit_pexpect_session = self.get_current_shutit_pexpect_session()
 		return shutit_pexpect_session.login(user=user,
-		                             command=command,
-		                             password=password,
-		                             prompt_prefix=prompt_prefix,
-		                             expect=expect,
-		                             timeout=timeout,
-		                             escape=escape,
-		                             note=note,
-		                             go_home=go_home,
-		                             delaybeforesend=delaybeforesend,
-		                             loglevel=loglevel)
+		                                    command=command,
+		                                    password=password,
+		                                    prompt_prefix=prompt_prefix,
+		                                    expect=expect,
+		                                    timeout=timeout,
+		                                    escape=escape,
+		                                    note=note,
+		                                    go_home=go_home,
+		                                    delaybeforesend=delaybeforesend,
+		                                    loglevel=loglevel)
 
 
 	def logout(self,

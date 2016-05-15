@@ -110,7 +110,8 @@ then
 		cleanup hard
 		exit 1
 	fi
-
+	rm -rf ${NEWDIR}
+	popd > /dev/null 2>&1
 fi
 
 DESC="Testing skeleton build with Dockerfile"

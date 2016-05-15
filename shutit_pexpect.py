@@ -1614,7 +1614,7 @@ class ShutItPexpectSession(object):
 	               not_there=False,
 	               cadence=5,
 	               retries=100,
-	               echo=False,
+	               echo=None,
 	               note=None,
 	               delaybeforesend=0,
 	               loglevel=logging.INFO):
@@ -1885,7 +1885,7 @@ class ShutItPexpectSession(object):
 	         fail_on_empty_before=True,
 	         record_command=True,
 	         exit_values=None,
-	         echo=False,
+	         echo=None,
 	         escape=False,
 	         retry=3,
 	         note=None,
@@ -1923,9 +1923,17 @@ class ShutItPexpectSession(object):
 		shutit._handle_note(note, command=str(send), training_input=str(send))
 		if timeout == None:
 			timeout = 3600
-		
+	
+		# Should we echo the output?	
 		if shutit.build['loglevel'] <= logging.DEBUG:
-			echo=True
+			# Yes if it's in debug
+			echo = True
+		if echo == None and shutit.build['walkthrough']:
+			# Yes if it's in walkthrough and was not explicitly passed in
+			echo = True
+		if echo == None:
+			# No if it was not explicitly passed in
+			echo = False
 
 		# Handle OSX to get the GNU version of the command
 		if assume_gnu:
@@ -1969,12 +1977,11 @@ class ShutItPexpectSession(object):
 			if ok_to_record:
 				shutit.build['shutit_command_history'].append(send)
 		if send != None:
-			shutit.log('Sending: ' + send,level=loglevel)
-		if send != None:
+			if not echo:
+				shutit.log('Sending: ' + send,level=loglevel)
 			shutit.log('================================================================================',level=logging.DEBUG)
 			shutit.log('Sending>>>' + send + '<<<',level=logging.DEBUG)
 			shutit.log('Expecting>>>' + str(expect) + '<<<',level=logging.DEBUG)
-		# Don't echo if echo passed in as False
 		while retry > 0:
 			if escape:
 				escaped_str = "eval $'"
@@ -1992,6 +1999,7 @@ $'"""
 						_count = 0
 				escaped_str += "'"
 				shutit.log('This string was sent safely: ' + send, level=logging.DEBUG)
+			# Don't echo if echo passed in as False
 			if not echo:
 				oldlog = self.pexpect_child.logfile_send
 				self.pexpect_child.logfile_send = None
@@ -2060,7 +2068,10 @@ $'"""
 				logged_output = logged_output.replace(send,'',1)
 				logged_output = logged_output.replace('\r','')
 				logged_output = logged_output[:30] + ' [...]'
-				shutit.log('Output (squashed): ' + logged_output,level=loglevel)
+				if echo:
+					shutit.log('Output (squashed): ' + logged_output,level=logging.DEBUG)
+				else:
+					shutit.log('Output (squashed): ' + logged_output,level=loglevel)
 				shutit.log('shutit_pexpect_child.before>>>' + self.pexpect_child.before + '<<<',level=logging.DEBUG)
 				shutit.log('shutit_pexpect_child.after>>>' + self.pexpect_child.after + '<<<',level=logging.DEBUG)
 			except:
