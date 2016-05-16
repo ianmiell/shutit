@@ -589,14 +589,14 @@ docker_tutorial:   a docker-based tutorial
 	shutit.build['apk_update_done']    = False
 	# Persistence- and build-related arguments.
 	if shutit.action['build']:
-		shutit.repository['push']   = args.push
-		shutit.repository['export'] = args.export
-		shutit.repository['save']   = args.save
+		shutit.repository['push']       = args.push
+		shutit.repository['export']     = args.export
+		shutit.repository['save']       = args.save
 		shutit.build['distro_override'] = args.distro
 		shutit.build['mount_docker']    = args.mount_docker
 		shutit.build['walkthrough']     = args.walkthrough
-		shutit.build['training']      = args.training
-		shutit.build['choose_config']     = args.choose_config
+		shutit.build['training']        = args.training
+		shutit.build['choose_config']   = args.choose_config
 		if shutit.build['training'] and not shutit.build['walkthrough']:
 			print('\n--training implies --walkthrough, setting --walkthrough on!\n')
 			shutit.build['walkthrough'] = True
