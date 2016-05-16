@@ -441,11 +441,13 @@ class ShutIt(object):
 		return True
 
 
-	def _handle_note_after(self, note):
+	def _handle_note_after(self, note, training_input=''):
 		if self.build['walkthrough'] and note != None:
 			wait = self.build['walkthrough_wait']
 			if wait >= 0:
 				time.sleep(wait)
+			if training_input !+ '' and self.build['training']:
+				self.pause_point('Training mode - pause_point')
 		return True
 
 
@@ -1389,7 +1391,15 @@ class ShutIt(object):
 
 
 	def get_input(self, msg, default='', valid=[], boolean=False, ispass=False, colour='32'):
-		shutit_util.get_input(msg=msg,default=default,valid=valid,boolean=boolean,ispass=ispass,colour=colour)
+		"""Get input from the user, returning the entered value.
+
+		    @param msg:         - message to show user
+		    @param default:     - default value if none entered.. defaults to empty string
+		    @param valid:       - list of valid values
+		    @param boolean:     - whether this should return true/false. Defaults to set of sensible values for valid[] if set to true
+		    @param ispass:      - do not echo input to terminal
+		"""
+		return shutit_util.get_input(msg=msg,default=default,valid=valid,boolean=boolean,ispass=ispass,colour=colour)
 
 
 	def get_memory(self,

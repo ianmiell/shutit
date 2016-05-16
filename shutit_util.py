@@ -2149,7 +2149,8 @@ def get_input(msg, default='', valid=[], boolean=False, ispass=False, colour='32
 		return answer
 
 def get_send_command(send):
-	"""Internal helper function to get command that's really sent"""
+	"""Internal helper function to get command that's really sent
+	"""
 	if send == None:
 		return send
 	cmd_arr = send.split()
@@ -2160,6 +2161,9 @@ def get_send_command(send):
 
 
 def get_command(command):
+	"""Helper function for osx - return gnu utils rather than default for
+	   eg head and md5sum where possible.
+	"""
 	shutit = shutit_global.shutit
 	if command in ('head','md5sum'):
 		if shutit.get_current_shutit_pexpect_session_environment().distro == 'osx':

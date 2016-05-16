@@ -17,7 +17,7 @@ setup(
 	# the version across setup.py and the project code, see
 	# https://packaging.python.org/en/latest/single_source_version.html
 
-	version='0.9.131',
+	version='0.9.132',
 	description='An automation tool designed for complex Docker builds',
 	long_description=long_description,
 

@@ -194,7 +194,7 @@ class ShutItPexpectSession(object):
 		if go_home:
 			self.send('cd',check_exit=False, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
 		self.login_stack_append(r_id)
-		shutit._handle_note_after(note=note)
+		shutit._handle_note_after(note=note,training_input=send)
 		return True
 
 
@@ -229,7 +229,7 @@ class ShutItPexpectSession(object):
 		# No point in checking exit here, the exit code will be
 		# from the previous command from the logged in session
 		self.send(command, expect=expect, check_exit=False, timeout=timeout,echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
-		shutit._handle_note_after(note=note)
+		shutit._handle_note_after(note=note,training_input=command)
 
 
 	def login_stack_append(self,
@@ -2103,7 +2103,7 @@ $'"""
 		if shutit.build['ctrlc_stop']:
 			shutit.build['ctrlc_stop'] = False
 			self.pause_point('pause point: interrupted by CTRL-c')
-		shutit._handle_note_after(note=note)
+		shutit._handle_note_after(note=note, training_input=str(send))
 		return expect_res
 	# alias send to send_and_expect
 	send_and_expect = send
