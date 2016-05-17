@@ -229,7 +229,7 @@ class ShutItPexpectSession(object):
 		# No point in checking exit here, the exit code will be
 		# from the previous command from the logged in session
 		self.send(command, expect=expect, check_exit=False, timeout=timeout,echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
-		shutit._handle_note_after(note=note,training_input=command)
+		shutit._handle_note_after(note=note)
 
 
 	def login_stack_append(self,
