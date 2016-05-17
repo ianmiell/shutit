@@ -99,7 +99,7 @@ class ShutIt(object):
 		self.shutit_main_dir                = os.path.abspath(os.path.dirname(__file__)) 
 		self.shutit_map                     = {}
 		# These are new members we dont have to provide compatibility for
-		self.conn_modules = set()
+		self.conn_modules                   = set()
 		# Whether to list the modules seen
 		self.list_modules                   = {}
 		# Environments are kept globally, as different sessions may re-connect to them.
