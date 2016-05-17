@@ -186,7 +186,11 @@ class ShutItPexpectSession(object):
 			shutit.log('WARNING! user is bash - if you see problems below, did you mean: login(command="' + user + '")?',level=loglevel.WARNING)
 		shutit._handle_note(note,command=command + '\n\n[as user: "' + user + '"]',training_input=send)
 		# r'[^t] login:' - be sure not to match 'last login:'
-		self.multisend(send,{'ontinue connecting':'yes','assword':password,r'[^t] login:':password},expect=general_expect,check_exit=False,timeout=timeout,fail_on_empty_before=False,escape=escape,echo=False)
+		if send == 'bash':
+			echo=False
+		else:
+			echo=True
+		self.multisend(send,{'ontinue connecting':'yes','assword':password,r'[^t] login:':password},expect=general_expect,check_exit=False,timeout=timeout,fail_on_empty_before=False,escape=escape,echo=echo)
 		if prompt_prefix != None:
 			self.setup_prompt(r_id,prefix=prompt_prefix)
 		else:
