@@ -2527,7 +2527,7 @@ $'"""
 		shutit.add_shutit_pexpect_session_environment(new_environment)
 		if prefix != 'ORIGIN_ENV':
 			self.get_distro_info()
-		self.send(' mkdir -p ' + environment_id_dir + ' && chmod -R 777 ' + shutit.build['shutit_state_dir_base'] + ' && touch ' + environment_id_dir + '/' + new_environment.environment_id, echo=False)
+		self.send(' mkdir -p ' + environment_id_dir + ' && chmod -R 777 ' + shutit.build['shutit_state_dir_base'] + ' && touch ' + environment_id_dir + '/' + new_environment.environment_id, echo=False, loglevel=logging.DEBUG)
 		return new_environment
 	            	 
 
