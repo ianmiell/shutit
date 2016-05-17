@@ -228,7 +228,7 @@ class ShutItPexpectSession(object):
 			shutit.fail('Logout called without corresponding login', throw_exception=False)
 		# No point in checking exit here, the exit code will be
 		# from the previous command from the logged in session
-		self.send(command, expect=expect, check_exit=False, timeout=timeout,echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
+		self.send(command, expect=expect, check_exit=False, fail_on_empty_before=False, timeout=timeout,echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
 		shutit._handle_note_after(note=note)
 
 
@@ -547,10 +547,16 @@ class ShutItPexpectSession(object):
 			if resize:
 				if self.current_environment.distro != 'osx':
 					fixterm_filename = '/tmp/shutit_fixterm'
+					fixterm_filename_stty = fixterm_filename + '_stty'
 					if not self.file_exists(fixterm_filename):
 						self.send_file(fixterm_filename,shutit_assets.get_fixterm(), loglevel=logging.DEBUG, delaybeforesend=delaybeforesend)
 						self.send(' chmod 777 ' + fixterm_filename, echo=False,loglevel=logging.DEBUG, delaybeforesend=delaybeforesend)
-					self.sendline(' ' + fixterm_filename, delaybeforesend=delaybeforesend)
+					if not self.file_exists(fixterm_filename + '_stty'):
+						self.send('stty >  ' + fixterm_filename_stty, echo=False,loglevel=logging.DEBUG, delaybeforesend=delaybeforesend)
+						self.sendline(' ' + fixterm_filename, delaybeforesend=delaybeforesend)
+					# do not re-run if the output of stty matches the current one
+					elif send_and_get_output('diff <(stty) ' + fixterm_filename_stty) != '':
+						self.sendline(' ' + fixterm_filename, delaybeforesend=delaybeforesend)
 			if default_msg == None:
 				if not shutit.build['video']:
 					pp_msg = '\r\nYou now have a standard shell. Hit CTRL and then ] at the same to continue ShutIt run.'
