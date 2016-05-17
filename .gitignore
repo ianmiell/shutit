@@ -54,3 +54,5 @@ dist/*
 shutit.egg*
 .eric6*
 shutit.e4p
+#bak
+*bak
