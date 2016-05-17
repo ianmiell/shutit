@@ -446,7 +446,7 @@ class ShutIt(object):
 			wait = self.build['walkthrough_wait']
 			if wait >= 0:
 				time.sleep(wait)
-			if training_input !+ '' and self.build['training']:
+			if training_input != '' and self.build['training']:
 				self.pause_point('Training mode - pause_point')
 		return True
 
