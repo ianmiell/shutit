@@ -186,7 +186,7 @@ class ShutItPexpectSession(object):
 			shutit.log('WARNING! user is bash - if you see problems below, did you mean: login(command="' + user + '")?',level=loglevel.WARNING)
 		shutit._handle_note(note,command=command + '\n\n[as user: "' + user + '"]',training_input=send)
 		# r'[^t] login:' - be sure not to match 'last login:'
-		self.multisend(send,{'ontinue connecting':'yes','assword':password,r'[^t] login:':password},expect=general_expect,check_exit=False,timeout=timeout,fail_on_empty_before=False,escape=escape)
+		self.multisend(send,{'ontinue connecting':'yes','assword':password,r'[^t] login:':password},expect=general_expect,check_exit=False,timeout=timeout,fail_on_empty_before=False,escape=escape,echo=False)
 		if prompt_prefix != None:
 			self.setup_prompt(r_id,prefix=prompt_prefix)
 		else:
@@ -555,7 +555,7 @@ class ShutItPexpectSession(object):
 						self.send('stty >  ' + fixterm_filename_stty, echo=False,loglevel=logging.DEBUG, delaybeforesend=delaybeforesend)
 						self.sendline(' ' + fixterm_filename, delaybeforesend=delaybeforesend)
 					# do not re-run if the output of stty matches the current one
-					elif send_and_get_output('diff <(stty) ' + fixterm_filename_stty) != '':
+					elif self.send_and_get_output('diff <(stty) ' + fixterm_filename_stty) != '':
 						self.sendline(' ' + fixterm_filename, delaybeforesend=delaybeforesend)
 			if default_msg == None:
 				if not shutit.build['video']:
