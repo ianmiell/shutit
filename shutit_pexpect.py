@@ -1100,6 +1100,8 @@ class ShutItPexpectSession(object):
 		if install_type == 'apt':
 			if not shutit.build['apt_update_done']:
 				self.send('apt-get update',loglevel=logging.INFO, delaybeforesend=delaybeforesend)
+				# TODO: should apt_update_done be per env?
+				shutit.build['apt_update_done'] = True
 			cmd += 'apt-get install'
 			if 'apt' in options:
 				opts = options['apt']
@@ -1526,7 +1528,6 @@ class ShutItPexpectSession(object):
 					if not shutit.build['apt_update_done']:
 						shutit.build['apt_update_done'] = True
 						self.send('apt-get update && apt-get install -y -qq lsb-release',loglevel=loglevel,delaybeforesend=delaybeforesend)
-					shutit.build['apt_update_done'] = True
 					self.send('apt-get install -y -qq lsb-release',loglevel=loglevel,delaybeforesend=delaybeforesend)
 				d = self.lsb_release()
 				install_type   = d['install_type']
