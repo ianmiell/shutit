@@ -2525,8 +2525,8 @@ $'"""
 		# If not, create new env object, set it to current.
 		self.current_environment = new_environment
 		shutit.add_shutit_pexpect_session_environment(new_environment)
-		if prefix != 'ORIGIN_ENV':
-			self.get_distro_info()
+		# TODO: make smarter wrt ORIGIN_ENV and cacheing
+		self.get_distro_info()
 		self.send(' mkdir -p ' + environment_id_dir + ' && chmod -R 777 ' + shutit.build['shutit_state_dir_base'] + ' && touch ' + environment_id_dir + '/' + new_environment.environment_id, echo=False, loglevel=logging.DEBUG)
 		return new_environment
 	            	 
