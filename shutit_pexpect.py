@@ -561,6 +561,8 @@ class ShutItPexpectSession(object):
 					# do not re-run if the output of stty matches the current one
 					elif self.send_and_get_output(' diff <(stty) ' + fixterm_filename_stty) != '':
 						self.sendline(' ' + fixterm_filename, delaybeforesend=delaybeforesend)
+					else:
+						self.sendline('')
 			if default_msg == None:
 				if not shutit.build['video']:
 					pp_msg = '\r\nYou now have a standard shell. Hit CTRL and then ] at the same to continue ShutIt run.'

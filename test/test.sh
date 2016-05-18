@@ -53,6 +53,60 @@ find ${SHUTIT_DIR} -name '*.cnf' | grep '/configs/[^/]*.cnf' | xargs chmod 600
 cleanup hard
 
 
+# General tests
+mkdir -p /tmp/shutit_logs/$$
+declare -A PIDS
+PIDS=()
+DISTROS=${SHUTITTEST_DISTROS:-ubuntu:14.04}
+for dist in $DISTROS
+do
+	for d in $(ls -d test/[0-9]* | sort -n)
+	do
+		[ -d ${SHUTIT_DIR}/$d ] || continue
+		pushd ${SHUTIT_DIR}/$d/bin
+		if [[ -a STOPTEST ]]
+		then
+			echo "STOPTEST file found in $(pwd)"
+		else 
+			if [[ -a /tmp/SHUTITSTOPTEST ]]
+			then
+				echo "/tmp/SHUTITSTOPTEST file found in /tmp"
+			else
+				# Must be done on each iteration as we need a fresh cid per test run
+				set_shutit_options "--image_tag $dist --interactive 0 --imageerrorok"
+				echo "================================================================================"
+				echo "SHUTIT MODULE TEST $d: In directory: `pwd` BEGIN"
+				echo "================================================================================"
+				if [ x$SHUTIT_PARALLEL_BUILD = 'x' ]
+				then
+					./test.sh --interactive 0
+					RES=$?
+					if [[ "x$RES" != "x0" ]]
+					then
+						echo "FAILURE |$RES| in: $(pwd) running test.sh"
+						cleanup hard
+						exit 1
+					fi
+					cleanup hard
+					echo "================================================================================"
+					echo "SHUTIT MODULE TEST $d: In directory: `pwd` END"
+					echo "================================================================================"
+				else
+					# TODO
+					#http://stackoverflow.com/questions/356100/how-to-wait-in-bash-for-several-subprocesses-to-finish-and-return-exit-code-0
+					./test.sh --interactive 0
+					JOB=$!
+					PIDS[$JOB]="$JOB: $dist $d"
+				fi
+				set_shutit_options
+			fi
+		fi
+		report
+		popd
+	done
+done
+
+
 if [[ $(which vagrant) != '' ]]
 then
 	DESC="Testing vagrant build basic bare"
@@ -176,58 +230,6 @@ cleanup hard
 rm -rf ${NEWDIR}
 popd > /dev/null 2>&1
 
-# General tests
-mkdir -p /tmp/shutit_logs/$$
-declare -A PIDS
-PIDS=()
-DISTROS=${SHUTITTEST_DISTROS:-ubuntu:14.04}
-for dist in $DISTROS
-do
-	for d in $(ls -d test/[0-9]* | sort -n)
-	do
-		[ -d ${SHUTIT_DIR}/$d ] || continue
-		pushd ${SHUTIT_DIR}/$d/bin
-		if [[ -a STOPTEST ]]
-		then
-			echo "STOPTEST file found in $(pwd)"
-		else 
-			if [[ -a /tmp/SHUTITSTOPTEST ]]
-			then
-				echo "/tmp/SHUTITSTOPTEST file found in /tmp"
-			else
-				# Must be done on each iteration as we need a fresh cid per test run
-				set_shutit_options "--image_tag $dist --interactive 0 --imageerrorok"
-				echo "================================================================================"
-				echo "SHUTIT MODULE TEST $d: In directory: `pwd` BEGIN"
-				echo "================================================================================"
-				if [ x$SHUTIT_PARALLEL_BUILD = 'x' ]
-				then
-					./test.sh --interactive 0
-					RES=$?
-					if [[ "x$RES" != "x0" ]]
-					then
-						echo "FAILURE |$RES| in: $(pwd) running test.sh"
-						cleanup hard
-						exit 1
-					fi
-					cleanup hard
-					echo "================================================================================"
-					echo "SHUTIT MODULE TEST $d: In directory: `pwd` END"
-					echo "================================================================================"
-				else
-					# TODO
-					#http://stackoverflow.com/questions/356100/how-to-wait-in-bash-for-several-subprocesses-to-finish-and-return-exit-code-0
-					./test.sh --interactive 0
-					JOB=$!
-					PIDS[$JOB]="$JOB: $dist $d"
-				fi
-				set_shutit_options
-			fi
-		fi
-		report
-		popd
-	done
-done
 
 pushd test/1
 #TODO: "list_deps"
