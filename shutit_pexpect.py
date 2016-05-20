@@ -553,6 +553,7 @@ class ShutItPexpectSession(object):
 					fixterm_filename = '/tmp/shutit_fixterm'
 					fixterm_filename_stty = fixterm_filename + '_stty'
 					if not self.file_exists(fixterm_filename):
+						self.log('Fixing up your terminal, please wait...',loglevel=logging.INFO)
 						self.send_file(fixterm_filename,shutit_assets.get_fixterm(), loglevel=logging.DEBUG, delaybeforesend=delaybeforesend)
 						self.send(' chmod 777 ' + fixterm_filename, echo=False,loglevel=logging.DEBUG, delaybeforesend=delaybeforesend)
 					if not self.file_exists(fixterm_filename + '_stty'):
@@ -1098,10 +1099,9 @@ class ShutItPexpectSession(object):
 			cmd = ''
 			pw = ''
 		if install_type == 'apt':
-			if not shutit.build['apt_update_done']:
+			if not shutit.get_current_shutit_pexpect_session_environment().build['apt_update_done']:
 				self.send('apt-get update',loglevel=logging.INFO, delaybeforesend=delaybeforesend)
-				# TODO: should apt_update_done be per env?
-				shutit.build['apt_update_done'] = True
+				shutit.get_current_shutit_pexpect_session_environment().build['apt_update_done'] = True
 			cmd += 'apt-get install'
 			if 'apt' in options:
 				opts = options['apt']
@@ -1437,17 +1437,14 @@ class ShutItPexpectSession(object):
 			distro_version = ''
 			if install_type == 'apt' and shutit.build['delivery'] in ('docker','dockerfile'):
 				if not self.command_available('lsb_release'):
-					if not shutit.build['apt_update_done']:
-						shutit.build['apt_update_done'] = True
+					if not shutit.get_current_shutit_pexpect_session_environment().build['apt_update_done']:
+						shutit.get_current_shutit_pexpect_session_environment.build['apt_update_done'] = True
 						self.send('apt-get update && apt-get install -y -qq lsb-release',loglevel=loglevel,delaybeforesend=delaybeforesend)
 				d = self.lsb_release()
 				install_type   = d['install_type']
 				distro         = d['distro']
 				distro_version = d['distro_version']
 			elif install_type == 'yum' and shutit.build['delivery'] in ('docker', 'dockerfile'):
-				if not shutit.build['yum_update_done']:
-					shutit.build['yum_update_done'] = True
-					self.send('yum update -y',exit_values=['0','1'],loglevel=logging.INFO,delaybeforesend=delaybeforesend)
 				if self.file_exists('/etc/redhat-release'):
 					output = self.send_and_get_output('cat /etc/redhat-release',echo=False, loglevel=loglevel,delaybeforesend=delaybeforesend)
 					if re.match('^centos.*$', output.lower()) or re.match('^red hat.*$', output.lower()) or re.match('^fedora.*$', output.lower()) or True:
@@ -1459,8 +1456,8 @@ class ShutItPexpectSession(object):
 				distro         = d['distro']
 				distro_version = d['distro_version']
 			elif install_type == 'apk' and shutit.build['delivery'] in ('docker','dockerfile'):
-				if not shutit.build['apk_update_done']:
-					shutit.build['apk_update_done'] = True
+				if not shutit.get_current_shutit_pexpect_session_environment().build['apk_update_done']:
+					shutit.get_current_shutit_pexpect_session_environment().build['apk_update_done'] = True
 					self.send('apk update',loglevel=logging.INFO,delaybeforesend=delaybeforesend)
 				self.send('apk add bash',loglevel=loglevel,delaybeforesend=delaybeforesend)
 				install_type   = 'apk'
@@ -1525,8 +1522,8 @@ class ShutItPexpectSession(object):
 			# if we've determined that now
 			if install_type == 'apt' and shutit.build['delivery'] in ('docker','dockerfile'):
 				if not self.command_available('lsb_release'):
-					if not shutit.build['apt_update_done']:
-						shutit.build['apt_update_done'] = True
+					if not shutit.get_current_shutit_pexpect_session_environment().build['apt_update_done']:
+						shutit.get_current_shutit_pexpect_session_environment().build['apt_update_done'] = True
 						self.send('apt-get update && apt-get install -y -qq lsb-release',loglevel=loglevel,delaybeforesend=delaybeforesend)
 					self.send('apt-get install -y -qq lsb-release',loglevel=loglevel,delaybeforesend=delaybeforesend)
 				d = self.lsb_release()
@@ -1546,15 +1543,15 @@ class ShutItPexpectSession(object):
 				distro         = d['distro']
 				distro_version = d['distro_version']
 			elif install_type == 'apk' and shutit.build['delivery'] in ('docker','dockerfile'):
-				if not shutit.build['apk_update_done']:
-					shutit.build['apk_update_done'] = True
+				if not shutit.get_current_shutit_pexpect_session_environment().build['apk_update_done']:
+					shutit.get_current_shutit_pexpect_session_environment().build['apk_update_done'] = True
 					self.send('apk update',loglevel=logging.INFO,delaybeforesend=delaybeforesend)
 				self.send('apk install bash',loglevel=loglevel,delaybeforesend=delaybeforesend)
 				install_type   = 'apk'
 				distro         = 'alpine'
 				distro_version = '1.0'
 			elif install_type == 'emerge' and shutit.build['delivery'] in ('docker','dockerfile'):
-				if not shutit.build['emerge_update_done']:
+				if not shutit.get_current_shutit_pexpect_session_environment().build['emerge_update_done']:
 					self.send('emerge --sync',loglevel=logging.INFO,delaybeforesend=delaybeforesend)
 				install_type = 'emerge'
 				distro = 'gentoo'
@@ -2558,5 +2555,9 @@ class ShutItPexpectSessionEnvironment(object):
 		self.distro                       = ''
 		self.distro_version               = ''
 		self.users                        = dict()
+		self.build                        = {}
+		self.build['apt_update_done']     = False
+		self.build['emerge_update_done']  = False
+		self.build['apk_update_done']     = False
 	
 

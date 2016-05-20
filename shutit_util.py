@@ -583,10 +583,6 @@ docker_tutorial:   a docker-based tutorial
 	shutit.build['video']              = False
 	shutit.build['training']           = False
 	shutit.build['choose_config']      = False
-	shutit.build['apt_update_done']    = False
-	shutit.build['yum_update_done']    = False
-	shutit.build['emerge_update_done'] = False
-	shutit.build['apk_update_done']    = False
 	# Persistence- and build-related arguments.
 	if shutit.action['build']:
 		shutit.repository['push']       = args.push
