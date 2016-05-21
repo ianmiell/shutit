@@ -553,7 +553,7 @@ class ShutItPexpectSession(object):
 					fixterm_filename = '/tmp/shutit_fixterm'
 					fixterm_filename_stty = fixterm_filename + '_stty'
 					if not self.file_exists(fixterm_filename):
-						shutit.log('Fixing up your terminal, please wait...',loglevel=logging.INFO)
+						shutit.log('Fixing up your terminal, please wait...',level=logging.INFO)
 						self.send_file(fixterm_filename,shutit_assets.get_fixterm(), loglevel=logging.DEBUG, delaybeforesend=delaybeforesend)
 						self.send(' chmod 777 ' + fixterm_filename, echo=False,loglevel=logging.DEBUG, delaybeforesend=delaybeforesend)
 					if not self.file_exists(fixterm_filename + '_stty'):
