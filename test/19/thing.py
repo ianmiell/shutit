@@ -1,2 +1,0 @@
-def thing():
-	print 'thung'

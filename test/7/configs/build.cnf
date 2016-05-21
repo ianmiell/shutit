@@ -1,9 +1,0 @@
-# This file should be changed only by the maintainer.
-# When this module is the one being built, which modules should be built along with it by default?
-# This feeds into automated testing of each module.
-[shutit.tk.test7.test7]
-shutit.core.module.build:yes
-
-# Aspects of build process
-[repository]
-name:test7

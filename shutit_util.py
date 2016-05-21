@@ -1285,6 +1285,7 @@ def util_raw_input(prompt='', default=None, ispass=False, use_readline=True):
 			pass
 		readline.parse_and_bind('tab: complete')
 	prompt = '\r\n' + prompt
+	# TODO: Causes problem if input invalid? eg input z for 'y/n'
 	sanitize_terminal()
 	if shutit_global.shutit.build['interactive'] == 0:
 		return default
