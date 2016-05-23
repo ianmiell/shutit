@@ -1572,7 +1572,7 @@ def shutitfile_to_shutit_module_template(skel_dockerfile,
 		elif docker_command == "MODULE_ID":
 			# Only one item allowed.
 			local_cfg['dockerfile']['module_id'] = item[1]
-		elif docker_command in ("START_BEGIN","START_END","STOP_BEGIN","STOP_END","TEST_BEGIN","TEST_END","BUILD_BEGIN","BUILD_END","CONFIG_START","CONFIG_END","ISINSTALLED_BEGIN","ISINSTALLED_END"):
+		elif docker_command in ("START_BEGIN","START_END","STOP_BEGIN","STOP_END","TEST_BEGIN","TEST_END","BUILD_BEGIN","BUILD_END","CONFIG_BEGIN","CONFIG_END","ISINSTALLED_BEGIN","ISINSTALLED_END"):
 			local_cfg['dockerfile']['script'].append((docker_command, ''))
 
 	# We now have the script, so let's construct it inline here
