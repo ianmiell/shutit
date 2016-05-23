@@ -1,6 +1,6 @@
 #!/bin/bash
 # pip release scripts that auto-updates version number and keeps trying until successful
-set -x
+#set -x
 set -u
 i=0
 while true
