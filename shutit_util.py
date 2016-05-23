@@ -1144,10 +1144,10 @@ def create_skeleton():
 	skel_module_name = shutit.cfg['skeleton']['module_name']
 	skel_domain      = shutit.cfg['skeleton']['domain']
 	# TODO: rework these
-	#skel_domain_hash = shutit.cfg['skeleton']['domain_hash']
-	#skel_depends     = shutit.cfg['skeleton']['depends']
-	#skel_dockerfiles = shutit.cfg['skeleton']['dockerfiles']
-	#skel_delivery    = shutit.cfg['skeleton']['delivery']
+	skel_domain_hash = shutit.cfg['skeleton']['domain_hash']
+	skel_depends     = shutit.cfg['skeleton']['depends']
+	skel_dockerfiles = shutit.cfg['skeleton']['dockerfiles']
+	skel_delivery    = shutit.cfg['skeleton']['delivery']
 	# Set up dockerfile cfg
 	shutit.dockerfile['base_image'] = shutit.cfg['skeleton']['base_image']
 	shutit.dockerfile['cmd']        = """/bin/sh -c 'sleep infinity'"""
@@ -1217,32 +1217,32 @@ def create_skeleton():
 
 
 # TODO: Deal with skel_dockerfiles example separately/later
-#	skel_module_ids = []
-#	if skel_dockerfiles:
-#		_count = 1
-#		_total = len(skel_dockerfiles)
-#		for skel_dockerfile in skel_dockerfiles:
-#			templatemodule_path   = os.path.join(skel_path, skel_module_name + '_' + str(_count) + '.py')
-#			(templatemodule,skel_module_id) = dockerfile_to_shutit_module_template(shutit,skel_dockerfile,skel_path,skel_domain,skel_module_name,skel_domain_hash,skel_delivery,skel_depends,_count,_total)
-#			skel_module_ids.append(skel_module_id)
-#			open(templatemodule_path, 'w').write(templatemodule)
-#			_count += 1
-#	if len(skel_module_ids) > 0:
-#		buildcnf = ''
-#		for skel_module_id in skel_module_ids:
-#			buildcnf += textwrap.dedent('''\
-#			[''' + skel_module_id + ''']
-#			shutit.core.module.build:yes
-#			''')
-#		buildcnf += textwrap.dedent('''\
-#			shutit.core.module.allowed_images:["''' + shutit.dockerfile['base_image'] + '''"]
-#			[build]
-#			base_image:''' + shutit.dockerfile['base_image'] + '''
-#			[target]
-#			volumes:
-#			[repository]
-#			name:''' + skel_module_name + '''
-#			''')
+	skel_module_ids = []
+	if skel_dockerfiles:
+		_count = 1
+		_total = len(skel_dockerfiles)
+		for skel_dockerfile in skel_dockerfiles:
+			templatemodule_path   = os.path.join(skel_path, skel_module_name + '_' + str(_count) + '.py')
+			(templatemodule,skel_module_id) = shutitfile_to_shutit_module_template(skel_dockerfile,skel_path,skel_domain,skel_module_name,skel_domain_hash,skel_delivery,skel_depends,_count,_total)
+			skel_module_ids.append(skel_module_id)
+			open(templatemodule_path, 'w').write(templatemodule)
+			_count += 1
+	if len(skel_module_ids) > 0:
+		buildcnf = ''
+		for skel_module_id in skel_module_ids:
+			buildcnf += textwrap.dedent('''\
+			[''' + skel_module_id + ''']
+			shutit.core.module.build:yes
+			''')
+		buildcnf += textwrap.dedent('''\
+			shutit.core.module.allowed_images:["''' + shutit.dockerfile['base_image'] + '''"]
+			[build]
+			base_image:''' + shutit.dockerfile['base_image'] + '''
+			[target]
+			volumes:
+			[repository]
+			name:''' + skel_module_name + '''
+			''')
 
 
 
@@ -1450,37 +1450,38 @@ def check_regexp(regex):
 	return result
 
 
-# Takes a dockerfile filename and returns a string that represents that Dockerfile as a ShutIt module
-def dockerfile_to_shutit_module_template(skel_dockerfile,
+# Takes a shutitfile filename and returns a string that represents that Dockerfile as a ShutIt module
+def shutitfile_to_shutit_module_template(skel_dockerfile,
                                          skel_path,
                                          skel_domain,
                                          skel_module_name,
                                          skel_domain_hash,
                                          skel_delivery,
                                          skel_depends,
-                                         order,total):
+                                         order,
+	                                     total):
 	shutit = shutit_global.shutit
 	if os.path.basename(skel_dockerfile) != 'Dockerfile' and not os.path.exists(skel_dockerfile):
 		skel_dockerfile += '/Dockerfile'
 	if not os.path.exists(skel_dockerfile):
 		if urlparse.urlparse(skel_dockerfile)[0] == '':
 			shutit.fail('Dockerfile "' + skel_dockerfile + '" must exist')
-		dockerfile_contents = urllib2.urlopen(skel_dockerfile).read()
-		dockerfile_dirname = None
+		shutitfile_contents = urllib2.urlopen(skel_dockerfile).read()
+		shutitfile_dirname = None
 	else:
-		dockerfile_contents = open(skel_dockerfile).read()
-		dockerfile_dirname = os.path.dirname(skel_dockerfile)
-		if dockerfile_dirname == '':
-			dockerfile_dirname = './'
-		# TODO: is this still needed?
-		if os.path.exists(dockerfile_dirname):
-			shutil.rmtree(skel_path + '/context')
-			shutil.copytree(dockerfile_dirname, skel_path + '/context')
+		shutitfile_contents = open(skel_dockerfile).read()
+		shutitfile_dirname = os.path.dirname(skel_dockerfile)
+		if shutitfile_dirname == '':
+			shutitfile_dirname = './'
+		if os.path.exists(shutitfile_dirname):
+			if os.path.exists(skel_path + '/context'):
+				shutil.rmtree(skel_path + '/context')
+			shutil.copytree(shutitfile_dirname, skel_path + '/context')
 			# Remove Dockerfile as it's not part of the context.
 			if os.path.isfile(skel_path + '/context/Dockerfile'):
 				os.remove(skel_path + '/context/Dockerfile')
 		# Change to this context
-		os.chdir(dockerfile_dirname)
+		os.chdir(shutitfile_dirname)
 	# Wipe the command as we expect one in the file.
 	local_cfg = {'dockerfile': {}}
 	local_cfg['dockerfile']['cmd']        = ''
@@ -1494,9 +1495,9 @@ def dockerfile_to_shutit_module_template(skel_dockerfile,
 	local_cfg['dockerfile']['user']       = []
 	local_cfg['dockerfile']['env']        = []
 	local_cfg['dockerfile']['depends']    = []
-	dockerfile_list = parse_dockerfile(dockerfile_contents)
+	shutitfile_list = parse_dockerfile(shutitfile_contents)
 	# Set defaults from given dockerfile
-	for item in dockerfile_list:
+	for item in shutitfile_list:
 		# These items are not order-dependent and don't affect the build, so we collect them here:
 		docker_command = item[0].upper()
 		if docker_command == 'FROM':
@@ -1566,6 +1567,7 @@ def dockerfile_to_shutit_module_template(skel_dockerfile,
 		elif docker_command == "CONFIG":
 			local_cfg['dockerfile']['script'].append((docker_command, item[1]))
 		elif docker_command == "DEPENDS":
+			# TODO: requires at least 1?
 			local_cfg['dockerfile']['depends'].append((docker_command, item[1]))
 		elif docker_command == "MODULE_ID":
 			# Only one item allowed.
@@ -1584,11 +1586,11 @@ def dockerfile_to_shutit_module_template(skel_dockerfile,
 	# section is the section of the dockerfile we're in. Default is 'build', but there are also a few others.
 	section   = 'build'
 	for item in local_cfg['dockerfile']['script']:
-		dockerfile_command = item[0].upper()
-		dockerfile_args    = item[1].split()
-		section = dockerfile_get_section(dockerfile_command, section)
+		shutitfile_command = item[0].upper()
+		shutitfile_args    = item[1].split()
+		section = shutitfile_get_section(shutitfile_command, section)
 		if section == 'build':
-			ret = handle_dockerfile_line(dockerfile_command, dockerfile_args, numpushes, wgetgot)
+			ret = handle_shutitfile_line(shutitfile_command, shutitfile_args, numpushes, wgetgot)
 			build     += ret[0]
 			numpushes =  ret[1]
 			wgetgot   =  ret[2]
@@ -1609,11 +1611,11 @@ def dockerfile_to_shutit_module_template(skel_dockerfile,
 	templatemodule += '\n\n\tdef test(self, shutit):'
 	numpushes = 0
 	for item in local_cfg['dockerfile']['script']:
-		dockerfile_command = item[0].upper()
-		dockerfile_args    = item[1].split()
-		section = dockerfile_get_section(dockerfile_command, section)
+		shutitfile_command = item[0].upper()
+		shutitfile_args    = item[1].split()
+		section = shutitfile_get_section(shutitfile_command, section)
 		if section == 'test':
-			ret = handle_dockerfile_line(dockerfile_command, dockerfile_args, numpushes, wgetgot)
+			ret = handle_shutitfile_line(shutitfile_command, shutitfile_args, numpushes, wgetgot)
 			build     += ret[0]
 			numpushes =  ret[1]
 			wgetgot   =  ret[2]
@@ -1629,11 +1631,11 @@ def dockerfile_to_shutit_module_template(skel_dockerfile,
 	templatemodule += '\n\n\tdef is_installed(self, shutit):'
 	numpushes = 0
 	for item in local_cfg['dockerfile']['script']:
-		dockerfile_command = item[0].upper()
-		dockerfile_args    = item[1].split()
-		section = dockerfile_get_section(dockerfile_command, section)
+		shutitfile_command = item[0].upper()
+		shutitfile_args    = item[1].split()
+		section = shutitfile_get_section(shutitfile_command, section)
 		if section == 'isinstalled':
-			ret = handle_dockerfile_line(dockerfile_command, dockerfile_args, numpushes, wgetgot)
+			ret = handle_shutitfile_line(shutitfile_command, shutitfile_args, numpushes, wgetgot)
 			build     += ret[0]
 			numpushes =  ret[1]
 			wgetgot   =  ret[2]
@@ -1649,11 +1651,11 @@ def dockerfile_to_shutit_module_template(skel_dockerfile,
 	templatemodule += '\n\n\tdef start(self, shutit):'
 	numpushes = 0
 	for item in local_cfg['dockerfile']['script']:
-		dockerfile_command = item[0].upper()
-		dockerfile_args    = item[1].split()
-		section = dockerfile_get_section(dockerfile_command, section)
+		shutitfile_command = item[0].upper()
+		shutitfile_args    = item[1].split()
+		section = shutitfile_get_section(shutitfile_command, section)
 		if section == 'start':
-			ret = handle_dockerfile_line(dockerfile_command, dockerfile_args, numpushes, wgetgot)
+			ret = handle_shutitfile_line(shutitfile_command, shutitfile_args, numpushes, wgetgot)
 			build     += ret[0]
 			numpushes =  ret[1]
 			wgetgot   =  ret[2]
@@ -1669,11 +1671,11 @@ def dockerfile_to_shutit_module_template(skel_dockerfile,
 	build     = ''
 	numpushes = 0
 	for item in local_cfg['dockerfile']['script']:
-		dockerfile_command = item[0].upper()
-		dockerfile_args    = item[1].split()
-		section = dockerfile_get_section(dockerfile_command, section)
+		shutitfile_command = item[0].upper()
+		shutitfile_args    = item[1].split()
+		section = shutitfile_get_section(shutitfile_command, section)
 		if section == 'stop':
-			ret = handle_dockerfile_line(dockerfile_command, dockerfile_args, numpushes, wgetgot)
+			ret = handle_shutitfile_line(shutitfile_command, shutitfile_args, numpushes, wgetgot)
 			build     += ret[0]
 			numpushes =  ret[1]
 			wgetgot   =  ret[2]
@@ -1706,11 +1708,11 @@ def dockerfile_to_shutit_module_template(skel_dockerfile,
 	build     = ''
 	numpushes = 0
 	for item in local_cfg['dockerfile']['script']:
-		dockerfile_command = item[0].upper()
-		dockerfile_args    = item[1].split()
-		section = dockerfile_get_section(dockerfile_command, section)
+		shutitfile_command = item[0].upper()
+		shutitfile_args    = item[1].split()
+		section = shutitfile_get_section(shutitfile_command, section)
 		if section == 'config':
-			ret = handle_dockerfile_line(dockerfile_command, dockerfile_args, numpushes, wgetgot)
+			ret = handle_shutitfile_line(shutitfile_command, shutitfile_args, numpushes, wgetgot)
 			build     += ret[0]
 			numpushes =  ret[1]
 			wgetgot   =  ret[2]
@@ -1722,11 +1724,11 @@ def dockerfile_to_shutit_module_template(skel_dockerfile,
 	templatemodule += '\n\t\treturn True'
 
 	# module section
-	dockerfile_depends = []
+	shutitfile_depends = []
 	for item in local_cfg['dockerfile']['depends']:
-		dockerfile_depends.append(item[1])
-	if len(dockerfile_depends):
-		depends = "'" + skel_depends + "','" + "','".join(dockerfile_depends) + "'"
+		shutitfile_depends.append(item[1])
+	if len(shutitfile_depends):
+		depends = "'" + skel_depends + "','" + "','".join(shutitfile_depends) + "'"
 	else:
 		depends = "'" + skel_depends + "'"
 		
@@ -1740,29 +1742,29 @@ def dockerfile_to_shutit_module_template(skel_dockerfile,
 		)\n"""
 
 	# Return program to main shutit_dir
-	if dockerfile_dirname:
+	if shutitfile_dirname:
 		os.chdir(sys.path[0])
 	return templatemodule, module_id
 
 
-def handle_dockerfile_line(dockerfile_command, dockerfile_args, numpushes, wgetgot):
+def handle_shutitfile_line(shutitfile_command, shutitfile_args, numpushes, wgetgot):
 	shutit = shutit_global.shutit
 	build = ''
-	cmd = ' '.join(dockerfile_args).replace("'", "\\'")
-	if dockerfile_command == 'RUN':
+	cmd = ' '.join(shutitfile_args).replace("'", "\\'")
+	if shutitfile_command == 'RUN':
 		build += """\n\t\tshutit.send('""" + cmd + """')"""
-	elif dockerfile_command == 'WORKDIR':
+	elif shutitfile_command == 'WORKDIR':
 		build += """\n\t\tshutit.send('pushd """ + cmd + """',echo=False)"""
 		numpushes += 1
-	elif dockerfile_command == 'COPY' or dockerfile_command == 'ADD':
+	elif shutitfile_command == 'COPY' or shutitfile_command == 'ADD':
 		# The <src> path must be inside the context of the build; you cannot COPY ../something /something, because the first step of a docker build is to send the context directory (and subdirectories) to the docker daemon.
-		if dockerfile_args[0][0:1] == '..' or dockerfile_args[0][0] == '/' or dockerfile_args[0][0] == '~':
-			shutit.fail('Invalid line: ' + str(dockerfile_args) + ' file must be in local subdirectory')
-		if dockerfile_args[1][-1] == '/':
+		if shutitfile_args[0][0:1] == '..' or shutitfile_args[0][0] == '/' or shutitfile_args[0][0] == '~':
+			shutit.fail('Invalid line: ' + str(shutitfile_args) + ' file must be in local subdirectory')
+		if shutitfile_args[1][-1] == '/':
 			# Dir we're COPYing or ADDing to
-			destdir  = dockerfile_args[1]
+			destdir  = shutitfile_args[1]
 			# File/dir we're COPYing or ADDing from
-			fromfile = dockerfile_args[0]
+			fromfile = shutitfile_args[0]
 			# Final file/dir
 			outfile  = destdir + fromfile
 			if os.path.isfile(fromfile):
@@ -1771,28 +1773,28 @@ def handle_dockerfile_line(dockerfile_command, dockerfile_args, numpushes, wgetg
 			elif os.path.isdir(fromfile):
 				build += """\n\t\tshutit.send('mkdir -p """ + destdir + fromfile + """')"""
 		else:
-			outfile = dockerfile_args[1]
+			outfile = shutitfile_args[1]
 		# If this is something we have to wget:
-		if dockerfile_command == 'ADD' and urlparse.urlparse(dockerfile_args[0])[0] != '':
+		if shutitfile_command == 'ADD' and urlparse.urlparse(shutitfile_args[0])[0] != '':
 			if not wgetgot:
 				build += """\n\t\tshutit.install('wget')"""
 				wgetgot = True
-			if dockerfile_args[1][-1] == '/':
+			if shutitfile_args[1][-1] == '/':
 				destdir = destdir[0:-1]
-				outpath = urlparse.urlparse(dockerfile_args[0])[2]
+				outpath = urlparse.urlparse(shutitfile_args[0])[2]
 				outpathdir = os.path.dirname(outpath)
 				build += """\n\t\tshutit.send('mkdir -p """ + destdir + outpathdir + """')"""
-				build += """\n\t\tshutit.send('wget -O """ + destdir + outpath + ' ' + dockerfile_args[0] + """')"""
+				build += """\n\t\tshutit.send('wget -O """ + destdir + outpath + ' ' + shutitfile_args[0] + """')"""
 			else:
-				outpath  = dockerfile_args[1]
-				destdir  = os.path.dirname(dockerfile_args[1])
+				outpath  = shutitfile_args[1]
+				destdir  = os.path.dirname(shutitfile_args[1])
 				build += """\n\t\tshutit.send('mkdir -p """ + destdir + """')"""
-				build += """\n\t\tshutit.send('wget -O """ + outpath + ' ' + dockerfile_args[0] + """')"""
+				build += """\n\t\tshutit.send('wget -O """ + outpath + ' ' + shutitfile_args[0] + """')"""
 		else:
 			# From the local filesystem on construction:
-			localfile = dockerfile_args[0]
+			localfile = shutitfile_args[0]
 			# Local file location on build:
-			buildstagefile = 'context/' + dockerfile_args[0]
+			buildstagefile = 'context/' + shutitfile_args[0]
 			#if localfile[-4:] == '.tar':
 			#	build += """\n\t\tshutit.send_file('""" + outfile + '/' + localfile + """')"""
 			#elif localfile[-4:] == '.bz2':
@@ -1802,23 +1804,23 @@ def handle_dockerfile_line(dockerfile_command, dockerfile_args, numpushes, wgetg
 				build += """\n\t\tshutit.send_host_dir('""" + outfile + """', '""" + buildstagefile + """')"""
 			else:
 				build += """\n\t\tshutit.send_host_file('""" + outfile + """', '""" + buildstagefile + """')"""
-	elif dockerfile_command == 'ENV':
-		cmd = '='.join(dockerfile_args).replace("'", "\\'")
-		build += """\n\t\tshutit.send('export """ + '='.join(dockerfile_args) + """')"""
-	elif dockerfile_command == 'INSTALL':
-		build += """\n\t\tshutit.install('""" + ''.join(dockerfile_args) + """')"""
-	elif dockerfile_command == 'COMMENT':
-		build += """\n\t\t# """ + ' '.join(dockerfile_args)
-	elif dockerfile_command == 'CONFIG':
+	elif shutitfile_command == 'ENV':
+		cmd = '='.join(shutitfile_args).replace("'", "\\'")
+		build += """\n\t\tshutit.send('export """ + '='.join(shutitfile_args) + """')"""
+	elif shutitfile_command == 'INSTALL':
+		build += """\n\t\tshutit.install('""" + ''.join(shutitfile_args) + """')"""
+	elif shutitfile_command == 'COMMENT':
+		build += """\n\t\t# """ + ' '.join(shutitfile_args)
+	elif shutitfile_command == 'CONFIG':
 		# TODO
 		pass
-		#templatemodule = '\n\t\tshutit.get_config(\'' + skel_module_id + '\',\'' + dockerfile_args[0] + '\'\'\',default=\.' + dockerfile_args[1] + '\'\'\',boolean=' + dockerfile_args[2] + ')'
+		#templatemodule = '\n\t\tshutit.get_config(\'' + skel_module_id + '\',\'' + shutitfile_args[0] + '\'\'\',default=\.' + shutitfile_args[1] + '\'\'\',boolean=' + shutitfile_args[2] + ')'
 	return build, numpushes, wgetgot
 
 
 # Get the section of the dockerfile we are in.
-def dockerfile_get_section(dockerfile_command, current):
-	match = re.match(r'^(.*)_(BEGIN|END)$',dockerfile_command)
+def shutitfile_get_section(shutitfile_command, current):
+	match = re.match(r'^(.*)_(BEGIN|END)$',shutitfile_command)
 	if match:
 		section = match.group(1)
 		stage   = match.group(2)
