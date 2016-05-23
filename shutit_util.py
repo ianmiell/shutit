@@ -416,7 +416,7 @@ def parse_args():
 	sub_parsers['skeleton'].add_argument('--base_image', help='FROM image, default ubuntu:14.04 (optional)', default='ubuntu:14.04')
 	sub_parsers['skeleton'].add_argument('--script', help='Pre-existing shell script to integrate into module (optional)', nargs='?', default=None)
 	sub_parsers['skeleton'].add_argument('--output_dir', help='Just output the created directory', default=False, const=True, action='store_const')
-	sub_parsers['skeleton'].add_argument('--dockerfiles', nargs='+', default=None)
+	sub_parsers['skeleton'].add_argument('--shutitfiles', nargs='+', default=None)
 	sub_parsers['skeleton'].add_argument('--template_branch', help='Template branch to use', default='')
 	sub_parsers['skeleton'].add_argument('--template_repo', help='Template git repository to use', default='https://github.com/ianmiell/shutit-templates')
 	sub_parsers['skeleton'].add_argument('--delivery', help='Delivery method, aka target. "docker" container (default), configured "ssh" connection, "bash" session', default=None, choices=('docker','dockerfile','ssh','bash'))
@@ -1497,37 +1497,46 @@ def shutitfile_to_shutit_module_template(skel_dockerfile,
 	local_cfg['dockerfile']['depends']    = []
 	shutitfile_list = parse_dockerfile(shutitfile_contents)
 	# Set defaults from given dockerfile
+	# TODO: if the delivery type does not match, then 
+	# TODO: delivery type in the ShutItFile
 	for item in shutitfile_list:
 		# These items are not order-dependent and don't affect the build, so we collect them here:
 		docker_command = item[0].upper()
 		if docker_command == 'FROM':
+			# TESTED? NO
 			# Should be only one of these
 			if order == 1:
 				local_cfg['dockerfile']['base_image'] = item[1]
 			else:
 				print 'Ignoring FROM line as this is not the first dockerfile supplied.'
 		elif docker_command == "ONBUILD":
+			# TESTED? NO
 			# Maps to finalize :) - can we have more than one of these? assume yes
 			# This contains within it one of the above commands, so we need to abstract this out.
 			local_cfg['dockerfile']['onbuild'].append(item[1])
 		elif docker_command == "MAINTAINER":
+			# TESTED? NO
 			local_cfg['dockerfile']['maintainer'] = item[1]
 		elif docker_command == "VOLUME":
+			# TESTED? NO
 			# Put in the run.sh.
 			try:
 				local_cfg['dockerfile']['volume'].append(' '.join(json.loads(item[1])))
 			except Exception:
 				local_cfg['dockerfile']['volume'].append(item[1])
 		elif docker_command == 'EXPOSE':
+			# TESTED? NO
 			# Put in the run.sh.
 			local_cfg['dockerfile']['expose'].append(item[1])
 		elif docker_command == "ENTRYPOINT":
+			# TESTED? NO
 			# Put in the run.sh? Yes, if it exists it goes at the front of cmd
 			try:
 				local_cfg['dockerfile']['entrypoint'] = ' '.join(json.loads(item[1]))
 			except Exception:
 				local_cfg['dockerfile']['entrypoint'] = item[1]
 		elif docker_command == "CMD":
+			# TESTED? NO
 			# Put in the run.sh
 			try:
 				local_cfg['dockerfile']['cmd'] = ' '.join(json.loads(item[1]))
@@ -1535,17 +1544,20 @@ def shutitfile_to_shutit_module_template(skel_dockerfile,
 				local_cfg['dockerfile']['cmd'] = item[1]
 		# Other items to be run through sequentially (as they are part of the script)
 		if docker_command == "USER":
+			# TESTED? NO
 			# Put in the start script as well as su'ing from here - assuming order dependent?
 			local_cfg['dockerfile']['script'].append((docker_command, item[1]))
 			# We assume the last one seen is the one we use for the image.
 			# Put this in the default start script.
 			local_cfg['dockerfile']['user']        = item[1]
 		elif docker_command == 'ENV':
+			# TESTED? NO
 			# Put in the run.sh.
 			local_cfg['dockerfile']['script'].append((docker_command, item[1]))
 			# Set in the build
 			local_cfg['dockerfile']['env'].append(item[1])
 		elif docker_command == "RUN":
+			# TESTED? NO
 			# Only handle simple commands for now and ignore the fact that Dockerfiles run
 			# with /bin/sh -c rather than bash.
 			try:
@@ -1553,26 +1565,35 @@ def shutitfile_to_shutit_module_template(skel_dockerfile,
 			except Exception:
 				local_cfg['dockerfile']['script'].append((docker_command, item[1]))
 		elif docker_command == "ADD":
+			# TESTED? NO
 			# Send file - is this potentially got from the web? Is that the difference between this and COPY?
 			local_cfg['dockerfile']['script'].append((docker_command, item[1]))
 		elif docker_command == "COPY":
+			# TESTED? NO
 			# Send file
 			local_cfg['dockerfile']['script'].append((docker_command, item[1]))
 		elif docker_command == "WORKDIR":
+			# TESTED? NO
 			local_cfg['dockerfile']['script'].append((docker_command, item[1]))
 		elif docker_command == "COMMENT":
+			# TESTED? NO
 			local_cfg['dockerfile']['script'].append((docker_command, item[1]))
 		elif docker_command == "INSTALL":
+			# TESTED? NO
 			local_cfg['dockerfile']['script'].append((docker_command, item[1]))
 		elif docker_command == "CONFIG":
+			# TESTED? NO
 			local_cfg['dockerfile']['script'].append((docker_command, item[1]))
 		elif docker_command == "DEPENDS":
+			# TESTED? NO
 			# TODO: requires at least 1?
 			local_cfg['dockerfile']['depends'].append((docker_command, item[1]))
 		elif docker_command == "MODULE_ID":
+			# TESTED? NO
 			# Only one item allowed.
 			local_cfg['dockerfile']['module_id'] = item[1]
 		elif docker_command in ("START_BEGIN","START_END","STOP_BEGIN","STOP_END","TEST_BEGIN","TEST_END","BUILD_BEGIN","BUILD_END","CONFIG_BEGIN","CONFIG_END","ISINSTALLED_BEGIN","ISINSTALLED_END"):
+			# TESTED? NO
 			local_cfg['dockerfile']['script'].append((docker_command, ''))
 
 	# We now have the script, so let's construct it inline here
