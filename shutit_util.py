@@ -1480,9 +1480,6 @@ def shutitfile_to_shutit_module_template(skel_shutitfile,
                                          order,
 	                                     total):
 	shutit = shutit_global.shutit
-	print os.getcwd()
-	print skel_shutitfile
-	print os.path.exists(skel_shutitfile)
 	if not os.path.exists(skel_shutitfile):
 		if urlparse.urlparse(skel_shutitfile)[0] == '':
 			shutit.fail('Dockerfile/ShutItFile "' + skel_shutitfile + '" must exist')
