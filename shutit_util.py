@@ -1215,8 +1215,6 @@ def create_skeleton():
 	# Return program to original path
 	os.chdir(sys.path[0])
 
-
-# TODO: Deal with skel_shutitfiles example separately/later
 	skel_module_ids = []
 	if skel_shutitfiles:
 		_count = 1
@@ -1461,6 +1459,9 @@ def shutitfile_to_shutit_module_template(skel_shutitfile,
                                          order,
 	                                     total):
 	shutit = shutit_global.shutit
+	print os.getcwd()
+	print skel_shutitfile
+	print os.path.exists(skel_shutitfile)
 	if os.path.basename(skel_shutitfile) != 'Dockerfile' and not os.path.exists(skel_shutitfile):
 		skel_shutitfile += '/Dockerfile'
 	if not os.path.exists(skel_shutitfile):
@@ -1839,7 +1840,7 @@ def handle_shutitfile_line(shutitfile_command, shutitfile_args, numpushes, wgetg
 	return build, numpushes, wgetgot
 
 
-# Get the section of the dockerfile we are in.
+# Get the section of the shutitfile we are in.
 def shutitfile_get_section(shutitfile_command, current):
 	match = re.match(r'^(.*)_(BEGIN|END)$',shutitfile_command)
 	if match:
