@@ -1221,9 +1221,9 @@ def create_skeleton():
 	if skel_shutitfiles:
 		_count = 1
 		_total = len(skel_shutitfiles)
-		for skel_dockerfile in skel_shutitfiles:
+		for skel_shutitfile in skel_shutitfiles:
 			templatemodule_path   = os.path.join(skel_path, skel_module_name + '_' + str(_count) + '.py')
-			(templatemodule,skel_module_id) = shutitfile_to_shutit_module_template(skel_dockerfile,skel_path,skel_domain,skel_module_name,skel_domain_hash,skel_delivery,skel_depends,_count,_total)
+			(templatemodule,skel_module_id) = shutitfile_to_shutit_module_template(skel_shutitfile,skel_path,skel_domain,skel_module_name,skel_domain_hash,skel_delivery,skel_depends,_count,_total)
 			skel_module_ids.append(skel_module_id)
 			open(templatemodule_path, 'w').write(templatemodule)
 			_count += 1
@@ -1451,7 +1451,7 @@ def check_regexp(regex):
 
 
 # Takes a shutitfile filename and returns a string that represents that Dockerfile as a ShutIt module
-def shutitfile_to_shutit_module_template(skel_dockerfile,
+def shutitfile_to_shutit_module_template(skel_shutitfile,
                                          skel_path,
                                          skel_domain,
                                          skel_module_name,
@@ -1461,16 +1461,16 @@ def shutitfile_to_shutit_module_template(skel_dockerfile,
                                          order,
 	                                     total):
 	shutit = shutit_global.shutit
-	if os.path.basename(skel_dockerfile) != 'Dockerfile' and not os.path.exists(skel_dockerfile):
-		skel_dockerfile += '/Dockerfile'
-	if not os.path.exists(skel_dockerfile):
-		if urlparse.urlparse(skel_dockerfile)[0] == '':
-			shutit.fail('Dockerfile "' + skel_dockerfile + '" must exist')
-		shutitfile_contents = urllib2.urlopen(skel_dockerfile).read()
+	if os.path.basename(skel_shutitfile) != 'Dockerfile' and not os.path.exists(skel_shutitfile):
+		skel_shutitfile += '/Dockerfile'
+	if not os.path.exists(skel_shutitfile):
+		if urlparse.urlparse(skel_shutitfile)[0] == '':
+			shutit.fail('Dockerfile "' + skel_shutitfile + '" must exist')
+		shutitfile_contents = urllib2.urlopen(skel_shutitfile).read()
 		shutitfile_dirname = None
 	else:
-		shutitfile_contents = open(skel_dockerfile).read()
-		shutitfile_dirname = os.path.dirname(skel_dockerfile)
+		shutitfile_contents = open(skel_shutitfile).read()
+		shutitfile_dirname = os.path.dirname(skel_shutitfile)
 		if shutitfile_dirname == '':
 			shutitfile_dirname = './'
 		if os.path.exists(shutitfile_dirname):
@@ -1598,7 +1598,7 @@ def shutitfile_to_shutit_module_template(skel_dockerfile,
 
 	# We now have the script, so let's construct it inline here
 	# Header.
-	templatemodule = '\n# Created from dockerfile: ' + skel_dockerfile + '\n# Maintainer:              ' + local_cfg['dockerfile']['maintainer'] + '\nfrom shutit_module import ShutItModule\n\nclass template(ShutItModule):\n\n\tdef is_installed(self, shutit):\n\t\treturn False'
+	templatemodule = '\n# Created from dockerfile: ' + skel_shutitfile + '\n# Maintainer:              ' + local_cfg['dockerfile']['maintainer'] + '\nfrom shutit_module import ShutItModule\n\nclass template(ShutItModule):\n\n\tdef is_installed(self, shutit):\n\t\treturn False'
 
 	# build
 	build     = ''
