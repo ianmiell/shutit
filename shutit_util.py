@@ -501,6 +501,17 @@ def parse_args():
 	if shutit.action['skeleton']:
 		if args.shutitfiles and args.script:
 			shutit.fail('Cannot have any two of script, -d/--shutitfiles <files> as arguments')
+		_new_shutitfiles = None
+		if args.shutitfiles:
+			cwd = os.getcwd()
+			_new_shutitfiles = []
+			for shutitfile in args.shutitfiles:
+				if shutitfile[0] != '/':
+					shutitfile = cwd + '/' + shutitfile
+				_new_shutitfiles.append(shutitfile)
+				if not os.path.isfile(shutitfile):
+					print('ShutItFile: ' + shutitfile + ' appears to not exist.')
+					handle_exit(exit_code=1)
 		if args.module_directory == '':
 			default_dir = '/tmp/shutit_' + random_word()
 			module_directory = util_raw_input(prompt='# Input a new directory name for this module to be placed in.\n# Default: ' + default_dir + '\n', default=default_dir)
@@ -556,7 +567,7 @@ docker_tutorial:   a docker-based tutorial
 			'domain_hash':           str(get_hash(domain)),
 			'depends':               args.depends,
 			'script':                args.script,
-			'shutitfiles':           args.shutitfiles,
+			'shutitfiles':           _new_shutitfiles,
 			'output_dir':            args.output_dir,
 			'delivery':              delivery,
 			'template_repo':         args.template_repo,
@@ -1215,8 +1226,6 @@ def create_skeleton():
 	# Return program to original path
 	os.chdir(sys.path[0])
 
-
-# TODO: Deal with skel_shutitfiles example separately/later
 	skel_module_ids = []
 	if skel_shutitfiles:
 		_count = 1
@@ -1337,7 +1346,7 @@ def set_noninteractive(msg="setting non-interactive"):
 def print_stack_trace():
 	shutit = shutit_global.shutit
 	shutit.log('================================================================================',transient=True)
-	shutit.log('Strack trace was:\n================================================================================',transient=True)
+	shutit.log('Stack trace was:\n================================================================================',transient=True)
 	import traceback
 	(a,b,c) = sys.exc_info()
 	traceback.print_tb(c)
@@ -1839,7 +1848,7 @@ def handle_shutitfile_line(shutitfile_command, shutitfile_args, numpushes, wgetg
 	return build, numpushes, wgetgot
 
 
-# Get the section of the dockerfile we are in.
+# Get the section of the shutitfile we are in.
 def shutitfile_get_section(shutitfile_command, current):
 	match = re.match(r'^(.*)_(BEGIN|END)$',shutitfile_command)
 	if match:
@@ -2071,10 +2080,10 @@ def allowed_image(module_id):
 
 def handle_exit(shutit=None,exit_code=0,loglevel=logging.DEBUG,msg=None):
 	if not msg:
-		msg = 'Exiting with error code: ' + str(exit_code)
+		msg = '\nExiting with error code: ' + str(exit_code)
 	if not shutit:
 		if exit_code != 0:
-			print_stack_trace()
+			#print_stack_trace()
 			print msg
 			print 'Resetting terminal'
 	else:
