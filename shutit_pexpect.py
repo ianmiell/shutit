@@ -1120,6 +1120,10 @@ class ShutItPexpectSession(object):
 				opts += ' -y'
 			if reinstall:
 				opts += ' reinstall'
+		elif install_type == 'pacman':
+			cmd += 'pacman -Syy'
+			if 'pacman' in options:
+				opts = options['pacman']
 		elif install_type == 'apk':
 			cmd += 'apk add'
 			if 'apk' in options:
@@ -1224,6 +1228,10 @@ class ShutItPexpectSession(object):
 		elif install_type == 'yum':
 			cmd += 'yum erase'
 			opts = options['yum'] if 'yum' in options else '-y'
+		elif install_type == 'pacman':
+			cmd += 'pacman -R'
+			if 'pacman' in options:
+				opts = options['pacman']
 		elif install_type == 'apk':
 			cmd += 'apk del'
 			if 'apk' in options:
@@ -1417,18 +1425,6 @@ class ShutItPexpectSession(object):
 		install_type   = ''
 		distro         = ''
 		distro_version = ''
-		# A list of OS Family members
-		# Suse      = SLES, SLED, OpenSuSE, Suse
-		# Archlinux = Archlinux
-		# Mandrake  = Mandriva, Mandrake
-		# Solaris   = Solaris, Nexenta, OmniOS, OpenIndiana, SmartOS
-		# AIX       = AIX
-		# FreeBSD   = FreeBSD
-		# HP-UK     = HPUX
-		# OSDIST_DICT = {'/etc/redhat-release':'RedHat','/etc/vmware-release':'VMwareESX','/etc/openwrt_release':'OpenWrt','/etc/system-release':'OtherLinux','/etc/release':'Solaris','/etc/arch-release':'Archlinux','/etc/SuSE-release':'SuSE','/etc/gentoo-release':'Gentoo','/etc/os-release':'Debian'}
-		#    # A list of dicts.  If there is a platform with more than one package manager, put the preferred one last.  If there is an ansible module, use that as the value for the 'name' key.
-		#PKG_MGRS = [{'path':'/usr/bin/zypper','name':'zypper'},{'path':'/usr/sbin/urpmi','name':'urpmi'},{'path':'/usr/bin/pacman','name':'pacman'},{'path':'/bin/opkg','name':'opkg'},{'path':'/opt/local/bin/pkgin','name':'pkgin'},{'path':'/opt/local/bin/port','name':'macports'},{'path':'/usr/sbin/pkg','name':'pkgng'},{'path':'/usr/sbin/swlist','name':'SD-UX'},{'path':'/usr/sbin/pkgadd','name':'svr4pkg'},{'path':'/usr/bin/pkg','name':'pkg'},
-		#    ]
 		if shutit.build['distro_override'] != '':
 			key = shutit.build['distro_override']
 			distro = shutit.build['distro_override']
@@ -1461,6 +1457,13 @@ class ShutItPexpectSession(object):
 				self.send('apk add bash',loglevel=loglevel,delaybeforesend=delaybeforesend)
 				install_type   = 'apk'
 				distro         = 'alpine'
+				distro_version = '1.0'
+			elif install_type == 'pacman' and shutit.build['delivery'] in ('docker','dockerfile'):
+				if not shutit.get_current_shutit_pexpect_session_environment().build['pacman_update_done']:
+					shutit.get_current_shutit_pexpect_session_environment().build['pacman_update_done'] = True
+					self.send('pacman -Syy',loglevel=logging.INFO,delaybeforesend=delaybeforesend)
+				install_type   = d['install_type']
+				distro         = d['distro']
 				distro_version = '1.0'
 			elif install_type == 'emerge' and shutit.build['delivery'] in ('docker','dockerfile'):
 				self.send('emerge --sync',loglevel=loglevel,delaybeforesend=delaybeforesend)
