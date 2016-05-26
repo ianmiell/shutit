@@ -10,9 +10,9 @@ setup(
 	# the version across setup.py and the project code, see
 	# https://packaging.python.org/en/latest/single_source_version.html
 
-	version='0.9.162',
-	description='An automation tool designed for complex Docker builds',
-	long_description=description + '. See: http://ianmiell.github.io/shutit',
+	version='0.9.167',
+	description='An programmable automation tool designed for complex builds',
+	long_description='An programmable shell-based (pexpect) automation tool designed for complex builds. See: http://ianmiell.github.io/shutit',
 
 	# The project's main homepage.
 	url='http://ianmiell.github.io/shutit/',
