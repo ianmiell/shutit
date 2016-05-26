@@ -2,13 +2,6 @@
 from setuptools import setup, find_packages
 # To use a consistent encoding
 from codecs import open
-from os import path
-
-here = path.abspath(path.dirname(__file__))
-
-# Get the long description from the relevant file
-with open(path.join(here, 'DESCRIPTION.rst'), encoding='utf-8') as f:
-	long_description = f.read()
 
 setup(
 	name='shutit',
@@ -19,7 +12,7 @@ setup(
 
 	version='0.9.162',
 	description='An automation tool designed for complex Docker builds',
-	long_description=long_description,
+	long_description=description + '. See: http://ianmiell.github.io/shutit',
 
 	# The project's main homepage.
 	url='http://ianmiell.github.io/shutit/',

@@ -64,6 +64,7 @@ INSTALL_TYPE_MAP = {'ubuntu':'apt',
 	                'coreos':'docker',
 	                'gentoo':'emerge',
 	                'osx':'brew',
+	                'arch':'pacman',
 	                'cygwin':'apt-cyg'}
 
 
