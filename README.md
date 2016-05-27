@@ -3,6 +3,7 @@
 
 
 [![Join the chat at https://gitter.im/ianmiell/shutit](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/ianmiell/shutit?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 A versatile automation framework.
 
 ShutIt is an automation tool that models a user's actions on a terminal.
@@ -51,17 +52,23 @@ Two types of 'challenge' exist in ShutIt:
 - free form
 
 Scales tell you to run a specific command before continuing. This is useful when you want to get certain commands or flags 'under your fingers', which does not happen without dedicated and direct practice.
-Scales tell you to run a specific command before continuing. This is useful when you want to get certain commands 'under your fingers'. Here's an example:
+Scales tell you to run a specific command before continuing. This is useful when you want to get certain commands 'under your fingers'. Here's an example for practicing grep:
 
 [![grep Scales](https://asciinema.org/a/41308.png)](https://asciinema.org/a/41308)
 
-Free form exercises give you a task to perform, and free access to the shell. This is to give the user a realistic environment in which to hone their skills. You can check man pages, look around the directories, search for useful utils (even install new ones!). When you are finished, a pre-specified command is run to check the system is in an appropriate state. Here's an example 
+Free form exercises give you a task to perform, and free access to the shell. This is to give the user a realistic environment in which to hone their skills. You can check man pages, look around the directories, search for useful utils (even install new ones!). When you are finished, a pre-specified command is run to check the system is in an appropriate state. Here's an example for the [basics of git](ianmiell.github.io/git-101-tutorial/):
 
 [![git 101 Tutorial](https://asciinema.org/a/44937.png)](https://asciinema.org/a/44937)
 
-TODO: git 101 example
+If you use a Docker-based tutorial and you mess the environment up, the state can be restored to a known one by hitting CTRL-G.
 
-If using Docker and you mess the environment up, the state can be restored to a known one by hitting CTRL-G.
+
+
+What Does it Do (Vagrant)?
+==========================
+Uses a bash build to set up a vagrant machine. This allows another kind of contained environment for more infrastructural projects than Docker allows for.
+
+There is a multinode option for Vagrant multinode projects.
 
 
 What Does it Do (Docker Builds)?
@@ -87,13 +94,6 @@ The container environment is set up, the modules are ordered, and the build step
 This is a core function of ShutIt - to manage dependencies and image building for complex image setups.
 
 But it doesn't just run build steps, it also manages The ShutIt Lifecycle to make the build more robust and flexible.
-
-
-What Does it Do (Vagrant)?
-==========================
-Uses a bash build to set up a vagrant machine. This allows another kind of contained environment for more infrastructural projects than Docker allows for.
-
-There is a multinode option for Vagrant multinode projects.
 
 
 The ShutIt Lifecycle
