@@ -69,6 +69,12 @@ What Does it Do (Vagrant)?
 ==========================
 Uses a bash build to set up a vagrant machine. This allows another kind of contained environment for more infrastructural projects than Docker allows for.
 
+This example demonstrates a reproducible build that sets up Docker on Ubuntu VM, then runs a CentOS image within that.
+
+It deposits the user into a shell mid-build to interrogate the environment, after which the user re-runs the build to add a directive to ensure ps is installed in the image.
+
+[![Docker on Ubuntu VM running a CentOS image](https://asciinema.org/a/47078.png)](https://asciinema.org/a/47078)
+
 There is a multinode option for Vagrant multinode projects.
 
 
