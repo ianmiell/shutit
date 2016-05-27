@@ -38,6 +38,8 @@ What Does it Do (bash Builds)?
 
 ShutIt acts as a modular and easy to use wrapper around [https://github.com/pexpect/pexpect](pexpect).
 
+Here is a simple example of a script that creates file if they are not there already:
+
 [![Simple Example](https://asciinema.org/a/47076.png)](https://asciinema.org/a/47076)
 
 What Does it Do (Tutorials)?
