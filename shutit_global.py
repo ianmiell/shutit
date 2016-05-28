@@ -1711,7 +1711,7 @@ class ShutIt(object):
 							if re.search('assw',option) == None:
 								answer =  shutit_util.util_raw_input(prompt=shutit_util.colourise('32',prompt) + ': \n',ispass=secret)
 							else:
-								answer =  shutit_util.util_raw_input(ispass=True,prompt=shutit_util.colourise('32',prompt) + ': \n',ispass=secret)
+								answer =  shutit_util.util_raw_input(ispass=True,prompt=shutit_util.colourise('32',prompt) + ': \n')
 						if answer == '' and default != None:
 							answer = default
 						cfg[module_id][option] = answer
