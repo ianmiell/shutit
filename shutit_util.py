@@ -1128,7 +1128,7 @@ def get_commands():
 	for c in shutit_global.shutit.build['shutit_command_history']:
 		if type(c) == str:
 			#Ignore commands with leading spaces
-			if c[0] != ' ':
+			if c and c[0] != ' ':
 				s += c + '\n'
 	return s
 
@@ -1597,11 +1597,10 @@ def shutitfile_to_shutit_module_template(skel_shutitfile,
 			# TESTED? NO
 			local_cfg['dockerfile']['script'].append((docker_command, item[1]))
 		elif docker_command == "DEPENDS":
-			# TESTED? NO
-			# TODO: requires at least 1?
+			# TESTED? YES
 			local_cfg['dockerfile']['depends'].append((docker_command, item[1]))
 		elif docker_command == "MODULE_ID":
-			# TESTED? NO
+			# TESTED? YES
 			# Only one item allowed.
 			local_cfg['dockerfile']['module_id'] = item[1]
 		elif docker_command in ("START_BEGIN","START_END","STOP_BEGIN","STOP_END","TEST_BEGIN","TEST_END","BUILD_BEGIN","BUILD_END","CONFIG_BEGIN","CONFIG_END","ISINSTALLED_BEGIN","ISINSTALLED_END"):

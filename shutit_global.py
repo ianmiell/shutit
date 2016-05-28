@@ -1639,6 +1639,7 @@ class ShutIt(object):
 	               option,
 	               default=None,
 	               boolean=False,
+	               secret=False,
 	               forcedefault=False,
 	               forcenone=False,
 	               hint=None):
@@ -1650,6 +1651,7 @@ class ShutIt(object):
 		@param option:       config item to set
 		@param default:      default value if not set in files
 		@param boolean:      whether this is a boolean value or not (default False)
+		@param secret:       whether the config item is a secret
 		@param forcedefault: if set to true, allows you to override any value already set (default False)
 		@param forcenone:    if set to true, allows you to set the value to None (default False)
 		@param hint:         if we are interactive, then show this prompt to help the user input a useful value
@@ -1658,6 +1660,7 @@ class ShutIt(object):
 		@type option:        string
 		@type default:       string
 		@type boolean:       boolean
+		@type secret:        boolean
 		@type forcedefault:  boolean
 		@type forcenone:     boolean
 		@type hint:          string
@@ -1679,7 +1682,7 @@ class ShutIt(object):
 						answer = None
 						# util_raw_input may change the interactive level, so guard for this.
 						while answer not in ('yes','no','') and self.build['interactive'] > 1:
-							answer = shutit_util.util_raw_input(prompt=shutit_util.colourise('32', 'Do you want to accept the config option defaults? ' + '(boolean - input "yes" or "no") (default: yes): \n'),default='yes')
+							answer = shutit_util.util_raw_input(prompt=shutit_util.colourise('32', 'Do you want to accept the config option defaults? ' + '(boolean - input "yes" or "no") (default: yes): \n'),default='yes',ispass=secret)
 						# util_raw_input may change the interactive level, so guard for this.
 						if answer == 'yes' or answer == '' or self.build['interactive'] < 2:
 							self.build['accept_defaults'] = True
@@ -1699,16 +1702,16 @@ class ShutIt(object):
 						answer = None
 						if boolean:
 							while answer not in ('yes','no'):
-								answer =  shutit_util.util_raw_input(prompt=shutit_util.colourise('32',prompt + ' (boolean - input "yes" or "no"): \n'))
+								answer =  shutit_util.util_raw_input(prompt=shutit_util.colourise('32',prompt + ' (boolean - input "yes" or "no"): \n'),ispass=secret)
 							if answer == 'yes':
 								answer = True
 							elif answer == 'no':
 								answer = False
 						else:
 							if re.search('assw',option) == None:
-								answer =  shutit_util.util_raw_input(prompt=shutit_util.colourise('32',prompt) + ': \n')
+								answer =  shutit_util.util_raw_input(prompt=shutit_util.colourise('32',prompt) + ': \n',ispass=secret)
 							else:
-								answer =  shutit_util.util_raw_input(ispass=True,prompt=shutit_util.colourise('32',prompt) + ': \n')
+								answer =  shutit_util.util_raw_input(ispass=True,prompt=shutit_util.colourise('32',prompt) + ': \n',ispass=secret)
 						if answer == '' and default != None:
 							answer = default
 						cfg[module_id][option] = answer
