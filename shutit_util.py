@@ -1594,17 +1594,11 @@ def shutitfile_to_shutit_module_template(skel_shutitfile,
 			# TESTED? NO
 			local_cfg['dockerfile']['script'].append((docker_command, item[1]))
 		elif docker_command == "DEPENDS":
-<<<<<<< Updated upstream
-			# TESTED? NO
-			# TODO: requires at least 1?
-			local_cfg['dockerfile']['depends'].append((docker_command, item[1]))
-=======
 			# TESTED? YES
 			local_cfg['shutitfile']['depends'].append((docker_command, item[1]))
 		elif docker_command == "DELIVERY":
 			# TESTED? NO
 			local_cfg['shutitfile']['delivery'].append((docker_command, item[1]))
->>>>>>> Stashed changes
 		elif docker_command == "MODULE_ID":
 			# TESTED? NO
 			# Only one item allowed.
