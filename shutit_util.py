@@ -1470,6 +1470,9 @@ def shutitfile_to_shutit_module_template(skel_shutitfile,
                                          order,
 	                                     total):
 	shutit = shutit_global.shutit
+	print os.getcwd()
+	print skel_shutitfile
+	print os.path.exists(skel_shutitfile)
 	if os.path.basename(skel_shutitfile) != 'Dockerfile' and not os.path.exists(skel_shutitfile):
 		skel_shutitfile += '/Dockerfile'
 	if not os.path.exists(skel_shutitfile):
