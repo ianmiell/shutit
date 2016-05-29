@@ -1228,6 +1228,11 @@ def create_skeleton():
 
 	skel_module_ids = []
 	if skel_shutitfiles:
+		try:
+			# Attempt to remove any .py files created by default.
+			os.remove(skel_path, skel_module_name + '.py')
+		except:
+			pass
 		_count = 1
 		_total = len(skel_shutitfiles)
 		for skel_shutitfile in skel_shutitfiles:
@@ -1294,7 +1299,6 @@ def util_raw_input(prompt='', default=None, ispass=False, use_readline=True):
 			pass
 		readline.parse_and_bind('tab: complete')
 	prompt = '\r\n' + prompt
-	# TODO: Causes problem if input invalid? eg input z for 'y/n'
 	sanitize_terminal()
 	if shutit_global.shutit.build['interactive'] == 0:
 		return default
