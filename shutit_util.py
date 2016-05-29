@@ -1516,8 +1516,6 @@ def shutitfile_to_shutit_module_template(skel_shutitfile,
 	local_cfg['shutitfile']['delivery']   = []
 	shutitfile_list = parse_shutitfile(shutitfile_contents)
 	# Set defaults from given shutitfile
-	# TODO: if the delivery type does not match, then 
-	# TODO: delivery type in the ShutItFile
 	for item in shutitfile_list:
 		# These items are not order-dependent and don't affect the build, so we collect them here:
 		docker_command = item[0].upper()
@@ -1534,7 +1532,6 @@ def shutitfile_to_shutit_module_template(skel_shutitfile,
 			# This contains within it one of the above commands, so we need to abstract this out.
 			local_cfg['shutitfile']['onbuild'].append(item[1])
 		elif docker_command == "MAINTAINER":
-			# TESTED? NO
 			local_cfg['shutitfile']['maintainer'] = item[1]
 		elif docker_command == "VOLUME":
 			# TESTED? NO
@@ -1563,20 +1560,18 @@ def shutitfile_to_shutit_module_template(skel_shutitfile,
 				local_cfg['shutitfile']['cmd'] = item[1]
 		# Other items to be run through sequentially (as they are part of the script)
 		if docker_command == "USER":
-			# TESTED? NO
+			# TESTED? YES - TODO: support password
 			# Put in the start script as well as su'ing from here - assuming order dependent?
 			local_cfg['shutitfile']['script'].append((docker_command, item[1]))
 			# We assume the last one seen is the one we use for the image.
 			# Put this in the default start script.
 			local_cfg['shutitfile']['user']        = item[1]
 		elif docker_command == 'ENV':
-			# TESTED? NO
 			# Put in the run.sh.
 			local_cfg['shutitfile']['script'].append((docker_command, item[1]))
 			# Set in the build
 			local_cfg['shutitfile']['env'].append(item[1])
 		elif docker_command == "RUN":
-			# TESTED? NO
 			# Only handle simple commands for now and ignore the fact that shutitfiles run
 			# with /bin/sh -c rather than bash.
 			try:
@@ -1592,29 +1587,19 @@ def shutitfile_to_shutit_module_template(skel_shutitfile,
 			# Send file
 			local_cfg['shutitfile']['script'].append((docker_command, item[1]))
 		elif docker_command == "WORKDIR":
-			# TESTED? NO
 			local_cfg['shutitfile']['script'].append((docker_command, item[1]))
 		elif docker_command == "COMMENT":
-			# TESTED? NO
 			local_cfg['shutitfile']['script'].append((docker_command, item[1]))
 		elif docker_command == "INSTALL":
-			# TESTED? NO
-			local_cfg['shutitfile']['script'].append((docker_command, item[1]))
-		elif docker_command == "CONFIG":
-			# TESTED? NO
 			local_cfg['shutitfile']['script'].append((docker_command, item[1]))
 		elif docker_command == "DEPENDS":
-			# TESTED? YES
 			local_cfg['shutitfile']['depends'].append((docker_command, item[1]))
 		elif docker_command == "DELIVERY":
-			# TESTED? NO
 			local_cfg['shutitfile']['delivery'].append((docker_command, item[1]))
 		elif docker_command == "MODULE_ID":
-			# TESTED? YES
 			# Only one item allowed.
 			local_cfg['shutitfile']['module_id'] = item[1]
 		elif docker_command in ("START_BEGIN","START_END","STOP_BEGIN","STOP_END","TEST_BEGIN","TEST_END","BUILD_BEGIN","BUILD_END","CONFIG_BEGIN","CONFIG_END","ISINSTALLED_BEGIN","ISINSTALLED_END"):
-			# TESTED? NO
 			local_cfg['shutitfile']['script'].append((docker_command, ''))
 
 	# We now have the script, so let's construct it inline here
@@ -1624,6 +1609,7 @@ def shutitfile_to_shutit_module_template(skel_shutitfile,
 	# build
 	build     = ''
 	numpushes = 0
+	numlogins = 0
 	wgetgot   = False
 	# section is the section of the shutitfile we're in. Default is 'build', but there are also a few others.
 	section   = 'build'
@@ -1632,14 +1618,18 @@ def shutitfile_to_shutit_module_template(skel_shutitfile,
 		shutitfile_args    = item[1].split()
 		section = shutitfile_get_section(shutitfile_command, section)
 		if section == 'build':
-			ret = handle_shutitfile_line(shutitfile_command, shutitfile_args, numpushes, wgetgot)
+			ret = handle_shutitfile_line(shutitfile_command, shutitfile_args, numpushes, wgetgot, numlogins)
 			build     += ret[0]
 			numpushes =  ret[1]
 			wgetgot   =  ret[2]
+			numlogins =  ret[3]
 	templatemodule += _build_section + build
 	while numpushes > 0:
-		build += '''\n\t\tshutit.send('popd')'''
+		templatemodule += '''\n\t\tshutit.send('popd')'''
 		numpushes -= 1
+	while numlogins > 0:
+		templatemodule += '''\n\t\tshutit.logout()'''
+		numlogins -= 1
 	templatemodule += '\n\t\treturn True'
 
 	# finalize section
@@ -1652,80 +1642,100 @@ def shutitfile_to_shutit_module_template(skel_shutitfile,
 	build     = ''
 	templatemodule += '\n\n\tdef test(self, shutit):'
 	numpushes = 0
+	numlogins = 0
 	for item in local_cfg['shutitfile']['script']:
 		shutitfile_command = item[0].upper()
 		shutitfile_args    = item[1].split()
 		section = shutitfile_get_section(shutitfile_command, section)
 		if section == 'test':
-			ret = handle_shutitfile_line(shutitfile_command, shutitfile_args, numpushes, wgetgot)
+			ret = handle_shutitfile_line(shutitfile_command, shutitfile_args, numpushes, wgetgot, numlogins)
 			build     += ret[0]
 			numpushes =  ret[1]
 			wgetgot   =  ret[2]
+			numlogins =  ret[3]
 	if build:
 		templatemodule += '\n\t\t' + build
 	while numpushes > 0:
 		templatemodule += """\n\t\tshutit.send('popd')"""
 		numpushes      -= 1
+	while numlogins > 0:
+		templatemodule += '''\n\t\tshutit.logout()'''
+		numlogins -= 1
 	templatemodule += '\n\t\treturn True'
 
 	# isinstalled section
 	build     = ''
 	templatemodule += '\n\n\tdef is_installed(self, shutit):'
 	numpushes = 0
+	numlogins = 0
 	for item in local_cfg['shutitfile']['script']:
 		shutitfile_command = item[0].upper()
 		shutitfile_args    = item[1].split()
 		section = shutitfile_get_section(shutitfile_command, section)
 		if section == 'isinstalled':
-			ret = handle_shutitfile_line(shutitfile_command, shutitfile_args, numpushes, wgetgot)
+			ret = handle_shutitfile_line(shutitfile_command, shutitfile_args, numpushes, wgetgot, numlogins)
 			build     += ret[0]
 			numpushes =  ret[1]
 			wgetgot   =  ret[2]
+			numlogins =  ret[3]
 	if build:
 		templatemodule += '\n\t\t' + build
 	while numpushes > 0:
 		templatemodule += """\n\t\tshutit.send('popd')"""
 		numpushes      -= 1
+	while numlogins > 0:
+		templatemodule += '''\n\t\tshutit.logout()'''
+		numlogins -= 1
 	templatemodule += '\n\t\treturn False'
 
 	# start section
 	build     = ''
 	templatemodule += '\n\n\tdef start(self, shutit):'
 	numpushes = 0
+	numlogins = 0
 	for item in local_cfg['shutitfile']['script']:
 		shutitfile_command = item[0].upper()
 		shutitfile_args    = item[1].split()
 		section = shutitfile_get_section(shutitfile_command, section)
 		if section == 'start':
-			ret = handle_shutitfile_line(shutitfile_command, shutitfile_args, numpushes, wgetgot)
+			ret = handle_shutitfile_line(shutitfile_command, shutitfile_args, numpushes, wgetgot, numlogins)
 			build     += ret[0]
 			numpushes =  ret[1]
 			wgetgot   =  ret[2]
+			numlogins =  ret[3]
 	if build:
 		templatemodule += '\n\t\t' + build
 	while numpushes > 0:
 		templatemodule += """\n\t\tshutit.send('popd')"""
 		numpushes      -= 1
+	while numlogins > 0:
+		templatemodule += '''\n\t\tshutit.logout()'''
+		numlogins -= 1
 	templatemodule += '\n\t\treturn True'
 
 	# stop section
 	templatemodule += '\n\n\tdef stop(self, shutit):'
 	build     = ''
 	numpushes = 0
+	numlogins = 0
 	for item in local_cfg['shutitfile']['script']:
 		shutitfile_command = item[0].upper()
 		shutitfile_args    = item[1].split()
 		section = shutitfile_get_section(shutitfile_command, section)
 		if section == 'stop':
-			ret = handle_shutitfile_line(shutitfile_command, shutitfile_args, numpushes, wgetgot)
+			ret = handle_shutitfile_line(shutitfile_command, shutitfile_args, numpushes, wgetgot, numlogins)
 			build     += ret[0]
 			numpushes =  ret[1]
 			wgetgot   =  ret[2]
+			numlogins =  ret[3]
 	if build:
 		templatemodule += '\n\t\t' + build
 	while numpushes > 0:
 		templatemodule += """\n\t\tshutit.send('popd')"""
 		numpushes      -= 1
+	while numlogins > 0:
+		templatemodule += '''\n\t\tshutit.logout()'''
+		numlogins -= 1
 	templatemodule += '\n\t\treturn True'
 
 	# config section
@@ -1749,20 +1759,25 @@ def shutitfile_to_shutit_module_template(skel_shutitfile,
 			module_id = '%s.%s.%s' % (skel_domain, skel_module_name, skel_module_name)
 	build     = ''
 	numpushes = 0
+	numlogins = 0
 	for item in local_cfg['shutitfile']['script']:
 		shutitfile_command = item[0].upper()
 		shutitfile_args    = item[1].split()
 		section = shutitfile_get_section(shutitfile_command, section)
 		if section == 'config':
-			ret = handle_shutitfile_line(shutitfile_command, shutitfile_args, numpushes, wgetgot)
+			ret = handle_shutitfile_line(shutitfile_command, shutitfile_args, numpushes, wgetgot, numlogins)
 			build     += ret[0]
 			numpushes =  ret[1]
 			wgetgot   =  ret[2]
+			numlogins =  ret[3]
 	if build:
 		templatemodule += '\n\t\t' + build
 	while numpushes > 0:
 		templatemodule += """\n\t\tshutit.send('popd')"""
 		numpushes      -= 1
+	while numlogins > 0:
+		templatemodule += '''\n\t\tshutit.logout()'''
+		numlogins -= 1
 	templatemodule += '\n\t\treturn True'
 
 	# depends section
@@ -1787,6 +1802,12 @@ def shutitfile_to_shutit_module_template(skel_shutitfile,
 	if skel_delivery not in allowed_delivery_methods:
 		shutit.fail('Disallowed delivery method in ShutItFile: ' + skel_delivery)
 
+	if skel_delivery not in ('docker'):
+		# FROM, ONBUILD, VOLUME, EXPOSE, ENTRYPOINT, CMD are verboten
+		if local_cfg['shutitfile']['cmd'] != '' or local_cfg['shutitfile']['volume']  != [] or local_cfg['shutitfile']['onbuild'] != [] or local_cfg['shutitfile']['expose']  !=  [] or local_cfg['shutitfile']['entrypoint'] != []:
+			shutit.fail('One of FROM, ONBUILD, VOLUME, EXPOSE, ENTRYPOINT or CMD used in ShutItFile  not using the Docker delivery method.')
+		
+
 	templatemodule += """\n\ndef module():
 		return template(
 				'""" + module_id + """', """ + skel_domain_hash + str(order * 0.0001) + str(random.randint(1,999)) + """,
@@ -1802,7 +1823,7 @@ def shutitfile_to_shutit_module_template(skel_shutitfile,
 	return templatemodule, module_id
 
 
-def handle_shutitfile_line(shutitfile_command, shutitfile_args, numpushes, wgetgot):
+def handle_shutitfile_line(shutitfile_command, shutitfile_args, numpushes, wgetgot, numlogins):
 	shutit = shutit_global.shutit
 	build = ''
 	cmd = ' '.join(shutitfile_args).replace("'", "\\'")
@@ -1862,15 +1883,14 @@ def handle_shutitfile_line(shutitfile_command, shutitfile_args, numpushes, wgetg
 	elif shutitfile_command == 'ENV':
 		cmd = '='.join(shutitfile_args).replace("'", "\\'")
 		build += """\n\t\tshutit.send('export """ + '='.join(shutitfile_args) + """')"""
+	elif shutitfile_command == 'USER':
+		build += """\n\t\tshutit.login(user='""" + ''.join(shutitfile_args) + """')"""
+		numlogins += 1
 	elif shutitfile_command == 'INSTALL':
 		build += """\n\t\tshutit.install('""" + ''.join(shutitfile_args) + """')"""
 	elif shutitfile_command == 'COMMENT':
 		build += """\n\t\t# """ + ' '.join(shutitfile_args)
-	elif shutitfile_command == 'CONFIG':
-		# TODO
-		pass
-		#templatemodule = '\n\t\tshutit.get_config(\'' + skel_module_id + '\',\'' + shutitfile_args[0] + '\'\'\',default=\.' + shutitfile_args[1] + '\'\'\',boolean=' + shutitfile_args[2] + ')'
-	return build, numpushes, wgetgot
+	return build, numpushes, wgetgot, numlogins
 
 
 # Get the section of the shutitfile we are in.
