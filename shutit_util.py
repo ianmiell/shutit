@@ -62,6 +62,9 @@ from shutit_module import ShutItFailException
 from shutit_module import ShutItModule
 
 
+allowed_delivery_methods = ['ssh','dockerfile','bash','docker']
+
+
 class LayerConfigParser(ConfigParser.RawConfigParser):
 
 	def __init__(self):
@@ -389,6 +392,7 @@ def parse_args():
 	eg ' a\ b c\\ \\d \\\e\' becomes '', 'a b', 'c\', '\d', '\\e\'
 	SHUTIT_OPTIONS is ignored if we are creating a skeleton
 	"""
+	global allowed_delivery_methods
 	shutit = shutit_global.shutit
 	shutit.host['real_user_id'] = pexpect.run('id -u ' + shutit.host['real_user']).strip()
 
@@ -553,10 +557,9 @@ docker_tutorial:   a docker-based tutorial
 				default_delivery = 'docker'
 			else:
 				default_delivery = 'bash'
-			allowed = ('docker','dockerfile','ssh','bash')
 			delivery = ''
-			while delivery not in allowed:
-				delivery = util_raw_input(prompt='# Input a delivery method from: ' + str(allowed) + '.\n# Default: ' + default_delivery + '\n\ndocker = build within a docker image\nssh = ssh to target and build\nbash = run commands directly within bash\n', default=default_delivery)
+			while delivery not in allowed_delivery_methods:
+				delivery = util_raw_input(prompt='# Input a delivery method from: ' + str(allowed_delivery_methods) + '.\n# Default: ' + default_delivery + '\n\ndocker = build within a docker image\nssh = ssh to target and build\nbash = run commands directly within bash\n', default=default_delivery)
 		else:
 			delivery = args.delivery
 		shutit.cfg['skeleton'] = {
@@ -1479,6 +1482,7 @@ def shutitfile_to_shutit_module_template(skel_shutitfile,
                                          skel_depends,
                                          order,
 	                                     total):
+	global allowed_delivery_methods
 	shutit = shutit_global.shutit
 	if not os.path.exists(skel_shutitfile):
 		if urlparse.urlparse(skel_shutitfile)[0] == '':
@@ -1509,6 +1513,7 @@ def shutitfile_to_shutit_module_template(skel_shutitfile,
 	local_cfg['shutitfile']['user']       = []
 	local_cfg['shutitfile']['env']        = []
 	local_cfg['shutitfile']['depends']    = []
+	local_cfg['shutitfile']['delivery']   = []
 	shutitfile_list = parse_shutitfile(shutitfile_contents)
 	# Set defaults from given shutitfile
 	# TODO: if the delivery type does not match, then 
@@ -1776,8 +1781,11 @@ def shutitfile_to_shutit_module_template(skel_shutitfile,
 		shutitfile_delivery.add(item[1])
 	if len(shutitfile_delivery) > 1:
 		shutit.fail('Conflicting delivery methods in ShutItFile')
-	else:
+	elif len(shutitfile_delivery) == 1:
 		skel_delivery = shutitfile_delivery.pop()
+
+	if skel_delivery not in allowed_delivery_methods:
+		shutit.fail('Disallowed delivery method in ShutItFile: ' + skel_delivery)
 
 	templatemodule += """\n\ndef module():
 		return template(
@@ -2217,6 +2225,12 @@ def get_command(command):
 		else:
 			return command + ' '
 	return command
+
+def check_delivery_method(method):
+	global allowed_delivery_methods
+	if method in allowed_delivery_methods:
+		return True
+	return False
 
 
 
