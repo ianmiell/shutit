@@ -86,7 +86,7 @@ class ShutIt(object):
 
 		# These used to be in shutit_global, so we pass them in as args so
 		# the original reference can be put in shutit_global
-		self.dockerfile                     = {}
+		self.shutitfile                     = {}
 		# Needed for templates
 		self.expect_prompts                 = {}
 		self.list_configs                   = {}
@@ -105,7 +105,7 @@ class ShutIt(object):
 		# Environments are kept globally, as different sessions may re-connect to them.
 		self.shutit_pexpect_session_environments = set()
 		self.cfg = {}                              # used to store module information
-		self.cfg['dockerfile'] = self.dockerfile   # required for templates
+		self.cfg['shutitfile'] = self.shutitfile   # required for templates
 		self.cfg['skeleton']   = {}                # required for templates
 
 
