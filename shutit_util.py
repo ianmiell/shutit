@@ -1470,9 +1470,6 @@ def shutitfile_to_shutit_module_template(skel_shutitfile,
                                          order,
 	                                     total):
 	shutit = shutit_global.shutit
-	print os.getcwd()
-	print skel_shutitfile
-	print os.path.exists(skel_shutitfile)
 	if os.path.basename(skel_shutitfile) != 'Dockerfile' and not os.path.exists(skel_shutitfile):
 		skel_shutitfile += '/Dockerfile'
 	if not os.path.exists(skel_shutitfile):
@@ -1597,9 +1594,17 @@ def shutitfile_to_shutit_module_template(skel_shutitfile,
 			# TESTED? NO
 			local_cfg['dockerfile']['script'].append((docker_command, item[1]))
 		elif docker_command == "DEPENDS":
+<<<<<<< Updated upstream
 			# TESTED? NO
 			# TODO: requires at least 1?
 			local_cfg['dockerfile']['depends'].append((docker_command, item[1]))
+=======
+			# TESTED? YES
+			local_cfg['shutitfile']['depends'].append((docker_command, item[1]))
+		elif docker_command == "DELIVERY":
+			# TESTED? NO
+			local_cfg['shutitfile']['delivery'].append((docker_command, item[1]))
+>>>>>>> Stashed changes
 		elif docker_command == "MODULE_ID":
 			# TESTED? NO
 			# Only one item allowed.
@@ -1756,7 +1761,7 @@ def shutitfile_to_shutit_module_template(skel_shutitfile,
 		numpushes      -= 1
 	templatemodule += '\n\t\treturn True'
 
-	# module section
+	# depends section
 	shutitfile_depends = []
 	for item in local_cfg['dockerfile']['depends']:
 		shutitfile_depends.append(item[1])
@@ -1765,6 +1770,16 @@ def shutitfile_to_shutit_module_template(skel_shutitfile,
 	else:
 		depends = "'" + skel_depends + "'"
 		
+	# delivery directives
+	# Only allow one type of delivery
+	shutitfile_delivery = set()
+	for item in local_cfg['shutitfile']['delivery']:
+		shutitfile_delivery.add(item[1])
+	if len(shutitfile_delivery) > 1:
+		shutit.fail('Conflicting delivery methods in ShutItFile')
+	else:
+		skel_delivery = shutitfile_delivery.pop()
+
 	templatemodule += """\n\ndef module():
 		return template(
 				'""" + module_id + """', """ + skel_domain_hash + str(order * 0.0001) + str(random.randint(1,999)) + """,
