@@ -1564,12 +1564,13 @@ def shutitfile_to_shutit_module_template(skel_shutitfile,
 		if docker_command in ('USER','LOGIN'):
 			# Put in the start script as well as su'ing from here - assuming order dependent?
 			local_cfg['shutitfile']['script'].append([docker_command, item[1]])
-		elif docker_command == 'LOGIN_GET_PASSWORD':
+		elif docker_command == 'GET_PASSWORD':
 			# If we are directed to get the password, change the previous directive internally.
 			if last_docker_command not in ('LOGIN','USER'):
-				shutit.fail('LOGIN_GET_PASSWORD line not after a USER or LOGIN line: ' + docker_command + ' ' + item[1])
-			local_cfg['shutitfile']['script'][-1][0] = 'LOGIN_WITH_PASSWORD'
-			local_cfg['shutitfile']['script'][-1].append(item[1])
+				shutit.fail('GET_PASSWORD line not after a USER or LOGIN line: ' + docker_command + ' ' + item[1])
+			if last_docker_command in ('LOGIN','USER'):
+				local_cfg['shutitfile']['script'][-1][0] = 'LOGIN_WITH_PASSWORD'
+				local_cfg['shutitfile']['script'][-1].append(item[1])
 		elif docker_command == 'ENV':
 			# Put in the run.sh.
 			local_cfg['shutitfile']['script'].append([docker_command, item[1]])
@@ -1588,8 +1589,8 @@ def shutitfile_to_shutit_module_template(skel_shutitfile,
 			local_cfg['shutitfile']['script'][-1][0] = 'ASSERT_OUTPUT_SEND'
 			local_cfg['shutitfile']['script'].append([docker_command, item[1]])
 		elif docker_command == 'EXPECT':
-			if last_docker_command not in ('RUN','SEND'):
-				shutit.fail('EXPECT line not after a RUN/SEND line: ' + docker_command + ' ' + item[1])
+			if last_docker_command not in ('RUN','SEND','GET_PASSWORD'):
+				shutit.fail('EXPECT line not after a RUN, SEND or GET_PASSWORD line: ' + docker_command + ' ' + item[1])
 			local_cfg['shutitfile']['script'][-1][0] = 'SEND_EXPECT'
 			local_cfg['shutitfile']['script'].append([docker_command, item[1]])
 		elif docker_command == 'ADD':
@@ -1837,7 +1838,9 @@ def handle_shutitfile_line(line, numpushes, wgetgot, numlogins):
 	shutitfile_command = line[0].upper()
 	shutitfile_args    = line[1].split()
 	shutit = shutit_global.shutit
-	build = ''
+	build  = ''
+	#build = '\n\t\t# SHUTITDEBUG CMD: ' + shutitfile_command 
+	#build += '\n\t\t# SHUTITDEBUG ARGS: ' + str(shutitfile_args)
 	cmd = ' '.join(shutitfile_args).replace("'", "\\'")
 	if shutitfile_command in ('RUN','SEND'):
 		build += """\n\t\tshutit.send('''""" + cmd + """''')"""
@@ -1850,8 +1853,12 @@ def handle_shutitfile_line(line, numpushes, wgetgot, numlogins):
 	elif shutitfile_command == 'EXPECT':
 		build += "'''" + cmd + "''')"
 	elif shutitfile_command in ('LOGIN','USER'):
-		build += """\n\t\tshutit.login('''user='""" + cmd + """\'''')"""
+		build += """\n\t\tshutit.login('''user='""" + cmd + """' ''')"""
 		numlogins += 1
+	elif shutitfile_command == 'GET_AND_SEND_PASSWORD':
+		msg = ' '.join(shutitfile_args)
+		build += """\n\t\t_password = shutit.get_input('''""" + msg + """''',ispass=True)"""
+		build += """\n\t\tshutit.send(_password,echo=False,check_exit=False)"""
 	elif shutitfile_command == 'LOGIN_WITH_PASSWORD':
 		msg = line[2]
 		build += """\n\t\t_password = shutit.get_input('''""" + msg + """''',ispass=True)"""
