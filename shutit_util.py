@@ -1613,10 +1613,19 @@ def shutitfile_to_shutit_module_template(skel_shutitfile,
 			local_cfg['shutitfile']['script'][-1][0] = 'ASSERT_OUTPUT_SEND'
 			local_cfg['shutitfile']['script'].append([docker_command, item[1]])
 		elif docker_command == 'EXPECT':
+<<<<<<< Updated upstream
 			if last_docker_command not in ('RUN','SEND','GET_PASSWORD'):
 				shutit.fail('EXPECT line not after a RUN, SEND or GET_PASSWORD line: ' + docker_command + ' ' + item[1])
 			local_cfg['shutitfile']['script'][-1][0] = 'SEND_EXPECT'
 			local_cfg['shutitfile']['script'].append([docker_command, item[1]])
+=======
+			if last_docker_command not in ('RUN','SEND'):
+				shutit.fail('EXPECT line not after a RUN/SEND line: ' + docker_command + ' ' + item[1])
+			local_cfg['shutitfile']['script'][-1][0] = 'SEND_EXPECT'
+			local_cfg['shutitfile']['script'].append([docker_command, item[1]])
+		elif docker_command == 'SEND_INPUT':
+			if last_docker_command not in ('RUN','SEND'):
+>>>>>>> Stashed changes
 		elif docker_command == 'ADD':
 			# TESTED? NO
 			# Send file - is this potentially got from the web? Is that the difference between this and COPY?
@@ -1626,12 +1635,20 @@ def shutitfile_to_shutit_module_template(skel_shutitfile,
 			# Send file
 			local_cfg['shutitfile']['script'].append([docker_command, item[1]])
 		elif docker_command == 'WORKDIR':
+<<<<<<< Updated upstream
+=======
+			local_cfg['shutitfile']['script'].append([docker_command, item[1]])
+		elif docker_command == 'SEND_INPUT':
+>>>>>>> Stashed changes
 			local_cfg['shutitfile']['script'].append([docker_command, item[1]])
 		elif docker_command == 'COMMENT':
 			local_cfg['shutitfile']['script'].append([docker_command, item[1]])
 		elif docker_command == 'INSTALL':
 			local_cfg['shutitfile']['script'].append([docker_command, item[1]])
+<<<<<<< Updated upstream
 
+=======
+>>>>>>> Stashed changes
 		elif docker_command == 'DEPENDS':
 			local_cfg['shutitfile']['depends'].append([docker_command, item[1]])
 		elif docker_command == 'DELIVERY':
@@ -1864,6 +1881,7 @@ def handle_shutitfile_line(line, numpushes, wgetgot, numlogins):
 	build  = ''
 	#build = '\n\t\t# SHUTITDEBUG CMD: ' + shutitfile_command 
 	#build += '\n\t\t# SHUTITDEBUG ARGS: ' + str(shutitfile_args)
+	cmd    = ' '.join(shutitfile_args).replace("'", "\\'")
 	if shutitfile_command in ('RUN','SEND'):
 		shutitfile_args    = parse_shutitfile_args(line[1])
 		assert type(shutitfile_args) == list
@@ -1889,6 +1907,7 @@ def handle_shutitfile_line(line, numpushes, wgetgot, numlogins):
 		assert type(shutitfile_args) == list
 		cmd = ' '.join(shutitfile_args).replace("'", "\\'")
 		build += "'''" + cmd + "''')"
+<<<<<<< Updated upstream
 	elif shutitfile_command in ('LOGIN','USER'):
 		shutitfile_args    = parse_shutitfile_args(line[1])
 		assert type(shutitfile_args) == list
@@ -1911,6 +1930,10 @@ def handle_shutitfile_line(line, numpushes, wgetgot, numlogins):
 		msg = line[2]
 		build += """\n\t\t_password = shutit.get_input('''""" + msg + """''',ispass=True)"""
 		build += """\n\t\tshutit.login(user='""" + cmd + """', password=_password)"""
+=======
+	elif shutitfile_command == 'SEND_INPUT':
+		build += """\n\t\t_input = shutit.get_input('""" + cmd + """',ispass=True)\n\t\tshutit.send(_input)"""
+>>>>>>> Stashed changes
 	elif shutitfile_command == 'WORKDIR':
 		shutitfile_args    = parse_shutitfile_args(line[1])
 		assert type(shutitfile_args) == list
