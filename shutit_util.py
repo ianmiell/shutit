@@ -1294,6 +1294,10 @@ def parse_shutitfile_line(contents):
 
 
 def parse_shutitfile_args(args_str):
+	"""Parse shutitfile args (eg in the line 'RUN some args', the passed-in args_str would be 'some args').
+	If the string is bounded by square brackets, then it's treated in the form: ['arg1','arg2'], and the returned list looks the same.
+	If the string composed entirely of name-value pairs (eg RUN a=b c=d) then it's returned as a dict (eg {'a':'b','c':'d'}).
+	If what's passed-in is of the form: "COMMAND ['a=b','c=d']" then a dict is also returned.'"""
 	ret = []
 	if args_str[0] == '[' and args_str[-1] == ']':
 		ret = eval(args_str)
@@ -1301,16 +1305,16 @@ def parse_shutitfile_args(args_str):
 	else:
 		ret = args_str.split()
 		# if all the items have a = in them, then return a dict of nv pairs
-		nv_pairs = True
+	nv_pairs = True
+	for item in ret:
+		if string.find(item,'=') < 0:
+			nv_pairs = False
+	if nv_pairs:
+		d = {}
 		for item in ret:
-			if string.find(item,'=') < 0:
-				nv_pairs = False
-		if nv_pairs:
-			d = {}
-			for item in ret:
-				item_nv = item.split('=')
-				d.update({item_nv[0]:item_nv[1]})
-			ret = d
+			item_nv = item.split('=')
+			d.update({item_nv[0]:item_nv[1]})
+		ret = d
 	return ret
 
 
@@ -1581,7 +1585,7 @@ def shutitfile_to_shutit_module_template(skel_shutitfile,
 			except Exception:
 				local_cfg['shutitfile']['cmd'] = item[1]
 		# Other items to be run through sequentially (as they are part of the script)
-		if docker_command in ('USER','LOGIN'):
+		if docker_command in ('USER','LOGIN','LOGOUT'):
 			# Put in the start script as well as su'ing from here - assuming order dependent?
 			local_cfg['shutitfile']['script'].append([docker_command, item[1]])
 		elif docker_command == 'GET_PASSWORD':
@@ -1874,12 +1878,12 @@ def handle_shutitfile_line(line, numpushes, wgetgot, numlogins):
 		shutitfile_args    = parse_shutitfile_args(line[1])
 		assert type(shutitfile_args) == list
 		cmd = ' '.join(shutitfile_args).replace("'", "\\'")
-		build += """\n\t\t_expected_output = '""" + cmd + """'\n\t\tif shutit.send_and_get_output('''""" + cmd + """''') != """
+		build += """\n\t\t_output = shutit.send_and_get_output('''""" + cmd + """''')\n\t\tif _output != """
 	elif shutitfile_command == 'ASSERT_OUTPUT':
 		shutitfile_args    = parse_shutitfile_args(line[1])
 		assert type(shutitfile_args) == list
-		cmd = ' '.join(shutitfile_args).replace("'", "\\'")
-		build += """'''""" + cmd + """''':\n\t\t\tshutit.pause_point('''Expected output of: ''' + _expected_output + ''' was: """ + cmd + """''')"""
+		expected_output = ' '.join(shutitfile_args).replace("'", "\\'")
+		build += """'''""" + expected_output + """''':\n\t\t\tshutit.pause_point('''Expected output of: ''' + expected_output + ''' was: ''' + _output)"""
 	elif shutitfile_command == 'EXPECT':
 		shutitfile_args    = parse_shutitfile_args(line[1])
 		assert type(shutitfile_args) == list
@@ -1891,6 +1895,9 @@ def handle_shutitfile_line(line, numpushes, wgetgot, numlogins):
 		cmd = ' '.join(shutitfile_args).replace("'", "\\'")
 		build += """\n\t\tshutit.login('''user='""" + cmd + """' ''')"""
 		numlogins += 1
+	elif shutitfile_command in ('LOGOUT'):
+		build += """\n\t\tshutit.logout()"""
+		numlogins -= 1
 	elif shutitfile_command == 'GET_AND_SEND_PASSWORD':
 		shutitfile_args    = parse_shutitfile_args(line[1])
 		assert type(shutitfile_args) == list
