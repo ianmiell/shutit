@@ -761,10 +761,10 @@ docker_tutorial:   a docker-based tutorial
 	# Set up trace as fast as possible.
 	if shutit.build['trace']:
 		def tracefunc(frame, event, arg, indent=[0]):
-			if event == "call":
-				shutit.log("-> call function: " + frame.f_code.co_name + " " + str(frame.f_code.co_varnames),level=logging.DEBUG)
-			elif event == "return":
-				shutit.log("<- exit function: " + frame.f_code.co_name,level=logging.DEBUG)
+			if event == 'call':
+				shutit.log('-> call function: ' + frame.f_code.co_name + ' ' + str(frame.f_code.co_varnames),level=logging.DEBUG)
+			elif event == 'return':
+				shutit.log('<- exit function: ' + frame.f_code.co_name,level=logging.DEBUG)
 			return tracefunc
 		sys.settrace(tracefunc)
 
@@ -1162,7 +1162,6 @@ def create_skeleton():
 	# Set up shutitfile cfg
 	shutit.shutitfile['base_image'] = shutit.cfg['skeleton']['base_image']
 	shutit.shutitfile['cmd']        = """/bin/sh -c 'sleep infinity'"""
-	shutit.shutitfile['user']       = ''
 	shutit.shutitfile['maintainer'] = ''
 	shutit.shutitfile['entrypoint'] = ''
 	shutit.shutitfile['expose']     = []
@@ -1513,7 +1512,6 @@ def shutitfile_to_shutit_module_template(skel_shutitfile,
 	local_cfg['shutitfile']['volume']     = []
 	local_cfg['shutitfile']['expose']     = []
 	local_cfg['shutitfile']['entrypoint'] = []
-	local_cfg['shutitfile']['user']       = []
 	local_cfg['shutitfile']['env']        = []
 	local_cfg['shutitfile']['depends']    = []
 	local_cfg['shutitfile']['delivery']   = []
@@ -1530,14 +1528,14 @@ def shutitfile_to_shutit_module_template(skel_shutitfile,
 				local_cfg['shutitfile']['base_image'] = item[1]
 			else:
 				print 'Ignoring FROM line as this is not the first shutitfile supplied.'
-		elif docker_command == "ONBUILD":
+		elif docker_command == 'ONBUILD':
 			# TESTED? NO
 			# Maps to finalize :) - can we have more than one of these? assume yes
 			# This contains within it one of the above commands, so we need to abstract this out.
 			local_cfg['shutitfile']['onbuild'].append(item[1])
-		elif docker_command == "MAINTAINER":
+		elif docker_command == 'MAINTAINER':
 			local_cfg['shutitfile']['maintainer'] = item[1]
-		elif docker_command == "VOLUME":
+		elif docker_command == 'VOLUME':
 			# TESTED? NO
 			# Put in the run.sh.
 			try:
@@ -1548,14 +1546,14 @@ def shutitfile_to_shutit_module_template(skel_shutitfile,
 			# TESTED? NO
 			# Put in the run.sh.
 			local_cfg['shutitfile']['expose'].append(item[1])
-		elif docker_command == "ENTRYPOINT":
+		elif docker_command == 'ENTRYPOINT':
 			# TESTED? NO
 			# Put in the run.sh? Yes, if it exists it goes at the front of cmd
 			try:
 				local_cfg['shutitfile']['entrypoint'] = ' '.join(json.loads(item[1]))
 			except Exception:
 				local_cfg['shutitfile']['entrypoint'] = item[1]
-		elif docker_command == "CMD":
+		elif docker_command == 'CMD':
 			# TESTED? NO
 			# Put in the run.sh
 			try:
@@ -1563,13 +1561,15 @@ def shutitfile_to_shutit_module_template(skel_shutitfile,
 			except Exception:
 				local_cfg['shutitfile']['cmd'] = item[1]
 		# Other items to be run through sequentially (as they are part of the script)
-		if docker_command == "USER":
-			# TESTED? YES - TODO: support password
+		if docker_command in ('USER','LOGIN'):
 			# Put in the start script as well as su'ing from here - assuming order dependent?
 			local_cfg['shutitfile']['script'].append([docker_command, item[1]])
-			# We assume the last one seen is the one we use for the image.
-			# Put this in the default start script.
-			local_cfg['shutitfile']['user']        = item[1]
+		elif docker_command == 'LOGIN_GET_PASSWORD':
+			# If we are directed to get the password, change the previous directive internally.
+			if last_docker_command not in ('LOGIN','USER'):
+				shutit.fail('LOGIN_GET_PASSWORD line not after a USER or LOGIN line: ' + docker_command + ' ' + item[1])
+			local_cfg['shutitfile']['script'][-1][0] = 'LOGIN_WITH_PASSWORD'
+			local_cfg['shutitfile']['script'][-1][2] = item[1]
 		elif docker_command == 'ENV':
 			# Put in the run.sh.
 			local_cfg['shutitfile']['script'].append([docker_command, item[1]])
@@ -1582,38 +1582,39 @@ def shutitfile_to_shutit_module_template(skel_shutitfile,
 				local_cfg['shutitfile']['script'].append([docker_command, ' '.join(json.loads(item[1]))])
 			except Exception:
 				local_cfg['shutitfile']['script'].append([docker_command, item[1]])
-		elif docker_command == "ASSERT_OUTPUT":
+		elif docker_command == 'ASSERT_OUTPUT':
 			if last_docker_command not in ('RUN','SEND'):
 				shutit.fail('ASSERT_OUTPUT line not after a RUN/SEND line: ' + docker_command + ' ' + item[1])
 			local_cfg['shutitfile']['script'][-1][0] = 'ASSERT_OUTPUT_SEND'
 			local_cfg['shutitfile']['script'].append([docker_command, item[1]])
-		elif docker_command == "EXPECT":
+		elif docker_command == 'EXPECT':
 			if last_docker_command not in ('RUN','SEND'):
 				shutit.fail('EXPECT line not after a RUN/SEND line: ' + docker_command + ' ' + item[1])
 			local_cfg['shutitfile']['script'][-1][0] = 'SEND_EXPECT'
 			local_cfg['shutitfile']['script'].append([docker_command, item[1]])
-		elif docker_command == "ADD":
+		elif docker_command == 'ADD':
 			# TESTED? NO
 			# Send file - is this potentially got from the web? Is that the difference between this and COPY?
 			local_cfg['shutitfile']['script'].append([docker_command, item[1]])
-		elif docker_command == "COPY":
+		elif docker_command == 'COPY':
 			# TESTED? NO
 			# Send file
 			local_cfg['shutitfile']['script'].append([docker_command, item[1]])
-		elif docker_command == "WORKDIR":
+		elif docker_command == 'WORKDIR':
 			local_cfg['shutitfile']['script'].append([docker_command, item[1]])
-		elif docker_command == "COMMENT":
+		elif docker_command == 'COMMENT':
 			local_cfg['shutitfile']['script'].append([docker_command, item[1]])
-		elif docker_command == "INSTALL":
+		elif docker_command == 'INSTALL':
 			local_cfg['shutitfile']['script'].append([docker_command, item[1]])
-		elif docker_command == "DEPENDS":
+
+		elif docker_command == 'DEPENDS':
 			local_cfg['shutitfile']['depends'].append([docker_command, item[1]])
-		elif docker_command == "DELIVERY":
+		elif docker_command == 'DELIVERY':
 			local_cfg['shutitfile']['delivery'].append([docker_command, item[1]])
-		elif docker_command == "MODULE_ID":
+		elif docker_command == 'MODULE_ID':
 			# Only one item allowed.
 			local_cfg['shutitfile']['module_id'] = item[1]
-		elif docker_command in ("START_BEGIN","START_END","STOP_BEGIN","STOP_END","TEST_BEGIN","TEST_END","BUILD_BEGIN","BUILD_END","CONFIG_BEGIN","CONFIG_END","ISINSTALLED_BEGIN","ISINSTALLED_END"):
+		elif docker_command in ('START_BEGIN','START_END','STOP_BEGIN','STOP_END','TEST_BEGIN','TEST_END','BUILD_BEGIN','BUILD_END','CONFIG_BEGIN','CONFIG_END','ISINSTALLED_BEGIN','ISINSTALLED_END'):
 			local_cfg['shutitfile']['script'].append([docker_command, ''])
 		last_docker_command = docker_command
 	# PROCESS SHUTITFILE SECTION ENDS
@@ -1631,11 +1632,9 @@ def shutitfile_to_shutit_module_template(skel_shutitfile,
 	# section is the section of the shutitfile we're in. Default is 'build', but there are also a few others.
 	section   = 'build'
 	for item in local_cfg['shutitfile']['script']:
-		shutitfile_command = item[0].upper()
-		shutitfile_args    = item[1].split()
 		section = shutitfile_get_section(shutitfile_command, section)
 		if section == 'build':
-			ret = handle_shutitfile_line(shutitfile_command, shutitfile_args, numpushes, wgetgot, numlogins)
+			ret = handle_shutitfile_line(item, numpushes, wgetgot, numlogins)
 			build     += ret[0]
 			numpushes =  ret[1]
 			wgetgot   =  ret[2]
@@ -1661,11 +1660,9 @@ def shutitfile_to_shutit_module_template(skel_shutitfile,
 	numpushes = 0
 	numlogins = 0
 	for item in local_cfg['shutitfile']['script']:
-		shutitfile_command = item[0].upper()
-		shutitfile_args    = item[1].split()
 		section = shutitfile_get_section(shutitfile_command, section)
 		if section == 'test':
-			ret = handle_shutitfile_line(shutitfile_command, shutitfile_args, numpushes, wgetgot, numlogins)
+			ret = handle_shutitfile_line(item, numpushes, wgetgot, numlogins)
 			build     += ret[0]
 			numpushes =  ret[1]
 			wgetgot   =  ret[2]
@@ -1686,11 +1683,9 @@ def shutitfile_to_shutit_module_template(skel_shutitfile,
 	numpushes = 0
 	numlogins = 0
 	for item in local_cfg['shutitfile']['script']:
-		shutitfile_command = item[0].upper()
-		shutitfile_args    = item[1].split()
 		section = shutitfile_get_section(shutitfile_command, section)
 		if section == 'isinstalled':
-			ret = handle_shutitfile_line(shutitfile_command, shutitfile_args, numpushes, wgetgot, numlogins)
+			ret = handle_shutitfile_line(item, shutitfile_args, numpushes, wgetgot, numlogins)
 			build     += ret[0]
 			numpushes =  ret[1]
 			wgetgot   =  ret[2]
@@ -1711,11 +1706,9 @@ def shutitfile_to_shutit_module_template(skel_shutitfile,
 	numpushes = 0
 	numlogins = 0
 	for item in local_cfg['shutitfile']['script']:
-		shutitfile_command = item[0].upper()
-		shutitfile_args    = item[1].split()
 		section = shutitfile_get_section(shutitfile_command, section)
 		if section == 'start':
-			ret = handle_shutitfile_line(shutitfile_command, shutitfile_args, numpushes, wgetgot, numlogins)
+			ret = handle_shutitfile_line(item, numpushes, wgetgot, numlogins)
 			build     += ret[0]
 			numpushes =  ret[1]
 			wgetgot   =  ret[2]
@@ -1736,11 +1729,9 @@ def shutitfile_to_shutit_module_template(skel_shutitfile,
 	numpushes = 0
 	numlogins = 0
 	for item in local_cfg['shutitfile']['script']:
-		shutitfile_command = item[0].upper()
-		shutitfile_args    = item[1].split()
 		section = shutitfile_get_section(shutitfile_command, section)
 		if section == 'stop':
-			ret = handle_shutitfile_line(shutitfile_command, shutitfile_args, numpushes, wgetgot, numlogins)
+			ret = handle_shutitfile_line(item, numpushes, wgetgot, numlogins)
 			build     += ret[0]
 			numpushes =  ret[1]
 			wgetgot   =  ret[2]
@@ -1778,11 +1769,9 @@ def shutitfile_to_shutit_module_template(skel_shutitfile,
 	numpushes = 0
 	numlogins = 0
 	for item in local_cfg['shutitfile']['script']:
-		shutitfile_command = item[0].upper()
-		shutitfile_args    = item[1].split()
 		section = shutitfile_get_section(shutitfile_command, section)
 		if section == 'config':
-			ret = handle_shutitfile_line(shutitfile_command, shutitfile_args, numpushes, wgetgot, numlogins)
+			ret = handle_shutitfile_line(item, numpushes, wgetgot, numlogins)
 			build     += ret[0]
 			numpushes =  ret[1]
 			wgetgot   =  ret[2]
@@ -1844,7 +1833,9 @@ def shutitfile_to_shutit_module_template(skel_shutitfile,
 	return templatemodule, module_id
 
 
-def handle_shutitfile_line(shutitfile_command, shutitfile_args, numpushes, wgetgot, numlogins):
+def handle_shutitfile_line(line, numpushes, wgetgot, numlogins):
+	shutitfile_command = line[0].upper()
+	shutitfile_args    = line[1].split()
 	shutit = shutit_global.shutit
 	build = ''
 	cmd = ' '.join(shutitfile_args).replace("'", "\\'")
@@ -1858,6 +1849,13 @@ def handle_shutitfile_line(shutitfile_command, shutitfile_args, numpushes, wgetg
 		build += """'''""" + cmd + """''':\n\t\t\tshutit.pause_point('''Expected output of: ''' + _expected_output + ''' was: """ + cmd + """''')"""
 	elif shutitfile_command == 'EXPECT':
 		build += "'''" + cmd + "''')"
+	elif shutitfile_command in ('LOGIN','USER'):
+		build += """\n\t\tshutit.login('''user='""" + cmd + """\'''')"""
+		numlogins += 1
+	elif shutitfile_command == 'LOGIN_WITH_PASSWORD':
+		msg = line[2]
+		build += """\n\t\t_password = shutit.get_input('""" + msg + """',ispass=True)"""
+		build += """\n\t\tshutit.login('''user='""" + cmd + """', password=_password)"""
 	elif shutitfile_command == 'WORKDIR':
 		build += """\n\t\tshutit.send('''pushd """ + cmd + """''',echo=False)"""
 		numpushes += 1
@@ -1912,9 +1910,6 @@ def handle_shutitfile_line(shutitfile_command, shutitfile_args, numpushes, wgetg
 	elif shutitfile_command == 'ENV':
 		cmd = '='.join(shutitfile_args).replace("'", "\\'")
 		build += """\n\t\tshutit.send('''export """ + '='.join(shutitfile_args) + """''')"""
-	elif shutitfile_command == 'USER':
-		build += """\n\t\tshutit.login(user='''""" + ''.join(shutitfile_args) + """''')"""
-		numlogins += 1
 	elif shutitfile_command == 'INSTALL':
 		build += """\n\t\tshutit.install('''""" + ''.join(shutitfile_args) + """''')"""
 	elif shutitfile_command == 'COMMENT':
