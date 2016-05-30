@@ -1962,8 +1962,9 @@ def handle_shutitfile_line(line, numpushes, wgetgot, numlogins):
 				build += """\n\t\tshutit.send_host_file('''""" + outfile + """''', '''""" + buildstagefile + """''')"""
 	elif shutitfile_command == 'ENV':
 		shutitfile_args    = parse_shutitfile_args(line[1])
-		assert type(shutitfile_args) == list
-		build += """\n\t\tshutit.send('''export """ + '='.join(shutitfile_args) + """''')"""
+		assert type(shutitfile_args) == dict
+		for k,v in shutitfile_args.iteritems():
+			build += """\n\t\tshutit.send('''export """ + k + '=' + v + """''')"""
 	elif shutitfile_command == 'INSTALL':
 		shutitfile_args    = parse_shutitfile_args(line[1])
 		assert type(shutitfile_args) == list
