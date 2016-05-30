@@ -1292,10 +1292,25 @@ def parse_shutitfile_line(contents):
 				full_line = ''
 	return ret
 
+
 def parse_shutitfile_args(args_str):
 	ret = []
-	# naively split for now, save cleverer stuff for later.
-	ret = args_str.split()
+	if args_str[0] == '[' and args_str[-1] == ']':
+		ret = eval(args_str)
+		assert type(ret) == list
+	else:
+		ret = args_str.split()
+		# if all the items have a = in them, then return a dict of nv pairs
+		nv_pairs = True
+		for item in ret:
+			if string.find(item,'=') < 0:
+				nv_pairs = False
+		if nv_pairs:
+			d = {}
+			for item in ret:
+				item_nv = item.split('=')
+				d.update({item_nv[0]:item_nv[1]})
+			ret = d
 	return ret
 
 
@@ -1327,7 +1342,6 @@ def util_raw_input(prompt='', default=None, ispass=False, use_readline=True):
 				return resp
 	except Exception:
 		msg = 'Problems getting raw input, assuming no controlling terminal.'
-	print '21'
 	set_noninteractive(msg=msg)
 	return default
 
@@ -1848,47 +1862,57 @@ def handle_shutitfile_line(line, numpushes, wgetgot, numlogins):
 	#build += '\n\t\t# SHUTITDEBUG ARGS: ' + str(shutitfile_args)
 	if shutitfile_command in ('RUN','SEND'):
 		shutitfile_args    = parse_shutitfile_args(line[1])
+		assert type(shutitfile_args) == list
 		cmd = ' '.join(shutitfile_args).replace("'", "\\'")
 		build += """\n\t\tshutit.send('''""" + cmd + """''')"""
 	elif shutitfile_command == 'SEND_EXPECT':
 		shutitfile_args    = parse_shutitfile_args(line[1])
+		assert type(shutitfile_args) == list
 		cmd = ' '.join(shutitfile_args).replace("'", "\\'")
 		build += """\n\t\tshutit.send('''""" + cmd + """''',expect="""
 	elif shutitfile_command == 'ASSERT_OUTPUT_SEND':
 		shutitfile_args    = parse_shutitfile_args(line[1])
+		assert type(shutitfile_args) == list
 		cmd = ' '.join(shutitfile_args).replace("'", "\\'")
 		build += """\n\t\t_expected_output = '""" + cmd + """'\n\t\tif shutit.send_and_get_output('''""" + cmd + """''') != """
 	elif shutitfile_command == 'ASSERT_OUTPUT':
 		shutitfile_args    = parse_shutitfile_args(line[1])
+		assert type(shutitfile_args) == list
 		cmd = ' '.join(shutitfile_args).replace("'", "\\'")
 		build += """'''""" + cmd + """''':\n\t\t\tshutit.pause_point('''Expected output of: ''' + _expected_output + ''' was: """ + cmd + """''')"""
 	elif shutitfile_command == 'EXPECT':
 		shutitfile_args    = parse_shutitfile_args(line[1])
+		assert type(shutitfile_args) == list
 		cmd = ' '.join(shutitfile_args).replace("'", "\\'")
 		build += "'''" + cmd + "''')"
 	elif shutitfile_command in ('LOGIN','USER'):
 		shutitfile_args    = parse_shutitfile_args(line[1])
+		assert type(shutitfile_args) == list
 		cmd = ' '.join(shutitfile_args).replace("'", "\\'")
 		build += """\n\t\tshutit.login('''user='""" + cmd + """' ''')"""
 		numlogins += 1
 	elif shutitfile_command == 'GET_AND_SEND_PASSWORD':
 		shutitfile_args    = parse_shutitfile_args(line[1])
+		assert type(shutitfile_args) == list
 		msg = ' '.join(shutitfile_args)
 		build += """\n\t\t_password = shutit.get_input('''""" + msg + """''',ispass=True)"""
 		build += """\n\t\tshutit.send(_password,echo=False,check_exit=False)"""
 	elif shutitfile_command == 'LOGIN_WITH_PASSWORD':
 		shutitfile_args    = parse_shutitfile_args(line[1])
+		assert type(shutitfile_args) == list
 		cmd = ' '.join(shutitfile_args).replace("'", "\\'")
 		msg = line[2]
 		build += """\n\t\t_password = shutit.get_input('''""" + msg + """''',ispass=True)"""
 		build += """\n\t\tshutit.login(user='""" + cmd + """', password=_password)"""
 	elif shutitfile_command == 'WORKDIR':
 		shutitfile_args    = parse_shutitfile_args(line[1])
+		assert type(shutitfile_args) == list
 		cmd = ' '.join(shutitfile_args).replace("'", "\\'")
 		build += """\n\t\tshutit.send('''pushd """ + cmd + """''',echo=False)"""
 		numpushes += 1
 	elif shutitfile_command == 'COPY' or shutitfile_command == 'ADD':
 		shutitfile_args    = parse_shutitfile_args(line[1])
+		assert type(shutitfile_args) == list
 		# The <src> path must be inside the context of the build; you cannot COPY ../something /something, because the first step of a docker build is to send the context directory (and subdirectories) to the docker daemon.
 		if shutitfile_args[0][0:1] == '..' or shutitfile_args[0][0] == '/' or shutitfile_args[0][0] == '~':
 			shutit.fail('Invalid line: ' + str(shutitfile_args) + ' file must be in local subdirectory')
@@ -1938,12 +1962,15 @@ def handle_shutitfile_line(line, numpushes, wgetgot, numlogins):
 				build += """\n\t\tshutit.send_host_file('''""" + outfile + """''', '''""" + buildstagefile + """''')"""
 	elif shutitfile_command == 'ENV':
 		shutitfile_args    = parse_shutitfile_args(line[1])
+		assert type(shutitfile_args) == list
 		build += """\n\t\tshutit.send('''export """ + '='.join(shutitfile_args) + """''')"""
 	elif shutitfile_command == 'INSTALL':
 		shutitfile_args    = parse_shutitfile_args(line[1])
+		assert type(shutitfile_args) == list
 		build += """\n\t\tshutit.install('''""" + ''.join(shutitfile_args) + """''')"""
 	elif shutitfile_command == 'COMMENT':
 		shutitfile_args    = parse_shutitfile_args(line[1])
+		assert type(shutitfile_args) == list
 		build += """\n\t\t# """ + ' '.join(shutitfile_args)
 	return build, numpushes, wgetgot, numlogins
 
