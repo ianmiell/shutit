@@ -1863,7 +1863,6 @@ def handle_shutitfile_line(line, numpushes, wgetgot, numlogins):
 	build  = ''
 	#build = '\n\t\t# SHUTITDEBUG CMD: ' + shutitfile_command 
 	#build += '\n\t\t# SHUTITDEBUG ARGS: ' + str(shutitfile_args)
-	cmd    = ' '.join(shutitfile_args).replace("'", "\\'")
 	if shutitfile_command in ('RUN','SEND'):
 		shutitfile_args    = parse_shutitfile_args(line[1])
 		assert type(shutitfile_args) == list
