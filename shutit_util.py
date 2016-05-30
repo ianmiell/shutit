@@ -1569,7 +1569,7 @@ def shutitfile_to_shutit_module_template(skel_shutitfile,
 			if last_docker_command not in ('LOGIN','USER'):
 				shutit.fail('LOGIN_GET_PASSWORD line not after a USER or LOGIN line: ' + docker_command + ' ' + item[1])
 			local_cfg['shutitfile']['script'][-1][0] = 'LOGIN_WITH_PASSWORD'
-			local_cfg['shutitfile']['script'][-1][2] = item[1]
+			local_cfg['shutitfile']['script'][-1].append(item[1])
 		elif docker_command == 'ENV':
 			# Put in the run.sh.
 			local_cfg['shutitfile']['script'].append([docker_command, item[1]])
@@ -1632,7 +1632,7 @@ def shutitfile_to_shutit_module_template(skel_shutitfile,
 	# section is the section of the shutitfile we're in. Default is 'build', but there are also a few others.
 	section   = 'build'
 	for item in local_cfg['shutitfile']['script']:
-		section = shutitfile_get_section(shutitfile_command, section)
+		section = shutitfile_get_section(item[0], section)
 		if section == 'build':
 			ret = handle_shutitfile_line(item, numpushes, wgetgot, numlogins)
 			build     += ret[0]
@@ -1660,7 +1660,7 @@ def shutitfile_to_shutit_module_template(skel_shutitfile,
 	numpushes = 0
 	numlogins = 0
 	for item in local_cfg['shutitfile']['script']:
-		section = shutitfile_get_section(shutitfile_command, section)
+		section = shutitfile_get_section(item[0], section)
 		if section == 'test':
 			ret = handle_shutitfile_line(item, numpushes, wgetgot, numlogins)
 			build     += ret[0]
@@ -1683,7 +1683,7 @@ def shutitfile_to_shutit_module_template(skel_shutitfile,
 	numpushes = 0
 	numlogins = 0
 	for item in local_cfg['shutitfile']['script']:
-		section = shutitfile_get_section(shutitfile_command, section)
+		section = shutitfile_get_section(item[0], section)
 		if section == 'isinstalled':
 			ret = handle_shutitfile_line(item, shutitfile_args, numpushes, wgetgot, numlogins)
 			build     += ret[0]
@@ -1706,7 +1706,7 @@ def shutitfile_to_shutit_module_template(skel_shutitfile,
 	numpushes = 0
 	numlogins = 0
 	for item in local_cfg['shutitfile']['script']:
-		section = shutitfile_get_section(shutitfile_command, section)
+		section = shutitfile_get_section(item[0], section)
 		if section == 'start':
 			ret = handle_shutitfile_line(item, numpushes, wgetgot, numlogins)
 			build     += ret[0]
@@ -1729,7 +1729,7 @@ def shutitfile_to_shutit_module_template(skel_shutitfile,
 	numpushes = 0
 	numlogins = 0
 	for item in local_cfg['shutitfile']['script']:
-		section = shutitfile_get_section(shutitfile_command, section)
+		section = shutitfile_get_section(item[0], section)
 		if section == 'stop':
 			ret = handle_shutitfile_line(item, numpushes, wgetgot, numlogins)
 			build     += ret[0]
@@ -1769,7 +1769,7 @@ def shutitfile_to_shutit_module_template(skel_shutitfile,
 	numpushes = 0
 	numlogins = 0
 	for item in local_cfg['shutitfile']['script']:
-		section = shutitfile_get_section(shutitfile_command, section)
+		section = shutitfile_get_section(item[0], section)
 		if section == 'config':
 			ret = handle_shutitfile_line(item, numpushes, wgetgot, numlogins)
 			build     += ret[0]
@@ -1854,8 +1854,8 @@ def handle_shutitfile_line(line, numpushes, wgetgot, numlogins):
 		numlogins += 1
 	elif shutitfile_command == 'LOGIN_WITH_PASSWORD':
 		msg = line[2]
-		build += """\n\t\t_password = shutit.get_input('""" + msg + """',ispass=True)"""
-		build += """\n\t\tshutit.login('''user='""" + cmd + """', password=_password)"""
+		build += """\n\t\t_password = shutit.get_input('''""" + msg + """''',ispass=True)"""
+		build += """\n\t\tshutit.login(user='""" + cmd + """', password=_password)"""
 	elif shutitfile_command == 'WORKDIR':
 		build += """\n\t\tshutit.send('''pushd """ + cmd + """''',echo=False)"""
 		numpushes += 1
