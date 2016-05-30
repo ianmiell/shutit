@@ -1878,12 +1878,12 @@ def handle_shutitfile_line(line, numpushes, wgetgot, numlogins):
 		shutitfile_args    = parse_shutitfile_args(line[1])
 		assert type(shutitfile_args) == list
 		cmd = ' '.join(shutitfile_args).replace("'", "\\'")
-		build += """\n\t\t_output = shutit.send_and_get_output('''""" + cmd + """''')\n\t\tif _output != """
+		build += """\n\t\t_cmd = '''""" + cmd + """'''\n\t\t_output = shutit.send_and_get_output('''""" + cmd + """''')\n\t\tif _output != """
 	elif shutitfile_command == 'ASSERT_OUTPUT':
 		shutitfile_args    = parse_shutitfile_args(line[1])
 		assert type(shutitfile_args) == list
 		expected_output = ' '.join(shutitfile_args).replace("'", "\\'")
-		build += """'''""" + expected_output + """''':\n\t\t\tshutit.pause_point('''Expected output of: ''' + expected_output + ''' was: ''' + _output)"""
+		build += """'''""" + expected_output + """''':\n\t\t\tshutit.pause_point('''Expected output of: ''' + _cmd + ''' was: ''' + _output + ''' It should be: """ + expected_output + """''')"""
 	elif shutitfile_command == 'EXPECT':
 		shutitfile_args    = parse_shutitfile_args(line[1])
 		assert type(shutitfile_args) == list
