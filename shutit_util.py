@@ -1267,7 +1267,7 @@ def create_skeleton():
 
 # Parses the shutitfile (passed in as a string)
 # and info to extract, and returns a list with the information in a more canonical form, still ordered.
-def parse_shutitfile(contents):
+def parse_shutitfile_line(contents):
 	shutit       = shutit_global.shutit
 	ret          = []
 	full_line    = ''
@@ -1288,8 +1288,14 @@ def parse_shutitfile(contents):
 				if comment:
 					ret.append(['COMMENT', comment.group(1)])
 				else:
-					shutit.log("Ignored line in parse_shutitfile: " + l,level=logging.DEBUG)
+					shutit.log("Ignored line in parse_shutitfile_line: " + l,level=logging.DEBUG)
 				full_line = ''
+	return ret
+
+def parse_shutitfile_args(args_str):
+	ret = []
+	# naively split for now, save cleverer stuff for later.
+	ret = args_str.split()
 	return ret
 
 
@@ -1515,7 +1521,7 @@ def shutitfile_to_shutit_module_template(skel_shutitfile,
 	local_cfg['shutitfile']['env']        = []
 	local_cfg['shutitfile']['depends']    = []
 	local_cfg['shutitfile']['delivery']   = []
-	shutitfile_list = parse_shutitfile(shutitfile_contents)
+	shutitfile_list = parse_shutitfile_line(shutitfile_contents)
 	# Set defaults from given shutitfile
 	last_docker_command = ''
 	for item in shutitfile_list:
@@ -1836,37 +1842,53 @@ def shutitfile_to_shutit_module_template(skel_shutitfile,
 
 def handle_shutitfile_line(line, numpushes, wgetgot, numlogins):
 	shutitfile_command = line[0].upper()
-	shutitfile_args    = line[1].split()
 	shutit = shutit_global.shutit
 	build  = ''
 	#build = '\n\t\t# SHUTITDEBUG CMD: ' + shutitfile_command 
 	#build += '\n\t\t# SHUTITDEBUG ARGS: ' + str(shutitfile_args)
-	cmd = ' '.join(shutitfile_args).replace("'", "\\'")
 	if shutitfile_command in ('RUN','SEND'):
+		shutitfile_args    = parse_shutitfile_args(line[1])
+		cmd = ' '.join(shutitfile_args).replace("'", "\\'")
 		build += """\n\t\tshutit.send('''""" + cmd + """''')"""
 	elif shutitfile_command == 'SEND_EXPECT':
+		shutitfile_args    = parse_shutitfile_args(line[1])
+		cmd = ' '.join(shutitfile_args).replace("'", "\\'")
 		build += """\n\t\tshutit.send('''""" + cmd + """''',expect="""
 	elif shutitfile_command == 'ASSERT_OUTPUT_SEND':
+		shutitfile_args    = parse_shutitfile_args(line[1])
+		cmd = ' '.join(shutitfile_args).replace("'", "\\'")
 		build += """\n\t\t_expected_output = '""" + cmd + """'\n\t\tif shutit.send_and_get_output('''""" + cmd + """''') != """
 	elif shutitfile_command == 'ASSERT_OUTPUT':
+		shutitfile_args    = parse_shutitfile_args(line[1])
+		cmd = ' '.join(shutitfile_args).replace("'", "\\'")
 		build += """'''""" + cmd + """''':\n\t\t\tshutit.pause_point('''Expected output of: ''' + _expected_output + ''' was: """ + cmd + """''')"""
 	elif shutitfile_command == 'EXPECT':
+		shutitfile_args    = parse_shutitfile_args(line[1])
+		cmd = ' '.join(shutitfile_args).replace("'", "\\'")
 		build += "'''" + cmd + "''')"
 	elif shutitfile_command in ('LOGIN','USER'):
+		shutitfile_args    = parse_shutitfile_args(line[1])
+		cmd = ' '.join(shutitfile_args).replace("'", "\\'")
 		build += """\n\t\tshutit.login('''user='""" + cmd + """' ''')"""
 		numlogins += 1
 	elif shutitfile_command == 'GET_AND_SEND_PASSWORD':
+		shutitfile_args    = parse_shutitfile_args(line[1])
 		msg = ' '.join(shutitfile_args)
 		build += """\n\t\t_password = shutit.get_input('''""" + msg + """''',ispass=True)"""
 		build += """\n\t\tshutit.send(_password,echo=False,check_exit=False)"""
 	elif shutitfile_command == 'LOGIN_WITH_PASSWORD':
+		shutitfile_args    = parse_shutitfile_args(line[1])
+		cmd = ' '.join(shutitfile_args).replace("'", "\\'")
 		msg = line[2]
 		build += """\n\t\t_password = shutit.get_input('''""" + msg + """''',ispass=True)"""
 		build += """\n\t\tshutit.login(user='""" + cmd + """', password=_password)"""
 	elif shutitfile_command == 'WORKDIR':
+		shutitfile_args    = parse_shutitfile_args(line[1])
+		cmd = ' '.join(shutitfile_args).replace("'", "\\'")
 		build += """\n\t\tshutit.send('''pushd """ + cmd + """''',echo=False)"""
 		numpushes += 1
 	elif shutitfile_command == 'COPY' or shutitfile_command == 'ADD':
+		shutitfile_args    = parse_shutitfile_args(line[1])
 		# The <src> path must be inside the context of the build; you cannot COPY ../something /something, because the first step of a docker build is to send the context directory (and subdirectories) to the docker daemon.
 		if shutitfile_args[0][0:1] == '..' or shutitfile_args[0][0] == '/' or shutitfile_args[0][0] == '~':
 			shutit.fail('Invalid line: ' + str(shutitfile_args) + ' file must be in local subdirectory')
@@ -1915,11 +1937,13 @@ def handle_shutitfile_line(line, numpushes, wgetgot, numlogins):
 			else:
 				build += """\n\t\tshutit.send_host_file('''""" + outfile + """''', '''""" + buildstagefile + """''')"""
 	elif shutitfile_command == 'ENV':
-		cmd = '='.join(shutitfile_args).replace("'", "\\'")
+		shutitfile_args    = parse_shutitfile_args(line[1])
 		build += """\n\t\tshutit.send('''export """ + '='.join(shutitfile_args) + """''')"""
 	elif shutitfile_command == 'INSTALL':
+		shutitfile_args    = parse_shutitfile_args(line[1])
 		build += """\n\t\tshutit.install('''""" + ''.join(shutitfile_args) + """''')"""
 	elif shutitfile_command == 'COMMENT':
+		shutitfile_args    = parse_shutitfile_args(line[1])
 		build += """\n\t\t# """ + ' '.join(shutitfile_args)
 	return build, numpushes, wgetgot, numlogins
 
