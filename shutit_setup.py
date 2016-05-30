@@ -53,7 +53,6 @@ class ShutItConnModule(ShutItModule):
 
 	def setup_host_child(self):
 		shutit = shutit_global.shutit
-		cfg = shutit.cfg
 		# Now let's have a host_child
 		shutit.log('Spawning host child',level=logging.DEBUG)
 		shutit_pexpect_session = shutit_pexpect.ShutItPexpectSession('host_child', '/bin/bash')
@@ -67,7 +66,6 @@ class ShutItConnModule(ShutItModule):
 
 	def setup_target_child(self, target_child, target_child_id='target_child',prefix='root'):
 		shutit = shutit_global.shutit
-		cfg = shutit.cfg
 		# Some pexpect settings
 		shutit_pexpect_session = shutit.get_shutit_pexpect_session_from_id(target_child_id)
 		shutit_pexpect_session.pexpect_child = target_child
@@ -150,7 +148,6 @@ class ConnDocker(ShutItConnModule):
 
 	def destroy_container(self, host_shutit_session_name, container_shutit_session_name, container_id, loglevel=logging.DEBUG):
 		shutit = shutit_global.shutit
-		cfg = shutit.cfg
 		# Close connection.
 		shutit.get_shutit_pexpect_session_from_id(container_shutit_session_name).pexpect_child.close()
 		host_child = shutit.get_shutit_pexpect_session_from_id(host_shutit_session_name).pexpect_child
@@ -159,7 +156,6 @@ class ConnDocker(ShutItConnModule):
 
 	def start_container(self, shutit_session_name, loglevel=logging.DEBUG):
 		shutit = shutit_global.shutit
-		cfg = shutit.cfg
 		docker = shutit.host['docker_executable'].split(' ')
 		# Always-required options
 		if not os.path.exists(shutit.build['shutit_state_dir'] + '/cidfiles'):
