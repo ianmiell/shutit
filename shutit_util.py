@@ -1804,13 +1804,9 @@ def shutitfile_to_shutit_module_template(skel_shutitfile,
 		depends = "'" + skel_depends + "','" + "','".join(shutitfile_depends) + "'"
 	else:
 		depends = "'" + skel_depends + "'"
-<<<<<<< HEAD
 	# BUILDING SECTION ENDS
 
 	# CHECKING SECTION BEGINS
-=======
-		
->>>>>>> 3b9d9c9fae1ceba2928ea93d93fd199e178f944a
 	# delivery directives
 	# Only allow one type of delivery
 	shutitfile_delivery = set()
@@ -1818,7 +1814,6 @@ def shutitfile_to_shutit_module_template(skel_shutitfile,
 		shutitfile_delivery.add(item[1])
 	if len(shutitfile_delivery) > 1:
 		shutit.fail('Conflicting delivery methods in ShutItFile')
-<<<<<<< HEAD
 	elif len(shutitfile_delivery) == 1:
 		skel_delivery = shutitfile_delivery.pop()
 
@@ -1832,11 +1827,6 @@ def shutitfile_to_shutit_module_template(skel_shutitfile,
 	# CHECKING SECTION DONE
 
 	# WRITING OUT SECTION BEGINS
-=======
-	else:
-		skel_delivery = shutitfile_delivery.pop()
-
->>>>>>> 3b9d9c9fae1ceba2928ea93d93fd199e178f944a
 	templatemodule += """\n\ndef module():
 		return template(
 				'""" + module_id + """', """ + skel_domain_hash + str(order * 0.0001) + str(random.randint(1,999)) + """,
