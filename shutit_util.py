@@ -1585,9 +1585,13 @@ def shutitfile_to_shutit_module_template(skel_shutitfile,
 				local_cfg['shutitfile']['script'].append([docker_command, ' '.join(json.loads(item[1]))])
 			except Exception:
 				local_cfg['shutitfile']['script'].append([docker_command, item[1]])
+		elif docker_command == "ASSERT_OUTPUT":
+			if last_docker_command not in ('RUN','SEND'):
+				shutit.fail('ASSERT_OUTPUT line not after a RUN/SEND line: ' + docker_command + ' ' + item[1])
+			local_cfg['shutitfile']['script'][-1][0] = 'ASSERT_OUTPUT_SEND'
+			local_cfg['shutitfile']['script'].append([docker_command, item[1]])
 		elif docker_command == "EXPECT":
 			if last_docker_command not in ('RUN','SEND'):
-				print item[1]
 				shutit.fail('EXPECT line not after a RUN/SEND line: ' + docker_command + ' ' + item[1])
 			local_cfg['shutitfile']['script'][-1][0] = 'SEND_EXPECT'
 			local_cfg['shutitfile']['script'].append([docker_command, item[1]])
@@ -1847,12 +1851,14 @@ def handle_shutitfile_line(shutitfile_command, shutitfile_args, numpushes, wgetg
 	shutit = shutit_global.shutit
 	build = ''
 	cmd = ' '.join(shutitfile_args).replace("'", "\\'")
-	print shutitfile_command
-	print cmd
 	if shutitfile_command in ('RUN','SEND'):
 		build += """\n\t\tshutit.send('''""" + cmd + """''')"""
 	elif shutitfile_command == 'SEND_EXPECT':
 		build += """\n\t\tshutit.send('''""" + cmd + """''',expect="""
+	elif shutitfile_command == 'ASSERT_OUTPUT_SEND':
+		build += """\n\t\t_expected_output = '""" + cmd + """'\n\t\tif shutit.send_and_get_output('''""" + cmd + """''') != """
+	elif shutitfile_command == 'ASSERT_OUTPUT':
+		build += """'''""" + cmd + """''':\n\t\t\tshutit.pause_point('''Expected output of: ''' + _expected_output + ''' was: """ + cmd + """''')"""
 	elif shutitfile_command == 'EXPECT':
 		build += "'''" + cmd + "''')"
 	elif shutitfile_command == 'WORKDIR':
