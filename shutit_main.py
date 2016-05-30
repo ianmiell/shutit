@@ -495,7 +495,7 @@ def do_finalize():
 			shutit.logout()
 
 
-def setup_shutit_path(cfg):
+def setup_shutit_path():
 	# try the current directory, the .. directory, or the ../shutit directory, the ~/shutit
 	shutit = shutit_global.shutit
 	if not shutit.host['add_shutit_to_path']:
@@ -555,7 +555,7 @@ def main():
 	# Try and ensure shutit is on the path - makes onboarding easier
 	# Only do this if we're in a terminal
 	if shutit_util.determine_interactive() and spawn.find_executable('shutit') is None:
-		setup_shutit_path(cfg)
+		setup_shutit_path()
 
 	shutit_util.load_mod_from_file(os.path.join(shutit.shutit_main_dir, 'shutit_setup.py'))
 	shutit_util.load_shutit_modules()

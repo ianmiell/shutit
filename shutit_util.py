@@ -294,7 +294,6 @@ def get_base_config(cfg_parser):
 	"""Responsible for getting core configuration from config files.
 	"""
 	shutit = shutit_global.shutit
-	cfg = shutit.cfg
 	shutit.config_parser = cp = cfg_parser
 	# BEGIN Read from config files
 	# build - details relating to the build
@@ -364,8 +363,6 @@ def get_base_config(cfg_parser):
 	# END tidy configs up
 
 	# BEGIN warnings
-	# Warn if something appears not to have been overridden
-	warn = ''
 	# FAILS begins
 	# rm is incompatible with repository actions
 	if shutit.target['rm'] and (shutit.repository['tag'] or shutit.repository['push'] or shutit.repository['save'] or shutit.repository['export']):
