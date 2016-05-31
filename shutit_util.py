@@ -1631,7 +1631,6 @@ def shutitfile_to_shutit_module_template(skel_shutitfile,
 			local_cfg['shutitfile']['script'].append([docker_command, item[1]])
 		elif docker_command == 'INSTALL':
 			local_cfg['shutitfile']['script'].append([docker_command, item[1]])
-
 		elif docker_command == 'DEPENDS':
 			local_cfg['shutitfile']['depends'].append([docker_command, item[1]])
 		elif docker_command == 'DELIVERY':
