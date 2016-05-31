@@ -262,6 +262,7 @@ class ShutIt(object):
 		@param echo:                 See send()
 		@param note:                 See send()
 		"""
+		assert type(send_dict) == dict
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
 		expect = expect or self.get_current_shutit_pexpect_session().default_expect
 		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)

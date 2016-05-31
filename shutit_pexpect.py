@@ -277,10 +277,11 @@ class ShutItPexpectSession(object):
 		# Unset the PROMPT_COMMAND as this can cause nasty surprises in the output.
 		# Set the cols value, as unpleasant escapes are put in the output if the
 		# input is > n chars wide.
+		# checkwinsize is required for similar reasons.
 		# The newline in the expect list is a hack. On my work laptop this line hangs
 		# and times out very frequently. This workaround seems to work, but I
 		# haven't figured out why yet - imiell.
-		self.send((" export SHUTIT_BACKUP_PS1_%s=$PS1 && PS1='%s' && unset PROMPT_COMMAND && stty sane && stty cols " + str(shutit.build['stty_cols'])) % (prompt_name, local_prompt) + ' && export HISTCONTROL=$HISTCONTROL:ignoredups:ignorespace', expect=['\r\n' + shutit.expect_prompts[prompt_name]], fail_on_empty_before=False, timeout=5, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
+		self.send((" shopt -s checkwinsize && export SHUTIT_BACKUP_PS1_%s=$PS1 && PS1='%s' && unset PROMPT_COMMAND && stty sane && stty cols " + str(shutit.build['stty_cols'])) % (prompt_name, local_prompt) + ' && export HISTCONTROL=$HISTCONTROL:ignoredups:ignorespace', expect=['\r\n' + shutit.expect_prompts[prompt_name]], fail_on_empty_before=False, timeout=5, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
 		shutit.log('Resetting default expect to: ' + shutit.expect_prompts[prompt_name],level=logging.DEBUG)
 		self.default_expect = shutit.expect_prompts[prompt_name]
 		# Ensure environment is set up OK.
