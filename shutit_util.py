@@ -1505,7 +1505,6 @@ def shutitfile_to_shutit_module_template(skel_shutitfile,
 	global allowed_delivery_methods
 	shutit = shutit_global.shutit
 
-	# SETUP SECTION BEGINS
 	if not os.path.exists(skel_shutitfile):
 		if urlparse.urlparse(skel_shutitfile)[0] == '':
 			shutit.fail('Dockerfile/ShutItFile "' + skel_shutitfile + '" must exist')
@@ -1522,132 +1521,47 @@ def shutitfile_to_shutit_module_template(skel_shutitfile,
 			shutil.copytree(shutitfile_dirname, skel_path + '/context')
 		# Change to this context
 		os.chdir(shutitfile_dirname)
-	# SETUP SECTION ENDS
+
+	# Process the shutitfile
+	shutitfile_repn = process_shutitfile(shutitfile_contents)
+
+	# Check the shutitfile representation
+	check_shutitfile_representation(shutitfile_repn)
+
+	# Get the shutit module as a string
+	templatemodule = generate_shutit_module(shutitfile_repn)
+
+	# Return program to main shutit_dir
+	if shutitfile_dirname:
+		os.chdir(sys.path[0])
+	return templatemodule, module_id
 
 
-	# PROCESS SHUTITFILE SECTION BEGINS
-	# Wipe the command as we expect one in the file.
-	local_cfg = {'shutitfile': {}}
-	local_cfg['shutitfile']['cmd']        = ''
-	local_cfg['shutitfile']['maintainer'] = ''
-	local_cfg['shutitfile']['module_id']  = ''
-	local_cfg['shutitfile']['script']     = []
-	local_cfg['shutitfile']['onbuild']    = []
-	local_cfg['shutitfile']['volume']     = []
-	local_cfg['shutitfile']['expose']     = []
-	local_cfg['shutitfile']['entrypoint'] = []
-	local_cfg['shutitfile']['env']        = []
-	local_cfg['shutitfile']['depends']    = []
-	local_cfg['shutitfile']['delivery']   = []
-	shutitfile_list = parse_shutitfile_line(shutitfile_contents)
-	# Set defaults from given shutitfile
-	last_docker_command = ''
-	for item in shutitfile_list:
-		# These items are not order-dependent and don't affect the build, so we collect them here:
-		docker_command = item[0].upper()
-		if docker_command == 'FROM':
-			# TESTED? NO
-			# Should be only one of these
-			if order == 1:
-				local_cfg['shutitfile']['base_image'] = item[1]
-			else:
-				print 'Ignoring FROM line as this is not the first shutitfile supplied.'
-		elif docker_command == 'ONBUILD':
-			# TESTED? NO
-			# Maps to finalize :) - can we have more than one of these? assume yes
-			# This contains within it one of the above commands, so we need to abstract this out.
-			local_cfg['shutitfile']['onbuild'].append(item[1])
-		elif docker_command == 'MAINTAINER':
-			local_cfg['shutitfile']['maintainer'] = item[1]
-		elif docker_command == 'VOLUME':
-			# TESTED? NO
-			# Put in the run.sh.
-			try:
-				local_cfg['shutitfile']['volume'].append(' '.join(json.loads(item[1])))
-			except Exception:
-				local_cfg['shutitfile']['volume'].append(item[1])
-		elif docker_command == 'EXPOSE':
-			# TESTED? NO
-			# Put in the run.sh.
-			local_cfg['shutitfile']['expose'].append(item[1])
-		elif docker_command == 'ENTRYPOINT':
-			# TESTED? NO
-			# Put in the run.sh? Yes, if it exists it goes at the front of cmd
-			try:
-				local_cfg['shutitfile']['entrypoint'] = ' '.join(json.loads(item[1]))
-			except Exception:
-				local_cfg['shutitfile']['entrypoint'] = item[1]
-		elif docker_command == 'CMD':
-			# TESTED? NO
-			# Put in the run.sh
-			try:
-				local_cfg['shutitfile']['cmd'] = ' '.join(json.loads(item[1]))
-			except Exception:
-				local_cfg['shutitfile']['cmd'] = item[1]
-		# Other items to be run through sequentially (as they are part of the script)
-		if docker_command in ('USER','LOGIN','LOGOUT'):
-			# Put in the start script as well as su'ing from here - assuming order dependent?
-			local_cfg['shutitfile']['script'].append([docker_command, item[1]])
-		elif docker_command == 'GET_PASSWORD':
-			# If we are directed to get the password, change the previous directive internally.
-			if last_docker_command not in ('LOGIN','USER'):
-				shutit.fail('GET_PASSWORD line not after a USER or LOGIN line: ' + docker_command + ' ' + item[1])
-			if last_docker_command in ('LOGIN','USER'):
-				local_cfg['shutitfile']['script'][-1][0] = 'LOGIN_WITH_PASSWORD'
-				local_cfg['shutitfile']['script'][-1].append(item[1])
-		elif docker_command == 'ENV':
-			# Put in the run.sh.
-			local_cfg['shutitfile']['script'].append([docker_command, item[1]])
-			# Set in the build
-			local_cfg['shutitfile']['env'].append(item[1])
-		elif docker_command in ('RUN','SEND'):
-			# Only handle simple commands for now and ignore the fact that shutitfiles run
-			# with /bin/sh -c rather than bash.
-			try:
-				local_cfg['shutitfile']['script'].append([docker_command, ' '.join(json.loads(item[1]))])
-			except Exception:
-				local_cfg['shutitfile']['script'].append([docker_command, item[1]])
-		elif docker_command == 'ASSERT_OUTPUT':
-			if last_docker_command not in ('RUN','SEND'):
-				shutit.fail('ASSERT_OUTPUT line not after a RUN/SEND line: ' + docker_command + ' ' + item[1])
-			local_cfg['shutitfile']['script'][-1][0] = 'ASSERT_OUTPUT_SEND'
-			local_cfg['shutitfile']['script'].append([docker_command, item[1]])
-		elif docker_command == 'EXPECT':
-			if last_docker_command not in ('RUN','SEND','GET_PASSWORD'):
-				shutit.fail('EXPECT line not after a RUN, SEND or GET_PASSWORD line: ' + docker_command + ' ' + item[1])
-			local_cfg['shutitfile']['script'][-1][0] = 'SEND_EXPECT'
-			local_cfg['shutitfile']['script'].append([docker_command, item[1]])
-		elif docker_command == 'ADD':
-			# TESTED? NO
-			# Send file - is this potentially got from the web? Is that the difference between this and COPY?
-			local_cfg['shutitfile']['script'].append([docker_command, item[1]])
-		elif docker_command == 'COPY':
-			# TESTED? NO
-			# Send file
-			local_cfg['shutitfile']['script'].append([docker_command, item[1]])
-		elif docker_command == 'WORKDIR':
-			local_cfg['shutitfile']['script'].append([docker_command, item[1]])
-		elif docker_command == 'COMMENT':
-			local_cfg['shutitfile']['script'].append([docker_command, item[1]])
-		elif docker_command == 'INSTALL':
-			local_cfg['shutitfile']['script'].append([docker_command, item[1]])
-		elif docker_command == 'DEPENDS':
-			local_cfg['shutitfile']['depends'].append([docker_command, item[1]])
-		elif docker_command == 'DELIVERY':
-			local_cfg['shutitfile']['delivery'].append([docker_command, item[1]])
-		elif docker_command == 'MODULE_ID':
-			# Only one item allowed.
-			local_cfg['shutitfile']['module_id'] = item[1]
-		elif docker_command in ('START_BEGIN','START_END','STOP_BEGIN','STOP_END','TEST_BEGIN','TEST_END','BUILD_BEGIN','BUILD_END','CONFIG_BEGIN','CONFIG_END','ISINSTALLED_BEGIN','ISINSTALLED_END'):
-			local_cfg['shutitfile']['script'].append([docker_command, ''])
-		last_docker_command = docker_command
-	# PROCESS SHUTITFILE SECTION ENDS
+def check_shutitfile_representation(shutitfile_repn):
+	# delivery directives
+	# Only allow one type of delivery
+	shutitfile_delivery = set()
+	for item in shutitfile_repn['shutitfile']['delivery']:
+		shutitfile_delivery.add(item[1])
+	if len(shutitfile_delivery) > 1:
+		shutit.fail('Conflicting delivery methods in ShutItFile')
+	elif len(shutitfile_delivery) == 1:
+		skel_delivery = shutitfile_delivery.pop()
 
-	# We now have the script, so let's construct it inline here
-	# Header.
-	templatemodule = '\n# Created from shutitfile: ' + skel_shutitfile + '\n# Maintainer:              ' + local_cfg['shutitfile']['maintainer'] + '\nfrom shutit_module import ShutItModule\n\nclass template(ShutItModule):\n\n\tdef is_installed(self, shutit):\n\t\treturn False'
+	if skel_delivery not in allowed_delivery_methods:
+		shutit.fail('Disallowed delivery method in ShutItFile: ' + skel_delivery)
 
-	# BUILDING SECTION BEGINS
+	if skel_delivery not in ('docker'):
+		# FROM, ONBUILD, VOLUME, EXPOSE, ENTRYPOINT, CMD are verboten
+		if shutitfile_repn['shutitfile']['cmd'] != '' or shutitfile_repn['shutitfile']['volume']  != [] or shutitfile_repn['shutitfile']['onbuild'] != [] or shutitfile_repn['shutitfile']['expose']  !=  [] or shutitfile_repn['shutitfile']['entrypoint'] != []:
+			shutit.fail('One of FROM, ONBUILD, VOLUME, EXPOSE, ENTRYPOINT or CMD used in ShutItFile  not using the Docker delivery method.')
+
+
+
+def generate_shutit_module(shutitfile_repn):
+
+	templatemodule = '\n# Created from shutitfile: ' + skel_shutitfile + '\n# Maintainer:              ' + shutitfile_repn['shutitfile']['maintainer'] + '\nfrom shutit_module import ShutItModule\n\nclass template(ShutItModule):\n\n\tdef is_installed(self, shutit):\n\t\treturn False'
+
 	# build
 	build     = ''
 	numpushes = 0
@@ -1655,7 +1569,7 @@ def shutitfile_to_shutit_module_template(skel_shutitfile,
 	wgetgot   = False
 	# section is the section of the shutitfile we're in. Default is 'build', but there are also a few others.
 	section   = 'build'
-	for item in local_cfg['shutitfile']['script']:
+	for item in shutitfile_repn['shutitfile']['script']:
 		section = shutitfile_get_section(item[0], section)
 		if section == 'build':
 			ret = handle_shutitfile_line(item, numpushes, wgetgot, numlogins)
@@ -1674,7 +1588,7 @@ def shutitfile_to_shutit_module_template(skel_shutitfile,
 
 	# finalize section
 	finalize = ''
-	for line in local_cfg['shutitfile']['onbuild']:
+	for line in shutitfile_repn['shutitfile']['onbuild']:
 		finalize += '\n\n\t\tshutit.send(\'' + line + ')\''
 	templatemodule += '\n\n\tdef finalize(self, shutit):' + finalize + '\n\t\treturn True'
 
@@ -1683,7 +1597,7 @@ def shutitfile_to_shutit_module_template(skel_shutitfile,
 	templatemodule += '\n\n\tdef test(self, shutit):'
 	numpushes = 0
 	numlogins = 0
-	for item in local_cfg['shutitfile']['script']:
+	for item in shutitfile_repn['shutitfile']['script']:
 		section = shutitfile_get_section(item[0], section)
 		if section == 'test':
 			ret = handle_shutitfile_line(item, numpushes, wgetgot, numlogins)
@@ -1706,7 +1620,7 @@ def shutitfile_to_shutit_module_template(skel_shutitfile,
 	templatemodule += '\n\n\tdef is_installed(self, shutit):'
 	numpushes = 0
 	numlogins = 0
-	for item in local_cfg['shutitfile']['script']:
+	for item in shutitfile_repn['shutitfile']['script']:
 		section = shutitfile_get_section(item[0], section)
 		if section == 'isinstalled':
 			ret = handle_shutitfile_line(item, shutitfile_args, numpushes, wgetgot, numlogins)
@@ -1729,7 +1643,7 @@ def shutitfile_to_shutit_module_template(skel_shutitfile,
 	templatemodule += '\n\n\tdef start(self, shutit):'
 	numpushes = 0
 	numlogins = 0
-	for item in local_cfg['shutitfile']['script']:
+	for item in shutitfile_repn['shutitfile']['script']:
 		section = shutitfile_get_section(item[0], section)
 		if section == 'start':
 			ret = handle_shutitfile_line(item, numpushes, wgetgot, numlogins)
@@ -1752,7 +1666,7 @@ def shutitfile_to_shutit_module_template(skel_shutitfile,
 	build     = ''
 	numpushes = 0
 	numlogins = 0
-	for item in local_cfg['shutitfile']['script']:
+	for item in shutitfile_repn['shutitfile']['script']:
 		section = shutitfile_get_section(item[0], section)
 		if section == 'stop':
 			ret = handle_shutitfile_line(item, numpushes, wgetgot, numlogins)
@@ -1781,8 +1695,8 @@ def shutitfile_to_shutit_module_template(skel_shutitfile,
 		# shutit.get_config(self.module_id, 'myconfig', default='a value')
 		#                                      and reference in your code with:
 		# shutit.cfg[self.module_id]['myconfig']'''
-	if local_cfg['shutitfile']['module_id']:
-		module_id = local_cfg['shutitfile']['module_id']
+	if shutitfile_repn['shutitfile']['module_id']:
+		module_id = shutitfile_repn['shutitfile']['module_id']
 	else:
 		# If the total number of modules is more than 1, then we want to number these modules.
 		if total > 1:
@@ -1792,7 +1706,7 @@ def shutitfile_to_shutit_module_template(skel_shutitfile,
 	build     = ''
 	numpushes = 0
 	numlogins = 0
-	for item in local_cfg['shutitfile']['script']:
+	for item in shutitfile_repn['shutitfile']['script']:
 		section = shutitfile_get_section(item[0], section)
 		if section == 'config':
 			ret = handle_shutitfile_line(item, numpushes, wgetgot, numlogins)
@@ -1812,49 +1726,146 @@ def shutitfile_to_shutit_module_template(skel_shutitfile,
 
 	# depends section
 	shutitfile_depends = []
-	for item in local_cfg['shutitfile']['depends']:
+	for item in shutitfile_repn['shutitfile']['depends']:
 		shutitfile_depends.append(item[1])
 	if len(shutitfile_depends):
 		depends = "'" + skel_depends + "','" + "','".join(shutitfile_depends) + "'"
 	else:
 		depends = "'" + skel_depends + "'"
-	# BUILDING SECTION ENDS
-
-	# CHECKING SECTION BEGINS
-	# delivery directives
-	# Only allow one type of delivery
-	shutitfile_delivery = set()
-	for item in local_cfg['shutitfile']['delivery']:
-		shutitfile_delivery.add(item[1])
-	if len(shutitfile_delivery) > 1:
-		shutit.fail('Conflicting delivery methods in ShutItFile')
-	elif len(shutitfile_delivery) == 1:
-		skel_delivery = shutitfile_delivery.pop()
-
-	if skel_delivery not in allowed_delivery_methods:
-		shutit.fail('Disallowed delivery method in ShutItFile: ' + skel_delivery)
-
-	if skel_delivery not in ('docker'):
-		# FROM, ONBUILD, VOLUME, EXPOSE, ENTRYPOINT, CMD are verboten
-		if local_cfg['shutitfile']['cmd'] != '' or local_cfg['shutitfile']['volume']  != [] or local_cfg['shutitfile']['onbuild'] != [] or local_cfg['shutitfile']['expose']  !=  [] or local_cfg['shutitfile']['entrypoint'] != []:
-			shutit.fail('One of FROM, ONBUILD, VOLUME, EXPOSE, ENTRYPOINT or CMD used in ShutItFile  not using the Docker delivery method.')
-	# CHECKING SECTION DONE
-
-	# WRITING OUT SECTION BEGINS
 	templatemodule += """\n\ndef module():
 		return template(
 				'""" + module_id + """', """ + skel_domain_hash + str(order * 0.0001) + str(random.randint(1,999)) + """,
 				description='',
 				delivery_methods=[('""" + skel_delivery + """')],
-				maintainer='""" + local_cfg['shutitfile']['maintainer'] + """',
+				maintainer='""" + shutitfile_repn['shutitfile']['maintainer'] + """',
 				depends=[%s""" % depends + """]
 		)\n"""
-	# WRITING OUT SECTION ENDS
+	return templatemodule
 
-	# Return program to main shutit_dir
-	if shutitfile_dirname:
-		os.chdir(sys.path[0])
-	return templatemodule, module_id
+
+def process_shutitfile(shutitfile_contents):
+	# Wipe the command as we expect one in the file.
+	shutitfile_repn = {'shutitfile': {}}
+	shutitfile_repn['shutitfile']['cmd']        = ''
+	shutitfile_repn['shutitfile']['maintainer'] = ''
+	shutitfile_repn['shutitfile']['module_id']  = ''
+	shutitfile_repn['shutitfile']['script']     = []
+	shutitfile_repn['shutitfile']['onbuild']    = []
+	shutitfile_repn['shutitfile']['volume']     = []
+	shutitfile_repn['shutitfile']['expose']     = []
+	shutitfile_repn['shutitfile']['entrypoint'] = []
+	shutitfile_repn['shutitfile']['env']        = []
+	shutitfile_repn['shutitfile']['depends']    = []
+	shutitfile_repn['shutitfile']['delivery']   = []
+	shutitfile_list = parse_shutitfile_line(shutitfile_contents)
+	# Set defaults from given shutitfile
+	last_docker_command = ''
+	for item in shutitfile_list:
+		# These items are not order-dependent and don't affect the build, so we collect them here:
+		docker_command = item[0].upper()
+		if docker_command == 'FROM':
+			# TESTED? NO
+			# Should be only one of these
+			if order == 1:
+				shutitfile_repn['shutitfile']['base_image'] = item[1]
+			else:
+				print 'Ignoring FROM line as this is not the first shutitfile supplied.'
+		elif docker_command == 'ONBUILD':
+			# TESTED? NO
+			# Maps to finalize :) - can we have more than one of these? assume yes
+			# This contains within it one of the above commands, so we need to abstract this out.
+			shutitfile_repn['shutitfile']['onbuild'].append(item[1])
+		elif docker_command == 'MAINTAINER':
+			shutitfile_repn['shutitfile']['maintainer'] = item[1]
+		elif docker_command == 'VOLUME':
+			# TESTED? NO
+			# Put in the run.sh.
+			try:
+				shutitfile_repn['shutitfile']['volume'].append(' '.join(json.loads(item[1])))
+			except Exception:
+				shutitfile_repn['shutitfile']['volume'].append(item[1])
+		elif docker_command == 'EXPOSE':
+			# TESTED? NO
+			# Put in the run.sh.
+			shutitfile_repn['shutitfile']['expose'].append(item[1])
+		elif docker_command == 'ENTRYPOINT':
+			# TESTED? NO
+			# Put in the run.sh? Yes, if it exists it goes at the front of cmd
+			try:
+				shutitfile_repn['shutitfile']['entrypoint'] = ' '.join(json.loads(item[1]))
+			except Exception:
+				shutitfile_repn['shutitfile']['entrypoint'] = item[1]
+		elif docker_command == 'CMD':
+			# TESTED? NO
+			# Put in the run.sh
+			try:
+				shutitfile_repn['shutitfile']['cmd'] = ' '.join(json.loads(item[1]))
+			except Exception:
+				shutitfile_repn['shutitfile']['cmd'] = item[1]
+		# Other items to be run through sequentially (as they are part of the script)
+		if docker_command in ('USER','LOGIN','LOGOUT'):
+			# Put in the start script as well as su'ing from here - assuming order dependent?
+			shutitfile_repn['shutitfile']['script'].append([docker_command, item[1]])
+		elif docker_command == 'GET_PASSWORD':
+			# If we are directed to get the password, change the previous directive internally.
+			if last_docker_command not in ('LOGIN','USER'):
+				shutit.fail('GET_PASSWORD line not after a USER or LOGIN line: ' + docker_command + ' ' + item[1])
+			if last_docker_command in ('LOGIN','USER'):
+				shutitfile_repn['shutitfile']['script'][-1][0] = 'LOGIN_WITH_PASSWORD'
+				shutitfile_repn['shutitfile']['script'][-1].append(item[1])
+		elif docker_command == 'ENV':
+			# Put in the run.sh.
+			shutitfile_repn['shutitfile']['script'].append([docker_command, item[1]])
+			# Set in the build
+			shutitfile_repn['shutitfile']['env'].append(item[1])
+		elif docker_command in ('RUN','SEND'):
+			# Only handle simple commands for now and ignore the fact that shutitfiles run
+			# with /bin/sh -c rather than bash.
+			try:
+				shutitfile_repn['shutitfile']['script'].append([docker_command, ' '.join(json.loads(item[1]))])
+			except Exception:
+				shutitfile_repn['shutitfile']['script'].append([docker_command, item[1]])
+		elif docker_command == 'ASSERT_OUTPUT':
+			if last_docker_command not in ('RUN','SEND'):
+				shutit.fail('ASSERT_OUTPUT line not after a RUN/SEND line: ' + docker_command + ' ' + item[1])
+			shutitfile_repn['shutitfile']['script'][-1][0] = 'ASSERT_OUTPUT_SEND'
+			shutitfile_repn['shutitfile']['script'].append([docker_command, item[1]])
+		elif docker_command == 'EXPECT':
+			if last_docker_command not in ('RUN','SEND','GET_PASSWORD'):
+				shutit.fail('EXPECT line not after a RUN, SEND or GET_PASSWORD line: ' + docker_command + ' ' + item[1])
+			shutitfile_repn['shutitfile']['script'][-1][0] = 'SEND_EXPECT'
+			shutitfile_repn['shutitfile']['script'].append([docker_command, item[1]])
+		elif docker_command == 'ADD':
+			# TESTED? NO
+			# Send file - is this potentially got from the web? Is that the difference between this and COPY?
+			shutitfile_repn['shutitfile']['script'].append([docker_command, item[1]])
+		elif docker_command == 'COPY':
+			# TESTED? NO
+			# Send file
+			shutitfile_repn['shutitfile']['script'].append([docker_command, item[1]])
+			# TESTED? NO
+			# Send file
+			shutitfile_repn['shutitfile']['script'].append([docker_command, item[1]])
+		elif docker_command == 'WORKDIR':
+			shutitfile_repn['shutitfile']['script'].append([docker_command, item[1]])
+		elif docker_command == 'COMMENT':
+			shutitfile_repn['shutitfile']['script'].append([docker_command, item[1]])
+		elif docker_command == 'INSTALL':
+			shutitfile_repn['shutitfile']['script'].append([docker_command, item[1]])
+		elif docker_command == 'DEPENDS':
+			shutitfile_repn['shutitfile']['depends'].append([docker_command, item[1]])
+		elif docker_command == 'DELIVERY':
+			shutitfile_repn['shutitfile']['delivery'].append([docker_command, item[1]])
+		elif docker_command == 'MODULE_ID':
+			# Only one item allowed.
+			shutitfile_repn['shutitfile']['module_id'] = item[1]
+		elif docker_command in ('START_BEGIN','START_END','STOP_BEGIN','STOP_END','TEST_BEGIN','TEST_END','BUILD_BEGIN','BUILD_END','CONFIG_BEGIN','CONFIG_END','ISINSTALLED_BEGIN','ISINSTALLED_END'):
+			shutitfile_repn['shutitfile']['script'].append([docker_command, ''])
+		last_docker_command = docker_command
+	return shutitfile_repn
+
+
+
 
 
 def handle_shutitfile_line(line, numpushes, wgetgot, numlogins):
