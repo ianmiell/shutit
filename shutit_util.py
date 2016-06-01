@@ -1523,13 +1523,23 @@ def shutitfile_to_shutit_module_template(skel_shutitfile,
 		os.chdir(shutitfile_dirname)
 
 	# Process the shutitfile
-	shutitfile_repn = process_shutitfile(shutitfile_contents)
+	shutitfile_repn = process_shutitfile(shutitfile_contents, order)
 
 	# Check the shutitfile representation
-	check_shutitfile_representation(shutitfile_repn)
+	check_shutitfile_representation(shutitfile_repn, skel_delivery)
 
 	# Get the shutit module as a string
-	templatemodule = generate_shutit_module(shutitfile_repn)
+	templatemodule, module_id, depends = generate_shutit_module(shutitfile_repn, skel_domain, skel_module_name, skel_shutitfile, skel_depends, order, total)
+
+	# Final section
+	templatemodule += """\n\ndef module():
+		return template(
+				'""" + module_id + """', """ + skel_domain_hash + str(order * 0.0001) + str(random.randint(1,999)) + """,
+				description='',
+				delivery_methods=[('""" + skel_delivery + """')],
+				maintainer='""" + shutitfile_repn['shutitfile']['maintainer'] + """',
+				depends=[%s""" % depends + """]
+		)\n"""
 
 	# Return program to main shutit_dir
 	if shutitfile_dirname:
@@ -1537,7 +1547,7 @@ def shutitfile_to_shutit_module_template(skel_shutitfile,
 	return templatemodule, module_id
 
 
-def check_shutitfile_representation(shutitfile_repn):
+def check_shutitfile_representation(shutitfile_repn, skel_delivery):
 	# delivery directives
 	# Only allow one type of delivery
 	shutitfile_delivery = set()
@@ -1558,7 +1568,28 @@ def check_shutitfile_representation(shutitfile_repn):
 
 
 
-def generate_shutit_module(shutitfile_repn):
+def check_shutitfile_representation(shutitfile_repn, skel_delivery):
+	# delivery directives
+	# Only allow one type of delivery
+	shutitfile_delivery = set()
+	for item in shutitfile_repn['shutitfile']['delivery']:
+		shutitfile_delivery.add(item[1])
+	if len(shutitfile_delivery) > 1:
+		shutit.fail('Conflicting delivery methods in ShutItFile')
+	elif len(shutitfile_delivery) == 1:
+		skel_delivery = shutitfile_delivery.pop()
+
+	if skel_delivery not in allowed_delivery_methods:
+		shutit.fail('Disallowed delivery method in ShutItFile: ' + skel_delivery)
+
+	if skel_delivery not in ('docker'):
+		# FROM, ONBUILD, VOLUME, EXPOSE, ENTRYPOINT, CMD are verboten
+		if shutitfile_repn['shutitfile']['cmd'] != '' or shutitfile_repn['shutitfile']['volume']  != [] or shutitfile_repn['shutitfile']['onbuild'] != [] or shutitfile_repn['shutitfile']['expose']  !=  [] or shutitfile_repn['shutitfile']['entrypoint'] != []:
+			shutit.fail('One of FROM, ONBUILD, VOLUME, EXPOSE, ENTRYPOINT or CMD used in ShutItFile  not using the Docker delivery method.')
+
+
+
+def generate_shutit_module(shutitfile_repn, skel_domain, skel_module_name, skel_shutitfile, skel_depends, order, total):
 
 	templatemodule = '\n# Created from shutitfile: ' + skel_shutitfile + '\n# Maintainer:              ' + shutitfile_repn['shutitfile']['maintainer'] + '\nfrom shutit_module import ShutItModule\n\nclass template(ShutItModule):\n\n\tdef is_installed(self, shutit):\n\t\treturn False'
 
@@ -1732,18 +1763,10 @@ def generate_shutit_module(shutitfile_repn):
 		depends = "'" + skel_depends + "','" + "','".join(shutitfile_depends) + "'"
 	else:
 		depends = "'" + skel_depends + "'"
-	templatemodule += """\n\ndef module():
-		return template(
-				'""" + module_id + """', """ + skel_domain_hash + str(order * 0.0001) + str(random.randint(1,999)) + """,
-				description='',
-				delivery_methods=[('""" + skel_delivery + """')],
-				maintainer='""" + shutitfile_repn['shutitfile']['maintainer'] + """',
-				depends=[%s""" % depends + """]
-		)\n"""
-	return templatemodule
+	return templatemodule, module_id, depends
 
 
-def process_shutitfile(shutitfile_contents):
+def process_shutitfile(shutitfile_contents, order):
 	# Wipe the command as we expect one in the file.
 	shutitfile_repn = {'shutitfile': {}}
 	shutitfile_repn['shutitfile']['cmd']        = ''
