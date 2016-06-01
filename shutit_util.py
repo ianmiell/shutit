@@ -2063,11 +2063,39 @@ def handle_shutitfile_line(line, numpushes, wgetgot, numlogins, ifdepth):
 		assert type(shutitfile_args) == list
 		build += """\n""" + numtabs*'\t' + """# """ + ' '.join(shutitfile_args)
 	elif shutitfile_command in ('IF','IF_NOT'):
+		subcommand = line[1]
+		subcommand_args = ' '.join(line[2])
+		if shutitfile_command == 'IF':
+			build += """\n""" + numtabs*'\t' + """if True:"""
+		elif shutitfile_command == 'IF_NOT':
+			build += """\n""" + numtabs*'\t' + """if not True:"""
 		ifdepth += 1
-	elif shutitfile_command in ('ELIF','ELIF_NOT','ELSE'):
-		pass
+	elif shutitfile_command in ('ELSE'):
+		if shutitfile_command == 'ELSE':
+			build += """\n""" + (numtabs-1)*'\t' + """else:"""
+	elif shutitfile_command in ('ELIF','ELIF_NOT'):
+		if shutitfile_command == 'ELIF':
+			subcommand = line[1]
+			subcommand_args = line[2]
+			if subcommand == 'FILE_EXISTS':
+				statement = '''shutit.file_exists(\'''' + subcommand_args + '\')'
+			else:
+				shutit.fail('subcommand: ' + subcommand + ' not handled')
+			build += '\n' + (numtabs-1)*'\t' + '''elif ''' + statement + ''':'''
+		elif shutitfile_command == 'ELIF_NOT':
+			subcommand = line[1]
+			subcommand_args = line[2]
+			if subcommand == 'FILE_EXISTS':
+				statement = '''shutit.file_exists(\'''' + subcommand_args + '\')'
+			else:
+				shutit.fail('subcommand: ' + subcommand + ' not handled')
+			build += '\n' + (numtabs-1)*'\t' + '''elif not ''' + statement + ''':'''
 	elif shutitfile_command in ('ENDIF'):
 		ifdepth -= 1
+	elif shutitfile_command in ('START_BEGIN','START_END','STOP_BEGIN','STOP_END','TEST_BEGIN','TEST_END','BUILD_BEGIN','BUILD_END','CONFIG_BEGIN','CONFIG_END','ISINSTALLED_BEGIN','ISINSTALLED_END'):
+		pass
+	else:
+		shutit.fail('shutitfile_command: ' + shutitfile_command + ' not handled')
 	return build, numpushes, wgetgot, numlogins, ifdepth
 
 
