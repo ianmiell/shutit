@@ -1,0 +1,6 @@
+[submodule "shutit-test"]
+	path = shutit-test
+	url = https://github.com/ianmiell/shutit-test
+[submodule "shutit-docs"]
+	path = shutit-docs
+	url = https://github.com/ianmiell/shutit-docs
