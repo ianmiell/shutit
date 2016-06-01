@@ -1272,20 +1272,36 @@ def parse_shutitfile_line(contents):
 	ret          = []
 	full_line    = ''
 	for l in contents.split('\n'):
+		l = l.strip()
 		# Handle continuations
 		if len(l) > 0:
 			if l[-1] == '\\':
 				full_line += l[0:-1]
-				pass
+				continue
 			else:
-				full_line += l
-				m = re.match("^[\s]*([A-Za-z_]+)[\s]*(.*)$", full_line)
 				comment = None
-				if m:
+				full_line += l
+				if re.match("^IF[\s]+NOT+[\s]+([A-Z_]+)[\s]+(.*)$", full_line):
+					m = re.match("^IF[\s]+(NOT)+[\s]+([A-Z_]+)[\s]+(.*)$", full_line)
+					ret.append(['IF_NOT',m.group(1),m.group(2)])
+				elif re.match("^IF[\s]+([A-Z_]+)[\s]+(.*)$", full_line):
+					m = re.match("^IF[\s]+([A-Z_]+)[\s]+(.*)$", full_line)
+					ret.append(['IF',m.group(1),m.group(2)])
+				elif re.match("^ELIF[\s]+NOT[\s]+([A-Z_]+)[\s]+(.*)$", full_line):
+					m = re.match("^ELIF[\s]+NOT[\s]+([A-Z_]+)[\s]+(.*)$", full_line)
+					ret.append(['ELIF_NOT',m.group(1),m.group(2)])
+				elif re.match("^ELIF[\s]+([A-Z_]+)[\s]+(.*)$", full_line):
+					m = re.match("^ELIF[\s]+([A-Z_]+)[\s]+(.*)$", full_line)
+					ret.append(['ELIF',m.group(1),m.group(2)])
+				elif re.match("^ELSE$", full_line):
+					ret.append(['ELSE'])
+				elif re.match("^ENDIF$", full_line):
+					ret.append(['ENDIF'])
+				elif re.match("^([A-Za-z_]+)[\s]*(.*)$", full_line):
+					m = re.match("^[\s]*([A-Za-z_]+)[\s]*(.*)$", full_line)
 					ret.append([m.group(1), m.group(2)])
-				else:
+				elif re.match("^#(..*)$", full_line):
 					comment = re.match("^#(..*)$", full_line)
-				if comment:
 					ret.append(['COMMENT', comment.group(1)])
 				else:
 					shutit.log("Ignored line in parse_shutitfile_line: " + l,level=logging.DEBUG)
@@ -1597,17 +1613,19 @@ def generate_shutit_module(shutitfile_repn, skel_domain, skel_module_name, skel_
 	build     = ''
 	numpushes = 0
 	numlogins = 0
+	ifdepth   = 0
 	wgetgot   = False
 	# section is the section of the shutitfile we're in. Default is 'build', but there are also a few others.
 	section   = 'build'
 	for item in shutitfile_repn['shutitfile']['script']:
 		section = shutitfile_get_section(item[0], section)
 		if section == 'build':
-			ret = handle_shutitfile_line(item, numpushes, wgetgot, numlogins)
+			ret = handle_shutitfile_line(item, numpushes, wgetgot, numlogins, ifdepth)
 			build     += ret[0]
 			numpushes =  ret[1]
 			wgetgot   =  ret[2]
 			numlogins =  ret[3]
+			ifdepth   =  ret[4]
 	templatemodule += _build_section + build
 	while numpushes > 0:
 		templatemodule += '''\n\t\tshutit.send('popd')'''
@@ -1631,11 +1649,12 @@ def generate_shutit_module(shutitfile_repn, skel_domain, skel_module_name, skel_
 	for item in shutitfile_repn['shutitfile']['script']:
 		section = shutitfile_get_section(item[0], section)
 		if section == 'test':
-			ret = handle_shutitfile_line(item, numpushes, wgetgot, numlogins)
+			ret = handle_shutitfile_line(item, numpushes, wgetgot, numlogins, ifdepth)
 			build     += ret[0]
 			numpushes =  ret[1]
 			wgetgot   =  ret[2]
 			numlogins =  ret[3]
+			ifdepth   =  ret[4]
 	if build:
 		templatemodule += '\n\t\t' + build
 	while numpushes > 0:
@@ -1654,11 +1673,12 @@ def generate_shutit_module(shutitfile_repn, skel_domain, skel_module_name, skel_
 	for item in shutitfile_repn['shutitfile']['script']:
 		section = shutitfile_get_section(item[0], section)
 		if section == 'isinstalled':
-			ret = handle_shutitfile_line(item, shutitfile_args, numpushes, wgetgot, numlogins)
+			ret = handle_shutitfile_line(item, numpushes, wgetgot, numlogins, ifdepth)
 			build     += ret[0]
 			numpushes =  ret[1]
 			wgetgot   =  ret[2]
 			numlogins =  ret[3]
+			ifdepth   =  ret[4]
 	if build:
 		templatemodule += '\n\t\t' + build
 	while numpushes > 0:
@@ -1677,11 +1697,12 @@ def generate_shutit_module(shutitfile_repn, skel_domain, skel_module_name, skel_
 	for item in shutitfile_repn['shutitfile']['script']:
 		section = shutitfile_get_section(item[0], section)
 		if section == 'start':
-			ret = handle_shutitfile_line(item, numpushes, wgetgot, numlogins)
+			ret = handle_shutitfile_line(item, numpushes, wgetgot, numlogins, ifdepth)
 			build     += ret[0]
 			numpushes =  ret[1]
 			wgetgot   =  ret[2]
 			numlogins =  ret[3]
+			ifdepth   =  ret[4]
 	if build:
 		templatemodule += '\n\t\t' + build
 	while numpushes > 0:
@@ -1700,11 +1721,12 @@ def generate_shutit_module(shutitfile_repn, skel_domain, skel_module_name, skel_
 	for item in shutitfile_repn['shutitfile']['script']:
 		section = shutitfile_get_section(item[0], section)
 		if section == 'stop':
-			ret = handle_shutitfile_line(item, numpushes, wgetgot, numlogins)
+			ret = handle_shutitfile_line(item, numpushes, wgetgot, numlogins, ifdepth)
 			build     += ret[0]
 			numpushes =  ret[1]
 			wgetgot   =  ret[2]
 			numlogins =  ret[3]
+			ifdepth   =  ret[4]
 	if build:
 		templatemodule += '\n\t\t' + build
 	while numpushes > 0:
@@ -1740,7 +1762,7 @@ def generate_shutit_module(shutitfile_repn, skel_domain, skel_module_name, skel_
 	for item in shutitfile_repn['shutitfile']['script']:
 		section = shutitfile_get_section(item[0], section)
 		if section == 'config':
-			ret = handle_shutitfile_line(item, numpushes, wgetgot, numlogins)
+			ret = handle_shutitfile_line(item, numpushes, wgetgot, numlogins, ifdepth)
 			build     += ret[0]
 			numpushes =  ret[1]
 			wgetgot   =  ret[2]
@@ -1782,43 +1804,43 @@ def process_shutitfile(shutitfile_contents, order):
 	shutitfile_repn['shutitfile']['delivery']   = []
 	shutitfile_list = parse_shutitfile_line(shutitfile_contents)
 	# Set defaults from given shutitfile
-	last_docker_command = ''
+	last_shutitfile_command = ''
 	for item in shutitfile_list:
 		# These items are not order-dependent and don't affect the build, so we collect them here:
-		docker_command = item[0].upper()
-		if docker_command == 'FROM':
+		shutitfile_command = item[0].upper()
+		if shutitfile_command == 'FROM':
 			# TESTED? NO
 			# Should be only one of these
 			if order == 1:
 				shutitfile_repn['shutitfile']['base_image'] = item[1]
 			else:
 				print 'Ignoring FROM line as this is not the first shutitfile supplied.'
-		elif docker_command == 'ONBUILD':
+		elif shutitfile_command == 'ONBUILD':
 			# TESTED? NO
 			# Maps to finalize :) - can we have more than one of these? assume yes
 			# This contains within it one of the above commands, so we need to abstract this out.
 			shutitfile_repn['shutitfile']['onbuild'].append(item[1])
-		elif docker_command == 'MAINTAINER':
+		elif shutitfile_command == 'MAINTAINER':
 			shutitfile_repn['shutitfile']['maintainer'] = item[1]
-		elif docker_command == 'VOLUME':
+		elif shutitfile_command == 'VOLUME':
 			# TESTED? NO
 			# Put in the run.sh.
 			try:
 				shutitfile_repn['shutitfile']['volume'].append(' '.join(json.loads(item[1])))
 			except Exception:
 				shutitfile_repn['shutitfile']['volume'].append(item[1])
-		elif docker_command == 'EXPOSE':
+		elif shutitfile_command == 'EXPOSE':
 			# TESTED? NO
 			# Put in the run.sh.
 			shutitfile_repn['shutitfile']['expose'].append(item[1])
-		elif docker_command == 'ENTRYPOINT':
+		elif shutitfile_command == 'ENTRYPOINT':
 			# TESTED? NO
 			# Put in the run.sh? Yes, if it exists it goes at the front of cmd
 			try:
 				shutitfile_repn['shutitfile']['entrypoint'] = ' '.join(json.loads(item[1]))
 			except Exception:
 				shutitfile_repn['shutitfile']['entrypoint'] = item[1]
-		elif docker_command == 'CMD':
+		elif shutitfile_command == 'CMD':
 			# TESTED? NO
 			# Put in the run.sh
 			try:
@@ -1826,97 +1848,102 @@ def process_shutitfile(shutitfile_contents, order):
 			except Exception:
 				shutitfile_repn['shutitfile']['cmd'] = item[1]
 		# Other items to be run through sequentially (as they are part of the script)
-		if docker_command in ('USER','LOGIN','LOGOUT'):
+		if shutitfile_command in ('USER','LOGIN','LOGOUT'):
 			# Put in the start script as well as su'ing from here - assuming order dependent?
-			shutitfile_repn['shutitfile']['script'].append([docker_command, item[1]])
-		elif docker_command == 'GET_PASSWORD':
+			shutitfile_repn['shutitfile']['script'].append([shutitfile_command, item[1]])
+		elif shutitfile_command == 'GET_PASSWORD':
 			# If we are directed to get the password, change the previous directive internally.
-			if last_docker_command not in ('LOGIN','USER'):
-				shutit.fail('GET_PASSWORD line not after a USER or LOGIN line: ' + docker_command + ' ' + item[1])
-			if last_docker_command in ('LOGIN','USER'):
+			if last_shutitfile_command not in ('LOGIN','USER'):
+				shutit.fail('GET_PASSWORD line not after a USER or LOGIN line: ' + shutitfile_command + ' ' + item[1])
+			if last_shutitfile_command in ('LOGIN','USER'):
 				shutitfile_repn['shutitfile']['script'][-1][0] = 'LOGIN_WITH_PASSWORD'
 				shutitfile_repn['shutitfile']['script'][-1].append(item[1])
-		elif docker_command == 'ENV':
+		elif shutitfile_command == 'ENV':
 			# Put in the run.sh.
-			shutitfile_repn['shutitfile']['script'].append([docker_command, item[1]])
+			shutitfile_repn['shutitfile']['script'].append([shutitfile_command, item[1]])
 			# Set in the build
 			shutitfile_repn['shutitfile']['env'].append(item[1])
-		elif docker_command in ('RUN','SEND'):
+		elif shutitfile_command in ('RUN','SEND'):
 			# Only handle simple commands for now and ignore the fact that shutitfiles run
 			# with /bin/sh -c rather than bash.
 			try:
-				shutitfile_repn['shutitfile']['script'].append([docker_command, ' '.join(json.loads(item[1]))])
+				shutitfile_repn['shutitfile']['script'].append([shutitfile_command, ' '.join(json.loads(item[1]))])
 			except Exception:
-				shutitfile_repn['shutitfile']['script'].append([docker_command, item[1]])
-		elif docker_command == 'ASSERT_OUTPUT':
-			if last_docker_command not in ('RUN','SEND'):
-				shutit.fail('ASSERT_OUTPUT line not after a RUN/SEND line: ' + docker_command + ' ' + item[1])
+				shutitfile_repn['shutitfile']['script'].append([shutitfile_command, item[1]])
+		elif shutitfile_command == 'ASSERT_OUTPUT':
+			if last_shutitfile_command not in ('RUN','SEND'):
+				shutit.fail('ASSERT_OUTPUT line not after a RUN/SEND line: ' + shutitfile_command + ' ' + item[1])
 			shutitfile_repn['shutitfile']['script'][-1][0] = 'ASSERT_OUTPUT_SEND'
-			shutitfile_repn['shutitfile']['script'].append([docker_command, item[1]])
-		elif docker_command == 'EXPECT':
-			if last_docker_command not in ('RUN','SEND','GET_PASSWORD'):
-				shutit.fail('EXPECT line not after a RUN, SEND or GET_PASSWORD line: ' + docker_command + ' ' + item[1])
+			shutitfile_repn['shutitfile']['script'].append([shutitfile_command, item[1]])
+		elif shutitfile_command == 'EXPECT':
+			if last_shutitfile_command not in ('RUN','SEND','GET_PASSWORD'):
+				shutit.fail('EXPECT line not after a RUN, SEND or GET_PASSWORD line: ' + shutitfile_command + ' ' + item[1])
 			shutitfile_repn['shutitfile']['script'][-1][0] = 'SEND_EXPECT'
-			shutitfile_repn['shutitfile']['script'].append([docker_command, item[1]])
-		elif docker_command == 'ADD':
+			shutitfile_repn['shutitfile']['script'].append([shutitfile_command, item[1]])
+		elif shutitfile_command == 'ADD':
 			# TESTED? NO
 			# Send file - is this potentially got from the web? Is that the difference between this and COPY?
-			shutitfile_repn['shutitfile']['script'].append([docker_command, item[1]])
-		elif docker_command == 'COPY':
+			shutitfile_repn['shutitfile']['script'].append([shutitfile_command, item[1]])
+		elif shutitfile_command == 'COPY':
 			# TESTED? NO
 			# Send file
-			shutitfile_repn['shutitfile']['script'].append([docker_command, item[1]])
+			shutitfile_repn['shutitfile']['script'].append([shutitfile_command, item[1]])
 			# TESTED? NO
 			# Send file
-			shutitfile_repn['shutitfile']['script'].append([docker_command, item[1]])
-		elif docker_command == 'WORKDIR':
-			shutitfile_repn['shutitfile']['script'].append([docker_command, item[1]])
-		elif docker_command == 'COMMENT':
-			shutitfile_repn['shutitfile']['script'].append([docker_command, item[1]])
-		elif docker_command == 'INSTALL':
-			shutitfile_repn['shutitfile']['script'].append([docker_command, item[1]])
-		elif docker_command == 'DEPENDS':
-			shutitfile_repn['shutitfile']['depends'].append([docker_command, item[1]])
-		elif docker_command == 'DELIVERY':
-			shutitfile_repn['shutitfile']['delivery'].append([docker_command, item[1]])
-		elif docker_command == 'MODULE_ID':
+			shutitfile_repn['shutitfile']['script'].append([shutitfile_command, item[1]])
+		elif shutitfile_command == 'WORKDIR':
+			shutitfile_repn['shutitfile']['script'].append([shutitfile_command, item[1]])
+		elif shutitfile_command == 'COMMENT':
+			shutitfile_repn['shutitfile']['script'].append([shutitfile_command, item[1]])
+		elif shutitfile_command == 'INSTALL':
+			shutitfile_repn['shutitfile']['script'].append([shutitfile_command, item[1]])
+		elif shutitfile_command == 'DEPENDS':
+			shutitfile_repn['shutitfile']['depends'].append([shutitfile_command, item[1]])
+		elif shutitfile_command == 'DELIVERY':
+			shutitfile_repn['shutitfile']['delivery'].append([shutitfile_command, item[1]])
+		elif shutitfile_command == 'MODULE_ID':
 			# Only one item allowed.
 			shutitfile_repn['shutitfile']['module_id'] = item[1]
-		elif docker_command in ('START_BEGIN','START_END','STOP_BEGIN','STOP_END','TEST_BEGIN','TEST_END','BUILD_BEGIN','BUILD_END','CONFIG_BEGIN','CONFIG_END','ISINSTALLED_BEGIN','ISINSTALLED_END'):
-			shutitfile_repn['shutitfile']['script'].append([docker_command, ''])
-		last_docker_command = docker_command
+		elif shutitfile_command in ('START_BEGIN','START_END','STOP_BEGIN','STOP_END','TEST_BEGIN','TEST_END','BUILD_BEGIN','BUILD_END','CONFIG_BEGIN','CONFIG_END','ISINSTALLED_BEGIN','ISINSTALLED_END'):
+			shutitfile_repn['shutitfile']['script'].append([shutitfile_command, ''])
+		elif shutitfile_command in ('IF_NOT','ELIF_NOT','ELIF'):
+			# handle IFS - 2 args - FUNCTION, args
+			print item
+			shutitfile_repn['shutitfile']['script'].append([shutitfile_command, item[1], item[2]])
+		elif shutitfile_command in ('ELSE','ENDIF'):
+			shutitfile_repn['shutitfile']['script'].append([shutitfile_command])
+		last_shutitfile_command = shutitfile_command
 	return shutitfile_repn
 
 
 
 
 
-def handle_shutitfile_line(line, numpushes, wgetgot, numlogins):
+def handle_shutitfile_line(line, numpushes, wgetgot, numlogins, ifdepth):
 	shutitfile_command = line[0].upper()
 	shutit = shutit_global.shutit
 	build  = ''
-	#build = '\n\t\t# SHUTITDEBUG CMD: ' + shutitfile_command 
-	#build += '\n\t\t# SHUTITDEBUG ARGS: ' + str(shutitfile_args)
+	numtabs = 2 + ifdepth
 	if shutitfile_command in ('RUN','SEND'):
 		shutitfile_args    = parse_shutitfile_args(line[1])
 		assert type(shutitfile_args) == list
 		cmd = ' '.join(shutitfile_args).replace("'", "\\'")
-		build += """\n\t\tshutit.send('''""" + cmd + """''')"""
+		build += """\n""" + numtabs*'\t' + """shuttit.send('''""" + cmd + """''')"""
 	elif shutitfile_command == 'SEND_EXPECT':
 		shutitfile_args    = parse_shutitfile_args(line[1])
 		assert type(shutitfile_args) == list
 		cmd = ' '.join(shutitfile_args).replace("'", "\\'")
-		build += """\n\t\tshutit.send('''""" + cmd + """''',expect="""
+		build += """\n""" + numtabs*'\t' + """shutit.send('''""" + cmd + """''',expect="""
 	elif shutitfile_command == 'ASSERT_OUTPUT_SEND':
 		shutitfile_args    = parse_shutitfile_args(line[1])
 		assert type(shutitfile_args) == list
 		cmd = ' '.join(shutitfile_args).replace("'", "\\'")
-		build += """\n\t\t_cmd = '''""" + cmd + """'''\n\t\t_output = shutit.send_and_get_output('''""" + cmd + """''')\n\t\tif _output != """
+		build += """\n""" + numtabs*'\t' + """_cmd = '''""" + cmd + """'''\n\t\t_output = shutit.send_and_get_output('''""" + cmd + """''')\n\t\tif _output != """
 	elif shutitfile_command == 'ASSERT_OUTPUT':
 		shutitfile_args    = parse_shutitfile_args(line[1])
 		assert type(shutitfile_args) == list
 		expected_output = ' '.join(shutitfile_args).replace("'", "\\'")
-		build += """'''""" + expected_output + """''':\n\t\t\tshutit.pause_point('''Expected output of: ''' + _cmd + ''' was: ''' + _output + ''' It should be: """ + expected_output + """''')"""
+		build += """'''""" + expected_output + """''':\n""" + numtabs*'\t' + """shutit.pause_point('''Expected output of: ''' + _cmd + ''' was: ''' + _output + ''' It should be: """ + expected_output + """''')"""
 	elif shutitfile_command == 'EXPECT':
 		shutitfile_args    = parse_shutitfile_args(line[1])
 		assert type(shutitfile_args) == list
@@ -1926,29 +1953,29 @@ def handle_shutitfile_line(line, numpushes, wgetgot, numlogins):
 		shutitfile_args    = parse_shutitfile_args(line[1])
 		assert type(shutitfile_args) == list
 		cmd = ' '.join(shutitfile_args).replace("'", "\\'")
-		build += """\n\t\tshutit.login('''user='""" + cmd + """' ''')"""
+		build += """\n""" + numtabs*'\t' + """shutit.login('''user='""" + cmd + """' ''')"""
 		numlogins += 1
 	elif shutitfile_command in ('LOGOUT'):
-		build += """\n\t\tshutit.logout()"""
+		build += """\n""" + numtabs*'\t' + """shutit.logout()"""
 		numlogins -= 1
 	elif shutitfile_command == 'GET_AND_SEND_PASSWORD':
 		shutitfile_args    = parse_shutitfile_args(line[1])
 		assert type(shutitfile_args) == list
 		msg = ' '.join(shutitfile_args)
-		build += """\n\t\t_password = shutit.get_input('''""" + msg + """''',ispass=True)"""
-		build += """\n\t\tshutit.send(_password,echo=False,check_exit=False)"""
+		build += """\n""" + numtabs*'\t' + """_password = shutit.get_input('''""" + msg + """''',ispass=True)"""
+		build += """\n""" + numtabs*'\t' + """shutit.send(_password,echo=False,check_exit=False)"""
 	elif shutitfile_command == 'LOGIN_WITH_PASSWORD':
 		shutitfile_args    = parse_shutitfile_args(line[1])
 		assert type(shutitfile_args) == list
 		cmd = ' '.join(shutitfile_args).replace("'", "\\'")
 		msg = line[2]
-		build += """\n\t\t_password = shutit.get_input('''""" + msg + """''',ispass=True)"""
-		build += """\n\t\tshutit.login(user='""" + cmd + """', password=_password)"""
+		build += """\n""" + numtabs*'\t' + """_password = shutit.get_input('''""" + msg + """''',ispass=True)"""
+		build += """\n""" + numtabs*'\t' + """shutit.login(user='""" + cmd + """', password=_password)"""
 	elif shutitfile_command == 'WORKDIR':
 		shutitfile_args    = parse_shutitfile_args(line[1])
 		assert type(shutitfile_args) == list
 		cmd = ' '.join(shutitfile_args).replace("'", "\\'")
-		build += """\n\t\tshutit.send('''pushd """ + cmd + """''',echo=False)"""
+		build += """\n""" + numtabs*'\t' + """shutit.send('''pushd """ + cmd + """''',echo=False)"""
 		numpushes += 1
 	elif shutitfile_command == 'COPY' or shutitfile_command == 'ADD':
 		shutitfile_args    = parse_shutitfile_args(line[1])
@@ -1965,27 +1992,27 @@ def handle_shutitfile_line(line, numpushes, wgetgot, numlogins):
 			outfile  = destdir + fromfile
 			if os.path.isfile(fromfile):
 				outfiledir = os.path.dirname(fromfile)
-				build += """\n\t\tshutit.send('''mkdir -p """ + destdir + '/' + outfiledir + """''')"""
+				build += """\n""" + numtabs*'\t' + """shutit.send('''mkdir -p """ + destdir + '/' + outfiledir + """''')"""
 			elif os.path.isdir(fromfile):
-				build += """\n\t\tshutit.send('''mkdir -p """ + destdir + fromfile + """''')"""
+				build += """\n""" + numtabs*'\t' + """shutit.send('''mkdir -p """ + destdir + fromfile + """''')"""
 		else:
 			outfile = shutitfile_args[1]
 		# If this is something we have to wget:
 		if shutitfile_command == 'ADD' and urlparse.urlparse(shutitfile_args[0])[0] != '':
 			if not wgetgot:
-				build += """\n\t\tshutit.install('wget')"""
+				build += """\n""" + numtabs*'\t' + """shutit.install('wget')"""
 				wgetgot = True
 			if shutitfile_args[1][-1] == '/':
 				destdir = destdir[0:-1]
 				outpath = urlparse.urlparse(shutitfile_args[0])[2]
 				outpathdir = os.path.dirname(outpath)
-				build += """\n\t\tshutit.send('''mkdir -p """ + destdir + outpathdir + """''')"""
-				build += """\n\t\tshutit.send('''wget -O """ + destdir + outpath + ' ' + shutitfile_args[0] + """''')"""
+				build += """\n""" + numtabs*'\t' + """shutit.send('''mkdir -p """ + destdir + outpathdir + """''')"""
+				build += """\n""" + numtabs*'\t' + """shutit.send('''wget -O """ + destdir + outpath + ' ' + shutitfile_args[0] + """''')"""
 			else:
 				outpath  = shutitfile_args[1]
 				destdir  = os.path.dirname(shutitfile_args[1])
-				build += """\n\t\tshutit.send('''mkdir -p """ + destdir + """''')"""
-				build += """\n\t\tshutit.send('''wget -O """ + outpath + ' ' + shutitfile_args[0] + """''')"""
+				build += """\n""" + numtabs*'\t' + """shutit.send('''mkdir -p """ + destdir + """''')"""
+				build += """\n""" + numtabs*'\t' + """shutit.send('''wget -O """ + outpath + ' ' + shutitfile_args[0] + """''')"""
 		else:
 			# From the local filesystem on construction:
 			localfile = shutitfile_args[0]
@@ -1997,23 +2024,33 @@ def handle_shutitfile_line(line, numpushes, wgetgot, numlogins):
 			#elif localfile[-3:] == '.gz':
 			#elif localfile[-3:] == '.xz':
 			if os.path.isdir(localfile):
-				build += """\n\t\tshutit.send_host_dir('''""" + outfile + """''', '''""" + buildstagefile + """''')"""
+				build += """\n""" + numtabs*'\t' + """shutit.send_host_dir('''""" + outfile + """''', '''""" + buildstagefile + """''')"""
 			else:
-				build += """\n\t\tshutit.send_host_file('''""" + outfile + """''', '''""" + buildstagefile + """''')"""
+				build += """\n""" + numtabs*'\t' + """shutit.send_host_file('''""" + outfile + """''', '''""" + buildstagefile + """''')"""
 	elif shutitfile_command == 'ENV':
 		shutitfile_args    = parse_shutitfile_args(line[1])
 		assert type(shutitfile_args) == dict
 		for k,v in shutitfile_args.iteritems():
-			build += """\n\t\tshutit.send('''export """ + k + '=' + v + """''')"""
+			build += """\n""" + numtabs*'\t' + """shutit.send('''export """ + k + '=' + v + """''')"""
 	elif shutitfile_command == 'INSTALL':
 		shutitfile_args    = parse_shutitfile_args(line[1])
 		assert type(shutitfile_args) == list
-		build += """\n\t\tshutit.install('''""" + ''.join(shutitfile_args) + """''')"""
+		build += """\n""" + numtabs*'\t' + """shutit.install('''""" + ''.join(shutitfile_args) + """''')"""
 	elif shutitfile_command == 'COMMENT':
 		shutitfile_args    = parse_shutitfile_args(line[1])
 		assert type(shutitfile_args) == list
-		build += """\n\t\t# """ + ' '.join(shutitfile_args)
-	return build, numpushes, wgetgot, numlogins
+		build += """\n""" + numtabs*'\t' + """# """ + ' '.join(shutitfile_args)
+	elif shutitfile_command in ('IF','IF_NOT'):
+		print 'IF'
+		print line
+		ifdepth += 1
+	elif shutitfile_command in ('ELIF','ELIF_NOT'):
+		print 'EL'
+		print line
+	elif shutitfile_command in ('ENDIF'):
+		print 'ENDIF'
+		ifdepth -= 1
+	return build, numpushes, wgetgot, numlogins, ifdepth
 
 
 # Get the section of the shutitfile we are in.
