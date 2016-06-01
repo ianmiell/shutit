@@ -1304,7 +1304,7 @@ def parse_shutitfile_line(contents):
 					comment = re.match("^#(..*)$", full_line)
 					ret.append(['COMMENT', comment.group(1)])
 				else:
-					shutit.log("Ignored line in parse_shutitfile_line: " + l,level=logging.DEBUG)
+					shutit.fail("Could not parse line in parse_shutitfile_line: " + l)
 				full_line = ''
 	return ret
 
@@ -1607,6 +1607,7 @@ def check_shutitfile_representation(shutitfile_repn, skel_delivery):
 
 def generate_shutit_module(shutitfile_repn, skel_domain, skel_module_name, skel_shutitfile, skel_depends, order, total):
 
+	shutit = shutit_global.shutit
 	templatemodule = '\n# Created from shutitfile: ' + skel_shutitfile + '\n# Maintainer:              ' + shutitfile_repn['shutitfile']['maintainer'] + '\nfrom shutit_module import ShutItModule\n\nclass template(ShutItModule):\n\n\tdef is_installed(self, shutit):\n\t\treturn False'
 
 	# build
@@ -1633,6 +1634,8 @@ def generate_shutit_module(shutitfile_repn, skel_domain, skel_module_name, skel_
 	while numlogins > 0:
 		templatemodule += '''\n\t\tshutit.logout()'''
 		numlogins -= 1
+	if ifdepth != 0:
+		shutit.fail('Unbalanced IFs in ' + section + ' section')
 	templatemodule += '\n\t\treturn True'
 
 	# finalize section
@@ -1646,6 +1649,7 @@ def generate_shutit_module(shutitfile_repn, skel_domain, skel_module_name, skel_
 	templatemodule += '\n\n\tdef test(self, shutit):'
 	numpushes = 0
 	numlogins = 0
+	ifdepth   = 0
 	for item in shutitfile_repn['shutitfile']['script']:
 		section = shutitfile_get_section(item[0], section)
 		if section == 'test':
@@ -1670,6 +1674,7 @@ def generate_shutit_module(shutitfile_repn, skel_domain, skel_module_name, skel_
 	templatemodule += '\n\n\tdef is_installed(self, shutit):'
 	numpushes = 0
 	numlogins = 0
+	ifdepth   = 0
 	for item in shutitfile_repn['shutitfile']['script']:
 		section = shutitfile_get_section(item[0], section)
 		if section == 'isinstalled':
@@ -1687,6 +1692,8 @@ def generate_shutit_module(shutitfile_repn, skel_domain, skel_module_name, skel_
 	while numlogins > 0:
 		templatemodule += '''\n\t\tshutit.logout()'''
 		numlogins -= 1
+	if ifdepth != 0:
+		shutit.fail('Unbalanced IFs in ' + section + ' section')
 	templatemodule += '\n\t\treturn False'
 
 	# start section
@@ -1694,6 +1701,7 @@ def generate_shutit_module(shutitfile_repn, skel_domain, skel_module_name, skel_
 	templatemodule += '\n\n\tdef start(self, shutit):'
 	numpushes = 0
 	numlogins = 0
+	ifdepth   = 0
 	for item in shutitfile_repn['shutitfile']['script']:
 		section = shutitfile_get_section(item[0], section)
 		if section == 'start':
@@ -1711,6 +1719,8 @@ def generate_shutit_module(shutitfile_repn, skel_domain, skel_module_name, skel_
 	while numlogins > 0:
 		templatemodule += '''\n\t\tshutit.logout()'''
 		numlogins -= 1
+	if ifdepth != 0:
+		shutit.fail('Unbalanced IFs in ' + section + ' section')
 	templatemodule += '\n\t\treturn True'
 
 	# stop section
@@ -1718,6 +1728,7 @@ def generate_shutit_module(shutitfile_repn, skel_domain, skel_module_name, skel_
 	build     = ''
 	numpushes = 0
 	numlogins = 0
+	ifdepth   = 0
 	for item in shutitfile_repn['shutitfile']['script']:
 		section = shutitfile_get_section(item[0], section)
 		if section == 'stop':
@@ -1735,6 +1746,8 @@ def generate_shutit_module(shutitfile_repn, skel_domain, skel_module_name, skel_
 	while numlogins > 0:
 		templatemodule += '''\n\t\tshutit.logout()'''
 		numlogins -= 1
+	if ifdepth != 0:
+		shutit.fail('Unbalanced IFs in ' + section + ' section')
 	templatemodule += '\n\t\treturn True'
 
 	# config section
@@ -1756,9 +1769,11 @@ def generate_shutit_module(shutitfile_repn, skel_domain, skel_module_name, skel_
 			module_id = '%s.%s.%s_%s' % (skel_domain, skel_module_name, skel_module_name, str(order))
 		else:
 			module_id = '%s.%s.%s' % (skel_domain, skel_module_name, skel_module_name)
+
 	build     = ''
 	numpushes = 0
 	numlogins = 0
+	ifdepth   = 0
 	for item in shutitfile_repn['shutitfile']['script']:
 		section = shutitfile_get_section(item[0], section)
 		if section == 'config':
@@ -1767,6 +1782,7 @@ def generate_shutit_module(shutitfile_repn, skel_domain, skel_module_name, skel_
 			numpushes =  ret[1]
 			wgetgot   =  ret[2]
 			numlogins =  ret[3]
+			ifdepth   =  ret[4]
 	if build:
 		templatemodule += '\n\t\t' + build
 	while numpushes > 0:
@@ -1775,6 +1791,8 @@ def generate_shutit_module(shutitfile_repn, skel_domain, skel_module_name, skel_
 	while numlogins > 0:
 		templatemodule += '''\n\t\tshutit.logout()'''
 		numlogins -= 1
+	if ifdepth != 0:
+		shutit.fail('Unbalanced IFs in ' + section + ' section')
 	templatemodule += '\n\t\treturn True'
 
 	# depends section
@@ -1789,6 +1807,7 @@ def generate_shutit_module(shutitfile_repn, skel_domain, skel_module_name, skel_
 
 
 def process_shutitfile(shutitfile_contents, order):
+	shutit = shutit_global.shutit
 	# Wipe the command as we expect one in the file.
 	shutitfile_repn = {'shutitfile': {}}
 	shutitfile_repn['shutitfile']['cmd']        = ''
@@ -1906,12 +1925,15 @@ def process_shutitfile(shutitfile_contents, order):
 			shutitfile_repn['shutitfile']['module_id'] = item[1]
 		elif shutitfile_command in ('START_BEGIN','START_END','STOP_BEGIN','STOP_END','TEST_BEGIN','TEST_END','BUILD_BEGIN','BUILD_END','CONFIG_BEGIN','CONFIG_END','ISINSTALLED_BEGIN','ISINSTALLED_END'):
 			shutitfile_repn['shutitfile']['script'].append([shutitfile_command, ''])
-		elif shutitfile_command in ('IF_NOT','ELIF_NOT','ELIF'):
+		elif shutitfile_command in ('IF','IF_NOT','ELIF_NOT','ELIF'):
 			# handle IFS - 2 args - FUNCTION, args
-			print item
 			shutitfile_repn['shutitfile']['script'].append([shutitfile_command, item[1], item[2]])
 		elif shutitfile_command in ('ELSE','ENDIF'):
 			shutitfile_repn['shutitfile']['script'].append([shutitfile_command])
+		elif shutitfile_command in ('MAINTAINER','MODULE'):
+			pass
+		else:
+			shutit.fail('shutitfile command: ' + shutitfile_command + ' not processed')
 		last_shutitfile_command = shutitfile_command
 	return shutitfile_repn
 
@@ -1928,7 +1950,7 @@ def handle_shutitfile_line(line, numpushes, wgetgot, numlogins, ifdepth):
 		shutitfile_args    = parse_shutitfile_args(line[1])
 		assert type(shutitfile_args) == list
 		cmd = ' '.join(shutitfile_args).replace("'", "\\'")
-		build += """\n""" + numtabs*'\t' + """shuttit.send('''""" + cmd + """''')"""
+		build += """\n""" + numtabs*'\t' + """shutit.send('''""" + cmd + """''')"""
 	elif shutitfile_command == 'SEND_EXPECT':
 		shutitfile_args    = parse_shutitfile_args(line[1])
 		assert type(shutitfile_args) == list
@@ -1943,7 +1965,7 @@ def handle_shutitfile_line(line, numpushes, wgetgot, numlogins, ifdepth):
 		shutitfile_args    = parse_shutitfile_args(line[1])
 		assert type(shutitfile_args) == list
 		expected_output = ' '.join(shutitfile_args).replace("'", "\\'")
-		build += """'''""" + expected_output + """''':\n""" + numtabs*'\t' + """shutit.pause_point('''Expected output of: ''' + _cmd + ''' was: ''' + _output + ''' It should be: """ + expected_output + """''')"""
+		build += """'''""" + expected_output + """''':\n""" + numtabs*'\t' + """\tshutit.pause_point('''Expected output of: ''' + _cmd + ''' was: ''' + _output + ''' It should be: """ + expected_output + """''')"""
 	elif shutitfile_command == 'EXPECT':
 		shutitfile_args    = parse_shutitfile_args(line[1])
 		assert type(shutitfile_args) == list
@@ -2041,14 +2063,10 @@ def handle_shutitfile_line(line, numpushes, wgetgot, numlogins, ifdepth):
 		assert type(shutitfile_args) == list
 		build += """\n""" + numtabs*'\t' + """# """ + ' '.join(shutitfile_args)
 	elif shutitfile_command in ('IF','IF_NOT'):
-		print 'IF'
-		print line
 		ifdepth += 1
-	elif shutitfile_command in ('ELIF','ELIF_NOT'):
-		print 'EL'
-		print line
+	elif shutitfile_command in ('ELIF','ELIF_NOT','ELSE'):
+		pass
 	elif shutitfile_command in ('ENDIF'):
-		print 'ENDIF'
 		ifdepth -= 1
 	return build, numpushes, wgetgot, numlogins, ifdepth
 
