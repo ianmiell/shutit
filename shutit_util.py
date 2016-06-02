@@ -1301,7 +1301,7 @@ def parse_shutitfile_line(contents):
 					m = re.match("^[\s]*([A-Za-z_]+)[\s]*(.*)$", full_line)
 					ret.append([m.group(1), m.group(2)])
 				elif re.match("^#(.*)$", full_line):
-					comment = re.match("^#(..*)$", full_line)
+					comment = re.match("^#(.*)$", full_line)
 					ret.append(['COMMENT', comment.group(1)])
 				else:
 					shutit.fail("Could not parse line in parse_shutitfile_line: " + l)
