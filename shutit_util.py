@@ -1867,7 +1867,7 @@ def process_shutitfile(shutitfile_contents, order):
 			except Exception:
 				shutitfile_repn['shutitfile']['cmd'] = item[1]
 		# Other items to be run through sequentially (as they are part of the script)
-		if shutitfile_command in ('USER','LOGIN','LOGOUT'):
+		elif shutitfile_command in ('USER','LOGIN','LOGOUT'):
 			# Put in the start script as well as su'ing from here - assuming order dependent?
 			shutitfile_repn['shutitfile']['script'].append([shutitfile_command, item[1]])
 		elif shutitfile_command == 'GET_PASSWORD':
