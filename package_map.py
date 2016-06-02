@@ -64,8 +64,10 @@ PACKAGE_MAP = {
 #    # A list of dicts.  If there is a platform with more than one package manager, put the preferred one last.  If there is an ansible module, use that as the value for the 'name' key.                                                                                           
 #PKG_MGRS = [{'path':'/usr/bin/zypper','name':'zypper'},{'path':'/usr/sbin/urpmi','name':'urpmi'},{'path':'/usr/bin/pacman','name':'pacman'},{'path':'/bin/opkg','name':'opkg'},{'path':'/opt/local/bin/pkgin','name':'pkgin'},{'path':'/opt/local/bin/port','name':'macports'},{'path':'/usr/sbin/pkg','name':'pkgng'},{'path':'/usr/sbin/swlist','name':'SD-UX'},{'path':'/usr/sbin/pkgadd','name':'svr4pkg'},{'path':'/usr/bin/pkg','name':'pkg'},
 #    ]    
+# Map install types based on /etc/issue contents
 INSTALL_TYPE_MAP = {'ubuntu':'apt',
 	                'debian':'apt',
+	                'linuxmint':'apt',
 	                'steamos':'apt',
 	                'red hat':'yum',
 	                'oracleserver':'yum',
