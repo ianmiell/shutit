@@ -1315,6 +1315,8 @@ def parse_shutitfile_args(args_str):
 	If the string composed entirely of name-value pairs (eg RUN a=b c=d) then it's returned as a dict (eg {'a':'b','c':'d'}).
 	If what's passed-in is of the form: "COMMAND ['a=b','c=d']" then a dict is also returned.'"""
 	ret = []
+	if args_str == '':
+		return ret
 	if args_str[0] == '[' and args_str[-1] == ']':
 		ret = eval(args_str)
 		assert type(ret) == list
