@@ -1300,7 +1300,7 @@ def parse_shutitfile_line(contents):
 				elif re.match("^([A-Za-z_]+)[\s]*(.*)$", full_line):
 					m = re.match("^[\s]*([A-Za-z_]+)[\s]*(.*)$", full_line)
 					ret.append([m.group(1), m.group(2)])
-				elif re.match("^#(..*)$", full_line):
+				elif re.match("^#(.*)$", full_line):
 					comment = re.match("^#(..*)$", full_line)
 					ret.append(['COMMENT', comment.group(1)])
 				else:
