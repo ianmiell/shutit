@@ -660,7 +660,7 @@ class ShutItPexpectSession(object):
 		"""
 		shutit = shutit_global.shutit
 		shutit._handle_note(note, 'Looking for filename in current environment: ' + filename)
-		test_type = '-d' if directory is True else '-a'
+		test_type = '-d' if directory is True else '-e' if directory is None else '-a'
 		#       v the space is intentional, to avoid polluting bash history.
 		test = ' test %s %s' % (test_type, filename)
 		output = self.send_and_get_output(test + ' && echo FILEXIST-""FILFIN || echo FILNEXIST-""FILFIN', record_command=False, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
