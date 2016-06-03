@@ -1479,7 +1479,6 @@ class ShutItPexpectSession(object):
 			distro         = d['distro']
 			distro_version = d['distro_version']
 		else:
-			# Don't check for existence of file to save a little time.
 			issue_output = self.send_and_get_output(' cat /etc/issue',echo=False, loglevel=loglevel,delaybeforesend=delaybeforesend).lower()
 			if not re.match('.*No such file.*',issue_output):
 				for key in package_map.INSTALL_TYPE_MAP.keys():

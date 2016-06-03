@@ -1267,20 +1267,20 @@ def create_skeleton():
 
 # Parses the shutitfile (passed in as a string)
 # and info to extract, and returns a list with the information in a more canonical form, still ordered.
-def parse_shutitfile_line(contents):
+def parse_shutitfile(contents):
 	shutit       = shutit_global.shutit
 	ret          = []
 	full_line    = ''
-	for l in contents.split('\n'):
-		l = l.strip()
+	for line in contents.split('\n'):
+		line = line.strip()
 		# Handle continuations
-		if len(l) > 0:
-			if l[-1] == '\\':
-				full_line += l[0:-1]
+		if len(line) > 0:
+			if line[-1] == '\\':
+				full_line += line[0:-1]
 				continue
 			else:
 				comment = None
-				full_line += l
+				full_line += line
 				if re.match("^IF[\s]+NOT+[\s]+([A-Z_]+)[\s]+(.*)$", full_line):
 					m = re.match("^IF[\s]+(NOT)+[\s]+([A-Z_]+)[\s]+(.*)$", full_line)
 					ret.append(['IF_NOT',m.group(1),m.group(2)])
@@ -1304,7 +1304,7 @@ def parse_shutitfile_line(contents):
 					comment = re.match("^#(..*)$", full_line)
 					ret.append(['COMMENT', comment.group(1)])
 				else:
-					shutit.fail("Could not parse line in parse_shutitfile_line: " + l)
+					shutit.fail("Could not parse line in parse_shutitfile: " + full_line)
 				full_line = ''
 	return ret
 
@@ -1539,13 +1539,13 @@ def shutitfile_to_shutit_module_template(skel_shutitfile,
 		os.chdir(shutitfile_dirname)
 
 	# Process the shutitfile
-	shutitfile_repn = process_shutitfile(shutitfile_contents, order)
+	shutitfile_representation = process_shutitfile(shutitfile_contents, order)
 
 	# Check the shutitfile representation
-	check_shutitfile_representation(shutitfile_repn, skel_delivery)
+	check_shutitfile_representation(shutitfile_representation, skel_delivery)
 
 	# Get the shutit module as a string
-	templatemodule, module_id, depends = generate_shutit_module(shutitfile_repn, skel_domain, skel_module_name, skel_shutitfile, skel_depends, order, total)
+	templatemodule, module_id, depends = generate_shutit_module(shutitfile_representation, skel_domain, skel_module_name, skel_shutitfile, skel_depends, order, total)
 
 	# Final section
 	templatemodule += """\n\ndef module():
@@ -1553,7 +1553,7 @@ def shutitfile_to_shutit_module_template(skel_shutitfile,
 				'""" + module_id + """', """ + skel_domain_hash + str(order * 0.0001) + str(random.randint(1,999)) + """,
 				description='',
 				delivery_methods=[('""" + skel_delivery + """')],
-				maintainer='""" + shutitfile_repn['shutitfile']['maintainer'] + """',
+				maintainer='""" + shutitfile_representation['shutitfile']['maintainer'] + """',
 				depends=[%s""" % depends + """]
 		)\n"""
 
@@ -1563,11 +1563,11 @@ def shutitfile_to_shutit_module_template(skel_shutitfile,
 	return templatemodule, module_id
 
 
-def check_shutitfile_representation(shutitfile_repn, skel_delivery):
+def check_shutitfile_representation(shutitfile_representation, skel_delivery):
 	# delivery directives
 	# Only allow one type of delivery
 	shutitfile_delivery = set()
-	for item in shutitfile_repn['shutitfile']['delivery']:
+	for item in shutitfile_representation['shutitfile']['delivery']:
 		shutitfile_delivery.add(item[1])
 	if len(shutitfile_delivery) > 1:
 		shutit.fail('Conflicting delivery methods in ShutItFile')
@@ -1579,16 +1579,16 @@ def check_shutitfile_representation(shutitfile_repn, skel_delivery):
 
 	if skel_delivery not in ('docker'):
 		# FROM, ONBUILD, VOLUME, EXPOSE, ENTRYPOINT, CMD are verboten
-		if shutitfile_repn['shutitfile']['cmd'] != '' or shutitfile_repn['shutitfile']['volume']  != [] or shutitfile_repn['shutitfile']['onbuild'] != [] or shutitfile_repn['shutitfile']['expose']  !=  [] or shutitfile_repn['shutitfile']['entrypoint'] != []:
+		if shutitfile_representation['shutitfile']['cmd'] != '' or shutitfile_representation['shutitfile']['volume']  != [] or shutitfile_representation['shutitfile']['onbuild'] != [] or shutitfile_representation['shutitfile']['expose']  !=  [] or shutitfile_representation['shutitfile']['entrypoint'] != []:
 			shutit.fail('One of FROM, ONBUILD, VOLUME, EXPOSE, ENTRYPOINT or CMD used in ShutItFile  not using the Docker delivery method.')
 
 
 
-def check_shutitfile_representation(shutitfile_repn, skel_delivery):
+def check_shutitfile_representation(shutitfile_representation, skel_delivery):
 	# delivery directives
 	# Only allow one type of delivery
 	shutitfile_delivery = set()
-	for item in shutitfile_repn['shutitfile']['delivery']:
+	for item in shutitfile_representation['shutitfile']['delivery']:
 		shutitfile_delivery.add(item[1])
 	if len(shutitfile_delivery) > 1:
 		shutit.fail('Conflicting delivery methods in ShutItFile')
@@ -1600,15 +1600,15 @@ def check_shutitfile_representation(shutitfile_repn, skel_delivery):
 
 	if skel_delivery not in ('docker'):
 		# FROM, ONBUILD, VOLUME, EXPOSE, ENTRYPOINT, CMD are verboten
-		if shutitfile_repn['shutitfile']['cmd'] != '' or shutitfile_repn['shutitfile']['volume']  != [] or shutitfile_repn['shutitfile']['onbuild'] != [] or shutitfile_repn['shutitfile']['expose']  !=  [] or shutitfile_repn['shutitfile']['entrypoint'] != []:
+		if shutitfile_representation['shutitfile']['cmd'] != '' or shutitfile_representation['shutitfile']['volume']  != [] or shutitfile_representation['shutitfile']['onbuild'] != [] or shutitfile_representation['shutitfile']['expose']  !=  [] or shutitfile_representation['shutitfile']['entrypoint'] != []:
 			shutit.fail('One of FROM, ONBUILD, VOLUME, EXPOSE, ENTRYPOINT or CMD used in ShutItFile  not using the Docker delivery method.')
 
 
 
-def generate_shutit_module(shutitfile_repn, skel_domain, skel_module_name, skel_shutitfile, skel_depends, order, total):
+def generate_shutit_module(shutitfile_representation, skel_domain, skel_module_name, skel_shutitfile, skel_depends, order, total):
 
 	shutit = shutit_global.shutit
-	templatemodule = '\n# Created from shutitfile: ' + skel_shutitfile + '\n# Maintainer:              ' + shutitfile_repn['shutitfile']['maintainer'] + '\nfrom shutit_module import ShutItModule\n\nclass template(ShutItModule):\n\n\tdef is_installed(self, shutit):\n\t\treturn False'
+	templatemodule = '\n# Created from shutitfile: ' + skel_shutitfile + '\n# Maintainer:              ' + shutitfile_representation['shutitfile']['maintainer'] + '\nfrom shutit_module import ShutItModule\n\nclass template(ShutItModule):\n\n\tdef is_installed(self, shutit):\n\t\treturn False'
 
 	# build
 	build     = ''
@@ -1618,7 +1618,7 @@ def generate_shutit_module(shutitfile_repn, skel_domain, skel_module_name, skel_
 	wgetgot   = False
 	# section is the section of the shutitfile we're in. Default is 'build', but there are also a few others.
 	section   = 'build'
-	for item in shutitfile_repn['shutitfile']['script']:
+	for item in shutitfile_representation['shutitfile']['script']:
 		section = shutitfile_get_section(item[0], section)
 		if section == 'build':
 			ret = handle_shutitfile_line(item, numpushes, wgetgot, numlogins, ifdepth)
@@ -1640,7 +1640,7 @@ def generate_shutit_module(shutitfile_repn, skel_domain, skel_module_name, skel_
 
 	# finalize section
 	finalize = ''
-	for line in shutitfile_repn['shutitfile']['onbuild']:
+	for line in shutitfile_representation['shutitfile']['onbuild']:
 		finalize += '\n\n\t\tshutit.send(\'' + line + ')\''
 	templatemodule += '\n\n\tdef finalize(self, shutit):' + finalize + '\n\t\treturn True'
 
@@ -1650,7 +1650,7 @@ def generate_shutit_module(shutitfile_repn, skel_domain, skel_module_name, skel_
 	numpushes = 0
 	numlogins = 0
 	ifdepth   = 0
-	for item in shutitfile_repn['shutitfile']['script']:
+	for item in shutitfile_representation['shutitfile']['script']:
 		section = shutitfile_get_section(item[0], section)
 		if section == 'test':
 			ret = handle_shutitfile_line(item, numpushes, wgetgot, numlogins, ifdepth)
@@ -1675,7 +1675,7 @@ def generate_shutit_module(shutitfile_repn, skel_domain, skel_module_name, skel_
 	numpushes = 0
 	numlogins = 0
 	ifdepth   = 0
-	for item in shutitfile_repn['shutitfile']['script']:
+	for item in shutitfile_representation['shutitfile']['script']:
 		section = shutitfile_get_section(item[0], section)
 		if section == 'isinstalled':
 			ret = handle_shutitfile_line(item, numpushes, wgetgot, numlogins, ifdepth)
@@ -1702,7 +1702,7 @@ def generate_shutit_module(shutitfile_repn, skel_domain, skel_module_name, skel_
 	numpushes = 0
 	numlogins = 0
 	ifdepth   = 0
-	for item in shutitfile_repn['shutitfile']['script']:
+	for item in shutitfile_representation['shutitfile']['script']:
 		section = shutitfile_get_section(item[0], section)
 		if section == 'start':
 			ret = handle_shutitfile_line(item, numpushes, wgetgot, numlogins, ifdepth)
@@ -1729,7 +1729,7 @@ def generate_shutit_module(shutitfile_repn, skel_domain, skel_module_name, skel_
 	numpushes = 0
 	numlogins = 0
 	ifdepth   = 0
-	for item in shutitfile_repn['shutitfile']['script']:
+	for item in shutitfile_representation['shutitfile']['script']:
 		section = shutitfile_get_section(item[0], section)
 		if section == 'stop':
 			ret = handle_shutitfile_line(item, numpushes, wgetgot, numlogins, ifdepth)
@@ -1761,8 +1761,8 @@ def generate_shutit_module(shutitfile_repn, skel_domain, skel_module_name, skel_
 		# shutit.get_config(self.module_id, 'myconfig', default='a value')
 		#                                      and reference in your code with:
 		# shutit.cfg[self.module_id]['myconfig']'''
-	if shutitfile_repn['shutitfile']['module_id']:
-		module_id = shutitfile_repn['shutitfile']['module_id']
+	if shutitfile_representation['shutitfile']['module_id']:
+		module_id = shutitfile_representation['shutitfile']['module_id']
 	else:
 		# If the total number of modules is more than 1, then we want to number these modules.
 		if total > 1:
@@ -1774,7 +1774,7 @@ def generate_shutit_module(shutitfile_repn, skel_domain, skel_module_name, skel_
 	numpushes = 0
 	numlogins = 0
 	ifdepth   = 0
-	for item in shutitfile_repn['shutitfile']['script']:
+	for item in shutitfile_representation['shutitfile']['script']:
 		section = shutitfile_get_section(item[0], section)
 		if section == 'config':
 			ret = handle_shutitfile_line(item, numpushes, wgetgot, numlogins, ifdepth)
@@ -1797,7 +1797,7 @@ def generate_shutit_module(shutitfile_repn, skel_domain, skel_module_name, skel_
 
 	# depends section
 	shutitfile_depends = []
-	for item in shutitfile_repn['shutitfile']['depends']:
+	for item in shutitfile_representation['shutitfile']['depends']:
 		shutitfile_depends.append(item[1])
 	if len(shutitfile_depends):
 		depends = "'" + skel_depends + "','" + "','".join(shutitfile_depends) + "'"
@@ -1809,19 +1809,19 @@ def generate_shutit_module(shutitfile_repn, skel_domain, skel_module_name, skel_
 def process_shutitfile(shutitfile_contents, order):
 	shutit = shutit_global.shutit
 	# Wipe the command as we expect one in the file.
-	shutitfile_repn = {'shutitfile': {}}
-	shutitfile_repn['shutitfile']['cmd']        = ''
-	shutitfile_repn['shutitfile']['maintainer'] = ''
-	shutitfile_repn['shutitfile']['module_id']  = ''
-	shutitfile_repn['shutitfile']['script']     = []
-	shutitfile_repn['shutitfile']['onbuild']    = []
-	shutitfile_repn['shutitfile']['volume']     = []
-	shutitfile_repn['shutitfile']['expose']     = []
-	shutitfile_repn['shutitfile']['entrypoint'] = []
-	shutitfile_repn['shutitfile']['env']        = []
-	shutitfile_repn['shutitfile']['depends']    = []
-	shutitfile_repn['shutitfile']['delivery']   = []
-	shutitfile_list = parse_shutitfile_line(shutitfile_contents)
+	shutitfile_representation = {'shutitfile': {}}
+	shutitfile_representation['shutitfile']['cmd']        = ''
+	shutitfile_representation['shutitfile']['maintainer'] = ''
+	shutitfile_representation['shutitfile']['module_id']  = ''
+	shutitfile_representation['shutitfile']['script']     = []
+	shutitfile_representation['shutitfile']['onbuild']    = []
+	shutitfile_representation['shutitfile']['volume']     = []
+	shutitfile_representation['shutitfile']['expose']     = []
+	shutitfile_representation['shutitfile']['entrypoint'] = []
+	shutitfile_representation['shutitfile']['env']        = []
+	shutitfile_representation['shutitfile']['depends']    = []
+	shutitfile_representation['shutitfile']['delivery']   = []
+	shutitfile_list = parse_shutitfile(shutitfile_contents)
 	# Set defaults from given shutitfile
 	last_shutitfile_command = ''
 	for item in shutitfile_list:
@@ -1831,111 +1831,116 @@ def process_shutitfile(shutitfile_contents, order):
 			# TESTED? NO
 			# Should be only one of these
 			if order == 1:
-				shutitfile_repn['shutitfile']['base_image'] = item[1]
+				shutitfile_representation['shutitfile']['base_image'] = item[1]
 			else:
 				print 'Ignoring FROM line as this is not the first shutitfile supplied.'
 		elif shutitfile_command == 'ONBUILD':
 			# TESTED? NO
 			# Maps to finalize :) - can we have more than one of these? assume yes
 			# This contains within it one of the above commands, so we need to abstract this out.
-			shutitfile_repn['shutitfile']['onbuild'].append(item[1])
+			shutitfile_representation['shutitfile']['onbuild'].append(item[1])
 		elif shutitfile_command == 'MAINTAINER':
-			shutitfile_repn['shutitfile']['maintainer'] = item[1]
+			shutitfile_representation['shutitfile']['maintainer'] = item[1]
 		elif shutitfile_command == 'VOLUME':
 			# TESTED? NO
 			# Put in the run.sh.
 			try:
-				shutitfile_repn['shutitfile']['volume'].append(' '.join(json.loads(item[1])))
+				shutitfile_representation['shutitfile']['volume'].append(' '.join(json.loads(item[1])))
 			except Exception:
-				shutitfile_repn['shutitfile']['volume'].append(item[1])
+				shutitfile_representation['shutitfile']['volume'].append(item[1])
 		elif shutitfile_command == 'EXPOSE':
 			# TESTED? NO
 			# Put in the run.sh.
-			shutitfile_repn['shutitfile']['expose'].append(item[1])
+			shutitfile_representation['shutitfile']['expose'].append(item[1])
 		elif shutitfile_command == 'ENTRYPOINT':
 			# TESTED? NO
 			# Put in the run.sh? Yes, if it exists it goes at the front of cmd
 			try:
-				shutitfile_repn['shutitfile']['entrypoint'] = ' '.join(json.loads(item[1]))
+				shutitfile_representation['shutitfile']['entrypoint'] = ' '.join(json.loads(item[1]))
 			except Exception:
-				shutitfile_repn['shutitfile']['entrypoint'] = item[1]
+				shutitfile_representation['shutitfile']['entrypoint'] = item[1]
 		elif shutitfile_command == 'CMD':
 			# TESTED? NO
 			# Put in the run.sh
 			try:
-				shutitfile_repn['shutitfile']['cmd'] = ' '.join(json.loads(item[1]))
+				shutitfile_representation['shutitfile']['cmd'] = ' '.join(json.loads(item[1]))
 			except Exception:
-				shutitfile_repn['shutitfile']['cmd'] = item[1]
+				shutitfile_representation['shutitfile']['cmd'] = item[1]
 		# Other items to be run through sequentially (as they are part of the script)
 		if shutitfile_command in ('USER','LOGIN','LOGOUT'):
 			# Put in the start script as well as su'ing from here - assuming order dependent?
-			shutitfile_repn['shutitfile']['script'].append([shutitfile_command, item[1]])
+			shutitfile_representation['shutitfile']['script'].append([shutitfile_command, item[1]])
 		elif shutitfile_command == 'GET_PASSWORD':
 			# If we are directed to get the password, change the previous directive internally.
 			if last_shutitfile_command not in ('LOGIN','USER'):
 				shutit.fail('GET_PASSWORD line not after a USER or LOGIN line: ' + shutitfile_command + ' ' + item[1])
 			if last_shutitfile_command in ('LOGIN','USER'):
-				shutitfile_repn['shutitfile']['script'][-1][0] = 'LOGIN_WITH_PASSWORD'
-				shutitfile_repn['shutitfile']['script'][-1].append(item[1])
+				shutitfile_representation['shutitfile']['script'][-1][0] = 'LOGIN_WITH_PASSWORD'
+				shutitfile_representation['shutitfile']['script'][-1].append(item[1])
 		elif shutitfile_command == 'ENV':
 			# Put in the run.sh.
-			shutitfile_repn['shutitfile']['script'].append([shutitfile_command, item[1]])
+			shutitfile_representation['shutitfile']['script'].append([shutitfile_command, item[1]])
 			# Set in the build
-			shutitfile_repn['shutitfile']['env'].append(item[1])
+			shutitfile_representation['shutitfile']['env'].append(item[1])
 		elif shutitfile_command in ('RUN','SEND'):
 			# Only handle simple commands for now and ignore the fact that shutitfiles run
 			# with /bin/sh -c rather than bash.
 			try:
-				shutitfile_repn['shutitfile']['script'].append([shutitfile_command, ' '.join(json.loads(item[1]))])
+				shutitfile_representation['shutitfile']['script'].append([shutitfile_command, ' '.join(json.loads(item[1]))])
 			except Exception:
-				shutitfile_repn['shutitfile']['script'].append([shutitfile_command, item[1]])
+				shutitfile_representation['shutitfile']['script'].append([shutitfile_command, item[1]])
 		elif shutitfile_command == 'ASSERT_OUTPUT':
 			if last_shutitfile_command not in ('RUN','SEND'):
 				shutit.fail('ASSERT_OUTPUT line not after a RUN/SEND line: ' + shutitfile_command + ' ' + item[1])
-			shutitfile_repn['shutitfile']['script'][-1][0] = 'ASSERT_OUTPUT_SEND'
-			shutitfile_repn['shutitfile']['script'].append([shutitfile_command, item[1]])
+			shutitfile_representation['shutitfile']['script'][-1][0] = 'ASSERT_OUTPUT_SEND'
+			shutitfile_representation['shutitfile']['script'].append([shutitfile_command, item[1]])
 		elif shutitfile_command == 'EXPECT':
 			if last_shutitfile_command not in ('RUN','SEND','GET_PASSWORD'):
 				shutit.fail('EXPECT line not after a RUN, SEND or GET_PASSWORD line: ' + shutitfile_command + ' ' + item[1])
-			shutitfile_repn['shutitfile']['script'][-1][0] = 'SEND_EXPECT'
-			shutitfile_repn['shutitfile']['script'].append([shutitfile_command, item[1]])
+			shutitfile_representation['shutitfile']['script'][-1][0] = 'SEND_EXPECT'
+			shutitfile_representation['shutitfile']['script'].append([shutitfile_command, item[1]])
+		elif shutitfile_command == 'UNTIL':
+			if last_shutitfile_command not in ('RUN','SEND'):
+				shutit.fail('UNTIL line not after a RUN, SEND: ' + shutitfile_command + ' ' + item[1])
+			shutitfile_representation['shutitfile']['script'][-1][0] = 'SEND_UNTIL'
+			shutitfile_representation['shutitfile']['script'].append([shutitfile_command, item[1]])
 		elif shutitfile_command == 'ADD':
 			# TESTED? NO
 			# Send file - is this potentially got from the web? Is that the difference between this and COPY?
-			shutitfile_repn['shutitfile']['script'].append([shutitfile_command, item[1]])
+			shutitfile_representation['shutitfile']['script'].append([shutitfile_command, item[1]])
 		elif shutitfile_command == 'COPY':
 			# TESTED? NO
 			# Send file
-			shutitfile_repn['shutitfile']['script'].append([shutitfile_command, item[1]])
+			shutitfile_representation['shutitfile']['script'].append([shutitfile_command, item[1]])
 			# TESTED? NO
 			# Send file
-			shutitfile_repn['shutitfile']['script'].append([shutitfile_command, item[1]])
+			shutitfile_representation['shutitfile']['script'].append([shutitfile_command, item[1]])
 		elif shutitfile_command == 'WORKDIR':
-			shutitfile_repn['shutitfile']['script'].append([shutitfile_command, item[1]])
+			shutitfile_representation['shutitfile']['script'].append([shutitfile_command, item[1]])
 		elif shutitfile_command == 'COMMENT':
-			shutitfile_repn['shutitfile']['script'].append([shutitfile_command, item[1]])
+			shutitfile_representation['shutitfile']['script'].append([shutitfile_command, item[1]])
 		elif shutitfile_command == 'INSTALL':
-			shutitfile_repn['shutitfile']['script'].append([shutitfile_command, item[1]])
+			shutitfile_representation['shutitfile']['script'].append([shutitfile_command, item[1]])
 		elif shutitfile_command == 'DEPENDS':
-			shutitfile_repn['shutitfile']['depends'].append([shutitfile_command, item[1]])
+			shutitfile_representation['shutitfile']['depends'].append([shutitfile_command, item[1]])
 		elif shutitfile_command == 'DELIVERY':
-			shutitfile_repn['shutitfile']['delivery'].append([shutitfile_command, item[1]])
+			shutitfile_representation['shutitfile']['delivery'].append([shutitfile_command, item[1]])
 		elif shutitfile_command == 'MODULE_ID':
 			# Only one item allowed.
-			shutitfile_repn['shutitfile']['module_id'] = item[1]
+			shutitfile_representation['shutitfile']['module_id'] = item[1]
 		elif shutitfile_command in ('START_BEGIN','START_END','STOP_BEGIN','STOP_END','TEST_BEGIN','TEST_END','BUILD_BEGIN','BUILD_END','CONFIG_BEGIN','CONFIG_END','ISINSTALLED_BEGIN','ISINSTALLED_END'):
-			shutitfile_repn['shutitfile']['script'].append([shutitfile_command, ''])
+			shutitfile_representation['shutitfile']['script'].append([shutitfile_command, ''])
 		elif shutitfile_command in ('IF','IF_NOT','ELIF_NOT','ELIF'):
 			# handle IFS - 2 args - FUNCTION, args
-			shutitfile_repn['shutitfile']['script'].append([shutitfile_command, item[1], item[2]])
+			shutitfile_representation['shutitfile']['script'].append([shutitfile_command, item[1], item[2]])
 		elif shutitfile_command in ('ELSE','ENDIF'):
-			shutitfile_repn['shutitfile']['script'].append([shutitfile_command])
+			shutitfile_representation['shutitfile']['script'].append([shutitfile_command])
 		elif shutitfile_command in ('MAINTAINER','MODULE'):
 			pass
 		else:
 			shutit.fail('shutitfile command: ' + shutitfile_command + ' not processed')
 		last_shutitfile_command = shutitfile_command
-	return shutitfile_repn
+	return shutitfile_representation
 
 
 
@@ -1956,6 +1961,16 @@ def handle_shutitfile_line(line, numpushes, wgetgot, numlogins, ifdepth):
 		assert type(shutitfile_args) == list
 		cmd = ' '.join(shutitfile_args).replace("'", "\\'")
 		build += """\n""" + numtabs*'\t' + """shutit.send('''""" + cmd + """''',expect="""
+	elif shutitfile_command == 'SEND_UNTIL':
+		shutitfile_args    = parse_shutitfile_args(line[1])
+		assert type(shutitfile_args) == list
+		cmd = ' '.join(shutitfile_args).replace("'", "\\'")
+		build += "'''" + cmd + "''')"
+	elif shutitfile_command == 'UNTIL':
+		shutitfile_args    = parse_shutitfile_args(line[1])
+		assert type(shutitfile_args) == list
+		cmd = ' '.join(shutitfile_args).replace("'", "\\'")
+		build += """\n""" + numtabs*'\t' + """shutit.send_until('''""" + cmd + """''',expect="""
 	elif shutitfile_command == 'ASSERT_OUTPUT_SEND':
 		shutitfile_args    = parse_shutitfile_args(line[1])
 		assert type(shutitfile_args) == list
