@@ -1894,6 +1894,8 @@ def process_shutitfile(shutitfile_contents, order):
 				shutit.fail('ASSERT_OUTPUT line not after a RUN/SEND line: ' + shutitfile_command + ' ' + item[1])
 			shutitfile_representation['shutitfile']['script'][-1][0] = 'ASSERT_OUTPUT_SEND'
 			shutitfile_representation['shutitfile']['script'].append([shutitfile_command, item[1]])
+		elif shutitfile_command in ('PAUSE_POINT'):
+			shutitfile_representation['shutitfile']['script'].append([shutitfile_command], item[1])
 		elif shutitfile_command == 'EXPECT':
 			if last_shutitfile_command not in ('RUN','SEND','GET_PASSWORD'):
 				shutit.fail('EXPECT line not after a RUN, SEND or GET_PASSWORD line: ' + shutitfile_command + ' ' + item[1])
@@ -1920,6 +1922,8 @@ def process_shutitfile(shutitfile_contents, order):
 		elif shutitfile_command == 'COMMENT':
 			shutitfile_representation['shutitfile']['script'].append([shutitfile_command, item[1]])
 		elif shutitfile_command == 'INSTALL':
+			shutitfile_representation['shutitfile']['script'].append([shutitfile_command, item[1]])
+		elif shutitfile_command == 'REMOVE':
 			shutitfile_representation['shutitfile']['script'].append([shutitfile_command, item[1]])
 		elif shutitfile_command == 'DEPENDS':
 			shutitfile_representation['shutitfile']['depends'].append([shutitfile_command, item[1]])
@@ -1981,6 +1985,11 @@ def handle_shutitfile_line(line, numpushes, wgetgot, numlogins, ifdepth):
 		assert type(shutitfile_args) == list
 		expected_output = ' '.join(shutitfile_args).replace("'", "\\'")
 		build += """'''""" + expected_output + """''':\n""" + numtabs*'\t' + """\tshutit.pause_point('''Expected output of: ''' + _cmd + ''' was: ''' + _output + ''' It should be: """ + expected_output + """''')"""
+	elif shutitfile_command in ('PAUSE_POINT'):
+		shutitfile_args    = parse_shutitfile_args(line[1])
+		assert type(shutitfile_args) == list
+		msg = ' '.join(shutitfile_args).replace("'", "\\'")
+		build += """\n""" + numtabs*'\t' + """shutit.pause_point('''""" + msg + """''')"""
 	elif shutitfile_command == 'EXPECT':
 		shutitfile_args    = parse_shutitfile_args(line[1])
 		assert type(shutitfile_args) == list
@@ -2073,6 +2082,10 @@ def handle_shutitfile_line(line, numpushes, wgetgot, numlogins, ifdepth):
 		shutitfile_args    = parse_shutitfile_args(line[1])
 		assert type(shutitfile_args) == list
 		build += """\n""" + numtabs*'\t' + """shutit.install('''""" + ''.join(shutitfile_args) + """''')"""
+	elif shutitfile_command == 'REMOVE':
+		shutitfile_args    = parse_shutitfile_args(line[1])
+		assert type(shutitfile_args) == list
+		build += """\n""" + numtabs*'\t' + """shutit.remove('''""" + ''.join(shutitfile_args) + """''')"""
 	elif shutitfile_command == 'COMMENT':
 		shutitfile_args    = parse_shutitfile_args(line[1])
 		assert type(shutitfile_args) == list
