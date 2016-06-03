@@ -30,13 +30,13 @@ import pexpect
 import shutit_util
 import shutit_global
 import shutit_assets
-from shutit_module import ShutItFailException
 import package_map
 import re
 import base64
 import sys
 import textwrap
 import md5
+from shutit_module import ShutItFailException
 
 
 class ShutItPexpectSession(object):
@@ -211,9 +211,9 @@ class ShutItPexpectSession(object):
 		"""Logs the user out. Assumes that login has been called.
 		If login has never been called, throw an error.
 
-			@param expect:		  See send()
-			@param command:		 Command to run to log out (default=exit)
-			@param note:			See send()
+			@param expect:  See send()
+			@param command: Command to run to log out (default=exit)
+			@param note:    See send()
 		"""
 		shutit = shutit_global.shutit
 		shutit._handle_note(note,training_input=command)
@@ -234,8 +234,7 @@ class ShutItPexpectSession(object):
 		shutit._handle_note_after(note=note)
 
 
-	def login_stack_append(self,
-						   r_id):
+	def login_stack_append(self, r_id):
 		self.login_stack.append(r_id)
 		return True
 
@@ -304,7 +303,7 @@ class ShutItPexpectSession(object):
 		"""
 		shutit = shutit_global.shutit
 		expect = new_expect or self.default_expect
-		#     v the space is intentional, to avoid polluting bash history.
+		#           v the space is intentional, to avoid polluting bash history.
 		self.send((' PS1="${SHUTIT_BACKUP_PS1_%s}" && unset SHUTIT_BACKUP_PS1_%s') % (old_prompt_name, old_prompt_name), expect=expect, check_exit=False, fail_on_empty_before=False, echo=False, loglevel=logging.DEBUG,delaybeforesend=delaybeforesend)
 		if not new_expect:
 			shutit.log('Resetting default expect to default',level=logging.DEBUG)

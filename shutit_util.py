@@ -51,11 +51,9 @@ import threading
 import time
 import urllib2
 import urlparse
-
 import jinja2
 import pexpect
 import texttable
-
 import shutit_global
 import shutit_main
 from shutit_module import ShutItFailException
@@ -1313,8 +1311,8 @@ def parse_shutitfile_args(args_str):
 	"""Parse shutitfile args (eg in the line 'RUN some args', the passed-in args_str would be 'some args').
 	If the string is bounded by square brackets, then it's treated in the form: ['arg1','arg2'], and the returned list looks the same.
 	If the string composed entirely of name-value pairs (eg RUN a=b c=d) then it's returned as a dict (eg {'a':'b','c':'d'}).
-	If what's passed-in is of the form: "COMMAND ['a=b','c=d']" then a dict is also returned.'"""
-	ret = []
+	If what's passed-in is of the form: "COMMAND ['a=b','c=d']" then a dict is also returned.'
+	Also eg: ["asd and space=value","asd 2=asdgasdg"]"""
 	if args_str[0] == '[' and args_str[-1] == ']':
 		ret = eval(args_str)
 		assert type(ret) == list
@@ -1901,6 +1899,7 @@ def process_shutitfile(shutitfile_contents, order):
 				shutit.fail('EXPECT line not after a RUN, SEND or GET_PASSWORD line: ' + shutitfile_command + ' ' + item[1])
 			shutitfile_representation['shutitfile']['script'][-1][0] = 'SEND_EXPECT'
 			shutitfile_representation['shutitfile']['script'].append([shutitfile_command, item[1]])
+		#TODO: elif shutitfile_command == 'MULTIEXPECT':, like EXPECT, but wants a dict
 		elif shutitfile_command == 'UNTIL':
 			if last_shutitfile_command not in ('RUN','SEND'):
 				shutit.fail('UNTIL line not after a RUN, SEND: ' + shutitfile_command + ' ' + item[1])
@@ -1932,6 +1931,8 @@ def process_shutitfile(shutitfile_contents, order):
 		elif shutitfile_command == 'MODULE_ID':
 			# Only one item allowed.
 			shutitfile_representation['shutitfile']['module_id'] = item[1]
+		# TODO: SCRIPT_BEGIN, SCRIPT_END
+		# See shutitfile_get_section
 		elif shutitfile_command in ('START_BEGIN','START_END','STOP_BEGIN','STOP_END','TEST_BEGIN','TEST_END','BUILD_BEGIN','BUILD_END','CONFIG_BEGIN','CONFIG_END','ISINSTALLED_BEGIN','ISINSTALLED_END'):
 			shutitfile_representation['shutitfile']['script'].append([shutitfile_command, ''])
 		elif shutitfile_command in ('IF','IF_NOT','ELIF_NOT','ELIF'):
@@ -2120,6 +2121,7 @@ def handle_shutitfile_line(line, numpushes, wgetgot, numlogins, ifdepth):
 			build += '\n' + (numtabs-1)*'\t' + '''elif not ''' + statement + ''':'''
 	elif shutitfile_command in ('ENDIF'):
 		ifdepth -= 1
+	# See shutitfile_get_section
 	elif shutitfile_command in ('START_BEGIN','START_END','STOP_BEGIN','STOP_END','TEST_BEGIN','TEST_END','BUILD_BEGIN','BUILD_END','CONFIG_BEGIN','CONFIG_END','ISINSTALLED_BEGIN','ISINSTALLED_END'):
 		pass
 	else:
