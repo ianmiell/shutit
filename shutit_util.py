@@ -1970,12 +1970,12 @@ def handle_shutitfile_line(line, numpushes, wgetgot, numlogins, ifdepth):
 		shutitfile_args    = parse_shutitfile_args(line[1])
 		assert type(shutitfile_args) == list
 		cmd = ' '.join(shutitfile_args).replace("'", "\\'")
-		build += "'''" + cmd + "''')"
+		build += """\n""" + numtabs*'\t' + """shutit.send_until('''""" + cmd + """''',"""
 	elif shutitfile_command == 'UNTIL':
 		shutitfile_args    = parse_shutitfile_args(line[1])
 		assert type(shutitfile_args) == list
 		cmd = ' '.join(shutitfile_args).replace("'", "\\'")
-		build += """\n""" + numtabs*'\t' + """shutit.send_until('''""" + cmd + """''',expect="""
+		build += "'''" + cmd + "''')"
 	elif shutitfile_command == 'ASSERT_OUTPUT_SEND':
 		shutitfile_args    = parse_shutitfile_args(line[1])
 		assert type(shutitfile_args) == list
