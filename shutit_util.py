@@ -1825,10 +1825,20 @@ def process_shutitfile(shutitfile_contents, order):
 	shutitfile_list = parse_shutitfile(shutitfile_contents)
 	# Set defaults from given shutitfile
 	last_shutitfile_command = ''
+	shutitfile_state = 'NONE'
+	inline_script = ''
 	for item in shutitfile_list:
 		# These items are not order-dependent and don't affect the build, so we collect them here:
 		shutitfile_command = item[0].upper()
-		if shutitfile_command == 'FROM':
+		if shutitfile_command != 'SCRIPT_END' and shutitfile_state == 'SCRIPT_DURING':
+			inline_script += '\n' + ' '.join(item)
+		elif shutitfile_command == 'SCRIPT_BEGIN':
+			shutitfile_state = 'SCRIPT_DURING'
+		elif shutitfile_command == 'SCRIPT_END':
+			shutitfile_representation['shutitfile']['script'].append(['RUN_SCRIPT', inline_script])
+			shutitfile_state = 'NONE'
+			inline_script = ''
+		elif shutitfile_command == 'FROM':
 			# TESTED? NO
 			# Should be only one of these
 			if order == 1:
@@ -1934,7 +1944,6 @@ def process_shutitfile(shutitfile_contents, order):
 		elif shutitfile_command == 'MODULE_ID':
 			# Only one item allowed.
 			shutitfile_representation['shutitfile']['module_id'] = item[1]
-		# TODO: SCRIPT_BEGIN, SCRIPT_END
 		# See shutitfile_get_section
 		elif shutitfile_command in ('START_BEGIN','START_END','STOP_BEGIN','STOP_END','TEST_BEGIN','TEST_END','BUILD_BEGIN','BUILD_END','CONFIG_BEGIN','CONFIG_END','ISINSTALLED_BEGIN','ISINSTALLED_END'):
 			shutitfile_representation['shutitfile']['script'].append([shutitfile_command, ''])
@@ -1955,6 +1964,7 @@ def process_shutitfile(shutitfile_contents, order):
 
 
 def handle_shutitfile_line(line, numpushes, wgetgot, numlogins, ifdepth):
+	print line
 	shutitfile_command = line[0].upper()
 	shutit = shutit_global.shutit
 	build  = ''
@@ -2124,8 +2134,14 @@ def handle_shutitfile_line(line, numpushes, wgetgot, numlogins, ifdepth):
 			build += '\n' + (numtabs-1)*'\t' + '''elif not ''' + statement + ''':'''
 	elif shutitfile_command in ('ENDIF'):
 		ifdepth -= 1
+	elif shutitfile_command == 'RUN_SCRIPT':
+		shutitfile_args    = line[1]
+		assert type(shutitfile_args) == str
+		script = shutitfile_args
+		build += """\n""" + numtabs*'\t' + """shutit.run_script('''""" + script + """''')"""
 	# See shutitfile_get_section
-	elif shutitfile_command in ('START_BEGIN','START_END','STOP_BEGIN','STOP_END','TEST_BEGIN','TEST_END','BUILD_BEGIN','BUILD_END','CONFIG_BEGIN','CONFIG_END','ISINSTALLED_BEGIN','ISINSTALLED_END'):
+	elif shutitfile_command in ('SCRIPT_BEGIN','START_BEGIN','START_END','STOP_BEGIN','STOP_END','TEST_BEGIN','TEST_END','BUILD_BEGIN','BUILD_END','CONFIG_BEGIN','CONFIG_END','ISINSTALLED_BEGIN','ISINSTALLED_END'):
+		# No action to perform on these lines, but they are legal.
 		pass
 	else:
 		shutit.fail('shutitfile_command: ' + shutitfile_command + ' not handled')
