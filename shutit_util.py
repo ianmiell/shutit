@@ -1298,8 +1298,8 @@ def parse_shutitfile(contents):
 				elif re.match("^([A-Za-z_]+)[\s]*(.*)$", full_line):
 					m = re.match("^[\s]*([A-Za-z_]+)[\s]*(.*)$", full_line)
 					ret.append([m.group(1), m.group(2)])
-				elif re.match("^#(..*)$", full_line):
-					comment = re.match("^#(..*)$", full_line)
+				elif re.match("^#(.*)$", full_line):
+					comment = re.match("^#(.*)$", full_line)
 					ret.append(['COMMENT', comment.group(1)])
 				else:
 					shutit.fail("Could not parse line in parse_shutitfile: " + full_line)
@@ -1313,6 +1313,9 @@ def parse_shutitfile_args(args_str):
 	If the string composed entirely of name-value pairs (eg RUN a=b c=d) then it's returned as a dict (eg {'a':'b','c':'d'}).
 	If what's passed-in is of the form: "COMMAND ['a=b','c=d']" then a dict is also returned.'
 	Also eg: ["asd and space=value","asd 2=asdgasdg"]"""
+	ret = []
+	if args_str == '':
+		return ret
 	if args_str[0] == '[' and args_str[-1] == ']':
 		ret = eval(args_str)
 		assert type(ret) == list
@@ -1865,7 +1868,7 @@ def process_shutitfile(shutitfile_contents, order):
 			except Exception:
 				shutitfile_representation['shutitfile']['cmd'] = item[1]
 		# Other items to be run through sequentially (as they are part of the script)
-		if shutitfile_command in ('USER','LOGIN','LOGOUT'):
+		elif shutitfile_command in ('USER','LOGIN','LOGOUT'):
 			# Put in the start script as well as su'ing from here - assuming order dependent?
 			shutitfile_representation['shutitfile']['script'].append([shutitfile_command, item[1]])
 		elif shutitfile_command == 'GET_PASSWORD':
