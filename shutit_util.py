@@ -542,6 +542,7 @@ docker:            a docker image build
 vagrant:           a vagrant setup
 vagrant_multinode: a vagrant multinode setup
 docker_tutorial:   a docker-based tutorial
+shutitfile:        a shutitfile-based Docker project
 ''',default='bash')
 		else:
 			template_branch = args.template_branch
