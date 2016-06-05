@@ -745,10 +745,10 @@ class ShutItPexpectSession(object):
 		shutit._handle_note(note)
 		if not shutit_util.check_regexp(match_regexp):
 			shutit.fail('Illegal regexp found in add_to_bashrc call: ' + match_regexp)
-		# Some distros do not have these by default.
-		shutit.send(' touch ${HOME}/.bashrc',check_exit=False)
-		shutit.send(' touch /etc/bash.bashrc',check_exit=False)
-		shutit.add_line_to_file(line, '${HOME}/.bashrc', match_regexp=match_regexp, loglevel=loglevel)
+		if self.whoami() == 'root':
+			shutit.add_line_to_file(line, '/root/.bashrc', match_regexp=match_regexp, loglevel=loglevel)
+		else:
+			shutit.add_line_to_file(line, '${HOME}/.bashrc', match_regexp=match_regexp, loglevel=loglevel)
 		shutit.add_line_to_file(line, '/etc/bash.bashrc', match_regexp=match_regexp, loglevel=loglevel)
 		return True
 
