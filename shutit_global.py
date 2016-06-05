@@ -33,8 +33,8 @@ import re
 import getpass
 import datetime
 import pexpect
-from shutit_module import ShutItFailException
 import logging
+from shutit_module import ShutItFailException
 
 
 class ShutIt(object):

@@ -32,18 +32,18 @@ Nomenclature:
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-from shutit_module import ShutItModule
 import pexpect
 import os
 import shutit_util
 import time
 import re
 import subprocess
-from distutils import spawn
 import logging
 import shutit_pexpect
 import string
 import shutit_global
+from distutils import spawn
+from shutit_module import ShutItModule
 
 
 class ShutItConnModule(ShutItModule):
@@ -131,7 +131,7 @@ class ConnDocker(ShutItConnModule):
 			fail_msg = '"%s" didn\'t return a 0 exit code' % (str_cmd,)
 
 		if fail_msg:
-			# TODO: Ideally here we'd split up our checks so if it asked for a
+			# Ideally here we'd split up our checks so if it asked for a
 			# password, kill the sudo timeout and run `sudo -l`. We then know if
 			# the password is right or not so we know what we need to prompt
 			# for. At the moment we assume the password if it was asked for.
