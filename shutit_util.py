@@ -1912,7 +1912,11 @@ def process_shutitfile(shutitfile_contents, order):
 				shutit.fail('EXPECT line not after a RUN, SEND or GET_PASSWORD line: ' + shutitfile_command + ' ' + item[1])
 			shutitfile_representation['shutitfile']['script'][-1][0] = 'SEND_EXPECT'
 			shutitfile_representation['shutitfile']['script'].append([shutitfile_command, item[1]])
-		#TODO: elif shutitfile_command == 'MULTIEXPECT':, like EXPECT, but wants a dict
+		elif shutitfile_command == 'EXPECT_MULTI':
+			if last_shutitfile_command not in ('RUN','SEND','GET_PASSWORD'):
+				shutit.fail('EXPECT_MULTI line not after a RUN, SEND or GET_PASSWORD line: ' + shutitfile_command + ' ' + item[1])
+			shutitfile_representation['shutitfile']['script'][-1][0] = 'SEND_EXPECT_MULTI'
+			shutitfile_representation['shutitfile']['script'].append([shutitfile_command, item[1]])
 		elif shutitfile_command == 'UNTIL':
 			if last_shutitfile_command not in ('RUN','SEND'):
 				shutit.fail('UNTIL line not after a RUN, SEND: ' + shutitfile_command + ' ' + item[1])
@@ -1964,7 +1968,6 @@ def process_shutitfile(shutitfile_contents, order):
 
 
 def handle_shutitfile_line(line, numpushes, wgetgot, numlogins, ifdepth):
-	print line
 	shutitfile_command = line[0].upper()
 	shutit = shutit_global.shutit
 	build  = ''
@@ -1979,6 +1982,11 @@ def handle_shutitfile_line(line, numpushes, wgetgot, numlogins, ifdepth):
 		assert type(shutitfile_args) == list
 		cmd = ' '.join(shutitfile_args).replace("'", "\\'")
 		build += """\n""" + numtabs*'\t' + """shutit.send('''""" + cmd + """''',expect="""
+	elif shutitfile_command == 'SEND_EXPECT_MULTI':
+		shutitfile_args    = parse_shutitfile_args(line[1])
+		assert type(shutitfile_args) == list
+		cmd = ' '.join(shutitfile_args).replace("'", "\\'")
+		build += """\n""" + numtabs*'\t' + """shutit.multisend('''""" + cmd + """''',"""
 	elif shutitfile_command == 'SEND_UNTIL':
 		shutitfile_args    = parse_shutitfile_args(line[1])
 		assert type(shutitfile_args) == list
@@ -2009,6 +2017,11 @@ def handle_shutitfile_line(line, numpushes, wgetgot, numlogins, ifdepth):
 		assert type(shutitfile_args) == list
 		cmd = ' '.join(shutitfile_args).replace("'", "\\'")
 		build += "'''" + cmd + "''')"
+	elif shutitfile_command == 'EXPECT_MULTI':
+		shutitfile_args    = parse_shutitfile_args(line[1])
+		assert type(shutitfile_args) == dict
+		multi_dict = str(shutitfile_args)
+		build += multi_dict + ")"
 	elif shutitfile_command in ('LOGIN','USER'):
 		shutitfile_args    = parse_shutitfile_args(line[1])
 		assert type(shutitfile_args) == list
