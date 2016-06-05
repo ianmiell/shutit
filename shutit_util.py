@@ -1950,7 +1950,7 @@ def process_shutitfile(shutitfile_contents, order):
 			shutitfile_representation['shutitfile']['script'].append([shutitfile_command, item[1], item[2]])
 		elif shutitfile_command in ('ELSE','ENDIF'):
 			shutitfile_representation['shutitfile']['script'].append([shutitfile_command])
-		elif shutitfile_command in ('MAINTAINER','MODULE'):
+		elif shutitfile_command in ('MAINTAINER'):
 			pass
 		else:
 			shutit.fail('shutitfile command: ' + shutitfile_command + ' not processed')
