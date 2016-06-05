@@ -1924,15 +1924,9 @@ def process_shutitfile(shutitfile_contents, order):
 			shutitfile_representation['shutitfile']['script'][-1][0] = 'SEND_UNTIL'
 			shutitfile_representation['shutitfile']['script'].append([shutitfile_command, item[1]])
 		elif shutitfile_command == 'ADD':
-			# TESTED? NO
 			# Send file - is this potentially got from the web? Is that the difference between this and COPY?
 			shutitfile_representation['shutitfile']['script'].append([shutitfile_command, item[1]])
 		elif shutitfile_command == 'COPY':
-			# TESTED? NO
-			# Send file
-			shutitfile_representation['shutitfile']['script'].append([shutitfile_command, item[1]])
-			# TESTED? NO
-			# Send file
 			shutitfile_representation['shutitfile']['script'].append([shutitfile_command, item[1]])
 		elif shutitfile_command == 'WORKDIR':
 			shutitfile_representation['shutitfile']['script'].append([shutitfile_command, item[1]])
@@ -2392,7 +2386,8 @@ def allowed_image(module_id):
 	return False
 
 
-def handle_exit(shutit=None,exit_code=0,loglevel=logging.DEBUG,msg=None):
+def handle_exit(exit_code=0,loglevel=logging.DEBUG,msg=None):
+	shutit = shutit_global.shutit
 	if not msg:
 		msg = '\nExiting with error code: ' + str(exit_code)
 	if not shutit:

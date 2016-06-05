@@ -651,7 +651,7 @@ def main():
 	# Mark the build as completed
 	shutit.build['completed'] = True
 	shutit.log('ShutIt run finished',level=logging.INFO)
-	shutit_util.handle_exit(0)
+	shutit_util.handle_exit(exit_code=0)
 
 
 def do_phone_home(msg=None,question='Error seen - would you like to inform the maintainers?'):
@@ -750,7 +750,7 @@ def setup_signals():
 	signal.signal(signal.SIGINT, shutit_util.ctrl_c_signal_handler)
 	signal.signal(signal.SIGQUIT, shutit_util.ctrl_quit_signal_handler)
 
-shutit_version='0.9.175'
+shutit_version='0.9.179'
 
 if __name__ == '__main__':
 	setup_signals()
