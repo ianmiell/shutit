@@ -549,7 +549,7 @@ shutitfile:        a shutitfile-based Docker project
 
 		# Sort out delivery method.
 		if args.delivery is None:
-			if template_branch in ('docker','docker_tutorial'):
+			if template_branch in ('docker','docker_tutorial', 'shutitfile'):
 				default_delivery = 'docker'
 			else:
 				default_delivery = 'bash'
