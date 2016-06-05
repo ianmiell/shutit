@@ -1923,15 +1923,9 @@ def process_shutitfile(shutitfile_contents, order):
 			shutitfile_representation['shutitfile']['script'][-1][0] = 'SEND_UNTIL'
 			shutitfile_representation['shutitfile']['script'].append([shutitfile_command, item[1]])
 		elif shutitfile_command == 'ADD':
-			# TESTED? NO
 			# Send file - is this potentially got from the web? Is that the difference between this and COPY?
 			shutitfile_representation['shutitfile']['script'].append([shutitfile_command, item[1]])
 		elif shutitfile_command == 'COPY':
-			# TESTED? NO
-			# Send file
-			shutitfile_representation['shutitfile']['script'].append([shutitfile_command, item[1]])
-			# TESTED? NO
-			# Send file
 			shutitfile_representation['shutitfile']['script'].append([shutitfile_command, item[1]])
 		elif shutitfile_command == 'WORKDIR':
 			shutitfile_representation['shutitfile']['script'].append([shutitfile_command, item[1]])
