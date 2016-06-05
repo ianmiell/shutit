@@ -2385,7 +2385,8 @@ def allowed_image(module_id):
 	return False
 
 
-def handle_exit(shutit=None,exit_code=0,loglevel=logging.DEBUG,msg=None):
+def handle_exit(exit_code=0,loglevel=logging.DEBUG,msg=None):
+	shutit = shutit_global.shutit
 	if not msg:
 		msg = '\nExiting with error code: ' + str(exit_code)
 	if not shutit:
