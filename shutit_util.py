@@ -1300,8 +1300,8 @@ def parse_shutitfile(contents):
 					m = re.match("^[\s]*([A-Za-z_]+)[\s]*(.*)$", full_line)
 					ret.append([m.group(1), m.group(2)])
 				elif re.match("^#(.*)$", full_line):
-					comment = re.match("^#(.*)$", full_line)
-					ret.append(['COMMENT', comment.group(1)])
+					# Comments should be added with 'COMMENT a comment'
+					pass
 				else:
 					shutit.fail("Could not parse line in parse_shutitfile: " + full_line)
 				full_line = ''
@@ -1831,6 +1831,8 @@ def process_shutitfile(shutitfile_contents, order):
 	for item in shutitfile_list:
 		# These items are not order-dependent and don't affect the build, so we collect them here:
 		shutitfile_command = item[0].upper()
+		# List of handled shutitfile_commands
+		assert shutitfile_command in ('SCRIPT_END','SCRIPT_DURING','SCRIPT_BEGIN','SCRIPT_END','FROM','ONBUILD','VOLUME','MAINTAINER','EXPOSE','ENTRYPOINT','CMD','USER','LOGIN','LOGOUT','GET_PASSWORD','ENV','RUN','SEND','ASSERT_OUTPUT','PAUSE_POINT','EXPECT','EXPECT_MULTI','UNTIL','ADD','COPY','WORKDIR','COMMENT','INSTALL','REMOVE','DEPENDS','DELIVERY','MODULE_ID','START_BEGIN','START_END','STOP_BEGIN','STOP_END','TEST_BEGIN','TEST_END','BUILD_BEGIN','BUILD_END','CONFIG_BEGIN','CONFIG_END','ISINSTALLED_BEGIN','ISINSTALLED_END','IF','IF_NOT','ELIF_NOT','ELIF','ELSE','ENDIF')
 		if shutitfile_command != 'SCRIPT_END' and shutitfile_state == 'SCRIPT_DURING':
 			inline_script += '\n' + ' '.join(item)
 		elif shutitfile_command == 'SCRIPT_BEGIN':
@@ -1840,8 +1842,6 @@ def process_shutitfile(shutitfile_contents, order):
 			shutitfile_state = 'NONE'
 			inline_script = ''
 		elif shutitfile_command == 'FROM':
-			# TESTED? NO
-			# Should be only one of these
 			if order == 1:
 				shutitfile_representation['shutitfile']['base_image'] = item[1]
 			else:
@@ -1943,7 +1943,6 @@ def process_shutitfile(shutitfile_contents, order):
 		elif shutitfile_command == 'MODULE_ID':
 			# Only one item allowed.
 			shutitfile_representation['shutitfile']['module_id'] = item[1]
-		# See shutitfile_get_section
 		elif shutitfile_command in ('START_BEGIN','START_END','STOP_BEGIN','STOP_END','TEST_BEGIN','TEST_END','BUILD_BEGIN','BUILD_END','CONFIG_BEGIN','CONFIG_END','ISINSTALLED_BEGIN','ISINSTALLED_END'):
 			shutitfile_representation['shutitfile']['script'].append([shutitfile_command, ''])
 		elif shutitfile_command in ('IF','IF_NOT','ELIF_NOT','ELIF'):
@@ -1967,6 +1966,7 @@ def handle_shutitfile_line(line, numpushes, wgetgot, numlogins, ifdepth):
 	shutit = shutit_global.shutit
 	build  = ''
 	numtabs = 2 + ifdepth
+	assert shutitfile_command in ('RUN','SEND','SEND_EXPECT','SEND_EXPECT_MULTI','SEND_UNTIL','UNTIL','UNTIL','ASSERT_OUTPUT_SEND','ASSERT_OUTPUT','PAUSE_POINT','EXPECT','EXPECT_MULTI','LOGIN','USER','LOGOUT','GET_AND_SEND_PASSWORD','LOGIN_WITH_PASSWORD','WORKDIR','COPY','ADD','ENV','INSTALL','REMOVE','COMMENT','IF','ELSE','ELIF','IF_NOT','ELIF_NOT','ENDIF','RUN_SCRIPT','SCRIPT_BEGIN','START_BEGIN','START_END','STOP_BEGIN','STOP_END','TEST_BEGIN','TEST_END','BUILD_BEGIN','BUILD_END','CONFIG_BEGIN','CONFIG_END','ISINSTALLED_BEGIN','ISINSTALLED_END')
 	if shutitfile_command in ('RUN','SEND'):
 		shutitfile_args    = parse_shutitfile_args(line[1])
 		assert type(shutitfile_args) == list

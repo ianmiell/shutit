@@ -625,6 +625,7 @@ class ShutItPexpectSession(object):
 				# Return the escape from pexpect char
 				return '\x1d'
 			# CTRL-]
+			# Foreign keyboard?: http://superuser.com/questions/398/how-to-send-the-escape-character-on-os-x-terminal/427#427
 			elif ord(input_string) == 29:
 				shutit.shutit_signal['ID'] = 29
 				# Return the escape from pexpect char
