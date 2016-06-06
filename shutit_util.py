@@ -1248,7 +1248,6 @@ def create_skeleton():
 			[''' + skel_module_id + ''']
 			shutit.core.module.build:yes
 			''')
-		# TODO: only if this is a docker build
 		buildcnf += textwrap.dedent('''\
 			shutit.core.module.allowed_images:["''' + shutit.shutitfile['base_image'] + '''"]
 			[build]
@@ -1823,6 +1822,7 @@ def process_shutitfile(shutitfile_contents, order):
 	shutitfile_representation['shutitfile']['env']        = []
 	shutitfile_representation['shutitfile']['depends']    = []
 	shutitfile_representation['shutitfile']['delivery']   = []
+	shutitfile_representation['shutitfile']['base_image'] = []
 	shutitfile_list = parse_shutitfile(shutitfile_contents)
 	# Set defaults from given shutitfile
 	last_shutitfile_command = ''
@@ -1842,10 +1842,12 @@ def process_shutitfile(shutitfile_contents, order):
 			shutitfile_state = 'NONE'
 			inline_script = ''
 		elif shutitfile_command == 'FROM':
-			if order == 1:
+			if shutitfile_representation['shutitfile']['base_image'] == []:
 				shutitfile_representation['shutitfile']['base_image'] = item[1]
+				# TODO: this is a little ungainly - is there a better way to ensure the build.cnf is correct than setting this other item?
+				shutit.shutitfile['base_image'] = item[1]
 			else:
-				print 'Ignoring FROM line as this is not the first shutitfile supplied.'
+				print 'Ignoring FROM line as this it has already been set.'
 		elif shutitfile_command == 'ONBUILD':
 			# TESTED? NO
 			# Maps to finalize :) - can we have more than one of these? assume yes
@@ -1956,8 +1958,6 @@ def process_shutitfile(shutitfile_contents, order):
 			shutit.fail('shutitfile command: ' + shutitfile_command + ' not processed')
 		last_shutitfile_command = shutitfile_command
 	return shutitfile_representation
-
-
 
 
 
