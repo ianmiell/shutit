@@ -280,7 +280,7 @@ class ShutItPexpectSession(object):
 		# The newline in the expect list is a hack. On my work laptop this line hangs
 		# and times out very frequently. This workaround seems to work, but I
 		# haven't figured out why yet - imiell.
-		self.send((" shopt -s checkwinsize && export SHUTIT_BACKUP_PS1_%s=$PS1 && PS1='%s' && unset PROMPT_COMMAND && stty sane && stty cols " + str(shutit.build['stty_cols'])) % (prompt_name, local_prompt) + ' && export HISTCONTROL=$HISTCONTROL:ignoredups:ignorespace', expect=['\r\n' + shutit.expect_prompts[prompt_name]], fail_on_empty_before=False, timeout=5, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
+		self.send((" (shopt -s checkwinsize > /dev/null 2>&1 || resize > /dev/null 2>&1 || /bin/true) && export SHUTIT_BACKUP_PS1_%s=$PS1 && PS1='%s' && unset PROMPT_COMMAND && stty sane && stty cols " + str(shutit.build['stty_cols'])) % (prompt_name, local_prompt) + ' && export HISTCONTROL=$HISTCONTROL:ignoredups:ignorespace', expect=['\r\n' + shutit.expect_prompts[prompt_name]], fail_on_empty_before=False, timeout=5, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
 		shutit.log('Resetting default expect to: ' + shutit.expect_prompts[prompt_name],level=logging.DEBUG)
 		self.default_expect = shutit.expect_prompts[prompt_name]
 		# Ensure environment is set up OK.
@@ -547,21 +547,25 @@ class ShutItPexpectSession(object):
 		shutit = shutit_global.shutit
 		if print_input:
 			if resize:
-				if self.current_environment.distro != 'osx':
-					fixterm_filename = '/tmp/shutit_fixterm'
-					fixterm_filename_stty = fixterm_filename + '_stty'
-					if not self.file_exists(fixterm_filename):
-						shutit.log('Fixing up your terminal, please wait...',level=logging.INFO)
-						self.send_file(fixterm_filename,shutit_assets.get_fixterm(), loglevel=logging.DEBUG, delaybeforesend=delaybeforesend)
-						self.send(' chmod 777 ' + fixterm_filename, echo=False,loglevel=logging.DEBUG, delaybeforesend=delaybeforesend)
-					if not self.file_exists(fixterm_filename + '_stty'):
-						self.send(' stty >  ' + fixterm_filename_stty, echo=False,loglevel=logging.DEBUG, delaybeforesend=delaybeforesend)
-						self.sendline(' ' + fixterm_filename, delaybeforesend=delaybeforesend)
-					# do not re-run if the output of stty matches the current one
-					elif self.send_and_get_output(' diff <(stty) ' + fixterm_filename_stty) != '':
-						self.sendline(' ' + fixterm_filename, delaybeforesend=delaybeforesend)
-					else:
-						self.sendline('')
+				# It is possible we do not have distro set yet, so wrap in try/catch
+				try:
+					if self.current_environment.distro != 'osx':
+						fixterm_filename = '/tmp/shutit_fixterm'
+						fixterm_filename_stty = fixterm_filename + '_stty'
+						if not self.file_exists(fixterm_filename):
+							shutit.log('Fixing up your terminal, please wait...',level=logging.INFO)
+							self.send_file(fixterm_filename,shutit_assets.get_fixterm(), loglevel=logging.DEBUG, delaybeforesend=delaybeforesend)
+							self.send(' chmod 777 ' + fixterm_filename, echo=False,loglevel=logging.DEBUG, delaybeforesend=delaybeforesend)
+						if not self.file_exists(fixterm_filename + '_stty'):
+							self.send(' stty >  ' + fixterm_filename_stty, echo=False,loglevel=logging.DEBUG, delaybeforesend=delaybeforesend)
+							self.sendline(' ' + fixterm_filename, delaybeforesend=delaybeforesend)
+						# do not re-run if the output of stty matches the current one
+						elif self.send_and_get_output(' diff <(stty) ' + fixterm_filename_stty) != '':
+							self.sendline(' ' + fixterm_filename, delaybeforesend=delaybeforesend)
+						else:
+							self.sendline('')
+				except:
+					pass
 			if default_msg == None:
 				if not shutit.build['video']:
 					pp_msg = '\r\nYou now have a standard shell. Hit CTRL and then ] at the same time to continue ShutIt run.'
@@ -966,7 +970,9 @@ class ShutItPexpectSession(object):
 	                      loglevel=logging.DEBUG):
 		shutit = shutit_global.shutit
 		shutit._handle_note(note)
-		if self.send_and_get_output(' command -v ' + command, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend) != '':
+		self.send('env')
+		output = self.send_and_get_output(' command -v ' + command, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
+		if output != '':
 			return True
 		else:
 			return False
@@ -1353,7 +1359,8 @@ class ShutItPexpectSession(object):
 			before = before.strip(send)
 		shutit._handle_note_after(note=note)
 		if strip:
-			ansi_escape = re.compile(r'\x1b[^m]*m')
+			# cf: http://stackoverflow.com/questions/14693701/how-can-i-remove-the-ansi-escape-sequences-from-a-string-in-python
+			ansi_escape = re.compile(r'/(\x9B|\x1B\[)[0-?]*[ -\/]*[@-~]/')
 			string_with_termcodes = before.strip()
 			string_without_termcodes = ansi_escape.sub('', string_with_termcodes)
 			#string_without_termcodes_stripped = string_without_termcodes.strip()
