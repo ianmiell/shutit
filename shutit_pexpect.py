@@ -280,9 +280,10 @@ class ShutItPexpectSession(object):
 		# The newline in the expect list is a hack. On my work laptop this line hangs
 		# and times out very frequently. This workaround seems to work, but I
 		# haven't figured out why yet - imiell.
-		self.send((" (shopt -s checkwinsize > /dev/null 2>&1 || resize > /dev/null 2>&1 || /bin/true) && export SHUTIT_BACKUP_PS1_%s=$PS1 && PS1='%s' && unset PROMPT_COMMAND && stty sane && stty cols " + str(shutit.build['stty_cols'])) % (prompt_name, local_prompt) + ' && export HISTCONTROL=$HISTCONTROL:ignoredups:ignorespace', expect=['\r\n' + shutit.expect_prompts[prompt_name]], fail_on_empty_before=False, timeout=5, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
+		self.send((" (shopt -s checkwinsize || /bin/true) && export SHUTIT_BACKUP_PS1_%s=$PS1 && PS1='%s' && unset PROMPT_COMMAND && stty sane && stty cols " + str(shutit.build['stty_cols'])) % (prompt_name, local_prompt), expect=['\r\n' + shutit.expect_prompts[prompt_name]], fail_on_empty_before=False, timeout=5, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
 		shutit.log('Resetting default expect to: ' + shutit.expect_prompts[prompt_name],level=logging.DEBUG)
 		self.default_expect = shutit.expect_prompts[prompt_name]
+		self.send(' export HISTCONTROL=$HISTCONTROL:ignoredups:ignorespace', echo=False, loglevel=loglevel)
 		# Ensure environment is set up OK.
 		_ = self.init_pexpect_session_environment(prefix)
 		return True
@@ -456,7 +457,8 @@ class ShutItPexpectSession(object):
 		random_id = shutit_util.random_id()
 		fname = shutit.build['shutit_state_dir_base'] + '/tmp_' + random_id
 		working_str = send
-		self.sendline(' truncate --size 0 '+ fname)
+		# truncate -s must be used as --size is not supported everywhere (eg busybox)
+		self.sendline(' truncate -s 0 '+ fname)
 		self.pexpect_child.expect(expect)
 		size = shutit.build['stty_cols'] - 25
 		while len(working_str) > 0:
@@ -970,8 +972,10 @@ class ShutItPexpectSession(object):
 	                      loglevel=logging.DEBUG):
 		shutit = shutit_global.shutit
 		shutit._handle_note(note)
-		self.send('env')
 		output = self.send_and_get_output(' command -v ' + command, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
+		# Bit of a hack here to get round situations where the command is repeated in the output and caught.
+		if output.strip() == 'command -v ' + command:
+			return False
 		if output != '':
 			return True
 		else:
@@ -1363,6 +1367,7 @@ class ShutItPexpectSession(object):
 			ansi_escape = re.compile(r'(\x9B|\x1B\[)[0-?]*[ -\/]*[@-~]')
 			string_with_termcodes = before.strip()
 			string_without_termcodes = ansi_escape.sub('', string_with_termcodes)
+			
 			#string_without_termcodes_stripped = string_without_termcodes.strip()
 			# Strip out \rs to make it output the same as a typical CL. This could be optional.
 			string_without_termcodes_stripped_no_cr = string_without_termcodes.replace('\r','')
@@ -1555,9 +1560,9 @@ class ShutItPexpectSession(object):
 				distro_version = d['distro_version']
 			elif install_type == 'apk' and shutit.build['delivery'] in ('docker','dockerfile'):
 				if not shutit.get_current_shutit_pexpect_session_environment().build['apk_update_done']:
-					shutit.get_current_shutit_pexpect_session_environment().build['apk_update_done'] = True
 					self.send('apk update',loglevel=logging.INFO,delaybeforesend=delaybeforesend)
-				self.send('apk install bash',loglevel=loglevel,delaybeforesend=delaybeforesend)
+					shutit.get_current_shutit_pexpect_session_environment().build['apk_update_done'] = True
+				self.send('apk add bash',loglevel=loglevel,delaybeforesend=delaybeforesend)
 				install_type   = 'apk'
 				distro         = 'alpine'
 				distro_version = '1.0'
