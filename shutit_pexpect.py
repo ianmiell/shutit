@@ -1360,7 +1360,7 @@ class ShutItPexpectSession(object):
 		shutit._handle_note_after(note=note)
 		if strip:
 			# cf: http://stackoverflow.com/questions/14693701/how-can-i-remove-the-ansi-escape-sequences-from-a-string-in-python
-			ansi_escape = re.compile(r'/(\x9B|\x1B\[)[0-?]*[ -\/]*[@-~]/')
+			ansi_escape = re.compile(r'(\x9B|\x1B\[)[0-?]*[ -\/]*[@-~]')
 			string_with_termcodes = before.strip()
 			string_without_termcodes = ansi_escape.sub('', string_with_termcodes)
 			#string_without_termcodes_stripped = string_without_termcodes.strip()
