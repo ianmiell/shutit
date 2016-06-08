@@ -1831,7 +1831,7 @@ def process_shutitfile(shutitfile_contents, order):
 		# These items are not order-dependent and don't affect the build, so we collect them here:
 		shutitfile_command = item[0].upper()
 		# List of handled shutitfile_commands
-		assert shutitfile_command in ('SCRIPT_END','SCRIPT_DURING','SCRIPT_BEGIN','SCRIPT_END','FROM','ONBUILD','VOLUME','DESCRIPTION','MAINTAINER','EXPOSE','ENTRYPOINT','CMD','USER','LOGIN','LOGOUT','GET_PASSWORD','ENV','RUN','SEND','ASSERT_OUTPUT','PAUSE_POINT','EXPECT','EXPECT_MULTI','UNTIL','ADD','COPY','WORKDIR','COMMENT','INSTALL','REMOVE','DEPENDS','DELIVERY','MODULE_ID','START_BEGIN','START_END','STOP_BEGIN','STOP_END','TEST_BEGIN','TEST_END','BUILD_BEGIN','BUILD_END','CONFIG_BEGIN','CONFIG_END','ISINSTALLED_BEGIN','ISINSTALLED_END','IF','IF_NOT','ELIF_NOT','ELIF','ELSE','ENDIF')
+		assert shutitfile_command in ('SCRIPT_END','SCRIPT_DURING','SCRIPT_BEGIN','SCRIPT_END','FROM','ONBUILD','VOLUME','DESCRIPTION','MAINTAINER','EXPOSE','ENTRYPOINT','CMD','USER','LOGIN','LOGOUT','GET_PASSWORD','ENV','RUN','SEND','ASSERT_OUTPUT','PAUSE_POINT','EXPECT','EXPECT_MULTI','UNTIL','ADD','COPY','WORKDIR','COMMENT','INSTALL','REMOVE','DEPENDS','DELIVERY','MODULE_ID','START_BEGIN','START_END','STOP_BEGIN','STOP_END','TEST_BEGIN','TEST_END','BUILD_BEGIN','BUILD_END','CONFIG_BEGIN','CONFIG_END','ISINSTALLED_BEGIN','ISINSTALLED_END','IF','IF_NOT','ELIF_NOT','ELIF','ELSE','ENDIF','COMMIT')
 		if shutitfile_command != 'SCRIPT_END' and shutitfile_state == 'SCRIPT_DURING':
 			inline_script += '\n' + ' '.join(item)
 		elif shutitfile_command == 'SCRIPT_BEGIN':
@@ -1953,6 +1953,9 @@ def process_shutitfile(shutitfile_contents, order):
 			shutitfile_representation['shutitfile']['script'].append([shutitfile_command, item[1], item[2]])
 		elif shutitfile_command in ('ELSE','ENDIF'):
 			shutitfile_representation['shutitfile']['script'].append([shutitfile_command])
+		elif shutitfile_command == 'COMMIT':
+			# TODO: check user has creds set up for docker repos?
+			shutitfile_representation['shutitfile']['script'].append([shutitfile_command, item[1]])
 		else:
 			shutit.fail('shutitfile command: ' + shutitfile_command + ' not processed')
 		last_shutitfile_command = shutitfile_command
@@ -1965,7 +1968,7 @@ def handle_shutitfile_line(line, numpushes, wgetgot, numlogins, ifdepth):
 	shutit = shutit_global.shutit
 	build  = ''
 	numtabs = 2 + ifdepth
-	assert shutitfile_command in ('RUN','SEND','SEND_EXPECT','SEND_EXPECT_MULTI','SEND_UNTIL','UNTIL','UNTIL','ASSERT_OUTPUT_SEND','ASSERT_OUTPUT','PAUSE_POINT','EXPECT','EXPECT_MULTI','LOGIN','USER','LOGOUT','GET_AND_SEND_PASSWORD','LOGIN_WITH_PASSWORD','WORKDIR','COPY','ADD','ENV','INSTALL','REMOVE','COMMENT','IF','ELSE','ELIF','IF_NOT','ELIF_NOT','ENDIF','RUN_SCRIPT','SCRIPT_BEGIN','START_BEGIN','START_END','STOP_BEGIN','STOP_END','TEST_BEGIN','TEST_END','BUILD_BEGIN','BUILD_END','CONFIG_BEGIN','CONFIG_END','ISINSTALLED_BEGIN','ISINSTALLED_END')
+	assert shutitfile_command in ('RUN','SEND','SEND_EXPECT','SEND_EXPECT_MULTI','SEND_UNTIL','UNTIL','UNTIL','ASSERT_OUTPUT_SEND','ASSERT_OUTPUT','PAUSE_POINT','EXPECT','EXPECT_MULTI','LOGIN','USER','LOGOUT','GET_AND_SEND_PASSWORD','LOGIN_WITH_PASSWORD','WORKDIR','COPY','ADD','ENV','INSTALL','REMOVE','COMMENT','IF','ELSE','ELIF','IF_NOT','ELIF_NOT','ENDIF','RUN_SCRIPT','SCRIPT_BEGIN','START_BEGIN','START_END','STOP_BEGIN','STOP_END','TEST_BEGIN','TEST_END','BUILD_BEGIN','BUILD_END','CONFIG_BEGIN','CONFIG_END','ISINSTALLED_BEGIN','ISINSTALLED_END','COMMIT')
 	if shutitfile_command in ('RUN','SEND'):
 		shutitfile_args    = parse_shutitfile_args(line[1])
 		assert type(shutitfile_args) == list
@@ -2146,6 +2149,24 @@ def handle_shutitfile_line(line, numpushes, wgetgot, numlogins, ifdepth):
 		assert type(shutitfile_args) == str
 		script = shutitfile_args
 		build += """\n""" + numtabs*'\t' + """shutit.run_script('''""" + script + """''')"""
+	elif shutitfile_command == 'COMMIT':
+		shutitfile_args    = parse_shutitfile_args(line[1])
+		assert type(shutitfile_args) == list
+		assert len(shutitfile_args) in (1,2)
+		# repo name
+		repo_name = shutitfile_args[0]
+		if repo_name == _default_repo_name:
+			shutit.log('The docker container will be committed with the default repo_name: ' + _default_repo_name + '.\nYou can change this by adding this to the ~/.shutit/config file:\n\n[repository]\nname:yourname\n\nand re-running.',level=logging.WARNING)
+		# repo tag
+		if len(shutitfile_args) == 2:
+			repo_tag = shutitfile_args[1]
+		else:
+			repo_tag = 'None'
+		global _default_repo_name
+		if len(shutitfile_args) == 1:
+			build += """\n""" + numtabs*'\t' + """shutit.do_repository_work('''""" + repo_name + """,force=None,tag=True''')"""
+		elif len(shutitfile_args) == 2 :
+			build += """\n""" + numtabs*'\t' + """shutit.do_repository_work('''""" + repo_name + """''',repo_tag='''""" + repo_tag + """,force=None,tag=True)"""
 	# See shutitfile_get_section
 	elif shutitfile_command in ('SCRIPT_BEGIN','START_BEGIN','START_END','STOP_BEGIN','STOP_END','TEST_BEGIN','TEST_END','BUILD_BEGIN','BUILD_END','CONFIG_BEGIN','CONFIG_END','ISINSTALLED_BEGIN','ISINSTALLED_END'):
 		# No action to perform on these lines, but they are legal.
@@ -2518,6 +2539,7 @@ def check_delivery_method(method):
 
 
 # Static strings
+_default_repo_name = 'my_module'
 _default_cnf = '''
 ################################################################################
 # Default core config file for ShutIt.
@@ -2571,7 +2593,7 @@ suffix_date:no
 # Suffix format (default is epoch seconds (%s), but %Y%m%d_%H%M%S is an option if the length is ok with the index)
 suffix_format:%s
 # tag name
-name:my_module
+name:''' + _default_repo_name + '''
 # Whether to tar up the docker image exported
 export:no
 # Whether to tar up the docker image saved
@@ -2589,7 +2611,6 @@ email:YOUR_INDEX_EMAIL_OR_BLANK
 server:
 # tag suffix, defaults to "latest", eg registry/username/repository:latest.
 # empty is also "latest"
-repo_name:
 tag_name:latest
 
 # Root setup script

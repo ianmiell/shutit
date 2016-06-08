@@ -1531,7 +1531,11 @@ class ShutIt(object):
 	                       password=None,
 	                       force=None,
 	                       delaybeforesend=0,
-	                       loglevel=logging.DEBUG):
+	                       loglevel=logging.DEBUG,
+	                       tag=None,
+	                       push=None,
+	                       export=None,
+	                       save=None):
 		"""Commit, tag, push, tar a docker container based on the configuration we have.
 
 		@param repo_name:           Name of the repository.
@@ -1546,10 +1550,14 @@ class ShutIt(object):
 		"""
 		# TODO: make host and client configurable
 		shutit_pexpect_session = self.get_current_shutit_pexpect_session()
-		tag    = self.repository['tag']
-		push   = self.repository['push']
-		export = self.repository['export']
-		save   = self.repository['save']
+		if tag == None:
+			tag    = self.repository['tag']
+		if push == None:
+			push   = self.repository['push']
+		if export == None:
+			export = self.repository['export']
+		if save == None:
+			save   = self.repository['save']
 		if not (push or export or save or tag):
 			# If we're forcing this, then tag as a minimum
 			if force:
