@@ -2167,7 +2167,7 @@ def handle_shutitfile_line(line, numpushes, wgetgot, numlogins, ifdepth):
 		if len(shutitfile_args) == 1:
 			build += """\n""" + numtabs*'\t' + """shutit.do_repository_work('''""" + repo_name + """''',force=None,tag=True)"""
 		elif len(shutitfile_args) == 2 :
-			build += """\n""" + numtabs*'\t' + """shutit.do_repository_work('''""" + repo_name + """''',repo_tag='''""" + repo_tag + """,force=None,tag=True)"""
+			build += """\n""" + numtabs*'\t' + """shutit.do_repository_work('''""" + repo_name + """''',repo_tag='''""" + repo_tag + """''',force=None,tag=True)"""
 	# See shutitfile_get_section
 	elif shutitfile_command in ('SCRIPT_BEGIN','START_BEGIN','START_END','STOP_BEGIN','STOP_END','TEST_BEGIN','TEST_END','BUILD_BEGIN','BUILD_END','CONFIG_BEGIN','CONFIG_END','ISINSTALLED_BEGIN','ISINSTALLED_END'):
 		# No action to perform on these lines, but they are legal.
