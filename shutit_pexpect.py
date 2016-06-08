@@ -1247,8 +1247,7 @@ class ShutItPexpectSession(object):
 				opts = options['pacman']
 		elif install_type == 'apk':
 			cmd += 'apk del'
-			if 'apk' in options:
-				opts = options['apk']
+			opts = options['apt'] if 'apt' in options else '-q'
 		elif install_type == 'emerge':
 			cmd += 'emerge -cav'
 			if 'emerge' in options:
@@ -1467,9 +1466,9 @@ class ShutItPexpectSession(object):
 				distro_version = d['distro_version']
 			elif install_type == 'apk' and shutit.build['delivery'] in ('docker','dockerfile'):
 				if not shutit.get_current_shutit_pexpect_session_environment().build['apk_update_done']:
+					self.send('apk -q update',loglevel=logging.INFO,delaybeforesend=delaybeforesend)
 					shutit.get_current_shutit_pexpect_session_environment().build['apk_update_done'] = True
-					self.send('apk update',loglevel=logging.INFO,delaybeforesend=delaybeforesend)
-				self.send('apk add bash',loglevel=loglevel,delaybeforesend=delaybeforesend)
+				self.send('apk -q add bash',loglevel=loglevel,delaybeforesend=delaybeforesend)
 				install_type   = 'apk'
 				distro         = 'alpine'
 				distro_version = '1.0'
@@ -1560,9 +1559,9 @@ class ShutItPexpectSession(object):
 				distro_version = d['distro_version']
 			elif install_type == 'apk' and shutit.build['delivery'] in ('docker','dockerfile'):
 				if not shutit.get_current_shutit_pexpect_session_environment().build['apk_update_done']:
-					self.send('apk update',loglevel=logging.INFO,delaybeforesend=delaybeforesend)
+					self.send('apk -q update',loglevel=logging.INFO,delaybeforesend=delaybeforesend)
 					shutit.get_current_shutit_pexpect_session_environment().build['apk_update_done'] = True
-				self.send('apk add bash',loglevel=loglevel,delaybeforesend=delaybeforesend)
+				self.send('apk -q add bash',loglevel=loglevel,delaybeforesend=delaybeforesend)
 				install_type   = 'apk'
 				distro         = 'alpine'
 				distro_version = '1.0'
