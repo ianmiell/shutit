@@ -270,6 +270,7 @@ class ConnDocker(ShutItConnModule):
 		cfg = shutit.cfg
 		target_child = self.start_container('target_child', loglevel=loglevel)
 		self.setup_host_child()
+		# TODO: on the host child, check that the image running has bash as its cmd/entrypoint.
 		self.setup_target_child(target_child)
 		shutit.send('chmod -R 777 ' + shutit.build['shutit_state_dir'] + ' && mkdir -p ' + shutit.build['build_db_dir'] + '/' + shutit.build['build_id'], shutit_pexpect_child=target_child, echo=False, loglevel=loglevel)
 		return True

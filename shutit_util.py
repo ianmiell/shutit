@@ -1161,8 +1161,6 @@ def create_skeleton():
 	# Set up shutitfile cfg
 	shutit.shutitfile['base_image'] = shutit.cfg['skeleton']['base_image']
 	shutit.shutitfile['cmd']        = """/bin/sh -c 'sleep infinity'"""
-	shutit.shutitfile['maintainer'] = ''
-	shutit.shutitfile['entrypoint'] = ''
 	shutit.shutitfile['expose']     = []
 	shutit.shutitfile['env']        = []
 	shutit.shutitfile['volume']     = []
@@ -1552,7 +1550,7 @@ def shutitfile_to_shutit_module_template(skel_shutitfile,
 	templatemodule += """\n\ndef module():
 		return template(
 				'""" + module_id + """', """ + skel_domain_hash + str(order * 0.0001) + str(random.randint(1,999)) + """,
-				description='',
+				description='""" + shutitfile_representation['shutitfile']['description'] + """',
 				delivery_methods=[('""" + skel_delivery + """')],
 				maintainer='""" + shutitfile_representation['shutitfile']['maintainer'] + """',
 				depends=[%s""" % depends + """]
@@ -1811,18 +1809,19 @@ def process_shutitfile(shutitfile_contents, order):
 	shutit = shutit_global.shutit
 	# Wipe the command as we expect one in the file.
 	shutitfile_representation = {'shutitfile': {}}
-	shutitfile_representation['shutitfile']['cmd']        = ''
-	shutitfile_representation['shutitfile']['maintainer'] = ''
-	shutitfile_representation['shutitfile']['module_id']  = ''
-	shutitfile_representation['shutitfile']['script']     = []
-	shutitfile_representation['shutitfile']['onbuild']    = []
-	shutitfile_representation['shutitfile']['volume']     = []
-	shutitfile_representation['shutitfile']['expose']     = []
-	shutitfile_representation['shutitfile']['entrypoint'] = []
-	shutitfile_representation['shutitfile']['env']        = []
-	shutitfile_representation['shutitfile']['depends']    = []
-	shutitfile_representation['shutitfile']['delivery']   = []
-	shutitfile_representation['shutitfile']['base_image'] = []
+	shutitfile_representation['shutitfile']['cmd']         = ''
+	shutitfile_representation['shutitfile']['maintainer']  = ''
+	shutitfile_representation['shutitfile']['description'] = ''
+	shutitfile_representation['shutitfile']['module_id']   = ''
+	shutitfile_representation['shutitfile']['script']      = []
+	shutitfile_representation['shutitfile']['onbuild']     = []
+	shutitfile_representation['shutitfile']['volume']      = []
+	shutitfile_representation['shutitfile']['expose']      = []
+	shutitfile_representation['shutitfile']['entrypoint']  = []
+	shutitfile_representation['shutitfile']['env']         = []
+	shutitfile_representation['shutitfile']['depends']     = []
+	shutitfile_representation['shutitfile']['delivery']    = []
+	shutitfile_representation['shutitfile']['base_image']  = []
 	shutitfile_list = parse_shutitfile(shutitfile_contents)
 	# Set defaults from given shutitfile
 	last_shutitfile_command = ''
@@ -1832,7 +1831,7 @@ def process_shutitfile(shutitfile_contents, order):
 		# These items are not order-dependent and don't affect the build, so we collect them here:
 		shutitfile_command = item[0].upper()
 		# List of handled shutitfile_commands
-		assert shutitfile_command in ('SCRIPT_END','SCRIPT_DURING','SCRIPT_BEGIN','SCRIPT_END','FROM','ONBUILD','VOLUME','MAINTAINER','EXPOSE','ENTRYPOINT','CMD','USER','LOGIN','LOGOUT','GET_PASSWORD','ENV','RUN','SEND','ASSERT_OUTPUT','PAUSE_POINT','EXPECT','EXPECT_MULTI','UNTIL','ADD','COPY','WORKDIR','COMMENT','INSTALL','REMOVE','DEPENDS','DELIVERY','MODULE_ID','START_BEGIN','START_END','STOP_BEGIN','STOP_END','TEST_BEGIN','TEST_END','BUILD_BEGIN','BUILD_END','CONFIG_BEGIN','CONFIG_END','ISINSTALLED_BEGIN','ISINSTALLED_END','IF','IF_NOT','ELIF_NOT','ELIF','ELSE','ENDIF')
+		assert shutitfile_command in ('SCRIPT_END','SCRIPT_DURING','SCRIPT_BEGIN','SCRIPT_END','FROM','ONBUILD','VOLUME','DESCRIPTION','MAINTAINER','EXPOSE','ENTRYPOINT','CMD','USER','LOGIN','LOGOUT','GET_PASSWORD','ENV','RUN','SEND','ASSERT_OUTPUT','PAUSE_POINT','EXPECT','EXPECT_MULTI','UNTIL','ADD','COPY','WORKDIR','COMMENT','INSTALL','REMOVE','DEPENDS','DELIVERY','MODULE_ID','START_BEGIN','START_END','STOP_BEGIN','STOP_END','TEST_BEGIN','TEST_END','BUILD_BEGIN','BUILD_END','CONFIG_BEGIN','CONFIG_END','ISINSTALLED_BEGIN','ISINSTALLED_END','IF','IF_NOT','ELIF_NOT','ELIF','ELSE','ENDIF')
 		if shutitfile_command != 'SCRIPT_END' and shutitfile_state == 'SCRIPT_DURING':
 			inline_script += '\n' + ' '.join(item)
 		elif shutitfile_command == 'SCRIPT_BEGIN':
@@ -1855,6 +1854,8 @@ def process_shutitfile(shutitfile_contents, order):
 			shutitfile_representation['shutitfile']['onbuild'].append(item[1])
 		elif shutitfile_command == 'MAINTAINER':
 			shutitfile_representation['shutitfile']['maintainer'] = item[1]
+		elif shutitfile_command == 'DESCRIPTION':
+			shutitfile_representation['shutitfile']['description'] = item[1]
 		elif shutitfile_command == 'VOLUME':
 			# TESTED? NO
 			# Put in the run.sh.
@@ -1952,8 +1953,6 @@ def process_shutitfile(shutitfile_contents, order):
 			shutitfile_representation['shutitfile']['script'].append([shutitfile_command, item[1], item[2]])
 		elif shutitfile_command in ('ELSE','ENDIF'):
 			shutitfile_representation['shutitfile']['script'].append([shutitfile_command])
-		elif shutitfile_command in ('MAINTAINER'):
-			pass
 		else:
 			shutit.fail('shutitfile command: ' + shutitfile_command + ' not processed')
 		last_shutitfile_command = shutitfile_command
