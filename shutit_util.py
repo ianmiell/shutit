@@ -2151,6 +2151,7 @@ def handle_shutitfile_line(line, numpushes, wgetgot, numlogins, ifdepth):
 		script = shutitfile_args
 		build += """\n""" + numtabs*'\t' + """shutit.run_script('''""" + script + """''')"""
 	elif shutitfile_command == 'COMMIT':
+		global _default_repo_name
 		shutitfile_args    = parse_shutitfile_args(line[1])
 		assert type(shutitfile_args) == list
 		assert len(shutitfile_args) in (1,2)
@@ -2163,9 +2164,8 @@ def handle_shutitfile_line(line, numpushes, wgetgot, numlogins, ifdepth):
 			repo_tag = shutitfile_args[1]
 		else:
 			repo_tag = 'None'
-		global _default_repo_name
 		if len(shutitfile_args) == 1:
-			build += """\n""" + numtabs*'\t' + """shutit.do_repository_work('''""" + repo_name + """,force=None,tag=True''')"""
+			build += """\n""" + numtabs*'\t' + """shutit.do_repository_work('''""" + repo_name + """''',force=None,tag=True)"""
 		elif len(shutitfile_args) == 2 :
 			build += """\n""" + numtabs*'\t' + """shutit.do_repository_work('''""" + repo_name + """''',repo_tag='''""" + repo_tag + """,force=None,tag=True)"""
 	# See shutitfile_get_section
