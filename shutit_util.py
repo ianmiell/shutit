@@ -2152,21 +2152,29 @@ def handle_shutitfile_line(line, numpushes, wgetgot, numlogins, ifdepth):
 		build += """\n""" + numtabs*'\t' + """shutit.run_script('''""" + script + """''')"""
 	elif shutitfile_command == 'COMMIT':
 		global _default_repo_name
-		shutitfile_args    = parse_shutitfile_args(line[1])
-		assert type(shutitfile_args) == list
-		assert len(shutitfile_args) in (1,2)
-		# repo name
-		repo_name = shutitfile_args[0]
-		if repo_name == _default_repo_name:
-			shutit.log('The docker container will be committed with the default repo_name: ' + _default_repo_name + '.\nYou can change this by adding this to the ~/.shutit/config file:\n\n[repository]\nname:yourname\n\nand re-running.',level=logging.WARNING)
+		repo_name_list    = parse_shutitfile_args(line[1])
+		assert type(repo_name_list) == list
+		assert len(repo_name_list) in (1,2)
 		# repo tag
-		if len(shutitfile_args) == 2:
-			repo_tag = shutitfile_args[1]
-		else:
-			repo_tag = 'None'
-		if len(shutitfile_args) == 1:
-			build += """\n""" + numtabs*'\t' + """shutit.do_repository_work('''""" + repo_name + """''',force=None,tag=True)"""
-		elif len(shutitfile_args) == 2 :
+		if len(repo_name_list) == 1:
+			# repo name
+			repo_name_list = repo_name_list[0].split(':')
+			repo_name = repo_name_list[0]
+			if repo_name == _default_repo_name:
+				shutit.log('The docker container will be committed with the default repo_name: ' + _default_repo_name + '.\nYou can change this by adding this to the ~/.shutit/config file:\n\n[repository]\nname:yourname\n\nand re-running.',level=logging.WARNING)
+			if len(repo_name_list) == 1:
+				build += """\n""" + numtabs*'\t' + """shutit.do_repository_work('''""" + repo_name + """''',force=None,tag=True)"""
+			elif len(repo_name_list) == 2:
+				repo_tag =  repo_name_list[1]
+				build += """\n""" + numtabs*'\t' + """shutit.do_repository_work('''""" + repo_name + """''',repo_tag='''""" + repo_tag + """''',force=None,tag=True)"""
+			else:
+				shutit.fail('Wrong number of arguments to COMMIT: ' + str(len(repo_name_list)))
+		elif len(repo_name_list) == 2 :
+		# repo name
+			repo_name = repo_name_list[0]
+			if repo_name == _default_repo_name:
+				shutit.log('The docker container will be committed with the default repo_name: ' + _default_repo_name + '.\nYou can change this by adding this to the ~/.shutit/config file:\n\n[repository]\nname:yourname\n\nand re-running.',level=logging.WARNING)
+			repo_tag =  repo_name_list[1]
 			build += """\n""" + numtabs*'\t' + """shutit.do_repository_work('''""" + repo_name + """''',repo_tag='''""" + repo_tag + """''',force=None,tag=True)"""
 	# See shutitfile_get_section
 	elif shutitfile_command in ('SCRIPT_BEGIN','START_BEGIN','START_END','STOP_BEGIN','STOP_END','TEST_BEGIN','TEST_END','BUILD_BEGIN','BUILD_END','CONFIG_BEGIN','CONFIG_END','ISINSTALLED_BEGIN','ISINSTALLED_END'):
