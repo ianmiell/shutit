@@ -1608,12 +1608,10 @@ class ShutIt(object):
 		if server == '' and len(repository) > 30 and push:
 			self.fail("""repository name: '""" + repository + """' too long to push. If using suffix_date consider shortening, or consider adding "-s repository push no" to your arguments to prevent pushing.""", shutit_pexpect_child=shutit_pexpect_child, throw_exception=False)
 
-		if self.send('SHUTIT_TMP_VAR=$(' + docker_executable + ' commit ' + self.target['container_id'] + ')', expect=[expect,'assword'], shutit_pexpect_child=shutit_pexpect_child, timeout=99999, check_exit=False, loglevel=loglevel, delaybeforesend=delaybeforesend) == 1:
+		if self.send(docker_executable + ' commit ' + self.target['container_id'] + ' ' + repository_with_tag, expect=[expect,'assword'], shutit_pexpect_child=shutit_pexpect_child, timeout=99999, check_exit=False, loglevel=loglevel, delaybeforesend=delaybeforesend) == 1:
 			self.send(self.host['password'], expect=expect, check_exit=False, record_command=False, shutit_pexpect_child=shutit_pexpect_child, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
 		# Tag image, force it by default
-		cmd = docker_executable + ' tag -f $SHUTIT_TMP_VAR ' + repository_with_tag
 		self.build['report'] += '\nBuild tagged as: ' + repository_with_tag
-		self.send(cmd, shutit_pexpect_child=shutit_pexpect_child, expect=expect, check_exit=False, echo=False, loglevel=loglevel,delaybeforesend=delaybeforesend)
 		if export or save:
 			shutit_pexpect_session.pause_point('We are now exporting the container to a bzipped tar file, as configured in\n[repository]\ntar:yes', print_input=False, level=3)
 			if export:

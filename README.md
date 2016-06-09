@@ -53,7 +53,6 @@ Two types of 'challenge' exist in ShutIt:
 - free form
 
 Scales tell you to run a specific command before continuing. This is useful when you want to get certain commands or flags 'under your fingers', which does not happen without dedicated and direct practice.
-Scales tell you to run a specific command before continuing. This is useful when you want to get certain commands 'under your fingers'. Here's an example for practicing grep:
 
 [![grep Scales](https://asciinema.org/a/41308.png)](https://asciinema.org/a/41308)
 
@@ -69,7 +68,7 @@ What Does it Do (Vagrant)?
 ==========================
 Uses a bash build to set up a vagrant machine. This allows another kind of contained environment for more infrastructural projects than Docker allows for.
 
-This example demonstrates a reproducible build that sets up Docker on Ubuntu VM, then runs a CentOS image within that.
+This example demonstrates a reproducible build that sets up Docker on an Ubuntu VM (on a Linux host), then runs a CentOS image within Docker wihing the Ubuntu VM.
 
 It deposits the user into a shell mid-build to interrogate the environment, after which the user re-runs the build to add a directive to ensure ps is installed in the image.
 
@@ -115,7 +114,7 @@ The ShutIt Lifecycle
 - for all modules, run a finalize function to clean up the container
 - do any configured committing, tagging and pushing of the image
 
-These correspond to the various functions that can be implemented.
+These correspond to the various functions that can be implemented in the ShutIt module file.
 
 
 Auto-Generate Modules
@@ -150,7 +149,9 @@ shutit-users@groups.google.com
 
 Known Issues
 =============
-Since a core technology used in this application is pexpect - and a typical usage pattern is to expect the prompt to return. Unusual shell prompts and escape sequences have been known to cause problems. Use the shutit.setup_prompt() function to help manage this by setting up a more sane prompt. Use of COMMAND_PROMPT with echo -ne has been seen to cause problems with overwriting of shells and pexpect patterns.
+Since a core technology used in this application is pexpect - and a typical usage pattern is to expect the prompt to return.
+Unusual shell prompts and escape sequences have been known to cause problems. Use the shutit.setup_prompt() function to help manage this by setting up a more sane prompt.
+Use of COMMAND_PROMPT with echo -ne has been seen to cause problems with overwriting of shells and pexpect patterns.
 
 
 [![ScreenShot](https://raw.github.com/GabLeRoux/WebMole/master/ressources/WebMole_Youtube_Video.png)](https://www.youtube.com/watch?v=gsEtaX207a4)
