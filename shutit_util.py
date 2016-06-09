@@ -1565,6 +1565,7 @@ def shutitfile_to_shutit_module_template(skel_shutitfile,
 def check_shutitfile_representation(shutitfile_representation, skel_delivery):
 	# delivery directives
 	# Only allow one type of delivery
+	global allowed_delivery_methods
 	shutitfile_delivery = set()
 	for item in shutitfile_representation['shutitfile']['delivery']:
 		shutitfile_delivery.add(item[1])
@@ -1586,6 +1587,8 @@ def check_shutitfile_representation(shutitfile_representation, skel_delivery):
 def check_shutitfile_representation(shutitfile_representation, skel_delivery):
 	# delivery directives
 	# Only allow one type of delivery
+	global allowed_delivery_methods
+	shutit = shutit_global.shutit
 	shutitfile_delivery = set()
 	for item in shutitfile_representation['shutitfile']['delivery']:
 		shutitfile_delivery.add(item[1])
@@ -1598,9 +1601,16 @@ def check_shutitfile_representation(shutitfile_representation, skel_delivery):
 		shutit.fail('Disallowed delivery method in ShutItFile: ' + skel_delivery)
 
 	if skel_delivery not in ('docker'):
-		# FROM, ONBUILD, VOLUME, EXPOSE, ENTRYPOINT, CMD are verboten
+		# FROM, ONBUILD, VOLUME, EXPOSE, ENTRYPOINT, CMD, COMMIT, PUSH are verboten
+		failed = False
 		if shutitfile_representation['shutitfile']['cmd'] != '' or shutitfile_representation['shutitfile']['volume']  != [] or shutitfile_representation['shutitfile']['onbuild'] != [] or shutitfile_representation['shutitfile']['expose']  !=  [] or shutitfile_representation['shutitfile']['entrypoint'] != []:
-			shutit.fail('One of FROM, ONBUILD, VOLUME, EXPOSE, ENTRYPOINT or CMD used in ShutItFile  not using the Docker delivery method.')
+			failed = True
+		for item in shutitfile_representation['shutitfile']['script']:
+			if item[0] in ('PUSH','COMMIT'):
+				failed = True
+				break
+		if failed:
+			shutit.fail('One of FROM, ONBUILD, VOLUME, EXPOSE, ENTRYPOINT or CMD, COMMIT, PUSH used in ShutItFile  not using the Docker delivery method.')
 
 
 
@@ -2157,17 +2167,17 @@ def handle_shutitfile_line(line, numpushes, wgetgot, numlogins, ifdepth):
 		shutitfile_args    = parse_shutitfile_args(line[1])
 		assert type(shutitfile_args) == list
 		assert len(shutitfile_args) == 1
-		# repo name
 		repo_name = shutitfile_args[0]
 		if repo_name == _default_repo_name:
 			shutit.log('The docker container will be committed with the default repo_name: ' + _default_repo_name + '.\nYou can change this by adding this to the ~/.shutit/config file:\n\n[repository]\nname:yourname\n\nand re-running.',level=logging.WARNING)
 		if len(shutitfile_args) == 1:
-			build += """\n""" + numtabs*'\t' + """shutit.do_repository_work('''""" + repo_name + """,force=None,tag=True''')"""
+			build += """\n""" + numtabs*'\t' + """shutit.do_repository_work('''""" + repo_name + """''',force=None,tag=True)"""
 	elif shutitfile_command == 'PUSH':
 		# TODO: check creds?
 		shutitfile_args    = parse_shutitfile_args(line[1])
 		assert type(shutitfile_args) == list
 		assert len(shutitfile_args) == 1
+		repo_name = shutitfile_args[0]
 		build += """\n""" + numtabs*'\t' + """shutit.push_repository('''""" + repo_name + """''')"""
 	# See shutitfile_get_section
 	elif shutitfile_command in ('SCRIPT_BEGIN','START_BEGIN','START_END','STOP_BEGIN','STOP_END','TEST_BEGIN','TEST_END','BUILD_BEGIN','BUILD_END','CONFIG_BEGIN','CONFIG_END','ISINSTALLED_BEGIN','ISINSTALLED_END'):

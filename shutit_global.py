@@ -201,8 +201,8 @@ class ShutIt(object):
 		else:
 			# This is an "OK" failure, ie we don't need to throw an exception.
 			# However, it's still a failure, so return 1
-			self.log(msg,level=logging.DEBUG)
-			self.log('Error seen, exiting with status 1',level=logging.DEBUG)
+			self.log(msg,level=logging.CRITICAL)
+			self.log('Error seen, exiting with status 1',level=logging.CRITICAL)
 			shutit_util.handle_exit(exit_code=1,msg=msg)
 		return False
 
