@@ -1569,7 +1569,8 @@ class ShutIt(object):
 		expect    = self.expect_prompts['origin_prompt']
 		server    = self.repository['server']
 		repo_user = self.repository['user']
-		repo_tag  = self.repository['tag_name']
+		if repo_tag == None:
+			repo_tag  = self.repository['tag_name']
 
 		if repo_user and repo_name:
 			repository = '%s/%s' % (repo_user, repo_name)
