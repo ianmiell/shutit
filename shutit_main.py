@@ -29,6 +29,7 @@
 
 from shutit_module import ShutItModule, ShutItException, ShutItFailException
 import shutit_util
+import shutit_skeleton
 import urllib
 import shutit_global
 import os
@@ -544,11 +545,11 @@ def main():
 	shutit.log('ShutIt Started... ',transient=True,newline=False)
 	shutit_util.parse_args()
 
-
 	shutit.log('Loading configs...',transient=True)
 	shutit_util.load_configs()
+
 	if shutit.action['skeleton']:
-		shutit_util.create_skeleton()
+		shutit_skeleton.create_skeleton()
 		shutit.build['completed'] = True
 		return
 
