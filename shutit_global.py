@@ -1504,22 +1504,23 @@ class ShutIt(object):
 		@type repository:           string
 		@type docker_executable:    string
 		"""
-		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
-		expect = expect or self.get_current_shutit_pexpect_session().default_expect
-		send = docker_executable + ' push ' + repository
-		expect_list = ['Username', 'Password', 'Email', expect]
-		timeout = 99999
-		self.log('Running: ' + send,level=logging.DEBUG)
-		res = self.send(send, expect=expect_list, shutit_pexpect_child=shutit_pexpect_child, timeout=timeout, check_exit=False, fail_on_empty_before=False, loglevel=loglevel,delaybeforesend=delaybeforesend)
-		while True:
-			if res == 3:
-				break
-			elif res == 0:
-				res = self.send(self.repository['user'], shutit_pexpect_child=shutit_pexpect_child, expect=expect_list, timeout=timeout, check_exit=False, fail_on_empty_before=False, loglevel=loglevel,delaybeforesend=delaybeforesend)
-			elif res == 1:
-				res = self.send(self.repository['password'], shutit_pexpect_child=shutit_pexpect_child, expect=expect_list, timeout=timeout, check_exit=False, fail_on_empty_before=False,loglevel=loglevel,delaybeforesend=delaybeforesend)
-			elif res == 2:
-				res = self.send(self.repository['email'], shutit_pexpect_child=shutit_pexpect_child, expect=expect_list, timeout=timeout, check_exit=False, fail_on_empty_before=False, loglevel=loglevel,delaybeforesend=delaybeforesend)
+		shutit_pexpect_child = shutit_pexpect_child or self.get_shutit_pexpect_session_from_id('host_child').pexpect_child
+		expect               = expect or self.expect_prompts['origin_prompt']
+		send                 = docker_executable + ' push ' + self.repository['user'] + '/' + repository
+		timeout              = 99999
+		self.log('Running: ' + send,level=logging.INFO)
+		self.multisend(docker_executable + ' login',
+		               {'Username':self.repository['user'], 'Password':self.repository['password'], 'Email':self.repository['email']},
+		               shutit_pexpect_child=shutit_pexpect_child,
+		               expect=expect)
+		self.send(send,
+		          shutit_pexpect_child=shutit_pexpect_child,
+		          expect=expect,
+		          timeout=timeout,
+		          check_exit=False,
+		          fail_on_empty_before=False,
+		          loglevel=loglevel,
+		          delaybeforesend=delaybeforesend)
 		return True
 
 
@@ -1598,7 +1599,10 @@ class ShutIt(object):
 			repository = '%s%s' % (repository, suffix_date)
 			repository_tar = '%s%s' % (repository_tar, suffix_date)
 
-		if repository != '':
+		if repository != '' and len(repository.split(':')) > 1:
+			repository_with_tag = repository
+			repo_tag = repository.split(':')[1]
+		elif repository != '':
 			repository_with_tag = repository + ':' + repo_tag
 
 		# Commit image

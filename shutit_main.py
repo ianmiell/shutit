@@ -544,13 +544,13 @@ def main():
 	shutit.log('ShutIt Started... ',transient=True,newline=False)
 	shutit_util.parse_args()
 
+
+	shutit.log('Loading configs...',transient=True)
+	shutit_util.load_configs()
 	if shutit.action['skeleton']:
 		shutit_util.create_skeleton()
 		shutit.build['completed'] = True
 		return
-
-	shutit.log('Loading configs...',transient=True)
-	shutit_util.load_configs()
 
 	# Try and ensure shutit is on the path - makes onboarding easier
 	# Only do this if we're in a terminal

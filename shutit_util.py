@@ -574,198 +574,204 @@ shutitfile:        a shutitfile-based Docker project
 			'template_folder':       'shutit_templates',
 			'template_setup_script': 'setup.sh'
 		}
-		return
-
-	shutit_home = shutit.host['shutit_path'] = os.path.expanduser('~/.shutit')
-	# We're not creating a skeleton, so make sure we have the infrastructure
-	# in place for a user-level storage area
-	if not os.path.isdir(shutit_home):
-		os.mkdir(shutit_home, 0o700)
-	if not os.path.isfile(os.path.join(shutit_home, 'config')):
-		f = os.open(os.path.join(shutit_home, 'config'), os.O_WRONLY | os.O_CREAT, 0o600)
-		os.write(f,_default_cnf)
-		os.close(f)
-
-	# Default this to False as it's not always set (mostly for debug logging).
-	shutit.list_configs['cfghistory']  = False
-	shutit.list_modules['long']        = False
-	shutit.list_modules['sort']        = None
-	shutit.build['video']              = False
-	shutit.build['training']           = False
-	shutit.build['choose_config']      = False
-	# Persistence- and build-related arguments.
-	if shutit.action['build']:
-		shutit.repository['push']       = args.push
-		shutit.repository['export']     = args.export
-		shutit.repository['save']       = args.save
-		shutit.build['distro_override'] = args.distro
-		shutit.build['mount_docker']    = args.mount_docker
-		shutit.build['walkthrough']     = args.walkthrough
-		shutit.build['training']        = args.training
-		shutit.build['choose_config']   = args.choose_config
-		if shutit.build['training'] and not shutit.build['walkthrough']:
-			print('\n--training implies --walkthrough, setting --walkthrough on!\n')
-			shutit.build['walkthrough'] = True
-		if type(args.video) == list and args.video[0] >= 0:
-			shutit.build['walkthrough']      = True
-			shutit.build['walkthrough_wait'] = float(args.video[0])
-			shutit.build['video']            = True
-			if shutit.build['training']:
-				print('--video and --training mode incompatible')
-				handle_exit(exit_code=1)
-	elif shutit.action['list_configs']:
-		shutit.list_configs['cfghistory'] = args.history
-	elif shutit.action['list_modules']:
-		shutit.list_modules['long'] = args.long
-		shutit.list_modules['sort'] = args.sort
-
-	# What are we building on? Convert arg to conn_module we use.
-	if args.delivery == 'docker' or args.delivery is None:
-		shutit.build['conn_module'] = 'shutit.tk.conn_docker'
-		shutit.build['delivery']    = 'docker'
-	elif args.delivery == 'ssh':
-		shutit.build['conn_module'] = 'shutit.tk.conn_ssh'
-		shutit.build['delivery']    = 'ssh'
-	elif args.delivery == 'bash' or args.delivery == 'dockerfile':
-		shutit.build['conn_module'] = 'shutit.tk.conn_bash'
-		shutit.build['delivery']    = args.delivery
-	# If the image_tag has been set then ride roughshod over the ignoreimage value if not supplied
-	if args.image_tag != '' and args.ignoreimage is None:
-		args.ignoreimage = True
-	# If ignoreimage is still not set, then default it to False
-	if args.ignoreimage is None:
-		args.ignoreimage = False
-
-	# Get these early for this part of the build.
-	# These should never be config arguments, since they are needed before config is passed in.
-	if args.shutit_module_path is not None:
-		module_paths = args.shutit_module_path.split(':')
-		if '.' not in module_paths:
-			module_paths.append('.')
-		args.set.append(('host', 'shutit_module_path', ':'.join(module_paths)))
-	shutit.build['trace']            = args.trace
-	shutit.build['interactive']      = int(args.interactive)
-	shutit.build['extra_configs']    = args.config
-	shutit.build['config_overrides'] = args.set
-	shutit.build['ignorestop']       = args.ignorestop
-	shutit.build['ignoreimage']      = args.ignoreimage
-	shutit.build['imageerrorok']     = args.imageerrorok
-	shutit.build['tag_modules']      = args.tag_modules
-	shutit.build['deps_only']        = args.deps_only
-	shutit.target['docker_image']    = args.image_tag
-	# Finished parsing args.
-	# Sort out config path
-	if shutit.build['interactive'] >= 3 or shutit.action['list_configs'] or shutit.action['list_modules'] or shutit.action['list_deps'] or shutit.build['loglevel'] == logging.DEBUG:
-		shutit.build['log_config_path'] = shutit.build['shutit_state_dir'] + '/config/' + shutit.build['build_id']
-		if os.path.exists(shutit.build['log_config_path']):
-			print(shutit.build['log_config_path'] + ' exists. Please move and re-run.')
-			handle_exit(exit_code=1)
-		os.makedirs(shutit.build['log_config_path'])
-		os.chmod(shutit.build['log_config_path'],0777)
+		# set defaults to allow config to work
+		shutit.build['extra_configs']    = []
+		shutit.build['config_overrides'] = []
+		shutit.build['conn_module']      = None
+		shutit.build['delivery']         = 'bash'
+		shutit.target['docker_image']    = ''
+		
 	else:
-		shutit.build['log_config_path'] = None
-	# Tutorial stuff.
-	if shutit.build['interactive'] >= 3:
-		print textwrap.dedent("""\
-			================================================================================
-			SHUTIT - INTRODUCTION
-			================================================================================
-			ShutIt is a script that allows the building of static target environments.
-			allowing a high degree of flexibility and easy conversion from other build
-			methods (eg bash scripts)
+		shutit_home = shutit.host['shutit_path'] = os.path.expanduser('~/.shutit')
+		# We're not creating a skeleton, so make sure we have the infrastructure
+		# in place for a user-level storage area
+		if not os.path.isdir(shutit_home):
+			os.mkdir(shutit_home, 0o700)
+		if not os.path.isfile(os.path.join(shutit_home, 'config')):
+			f = os.open(os.path.join(shutit_home, 'config'), os.O_WRONLY | os.O_CREAT, 0o600)
+			os.write(f,_default_cnf)
+			os.close(f)
 
-			It is configured through command-line arguments (see --help) and .cnf files.
-			================================================================================
-			
-			
-			================================================================================
-			CONFIG
-			================================================================================
-			The config is read in the following order:
-			================================================================================
-			~/.shutit/config
-				- Host- and username-specific config for this host.
-			/path/to/this/shutit/module/configs/build.cnf
-				- Config specifying what should be built when this module is invoked.
-			/your/path/to/<configname>.cnf
-				- Passed-in config (via --config, see --help)
-			command-line overrides, eg -s com.mycorp.mymodule.module name value
-			================================================================================
-			Config items look like this:
-			
-			[section]
-			name:value
-			
-			or as command-line overrides:
-			
-			-s section name value
-			================================================================================
-			""" + colourise('32', '\n[Hit return to continue]'))
-		util_raw_input()
-		print textwrap.dedent("""\
-			================================================================================
-			MODULES
-			================================================================================
-			Each module (which is a .py file) has a lifecycle, "module_id" and "run_order".
+		# Default this to False as it's not always set (mostly for debug logging).
+		shutit.list_configs['cfghistory']  = False
+		shutit.list_modules['long']        = False
+		shutit.list_modules['sort']        = None
+		shutit.build['video']              = False
+		shutit.build['training']           = False
+		shutit.build['choose_config']      = False
+		# Persistence- and build-related arguments.
+		if shutit.action['build']:
+			shutit.repository['push']       = args.push
+			shutit.repository['export']     = args.export
+			shutit.repository['save']       = args.save
+			shutit.build['distro_override'] = args.distro
+			shutit.build['mount_docker']    = args.mount_docker
+			shutit.build['walkthrough']     = args.walkthrough
+			shutit.build['training']        = args.training
+			shutit.build['choose_config']   = args.choose_config
+			if shutit.build['training'] and not shutit.build['walkthrough']:
+				print('\n--training implies --walkthrough, setting --walkthrough on!\n')
+				shutit.build['walkthrough'] = True
+			if type(args.video) == list and args.video[0] >= 0:
+				shutit.build['walkthrough']      = True
+				shutit.build['walkthrough_wait'] = float(args.video[0])
+				shutit.build['video']            = True
+				if shutit.build['training']:
+					print('--video and --training mode incompatible')
+					handle_exit(exit_code=1)
+		elif shutit.action['list_configs']:
+			shutit.list_configs['cfghistory'] = args.history
+		elif shutit.action['list_modules']:
+			shutit.list_modules['long'] = args.long
+			shutit.list_modules['sort'] = args.sort
 
-			The lifecycle (briefly) is as follows:
+		# What are we building on? Convert arg to conn_module we use.
+		if args.delivery == 'docker' or args.delivery is None:
+			shutit.build['conn_module'] = 'shutit.tk.conn_docker'
+			shutit.build['delivery']    = 'docker'
+		elif args.delivery == 'ssh':
+			shutit.build['conn_module'] = 'shutit.tk.conn_ssh'
+			shutit.build['delivery']    = 'ssh'
+		elif args.delivery == 'bash' or args.delivery == 'dockerfile':
+			shutit.build['conn_module'] = 'shutit.tk.conn_bash'
+			shutit.build['delivery']    = args.delivery
+		# If the image_tag has been set then ride roughshod over the ignoreimage value if not supplied
+		if args.image_tag != '' and args.ignoreimage is None:
+			args.ignoreimage = True
+		# If ignoreimage is still not set, then default it to False
+		if args.ignoreimage is None:
+			args.ignoreimage = False
 
-				foreach module:
-					remove all modules config'd for removal
-				foreach module:
-					build
-					tag
-						stop all modules already started
-						do repository work configured
-						start all modules that were stopped
-					start
-				foreach module:
-					test module
-				stop all modules already started
-				foreach module:
-					finalize module
+		# Get these early for this part of the build.
+		# These should never be config arguments, since they are needed before config is passed in.
+		if args.shutit_module_path is not None:
+			module_paths = args.shutit_module_path.split(':')
+			if '.' not in module_paths:
+				module_paths.append('.')
+			args.set.append(('host', 'shutit_module_path', ':'.join(module_paths)))
+		shutit.build['trace']            = args.trace
+		shutit.build['interactive']      = int(args.interactive)
+		shutit.build['extra_configs']    = args.config
+		shutit.build['config_overrides'] = args.set
+		shutit.build['ignorestop']       = args.ignorestop
+		shutit.build['ignoreimage']      = args.ignoreimage
+		shutit.build['imageerrorok']     = args.imageerrorok
+		shutit.build['tag_modules']      = args.tag_modules
+		shutit.build['deps_only']        = args.deps_only
+		shutit.target['docker_image']    = args.image_tag
+		# Finished parsing args.
+		# Sort out config path
+		if shutit.build['interactive'] >= 3 or shutit.action['list_configs'] or shutit.action['list_modules'] or shutit.action['list_deps'] or shutit.build['loglevel'] == logging.DEBUG:
+			shutit.build['log_config_path'] = shutit.build['shutit_state_dir'] + '/config/' + shutit.build['build_id']
+			if os.path.exists(shutit.build['log_config_path']):
+				print(shutit.build['log_config_path'] + ' exists. Please move and re-run.')
+				handle_exit(exit_code=1)
+			os.makedirs(shutit.build['log_config_path'])
+			os.chmod(shutit.build['log_config_path'],0777)
+		else:
+			shutit.build['log_config_path'] = None
+		# Tutorial stuff.
+		if shutit.build['interactive'] >= 3:
+			print textwrap.dedent("""\
+				================================================================================
+				SHUTIT - INTRODUCTION
+				================================================================================
+				ShutIt is a script that allows the building of static target environments.
+				allowing a high degree of flexibility and easy conversion from other build
+				methods (eg bash scripts)
 
-			and these stages are run from the module code, returning True or False as
-			appropriate.
+				It is configured through command-line arguments (see --help) and .cnf files.
+				================================================================================
+				
+				
+				================================================================================
+				CONFIG
+				================================================================================
+				The config is read in the following order:
+				================================================================================
+				~/.shutit/config
+					- Host- and username-specific config for this host.
+				/path/to/this/shutit/module/configs/build.cnf
+					- Config specifying what should be built when this module is invoked.
+				/your/path/to/<configname>.cnf
+					- Passed-in config (via --config, see --help)
+				command-line overrides, eg -s com.mycorp.mymodule.module name value
+				================================================================================
+				Config items look like this:
+				
+				[section]
+				name:value
+				
+				or as command-line overrides:
+				
+				-s section name value
+				================================================================================
+				""" + colourise('32', '\n[Hit return to continue]'))
+			util_raw_input()
+			print textwrap.dedent("""\
+				================================================================================
+				MODULES
+				================================================================================
+				Each module (which is a .py file) has a lifecycle, "module_id" and "run_order".
 
-			The module_id is a string that uniquely identifies the module.
+				The lifecycle (briefly) is as follows:
 
-			The run_order is a float that defines the order in which the module should be
-			run relative to other modules. This guarantees a deterministic ordering of
-			the modules run.
+					foreach module:
+						remove all modules config'd for removal
+					foreach module:
+						build
+						tag
+							stop all modules already started
+							do repository work configured
+							start all modules that were stopped
+						start
+					foreach module:
+						test module
+					stop all modules already started
+					foreach module:
+						finalize module
 
-			See shutit_module.py for more detailed documentation on these.
+				and these stages are run from the module code, returning True or False as
+				appropriate.
 
-			================================================================================
-			""" + colourise('32', '\n[Hit return to continue]'))
-		util_raw_input()
-		print textwrap.dedent("""\
-			================================================================================
-			PAUSE POINTS
-			================================================================================
-			Pause points can be placed within the build, which is useful for debugging.
+				The module_id is a string that uniquely identifies the module.
 
-			This is used throughout this tutorial.
+				The run_order is a float that defines the order in which the module should be
+				run relative to other modules. This guarantees a deterministic ordering of
+				the modules run.
 
-			When debugging, pause_points will output your keyboard input before you finish.
+				See shutit_module.py for more detailed documentation on these.
 
-			This can help you build your build, as these commands can be pasted into the
-			module you are developing easily.
+				================================================================================
+				""" + colourise('32', '\n[Hit return to continue]'))
+			util_raw_input()
+			print textwrap.dedent("""\
+				================================================================================
+				PAUSE POINTS
+				================================================================================
+				Pause points can be placed within the build, which is useful for debugging.
 
-			To escape a pause point when it happens, hit the "CTRL" and the "]"
-			key simultaneously.
-			================================================================================
-			""" + colourise('32', '\n[Hit return to continue]'))
-		util_raw_input()
-	# Set up trace as fast as possible.
-	if shutit.build['trace']:
-		def tracefunc(frame, event, arg, indent=[0]):
-			if event == 'call':
-				shutit.log('-> call function: ' + frame.f_code.co_name + ' ' + str(frame.f_code.co_varnames),level=logging.DEBUG)
-			elif event == 'return':
-				shutit.log('<- exit function: ' + frame.f_code.co_name,level=logging.DEBUG)
-			return tracefunc
-		sys.settrace(tracefunc)
+				This is used throughout this tutorial.
+
+				When debugging, pause_points will output your keyboard input before you finish.
+
+				This can help you build your build, as these commands can be pasted into the
+				module you are developing easily.
+
+				To escape a pause point when it happens, hit the "CTRL" and the "]"
+				key simultaneously.
+				================================================================================
+				""" + colourise('32', '\n[Hit return to continue]'))
+			util_raw_input()
+		# Set up trace as fast as possible.
+		if shutit.build['trace']:
+			def tracefunc(frame, event, arg, indent=[0]):
+				if event == 'call':
+					shutit.log('-> call function: ' + frame.f_code.co_name + ' ' + str(frame.f_code.co_varnames),level=logging.DEBUG)
+				elif event == 'return':
+					shutit.log('<- exit function: ' + frame.f_code.co_name,level=logging.DEBUG)
+				return tracefunc
+			sys.settrace(tracefunc)
 
 
 def load_configs():
@@ -774,7 +780,7 @@ def load_configs():
 	"""
 	shutit = shutit_global.shutit
 	# Get root default config.
-	configs = [('defaults', StringIO.StringIO(_default_cnf)), os.path.join(shutit.shutit_main_dir, 'configs/' + socket.gethostname() + '_' + shutit.host['real_user'] + '.cnf'), os.path.join(shutit.host['shutit_path'], 'config'), 'configs/build.cnf']
+	configs = [('defaults', StringIO.StringIO(_default_cnf)), os.path.expanduser('~/.shutit/config'), os.path.join(shutit.host['shutit_path'], 'config'), 'configs/build.cnf']
 	# Add the shutit global host- and user-specific config file.
 	# Add the local build.cnf
 	# Get passed-in config(s)
@@ -2173,10 +2179,10 @@ def handle_shutitfile_line(line, numpushes, wgetgot, numlogins, ifdepth):
 		if len(shutitfile_args) == 1:
 			build += """\n""" + numtabs*'\t' + """shutit.do_repository_work('''""" + repo_name + """''',force=None,tag=True)"""
 	elif shutitfile_command == 'PUSH':
-		# TODO: check creds?
 		shutitfile_args    = parse_shutitfile_args(line[1])
 		assert type(shutitfile_args) == list
 		assert len(shutitfile_args) == 1
+		assert shutit.repository['user'] != '', 'If you want to push, set the [repository] settings (user,password,email) in your ~/.shutit/config file.'
 		repo_name = shutitfile_args[0]
 		build += """\n""" + numtabs*'\t' + """shutit.push_repository('''""" + repo_name + """''')"""
 	# See shutitfile_get_section

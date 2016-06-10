@@ -224,6 +224,7 @@ class ConnDocker(ShutItConnModule):
 			print('\n\nAbout to start container. Ports mapped will be: ' + ', '.join(port_args) + '\n\n[host]\nports:<value>\n\nconfig, building on the configurable base image passed in in:\n\n    --image <image>\n\nor config:\n\n    [target]\n    docker_image:<image>)\n\nBase image in this case is:\n\n    ' + shutit.target['docker_image'] + '\n\n' + shutit_util.colourise('32', '\n[Hit return to continue]'))
 			shutit_util.util_raw_input()
 		shutit.build['docker_command'] = ' '.join(docker_command)
+		# docker run happens here
 		shutit.log('Command being run is: ' + shutit.build['docker_command'],level=logging.DEBUG)
 		shutit.log('Downloading image, please be patient',level=logging.INFO)
 		was_sent = string.join(docker_command,' ')
@@ -242,14 +243,16 @@ class ConnDocker(ShutItConnModule):
 				shutit.log('Prompt found, breaking out',level=logging.DEBUG)
 				break
 			elif res == 6:
-				shutit.fail('Docker not installed. Is this a mac? If so, install Docker Toolbox - see https://docker.com')
+				shutit.fail('Docker not installed.')
 				break
 			else:
 				res = shutit_pexpect_session.expect(expect, timeout=9999)
 				continue
 		# Did the pull work?
+		shutit.log('Checking exit status',level=loglevel)
 		if not shutit_pexpect_session.check_last_exit_values(was_sent):
 			shutit_global.shutit.pause_point('Command:\n\n' + was_sent + '\n\nfailed, you have a shell to try rectifying the problem before continuing.')
+		shutit.log('Getting cid',level=loglevel)
 		# Get the cid
 		while True:
 			try:
