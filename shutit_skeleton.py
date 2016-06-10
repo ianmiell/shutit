@@ -860,9 +860,22 @@ def handle_shutitfile_line(line, numpushes, wgetgot, numlogins, ifdepth):
 		subcommand = line[1]
 		subcommand_args = ' '.join(line[2])
 		if shutitfile_command == 'IF':
-			build += """\n""" + numtabs*'\t' + """if True:"""
+			subcommand = line[1]
+			subcommand_args = line[2]
+			if subcommand == 'FILE_EXISTS':
+				statement = '''shutit.file_exists(\'''' + subcommand_args + '\',directory=None):'
+			else:
+				shutit.fail('subcommand: ' + subcommand + ' not handled')
+			build += '\n' + (numtabs-1)*'\t' + '''if ''' + statement + ''':'''
 		elif shutitfile_command == 'IF_NOT':
-			build += """\n""" + numtabs*'\t' + """if not True:"""
+			build += """\n""" + numtabs*'\t' + """if not rue:"""
+			subcommand = line[1]
+			subcommand_args = line[2]
+			if subcommand == 'FILE_EXISTS':
+				statement = '''shutit.file_exists(\'''' + subcommand_args + '\',directory=None)'
+			else:
+				shutit.fail('subcommand: ' + subcommand + ' not handled')
+			build += '\n' + (numtabs-1)*'\t' + '''if not ''' + statement + ''':'''
 		ifdepth += 1
 	elif shutitfile_command in ('ELSE'):
 		if shutitfile_command == 'ELSE':
