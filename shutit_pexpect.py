@@ -1930,6 +1930,7 @@ class ShutItPexpectSession(object):
 	         retry=3,
 	         note=None,
 	         assume_gnu=True,
+	         follow_on_commands={},
 	         delaybeforesend=0,
 		     loglevel=logging.INFO):
 		"""Send string as a shell command, and wait until the expected output
@@ -1937,22 +1938,55 @@ class ShutItPexpectSession(object):
 		returning. The expected string will default to the currently-set
 		default expected string (see get_default_shutit_pexpect_session_expect)
 
-		Returns the pexpect return value (ie which expected string in the list matched)
+		Returns the pexpect return value (ie which expected string in the list
+		matched)
 
-		@param send: String to send, ie the command being issued. If set to None, we consume up to the expect string, which is useful if we just matched output that came before a standard command that returns to the prompt.
-		@param expect: String that we expect to see in the output. Usually a prompt. Defaults to currently-set expect string (see set_default_shutit_pexpect_session_expect)
-		@param timeout: Timeout on response
-		@param check_exit: Whether to check the shell exit code of the passed-in command.  If the exit value was non-zero an error is thrown.  (default=None, which takes the currently-configured check_exit value) See also fail_on_empty_before.
-		@param fail_on_empty_before: If debug is set, fail on empty match output string (default=True) If this is set to False, then we don't check the exit value of the command.
-		@param record_command: Whether to record the command for output at end. As a safety measure, if the command matches any 'password's then we don't record it.
-		@param exit_values: Array of acceptable exit values as strings
-		@param echo: Whether to suppress any logging output from pexpect to the terminal or not.  We don't record the command if this is set to False unless record_command is explicitly passed in as True.
-		@param escape: Whether to escape the characters in a bash-friendly way, ie $'\Uxxxxxx'
-		@param retry: Number of times to retry the command if the first attempt doesn't work. Useful if going to the network
-		@param note: If a note is passed in, and we are in walkthrough mode, pause with the note printed
-		@param assume_gnu: Assume the gnu version of commands, which are not in OSx by default (for example)
-		@return: The pexpect return value (ie which expected string in the list matched)
-		@rtype: string
+		@param send:                 String to send, ie the command being
+		                             issued. If set to None, we consume up to
+		                             the expect string, which is useful if we
+		                             just matched output that came before a
+		                             standard command that returns to the
+		                             prompt.
+		@param expect:               String that we expect to see in the output.
+		                             Usually a prompt. Defaults to currently-set
+		                             expect string (see
+		                             set_default_shutit_pexpect_session_expect)
+		@param timeout:              Timeout on response
+		@param check_exit:           Whether to check the shell exit code of the
+		                             passed-in command.  If the exit value was
+		                             non-zero an error is thrown.
+		                             (default=None, which takes the
+		                             currently-configured check_exit value)
+		                             See also fail_on_empty_before.
+		@param fail_on_empty_before: If debug is set, fail on empty match output
+		                             string (default=True) If this is set to
+		                             False, then we don't check the exit value
+		                              of the command.
+		@param record_command:       Whether to record the command for output at
+		                             end. As a safety measure, if the command
+		                             matches any 'password's then we don't
+		                             record it.
+		@param exit_values:          Array of acceptable exit values as strings
+		@param echo:                 Whether to suppress any logging output from
+		                             pexpect to the terminal or not.  We don't
+		                             record the command if this is set to False
+		                             unless record_command is explicitly passed
+		                             in as True.
+		@param escape:               Whether to escape the characters in a
+		                             bash-friendly way, ie $'\Uxxxxxx'
+		@param retry:                Number of times to retry the command if the
+		                             first attempt doesn't work. Useful if going
+		                             to the network
+		@param note:                 If a note is passed in, and we are in
+		                             walkthrough mode, pause with the note
+		                             printed
+		@param assume_gnu:           Assume the gnu version of commands, which
+		                             are not in OSx by default (for example)
+		@param follow_on_commands:   A dict containing further stings to send
+		                             based on the output of the last command.
+		@return:                     The pexpect return value (ie which expected
+		                             string in the list matched)
+		@rtype:                      string
 		"""
 		shutit = shutit_global.shutit
 		cfg = shutit.cfg
@@ -2048,7 +2082,7 @@ $'"""
 					if escaped_str != None:
 						if len(escaped_str) + 25 > shutit.build['stty_cols']:
 							fname = self.create_command_file(expect,escaped_str)
-							res = self.send(' ' + fname,expect=expect,timeout=timeout,check_exit=check_exit,fail_on_empty_before=False,record_command=False,exit_values=exit_values,echo=False,escape=False,retry=retry,loglevel=loglevel, delaybeforesend=delaybeforesend)
+							res = self.send(' ' + fname,expect=expect,timeout=timeout,check_exit=check_exit,fail_on_empty_before=False,record_command=False,exit_values=exit_values,echo=False,escape=False,retry=retry,loglevel=loglevel, delaybeforesend=delaybeforesend,follow_on_commands=follow_on_commands)
 							self.sendline(' rm -f ' + fname,delaybeforesend=delaybeforesend)
 							self.expect(expect)
 							return res
@@ -2061,7 +2095,7 @@ $'"""
 					if send != None:
 						if len(send) + 25 > shutit.build['stty_cols']:
 							fname = self.create_command_file(expect,send)
-							res = self.send(' ' + fname,expect=expect,timeout=timeout,check_exit=check_exit,fail_on_empty_before=False,record_command=False,exit_values=exit_values,echo=False,escape=False,retry=retry,loglevel=loglevel, delaybeforesend=delaybeforesend)
+							res = self.send(' ' + fname,expect=expect,timeout=timeout,check_exit=check_exit,fail_on_empty_before=False,record_command=False,exit_values=exit_values,echo=False,escape=False,retry=retry,loglevel=loglevel, delaybeforesend=delaybeforesend,follow_on_commands=follow_on_commands)
 							self.sendline(' rm -f ' + fname,delaybeforesend=delaybeforesend)
 							self.pexpect_child.expect(expect)
 							return res
@@ -2076,12 +2110,12 @@ $'"""
 					if escaped_str != None:
 						if len(escaped_str) + 25 > shutit.build['stty_cols']:
 							fname = self.create_command_file(expect,escaped_str)
-							res = self.send(' ' + fname,expect=expect,timeout=timeout,check_exit=check_exit,fail_on_empty_before=False,record_command=False,exit_values=exit_values,echo=False,escape=False,retry=retry,loglevel=loglevel, delaybeforesend=delaybeforesend)
+							res = self.send(' ' + fname,expect=expect,timeout=timeout,check_exit=check_exit,fail_on_empty_before=False,record_command=False,exit_values=exit_values,echo=False,escape=False,retry=retry,loglevel=loglevel, delaybeforesend=delaybeforesend,follow_on_commands=follow_on_commands)
 							self.sendline(' rm -f ' + fname,delaybeforesend=delaybeforesend)
 							self.pexpect_child.expect(expect)
 							return res
 						else:
-							self.send(escaped_str,delaybeforesend=delaybeforesend)
+							self.sendline(escaped_str,delaybeforesend=delaybeforesend)
 							expect_res = shutit._expect_allow_interrupt(self.pexpect_child, expect, timeout)
 					else:
 						expect_res = shutit._expect_allow_interrupt(self.pexpect_child, expect, timeout)
@@ -2089,7 +2123,7 @@ $'"""
 					if send != None:
 						if len(send) + 25 > shutit.build['stty_cols']:
 							fname = self.create_command_file(expect,send)
-							res = self.send(' ' + fname,expect=expect,timeout=timeout,check_exit=check_exit,fail_on_empty_before=False,record_command=False,exit_values=exit_values,echo=False,escape=False,retry=retry,loglevel=loglevel, delaybeforesend=delaybeforesend)
+							res = self.send(' ' + fname,expect=expect,timeout=timeout,check_exit=check_exit,fail_on_empty_before=False,record_command=False,exit_values=exit_values,echo=False,escape=False,retry=retry,loglevel=loglevel, delaybeforesend=delaybeforesend,follow_on_commands=follow_on_commands)
 							self.sendline(' rm -f ' + fname,delaybeforesend=delaybeforesend)
 							self.pexpect_child.expect(expect)
 							return res
@@ -2138,6 +2172,9 @@ $'"""
 					assert(retry > 0)
 					continue
 			break
+		# TODO: check self.pexpect_child.after for follow-on commands
+		if follow_on_commands:
+			pass
 		if shutit.build['step_through']:
 			self.pause_point('pause point: stepping through')
 		if shutit.build['ctrlc_stop']:

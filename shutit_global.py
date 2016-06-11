@@ -366,6 +366,7 @@ class ShutIt(object):
 	         retry=3,
 	         note=None,
 	         assume_gnu=True,
+	         follow_on_commands={},
 	         delaybeforesend=0,
 		     loglevel=logging.INFO):
 		"""Send string as a shell command, and wait until the expected output
@@ -413,7 +414,7 @@ class ShutIt(object):
 		"""
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
 		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
-		return shutit_pexpect_session.send(send,expect=expect,timeout=timeout,check_exit=check_exit,fail_on_empty_before=fail_on_empty_before,record_command=record_command,exit_values=exit_values,echo=echo,escape=escape,retry=retry,note=note,assume_gnu=assume_gnu,delaybeforesend=delaybeforesend,loglevel=loglevel)
+		return shutit_pexpect_session.send(send,expect=expect,timeout=timeout,check_exit=check_exit,fail_on_empty_before=fail_on_empty_before,record_command=record_command,exit_values=exit_values,echo=echo,escape=escape,retry=retry,note=note,assume_gnu=assume_gnu,delaybeforesend=delaybeforesend,loglevel=loglevel,follow_on_commands=follow_on_commands)
 	# alias send to send_and_expect
 	send_and_expect = send
 
