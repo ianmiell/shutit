@@ -419,6 +419,7 @@ def parse_args():
 	sub_parsers['skeleton'].add_argument('--template_branch', help='Template branch to use', default='')
 	sub_parsers['skeleton'].add_argument('--template_repo', help='Template git repository to use', default='https://github.com/ianmiell/shutit-templates')
 	sub_parsers['skeleton'].add_argument('--delivery', help='Delivery method, aka target. "docker" container (default), configured "ssh" connection, "bash" session', default=None, choices=('docker','dockerfile','ssh','bash'))
+	sub_parsers['skeleton'].add_argument('-a','--accept', help='Accept defaults', const=True, default=False, action='store_const')
 	sub_parsers['skeleton'].add_argument('--log','-l', help='Log level (DEBUG, INFO (default), WARNING, ERROR, CRITICAL)', default='INFO')
 	sub_parsers['skeleton'].add_argument('-o','--logfile', help='Log output to this file', default='')
 
@@ -498,6 +499,7 @@ def parse_args():
 
 	# This mode is a bit special - it's the only one with different arguments
 	if shutit.action['skeleton']:
+		# Checks
 		if args.shutitfiles and args.script:
 			shutit.fail('Cannot have any two of script, -d/--shutitfiles <files> as arguments')
 		_new_shutitfiles = None
@@ -511,15 +513,22 @@ def parse_args():
 				if not os.path.isfile(shutitfile):
 					print('ShutItFile: ' + shutitfile + ' appears to not exist.')
 					handle_exit(exit_code=1)
+		accept_defaults = args.accept
 		if args.module_directory == '':
 			default_dir = '/tmp/shutit_' + random_word()
-			module_directory = util_raw_input(prompt='# Input a new directory name for this module to be placed in.\n# Default: ' + default_dir + '\n', default=default_dir)
+			if accept_defaults:
+				module_directory = default_dir
+			else:
+				module_directory = util_raw_input(prompt='# Input a new directory name for this module to be placed in.\n# Default: ' + default_dir + '\n', default=default_dir)
 		else:
 			module_directory = args.module_directory
 		while True:
 			if args.module_name == '':
 				default_module_name = module_directory.split('/')[-1].replace('-','_')
-				module_name = util_raw_input(prompt='# Input module name, eg (mymodule).\n# Default: ' + default_module_name + '\n', default=default_module_name)
+				if accept_defaults:
+					module_name = default_module_name
+				else:
+					module_name = util_raw_input(prompt='# Input module name, eg (mymodule).\n# Default: ' + default_module_name + '\n', default=default_module_name)
 			else:
 				module_name = args.module_name
 			if not re.match('^[a-z][a-z0-9-_.]*',module_name):
@@ -528,13 +537,23 @@ def parse_args():
 				break
 		if args.domain == '':
 			default_domain_name = os.getcwd().split('/')[-1] + '.' + module_name
-			domain = util_raw_input(prompt='# Input a unique domain, eg (com.yourcorp).\n# Default: ' + default_domain_name + '\n', default=default_domain_name)
+			if accept_defaults:
+				domain = default_domain_name
+			else:
+				domain = util_raw_input(prompt='# Input a unique domain, eg (com.yourcorp).\n# Default: ' + default_domain_name + '\n', default=default_domain_name)
 		else:
 			domain = args.domain
 		# Figure out defaults.
 		# If no template branch supplied, then assume it's the same as delivery.
+		if _new_shutitfiles:
+			default_template_branch = 'shutitfile'
+		else:
+			default_template_branch = 'bash'
 		if args.template_branch == '':
-			template_branch = util_raw_input(prompt='''# Input a ShutIt pattern.
+			if accept_defaults:
+				template_branch = default_template_branch
+			else:
+				template_branch = util_raw_input(prompt='''# Input a ShutIt pattern.
 Default: bash
 
 bash:              a shell script
@@ -543,7 +562,7 @@ vagrant:           a vagrant setup
 vagrant_multinode: a vagrant multinode setup
 docker_tutorial:   a docker-based tutorial
 shutitfile:        a shutitfile-based Docker project
-''',default='bash')
+''',default=default_template_branch)
 		else:
 			template_branch = args.template_branch
 
@@ -553,9 +572,12 @@ shutitfile:        a shutitfile-based Docker project
 				default_delivery = 'docker'
 			else:
 				default_delivery = 'bash'
-			delivery = ''
-			while delivery not in allowed_delivery_methods:
-				delivery = util_raw_input(prompt='# Input a delivery method from: ' + str(allowed_delivery_methods) + '.\n# Default: ' + default_delivery + '\n\ndocker = build within a docker image\nssh = ssh to target and build\nbash = run commands directly within bash\n', default=default_delivery)
+			if accept_defaults:
+				delivery = default_delivery
+			else:
+				delivery = ''
+				while delivery not in allowed_delivery_methods:
+					delivery = util_raw_input(prompt='# Input a delivery method from: ' + str(allowed_delivery_methods) + '.\n# Default: ' + default_delivery + '\n\ndocker = build within a docker image\nssh = ssh to target and build\nbash = run commands directly within bash\n', default=default_delivery)
 		else:
 			delivery = args.delivery
 		shutit.cfg['skeleton'] = {

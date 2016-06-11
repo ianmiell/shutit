@@ -688,7 +688,7 @@ def process_shutitfile(shutitfile_contents, order):
 			shutitfile_representation['shutitfile']['script'].append([shutitfile_command, ''])
 		elif shutitfile_command in ('IF','IF_NOT','ELIF_NOT','ELIF'):
 			# handle IFS - 2 args - FUNCTION, args
-			shutitfile_representation['shutitfile']['script'].append([shutitfile_command, item[1], item[2]])
+			shutitfile_representation['shutitfile']['script'].append([shutitfile_command, item[1]])
 		elif shutitfile_command in ('ELSE','ENDIF'):
 			shutitfile_representation['shutitfile']['script'].append([shutitfile_command])
 		elif shutitfile_command == 'COMMIT':
@@ -857,25 +857,21 @@ def handle_shutitfile_line(line, numpushes, wgetgot, numlogins, ifdepth):
 		assert type(shutitfile_args) == list
 		build += """\n""" + numtabs*'\t' + """# """ + ' '.join(shutitfile_args)
 	elif shutitfile_command in ('IF','IF_NOT'):
-		subcommand = line[1]
-		subcommand_args = ' '.join(line[2])
+		args_list = line[1].split()
+		subcommand = args_list[0]
+		subcommand_args = ' '.join(args_list[1:])
 		if shutitfile_command == 'IF':
-			subcommand = line[1]
-			subcommand_args = line[2]
 			if subcommand == 'FILE_EXISTS':
 				statement = '''shutit.file_exists(\'''' + subcommand_args + '\',directory=None):'
 			else:
 				shutit.fail('subcommand: ' + subcommand + ' not handled')
-			build += '\n' + (numtabs-1)*'\t' + '''if ''' + statement + ''':'''
+			build += '\n' + numtabs*'\t' + '''if ''' + statement + ''':'''
 		elif shutitfile_command == 'IF_NOT':
-			build += """\n""" + numtabs*'\t' + """if not rue:"""
-			subcommand = line[1]
-			subcommand_args = line[2]
 			if subcommand == 'FILE_EXISTS':
 				statement = '''shutit.file_exists(\'''' + subcommand_args + '\',directory=None)'
 			else:
 				shutit.fail('subcommand: ' + subcommand + ' not handled')
-			build += '\n' + (numtabs-1)*'\t' + '''if not ''' + statement + ''':'''
+			build += '\n' + numtabs*'\t' + '''if not ''' + statement + ''':'''
 		ifdepth += 1
 	elif shutitfile_command in ('ELSE'):
 		if shutitfile_command == 'ELSE':
