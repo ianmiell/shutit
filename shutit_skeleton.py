@@ -117,7 +117,10 @@ def create_skeleton():
 	# Create folders and process templates.
 	os.makedirs(skel_path)
 	os.chdir(skel_path)
-	os.system('git clone -q ' + shutit.cfg['skeleton']['template_repo'] + ' -b ' + shutit.cfg['skeleton']['template_branch'] + ' --depth 1 ' + shutit.cfg['skeleton']['template_folder'])
+	git_command = 'git clone -q ' + shutit.cfg['skeleton']['template_repo'] + ' -b ' + shutit.cfg['skeleton']['template_branch'] + ' --depth 1 ' + shutit.cfg['skeleton']['template_folder']
+	res = os.system(git_command)
+	if res != 0:
+		shutit.fail('git command: \n' + git_command + '\nFailed while setting up skeleton')
 	os.system('rm -rf ' + shutit.cfg['skeleton']['template_folder'] + '/.git')
 	templates=jinja2.Environment(loader=jinja2.FileSystemLoader(shutit.cfg['skeleton']['template_folder']))
 	templates_list = templates.list_templates()
@@ -630,7 +633,10 @@ def process_shutitfile(shutitfile_contents, order):
 			if last_shutitfile_command not in ('LOGIN','USER'):
 				shutit.fail('GET_PASSWORD line not after a USER or LOGIN line: ' + shutitfile_command + ' ' + item[1])
 			if last_shutitfile_command in ('LOGIN','USER'):
-				shutitfile_representation['shutitfile']['script'][-1][0] = 'LOGIN_WITH_PASSWORD'
+				if last_shutitfile_command == 'LOGIN':
+					shutitfile_representation['shutitfile']['script'][-1][0] = 'LOGIN_WITH_PASSWORD'
+				elif last_shutitfile_command == 'USER':
+					shutitfile_representation['shutitfile']['script'][-1][0] = 'USER_WITH_PASSWORD'
 				shutitfile_representation['shutitfile']['script'][-1].append(item[1])
 		elif shutitfile_command == 'ENV':
 			# Put in the run.sh.
@@ -650,7 +656,7 @@ def process_shutitfile(shutitfile_contents, order):
 			shutitfile_representation['shutitfile']['script'][-1][0] = 'ASSERT_OUTPUT_SEND'
 			shutitfile_representation['shutitfile']['script'].append([shutitfile_command, item[1]])
 		elif shutitfile_command in ('PAUSE_POINT'):
-			shutitfile_representation['shutitfile']['script'].append([shutitfile_command], item[1])
+			shutitfile_representation['shutitfile']['script'].append([shutitfile_command, item[1]])
 		elif shutitfile_command == 'EXPECT':
 			if last_shutitfile_command not in ('RUN','SEND','GET_PASSWORD'):
 				shutit.fail('EXPECT line not after a RUN, SEND or GET_PASSWORD line: ' + shutitfile_command + ' ' + item[1])
@@ -714,7 +720,7 @@ def handle_shutitfile_script_line(line, numpushes, wgetgot, numlogins, ifdepth):
 	shutit = shutit_global.shutit
 	build  = ''
 	numtabs = 2 + ifdepth
-	assert shutitfile_command in ('RUN','SEND','SEND_EXPECT','SEND_EXPECT_MULTI','SEND_UNTIL','UNTIL','UNTIL','ASSERT_OUTPUT_SEND','ASSERT_OUTPUT','PAUSE_POINT','EXPECT','EXPECT_MULTI','LOGIN','USER','LOGOUT','GET_AND_SEND_PASSWORD','LOGIN_WITH_PASSWORD','WORKDIR','COPY','ADD','ENV','INSTALL','REMOVE','COMMENT','IF','ELSE','ELIF','IF_NOT','ELIF_NOT','ENDIF','RUN_SCRIPT','SCRIPT_BEGIN','START_BEGIN','START_END','STOP_BEGIN','STOP_END','TEST_BEGIN','TEST_END','BUILD_BEGIN','BUILD_END','CONFIG_BEGIN','CONFIG_END','ISINSTALLED_BEGIN','ISINSTALLED_END','COMMIT','PUSH'), '%r is not a handled command' % shutitfile_command
+	assert shutitfile_command in ('RUN','SEND','SEND_EXPECT','SEND_EXPECT_MULTI','SEND_UNTIL','UNTIL','UNTIL','ASSERT_OUTPUT_SEND','ASSERT_OUTPUT','PAUSE_POINT','EXPECT','EXPECT_MULTI','LOGIN','USER','LOGOUT','GET_AND_SEND_PASSWORD','LOGIN_WITH_PASSWORD','WORKDIR','COPY','ADD','ENV','INSTALL','REMOVE','COMMENT','IF','ELSE','ELIF','IF_NOT','ELIF_NOT','ENDIF','RUN_SCRIPT','SCRIPT_BEGIN','START_BEGIN','START_END','STOP_BEGIN','STOP_END','TEST_BEGIN','TEST_END','BUILD_BEGIN','BUILD_END','CONFIG_BEGIN','CONFIG_END','ISINSTALLED_BEGIN','ISINSTALLED_END','COMMIT','PUSH','REPLACE_LINE'), '%r is not a handled command' % shutitfile_command
 	if shutitfile_command in ('RUN','SEND'):
 		shutitfile_args    = parse_shutitfile_args(line[1])
 		assert type(shutitfile_args) == list
@@ -787,6 +793,13 @@ def handle_shutitfile_script_line(line, numpushes, wgetgot, numlogins, ifdepth):
 		build += """\n""" + numtabs*'\t' + """_password = shutit.get_input('''""" + msg + """''',ispass=True)"""
 		build += """\n""" + numtabs*'\t' + """shutit.send(_password,echo=False,check_exit=False)"""
 	elif shutitfile_command == 'LOGIN_WITH_PASSWORD':
+		shutitfile_args    = parse_shutitfile_args(line[1])
+		assert type(shutitfile_args) == list
+		cmd = ' '.join(shutitfile_args).replace("'", "\\'")
+		msg = line[2]
+		build += """\n""" + numtabs*'\t' + """_password = shutit.get_input('''""" + msg + """''',ispass=True)"""
+		build += """\n""" + numtabs*'\t' + """shutit.login(command='""" + cmd + """', password=_password)"""
+	elif shutitfile_command == 'USER_WITH_PASSWORD':
 		shutitfile_args    = parse_shutitfile_args(line[1])
 		assert type(shutitfile_args) == list
 		cmd = ' '.join(shutitfile_args).replace("'", "\\'")
@@ -872,7 +885,7 @@ def handle_shutitfile_script_line(line, numpushes, wgetgot, numlogins, ifdepth):
 		subcommand_args = ' '.join(args_list[1:])
 		if shutitfile_command == 'IF':
 			if subcommand == 'FILE_EXISTS':
-				statement = '''shutit.file_exists(\'''' + subcommand_args + '\',directory=None):'
+				statement = '''shutit.file_exists(\'''' + subcommand_args + '\',directory=None)'
 			else:
 				shutit.fail('subcommand: ' + subcommand + ' not handled')
 			build += '\n' + numtabs*'\t' + '''if ''' + statement + ''':'''
@@ -887,17 +900,15 @@ def handle_shutitfile_script_line(line, numpushes, wgetgot, numlogins, ifdepth):
 		if shutitfile_command == 'ELSE':
 			build += """\n""" + (numtabs-1)*'\t' + """else:"""
 	elif shutitfile_command in ('ELIF','ELIF_NOT'):
+		subcommand = line[1].split()[0]
+		subcommand_args = ' '.join(line[1].split()[1:])
 		if shutitfile_command == 'ELIF':
-			subcommand = line[1]
-			subcommand_args = line[2]
 			if subcommand == 'FILE_EXISTS':
 				statement = '''shutit.file_exists(\'''' + subcommand_args + '\',directory=None)'
 			else:
 				shutit.fail('subcommand: ' + subcommand + ' not handled')
 			build += '\n' + (numtabs-1)*'\t' + '''elif ''' + statement + ''':'''
 		elif shutitfile_command == 'ELIF_NOT':
-			subcommand = line[1]
-			subcommand_args = line[2]
 			if subcommand == 'FILE_EXISTS':
 				statement = '''shutit.file_exists(\'''' + subcommand_args + '\',directory=None)'
 			else:
@@ -930,7 +941,11 @@ def handle_shutitfile_script_line(line, numpushes, wgetgot, numlogins, ifdepth):
 	elif shutitfile_command == 'REPLACE_LINE':
 		shutitfile_args    = parse_shutitfile_args(line[1])
 		assert type(shutitfile_args) == dict
-		print shutitfile_args
+		# TODO: assert existence of these
+		line     = shutitfile_args['line']
+		filename = shutitfile_args['filename']
+		pattern  = shutitfile_args['pattern']
+		build += """\n""" + numtabs*'\t' + """shutit.replace_text('''""" + line + """''','''""" + filename + """''',pattern='''""" + pattern + """''')"""
 	# See shutitfile_get_section
 	elif shutitfile_command in ('SCRIPT_BEGIN','START_BEGIN','START_END','STOP_BEGIN','STOP_END','TEST_BEGIN','TEST_END','BUILD_BEGIN','BUILD_END','CONFIG_BEGIN','CONFIG_END','ISINSTALLED_BEGIN','ISINSTALLED_END'):
 		# No action to perform on these lines, but they are legal.
