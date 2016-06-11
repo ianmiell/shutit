@@ -165,6 +165,7 @@ class ShutItPexpectSession(object):
 		if shutit.build['delivery'] == 'bash' and command == 'su -':
 			# We want to retain the current working directory
 			command = 'su'
+		# If this is a su-type command, add the user, else assume user is in the command.
 		if command == 'su -' or command == 'su' or command == 'login':
 			send = command + ' ' + user
 		else:

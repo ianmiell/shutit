@@ -348,7 +348,7 @@ def generate_shutit_module(shutitfile_representation, skel_domain, skel_module_n
 	for item in shutitfile_representation['shutitfile']['script']:
 		section = shutitfile_get_section(item[0], section)
 		if section == 'build':
-			ret = handle_shutitfile_line(item, numpushes, wgetgot, numlogins, ifdepth)
+			ret = handle_shutitfile_script_line(item, numpushes, wgetgot, numlogins, ifdepth)
 			build     += ret[0]
 			numpushes =  ret[1]
 			wgetgot   =  ret[2]
@@ -380,7 +380,7 @@ def generate_shutit_module(shutitfile_representation, skel_domain, skel_module_n
 	for item in shutitfile_representation['shutitfile']['script']:
 		section = shutitfile_get_section(item[0], section)
 		if section == 'test':
-			ret = handle_shutitfile_line(item, numpushes, wgetgot, numlogins, ifdepth)
+			ret = handle_shutitfile_script_line(item, numpushes, wgetgot, numlogins, ifdepth)
 			build     += ret[0]
 			numpushes =  ret[1]
 			wgetgot   =  ret[2]
@@ -405,7 +405,7 @@ def generate_shutit_module(shutitfile_representation, skel_domain, skel_module_n
 	for item in shutitfile_representation['shutitfile']['script']:
 		section = shutitfile_get_section(item[0], section)
 		if section == 'isinstalled':
-			ret = handle_shutitfile_line(item, numpushes, wgetgot, numlogins, ifdepth)
+			ret = handle_shutitfile_script_line(item, numpushes, wgetgot, numlogins, ifdepth)
 			build     += ret[0]
 			numpushes =  ret[1]
 			wgetgot   =  ret[2]
@@ -432,7 +432,7 @@ def generate_shutit_module(shutitfile_representation, skel_domain, skel_module_n
 	for item in shutitfile_representation['shutitfile']['script']:
 		section = shutitfile_get_section(item[0], section)
 		if section == 'start':
-			ret = handle_shutitfile_line(item, numpushes, wgetgot, numlogins, ifdepth)
+			ret = handle_shutitfile_script_line(item, numpushes, wgetgot, numlogins, ifdepth)
 			build     += ret[0]
 			numpushes =  ret[1]
 			wgetgot   =  ret[2]
@@ -459,7 +459,7 @@ def generate_shutit_module(shutitfile_representation, skel_domain, skel_module_n
 	for item in shutitfile_representation['shutitfile']['script']:
 		section = shutitfile_get_section(item[0], section)
 		if section == 'stop':
-			ret = handle_shutitfile_line(item, numpushes, wgetgot, numlogins, ifdepth)
+			ret = handle_shutitfile_script_line(item, numpushes, wgetgot, numlogins, ifdepth)
 			build     += ret[0]
 			numpushes =  ret[1]
 			wgetgot   =  ret[2]
@@ -504,7 +504,7 @@ def generate_shutit_module(shutitfile_representation, skel_domain, skel_module_n
 	for item in shutitfile_representation['shutitfile']['script']:
 		section = shutitfile_get_section(item[0], section)
 		if section == 'config':
-			ret = handle_shutitfile_line(item, numpushes, wgetgot, numlogins, ifdepth)
+			ret = handle_shutitfile_script_line(item, numpushes, wgetgot, numlogins, ifdepth)
 			build     += ret[0]
 			numpushes =  ret[1]
 			wgetgot   =  ret[2]
@@ -569,7 +569,7 @@ def process_shutitfile(shutitfile_contents, order):
 		shutitfile_command = item[0].upper()
 		# List of handled shutitfile_commands
 		if shutitfile_state != 'SCRIPT_DURING':
-			assert shutitfile_command in ('SCRIPT_END','SCRIPT_BEGIN','SCRIPT_END','FROM','ONBUILD','VOLUME','DESCRIPTION','MAINTAINER','EXPOSE','ENTRYPOINT','CMD','USER','LOGIN','LOGOUT','GET_PASSWORD','ENV','RUN','SEND','ASSERT_OUTPUT','PAUSE_POINT','EXPECT','EXPECT_MULTI','UNTIL','ADD','COPY','WORKDIR','COMMENT','INSTALL','REMOVE','DEPENDS','DELIVERY','MODULE_ID','START_BEGIN','START_END','STOP_BEGIN','STOP_END','TEST_BEGIN','TEST_END','BUILD_BEGIN','BUILD_END','CONFIG_BEGIN','CONFIG_END','ISINSTALLED_BEGIN','ISINSTALLED_END','IF','IF_NOT','ELIF_NOT','ELIF','ELSE','ENDIF','COMMIT','PUSH', 'DEFAULT_INCLUDE'), '%r is not a handled command' % shutitfile_command
+			assert shutitfile_command in ('SCRIPT_END','SCRIPT_BEGIN','SCRIPT_END','FROM','ONBUILD','VOLUME','DESCRIPTION','MAINTAINER','EXPOSE','ENTRYPOINT','CMD','USER','LOGIN','LOGOUT','GET_PASSWORD','ENV','RUN','SEND','ASSERT_OUTPUT','PAUSE_POINT','EXPECT','EXPECT_MULTI','UNTIL','ADD','COPY','WORKDIR','COMMENT','INSTALL','REMOVE','DEPENDS','DELIVERY','MODULE_ID','REPLACE_LINE','START_BEGIN','START_END','STOP_BEGIN','STOP_END','TEST_BEGIN','TEST_END','BUILD_BEGIN','BUILD_END','CONFIG_BEGIN','CONFIG_END','ISINSTALLED_BEGIN','ISINSTALLED_END','IF','IF_NOT','ELIF_NOT','ELIF','ELSE','ENDIF','COMMIT','PUSH', 'DEFAULT_INCLUDE'), '%r is not a handled command' % shutitfile_command
 		if shutitfile_command != 'SCRIPT_END' and shutitfile_state == 'SCRIPT_DURING':
 			inline_script += '\n' + ' '.join(item)
 		elif shutitfile_command == 'SCRIPT_BEGIN':
@@ -620,8 +620,10 @@ def process_shutitfile(shutitfile_contents, order):
 			except Exception:
 				shutitfile_representation['shutitfile']['cmd'] = item[1]
 		# Other items to be run through sequentially (as they are part of the script)
-		elif shutitfile_command in ('USER','LOGIN','LOGOUT'):
+		elif shutitfile_command in ('LOGIN','LOGOUT'):
 			# Put in the start script as well as su'ing from here - assuming order dependent?
+			shutitfile_representation['shutitfile']['script'].append([shutitfile_command, item[1]])
+		elif shutitfile_command == 'USER':
 			shutitfile_representation['shutitfile']['script'].append([shutitfile_command, item[1]])
 		elif shutitfile_command == 'GET_PASSWORD':
 			# If we are directed to get the password, change the previous directive internally.
@@ -698,6 +700,8 @@ def process_shutitfile(shutitfile_contents, order):
 			shutitfile_representation['shutitfile']['script'].append([shutitfile_command, item[1]])
 		elif shutitfile_command == 'DEFAULT_INCLUDE':
 			shutitfile_representation['shutitfile']['default_include'] = item[1]
+		elif shutitfile_command == 'REPLACE_LINE':
+			shutitfile_representation['shutitfile']['script'].append([shutitfile_command, item[1]])
 		else:
 			shutit.fail('shutitfile command: ' + shutitfile_command + ' not processed')
 		last_shutitfile_command = shutitfile_command
@@ -705,7 +709,7 @@ def process_shutitfile(shutitfile_contents, order):
 
 
 
-def handle_shutitfile_line(line, numpushes, wgetgot, numlogins, ifdepth):
+def handle_shutitfile_script_line(line, numpushes, wgetgot, numlogins, ifdepth):
 	shutitfile_command = line[0].upper()
 	shutit = shutit_global.shutit
 	build  = ''
@@ -761,7 +765,13 @@ def handle_shutitfile_line(line, numpushes, wgetgot, numlogins, ifdepth):
 		assert type(shutitfile_args) == dict
 		multi_dict = str(shutitfile_args)
 		build += multi_dict + ")"
-	elif shutitfile_command in ('LOGIN','USER'):
+	elif shutitfile_command == 'LOGIN':
+		shutitfile_args    = parse_shutitfile_args(line[1])
+		assert type(shutitfile_args) == list
+		cmd = ' '.join(shutitfile_args).replace("'", "\\'")
+		build += """\n""" + numtabs*'\t' + """shutit.login('''command='""" + cmd + """' ''')"""
+		numlogins += 1
+	elif shutitfile_command == 'USER':
 		shutitfile_args    = parse_shutitfile_args(line[1])
 		assert type(shutitfile_args) == list
 		cmd = ' '.join(shutitfile_args).replace("'", "\\'")
@@ -917,6 +927,10 @@ def handle_shutitfile_line(line, numpushes, wgetgot, numlogins, ifdepth):
 		assert shutit.repository['user'] != '', 'If you want to push, set the [repository] settings (user,password,email) in your ~/.shutit/config file.'
 		repo_name = shutitfile_args[0]
 		build += """\n""" + numtabs*'\t' + """shutit.push_repository('''""" + repo_name + """''')"""
+	elif shutitfile_command == 'REPLACE_LINE':
+		shutitfile_args    = parse_shutitfile_args(line[1])
+		assert type(shutitfile_args) == dict
+		print shutitfile_args
 	# See shutitfile_get_section
 	elif shutitfile_command in ('SCRIPT_BEGIN','START_BEGIN','START_END','STOP_BEGIN','STOP_END','TEST_BEGIN','TEST_END','BUILD_BEGIN','BUILD_END','CONFIG_BEGIN','CONFIG_END','ISINSTALLED_BEGIN','ISINSTALLED_END'):
 		# No action to perform on these lines, but they are legal.
