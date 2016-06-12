@@ -2174,13 +2174,10 @@ $'"""
 			break
 		# check self.pexpect_child.before for matches for follow-on commands
 		for match in follow_on_commands:
-			print shutit.build['last_output']
-			print match
 			send = follow_on_commands[match]
-			print send
 			if shutit_util.match_string(shutit.build['last_output'],match):
 				# send (with no follow-on commands)
-				self.send(send,expect=expect,timeout=timeout,check_exit=check_exit,fail_on_empty_before=False,record_command=False,exit_values=exit_values,echo=False,escape=False,retry=retry,loglevel=loglevel, delaybeforesend=delaybeforesend)
+				self.send(send,expect=expect,timeout=timeout,check_exit=check_exit,fail_on_empty_before=False,record_command=record_command,exit_values=exit_values,echo=echo,escape=escape,retry=retry,loglevel=loglevel,delaybeforesend=delaybeforesend)
 		if shutit.build['step_through']:
 			self.pause_point('pause point: stepping through')
 		if shutit.build['ctrlc_stop']:
