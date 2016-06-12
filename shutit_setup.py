@@ -237,8 +237,8 @@ class ConnDocker(ShutItConnModule):
 				shutit.fail('EOF exception seen')
 			try:
 				shutit.log(target_child.before + target_child.after,level=logging.DEBUG)
-			except Exception,e:
-				print e
+			except:
+				pass
 			if res == 0:
 				res = shutit.send(shutit.host['password'], shutit_pexpect_child=target_child, expect=expect, timeout=9999, check_exit=False, fail_on_empty_before=False, echo=False, loglevel=loglevel)
 			elif res == 1:
@@ -253,29 +253,20 @@ class ConnDocker(ShutItConnModule):
 			elif res == 8:
 				shutit.fail('EOF seen.')
 			else:
-				print res
 				res = shutit_pexpect_session.expect(expect, timeout=5)
 				continue
 		# Did the pull work?
 		shutit.log('Checking exit status',level=loglevel)
-		print 'HERE2'
 		if not shutit_pexpect_session.check_last_exit_values(was_sent):
-			print was_sent
-			print shutit_pexpect_session.check_last_exit_values(was_sent)
 			shutit_global.shutit.pause_point('Command:\n\n' + was_sent + '\n\nfailed, you have a shell to try rectifying the problem before continuing.')
-		print 'HERE3'
-		print '2'
 		shutit.log('Getting cid',level=loglevel)
-		print '2'
 		# Get the cid
 		while True:
-			print '2'
 			try:
 				cid = open(shutit.build['cidfile']).read()
 				break
 			except Exception:
 				time.sleep(1)
-		print '2'
 		if cid == '' or re.match('^[a-z0-9]+$', cid) == None:
 			shutit.fail('Could not get container_id - quitting. Check whether other containers may be clashing on port allocation or name.\nYou might want to try running: sudo docker kill ' + shutit.target['name'] + '; sudo docker rm ' + shutit.target['name'] + '\nto resolve a name clash or: ' + shutit.host['docker_executable'] + ' ps -a | grep ' + shutit.target['ports'] + " | awk '{print $1}' | " + 'xargs ' + shutit.host['docker_executable'] + ' kill\nto ' + 'resolve a port clash\n')
 		shutit.log('cid: ' + cid,level=logging.DEBUG)
