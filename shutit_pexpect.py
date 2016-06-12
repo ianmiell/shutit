@@ -494,20 +494,20 @@ class ShutItPexpectSession(object):
 		while True:
 			# Sometimes pexpect gets confused at this point, so we expect again until all appears ok.
 			shutit.log('Expecting: ' + str(expect),level=logging.DEBUG)
-			self.expect(expect)
-			res = shutit_util.match_string(self.pexpect_child.before, '^EXIT_CODE:([0-9][0-9]?[0-9]?)$')
+			self.expect(expect,timeout=5)
+			res = shutit_util.match_string(str(self.pexpect_child.before), '^EXIT_CODE:([0-9][0-9]?[0-9]?)$')
 			if res == None:
 				# Try before without anchor - sometimes needed when logging into obscure shells
 				shutit.log('Un-clean login (1), trying: ' + self.pexpect_child.before, level=logging.DEBUG)
-				res = shutit_util.match_string(self.pexpect_child.before, '.*EXIT_CODE:([0-9][0-9]?[0-9]?)$')
+				res = shutit_util.match_string(str(self.pexpect_child.before), '.*EXIT_CODE:([0-9][0-9]?[0-9]?)$')
 			if res == None:
 				# Try after - for some reason needed after login
 				shutit.log('Un-clean login (2), trying: ' + self.pexpect_child.after, level=logging.DEBUG)
-				res = shutit_util.match_string(self.pexpect_child.after, '^EXIT_CODE:([0-9][0-9]?[0-9]?)$')
+				res = shutit_util.match_string(str(self.pexpect_child.after), '^EXIT_CODE:([0-9][0-9]?[0-9]?)$')
 			if res == None:
 				# Try after without anchor - sometimes needed when logging into obscure 
 				shutit.log('Un-clean login (3), trying: ' + self.pexpect_child.after, level=logging.DEBUG)
-				res = shutit_util.match_string(self.pexpect_child.after, '^.*EXIT_CODE:([0-9][0-9]?[0-9]?)$')
+				res = shutit_util.match_string(str(self.pexpect_child.after), '^.*EXIT_CODE:([0-9][0-9]?[0-9]?)$')
 			if res != None:
 				break
 		if res not in exit_values or res == None:
@@ -1495,7 +1495,8 @@ class ShutItPexpectSession(object):
 				distro         = d['distro']
 				distro_version = '1.0'
 			elif install_type == 'emerge' and shutit.build['delivery'] in ('docker','dockerfile'):
-				self.send('emerge --sync',loglevel=loglevel,delaybeforesend=delaybeforesend)
+				# Takes bloody ages!
+				#self.send('emerge --sync',loglevel=loglevel,delaybeforesend=delaybeforesend,timeout=9999)
 				install_type = 'emerge'
 				distro = 'gentoo'
 				distro_version = '1.0'
@@ -1582,7 +1583,9 @@ class ShutItPexpectSession(object):
 				distro_version = '1.0'
 			elif install_type == 'emerge' and shutit.build['delivery'] in ('docker','dockerfile'):
 				if not shutit.get_current_shutit_pexpect_session_environment().build['emerge_update_done']:
-					self.send('emerge --sync',loglevel=logging.INFO,delaybeforesend=delaybeforesend)
+					# Takes bloody ages!
+					#self.send('emerge --sync',loglevel=logging.INFO,delaybeforesend=delaybeforesend)
+					pass
 				install_type = 'emerge'
 				distro = 'gentoo'
 				distro_version = '1.0'
