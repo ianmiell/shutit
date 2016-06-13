@@ -776,7 +776,7 @@ def handle_shutitfile_script_line(line, numpushes, wgetgot, numlogins, ifdepth):
 		shutitfile_args    = parse_shutitfile_args(line[1])
 		assert type(shutitfile_args) == list
 		expected_output = scan_text(' '.join(shutitfile_args).replace("'", "\\'"))
-		build += """'''""" + expected_output + """''':\n""" + numtabs*'\t' + """\tshutit.pause_point('''Expected output of: ''' + _cmd + ''' was: ''' + _output + ''' It should be: """ + expected_output + """''')"""
+		build += """'''""" + expected_output + """''':\n""" + numtabs*'\t' + """\tshutit.pause_point('''Output of: ''' + _cmd + ''' was: ''' + _output + ''' It should be: """ + expected_output + """''')"""
 	elif shutitfile_command == 'PAUSE_POINT':
 		shutitfile_args    = parse_shutitfile_args(line[1])
 		assert type(shutitfile_args) == list
@@ -998,7 +998,7 @@ def scan_text(text):
 			before = match.group(1)
 			name = match.group(2)
 			after = match.group(3)
-			text = before + """''' + shutit.cfg[self.module_id][\"""" + name + """\"] + '''"""
+			text = before + """''' + shutit.cfg[self.module_id][\"""" + name + """\"] + '''""" + after
 		else:
 			break
 	return text
