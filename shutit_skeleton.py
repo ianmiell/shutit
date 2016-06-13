@@ -504,25 +504,10 @@ def generate_shutit_module(shutitfile_representation, skel_domain, skel_module_n
 	numpushes = 0
 	numlogins = 0
 	ifdepth   = 0
-	for item in shutitfile_representation['shutitfile']['script']:
-		section = shutitfile_get_section(item[0], section)
-		if section == 'config':
-			ret = handle_shutitfile_script_line(item, numpushes, wgetgot, numlogins, ifdepth)
-			build     += ret[0]
-			numpushes =  ret[1]
-			wgetgot   =  ret[2]
-			numlogins =  ret[3]
-			ifdepth   =  ret[4]
+	for item in shutitfile_representation['shutitfile']['config']:
+		build += handle_shutitfile_config_line(item)
 	if build:
 		templatemodule += '\n\t\t' + build
-	while numpushes > 0:
-		templatemodule += """\n\t\tshutit.send('popd')"""
-		numpushes      -= 1
-	while numlogins > 0:
-		templatemodule += '''\n\t\tshutit.logout()'''
-		numlogins -= 1
-	if ifdepth != 0:
-		shutit.fail('Unbalanced IFs in ' + section + ' section')
 	templatemodule += '\n\t\treturn True'
 
 	# depends section
@@ -552,6 +537,7 @@ def process_shutitfile(shutitfile_contents, order):
 	shutitfile_representation['shutitfile']['description']     = ''
 	shutitfile_representation['shutitfile']['module_id']       = ''
 	shutitfile_representation['shutitfile']['script']          = []
+	shutitfile_representation['shutitfile']['config']          = []
 	shutitfile_representation['shutitfile']['onbuild']         = []
 	shutitfile_representation['shutitfile']['volume']          = []
 	shutitfile_representation['shutitfile']['expose']          = []
@@ -572,7 +558,7 @@ def process_shutitfile(shutitfile_contents, order):
 		shutitfile_command = item[0].upper()
 		# List of handled shutitfile_commands
 		if shutitfile_state != 'SCRIPT_DURING':
-			assert shutitfile_command in ('SCRIPT_END','SCRIPT_BEGIN','SCRIPT_END','FROM','ONBUILD','VOLUME','DESCRIPTION','MAINTAINER','EXPOSE','ENTRYPOINT','CMD','USER','LOGIN','LOGOUT','GET_PASSWORD','ENV','RUN','SEND','ASSERT_OUTPUT','PAUSE_POINT','EXPECT','EXPECT_MULTI','EXPECT_REACT','UNTIL','ADD','COPY','WORKDIR','COMMENT','INSTALL','REMOVE','DEPENDS','DELIVERY','MODULE_ID','REPLACE_LINE','START_BEGIN','START_END','STOP_BEGIN','STOP_END','TEST_BEGIN','TEST_END','BUILD_BEGIN','BUILD_END','CONFIG_BEGIN','CONFIG_END','ISINSTALLED_BEGIN','ISINSTALLED_END','IF','IF_NOT','ELIF_NOT','ELIF','ELSE','ENDIF','COMMIT','PUSH','DEFAULT_INCLUDE','LOG'), '%r is not a handled command' % shutitfile_command
+			assert shutitfile_command in ('SCRIPT_END','SCRIPT_BEGIN','SCRIPT_END','FROM','ONBUILD','VOLUME','DESCRIPTION','MAINTAINER','EXPOSE','ENTRYPOINT','CMD','USER','LOGIN','LOGOUT','GET_PASSWORD','ENV','RUN','SEND','ASSERT_OUTPUT','PAUSE_POINT','EXPECT','EXPECT_MULTI','EXPECT_REACT','UNTIL','ADD','COPY','WORKDIR','COMMENT','INSTALL','REMOVE','DEPENDS','DELIVERY','MODULE_ID','REPLACE_LINE','START_BEGIN','START_END','STOP_BEGIN','STOP_END','TEST_BEGIN','TEST_END','BUILD_BEGIN','BUILD_END','ISINSTALLED_BEGIN','ISINSTALLED_END','IF','IF_NOT','ELIF_NOT','ELIF','ELSE','ENDIF','COMMIT','PUSH','DEFAULT_INCLUDE','LOG','CONFIG'), '%r is not a handled command' % shutitfile_command
 		if shutitfile_command != 'SCRIPT_END' and shutitfile_state == 'SCRIPT_DURING':
 			inline_script += '\n' + ' '.join(item)
 		elif shutitfile_command == 'SCRIPT_BEGIN':
@@ -697,7 +683,7 @@ def process_shutitfile(shutitfile_contents, order):
 		elif shutitfile_command == 'MODULE_ID':
 			# Only one item allowed.
 			shutitfile_representation['shutitfile']['module_id'] = item[1]
-		elif shutitfile_command in ('START_BEGIN','START_END','STOP_BEGIN','STOP_END','TEST_BEGIN','TEST_END','BUILD_BEGIN','BUILD_END','CONFIG_BEGIN','CONFIG_END','ISINSTALLED_BEGIN','ISINSTALLED_END'):
+		elif shutitfile_command in ('START_BEGIN','START_END','STOP_BEGIN','STOP_END','TEST_BEGIN','TEST_END','BUILD_BEGIN','BUILD_END','ISINSTALLED_BEGIN','ISINSTALLED_END'):
 			shutitfile_representation['shutitfile']['script'].append([shutitfile_command, ''])
 		elif shutitfile_command in ('IF','IF_NOT','ELIF_NOT','ELIF'):
 			# handle IFS - 2 args - FUNCTION, args
@@ -715,11 +701,33 @@ def process_shutitfile(shutitfile_contents, order):
 			shutitfile_representation['shutitfile']['script'].append([shutitfile_command, item[1]])
 		elif shutitfile_command == 'LOG':
 			shutitfile_representation['shutitfile']['script'].append([shutitfile_command, item[1]])
+		elif shutitfile_command == 'CONFIG':
+			shutitfile_representation['shutitfile']['config'].append([shutitfile_command, item[1]])
 		else:
 			shutit.fail('shutitfile command: ' + shutitfile_command + ' not processed')
 		last_shutitfile_command = shutitfile_command
 	return shutitfile_representation
 
+
+def handle_shutitfile_config_line(line):
+	shutitfile_command = line[0].upper()
+	shutit             = shutit_global.shutit
+	build              = ''
+	numtabs            = 2
+	assert shutitfile_command in ('CONFIG'), '%r is not a handled command' % shutitfile_command
+	if shutitfile_command in ('CONFIG'):
+		shutitfile_args    = parse_shutitfile_args(line[1])
+		assert type(shutitfile_args) in (dict,str)
+		if type(shutitfile_args) == str:
+			shutitfile_args_list = shutitfile_args.split()
+			assert len(shutitfile_args_list) in (1,2)
+			cfg_name = shutitfile_args_list[0]
+			if len(shutitfile_args_list) == 1:
+				build += """\n""" + numtabs*'\t' + """shutit.get_config(self.module_id,'""" + cfg_name + """')"""
+			elif len(shutitfile_args_list) == 2:
+				cfg_default = shutitfile_args_list[1]
+				build += """\n""" + numtabs*'\t' + """shutit.get_config(self.module_id,'""" + cfg_name + """',default='""" + cfg_default + """')"""
+	return build
 
 
 def handle_shutitfile_script_line(line, numpushes, wgetgot, numlogins, ifdepth):
@@ -727,7 +735,7 @@ def handle_shutitfile_script_line(line, numpushes, wgetgot, numlogins, ifdepth):
 	shutit = shutit_global.shutit
 	build  = ''
 	numtabs = 2 + ifdepth
-	assert shutitfile_command in ('RUN','SEND','SEND_EXPECT','SEND_EXPECT_MULTI','EXPECT_REACT','SEND_EXPECT_REACT','SEND_UNTIL','UNTIL','UNTIL','ASSERT_OUTPUT_SEND','ASSERT_OUTPUT','PAUSE_POINT','EXPECT','EXPECT_MULTI','LOGIN','USER','LOGOUT','GET_AND_SEND_PASSWORD','LOGIN_WITH_PASSWORD','WORKDIR','COPY','ADD','ENV','INSTALL','REMOVE','COMMENT','IF','ELSE','ELIF','IF_NOT','ELIF_NOT','ENDIF','RUN_SCRIPT','SCRIPT_BEGIN','START_BEGIN','START_END','STOP_BEGIN','STOP_END','TEST_BEGIN','TEST_END','BUILD_BEGIN','BUILD_END','CONFIG_BEGIN','CONFIG_END','ISINSTALLED_BEGIN','ISINSTALLED_END','COMMIT','PUSH','REPLACE_LINE','LOG'), '%r is not a handled command' % shutitfile_command
+	assert shutitfile_command in ('RUN','SEND','SEND_EXPECT','SEND_EXPECT_MULTI','EXPECT_REACT','SEND_EXPECT_REACT','SEND_UNTIL','UNTIL','UNTIL','ASSERT_OUTPUT_SEND','ASSERT_OUTPUT','PAUSE_POINT','EXPECT','EXPECT_MULTI','LOGIN','USER','LOGOUT','GET_AND_SEND_PASSWORD','LOGIN_WITH_PASSWORD','WORKDIR','COPY','ADD','ENV','INSTALL','REMOVE','COMMENT','IF','ELSE','ELIF','IF_NOT','ELIF_NOT','ENDIF','RUN_SCRIPT','SCRIPT_BEGIN','START_BEGIN','START_END','STOP_BEGIN','STOP_END','TEST_BEGIN','TEST_END','BUILD_BEGIN','BUILD_END','ISINSTALLED_BEGIN','ISINSTALLED_END','COMMIT','PUSH','REPLACE_LINE','LOG'), '%r is not a handled command' % shutitfile_command
 	if shutitfile_command in ('RUN','SEND'):
 		shutitfile_args    = parse_shutitfile_args(line[1])
 		assert type(shutitfile_args) == list
@@ -970,7 +978,7 @@ def handle_shutitfile_script_line(line, numpushes, wgetgot, numlogins, ifdepth):
 		build += """\n""" + numtabs*'\t' + """import logging"""
 		build += """\n""" + numtabs*'\t' + """logging.getLogger().setLevel(logging.""" + shutitfile_args + """)"""
 	# See shutitfile_get_section
-	elif shutitfile_command in ('SCRIPT_BEGIN','START_BEGIN','START_END','STOP_BEGIN','STOP_END','TEST_BEGIN','TEST_END','BUILD_BEGIN','BUILD_END','CONFIG_BEGIN','CONFIG_END','ISINSTALLED_BEGIN','ISINSTALLED_END'):
+	elif shutitfile_command in ('SCRIPT_BEGIN','START_BEGIN','START_END','STOP_BEGIN','STOP_END','TEST_BEGIN','TEST_END','BUILD_BEGIN','BUILD_END','ISINSTALLED_BEGIN','ISINSTALLED_END'):
 		# No action to perform on these lines, but they are legal.
 		pass
 	else:
