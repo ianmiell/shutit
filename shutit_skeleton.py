@@ -793,7 +793,7 @@ def handle_shutitfile_script_line(line, numpushes, wgetgot, numlogins, ifdepth):
 		shutitfile_args    = parse_shutitfile_args(line[1])
 		assert type(shutitfile_args) == list
 		cmd = ' '.join(shutitfile_args).replace("'", "\\'")
-		build += """\n""" + numtabs*'\t' + """shutit.login('''command='""" + cmd + """' ''')"""
+		build += """\n""" + numtabs*'\t' + """shutit.login(command='""" + cmd + """')"""
 		numlogins += 1
 	elif shutitfile_command == 'USER':
 		shutitfile_args    = parse_shutitfile_args(line[1])
