@@ -1183,6 +1183,8 @@ def util_raw_input(prompt='', default=None, ispass=False, use_readline=True):
 			pass
 		readline.parse_and_bind('tab: complete')
 	prompt = '\r\n' + prompt
+	if ispass:
+		prompt += 'Secret: '
 	sanitize_terminal()
 	if shutit_global.shutit.build['interactive'] == 0:
 		return default
@@ -1190,8 +1192,7 @@ def util_raw_input(prompt='', default=None, ispass=False, use_readline=True):
 		return default
 	try:
 		if ispass:
-			print prompt
-			return getpass.getpass()
+			return getpass.getpass(prompt=prompt)
 		else:
 			resp = raw_input(prompt).strip()
 			if resp == '':
