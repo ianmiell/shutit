@@ -1252,7 +1252,7 @@ class ShutIt(object):
 	            reinstall=False,
 	            note=None,
 	            delaybeforesend=0,
-	            loglevel=logging.DEBUG):
+	            loglevel=logging.INFO):
 		"""Distro-independent install function.
 		Takes a package name and runs the relevant install function.
 
