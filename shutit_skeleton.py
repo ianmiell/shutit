@@ -666,18 +666,7 @@ def process_shutitfile(shutitfile_contents, order):
 				shutit.fail('UNTIL line not after a RUN, SEND: ' + shutitfile_command + ' ' + item[1])
 			shutitfile_representation['shutitfile']['script'][-1][0] = 'SEND_UNTIL'
 			shutitfile_representation['shutitfile']['script'].append([shutitfile_command, item[1]])
-		elif shutitfile_command == 'ADD':
-			# Send file - is this potentially got from the web? Is that the difference between this and COPY?
-			shutitfile_representation['shutitfile']['script'].append([shutitfile_command, item[1]])
-		elif shutitfile_command == 'COPY':
-			shutitfile_representation['shutitfile']['script'].append([shutitfile_command, item[1]])
-		elif shutitfile_command == 'WORKDIR':
-			shutitfile_representation['shutitfile']['script'].append([shutitfile_command, item[1]])
-		elif shutitfile_command == 'COMMENT':
-			shutitfile_representation['shutitfile']['script'].append([shutitfile_command, item[1]])
-		elif shutitfile_command == 'INSTALL':
-			shutitfile_representation['shutitfile']['script'].append([shutitfile_command, item[1]])
-		elif shutitfile_command == 'REMOVE':
+		elif shutitfile_command in ('ADD','COPY','WORKDIR','COMMENT','INSTALL','REMOVE','REPLACE_LINE','LOG','COMMIT','PUSH'):
 			shutitfile_representation['shutitfile']['script'].append([shutitfile_command, item[1]])
 		elif shutitfile_command == 'DEPENDS':
 			shutitfile_representation['shutitfile']['depends'].append([shutitfile_command, item[1]])
@@ -692,17 +681,8 @@ def process_shutitfile(shutitfile_contents, order):
 			shutitfile_representation['shutitfile']['script'].append([shutitfile_command, item[1], item[2]])
 		elif shutitfile_command in ('ELSE','ENDIF'):
 			shutitfile_representation['shutitfile']['script'].append([shutitfile_command])
-		elif shutitfile_command == 'COMMIT':
-			shutitfile_representation['shutitfile']['script'].append([shutitfile_command, item[1]])
-		elif shutitfile_command == 'PUSH':
-			# TODO: check user has creds set up for docker repos?
-			shutitfile_representation['shutitfile']['script'].append([shutitfile_command, item[1]])
 		elif shutitfile_command == 'DEFAULT_INCLUDE':
 			shutitfile_representation['shutitfile']['default_include'] = item[1]
-		elif shutitfile_command == 'REPLACE_LINE':
-			shutitfile_representation['shutitfile']['script'].append([shutitfile_command, item[1]])
-		elif shutitfile_command == 'LOG':
-			shutitfile_representation['shutitfile']['script'].append([shutitfile_command, item[1]])
 		elif shutitfile_command == 'CONFIG':
 			shutitfile_representation['shutitfile']['config'].append([shutitfile_command, item[1]])
 		else:
