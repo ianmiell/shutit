@@ -70,7 +70,6 @@ def create_skeleton():
 	skel_path        = shutit.cfg['skeleton']['path']
 	skel_module_name = shutit.cfg['skeleton']['module_name']
 	skel_domain      = shutit.cfg['skeleton']['domain']
-	# TODO: rework these
 	skel_domain_hash = shutit.cfg['skeleton']['domain_hash']
 	skel_depends     = shutit.cfg['skeleton']['depends']
 	skel_shutitfiles = shutit.cfg['skeleton']['shutitfiles']
@@ -158,7 +157,6 @@ def create_skeleton():
 			open(templatemodule_path, 'w').write(templatemodule)
 			_count += 1
 			buildcnf_path = skel_path + '/configs/build.cnf'
-			# TODO: Whether to build core module
 			buildcnf += textwrap.dedent('''\
 				[''' + skel_module_id + ''']
 				shutit.core.module.build:''' + default_include + '''
@@ -336,7 +334,6 @@ def check_shutitfile_representation(shutitfile_representation, skel_delivery):
 
 
 def generate_shutit_module(shutitfile_representation, skel_domain, skel_module_name, skel_shutitfile, skel_depends, order, total):
-
 	shutit = shutit_global.shutit
 	templatemodule = '\n# Created from shutitfile: ' + skel_shutitfile + '\n# Maintainer:              ' + shutitfile_representation['shutitfile']['maintainer'] + '\nfrom shutit_module import ShutItModule\n\nclass template(ShutItModule):\n\n\tdef is_installed(self, shutit):\n\t\treturn False'
 
@@ -512,8 +509,7 @@ def generate_shutit_module(shutitfile_representation, skel_domain, skel_module_n
 		shutit.fail('Unbalanced IFs in ' + section + ' section')
 	templatemodule += '\n\t\treturn True'
 
-
-	# depends section
+	# dependencies section
 	shutitfile_depends = []
 	for item in shutitfile_representation['shutitfile']['depends']:
 		shutitfile_depends.append(item[1])
@@ -561,7 +557,7 @@ def process_shutitfile(shutitfile_contents, order):
 		shutitfile_command = item[0].upper()
 		# List of handled shutitfile_commands
 		if shutitfile_state != 'SCRIPT_DURING':
-			assert shutitfile_command in ('SCRIPT_END','SCRIPT_BEGIN','SCRIPT_END','FROM','ONBUILD','VOLUME','DESCRIPTION','MAINTAINER','EXPOSE','ENTRYPOINT','CMD','USER','LOGIN','LOGOUT','GET_PASSWORD','ENV','RUN','SEND','ASSERT_OUTPUT','PAUSE_POINT','EXPECT','EXPECT_MULTI','EXPECT_REACT','UNTIL','ADD','COPY','WORKDIR','COMMENT','INSTALL','REMOVE','DEPENDS','DELIVERY','MODULE_ID','REPLACE_LINE','START_BEGIN','START_END','STOP_BEGIN','STOP_END','TEST_BEGIN','TEST_END','BUILD_BEGIN','BUILD_END','ISINSTALLED_BEGIN','ISINSTALLED_END','IF','IF_NOT','ELIF_NOT','ELIF','ELSE','ENDIF','COMMIT','PUSH','DEFAULT_INCLUDE','LOG','CONFIG'), '%r is not a handled ShutItFile command' % shutitfile_command
+			assert shutitfile_command in ('SCRIPT_END','SCRIPT_BEGIN','SCRIPT_END','FROM','ONBUILD','VOLUME','DESCRIPTION','MAINTAINER','EXPOSE','ENTRYPOINT','CMD','USER','LOGIN','LOGOUT','GET_PASSWORD','ENV','RUN','SEND','ASSERT_OUTPUT','PAUSE_POINT','EXPECT','EXPECT_MULTI','EXPECT_REACT','UNTIL','ADD','COPY','WORKDIR','COMMENT','INSTALL','REMOVE','DEPENDS','DELIVERY','MODULE_ID','REPLACE_LINE','START_BEGIN','START_END','STOP_BEGIN','STOP_END','TEST_BEGIN','TEST_END','BUILD_BEGIN','BUILD_END','ISINSTALLED_BEGIN','ISINSTALLED_END','IF','IF_NOT','ELIF_NOT','ELIF','ELSE','ENDIF','COMMIT','PUSH','DEFAULT_INCLUDE','LOG','CONFIG','CONFIG_SECRET'), '%r is not a handled ShutItFile command' % shutitfile_command
 		if shutitfile_command != 'SCRIPT_END' and shutitfile_state == 'SCRIPT_DURING':
 			inline_script += '\n' + ' '.join(item)
 		elif shutitfile_command == 'SCRIPT_BEGIN':
@@ -573,7 +569,6 @@ def process_shutitfile(shutitfile_contents, order):
 		elif shutitfile_command == 'FROM':
 			if shutitfile_representation['shutitfile']['base_image'] == []:
 				shutitfile_representation['shutitfile']['base_image'] = item[1]
-				# TODO: this is a little ungainly - is there a better way to ensure the build.cnf is correct than setting this other item?
 				shutit.shutitfile['base_image'] = item[1]
 			else:
 				print 'Ignoring FROM line as this it has already been set.'
@@ -685,6 +680,8 @@ def process_shutitfile(shutitfile_contents, order):
 			shutitfile_representation['shutitfile']['default_include'] = item[1]
 		elif shutitfile_command == 'CONFIG':
 			shutitfile_representation['shutitfile']['config'].append([shutitfile_command, item[1]])
+		elif shutitfile_command == 'CONFIG_SECRET':
+			shutitfile_representation['shutitfile']['config'].append([shutitfile_command, item[1]])
 		else:
 			shutit.fail('shutitfile command: ' + shutitfile_command + ' not processed')
 		last_shutitfile_command = shutitfile_command
@@ -696,18 +693,22 @@ def handle_shutitfile_config_line(line):
 	shutit             = shutit_global.shutit
 	build              = ''
 	numtabs            = 2
-	assert shutitfile_command in ('CONFIG'), '%r is not a handled config command' % shutitfile_command
-	if shutitfile_command in ('CONFIG'):
+	assert shutitfile_command in ('CONFIG','CONFIG_SECRET'), '%r is not a handled config command' % shutitfile_command
+	if shutitfile_command in ('CONFIG','CONFIG_SECRET'):
 		shutitfile_args    = parse_shutitfile_args(line[1])
 		assert type(shutitfile_args) in (dict,list)
+		if shutitfile_command == 'CONFIG':
+			secret_str = 'False'
+		elif shutitfile_command == 'CONFIG_SECRET':
+			secret_str = 'True'
 		if type(shutitfile_args) == list:
 			assert len(shutitfile_args) in (1,2), ''
 			cfg_name = shutitfile_args[0]
 			if len(shutitfile_args) == 1:
-				build += """\n""" + numtabs*'\t' + """shutit.get_config(self.module_id,'""" + cfg_name + """',secret=True)"""
+				build += """\n""" + numtabs*'\t' + """shutit.get_config(self.module_id,'""" + cfg_name + """',secret=""" + secret_str + """)"""
 			elif len(shutitfile_args) == 2:
 				cfg_default = shutitfile_args[1]
-				build += """\n""" + numtabs*'\t' + """shutit.get_config(self.module_id,'""" + cfg_name + """',default='""" + cfg_default + """',secret=True)"""
+				build += """\n""" + numtabs*'\t' + """shutit.get_config(self.module_id,'""" + cfg_name + """',default='""" + cfg_default + """',secret=""" + secret_str + """)"""
 	return build
 
 
@@ -891,17 +892,15 @@ def handle_shutitfile_script_line(line, numpushes, wgetgot, numlogins, ifdepth):
 	elif shutitfile_command in ('IF','IF_NOT'):
 		subcommand      = scan_text(line[1])
 		subcommand_args = scan_text(' '.join(line[2:]))
+		if subcommand == 'FILE_EXISTS':
+			statement = """shutit.file_exists('''""" + subcommand_args + """''',directory=None)"""
+		elif subcommand == 'INSTALL_TYPE':
+			statement = """shutit.get_current_shutit_pexpect_session_environment().install_type == '""" + subcommand_args + """':"""
+		else:
+			shutit.fail('subcommand: ' + subcommand + ' not handled')
 		if shutitfile_command == 'IF':
-			if subcommand == 'FILE_EXISTS':
-				statement = """shutit.file_exists('''""" + subcommand_args + """''',directory=None)"""
-			else:
-				shutit.fail('subcommand: ' + subcommand + ' not handled')
 			build += """\n""" + numtabs*"""\t""" + """if """ + statement + """:"""
 		elif shutitfile_command == 'IF_NOT':
-			if subcommand == 'FILE_EXISTS':
-				statement = """shutit.file_exists('''""" + subcommand_args + """''',directory=None)"""
-			else:
-				shutit.fail('subcommand: ' + subcommand + ' not handled')
 			build += """\n""" + numtabs*"""\t""" + """if not """ + statement + """:"""
 		ifdepth += 1
 	elif shutitfile_command == 'ELSE':
@@ -910,17 +909,15 @@ def handle_shutitfile_script_line(line, numpushes, wgetgot, numlogins, ifdepth):
 	elif shutitfile_command in ('ELIF','ELIF_NOT'):
 		subcommand      = scan_text(line[1])
 		subcommand_args = scan_text(' '.join(line[2:]))
+		if subcommand == 'FILE_EXISTS':
+			statement = """shutit.file_exists('''""" + subcommand_args + """''',directory=None)"""
+		elif subcommand == 'INSTALL_TYPE':
+			statement = """shutit.get_current_shutit_pexpect_session_environment().install_type == '""" + subcommand_args + """':"""
+		else:
+			shutit.fail('subcommand: ' + subcommand + ' not handled')
 		if shutitfile_command == 'ELIF':
-			if subcommand == 'FILE_EXISTS':
-				statement = """shutit.file_exists('''""" + subcommand_args + """''',directory=None)"""
-			else:
-				shutit.fail('subcommand: ' + subcommand + ' not handled')
 			build += """\n""" + (numtabs-1)*'\t' + '''elif ''' + statement + ''':'''
 		elif shutitfile_command == 'ELIF_NOT':
-			if subcommand == 'FILE_EXISTS':
-				statement = """shutit.file_exists('''""" + subcommand_args + """''',directory=None)"""
-			else:
-				shutit.fail('subcommand: ' + subcommand + ' not handled')
 			build += """\n""" + (numtabs-1)*"""\t""" + """elif not """ + statement + """:"""
 	elif shutitfile_command == 'ENDIF':
 		ifdepth -= 1
