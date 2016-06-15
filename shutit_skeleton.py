@@ -895,7 +895,7 @@ def handle_shutitfile_script_line(line, numpushes, wgetgot, numlogins, ifdepth):
 		if subcommand == 'FILE_EXISTS':
 			statement = """shutit.file_exists('''""" + subcommand_args + """''',directory=None)"""
 		elif subcommand == 'INSTALL_TYPE':
-			statement = """shutit.get_current_shutit_pexpect_session_environment().install_type == '""" + subcommand_args + """':"""
+			statement = """shutit.get_current_shutit_pexpect_session_environment().install_type == '''""" + subcommand_args + """'''"""
 		else:
 			shutit.fail('subcommand: ' + subcommand + ' not handled')
 		if shutitfile_command == 'IF':
