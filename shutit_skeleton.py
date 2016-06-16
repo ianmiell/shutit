@@ -153,7 +153,9 @@ def create_skeleton():
 		buildcnf = ''
 		for skel_shutitfile in skel_shutitfiles:
 			templatemodule_path   = os.path.join(skel_path, skel_module_name + '_' + str(_count) + '.py')
-			(templatemodule,skel_module_id, default_include) = shutitfile_to_shutit_module_template(skel_shutitfile,skel_path,skel_domain,skel_module_name,skel_domain_hash,skel_delivery,skel_depends,_count,_total)
+			(templatemodule,skel_module_id, default_include, ok) = shutitfile_to_shutit_module_template(skel_shutitfile,skel_path,skel_domain,skel_module_name,skel_domain_hash,skel_delivery,skel_depends,_count,_total)
+			if not ok:
+				shutit.fail('Failed to create shutit module from: ' + skel_shutitfile)
 			open(templatemodule_path, 'w').write(templatemodule)
 			_count += 1
 			buildcnf_path = skel_path + '/configs/build.cnf'
@@ -195,8 +197,8 @@ def parse_shutitfile(contents):
 				if re.match("^IF_NOT+[\s]+([A-Z_]+)[\s]+(.*)$", full_line):
 					m = re.match("^IF_NOT+[\s]+([A-Z_]+)[\s]+(.*)$", full_line)
 					ret.append(['IF_NOT',m.group(1),m.group(2)])
-				elif re.match("^STORE_RUN+[\s]+([a-Z0-9_]+)[\s]+(.*)$", full_line):
-					m = re.match("^STORE_RUN+[\s]+([a-Z0-9_]+)[\s]+(.*)$", full_line)
+				elif re.match("^STORE_RUN+[\s]+([a-zA-Z0-9_]+)[\s]+(.*)$", full_line):
+					m = re.match("^STORE_RUN+[\s]+([a-zA-Z0-9_]+)[\s]+(.*)$", full_line)
 					ret.append(['STORE_RUN',m.group(1),m.group(2)])
 				elif re.match("^ELIF_NOT[\s]+([A-Z_]+)[\s]+(.*)$", full_line):
 					m = re.match("^ELIF_NOT[\s]+([A-Z_]+)[\s]+(.*)$", full_line)
@@ -218,9 +220,9 @@ def parse_shutitfile(contents):
 					# Comments should be added with 'COMMENT a comment'
 					pass
 				else:
-					shutit.fail("Could not parse line in parse_shutitfile: " + full_line)
+					return [], False
 				full_line = ''
-	return ret
+	return ret, True
 
 
 def parse_shutitfile_args(args_str):
@@ -282,7 +284,9 @@ def shutitfile_to_shutit_module_template(skel_shutitfile,
 		os.chdir(shutitfile_dirname)
 
 	# Process the shutitfile
-	shutitfile_representation = process_shutitfile(shutitfile_contents, order)
+	shutitfile_representation, ok = process_shutitfile(shutitfile_contents)
+	if not ok:
+		return '', '', '', False
 
 	# Check the shutitfile representation
 	check_shutitfile_representation(shutitfile_representation, skel_delivery)
@@ -303,7 +307,7 @@ def shutitfile_to_shutit_module_template(skel_shutitfile,
 	# Return program to main shutit_dir
 	if shutitfile_dirname:
 		os.chdir(sys.path[0])
-	return templatemodule, module_id, default_include
+	return templatemodule, module_id, default_include, ok
 
 
 
@@ -322,7 +326,7 @@ def check_shutitfile_representation(shutitfile_representation, skel_delivery):
 	if skel_delivery not in shutit_util.allowed_delivery_methods:
 		shutit.fail('Disallowed delivery method in ShutItFile: ' + skel_delivery)
 
-	if skel_delivery not in ('docker'):
+	if skel_delivery != 'docker':
 		# FROM, ONBUILD, VOLUME, EXPOSE, ENTRYPOINT, CMD, COMMIT, PUSH are verboten
 		failed = False
 		if shutitfile_representation['shutitfile']['cmd'] != '' or shutitfile_representation['shutitfile']['volume']  != [] or shutitfile_representation['shutitfile']['onbuild'] != [] or shutitfile_representation['shutitfile']['expose']  !=  [] or shutitfile_representation['shutitfile']['entrypoint'] != []:
@@ -530,7 +534,7 @@ def generate_shutit_module(shutitfile_representation, skel_domain, skel_module_n
 	return templatemodule, module_id, depends, default_include
 
 
-def process_shutitfile(shutitfile_contents, order):
+def process_shutitfile(shutitfile_contents):
 	shutit = shutit_global.shutit
 	# Wipe the command as we expect one in the file.
 	shutitfile_representation = {'shutitfile': {}}
@@ -550,7 +554,9 @@ def process_shutitfile(shutitfile_contents, order):
 	shutitfile_representation['shutitfile']['base_image']      = []
 	# Whether to build this module by default (defaults to 'yes/true'
 	shutitfile_representation['shutitfile']['default_include'] = 'true'
-	shutitfile_list = parse_shutitfile(shutitfile_contents)
+	shutitfile_list, ok = parse_shutitfile(shutitfile_contents)
+	if not ok:
+		return [], False
 	# Set defaults from given shutitfile
 	last_shutitfile_command = ''
 	shutitfile_state = 'NONE'
@@ -663,7 +669,6 @@ def process_shutitfile(shutitfile_contents, order):
 		elif shutitfile_command == 'MODULE_ID':
 			# Only one item allowed.
 			shutitfile_representation['shutitfile']['module_id'] = item[1]
-			shutitfile_representation['shutitfile']['script'].append([shutitfile_command])
 		elif shutitfile_command == 'DEFAULT_INCLUDE':
 			shutitfile_representation['shutitfile']['default_include'] = item[1]
 		elif shutitfile_command == 'CONFIG':
@@ -680,7 +685,7 @@ def process_shutitfile(shutitfile_contents, order):
 		else:
 			shutit.fail('shutitfile command: ' + shutitfile_command + ' not processed')
 		last_shutitfile_command = shutitfile_command
-	return shutitfile_representation
+	return shutitfile_representation, True
 
 
 def handle_shutitfile_config_line(line):

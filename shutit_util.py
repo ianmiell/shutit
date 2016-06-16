@@ -56,6 +56,7 @@ import pexpect
 import texttable
 import shutit_global
 import shutit_main
+import shutit_skeleton
 from shutit_module import ShutItFailException
 from shutit_module import ShutItModule
 
@@ -499,7 +500,7 @@ def parse_args():
 
 	# This mode is a bit special - it's the only one with different arguments
 	if shutit.action['skeleton']:
-		# Checks
+		# Looks through the arguments given for valid shutitfiles, and adds their names to _new_shutitfiles.
 		if args.shutitfiles and args.script:
 			shutit.fail('Cannot have any two of script, -d/--shutitfiles <files> as arguments')
 		_new_shutitfiles = None
@@ -509,8 +510,39 @@ def parse_args():
 			for shutitfile in args.shutitfiles:
 				if shutitfile[0] != '/':
 					shutitfile = cwd + '/' + shutitfile
-				_new_shutitfiles.append(shutitfile)
-				if not os.path.isfile(shutitfile):
+				if os.path.isfile(shutitfile):
+					candidate_shutitfile_fh = open(shutitfile,'r')
+					candidate_shutitfile_contents = candidate_shutitfile_fh.read()
+					candidate_shutitfile_fh.close()
+					try:
+						shutitfile_representation, ok = shutit_skeleton.process_shutitfile(candidate_shutitfile_contents)
+						if not ok or candidate_shutitfile_contents.strip() == '':
+							print 'ignoring file (failed to parse candidate shutitfile): ' + candidate_shutitfile
+						else:
+							_new_shutitfiles.append(shutitfile)
+					except:
+						print 'ignoring file (failed to parse candidate shutitfile): ' + candidate_shutitfile
+				elif os.path.isdir(shutitfile):
+					for root, subfolders, files in os.walk(shutitfile):
+						subfolders.sort()
+						files.sort()
+						for fname in files:
+							candidate_shutitfile = os.path.join(root, fname)
+							try:
+								if os.path.isfile(candidate_shutitfile):
+									candidate_shutitfile_fh = open(candidate_shutitfile,'r')
+									candidate_shutitfile_contents = candidate_shutitfile_fh.read()
+									candidate_shutitfile_fh.close()
+									shutitfile_representation, ok = shutit_skeleton.process_shutitfile(candidate_shutitfile_contents)
+									if not ok or candidate_shutitfile_contents.strip() == '':
+										print 'ignoring file (failed to parse candidate shutitfile): ' + candidate_shutitfile
+									else:
+										_new_shutitfiles.append(candidate_shutitfile)
+								else:
+									print 'ignoring filename (not a normal file): ' + fname
+							except:
+								print 'ignoring file (failed to parse candidate shutitfile): ' + candidate_shutitfile
+				else:
 					print('ShutItFile: ' + shutitfile + ' appears to not exist.')
 					handle_exit(exit_code=1)
 		accept_defaults = args.accept
@@ -863,6 +895,7 @@ def load_configs():
 		except Exception:
 			shutit.log('No manhole package available, skipping import',level=logging.DEBUG)
 			pass
+
 
 
 def load_shutit_modules():
