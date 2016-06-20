@@ -618,7 +618,6 @@ shutitfile:        a shutitfile-based project
 			template_branch = args.template_branch
 
 		# Sort out delivery method.
-		print delivery_method
 		if delivery_method is None:
 			if template_branch in ('docker','docker_tutorial', 'shutitfile'):
 				default_delivery = 'docker'
