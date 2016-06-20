@@ -517,11 +517,11 @@ def parse_args():
 					try:
 						shutitfile_representation, ok = shutit_skeleton.process_shutitfile(candidate_shutitfile_contents)
 						if not ok or candidate_shutitfile_contents.strip() == '':
-							print 'ignoring file (failed to parse candidate shutitfile): ' + candidate_shutitfile
+							print 'ignoring file (failed to parse candidate shutitfile): ' + shutitfile
 						else:
 							_new_shutitfiles.append(shutitfile)
 					except:
-						print 'ignoring file (failed to parse candidate shutitfile): ' + candidate_shutitfile
+						print 'ignoring file (failed to parse candidate shutitfile): ' + shutitfile
 				elif os.path.isdir(shutitfile):
 					for root, subfolders, files in os.walk(shutitfile):
 						subfolders.sort()
