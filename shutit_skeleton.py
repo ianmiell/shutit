@@ -220,6 +220,7 @@ def parse_shutitfile(contents):
 					# Comments should be added with 'COMMENT a comment'
 					pass
 				else:
+					print 'FAILED TO PARSE: ' + full_line
 					return [], False
 				full_line = ''
 	return ret, True

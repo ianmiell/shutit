@@ -517,11 +517,13 @@ def parse_args():
 					try:
 						shutitfile_representation, ok = shutit_skeleton.process_shutitfile(candidate_shutitfile_contents)
 						if not ok or candidate_shutitfile_contents.strip() == '':
-							print 'ignoring file (failed to parse candidate shutitfile): ' + shutitfile
+							print 'Ignoring file (failed to parse candidate shutitfile): ' + shutitfile
 						else:
 							_new_shutitfiles.append(shutitfile)
-					except:
-						print 'ignoring file (failed to parse candidate shutitfile): ' + shutitfile
+					except Exception as e:
+						print ''
+						print e
+						print 'Ignoring file (failed to parse candidate shutitfile): ' + shutitfile
 				elif os.path.isdir(shutitfile):
 					for root, subfolders, files in os.walk(shutitfile):
 						subfolders.sort()
@@ -535,13 +537,13 @@ def parse_args():
 									candidate_shutitfile_fh.close()
 									shutitfile_representation, ok = shutit_skeleton.process_shutitfile(candidate_shutitfile_contents)
 									if not ok or candidate_shutitfile_contents.strip() == '':
-										print 'ignoring file (failed to parse candidate shutitfile): ' + candidate_shutitfile
+										print 'Ignoring file (failed to parse candidate shutitfile): ' + candidate_shutitfile
 									else:
 										_new_shutitfiles.append(candidate_shutitfile)
 								else:
-									print 'ignoring filename (not a normal file): ' + fname
+									print 'Ignoring filename (not a normal file): ' + fname
 							except:
-								print 'ignoring file (failed to parse candidate shutitfile): ' + candidate_shutitfile
+								print 'Ignoring file (failed to parse candidate shutitfile): ' + candidate_shutitfile
 				else:
 					print('ShutItFile: ' + shutitfile + ' appears to not exist.')
 					handle_exit(exit_code=1)
