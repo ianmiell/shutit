@@ -545,6 +545,7 @@ def parse_args():
 				else:
 					print('ShutItFile: ' + shutitfile + ' appears to not exist.')
 					handle_exit(exit_code=1)
+		#print _new_shutitfiles
 		accept_defaults = args.accept
 		if args.module_directory == '':
 			default_dir = '/tmp/shutit_' + random_word()
