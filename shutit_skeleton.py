@@ -298,15 +298,15 @@ def shutitfile_to_shutit_module_template(skel_shutitfile,
 	templatemodule, module_id, depends, default_include = generate_shutit_module(shutitfile_representation, skel_domain, skel_module_name, skel_shutitfile, skel_depends, order, total)
 
 	# Final section
-	templatemodule += """\n\ndef module():\n\t\treturn template(\n\t\t\t\t'"""
+	templatemodule += """\n\ndef module():\n\t\treturn template(\n\t\t'"""
 	templatemodule += module_id + """', """
 	templatemodule += skel_domain_hash + str(order * 0.0001) + str(random.randint(1,999))
-	templatemodule += """,\n\t\t\t\tdescription='"""
+	templatemodule += """,\n\t\tdescription='"""
 	templatemodule += shutitfile_representation['shutitfile']['description']
-	templatemodule += """',\n\t\t\tdelivery_methods=[('"""
-	templatemodule += skel_delivery + """')],\n\t\t\t\tmaintainer='"""
+	templatemodule += """',\n\t\tdelivery_methods=[('"""
+	templatemodule += skel_delivery + """')],\n\t\tmaintainer='"""
 	templatemodule += shutitfile_representation['shutitfile']['maintainer']
-	templatemodule += """',\n\t\t\t\t\tdepends=[""" + depends + """]\n\t\t)\n"""
+	templatemodule += """',\n\t\tdepends=[""" + depends + """]\n\t\t)\n"""
 
 	# Return program to main shutit_dir
 	if shutitfile_dirname:
