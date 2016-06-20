@@ -500,13 +500,16 @@ def parse_args():
 
 	# This mode is a bit special - it's the only one with different arguments
 	if shutit.action['skeleton']:
+		delivery_method = args.delivery
+		accept_defaults = args.accept
 		# Looks through the arguments given for valid shutitfiles, and adds their names to _new_shutitfiles.
 		if args.shutitfiles and args.script:
 			shutit.fail('Cannot have any two of script, -d/--shutitfiles <files> as arguments')
 		_new_shutitfiles = None
 		if args.shutitfiles:
 			cwd = os.getcwd()
-			_new_shutitfiles = []
+			_new_shutitfiles       = []
+			_delivery_methods_seen = set()
 			for shutitfile in args.shutitfiles:
 				if shutitfile[0] != '/':
 					shutitfile = cwd + '/' + shutitfile
@@ -520,6 +523,8 @@ def parse_args():
 							print 'Ignoring file (failed to parse candidate shutitfile): ' + shutitfile
 						else:
 							_new_shutitfiles.append(shutitfile)
+							if len(shutitfile_representation['shutitfile']['delivery']) > 0:
+								_delivery_methods_seen.add(shutitfile_representation['shutitfile']['delivery'][0][1])
 					except Exception as e:
 						print ''
 						print e
@@ -540,6 +545,8 @@ def parse_args():
 										print 'Ignoring file (failed to parse candidate shutitfile): ' + candidate_shutitfile
 									else:
 										_new_shutitfiles.append(candidate_shutitfile)
+										if len(shutitfile_representation['shutitfile']['delivery']) > 0:
+											_delivery_methods_seen.add(shutitfile_representation['shutitfile']['delivery'][0][1])
 								else:
 									print 'Ignoring filename (not a normal file): ' + fname
 							except:
@@ -547,8 +554,17 @@ def parse_args():
 				else:
 					print('ShutItFile: ' + shutitfile + ' appears to not exist.')
 					handle_exit(exit_code=1)
-		#print _new_shutitfiles
-		accept_defaults = args.accept
+			if _new_shutitfiles:
+				if len(_delivery_methods_seen) == 0 and delivery_method == None:
+					delivery_method = 'bash'
+				elif len(_delivery_methods_seen) == 1 and delivery_method == None:
+					delivery_method = _delivery_methods_seen.pop()
+				else:
+					print 'Too many delivery methods seen in shutitfiles: ' + str(_new_shutitfiles)
+					print 'Delivery methods: ' + str(_delivery_methods_seen)
+					handle_exit(exit_code=1)
+			#print _new_shutitfiles
+			#print delivery_method
 		if args.module_directory == '':
 			default_dir = '/tmp/shutit_' + random_word()
 			if accept_defaults:
@@ -580,29 +596,30 @@ def parse_args():
 			domain = args.domain
 		# Figure out defaults.
 		# If no template branch supplied, then assume it's the same as delivery.
-		if _new_shutitfiles:
-			default_template_branch = 'shutitfile'
-		else:
-			default_template_branch = 'bash'
 		if args.template_branch == '':
-			if accept_defaults:
+			if accept_defaults or _new_shutitfiles:
+				if _new_shutitfiles:
+					default_template_branch = delivery_method
+				else:
+					default_template_branch = 'bash'
 				template_branch = default_template_branch
 			else:
 				template_branch = util_raw_input(prompt='''# Input a ShutIt pattern.
-Default: bash
+Default: ''' + default_template_branch + ''' 
 
 bash:              a shell script
 docker:            a docker image build
 vagrant:           a vagrant setup
 vagrant_multinode: a vagrant multinode setup
 docker_tutorial:   a docker-based tutorial
-shutitfile:        a shutitfile-based Docker project
+shutitfile:        a shutitfile-based project
 ''',default=default_template_branch)
 		else:
 			template_branch = args.template_branch
 
 		# Sort out delivery method.
-		if args.delivery is None:
+		print delivery_method
+		if delivery_method is None:
 			if template_branch in ('docker','docker_tutorial', 'shutitfile'):
 				default_delivery = 'docker'
 			else:
@@ -614,7 +631,9 @@ shutitfile:        a shutitfile-based Docker project
 				while delivery not in allowed_delivery_methods:
 					delivery = util_raw_input(prompt='# Input a delivery method from: ' + str(allowed_delivery_methods) + '.\n# Default: ' + default_delivery + '\n\ndocker = build within a docker image\nssh = ssh to target and build\nbash = run commands directly within bash\n', default=default_delivery)
 		else:
-			delivery = args.delivery
+			delivery = delivery_method
+		#print '======================='
+		#print delivery
 		shutit.cfg['skeleton'] = {
 			'path':                  module_directory,
 			'module_name':           module_name,
@@ -637,7 +656,6 @@ shutitfile:        a shutitfile-based Docker project
 		shutit.build['conn_module']      = None
 		shutit.build['delivery']         = 'bash'
 		shutit.target['docker_image']    = ''
-		
 	else:
 		shutit_home = shutit.host['shutit_path'] = os.path.expanduser('~/.shutit')
 		# We're not creating a skeleton, so make sure we have the infrastructure
@@ -727,7 +745,7 @@ shutitfile:        a shutitfile-based Docker project
 			os.chmod(shutit.build['log_config_path'],0777)
 		else:
 			shutit.build['log_config_path'] = None
-		# Tutorial stuff.
+		# Tutorial stuff. TODO: ditch tutorial mode
 		if shutit.build['interactive'] >= 3:
 			print textwrap.dedent("""\
 				================================================================================

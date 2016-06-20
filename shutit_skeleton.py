@@ -220,7 +220,9 @@ def parse_shutitfile(contents):
 					# Comments should be added with 'COMMENT a comment'
 					pass
 				else:
-					print 'FAILED TO PARSE: ' + full_line
+					full_line_split = ''.join((full_line[:10000].split()))
+					full_line_strings = re.findall("[^\x00-\x1F\x7F-\xFF]", full_line_split)
+					print 'FAILED TO PARSE: ' + full_line_strings[:30] + '[...]'
 					return [], False
 				full_line = ''
 	return ret, True
@@ -296,14 +298,15 @@ def shutitfile_to_shutit_module_template(skel_shutitfile,
 	templatemodule, module_id, depends, default_include = generate_shutit_module(shutitfile_representation, skel_domain, skel_module_name, skel_shutitfile, skel_depends, order, total)
 
 	# Final section
-	templatemodule += """\n\ndef module():
-		return template(
-				'""" + module_id + """', """ + skel_domain_hash + str(order * 0.0001) + str(random.randint(1,999)) + """,
-				description='""" + shutitfile_representation['shutitfile']['description'] + """',
-				delivery_methods=[('""" + skel_delivery + """')],
-				maintainer='""" + shutitfile_representation['shutitfile']['maintainer'] + """',
-				depends=[%s""" % depends + """]
-		)\n"""
+	templatemodule += """\n\ndef module():\n\t\treturn template(\n\t\t\t\t'"""
+	templatemodule += module_id + """', """
+	templatemodule += skel_domain_hash + str(order * 0.0001) + str(random.randint(1,999))
+	templatemodule += """,\n\t\t\t\tdescription='"""
+	templatemodule += shutitfile_representation['shutitfile']['description']
+	templatemodule += """',\n\t\t\tdelivery_methods=[('"""
+	templatemodule += skel_delivery + """')],\n\t\t\t\tmaintainer='"""
+	templatemodule += shutitfile_representation['shutitfile']['maintainer']
+	templatemodule += """',\n\t\t\t\t\tdepends=[""" + depends + """]\n\t\t)\n"""
 
 	# Return program to main shutit_dir
 	if shutitfile_dirname:
@@ -323,6 +326,9 @@ def check_shutitfile_representation(shutitfile_representation, skel_delivery):
 		shutit.fail('Conflicting delivery methods in ShutItFile')
 	elif len(shutitfile_delivery) == 1:
 		skel_delivery = shutitfile_delivery.pop()
+	else:
+		# Default skel_delivery to bash if none seen
+		skel_delivery = 'bash'
 
 	if skel_delivery not in shutit_util.allowed_delivery_methods:
 		shutit.fail('Disallowed delivery method in ShutItFile: ' + skel_delivery)
@@ -920,7 +926,7 @@ def handle_shutitfile_script_line(line, numpushes, wgetgot, numlogins, ifdepth):
 		if subcommand == 'FILE_EXISTS':
 			statement = """shutit.file_exists('''""" + subcommand_args + """''',directory=None)"""
 		elif subcommand == 'INSTALL_TYPE':
-			statement = """shutit.get_current_shutit_pexpect_session_environment().install_type == '""" + subcommand_args + """':"""
+			statement = """shutit.get_current_shutit_pexpect_session_environment().install_type == '""" + subcommand_args + """'"""
 		elif subcommand == 'RUN':
 			statement = """shutit.send_and_return_status('''""" + subcommand_args + """''',check_exit=False)"""
 		else:

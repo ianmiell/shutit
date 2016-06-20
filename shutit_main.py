@@ -542,7 +542,7 @@ def main():
 
 	shutit = shutit_global.shutit
 	cfg = shutit.cfg
-	shutit.log('ShutIt Started... ',transient=True,newline=False)
+	shutit.log('ShutIt Started... ',transient=True)
 	shutit_util.parse_args()
 
 	shutit.log('Loading configs...',transient=True)
