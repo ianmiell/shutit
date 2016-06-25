@@ -46,9 +46,6 @@ def stop_all(run_order=-1):
 	before committing run files etc.
 	"""
 	shutit = shutit_global.shutit
-	if shutit.build['interactive'] >= 3:
-		print('\nRunning stop on all modules' + shutit_util.colourise('32', '\n\n[Hit return to continue]'))
-		shutit_util.util_raw_input()
 	# sort them so they're stopped in reverse order
 	for module_id in shutit_util.module_ids(rev=True):
 		shutit_module_obj = shutit.shutit_map[module_id]
@@ -65,9 +62,6 @@ def start_all(run_order=-1):
 	target and still depended-on modules running if necessary.
 	"""
 	shutit = shutit_global.shutit
-	if shutit.build['interactive'] >= 3:
-		print('\nRunning start on all modules' + shutit_util.colourise('32', '\n\n[Hit return to continue]\n'))
-		shutit_util.util_raw_input()
 	# sort them so they're started in order
 	for module_id in shutit_util.module_ids():
 		shutit_module_obj = shutit.shutit_map[module_id]
@@ -122,11 +116,6 @@ def init_shutit_map(shutit):
 			shutit.fail('No modules aside from core ones found and no ShutIt modules in path:\n\n' + path + '\n\nor their subfolders. Check your --shutit_module_path/-m setting and check that there are ShutIt modules below without STOP* files in any relevant directories.')
 
 	shutit.log('PHASE: base setup', level=logging.DEBUG)
-	if shutit.build['interactive'] >= 3:
-		shutit.log('\nChecking to see whether there are duplicate module ids or run orders in the visible modules.\nModules I see are:\n',level=logging.DEBUG)
-		for module in modules:
-			shutit.log(module.module_id, level=logging.DEBUG)
-		shutit.log('\n',level=logging.DEBUG)
 
 	run_orders = {}
 	has_core_module = False
@@ -143,10 +132,6 @@ def init_shutit_map(shutit):
 	if not has_core_module:
 		shutit.fail('No module with run_order=0 specified! This is required.')
 
-	if shutit.build['interactive'] >= 3:
-		print(shutit_util.colourise('32', 'Module id and run order checks OK\n\n[Hit return to continue]\n'))
-		shutit_util.util_raw_input()
-
 
 def conn_target(shutit):
 	"""Connect to the target.
@@ -160,9 +145,6 @@ def conn_target(shutit):
 		shutit.fail('Couldn\'t find conn_module ' + shutit.build['conn_module'])
 
 	# Set up the target in pexpect.
-	if shutit.build['interactive'] >= 3:
-		print('\nRunning the conn module (' + shutit.shutit_main_dir + '/shutit_setup.py)' + shutit_util.colourise('32', '\n\n[Hit return to continue]\n'))
-		shutit_util.util_raw_input()
 	conn_module.get_config(shutit)
 	conn_module.build(shutit)
 
@@ -389,7 +371,7 @@ def build_module(module, loglevel=logging.DEBUG):
 			shutit_global.shutit.get_current_shutit_pexpect_session_environment().modules_not_installed.remove(module.module_id)
 	shutit.pause_point('\nPausing to allow inspect of build for: ' + module.module_id, print_input=True, level=2)
 	shutit.build['report'] = (shutit.build['report'] + '\nCompleted module: ' + module.module_id)
-	if cfg[module.module_id]['shutit.core.module.tag'] or shutit.build['interactive'] >= 3:
+	if cfg[module.module_id]['shutit.core.module.tag']:
 		shutit.log(shutit_util.build_report('#Module:' + module.module_id), level=logging.DEBUG)
 	if (not cfg[module.module_id]['shutit.core.module.tag'] and shutit.build['interactive'] >= 2):
 		print ("\n\nDo you want to save state now we\'re at the " + "end of this module? (" + module.module_id + ") (input y/n)")
@@ -414,9 +396,6 @@ def do_build():
 	shutit = shutit_global.shutit
 	cfg = shutit.cfg
 	shutit.log('PHASE: build, repository work', level=logging.DEBUG)
-	if shutit.build['interactive'] >= 3:
-		print ('\nNow building any modules that need building' + shutit_util.colourise('32', '\n\n[Hit return to continue]\n'))
-		shutit_util.util_raw_input()
 	module_id_list = shutit_util.module_ids()
 	if shutit.build['deps_only']:
 		module_id_list_build_only = filter(lambda x: cfg[x]['shutit.core.module.build'], module_id_list)
@@ -456,9 +435,6 @@ def do_test():
 		return
 	# Test in reverse order
 	shutit.log('PHASE: test', level=logging.DEBUG)
-	if shutit.build['interactive'] >= 3:
-		print '\nNow doing test phase' + shutit_util.colourise('32', '\n\n[Hit return to continue]\n')
-		shutit_util.util_raw_input()
 	stop_all()
 	start_all()
 	for module_id in shutit_util.module_ids(rev=True):
@@ -477,15 +453,9 @@ def do_finalize():
 	"""
 	shutit = shutit_global.shutit
 	# Stop all the modules
-	if shutit.build['interactive'] >= 3:
-		print('\nStopping all modules before finalize phase' + shutit_util.colourise('32', '\n\n[Hit return to continue]\n'))
-		shutit_util.util_raw_input()
 	stop_all()
 	# Finalize in reverse order
 	shutit.log('PHASE: finalize', level=logging.DEBUG)
-	if shutit.build['interactive'] >= 3:
-		print('\nNow doing finalize phase, which we do when all builds are ' + 'complete and modules are stopped' + shutit_util.colourise('32', '\n\n[Hit return to continue]\n'))
-		shutit_util.util_raw_input()
 	# Login at least once to get the exports.
 	for module_id in shutit_util.module_ids(rev=True):
 		# Only finalize if it's thought to be installed.
@@ -645,9 +615,6 @@ def main():
 	# Show final report messages (ie messages to show after standard report).
 	if shutit.build['report_final_messages'] != '':
 		shutit.log(shutit.build['report_final_messages'], level=logging.INFO)
-
-	if shutit.build['interactive'] >= 3:
-		shutit.log('\n' + 'The build is complete. You should now have a target called ' + shutit.target['name'] + ' and a new image if you chose to commit it.\n\nLook and play with the following files from the newly-created module directory to dig deeper:\n\n    configs/build.cnf\n    *.py\n\nYou can rebuild at any time by running the supplied ./build.sh and run with the supplied ./run.sh. These may need tweaking for your particular environment, eg sudo', level=logging.DEBUG)
 
 	# Mark the build as completed
 	shutit.build['completed'] = True

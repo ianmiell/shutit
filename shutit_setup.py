@@ -220,9 +220,6 @@ class ConnDocker(ShutItConnModule):
 				shell_arg
 			] if arg != ''
 		]
-		if shutit.build['interactive'] >= 3:
-			print('\n\nAbout to start container. Ports mapped will be: ' + ', '.join(port_args) + '\n\n[host]\nports:<value>\n\nconfig, building on the configurable base image passed in in:\n\n    --image <image>\n\nor config:\n\n    [target]\n    docker_image:<image>)\n\nBase image in this case is:\n\n    ' + shutit.target['docker_image'] + '\n\n' + shutit_util.colourise('32', '\n[Hit return to continue]'))
-			shutit_util.util_raw_input()
 		shutit.build['docker_command'] = ' '.join(docker_command)
 		# docker run happens here
 		shutit.log('Startup command is: ' + shutit.build['docker_command'],level=logging.INFO)
@@ -391,9 +388,6 @@ class ConnSSH(ShutItConnModule):
 		if cmd_arg == '':
 			cmd_arg = 'sudo su -s /bin/bash -'
 		ssh_command = ['ssh'] + opts + [host_arg, cmd_arg]
-		if shutit.build['interactive'] >= 3:
-			print('\n\nAbout to connect to host.' + '\n\n' + shutit_util.colourise('32', '\n[Hit return to continue]'))
-			shutit_util.util_raw_input()
 		shutit.build['ssh_command'] = ' '.join(ssh_command)
 		shutit.log('Startup command is: ' + shutit.build['ssh_command'],level=logging.INFO)
 		shutit_pexpect_session = shutit_pexpect.ShutItPexpectSession('target_child', ssh_command[0], ssh_command[1:])
