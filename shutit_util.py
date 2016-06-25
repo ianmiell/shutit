@@ -735,7 +735,7 @@ shutitfile:        a shutitfile-based project
 		shutit.target['docker_image']    = args.image_tag
 		# Finished parsing args.
 		# Sort out config path
-		if shutit.build['interactive'] >= 3 or shutit.action['list_configs'] or shutit.action['list_modules'] or shutit.action['list_deps'] or shutit.build['loglevel'] == logging.DEBUG:
+		if shutit.action['list_configs'] or shutit.action['list_modules'] or shutit.action['list_deps'] or shutit.build['loglevel'] == logging.DEBUG:
 			shutit.build['log_config_path'] = shutit.build['shutit_state_dir'] + '/config/' + shutit.build['build_id']
 			if os.path.exists(shutit.build['log_config_path']):
 				print(shutit.build['log_config_path'] + ' exists. Please move and re-run.')
@@ -745,98 +745,14 @@ shutitfile:        a shutitfile-based project
 		else:
 			shutit.build['log_config_path'] = None
 		# Tutorial stuff. TODO: ditch tutorial mode
-		if shutit.build['interactive'] >= 3:
-			print textwrap.dedent("""\
-				================================================================================
-				SHUTIT - INTRODUCTION
-				================================================================================
-				ShutIt is a script that allows the building of static target environments.
-				allowing a high degree of flexibility and easy conversion from other build
-				methods (eg bash scripts)
-
-				It is configured through command-line arguments (see --help) and .cnf files.
-				================================================================================
-				
-				
-				================================================================================
-				CONFIG
-				================================================================================
-				The config is read in the following order:
-				================================================================================
-				~/.shutit/config
-					- Host- and username-specific config for this host.
-				/path/to/this/shutit/module/configs/build.cnf
-					- Config specifying what should be built when this module is invoked.
-				/your/path/to/<configname>.cnf
-					- Passed-in config (via --config, see --help)
-				command-line overrides, eg -s com.mycorp.mymodule.module name value
-				================================================================================
-				Config items look like this:
-				
-				[section]
-				name:value
-				
-				or as command-line overrides:
-				
-				-s section name value
-				================================================================================
-				""" + colourise('32', '\n[Hit return to continue]'))
-			util_raw_input()
-			print textwrap.dedent("""\
-				================================================================================
-				MODULES
-				================================================================================
-				Each module (which is a .py file) has a lifecycle, "module_id" and "run_order".
-
-				The lifecycle (briefly) is as follows:
-
-					foreach module:
-						remove all modules config'd for removal
-					foreach module:
-						build
-						tag
-							stop all modules already started
-							do repository work configured
-							start all modules that were stopped
-						start
-					foreach module:
-						test module
-					stop all modules already started
-					foreach module:
-						finalize module
-
-				and these stages are run from the module code, returning True or False as
-				appropriate.
-
-				The module_id is a string that uniquely identifies the module.
-
-				The run_order is a float that defines the order in which the module should be
-				run relative to other modules. This guarantees a deterministic ordering of
-				the modules run.
-
-				See shutit_module.py for more detailed documentation on these.
-
-				================================================================================
-				""" + colourise('32', '\n[Hit return to continue]'))
-			util_raw_input()
-			print textwrap.dedent("""\
-				================================================================================
-				PAUSE POINTS
-				================================================================================
-				Pause points can be placed within the build, which is useful for debugging.
-
-				This is used throughout this tutorial.
-
-				When debugging, pause_points will output your keyboard input before you finish.
-
-				This can help you build your build, as these commands can be pasted into the
-				module you are developing easily.
-
-				To escape a pause point when it happens, hit the "CTRL" and the "]"
-				key simultaneously.
-				================================================================================
-				""" + colourise('32', '\n[Hit return to continue]'))
-			util_raw_input()
+		#The config is read in the following order:
+		#~/.shutit/config
+		#	- Host- and username-specific config for this host.
+		#/path/to/this/shutit/module/configs/build.cnf
+		#	- Config specifying what should be built when this module is invoked.
+		#/your/path/to/<configname>.cnf
+		#	- Passed-in config (via --config, see --help)
+		#command-line overrides, eg -s com.mycorp.mymodule.module name value
 		# Set up trace as fast as possible.
 		if shutit.build['trace']:
 			def tracefunc(frame, event, arg, indent=[0]):
@@ -866,16 +782,13 @@ def load_configs():
 		configs.append(run_config_file)
 	# Image to use to start off. The script should be idempotent, so running it
 	# on an already built image should be ok, and is advised to reduce diff space required.
-	if shutit.build['interactive'] >= 3 or shutit.action['list_configs'] or shutit.build['loglevel'] == logging.DEBUG:
+	if shutit.action['list_configs'] or shutit.build['loglevel'] == logging.DEBUG:
 		msg = ''
 		for c in configs:
 			if type(c) is tuple:
 				c = c[0]
 			msg = msg + '    \n' + c
 			shutit.log('    ' + c,level=logging.DEBUG)
-		if shutit.build['interactive'] >= 3:
-			print textwrap.dedent("""\n""") + msg + textwrap.dedent(colourise('32', '\n\n[Hit return to continue]'))
-			util_raw_input()
 		if shutit.action['list_configs'] or shutit.build['loglevel'] <= logging.DEBUG:
 			if shutit.build['log_config_path']:
 				f = file(shutit.build['log_config_path'] + '/config_file_order.txt','w')
