@@ -69,6 +69,7 @@ class ShutIt(object):
 		# If no LOGNAME available,
 		self.host                            = {}
 		self.host['shutit_path']             = sys.path[0]
+		self.host['calling_path']            = os.getcwd()
 		self.host['username'] = os.environ.get('LOGNAME', '')
 		if self.host['username'] == '':
 			try:

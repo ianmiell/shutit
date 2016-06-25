@@ -566,7 +566,7 @@ def parse_args():
 			#print _new_shutitfiles
 			#print delivery_method
 		if args.module_directory == '':
-			default_dir = '/tmp/shutit_' + random_word()
+			default_dir = shutit.host['calling_path'] + '/shutit_' + random_word()
 			#if accept_defaults:
 			module_directory = default_dir
 			#else:
@@ -596,12 +596,11 @@ def parse_args():
 			domain = args.domain
 		# Figure out defaults.
 		# If no template branch supplied, then assume it's the same as delivery.
+		default_template_branch = 'bash'
 		if args.template_branch == '':
 			if accept_defaults or _new_shutitfiles:
 				if _new_shutitfiles:
 					default_template_branch = delivery_method
-				else:
-					default_template_branch = 'bash'
 				template_branch = default_template_branch
 			else:
 				template_branch = util_raw_input(prompt='''# Input a ShutIt pattern.
