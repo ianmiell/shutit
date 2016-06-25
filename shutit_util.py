@@ -562,6 +562,7 @@ def parse_args():
 				else:
 					print 'Too many delivery methods seen in shutitfiles: ' + str(_new_shutitfiles)
 					print 'Delivery methods: ' + str(_delivery_methods_seen)
+					print 'Delivery method passed in: ' + delivery_method
 					handle_exit(exit_code=1)
 			#print _new_shutitfiles
 			#print delivery_method
