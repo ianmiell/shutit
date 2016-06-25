@@ -83,7 +83,7 @@ What Does it Do (Docker Builds)?
 ![Example Setup]
 (https://github.com/ianmiell/shutit/blob/gh-pages/images/ShutIt.png)
 
-We start with a "ShutIt Module", similar to a or a shell script, or a Dockerfile (see bash builds above).
+We start with a "ShutIt Module", similar to a shell script, or a Dockerfile (see bash builds above).
 
 In the image above there are five of these. At a high level they each have the following attributes:
 
