@@ -559,6 +559,11 @@ def parse_args():
 					delivery_method = 'bash'
 				elif len(_delivery_methods_seen) == 1 and delivery_method == None:
 					delivery_method = _delivery_methods_seen.pop()
+				elif len(_delivery_methods_seen) == 1:
+					shutitfile_delivery_method = _delivery_methods_seen.pop():
+					if delivery_method != shutitfile_delivery_method:
+						print 'Conflicting delivery methods passed in vs. from shutitfile.\nPassed-in: ' + delivery_method + '\nShutitfile: ' + delivery_method
+						handle_exit(exit_code=1)
 				else:
 					print 'Too many delivery methods seen in shutitfiles: ' + str(_new_shutitfiles)
 					print 'Delivery methods: ' + str(_delivery_methods_seen)
