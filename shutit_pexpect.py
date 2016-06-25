@@ -582,8 +582,9 @@ class ShutItPexpectSession(object):
 							self.send(' stty >  ' + fixterm_filename_stty, echo=False,loglevel=logging.DEBUG, delaybeforesend=delaybeforesend)
 							self.sendline(' ' + fixterm_filename, delaybeforesend=delaybeforesend)
 						# do not re-run if the output of stty matches the current one
-						elif self.send_and_get_output(' diff <(stty) ' + fixterm_filename_stty) != '':
-							self.sendline(' ' + fixterm_filename, delaybeforesend=delaybeforesend)
+						# This causes problems in video mode (?), so commenting out.
+						#elif self.send_and_get_output(' diff <(stty) ' + fixterm_filename_stty) != '':
+						#	self.sendline(' ' + fixterm_filename, delaybeforesend=delaybeforesend)
 						else:
 							self.sendline('')
 				except:

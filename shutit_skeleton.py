@@ -320,6 +320,9 @@ def check_shutitfile_representation(shutitfile_representation, skel_delivery):
 	# Only allow one type of delivery
 	shutit = shutit_global.shutit
 	shutitfile_delivery = set()
+	# If we've been given a delivery method, add that.
+	if skel_delivery:
+		shutitfile_delivery.add(skel_delivery)
 	for item in shutitfile_representation['shutitfile']['delivery']:
 		shutitfile_delivery.add(item[1])
 	if len(shutitfile_delivery) > 1:
