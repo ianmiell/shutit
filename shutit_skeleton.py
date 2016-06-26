@@ -282,7 +282,7 @@ def shutitfile_to_shutit_module_template(skel_shutitfile,
 		if os.path.exists(shutitfile_dirname):
 			if os.path.exists(skel_path + '/context'):
 				shutil.rmtree(skel_path + '/context')
-			shutil.copytree(shutitfile_dirname, skel_path + '/context')
+				shutil.copytree(shutitfile_dirname, skel_path + '/context')
 		# Change to this context
 		os.chdir(shutitfile_dirname)
 

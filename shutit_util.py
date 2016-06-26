@@ -573,10 +573,12 @@ def parse_args():
 			#print delivery_method
 		if args.module_directory == '':
 			default_dir = shutit.host['calling_path'] + '/shutit_' + random_word()
-			#if accept_defaults:
-			module_directory = default_dir
-			#else:
-			#	module_directory = util_raw_input(prompt='# Input a new directory name for this module to be placed in.\n# Default: ' + default_dir + '\n', default=default_dir)
+			if accept_defaults:
+				module_directory = default_dir
+			else:
+				module_directory = util_raw_input(prompt='# Input a name for this module.\n# Default: ' + default_dir + '\n', default=default_dir)
+				if module_directory[0] != '/':
+					module_directory = shutit.host['calling_path'] + '/' + module_directory
 		else:
 			module_directory = args.module_directory
 		while True:
