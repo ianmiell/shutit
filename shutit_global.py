@@ -213,12 +213,16 @@ class ShutIt(object):
 
 		@param add_final_message: Add this log line to the final message output to the user
 		@param level:             Python log level
-		@param transient:         Just write to terminal, no new line
+		@param transient:         Just write to terminal, no new line. If not a
+		                          terminal, write nothing.
 		"""
 		if transient:
-			if newline:
-				msg += '\n'
-			sys.stdout.write(msg)
+			if sys.stdout.isatty():
+				if newline:
+					msg += '\n'
+				sys.stdout.write(msg)
+			else:
+				return True
 		else:
 			logging.log(level,msg)
 			if add_final_message:
