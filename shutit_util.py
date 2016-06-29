@@ -626,11 +626,18 @@ shutitfile:        a shutitfile-based project
 
 		# Sort out delivery method.
 		if delivery_method is None:
+			take_this_default = False
+			default_delivery = 'bash'
 			if template_branch in ('docker','docker_tutorial', 'shutitfile'):
+				if template_branch in ('docker','docker_tutorial'):
+					take_this_default = True
 				default_delivery = 'docker'
+			elif template_branch in ('vagrant','vagrant_multinode','bash'):
+				take_this_default = True
+				default_delivery = 'bash'
 			else:
 				default_delivery = 'bash'
-			if accept_defaults:
+			if accept_defaults or take_this_default:
 				delivery = default_delivery
 			else:
 				delivery = ''
