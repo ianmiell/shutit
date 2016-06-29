@@ -409,8 +409,7 @@ def parse_args():
 	for action in actions:
 		sub_parsers[action] = subparsers.add_parser(action)
 
-	sub_parsers['skeleton'].add_argument('--module_directory', help='Absolute path to new directory for module',default='')
-	sub_parsers['skeleton'].add_argument('--module_name', help='Name for your module. Single word and lower case, eg: mymysql',default='')
+	sub_parsers['skeleton'].add_argument('--name', help='Absolute path to new directory for module. Last part of path is taken as the module name.',default='')
 	sub_parsers['skeleton'].add_argument('--domain', help='Arbitrary but unique domain for namespacing your module, eg com.mycorp',default='')
 	sub_parsers['skeleton'].add_argument('--depends', help='Module id to depend on, default shutit.tk.setup (optional)', default='shutit.tk.setup')
 	sub_parsers['skeleton'].add_argument('--base_image', help='FROM image, default ubuntu:14.04 (optional)', default='ubuntu:14.04')
@@ -571,29 +570,16 @@ def parse_args():
 					handle_exit(exit_code=1)
 			#print _new_shutitfiles
 			#print delivery_method
-		if args.module_directory == '':
+		module_directory = args.name
+		if module_directory == '':
 			default_dir = shutit.host['calling_path'] + '/shutit_' + random_word()
 			if accept_defaults:
 				module_directory = default_dir
 			else:
 				module_directory = util_raw_input(prompt='# Input a name for this module.\n# Default: ' + default_dir + '\n', default=default_dir)
-				if module_directory[0] != '/':
-					module_directory = shutit.host['calling_path'] + '/' + module_directory
-		else:
-			module_directory = args.module_directory
-		while True:
-			if args.module_name == '':
-				default_module_name = module_directory.split('/')[-1].replace('-','_')
-				#if accept_defaults:
-				module_name = default_module_name
-				#else:
-				#	module_name = util_raw_input(prompt='# Input module name, eg (mymodule).\n# Default: ' + default_module_name + '\n', default=default_module_name)
-			else:
-				module_name = args.module_name
-			if not re.match('^[a-z][a-z0-9-_.]*',module_name):
-				print 'You can only have [a-z][a-z0-9-_.]* in your module_name'
-			else:
-				break
+		if module_directory[0] != '/':
+			module_directory = shutit.host['calling_path'] + '/' + module_directory
+		module_name = module_directory.split('/')[-1].replace('-','_')
 		if args.domain == '':
 			default_domain_name = os.getcwd().split('/')[-1] + '.' + module_name
 			#if accept_defaults:
