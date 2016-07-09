@@ -128,19 +128,25 @@ class ShutIt(object):
 		return None
 
 
-	def get_current_shutit_pexpect_session_environment(self):
+	def get_current_shutit_pexpect_session_environment(self, note=None):
 		"""Returns the current environment from the currently-set default
 		pexpect child.
 		"""
-		return self.get_current_shutit_pexpect_session().current_environment
+		self._handle_note(note)
+		res = self.get_current_shutit_pexpect_session().current_environment
+		self._handle_note_after(note)
+		return res
 
 
-	def get_current_shutit_pexpect_session(self):
+	def get_current_shutit_pexpect_session(self, note=None):
 		"""Returns the currently-set default pexpect child.
 
 		@return: default shutit pexpect child object
 		"""
-		return self.current_shutit_pexpect_session
+		self._handle_note(note)
+		res = self.current_shutit_pexpect_session
+		self._handle_note_after(note)
+		return res
 
 
 	def get_default_shutit_pexpect_session_expect(self):
@@ -230,11 +236,14 @@ class ShutIt(object):
 		return True
 
 
-	def get_current_environment(self):
+	def get_current_environment(self, note=None):
 		"""Returns the current environment id from the current
 		shutit_pexpect_session
 		"""
-		return self.get_current_shutit_pexpect_session_environment().environment_id
+		self._handle_note(note)
+		res = self.get_current_shutit_pexpect_session_environment().environment_id
+		self._handle_note_after(note)
+		return res
 
 
 	def multisend(self,
@@ -454,7 +463,8 @@ class ShutIt(object):
 
 		@param note:                 See send()
 		"""
-		if self.build['walkthrough'] and note != None:
+		if self.build['walkthrough'] and note != None and note != '':
+			assert type(note) == str
 			wait = self.build['walkthrough_wait']
 			wrap = '\n' + 80*'=' + '\n'
 			message = wrap + note + wrap
@@ -834,25 +844,89 @@ class ShutIt(object):
 		return shutit_pexpect_session.change_text(text,fname,pattern=pattern,before=before,force=force,delete=delete,note=note,replace=replace,line_oriented=line_oriented,create=create,delaybeforesend=delaybeforesend,loglevel=loglevel)
 
 
-	def insert_text(self, text, fname, pattern=None, expect=None, shutit_pexpect_child=None, before=False, force=False, note=None, replace=False, line_oriented=True, create=True, loglevel=logging.DEBUG):
+	def insert_text(self,
+	                text,
+	                fname,
+	                pattern=None,
+	                expect=None,
+	                shutit_pexpect_child=None,
+	                before=False,
+	                force=False,
+	                note=None,
+	                replace=False,
+	                line_oriented=True,
+	                create=True,
+	                loglevel=logging.DEBUG):
 		"""Insert a chunk of text at the end of a file, or after (or before) the first matching pattern
 		in given file fname.
 		See change_text"""
-		return self.change_text(text=text, fname=fname, pattern=pattern, expect=expect, shutit_pexpect_child=shutit_pexpect_child, before=before, force=force, note=note, line_oriented=line_oriented, create=create, replace=replace, delete=False, loglevel=loglevel)
+		return self.change_text(text=text,
+		                        fname=fname,
+		                        pattern=pattern,
+		                        expect=expect,
+		                        shutit_pexpect_child=shutit_pexpect_child,
+		                        before=before,
+		                        force=force,
+		                        note=note,
+		                        line_oriented=line_oriented,
+		                        create=create,
+		                        replace=replace,
+		                        delete=False,
+		                        loglevel=loglevel)
 
 
-	def delete_text(self, text, fname, pattern=None, expect=None, shutit_pexpect_child=None, before=False, force=False, line_oriented=True, loglevel=logging.DEBUG):
+	def delete_text(self,
+	                text,
+	                fname,
+	                pattern=None,
+	                expect=None,
+	                shutit_pexpect_child=None,
+	                note=None,
+	                before=False,
+	                force=False,
+	                line_oriented=True,
+	                loglevel=logging.DEBUG):
 		"""Delete a chunk of text from a file.
 		See insert_text.
 		"""
-		return self.change_text(text, fname, pattern, expect, shutit_pexpect_child, before, force, delete=True, line_oriented=line_oriented, loglevel=loglevel)
+		return self.change_text(text,
+		                        fname,
+		                        pattern,
+		                        expect,
+		                        shutit_pexpect_child,
+		                        before,
+		                        force,
+		                        note=note,
+		                        delete=True,
+		                        line_oriented=line_oriented,
+		                        loglevel=loglevel)
 
 
-	def replace_text(self, text, fname, pattern=None, expect=None, shutit_pexpect_child=None, before=False, force=False, line_oriented=True, loglevel=logging.DEBUG):
+	def replace_text(self,
+	                 text,
+	                 fname,
+	                 pattern=None,
+	                 expect=None,
+	                 shutit_pexpect_child=None,
+	                 note=None,
+	                 before=False,
+	                 force=False,
+	                 line_oriented=True,
+	                 loglevel=logging.DEBUG):
 		"""Replace a chunk of text from a file.
 		See insert_text.
 		"""
-		return self.change_text(text, fname, pattern, expect, shutit_pexpect_child, before, force, line_oriented=line_oriented, replace=True, loglevel=loglevel)
+		return self.change_text(text,
+		                        fname,
+		                        pattern,
+		                        expect,
+		                        shutit_pexpect_child,
+		                        before,
+		                        force,
+		                        note=note,
+		                        line_oriented=line_oriented,
+		                        replace=True,
+		                        loglevel=loglevel)
 
 
 	def add_line_to_file(self, line, filename, expect=None, shutit_pexpect_child=None, match_regexp=None, loglevel=logging.DEBUG):
@@ -1522,6 +1596,7 @@ class ShutIt(object):
 	                    docker_executable='docker',
 	                    shutit_pexpect_child=None,
 	                    expect=None,
+	                    note=None,
 	                    delaybeforesend=0.05,
 	                    loglevel=logging.INFO):
 		"""Pushes the repository.
@@ -1534,6 +1609,7 @@ class ShutIt(object):
 		@type repository:           string
 		@type docker_executable:    string
 		"""
+		self._handle_note(note)
 		shutit_pexpect_child = shutit_pexpect_child or self.get_shutit_pexpect_session_from_id('host_child').pexpect_child
 		expect               = expect or self.expect_prompts['origin_prompt']
 		send                 = docker_executable + ' push ' + self.repository['user'] + '/' + repository
@@ -1551,6 +1627,7 @@ class ShutIt(object):
 		          fail_on_empty_before=False,
 		          loglevel=loglevel,
 		          delaybeforesend=delaybeforesend)
+		self._handle_note_after(note)
 		return True
 
 
@@ -1563,6 +1640,7 @@ class ShutIt(object):
 	                       force=None,
 	                       delaybeforesend=0,
 	                       loglevel=logging.DEBUG,
+	                       note=None,
 	                       tag=None,
 	                       push=None,
 	                       export=None,
@@ -1580,6 +1658,7 @@ class ShutIt(object):
 		@type force:                boolean
 		"""
 		# TODO: make host and client configurable
+		self._handle_note(note)
 		shutit_pexpect_session = self.get_current_shutit_pexpect_session()
 		if tag == None:
 			tag    = self.repository['tag']
@@ -1671,6 +1750,7 @@ class ShutIt(object):
 			# Pass the child explicitly as it's the host child.
 			self.push_repository(repository, docker_executable=docker_executable, expect=expect, shutit_pexpect_child=shutit_pexpect_child)
 			self.build['report'] = (self.build['report'] + '\nPushed repository: ' + repository)
+		self._handle_note_after(note)
 		return True
 
 
