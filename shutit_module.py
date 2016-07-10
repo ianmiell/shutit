@@ -23,6 +23,7 @@
 """
 
 
+from six import with_metaclass
 from abc import ABCMeta, abstractmethod
 import decimal
 import inspect
@@ -97,7 +98,7 @@ class ShutItMeta(ABCMeta):
 		return cls
 
 
-class ShutItModule(object):
+class ShutItModule(with_metaclass(ShutItMeta)):
 	"""Class that takes a ShutIt object and defines what a ShutIt module must
 	implement to be registered.
 
@@ -118,7 +119,6 @@ class ShutItModule(object):
 		- FOR MODULE 0
 			- Do repo work on build
 	"""
-	__metaclass__ = ShutItMeta
 
 	def __init__(self, module_id, run_order, description='', maintainer='', depends=None, conflicts=None, delivery_methods=[]):
 		"""Constructor.
