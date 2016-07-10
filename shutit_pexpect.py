@@ -35,7 +35,10 @@ import re
 import base64
 import sys
 import textwrap
-import md5
+try:
+	from md5 import md5
+except ImportError:
+	from hashlib import md5
 from shutit_module import ShutItFailException
 
 
@@ -2461,7 +2464,7 @@ $'"""
 					shutit.build['pause_point_hints'] = []
 					return True
 				output = self.send_and_get_output(timeout=timeout,retry=1,record_command=record_command,echo=echo, loglevel=loglevel, fail_on_empty_before=False, preserve_newline=preserve_newline, delaybeforesend=delaybeforesend)
-				md5sum_output = md5.md5(output).hexdigest()
+				md5sum_output = md5(output).hexdigest()
 				shutit.log('output: ' + output + ' is md5sum: ' + md5sum_output,level=logging.DEBUG)
 				if expect_type == 'md5sum':
 					output = md5sum_output
@@ -2535,7 +2538,7 @@ $'"""
 				check_command = follow_on_context.get('check_command')
 				output = self.send_and_get_output(check_command,timeout=timeout,retry=1,record_command=record_command,echo=False, loglevel=loglevel, fail_on_empty_before=False, preserve_newline=preserve_newline, delaybeforesend=delaybeforesend)
 				shutit.log('output: ' + output,level=logging.DEBUG)
-				md5sum_output = md5.md5(output).hexdigest()
+				md5sum_output = md5(output).hexdigest()
 				if expect_type == 'md5sum':
 					shutit.log('output: ' + output + ' is md5sum: ' + md5sum_output,level=logging.DEBUG)
 					output = md5sum_output

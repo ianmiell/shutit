@@ -4,19 +4,19 @@
 """
 
 # The MIT License (MIT)
-# 
+#
 # Copyright (C) 2014 OpenBet Limited
-# 
+#
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
 # this software and associated documentation files (the "Software"), to deal in
 # the Software without restriction, including without limitation the rights to
 # use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
 # of the Software, and to permit persons to whom the Software is furnished to do
 # so, subject to the following conditions:
-# 
+#
 # The above copyright notice and this permission notice shall be included in all
 # copies or substantial portions of the Software.
-# 
+#
 # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 # IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 # ITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
@@ -25,8 +25,14 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-import ConfigParser
-import StringIO
+try:
+	import ConfigParser
+except ImportError:
+	import configparser as ConfigParser
+try:
+	from StringIO import StringIO
+except ImportError:
+	from io import StringIO
 import argparse
 import base64
 import binascii
@@ -185,7 +191,7 @@ def get_configs(configs):
 
 def random_id(size=8, chars=string.ascii_letters + string.digits):
 	"""Generates a random string of given size from the given chars.
-	
+
 	@param size:  The size of the random string.
 	@param chars: Constituent pool of characters to draw random characters from.
 	@type size:   number
@@ -399,7 +405,7 @@ def parse_args():
 
 	parser = argparse.ArgumentParser(description='ShutIt - a tool for managing complex Docker deployments.\n\nTo view help for a specific subcommand, type ./shutit <subcommand> -h',prog="ShutIt")
 	subparsers = parser.add_subparsers(dest='action', help='''Action to perform - build=deploy to target, skeleton=construct a skeleton module, list_configs=show configuration as read in, list_modules=show modules available, list_deps=show dep graph ready for graphviz. Defaults to 'build'.''')
-	
+
 
 	sub_parsers = dict()
 	for action in actions:
@@ -599,7 +605,7 @@ def parse_args():
 				pattern = default_pattern
 			else:
 				pattern = util_raw_input(prompt='''# Input a ShutIt pattern.
-Default: ''' + default_pattern + ''' 
+Default: ''' + default_pattern + '''
 
 bash:              a shell script
 docker:            a docker image build
@@ -780,7 +786,7 @@ def load_configs():
 	"""
 	shutit = shutit_global.shutit
 	# Get root default config.
-	configs = [('defaults', StringIO.StringIO(_default_cnf)), os.path.expanduser('~/.shutit/config'), os.path.join(shutit.host['shutit_path'], 'config'), 'configs/build.cnf']
+	configs = [('defaults', StringIO(_default_cnf)), os.path.expanduser('~/.shutit/config'), os.path.join(shutit.host['shutit_path'], 'config'), 'configs/build.cnf']
 	# Add the shutit global host- and user-specific config file.
 	# Add the local build.cnf
 	# Get passed-in config(s)
@@ -814,7 +820,7 @@ def load_configs():
 			if not override_cp.has_section(o_sec):
 				override_cp.add_section(o_sec)
 			override_cp.set(o_sec, o_key, o_val)
-		override_fd = StringIO.StringIO()
+		override_fd = StringIO()
 		override_cp.write(override_fd)
 		override_fd.seek(0)
 		configs.append(('overrides', override_fd))
@@ -1575,15 +1581,15 @@ def match_string(string_to_match, regexp):
 	"""Get regular expression from the first of the lines passed
 	in in string that matched. Handles first group of regexp as
 	a return value.
-	
+
 	@param string_to_match: String to match on
 	@param regexp: Regexp to check (per-line) against string
-	
+
 	@type string_to_match: string
 	@type regexp: string
-	
+
 	Returns None if none of the lines matched.
-	
+
 	Returns True if there are no groups selected in the regexp.
 	else returns matching group (ie non-None)
 	"""

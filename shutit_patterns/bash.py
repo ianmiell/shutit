@@ -1,6 +1,6 @@
 import os
 import shutit_global
-import shutitfile
+from . import shutitfile
 
 def setup_bash_pattern(skel_path,
                         skel_delivery,

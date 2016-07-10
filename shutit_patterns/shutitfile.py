@@ -30,8 +30,12 @@ import re
 import shutil
 import string
 import sys
-import urllib2
-import urlparse
+try:
+	from urllib.request import urlopen
+	from urllib.parse import urlparse
+except ImportError:
+	from urllib2 import urlopen
+	from urlparse import urlparse
 import shutit_global
 import shutit_util
 import shutit_skeleton
@@ -210,9 +214,9 @@ def shutitfile_to_shutit_module(skel_shutitfile,
 	shutit = shutit_global.shutit
 
 	if not os.path.exists(skel_shutitfile):
-		if urlparse.urlparse(skel_shutitfile)[0] == '':
+		if urlparse(skel_shutitfile)[0] == '':
 			shutit.fail('Dockerfile/ShutItFile "' + skel_shutitfile + '" must exist')
-		shutitfile_contents = urllib2.urlopen(skel_shutitfile).read()
+		shutitfile_contents = urlopen(skel_shutitfile).read()
 		shutitfile_dirname = None
 	else:
 		shutitfile_contents = open(skel_shutitfile).read()
@@ -678,13 +682,13 @@ def handle_shutitfile_script_line(line, numpushes, wgetgot, numlogins, ifdepth, 
 		else:
 			outfile = shutitfile_args[1]
 		# If this is something we have to wget:
-		if shutitfile_command == 'ADD' and urlparse.urlparse(shutitfile_args[0])[0] != '':
+		if shutitfile_command == 'ADD' and urlparse(shutitfile_args[0])[0] != '':
 			if not wgetgot:
 				build += """\n""" + numtabs*'\t' + """shutit.install('wget')"""
 				wgetgot = True
 			if shutitfile_args[1][-1] == '/':
 				destdir = scan_text(destdir[0:-1])
-				outpath = scan_text(urlparse.urlparse(shutitfile_args[0])[2])
+				outpath = scan_text(urlparse(shutitfile_args[0])[2])
 				outpathdir = os.path.dirname(outpath)
 				build += """\n""" + numtabs*'\t' + """shutit.send('''mkdir -p """ + destdir + outpathdir + """''')"""
 				build += """\n""" + numtabs*'\t' + """shutit.send('''wget -O """ + destdir + outpath + ' ' + shutitfile_args[0] + """''',note='''""" + current_note + """''')"""

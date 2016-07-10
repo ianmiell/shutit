@@ -1,6 +1,6 @@
 import os
 import shutit_global
-import shutitfile
+from . import shutitfile
 import logging
 
 def setup_docker_pattern(skel_path,
