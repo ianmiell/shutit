@@ -163,13 +163,13 @@ def get_configs(configs):
 			if shutit.build['interactive'] == 0 or util_raw_input(default='y') == 'y':
 				for f in files:
 					shutit.log('Correcting insecure file permissions on: ' + f)
-					os.chmod(f,0600)
+					os.chmod(f,0o600)
 				# recurse
 				return get_configs(configs)
 		else:
 			for f in files:
 				shutit.log('Correcting insecure file permissions on: ' + f)
-				os.chmod(f,0600)
+				os.chmod(f,0o600)
 			# recurse
 			return get_configs(configs)
 		shutit.fail(fail_str)
@@ -251,8 +251,8 @@ def setup_logging():
 			os.mkdir(shutit.build['shutit_state_dir_base'])
 		if not os.access(shutit.build['shutit_state_dir'],os.F_OK):
 			os.mkdir(shutit.build['shutit_state_dir'])
-		os.chmod(shutit.build['shutit_state_dir_base'],0777)
-		os.chmod(shutit.build['shutit_state_dir'],0777)
+		os.chmod(shutit.build['shutit_state_dir_base'],0o777)
+		os.chmod(shutit.build['shutit_state_dir'],0o777)
 		shutit.build['loglevel'] = shutit.build['loglevel'].upper()
 		if shutit.build['loglevel'] == 'DEBUG':
 			logging.basicConfig(format=logformat,level=logging.DEBUG)
@@ -751,7 +751,7 @@ shutitfile:        a shutitfile-based project
 				print(shutit.build['log_config_path'] + ' exists. Please move and re-run.')
 				handle_exit(exit_code=1)
 			os.makedirs(shutit.build['log_config_path'])
-			os.chmod(shutit.build['log_config_path'],0777)
+			os.chmod(shutit.build['log_config_path'],0o777)
 		else:
 			shutit.build['log_config_path'] = None
 		# Tutorial stuff. TODO: ditch tutorial mode

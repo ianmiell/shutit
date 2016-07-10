@@ -29,7 +29,7 @@ then
 	exit 1
 fi''')
 	runsh_file.close()
-	os.chmod(runsh_filename,0755)
+	os.chmod(runsh_filename,0o755)
 
 	# destroy_vms.sh
 	destroyvmssh_filename = skel_path + '/destroy_vms.sh'
@@ -52,7 +52,7 @@ then
 	done
 fi''')
 	destroyvmssh_file.close()
-	os.chmod(destroyvmssh_filename,0755)
+	os.chmod(destroyvmssh_filename,0o755)
 
 	# build.cnf file
 	os.system('mkdir -p ' + skel_path + '/configs')
@@ -223,7 +223,7 @@ shutit.core.module.build:yes''')
 [''' + skel_domain + '''.''' +  skel_module_name + module_modifier + ''']
 shutit.core.module.build:yes''')
 				build_cnf_file.close()
-		os.chmod(build_cnf_filename,0400)
+		os.chmod(build_cnf_filename,0o400)
 	else:
 		shutit.cfg['skeleton']['header_section']      = 'from shutit_module import ShutItModule\n\nclass ' + skel_module_name + '(ShutItModule):\n'
 		shutit.cfg['skeleton']['config_section']      = ''
@@ -323,4 +323,4 @@ def module():
 ['''+skel_domain+'''.'''+skel_module_name+''']
 shutit.core.module.build:yes''')
 		build_cnf_file.close()
-		os.chmod(build_cnf_filename,0400)
+		os.chmod(build_cnf_filename,0o400)

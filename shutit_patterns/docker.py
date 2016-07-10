@@ -58,7 +58,7 @@ then
 fi
 popd''')
 	build_bin_file.close()
-	os.chmod(build_bin_filename,0755)
+	os.chmod(build_bin_filename,0o755)
 	run_bin_filename   = skel_path + '/bin/run.sh'
 	run_bin_file = open(run_bin_filename,'w+')
 	# TODO: sort out entrypoint properly
@@ -85,7 +85,7 @@ do
 done
 ${DOCKER} run -d --name ${CONTAINER_NAME} ''' + skel_module_name + ''' ''' +  shutit.cfg['skeleton']['ports_arg'] + ''' ''' + shutit.cfg['skeleton']['ports_arg'] + ''' ''' + shutit.cfg['skeleton']['env_arg'] + ''' ${DOCKER_ARGS} ${IMAGE_NAME} ''' + entrypoint + ''' ''' + shutit.shutitfile['cmd'])
 	run_bin_file.close()
-	os.chmod(run_bin_filename,0755)
+	os.chmod(run_bin_filename,0o755)
 	test_bin_filename  = skel_path + '/bin/test.sh'
 	test_bin_file = open(test_bin_filename,'w+')
 	test_bin_file.write('''#!/bin/bash
@@ -99,7 +99,7 @@ then
 fi
 ./build.sh "$@"''')
 	test_bin_file.close()
-	os.chmod(test_bin_filename,0755)
+	os.chmod(test_bin_filename,0o755)
 	os.system('mkdir -p ' + skel_path + '/configs')
 
 	push_cnf_filename = skel_path + '/configs/push.cnf'
@@ -133,7 +133,7 @@ rm:false
 #suffix_date:no
 #suffix_format:%s''')
 	push_cnf_file.close()
-	os.chmod(push_cnf_filename,0400)
+	os.chmod(push_cnf_filename,0o400)
 	dockerfile_filename = skel_path + '/Dockerfile'
 	dockerfile_file = open(dockerfile_filename,'w+')
 	dockerfile_file.write('''FROM ''' + shutit.shutitfile['base_image'] + '''
@@ -247,7 +247,7 @@ name:''' + skel_module_name)
 [''' + skel_domain + '''.''' +  skel_module_name + module_modifier + ''']
 shutit.core.module.build:yes''')
 				build_cnf_file.close()
-		os.chmod(build_cnf_filename,0400)
+		os.chmod(build_cnf_filename,0o400)
 	else:
 		shutit.cfg['skeleton']['header_section']      = 'from shutit_module import ShutItModule\n\nclass ' + skel_module_name + '(ShutItModule):\n'
 		shutit.cfg['skeleton']['config_section']      = ''
@@ -328,4 +328,4 @@ volumes:
 [repository]
 name:''' + skel_module_name)
 		build_cnf_file.close()
-		os.chmod(build_cnf_filename,0400)
+		os.chmod(build_cnf_filename,0o400)

@@ -79,7 +79,7 @@ then
 	cd $DIR/bin && ./build.sh "$@"
 fi''')
 	runsh_file.close()
-	os.chmod(runsh_filename,0755)
+	os.chmod(runsh_filename,0o755)
 
 	# User message
 	shutit.log('''# Run:
