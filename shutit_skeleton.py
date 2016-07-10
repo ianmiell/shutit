@@ -145,7 +145,7 @@ def process_shutitfile(shutitfile_contents):
 				shutitfile_representation['shutitfile']['base_image'] = item[1]
 				shutit.shutitfile['base_image'] = item[1]
 			else:
-				print 'Ignoring FROM line as this it has already been set.'
+				print('Ignoring FROM line as this it has already been set.')
 		elif shutitfile_command == 'ONBUILD':
 			# TESTED? NO
 			# Maps to finalize :) - can we have more than one of these? assume yes

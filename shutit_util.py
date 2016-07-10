@@ -481,7 +481,7 @@ def parse_args():
 		args_list[1:1] = env_args_list
 	args = parser.parse_args(args_list)
 	if args.action == 'version':
-		print 'ShutIt version: ' + shutit_main.shutit_version
+		print('ShutIt version: ' + shutit_main.shutit_version)
 		handle_exit(exit_code=0)
 
 	# What are we asking shutit to do?
@@ -518,15 +518,15 @@ def parse_args():
 					try:
 						shutitfile_representation, ok = shutit_skeleton.process_shutitfile(candidate_shutitfile_contents)
 						if not ok or candidate_shutitfile_contents.strip() == '':
-							print 'Ignoring file (failed to parse candidate shutitfile): ' + shutitfile
+							print('Ignoring file (failed to parse candidate shutitfile): ' + shutitfile)
 						else:
 							_new_shutitfiles.append(shutitfile)
 							if len(shutitfile_representation['shutitfile']['delivery']) > 0:
 								_delivery_methods_seen.add(shutitfile_representation['shutitfile']['delivery'][0][1])
 					except Exception as e:
-						print ''
-						print e
-						print 'Ignoring file (failed to parse candidate shutitfile): ' + shutitfile
+						print('')
+						print(e)
+						print('Ignoring file (failed to parse candidate shutitfile): ' + shutitfile)
 				elif os.path.isdir(shutitfile):
 					for root, subfolders, files in os.walk(shutitfile):
 						subfolders.sort()
@@ -540,15 +540,15 @@ def parse_args():
 									candidate_shutitfile_fh.close()
 									shutitfile_representation, ok = shutit_skeleton.process_shutitfile(candidate_shutitfile_contents)
 									if not ok or candidate_shutitfile_contents.strip() == '':
-										print 'Ignoring file (failed to parse candidate shutitfile): ' + candidate_shutitfile
+										print('Ignoring file (failed to parse candidate shutitfile): ' + candidate_shutitfile)
 									else:
 										_new_shutitfiles.append(candidate_shutitfile)
 										if len(shutitfile_representation['shutitfile']['delivery']) > 0:
 											_delivery_methods_seen.add(shutitfile_representation['shutitfile']['delivery'][0][1])
 								else:
-									print 'Ignoring filename (not a normal file): ' + fname
+									print('Ignoring filename (not a normal file): ' + fname)
 							except:
-								print 'Ignoring file (failed to parse candidate shutitfile): ' + candidate_shutitfile
+								print('Ignoring file (failed to parse candidate shutitfile): ' + candidate_shutitfile)
 				else:
 					print('ShutItFile: ' + shutitfile + ' appears to not exist.')
 					handle_exit(exit_code=1)
@@ -562,12 +562,12 @@ def parse_args():
 				elif len(_delivery_methods_seen) == 1:
 					shutitfile_delivery_method = _delivery_methods_seen.pop()
 					if delivery_method != shutitfile_delivery_method:
-						print 'Conflicting delivery methods passed in vs. from shutitfile.\nPassed-in: ' + delivery_method + '\nShutitfile: ' + delivery_method
+						print('Conflicting delivery methods passed in vs. from shutitfile.\nPassed-in: ' + delivery_method + '\nShutitfile: ' + delivery_method)
 						handle_exit(exit_code=1)
 				else:
-					print 'Too many delivery methods seen in shutitfiles: ' + str(_new_shutitfiles)
-					print 'Delivery methods: ' + str(_delivery_methods_seen)
-					print 'Delivery method passed in: ' + delivery_method
+					print('Too many delivery methods seen in shutitfiles: ' + str(_new_shutitfiles))
+					print('Delivery methods: ' + str(_delivery_methods_seen))
+					print('Delivery method passed in: ' + delivery_method)
 					handle_exit(exit_code=1)
 			#print _new_shutitfiles
 			#print delivery_method
@@ -953,7 +953,7 @@ def list_modules(long_output=None,sort_order=None):
 				colwidths[n] = len(str(item[n]))
 	table.set_cols_width(colwidths)
 	msg = table.draw()
-	print '\n' + msg
+	print('\n' + msg)
 	if shutit.build['log_config_path']:
 		f = file(shutit.build['log_config_path'] + '/module_order.txt','w')
 		f.write(msg)
@@ -1226,7 +1226,7 @@ def get_wide_hex(char):
 
 # CTRL-\ HANDLING CODE STARTS
 def ctrl_quit_signal_handler(_,frame):
-	print 'CRTL-\ caught, hard-exiting ShutIt'
+	print('CRTL-\ caught, hard-exiting ShutIt')
 	shutit_frame = get_shutit_frame(frame)
 	if shutit_frame:
 		shutit_main.do_finalize()
@@ -1258,18 +1258,18 @@ def ctrl_c_signal_handler(_,frame):
 	if in_ctrlc:
 		msg = 'CTRL-C hit twice, quitting'
 		if shutit_frame:
-			print '\n'
+			print('\n')
 			shutit = shutit_frame.f_locals['shutit']
 			shutit.log(msg,level=logging.CRITICAL)
 		else:
-			print msg
+			print(msg)
 		handle_exit(exit_code=1)
 	if shutit_frame:
 		shutit = shutit_frame.f_locals['shutit']
 		if shutit.build['ctrlc_passthrough']:
 			shutit.self.get_current_shutit_pexpect_session().pexpect_child.sendline(r'')
 			return
-		print colourise(31,"\rYou may need to wait for a command to complete before a pause point is available. Alternatively, CTRL-\ to quit.")
+		print(colourise(31,"\rYou may need to wait for a command to complete before a pause point is available. Alternatively, CTRL-\ to quit."))
 		shutit.build['ctrlc_stop'] = True
 		t = threading.Thread(target=ctrlc_background)
 		t.daemon = True
@@ -1277,9 +1277,9 @@ def ctrl_c_signal_handler(_,frame):
 		# Reset the ctrl-c calls
 		ctrl_c_calls = 0
 		return
-	print colourise(31,'\n' + '*' * 80)
-	print colourise(31,"CTRL-c caught, CTRL-c twice to quit.")
-	print colourise(31,'*' * 80)
+	print(colourise(31,'\n' + '*' * 80))
+	print(colourise(31,"CTRL-c caught, CTRL-c twice to quit."))
+	print(colourise(31,'*' * 80))
 	t = threading.Thread(target=ctrlc_background)
 	t.daemon = True
 	t.start()
@@ -1306,8 +1306,8 @@ def print_frame_recurse(frame):
 	if not frame.f_back:
 		return
 	else:
-		print '============================================================================='
-		print frame.f_locals
+		print('=============================================================================')
+		print(frame.f_locals)
 		print_frame_recurse(frame.f_back)
 
 
@@ -1547,8 +1547,8 @@ def handle_exit(exit_code=0,loglevel=logging.DEBUG,msg=None):
 	if not shutit:
 		if exit_code != 0:
 			#print_stack_trace()
-			print msg
-			print 'Resetting terminal'
+			print(msg)
+			print('Resetting terminal')
 	else:
 		if exit_code != 0:
 			shutit.log('Exiting with error code: ' + str(exit_code),level=loglevel)

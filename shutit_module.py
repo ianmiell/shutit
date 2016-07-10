@@ -132,7 +132,7 @@ class ShutItModule(object):
 		self.module_id = module_id
 		if not isinstance(module_id, str):
 			err = str(module_id) + '\'s module_id is not a string'
-			print err
+			print(err)
 			raise ShutItModuleError(err)
 		# run_order for the module (a float).
 		# It should be a float and not duplicated within the shutit_module path.
@@ -148,7 +148,7 @@ class ShutItModule(object):
 		# side effect if float doesn't work.
 		if not isinstance(run_order, decimal.Decimal):
 			err = module_id + '\'s run order is not a decimal'
-			print err
+			print(err)
 			raise ShutItModuleError(err)
 		self.run_order = run_order
 		# module ids depended on

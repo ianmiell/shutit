@@ -90,8 +90,8 @@ def is_ready(shutit_module_obj):
 		return True
 	else:
 		return False
-	
-		
+
+
 
 
 def init_shutit_map(shutit):
@@ -349,7 +349,7 @@ def do_remove(loglevel=logging.DEBUG):
 					# Add to "not installed" cache
 					shutit_global.shutit.get_current_shutit_pexpect_session_environment().modules_not_installed.append(module.module_id)
 			shutit.logout()
-			
+
 
 
 def build_module(module, loglevel=logging.DEBUG):
@@ -658,10 +658,10 @@ def do_interactive_modules():
 					if re.match('.*'+module_id+'.*',m):
 						matched_to.append(m)
 				if len(matched_to) > 1:
-					print 'Please input a uniquely matchable module id. Matches were: ' + str(matched_to)
+					print('Please input a uniquely matchable module id. Matches were: ' + str(matched_to))
 					continue
 				elif len(matched_to) == 0:
-					print 'Please input a valid module id'
+					print('Please input a valid module id')
 				else:
 					module_id = matched_to[0]
 			cfg[module_id]['shutit.core.module.build'] = not cfg[module_id]['shutit.core.module.build']
@@ -674,7 +674,7 @@ def do_interactive_modules():
 				# TODO: does this catch all the ones switched on? Once done, get configs for all those.
 				newcfg_list = []
 				while True:
-					print shutit_util.print_config(cfg,module_id=module_id)
+					print(shutit_util.print_config(cfg,module_id=module_id))
 					name = shutit_util.util_raw_input(prompt='Above is the config for that module. Hit return to continue, or a config item you want to update.\n')
 					if name:
 						doing_list = False
@@ -690,7 +690,7 @@ def do_interactive_modules():
 							if val_type == 's':
 								val = shutit_util.util_raw_input(prompt='Input the value new for that config item.\n')
 								if doing_list:
-									newcfg_list.append(val)	
+									newcfg_list.append(val)
 								else:
 									break
 							elif val_type == 'b':
@@ -701,7 +701,7 @@ def do_interactive_modules():
 									elif val == 'f':
 										newcfg_list.append(False)
 									else:
-										print 'Input t or f please'
+										print('Input t or f please')
 										continue
 								else:
 									break
