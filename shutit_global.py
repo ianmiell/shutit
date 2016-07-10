@@ -431,7 +431,7 @@ class ShutIt(object):
 		       terminal or not.  We don't record the command if this is set to
 		       False unless record_command is explicitly passed in as True.
 		@param escape: Whether to escape the characters in a bash-friendly way,
-		       ie $'\Uxxxxxx'
+		       ie $'\\Uxxxxxx'
 		@param retry: Number of times to retry the command if the first attempt
 		       doesn't work. Useful if going to the network
 		@param note: If a note is passed in, and we are in walkthrough mode,

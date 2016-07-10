@@ -2001,7 +2001,7 @@ class ShutItPexpectSession(object):
 		                             unless record_command is explicitly passed
 		                             in as True.
 		@param escape:               Whether to escape the characters in a
-		                             bash-friendly way, ie $'\Uxxxxxx'
+		                             bash-friendly way, ie $'\\Uxxxxxx'
 		@param retry:                Number of times to retry the command if the
 		                             first attempt doesn't work. Useful if going
 		                             to the network
