@@ -23,7 +23,7 @@
 """
 
 
-from six import with_metaclass
+from six import with_metaclass, iteritems
 from abc import ABCMeta, abstractmethod
 import decimal
 import inspect
@@ -79,7 +79,7 @@ class ShutItMeta(ABCMeta):
 
 			# Wrap any of the ShutItModule (self, shutit) methods that have been
 			# overridden in a subclass
-			for name, method in local.iteritems():
+			for name, method in iteritems(local):
 				if not hasattr(sim, name):
 					continue
 				if not callable(method):

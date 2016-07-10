@@ -22,6 +22,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+from six import iteritems
 import json
 import logging
 import os
@@ -718,7 +719,7 @@ def handle_shutitfile_script_line(line, numpushes, wgetgot, numlogins, ifdepth, 
 	elif shutitfile_command == 'ENV':
 		shutitfile_args    = parse_shutitfile_args(line[1])
 		assert type(shutitfile_args) == dict
-		for k,v in shutitfile_args.iteritems():
+		for k,v in iteritems(shutitfile_args):
 			k = scan_text(k)
 			v = scan_text(v)
 			build += """\n""" + numtabs*"""\t""" + """shutit.send('''export """ + k + '=' + v + """''',note='''""" + current_note + """''')"""
