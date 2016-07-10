@@ -1146,12 +1146,12 @@ def get_hash(string_to_hash):
 	"""Helper function to get preceding integer
 	eg com.openbet == 1003189494
 	>>> import binascii
-	>>> abs(binascii.crc32('shutit.tk'))
+	>>> abs(binascii.crc32(b'shutit.tk'))
 	782914092
 
 	Recommended means of determining run order integer part.
 	"""
-	return abs(binascii.crc32(string_to_hash))
+	return abs(binascii.crc32(string_to_hash.encode()))
 
 
 def util_raw_input(prompt='', default=None, ispass=False, use_readline=True):
