@@ -36,7 +36,7 @@ Some use cases:
 What Does it Do (bash Builds)?
 ==============================
 
-ShutIt acts as a modular and easy to use wrapper around [https://github.com/pexpect/pexpect](pexpect).
+ShutIt acts as a modular and easy to use wrapper around [pexpect](https://github.com/pexpect/pexpect).
 
 Here is a simple example of a script that creates file if they are not there already:
 
