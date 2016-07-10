@@ -1081,7 +1081,7 @@ def load_mod_from_file(fpath):
 	directory = os.path.dirname(fpath)
 	if directory not in sys.path:
 		sys.path.append(os.path.dirname(fpath))
-	mod_name = base64.b32encode(fpath).replace('=', '')
+	mod_name = base64.b32encode(fpath.encode()).decode().replace('=', '')
 	pymod = imp.load_source(mod_name, fpath)
 
 	# Got the python module, now time to pull the shutit module(s) out of it.
