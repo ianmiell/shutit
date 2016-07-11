@@ -61,6 +61,7 @@ import shutit_assets
 import shutit_skeleton
 from shutit_module import ShutItFailException
 from shutit_module import ShutItModule
+from builtins import input
 
 
 allowed_delivery_methods = ['ssh','dockerfile','bash','docker']
@@ -1176,7 +1177,7 @@ def util_raw_input(prompt='', default=None, ispass=False, use_readline=True):
 		if ispass:
 			return getpass.getpass(prompt=prompt)
 		else:
-			resp = raw_input(prompt).strip()
+			resp = input(prompt).strip()
 			if resp == '':
 				return default
 			else:
