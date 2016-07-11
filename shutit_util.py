@@ -203,8 +203,7 @@ def random_id(size=8, chars=string.ascii_letters + string.digits):
 def random_word(size=6):
 	"""Returns a random word in lower case.
 	"""
-	word_file = find_asset('words')
-	words = open(word_file).read().splitlines()
+	words = shutit_assets.get_words()
 	word = ''
 	while len(word) != size or word.find("'") > -1:
 		word = words[int(random.random() * (len(words) - 1))]
