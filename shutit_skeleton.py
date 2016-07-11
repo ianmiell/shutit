@@ -886,7 +886,7 @@ def handle_shutitfile_script_line(line, numpushes, wgetgot, numlogins, ifdepth, 
 				destdir = scan_text(destdir[0:-1])
 				outpath = scan_text(urlparse.urlparse(shutitfile_args[0])[2])
 				outpathdir = os.path.dirname(outpath)
-				build += """\n""" + numtabs*'\t' + """shutit.send('''mkdir -p """ + destdir + outpathdir + """)"""
+				build += """\n""" + numtabs*'\t' + """shutit.send('''mkdir -p """ + destdir + outpathdir + """''')"""
 				build += """\n""" + numtabs*'\t' + """shutit.send('''wget -O """ + destdir + outpath + ' ' + shutitfile_args[0] + """''',note='''""" + current_note + """''')"""
 				current_note = ''
 			else:
