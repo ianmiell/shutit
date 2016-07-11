@@ -57,6 +57,7 @@ import texttable
 import shutit_global
 import shutit_main
 import shutit_skeleton
+import shutit_assets
 from shutit_module import ShutItFailException
 from shutit_module import ShutItModule
 
@@ -203,7 +204,7 @@ def random_id(size=8, chars=string.ascii_letters + string.digits):
 def random_word(size=6):
 	"""Returns a random word in lower case.
 	"""
-	words = shutit_assets.get_words()
+	words = shutit_assets.get_words().splitlines()
 	word = ''
 	while len(word) != size or word.find("'") > -1:
 		word = words[int(random.random() * (len(words) - 1))]
