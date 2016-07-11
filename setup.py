@@ -10,7 +10,7 @@ setup(
 	# the version across setup.py and the project code, see
 	# https://packaging.python.org/en/latest/single_source_version.html
 
-	version='0.9.193',
+	version='0.9.197',
 	description='An programmable automation tool designed for complex builds',
 	long_description='An programmable shell-based (pexpect) automation tool designed for complex builds. See: http://ianmiell.github.io/shutit',
 
@@ -76,7 +76,7 @@ setup(
 	# need to place data files outside of your packages. See:
 	# http://docs.python.org/3.4/distutils/setupscript.html#installing-additional-files # noqa
 	# In this case, 'data_file' will be installed into '<sys.prefix>/my_data'
-	data_files=[],
+	data_files=[('shutit_assets',['.gitignore'])],
 
 	# To provide executable scripts, use entry points in preference to the
 	# "scripts" keyword. Entry points provide cross-platform support and allow
