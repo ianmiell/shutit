@@ -283,6 +283,9 @@ def shutitfile_to_shutit_module_template(skel_shutitfile,
 			if os.path.exists(skel_path + '/context'):
 				shutil.rmtree(skel_path + '/context')
 				shutil.copytree(shutitfile_dirname, skel_path + '/context')
+			else:
+				# Copy any other files that do not already exist on the target
+				os.system('cp -r -n ' + shutitfile_dirname + '/* ' + skel_path)
 		# Change to this context
 		os.chdir(shutitfile_dirname)
 
@@ -899,7 +902,7 @@ def handle_shutitfile_script_line(line, numpushes, wgetgot, numlogins, ifdepth, 
 			# From the local filesystem on construction:
 			localfile = scan_text(shutitfile_args[0])
 			# Local file location on build:
-			buildstagefile = scan_text('context/' + shutitfile_args[0])
+			buildstagefile = scan_text(shutitfile_args[0])
 			#if localfile[-4:] == '.tar':
 			#	build += """\n\t\tshutit.send_file('""" + outfile + '/' + localfile + """')"""
 			#elif localfile[-4:] == '.bz2':

@@ -1638,6 +1638,7 @@ creams
 creamy
 crease
 create
+creche
 credit
 credos
 creeds
@@ -1687,7 +1688,6 @@ crutch
 cruxes
 crying
 crypts
-crèche
 cubing
 cubism
 cubist
@@ -3650,7 +3650,7 @@ kosher
 kowtow
 kroner
 kronor
-krónur
+kronur
 kudzus
 labels
 labial
@@ -4008,7 +4008,7 @@ mantle
 mantra
 manual
 manure
-manège
+manege
 maples
 mapped
 mapper
@@ -7101,7 +7101,7 @@ vicars
 vicing
 victim
 victor
-vicuña
+vicuna
 videos
 viewed
 viewer

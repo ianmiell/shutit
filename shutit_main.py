@@ -36,7 +36,6 @@ import os
 import signal
 import sys
 import logging
-import shutit_templates
 from distutils import spawn
 
 
