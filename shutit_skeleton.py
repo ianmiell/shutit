@@ -756,13 +756,13 @@ def handle_shutitfile_script_line(line, numpushes, wgetgot, numlogins, ifdepth, 
 		shutitfile_args    = parse_shutitfile_args(line[1])
 		assert type(shutitfile_args) == list
 		cmd = scan_text(' '.join(shutitfile_args).replace("'", "\\'"))
-		build += """\n""" + numtabs*'\t' + """shutit.multisend('''""" + cmd + """''',note='''""" + current_note + """'''"""
+		build += """\n""" + numtabs*'\t' + """shutit.multisend('''""" + cmd + """'''"""
 		current_note = ''
 	elif shutitfile_command == 'EXPECT_MULTI':
 		shutitfile_args    = parse_shutitfile_args(line[1])
 		assert type(shutitfile_args) == dict
 		multi_dict = str(shutitfile_args)
-		build += multi_dict + """)"""
+		build += multi_dict + """,note='''""" + current_note + """''')"""
 	elif shutitfile_command == 'SEND_EXPECT_REACT':
 		shutitfile_args    = parse_shutitfile_args(line[1])
 		assert type(shutitfile_args) == list
