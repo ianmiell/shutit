@@ -756,7 +756,7 @@ def handle_shutitfile_script_line(line, numpushes, wgetgot, numlogins, ifdepth, 
 		shutitfile_args    = parse_shutitfile_args(line[1])
 		assert type(shutitfile_args) == list
 		cmd = scan_text(' '.join(shutitfile_args).replace("'", "\\'"))
-		build += """\n""" + numtabs*'\t' + """shutit.multisend('''""" + cmd + """'''"""
+		build += """\n""" + numtabs*'\t' + """shutit.multisend('''""" + cmd + """''',"""
 		current_note = ''
 	elif shutitfile_command == 'EXPECT_MULTI':
 		shutitfile_args    = parse_shutitfile_args(line[1])
