@@ -779,13 +779,13 @@ def handle_shutitfile_script_line(line, numpushes, wgetgot, numlogins, ifdepth, 
 		shutitfile_args    = parse_shutitfile_args(line[1])
 		assert type(shutitfile_args) == list
 		cmd = scan_text(' '.join(shutitfile_args).replace("'", "\\'"))
-		build += """\n""" + numtabs*'\t' + """shutit.send_until('''""" + cmd + """''',note='''""" + current_note + """'''"""
+		build += """\n""" + numtabs*'\t' + """shutit.send_until('''""" + cmd + """''',"""
 		current_note = ''
 	elif shutitfile_command == 'UNTIL':
 		shutitfile_args    = parse_shutitfile_args(line[1])
 		assert type(shutitfile_args) == list
 		cmd = scan_text(' '.join(shutitfile_args).replace("'", "\\'"))
-		build += """'''""" + cmd + """''')"""
+		build += """'''""" + cmd + """''',note='''""" + current_note + """''')"""
 	elif shutitfile_command == 'PAUSE_POINT':
 		shutitfile_args    = parse_shutitfile_args(line[1])
 		assert type(shutitfile_args) == list
