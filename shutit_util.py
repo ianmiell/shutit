@@ -646,6 +646,7 @@ shutitfile:        a shutitfile-based project
 			'delivery':              delivery,
 			'template_repo':         args.template_repo,
 			'template_branch':       template_branch,
+			'template_folder':       'shutit_templates',
 			'template_setup_script': 'setup.sh'
 		}
 		# set defaults to allow config to work
