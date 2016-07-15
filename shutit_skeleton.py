@@ -381,9 +381,9 @@ def shutitfile_to_shutit_module_template(skel_shutitfile,
 			if os.path.exists(skel_path + '/context'):
 				shutil.rmtree(skel_path + '/context')
 				shutil.copytree(shutitfile_dirname, skel_path + '/context')
-			# If there is no context directory, just copy the context of the directory entire. Do not remove this time though.
-			elif not os.path.exists(skel_path + '/context'):
-				shutil.copytree(shutitfile_dirname, skel_path)
+			else:
+				# Copy any other files that do not already exist on the target
+				os.system('cp -r -n ' + shutitfile_dirname + '/* ' + skel_path)
 		# Change to this context
 		os.chdir(shutitfile_dirname)
 
