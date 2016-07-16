@@ -147,8 +147,10 @@ def create_skeleton():
 			tmp_folder = template_folder + '/tmp'
 			os.system('mkdir -p ' + tmp_folder)
 			# Copy it to a new file, eg template.py -> name_count.py
-			new_template_tmp_filename = tmp_folder + '/' + os.path.join(skel_module_name + '_' + str(_count) + '.py')
-			new_template_filename = template_folder + '/' + os.path.join(skel_module_name + '_' + str(_count) + '.py')
+			module_modifier = '_' + str(_count) + '.py'
+			new_template_tmp_filename = tmp_folder + '/' + os.path.join(skel_module_name + module_modifier)
+			new_template_filename = template_folder + '/' + os.path.join(skel_module_name + module_modifier)
+			shutit.cfg['skeleton']['module_modifier'] = module_modifier
 			os.system('cp ' + template_folder + '/template.py ' + new_template_tmp_filename)
 			# TODO: deal appropriately with module_id, default_include etc here and in else section
 			(sections,skel_module_id, default_include, ok) = shutitfile_to_shutit_module_template(skel_shutitfile,skel_path,skel_domain,skel_module_name,skel_domain_hash,skel_delivery,skel_depends,_count,_total)
@@ -400,7 +402,7 @@ def shutitfile_to_shutit_module_template(skel_shutitfile,
 
 def module():
 	return {{ skeleton.module_name }}(
-		'{{ skeleton.domain }}.{{skeleton.module_name }}', """ + skel_domain_hash + str(order * 0.0001) + str(random.randint(1,999)) + """,
+		'{{ skeleton.domain }}.{{skeleton.module_name }}{{ skeleton.module_modifier }}', """ + skel_domain_hash + str(order * 0.0001) + str(random.randint(1,999)) + """,
 		description='""" + shutitfile_representation['shutitfile']['description'] + """',
 		delivery_methods=[('""" + skel_delivery + """')],
 		maintainer='""" + shutitfile_representation['shutitfile']['maintainer'] + """',
