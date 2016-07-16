@@ -646,6 +646,7 @@ shutitfile:        a shutitfile-based project
 			'delivery':              delivery,
 			'template_repo':         args.template_repo,
 			'template_branch':       template_branch,
+			'template_folder':       'shutit_templates',
 			'template_setup_script': 'setup.sh'
 		}
 		# set defaults to allow config to work
@@ -1769,8 +1770,6 @@ net:
 '''
 
 _build_section = '''
-
-	def build(self, shutit):
 		# Some useful API calls for reference. See shutit's docs for more info and options:
 		#
 		# ISSUING BASH COMMANDS

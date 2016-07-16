@@ -4,19 +4,19 @@
 """
 
 # The MIT License (MIT)
-# 
+#
 # Copyright (C) 2014 OpenBet Limited
-# 
+#
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
 # this software and associated documentation files (the "Software"), to deal in
 # the Software without restriction, including without limitation the rights to
 # use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
 # of the Software, and to permit persons to whom the Software is furnished to do
 # so, subject to the following conditions:
-# 
+#
 # The above copyright notice and this permission notice shall be included in all
 # copies or substantial portions of the Software.
-# 
+#
 # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 # IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 # ITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
@@ -65,7 +65,6 @@ def create_skeleton():
 	"""Creates module based on a template supplied as a git repo.
 	"""
 	shutit = shutit_global.shutit
-	template_setup_script = 'setup.sh'
 	# Set up local directories
 	skel_path        = shutit.cfg['skeleton']['path']
 	skel_module_name = shutit.cfg['skeleton']['module_name']
@@ -74,6 +73,7 @@ def create_skeleton():
 	skel_depends     = shutit.cfg['skeleton']['depends']
 	skel_shutitfiles = shutit.cfg['skeleton']['shutitfiles']
 	skel_delivery    = shutit.cfg['skeleton']['delivery']
+	template_setup_script = skel_path + '/setup.sh'
 	# Set up shutitfile cfg
 	shutit.shutitfile['base_image'] = shutit.cfg['skeleton']['base_image']
 	shutit.shutitfile['cmd']        = """/bin/sh -c 'sleep infinity'"""
@@ -120,61 +120,156 @@ def create_skeleton():
 	res = os.system(git_command)
 	if res != 0:
 		shutit.fail('git command: \n' + git_command + '\nFailed while setting up skeleton')
-	os.system('rm -rf ' + shutit.cfg['skeleton']['template_folder'] + '/.git')
-	templates=jinja2.Environment(loader=jinja2.FileSystemLoader(shutit.cfg['skeleton']['template_folder']))
+	template_folder = skel_path + '/' + shutit.cfg['skeleton']['template_folder']
+	os.system('rm -rf ' + template_folder + '/.git')
+
+	# IF we have any shutitfiles:
+	#   For each one, copy it to a new file, eg template.py -> name_count.py DONE
+	#      Run it throught the template renderer.
+	#   Delete the original DONE
+	# ELSE:
+	#   Set the defaults to empty for the sections
+
+	# TODO: add buildcnf_section et al to the template
+	shutit.cfg['skeleton']['buildcnf_section'] = textwrap.dedent('''\
+		shutit.core.module.allowed_images:["''' + shutit.shutitfile['base_image'] + '''"]
+		[build]
+		base_image:''' + shutit.shutitfile['base_image'] + '''
+		[target]
+		volumes:
+		[repository]
+		name:''' + skel_module_name + '''
+		''')
+	if skel_shutitfiles:
+		_count = 1
+		_total = len(skel_shutitfiles)
+		for skel_shutitfile in skel_shutitfiles:
+			tmp_folder = template_folder + '/tmp'
+			os.system('mkdir -p ' + tmp_folder)
+			# Copy it to a new file, eg template.py -> name_count.py
+			new_template_tmp_filename = tmp_folder + '/' + os.path.join(skel_module_name + '_' + str(_count) + '.py')
+			new_template_filename = template_folder + '/' + os.path.join(skel_module_name + '_' + str(_count) + '.py')
+			os.system('cp ' + template_folder + '/template.py ' + new_template_tmp_filename)
+			# TODO: deal appropriately with module_id, default_include etc here and in else section
+			(sections,skel_module_id, default_include, ok) = shutitfile_to_shutit_module_template(skel_shutitfile,skel_path,skel_domain,skel_module_name,skel_domain_hash,skel_delivery,skel_depends,_count,_total)
+			shutit.cfg['skeleton']['header_section']      = sections['header_section']
+			shutit.cfg['skeleton']['config_section']      = sections['config_section'] 
+			shutit.cfg['skeleton']['build_section']       = sections['build_section'] 
+			shutit.cfg['skeleton']['finalize_section']    = sections['finalize_section'] 
+			shutit.cfg['skeleton']['test_section']        = sections['test_section'] 
+			shutit.cfg['skeleton']['isinstalled_section'] = sections['isinstalled_section'] 
+			shutit.cfg['skeleton']['start_section']       = sections['start_section'] 
+			shutit.cfg['skeleton']['stop_section']        = sections['stop_section'] 
+			shutit.cfg['skeleton']['final_section']       = sections['final_section']
+			# Run it through the renderer
+			templates=jinja2.Environment(loader=jinja2.FileSystemLoader(tmp_folder))
+			templates_list = templates.list_templates()
+			for template_item in templates_list:
+				template_str = templates.get_template(template_item).render(shutit.cfg)
+				f = open(new_template_filename,'w')
+				f.write(template_str)
+				f.close()
+			os.system('rm -rf ' + tmp_folder)
+			_count += 1
+		# Remove the original template
+		os.system('rm ' + template_folder + '/template.py ')
+	else:
+		shutit.cfg['skeleton']['header_section']      = 'from shutit_module import ShutItModule\n\nclass {{ skeleton.module_name }}(ShutItModule):\n'
+		shutit.cfg['skeleton']['config_section']      = ''
+		shutit.cfg['skeleton']['build_section']       = ''
+		shutit.cfg['skeleton']['finalize_section']    = ''
+		shutit.cfg['skeleton']['test_section']        = ''
+		shutit.cfg['skeleton']['isinstalled_section'] = ''
+		shutit.cfg['skeleton']['start_section']       = ''
+		shutit.cfg['skeleton']['stop_section']        = ''
+		# TODO: de-dent
+		shutit.cfg['skeleton']['final_section']        = '''def module():
+	return {{ skeleton.module_name }}(
+		'{{ skeleton.domain }}.{{ skeleton.module_name }}', {{ skeleton.domain_hash }}.0001,
+		description='',
+		maintainer='',
+		delivery_methods=['{{ skeleton.delivery }}'],
+		depends=['{{ skeleton.depends }}']
+	)'''
+		# render once to the base template in, before re-rendering
+		tmp_folder = template_folder + '/tmp'
+		os.system('mkdir -p ' + tmp_folder)
+		new_template_filename = tmp_folder + '/template.py'
+		template_filename = template_folder + '/template.py'
+		os.system('cp ' + template_filename + ' ' + new_template_filename)
+		templates=jinja2.Environment(loader=jinja2.FileSystemLoader(tmp_folder))
+		templates_list = templates.list_templates()
+		for template_item in templates_list:
+			template_str = templates.get_template(template_item).render(shutit.cfg)
+			f = open(template_filename,'w')
+			f.write(template_str)
+			f.close()
+		os.system('rm -rf ' + tmp_folder)
+
+	# Render the templates that now exist in the template folder.
+	templates=jinja2.Environment(loader=jinja2.FileSystemLoader(template_folder))
 	templates_list = templates.list_templates()
+	# Process and write the files to the parent dir of the template before removing the template folder
 	for template_item in templates_list:
 		directory = os.path.dirname(template_item)
 		if directory != '' and not os.path.exists(directory):
 			os.mkdir(os.path.dirname(template_item))
 		template_str = templates.get_template(template_item).render(shutit.cfg)
-		f = open(template_item,'w')
+		os.system('mkdir -p ' + os.path.dirname(skel_path + '/' + template_item))
+		f = open(skel_path + '/' + template_item,'w')
 		f.write(template_str)
 		f.close()
+	# Remove the template_folder, we are done with it.
+	os.chdir(skel_path)
 	if shutit.cfg['skeleton']['output_dir']:
-		os.system('chmod +x ' + template_setup_script + ' && ./' + template_setup_script + ' > /dev/null 2>&1 && rm -f ' + template_setup_script)
-		os.system('rm -rf ' + shutit.cfg['skeleton']['template_folder'])
+		os.system('chmod +x ' + template_setup_script + ' && ' + template_setup_script + ' > /dev/null 2>&1 && rm -f ' + template_setup_script)
+		os.system('rm -rf ' + template_folder)
 	else:
-		os.system('chmod +x ' + template_setup_script + ' && ./' + template_setup_script + ' && rm -f ' + template_setup_script)
-		os.system('rm -rf ' + shutit.cfg['skeleton']['template_folder'])
+		os.system('chmod +x ' + template_setup_script + ' && ' + template_setup_script + ' && rm -f ' + template_setup_script)
+		os.system('rm -rf ' + template_folder)
 
 	# Return program to original path
 	os.chdir(sys.path[0])
 
-	# If we have any ShutitFiles
-	if skel_shutitfiles:
-		try:
-			# Attempt to remove any .py files created by default.
-			os.remove(skel_path + '/' + skel_module_name + '.py')
-		except:
-			pass
-		_count = 1
-		_total = len(skel_shutitfiles)
-		buildcnf = ''
-		for skel_shutitfile in skel_shutitfiles:
-			templatemodule_path   = os.path.join(skel_path, skel_module_name + '_' + str(_count) + '.py')
-			(templatemodule,skel_module_id, default_include, ok) = shutitfile_to_shutit_module_template(skel_shutitfile,skel_path,skel_domain,skel_module_name,skel_domain_hash,skel_delivery,skel_depends,_count,_total)
-			if not ok:
-				shutit.fail('Failed to create shutit module from: ' + skel_shutitfile)
-			open(templatemodule_path, 'w').write(templatemodule)
-			_count += 1
-			buildcnf_path = skel_path + '/configs/build.cnf'
-			buildcnf += textwrap.dedent('''\
-				[''' + skel_module_id + ''']
-				shutit.core.module.build:''' + default_include + '''
-			''')
-		buildcnf += textwrap.dedent('''\
-			shutit.core.module.allowed_images:["''' + shutit.shutitfile['base_image'] + '''"]
-			[build]
-			base_image:''' + shutit.shutitfile['base_image'] + '''
-			[target]
-			volumes:
-			[repository]
-			name:''' + skel_module_name + '''
-			''')
-		os.chmod(buildcnf_path,0700)
-		open(buildcnf_path,'w').write(buildcnf)
-		os.chmod(buildcnf_path,0400)
+	# Kept for reference
+	## If we have any ShutitFiles
+	## TODO: this remove is too crude (it deletes the template) - need to sub in the code, or make the above in python.
+	## PLAN: shutitfile_to_shutit_module_template should return: build section, which gets subbed in to some special template value, etc etc
+	##       if no skel_shutitfiles, remove the template value
+	##       we already have shutitfile_representation, this can be used to place data in there, ie skip the generate_shutit_module step and final section.
+	#if skel_shutitfiles:
+	#	try:
+	#		# Attempt to remove any .py files created by default.
+	#		os.remove(skel_path + '/' + skel_module_name + '.py')
+	#	except:
+	#		pass
+	#	_count = 1
+	#	_total = len(skel_shutitfiles)
+	#	buildcnf = ''
+	#	for skel_shutitfile in skel_shutitfiles:
+	#		templatemodule_path   = os.path.join(skel_path, skel_module_name + '_' + str(_count) + '.py')
+	#		(templatemodule,skel_module_id, default_include, ok) = shutitfile_to_shutit_module_template(skel_shutitfile,skel_path,skel_domain,skel_module_name,skel_domain_hash,skel_delivery,skel_depends,_count,_total)
+	#		if not ok:
+	#			shutit.fail('Failed to create shutit module from: ' + skel_shutitfile)
+	#		open(templatemodule_path, 'w').write(templatemodule)
+	#		_count += 1
+	#		buildcnf_path = skel_path + '/configs/build.cnf'
+	#		buildcnf += textwrap.dedent('''\
+	#			[''' + skel_module_id + ''']
+	#			shutit.core.module.build:''' + default_include + '''
+	#		''')
+	#	buildcnf += textwrap.dedent('''\
+	#		shutit.core.module.allowed_images:["''' + shutit.shutitfile['base_image'] + '''"]
+	#		[build]
+	#		base_image:''' + shutit.shutitfile['base_image'] + '''
+	#		[target]
+	#		volumes:
+	#		[repository]
+	#		name:''' + skel_module_name + '''
+	#		''')
+	#	os.chmod(buildcnf_path,0700)
+	#	open(buildcnf_path,'w').write(buildcnf)
+	#	os.chmod(buildcnf_path,0400)
 
 
 
@@ -298,23 +393,26 @@ def shutitfile_to_shutit_module_template(skel_shutitfile,
 	check_shutitfile_representation(shutitfile_representation, skel_delivery)
 
 	# Get the shutit module as a string
-	templatemodule, module_id, depends, default_include = generate_shutit_module(shutitfile_representation, skel_domain, skel_module_name, skel_shutitfile, skel_depends, order, total)
+	sections, module_id, depends, default_include = generate_shutit_module_sections(shutitfile_representation, skel_domain, skel_module_name, skel_shutitfile, skel_depends, order, total)
 
 	# Final section
-	templatemodule += """\n\ndef module():\n\t\treturn template(\n\t\t'"""
-	templatemodule += module_id + """', """
-	templatemodule += skel_domain_hash + str(order * 0.0001) + str(random.randint(1,999))
-	templatemodule += """,\n\t\tdescription='"""
-	templatemodule += shutitfile_representation['shutitfile']['description']
-	templatemodule += """',\n\t\tdelivery_methods=[('"""
-	templatemodule += skel_delivery + """')],\n\t\tmaintainer='"""
-	templatemodule += shutitfile_representation['shutitfile']['maintainer']
-	templatemodule += """',\n\t\tdepends=[""" + depends + """]\n\t\t)\n"""
+	final_section  = """
+
+def module():
+	return {{ skeleton.module_name }}(
+		'{{ skeleton.domain }}.{{skeleton.module_name }}', """ + skel_domain_hash + str(order * 0.0001) + str(random.randint(1,999)) + """,
+		description='""" + shutitfile_representation['shutitfile']['description'] + """',
+		delivery_methods=[('""" + skel_delivery + """')],
+		maintainer='""" + shutitfile_representation['shutitfile']['maintainer'] + """',
+		depends=[""" + depends + """]
+	)
+"""
+	sections.update({'final_section':final_section})
 
 	# Return program to main shutit_dir
 	if shutitfile_dirname:
 		os.chdir(sys.path[0])
-	return templatemodule, module_id, default_include, ok
+	return sections, module_id, default_include, ok
 
 
 
@@ -353,15 +451,15 @@ def check_shutitfile_representation(shutitfile_representation, skel_delivery):
 
 
 
-def generate_shutit_module(shutitfile_representation, skel_domain, skel_module_name, skel_shutitfile, skel_depends, order, total):
+def generate_shutit_module_sections(shutitfile_representation, skel_domain, skel_module_name, skel_shutitfile, skel_depends, order, total):
 	shutit = shutit_global.shutit
-	templatemodule = '\n# Created from shutitfile: ' + skel_shutitfile + '\n# Maintainer:              ' + shutitfile_representation['shutitfile']['maintainer'] + '\nfrom shutit_module import ShutItModule\n\nclass template(ShutItModule):\n\n\tdef is_installed(self, shutit):\n\t\treturn False'
+	sections = {}
+	sections.update({'header_section':'\n# Created from shutitfile: ' + skel_shutitfile + '\n# Maintainer:              ' + shutitfile_representation['shutitfile']['maintainer'] + '\nfrom shutit_module import ShutItModule\n\nclass {{ skeleton.module_name }}(ShutItModule):\n\n\tdef is_installed(self, shutit):\n\t\treturn False'})
 
 	# config section - this must be done first, as it collates the config
 	# items that can be referenced later
-	templatemodule += '''
+	config_section = '''
 
-	def get_config(self, shutit):
 		# CONFIGURATION
 		# shutit.get_config(module_id,option,default=None,boolean=False)
 		#                                    - Get configuration value, boolean indicates whether the item is
@@ -382,8 +480,8 @@ def generate_shutit_module(shutitfile_representation, skel_domain, skel_module_n
 	for item in shutitfile_representation['shutitfile']['config']:
 		build += handle_shutitfile_config_line(item)
 	if build:
-		templatemodule += '\n\t\t' + build
-	templatemodule += '\n\t\treturn True'
+		config_section += '\n\t\t' + build
+	sections.update({'config_section':config_section})
 
 
 	# build
@@ -394,7 +492,8 @@ def generate_shutit_module(shutitfile_representation, skel_domain, skel_module_n
 	wgetgot      = False
 	current_note = ''
 	# section is the section of the shutitfile we're in. Default is 'build', but there are also a few others.
-	section   = 'build'
+	section       = 'build'
+	build_section = ''
 	for item in shutitfile_representation['shutitfile']['script']:
 		section = shutitfile_get_section(item[0], section)
 		if section == 'build':
@@ -405,26 +504,26 @@ def generate_shutit_module(shutitfile_representation, skel_domain, skel_module_n
 			numlogins    =  ret[3]
 			ifdepth      =  ret[4]
 			current_note =  ret[5]
-	templatemodule += shutit_util._build_section + build
+	build_section += shutit_util._build_section + build
 	while numpushes > 0:
-		templatemodule += '''\n\t\tshutit.send('popd')'''
+		build_section += '''\n\t\tshutit.send('popd')'''
 		numpushes -= 1
 	while numlogins > 0:
-		templatemodule += '''\n\t\tshutit.logout()'''
+		build_section += '''\n\t\tshutit.logout()'''
 		numlogins -= 1
 	if ifdepth != 0:
 		shutit.fail('Unbalanced IFs in ' + section + ' section')
-	templatemodule += '\n\t\treturn True'
+	sections.update({'build_section':build_section})
 
 	# finalize section
-	finalize = ''
+	finalize         = ''
 	for line in shutitfile_representation['shutitfile']['onbuild']:
 		finalize += '\n\n\t\tshutit.send(\'' + line + ')\''
-	templatemodule += '\n\n\tdef finalize(self, shutit):' + finalize + '\n\t\treturn True'
+	sections.update({'finalize_section':finalize})
 
 	# test section
 	build          = ''
-	templatemodule += '\n\n\tdef test(self, shutit):'
+	test_section   = ''
 	numpushes      = 0
 	numlogins      = 0
 	ifdepth        = 0
@@ -440,18 +539,18 @@ def generate_shutit_module(shutitfile_representation, skel_domain, skel_module_n
 			ifdepth      =  ret[4]
 			current_note =  ret[5]
 	if build:
-		templatemodule += '\n\t\t' + build
+		test_section += '\n\t\t' + build
 	while numpushes > 0:
-		templatemodule += """\n\t\tshutit.send('popd')"""
+		test_section += """\n\t\tshutit.send('popd')"""
 		numpushes      -= 1
 	while numlogins > 0:
-		templatemodule += '''\n\t\tshutit.logout()'''
+		test_section += '''\n\t\tshutit.logout()'''
 		numlogins -= 1
-	templatemodule += '\n\t\treturn True'
+	sections.update({'test_section':test_section})
 
 	# isinstalled section
 	build          = ''
-	templatemodule += '\n\n\tdef is_installed(self, shutit):'
+	isinstalled_section = ''
 	numpushes      = 0
 	numlogins      = 0
 	ifdepth        = 0
@@ -467,20 +566,20 @@ def generate_shutit_module(shutitfile_representation, skel_domain, skel_module_n
 			ifdepth      =  ret[4]
 			current_note =  ret[5]
 	if build:
-		templatemodule += '\n\t\t' + build
+		isinstalled_section += '\n\t\t' + build
 	while numpushes > 0:
-		templatemodule += """\n\t\tshutit.send('popd')"""
+		isinstalled_section += """\n\t\tshutit.send('popd')"""
 		numpushes      -= 1
 	while numlogins > 0:
-		templatemodule += '''\n\t\tshutit.logout()'''
+		isinstalled_section += '''\n\t\tshutit.logout()'''
 		numlogins -= 1
 	if ifdepth != 0:
 		shutit.fail('Unbalanced IFs in ' + section + ' section')
-	templatemodule += '\n\t\treturn False'
+	sections.update({'isinstalled_section':isinstalled_section})
 
 	# start section
 	build          = ''
-	templatemodule += '\n\n\tdef start(self, shutit):'
+	start_section  = ''
 	numpushes      = 0
 	numlogins      = 0
 	ifdepth        = 0
@@ -496,20 +595,20 @@ def generate_shutit_module(shutitfile_representation, skel_domain, skel_module_n
 			ifdepth      =  ret[4]
 			current_note =  ret[5]
 	if build:
-		templatemodule += '\n\t\t' + build
+		start_section += '\n\t\t' + build
 	while numpushes > 0:
-		templatemodule += """\n\t\tshutit.send('popd')"""
+		start_section += """\n\t\tshutit.send('popd')"""
 		numpushes      -= 1
 	while numlogins > 0:
-		templatemodule += '''\n\t\tshutit.logout()'''
+		start_section += '''\n\t\tshutit.logout()'''
 		numlogins -= 1
 	if ifdepth != 0:
 		shutit.fail('Unbalanced IFs in ' + section + ' section')
-	templatemodule += '\n\t\treturn True'
+	sections.update({'start_section':start_section})
 
 	# stop section
-	templatemodule += '\n\n\tdef stop(self, shutit):'
 	build          = ''
+	stop_section   = ''
 	numpushes      = 0
 	numlogins      = 0
 	ifdepth        = 0
@@ -525,16 +624,16 @@ def generate_shutit_module(shutitfile_representation, skel_domain, skel_module_n
 			ifdepth      =  ret[4]
 			current_note =  ret[5]
 	if build:
-		templatemodule += '\n\t\t' + build
+		stop_section += '\n\t\t' + build
 	while numpushes > 0:
-		templatemodule += """\n\t\tshutit.send('popd')"""
+		stop_section += """\n\t\tshutit.send('popd')"""
 		numpushes      -= 1
 	while numlogins > 0:
-		templatemodule += '''\n\t\tshutit.logout()'''
+		stop_section += '''\n\t\tshutit.logout()'''
 		numlogins -= 1
 	if ifdepth != 0:
 		shutit.fail('Unbalanced IFs in ' + section + ' section')
-	templatemodule += '\n\t\treturn True'
+	sections.update({'stop_section':stop_section})
 
 	# dependencies section
 	shutitfile_depends = []
@@ -551,7 +650,7 @@ def generate_shutit_module(shutitfile_representation, skel_domain, skel_module_n
 		default_include = 'yes'
 	else:
 		shutit.fail('Unrecognised DEFAULT_INCLUDE - must be true/false: ' + shutitfile_representation['shutitfile']['default_include'])
-	return templatemodule, module_id, depends, default_include
+	return sections, module_id, depends, default_include
 
 
 def process_shutitfile(shutitfile_contents):
