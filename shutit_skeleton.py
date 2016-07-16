@@ -153,7 +153,7 @@ def create_skeleton():
 			shutit.cfg['skeleton']['module_modifier'] = module_modifier
 			os.system('cp ' + template_folder + '/template.py ' + new_template_tmp_filename)
 			# TODO: deal appropriately with module_id, default_include etc here and in else section
-			(sections,skel_module_id, default_include, ok) = shutitfile_to_shutit_module_template(skel_shutitfile,skel_path,skel_domain,skel_module_name,skel_domain_hash,skel_delivery,skel_depends,_count,_total)
+			(sections,skel_module_id, default_include, ok) = shutitfile_to_shutit_module_template(skel_shutitfile,skel_path,skel_domain,skel_module_name,skel_domain_hash,skel_delivery,skel_depends,_count,_total,module_modifier)
 			shutit.cfg['skeleton']['header_section']      = sections['header_section']
 			shutit.cfg['skeleton']['config_section']      = sections['config_section'] 
 			shutit.cfg['skeleton']['build_section']       = sections['build_section'] 
@@ -363,7 +363,8 @@ def shutitfile_to_shutit_module_template(skel_shutitfile,
                                          skel_delivery,
                                          skel_depends,
                                          order,
-	                                     total):
+	                                     total,
+	                                     skel_module_modifier):
 	shutit = shutit_global.shutit
 
 	if not os.path.exists(skel_shutitfile):
@@ -402,7 +403,7 @@ def shutitfile_to_shutit_module_template(skel_shutitfile,
 
 def module():
 	return {{ skeleton.module_name }}(
-		'{{ skeleton.domain }}.{{skeleton.module_name }}{{ skeleton.module_modifier }}', """ + skel_domain_hash + str(order * 0.0001) + str(random.randint(1,999)) + """,
+		'{{ skeleton.domain }}.{{skeleton.module_name }}""" + skel_module_modifier + """', """ + skel_domain_hash + str(order * 0.0001) + str(random.randint(1,999)) + """,
 		description='""" + shutitfile_representation['shutitfile']['description'] + """',
 		delivery_methods=[('""" + skel_delivery + """')],
 		maintainer='""" + shutitfile_representation['shutitfile']['maintainer'] + """',
