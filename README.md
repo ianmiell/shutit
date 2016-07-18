@@ -126,13 +126,13 @@ ShutIt provides a means for auto-generation of modules (either bare ones, or fro
 [Really Quick Start](http://ianmiell.github.io/shutit)
 ====================
 
-[Full User Guide](http://github.com/ianmiell/shutit/blob/master/docs/USER_GUIDE.md)
+[Full User Guide](http://github.com/ianmiell/shutit-docs/blob/master/USER_GUIDE.md)
 ==============
 
-[API](http://github.com/ianmiell/shutit/blob/master/docs/API.md)
+[API](http://github.com/ianmiell/shutit-docs/blob/master/API.md)
 ======
 
-[Installation](http://github.com/ianmiell/shutit/blob/master/docs/INSTALL.md)
+[Installation](http://github.com/ianmiell/shutit-docs/blob/master/INSTALL.md)
 ==============
 
 Contributing
