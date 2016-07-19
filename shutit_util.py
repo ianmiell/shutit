@@ -304,6 +304,7 @@ def get_base_config(cfg_parser):
 	shutit.build['step_through']               = False
 	shutit.build['ctrlc_stop']                 = False
 	shutit.build['ctrlc_passthrough']          = False
+	shutit.build['have_read_config_file']      = False
 	# Width of terminal to set up on login and assume for other cases.
 	shutit.build['stty_cols']                  = 320
 	# Signals are set here, which is useful for context-switching callbacks.
@@ -1429,10 +1430,11 @@ def config_collection_for_built(throw_error=True,silent=False):
 				shutit.fail(module_id + ' failed on get_config')
 		# Collect the build.cfg if we are building here.
 		# If this file exists, process it.
-		if cfg[module_id]['shutit.core.module.build']:
+		if cfg[module_id]['shutit.core.module.build'] and not shutit.build['have_read_config_file']:
 			module = shutit.shutit_map[module_id]
 			cfg_file = os.path.dirname(module.__module_file) + '/configs/build.cnf'
 			if os.path.isfile(cfg_file):
+				shutit.build['have_read_config_file'] = True
 				# use shutit.get_config, forcing the passed-in default
 				config_parser = ConfigParser.ConfigParser()
 				config_parser.read(cfg_file)

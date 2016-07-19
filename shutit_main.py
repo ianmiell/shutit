@@ -36,6 +36,7 @@ import os
 import signal
 import sys
 import logging
+import re
 from distutils import spawn
 
 
@@ -647,13 +648,22 @@ def do_interactive_modules():
 	while True:
 		shutit_util.list_modules(long_output=False,sort_order='run_order')
 		# Which module do you want to toggle?
-		module_id = shutit_util.util_raw_input(prompt='Which module id do you want to toggle?\n(just hit return to continue with build)\n')
+		module_id = shutit_util.util_raw_input(prompt='Which module id do you want to toggle?\n(just hit return to continue with build)\n(you can enter a substring if it is uniquely matching)\n')
 		if module_id:
 			try:
 				_=cfg[module_id]
 			except:
-				print 'Please input a valid module id'
-				continue
+				matched_to = []
+				for m in cfg.keys():
+					if re.match('.*'+module_id+'.*',m):
+						matched_to.append(m)
+				if len(matched_to) > 1:
+					print 'Please input a uniquely matchable module id. Matches were: ' + str(matched_to)
+					continue
+				elif len(matched_to) == 0:
+					print 'Please input a valid module id'
+				else:
+					module_id = matched_to[0]
 			cfg[module_id]['shutit.core.module.build'] = not cfg[module_id]['shutit.core.module.build']
 			if not shutit_util.config_collection_for_built(throw_error=False):
 				cfg[module_id]['shutit.core.module.build'] = not cfg[module_id]['shutit.core.module.build']
