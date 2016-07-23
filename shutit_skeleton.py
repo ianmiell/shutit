@@ -270,7 +270,7 @@ cd ''' + skel_path + ''' && ./run.sh
 
 ''' + shutit.cfg['skeleton']['final_section'])
 			template_file.close()
-	elif shutit.cfg['skeleton']['template_branch'] == 'docker':
+	elif shutit.cfg['skeleton']['template_branch'] == 'docker2':
 		os.system('mkdir -p ' + skel_path + '/bin')
 		build_bin_filename = skel_path + '/bin/build.sh'
 		build_bin_file = open(build_bin_filename,'w+')
