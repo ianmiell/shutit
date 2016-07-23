@@ -113,10 +113,9 @@ def create_skeleton():
 	for earg in shutit.shutitfile['env']:
 		shutit.cfg['skeleton']['env_arg'] += ' -e ' + earg.split()[0] + ':' + earg.split()[1]
 
-	# Create folders and process templates.
+	# Create folders and process template_branch
 	os.makedirs(skel_path)
 	os.chdir(skel_path)
-
 	if shutit.cfg['skeleton']['template_branch'] == 'bash':
 		from shutit_templates import bash
 		bash.setup_bash_template(shutit=shutit,
@@ -130,13 +129,13 @@ def create_skeleton():
 	elif shutit.cfg['skeleton']['template_branch'] == 'docker':
 		from shutit_templates import docker
 		docker.setup_docker_template(shutit=shutit,
-		                         skel_path=skel_path,
-		                         skel_delivery=skel_delivery,
-		                         skel_domain=skel_domain,
-		                         skel_module_name=skel_module_name,
-		                         skel_shutitfiles=skel_shutitfiles,
-		                         skel_domain_hash=skel_domain_hash,
-		                         skel_depends=skel_depends)
+		                             skel_path=skel_path,
+		                             skel_delivery=skel_delivery,
+		                             skel_domain=skel_domain,
+		                             skel_module_name=skel_module_name,
+		                             skel_shutitfiles=skel_shutitfiles,
+		                             skel_domain_hash=skel_domain_hash,
+		                             skel_depends=skel_depends)
 	else:
 		git_command = 'git clone -q ' + shutit.cfg['skeleton']['template_repo'] + ' -b ' + shutit.cfg['skeleton']['template_branch'] + ' --depth 1 ' + shutit.cfg['skeleton']['template_folder']
 		res = os.system(git_command)

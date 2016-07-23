@@ -1,7 +1,6 @@
 import os
 
 def setup_bash_template(shutit, skel_path, skel_delivery, skel_domain, skel_module_name, skel_shutitfiles, skel_domain_hash, skel_depends):
-	# TODO: separate functions for each type (eg bash etc)
 	runsh_filename = skel_path + '/run.sh'
 	runsh_file = open(runsh_filename,'w+')
 	runsh_file.write('''#!/bin/bash
