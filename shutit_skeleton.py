@@ -332,7 +332,7 @@ fi
 )''')
 		test_bin_file.close()
 		os.chmod(test_bin_filename,0755)
-		TODO: configs, template and Dockerfile
+		# TODO: configs, template and Dockerfile
 	else:
 		git_command = 'git clone -q ' + shutit.cfg['skeleton']['template_repo'] + ' -b ' + shutit.cfg['skeleton']['template_branch'] + ' --depth 1 ' + shutit.cfg['skeleton']['template_folder']
 		res = os.system(git_command)
