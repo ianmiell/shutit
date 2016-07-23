@@ -73,7 +73,6 @@ def create_skeleton():
 	skel_depends     = shutit.cfg['skeleton']['depends']
 	skel_shutitfiles = shutit.cfg['skeleton']['shutitfiles']
 	skel_delivery    = shutit.cfg['skeleton']['delivery']
-	skel_template_folder = shutit.cfg['skeleton']['template_folder']
 	template_setup_script = skel_path + '/setup.sh'
 	# Set up shutitfile cfg
 	shutit.shutitfile['base_image'] = shutit.cfg['skeleton']['base_image']
@@ -117,10 +116,10 @@ def create_skeleton():
 	# Create folders and process templates.
 	os.makedirs(skel_path)
 	os.chdir(skel_path)
-	# TODO: change to bash from bash2
-	if shutit.cfg['skeleton']['template_branch'] == 'bash2':
-		# TODO: separate functions for each type (eg bash2 etc)
-		runsh_file = open(skel_template_folder + '/run.sh','w+')
+	if shutit.cfg['skeleton']['template_branch'] == 'bash':
+		# TODO: separate functions for each type (eg bash etc)
+		runsh_filename = skel_path + '/run.sh'
+		runsh_file = open(runsh_filename,'w+')
 		runsh_file.write('''#!/bin/bash
 [[ -z "$SHUTIT" ]] && SHUTIT="$1/shutit"
 [[ ! -a "$SHUTIT" ]] || [[ -z "$SHUTIT" ]] && SHUTIT="$(which shutit)"
@@ -129,17 +128,18 @@ then
 	echo "Must have shutit on path, eg export PATH=$PATH:/path/to/shutit_dir"
 	exit 1
 fi
-$SHUTIT build -d {{ skeleton.delivery }} "$@"
+$SHUTIT build -d ''' + skel_delivery + ''' "$@"
 if [[ $? != 0 ]]
 then
 	exit 1
 fi''')
 		runsh_file.close()
-		os.chmod(runsh_file,0755)
+		os.chmod(runsh_filename,0755)
 
 		# build.cnf file
-		os.system('mkdir -p ' + skel_template_folder + '/configs')
-		build_cnf_file = open(skel_template_folder + '/configs/build.cnf')
+		build_cnf_filename = skel_path + '/configs/build.cnf'
+		os.system('mkdir -p ' + skel_path + '/configs')
+		build_cnf_file = open(build_cnf_filename,'w+')
 		build_cnf_file.write('''###############################################################################
 # PLEASE NOTE: This file should be changed only by the maintainer.
 # PLEASE NOTE: This file is only sourced if the "shutit build" command is run
@@ -151,13 +151,13 @@ fi''')
 # This feeds into automated testing of each module.
 ['''+skel_domain+'''.'''+skel_module_name+''']
 shutit.core.module.build:yes''')
-		os.chmod(build_cnf_file,0400)
 		build_cnf_file.close()
+		os.chmod(build_cnf_filename,0400)
 
 
 		# User message
 		shutit.log('''# Run:
-cd $(pwd) && ./run.sh
+cd ''' + skel_path + ''' && ./run.sh
 # to run.''',transient=True)
 
 		shutit.cfg['skeleton']['buildcnf_section'] = textwrap.dedent('''\
@@ -173,15 +173,9 @@ cd $(pwd) && ./run.sh
 			_count = 1
 			_total = len(skel_shutitfiles)
 			for skel_shutitfile in skel_shutitfiles:
-				tmp_folder = template_folder + '/tmp'
-				os.system('mkdir -p ' + tmp_folder)
-				# Copy it to a new file, eg template.py -> name_count.py
 				module_modifier = '_' + str(_count) + '.py'
-				new_template_tmp_filename = tmp_folder + '/' + os.path.join(skel_module_name + module_modifier)
 				new_template_filename = template_folder + '/' + os.path.join(skel_module_name + module_modifier)
 				shutit.cfg['skeleton']['module_modifier'] = module_modifier
-				os.system('cp ' + template_folder + '/template.py ' + new_template_tmp_filename)
-				# TODO: deal appropriately with module_id, default_include etc here and in else section
 				(sections,skel_module_id, default_include, ok) = shutitfile_to_shutit_module_template(skel_shutitfile,skel_path,skel_domain,skel_module_name,skel_domain_hash,skel_delivery,skel_depends,_count,_total,module_modifier)
 				shutit.cfg['skeleton']['header_section']      = sections['header_section']
 				shutit.cfg['skeleton']['config_section']      = sections['config_section'] 
@@ -192,6 +186,58 @@ cd $(pwd) && ./run.sh
 				shutit.cfg['skeleton']['start_section']       = sections['start_section'] 
 				shutit.cfg['skeleton']['stop_section']        = sections['stop_section'] 
 				shutit.cfg['skeleton']['final_section']       = sections['final_section']
+				template_file = open(new_template_filename,'w+')
+				template_file.write(shutit.cfg['skeleton']['header_section'] + '''
+
+	def build(self, shutit):
+''' + shutit.cfg['skeleton']['build_section'] + '''
+		return True
+                                 
+	def get_config(self, shutit):
+''' + shutit.cfg['skeleton']['config_section'] + '''
+		return True
+
+	def test(self, shutit):
+''' + shutit.cfg['skeleton']['test_section'] + '''
+		return True
+
+	def finalize(self, shutit):
+''' + shutit.cfg['skeleton']['finalize_section'] + '''
+		return True
+
+	def isinstalled(self, shutit):
+''' + shutit.cfg['skeleton']['isinstalled_section'] + '''
+		return False
+
+	def start(self, shutit):
+''' + shutit.cfg['skeleton']['start_section'] + '''
+		return True
+
+	def stop(self, shutit):
+''' + shutit.cfg['skeleton']['stop_section'] + '''
+		return True
+
+''' + shutit.cfg['skeleton']['final_section'])
+				template_file.close()
+		else:
+			shutit.cfg['skeleton']['header_section']      = 'from shutit_module import ShutItModule\n\nclass ' + skel_module_name + '(ShutItModule):\n'
+			shutit.cfg['skeleton']['config_section']      = ''
+			shutit.cfg['skeleton']['build_section']       = ''
+			shutit.cfg['skeleton']['finalize_section']    = ''
+			shutit.cfg['skeleton']['test_section']        = ''
+			shutit.cfg['skeleton']['isinstalled_section'] = ''
+			shutit.cfg['skeleton']['start_section']       = ''
+			shutit.cfg['skeleton']['stop_section']        = ''
+			shutit.cfg['skeleton']['final_section']        = """def module():
+		return """ + skel_module_name + """(
+			'""" + skel_domain + '''.''' + skel_module_name + """', """ + skel_domain_hash + """.0001,
+			description='',
+			maintainer='',
+			delivery_methods=['""" + skel_delivery + """'],
+			depends=['""" + skel_depends + """']
+		)"""
+			new_template_filename = skel_path + '/' + os.path.join(skel_module_name) + '.py'
+			template_file = open(new_template_filename,'w+')
 			template_file.write(shutit.cfg['skeleton']['header_section'] + '''
 
 	def build(self, shutit):
@@ -223,9 +269,7 @@ cd $(pwd) && ./run.sh
 		return True
 
 ''' + shutit.cfg['skeleton']['final_section'])
-		else:
-			TODO copy else from below
-
+			template_file.close()
 	else:
 		git_command = 'git clone -q ' + shutit.cfg['skeleton']['template_repo'] + ' -b ' + shutit.cfg['skeleton']['template_branch'] + ' --depth 1 ' + shutit.cfg['skeleton']['template_folder']
 		res = os.system(git_command)
@@ -568,7 +612,7 @@ def check_shutitfile_representation(shutitfile_representation, skel_delivery):
 def generate_shutit_module_sections(shutitfile_representation, skel_domain, skel_module_name, skel_shutitfile, skel_depends, order, total):
 	shutit = shutit_global.shutit
 	sections = {}
-	sections.update({'header_section':'\n# Created from shutitfile: ' + skel_shutitfile + '\n# Maintainer:              ' + shutitfile_representation['shutitfile']['maintainer'] + '\nfrom shutit_module import ShutItModule\n\nclass {{ skeleton.module_name }}(ShutItModule):\n\n\tdef is_installed(self, shutit):\n\t\treturn False'})
+	sections.update({'header_section':'\n# Created from shutitfile: ' + skel_shutitfile + '\n# Maintainer:              ' + shutitfile_representation['shutitfile']['maintainer'] + '\nfrom shutit_module import ShutItModule\n\nclass ' + skel_module_name + '(ShutItModule):\n\n\tdef is_installed(self, shutit):\n\t\treturn False'})
 
 	# config section - this must be done first, as it collates the config
 	# items that can be referenced later
