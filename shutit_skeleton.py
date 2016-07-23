@@ -136,6 +136,16 @@ def create_skeleton():
 		                             skel_shutitfiles=skel_shutitfiles,
 		                             skel_domain_hash=skel_domain_hash,
 		                             skel_depends=skel_depends)
+	elif shutit.cfg['skeleton']['template_branch'] == 'vagrant':
+		from shutit_templates import vagrant
+		docker.setup_vagrant_template(shutit=shutit,
+		                             skel_path=skel_path,
+		                             skel_delivery=skel_delivery,
+		                             skel_domain=skel_domain,
+		                             skel_module_name=skel_module_name,
+		                             skel_shutitfiles=skel_shutitfiles,
+		                             skel_domain_hash=skel_domain_hash,
+		                             skel_depends=skel_depends)
 	else:
 		git_command = 'git clone -q ' + shutit.cfg['skeleton']['template_repo'] + ' -b ' + shutit.cfg['skeleton']['template_branch'] + ' --depth 1 ' + shutit.cfg['skeleton']['template_folder']
 		res = os.system(git_command)

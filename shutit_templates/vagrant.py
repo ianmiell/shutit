@@ -1,7 +1,13 @@
 import os
 
-def setup_vagrant_template(shutit, skel_path, skel_delivery, skel_domain, skel_module_name, skel_shutitfiles, skel_domain_hash, skel_depends):
-
+def setup_vagrant_template(shutit,
+                           skel_path,
+                           skel_delivery,
+                           skel_domain,
+                           skel_module_name,
+                           skel_shutitfiles, 
+                           skel_domain_hash,
+                           skel_depends):
 	# run.sh
 	runsh_filename = skel_path + '/run.sh'
 	runsh_file = open(runsh_filename,'w+')
@@ -72,27 +78,37 @@ shutit.core.module.build:yes''')
 cd ''' + skel_path + ''' && ./run.sh
 # to run.''',transient=True)
 
-
-
-
-TODO: template
--rw-r--r--  1 imiell  staff  2436 23 Jul 16:58 template.py
-
-
-
-
-
-import random
+	# Handle shutitfiles
+	if skel_shutitfiles:
+		_count = 1
+		_total = len(skel_shutitfiles)
+		for skel_shutitfile in skel_shutitfiles:
+			module_modifier = '_' + str(_count) + '.py'
+			new_template_filename = skel_path + '/' + os.path.join(skel_module_name + module_modifier)
+			shutit.cfg['skeleton']['module_modifier'] = module_modifier
+			(sections,skel_module_id, default_include, ok) = shutitfile_to_shutit_module_template(skel_shutitfile,skel_path,skel_domain,skel_module_name,skel_domain_hash,skel_delivery,skel_depends,_count,_total,module_modifier)
+			shutit.cfg['skeleton']['header_section']      = sections['header_section']
+			shutit.cfg['skeleton']['config_section']      = sections['config_section'] 
+			shutit.cfg['skeleton']['build_section']       = sections['build_section'] 
+			shutit.cfg['skeleton']['finalize_section']    = sections['finalize_section'] 
+			shutit.cfg['skeleton']['test_section']        = sections['test_section'] 
+			shutit.cfg['skeleton']['isinstalled_section'] = sections['isinstalled_section'] 
+			shutit.cfg['skeleton']['start_section']       = sections['start_section'] 
+			shutit.cfg['skeleton']['stop_section']        = sections['stop_section'] 
+			shutit.cfg['skeleton']['final_section']       = sections['final_section']
+			# TODO: first and second
+			template_file = open(new_template_filename,'w+')
+			template_file.write('''import random
 import string
 
-{{ skeleton.header_section }}
+''' + template_file.write(shutit.cfg['skeleton']['header_section'] + """
 
 	def build(self, shutit):
 		vagrant_image = shutit.cfg[self.module_id]['vagrant_image']
 		vagrant_provider = shutit.cfg[self.module_id]['vagrant_provider']
 		gui = shutit.cfg[self.module_id]['gui']
 		memory = shutit.cfg[self.module_id]['memory']
-		module_name = '{{ skeleton.module_name }}_' + ''.join(random.choice(string.ascii_letters + string.digits) for _ in range(6))
+		module_name = '""" + skel_module_name + """_' + ''.join(random.choice(string.ascii_letters + string.digits) for _ in range(6))
 		shutit.send('rm -rf /tmp/' + module_name + ' && mkdir -p /tmp/' + module_name + ' && cd /tmp/' + module_name)
 		shutit.send('vagrant init ' + vagrant_image)
 		shutit.send_file('/tmp/' + module_name + '/Vagrantfile','''
@@ -106,14 +122,14 @@ Vagrant.configure(2) do |config|
   config.vm.provider "virtualbox" do |vb|
     vb.gui = ''' + gui + '''
     vb.memory = "''' + memory + '''"
-    vb.name = "{{ skeleton.module_name }}"
+    vb.name = """ + '"' + skel_module_name + '''"''' + """
   end
 end''')
 		shutit.send('vagrant up --provider virtualbox',timeout=99999)
 		shutit.login(command='vagrant ssh')
 		shutit.login(command='sudo su -',password='vagrant')
 
-{{ skeleton.build_section }}
+""" + shutit.cfg['skeleton']['build_section'] + """
 
 		shutit.logout()
 		shutit.logout()
@@ -124,43 +140,118 @@ end''')
 		shutit.get_config(self.module_id,'vagrant_provider',default='virtualbox')
 		shutit.get_config(self.module_id,'gui',default='false')
 		shutit.get_config(self.module_id,'memory',default='1024')
-{{ skeleton.config_section }}
+""" + shutit.cfg['skeleton']['config_section'] + """
 		return True
 
 	def test(self, shutit):
-{{ skeleton.test_section }}
+""" + shutit.cfg['skeleton']['test_section'] + """
 		return True
 
 	def finalize(self, shutit):
-{{ skeleton.finalize_section }}
+""" + shutit.cfg['skeleton']['finalize_section'] + """
 		return True
 
 	def isinstalled(self, shutit):
-{{ skeleton.isinstalled_section }}
+""" + shutit.cfg['skeleton']['isinstalled_section'] + """
 		return False
 
 	def start(self, shutit):
-{{ skeleton.start_section }}
+""" + shutit.cfg['skeleton']['start_section'] + """
 		return True
 
 	def stop(self, shutit):
-{{ skeleton.stop_section }}
+""" + shutit.cfg['skeleton']['stop_section'] + """
 		return True
 
 def module():
-	return {{ skeleton.module_name }}(
-		'{{ skeleton.domain }}.{{ skeleton.module_name }}', {{ skeleton.domain_hash }}.0001,
+	return """ + skel_module_name + """(
+		'""" + skel_domain + """.""" + skel_module_name + """', """ + skel_domain_hash + """.0001,
 		description='',
 		maintainer='',
 		delivery_methods=['bash'],
-		depends=['{{ skeleton.depends }}','shutit-library.virtualbox.virtualbox.virtualbox','tk.shutit.vagrant.vagrant.vagrant']
-	)
+		depends=['""" + skel_depends + """','shutit-library.virtualbox.virtualbox.virtualbox','tk.shutit.vagrant.vagrant.vagrant']
+	)""")
+			template_file.close()
+	else:
+		shutit.cfg['skeleton']['header_section']      = 'from shutit_module import ShutItModule\n\nclass ' + skel_module_name + '(ShutItModule):\n'
+		shutit.cfg['skeleton']['config_section']      = ''
+		shutit.cfg['skeleton']['build_section']       = ''
+		shutit.cfg['skeleton']['finalize_section']    = ''
+		shutit.cfg['skeleton']['test_section']        = ''
+		shutit.cfg['skeleton']['isinstalled_section'] = ''
+		shutit.cfg['skeleton']['start_section']       = ''
+		shutit.cfg['skeleton']['stop_section']        = ''
+		template_file.write('''import random
+import string
 
+''' + template_file.write(shutit.cfg['skeleton']['header_section'] + """
 
+	def build(self, shutit):
+		vagrant_image = shutit.cfg[self.module_id]['vagrant_image']
+		vagrant_provider = shutit.cfg[self.module_id]['vagrant_provider']
+		gui = shutit.cfg[self.module_id]['gui']
+		memory = shutit.cfg[self.module_id]['memory']
+		module_name = '""" + skel_module_name + """_' + ''.join(random.choice(string.ascii_letters + string.digits) for _ in range(6))
+		shutit.send('rm -rf /tmp/' + module_name + ' && mkdir -p /tmp/' + module_name + ' && cd /tmp/' + module_name)
+		shutit.send('vagrant init ' + vagrant_image)
+		shutit.send_file('/tmp/' + module_name + '/Vagrantfile','''
+Vagrant.configure(2) do |config|
+  config.vm.box = "''' + vagrant_image + '''"
+  # config.vm.box_check_update = false
+  # config.vm.network "forwarded_port", guest: 80, host: 8080
+  # config.vm.network "private_network", ip: "192.168.33.10"
+  # config.vm.network "public_network"
+  # config.vm.synced_folder "../data", "/vagrant_data"
+  config.vm.provider "virtualbox" do |vb|
+    vb.gui = ''' + gui + '''
+    vb.memory = "''' + memory + '''"
+    vb.name = """ + '"' + skel_module_name + '''"''' + """
+  end
+end''')
+		shutit.send('vagrant up --provider virtualbox',timeout=99999)
+		shutit.login(command='vagrant ssh')
+		shutit.login(command='sudo su -',password='vagrant')
 
+""" + shutit.cfg['skeleton']['build_section'] + """
 
+		shutit.logout()
+		shutit.logout()
+		return True
 
+	def get_config(self, shutit):
+		shutit.get_config(self.module_id,'vagrant_image',default='ubuntu/trusty64')
+		shutit.get_config(self.module_id,'vagrant_provider',default='virtualbox')
+		shutit.get_config(self.module_id,'gui',default='false')
+		shutit.get_config(self.module_id,'memory',default='1024')
+""" + shutit.cfg['skeleton']['config_section'] + """
+		return True
 
+	def test(self, shutit):
+""" + shutit.cfg['skeleton']['test_section'] + """
+		return True
 
+	def finalize(self, shutit):
+""" + shutit.cfg['skeleton']['finalize_section'] + """
+		return True
 
+	def isinstalled(self, shutit):
+""" + shutit.cfg['skeleton']['isinstalled_section'] + """
+		return False
 
+	def start(self, shutit):
+""" + shutit.cfg['skeleton']['start_section'] + """
+		return True
+
+	def stop(self, shutit):
+""" + shutit.cfg['skeleton']['stop_section'] + """
+		return True
+
+def module():
+	return """ + skel_module_name + """(
+		'""" + skel_domain + """.""" + skel_module_name + """', """ + skel_domain_hash + """.0001,
+		description='',
+		maintainer='',
+		delivery_methods=['bash'],
+		depends=['""" + skel_depends + """','shutit-library.virtualbox.virtualbox.virtualbox','tk.shutit.vagrant.vagrant.vagrant']
+	)""")
+		template_file.close()
