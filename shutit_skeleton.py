@@ -620,8 +620,8 @@ def shutitfile_to_shutit_module_template(skel_shutitfile,
 	final_section  = """
 
 def module():
-	return {{ skeleton.module_name }}(
-		'{{ skeleton.domain }}.{{skeleton.module_name }}""" + skel_module_modifier + """', """ + skel_domain_hash + str(order * 0.0001) + str(random.randint(1,999)) + """,
+	return """ + skel_module_name + """(
+		'""" + skel_domain + """.""" + skel_module_name + skel_module_modifier + """', """ + skel_domain_hash + str(order * 0.0001) + str(random.randint(1,999)) + """,
 		description='""" + shutitfile_representation['shutitfile']['description'] + """',
 		delivery_methods=[('""" + skel_delivery + """')],
 		maintainer='""" + shutitfile_representation['shutitfile']['maintainer'] + """',
