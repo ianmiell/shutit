@@ -137,8 +137,8 @@ fi''')
 		os.chmod(runsh_filename,0755)
 
 		# build.cnf file
-		build_cnf_filename = skel_path + '/configs/build.cnf'
 		os.system('mkdir -p ' + skel_path + '/configs')
+		build_cnf_filename = skel_path + '/configs/build.cnf'
 		build_cnf_file = open(build_cnf_filename,'w+')
 		build_cnf_file.write('''###############################################################################
 # PLEASE NOTE: This file should be changed only by the maintainer.
@@ -270,6 +270,69 @@ cd ''' + skel_path + ''' && ./run.sh
 
 ''' + shutit.cfg['skeleton']['final_section'])
 			template_file.close()
+	elif shutit.cfg['skeleton']['template_branch'] == 'docker':
+		os.system('mkdir -p ' + skel_path + '/bin')
+		build_bin_filename = skel_path + '/bin/build.sh'
+		build_bin_file = open(build_bin_filename,'w+')
+		build_bin_file.write('''#!/bin/bash
+[[ -z "$SHUTIT" ]] && SHUTIT="$1/shutit"
+[[ ! -a "$SHUTIT" ]] || [[ -z "$SHUTIT" ]] && SHUTIT="$(which shutit)"
+if [[ ! -a "$SHUTIT" ]]
+then
+    echo "Must have shutit on path, eg export PATH=$PATH:/path/to/shutit_dir"
+    exit 1
+fi
+pushd ..
+$SHUTIT build -d ''' + skel_delivery + ''' "$@"
+if [[ $? != 0 ]]
+then
+    popd
+    exit 1
+fi
+popd''')
+		build_bin_file.close()
+		os.chmod(build_bin_filename,0755)
+		run_bin_filename   = skel_path + '/bin/run.sh'
+		run_bin_file = open(run_bin_filename,'w+')
+		run_bin_file.write('''#!/bin/bash
+# Example for running
+DOCKER=${DOCKER:-docker}
+IMAGE_NAME=%s
+CONTAINER_NAME=$IMAGE_NAME
+DOCKER_ARGS=''
+while getopts "i:c:a:" opt
+do
+    case "$opt" in
+    i)
+        IMAGE_NAME=$OPTARG
+        ;;
+    c)
+        CONTAINER_NAME=$OPTARG
+        ;;
+    a)
+        DOCKER_ARGS=$OPTARG
+        ;;
+    esac
+done
+${DOCKER} run -d --name ${CONTAINER_NAME} ''' + skel_module_name + ''' ''' +  shutit.cfg['skeleton']['ports_arg'] + ''' ''' + shutit.cfg['skeleton']['ports_arg'] + ''' ''' + shutit.cfg['skeleton']['env_arg'] + ''' ${DOCKER_ARGS} ${IMAGE_NAME} ''' + shutit.shutitfile['entrypoint'] + ''' ''' + shutit.shutitfile['cmd'])
+		run_bin_file.close()
+		os.chmod(run_bin_filename,0755)
+		test_bin_filename  = skel_path + '/bin/test.sh'
+		test_bin_file = open(test_bin_filename,'w+')
+		test_bin_file.write('''#!/bin/bash
+# Test the building of this module
+if [ $0 != test.sh ] && [ $0 != ./test.sh ]
+then
+    echo
+    echo "Called as: $0"
+    echo "Must be run as test.sh or ./test.sh"
+    exit
+fi
+./build.sh "$@"
+)''')
+		test_bin_file.close()
+		os.chmod(test_bin_filename,0755)
+		TODO: configs, template and Dockerfile
 	else:
 		git_command = 'git clone -q ' + shutit.cfg['skeleton']['template_repo'] + ' -b ' + shutit.cfg['skeleton']['template_branch'] + ' --depth 1 ' + shutit.cfg['skeleton']['template_folder']
 		res = os.system(git_command)
