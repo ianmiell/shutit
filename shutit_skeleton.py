@@ -73,6 +73,7 @@ def create_skeleton():
 	skel_depends     = shutit.cfg['skeleton']['depends']
 	skel_shutitfiles = shutit.cfg['skeleton']['shutitfiles']
 	skel_delivery    = shutit.cfg['skeleton']['delivery']
+	skel_template_folder = shutit.cfg['skeleton']['template_folder']
 	template_setup_script = skel_path + '/setup.sh'
 	# Set up shutitfile cfg
 	shutit.shutitfile['base_image'] = shutit.cfg['skeleton']['base_image']
@@ -116,162 +117,272 @@ def create_skeleton():
 	# Create folders and process templates.
 	os.makedirs(skel_path)
 	os.chdir(skel_path)
-	git_command = 'git clone -q ' + shutit.cfg['skeleton']['template_repo'] + ' -b ' + shutit.cfg['skeleton']['template_branch'] + ' --depth 1 ' + shutit.cfg['skeleton']['template_folder']
-	res = os.system(git_command)
-	if res != 0:
-		shutit.fail('git command: \n' + git_command + '\nFailed while setting up skeleton')
-	template_folder = skel_path + '/' + shutit.cfg['skeleton']['template_folder']
-	os.system('rm -rf ' + template_folder + '/.git')
+	# TODO: change to bash from bash2
+	if shutit.cfg['skeleton']['template_branch'] == 'bash2':
+		# TODO: separate functions for each type (eg bash2 etc)
+		runsh_file = open(skel_template_folder + '/run.sh','w+')
+		runsh_file.write('''#!/bin/bash
+[[ -z "$SHUTIT" ]] && SHUTIT="$1/shutit"
+[[ ! -a "$SHUTIT" ]] || [[ -z "$SHUTIT" ]] && SHUTIT="$(which shutit)"
+if [[ ! -a "$SHUTIT" ]]
+then
+	echo "Must have shutit on path, eg export PATH=$PATH:/path/to/shutit_dir"
+	exit 1
+fi
+$SHUTIT build -d {{ skeleton.delivery }} "$@"
+if [[ $? != 0 ]]
+then
+	exit 1
+fi''')
+		runsh_file.close()
+		os.chmod(runsh_file,0755)
 
-	# IF we have any shutitfiles:
-	#   For each one, copy it to a new file, eg template.py -> name_count.py DONE
-	#      Run it throught the template renderer.
-	#   Delete the original DONE
-	# ELSE:
-	#   Set the defaults to empty for the sections
+		# build.cnf file
+		os.system('mkdir -p ' + skel_template_folder + '/configs')
+		build_cnf_file = open(skel_template_folder + '/configs/build.cnf')
+		build_cnf_file.write('''###############################################################################
+# PLEASE NOTE: This file should be changed only by the maintainer.
+# PLEASE NOTE: This file is only sourced if the "shutit build" command is run
+#              and this file is in the relative path: configs/build.cnf
+#              This is to ensure it is only sourced if _this_ module is the
+#              target.
+###############################################################################
+# When this module is the one being built, which modules should be built along with it by default?
+# This feeds into automated testing of each module.
+['''+skel_domain+'''.'''+skel_module_name+''']
+shutit.core.module.build:yes''')
+		os.chmod(build_cnf_file,0400)
+		build_cnf_file.close()
 
-	# TODO: add buildcnf_section et al to the template
-	shutit.cfg['skeleton']['buildcnf_section'] = textwrap.dedent('''\
-		shutit.core.module.allowed_images:["''' + shutit.shutitfile['base_image'] + '''"]
-		[build]
-		base_image:''' + shutit.shutitfile['base_image'] + '''
-		[target]
-		volumes:
-		[repository]
-		name:''' + skel_module_name + '''
-		''')
-	if skel_shutitfiles:
-		_count = 1
-		_total = len(skel_shutitfiles)
-		for skel_shutitfile in skel_shutitfiles:
+
+		# User message
+		shutit.log('''# Run:
+cd $(pwd) && ./run.sh
+# to run.''',transient=True)
+
+		shutit.cfg['skeleton']['buildcnf_section'] = textwrap.dedent('''\
+			shutit.core.module.allowed_images:["''' + shutit.shutitfile['base_image'] + '''"]
+			[build]
+			base_image:''' + shutit.shutitfile['base_image'] + '''
+			[target]
+			volumes:
+			[repository]
+			name:''' + skel_module_name + '''
+			''')
+		if skel_shutitfiles:
+			_count = 1
+			_total = len(skel_shutitfiles)
+			for skel_shutitfile in skel_shutitfiles:
+				tmp_folder = template_folder + '/tmp'
+				os.system('mkdir -p ' + tmp_folder)
+				# Copy it to a new file, eg template.py -> name_count.py
+				module_modifier = '_' + str(_count) + '.py'
+				new_template_tmp_filename = tmp_folder + '/' + os.path.join(skel_module_name + module_modifier)
+				new_template_filename = template_folder + '/' + os.path.join(skel_module_name + module_modifier)
+				shutit.cfg['skeleton']['module_modifier'] = module_modifier
+				os.system('cp ' + template_folder + '/template.py ' + new_template_tmp_filename)
+				# TODO: deal appropriately with module_id, default_include etc here and in else section
+				(sections,skel_module_id, default_include, ok) = shutitfile_to_shutit_module_template(skel_shutitfile,skel_path,skel_domain,skel_module_name,skel_domain_hash,skel_delivery,skel_depends,_count,_total,module_modifier)
+				shutit.cfg['skeleton']['header_section']      = sections['header_section']
+				shutit.cfg['skeleton']['config_section']      = sections['config_section'] 
+				shutit.cfg['skeleton']['build_section']       = sections['build_section'] 
+				shutit.cfg['skeleton']['finalize_section']    = sections['finalize_section'] 
+				shutit.cfg['skeleton']['test_section']        = sections['test_section'] 
+				shutit.cfg['skeleton']['isinstalled_section'] = sections['isinstalled_section'] 
+				shutit.cfg['skeleton']['start_section']       = sections['start_section'] 
+				shutit.cfg['skeleton']['stop_section']        = sections['stop_section'] 
+				shutit.cfg['skeleton']['final_section']       = sections['final_section']
+			template_file.write(shutit.cfg['skeleton']['header_section'] + '''
+
+	def build(self, shutit):
+''' + shutit.cfg['skeleton']['build_section'] + '''
+		return True
+                                 
+	def get_config(self, shutit):
+''' + shutit.cfg['skeleton']['config_section'] + '''
+		return True
+
+	def test(self, shutit):
+''' + shutit.cfg['skeleton']['test_section'] + '''
+		return True
+
+	def finalize(self, shutit):
+''' + shutit.cfg['skeleton']['finalize_section'] + '''
+		return True
+
+	def isinstalled(self, shutit):
+''' + shutit.cfg['skeleton']['isinstalled_section'] + '''
+		return False
+
+	def start(self, shutit):
+''' + shutit.cfg['skeleton']['start_section'] + '''
+		return True
+
+	def stop(self, shutit):
+''' + shutit.cfg['skeleton']['stop_section'] + '''
+		return True
+
+''' + shutit.cfg['skeleton']['final_section'])
+		else:
+			TODO copy else from below
+
+	else:
+		git_command = 'git clone -q ' + shutit.cfg['skeleton']['template_repo'] + ' -b ' + shutit.cfg['skeleton']['template_branch'] + ' --depth 1 ' + shutit.cfg['skeleton']['template_folder']
+		res = os.system(git_command)
+		if res != 0:
+			shutit.fail('git command: \n' + git_command + '\nFailed while setting up skeleton')
+		template_folder = skel_path + '/' + shutit.cfg['skeleton']['template_folder']
+		os.system('rm -rf ' + template_folder + '/.git')
+
+		# IF we have any shutitfiles:
+		#   For each one, copy it to a new file, eg template.py -> name_count.py DONE
+		#      Run it throught the template renderer.
+		#   Delete the original DONE
+		# ELSE:
+		#   Set the defaults to empty for the sections
+
+		# TODO: add buildcnf_section et al to the template
+		shutit.cfg['skeleton']['buildcnf_section'] = textwrap.dedent('''\
+			shutit.core.module.allowed_images:["''' + shutit.shutitfile['base_image'] + '''"]
+			[build]
+			base_image:''' + shutit.shutitfile['base_image'] + '''
+			[target]
+			volumes:
+			[repository]
+			name:''' + skel_module_name + '''
+			''')
+		if skel_shutitfiles:
+			_count = 1
+			_total = len(skel_shutitfiles)
+			for skel_shutitfile in skel_shutitfiles:
+				tmp_folder = template_folder + '/tmp'
+				os.system('mkdir -p ' + tmp_folder)
+				# Copy it to a new file, eg template.py -> name_count.py
+				module_modifier = '_' + str(_count) + '.py'
+				new_template_tmp_filename = tmp_folder + '/' + os.path.join(skel_module_name + module_modifier)
+				new_template_filename = template_folder + '/' + os.path.join(skel_module_name + module_modifier)
+				shutit.cfg['skeleton']['module_modifier'] = module_modifier
+				os.system('cp ' + template_folder + '/template.py ' + new_template_tmp_filename)
+				# TODO: deal appropriately with module_id, default_include etc here and in else section
+				(sections,skel_module_id, default_include, ok) = shutitfile_to_shutit_module_template(skel_shutitfile,skel_path,skel_domain,skel_module_name,skel_domain_hash,skel_delivery,skel_depends,_count,_total,module_modifier)
+				shutit.cfg['skeleton']['header_section']      = sections['header_section']
+				shutit.cfg['skeleton']['config_section']      = sections['config_section'] 
+				shutit.cfg['skeleton']['build_section']       = sections['build_section'] 
+				shutit.cfg['skeleton']['finalize_section']    = sections['finalize_section'] 
+				shutit.cfg['skeleton']['test_section']        = sections['test_section'] 
+				shutit.cfg['skeleton']['isinstalled_section'] = sections['isinstalled_section'] 
+				shutit.cfg['skeleton']['start_section']       = sections['start_section'] 
+				shutit.cfg['skeleton']['stop_section']        = sections['stop_section'] 
+				shutit.cfg['skeleton']['final_section']       = sections['final_section']
+				# Run it through the renderer
+				templates=jinja2.Environment(loader=jinja2.FileSystemLoader(tmp_folder))
+				templates_list = templates.list_templates()
+				for template_item in templates_list:
+					template_str = templates.get_template(template_item).render(shutit.cfg)
+					f = open(new_template_filename,'w')
+					f.write(template_str)
+					f.close()
+				os.system('rm -rf ' + tmp_folder)
+				_count += 1
+			# Remove the original template
+			os.system('rm ' + template_folder + '/template.py ')
+		else:
+			shutit.cfg['skeleton']['header_section']      = 'from shutit_module import ShutItModule\n\nclass {{ skeleton.module_name }}(ShutItModule):\n'
+			shutit.cfg['skeleton']['config_section']      = ''
+			shutit.cfg['skeleton']['build_section']       = ''
+			shutit.cfg['skeleton']['finalize_section']    = ''
+			shutit.cfg['skeleton']['test_section']        = ''
+			shutit.cfg['skeleton']['isinstalled_section'] = ''
+			shutit.cfg['skeleton']['start_section']       = ''
+			shutit.cfg['skeleton']['stop_section']        = ''
+			# TODO: de-dent
+			shutit.cfg['skeleton']['final_section']        = '''def module():
+		return {{ skeleton.module_name }}(
+			'{{ skeleton.domain }}.{{ skeleton.module_name }}', {{ skeleton.domain_hash }}.0001,
+			description='',
+			maintainer='',
+			delivery_methods=['{{ skeleton.delivery }}'],
+			depends=['{{ skeleton.depends }}']
+		)'''
+			# render once to the base template in, before re-rendering
 			tmp_folder = template_folder + '/tmp'
 			os.system('mkdir -p ' + tmp_folder)
-			# Copy it to a new file, eg template.py -> name_count.py
-			module_modifier = '_' + str(_count) + '.py'
-			new_template_tmp_filename = tmp_folder + '/' + os.path.join(skel_module_name + module_modifier)
-			new_template_filename = template_folder + '/' + os.path.join(skel_module_name + module_modifier)
-			shutit.cfg['skeleton']['module_modifier'] = module_modifier
-			os.system('cp ' + template_folder + '/template.py ' + new_template_tmp_filename)
-			# TODO: deal appropriately with module_id, default_include etc here and in else section
-			(sections,skel_module_id, default_include, ok) = shutitfile_to_shutit_module_template(skel_shutitfile,skel_path,skel_domain,skel_module_name,skel_domain_hash,skel_delivery,skel_depends,_count,_total,module_modifier)
-			shutit.cfg['skeleton']['header_section']      = sections['header_section']
-			shutit.cfg['skeleton']['config_section']      = sections['config_section'] 
-			shutit.cfg['skeleton']['build_section']       = sections['build_section'] 
-			shutit.cfg['skeleton']['finalize_section']    = sections['finalize_section'] 
-			shutit.cfg['skeleton']['test_section']        = sections['test_section'] 
-			shutit.cfg['skeleton']['isinstalled_section'] = sections['isinstalled_section'] 
-			shutit.cfg['skeleton']['start_section']       = sections['start_section'] 
-			shutit.cfg['skeleton']['stop_section']        = sections['stop_section'] 
-			shutit.cfg['skeleton']['final_section']       = sections['final_section']
-			# Run it through the renderer
+			new_template_filename = tmp_folder + '/template.py'
+			template_filename = template_folder + '/template.py'
+			os.system('cp ' + template_filename + ' ' + new_template_filename)
 			templates=jinja2.Environment(loader=jinja2.FileSystemLoader(tmp_folder))
 			templates_list = templates.list_templates()
 			for template_item in templates_list:
 				template_str = templates.get_template(template_item).render(shutit.cfg)
-				f = open(new_template_filename,'w')
+				f = open(template_filename,'w')
 				f.write(template_str)
 				f.close()
 			os.system('rm -rf ' + tmp_folder)
-			_count += 1
-		# Remove the original template
-		os.system('rm ' + template_folder + '/template.py ')
-	else:
-		shutit.cfg['skeleton']['header_section']      = 'from shutit_module import ShutItModule\n\nclass {{ skeleton.module_name }}(ShutItModule):\n'
-		shutit.cfg['skeleton']['config_section']      = ''
-		shutit.cfg['skeleton']['build_section']       = ''
-		shutit.cfg['skeleton']['finalize_section']    = ''
-		shutit.cfg['skeleton']['test_section']        = ''
-		shutit.cfg['skeleton']['isinstalled_section'] = ''
-		shutit.cfg['skeleton']['start_section']       = ''
-		shutit.cfg['skeleton']['stop_section']        = ''
-		# TODO: de-dent
-		shutit.cfg['skeleton']['final_section']        = '''def module():
-	return {{ skeleton.module_name }}(
-		'{{ skeleton.domain }}.{{ skeleton.module_name }}', {{ skeleton.domain_hash }}.0001,
-		description='',
-		maintainer='',
-		delivery_methods=['{{ skeleton.delivery }}'],
-		depends=['{{ skeleton.depends }}']
-	)'''
-		# render once to the base template in, before re-rendering
-		tmp_folder = template_folder + '/tmp'
-		os.system('mkdir -p ' + tmp_folder)
-		new_template_filename = tmp_folder + '/template.py'
-		template_filename = template_folder + '/template.py'
-		os.system('cp ' + template_filename + ' ' + new_template_filename)
-		templates=jinja2.Environment(loader=jinja2.FileSystemLoader(tmp_folder))
+
+		# Render the templates that now exist in the template folder.
+		templates=jinja2.Environment(loader=jinja2.FileSystemLoader(template_folder))
 		templates_list = templates.list_templates()
+		# Process and write the files to the parent dir of the template before removing the template folder
 		for template_item in templates_list:
+			directory = os.path.dirname(template_item)
+			if directory != '' and not os.path.exists(directory):
+				os.mkdir(os.path.dirname(template_item))
 			template_str = templates.get_template(template_item).render(shutit.cfg)
-			f = open(template_filename,'w')
+			os.system('mkdir -p ' + os.path.dirname(skel_path + '/' + template_item))
+			f = open(skel_path + '/' + template_item,'w')
 			f.write(template_str)
 			f.close()
-		os.system('rm -rf ' + tmp_folder)
+		# Remove the template_folder, we are done with it.
+		os.chdir(skel_path)
+		if shutit.cfg['skeleton']['output_dir']:
+			os.system('chmod +x ' + template_setup_script + ' && ' + template_setup_script + ' > /dev/null 2>&1 && rm -f ' + template_setup_script)
+			os.system('rm -rf ' + template_folder)
+		else:
+			os.system('chmod +x ' + template_setup_script + ' && ' + template_setup_script + ' && rm -f ' + template_setup_script)
+			os.system('rm -rf ' + template_folder)
 
-	# Render the templates that now exist in the template folder.
-	templates=jinja2.Environment(loader=jinja2.FileSystemLoader(template_folder))
-	templates_list = templates.list_templates()
-	# Process and write the files to the parent dir of the template before removing the template folder
-	for template_item in templates_list:
-		directory = os.path.dirname(template_item)
-		if directory != '' and not os.path.exists(directory):
-			os.mkdir(os.path.dirname(template_item))
-		template_str = templates.get_template(template_item).render(shutit.cfg)
-		os.system('mkdir -p ' + os.path.dirname(skel_path + '/' + template_item))
-		f = open(skel_path + '/' + template_item,'w')
-		f.write(template_str)
-		f.close()
-	# Remove the template_folder, we are done with it.
-	os.chdir(skel_path)
-	if shutit.cfg['skeleton']['output_dir']:
-		os.system('chmod +x ' + template_setup_script + ' && ' + template_setup_script + ' > /dev/null 2>&1 && rm -f ' + template_setup_script)
-		os.system('rm -rf ' + template_folder)
-	else:
-		os.system('chmod +x ' + template_setup_script + ' && ' + template_setup_script + ' && rm -f ' + template_setup_script)
-		os.system('rm -rf ' + template_folder)
+		# Return program to original path
+		os.chdir(sys.path[0])
 
-	# Return program to original path
-	os.chdir(sys.path[0])
-
-	# Kept for reference
-	## If we have any ShutitFiles
-	## TODO: this remove is too crude (it deletes the template) - need to sub in the code, or make the above in python.
-	## PLAN: shutitfile_to_shutit_module_template should return: build section, which gets subbed in to some special template value, etc etc
-	##       if no skel_shutitfiles, remove the template value
-	##       we already have shutitfile_representation, this can be used to place data in there, ie skip the generate_shutit_module step and final section.
-	#if skel_shutitfiles:
-	#	try:
-	#		# Attempt to remove any .py files created by default.
-	#		os.remove(skel_path + '/' + skel_module_name + '.py')
-	#	except:
-	#		pass
-	#	_count = 1
-	#	_total = len(skel_shutitfiles)
-	#	buildcnf = ''
-	#	for skel_shutitfile in skel_shutitfiles:
-	#		templatemodule_path   = os.path.join(skel_path, skel_module_name + '_' + str(_count) + '.py')
-	#		(templatemodule,skel_module_id, default_include, ok) = shutitfile_to_shutit_module_template(skel_shutitfile,skel_path,skel_domain,skel_module_name,skel_domain_hash,skel_delivery,skel_depends,_count,_total)
-	#		if not ok:
-	#			shutit.fail('Failed to create shutit module from: ' + skel_shutitfile)
-	#		open(templatemodule_path, 'w').write(templatemodule)
-	#		_count += 1
-	#		buildcnf_path = skel_path + '/configs/build.cnf'
-	#		buildcnf += textwrap.dedent('''\
-	#			[''' + skel_module_id + ''']
-	#			shutit.core.module.build:''' + default_include + '''
-	#		''')
-	#	buildcnf += textwrap.dedent('''\
-	#		shutit.core.module.allowed_images:["''' + shutit.shutitfile['base_image'] + '''"]
-	#		[build]
-	#		base_image:''' + shutit.shutitfile['base_image'] + '''
-	#		[target]
-	#		volumes:
-	#		[repository]
-	#		name:''' + skel_module_name + '''
-	#		''')
-	#	os.chmod(buildcnf_path,0700)
-	#	open(buildcnf_path,'w').write(buildcnf)
-	#	os.chmod(buildcnf_path,0400)
+		# Kept for reference
+		## If we have any ShutitFiles
+		## TODO: this remove is too crude (it deletes the template) - need to sub in the code, or make the above in python.
+		## PLAN: shutitfile_to_shutit_module_template should return: build section, which gets subbed in to some special template value, etc etc
+		##       if no skel_shutitfiles, remove the template value
+		##       we already have shutitfile_representation, this can be used to place data in there, ie skip the generate_shutit_module step and final section.
+		#if skel_shutitfiles:
+		#	try:
+		#		# Attempt to remove any .py files created by default.
+		#		os.remove(skel_path + '/' + skel_module_name + '.py')
+		#	except:
+		#		pass
+		#	_count = 1
+		#	_total = len(skel_shutitfiles)
+		#	buildcnf = ''
+		#	for skel_shutitfile in skel_shutitfiles:
+		#		templatemodule_path   = os.path.join(skel_path, skel_module_name + '_' + str(_count) + '.py')
+		#		(templatemodule,skel_module_id, default_include, ok) = shutitfile_to_shutit_module_template(skel_shutitfile,skel_path,skel_domain,skel_module_name,skel_domain_hash,skel_delivery,skel_depends,_count,_total)
+		#		if not ok:
+		#			shutit.fail('Failed to create shutit module from: ' + skel_shutitfile)
+		#		open(templatemodule_path, 'w').write(templatemodule)
+		#		_count += 1
+		#		buildcnf_path = skel_path + '/configs/build.cnf'
+		#		buildcnf += textwrap.dedent('''\
+		#			[''' + skel_module_id + ''']
+		#			shutit.core.module.build:''' + default_include + '''
+		#		''')
+		#	buildcnf += textwrap.dedent('''\
+		#		shutit.core.module.allowed_images:["''' + shutit.shutitfile['base_image'] + '''"]
+		#		[build]
+		#		base_image:''' + shutit.shutitfile['base_image'] + '''
+		#		[target]
+		#		volumes:
+		#		[repository]
+		#		name:''' + skel_module_name + '''
+		#		''')
+		#	os.chmod(buildcnf_path,0700)
+		#	open(buildcnf_path,'w').write(buildcnf)
+		#	os.chmod(buildcnf_path,0400)
 
 
 
