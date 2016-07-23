@@ -116,27 +116,86 @@ def create_skeleton():
 	# Create folders and process templates.
 	os.makedirs(skel_path)
 	os.chdir(skel_path)
+	################################################################################
+	# START BASH TEMPLATE
+	################################################################################
 	if shutit.cfg['skeleton']['template_branch'] == 'bash':
-		# TODO: separate functions for each type (eg bash etc)
-		runsh_filename = skel_path + '/run.sh'
-		runsh_file = open(runsh_filename,'w+')
-		runsh_file.write('''#!/bin/bash
+		from shutit_templates import bash
+		bash.setup_bash_template(shutit=shutit,
+		                         skel_path=skel_path,
+		                         skel_delivery=skel_delivery,
+		                         skel_domain=skel_domain,
+		                         skel_module_name=skel_module_name,
+		                         skel_shutitfiles=skel_shutitfiles,
+		                         skel_domain_hash=skel_domain_hash,
+		                         skel_depends=skel_depends)
+	################################################################################
+	# START DOCKER TEMPLATE
+	################################################################################
+	elif shutit.cfg['skeleton']['template_branch'] == 'docker':
+		os.system('mkdir -p ' + skel_path + '/bin')
+		build_bin_filename = skel_path + '/bin/build.sh'
+		build_bin_file = open(build_bin_filename,'w+')
+		build_bin_file.write('''#!/bin/bash
 [[ -z "$SHUTIT" ]] && SHUTIT="$1/shutit"
 [[ ! -a "$SHUTIT" ]] || [[ -z "$SHUTIT" ]] && SHUTIT="$(which shutit)"
 if [[ ! -a "$SHUTIT" ]]
 then
-	echo "Must have shutit on path, eg export PATH=$PATH:/path/to/shutit_dir"
-	exit 1
+    echo "Must have shutit on path, eg export PATH=$PATH:/path/to/shutit_dir"
+    exit 1
 fi
+pushd ..
 $SHUTIT build -d ''' + skel_delivery + ''' "$@"
 if [[ $? != 0 ]]
 then
-	exit 1
-fi''')
-		runsh_file.close()
-		os.chmod(runsh_filename,0755)
-
-		# build.cnf file
+    popd
+    exit 1
+fi
+popd''')
+		build_bin_file.close()
+		os.chmod(build_bin_filename,0755)
+		run_bin_filename   = skel_path + '/bin/run.sh'
+		run_bin_file = open(run_bin_filename,'w+')
+		# TODO: sort out entrypoint properly
+		entrypoint = ''
+		run_bin_file.write('''#!/bin/bash
+# Example for running
+DOCKER=${DOCKER:-docker}
+IMAGE_NAME=%s
+CONTAINER_NAME=$IMAGE_NAME
+DOCKER_ARGS=''
+while getopts "i:c:a:" opt
+do
+    case "$opt" in
+    i)
+        IMAGE_NAME=$OPTARG
+        ;;
+    c)
+        CONTAINER_NAME=$OPTARG
+        ;;
+    a)
+        DOCKER_ARGS=$OPTARG
+        ;;
+    esac
+done
+${DOCKER} run -d --name ${CONTAINER_NAME} ''' + skel_module_name + ''' ''' +  shutit.cfg['skeleton']['ports_arg'] + ''' ''' + shutit.cfg['skeleton']['ports_arg'] + ''' ''' + shutit.cfg['skeleton']['env_arg'] + ''' ${DOCKER_ARGS} ${IMAGE_NAME} ''' + entrypoint + ''' ''' + shutit.shutitfile['cmd'])
+		run_bin_file.close()
+		os.chmod(run_bin_filename,0755)
+		test_bin_filename  = skel_path + '/bin/test.sh'
+		test_bin_file = open(test_bin_filename,'w+')
+		test_bin_file.write('''#!/bin/bash
+# Test the building of this module
+if [ $0 != test.sh ] && [ $0 != ./test.sh ]
+then
+    echo
+    echo "Called as: $0"
+    echo "Must be run as test.sh or ./test.sh"
+    exit
+fi
+./build.sh "$@"
+)''')
+		test_bin_file.close()
+		os.chmod(test_bin_filename,0755)
 		os.system('mkdir -p ' + skel_path + '/configs')
 		build_cnf_filename = skel_path + '/configs/build.cnf'
 		build_cnf_file = open(build_cnf_filename,'w+')
@@ -149,27 +208,75 @@ fi''')
 ###############################################################################
 # When this module is the one being built, which modules should be built along with it by default?
 # This feeds into automated testing of each module.
-['''+skel_domain+'''.'''+skel_module_name+''']
-shutit.core.module.build:yes''')
+[''' + skel_domain + '''.''' +  skel_module_name + ''']
+shutit.core.module.build:yes
+# Allowed images as a regexp, eg ["ubuntu:12.*"], or [".*"], or ["centos"].
+# It's recommended this is locked down as far as possible.
+shutit.core.module.allowed_images:["''' + shutit.shutitfile['base_image'] + '''"]
+
+# Aspects of build process
+[build]
+base_image:''' + shutit.shutitfile['base_image'] + '''
+
+# Volume arguments wanted as part of the build
+[target]
+volumes:
+
+[repository]
+name:''' + skel_module_name)
 		build_cnf_file.close()
 		os.chmod(build_cnf_filename,0400)
 
+		push_cnf_filename = skel_path + '/configs/push.cnf'
+		push_cnf_file = open(push_cnf_filename,'w+')
+		push_cnf_file.write('''###############################################################################
+# PLEASE NOTE: This file should be changed only by the maintainer.
+# PLEASE NOTE: IF YOU WANT TO CHANGE THE CONFIG, PASS IN
+#              --config configfilename
+#              OR ADD DETAILS TO YOUR
+#              ~/.shutit/config
+#              FILE
+###############################################################################
+[target]
+rm:false
 
-		# User message
-		shutit.log('''# Run:
-cd ''' + skel_path + ''' && ./run.sh
-# to run.''',transient=True)
+[repository]
+# COPY THESE TO YOUR ~/.shutit/config FILE AND FILL OUT ITEMS IN CAPS
+#user:YOUR_USERNAME
+## Fill these out in server- and username-specific config (also in this directory)
+#password:YOUR_REGISTRY_PASSWORD_OR_BLANK
+## Fill these out in server- and username-specific config (also in this directory)
+#email:YOUR_REGISTRY_EMAIL_OR_BLANK
+#tag:no
+#push:yes
+#save:no
+#export:no
+##server:REMOVE_ME_FOR_DOCKER_INDEX
+## tag suffix, defaults to "latest", eg registry/username/repository:latest.
+## empty is also "latest"
+#tag_name:latest
+#suffix_date:no
+#suffix_format:%s''')
+		push_cnf_file.close()
+		os.chmod(push_cnf_filename,0400)
+		dockerfile_filename = skel_path + '/Dockerfile'
+		dockerfile_file = open(dockerfile_filename,'w+')
+		dockerfile_file.write('''FROM ''' + shutit.shutitfile['base_image'] + '''
 
-		shutit.cfg['skeleton']['buildcnf_section'] = textwrap.dedent('''\
-			shutit.core.module.allowed_images:["''' + shutit.shutitfile['base_image'] + '''"]
-			[build]
-			base_image:''' + shutit.shutitfile['base_image'] + '''
-			[target]
-			volumes:
-			[repository]
-			name:''' + skel_module_name + '''
-			''')
+RUN apt-get update
+RUN apt-get install -y -qq git python-pip python-dev
+RUN pip install shutit
+
+WORKDIR /opt
+# Change the next two lines to build your ShutIt module.
+RUN git clone https://github.com/yourname/yourshutitproject.git
+WORKDIR /opt/yourshutitproject
+RUN shutit build --delivery dockerfile
+CMD ["/bin/bash"]''')
+		dockerfile_file.close()
 		if skel_shutitfiles:
+			_count = 1
+			_total = len(skel_shutitfiles)
 			_count = 1
 			_total = len(skel_shutitfiles)
 			for skel_shutitfile in skel_shutitfiles:
@@ -270,69 +377,9 @@ cd ''' + skel_path + ''' && ./run.sh
 
 ''' + shutit.cfg['skeleton']['final_section'])
 			template_file.close()
-	elif shutit.cfg['skeleton']['template_branch'] == 'docker2':
-		os.system('mkdir -p ' + skel_path + '/bin')
-		build_bin_filename = skel_path + '/bin/build.sh'
-		build_bin_file = open(build_bin_filename,'w+')
-		build_bin_file.write('''#!/bin/bash
-[[ -z "$SHUTIT" ]] && SHUTIT="$1/shutit"
-[[ ! -a "$SHUTIT" ]] || [[ -z "$SHUTIT" ]] && SHUTIT="$(which shutit)"
-if [[ ! -a "$SHUTIT" ]]
-then
-    echo "Must have shutit on path, eg export PATH=$PATH:/path/to/shutit_dir"
-    exit 1
-fi
-pushd ..
-$SHUTIT build -d ''' + skel_delivery + ''' "$@"
-if [[ $? != 0 ]]
-then
-    popd
-    exit 1
-fi
-popd''')
-		build_bin_file.close()
-		os.chmod(build_bin_filename,0755)
-		run_bin_filename   = skel_path + '/bin/run.sh'
-		run_bin_file = open(run_bin_filename,'w+')
-		run_bin_file.write('''#!/bin/bash
-# Example for running
-DOCKER=${DOCKER:-docker}
-IMAGE_NAME=%s
-CONTAINER_NAME=$IMAGE_NAME
-DOCKER_ARGS=''
-while getopts "i:c:a:" opt
-do
-    case "$opt" in
-    i)
-        IMAGE_NAME=$OPTARG
-        ;;
-    c)
-        CONTAINER_NAME=$OPTARG
-        ;;
-    a)
-        DOCKER_ARGS=$OPTARG
-        ;;
-    esac
-done
-${DOCKER} run -d --name ${CONTAINER_NAME} ''' + skel_module_name + ''' ''' +  shutit.cfg['skeleton']['ports_arg'] + ''' ''' + shutit.cfg['skeleton']['ports_arg'] + ''' ''' + shutit.cfg['skeleton']['env_arg'] + ''' ${DOCKER_ARGS} ${IMAGE_NAME} ''' + shutit.shutitfile['entrypoint'] + ''' ''' + shutit.shutitfile['cmd'])
-		run_bin_file.close()
-		os.chmod(run_bin_filename,0755)
-		test_bin_filename  = skel_path + '/bin/test.sh'
-		test_bin_file = open(test_bin_filename,'w+')
-		test_bin_file.write('''#!/bin/bash
-# Test the building of this module
-if [ $0 != test.sh ] && [ $0 != ./test.sh ]
-then
-    echo
-    echo "Called as: $0"
-    echo "Must be run as test.sh or ./test.sh"
-    exit
-fi
-./build.sh "$@"
-)''')
-		test_bin_file.close()
-		os.chmod(test_bin_filename,0755)
-		# TODO: configs, template and Dockerfile
+	################################################################################
+	# DONE DOCKER TEMPLATE
+	################################################################################
 	else:
 		git_command = 'git clone -q ' + shutit.cfg['skeleton']['template_repo'] + ' -b ' + shutit.cfg['skeleton']['template_branch'] + ' --depth 1 ' + shutit.cfg['skeleton']['template_folder']
 		res = os.system(git_command)
@@ -349,15 +396,6 @@ fi
 		#   Set the defaults to empty for the sections
 
 		# TODO: add buildcnf_section et al to the template
-		shutit.cfg['skeleton']['buildcnf_section'] = textwrap.dedent('''\
-			shutit.core.module.allowed_images:["''' + shutit.shutitfile['base_image'] + '''"]
-			[build]
-			base_image:''' + shutit.shutitfile['base_image'] + '''
-			[target]
-			volumes:
-			[repository]
-			name:''' + skel_module_name + '''
-			''')
 		if skel_shutitfiles:
 			_count = 1
 			_total = len(skel_shutitfiles)
