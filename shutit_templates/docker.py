@@ -100,35 +100,6 @@ fi
 	test_bin_file.close()
 	os.chmod(test_bin_filename,0755)
 	os.system('mkdir -p ' + skel_path + '/configs')
-	build_cnf_filename = skel_path + '/configs/build.cnf'
-	build_cnf_file = open(build_cnf_filename,'w+')
-	build_cnf_file.write('''###############################################################################
-# PLEASE NOTE: This file should be changed only by the maintainer.
-# PLEASE NOTE: This file is only sourced if the "shutit build" command is run
-#              and this file is in the relative path: configs/build.cnf
-#              This is to ensure it is only sourced if _this_ module is the
-#              target.
-###############################################################################
-# When this module is the one being built, which modules should be built along with it by default?
-# This feeds into automated testing of each module.
-[''' + skel_domain + '''.''' +  skel_module_name + ''']
-shutit.core.module.build:yes
-# Allowed images as a regexp, eg ["ubuntu:12.*"], or [".*"], or ["centos"].
-# It's recommended this is locked down as far as possible.
-shutit.core.module.allowed_images:["''' + shutit.shutitfile['base_image'] + '''"]
-
-# Aspects of build process
-[build]
-base_image:''' + shutit.shutitfile['base_image'] + '''
-
-# Volume arguments wanted as part of the build
-[target]
-volumes:
-
-[repository]
-name:''' + skel_module_name)
-	build_cnf_file.close()
-	os.chmod(build_cnf_filename,0400)
 
 	push_cnf_filename = skel_path + '/configs/push.cnf'
 	push_cnf_file = open(push_cnf_filename,'w+')
@@ -192,8 +163,8 @@ cd ''' + skel_path + '''/bin && ./build.sh
 		_count = 1
 		_total = len(skel_shutitfiles)
 		for skel_shutitfile in skel_shutitfiles:
-			module_modifier = '_' + str(_count) + '.py'
-			new_template_filename = skel_path + '/' + os.path.join(skel_module_name + module_modifier)
+			module_modifier = '_' + str(_count)
+			new_template_filename = skel_path + '/' + os.path.join(skel_module_name + module_modifier + '.py')
 			shutit.cfg['skeleton']['module_modifier'] = module_modifier
 			(sections,skel_module_id, default_include, ok) = shutitfile.shutitfile_to_shutit_module_template(skel_shutitfile,skel_path,skel_domain,skel_module_name,skel_domain_hash,skel_delivery,skel_depends,_count,_total,module_modifier)
 			shutit.cfg['skeleton']['header_section']      = sections['header_section']
@@ -238,6 +209,35 @@ cd ''' + skel_path + '''/bin && ./build.sh
 
 ''' + shutit.cfg['skeleton']['final_section'])
 			template_file.close()
+			build_cnf_filename = skel_path + '/configs/build.cnf'
+			build_cnf_file = open(build_cnf_filename,'w+')
+			build_cnf_file.write('''###############################################################################
+# PLEASE NOTE: This file should be changed only by the maintainer.
+# PLEASE NOTE: This file is only sourced if the "shutit build" command is run
+#              and this file is in the relative path: configs/build.cnf
+#              This is to ensure it is only sourced if _this_ module is the
+#              target.
+###############################################################################
+# When this module is the one being built, which modules should be built along with it by default?
+# This feeds into automated testing of each module.
+[''' + skel_domain + '''.''' +  skel_module_name + module_modifier ''']
+shutit.core.module.build:yes
+# Allowed images as a regexp, eg ["ubuntu:12.*"], or [".*"], or ["centos"].
+# It's recommended this is locked down as far as possible.
+shutit.core.module.allowed_images:["''' + shutit.shutitfile['base_image'] + '''"]
+
+# Aspects of build process
+[build]
+base_image:''' + shutit.shutitfile['base_image'] + '''
+
+# Volume arguments wanted as part of the build
+[target]
+volumes:
+
+[repository]
+name:''' + skel_module_name)
+			build_cnf_file.close()
+			os.chmod(build_cnf_filename,0400)
 	else:
 		shutit.cfg['skeleton']['header_section']      = 'from shutit_module import ShutItModule\n\nclass ' + skel_module_name + '(ShutItModule):\n'
 		shutit.cfg['skeleton']['config_section']      = ''
@@ -289,3 +289,33 @@ cd ''' + skel_path + '''/bin && ./build.sh
 
 ''' + shutit.cfg['skeleton']['final_section'])
 		template_file.close()
+
+		build_cnf_filename = skel_path + '/configs/build.cnf'
+		build_cnf_file = open(build_cnf_filename,'w+')
+		build_cnf_file.write('''###############################################################################
+# PLEASE NOTE: This file should be changed only by the maintainer.
+# PLEASE NOTE: This file is only sourced if the "shutit build" command is run
+#              and this file is in the relative path: configs/build.cnf
+#              This is to ensure it is only sourced if _this_ module is the
+#              target.
+###############################################################################
+# When this module is the one being built, which modules should be built along with it by default?
+# This feeds into automated testing of each module.
+[''' + skel_domain + '''.''' +  skel_module_name ''']
+shutit.core.module.build:yes
+# Allowed images as a regexp, eg ["ubuntu:12.*"], or [".*"], or ["centos"].
+# It's recommended this is locked down as far as possible.
+shutit.core.module.allowed_images:["''' + shutit.shutitfile['base_image'] + '''"]
+
+# Aspects of build process
+[build]
+base_image:''' + shutit.shutitfile['base_image'] + '''
+
+# Volume arguments wanted as part of the build
+[target]
+volumes:
+
+[repository]
+name:''' + skel_module_name)
+		build_cnf_file.close()
+		os.chmod(build_cnf_filename,0400)
