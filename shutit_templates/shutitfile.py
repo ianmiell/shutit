@@ -54,6 +54,7 @@ import texttable
 import shutit_global
 import shutit_main
 import shutit_util
+import shutit_skeleton
 from shutit_module import ShutItFailException
 from shutit_module import ShutItModule
 
@@ -252,7 +253,7 @@ def shutitfile_to_shutit_module_template(skel_shutitfile,
 		os.chdir(shutitfile_dirname)
 
 	# Process the shutitfile
-	shutitfile_representation, ok = process_shutitfile(shutitfile_contents)
+	shutitfile_representation, ok = shutit_skeleton.process_shutitfile(shutitfile_contents)
 	if not ok:
 		return '', '', '', False
 
