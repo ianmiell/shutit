@@ -58,6 +58,85 @@ from shutit_module import ShutItFailException
 from shutit_module import ShutItModule
 
 
+def setup_shutitfile_template(skel_path,
+                              skel_delivery,
+                              skel_domain,
+                              skel_module_name,
+                              skel_shutitfiles,
+                              skel_domain_hash,
+                              skel_depends):
+
+	shutit = shutit_global.shutit
+	runsh_filename = skel_path + '/run.sh'
+	runsh_file = open(runsh_filename,'w+')
+	runsh_file.write('''#!/bin/bash
+set -e
+
+MODULE_NAME="''' + skel_module_name + '''"
+DIR="/tmp/shutit_built/''' + skel_path + '''"
+BUILT_DIR="${DIR}/built"
+DOMAIN="''' + skel_domain + '''"
+DELIVERY="''' + skel_delivery + '''"
+TEMPLATE_BRANCH="bash"
+
+rm -rf $DIR
+
+shutit skeleton \
+	--shutitfile ShutItFile1 ShutItFile2 \
+	--name ${DIR} \
+	--domain ${DOMAIN} \
+	--delivery ${DELIVERY} \
+	--template_branch ${TEMPLATE_BRANCH}
+
+if [[ ${DELIVERY} == 'bash' ]]
+then
+	cd $DIR && ./run.sh "$@"
+elif [[ ${DELIVERY} == 'docker' ]]
+then
+	cd $DIR/bin && ./build.sh "$@"
+fi''')
+	runsh_file.close()
+	os.chmod(runsh_filename,0755)
+
+	# User message
+	shutit.log('''# Run:
+cd ''' + skel_path + ''' && ./run.sh
+# to run.
+# Or
+# cd ''' + skel_path + ''' && ./run.sh -c
+# to run while choosing modules to build. ''',transient=True)
+
+	shutitfile1_filename = skel_path + '/ShutItFile1'
+	shutitfile1_file = open(shutitfile1_filename,'w+')
+	shutitfile1_file.write('''See [here](https://github.com/ianmiell/shutitfile/blob/master/CheatSheet.md) for
+a cheat sheet.
+
+# Simple script to get going with:
+
+#DESCRIPTION A minimal todo app
+#MAINTAINER you@example.com
+
+#FROM alpine
+#MODULE_ID com.mycorp.mymodule.shutitfile1
+#DELIVERY docker
+#INSTALL nodejs
+#INSTALL git
+#RUN npm install todo
+#COMMIT shutitfile:part_one
+#PUSH shutitfile:part_one''')
+	shutitfile1_file.close()
+
+	shutitfile2_filename = skel_path + '/ShutItFile2'
+	shutitfile2_file = open(shutitfile2_filename,'w+')
+	shutitfile2_file.write('''#DEFAULT_INCLUDE false
+#DELIVERY docker
+#INSTALL vim
+#INSTALL tcpdump
+#COMMIT shutitfile:part_two''')
+	shutitfile2_file.close()
+
+
+
 # Parses the shutitfile (passed in as a string)
 # and info to extract, and returns a list with the information in a more canonical form, still ordered.
 def parse_shutitfile(contents):

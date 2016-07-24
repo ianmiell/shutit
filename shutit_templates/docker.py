@@ -1,5 +1,6 @@
 import os
 import shutit_global
+import shutitfile
 
 def setup_docker_template(skel_path,
                           skel_delivery,
