@@ -70,8 +70,7 @@ then
     echo "Must be run as test.sh or ./test.sh"
     exit
 fi
-./build.sh "$@"
-)''')
+./build.sh "$@"''')
 	test_bin_file.close()
 	os.chmod(test_bin_filename,0755)
 	os.system('mkdir -p ' + skel_path + '/configs')
