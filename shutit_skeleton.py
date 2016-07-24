@@ -138,7 +138,7 @@ def create_skeleton():
 		                             skel_depends=skel_depends)
 	elif shutit.cfg['skeleton']['template_branch'] == 'vagrant':
 		from shutit_templates import vagrant
-		docker.setup_vagrant_template(shutit=shutit,
+		vagrant.setup_vagrant_template(shutit=shutit,
 		                             skel_path=skel_path,
 		                             skel_delivery=skel_delivery,
 		                             skel_domain=skel_domain,

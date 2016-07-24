@@ -98,10 +98,10 @@ cd ''' + skel_path + ''' && ./run.sh
 			shutit.cfg['skeleton']['final_section']       = sections['final_section']
 			# TODO: first and second
 			template_file = open(new_template_filename,'w+')
-			template_file.write('''import random
+			template_file.write("""import random
 import string
 
-''' + template_file.write(shutit.cfg['skeleton']['header_section'] + """
+""" + template_file.write(shutit.cfg['skeleton']['header_section']) + """
 
 	def build(self, shutit):
 		vagrant_image = shutit.cfg[self.module_id]['vagrant_image']
@@ -181,10 +181,12 @@ def module():
 		shutit.cfg['skeleton']['isinstalled_section'] = ''
 		shutit.cfg['skeleton']['start_section']       = ''
 		shutit.cfg['skeleton']['stop_section']        = ''
+		new_template_filename = skel_path + '/' + skel_module_name
+		template_file = open(new_template_filename,'w+')
 		template_file.write('''import random
 import string
 
-''' + template_file.write(shutit.cfg['skeleton']['header_section'] + """
+''' + shutit.cfg['skeleton']['header_section'] + """
 
 	def build(self, shutit):
 		vagrant_image = shutit.cfg[self.module_id]['vagrant_image']
