@@ -153,9 +153,8 @@ RUN shutit build --delivery dockerfile
 CMD ["/bin/bash"]''')
 	dockerfile_file.close()
 
-                                                                                                                                                                                                            
-    # User message                                                                                                                                                                                                                           
-    shutit.log('''# Run:
+	# User message
+	shutit.log('''# Run:
 cd ''' + skel_path + '''/bin && ./build.sh
 # to build.
 # And then:
