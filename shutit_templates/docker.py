@@ -172,13 +172,13 @@ cd ''' + skel_path + '''/bin && ./build.sh
 			shutit.cfg['skeleton']['module_modifier'] = module_modifier
 			(sections,skel_module_id, default_include, ok) = shutitfile_to_shutit_module_template(skel_shutitfile,skel_path,skel_domain,skel_module_name,skel_domain_hash,skel_delivery,skel_depends,_count,_total,module_modifier)
 			shutit.cfg['skeleton']['header_section']      = sections['header_section']
-			shutit.cfg['skeleton']['config_section']      = sections['config_section'] 
-			shutit.cfg['skeleton']['build_section']       = sections['build_section'] 
-			shutit.cfg['skeleton']['finalize_section']    = sections['finalize_section'] 
-			shutit.cfg['skeleton']['test_section']        = sections['test_section'] 
-			shutit.cfg['skeleton']['isinstalled_section'] = sections['isinstalled_section'] 
-			shutit.cfg['skeleton']['start_section']       = sections['start_section'] 
-			shutit.cfg['skeleton']['stop_section']        = sections['stop_section'] 
+			shutit.cfg['skeleton']['config_section']      = sections['config_section']
+			shutit.cfg['skeleton']['build_section']       = sections['build_section']
+			shutit.cfg['skeleton']['finalize_section']    = sections['finalize_section']
+			shutit.cfg['skeleton']['test_section']        = sections['test_section']
+			shutit.cfg['skeleton']['isinstalled_section'] = sections['isinstalled_section']
+			shutit.cfg['skeleton']['start_section']       = sections['start_section']
+			shutit.cfg['skeleton']['stop_section']        = sections['stop_section']
 			shutit.cfg['skeleton']['final_section']       = sections['final_section']
 			template_file = open(new_template_filename,'w+')
 			template_file.write(shutit.cfg['skeleton']['header_section'] + '''
@@ -186,7 +186,7 @@ cd ''' + skel_path + '''/bin && ./build.sh
 	def build(self, shutit):
 ''' + shutit.cfg['skeleton']['build_section'] + '''
 		return True
-                                 
+
 	def get_config(self, shutit):
 ''' + shutit.cfg['skeleton']['config_section'] + '''
 		return True
@@ -237,7 +237,7 @@ cd ''' + skel_path + '''/bin && ./build.sh
 	def build(self, shutit):
 ''' + shutit.cfg['skeleton']['build_section'] + '''
 		return True
-                                 
+
 	def get_config(self, shutit):
 ''' + shutit.cfg['skeleton']['config_section'] + '''
 		return True

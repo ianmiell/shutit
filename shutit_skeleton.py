@@ -65,7 +65,7 @@ def create_skeleton():
 	"""Creates module based on a template supplied as a git repo.
 	"""
 	shutit = shutit_global.shutit
-	# Set up local directories
+
 	skel_path        = shutit.cfg['skeleton']['path']
 	skel_module_name = shutit.cfg['skeleton']['module_name']
 	skel_domain      = shutit.cfg['skeleton']['domain']
@@ -73,16 +73,6 @@ def create_skeleton():
 	skel_depends     = shutit.cfg['skeleton']['depends']
 	skel_shutitfiles = shutit.cfg['skeleton']['shutitfiles']
 	skel_delivery    = shutit.cfg['skeleton']['delivery']
-	template_setup_script = skel_path + '/setup.sh'
-	# Set up shutitfile cfg
-	shutit.shutitfile['base_image'] = shutit.cfg['skeleton']['base_image']
-	shutit.shutitfile['cmd']        = """/bin/sh -c 'sleep infinity'"""
-	shutit.shutitfile['expose']     = []
-	shutit.shutitfile['env']        = []
-	shutit.shutitfile['volume']     = []
-	shutit.shutitfile['onbuild']    = []
-	shutit.shutitfile['script']     = []
-
 
 	# Check setup
 	if len(skel_path) == 0 or skel_path[0] != '/':
@@ -95,23 +85,6 @@ def create_skeleton():
 		shutit.fail('Module names must comply with python classname standards: cf: http://stackoverflow.com/questions/10120295/valid-characters-in-a-python-class-name')
 	if len(skel_domain) == 0:
 		shutit.fail('Must supply a domain for your module, eg com.yourname.madeupdomainsuffix')
-
-
-	# arguments
-	shutit.cfg['skeleton']['volumes_arg'] = ''
-	for varg in shutit.shutitfile['volume']:
-		shutit.cfg['skeleton']['volumes_arg'] += ' -v ' + varg + ':' + varg
-	shutit.cfg['skeleton']['ports_arg'] = ''
-	if type(shutit.shutitfile['expose']) == str:
-		for parg in shutit.shutitfile['expose']:
-			shutit.cfg['skeleton']['ports_arg'] += ' -p ' + parg + ':' + parg
-	else:
-		for parg in shutit.shutitfile['expose']:
-			for port in parg.split():
-				shutit.cfg['skeleton']['ports_arg'] += ' -p ' + port + ':' + port
-	shutit.cfg['skeleton']['env_arg'] = ''
-	for earg in shutit.shutitfile['env']:
-		shutit.cfg['skeleton']['env_arg'] += ' -e ' + earg.split()[0] + ':' + earg.split()[1]
 
 	# Create folders and process template_branch
 	os.makedirs(skel_path)
