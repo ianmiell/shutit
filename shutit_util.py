@@ -58,6 +58,7 @@ import shutit_global
 import shutit_main
 import shutit_skeleton
 import shutit_assets
+import shutit_skeleton
 from shutit_module import ShutItFailException
 from shutit_module import ShutItModule
 
