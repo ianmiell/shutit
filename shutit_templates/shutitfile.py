@@ -100,7 +100,6 @@ cd ''' + skel_path + ''' && ./run.sh
 #MAINTAINER you@example.com
 
 #FROM alpine
-#MODULE_ID com.mycorp.mymodule.shutitfile1
 #DELIVERY docker
 #INSTALL nodejs
 #INSTALL git
@@ -239,14 +238,16 @@ def shutitfile_to_shutit_module_template(skel_shutitfile,
 	check_shutitfile_representation(shutitfile_representation, skel_delivery)
 
 	# Get the shutit module as a string
-	sections, module_id, depends, default_include = generate_shutit_module_sections(shutitfile_representation, skel_domain, skel_module_name, skel_shutitfile, skel_depends, order, total)
+	sections, module_id, module_name, depends, default_include = generate_shutit_module_sections(shutitfile_representation, skel_domain, skel_module_name, skel_module_modifier, skel_shutitfile, skel_depends, order, total)
+	if module_id == skel_module_name:
+		module_id = skel_domain + """.""" + skel_module_name + skel_module_modifier + """', """ + skel_domain_hash + str(order * 0.0001) + str(random.randint(1,999))
 
 	# Final section
 	final_section  = """
 
 def module():
-	return """ + skel_module_name + """(
-		'""" + skel_domain + """.""" + skel_module_name + skel_module_modifier + """', """ + skel_domain_hash + str(order * 0.0001) + str(random.randint(1,999)) + """,
+	return """ + skel_module_name + skel_module_modifier + """(
+		'""" + module_id + """', """ + skel_domain_hash + str(order * 0.0001) + str(random.randint(1,999)) + """, 
 		description='""" + shutitfile_representation['shutitfile']['description'] + """',
 		delivery_methods=[('""" + skel_delivery + """')],
 		maintainer='""" + shutitfile_representation['shutitfile']['maintainer'] + """',
@@ -258,7 +259,7 @@ def module():
 	# Return program to main shutit_dir
 	if shutitfile_dirname:
 		os.chdir(sys.path[0])
-	return sections, module_id, default_include, ok
+	return sections, module_id, skel_module_name, default_include, ok
 
 
 
@@ -297,10 +298,10 @@ def check_shutitfile_representation(shutitfile_representation, skel_delivery):
 
 
 
-def generate_shutit_module_sections(shutitfile_representation, skel_domain, skel_module_name, skel_shutitfile, skel_depends, order, total):
+def generate_shutit_module_sections(shutitfile_representation, skel_domain, skel_module_name, skel_module_modifier, skel_shutitfile, skel_depends, order, total):
 	shutit = shutit_global.shutit
 	sections = {}
-	sections.update({'header_section':'\n# Created from shutitfile: ' + skel_shutitfile + '\n# Maintainer:              ' + shutitfile_representation['shutitfile']['maintainer'] + '\nfrom shutit_module import ShutItModule\n\nclass ' + skel_module_name + '(ShutItModule):\n\n\tdef is_installed(self, shutit):\n\t\treturn False'})
+	sections.update({'header_section':'\n# Created from shutitfile: ' + skel_shutitfile + '\n# Maintainer:              ' + shutitfile_representation['shutitfile']['maintainer'] + '\nfrom shutit_module import ShutItModule\n\nclass ' + skel_module_name + skel_module_modifier + '(ShutItModule):\n\n\tdef is_installed(self, shutit):\n\t\treturn False'})
 
 	# config section - this must be done first, as it collates the config
 	# items that can be referenced later
@@ -496,7 +497,13 @@ def generate_shutit_module_sections(shutitfile_representation, skel_domain, skel
 		default_include = 'yes'
 	else:
 		shutit.fail('Unrecognised DEFAULT_INCLUDE - must be true/false: ' + shutitfile_representation['shutitfile']['default_include'])
-	return sections, module_id, depends, default_include
+
+	if shutitfile_representation['shutitfile']['module_id']:
+		module_id = shutitfile_representation['shutitfile']['module_id']
+	else:
+		module_id = skel_module_name
+
+	return sections, module_id, module_id, depends, default_include
 
 
 def handle_shutitfile_config_line(line):

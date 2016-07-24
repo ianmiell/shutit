@@ -60,7 +60,7 @@ cd ''' + skel_path + ''' && ./run.sh
 			module_modifier = '_' + str(_count) + '.py'
 			new_template_filename = skel_path + '/' + os.path.join(skel_module_name + module_modifier)
 			shutit.cfg['skeleton']['module_modifier'] = module_modifier
-			(sections,skel_module_id, default_include, ok) = shutitfile.shutitfile_to_shutit_module_template(skel_shutitfile,skel_path,skel_domain,skel_module_name,skel_domain_hash,skel_delivery,skel_depends,_count,_total,module_modifier)
+			(sections, skel_module_id, skel_module_name, default_include, ok) = shutitfile.shutitfile_to_shutit_module_template(skel_shutitfile,skel_path,skel_domain,skel_module_name,skel_domain_hash,skel_delivery,skel_depends,_count,_total,module_modifier)
 			shutit.cfg['skeleton']['header_section']      = sections['header_section']
 			shutit.cfg['skeleton']['config_section']      = sections['config_section'] 
 			shutit.cfg['skeleton']['build_section']       = sections['build_section'] 
@@ -114,7 +114,7 @@ cd ''' + skel_path + ''' && ./run.sh
 		shutit.cfg['skeleton']['stop_section']        = ''
 		shutit.cfg['skeleton']['final_section']        = """def module():
 		return """ + skel_module_name + """(
-			'""" + skel_domain + '''.''' + skel_module_name + """', """ + skel_domain_hash + """.0001,
+			'""" + skel_module_id + """.0001,
 			description='',
 			maintainer='',
 			delivery_methods=['""" + skel_delivery + """'],
