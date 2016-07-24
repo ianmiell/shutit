@@ -1,6 +1,15 @@
 import os
+import shutit_global
 
-def setup_bash_template(shutit, skel_path, skel_delivery, skel_domain, skel_module_name, skel_shutitfiles, skel_domain_hash, skel_depends):
+def setup_bash_template(skel_path,
+                        skel_delivery,
+                        skel_domain,
+                        skel_module_name,
+                        skel_shutitfiles,
+                        skel_domain_hash,
+                        skel_depends):
+
+	shutit = shutit_global.shutit
 	runsh_filename = skel_path + '/run.sh'
 	runsh_file = open(runsh_filename,'w+')
 	runsh_file.write('''#!/bin/bash

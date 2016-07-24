@@ -1,13 +1,16 @@
 import os
+import shutit_global
+import shutitfile
 
-def setup_vagrant_template(shutit,
-                           skel_path,
+def setup_vagrant_template(skel_path,
                            skel_delivery,
                            skel_domain,
                            skel_module_name,
                            skel_shutitfiles, 
                            skel_domain_hash,
                            skel_depends):
+
+	shutit = shutit_global.shutit
 	# run.sh
 	runsh_filename = skel_path + '/run.sh'
 	runsh_file = open(runsh_filename,'w+')

@@ -1,6 +1,15 @@
 import os
+import shutit_global
 
-def setup_docker_template(shutit, skel_path, skel_delivery, skel_domain, skel_module_name, skel_shutitfiles, skel_domain_hash, skel_depends):
+def setup_docker_template(skel_path,
+                          skel_delivery,
+                          skel_domain,
+                          skel_module_name,
+                          skel_shutitfiles,
+                          skel_domain_hash,
+                          skel_depends):
+
+	shutit = shutit_global.shutit
 	os.system('mkdir -p ' + skel_path + '/bin')
 	build_bin_filename = skel_path + '/bin/build.sh'
 	build_bin_file = open(build_bin_filename,'w+')
