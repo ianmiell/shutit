@@ -25,38 +25,9 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-import ConfigParser
-import StringIO
-import argparse
-import base64
-import binascii
-import getpass
-import glob
-import hashlib
-import imp
-import json
-import logging
-import operator
 import os
-import random
 import re
-import readline
-import shutil
-import socket
-import stat
-import string
-import sys
-import textwrap
-import threading
-import time
-import urllib2
-import urlparse
-import jinja2
-import pexpect
-import texttable
 import shutit_global
-import shutit_main
-import shutit_util
 from shutit_module import ShutItFailException
 from shutit_module import ShutItModule
 
