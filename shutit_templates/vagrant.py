@@ -89,7 +89,7 @@ cd ''' + skel_path + ''' && ./run.sh
 			module_modifier = '_' + str(_count) + '.py'
 			new_template_filename = skel_path + '/' + os.path.join(skel_module_name + module_modifier)
 			shutit.cfg['skeleton']['module_modifier'] = module_modifier
-			(sections,skel_module_id, default_include, ok) = shutitfile_to_shutit_module_template(skel_shutitfile,skel_path,skel_domain,skel_module_name,skel_domain_hash,skel_delivery,skel_depends,_count,_total,module_modifier)
+			(sections,skel_module_id, default_include, ok) = shutitfile.shutitfile_to_shutit_module_template(skel_shutitfile,skel_path,skel_domain,skel_module_name,skel_domain_hash,skel_delivery,skel_depends,_count,_total,module_modifier)
 			shutit.cfg['skeleton']['header_section']      = sections['header_section']
 			shutit.cfg['skeleton']['config_section']      = sections['config_section'] 
 			shutit.cfg['skeleton']['build_section']       = sections['build_section'] 
