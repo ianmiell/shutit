@@ -83,9 +83,10 @@ cd ''' + skel_path + ''' && ./run.sh
 
 	# Handle shutitfiles
 	if skel_shutitfiles:
-		_count = 1
 		_total = len(skel_shutitfiles)
+		_count = 0
 		for skel_shutitfile in skel_shutitfiles:
+			_count += 1
 			module_modifier = '_' + str(_count) + '.py'
 			new_template_filename = skel_path + '/' + os.path.join(skel_module_name + module_modifier)
 			shutit.cfg['skeleton']['module_modifier'] = module_modifier

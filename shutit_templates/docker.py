@@ -1,6 +1,7 @@
 import os
 import shutit_global
 import shutitfile
+import logging
 
 def setup_docker_template(skel_path,
                           skel_delivery,
@@ -158,11 +159,12 @@ cd ''' + skel_path + '''/bin && ./build.sh
 # to run.''',transient=True)
 
 	if skel_shutitfiles:
-		_count = 1
+		shutit.log('Processing ShutItFiles: ' + str(skel_shutitfiles),level=logging.DEBUG)
 		_total = len(skel_shutitfiles)
-		_count = 1
-		_total = len(skel_shutitfiles)
+		_count = 0
 		for skel_shutitfile in skel_shutitfiles:
+			_count += 1
+			shutit.log('Processing ShutItFile: ' + str(skel_shutitfile),level=logging.INFO)
 			module_modifier = '_' + str(_count)
 			new_template_filename = skel_path + '/' + os.path.join(skel_module_name + module_modifier + '.py')
 			shutit.cfg['skeleton']['module_modifier'] = module_modifier
@@ -209,9 +211,11 @@ cd ''' + skel_path + '''/bin && ./build.sh
 
 ''' + shutit.cfg['skeleton']['final_section'])
 			template_file.close()
+			# Set up build.cnf
 			build_cnf_filename = skel_path + '/configs/build.cnf'
-			build_cnf_file = open(build_cnf_filename,'w+')
-			build_cnf_file.write('''###############################################################################
+			if _count == 1:
+				build_cnf_file = open(build_cnf_filename,'w+')
+				build_cnf_file.write('''###############################################################################
 # PLEASE NOTE: This file should be changed only by the maintainer.
 # PLEASE NOTE: This file is only sourced if the "shutit build" command is run
 #              and this file is in the relative path: configs/build.cnf
@@ -220,7 +224,7 @@ cd ''' + skel_path + '''/bin && ./build.sh
 ###############################################################################
 # When this module is the one being built, which modules should be built along with it by default?
 # This feeds into automated testing of each module.
-[''' + skel_domain + '''.''' +  skel_module_name + module_modifier ''']
+[''' + skel_domain + '''.''' +  skel_module_name + module_modifier + ''']
 shutit.core.module.build:yes
 # Allowed images as a regexp, eg ["ubuntu:12.*"], or [".*"], or ["centos"].
 # It's recommended this is locked down as far as possible.
@@ -236,8 +240,14 @@ volumes:
 
 [repository]
 name:''' + skel_module_name)
-			build_cnf_file.close()
-			os.chmod(build_cnf_filename,0400)
+				build_cnf_file.close()
+			else:
+				build_cnf_file = open(build_cnf_filename,'a')
+				build_cnf_file.write('''
+[''' + skel_domain + '''.''' +  skel_module_name + module_modifier + ''']
+shutit.core.module.build:yes''')
+				build_cnf_file.close()
+		os.chmod(build_cnf_filename,0400)
 	else:
 		shutit.cfg['skeleton']['header_section']      = 'from shutit_module import ShutItModule\n\nclass ' + skel_module_name + '(ShutItModule):\n'
 		shutit.cfg['skeleton']['config_section']      = ''
@@ -301,7 +311,7 @@ name:''' + skel_module_name)
 ###############################################################################
 # When this module is the one being built, which modules should be built along with it by default?
 # This feeds into automated testing of each module.
-[''' + skel_domain + '''.''' +  skel_module_name ''']
+[''' + skel_domain + '''.''' +  skel_module_name + ''']
 shutit.core.module.build:yes
 # Allowed images as a regexp, eg ["ubuntu:12.*"], or [".*"], or ["centos"].
 # It's recommended this is locked down as far as possible.
