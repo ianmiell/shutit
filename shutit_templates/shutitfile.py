@@ -91,8 +91,8 @@ cd ''' + skel_path + ''' && ./run.sh
 
 	shutitfile1_filename = skel_path + '/ShutItFile1'
 	shutitfile1_file = open(shutitfile1_filename,'w+')
-	shutitfile1_file.write('''See [here](https://github.com/ianmiell/shutitfile/blob/master/CheatSheet.md) for
-a cheat sheet.
+	shutitfile1_file.write('''# See [here](https://github.com/ianmiell/shutitfile/blob/master/CheatSheet.md) for
+# a cheat sheet.
 
 # Simple script to get going with:
 
