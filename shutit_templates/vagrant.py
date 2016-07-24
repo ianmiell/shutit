@@ -104,7 +104,7 @@ cd ''' + skel_path + ''' && ./run.sh
 			template_file.write("""import random
 import string
 
-""" + template_file.write(shutit.cfg['skeleton']['header_section']) + """
+""" + shutit.cfg['skeleton']['header_section'] + """
 
 	def build(self, shutit):
 		vagrant_image = shutit.cfg[self.module_id]['vagrant_image']

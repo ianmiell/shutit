@@ -34,7 +34,6 @@ Nomenclature:
 
 import pexpect
 import os
-import shutit_util
 import time
 import re
 import subprocess

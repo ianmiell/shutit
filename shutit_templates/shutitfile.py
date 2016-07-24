@@ -22,37 +22,17 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-import ConfigParser
-import StringIO
-import argparse
-import base64
-import binascii
-import getpass
-import glob
-import hashlib
-import imp
 import json
 import logging
-import operator
 import os
 import random
 import re
-import readline
 import shutil
-import socket
-import stat
 import string
 import sys
-import textwrap
-import threading
-import time
 import urllib2
 import urlparse
-import jinja2
-import pexpect
-import texttable
 import shutit_global
-import shutit_main
 import shutit_util
 import shutit_skeleton
 from shutit_module import ShutItFailException
@@ -143,7 +123,6 @@ a cheat sheet.
 # Parses the shutitfile (passed in as a string)
 # and info to extract, and returns a list with the information in a more canonical form, still ordered.
 def parse_shutitfile(contents):
-	shutit       = shutit_global.shutit
 	ret          = []
 	full_line    = ''
 	for line in contents.split('\n'):
@@ -154,7 +133,6 @@ def parse_shutitfile(contents):
 				full_line += line[0:-1]
 				continue
 			else:
-				comment = None
 				full_line += line
 				if re.match("^IF_NOT+[\s]+([A-Z_]+)[\s]+(.*)$", full_line):
 					m = re.match("^IF_NOT+[\s]+([A-Z_]+)[\s]+(.*)$", full_line)
@@ -523,7 +501,6 @@ def generate_shutit_module_sections(shutitfile_representation, skel_domain, skel
 
 def handle_shutitfile_config_line(line):
 	shutitfile_command = line[0].upper()
-	shutit             = shutit_global.shutit
 	build              = ''
 	numtabs            = 2
 	assert shutitfile_command in ('CONFIG','CONFIG_SECRET'), '%r is not a handled config command' % shutitfile_command
