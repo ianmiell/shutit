@@ -240,7 +240,7 @@ def shutitfile_to_shutit_module_template(skel_shutitfile,
 	# Get the shutit module as a string
 	sections, module_id, module_name, depends, default_include = generate_shutit_module_sections(shutitfile_representation, skel_domain, skel_module_name, skel_module_modifier, skel_shutitfile, skel_depends, order, total)
 	if module_id == skel_module_name:
-		module_id = skel_domain + """.""" + skel_module_name + skel_module_modifier + """', """ + skel_domain_hash + str(order * 0.0001) + str(random.randint(1,999))
+		module_id = skel_domain + """.""" + skel_module_name + skel_module_modifier
 
 	# Final section
 	final_section  = """
