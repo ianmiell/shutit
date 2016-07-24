@@ -11,6 +11,32 @@ def setup_docker_template(skel_path,
                           skel_depends):
 
 	shutit = shutit_global.shutit
+
+	# Set up shutitfile cfg
+	shutit.shutitfile['base_image'] = shutit.cfg['skeleton']['base_image']
+	shutit.shutitfile['cmd']        = """/bin/sh -c 'sleep infinity'"""
+	shutit.shutitfile['expose']     = []
+	shutit.shutitfile['env']        = []
+	shutit.shutitfile['volume']     = []
+	shutit.shutitfile['onbuild']    = []
+	shutit.shutitfile['script']     = []
+	
+	# arguments
+	shutit.cfg['skeleton']['volumes_arg'] = ''
+	for varg in shutit.shutitfile['volume']:
+		shutit.cfg['skeleton']['volumes_arg'] += ' -v ' + varg + ':' + varg
+	shutit.cfg['skeleton']['ports_arg'] = ''
+	if type(shutit.shutitfile['expose']) == str:
+		for parg in shutit.shutitfile['expose']:
+			shutit.cfg['skeleton']['ports_arg'] += ' -p ' + parg + ':' + parg
+	else:
+		for parg in shutit.shutitfile['expose']:
+			for port in parg.split():
+				shutit.cfg['skeleton']['ports_arg'] += ' -p ' + port + ':' + port
+	shutit.cfg['skeleton']['env_arg'] = ''
+	for earg in shutit.shutitfile['env']:
+		shutit.cfg['skeleton']['env_arg'] += ' -e ' + earg.split()[0] + ':' + earg.split()[1]
+
 	os.system('mkdir -p ' + skel_path + '/bin')
 	build_bin_filename = skel_path + '/bin/build.sh'
 	build_bin_file = open(build_bin_filename,'w+')
