@@ -87,7 +87,7 @@ cd ''' + skel_path + ''' && ./run.sh
 			shutit.cfg['skeleton']['final_section']       = sections['final_section']
 			# TODO: first and second
 			template_file = open(new_template_filename,'w+')
-			if count == 1 or True:
+			if _count == 1 or True:
 				template_file.write("""import random
 import string
 
@@ -155,7 +155,7 @@ end''')
 
 def module():
 	return """ + skel_module_name + """(
-		'""" + skel_module_id + """'""" + skel_domain_hash + """.000""" + count + """,
+		'""" + skel_module_id + """'""" + skel_domain_hash + """.000""" + _count + """,
 		description='',
 		maintainer='',
 		delivery_methods=['bash'],
@@ -195,7 +195,7 @@ import string
 
 def module():
 	return """ + skel_module_name + """(
-		'""" + skel_module_id + """'""" + skel_domain_hash + """.000""" + count + """,
+		'""" + skel_module_id + """'""" + skel_domain_hash + """.000""" + _count + """,
 		description='',
 		maintainer='',
 		delivery_methods=['bash'],
