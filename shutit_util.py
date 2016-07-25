@@ -549,8 +549,10 @@ def parse_args():
 					print('ShutItFile: ' + shutitfile + ' appears to not exist.')
 					handle_exit(exit_code=1)
 			if _new_shutitfiles:
-				if len(_delivery_methods_seen) == 0 and (delivery_method == None or delivery_method == 'bash'):
+				if len(_delivery_methods_seen) == 0 and delivery_method == None:
 					delivery_method = 'bash'
+				elif len(_delivery_methods_seen) == 0:
+					pass
 				elif len(_delivery_methods_seen) == 1 and delivery_method == None:
 					delivery_method = _delivery_methods_seen.pop()
 				elif len(_delivery_methods_seen) == 1:
