@@ -101,21 +101,7 @@ cd ''' + skel_path + ''' && ./run.sh
 # When this module is the one being built, which modules should be built along with it by default?
 # This feeds into automated testing of each module.
 [''' + skel_module_id + ''']
-shutit.core.module.build:yes
-# Allowed images as a regexp, eg ["ubuntu:12.*"], or [".*"], or ["centos"].
-# It's recommended this is locked down as far as possible.
-shutit.core.module.allowed_images:["''' + shutit.shutitfile['base_image'] + '''"]
-
-# Aspects of build process
-[build]
-base_image:''' + shutit.shutitfile['base_image'] + '''
-
-# Volume arguments wanted as part of the build
-[target]
-volumes:
-
-[repository]
-name:''' + skel_module_name)
+shutit.core.module.build:yes''')
 				build_cnf_file.close()
 			else:
 				build_cnf_file = open(build_cnf_filename,'a')
