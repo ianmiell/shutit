@@ -232,7 +232,7 @@ def shutitfile_to_shutit_module_template(skel_shutitfile,
 	# Process the shutitfile
 	shutitfile_representation, ok = shutit_skeleton.process_shutitfile(shutitfile_contents)
 	if not ok:
-		return '', '', '', False
+		return '', '', '', '', '', False
 
 	# Check the shutitfile representation
 	check_shutitfile_representation(shutitfile_representation, skel_delivery)
