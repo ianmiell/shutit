@@ -121,7 +121,7 @@ shutit.core.module.build:yes''')
 		shutit.cfg['skeleton']['stop_section']        = ''
 		shutit.cfg['skeleton']['final_section']        = """def module():
 		return """ + skel_module_name + """(
-			'""" + skel_module_id + """.0001,
+			'""" + skel_domain + '''.''' + skel_module_name + """', """ + skel_domain_hash + """.0001,   
 			description='',
 			maintainer='',
 			delivery_methods=['""" + skel_delivery + """'],
