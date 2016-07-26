@@ -60,7 +60,7 @@ DIR="/tmp/shutit_built/''' + skel_path + '''"
 BUILT_DIR="${DIR}/built"
 DOMAIN="''' + skel_domain + '''"
 DELIVERY="''' + skel_delivery + '''"
-TEMPLATE_BRANCH="''' + skel_delivery + '''"
+PATTERN="''' + skel_delivery + '''"
 
 rm -rf $DIR
 
@@ -69,7 +69,7 @@ shutit skeleton \
 	--name ${DIR} \
 	--domain ${DOMAIN} \
 	--delivery ${DELIVERY} \
-	--template_branch ${TEMPLATE_BRANCH}
+	--pattern ${PATTERN}
 
 if [[ ${DELIVERY} == 'bash' ]]
 then

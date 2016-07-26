@@ -411,7 +411,7 @@ def parse_args():
 	sub_parsers['skeleton'].add_argument('--script', help='Pre-existing shell script to integrate into module (optional)', nargs='?', default=None)
 	sub_parsers['skeleton'].add_argument('--output_dir', help='Just output the created directory', default=False, const=True, action='store_const')
 	sub_parsers['skeleton'].add_argument('--shutitfiles', nargs='+', default=None)
-	sub_parsers['skeleton'].add_argument('--template_branch', help='Template branch to use', default='')
+	sub_parsers['skeleton'].add_argument('--pattern', help='Template branch to use', default='')
 	sub_parsers['skeleton'].add_argument('--template_repo', help='Template git repository to use', default='https://github.com/ianmiell/shutit-templates')
 	sub_parsers['skeleton'].add_argument('--delivery', help='Delivery method, aka target. "docker" container (default), configured "ssh" connection, "bash" session', default=None, choices=('docker','dockerfile','ssh','bash'))
 	sub_parsers['skeleton'].add_argument('-a','--accept', help='Accept defaults', const=True, default=False, action='store_const')
@@ -587,15 +587,15 @@ def parse_args():
 			domain = args.domain
 		# Figure out defaults.
 		# If no template branch supplied, then assume it's the same as delivery.
-		default_template_branch = 'bash'
-		if args.template_branch == '':
+		default_pattern = 'bash'
+		if args.pattern == '':
 			if accept_defaults or _new_shutitfiles:
 				if _new_shutitfiles:
-					default_template_branch = delivery_method
-				template_branch = default_template_branch
+					default_pattern = delivery_method
+				pattern = default_pattern
 			else:
-				template_branch = util_raw_input(prompt='''# Input a ShutIt pattern.
-Default: ''' + default_template_branch + ''' 
+				pattern = util_raw_input(prompt='''# Input a ShutIt pattern.
+Default: ''' + default_pattern + ''' 
 
 bash:              a shell script
 docker:            a docker image build
@@ -603,19 +603,19 @@ vagrant:           a vagrant setup
 vagrant_multinode: a vagrant multinode setup
 docker_tutorial:   a docker-based tutorial
 shutitfile:        a shutitfile-based project
-''',default=default_template_branch)
+''',default=default_pattern)
 		else:
-			template_branch = args.template_branch
+			pattern = args.pattern
 
 		# Sort out delivery method.
 		if delivery_method is None:
 			take_this_default = False
 			default_delivery = 'bash'
-			if template_branch in ('docker','docker_tutorial', 'shutitfile'):
-				if template_branch in ('docker','docker_tutorial'):
+			if pattern in ('docker','docker_tutorial', 'shutitfile'):
+				if pattern in ('docker','docker_tutorial'):
 					take_this_default = True
 				default_delivery = 'docker'
-			elif template_branch in ('vagrant','vagrant_multinode','bash'):
+			elif pattern in ('vagrant','vagrant_multinode','bash'):
 				take_this_default = True
 				default_delivery = 'bash'
 			else:
@@ -642,7 +642,7 @@ shutitfile:        a shutitfile-based project
 			'output_dir':            args.output_dir,
 			'delivery':              delivery,
 			'template_repo':         args.template_repo,
-			'template_branch':       template_branch,
+			'pattern':               pattern,
 			'template_folder':       'shutit_templates',
 			'template_setup_script': 'setup.sh'
 		}

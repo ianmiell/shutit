@@ -58,10 +58,10 @@ def create_skeleton():
 	if len(skel_domain) == 0:
 		shutit.fail('Must supply a domain for your module, eg com.yourname.madeupdomainsuffix')
 
-	# Create folders and process template_branch
+	# Create folders and process pattern
 	os.makedirs(skel_path)
 	os.chdir(skel_path)
-	if shutit.cfg['skeleton']['template_branch'] == 'bash':
+	if shutit.cfg['skeleton']['pattern'] == 'bash':
 		from shutit_templates import bash
 		bash.setup_bash_template(skel_path=skel_path,
 		                         skel_delivery=skel_delivery,
@@ -70,7 +70,7 @@ def create_skeleton():
 		                         skel_shutitfiles=skel_shutitfiles,
 		                         skel_domain_hash=skel_domain_hash,
 		                         skel_depends=skel_depends)
-	elif shutit.cfg['skeleton']['template_branch'] == 'docker':
+	elif shutit.cfg['skeleton']['pattern'] == 'docker':
 		from shutit_templates import docker
 		docker.setup_docker_template(skel_path=skel_path,
 		                             skel_delivery=skel_delivery,
@@ -79,7 +79,7 @@ def create_skeleton():
 		                             skel_shutitfiles=skel_shutitfiles,
 		                             skel_domain_hash=skel_domain_hash,
 		                             skel_depends=skel_depends)
-	elif shutit.cfg['skeleton']['template_branch'] == 'vagrant':
+	elif shutit.cfg['skeleton']['pattern'] == 'vagrant':
 		from shutit_templates import vagrant
 		vagrant.setup_vagrant_template(skel_path=skel_path,
 		                               skel_delivery=skel_delivery,
@@ -88,7 +88,7 @@ def create_skeleton():
 		                               skel_shutitfiles=skel_shutitfiles,
 		                               skel_domain_hash=skel_domain_hash,
 		                               skel_depends=skel_depends)
-	elif shutit.cfg['skeleton']['template_branch'] == 'shutitfile':
+	elif shutit.cfg['skeleton']['pattern'] == 'shutitfile':
 		from shutit_templates import shutitfile
 		shutitfile.setup_shutitfile_template(skel_path=skel_path,
 		                                     skel_delivery=skel_delivery,
