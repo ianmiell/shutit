@@ -32,7 +32,7 @@ fi''')
 	os.chmod(runsh_filename,0755)
 
 	# destroy_vms.sh
-	destroyvmssh_filename = skel_path + '/run.sh'
+	destroyvmssh_filename = skel_path + '/destroy_vms.sh'
 	destroyvmssh_file = open(destroyvmssh_filename,'w+')
 	destroyvmssh_file.write('''
 #!/bin/bash
