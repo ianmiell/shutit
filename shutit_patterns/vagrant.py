@@ -194,7 +194,7 @@ import string
 
 def module():
 	return """ + skel_module_name + """(
-		'""" + skel_module_id + """'""" + skel_domain_hash + """.000""" + str(_count) + """,
+		'""" + skel_module_id + """',""" + skel_domain_hash + """.000""" + str(_count) + """,
 		description='',
 		maintainer='',
 		delivery_methods=['bash'],
