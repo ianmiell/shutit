@@ -411,8 +411,7 @@ def parse_args():
 	sub_parsers['skeleton'].add_argument('--script', help='Pre-existing shell script to integrate into module (optional)', nargs='?', default=None)
 	sub_parsers['skeleton'].add_argument('--output_dir', help='Just output the created directory', default=False, const=True, action='store_const')
 	sub_parsers['skeleton'].add_argument('--shutitfiles', nargs='+', default=None)
-	sub_parsers['skeleton'].add_argument('--pattern', help='Template branch to use', default='')
-	sub_parsers['skeleton'].add_argument('--template_repo', help='Template git repository to use', default='https://github.com/ianmiell/shutit-templates')
+	sub_parsers['skeleton'].add_argument('--pattern', help='Pattern to use', default='')
 	sub_parsers['skeleton'].add_argument('--delivery', help='Delivery method, aka target. "docker" container (default), configured "ssh" connection, "bash" session', default=None, choices=('docker','dockerfile','ssh','bash'))
 	sub_parsers['skeleton'].add_argument('-a','--accept', help='Accept defaults', const=True, default=False, action='store_const')
 	sub_parsers['skeleton'].add_argument('--log','-l', help='Log level (DEBUG, INFO (default), WARNING, ERROR, CRITICAL)', default='INFO')
@@ -586,7 +585,7 @@ def parse_args():
 		else:
 			domain = args.domain
 		# Figure out defaults.
-		# If no template branch supplied, then assume it's the same as delivery.
+		# If no pattern supplied, then assume it's the same as delivery.
 		default_pattern = 'bash'
 		if args.pattern == '':
 			if accept_defaults or _new_shutitfiles:
@@ -641,10 +640,7 @@ shutitfile:        a shutitfile-based project
 			'shutitfiles':           _new_shutitfiles,
 			'output_dir':            args.output_dir,
 			'delivery':              delivery,
-			'template_repo':         args.template_repo,
-			'pattern':               pattern,
-			'template_folder':       'shutit_templates',
-			'template_setup_script': 'setup.sh'
+			'pattern':               pattern
 		}
 		# set defaults to allow config to work
 		shutit.build['extra_configs']    = []

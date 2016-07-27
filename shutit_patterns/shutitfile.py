@@ -41,7 +41,7 @@ from shutit_module import ShutItModule
 #_default_repo_name = shutit_util._default_repo_name
 _default_repo_name = 'mymodule'
 
-def setup_shutitfile_template(skel_path,
+def setup_shutitfile_pattern(skel_path,
                               skel_delivery,
                               skel_domain,
                               skel_module_name,
@@ -197,16 +197,16 @@ def parse_shutitfile_args(args_str):
 
 
 # Takes a shutitfile filename and returns a string that represents that Dockerfile as a ShutIt module
-def shutitfile_to_shutit_module_template(skel_shutitfile,
-                                         skel_path,
-                                         skel_domain,
-                                         skel_module_name,
-                                         skel_domain_hash,
-                                         skel_delivery,
-                                         skel_depends,
-                                         order,
-	                                     total,
-	                                     skel_module_modifier):
+def shutitfile_to_shutit_module(skel_shutitfile,
+                                skel_path,
+                                skel_domain,
+                                skel_module_name,
+                                skel_domain_hash,
+                                skel_delivery,
+                                skel_depends,
+                                order,
+	                            total,
+	                            skel_module_modifier):
 	shutit = shutit_global.shutit
 
 	if not os.path.exists(skel_shutitfile):
@@ -831,7 +831,7 @@ def handle_shutitfile_script_line(line, numpushes, wgetgot, numlogins, ifdepth, 
 
 
 def scan_text(text):
-	"""Scan text, and replace items that match shutit's template format, ie:
+	"""Scan text, and replace items that match shutit's pattern format, ie:
 	{{ shutit.THING }}
 	"""
 	while True:

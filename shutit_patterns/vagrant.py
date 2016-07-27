@@ -2,13 +2,13 @@ import os
 import shutit_global
 import shutitfile
 
-def setup_vagrant_template(skel_path,
-                           skel_delivery,
-                           skel_domain,
-                           skel_module_name,
-                           skel_shutitfiles, 
-                           skel_domain_hash,
-                           skel_depends):
+def setup_vagrant_pattern(skel_path,
+                          skel_delivery,
+                          skel_domain,
+                          skel_module_name,
+                          skel_shutitfiles, 
+                          skel_domain_hash,
+                          skel_depends):
 
 	shutit = shutit_global.shutit
 	# run.sh
@@ -73,9 +73,9 @@ cd ''' + skel_path + ''' && ./run.sh
 		for skel_shutitfile in skel_shutitfiles:
 			_count += 1
 			module_modifier = '_' + str(_count)
-			new_template_filename = skel_path + '/' + os.path.join(skel_module_name + module_modifier + '.py')
+			new_module_filename = skel_path + '/' + os.path.join(skel_module_name + module_modifier + '.py')
 			shutit.cfg['skeleton']['module_modifier'] = module_modifier
-			(sections, skel_module_id, skel_module_name, default_include, ok) = shutitfile.shutitfile_to_shutit_module_template(skel_shutitfile,skel_path,skel_domain,skel_module_name,skel_domain_hash,skel_delivery,skel_depends,_count,_total,module_modifier)
+			(sections, skel_module_id, skel_module_name, default_include, ok) = shutitfile.shutitfile_to_shutit_module(skel_shutitfile,skel_path,skel_domain,skel_module_name,skel_domain_hash,skel_delivery,skel_depends,_count,_total,module_modifier)
 			shutit.cfg['skeleton']['header_section']      = sections['header_section']
 			shutit.cfg['skeleton']['config_section']      = sections['config_section'] 
 			shutit.cfg['skeleton']['build_section']       = sections['build_section'] 
@@ -85,10 +85,9 @@ cd ''' + skel_path + ''' && ./run.sh
 			shutit.cfg['skeleton']['start_section']       = sections['start_section'] 
 			shutit.cfg['skeleton']['stop_section']        = sections['stop_section'] 
 			shutit.cfg['skeleton']['final_section']       = sections['final_section']
-			# TODO: first and second
-			template_file = open(new_template_filename,'w+')
+			module_file = open(new_module_filename,'w+')
 			if _count == 1 or True:
-				template_file.write("""import random
+				module_file.write("""import random
 import string
 
 """ + shutit.cfg['skeleton']['header_section'] + """
@@ -162,7 +161,7 @@ def module():
 		depends=['""" + skel_depends + """','shutit-library.virtualbox.virtualbox.virtualbox','tk.shutit.vagrant.vagrant.vagrant']
 	)""")
 			else:
-				template_file.write("""import random
+				module_file.write("""import random
 import string
 
 """ + shutit.cfg['skeleton']['header_section'] + """
@@ -201,7 +200,7 @@ def module():
 		delivery_methods=['bash'],
 		depends=['""" + skel_depends + """','shutit-library.virtualbox.virtualbox.virtualbox','tk.shutit.vagrant.vagrant.vagrant']
 	)""")
-			template_file.close()
+			module_file.close()
 			# Set up build.cnf
 			build_cnf_filename = skel_path + '/configs/build.cnf'
 			if _count == 1:
@@ -234,9 +233,9 @@ shutit.core.module.build:yes''')
 		shutit.cfg['skeleton']['isinstalled_section'] = ''
 		shutit.cfg['skeleton']['start_section']       = ''
 		shutit.cfg['skeleton']['stop_section']        = ''
-		new_template_filename = skel_path + '/' + skel_module_name
-		template_file = open(new_template_filename,'w+')
-		template_file.write('''import random
+		new_module_filename = skel_path + '/' + skel_module_name
+		module_file = open(new_module_filename,'w+')
+		module_file.write('''import random
 import string
 
 ''' + shutit.cfg['skeleton']['header_section'] + """
@@ -309,7 +308,7 @@ def module():
 		delivery_methods=['bash'],
 		depends=['""" + skel_depends + """','shutit-library.virtualbox.virtualbox.virtualbox','tk.shutit.vagrant.vagrant.vagrant']
 	)""")
-		template_file.close()
+		module_file.close()
 		build_cnf_filename = skel_path + '/configs/build.cnf'
 		build_cnf_file = open(build_cnf_filename,'w+')
 		build_cnf_file.write('''###############################################################################

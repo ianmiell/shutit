@@ -3,7 +3,7 @@ import shutit_global
 import shutitfile
 import logging
 
-def setup_docker_template(skel_path,
+def setup_docker_pattern(skel_path,
                           skel_delivery,
                           skel_domain,
                           skel_module_name,
@@ -166,9 +166,9 @@ cd ''' + skel_path + '''/bin && ./build.sh
 			_count += 1
 			shutit.log('Processing ShutItFile: ' + str(skel_shutitfile),level=logging.INFO)
 			module_modifier = '_' + str(_count)
-			new_template_filename = skel_path + '/' + os.path.join(skel_module_name + module_modifier + '.py')
+			new_module_filename = skel_path + '/' + os.path.join(skel_module_name + module_modifier + '.py')
 			shutit.cfg['skeleton']['module_modifier'] = module_modifier
-			(sections, skel_module_id, skel_module_name, default_include, ok) = shutitfile.shutitfile_to_shutit_module_template(skel_shutitfile,skel_path,skel_domain,skel_module_name,skel_domain_hash,skel_delivery,skel_depends,_count,_total,module_modifier)
+			(sections, skel_module_id, skel_module_name, default_include, ok) = shutitfile.shutitfile_to_shutit_module(skel_shutitfile,skel_path,skel_domain,skel_module_name,skel_domain_hash,skel_delivery,skel_depends,_count,_total,module_modifier)
 			shutit.cfg['skeleton']['header_section']      = sections['header_section']
 			shutit.cfg['skeleton']['config_section']      = sections['config_section']
 			shutit.cfg['skeleton']['build_section']       = sections['build_section']
@@ -178,8 +178,8 @@ cd ''' + skel_path + '''/bin && ./build.sh
 			shutit.cfg['skeleton']['start_section']       = sections['start_section']
 			shutit.cfg['skeleton']['stop_section']        = sections['stop_section']
 			shutit.cfg['skeleton']['final_section']       = sections['final_section']
-			template_file = open(new_template_filename,'w+')
-			template_file.write(shutit.cfg['skeleton']['header_section'] + '''
+			module_file = open(new_module_filename,'w+')
+			module_file.write(shutit.cfg['skeleton']['header_section'] + '''
 
 	def build(self, shutit):
 ''' + shutit.cfg['skeleton']['build_section'] + '''
@@ -210,7 +210,7 @@ cd ''' + skel_path + '''/bin && ./build.sh
 		return True
 
 ''' + shutit.cfg['skeleton']['final_section'])
-			template_file.close()
+			module_file.close()
 			# Set up build.cnf
 			build_cnf_filename = skel_path + '/configs/build.cnf'
 			if _count == 1:
@@ -265,9 +265,9 @@ shutit.core.module.build:yes''')
 		delivery_methods=['""" + skel_delivery + """'],
 		depends=['""" + skel_depends + """']
 	)"""
-		new_template_filename = skel_path + '/' + os.path.join(skel_module_name) + '.py'
-		template_file = open(new_template_filename,'w+')
-		template_file.write(shutit.cfg['skeleton']['header_section'] + '''
+		new_module_filename = skel_path + '/' + os.path.join(skel_module_name) + '.py'
+		module_file = open(new_module_filename,'w+')
+		module_file.write(shutit.cfg['skeleton']['header_section'] + '''
 
 	def build(self, shutit):
 ''' + shutit.cfg['skeleton']['build_section'] + '''
@@ -298,7 +298,7 @@ shutit.core.module.build:yes''')
 		return True
 
 ''' + shutit.cfg['skeleton']['final_section'])
-		template_file.close()
+		module_file.close()
 
 		build_cnf_filename = skel_path + '/configs/build.cnf'
 		build_cnf_file = open(build_cnf_filename,'w+')

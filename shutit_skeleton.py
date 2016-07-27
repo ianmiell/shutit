@@ -30,11 +30,11 @@ import re
 import shutit_global
 from shutit_module import ShutItFailException
 from shutit_module import ShutItModule
-from shutit_templates import shutitfile
+from shutit_patterns import shutitfile
 
 
 def create_skeleton():
-	"""Creates module based on a template supplied as a git repo.
+	"""Creates module based on a pattern supplied as a git repo.
 	"""
 	shutit = shutit_global.shutit
 
@@ -62,8 +62,8 @@ def create_skeleton():
 	os.makedirs(skel_path)
 	os.chdir(skel_path)
 	if shutit.cfg['skeleton']['pattern'] == 'bash':
-		from shutit_templates import bash
-		bash.setup_bash_template(skel_path=skel_path,
+		from shutit_patterns import bash
+		bash.setup_bash_pattern(skel_path=skel_path,
 		                         skel_delivery=skel_delivery,
 		                         skel_domain=skel_domain,
 		                         skel_module_name=skel_module_name,
@@ -71,8 +71,8 @@ def create_skeleton():
 		                         skel_domain_hash=skel_domain_hash,
 		                         skel_depends=skel_depends)
 	elif shutit.cfg['skeleton']['pattern'] == 'docker':
-		from shutit_templates import docker
-		docker.setup_docker_template(skel_path=skel_path,
+		from shutit_patterns import docker
+		docker.setup_docker_pattern(skel_path=skel_path,
 		                             skel_delivery=skel_delivery,
 		                             skel_domain=skel_domain,
 		                             skel_module_name=skel_module_name,
@@ -80,8 +80,8 @@ def create_skeleton():
 		                             skel_domain_hash=skel_domain_hash,
 		                             skel_depends=skel_depends)
 	elif shutit.cfg['skeleton']['pattern'] == 'vagrant':
-		from shutit_templates import vagrant
-		vagrant.setup_vagrant_template(skel_path=skel_path,
+		from shutit_patterns import vagrant
+		vagrant.setup_vagrant_pattern(skel_path=skel_path,
 		                               skel_delivery=skel_delivery,
 		                               skel_domain=skel_domain,
 		                               skel_module_name=skel_module_name,
@@ -89,8 +89,8 @@ def create_skeleton():
 		                               skel_domain_hash=skel_domain_hash,
 		                               skel_depends=skel_depends)
 	elif shutit.cfg['skeleton']['pattern'] == 'shutitfile':
-		from shutit_templates import shutitfile
-		shutitfile.setup_shutitfile_template(skel_path=skel_path,
+		from shutit_patterns import shutitfile
+		shutitfile.setup_shutitfile_pattern(skel_path=skel_path,
 		                                     skel_delivery=skel_delivery,
 		                                     skel_domain=skel_domain,
 		                                     skel_module_name=skel_module_name,
