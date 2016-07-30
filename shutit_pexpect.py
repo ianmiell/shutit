@@ -1467,7 +1467,7 @@ class ShutItPexpectSession(object):
 			distro_version = ''
 			if install_type == 'apt' and shutit.build['delivery'] in ('docker','dockerfile'):
 				if not self.command_available('lsb_release'):
-					if not shutit.get_current_shutit_pexpect_session_environment().build['apt_update_done']:
+					if not shutit.get_current_shutit_pexpect_session_environment().build['apt_update_done'] and self.whoami() == 'root':
 						shutit.get_current_shutit_pexpect_session_environment.build['apt_update_done'] = True
 						self.send('apt-get update && apt-get install -y -qq lsb-release',loglevel=loglevel,delaybeforesend=delaybeforesend)
 				d = self.lsb_release()
@@ -1486,14 +1486,14 @@ class ShutItPexpectSession(object):
 				distro         = d['distro']
 				distro_version = d['distro_version']
 			elif install_type == 'apk' and shutit.build['delivery'] in ('docker','dockerfile'):
-				if not shutit.get_current_shutit_pexpect_session_environment().build['apk_update_done']:
+				if not shutit.get_current_shutit_pexpect_session_environment().build['apk_update_done'] and self.whoami() == 'root':
 					self.send('apk -q update',loglevel=logging.INFO,delaybeforesend=delaybeforesend)
 					shutit.get_current_shutit_pexpect_session_environment().build['apk_update_done'] = True
 				self.send('apk -q add bash',loglevel=loglevel,delaybeforesend=delaybeforesend)
 				install_type   = 'apk'
 				distro         = 'alpine'
 				distro_version = '1.0'
-			elif install_type == 'pacman' and shutit.build['delivery'] in ('docker','dockerfile'):
+			elif install_type == 'pacman' and shutit.build['delivery'] in ('docker','dockerfile') and self.whoami() == 'root':
 				if not shutit.get_current_shutit_pexpect_session_environment().build['pacman_update_done']:
 					shutit.get_current_shutit_pexpect_session_environment().build['pacman_update_done'] = True
 					self.send('pacman -Syy',loglevel=logging.INFO,delaybeforesend=delaybeforesend)
@@ -1501,8 +1501,10 @@ class ShutItPexpectSession(object):
 				distro         = d['distro']
 				distro_version = '1.0'
 			elif install_type == 'emerge' and shutit.build['delivery'] in ('docker','dockerfile'):
-				# Takes bloody ages!
-				#self.send('emerge --sync',loglevel=loglevel,delaybeforesend=delaybeforesend,timeout=9999)
+				if not shutit.get_current_shutit_pexpect_session_environment().build['emerge_update_done'] and self.whoami() == 'root':
+					# Takes bloody ages!
+					#self.send('emerge --sync',loglevel=loglevel,delaybeforesend=delaybeforesend,timeout=9999)
+					pass
 				install_type = 'emerge'
 				distro = 'gentoo'
 				distro_version = '1.0'
@@ -1559,7 +1561,7 @@ class ShutItPexpectSession(object):
 			# if we've determined that now
 			if install_type == 'apt' and shutit.build['delivery'] in ('docker','dockerfile'):
 				if not self.command_available('lsb_release'):
-					if not shutit.get_current_shutit_pexpect_session_environment().build['apt_update_done']:
+					if not shutit.get_current_shutit_pexpect_session_environment().build['apt_update_done'] and self.whoami() == 'root':
 						shutit.get_current_shutit_pexpect_session_environment().build['apt_update_done'] = True
 						self.send('apt-get update && apt-get install -y -qq lsb-release',loglevel=loglevel,delaybeforesend=delaybeforesend)
 					self.send('apt-get install -y -qq lsb-release',loglevel=loglevel,delaybeforesend=delaybeforesend)
@@ -1580,7 +1582,7 @@ class ShutItPexpectSession(object):
 				distro         = d['distro']
 				distro_version = d['distro_version']
 			elif install_type == 'apk' and shutit.build['delivery'] in ('docker','dockerfile'):
-				if not shutit.get_current_shutit_pexpect_session_environment().build['apk_update_done']:
+				if not shutit.get_current_shutit_pexpect_session_environment().build['apk_update_done'] and self.whoami() == 'root':
 					self.send('apk -q update',loglevel=logging.INFO,delaybeforesend=delaybeforesend)
 					shutit.get_current_shutit_pexpect_session_environment().build['apk_update_done'] = True
 				self.send('apk -q add bash',loglevel=loglevel,delaybeforesend=delaybeforesend)
@@ -1588,7 +1590,7 @@ class ShutItPexpectSession(object):
 				distro         = 'alpine'
 				distro_version = '1.0'
 			elif install_type == 'emerge' and shutit.build['delivery'] in ('docker','dockerfile'):
-				if not shutit.get_current_shutit_pexpect_session_environment().build['emerge_update_done']:
+				if not shutit.get_current_shutit_pexpect_session_environment().build['emerge_update_done'] and self.whoami() == 'root':
 					# Takes bloody ages!
 					#self.send('emerge --sync',loglevel=logging.INFO,delaybeforesend=delaybeforesend)
 					pass
