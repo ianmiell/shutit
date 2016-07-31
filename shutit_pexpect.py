@@ -1132,7 +1132,7 @@ class ShutItPexpectSession(object):
 			cmd = ''
 			pw = ''
 		if install_type == 'apt':
-			if not shutit.get_current_shutit_pexpect_session_environment().build['apt_update_done']:
+			if not shutit.get_current_shutit_pexpect_session_environment().build['apt_update_done'] and self.whoami() == 'root':
 				self.send('apt-get update',loglevel=logging.INFO, delaybeforesend=delaybeforesend)
 				shutit.get_current_shutit_pexpect_session_environment().build['apt_update_done'] = True
 			cmd += 'apt-get install'
