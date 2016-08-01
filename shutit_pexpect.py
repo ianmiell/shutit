@@ -1659,6 +1659,20 @@ class ShutItPexpectSession(object):
 		return res
 
 
+	def send_and_require(self,
+	                     send,
+	                     regexps,
+	                     not_there=False,
+	                     echo=None,
+	                     note=None,
+	                     loglevel=logging.INFO):
+		"""Send string and require the item in the output.
+		See send_until
+		"""
+		shutit = shutit_global.shutit
+		return self.send_until(send, regexps, not_there=not_there, cadence=0, retries=1, echo=echo, note=note, loglevel=loglevel)
+
+
 	def send_until(self,
 	               send,
 	               regexps,
