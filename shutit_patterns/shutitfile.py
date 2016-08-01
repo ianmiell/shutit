@@ -604,13 +604,13 @@ def handle_shutitfile_script_line(line, numpushes, wgetgot, numlogins, ifdepth, 
 		shutitfile_args    = parse_shutitfile_args(line[1])
 		assert type(shutitfile_args) == list
 		cmd = scan_text(' '.join(shutitfile_args).replace("'", "\\'"))
-		build += """\n""" + numtabs*'\t' + """_cmd = '''""" + cmd + """'''\n\t\t_output = shutit.send_and_get_output('''""" + cmd + """''',note='''""" + current_note + """''')\n\t\tif _output != """
+		build += """\n""" + numtabs*'\t' + """_cmd = '''""" + cmd + """'''\n\t\t_output = shutit.send_and_get_output('''""" + cmd + """''',note='''""" + current_note + """''')\n\t\timport re\n\t\tif not re.match('''"""
 		current_note = ''
 	elif shutitfile_command == 'ASSERT_OUTPUT':
 		shutitfile_args    = parse_shutitfile_args(line[1])
 		assert type(shutitfile_args) == list
 		expected_output = scan_text(' '.join(shutitfile_args).replace("'", "\\'"))
-		build += """'''""" + expected_output + """''':\n""" + numtabs*'\t' + """\tshutit.pause_point('''Output of: ''' + _cmd + ''' was: ''' + _output + ''' It should be: """ + expected_output + """''')"""
+		build += expected_output + """''', _output):\n""" + numtabs*'\t' + """\tshutit.pause_point('''Output of: ''' + _cmd + ''' was: ''' + _output + ''' It should be: """ + expected_output + """''')"""
 	elif shutitfile_command == 'LOGIN':
 		shutitfile_args    = parse_shutitfile_args(line[1])
 		assert type(shutitfile_args) == list
