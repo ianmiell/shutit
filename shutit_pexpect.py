@@ -1187,7 +1187,7 @@ class ShutItPexpectSession(object):
 			fails = 0
 			while True:
 				if pw != '':
-					res = self.multisend('%s %s %s' % (cmd, opts, package), {'assword':pw}, expect=['Unable to fetch some archives',self.default_expect], timeout=timeout, check_exit=False, loglevel=loglevel)
+					res = self.multisend('%s %s %s' % (cmd, opts, package), {'assword':pw}, expect=['Unable to fetch some archives',self.default_expect], timeout=timeout, check_exit=False, loglevel=loglevel, echo=False)
 				else:
 					res = self.send('%s %s %s' % (cmd, opts, package), expect=['Unable to fetch some archives',self.default_expect], timeout=timeout, check_exit=check_exit, loglevel=loglevel, delaybeforesend=delaybeforesend)
 				if res == 1:
@@ -1289,7 +1289,7 @@ class ShutItPexpectSession(object):
 		# Get mapped package.
 		package = package_map.map_package(package, self.current_environment.install_type)
 		if pw != '':
-			self.multisend('%s %s %s' % (cmd, opts, package), {'assword:':pw}, timeout=timeout, exit_values=['0','100'])
+			self.multisend('%s %s %s' % (cmd, opts, package), {'assword:':pw}, timeout=timeout, exit_values=['0','100'], echo=False)
 		else:
 			self.send('%s %s %s' % (cmd, opts, package), timeout=timeout, exit_values=['0','100'], delaybeforesend=delaybeforesend)
 		shutit._handle_note_after(note=note)
