@@ -42,12 +42,12 @@ from shutit_module import ShutItModule
 _default_repo_name = 'mymodule'
 
 def setup_shutitfile_pattern(skel_path,
-                              skel_delivery,
-                              skel_domain,
-                              skel_module_name,
-                              skel_shutitfiles,
-                              skel_domain_hash,
-                              skel_depends):
+                             skel_delivery,
+                             skel_domain,
+                             skel_module_name,
+                             skel_shutitfiles,
+                             skel_domain_hash,
+                             skel_depends):
 
 	shutit = shutit_global.shutit
 	runsh_filename = skel_path + '/run.sh'

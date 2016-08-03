@@ -233,7 +233,7 @@ shutit.core.module.build:yes''')
 		shutit.cfg['skeleton']['isinstalled_section'] = ''
 		shutit.cfg['skeleton']['start_section']       = ''
 		shutit.cfg['skeleton']['stop_section']        = ''
-		new_module_filename = skel_path + '/' + skel_module_name
+		new_module_filename = skel_path + '/' + skel_module_name + '.py'
 		module_file = open(new_module_filename,'w+')
 		module_file.write('''import random
 import string
