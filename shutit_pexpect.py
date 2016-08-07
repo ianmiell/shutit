@@ -590,11 +590,11 @@ class ShutItPexpectSession(object):
 				except:
 					pass
 			if default_msg == None:
-				if not shutit.build['video']:
+				if not shutit.build['video'] and not shutit.build['training'] and not shutit.build['walkthrough']:
 					pp_msg = '\r\nYou now have a standard shell. Hit CTRL and then ] at the same time to continue ShutIt run.'
 					if shutit.build['delivery'] == 'docker':
 						pp_msg += '\r\nHit CTRL and u to save the state to a docker image'
-					shutit.log('\r\n' + 80*'=' + '\r\n' + shutit_util.colourise(colour,msg) +'\r\n'+80*'='+'\r\n' + shutit_util.colourise(colour,pp_msg),transient=True)
+					shutit.log('\r\n' + 10*'=' + shutit_util.colourise(colour,msg) + 10*'='+'\r\n' + shutit_util.colourise(colour,pp_msg),transient=True)
 				else:
 					shutit.log('\r\n' + (shutit_util.colourise(colour, msg)),transient=True)
 			else:
