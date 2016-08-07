@@ -1132,7 +1132,7 @@ class ShutItPexpectSession(object):
 			cmd = ''
 			pw = ''
 		if install_type == 'apt':
-			if not shutit.get_current_shutit_pexpect_session_environment().build['apt_update_done']:
+			if not shutit.get_current_shutit_pexpect_session_environment().build['apt_update_done'] and self.whoami() == 'root':
 				self.send('apt-get update',loglevel=logging.INFO, delaybeforesend=delaybeforesend)
 				shutit.get_current_shutit_pexpect_session_environment().build['apt_update_done'] = True
 			cmd += 'apt-get install'
@@ -1187,7 +1187,7 @@ class ShutItPexpectSession(object):
 			fails = 0
 			while True:
 				if pw != '':
-					res = self.multisend('%s %s %s' % (cmd, opts, package), {'assword':pw}, expect=['Unable to fetch some archives',self.default_expect], timeout=timeout, check_exit=False, loglevel=loglevel)
+					res = self.multisend('%s %s %s' % (cmd, opts, package), {'assword':pw}, expect=['Unable to fetch some archives',self.default_expect], timeout=timeout, check_exit=False, loglevel=loglevel, echo=False)
 				else:
 					res = self.send('%s %s %s' % (cmd, opts, package), expect=['Unable to fetch some archives',self.default_expect], timeout=timeout, check_exit=check_exit, loglevel=loglevel, delaybeforesend=delaybeforesend)
 				if res == 1:
@@ -1289,7 +1289,7 @@ class ShutItPexpectSession(object):
 		# Get mapped package.
 		package = package_map.map_package(package, self.current_environment.install_type)
 		if pw != '':
-			self.multisend('%s %s %s' % (cmd, opts, package), {'assword:':pw}, timeout=timeout, exit_values=['0','100'])
+			self.multisend('%s %s %s' % (cmd, opts, package), {'assword:':pw}, timeout=timeout, exit_values=['0','100'], echo=False)
 		else:
 			self.send('%s %s %s' % (cmd, opts, package), timeout=timeout, exit_values=['0','100'], delaybeforesend=delaybeforesend)
 		shutit._handle_note_after(note=note)
@@ -1657,6 +1657,20 @@ class ShutItPexpectSession(object):
 				send_iteration = send_dict[expect_list[res]]
 		shutit._handle_note_after(note=note)
 		return res
+
+
+	def send_and_require(self,
+	                     send,
+	                     regexps,
+	                     not_there=False,
+	                     echo=None,
+	                     note=None,
+	                     loglevel=logging.INFO):
+		"""Send string and require the item in the output.
+		See send_until
+		"""
+		shutit = shutit_global.shutit
+		return self.send_until(send, regexps, not_there=not_there, cadence=0, retries=1, echo=echo, note=note, loglevel=loglevel)
 
 
 	def send_until(self,
