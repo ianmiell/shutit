@@ -3,4 +3,5 @@ manhole>=0.1
 pynsca>=1.5
 texttable>=0.1
 jinja2>=0.1
-
+six>=1.10
+future>=0.15

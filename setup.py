@@ -55,7 +55,7 @@ setup(
 	# your project is installed. For an analysis of "install_requires" vs pip's
 	# requirements files see:
 	# https://packaging.python.org/en/latest/requirements.html
-	install_requires=['pexpect>=4.0','jinja2>=0.1','pynsca>=1.5','texttable>=0.1'],
+	install_requires=['pexpect>=4.0','jinja2>=0.1','pynsca>=1.5','texttable>=0.1','six>=1.10','future>=0.15'],
 
 
 	# List additional groups of dependencies here (e.g. development
