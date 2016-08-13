@@ -42,6 +42,9 @@ except ImportError:
 from shutit_module import ShutItFailException
 
 
+PY3 = (sys.version_info[0] >= 3)
+
+
 class ShutItPexpectSession(object):
 
 	def __init__(self,
@@ -62,6 +65,8 @@ class ShutItPexpectSession(object):
 	             delaybeforesend=0):
 		"""spawn a child, and manage the delaybefore send setting to 0
 		"""
+		if PY3:
+			encoding = 'utf-8'
 		shutit = shutit_global.shutit
 		self.check_exit          = True
 		self.default_expect      = [shutit.expect_prompts['base_prompt']]
