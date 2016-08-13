@@ -190,7 +190,7 @@ class ShutItPexpectSession(object):
 		# Add in a match if we see user+ and then the login matches. Be careful not to match against 'user+@...password:'
 		general_expect = general_expect + [user+'@.*'+'[@#$]']
 		# If not an ssh login, then we can match against user + @sign because it won't clash with 'user@adasdas password:'
-		if not string.find(command,'ssh') == 0:
+		if not command.find('ssh') == 0:
 			general_expect = general_expect + [user+'@']
 			general_expect = general_expect + ['.*[@#$]']
 		if user == 'bash' and command == 'su -':
