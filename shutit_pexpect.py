@@ -42,9 +42,6 @@ except ImportError:
 from shutit_module import ShutItFailException
 
 
-PY3 = (sys.version_info[0] >= 3)
-
-
 class ShutItPexpectSession(object):
 
 	def __init__(self,
@@ -105,23 +102,19 @@ class ShutItPexpectSession(object):
 		"""spawn a child, and manage the delaybefore send setting to 0
 		"""
 		shutit = shutit_global.shutit
-		if PY3:
-			spawn = pexpect.spawnu
-		else:
-			spawn = pexpect.spawn
-		pexpect_child = spawn(command,
-							  args=args,
-							  timeout=timeout,
-							  maxread=maxread,
-							  searchwindowsize=searchwindowsize,
-							  logfile=logfile,
-							  env=env,
-							  ignore_sighup=ignore_sighup,
-							  echo=echo,
-							  preexec_fn=preexec_fn,
-							  encoding=encoding,
-							  codec_errors=codec_errors,
-							  dimensions=dimensions)
+		pexpect_child = pexpect.spawn(command,
+		                              args=args,
+		                              timeout=timeout,
+		                              maxread=maxread,
+		                              searchwindowsize=searchwindowsize,
+		                              logfile=logfile,
+		                              env=env,
+		                              ignore_sighup=ignore_sighup,
+		                              echo=echo,
+		                              preexec_fn=preexec_fn,
+		                              encoding=encoding,
+		                              codec_errors=codec_errors,
+		                              dimensions=dimensions)
 		pexpect_child.delaybeforesend=delaybeforesend
 		shutit.log('sessions before: ' + str(shutit.shutit_pexpect_sessions),level=logging.DEBUG)
 		shutit.shutit_pexpect_sessions.update({self.pexpect_session_id:self})
