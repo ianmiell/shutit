@@ -189,7 +189,7 @@ def parse_shutitfile_args(args_str):
 		# if all the items have a = in them, then return a dict of nv pairs
 	nv_pairs = True
 	for item in ret:
-		if string.find(item,'=') < 0:
+		if item.find('=') < 0:
 			nv_pairs = False
 	if nv_pairs:
 		d = {}
