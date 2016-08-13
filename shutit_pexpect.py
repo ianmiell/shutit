@@ -1648,7 +1648,7 @@ class ShutItPexpectSession(object):
 		shutit = shutit_global.shutit
 		shutit._handle_note(note)
 		send_iteration = send
-		expect_list = send_dict.keys()
+		expect_list = list(send_dict)
 		# Put breakout item(s) in last.
 		n_breakout_items = 0
 		if type(expect) == str:
