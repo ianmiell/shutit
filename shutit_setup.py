@@ -39,7 +39,6 @@ import re
 import subprocess
 import logging
 import shutit_pexpect
-import string
 import shutit_global
 from distutils import spawn
 from shutit_module import ShutItModule
@@ -223,7 +222,7 @@ class ConnDocker(ShutItConnModule):
 		# docker run happens here
 		shutit.log('Startup command is: ' + shutit.build['docker_command'],level=logging.INFO)
 		shutit.log('Downloading image, please be patient',level=logging.INFO)
-		was_sent = string.join(docker_command,' ')
+		was_sent = ' '.join(docker_command)
 		shutit_pexpect_session = shutit_pexpect.ShutItPexpectSession(shutit_session_name, docker_command[0], docker_command[1:])
 		target_child = shutit_pexpect_session.pexpect_child
 		expect = ['assword', shutit.expect_prompts['base_prompt'].strip(), 'Waiting', 'ulling', 'endpoint', 'Download','o such file']

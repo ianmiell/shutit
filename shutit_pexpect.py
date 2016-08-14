@@ -1384,7 +1384,7 @@ class ShutItPexpectSession(object):
 			if self.current_environment.distro == 'osx':
 				before_list = before.split('\r\n')
 				before_list = before_list[1:]
-				before = string.join(before_list,'\r\n')
+				before = '\r\n'.join(before_list)
 			else:
 				before = before.strip(send)
 		except Exception:
@@ -2307,7 +2307,7 @@ $'"""
 		"""
 		shutit = shutit_global.shutit
 		shutit._handle_note(note, 'Script: ' + str(script))
-		shutit.log('Running script beginning: "' + string.join(script.split())[:30] + ' [...]', level=logging.INFO)
+		shutit.log('Running script beginning: "' + ''.join(script.split())[:30] + ' [...]', level=logging.INFO)
 		# Trim any whitespace lines from start and end of script, then dedent
 		lines = script.split('\n')
 		while len(lines) > 0 and re.match('^[ \t]*$', lines[0]):

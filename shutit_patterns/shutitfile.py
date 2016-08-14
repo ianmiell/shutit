@@ -29,7 +29,6 @@ import os
 import random
 import re
 import shutil
-import string
 import sys
 try:
 	from urllib.request import urlopen
