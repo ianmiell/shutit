@@ -555,13 +555,13 @@ def main():
 		digraph = 'digraph depgraph {\n'
 		digraph += '\n'.join([ make_dep_graph(module) for module_id, module in shutit.shutit_map.items() if module_id in cfg and cfg[module_id]['shutit.core.module.build'] ])
 		digraph += '\n}'
-		f = file(shutit.build['log_config_path'] + '/digraph.txt','w')
+		f = open(shutit.build['log_config_path'] + '/digraph.txt','w')
 		f.write(digraph)
 		f.close()
 		digraph_all = 'digraph depgraph {\n'
 		digraph_all += '\n'.join([ make_dep_graph(module) for module_id, module in shutit.shutit_map.items() ])
 		digraph_all += '\n}'
-		f = file(shutit.build['log_config_path'] + '/digraph_all.txt','w')
+		f = open(shutit.build['log_config_path'] + '/digraph_all.txt','w')
 		f.write(digraph_all)
 		f.close()
 		shutit.log('\n================================================================================\n' + digraph_all)

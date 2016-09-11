@@ -808,7 +808,7 @@ def load_configs():
 			shutit.log('    ' + c,level=logging.DEBUG)
 		if shutit.action['list_configs'] or shutit.build['loglevel'] <= logging.DEBUG:
 			if shutit.build['log_config_path']:
-				f = file(shutit.build['log_config_path'] + '/config_file_order.txt','w')
+				f = open(shutit.build['log_config_path'] + '/config_file_order.txt','w')
 				f.write(msg)
 				f.close()
 
@@ -962,7 +962,7 @@ def list_modules(long_output=None,sort_order=None):
 	msg = table.draw()
 	print('\n' + msg)
 	if shutit.build['log_config_path']:
-		f = file(shutit.build['log_config_path'] + '/module_order.txt','w')
+		f = open(shutit.build['log_config_path'] + '/module_order.txt','w')
 		f.write(msg)
 		f.close()
 
