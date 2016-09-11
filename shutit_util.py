@@ -63,6 +63,7 @@ from shutit_module import ShutItFailException
 from shutit_module import ShutItModule
 from builtins import input
 
+PY3 = (sys.version_info[0] >= 3)
 
 allowed_delivery_methods = ['ssh','dockerfile','bash','docker']
 
@@ -680,7 +681,10 @@ shutitfile:        a shutitfile-based project
 			os.mkdir(shutit_home, 0o700)
 		if not os.path.isfile(os.path.join(shutit_home, 'config')):
 			f = os.open(os.path.join(shutit_home, 'config'), os.O_WRONLY | os.O_CREAT, 0o600)
-			os.write(f,_default_cnf)
+			if PY3:
+				os.write(f,bytes(_default_cnf))
+			else:
+				os.write(f,_default_cnf)
 			os.close(f)
 
 		# Default this to False as it's not always set (mostly for debug logging).
@@ -973,7 +977,7 @@ def print_config(cfg, hide_password=True, history=False, module_id=None):
 	"""
 	cp = shutit_global.shutit.config_parser
 	s = ''
-	keys1 = cfg.keys()
+	keys1 = list(cfg.keys())
 	if keys1:
 		keys1.sort()
 	for k in keys1:
@@ -981,7 +985,7 @@ def print_config(cfg, hide_password=True, history=False, module_id=None):
 			continue
 		if type(k) == str and type(cfg[k]) == dict:
 			s += '\n[' + k + ']\n'
-			keys2 = cfg[k].keys()
+			keys2 = list(cfg[k].keys())
 			if keys2:
 				keys2.sort()
 			for k1 in keys2:
@@ -1335,7 +1339,7 @@ def module_ids(rev=False):
 	(run order < 0).
 	"""
 	shutit = shutit_global.shutit
-	ids = sorted(shutit.shutit_map.keys(),key=lambda module_id: shutit.shutit_map[module_id].run_order)
+	ids = sorted(list(shutit.shutit_map.keys()),key=lambda module_id: shutit.shutit_map[module_id].run_order)
 	if rev:
 		return list(reversed(ids))
 	else:

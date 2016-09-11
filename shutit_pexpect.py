@@ -1767,6 +1767,8 @@ class ShutItPexpectSession(object):
 		                      If not line_oriented, the regexp is considered on with the flags re.DOTALL, re.MULTILINE
 		                      enabled
 		"""
+		import pdb
+		#pdb.set_trace()
 		shutit = shutit_global.shutit
 		shutit._handle_note(note)
 		fexists = self.file_exists(fname)
@@ -1782,16 +1784,28 @@ class ShutItPexpectSession(object):
 			# If replace and delete FAIL
 			if delete:
 				shutit.fail('cannot pass replace=True and delete=True to insert_text')
+		# ftext is the original file's text. If base64 is available, use it to
+		# encode the text
 		if self.command_available('base64'):
-			ftext = self.send_and_get_output(' base64 ' + fname, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
+			if PY3:
+				ftext = bytes(self.send_and_get_output(' base64 ' + fname, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend),'utf-8')
+			else:
+				ftext = self.send_and_get_output(' base64 ' + fname, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
 			ftext = base64.b64decode(ftext)
 		else:
-			ftext = self.send_and_get_output('cat ' + fname, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
-		# Replace the file text's ^M-newlines with simple newlines
-		ftext = ftext.replace('\r\n','\n')
-		# If we are not forcing and the text is already in the file, then don't insert.
+			# Replace the file text's ^M-newlines with simple newlines
+			if PY3:
+				ftext = bytes(self.send_and_get_output('cat ' + fname, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend),'utf-8')
+				ftext = ftext.replace(bytes('\r\n', 'utf-8'),bytes('\n', 'utf-8'))
+			else:
+				ftext = self.send_and_get_output('cat ' + fname, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
+				ftext = ftext.replace('\r\n','\n')
+		# Delete the text
 		if delete:
-			loc = ftext.find(text)
+			if PY3:
+				loc = ftext.find(bytes(text,'utf-8'))
+			else:
+				loc = ftext.find(text)
 			if loc == -1:
 				# No output - no match
 				return None
@@ -1803,7 +1817,10 @@ class ShutItPexpectSession(object):
 					if not shutit_util.check_regexp(pattern):
 						shutit.fail('Illegal regexp found in change_text call: ' + pattern)
 					# cf: http://stackoverflow.com/questions/9411041/matching-ranges-of-lines-in-python-like-sed-ranges
-					sre_match = re.search(pattern,ftext,re.DOTALL|re.MULTILINE)
+					if PY3:
+						sre_match = re.search(bytes(pattern,'utf-8'),ftext,re.DOTALL|re.MULTILINE)
+					else:
+						sre_match = re.search(pattern,ftext,re.DOTALL|re.MULTILINE)
 					if replace:
 						if sre_match == None:
 							cut_point = len(ftext)
@@ -1821,17 +1838,28 @@ class ShutItPexpectSession(object):
 						elif before:
 							cut_point = sre_match.start()
 							# If the text is already there and we're not forcing it, return None.
-							if not force and ftext[cut_point-len(text):].find(text) > 0:
-								return None
+							if PY3:
+								if not force and ftext[cut_point-len(text):].find(bytes(text,'utf-8')) > 0:
+									return None
+							else:
+								if not force and ftext[cut_point-len(text):].find(text) > 0:
+									return None
 						else:
 							cut_point = sre_match.end()
 							# If the text is already there and we're not forcing it, return None.
-							if not force and ftext[cut_point:].find(text) > 0:
-								return None
+							if PY3:
+								if not force and ftext[cut_point:].find(bytes(text,'utf-8')) > 0:
+									return None
+							else:
+								if not force and ftext[cut_point:].find(text) > 0:
+									return None
 						newtext1 = ftext[:cut_point]
 						newtext2 = ftext[cut_point:]
 				else:
-					lines = ftext.split('\n')
+					if PY3:
+						lines = ftext.split(bytes('\n','utf-8'))
+					else:
+						lines = ftext.split('\n')
 					cut_point   = 0
 					line_length = 0
 					matched     = False
@@ -1846,7 +1874,10 @@ class ShutItPexpectSession(object):
 						if len(pattern) == 0 or pattern[-1] != '$':
 							pattern_after = '.*$'
 						new_pattern = pattern_before+pattern+pattern_after
-						match = re.search(new_pattern, line)
+						if PY3:
+							match = re.search(bytes(new_pattern,'utf-8'), line)
+						else:
+							match = re.search(new_pattern,line)
 						line_length = len(line)
 						if match != None:
 							matched=True
@@ -1860,30 +1891,55 @@ class ShutItPexpectSession(object):
 						cut_point = len(ftext)
 					elif not replace and not before:
 						cut_point += line_length
+					# newtext1 is everything up to the cutpoint
 					newtext1 = ftext[:cut_point]
+					# newtext2 is everything after the cutpoint
 					newtext2 = ftext[cut_point:]
+					# if replacing and we matched the output in a line, then set newtext2 to be everything from cutpoint's line end
 					if replace and matched:
 						newtext2 = ftext[cut_point+line_length:]
 					elif not force:
 						# If the text is already there and we're not forcing it, return None.
-						if before and ftext[cut_point-len(text):].find(text) > 0:
-							return None
-						# If the text is already there and we're not forcing it, return None.
-						if not before and ftext[cut_point:].find(text) > 0:
-							return None
-					if len(newtext1) > 0 and newtext1[-1] != '\n':
-						newtext1 += '\n'
-					if len(newtext2) > 0 and newtext2[0] != '\n':
-						newtext2 = '\n' + newtext2
+						if PY3:
+							if before and ftext[cut_point-len(text):].find(bytes(text,'utf-8')) > 0:
+								return None
+							if not before and ftext[cut_point:].find(bytes(text,'utf-8')) > 0:
+								return None
+						else:
+							if before and ftext[cut_point-len(text):].find(text) > 0:
+								return None
+							if not before and ftext[cut_point:].find(text) > 0:
+								return None
+					# Add a newline to newtext1 if it is not already there
+					if PY3:
+						if len(newtext1) > 0 and bytes(newtext1.decode('utf-8')[-1],'utf-8') != bytes('\n','utf-8'):
+							newtext1 += bytes('\n','utf-8')
+					else:
+						if len(newtext1) > 0 and newtext1[-1] != '\n':
+							newtext1 += '\n'
+					# Add a newline to newtext2 if it is not already there
+					if PY3:
+						if len(newtext2) > 0 and bytes(newtext2.decode('utf-8')[0],'utf-8') != bytes('\n','utf-8'):
+							newtext2 = bytes('\n','utf-8') + newtext2
+					else:
+						if len(newtext2) > 0 and newtext2[0] != '\n':
+							newtext2 = '\n' + newtext2
 			else:
 				# Append to file absent a pattern.
 				cut_point = len(ftext)
 				newtext1 = ftext[:cut_point]
 				newtext2 = ftext[cut_point:]
 			# If adding or replacing at the end of the file, then ensure we have a newline at the end
-			if newtext2 == '' and len(text) > 0 and text[-1] != '\n':
-				newtext2 = '\n'
-			new_text = newtext1 + text + newtext2
+			if PY3:
+				if newtext2 == b'' and len(text) > 0 and bytes(text[-1],'utf-8') != bytes('\n','utf-8'):
+					newtext2 = bytes('\n','utf-8')
+			else:
+				if newtext2 == '' and len(text) > 0 and text[-1] != '\n':
+					newtext2 = '\n'
+			if PY3:
+				new_text = newtext1 + bytes(text,'utf-8') + newtext2
+			else:
+				new_text = newtext1 + text + newtext2
 		self.send_file(fname,new_text,truncate=True,loglevel=loglevel, delaybeforesend=delaybeforesend)
 		shutit._handle_note_after(note=note)
 		return True
@@ -2247,7 +2303,10 @@ $'"""
 		shutit = shutit_global.shutit
 		shutit._handle_note(note, 'Sending contents to path: ' + path)
 		# make more efficient by only looking at first 10000 chars, stop when we get to 30 chars rather than reading whole file.
-		split_contents = ''.join((contents[:10000].split()))
+		if PY3:
+			split_contents = ''.join((str(contents[:10000]).split()))
+		else:
+			split_contents = ''.join((contents[:10000].split()))
 		strings_from_file = re.findall("[^\x00-\x1F\x7F-\xFF]", split_contents)
 		shutit.log('Sending file contents beginning: "' + ''.join(strings_from_file)[:30] + ' [...]" to file: ' + path, level=loglevel)
 		if user == None:
@@ -2259,7 +2318,10 @@ $'"""
 			f = open(path,'w')
 			if truncate:
 				f.truncate(0)
-			f.write(contents)
+			if type(contents) == str:
+				f.write(contents)
+			elif type(contents) == bytes:
+				f.write(contents.decode('utf-8'))
 			f.close()
 		elif shutit.build['delivery'] in ('bash','dockerfile'):
 			if truncate and self.file_exists(path):
@@ -2274,7 +2336,12 @@ $'"""
 			tmpfile = shutit.build['shutit_state_dir_base'] + 'tmp_' + shutit_util.random_id()
 			f = open(tmpfile,'w')
 			f.truncate(0)
-			f.write(contents)
+			if type(contents) == str:
+				f.write(contents)
+			elif type(contents) == bytes:
+				f.write(contents.decode('utf-8'))
+			else:
+				shutit.fail('type: ' + type(contents) + ' not handled')
 			f.close()
 			# Create file so it has appropriate permissions
 			self.send(' touch ' + path, echo=False,loglevel=loglevel, delaybeforesend=delaybeforesend)
