@@ -309,7 +309,7 @@ def check_ready(throw_error=True):
 		shutit.log('considering check_ready (is it ready to be built?): ' + module_id, level=logging.DEBUG)
 		if cfg[module_id]['shutit.core.module.build'] and module.module_id not in shutit_global.shutit.get_current_shutit_pexpect_session_environment().modules_ready and not shutit_util.is_installed(module):
 			shutit.log('checking whether module is ready to build: ' + module_id, level=logging.DEBUG)
-			shutit.login(prompt_prefix=module_id,command='bash')
+			shutit.login(prompt_prefix=module_id,command='bash --noprofile --norc')
 			# Move to the correct directory (eg for checking for the existence of files needed for build)
 			revert_dir = os.getcwd()
 			shutit_global.shutit.get_current_shutit_pexpect_session_environment().module_root_dir = os.path.dirname(module.__module_file)
@@ -335,7 +335,7 @@ def do_remove(loglevel=logging.DEBUG):
 		shutit.log('considering whether to remove: ' + module_id, level=logging.DEBUG)
 		if cfg[module_id]['shutit.core.module.remove']:
 			shutit.log('removing: ' + module_id, level=logging.DEBUG)
-			shutit.login(prompt_prefix=module_id,command='bash')
+			shutit.login(prompt_prefix=module_id,command='bash --noprofile --norc')
 			if not module.remove(shutit):
 				shutit.log(shutit_util.print_modules(), level=logging.DEBUG)
 				shutit.fail(module_id + ' failed on remove', shutit_pexpect_child=shutit.get_shutit_pexpect_session_from_id('target_child').pexpect_child)
@@ -417,7 +417,7 @@ def do_build():
 					revert_dir = os.getcwd()
 					shutit_global.shutit.get_current_shutit_pexpect_session_environment().module_root_dir = os.path.dirname(module.__module_file)
 					shutit.chdir(shutit_global.shutit.get_current_shutit_pexpect_session_environment().module_root_dir)
-					shutit.login(prompt_prefix=module_id,command='bash')
+					shutit.login(prompt_prefix=module_id,command='bash --noprofile --norc')
 					build_module(module)
 					shutit.logout()
 					shutit.chdir(revert_dir)
@@ -442,7 +442,7 @@ def do_test():
 		# Only test if it's installed.
 		if shutit_util.is_installed(shutit.shutit_map[module_id]):
 			shutit.log('RUNNING TEST ON: ' + module_id, level=logging.DEBUG)
-			shutit.login(prompt_prefix=module_id,command='bash')
+			shutit.login(prompt_prefix=module_id,command='bash --noprofile --norc')
 			if not shutit.shutit_map[module_id].test(shutit):
 				shutit.fail(module_id + ' failed on test', shutit_pexpect_child=shutit.get_shutit_pexpect_session_from_id('target_child').pexpect_child)
 			shutit.logout()
@@ -461,7 +461,7 @@ def do_finalize():
 	for module_id in shutit_util.module_ids(rev=True):
 		# Only finalize if it's thought to be installed.
 		if shutit_util.is_installed(shutit.shutit_map[module_id]):
-			shutit.login(prompt_prefix=module_id,command='bash')
+			shutit.login(prompt_prefix=module_id,command='bash --noprofile --norc')
 			if not shutit.shutit_map[module_id].finalize(shutit):
 				shutit.fail(module_id + ' failed on finalize', shutit_pexpect_child=shutit.get_shutit_pexpect_session_from_id('target_child').pexpect_child)
 			shutit.logout()
