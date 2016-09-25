@@ -682,7 +682,7 @@ shutitfile:        a shutitfile-based project
 		if not os.path.isfile(os.path.join(shutit_home, 'config')):
 			f = os.open(os.path.join(shutit_home, 'config'), os.O_WRONLY | os.O_CREAT, 0o600)
 			if PY3:
-				os.write(f,bytes(_default_cnf))
+				os.write(f,bytes(_default_cnf,'utf-8'))
 			else:
 				os.write(f,_default_cnf)
 			os.close(f)
