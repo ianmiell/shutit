@@ -582,19 +582,20 @@ class ShutItPexpectSession(object):
 					if self.current_environment.distro != 'osx':
 						fixterm_filename = '/tmp/shutit_fixterm'
 						fixterm_filename_stty = fixterm_filename + '_stty'
-						if not self.file_exists(fixterm_filename):
-							shutit.log('Fixing up your terminal, please wait...',level=logging.INFO)
-							self.send_file(fixterm_filename,shutit_assets.get_fixterm(), loglevel=logging.DEBUG, delaybeforesend=delaybeforesend)
-							self.send(' chmod 777 ' + fixterm_filename, echo=False,loglevel=logging.DEBUG, delaybeforesend=delaybeforesend)
-						if not self.file_exists(fixterm_filename + '_stty'):
-							self.send(' stty >  ' + fixterm_filename_stty, echo=False,loglevel=logging.DEBUG, delaybeforesend=delaybeforesend)
-							self.sendline(' ' + fixterm_filename, delaybeforesend=delaybeforesend)
-						# do not re-run if the output of stty matches the current one
-						# This causes problems in video mode (?), so commenting out.
-						#elif self.send_and_get_output(' diff <(stty) ' + fixterm_filename_stty) != '':
-						#	self.sendline(' ' + fixterm_filename, delaybeforesend=delaybeforesend)
-						else:
-							self.sendline('')
+						if not self.in_screen():
+							if not self.file_exists(fixterm_filename):
+								shutit.log('Fixing up your terminal, please wait...',level=logging.INFO)
+								self.send_file(fixterm_filename,shutit_assets.get_fixterm(), loglevel=logging.DEBUG, delaybeforesend=delaybeforesend)
+								self.send(' chmod 777 ' + fixterm_filename, echo=False,loglevel=logging.DEBUG, delaybeforesend=delaybeforesend)
+							if not self.file_exists(fixterm_filename + '_stty'):
+								self.send(' stty >  ' + fixterm_filename_stty, echo=False,loglevel=logging.DEBUG, delaybeforesend=delaybeforesend)
+								self.sendline(' ' + fixterm_filename, delaybeforesend=delaybeforesend)
+							# do not re-run if the output of stty matches the current one
+							# This causes problems in video mode (?), so commenting out.
+							#elif self.send_and_get_output(' diff <(stty) ' + fixterm_filename_stty) != '':
+							#	self.sendline(' ' + fixterm_filename, delaybeforesend=delaybeforesend)
+							else:
+								self.sendline('')
 				except:
 					pass
 			if default_msg == None:
@@ -2699,8 +2700,17 @@ $'"""
 		self.get_distro_info()
 		self.send(' mkdir -p ' + environment_id_dir + ' && chmod -R 777 ' + shutit.build['shutit_state_dir_base'] + ' && touch ' + environment_id_dir + '/' + new_environment.environment_id, echo=False, loglevel=logging.DEBUG)
 		return new_environment
-	            	 
 
+ 
+	def in_screen(self,
+	              loglevel=logging.WARNING,
+	              delaybeforesend=0):
+		shutit = shutit_global.shutit
+		if self.send_and_get_output(' echo $TMUX', record_command=False, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend) != '':
+			return True
+		elif self.send_and_get_output(' echo $TERM', record_command=False, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend) == 'screen':
+			return True
+		return False
 
 class ShutItPexpectSessionEnvironment(object):
 
