@@ -206,6 +206,12 @@ class ShutItPexpectSession(object):
 			self.send('cd',check_exit=False, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
 		self.login_stack_append(r_id)
 		shutit._handle_note_after(note=note,training_input=send)
+		# Try and stop user being 'clever'
+		if shutit.build['testing']:
+			shutit.send(' alias exit=/bin/true',echo=False,record_command=False)
+			shutit.send(' alias logout=/bin/true',echo=False,record_command=False)
+			shutit.send(' alias kill=/bin/true',echo=False,record_command=False)
+			shutit.send(' alias alias=/bin/true',echo=False,record_command=False)
 		return True
 
 
@@ -226,6 +232,11 @@ class ShutItPexpectSession(object):
 		"""
 		shutit = shutit_global.shutit
 		shutit._handle_note(note,training_input=command)
+		if shutit.build['testing']:
+			shutit.send(' unalias exit',echo=False,record_command=False)
+			shutit.send(' unalias logout',echo=False,record_command=False)
+			shutit.send(' unalias kill',echo=False,record_command=False)
+			shutit.send(' unalias alias',echo=False,record_command=False)
 		if len(self.login_stack):
 			_ = self.login_stack.pop()
 			if len(self.login_stack):
@@ -638,12 +649,14 @@ class ShutItPexpectSession(object):
 				shutit.log('Commit and tag done. Hit CTRL and ] to continue with build. Hit return for a prompt.',level=logging.INFO)
 			# CTRL-d
 			elif ord(input_string) == 4:
-				shutit.shutit_signal['ID'] = 4
-				if shutit_util.get_input('CTRL-d caught, are you sure you want to quit this ShutIt run?\n\r=> ',default='n',boolean=True):
-					shutit.fail('CTRL-d caught, quitting')
-				if shutit_util.get_input('Do you want to pass through the CTRL-d to the ShutIt session?\n\r=> ',default='n',boolean=True):
-					return '\x04'
-				# Return nothing
+				# Testing mode simply ignores the CTRL-D
+				if not shutit.build['testing']:
+					shutit.shutit_signal['ID'] = 4
+					if shutit_util.get_input('CTRL-D caught, are you sure you want to quit this ShutIt run?\n\r=> ',default='n',boolean=True):
+						shutit.fail('CTRL-D caught, quitting')
+					if shutit_util.get_input('Do you want to pass through the CTRL-D to the ShutIt session?\n\r=> ',default='n',boolean=True):
+						return '\x04'
+					# Return nothing
 				return ''
 			# CTRL-h
 			elif ord(input_string) == 8:
