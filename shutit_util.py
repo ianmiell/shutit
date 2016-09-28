@@ -707,7 +707,7 @@ shutitfile:        a shutitfile-based project
 			shutit.build['training']        = args.training
 			shutit.build['testing']         = args.testing
 			shutit.build['choose_config']   = args.choose_config
-			if (shutit.build['testing'] and not shutit.build['training']:
+			if shutit.build['testing'] and not shutit.build['training']:
 				print('\n--testing implies --training, setting --training on!\n')
 				shutit.build['training'] = True
 			if (shutit.build['testing'] or shutit.build['training']) and not shutit.build['walkthrough']:
