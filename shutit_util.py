@@ -437,6 +437,7 @@ def parse_args():
 	sub_parsers['build'].add_argument('-c','--choose_config', help='Choose configuration interactively', default=False, action='store_const', const=True)
 	sub_parsers['build'].add_argument('--video', help='Run in video mode. Same as walkthrough, but waits n seconds rather than for input', nargs=1, default=-1)
 	sub_parsers['build'].add_argument('--training', help='Run in "training" mode, where correct input is required at key points', default=False, action='store_const', const=True)
+	sub_parsers['build'].add_argument('--testing', help='Run in "testing" mode, where correct input is required at key points and progress is tracked', default=False, action='store_const', const=True)
 
 	sub_parsers['list_configs'].add_argument('--history', help='Show config with history', const=True, default=False, action='store_const')
 	sub_parsers['list_modules'].add_argument('--long', help='Show extended module info, including ordering', const=True, default=False, action='store_const')
@@ -693,6 +694,7 @@ shutitfile:        a shutitfile-based project
 		shutit.list_modules['sort']        = None
 		shutit.build['video']              = False
 		shutit.build['training']           = False
+		shutit.build['testing']            = False
 		shutit.build['choose_config']      = False
 		# Persistence- and build-related arguments.
 		if shutit.action['build']:
@@ -703,9 +705,13 @@ shutitfile:        a shutitfile-based project
 			shutit.build['mount_docker']    = args.mount_docker
 			shutit.build['walkthrough']     = args.walkthrough
 			shutit.build['training']        = args.training
+			shutit.build['testing']         = args.testing
 			shutit.build['choose_config']   = args.choose_config
-			if shutit.build['training'] and not shutit.build['walkthrough']:
-				print('\n--training implies --walkthrough, setting --walkthrough on!\n')
+			if (shutit.build['testing'] and not shutit.build['training']:
+				print('\n--testing implies --training, setting --training on!\n')
+				shutit.build['training'] = True
+			if (shutit.build['testing'] or shutit.build['training']) and not shutit.build['walkthrough']:
+				print('\n--training or --testing implies --walkthrough, setting --walkthrough on!\n')
 				shutit.build['walkthrough'] = True
 			if type(args.video) == list and args.video[0] >= 0:
 				shutit.build['walkthrough']      = True
@@ -713,6 +719,9 @@ shutitfile:        a shutitfile-based project
 				shutit.build['video']            = True
 				if shutit.build['training']:
 					print('--video and --training mode incompatible')
+					handle_exit(exit_code=1)
+				if shutit.build['testing']:
+					print('--video and --testing mode incompatible')
 					handle_exit(exit_code=1)
 		elif shutit.action['list_configs']:
 			shutit.list_configs['cfghistory'] = args.history

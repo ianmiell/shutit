@@ -599,7 +599,7 @@ class ShutItPexpectSession(object):
 				except:
 					pass
 			if default_msg == None:
-				if not shutit.build['video'] and not shutit.build['training'] and not shutit.build['walkthrough']:
+				if not shutit.build['video'] and not shutit.build['training'] and not shutit.build['testing'] and not shutit.build['walkthrough']:
 					pp_msg = '\r\nYou now have a standard shell. Hit CTRL and then ] at the same time to continue ShutIt run.'
 					if shutit.build['delivery'] == 'docker':
 						pp_msg += '\r\nHit CTRL and u to save the state to a docker image'
@@ -2108,7 +2108,7 @@ class ShutItPexpectSession(object):
 		# - otherwise, default to doing the check
 		if check_exit == None:
 			# If we are in video mode, ignore exit value
-			if shutit.build['video'] or shutit.build['training'] or shutit.build['walkthrough']:
+			if shutit.build['video'] or shutit.build['training'] or shutit.build['walkthrough'] or shutit.build['testing']:
 				check_exit = False
 			elif expect == shutit.get_default_shutit_pexpect_session_expect():
 				check_exit = shutit.get_default_shutit_pexpect_session_check_exit()
