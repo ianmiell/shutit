@@ -222,6 +222,9 @@ class ShutIt(object):
 		@param transient:         Just write to terminal, no new line. If not a
 		                          terminal, write nothing.
 		"""
+		# No logging in testing mode!
+		if self.build['testing']:
+			return True
 		if transient:
 			if sys.stdout.isatty():
 				if newline:
