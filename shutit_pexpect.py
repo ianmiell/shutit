@@ -370,7 +370,7 @@ class ShutItPexpectSession(object):
 		# Start up a new container.
 		shutit.target['docker_image'] = new_target_image_name
 		target_child = conn_module.start_container(self.pexpect_session_id)
-		conn_module.setup_target_child(shutit, target_child)
+		conn_module.setup_target_child(target_child)
 		return True
 
 
