@@ -663,11 +663,11 @@ class ShutItPexpectSession(object):
 				shutit.shutit_signal['ID'] = 8
 				# Return the escape from pexpect char
 				return '\x1d'
-			# CTRL-g
-			elif ord(input_string) == 7:
-				shutit.shutit_signal['ID'] = 7
-				# Return the escape from pexpect char
-				return '\x1d'
+			## CTRL-g
+			#elif ord(input_string) == 7:
+			#	shutit.shutit_signal['ID'] = 7
+			#	# Return the escape from pexpect char
+			#	return '\x1d'
 			# CTRL-s
 			elif ord(input_string) == 19:
 				shutit.shutit_signal['ID'] = 19
@@ -2438,7 +2438,8 @@ $'"""
 						self.replace_container(container_name)
 						shutit.log('State restored.',level=logging.INFO)
 					else:
-						shutit.log(shutit_util.colourise('31','Continuing, remember you can restore to a known state with CTRL-g.'),transient=True)
+						#shutit.log(shutit_util.colourise('31','Continuing, remember you can restore to a known state with CTRL-g.'),transient=True)
+						shutit.log(shutit_util.colourise('31','Continuing.'),transient=True)
 				else:
 					shutit.fail('Follow-on context not handled on pass')
 			return True
@@ -2504,6 +2505,7 @@ $'"""
 		shutit.build['ctrlc_passthrough'] = True
 		preserve_newline                  = False
 		skipped                           = False
+		print 'C'
 		if expect_type == 'regexp':
 			if type(expect) == str:
 				expect = [expect]
@@ -2538,7 +2540,8 @@ $'"""
 						shutit.log(shutit_util.colourise('32',hints.pop()),transient=True)
 					else:
 						shutit.log(help_text,transient=True)
-						shutit.log(shutit_util.colourise('32','No hints left, sorry! CTRL-g to reset state, CTRL-s to skip this step'),transient=True)
+						#shutit.log(shutit_util.colourise('32','No hints left, sorry! CTRL-g to reset state, CTRL-s to skip this step'),transient=True)
+						shutit.log(shutit_util.colourise('32','No hints left, sorry! CTRL-s to skip this step'),transient=True)
 					time.sleep(pause)
 					continue
 				if send == 'shutitreset':
@@ -2575,7 +2578,8 @@ $'"""
 			ok = False
 			# hints
 			if len(hints):
-				task_desc_new = task_desc + '\r\n\r\nHit CTRL-h for help, CTRL-g to reset state, CTRL-s to skip'
+				#task_desc_new = task_desc + '\r\n\r\nHit CTRL-h for help, CTRL-g to reset state, CTRL-s to skip'
+				task_desc_new = task_desc + '\r\n\r\nHit CTRL-h for help, CTRL-s to skip'
 			else:
 				task_desc_new = task_desc
 			while not ok:
@@ -2641,7 +2645,8 @@ $'"""
 							ok = True
 							break
 				if not ok and failed:
-					shutit.log('\n\n' + shutit_util.colourise('31','Failed! CTRL-g to reset state, CTRL-h for a hint') + '\n',transient=True)
+					#shutit.log('\n\n' + shutit_util.colourise('31','Failed! CTRL-g to reset state, CTRL-h for a hint') + '\n',transient=True)
+					shutit.log('\n\n' + shutit_util.colourise('31','Failed! CTRL-h for a hint') + '\n',transient=True)
 					self._challenge_done(result='failed')
 					continue
 		else:
