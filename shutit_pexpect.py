@@ -1123,7 +1123,8 @@ class ShutItPexpectSession(object):
 					ok = False
 			return ok
 		# Some packages get mapped to the empty string. If so, bail out with 'success' here.
-		shutit._handle_note('Installing package: ' + package + '\n' + note)
+		if note != None:
+			shutit._handle_note('Installing package: ' + package + '\n' + note)
 		shutit.log('Installing package: ' + package,level=loglevel)
 		if options is None: options = {}
 		install_type = self.current_environment.install_type
@@ -1252,7 +1253,8 @@ class ShutItPexpectSession(object):
 		"""
 		# If separated by spaces, remove separately
 		shutit = shutit_global.shutit
-		shutit._handle_note('Removing package: ' + package + '\n' + note)
+		if note != None:
+			shutit._handle_note('Removing package: ' + package + '\n' + note)
 		if options is None: options = {}
 		install_type = self.current_environment.install_type
 		whoiam = self.whoami()
