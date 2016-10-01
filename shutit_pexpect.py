@@ -2238,6 +2238,8 @@ $'"""
 					shutit.log('Output (squashed): ' + logged_output,level=logging.DEBUG)
 				else:
 					shutit.log('Output (squashed): ' + logged_output,level=loglevel)
+				shutit.log('shutit_pexpect_child.before (hex)>>>' + self.pexpect_child.before.encode('hex') + '<<<',level=logging.DEBUG)
+				shutit.log('shutit_pexpect_child.after (hex)>>>' + self.pexpect_child.after.encode('hex') + '<<<',level=logging.DEBUG)
 				shutit.log('shutit_pexpect_child.before>>>' + self.pexpect_child.before + '<<<',level=logging.DEBUG)
 				shutit.log('shutit_pexpect_child.after>>>' + self.pexpect_child.after + '<<<',level=logging.DEBUG)
 			except:
