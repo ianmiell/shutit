@@ -1039,7 +1039,7 @@ class ShutItPexpectSession(object):
 	                      loglevel=logging.DEBUG):
 		shutit = shutit_global.shutit
 		shutit._handle_note(note)
-		output = self.send_and_get_output(' command -V ' + command + ' > /dev/null', echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
+		output = self.send_and_get_output(' command -V ' + command + ' > /dev/null', echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend).strip()
 		if output != '':
 			return False
 		else:
