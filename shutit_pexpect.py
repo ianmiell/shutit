@@ -357,7 +357,14 @@ class ShutItPexpectSession(object):
 		"""
 		if type(expect) == str:
 			expect = [expect]
-		return self.pexpect_child.expect(expect + [pexpect.TIMEOUT] + [pexpect.EOF], timeout=timeout)
+		res = self.pexpect_child.expect(expect + [pexpect.TIMEOUT] + [pexpect.EOF], timeout=timeout)
+		if type(self.pexpect_child.before) == str:
+			self.pexpect_child.before = self.pexpect_child.before.replace('\r','')
+			self.pexpect_child.before = self.pexpect_child.before.replace('\n','\r\n')
+		if type(self.pexpect_child.after) == str:
+			self.pexpect_child.after = self.pexpect_child.after.replace('\r','')
+			self.pexpect_child.after = self.pexpect_child.after.replace('\n','\r\n')
+		return res
 
 
 	def replace_container(self,
@@ -685,6 +692,7 @@ class ShutItPexpectSession(object):
 	def handle_pause_point_signals(self):
 		shutit = shutit_global.shutit
 		if shutit.shutit_signal['ID'] == 29:
+			# clear the signal
 			shutit.shutit_signal['ID'] = 0
 			shutit.log('\r\nCTRL-] caught, continuing with run...',level=logging.INFO,transient=True)
 		return True
@@ -1395,16 +1403,7 @@ class ShutItPexpectSession(object):
 			preserve_newline = True
 		else:
 			preserve_newline = False
-		# Correct problem with first char in OSX.
-		try:
-			if self.current_environment.distro == 'osx':
-				before_list = before.split('\r\n')
-				before_list = before_list[1:]
-				before = '\r\n'.join(before_list)
-			else:
-				before = before.strip(send)
-		except Exception:
-			before = before.strip(send)
+		before = before.strip(send)
 		shutit._handle_note_after(note=note)
 		if strip:
 			# cf: http://stackoverflow.com/questions/14693701/how-can-i-remove-the-ansi-escape-sequences-from-a-string-in-python
@@ -2253,8 +2252,10 @@ $'"""
 					shutit.log('Output (squashed): ' + logged_output,level=loglevel)
 				shutit.log('shutit_pexpect_child.before (hex)>>>' + self.pexpect_child.before.encode('hex') + '<<<',level=logging.DEBUG)
 				shutit.log('shutit_pexpect_child.after (hex)>>>' + self.pexpect_child.after.encode('hex') + '<<<',level=logging.DEBUG)
+				shutit.log('shutit_pexpect_child.buffer(hex)>>>' + str(self.pexpect_child.buffer).encode('hex') + '<<<',level=logging.DEBUG)
 				shutit.log('shutit_pexpect_child.before>>>' + self.pexpect_child.before + '<<<',level=logging.DEBUG)
 				shutit.log('shutit_pexpect_child.after>>>' + self.pexpect_child.after + '<<<',level=logging.DEBUG)
+				shutit.log('shutit_pexpect_child.buffer>>>' + str(self.pexpect_child.buffer) + '<<<',level=logging.DEBUG)
 			except:
 				pass
 			if fail_on_empty_before:
