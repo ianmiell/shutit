@@ -2508,6 +2508,7 @@ $'"""
 		shutit.build['ctrlc_passthrough'] = True
 		preserve_newline                  = False
 		skipped                           = False
+		print 'C'
 		if expect_type == 'regexp':
 			if type(expect) == str:
 				expect = [expect]
