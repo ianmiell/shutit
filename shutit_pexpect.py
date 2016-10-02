@@ -206,6 +206,12 @@ class ShutItPexpectSession(object):
 			self.send('cd',check_exit=False, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
 		self.login_stack_append(r_id)
 		shutit._handle_note_after(note=note,training_input=send)
+		# Try and stop user being 'clever'
+		if shutit.build['testing']:
+			shutit.send(' alias exit=/bin/true',echo=False,record_command=False)
+			shutit.send(' alias logout=/bin/true',echo=False,record_command=False)
+			shutit.send(' alias kill=/bin/true',echo=False,record_command=False)
+			shutit.send(' alias alias=/bin/true',echo=False,record_command=False)
 		return True
 
 
@@ -226,6 +232,11 @@ class ShutItPexpectSession(object):
 		"""
 		shutit = shutit_global.shutit
 		shutit._handle_note(note,training_input=command)
+		if shutit.build['testing']:
+			shutit.send(' unalias exit',echo=False,record_command=False)
+			shutit.send(' unalias logout',echo=False,record_command=False)
+			shutit.send(' unalias kill',echo=False,record_command=False)
+			shutit.send(' unalias alias',echo=False,record_command=False)
 		if len(self.login_stack):
 			_ = self.login_stack.pop()
 			if len(self.login_stack):
@@ -346,7 +357,14 @@ class ShutItPexpectSession(object):
 		"""
 		if type(expect) == str:
 			expect = [expect]
-		return self.pexpect_child.expect(expect + [pexpect.TIMEOUT] + [pexpect.EOF], timeout=timeout)
+		res = self.pexpect_child.expect(expect + [pexpect.TIMEOUT] + [pexpect.EOF], timeout=timeout)
+		if type(self.pexpect_child.before) == str:
+			self.pexpect_child.before = self.pexpect_child.before.replace('\r','')
+			self.pexpect_child.before = self.pexpect_child.before.replace('\n','\r\n')
+		if type(self.pexpect_child.after) == str:
+			self.pexpect_child.after = self.pexpect_child.after.replace('\r','')
+			self.pexpect_child.after = self.pexpect_child.after.replace('\n','\r\n')
+		return res
 
 
 	def replace_container(self,
@@ -599,7 +617,7 @@ class ShutItPexpectSession(object):
 				except:
 					pass
 			if default_msg == None:
-				if not shutit.build['video'] and not shutit.build['training'] and not shutit.build['walkthrough']:
+				if not shutit.build['video'] and not shutit.build['training'] and not shutit.build['testing'] and not shutit.build['walkthrough']:
 					pp_msg = '\r\nYou now have a standard shell. Hit CTRL and then ] at the same time to continue ShutIt run.'
 					if shutit.build['delivery'] == 'docker':
 						pp_msg += '\r\nHit CTRL and u to save the state to a docker image'
@@ -638,23 +656,25 @@ class ShutItPexpectSession(object):
 				shutit.log('Commit and tag done. Hit CTRL and ] to continue with build. Hit return for a prompt.',level=logging.INFO)
 			# CTRL-d
 			elif ord(input_string) == 4:
-				shutit.shutit_signal['ID'] = 4
-				if shutit_util.get_input('CTRL-d caught, are you sure you want to quit this ShutIt run?\n\r=> ',default='n',boolean=True):
-					shutit.fail('CTRL-d caught, quitting')
-				if shutit_util.get_input('Do you want to pass through the CTRL-d to the ShutIt session?\n\r=> ',default='n',boolean=True):
-					return '\x04'
-				# Return nothing
+				# Testing mode simply ignores the CTRL-D
+				if not shutit.build['testing']:
+					shutit.shutit_signal['ID'] = 4
+					if shutit_util.get_input('CTRL-D caught, are you sure you want to quit this ShutIt run?\n\r=> ',default='n',boolean=True):
+						shutit.fail('CTRL-D caught, quitting')
+					if shutit_util.get_input('Do you want to pass through the CTRL-D to the ShutIt session?\n\r=> ',default='n',boolean=True):
+						return '\x04'
+					# Return nothing
 				return ''
 			# CTRL-h
 			elif ord(input_string) == 8:
 				shutit.shutit_signal['ID'] = 8
 				# Return the escape from pexpect char
 				return '\x1d'
-			# CTRL-g
-			elif ord(input_string) == 7:
-				shutit.shutit_signal['ID'] = 7
-				# Return the escape from pexpect char
-				return '\x1d'
+			## CTRL-g
+			#elif ord(input_string) == 7:
+			#	shutit.shutit_signal['ID'] = 7
+			#	# Return the escape from pexpect char
+			#	return '\x1d'
 			# CTRL-s
 			elif ord(input_string) == 19:
 				shutit.shutit_signal['ID'] = 19
@@ -672,6 +692,7 @@ class ShutItPexpectSession(object):
 	def handle_pause_point_signals(self):
 		shutit = shutit_global.shutit
 		if shutit.shutit_signal['ID'] == 29:
+			# clear the signal
 			shutit.shutit_signal['ID'] = 0
 			shutit.log('\r\nCTRL-] caught, continuing with run...',level=logging.INFO,transient=True)
 		return True
@@ -1382,16 +1403,7 @@ class ShutItPexpectSession(object):
 			preserve_newline = True
 		else:
 			preserve_newline = False
-		# Correct problem with first char in OSX.
-		try:
-			if self.current_environment.distro == 'osx':
-				before_list = before.split('\r\n')
-				before_list = before_list[1:]
-				before = '\r\n'.join(before_list)
-			else:
-				before = before.strip(send)
-		except Exception:
-			before = before.strip(send)
+		before = before.strip(send)
 		shutit._handle_note_after(note=note)
 		if strip:
 			# cf: http://stackoverflow.com/questions/14693701/how-can-i-remove-the-ansi-escape-sequences-from-a-string-in-python
@@ -2110,7 +2122,7 @@ class ShutItPexpectSession(object):
 		# - otherwise, default to doing the check
 		if check_exit == None:
 			# If we are in video mode, ignore exit value
-			if shutit.build['video'] or shutit.build['training'] or shutit.build['walkthrough']:
+			if shutit.build['video'] or shutit.build['training'] or shutit.build['walkthrough'] or shutit.build['testing']:
 				check_exit = False
 			elif expect == shutit.get_default_shutit_pexpect_session_expect():
 				check_exit = shutit.get_default_shutit_pexpect_session_check_exit()
@@ -2240,8 +2252,10 @@ $'"""
 					shutit.log('Output (squashed): ' + logged_output,level=loglevel)
 				shutit.log('shutit_pexpect_child.before (hex)>>>' + self.pexpect_child.before.encode('hex') + '<<<',level=logging.DEBUG)
 				shutit.log('shutit_pexpect_child.after (hex)>>>' + self.pexpect_child.after.encode('hex') + '<<<',level=logging.DEBUG)
+				shutit.log('shutit_pexpect_child.buffer(hex)>>>' + str(self.pexpect_child.buffer).encode('hex') + '<<<',level=logging.DEBUG)
 				shutit.log('shutit_pexpect_child.before>>>' + self.pexpect_child.before + '<<<',level=logging.DEBUG)
 				shutit.log('shutit_pexpect_child.after>>>' + self.pexpect_child.after + '<<<',level=logging.DEBUG)
+				shutit.log('shutit_pexpect_child.buffer>>>' + str(self.pexpect_child.buffer) + '<<<',level=logging.DEBUG)
 			except:
 				pass
 			if fail_on_empty_before:
@@ -2427,7 +2441,8 @@ $'"""
 						self.replace_container(container_name)
 						shutit.log('State restored.',level=logging.INFO)
 					else:
-						shutit.log(shutit_util.colourise('31','Continuing, remember you can restore to a known state with CTRL-g.'),transient=True)
+						#shutit.log(shutit_util.colourise('31','Continuing, remember you can restore to a known state with CTRL-g.'),transient=True)
+						shutit.log(shutit_util.colourise('31','Continuing.'),transient=True)
 				else:
 					shutit.fail('Follow-on context not handled on pass')
 			return True
@@ -2527,7 +2542,8 @@ $'"""
 						shutit.log(shutit_util.colourise('32',hints.pop()),transient=True)
 					else:
 						shutit.log(help_text,transient=True)
-						shutit.log(shutit_util.colourise('32','No hints left, sorry! CTRL-g to reset state, CTRL-s to skip this step'),transient=True)
+						#shutit.log(shutit_util.colourise('32','No hints left, sorry! CTRL-g to reset state, CTRL-s to skip this step'),transient=True)
+						shutit.log(shutit_util.colourise('32','No hints left, sorry! CTRL-s to skip this step'),transient=True)
 					time.sleep(pause)
 					continue
 				if send == 'shutitreset':
@@ -2564,7 +2580,8 @@ $'"""
 			ok = False
 			# hints
 			if len(hints):
-				task_desc_new = task_desc + '\r\n\r\nHit CTRL-h for help, CTRL-g to reset state, CTRL-s to skip'
+				#task_desc_new = task_desc + '\r\n\r\nHit CTRL-h for help, CTRL-g to reset state, CTRL-s to skip'
+				task_desc_new = task_desc + '\r\n\r\nHit CTRL-h for help, CTRL-s to skip'
 			else:
 				task_desc_new = task_desc
 			while not ok:
@@ -2630,7 +2647,8 @@ $'"""
 							ok = True
 							break
 				if not ok and failed:
-					shutit.log('\n\n' + shutit_util.colourise('31','Failed! CTRL-g to reset state, CTRL-h for a hint') + '\n',transient=True)
+					#shutit.log('\n\n' + shutit_util.colourise('31','Failed! CTRL-g to reset state, CTRL-h for a hint') + '\n',transient=True)
+					shutit.log('\n\n' + shutit_util.colourise('31','Failed! CTRL-h for a hint') + '\n',transient=True)
 					self._challenge_done(result='failed')
 					continue
 		else:
