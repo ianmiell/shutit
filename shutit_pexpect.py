@@ -62,7 +62,7 @@ class ShutItPexpectSession(object):
 	             encoding=None,
 	             codec_errors='strict',
 	             dimensions=None,
-	             delaybeforesend=0):
+	             delaybeforesend=0.2):
 		"""spawn a child, and manage the delaybefore send setting to 0
 		"""
 		if PY3:
@@ -358,12 +358,28 @@ class ShutItPexpectSession(object):
 		if type(expect) == str:
 			expect = [expect]
 		res = self.pexpect_child.expect(expect + [pexpect.TIMEOUT] + [pexpect.EOF], timeout=timeout)
+		p = False
+		if type(self.pexpect_child.buffer) == str and type(self.pexpect_child.before) == str and type(self.pexpect_child.after) == str and self.pexpect_child.buffer != '':
+			p = True
+			# Remove the expected string from the buffer
+			self.pexpect_child.buffer = self.pexpect_child.buffer.replace(self.pexpect_child.before,'')
+			self.pexpect_child.buffer = self.pexpect_child.buffer.replace(self.pexpect_child.after,'')
+			# If the buffer still exists (it shouldn't), then set that to the before string.
+			self.pexpect_child.before += self.pexpect_child.buffer
+			# Clean out the buffer.
+			#self.pexpect_child.buffer = ''
 		if type(self.pexpect_child.before) == str:
 			self.pexpect_child.before = self.pexpect_child.before.replace('\r','')
 			self.pexpect_child.before = self.pexpect_child.before.replace('\n','\r\n')
 		if type(self.pexpect_child.after) == str:
 			self.pexpect_child.after = self.pexpect_child.after.replace('\r','')
 			self.pexpect_child.after = self.pexpect_child.after.replace('\n','\r\n')
+		if p:
+			#print 'HERE2'
+			#print self.pexpect_child.before.encode('hex')
+			#print self.pexpect_child.after.encode('hex')
+			#print self.pexpect_child.buffer.encode('hex')
+			pass
 		return res
 
 
@@ -1023,14 +1039,11 @@ class ShutItPexpectSession(object):
 	                      loglevel=logging.DEBUG):
 		shutit = shutit_global.shutit
 		shutit._handle_note(note)
-		output = self.send_and_get_output(' command -v ' + command, echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
-		# Bit of a hack here to get round situations where the command is repeated in the output and caught.
-		if output.strip() == 'command -v ' + command:
-			return False
+		output = self.send_and_get_output(' command -V ' + command + ' > /dev/null', echo=False, loglevel=loglevel, delaybeforesend=delaybeforesend)
 		if output != '':
-			return True
-		else:
 			return False
+		else:
+			return True
 
 
 
@@ -2250,12 +2263,12 @@ $'"""
 					shutit.log('Output (squashed): ' + logged_output,level=logging.DEBUG)
 				else:
 					shutit.log('Output (squashed): ' + logged_output,level=loglevel)
-				shutit.log('shutit_pexpect_child.before (hex)>>>' + self.pexpect_child.before.encode('hex') + '<<<',level=logging.DEBUG)
-				shutit.log('shutit_pexpect_child.after (hex)>>>' + self.pexpect_child.after.encode('hex') + '<<<',level=logging.DEBUG)
-				shutit.log('shutit_pexpect_child.buffer(hex)>>>' + str(self.pexpect_child.buffer).encode('hex') + '<<<',level=logging.DEBUG)
-				shutit.log('shutit_pexpect_child.before>>>' + self.pexpect_child.before + '<<<',level=logging.DEBUG)
-				shutit.log('shutit_pexpect_child.after>>>' + self.pexpect_child.after + '<<<',level=logging.DEBUG)
-				shutit.log('shutit_pexpect_child.buffer>>>' + str(self.pexpect_child.buffer) + '<<<',level=logging.DEBUG)
+				shutit.log('shutit_pexpect_child.buffer(hex)>>>\n' + str(self.pexpect_child.buffer).encode('hex') + '\n<<<',level=logging.DEBUG)
+				shutit.log('shutit_pexpect_child.buffer>>>\n' + str(self.pexpect_child.buffer) + '\n<<<',level=logging.DEBUG)
+				shutit.log('shutit_pexpect_child.before (hex)>>>\n' + self.pexpect_child.before.encode('hex') + '\n<<<',level=logging.DEBUG)
+				shutit.log('shutit_pexpect_child.before>>>\n' + self.pexpect_child.before + '\n<<<',level=logging.DEBUG)
+				shutit.log('shutit_pexpect_child.after (hex)>>>\n' + self.pexpect_child.after.encode('hex') + '\n<<<',level=logging.DEBUG)
+				shutit.log('shutit_pexpect_child.after>>>\n' + self.pexpect_child.after + '\n<<<',level=logging.DEBUG)
 			except:
 				pass
 			if fail_on_empty_before:
