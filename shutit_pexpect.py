@@ -1542,11 +1542,11 @@ class ShutItPexpectSession(object):
 					if not self.command_available('brew'):
 						shutit.fail('ShutiIt requires brew be installed. See http://brew.sh for details on installation.')
 					if not self.file_exists('/tmp/shutit_brew_list'):
-						self.send('brew list > .shutit_brew_list')
+						self.send('brew list > .shutit_brew_list',echo=False)
 					for package in ('coreutils','findutils','gnu-tar','gnu-sed','gawk','gnutls','gnu-indent','gnu-getopt'):
 						if self.send_and_get_output('cat .shutit_brew_list | grep -w ' + package,echo=False, loglevel=loglevel) == '':
 							self.send('brew install ' + package,loglevel=loglevel)
-					self.send('rm -f .shutit_brew_list')
+					self.send('rm -f .shutit_brew_list',echo=False)
 				if install_type == '' or distro == '':
 					shutit.fail('Could not determine Linux distro information. ' + 'Please inform ShutIt maintainers.', shutit_pexpect_child=self.pexpect_child)
 			# The call to self.package_installed with lsb-release above

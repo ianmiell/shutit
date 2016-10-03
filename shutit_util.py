@@ -578,8 +578,6 @@ def parse_args():
 					print('Delivery methods: ' + str(_delivery_methods_seen))
 					print('Delivery method passed in: ' + delivery_method)
 					handle_exit(exit_code=1)
-			#print _new_shutitfiles
-			#print delivery_method
 		module_directory = args.name
 		if module_directory == '':
 			default_dir = shutit.host['calling_path'] + '/shutit_' + random_word()
@@ -641,8 +639,6 @@ shutitfile:        a shutitfile-based project
 					delivery = util_raw_input(prompt='# Input a delivery method from: ' + str(allowed_delivery_methods) + '.\n# Default: ' + default_delivery + '\n\ndocker = build within a docker image\nssh = ssh to target and build\nbash = run commands directly within bash\n', default=default_delivery)
 		else:
 			delivery = delivery_method
-		#print '======================='
-		#print delivery
 		shutit.cfg['skeleton'] = {
 			'path':                  module_directory,
 			'module_name':           module_name,
@@ -708,10 +704,10 @@ shutitfile:        a shutitfile-based project
 			shutit.build['testing']         = args.testing
 			shutit.build['choose_config']   = args.choose_config
 			if shutit.build['testing'] and not shutit.build['training']:
-				print('\n--testing implies --training, setting --training on!\n')
+				print('--testing implies --training, setting --training on!')
 				shutit.build['training'] = True
 			if (shutit.build['testing'] or shutit.build['training']) and not shutit.build['walkthrough']:
-				print('\n--training or --testing implies --walkthrough, setting --walkthrough on!\n')
+				print('--training or --testing implies --walkthrough, setting --walkthrough on!')
 				shutit.build['walkthrough'] = True
 			if type(args.video) == list and args.video[0] >= 0:
 				shutit.build['walkthrough']      = True
