@@ -355,8 +355,7 @@ class ShutItPexpectSession(object):
 		return res
 
 
-	def replace_container(self,
-	                      new_target_image_name):
+	def replace_container(self, new_target_image_name):
 		"""Replaces a container. Assumes we are in Docker context
 		"""
 		shutit = shutit_global.shutit
@@ -2402,8 +2401,7 @@ $'"""
 						self.replace_container(container_name)
 						shutit.log('State restored.',level=logging.INFO)
 					else:
-						#shutit.log(shutit_util.colourise('31','Continuing, remember you can restore to a known state with CTRL-g.'),transient=True)
-						shutit.log(shutit_util.colourise('31','Continuing.'),transient=True)
+						shutit.log(shutit_util.colourise('31','Continuing, remember you can restore to a known state with CTRL-g.'),transient=True)
 				else:
 					shutit.fail('Follow-on context not handled on pass')
 			return True
@@ -2417,7 +2415,7 @@ $'"""
 		elif result in ('reset'):
 			if follow_on_context != {}:
 				if follow_on_context.get('context') == 'docker':
-					container_name = follow_on_context.get('reset_container_name')
+					container_name = follow_on_context.get('ok_container_name')
 					if not container_name:
 						shutit.log('No reset context available, carrying on.',level=logging.DEBUG)
 					else:
@@ -2502,8 +2500,7 @@ $'"""
 						shutit.log(shutit_util.colourise('32',hints.pop()),transient=True)
 					else:
 						shutit.log(help_text,transient=True)
-						#shutit.log(shutit_util.colourise('32','No hints left, sorry! CTRL-g to reset state, CTRL-s to skip this step'),transient=True)
-						shutit.log(shutit_util.colourise('32','No hints left, sorry! CTRL-s to skip this step'),transient=True)
+						shutit.log(shutit_util.colourise('32','No hints left, sorry! CTRL-g to reset state, CTRL-s to skip this step'),transient=True)
 					time.sleep(pause)
 					continue
 				if send == 'shutitreset':
@@ -2560,7 +2557,9 @@ $'"""
 					self._challenge_done(result='reset', follow_on_context=follow_on_context)
 					# clear the signal
 					shutit.shutit_signal['ID'] = 0
-					self.challenge(
+					# Get the new target child, which is the new 'self'
+					target_child = shutit.get_shutit_pexpect_session_from_id('target_child')
+					target_child.challenge(
 						task_desc=task_desc,
 						expect=expect,
 						hints=hints,
@@ -2606,8 +2605,7 @@ $'"""
 							ok = True
 							break
 				if not ok and failed:
-					#shutit.log('\n\n' + shutit_util.colourise('31','Failed! CTRL-g to reset state, CTRL-h for a hint') + '\n',transient=True)
-					shutit.log('\n\n' + shutit_util.colourise('31','Failed! CTRL-h for a hint') + '\n',transient=True)
+					shutit.log('\n\n' + shutit_util.colourise('31','Failed! CTRL-g to reset state, CTRL-h for a hint') + '\n',transient=True)
 					self._challenge_done(result='failed')
 					continue
 		else:

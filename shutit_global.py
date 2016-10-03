@@ -1869,13 +1869,7 @@ class ShutIt(object):
 		"""
 		if type(shutit_pexpect_child) != pexpect.pty_spawn.spawn:
 			shutit.fail('Wrong type in get_shutit_pexpect_session_child: ' + str(type(shutit_pexpect_child)),throw_exception=True)
-		#print '==================='
-		#print shutit_pexpect_child
-		#print self.shutit_pexpect_sessions
 		for key in self.shutit_pexpect_sessions:
-			#print key
-			#print self.shutit_pexpect_sessions[key].pexpect_child
-			#print shutit_pexpect_child
 			if self.shutit_pexpect_sessions[key].pexpect_child == shutit_pexpect_child:
 				return self.shutit_pexpect_sessions[key]
 		return shutit.fail('Should not get here in get_shutit_pexpect_session',throw_exception=True)
