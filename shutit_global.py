@@ -1901,5 +1901,22 @@ class ShutIt(object):
 		return shutit.fail('Should not get here in get_shutit_pexpect_session_from_id',throw_exception=True)
 
 
+	def print_session_state(self):
+		ret = '\n'
+		for key in self.shutit_pexpect_sessions:
+			ret += '===============================================================================\n'
+			session_id = self.shutit_pexpect_sessions[key].pexpect_session_id
+			session = self.shutit_pexpect_sessions[key]
+			ret += 'KEY:                 ' + key + '\n'
+			ret += 'SESSION_ID:          ' + session_id + '\n'
+			ret += 'SESSION:             ' + str(session) + '\n'
+			ret += 'DEFAULT_EXP:         ' + session.default_expect + '\n'
+			ret += 'LOGIN_STACK:         ' + str(session.login_stack) + '\n'
+			ret += 'CURRENT_ENVIRONMENT: ' + str(session.current_environment) + '\n'
+			ret += '===============================================================================\n'
+		return ret
+		
+
+
 shutit = ShutIt()
 

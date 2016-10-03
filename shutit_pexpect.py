@@ -361,6 +361,7 @@ class ShutItPexpectSession(object):
 		"""
 		shutit = shutit_global.shutit
 		shutit.log('Replacing container, please wait...',level=logging.INFO)
+		shutit.log(shutit.print_session_state(),level=logging.DEBUG)
 
 		# Destroy existing container.
 		conn_module = None
@@ -377,6 +378,8 @@ class ShutItPexpectSession(object):
 		shutit.target['docker_image'] = new_target_image_name
 		target_child = conn_module.start_container(self.pexpect_session_id)
 		conn_module.setup_target_child(target_child)
+		shutit.log('Container replaced',level=logging.INFO)
+		shutit.log(shutit.print_session_state(),level=logging.DEBUG)
 		return True
 
 
@@ -655,11 +658,11 @@ class ShutItPexpectSession(object):
 				shutit.shutit_signal['ID'] = 8
 				# Return the escape from pexpect char
 				return '\x1d'
-			## CTRL-g
-			#elif ord(input_string) == 7:
-			#	shutit.shutit_signal['ID'] = 7
-			#	# Return the escape from pexpect char
-			#	return '\x1d'
+			# CTRL-g
+			elif ord(input_string) == 7:
+				shutit.shutit_signal['ID'] = 7
+				# Return the escape from pexpect char
+				return '\x1d'
 			# CTRL-s
 			elif ord(input_string) == 19:
 				shutit.shutit_signal['ID'] = 19
@@ -716,6 +719,7 @@ class ShutItPexpectSession(object):
 			shutit.log(repr('before>>>>:%s<<<< after:>>>>%s<<<<' % (self.pexpect_child.before, self.pexpect_child.after)),transient=True)
 			shutit.fail('Did not see FIL(N)?EXIST in output:\n' + output)
 		shutit._handle_note_after(note=note)
+		print 'RETURNING: ' + str(ret)
 		return ret
 
 
@@ -1535,9 +1539,12 @@ class ShutItPexpectSession(object):
 					install_type = 'brew'
 					if not self.command_available('brew'):
 						shutit.fail('ShutiIt requires brew be installed. See http://brew.sh for details on installation.')
+					if not self.file_exists('/tmp/shutit_brew_list'):
+						self.send('brew list > .shutit_brew_list')
 					for package in ('coreutils','findutils','gnu-tar','gnu-sed','gawk','gnutls','gnu-indent','gnu-getopt'):
-						if self.send_and_get_output('brew list | grep -w ' + package,echo=False, loglevel=loglevel) == '':
+						if self.send_and_get_output('cat .shutit_brew_list | grep -w ' + package,echo=False, loglevel=loglevel) == '':
 							self.send('brew install ' + package,loglevel=loglevel)
+					self.send('rm -f .shutit_brew_list')
 				if install_type == '' or distro == '':
 					shutit.fail('Could not determine Linux distro information. ' + 'Please inform ShutIt maintainers.', shutit_pexpect_child=self.pexpect_child)
 			# The call to self.package_installed with lsb-release above
