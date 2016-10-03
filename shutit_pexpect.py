@@ -379,6 +379,10 @@ class ShutItPexpectSession(object):
 		conn_module.setup_target_child(target_child)
 		shutit.log('Container replaced',level=logging.INFO)
 		shutit.log(shutit.print_session_state(),level=logging.DEBUG)
+		# New session - log in. This makes the assumption that we are nested
+		# the same level in in terms of shells (root shell + 1 new login shell).
+		target_child = shutit.get_shutit_pexpect_session_from_id('target_child')
+		target_child.login(command='bash --noprofile --norc')
 		return True
 
 
@@ -718,7 +722,6 @@ class ShutItPexpectSession(object):
 			shutit.log(repr('before>>>>:%s<<<< after:>>>>%s<<<<' % (self.pexpect_child.before, self.pexpect_child.after)),transient=True)
 			shutit.fail('Did not see FIL(N)?EXIST in output:\n' + output)
 		shutit._handle_note_after(note=note)
-		print 'RETURNING: ' + str(ret)
 		return ret
 
 
@@ -2415,7 +2418,7 @@ $'"""
 		elif result in ('reset'):
 			if follow_on_context != {}:
 				if follow_on_context.get('context') == 'docker':
-					container_name = follow_on_context.get('ok_container_name')
+					container_name = follow_on_context.get('reset_container_name')
 					if not container_name:
 						shutit.log('No reset context available, carrying on.',level=logging.DEBUG)
 					else:
@@ -2537,8 +2540,7 @@ $'"""
 			ok = False
 			# hints
 			if len(hints):
-				#task_desc_new = task_desc + '\r\n\r\nHit CTRL-h for help, CTRL-g to reset state, CTRL-s to skip'
-				task_desc_new = '\r\n' + task_desc + '\r\n\r\nHit CTRL-h for help, CTRL-s to skip\r\n'
+				task_desc_new = task_desc + '\r\n\r\nHit CTRL-h for help, CTRL-g to reset state, CTRL-s to skip'
 			else:
 				task_desc_new = '\r\n' + task_desc
 			while not ok:
@@ -2559,7 +2561,7 @@ $'"""
 					shutit.shutit_signal['ID'] = 0
 					# Get the new target child, which is the new 'self'
 					target_child = shutit.get_shutit_pexpect_session_from_id('target_child')
-					target_child.challenge(
+					return target_child.challenge(
 						task_desc=task_desc,
 						expect=expect,
 						hints=hints,
@@ -2578,7 +2580,6 @@ $'"""
 						loglevel=loglevel,
 						follow_on_context=follow_on_context
 					)
-					return True
 				elif shutit.shutit_signal['ID'] == 19:
 					# Clear the signal.
 					shutit.shutit_signal['ID'] = 0
@@ -2681,7 +2682,7 @@ $'"""
 		return new_environment
 
  
-	def in_screen(self, loglevel=logging.WARNING):
+	def in_screen(self, loglevel=logging.INFO):
 		shutit = shutit_global.shutit
 		if self.send_and_get_output(' echo $TMUX', record_command=False, echo=False, loglevel=loglevel) != '':
 			return True
