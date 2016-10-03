@@ -515,15 +515,15 @@ class ShutItPexpectSession(object):
 			res = shutit_util.match_string(str(self.pexpect_child.before), '^EXIT_CODE:([0-9][0-9]?[0-9]?)$')
 			if res == None:
 				# Try before without anchor - sometimes needed when logging into obscure shells
-				shutit.log('Un-clean login (1), trying: ' + self.pexpect_child.before, level=logging.DEBUG)
+				shutit.log('Un-clean login (1), trying: ' + str(self.pexpect_child.before), level=logging.DEBUG)
 				res = shutit_util.match_string(str(self.pexpect_child.before), '.*EXIT_CODE:([0-9][0-9]?[0-9]?)$')
 			if res == None:
 				# Try after - for some reason needed after login
-				shutit.log('Un-clean login (2), trying: ' + self.pexpect_child.after, level=logging.DEBUG)
+				shutit.log('Un-clean login (2), trying: ' + str(self.pexpect_child.after), level=logging.DEBUG)
 				res = shutit_util.match_string(str(self.pexpect_child.after), '^EXIT_CODE:([0-9][0-9]?[0-9]?)$')
 			if res == None:
 				# Try after without anchor - sometimes needed when logging into obscure 
-				shutit.log('Un-clean login (3), trying: ' + self.pexpect_child.after, level=logging.DEBUG)
+				shutit.log('Un-clean login (3), trying: ' + str(self.pexpect_child.after), level=logging.DEBUG)
 				res = shutit_util.match_string(str(self.pexpect_child.after), '^.*EXIT_CODE:([0-9][0-9]?[0-9]?)$')
 			if res != None:
 				break
