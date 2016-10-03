@@ -1578,14 +1578,10 @@ def handle_exit(exit_code=0,loglevel=logging.DEBUG,msg=None):
 
 
 def sendline(child,
-             line,
-             delaybeforesend=0):
-	"""Handles sending of line to pexpect object, setting delaybeforesend if necessary.
+             line):
+	"""Handles sending of line to pexpect object.
 	"""
-	prev_delaybeforesend = child.delaybeforesend
-	child.delaybeforesend = delaybeforesend
 	child.sendline(line)
-	child.delaybeforesend = prev_delaybeforesend
 
 def sanitize_terminal():
 	os.system('stty sane')
