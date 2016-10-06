@@ -1548,7 +1548,7 @@ class ShutItPexpectSession(object):
 							self.send('brew install ' + package,loglevel=loglevel)
 					self.send('rm -f .shutit_brew_list',echo=False)
 				if install_type == '' or distro == '':
-					shutit.fail('Could not determine Linux distro information. ' + 'Please inform ShutIt maintainers.', shutit_pexpect_child=self.pexpect_child)
+					shutit.fail('Could not determine Linux distro information. ' + 'Please inform ShutIt maintainers at https://github.com/ianmiell/shutit', shutit_pexpect_child=self.pexpect_child)
 			# The call to self.package_installed with lsb-release above
 			# may fail if it doesn't know the install type, so
 			# if we've determined that now
@@ -2451,7 +2451,8 @@ $'"""
 	              escape=False,
 	              pause=1,
 	              loglevel=logging.DEBUG,
-	              follow_on_context={}):
+	              follow_on_context={},
+	              difficulty=1.0):
 		"""Set the user a task to complete, success being determined by matching the output.
 
 		Either pass in regexp(s) desired from the output as a string or a list, or an md5sum of the output wanted.
@@ -2546,6 +2547,8 @@ $'"""
 			while not ok:
 				self.pause_point(shutit_util.colourise('31',task_desc_new),colour='31')
 				if shutit.shutit_signal['ID'] == 8:
+					if shutit.build['testing_object']:
+						shutit.build['testing_object'].add_hint()
 					if len(shutit.build['pause_point_hints']):
 						shutit.log(shutit_util.colourise('31','\r\n========= HINT ==========\r\n\r\n' + shutit.build['pause_point_hints'].pop(0)),transient=True)
 					else:
@@ -2555,6 +2558,8 @@ $'"""
 					shutit.shutit_signal['ID'] = 0
 					continue
 				elif shutit.shutit_signal['ID'] == 7:
+					if shutit.build['testing_object']:
+						shutit.build['testing_object'].add_reset()
 					shutit.log(shutit_util.colourise('31','\r\n========= RESETTING STATE ==========\r\n\r\n'),transient=True)
 					self._challenge_done(result='reset', follow_on_context=follow_on_context)
 					# clear the signal
@@ -2581,6 +2586,8 @@ $'"""
 						follow_on_context=follow_on_context
 					)
 				elif shutit.shutit_signal['ID'] == 19:
+					if shutit.build['testing_object']:
+						shutit.build['testing_object'].add_skip()
 					# Clear the signal.
 					shutit.shutit_signal['ID'] = 0
 					# Skip test.
@@ -2606,12 +2613,16 @@ $'"""
 							ok = True
 							break
 				if not ok and failed:
+					if shutit.build['testing_object']:
+						shutit.build['testing_object'].add_fail()
 					shutit.log('\n\n' + shutit_util.colourise('31','Failed! CTRL-g to reset state, CTRL-h for a hint') + '\n',transient=True)
 					self._challenge_done(result='failed')
 					continue
 		else:
 			shutit.fail('Challenge type: ' + challenge_type + ' not supported')
 		self._challenge_done(result='ok',follow_on_context=follow_on_context,congratulations=congratulations,skipped=skipped)
+		if shutit.build['testing_object']:
+			shutit.build['testing_object'].add_ok()
 		# Tidy up hints
 		shutit.build['pause_point_hints'] = []
 		return True
