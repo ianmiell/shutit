@@ -248,7 +248,7 @@ class ConnDocker(ShutItConnModule):
 			elif res == 8:
 				shutit.fail('EOF seen.')
 			else:
-				res = shutit_pexpect_session.expect(expect, timeout=5)
+				res = shutit_pexpect_session.expect(expect, timeout=9999)
 				continue
 		# Did the pull work?
 		shutit.log('Checking exit status',level=loglevel)
