@@ -16,25 +16,25 @@ class ShutItTestSessionStage(object):
 
 	def __str__(self):
 		string = ''
-		string += '\nnum_skips        = ' + str(self.num_skips)
 		string += '\nnum_resets       = ' + str(self.num_resets)
-		string += '\nnum_oks          = ' + str(self.num_oks)
 		string += '\nnum_hints        = ' + str(self.num_hints)
-		string += '\nnum_fails        = ' + str(self.num_fails)
-		string += '\ncurrent_stage    = ' + str(self.current_stage)
-		string += '\ntotal_stages     = ' + str(self.total_stages)
-		string += '\ntimes            = ' + str(self.times)
-		string += '\ntimer_start_time = ' + str(self.timer_start_time)
+		string += '\nresult           = ' + str(self.result)
+		string += '\nstart_time       = ' + str(self.start_time)
+		string += '\nend_time         = ' + str(self.end_time)
 		return string
 
 	def start_timer(self):
-		self.timer_start_time = time.time()
+		if self.start_time != None:
+			shutit_global.shutit.fail('start_timer called with start_time already set')
+		self.start_time = time.time()
 
 	def end_timer(self):
-		if self.timer_start_time == None:
-			shutit_global.fail('end_timer called with no timer_start_time set')
-		times.append(time.time() - self.timer_start_time)
-		self.timer_start_time = None
+		if self.start_time == None:
+			shutit_global.shutit.fail('end_timer called with no start_time set')
+		if self.end_time != None:
+			shutit_global.shutit.fail('end_time already set')
+		self.end_time = time.time()
+		self.total_time = self.end_time - self.start_time
 
 	def is_complete(self):
 		if self.result == '':
@@ -51,27 +51,67 @@ class ShutItTestSession(object):
 
 	def __str__(self):
 		string = ''
+		n=0
 		for stage in self.stages:
+			n+=1
+			stage_desc = 'Stage ' + str(n) + ' of ' + str(len(self.stages))
+			string += '\n' + stage_desc
 			string += '\n' + str(stage)
 		return string
 		
 	def new_stage(self,difficulty):
 		difficulty = float(difficulty)
-		stage = ShutItTestSessionStage(difficulty))
+		stage = ShutItTestSessionStage(difficulty)
 		self.stages.append(stage)
 		return stage
 
-	def add_reset():
-		pass
+	def add_reset(self):
+		if self.stages == []:
+			shutit_global.shutit.fail('add_reset: no stages to reset')
+		stage = self.stages[-1]
+		stage.num_resets += 1
 
-	def add_skip():
-		pass
+	def add_skip(self):
+		if self.stages == []:
+			shutit_global.shutit.fail('add_skip: no stages to skip')
+		stage = self.stages[-1]
+		if stage.result != '':
+			shutit_global.shutit.fail('add_skip: result already determined')
+		else:
+			stage.result = 'SKIP'
 
-	def add_fail():
-		pass
+	def add_fail(self):
+		if self.stages == []:
+			shutit_global.shutit.fail('add_fail: no stages to fail')
+		stage = self.stages[-1]
+		if stage.result != '':
+			shutit_global.shutit.fail('add_fail: result already determined')
+		else:
+			stage.result = 'FAIL'
 
-	def add_ok():
-		pass
+	def add_ok(self):
+		if self.stages == []:
+			shutit_global.shutit.fail('add_ok: no stages to ok')
+		stage = self.stages[-1]
+		if stage.result != '':
+			shutit_global.shutit.fail('add_ok: result already determined')
+		else:
+			stage.result = 'OK'
 
-	def add_hint():
-		pass
+	def add_hint(self):
+		if self.stages == []:
+			shutit_global.shutit.fail('add_hint: no stages to add hint for')
+		stage = self.stages[-1]
+		stage.num_hints += 1
+
+	def start_timer(self):
+		if self.stages == []:
+			shutit_global.shutit.fail('start_timer: no stages to time')
+		stage = self.stages[-1]
+		stage.start_timer()
+
+	def end_timer(self):
+		if self.stages == []:
+			shutit_global.shutit.fail('end_timer: no stages to time')
+		stage = self.stages[-1]
+		stage.end_timer()
