@@ -59,6 +59,7 @@ import shutit_global
 import shutit_main
 import shutit_assets
 import shutit_skeleton
+import shutit_testing
 from shutit_module import ShutItFailException
 from shutit_module import ShutItModule
 from builtins import input
@@ -691,6 +692,7 @@ shutitfile:        a shutitfile-based project
 		shutit.build['video']              = False
 		shutit.build['training']           = False
 		shutit.build['testing']            = False
+		shutit.build['testing_object']     = None
 		shutit.build['choose_config']      = False
 		# Persistence- and build-related arguments.
 		if shutit.action['build']:
@@ -719,6 +721,10 @@ shutitfile:        a shutitfile-based project
 				if shutit.build['testing']:
 					print('--video and --testing mode incompatible')
 					handle_exit(exit_code=1)
+			# Create a test session object if needed.
+			if shutit.build['testing']:
+				shutit.build['testing_object'] = shutit_testing.ShutItTestSession()
+				print shutit.build['testing_object']
 		elif shutit.action['list_configs']:
 			shutit.list_configs['cfghistory'] = args.history
 		elif shutit.action['list_modules']:

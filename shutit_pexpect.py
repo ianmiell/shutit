@@ -1548,7 +1548,7 @@ class ShutItPexpectSession(object):
 							self.send('brew install ' + package,loglevel=loglevel)
 					self.send('rm -f .shutit_brew_list',echo=False)
 				if install_type == '' or distro == '':
-					shutit.fail('Could not determine Linux distro information. ' + 'Please inform ShutIt maintainers.', shutit_pexpect_child=self.pexpect_child)
+					shutit.fail('Could not determine Linux distro information. ' + 'Please inform ShutIt maintainers at https://github.com/ianmiell/shutit', shutit_pexpect_child=self.pexpect_child)
 			# The call to self.package_installed with lsb-release above
 			# may fail if it doesn't know the install type, so
 			# if we've determined that now
@@ -2451,7 +2451,9 @@ $'"""
 	              escape=False,
 	              pause=1,
 	              loglevel=logging.DEBUG,
-	              follow_on_context={}):
+	              follow_on_context={},
+	              difficulty=1.0,
+	              new_stage=True):
 		"""Set the user a task to complete, success being determined by matching the output.
 
 		Either pass in regexp(s) desired from the output as a string or a list, or an md5sum of the output wanted.
@@ -2465,6 +2467,9 @@ $'"""
 		                             golf    = user gets a pause point, and when leaving, command follow_on_context['check_command'] is run to check the output
 		"""
 		shutit = shutit_global.shutit
+		#print shutit.build['testing_object']
+		if new_stage and shutit.build['testing_object']:
+			shutit.build['testing_object'].new_stage(difficulty)
 		# don't catch CTRL-C, pass it through.
 		shutit.build['ctrlc_passthrough'] = True
 		preserve_newline                  = False
@@ -2503,7 +2508,7 @@ $'"""
 						shutit.log(shutit_util.colourise('32',hints.pop()),transient=True)
 					else:
 						shutit.log(help_text,transient=True)
-						shutit.log(shutit_util.colourise('32','No hints left, sorry! CTRL-g to reset state, CTRL-s to skip this step'),transient=True)
+						shutit.log(shutit_util.colourise('32','No hints left, sorry! CTRL-g to reset state, CTRL-s to skip this step, CTRL-] to submit for checking'),transient=True)
 					time.sleep(pause)
 					continue
 				if send == 'shutitreset':
@@ -2540,12 +2545,16 @@ $'"""
 			ok = False
 			# hints
 			if len(hints):
-				task_desc_new = task_desc + '\r\n\r\nHit CTRL-h for help, CTRL-g to reset state, CTRL-s to skip'
+				task_desc_new = task_desc + '\r\n\r\nHit CTRL-h for help, CTRL-g to reset state, CTRL-s to skip, CTRL-] to submit for checking'
 			else:
 				task_desc_new = '\r\n' + task_desc
 			while not ok:
+				if shutit.build['testing_object']:
+					shutit.build['testing_object'].start_timer()
 				self.pause_point(shutit_util.colourise('31',task_desc_new),colour='31')
 				if shutit.shutit_signal['ID'] == 8:
+					if shutit.build['testing_object']:
+						shutit.build['testing_object'].add_hint()
 					if len(shutit.build['pause_point_hints']):
 						shutit.log(shutit_util.colourise('31','\r\n========= HINT ==========\r\n\r\n' + shutit.build['pause_point_hints'].pop(0)),transient=True)
 					else:
@@ -2555,6 +2564,8 @@ $'"""
 					shutit.shutit_signal['ID'] = 0
 					continue
 				elif shutit.shutit_signal['ID'] == 7:
+					if shutit.build['testing_object']:
+						shutit.build['testing_object'].add_reset()
 					shutit.log(shutit_util.colourise('31','\r\n========= RESETTING STATE ==========\r\n\r\n'),transient=True)
 					self._challenge_done(result='reset', follow_on_context=follow_on_context)
 					# clear the signal
@@ -2578,15 +2589,19 @@ $'"""
 						escape=escape,
 						pause=pause,
 						loglevel=loglevel,
-						follow_on_context=follow_on_context
+						follow_on_context=follow_on_context,
+						new_stage=False
 					)
 				elif shutit.shutit_signal['ID'] == 19:
+					if shutit.build['testing_object']:
+						shutit.build['testing_object'].add_skip()
+						shutit.build['testing_object'].end_timer()
 					# Clear the signal.
 					shutit.shutit_signal['ID'] = 0
 					# Skip test.
 					shutit.log('Test skipped',level=logging.INFO)
 					skipped=True
-					break
+					return True
 				shutit.log('State submitted, checking your work...',level=logging.INFO)
 				check_command = follow_on_context.get('check_command')
 				output = self.send_and_get_output(check_command,timeout=timeout,retry=1,record_command=record_command,echo=False, loglevel=loglevel, fail_on_empty_before=False, preserve_newline=preserve_newline)
@@ -2606,12 +2621,18 @@ $'"""
 							ok = True
 							break
 				if not ok and failed:
-					shutit.log('\n\n' + shutit_util.colourise('31','Failed! CTRL-g to reset state, CTRL-h for a hint') + '\n',transient=True)
+					if shutit.build['testing_object']:
+						shutit.build['testing_object'].add_fail()
+						shutit.build['testing_object'].end_timer()
+					shutit.log('\n\n' + shutit_util.colourise('31','Failed! CTRL-g to reset state, CTRL-h for a hint, CTRL-[ to submit for checking') + '\n',transient=True)
 					self._challenge_done(result='failed')
 					continue
 		else:
 			shutit.fail('Challenge type: ' + challenge_type + ' not supported')
 		self._challenge_done(result='ok',follow_on_context=follow_on_context,congratulations=congratulations,skipped=skipped)
+		if shutit.build['testing_object']:
+			shutit.build['testing_object'].add_ok()
+			shutit.build['testing_object'].end_timer()
 		# Tidy up hints
 		shutit.build['pause_point_hints'] = []
 		return True
