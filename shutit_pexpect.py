@@ -511,6 +511,8 @@ class ShutItPexpectSession(object):
 			return True
 		if exit_values is None:
 			exit_values = ['0']
+		if type(exit_values) == int:
+			exit_values = [exit_values]
 		# Don't use send here (will mess up last_output)!
 		# Space before "echo" here is sic - we don't need this to show up in bash history
 		self.sendline(' echo EXIT_CODE:$?')
