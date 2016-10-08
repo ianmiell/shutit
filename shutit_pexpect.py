@@ -931,8 +931,8 @@ class ShutItPexpectSession(object):
 				send = command + ' ' + location + '/' + filename + ' > ' + filename
 				self.send(send,check_exit=False,expect=self.default_expect,timeout=timeout,fail_on_empty_before=fail_on_empty_before,record_command=record_command,echo=False, loglevel=loglevel)
 				if retry == 0:
-					self.check_last_exit_values(send, self.default_expect, timeout, exit_values, retbool=False)
-				elif not self.check_last_exit_values(send, self.default_expect, timeout, exit_values, retbool=True):
+					self.check_last_exit_values(send, expect=self.default_expect, exit_values=exit_values, retbool=False)
+				elif not self.check_last_exit_values(send, expectp=self.default_expect, exit_values=exit_values, retbool=True):
 					shutit.log('Sending: ' + send + ' failed, retrying', level=logging.DEBUG)
 					retry -= 1
 					continue
