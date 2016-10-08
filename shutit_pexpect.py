@@ -512,7 +512,7 @@ class ShutItPexpectSession(object):
 		if exit_values is None:
 			exit_values = ['0']
 		if type(exit_values) == int:
-			exit_values = [exit_values]
+			exit_values = [str(exit_values)]
 		# Don't use send here (will mess up last_output)!
 		# Space before "echo" here is sic - we don't need this to show up in bash history
 		self.sendline(' echo EXIT_CODE:$?')
@@ -2626,7 +2626,7 @@ $'"""
 					if shutit.build['testing_object']:
 						shutit.build['testing_object'].add_fail()
 						shutit.build['testing_object'].end_timer()
-					shutit.log('\n\n' + shutit_util.colourise('31','Failed! CTRL-g to reset state, CTRL-h for a hint, CTRL-[ to submit for checking') + '\n',transient=True)
+					shutit.log('\n\n' + shutit_util.colourise('31','Failed! CTRL-g to reset state, CTRL-h for a hint, CTRL-] to submit for checking') + '\n',transient=True)
 					self._challenge_done(result='failed')
 					continue
 		else:
