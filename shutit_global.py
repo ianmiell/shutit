@@ -663,7 +663,8 @@ class ShutIt(object):
 			user = shutit_pexpect_session.whoami()
 		if group == None:
 			group = self.whoarewe()
-		if self.build['delivery'] in ('bash','dockerfile'):
+		# TODO: take out False in next line and replace with a consideration of login_stack depth
+		if False and self.build['delivery'] in ('bash','dockerfile'):
 			retdir = shutit_pexpect_session.send_and_get_output('pwd',loglevel=loglevel)
 			shutit_pexpect_session.send(' pushd ' + shutit_pexpect_session.current_environment.module_root_dir, echo=False, loglevel=loglevel)
 			shutit_pexpect_session.send(' cp -r ' + hostfilepath + ' ' + retdir + '/' + path,expect=expect, timeout=timeout, echo=False, loglevel=loglevel)
