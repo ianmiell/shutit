@@ -2327,11 +2327,10 @@ $'"""
 				self.send(' rm -f ' + path, echo=False,loglevel=loglevel)
 			random_id = shutit_util.random_id()
 			# set the searchwindowsize to a low number to speed up processing of large output
-			contents = base64.base64encode(contents)
-			if len(contents) > 100000:
+			b64contents = base64.base64encode(contents)
+			if len(b64contents) > 100000:
 				shutit.log('File is larger than ~100K - this may take some time',level=logging.WARNING)
-			self.send(' ' + shutit_util.get_command('head') + ' -c -1 > ' + path + "." + random_id + " << 'END_" + random_id + """'\n""" + base64.b64encode(contents) + '''\nEND_''' + random_id, echo=False,loglevel=loglevel, timeout=99999)
-			self.send(' ' + shutit_util.get_command('head') + ' -c -1 > ' + path + "." + random_id + " << 'END_" + random_id + """'\n""" + base64.b64encode(contents) + '''\nEND_''' + random_id, echo=False,loglevel=loglevel, timeout=99999)
+			self.send(' ' + shutit_util.get_command('head') + ' -c -1 > ' + path + "." + random_id + " << 'END_" + random_id + """'\n""" + b64contents + '''\nEND_''' + random_id, echo=False,loglevel=loglevel, timeout=99999)
 			self.send(' cat ' + path + '.' + random_id + ' | base64 -d > ' + path, echo=False,loglevel=loglevel)
 		else:
 			host_child = shutit.get_shutit_pexpect_session_from_id('host_child').pexpect_child
