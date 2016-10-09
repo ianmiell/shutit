@@ -346,12 +346,18 @@ class ShutItPexpectSession(object):
 
 	def expect(self,
 			   expect,
+	           searchwindowsize=None
 			   timeout=None):
 		"""Handle child expects, with EOF and TIMEOUT handled
 		"""
 		if type(expect) == str:
 			expect = [expect]
+		if searchwindowsize != None:
+			old_searchwindowsize = self.pexpect_child.searchwindowsize
+			self.pexpect_child.searchwindowsize = searchwindowsize
 		res = self.pexpect_child.expect(expect + [pexpect.TIMEOUT] + [pexpect.EOF], timeout=timeout)
+		if searchwindowsize != None:
+			self.pexpect_child.searchwindowsize = old_searchwindowsize
 		return res
 
 
@@ -880,7 +886,7 @@ class ShutItPexpectSession(object):
 	def get_url(self,
 	            filename,
 	            locations,
-	            command='curl',
+	            command='curl -L',
 	            timeout=3600,
 	            fail_on_empty_before=True,
 	            record_command=True,
@@ -2003,6 +2009,7 @@ class ShutItPexpectSession(object):
 	         note=None,
 	         assume_gnu=True,
 	         follow_on_commands={},
+		     searchwindowsize=None,
 		     loglevel=logging.INFO):
 		"""Send string as a shell command, and wait until the expected output
 		is seen (either a string or any from a list of strings) before
@@ -2155,7 +2162,7 @@ $'"""
 							fname = self.create_command_file(expect,escaped_str)
 							res = self.send(' ' + fname,expect=expect,timeout=timeout,check_exit=check_exit,fail_on_empty_before=False,record_command=False,exit_values=exit_values,echo=False,escape=False,retry=retry,loglevel=loglevel,follow_on_commands=follow_on_commands)
 							self.sendline(' rm -f ' + fname)
-							self.expect(expect)
+							self.expect(expect, searchwindowsize=searchwindowsize)
 							return res
 						else:
 							self.sendline(escaped_str)
@@ -2168,7 +2175,7 @@ $'"""
 							fname = self.create_command_file(expect,send)
 							res = self.send(' ' + fname,expect=expect,timeout=timeout,check_exit=check_exit,fail_on_empty_before=False,record_command=False,exit_values=exit_values,echo=False,escape=False,retry=retry,loglevel=loglevel,follow_on_commands=follow_on_commands)
 							self.sendline(' rm -f ' + fname)
-							self.pexpect_child.expect(expect)
+							self.pexpect_child.expect(expect, searchwindowsize=searchwindowsize)
 							return res
 						else:
 							self.sendline(send)
@@ -2183,7 +2190,7 @@ $'"""
 							fname = self.create_command_file(expect,escaped_str)
 							res = self.send(' ' + fname,expect=expect,timeout=timeout,check_exit=check_exit,fail_on_empty_before=False,record_command=False,exit_values=exit_values,echo=False,escape=False,retry=retry,loglevel=loglevel,follow_on_commands=follow_on_commands)
 							self.sendline(' rm -f ' + fname)
-							self.pexpect_child.expect(expect)
+							self.pexpect_child.expect(expect, searchwindowsize=searchwindowsize)
 							return res
 						else:
 							self.sendline(escaped_str)
@@ -2196,7 +2203,7 @@ $'"""
 							fname = self.create_command_file(expect,send)
 							res = self.send(' ' + fname,expect=expect,timeout=timeout,check_exit=check_exit,fail_on_empty_before=False,record_command=False,exit_values=exit_values,echo=False,escape=False,retry=retry,loglevel=loglevel,follow_on_commands=follow_on_commands)
 							self.sendline(' rm -f ' + fname)
-							self.pexpect_child.expect(expect)
+							self.pexpect_child.expect(expect,searchwindowsize=searchwindowsize)
 							return res
 						else:
 							if echo:
@@ -2312,7 +2319,8 @@ $'"""
 			if truncate and self.file_exists(path):
 				self.send(' rm -f ' + path, echo=False,loglevel=loglevel)
 			random_id = shutit_util.random_id()
-			self.send(' ' + shutit_util.get_command('head') + ' -c -1 > ' + path + "." + random_id + " << 'END_" + random_id + """'\n""" + base64.b64encode(contents) + '''\nEND_''' + random_id, echo=False,loglevel=loglevel)
+			# set the searchwindowsize to a low number to speed up processing of large output
+			self.send(' ' + shutit_util.get_command('head') + ' -c -1 > ' + path + "." + random_id + " << 'END_" + random_id + """'\n""" + base64.b64encode(contents) + '''\nEND_''' + random_id, echo=False,loglevel=loglevel, searchwindowsize=80)
 			self.send(' cat ' + path + '.' + random_id + ' | base64 -d > ' + path, echo=False,loglevel=loglevel)
 		else:
 			host_child = shutit.get_shutit_pexpect_session_from_id('host_child').pexpect_child
