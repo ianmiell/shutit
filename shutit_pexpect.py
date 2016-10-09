@@ -346,7 +346,7 @@ class ShutItPexpectSession(object):
 
 	def expect(self,
 			   expect,
-	           searchwindowsize=None
+	           searchwindowsize=None,
 			   timeout=None):
 		"""Handle child expects, with EOF and TIMEOUT handled
 		"""
