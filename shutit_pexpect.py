@@ -347,6 +347,7 @@ class ShutItPexpectSession(object):
 	def expect(self,
 			   expect,
 	           searchwindowsize=None,
+	           maxread=None,
 			   timeout=None):
 		"""Handle child expects, with EOF and TIMEOUT handled
 		"""
@@ -355,9 +356,14 @@ class ShutItPexpectSession(object):
 		if searchwindowsize != None:
 			old_searchwindowsize = self.pexpect_child.searchwindowsize
 			self.pexpect_child.searchwindowsize = searchwindowsize
+		if maxread != None:
+			old_maxread = self.pexpect_child.maxread
+			self.pexpect_child.maxread = maxread
 		res = self.pexpect_child.expect(expect + [pexpect.TIMEOUT] + [pexpect.EOF], timeout=timeout)
 		if searchwindowsize != None:
 			self.pexpect_child.searchwindowsize = old_searchwindowsize
+		if maxread != None:
+			self.pexpect_child.maxread = old_maxread
 		return res
 
 
@@ -2010,6 +2016,7 @@ class ShutItPexpectSession(object):
 	         assume_gnu=True,
 	         follow_on_commands={},
 		     searchwindowsize=None,
+		     maxread=None,
 		     loglevel=logging.INFO):
 		"""Send string as a shell command, and wait until the expected output
 		is seen (either a string or any from a list of strings) before
@@ -2162,7 +2169,7 @@ $'"""
 							fname = self.create_command_file(expect,escaped_str)
 							res = self.send(' ' + fname,expect=expect,timeout=timeout,check_exit=check_exit,fail_on_empty_before=False,record_command=False,exit_values=exit_values,echo=False,escape=False,retry=retry,loglevel=loglevel,follow_on_commands=follow_on_commands)
 							self.sendline(' rm -f ' + fname)
-							self.expect(expect, searchwindowsize=searchwindowsize)
+							self.expect(expect, searchwindowsize=searchwindowsize, maxread=maxread)
 							return res
 						else:
 							self.sendline(escaped_str)
@@ -2175,7 +2182,7 @@ $'"""
 							fname = self.create_command_file(expect,send)
 							res = self.send(' ' + fname,expect=expect,timeout=timeout,check_exit=check_exit,fail_on_empty_before=False,record_command=False,exit_values=exit_values,echo=False,escape=False,retry=retry,loglevel=loglevel,follow_on_commands=follow_on_commands)
 							self.sendline(' rm -f ' + fname)
-							self.pexpect_child.expect(expect, searchwindowsize=searchwindowsize)
+							self.expect(expect, searchwindowsize=searchwindowsize, maxread=maxread)
 							return res
 						else:
 							self.sendline(send)
@@ -2190,7 +2197,7 @@ $'"""
 							fname = self.create_command_file(expect,escaped_str)
 							res = self.send(' ' + fname,expect=expect,timeout=timeout,check_exit=check_exit,fail_on_empty_before=False,record_command=False,exit_values=exit_values,echo=False,escape=False,retry=retry,loglevel=loglevel,follow_on_commands=follow_on_commands)
 							self.sendline(' rm -f ' + fname)
-							self.pexpect_child.expect(expect, searchwindowsize=searchwindowsize)
+							self.expect(expect, searchwindowsize=searchwindowsize, maxread=maxread)
 							return res
 						else:
 							self.sendline(escaped_str)
@@ -2203,7 +2210,7 @@ $'"""
 							fname = self.create_command_file(expect,send)
 							res = self.send(' ' + fname,expect=expect,timeout=timeout,check_exit=check_exit,fail_on_empty_before=False,record_command=False,exit_values=exit_values,echo=False,escape=False,retry=retry,loglevel=loglevel,follow_on_commands=follow_on_commands)
 							self.sendline(' rm -f ' + fname)
-							self.pexpect_child.expect(expect,searchwindowsize=searchwindowsize)
+							self.expect(expect,searchwindowsize=searchwindowsize, maxread=maxread)
 							return res
 						else:
 							if echo:
@@ -2320,7 +2327,11 @@ $'"""
 				self.send(' rm -f ' + path, echo=False,loglevel=loglevel)
 			random_id = shutit_util.random_id()
 			# set the searchwindowsize to a low number to speed up processing of large output
-			self.send(' ' + shutit_util.get_command('head') + ' -c -1 > ' + path + "." + random_id + " << 'END_" + random_id + """'\n""" + base64.b64encode(contents) + '''\nEND_''' + random_id, echo=False,loglevel=loglevel, searchwindowsize=80, timeout=99999)
+			contents = base64.base64encode(contents)
+			if len(contents) > 100000:
+				shutit.log('File is larger than ~100K - this may take some time',level=logging.WARNING)
+			self.send(' ' + shutit_util.get_command('head') + ' -c -1 > ' + path + "." + random_id + " << 'END_" + random_id + """'\n""" + base64.b64encode(contents) + '''\nEND_''' + random_id, echo=False,loglevel=loglevel, timeout=99999)
+			self.send(' ' + shutit_util.get_command('head') + ' -c -1 > ' + path + "." + random_id + " << 'END_" + random_id + """'\n""" + base64.b64encode(contents) + '''\nEND_''' + random_id, echo=False,loglevel=loglevel, timeout=99999)
 			self.send(' cat ' + path + '.' + random_id + ' | base64 -d > ' + path, echo=False,loglevel=loglevel)
 		else:
 			host_child = shutit.get_shutit_pexpect_session_from_id('host_child').pexpect_child
