@@ -724,7 +724,6 @@ shutitfile:        a shutitfile-based project
 			# Create a test session object if needed.
 			if shutit.build['testing']:
 				shutit.build['testing_object'] = shutit_testing.ShutItTestSession()
-				print shutit.build['testing_object']
 		elif shutit.action['list_configs']:
 			shutit.list_configs['cfghistory'] = args.history
 		elif shutit.action['list_modules']:
