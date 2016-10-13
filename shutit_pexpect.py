@@ -347,6 +347,7 @@ class ShutItPexpectSession(object):
 	def expect(self,
 			   expect,
 	           searchwindowsize=None,
+	           delaybeforesend=None,
 	           maxread=None,
 			   timeout=None):
 		"""Handle child expects, with EOF and TIMEOUT handled
@@ -359,11 +360,16 @@ class ShutItPexpectSession(object):
 		if maxread != None:
 			old_maxread = self.pexpect_child.maxread
 			self.pexpect_child.maxread = maxread
+		if delaybeforesend != None:
+			old_delaybeforesend = self.pexpect_child.delaybeforesend
+			self.pexpect_child.delaybeforesend = delaybeforesend
 		res = self.pexpect_child.expect(expect + [pexpect.TIMEOUT] + [pexpect.EOF], timeout=timeout)
 		if searchwindowsize != None:
 			self.pexpect_child.searchwindowsize = old_searchwindowsize
 		if maxread != None:
 			self.pexpect_child.maxread = old_maxread
+		if delaybeforesend != None:
+			self.pexpect_child.maxread = old_delaybeforesend
 		return res
 
 
