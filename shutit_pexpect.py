@@ -249,7 +249,7 @@ class ShutItPexpectSession(object):
 			shutit.fail('Logout called without corresponding login', throw_exception=False)
 		# No point in checking exit here, the exit code will be
 		# from the previous command from the logged in session
-		output = self.send_and_get_output(command, expect=expect, check_exit=False, fail_on_empty_before=False, timeout=timeout,echo=False, loglevel=loglevel)
+		output = self.send_and_get_output(command, check_exit=False, fail_on_empty_before=False, timeout=timeout,echo=False, loglevel=loglevel)
 		shutit._handle_note_after(note=note)
 		return output
 
