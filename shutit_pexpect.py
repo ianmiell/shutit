@@ -348,7 +348,6 @@ class ShutItPexpectSession(object):
 	def expect(self,
 			   expect,
 	           searchwindowsize=None,
-	           delaybeforesend=None,
 	           maxread=None,
 			   timeout=None):
 		"""Handle child expects, with EOF and TIMEOUT handled
@@ -361,16 +360,11 @@ class ShutItPexpectSession(object):
 		if maxread != None:
 			old_maxread = self.pexpect_child.maxread
 			self.pexpect_child.maxread = maxread
-		if delaybeforesend != None:
-			old_delaybeforesend = self.pexpect_child.delaybeforesend
-			self.pexpect_child.delaybeforesend = delaybeforesend
 		res = self.pexpect_child.expect(expect + [pexpect.TIMEOUT] + [pexpect.EOF], timeout=timeout)
 		if searchwindowsize != None:
 			self.pexpect_child.searchwindowsize = old_searchwindowsize
 		if maxread != None:
 			self.pexpect_child.maxread = old_maxread
-		if delaybeforesend != None:
-			self.pexpect_child.maxread = old_delaybeforesend
 		return res
 
 
@@ -2029,6 +2023,7 @@ class ShutItPexpectSession(object):
 	         follow_on_commands={},
 		     searchwindowsize=None,
 		     maxread=None,
+		     delaybeforesend=None,
 		     loglevel=logging.INFO):
 		"""Send string as a shell command, and wait until the expected output
 		is seen (either a string or any from a list of strings) before
@@ -2088,7 +2083,7 @@ class ShutItPexpectSession(object):
 		shutit = shutit_global.shutit
 		cfg = shutit.cfg
 		if type(expect) == dict:
-			return self.multisend(send=send,send_dict=expect,expect=shutit.get_default_shutit_pexpect_session_expect(),timeout=timeout,check_exit=check_exit,fail_on_empty_before=fail_on_empty_before,record_command=record_command,exit_values=exit_values,echo=echo,note=note,loglevel=loglevel)
+			return self.multisend(send=send,send_dict=expect,expect=shutit.get_default_shutit_pexpect_session_expect(),timeout=timeout,check_exit=check_exit,fail_on_empty_before=fail_on_empty_before,record_command=record_command,exit_values=exit_values,echo=echo,note=note,loglevel=loglevel,delaybeforesend=delaybeforesend)
 		expect = expect or self.default_expect
 		shutit.log('Sending in session: ' + self.pexpect_session_id,level=logging.DEBUG)
 		shutit._handle_note(note, command=str(send), training_input=str(send))
@@ -2179,7 +2174,7 @@ $'"""
 					if escaped_str != None:
 						if len(escaped_str) + 25 > shutit.build['stty_cols']:
 							fname = self.create_command_file(expect,escaped_str)
-							res = self.send(' ' + fname,expect=expect,timeout=timeout,check_exit=check_exit,fail_on_empty_before=False,record_command=False,exit_values=exit_values,echo=False,escape=False,retry=retry,loglevel=loglevel,follow_on_commands=follow_on_commands)
+							res = self.send(' ' + fname,expect=expect,timeout=timeout,check_exit=check_exit,fail_on_empty_before=False,record_command=False,exit_values=exit_values,echo=False,escape=False,retry=retry,loglevel=loglevel,follow_on_commands=follow_on_commands,delaybeforesend=delaybeforesend)
 							self.sendline(' rm -f ' + fname)
 							self.expect(expect, searchwindowsize=searchwindowsize, maxread=maxread)
 							return res
@@ -2192,7 +2187,7 @@ $'"""
 					if send != None:
 						if len(send) + 25 > shutit.build['stty_cols']:
 							fname = self.create_command_file(expect,send)
-							res = self.send(' ' + fname,expect=expect,timeout=timeout,check_exit=check_exit,fail_on_empty_before=False,record_command=False,exit_values=exit_values,echo=False,escape=False,retry=retry,loglevel=loglevel,follow_on_commands=follow_on_commands)
+							res = self.send(' ' + fname,expect=expect,timeout=timeout,check_exit=check_exit,fail_on_empty_before=False,record_command=False,exit_values=exit_values,echo=False,escape=False,retry=retry,loglevel=loglevel,follow_on_commands=follow_on_commands,delaybeforesend=delaybeforesend)
 							self.sendline(' rm -f ' + fname)
 							self.expect(expect, searchwindowsize=searchwindowsize, maxread=maxread)
 							return res
@@ -2207,7 +2202,7 @@ $'"""
 					if escaped_str != None:
 						if len(escaped_str) + 25 > shutit.build['stty_cols']:
 							fname = self.create_command_file(expect,escaped_str)
-							res = self.send(' ' + fname,expect=expect,timeout=timeout,check_exit=check_exit,fail_on_empty_before=False,record_command=False,exit_values=exit_values,echo=False,escape=False,retry=retry,loglevel=loglevel,follow_on_commands=follow_on_commands)
+							res = self.send(' ' + fname,expect=expect,timeout=timeout,check_exit=check_exit,fail_on_empty_before=False,record_command=False,exit_values=exit_values,echo=False,escape=False,retry=retry,loglevel=loglevel,follow_on_commands=follow_on_commands,delaybeforesend=delaybeforesend)
 							self.sendline(' rm -f ' + fname)
 							self.expect(expect, searchwindowsize=searchwindowsize, maxread=maxread)
 							return res
@@ -2220,7 +2215,7 @@ $'"""
 					if send != None:
 						if len(send) + 25 > shutit.build['stty_cols']:
 							fname = self.create_command_file(expect,send)
-							res = self.send(' ' + fname,expect=expect,timeout=timeout,check_exit=check_exit,fail_on_empty_before=False,record_command=False,exit_values=exit_values,echo=False,escape=False,retry=retry,loglevel=loglevel,follow_on_commands=follow_on_commands)
+							res = self.send(' ' + fname,expect=expect,timeout=timeout,check_exit=check_exit,fail_on_empty_before=False,record_command=False,exit_values=exit_values,echo=False,escape=False,retry=retry,loglevel=loglevel,follow_on_commands=follow_on_commands,delaybeforesend=delaybeforesend)
 							self.sendline(' rm -f ' + fname)
 							self.expect(expect,searchwindowsize=searchwindowsize, maxread=maxread)
 							return res
@@ -2278,7 +2273,7 @@ $'"""
 			send = follow_on_commands[match]
 			if shutit_util.match_string(shutit.build['last_output'],match):
 				# send (with no follow-on commands)
-				self.send(send,expect=expect,timeout=timeout,check_exit=check_exit,fail_on_empty_before=False,record_command=record_command,exit_values=exit_values,echo=echo,escape=escape,retry=retry,loglevel=loglevel)
+				self.send(send,expect=expect,timeout=timeout,check_exit=check_exit,fail_on_empty_before=False,record_command=record_command,exit_values=exit_values,echo=echo,escape=escape,retry=retry,loglevel=loglevel,delaybeforesend=delaybeforesend)
 		if shutit.build['step_through']:
 			self.pause_point('pause point: stepping through')
 		if shutit.build['ctrlc_stop']:
