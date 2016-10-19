@@ -249,8 +249,9 @@ class ShutItPexpectSession(object):
 			shutit.fail('Logout called without corresponding login', throw_exception=False)
 		# No point in checking exit here, the exit code will be
 		# from the previous command from the logged in session
-		self.send(command, expect=expect, check_exit=False, fail_on_empty_before=False, timeout=timeout,echo=False, loglevel=loglevel)
+		output = self.send_and_get_output(command, expect=expect, check_exit=False, fail_on_empty_before=False, timeout=timeout,echo=False, loglevel=loglevel)
 		shutit._handle_note_after(note=note)
+		return output
 
 
 	def login_stack_append(self, r_id):
@@ -1556,17 +1557,22 @@ class ShutItPexpectSession(object):
 					elif os_name.find('coreos') != -1:
 						distro       = 'coreos'
 						install_type = 'docker'
-				elif self.send_and_get_output("uname -a | awk '{print $1}'",echo=False, loglevel=loglevel) == 'Darwin':
-					distro = 'osx'
-					install_type = 'brew'
-					if not self.command_available('brew'):
-						shutit.fail('ShutiIt requires brew be installed. See http://brew.sh for details on installation.')
-					if not self.file_exists('/tmp/shutit_brew_list'):
-						self.send('brew list > .shutit_brew_list',echo=False)
-					for package in ('coreutils','findutils','gnu-tar','gnu-sed','gawk','gnutls','gnu-indent','gnu-getopt'):
-						if self.send_and_get_output('cat .shutit_brew_list | grep -w ' + package,echo=False, loglevel=loglevel) == '':
-							self.send('brew install ' + package,loglevel=loglevel)
-					self.send('rm -f .shutit_brew_list',echo=False)
+				else:
+					uname_output = self.send_and_get_output("uname -a | awk '{print $1}'",echo=False, loglevel=loglevel)
+					if uname_output == 'Darwin':
+						distro = 'osx'
+						install_type = 'brew'
+						if not self.command_available('brew'):
+							shutit.fail('ShutiIt requires brew be installed. See http://brew.sh for details on installation.')
+						if not self.file_exists('/tmp/shutit_brew_list'):
+							self.send('brew list > .shutit_brew_list',echo=False)
+						for package in ('coreutils','findutils','gnu-tar','gnu-sed','gawk','gnutls','gnu-indent','gnu-getopt'):
+							if self.send_and_get_output('cat .shutit_brew_list | grep -w ' + package,echo=False, loglevel=loglevel) == '':
+								self.send('brew install ' + package,loglevel=loglevel)
+						self.send('rm -f .shutit_brew_list',echo=False)
+					if uname_output == 'CYGWIN_NT-6.1':
+						distro       = 'cygwin'
+						install_type = 'apt-cyg'
 				if install_type == '' or distro == '':
 					shutit.fail('Could not determine Linux distro information. ' + 'Please inform ShutIt maintainers at https://github.com/ianmiell/shutit', shutit_pexpect_child=self.pexpect_child)
 			# The call to self.package_installed with lsb-release above
@@ -2736,6 +2742,17 @@ $'"""
 		elif self.send_and_get_output(' echo $TERM', record_command=False, echo=False, loglevel=loglevel) == 'screen':
 			return True
 		return False
+
+
+	def begin_asciiname_record(self, loglevel=logging.INFO):
+		# TODO: install asciinema
+		self.install('asciinema')
+		self.send('asciinema rec')
+		return True
+
+	def end_asciiname_record(self, loglevel=logging.INFO):
+		self.remove('asciinema')
+		return True
 
 class ShutItPexpectSessionEnvironment(object):
 

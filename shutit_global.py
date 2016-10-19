@@ -1833,6 +1833,18 @@ class ShutIt(object):
 		return True
 
 
+	def begin_asciinema_session(self):
+		self.install('asciinema')
+		whoami = self.whoami()
+		self.login(command='asciinema rec -y')
+		return True
+
+	def end_asciinema_session(self):
+		output = self.logout()
+		print(output)
+		return True
+
+
 	def get_emailer(self, cfg_section):
 		"""Sends an email using the mailer
 		"""
