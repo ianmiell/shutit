@@ -1836,16 +1836,23 @@ class ShutIt(object):
 		return True
 
 
-	def begin_asciinema_session(self):
-		self.install('asciinema')
+	def begin_asciinema_session(self,
+	                            shutit_pexpect_child=None):
+		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
 		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
+		self.install('asciinema')
 		whoami = shutit_pexpect_session.whoami()
 		self.login(command='asciinema rec -y')
 		return True
 
-	def end_asciinema_session(self):
+	def end_asciinema_session(self,
+	                          shutit_pexpect_child=None):
+		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
+		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
 		output = self.logout()
+		print('================================================================================')
 		print(output)
+		print('================================================================================')
 		return True
 
 
