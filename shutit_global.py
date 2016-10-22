@@ -84,6 +84,8 @@ class ShutIt(object):
 		self.build['build_id'] = (socket.gethostname() + '_' + self.host['real_user'] + '_' + str(time.time()) + '.' + str(datetime.datetime.now().microsecond))
 		self.build['shutit_state_dir']           = self.build['shutit_state_dir_base'] + '/' + self.build['build_id']
 		self.build['build_db_dir']               = self.build['shutit_state_dir'] + '/build_db'
+		self.build['asciinema_session']          = None
+		self.build['asciinema_session_file']     = None
 
 		# These used to be in shutit_global, so we pass them in as args so
 		# the original reference can be put in shutit_global
@@ -222,13 +224,6 @@ class ShutIt(object):
 		@param transient:         Just write to terminal, no new line. If not a
 		                          terminal, write nothing.
 		"""
-		# Might not exist yet
-		#try:
-		#	# No logging in testing mode!
-		#	if self.build['testing']:
-		#		return True
-		#except:
-		#	pass
 		if transient:
 			if sys.stdout.isatty():
 				if newline:
@@ -1837,22 +1832,39 @@ class ShutIt(object):
 
 
 	def begin_asciinema_session(self,
+	                            max_pause=None,
+	                            filename=None,
 	                            shutit_pexpect_child=None):
+		assert self.build['asciinema_session'] == None
+		self.build['asciinema_session'] = True
+		self.build['asciinema_session_file'] = False
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
 		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
-		self.install('asciinema')
 		whoami = shutit_pexpect_session.whoami()
-		self.login(command='asciinema rec -y')
+		self.install('asciinema')
+		version = self.send_and_get_output("""shutit --version | awk '{print $2}'""")
+		if max_pause:
+			max_pause_str = ' -w ' + str(max_pause)
+		else:
+			max_pause_str = ' -w 5.0'
+		if version < '1.3':
+			self.login(command='asciinema rec -y')
+		elif filename != None:
+			self.login(command='asciinema rec -y ' + max_pause_str + ' ' + filename)
+		else:
+			self.login(command='asciinema rec -y ' + max_pause_str)
 		return True
+
 
 	def end_asciinema_session(self,
 	                          shutit_pexpect_child=None):
+		assert self.build['asciinema_session'] == True
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
 		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
 		output = self.logout()
-		print('================================================================================')
-		print(output)
-		print('================================================================================')
+		self.log(output,add_final_message=True)
+		self.build['asciinema_session'] = False
+		self.build['asciinema_session_file'] = None
 		return True
 
 
