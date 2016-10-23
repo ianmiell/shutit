@@ -97,10 +97,11 @@ import string
 		vagrant_provider = shutit.cfg[self.module_id]['vagrant_provider']
 		gui = shutit.cfg[self.module_id]['gui']
 		memory = shutit.cfg[self.module_id]['memory']
+		home_dir = os.path.expanduser('~')
 		module_name = '""" + skel_module_name + """_' + ''.join(random.choice(string.ascii_letters + string.digits) for _ in range(6))
-		shutit.send('rm -rf ~/' + module_name + ' && mkdir -p ~/' + module_name + ' && cd ~/' + module_name)
+		shutit.send('rm -rf ' + home_dir + '/' + module_name + ' && mkdir -p ' + home_dir + '/' + module_name + ' && cd ' + home_dir + '/' + module_name)
 		shutit.send('vagrant init ' + vagrant_image)
-		shutit.send_file('~/' + module_name + '/Vagrantfile','''
+		shutit.send_file(home_dir + '/' + module_name + '/Vagrantfile','''
 Vagrant.configure(2) do |config|
   config.vm.box = "''' + vagrant_image + '''"
   # config.vm.box_check_update = false
@@ -245,10 +246,11 @@ import string
 		vagrant_provider = shutit.cfg[self.module_id]['vagrant_provider']
 		gui = shutit.cfg[self.module_id]['gui']
 		memory = shutit.cfg[self.module_id]['memory']
+		home_dir = os.path.expanduser('~')
 		module_name = '""" + skel_module_name + """_' + ''.join(random.choice(string.ascii_letters + string.digits) for _ in range(6))
-		shutit.send('rm -rf ~/' + module_name + ' && mkdir -p ~/' + module_name + ' && cd ~/' + module_name)
+		shutit.send('rm -rf ' + home_dir + '/' + module_name + ' && mkdir -p ' + home_dir + '/' + module_name + ' && cd ' + home_dir + '/' + module_name)
 		shutit.send('vagrant init ' + vagrant_image)
-		shutit.send_file('~/' + module_name + '/Vagrantfile','''
+		shutit.send_file(home_dir + '/' + module_name + '/Vagrantfile','''
 Vagrant.configure(2) do |config|
   config.vm.box = "''' + vagrant_image + '''"
   # config.vm.box_check_update = false
