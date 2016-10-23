@@ -64,39 +64,48 @@ def create_skeleton():
 	if shutit.cfg['skeleton']['pattern'] == 'bash':
 		from shutit_patterns import bash
 		bash.setup_bash_pattern(skel_path=skel_path,
-		                         skel_delivery=skel_delivery,
-		                         skel_domain=skel_domain,
-		                         skel_module_name=skel_module_name,
-		                         skel_shutitfiles=skel_shutitfiles,
-		                         skel_domain_hash=skel_domain_hash,
-		                         skel_depends=skel_depends)
+		                        skel_delivery=skel_delivery,
+		                        skel_domain=skel_domain,
+		                        skel_module_name=skel_module_name,
+		                        skel_shutitfiles=skel_shutitfiles,
+		                        skel_domain_hash=skel_domain_hash,
+		                        skel_depends=skel_depends)
 	elif shutit.cfg['skeleton']['pattern'] == 'docker':
 		from shutit_patterns import docker
 		docker.setup_docker_pattern(skel_path=skel_path,
-		                             skel_delivery=skel_delivery,
-		                             skel_domain=skel_domain,
-		                             skel_module_name=skel_module_name,
-		                             skel_shutitfiles=skel_shutitfiles,
-		                             skel_domain_hash=skel_domain_hash,
-		                             skel_depends=skel_depends)
+		                            skel_delivery=skel_delivery,
+		                            skel_domain=skel_domain,
+		                            skel_module_name=skel_module_name,
+		                            skel_shutitfiles=skel_shutitfiles,
+		                            skel_domain_hash=skel_domain_hash,
+		                            skel_depends=skel_depends)
 	elif shutit.cfg['skeleton']['pattern'] == 'vagrant':
 		from shutit_patterns import vagrant
 		vagrant.setup_vagrant_pattern(skel_path=skel_path,
-		                               skel_delivery=skel_delivery,
-		                               skel_domain=skel_domain,
-		                               skel_module_name=skel_module_name,
-		                               skel_shutitfiles=skel_shutitfiles,
-		                               skel_domain_hash=skel_domain_hash,
-		                               skel_depends=skel_depends)
+		                              skel_delivery=skel_delivery,
+		                              skel_domain=skel_domain,
+		                              skel_module_name=skel_module_name,
+		                              skel_shutitfiles=skel_shutitfiles,
+		                              skel_domain_hash=skel_domain_hash,
+		                              skel_depends=skel_depends)
+	elif shutit.cfg['skeleton']['pattern'] == 'vagrant_multinode':
+		from shutit_patterns import vagrant_multinode
+		vagrant_multinode.setup_vagrant_multinode_pattern(skel_path=skel_path,
+		                                                  skel_delivery=skel_delivery,
+		                                                  skel_domain=skel_domain,
+		                                                  skel_module_name=skel_module_name,
+		                                                  skel_shutitfiles=skel_shutitfiles,
+		                                                  skel_domain_hash=skel_domain_hash,
+		                                                  skel_depends=skel_depends)
 	elif shutit.cfg['skeleton']['pattern'] == 'shutitfile':
 		from shutit_patterns import shutitfile
 		shutitfile.setup_shutitfile_pattern(skel_path=skel_path,
-		                                     skel_delivery=skel_delivery,
-		                                     skel_domain=skel_domain,
-		                                     skel_module_name=skel_module_name,
-		                                     skel_shutitfiles=skel_shutitfiles,
-		                                     skel_domain_hash=skel_domain_hash,
-		                                     skel_depends=skel_depends)
+		                                    skel_delivery=skel_delivery,
+		                                    skel_domain=skel_domain,
+		                                    skel_module_name=skel_module_name,
+		                                    skel_shutitfiles=skel_shutitfiles,
+		                                    skel_domain_hash=skel_domain_hash,
+		                                    skel_depends=skel_depends)
 
 
 def process_shutitfile(shutitfile_contents):
