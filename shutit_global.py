@@ -490,11 +490,15 @@ class ShutIt(object):
 				self.pause_point(message, colour=31, wait=wait)
 			else:
 				if training_input != '' and self.build['training']:
-					print(shutit_util.colourise('31',message))
-					while shutit_util.util_raw_input(prompt=shutit_util.colourise('32','Type in the command to continue: ')) != training_input:
-						print('Wrong! Try again!')
+					if len(training_input.split('\n')) == 1:
+						print(shutit_util.colourise('31',message))
+						while shutit_util.util_raw_input(prompt=shutit_util.colourise('32','Type in the command to continue: ')) != training_input:
+							print('Wrong! Try again!')
+						print(shutit_util.colourise('31','OK!'))
+					else:
+						self.pause_point(message + '\nToo long to use for training, so skipping!\nHit CTRL-] to continue', colour=31)
 				else:
-					self.pause_point(message, colour=31)
+					self.pause_point(message + '\nHit CTRL-] to continue', colour=31)
 		return True
 
 
@@ -504,7 +508,7 @@ class ShutIt(object):
 			if wait >= 0:
 				time.sleep(wait)
 			if training_input != '' and self.build['training']:
-				self.pause_point('Training mode - pause_point')
+				self.pause_point('Training mode - pause_point. Hit CTRL-] to continue.')
 		return True
 
 
