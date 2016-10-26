@@ -1455,6 +1455,7 @@ class ShutIt(object):
 	          expect=None,
 	          timeout=180,
 	          escape=False,
+	          echo=None,
 	          note=None,
 	          go_home=True,
 	          loglevel=logging.DEBUG):
@@ -1468,6 +1469,7 @@ class ShutIt(object):
 		                                    expect=expect,
 		                                    timeout=timeout,
 		                                    escape=escape,
+		                                    echo=echo,
 		                                    note=note,
 		                                    go_home=go_home,
 		                                    loglevel=loglevel)
@@ -1477,6 +1479,7 @@ class ShutIt(object):
 	           expect=None,
 	           command='exit',
 	           note=None,
+	           echo=None,
 	           timeout=5,
 	           loglevel=logging.DEBUG):
 		"""Logs the user out. Assumes that login has been called.
@@ -1487,7 +1490,7 @@ class ShutIt(object):
 			@param note:            See send()
 		"""
 		shutit_pexpect_session = self.get_current_shutit_pexpect_session()
-		return shutit_pexpect_session.logout(expect=expect,command=command,note=note,timeout=timeout,loglevel=loglevel)
+		return shutit_pexpect_session.logout(expect=expect,command=command,note=note,timeout=timeout,loglevel=loglevel,echo=echo)
 	exit_shell = logout
 
 
