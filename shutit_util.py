@@ -1187,17 +1187,20 @@ def util_raw_input(prompt='', default=None, ispass=False, use_readline=True):
 		return default
 	if not determine_interactive():
 		return default
-	try:
-		if ispass:
-			return getpass.getpass(prompt=prompt)
-		else:
-			resp = input(prompt).strip()
-			if resp == '':
-				return default
+	while True:
+		try:
+			if ispass:
+				return getpass.getpass(prompt=prompt)
 			else:
-				return resp
-	except:
-		msg = 'Problems getting raw input, assuming no controlling terminal.'
+				resp = input(prompt).strip()
+				if resp == '':
+					return default
+				else:
+					return resp
+		except KeyboardInterrupt:
+			continue
+		except:
+			msg = 'Problems getting raw input, assuming no controlling terminal.'
 	set_noninteractive(msg=msg)
 	return default
 

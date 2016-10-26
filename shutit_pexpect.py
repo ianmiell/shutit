@@ -634,14 +634,11 @@ class ShutItPexpectSession(object):
 				shutit.log(shutit_util.colourise(colour, msg) + '\r\n' + default_msg + '\r\n',transient=True)
 			oldlog = self.pexpect_child.logfile_send
 			self.pexpect_child.logfile_send = None
-			if wait < 0:
-				try:
-					self.pexpect_child.interact(input_filter=self._pause_input_filter)
-					self.handle_pause_point_signals()
-				except Exception as e:
-					shutit.fail('Terminating ShutIt.\n' + str(e))
-			else:
-				time.sleep(wait)
+			try:
+				self.pexpect_child.interact(input_filter=self._pause_input_filter)
+				self.handle_pause_point_signals()
+			except Exception as e:
+				shutit.fail('Terminating ShutIt.\n' + str(e))
 			self.pexpect_child.logfile_send = oldlog
 		else:
 			pass
