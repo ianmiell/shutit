@@ -589,7 +589,7 @@ class ShutItPexpectSession(object):
 		                     Default: False
 		@param colour:       Colour to print message (typically 31 for red, 32 for green)
 		@param default_msg:  Whether to print the standard blurb
-		@param wait:         Wait a few seconds rather than for input
+		@param wait:         Wait a few seconds rather than for input (for video mode)
 
 		@type msg:           string
 		@type print_input:   boolean
@@ -600,7 +600,8 @@ class ShutItPexpectSession(object):
 		"""
 		shutit = shutit_global.shutit
 		if print_input:
-			if resize:
+			# Do not resize if we are in video mode (ie wait > 0)
+			if resize and wait < 0:
 				# It is possible we do not have distro set yet, so wrap in try/catch
 				try:
 					if self.current_environment.distro != 'osx':
@@ -634,11 +635,14 @@ class ShutItPexpectSession(object):
 				shutit.log(shutit_util.colourise(colour, msg) + '\r\n' + default_msg + '\r\n',transient=True)
 			oldlog = self.pexpect_child.logfile_send
 			self.pexpect_child.logfile_send = None
-			try:
-				self.pexpect_child.interact(input_filter=self._pause_input_filter)
-				self.handle_pause_point_signals()
-			except Exception as e:
-				shutit.fail('Terminating ShutIt.\n' + str(e))
+			if wait > 0:
+				time.sleep(wait)
+			else:
+				try:
+					self.pexpect_child.interact(input_filter=self._pause_input_filter)
+					self.handle_pause_point_signals()
+				except Exception as e:
+					shutit.fail('Terminating ShutIt.\n' + str(e))
 			self.pexpect_child.logfile_send = oldlog
 		else:
 			pass
