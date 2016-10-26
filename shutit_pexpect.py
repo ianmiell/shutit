@@ -135,6 +135,7 @@ class ShutItPexpectSession(object):
 			  expect=None,
 			  timeout=180,
 			  escape=False,
+	          echo=None,
 			  note=None,
 			  go_home=True,
 			  delaybeforesend=0.05,
@@ -196,7 +197,7 @@ class ShutItPexpectSession(object):
 		shutit._handle_note(note,command=command + '\n\n[as user: "' + user + '"]',training_input=send)
 		# r'[^t] login:' - be sure not to match 'last login:'
 		#if send == 'bash':
-		echo=False
+		echo = self.get_echo_override(shutit, echo)
 		self.multisend(send,{'ontinue connecting':'yes','assword':password,r'[^t] login:':password},expect=general_expect,check_exit=False,timeout=timeout,fail_on_empty_before=False,escape=escape,echo=echo,loglevel=loglevel)
 		if prompt_prefix != None:
 			self.setup_prompt(r_id,prefix=prompt_prefix)
@@ -220,6 +221,7 @@ class ShutItPexpectSession(object):
 			   expect=None,
 			   command='exit',
 			   note=None,
+		       echo=None,
 			   timeout=5,
 			   loglevel=logging.DEBUG):
 		"""Logs the user out. Assumes that login has been called.
@@ -249,7 +251,8 @@ class ShutItPexpectSession(object):
 			shutit.fail('Logout called without corresponding login', throw_exception=False)
 		# No point in checking exit here, the exit code will be
 		# from the previous command from the logged in session
-		output = self.send_and_get_output(command, fail_on_empty_before=False, timeout=timeout,echo=False, loglevel=loglevel)
+		echo = self.get_echo_override(shutit, echo)	
+		output = self.send_and_get_output(command, fail_on_empty_before=False, timeout=timeout,echo=echo, loglevel=loglevel)
 		shutit._handle_note_after(note=note)
 		return output
 
@@ -395,7 +398,7 @@ class ShutItPexpectSession(object):
 		# New session - log in. This makes the assumption that we are nested
 		# the same level in in terms of shells (root shell + 1 new login shell).
 		target_child = shutit.get_shutit_pexpect_session_from_id('target_child')
-		target_child.login(command='bash --noprofile --norc')
+		target_child.login(command='bash --noprofile --norc',echo=False)
 		return True
 
 
@@ -2090,17 +2093,8 @@ class ShutItPexpectSession(object):
 		shutit._handle_note(note, command=str(send), training_input=str(send))
 		if timeout == None:
 			timeout = 3600
-	
-		# Should we echo the output?	
-		if shutit.build['loglevel'] <= logging.DEBUG:
-			# Yes if it's in debug
-			echo = True
-		if echo == None and shutit.build['walkthrough']:
-			# Yes if it's in walkthrough and was not explicitly passed in
-			echo = True
-		if echo == None:
-			# No if it was not explicitly passed in
-			echo = False
+
+		echo = self.get_echo_override(shutit, echo)	
 
 		# Handle OSX to get the GNU version of the command
 		if assume_gnu:
@@ -2749,6 +2743,25 @@ $'"""
 	def end_asciiname_record(self, loglevel=logging.INFO):
 		self.remove('asciinema')
 		return True
+
+
+	# given a shutit object and an echo value, return the appropriate echo
+	# value for the given context.
+	# TODO: move to shutit object
+	def get_echo_override(self, shutit, echo):
+		# Should we echo the output?	
+		if shutit.build['loglevel'] <= logging.DEBUG:
+			# Yes if it's in debug
+			echo = True
+		if echo == None and shutit.build['walkthrough']:
+			# Yes if it's in walkthrough and was not explicitly passed in
+			echo = True
+		if echo == None:
+			# No if it was not explicitly passed in
+			echo = False
+		return echo
+
+
 
 class ShutItPexpectSessionEnvironment(object):
 
