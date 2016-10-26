@@ -492,11 +492,11 @@ class ShutIt(object):
 				if training_input != '' and self.build['training']:
 					if len(training_input.split('\n')) == 1:
 						print(shutit_util.colourise('31',message))
-						while shutit_util.util_raw_input(prompt=shutit_util.colourise('32','Type in the command to continue: ')) != training_input:
+						while shutit_util.util_raw_input(prompt=shutit_util.colourise('32','Enter the command to continue (or "s" to skip typing it in): ')) not in (training_input,'s'):
 							print('Wrong! Try again!')
 						print(shutit_util.colourise('31','OK!'))
 					else:
-						self.pause_point(message + '\nToo long to use for training, so skipping!\nHit CTRL-] to continue', colour=31)
+						self.pause_point(message + '\nToo long to use for training, so skipping the option to type in!\nHit CTRL-] to continue', colour=31)
 				else:
 					self.pause_point(message + '\nHit CTRL-] to continue', colour=31)
 		return True
@@ -508,7 +508,7 @@ class ShutIt(object):
 			if wait >= 0:
 				time.sleep(wait)
 			if training_input != '' and self.build['training']:
-				self.pause_point('Training mode - pause_point. Hit CTRL-] to continue.')
+				self.pause_point('Training mode - pause point.\nDo what you like, but try not to disturb state too much,\neg by moving directories exiting the/entering a new shell.\nHit CTRL-] to continue.')
 		return True
 
 

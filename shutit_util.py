@@ -1196,7 +1196,7 @@ def util_raw_input(prompt='', default=None, ispass=False, use_readline=True):
 				return default
 			else:
 				return resp
-	except Exception:
+	except:
 		msg = 'Problems getting raw input, assuming no controlling terminal.'
 	set_noninteractive(msg=msg)
 	return default

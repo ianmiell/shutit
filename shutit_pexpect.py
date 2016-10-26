@@ -289,7 +289,7 @@ class ShutItPexpectSession(object):
 		@type prefix:               string
 		"""
 		shutit = shutit_global.shutit
-		local_prompt = prefix + '#' + shutit_util.random_id() + '> '
+		local_prompt = prefix + '#' + shutit_util.random_id() + '# '
 		shutit.expect_prompts[prompt_name] = local_prompt
 		# Set up the PS1 value.
 		# Unset the PROMPT_COMMAND as this can cause nasty surprises in the output.
@@ -1704,7 +1704,7 @@ class ShutItPexpectSession(object):
 		@param note:                 See send()
 		"""
 		shutit = shutit_global.shutit
-		shutit._handle_note(note, command=send + ' until one of these seen: ' + str(regexps))
+		shutit._handle_note(note, command=send + ' \nuntil one of these seen:\n' + str(regexps))
 		shutit.log('Sending: "' + send + '" until one of these regexps seen: ' + str(regexps),level=loglevel)
 		if type(regexps) == str:
 			regexps = [regexps]
@@ -2730,7 +2730,7 @@ $'"""
 		return new_environment
 
  
-	def in_screen(self, loglevel=logging.INFO):
+	def in_screen(self, loglevel=logging.DEBUG):
 		shutit = shutit_global.shutit
 		if self.send_and_get_output(' echo $TMUX', record_command=False, echo=False, loglevel=loglevel) != '':
 			return True
