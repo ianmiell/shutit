@@ -372,7 +372,7 @@ class ShutItPexpectSession(object):
 
 
 	def replace_container(self, new_target_image_name):
-		"""Replaces a container. Assumes we are in Docker context
+		"""Replaces a container. Assumes we are in Docker context.
 		"""
 		shutit = shutit_global.shutit
 		shutit.log('Replacing container, please wait...',level=logging.INFO)
@@ -417,75 +417,6 @@ class ShutItPexpectSession(object):
 		res = self.send_and_get_output(' whoami',echo=False, loglevel=loglevel).strip()
 		shutit._handle_note_after(note=note)
 		return res
-
-
-#	def setup_environment(self,
-#	                      prefix,
-#	                      loglevel=logging.DEBUG):
-#		"""If we are in a new environment then set up a new data structure.
-#		A new environment is a new machine environment, whether that's
-#		over ssh, docker, whatever.
-#		If we are not in a new environment ensure the env_id is correct.
-#		Returns the environment id every time.
-#		"""
-#		# Set this to be the default session.
-#		shutit = shutit_global.shutit
-#		shutit.set_default_shutit_pexpect_session(self)
-#		cfg = shutit.cfg
-#		environment_id_dir = shutit.build['shutit_state_dir'] + '/environment_id'
-#		if self.file_exists(environment_id_dir,directory=True):
-#			files = self.ls(environment_id_dir)
-#			if len(files) != 1 or type(files) != list:
-#				if len(files) == 2 and (files[0] == 'ORIGIN_ENV' or files[1] == 'ORIGIN_ENV'):
-#					for f in files:
-#						if f != 'ORIGIN_ENV':
-#							environment_id = f
-#							shutit.build['current_environment_id'] = environment_id
-#							# Workaround for CygWin terminal issues. If the envid isn't in the cfg item
-#							# Then crudely assume it is. This will drop through and then assume we are in the origin env.
-#							try:
-#								_=shutit.environment[shutit.build['current_environment_id']]
-#							except Exception:
-#								shutit.build['current_environment_id'] = 'ORIGIN_ENV'
-#							break
-#				else:
-#					# See comment above re: cygwin.
-#					if self.file_exists('/cygdrive'):
-#						shutit.build['current_environment_id'] = 'ORIGIN_ENV'
-#					else:
-#						shutit.fail('Wrong number of files in environment_id_dir: ' + environment_id_dir)
-#			else:
-#				if self.file_exists('/cygdrive'):
-#					environment_id = 'ORIGIN_ENV'
-#				else:
-#					environment_id = files[0]
-#			if shutit.build['current_environment_id'] != environment_id:
-#				# Clean out any trace of this new environment, and return the already-existing one.
-#				self.send(' rm -rf ' + environment_id_dir + '/environment_id/' + environment_id, echo=False, loglevel=loglevel)
-#				return shutit.build['current_environment_id']
-#			if not environment_id == 'ORIGIN_ENV':
-#				return environment_id
-#		# Origin environment is a special case.
-#		if prefix == 'ORIGIN_ENV':
-#			environment_id = prefix
-#		else:
-#			environment_id = shutit_util.random_id()
-#		shutit.build['current_environment_id']                             = environment_id
-#		shutit.environment[environment_id] = {}
-#		# Directory to revert to when delivering in bash and reversion to directory required.
-#		shutit.environment[environment_id]['module_root_dir']              = '/'
-#		shutit.environment[environment_id]['modules_installed']            = [] # has been installed (in this build)
-#		shutit.environment[environment_id]['modules_not_installed']        = [] # modules _known_ not to be installed
-#		shutit.environment[environment_id]['modules_ready']                = [] # has been checked for readiness and is ready (in this build)
-#		# Installed file info
-#		shutit.environment[environment_id]['modules_recorded']             = []
-#		shutit.environment[environment_id]['modules_recorded_cache_valid'] = False
-#		# Exempt the ORIGIN_ENV from getting distro info
-#		if prefix != 'ORIGIN_ENV':
-#			self.get_distro_info(environment_id)
-#		fname = environment_id_dir + '/' + environment_id
-#		#self.send(' mkdir -p ' + environment_id_dir + ' && chmod -R 777 ' + shutit.build['shutit_state_dir_base'] + ' && touch ' + fname, echo=False, loglevel=loglevel)
-#		return environment_id
 
 
 	def create_command_file(self, expect, send):
@@ -2489,7 +2420,6 @@ $'"""
 		                             golf    = user gets a pause point, and when leaving, command follow_on_context['check_command'] is run to check the output
 		"""
 		shutit = shutit_global.shutit
-		#print shutit.build['testing_object']
 		if new_stage and shutit.build['testing_object']:
 			shutit.build['testing_object'].new_stage(difficulty)
 		# don't catch CTRL-C, pass it through.
@@ -2734,16 +2664,15 @@ $'"""
 		return False
 
 
-	def begin_asciiname_record(self, loglevel=logging.INFO):
+	def begin_asciinema_record(self, loglevel=logging.INFO):
 		# TODO: install asciinema
 		self.install('asciinema')
 		self.send('asciinema rec')
 		return True
 
-	def end_asciiname_record(self, loglevel=logging.INFO):
+	def end_asciinema_record(self, loglevel=logging.INFO):
 		self.remove('asciinema')
 		return True
-
 
 	# given a shutit object and an echo value, return the appropriate echo
 	# value for the given context.
@@ -2762,9 +2691,7 @@ $'"""
 		return echo
 
 
-
 class ShutItPexpectSessionEnvironment(object):
-
 
 	def __init__(self,
 	             prefix):

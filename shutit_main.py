@@ -498,6 +498,7 @@ def setup_shutit_path():
 		shutit_util.handle_exit()
 
 
+
 def main():
 	"""Main ShutIt function.
 
@@ -550,6 +551,37 @@ def main():
 		errs = []
 		errs.extend(check_deps())
 
+	do_lists(shutit)
+
+	# Check for conflicts now.
+	errs.extend(check_conflicts(shutit))
+	# Cache the results of check_ready at the start.
+	errs.extend(check_ready(throw_error=False))
+	if errs:
+		shutit.log(shutit_util.print_modules(), level=logging.ERROR)
+		child = None
+		for err in errs:
+			shutit.log(err[0], level=logging.ERROR)
+			if not child and len(err) > 1:
+				child = err[1]
+		shutit.fail("Encountered some errors, quitting", shutit_pexpect_child=child)
+
+	do_remove()
+	do_build()
+	do_test()
+	do_finalize()
+	finalize_target()
+	shutit.log(shutit_util.build_report('#Module: N/A (END)'), level=logging.DEBUG)
+	do_final_messages(shutit)
+	do_testing_output(shutit)
+
+	# Mark the build as completed
+	shutit.build['completed'] = True
+	shutit.log('ShutIt run finished',level=logging.INFO)
+	shutit_util.handle_exit(exit_code=0)
+
+
+def do_lists(shutit):
 	if shutit.action['list_deps']:
 		# Show dependency graph
 		digraph = 'digraph depgraph {\n'
@@ -592,35 +624,16 @@ def main():
 	if shutit.action['list_configs']:
 		return
 
-	# Check for conflicts now.
-	errs.extend(check_conflicts(shutit))
-	# Cache the results of check_ready at the start.
-	errs.extend(check_ready(throw_error=False))
-	if errs:
-		shutit.log(shutit_util.print_modules(), level=logging.ERROR)
-		child = None
-		for err in errs:
-			shutit.log(err[0], level=logging.ERROR)
-			if not child and len(err) > 1:
-				child = err[1]
-		shutit.fail("Encountered some errors, quitting", shutit_pexpect_child=child)
 
-	do_remove()
-	do_build()
-	do_test()
-	do_finalize()
-	finalize_target()
-
-	shutit.log(shutit_util.build_report('#Module: N/A (END)'), level=logging.DEBUG)
-
+def do_final_messages(shutit):
 	# Show final report messages (ie messages to show after standard report).
 	if shutit.build['report_final_messages'] != '':
 		shutit.log(shutit.build['report_final_messages'], level=logging.INFO)
 
-	# Mark the build as completed
-	shutit.build['completed'] = True
-	shutit.log('ShutIt run finished',level=logging.INFO)
-	shutit_util.handle_exit(exit_code=0)
+
+def do_testing_output(shutit):
+	if shutit.build['testing_object']:
+		shutit.log(str(shutit.build['testing_object'],level=logging.INFO)
 
 
 def do_phone_home(msg=None,question='Error seen - would you like to inform the maintainers?'):
