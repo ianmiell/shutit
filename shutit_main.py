@@ -740,6 +740,7 @@ def do_interactive_modules():
 			break
 	return errs
 
+
 def setup_signals():
 	signal.signal(signal.SIGINT, shutit_util.ctrl_c_signal_handler)
 	signal.signal(signal.SIGQUIT, shutit_util.ctrl_quit_signal_handler)

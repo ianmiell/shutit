@@ -1,6 +1,7 @@
 import sys
 import time
 import shutit_global
+import signal
 
 PY3 = (sys.version_info[0] >= 3)
 
@@ -67,6 +68,11 @@ class ShutItTestSession(object):
 	def __init__(self):
 		self.stages           = []
 		self.final_score      = 0.0
+		# Switch off CTRL-C etc
+		signal.signal(signal.SIGINT, signal.SIG_IGN)
+		signal.signal(signal.SIGQUIT, signal.SIG_IGN)
+		signal.signal(signal.SIGPIPE, signal.SIG_IGN)
+		signal.signal(signal.SIGTSTP, signal.SIG_IGN)
 
 	def __str__(self):
 		string = ''
