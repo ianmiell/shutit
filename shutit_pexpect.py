@@ -375,7 +375,7 @@ class ShutItPexpectSession(object):
 		"""Replaces a container. Assumes we are in Docker context.
 		"""
 		shutit = shutit_global.shutit
-		shutit.log('Replacing container, please wait...',level=logging.INFO)
+		shutit.log('Replacing container with ' + new_target_image_name + ', please wait...',level=logging.INFO)
 		shutit.log(shutit.print_session_state(),level=logging.DEBUG)
 
 		# Destroy existing container.
@@ -2342,17 +2342,17 @@ $'"""
 	                    pause=1,
 	                    skipped=False):
 		shutit = shutit_global.shutit
-		if result == 'ok':
-			if congratulations:
+		if result == 'ok' or result == 'failed_test':
+			shutit.build['ctrlc_passthrough'] = False
+			if congratulations and result == 'ok':
 				shutit.log('\n\n' + shutit_util.colourise('32',congratulations) + '\n',transient=True)
 			time.sleep(pause)
-			shutit.build['ctrlc_passthrough'] = False
 			if follow_on_context != {}:
 				if follow_on_context.get('context') == 'docker':
 					container_name = follow_on_context.get('ok_container_name')
 					if not container_name:
 						shutit.log('No reset context available, carrying on.',level=logging.INFO)
-					elif skipped:
+					elif skipped or result == 'failed_test':
 						# We need to ensure the correct state.
 						self.replace_container(container_name)
 						shutit.log('State restored.',level=logging.INFO)
@@ -2361,13 +2361,12 @@ $'"""
 				else:
 					shutit.fail('Follow-on context not handled on pass')
 			return True
-		elif result in ('failed'):
-			shutit.build['ctrlc_passthrough'] = False
-			time.sleep(1)
-			return
 		elif result == 'exited':
 			shutit.build['ctrlc_passthrough'] = False
 			return
+		elif result in ('failed'):
+			time.sleep(1)
+			return False
 		elif result in ('reset'):
 			if follow_on_context != {}:
 				if follow_on_context.get('context') == 'docker':
@@ -2504,7 +2503,7 @@ $'"""
 			else:
 				task_desc_new = '\r\n' + task_desc
 			while not ok:
-				if shutit.build['testing_object']:
+				if shutit.build['testing_object'] and new_stage:
 					shutit.build['testing_object'].start_timer()
 				self.pause_point(shutit_util.colourise('31',task_desc_new),colour='31')
 				if shutit.shutit_signal['ID'] == 8:
@@ -2576,12 +2575,15 @@ $'"""
 							ok = True
 							break
 				if not ok and failed:
+					shutit.log('\n\n' + shutit_util.colourise('31','Failed! CTRL-g to reset state, CTRL-h for a hint, CTRL-] to submit for checking') + '\n',transient=True)
+					# No second chances if testing!
 					if shutit.build['testing_object']:
 						shutit.build['testing_object'].add_fail()
 						shutit.build['testing_object'].end_timer()
-					shutit.log('\n\n' + shutit_util.colourise('31','Failed! CTRL-g to reset state, CTRL-h for a hint, CTRL-] to submit for checking') + '\n',transient=True)
-					self._challenge_done(result='failed')
-					continue
+						self._challenge_done(result='failed_test',follow_on_context=follow_on_context)
+						return False
+					else:
+						continue
 		else:
 			shutit.fail('Challenge type: ' + challenge_type + ' not supported')
 		self._challenge_done(result='ok',follow_on_context=follow_on_context,congratulations=congratulations,skipped=skipped)

@@ -633,7 +633,10 @@ def do_final_messages(shutit):
 
 def do_testing_output(shutit):
 	if shutit.build['testing_object']:
-		shutit.log(str(shutit.build['testing_object'],level=logging.INFO))
+		test = shutit.build['testing_object']
+		test.calculate_score()
+		shutit.log(str(test),level=logging.INFO)
+		print(str(test))
 
 
 def do_phone_home(msg=None,question='Error seen - would you like to inform the maintainers?'):

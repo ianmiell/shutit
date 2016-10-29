@@ -23,6 +23,7 @@ class ShutItTestSessionStage(object):
 		self.reduction_per_minute = reduction_per_minute
 		self.reduction_per_reset  = reduction_per_reset
 		self.reduction_per_hint   = reduction_per_hint
+		self.grace_period         = grace_period
 		self.result               = ''
 		self.num_resets           = 0
 		self.num_hints            = 0
@@ -37,6 +38,7 @@ class ShutItTestSessionStage(object):
 		string += '\nresult           = ' + str(self.result)
 		string += '\nstart_time       = ' + str(self.start_time)
 		string += '\nend_time         = ' + str(self.end_time)
+		string += '\nscore            = ' + str(self.score)
 		return string
 
 	def start_timer(self):
@@ -74,6 +76,7 @@ class ShutItTestSession(object):
 			stage_desc = 'Stage ' + str(n) + ' of ' + str(len(self.stages))
 			string += '\n' + stage_desc
 			string += '\n' + str(stage)
+		string += '\n\nFinal score: ' + str(self.final_score) + '%\n'
 		return string
 		
 	def new_stage(self,difficulty=1.0,reduction_per_minute=0.2,reduction_per_reset=0,reduction_per_hint=0.5,grace_period=30):
@@ -139,15 +142,15 @@ class ShutItTestSession(object):
 		for stage in self.stages:
 			max_score += stage.difficulty
 			# If they succeeded, start with the diffulty score (100%)
-			if stage.result == 'OK'
+			if stage.result == 'OK':
 				stage.score = stage.difficulty
-				for item in range(0,num_resets):
+				for item in range(0,stage.num_resets):
 					stage.score = stage.score - (stage.score * stage.reduction_per_reset)
-				for item in range(0,num_hints):
+				for item in range(0,stage.num_hints):
 					stage.score = stage.score - (stage.score * stage.reduction_per_hint)
 				# TODO: is time is seconds?
 				total_time = stage.end_time - stage.start_time
-				total_time -= grace_period
+				total_time -= stage.grace_period
 				if total_time > 0:
 					num_minutes = total_time / 60
 					num_seconds = total_time % 60
@@ -161,4 +164,5 @@ class ShutItTestSession(object):
 			else:
 				stage.score = 0
 		self.final_score = total_score / max_score * 100.00
+		return self.final_score
 
