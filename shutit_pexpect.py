@@ -2489,6 +2489,9 @@ $'"""
 							ok = True
 							break
 				if not ok and failed:
+					if shutit.build['testing_object']:
+						shutit.build['testing_object'].add_fail()
+						shutit.build['testing_object'].end_timer()
 					shutit.log('\n\n' + shutit_util.colourise('32','failed') + '\n',transient=True)
 					self._challenge_done(result='failed')
 					continue

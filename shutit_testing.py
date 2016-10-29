@@ -6,13 +6,29 @@ PY3 = (sys.version_info[0] >= 3)
 
 class ShutItTestSessionStage(object):
 
-	def __init__(self, difficulty=1.0):
-		self.difficulty = difficulty
-		self.result     = ''
-		self.num_resets = 0
-		self.num_hints  = 0
-		self.start_time = None
-		self.end_time   = None
+	# difficulty           - a proportion of the default difficulty=1
+	# reduction_per_minute - the degree to which success value decreases every minute
+	# reduction_per_reset  - the degree to which a reset affects the final score
+	# reduction_per_hint   - the degree to which a hint affects the final score
+	# grace_period         - the time under which a success scores full points
+	#
+	# A difficulty of zero means the challenge has no significance to the overall score.
+	def __init__(self,
+	             difficulty=1.0,
+	             reduction_per_minute=0.2,
+	             reduction_per_reset=0,
+	             reduction_per_hint=0.5,
+	             grace_period=30):
+		self.difficulty           = difficulty
+		self.reduction_per_minute = reduction_per_minute
+		self.reduction_per_reset  = reduction_per_reset
+		self.reduction_per_hint   = reduction_per_hint
+		self.result               = ''
+		self.num_resets           = 0
+		self.num_hints            = 0
+		self.start_time           = None
+		self.end_time             = None
+		self.score                = -1
 
 	def __str__(self):
 		string = ''
@@ -48,6 +64,7 @@ class ShutItTestSession(object):
 
 	def __init__(self):
 		self.stages           = []
+		self.final_score      = 0.0
 
 	def __str__(self):
 		string = ''
@@ -59,9 +76,9 @@ class ShutItTestSession(object):
 			string += '\n' + str(stage)
 		return string
 		
-	def new_stage(self,difficulty):
+	def new_stage(self,difficulty=1.0,reduction_per_minute=0.2,reduction_per_reset=0,reduction_per_hint=0.5,grace_period=30):
 		difficulty = float(difficulty)
-		stage = ShutItTestSessionStage(difficulty)
+		stage = ShutItTestSessionStage(difficulty,reduction_per_minute,reduction_per_reset,reduction_per_hint,grace_period)
 		self.stages.append(stage)
 		return stage
 
@@ -115,3 +132,33 @@ class ShutItTestSession(object):
 			shutit_global.shutit.fail('end_timer: no stages to time')
 		stage = self.stages[-1]
 		stage.end_timer()
+
+	def calculate_score(self):
+		max_score   = 0.0
+		total_score = 0.0
+		for stage in self.stages:
+			max_score += stage.difficulty
+			# If they succeeded, start with the diffulty score (100%)
+			if stage.result == 'OK'
+				stage.score = stage.difficulty
+				for item in range(0,num_resets):
+					stage.score = stage.score - (stage.score * stage.reduction_per_reset)
+				for item in range(0,num_hints):
+					stage.score = stage.score - (stage.score * stage.reduction_per_hint)
+				# TODO: is time is seconds?
+				total_time = stage.end_time - stage.start_time
+				total_time -= grace_period
+				if total_time > 0:
+					num_minutes = total_time / 60
+					num_seconds = total_time % 60
+					num_minutes = num_minutes + (num_seconds / 60)
+					while num_minutes > 1:
+						num_minutes -= 1
+						stage.score = stage.score - (stage.score * reduction_per_minute)
+					if num_minutes > 0:
+						stage.score = stage.score - (stage.score * reduction_per_minute * num_minutes)
+				total_score = total_score + stage.score
+			else:
+				stage.score = 0
+		self.final_score = total_score / max_score * 100.00
+
