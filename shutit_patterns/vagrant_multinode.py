@@ -252,6 +252,7 @@ shutit.core.module.build:yes''')
 		module_file = open(new_module_filename,'w+')
 		module_file.write('''import random
 import string
+import os
 
 ''' + shutit.cfg['skeleton']['header_section'] + """
 
