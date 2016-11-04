@@ -706,10 +706,13 @@ shutitfile:        a shutitfile-based project
 			shutit.build['testing']         = args.testing
 			shutit.build['choose_config']   = args.choose_config
 			if shutit.build['testing'] and not shutit.build['training']:
-				print('--testing implies --training, setting --training on!')
+				# We want it to be quiet
+				#print('--testing implies --training, setting --training on!')
+				print('Test starting up')
 				shutit.build['training'] = True
 			if (shutit.build['testing'] or shutit.build['training']) and not shutit.build['walkthrough']:
-				print('--training or --testing implies --walkthrough, setting --walkthrough on!')
+				if not shutit.build['testing']:
+					print('--training or --testing implies --walkthrough, setting --walkthrough on!')
 				shutit.build['walkthrough'] = True
 			if type(args.video) == list and args.video[0] >= 0:
 				shutit.build['walkthrough']      = True
@@ -1181,7 +1184,7 @@ def util_raw_input(prompt='', default=None, ispass=False, use_readline=True):
 		readline.parse_and_bind('tab: complete')
 	prompt = '\r\n' + prompt
 	if ispass:
-		prompt += 'Secret: '
+		prompt += '\r\nInput Secret: '
 	sanitize_terminal()
 	if shutit_global.shutit.build['interactive'] == 0:
 		return default
