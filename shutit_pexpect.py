@@ -2683,6 +2683,8 @@ $'"""
 	# value for the given context.
 	# TODO: move to shutit object
 	def get_echo_override(self, shutit, echo):
+		if shutit.build['always_echo']:
+			echo = True
 		# Should we echo the output?	
 		if shutit.build['loglevel'] <= logging.DEBUG:
 			# Yes if it's in debug

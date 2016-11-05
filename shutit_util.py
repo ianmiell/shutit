@@ -309,6 +309,7 @@ def get_base_config(cfg_parser):
 	shutit.build['ctrlc_stop']                 = False
 	shutit.build['ctrlc_passthrough']          = False
 	shutit.build['have_read_config_file']      = False
+	shutit.build['always_echo']                = False
 	# Width of terminal to set up on login and assume for other cases.
 	shutit.build['stty_cols']                  = 320
 	# Signals are set here, which is useful for context-switching callbacks.
@@ -460,6 +461,7 @@ def parse_args():
 			sub_parsers[action].add_argument('--ignoreimage', help='Ignore disallowed images', const=True, default=None, action='store_const')
 			sub_parsers[action].add_argument('--imageerrorok', help='Exit without error if allowed images fails (used for test scripts)', const=True, default=False, action='store_const')
 			sub_parsers[action].add_argument('--deps_only', help='build deps only, tag with suffix "_deps"', const=True, default=False, action='store_const')
+			sub_parsers[action].add_argument('--echo', help='Always echo output', const=True, default=False, action='store_const')
 
 	args_list = sys.argv[1:]
 	if os.environ.get('SHUTIT_OPTIONS', None) and args_list[0] != 'skeleton':
@@ -766,6 +768,7 @@ shutitfile:        a shutitfile-based project
 		shutit.build['imageerrorok']     = args.imageerrorok
 		shutit.build['tag_modules']      = args.tag_modules
 		shutit.build['deps_only']        = args.deps_only
+		shutit.build['always_echo']      = args.echo
 		shutit.target['docker_image']    = args.image_tag
 		# Finished parsing args.
 		# Sort out config path
