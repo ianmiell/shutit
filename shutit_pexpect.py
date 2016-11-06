@@ -1277,6 +1277,7 @@ class ShutItPexpectSession(object):
 		shutit = shutit_global.shutit
 		shutit._handle_note(note)
 		shutit.log('Matching output from: "' + send + '" to one of these regexps:' + str(matches),level=logging.INFO)
+		echo = self.get_echo_override(shutit, echo)	
 		output = self.send_and_get_output(send, retry=retry, strip=strip, echo=echo, loglevel=loglevel)
 		if type(matches) == str:
 			matches = [matches]
@@ -1317,6 +1318,7 @@ class ShutItPexpectSession(object):
 		shutit._handle_note(note, command=str(send))
 		shutit.log('Retrieving output from command: ' + send,level=loglevel)
 		# Don't check exit, as that will pollute the output. Also, it's quite likely the submitted command is intended to fail.
+		echo = self.get_echo_override(shutit, echo)	
 		self.send(shutit_util.get_send_command(send), check_exit=False, retry=retry, echo=echo, timeout=timeout, record_command=record_command, loglevel=loglevel, fail_on_empty_before=fail_on_empty_before)
 		before = self.pexpect_child.before
 		if preserve_newline and before[-1] == '\n':
@@ -1599,6 +1601,7 @@ class ShutItPexpectSession(object):
 				n_breakout_items += 1
 		while True:
 			# If it's the last n items in the list, it's the breakout one.
+			echo = self.get_echo_override(shutit, echo)	
 			res = self.send(send_iteration, expect=expect_list, check_exit=check_exit, fail_on_empty_before=fail_on_empty_before, timeout=timeout, record_command=record_command, exit_values=exit_values, echo=echo, escape=escape, loglevel=loglevel, secret=secret)
 			if res >= len(expect_list) - n_breakout_items:
 				break
@@ -1619,6 +1622,7 @@ class ShutItPexpectSession(object):
 		See send_until
 		"""
 		shutit = shutit_global.shutit
+		echo = self.get_echo_override(shutit, echo)	
 		return self.send_until(send, regexps, not_there=not_there, cadence=0, retries=1, echo=echo, note=note, loglevel=loglevel)
 
 
@@ -1649,6 +1653,7 @@ class ShutItPexpectSession(object):
 			shutit.fail('regexps should be list')
 		while retries > 0:
 			retries -= 1
+			echo = self.get_echo_override(shutit, echo)	
 			output = self.send_and_get_output(send, retry=1, strip=True,echo=echo, loglevel=loglevel, fail_on_empty_before=False)
 			if not not_there:
 				for regexp in regexps:
@@ -2703,10 +2708,10 @@ $'"""
 	# value for the given context.
 	# TODO: move to shutit object
 	def get_echo_override(self, shutit, echo):
-		if shutit.build['always_echo']:
+		if shutit.build['always_echo'] == True:
 			echo = True
 		# Should we echo the output?	
-		if shutit.build['loglevel'] <= logging.DEBUG:
+		if echo == None and shutit.build['loglevel'] <= logging.DEBUG:
 			# Yes if it's in debug
 			echo = True
 		if echo == None and shutit.build['walkthrough']:

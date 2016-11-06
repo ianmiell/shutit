@@ -309,7 +309,6 @@ def get_base_config(cfg_parser):
 	shutit.build['ctrlc_stop']                 = False
 	shutit.build['ctrlc_passthrough']          = False
 	shutit.build['have_read_config_file']      = False
-	shutit.build['always_echo']                = False
 	# Width of terminal to set up on login and assume for other cases.
 	shutit.build['stty_cols']                  = 320
 	# Signals are set here, which is useful for context-switching callbacks.
