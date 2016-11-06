@@ -261,6 +261,7 @@ class ShutIt(object):
 	              escape=False,
 	              echo=None,
 	              note=None,
+	              secret=False,
 	              loglevel=logging.DEBUG):
 		"""Multisend. Same as send, except it takes multiple sends and expects in a dict that are
 		processed while waiting for the end "expect" argument supplied.
@@ -281,7 +282,7 @@ class ShutIt(object):
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
 		expect = expect or self.get_current_shutit_pexpect_session().default_expect
 		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
-		return shutit_pexpect_session.multisend(send,send_dict,expect=expect,timeout=timeout,check_exit=check_exit,fail_on_empty_before=fail_on_empty_before,record_command=record_command,exit_values=exit_values,escape=escape,echo=echo,note=note,loglevel=loglevel)
+		return shutit_pexpect_session.multisend(send,send_dict,expect=expect,timeout=timeout,check_exit=check_exit,fail_on_empty_before=fail_on_empty_before,record_command=record_command,exit_values=exit_values,escape=escape,echo=echo,note=note,loglevel=loglevel,secret=False)
 
 
 	def send_and_require(self,
@@ -399,6 +400,7 @@ class ShutIt(object):
 	         searchwindowsize=None,
 	         maxread=None,
 	         delaybeforesend=None,
+	         secret=False,
 		     loglevel=logging.INFO):
 		"""Send string as a shell command, and wait until the expected output
 		is seen (either a string or any from a list of strings) before
@@ -445,7 +447,7 @@ class ShutIt(object):
 		"""
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
 		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
-		return shutit_pexpect_session.send(send,expect=expect,timeout=timeout,check_exit=check_exit,fail_on_empty_before=fail_on_empty_before,record_command=record_command,exit_values=exit_values,echo=echo,escape=escape,retry=retry,note=note,assume_gnu=assume_gnu,loglevel=loglevel,follow_on_commands=follow_on_commands,searchwindowsize=searchwindowsize,maxread=maxread,delaybeforesend=delaybeforesend)
+		return shutit_pexpect_session.send(send,expect=expect,timeout=timeout,check_exit=check_exit,fail_on_empty_before=fail_on_empty_before,record_command=record_command,exit_values=exit_values,echo=echo,escape=escape,retry=retry,note=note,assume_gnu=assume_gnu,loglevel=loglevel,follow_on_commands=follow_on_commands,searchwindowsize=searchwindowsize,maxread=maxread,delaybeforesend=delaybeforesend,secret=False)
 	# alias send to send_and_expect
 	send_and_expect = send
 

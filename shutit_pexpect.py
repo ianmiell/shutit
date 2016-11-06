@@ -1143,7 +1143,7 @@ class ShutItPexpectSession(object):
 			fails = 0
 			while True:
 				if pw != '':
-					res = self.multisend('%s %s %s' % (cmd, opts, package), {'assword':pw}, expect=['Unable to fetch some archives',self.default_expect], timeout=timeout, check_exit=False, loglevel=loglevel, echo=False)
+					res = self.multisend('%s %s %s' % (cmd, opts, package), {'assword':pw}, expect=['Unable to fetch some archives',self.default_expect], timeout=timeout, check_exit=False, loglevel=loglevel, echo=False, secret=True)
 				else:
 					res = self.send('%s %s %s' % (cmd, opts, package), expect=['Unable to fetch some archives',self.default_expect], timeout=timeout, check_exit=check_exit, loglevel=loglevel)
 				if res == 1:
@@ -1243,7 +1243,7 @@ class ShutItPexpectSession(object):
 		# Get mapped package.
 		package = package_map.map_package(package, self.current_environment.install_type)
 		if pw != '':
-			self.multisend('%s %s %s' % (cmd, opts, package), {'assword:':pw}, timeout=timeout, exit_values=['0','100'], echo=False)
+			self.multisend('%s %s %s' % (cmd, opts, package), {'assword:':pw}, timeout=timeout, exit_values=['0','100'], echo=False, secret=True)
 		else:
 			self.send('%s %s %s' % (cmd, opts, package), timeout=timeout, exit_values=['0','100'])
 		shutit._handle_note_after(note=note)
@@ -1566,6 +1566,7 @@ class ShutItPexpectSession(object):
 	              escape=False,
 	              echo=None,
 	              note=None,
+	              secret=False,
 	              loglevel=logging.DEBUG):
 		"""Multisend. Same as send, except it takes multiple sends and expects in a dict that are
 		processed while waiting for the end "expect" argument supplied.
@@ -1580,6 +1581,7 @@ class ShutItPexpectSession(object):
 		@param exit_values:          See send()
 		@param echo:                 See send()
 		@param note:                 See send()
+		@param secret:               See send()
 		"""
 		expect = expect or self.default_expect
 		shutit = shutit_global.shutit
@@ -1597,7 +1599,7 @@ class ShutItPexpectSession(object):
 				n_breakout_items += 1
 		while True:
 			# If it's the last n items in the list, it's the breakout one.
-			res = self.send(send_iteration, expect=expect_list, check_exit=check_exit, fail_on_empty_before=fail_on_empty_before, timeout=timeout, record_command=record_command, exit_values=exit_values, echo=echo, escape=escape, loglevel=loglevel)
+			res = self.send(send_iteration, expect=expect_list, check_exit=check_exit, fail_on_empty_before=fail_on_empty_before, timeout=timeout, record_command=record_command, exit_values=exit_values, echo=echo, escape=escape, loglevel=loglevel, secret=secret)
 			if res >= len(expect_list) - n_breakout_items:
 				break
 			else:
@@ -1959,6 +1961,7 @@ class ShutItPexpectSession(object):
 		     searchwindowsize=None,
 		     maxread=None,
 		     delaybeforesend=None,
+		     secret=False,
 		     loglevel=logging.INFO):
 		"""Send string as a shell command, and wait until the expected output
 		is seen (either a string or any from a list of strings) before
@@ -2011,6 +2014,8 @@ class ShutItPexpectSession(object):
 		                             are not in OSx by default (for example)
 		@param follow_on_commands:   A dict containing further stings to send
 		                             based on the output of the last command.
+		@param secret:               Whether this should be blanked out from
+		                             logs.
 		@return:                     The pexpect return value (ie which expected
 		                             string in the list matched)
 		@rtype:                      string
@@ -2020,7 +2025,7 @@ class ShutItPexpectSession(object):
 		if type(expect) == dict:
 			return self.multisend(send=send,send_dict=expect,expect=shutit.get_default_shutit_pexpect_session_expect(),timeout=timeout,check_exit=check_exit,fail_on_empty_before=fail_on_empty_before,record_command=record_command,exit_values=exit_values,echo=echo,note=note,loglevel=loglevel,delaybeforesend=delaybeforesend)
 		expect = expect or self.default_expect
-		shutit.log('Sending in session: ' + self.pexpect_session_id,level=logging.DEBUG)
+		shutit.log('Sending data in session: ' + self.pexpect_session_id,level=logging.DEBUG)
 		shutit._handle_note(note, command=str(send), training_input=str(send))
 		if timeout == None:
 			timeout = 3600
@@ -2069,10 +2074,15 @@ class ShutItPexpectSession(object):
 			if ok_to_record:
 				shutit.build['shutit_command_history'].append(send)
 		if send != None:
-			if not echo:
+			if not echo and not secret:
 				shutit.log('Sending: ' + send,level=loglevel)
+			elif not echo and secret:
+				shutit.log('Sending: [SECRET]',level=loglevel)
 			shutit.log('================================================================================',level=logging.DEBUG)
-			shutit.log('Sending>>>' + send + '<<<',level=logging.DEBUG)
+			if not secret:
+				shutit.log('Sending>>>' + send + '<<<',level=logging.DEBUG)
+			else:
+				shutit.log('Sending>>>[SECRET]<<<',level=logging.DEBUG)
 			shutit.log('Expecting>>>' + str(expect) + '<<<',level=logging.DEBUG)
 		while retry > 0:
 			if escape:
@@ -2090,7 +2100,10 @@ class ShutItPexpectSession(object):
 $'"""
 						_count = 0
 				escaped_str += "'"
-				shutit.log('This string was sent safely: ' + send, level=logging.DEBUG)
+				if not secret:
+					shutit.log('This string was sent safely: ' + send, level=logging.DEBUG)
+				else:
+					shutit.log('The string was sent safely.', level=logging.DEBUG)
 			# Don't echo if echo passed in as False
 			if not echo:
 				oldlog = self.pexpect_child.logfile_send
@@ -2160,16 +2173,19 @@ $'"""
 				logged_output = logged_output.replace(send,'',1)
 				logged_output = logged_output.replace('\r','')
 				logged_output = logged_output[:30] + ' [...]'
-				if echo:
-					shutit.log('Output (squashed): ' + logged_output,level=logging.DEBUG)
+				if not secret:
+					if echo:
+						shutit.log('Output (squashed): ' + logged_output,level=logging.DEBUG)
+					else:
+						shutit.log('Output (squashed): ' + logged_output,level=loglevel)
+					shutit.log('shutit_pexpect_child.buffer(hex)>>>\n' + str(self.pexpect_child.buffer).encode('hex') + '\n<<<',level=logging.DEBUG)
+					shutit.log('shutit_pexpect_child.buffer>>>\n' + str(self.pexpect_child.buffer) + '\n<<<',level=logging.DEBUG)
+					shutit.log('shutit_pexpect_child.before (hex)>>>\n' + self.pexpect_child.before.encode('hex') + '\n<<<',level=logging.DEBUG)
+					shutit.log('shutit_pexpect_child.before>>>\n' + self.pexpect_child.before + '\n<<<',level=logging.DEBUG)
+					shutit.log('shutit_pexpect_child.after (hex)>>>\n' + self.pexpect_child.after.encode('hex') + '\n<<<',level=logging.DEBUG)
+					shutit.log('shutit_pexpect_child.after>>>\n' + self.pexpect_child.after + '\n<<<',level=logging.DEBUG)
 				else:
-					shutit.log('Output (squashed): ' + logged_output,level=loglevel)
-				shutit.log('shutit_pexpect_child.buffer(hex)>>>\n' + str(self.pexpect_child.buffer).encode('hex') + '\n<<<',level=logging.DEBUG)
-				shutit.log('shutit_pexpect_child.buffer>>>\n' + str(self.pexpect_child.buffer) + '\n<<<',level=logging.DEBUG)
-				shutit.log('shutit_pexpect_child.before (hex)>>>\n' + self.pexpect_child.before.encode('hex') + '\n<<<',level=logging.DEBUG)
-				shutit.log('shutit_pexpect_child.before>>>\n' + self.pexpect_child.before + '\n<<<',level=logging.DEBUG)
-				shutit.log('shutit_pexpect_child.after (hex)>>>\n' + self.pexpect_child.after.encode('hex') + '\n<<<',level=logging.DEBUG)
-				shutit.log('shutit_pexpect_child.after>>>\n' + self.pexpect_child.after + '\n<<<',level=logging.DEBUG)
+					shutit.log('[Send was marked secret; getting output debug will require code change]',level=logging.DEBUG)
 			except:
 				pass
 			if fail_on_empty_before:
@@ -2177,7 +2193,8 @@ $'"""
 					shutit.fail('before empty after sending: ' + str(send) + '\n\nThis is expected after some commands that take a password.\nIf so, add fail_on_empty_before=False to the send call.\n\nIf that is not the problem, did you send an empty string to a prompt by mistake?', shutit_pexpect_child=self.pexpect_child)
 			elif not fail_on_empty_before:
 				# Don't check exit if fail_on_empty_before is False
-				shutit.log('' + self.pexpect_child.before + '<<<', level=logging.DEBUG)
+				if not secret:
+					shutit.log('' + self.pexpect_child.before + '<<<', level=logging.DEBUG)
 				check_exit = False
 				for prompt in shutit.expect_prompts:
 					if prompt == expect:
@@ -2189,7 +2206,10 @@ $'"""
 			if check_exit:
 				# store the output
 				if not self.check_last_exit_values(send, expect=expect, exit_values=exit_values, retry=retry):
-					shutit.log('Sending: ' + send + ' : failed, retrying', level=logging.DEBUG)
+					if not secret:
+						shutit.log('Sending: ' + send + ' : failed, retrying', level=logging.DEBUG)
+					else:
+						shutit.log('Send failed, retrying', level=logging.DEBUG)
 					retry -= 1
 					assert(retry > 0)
 					continue
