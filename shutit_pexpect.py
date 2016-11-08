@@ -1359,10 +1359,10 @@ class ShutItPexpectSession(object):
 		shutit = shutit_global.shutit
 		shutit._handle_note(note)
 		user = user or self.whoami()
-		msg = msg or 'Please input the sudo password for user: ' + user
 		if user not in self.current_environment.users.keys():
 			self.current_environment.users.update({user:None})
 		if not self.current_environment.users[user]:
+			msg = msg or 'Please input the sudo password for user: ' + user
 			self.current_environment.users[user] = shutit_util.get_input(msg,ispass=True)
 		return self.current_environment.users[user]
 
