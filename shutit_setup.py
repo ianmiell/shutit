@@ -149,7 +149,7 @@ class ConnDocker(ShutItConnModule):
 		# Close connection.
 		shutit.get_shutit_pexpect_session_from_id(container_shutit_session_name).pexpect_child.close()
 		host_child = shutit.get_shutit_pexpect_session_from_id(host_shutit_session_name).pexpect_child
-		shutit.send(' docker rm -f ' + container_id + ' && rm -f ' + shutit.build['cidfile'],shutit_pexpect_child=host_child,expect=shutit.expect_prompts['origin_prompt'],loglevel=loglevel)
+		shutit.send(' command docker rm -f ' + container_id + ' && rm -f ' + shutit.build['cidfile'],shutit_pexpect_child=host_child,expect=shutit.expect_prompts['origin_prompt'],loglevel=loglevel)
 
 
 	def start_container(self, shutit_session_name, loglevel=logging.DEBUG):

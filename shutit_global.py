@@ -669,12 +669,12 @@ class ShutIt(object):
 			group = self.whoarewe()
 		# TODO: take out False in next line and replace with a consideration of login_stack depth
 		if False and self.build['delivery'] in ('bash','dockerfile'):
-			retdir = shutit_pexpect_session.send_and_get_output('pwd',loglevel=loglevel)
-			shutit_pexpect_session.send(' pushd ' + shutit_pexpect_session.current_environment.module_root_dir, echo=False, loglevel=loglevel)
-			shutit_pexpect_session.send(' cp -r ' + hostfilepath + ' ' + retdir + '/' + path,expect=expect, timeout=timeout, echo=False, loglevel=loglevel)
-			shutit_pexpect_session.send(' chown ' + user + ' ' + hostfilepath + ' ' + retdir + '/' + path, timeout=timeout, echo=False, loglevel=loglevel)
-			shutit_pexpect_session.send(' chgrp ' + group + ' ' + hostfilepath + ' ' + retdir + '/' + path, timeout=timeout, echo=False, loglevel=loglevel)
-			shutit_pexpect_session.send(' popd', expect=expect, timeout=timeout, echo=False, loglevel=loglevel)
+			retdir = shutit_pexpect_session.send_and_get_output(' command pwd',loglevel=loglevel)
+			shutit_pexpect_session.send(' command pushd ' + shutit_pexpect_session.current_environment.module_root_dir, echo=False, loglevel=loglevel)
+			shutit_pexpect_session.send(' command cp -r ' + hostfilepath + ' ' + retdir + '/' + path,expect=expect, timeout=timeout, echo=False, loglevel=loglevel)
+			shutit_pexpect_session.send(' command chown ' + user + ' ' + hostfilepath + ' ' + retdir + '/' + path, timeout=timeout, echo=False, loglevel=loglevel)
+			shutit_pexpect_session.send(' command chgrp ' + group + ' ' + hostfilepath + ' ' + retdir + '/' + path, timeout=timeout, echo=False, loglevel=loglevel)
+			shutit_pexpect_session.send(' command popd', expect=expect, timeout=timeout, echo=False, loglevel=loglevel)
 		else:
 			if os.path.isfile(hostfilepath):
 				shutit_pexpect_session.send_file(path, open(hostfilepath).read(), user=user, group=group,loglevel=loglevel)
@@ -714,7 +714,7 @@ class ShutIt(object):
 		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
 		self._handle_note(note, 'Sending host directory: ' + hostfilepath + ' to target path: ' + path)
 		self.log('Sending host directory: ' + hostfilepath + ' to: ' + path, level=logging.INFO)
-		shutit_pexpect_session.send(' mkdir -p ' + path, echo=False, loglevel=loglevel)
+		shutit_pexpect_session.send(' command mkdir -p ' + path, echo=False, loglevel=loglevel)
 		if user == None:
 			user = shutit_pexpect_session.whoami()
 		if group == None:
@@ -723,7 +723,7 @@ class ShutIt(object):
 			subfolders.sort()
 			files.sort()
 			for subfolder in subfolders:
-				shutit_pexpect_session.send(' mkdir -p ' + path + '/' + subfolder, echo=False, loglevel=loglevel)
+				shutit_pexpect_session.send(' command mkdir -p ' + path + '/' + subfolder, echo=False, loglevel=loglevel)
 				self.log('send_host_dir recursing to: ' + hostfilepath + '/' + subfolder, level=logging.DEBUG)
 				shutit_pexpect_session.send_host_dir(path + '/' + subfolder, hostfilepath + '/' + subfolder, expect=expect, shutit_pexpect_child=shutit_pexpect_child, loglevel=loglevel)
 			for fname in files:

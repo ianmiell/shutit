@@ -209,10 +209,10 @@ class ShutItPexpectSession(object):
 		shutit._handle_note_after(note=note,training_input=send)
 		# Try and stop user being 'clever'
 		if shutit.build['testing']:
-			shutit.send(' alias exit=/bin/true',echo=False,record_command=False)
-			shutit.send(' alias logout=/bin/true',echo=False,record_command=False)
-			shutit.send(' alias kill=/bin/true',echo=False,record_command=False)
-			shutit.send(' alias alias=/bin/true',echo=False,record_command=False)
+			shutit.send(' command alias exit=/bin/true',echo=False,record_command=False)
+			shutit.send(' command alias logout=/bin/true',echo=False,record_command=False)
+			shutit.send(' command alias kill=/bin/true',echo=False,record_command=False)
+			shutit.send(' command alias alias=/bin/true',echo=False,record_command=False)
 		return True
 
 
@@ -234,10 +234,10 @@ class ShutItPexpectSession(object):
 		shutit = shutit_global.shutit
 		shutit._handle_note(note,training_input=command)
 		if shutit.build['testing']:
-			shutit.send(' unalias exit',echo=False,record_command=False)
-			shutit.send(' unalias logout',echo=False,record_command=False)
-			shutit.send(' unalias kill',echo=False,record_command=False)
-			shutit.send(' unalias alias',echo=False,record_command=False)
+			shutit.send(' command unalias exit',echo=False,record_command=False)
+			shutit.send(' command unalias logout',echo=False,record_command=False)
+			shutit.send(' command unalias kill',echo=False,record_command=False)
+			shutit.send(' command unalias alias',echo=False,record_command=False)
 		if len(self.login_stack):
 			_ = self.login_stack.pop()
 			if len(self.login_stack):
@@ -307,10 +307,10 @@ class ShutItPexpectSession(object):
 		self.default_expect = shutit.expect_prompts[prompt_name]
 		# These two lines are required to make the terminal sane. They are best endeavours,
 		# they might fail (eg if we are not in bash) so we keep them separate and do not check whether it succeeded.
-		self.send(' shopt -s checkwinsize', check_exit=False, echo=False, loglevel=loglevel)
-		self.send(' stty sane',             check_exit=False, echo=False, loglevel=loglevel)
+		self.send(' command shopt -s checkwinsize', check_exit=False, echo=False, loglevel=loglevel)
+		self.send(' command stty sane',             check_exit=False, echo=False, loglevel=loglevel)
 		# Set up history the way shutit likes it.
-		self.send(' export HISTCONTROL=$HISTCONTROL:ignoredups:ignorespace', echo=False, loglevel=loglevel)
+		self.send(' command export HISTCONTROL=$HISTCONTROL:ignoredups:ignorespace', echo=False, loglevel=loglevel)
 		# Ensure environment is set up OK.
 		_ = self.init_pexpect_session_environment(prefix)
 		return True
@@ -414,7 +414,7 @@ class ShutItPexpectSession(object):
 		"""
 		shutit = shutit_global.shutit
 		shutit._handle_note(note)
-		res = self.send_and_get_output(' whoami',echo=False, loglevel=loglevel).strip()
+		res = self.send_and_get_output(' command whoami',echo=False, loglevel=loglevel).strip()
 		shutit._handle_note_after(note=note)
 		return res
 
@@ -545,9 +545,9 @@ class ShutItPexpectSession(object):
 							if not self.file_exists(fixterm_filename):
 								shutit.log('Fixing up your terminal, please wait...',level=logging.INFO)
 								self.send_file(fixterm_filename,shutit_assets.get_fixterm(), loglevel=logging.DEBUG)
-								self.send(' chmod 777 ' + fixterm_filename, echo=False,loglevel=logging.DEBUG)
+								self.send(' command chmod 777 ' + fixterm_filename, echo=False,loglevel=logging.DEBUG)
 							if not self.file_exists(fixterm_filename + '_stty'):
-								self.send(' stty >  ' + fixterm_filename_stty, echo=False,loglevel=logging.DEBUG)
+								self.send(' command stty >  ' + fixterm_filename_stty, echo=False,loglevel=logging.DEBUG)
 								self.sendline(' ' + fixterm_filename)
 							# do not re-run if the output of stty matches the current one
 							# This causes problems in video mode (?), so commenting out.
@@ -690,7 +690,7 @@ class ShutItPexpectSession(object):
 		shutit._handle_note(note, 'Changing to path: ' + path)
 		shutit.log('Changing directory to path: "' + path + '"', level=logging.DEBUG)
 		if shutit.build['delivery'] in ('bash','dockerfile'):
-			self.send(' cd ' + path, timeout=timeout, echo=False,loglevel=loglevel)
+			self.send(' command cd ' + path, timeout=timeout, echo=False,loglevel=loglevel)
 		elif shutit.build['delivery'] in ('docker','ssh'):
 			os.chdir(path)
 		else:
@@ -716,7 +716,7 @@ class ShutItPexpectSession(object):
 		"""
 		shutit = shutit_global.shutit
 		shutit._handle_note(note)
-		cmd = 'stat -c %a ' + filename
+		cmd = ' command stat -c %a ' + filename
 		self.send(' ' + cmd, check_exit=False, echo=False, loglevel=loglevel)
 		res = shutit_util.match_string(self.pexpect_child.before, '([0-9][0-9][0-9])')
 		shutit._handle_note_after(note=note)
@@ -767,7 +767,7 @@ class ShutItPexpectSession(object):
 		shutit = shutit_global.shutit
 		shutit._handle_note(note)
 		# v the space is intentional, to avoid polluting bash history.
-		self.send(' cut -d: -f3 /etc/paswd | grep -w ^' + user_id + '$ | wc -l', expect=self.default_expect, echo=False, loglevel=loglevel)
+		self.send(' command cut -d: -f3 /etc/paswd | grep -w ^' + user_id + '$ | wc -l', expect=self.default_expect, echo=False, loglevel=loglevel)
 		shutit._handle_note_after(note=note)
 		if shutit_util.match_string(self.pexpect_child.before, '^([0-9]+)$') == '1':
 			return False
@@ -813,7 +813,7 @@ class ShutItPexpectSession(object):
 		"""Get distro information from lsb_release.
 		"""
 		#          v the space is intentional, to avoid polluting bash history.
-		self.send(' lsb_release -a',check_exit=False, echo=False, loglevel=loglevel)
+		self.send(' command lsb_release -a',check_exit=False, echo=False, loglevel=loglevel)
 		dist_string = shutit_util.match_string(self.pexpect_child.before, '^Distributor[\s]*ID:[\s]*(.*)$')
 		version_string = shutit_util.match_string(self.pexpect_child.before, '^Release:[\s*](.*)$')
 		d = {}
@@ -911,7 +911,7 @@ class ShutItPexpectSession(object):
 		if user == '':
 			return exists
 		#v the space is intentional, to avoid polluting bash history.
-		ret = self.send(' id %s && echo E""XIST || echo N""XIST' % user, expect=['NXIST', 'EXIST'], echo=False, loglevel=loglevel)
+		ret = self.send(' command id %s && echo E""XIST || echo N""XIST' % user, expect=['NXIST', 'EXIST'], echo=False, loglevel=loglevel)
 		if ret:
 			exists = True
 		# sync with the prompt
@@ -980,8 +980,8 @@ class ShutItPexpectSession(object):
 				# Bit of a hack here to get round the long command showing up as the first line of the output.
 				cmd = 'find ' + shutit.build['build_db_dir'] + r"""/module_record/ -name built | sed 's@^.""" + shutit.build['build_db_dir'] + r"""/module_record.\([^/]*\).built@\1@' > """ + shutit.build['build_db_dir'] + '/' + shutit.build['build_id']
 				self.send(' ' + cmd, echo=False, loglevel=loglevel)
-				built = self.send_and_get_output('cat ' + shutit.build['build_db_dir'] + '/' + shutit.build['build_id'], echo=False, loglevel=loglevel).strip()
-				self.send(' rm -rf ' + shutit.build['build_db_dir'] + '/' + shutit.build['build_id'], echo=False, loglevel=loglevel)
+				built = self.send_and_get_output(' command cat ' + shutit.build['build_db_dir'] + '/' + shutit.build['build_id'], echo=False, loglevel=loglevel).strip()
+				self.send(' command rm -rf ' + shutit.build['build_db_dir'] + '/' + shutit.build['build_id'], echo=False, loglevel=loglevel)
 				built_list = built.split('\r\n')
 				self.current_environment.modules_recorded = built_list
 			# Either there was no directory (so the cache is valid), or we've built the cache, so mark as good.
@@ -1012,7 +1012,7 @@ class ShutItPexpectSession(object):
 		shutit._handle_note(note)
 		if not self.file_exists(directory,directory=True):
 			shutit.fail('ls: directory\n\n' + directory + '\n\ndoes not exist', throw_exception=False)
-		files = self.send_and_get_output(' ls ' + directory,echo=False, loglevel=loglevel, fail_on_empty_before=False)
+		files = self.send_and_get_output(' command ls ' + directory,echo=False, loglevel=loglevel, fail_on_empty_before=False)
 		files = files.split(' ')
 		# cleanout garbage from the terminal - all of this is necessary cause there are
 		# random return characters in the middle of the file names
@@ -1164,13 +1164,13 @@ class ShutItPexpectSession(object):
 		shutit = shutit_global.shutit
 		shutit._handle_note(note)
 		if self.current_environment.distro == 'osx':
-			memavail = self.send_and_get_output("""vm_stat | grep ^Pages.free: | awk '{print $3}' | tr -d '.'""",timeout=3,echo=False)
+			memavail = self.send_and_get_output("""command vm_stat | grep ^Pages.free: | awk '{print $3}' | tr -d '.'""",timeout=3,echo=False)
 			memavail = int(memavail)
 			memavail *= 4
 		else:
-			memavail = self.send_and_get_output("""cat /proc/meminfo  | grep MemAvailable | awk '{print $2}'""",timeout=3,echo=False)
+			memavail = self.send_and_get_output("""command cat /proc/meminfo  | grep MemAvailable | awk '{print $2}'""",timeout=3,echo=False)
 			if memavail == '':
-				memavail = self.send_and_get_output("""free | grep buffers.cache | awk '{print $3}'""",timeout=3,echo=False)
+				memavail = self.send_and_get_output("""command free | grep buffers.cache | awk '{print $3}'""",timeout=3,echo=False)
 			memavail = int(memavail)
 		shutit._handle_note_after(note=note)
 		return memavail
@@ -1379,7 +1379,7 @@ class ShutItPexpectSession(object):
 		"""
 		shutit = shutit_global.shutit
 		shutit._handle_note(note)
-		res = self.send_and_get_output(' id -n -g',echo=False, loglevel=loglevel).strip()
+		res = self.send_and_get_output(' command id -n -g',echo=False, loglevel=loglevel).strip()
 		shutit._handle_note_after(note=note)
 		return res
 
@@ -1418,7 +1418,7 @@ class ShutItPexpectSession(object):
 				distro_version = d['distro_version']
 			elif install_type == 'yum' and shutit.build['delivery'] in ('docker', 'dockerfile'):
 				if self.file_exists('/etc/redhat-release'):
-					output = self.send_and_get_output('cat /etc/redhat-release',echo=False, loglevel=loglevel)
+					output = self.send_and_get_output(' command cat /etc/redhat-release',echo=False, loglevel=loglevel)
 					if re.match('^centos.*$', output.lower()) or re.match('^red hat.*$', output.lower()) or re.match('^fedora.*$', output.lower()) or True:
 						self.send_and_match_output('yum install -y -t redhat-lsb epel-release','Complete!',loglevel=loglevel)
 				else:
@@ -1459,7 +1459,7 @@ class ShutItPexpectSession(object):
 			distro         = d['distro']
 			distro_version = d['distro_version']
 		else:
-			issue_output = self.send_and_get_output(' cat /etc/issue',echo=False, loglevel=loglevel).lower()
+			issue_output = self.send_and_get_output(' command cat /etc/issue',echo=False, loglevel=loglevel).lower()
 			if not re.match('.*No such file.*',issue_output):
 				for key in package_map.INSTALL_TYPE_MAP.keys():
 					if issue_output.find(key) != -1:
@@ -1471,7 +1471,7 @@ class ShutItPexpectSession(object):
 				install_type = 'apt-cyg'
 			if install_type == '' or distro == '':
 				if self.file_exists('/etc/os-release'):
-					os_name = self.send_and_get_output(' cat /etc/os-release | grep ^NAME',echo=False, loglevel=loglevel).lower()
+					os_name = self.send_and_get_output(' command cat /etc/os-release | grep ^NAME',echo=False, loglevel=loglevel).lower()
 					if os_name.find('centos') != -1:
 						distro       = 'centos'
 						install_type = 'yum'
@@ -1489,7 +1489,7 @@ class ShutItPexpectSession(object):
 						distro       = 'coreos'
 						install_type = 'docker'
 				else:
-					uname_output = self.send_and_get_output("uname -a | awk '{print $1}'",echo=False, loglevel=loglevel)
+					uname_output = self.send_and_get_output(" command uname -a | awk '{print $1}'",echo=False, loglevel=loglevel)
 					if uname_output == 'Darwin':
 						distro = 'osx'
 						install_type = 'brew'
@@ -1498,7 +1498,7 @@ class ShutItPexpectSession(object):
 						if not self.file_exists('/tmp/shutit_brew_list'):
 							self.send('brew list > .shutit_brew_list',echo=False)
 						for package in ('coreutils','findutils','gnu-tar','gnu-sed','gawk','gnutls','gnu-indent','gnu-getopt'):
-							if self.send_and_get_output('cat .shutit_brew_list | grep -w ' + package,echo=False, loglevel=loglevel) == '':
+							if self.send_and_get_output(' command cat .shutit_brew_list | grep -w ' + package,echo=False, loglevel=loglevel) == '':
 								self.send('brew install ' + package,loglevel=loglevel)
 						self.send('rm -f .shutit_brew_list',echo=False)
 					if uname_output == 'CYGWIN_NT-6.1':
@@ -1521,7 +1521,7 @@ class ShutItPexpectSession(object):
 				distro_version = d['distro_version']
 			elif install_type == 'yum' and shutit.build['delivery'] in ('docker','dockerfile'):
 				if self.file_exists('/etc/redhat-release'):
-					output = self.send_and_get_output('cat /etc/redhat-release',echo=False, loglevel=loglevel)
+					output = self.send_and_get_output(' command cat /etc/redhat-release',echo=False, loglevel=loglevel)
 					if re.match('^centos.*$', output.lower()) or re.match('^red hat.*$', output.lower()) or re.match('^fedora.*$', output.lower()) or True:
 						self.send_and_match_output('yum install -y -t redhat-lsb epel-release','Complete!',loglevel=loglevel)
 				else:
@@ -1718,7 +1718,7 @@ class ShutItPexpectSession(object):
 		fexists = self.file_exists(fname)
 		if not fexists:
 			if create:
-				self.send(' touch ' + fname, echo=False, loglevel=loglevel)
+				self.send(' command touch ' + fname, echo=False, loglevel=loglevel)
 			else:
 				shutit.fail(fname + ' does not exist and create=False')
 		if replace:
@@ -1732,17 +1732,17 @@ class ShutItPexpectSession(object):
 		# encode the text
 		if self.command_available('base64'):
 			if PY3:
-				ftext = bytes(self.send_and_get_output(' base64 ' + fname, echo=False, loglevel=loglevel),'utf-8')
+				ftext = bytes(self.send_and_get_output(' command base64 ' + fname, echo=False, loglevel=loglevel),'utf-8')
 			else:
-				ftext = self.send_and_get_output(' base64 ' + fname, echo=False, loglevel=loglevel)
+				ftext = self.send_and_get_output(' command base64 ' + fname, echo=False, loglevel=loglevel)
 			ftext = base64.b64decode(ftext)
 		else:
 			# Replace the file text's ^M-newlines with simple newlines
 			if PY3:
-				ftext = bytes(self.send_and_get_output('cat ' + fname, echo=False, loglevel=loglevel),'utf-8')
+				ftext = bytes(self.send_and_get_output(' command cat ' + fname, echo=False, loglevel=loglevel),'utf-8')
 				ftext = ftext.replace(bytes('\r\n', 'utf-8'),bytes('\n', 'utf-8'))
 			else:
-				ftext = self.send_and_get_output('cat ' + fname, echo=False, loglevel=loglevel)
+				ftext = self.send_and_get_output(' command cat ' + fname, echo=False, loglevel=loglevel)
 				ftext = ftext.replace('\r\n','\n')
 		# Delete the text
 		if delete:
@@ -1936,14 +1936,14 @@ class ShutItPexpectSession(object):
 			else:
 				if match_regexp == None:
 					#          v the space is intentional, to avoid polluting bash history.
-					self.send(' grep -v "^' + line + '$" ' + filename + ' > ' + tmp_filename, exit_values=['0', '1'], echo=False, loglevel=loglevel)
+					self.send(' command grep -v "^' + line + '$" ' + filename + ' > ' + tmp_filename, exit_values=['0', '1'], echo=False, loglevel=loglevel)
 				else:
 					if not shutit_util.check_regexp(match_regexp):
 						shutit.fail('Illegal regexp found in remove_line_from_file call: ' + match_regexp)
 					#          v the space is intentional, to avoid polluting bash history.
-					self.send(' grep -v "^' + match_regexp + '$" ' + filename + ' > ' + tmp_filename, exit_values=['0', '1'], echo=False, loglevel=loglevel)
-			self.send(' cat ' + tmp_filename + ' > ' + filename, check_exit=False, echo=False, loglevel=loglevel)
-			self.send(' rm -f ' + tmp_filename, exit_values=['0', '1'], echo=False, loglevel=loglevel)
+					self.send(' command grep -v "^' + match_regexp + '$" ' + filename + ' > ' + tmp_filename, exit_values=['0', '1'], echo=False, loglevel=loglevel)
+			self.send(' command cat ' + tmp_filename + ' > ' + filename, check_exit=False, echo=False, loglevel=loglevel)
+			self.send(' command rm -f ' + tmp_filename, exit_values=['0', '1'], echo=False, loglevel=loglevel)
 		shutit._handle_note_after(note=note)
 		return True
 
@@ -2282,14 +2282,14 @@ $'"""
 			f.close()
 		elif shutit.build['delivery'] in ('bash','dockerfile'):
 			if truncate and self.file_exists(path):
-				self.send(' rm -f ' + path, echo=False,loglevel=loglevel)
+				self.send(' command rm -f ' + path, echo=False,loglevel=loglevel)
 			random_id = shutit_util.random_id()
 			# set the searchwindowsize to a low number to speed up processing of large output
 			b64contents = base64.b64encode(contents)
 			if len(b64contents) > 100000:
 				shutit.log('File is larger than ~100K - this may take some time',level=logging.WARNING)
 			self.send(' ' + shutit_util.get_command('head') + ' -c -1 > ' + path + "." + random_id + " << 'END_" + random_id + """'\n""" + b64contents + '''\nEND_''' + random_id, echo=False,loglevel=loglevel, timeout=99999)
-			self.send(' cat ' + path + '.' + random_id + ' | base64 -d > ' + path, echo=False,loglevel=loglevel)
+			self.send(' command cat ' + path + '.' + random_id + ' | base64 -d > ' + path, echo=False,loglevel=loglevel)
 		else:
 			host_child = shutit.get_shutit_pexpect_session_from_id('host_child').pexpect_child
 			path = path.replace(' ', '\ ')
@@ -2305,13 +2305,13 @@ $'"""
 				shutit.fail('type: ' + type(contents) + ' not handled')
 			f.close()
 			# Create file so it has appropriate permissions
-			self.send(' touch ' + path, echo=False,loglevel=loglevel)
+			self.send(' command touch ' + path, echo=False,loglevel=loglevel)
 			# If path is not absolute, add $HOME to it.
 			if path[0] != '/':
-				shutit.send(' cat ' + tmpfile + ' | ' + shutit.host['docker_executable'] + ' exec -i ' + shutit.target['container_id'] + " bash -c 'cat > $HOME/" + path + "'", shutit_pexpect_child=host_child, expect=shutit.expect_prompts['origin_prompt'], echo=False,loglevel=loglevel)
+				shutit.send(' command cat ' + tmpfile + ' | ' + shutit.host['docker_executable'] + ' exec -i ' + shutit.target['container_id'] + " bash -c 'cat > $HOME/" + path + "'", shutit_pexpect_child=host_child, expect=shutit.expect_prompts['origin_prompt'], echo=False,loglevel=loglevel)
 			else:
-				shutit.send(' cat ' + tmpfile + ' | ' + shutit.host['docker_executable'] + ' exec -i ' + shutit.target['container_id'] + " bash -c 'cat > " + path + "'", shutit_pexpect_child=host_child, expect=shutit.expect_prompts['origin_prompt'], echo=False,loglevel=loglevel)
-			self.send(' chown ' + user + ' ' + path + ' && chgrp ' + group + ' ' + path, echo=False,loglevel=loglevel)
+				shutit.send(' command cat ' + tmpfile + ' | ' + shutit.host['docker_executable'] + ' exec -i ' + shutit.target['container_id'] + " bash -c 'cat > " + path + "'", shutit_pexpect_child=host_child, expect=shutit.expect_prompts['origin_prompt'], echo=False,loglevel=loglevel)
+			self.send(' command chown ' + user + ' ' + path + ' && chgrp ' + group + ' ' + path, echo=False,loglevel=loglevel)
 			os.remove(tmpfile)
 		shutit._handle_note_after(note=note)
 		return True
@@ -2348,9 +2348,9 @@ $'"""
 		# Send the script and run it in the manner specified
 		if shutit.build['delivery'] in ('docker','dockerfile') and in_shell:
 			script = ('set -o xtrace \n\n' + script + '\n\nset +o xtrace')
-		self.send(' mkdir -p ' + shutit.build['shutit_state_dir'] + '/scripts && chmod 777 ' + shutit.build['shutit_state_dir'] + '/scripts', echo=False,loglevel=loglevel)
+		self.send(' command mkdir -p ' + shutit.build['shutit_state_dir'] + '/scripts && chmod 777 ' + shutit.build['shutit_state_dir'] + '/scripts', echo=False,loglevel=loglevel)
 		self.send_file(shutit.build['shutit_state_dir'] + '/scripts/shutit_script.sh', script, loglevel=loglevel)
-		self.send(' chmod +x ' + shutit.build['shutit_state_dir'] + '/scripts/shutit_script.sh', echo=False,loglevel=loglevel)
+		self.send(' command chmod +x ' + shutit.build['shutit_state_dir'] + '/scripts/shutit_script.sh', echo=False,loglevel=loglevel)
 		shutit.build['shutit_command_history'].append('    ' + script.replace('\n', '\n    '))
 		if in_shell:
 			ret = self.send(' . ' + shutit.build['shutit_state_dir'] + '/scripts/shutit_script.sh && rm -f ' + shutit.build['shutit_state_dir'] + '/scripts/shutit_script.sh && rm -f ' + shutit.build['shutit_state_dir'] + '/scripts/shutit_script.sh', echo=False,loglevel=loglevel)
@@ -2669,7 +2669,7 @@ $'"""
 			# as far as I can tell, this should never happen?
 			#if shutit.build['current_environment_id'] != environment_id:
 			#	# Clean out any trace of this new environment, and return the already-existing one.
-			#	self.send(' rm -rf ' + environment_id_dir + '/environment_id/' + environment_id, echo=False, loglevel=loglevel)
+			#	self.send(' command rm -rf ' + environment_id_dir + '/environment_id/' + environment_id, echo=False, loglevel=loglevel)
 			#	return shutit.build['current_environment_id']
 			#if not environment_id == 'ORIGIN_ENV':
 			#	return shutit.get_shutit_pexpect_session_environment('ORIGIN_ENV')
@@ -2681,15 +2681,15 @@ $'"""
 		shutit.add_shutit_pexpect_session_environment(new_environment)
 		# TODO: make smarter wrt ORIGIN_ENV and cacheing
 		self.get_distro_info()
-		self.send(' mkdir -p ' + environment_id_dir + ' && chmod -R 777 ' + shutit.build['shutit_state_dir_base'] + ' && touch ' + environment_id_dir + '/' + new_environment.environment_id, echo=False, loglevel=logging.DEBUG)
+		self.send(' command mkdir -p ' + environment_id_dir + ' && chmod -R 777 ' + shutit.build['shutit_state_dir_base'] + ' && touch ' + environment_id_dir + '/' + new_environment.environment_id, echo=False, loglevel=logging.DEBUG)
 		return new_environment
 
  
 	def in_screen(self, loglevel=logging.DEBUG):
 		shutit = shutit_global.shutit
-		if self.send_and_get_output(' echo $TMUX', record_command=False, echo=False, loglevel=loglevel) != '':
+		if self.send_and_get_output(' command echo $TMUX', record_command=False, echo=False, loglevel=loglevel) != '':
 			return True
-		elif self.send_and_get_output(' echo $TERM', record_command=False, echo=False, loglevel=loglevel) == 'screen':
+		elif self.send_and_get_output(' command echo $TERM', record_command=False, echo=False, loglevel=loglevel) == 'screen':
 			return True
 		return False
 
