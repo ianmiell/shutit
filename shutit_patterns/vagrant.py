@@ -6,11 +6,18 @@ def setup_vagrant_pattern(skel_path,
                           skel_delivery,
                           skel_domain,
                           skel_module_name,
-                          skel_shutitfiles, 
+                          skel_shutitfiles,
                           skel_domain_hash,
                           skel_depends):
 
 	shutit = shutit_global.shutit
+
+    # .gitignore
+	gitignore_filename = skel_path + '/.gitignore'
+	gitignore_file = open(gitignore_filename,'w+')
+	gitignore_file.write('''*pyc
+vagrant_run''')
+	gitignore_file.close()
 	# run.sh
 	runsh_filename = skel_path + '/run.sh'
 	runsh_file = open(runsh_filename,'w+')
@@ -38,7 +45,7 @@ fi''')
 #!/bin/bash
 if [[ $(command -v VBoxManage) != '' ]]
 then
-	while true 
+	while true
 	do
 		VBoxManage list runningvms | grep ''' + skel_module_name + ''' | awk '{print $1}' | xargs -IXXX VBoxManage controlvm 'XXX' poweroff && VBoxManage list vms | grep ''' + skel_module_name + ''' | awk '{print $1}'  | xargs -IXXX VBoxManage unregistervm 'XXX' --delete
 		# The xargs removes whitespace
@@ -77,13 +84,13 @@ cd ''' + skel_path + ''' && ./run.sh
 			shutit.cfg['skeleton']['module_modifier'] = module_modifier
 			(sections, skel_module_id, skel_module_name, default_include, ok) = shutitfile.shutitfile_to_shutit_module(skel_shutitfile,skel_path,skel_domain,skel_module_name,skel_domain_hash,skel_delivery,skel_depends,_count,_total,module_modifier)
 			shutit.cfg['skeleton']['header_section']      = sections['header_section']
-			shutit.cfg['skeleton']['config_section']      = sections['config_section'] 
-			shutit.cfg['skeleton']['build_section']       = sections['build_section'] 
-			shutit.cfg['skeleton']['finalize_section']    = sections['finalize_section'] 
-			shutit.cfg['skeleton']['test_section']        = sections['test_section'] 
-			shutit.cfg['skeleton']['isinstalled_section'] = sections['isinstalled_section'] 
-			shutit.cfg['skeleton']['start_section']       = sections['start_section'] 
-			shutit.cfg['skeleton']['stop_section']        = sections['stop_section'] 
+			shutit.cfg['skeleton']['config_section']      = sections['config_section']
+			shutit.cfg['skeleton']['build_section']       = sections['build_section']
+			shutit.cfg['skeleton']['finalize_section']    = sections['finalize_section']
+			shutit.cfg['skeleton']['test_section']        = sections['test_section']
+			shutit.cfg['skeleton']['isinstalled_section'] = sections['isinstalled_section']
+			shutit.cfg['skeleton']['start_section']       = sections['start_section']
+			shutit.cfg['skeleton']['stop_section']        = sections['stop_section']
 			shutit.cfg['skeleton']['final_section']       = sections['final_section']
 			module_file = open(new_module_filename,'w+')
 			if _count == 1 or True:
@@ -97,11 +104,11 @@ import string
 		vagrant_provider = shutit.cfg[self.module_id]['vagrant_provider']
 		gui = shutit.cfg[self.module_id]['gui']
 		memory = shutit.cfg[self.module_id]['memory']
-		home_dir = os.path.expanduser('~')
+		run_dir = 'vagrant_run'
 		module_name = '""" + skel_module_name + """_' + ''.join(random.choice(string.ascii_letters + string.digits) for _ in range(6))
-		shutit.send('rm -rf ' + home_dir + '/' + module_name + ' && mkdir -p ' + home_dir + '/' + module_name + ' && cd ' + home_dir + '/' + module_name)
+		shutit.send('command rm -rf ' + run_dir + '/' + module_name + ' && command mkdir -p ' + run_dir + '/' + module_name + ' && command cd ' + run_dir + '/' + module_name)
 		shutit.send('vagrant init ' + vagrant_image)
-		shutit.send_file(home_dir + '/' + module_name + '/Vagrantfile','''
+		shutit.send_file(run_dir + '/' + module_name + '/Vagrantfile','''
 Vagrant.configure(2) do |config|
   config.vm.box = "''' + vagrant_image + '''"
   # config.vm.box_check_update = false
@@ -246,11 +253,11 @@ import string
 		vagrant_provider = shutit.cfg[self.module_id]['vagrant_provider']
 		gui = shutit.cfg[self.module_id]['gui']
 		memory = shutit.cfg[self.module_id]['memory']
-		home_dir = os.path.expanduser('~')
+		run_dir = 'vagrant_run'
 		module_name = '""" + skel_module_name + """_' + ''.join(random.choice(string.ascii_letters + string.digits) for _ in range(6))
-		shutit.send('rm -rf ' + home_dir + '/' + module_name + ' && mkdir -p ' + home_dir + '/' + module_name + ' && cd ' + home_dir + '/' + module_name)
+		shutit.send('command rm -rf ' + run_dir + '/' + module_name + ' && command mkdir -p ' + run_dir + '/' + module_name + ' && command cd ' + run_dir + '/' + module_name)
 		shutit.send('vagrant init ' + vagrant_image)
-		shutit.send_file(home_dir + '/' + module_name + '/Vagrantfile','''
+		shutit.send_file(run_dir + '/' + module_name + '/Vagrantfile','''
 Vagrant.configure(2) do |config|
   config.vm.box = "''' + vagrant_image + '''"
   # config.vm.box_check_update = false
@@ -304,7 +311,7 @@ end''')
 
 def module():
 	return """ + skel_module_name + """(
-		'""" + skel_domain + '''.''' + skel_module_name + """', """ + skel_domain_hash + """.0001,   
+		'""" + skel_domain + '''.''' + skel_module_name + """', """ + skel_domain_hash + """.0001,
 		description='',
 		maintainer='',
 		delivery_methods=['bash'],

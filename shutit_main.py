@@ -342,7 +342,7 @@ def do_remove(loglevel=logging.DEBUG):
 			else:
 				if shutit.build['delivery'] in ('docker','dockerfile'):
 					# Create a directory and files to indicate this has been removed.
-					shutit.send(' command mkdir -p ' + shutit.build['build_db_dir'] + '/module_record/' + module.module_id + ' && rm -f ' + shutit.build['build_db_dir'] + '/module_record/' + module.module_id + '/built && touch ' + shutit.build['build_db_dir'] + '/module_record/' + module.module_id + '/removed', loglevel=loglevel)
+					shutit.send(' command mkdir -p ' + shutit.build['build_db_dir'] + '/module_record/' + module.module_id + ' && command rm -f ' + shutit.build['build_db_dir'] + '/module_record/' + module.module_id + '/built && command touch ' + shutit.build['build_db_dir'] + '/module_record/' + module.module_id + '/removed', loglevel=loglevel)
 					# Remove from "installed" cache
 					if module.module_id in shutit_global.shutit.get_current_shutit_pexpect_session_environment().modules_installed:
 						shutit_global.shutit.get_current_shutit_pexpect_session_environment().modules_installed.remove(module.module_id)
@@ -364,7 +364,7 @@ def build_module(module, loglevel=logging.DEBUG):
 	else:
 		if shutit.build['delivery'] in ('docker','dockerfile'):
 			# Create a directory and files to indicate this has been built.
-			shutit.send(' command mkdir -p ' + shutit.build['build_db_dir'] + '/module_record/' + module.module_id + ' && touch ' + shutit.build['build_db_dir'] + '/module_record/' + module.module_id + '/built && rm -f ' + shutit.build['build_db_dir'] + '/module_record/' + module.module_id + '/removed', loglevel=loglevel)
+			shutit.send(' command mkdir -p ' + shutit.build['build_db_dir'] + '/module_record/' + module.module_id + ' && command touch ' + shutit.build['build_db_dir'] + '/module_record/' + module.module_id + '/built && command rm -f ' + shutit.build['build_db_dir'] + '/module_record/' + module.module_id + '/removed', loglevel=loglevel)
 		# Put it into "installed" cache
 		shutit_global.shutit.get_current_shutit_pexpect_session_environment().modules_installed.append(module.module_id)
 		# Remove from "not installed" cache
@@ -745,7 +745,7 @@ def setup_signals():
 	signal.signal(signal.SIGINT, shutit_util.ctrl_c_signal_handler)
 	signal.signal(signal.SIGQUIT, shutit_util.ctrl_quit_signal_handler)
 
-shutit_version='0.9.246'
+shutit_version='0.9.247'
 
 if __name__ == '__main__':
 	setup_signals()

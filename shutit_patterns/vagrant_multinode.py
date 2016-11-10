@@ -11,6 +11,13 @@ def setup_vagrant_multinode_pattern(skel_path,
                           skel_depends):
 
 	shutit = shutit_global.shutit
+	# .gitignore
+	gitignore_filename = skel_path + '/.gitignore'
+	gitignore_file = open(gitignore_filename,'w+')
+	gitignore_file.write('''*pyc
+vagrant_run''')
+	gitignore_file.close()
+
 	# run.sh
 	runsh_filename = skel_path + '/run.sh'
 	runsh_file = open(runsh_filename,'w+')
@@ -98,11 +105,11 @@ import os
 		vagrant_provider = shutit.cfg[self.module_id]['vagrant_provider']
 		gui = shutit.cfg[self.module_id]['gui']
 		memory = shutit.cfg[self.module_id]['memory']
-		home_dir = os.path.expanduser('~')
+		run_dir = 'vagrant_run'
 		module_name = '""" + skel_module_name + """_' + ''.join(random.choice(string.ascii_letters + string.digits) for _ in range(6))
-		shutit.send('rm -rf ' + home_dir + '/' + module_name + ' && mkdir -p ' + home_dir + '/' + module_name + ' && cd ' + home_dir + '/' + module_name)
+		shutit.send(' command rm -rf ' + run_dir + '/' + module_name + ' && command mkdir -p ' + run_dir + '/' + module_name + ' && command cd ' + run_dir + '/' + module_name)
 		shutit.send('vagrant init ' + vagrant_image)
-		shutit.send_file(home_dir + '/' + module_name + '/Vagrantfile','''
+		shutit.send_file(run_dir + '/' + module_name + '/Vagrantfile','''
 
 Vagrant.configure("2") do |config|
   config.vm.provider "virtualbox" do |vb|
@@ -261,11 +268,11 @@ import os
 		vagrant_provider = shutit.cfg[self.module_id]['vagrant_provider']
 		gui = shutit.cfg[self.module_id]['gui']
 		memory = shutit.cfg[self.module_id]['memory']
-		home_dir = os.path.expanduser('~')
+		run_dir = 'vagrant_run'
 		module_name = '""" + skel_module_name + """_' + ''.join(random.choice(string.ascii_letters + string.digits) for _ in range(6))
-		shutit.send('rm -rf ' + home_dir + '/' + module_name + ' && mkdir -p ' + home_dir + '/' + module_name + ' && cd ~/' + module_name)
+		shutit.send('command rm -rf ' + run_dir + '/' + module_name + ' && command mkdir -p ' + run_dir + '/' + module_name + ' && command cd ~/' + module_name)
 		shutit.send('vagrant init ' + vagrant_image)
-		shutit.send_file(home_dir + '/' + module_name + '/Vagrantfile','''
+		shutit.send_file(run_dir + '/' + module_name + '/Vagrantfile','''
 
 Vagrant.configure("2") do |config|
   config.vm.provider "virtualbox" do |vb|
