@@ -302,14 +302,14 @@ class ShutItPexpectSession(object):
 		# The newline in the expect list is a hack. On my work laptop this line hangs
 		# and times out very frequently. This workaround seems to work, but I
 		# haven't figured out why yet - imiell.
-		self.send((""" command export SHUTIT_BACKUP_PS1_%s=$PS1 && PS1='%s' && command unset PROMPT_COMMAND && command stty cols """ + str(shutit.build['stty_cols'])) % (prompt_name, local_prompt), expect=['\r\n' + shutit.expect_prompts[prompt_name]], fail_on_empty_before=False, timeout=5, echo=False, loglevel=loglevel)
+		self.send((""" export SHUTIT_BACKUP_PS1_%s=$PS1 && PS1='%s' && unset PROMPT_COMMAND && stty cols """ + str(shutit.build['stty_cols'])) % (prompt_name, local_prompt), expect=['\r\n' + shutit.expect_prompts[prompt_name]], fail_on_empty_before=False, timeout=5, echo=False, loglevel=loglevel)
 		shutit.log('Resetting default expect to: ' + shutit.expect_prompts[prompt_name],level=logging.DEBUG)
 		self.default_expect = shutit.expect_prompts[prompt_name]
 		hostname = shutit.send_and_get_output("""if [[ $(echo $SHELL) == '/bin/bash' ]]; then echo $HOSTNAME; elif [[ $(command hostname 2> /dev/null) != '' ]]; then hostname -s; fi""")
-		local_prompt_with_hostname = hostname + ' ' + local_prompt
+		local_prompt_with_hostname = hostname + ':' + local_prompt
 		shutit.expect_prompts[prompt_name] = local_prompt_with_hostname
 		self.default_expect = shutit.expect_prompts[prompt_name]
-		shutit.send(""" PS1='""" + shutit.expect_prompts[prompt_name] + """'""")
+		shutit.send("""PS1='""" + shutit.expect_prompts[prompt_name] + """'""")
 
 		# These two lines are required to make the terminal sane. They are best endeavours,
 		# they might fail (eg if we are not in bash) so we keep them separate and do not check whether it succeeded.
