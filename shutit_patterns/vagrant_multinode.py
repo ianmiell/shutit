@@ -105,7 +105,7 @@ import os
 		vagrant_provider = shutit.cfg[self.module_id]['vagrant_provider']
 		gui = shutit.cfg[self.module_id]['gui']
 		memory = shutit.cfg[self.module_id]['memory']
-		run_dir = 'vagrant_run'
+		run_dir = '""" + skel_path + """/vagrant_run'   
 		module_name = '""" + skel_module_name + """_' + ''.join(random.choice(string.ascii_letters + string.digits) for _ in range(6))
 		shutit.send(' command rm -rf ' + run_dir + '/' + module_name + ' && command mkdir -p ' + run_dir + '/' + module_name + ' && command cd ' + run_dir + '/' + module_name)
 		shutit.send('vagrant init ' + vagrant_image)
@@ -268,9 +268,9 @@ import os
 		vagrant_provider = shutit.cfg[self.module_id]['vagrant_provider']
 		gui = shutit.cfg[self.module_id]['gui']
 		memory = shutit.cfg[self.module_id]['memory']
-		run_dir = 'vagrant_run'
+		run_dir = '""" + skel_path + """/vagrant_run'   
 		module_name = '""" + skel_module_name + """_' + ''.join(random.choice(string.ascii_letters + string.digits) for _ in range(6))
-		shutit.send('command rm -rf ' + run_dir + '/' + module_name + ' && command mkdir -p ' + run_dir + '/' + module_name + ' && command cd ~/' + module_name)
+		shutit.send('command rm -rf ' + run_dir + '/' + module_name + ' && command mkdir -p ' + run_dir + '/' + module_name + ' && command cd ' + run_dir + '/' + module_name)
 		shutit.send('vagrant init ' + vagrant_image)
 		shutit.send_file(run_dir + '/' + module_name + '/Vagrantfile','''
 
