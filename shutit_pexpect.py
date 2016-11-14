@@ -292,7 +292,7 @@ class ShutItPexpectSession(object):
 		@type prefix:               string
 		"""
 		shutit = shutit_global.shutit
-		local_prompt = prefix + '#' + shutit_util.random_id() + '# '
+		local_prompt = prefix + ':' + shutit_util.random_id() + '# '
 		shutit.expect_prompts[prompt_name] = local_prompt
 		# Set up the PS1 value.
 		# Unset the PROMPT_COMMAND as this can cause nasty surprises in the output.
