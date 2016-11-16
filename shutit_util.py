@@ -62,7 +62,6 @@ import shutit_skeleton
 import shutit_testing
 from shutit_module import ShutItFailException
 from shutit_module import ShutItModule
-from builtins import input
 
 PY3 = (sys.version_info[0] >= 3)
 
