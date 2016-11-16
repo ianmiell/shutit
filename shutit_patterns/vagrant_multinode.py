@@ -120,23 +120,23 @@ Vagrant.configure("2") do |config|
 
   config.vm.define "master" do |master|    
     master.vm.box = ''' + '"' + vagrant_image + '"' + '''
-    master.vm.hostname = "master.local"
-    master.vm.network "private_network", ip: "192.168.2.2"
+    master.vm.hostname = "master.vagrant.test"
   end
 
   config.vm.define "slave1" do |slave1|
     slave1.vm.box = ''' + '"' + vagrant_image + '"' + '''
-    slave1.vm.network :private_network, ip: "192.168.2.3"
-    slave1.vm.hostname = "slave1.local"
+    slave1.vm.hostname = "slave1.vagrant.test"
   end
 
   config.vm.define "slave2" do |slave2|
     slave2.vm.box = ''' + '"' + vagrant_image + '"' + '''
-    slave2.vm.network :private_network, ip: "192.168.2.4"
-    slave2.vm.hostname = "slave2.local"
+    slave2.vm.hostname = "slave2.vagrant.test"
   end
 end''')
 		shutit.send('vagrant up --provider virtualbox',timeout=99999)
+		master_ip = shutit.send_and_get_output("""vagrant landrush ls | grep -w ^master.vagrant.test' | awk '{print $2}'""")
+		slave1_ip = shutit.send_and_get_output("""vagrant landrush ls | grep -w ^slave1.vagrant.test' | awk '{print $2}'""")
+		slave2_ip = shutit.send_and_get_output("""vagrant landrush ls | grep -w ^slave2.vagrant.test' | awk '{print $2}'""")
 		shutit.login(command='vagrant ssh')
 		shutit.login(command='sudo su -',password='vagrant')
 
@@ -284,23 +284,23 @@ Vagrant.configure("2") do |config|
 
   config.vm.define "master" do |master|    
     master.vm.box = ''' + '"' + vagrant_image + '"' + '''
-    master.vm.hostname = "master.local"
-    master.vm.network "private_network", ip: "192.168.2.2"
+    master.vm.hostname = "master.vagrant.test"
   end
 
   config.vm.define "slave1" do |slave1|
     slave1.vm.box = ''' + '"' + vagrant_image + '"' + '''
-    slave1.vm.network :private_network, ip: "192.168.2.3"
-    slave1.vm.hostname = "slave1.local"
+    slave1.vm.hostname = "slave1.vagrant.test"
   end
 
   config.vm.define "slave2" do |slave2|
     slave2.vm.box = ''' + '"' + vagrant_image + '"' + '''
-    slave2.vm.network :private_network, ip: "192.168.2.4"
-    slave2.vm.hostname = "slave2.local"
+    slave2.vm.hostname = "slave2.vagrant.test"
   end
 end''')
 		shutit.send('vagrant up --provider virtualbox',timeout=99999)
+		master_ip = shutit.send_and_get_output("""vagrant landrush ls | grep -w ^master.vagrant.test' | awk '{print $2}'""")
+		slave1_ip = shutit.send_and_get_output("""vagrant landrush ls | grep -w ^slave1.vagrant.test' | awk '{print $2}'""")
+		slave2_ip = shutit.send_and_get_output("""vagrant landrush ls | grep -w ^slave2.vagrant.test' | awk '{print $2}'""")
 		shutit.login(command='vagrant ssh')
 		shutit.login(command='sudo su -',password='vagrant')
 
