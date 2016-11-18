@@ -58,7 +58,13 @@ then
 			sleep 10
 		fi
 	done
-fi''')
+fi
+if [[ $(kvm-ok 2>&1 | command grep 'can be used') != '' ]]                                                                                                                        
+then                                                                                                                                                                              
+	# TODO: delete virshes
+    echo                                                                                                                                                                          
+fi       
+''')
 	destroyvmssh_file.close()
 	os.chmod(destroyvmssh_filename,0o755)
 
