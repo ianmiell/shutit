@@ -51,6 +51,8 @@ PACKAGE_MAP = {
 	'libssl-dev':            {'apt':'libssl-dev',         'yum':'openssl-devel'},
 	'kvm':                   {'apt':'qemu-kvm',           'yum':'kvm'},
 	'libvirt':               {'apt':'libvirt-bin',        'yum':'libvirt'},
+	'libvirt-dev':           {'apt':'libvirt-dev',        'yum':'libvirt-devel'},
+	'libvirt-devel':         {'apt':'libvirt-dev',        'yum':'libvirt-devel'},
 }
 
 
