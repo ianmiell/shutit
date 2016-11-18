@@ -218,12 +218,12 @@ class ShutItPexpectSession(object):
 
 
 	def logout(self,
-			   expect=None,
-			   command='exit',
-			   note=None,
-		       echo=None,
-			   timeout=5,
-			   loglevel=logging.DEBUG):
+	           expect=None,
+	           command='exit',
+	           note=None,
+	           echo=None,
+	           timeout=5,
+	           loglevel=logging.DEBUG):
 		"""Logs the user out. Assumes that login has been called.
 		If login has never been called, throw an error.
 
@@ -252,7 +252,7 @@ class ShutItPexpectSession(object):
 		# No point in checking exit here, the exit code will be
 		# from the previous command from the logged in session
 		echo = self.get_echo_override(shutit, echo)	
-		output = self.send_and_get_output(command, fail_on_empty_before=False, timeout=timeout,echo=echo, loglevel=loglevel)
+		output = self.send_and_get_output(command, fail_on_empty_before=False, timeout=timeout,echo=echo, loglevel=loglevel, no_wrap=True)
 		shutit._handle_note_after(note=note)
 		return output
 
@@ -1307,6 +1307,7 @@ class ShutItPexpectSession(object):
 	                        record_command=False,
 	                        echo=False,
 	                        fail_on_empty_before=True,
+	                        no_wrap=None,
 	                        loglevel=logging.DEBUG):
 		"""Returns the output of a command run. send() is called, and exit is not checked.
 
@@ -1325,7 +1326,13 @@ class ShutItPexpectSession(object):
 		shutit.log('Retrieving output from command: ' + send,level=loglevel)
 		# Don't check exit, as that will pollute the output. Also, it's quite likely the submitted command is intended to fail.
 		echo = self.get_echo_override(shutit, echo)	
-		self.send(shutit_util.get_send_command(send), check_exit=False, retry=retry, echo=echo, timeout=timeout, record_command=record_command, loglevel=loglevel, fail_on_empty_before=fail_on_empty_before)
+		if no_wrap != True and len(send) > 80:
+			tmpfile = '/tmp/shutit_tmpfile_' + shutit_util.random_id()
+			send = '(' + send + ') > ' + tmpfile + ' 2>&1'
+			self.send(shutit_util.get_send_command(send), check_exit=False, retry=retry, echo=echo, timeout=timeout, record_command=record_command, loglevel=loglevel, fail_on_empty_before=fail_on_empty_before)
+			self.send(' command cat ' + tmpfile, check_exit=False, echo=echo, timeout=timeout, record_command=record_command, loglevel=loglevel)
+		else:
+			self.send(shutit_util.get_send_command(send), check_exit=False, retry=retry, echo=echo, timeout=timeout, record_command=record_command, loglevel=loglevel, fail_on_empty_before=fail_on_empty_before)
 		before = self.pexpect_child.before
 		if preserve_newline and before[-1] == '\n':
 			preserve_newline = True
