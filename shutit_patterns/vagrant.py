@@ -42,8 +42,7 @@ fi''')
 	# destroy_vms.sh
 	destroyvmssh_filename = skel_path + '/destroy_vms.sh'
 	destroyvmssh_file = open(destroyvmssh_filename,'w+')
-	destroyvmssh_file.write('''
-#!/bin/bash
+	destroyvmssh_file.write('''#!/bin/bash
 if [[ $(command -v VBoxManage) != '' ]]
 then
 	while true
@@ -61,8 +60,7 @@ then
 fi
 if [[ $(kvm-ok 2>&1 | command grep 'can be used') != '' ]]                                                                                                                        
 then                                                                                                                                                                              
-	# TODO: delete virshes
-    echo                                                                                                                                                                          
+	virsh list | grep ''' + skel_module_name + ''' | awk '{print $1}' | xargs -n1 virsh destroy
 fi       
 ''')
 	destroyvmssh_file.close()
