@@ -43,24 +43,25 @@ fi''')
 	destroyvmssh_filename = skel_path + '/destroy_vms.sh'
 	destroyvmssh_file = open(destroyvmssh_filename,'w+')
 	destroyvmssh_file.write('''#!/bin/bash
+MODULE_NAME=''' + skel_module_name + '''
 if [[ $(command -v VBoxManage) != '' ]]
 then
 	while true
 	do
-		VBoxManage list runningvms | grep ''' + skel_module_name + ''' | awk '{print $1}' | xargs -IXXX VBoxManage controlvm 'XXX' poweroff && VBoxManage list vms | grep ''' + skel_module_name + ''' | awk '{print $1}'  | xargs -IXXX VBoxManage unregistervm 'XXX' --delete
+		VBoxManage list runningvms | grep ${MODULE_NAME} | awk '{print $1}' | xargs -IXXX VBoxManage controlvm 'XXX' poweroff && VBoxManage list vms | grep ${MODULE_NAME} | awk '{print $1}'  | xargs -IXXX VBoxManage unregistervm 'XXX' --delete
 		# The xargs removes whitespace
-		if [[ $(VBoxManage list vms | grep ''' + skel_module_name + ''' | wc -l | xargs) -eq '0' ]]
+		if [[ $(VBoxManage list vms | grep ${MODULE_NAME} | wc -l | xargs) -eq '0' ]]
 		then
 			break
 		else
-			ps -ef | grep virtualbox | grep ''' + skel_module_name + ''' | awk '{print $2}' | xargs kill
+			ps -ef | grep virtualbox | grep ${MODULE_NAME} | awk '{print $2}' | xargs kill
 			sleep 10
 		fi
 	done
 fi
 if [[ $(kvm-ok 2>&1 | command grep 'can be used') != '' ]]                                                                                                                        
 then                                                                                                                                                                              
-	virsh list | grep ''' + skel_module_name + ''' | awk '{print $1}' | xargs -n1 virsh destroy
+	virsh list | grep ${MODULE_NAME} | awk '{print $1}' | xargs -n1 virsh destroy
 fi       
 ''')
 	destroyvmssh_file.close()
