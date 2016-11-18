@@ -1196,7 +1196,7 @@ def util_raw_input(prompt='', default=None, ispass=False, use_readline=True):
 			if ispass:
 				return getpass.getpass(prompt=prompt)
 			else:
-				resp = input(prompt).strip()
+				resp = raw_input(prompt).strip()
 				if resp == '':
 					return default
 				else:
@@ -1205,6 +1205,14 @@ def util_raw_input(prompt='', default=None, ispass=False, use_readline=True):
 			continue
 		except:
 			msg = 'Problems getting raw input, assuming no controlling terminal.'
+	if ispass:
+		return getpass.getpass(prompt=prompt)
+	else:
+		resp = raw_input(prompt).strip()
+		if resp == '':
+			return default
+		else:
+			return resp
 	set_noninteractive(msg=msg)
 	return default
 
