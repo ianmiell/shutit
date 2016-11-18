@@ -1150,8 +1150,10 @@ class ShutItPexpectSession(object):
 			while True:
 				if pw != '':
 					res = self.multisend('%s %s %s' % (cmd, opts, package), {'assword':pw}, expect=['Unable to fetch some archives',self.default_expect], timeout=timeout, check_exit=False, loglevel=loglevel, echo=False, secret=True)
+					shutit.log('Result of install attempt was: ' + str(res),level=logging.DEBUG)
 				else:
 					res = self.send('%s %s %s' % (cmd, opts, package), expect=['Unable to fetch some archives',self.default_expect], timeout=timeout, check_exit=check_exit, loglevel=loglevel)
+					shutit.log('Result of install attempt was: ' + str(res),level=logging.DEBUG)
 				if res == 1:
 					break
 				else:
