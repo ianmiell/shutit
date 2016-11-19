@@ -278,8 +278,8 @@ import os
 		run_dir = '""" + skel_path + """/vagrant_run'   
 		module_name = '""" + skel_module_name + """_' + ''.join(random.choice(string.ascii_letters + string.digits) for _ in range(6))
 		shutit.send('command rm -rf ' + run_dir + '/' + module_name + ' && command mkdir -p ' + run_dir + '/' + module_name + ' && command cd ' + run_dir + '/' + module_name)
-        if shutit.send_and_get_output('vagrant plugin list | grep landrush') == '':
-            shutit.send('vagrant plugin install landrush')
+		if shutit.send_and_get_output('vagrant plugin list | grep landrush') == '':
+			shutit.send('vagrant plugin install landrush')
 		shutit.send('vagrant init ' + vagrant_image)
 		shutit.send_file(run_dir + '/' + module_name + '/Vagrantfile','''
 
