@@ -2135,7 +2135,7 @@ $'"""
 					if escaped_str != None:
 						if len(escaped_str) + 25 > shutit.build['stty_cols']:
 							fname = self.create_command_file(expect,escaped_str)
-							res = self.send(' ' + fname,expect=expect,timeout=timeout,check_exit=check_exit,fail_on_empty_before=False,record_command=False,exit_values=exit_values,echo=False,escape=False,retry=retry,loglevel=loglevel,follow_on_commands=follow_on_commands,delaybeforesend=delaybeforesend)
+							res = self.send('command source ' + fname,expect=expect,timeout=timeout,check_exit=check_exit,fail_on_empty_before=False,record_command=False,exit_values=exit_values,echo=False,escape=False,retry=retry,loglevel=loglevel,follow_on_commands=follow_on_commands,delaybeforesend=delaybeforesend)
 							self.sendline(' rm -f ' + fname)
 							self.expect(expect, searchwindowsize=searchwindowsize, maxread=maxread)
 							return res
@@ -2148,7 +2148,7 @@ $'"""
 					if send != None:
 						if len(send) + 25 > shutit.build['stty_cols']:
 							fname = self.create_command_file(expect,send)
-							res = self.send(' ' + fname,expect=expect,timeout=timeout,check_exit=check_exit,fail_on_empty_before=False,record_command=False,exit_values=exit_values,echo=False,escape=False,retry=retry,loglevel=loglevel,follow_on_commands=follow_on_commands,delaybeforesend=delaybeforesend)
+							res = self.send('command source ' + fname,expect=expect,timeout=timeout,check_exit=check_exit,fail_on_empty_before=False,record_command=False,exit_values=exit_values,echo=False,escape=False,retry=retry,loglevel=loglevel,follow_on_commands=follow_on_commands,delaybeforesend=delaybeforesend)
 							self.sendline(' rm -f ' + fname)
 							self.expect(expect, searchwindowsize=searchwindowsize, maxread=maxread)
 							return res
@@ -2163,7 +2163,7 @@ $'"""
 					if escaped_str != None:
 						if len(escaped_str) + 25 > shutit.build['stty_cols']:
 							fname = self.create_command_file(expect,escaped_str)
-							res = self.send(' ' + fname,expect=expect,timeout=timeout,check_exit=check_exit,fail_on_empty_before=False,record_command=False,exit_values=exit_values,echo=False,escape=False,retry=retry,loglevel=loglevel,follow_on_commands=follow_on_commands,delaybeforesend=delaybeforesend)
+							res = self.send('command source ' + fname,expect=expect,timeout=timeout,check_exit=check_exit,fail_on_empty_before=False,record_command=False,exit_values=exit_values,echo=False,escape=False,retry=retry,loglevel=loglevel,follow_on_commands=follow_on_commands,delaybeforesend=delaybeforesend)
 							self.sendline(' rm -f ' + fname)
 							self.expect(expect, searchwindowsize=searchwindowsize, maxread=maxread)
 							return res
@@ -2176,7 +2176,7 @@ $'"""
 					if send != None:
 						if len(send) + 25 > shutit.build['stty_cols']:
 							fname = self.create_command_file(expect,send)
-							res = self.send(' ' + fname,expect=expect,timeout=timeout,check_exit=check_exit,fail_on_empty_before=False,record_command=False,exit_values=exit_values,echo=False,escape=False,retry=retry,loglevel=loglevel,follow_on_commands=follow_on_commands,delaybeforesend=delaybeforesend)
+							res = self.send('command source ' + fname,expect=expect,timeout=timeout,check_exit=check_exit,fail_on_empty_before=False,record_command=False,exit_values=exit_values,echo=False,escape=False,retry=retry,loglevel=loglevel,follow_on_commands=follow_on_commands,delaybeforesend=delaybeforesend)
 							self.sendline(' rm -f ' + fname)
 							self.expect(expect,searchwindowsize=searchwindowsize, maxread=maxread)
 							return res
@@ -2208,7 +2208,8 @@ $'"""
 					shutit.log('shutit_pexpect_child.after>>>\n' + self.pexpect_child.after + '\n<<<',level=logging.DEBUG)
 				else:
 					shutit.log('[Send was marked secret; getting output debug will require code change]',level=logging.DEBUG)
-			except:
+			except Exception, e:
+				shutit.log('Error: ' + str(e),level=logging.CRITICAL)
 				pass
 			if fail_on_empty_before:
 				if self.pexpect_child.before.strip() == '':
