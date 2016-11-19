@@ -58,8 +58,7 @@ then
 		fi
 	done
 fi
-                                                                                                                                        
-if [[ $(kvm-ok 2>&1 | command grep 'can be used') != '' ]]
+if [[ $(command -v virsh) ]] && [[ $(kvm-ok 2>&1 | command grep 'can be used') != '' ]]
 then
 	virsh list | grep ${MODULE_NAME} | awk '{print $1}' | xargs -n1 virsh destroy
 fi                                        
