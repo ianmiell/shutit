@@ -305,9 +305,9 @@ Vagrant.configure("2") do |config|
   end
 end''')
 		shutit.send('vagrant up --provider virtualbox',timeout=99999)
-		master_ip = shutit.send_and_get_output('''vagrant landrush ls | grep -w ^master.vagrant.test' | awk '{print $2}' ''')
-		slave1_ip = shutit.send_and_get_output('''vagrant landrush ls | grep -w ^slave1.vagrant.test' | awk '{print $2}' ''')
-		slave2_ip = shutit.send_and_get_output('''vagrant landrush ls | grep -w ^slave2.vagrant.test' | awk '{print $2}' ''')
+		master_ip = shutit.send_and_get_output('''vagrant landrush ls | grep -w ^master.vagrant.test | awk '{print $2}' ''')
+		slave1_ip = shutit.send_and_get_output('''vagrant landrush ls | grep -w ^slave1.vagrant.test | awk '{print $2}' ''')
+		slave2_ip = shutit.send_and_get_output('''vagrant landrush ls | grep -w ^slave2.vagrant.test | awk '{print $2}' ''')
 		shutit.login(command='vagrant ssh')
 		shutit.login(command='sudo su -',password='vagrant')
 
