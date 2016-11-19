@@ -1113,6 +1113,8 @@ class ShutItPexpectSession(object):
 			if 'yum' in options:
 				opts = options['yum']
 			else:
+				if not shutit.build['loglevel'] <= logging.DEBUG:
+					opts += ' -qq'
 				opts += ' -y'
 			if reinstall:
 				opts += ' reinstall'
