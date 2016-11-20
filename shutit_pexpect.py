@@ -2045,7 +2045,7 @@ class ShutItPexpectSession(object):
 		shutit = shutit_global.shutit
 		cfg = shutit.cfg
 		if type(expect) == dict:
-			return self.multisend(send=send,send_dict=expect,expect=shutit.get_default_shutit_pexpect_session_expect(),timeout=timeout,check_exit=check_exit,fail_on_empty_before=fail_on_empty_before,record_command=record_command,exit_values=exit_values,echo=echo,note=note,loglevel=loglevel,delaybeforesend=delaybeforesend)
+			return self.multisend(send=send,send_dict=expect,expect=shutit.get_default_shutit_pexpect_session_expect(),timeout=timeout,check_exit=check_exit,fail_on_empty_before=fail_on_empty_before,record_command=record_command,exit_values=exit_values,echo=echo,note=note,loglevel=loglevel)
 		expect = expect or self.default_expect
 		shutit.log('Sending data in session: ' + self.pexpect_session_id,level=logging.DEBUG)
 		shutit._handle_note(note, command=str(send), training_input=str(send))
