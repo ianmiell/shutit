@@ -1097,7 +1097,7 @@ class ShutItPexpectSession(object):
 			if not shutit.get_current_shutit_pexpect_session_environment().build['apt_update_done'] and self.whoami() == 'root':
 				self.send('apt-get update',loglevel=logging.INFO)
 				shutit.get_current_shutit_pexpect_session_environment().build['apt_update_done'] = True
-			cmd += 'apt-get install'
+			cmd += 'DEBIAN_FRONTEND=noninteractive apt-get install'
 			if 'apt' in options:
 				opts = options['apt']
 			else:
@@ -1428,7 +1428,7 @@ class ShutItPexpectSession(object):
 				if not self.command_available('lsb_release'):
 					if not shutit.get_current_shutit_pexpect_session_environment().build['apt_update_done'] and self.whoami() == 'root':
 						shutit.get_current_shutit_pexpect_session_environment.build['apt_update_done'] = True
-						self.send('apt-get update && apt-get install -y -qq lsb-release',loglevel=loglevel)
+						self.send('DEBIAN_FRONTEND=noninteractive apt-get update && apt-get install -y -qq lsb-release',loglevel=loglevel)
 				d = self.lsb_release()
 				install_type   = d['install_type']
 				distro         = d['distro']
@@ -1530,8 +1530,8 @@ class ShutItPexpectSession(object):
 				if not self.command_available('lsb_release'):
 					if not shutit.get_current_shutit_pexpect_session_environment().build['apt_update_done'] and self.whoami() == 'root':
 						shutit.get_current_shutit_pexpect_session_environment().build['apt_update_done'] = True
-						self.send('apt-get update && apt-get install -y -qq lsb-release',loglevel=loglevel)
-					self.send('apt-get install -y -qq lsb-release',loglevel=loglevel)
+						self.send('DEBIAN_FRONTEND=noninteractive apt-get update && apt-get install -y -qq lsb-release',loglevel=loglevel)
+					self.send('DEBIAN_FRONTEND=noninteractive apt-get install -y -qq lsb-release',loglevel=loglevel)
 				d = self.lsb_release()
 				install_type   = d['install_type']
 				distro         = d['distro']
