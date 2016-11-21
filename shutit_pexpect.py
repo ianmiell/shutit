@@ -1308,8 +1308,8 @@ class ShutItPexpectSession(object):
 	                        strip=True,
 	                        preserve_newline=False,
 	                        note=None,
-	                        record_command=False,
-	                        echo=False,
+	                        record_command=True,
+	                        echo=None,
 	                        fail_on_empty_before=True,
 	                        no_wrap=None,
 	                        loglevel=logging.DEBUG):
@@ -2208,7 +2208,7 @@ $'"""
 					shutit.log('shutit_pexpect_child.after>>>\n' + self.pexpect_child.after + '\n<<<',level=logging.DEBUG)
 				else:
 					shutit.log('[Send was marked secret; getting output debug will require code change]',level=logging.DEBUG)
-			except Exception, e:
+			except Exception as e:
 				shutit.log('Error: ' + str(e),level=logging.CRITICAL)
 				pass
 			if fail_on_empty_before:
