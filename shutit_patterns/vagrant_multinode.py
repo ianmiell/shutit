@@ -3,12 +3,12 @@ import shutit_global
 from . import shutitfile
 
 def setup_vagrant_multinode_pattern(skel_path,
-                          skel_delivery,
-                          skel_domain,
-                          skel_module_name,
-                          skel_shutitfiles, 
-                          skel_domain_hash,
-                          skel_depends):
+                                    skel_delivery,
+                                    skel_domain,
+                                    skel_module_name,
+                                    skel_shutitfiles, 
+                                    skel_domain_hash,
+                                    skel_depends):
 
 	shutit = shutit_global.shutit
 	# .gitignore

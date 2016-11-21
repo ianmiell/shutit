@@ -4,12 +4,12 @@ from . import shutitfile
 import logging
 
 def setup_docker_pattern(skel_path,
-                          skel_delivery,
-                          skel_domain,
-                          skel_module_name,
-                          skel_shutitfiles,
-                          skel_domain_hash,
-                          skel_depends):
+                         skel_delivery,
+                         skel_domain,
+                         skel_module_name,
+                         skel_shutitfiles,
+                         skel_domain_hash,
+                         skel_depends):
 
 	shutit = shutit_global.shutit
 
