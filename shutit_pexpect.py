@@ -1343,7 +1343,7 @@ class ShutItPexpectSession(object):
 		echo = self.get_echo_override(shutit, echo)	
 		if no_wrap != True and len(send) > 80:
 			tmpfile = '/tmp/shutit_tmpfile_' + shutit_util.random_id()
-			send = '(' + send + ') > ' + tmpfile + ' 2>&1'
+			send = ' (' + send + ') > ' + tmpfile + ' 2>&1'
 			self.send(shutit_util.get_send_command(send), check_exit=False, retry=retry, echo=echo, timeout=timeout, record_command=record_command, loglevel=loglevel, fail_on_empty_before=fail_on_empty_before)
 			self.send(' command cat ' + tmpfile, check_exit=False, echo=echo, timeout=timeout, record_command=record_command, loglevel=loglevel)
 		else:
