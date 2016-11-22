@@ -116,9 +116,8 @@ import os
 		if shutit.send_and_get_output('vagrant plugin list | grep landrush') == '':
 			shutit.send('vagrant plugin install landrush')
 		shutit.send('vagrant init ' + vagrant_image)
-		shutit.send_file(run_dir + '/' + module_name + '/Vagrantfile','''
-
-Vagrant.configure("2") do |config|
+		shutit.send_file(run_dir + '/' + module_name + '/Vagrantfile','''Vagrant.configure("2") do |config|
+  config.landrush.enabled = true
   config.vm.provider "virtualbox" do |vb|
     vb.gui = ''' + gui + '''
     vb.memory = "''' + memory + '''"
@@ -139,7 +138,8 @@ Vagrant.configure("2") do |config|
     slave2.vm.hostname = "slave2.vagrant.test"
   end
 end''')
-		shutit.send('vagrant up --provider virtualbox',timeout=99999)
+		pw = shutit.get_env_pass()
+		shutit.multisend('vagrant up --provider ' + shutit.cfg['shutit-library.virtualization.virtualization.virtualization']['virt_method'] + ' ' + machine,{'assword for':pw},timeout=99999)                              
 		master_ip = shutit.send_and_get_output('''vagrant landrush ls | grep -w ^master.vagrant.test | awk '{print $2}' ''')
 		slave1_ip = shutit.send_and_get_output('''vagrant landrush ls | grep -w ^slave1.vagrant.test | awk '{print $2}' ''')
 		slave2_ip = shutit.send_and_get_output('''vagrant landrush ls | grep -w ^slave2.vagrant.test | awk '{print $2}' ''')
@@ -156,7 +156,7 @@ end''')
 		shutit.get_config(self.module_id,'vagrant_image',default='ubuntu/trusty64')
 		shutit.get_config(self.module_id,'vagrant_provider',default='virtualbox')
 		shutit.get_config(self.module_id,'gui',default='false')
-		shutit.get_config(self.module_id,'memory',default='512')
+		shutit.get_config(self.module_id,'memory',default='1024')
 """ + shutit.cfg['skeleton']['config_section'] + """
 		return True
 
@@ -281,9 +281,8 @@ import os
 		if shutit.send_and_get_output('vagrant plugin list | grep landrush') == '':
 			shutit.send('vagrant plugin install landrush')
 		shutit.send('vagrant init ' + vagrant_image)
-		shutit.send_file(run_dir + '/' + module_name + '/Vagrantfile','''
-
-Vagrant.configure("2") do |config|
+		shutit.send_file(run_dir + '/' + module_name + '/Vagrantfile','''Vagrant.configure("2") do |config|
+  config.landrush.enabled = true
   config.vm.provider "virtualbox" do |vb|
     vb.gui = ''' + gui + '''
     vb.memory = "''' + memory + '''"
@@ -304,7 +303,8 @@ Vagrant.configure("2") do |config|
     slave2.vm.hostname = "slave2.vagrant.test"
   end
 end''')
-		shutit.send('vagrant up --provider virtualbox',timeout=99999)
+		pw = shutit.get_env_pass()
+		shutit.multisend('vagrant up --provider ' + shutit.cfg['shutit-library.virtualization.virtualization.virtualization']['virt_method'] + ' ' + machine,{'assword for':pw},timeout=99999)                              
 		master_ip = shutit.send_and_get_output('''vagrant landrush ls | grep -w ^master.vagrant.test | awk '{print $2}' ''')
 		slave1_ip = shutit.send_and_get_output('''vagrant landrush ls | grep -w ^slave1.vagrant.test | awk '{print $2}' ''')
 		slave2_ip = shutit.send_and_get_output('''vagrant landrush ls | grep -w ^slave2.vagrant.test | awk '{print $2}' ''')
