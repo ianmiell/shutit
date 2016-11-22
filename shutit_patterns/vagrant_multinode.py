@@ -304,7 +304,10 @@ import os
   end
 end''')
 		pw = shutit.get_env_pass()
-		shutit.multisend('vagrant up --provider ' + shutit.cfg['shutit-library.virtualization.virtualization.virtualization']['virt_method'],{'assword for':pw},timeout=99999)                              
+		try:
+			shutit.multisend('vagrant up --provider ' + shutit.cfg['shutit-library.virtualization.virtualization.virtualization']['virt_method'],{'assword for':pw},timeout=99999)
+		except:
+			shutit.multisend('vagrant up',{'assword for':pw},timeout=99999)
 		master_ip = shutit.send_and_get_output('''vagrant landrush ls | grep -w ^master.vagrant.test | awk '{print $2}' ''')
 		slave1_ip = shutit.send_and_get_output('''vagrant landrush ls | grep -w ^slave1.vagrant.test | awk '{print $2}' ''')
 		slave2_ip = shutit.send_and_get_output('''vagrant landrush ls | grep -w ^slave2.vagrant.test | awk '{print $2}' ''')
