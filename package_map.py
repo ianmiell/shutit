@@ -53,6 +53,7 @@ PACKAGE_MAP = {
 	'libvirt':               {'apt':'libvirt-bin',        'yum':'libvirt'},
 	'libvirt-dev':           {'apt':'libvirt-dev',        'yum':'libvirt-devel'},
 	'libvirt-devel':         {'apt':'libvirt-dev',        'yum':'libvirt-devel'},
+	'docker':                {'apt':'docker.io',          'yum':'docker'},
 }
 
 
