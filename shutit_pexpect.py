@@ -199,14 +199,17 @@ class ShutItPexpectSession(object):
 		#if send == 'bash':
 		echo = self.get_echo_override(shutit, echo)
 		self.multisend(send,{'ontinue connecting':'yes','assword':password,r'[^t] login:':password},expect=general_expect,check_exit=False,timeout=timeout,fail_on_empty_before=False,escape=escape,echo=echo,loglevel=loglevel)
+		# Check exit 'by hand' here to not effect/assume setup prompt.
 		self.sendline('echo SHUTIT_RESULT:$?')
 		success_check = self.expect(['SHUTIT_RESULT:0','SHUTIT_RESULT:1'])
 		if success_check == 1:
 			self.pause_point('Login appears to have failed')
 		elif success_check == 0:
+			# A-OK
 			pass
 		else:
-			self.pause_point('Login appears to have failed')
+			self.pause_point('Login appears to have failed - could not match output when checking exit value')
+		# Setup prompt
 		if prompt_prefix != None:
 			self.setup_prompt(r_id,prefix=prompt_prefix)
 		else:
