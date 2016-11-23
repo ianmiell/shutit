@@ -6,7 +6,7 @@ def setup_vagrant_multinode_pattern(skel_path,
                                     skel_delivery,
                                     skel_domain,
                                     skel_module_name,
-                                    skel_shutitfiles, 
+                                    skel_shutitfiles,
                                     skel_domain_hash,
                                     skel_depends):
 
@@ -45,7 +45,7 @@ fi''')
 MODULE_NAME=''' + skel_module_name + '''
 if [[ $(command -v VBoxManage) != '' ]]
 then
-	while true 
+	while true
 	do
 		VBoxManage list runningvms | grep ${MODULE_NAME} | awk '{print $1}' | xargs -IXXX VBoxManage controlvm 'XXX' poweroff && VBoxManage list vms | grep ''' + skel_module_name + ''' | awk '{print $1}'  | xargs -IXXX VBoxManage unregistervm 'XXX' --delete
 		# The xargs removes whitespace
@@ -61,7 +61,7 @@ fi
 if [[ $(command -v virsh) ]] && [[ $(kvm-ok 2>&1 | command grep 'can be used') != '' ]]
 then
 	virsh list | grep ${MODULE_NAME} | awk '{print $1}' | xargs -n1 virsh destroy
-fi                                        
+fi
 ''')
 	destroyvmssh_file.close()
 	os.chmod(destroyvmssh_filename,0o755)
@@ -89,19 +89,20 @@ cd ''' + skel_path + ''' && ./run.sh
 			shutit.cfg['skeleton']['module_modifier'] = module_modifier
 			(sections, skel_module_id, skel_module_name, default_include, ok) = shutitfile.shutitfile_to_shutit_module(skel_shutitfile,skel_path,skel_domain,skel_module_name,skel_domain_hash,skel_delivery,skel_depends,_count,_total,module_modifier)
 			shutit.cfg['skeleton']['header_section']      = sections['header_section']
-			shutit.cfg['skeleton']['config_section']      = sections['config_section'] 
-			shutit.cfg['skeleton']['build_section']       = sections['build_section'] 
-			shutit.cfg['skeleton']['finalize_section']    = sections['finalize_section'] 
-			shutit.cfg['skeleton']['test_section']        = sections['test_section'] 
-			shutit.cfg['skeleton']['isinstalled_section'] = sections['isinstalled_section'] 
-			shutit.cfg['skeleton']['start_section']       = sections['start_section'] 
-			shutit.cfg['skeleton']['stop_section']        = sections['stop_section'] 
+			shutit.cfg['skeleton']['config_section']      = sections['config_section']
+			shutit.cfg['skeleton']['build_section']       = sections['build_section']
+			shutit.cfg['skeleton']['finalize_section']    = sections['finalize_section']
+			shutit.cfg['skeleton']['test_section']        = sections['test_section']
+			shutit.cfg['skeleton']['isinstalled_section'] = sections['isinstalled_section']
+			shutit.cfg['skeleton']['start_section']       = sections['start_section']
+			shutit.cfg['skeleton']['stop_section']        = sections['stop_section']
 			shutit.cfg['skeleton']['final_section']       = sections['final_section']
 			module_file = open(new_module_filename,'w+')
 			if _count == 1 or True:
 				module_file.write("""import random
 import string
 import os
+import inspect
 
 """ + shutit.cfg['skeleton']['header_section'] + """
 
@@ -110,7 +111,7 @@ import os
 		vagrant_provider = shutit.cfg[self.module_id]['vagrant_provider']
 		gui = shutit.cfg[self.module_id]['gui']
 		memory = shutit.cfg[self.module_id]['memory']
-		run_dir = os.path.dirname(module.__module_file) + '/vagrant_run'
+		run_dir = os.path.dirname(os.path.abspath(inspect.getsourcefile(lambda:0))) + '/vagrant_run'
 		module_name = '""" + skel_module_name + """_' + ''.join(random.choice(string.ascii_letters + string.digits) for _ in range(6))
 		shutit.send(' command rm -rf ' + run_dir + '/' + module_name + ' && command mkdir -p ' + run_dir + '/' + module_name + ' && command cd ' + run_dir + '/' + module_name)
 		if shutit.send_and_get_output('vagrant plugin list | grep landrush') == '':
@@ -123,7 +124,7 @@ import os
     vb.memory = "''' + memory + '''"
   end
 
-  config.vm.define "master" do |master|    
+  config.vm.define "master" do |master|
     master.vm.box = ''' + '"' + vagrant_image + '"' + '''
     master.vm.hostname = "master.vagrant.test"
   end
@@ -270,6 +271,7 @@ shutit.core.module.build:yes''')
 		module_file.write('''import random
 import string
 import os
+import inspect
 
 ''' + shutit.cfg['skeleton']['header_section'] + """
 
@@ -278,7 +280,7 @@ import os
 		vagrant_provider = shutit.cfg[self.module_id]['vagrant_provider']
 		gui = shutit.cfg[self.module_id]['gui']
 		memory = shutit.cfg[self.module_id]['memory']
-		run_dir = os.path.dirname(module.__module_file) + '/vagrant_run'
+		run_dir = os.path.dirname(os.path.abspath(inspect.getsourcefile(lambda:0))) + '/vagrant_run'
 		module_name = '""" + skel_module_name + """_' + ''.join(random.choice(string.ascii_letters + string.digits) for _ in range(6))
 		shutit.send('command rm -rf ' + run_dir + '/' + module_name + ' && command mkdir -p ' + run_dir + '/' + module_name + ' && command cd ' + run_dir + '/' + module_name)
 		if shutit.send_and_get_output('vagrant plugin list | grep landrush') == '':
@@ -291,7 +293,7 @@ import os
     vb.memory = "''' + memory + '''"
   end
 
-  config.vm.define "master" do |master|    
+  config.vm.define "master" do |master|
     master.vm.box = ''' + '"' + vagrant_image + '"' + '''
     master.vm.hostname = "master.vagrant.test"
   end
@@ -353,7 +355,7 @@ end''')
 
 def module():
 	return """ + skel_module_name + """(
-		'""" + skel_domain + '''.''' + skel_module_name + """', """ + skel_domain_hash + """.0001,   
+		'""" + skel_domain + '''.''' + skel_module_name + """', """ + skel_domain_hash + """.0001,
 		description='',
 		maintainer='',
 		delivery_methods=['bash'],

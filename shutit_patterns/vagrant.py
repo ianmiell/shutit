@@ -102,6 +102,8 @@ cd ''' + skel_path + ''' && ./run.sh
 			if _count == 1 or True:
 				module_file.write("""import random
 import string
+import os
+import inspect
 
 """ + shutit.cfg['skeleton']['header_section'] + """
 
@@ -110,7 +112,8 @@ import string
 		vagrant_provider = shutit.cfg[self.module_id]['vagrant_provider']
 		gui = shutit.cfg[self.module_id]['gui']
 		memory = shutit.cfg[self.module_id]['memory']
-		run_dir = os.path.dirname(module.__module_file) + '/vagrant_run'
+		import os
+		run_dir = os.path.dirname(os.path.abspath(inspect.getsourcefile(lambda:0))) + '/vagrant_run'
 		module_name = '""" + skel_module_name + """_' + ''.join(random.choice(string.ascii_letters + string.digits) for _ in range(6))
 		shutit.send('command rm -rf ' + run_dir + '/' + module_name + ' && command mkdir -p ' + run_dir + '/' + module_name + ' && command cd ' + run_dir + '/' + module_name)
 		shutit.send('vagrant init ' + vagrant_image)
@@ -255,6 +258,8 @@ shutit.core.module.build:yes''')
 		module_file = open(new_module_filename,'w+')
 		module_file.write('''import random
 import string
+import os
+import inspect
 
 ''' + shutit.cfg['skeleton']['header_section'] + """
 
@@ -263,7 +268,7 @@ import string
 		vagrant_provider = shutit.cfg[self.module_id]['vagrant_provider']
 		gui = shutit.cfg[self.module_id]['gui']
 		memory = shutit.cfg[self.module_id]['memory']
-		run_dir = os.path.dirname(module.__module_file) + '/vagrant_run'
+		run_dir = os.path.dirname(os.path.abspath(inspect.getsourcefile(lambda:0))) + '/vagrant_run'
 		module_name = '""" + skel_module_name + """_' + ''.join(random.choice(string.ascii_letters + string.digits) for _ in range(6))
 		shutit.send('command rm -rf ' + run_dir + '/' + module_name + ' && command mkdir -p ' + run_dir + '/' + module_name + ' && command cd ' + run_dir + '/' + module_name)
 		shutit.send('vagrant init ' + vagrant_image)
