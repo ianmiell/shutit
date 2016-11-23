@@ -1092,15 +1092,7 @@ class ShutItPexpectSession(object):
 			# If this is a src build, we assume it's already installed.
 			return True
 		opts = ''
-		whoiam = self.whoami()
-		if whoiam != 'root' and install_type != 'brew':
-			if not self.command_available('sudo'):
-				shutit.pause_point('Please install sudo and then continue with CTRL-]',shutit_pexpect_child=self.pexpect_child)
-			cmd = 'sudo '
-			pw = self.get_env_pass(whoiam,'Please input your sudo password in case it is needed (for user: ' + whoiam + ')\nJust hit return if you do not want to submit a password.\n')
-		else:
-			cmd = ''
-			pw = ''
+		cmd = ''
 		if install_type == 'apt':
 			if not shutit.get_current_shutit_pexpect_session_environment().build['apt_update_done'] and self.whoami() == 'root':
 				self.send('apt-get update',loglevel=logging.INFO)
@@ -1158,7 +1150,9 @@ class ShutItPexpectSession(object):
 		if package.strip() != '':
 			fails = 0
 			while True:
+				pw = self.get_sudo_pass_if_needed(shutit)
 				if pw != '':
+					cmd = 'sudo ' + cmd
 					res = self.multisend('%s %s %s' % (cmd, opts, package), {'assword':pw}, expect=['Unable to fetch some archives',self.default_expect], timeout=timeout, check_exit=False, loglevel=loglevel, echo=False, secret=True)
 					shutit.log('Result of install attempt was: ' + str(res),level=logging.DEBUG)
 				else:
@@ -1218,13 +1212,7 @@ class ShutItPexpectSession(object):
 			shutit._handle_note('Removing package: ' + package + '\n' + note)
 		if options is None: options = {}
 		install_type = self.current_environment.install_type
-		whoiam = self.whoami()
-		if whoiam != 'root' and install_type != 'brew':
-			cmd = 'sudo '
-			pw = self.get_env_pass(whoiam,'Please input your sudo password in case it is needed (for user: ' + whoiam + ')\nJust hit return if you do not want to submit a password.\n')
-		else:
-			cmd = ''
-			pw = ''
+		cmd = ''
 		if install_type == 'src':
 			# If this is a src build, we assume it's already installed.
 			return True
@@ -1260,7 +1248,9 @@ class ShutItPexpectSession(object):
 			return False
 		# Get mapped package.
 		package = package_map.map_package(package, self.current_environment.install_type)
+		pw = self.get_sudo_pass_if_needed(shutit)
 		if pw != '':
+			cmd = 'sudo ' + cmd
 			self.multisend('%s %s %s' % (cmd, opts, package), {'assword:':pw}, timeout=timeout, exit_values=['0','100'], echo=False, secret=True)
 		else:
 			self.send('%s %s %s' % (cmd, opts, package), timeout=timeout, exit_values=['0','100'])
@@ -2770,6 +2760,15 @@ $'"""
 			shutit.log('Returning false.',level=logging.DEBUG)
 			return False
 
+	def get_sudo_pass_if_needed(self, shutit)
+		pw = ''
+		whoiam = self.whoami()
+		if whoiam != 'root' and install_type != 'brew':
+			if not self.command_available('sudo'):
+				shutit.pause_point('Please install sudo and then continue with CTRL-]',shutit_pexpect_child=self.pexpect_child)
+			if not self.check_sudo():
+				pw = self.get_env_pass(whoiam,'Please input your sudo password in case it is needed (for user: ' + whoiam + ')\nJust hit return if you do not want to submit a password.\n')
+		return pw
 
 class ShutItPexpectSessionEnvironment(object):
 
