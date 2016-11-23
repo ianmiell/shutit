@@ -2760,7 +2760,7 @@ $'"""
 			shutit.log('Returning false.',level=logging.DEBUG)
 			return False
 
-	def get_sudo_pass_if_needed(self, shutit)
+	def get_sudo_pass_if_needed(self, shutit):
 		pw = ''
 		whoiam = self.whoami()
 		if whoiam != 'root' and install_type != 'brew':
