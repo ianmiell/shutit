@@ -637,7 +637,7 @@ shutitfile:        a shutitfile-based project
 			else:
 				delivery = ''
 				while delivery not in allowed_delivery_methods:
-					delivery = util_raw_input(prompt='# Input a delivery method from: ' + str(allowed_delivery_methods) + '.\n# Default: ' + default_delivery + '\n\ndocker = build within a docker image\nbash = run commands directly within bash\n', default=default_delivery)
+					delivery = util_raw_input(prompt='# Input a delivery method from: bash, docker.\n# Default: ' + default_delivery + '\n\ndocker = build within a docker image\nbash = run commands directly within bash\n', default=default_delivery)
 		else:
 			delivery = delivery_method
 		shutit.cfg['skeleton'] = {
