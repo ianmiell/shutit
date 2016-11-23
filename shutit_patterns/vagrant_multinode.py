@@ -43,6 +43,7 @@ fi''')
 	destroyvmssh_file = open(destroyvmssh_filename,'w+')
 	destroyvmssh_file.write('''#!/bin/bash
 MODULE_NAME=''' + skel_module_name + '''
+rm -rf $( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/vagrant_run/*
 if [[ $(command -v VBoxManage) != '' ]]
 then
 	while true

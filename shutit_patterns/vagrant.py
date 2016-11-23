@@ -44,6 +44,7 @@ fi''')
 	destroyvmssh_file = open(destroyvmssh_filename,'w+')
 	destroyvmssh_file.write('''#!/bin/bash
 MODULE_NAME=''' + skel_module_name + '''
+rm -rf $( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/vagrant_run/*
 if [[ $(command -v VBoxManage) != '' ]]
 then
 	while true
@@ -59,10 +60,10 @@ then
 		fi
 	done
 fi
-if [[ $(command -v virsh) ]] && [[ $(kvm-ok 2>&1 | command grep 'can be used') != '' ]]                                                                                                                        
-then                                                                                                                                                                              
+if [[ $(command -v virsh) ]] && [[ $(kvm-ok 2>&1 | command grep 'can be used') != '' ]]
+then
 	virsh list | grep ${MODULE_NAME} | awk '{print $1}' | xargs -n1 virsh destroy
-fi       
+fi
 ''')
 	destroyvmssh_file.close()
 	os.chmod(destroyvmssh_filename,0o755)
@@ -131,7 +132,7 @@ Vagrant.configure(2) do |config|
     vb.name = """ + '"' + skel_module_name + '''"''' + """
   end
 end''')
-		pw = shutit.get_env_pass()                                                                                                                                                
+		pw = shutit.get_env_pass()
 		try:
 			shutit.multisend('vagrant up --provider ' + shutit.cfg['shutit-library.virtualization.virtualization.virtualization']['virt_method'],{'assword for':pw},timeout=99999)
 		except:
@@ -286,7 +287,7 @@ Vagrant.configure(2) do |config|
     vb.name = """ + '"' + skel_module_name + '''"''' + """
   end
 end''')
-		pw = shutit.get_env_pass()                                                                                                                                                
+		pw = shutit.get_env_pass()
 		try:
 			shutit.multisend('vagrant up --provider ' + shutit.cfg['shutit-library.virtualization.virtualization.virtualization']['virt_method'],{'assword for':pw},timeout=99999)
 		except:
