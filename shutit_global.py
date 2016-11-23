@@ -1460,6 +1460,7 @@ class ShutIt(object):
 	          echo=None,
 	          note=None,
 	          go_home=True,
+	          fail_on_fail=True,
 	          loglevel=logging.DEBUG):
 		"""Logs user in on default child.
 		"""
@@ -1474,6 +1475,7 @@ class ShutIt(object):
 		                                    echo=echo,
 		                                    note=note,
 		                                    go_home=go_home,
+		                                    fail_on_fail=fail_on_fail,
 		                                    loglevel=loglevel)
 
 

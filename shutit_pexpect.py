@@ -139,7 +139,8 @@ class ShutItPexpectSession(object):
 			  note=None,
 			  go_home=True,
 			  delaybeforesend=0.05,
-			  loglevel=logging.DEBUG):
+			  loglevel=logging.DEBUG,
+	          fail_on_fail=True):
 		"""Logs the user in with the passed-in password and command.
 		Tracks the login. If used, used logout to log out again.
 		Assumes you are root when logging in, so no password required.
@@ -200,8 +201,11 @@ class ShutItPexpectSession(object):
 		echo = self.get_echo_override(shutit, echo)
 		self.multisend(send,{'ontinue connecting':'yes','assword':password,r'[^t] login:':password},expect=general_expect,check_exit=False,timeout=timeout,fail_on_empty_before=False,escape=escape,echo=echo,loglevel=loglevel)
 		# Check exit 'by hand' here to not effect/assume setup prompt.
-		if not get_exit_value():
-			self.pause_point('Login appears to have failed')
+		if not self.get_exit_value(shutit):
+			if fail_on_fail:
+				shutit.fail('Login failure!')
+			else:
+				return False
 		# Setup prompt
 		if prompt_prefix != None:
 			self.setup_prompt(r_id,prefix=prompt_prefix)
@@ -2754,12 +2758,16 @@ $'"""
 
 
 	# Created specifically to help when logging in and the prompt is not ready.
-	def get_exit_value(self):
-		self.sendline(' echo SHUTIT_RESULT:$?')
-		success_check = self.expect(['SHUTIT_RESULT:0','SHUTIT_RESULT:.*'])
+	def get_exit_value(self, shutit):
+		# The quotes in the middle of the string are there to prevent the output matching the command.
+		self.sendline(''' if [ $? = 0 ]; then echo 'SHUTIT''_RESULT:0'; else echo 'SHUTIT''_RESULT:1'; fi''')
+		shutit.log('Checking exit value.',level=logging.DEBUG)
+		success_check = self.expect(['SHUTIT_RESULT:0','SHUTIT_RESULT:1'])
 		if success_check == 0:
+			shutit.log('Returning true.',level=logging.DEBUG)
 			return True
 		elif success_check == 1:
+			shutit.log('Returning false.',level=logging.DEBUG)
 			return False
 
 
