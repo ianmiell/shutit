@@ -110,7 +110,7 @@ import os
 		vagrant_provider = shutit.cfg[self.module_id]['vagrant_provider']
 		gui = shutit.cfg[self.module_id]['gui']
 		memory = shutit.cfg[self.module_id]['memory']
-		run_dir = '""" + skel_path + """/vagrant_run'   
+		run_dir = os.path.dirname(module.__module_file) + '/vagrant_run'
 		module_name = '""" + skel_module_name + """_' + ''.join(random.choice(string.ascii_letters + string.digits) for _ in range(6))
 		shutit.send(' command rm -rf ' + run_dir + '/' + module_name + ' && command mkdir -p ' + run_dir + '/' + module_name + ' && command cd ' + run_dir + '/' + module_name)
 		if shutit.send_and_get_output('vagrant plugin list | grep landrush') == '':
@@ -278,7 +278,7 @@ import os
 		vagrant_provider = shutit.cfg[self.module_id]['vagrant_provider']
 		gui = shutit.cfg[self.module_id]['gui']
 		memory = shutit.cfg[self.module_id]['memory']
-		run_dir = '""" + skel_path + """/vagrant_run'   
+		run_dir = os.path.dirname(module.__module_file) + '/vagrant_run'
 		module_name = '""" + skel_module_name + """_' + ''.join(random.choice(string.ascii_letters + string.digits) for _ in range(6))
 		shutit.send('command rm -rf ' + run_dir + '/' + module_name + ' && command mkdir -p ' + run_dir + '/' + module_name + ' && command cd ' + run_dir + '/' + module_name)
 		if shutit.send_and_get_output('vagrant plugin list | grep landrush') == '':
