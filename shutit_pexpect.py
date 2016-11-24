@@ -2710,16 +2710,6 @@ $'"""
 		return False
 
 
-	def begin_asciinema_record(self, loglevel=logging.INFO):
-		# TODO: install asciinema
-		self.install('asciinema')
-		self.send('asciinema rec')
-		return True
-
-	def end_asciinema_record(self, loglevel=logging.INFO):
-		self.remove('asciinema')
-		return True
-
 	# given a shutit object and an echo value, return the appropriate echo
 	# value for the given context.
 	# TODO: move to shutit object
@@ -2740,7 +2730,7 @@ $'"""
 
 
 	def check_sudo(self):
-		if self.check_command('sudo'):
+		if self.command_available('sudo'):
 			self.send(' sudo -n echo', check_exit=False)
 			if self.send_and_get_output(' echo $?') == '0':
 				return True
@@ -2763,7 +2753,7 @@ $'"""
 	def get_sudo_pass_if_needed(self, shutit):
 		pw = ''
 		whoiam = self.whoami()
-		if whoiam != 'root' and install_type != 'brew':
+		if whoiam != 'root' and self.current_environment.install_type != 'brew':
 			if not self.command_available('sudo'):
 				shutit.pause_point('Please install sudo and then continue with CTRL-]',shutit_pexpect_child=self.pexpect_child)
 			if not self.check_sudo():
