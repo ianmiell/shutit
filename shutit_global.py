@@ -1852,8 +1852,8 @@ class ShutIt(object):
 		self.build['asciinema_session_file'] = False
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
 		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
-		whoami = shutit_pexpect_session.whoami()
-		self.install('asciinema')
+		if not self.command_available('asciinema'):
+			self.install('asciinema')
 		version = self.send_and_get_output("""asciinema --version | awk '{print $2}'""")
 		if max_pause:
 			max_pause_str = ' -w ' + str(max_pause)
@@ -1878,7 +1878,7 @@ class ShutIt(object):
 		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
 		output = self.logout(timeout=3000)
 		self.log(output,add_final_message=True)
-		self.build['asciinema_session'] = False
+		self.build['asciinema_session'] = None
 		self.build['asciinema_session_file'] = None
 		return True
 
