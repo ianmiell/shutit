@@ -1516,7 +1516,7 @@ class ShutItPexpectSession(object):
 							if self.send_and_get_output(' command cat .shutit_brew_list | grep -w ' + package,echo=False, loglevel=loglevel) == '':
 								self.send('brew install ' + package,loglevel=loglevel)
 						self.send('rm -f .shutit_brew_list',echo=False)
-					if uname_output == 'CYGWIN_NT-6.1':
+					if uname_output[:6] == 'CYGWIN':
 						distro       = 'cygwin'
 						install_type = 'apt-cyg'
 				if install_type == '' or distro == '':
@@ -2664,17 +2664,17 @@ $'"""
 							#break
 				else:
 					## See comment above re: cygwin.
-					#if self.file_exists('/cygdrive'):
-					#	self.current_environment_id = shutit.get_shutit_pexpect_session_environment('ORIGIN_ENV')
-					#else:
-					#	shutit.fail('Wrong number of files in environment_id_dir: ' + environment_id_dir)
+					if self.file_exists('/cygdrive'):
+						self.current_environment_id = shutit.get_shutit_pexpect_session_environment('ORIGIN_ENV')
+					else:
+						shutit.fail('Wrong number of files in environment_id_dir: ' + environment_id_dir)
 					shutit.fail('Wrong number of files in environment_id_dir: ' + environment_id_dir)
 			else:
 				# TODO: check against CygWin
-				#if self.file_exists('/cygdrive'):
-				#	environment_id = 'ORIGIN_ENV'
-				#else:
-				environment_id = files[0]
+				if self.file_exists('/cygdrive'):
+					environment_id = 'ORIGIN_ENV'
+				else:
+					environment_id = files[0]
 				environment = shutit.get_shutit_pexpect_session_environment(environment_id)
 				if environment:
 					# Set that object to the _current_ environment in the PexpectSession
