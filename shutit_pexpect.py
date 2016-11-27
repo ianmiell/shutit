@@ -437,7 +437,7 @@ class ShutItPexpectSession(object):
 		return res
 
 
-	def create_command_file(self, expect, send):
+	def _create_command_file(self, expect, send):
 		"""Internal function. Do not use.
 
 		Takes a long command, and puts it in an executable file ready to run. Returns the filename.
@@ -461,7 +461,7 @@ class ShutItPexpectSession(object):
 
 
 
-	def check_last_exit_values(self,
+	def _check_last_exit_values(self,
 	                           send,
 	                           expect=None,
 	                           exit_values=None,
@@ -897,8 +897,8 @@ class ShutItPexpectSession(object):
 				send = command + ' ' + location + '/' + filename + ' > ' + filename
 				self.send(send,check_exit=False,expect=self.default_expect,timeout=timeout,fail_on_empty_before=fail_on_empty_before,record_command=record_command,echo=False, loglevel=loglevel)
 				if retry == 0:
-					self.check_last_exit_values(send, expect=self.default_expect, exit_values=exit_values, retbool=False)
-				elif not self.check_last_exit_values(send, expect=self.default_expect, exit_values=exit_values, retbool=True):
+					self._check_last_exit_values(send, expect=self.default_expect, exit_values=exit_values, retbool=False)
+				elif not self._check_last_exit_values(send, expect=self.default_expect, exit_values=exit_values, retbool=True):
 					shutit.log('Sending: ' + send + ' failed, retrying', level=logging.DEBUG)
 					retry -= 1
 					continue
@@ -2136,7 +2136,7 @@ $'"""
 					# 'None' escaped_str's are possible from multisends with nothing to send.
 					if escaped_str != None:
 						if len(escaped_str) + 25 > shutit.build['stty_cols']:
-							fname = self.create_command_file(expect,escaped_str)
+							fname = self._create_command_file(expect,escaped_str)
 							res = self.send(' command source ' + fname,expect=expect,timeout=timeout,check_exit=check_exit,fail_on_empty_before=False,record_command=False,exit_values=exit_values,echo=False,escape=False,retry=retry,loglevel=loglevel,follow_on_commands=follow_on_commands,delaybeforesend=delaybeforesend)
 							self.sendline(' rm -f ' + fname)
 							self.expect(expect, searchwindowsize=searchwindowsize, maxread=maxread)
@@ -2149,7 +2149,7 @@ $'"""
 				else:
 					if send != None:
 						if len(send) + 25 > shutit.build['stty_cols']:
-							fname = self.create_command_file(expect,send)
+							fname = self._create_command_file(expect,send)
 							res = self.send(' command source ' + fname,expect=expect,timeout=timeout,check_exit=check_exit,fail_on_empty_before=False,record_command=False,exit_values=exit_values,echo=False,escape=False,retry=retry,loglevel=loglevel,follow_on_commands=follow_on_commands,delaybeforesend=delaybeforesend)
 							self.sendline(' rm -f ' + fname)
 							self.expect(expect, searchwindowsize=searchwindowsize, maxread=maxread)
@@ -2164,7 +2164,7 @@ $'"""
 				if escape:
 					if escaped_str != None:
 						if len(escaped_str) + 25 > shutit.build['stty_cols']:
-							fname = self.create_command_file(expect,escaped_str)
+							fname = self._create_command_file(expect,escaped_str)
 							res = self.send(' command source ' + fname,expect=expect,timeout=timeout,check_exit=check_exit,fail_on_empty_before=False,record_command=False,exit_values=exit_values,echo=False,escape=False,retry=retry,loglevel=loglevel,follow_on_commands=follow_on_commands,delaybeforesend=delaybeforesend)
 							self.sendline(' rm -f ' + fname)
 							self.expect(expect, searchwindowsize=searchwindowsize, maxread=maxread)
@@ -2177,7 +2177,7 @@ $'"""
 				else:
 					if send != None:
 						if len(send) + 25 > shutit.build['stty_cols']:
-							fname = self.create_command_file(expect,send)
+							fname = self._create_command_file(expect,send)
 							res = self.send(' command source ' + fname,expect=expect,timeout=timeout,check_exit=check_exit,fail_on_empty_before=False,record_command=False,exit_values=exit_values,echo=False,escape=False,retry=retry,loglevel=loglevel,follow_on_commands=follow_on_commands,delaybeforesend=delaybeforesend)
 							self.sendline(' rm -f ' + fname)
 							self.expect(expect,searchwindowsize=searchwindowsize, maxread=maxread)
@@ -2230,7 +2230,7 @@ $'"""
 			shutit.build['last_output'] = '\n'.join(self.pexpect_child.before.split('\n')[1:])
 			if check_exit:
 				# store the output
-				if not self.check_last_exit_values(send, expect=expect, exit_values=exit_values, retry=retry):
+				if not self._check_last_exit_values(send, expect=expect, exit_values=exit_values, retry=retry):
 					if not secret:
 						shutit.log('Sending: ' + send + ' : failed, retrying', level=logging.DEBUG)
 					else:
