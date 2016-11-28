@@ -433,6 +433,8 @@ class ShutItPexpectSession(object):
 		shutit = shutit_global.shutit
 		shutit._handle_note(note)
 		res = self.send_and_get_output(' command whoami',echo=False, loglevel=loglevel).strip()
+		if res == '':                                                                                                                                                             
+			res = self.send_and_get_output(' command id -u -n',echo=False, loglevel=loglevel).strip()          
 		shutit._handle_note_after(note=note)
 		return res
 
