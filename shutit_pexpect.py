@@ -928,7 +928,8 @@ class ShutItPexpectSession(object):
 		exists = False
 		if user == '':
 			return exists
-		#v the space is intentional, to avoid polluting bash history.
+		#                v the space is intentional, to avoid polluting bash history.
+		# The quotes before XIST are deliberate, to prevent the command from matching the expect.
 		ret = self.send(' command id %s && echo E""XIST || echo N""XIST' % user, expect=['NXIST', 'EXIST'], echo=False, loglevel=loglevel)
 		if ret:
 			exists = True

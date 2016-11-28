@@ -93,32 +93,50 @@ cd ''' + skel_path + ''' && ./run.sh
 # cd ''' + skel_path + ''' && ./run.sh -c
 # to run while choosing modules to build. ''',transient=True)
 
+	# ShutItFile1
 	shutitfile1_filename = skel_path + '/ShutItFile1'
 	shutitfile1_file = open(shutitfile1_filename,'w+')
-	shutitfile1_file.write('''# See [here](https://github.com/ianmiell/shutitfile/blob/master/CheatSheet.md) for
-# a cheat sheet.
+	shutitfile1_contents = '''# See [here](https://github.com/ianmiell/shutitfile/blob/master/CheatSheet.md) for a cheat sheet.
 
 # Simple script to get going with:
 
 #DESCRIPTION A minimal todo app
 #MAINTAINER you@example.com
 
+'''
+	if skel_delivery == 'docker':
+		shutitfile1_contents += '''
 #FROM alpine
-#DELIVERY docker
+#DELIVERY docker'''
+	if skel_delivery == 'docker':
+		shutitfile2_contents += '''#DELIVERY docker'''
+	elif skel_delivery == 'bash'
+	shutitfile1_contents += '''
 #INSTALL nodejs
 #INSTALL git
-#RUN npm install todo
-#COMMIT shutitfile:part_one
-#PUSH shutitfile:part_one''')
+#RUN npm install todo'''
+	if skel_delivery == 'docker':
+		shutitfile1_contents += '''#COMMIT shutitfile:part_one
+#PUSH shutitfile:part_one'''
+	
+	shutitfile1_file.write(shutitfile1_contents)
 	shutitfile1_file.close()
 
+	# ShutItFile2
 	shutitfile2_filename = skel_path + '/ShutItFile2'
 	shutitfile2_file = open(shutitfile2_filename,'w+')
-	shutitfile2_file.write('''#DEFAULT_INCLUDE false
-#DELIVERY docker
-#INSTALL vim
-#INSTALL tcpdump
-#COMMIT shutitfile:part_two''')
+	shutitfile2_contents = '''## Install debug tools.
+## Don't module in builds by default.
+#DEFAULT_INCLUDE false''')
+	if skel_delivery == 'docker':
+		shutitfile2_contents += '''#DELIVERY docker'''
+	elif skel_delivery == 'bash'
+		shutitfile2_contents += '''#DELIVERY bash'''
+	shutitfile2_contents += '''#INSTALL vim
+#INSTALL tcpdump'''
+	if skel_delivery == 'docker':
+		shutitfile2_contents += '''#COMMIT shutitfile:part_two''')
+	shutitfile2_file.write(shutitfile2_contents)
 	shutitfile2_file.close()
 
 
