@@ -110,8 +110,8 @@ cd ''' + skel_path + ''' && ./run.sh
 #DELIVERY docker'''
 	if skel_delivery == 'docker':
 		shutitfile2_contents += '''#DELIVERY docker'''
-	elif skel_delivery == 'bash'
-	shutitfile1_contents += '''
+	elif skel_delivery == 'bash':
+		shutitfile1_contents += '''
 #INSTALL nodejs
 #INSTALL git
 #RUN npm install todo'''
@@ -127,15 +127,15 @@ cd ''' + skel_path + ''' && ./run.sh
 	shutitfile2_file = open(shutitfile2_filename,'w+')
 	shutitfile2_contents = '''## Install debug tools.
 ## Don't module in builds by default.
-#DEFAULT_INCLUDE false''')
+#DEFAULT_INCLUDE false'''
 	if skel_delivery == 'docker':
 		shutitfile2_contents += '''#DELIVERY docker'''
-	elif skel_delivery == 'bash'
+	elif skel_delivery == 'bash':
 		shutitfile2_contents += '''#DELIVERY bash'''
 	shutitfile2_contents += '''#INSTALL vim
 #INSTALL tcpdump'''
 	if skel_delivery == 'docker':
-		shutitfile2_contents += '''#COMMIT shutitfile:part_two''')
+		shutitfile2_contents += '''#COMMIT shutitfile:part_two'''
 	shutitfile2_file.write(shutitfile2_contents)
 	shutitfile2_file.close()
 
