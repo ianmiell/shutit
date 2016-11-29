@@ -1570,6 +1570,7 @@ class ShutIt(object):
 
 	def whoami(self,
 		       note=None,
+	           shutit_pexpect_child=None,
 		       loglevel=logging.DEBUG):
 		"""Returns the current user by executing "whoami".
 
