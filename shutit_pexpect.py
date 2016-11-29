@@ -1,17 +1,17 @@
 # The MIT License (MIT)
-# 
+#
 # Copyright (C) 2014 OpenBet Limited
-# 
+#
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
 # this software and associated documentation files (the "Software"), to deal in
 # the Software without restriction, including without limitation the rights to
 # use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
 # of the Software, and to permit persons to whom the Software is furnished to do
 # so, subject to the following conditions:
-# 
+#
 # The above copyright notice and this permission notice shall be included in all
 # copies or substantial portions of the Software.
-# 
+#
 # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 # IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 # ITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
@@ -433,8 +433,8 @@ class ShutItPexpectSession(object):
 		shutit = shutit_global.shutit
 		shutit._handle_note(note)
 		res = self.send_and_get_output(' command whoami',echo=False, loglevel=loglevel).strip()
-		if res == '':                                                                                                                                                             
-			res = self.send_and_get_output(' command id -u -n',echo=False, loglevel=loglevel).strip()          
+		if res == '':
+			res = self.send_and_get_output(' command id -u -n',echo=False, loglevel=loglevel).strip()
 		shutit._handle_note_after(note=note)
 		return res
 
@@ -497,7 +497,7 @@ class ShutItPexpectSession(object):
 				shutit.log('Un-clean login (2), trying: ' + str(self.pexpect_child.after), level=logging.DEBUG)
 				res = shutit_util.match_string(str(self.pexpect_child.after), '^EXIT_CODE:([0-9][0-9]?[0-9]?)$')
 			if res == None:
-				# Try after without anchor - sometimes needed when logging into obscure 
+				# Try after without anchor - sometimes needed when logging into obscure
 				shutit.log('Un-clean login (3), trying: ' + str(self.pexpect_child.after), level=logging.DEBUG)
 				res = shutit_util.match_string(str(self.pexpect_child.after), '^.*EXIT_CODE:([0-9][0-9]?[0-9]?)$')
 			if res != None:
@@ -2707,7 +2707,7 @@ $'"""
 		self.send(' command mkdir -p ' + environment_id_dir + ' && chmod -R 777 ' + shutit.build['shutit_state_dir_base'] + ' && touch ' + environment_id_dir + '/' + new_environment.environment_id, echo=False, loglevel=logging.DEBUG)
 		return new_environment
 
- 
+
 	def in_screen(self, loglevel=logging.DEBUG):
 		shutit = shutit_global.shutit
 		if self.send_and_get_output(' command echo $TMUX', record_command=False, echo=False, loglevel=loglevel) != '':
