@@ -473,7 +473,7 @@ class ShutIt(object):
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
 		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
 		shutit_pexpect_session.send(send,expect=expect,timeout=timeout,check_exit=check_exit,fail_on_empty_before=fail_on_empty_before,record_command=record_command,exit_values=exit_values,echo=echo,escape=escape,retry=retry,note=note,assume_gnu=assume_gnu,loglevel=loglevel,follow_on_commands=follow_on_commands)
-		return shutit_pexpect_session.check_last_exit_values(send,expect=expect,exit_values=exit_values,retry=retry,retbool=True)
+		return shutit_pexpect_session._check_last_exit_values(send,expect=expect,exit_values=exit_values,retry=retry,retbool=True)
 
                                                                                                                   
 	def _handle_note(self, note, command='', training_input=''):
