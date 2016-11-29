@@ -1381,6 +1381,9 @@ class ShutItPexpectSession(object):
 		shutit = shutit_global.shutit
 		shutit._handle_note(note)
 		user = user or self.whoami()
+		# cygwin does not have root
+		if self.current_environment.distro == 'cygwin':
+			return
 		if user not in self.current_environment.users.keys():
 			self.current_environment.users.update({user:None})
 		if not self.current_environment.users[user] and user != 'root':
@@ -2760,6 +2763,9 @@ $'"""
 	def get_sudo_pass_if_needed(self, shutit):
 		pw = ''
 		whoiam = self.whoami()
+		# Cygwin does not have root
+		if self.current_environment.distro == 'cygwin':
+			return
 		if whoiam != 'root' and self.current_environment.install_type != 'brew':
 			if not self.command_available('sudo'):
 				shutit.pause_point('Please install sudo and then continue with CTRL-]',shutit_pexpect_child=self.pexpect_child)
