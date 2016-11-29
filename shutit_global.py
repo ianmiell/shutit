@@ -1568,6 +1568,21 @@ class ShutIt(object):
 		return shutit_pexpect_session.set_password(password,user=user,note=note)
 
 
+	def whoami(self,
+		       note=None,
+		       loglevel=logging.DEBUG):
+		"""Returns the current user by executing "whoami".
+
+		@param note:     See send()
+
+		@return: the output of "whoami"
+		@rtype: string
+		"""
+		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
+		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
+		return shutit_pexpect_session.whoami(note=note,loglevel=logging.DEBUG)
+		
+
 	def is_user_id_available(self,
 	                         user_id,
 	                         shutit_pexpect_child=None,
@@ -1960,7 +1975,8 @@ class ShutIt(object):
 			ret += 'CURRENT_ENVIRONMENT: ' + str(session.current_environment) + '\n'
 			ret += '===============================================================================\n'
 		return ret
-		
+
+
 
 
 shutit = ShutIt()
