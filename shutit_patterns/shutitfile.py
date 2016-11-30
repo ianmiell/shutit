@@ -109,7 +109,7 @@ cd ''' + skel_path + ''' && ./run.sh
 #FROM alpine
 #DELIVERY docker'''
 	if skel_delivery == 'docker':
-		shutitfile2_contents += '''#DELIVERY docker'''
+		shutitfile1_contents += '''#DELIVERY docker'''
 	elif skel_delivery == 'bash':
 		shutitfile1_contents += '''
 #INSTALL nodejs
