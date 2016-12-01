@@ -227,14 +227,14 @@ class ShutIt(object):
 		if transient:
 			if sys.stdout.isatty():
 				if newline:
-					msg += '\n'
+					msg += '\r\n'
 				sys.stdout.write(msg)
 			else:
 				return True
 		else:
 			logging.log(level,msg)
 			if add_final_message:
-				self.build['report_final_messages'] += msg + '\n'
+				self.build['report_final_messages'] += msg + '\r\n'
 		return True
 
 

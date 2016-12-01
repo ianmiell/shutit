@@ -596,7 +596,7 @@ class ShutItPexpectSession(object):
 					self.pexpect_child.interact(input_filter=self._pause_input_filter)
 					self.handle_pause_point_signals()
 				except Exception as e:
-					shutit.fail('Terminating ShutIt.\n' + str(e))
+					shutit.fail('Terminating ShutIt within pause point.\r\n' + str(e))
 			self.pexpect_child.logfile_send = oldlog
 		else:
 			pass
@@ -617,10 +617,13 @@ class ShutItPexpectSession(object):
 				shutit.log('Commit and tag done. Hit CTRL and ] to continue with build. Hit return for a prompt.',level=logging.INFO)
 			# CTRL-d
 			elif ord(input_string) == 4:
+				shutit.log("""\r\n\r\nCTRL-D ignored in pause points. Type 'exit' to log out, but be warned that continuing the run with CTRL-] may then give unexpected results!\r\n""", level=logging.INFO, transient=True)
+				return ''
+				# The code following breaks.
 				# Testing mode simply ignores the CTRL-D
 				if not shutit.build['testing']:
 					shutit.shutit_signal['ID'] = 4
-					if shutit_util.get_input('CTRL-D caught, are you sure you want to quit this ShutIt run?\n\r=> ',default='n',boolean=True):
+					if shutit_util.get_input('CTRL-D caught, are you sure you want to quit this ShutIt run?\r\n\r=> ',default='n',boolean=True):
 						shutit.fail('CTRL-D caught, quitting')
 					if shutit_util.get_input('Do you want log out of this ShutIt session?\n\r=> ',default='n',boolean=True):
 						self.logout('exit')
