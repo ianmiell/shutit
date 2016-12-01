@@ -622,6 +622,9 @@ class ShutItPexpectSession(object):
 					shutit.shutit_signal['ID'] = 4
 					if shutit_util.get_input('CTRL-D caught, are you sure you want to quit this ShutIt run?\n\r=> ',default='n',boolean=True):
 						shutit.fail('CTRL-D caught, quitting')
+					if shutit_util.get_input('Do you want log out of this ShutIt session?\n\r=> ',default='n',boolean=True):
+						self.logout('exit')
+						return
 					if shutit_util.get_input('Do you want to pass through the CTRL-D to the ShutIt session?\n\r=> ',default='n',boolean=True):
 						return '\x04'
 					# Return nothing
@@ -2664,7 +2667,7 @@ $'"""
 								self.current_environment = environment
 							else:
 								shutit.fail('Should not get here: environment reached but with unique build_id that matches, but object not in existence')
-							# TODO: check against CygWin
+							# TODO: check against CygWin before removing
 							## Workaround for CygWin terminal issues. If the envid isn't in the cfg item
 							## Then crudely assume it is. This will drop through and then assume we are in the origin env.
 							#try:
@@ -2680,11 +2683,11 @@ $'"""
 						shutit.fail('Wrong number of files in environment_id_dir: ' + environment_id_dir)
 					shutit.fail('Wrong number of files in environment_id_dir: ' + environment_id_dir)
 			else:
-				# TODO: check against CygWin
-				if self.file_exists('/cygdrive'):
-					environment_id = 'ORIGIN_ENV'
-				else:
-					environment_id = files[0]
+				# TODO: check against CygWin before removing
+				#if self.file_exists('/cygdrive'):
+				#	environment_id = 'ORIGIN_ENV'
+				#else:
+				environment_id = files[0]
 				environment = shutit.get_shutit_pexpect_session_environment(environment_id)
 				if environment:
 					# Set that object to the _current_ environment in the PexpectSession
@@ -2722,7 +2725,7 @@ $'"""
 
 	# given a shutit object and an echo value, return the appropriate echo
 	# value for the given context.
-	# TODO: move to shutit object
+	# TODO: reproduce in shutit_global
 	def get_echo_override(self, shutit, echo):
 		if shutit.build['always_echo'] == True:
 			echo = True
@@ -2748,6 +2751,7 @@ $'"""
 
 
 	# Created specifically to help when logging in and the prompt is not ready.
+	# TODO: reproduce in shutit_global
 	def get_exit_value(self, shutit):
 		# The quotes in the middle of the string are there to prevent the output matching the command.
 		self.sendline(''' if [ $? = 0 ]; then echo 'SHUTIT''_RESULT:0'; else echo 'SHUTIT''_RESULT:1'; fi''')
@@ -2760,6 +2764,7 @@ $'"""
 			shutit.log('Returning false.',level=logging.DEBUG)
 			return False
 
+	# TODO: reproduce in shutit_global
 	def get_sudo_pass_if_needed(self, shutit):
 		pw = ''
 		whoiam = self.whoami()
