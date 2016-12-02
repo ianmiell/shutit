@@ -12,7 +12,7 @@ def setup_vagrant_pattern(skel_path,
 
 	shutit = shutit_global.shutit
 
-    # .gitignore
+	# .gitignore
 	gitignore_filename = skel_path + '/.gitignore'
 	gitignore_file = open(gitignore_filename,'w+')
 	gitignore_file.write('''*pyc
@@ -114,7 +114,8 @@ import inspect
 		gui = shutit.cfg[self.module_id]['gui']
 		memory = shutit.cfg[self.module_id]['memory']
 		import os
-		run_dir = os.path.dirname(os.path.abspath(inspect.getsourcefile(lambda:0))) + '/vagrant_run'
+		shutit.cfg[self.module_id]['vagrant_run_dir'] = os.path.dirname(os.path.abspath(inspect.getsourcefile(lambda:0))) + '/vagrant_run'
+		run_dir = shutit.cfg[self.module_id]['vagrant_run_dir']
 		module_name = '""" + skel_module_name + """_' + ''.join(random.choice(string.ascii_letters + string.digits) for _ in range(6))
 		shutit.send('command rm -rf ' + run_dir + '/' + module_name + ' && command mkdir -p ' + run_dir + '/' + module_name + ' && command cd ' + run_dir + '/' + module_name)
 		shutit.send('vagrant init ' + vagrant_image)
@@ -151,6 +152,7 @@ end''')
 		shutit.get_config(self.module_id,'vagrant_provider',default='virtualbox')
 		shutit.get_config(self.module_id,'gui',default='false')
 		shutit.get_config(self.module_id,'memory',default='1024')
+		shutit.get_config(self.module_id,'vagrant_run_dir',default=None)
 """ + shutit.cfg['skeleton']['config_section'] + """
 		return True
 
@@ -269,7 +271,8 @@ import inspect
 		vagrant_provider = shutit.cfg[self.module_id]['vagrant_provider']
 		gui = shutit.cfg[self.module_id]['gui']
 		memory = shutit.cfg[self.module_id]['memory']
-		run_dir = os.path.dirname(os.path.abspath(inspect.getsourcefile(lambda:0))) + '/vagrant_run'
+		shutit.cfg[self.module_id]['vagrant_run_dir'] = os.path.dirname(os.path.abspath(inspect.getsourcefile(lambda:0))) + '/vagrant_run'
+		run_dir = shutit.cfg[self.module_id]['vagrant_run_dir']
 		module_name = '""" + skel_module_name + """_' + ''.join(random.choice(string.ascii_letters + string.digits) for _ in range(6))
 		shutit.send('command rm -rf ' + run_dir + '/' + module_name + ' && command mkdir -p ' + run_dir + '/' + module_name + ' && command cd ' + run_dir + '/' + module_name)
 		shutit.send('vagrant init ' + vagrant_image)
@@ -306,6 +309,7 @@ end''')
 		shutit.get_config(self.module_id,'vagrant_provider',default='virtualbox')
 		shutit.get_config(self.module_id,'gui',default='false')
 		shutit.get_config(self.module_id,'memory',default='1024')
+		shutit.get_config(self.module_id,'vagrant_run_dir',default=None)
 """ + shutit.cfg['skeleton']['config_section'] + """
 		return True
 

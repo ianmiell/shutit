@@ -13,11 +13,13 @@ def setup_vagrant_multinode_pattern(skel_path,
 
 	shutit = shutit_global.shutit
 
-	# Gather requirements:
+	# Gather requirements for multinode vagrant setup:
 	# number of machines
 	num_machines = int(shutit_util.get_input('How many machines do you want? ', default='3'))
 	# prefix for machines (alphnum only)
 	machine_prefix = shutit_util.get_input('What do you want to call the machines (eg superserver)? ', default='machine')
+
+	# Set up Vagrantfile data for the later 
 	machine_dict = {}
 	machine_stanzas = ''
 	machine_list_code = '''\n\t\t# machines is a list of dicts containing information about each machine for you to use.\n\t\tmachines = []'''
@@ -33,6 +35,7 @@ def setup_vagrant_multinode_pattern(skel_path,
 		machine_list_code += """\n\t\tip = shutit.send_and_get_output('''vagrant landrush ls | grep -w ^''' + """ + machine_fqdn + """ + ''' | awk '{print $2}' ''')"""
 		machine_list_code += """\n\t\tmachines.get('""" + machine_name + """').update({'ip':ip})"""
 
+	# Set up files:
 	# .gitignore
 	gitignore_filename = skel_path + '/.gitignore'
 	gitignore_file = open(gitignore_filename,'w+')
@@ -89,9 +92,10 @@ fi
 	destroyvmssh_file.close()
 	os.chmod(destroyvmssh_filename,0o755)
 
-	# build.cnf file
+	# build.cnf
 	os.system('mkdir -p ' + skel_path + '/configs')
 
+	# git setup
 	os.system('git init')
 	os.system('git submodule init')
 	os.system('git submodule add https://github.com/ianmiell/shutit-library')
@@ -134,7 +138,8 @@ import inspect
 		vagrant_provider = shutit.cfg[self.module_id]['vagrant_provider']
 		gui = shutit.cfg[self.module_id]['gui']
 		memory = shutit.cfg[self.module_id]['memory']
-		run_dir = os.path.dirname(os.path.abspath(inspect.getsourcefile(lambda:0))) + '/vagrant_run'
+		shutit.cfg[self.module_id]['vagrant_run_dir'] = os.path.dirname(os.path.abspath(inspect.getsourcefile(lambda:0))) + '/vagrant_run'
+		run_dir = shutit.cfg[self.module_id]['vagrant_run_dir']
 		module_name = '""" + skel_module_name + """_' + ''.join(random.choice(string.ascii_letters + string.digits) for _ in range(6))
 		shutit.send(' command rm -rf ' + run_dir + '/' + module_name + ' && command mkdir -p ' + run_dir + '/' + module_name + ' && command cd ' + run_dir + '/' + module_name)
 		if shutit.send_and_get_output('vagrant plugin list | grep landrush') == '':
@@ -168,6 +173,7 @@ end''')
 		shutit.get_config(self.module_id,'vagrant_provider',default='virtualbox')
 		shutit.get_config(self.module_id,'gui',default='false')
 		shutit.get_config(self.module_id,'memory',default='1024')
+		shutit.get_config(self.module_id,'vagrant_run_dir',default=None)
 """ + shutit.cfg['skeleton']['config_section'] + """
 		return True
 
@@ -287,7 +293,8 @@ import inspect
 		vagrant_provider = shutit.cfg[self.module_id]['vagrant_provider']
 		gui = shutit.cfg[self.module_id]['gui']
 		memory = shutit.cfg[self.module_id]['memory']
-		run_dir = os.path.dirname(os.path.abspath(inspect.getsourcefile(lambda:0))) + '/vagrant_run'
+		shutit.cfg[self.module_id]['vagrant_run_dir'] = os.path.dirname(os.path.abspath(inspect.getsourcefile(lambda:0))) + '/vagrant_run'
+		run_dir = shutit.cfg[self.module_id]['vagrant_run_dir']
 		module_name = '""" + skel_module_name + """_' + ''.join(random.choice(string.ascii_letters + string.digits) for _ in range(6))
 		shutit.send('command rm -rf ' + run_dir + '/' + module_name + ' && command mkdir -p ' + run_dir + '/' + module_name + ' && command cd ' + run_dir + '/' + module_name)
 		if shutit.send_and_get_output('vagrant plugin list | grep landrush') == '':
@@ -322,6 +329,7 @@ end''')
 		shutit.get_config(self.module_id,'vagrant_provider',default='virtualbox')
 		shutit.get_config(self.module_id,'gui',default='false')
 		shutit.get_config(self.module_id,'memory',default='1024')
+		shutit.get_config(self.module_id,'vagrant_run_dir',default=None)
 """ + shutit.cfg['skeleton']['config_section'] + """
 		return True
 
