@@ -35,6 +35,14 @@ def setup_vagrant_multinode_pattern(skel_path,
 		machine_list_code += """\n\t\tip = shutit.send_and_get_output('''vagrant landrush ls | grep -w ^''' + """ + machine_fqdn + """ + ''' | awk '{print $2}' ''')"""
 		machine_list_code += """\n\t\tmachines.get('""" + machine_name + """').update({'ip':ip})"""
 
+	get_config_section = '''
+	def get_config(self, shutit):
+		shutit.get_config(self.module_id,'vagrant_image',default='ubuntu/trusty64')
+		shutit.get_config(self.module_id,'vagrant_provider',default='virtualbox')
+		shutit.get_config(self.module_id,'gui',default='false')
+		shutit.get_config(self.module_id,'memory',default='1024')
+		shutit.get_config(self.module_id,'vagrant_run_dir',default=None)'''
+
 	# Set up files:
 	# .gitignore
 	gitignore_filename = skel_path + '/.gitignore'
@@ -168,12 +176,7 @@ end''')
 		shutit.logout()
 		return True
 
-	def get_config(self, shutit):
-		shutit.get_config(self.module_id,'vagrant_image',default='ubuntu/trusty64')
-		shutit.get_config(self.module_id,'vagrant_provider',default='virtualbox')
-		shutit.get_config(self.module_id,'gui',default='false')
-		shutit.get_config(self.module_id,'memory',default='1024')
-		shutit.get_config(self.module_id,'vagrant_run_dir',default=None)
+""" + get_config_section + """
 """ + shutit.cfg['skeleton']['config_section'] + """
 		return True
 
@@ -324,12 +327,7 @@ end''')
 		shutit.logout()
 		return True
 
-	def get_config(self, shutit):
-		shutit.get_config(self.module_id,'vagrant_image',default='ubuntu/trusty64')
-		shutit.get_config(self.module_id,'vagrant_provider',default='virtualbox')
-		shutit.get_config(self.module_id,'gui',default='false')
-		shutit.get_config(self.module_id,'memory',default='1024')
-		shutit.get_config(self.module_id,'vagrant_run_dir',default=None)
+""" + get_config_section + """
 """ + shutit.cfg['skeleton']['config_section'] + """
 		return True
 

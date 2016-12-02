@@ -12,6 +12,14 @@ def setup_vagrant_pattern(skel_path,
 
 	shutit = shutit_global.shutit
 
+	get_config_section = '''
+	def get_config(self, shutit):
+		shutit.get_config(self.module_id,'vagrant_image',default='ubuntu/trusty64')
+		shutit.get_config(self.module_id,'vagrant_provider',default='virtualbox')
+		shutit.get_config(self.module_id,'gui',default='false')
+		shutit.get_config(self.module_id,'memory',default='1024')
+		shutit.get_config(self.module_id,'vagrant_run_dir',default=None)'''
+
 	# .gitignore
 	gitignore_filename = skel_path + '/.gitignore'
 	gitignore_file = open(gitignore_filename,'w+')
@@ -147,12 +155,7 @@ end''')
 		shutit.logout()
 		return True
 
-	def get_config(self, shutit):
-		shutit.get_config(self.module_id,'vagrant_image',default='ubuntu/trusty64')
-		shutit.get_config(self.module_id,'vagrant_provider',default='virtualbox')
-		shutit.get_config(self.module_id,'gui',default='false')
-		shutit.get_config(self.module_id,'memory',default='1024')
-		shutit.get_config(self.module_id,'vagrant_run_dir',default=None)
+""" + get_config_section + """
 """ + shutit.cfg['skeleton']['config_section'] + """
 		return True
 
@@ -304,12 +307,7 @@ end''')
 		shutit.logout()
 		return True
 
-	def get_config(self, shutit):
-		shutit.get_config(self.module_id,'vagrant_image',default='ubuntu/trusty64')
-		shutit.get_config(self.module_id,'vagrant_provider',default='virtualbox')
-		shutit.get_config(self.module_id,'gui',default='false')
-		shutit.get_config(self.module_id,'memory',default='1024')
-		shutit.get_config(self.module_id,'vagrant_run_dir',default=None)
+""" + get_config_section + """
 """ + shutit.cfg['skeleton']['config_section'] + """
 		return True
 
