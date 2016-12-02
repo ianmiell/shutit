@@ -1,5 +1,6 @@
 import os
 import shutit_global
+import shutit_util
 from . import shutitfile
 
 def setup_vagrant_multinode_pattern(skel_path,
@@ -11,6 +12,27 @@ def setup_vagrant_multinode_pattern(skel_path,
                                     skel_depends):
 
 	shutit = shutit_global.shutit
+
+	# Gather requirements:
+	# number of machines
+	num_machines = int(shutit_util.get_input('How many machines do you want? ', default='3'))
+	# prefix for machines (alphnum only)
+	machine_prefix = shutit_util.get_input('What do you want to call the machines (eg superserver)? ', default='machine')
+	machine_dict = {}
+	machine_stanzas = ''
+	machine_list_code = '''\n\t\t# machines is a list of dicts containing information about each machine for you to use.\n\t\tmachines = []'''
+	for m in range(1,num_machines+1):
+		machine_name = machine_prefix + str(m)
+		machine_fqdn = machine_name + '.vagrant.test'
+		# vagrant_image is calculated within the code later
+		machine_stanzas += '''\n  config.vm.define "''' + machine_name + '''" do |''' + machine_name + '''|
+    ''' + machine_name + """.vm.box = ''' + '"' + vagrant_image + '"' + '''
+    """ + machine_name + '''.vm.hostname = "''' + machine_fqdn + '''"
+  end'''
+		machine_list_code += """\n\t\tmachines.append({'""" + machine_name + """':{'fqdn':'""" + machine_fqdn + """'}})"""
+		machine_list_code += """\n\t\tip = shutit.send_and_get_output('''vagrant landrush ls | grep -w ^''' + """ + machine_fqdn + """ + ''' | awk '{print $2}' ''')"""
+		machine_list_code += """\n\t\tmachines.get('""" + machine_name + """').update({'ip':ip})"""
+
 	# .gitignore
 	gitignore_filename = skel_path + '/.gitignore'
 	gitignore_file = open(gitignore_filename,'w+')
@@ -124,30 +146,14 @@ import inspect
     vb.gui = ''' + gui + '''
     vb.memory = "''' + memory + '''"
   end
-
-  config.vm.define "master" do |master|
-    master.vm.box = ''' + '"' + vagrant_image + '"' + '''
-    master.vm.hostname = "master.vagrant.test"
-  end
-
-  config.vm.define "slave1" do |slave1|
-    slave1.vm.box = ''' + '"' + vagrant_image + '"' + '''
-    slave1.vm.hostname = "slave1.vagrant.test"
-  end
-
-  config.vm.define "slave2" do |slave2|
-    slave2.vm.box = ''' + '"' + vagrant_image + '"' + '''
-    slave2.vm.hostname = "slave2.vagrant.test"
-  end
+""" + machine_stanzas + """
 end''')
 		pw = shutit.get_env_pass()
 		try:
 			shutit.multisend('vagrant up --provider ' + shutit.cfg['shutit-library.virtualization.virtualization.virtualization']['virt_method'],{'assword for':pw,'assword:':pw},timeout=99999)
 		except:
 			shutit.multisend('vagrant up',{'assword for':pw,'assword:':pw},timeout=99999)
-		master_ip = shutit.send_and_get_output('''vagrant landrush ls | grep -w ^master.vagrant.test | awk '{print $2}' ''')
-		slave1_ip = shutit.send_and_get_output('''vagrant landrush ls | grep -w ^slave1.vagrant.test | awk '{print $2}' ''')
-		slave2_ip = shutit.send_and_get_output('''vagrant landrush ls | grep -w ^slave2.vagrant.test | awk '{print $2}' ''')
+""" + machine_list_code + """
 		shutit.login(command='vagrant ssh')
 		shutit.login(command='sudo su -',password='vagrant')
 
@@ -293,30 +299,15 @@ import inspect
     vb.gui = ''' + gui + '''
     vb.memory = "''' + memory + '''"
   end
-
-  config.vm.define "master" do |master|
-    master.vm.box = ''' + '"' + vagrant_image + '"' + '''
-    master.vm.hostname = "master.vagrant.test"
-  end
-
-  config.vm.define "slave1" do |slave1|
-    slave1.vm.box = ''' + '"' + vagrant_image + '"' + '''
-    slave1.vm.hostname = "slave1.vagrant.test"
-  end
-
-  config.vm.define "slave2" do |slave2|
-    slave2.vm.box = ''' + '"' + vagrant_image + '"' + '''
-    slave2.vm.hostname = "slave2.vagrant.test"
-  end
+""" + machine_stanzas + """
 end''')
 		pw = shutit.get_env_pass()
 		try:
 			shutit.multisend('vagrant up --provider ' + shutit.cfg['shutit-library.virtualization.virtualization.virtualization']['virt_method'],{'assword for':pw,'assword:':pw},timeout=99999)
 		except:
 			shutit.multisend('vagrant up',{'assword for':pw,'assword:':pw},timeout=99999)
-		master_ip = shutit.send_and_get_output('''vagrant landrush ls | grep -w ^master.vagrant.test | awk '{print $2}' ''')
-		slave1_ip = shutit.send_and_get_output('''vagrant landrush ls | grep -w ^slave1.vagrant.test | awk '{print $2}' ''')
-		slave2_ip = shutit.send_and_get_output('''vagrant landrush ls | grep -w ^slave2.vagrant.test | awk '{print $2}' ''')
+""" + machine_list_code + """
+
 		shutit.login(command='vagrant ssh')
 		shutit.login(command='sudo su -',password='vagrant')
 
