@@ -266,6 +266,8 @@ class ShutItPexpectSession(object):
 
 
 	def login_stack_append(self, r_id):
+		"""Appends to the login_stack with the relevant identifier (r_id).
+		"""
 		self.login_stack.append(r_id)
 		return True
 
