@@ -625,12 +625,12 @@ class ShutItPexpectSession(object):
 				# Testing mode simply ignores the CTRL-D
 				if not shutit.build['testing']:
 					shutit.shutit_signal['ID'] = 4
-					if shutit_util.get_input('CTRL-D caught, are you sure you want to quit this ShutIt run?\r\n\r=> ',default='n',boolean=True):
+					if shutit_util.get_input('CTRL-D caught, are you sure you want to quit this ShutIt run?\r\n\r=> ',default='n',boolean=True,colour=''):
 						shutit.fail('CTRL-D caught, quitting')
-					if shutit_util.get_input('Do you want log out of this ShutIt session?\n\r=> ',default='n',boolean=True):
+					if shutit_util.get_input('Do you want log out of this ShutIt session?\n\r=> ',default='n',boolean=True,colour=''):
 						self.logout('exit')
 						return
-					if shutit_util.get_input('Do you want to pass through the CTRL-D to the ShutIt session?\n\r=> ',default='n',boolean=True):
+					if shutit_util.get_input('Do you want to pass through the CTRL-D to the ShutIt session?\n\r=> ',default='n',boolean=True,colour=''):
 						return '\x04'
 					# Return nothing
 				return ''

@@ -145,6 +145,8 @@ def is_file_secure(file_name):
 def colourise(code, msg):
 	"""Colourize the given string for a terminal.
 	"""
+	if code == '' or code == None:
+		return msg
 	return '\033[%sm%s\033[0m' % (code, msg)
 
 
