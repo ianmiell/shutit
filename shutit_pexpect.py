@@ -1162,21 +1162,20 @@ class ShutItPexpectSession(object):
 		package = package_map.map_packages(package, self.current_environment.install_type)
 		# Let's be tolerant of failure eg due to network.
 		# This is especially helpful with automated testing.
+		# Also can help when packages are interdependent, eg 'epel-release asciinema',
+		# which requires that epel-release is fully installed before asciinema can be.
 		if package.strip() != '':
 			fails = 0
 			while True:
 				pw = self.get_sudo_pass_if_needed(shutit)
 				if pw != '':
 					cmd = 'sudo ' + cmd
-					res = self.multisend('%s %s %s' % (cmd, opts, package), {'assword':pw}, expect=['Unable to fetch some archives',self.default_expect], timeout=timeout, check_exit=False, loglevel=loglevel, echo=False, secret=True)
+					self.multisend('%s %s %s' % (cmd, opts, package), {'assword':pw}, expect=['Unable to fetch some archives',self.default_expect], timeout=timeout, check_exit=False, loglevel=loglevel, echo=False, secret=True)
 					shutit.log('Result of install attempt was: ' + str(res),level=logging.DEBUG)
 				else:
-					res = self.send('%s %s %s' % (cmd, opts, package), expect=['Unable to fetch some archives',self.default_expect], timeout=timeout, check_exit=check_exit, loglevel=loglevel)
+					self.send('%s %s %s' % (cmd, opts, package), expect=['Unable to fetch some archives',self.default_expect], timeout=timeout, check_exit=check_exit, loglevel=loglevel)
 					shutit.log('Result of install attempt was: ' + str(res),level=logging.DEBUG)
-				if res == 1:
-					break
-				else:
-					fails += 1
+				fails += 1
 				if fails >= 3:
 					break
 		else:
