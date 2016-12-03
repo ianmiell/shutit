@@ -22,4 +22,5 @@ do
 	# wait a minute
 	sleep 60
 done
+git commit -am 'release: $major.$minor.$newpoint'
 echo Success after $i attempts
