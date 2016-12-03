@@ -32,7 +32,7 @@ def setup_vagrant_multinode_pattern(skel_path,
     """ + machine_name + '''.vm.hostname = "''' + machine_fqdn + '''"
   end'''
 		machine_list_code += """\n\t\tmachines.append({'""" + machine_name + """':{'fqdn':'""" + machine_fqdn + """'}})"""
-		machine_list_code += """\n\t\tip = shutit.send_and_get_output('''vagrant landrush ls | grep -w ^''' + """ + machine_fqdn + """ + ''' | awk '{print $2}' ''')"""
+		machine_list_code += """\n\t\tip = shutit.send_and_get_output('''vagrant landrush ls | grep -w ^''' + machine_fqdn + ''' | awk '{print $2}' ''')"""
 		machine_list_code += """\n\t\tmachines.get('""" + machine_name + """').update({'ip':ip})"""
 
 	get_config_section = '''
