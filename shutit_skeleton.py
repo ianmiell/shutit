@@ -88,15 +88,6 @@ def create_skeleton():
 		                              skel_shutitfiles=skel_shutitfiles,
 		                              skel_domain_hash=skel_domain_hash,
 		                              skel_depends=skel_depends)
-	elif shutit.cfg['skeleton']['pattern'] == 'vagrant_multinode':
-		from shutit_patterns import vagrant_multinode
-		vagrant_multinode.setup_vagrant_multinode_pattern(skel_path=skel_path,
-		                                                  skel_delivery=skel_delivery,
-		                                                  skel_domain=skel_domain,
-		                                                  skel_module_name=skel_module_name,
-		                                                  skel_shutitfiles=skel_shutitfiles,
-		                                                  skel_domain_hash=skel_domain_hash,
-		                                                  skel_depends=skel_depends)
 	elif shutit.cfg['skeleton']['pattern'] == 'shutitfile':
 		from shutit_patterns import shutitfile
 		shutitfile.setup_shutitfile_pattern(skel_path=skel_path,

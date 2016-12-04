@@ -614,7 +614,6 @@ Default: ''' + default_pattern + '''
 bash:              a shell script
 docker:            a docker image build
 vagrant:           a vagrant setup
-vagrant_multinode: a vagrant multinode setup
 docker_tutorial:   a docker-based tutorial
 shutitfile:        a shutitfile-based project
 ''',default=default_pattern)
@@ -629,7 +628,7 @@ shutitfile:        a shutitfile-based project
 				if pattern in ('docker','docker_tutorial'):
 					take_this_default = True
 				default_delivery = 'docker'
-			elif pattern in ('vagrant','vagrant_multinode','bash'):
+			elif pattern in ('vagrant','bash'):
 				take_this_default = True
 				default_delivery = 'bash'
 			else:

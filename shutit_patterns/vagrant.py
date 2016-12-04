@@ -1,5 +1,6 @@
 import os
 import shutit_global
+import shutit_util
 from . import shutitfile
 
 def setup_vagrant_pattern(skel_path,
@@ -12,14 +13,37 @@ def setup_vagrant_pattern(skel_path,
 
 	shutit = shutit_global.shutit
 
+	# Gather requirements for multinode vagrant setup:
+	# number of machines
+	num_machines = int(shutit_util.get_input('How many machines do you want? ', default='3'))
+	# prefix for machines (alphnum only)
+	machine_prefix = shutit_util.get_input('What do you want to call the machines (eg superserver)? ', default='machine')
+
+	# Set up Vagrantfile data for the later 
+	machine_dict = {}
+	machine_stanzas = ''
+	machine_list_code = '''\n\t\t# machines is a dict of dicts containing information about each machine for you to use.\n\t\tmachines = {}'''
+	for m in range(1,num_machines+1):
+		machine_name = machine_prefix + str(m)
+		machine_fqdn = machine_name + '.vagrant.test'
+		# vagrant_image is calculated within the code later
+		machine_stanzas += '''\n  config.vm.define "''' + machine_name + '''" do |''' + machine_name + '''|
+    ''' + machine_name + """.vm.box = ''' + '"' + vagrant_image + '"' + '''
+    """ + machine_name + '''.vm.hostname = "''' + machine_fqdn + '''"
+  end'''
+		machine_list_code += """\n\t\tmachines.update({'""" + machine_name + """':{'fqdn':'""" + machine_fqdn + """'}})"""
+		machine_list_code += """\n\t\tip = shutit.send_and_get_output('''vagrant landrush ls | grep -w ^''' + machines['""" + machine_name + """']['fqdn'] + ''' | awk '{print $2}' ''')"""
+		machine_list_code += """\n\t\tmachines.get('""" + machine_name + """').update({'ip':ip})"""
+
 	get_config_section = '''
 	def get_config(self, shutit):
 		shutit.get_config(self.module_id,'vagrant_image',default='ubuntu/trusty64')
 		shutit.get_config(self.module_id,'vagrant_provider',default='virtualbox')
 		shutit.get_config(self.module_id,'gui',default='false')
 		shutit.get_config(self.module_id,'memory',default='1024')
-		shutit.get_config(self.module_id,'vagrant_run_dir',default=None)'''
+		shutit.get_config(self.module_id,'vagrant_run_dir',default='/tmp')'''
 
+	# Set up files:
 	# .gitignore
 	gitignore_filename = skel_path + '/.gitignore'
 	gitignore_file = open(gitignore_filename,'w+')
@@ -31,7 +55,6 @@ vagrant_run''')
 	runsh_filename = skel_path + '/run.sh'
 	runsh_file = open(runsh_filename,'w+')
 	runsh_file.write('''#!/bin/bash
-bash ./destroy_vms.sh
 [[ -z "$SHUTIT" ]] && SHUTIT="$1/shutit"
 [[ ! -a "$SHUTIT" ]] || [[ -z "$SHUTIT" ]] && SHUTIT="$(which shutit)"
 if [[ ! -a "$SHUTIT" ]]
@@ -47,17 +70,14 @@ fi''')
 	runsh_file.close()
 	os.chmod(runsh_filename,0o755)
 
-	# destroy_vms.sh
-	destroyvmssh_filename = skel_path + '/destroy_vms.sh'
-	destroyvmssh_file = open(destroyvmssh_filename,'w+')
-	destroyvmssh_file.write('''#!/bin/bash
+	destroyvmssh_file_contents = '''#!/bin/bash
 MODULE_NAME=''' + skel_module_name + '''
 rm -rf $( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/vagrant_run/*
 if [[ $(command -v VBoxManage) != '' ]]
 then
 	while true
 	do
-		VBoxManage list runningvms | grep ${MODULE_NAME} | awk '{print $1}' | xargs -IXXX VBoxManage controlvm 'XXX' poweroff && VBoxManage list vms | grep ${MODULE_NAME} | awk '{print $1}'  | xargs -IXXX VBoxManage unregistervm 'XXX' --delete
+		VBoxManage list runningvms | grep ${MODULE_NAME} | awk '{print $1}' | xargs -IXXX VBoxManage controlvm 'XXX' poweroff && VBoxManage list vms | grep ''' + skel_module_name + ''' | awk '{print $1}'  | xargs -IXXX VBoxManage unregistervm 'XXX' --delete
 		# The xargs removes whitespace
 		if [[ $(VBoxManage list vms | grep ${MODULE_NAME} | wc -l | xargs) -eq '0' ]]
 		then
@@ -72,13 +92,12 @@ if [[ $(command -v virsh) ]] && [[ $(kvm-ok 2>&1 | command grep 'can be used') !
 then
 	virsh list | grep ${MODULE_NAME} | awk '{print $1}' | xargs -n1 virsh destroy
 fi
-''')
-	destroyvmssh_file.close()
-	os.chmod(destroyvmssh_filename,0o755)
+'''
 
-	# build.cnf file
+	# build.cnf
 	os.system('mkdir -p ' + skel_path + '/configs')
 
+	# git setup
 	os.system('git init')
 	os.system('git submodule init')
 	os.system('git submodule add https://github.com/ianmiell/shutit-library')
@@ -86,7 +105,7 @@ fi
 	# User message
 	shutit.log('''# Run:
 cd ''' + skel_path + ''' && ./run.sh
-# to run.''',transient=True)
+ to run.''',transient=True)
 
 	# Handle shutitfiles
 	if skel_shutitfiles:
@@ -121,32 +140,28 @@ import inspect
 		vagrant_provider = shutit.cfg[self.module_id]['vagrant_provider']
 		gui = shutit.cfg[self.module_id]['gui']
 		memory = shutit.cfg[self.module_id]['memory']
-		import os
 		shutit.cfg[self.module_id]['vagrant_run_dir'] = os.path.dirname(os.path.abspath(inspect.getsourcefile(lambda:0))) + '/vagrant_run'
 		run_dir = shutit.cfg[self.module_id]['vagrant_run_dir']
 		module_name = '""" + skel_module_name + """_' + ''.join(random.choice(string.ascii_letters + string.digits) for _ in range(6))
-		shutit.send('command rm -rf ' + run_dir + '/' + module_name + ' && command mkdir -p ' + run_dir + '/' + module_name + ' && command cd ' + run_dir + '/' + module_name)
+		shutit.send(' command rm -rf ' + run_dir + '/' + module_name + ' && command mkdir -p ' + run_dir + '/' + module_name + ' && command cd ' + run_dir + '/' + module_name)
+		if shutit.send_and_get_output('vagrant plugin list | grep landrush') == '':
+			shutit.send('vagrant plugin install landrush')
 		shutit.send('vagrant init ' + vagrant_image)
-		shutit.send_file(run_dir + '/' + module_name + '/Vagrantfile','''
-Vagrant.configure(2) do |config|
-  config.vm.box = "''' + vagrant_image + '''"
-  # config.vm.box_check_update = false
-  # config.vm.network "forwarded_port", guest: 80, host: 8080
-  # config.vm.network "private_network", ip: "192.168.33.10"
-  # config.vm.network "public_network"
-  # config.vm.synced_folder "../data", "/vagrant_data"
+		shutit.send_file(run_dir + '/' + module_name + '/Vagrantfile','''Vagrant.configure("2") do |config|
+  config.landrush.enabled = true
   config.vm.provider "virtualbox" do |vb|
     vb.gui = ''' + gui + '''
     vb.memory = "''' + memory + '''"
-    vb.name = """ + '"' + skel_module_name + '''"''' + """
   end
+""" + machine_stanzas + """
 end''')
 		pw = shutit.get_env_pass()
 		try:
-			shutit.multisend('vagrant up --provider ' + shutit.cfg['shutit-library.virtualization.virtualization.virtualization']['virt_method'],{'assword for':pw},timeout=99999)
+			shutit.multisend('vagrant up --provider ' + shutit.cfg['shutit-library.virtualization.virtualization.virtualization']['virt_method'],{'assword for':pw,'assword:':pw},timeout=99999)
 		except:
-			shutit.multisend('vagrant up',{'assword for':pw},timeout=99999)
-		shutit.login(command='vagrant ssh')
+			shutit.multisend('vagrant up',{'assword for':pw,'assword:':pw},timeout=99999)
+""" + machine_list_code + """
+		shutit.login(command='vagrant ssh ' + machines.keys()[0])
 		shutit.login(command='sudo su -',password='vagrant')
 
 """ + shutit.cfg['skeleton']['build_section'] + """
@@ -169,6 +184,8 @@ end''')
 
 	def is_installed(self, shutit):
 """ + shutit.cfg['skeleton']['isinstalled_section'] + """
+		# Destroy pre-existing, leftover vagrant images.
+		shutit.run_script('''""" + destroyvmssh_file_contents  + """''')
 		return False
 
 	def start(self, shutit):
@@ -190,11 +207,12 @@ def module():
 			else:
 				module_file.write("""import random
 import string
+import os
 
 """ + shutit.cfg['skeleton']['header_section'] + """
 
 	def build(self, shutit):
-		shutit.login(command='vagrant ssh')
+		shutit.login(command='vagrant ssh ' + machines.keys()[0])
 		shutit.login(command='sudo su -',password='vagrant')
 """ + shutit.cfg['skeleton']['config_section'] + """
 		return True
@@ -209,6 +227,8 @@ import string
 
 	def is_installed(self, shutit):
 """ + shutit.cfg['skeleton']['isinstalled_section'] + """
+		# Destroy pre-existing, leftover vagrant images.
+		shutit.run_script('''""" + destroyvmssh_file_contents  + """''')
 		return False
 
 	def start(self, shutit):
@@ -278,27 +298,25 @@ import inspect
 		run_dir = shutit.cfg[self.module_id]['vagrant_run_dir']
 		module_name = '""" + skel_module_name + """_' + ''.join(random.choice(string.ascii_letters + string.digits) for _ in range(6))
 		shutit.send('command rm -rf ' + run_dir + '/' + module_name + ' && command mkdir -p ' + run_dir + '/' + module_name + ' && command cd ' + run_dir + '/' + module_name)
+		if shutit.send_and_get_output('vagrant plugin list | grep landrush') == '':
+			shutit.send('vagrant plugin install landrush')
 		shutit.send('vagrant init ' + vagrant_image)
-		shutit.send_file(run_dir + '/' + module_name + '/Vagrantfile','''
-Vagrant.configure(2) do |config|
-  config.vm.box = "''' + vagrant_image + '''"
-  # config.vm.box_check_update = false
-  # config.vm.network "forwarded_port", guest: 80, host: 8080
-  # config.vm.network "private_network", ip: "192.168.33.10"
-  # config.vm.network "public_network"
-  # config.vm.synced_folder "../data", "/vagrant_data"
+		shutit.send_file(run_dir + '/' + module_name + '/Vagrantfile','''Vagrant.configure("2") do |config|
+  config.landrush.enabled = true
   config.vm.provider "virtualbox" do |vb|
     vb.gui = ''' + gui + '''
     vb.memory = "''' + memory + '''"
-    vb.name = """ + '"' + skel_module_name + '''"''' + """
   end
+""" + machine_stanzas + """
 end''')
 		pw = shutit.get_env_pass()
 		try:
-			shutit.multisend('vagrant up --provider ' + shutit.cfg['shutit-library.virtualization.virtualization.virtualization']['virt_method'],{'assword for':pw},timeout=99999)
+			shutit.multisend('vagrant up --provider ' + shutit.cfg['shutit-library.virtualization.virtualization.virtualization']['virt_method'],{'assword for':pw,'assword:':pw},timeout=99999)
 		except:
-			shutit.multisend('vagrant up',{'assword for':pw},timeout=99999)
-		shutit.login(command='vagrant ssh')
+			shutit.multisend('vagrant up',{'assword for':pw,'assword:':pw},timeout=99999)
+""" + machine_list_code + """
+
+		shutit.login(command='vagrant ssh ' + machines.keys()[0])
 		shutit.login(command='sudo su -',password='vagrant')
 
 """ + shutit.cfg['skeleton']['build_section'] + """
@@ -321,6 +339,8 @@ end''')
 
 	def is_installed(self, shutit):
 """ + shutit.cfg['skeleton']['isinstalled_section'] + """
+		# Destroy pre-existing, leftover vagrant images.
+		shutit.run_script('''""" + destroyvmssh_file_contents  + """''')
 		return False
 
 	def start(self, shutit):
