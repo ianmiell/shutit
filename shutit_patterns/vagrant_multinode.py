@@ -22,7 +22,7 @@ def setup_vagrant_multinode_pattern(skel_path,
 	# Set up Vagrantfile data for the later 
 	machine_dict = {}
 	machine_stanzas = ''
-	machine_list_code = '''\n\t\t# machines is a list of dicts containing information about each machine for you to use.\n\t\tmachines = []'''
+	machine_list_code = '''\n\t\t# machines is a dict of dicts containing information about each machine for you to use.\n\t\tmachines = {}'''
 	for m in range(1,num_machines+1):
 		machine_name = machine_prefix + str(m)
 		machine_fqdn = machine_name + '.vagrant.test'
@@ -31,9 +31,9 @@ def setup_vagrant_multinode_pattern(skel_path,
     ''' + machine_name + """.vm.box = ''' + '"' + vagrant_image + '"' + '''
     """ + machine_name + '''.vm.hostname = "''' + machine_fqdn + '''"
   end'''
-		machine_list_code += """\n\t\tmachines.append({'""" + machine_name + """':{'fqdn':'""" + machine_fqdn + """'}})"""
+		machine_list_code += """\n\t\tmachines.get('""" + machine_name + """').update({'fqdn':'""" + machine_fqdn + """'})"""
 		machine_list_code += """\n\t\tip = shutit.send_and_get_output('''vagrant landrush ls | grep -w ^''' + machine_fqdn + ''' | awk '{print $2}' ''')"""
-		machine_list_code += """\n\t\tmachines['""" + machine_name + """'].update({'ip':ip})"""
+		machine_list_code += """\n\t\tmachines.get('""" + machine_name + """').update({'ip':ip})"""
 
 	get_config_section = '''
 	def get_config(self, shutit):
