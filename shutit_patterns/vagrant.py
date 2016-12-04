@@ -167,7 +167,7 @@ end''')
 """ + shutit.cfg['skeleton']['finalize_section'] + """
 		return True
 
-	def isinstalled(self, shutit):
+	def is_installed(self, shutit):
 """ + shutit.cfg['skeleton']['isinstalled_section'] + """
 		return False
 
@@ -207,7 +207,7 @@ import string
 """ + shutit.cfg['skeleton']['finalize_section'] + """
 		return True
 
-	def isinstalled(self, shutit):
+	def is_installed(self, shutit):
 """ + shutit.cfg['skeleton']['isinstalled_section'] + """
 		return False
 
@@ -319,7 +319,7 @@ end''')
 """ + shutit.cfg['skeleton']['finalize_section'] + """
 		return True
 
-	def isinstalled(self, shutit):
+	def is_installed(self, shutit):
 """ + shutit.cfg['skeleton']['isinstalled_section'] + """
 		return False
 

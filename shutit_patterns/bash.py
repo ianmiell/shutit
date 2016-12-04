@@ -74,7 +74,7 @@ cd ''' + skel_path + ''' && ./run.sh
 ''' + shutit.cfg['skeleton']['finalize_section'] + '''
 		return True
 
-	def isinstalled(self, shutit):
+	def is_installed(self, shutit):
 ''' + shutit.cfg['skeleton']['isinstalled_section'] + '''
 		return False
 
@@ -148,7 +148,7 @@ shutit.core.module.build:yes''')
 ''' + shutit.cfg['skeleton']['finalize_section'] + '''
 		return True
 
-	def isinstalled(self, shutit):
+	def is_installed(self, shutit):
 ''' + shutit.cfg['skeleton']['isinstalled_section'] + '''
 		return False
 

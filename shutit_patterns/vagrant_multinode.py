@@ -31,8 +31,8 @@ def setup_vagrant_multinode_pattern(skel_path,
     ''' + machine_name + """.vm.box = ''' + '"' + vagrant_image + '"' + '''
     """ + machine_name + '''.vm.hostname = "''' + machine_fqdn + '''"
   end'''
-		machine_list_code += """\n\t\tmachines.get('""" + machine_name + """').update({'fqdn':'""" + machine_fqdn + """'})"""
-		machine_list_code += """\n\t\tip = shutit.send_and_get_output('''vagrant landrush ls | grep -w ^''' + machine_fqdn + ''' | awk '{print $2}' ''')"""
+		machine_list_code += """\n\t\tmachines.update({'""" + machine_name + """':{'fqdn':'""" + machine_fqdn + """'}})"""
+		machine_list_code += """\n\t\tip = shutit.send_and_get_output('''vagrant landrush ls | grep -w ^''' + machines['""" + machine_name + """']['fqdn'] + ''' | awk '{print $2}' ''')"""
 		machine_list_code += """\n\t\tmachines.get('""" + machine_name + """').update({'ip':ip})"""
 
 	get_config_section = '''
@@ -74,7 +74,7 @@ fi''')
 	# destroy_vms.sh
 	destroyvmssh_filename = skel_path + '/destroy_vms.sh'
 	destroyvmssh_file = open(destroyvmssh_filename,'w+')
-	destroyvmssh_file.write('''#!/bin/bash
+	destroyvmssh_file_contents = '''#!/bin/bash
 MODULE_NAME=''' + skel_module_name + '''
 rm -rf $( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/vagrant_run/*
 if [[ $(command -v VBoxManage) != '' ]]
@@ -96,7 +96,8 @@ if [[ $(command -v virsh) ]] && [[ $(kvm-ok 2>&1 | command grep 'can be used') !
 then
 	virsh list | grep ${MODULE_NAME} | awk '{print $1}' | xargs -n1 virsh destroy
 fi
-''')
+'''
+	destroyvmssh_file.write(destroyvmssh_file_contents)
 	destroyvmssh_file.close()
 	os.chmod(destroyvmssh_filename,0o755)
 
@@ -167,7 +168,7 @@ end''')
 		except:
 			shutit.multisend('vagrant up',{'assword for':pw,'assword:':pw},timeout=99999)
 """ + machine_list_code + """
-		shutit.login(command='vagrant ssh')
+		shutit.login(command='vagrant ssh ' + machines.keys()[0])
 		shutit.login(command='sudo su -',password='vagrant')
 
 """ + shutit.cfg['skeleton']['build_section'] + """
@@ -188,8 +189,9 @@ end''')
 """ + shutit.cfg['skeleton']['finalize_section'] + """
 		return True
 
-	def isinstalled(self, shutit):
+	def is_installed(self, shutit):
 """ + shutit.cfg['skeleton']['isinstalled_section'] + """
+		shutit.run_script('''""" + destroyvmssh_file_contents  + """''')
 		return False
 
 	def start(self, shutit):
@@ -216,7 +218,7 @@ import os
 """ + shutit.cfg['skeleton']['header_section'] + """
 
 	def build(self, shutit):
-		shutit.login(command='vagrant ssh')
+		shutit.login(command='vagrant ssh ' + machines.keys()[0])
 		shutit.login(command='sudo su -',password='vagrant')
 """ + shutit.cfg['skeleton']['config_section'] + """
 		return True
@@ -229,8 +231,9 @@ import os
 """ + shutit.cfg['skeleton']['finalize_section'] + """
 		return True
 
-	def isinstalled(self, shutit):
+	def is_installed(self, shutit):
 """ + shutit.cfg['skeleton']['isinstalled_section'] + """
+		shutit.run_script('''""" + destroyvmssh_file_contents  + """''')
 		return False
 
 	def start(self, shutit):
@@ -318,7 +321,7 @@ end''')
 			shutit.multisend('vagrant up',{'assword for':pw,'assword:':pw},timeout=99999)
 """ + machine_list_code + """
 
-		shutit.login(command='vagrant ssh')
+		shutit.login(command='vagrant ssh ' + machines.keys()[0])
 		shutit.login(command='sudo su -',password='vagrant')
 
 """ + shutit.cfg['skeleton']['build_section'] + """
@@ -339,8 +342,9 @@ end''')
 """ + shutit.cfg['skeleton']['finalize_section'] + """
 		return True
 
-	def isinstalled(self, shutit):
+	def is_installed(self, shutit):
 """ + shutit.cfg['skeleton']['isinstalled_section'] + """
+		shutit.run_script('''""" + destroyvmssh_file_contents  + """''')
 		return False
 
 	def start(self, shutit):
