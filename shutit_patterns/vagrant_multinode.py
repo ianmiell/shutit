@@ -55,7 +55,6 @@ vagrant_run''')
 	runsh_filename = skel_path + '/run.sh'
 	runsh_file = open(runsh_filename,'w+')
 	runsh_file.write('''#!/bin/bash
-bash ./destroy_vms.sh
 [[ -z "$SHUTIT" ]] && SHUTIT="$1/shutit"
 [[ ! -a "$SHUTIT" ]] || [[ -z "$SHUTIT" ]] && SHUTIT="$(which shutit)"
 if [[ ! -a "$SHUTIT" ]]
@@ -71,9 +70,6 @@ fi''')
 	runsh_file.close()
 	os.chmod(runsh_filename,0o755)
 
-	# destroy_vms.sh
-	destroyvmssh_filename = skel_path + '/destroy_vms.sh'
-	destroyvmssh_file = open(destroyvmssh_filename,'w+')
 	destroyvmssh_file_contents = '''#!/bin/bash
 MODULE_NAME=''' + skel_module_name + '''
 rm -rf $( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/vagrant_run/*
@@ -97,9 +93,6 @@ then
 	virsh list | grep ${MODULE_NAME} | awk '{print $1}' | xargs -n1 virsh destroy
 fi
 '''
-	destroyvmssh_file.write(destroyvmssh_file_contents)
-	destroyvmssh_file.close()
-	os.chmod(destroyvmssh_filename,0o755)
 
 	# build.cnf
 	os.system('mkdir -p ' + skel_path + '/configs')
@@ -191,6 +184,7 @@ end''')
 
 	def is_installed(self, shutit):
 """ + shutit.cfg['skeleton']['isinstalled_section'] + """
+		# Destroy pre-existing, leftover vagrant images.
 		shutit.run_script('''""" + destroyvmssh_file_contents  + """''')
 		return False
 
@@ -233,6 +227,7 @@ import os
 
 	def is_installed(self, shutit):
 """ + shutit.cfg['skeleton']['isinstalled_section'] + """
+		# Destroy pre-existing, leftover vagrant images.
 		shutit.run_script('''""" + destroyvmssh_file_contents  + """''')
 		return False
 
@@ -344,6 +339,7 @@ end''')
 
 	def is_installed(self, shutit):
 """ + shutit.cfg['skeleton']['isinstalled_section'] + """
+		# Destroy pre-existing, leftover vagrant images.
 		shutit.run_script('''""" + destroyvmssh_file_contents  + """''')
 		return False
 
