@@ -490,6 +490,8 @@ class ShutItPexpectSession(object):
 			shutit.log('Expecting: ' + str(expect),level=logging.DEBUG)
 			self.expect(expect,timeout=5)
 			res = shutit_util.match_string(str(self.pexpect_child.before), '^EXIT_CODE:([0-9][0-9]?[0-9]?)$')
+			if res == None and (type(self.pexpect_child.before) == pexpect.exceptions.EOF or type(self.pexpect_child.after) == pexpect.exceptions.EOF):
+				shutit_util.handle_exit(1)
 			if res == None:
 				# Try before without anchor - sometimes needed when logging into obscure shells
 				shutit.log('Un-clean login (1), trying: ' + str(self.pexpect_child.before), level=logging.DEBUG)
@@ -2204,28 +2206,26 @@ $'"""
 								shutit.divert_output(None)
 					else:
 						expect_res = shutit._expect_allow_interrupt(self.pexpect_child, expect, timeout)
-			# Handles 'cannot concatenate 'str' and 'type' objects' errors
-			try:
-				logged_output = ''.join((self.pexpect_child.before + self.pexpect_child.after).split('\n'))
-				logged_output = logged_output.replace(send,'',1)
-				logged_output = logged_output.replace('\r','')
-				logged_output = logged_output[:30] + ' [...]'
-				if not secret:
-					if echo:
-						shutit.log('Output (squashed): ' + logged_output,level=logging.DEBUG)
-					else:
-						shutit.log('Output (squashed): ' + logged_output,level=loglevel)
-					shutit.log('shutit_pexpect_child.buffer(hex)>>>\n' + str(self.pexpect_child.buffer).encode('hex') + '\n<<<',level=logging.DEBUG)
-					shutit.log('shutit_pexpect_child.buffer>>>\n' + str(self.pexpect_child.buffer) + '\n<<<',level=logging.DEBUG)
-					shutit.log('shutit_pexpect_child.before (hex)>>>\n' + self.pexpect_child.before.encode('hex') + '\n<<<',level=logging.DEBUG)
-					shutit.log('shutit_pexpect_child.before>>>\n' + self.pexpect_child.before + '\n<<<',level=logging.DEBUG)
-					shutit.log('shutit_pexpect_child.after (hex)>>>\n' + self.pexpect_child.after.encode('hex') + '\n<<<',level=logging.DEBUG)
-					shutit.log('shutit_pexpect_child.after>>>\n' + self.pexpect_child.after + '\n<<<',level=logging.DEBUG)
+			if type(self.pexpect_child.after) == type or type(self.pexpect_child.before) == type:
+				shutit.log('End of pexpect session detected, bailing.',level=logging.CRITICAL)
+				shutit_util.handle_exit(exit_code=1)
+			logged_output = ''.join((self.pexpect_child.before + str(self.pexpect_child.after)).split('\n'))
+			logged_output = logged_output.replace(send,'',1)
+			logged_output = logged_output.replace('\r','')
+			logged_output = logged_output[:30] + ' [...]'
+			if not secret:
+				if echo:
+					shutit.log('Output (squashed): ' + logged_output,level=logging.DEBUG)
 				else:
-					shutit.log('[Send was marked secret; getting output debug will require code change]',level=logging.DEBUG)
-			except Exception as e:
-				shutit.log('Error: ' + str(e),level=logging.CRITICAL)
-				pass
+					shutit.log('Output (squashed): ' + logged_output,level=loglevel)
+				shutit.log('shutit_pexpect_child.buffer(hex)>>>\n' + str(self.pexpect_child.buffer).encode('hex') + '\n<<<',level=logging.DEBUG)
+				shutit.log('shutit_pexpect_child.buffer>>>\n' + str(self.pexpect_child.buffer) + '\n<<<',level=logging.DEBUG)
+				shutit.log('shutit_pexpect_child.before (hex)>>>\n' + str(self.pexpect_child.before).encode('hex') + '\n<<<',level=logging.DEBUG)
+				shutit.log('shutit_pexpect_child.before>>>\n' + str(self.pexpect_child.before) + '\n<<<',level=logging.DEBUG)
+				shutit.log('shutit_pexpect_child.after (hex)>>>\n' + str(self.pexpect_child.after).encode('hex') + '\n<<<',level=logging.DEBUG)
+				shutit.log('shutit_pexpect_child.after>>>\n' + str(self.pexpect_child.after) + '\n<<<',level=logging.DEBUG)
+			else:
+				shutit.log('[Send was marked secret; getting output debug will require code change]',level=logging.DEBUG)
 			if fail_on_empty_before:
 				if self.pexpect_child.before.strip() == '':
 					shutit.fail('before empty after sending: ' + str(send) + '\n\nThis is expected after some commands that take a password.\nIf so, add fail_on_empty_before=False to the send call.\n\nIf that is not the problem, did you send an empty string to a prompt by mistake?', shutit_pexpect_child=self.pexpect_child)
