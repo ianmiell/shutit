@@ -23,6 +23,8 @@ def setup_vagrant_pattern(skel_path,
 	machine_dict = {}
 	machine_stanzas = ''
 	machine_list_code = '''\n\t\t# machines is a dict of dicts containing information about each machine for you to use.\n\t\tmachines = {}'''
+	vagrant_up_section = ''
+
 	for m in range(1,num_machines+1):
 		machine_name = machine_prefix + str(m)
 		machine_fqdn = machine_name + '.vagrant.test'
@@ -34,6 +36,15 @@ def setup_vagrant_pattern(skel_path,
 		machine_list_code += """\n\t\tmachines.update({'""" + machine_name + """':{'fqdn':'""" + machine_fqdn + """'}})"""
 		machine_list_code += """\n\t\tip = shutit.send_and_get_output('''vagrant landrush ls | grep -w ^''' + machines['""" + machine_name + """']['fqdn'] + ''' | awk '{print $2}' ''')"""
 		machine_list_code += """\n\t\tmachines.get('""" + machine_name + """').update({'ip':ip})"""
+		vagrant_up_section += '''\t\ttry:
+			shutit.multisend('vagrant up --provider ' + shutit.cfg['shutit-library.virtualization.virtualization.virtualization']['virt_method'] + "''' + machine_name + '''",{'assword for':pw,'assword:':pw},timeout=99999)
+		except:
+			shutit.multisend('vagrant up ''' + machine_name + """'""" + ''',{'assword for':pw,'assword:':pw},timeout=99999)
+		if shutit.send_and_get_output("""vagrant status | grep -w ^''' + machine_name + ''' | awk '{print $2}'""") != 'running':
+			shutit.pause_point("machine: ''' + machine_name + ''' appears not to have come up cleanly")
+'''
+		
+
 
 	get_config_section = '''
 	def get_config(self, shutit):
@@ -156,10 +167,7 @@ import inspect
 """ + machine_stanzas + """
 end''')
 		pw = shutit.get_env_pass()
-		try:
-			shutit.multisend('vagrant up --provider ' + shutit.cfg['shutit-library.virtualization.virtualization.virtualization']['virt_method'],{'assword for':pw,'assword:':pw},timeout=99999)
-		except:
-			shutit.multisend('vagrant up',{'assword for':pw,'assword:':pw},timeout=99999)
+""" + vagrant_up_section + """
 """ + machine_list_code + """
 		shutit.login(command='vagrant ssh ' + machines.keys()[0])
 		shutit.login(command='sudo su -',password='vagrant')
@@ -175,16 +183,13 @@ end''')
 		return True
 
 	def test(self, shutit):
-""" + shutit.cfg['skeleton']['test_section'] + """
-		return True
+""" + shutit.cfg['skeleton']['test_section'] + """		return True
 
 	def finalize(self, shutit):
-""" + shutit.cfg['skeleton']['finalize_section'] + """
-		return True
+""" + shutit.cfg['skeleton']['finalize_section'] + """		return True
 
 	def is_installed(self, shutit):
-""" + shutit.cfg['skeleton']['isinstalled_section'] + """
-		# Destroy pre-existing, leftover vagrant images.
+""" + shutit.cfg['skeleton']['isinstalled_section'] + """		# Destroy pre-existing, leftover vagrant images.
 		shutit.run_script('''""" + destroyvmssh_file_contents  + """''')
 		return False
 
@@ -310,10 +315,7 @@ import inspect
 """ + machine_stanzas + """
 end''')
 		pw = shutit.get_env_pass()
-		try:
-			shutit.multisend('vagrant up --provider ' + shutit.cfg['shutit-library.virtualization.virtualization.virtualization']['virt_method'],{'assword for':pw,'assword:':pw},timeout=99999)
-		except:
-			shutit.multisend('vagrant up',{'assword for':pw,'assword:':pw},timeout=99999)
+""" + vagrant_up_section + """
 """ + machine_list_code + """
 
 		shutit.login(command='vagrant ssh ' + machines.keys()[0])
