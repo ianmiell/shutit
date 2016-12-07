@@ -44,8 +44,6 @@ def setup_vagrant_pattern(skel_path,
 		if shutit.send_and_get_output("""vagrant status | grep -w ^''' + machine_name + ''' | awk '{print $2}'""") != 'running':
 			shutit.pause_point("machine: ''' + machine_name + ''' appears not to have come up cleanly")
 '''
-		
-
 
 	get_config_section = '''
 	def get_config(self, shutit):
@@ -119,7 +117,9 @@ fi
 cd ''' + skel_path + ''' && ./run.sh
  to run.''',transient=True)
 
-	# Handle shutitfiles
+	# CREATE THE MODULE FILE
+	# Handle shutitfiles. If there are no shutitfiles, handle separately.
+	# If there are more than one, you need to treat the first one differently.
 	if skel_shutitfiles:
 		_total = len(skel_shutitfiles)
 		_count = 0
@@ -267,14 +267,8 @@ shutit.core.module.build:yes''')
 				build_cnf_file.close()
 		os.chmod(build_cnf_filename,0o400)
 	else:
+		# No shutitfiles to consider, so simpler logic here.
 		shutit.cfg['skeleton']['header_section']      = 'from shutit_module import ShutItModule\n\nclass ' + skel_module_name + '(ShutItModule):\n'
-		shutit.cfg['skeleton']['config_section']      = ''
-		shutit.cfg['skeleton']['build_section']       = ''
-		shutit.cfg['skeleton']['finalize_section']    = ''
-		shutit.cfg['skeleton']['test_section']        = ''
-		shutit.cfg['skeleton']['isinstalled_section'] = ''
-		shutit.cfg['skeleton']['start_section']       = ''
-		shutit.cfg['skeleton']['stop_section']        = ''
 		new_module_filename = skel_path + '/' + skel_module_name + '.py'
 		module_file = open(new_module_filename,'w+')
 		module_file.write('''import random
@@ -310,30 +304,28 @@ end''')
 
 		shutit.login(command='vagrant ssh ' + machines.keys()[0])
 		shutit.login(command='sudo su -',password='vagrant')
-""" + shutit.cfg['skeleton']['build_section'] + """
 		shutit.logout()
 		shutit.logout()
 		return True
 
 """ + get_config_section + """
-""" + shutit.cfg['skeleton']['config_section'] + """		return True
 
 	def test(self, shutit):
-""" + shutit.cfg['skeleton']['test_section'] + """		return True
+		return True
 
 	def finalize(self, shutit):
-""" + shutit.cfg['skeleton']['finalize_section'] + """		return True
+		return True
 
 	def is_installed(self, shutit):
-""" + shutit.cfg['skeleton']['isinstalled_section'] + """		# Destroy pre-existing, leftover vagrant images.
+		# Destroy pre-existing, leftover vagrant images.
 		shutit.run_script('''""" + destroyvmssh_file_contents  + """''')
 		return False
 
 	def start(self, shutit):
-""" + shutit.cfg['skeleton']['start_section'] + """		return True
+		return True
 
 	def stop(self, shutit):
-""" + shutit.cfg['skeleton']['stop_section'] + """		return True
+		return True
 
 def module():
 	return """ + skel_module_name + """(
