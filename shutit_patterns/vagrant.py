@@ -15,9 +15,10 @@ def setup_vagrant_pattern(skel_path,
 
 	# Gather requirements for multinode vagrant setup:
 	# number of machines
-	num_machines = int(shutit_util.get_input('How many machines do you want? ', default='3'))
+	num_machines = int(shutit_util.get_input('How many machines do you want (default: 3)? ', default='3'))
 	# prefix for machines (alphnum only)
-	machine_prefix = shutit_util.get_input('What do you want to call the machines (eg superserver)? ', default='machine')
+	machine_prefix = shutit_util.get_input('What do you want to call the machines (eg superserver) (default: machine)? ', default='machine')
+	# TODO: others - memory per machine?
 
 	# Set up Vagrantfile data for the later 
 	machine_dict = {}

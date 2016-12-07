@@ -1664,11 +1664,11 @@ def get_input(msg, default='', valid=[], boolean=False, ispass=False, colour='32
 		while answer not in valid:
 			shutit.log('Answer must be one of: ' + str(valid),transient=True)
 			answer = util_raw_input(prompt=colourise(colour,msg),ispass=ispass)
-	if boolean and answer in ('yes','y','Y','1','true'):
+	if boolean and answer in ('yes','y','Y','1','true','t','YES'):
 		return True
-	if boolean and answer in ('no','n','N','0','false'):
+	if boolean and answer in ('no','n','N','0','false','f','NO'):
 		return False
-	if answer == '':
+	if answer in ('',None):
 		return default
 	else:
 		return answer
