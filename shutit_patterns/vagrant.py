@@ -171,7 +171,7 @@ end''')
 		pw = shutit.get_env_pass()
 """ + vagrant_up_section + """
 """ + machine_list_code + """
-		shutit.login(command='vagrant ssh ' + machines.keys()[0])
+		shutit.login(command='vagrant ssh ' + sorted(machines.keys())[0])
 		shutit.login(command='sudo su -',password='vagrant')
 """ + shutit.cfg['skeleton']['build_section'] + """
 		shutit.logout()
@@ -215,7 +215,7 @@ import os
 """ + shutit.cfg['skeleton']['header_section'] + """
 
 	def build(self, shutit):
-		shutit.login(command='vagrant ssh ' + machines.keys()[0])
+		shutit.login(command='vagrant ssh ' + sorted(machines.keys())[0])
 		shutit.login(command='sudo su -',password='vagrant')
 """ + shutit.cfg['skeleton']['config_section'] + """		return True
 
@@ -304,7 +304,7 @@ end''')
 		pw = shutit.get_env_pass()
 """ + vagrant_up_section + """
 """ + machine_list_code + """
-		shutit.login(command='vagrant ssh ' + machines.keys()[0])
+		shutit.login(command='vagrant ssh ' + sorted(machines.keys())[0])
 		shutit.login(command='sudo su -',password='vagrant')
 		shutit.logout()
 		shutit.logout()
