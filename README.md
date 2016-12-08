@@ -12,9 +12,9 @@ It can automate any process that can be run by a human on the command line with 
 
 It was originally written to manage complex Docker builds, but is a now general-purpose automation tool that supports bash, Docker, Vagrant, ssh and arbitrary build contexts.
 
-If you want to know more about Docker, see the [official site](https://www.docker.com/) or take a look at the book by the creators of ShutIt - [Docker in Practice](http://docker-in-practice.github.io/).
+ShutIt can also be used as an educational tool, as it can produce videos of demos, capture reproducible steps required to set environments up, and even challenge you to get the right output (see [grep-scales](https://github.com/ianmiell/grep-scales)).
 
-ShutIt is also an educational tool, as it can produce videos of demos, capture reproducible steps required to set environments up, and even challenge you to get the right output (see [grep-scales](https://github.com/ianmiell/grep-scales)).
+If you want to know more about Docker, see the [official site](https://www.docker.com/) or take a look at the book by the creators of ShutIt - [Docker in Practice](http://docker-in-practice.github.io/).
 
 Really Quick Overview
 =====================
@@ -22,15 +22,17 @@ Some use cases:
 
 - You like bash, want to automate tasks, have structure and support, but don't want to learn a configuration management framework that takes you away from the command line you know and love.
 
-- Are a programmer who wants highly configurable stateless containers development, testing, and production.
-
-- Want to [build everything from source](https://github.com/ianmiell/shutit-distro/blob/master/README.md) in a way that's comprehensible and auditable.
+- Want to create [complex Vagrant environments](https://medium.com/@zwischenzugs/a-complete-openshift-cluster-on-vagrant-step-by-step-7465e9816d98) to model clusters of machines.
 
 - Want to create instructive [walkthroughs](https://asciinema.org/a/30598?t=70): 
 
+- Are interested in "phoenix deployment".
+
 - Want to take your scripts and turn them into stateless containers quickly, without needing to maintain (or learn) a configuration management solution designed for moving-target systems.
 
-- Are interested in "phoenix deployment".
+- You're programmer who wants highly configurable stateless containers development, testing, and production.
+
+- Want to [build everything from source](https://github.com/ianmiell/shutit-distro/blob/master/README.md) in a way that's comprehensible and auditable.
 
 
 What Does it Do (bash Builds)?
@@ -38,7 +40,7 @@ What Does it Do (bash Builds)?
 
 ShutIt acts as a modular and easy to use wrapper around [pexpect](https://github.com/pexpect/pexpect).
 
-Here is a simple example of a script that creates file if they are not there already:
+Here is a simple example of a script that creates a file and a directory if they are not there already:
 
 [![Simple Example](https://asciinema.org/a/47076.png)](https://asciinema.org/a/47076)
 
@@ -63,18 +65,19 @@ Free form exercises give you a task to perform, and free access to the shell. Th
 If you use a Docker-based tutorial and you mess the environment up, the state can be restored to a known one by hitting CTRL-G.
 
 
-
 What Does it Do (Vagrant)?
 ==========================
-Uses a bash build to set up a vagrant machine. This allows another kind of contained environment for more infrastructural projects than Docker allows for.
+Uses a bash build to set up n vagrant machines, and uses Landrush to give them useful hostnames accessible from the hosts and in the guest VMs.
+
+It supports both Virtualbox and Libvirt providers.
+
+This allows another kind of contained environment for more infrastructural projects than Docker allows for.
 
 This example demonstrates a reproducible build that sets up Docker on an Ubuntu VM (on a Linux host), then runs a CentOS image within Docker wihing the Ubuntu VM.
 
 It deposits the user into a shell mid-build to interrogate the environment, after which the user re-runs the build to add a directive to ensure ps is installed in the image.
 
 [![Docker on Ubuntu VM running a CentOS image](https://asciinema.org/a/47078.png)](https://asciinema.org/a/47078)
-
-There is a multinode option for Vagrant multinode projects.
 
 
 What Does it Do (Docker Builds)?
