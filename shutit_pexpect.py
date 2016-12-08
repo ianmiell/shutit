@@ -609,7 +609,6 @@ class ShutItPexpectSession(object):
 
 
 	def _pause_input_filter(self, input_string):
-		
 		shutit = shutit_global.shutit
 		"""Input filter for pause point to catch special keystrokes"""
 		# Can get errors with eg up/down chars
@@ -618,23 +617,10 @@ class ShutItPexpectSession(object):
 			if ord(input_string) == 21 and shutit.build['delivery'] == 'docker':
 				shutit.log('CTRL and u caught, forcing a tag at least',level=logging.INFO)
 				shutit.do_repository_work('tagged_by_shutit', password=shutit.host['password'], docker_executable=shutit.host['docker_executable'], force=True)
-				shutit.log('Commit and tag done. Hit CTRL and ] to continue with build. Hit return for a prompt.',level=logging.INFO)
+				shutit.log('Commit and tag done. Hit CTRL and ] to continue with build. Hit return for a prompt.',level=logging.CRITICAL)
 			# CTRL-d
 			elif ord(input_string) == 4:
 				shutit.log("""\r\n\r\nCTRL-D ignored in pause points. Type 'exit' to log out, but be warned that continuing the run with CTRL-] may then give unexpected results!\r\n""", level=logging.INFO, transient=True)
-				return ''
-				# The code following breaks.
-				# Testing mode simply ignores the CTRL-D
-				if not shutit.build['testing']:
-					shutit.shutit_signal['ID'] = 4
-					if shutit_util.get_input('CTRL-D caught, are you sure you want to quit this ShutIt run?\r\n\r=> ',default='n',boolean=True,colour=''):
-						shutit.fail('CTRL-D caught, quitting')
-					if shutit_util.get_input('Do you want log out of this ShutIt session?\n\r=> ',default='n',boolean=True,colour=''):
-						self.logout('exit')
-						return
-					if shutit_util.get_input('Do you want to pass through the CTRL-D to the ShutIt session?\n\r=> ',default='n',boolean=True,colour=''):
-						return '\x04'
-					# Return nothing
 				return ''
 			# CTRL-h
 			elif ord(input_string) == 8:
@@ -646,6 +632,11 @@ class ShutItPexpectSession(object):
 				shutit.shutit_signal['ID'] = 7
 				# Return the escape from pexpect char
 				return '\x1d'
+			# CTRL-q
+			elif ord(input_string) == 17:
+				shutit.shutit_signal = 17
+				shutit.log('CTRL-q hit, quitting ShutIt',transient=True,level=logging.CRITICAL)
+				shutit_util.handle_exit(exit_code=1)
 			# CTRL-s
 			elif ord(input_string) == 19:
 				shutit.shutit_signal['ID'] = 19
@@ -666,7 +657,7 @@ class ShutItPexpectSession(object):
 			# clear the signal
 			shutit.shutit_signal['ID'] = 0
 			shutit.log('\r\nCTRL-] caught, continuing with run...',level=logging.INFO,transient=True)
-		elif shutit.shutit_signal['ID'] not in (0,4,7,8,19):
+		elif shutit.shutit_signal['ID'] not in (0,4,7,8,17,19):
 			shutit.log('\r\nLeaving interact without CTRL-] and shutit_signal is not recognised, shutit_signal value: ' + str(shutit.shutit_signal['ID']),level=logging.CRITICAL,transient=True)
 		elif shutit.shutit_signal['ID'] == 0:
 			shutit.log('\r\nLeaving interact without CTRL-], assuming exit.',level=logging.CRITICAL,transient=True)

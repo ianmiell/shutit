@@ -271,6 +271,7 @@ shutit.core.module.build:yes''')
 		shutit.cfg['skeleton']['header_section']      = 'from shutit_module import ShutItModule\n\nclass ' + skel_module_name + '(ShutItModule):\n'
 		new_module_filename = skel_path + '/' + skel_module_name + '.py'
 		module_file = open(new_module_filename,'w+')
+
 		module_file.write('''import random
 import string
 import os
@@ -301,7 +302,6 @@ end''')
 		pw = shutit.get_env_pass()
 """ + vagrant_up_section + """
 """ + machine_list_code + """
-
 		shutit.login(command='vagrant ssh ' + machines.keys()[0])
 		shutit.login(command='sudo su -',password='vagrant')
 		shutit.logout()
@@ -335,9 +335,12 @@ def module():
 		delivery_methods=['bash'],
 		depends=['""" + skel_depends + """','shutit-library.virtualbox.virtualbox.virtualbox','tk.shutit.vagrant.vagrant.vagrant']
 	)""")
+
 		module_file.close()
+
 		build_cnf_filename = skel_path + '/configs/build.cnf'
 		build_cnf_file = open(build_cnf_filename,'w+')
+
 		build_cnf_file.write('''###############################################################################
 # PLEASE NOTE: This file should be changed only by the maintainer.
 # PLEASE NOTE: This file is only sourced if the "shutit build" command is run
@@ -349,5 +352,6 @@ def module():
 # This feeds into automated testing of each module.
 ['''+skel_domain+'''.'''+skel_module_name+''']
 shutit.core.module.build:yes''')
+
 		build_cnf_file.close()
 		os.chmod(build_cnf_filename,0o400)
