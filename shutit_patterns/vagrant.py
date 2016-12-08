@@ -51,7 +51,8 @@ def setup_vagrant_pattern(skel_path,
 		shutit.get_config(self.module_id,'vagrant_provider',default='virtualbox')
 		shutit.get_config(self.module_id,'gui',default='false')
 		shutit.get_config(self.module_id,'memory',default='1024')
-		shutit.get_config(self.module_id,'vagrant_run_dir',default='/tmp')'''
+		shutit.get_config(self.module_id,'vagrant_run_dir',default='/tmp')
+		return True'''
 
 	# Set up files:
 	# .gitignore
@@ -178,6 +179,7 @@ end''')
 		return True
 
 """ + get_config_section + """
+
 """ + shutit.cfg['skeleton']['config_section'] + """		return True
 
 	def test(self, shutit):
