@@ -1182,9 +1182,20 @@ class ShutItPexpectSession(object):
 						return False
 		else:
 			# package not required
-			pass
+			shutit.log('Package not required.',level=logging.DEBUG)
+			
+		shutit.log('Package is installed.',level=logging.DEBUG)
+		self.reset_terminal()
 		shutit._handle_note_after(note=note)
 		return True
+
+
+	def reset_terminal(self, expect=None):
+		exp_string = 'SHUTIT_TERMINAL_RESET'
+		self.sendline(' echo ' + exp_string)
+		self.expect(exp_string)
+		expect = expect or self.default_expect
+		self.expect(expect)
 
 
 	def get_memory(self, note=None):
