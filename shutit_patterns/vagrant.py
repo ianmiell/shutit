@@ -39,7 +39,7 @@ def setup_vagrant_pattern(skel_path,
 		machine_list_code += """\n\t\tip = shutit.send_and_get_output('''vagrant landrush ls | grep -w ^''' + machines['""" + machine_name + """']['fqdn'] + ''' | awk '{print $2}' ''')"""
 		machine_list_code += """\n\t\tmachines.get('""" + machine_name + """').update({'ip':ip})"""
 		vagrant_up_section += '''\t\ttry:
-			shutit.multisend('vagrant up --provider ' + shutit.cfg['shutit-library.virtualization.virtualization.virtualization']['virt_method'] + "''' + machine_name + '''",{'assword for':pw,'assword:':pw},timeout=99999)
+			shutit.multisend('vagrant up --provider ' + shutit.cfg['shutit-library.virtualization.virtualization.virtualization']['virt_method'] + " ''' + machine_name + '''",{'assword for':pw,'assword:':pw},timeout=99999)
 		except:
 			shutit.multisend('vagrant up ''' + machine_name + """'""" + ''',{'assword for':pw,'assword:':pw},timeout=99999)
 		if shutit.send_and_get_output("""vagrant status | grep -w ^''' + machine_name + ''' | awk '{print $2}'""") != 'running':
