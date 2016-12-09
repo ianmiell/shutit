@@ -1439,6 +1439,8 @@ def config_collection():
 			cfg[module_id]['shutit.core.module.build'] = False
 		else:
 			shutit.get_config(module_id, 'shutit.core.module.build_ifneeded', False, boolean=True)
+		if shutit.build['delivery'] not in module.ok_delivery_methods:
+			shutit.fail('Module: ' + module.module_id + ' can only be built with one of these --delivery methods: ' + str(module.ok_delivery_methods) + '\nSee shutit build -h for more info, or try adding: --delivery <method> to your shutit invocation')
 
 
 def disallowed_module_ids(rev=False):
