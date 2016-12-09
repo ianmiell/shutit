@@ -628,7 +628,7 @@ def do_lists(shutit):
 def do_final_messages(shutit):
 	# Show final report messages (ie messages to show after standard report).
 	if shutit.build['report_final_messages'] != '':
-		shutit.log(shutit.build['report_final_messages'], level=logging.INFO)
+		shutit.log(shutit_util.colourise(31,'\r\n\r\n' + shutit.build['report_final_messages'] + '\r\n\r\n'), level=logging.INFO, transient=True)
 
 
 def do_testing_output(shutit):

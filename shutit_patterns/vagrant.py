@@ -1,6 +1,7 @@
 import os
 import shutit_global
 import shutit_util
+import logging
 from . import shutitfile
 
 def setup_vagrant_pattern(skel_path,
@@ -54,6 +55,12 @@ def setup_vagrant_pattern(skel_path,
 		shutit.get_config(self.module_id,'vagrant_run_dir',default='/tmp')
 		return True'''
 
+	shared_imports = '''import random
+import logging
+import string
+import os
+import inspect'''
+
 	# Set up files:
 	# .gitignore
 	gitignore_filename = skel_path + '/.gitignore'
@@ -73,7 +80,7 @@ then
 	echo "Must have shutit on path, eg export PATH=$PATH:/path/to/shutit_dir"
 	exit 1
 fi
-$SHUTIT build --echo -d bash -m shutit-library/vagrant -m shutit-library/virtualbox "$@"
+$SHUTIT build --echo -d bash -m shutit-library/vagrant -m shutit-library/virtualization "$@"
 if [[ $? != 0 ]]
 then
 	exit 1
@@ -114,9 +121,8 @@ fi
 	os.system('git submodule add https://github.com/ianmiell/shutit-library')
 
 	# User message
-	shutit.log('''# Run:
-cd ''' + skel_path + ''' && ./run.sh
- to run.''',transient=True)
+	shutit.log('''# Run:\r\n\r\ncd ''' + skel_path + ''' && ./run.sh\r\n\r\n# to run.''',transient=True)
+
 
 	# CREATE THE MODULE FILE
 	# Handle shutitfiles. If there are no shutitfiles, handle separately.
@@ -141,11 +147,7 @@ cd ''' + skel_path + ''' && ./run.sh
 			shutit.cfg['skeleton']['final_section']       = sections['final_section']
 			module_file = open(new_module_filename,'w+')
 			if _count == 1 or True:
-				module_file.write("""import random
-import string
-import os
-import inspect
-
+				module_file.write(shared_imports + """
 """ + shutit.cfg['skeleton']['header_section'] + """
 
 	def build(self, shutit):
@@ -176,6 +178,11 @@ end''')
 """ + shutit.cfg['skeleton']['build_section'] + """
 		shutit.logout()
 		shutit.logout()
+		shutit.log('''# Vagrantfile created in: ''' + shutit.cfg[self.module_id]['vagrant_run_dir'] + '''\r\n# Run:
+
+cd ''' + shutit.cfg[self.module_id]['vagrant_run_dir'] + ''' && vagrant status && vagrant landrush ls
+
+# to get information about your machines' setup.''',add_final_message=True,level=logging.DEBUG)
 		return True
 
 """ + get_config_section + """
@@ -205,13 +212,10 @@ def module():
 		description='',
 		maintainer='',
 		delivery_methods=['bash'],
-		depends=['""" + skel_depends + """','shutit-library.virtualbox.virtualbox.virtualbox','tk.shutit.vagrant.vagrant.vagrant']
+		depends=['""" + skel_depends + """','shutit-library.virtualization.virtualization.virtualization','tk.shutit.vagrant.vagrant.vagrant']
 	)""")
 			else:
-				module_file.write("""import random
-import string
-import os
-
+				module_file.write(shared_imports + """
 """ + shutit.cfg['skeleton']['header_section'] + """
 
 	def build(self, shutit):
@@ -242,7 +246,7 @@ def module():
 		description='',
 		maintainer='',
 		delivery_methods=['bash'],
-		depends=['""" + skel_depends + """','shutit-library.virtualbox.virtualbox.virtualbox','tk.shutit.vagrant.vagrant.vagrant']
+		depends=['""" + skel_depends + """','shutit-library.virtualization.virtualization.virtualization','tk.shutit.vagrant.vagrant.vagrant']
 	)""")
 			module_file.close()
 			# Set up build.cnf
@@ -274,12 +278,8 @@ shutit.core.module.build:yes''')
 		new_module_filename = skel_path + '/' + skel_module_name + '.py'
 		module_file = open(new_module_filename,'w+')
 
-		module_file.write('''import random
-import string
-import os
-import inspect
-
-''' + shutit.cfg['skeleton']['header_section'] + """
+		module_file.write(shared_imports + """
+""" + shutit.cfg['skeleton']['header_section'] + """
 
 	def build(self, shutit):
 		vagrant_image = shutit.cfg[self.module_id]['vagrant_image']
@@ -308,6 +308,7 @@ end''')
 		shutit.login(command='sudo su -',password='vagrant')
 		shutit.logout()
 		shutit.logout()
+		shutit.log('''Vagrantfile created in: ''' + shutit.cfg[self.module_id]['vagrant_run_dir'],add_final_message=True,level=logging.DEBUG)
 		return True
 
 """ + get_config_section + """
@@ -335,7 +336,7 @@ def module():
 		description='',
 		maintainer='',
 		delivery_methods=['bash'],
-		depends=['""" + skel_depends + """','shutit-library.virtualbox.virtualbox.virtualbox','tk.shutit.vagrant.vagrant.vagrant']
+		depends=['""" + skel_depends + """','shutit-library.virtualization.virtualization.virtualization','tk.shutit.vagrant.vagrant.vagrant']
 	)""")
 
 		module_file.close()
