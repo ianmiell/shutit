@@ -64,7 +64,7 @@ def setup_vagrant_pattern(skel_path,
 			shutit.multisend('passwd',{'assword:':root_password})
 			shutit.send("""sed -i 's/.*PermitRootLogin.*/PermitRootLogin yes/g' /etc/ssh/sshd_config""")
 			shutit.send("""sed -i 's/.*PasswordAuthentication.*/PasswordAuthentication yes/g' /etc/ssh/sshd_config""")
-			shutit.send('systemctl restart sshd')
+			shutit.send('service ssh restart || systemctl restart sshd')
 			shutit.multisend('ssh-keygen',{'Enter':'','verwrite':'n'})
 			shutit.logout()
 			shutit.logout()
