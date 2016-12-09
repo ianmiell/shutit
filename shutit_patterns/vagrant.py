@@ -19,9 +19,11 @@ def setup_vagrant_pattern(skel_path,
 	num_machines = int(shutit_util.get_input('How many machines do you want (default: 3)? ', default='3'))
 	# prefix for machines (alphnum only)
 	machine_prefix = shutit_util.get_input('What do you want to call the machines (eg superserver) (default: machine)? ', default='machine')
+	# Set up free ssh access?
+	ssh_access = shutit_util.get_input('Do you want to have open ssh access between machines? (default: yes)', boolean=True, default='yes')
 	# TODO: others - memory per machine?
 
-	# Set up Vagrantfile data for the later 
+	# Set up Vagrantfile data for the later
 	machine_dict = {}
 	machine_stanzas = ''
 	machine_list_code = '''\n\t\t# machines is a dict of dicts containing information about each machine for you to use.\n\t\tmachines = {}'''
@@ -45,6 +47,37 @@ def setup_vagrant_pattern(skel_path,
 		if shutit.send_and_get_output("""vagrant status | grep -w ^''' + machine_name + ''' | awk '{print $2}'""") != 'running':
 			shutit.pause_point("machine: ''' + machine_name + ''' appears not to have come up cleanly")
 '''
+
+
+	if ssh_access:
+		copy_keys_code = '''
+		for machine in sorted(machines.keys()):
+			shutit.login(command='vagrant ssh ' + machine)
+			shutit.login(command='sudo su -',password='vagrant')
+			root_password = 'root'
+			shutit.install('net-tools') # netstat needed
+			shutit.install('bind-utils') # host needed
+			# Workaround for docker networking issues + landrush.
+			shutit.send("""echo "$(host -t A index.docker.io | grep has.address | head -1 | awk '{print $NF}') index.docker.io" >> /etc/hosts""")
+			shutit.send("""echo "$(host -t A registry-1.docker.io | grep has.address | head -1 | awk '{print $NF}') registry-1.docker.io" >> /etc/hosts""")
+			shutit.multisend('passwd',{'assword:':root_password})
+			shutit.send("""sed -i 's/.*PermitRootLogin.*/PermitRootLogin yes/g' /etc/ssh/sshd_config""")
+			shutit.send("""sed -i 's/.*PasswordAuthentication.*/PasswordAuthentication yes/g' /etc/ssh/sshd_config""")
+			shutit.send('systemctl restart sshd')
+			shutit.multisend('ssh-keygen',{'Enter':'','verwrite':'n'})
+			shutit.logout()
+			shutit.logout()
+		for machine in sorted(machines.keys()):
+			shutit.login(command='vagrant ssh ' + machine)
+			shutit.login(command='sudo su -',password='vagrant')
+			for ssh_copy_to_fqdn in machines[machine]['fqdn']:
+				shutit.multisend('ssh-copy-id root@' + ssh_copy_to_fqdn,{'assword:':root_password,'ontinue conn':'yes'})
+			for ssh_copy_to_ip in machines[machine]['ip']:
+				shutit.multisend('ssh-copy-id root@' + ssh_copy_to_ip,{'assword:':root_password,'ontinue conn':'yes'})
+			shutit.logout()
+			shutit.logout()'''
+	else:
+		copy_keys_code = ''
 
 	get_config_section = '''
 	def get_config(self, shutit):
@@ -173,9 +206,13 @@ end''')
 		pw = shutit.get_env_pass()
 """ + vagrant_up_section + """
 """ + machine_list_code + """
+""" + copy_keys_code + """
 		shutit.login(command='vagrant ssh ' + sorted(machines.keys())[0])
 		shutit.login(command='sudo su -',password='vagrant')
+
 """ + shutit.cfg['skeleton']['build_section'] + """
+
+		# Put your automation code in here.
 		shutit.logout()
 		shutit.logout()
 		shutit.log('''# Vagrantfile created in: ''' + shutit.cfg[self.module_id]['vagrant_run_dir'] + '''\r\n# Run:
@@ -304,6 +341,7 @@ end''')
 		pw = shutit.get_env_pass()
 """ + vagrant_up_section + """
 """ + machine_list_code + """
+""" + copy_keys_code + """
 		shutit.login(command='vagrant ssh ' + sorted(machines.keys())[0])
 		shutit.login(command='sudo su -',password='vagrant')
 		shutit.logout()
