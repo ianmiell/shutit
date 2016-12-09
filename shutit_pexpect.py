@@ -466,11 +466,11 @@ class ShutItPexpectSession(object):
 
 
 	def _check_last_exit_values(self,
-	                           send,
-	                           expect=None,
-	                           exit_values=None,
-	                           retry=0,
-	                           retbool=False):
+	                            send,
+	                            expect=None,
+	                            exit_values=None,
+	                            retry=0,
+	                            retbool=False):
 		"""Internal function to check the exit value of the shell. Do not use.
 		"""
 		shutit = shutit_global.shutit
@@ -1171,11 +1171,15 @@ class ShutItPexpectSession(object):
 					res = self.multisend('%s %s %s' % (cmd, opts, package), {'assword':pw}, expect=['Unable to fetch some archives',self.default_expect], timeout=timeout, check_exit=False, loglevel=loglevel, echo=False, secret=True)
 					shutit.log('Result of install attempt was: ' + str(res),level=logging.DEBUG)
 				else:
-					res = self.send('%s %s %s' % (cmd, opts, package), expect=['Unable to fetch some archives',self.default_expect], timeout=timeout, check_exit=check_exit, loglevel=loglevel)
+					res = self.send('%s %s %s' % (cmd, opts, package), expect=['Unable to fetch some archives',self.default_expect], timeout=timeout, check_exit=False, loglevel=loglevel)
 					shutit.log('Result of install attempt was: ' + str(res),level=logging.DEBUG)
-				fails += 1
-				if fails >= 3:
+				if self.get_exit_value(shutit):
 					break
+				else:
+					fails += 1
+					if fails >= 3:
+						shutit.pause_point('Failed to install ' + package)
+						return False
 		else:
 			# package not required
 			pass
