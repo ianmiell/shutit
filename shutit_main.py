@@ -404,6 +404,8 @@ def do_build():
 		module = shutit.shutit_map[module_id]
 		shutit.log('Considering whether to build: ' + module.module_id, level=logging.INFO)
 		if cfg[module.module_id]['shutit.core.module.build']:
+			if shutit.build['delivery'] not in module.ok_delivery_methods:
+				shutit.fail('Module: ' + module.module_id + ' can only be built with one of these --delivery methods: ' + str(module.ok_delivery_methods) + '\nSee shutit build -h for more info, or try adding: --delivery <method> to your shutit invocation')
 			if shutit_util.is_installed(module):
 				shutit.build['report'] = (shutit.build['report'] + '\nBuilt already: ' + module.module_id + ' with run order: ' + str(module.run_order))
 			else:
