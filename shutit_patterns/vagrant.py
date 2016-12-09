@@ -56,7 +56,8 @@ def setup_vagrant_pattern(skel_path,
 			shutit.login(command='sudo su -',password='vagrant')
 			root_password = 'root'
 			shutit.install('net-tools') # netstat needed
-			shutit.install('bind-utils') # host needed
+			if not shutit.command_available('host'):
+				shutit.install('bind-utils') # host needed
 			# Workaround for docker networking issues + landrush.
 			shutit.send("""echo "$(host -t A index.docker.io | grep has.address | head -1 | awk '{print $NF}') index.docker.io" >> /etc/hosts""")
 			shutit.send("""echo "$(host -t A registry-1.docker.io | grep has.address | head -1 | awk '{print $NF}') registry-1.docker.io" >> /etc/hosts""")
