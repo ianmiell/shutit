@@ -70,10 +70,9 @@ def setup_vagrant_pattern(skel_path,
 		for machine in sorted(machines.keys()):
 			shutit.login(command='vagrant ssh ' + machine)
 			shutit.login(command='sudo su -',password='vagrant')
-			for ssh_copy_to_fqdn in machines[machine]['fqdn']:
-				shutit.multisend('ssh-copy-id root@' + ssh_copy_to_fqdn,{'assword:':root_password,'ontinue conn':'yes'})
-			for ssh_copy_to_ip in machines[machine]['ip']:
-				shutit.multisend('ssh-copy-id root@' + ssh_copy_to_ip,{'assword:':root_password,'ontinue conn':'yes'})
+			for copy_to_machine in machines:
+				for item in ('fqdn','ip'):
+					shutit.multisend('ssh-copy-id root@' + machines[copy_to_machine][item],{'assword:':root_password,'ontinue conn':'yes'})
 			shutit.logout()
 			shutit.logout()'''
 	else:
