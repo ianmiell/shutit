@@ -1,6 +1,7 @@
 import os
 import shutit_global
 import shutit_util
+import logging
 from . import shutitfile
 
 def setup_vagrant_pattern(skel_path,
@@ -53,6 +54,12 @@ def setup_vagrant_pattern(skel_path,
 		shutit.get_config(self.module_id,'memory',default='1024')
 		shutit.get_config(self.module_id,'vagrant_run_dir',default='/tmp')
 		return True'''
+
+	shared_imports = '''import random
+import logging
+import string
+import os
+import inspect'''
 
 	# Set up files:
 	# .gitignore
@@ -118,6 +125,7 @@ fi
 cd ''' + skel_path + ''' && ./run.sh
  to run.''',transient=True)
 
+
 	# CREATE THE MODULE FILE
 	# Handle shutitfiles. If there are no shutitfiles, handle separately.
 	# If there are more than one, you need to treat the first one differently.
@@ -141,11 +149,7 @@ cd ''' + skel_path + ''' && ./run.sh
 			shutit.cfg['skeleton']['final_section']       = sections['final_section']
 			module_file = open(new_module_filename,'w+')
 			if _count == 1 or True:
-				module_file.write("""import random
-import string
-import os
-import inspect
-
+				module_file.write(shared_imports + """
 """ + shutit.cfg['skeleton']['header_section'] + """
 
 	def build(self, shutit):
@@ -208,10 +212,7 @@ def module():
 		depends=['""" + skel_depends + """','shutit-library.virtualbox.virtualbox.virtualbox','tk.shutit.vagrant.vagrant.vagrant']
 	)""")
 			else:
-				module_file.write("""import random
-import string
-import os
-
+				module_file.write(shared_imports + """
 """ + shutit.cfg['skeleton']['header_section'] + """
 
 	def build(self, shutit):
@@ -274,12 +275,8 @@ shutit.core.module.build:yes''')
 		new_module_filename = skel_path + '/' + skel_module_name + '.py'
 		module_file = open(new_module_filename,'w+')
 
-		module_file.write('''import random
-import string
-import os
-import inspect
-
-''' + shutit.cfg['skeleton']['header_section'] + """
+		module_file.write(shared_imports + """
+""" + shutit.cfg['skeleton']['header_section'] + """
 
 	def build(self, shutit):
 		vagrant_image = shutit.cfg[self.module_id]['vagrant_image']
