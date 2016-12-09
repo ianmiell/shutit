@@ -80,7 +80,7 @@ then
 	echo "Must have shutit on path, eg export PATH=$PATH:/path/to/shutit_dir"
 	exit 1
 fi
-$SHUTIT build --echo -d bash -m shutit-library/vagrant -m shutit-library/virtualbox "$@"
+$SHUTIT build --echo -d bash -m shutit-library/vagrant -m shutit-library/virtualization "$@"
 if [[ $? != 0 ]]
 then
 	exit 1
@@ -121,9 +121,7 @@ fi
 	os.system('git submodule add https://github.com/ianmiell/shutit-library')
 
 	# User message
-	shutit.log('''# Run:
-cd ''' + skel_path + ''' && ./run.sh
- to run.''',transient=True)
+	shutit.log('''# Run:\r\n\r\ncd ''' + skel_path + ''' && ./run.sh\r\n\r\n# to run.''',transient=True)
 
 
 	# CREATE THE MODULE FILE
@@ -180,6 +178,7 @@ end''')
 """ + shutit.cfg['skeleton']['build_section'] + """
 		shutit.logout()
 		shutit.logout()
+		shutit.log('''Vagrantfile created in: ''' + shutit.cfg[self.module_id]['vagrant_run_dir'],add_final_message=True,level=logging.DEBUG)
 		return True
 
 """ + get_config_section + """
@@ -209,7 +208,7 @@ def module():
 		description='',
 		maintainer='',
 		delivery_methods=['bash'],
-		depends=['""" + skel_depends + """','shutit-library.virtualbox.virtualbox.virtualbox','tk.shutit.vagrant.vagrant.vagrant']
+		depends=['""" + skel_depends + """','shutit-library.virtualization.virtualization.virtualization','tk.shutit.vagrant.vagrant.vagrant']
 	)""")
 			else:
 				module_file.write(shared_imports + """
@@ -243,7 +242,7 @@ def module():
 		description='',
 		maintainer='',
 		delivery_methods=['bash'],
-		depends=['""" + skel_depends + """','shutit-library.virtualbox.virtualbox.virtualbox','tk.shutit.vagrant.vagrant.vagrant']
+		depends=['""" + skel_depends + """','shutit-library.virtualization.virtualization.virtualization','tk.shutit.vagrant.vagrant.vagrant']
 	)""")
 			module_file.close()
 			# Set up build.cnf
@@ -305,6 +304,7 @@ end''')
 		shutit.login(command='sudo su -',password='vagrant')
 		shutit.logout()
 		shutit.logout()
+		shutit.log('''Vagrantfile created in: ''' + shutit.cfg[self.module_id]['vagrant_run_dir'],add_final_message=True,level=logging.DEBUG)
 		return True
 
 """ + get_config_section + """
@@ -332,7 +332,7 @@ def module():
 		description='',
 		maintainer='',
 		delivery_methods=['bash'],
-		depends=['""" + skel_depends + """','shutit-library.virtualbox.virtualbox.virtualbox','tk.shutit.vagrant.vagrant.vagrant']
+		depends=['""" + skel_depends + """','shutit-library.virtualization.virtualization.virtualization','tk.shutit.vagrant.vagrant.vagrant']
 	)""")
 
 		module_file.close()
