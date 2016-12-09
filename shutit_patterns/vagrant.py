@@ -20,7 +20,7 @@ def setup_vagrant_pattern(skel_path,
 	# prefix for machines (alphnum only)
 	machine_prefix = shutit_util.get_input('What do you want to call the machines (eg superserver) (default: machine)? ', default='machine')
 	# Set up free ssh access?
-	ssh_access = shutit_util.get_input('Do you want to have open ssh access between machines? (default: yes)', boolean=True, default='yes')
+	ssh_access = shutit_util.get_input('Do you want to have open ssh access between machines (default: yes)? ', boolean=True, default=True)
 	# TODO: others - memory per machine?
 
 	# Set up Vagrantfile data for the later
