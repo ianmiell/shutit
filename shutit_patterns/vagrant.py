@@ -178,7 +178,11 @@ end''')
 """ + shutit.cfg['skeleton']['build_section'] + """
 		shutit.logout()
 		shutit.logout()
-		shutit.log('''Vagrantfile created in: ''' + shutit.cfg[self.module_id]['vagrant_run_dir'],add_final_message=True,level=logging.DEBUG)
+		shutit.log('''# Vagrantfile created in: ''' + shutit.cfg[self.module_id]['vagrant_run_dir'] + '''\r\n# Run:
+
+cd ''' + shutit.cfg[self.module_id]['vagrant_run_dir'] + ''' && vagrant status && vagrant landrush ls
+
+# to get information about your machines' setup.''',add_final_message=True,level=logging.DEBUG)
 		return True
 
 """ + get_config_section + """
