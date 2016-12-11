@@ -635,8 +635,9 @@ class ShutItPexpectSession(object):
 			# CTRL-q
 			elif ord(input_string) == 17:
 				shutit.shutit_signal = 17
-				shutit.log('CTRL-q hit, quitting ShutIt',transient=True,level=logging.CRITICAL)
-				shutit_util.handle_exit(exit_code=1)
+				if not shutit.build['testing']:
+					shutit.log('CTRL-q hit, quitting ShutIt',transient=True,level=logging.CRITICAL)
+					shutit_util.handle_exit(exit_code=1)
 			# CTRL-s
 			elif ord(input_string) == 19:
 				shutit.shutit_signal['ID'] = 19
@@ -2757,6 +2758,9 @@ $'"""
 			echo = True
 		if echo == None:
 			# No if it was not explicitly passed in
+			echo = False
+		if shutit.build['testing']:
+			# No if we are in testing mode
 			echo = False
 		return echo
 
