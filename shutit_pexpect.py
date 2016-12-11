@@ -586,11 +586,11 @@ class ShutItPexpectSession(object):
 					pp_msg = '\r\nYou now have a standard shell. Hit CTRL and then ] at the same time to continue ShutIt run, CTRL-q to quit.'
 					if shutit.build['delivery'] == 'docker':
 						pp_msg += '\r\nHit CTRL and u to save the state to a docker image'
-					shutit.log(shutit_util.colourise(colour,'\r\n' + 80*'=' + '\r\n' + msg + '\r\n' + 80*'='+'\r\n' + pp_msg),transient=True)
+					shutit.log(shutit_util.colourise(colour,'\r\n' + 80*'=' + '\r\n' + msg + '\r\n' + 80*'='+'\r\n' + pp_msg),transient=True,level=logging.CRITICAL)
 				else:
-					shutit.log('\r\n' + (shutit_util.colourise(colour, msg)),transient=True)
+					shutit.log('\r\n' + (shutit_util.colourise(colour, msg)),transient=True,level=logging.critical)
 			else:
-				shutit.log(shutit_util.colourise(colour, msg) + '\r\n' + default_msg + '\r\n',transient=True)
+				shutit.log(shutit_util.colourise(colour, msg) + '\r\n' + default_msg + '\r\n',transient=True,level=logging.CRITICAL)
 			oldlog = self.pexpect_child.logfile_send
 			self.pexpect_child.logfile_send = None
 			if wait > 0:
@@ -2524,11 +2524,11 @@ $'"""
 					continue
 				if send in ('help','h'):
 					if len(hints):
-						shutit.log(help_text,transient=True)
-						shutit.log(shutit_util.colourise('32',hints.pop()),transient=True)
+						shutit.log(help_text,transient=True,level=logging.CRITICAL)
+						shutit.log(shutit_util.colourise('32',hints.pop()),transient=True,level=logging.CRITICAL)
 					else:
-						shutit.log(help_text,transient=True)
-						shutit.log(shutit_util.colourise('32','No hints left, sorry! CTRL-g to reset state, CTRL-s to skip this step, CTRL-] to submit for checking'),transient=True)
+						shutit.log(help_text,transient=True,level=logging.CRITICAL)
+						shutit.log(shutit_util.colourise('32','No hints left, sorry! CTRL-g to reset state, CTRL-s to skip this step, CTRL-] to submit for checking'),transient=True,level=logging.CRITICAL)
 					time.sleep(pause)
 					continue
 				if send == 'shutitreset':
@@ -2560,7 +2560,7 @@ $'"""
 					if shutit.build['testing_object']:
 						shutit.build['testing_object'].add_fail()
 						shutit.build['testing_object'].end_timer()
-					shutit.log('\n\n' + shutit_util.colourise('32','failed') + '\n',transient=True)
+					shutit.log('\n\n' + shutit_util.colourise('32','failed') + '\n',transient=True,level=logging.CRITICAL)
 					self._challenge_done(result='failed')
 					continue
 		elif challenge_type == 'golf':
@@ -2579,17 +2579,21 @@ $'"""
 					if shutit.build['testing_object']:
 						shutit.build['testing_object'].add_hint()
 					if len(shutit.build['pause_point_hints']):
-						shutit.log(shutit_util.colourise('31','\r\n========= HINT ==========\r\n\r\n' + shutit.build['pause_point_hints'].pop(0)),transient=True)
+						shutit.log(shutit_util.colourise('31','\r\n========= HINT ==========\r\n\r\n' + shutit.build['pause_point_hints'].pop(0)),transient=True,level=logging.CRITICAL)
 					else:
-						shutit.log(shutit_util.colourise('31','\r\n\r\n' + 'No hints available!'),transient=True)
+						shutit.log(shutit_util.colourise('31','\r\n\r\n' + 'No hints available!'),transient=True,level=logging.CRTICAL)
 					time.sleep(1)
 					# clear the signal
+					shutit.shutit_signal['ID'] = 0
+					continue
+				elif shutit.shutit_signal['ID'] == 17:
+					# clear the signal and ignore CTRL-q
 					shutit.shutit_signal['ID'] = 0
 					continue
 				elif shutit.shutit_signal['ID'] == 7:
 					if shutit.build['testing_object']:
 						shutit.build['testing_object'].add_reset()
-					shutit.log(shutit_util.colourise('31','\r\n========= RESETTING STATE ==========\r\n\r\n'),transient=True)
+					shutit.log(shutit_util.colourise('31','\r\n========= RESETTING STATE ==========\r\n\r\n'),transient=True,level=logging.CRITICAL)
 					self._challenge_done(result='reset', follow_on_context=follow_on_context)
 					# clear the signal
 					shutit.shutit_signal['ID'] = 0
@@ -2622,10 +2626,10 @@ $'"""
 					# Clear the signal.
 					shutit.shutit_signal['ID'] = 0
 					# Skip test.
-					shutit.log('Test skipped',level=logging.INFO)
+					shutit.log('Test skipped',level=logging.CRITICAL,transient=True)
 					skipped=True
 					return True
-				shutit.log('State submitted, checking your work...',level=logging.INFO)
+				shutit.log('State submitted, checking your work...',level=logging.CRITICAL,transient=True)
 				check_command = follow_on_context.get('check_command')
 				output = self.send_and_get_output(check_command,timeout=timeout,retry=1,record_command=record_command,echo=False, loglevel=loglevel, fail_on_empty_before=False, preserve_newline=preserve_newline)
 				shutit.log('output: ' + output,level=logging.DEBUG)
@@ -2644,7 +2648,7 @@ $'"""
 							ok = True
 							break
 				if not ok and failed:
-					shutit.log('\n\n' + shutit_util.colourise('31','Failed! CTRL-g to reset state, CTRL-h for a hint, CTRL-] to submit for checking') + '\n',transient=True)
+					shutit.log('\n\n' + shutit_util.colourise('31','Failed! CTRL-g to reset state, CTRL-h for a hint, CTRL-] to submit for checking') + '\n',transient=True,level=logging.CRITICAL)
 					# No second chances if testing!
 					if shutit.build['testing_object']:
 						shutit.build['testing_object'].add_fail()
