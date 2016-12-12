@@ -563,12 +563,12 @@ class ShutItPexpectSession(object):
 				# It is possible we do not have distro set yet, so wrap in try/catch
 				try:
 					if self.current_environment.distro != 'osx':
-						fixterm_filename = '/tmp/shutit_fixterm'
+						fixterm_filename = '/tmp/x'
 						fixterm_filename_stty = fixterm_filename + '_stty'
 						if not self.in_screen():
 							if not self.file_exists(fixterm_filename):
 								shutit.log('Fixing up your terminal, please wait...',level=logging.INFO)
-								self.send_file(fixterm_filename,shutit_assets.get_fixterm(), loglevel=logging.DEBUG)
+								self.send_file(fixterm_filename,shutit_assets.get_fixterm(), echo=False, loglevel=logging.DEBUG)
 								self.send(' command chmod 777 ' + fixterm_filename, echo=False,loglevel=logging.DEBUG)
 							if not self.file_exists(fixterm_filename + '_stty'):
 								self.send(' command stty >  ' + fixterm_filename_stty, echo=False,loglevel=logging.DEBUG)
@@ -2285,6 +2285,7 @@ $'"""
 	def send_file(self,
 	              path,
 	              contents,
+	              echo=False,
 	              truncate=False,
 	              note=None,
 	              user=None,
@@ -2327,14 +2328,14 @@ $'"""
 			f.close()
 		elif shutit.build['delivery'] in ('bash','dockerfile'):
 			if truncate and self.file_exists(path):
-				self.send(' command rm -f ' + path, echo=False,loglevel=loglevel)
+				self.send(' command rm -f ' + path, echo=echo,loglevel=loglevel)
 			random_id = shutit_util.random_id()
 			# set the searchwindowsize to a low number to speed up processing of large output
 			b64contents = base64.b64encode(contents)
 			if len(b64contents) > 100000:
 				shutit.log('File is larger than ~100K - this may take some time',level=logging.WARNING)
-			self.send(' ' + shutit_util.get_command('head') + ' -c -1 > ' + path + "." + random_id + " << 'END_" + random_id + """'\n""" + b64contents + '''\nEND_''' + random_id, echo=False,loglevel=loglevel, timeout=99999)
-			self.send(' command cat ' + path + '.' + random_id + ' | base64 --decode > ' + path, echo=False,loglevel=loglevel)
+			self.send(' ' + shutit_util.get_command('head') + ' -c -1 > ' + path + "." + random_id + " << 'END_" + random_id + """'\n""" + b64contents + '''\nEND_''' + random_id, echo=echo,loglevel=loglevel, timeout=99999)
+			self.send(' command cat ' + path + '.' + random_id + ' | base64 --decode > ' + path, echo=echo,loglevel=loglevel)
 		else:
 			host_child = shutit.get_shutit_pexpect_session_from_id('host_child').pexpect_child
 			path = path.replace(' ', '\ ')
@@ -2350,13 +2351,13 @@ $'"""
 				shutit.fail('type: ' + type(contents) + ' not handled')
 			f.close()
 			# Create file so it has appropriate permissions
-			self.send(' command touch ' + path, echo=False,loglevel=loglevel)
+			self.send(' command touch ' + path, loglevel=loglevel, echo=echo)
 			# If path is not absolute, add $HOME to it.
 			if path[0] != '/':
-				shutit.send(' command cat ' + tmpfile + ' | ' + shutit.host['docker_executable'] + ' exec -i ' + shutit.target['container_id'] + " bash -c 'cat > $HOME/" + path + "'", shutit_pexpect_child=host_child, expect=shutit.expect_prompts['origin_prompt'], echo=False,loglevel=loglevel)
+				shutit.send(' command cat ' + tmpfile + ' | ' + shutit.host['docker_executable'] + ' exec -i ' + shutit.target['container_id'] + " bash -c 'cat > $HOME/" + path + "'", shutit_pexpect_child=host_child, expect=shutit.expect_prompts['origin_prompt'], loglevel=loglevel, echo=echo)
 			else:
-				shutit.send(' command cat ' + tmpfile + ' | ' + shutit.host['docker_executable'] + ' exec -i ' + shutit.target['container_id'] + " bash -c 'cat > " + path + "'", shutit_pexpect_child=host_child, expect=shutit.expect_prompts['origin_prompt'], echo=False,loglevel=loglevel)
-			self.send(' command chown ' + user + ' ' + path + ' && chgrp ' + group + ' ' + path, echo=False,loglevel=loglevel)
+				shutit.send(' command cat ' + tmpfile + ' | ' + shutit.host['docker_executable'] + ' exec -i ' + shutit.target['container_id'] + " bash -c 'cat > " + path + "'", shutit_pexpect_child=host_child, expect=shutit.expect_prompts['origin_prompt'], loglevel=loglevel, echo=echo)
+			self.send(' command chown ' + user + ' ' + path + ' && chgrp ' + group + ' ' + path, echo=echo, loglevel=loglevel)
 			os.remove(tmpfile)
 		shutit._handle_note_after(note=note)
 		return True
