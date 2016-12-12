@@ -709,7 +709,7 @@ shutitfile:        a shutitfile-based project
 			if shutit.build['exam'] and not shutit.build['training']:
 				# We want it to be quiet
 				#print('--exam implies --training, setting --training on!')
-				print('Test starting up')
+				print('Exam starting up')
 				shutit.build['training'] = True
 			if (shutit.build['exam'] or shutit.build['training']) and not shutit.build['walkthrough']:
 				if not shutit.build['exam']:
@@ -727,7 +727,7 @@ shutitfile:        a shutitfile-based project
 					handle_exit(exit_code=1)
 			# Create a test session object if needed.
 			if shutit.build['exam']:
-				shutit.build['exam_object'] = shutit_exam.ShutItTestSession()
+				shutit.build['exam_object'] = shutit_exam.ShutItExamSession()
 		elif shutit.action['list_configs']:
 			shutit.list_configs['cfghistory'] = args.history
 		elif shutit.action['list_modules']:

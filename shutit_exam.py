@@ -5,7 +5,7 @@ import signal
 
 PY3 = (sys.version_info[0] >= 3)
 
-class ShutItTestSessionStage(object):
+class ShutItExamSessionStage(object):
 
 	# difficulty           - a proportion of the default difficulty=1
 	# reduction_per_minute - the degree to which success value decreases every minute
@@ -63,7 +63,7 @@ class ShutItTestSessionStage(object):
 
 
 
-class ShutItTestSession(object):
+class ShutItExamSession(object):
 
 	def __init__(self):
 		self.stages           = []
@@ -87,7 +87,7 @@ class ShutItTestSession(object):
 		
 	def new_stage(self,difficulty=1.0,reduction_per_minute=0.2,reduction_per_reset=0,reduction_per_hint=0.5,grace_period=30):
 		difficulty = float(difficulty)
-		stage = ShutItTestSessionStage(difficulty,reduction_per_minute,reduction_per_reset,reduction_per_hint,grace_period)
+		stage = ShutItExamSessionStage(difficulty,reduction_per_minute,reduction_per_reset,reduction_per_hint,grace_period)
 		self.stages.append(stage)
 		return stage
 
