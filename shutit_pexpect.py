@@ -216,7 +216,7 @@ class ShutItPexpectSession(object):
 		self.login_stack_append(r_id)
 		shutit._handle_note_after(note=note,training_input=send)
 		# Try and stop user being 'clever'
-		if shutit.build['testing']:
+		if shutit.build['exam']:
 			shutit.send(' command alias exit=/bin/true',echo=False,record_command=False)
 			shutit.send(' command alias logout=/bin/true',echo=False,record_command=False)
 			shutit.send(' command alias kill=/bin/true',echo=False,record_command=False)
@@ -241,7 +241,7 @@ class ShutItPexpectSession(object):
 		"""
 		shutit = shutit_global.shutit
 		shutit._handle_note(note,training_input=command)
-		if shutit.build['testing']:
+		if shutit.build['exam']:
 			shutit.send(' command unalias exit',echo=False,record_command=False)
 			shutit.send(' command unalias logout',echo=False,record_command=False)
 			shutit.send(' command unalias kill',echo=False,record_command=False)
@@ -582,7 +582,7 @@ class ShutItPexpectSession(object):
 				except:
 					pass
 			if default_msg == None:
-				if not shutit.build['video'] and not shutit.build['training'] and not shutit.build['testing'] and not shutit.build['walkthrough']:
+				if not shutit.build['video'] and not shutit.build['training'] and not shutit.build['exam'] and not shutit.build['walkthrough']:
 					pp_msg = '\r\nYou now have a standard shell. Hit CTRL and then ] at the same time to continue ShutIt run, CTRL-q to quit.'
 					if shutit.build['delivery'] == 'docker':
 						pp_msg += '\r\nHit CTRL and u to save the state to a docker image'
@@ -635,7 +635,7 @@ class ShutItPexpectSession(object):
 			# CTRL-q
 			elif ord(input_string) == 17:
 				shutit.shutit_signal = 17
-				if not shutit.build['testing']:
+				if not shutit.build['exam']:
 					shutit.log('CTRL-q hit, quitting ShutIt',transient=True,level=logging.CRITICAL)
 					shutit_util.handle_exit(exit_code=1)
 			# CTRL-s
@@ -1160,7 +1160,7 @@ class ShutItPexpectSession(object):
 		# Get mapped packages.
 		package = package_map.map_packages(package, self.current_environment.install_type)
 		# Let's be tolerant of failure eg due to network.
-		# This is especially helpful with automated testing.
+		# This is especially helpful with automated exam.
 		# Also can help when packages are interdependent, eg 'epel-release asciinema',
 		# which requires that epel-release is fully installed before asciinema can be.
 		if package.strip() != '':
@@ -2092,7 +2092,7 @@ class ShutItPexpectSession(object):
 		# - otherwise, default to doing the check
 		if check_exit == None:
 			# If we are in video mode, ignore exit value
-			if shutit.build['video'] or shutit.build['training'] or shutit.build['walkthrough'] or shutit.build['testing']:
+			if shutit.build['video'] or shutit.build['training'] or shutit.build['walkthrough'] or shutit.build['exam']:
 				check_exit = False
 			elif expect == shutit.get_default_shutit_pexpect_session_expect():
 				check_exit = shutit.get_default_shutit_pexpect_session_check_exit()
@@ -2489,8 +2489,8 @@ $'"""
 		                             golf    = user gets a pause point, and when leaving, command follow_on_context['check_command'] is run to check the output
 		"""
 		shutit = shutit_global.shutit
-		if new_stage and shutit.build['testing_object']:
-			shutit.build['testing_object'].new_stage(difficulty)
+		if new_stage and shutit.build['exam_object']:
+			shutit.build['exam_object'].new_stage(difficulty)
 		# don't catch CTRL-C, pass it through.
 		shutit.build['ctrlc_passthrough'] = True
 		preserve_newline                  = False
@@ -2558,9 +2558,9 @@ $'"""
 							ok = True
 							break
 				if not ok and failed:
-					if shutit.build['testing_object']:
-						shutit.build['testing_object'].add_fail()
-						shutit.build['testing_object'].end_timer()
+					if shutit.build['exam_object']:
+						shutit.build['exam_object'].add_fail()
+						shutit.build['exam_object'].end_timer()
 					shutit.log('\n\n' + shutit_util.colourise('32','failed') + '\n',transient=True,level=logging.CRITICAL)
 					self._challenge_done(result='failed')
 					continue
@@ -2573,12 +2573,12 @@ $'"""
 			else:
 				task_desc_new = '\r\n' + task_desc
 			while not ok:
-				if shutit.build['testing_object'] and new_stage:
-					shutit.build['testing_object'].start_timer()
+				if shutit.build['exam_object'] and new_stage:
+					shutit.build['exam_object'].start_timer()
 				self.pause_point(shutit_util.colourise('31',task_desc_new),colour='31')
 				if shutit.shutit_signal['ID'] == 8:
-					if shutit.build['testing_object']:
-						shutit.build['testing_object'].add_hint()
+					if shutit.build['exam_object']:
+						shutit.build['exam_object'].add_hint()
 					if len(shutit.build['pause_point_hints']):
 						shutit.log(shutit_util.colourise('31','\r\n========= HINT ==========\r\n\r\n' + shutit.build['pause_point_hints'].pop(0)),transient=True,level=logging.CRITICAL)
 					else:
@@ -2592,8 +2592,8 @@ $'"""
 					shutit.shutit_signal['ID'] = 0
 					continue
 				elif shutit.shutit_signal['ID'] == 7:
-					if shutit.build['testing_object']:
-						shutit.build['testing_object'].add_reset()
+					if shutit.build['exam_object']:
+						shutit.build['exam_object'].add_reset()
 					shutit.log(shutit_util.colourise('31','\r\n========= RESETTING STATE ==========\r\n\r\n'),transient=True,level=logging.CRITICAL)
 					self._challenge_done(result='reset', follow_on_context=follow_on_context)
 					# clear the signal
@@ -2621,9 +2621,9 @@ $'"""
 						new_stage=False
 					)
 				elif shutit.shutit_signal['ID'] == 19:
-					if shutit.build['testing_object']:
-						shutit.build['testing_object'].add_skip()
-						shutit.build['testing_object'].end_timer()
+					if shutit.build['exam_object']:
+						shutit.build['exam_object'].add_skip()
+						shutit.build['exam_object'].end_timer()
 					# Clear the signal.
 					shutit.shutit_signal['ID'] = 0
 					# Skip test.
@@ -2650,10 +2650,10 @@ $'"""
 							break
 				if not ok and failed:
 					shutit.log('\n\n' + shutit_util.colourise('31','Failed! CTRL-g to reset state, CTRL-h for a hint, CTRL-] to submit for checking') + '\n',transient=True,level=logging.CRITICAL)
-					# No second chances if testing!
-					if shutit.build['testing_object']:
-						shutit.build['testing_object'].add_fail()
-						shutit.build['testing_object'].end_timer()
+					# No second chances if exam!
+					if shutit.build['exam_object']:
+						shutit.build['exam_object'].add_fail()
+						shutit.build['exam_object'].end_timer()
 						self._challenge_done(result='failed_test',follow_on_context=follow_on_context)
 						return False
 					else:
@@ -2661,9 +2661,9 @@ $'"""
 		else:
 			shutit.fail('Challenge type: ' + challenge_type + ' not supported')
 		self._challenge_done(result='ok',follow_on_context=follow_on_context,congratulations=congratulations,skipped=skipped)
-		if shutit.build['testing_object']:
-			shutit.build['testing_object'].add_ok()
-			shutit.build['testing_object'].end_timer()
+		if shutit.build['exam_object']:
+			shutit.build['exam_object'].add_ok()
+			shutit.build['exam_object'].end_timer()
 		# Tidy up hints
 		shutit.build['pause_point_hints'] = []
 		return True
@@ -2759,8 +2759,8 @@ $'"""
 		if echo == None:
 			# No if it was not explicitly passed in
 			echo = False
-		if shutit.build['testing']:
-			# No if we are in testing mode
+		if shutit.build['exam']:
+			# No if we are in exam mode
 			echo = False
 		return echo
 

@@ -573,7 +573,7 @@ def main():
 	finalize_target()
 	shutit.log(shutit_util.build_report('#Module: N/A (END)'), level=logging.DEBUG)
 	do_final_messages(shutit)
-	do_testing_output(shutit)
+	do_exam_output(shutit)
 
 	# Mark the build as completed
 	shutit.build['completed'] = True
@@ -631,9 +631,9 @@ def do_final_messages(shutit):
 		shutit.log(shutit_util.colourise(31,'\r\n\r\n' + shutit.build['report_final_messages'] + '\r\n\r\n'), level=logging.INFO, transient=True)
 
 
-def do_testing_output(shutit):
-	if shutit.build['testing_object']:
-		test = shutit.build['testing_object']
+def do_exam_output(shutit):
+	if shutit.build['exam_object']:
+		test = shutit.build['exam_object']
 		test.calculate_score()
 		shutit.log(str(test),level=logging.INFO)
 		print(str(test))

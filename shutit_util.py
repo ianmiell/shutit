@@ -59,7 +59,7 @@ import shutit_global
 import shutit_main
 import shutit_assets
 import shutit_skeleton
-import shutit_testing
+import shutit_exam
 from shutit_module import ShutItFailException
 from shutit_module import ShutItModule
 
@@ -439,7 +439,7 @@ def parse_args():
 	sub_parsers['build'].add_argument('-c','--choose_config', help='Choose configuration interactively', default=False, action='store_const', const=True)
 	sub_parsers['build'].add_argument('--video', help='Run in video mode. Same as walkthrough, but waits n seconds rather than for input', nargs=1, default=-1)
 	sub_parsers['build'].add_argument('--training', help='Run in "training" mode, where correct input is required at key points', default=False, action='store_const', const=True)
-	sub_parsers['build'].add_argument('--testing', help='Run in "testing" mode, where correct input is required at key points and progress is tracked', default=False, action='store_const', const=True)
+	sub_parsers['build'].add_argument('--exam', help='Run in "exam" mode, where correct input is required at key points and progress is tracked', default=False, action='store_const', const=True)
 
 	sub_parsers['list_configs'].add_argument('--history', help='Show config with history', const=True, default=False, action='store_const')
 	sub_parsers['list_modules'].add_argument('--long', help='Show extended module info, including ordering', const=True, default=False, action='store_const')
@@ -692,8 +692,8 @@ shutitfile:        a shutitfile-based project
 		shutit.list_modules['sort']        = None
 		shutit.build['video']              = False
 		shutit.build['training']           = False
-		shutit.build['testing']            = False
-		shutit.build['testing_object']     = None
+		shutit.build['exam']            = False
+		shutit.build['exam_object']     = None
 		shutit.build['choose_config']      = False
 		# Persistence- and build-related arguments.
 		if shutit.action['build']:
@@ -704,16 +704,16 @@ shutitfile:        a shutitfile-based project
 			shutit.build['mount_docker']    = args.mount_docker
 			shutit.build['walkthrough']     = args.walkthrough
 			shutit.build['training']        = args.training
-			shutit.build['testing']         = args.testing
+			shutit.build['exam']         = args.exam
 			shutit.build['choose_config']   = args.choose_config
-			if shutit.build['testing'] and not shutit.build['training']:
+			if shutit.build['exam'] and not shutit.build['training']:
 				# We want it to be quiet
-				#print('--testing implies --training, setting --training on!')
+				#print('--exam implies --training, setting --training on!')
 				print('Test starting up')
 				shutit.build['training'] = True
-			if (shutit.build['testing'] or shutit.build['training']) and not shutit.build['walkthrough']:
-				if not shutit.build['testing']:
-					print('--training or --testing implies --walkthrough, setting --walkthrough on!')
+			if (shutit.build['exam'] or shutit.build['training']) and not shutit.build['walkthrough']:
+				if not shutit.build['exam']:
+					print('--training or --exam implies --walkthrough, setting --walkthrough on!')
 				shutit.build['walkthrough'] = True
 			if type(args.video) == list and args.video[0] >= 0:
 				shutit.build['walkthrough']      = True
@@ -722,12 +722,12 @@ shutitfile:        a shutitfile-based project
 				if shutit.build['training']:
 					print('--video and --training mode incompatible')
 					handle_exit(exit_code=1)
-				if shutit.build['testing']:
-					print('--video and --testing mode incompatible')
+				if shutit.build['exam']:
+					print('--video and --exam mode incompatible')
 					handle_exit(exit_code=1)
 			# Create a test session object if needed.
-			if shutit.build['testing']:
-				shutit.build['testing_object'] = shutit_testing.ShutItTestSession()
+			if shutit.build['exam']:
+				shutit.build['exam_object'] = shutit_exam.ShutItTestSession()
 		elif shutit.action['list_configs']:
 			shutit.list_configs['cfghistory'] = args.history
 		elif shutit.action['list_modules']:
