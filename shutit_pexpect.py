@@ -1192,11 +1192,13 @@ class ShutItPexpectSession(object):
 
 
 	def reset_terminal(self, expect=None):
+		shutit.log('Resetting terminal begin.',level=logging.DEBUG)
 		exp_string = 'SHUTIT_TERMINAL_RESET'
 		self.sendline(' echo ' + exp_string)
 		self.expect(exp_string)
 		expect = expect or self.default_expect
 		self.expect(expect)
+		shutit.log('Resetting terminal done.',level=logging.DEBUG)
 
 
 	def get_memory(self, note=None):
