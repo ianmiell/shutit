@@ -514,10 +514,11 @@ def main():
 
 	shutit = shutit_global.shutit
 	cfg = shutit.cfg
-	shutit.log('# ShutIt Started... ',transient=True)
 	shutit_util.parse_args()
 
-	shutit.log('# Loading configs...',transient=True)
+	if not shutit.build['exam']:
+		shutit.log('# ShutIt Started... ',transient=True)
+		shutit.log('# Loading configs...',transient=True)
 	shutit_util.load_configs()
 
 	if shutit.action['skeleton']:
