@@ -154,7 +154,7 @@ fi
 	os.system('git submodule add https://github.com/ianmiell/shutit-library')
 
 	# User message
-	shutit.log('''# Run:\r\n\r\ncd ''' + skel_path + ''' && ./run.sh\r\n\r\n# to run.''',transient=True)
+	shutit.log('''# Run:\n\ncd ''' + skel_path + ''' && ./run.sh\n\n# to run.''',transient=True)
 
 
 	# CREATE THE MODULE FILE
@@ -215,7 +215,7 @@ end''')
 		# Put your automation code in here.
 		shutit.logout()
 		shutit.logout()
-		shutit.log('''# Vagrantfile created in: ''' + shutit.cfg[self.module_id]['vagrant_run_dir'] + '''\r\n# Run:
+		shutit.log('''# Vagrantfile created in: ''' + shutit.cfg[self.module_id]['vagrant_run_dir'] + '''\n# Run:
 
 cd ''' + shutit.cfg[self.module_id]['vagrant_run_dir'] + ''' && vagrant status && vagrant landrush ls
 
@@ -346,8 +346,8 @@ end''')
 		shutit.login(command='sudo su -',password='vagrant')
 		shutit.logout()
 		shutit.logout()
-		shutit.log('''Vagrantfile created in: ''' + shutit.cfg[self.module_id]['vagrant_run_dir'] '/' + module_name,add_final_message=True,level=logging.DEBUG)
-		shutit.log('''Run:\r\n\r\n\tcd ''' + shutit.cfg[self.module_id]['vagrant_run_dir'] '/' + module_name + ' && vagrant status && vagrant landrush ls\r\n\r\nTo get a picture of what has been set up.',add_final_message=True,level=logging.DEBUG)
+		shutit.log('''Vagrantfile created in: ''' + shutit.cfg[self.module_id]['vagrant_run_dir'] + '/' + module_name,add_final_message=True,level=logging.DEBUG)
+		shutit.log('''Run:\n\n\tcd ''' + shutit.cfg[self.module_id]['vagrant_run_dir'] + '/' + module_name + ' && vagrant status && vagrant landrush ls\n\nTo get a picture of what has been set up.',add_final_message=True,level=logging.DEBUG)
 		return True
 
 """ + get_config_section + """
