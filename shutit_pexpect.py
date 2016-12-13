@@ -1192,6 +1192,7 @@ class ShutItPexpectSession(object):
 
 
 	def reset_terminal(self, expect=None):
+		shutit = shutit_global.shutit
 		shutit.log('Resetting terminal begin.',level=logging.DEBUG)
 		exp_string = 'SHUTIT_TERMINAL_RESET'
 		self.sendline(' echo ' + exp_string)
@@ -1362,6 +1363,7 @@ class ShutItPexpectSession(object):
 			tmpfile = '/tmp/shutit_tmpfile_' + shutit_util.random_id()
 			send = ' (' + send + ') > ' + tmpfile + ' 2>&1'
 			self.send(shutit_util.get_send_command(send), check_exit=False, retry=retry, echo=echo, timeout=timeout, record_command=record_command, loglevel=loglevel, fail_on_empty_before=fail_on_empty_before)
+			self.reset_terminal()
 			self.send(' command cat ' + tmpfile, check_exit=False, echo=echo, timeout=timeout, record_command=record_command, loglevel=loglevel)
 		else:
 			self.send(shutit_util.get_send_command(send), check_exit=False, retry=retry, echo=echo, timeout=timeout, record_command=record_command, loglevel=loglevel, fail_on_empty_before=fail_on_empty_before)
