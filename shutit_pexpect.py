@@ -1196,16 +1196,22 @@ class ShutItPexpectSession(object):
 			shutit.log('Package not required.',level=logging.DEBUG)
 			
 		shutit.log('Package is installed.',level=logging.DEBUG)
+		# Sometimes we see installs (eg yum) reset the terminal to a state
+		# ShutIt does not like.
 		self.reset_terminal()
 		shutit._handle_note_after(note=note)
 		return True
 
 
 	def reset_terminal(self, expect=None):
+		"""Resets the terminal to as good a state as we can try.
+        Sets the stty cols setting, and tries to ensure that we have 'expect'ed
+		the last prompt seen.
+		"""
 		shutit = shutit_global.shutit
 		shutit.log('Resetting terminal begin.',level=logging.DEBUG)
 		exp_string = 'SHUTIT_TERMINAL_RESET'
-		self.sendline(' echo ' + exp_string)
+		self.sendline(' stty cols ' + str(shutit.build['stty_cols']) + ' && echo ' + exp_string)
 		self.expect(exp_string)
 		expect = expect or self.default_expect
 		self.expect(expect)
@@ -1376,8 +1382,8 @@ class ShutItPexpectSession(object):
 			#shutit.pause_point(send)
 			count = 3
 			while True:
-				end_marker   = 'echo SHUTIT_END>/dev/null'
-				send = ' command cat ' + tmpfile + ' && ' + end_marker
+				end_marker = 'echo SHUTIT_END>/dev/null'
+				send       = ' command cat ' + tmpfile + ' && ' + end_marker
 				self.send(send, check_exit=False, echo=echo, timeout=timeout, record_command=record_command, loglevel=loglevel)
 				before = self.pexpect_child.before
 				if before.find(end_marker) != -1:
@@ -1386,11 +1392,10 @@ class ShutItPexpectSession(object):
 					break
 				else:
 					self.reset_terminal()
-					self.send(' stty cols ' + str(len(send) + 300), check_exit=False, retry=retry, echo=echo, timeout=timeout, record_command=record_command, loglevel=loglevel, fail_on_empty_before=fail_on_empty_before)
-					shutit.log('Retrieving output from command: ' + send,level=loglevel)
+					shutit.log('failure of: ' + send + '\nbefore was: ' + before, level=logging.DEBUG)
 					count = count - 1
 					if count < 0:
-						shutit.pause_point('repeated failure of: ' + send)
+						shutit.pause_point('Repeated failure of: ' + send + '\nbefore was: ' + before)
 		else:
 			send = shutit_util.get_send_command(send)
 			self.send(send, check_exit=False, retry=retry, echo=echo, timeout=timeout, record_command=record_command, loglevel=loglevel, fail_on_empty_before=fail_on_empty_before)
@@ -1404,7 +1409,6 @@ class ShutItPexpectSession(object):
 		before = before.strip(send)
 		# Remove all up to end marker.
 		shutit._handle_note_after(note=note)
-		debug = False
 		if strip:
 			# cf: http://stackoverflow.com/questions/14693701/how-can-i-remove-the-ansi-escape-sequences-from-a-string-in-python
 			ansi_escape = re.compile(r'(\x9B|\x1B\[)[0-?]*[ -\/]*[@-~]')
@@ -1414,18 +1418,14 @@ class ShutItPexpectSession(object):
 			#string_without_termcodes_stripped = string_without_termcodes.strip()
 			# Strip out \rs to make it output the same as a typical CL. This could be optional.
 			string_without_termcodes_stripped_no_cr = string_without_termcodes.replace('\r','')
-			if debug: 
-				for c in string_without_termcodes_stripped_no_cr:
-					shutit.log((str(hex(ord(c))) + ' '),level=logging.DEBUG)
 			if preserve_newline:
-				return string_without_termcodes_stripped_no_cr + '\n'
+				ret = string_without_termcodes_stripped_no_cr + '\n'
 			else:
-				return string_without_termcodes_stripped_no_cr
+				ret = string_without_termcodes_stripped_no_cr
 		else:
-			if debug:
-				for c in before:
-					shutit.log((str(hex(ord(c))) + ' '),level=logging.DEBUG)
-			return before
+			ret = before
+		shutit.log('send_and_get_output returning:\n' + ret, level=logging.DEBUG)
+		return ret
 
 
 	def get_env_pass(self,user=None,msg=None,note=None):
