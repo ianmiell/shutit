@@ -1377,11 +1377,17 @@ class ShutItPexpectSession(object):
 		echo = self.get_echo_override(shutit, echo)	
 		if no_wrap != True and len(send) > 80:
 			tmpfile = '/tmp/shutit_tmpfile_' + shutit_util.random_id()
+			# To avoid issues with terminal wrap, subshell the command and place
+			# the output in a file.
 			send = ' (' + send + ') > ' + tmpfile + ' 2>&1'
 			self.send(shutit_util.get_send_command(send), check_exit=False, retry=retry, echo=echo, timeout=timeout, record_command=record_command, loglevel=loglevel, fail_on_empty_before=fail_on_empty_before)
-			#shutit.pause_point(send)
 			count = 3
 			while True:
+				# Now retrieve that output. As this command is shorter, the output
+				# is more predictable, but there may still be problems, so we 
+				# retry after cleaning up the terminal if we can't see a marker
+				# in the output to clean up to. Remember we need to remove the
+				# command from the output.
 				end_marker = 'echo SHUTIT_END>/dev/null'
 				send       = ' command cat ' + tmpfile + ' && ' + end_marker
 				self.send(send, check_exit=False, echo=echo, timeout=timeout, record_command=record_command, loglevel=loglevel)
@@ -1407,14 +1413,12 @@ class ShutItPexpectSession(object):
 			preserve_newline = False
 		# Remove the command we ran in from the output.
 		before = before.strip(send)
-		# Remove all up to end marker.
 		shutit._handle_note_after(note=note)
 		if strip:
 			# cf: http://stackoverflow.com/questions/14693701/how-can-i-remove-the-ansi-escape-sequences-from-a-string-in-python
 			ansi_escape = re.compile(r'(\x9B|\x1B\[)[0-?]*[ -\/]*[@-~]')
 			string_with_termcodes = before.strip()
 			string_without_termcodes = ansi_escape.sub('', string_with_termcodes)
-			
 			#string_without_termcodes_stripped = string_without_termcodes.strip()
 			# Strip out \rs to make it output the same as a typical CL. This could be optional.
 			string_without_termcodes_stripped_no_cr = string_without_termcodes.replace('\r','')

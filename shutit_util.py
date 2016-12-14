@@ -264,28 +264,28 @@ def setup_logging():
 		os.chmod(shutit.build['shutit_state_dir_base'],0o777)
 		os.chmod(shutit.build['shutit_state_dir'],0o777)
 		shutit.build['loglevel'] = shutit.build['loglevel'].upper()
-		if shutit.build['loglevel'] == 'DEBUG':
+		if string.upper(shutit.build['loglevel']) == 'DEBUG':
 			logging.basicConfig(format=logformat,level=logging.DEBUG)
-		elif shutit.build['loglevel'] == 'ERROR':
+		elif string.upper(shutit.build['loglevel']) == 'ERROR':
 			logging.basicConfig(format=logformat,level=logging.ERROR)
-		elif shutit.build['loglevel'] in ('WARN','WARNING'):
+		elif string.upper(shutit.build['loglevel']) in ('WARN','WARNING'):
 			logging.basicConfig(format=logformat,level=logging.WARNING)
-		elif shutit.build['loglevel'] == 'CRITICAL':
+		elif string.upper(shutit.build['loglevel']) == 'CRITICAL':
 			logging.basicConfig(format=logformat,level=logging.CRITICAL)
-		elif shutit.build['loglevel'] == 'INFO':
+		elif string.upper(shutit.build['loglevel']) == 'INFO':
 			logging.basicConfig(format=logformat,level=logging.INFO)
 		else:
 			logging.basicConfig(format=logformat,level=logging.INFO)
 	else:
-		if shutit.build['loglevel'] == 'DEBUG':
+		if string.upper(shutit.build['loglevel']) == 'DEBUG':
 			logging.basicConfig(format=logformat,filename=shutit.host['logfile'],level=logging.DEBUG)
-		elif shutit.build['loglevel'] == 'ERROR':
+		elif string.upper(shutit.build['loglevel']) == 'ERROR':
 			logging.basicConfig(format=logformat,filename=shutit.host['logfile'],level=logging.ERROR)
-		elif shutit.build['loglevel'] in ('WARN','WARNING'):
+		elif string.upper(shutit.build['loglevel']) in ('WARN','WARNING'):
 			logging.basicConfig(format=logformat,filename=shutit.host['logfile'],level=logging.WARNING)
-		elif shutit.build['loglevel'] == 'CRITICAL':
+		elif string.upper(shutit.build['loglevel']) == 'CRITICAL':
 			logging.basicConfig(format=logformat,filename=shutit.host['logfile'],level=logging.CRITICAL)
-		elif shutit.build['loglevel'] == 'INFO':
+		elif string.upper(shutit.build['loglevel']) == 'INFO':
 			logging.basicConfig(format=logformat,filename=shutit.host['logfile'],level=logging.INFO)
 		else:
 			logging.basicConfig(format=logformat,filename=shutit.host['logfile'],level=logging.INFO)
