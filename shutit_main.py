@@ -636,8 +636,7 @@ def do_exam_output(shutit):
 	if shutit.build['exam_object']:
 		test = shutit.build['exam_object']
 		test.calculate_score()
-		shutit.log(str(test),level=logging.INFO)
-		print(str(test))
+		shutit.log(str(test),level=logging.CRITICAL)
 
 
 def do_phone_home(msg=None,question='Error seen - would you like to inform the maintainers?'):
@@ -746,7 +745,7 @@ def setup_signals():
 	signal.signal(signal.SIGINT, shutit_util.ctrl_c_signal_handler)
 	signal.signal(signal.SIGQUIT, shutit_util.ctrl_quit_signal_handler)
 
-shutit_version='0.9.277'
+shutit_version='0.9.282'
 
 if __name__ == '__main__':
 	setup_signals()

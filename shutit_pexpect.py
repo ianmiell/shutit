@@ -1192,6 +1192,7 @@ class ShutItPexpectSession(object):
 
 
 	def reset_terminal(self, expect=None):
+		shutit = shutit_global.shutit
 		shutit.log('Resetting terminal begin.',level=logging.DEBUG)
 		exp_string = 'SHUTIT_TERMINAL_RESET'
 		self.sendline(' echo ' + exp_string)
@@ -1362,16 +1363,20 @@ class ShutItPexpectSession(object):
 			tmpfile = '/tmp/shutit_tmpfile_' + shutit_util.random_id()
 			send = ' (' + send + ') > ' + tmpfile + ' 2>&1'
 			self.send(shutit_util.get_send_command(send), check_exit=False, retry=retry, echo=echo, timeout=timeout, record_command=record_command, loglevel=loglevel, fail_on_empty_before=fail_on_empty_before)
-			self.send(' command cat ' + tmpfile, check_exit=False, echo=echo, timeout=timeout, record_command=record_command, loglevel=loglevel)
+			send = ' command cat ' + tmpfile
+			self.send(send, check_exit=False, echo=echo, timeout=timeout, record_command=record_command, loglevel=loglevel)
 		else:
-			self.send(shutit_util.get_send_command(send), check_exit=False, retry=retry, echo=echo, timeout=timeout, record_command=record_command, loglevel=loglevel, fail_on_empty_before=fail_on_empty_before)
+			send = shutit_util.get_send_command(send)
+			self.send(send, check_exit=False, retry=retry, echo=echo, timeout=timeout, record_command=record_command, loglevel=loglevel, fail_on_empty_before=fail_on_empty_before)
 		before = self.pexpect_child.before
 		if preserve_newline and before[-1] == '\n':
 			preserve_newline = True
 		else:
 			preserve_newline = False
+		# Remove the command we ran in from the output.
 		before = before.strip(send)
 		shutit._handle_note_after(note=note)
+		debug = False
 		if strip:
 			# cf: http://stackoverflow.com/questions/14693701/how-can-i-remove-the-ansi-escape-sequences-from-a-string-in-python
 			ansi_escape = re.compile(r'(\x9B|\x1B\[)[0-?]*[ -\/]*[@-~]')
@@ -1381,7 +1386,7 @@ class ShutItPexpectSession(object):
 			#string_without_termcodes_stripped = string_without_termcodes.strip()
 			# Strip out \rs to make it output the same as a typical CL. This could be optional.
 			string_without_termcodes_stripped_no_cr = string_without_termcodes.replace('\r','')
-			if False:
+			if debug: 
 				for c in string_without_termcodes_stripped_no_cr:
 					shutit.log((str(hex(ord(c))) + ' '),level=logging.DEBUG)
 			if preserve_newline:
@@ -1389,7 +1394,7 @@ class ShutItPexpectSession(object):
 			else:
 				return string_without_termcodes_stripped_no_cr
 		else:
-			if False:
+			if debug:
 				for c in before:
 					shutit.log((str(hex(ord(c))) + ' '),level=logging.DEBUG)
 			return before
