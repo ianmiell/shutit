@@ -163,9 +163,9 @@ class ShutItExamSession(object):
 					num_minutes = num_minutes + (num_seconds / 60)
 					while num_minutes > 1:
 						num_minutes -= 1
-						stage.score = stage.score - (stage.score * self.reduction_per_minute)
+						stage.score = stage.score - (stage.score * stage.reduction_per_minute)
 					if num_minutes > 0:
-						stage.score = stage.score - (stage.score * self.reduction_per_minute * num_minutes)
+						stage.score = stage.score - (stage.score * stage.reduction_per_minute * num_minutes)
 				total_score = total_score + stage.score
 			else:
 				stage.score = 0
