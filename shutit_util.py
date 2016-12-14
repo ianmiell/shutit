@@ -506,6 +506,7 @@ def parse_args():
 	# Logging
 	shutit.host['logfile']   = args.logfile
 	shutit.build['loglevel'] = args.log
+	shutit.build['exam']     = False
 	setup_logging()
 
 	# This mode is a bit special - it's the only one with different arguments
@@ -692,8 +693,7 @@ shutitfile:        a shutitfile-based project
 		shutit.list_modules['sort']        = None
 		shutit.build['video']              = False
 		shutit.build['training']           = False
-		shutit.build['exam']            = False
-		shutit.build['exam_object']     = None
+		shutit.build['exam_object']        = None
 		shutit.build['choose_config']      = False
 		# Persistence- and build-related arguments.
 		if shutit.action['build']:
@@ -704,7 +704,7 @@ shutitfile:        a shutitfile-based project
 			shutit.build['mount_docker']    = args.mount_docker
 			shutit.build['walkthrough']     = args.walkthrough
 			shutit.build['training']        = args.training
-			shutit.build['exam']         = args.exam
+			shutit.build['exam']            = args.exam
 			shutit.build['choose_config']   = args.choose_config
 			if shutit.build['exam'] and not shutit.build['training']:
 				# We want it to be quiet
