@@ -635,8 +635,7 @@ def do_exam_output(shutit):
 	if shutit.build['exam_object']:
 		test = shutit.build['exam_object']
 		test.calculate_score()
-		shutit.log(str(test),level=logging.INFO)
-		print(str(test))
+		shutit.log(str(test),level=logging.CRITICAL)
 
 
 def do_phone_home(msg=None,question='Error seen - would you like to inform the maintainers?'):
