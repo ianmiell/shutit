@@ -634,14 +634,14 @@ class ShutItPexpectSession(object):
 				return '\x1d'
 			# CTRL-p - used as part of CTRL-p - CTRL-q 
 			elif ord(input_string) == 16:
-				shutit.shutit_signal = 16 
+				shutit.shutit_signal['ID'] = 16 
 				if shutit.build['exam'] and shutit.build['loglevel'] not in ('DEBUG','INFO'):
 					return ''
 				else:
 					return input_string
 			# CTRL-q
 			elif ord(input_string) == 17:
-				shutit.shutit_signal = 17
+				shutit.shutit_signal['ID'] = 17
 				if not shutit.build['exam']:
 					shutit.log('CTRL-q hit, quitting ShutIt',transient=True,level=logging.CRITICAL)
 					shutit_util.handle_exit(exit_code=1)
