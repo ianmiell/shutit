@@ -633,9 +633,9 @@ class ShutItPexpectSession(object):
 				# Return the escape from pexpect char
 				return '\x1d'
 			# CTRL-p - used as part of CTRL-p - CTRL-q 
-			elif ord(input_string) == 16 and shutit.build['loglevel'] in ('DEBUG','INFO'):
+			elif ord(input_string) == 16:
 				shutit.shutit_signal = 16 
-				if shutit.build['exam'] and :
+				if shutit.build['exam'] and shutit.build['loglevel'] not in ('DEBUG','INFO'):
 					return ''
 				else:
 					return input_string
@@ -1370,6 +1370,7 @@ class ShutItPexpectSession(object):
 			tmpfile = '/tmp/shutit_tmpfile_' + shutit_util.random_id()
 			send = ' (' + send + ') > ' + tmpfile + ' 2>&1'
 			self.send(shutit_util.get_send_command(send), check_exit=False, retry=retry, echo=echo, timeout=timeout, record_command=record_command, loglevel=loglevel, fail_on_empty_before=fail_on_empty_before)
+			#shutit.pause_point(send)
 			send = ' command cat ' + tmpfile
 			self.send(send, check_exit=False, echo=echo, timeout=timeout, record_command=record_command, loglevel=loglevel)
 		else:
