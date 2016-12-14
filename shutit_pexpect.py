@@ -391,7 +391,7 @@ class ShutItPexpectSession(object):
 		return res
 
 
-	def replace_container(self, new_target_image_name):
+	def replace_container(self, new_target_image_name, go_home=None):
 		"""Replaces a container. Assumes we are in Docker context.
 		"""
 		shutit = shutit_global.shutit
@@ -418,7 +418,10 @@ class ShutItPexpectSession(object):
 		# New session - log in. This makes the assumption that we are nested
 		# the same level in in terms of shells (root shell + 1 new login shell).
 		target_child = shutit.get_shutit_pexpect_session_from_id('target_child')
-		target_child.login(command='bash --noprofile --norc',echo=False)
+		if go_home != None:
+			target_child.login(command='bash --noprofile --norc',echo=False,go_home=go_home)
+		else:
+			target_child.login(command='bash --noprofile --norc',echo=False)
 		return True
 
 
@@ -638,7 +641,7 @@ class ShutItPexpectSession(object):
 				if shutit.build['exam'] and shutit.build['loglevel'] not in ('DEBUG','INFO'):
 					return ''
 				else:
-					return input_string
+					return '\x10'
 			# CTRL-q
 			elif ord(input_string) == 17:
 				shutit.shutit_signal['ID'] = 17
@@ -1371,18 +1374,35 @@ class ShutItPexpectSession(object):
 			send = ' (' + send + ') > ' + tmpfile + ' 2>&1'
 			self.send(shutit_util.get_send_command(send), check_exit=False, retry=retry, echo=echo, timeout=timeout, record_command=record_command, loglevel=loglevel, fail_on_empty_before=fail_on_empty_before)
 			#shutit.pause_point(send)
-			send = ' command cat ' + tmpfile
-			self.send(send, check_exit=False, echo=echo, timeout=timeout, record_command=record_command, loglevel=loglevel)
+			count = 3
+			while True:
+				end_marker   = 'echo SHUTIT_END>/dev/null'
+				send = ' command cat ' + tmpfile + ' && ' + end_marker
+				self.send(send, check_exit=False, echo=echo, timeout=timeout, record_command=record_command, loglevel=loglevel)
+				before = self.pexpect_child.before
+				if before.find(end_marker) != -1:
+					cut_point = before.find(end_marker) + len(end_marker)
+					before = before[cut_point:]
+					break
+				else:
+					self.reset_terminal()
+					self.send(' stty cols ' + str(len(send) + 300), check_exit=False, retry=retry, echo=echo, timeout=timeout, record_command=record_command, loglevel=loglevel, fail_on_empty_before=fail_on_empty_before)
+					shutit.log('Retrieving output from command: ' + send,level=loglevel)
+					count = count - 1
+					if count < 0:
+						shutit.pause_point('repeated failure of: ' + send)
 		else:
 			send = shutit_util.get_send_command(send)
 			self.send(send, check_exit=False, retry=retry, echo=echo, timeout=timeout, record_command=record_command, loglevel=loglevel, fail_on_empty_before=fail_on_empty_before)
-		before = self.pexpect_child.before
+			before = self.pexpect_child.before
+
 		if preserve_newline and before[-1] == '\n':
 			preserve_newline = True
 		else:
 			preserve_newline = False
 		# Remove the command we ran in from the output.
 		before = before.strip(send)
+		# Remove all up to end marker.
 		shutit._handle_note_after(note=note)
 		debug = False
 		if strip:
@@ -2428,7 +2448,7 @@ $'"""
 	                    pause=1,
 	                    skipped=False):
 		shutit = shutit_global.shutit
-		if result == 'ok' or result == 'failed_test':
+		if result == 'ok' or result == 'failed_test' or result == 'skipped':
 			shutit.build['ctrlc_passthrough'] = False
 			if congratulations and result == 'ok':
 				shutit.log('\n\n' + shutit_util.colourise('32',congratulations) + '\n',transient=True)
@@ -2440,7 +2460,7 @@ $'"""
 						shutit.log('No reset context available, carrying on.',level=logging.INFO)
 					elif skipped or result == 'failed_test':
 						# We need to ensure the correct state.
-						self.replace_container(container_name)
+						self.replace_container(container_name,go_home=False)
 						shutit.log('State restored.',level=logging.INFO)
 					else:
 						shutit.log(shutit_util.colourise('31','Continuing, remember you can restore to a known state with CTRL-g.'),transient=True)
@@ -2460,7 +2480,7 @@ $'"""
 					if not container_name:
 						shutit.log('No reset context available, carrying on.',level=logging.DEBUG)
 					else:
-						self.replace_container(container_name)
+						self.replace_container(container_name,go_home=False)
 						shutit.log('State restored.',level=logging.INFO)
 				else:
 					shutit.fail('Follow-on context not handled on reset')
@@ -2645,6 +2665,7 @@ $'"""
 					# Skip test.
 					shutit.log('Test skipped',level=logging.CRITICAL,transient=True)
 					skipped=True
+					self._challenge_done(result='skipped',follow_on_context=follow_on_context,skipped=True)
 					return True
 				shutit.log('State submitted, checking your work...',level=logging.CRITICAL,transient=True)
 				check_command = follow_on_context.get('check_command')
