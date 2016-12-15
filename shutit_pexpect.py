@@ -1211,10 +1211,12 @@ class ShutItPexpectSession(object):
 		shutit = shutit_global.shutit
 		shutit.log('Resetting terminal begin.',level=logging.DEBUG)
 		exp_string = 'SHUTIT_TERMINAL_RESET'
-		self.sendline(' stty cols ' + str(shutit.build['stty_cols']) + ' && echo ' + exp_string)
+		self.sendline(' echo ' + exp_string)
 		self.expect(exp_string)
 		expect = expect or self.default_expect
 		self.expect(expect)
+		shutit.log('Restting cols to: ' + str(shutit.build['stty_cols']),level=logging.DEBUG)
+		self.send(' stty cols ' + str(shutit.build['stty_cols']),echo=False)
 		shutit.log('Resetting terminal done.',level=logging.DEBUG)
 
 
@@ -1398,7 +1400,7 @@ class ShutItPexpectSession(object):
 					break
 				else:
 					self.reset_terminal()
-					shutit.log('failure of: ' + send + '\nbefore was: ' + before, level=logging.DEBUG)
+					shutit.log('Failure of: ' + send + '\nbefore was: ' + before, level=logging.DEBUG)
 					count = count - 1
 					if count < 0:
 						shutit.pause_point('Repeated failure of: ' + send + '\nbefore was: ' + before)
