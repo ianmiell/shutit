@@ -347,7 +347,7 @@ end''')
 		shutit.logout()
 		shutit.logout()
 		shutit.log('''Vagrantfile created in: ''' + shutit.cfg[self.module_id]['vagrant_run_dir'] + '/' + module_name,add_final_message=True,level=logging.DEBUG)
-		shutit.log('''Run:\n\n\tcd ''' + shutit.cfg[self.module_id]['vagrant_run_dir'] + '/' + module_name + ' && vagrant status && vagrant landrush ls\n\nTo get a picture of what has been set up.',add_final_message=True,level=logging.DEBUG)
+		shutit.log('''Run:\n\n\tcd ''' + shutit.cfg[self.module_id]['vagrant_run_dir'] + '/' + module_name + ''' && vagrant status && vagrant landrush ls\n\nTo get a picture of what has been set up.''',add_final_message=True,level=logging.DEBUG)
 		return True
 
 """ + get_config_section + """
