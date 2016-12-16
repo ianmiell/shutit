@@ -2669,11 +2669,11 @@ $'"""
 					# Clear the signal.
 					shutit.shutit_signal['ID'] = 0
 					# Skip test.
-					shutit.log('Test skipped',level=logging.CRITICAL,transient=True)
+					shutit.log('\r\nTest skipped... please wait',level=logging.CRITICAL,transient=True)
 					skipped=True
 					self._challenge_done(result='skipped',follow_on_context=follow_on_context,skipped=True)
 					return True
-				shutit.log('State submitted, checking your work...',level=logging.CRITICAL,transient=True)
+				shutit.log('\r\nState submitted, checking your work...',level=logging.CRITICAL,transient=True)
 				check_command = follow_on_context.get('check_command')
 				output = self.send_and_get_output(check_command,timeout=timeout,retry=1,record_command=record_command,echo=False, loglevel=loglevel, fail_on_empty_before=False, preserve_newline=preserve_newline)
 				shutit.log('output: ' + output,level=logging.DEBUG)
@@ -2692,7 +2692,7 @@ $'"""
 							ok = True
 							break
 				if not ok and failed:
-					shutit.log('\n\n' + shutit_util.colourise('31','Failed! CTRL-g to reset state, CTRL-h for a hint, CTRL-] to submit for checking') + '\n',transient=True,level=logging.CRITICAL)
+					shutit.log('\r\n\n' + shutit_util.colourise('31','Failed! CTRL-g to reset state, CTRL-h for a hint, CTRL-] to submit for checking') + '\n',transient=True,level=logging.CRITICAL)
 					# No second chances if exam!
 					if shutit.build['exam_object']:
 						shutit.build['exam_object'].add_fail()
