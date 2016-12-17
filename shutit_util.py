@@ -415,7 +415,7 @@ def parse_args():
 	for action in actions:
 		sub_parsers[action] = subparsers.add_parser(action)
 
-	sub_parsers['run'].add_argument('shutitfiles', nargs='*', default=['ShutItFile'])
+	sub_parsers['run'].add_argument('shutitfiles', nargs='*', default=['ShutItFile','Shutitfile','ShutItfile','ShutitFile','shutitfile'])
 
 	sub_parsers['skeleton'].add_argument('--name', help='Absolute path to new directory for module. Last part of path is taken as the module name.',default='')
 	sub_parsers['skeleton'].add_argument('--domain', help='Arbitrary but unique domain for namespacing your module, eg com.mycorp',default='')
