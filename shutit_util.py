@@ -562,9 +562,6 @@ def parse_args():
 									print('Ignoring filename (not a normal file): ' + fname)
 							except:
 								print('Ignoring file (failed to parse candidate shutitfile): ' + candidate_shutitfile)
-				else:
-					print('ShutItFile: ' + shutitfile + ' appears to not exist.')
-					handle_exit(exit_code=1)
 			if _new_shutitfiles:
 				if len(_delivery_methods_seen) == 0 and delivery_method == None:
 					delivery_method = 'bash'
@@ -582,6 +579,9 @@ def parse_args():
 					print('Delivery methods: ' + str(_delivery_methods_seen))
 					print('Delivery method passed in: ' + delivery_method)
 					handle_exit(exit_code=1)
+			else:
+				print('ShutItFiles: ' + str(shutitfile) + ' appear to not exist.')
+				handle_exit(exit_code=1)
 		module_directory = args.name
 		if module_directory == '':
 			default_dir = shutit.host['calling_path'] + '/shutit_' + random_word()
