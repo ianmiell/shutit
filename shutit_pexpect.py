@@ -635,9 +635,9 @@ class ShutItPexpectSession(object):
 				shutit.shutit_signal['ID'] = 7
 				# Return the escape from pexpect char
 				return '\x1d'
-			# CTRL-p - used as part of CTRL-p - CTRL-q 
+			# CTRL-p - used as part of CTRL-p - CTRL-q
 			elif ord(input_string) == 16:
-				shutit.shutit_signal['ID'] = 16 
+				shutit.shutit_signal['ID'] = 16
 				if shutit.build['exam'] and shutit.build['loglevel'] not in ('DEBUG','INFO'):
 					return ''
 				else:
@@ -1386,7 +1386,7 @@ class ShutItPexpectSession(object):
 			count = 3
 			while True:
 				# Now retrieve that output. As this command is shorter, the output
-				# is more predictable, but there may still be problems, so we 
+				# is more predictable, but there may still be problems, so we
 				# retry after cleaning up the terminal if we can't see a marker
 				# in the output to clean up to. Remember we need to remove the
 				# command from the output.
