@@ -65,9 +65,11 @@ class ShutItExamSessionStage(object):
 
 class ShutItExamSession(object):
 
-	def __init__(self):
+	def __init__(self, num_stages=-1):
 		self.stages           = []
+		self.num_stages       = num_stages
 		self.final_score      = 0.0
+		self.curr_stage       = len(self.stages)
 		# Switch off CTRL-C etc
 		signal.signal(signal.SIGINT, signal.SIG_IGN)
 		signal.signal(signal.SIGQUIT, signal.SIG_IGN)

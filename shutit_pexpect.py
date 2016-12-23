@@ -2452,7 +2452,8 @@ $'"""
 	                    congratulations=None,
 	                    follow_on_context={},
 	                    pause=1,
-	                    skipped=False):
+	                    skipped=False,
+	                    final_stage=False):
 		shutit = shutit_global.shutit
 		if result == 'ok' or result == 'failed_test' or result == 'skipped':
 			shutit.build['ctrlc_passthrough'] = False
@@ -2468,6 +2469,8 @@ $'"""
 						# We need to ensure the correct state.
 						self.replace_container(container_name,go_home=False)
 						shutit.log('State restored.',level=logging.INFO)
+					elif final_stage:
+						shutit.log(shutit_util.colourise('31','Finished! Please wait...'),transient=True)
 					else:
 						shutit.log(shutit_util.colourise('31','Continuing, remember you can restore to a known state with CTRL-g.'),transient=True)
 				else:
@@ -2517,7 +2520,8 @@ $'"""
 	              loglevel=logging.DEBUG,
 	              follow_on_context={},
 	              difficulty=1.0,
-	              new_stage=True):
+	              new_stage=True,
+	              final_stage=False):
 		"""Set the user a task to complete, success being determined by matching the output.
 
 		Either pass in regexp(s) desired from the output as a string or a list, or an md5sum of the output wanted.
@@ -2575,13 +2579,13 @@ $'"""
 					time.sleep(pause)
 					continue
 				if send == 'shutitreset':
-					self._challenge_done(result='reset',follow_on_context=follow_on_context)
+					self._challenge_done(result='reset',follow_on_context=follow_on_context,final_stage=False)
 					continue
 				if send == 'shutitquit':
-					self._challenge_done(result='reset',follow_on_context=follow_on_context)
+					self._challenge_done(result='reset',follow_on_context=follow_on_context,final_stage=True)
 					shutit_util.handle_exit(exit_code=1)
 				if send == 'exit':
-					self._challenge_done(result='exited',follow_on_context=follow_on_context)
+					self._challenge_done(result='exited',follow_on_context=follow_on_context,final_stage=True)
 					shutit.build['pause_point_hints'] = []
 					return True
 				output = self.send_and_get_output(timeout=timeout,retry=1,record_command=record_command,echo=echo, loglevel=loglevel, fail_on_empty_before=False, preserve_newline=preserve_newline)
@@ -2604,7 +2608,7 @@ $'"""
 						shutit.build['exam_object'].add_fail()
 						shutit.build['exam_object'].end_timer()
 					shutit.log('\n\n' + shutit_util.colourise('32','failed') + '\n',transient=True,level=logging.CRITICAL)
-					self._challenge_done(result='failed')
+					self._challenge_done(result='failed',final_stage=final_stage)
 					continue
 		elif challenge_type == 'golf':
 			# pause, and when done, it checks your working based on check_command.
@@ -2637,7 +2641,7 @@ $'"""
 					if shutit.build['exam_object']:
 						shutit.build['exam_object'].add_reset()
 					shutit.log(shutit_util.colourise('31','\r\n========= RESETTING STATE ==========\r\n\r\n'),transient=True,level=logging.CRITICAL)
-					self._challenge_done(result='reset', follow_on_context=follow_on_context)
+					self._challenge_done(result='reset', follow_on_context=follow_on_context,final_stage=False)
 					# clear the signal
 					shutit.shutit_signal['ID'] = 0
 					# Get the new target child, which is the new 'self'
@@ -2671,7 +2675,7 @@ $'"""
 					# Skip test.
 					shutit.log('\r\nTest skipped... please wait',level=logging.CRITICAL,transient=True)
 					skipped=True
-					self._challenge_done(result='skipped',follow_on_context=follow_on_context,skipped=True)
+					self._challenge_done(result='skipped',follow_on_context=follow_on_context,skipped=True,final_stage=final_stage)
 					return True
 				shutit.log('\r\nState submitted, checking your work...',level=logging.CRITICAL,transient=True)
 				check_command = follow_on_context.get('check_command')
@@ -2697,13 +2701,13 @@ $'"""
 					if shutit.build['exam_object']:
 						shutit.build['exam_object'].add_fail()
 						shutit.build['exam_object'].end_timer()
-						self._challenge_done(result='failed_test',follow_on_context=follow_on_context)
+						self._challenge_done(result='failed_test',follow_on_context=follow_on_context,final_stage=final_stage)
 						return False
 					else:
 						continue
 		else:
 			shutit.fail('Challenge type: ' + challenge_type + ' not supported')
-		self._challenge_done(result='ok',follow_on_context=follow_on_context,congratulations=congratulations,skipped=skipped)
+		self._challenge_done(result='ok',follow_on_context=follow_on_context,congratulations=congratulations,skipped=skipped,final_stage=final_stage)
 		if shutit.build['exam_object']:
 			shutit.build['exam_object'].add_ok()
 			shutit.build['exam_object'].end_timer()
