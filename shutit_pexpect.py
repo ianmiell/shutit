@@ -2541,12 +2541,12 @@ $'"""
 			if num_stages == None:
 				num_stages = shutit.build['exam_object'].num_stages
 			elif shutit.build['exam_object'].num_stages < 1:
-				num_stages = shutit.build['exam_object'].num_stages
+				shutit.build['exam_object'].num_stages = num_stages
 			elif shutit.build['exam_object'].num_stages > 0:
 				shutit.fail('Error! num_stages passed in should be None if already set in exam object (ie > 0)')
 			curr_stage = str(shutit.build['exam_object'].curr_stage)
 			if num_stages > 0:
-				task_desc = 80*'*' + '\n' + '* QUESTION ' + curr_stage + '/' + num_stages + '\n' + 80*'*' + '\n' + task_desc
+				task_desc = 80*'*' + '\n' + '* QUESTION ' + str(curr_stage) + '/' + str(num_stages) + '\n' + 80*'*' + '\n' + task_desc
 			else:
 				task_desc = 80*'*' + '\n' + '* QUESTION \n' + 80*'*' + '\n' + task_desc
 		# don't catch CTRL-C, pass it through.
