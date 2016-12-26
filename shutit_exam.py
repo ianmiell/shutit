@@ -65,7 +65,7 @@ class ShutItExamSessionStage(object):
 
 class ShutItExamSession(object):
 
-	def __init__(self, num_stages=-1):
+	def __init__(self, num_stages=0):
 		self.stages           = []
 		self.num_stages       = num_stages
 		self.final_score      = 0.0
@@ -91,6 +91,7 @@ class ShutItExamSession(object):
 		difficulty = float(difficulty)
 		stage = ShutItExamSessionStage(difficulty,reduction_per_minute,reduction_per_reset,reduction_per_hint,grace_period)
 		self.stages.append(stage)
+		self.curr_stage = len(self.stages)
 		return stage
 
 	def add_reset(self):

@@ -2521,7 +2521,8 @@ $'"""
 	              follow_on_context={},
 	              difficulty=1.0,
 	              new_stage=True,
-	              final_stage=False):
+	              final_stage=False,
+	              num_stages=None):
 		"""Set the user a task to complete, success being determined by matching the output.
 
 		Either pass in regexp(s) desired from the output as a string or a list, or an md5sum of the output wanted.
@@ -2537,6 +2538,17 @@ $'"""
 		shutit = shutit_global.shutit
 		if new_stage and shutit.build['exam_object']:
 			shutit.build['exam_object'].new_stage(difficulty)
+			if num_stages == None:
+				num_stages = shutit.build['exam_object'].num_stages
+			elif shutit.build['exam_object'].num_stages < 1:
+				num_stages = shutit.build['exam_object'].num_stages
+			elif shutit.build['exam_object'].num_stages > 0:
+				shutit.fail('Error! num_stages passed in should be None if already set in exam object (ie > 0)')
+			curr_stage = str(shutit.build['exam_object'].curr_stage)
+			if num_stages > 0:
+				task_desc = 80*'*' + '\n' + '* QUESTION ' + curr_stage + '/' + num_stages + '\n' + 80*'*' + '\n' + task_desc
+			else:
+				task_desc = 80*'*' + '\n' + '* QUESTION \n' + 80*'*' + '\n' + task_desc
 		# don't catch CTRL-C, pass it through.
 		shutit.build['ctrlc_passthrough'] = True
 		preserve_newline                  = False
