@@ -344,7 +344,8 @@ class ShutIt(object):
 	              escape=False,
 	              pause=1,
 	              loglevel=logging.DEBUG,
-	              follow_on_context={}):
+	              follow_on_context={},
+	              num_stages=None):
 		"""Set the user a task to complete, success being determined by matching the output.
 
 		Either pass in regexp(s) desired from the output as a string or a list, or an md5sum of the output wanted.
@@ -375,7 +376,8 @@ class ShutIt(object):
 		                                        escape=escape,
 		                                        pause=pause,
 		                                        loglevel=loglevel,
-		                                        follow_on_context=follow_on_context)
+		                                        follow_on_context=follow_on_context,
+		                                        num_stages=num_stages)
 	# Alternate names
 	practice = challenge
 	golf     = challenge
