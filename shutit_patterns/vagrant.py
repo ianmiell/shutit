@@ -121,6 +121,9 @@ fi''')
 	runsh_file.close()
 	os.chmod(runsh_filename,0o755)
 
+	# destroy_vms.sh
+	destroyvmssh_filename = skel_path + '/destroy_vms.sh'
+	destroyvmssh_file = open(destroyvmssh_filename,'w+')
 	destroyvmssh_file_contents = '''#!/bin/bash
 MODULE_NAME=''' + skel_module_name + '''
 rm -rf $( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/vagrant_run/*
@@ -144,6 +147,9 @@ then
 	virsh list | grep ${MODULE_NAME} | awk '{print $1}' | xargs -n1 virsh destroy
 fi
 '''
+	destroyvmssh_file.write(destroyvmssh_file_contents)
+	destroyvmssh_file.close()
+	os.chmod(destroyvmssh_filename,0o755)
 
 	# build.cnf
 	os.system('mkdir -p ' + skel_path + '/configs')
@@ -155,7 +161,6 @@ fi
 
 	# User message
 	shutit.log('''# Run:\n\ncd ''' + skel_path + ''' && ./run.sh\n\n# to run.''',transient=True)
-
 
 	# CREATE THE MODULE FILE
 	# Handle shutitfiles. If there are no shutitfiles, handle separately.
