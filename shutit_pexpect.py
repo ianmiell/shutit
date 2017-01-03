@@ -2265,7 +2265,9 @@ $'"""
 			logged_output = ''.join((self.pexpect_child.before + str(self.pexpect_child.after)).split('\n'))
 			logged_output = logged_output.replace(send,'',1)
 			logged_output = logged_output.replace('\r','')
-			logged_output = logged_output[:30] + ' [...]'
+			output_length = 160
+			if len(logged_output) > output_length:
+				logged_output = logged_output[:output_length] + ' [...]'
 			if not secret:
 				if echo:
 					shutit.log('Output (squashed): ' + logged_output,level=logging.DEBUG)
@@ -2520,6 +2522,10 @@ $'"""
 	              loglevel=logging.DEBUG,
 	              follow_on_context={},
 	              difficulty=1.0,
+	              reduction_per_minute=0.2,
+	              reduction_per_reset=0,
+	              reduction_per_hint=0.5,
+	              grace_period=30,
 	              new_stage=True,
 	              final_stage=False,
 	              num_stages=None):
@@ -2549,6 +2555,11 @@ $'"""
 				task_desc = 80*'*' + '\n' + '* QUESTION ' + str(curr_stage) + '/' + str(num_stages) + '\n' + 80*'*' + '\n' + task_desc
 			else:
 				task_desc = 80*'*' + '\n' + '* QUESTION \n' + 80*'*' + '\n' + task_desc
+			shutit.build['exam_object'].new_stage(difficulty=difficulty,
+			                                      reduction_per_minute=reduction_per_minute,
+			                                      reduction_per_reset=reduction_per_reset,
+			                                      reduction_per_hint=reduction_per_hint,
+			                                      grace_period=grace_period)
 		# don't catch CTRL-C, pass it through.
 		shutit.build['ctrlc_passthrough'] = True
 		preserve_newline                  = False

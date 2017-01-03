@@ -87,7 +87,12 @@ class ShutItExamSession(object):
 		string += '\n\nFinal score: ' + str(self.final_score) + '%\n'
 		return string
 		
-	def new_stage(self,difficulty=1.0,reduction_per_minute=0.2,reduction_per_reset=0,reduction_per_hint=0.5,grace_period=30):
+	def new_stage(self,
+	              difficulty,
+	              reduction_per_minute,
+	              reduction_per_reset,
+	              reduction_per_hint,
+	              grace_period):
 		difficulty = float(difficulty)
 		stage = ShutItExamSessionStage(difficulty,reduction_per_minute,reduction_per_reset,reduction_per_hint,grace_period)
 		self.stages.append(stage)

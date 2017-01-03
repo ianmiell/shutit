@@ -35,7 +35,7 @@ def setup_vagrant_pattern(skel_path,
 		# vagrant_image is calculated within the code later
 		machine_stanzas += '''\n  config.vm.define "''' + machine_name + '''" do |''' + machine_name + '''|
     ''' + machine_name + """.vm.box = ''' + '"' + vagrant_image + '"' + '''
-    """ + machine_name + '''.vm.hostname = "''' + machine_fqdn + '''"
+    """ + machine_name + '''.vm.hostname = "''' + machine_fqdn + '''"''' + '''\n  config.vm.provider :virtualbox do |vb|\n    vb.name = "''' + machine_name + '''"\n  end
   end'''
 		machine_list_code += """\n\t\tmachines.update({'""" + machine_name + """':{'fqdn':'""" + machine_fqdn + """'}})"""
 		machine_list_code += """\n\t\tip = shutit.send_and_get_output('''vagrant landrush ls | grep -w ^''' + machines['""" + machine_name + """']['fqdn'] + ''' | awk '{print $2}' ''')"""
@@ -81,7 +81,7 @@ def setup_vagrant_pattern(skel_path,
 
 	get_config_section = '''
 	def get_config(self, shutit):
-		shutit.get_config(self.module_id,'vagrant_image',default='ubuntu/trusty64')
+		shutit.get_config(self.module_id,'vagrant_image',default='ubuntu/xenial64')
 		shutit.get_config(self.module_id,'vagrant_provider',default='virtualbox')
 		shutit.get_config(self.module_id,'gui',default='false')
 		shutit.get_config(self.module_id,'memory',default='1024')
