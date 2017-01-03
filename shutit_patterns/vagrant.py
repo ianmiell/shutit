@@ -63,6 +63,10 @@ def setup_vagrant_pattern(skel_path,
 			shutit.send("""echo "$(host -t A index.docker.io | grep has.address | head -1 | awk '{print $NF}') index.docker.io" >> /etc/hosts""")
 			shutit.send("""echo "$(host -t A registry-1.docker.io | grep has.address | head -1 | awk '{print $NF}') registry-1.docker.io" >> /etc/hosts""")
 			shutit.send("""echo "$(host -t A auth.docker.io | grep has.address | head -1 | awk '{print $NF}') auth.docker.io" >> /etc/hosts""")
+			shutit.send('mkdir -p /etc/docker')
+			shutit.send_file('/etc/docker/daemon.json',"""{
+  "dns": ["8.8.8.8"]
+}"""
 			shutit.multisend('passwd',{'assword:':root_password})
 			shutit.send("""sed -i 's/.*PermitRootLogin.*/PermitRootLogin yes/g' /etc/ssh/sshd_config""")
 			shutit.send("""sed -i 's/.*PasswordAuthentication.*/PasswordAuthentication yes/g' /etc/ssh/sshd_config""")
