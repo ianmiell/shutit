@@ -33,10 +33,11 @@ def setup_vagrant_pattern(skel_path,
 		machine_name = machine_prefix + str(m)
 		machine_fqdn = machine_name + '.vagrant.test'
 		# vagrant_image is calculated within the code later
-		machine_stanzas += '''\n  config.vm.define "''' + machine_name + '''" do |''' + machine_name + '''|
+		machine_stanzas += ('''\n  config.vm.define "''' + machine_name + '''" do |''' + machine_name + '''|
     ''' + machine_name + """.vm.box = ''' + '"' + vagrant_image + '"' + '''
-    """ + machine_name + '''.vm.hostname = "''' + machine_fqdn + '''"''' + '''\n  config.vm.provider :virtualbox do |vb|\n    vb.name = "''' + machine_name + '''"\n  end
-  end'''
+    """ + machine_name + '''.vm.hostname = "''' + machine_fqdn + '''"''' +
+    '''\n  config.vm.provider :virtualbox do |vb|\n    vb.name = "''' + skel_module_name + '_' + str(m) + '''"\n  end
+  end''')
 		machine_list_code += """\n\t\tmachines.update({'""" + machine_name + """':{'fqdn':'""" + machine_fqdn + """'}})"""
 		machine_list_code += """\n\t\tip = shutit.send_and_get_output('''vagrant landrush ls | grep -w ^''' + machines['""" + machine_name + """']['fqdn'] + ''' | awk '{print $2}' ''')"""
 		machine_list_code += """\n\t\tmachines.get('""" + machine_name + """').update({'ip':ip})"""
@@ -61,6 +62,7 @@ def setup_vagrant_pattern(skel_path,
 			# Workaround for docker networking issues + landrush.
 			shutit.send("""echo "$(host -t A index.docker.io | grep has.address | head -1 | awk '{print $NF}') index.docker.io" >> /etc/hosts""")
 			shutit.send("""echo "$(host -t A registry-1.docker.io | grep has.address | head -1 | awk '{print $NF}') registry-1.docker.io" >> /etc/hosts""")
+			shutit.send("""echo "$(host -t A auth.docker.io | grep has.address | head -1 | awk '{print $NF}') auth.docker.io" >> /etc/hosts""")
 			shutit.multisend('passwd',{'assword:':root_password})
 			shutit.send("""sed -i 's/.*PermitRootLogin.*/PermitRootLogin yes/g' /etc/ssh/sshd_config""")
 			shutit.send("""sed -i 's/.*PasswordAuthentication.*/PasswordAuthentication yes/g' /etc/ssh/sshd_config""")
