@@ -543,8 +543,9 @@ def main():
 	if shutit.action['list_modules']:
 		shutit_util.list_modules()
 		shutit_util.handle_exit()
-	conn_target(shutit)
-	shutit.log('Connected to target',level=logging.INFO)
+	if not shutit.action['list_deps'] and not shutit.action['list_modules']:
+		conn_target(shutit)
+		shutit.log('Connected to target',level=logging.INFO)
 
 	if shutit.build['interactive'] > 0 and shutit.build['choose_config']:
 		errs = do_interactive_modules()
@@ -584,6 +585,7 @@ def main():
 
 def do_lists(shutit):
 	if shutit.action['list_deps']:
+		cfg = shutit.cfg
 		# Show dependency graph
 		digraph = 'digraph depgraph {\n'
 		digraph += '\n'.join([ make_dep_graph(module) for module_id, module in shutit.shutit_map.items() if module_id in cfg and cfg[module_id]['shutit.core.module.build'] ])
@@ -594,15 +596,20 @@ def do_lists(shutit):
 		digraph_all = 'digraph depgraph {\n'
 		digraph_all += '\n'.join([ make_dep_graph(module) for module_id, module in shutit.shutit_map.items() ])
 		digraph_all += '\n}'
-		f = open(shutit.build['log_config_path'] + '/digraph_all.txt','w')
+		fname = shutit.build['log_config_path'] + '/digraph_all.txt'
+		f = open(fname,'w')
 		f.write(digraph_all)
 		f.close()
 		shutit.log('\n================================================================================\n' + digraph_all)
-		shutit.log('\nAbove is the digraph for all modules seen in this shutit invocation. Use graphviz to render into an image, eg\n\n\tshutit depgraph -m mylibrary | dot -Tpng -o depgraph.png\n')
+		shutit.log('\nAbove is the digraph for ALL MODULES SEEN in this ShutIt invocation. Use graphviz to render into an image, eg\n\n\tcat ' + fname + ' | dot -Tpng -o depgraph.png\n')
 		shutit.log('\n================================================================================\n')
+		fname = shutit.build['log_config_path'] + '/digraph_this.txt'
+		f = open(fname,'w')
+		f.write(digraph_all)
+		f.close()
 		shutit.log('\n\n' + digraph)
 		shutit.log('\n================================================================================\n' + digraph)
-		shutit.log('\nAbove is the digraph for all modules configured to be built in this shutit invocation. Use graphviz to render into an image, eg\n\n\tshutit depgraph -m mylibrary | dot -Tpng -o depgraph.png\n')
+		shutit.log('\nAbove is the digraph for all modules configured to be built IN THIS ShutIt invocation. Use graphviz to render into an image, eg\n\ncat ' + fname + ' | dot -Tpng -o depgraph.png\n')
 		shutit.log('\n================================================================================\n')
 		# Exit now
 		shutit_util.handle_exit()
