@@ -1383,27 +1383,12 @@ class ShutItPexpectSession(object):
 			# the output in a file.
 			send = ' (' + send + ') > ' + tmpfile + ' 2>&1'
 			self.send(shutit_util.get_send_command(send), check_exit=False, retry=retry, echo=echo, timeout=timeout, record_command=record_command, loglevel=loglevel, fail_on_empty_before=fail_on_empty_before)
-			count = 3
-			while True:
-				# Now retrieve that output. As this command is shorter, the output
-				# is more predictable, but there may still be problems, so we
-				# retry after cleaning up the terminal if we can't see a marker
-				# in the output to clean up to. Remember we need to remove the
-				# command from the output.
-				end_marker = 'echo SHUTIT_END>/dev/null'
-				send       = ' command cat ' + tmpfile + ' && ' + end_marker
-				self.send(send, check_exit=False, echo=echo, timeout=timeout, record_command=record_command, loglevel=loglevel)
-				before = self.pexpect_child.before
-				if before.find(end_marker) != -1:
-					cut_point = before.find(end_marker) + len(end_marker)
-					before = before[cut_point:]
-					break
-				else:
-					self.reset_terminal()
-					shutit.log('Failure of: ' + send + '\nbefore was: ' + before, level=logging.DEBUG)
-					count = count - 1
-					if count < 0:
-						shutit.pause_point('Repeated failure of: ' + send + '\nbefore was: ' + before)
+			# Now try an alias
+			send       = 'alias shutitalias=" command cat ' + tmpfile + '"'
+			self.send(send, check_exit=False, echo=echo, timeout=timeout, record_command=record_command, loglevel=loglevel)
+			res = self.send_and_get_output('shutitalias', timeout=timeout, strip=strip, preserve_newline=preserve_newline, note=note, record_command=record_command, echo=echo, fail_on_empty_before=fail_on_empty_before, no_wrap=True, loglevel=loglevel)
+			self.send('unalias shutitalias', check_exit=False, echo=echo, timeout=timeout, record_command=record_command, loglevel=loglevel)
+			return res
 		else:
 			send = shutit_util.get_send_command(send)
 			self.send(send, check_exit=False, retry=retry, echo=echo, timeout=timeout, record_command=record_command, loglevel=loglevel, fail_on_empty_before=fail_on_empty_before)
