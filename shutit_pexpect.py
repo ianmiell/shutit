@@ -2382,6 +2382,8 @@ $'"""
 				shutit.log('File is larger than ~100K - this may take some time',level=logging.WARNING)
 			self.send(' ' + shutit_util.get_command('head') + ' -c -1 > ' + path + "." + random_id + " << 'END_" + random_id + """'\n""" + b64contents + '''\nEND_''' + random_id, echo=echo,loglevel=loglevel, timeout=99999)
 			self.send(' command cat ' + path + '.' + random_id + ' | base64 --decode > ' + path, echo=echo,loglevel=loglevel)
+			# Remove the file
+			self.send(' command rm -f ' + path + '.' + random_id,loglevel=loglevel)
 		else:
 			host_child = shutit.get_shutit_pexpect_session_from_id('host_child').pexpect_child
 			path = path.replace(' ', '\ ')
