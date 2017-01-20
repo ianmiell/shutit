@@ -167,7 +167,7 @@ class ConnDocker(ShutItConnModule):
 		rm_arg           = ''
 		net_arg          = ''
 		mount_docker_arg = ''
-		entrypoint_arg   = '--entrypoint /bin/bash'
+		shell_arg        = '/bin/bash'
 		if shutit.build['privileged']:
 			privileged_arg = '--privileged=true'
 		if shutit.target['name'] != '':
@@ -182,7 +182,7 @@ class ConnDocker(ShutItConnModule):
 		if shutit.target['rm']:
 			rm_arg = '--rm=true'
 		if shutit.build['base_image'] in ('alpine','busybox'):
-			entrypoint_arg = '--entrypoint /bin/ash'
+			shell_arg = '/bin/ash'
 		# Multiply-specified options
 		port_args         = []
 		dns_args          = []
@@ -214,8 +214,8 @@ class ConnDocker(ShutItConnModule):
 			] + volume_args + volumes_from_args + port_args + dns_args + [
 				'-t',
 				'-i',
-				entrypoint_arg,
-				shutit.target['docker_image']
+				shutit.target['docker_image'],
+				shell_arg
 			] if arg != ''
 		]
 		shutit.build['docker_command'] = ' '.join(docker_command)
