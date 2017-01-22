@@ -92,6 +92,7 @@ def setup_vagrant_pattern(skel_path,
 		shutit.get_config(self.module_id,'gui',default='false')
 		shutit.get_config(self.module_id,'memory',default='1024')
 		shutit.get_config(self.module_id,'vagrant_run_dir',default='/tmp')
+		shutit.get_config(self.module_id,'this_vagrant_run_dir',default='/tmp')
 		return True'''
 
 	shared_imports = '''import random
@@ -202,11 +203,13 @@ fi
 		shutit.cfg[self.module_id]['vagrant_run_dir'] = os.path.dirname(os.path.abspath(inspect.getsourcefile(lambda:0))) + '/vagrant_run'
 		run_dir = shutit.cfg[self.module_id]['vagrant_run_dir']
 		module_name = '""" + skel_module_name + """_' + ''.join(random.choice(string.ascii_letters + string.digits) for _ in range(6))
-		shutit.send(' command rm -rf ' + run_dir + '/' + module_name + ' && command mkdir -p ' + run_dir + '/' + module_name + ' && command cd ' + run_dir + '/' + module_name)
+		this_vagrant_run_dir = run_dir + '/' + module_name
+		shutit.cfg[self.module_id]['this_vagrant_run_dir'] = this_vagrant_run_dir
+		shutit.send(' command rm -rf ' + this_vagrant_run_dir + ' && command mkdir -p ' + this_vagrant_run_dir + ' && command cd ' + this_vagrant_run_dir)
 		if shutit.send_and_get_output('vagrant plugin list | grep landrush') == '':
 			shutit.send('vagrant plugin install landrush')
 		shutit.send('vagrant init ' + vagrant_image)
-		shutit.send_file(run_dir + '/' + module_name + '/Vagrantfile','''Vagrant.configure("2") do |config|
+		shutit.send_file(this_vagrant_run_dir + '/Vagrantfile','''Vagrant.configure("2") do |config|
   config.landrush.enabled = true
   config.vm.provider "virtualbox" do |vb|
     vb.gui = ''' + gui + '''
@@ -337,11 +340,14 @@ shutit.core.module.build:yes''')
 		shutit.cfg[self.module_id]['vagrant_run_dir'] = os.path.dirname(os.path.abspath(inspect.getsourcefile(lambda:0))) + '/vagrant_run'
 		run_dir = shutit.cfg[self.module_id]['vagrant_run_dir']
 		module_name = '""" + skel_module_name + """_' + ''.join(random.choice(string.ascii_letters + string.digits) for _ in range(6))
-		shutit.send('command rm -rf ' + run_dir + '/' + module_name + ' && command mkdir -p ' + run_dir + '/' + module_name + ' && command cd ' + run_dir + '/' + module_name)
+		this_vagrant_run_dir = run_dir + '/' + module_name
+		shutit.cfg[self.module_id]['this_vagrant_run_dir'] = this_vagrant_run_dir
+		shutit.send(' command rm -rf ' + this_vagrant_run_dir + ' && command mkdir -p ' + this_vagrant_run_dir + ' && command cd ' + this_vagrant_run_dir)
+		shutit.send('command rm -rf ' + this_vagrant_run_dir + ' && command mkdir -p ' + this_vagrant_run_dir + ' && command cd ' + this_vagrant_run_dir)
 		if shutit.send_and_get_output('vagrant plugin list | grep landrush') == '':
 			shutit.send('vagrant plugin install landrush')
 		shutit.send('vagrant init ' + vagrant_image)
-		shutit.send_file(run_dir + '/' + module_name + '/Vagrantfile','''Vagrant.configure("2") do |config|
+		shutit.send_file(this_vagrant_run_dir + '/Vagrantfile','''Vagrant.configure("2") do |config|
   config.landrush.enabled = true
   config.vm.provider "virtualbox" do |vb|
     vb.gui = ''' + gui + '''
