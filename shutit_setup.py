@@ -53,7 +53,7 @@ class ShutItConnModule(ShutItModule):
 		setup_host_child_environment(shutit_global.shutit)
 
 	def setup_target_child(self, target_child, target_child_id='target_child',prefix='root'):
-		setup_target_child_environmnet(shutit_global.shutit, target_child, target_child_id=target_child_id,prefix=prefix)
+		setup_target_child_environment(shutit_global.shutit, target_child, target_child_id=target_child_id,prefix=prefix)
 		
 
 
@@ -407,7 +407,7 @@ def setup_host_child_environment(shutit):
 	shutit_pexpect_session.setup_prompt('origin_prompt', prefix=prefix)
 	shutit_pexpect_session.login_stack_append(prefix)
 
-def setup_target_child_environmnet(shutit, target_child, target_child_id='target_child',prefix='root'):
+def setup_target_child_environment(shutit, target_child, target_child_id='target_child',prefix='root'):
 	# Some pexpect settings
 	shutit_pexpect_session = shutit.get_shutit_pexpect_session_from_id(target_child_id)
 	shutit_pexpect_session.pexpect_child = target_child
