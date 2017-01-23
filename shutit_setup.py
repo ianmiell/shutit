@@ -50,28 +50,11 @@ class ShutItConnModule(ShutItModule):
 		super(ShutItConnModule, self).__init__(*args, **kwargs)
 
 	def setup_host_child(self):
-		shutit = shutit_global.shutit
-		# Now let's have a host_child
-		shutit.log('Spawning host child',level=logging.DEBUG)
-		shutit_pexpect_session = shutit_pexpect.ShutItPexpectSession('host_child', '/bin/bash')
-		# Set up prompts and let the user do things before the build
-		shutit.set_default_shutit_pexpect_session(shutit_pexpect_session)
-		shutit.set_default_shutit_pexpect_session_expect(shutit.expect_prompts['base_prompt'])
-		# ORIGIN_ENV is a special case of the prompt maintained for performance reasons, don't change.
-		prefix = 'ORIGIN_ENV'
-		shutit_pexpect_session.setup_prompt('origin_prompt', prefix=prefix)
-		shutit_pexpect_session.login_stack_append(prefix)
+		setup_host_child_environment(shutit_global.shutit)
 
 	def setup_target_child(self, target_child, target_child_id='target_child',prefix='root'):
-		shutit = shutit_global.shutit
-		# Some pexpect settings
-		shutit_pexpect_session = shutit.get_shutit_pexpect_session_from_id(target_child_id)
-		shutit_pexpect_session.pexpect_child = target_child
-		shutit.set_default_shutit_pexpect_session_expect(shutit.expect_prompts['base_prompt'])
-		# target child
-		shutit.set_default_shutit_pexpect_session(shutit_pexpect_session)
-		shutit_pexpect_session.setup_prompt(prefix,prefix=prefix)
-		shutit_pexpect_session.login_stack_append(prefix)
+		setup_target_child_environmnet(shutit_global.shutit, target_child, target_child_id=target_child_id,prefix=prefix)
+		
 
 
 class ConnDocker(ShutItConnModule):
@@ -411,3 +394,25 @@ def conn_docker_destroy_container(shutit, host_shutit_session_name, container_sh
 	shutit.get_shutit_pexpect_session_from_id(container_shutit_session_name).pexpect_child.close()
 	host_child = shutit.get_shutit_pexpect_session_from_id(host_shutit_session_name).pexpect_child
 	shutit.send(' command docker rm -f ' + container_id + ' && rm -f ' + shutit.build['cidfile'],shutit_pexpect_child=host_child,expect=shutit.expect_prompts['origin_prompt'],loglevel=loglevel)
+
+def setup_host_child_environment(shutit)
+	# Now let's have a host_child
+	shutit.log('Spawning host child',level=logging.DEBUG)
+	shutit_pexpect_session = shutit_pexpect.ShutItPexpectSession('host_child', '/bin/bash')
+	# Set up prompts and let the user do things before the build
+	shutit.set_default_shutit_pexpect_session(shutit_pexpect_session)
+	shutit.set_default_shutit_pexpect_session_expect(shutit.expect_prompts['base_prompt'])
+	# ORIGIN_ENV is a special case of the prompt maintained for performance reasons, don't change.
+	prefix = 'ORIGIN_ENV'
+	shutit_pexpect_session.setup_prompt('origin_prompt', prefix=prefix)
+	shutit_pexpect_session.login_stack_append(prefix)
+
+def setup_target_child_environmnet(shutit, target_child, target_child_id='target_child',prefix='root'):
+	# Some pexpect settings
+	shutit_pexpect_session = shutit.get_shutit_pexpect_session_from_id(target_child_id)
+	shutit_pexpect_session.pexpect_child = target_child
+	shutit.set_default_shutit_pexpect_session_expect(shutit.expect_prompts['base_prompt'])
+	# target child
+	shutit.set_default_shutit_pexpect_session(shutit_pexpect_session)
+	shutit_pexpect_session.setup_prompt(prefix,prefix=prefix)
+	shutit_pexpect_session.login_stack_append(prefix)
