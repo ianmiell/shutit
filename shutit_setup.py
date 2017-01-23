@@ -153,120 +153,7 @@ class ConnDocker(ShutItConnModule):
 
 
 	def start_container(self, shutit_session_name, loglevel=logging.DEBUG):
-		shutit = shutit_global.shutit
-		docker = shutit.host['docker_executable'].split(' ')
-		# Always-required options
-		if not os.path.exists(shutit.build['shutit_state_dir'] + '/cidfiles'):
-			os.makedirs(shutit.build['shutit_state_dir'] + '/cidfiles')
-		shutit.build['cidfile'] = shutit.build['shutit_state_dir'] + '/cidfiles/' + shutit.host['username'] + '_cidfile_' + shutit.build['build_id']
-		cidfile_arg = '--cidfile=' + shutit.build['cidfile']
-		# Singly-specified options
-		privileged_arg   = ''
-		name_arg         = ''
-		hostname_arg     = ''
-		rm_arg           = ''
-		net_arg          = ''
-		mount_docker_arg = ''
-		shell_arg        = '/bin/bash'
-		if shutit.build['privileged']:
-			privileged_arg = '--privileged=true'
-		if shutit.target['name'] != '':
-			name_arg = '--name=' + shutit.target['name']
-		if shutit.target['hostname'] != '':
-			hostname_arg = '-h=' + shutit.target['hostname']
-		if shutit.build['net'] != '':
-			net_arg        = '--net="' + shutit.build['net'] + '"'
-		if shutit.build['mount_docker']:
-			mount_docker_arg = '-v=/var/run/docker.sock:/var/run/docker.sock'
-		# Incompatible with do_repository_work
-		if shutit.target['rm']:
-			rm_arg = '--rm=true'
-		if shutit.build['base_image'] in ('alpine','busybox'):
-			shell_arg = '/bin/ash'
-		# Multiply-specified options
-		port_args         = []
-		dns_args          = []
-		volume_args       = []
-		volumes_from_args = []
-		volumes_list      = shutit.target['volumes'].strip().split()
-		volumes_from_list = shutit.target['volumes_from'].strip().split()
-		ports_list        = shutit.target['ports'].strip().split()
-		dns_list          = shutit.host['dns'].strip().split()
-		for portmap in ports_list:
-			port_args.append('-p=' + portmap)
-		for dns in dns_list:
-			dns_args.append('--dns=' + dns)
-		for volume in volumes_list:
-			volume_args.append('-v=' + volume)
-		for volumes_from in volumes_from_list:
-			volumes_from_args.append('--volumes-from=' + volumes_from)
-
-		docker_command = docker + [
-			arg for arg in [
-				'run',
-				cidfile_arg,
-				privileged_arg,
-				name_arg,
-				hostname_arg,
-				rm_arg,
-				net_arg,
-				mount_docker_arg,
-			] + volume_args + volumes_from_args + port_args + dns_args + [
-				'-t',
-				'-i',
-				shutit.target['docker_image'],
-				shell_arg
-			] if arg != ''
-		]
-		shutit.build['docker_command'] = ' '.join(docker_command)
-		# docker run happens here
-		shutit.log('Startup command is: ' + shutit.build['docker_command'],level=logging.INFO)
-		shutit.log('Downloading image, please be patient',level=logging.INFO)
-		was_sent = ' '.join(docker_command)
-		shutit_pexpect_session = shutit_pexpect.ShutItPexpectSession(shutit_session_name, docker_command[0], docker_command[1:])
-		target_child = shutit_pexpect_session.pexpect_child
-		expect = ['assword', shutit.expect_prompts['base_prompt'].strip(), 'Waiting', 'ulling', 'endpoint', 'Download','o such file']
-		res = shutit_pexpect_session.expect(expect, timeout=9999)
-		while True:
-			if target_child.before == type(pexpect.exceptions.EOF):
-				shutit.fail('EOF exception seen')
-			try:
-				shutit.log(target_child.before + target_child.after,level=logging.DEBUG)
-			except:
-				pass
-			if res == 0:
-				res = shutit.send(shutit.host['password'], shutit_pexpect_child=target_child, expect=expect, timeout=9999, check_exit=False, fail_on_empty_before=False, echo=False, loglevel=loglevel)
-			elif res == 1:
-				shutit.log('Prompt found, breaking out',level=logging.DEBUG)
-				break
-			elif res == 6:
-				shutit.fail('Docker not installed.')
-				break
-			elif res == 7:
-				shutit.log('Initial command timed out, assuming OK to continue.',level=logging.WARNING)
-				break
-			elif res == 8:
-				shutit.fail('EOF seen.')
-			else:
-				res = shutit_pexpect_session.expect(expect, timeout=9999)
-				continue
-		# Did the pull work?
-		shutit.log('Checking exit status',level=loglevel)
-		if not shutit_pexpect_session._check_last_exit_values(was_sent):
-			shutit_global.shutit.pause_point('Command:\n\n' + was_sent + '\n\nfailed, you have a shell to try rectifying the problem before continuing.')
-		shutit.log('Getting cid',level=loglevel)
-		# Get the cid
-		while True:
-			try:
-				cid = open(shutit.build['cidfile']).read()
-				break
-			except Exception:
-				time.sleep(1)
-		if cid == '' or re.match('^[a-z0-9]+$', cid) == None:
-			shutit.fail('Could not get container_id - quitting. Check whether other containers may be clashing on port allocation or name.\nYou might want to try running: sudo docker kill ' + shutit.target['name'] + '; sudo docker rm ' + shutit.target['name'] + '\nto resolve a name clash or: ' + shutit.host['docker_executable'] + ' ps -a | grep ' + shutit.target['ports'] + " | awk '{print $1}' | " + 'xargs ' + shutit.host['docker_executable'] + ' kill\nto ' + 'resolve a port clash\n')
-		shutit.log('cid: ' + cid,level=logging.DEBUG)
-		shutit.target['container_id'] = cid
-		return target_child
+		return conn_docker_start_container(shutit_global.shutit, shutit_session_name, loglevel=loglevel)
 
 
 	def build(self, shutit, loglevel=logging.DEBUG):
@@ -466,4 +353,120 @@ class setup(ShutItModule):
 def module():
 	return setup('shutit.tk.setup', 0.0, description='Core ShutIt setup')
 
-#DATA[0]="   SSSSSSSSSSSSS hhhhh                          ttt      IIIIIII    ttt     "; DATA[1]=" SS:::::::::::::Sh:::h                        tt::t      I:::::I  tt::t     "; DATA[2]="S::::SSSSSS:::::Sh:::h                        t:::t      I:::::I  t:::t     "; DATA[3]="S::::S     SSSSSSh:::h                        t:::t      II:::II  t:::t     "; DATA[4]="S::::S           h::h hhhh     uuuu   uuuutttt:::ttttt    I::Itttt:::ttttt  "; DATA[5]="S::::S           h::hh::::hh   u::u   u::ut::::::::::t    I::I:::::::::::t  "; DATA[6]=" S:::SSSS        h::::::::::h  u::u   u::ut::::::::::t    I::I:::::::::::t  "; DATA[7]="  SS:::::SSSSS   h:::::hh::::h u::u   u::uttt:::::tttt    I::Ittt:::::tttt  "; DATA[8]="    SS::::::::S  h::::h  h::::hu::u   u::u   t:::t        I::I   t:::t      "; DATA[9]="      SSSSSS:::S h:::h    h:::hu::u   u::u   t:::t        I::I   t:::t      "; DATA[10]="           S::::Sh:::h    h:::hu::u   u::u   t:::t        I::I   t:::t      "; DATA[11]="           S::::Sh:::h    h:::hu:::uuu:::u   t:::t  tttt  I::I   t:::t  tttt"; DATA[12]="SSSSSS     S::::Sh:::h    h:::hu::::::::::uu t::::tt:::tII::::I  t::::tt:::t"; DATA[13]="S:::::SSSSSS::::Sh:::h    h:::h u::::::::::u tt::::::::tI:::::I  tt::::::::t"; DATA[14]="S:::::::::::::SS h:::h    h:::h  :::::::u::u   t::::::ttI:::::I    t::::::tt"; DATA[15]=" SSSSSSSSSSSSS   hhhhh    hhhhh  uuuuuuu uuu    tttttt  IIIIIII     tttttt  "; REALoOFFSEToX=0 ;REALoOFFSEToY=0; drawochar() { VoCOORDoX=$1; VoCOORDoY=$2; tput cup $((REALoOFFSEToY + VoCOORDoY)) $((REALoOFFSEToX + VoCOORDoX)); printf %c ${DATA[VoCOORDoY]:VoCOORDoX:1}; }; trap 'exit 1' INT TERM; trap 'tput setaf 9; tput cvvis; clear' EXIT; tput civis; clear; for ((b=0; b<1; b++)); do for ((c=1; c <= 1; c++)); do tput setaf $c; for ((x=0; x<${#DATA[0]}; x++)); do for ((y=0; y<=15; y++)); do drawochar $x $y; done; done; done; done;
+
+def conn_docker_start_container(shutit, shutit_session_name, loglevel=logging.DEBUG):
+		docker = shutit.host['docker_executable'].split(' ')
+		# Always-required options
+		if not os.path.exists(shutit.build['shutit_state_dir'] + '/cidfiles'):
+			os.makedirs(shutit.build['shutit_state_dir'] + '/cidfiles')
+		shutit.build['cidfile'] = shutit.build['shutit_state_dir'] + '/cidfiles/' + shutit.host['username'] + '_cidfile_' + shutit.build['build_id']
+		cidfile_arg = '--cidfile=' + shutit.build['cidfile']
+		# Singly-specified options
+		privileged_arg   = ''
+		name_arg         = ''
+		hostname_arg     = ''
+		rm_arg           = ''
+		net_arg          = ''
+		mount_docker_arg = ''
+		shell_arg        = '/bin/bash'
+		if shutit.build['privileged']:
+			privileged_arg = '--privileged=true'
+		if shutit.target['name'] != '':
+			name_arg = '--name=' + shutit.target['name']
+		if shutit.target['hostname'] != '':
+			hostname_arg = '-h=' + shutit.target['hostname']
+		if shutit.build['net'] != '':
+			net_arg        = '--net="' + shutit.build['net'] + '"'
+		if shutit.build['mount_docker']:
+			mount_docker_arg = '-v=/var/run/docker.sock:/var/run/docker.sock'
+		# Incompatible with do_repository_work
+		if shutit.target['rm']:
+			rm_arg = '--rm=true'
+		if shutit.build['base_image'] in ('alpine','busybox'):
+			shell_arg = '/bin/ash'
+		# Multiply-specified options
+		port_args         = []
+		dns_args          = []
+		volume_args       = []
+		volumes_from_args = []
+		volumes_list      = shutit.target['volumes'].strip().split()
+		volumes_from_list = shutit.target['volumes_from'].strip().split()
+		ports_list        = shutit.target['ports'].strip().split()
+		dns_list          = shutit.host['dns'].strip().split()
+		for portmap in ports_list:
+			port_args.append('-p=' + portmap)
+		for dns in dns_list:
+			dns_args.append('--dns=' + dns)
+		for volume in volumes_list:
+			volume_args.append('-v=' + volume)
+		for volumes_from in volumes_from_list:
+			volumes_from_args.append('--volumes-from=' + volumes_from)
+
+		docker_command = docker + [
+			arg for arg in [
+				'run',
+				cidfile_arg,
+				privileged_arg,
+				name_arg,
+				hostname_arg,
+				rm_arg,
+				net_arg,
+				mount_docker_arg,
+			] + volume_args + volumes_from_args + port_args + dns_args + [
+				'-t',
+				'-i',
+				shutit.target['docker_image'],
+				shell_arg
+			] if arg != ''
+		]
+		shutit.build['docker_command'] = ' '.join(docker_command)
+		# docker run happens here
+		shutit.log('Startup command is: ' + shutit.build['docker_command'],level=logging.INFO)
+		shutit.log('Downloading image, please be patient',level=logging.INFO)
+		was_sent = ' '.join(docker_command)
+		shutit_pexpect_session = shutit_pexpect.ShutItPexpectSession(shutit_session_name, docker_command[0], docker_command[1:])
+		target_child = shutit_pexpect_session.pexpect_child
+		expect = ['assword', shutit.expect_prompts['base_prompt'].strip(), 'Waiting', 'ulling', 'endpoint', 'Download','o such file']
+		res = shutit_pexpect_session.expect(expect, timeout=9999)
+		while True:
+			if target_child.before == type(pexpect.exceptions.EOF):
+				shutit.fail('EOF exception seen')
+			try:
+				shutit.log(target_child.before + target_child.after,level=logging.DEBUG)
+			except:
+				pass
+			if res == 0:
+				res = shutit.send(shutit.host['password'], shutit_pexpect_child=target_child, expect=expect, timeout=9999, check_exit=False, fail_on_empty_before=False, echo=False, loglevel=loglevel)
+			elif res == 1:
+				shutit.log('Prompt found, breaking out',level=logging.DEBUG)
+				break
+			elif res == 6:
+				shutit.fail('Docker not installed.')
+				break
+			elif res == 7:
+				shutit.log('Initial command timed out, assuming OK to continue.',level=logging.WARNING)
+				break
+			elif res == 8:
+				shutit.fail('EOF seen.')
+			else:
+				res = shutit_pexpect_session.expect(expect, timeout=9999)
+				continue
+		# Did the pull work?
+		shutit.log('Checking exit status',level=loglevel)
+		if not shutit_pexpect_session._check_last_exit_values(was_sent):
+			shutit_global.shutit.pause_point('Command:\n\n' + was_sent + '\n\nfailed, you have a shell to try rectifying the problem before continuing.')
+		shutit.log('Getting cid',level=loglevel)
+		# Get the cid
+		while True:
+			try:
+				cid = open(shutit.build['cidfile']).read()
+				break
+			except Exception:
+				time.sleep(1)
+		if cid == '' or re.match('^[a-z0-9]+$', cid) == None:
+			shutit.fail('Could not get container_id - quitting. Check whether other containers may be clashing on port allocation or name.\nYou might want to try running: sudo docker kill ' + shutit.target['name'] + '; sudo docker rm ' + shutit.target['name'] + '\nto resolve a name clash or: ' + shutit.host['docker_executable'] + ' ps -a | grep ' + shutit.target['ports'] + " | awk '{print $1}' | " + 'xargs ' + shutit.host['docker_executable'] + ' kill\nto ' + 'resolve a port clash\n')
+		shutit.log('cid: ' + cid,level=logging.DEBUG)
+		shutit.target['container_id'] = cid
+		return target_child
+
+
