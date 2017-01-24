@@ -250,8 +250,7 @@ def find_asset(filename):
 
 # Set up logging
 #
-def setup_logging():
-	shutit = shutit_global.shutit
+def setup_logging(shutit, loglevel):
 	# If loglevel is an int, this has already been set up.
 	if type(shutit.build['loglevel']) == int:
 		return
@@ -507,7 +506,7 @@ def parse_args():
 	shutit.host['logfile']   = args.logfile
 	shutit.build['loglevel'] = args.log
 	shutit.build['exam']     = False
-	setup_logging()
+	setup_logging(shutit, shutit.build['loglevel'])
 
 	# This mode is a bit special - it's the only one with different arguments
 	if shutit.action['skeleton']:
