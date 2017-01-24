@@ -25,19 +25,17 @@
 
 """ShutIt is a means of building stateless target hosts in a flexible and predictable way.
 """
-
-
-from shutit_module import ShutItModule, ShutItException, ShutItFailException
-import shutit_util
-import shutit_skeleton
-import urllib
-import shutit_global
+from distutils import spawn
+import logging
 import os
+import re
 import signal
 import sys
-import logging
-import re
-from distutils import spawn
+import urllib
+import shutit_global
+import shutit_skeleton
+import shutit_util
+from shutit_module import ShutItModule
 
 
 # run_order of -1 means 'stop everything'
@@ -186,7 +184,7 @@ def check_dependee_exists(depender, dependee, dependee_id):
 	"""
 	# If the module id isn't there, there's a problem.
 	if dependee is None:
-		return ('module: \n\n' + dependee_id + '\n\nnot found in paths: ' + str(shutit_global.shutit.host['shutit_module_path']) + ' but needed for ' + depender.module_id + '\nCheck your --shutit_module_path setting and ensure that all modules configured to be built are in that path setting, eg "--shutit_module_path /path/to/other/module/:."\n\nAlso check that the module is configured to be built with the correct module id in that module\'s configs/build.cnf file.\n\nSee also help.')
+		return 'module: \n\n' + dependee_id + '\n\nnot found in paths: ' + str(shutit_global.shutit.host['shutit_module_path']) + ' but needed for ' + depender.module_id + '\nCheck your --shutit_module_path setting and ensure that all modules configured to be built are in that path setting, eg "--shutit_module_path /path/to/other/module/:."\n\nAlso check that the module is configured to be built with the correct module id in that module\'s configs/build.cnf file.\n\nSee also help.'
 
 
 def check_dependee_build(depender, dependee, dependee_id):
@@ -196,7 +194,7 @@ def check_dependee_build(depender, dependee, dependee_id):
 	# If depender is installed or will be installed, so must the dependee
 	if not (cfg[dependee.module_id]['shutit.core.module.build'] or
 	        shutit_util.is_to_be_built_or_is_installed(dependee)):
-		return ('depender module id:\n\n[' + depender.module_id + ']\n\nis configured: "build:yes" or is already built but dependee module_id:\n\n[' + dependee_id + ']\n\n is not configured: "build:yes"')
+		return 'depender module id:\n\n[' + depender.module_id + ']\n\nis configured: "build:yes" or is already built but dependee module_id:\n\n[' + dependee_id + ']\n\n is not configured: "build:yes"'
 
 
 def check_dependee_order(depender, dependee, dependee_id):
@@ -205,7 +203,7 @@ def check_dependee_order(depender, dependee, dependee_id):
 	# If it depends on a module id, then the module id should be higher up
 	# in the run order.
 	if dependee.run_order > depender.run_order:
-		return ('depender module id:\n\n' + depender.module_id + '\n\n(run order: ' + str(depender.run_order) + ') ' + 'depends on dependee module_id:\n\n' + dependee_id + '\n\n(run order: ' + str(dependee.run_order) + ') ' + 'but the latter is configured to run after the former')
+		return 'depender module id:\n\n' + depender.module_id + '\n\n(run order: ' + str(depender.run_order) + ') ' + 'depends on dependee module_id:\n\n' + dependee_id + '\n\n(run order: ' + str(dependee.run_order) + ') ' + 'but the latter is configured to run after the former'
 
 
 def make_dep_graph(depender):
@@ -289,7 +287,7 @@ def check_conflicts(shutit):
 			     shutit_util.is_to_be_built_or_is_installed(conflicter)) and
 			    (cfg[conflictee_obj.module_id]['shutit.core.module.build'] or
 			     shutit_util.is_to_be_built_or_is_installed(conflictee_obj))):
-			    errs.append(('conflicter module id: ' + conflicter.module_id + ' is configured to be built or is already built but conflicts with module_id: ' + conflictee_obj.module_id,))
+				errs.append(('conflicter module id: ' + conflicter.module_id + ' is configured to be built or is already built but conflicts with module_id: ' + conflictee_obj.module_id,))
 	return errs
 
 
@@ -374,7 +372,7 @@ def build_module(module, loglevel=logging.DEBUG):
 	shutit.build['report'] = (shutit.build['report'] + '\nCompleted module: ' + module.module_id)
 	if cfg[module.module_id]['shutit.core.module.tag']:
 		shutit.log(shutit_util.build_report('#Module:' + module.module_id), level=logging.DEBUG)
-	if (not cfg[module.module_id]['shutit.core.module.tag'] and shutit.build['interactive'] >= 2):
+	if not cfg[module.module_id]['shutit.core.module.tag'] and shutit.build['interactive'] >= 2:
 		print ("\n\nDo you want to save state now we\'re at the " + "end of this module? (" + module.module_id + ") (input y/n)")
 		cfg[module.module_id]['shutit.core.module.tag'] = (shutit_util.util_raw_input(default='y') == 'y')
 	if cfg[module.module_id]['shutit.core.module.tag'] or shutit.build['tag_modules']:
@@ -474,7 +472,7 @@ def setup_shutit_path():
 		return
 	res = shutit_util.util_raw_input(prompt='shutit appears not to be on your path - should try and we find it and add it to your ~/.bashrc (Y/n)?')
 	if res in ['n','N']:
-		with open(os.path.join(shutit.shutit_path, 'config'), 'a') as f:
+		with open(os.path.join(shutit.host['shutit_path'], 'config'), 'a') as f:
 			f.write('\n[host]\nadd_shutit_to_path: no\n')
 		return
 	path_to_shutit = ''
@@ -513,7 +511,6 @@ def main():
 			shutit_global.shutit.fail('Python version must be 2.7+')
 
 	shutit = shutit_global.shutit
-	cfg = shutit.cfg
 	shutit_util.parse_args()
 
 	if not shutit.build['exam']:
@@ -653,7 +650,7 @@ def do_phone_home(msg=None,question='Error seen - would you like to inform the m
 	"""
 	if msg is None:
 		msg = {}
-	if shutit_global.shutit.shutit.build['interactive'] == 0:
+	if shutit_global.shutit.build['interactive'] == 0:
 		return
 	msg.update({'shutitrunstatus':'fail','pwd':os.getcwd(),'user':os.environ.get('LOGNAME', '')})
 	if question != '' and shutit_util.util_raw_input(prompt=question + ' (Y/n)\n') not in ('y','Y',''):
@@ -675,7 +672,7 @@ def do_interactive_modules():
 		if module_id:
 			try:
 				_=cfg[module_id]
-			except:
+			except NameError as _:
 				matched_to = []
 				for m in cfg.keys():
 					if re.match('.*'+module_id+'.*',m):
@@ -757,5 +754,3 @@ shutit_version='0.9.304'
 if __name__ == '__main__':
 	setup_signals()
 	main()
-
-
