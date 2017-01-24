@@ -491,6 +491,13 @@ def parse_args():
 				env_args_list[-1] += item
 		args_list[1:1] = env_args_list
 	args = parser.parse_args(args_list)
+	process_args(shutit, args)
+
+
+
+def process_args(shutit, args):
+	"""Process the args we have.
+	"""
 	if args.action == 'version':
 		print('ShutIt version: ' + shutit_main.shutit_version)
 		handle_exit(exit_code=0)
