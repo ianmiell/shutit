@@ -1869,7 +1869,6 @@ class ShutIt(object):
 		self.build['asciinema_session'] = True
 		self.build['asciinema_session_file'] = False
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
-		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
 		if not self.command_available('asciinema'):
 			self.install('asciinema')
 		version = self.send_and_get_output("""asciinema --version | awk '{print $2}'""")
@@ -1893,7 +1892,6 @@ class ShutIt(object):
 	                          shutit_pexpect_child=None):
 		assert self.build['asciinema_session'] == True
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
-		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
 		output = self.logout(timeout=3000)
 		self.log(output,add_final_message=True)
 		self.build['asciinema_session'] = None

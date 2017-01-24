@@ -51,7 +51,8 @@ from email.mime.text import MIMEText
 from email.mime.application import MIMEApplication
 from email.mime.multipart import MIMEMultipart
 from smtplib import SMTP, SMTP_SSL, SMTPSenderRefused
-import os, gzip
+import os
+import gzip
 
 class Emailer():
 	""" Emailer class definition
@@ -230,4 +231,3 @@ class Emailer():
 				raise error
 		finally:
 			smtp.quit()
-

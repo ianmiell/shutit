@@ -1,7 +1,6 @@
 import os
 import shutit_global
 import shutit_util
-import logging
 from . import shutitfile
 
 def setup_vagrant_pattern(skel_path,
@@ -24,7 +23,6 @@ def setup_vagrant_pattern(skel_path,
 	# TODO: others - memory per machine?
 
 	# Set up Vagrantfile data for the later
-	machine_dict = {}
 	machine_stanzas = ''
 	machine_list_code = '''\n\t\t# machines is a dict of dicts containing information about each machine for you to use.\n\t\tmachines = {}'''
 	vagrant_up_section = ''

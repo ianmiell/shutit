@@ -1786,8 +1786,6 @@ class ShutItPexpectSession(object):
 		                      If not line_oriented, the regexp is considered on with the flags re.DOTALL, re.MULTILINE
 		                      enabled
 		"""
-		import pdb
-		#pdb.set_trace()
 		shutit = shutit_global.shutit
 		shutit._handle_note(note)
 		fexists = self.file_exists(fname)
@@ -2798,7 +2796,6 @@ $'"""
 
 
 	def in_screen(self, loglevel=logging.DEBUG):
-		shutit = shutit_global.shutit
 		if self.send_and_get_output(' command echo $TMUX', record_command=False, echo=False, loglevel=loglevel) != '':
 			return True
 		elif self.send_and_get_output(' command echo $TERM', record_command=False, echo=False, loglevel=loglevel) == 'screen':

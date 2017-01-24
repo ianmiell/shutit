@@ -36,11 +36,9 @@ import pexpect
 import os
 import time
 import re
-import subprocess
 import logging
 import shutit_pexpect
 import shutit_global
-from distutils import spawn
 from shutit_module import ShutItModule
 
 
@@ -67,9 +65,10 @@ class ConnDocker(ShutItConnModule):
 		return False
 
 	def destroy_container(self, host_shutit_session_name, container_shutit_session_name, container_id, loglevel=logging.DEBUG):
+		shutit = shutit_global.shutit
+		host_child = shutit.get_shutit_pexpect_session_from_id(host_shutit_session_name).pexpect_child
 		conn_docker_destroy_container(shutit, host_shutit_session_name, container_shutit_session_name, container_id, loglevel=loglevel)
 		shutit.send(' command docker rm -f ' + container_id + ' && rm -f ' + shutit.build['cidfile'],shutit_pexpect_child=host_child,expect=shutit.expect_prompts['origin_prompt'],loglevel=loglevel)
-
 
 	def start_container(self, shutit_session_name, loglevel=logging.DEBUG):
 		return conn_docker_start_container(shutit_global.shutit, shutit_session_name, loglevel=loglevel)
@@ -78,7 +77,6 @@ class ConnDocker(ShutItConnModule):
 	def build(self, shutit, loglevel=logging.DEBUG):
 		"""Sets up the target ready for building.
 		"""
-		cfg = shutit.cfg
 		target_child = self.start_container('target_child', loglevel=loglevel)
 		self.setup_host_child()
 		# TODO: on the host child, check that the image running has bash as its cmd/entrypoint.
@@ -92,10 +90,7 @@ class ConnDocker(ShutItConnModule):
 		and performing any repository work required.
 		"""
 		# Finish with the target
-		
 		shutit.get_shutit_pexpect_session_from_id('target_child').sendline('exit')
-
-		cfg = shutit.cfg
 		host_child = shutit.get_shutit_pexpect_session_from_id('host_child').pexpect_child
 		shutit.set_default_shutit_pexpect_session(host_child)
 		shutit.set_default_shutit_pexpect_session_expect(shutit.expect_prompts['origin_prompt'])
@@ -126,7 +121,6 @@ class ConnBash(ShutItConnModule):
 	def build(self, shutit):
 		"""Sets up the machine ready for building.
 		"""
-		cfg = shutit.cfg
 		shutit_pexpect_session = shutit_pexpect.ShutItPexpectSession('target_child','/bin/bash')
 		target_child = shutit_pexpect_session.pexpect_child
 		shutit_pexpect_session.expect(shutit.expect_prompts['base_prompt'].strip(), timeout=10)
@@ -218,6 +212,7 @@ class ConnSSH(ShutItConnModule):
 		shutit.get_shutit_pexpect_session_from_id('target_child').sendline('exit')
 		shutit.set_default_shutit_pexpect_session(shutit.get_shutit_pexpect_session_from_id('host_child'))
 		# Final exits
+		host_child = shutit.get_shutit_pexpect_session_from_id('host_child').pexpect_child
 		host_child.sendline('exit') # Exit raw bash
 		return True
 
@@ -242,7 +237,6 @@ class setup(ShutItModule):
 	def build(self, shutit, loglevel=logging.DEBUG):
 		"""Initializes target ready for build and updating package management if in container.
 		"""
-		cfg = shutit.cfg
 		if shutit.build['delivery'] in ('docker','dockerfile'):
 			if shutit_global.shutit.get_current_shutit_pexpect_session_environment().install_type == 'apt':
 				shutit.add_to_bashrc('export DEBIAN_FRONTEND=noninteractive')

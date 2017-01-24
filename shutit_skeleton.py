@@ -28,8 +28,7 @@
 import os
 import re
 import shutit_global
-from shutit_module import ShutItFailException
-from shutit_module import ShutItModule
+import json
 from shutit_patterns import shutitfile
 
 

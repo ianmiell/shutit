@@ -1,5 +1,4 @@
 import shutit_global
-import shutit_pexpect
 import shutit_util
 import shutit_setup
 

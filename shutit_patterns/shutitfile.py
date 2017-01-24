@@ -23,7 +23,6 @@
 # SOFTWARE.
 
 from six import iteritems
-import json
 import logging
 import os
 import random
@@ -39,8 +38,6 @@ except ImportError:
 import shutit_global
 import shutit_util
 import shutit_skeleton
-from shutit_module import ShutItFailException
-from shutit_module import ShutItModule
 
 #_default_repo_name = shutit_util._default_repo_name
 _default_repo_name = 'mymodule'

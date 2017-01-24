@@ -672,7 +672,7 @@ def do_interactive_modules():
 		if module_id:
 			try:
 				_=cfg[module_id]
-			except NameError as _:
+			except NameError:
 				matched_to = []
 				for m in cfg.keys():
 					if re.match('.*'+module_id+'.*',m):
