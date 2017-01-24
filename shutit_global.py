@@ -185,7 +185,7 @@ class ShutIt(object):
 		@param expect: String to expect in the output
 		@type expect: string
 		"""
-		if expect == None:
+		if expect is None:
 			self.current_shutit_pexpect_session.default_expect = self.expect_prompts['root']
 		else:
 			self.current_shutit_pexpect_session.default_expect = expect
@@ -665,9 +665,9 @@ class ShutIt(object):
 		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
 		self._handle_note(note, 'Sending file from host: ' + hostfilepath + ' to target path: ' + path)
 		self.log('Sending file from host: ' + hostfilepath + ' to: ' + path, level=loglevel)
-		if user == None:
+		if user is None:
 			user = shutit_pexpect_session.whoami()
-		if group == None:
+		if group is None:
 			group = self.whoarewe()
 		# TODO: take out False in next line and replace with a consideration of login_stack depth
 		if False and self.build['delivery'] in ('bash','dockerfile'):
@@ -717,9 +717,9 @@ class ShutIt(object):
 		self._handle_note(note, 'Sending host directory: ' + hostfilepath + ' to target path: ' + path)
 		self.log('Sending host directory: ' + hostfilepath + ' to: ' + path, level=logging.INFO)
 		shutit_pexpect_session.send(' command mkdir -p ' + path, echo=False, loglevel=loglevel)
-		if user == None:
+		if user is None:
 			user = shutit_pexpect_session.whoami()
-		if group == None:
+		if group is None:
 			group = self.whoarewe()
 		for root, subfolders, files in os.walk(hostfilepath):
 			subfolders.sort()
@@ -974,7 +974,7 @@ class ShutIt(object):
 			match_regexp = None
 		fail = False
 		for line in lines:
-			if match_regexp == None:
+			if match_regexp is None:
 				this_match_regexp = line
 			else:
 				this_match_regexp = match_regexp
@@ -1673,13 +1673,13 @@ class ShutIt(object):
 		# TODO: make host and client configurable
 		self._handle_note(note)
 		shutit_pexpect_session = self.get_current_shutit_pexpect_session()
-		if tag == None:
+		if tag is None:
 			tag    = self.repository['tag']
-		if push == None:
+		if push is None:
 			push   = self.repository['push']
-		if export == None:
+		if export is None:
 			export = self.repository['export']
-		if save == None:
+		if save is None:
 			save   = self.repository['save']
 		if not (push or export or save or tag):
 			# If we're forcing this, then tag as a minimum
@@ -1692,7 +1692,7 @@ class ShutIt(object):
 		expect    = self.expect_prompts['origin_prompt']
 		server    = self.repository['server']
 		repo_user = self.repository['user']
-		if repo_tag == None:
+		if repo_tag is None:
 			repo_tag  = self.repository['tag_name']
 
 		if repo_user and repo_name:
@@ -1813,7 +1813,7 @@ class ShutIt(object):
 		else:
 			if not forcenone:
 				if self.build['interactive'] > 0:
-					if self.build['accept_defaults'] == None:
+					if self.build['accept_defaults'] is None:
 						answer = None
 						# util_raw_input may change the interactive level, so guard for this.
 						while answer not in ('yes','no','') and self.build['interactive'] > 1:
@@ -1843,7 +1843,7 @@ class ShutIt(object):
 							elif answer == 'no':
 								answer = False
 						else:
-							if re.search('assw',option) == None:
+							if re.search('assw',option) is None:
 								answer =  shutit_util.util_raw_input(prompt=shutit_util.colourise('32',prompt) + ': \n',ispass=secret)
 							else:
 								answer =  shutit_util.util_raw_input(ispass=True,prompt=shutit_util.colourise('32',prompt) + ': \n')
@@ -1865,7 +1865,7 @@ class ShutIt(object):
 	                            max_pause=None,
 	                            filename=None,
 	                            shutit_pexpect_child=None):
-		assert self.build['asciinema_session'] == None
+		assert self.build['asciinema_session'] is None
 		self.build['asciinema_session'] = True
 		self.build['asciinema_session_file'] = False
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
@@ -1925,9 +1925,9 @@ class ShutIt(object):
 
 
 	def remove_shutit_pexpect_session(self, shutit_pexpect_session_id=None, shutit_pexpect_child=None):
-		if shutit_pexpect_session_id == None and shutit_pexpect_child == None:
+		if shutit_pexpect_session_id is None and shutit_pexpect_child is None:
 			shutit.fail('Must pass value into remove_pexpect_child.',throw_exception=True)
-		if shutit_pexpect_session_id == None:
+		if shutit_pexpect_session_id is None:
 			shutit_pexpect_session_id = shutit_pexpect_child.pexpect_session_id
 		del self.shutit_pexpect_sessions[shutit_pexpect_session_id]
 		return True

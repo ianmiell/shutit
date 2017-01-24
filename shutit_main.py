@@ -185,7 +185,7 @@ def check_dependee_exists(depender, dependee, dependee_id):
 	"""Checks whether a depended-on module is available.
 	"""
 	# If the module id isn't there, there's a problem.
-	if dependee == None:
+	if dependee is None:
 		return ('module: \n\n' + dependee_id + '\n\nnot found in paths: ' + str(shutit_global.shutit.host['shutit_module_path']) + ' but needed for ' + depender.module_id + '\nCheck your --shutit_module_path setting and ensure that all modules configured to be built are in that path setting, eg "--shutit_module_path /path/to/other/module/:."\n\nAlso check that the module is configured to be built with the correct module id in that module\'s configs/build.cnf file.\n\nSee also help.')
 
 
@@ -283,7 +283,7 @@ def check_conflicts(shutit):
 		for conflictee in conflicter.conflicts_with:
 			# If the module id isn't there, there's no problem.
 			conflictee_obj = shutit.shutit_map.get(conflictee)
-			if conflictee_obj == None:
+			if conflictee_obj is None:
 				continue
 			if ((cfg[conflicter.module_id]['shutit.core.module.build'] or
 			     shutit_util.is_to_be_built_or_is_installed(conflicter)) and
