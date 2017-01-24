@@ -395,6 +395,7 @@ def conn_docker_destroy_container(shutit, host_shutit_session_name, container_sh
 	host_child = shutit.get_shutit_pexpect_session_from_id(host_shutit_session_name).pexpect_child
 	shutit.send(' command docker rm -f ' + container_id + ' && rm -f ' + shutit.build['cidfile'],shutit_pexpect_child=host_child,expect=shutit.expect_prompts['origin_prompt'],loglevel=loglevel)
 
+
 def setup_host_child_environment(shutit):
 	# Now let's have a host_child
 	shutit.log('Spawning host child',level=logging.DEBUG)
@@ -406,6 +407,7 @@ def setup_host_child_environment(shutit):
 	prefix = 'ORIGIN_ENV'
 	shutit_pexpect_session.setup_prompt('origin_prompt', prefix=prefix)
 	shutit_pexpect_session.login_stack_append(prefix)
+
 
 def setup_target_child_environment(shutit, target_child, target_child_id='target_child',prefix='root'):
 	# Some pexpect settings
