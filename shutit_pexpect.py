@@ -378,7 +378,7 @@ class ShutItPexpectSession(object):
 			   timeout=None):
 		"""Handle child expects, with EOF and TIMEOUT handled
 		"""
-		if isinstance(expect) == str:
+		if isinstance(expect, str):
 			expect = [expect]
 		if searchwindowsize != None:
 			old_searchwindowsize = self.pexpect_child.searchwindowsize
@@ -486,7 +486,7 @@ class ShutItPexpectSession(object):
 			return True
 		if exit_values is None:
 			exit_values = ['0']
-		if isinstance(exit_values) == int:
+		if isinstance(exit_values, int):
 			exit_values = [str(exit_values)]
 		# Don't use send here (will mess up last_output)!
 		# Space before "echo" here is sic - we don't need this to show up in bash history
@@ -496,7 +496,7 @@ class ShutItPexpectSession(object):
 			shutit.log('Expecting: ' + str(expect),level=logging.DEBUG)
 			self.expect(expect,timeout=5)
 			res = shutit_util.match_string(str(self.pexpect_child.before), '^EXIT_CODE:([0-9][0-9]?[0-9]?)$')
-			if res is None and (isinstance(self.pexpect_child.before) == pexpect.exceptions.EOF or isinstance(self.pexpect_child.after) == pexpect.exceptions.EOF):
+			if res is None and (isinstance(self.pexpect_child.before, pexpect.exceptions.EOF) or isinstance(self.pexpect_child.after, pexpect.exceptions.EOF)):
 				shutit_util.handle_exit(1)
 			if res is None:
 				# Try before without anchor - sometimes needed when logging into obscure shells
@@ -901,7 +901,7 @@ class ShutItPexpectSession(object):
 		"""
 		shutit = shutit_global.shutit
 		shutit._handle_note(note)
-		if len(locations) == 0 or isinstance(locations) != list:
+		if len(locations) == 0 or not isinstance(locations, list):
 			raise ShutItFailException('Locations should be a list containing base of the url.')
 		retry_orig = retry
 		if not self.command_available(command):
@@ -1339,7 +1339,7 @@ class ShutItPexpectSession(object):
 		shutit.log('Matching output from: "' + send + '" to one of these regexps:' + str(matches),level=logging.INFO)
 		echo = self.get_echo_override(shutit, echo)
 		output = self.send_and_get_output(send, retry=retry, strip=strip, echo=echo, loglevel=loglevel)
-		if isinstance(matches) == str:
+		if isinstance(matches, str):
 			matches = [matches]
 		shutit._handle_note_after(note=note)
 		for match in matches:
@@ -1667,10 +1667,10 @@ class ShutItPexpectSession(object):
 		expect_list = list(send_dict)
 		# Put breakout item(s) in last.
 		n_breakout_items = 0
-		if isinstance(expect) == str:
+		if isinstance(expect, str):
 			expect_list.append(expect)
 			n_breakout_items = 1
-		elif isinstance(expect) == list:
+		elif isinstance(expect, list):
 			for item in expect:
 				expect_list.append(item)
 				n_breakout_items += 1
@@ -1722,9 +1722,9 @@ class ShutItPexpectSession(object):
 		shutit = shutit_global.shutit
 		shutit._handle_note(note, command=send + ' \nuntil one of these seen:\n' + str(regexps))
 		shutit.log('Sending: "' + send + '" until one of these regexps seen: ' + str(regexps),level=loglevel)
-		if isinstance(regexps) == str:
+		if isinstance(regexps, str):
 			regexps = [regexps]
-		if isinstance(regexps) != list:
+		if isinstance(regexps, list):
 			shutit.fail('regexps should be list')
 		while retries > 0:
 			retries -= 1
@@ -2100,7 +2100,7 @@ class ShutItPexpectSession(object):
 		"""
 		shutit = shutit_global.shutit
 		cfg = shutit.cfg
-		if isinstance(expect) == dict:
+		if isinstance(expect, dict):
 			return self.multisend(send=send,send_dict=expect,expect=shutit.get_default_shutit_pexpect_session_expect(),timeout=timeout,check_exit=check_exit,fail_on_empty_before=fail_on_empty_before,record_command=record_command,exit_values=exit_values,echo=echo,note=note,loglevel=loglevel)
 		expect = expect or self.default_expect
 		shutit.log('Sending data in session: ' + self.pexpect_session_id,level=logging.DEBUG)
@@ -2245,7 +2245,7 @@ $'"""
 								shutit.divert_output(None)
 					else:
 						expect_res = shutit._expect_allow_interrupt(self.pexpect_child, expect, timeout)
-			if isinstance(self.pexpect_child.after) == type or isinstance(self.pexpect_child.before) == type:
+			if isinstance(self.pexpect_child.after, type) or isinstance(self.pexpect_child.before, type):
 				shutit.log('End of pexpect session detected, bailing.',level=logging.CRITICAL)
 				shutit_util.handle_exit(exit_code=1)
 			logged_output = ''.join((self.pexpect_child.before + str(self.pexpect_child.after)).split('\n'))
@@ -2353,9 +2353,9 @@ $'"""
 			f = open(path,'w')
 			if truncate:
 				f.truncate(0)
-			if isinstance(contents) == str:
+			if isinstance(contents, str):
 				f.write(contents)
-			elif isinstance(contents) == bytes:
+			elif isinstance(contents, bytes):
 				f.write(contents.decode('utf-8'))
 			f.close()
 		elif shutit.build['delivery'] in ('bash','dockerfile'):
@@ -2377,12 +2377,12 @@ $'"""
 			tmpfile = shutit.build['shutit_state_dir_base'] + 'tmp_' + shutit_util.random_id()
 			f = open(tmpfile,'w')
 			f.truncate(0)
-			if isinstance(contents) == str:
+			if isinstance(contents, str):
 				f.write(contents)
-			elif isinstance(contents) == bytes:
+			elif isinstance(contents, bytes):
 				f.write(contents.decode('utf-8'))
 			else:
-				shutit.fail('type: ' + isinstance(contents) + ' not handled')
+				shutit.fail('type: ' + type(contents) + ' not handled')
 			f.close()
 			# Create file so it has appropriate permissions
 			self.send(' command touch ' + path, loglevel=loglevel, echo=echo)
@@ -2556,9 +2556,9 @@ $'"""
 		preserve_newline                  = False
 		skipped                           = False
 		if expect_type == 'regexp':
-			if isinstance(expect) == str:
+			if isinstance(expect, str):
 				expect = [expect]
-			if isinstance(expect) != list:
+			if not isinstance(expect, list):
 				shutit.fail('expect_regexps should be list')
 		elif expect_type == 'md5sum':
 			preserve_newline = True
@@ -2735,7 +2735,7 @@ $'"""
 		environment_id_dir = shutit.build['shutit_state_dir'] + '/environment_id'
 		if self.file_exists(environment_id_dir,directory=True):
 			files = self.ls(environment_id_dir)
-			if len(files) != 1 or isinstance(files) != list:
+			if len(files) != 1 or not isinstance(files, list):
 				if len(files) == 2 and (files[0] == 'ORIGIN_ENV' or files[1] == 'ORIGIN_ENV'):
 					for f in files:
 						if f != 'ORIGIN_ENV':
