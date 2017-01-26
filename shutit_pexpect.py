@@ -1724,7 +1724,7 @@ class ShutItPexpectSession(object):
 		shutit.log('Sending: "' + send + '" until one of these regexps seen: ' + str(regexps),level=loglevel)
 		if isinstance(regexps, str):
 			regexps = [regexps]
-		if isinstance(regexps, list):
+		if not isinstance(regexps, list):
 			shutit.fail('regexps should be list')
 		while retries > 0:
 			retries -= 1
