@@ -134,9 +134,9 @@ class ShutIt(object):
 		"""Returns the current environment from the currently-set default
 		pexpect child.
 		"""
-		self._handle_note(note)
+		self.handle_note(note)
 		res = self.get_current_shutit_pexpect_session().current_environment
-		self._handle_note_after(note)
+		self.handle_note_after(note)
 		return res
 
 
@@ -145,9 +145,9 @@ class ShutIt(object):
 
 		@return: default shutit pexpect child object
 		"""
-		self._handle_note(note)
+		self.handle_note(note)
 		res = self.current_shutit_pexpect_session
-		self._handle_note_after(note)
+		self.handle_note_after(note)
 		return res
 
 
@@ -242,9 +242,9 @@ class ShutIt(object):
 		"""Returns the current environment id from the current
 		shutit_pexpect_session
 		"""
-		self._handle_note(note)
+		self.handle_note(note)
 		res = self.get_current_shutit_pexpect_session_environment().environment_id
-		self._handle_note_after(note)
+		self.handle_note_after(note)
 		return res
 
 
@@ -344,7 +344,7 @@ class ShutIt(object):
 	              escape=False,
 	              pause=1,
 	              loglevel=logging.DEBUG,
-	              follow_on_context={},
+	              follow_on_context=None,
 	              num_stages=None):
 		"""Set the user a task to complete, success being determined by matching the output.
 
@@ -398,7 +398,7 @@ class ShutIt(object):
 	         retry=3,
 	         note=None,
 	         assume_gnu=True,
-	         follow_on_commands={},
+	         follow_on_commands=None,
 	         searchwindowsize=None,
 	         maxread=None,
 	         delaybeforesend=None,
@@ -468,7 +468,7 @@ class ShutIt(object):
 	                           retry=3,
 	                           note=None,
 	                           assume_gnu=True,
-	                           follow_on_commands={},
+	                           follow_on_commands=None,
 	                           loglevel=logging.INFO):
 		"""Returns true if a good exit code was received (usually 0)
 		"""
@@ -478,7 +478,7 @@ class ShutIt(object):
 		return shutit_pexpect_session._check_last_exit_values(send,expect=expect,exit_values=exit_values,retry=retry,retbool=True)
 
                                                                                                                   
-	def _handle_note(self, note, command='', training_input=''):
+	def handle_note(self, note, command='', training_input=''):
 		"""Handle notes and walkthrough option.
 
 		@param note:                 See send()
@@ -506,7 +506,7 @@ class ShutIt(object):
 		return True
 
 
-	def _handle_note_after(self, note, training_input=''):
+	def handle_note_after(self, note, training_input=''):
 		if self.build['walkthrough'] and note != None:
 			wait = self.build['walkthrough_wait']
 			if wait >= 0:
@@ -516,7 +516,7 @@ class ShutIt(object):
 		return True
 
 
-	def _expect_allow_interrupt(self,
+	def expect_allow_interrupt(self,
 	                            shutit_pexpect_child,
 	                            expect,
 	                            timeout,
@@ -564,7 +564,7 @@ class ShutIt(object):
 					self.fail('Timed out and interactive, but could not recover')
 				else:
 					self.fail('CTRL-C hit and could not recover')
-		self.fail('Should not get here (_expect_allow_interrupt)')
+		self.fail('Should not get here (expect_allow_interrupt)')
 		return True
 
 
@@ -663,7 +663,7 @@ class ShutIt(object):
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
 		expect = expect or self.get_current_shutit_pexpect_session().default_expect
 		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
-		self._handle_note(note, 'Sending file from host: ' + hostfilepath + ' to target path: ' + path)
+		self.handle_note(note, 'Sending file from host: ' + hostfilepath + ' to target path: ' + path)
 		self.log('Sending file from host: ' + hostfilepath + ' to: ' + path, level=loglevel)
 		if user is None:
 			user = shutit_pexpect_session.whoami()
@@ -684,7 +684,7 @@ class ShutIt(object):
 				shutit_pexpect_session.send_host_dir(path, hostfilepath, user=user, group=group, loglevel=loglevel)
 			else:
 				self.fail('send_host_file - file: ' + hostfilepath + ' does not exist as file or dir. cwd is: ' + os.getcwd(), shutit_pexpect_child=shutit_pexpect_child, throw_exception=False)
-		self._handle_note_after(note=note)
+		self.handle_note_after(note=note)
 		return True
 
 
@@ -714,7 +714,7 @@ class ShutIt(object):
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
 		expect = expect or self.get_current_shutit_pexpect_session().default_expect
 		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
-		self._handle_note(note, 'Sending host directory: ' + hostfilepath + ' to target path: ' + path)
+		self.handle_note(note, 'Sending host directory: ' + hostfilepath + ' to target path: ' + path)
 		self.log('Sending host directory: ' + hostfilepath + ' to: ' + path, level=logging.INFO)
 		shutit_pexpect_session.send(' command mkdir -p ' + path, echo=False, loglevel=loglevel)
 		if user is None:
@@ -733,7 +733,7 @@ class ShutIt(object):
 				targetfname = os.path.join(path, fname)
 				self.log('send_host_dir sending file ' + hostfullfname + ' to ' + 'target file: ' + targetfname, level=logging.DEBUG)
 				shutit_pexpect_session.send_file(targetfname, open(hostfullfname).read(), expect=expect, shutit_pexpect_child=shutit_pexpect_child, user=user, group=group, loglevel=loglevel)
-		self._handle_note_after(note=note)
+		self.handle_note_after(note=note)
 		return True
 
 
@@ -1138,7 +1138,7 @@ class ShutIt(object):
 		@return:           boolean
 		@rtype:            string
 		"""
-		self._handle_note(note)
+		self.handle_note(note)
 		# Only handle for docker initially, return false in case we care
 		if self.build['delivery'] != 'docker':
 			return False
@@ -1148,7 +1148,7 @@ class ShutIt(object):
 		shutit_pexpect_child     = self.get_shutit_pexpect_session_from_id('host_child').pexpect_child
 		expect    = self.expect_prompts['origin_prompt']
 		self.send('docker cp ' + self.target['container_id'] + ':' + target_path + ' ' + host_path, shutit_pexpect_child=shutit_pexpect_child, expect=expect, check_exit=False, echo=False, loglevel=loglevel)
-		self._handle_note_after(note=note)
+		self.handle_note_after(note=note)
 		return True
 
 
@@ -1500,7 +1500,7 @@ class ShutIt(object):
 	exit_shell = logout
 
 
-	def get_input(self, msg, default='', valid=[], boolean=False, ispass=False, colour='32'):
+	def get_input(self, msg, default='', valid=None, boolean=False, ispass=False, colour='32'):
 		"""Get input from the user, returning the entered value.
 
 		    @param msg:         - message to show user
@@ -1624,7 +1624,7 @@ class ShutIt(object):
 		@type repository:           string
 		@type docker_executable:    string
 		"""
-		self._handle_note(note)
+		self.handle_note(note)
 		shutit_pexpect_child = shutit_pexpect_child or self.get_shutit_pexpect_session_from_id('host_child').pexpect_child
 		expect               = expect or self.expect_prompts['origin_prompt']
 		send                 = docker_executable + ' push ' + self.repository['user'] + '/' + repository
@@ -1641,7 +1641,7 @@ class ShutIt(object):
 		          check_exit=False,
 		          fail_on_empty_before=False,
 		          loglevel=loglevel)
-		self._handle_note_after(note)
+		self.handle_note_after(note)
 		return True
 
 
@@ -1671,7 +1671,7 @@ class ShutIt(object):
 		@type force:                boolean
 		"""
 		# TODO: make host and client configurable
-		self._handle_note(note)
+		self.handle_note(note)
 		shutit_pexpect_session = self.get_current_shutit_pexpect_session()
 		if tag is None:
 			tag    = self.repository['tag']
@@ -1763,7 +1763,7 @@ class ShutIt(object):
 			# Pass the child explicitly as it's the host child.
 			self.push_repository(repository, docker_executable=docker_executable, expect=expect, shutit_pexpect_child=shutit_pexpect_child)
 			self.build['report'] = (self.build['report'] + '\nPushed repository: ' + repository)
-		self._handle_note_after(note)
+		self.handle_note_after(note)
 		return True
 
 

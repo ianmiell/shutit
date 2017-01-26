@@ -25,6 +25,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+from __future__ import print_function
 try:
 	import ConfigParser
 except ImportError:
@@ -52,9 +53,9 @@ import string
 import sys
 import threading
 import time
+import subprocess
 import pexpect
 import texttable
-import subprocess
 import shutit_global
 import shutit_main
 import shutit_assets
@@ -75,7 +76,7 @@ class LayerConfigParser(ConfigParser.RawConfigParser):
 		self.layers = []
 
 	def read(self, filenames):
-		if type(filenames) is not list:
+		if not isinstance(filenames, list):
 			filenames = [filenames]
 		for filename in filenames:
 			cp = ConfigParser.RawConfigParser()
@@ -145,7 +146,7 @@ def is_file_secure(file_name):
 def colourise(code, msg):
 	"""Colourize the given string for a terminal.
 	"""
-	if code == '' or code == None:
+	if code == '' or code is None:
 		return msg
 	return '\033[%sm%s\033[0m' % (code, msg)
 
@@ -159,7 +160,7 @@ def get_configs(configs):
 	fail_str = ''
 	files    = []
 	for config_file in configs:
-		if type(config_file) is tuple:
+		if isinstance(config_file, tuple):
 			continue
 		if not is_file_secure(config_file):
 			fail_str = fail_str + '\nchmod 0600 ' + config_file
@@ -184,7 +185,7 @@ def get_configs(configs):
 			return get_configs(configs)
 		shutit.fail(fail_str)
 	for config in configs:
-		if type(config) is tuple:
+		if isinstance(config, tuple):
 			cp.readfp(config[1], filename=config[0])
 		else:
 			cp.read(config)
@@ -220,23 +221,23 @@ def find_asset(filename):
 	(head,filename) = os.path.split(filename)
 	if head == '':
 		dirs = ['/usr/share/dict',
-		        sys.prefix,
-		        os.path.join(sys.prefix,'local'),
-		        shutit.shutit_main_dir,
-		        os.path.join(shutit_global.shutit.shutit_main_dir,'../../..'),
-		        shutit.host['shutit_path'],
-		        '/usr/local'
-		       ]
+				sys.prefix,
+				os.path.join(sys.prefix,'local'),
+				shutit.shutit_main_dir,
+				os.path.join(shutit_global.shutit.shutit_main_dir,'../../..'),
+				shutit.host['shutit_path'],
+				'/usr/local'
+			   ]
 		dirs = dirs + sys.path
 	else:
 		dirs = ['/usr/share/dict' + '/' + head,
-		        sys.prefix + '/' + head,
-		        os.path.join(sys.prefix,'local') + '/' + head,
-		        shutit.shutit_main_dir + '/' + head,
-		        os.path.join(shutit_global.shutit.shutit_main_dir,'../../..') + '/' + head,
-		        shutit.host['shutit_path'] + '/' + head,
-		        '/usr/local' + '/' + head
-		       ]
+				sys.prefix + '/' + head,
+				os.path.join(sys.prefix,'local') + '/' + head,
+				shutit.shutit_main_dir + '/' + head,
+				os.path.join(shutit_global.shutit.shutit_main_dir,'../../..') + '/' + head,
+				shutit.host['shutit_path'] + '/' + head,
+				'/usr/local' + '/' + head
+			   ]
 		dirs = dirs + sys.path
 	for iter_dir in dirs:
 		if os.access(os.path.join(iter_dir,filename),os.F_OK):
@@ -250,9 +251,9 @@ def find_asset(filename):
 
 # Set up logging
 #
-def setup_logging(shutit, loglevel):
+def setup_logging(shutit):
 	# If loglevel is an int, this has already been set up.
-	if type(shutit.build['loglevel']) == int:
+	if isinstance(shutit.build['loglevel'], int):
 		return
 	logformat='%(asctime)s %(levelname)s: %(message)s'
 	if shutit.host['logfile'] == '':
@@ -380,7 +381,7 @@ def get_base_config(cfg_parser):
 
 # Returns the config dict
 def parse_args():
-	"""Responsible for parsing arguments.
+	r"""Responsible for parsing arguments.
 
 	Environment variables:
 	SHUTIT_OPTIONS:
@@ -513,7 +514,7 @@ def process_args(shutit, args):
 	shutit.host['logfile']   = args.logfile
 	shutit.build['loglevel'] = args.log
 	shutit.build['exam']     = False
-	setup_logging(shutit, shutit.build['loglevel'])
+	setup_logging(shutit)
 
 	# This mode is a bit special - it's the only one with different arguments
 	if shutit.action['skeleton']:
@@ -569,11 +570,11 @@ def process_args(shutit, args):
 							except:
 								print('Ignoring file (failed to parse candidate shutitfile): ' + candidate_shutitfile)
 			if _new_shutitfiles:
-				if len(_delivery_methods_seen) == 0 and delivery_method == None:
+				if len(_delivery_methods_seen) == 0 and delivery_method is None:
 					delivery_method = 'bash'
 				elif len(_delivery_methods_seen) == 0:
 					pass
-				elif len(_delivery_methods_seen) == 1 and delivery_method == None:
+				elif len(_delivery_methods_seen) == 1 and delivery_method is None:
 					delivery_method = _delivery_methods_seen.pop()
 				elif len(_delivery_methods_seen) == 1:
 					shutitfile_delivery_method = _delivery_methods_seen.pop()
@@ -586,7 +587,7 @@ def process_args(shutit, args):
 					print('Delivery method passed in: ' + delivery_method)
 					handle_exit(exit_code=1)
 			else:
-				print('ShutItFiles: ' + str(shutitfile) + ' appear to not exist.')
+				print('ShutItFiles: ' + str(_new_shutitfiles) + ' appear to not exist.')
 				handle_exit(exit_code=1)
 		module_directory = args.name
 		if module_directory == '':
@@ -720,7 +721,7 @@ shutitfile:        a shutitfile-based project
 				if not shutit.build['exam']:
 					print('--training or --exam implies --walkthrough, setting --walkthrough on!')
 				shutit.build['walkthrough'] = True
-			if type(args.video) == list and args.video[0] >= 0:
+			if isinstance(args.video, list) and args.video[0] >= 0:
 				shutit.build['walkthrough']      = True
 				shutit.build['walkthrough_wait'] = float(args.video[0])
 				shutit.build['video']            = True
@@ -826,7 +827,7 @@ def load_configs():
 	if shutit.action['list_configs'] or shutit.build['loglevel'] == logging.DEBUG:
 		msg = ''
 		for c in configs:
-			if type(c) is tuple:
+			if isinstance(c, tuple):
 				c = c[0]
 			msg = msg + '    \n' + c
 			shutit.log('    ' + c,level=logging.DEBUG)
@@ -861,14 +862,13 @@ def load_configs():
 				patch_fork=True,
 				activate_on=None,
 				oneshot_on=None,
-				sigmask=manhole.ALL_SIGNALS,
+				sigmask=manhole._ALL_SIGNALS,
 				socket_path=None,
 				reinstall_delay=0.5,
 				locals=None
 			)
 		except Exception:
 			shutit.log('No manhole package available, skipping import',level=logging.DEBUG)
-			pass
 
 
 
@@ -919,11 +919,11 @@ def list_modules(long_output=None,sort_order=None):
 		table_list.append(["Module ID","Description","Built","Compatible"])
 
 	if sort_order == 'run_order':
-		a = {}
+		d = {}
 		for m in shutit.shutit_modules:
-			a.update({m.module_id:m.run_order})
+			d.update({m.module_id:m.run_order})
 		# sort dict by run_order; see http://stackoverflow.com/questions/613183/sort-a-python-dictionary-by-value
-		b = sorted(a.items(), key=operator.itemgetter(1))
+		b = sorted(d.items(), key=operator.itemgetter(1))
 		count = 0
 		# now b is a list of tuples (module_id, run_order)
 		for pair in b:
@@ -935,10 +935,7 @@ def list_modules(long_output=None,sort_order=None):
 					compatible = True
 					if not cfg[m.module_id]['shutit.core.module.build']:
 						cfg[m.module_id]['shutit.core.module.build'] = True
-						if determine_compatibility(m.module_id) == 0:
-							compatible = True
-						else:
-							compatible = False
+						compatible = determine_compatibility(m.module_id) == 0
 						cfg[m.module_id]['shutit.core.module.build'] = False
 					if long_output:
 						table_list.append([str(count),m.module_id,m.description,str(m.run_order),str(cfg[m.module_id]['shutit.core.module.build']),str(compatible)])
@@ -946,21 +943,18 @@ def list_modules(long_output=None,sort_order=None):
 					else:
 						table_list.append([m.module_id,m.description,str(cfg[m.module_id]['shutit.core.module.build']),str(compatible)])
 	elif sort_order == 'id':
-		a = []
+		l = []
 		for m in shutit.shutit_modules:
-			a.append(m.module_id)
-		a.sort()
-		for k in a:
+			l.append(m.module_id)
+		l.sort()
+		for k in l:
 			for m in shutit.shutit_modules:
 				if m.module_id == k:
 					count = 1
 					compatible = True
 					if not cfg[m.module_id]['shutit.core.module.build']:
 						cfg[m.module_id]['shutit.core.module.build'] = True
-						if determine_compatibility(m.module_id) == 0:
-							compatible = True
-						else:
-							compatible = False
+						compatible = determine_compatibility(m.module_id) == 0
 					if long_output:
 						table_list.append([str(count),m.module_id,m.description,str(m.run_order),str(cfg[m.module_id]['shutit.core.module.build']),str(compatible)])
 						#table_list.append([str(count),m.module_id,m.description,str(m.run_order),str(cfg[m.module_id]['shutit.core.module.build'])])
@@ -990,7 +984,6 @@ def list_modules(long_output=None,sort_order=None):
 		f.write(msg)
 		f.close()
 
-
 # TODO: does this still work?
 def print_config(cfg, hide_password=True, history=False, module_id=None):
 	"""Returns a string representing the config of this ShutIt run.
@@ -1009,30 +1002,32 @@ def print_config(cfg, hide_password=True, history=False, module_id=None):
 			if keys2:
 				keys2.sort()
 			for k1 in keys2:
-					line = ''
-					line += k1 + ':'
-					# If we want to hide passwords, we do so using a sha512
-					# done an aritrary number of times (27).
-					if hide_password and (k1 == 'password' or k1 == 'passphrase'):
-						p = hashlib.sha512(cfg[k][k1]).hexdigest()
-						i = 27
-						while i > 0:
-							i -= 1
-							p = hashlib.sha512(s).hexdigest()
-						line += p
-					else:
-						if type(cfg[k][k1] == bool):
-							line += str(cfg[k][k1])
-						elif type(cfg[k][k1] == str):
-							line += cfg[k][k1]
-					if history:
-						try:
-							line += (30-len(line)) * ' ' + ' # ' + cp.whereset(k, k1)
-						except Exception:
-							# Assume this is because it was never set by a config parser.
-							line += (30-len(line)) * ' ' + ' # ' + "defaults in code"
-					s += line + '\n'
+				line = ''
+				line += k1 + ':'
+				# If we want to hide passwords, we do so using a sha512
+				# done an aritrary number of times (27).
+				if hide_password and (k1 == 'password' or k1 == 'passphrase'):
+					p = hashlib.sha512(cfg[k][k1]).hexdigest()
+					i = 27
+					while i > 0:
+						i -= 1
+						p = hashlib.sha512(s).hexdigest()
+					line += p
+				else:
+					if type(cfg[k][k1] == bool):
+						line += str(cfg[k][k1])
+					elif type(cfg[k][k1] == str):
+						line += cfg[k][k1]
+				if history:
+					try:
+						line += (30-len(line)) * ' ' + ' # ' + cp.whereset(k, k1)
+					except Exception:
+						# Assume this is because it was never set by a config parser.
+						line += (30-len(line)) * ' ' + ' # ' + "defaults in code"
+				s += line + '\n'
 	return s
+
+
 
 def set_pexpect_child(key, child):
 	"""Set a pexpect child in the global dictionary by key.
@@ -1120,7 +1115,7 @@ def load_mod_from_file(fpath):
 		if not callable(modulefunc):
 			return
 		modules = modulefunc()
-		if type(modules) is not list:
+		if not isinstance(modules, list):
 			modules = [modules]
 		for module in modules:
 			setattr(module, '__module_file', fpath)
@@ -1160,7 +1155,7 @@ def get_commands():
 	"""
 	s = ''
 	for c in shutit_global.shutit.build['shutit_command_history']:
-		if type(c) == str:
+		if isinstance(c, str):
 			#Ignore commands with leading spaces
 			if c and c[0] != ' ':
 				s += c + '\n'
@@ -1255,6 +1250,7 @@ def print_stack_trace():
 	shutit.log('Stack trace was:\n================================================================================',transient=True)
 	import traceback
 	(a,b,c) = sys.exc_info()
+	shutit.log('sys.exc_info: ' + a + '\n' + b + '\n' + c, transient=True)
 	traceback.print_tb(c)
 	shutit.log('================================================================================',transient=True)
 
@@ -1268,7 +1264,7 @@ def get_wide_hex(char):
 
 # CTRL-\ HANDLING CODE STARTS
 def ctrl_quit_signal_handler(_,frame):
-	print('CRTL-\ caught, hard-exiting ShutIt')
+	print(r'CRTL-\ caught, hard-exiting ShutIt')
 	shutit_frame = get_shutit_frame(frame)
 	if shutit_frame:
 		shutit_main.do_finalize()
@@ -1290,12 +1286,12 @@ def ctrlc_background():
 
 
 def ctrl_c_signal_handler(_,frame):
+	"""CTRL-c signal handler - enters a pause point if it can.
+	"""
 	global ctrl_c_calls
 	ctrl_c_calls += 1
 	if ctrl_c_calls > 10:
 		handle_exit(exit_code=1)
-	"""CTRL-c signal handler - enters a pause point if it can.
-	"""
 	shutit_frame = get_shutit_frame(frame)
 	if in_ctrlc:
 		msg = 'CTRL-C hit twice, quitting'
@@ -1311,7 +1307,7 @@ def ctrl_c_signal_handler(_,frame):
 		if shutit.build['ctrlc_passthrough']:
 			shutit.self.get_current_shutit_pexpect_session().pexpect_child.sendline(r'')
 			return
-		print(colourise(31,"\rYou may need to wait for a command to complete before a pause point is available. Alternatively, CTRL-\ to quit."))
+		print(colourise(31,"\r" + r"You may need to wait for a command to complete before a pause point is available. Alternatively, CTRL-\ to quit."))
 		shutit.build['ctrlc_stop'] = True
 		t = threading.Thread(target=ctrlc_background)
 		t.daemon = True
@@ -1499,7 +1495,7 @@ def config_collection_for_built(throw_error=True,silent=False):
 									override = True
 							if override:
 								continue
-							is_bool = (type(cfg[module_id][option]) == bool)
+							is_bool = isinstance(cfg[module_id][option], bool)
 							if is_bool:
 								value = config_parser.getboolean(section,option)
 							else:
@@ -1626,7 +1622,7 @@ def match_string(string_to_match, regexp):
 	else returns matching group (ie non-None)
 	"""
 	shutit = shutit_global.shutit
-	if type(string_to_match) != str:
+	if not isinstance(string_to_match, str):
 		return None
 	lines = string_to_match.split('\r\n')
 	# sometimes they're separated by just a carriage return...
@@ -1652,7 +1648,7 @@ get_re_from_child = match_string
 
 
 
-def get_input(msg, default='', valid=[], boolean=False, ispass=False, colour='32'):
+def get_input(msg, default='', valid=None, boolean=False, ispass=False, colour='32'):
 	"""Gets input from the user, and returns the answer.
 
 	@param msg:       message to send to user
@@ -1662,12 +1658,12 @@ def get_input(msg, default='', valid=[], boolean=False, ispass=False, colour='32
 	@param ispass:    True if this is a password (ie whether to not echo input)
 	"""
 	shutit = shutit_global.shutit
-	if boolean and valid == []:
+	if boolean and valid is None:
 		valid = ('yes','y','Y','1','true','no','n','N','0','false')
 	answer = util_raw_input(prompt=colourise(colour,msg),ispass=ispass)
 	if boolean and answer in ('', None) and default != '':
 		return default
-	if valid != []:
+	if valid is not None:
 		while answer not in valid:
 			shutit.log('Answer must be one of: ' + str(valid),transient=True)
 			answer = util_raw_input(prompt=colourise(colour,msg),ispass=ispass)
@@ -1683,7 +1679,7 @@ def get_input(msg, default='', valid=[], boolean=False, ispass=False, colour='32
 def get_send_command(send):
 	"""Internal helper function to get command that's really sent
 	"""
-	if send == None:
+	if send is None:
 		return send
 	cmd_arr = send.split()
 	if len(cmd_arr) and cmd_arr[0] in ('md5sum','sed','head'):
