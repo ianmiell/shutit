@@ -1118,6 +1118,7 @@ class ShutItPexpectSession(object):
 			if not shutit.get_current_shutit_pexpect_session_environment().build['apt_update_done'] and self.whoami() == 'root':
 				self.send('apt-get update',loglevel=logging.INFO)
 				shutit.get_current_shutit_pexpect_session_environment().build['apt_update_done'] = True
+			# TODO: check whether it's already installed? dpkg -s git | grep ^Status     Status: install ok installed
 			cmd += 'DEBIAN_FRONTEND=noninteractive apt-get install'
 			if 'apt' in options:
 				opts = options['apt']
