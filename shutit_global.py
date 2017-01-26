@@ -1482,7 +1482,6 @@ class ShutIt(object):
 
 
 	def logout(self,
-	           expect=None,
 	           command='exit',
 	           note=None,
 	           echo=None,
@@ -1491,12 +1490,11 @@ class ShutIt(object):
 		"""Logs the user out. Assumes that login has been called.
 		If login has never been called, throw an error.
 
-			@param expect:          See send()
 			@param command:         Command to run to log out (default=exit)
 			@param note:            See send()
 		"""
 		shutit_pexpect_session = self.get_current_shutit_pexpect_session()
-		return shutit_pexpect_session.logout(expect=expect,command=command,note=note,timeout=timeout,loglevel=loglevel,echo=echo)
+		return shutit_pexpect_session.logout(command=command,note=note,timeout=timeout,loglevel=loglevel,echo=echo)
 	exit_shell = logout
 
 
