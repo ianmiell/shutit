@@ -25,6 +25,7 @@
 
 """ShutIt is a means of building stateless target hosts in a flexible and predictable way.
 """
+from __future__ import print_function
 from distutils import spawn
 import logging
 import os
