@@ -1,7 +1,7 @@
 import sys
 import time
-import shutit_global
 import signal
+import shutit_global
 
 PY3 = (sys.version_info[0] >= 3)
 
@@ -30,6 +30,7 @@ class ShutItExamSessionStage(object):
 		self.num_hints            = 0
 		self.start_time           = None
 		self.end_time             = None
+		self.total_time           = None
 		self.score                = -1
 
 	def __str__(self):
@@ -48,9 +49,9 @@ class ShutItExamSessionStage(object):
 		self.start_time = time.time()
 
 	def end_timer(self):
-		if self.start_time == None:
+		if self.start_time is None:
 			shutit_global.shutit.fail('end_timer called with no start_time set')
-		if self.end_time != None:
+		if self.end_time is not None:
 			shutit_global.shutit.fail('end_time already set')
 		self.end_time = time.time()
 		self.total_time = self.end_time - self.start_time
@@ -86,7 +87,7 @@ class ShutItExamSession(object):
 			string += '\n' + str(stage)
 		string += '\n\nFinal score: ' + str(self.final_score) + '%\n'
 		return string
-		
+
 	def new_stage(self,
 	              difficulty,
 	              reduction_per_minute,
@@ -159,6 +160,7 @@ class ShutItExamSession(object):
 			if stage.result == 'OK':
 				stage.score = stage.difficulty
 				for item in range(0,stage.num_resets):
+					item = item # pylint
 					stage.score = stage.score - (stage.score * stage.reduction_per_reset)
 				for item in range(0,stage.num_hints):
 					stage.score = stage.score - (stage.score * stage.reduction_per_hint)
@@ -179,4 +181,3 @@ class ShutItExamSession(object):
 				stage.score = 0
 		self.final_score = total_score / max_score * 100.00
 		return self.final_score
-
