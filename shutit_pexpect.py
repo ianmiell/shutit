@@ -1120,7 +1120,9 @@ class ShutItPexpectSession(object):
 			if not shutit.get_current_shutit_pexpect_session_environment().build['apt_update_done'] and self.whoami() == 'root':
 				self.send('apt-get update',loglevel=logging.INFO)
 				shutit.get_current_shutit_pexpect_session_environment().build['apt_update_done'] = True
-			# TODO: check whether it's already installed? dpkg -s git | grep ^Status     Status: install ok installed
+			# check whether it's already installed? dpkg -s git | grep ^Status     Status: install ok installed
+			if self.send_and_get_output(' dpkg -s ' + package + """ | grep '^Status: install ok installed' | wc -l""",loglevel=logging.DEBUG) == '1':
+				return True
 			cmd += 'DEBIAN_FRONTEND=noninteractive apt-get install'
 			if 'apt' in options:
 				opts = options['apt']
@@ -1133,6 +1135,7 @@ class ShutItPexpectSession(object):
 				if reinstall:
 					opts += ' --reinstall'
 		elif install_type == 'yum':
+			# TODO: check whether it's already installed?. see yum notes
 			cmd += 'yum install'
 			if 'yum' in options:
 				opts = options['yum']
