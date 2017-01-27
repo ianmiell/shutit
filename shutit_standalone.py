@@ -11,9 +11,9 @@ def create_bash_session(shutit=None):
 	return shutit
 
 
-def create_docker_session(shutit=None, docker_image=None, rm=None, loglevel='info'):
+def create_docker_session(shutit=None, docker_image=None, rm=None, loglevel='INFO'):
 	shutit = shutit or shutit_global.shutit
-	shutit_util.parse_args()
+	shutit_util.parse_args(set_loglevel=loglevel)
 	# Set the configuration up appropriately using overrides.
 	if docker_image:	
 		shutit.build['config_overrides'].append(['build','base_image',docker_image])
@@ -28,7 +28,7 @@ def create_docker_session(shutit=None, docker_image=None, rm=None, loglevel='inf
 
 
 if __name__ == '__main__':
-	shutit = create_docker_session(docker_image='ubuntu:16.04',rm=False, loglevel='debug')
+	shutit = create_docker_session(docker_image='ubuntu:16.04',rm=False, loglevel='DEBUG')
 	#shutit.send('yum update')
 	shutit.send('hostname')
 	shutit.install('git')

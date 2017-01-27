@@ -58,7 +58,7 @@ class ShutIt(object):
 		self.build['interactive']            = 1 # Default to true until we know otherwise
 		self.build['report']                 = ''
 		self.build['report_final_messages']  = ''
-		self.build['loglevel']               = logging.INFO
+		self.build['loglevel']               = None
 		self.build['completed']              = False
 		self.build['mount_docker']           = False
 		self.build['distro_override']        = ''
