@@ -95,6 +95,7 @@ class LayerConfigParser(ConfigParser.RawConfigParser):
 
 	def whereset(self, section, option):
 		for cp, filename, fp in reversed(self.layers):
+			fp = fp # pylint
 			if cp.has_option(section, option):
 				return filename
 		raise ShutItFailException('[%s]/%s was never set' % (section, option))
@@ -104,6 +105,8 @@ class LayerConfigParser(ConfigParser.RawConfigParser):
 		"""
 		values = set()
 		for cp, filename, fp in self.layers:
+			filename = filename # pylint
+			fp = fp # pylint
 			if cp.has_option(section, option):
 				values.add(cp.get(section, option))
 		return values
@@ -117,6 +120,7 @@ class LayerConfigParser(ConfigParser.RawConfigParser):
 		oldlayers = self.layers
 		self.layers = []
 		for cp, filename, fp in oldlayers:
+			cp = cp # pylint
 			if fp is None:
 				self.read(filename)
 			else:
@@ -798,6 +802,8 @@ shutitfile:        a shutitfile-based project
 		# Set up trace as fast as possible.
 		if shutit.build['trace']:
 			def tracefunc(frame, event, arg, indent=[0]):
+				indent = indent # pylint
+				arg = arg # pylint
 				if event == 'call':
 					shutit.log('-> call function: ' + frame.f_code.co_name + ' ' + str(frame.f_code.co_varnames),level=logging.DEBUG)
 				elif event == 'return':
@@ -996,7 +1002,7 @@ def print_config(cfg, hide_password=True, history=False, module_id=None):
 	for k in keys1:
 		if module_id is not None and k != module_id:
 			continue
-		if type(k) == str and type(cfg[k]) == dict:
+		if isinstance(k, str) and isinstance(cfg[k], dict):
 			s += '\n[' + k + ']\n'
 			keys2 = list(cfg[k].keys())
 			if keys2:
@@ -1028,17 +1034,6 @@ def print_config(cfg, hide_password=True, history=False, module_id=None):
 	return s
 
 
-
-def set_pexpect_child(key, child):
-	"""Set a pexpect child in the global dictionary by key.
-	"""
-	shutit_global.shutit.shutit_pexpect_children.update({key:child})
-
-def get_pexpect_child(key):
-	"""Get a pexpect child in the global dictionary by key.
-	"""
-	return shutit_global.shutit.shutit_pexpect_children[key]
-
 def load_all_from_path(path):
 	"""Dynamically imports files within the same directory (in the end, the path).
 	"""
@@ -1050,7 +1045,7 @@ def load_all_from_path(path):
 		return
 	if not os.path.exists(path):
 		return
-	if os.path.exists(path + '/STOPBUILD') and not shutit.shutit.build['ignorestop']:
+	if os.path.exists(path + '/STOPBUILD') and not shutit.build['ignorestop']:
 		shutit.log('Ignoring directory: ' + path + ' as it has a STOPBUILD file in it. Pass --ignorestop to shutit run to override.',level=logging.DEBUG)
 		return
 	for sub in glob.glob(os.path.join(path, '*')):
@@ -1423,6 +1418,7 @@ def config_collection():
 						if option == 'shutit.core.module.allowed_images':
 							override = False
 							for mod, opt, val in shutit.build['config_overrides']:
+								val = val # pylint
 								# skip overrides
 								if mod == module_id and opt == option:
 									override = True
@@ -1474,7 +1470,7 @@ def config_collection_for_built(throw_error=True,silent=False):
 		# Get the config even if installed or building (may be needed in other hooks, eg test).
 		if (is_to_be_built_or_is_installed( shutit.shutit_map[module_id]) and
 			not shutit.shutit_map[module_id].get_config(shutit)):
-				shutit.fail(module_id + ' failed on get_config')
+			shutit.fail(module_id + ' failed on get_config')
 		# Collect the build.cfg if we are building here.
 		# If this file exists, process it.
 		if cfg[module_id]['shutit.core.module.build'] and not shutit.build['have_read_config_file']:
@@ -1490,6 +1486,7 @@ def config_collection_for_built(throw_error=True,silent=False):
 						for option in config_parser.options(section):
 							override = False
 							for mod, opt, val in shutit.build['config_overrides']:
+								val = val # pylint
 								# skip overrides
 								if mod == module_id and opt == option:
 									override = True
@@ -1530,7 +1527,7 @@ def determine_compatibility(module_id):
 	cfg = shutit.cfg
 	# Allowed images
 	if (cfg[module_id]['shutit.core.module.allowed_images'] and shutit.target['docker_image'] not in cfg[module_id]['shutit.core.module.allowed_images']) and not allowed_image(module_id):
-			return 1
+		return 1
 	# Build methods
 	if cfg[module_id]['shutit.core.module.build'] and shutit.build['delivery'] not in shutit.shutit_map[module_id].ok_delivery_methods:
 		return 2
