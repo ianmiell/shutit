@@ -513,6 +513,8 @@ class ShutItPexpectSession(object):
 		if res not in exit_values or res is None:
 			if res is None:
 				res_str = str(res)
+			else:
+				res_str = res
 			shutit.log('shutit_pexpect_child.after: ' + str(self.pexpect_child.after), level=logging.DEBUG)
 			shutit.log('Exit value from command: ' + str(send) + ' was:' + res_str, level=logging.DEBUG)
 			msg = ('\nWARNING: command:\n' + send + '\nreturned unaccepted exit code: ' + res_str + '\nIf this is expected, pass in check_exit=False or an exit_values array into the send function call.')
