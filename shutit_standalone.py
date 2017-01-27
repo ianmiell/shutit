@@ -17,7 +17,7 @@ def create_docker_session(shutit=None, docker_image=None, rm=None, loglevel='inf
 	# Set the configuration up appropriately using overrides.
 	if docker_image:	
 		shutit.build['config_overrides'].append(['build','base_image',docker_image])
-	if rm == True:
+	if rm:
 		shutit.target['rm'] = True
 	# Now 'load' the configs
 	shutit_util.load_configs()
