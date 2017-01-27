@@ -512,18 +512,18 @@ class ShutItPexpectSession(object):
 				break
 		if res not in exit_values or res is None:
 			if res is None:
-				res = str(res)
+				res_str = str(res)
 			shutit.log('shutit_pexpect_child.after: ' + str(self.pexpect_child.after), level=logging.DEBUG)
-			shutit.log('Exit value from command: ' + str(send) + ' was:' + res, level=logging.DEBUG)
-			msg = ('\nWARNING: command:\n' + send + '\nreturned unaccepted exit code: ' + res + '\nIf this is expected, pass in check_exit=False or an exit_values array into the send function call.')
+			shutit.log('Exit value from command: ' + str(send) + ' was:' + res_str, level=logging.DEBUG)
+			msg = ('\nWARNING: command:\n' + send + '\nreturned unaccepted exit code: ' + res_str + '\nIf this is expected, pass in check_exit=False or an exit_values array into the send function call.')
 			shutit.build['report'] += msg
 			if retbool:
 				return False
 			elif shutit.build['interactive'] >= 1:
 				# This is a failure, so we pass in level=0
-				shutit.pause_point(msg + '\n\nInteractive, so not retrying.\nPause point on exit_code != 0 (' + res + '). CTRL-C to quit', shutit_pexpect_child=self.pexpect_child, level=0)
+				shutit.pause_point(msg + '\n\nInteractive, so not retrying.\nPause point on exit_code != 0 (' + res_str + '). CTRL-C to quit', shutit_pexpect_child=self.pexpect_child, level=0)
 			elif retry == 1:
-				shutit.fail('Exit value from command\n' + send + '\nwas:\n' + res, throw_exception=False)
+				shutit.fail('Exit value from command\n' + send + '\nwas:\n' + res_str, throw_exception=False)
 			else:
 				return False
 		return True
