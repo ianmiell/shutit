@@ -68,7 +68,7 @@ class ConnDocker(ShutItConnModule):
 		shutit = shutit_global.shutit
 		host_child = shutit.get_shutit_pexpect_session_from_id(host_shutit_session_name).pexpect_child
 		conn_docker_destroy_container(shutit, host_shutit_session_name, container_shutit_session_name, container_id, loglevel=loglevel)
-		shutit.send(' command docker rm -f ' + container_id + ' && rm -f ' + shutit.build['cidfile'],shutit_pexpect_child=host_child,expect=shutit.expect_prompts['origin_prompt'],loglevel=loglevel)
+		shutit.send(' command docker rm -f ' + container_id + ' && rm -f ' + shutit.build['cidfile'],shutit_pexpect_child=host_child,expect=shutit.expect_prompts['ORIGIN_ENV'],loglevel=loglevel)
 
 	def start_container(self, shutit_session_name, loglevel=logging.DEBUG):
 		return conn_docker_start_container(shutit_global.shutit, shutit_session_name, loglevel=loglevel)
@@ -93,7 +93,7 @@ class ConnDocker(ShutItConnModule):
 		shutit.get_shutit_pexpect_session_from_id('target_child').sendline('exit')
 		host_child = shutit.get_shutit_pexpect_session_from_id('host_child').pexpect_child
 		shutit.set_default_shutit_pexpect_session(host_child)
-		shutit.set_default_shutit_pexpect_session_expect(shutit.expect_prompts['origin_prompt'])
+		shutit.set_default_shutit_pexpect_session_expect(shutit.expect_prompts['ORIGIN_ENV'])
 		shutit.do_repository_work(shutit.repository['name'], docker_executable=shutit.host['docker_executable'], password=shutit.host['password'])
 		# Final exits
 		host_child.sendline('rm -f ' + shutit.build['cidfile']) # Exit raw bash
@@ -387,7 +387,7 @@ def conn_docker_destroy_container(shutit, host_shutit_session_name, container_sh
 	# Close connection.
 	shutit.get_shutit_pexpect_session_from_id(container_shutit_session_name).pexpect_child.close()
 	host_child = shutit.get_shutit_pexpect_session_from_id(host_shutit_session_name).pexpect_child
-	shutit.send(' command docker rm -f ' + container_id + ' && rm -f ' + shutit.build['cidfile'],shutit_pexpect_child=host_child,expect=shutit.expect_prompts['origin_prompt'],loglevel=loglevel)
+	shutit.send(' command docker rm -f ' + container_id + ' && rm -f ' + shutit.build['cidfile'],shutit_pexpect_child=host_child,expect=shutit.expect_prompts['ORIGIN_ENV'],loglevel=loglevel)
 
 
 def setup_host_child_environment(shutit):
@@ -399,7 +399,7 @@ def setup_host_child_environment(shutit):
 	shutit.set_default_shutit_pexpect_session_expect(shutit.expect_prompts['base_prompt'])
 	# ORIGIN_ENV is a special case of the prompt maintained for performance reasons, don't change.
 	prefix = 'ORIGIN_ENV'
-	shutit_pexpect_session.setup_prompt('origin_prompt', prefix=prefix)
+	shutit_pexpect_session.setup_prompt('ORIGIN_ENV', prefix=prefix)
 	shutit_pexpect_session.login_stack_append(prefix)
 
 

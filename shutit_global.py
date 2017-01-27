@@ -1146,7 +1146,7 @@ class ShutIt(object):
 		#Usage:  docker cp [OPTIONS] CONTAINER:PATH LOCALPATH|-
 		# Need: host env, container id, path from and path to
 		shutit_pexpect_child     = self.get_shutit_pexpect_session_from_id('host_child').pexpect_child
-		expect    = self.expect_prompts['origin_prompt']
+		expect    = self.expect_prompts['ORIGIN_ENV']
 		self.send('docker cp ' + self.target['container_id'] + ':' + target_path + ' ' + host_path, shutit_pexpect_child=shutit_pexpect_child, expect=expect, check_exit=False, echo=False, loglevel=loglevel)
 		self.handle_note_after(note=note)
 		return True
@@ -1624,7 +1624,7 @@ class ShutIt(object):
 		"""
 		self.handle_note(note)
 		shutit_pexpect_child = shutit_pexpect_child or self.get_shutit_pexpect_session_from_id('host_child').pexpect_child
-		expect               = expect or self.expect_prompts['origin_prompt']
+		expect               = expect or self.expect_prompts['ORIGIN_ENV']
 		send                 = docker_executable + ' push ' + self.repository['user'] + '/' + repository
 		timeout              = 99999
 		self.log('Running: ' + send,level=logging.INFO)
@@ -1687,7 +1687,7 @@ class ShutIt(object):
 				return True
 
 		shutit_pexpect_child = self.get_shutit_pexpect_session_from_id('host_child').pexpect_child
-		expect    = self.expect_prompts['origin_prompt']
+		expect    = self.expect_prompts['ORIGIN_ENV']
 		server    = self.repository['server']
 		repo_user = self.repository['user']
 		if repo_tag is None:

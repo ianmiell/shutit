@@ -1122,6 +1122,7 @@ class ShutItPexpectSession(object):
 				shutit.get_current_shutit_pexpect_session_environment().build['apt_update_done'] = True
 			# check whether it's already installed? dpkg -s git | grep ^Status     Status: install ok installed
 			if self.send_and_get_output(' dpkg -s ' + package + """ | grep '^Status: install ok installed' | wc -l""",loglevel=logging.DEBUG) == '1':
+				shutit.log(package + ' already installed.',level=loglevel)
 				return True
 			cmd += 'DEBIAN_FRONTEND=noninteractive apt-get install'
 			if 'apt' in options:
@@ -2386,9 +2387,9 @@ $'"""
 			self.send(' command touch ' + path, loglevel=loglevel, echo=echo)
 			# If path is not absolute, add $HOME to it.
 			if path[0] != '/':
-				shutit.send(' command cat ' + tmpfile + ' | ' + shutit.host['docker_executable'] + ' exec -i ' + shutit.target['container_id'] + " bash -c 'cat > $HOME/" + path + "'", shutit_pexpect_child=host_child, expect=shutit.expect_prompts['origin_prompt'], loglevel=loglevel, echo=echo)
+				shutit.send(' command cat ' + tmpfile + ' | ' + shutit.host['docker_executable'] + ' exec -i ' + shutit.target['container_id'] + " bash -c 'cat > $HOME/" + path + "'", shutit_pexpect_child=host_child, expect=shutit.expect_prompts['ORIGIN_ENV'], loglevel=loglevel, echo=echo)
 			else:
-				shutit.send(' command cat ' + tmpfile + ' | ' + shutit.host['docker_executable'] + ' exec -i ' + shutit.target['container_id'] + " bash -c 'cat > " + path + "'", shutit_pexpect_child=host_child, expect=shutit.expect_prompts['origin_prompt'], loglevel=loglevel, echo=echo)
+				shutit.send(' command cat ' + tmpfile + ' | ' + shutit.host['docker_executable'] + ' exec -i ' + shutit.target['container_id'] + " bash -c 'cat > " + path + "'", shutit_pexpect_child=host_child, expect=shutit.expect_prompts['ORIGIN_ENV'], loglevel=loglevel, echo=echo)
 			self.send(' command chown ' + user + ' ' + path + ' && chgrp ' + group + ' ' + path, echo=echo, loglevel=loglevel)
 			os.remove(tmpfile)
 		shutit.handle_note_after(note=note)
