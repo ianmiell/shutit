@@ -315,8 +315,9 @@ class ShutItPexpectSession(object):
 		# haven't figured out why yet - imiell.
 
 		# Split the local prompt into two parts and separate with quotes to protect against the expect matching the command rather than the output.
+		shutit.log('Setting up prompt.', level=logging.INFO)
 		self.send(""" export SHUTIT_BACKUP_PS1_""" + prompt_name + """=$PS1 && PS1='""" + local_prompt[:2] + "''" + local_prompt[2:] + """' && unset PROMPT_COMMAND && stty cols """ + str(shutit.build['stty_cols']), expect=['\r\n' + shutit.expect_prompts[prompt_name]], fail_on_empty_before=False, timeout=5, echo=False, loglevel=loglevel)
-		shutit.log('Resetting default expect to: ' + shutit.expect_prompts[prompt_name],level=logging.DEBUG)
+		shutit.log('Resetting default expect to: ' + shutit.expect_prompts[prompt_name],level=loglevel)
 		self.default_expect = shutit.expect_prompts[prompt_name]
 		hostname = shutit.send_and_get_output("""if [[ $(echo $SHELL) == '/bin/bash' ]]; then echo $HOSTNAME; elif [[ $(command hostname 2> /dev/null) != '' ]]; then hostname -s; fi""", echo=False)
 		local_prompt_with_hostname = hostname + ':' + local_prompt
@@ -324,7 +325,7 @@ class ShutItPexpectSession(object):
 		self.default_expect = shutit.expect_prompts[prompt_name]
 
 		# Split the local prompt into two parts and separate with quotes to protect against the expect matching the command rather than the output.
-		shutit.send("""PS1='""" + shutit.expect_prompts[prompt_name][:2] + "''" + shutit.expect_prompts[prompt_name][2:] + """'""", echo=False)
+		shutit.send("""PS1='""" + shutit.expect_prompts[prompt_name][:2] + "''" + shutit.expect_prompts[prompt_name][2:] + """'""", echo=False, loglevel=loglevel)
 
 		# These two lines are required to make the terminal sane. They are best endeavours,
 		# they might fail (eg if we are not in bash) so we keep them separate and do not check whether it succeeded.
