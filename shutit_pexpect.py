@@ -469,7 +469,7 @@ class ShutItPexpectSession(object):
 
 
 
-	def _check_last_exit_values(self,
+	def check_last_exit_values(self,
 	                            send,
 	                            expect=None,
 	                            exit_values=None,
@@ -925,8 +925,8 @@ class ShutItPexpectSession(object):
 				send = command + ' ' + location + '/' + filename + ' > ' + filename
 				self.send(send,check_exit=False,expect=self.default_expect,timeout=timeout,fail_on_empty_before=fail_on_empty_before,record_command=record_command,echo=False, loglevel=loglevel)
 				if retry == 0:
-					self._check_last_exit_values(send, expect=self.default_expect, exit_values=exit_values, retbool=False)
-				elif not self._check_last_exit_values(send, expect=self.default_expect, exit_values=exit_values, retbool=True):
+					self.check_last_exit_values(send, expect=self.default_expect, exit_values=exit_values, retbool=False)
+				elif not self.check_last_exit_values(send, expect=self.default_expect, exit_values=exit_values, retbool=True):
 					shutit.log('Sending: ' + send + ' failed, retrying', level=logging.DEBUG)
 					retry -= 1
 					continue
@@ -982,13 +982,13 @@ class ShutItPexpectSession(object):
 		shutit.handle_note(note)
 		if self.current_environment.install_type == 'apt':
 			#            v the space is intentional, to avoid polluting bash history.
-			self.send(""" dpkg -l | awk '{print $2}' | grep "^""" + package + """$" | wc -l""", expect=self.default_expect, check_exit=False, echo=False, loglevel=loglevel)
+			return self.send_and_get_output(' dpkg -s ' + package + """ | grep '^Status: install ok installed' | wc -l""",loglevel=logging.DEBUG) == '1'
 		elif self.current_environment.install_type == 'yum':
-			#            v the space is intentional, to avoid polluting bash history.
-			self.send(""" yum list installed | awk '{print $1}' | grep "^""" + package + """$" | wc -l""", expect=self.default_expect, check_exit=False, echo=False, loglevel=loglevel)
+			# TODO: check whether it's already installed?. see yum notes  yum list installed "$@" >/dev/null 2>&1
+			self.send(' yum list installed ' + package + ' > /dev/null 2>&1',check_exit=False,loglevel=logging.DEBUG)
+			return self.get_exit_value(shutit)
 		else:
 			return False
-		return shutit_util.match_string(self.pexpect_child.before, '^([0-9]+)$') != '0'
 
 
 
@@ -1116,14 +1116,13 @@ class ShutItPexpectSession(object):
 			return True
 		opts = ''
 		cmd = ''
+		if self.package_installed(package):
+			shutit.log(package + ' already installed.',level=loglevel)
+			return True
 		if install_type == 'apt':
 			if not shutit.get_current_shutit_pexpect_session_environment().build['apt_update_done'] and self.whoami() == 'root':
 				self.send('apt-get update',loglevel=logging.INFO)
 				shutit.get_current_shutit_pexpect_session_environment().build['apt_update_done'] = True
-			# check whether it's already installed? dpkg -s git | grep ^Status     Status: install ok installed
-			if self.send_and_get_output(' dpkg -s ' + package + """ | grep '^Status: install ok installed' | wc -l""",loglevel=logging.DEBUG) == '1':
-				shutit.log(package + ' already installed.',level=loglevel)
-				return True
 			cmd += 'DEBIAN_FRONTEND=noninteractive apt-get install'
 			if 'apt' in options:
 				opts = options['apt']
@@ -1136,7 +1135,7 @@ class ShutItPexpectSession(object):
 				if reinstall:
 					opts += ' --reinstall'
 		elif install_type == 'yum':
-			# TODO: check whether it's already installed?. see yum notes
+			# TODO: check whether it's already installed?. see yum notes  yum list installed "$@" >/dev/null 2>&1
 			cmd += 'yum install'
 			if 'yum' in options:
 				opts = options['yum']
@@ -2285,7 +2284,7 @@ $'"""
 			shutit.build['last_output'] = '\n'.join(self.pexpect_child.before.split('\n')[1:])
 			if check_exit:
 				# store the output
-				if not self._check_last_exit_values(send, expect=expect, exit_values=exit_values, retry=retry):
+				if not self.check_last_exit_values(send, expect=expect, exit_values=exit_values, retry=retry):
 					if not secret:
 						shutit.log('Sending: ' + send + ' : failed, retrying', level=logging.DEBUG)
 					else:

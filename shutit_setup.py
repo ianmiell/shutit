@@ -366,7 +366,7 @@ def conn_docker_start_container(shutit, shutit_session_name, loglevel=logging.DE
 			continue
 	# Did the pull work?
 	shutit.log('Checking exit status',level=loglevel)
-	if not shutit_pexpect_session._check_last_exit_values(was_sent):
+	if not shutit_pexpect_session.check_last_exit_values(was_sent):
 		shutit_global.shutit.pause_point('Command:\n\n' + was_sent + '\n\nfailed, you have a shell to try rectifying the problem before continuing.')
 	shutit.log('Getting cid',level=loglevel)
 	# Get the cid
