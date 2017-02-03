@@ -981,15 +981,16 @@ class ShutItPexpectSession(object):
 		"""
 		shutit = shutit_global.shutit
 		shutit.handle_note(note)
-		if self.current_environment.install_type == 'apt':
-			#            v the space is intentional, to avoid polluting bash history.
-			return self.send_and_get_output(' dpkg -s ' + package + """ | grep '^Status: install ok installed' | wc -l""",loglevel=logging.DEBUG) == '1'
-		elif self.current_environment.install_type == 'yum':
-			# TODO: check whether it's already installed?. see yum notes  yum list installed "$@" >/dev/null 2>&1
-			self.send(' yum list installed ' + package + ' > /dev/null 2>&1',check_exit=False,loglevel=logging.DEBUG)
-			return self.get_exit_value(shutit)
-		else:
-			return False
+		# THIS DOES NOT WORK - WHY? TODO
+		#if self.current_environment.install_type == 'apt':
+		#	#            v the space is intentional, to avoid polluting bash history.
+		#	return self.send_and_get_output(' dpkg -s ' + package + """ | grep '^Status: install ok installed' | wc -l""",loglevel=logging.DEBUG) == '1'
+		#elif self.current_environment.install_type == 'yum':
+		#	# TODO: check whether it's already installed?. see yum notes  yum list installed "$@" >/dev/null 2>&1
+		#	self.send(' yum list installed ' + package + ' > /dev/null 2>&1',check_exit=False,loglevel=logging.DEBUG)
+		#	return self.get_exit_value(shutit)
+		#else:
+		return False
 
 
 
