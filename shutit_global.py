@@ -292,13 +292,14 @@ class ShutIt(object):
 	                     shutit_pexpect_child=None,
 	                     echo=None,
 	                     note=None,
+	                     debug_command=None,
 	                     loglevel=logging.INFO):
 		"""Send string and require the item in the output.
 		See send_until
 	    """
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
 		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
-		return shutit_pexpect_session.send_and_require(send,regexps,not_there=not_there,echo=echo,note=note,loglevel=loglevel)
+		return shutit_pexpect_session.send_and_require(send,regexps,not_there=not_there,echo=echo,note=note,loglevel=loglevel,debug_command=debug_command)
 
 
 	def send_until(self,

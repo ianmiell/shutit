@@ -1708,6 +1708,7 @@ class ShutItPexpectSession(object):
 	               retries=100,
 	               echo=None,
 	               note=None,
+	               debug_command=None,
 	               loglevel=logging.INFO):
 		"""Send string on a regular cadence until a string is either seen, or the timeout is triggered.
 
@@ -1747,6 +1748,8 @@ class ShutItPexpectSession(object):
 				if missing:
 					shutit.handle_note_after(note=note)
 					return True
+			if debug_command is not None:
+				self.send(debug_command, check_exit=False, echo=echo, loglevel=loglevel)
 			time.sleep(cadence)
 		shutit.handle_note_after(note=note)
 		return False
