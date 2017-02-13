@@ -292,14 +292,13 @@ class ShutIt(object):
 	                     shutit_pexpect_child=None,
 	                     echo=None,
 	                     note=None,
-	                     pause_point_on_fail=True,
 	                     loglevel=logging.INFO):
 		"""Send string and require the item in the output.
 		See send_until
 	    """
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
 		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
-		return shutit_pexpect_session.send_and_require(send,regexps,not_there=not_there,echo=echo,note=note,loglevel=loglevel,pause_point_on_fail=pause_point_on_fail)
+		return shutit_pexpect_session.send_and_require(send,regexps,not_there=not_there,echo=echo,note=note,loglevel=loglevel)
 
 
 	def send_until(self,
@@ -312,6 +311,7 @@ class ShutIt(object):
 	               echo=None,
 	               note=None,
 	               debug_command=None,
+	               pause_point_on_fail=True,
 	               loglevel=logging.INFO):
 		"""Send string on a regular cadence until a string is either seen, or the timeout is triggered.
 
@@ -325,7 +325,7 @@ class ShutIt(object):
 		"""
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
 		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
-		return shutit_pexpect_session.send_until(send,regexps,not_there=not_there,cadence=cadence,retries=retries,echo=echo,note=note,loglevel=loglevel,debug_command=debug_command)
+		return shutit_pexpect_session.send_until(send,regexps,not_there=not_there,cadence=cadence,retries=retries,echo=echo,note=note,loglevel=loglevel,debug_command=debug_command,pause_point_on_fail=pause_point_on_fail)
 
 
 	def challenge(self,
