@@ -1731,6 +1731,7 @@ class ShutItPexpectSession(object):
 			retries -= 1
 			echo = self.get_echo_override(shutit, echo)
 			output = self.send_and_get_output(send, retry=1, strip=True,echo=echo, loglevel=loglevel, fail_on_empty_before=False)
+			shutit.log('Failed to match regexps -> ' + str(regexps) + ' <- retries left:' + str(retries),level=loglevel)
 			if not not_there:
 				for regexp in regexps:
 					if not shutit_util.check_regexp(regexp):
