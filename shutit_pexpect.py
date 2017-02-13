@@ -1709,6 +1709,7 @@ class ShutItPexpectSession(object):
 	               echo=None,
 	               note=None,
 	               debug_command=None,
+	               pause_point_on_fail=True,
 	               loglevel=logging.INFO):
 		"""Send string on a regular cadence until a string is either seen, or the timeout is triggered.
 
@@ -1752,7 +1753,10 @@ class ShutItPexpectSession(object):
 				self.send(debug_command, check_exit=False, echo=echo, loglevel=loglevel)
 			time.sleep(cadence)
 		shutit.handle_note_after(note=note)
-		return False
+		if pause_point_on_fail:
+			shutit.pause_point('send_until failed sending: ' + send + '\r\nand expecting: ' + str(regexps))
+		else:
+			return False
 
 
 	def change_text(self,
