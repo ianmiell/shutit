@@ -34,7 +34,7 @@ def setup_vagrant_pattern(skel_path,
 		machine_stanzas += ('''\n  config.vm.define "''' + machine_name + '''" do |''' + machine_name + '''|
     ''' + machine_name + """.vm.box = ''' + '"' + vagrant_image + '"' + '''
     """ + machine_name + '''.vm.hostname = "''' + machine_fqdn + '''"''' +
-    '''\n  config.vm.provider :virtualbox do |vb|\n    vb.name = "''' + skel_module_name + '_' + str(m) + '''"\n  end
+    '''\n    config.vm.provider :virtualbox do |vb|\n      vb.name = "''' + skel_module_name + '_' + str(m) + '''"\n    end
   end''')
 		machine_list_code += """\n\t\tmachines.update({'""" + machine_name + """':{'fqdn':'""" + machine_fqdn + """'}})"""
 		machine_list_code += """\n\t\tip = shutit.send_and_get_output('''vagrant landrush ls 2> /dev/null | grep -w ^''' + machines['""" + machine_name + """']['fqdn'] + ''' | awk '{print $2}' ''')"""
