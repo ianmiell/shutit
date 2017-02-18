@@ -471,11 +471,11 @@ class ShutItPexpectSession(object):
 
 
 	def check_last_exit_values(self,
-	                            send,
-	                            expect=None,
-	                            exit_values=None,
-	                            retry=0,
-	                            retbool=False):
+	                           send,
+	                           expect=None,
+	                           exit_values=None,
+	                           retry=0,
+	                           retbool=False):
 		"""Internal function to check the exit value of the shell. Do not use.
 		"""
 		shutit = shutit_global.shutit
@@ -491,7 +491,7 @@ class ShutItPexpectSession(object):
 		# Space before "echo" here is sic - we don't need this to show up in bash history
 		self.sendline(' echo EXIT_CODE:$?')
 		while True:
-			# Sometimes pexpect gets confused at this point, so we expect again until all appears ok.
+			# Sometimes pexpect gets confused at this point (TODO why?), so we expect again until all appears ok.
 			shutit.log('Expecting: ' + str(expect),level=logging.DEBUG)
 			self.expect(expect,timeout=5)
 			res = shutit_util.match_string(str(self.pexpect_child.before), '^EXIT_CODE:([0-9][0-9]?[0-9]?)$')
