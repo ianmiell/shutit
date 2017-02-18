@@ -55,6 +55,7 @@ PACKAGE_MAP = {
 	'libvirt-devel':         {'apt':'libvirt-dev',        'yum':'libvirt-devel'},
 	'docker':                {'apt':'docker.io',          'yum':'docker'},
 	'asciinema':             {'apt':'asciinema',          'yum':'epel-release asciinema'},
+	'run-one':               {'yum':''},
 }
 
 
