@@ -315,7 +315,7 @@ class ShutItPexpectSession(object):
 		# haven't figured out why yet - imiell.
 
 		# Split the local prompt into two parts and separate with quotes to protect against the expect matching the command rather than the output.
-		shutit.log('Setting up prompt.', level=logging.INFO)
+		shutit.log('Setting up prompt.', level=logging.DEBUG)
 		self.send(""" export SHUTIT_BACKUP_PS1_""" + prompt_name + """=$PS1 && PS1='""" + local_prompt[:2] + "''" + local_prompt[2:] + """' && unset PROMPT_COMMAND && stty cols """ + str(shutit.build['stty_cols']), expect=['\r\n' + shutit.expect_prompts[prompt_name]], fail_on_empty_before=False, echo=False, loglevel=loglevel)
 		shutit.log('Resetting default expect to: ' + shutit.expect_prompts[prompt_name],level=loglevel)
 		self.default_expect = shutit.expect_prompts[prompt_name]
