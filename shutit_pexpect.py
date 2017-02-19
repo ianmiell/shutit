@@ -490,27 +490,27 @@ class ShutItPexpectSession(object):
 		# Don't use send here (will mess up last_output)!
 		# Space before "echo" here is sic - we don't need this to show up in bash history
 		self.sendline(' echo EXIT_CODE:$?')
-		while True:
+		#while True:
 			# Sometimes pexpect gets confused at this point (TODO why?), so we expect again until all appears ok.
-			shutit.log('Expecting: ' + str(expect),level=logging.DEBUG)
-			self.expect(expect,timeout=5)
-			res = shutit_util.match_string(str(self.pexpect_child.before), '^EXIT_CODE:([0-9][0-9]?[0-9]?)$')
-			if res is None and (isinstance(self.pexpect_child.before, pexpect.exceptions.EOF) or isinstance(self.pexpect_child.after, pexpect.exceptions.EOF)):
-				shutit_util.handle_exit(1)
-			if res is None:
-				# Try before without anchor - sometimes needed when logging into obscure shells
-				shutit.log('Un-clean login (1), trying: ' + str(self.pexpect_child.before), level=logging.DEBUG)
-				res = shutit_util.match_string(str(self.pexpect_child.before), '.*EXIT_CODE:([0-9][0-9]?[0-9]?)$')
-			if res is None:
-				# Try after - for some reason needed after login
-				shutit.log('Un-clean login (2), trying: ' + str(self.pexpect_child.after), level=logging.DEBUG)
-				res = shutit_util.match_string(str(self.pexpect_child.after), '^EXIT_CODE:([0-9][0-9]?[0-9]?)$')
-			if res is None:
-				# Try after without anchor - sometimes needed when logging into obscure
-				shutit.log('Un-clean login (3), trying: ' + str(self.pexpect_child.after), level=logging.DEBUG)
-				res = shutit_util.match_string(str(self.pexpect_child.after), '^.*EXIT_CODE:([0-9][0-9]?[0-9]?)$')
-			if res != None:
-				break
+		shutit.log('Expecting: ' + str(expect),level=logging.DEBUG)
+		self.expect(expect,timeout=60)
+		res = shutit_util.match_string(str(self.pexpect_child.before), '^EXIT_CODE:([0-9][0-9]?[0-9]?)$')
+			#if res is None and (isinstance(self.pexpect_child.before, pexpect.exceptions.EOF) or isinstance(self.pexpect_child.after, pexpect.exceptions.EOF)):
+			#	shutit_util.handle_exit(1)
+			#if res is None:
+			#	# Try before without anchor - sometimes needed when logging into obscure shells
+			#	shutit.log('Un-clean login (1), trying: ' + str(self.pexpect_child.before), level=logging.DEBUG)
+			#	res = shutit_util.match_string(str(self.pexpect_child.before), '.*EXIT_CODE:([0-9][0-9]?[0-9]?)$')
+			#if res is None:
+			#	# Try after - for some reason needed after login
+			#	shutit.log('Un-clean login (2), trying: ' + str(self.pexpect_child.after), level=logging.DEBUG)
+			#	res = shutit_util.match_string(str(self.pexpect_child.after), '^EXIT_CODE:([0-9][0-9]?[0-9]?)$')
+			#if res is None:
+			#	# Try after without anchor - sometimes needed when logging into obscure
+			#	shutit.log('Un-clean login (3), trying: ' + str(self.pexpect_child.after), level=logging.DEBUG)
+			#	res = shutit_util.match_string(str(self.pexpect_child.after), '^.*EXIT_CODE:([0-9][0-9]?[0-9]?)$')
+			#if res != None:
+			#	break
 		if res not in exit_values or res is None:
 			if res is None:
 				res_str = str(res)
