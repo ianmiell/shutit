@@ -70,7 +70,7 @@ class ShutItExamSession(object):
 		self.stages           = []
 		self.num_stages       = num_stages
 		self.final_score      = 0.0
-		self.curr_stage       = len(self.stages)
+		self.curr_stage       = len(self.stages)+1
 		# Switch off CTRL-C etc
 		signal.signal(signal.SIGINT, signal.SIG_IGN)
 		signal.signal(signal.SIGQUIT, signal.SIG_IGN)
@@ -97,7 +97,7 @@ class ShutItExamSession(object):
 		difficulty = float(difficulty)
 		stage = ShutItExamSessionStage(difficulty,reduction_per_minute,reduction_per_reset,reduction_per_hint,grace_period)
 		self.stages.append(stage)
-		self.curr_stage = len(self.stages)
+		self.curr_stage = len(self.stages)+1
 		return stage
 
 	def add_reset(self):

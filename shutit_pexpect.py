@@ -2542,7 +2542,6 @@ $'"""
 		"""
 		shutit = shutit_global.shutit
 		if new_stage and shutit.build['exam_object']:
-			shutit.build['exam_object'].new_stage(difficulty)
 			if num_stages is None:
 				num_stages = shutit.build['exam_object'].num_stages
 			elif shutit.build['exam_object'].num_stages < 1:
