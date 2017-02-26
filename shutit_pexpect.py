@@ -92,20 +92,20 @@ class ShutItPexpectSession(object):
 
 
 	def _spawn_child(self,
-					command,
-					args=None,
-					timeout=30,
-					maxread=2000,
-					searchwindowsize=None,
-					logfile=None,
-					env=None,
-					ignore_sighup=False,
-					echo=True,
-					preexec_fn=None,
-					encoding=None,
-					codec_errors='strict',
-					dimensions=None,
-					delaybeforesend=0.05):
+	                 command,
+	                 args=None,
+	                 timeout=30,
+	                 maxread=2000,
+	                 searchwindowsize=None,
+	                 logfile=None,
+	                 env=None,
+	                 ignore_sighup=False,
+	                 echo=True,
+	                 preexec_fn=None,
+	                 encoding=None,
+	                 codec_errors='strict',
+	                 dimensions=None,
+	                 delaybeforesend=0.05):
 		"""spawn a child, and manage the delaybefore send setting to 0
 		"""
 		shutit = shutit_global.shutit
@@ -132,17 +132,17 @@ class ShutItPexpectSession(object):
 
 
 	def login(self,
-			  user='root',
-			  command='su -',
-			  password=None,
-			  prompt_prefix=None,
-			  expect=None,
-			  timeout=180,
-			  escape=False,
+	          user='root',
+	          command='su -',
+	          password=None,
+	          prompt_prefix=None,
+	          expect=None,
+	          timeout=180,
+	          escape=False,
 	          echo=None,
-			  note=None,
-			  go_home=True,
-			  loglevel=logging.DEBUG,
+	          note=None,
+	          go_home=True,
+	          loglevel=logging.DEBUG,
 	          fail_on_fail=True):
 		"""Logs the user in with the passed-in password and command.
 		Tracks the login. If used, used logout to log out again.
@@ -371,10 +371,10 @@ class ShutItPexpectSession(object):
 
 
 	def expect(self,
-			   expect,
+	           expect,
 	           searchwindowsize=None,
 	           maxread=None,
-			   timeout=None):
+	           timeout=None):
 		"""Handle child expects, with EOF and TIMEOUT handled
 		"""
 		if isinstance(expect, str):
@@ -495,22 +495,24 @@ class ShutItPexpectSession(object):
 			shutit.log('Expecting: ' + str(expect),level=logging.DEBUG)
 			self.expect(expect,timeout=60)
 			res = shutit_util.match_string(str(self.pexpect_child.before), '^EXIT_CODE:([0-9][0-9]?[0-9]?)$')
-			if res is None and (isinstance(self.pexpect_child.before, pexpect.exceptions.EOF) or isinstance(self.pexpect_child.after, pexpect.exceptions.EOF)):
-				shutit_util.handle_exit(1)
-			if res is None:
-				# Try before without anchor - sometimes needed when logging into obscure shells
-				shutit.log('Un-clean login (1), trying: ' + str(self.pexpect_child.before), level=logging.DEBUG)
-				res = shutit_util.match_string(str(self.pexpect_child.before), '.*EXIT_CODE:([0-9][0-9]?[0-9]?)$')
-			if res is None:
-				# Try after - for some reason needed after login
-				shutit.log('Un-clean login (2), trying: ' + str(self.pexpect_child.after), level=logging.DEBUG)
-				res = shutit_util.match_string(str(self.pexpect_child.after), '^EXIT_CODE:([0-9][0-9]?[0-9]?)$')
-			if res is None:
-				# Try after without anchor - sometimes needed when logging into obscure
-				shutit.log('Un-clean login (3), trying: ' + str(self.pexpect_child.after), level=logging.DEBUG)
-				res = shutit_util.match_string(str(self.pexpect_child.after), '^.*EXIT_CODE:([0-9][0-9]?[0-9]?)$')
-			if res != None:
-				break
+			break
+			# Legacy code thought no longer required. Delete when forgotten.
+			#if res is None and (isinstance(self.pexpect_child.before, pexpect.exceptions.EOF) or isinstance(self.pexpect_child.after, pexpect.exceptions.EOF)):
+			#	shutit_util.handle_exit(1)
+			#if res is None:
+			#	# Try before without anchor - sometimes needed when logging into obscure shells
+			#	shutit.log('Un-clean login (1), trying: ' + str(self.pexpect_child.before), level=logging.DEBUG)
+			#	res = shutit_util.match_string(str(self.pexpect_child.before), '.*EXIT_CODE:([0-9][0-9]?[0-9]?)$')
+			#if res is None:
+			#	# Try after - for some reason needed after login
+			#	shutit.log('Un-clean login (2), trying: ' + str(self.pexpect_child.after), level=logging.DEBUG)
+			#	res = shutit_util.match_string(str(self.pexpect_child.after), '^EXIT_CODE:([0-9][0-9]?[0-9]?)$')
+			#if res is None:
+			#	# Try after without anchor - sometimes needed when logging into obscure
+			#	shutit.log('Un-clean login (3), trying: ' + str(self.pexpect_child.after), level=logging.DEBUG)
+			#	res = shutit_util.match_string(str(self.pexpect_child.after), '^.*EXIT_CODE:([0-9][0-9]?[0-9]?)$')
+			#if res != None:
+			#	break
 		if res not in exit_values or res is None:
 			if res is None:
 				res_str = str(res)
@@ -1972,10 +1974,10 @@ class ShutItPexpectSession(object):
 
 
 	def remove_line_from_file(self,
-							  line,
-							  filename,
-							  match_regexp=None,
-							  literal=False,
+	                          line,
+	                          filename,
+	                          match_regexp=None,
+	                          literal=False,
 	                          note=None,
 	                          loglevel=logging.DEBUG):
 		"""Removes line from file, if it exists.
@@ -2043,11 +2045,11 @@ class ShutItPexpectSession(object):
 	         note=None,
 	         assume_gnu=True,
 	         follow_on_commands=None,
-		     searchwindowsize=None,
-		     maxread=None,
-		     delaybeforesend=None,
-		     secret=False,
-		     loglevel=logging.INFO):
+	         searchwindowsize=None,
+	         maxread=None,
+	         delaybeforesend=None,
+	         secret=False,
+	         loglevel=logging.INFO):
 		"""Send string as a shell command, and wait until the expected output
 		is seen (either a string or any from a list of strings) before
 		returning. The expected string will default to the currently-set
@@ -2503,11 +2505,11 @@ $'"""
 
 
 	def challenge(self,
-                  task_desc,
-                  expect=None,
-                  hints=None,
-                  congratulations='OK',
-                  failed='FAILED',
+	              task_desc,
+	              expect=None,
+	              hints=None,
+	              congratulations='OK',
+	              failed='FAILED',
 	              expect_type='exact',
 	              challenge_type='command',
 	              timeout=None,
