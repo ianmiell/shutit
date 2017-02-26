@@ -519,10 +519,10 @@ class ShutIt(object):
 
 
 	def expect_allow_interrupt(self,
-	                            shutit_pexpect_child,
-	                            expect,
-	                            timeout,
-	                            iteration_s=1):
+	                           shutit_pexpect_child,
+	                           expect,
+	                           timeout,
+	                           iteration_s=1):
 		"""This function allows you to interrupt the run at more or less any
 		point by breaking up the timeout into interactive chunks.
 		"""
