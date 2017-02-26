@@ -1487,7 +1487,7 @@ class ShutIt(object):
 	           command='exit',
 	           note=None,
 	           echo=None,
-	           timeout=5,
+	           timeout=300,
 	           loglevel=logging.DEBUG):
 		"""Logs the user out. Assumes that login has been called.
 		If login has never been called, throw an error.
