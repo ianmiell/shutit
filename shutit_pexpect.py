@@ -1401,7 +1401,8 @@ class ShutItPexpectSession(object):
 			self.send(send, check_exit=False, retry=retry, echo=echo, timeout=timeout, record_command=record_command, loglevel=loglevel, fail_on_empty_before=fail_on_empty_before)
 			before = self.pexpect_child.before
 
-		preserve_newline = bool(preserve_newline and before[-1] == '\n')
+		if len(before):
+			preserve_newline = bool(preserve_newline and before[-1] == '\n')
 		# Remove the command we ran in from the output.
 		before = before.strip(send)
 		shutit.handle_note_after(note=note)
