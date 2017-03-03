@@ -490,13 +490,10 @@ class ShutItPexpectSession(object):
 		# Don't use send here (will mess up last_output)!
 		# Space before "echo" here is sic - we don't need this to show up in bash history
 		self.sendline(' echo EXIT_CODE:$?')
-		while True:
-			# Sometimes pexpect gets confused at this point (TODO why? - repro'd in shutitfiles test, stalls after a login), so we expect again until all appears ok.
-			shutit.log('Expecting: ' + str(expect),level=logging.DEBUG)
-			self.expect(expect,timeout=60)
-			res = shutit_util.match_string(str(self.pexpect_child.before), '^EXIT_CODE:([0-9][0-9]?[0-9]?)$')
-			break
-			# Legacy code thought no longer required. Delete when forgotten.
+		shutit.log('Expecting: ' + str(expect),level=logging.DEBUG)
+		self.expect(expect,timeout=60)
+		res = shutit_util.match_string(str(self.pexpect_child.before), '^EXIT_CODE:([0-9][0-9]?[0-9]?)$')
+			# Legacy code thought no longer required. Delete when forgotten about.
 			#if res is None and (isinstance(self.pexpect_child.before, pexpect.exceptions.EOF) or isinstance(self.pexpect_child.after, pexpect.exceptions.EOF)):
 			#	shutit_util.handle_exit(1)
 			#if res is None:
