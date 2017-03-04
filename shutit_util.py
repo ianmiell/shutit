@@ -281,6 +281,7 @@ def setup_logging(shutit):
 		else:
 			logging.basicConfig(format=logformat,level=logging.INFO)
 	else:
+		shutit.build['loglevel'] = shutit.build['loglevel'].upper()
 		if shutit.build['loglevel'] == 'DEBUG':
 			logging.basicConfig(format=logformat,filename=shutit.host['logfile'],level=logging.DEBUG)
 		elif shutit.build['loglevel'] == 'ERROR':
