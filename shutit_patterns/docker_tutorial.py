@@ -145,7 +145,6 @@ popd''')
 	os.chmod(build_bin_filename,0o755)
 	run_bin_filename   = skel_path + '/bin/run.sh'
 	run_bin_file = open(run_bin_filename,'w+')
-TODO: build up	
 	os.system('mkdir -p ' + skel_path + '/configs')
 
 	push_cnf_filename = skel_path + '/configs/push.cnf'
