@@ -2641,6 +2641,8 @@ $'"""
 			while not ok:
 				if shutit.build['exam_object'] and new_stage:
 					shutit.build['exam_object'].start_timer()
+					# Set the new_stage to False, as we're in a loop that doesn't need to mark a new state.
+					new_stage = False
 				self.pause_point(shutit_util.colourise('31',task_desc_new),colour='31')
 				if shutit.shutit_signal['ID'] == 8:
 					if shutit.build['exam_object']:
