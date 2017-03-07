@@ -572,8 +572,8 @@ def main():
 	do_finalize()
 	finalize_target()
 	shutit.log(shutit_util.build_report('#Module: N/A (END)'), level=logging.DEBUG)
-	do_final_messages(shutit)
 	do_exam_output(shutit)
+	do_final_messages(shutit)
 
 	# Mark the build as completed
 	shutit.build['completed'] = True
