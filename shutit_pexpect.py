@@ -3154,7 +3154,11 @@ $'"""
 						continue
 		else:
 			shutit.fail('Challenge type: ' + challenge_type + ' not supported')
-		self._challenge_done(result='ok',follow_on_context=follow_on_context,congratulations=congratulations,skipped=skipped,final_stage=final_stage)
+		self._challenge_done(result='ok',
+		                     follow_on_context=follow_on_context,
+		                     congratulations=congratulations,
+		                     skipped=skipped,
+		                     final_stage=final_stage)
 		if shutit.build['exam_object']:
 			shutit.build['exam_object'].add_ok()
 			shutit.build['exam_object'].end_timer()
