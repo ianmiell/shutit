@@ -2967,6 +2967,8 @@ $'"""
 			                                      reduction_per_reset=reduction_per_reset,
 			                                      reduction_per_hint=reduction_per_hint,
 			                                      grace_period=grace_period)
+			# If this is an exam, then remove history.
+			shutit.send(' history -c', check_exit=False)
 		# don't catch CTRL-C, pass it through.
 		shutit.build['ctrlc_passthrough'] = True
 		preserve_newline                  = False
