@@ -642,7 +642,7 @@ def do_exam_output(shutit):
 		test = shutit.build['exam_object']
 		test.calculate_score()
 		test_output = str(test)
-		shutit.send_file('/tmp/exam_output',test_output)
+		shutit.send_file('/tmp/shutit_exam_output',test_output)
 		shutit.log(test_output,level=logging.CRITICAL)
 
 
