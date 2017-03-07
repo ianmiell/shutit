@@ -282,7 +282,19 @@ class ShutIt(object):
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
 		expect = expect or self.get_current_shutit_pexpect_session().default_expect
 		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
-		return shutit_pexpect_session.multisend(send,send_dict,expect=expect,timeout=timeout,check_exit=check_exit,fail_on_empty_before=fail_on_empty_before,record_command=record_command,exit_values=exit_values,escape=escape,echo=echo,note=note,loglevel=loglevel,secret=False)
+		return shutit_pexpect_session.multisend(send,
+		                                        send_dict,
+			                                    expect=expect,
+		                                        timeout=timeout,
+		                                        check_exit=check_exit,
+		                                        fail_on_empty_before=fail_on_empty_before,
+		                                        record_command=record_command,
+		                                        exit_values=exit_values,
+		                                        escape=escape,
+		                                        echo=echo,
+		                                        note=note,
+		                                        loglevel=loglevel,
+		                                        secret=False)
 
 
 	def send_and_require(self,

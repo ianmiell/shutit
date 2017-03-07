@@ -1311,7 +1311,8 @@ class ShutItPexpectSession(object):
 				pw = self.get_sudo_pass_if_needed(shutit, ignore_brew=True)
 				if pw != '':
 					cmd = 'sudo ' + cmd
-					res = self.multisend('%s %s %s' % (cmd, opts, package), {'assword':pw},
+					res = self.multisend('%s %s %s' % (cmd, opts, package),
+					                     {'assword':pw},
 					                     expect=['Unable to fetch some archives',self.default_expect],
 					                     timeout=timeout,
 					                     check_exit=False,
@@ -2061,7 +2062,9 @@ class ShutItPexpectSession(object):
 				                                       loglevel=loglevel),
 				              'utf-8')
 			else:
-				ftext = self.send_and_get_output(' command base64 ' + fname, echo=False, loglevel=loglevel)
+				ftext = self.send_and_get_output(' command base64 ' + fname,
+				                                 echo=False,
+				                                 loglevel=loglevel)
 			ftext = base64.b64decode(ftext)
 		else:
 			# Replace the file text's ^M-newlines with simple newlines
@@ -2777,7 +2780,9 @@ $'"""
 				shutit.fail('type: ' + type(contents) + ' not handled')
 			f.close()
 			# Create file so it has appropriate permissions
-			self.send(' command touch ' + path, loglevel=loglevel, echo=echo)
+			self.send(' command touch ' + path,
+			          loglevel=loglevel,
+			          echo=echo)
 			# If path is not absolute, add $HOME to it.
 			if path[0] != '/':
 				shutit.send(' command cat ' + tmpfile + ' | ' + shutit.host['docker_executable'] + ' exec -i ' + shutit.target['container_id'] + " bash -c 'cat > $HOME/" + path + "'",
