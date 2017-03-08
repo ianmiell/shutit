@@ -2736,7 +2736,7 @@ $'"""
 			user = self.whoami()
 		if group is None:
 			group = self.whoarewe()
-		if self.current_environment.environment_id == 'ORIGIN_ENV':
+		if self.current_environment.environment_id == 'ORIGIN_ENV' and False:
 			# If we're on the root env (ie the same one that python is running on, then use python.
 			f = open(path,'w')
 			if truncate:
