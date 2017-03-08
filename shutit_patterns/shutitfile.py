@@ -44,6 +44,7 @@ _default_repo_name = 'mymodule'
 
 def setup_shutitfile_pattern(skel_path,
                              skel_delivery,
+                             skel_pattern,
                              skel_domain,
                              skel_module_name,
                              skel_shutitfiles,
@@ -61,7 +62,7 @@ DIR="/tmp/shutit_built/''' + skel_path + '''"
 BUILT_DIR="${DIR}/built"
 DOMAIN="''' + skel_domain + '''"
 DELIVERY="''' + skel_delivery + '''"
-PATTERN="''' + skel_delivery + '''"
+PATTERN="''' + skel_pattern + '''"
 
 rm -rf $DIR
 

@@ -5,6 +5,7 @@ from . import shutitfile
 
 def setup_vagrant_pattern(skel_path,
                           skel_delivery,
+                          skel_pattern,
                           skel_domain,
                           skel_module_name,
                           skel_shutitfiles,

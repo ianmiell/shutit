@@ -44,6 +44,7 @@ def create_skeleton():
 	skel_depends     = shutit.cfg['skeleton']['depends']
 	skel_shutitfiles = shutit.cfg['skeleton']['shutitfiles']
 	skel_delivery    = shutit.cfg['skeleton']['delivery']
+	skel_pattern     = shutit.cfg['skeleton']['pattern']
 
 	# Check setup
 	if len(skel_path) == 0 or skel_path[0] != '/':
@@ -64,6 +65,7 @@ def create_skeleton():
 		from shutit_patterns import bash
 		bash.setup_bash_pattern(skel_path=skel_path,
 		                        skel_delivery=skel_delivery,
+		                        skel_pattern=skel_pattern,
 		                        skel_domain=skel_domain,
 		                        skel_module_name=skel_module_name,
 		                        skel_shutitfiles=skel_shutitfiles,
@@ -73,6 +75,7 @@ def create_skeleton():
 		from shutit_patterns import docker
 		docker.setup_docker_pattern(skel_path=skel_path,
 		                            skel_delivery=skel_delivery,
+		                            skel_pattern=skel_pattern,
 		                            skel_domain=skel_domain,
 		                            skel_module_name=skel_module_name,
 		                            skel_shutitfiles=skel_shutitfiles,
@@ -82,6 +85,7 @@ def create_skeleton():
 		from shutit_patterns import vagrant
 		vagrant.setup_vagrant_pattern(skel_path=skel_path,
 		                              skel_delivery=skel_delivery,
+		                              skel_pattern=skel_pattern,
 		                              skel_domain=skel_domain,
 		                              skel_module_name=skel_module_name,
 		                              skel_shutitfiles=skel_shutitfiles,
@@ -91,6 +95,7 @@ def create_skeleton():
 		from shutit_patterns import shutitfile
 		shutitfile.setup_shutitfile_pattern(skel_path=skel_path,
 		                                    skel_delivery=skel_delivery,
+		                                    skel_pattern=skel_pattern,
 		                                    skel_domain=skel_domain,
 		                                    skel_module_name=skel_module_name,
 		                                    skel_shutitfiles=skel_shutitfiles,
