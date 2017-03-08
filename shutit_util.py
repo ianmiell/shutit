@@ -66,7 +66,7 @@ from shutit_module import ShutItModule
 
 PY3 = (sys.version_info[0] >= 3)
 
-allowed_delivery_methods = ['ssh','dockerfile','bash','docker']
+allowed_delivery_methods = ['ssh','dockerfile','bash','docker','vagrant']
 
 
 class LayerConfigParser(ConfigParser.RawConfigParser):
@@ -632,7 +632,7 @@ bash:              a shell script
 docker:            a docker image build
 vagrant:           a vagrant setup
 docker_tutorial:   a docker-based tutorial
-shutitfile:        a shutitfile-based project
+shutitfile:        a shutitfile-based project (can be docker, bash, vagrant)
 ''',default=default_pattern)
 		else:
 			pattern = args.pattern
@@ -655,7 +655,7 @@ shutitfile:        a shutitfile-based project
 			else:
 				delivery = ''
 				while delivery not in allowed_delivery_methods:
-					delivery = util_raw_input(prompt='# Input a delivery method from: bash, docker.\n# Default: ' + default_delivery + '\n\ndocker = build within a docker image\nbash = run commands directly within bash\n', default=default_delivery)
+					delivery = util_raw_input(prompt='# Input a delivery method from: bash, docker, vagrant.\n# Default: ' + default_delivery + '\n\ndocker = build within a docker image\nbash = run commands directly within bash\n', default=default_delivery)
 		else:
 			delivery = delivery_method
 		shutit.cfg['skeleton'] = {

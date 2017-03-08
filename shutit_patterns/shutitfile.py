@@ -125,7 +125,8 @@ cd ''' + skel_path + ''' && ./run.sh
 	shutitfile2_file = open(shutitfile2_filename,'w+')
 	shutitfile2_contents = '''## Install debug tools.
 ## Don't module in builds by default.
-#DEFAULT_INCLUDE false'''
+#DEFAULT_INCLUDE false
+'''
 	if skel_delivery == 'docker':
 		shutitfile2_contents += '''#DELIVERY docker'''
 	elif skel_delivery == 'bash':
