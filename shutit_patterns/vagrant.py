@@ -45,7 +45,6 @@ def setup_vagrant_pattern(skel_path,
 			continue
 		item['value'] = value
 	for opt in options:
-		print opt
 		if opt['name'] == 'num_machines':
 			num_machines = int(opt['value'])
 		if opt['name'] == 'machine_prefix':
