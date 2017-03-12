@@ -78,6 +78,7 @@ def setup_vagrant_pattern(skel_path,
     """ + machine_name + '''.vm.hostname = "''' + machine_fqdn + '''"''' +
     '''\n    config.vm.provider :virtualbox do |vb|\n      vb.name = "''' + skel_module_name + '_' + str(m) + '''"\n    end
   end''')
+		# machine_list_code
 		machine_list_code += """\n\t\tmachines.update({'""" + machine_name + """':{'fqdn':'""" + machine_fqdn + """'}})"""
 		machine_list_code += """\n\t\tip = shutit.send_and_get_output('''vagrant landrush ls 2> /dev/null | grep -w ^''' + machines['""" + machine_name + """']['fqdn'] + ''' | awk '{print $2}' ''')"""
 		machine_list_code += """\n\t\tmachines.get('""" + machine_name + """').update({'ip':ip})"""
@@ -239,7 +240,9 @@ fi
 			shutit.cfg['skeleton']['stop_section']        = sections['stop_section']
 			shutit.cfg['skeleton']['final_section']       = sections['final_section']
 			module_file = open(new_module_filename,'w+')
-			if _count == 1 or True:
+
+			# We only write out the heavy stuff for vagrant on the first time round
+			if _count == 1:
 				module_file.write(shared_imports + """
 """ + shutit.cfg['skeleton']['header_section'] + """
 
@@ -297,7 +300,7 @@ cd ''' + shutit.cfg[self.module_id]['vagrant_run_dir'] + ''' && vagrant status &
 """ + shutit.cfg['skeleton']['finalize_section'] + """		return True
 
 	def is_installed(self, shutit):
-""" + shutit.cfg['skeleton']['isinstalled_section'] + """		# Destroy pre-existing, leftover vagrant images.
+""" + shutit.cfg['skeleton']['isinstalled_section'] + """
 		return False
 
 	def start(self, shutit):
@@ -314,14 +317,18 @@ def module():
 		delivery_methods=['bash'],
 		depends=['""" + skel_depends + """','shutit-library.virtualization.virtualization.virtualization','tk.shutit.vagrant.vagrant.vagrant']
 	)""")
+			# In the non-first one, we don't have all the setup stuff (but we do have some!)
 			else:
 				module_file.write(shared_imports + """
 """ + shutit.cfg['skeleton']['header_section'] + """
 
 	def build(self, shutit):
-		shutit.run_script('''""" + destroyvmssh_file_contents  + """''')
+		""" + machine_list_code + """
 		shutit.login(command='vagrant ssh ' + sorted(machines.keys())[0])
 		shutit.login(command='sudo su -',password='vagrant')
+		shutit.logout()
+		shutit.logout()
+
 """ + shutit.cfg['skeleton']['config_section'] + """		return True
 
 	def test(self, shutit):
@@ -331,7 +338,7 @@ def module():
 """ + shutit.cfg['skeleton']['finalize_section'] + """		return True
 
 	def is_installed(self, shutit):
-""" + shutit.cfg['skeleton']['isinstalled_section'] + """		# Destroy pre-existing, leftover vagrant images.
+""" + shutit.cfg['skeleton']['isinstalled_section'] + """
 		return False
 
 	def start(self, shutit):
@@ -426,7 +433,6 @@ end''')
 		return True
 
 	def is_installed(self, shutit):
-		# Destroy pre-existing, leftover vagrant images.
 		return False
 
 	def start(self, shutit):
