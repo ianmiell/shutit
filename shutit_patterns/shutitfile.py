@@ -555,7 +555,7 @@ def handle_shutitfile_script_line(line, numpushes, wgetgot, numlogins, ifdepth, 
 	shutit = shutit_global.shutit
 	build  = ''
 	numtabs = 2 + ifdepth
-	assert shutitfile_command in ('RUN','SEND','SEND_EXPECT','SEND_EXPECT_MULTI','EXPECT_REACT','SEND_EXPECT_REACT','SEND_UNTIL','UNTIL','UNTIL','ASSERT_OUTPUT_SEND','ASSERT_OUTPUT','PAUSE_POINT','EXPECT','EXPECT_MULTI','LOGIN','USER','LOGOUT','GET_AND_SEND_PASSWORD','LOGIN_WITH_PASSWORD','USER_WITH_PASSWORD','WORKDIR','COPY','ADD','ENV','INSTALL','REMOVE','COMMENT','NOTE','IF','ELSE','ELIF','IF_NOT','ELIF_NOT','ENDIF','RUN_SCRIPT','SCRIPT_BEGIN','START_BEGIN','START_END','STOP_BEGIN','STOP_END','TEST_BEGIN','TEST_END','BUILD_BEGIN','BUILD_END','ISINSTALLED_BEGIN','ISINSTALLED_END','COMMIT','PUSH','REPLACE_LINE','LOG','QUIT','STORE_RUN'), '%r is not a handled script command' % shutitfile_command
+	assert shutitfile_command in ('RUN','SEND','SEND_EXPECT','SEND_EXPECT_MULTI','EXPECT_REACT','SEND_EXPECT_REACT','SEND_UNTIL','UNTIL','UNTIL','ASSERT_OUTPUT_SEND','ASSERT_OUTPUT','PAUSE_POINT','EXPECT','EXPECT_MULTI','LOGIN','USER','LOGOUT','GET_AND_SEND_PASSWORD','LOGIN_WITH_PASSWORD','USER_WITH_PASSWORD','WORKDIR','COPY','ADD','ENV','INSTALL','REMOVE','COMMENT','NOTE','IF','ELSE','ELIF','IF_NOT','ELIF_NOT','ENDIF','RUN_SCRIPT','SCRIPT_BEGIN','START_BEGIN','START_END','STOP_BEGIN','STOP_END','TEST_BEGIN','TEST_END','BUILD_BEGIN','BUILD_END','ISINSTALLED_BEGIN','ISINSTALLED_END','COMMIT','PUSH','REPLACE_LINE','LOG','QUIT','STORE_RUN','VAGRANT_LOGIN','VAGRANT_LOGOUT'), '%r is not a handled script command' % shutitfile_command
 	if shutitfile_command in ('RUN','SEND'):
 		shutitfile_args    = parse_shutitfile_args(line[1])
 		assert type(shutitfile_args) == list
@@ -618,6 +618,19 @@ def handle_shutitfile_script_line(line, numpushes, wgetgot, numlogins, ifdepth, 
 		cmd = scan_text(' '.join(shutitfile_args).replace("'", "\\'"))
 		build += """\n""" + numtabs*'\t' + """shutit.fail('''""" + cmd + """''')"""
 	elif shutitfile_command == 'LOGOUT':
+		build += """\n""" + numtabs*'\t' + """shutit.logout(note='''""" + current_note + """''')"""
+		current_note = ''
+		numlogins -= 1
+	elif shutitfile_command == 'VAGRANT_LOGIN':
+		build += """\n""" + numtabs*'\t' + """shutit.logout(note='''""" + current_note + """''')"""
+		assert type(shutitfile_args) == str
+		machine_name = scan_text(shutitfile_args)
+		build += """\n""" + numtabs*'\t' + """shutit.login('''vagrant ssh """ + machine_name + """''',note='''""" + current_note + """''')"""
+		build += """\n""" + numtabs*'\t' + """shutit.login('''sudo su -''')"""
+		current_note = ''
+		numlogins += 1
+	elif shutitfile_command == 'VAGRANT_LOGOUT':
+		build += """\n""" + numtabs*'\t' + """shutit.logout()"""
 		build += """\n""" + numtabs*'\t' + """shutit.logout(note='''""" + current_note + """''')"""
 		current_note = ''
 		numlogins -= 1

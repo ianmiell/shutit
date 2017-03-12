@@ -138,7 +138,7 @@ def process_shutitfile(shutitfile_contents):
 		shutitfile_command = item[0].upper()
 		# List of handled shutitfile_commands
 		if shutitfile_state != 'SCRIPT_DURING':
-			assert shutitfile_command in ('SCRIPT_END','SCRIPT_BEGIN','SCRIPT_END','FROM','ONBUILD','VOLUME','DESCRIPTION','MAINTAINER','EXPOSE','ENTRYPOINT','CMD','USER','LOGIN','LOGOUT','GET_PASSWORD','ENV','RUN','SEND','ASSERT_OUTPUT','PAUSE_POINT','EXPECT','EXPECT_MULTI','EXPECT_REACT','UNTIL','ADD','COPY','WORKDIR','COMMENT','NOTE','INSTALL','REMOVE','DEPENDS','DELIVERY','MODULE_ID','REPLACE_LINE','START_BEGIN','START_END','STOP_BEGIN','STOP_END','TEST_BEGIN','TEST_END','BUILD_BEGIN','BUILD_END','ISINSTALLED_BEGIN','ISINSTALLED_END','IF','IF_NOT','ELIF_NOT','ELIF','ELSE','ENDIF','COMMIT','PUSH','DEFAULT_INCLUDE','LOG','CONFIG','CONFIG_SECRET','QUIT','STORE_RUN'), '%r is not a handled ShutItFile command' % shutitfile_command
+			assert shutitfile_command in ('SCRIPT_END','SCRIPT_BEGIN','SCRIPT_END','FROM','ONBUILD','VOLUME','DESCRIPTION','MAINTAINER','EXPOSE','ENTRYPOINT','CMD','USER','LOGIN','LOGOUT','GET_PASSWORD','ENV','RUN','SEND','ASSERT_OUTPUT','PAUSE_POINT','EXPECT','EXPECT_MULTI','EXPECT_REACT','UNTIL','ADD','COPY','WORKDIR','COMMENT','NOTE','INSTALL','REMOVE','DEPENDS','DELIVERY','MODULE_ID','REPLACE_LINE','START_BEGIN','START_END','STOP_BEGIN','STOP_END','TEST_BEGIN','TEST_END','BUILD_BEGIN','BUILD_END','ISINSTALLED_BEGIN','ISINSTALLED_END','IF','IF_NOT','ELIF_NOT','ELIF','ELSE','ENDIF','COMMIT','PUSH','DEFAULT_INCLUDE','LOG','CONFIG','CONFIG_SECRET','QUIT','STORE_RUN','VAGRANT_LOGIN','VAGRANT_LOGIN'), '%r is not a handled ShutItFile command' % shutitfile_command
 		if shutitfile_command != 'SCRIPT_END' and shutitfile_state == 'SCRIPT_DURING':
 			inline_script += '\n' + ' '.join(item)
 		elif shutitfile_command == 'SCRIPT_BEGIN':
@@ -247,7 +247,7 @@ def process_shutitfile(shutitfile_contents):
 			shutitfile_representation['shutitfile']['config'].append([shutitfile_command, item[1]])
 		elif shutitfile_command == 'CONFIG_SECRET':
 			shutitfile_representation['shutitfile']['config'].append([shutitfile_command, item[1]])
-		elif shutitfile_command in ('ADD','COPY','WORKDIR','COMMENT','INSTALL','REMOVE','REPLACE_LINE','LOG','COMMIT','PUSH','QUIT','PAUSE_POINT','USER','LOGIN','LOGOUT'):
+		elif shutitfile_command in ('ADD','COPY','WORKDIR','COMMENT','INSTALL','REMOVE','REPLACE_LINE','LOG','COMMIT','PUSH','QUIT','PAUSE_POINT','USER','LOGIN','LOGOUT','VAGRANT_LOGIN','VAGRANT_LOGOUT'):
 			shutitfile_representation['shutitfile']['script'].append([shutitfile_command, item[1]])
 		elif shutitfile_command in ('IF','IF_NOT','ELIF_NOT','ELIF','STORE_RUN'):
 			# Parser retrieved two items here
