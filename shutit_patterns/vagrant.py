@@ -307,7 +307,7 @@ cd ''' + shutit.cfg[self.module_id]['vagrant_run_dir'] + ''' && vagrant status &
 """ + shutit.cfg['skeleton']['stop_section'] + """		return True
 
 def module():
-	return """ + skel_module_name + """(
+	return """ + skel_module_name + module_modifier + """(
 		'""" + skel_module_id + """', """ + skel_domain_hash + """.000""" + str(_count) + """,
 		description='',
 		maintainer='',
@@ -341,7 +341,7 @@ def module():
 """ + shutit.cfg['skeleton']['stop_section'] + """		return True
 
 def module():
-	return """ + skel_module_name + """(
+	return """ + skel_module_name + module_modifier + """(
 		'""" + skel_module_id + """',""" + skel_domain_hash + """.000""" + str(_count) + """,
 		description='',
 		maintainer='',
