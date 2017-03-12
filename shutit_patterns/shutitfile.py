@@ -54,11 +54,11 @@ def setup_shutitfile_pattern(skel_path,
 	shutit = shutit_global.shutit
 
 	if skel_pattern == 'shutitfile' and skel_delivery == 'vagrant':
-		# This is a vagrant build.
+		# This is a vagrant build, adjust accordingly.
 		skel_pattern = 'vagrant'
 		skel_delivery = 'bash'
 	if skel_pattern == 'shutitfile' and skel_delivery == 'docker':
-		# This is a vagrant build.
+		# This is a docker build, adjust accordingly.
 		skel_pattern = 'docker'
 		skel_delivery = 'docker'
 	runsh_filename = skel_path + '/run.sh'

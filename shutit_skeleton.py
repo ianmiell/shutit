@@ -45,6 +45,11 @@ def create_skeleton():
 	skel_shutitfiles = shutit.cfg['skeleton']['shutitfiles']
 	skel_delivery    = shutit.cfg['skeleton']['delivery']
 	skel_pattern     = shutit.cfg['skeleton']['pattern']
+	# For vagrant only
+	skel_vagrant_num_machines   = shutit.cfg['skeleton']['vagrant_num_machines']
+	skel_vagrant_machine_prefix = shutit.cfg['skeleton']['vagrant_machine_prefix']
+	skel_vagrant_ssh_access     = shutit.cfg['skeleton']['vagrant_ssh_access']
+	skel_vagrant_docker         = shutit.cfg['skeleton']['vagrant_docker']
 
 	# Check setup
 	if len(skel_path) == 0 or skel_path[0] != '/':
@@ -91,7 +96,11 @@ def create_skeleton():
 		                              skel_module_name=skel_module_name,
 		                              skel_shutitfiles=skel_shutitfiles,
 		                              skel_domain_hash=skel_domain_hash,
-		                              skel_depends=skel_depends)
+		                              skel_depends=skel_depends,
+		                              skel_vagrant_num_machines=skel_vagrant_num_machines,
+		                              skel_vagrant_machine_prefix=skel_vagrant_machine_prefix,
+		                              skel_vagrant_ssh_access=skel_vagrant_ssh_access,
+		                              skel_vagrant_docker=skel_vagrant_docker)
 	elif shutit.cfg['skeleton']['pattern'] == 'shutitfile':
 		from shutit_patterns import shutitfile
 		shutitfile.setup_shutitfile_pattern(skel_path=skel_path,

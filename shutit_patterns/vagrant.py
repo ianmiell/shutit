@@ -10,7 +10,11 @@ def setup_vagrant_pattern(skel_path,
                           skel_module_name,
                           skel_shutitfiles,
                           skel_domain_hash,
-                          skel_depends):
+                          skel_depends,
+                          skel_vagrant_num_machines,
+                          skel_vagrant_machine_prefix,
+                          skel_vagrant_ssh_access,
+                          skel_vagrant_docker):
 
 	shutit = shutit_global.shutit
 
@@ -18,51 +22,64 @@ def setup_vagrant_pattern(skel_path,
 
 	# Gather requirements for multinode vagrant setup:
 	options = []
-	options.append({'name':'num_machines','question':'How many machines do you want? (defalt: 3)','value':'3','ok_values':[]})
-	options.append({'name':'machine_prefix','question':'What do you want to call the machines (eg superserver) (default: machine)?','value':'machine','ok_values':[]})
-	options.append({'name':'ssh_access','question':'Do you want to have open ssh access between machines (yes or no) (default: yes)?','value':'yes','ok_values':['yes','no']})
-	options.append({'name':'docker','question':'Do you want Docker on the machine (yes or no) (default: no)?','value':'no','ok_values':['yes','no']})
-	count = 1
-	while True:
-		print('')
-		for opt in options:
-			print(str(count) + ': ' + opt['question'])
-			count += 1
-		print('')
-		choice = shutit_util.get_input('Choose an item to change if you want to change the default. Hit return to continue.\nIf you want to change a config, choose the number: ')
-		if choice == '':
-			break
-		else:
-			try:
-				choice = int(choice)
-			except ValueError:
+	if skel_vagrant_num_machines is None:
+		options.append({'name':'num_machines','question':'How many machines do you want? (defalt: 3)','value':'3','ok_values':[]})
+	else:
+		num_machines = skel_vagrant_num_machines
+	if skel_vagrant_machine_prefix is None:
+		options.append({'name':'machine_prefix','question':'What do you want to call the machines (eg superserver) (default: machine)?','value':'machine','ok_values':[]})
+	else:
+		machine_prefix = skel_vagrant_machine_prefix
+	if skel_vagrant_ssh_access is None:
+		options.append({'name':'ssh_access','question':'Do you want to have open ssh access between machines (yes or no) (default: yes)?','value':'yes','ok_values':['yes','no']})
+	else:
+		ssh_access = skel_vagrant_ssh_access
+	if skel_vagrant_docker is None:
+		options.append({'name':'docker','question':'Do you want Docker on the machine (yes or no) (default: no)?','value':'no','ok_values':['yes','no']})
+	else:
+		docker = skel_vagrant_docker
+	if len(options) > 0:
+		count = 1
+		while True:
+			print('')
+			for opt in options:
+				print(str(count) + ': ' + opt['question'])
+				count += 1
+			print('')
+			choice = shutit_util.get_input('Choose an item to change if you want to change the default. Hit return to continue.\nIf you want to change a config, choose the number: ')
+			if choice == '':
+				break
+			else:
+				try:
+					choice = int(choice)
+				except ValueError:
+					print('Bad value, ignoring')
+					continue
+			item = options[choice]
+			value = shutit_util.get_input('Input the value')
+			if len(item['ok_values']) > 0 and value not in item['ok_values']:
 				print('Bad value, ignoring')
 				continue
-		item = options[choice]
-		value = shutit_util.get_input('Input the value')
-		if len(item['ok_values']) > 0 and value not in item['ok_values']:
-			print('Bad value, ignoring')
-			continue
-		item['value'] = value
-	for opt in options:
-		if opt['name'] == 'num_machines':
-			num_machines = int(opt['value'])
-		if opt['name'] == 'machine_prefix':
-			machine_prefix = opt['value']
-		if opt['name'] == 'ssh_access':
-			if opt['value'] == 'no':
-				ssh_access = False
-			elif opt['value'] == 'yes':
-				ssh_access = True
-			else:
-				shutit.fail('Bad value for ssh_access')
-		if opt['name'] == 'docker':
-			if opt['value'] == 'no':
-				docker = False
-			elif opt['value'] == 'yes':
-				docker = True
-			else:
-				shutit.fail('Bad value for docker')
+			item['value'] = value
+		for opt in options:
+			if opt['name'] == 'num_machines':
+				num_machines = int(opt['value'])
+			if opt['name'] == 'machine_prefix':
+				machine_prefix = opt['value']
+			if opt['name'] == 'ssh_access':
+				if opt['value'] == 'no':
+					ssh_access = False
+				elif opt['value'] == 'yes':
+					ssh_access = True
+				else:
+					shutit.fail('Bad value for ssh_access')
+			if opt['name'] == 'docker':
+				if opt['value'] == 'no':
+					docker = False
+				elif opt['value'] == 'yes':
+					docker = True
+				else:
+					shutit.fail('Bad value for docker')
 
 	# Set up Vagrantfile data for the later
 	machine_stanzas = ''

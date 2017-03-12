@@ -430,6 +430,10 @@ def parse_args(set_loglevel=None):
 	sub_parsers['skeleton'].add_argument('--script', help='Pre-existing shell script to integrate into module (optional)', nargs='?', default=None)
 	sub_parsers['skeleton'].add_argument('--output_dir', help='Just output the created directory', default=False, const=True, action='store_const')
 	sub_parsers['skeleton'].add_argument('--shutitfiles', nargs='+', default=None)
+	sub_parsers['skeleton'].add_argument('--vagrant_num_machines', default=None)
+	sub_parsers['skeleton'].add_argument('--vagrant_ssh_access', default=None, const=True, action='store_const')
+	sub_parsers['skeleton'].add_argument('--vagrant_machine_prefix', default=None)
+	sub_parsers['skeleton'].add_argument('--vagrant_docker', default=None, const=True, action='store_const')
 	sub_parsers['skeleton'].add_argument('--pattern', help='Pattern to use', default='')
 	sub_parsers['skeleton'].add_argument('--delivery', help='Delivery method, aka target. "docker" container (default), configured "ssh" connection, "bash" session', default=None, choices=('docker','dockerfile','ssh','bash'))
 	sub_parsers['skeleton'].add_argument('-a','--accept', help='Accept defaults', const=True, default=False, action='store_const')
@@ -634,6 +638,7 @@ docker:            a docker image build
 vagrant:           a vagrant setup
 docker_tutorial:   a docker-based tutorial
 shutitfile:        a shutitfile-based project (can be docker, bash, vagrant)
+
 ''',default=default_pattern)
 		else:
 			pattern = args.pattern
@@ -663,21 +668,27 @@ shutitfile:        a shutitfile-based project (can be docker, bash, vagrant)
 						docker = build within a docker image
 						bash = run commands directly within bash
 						vagrant = build an n-node vagrant cluster
+
 						'''), default=default_delivery)
 		else:
 			delivery = delivery_method
+
 		shutit.cfg['skeleton'] = {
-			'path':                  module_directory,
-			'module_name':           module_name,
-			'base_image':            args.base_image,
-			'domain':                domain,
-			'domain_hash':           str(get_hash(domain)),
-			'depends':               args.depends,
-			'script':                args.script,
-			'shutitfiles':           _new_shutitfiles,
-			'output_dir':            args.output_dir,
-			'delivery':              delivery,
-			'pattern':               pattern
+			'path':                   module_directory,
+			'module_name':            module_name,
+			'base_image':             args.base_image,
+			'domain':                 domain,
+			'domain_hash':            str(get_hash(domain)),
+			'depends':                args.depends,
+			'script':                 args.script,
+			'shutitfiles':            _new_shutitfiles,
+			'output_dir':             args.output_dir,
+			'delivery':               delivery,
+			'pattern':                pattern,
+			'vagrant_num_machines':   args.vagrant_num_machines,
+			'vagrant_ssh_access':     args.vagrant_ssh_access,
+			'vagrant_machine_prefix': args.vagrant_machine_prefix,
+			'vagrant_docker':         args.vagrant_docker
 		}
 		# set defaults to allow config to work
 		shutit.build['extra_configs']    = []
