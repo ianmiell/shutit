@@ -331,15 +331,7 @@ def generate_shutit_module_sections(shutitfile_representation, skel_domain, skel
 
 	# config section - this must be done first, as it collates the config
 	# items that can be referenced later
-	config_section = '''
-
-		# CONFIGURATION
-		# shutit.get_config(module_id,option,default=None,boolean=False)
-		#                                    - Get configuration value, boolean indicates whether the item is
-		#                                      a boolean type, eg get the config with:
-		# shutit.get_config(self.module_id, 'myconfig', default='a value')
-		#                                      and reference in your code with:
-		# shutit.cfg[self.module_id]['myconfig']'''
+	config_section = ''
 	if shutitfile_representation['shutitfile']['module_id']:
 		module_id = shutitfile_representation['shutitfile']['module_id']
 	else:
