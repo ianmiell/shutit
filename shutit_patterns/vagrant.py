@@ -14,14 +14,56 @@ def setup_vagrant_pattern(skel_path,
 
 	shutit = shutit_global.shutit
 
+	# TODO: ability to pass in option values, or take defaults
+
 	# Gather requirements for multinode vagrant setup:
-	# number of machines
-	num_machines = int(shutit_util.get_input('How many machines do you want (default: 3)? ', default='3'))
-	# prefix for machines (alphnum only)
-	machine_prefix = shutit_util.get_input('What do you want to call the machines (eg superserver) (default: machine)? ', default='machine')
-	# Set up free ssh access?
-	ssh_access = shutit_util.get_input('Do you want to have open ssh access between machines (default: yes)? ', boolean=True, default=True)
-	# TODO: others - memory per machine?
+	options = []
+	options.append({'name':'num_machines','question':'How many machines do you want? (defalt: 3)','value':'3','ok_values':[]})
+	options.append({'name':'machine_prefix','question':'What do you want to call the machines (eg superserver) (default: machine)?','value':'machine','ok_values':[]})
+	options.append({'name':'ssh_access','question':'Do you want to have open ssh access between machines (yes or no) (default: yes)?','value':'yes','ok_values':['yes','no']})
+	options.append({'name':'docker','question':'Do you want Docker on the machine (yes or no) (default: no)?','value':'no','ok_values':['yes','no']})
+	count = 1
+	while True:
+		print('')
+		for opt in options:
+			print(str(count) + ': ' + opt['question'])
+			count += 1
+		print('')
+		choice = shutit_util.get_input('Choose an item to change if you want to change the default. Hit return to continue.\nIf you want to change a config, choose the number: ')
+		if choice == '':
+			break
+		else:
+			try:
+				choice = int(choice)
+			except ValueError:
+				print('Bad value, ignoring')
+				continue
+		item = options[choice]
+		value = shutit_util.get_input('Input the value')
+		if len(item['ok_values']) > 0 and value not in item['ok_values']:
+			print('Bad value, ignoring')
+			continue
+		item['value'] = value
+	for opt in options:
+		print opt
+		if opt['name'] == 'num_machines':
+			num_machines = int(opt['value'])
+		if opt['name'] == 'machine_prefix':
+			machine_prefix = opt['value']
+		if opt['name'] == 'ssh_access':
+			if opt['value'] == 'no':
+				ssh_access = False
+			elif opt['value'] == 'yes':
+				ssh_access = True
+			else:
+				shutit.fail('Bad value for ssh_access')
+		if opt['name'] == 'docker':
+			if opt['value'] == 'no':
+				docker = False
+			elif opt['value'] == 'yes':
+				docker = True
+			else:
+				shutit.fail('Bad value for docker')
 
 	# Set up Vagrantfile data for the later
 	machine_stanzas = ''
@@ -58,14 +100,6 @@ def setup_vagrant_pattern(skel_path,
 			shutit.install('net-tools') # netstat needed
 			if not shutit.command_available('host'):
 				shutit.install('bind-utils') # host needed
-			# Workaround for docker networking issues + landrush.
-			shutit.install('docker')
-			shutit.insert_text('Environment=GODEBUG=netdns=cgo','/lib/systemd/system/docker.service',pattern='.Service.')
-			shutit.send('mkdir -p /etc/docker',note='Create the docker config folder')
-			shutit.send_file('/etc/docker/daemon.json',"""{
-  "dns": ["8.8.8.8"]
-}""",note='Use the google dns server rather than the vagrant one. Change to the value you want if this does not work, eg if google dns is blocked.')
-			shutit.send('systemctl restart docker')
 			shutit.multisend('passwd',{'assword:':root_password})
 			shutit.send("""sed -i 's/.*PermitRootLogin.*/PermitRootLogin yes/g' /etc/ssh/sshd_config""")
 			shutit.send("""sed -i 's/.*PasswordAuthentication.*/PasswordAuthentication yes/g' /etc/ssh/sshd_config""")
@@ -83,6 +117,22 @@ def setup_vagrant_pattern(skel_path,
 			shutit.logout()'''
 	else:
 		copy_keys_code = ''
+
+	if docker:
+		docker_code = '''
+		for machine in sorted(machines.keys()):
+			shutit.login(command='vagrant ssh ' + machine)
+			shutit.login(command='sudo su -',password='vagrant')
+			# Workaround for docker networking issues + landrush.
+			shutit.install('docker')
+			shutit.insert_text('Environment=GODEBUG=netdns=cgo','/lib/systemd/system/docker.service',pattern='.Service.')
+			shutit.send('mkdir -p /etc/docker',note='Create the docker config folder')
+			shutit.send_file('/etc/docker/daemon.json',"""{
+  "dns": ["8.8.8.8"]
+}""",note='Use the google dns server rather than the vagrant one. Change to the value you want if this does not work, eg if google dns is blocked.')
+			shutit.send('systemctl restart docker')'''
+	else:
+		docker_code = ''
 
 	get_config_section = '''
 	def get_config(self, shutit):
@@ -195,6 +245,7 @@ fi
 """ + shutit.cfg['skeleton']['header_section'] + """
 
 	def build(self, shutit):
+		shutit.run_script('''""" + destroyvmssh_file_contents  + """''')
 		vagrant_image = shutit.cfg[self.module_id]['vagrant_image']
 		vagrant_provider = shutit.cfg[self.module_id]['vagrant_provider']
 		gui = shutit.cfg[self.module_id]['gui']
@@ -220,6 +271,7 @@ end''')
 """ + vagrant_up_section + """
 """ + machine_list_code + """
 """ + copy_keys_code + """
+""" + docker_code + """
 		shutit.login(command='vagrant ssh ' + sorted(machines.keys())[0])
 		shutit.login(command='sudo su -',password='vagrant')
 
@@ -247,7 +299,6 @@ cd ''' + shutit.cfg[self.module_id]['vagrant_run_dir'] + ''' && vagrant status &
 
 	def is_installed(self, shutit):
 """ + shutit.cfg['skeleton']['isinstalled_section'] + """		# Destroy pre-existing, leftover vagrant images.
-		shutit.run_script('''""" + destroyvmssh_file_contents  + """''')
 		return False
 
 	def start(self, shutit):
@@ -269,6 +320,7 @@ def module():
 """ + shutit.cfg['skeleton']['header_section'] + """
 
 	def build(self, shutit):
+		shutit.run_script('''""" + destroyvmssh_file_contents  + """''')
 		shutit.login(command='vagrant ssh ' + sorted(machines.keys())[0])
 		shutit.login(command='sudo su -',password='vagrant')
 """ + shutit.cfg['skeleton']['config_section'] + """		return True
@@ -281,7 +333,6 @@ def module():
 
 	def is_installed(self, shutit):
 """ + shutit.cfg['skeleton']['isinstalled_section'] + """		# Destroy pre-existing, leftover vagrant images.
-		shutit.run_script('''""" + destroyvmssh_file_contents  + """''')
 		return False
 
 	def start(self, shutit):
@@ -358,6 +409,7 @@ end''')
 """ + vagrant_up_section + """
 """ + machine_list_code + """
 """ + copy_keys_code + """
+""" + docker_code + """
 		shutit.login(command='vagrant ssh ' + sorted(machines.keys())[0])
 		shutit.login(command='sudo su -',password='vagrant')
 		shutit.logout()
@@ -376,7 +428,6 @@ end''')
 
 	def is_installed(self, shutit):
 		# Destroy pre-existing, leftover vagrant images.
-		shutit.run_script('''""" + destroyvmssh_file_contents  + """''')
 		return False
 
 	def start(self, shutit):

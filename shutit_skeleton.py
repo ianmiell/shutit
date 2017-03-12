@@ -61,6 +61,7 @@ def create_skeleton():
 	# Create folders and process pattern
 	os.makedirs(skel_path)
 	os.chdir(skel_path)
+	# If it's shutitfile and vagrant
 	if shutit.cfg['skeleton']['pattern'] == 'bash':
 		from shutit_patterns import bash
 		bash.setup_bash_pattern(skel_path=skel_path,

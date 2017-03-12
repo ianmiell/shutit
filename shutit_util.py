@@ -56,6 +56,7 @@ import time
 import subprocess
 import pexpect
 import texttable
+import textwrap
 import shutit_global
 import shutit_main
 import shutit_assets
@@ -655,7 +656,14 @@ shutitfile:        a shutitfile-based project (can be docker, bash, vagrant)
 			else:
 				delivery = ''
 				while delivery not in allowed_delivery_methods:
-					delivery = util_raw_input(prompt='# Input a delivery method from: bash, docker, vagrant.\n# Default: ' + default_delivery + '\n\ndocker = build within a docker image\nbash = run commands directly within bash\n', default=default_delivery)
+					delivery = util_raw_input(prompt=textwrap.dedent('''
+						# Input a delivery method from: bash, docker, vagrant.
+						# Default: ' + default_delivery + '
+
+						docker = build within a docker image
+						bash = run commands directly within bash
+						vagrant = build an n-node vagrant cluster
+						'''), default=default_delivery)
 		else:
 			delivery = delivery_method
 		shutit.cfg['skeleton'] = {

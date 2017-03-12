@@ -52,6 +52,11 @@ def setup_shutitfile_pattern(skel_path,
                              skel_depends):
 
 	shutit = shutit_global.shutit
+
+	if skel_pattern == 'shutitfile' and skel_delivery == 'vagrant':
+		# This is a vagrant build.
+		skel_pattern = 'vagrant'
+		skel_delivery = 'bash'
 	runsh_filename = skel_path + '/run.sh'
 	runsh_file = open(runsh_filename,'w+')
 	runsh_file.write('''#!/bin/bash
@@ -217,7 +222,7 @@ def parse_shutitfile_args(args_str):
 
 
 
-# Takes a shutitfile filename and returns a string that represents that Dockerfile as a ShutIt module
+# Takes a shutitfile filename and returns represention of that Dockerfile as a ShutIt module snippets
 def shutitfile_to_shutit_module(skel_shutitfile,
                                 skel_path,
                                 skel_domain,
