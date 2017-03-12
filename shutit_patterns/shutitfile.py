@@ -74,12 +74,7 @@ PATTERN="''' + skel_pattern + '''"
 
 rm -rf $DIR
 
-shutit skeleton \
-	--shutitfile ShutItFile1 ShutItFile2 \
-	--name ${DIR} \
-	--domain ${DOMAIN} \
-	--delivery ${DELIVERY} \
-	--pattern ${PATTERN}
+shutit skeleton --shutitfile ShutItFile1 ShutItFile2 --name ${DIR} --domain ${DOMAIN} --delivery ${DELIVERY} --pattern ${PATTERN}
 
 if [[ ${DELIVERY} == 'bash' ]]
 then
