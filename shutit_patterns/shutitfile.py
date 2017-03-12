@@ -49,7 +49,11 @@ def setup_shutitfile_pattern(skel_path,
                              skel_module_name,
                              skel_shutitfiles,
                              skel_domain_hash,
-                             skel_depends):
+                             skel_depends,
+                             skel_vagrant_num_machines,
+                             skel_vagrant_machine_prefix,
+                             skel_vagrant_ssh_access,
+                             skel_vagrant_docker):
 
 	shutit = shutit_global.shutit
 
@@ -57,6 +61,19 @@ def setup_shutitfile_pattern(skel_path,
 		# This is a vagrant build, adjust accordingly.
 		skel_pattern = 'vagrant'
 		skel_delivery = 'bash'
+		shutit_skeleton_extra_args = ''
+		if skel_vagrant_num_machines is not None:
+			shutit_skeleton_extra_args += ' --vagrant_num_machines ' + skel_vagrant_num_machines
+		else:
+			shutit_skeleton_extra_args += ' --vagrant_num_machines 3'
+		if skel_vagrant_machine_prefix is not None:
+			shutit_skeleton_extra_args += ' --vagrant_machine_prefix ' + skel_vagrant_machine_prefix
+		else:
+			shutit_skeleton_extra_args += ' --vagrant_machine_prefix machine'
+		if skel_vagrant_ssh_access == True:
+			shutit_skeleton_extra_args += ' --vagrant_ssh_access'
+		if skel_vagrant_docker == True:
+			shutit_skeleton_extra_args += ' --vagrant_docker'
 	if skel_pattern == 'shutitfile' and skel_delivery == 'docker':
 		# This is a docker build, adjust accordingly.
 		skel_pattern = 'docker'
@@ -74,7 +91,7 @@ PATTERN="''' + skel_pattern + '''"
 
 rm -rf $DIR
 
-shutit skeleton --shutitfile ShutItFile1 ShutItFile2 --name ${DIR} --domain ${DOMAIN} --delivery ${DELIVERY} --pattern ${PATTERN}
+shutit skeleton --shutitfile ShutItFile1 ShutItFile2 --name ${DIR} --domain ${DOMAIN} --delivery ${DELIVERY} --pattern ${PATTERN}''' + shutit_skeleton_extra_args + '''
 
 if [[ ${DELIVERY} == 'bash' ]]
 then
@@ -271,7 +288,7 @@ def shutitfile_to_shutit_module(skel_shutitfile,
 
 def module():
 	return """ + skel_module_name + skel_module_modifier + """(
-		'""" + module_id + """', """ + skel_domain_hash + str(order * 0.0001) + str(random.randint(1,999)) + """, 
+		'""" + module_id + """', """ + skel_domain_hash + str(order * 0.0001) + str(random.randint(1,999)) + """,
 		description='""" + shutitfile_representation['shutitfile']['description'] + """',
 		delivery_methods=[('""" + skel_delivery + """')],
 		maintainer='""" + shutitfile_representation['shutitfile']['maintainer'] + """',

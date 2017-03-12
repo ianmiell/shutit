@@ -110,7 +110,11 @@ def create_skeleton():
 		                                    skel_module_name=skel_module_name,
 		                                    skel_shutitfiles=skel_shutitfiles,
 		                                    skel_domain_hash=skel_domain_hash,
-		                                    skel_depends=skel_depends)
+		                                    skel_depends=skel_depends,
+		                                    skel_vagrant_num_machines=skel_vagrant_num_machines,
+		                                    skel_vagrant_machine_prefix=skel_vagrant_machine_prefix,
+		                                    skel_vagrant_ssh_access=skel_vagrant_ssh_access,
+		                                    skel_vagrant_docker=skel_vagrant_docker)
 	elif shutit.cfg['skeleton']['pattern'] == 'docker_tutorial':
 		shutit.fail('docker_tutorial not yet supported')
 

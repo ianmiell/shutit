@@ -80,6 +80,7 @@ def setup_vagrant_pattern(skel_path,
 					docker = True
 				else:
 					shutit.fail('Bad value for docker')
+	num_machines = int(num_machines)
 
 	# Set up Vagrantfile data for the later
 	machine_stanzas = ''
