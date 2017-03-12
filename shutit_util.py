@@ -851,6 +851,7 @@ def load_configs():
 			msg = msg + '    \n' + c
 			shutit.log('    ' + c,level=logging.DEBUG)
 		if shutit.action['list_configs'] or shutit.build['loglevel'] <= logging.DEBUG:
+			# TODO: what if this does not exist?
 			if shutit.build['log_config_path']:
 				f = open(shutit.build['log_config_path'] + '/config_file_order.txt','w')
 				f.write(msg)

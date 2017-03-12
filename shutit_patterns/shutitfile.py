@@ -57,14 +57,17 @@ def setup_shutitfile_pattern(skel_path,
 		# This is a vagrant build.
 		skel_pattern = 'vagrant'
 		skel_delivery = 'bash'
+	if skel_pattern == 'shutitfile' and skel_delivery == 'docker':
+		# This is a vagrant build.
+		skel_pattern = 'docker'
+		skel_delivery = 'docker'
 	runsh_filename = skel_path + '/run.sh'
 	runsh_file = open(runsh_filename,'w+')
 	runsh_file.write('''#!/bin/bash
 set -e
 
 MODULE_NAME="''' + skel_module_name + '''"
-DIR="/tmp/shutit_built/''' + skel_path + '''"
-BUILT_DIR="${DIR}/built"
+DIR="/tmp/shutit_built''' + skel_path + '''"
 DOMAIN="''' + skel_domain + '''"
 DELIVERY="''' + skel_delivery + '''"
 PATTERN="''' + skel_pattern + '''"
