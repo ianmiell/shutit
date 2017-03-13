@@ -229,20 +229,6 @@ class ShutItPexpectSession(object):
 			          loglevel=loglevel)
 		self.login_stack_append(r_id)
 		shutit.handle_note_after(note=note,training_input=send)
-		# Try and stop user being 'clever'
-		if shutit.build['exam']:
-			shutit.send(' command alias exit=/bin/true',
-			            echo=False,
-			            record_command=False)
-			shutit.send(' command alias logout=/bin/true',
-			            echo=False,
-			            record_command=False)
-			shutit.send(' command alias kill=/bin/true',
-			            echo=False,
-			            record_command=False)
-			shutit.send(' command alias alias=/bin/true',
-			            echo=False,
-			            record_command=False)
 		return True
 
 
@@ -261,19 +247,6 @@ class ShutItPexpectSession(object):
 		"""
 		shutit = shutit_global.shutit
 		shutit.handle_note(note,training_input=command)
-		if shutit.build['exam']:
-			shutit.send(' command unalias exit',
-			            echo=False,
-			            record_command=False)
-			shutit.send(' command unalias logout',
-			            echo=False,
-			            record_command=False)
-			shutit.send(' command unalias kill',
-			            echo=False,
-			            record_command=False)
-			shutit.send(' command unalias alias',
-			            echo=False,
-			            record_command=False)
 		if len(self.login_stack):
 			_ = self.login_stack.pop()
 			if len(self.login_stack):
@@ -618,6 +591,9 @@ class ShutItPexpectSession(object):
 		@return:             True if pause point handled ok, else false
 		"""
 		shutit = shutit_global.shutit
+		# Try and stop user being 'clever' if we are in an exam
+		if shutit.build['exam']:
+			shutit.send(' command alias exit=/bin/true && command alias logout=/bin/true && command alias kill=/bin/true && command alias alias=/bin/true', echo=False, record_command=False)
 		if print_input:
 			# Do not resize if we are in video mode (ie wait > 0)
 			if resize and wait < 0:
@@ -739,6 +715,8 @@ class ShutItPexpectSession(object):
 		elif shutit.shutit_signal['ID'] == 0:
 			shutit.log('\r\nLeaving interact without CTRL-], assuming exit.',level=logging.CRITICAL,transient=True)
 			shutit_util.handle_exit(exit_code=1)
+		if shutit.build['exam']:
+			shutit.send(' command unalias exit && command unalias logout command unalias kill && command unalias alias', echo=False, record_command=False)
 		return True
 
 
