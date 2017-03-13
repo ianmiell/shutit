@@ -57,11 +57,11 @@ def setup_shutitfile_pattern(skel_path,
 
 	shutit = shutit_global.shutit
 
+	shutit_skeleton_extra_args = ''
 	if skel_pattern == 'shutitfile' and skel_delivery == 'vagrant':
 		# This is a vagrant build, adjust accordingly.
 		skel_pattern = 'vagrant'
 		skel_delivery = 'bash'
-		shutit_skeleton_extra_args = ''
 		if skel_vagrant_num_machines is not None:
 			shutit_skeleton_extra_args += ' --vagrant_num_machines ' + skel_vagrant_num_machines
 		else:
