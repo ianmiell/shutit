@@ -716,7 +716,7 @@ class ShutItPexpectSession(object):
 			shutit.log('\r\nLeaving interact without CTRL-], assuming exit.',level=logging.CRITICAL,transient=True)
 			shutit_util.handle_exit(exit_code=1)
 		if shutit.build['exam']:
-			shutit.send(' command unalias exit && command unalias logout command unalias kill && command unalias alias', echo=False, record_command=False)
+			shutit.send(' unalias exit && unalias logout && unalias kill && unalias alias', echo=False, record_command=False)
 		return True
 
 
