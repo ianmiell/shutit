@@ -634,9 +634,9 @@ def handle_shutitfile_script_line(line, numpushes, wgetgot, numlogins, ifdepth, 
 		current_note = ''
 		numlogins -= 1
 	elif shutitfile_command == 'VAGRANT_LOGIN':
-		build += """\n""" + numtabs*'\t' + """shutit.logout(note='''""" + current_note + """''')"""
-		assert type(shutitfile_args) == str
-		machine_name = scan_text(shutitfile_args)
+		shutitfile_args    = parse_shutitfile_args(line[1])
+		assert type(shutitfile_args) == list
+		machine_name = scan_text(' '.join(shutitfile_args).replace("'", "\\'"))
 		build += """\n""" + numtabs*'\t' + """shutit.login('''vagrant ssh """ + machine_name + """''',note='''""" + current_note + """''')"""
 		build += """\n""" + numtabs*'\t' + """shutit.login('''sudo su -''')"""
 		current_note = ''

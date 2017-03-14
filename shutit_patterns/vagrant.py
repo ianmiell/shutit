@@ -108,6 +108,15 @@ def setup_vagrant_pattern(skel_path,
 			shutit.pause_point("machine: ''' + machine_name + ''' appears not to have come up cleanly")
 '''
 
+	vagrant_dir_section_1 = """
+		if shutit.build['vagrant_run_dir'] is None:
+			shutit.build['vagrant_run_dir'] = os.path.dirname(os.path.abspath(inspect.getsourcefile(lambda:0))) + '/vagrant_run'
+			shutit.build['module_name'] = '""" + skel_module_name + """_' + ''.join(random.choice(string.ascii_letters + string.digits) for _ in range(6))
+			shutit.build['this_vagrant_run_dir'] = shutit.build['vagrant_run_dir'] + '/' + shutit.build['module_name']
+		shutit.send(' command rm -rf ' + shutit.build['this_vagrant_run_dir'] + ' && command mkdir -p ' + shutit.build['this_vagrant_run_dir'] + ' && command cd ' + shutit.build['this_vagrant_run_dir'])"""
+	vagrant_dir_section_n = """
+		shutit.send(' command mkdir -p ' + shutit.build['this_vagrant_run_dir'] + ' && command cd ' + shutit.build['this_vagrant_run_dir'])"""
+
 
 	if ssh_access:
 		copy_keys_code = '''
@@ -158,8 +167,6 @@ def setup_vagrant_pattern(skel_path,
 		shutit.get_config(self.module_id,'vagrant_provider',default='virtualbox')
 		shutit.get_config(self.module_id,'gui',default='false')
 		shutit.get_config(self.module_id,'memory',default='1024')
-		shutit.get_config(self.module_id,'vagrant_run_dir',default='/tmp')
-		shutit.get_config(self.module_id,'this_vagrant_run_dir',default='/tmp')
 		return True'''
 
 	shared_imports = '''import random
@@ -270,16 +277,11 @@ fi
 		vagrant_provider = shutit.cfg[self.module_id]['vagrant_provider']
 		gui = shutit.cfg[self.module_id]['gui']
 		memory = shutit.cfg[self.module_id]['memory']
-		shutit.cfg[self.module_id]['vagrant_run_dir'] = os.path.dirname(os.path.abspath(inspect.getsourcefile(lambda:0))) + '/vagrant_run'
-		run_dir = shutit.cfg[self.module_id]['vagrant_run_dir']
-		module_name = '""" + skel_module_name + """_' + ''.join(random.choice(string.ascii_letters + string.digits) for _ in range(6))
-		this_vagrant_run_dir = run_dir + '/' + module_name
-		shutit.cfg[self.module_id]['this_vagrant_run_dir'] = this_vagrant_run_dir
-		shutit.send(' command rm -rf ' + this_vagrant_run_dir + ' && command mkdir -p ' + this_vagrant_run_dir + ' && command cd ' + this_vagrant_run_dir)
+""" + vagrant_dir_section_1 + """
 		if shutit.send_and_get_output('vagrant plugin list | grep landrush') == '':
 			shutit.send('vagrant plugin install landrush')
 		shutit.send('vagrant init ' + vagrant_image)
-		shutit.send_file(this_vagrant_run_dir + '/Vagrantfile','''Vagrant.configure("2") do |config|
+		shutit.send_file(shutit.build['this_vagrant_run_dir'] + '/Vagrantfile','''Vagrant.configure("2") do |config|
   config.landrush.enabled = true
   config.vm.provider "virtualbox" do |vb|
     vb.gui = ''' + gui + '''
@@ -292,17 +294,10 @@ end''')
 """ + machine_list_code + """
 """ + copy_keys_code + """
 """ + docker_code + """
-		shutit.login(command='vagrant ssh ' + sorted(machines.keys())[0])
-		shutit.login(command='sudo su -',password='vagrant')
-
 """ + shutit.cfg['skeleton']['build_section'] + """
+		shutit.log('''# Vagrantfile created in: ''' + shutit.build['vagrant_run_dir'] + '''\n# Run:
 
-		# Put your automation code in here.
-		shutit.logout()
-		shutit.logout()
-		shutit.log('''# Vagrantfile created in: ''' + shutit.cfg[self.module_id]['vagrant_run_dir'] + '''\n# Run:
-
-cd ''' + shutit.cfg[self.module_id]['vagrant_run_dir'] + ''' && vagrant status && vagrant landrush ls
+cd ''' + shutit.build['vagrant_run_dir'] + ''' && vagrant status && vagrant landrush ls
 
 # to get information about your machines' setup.''',add_final_message=True,level=logging.DEBUG)
 		return True
@@ -341,7 +336,8 @@ def module():
 """ + shutit.cfg['skeleton']['header_section'] + """
 
 	def build(self, shutit):
-		""" + machine_list_code + """
+""" + vagrant_dir_section_n + """
+""" + machine_list_code + """
 		shutit.login(command='vagrant ssh ' + sorted(machines.keys())[0])
 		shutit.login(command='sudo su -',password='vagrant')
 		shutit.logout()
@@ -411,17 +407,15 @@ shutit.core.module.build:yes''')
 		vagrant_provider = shutit.cfg[self.module_id]['vagrant_provider']
 		gui = shutit.cfg[self.module_id]['gui']
 		memory = shutit.cfg[self.module_id]['memory']
-		shutit.cfg[self.module_id]['vagrant_run_dir'] = os.path.dirname(os.path.abspath(inspect.getsourcefile(lambda:0))) + '/vagrant_run'
-		run_dir = shutit.cfg[self.module_id]['vagrant_run_dir']
-		module_name = '""" + skel_module_name + """_' + ''.join(random.choice(string.ascii_letters + string.digits) for _ in range(6))
-		this_vagrant_run_dir = run_dir + '/' + module_name
-		shutit.cfg[self.module_id]['this_vagrant_run_dir'] = this_vagrant_run_dir
-		shutit.send(' command rm -rf ' + this_vagrant_run_dir + ' && command mkdir -p ' + this_vagrant_run_dir + ' && command cd ' + this_vagrant_run_dir)
-		shutit.send('command rm -rf ' + this_vagrant_run_dir + ' && command mkdir -p ' + this_vagrant_run_dir + ' && command cd ' + this_vagrant_run_dir)
+		shutit.build['vagrant_run_dir'] = os.path.dirname(os.path.abspath(inspect.getsourcefile(lambda:0))) + '/vagrant_run'
+		shutit.build['module_name'] = '""" + skel_module_name + """_' + ''.join(random.choice(string.ascii_letters + string.digits) for _ in range(6))
+		shutit.build['this_vagrant_run_dir'] = shutit.build['vagrant_run_dir'] + '/' + shutit.build['module_name']
+		shutit.send(' command rm -rf ' + shutit.build['this_vagrant_run_dir'] + ' && command mkdir -p ' + shutit.build['this_vagrant_run_dir'] + ' && command cd ' + shutit.build['this_vagrant_run_dir'])
+		shutit.send('command rm -rf ' + shutit.build['this_vagrant_run_dir'] + ' && command mkdir -p ' + shutit.build['this_vagrant_run_dir'] + ' && command cd ' + shutit.build['this_vagrant_run_dir'])
 		if shutit.send_and_get_output('vagrant plugin list | grep landrush') == '':
 			shutit.send('vagrant plugin install landrush')
 		shutit.send('vagrant init ' + vagrant_image)
-		shutit.send_file(this_vagrant_run_dir + '/Vagrantfile','''Vagrant.configure("2") do |config|
+		shutit.send_file(shutit.build['this_vagrant_run_dir'] + '/Vagrantfile','''Vagrant.configure("2") do |config|
   config.landrush.enabled = true
   config.vm.provider "virtualbox" do |vb|
     vb.gui = ''' + gui + '''
@@ -438,8 +432,8 @@ end''')
 		shutit.login(command='sudo su -',password='vagrant')
 		shutit.logout()
 		shutit.logout()
-		shutit.log('''Vagrantfile created in: ''' + this_vagrant_run_dir,add_final_message=True,level=logging.DEBUG)
-		shutit.log('''Run:\n\n\tcd ''' + this_vagrant_run_dir + ''' && vagrant status && vagrant landrush ls\n\nTo get a picture of what has been set up.''',add_final_message=True,level=logging.DEBUG)
+		shutit.log('''Vagrantfile created in: ''' + shutit.build['this_vagrant_run_dir'],add_final_message=True,level=logging.DEBUG)
+		shutit.log('''Run:\n\n\tcd ''' + shutit.build['this_vagrant_run_dir'] + ''' && vagrant status && vagrant landrush ls\n\nTo get a picture of what has been set up.''',add_final_message=True,level=logging.DEBUG)
 		return True
 
 """ + get_config_section + """

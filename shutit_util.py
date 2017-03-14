@@ -318,6 +318,8 @@ def get_base_config(cfg_parser):
 	shutit.build['have_read_config_file']      = False
 	# Width of terminal to set up on login and assume for other cases.
 	shutit.build['stty_cols']                  = 320
+	shutit.build['vagrant_run_dir']            = None
+	shutit.build['this_vagrant_run_dir']       = None
 	# Signals are set here, which is useful for context-switching callbacks.
 	shutit.shutit_signal['ID']                 = 0
 	# Take a command-line arg if given, else default.
