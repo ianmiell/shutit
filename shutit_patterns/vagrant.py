@@ -338,10 +338,7 @@ def module():
 	def build(self, shutit):
 """ + vagrant_dir_section_n + """
 """ + machine_list_code + """
-		shutit.login(command='vagrant ssh ' + sorted(machines.keys())[0])
-		shutit.login(command='sudo su -',password='vagrant')
-		shutit.logout()
-		shutit.logout()
+""" + shutit.cfg['skeleton']['build_section'] + """
 
 """ + shutit.cfg['skeleton']['config_section'] + """		return True
 
