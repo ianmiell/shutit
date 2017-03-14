@@ -667,9 +667,9 @@ shutitfile:        a shutitfile-based project (can be docker, bash, vagrant)
 						# Input a delivery method from: bash, docker, vagrant.
 						# Default: ' + default_delivery + '
 
-						docker = build within a docker image
-						bash = run commands directly within bash
-						vagrant = build an n-node vagrant cluster
+						docker:      build within a docker image
+						bash:        run commands directly within bash
+						vagrant:     build an n-node vagrant cluster
 
 						'''), default=default_delivery)
 		else:
