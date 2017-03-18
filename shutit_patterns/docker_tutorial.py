@@ -123,8 +123,8 @@ def setup_docker_tutorial_pattern(skel_path,
 	shutit.shutitfile['script']     = []
 
 
-	os.system('mkdir -p ' + skel_path + '/bin')
-	build_bin_filename = skel_path + '/bin/build.sh'
+	os.system('mkdir -p ' + skel_path)
+	build_bin_filename = skel_path + '/build.sh'
 	build_bin_file = open(build_bin_filename,'w+')
 	build_bin_file.write('''#!/bin/bash
 [[ -z "$SHUTIT" ]] && SHUTIT="$1/shutit"
@@ -134,17 +134,14 @@ then
     echo "Must have shutit on path, eg export PATH=$PATH:/path/to/shutit_dir"
     exit 1
 fi
-pushd ..
 $SHUTIT build -d ''' + skel_delivery + ''' "$@"
 if [[ $? != 0 ]]
 then
-    popd
     exit 1
-fi
-popd''')
+fi''')
 	build_bin_file.close()
 	os.chmod(build_bin_filename,0o755)
-	run_bin_filename   = skel_path + '/bin/run.sh'
+	run_bin_filename   = skel_path + '/run.sh'
 	run_bin_file = open(run_bin_filename,'w+')
 	os.system('mkdir -p ' + skel_path + '/configs')
 
@@ -198,7 +195,7 @@ CMD ["/bin/bash"]''')
 
 	# User message
 	shutit.log('''# Run:
-cd ''' + skel_path + '''/bin && ./build.sh
+cd ''' + skel_path + ''' && ./build.sh
 # to build.
 # And then:
 ./run.sh

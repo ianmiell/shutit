@@ -98,7 +98,7 @@ then
 	cd $DIR && ./run.sh "$@"
 elif [[ ${DELIVERY} == 'docker' ]]
 then
-	cd $DIR/bin && ./build.sh "$@"
+	cd $DIR && ./build.sh "$@"
 fi''')
 	runsh_file.close()
 	os.chmod(runsh_filename,0o755)

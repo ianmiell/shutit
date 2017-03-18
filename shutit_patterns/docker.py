@@ -39,8 +39,8 @@ def setup_docker_pattern(skel_path,
 	for earg in shutit.shutitfile['env']:
 		shutit.cfg['skeleton']['env_arg'] += ' -e ' + earg.split()[0] + ':' + earg.split()[1]
 
-	os.system('mkdir -p ' + skel_path + '/bin')
-	build_bin_filename = skel_path + '/bin/build.sh'
+	os.system('mkdir -p ' + skel_path)
+	build_bin_filename = skel_path + '/build.sh'
 	build_bin_file = open(build_bin_filename,'w+')
 	build_bin_file.write('''#!/bin/bash
 [[ -z "$SHUTIT" ]] && SHUTIT="$1/shutit"
@@ -50,17 +50,14 @@ then
     echo "Must have shutit on path, eg export PATH=$PATH:/path/to/shutit_dir"
     exit 1
 fi
-pushd ..
 $SHUTIT build -d ''' + skel_delivery + ''' "$@"
 if [[ $? != 0 ]]
 then
-    popd
     exit 1
-fi
-popd''')
+fi''')
 	build_bin_file.close()
 	os.chmod(build_bin_filename,0o755)
-	run_bin_filename   = skel_path + '/bin/run.sh'
+	run_bin_filename   = skel_path + '/run.sh'
 	run_bin_file = open(run_bin_filename,'w+')
 	# TODO: sort out entrypoint properly
 	entrypoint = ''
@@ -87,7 +84,7 @@ done
 ${DOCKER} run -d --name ${CONTAINER_NAME} ''' + skel_module_name + ''' ''' +  shutit.cfg['skeleton']['ports_arg'] + ''' ''' + shutit.cfg['skeleton']['ports_arg'] + ''' ''' + shutit.cfg['skeleton']['env_arg'] + ''' ${DOCKER_ARGS} ${IMAGE_NAME} ''' + entrypoint + ''' ''' + shutit.shutitfile['cmd'])
 	run_bin_file.close()
 	os.chmod(run_bin_filename,0o755)
-	test_bin_filename  = skel_path + '/bin/test.sh'
+	test_bin_filename  = skel_path + '/test.sh'
 	test_bin_file = open(test_bin_filename,'w+')
 	test_bin_file.write('''#!/bin/bash
 # Test the building of this module
@@ -153,7 +150,7 @@ CMD ["/bin/bash"]''')
 
 	# User message
 	shutit.log('''# Run:
-cd ''' + skel_path + '''/bin && ./build.sh
+cd ''' + skel_path + ''' && ./build.sh
 # to build.
 # And then:
 ./run.sh
