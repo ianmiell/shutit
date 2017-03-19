@@ -1306,7 +1306,7 @@ class ShutItPexpectSession(object):
 					                loglevel=loglevel)
 					shutit.log('Result of install attempt was: ' + str(res),level=logging.DEBUG)
 				# Does not work!
-				if False and self.get_exit_value(shutit):
+				if res == 1:
 					break
 				else:
 					fails += 1
