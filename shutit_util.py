@@ -311,6 +311,7 @@ def get_base_config(cfg_parser):
 	shutit.build['base_image']                 = cp.get('build', 'base_image')
 	shutit.build['dotest']                     = cp.get('build', 'dotest')
 	shutit.build['net']                        = cp.get('build', 'net')
+	shutit.build['secret_words_set']           = set()
 	shutit.build['completed']                  = False
 	shutit.build['step_through']               = False
 	shutit.build['ctrlc_stop']                 = False
@@ -343,6 +344,7 @@ def get_base_config(cfg_parser):
 	shutit.host['docker_executable']           = cp.get('host', 'docker_executable')
 	shutit.host['dns']                         = cp.get('host', 'dns')
 	shutit.host['password']                    = cp.get('host', 'password')
+	shutit.cfg['build']['secret_words_set'].add(shutit.host['password'])
 	shutit.host['logfile']                     = cp.get('host', 'logfile')
 	shutit.host['shutit_module_path']          = cp.get('host', 'shutit_module_path').split(':')
 	# repository - information relating to repository/registry
@@ -356,6 +358,7 @@ def get_base_config(cfg_parser):
 	shutit.repository['suffix_format']         = cp.get('repository', 'suffix_format')
 	shutit.repository['user']                  = cp.get('repository', 'user')
 	shutit.repository['password']              = cp.get('repository', 'password')
+	shutit.cfg['build']['secret_words_set'].add(shutit.repository['password'])
 	shutit.repository['email']                 = cp.get('repository', 'email')
 	shutit.repository['tag_name']              = cp.get('repository', 'tag_name')
 	# END Read from config files
