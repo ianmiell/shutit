@@ -23,19 +23,19 @@ def setup_vagrant_pattern(skel_path,
 	# Gather requirements for multinode vagrant setup:
 	options = []
 	if skel_vagrant_num_machines is None:
-		options.append({'name':'num_machines','question':'How many machines do you want? (defalt: 3)','value':'3','ok_values':[]})
+		options.append({'name':'num_machines','question':'How many machines do you want?','value':'3','ok_values':[]})
 	else:
 		num_machines = skel_vagrant_num_machines
 	if skel_vagrant_machine_prefix is None:
-		options.append({'name':'machine_prefix','question':'What do you want to call the machines (eg superserver) (default: machine)?','value':'machine','ok_values':[]})
+		options.append({'name':'machine_prefix','question':'What do you want to call the machines (eg superserver)?','value':'machine','ok_values':[]})
 	else:
 		machine_prefix = skel_vagrant_machine_prefix
 	if skel_vagrant_ssh_access is None:
-		options.append({'name':'ssh_access','question':'Do you want to have open ssh access between machines (yes or no) (default: yes)?','value':'yes','ok_values':['yes','no']})
+		options.append({'name':'ssh_access','question':'Do you want to have open ssh access between machines (yes or no)?','value':'yes','ok_values':['yes','no']})
 	else:
 		ssh_access = skel_vagrant_ssh_access
 	if skel_vagrant_docker is None:
-		options.append({'name':'docker','question':'Do you want Docker on the machine (yes or no) (default: no)?','value':'no','ok_values':['yes','no']})
+		options.append({'name':'docker','question':'Do you want Docker on the machine (yes or no)?','value':'no','ok_values':['yes','no']})
 	else:
 		docker = skel_vagrant_docker
 	if len(options) > 0:
@@ -43,7 +43,7 @@ def setup_vagrant_pattern(skel_path,
 		while True:
 			print('')
 			for opt in options:
-				print(str(count) + ': ' + opt['question'])
+				print(str(count) + ': ' + opt['question'] + ' (current: ' + opt['value'] + ')')
 				count += 1
 			print('')
 			choice = shutit_util.get_input('Choose an item to change if you want to change the default. Hit return to continue.\nIf you want to change a config, choose the number: ')
