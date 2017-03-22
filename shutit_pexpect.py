@@ -169,7 +169,7 @@ class ShutItPexpectSession(object):
 		"""
 		# We don't get the default expect here, as it's either passed in, or a base default regexp.
 		shutit = shutit_global.shutit
-		shutit.cfg['build']['secret_words_set'].add(password)
+		shutit.build['secret_words_set'].add(password)
 		r_id = shutit_util.random_id()
 		if prompt_prefix is None:
 			prompt_prefix = r_id
@@ -884,7 +884,7 @@ class ShutItPexpectSession(object):
 		"""
 		shutit = shutit_global.shutit
 		shutit.handle_note(note)
-		shutit.cfg['build']['secret_words_set'].add(password)
+		shutit.build['secret_words_set'].add(password)
 		self.install('passwd')
 		if self.current_environment.install_type == 'apt':
 			self.send('passwd ' + user,
@@ -1614,7 +1614,7 @@ class ShutItPexpectSession(object):
 		if not self.current_environment.users[user] and user != 'root':
 			msg = msg or 'Please input the sudo password for user: ' + user
 			self.current_environment.users[user] = shutit_util.get_input(msg,ispass=True)
-			shutit.cfg['build']['secret_words_set'].add(self.current_environment.users[user])
+			shutit.build['secret_words_set'].add(self.current_environment.users[user])
 		return self.current_environment.users[user]
 
 
@@ -2453,7 +2453,7 @@ class ShutItPexpectSession(object):
 							shutit.build['shutit_command_history'].append ('#redacted command, password')
 							ok_to_record = False
 							break
-				if not ok_to_record or send in shutit.cfg['build']['secret_words_set']:
+				if not ok_to_record or send in shutit.build['secret_words_set']:
 					secret = True
 					break
 			if ok_to_record:
@@ -3300,7 +3300,7 @@ $'"""
 					shutit.pause_point('Please install sudo and then continue with CTRL-]',shutit_pexpect_child=self.pexpect_child)
 				if not self.check_sudo():
 					pw = self.get_env_pass(whoiam,'Please input your sudo password in case it is needed (for user: ' + whoiam + ')\nJust hit return if you do not want to submit a password.\n')
-		shutit.cfg['build']['secret_words_set'].add(pw) 
+		shutit.build['secret_words_set'].add(pw) 
 		return pw
 
 
