@@ -159,7 +159,7 @@ def setup_vagrant_pattern(skel_path,
 			shutit.send_file('/etc/docker/daemon.json',"""{
   "dns": ["8.8.8.8"]
 }""",note='Use the google dns server rather than the vagrant one. Change to the value you want if this does not work, eg if google dns is blocked.')
-			shutit.send('systemctl restart docker')'''
+			shutit.send('systemctl daemon-reload && systemctl restart docker')'''
 	else:
 		docker_code = ''
 
