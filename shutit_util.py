@@ -438,7 +438,7 @@ def parse_args(set_loglevel=None):
 	sub_parsers['skeleton'].add_argument('--vagrant_num_machines', default=None)
 	sub_parsers['skeleton'].add_argument('--vagrant_ssh_access', default=False, const=True, action='store_const')
 	sub_parsers['skeleton'].add_argument('--vagrant_machine_prefix', default=None)
-	sub_parsers['skeleton'].add_argument('--vagrant_docker', default=False, const=True, action='store_const')
+	sub_parsers['skeleton'].add_argument('--vagrant_docker', default=None, const=True, action='store_const')
 	sub_parsers['skeleton'].add_argument('--pattern', help='Pattern to use', default='')
 	sub_parsers['skeleton'].add_argument('--delivery', help='Delivery method, aka target. "docker" container (default), configured "ssh" connection, "bash" session', default=None, choices=('docker','dockerfile','ssh','bash'))
 	sub_parsers['skeleton'].add_argument('-a','--accept', help='Accept defaults', const=True, default=False, action='store_const')
