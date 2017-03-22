@@ -1614,7 +1614,7 @@ class ShutItPexpectSession(object):
 		if not self.current_environment.users[user] and user != 'root':
 			msg = msg or 'Please input the sudo password for user: ' + user
 			self.current_environment.users[user] = shutit_util.get_input(msg,ispass=True)
-			shutit.cfg['build']['secret_words_set'].add(self.current_environment.users[user]
+			shutit.cfg['build']['secret_words_set'].add(self.current_environment.users[user])
 		return self.current_environment.users[user]
 
 

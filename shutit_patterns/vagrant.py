@@ -55,6 +55,8 @@ def setup_vagrant_pattern(skel_path,
 				except ValueError:
 					print('Bad value, ignoring')
 					continue
+			# off by one
+			choice -= 1
 			item = options[choice]
 			value = shutit_util.get_input('Input the value')
 			if len(item['ok_values']) > 0 and value not in item['ok_values']:
