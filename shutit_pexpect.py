@@ -2369,7 +2369,8 @@ class ShutItPexpectSession(object):
 		shutit = shutit_global.shutit
 		cfg = shutit.cfg
 		if send.strip() == '':
-			shutit.fail('Empty send received! Failing.')
+			fail_on_empty_before=False
+			check_exit=False
 		if isinstance(expect, dict):
 			return self.multisend(send=send,
 			                      send_dict=expect,
