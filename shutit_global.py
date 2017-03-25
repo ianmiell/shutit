@@ -769,11 +769,11 @@ class ShutIt(object):
 				                                 group=group,
 				                                 loglevel=loglevel)
 			elif os.path.isdir(hostfilepath):
-				shutit_pexpect_session.send_host_dir(path,
-				                                     hostfilepath,
-				                                     user=user,
-				                                     group=group,
-				                                     loglevel=loglevel)
+				self.send_host_dir(path,
+				                   hostfilepath,
+				                   user=user,
+				                   group=group,
+				                   loglevel=loglevel)
 			else:
 				self.fail('send_host_file - file: ' + hostfilepath + ' does not exist as file or dir. cwd is: ' + os.getcwd(), shutit_pexpect_child=shutit_pexpect_child, throw_exception=False)
 		self.handle_note_after(note=note)
@@ -823,7 +823,7 @@ class ShutIt(object):
 				                            echo=False,
 				                            loglevel=loglevel)
 				self.log('send_host_dir recursing to: ' + hostfilepath + '/' + subfolder, level=logging.DEBUG)
-				shutit_pexpect_session.send_host_dir(path + '/' + subfolder,
+				self.send_host_dir(path + '/' + subfolder,
 				                                     hostfilepath + '/' + subfolder,
 				                                     expect=expect,
 				                                     shutit_pexpect_child=shutit_pexpect_child,
@@ -834,8 +834,6 @@ class ShutIt(object):
 				self.log('send_host_dir sending file ' + hostfullfname + ' to ' + 'target file: ' + targetfname, level=logging.DEBUG)
 				shutit_pexpect_session.send_file(targetfname,
 				                                 open(hostfullfname).read(),
-				                                 expect=expect,
-				                                 shutit_pexpect_child=shutit_pexpect_child,
 				                                 user=user,
 				                                 group=group,
 				                                 loglevel=loglevel)
