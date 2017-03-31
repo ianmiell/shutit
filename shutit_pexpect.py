@@ -204,7 +204,7 @@ class ShutItPexpectSession(object):
 		#if send == 'bash':
 		echo = self.get_echo_override(shutit, echo)
 		self.multisend(send,
-		               {'ontinue connecting':'yes', 'assword':password, r'[^t] login:':password},
+		               {'ontinue connecting':'yes', 'assword':password, r'[^t] login:':password, user+'@':password},
 		               expect=general_expect,
 		               check_exit=False,
 		               timeout=timeout,
