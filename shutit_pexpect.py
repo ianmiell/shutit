@@ -211,6 +211,7 @@ class ShutItPexpectSession(object):
 		               fail_on_empty_before=False,
 		               escape=escape,
 		               echo=echo,
+		               remove_on_match=True,
 		               loglevel=loglevel)
 		# Check exit 'by hand' here to not effect/assume setup prompt.
 		if not self.get_exit_value(shutit):
@@ -1839,6 +1840,7 @@ class ShutItPexpectSession(object):
 	              note=None,
 	              secret=False,
 	              check_sudo=True,
+	              remove_on_match=False,
 	              loglevel=logging.DEBUG):
 		"""Multisend. Same as send, except it takes multiple sends and expects in a dict that are
 		processed while waiting for the end "expect" argument supplied.
@@ -1856,6 +1858,7 @@ class ShutItPexpectSession(object):
 		@param note:                 See send()
 		@param secret:               See send()
 		@param check_sudo:           See send()
+		@param remove_on_match       If the item matches, remove it from future expects (eg if it's a password)
 		@param loglevel:             See send()
 		"""
 		expect = expect or self.default_expect
@@ -1891,6 +1894,8 @@ class ShutItPexpectSession(object):
 				break
 			else:
 				send_iteration = send_dict[expect_list[res]]
+				if remove_on_match:
+					del expect_list[res]
 		shutit.handle_note_after(note=note)
 		return res
 
