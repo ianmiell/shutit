@@ -339,6 +339,7 @@ def module():
 """ + shutit.cfg['skeleton']['header_section'] + """
 
 	def build(self, shutit):
+		shutit.run_script('''""" + destroyvmssh_file_contents  + """''')
 """ + vagrant_dir_section_n + """
 """ + machine_list_code + """
 """ + shutit.cfg['skeleton']['build_section'] + """
@@ -403,6 +404,7 @@ shutit.core.module.build:yes''')
 """ + shutit.cfg['skeleton']['header_section'] + """
 
 	def build(self, shutit):
+		shutit.run_script('''""" + destroyvmssh_file_contents  + """''')
 		vagrant_image = shutit.cfg[self.module_id]['vagrant_image']
 		vagrant_provider = shutit.cfg[self.module_id]['vagrant_provider']
 		gui = shutit.cfg[self.module_id]['gui']

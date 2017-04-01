@@ -1864,7 +1864,8 @@ class ShutItPexpectSession(object):
 		@param note:                 See send()
 		@param secret:               See send()
 		@param check_sudo:           See send()
-		@param remove_on_match       If the item matches, remove the send_dict from future expects (eg if it's a password)
+		@param remove_on_match       If the item matches, remove the send_dict from future expects (eg if it's a password). This makes
+                                     the 'am I logged in yet?' checking more robust.
 		@param loglevel:             See send()
 		"""
 		expect = expect or self.default_expect
