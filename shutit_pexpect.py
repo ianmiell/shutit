@@ -1858,7 +1858,7 @@ class ShutItPexpectSession(object):
 		@param note:                 See send()
 		@param secret:               See send()
 		@param check_sudo:           See send()
-		@param remove_on_match       If the item matches, remove it from future expects (eg if it's a password)
+		@param remove_on_match       If the item matches, remove the send_dict from future expects (eg if it's a password)
 		@param loglevel:             See send()
 		"""
 		expect = expect or self.default_expect
@@ -1895,7 +1895,10 @@ class ShutItPexpectSession(object):
 			else:
 				send_iteration = send_dict[expect_list[res]]
 				if remove_on_match:
-					del expect_list[res]
+					if isinstance(expect, str):
+						expect_list = [expect]
+					elif isinstance(expect, list):
+						expect_list = expect
 		shutit.handle_note_after(note=note)
 		return res
 
