@@ -142,6 +142,7 @@ class ShutItPexpectSession(object):
 	          echo=None,
 	          note=None,
 	          go_home=True,
+	          is_ssh=None,
 	          loglevel=logging.DEBUG,
 	          fail_on_fail=True):
 		"""Logs the user in with the passed-in password and command.
@@ -160,6 +161,10 @@ class ShutItPexpectSession(object):
 		@param timeout:		  How long to wait for a response. Default: 20.
 		@param note:          See send()
 		@param go_home:       Whether to automatically cd to home.
+		@param go_home:       Whether this is an is_ssh connection. If it is,
+		                      this changes the expects slightly. If the command
+		                      begins with 'ssh' then it's auto-set, unless
+		                      explicitly set to false.
 
 		@type user:           string
 		@type command:        string
@@ -194,9 +199,10 @@ class ShutItPexpectSession(object):
 		# Add in a match if we see user+ and then the login matches. Be careful not to match against 'user+@...password:'
 		general_expect = general_expect + [user+'@.*'+'[@#$]']
 		# If not an ssh login, then we can match against user + @sign because it won't clash with 'user@adasdas password:'
-		if command.find('ssh') != 0:
-			general_expect = general_expect + [user+'@']
-			general_expect = general_expect + ['.*[@#$]']
+		if not is_ssh == False:
+			if is_ssh or command.find('ssh') != 0:
+				general_expect = general_expect + [user+'@']
+				general_expect = general_expect + ['.*[@#$]']
 		if user == 'bash' and command == 'su -':
 			shutit.log('WARNING! user is bash - if you see problems below, did you mean: login(command="' + user + '")?',level=logging.WARNING)
 		shutit.handle_note(note,command=command + '\n\n[as user: "' + user + '"]',training_input=send)
