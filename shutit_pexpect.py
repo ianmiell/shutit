@@ -1876,12 +1876,15 @@ class ShutItPexpectSession(object):
 		# Put breakout item(s) in last.
 		n_breakout_items = 0
 		if isinstance(expect, str):
+			shutit.log('Adding: "' + expect + '" to expect list.',level=logging.DEBUG)
 			expect_list.append(expect)
 			n_breakout_items = 1
 		elif isinstance(expect, list):
+			shutit.log('Adding: "' + str(expect) + '" to expect list.',level=logging.DEBUG)
 			for item in expect:
 				expect_list.append(item)
 				n_breakout_items += 1
+		shutit.log('Number of breakout items: "' + str(n_breakout_items),level=logging.DEBUG)
 		while True:
 			# If it's the last n items in the list, it's the breakout one.
 			echo = self.get_echo_override(shutit, echo)
@@ -1902,6 +1905,7 @@ class ShutItPexpectSession(object):
 			else:
 				send_iteration = send_dict[expect_list[res]]
 				if remove_on_match:
+					shutit.log('Have matched a password, removing password expects from list in readiness of a prompt"',level=logging.DEBUG)
 					if isinstance(expect, str):
 						expect_list = [expect]
 					elif isinstance(expect, list):
@@ -3186,14 +3190,6 @@ $'"""
 								self.current_environment = environment
 							else:
 								shutit.fail('Should not get here: environment reached but with unique build_id that matches, but object not in existence')
-							# TODO: check against CygWin before removing
-							## Workaround for CygWin terminal issues. If the envid isn't in the cfg item
-							## Then crudely assume it is. This will drop through and then assume we are in the origin env.
-							#try:
-							#	_=shutit.environment[shutit.build['current_environment_id']]
-							#except Exception:
-							#	shutit.build['current_environment_id'] = 'ORIGIN_ENV'
-							#break
 				else:
 					## See comment above re: cygwin.
 					if self.file_exists('/cygdrive'):
@@ -3202,10 +3198,6 @@ $'"""
 						shutit.fail('Wrong number of files in environment_id_dir: ' + environment_id_dir)
 					shutit.fail('Wrong number of files in environment_id_dir: ' + environment_id_dir)
 			else:
-				# TODO: check against CygWin before removing
-				#if self.file_exists('/cygdrive'):
-				#	environment_id = 'ORIGIN_ENV'
-				#else:
 				environment_id = files[0]
 				environment = shutit.get_shutit_pexpect_session_environment(environment_id)
 				if environment:
@@ -3214,13 +3206,6 @@ $'"""
 					self.current_environment = environment
 				else:
 					shutit.fail('Should not get here: environment reached but with unique build_id that matches, but object not in existence, ' + environment_id)
-			# as far as I can tell, this should never happen?
-			#if shutit.build['current_environment_id'] != environment_id:
-			#	# Clean out any trace of this new environment, and return the already-existing one.
-			#	self.send(' command rm -rf ' + environment_id_dir + '/environment_id/' + environment_id, echo=False, loglevel=loglevel)
-			#	return shutit.build['current_environment_id']
-			#if not environment_id == 'ORIGIN_ENV':
-			#	return shutit.get_shutit_pexpect_session_environment('ORIGIN_ENV')
 			self.current_environment = environment
 			return shutit.get_shutit_pexpect_session_environment(environment_id)
 		new_environment = ShutItPexpectSessionEnvironment(prefix)
