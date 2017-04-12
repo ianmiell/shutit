@@ -35,6 +35,7 @@ import datetime
 import pexpect
 import logging
 import tarfile
+import gzip
 from shutit_module import ShutItFailException
 
 
@@ -800,7 +801,7 @@ class ShutIt(object):
 			with tarfile.open(gzipfname, 'w:gz') as tar:
 				tar.add(hostfilepath, arcname=os.path.basename(hostfilepath))
 			shutit_pexpect_session.send_file(gzipfname,
-			                                 open(gzipfname).read(),
+			                                 gzip.open(gzipfname).read(),
 			                                 user=user,
 			                                 group=group,
 			                                 loglevel=loglevel)
