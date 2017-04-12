@@ -34,6 +34,7 @@ import getpass
 import datetime
 import pexpect
 import logging
+import tarfile
 from shutit_module import ShutItFailException
 
 
@@ -737,45 +738,21 @@ class ShutIt(object):
 			user = shutit_pexpect_session.whoami()
 		if group is None:
 			group = self.whoarewe()
-		# TODO: take out False in next line and replace with a consideration of login_stack depth
-		if False and self.build['delivery'] in ('bash','dockerfile'):
-			retdir = shutit_pexpect_session.send_and_get_output(' command pwd',loglevel=loglevel)
-			shutit_pexpect_session.send(' command pushd ' + shutit_pexpect_session.current_environment.module_root_dir,
-			                            echo=False,
-			                            loglevel=loglevel)
-			shutit_pexpect_session.send(' command cp -r ' + hostfilepath + ' ' + retdir + '/' + path,
-			                            expect=expect,
-			                            timeout=timeout,
-			                            echo=False,
-			                            loglevel=loglevel)
-			shutit_pexpect_session.send(' command chown ' + user + ' ' + hostfilepath + ' ' + retdir + '/' + path,
-			                            timeout=timeout,
-			                            echo=False,
-			                            loglevel=loglevel)
-			shutit_pexpect_session.send(' command chgrp ' + group + ' ' + hostfilepath + ' ' + retdir + '/' + path,
-			                            timeout=timeout,
-			                            echo=False,
-			                            loglevel=loglevel)
-			shutit_pexpect_session.send(' command popd',
-			                            expect=expect,
-			                            timeout=timeout,
-			                            echo=False,
-			                            loglevel=loglevel)
+		# TODO: use gz for both
+		if os.path.isfile(hostfilepath):
+			shutit_pexpect_session.send_file(path,
+			                                 open(hostfilepath).read(),
+			                                 user=user,
+			                                 group=group,
+			                                 loglevel=loglevel)
+		elif os.path.isdir(hostfilepath):
+			self.send_host_dir(path,
+			                   hostfilepath,
+			                   user=user,
+			                   group=group,
+			                   loglevel=loglevel)
 		else:
-			if os.path.isfile(hostfilepath):
-				shutit_pexpect_session.send_file(path,
-				                                 open(hostfilepath).read(),
-				                                 user=user,
-				                                 group=group,
-				                                 loglevel=loglevel)
-			elif os.path.isdir(hostfilepath):
-				self.send_host_dir(path,
-				                   hostfilepath,
-				                   user=user,
-				                   group=group,
-				                   loglevel=loglevel)
-			else:
-				self.fail('send_host_file - file: ' + hostfilepath + ' does not exist as file or dir. cwd is: ' + os.getcwd(), shutit_pexpect_child=shutit_pexpect_child, throw_exception=False)
+			self.fail('send_host_file - file: ' + hostfilepath + ' does not exist as file or dir. cwd is: ' + os.getcwd(), shutit_pexpect_child=shutit_pexpect_child, throw_exception=False)
 		self.handle_note_after(note=note)
 		return True
 
@@ -815,28 +792,46 @@ class ShutIt(object):
 			user = shutit_pexpect_session.whoami()
 		if group is None:
 			group = self.whoarewe()
-		for root, subfolders, files in os.walk(hostfilepath):
-			subfolders.sort()
-			files.sort()
-			for subfolder in subfolders:
-				shutit_pexpect_session.send(' command mkdir -p ' + path + '/' + subfolder,
-				                            echo=False,
-				                            loglevel=loglevel)
-				self.log('send_host_dir recursing to: ' + hostfilepath + '/' + subfolder, level=logging.DEBUG)
-				self.send_host_dir(path + '/' + subfolder,
-				                                     hostfilepath + '/' + subfolder,
-				                                     expect=expect,
-				                                     shutit_pexpect_child=shutit_pexpect_child,
-				                                     loglevel=loglevel)
-			for fname in files:
-				hostfullfname = os.path.join(root, fname)
-				targetfname = os.path.join(path, fname)
-				self.log('send_host_dir sending file ' + hostfullfname + ' to ' + 'target file: ' + targetfname, level=logging.DEBUG)
-				shutit_pexpect_session.send_file(targetfname,
-				                                 open(hostfullfname).read(),
-				                                 user=user,
-				                                 group=group,
-				                                 loglevel=loglevel)
+		# Create gzip of folder
+		# TODO: check we have tar with gz on target
+		if True:
+			gzipfname = '/tmp/shutit_tar_tmp.tar.gz'
+			with tarfile.open(gzipfname, 'w:gz') as tar:
+				tar.add(hostfilepath, arcname=os.path.basename(hostfilepath))
+			shutit_pexpect_session.send_file(gzipfname,
+			                                 open(gzipfname).read(),
+			                                 user=user,
+			                                 group=group,
+			                                 loglevel=loglevel)
+			targetpathtmp = path + '.shutit.tmp'
+			shutit_pexpect_session.send(' command mkdir -p ' + targetpathtmp)
+			shutit_pexpect_session.send(' command tar -C ' + targetpathtmp + ' -zxf ' + gzipfname)
+			shutit_pexpect_session.send(' command mv ' + targetpathtmp + '/* ' + targetpathtmp + '/..')
+			shutit_pexpect_session.send(' command rm -rf ' + targetpathtmp)
+		else:
+			# If no gunzip, fall back to old slow method.
+			for root, subfolders, files in os.walk(hostfilepath):
+				subfolders.sort()
+				files.sort()
+				for subfolder in subfolders:
+					shutit_pexpect_session.send(' command mkdir -p ' + path + '/' + subfolder,
+					                            echo=False,
+					                            loglevel=loglevel)
+					self.log('send_host_dir recursing to: ' + hostfilepath + '/' + subfolder, level=logging.DEBUG)
+					self.send_host_dir(path + '/' + subfolder,
+					                                     hostfilepath + '/' + subfolder,
+					                                     expect=expect,
+					                                     shutit_pexpect_child=shutit_pexpect_child,
+					                                     loglevel=loglevel)
+				for fname in files:
+					hostfullfname = os.path.join(root, fname)
+					targetfname = os.path.join(path, fname)
+					self.log('send_host_dir sending file ' + hostfullfname + ' to ' + 'target file: ' + targetfname, level=logging.DEBUG)
+					shutit_pexpect_session.send_file(targetfname,
+					                                 open(hostfullfname).read(),
+					                                 user=user,
+					                                 group=group,
+					                                 loglevel=loglevel)
 		self.handle_note_after(note=note)
 		return True
 
@@ -2110,7 +2105,7 @@ class ShutIt(object):
 
 
 	def add_shutit_pexpect_session(self, shutit_pexpect_child):
-		pexpect_session_id = shutit_pexpect_child.pexpect_sesssion_id
+		pexpect_session_id = shutit_pexpect_child.pexpect_session_id
 		# Check id is unique
 		if self.shutit_pexpect_sessions.has_key(pexpect_session_id) and self.shutit_pexpect_sessions[pexpect_session_id] != shutit_pexpect_child:
 			shutit.fail('shutit_pexpect_child already added and differs from passed-in object',throw_exception=True)
