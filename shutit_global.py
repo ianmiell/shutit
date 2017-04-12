@@ -769,7 +769,7 @@ class ShutIt(object):
 		"""Send directory and all contents recursively from host machine to
 		given path.  It will automatically make directories on the target.
 
-		@param path:          Path to send directory to
+		@param path:          Path to send directory to (places hostfilepath inside path as a subfolder)
 		@param hostfilepath:  Path to file from host to send to target
 		@param expect:        See send()
 		@param shutit_pexpect_child:         See send()
@@ -794,6 +794,7 @@ class ShutIt(object):
 			group = self.whoarewe()
 		# Create gzip of folder
 		# TODO: check we have tar with gz on target
+		# TODO: handle/check for '../..'
 		if True:
 			gzipfname = '/tmp/shutit_tar_tmp.tar.gz'
 			with tarfile.open(gzipfname, 'w:gz') as tar:
@@ -803,11 +804,7 @@ class ShutIt(object):
 			                                 user=user,
 			                                 group=group,
 			                                 loglevel=loglevel)
-			targetpathtmp = path + '.shutit.tmp'
-			shutit_pexpect_session.send(' command mkdir -p ' + targetpathtmp)
-			shutit_pexpect_session.send(' command tar -C ' + targetpathtmp + ' -zxf ' + gzipfname)
-			shutit_pexpect_session.send(' command mv ' + targetpathtmp + '/* ' + targetpathtmp + '/..')
-			shutit_pexpect_session.send(' command rm -rf ' + targetpathtmp)
+			shutit_pexpect_session.send(' command mkdir -p ' + path + ' && command tar -C ' + path + ' -zxf ' + gzipfname)
 		else:
 			# If no gunzip, fall back to old slow method.
 			for root, subfolders, files in os.walk(hostfilepath):
