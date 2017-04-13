@@ -2767,7 +2767,7 @@ $'"""
 					else:
 						f.write(contents.decode('utf-8'))
 			else:
-				shutit.fail('type: ' + str(type(contents)) + ' not handled')
+				shutit.fail('type: ' + str(type(contents)) + ' not handled in 1')
 			f.close()
 		elif shutit.build['delivery'] in ('bash','dockerfile'):
 			if truncate and self.file_exists(path):
@@ -2785,7 +2785,7 @@ $'"""
 					elif isinstance(contents, bytes):
 						b64contents = base64.b64encode(contents).decode('utf-8')
 					else:
-						shutit.fail('type: ' + str(type(contents)) + ' not handled')
+						shutit.fail('type: ' + str(type(contents)) + ' not handled in 2')
 			else:
 				b64contents = base64.b64encode(contents)
 			if len(b64contents) > 100000:
@@ -2804,26 +2804,7 @@ $'"""
 			path = path.replace(' ', r'\ ')
 			# get host session
 			tmpfile = shutit.build['shutit_state_dir_base'] + 'tmp_' + shutit_util.random_id()
-			if isinstance(contents, str):
-				f = open(tmpfile,'wb')
-				f.truncate(0)
-				try:
-					if PY3:
-						if encoding is not None:
-							f.write(contents.encode(encoding))
-						else:
-							f.write(contents.encode('utf-8'))
-					else:
-						if encoding is not None:
-							f.write(contents.encode(encoding))
-						else:
-							f.write(contents.encode('utf-8'))
-				except (UnicodeDecodeError, TypeError) as e:
-					if encoding is not None:
-						f.write(contents)
-					else:
-						f.write(contents)
-			elif isinstance(contents, bytes):
+			if isinstance(contents, bytes):
 				f = open(tmpfile,'wb')
 				f.truncate(0)
 				try:
@@ -2840,7 +2821,22 @@ $'"""
 					else:
 						f.write(contents)
 			else:
-				shutit.fail('type: ' + str(type(contents)) + ' not handled')
+				# We assume it's unicode, or str. Can't be explicit because python3 and 2 differ in how they handle...
+				f = open(tmpfile,'wb')
+				f.truncate(0)
+				try:
+					if PY3:
+						if encoding is not None:
+							f.write(contents.encode(encoding))
+						else:
+							f.write(contents.encode('utf-8'))
+					else:
+						if encoding is not None:
+							f.write(contents.encode(encoding))
+						else:
+							f.write(contents.encode('utf-8'))
+				except (UnicodeDecodeError, TypeError) as e:
+					f.write(contents)
 			f.close()
 			# Create file so it has appropriate permissions
 			self.send(' command touch ' + path,
