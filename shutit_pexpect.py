@@ -2763,6 +2763,8 @@ $'"""
 						f.write(contents.decode(encoding))
 					else:
 						f.write(contents.decode('utf-8'))
+			else:
+				shutit.fail('type: ' + str(type(contents)) + ' not handled')
 			f.close()
 		elif shutit.build['delivery'] in ('bash','dockerfile'):
 			if truncate and self.file_exists(path):
@@ -2773,12 +2775,16 @@ $'"""
 			# set the searchwindowsize to a low number to speed up processing of large output
 			if PY3:
 				if encoding is not None:
-					b64contents = base64.b64encode(contents.encode(encoding))
+					b64contents = base64.b64encode(contents.encode(encoding)).decode(encoding)
 				else:
-					b64contents = base64.b64encode(contents.encode('utf-8'))
+					if isinstance(contents, str):
+						b64contents = base64.b64encode(contents.encode('utf-8')).decode('utf-8')
+					elif isinstance(contents, bytes):
+						b64contents = base64.b64encode(contents).decode('utf-8')
+					else:
+						shutit.fail('type: ' + str(type(contents)) + ' not handled')
 			else:
 				b64contents = base64.b64encode(contents)
-			b64contents = str(b64contents)
 			if len(b64contents) > 100000:
 				shutit.log('File is larger than ~100K - this may take some time',level=logging.WARNING)
 			self.send(' ' + shutit_util.get_command('head') + ' -c -1 > ' + path + "." + random_id + " << 'END_" + random_id + """'\n""" + b64contents + '''\nEND_''' + random_id,
@@ -2811,9 +2817,9 @@ $'"""
 							f.write(contents.encode('utf-8'))
 				except (UnicodeDecodeError, TypeError) as e:
 					if encoding is not None:
-						f.write(contents.decode(encoding))
+						f.write(contents)
 					else:
-						f.write(contents.decode('utf-8'))
+						f.write(contents)
 			elif isinstance(contents, bytes):
 				try:
 					if PY3:
