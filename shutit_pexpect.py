@@ -2715,7 +2715,8 @@ $'"""
 	              note=None,
 	              user=None,
 	              group=None,
-	              loglevel=logging.INFO):
+	              loglevel=logging.INFO,
+	              encoding=None):
 		"""Sends the passed-in string as a file to the passed-in path on the
 		target.
 
@@ -2750,12 +2751,18 @@ $'"""
 				try:
 					f.write(contents)
 				except (UnicodeDecodeError, TypeError) as e:
-					f.write(contents.decode('utf-8'))
+					if encoding is not None:
+						f.write(contents.decode(encoding))
+					else:
+						f.write(contents.decode('utf-8'))
 			elif isinstance(contents, bytes):
 				try:
 					f.write(contents)
 				except (UnicodeDecodeError, TypeError) as e:
-					f.write(contents.decode('utf-8'))
+					if encoding is not None:
+						f.write(contents.decode(encoding))
+					else:
+						f.write(contents.decode('utf-8'))
 			f.close()
 		elif shutit.build['delivery'] in ('bash','dockerfile'):
 			if truncate and self.file_exists(path):
@@ -2764,7 +2771,13 @@ $'"""
 				          loglevel=loglevel)
 			random_id = shutit_util.random_id()
 			# set the searchwindowsize to a low number to speed up processing of large output
-			b64contents = base64.b64encode(contents)
+			if PY3:
+				if encoding is not None:
+					b64contents = base64.b64encode(contents.decode(encoding))
+				else:
+					b64contents = base64.b64encode(contents.decode('utf-8'))
+			else:
+				b64contents = base64.b64encode(contents)
 			if len(b64contents) > 100000:
 				shutit.log('File is larger than ~100K - this may take some time',level=logging.WARNING)
 			self.send(' ' + shutit_util.get_command('head') + ' -c -1 > ' + path + "." + random_id + " << 'END_" + random_id + """'\n""" + b64contents + '''\nEND_''' + random_id,
@@ -2787,12 +2800,18 @@ $'"""
 				try:
 					f.write(contents)
 				except (UnicodeDecodeError, TypeError) as e:
-					f.write(contents.decode('utf-8'))
+					if encoding is not None:
+						f.write(contents.decode(encoding))
+					else:
+						f.write(contents.decode('utf-8'))
 			elif isinstance(contents, bytes):
 				try:
 					f.write(contents)
 				except (UnicodeDecodeError, TypeError) as e:
-					f.write(contents.decode('utf-8'))
+					if encoding is not None:
+						f.write(contents.decode(encoding))
+					else:
+						f.write(contents.decode('utf-8'))
 			else:
 				shutit.fail('type: ' + type(contents) + ' not handled')
 			f.close()

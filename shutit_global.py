@@ -661,7 +661,8 @@ class ShutIt(object):
 	              note=None,
 	              user=None,
 	              group=None,
-	              loglevel=logging.INFO):
+	              loglevel=logging.INFO,
+	              encoding=None):
 		"""Sends the passed-in string as a file to the passed-in path on the
 		target.
 
@@ -683,7 +684,8 @@ class ShutIt(object):
 		                                        note=note,
 		                                        user=user,
 		                                        group=group,
-		                                        loglevel=loglevel)
+		                                        loglevel=loglevel,
+		                                        encoding=encoding)
 		
 
 
@@ -744,13 +746,16 @@ class ShutIt(object):
 			                                 open(hostfilepath).read(),
 			                                 user=user,
 			                                 group=group,
-			                                 loglevel=loglevel)
+			                                 loglevel=loglevel,
+			                                 encoding='utf-8')
 		elif os.path.isdir(hostfilepath):
+			# Need a binary type encoding for gzip(?)
 			self.send_host_dir(path,
 			                   hostfilepath,
 			                   user=user,
 			                   group=group,
-			                   loglevel=loglevel)
+			                   loglevel=loglevel,
+			                   encoding='iso-8859-1')
 		else:
 			self.fail('send_host_file - file: ' + hostfilepath + ' does not exist as file or dir. cwd is: ' + os.getcwd(), shutit_pexpect_child=shutit_pexpect_child, throw_exception=False)
 		self.handle_note_after(note=note)
