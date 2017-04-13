@@ -808,7 +808,8 @@ class ShutIt(object):
 			                                 open(gzipfname,'rb').read(),
 			                                 user=user,
 			                                 group=group,
-			                                 loglevel=loglevel)
+			                                 loglevel=loglevel,
+			                                 encoding='iso-8859-1')
 			shutit_pexpect_session.send(' command mkdir -p ' + path + ' && command tar -C ' + path + ' -zxf ' + gzipfname)
 		else:
 			# If no gunzip, fall back to old slow method.
