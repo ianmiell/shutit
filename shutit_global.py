@@ -743,7 +743,7 @@ class ShutIt(object):
 		# TODO: use gz for both
 		if os.path.isfile(hostfilepath):
 			shutit_pexpect_session.send_file(path,
-			                                 open(hostfilepath).read(encoding='iso-8559-1'),
+			                                 open(hostfilepath,'rb',encoding='iso-8859-1').read(),
 			                                 user=user,
 			                                 group=group,
 			                                 loglevel=loglevel,
@@ -805,7 +805,7 @@ class ShutIt(object):
 			with tarfile.open(gzipfname, 'w:gz') as tar:
 				tar.add(hostfilepath, arcname=os.path.basename(hostfilepath))
 			shutit_pexpect_session.send_file(gzipfname,
-			                                 open(gzipfname,'rb').read(encoding='iso-8859-1'),
+			                                 open(gzipfname,'rb',encoding='iso-8859-1').read(),
 			                                 user=user,
 			                                 group=group,
 			                                 loglevel=loglevel,
@@ -831,7 +831,7 @@ class ShutIt(object):
 					targetfname = os.path.join(path, fname)
 					self.log('send_host_dir sending file ' + hostfullfname + ' to ' + 'target file: ' + targetfname, level=logging.DEBUG)
 					shutit_pexpect_session.send_file(targetfname,
-					                                 open(hostfullfname).read(encoding='iso-8859-1'),
+					                                 open(hostfullfname,'rb',encoding='iso-8859-1').read(),
 					                                 user=user,
 					                                 group=group,
 					                                 loglevel=loglevel,
