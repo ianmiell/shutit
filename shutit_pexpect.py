@@ -2773,11 +2773,12 @@ $'"""
 			# set the searchwindowsize to a low number to speed up processing of large output
 			if PY3:
 				if encoding is not None:
-					b64contents = base64.b64encode(contents.decode(encoding))
+					b64contents = base64.b64encode(contents.encode(encoding))
 				else:
-					b64contents = base64.b64encode(contents.decode('utf-8'))
+					b64contents = base64.b64encode(contents.encode('utf-8'))
 			else:
 				b64contents = base64.b64encode(contents)
+			b64contents = str(b64contents)
 			if len(b64contents) > 100000:
 				shutit.log('File is larger than ~100K - this may take some time',level=logging.WARNING)
 			self.send(' ' + shutit_util.get_command('head') + ' -c -1 > ' + path + "." + random_id + " << 'END_" + random_id + """'\n""" + b64contents + '''\nEND_''' + random_id,
@@ -2800,9 +2801,9 @@ $'"""
 				try:
 					if PY3:
 						if encoding is not None:
-							f.write(contents.decode(encoding))
+							f.write(contents.encode(encoding))
 						else:
-							f.write(contents.decode('utf-8'))
+							f.write(contents.encode('utf-8'))
 					else:
 						if encoding is not None:
 							f.write(contents.encode(encoding))
