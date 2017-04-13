@@ -2824,13 +2824,13 @@ $'"""
 				f = open(tmpfile,'wb')
 				f.truncate(0)
 				try:
-					if PY3:
-						if encoding is not None:
-							f.write(contents.encode(encoding))
-						else:
-							f.write(contents.encode('utf-8'))
+					#if PY3:
+					if encoding is not None:
+						f.write(contents.encode(encoding))
 					else:
-						f.write(contents)
+						f.write(contents.encode('utf-8'))
+					#else:
+					#	f.write(contents)
 				except (UnicodeDecodeError, TypeError) as e:
 					f.write(contents)
 			f.close()
