@@ -2744,10 +2744,10 @@ $'"""
 			group = self.whoarewe()
 		if self.current_environment.environment_id == 'ORIGIN_ENV' and False:
 			# If we're on the root env (ie the same one that python is running on, then use python.
-			f = open(path,'wb')
-			if truncate:
-				f.truncate(0)
 			if isinstance(contents, str):
+				f = open(path,'w')
+				if truncate:
+					f.truncate(0)
 				try:
 					f.write(contents)
 				except (UnicodeDecodeError, TypeError) as e:
@@ -2756,6 +2756,9 @@ $'"""
 					else:
 						f.write(contents.decode('utf-8'))
 			elif isinstance(contents, bytes):
+				f = open(path,'w')
+				if truncate:
+					f.truncate(0)
 				try:
 					f.write(contents)
 				except (UnicodeDecodeError, TypeError) as e:
@@ -2801,9 +2804,10 @@ $'"""
 			path = path.replace(' ', r'\ ')
 			# get host session
 			tmpfile = shutit.build['shutit_state_dir_base'] + 'tmp_' + shutit_util.random_id()
-			f = open(tmpfile,'w')
-			f.truncate(0)
 			if isinstance(contents, str):
+				f = open(tmpfile,'w')
+				f.truncate(0)
+				f.write(contents)
 				try:
 					if PY3:
 						if encoding is not None:
@@ -2821,6 +2825,8 @@ $'"""
 					else:
 						f.write(contents)
 			elif isinstance(contents, bytes):
+				f = open(tmpfile,'w')
+				f.truncate(0)
 				try:
 					if PY3:
 						if encoding is not None:
