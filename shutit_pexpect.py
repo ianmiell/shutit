@@ -2796,7 +2796,7 @@ $'"""
 			tmpfile = shutit.build['shutit_state_dir_base'] + 'tmp_' + shutit_util.random_id()
 			f = open(tmpfile,'w')
 			f.truncate(0)
-			if isinstance(contents, str):
+			if isinstance(contents, str) or isinstance(contents,unicode):
 				try:
 					if PY3:
 						if encoding is not None:
@@ -2804,7 +2804,10 @@ $'"""
 						else:
 							f.write(contents.decode('utf-8'))
 					else:
-						f.write(contents)
+						if encoding is not None:
+							f.write(contents.encode(encoding))
+						else:
+							f.write(contents.encode('utf-8'))
 				except (UnicodeDecodeError, TypeError) as e:
 					if encoding is not None:
 						f.write(contents.decode(encoding))
@@ -2825,7 +2828,7 @@ $'"""
 					else:
 						f.write(contents.decode('utf-8'))
 			else:
-				shutit.fail('type: ' + type(contents) + ' not handled')
+				shutit.fail('type: ' + str(type(contents)) + ' not handled')
 			f.close()
 			# Create file so it has appropriate permissions
 			self.send(' command touch ' + path,
