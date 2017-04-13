@@ -2809,12 +2809,11 @@ $'"""
 				f.truncate(0)
 				try:
 					if PY3:
-						if encoding is not None:
 							f.write(contents)
-						else:
-							f.write(contents)
+					elif encoding is not None:
+						f.write(contents.encode(encoding))
 					else:
-						f.write(contents)
+						f.write(contents.encode('utf-8'))
 				except (UnicodeDecodeError, TypeError) as e:
 					if encoding is not None:
 						f.write(contents)
@@ -2831,12 +2830,11 @@ $'"""
 						else:
 							f.write(contents.encode('utf-8'))
 					else:
-						if encoding is not None:
-							f.write(contents.encode(encoding))
-						else:
-							f.write(contents.encode('utf-8'))
+						f.write(contents)
 				except (UnicodeDecodeError, TypeError) as e:
 					f.write(contents)
+			else:
+				shutit.fail('type: ' + str(type(contents)) + ' not handled')
 			f.close()
 			# Create file so it has appropriate permissions
 			self.send(' command touch ' + path,
