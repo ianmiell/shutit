@@ -2833,8 +2833,6 @@ $'"""
 						f.write(contents)
 				except (UnicodeDecodeError, TypeError) as e:
 					f.write(contents)
-			else:
-				shutit.fail('type: ' + str(type(contents)) + ' not handled')
 			f.close()
 			# Create file so it has appropriate permissions
 			self.send(' command touch ' + path,
