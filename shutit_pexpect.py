@@ -49,9 +49,9 @@ class ShutItPexpectSession(object):
 
 	def __init__(self,
 	             pexpect_session_id,
-				 command,
+	             command,
 	             args=None,
-				 timeout=300,
+	             timeout=300,
 	             maxread=2000,
 	             searchwindowsize=None,
 	             logfile=None,
@@ -2749,12 +2749,12 @@ $'"""
 			if isinstance(contents, str):
 				try:
 					f.write(contents)
-				except UnicodeDecodeError:
+				except (UnicodeDecodeError, TypeError) as e:
 					f.write(contents.decode('utf-8'))
 			elif isinstance(contents, bytes):
 				try:
 					f.write(contents)
-				except UnicodeDecodeError:
+				except (UnicodeDecodeError, TypeError) as e:
 					f.write(contents.decode('utf-8'))
 			f.close()
 		elif shutit.build['delivery'] in ('bash','dockerfile'):
@@ -2786,13 +2786,13 @@ $'"""
 			if isinstance(contents, str):
 				try:
 					f.write(contents)
-				except UnicodeDecodeError, TypeError:
+				except (UnicodeDecodeError, TypeError) as e:
 					f.write(contents.decode('utf-8'))
 			elif isinstance(contents, bytes):
 				try:
 					f.write(contents,'utf-8')
-				except UnicodeDecodeError, TypeError:
-					f.write(contents.decode('iso-88591-1'))
+				except (UnicodeDecodeError, TypeError) as e:
+					f.write(contents.decode('iso-8859-1'))
 			else:
 				shutit.fail('type: ' + type(contents) + ' not handled')
 			f.close()
