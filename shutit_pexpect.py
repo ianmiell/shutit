@@ -2747,9 +2747,15 @@ $'"""
 			if truncate:
 				f.truncate(0)
 			if isinstance(contents, str):
-				f.write(contents)
+				try:
+					f.write(contents.decode('utf-8'))
+				except UnicodeDecodeError:
+					f.write(contents.decode('ascii'))
 			elif isinstance(contents, bytes):
-				f.write(contents.decode('utf-8'))
+				try:
+					f.write(contents.decode('utf-8'))
+				except UnicodeDecodeError:
+					f.write(contents.decode('ascii'))
 			f.close()
 		elif shutit.build['delivery'] in ('bash','dockerfile'):
 			if truncate and self.file_exists(path):
@@ -2778,9 +2784,15 @@ $'"""
 			f = open(tmpfile,'w')
 			f.truncate(0)
 			if isinstance(contents, str):
-				f.write(contents)
+				try:
+					f.write(contents.decode('utf-8'))
+				except UnicodeDecodeError:
+					f.write(contents.decode('ascii'))
 			elif isinstance(contents, bytes):
-				f.write(contents.decode('utf-8'))
+				try:
+					f.write(contents.decode('utf-8'))
+				except UnicodeDecodeError:
+					f.write(contents.decode('ascii'))
 			else:
 				shutit.fail('type: ' + type(contents) + ' not handled')
 			f.close()
