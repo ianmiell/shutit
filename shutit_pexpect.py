@@ -2061,7 +2061,7 @@ class ShutItPexpectSession(object):
 				ftext = bytes(self.send_and_get_output(' command base64 ' + fname,
 				                                       echo=False,
 				                                       loglevel=loglevel),
-				              'utf-8')
+				                                       'utf-8')
 			else:
 				ftext = self.send_and_get_output(' command base64 ' + fname,
 				                                 echo=False,
@@ -2073,7 +2073,7 @@ class ShutItPexpectSession(object):
 				ftext = bytes(self.send_and_get_output(' command cat ' + fname,
 				                                       echo=False,
 				                                       loglevel=loglevel),
-				              'utf-8')
+				                                       'utf-8')
 				ftext = ftext.replace(bytes('\r\n', 'utf-8'),bytes('\n', 'utf-8'))
 			else:
 				ftext = self.send_and_get_output(' command cat ' + fname,
@@ -2786,13 +2786,13 @@ $'"""
 			if isinstance(contents, str):
 				try:
 					f.write(contents)
-				except UnicodeDecodeError:
+				except UnicodeDecodeError, TypeError:
 					f.write(contents.decode('utf-8'))
 			elif isinstance(contents, bytes):
 				try:
-					f.write(contents)
-				except UnicodeDecodeError:
-					f.write(contents.decode('utf-8'))
+					f.write(contents,'utf-8')
+				except UnicodeDecodeError, TypeError:
+					f.write(contents.decode('iso-88591-1'))
 			else:
 				shutit.fail('type: ' + type(contents) + ' not handled')
 			f.close()
