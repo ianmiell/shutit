@@ -764,10 +764,10 @@ class ShutIt(object):
 
 
 	def send_host_dir(self,
-					  path,
-					  hostfilepath,
-					  expect=None,
-					  shutit_pexpect_child=None,
+	                  path,
+	                  hostfilepath,
+	                  expect=None,
+	                  shutit_pexpect_child=None,
 	                  note=None,
 	                  user=None,
 	                  group=None,
