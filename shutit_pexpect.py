@@ -2743,19 +2743,19 @@ $'"""
 			group = self.whoarewe()
 		if self.current_environment.environment_id == 'ORIGIN_ENV' and False:
 			# If we're on the root env (ie the same one that python is running on, then use python.
-			f = open(path,'w')
+			f = open(path,'wb')
 			if truncate:
 				f.truncate(0)
 			if isinstance(contents, str):
 				try:
-					f.write(contents.decode('utf-8'))
+					f.write(contents)
 				except UnicodeDecodeError:
-					f.write(contents.decode('ascii'))
+					f.write(contents.decode('utf-8'))
 			elif isinstance(contents, bytes):
 				try:
-					f.write(contents.decode('utf-8'))
+					f.write(contents)
 				except UnicodeDecodeError:
-					f.write(contents.decode('ascii'))
+					f.write(contents.decode('utf-8'))
 			f.close()
 		elif shutit.build['delivery'] in ('bash','dockerfile'):
 			if truncate and self.file_exists(path):
@@ -2785,14 +2785,14 @@ $'"""
 			f.truncate(0)
 			if isinstance(contents, str):
 				try:
-					f.write(contents.decode('utf-8'))
+					f.write(contents)
 				except UnicodeDecodeError:
-					f.write(contents.decode('ascii'))
+					f.write(contents.decode('utf-8'))
 			elif isinstance(contents, bytes):
 				try:
-					f.write(contents.decode('utf-8'))
+					f.write(contents)
 				except UnicodeDecodeError:
-					f.write(contents.decode('ascii'))
+					f.write(contents.decode('utf-8'))
 			else:
 				shutit.fail('type: ' + type(contents) + ' not handled')
 			f.close()
