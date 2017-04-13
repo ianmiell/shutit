@@ -801,6 +801,8 @@ class ShutIt(object):
 		# Create gzip of folder
 		# TODO: check we have tar with gz on target
 		# TODO: handle/check for '../..'
+		#import pdb
+		#pdb.set_trace()
 		if True:
 			gzipfname = '/tmp/shutit_tar_tmp.tar.gz'
 			with tarfile.open(gzipfname, 'w:gz') as tar:

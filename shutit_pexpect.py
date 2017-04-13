@@ -2805,9 +2805,8 @@ $'"""
 			# get host session
 			tmpfile = shutit.build['shutit_state_dir_base'] + 'tmp_' + shutit_util.random_id()
 			if isinstance(contents, str):
-				f = open(tmpfile,'w')
+				f = open(tmpfile,'wb')
 				f.truncate(0)
-				f.write(contents)
 				try:
 					if PY3:
 						if encoding is not None:
@@ -2825,21 +2824,21 @@ $'"""
 					else:
 						f.write(contents)
 			elif isinstance(contents, bytes):
-				f = open(tmpfile,'w')
+				f = open(tmpfile,'wb')
 				f.truncate(0)
 				try:
 					if PY3:
 						if encoding is not None:
-							f.write(contents.decode(encoding))
+							f.write(contents)
 						else:
-							f.write(contents.decode('utf-8'))
+							f.write(contents)
 					else:
 						f.write(contents)
 				except (UnicodeDecodeError, TypeError) as e:
 					if encoding is not None:
-						f.write(contents.decode(encoding))
+						f.write(contents)
 					else:
-						f.write(contents.decode('utf-8'))
+						f.write(contents)
 			else:
 				shutit.fail('type: ' + str(type(contents)) + ' not handled')
 			f.close()
