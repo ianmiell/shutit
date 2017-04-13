@@ -2806,6 +2806,7 @@ $'"""
 			tmpfile = shutit.build['shutit_state_dir_base'] + 'tmp_' + shutit_util.random_id()
 			f = open(tmpfile,'wb')
 			f.truncate(0)
+			# TODO: try taking out trys
 			if isinstance(contents, bytes):
 				try:
 					if PY3:
