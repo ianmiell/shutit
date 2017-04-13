@@ -2798,7 +2798,13 @@ $'"""
 			f.truncate(0)
 			if isinstance(contents, str):
 				try:
-					f.write(contents)
+					if PY3:
+						if encoding is not None:
+							f.write(contents.decode(encoding))
+						else:
+							f.write(contents.decode('utf-8'))
+					else:
+						f.write(contents)
 				except (UnicodeDecodeError, TypeError) as e:
 					if encoding is not None:
 						f.write(contents.decode(encoding))
@@ -2806,7 +2812,13 @@ $'"""
 						f.write(contents.decode('utf-8'))
 			elif isinstance(contents, bytes):
 				try:
-					f.write(contents)
+					if PY3:
+						if encoding is not None:
+							f.write(contents.decode(encoding))
+						else:
+							f.write(contents.decode('utf-8'))
+					else:
+						f.write(contents)
 				except (UnicodeDecodeError, TypeError) as e:
 					if encoding is not None:
 						f.write(contents.decode(encoding))
