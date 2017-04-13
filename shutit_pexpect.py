@@ -2796,9 +2796,7 @@ $'"""
 			tmpfile = shutit.build['shutit_state_dir_base'] + 'tmp_' + shutit_util.random_id()
 			f = open(tmpfile,'w')
 			f.truncate(0)
-			if not PY3:
-				unicode = basestring
-			if isinstance(contents, str) or isinstance(contents, unicode):
+			if isinstance(contents, str):
 				try:
 					if PY3:
 						if encoding is not None:
