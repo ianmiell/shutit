@@ -2790,9 +2790,9 @@ $'"""
 					f.write(contents.decode('utf-8'))
 			elif isinstance(contents, bytes):
 				try:
-					f.write(contents,'utf-8')
+					f.write(contents)
 				except (UnicodeDecodeError, TypeError) as e:
-					f.write(contents.decode('iso-8859-1'))
+					f.write(contents.decode('utf-8'))
 			else:
 				shutit.fail('type: ' + type(contents) + ' not handled')
 			f.close()
