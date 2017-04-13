@@ -805,7 +805,7 @@ class ShutIt(object):
 			with tarfile.open(gzipfname, 'w:gz') as tar:
 				tar.add(hostfilepath, arcname=os.path.basename(hostfilepath))
 			shutit_pexpect_session.send_file(gzipfname,
-			                                 open(gzipfname'rb').read(encoding='iso-8859-1'),
+			                                 open(gzipfname,'rb').read(encoding='iso-8859-1'),
 			                                 user=user,
 			                                 group=group,
 			                                 loglevel=loglevel,
