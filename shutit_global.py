@@ -236,7 +236,7 @@ class ShutIt(object):
 		else:
 			logging.log(level,msg)
 			if add_final_message:
-				self.build['report_final_messages'] += msg + '\r\n'
+				self.build['report_final_messages'] = self.build['report_final_messages'] + '\r\n' + msg + '\r\n'
 		return True
 
 
