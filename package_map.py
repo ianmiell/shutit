@@ -112,6 +112,7 @@ def map_package(package, install_type):
 	return package
 
 
+# TODO: is this used by anything? Should it be?
 def find_package(sought_package):
 	"""Is this name mentioned anywhere? Then return it as a suggestion?
 	"""

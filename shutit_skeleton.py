@@ -53,15 +53,15 @@ def create_skeleton():
 
 	# Check setup
 	if len(skel_path) == 0 or skel_path[0] != '/':
-		shutit.fail('Must supply a directory and it must be absolute')
+		shutit.fail('Must supply a directory and it must be absolute') # pragma: no cover
 	if os.path.exists(skel_path):
-		shutit.fail(skel_path + ' already exists')
+		shutit.fail(skel_path + ' already exists') # pragma: no cover
 	if len(skel_module_name) == 0:
-		shutit.fail('Must supply a name for your module, eg mymodulename')
+		shutit.fail('Must supply a name for your module, eg mymodulename') # pragma: no cover
 	if not re.match('^[a-zA-z_][0-9a-zA-Z_]+$', skel_module_name):
-		shutit.fail('Module names must comply with python classname standards: cf: http://stackoverflow.com/questions/10120295/valid-characters-in-a-python-class-name')
+		shutit.fail('Module names must comply with python classname standards: cf: http://stackoverflow.com/questions/10120295/valid-characters-in-a-python-class-name') # pragma: no cover
 	if len(skel_domain) == 0:
-		shutit.fail('Must supply a domain for your module, eg com.yourname.madeupdomainsuffix')
+		shutit.fail('Must supply a domain for your module, eg com.yourname.madeupdomainsuffix') # pragma: no cover
 
 	# Create folders and process pattern
 	os.makedirs(skel_path)
@@ -116,7 +116,7 @@ def create_skeleton():
 		                                    skel_vagrant_ssh_access=skel_vagrant_ssh_access,
 		                                    skel_vagrant_docker=skel_vagrant_docker)
 	elif shutit.cfg['skeleton']['pattern'] == 'docker_tutorial':
-		shutit.fail('docker_tutorial not yet supported')
+		shutit.fail('docker_tutorial not yet supported') # pragma: no cover
 
 
 def process_shutitfile(shutitfile_contents):
@@ -204,7 +204,7 @@ def process_shutitfile(shutitfile_contents):
 		elif shutitfile_command == 'GET_PASSWORD':
 			# If we are directed to get the password, change the previous directive internally.
 			if last_shutitfile_command not in ('LOGIN','USER'):
-				shutit.fail('GET_PASSWORD line not after a USER or LOGIN line: ' + shutitfile_command + ' ' + item[1])
+				shutit.fail('GET_PASSWORD line not after a USER or LOGIN line: ' + shutitfile_command + ' ' + item[1]) # pragma: no cover
 			if last_shutitfile_command in ('LOGIN','USER'):
 				if last_shutitfile_command == 'LOGIN':
 					shutitfile_representation['shutitfile']['script'][-1][0] = 'LOGIN_WITH_PASSWORD'
@@ -224,27 +224,27 @@ def process_shutitfile(shutitfile_contents):
 				shutitfile_representation['shutitfile']['script'].append([shutitfile_command, item[1]])
 		elif shutitfile_command == 'ASSERT_OUTPUT':
 			if last_shutitfile_command not in ('RUN','SEND'):
-				shutit.fail('ASSERT_OUTPUT line not after a RUN/SEND line: ' + shutitfile_command + ' ' + item[1])
+				shutit.fail('ASSERT_OUTPUT line not after a RUN/SEND line: ' + shutitfile_command + ' ' + item[1]) # pragma: no cover
 			shutitfile_representation['shutitfile']['script'][-1][0] = 'ASSERT_OUTPUT_SEND'
 			shutitfile_representation['shutitfile']['script'].append([shutitfile_command, item[1]])
 		elif shutitfile_command == 'EXPECT':
 			if last_shutitfile_command not in ('RUN','SEND','GET_PASSWORD'):
-				shutit.fail('EXPECT line not after a RUN, SEND or GET_PASSWORD line: ' + shutitfile_command + ' ' + item[1])
+				shutit.fail('EXPECT line not after a RUN, SEND or GET_PASSWORD line: ' + shutitfile_command + ' ' + item[1]) # pragma: no cover
 			shutitfile_representation['shutitfile']['script'][-1][0] = 'SEND_EXPECT'
 			shutitfile_representation['shutitfile']['script'].append([shutitfile_command, item[1]])
 		elif shutitfile_command == 'EXPECT_MULTI':
 			if last_shutitfile_command not in ('RUN','SEND','GET_PASSWORD'):
-				shutit.fail('EXPECT_MULTI line not after a RUN, SEND or GET_PASSWORD line: ' + shutitfile_command + ' ' + item[1])
+				shutit.fail('EXPECT_MULTI line not after a RUN, SEND or GET_PASSWORD line: ' + shutitfile_command + ' ' + item[1]) # pragma: no cover
 			shutitfile_representation['shutitfile']['script'][-1][0] = 'SEND_EXPECT_MULTI'
 			shutitfile_representation['shutitfile']['script'].append([shutitfile_command, item[1]])
 		elif shutitfile_command == 'EXPECT_REACT':
 			if last_shutitfile_command not in ('RUN','SEND','GET_PASSWORD'):
-				shutit.fail('EXPECT_REACT line not after a RUN, SEND or GET_PASSWORD line: ' + shutitfile_command + ' ' + item[1])
+				shutit.fail('EXPECT_REACT line not after a RUN, SEND or GET_PASSWORD line: ' + shutitfile_command + ' ' + item[1]) # pragma: no cover
 			shutitfile_representation['shutitfile']['script'][-1][0] = 'SEND_EXPECT_REACT'
 			shutitfile_representation['shutitfile']['script'].append([shutitfile_command, item[1]])
 		elif shutitfile_command == 'UNTIL':
 			if last_shutitfile_command not in ('RUN','SEND'):
-				shutit.fail('UNTIL line not after a RUN, SEND: ' + shutitfile_command + ' ' + item[1])
+				shutit.fail('UNTIL line not after a RUN, SEND: ' + shutitfile_command + ' ' + item[1]) # pragma: no cover
 			shutitfile_representation['shutitfile']['script'][-1][0] = 'SEND_UNTIL'
 			shutitfile_representation['shutitfile']['script'].append([shutitfile_command, item[1]])
 		elif shutitfile_command == 'DEPENDS':
@@ -268,7 +268,7 @@ def process_shutitfile(shutitfile_contents):
 		elif shutitfile_command in ('ELSE','ENDIF','START_BEGIN','START_END','STOP_BEGIN','STOP_END','TEST_BEGIN','TEST_END','BUILD_BEGIN','BUILD_END','ISINSTALLED_BEGIN','ISINSTALLED_END'):
 			shutitfile_representation['shutitfile']['script'].append([shutitfile_command])
 		else:
-			shutit.fail('shutitfile command: ' + shutitfile_command + ' not processed')
+			shutit.fail('shutitfile command: ' + shutitfile_command + ' not processed') # pragma: no cover
 		last_shutitfile_command = shutitfile_command
 	return shutitfile_representation, True
 

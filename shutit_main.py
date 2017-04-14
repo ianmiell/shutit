@@ -52,7 +52,7 @@ def stop_all(run_order=-1):
 		if run_order == -1 or shutit_module_obj.run_order <= run_order:
 			if shutit_util.is_installed(shutit_module_obj):
 				if not shutit_module_obj.stop(shutit):
-					shutit.fail('failed to stop: ' + module_id, shutit_pexpect_child=shutit.get_shutit_pexpect_session_from_id('target_child').shutit_pexpect_child)
+					shutit.fail('failed to stop: ' + module_id, shutit_pexpect_child=shutit.get_shutit_pexpect_session_from_id('target_child').shutit_pexpect_child) # pragma: no cover
 
 
 # Start all apps less than the supplied run_order
@@ -68,11 +68,7 @@ def start_all(run_order=-1):
 		if run_order == -1 or shutit_module_obj.run_order <= run_order:
 			if shutit_util.is_installed(shutit_module_obj):
 				if not shutit_module_obj.start(shutit):
-					shutit.fail('failed to start: ' + module_id, shutit_pexpect_child=shutit.get_shutit_pexpect_session_from_id('target_child').shutit_pexpect_child)
-
-
-
-
+					shutit.fail('failed to start: ' + module_id, shutit_pexpect_child=shutit.get_shutit_pexpect_session_from_id('target_child').shutit_pexpect_child) # pragma: no cover
 
 
 def is_ready(shutit_module_obj):
@@ -109,11 +105,11 @@ def init_shutit_map(shutit):
 		path = ':'.join(shutit.host['shutit_module_path'])
 		shutit.log('\nIf you are new to ShutIt, see:\n\n\thttp://ianmiell.github.io/shutit/\n\nor try running\n\n\tshutit skeleton\n\n',level=logging.INFO)
 		if path == '':
-			shutit.fail('No ShutIt modules aside from core ones found and no ShutIt module path given.\nDid you set --shutit_module_path/-m wrongly?\n')
+			shutit.fail('No ShutIt modules aside from core ones found and no ShutIt module path given.\nDid you set --shutit_module_path/-m wrongly?\n') # pragma: no cover
 		elif path == '.':
-			shutit.fail('No modules aside from core ones found and no ShutIt module path given apart from default (.).\n\n- Did you set --shutit_module_path/-m?\n- Is there a STOP* file in your . dir?')
+			shutit.fail('No modules aside from core ones found and no ShutIt module path given apart from default (.).\n\n- Did you set --shutit_module_path/-m?\n- Is there a STOP* file in your . dir?') # pragma: no cover
 		else:
-			shutit.fail('No modules aside from core ones found and no ShutIt modules in path:\n\n' + path + '\n\nor their subfolders. Check your --shutit_module_path/-m setting and check that there are ShutIt modules below without STOP* files in any relevant directories.')
+			shutit.fail('No modules aside from core ones found and no ShutIt modules in path:\n\n' + path + '\n\nor their subfolders. Check your --shutit_module_path/-m setting and check that there are ShutIt modules below without STOP* files in any relevant directories.') # pragma: no cover
 
 	shutit.log('PHASE: base setup', level=logging.DEBUG)
 
@@ -122,15 +118,15 @@ def init_shutit_map(shutit):
 	for module in modules:
 		assert isinstance(module, ShutItModule)
 		if module.module_id in shutit.shutit_map:
-			shutit.fail('Duplicated module id: ' + module.module_id + '\n\nYou may want to check your --shutit_module_path setting')
+			shutit.fail('Duplicated module id: ' + module.module_id + '\n\nYou may want to check your --shutit_module_path setting') # pragma: no cover
 		if module.run_order in run_orders:
-			shutit.fail('Duplicate run order: ' + str(module.run_order) + ' for ' + module.module_id + ' and ' + run_orders[module.run_order].module_id + '\n\nYou may want to check your --shutit_module_path setting')
+			shutit.fail('Duplicate run order: ' + str(module.run_order) + ' for ' + module.module_id + ' and ' + run_orders[module.run_order].module_id + '\n\nYou may want to check your --shutit_module_path setting') # pragma: no cover
 		if module.run_order == 0:
 			has_core_module = True
 		shutit.shutit_map[module.module_id] = run_orders[module.run_order] = module
 
 	if not has_core_module:
-		shutit.fail('No module with run_order=0 specified! This is required.')
+		shutit.fail('No module with run_order=0 specified! This is required.') # pragma: no cover
 
 
 def conn_target(shutit):
@@ -142,7 +138,7 @@ def conn_target(shutit):
 			conn_module = mod
 			break
 	if conn_module is None:
-		shutit.fail('Couldn\'t find conn_module ' + shutit.build['conn_module'])
+		shutit.fail('Couldn\'t find conn_module ' + shutit.build['conn_module']) # pragma: no cover
 
 	# Set up the target in pexpect.
 	conn_module.get_config(shutit)
@@ -337,7 +333,7 @@ def do_remove(loglevel=logging.DEBUG):
 			shutit.login(prompt_prefix=module_id,command='bash --noprofile --norc',echo=False)
 			if not module.remove(shutit):
 				shutit.log(shutit_util.print_modules(), level=logging.DEBUG)
-				shutit.fail(module_id + ' failed on remove', shutit_pexpect_child=shutit.get_shutit_pexpect_session_from_id('target_child').pexpect_child)
+				shutit.fail(module_id + ' failed on remove', shutit_pexpect_child=shutit.get_shutit_pexpect_session_from_id('target_child').pexpect_child) # pragma: no cover
 			else:
 				if shutit.build['delivery'] in ('docker','dockerfile'):
 					# Create a directory and files to indicate this has been removed.
@@ -359,7 +355,7 @@ def build_module(module, loglevel=logging.DEBUG):
 	shutit.log('Building ShutIt module: ' + module.module_id + ' with run order: ' + str(module.run_order), level=logging.INFO)
 	shutit.build['report'] = (shutit.build['report'] + '\nBuilding ShutIt module: ' + module.module_id + ' with run order: ' + str(module.run_order))
 	if not module.build(shutit):
-		shutit.fail(module.module_id + ' failed on build', shutit_pexpect_child=shutit.get_shutit_pexpect_session_from_id('target_child').pexpect_child)
+		shutit.fail(module.module_id + ' failed on build', shutit_pexpect_child=shutit.get_shutit_pexpect_session_from_id('target_child').pexpect_child) # pragma: no cover
 	else:
 		if shutit.build['delivery'] in ('docker','dockerfile'):
 			# Create a directory and files to indicate this has been built.
@@ -404,7 +400,7 @@ def do_build():
 		shutit.log('Considering whether to build: ' + module.module_id, level=logging.INFO)
 		if cfg[module.module_id]['shutit.core.module.build']:
 			if shutit.build['delivery'] not in module.ok_delivery_methods:
-				shutit.fail('Module: ' + module.module_id + ' can only be built with one of these --delivery methods: ' + str(module.ok_delivery_methods) + '\nSee shutit build -h for more info, or try adding: --delivery <method> to your shutit invocation')
+				shutit.fail('Module: ' + module.module_id + ' can only be built with one of these --delivery methods: ' + str(module.ok_delivery_methods) + '\nSee shutit build -h for more info, or try adding: --delivery <method> to your shutit invocation') # pragma: no cover
 			if shutit_util.is_installed(module):
 				shutit.build['report'] = (shutit.build['report'] + '\nBuilt already: ' + module.module_id + ' with run order: ' + str(module.run_order))
 			else:
@@ -423,7 +419,7 @@ def do_build():
 		if shutit_util.is_installed(module):
 			shutit.log('Starting module',level=logging.DEBUG)
 			if not module.start(shutit):
-				shutit.fail(module.module_id + ' failed on start', shutit_pexpect_child=shutit.get_shutit_pexpect_session_from_id('target_child').pexpect_child)
+				shutit.fail(module.module_id + ' failed on start', shutit_pexpect_child=shutit.get_shutit_pexpect_session_from_id('target_child').pexpect_child) # pragma: no cover
 
 
 def do_test():
@@ -443,7 +439,7 @@ def do_test():
 			shutit.log('RUNNING TEST ON: ' + module_id, level=logging.DEBUG)
 			shutit.login(prompt_prefix=module_id,command='bash --noprofile --norc',echo=False)
 			if not shutit.shutit_map[module_id].test(shutit):
-				shutit.fail(module_id + ' failed on test', shutit_pexpect_child=shutit.get_shutit_pexpect_session_from_id('target_child').pexpect_child)
+				shutit.fail(module_id + ' failed on test', shutit_pexpect_child=shutit.get_shutit_pexpect_session_from_id('target_child').pexpect_child) # pragma: no cover
 			shutit.logout(echo=False)
 
 
@@ -462,7 +458,7 @@ def do_finalize():
 		if shutit_util.is_installed(shutit.shutit_map[module_id]):
 			shutit.login(prompt_prefix=module_id,command='bash --noprofile --norc',echo=False)
 			if not shutit.shutit_map[module_id].finalize(shutit):
-				shutit.fail(module_id + ' failed on finalize', shutit_pexpect_child=shutit.get_shutit_pexpect_session_from_id('target_child').pexpect_child)
+				shutit.fail(module_id + ' failed on finalize', shutit_pexpect_child=shutit.get_shutit_pexpect_session_from_id('target_child').pexpect_child) # pragma: no cover
 			shutit.logout(echo=False)
 
 
@@ -509,7 +505,7 @@ def main():
 	"""
 	if sys.version_info.major == 2:
 		if sys.version_info.minor < 7:
-			shutit_global.shutit.fail('Python version must be 2.7+')
+			shutit_global.shutit.fail('Python version must be 2.7+') # pragma: no cover
 
 	shutit = shutit_global.shutit
 	shutit_util.parse_args()
@@ -564,7 +560,7 @@ def main():
 			shutit.log(err[0], level=logging.ERROR)
 			if not child and len(err) > 1:
 				child = err[1]
-		shutit.fail("Encountered some errors, quitting", shutit_pexpect_child=child)
+		shutit.fail("Encountered some errors, quitting", shutit_pexpect_child=child) # pragma: no cover
 
 	do_remove()
 	do_build()

@@ -188,7 +188,7 @@ def get_configs(configs):
 				os.chmod(f,0o600)
 			# recurse
 			return get_configs(configs)
-		shutit.fail(fail_str)
+		shutit.fail(fail_str) # pragma: no cover
 	for config in configs:
 		if isinstance(config, tuple):
 			cp.readfp(config[1], filename=config[0])
@@ -541,7 +541,7 @@ def process_args(shutit, args, set_loglevel):
 		accept_defaults = args.accept
 		# Looks through the arguments given for valid shutitfiles, and adds their names to _new_shutitfiles.
 		if args.shutitfiles and args.script:
-			shutit.fail('Cannot have any two of script, -d/--shutitfiles <files> as arguments')
+			shutit.fail('Cannot have any two of script, -d/--shutitfiles <files> as arguments') # pragma: no cover
 		_new_shutitfiles = None
 		if args.shutitfiles:
 			cwd = os.getcwd()
@@ -1500,7 +1500,7 @@ def config_collection_for_built(throw_error=True,silent=False):
 		# Get the config even if installed or building (may be needed in other hooks, eg test).
 		if (is_to_be_built_or_is_installed( shutit.shutit_map[module_id]) and
 			not shutit.shutit_map[module_id].get_config(shutit)):
-			shutit.fail(module_id + ' failed on get_config')
+			shutit.fail(module_id + ' failed on get_config') # pragma: no cover
 		# Collect the build.cfg if we are building here.
 		# If this file exists, process it.
 		if cfg[module_id]['shutit.core.module.build'] and not shutit.build['have_read_config_file']:
@@ -1599,7 +1599,7 @@ def allowed_image(module_id):
 		# Try allowed images as regexps
 		for regexp in cfg[module_id]['shutit.core.module.allowed_images']:
 			if not check_regexp(regexp):
-				shutit.fail('Illegal regexp found in allowed_images: ' + regexp)
+				shutit.fail('Illegal regexp found in allowed_images: ' + regexp) # pragma: no cover
 			if re.match('^' + regexp + '$', shutit.target['docker_image']):
 				return True
 	return False
@@ -1661,7 +1661,7 @@ def match_string(string_to_match, regexp):
 		new_lines = new_lines + line.split('\n')
 	lines = new_lines
 	if not check_regexp(regexp):
-		shutit.fail('Illegal regexp found in match_string call: ' + regexp)
+		shutit.fail('Illegal regexp found in match_string call: ' + regexp) # pragma: no cover
 	for line in lines:
 		match = re.match(regexp, line)
 		if match is not None:

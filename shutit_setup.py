@@ -179,7 +179,7 @@ class ConnSSH(ShutItConnModule):
 			opts += ['-i', ssh_key]
 		host_arg = ssh_host
 		if host_arg == '':
-			shutit.fail('No host specified for sshing', throw_exception=False)
+			shutit.fail('No host specified for sshing', throw_exception=False) # pragma: no cover
 		if ssh_user != '':
 			host_arg = ssh_user + '@' + host_arg
 		cmd_arg = ssh_cmd
@@ -343,7 +343,7 @@ def conn_docker_start_container(shutit, shutit_session_name, loglevel=logging.DE
 	res = shutit_pexpect_session.expect(expect, timeout=9999)
 	while True:
 		if target_child.before == type(pexpect.exceptions.EOF):
-			shutit.fail('EOF exception seen')
+			shutit.fail('EOF exception seen') # pragma: no cover
 		try:
 			shutit.log(target_child.before + target_child.after,level=logging.DEBUG)
 		except:
@@ -354,13 +354,13 @@ def conn_docker_start_container(shutit, shutit_session_name, loglevel=logging.DE
 			shutit.log('Prompt found, breaking out',level=logging.DEBUG)
 			break
 		elif res == 6:
-			shutit.fail('Docker not installed.')
+			shutit.fail('Docker not installed.') # pragma: no cover
 			break
 		elif res == 7:
 			shutit.log('Initial command timed out, assuming OK to continue.',level=logging.WARNING)
 			break
 		elif res == 8:
-			shutit.fail('EOF seen.')
+			shutit.fail('EOF seen.') # pragma: no cover
 		else:
 			res = shutit_pexpect_session.expect(expect, timeout=9999)
 			continue
@@ -374,7 +374,7 @@ def conn_docker_start_container(shutit, shutit_session_name, loglevel=logging.DE
 		except Exception:
 			time.sleep(1)
 	if cid == '' or re.match('^[a-z0-9]+$', cid) == None:
-		shutit.fail('Could not get container_id - quitting. Check whether other containers may be clashing on port allocation or name.\nYou might want to try running: sudo docker kill ' + shutit.target['name'] + '; sudo docker rm ' + shutit.target['name'] + '\nto resolve a name clash or: ' + shutit.host['docker_executable'] + ' ps -a | grep ' + shutit.target['ports'] + " | awk '{print $1}' | " + 'xargs ' + shutit.host['docker_executable'] + ' kill\nto ' + 'resolve a port clash\n')
+		shutit.fail('Could not get container_id - quitting. Check whether other containers may be clashing on port allocation or name.\nYou might want to try running: sudo docker kill ' + shutit.target['name'] + '; sudo docker rm ' + shutit.target['name'] + '\nto resolve a name clash or: ' + shutit.host['docker_executable'] + ' ps -a | grep ' + shutit.target['ports'] + " | awk '{print $1}' | " + 'xargs ' + shutit.host['docker_executable'] + ' kill\nto ' + 'resolve a port clash\n') # pragma: no cover
 	shutit.log('cid: ' + cid,level=logging.DEBUG)
 	shutit.target['container_id'] = cid
 	return target_child

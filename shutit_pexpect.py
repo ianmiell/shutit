@@ -180,7 +180,7 @@ class ShutItPexpectSession(object):
 			prompt_prefix = r_id
 		# Be helpful.
 		if ' ' in user:
-			shutit.fail('user has space in it - did you mean: login(command="' + user + '")?')
+			shutit.fail('user has space in it - did you mean: login(command="' + user + '")?') # pragma: no cover
 		if shutit.build['delivery'] == 'bash' and command == 'su -':
 			# We want to retain the current working directory
 			command = 'su'
@@ -222,7 +222,7 @@ class ShutItPexpectSession(object):
 		# Check exit 'by hand' here to not effect/assume setup prompt.
 		if not self.get_exit_value(shutit):
 			if fail_on_fail:
-				shutit.fail('Login failure!')
+				shutit.fail('Login failure!') # pragma: no cover
 			else:
 				return False
 		# Setup prompt
@@ -265,7 +265,7 @@ class ShutItPexpectSession(object):
 				# set up in shutit_setup.py
 				shutit.set_default_shutit_pexpect_session_expect()
 		else:
-			shutit.fail('Logout called without corresponding login', throw_exception=False)
+			shutit.fail('Logout called without corresponding login', throw_exception=False) # pragma: no cover
 		# No point in checking exit here, the exit code will be
 		# from the previous command from the logged in session
 		echo = self.get_echo_override(shutit, echo)
@@ -439,7 +439,7 @@ class ShutItPexpectSession(object):
 				conn_module = mod
 				break
 		if conn_module is None:
-			shutit.fail('''Couldn't find conn_module ''' + shutit.build['conn_module'])
+			shutit.fail('''Couldn't find conn_module ''' + shutit.build['conn_module']) # pragma: no cover
 		container_id = shutit.target['container_id']
 		conn_module.destroy_container('host_child', 'target_child', container_id)
 
@@ -561,7 +561,7 @@ class ShutItPexpectSession(object):
 				# This is a failure, so we pass in level=0
 				shutit.pause_point(msg + '\n\nInteractive, so not retrying.\nPause point on exit_code != 0 (' + res_str + '). CTRL-C to quit', shutit_pexpect_child=self.pexpect_child, level=0)
 			elif retry == 1:
-				shutit.fail('Exit value from command\n' + send + '\nwas:\n' + res_str, throw_exception=False)
+				shutit.fail('Exit value from command\n' + send + '\nwas:\n' + res_str, throw_exception=False) # pragma: no cover
 			else:
 				return False
 		return True
@@ -652,7 +652,7 @@ class ShutItPexpectSession(object):
 					self.pexpect_child.interact(input_filter=self._pause_input_filter)
 					self.handle_pause_point_signals()
 				except Exception as e:
-					shutit.fail('Terminating ShutIt within pause point.\r\n' + str(e))
+					shutit.fail('Terminating ShutIt within pause point.\r\n' + str(e)) # pragma: no cover
 			self.pexpect_child.logfile_send = oldlog
 		else:
 			pass
@@ -762,7 +762,7 @@ class ShutItPexpectSession(object):
 		else:
 			# Change to log?
 			shutit.log(repr('before>>>>:%s<<<< after:>>>>%s<<<<' % (self.pexpect_child.before, self.pexpect_child.after)),transient=True)
-			shutit.fail('Did not see FIL(N)?EXIST in output:\n' + output)
+			shutit.fail('Did not see FIL(N)?EXIST in output:\n' + output) # pragma: no cover
 		shutit.handle_note_after(note=note)
 		return ret
 
@@ -789,7 +789,7 @@ class ShutItPexpectSession(object):
 		elif shutit.build['delivery'] in ('docker','ssh'):
 			os.chdir(path)
 		else:
-			shutit.fail('chdir not supported for delivery method: ' + shutit.build['delivery'])
+			shutit.fail('chdir not supported for delivery method: ' + shutit.build['delivery']) # pragma: no cover
 		shutit.handle_note_after(note=note)
 		return True
 
@@ -838,7 +838,7 @@ class ShutItPexpectSession(object):
 		shutit = shutit_global.shutit
 		shutit.handle_note(note)
 		if not shutit_util.check_regexp(match_regexp):
-			shutit.fail('Illegal regexp found in add_to_bashrc call: ' + match_regexp)
+			shutit.fail('Illegal regexp found in add_to_bashrc call: ' + match_regexp) # pragma: no cover
 		if self.whoami() == 'root':
 			shutit.add_line_to_file(line, '/root/.bashrc', match_regexp=match_regexp, loglevel=loglevel)
 		else:
@@ -1001,7 +1001,7 @@ class ShutItPexpectSession(object):
 				self.install('wget')
 				command = 'wget -qO- '
 				if not self.command_available('wget'):
-					shutit.fail('Could not install curl or wget, inform maintainers.')
+					shutit.fail('Could not install curl or wget, inform maintainers.') # pragma: no cover
 		for location in locations:
 			retry = retry_orig
 			if location[-1] == '/':
@@ -1161,7 +1161,7 @@ class ShutItPexpectSession(object):
 		# should this blow up?
 		shutit.handle_note(note)
 		if not self.file_exists(directory,directory=True):
-			shutit.fail('ls: directory\n\n' + directory + '\n\ndoes not exist', throw_exception=False)
+			shutit.fail('ls: directory\n\n' + directory + '\n\ndoes not exist', throw_exception=False) # pragma: no cover
 		files = self.send_and_get_output(' command ls ' + directory,
 		                                 echo=False,
 		                                 loglevel=loglevel,
@@ -1764,7 +1764,7 @@ class ShutItPexpectSession(object):
 						distro = 'osx'
 						install_type = 'brew'
 						if not self.command_available('brew'):
-							shutit.fail('ShutiIt requires brew be installed. See http://brew.sh for details on installation.')
+							shutit.fail('ShutiIt requires brew be installed. See http://brew.sh for details on installation.') # pragma: no cover
 						if not self.file_exists('/tmp/shutit_brew_list'):
 							self.send('brew list > .shutit_brew_list',echo=False)
 						for package in ('coreutils','findutils','gnu-tar','gnu-sed','gawk','gnutls','gnu-indent','gnu-getopt'):
@@ -1777,7 +1777,7 @@ class ShutItPexpectSession(object):
 						distro       = 'cygwin'
 						install_type = 'apt-cyg'
 				if install_type == '' or distro == '':
-					shutit.fail('Could not determine Linux distro information. ' + 'Please inform ShutIt maintainers at https://github.com/ianmiell/shutit', shutit_pexpect_child=self.pexpect_child)
+					shutit.fail('Could not determine Linux distro information. ' + 'Please inform ShutIt maintainers at https://github.com/ianmiell/shutit', shutit_pexpect_child=self.pexpect_child) # pragma: no cover
 			# The call to self.package_installed with lsb-release above
 			# may fail if it doesn't know the install type, so
 			# if we've determined that now
@@ -1962,7 +1962,7 @@ class ShutItPexpectSession(object):
 		if isinstance(regexps, str):
 			regexps = [regexps]
 		if not isinstance(regexps, list):
-			shutit.fail('regexps should be list')
+			shutit.fail('regexps should be list') # pragma: no cover
 		while retries > 0:
 			retries -= 1
 			echo = self.get_echo_override(shutit, echo)
@@ -1976,7 +1976,7 @@ class ShutItPexpectSession(object):
 			if not not_there:
 				for regexp in regexps:
 					if not shutit_util.check_regexp(regexp):
-						shutit.fail('Illegal regexp found in send_until call: ' + regexp)
+						shutit.fail('Illegal regexp found in send_until call: ' + regexp) # pragma: no cover
 					if shutit_util.match_string(output, regexp):
 						return True
 			else:
@@ -1984,7 +1984,7 @@ class ShutItPexpectSession(object):
 				missing = False
 				for regexp in regexps:
 					if not shutit_util.check_regexp(regexp):
-						shutit.fail('Illegal regexp found in send_until call: ' + regexp)
+						shutit.fail('Illegal regexp found in send_until call: ' + regexp) # pragma: no cover
 					if not shutit_util.match_string(output, regexp):
 						missing = True
 						break
@@ -2046,14 +2046,14 @@ class ShutItPexpectSession(object):
 				          echo=False,
 				          loglevel=loglevel)
 			else:
-				shutit.fail(fname + ' does not exist and create=False')
+				shutit.fail(fname + ' does not exist and create=False') # pragma: no cover
 		if replace:
 			# If replace and no pattern FAIL
 			if not pattern:
-				shutit.fail('replace=True requires a pattern to be passed in')
+				shutit.fail('replace=True requires a pattern to be passed in') # pragma: no cover
 			# If replace and delete FAIL
 			if delete:
-				shutit.fail('cannot pass replace=True and delete=True to insert_text')
+				shutit.fail('cannot pass replace=True and delete=True to insert_text') # pragma: no cover
 		# ftext is the original file's text. If base64 is available, use it to
 		# encode the text
 		if self.command_available('base64'):
@@ -2095,7 +2095,7 @@ class ShutItPexpectSession(object):
 			if pattern != None:
 				if not line_oriented:
 					if not shutit_util.check_regexp(pattern):
-						shutit.fail('Illegal regexp found in change_text call: ' + pattern)
+						shutit.fail('Illegal regexp found in change_text call: ' + pattern) # pragma: no cover
 					# cf: http://stackoverflow.com/questions/9411041/matching-ranges-of-lines-in-python-like-sed-ranges
 					if PY3:
 						sre_match = re.search(bytes(pattern,'utf-8'),ftext,re.DOTALL|re.MULTILINE)
@@ -2144,7 +2144,7 @@ class ShutItPexpectSession(object):
 					line_length = 0
 					matched     = False
 					if not shutit_util.check_regexp(pattern):
-						shutit.fail('Illegal regexp found in change_text call: ' + pattern)
+						shutit.fail('Illegal regexp found in change_text call: ' + pattern) # pragma: no cover
 					for line in lines:
 						#Help the user out to make this properly line-oriented
 						pattern_before=''
@@ -2272,7 +2272,7 @@ class ShutItPexpectSession(object):
 					          loglevel=loglevel)
 				else:
 					if not shutit_util.check_regexp(match_regexp):
-						shutit.fail('Illegal regexp found in remove_line_from_file call: ' + match_regexp)
+						shutit.fail('Illegal regexp found in remove_line_from_file call: ' + match_regexp) # pragma: no cover
 					#            v the space is intentional, to avoid polluting bash history.
 					self.send(""" grep -v '^""" + match_regexp + """$' """ + filename + ' > ' + tmp_filename,
 					          exit_values=['0','1'],
@@ -2287,7 +2287,7 @@ class ShutItPexpectSession(object):
 					          loglevel=loglevel)
 				else:
 					if not shutit_util.check_regexp(match_regexp):
-						shutit.fail('Illegal regexp found in remove_line_from_file call: ' + match_regexp)
+						shutit.fail('Illegal regexp found in remove_line_from_file call: ' + match_regexp) # pragma: no cover
 					#          v the space is intentional, to avoid polluting bash history.
 					self.send(' command grep -v "^' + match_regexp + '$" ' + filename + ' > ' + tmp_filename,
 					          exit_values=['0','1'],
@@ -2650,7 +2650,7 @@ $'"""
 				shutit.log('[Send was marked secret; getting output debug will require code change]',level=logging.DEBUG)
 			if fail_on_empty_before:
 				if self.pexpect_child.before.strip() == '':
-					shutit.fail('before empty after sending: ' + str(send) + '\n\nThis is expected after some commands that take a password.\nIf so, add fail_on_empty_before=False to the send call.\n\nIf that is not the problem, did you send an empty string to a prompt by mistake?', shutit_pexpect_child=self.pexpect_child)
+					shutit.fail('before empty after sending: ' + str(send) + '\n\nThis is expected after some commands that take a password.\nIf so, add fail_on_empty_before=False to the send call.\n\nIf that is not the problem, did you send an empty string to a prompt by mistake?', shutit_pexpect_child=self.pexpect_child) # pragma: no cover
 			elif not fail_on_empty_before:
 				# Don't check exit if fail_on_empty_before is False
 				if not secret:
@@ -2767,7 +2767,7 @@ $'"""
 					else:
 						f.write(contents.decode('utf-8'))
 			else:
-				shutit.fail('type: ' + str(type(contents)) + ' not handled in 1')
+				shutit.fail('type: ' + str(type(contents)) + ' not handled in 1') # pragma: no cover
 			f.close()
 		elif shutit.build['delivery'] in ('bash','dockerfile'):
 			if truncate and self.file_exists(path):
@@ -2785,7 +2785,7 @@ $'"""
 					elif isinstance(contents, bytes):
 						b64contents = base64.b64encode(contents).decode('utf-8')
 					else:
-						shutit.fail('type: ' + str(type(contents)) + ' not handled in 2')
+						shutit.fail('type: ' + str(type(contents)) + ' not handled in 2') # pragma: no cover
 			else:
 				b64contents = base64.b64encode(contents)
 			if len(b64contents) > 100000:
@@ -2932,7 +2932,7 @@ $'"""
 					else:
 						shutit.log(shutit_util.colourise('31','Continuing, remember you can restore to a known state with CTRL-g.'),transient=True)
 				else:
-					shutit.fail('Follow-on context not handled on pass')
+					shutit.fail('Follow-on context not handled on pass') # pragma: no cover
 			return True
 		elif result == 'exited':
 			shutit.build['ctrlc_passthrough'] = False
@@ -2950,11 +2950,11 @@ $'"""
 						self.replace_container(container_name,go_home=False)
 						shutit.log('State restored.',level=logging.INFO)
 				else:
-					shutit.fail('Follow-on context not handled on reset')
+					shutit.fail('Follow-on context not handled on reset') # pragma: no cover
 			return True
 		else:
-			shutit.fail('result: ' + result + ' not handled')
-		shutit.fail('_challenge_done should not get here')
+			shutit.fail('result: ' + result + ' not handled') # pragma: no cover
+		shutit.fail('_challenge_done should not get here') # pragma: no cover
 		return True
 
 
@@ -3004,7 +3004,7 @@ $'"""
 			elif shutit.build['exam_object'].num_stages < 1:
 				shutit.build['exam_object'].num_stages = num_stages
 			elif shutit.build['exam_object'].num_stages > 0:
-				shutit.fail('Error! num_stages passed in should be None if already set in exam object (ie > 0)')
+				shutit.fail('Error! num_stages passed in should be None if already set in exam object (ie > 0)') # pragma: no cover
 			curr_stage = str(shutit.build['exam_object'].curr_stage)
 			if num_stages > 0:
 				task_desc = 80*'*' + '\n' + '* QUESTION ' + str(curr_stage) + '/' + str(num_stages) + '\n' + 80*'*' + '\n' + task_desc
@@ -3025,13 +3025,13 @@ $'"""
 			if isinstance(expect, str):
 				expect = [expect]
 			if not isinstance(expect, list):
-				shutit.fail('expect_regexps should be list')
+				shutit.fail('expect_regexps should be list') # pragma: no cover
 		elif expect_type == 'md5sum':
 			preserve_newline = True
 		elif expect_type == 'exact':
 			pass
 		else:
-			shutit.fail('Must pass either expect_regexps or md5sum in')
+			shutit.fail('Must pass either expect_regexps or md5sum in') # pragma: no cover
 		if hints is not None and len(hints):
 			shutit.build['pause_point_hints'] = hints
 		else:
@@ -3201,7 +3201,7 @@ $'"""
 					else:
 						continue
 		else:
-			shutit.fail('Challenge type: ' + challenge_type + ' not supported')
+			shutit.fail('Challenge type: ' + challenge_type + ' not supported') # pragma: no cover
 		self._challenge_done(result='ok',
 		                     follow_on_context=follow_on_context,
 		                     congratulations=congratulations,
@@ -3232,14 +3232,14 @@ $'"""
 								# OBJECT TO _CURRENT_ ENVIRONMENT IN SHUTIT PEXPECT session OBJECT AND RETURN that object.
 								self.current_environment = environment
 							else:
-								shutit.fail('Should not get here: environment reached but with unique build_id that matches, but object not in existence')
+								shutit.fail('Should not get here: environment reached but with unique build_id that matches, but object not in existence') # pragma: no cover
 				else:
 					## See comment above re: cygwin.
 					if self.file_exists('/cygdrive'):
 						self.current_environment = shutit.get_shutit_pexpect_session_environment('ORIGIN_ENV')
 					else:
-						shutit.fail('Wrong number of files in environment_id_dir: ' + environment_id_dir)
-					shutit.fail('Wrong number of files in environment_id_dir: ' + environment_id_dir)
+						shutit.fail('Wrong number of files in environment_id_dir: ' + environment_id_dir) # pragma: no cover
+					shutit.fail('Wrong number of files in environment_id_dir: ' + environment_id_dir) # pragma: no cover
 			else:
 				environment_id = files[0]
 				environment = shutit.get_shutit_pexpect_session_environment(environment_id)
@@ -3248,7 +3248,7 @@ $'"""
 					# OBJECT TO _CURRENT_ ENVIRONMENT IN SHUTIT PEXPECT session OBJECT AND RETURN that object.
 					self.current_environment = environment
 				else:
-					shutit.fail('Should not get here: environment reached but with unique build_id that matches, but object not in existence, ' + environment_id)
+					shutit.fail('Should not get here: environment reached but with unique build_id that matches, but object not in existence, ' + environment_id) # pragma: no cover
 			self.current_environment = environment
 			return shutit.get_shutit_pexpect_session_environment(environment_id)
 		new_environment = ShutItPexpectSessionEnvironment(prefix)
