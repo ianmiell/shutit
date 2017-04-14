@@ -35,6 +35,7 @@ import shutit_util
 import shutit_global
 import shutit_assets
 import package_map
+import binascii
 try:
 	from md5 import md5
 except ImportError:
@@ -2638,11 +2639,11 @@ $'"""
 				else:
 					shutit.log('Output (squashed): ' + logged_output,level=loglevel)
 				try:
-					shutit.log('shutit_pexpect_child.buffer(hex)>>>\n' + str(self.pexpect_child.buffer).encode('hex') + '\n<<<',level=logging.DEBUG)
-					shutit.log('shutit_pexpect_child.before (hex)>>>\n' + str(self.pexpect_child.before).encode('hex') + '\n<<<',level=logging.DEBUG)
-					shutit.log('shutit_pexpect_child.after (hex)>>>\n' + str(self.pexpect_child.after).encode('hex') + '\n<<<',level=logging.DEBUG)
+					shutit.log('shutit_pexpect_child.buffer(hex)>>>\n'  + binascii.hexlify(str(self.pexpect_child.buffer)) + '\n<<<',level=logging.DEBUG)
+					shutit.log('shutit_pexpect_child.before (hex)>>>\n' + binascii.hexlify(str(self.pexpect_child.before)) + '\n<<<',level=logging.DEBUG)
+					shutit.log('shutit_pexpect_child.after (hex)>>>\n'  + binascii.hexlify(str(self.pexpect_child.after)) + '\n<<<',level=logging.DEBUG)
 				except Exception as e:
-					shutit.log(str(e),level=logging.CRITICAL)
+					shutit.log(str(e),level=logging.WARNING)
 				shutit.log('shutit_pexpect_child.buffer>>>\n' + str(self.pexpect_child.buffer) + '\n<<<',level=logging.DEBUG)
 				shutit.log('shutit_pexpect_child.before>>>\n' + str(self.pexpect_child.before) + '\n<<<',level=logging.DEBUG)
 				shutit.log('shutit_pexpect_child.after>>>\n' + str(self.pexpect_child.after) + '\n<<<',level=logging.DEBUG)
