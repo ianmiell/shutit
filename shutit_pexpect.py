@@ -2717,7 +2717,7 @@ $'"""
 	              user=None,
 	              group=None,
 	              loglevel=logging.INFO,
-	              encoding='utf-8'):
+	              encoding=None):
 		"""Sends the passed-in string as a file to the passed-in path on the
 		target.
 
@@ -2749,12 +2749,24 @@ $'"""
 				f = open(path,'w')
 				if truncate:
 					f.truncate(0)
-				f.write(contents)
+				try:
+					f.write(contents)
+				except (UnicodeDecodeError, TypeError) as e:
+					if encoding is not None:
+						f.write(contents.decode(encoding))
+					else:
+						f.write(contents.decode('utf-8'))
 			elif isinstance(contents, bytes):
 				f = open(path,'w')
 				if truncate:
 					f.truncate(0)
-				f.write(contents)
+				try:
+					f.write(contents)
+				except (UnicodeDecodeError, TypeError) as e:
+					if encoding is not None:
+						f.write(contents.decode(encoding))
+					else:
+						f.write(contents.decode('utf-8'))
 			else:
 				shutit.fail('type: ' + str(type(contents)) + ' not handled in 1') # pragma: no cover
 			f.close()
@@ -2795,13 +2807,26 @@ $'"""
 			tmpfile = shutit.build['shutit_state_dir_base'] + 'tmp_' + shutit_util.random_id()
 			f = open(tmpfile,'wb')
 			f.truncate(0)
+			# TODO: try taking out trys
 			if isinstance(contents, bytes):
-				if PY3:
+				try:
+					if PY3:
+							f.write(contents)
+					elif encoding is not None:
+						f.write(contents.encode(encoding))
+					else:
+						f.write(contents.encode('utf-8'))
+				except (UnicodeDecodeError, TypeError) as e:
 					f.write(contents)
-				elif encoding is not None:
-					f.write(contents.encode(encoding))
 			else:
-				f.write(contents.encode(encoding))
+				# We assume it's unicode, or str. Can't be explicit because python3 and 2 differ in how they handle...
+				try:
+					if encoding is not None:
+						f.write(contents.encode(encoding))
+					else:
+						f.write(contents.encode('utf-8'))
+				except (UnicodeDecodeError, TypeError) as e:
+					f.write(contents)
 			f.close()
 			# Create file so it has appropriate permissions
 			self.send(' command touch ' + path,
