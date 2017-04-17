@@ -38,7 +38,7 @@ import package_map
 import binascii
 try:
 	from md5 import md5
-except ImportError:
+except ImportError: # pragma: no cover
 	from hashlib import md5
 from shutit_module import ShutItFailException
 
@@ -66,7 +66,7 @@ class ShutItPexpectSession(object):
 	             delaybeforesend=0.05):
 		"""spawn a child, and manage the delaybefore send setting to 0
 		"""
-		if PY3:
+		if PY3: # pragma: no cover
 			encoding = 'utf-8'
 		shutit = shutit_global.shutit
 		self.check_exit          = True
@@ -74,8 +74,7 @@ class ShutItPexpectSession(object):
 		self.pexpect_session_id  = pexpect_session_id
 		self.login_stack         = []
 		self.current_environment = None
-		if args is None:
-			args = []
+		args = args or []
 		self.pexpect_child       = self._spawn_child(command=command,
 		                                             args=args,
 		                                             timeout=timeout,
@@ -190,10 +189,7 @@ class ShutItPexpectSession(object):
 			send = command + ' ' + user
 		else:
 			send = command
-		if expect is None:
-			login_expect = shutit.expect_prompts['base_prompt']
-		else:
-			login_expect = expect
+		expect = expect or shutit.expect_prompts['base_prompt']
 		# We don't fail on empty before as many login programs mess with the output.
 		# In this special case of login we expect either the prompt, or 'user@' as this has been seen to work.
 		general_expect = [login_expect]

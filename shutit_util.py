@@ -28,11 +28,11 @@
 from __future__ import print_function
 try:
 	import ConfigParser
-except ImportError:
+except ImportError: # pragma: no cover
 	import configparser as ConfigParser
 try:
 	from StringIO import StringIO
-except ImportError:
+except ImportError: # pragma: no cover
 	from io import StringIO
 import argparse
 import base64
@@ -99,7 +99,7 @@ class LayerConfigParser(ConfigParser.RawConfigParser):
 			fp = fp # pylint
 			if cp.has_option(section, option):
 				return filename
-		raise ShutItFailException('[%s]/%s was never set' % (section, option))
+		raise ShutItFailException('[%s]/%s was never set' % (section, option)) # pragma: no cover
 
 	def get_config_set(self, section, option):
 		"""Returns a set with each value per config file in it.
@@ -128,13 +128,13 @@ class LayerConfigParser(ConfigParser.RawConfigParser):
 				self.readfp(fp, filename)
 
 	def remove_section(self, *args, **kwargs):
-		raise NotImplementedError('''Layer config parsers aren't directly mutable''')
+		raise NotImplementedError('''Layer config parsers aren't directly mutable''') # pragma: no cover
 
 	def remove_option(self, *args, **kwargs):
-		raise NotImplementedError('''Layer config parsers aren't directly mutable''')
+		raise NotImplementedError('''Layer config parsers aren't directly mutable''') # pragma: no cover
 
 	def set(self, *args, **kwargs):
-		raise NotImplementedError('''Layer config parsers aren\'t directly mutable''')
+		raise NotImplementedError('''Layer config parsers aren\'t directly mutable''') # pragma: no cover
 
 def is_file_secure(file_name):
 	"""Returns false if file is considered insecure, true if secure.
@@ -152,7 +152,7 @@ def colourise(code, msg):
 	"""Colourize the given string for a terminal.
 	"""
 	if code == '' or code is None:
-		return msg
+		return msg # pragma: no cover
 	return '\033[%sm%s\033[0m' % (code, msg)
 
 
@@ -371,7 +371,7 @@ def get_base_config(cfg_parser):
 	# END Standard expects
 
 	if shutit.build['delivery'] in ('bash','ssh'):
-		if shutit.target['docker_image'] != '':
+		if shutit.target['docker_image'] != '': # pragma: no cover
 			print('delivery method specified (' + shutit.build['delivery'] + ') and image_tag argument make no sense')
 			handle_exit(exit_code=1)
 	if shutit.target['docker_image'] == '':
@@ -381,10 +381,10 @@ def get_base_config(cfg_parser):
 	# BEGIN warnings
 	# FAILS begins
 	# rm is incompatible with repository actions
-	if shutit.target['rm'] and (shutit.repository['tag'] or shutit.repository['push'] or shutit.repository['save'] or shutit.repository['export']):
+	if shutit.target['rm'] and (shutit.repository['tag'] or shutit.repository['push'] or shutit.repository['save'] or shutit.repository['export']): # pragma: no cover
 		print("Can't have [target]/rm and [repository]/(push/save/export) set to true")
 		handle_exit(exit_code=1)
-	if shutit.target['hostname'] != '' and shutit.build['net'] != '' and shutit.build['net'] != 'bridge':
+	if shutit.target['hostname'] != '' and shutit.build['net'] != '' and shutit.build['net'] != 'bridge': # pragma: no cover
 		print('\n\ntarget/hostname or build/net configs must be blank\n\n')
 		handle_exit(exit_code=1)
 	# FAILS ends
@@ -1548,7 +1548,7 @@ def config_collection_for_built(throw_error=True,silent=False):
 			print('Exiting on allowed images error, with return status 0')
 			handle_exit(exit_code=1)
 		else:
-			raise ShutItFailException('Allowed images checking failed')
+			raise ShutItFailException('Allowed images checking failed') # pragma: no cover
 	return True
 
 

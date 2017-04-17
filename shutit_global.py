@@ -799,11 +799,9 @@ class ShutIt(object):
 		if group is None:
 			group = self.whoarewe()
 		# Create gzip of folder
-		# TODO: check we have tar with gz on target
-		# TODO: handle/check for '../..'
 		#import pdb
 		#pdb.set_trace()
-		if True:
+		if shutit_pexpect_session.command_available('tar'):
 			gzipfname = '/tmp/shutit_tar_tmp.tar.gz'
 			with tarfile.open(gzipfname, 'w:gz') as tar:
 				tar.add(hostfilepath, arcname=os.path.basename(hostfilepath))
