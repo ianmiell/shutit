@@ -218,8 +218,8 @@ class ShutItPexpectSession(object):
 		               loglevel=loglevel)
 		# Check exit 'by hand' here to not effect/assume setup prompt.
 		if not self.get_exit_value(shutit):
-			if fail_on_fail:
-				shutit.fail('Login failure!') # pragma: no cover
+			if fail_on_fail: # pragma: no cover
+				shutit.fail('Login failure!')
 			else:
 				return False
 		# Setup prompt
@@ -543,11 +543,8 @@ class ShutItPexpectSession(object):
 			#	res = shutit_util.match_string(str(self.pexpect_child.after), '^.*EXIT_CODE:([0-9][0-9]?[0-9]?)$')
 			#if res != None:
 			#	break
-		if res not in exit_values or res is None:
-			if res is None:
-				res_str = str(res)
-			else:
-				res_str = res
+		if res not in exit_values or res is None: # pragma: no cover
+			res_str = res or str(res)
 			shutit.log('shutit_pexpect_child.after: ' + str(self.pexpect_child.after), level=logging.DEBUG)
 			shutit.log('Exit value from command: ' + str(send) + ' was:' + res_str, level=logging.DEBUG)
 			msg = ('\nWARNING: command:\n' + send + '\nreturned unaccepted exit code: ' + res_str + '\nIf this is expected, pass in check_exit=False or an exit_values array into the send function call.')
@@ -756,10 +753,10 @@ class ShutItPexpectSession(object):
 			ret = True
 		elif res == 'FILNEXIST':
 			pass
-		else:
+		else: # pragma: no cover
 			# Change to log?
 			shutit.log(repr('before>>>>:%s<<<< after:>>>>%s<<<<' % (self.pexpect_child.before, self.pexpect_child.after)),transient=True)
-			shutit.fail('Did not see FIL(N)?EXIST in output:\n' + output) # pragma: no cover
+			shutit.fail('Did not see FIL(N)?EXIST in output:\n' + output)
 		shutit.handle_note_after(note=note)
 		return ret
 
