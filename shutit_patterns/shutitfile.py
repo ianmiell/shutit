@@ -42,7 +42,8 @@ import shutit_skeleton
 #_default_repo_name = shutit_util._default_repo_name
 _default_repo_name = 'mymodule'
 
-def setup_shutitfile_pattern(skel_path,
+def setup_shutitfile_pattern(shutit,
+                             skel_path,
                              skel_delivery,
                              skel_pattern,
                              skel_domain,
@@ -54,8 +55,6 @@ def setup_shutitfile_pattern(skel_path,
                              skel_vagrant_machine_prefix,
                              skel_vagrant_ssh_access,
                              skel_vagrant_docker):
-
-	shutit = shutit_global.shutit
 
 	shutit_skeleton_extra_args = ''
 	if skel_pattern == 'shutitfile' and skel_delivery == 'vagrant':
@@ -208,7 +207,8 @@ def parse_shutitfile_args(args_str):
 
 
 # Takes a shutitfile filename and returns represention of that Dockerfile as a ShutIt module snippets
-def shutitfile_to_shutit_module(skel_shutitfile,
+def shutitfile_to_shutit_module(shutit,
+                                skel_shutitfile,
                                 skel_path,
                                 skel_domain,
                                 skel_module_name,
@@ -218,7 +218,6 @@ def shutitfile_to_shutit_module(skel_shutitfile,
                                 order,
 	                            total,
 	                            skel_module_modifier):
-	shutit = shutit_global.shutit
 
 	if not os.path.exists(skel_shutitfile):
 		if urlparse(skel_shutitfile)[0] == '':
@@ -241,15 +240,15 @@ def shutitfile_to_shutit_module(skel_shutitfile,
 		os.chdir(shutitfile_dirname)
 
 	# Process the shutitfile
-	shutitfile_representation, ok = shutit_skeleton.process_shutitfile(shutitfile_contents)
+	shutitfile_representation, ok = shutit_skeleton.process_shutitfile(shutit, shutitfile_contents)
 	if not ok:
 		return '', '', '', '', '', False
 
 	# Check the shutitfile representation
-	check_shutitfile_representation(shutitfile_representation, skel_delivery)
+	check_shutitfile_representation(shutit, shutitfile_representation, skel_delivery)
 
 	# Get the shutit module as a string
-	sections, module_id, module_name, depends, default_include = generate_shutit_module_sections(shutitfile_representation, skel_domain, skel_module_name, skel_module_modifier, skel_shutitfile, skel_depends, order, total)
+	sections, module_id, module_name, depends, default_include = generate_shutit_module_sections(shutit, shutitfile_representation, skel_domain, skel_module_name, skel_module_modifier, skel_shutitfile, skel_depends, order, total)
 	if module_id == skel_module_name:
 		module_id = skel_domain + """.""" + skel_module_name + skel_module_modifier
 
@@ -274,10 +273,9 @@ def module():
 
 
 
-def check_shutitfile_representation(shutitfile_representation, skel_delivery):
+def check_shutitfile_representation(shutit, shutitfile_representation, skel_delivery):
 	# delivery directives
 	# Only allow one type of delivery
-	shutit = shutit_global.shutit
 	shutitfile_delivery = set()
 	# If we've been given a delivery method, add that.
 	if skel_delivery:
@@ -309,8 +307,14 @@ def check_shutitfile_representation(shutitfile_representation, skel_delivery):
 
 
 
-def generate_shutit_module_sections(shutitfile_representation, skel_domain, skel_module_name, skel_module_modifier, skel_shutitfile, skel_depends, order, total):
-	shutit = shutit_global.shutit
+def generate_shutit_module_sections(shutit,
+                                    shutitfile_representation,
+                                    skel_domain, skel_module_name,
+                                    skel_module_modifier,
+                                    skel_shutitfile,
+                                    skel_depends,
+                                    order,
+                                    total):
 	sections = {}
 	sections.update({'header_section':'\n# Created from shutitfile: ' + skel_shutitfile + '\n# Maintainer:              ' + shutitfile_representation['shutitfile']['maintainer'] + '\nfrom shutit_module import ShutItModule\n\nclass ' + skel_module_name + skel_module_modifier + '(ShutItModule):\n\n\tdef is_installed(self, shutit):\n\t\treturn False'})
 
@@ -347,7 +351,7 @@ def generate_shutit_module_sections(shutitfile_representation, skel_domain, skel
 	for item in shutitfile_representation['shutitfile']['script']:
 		section = shutitfile_get_section(item[0], section)
 		if section == 'build':
-			ret = handle_shutitfile_script_line(item, numpushes, wgetgot, numlogins, ifdepth, current_note)
+			ret = handle_shutitfile_script_line(shutit, item, numpushes, wgetgot, numlogins, ifdepth, current_note)
 			build        += ret[0]
 			numpushes    =  ret[1]
 			wgetgot      =  ret[2]
@@ -381,7 +385,7 @@ def generate_shutit_module_sections(shutitfile_representation, skel_domain, skel
 	for item in shutitfile_representation['shutitfile']['script']:
 		section = shutitfile_get_section(item[0], section)
 		if section == 'test':
-			ret = handle_shutitfile_script_line(item, numpushes, wgetgot, numlogins, ifdepth, current_note)
+			ret = handle_shutitfile_script_line(shutit, item, numpushes, wgetgot, numlogins, ifdepth, current_note)
 			build        += ret[0]
 			numpushes    =  ret[1]
 			wgetgot      =  ret[2]
@@ -408,7 +412,7 @@ def generate_shutit_module_sections(shutitfile_representation, skel_domain, skel
 	for item in shutitfile_representation['shutitfile']['script']:
 		section = shutitfile_get_section(item[0], section)
 		if section == 'isinstalled':
-			ret = handle_shutitfile_script_line(item, numpushes, wgetgot, numlogins, ifdepth, current_note)
+			ret = handle_shutitfile_script_line(shutit, item, numpushes, wgetgot, numlogins, ifdepth, current_note)
 			build        += ret[0]
 			numpushes    =  ret[1]
 			wgetgot      =  ret[2]
@@ -437,7 +441,7 @@ def generate_shutit_module_sections(shutitfile_representation, skel_domain, skel
 	for item in shutitfile_representation['shutitfile']['script']:
 		section = shutitfile_get_section(item[0], section)
 		if section == 'start':
-			ret = handle_shutitfile_script_line(item, numpushes, wgetgot, numlogins, ifdepth, current_note)
+			ret = handle_shutitfile_script_line(shutit, item, numpushes, wgetgot, numlogins, ifdepth, current_note)
 			build        += ret[0]
 			numpushes    =  ret[1]
 			wgetgot      =  ret[2]
@@ -466,7 +470,7 @@ def generate_shutit_module_sections(shutitfile_representation, skel_domain, skel
 	for item in shutitfile_representation['shutitfile']['script']:
 		section = shutitfile_get_section(item[0], section)
 		if section == 'stop':
-			ret = handle_shutitfile_script_line(item, numpushes, wgetgot, numlogins, ifdepth, current_note)
+			ret = handle_shutitfile_script_line(shutit, item, numpushes, wgetgot, numlogins, ifdepth, current_note)
 			build        += ret[0]
 			numpushes    =  ret[1]
 			wgetgot      =  ret[2]
@@ -532,9 +536,8 @@ def handle_shutitfile_config_line(line):
 	return build
 
 
-def handle_shutitfile_script_line(line, numpushes, wgetgot, numlogins, ifdepth, current_note):
+def handle_shutitfile_script_line(shutit, line, numpushes, wgetgot, numlogins, ifdepth, current_note):
 	shutitfile_command = line[0].upper()
-	shutit = shutit_global.shutit
 	build  = ''
 	numtabs = 2 + ifdepth
 	assert shutitfile_command in ('RUN','SEND','SEND_EXPECT','SEND_EXPECT_MULTI','EXPECT_REACT','SEND_EXPECT_REACT','SEND_UNTIL','UNTIL','UNTIL','ASSERT_OUTPUT_SEND','ASSERT_OUTPUT','PAUSE_POINT','EXPECT','EXPECT_MULTI','LOGIN','USER','LOGOUT','GET_AND_SEND_PASSWORD','LOGIN_WITH_PASSWORD','USER_WITH_PASSWORD','WORKDIR','COPY','ADD','ENV','INSTALL','REMOVE','COMMENT','NOTE','IF','ELSE','ELIF','IF_NOT','ELIF_NOT','ENDIF','RUN_SCRIPT','SCRIPT_BEGIN','START_BEGIN','START_END','STOP_BEGIN','STOP_END','TEST_BEGIN','TEST_END','BUILD_BEGIN','BUILD_END','ISINSTALLED_BEGIN','ISINSTALLED_END','COMMIT','PUSH','REPLACE_LINE','LOG','QUIT','STORE_RUN','VAGRANT_LOGIN','VAGRANT_LOGOUT'), '%r is not a handled script command' % shutitfile_command

@@ -3,19 +3,19 @@ off to internal objects such as shutit_pexpect.
 """
 
 # The MIT License (MIT)
-# 
+#
 # Copyright (C) 2014 OpenBet Limited
-# 
+#
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
 # this software and associated documentation files (the "Software"), to deal in
 # the Software without restriction, including without limitation the rights to
 # use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
 # of the Software, and to permit persons to whom the Software is furnished to do
 # so, subject to the following conditions:
-# 
+#
 # The above copyright notice and this permission notice shall be included in all
 # copies or substantial portions of the Software.
-# 
+#
 # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 # IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 # ITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
@@ -29,6 +29,7 @@ import os
 import socket
 import time
 import shutit_util
+import shutit_setup
 import re
 import getpass
 import codecs
@@ -101,7 +102,7 @@ class ShutIt(object):
 		self.current_shutit_pexpect_session = None
 		self.shutit_pexpect_sessions        = {}
 		self.shutit_modules                 = set()
-		self.shutit_main_dir                = os.path.abspath(os.path.dirname(__file__)) 
+		self.shutit_main_dir                = os.path.abspath(os.path.dirname(__file__))
 		self.shutit_map                     = {}
 		# These are new members we dont have to provide compatibility for
 		self.conn_modules                   = set()
@@ -390,7 +391,8 @@ class ShutIt(object):
 		"""
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
 		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
-		return shutit_pexpect_session.challenge(task_desc=task_desc,
+		return shutit_pexpect_session.challenge(self,
+		                                        task_desc=task_desc,
   		                                        expect=expect,
 		                                        hints=hints,
 		                                        congratulations=congratulations,
@@ -541,7 +543,7 @@ class ShutIt(object):
 		                                                     retry=retry,
 		                                                     retbool=True)
 
-                                                                                                                  
+
 	def handle_note(self, note, command='', training_input=''):
 		"""Handle notes and walkthrough option.
 
@@ -560,7 +562,7 @@ class ShutIt(object):
 				if training_input != '' and self.build['training']:
 					if len(training_input.split('\n')) == 1:
 						print(shutit_util.colourise('31',message))
-						while shutit_util.util_raw_input(prompt=shutit_util.colourise('32','Enter the command to continue (or "s" to skip typing it in): ')) not in (training_input,'s'):
+						while shutit_util.util_raw_input(self, prompt=shutit_util.colourise('32','Enter the command to continue (or "s" to skip typing it in): ')) not in (training_input,'s'):
 							print('Wrong! Try again!')
 						print(shutit_util.colourise('31','OK!'))
 					else:
@@ -609,11 +611,11 @@ class ShutIt(object):
 				accum_timeout += iteration_s
 			else:
 				return res
-		if timed_out and not shutit_util.determine_interactive():
+		if timed_out and not shutit_util.determine_interactive(self):
 			self.log('Command timed out, trying to get terminal back for you', level=logging.DEBUG)
 			self.fail('Timed out and could not recover') # pragma: no cover
 		else:
-			if shutit_util.determine_interactive():
+			if shutit_util.determine_interactive(self):
 				shutit_pexpect_child.send('\x03')
 				res = shutit_pexpect_child.expect(expect,timeout=1)
 				if res == len(expect):
@@ -1310,7 +1312,7 @@ class ShutIt(object):
 		self.log(shutit_util.colourise('32', '\nPROMPTING FOR CONFIG: %s' % (cfgstr,)),transient=True)
 		self.log(shutit_util.colourise('32', '\n' + msg + '\n'),transient=True)
 		
-		if not shutit_util.determine_interactive():
+		if not shutit_util.determine_interactive(self):
 			self.fail('ShutIt is not in a terminal so cannot prompt for values.', throw_exception=False) # pragma: no cover
 
 		if config_parser.has_option(sec, name):
@@ -1329,7 +1331,7 @@ class ShutIt(object):
 		if ispass:
 			val = getpass.getpass('>> ')
 		else:
-			val = shutit_util.util_raw_input(prompt='>> ')
+			val = shutit_util.util_raw_input(self, prompt='>> ')
 		is_excluded = (
 			config_parser.has_option('save_exclude', sec) and
 			name in config_parser.get('save_exclude', sec).split()
@@ -1340,7 +1342,7 @@ class ShutIt(object):
 				subcp for subcp, filename, _fp in config_parser.layers
 				if filename == usercfg
 			][0]
-			if shutit_util.util_raw_input(prompt=shutit_util.colourise('32', 'Do you want to save this to your user settings? y/n: '),default='y') == 'y':
+			if shutit_util.util_raw_input(self, prompt=shutit_util.colourise('32', 'Do you want to save this to your user settings? y/n: '),default='y') == 'y':
 				sec_toset, name_toset, val_toset = sec, name, val
 			else:
 				# Never save it
@@ -1364,7 +1366,7 @@ class ShutIt(object):
 		"""
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
 		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
-		if (not shutit_util.determine_interactive() or not self.build['interactive'] or
+		if (not shutit_util.determine_interactive(self) or not self.build['interactive'] or
 			self.build['interactive'] < level):
 			return
 		self.build['step_through'] = value
@@ -1408,7 +1410,7 @@ class ShutIt(object):
 
 		@return:             True if pause point handled ok, else false
 		"""
-		if (not shutit_util.determine_interactive() or self.build['interactive'] < 1 or
+		if (not shutit_util.determine_interactive(self) or self.build['interactive'] < 1 or
 			self.build['interactive'] < level):
 			return
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
@@ -1672,7 +1674,8 @@ class ShutIt(object):
 		    @param boolean:     - whether this should return true/false. Defaults to set of sensible values for valid[] if set to true
 		    @param ispass:      - do not echo input to terminal
 		"""
-		return shutit_util.get_input(msg=msg,
+		return shutit_util.get_input(self,
+		                             msg=msg,
 		                             default=default,
 		                             valid=valid,
 		                             boolean=boolean,
@@ -2012,7 +2015,7 @@ class ShutIt(object):
 						answer = None
 						# util_raw_input may change the interactive level, so guard for this.
 						while answer not in ('yes','no','') and self.build['interactive'] > 1:
-							answer = shutit_util.util_raw_input(prompt=shutit_util.colourise('32', 'Do you want to accept the config option defaults? ' + '(boolean - input "yes" or "no") (default: yes): \n'),default='yes',ispass=secret)
+							answer = shutit_util.util_raw_input(self, prompt=shutit_util.colourise('32', 'Do you want to accept the config option defaults? ' + '(boolean - input "yes" or "no") (default: yes): \n'),default='yes',ispass=secret)
 						# util_raw_input may change the interactive level, so guard for this.
 						if answer == 'yes' or answer == '' or self.build['interactive'] < 2:
 							self.build['accept_defaults'] = True
@@ -2032,16 +2035,16 @@ class ShutIt(object):
 						answer = None
 						if boolean:
 							while answer not in ('yes','no'):
-								answer =  shutit_util.util_raw_input(prompt=shutit_util.colourise('32',prompt + ' (boolean - input "yes" or "no"): \n'),ispass=secret)
+								answer =  shutit_util.util_raw_input(self, prompt=shutit_util.colourise('32',prompt + ' (boolean - input "yes" or "no"): \n'),ispass=secret)
 							if answer == 'yes':
 								answer = True
 							elif answer == 'no':
 								answer = False
 						else:
 							if re.search('assw',option) is None:
-								answer =  shutit_util.util_raw_input(prompt=shutit_util.colourise('32',prompt) + ': \n',ispass=secret)
+								answer =  shutit_util.util_raw_input(self, prompt=shutit_util.colourise('32',prompt) + ': \n',ispass=secret)
 							else:
-								answer =  shutit_util.util_raw_input(ispass=True,prompt=shutit_util.colourise('32',prompt) + ': \n')
+								answer =  shutit_util.util_raw_input(self, ispass=True,prompt=shutit_util.colourise('32',prompt) + ': \n')
 						if answer == '' and default != None:
 							answer = default
 						cfg[module_id][option] = answer
@@ -2172,5 +2175,32 @@ class ShutIt(object):
 			ret += '===============================================================================\n'
 		return ret
 
+	
+	def new_session(self,session_type='bash', docker_image=None, rm=None, loglevel='INFO'):
+		assert type(session_type) == str
+		new_shutit = ShutIt()
+		# TODO: only makes sense in session that's already bash - check this
+		if session_type == 'bash':
+			shutit_util.parse_args(new_shutit)
+			shutit_util.load_configs(shutit=new_shutit)
+			shutit_setup.setup_host_child_environment(new_shutit)
+			return new_shutit
+		elif session_type == 'docker':
+			shutit_util.parse_args(new_shutit, set_loglevel=loglevel)
+			# Set the configuration up appropriately using overrides.
+			if docker_image:
+				new_shutit.build['config_overrides'].append(['build','base_image',docker_image])
+			if rm:
+				new_shutit.target['rm'] = True
+			# Now 'load' the configs
+			shutit_util.load_configs(new_shutit)
+			target_child = shutit_setup.conn_docker_start_container(new_shutit,'target_child')
+			shutit_setup.setup_host_child_environment(new_shutit)
+			shutit_setup.setup_target_child_environment(new_shutit, target_child)
+			return new_shutit
+		else:
+			shutit.fail('unhandled session type: ' + session_type)
 
+
+# Create default session
 shutit = ShutIt()

@@ -32,11 +32,9 @@ import json
 from shutit_patterns import shutitfile
 
 
-def create_skeleton():
+def create_skeleton(shutit):
 	"""Creates module based on a pattern supplied as a git repo.
 	"""
-	shutit = shutit_global.shutit
-
 	skel_path        = shutit.cfg['skeleton']['path']
 	skel_module_name = shutit.cfg['skeleton']['module_name']
 	skel_domain      = shutit.cfg['skeleton']['domain']
@@ -69,7 +67,8 @@ def create_skeleton():
 	# If it's shutitfile and vagrant
 	if shutit.cfg['skeleton']['pattern'] == 'bash':
 		from shutit_patterns import bash
-		bash.setup_bash_pattern(skel_path=skel_path,
+		bash.setup_bash_pattern(shutit,
+		                        skel_path=skel_path,
 		                        skel_delivery=skel_delivery,
 		                        skel_pattern=skel_pattern,
 		                        skel_domain=skel_domain,
@@ -79,7 +78,8 @@ def create_skeleton():
 		                        skel_depends=skel_depends)
 	elif shutit.cfg['skeleton']['pattern'] == 'docker':
 		from shutit_patterns import docker
-		docker.setup_docker_pattern(skel_path=skel_path,
+		docker.setup_docker_pattern(shutit,
+		                            skel_path=skel_path,
 		                            skel_delivery=skel_delivery,
 		                            skel_pattern=skel_pattern,
 		                            skel_domain=skel_domain,
@@ -89,7 +89,8 @@ def create_skeleton():
 		                            skel_depends=skel_depends)
 	elif shutit.cfg['skeleton']['pattern'] == 'vagrant':
 		from shutit_patterns import vagrant
-		vagrant.setup_vagrant_pattern(skel_path=skel_path,
+		vagrant.setup_vagrant_pattern(shutit,
+		                              skel_path=skel_path,
 		                              skel_delivery=skel_delivery,
 		                              skel_pattern=skel_pattern,
 		                              skel_domain=skel_domain,
@@ -103,7 +104,8 @@ def create_skeleton():
 		                              skel_vagrant_docker=skel_vagrant_docker)
 	elif shutit.cfg['skeleton']['pattern'] == 'shutitfile':
 		from shutit_patterns import shutitfile
-		shutitfile.setup_shutitfile_pattern(skel_path=skel_path,
+		shutitfile.setup_shutitfile_pattern(shutit,
+		                                    skel_path=skel_path,
 		                                    skel_delivery=skel_delivery,
 		                                    skel_pattern=skel_pattern,
 		                                    skel_domain=skel_domain,
@@ -119,8 +121,7 @@ def create_skeleton():
 		shutit.fail('docker_tutorial not yet supported') # pragma: no cover
 
 
-def process_shutitfile(shutitfile_contents):
-	shutit = shutit_global.shutit
+def process_shutitfile(shutit, shutitfile_contents):
 	# Wipe the command as we expect one in the file.
 	shutitfile_representation = {'shutitfile': {}}
 	shutitfile_representation['shutitfile']['cmd']             = ''

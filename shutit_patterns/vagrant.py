@@ -3,7 +3,8 @@ import shutit_global
 import shutit_util
 from . import shutitfile
 
-def setup_vagrant_pattern(skel_path,
+def setup_vagrant_pattern(shutit,
+                          skel_path,
                           skel_delivery,
                           skel_pattern,
                           skel_domain,
@@ -15,8 +16,6 @@ def setup_vagrant_pattern(skel_path,
                           skel_vagrant_machine_prefix,
                           skel_vagrant_ssh_access,
                           skel_vagrant_docker):
-
-	shutit = shutit_global.shutit
 
 	# TODO: ability to pass in option values, or take defaults
 
@@ -257,7 +256,7 @@ fi
 			module_modifier = '_' + str(_count)
 			new_module_filename = skel_path + '/' + os.path.join(skel_module_name + module_modifier + '.py')
 			shutit.cfg['skeleton']['module_modifier'] = module_modifier
-			(sections, skel_module_id, skel_module_name, default_include, ok) = shutitfile.shutitfile_to_shutit_module(skel_shutitfile,skel_path,skel_domain,skel_module_name,skel_domain_hash,skel_delivery,skel_depends,_count,_total,module_modifier)
+			(sections, skel_module_id, skel_module_name, default_include, ok) = shutitfile.shutitfile_to_shutit_module(shutit, skel_shutitfile,skel_path,skel_domain,skel_module_name,skel_domain_hash,skel_delivery,skel_depends,_count,_total,module_modifier)
 			shutit.cfg['skeleton']['header_section']      = sections['header_section']
 			shutit.cfg['skeleton']['config_section']      = sections['config_section']
 			shutit.cfg['skeleton']['build_section']       = sections['build_section']
