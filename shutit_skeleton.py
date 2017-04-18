@@ -87,7 +87,7 @@ def create_skeleton(shutit):
 		                            skel_shutitfiles=skel_shutitfiles,
 		                            skel_domain_hash=skel_domain_hash,
 		                            skel_depends=skel_depends)
-	elif shutit.cfg['skeleton']['pattern'] == 'vagrant':
+	elif shutit.cfg['skeleton']['pattern'] == 'vagrant': # pragma: no cover
 		from shutit_patterns import vagrant
 		vagrant.setup_vagrant_pattern(shutit,
 		                              skel_path=skel_path,
@@ -117,8 +117,8 @@ def create_skeleton(shutit):
 		                                    skel_vagrant_machine_prefix=skel_vagrant_machine_prefix,
 		                                    skel_vagrant_ssh_access=skel_vagrant_ssh_access,
 		                                    skel_vagrant_docker=skel_vagrant_docker)
-	elif shutit.cfg['skeleton']['pattern'] == 'docker_tutorial':
-		shutit.fail('docker_tutorial not yet supported') # pragma: no cover
+	elif shutit.cfg['skeleton']['pattern'] == 'docker_tutorial': # pragma: no cover
+		shutit.fail('docker_tutorial not yet supported')
 
 
 def process_shutitfile(shutit, shutitfile_contents):
@@ -166,7 +166,7 @@ def process_shutitfile(shutit, shutitfile_contents):
 				shutitfile_representation['shutitfile']['base_image'] = item[1]
 				shutit.shutitfile['base_image'] = item[1]
 			else:
-				print('Ignoring FROM line as this it has already been set.')
+				print('Ignoring FROM line as this it has already been set.') # pragma: no cover
 		elif shutitfile_command == 'ONBUILD':
 			# TESTED? NO
 			# Maps to finalize :) - can we have more than one of these? assume yes

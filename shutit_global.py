@@ -2219,6 +2219,10 @@ class ShutIt(object):
 			ret += '===============================================================================\n'
 		return ret
 
+	# Pass through to global object
+	def new_session(self,session_type='bash', docker_image=None, rm=None, loglevel='INFO'):
+		return shutit_global_object.new_session(session_type,docker_image,rm,loglevel)
+
 	
 
 shutit_global_object = ShutItGlobal()
