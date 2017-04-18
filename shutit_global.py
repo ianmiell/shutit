@@ -30,6 +30,7 @@ import socket
 import time
 import shutit_util
 import shutit_setup
+import shutit_main
 import re
 import getpass
 import codecs
@@ -2180,6 +2181,7 @@ class ShutIt(object):
 	def new_session(self,session_type='bash', docker_image=None, rm=None, loglevel='INFO'):
 		assert type(session_type) == str
 		new_shutit = ShutIt()
+		shutit_main.shutit_objects.append(new_shutit)
 		# TODO: only makes sense in session that's already bash - check this
 		if session_type == 'bash':
 			shutit_util.parse_args(new_shutit)

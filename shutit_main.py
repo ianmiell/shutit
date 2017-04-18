@@ -488,7 +488,7 @@ def setup_shutit_path(shutit):
 
 
 
-def main(shutit):
+def main():
 	"""Main ShutIt function.
 
 	Handles the configured actions:
@@ -497,6 +497,8 @@ def main(shutit):
 		- list_configs - output computed configuration
 		- depgraph     - output digraph of module dependencies
 	"""
+	global shutit_objects
+	shutit = shutit_objects[0]
 	if sys.version_info.major == 2:
 		if sys.version_info.minor < 7:
 			shutit.fail('Python version must be 2.7+') # pragma: no cover
@@ -754,4 +756,4 @@ if __name__ == '__main__':
 	global shutit_objects
 	shutit_objects = [shutit_global.ShutIt(),]
 	# Run main() with a default shutit object
-	main(shutit_objects[0])
+	main()
