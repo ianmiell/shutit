@@ -27,6 +27,7 @@
 """
 from __future__ import print_function
 from distutils import spawn
+from shutit_global import ShutIt, ShutItGlobal
 import logging
 import os
 import re
@@ -436,6 +437,7 @@ def do_finalize(shutit=None):
 	"""Runs finalize phase; run after all builds are complete and all modules
 	have been stopped.
 	"""
+	global shutit_global_object
 	def _finalize(shutit):
 		# Stop all the modules
 		stop_all(shutit)
@@ -450,8 +452,7 @@ def do_finalize(shutit=None):
 					shutit.fail(module_id + ' failed on finalize', shutit_pexpect_child=shutit.get_shutit_pexpect_session_from_id('target_child').pexpect_child) # pragma: no cover
 				shutit.logout(echo=False)
 	if shutit is None:
-		global shutit_global_obj
-		for shutit_object in shutit_global_obj.shutit_objects:
+		for shutit_object in shutit_global_object.shutit_objects:
 			_finalize(shutit_object)
 	else:
 		_finalize(shutit)
@@ -497,8 +498,8 @@ def main():
 		- list_configs - output computed configuration
 		- depgraph     - output digraph of module dependencies
 	"""
-	global shutit_objects
-	shutit = shutit_objects[0]
+	global shutit_global_object
+	shutit = shutit_global_object.shutit_objects[0]
 	if sys.version_info.major == 2:
 		if sys.version_info.minor < 7:
 			shutit.fail('Python version must be 2.7+') # pragma: no cover
@@ -749,13 +750,10 @@ def setup_signals():
 	signal.signal(signal.SIGQUIT, shutit_util.ctrl_quit_signal_handler)
 
 shutit_version='0.9.347'
+shutit_global_object = ShutItGlobal()
+shutit_global_object.add_shutit_session(ShutIt())
 
 if __name__ == '__main__':
 	setup_signals()
-	global shutit_global_obj
-	shutit_global_obj = shutit_global.ShutItGlobal()
-	# Precursor to a 'ShutItGlobal' singleton object.
-	global shutit_objects
-	shutit_objects = [shutit_global.ShutIt(),]
 	# Run main() with a default shutit object
 	main()
