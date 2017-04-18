@@ -27,7 +27,6 @@
 """
 from __future__ import print_function
 from distutils import spawn
-from shutit_global import ShutIt
 import logging
 import os
 import re
@@ -442,7 +441,7 @@ def do_finalize(shutit=None):
 		# Stop all the modules
 		stop_all(shutit)
 		# Finalize in reverse order
-		shutit.log('PHASE: finalizing object ' + str(shutit_object), level=logging.DEBUG)
+		shutit.log('PHASE: finalizing object ' + str(shutit), level=logging.DEBUG)
 		# Login at least once to get the exports.
 		for module_id in shutit_util.module_ids(shutit, rev=True):
 			# Only finalize if it's thought to be installed.
@@ -452,8 +451,8 @@ def do_finalize(shutit=None):
 					shutit.fail(module_id + ' failed on finalize', shutit_pexpect_child=shutit.get_shutit_pexpect_session_from_id('target_child').pexpect_child) # pragma: no cover
 				shutit.logout(echo=False)
 	if shutit is None:
-		for shutit_object in shutit_global_object.shutit_objects:
-			_finalize(shutit_object)
+		for shutit in shutit_global_object.shutit_objects:
+			_finalize(shutit)
 	else:
 		_finalize(shutit)
 
@@ -749,7 +748,6 @@ def setup_signals():
 	signal.signal(signal.SIGQUIT, shutit_util.ctrl_quit_signal_handler)
 
 shutit_version='0.9.347'
-shutit_global.shutit_global_object.add_shutit_session(ShutIt())
 
 if __name__ == '__main__':
 	setup_signals()

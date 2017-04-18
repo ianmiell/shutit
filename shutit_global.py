@@ -2222,3 +2222,4 @@ class ShutIt(object):
 			shutit.fail('unhandled session type: ' + session_type)
 
 shutit_global_object = ShutItGlobal()
+shutit_global_object.add_shutit_session(ShutIt())
