@@ -85,7 +85,7 @@ class ShutItMeta(ABCMeta):
 				if not callable(method):
 					continue
 				sim_method = getattr(sim, name)
-				if sim_method is method:
+				if sim_method is method: # pragma: no cover
 					continue
 				args = inspect.getargspec(sim_method)[0]
 				if args != ['self', 'shutit']:
@@ -130,7 +130,7 @@ class ShutItModule(with_metaclass(ShutItMeta)):
 		# Duplicate module ids are rejected if within the configured
 		# shutit_module_path.
 		self.module_id = module_id
-		if not isinstance(module_id, str):
+		if not isinstance(module_id, str): # pragma: no cover
 			err = str(module_id) + '\'s module_id is not a string'
 			print(err)
 			raise ShutItModuleError(err)
@@ -146,7 +146,7 @@ class ShutItModule(with_metaclass(ShutItMeta)):
 			run_order = decimal.Decimal(run_order)
 		# Check that run_order is a float - this will throw an error as a 
 		# side effect if float doesn't work.
-		if not isinstance(run_order, decimal.Decimal):
+		if not isinstance(run_order, decimal.Decimal): # pragma: no cover
 			err = module_id + '\'s run order is not a decimal'
 			print(err)
 			raise ShutItModuleError(err)
