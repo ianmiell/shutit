@@ -498,8 +498,7 @@ def main():
 		- list_configs - output computed configuration
 		- depgraph     - output digraph of module dependencies
 	"""
-	global shutit_global_object
-	shutit = shutit_global_object.shutit_objects[0]
+	shutit = shutit_global.shutit_global_object.shutit_objects[0]
 	if sys.version_info.major == 2:
 		if sys.version_info.minor < 7:
 			shutit.fail('Python version must be 2.7+') # pragma: no cover
