@@ -44,7 +44,6 @@ from shutit_module import ShutItFailException
 class ShutItGlobal(object):
 	"""TODO
 
-	TODO: Make singleton
 	"""
 
 	only_one = None
