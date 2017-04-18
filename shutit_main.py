@@ -27,7 +27,7 @@
 """
 from __future__ import print_function
 from distutils import spawn
-from shutit_global import ShutIt, ShutItGlobal
+from shutit_global import ShutIt
 import logging
 import os
 import re
@@ -750,8 +750,7 @@ def setup_signals():
 	signal.signal(signal.SIGQUIT, shutit_util.ctrl_quit_signal_handler)
 
 shutit_version='0.9.347'
-shutit_global_object = ShutItGlobal()
-shutit_global_object.add_shutit_session(ShutIt())
+shutit_global.shutit_global_object.add_shutit_session(ShutIt())
 
 if __name__ == '__main__':
 	setup_signals()
