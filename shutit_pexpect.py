@@ -110,8 +110,7 @@ class ShutItPexpectSession(object):
 		"""spawn a child, and manage the delaybefore send setting to 0
 		"""
 		shutit = self.shutit
-		if args is None:
-			args = []
+		args = args or []
 		pexpect_child = pexpect.spawn(command,
 		                              args=args,
 		                              timeout=timeout,

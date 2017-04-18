@@ -141,7 +141,7 @@ def process_shutitfile(shutit, shutitfile_contents):
 	# Whether to build this module by default (defaults to 'yes/true'
 	shutitfile_representation['shutitfile']['default_include'] = 'true'
 	shutitfile_list, ok = shutitfile.parse_shutitfile(shutitfile_contents)
-	if not ok:
+	if not ok: # pragma: no cover
 		return [], False
 	# Set defaults from given shutitfile
 	last_shutitfile_command = ''
