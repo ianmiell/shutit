@@ -57,7 +57,6 @@ import subprocess
 import pexpect
 import texttable
 import textwrap
-import shutit_global
 import shutit_main
 import shutit_assets
 import shutit_skeleton
@@ -227,7 +226,7 @@ def find_asset(shutit, filename):
 				sys.prefix,
 				os.path.join(sys.prefix,'local'),
 				shutit.shutit_main_dir,
-				os.path.join(shutit_global.shutit.shutit_main_dir,'../../..'),
+				os.path.join(shutit.shutit_main_dir,'../../..'),
 				shutit.host['shutit_path'],
 				'/usr/local'
 			   ]
@@ -237,7 +236,7 @@ def find_asset(shutit, filename):
 				sys.prefix + '/' + head,
 				os.path.join(sys.prefix,'local') + '/' + head,
 				shutit.shutit_main_dir + '/' + head,
-				os.path.join(shutit_global.shutit.shutit_main_dir,'../../..') + '/' + head,
+				os.path.join(shutit.shutit_main_dir,'../../..') + '/' + head,
 				shutit.host['shutit_path'] + '/' + head,
 				'/usr/local' + '/' + head
 			   ]
@@ -758,7 +757,7 @@ shutitfile:        a shutitfile-based project (can be docker, bash, vagrant)
 					handle_exit(shutit=shutit, exit_code=1)
 			# Create a test session object if needed.
 			if shutit.build['exam']:
-				shutit.build['exam_object'] = shutit_exam.ShutItExamSession()
+				shutit.build['exam_object'] = shutit_exam.ShutItExamSession(shutit)
 		elif shutit.action['list_configs']:
 			shutit.list_configs['cfghistory'] = args.history
 		elif shutit.action['list_modules']:
@@ -1015,10 +1014,10 @@ def list_modules(shutit, long_output=None,sort_order=None):
 		f.close()
 
 # TODO: does this still work?
-def print_config(cfg, hide_password=True, history=False, module_id=None):
+def print_config(shutit, cfg, hide_password=True, history=False, module_id=None):
 	"""Returns a string representing the config of this ShutIt run.
 	"""
-	cp = shutit_global.shutit.config_parser
+	cp = shutit.config_parser
 	s = ''
 	keys1 = list(cfg.keys())
 	if keys1:
@@ -1166,11 +1165,11 @@ def build_report(shutit, msg=''):
 	s += '###############################################################################\n'
 	return s
 
-def get_commands():
+def get_commands(shutit):
 	"""Gets command that have been run and have not been redacted.
 	"""
 	s = ''
-	for c in shutit_global.shutit.build['shutit_command_history']:
+	for c in shutit.build['shutit_command_history']:
 		if isinstance(c, str):
 			#Ignore commands with leading spaces
 			if c and c[0] != ' ':
@@ -1204,7 +1203,7 @@ def util_raw_input(shutit, prompt='', default=None, ispass=False, use_readline=T
 	if ispass:
 		prompt += '\r\nInput Secret: '
 	sanitize_terminal()
-	if shutit_global.shutit.build['interactive'] == 0:
+	if shutit.build['interactive'] == 0:
 		return default
 	if not determine_interactive(shutit):
 		return default
@@ -1280,7 +1279,7 @@ def ctrl_quit_signal_handler(_,frame):
 	print(r'CRTL-\ caught, hard-exiting ShutIt')
 	shutit_frame = get_shutit_frame(frame)
 	if shutit_frame:
-		shutit_main.do_finalize(shutit_global.shutit)
+		shutit_main.do_finalize()
 	handle_exit(exit_code=1)
 # CTRL-\ HANDLING CODE ENDS
 

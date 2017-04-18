@@ -38,7 +38,6 @@ import time
 import re
 import logging
 import shutit_pexpect
-import shutit_global
 from shutit_module import ShutItModule
 
 
@@ -64,8 +63,7 @@ class ConnDocker(ShutItConnModule):
 		"""
 		return False
 
-	def destroy_container(self, host_shutit_session_name, container_shutit_session_name, container_id, loglevel=logging.DEBUG):
-		shutit = shutit_global.shutit
+	def destroy_container(self, shutit, ost_shutit_session_name, container_shutit_session_name, container_id, loglevel=logging.DEBUG):
 		host_child = shutit.get_shutit_pexpect_session_from_id(host_shutit_session_name).pexpect_child
 		conn_docker_destroy_container(shutit, host_shutit_session_name, container_shutit_session_name, container_id, loglevel=loglevel)
 		shutit.send(' command docker rm -f ' + container_id + ' && rm -f ' + shutit.build['cidfile'],shutit_pexpect_child=host_child,expect=shutit.expect_prompts['ORIGIN_ENV'],loglevel=loglevel)
@@ -238,12 +236,12 @@ class setup(ShutItModule):
 		"""Initializes target ready for build and updating package management if in container.
 		"""
 		if shutit.build['delivery'] in ('docker','dockerfile'):
-			if shutit_global.shutit.get_current_shutit_pexpect_session_environment().install_type == 'apt':
+			if shutit.get_current_shutit_pexpect_session_environment().install_type == 'apt':
 				shutit.add_to_bashrc('export DEBIAN_FRONTEND=noninteractive')
 				if not shutit.command_available('lsb_release'):
 					shutit.install('lsb-release')
 				shutit.lsb_release()
-			elif shutit_global.shutit.get_current_shutit_pexpect_session_environment().install_type == 'yum':
+			elif shutit.get_current_shutit_pexpect_session_environment().install_type == 'yum':
 				# yum updates are so often "bad" that we let exit codes of 1 through.
 				# TODO: make this more sophisticated
 				shutit.send('yum update -y', timeout=9999, exit_values=['0', '1'], loglevel=loglevel)

@@ -2201,6 +2201,3 @@ class ShutIt(object):
 		else:
 			shutit.fail('unhandled session type: ' + session_type)
 
-
-# Create default session
-shutit = ShutIt()

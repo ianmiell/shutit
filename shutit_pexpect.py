@@ -423,9 +423,10 @@ class ShutItPexpectSession(object):
 		return res
 
 
-	def replace_container(self, shutit, new_target_image_name, go_home=None):
+	def replace_container(self, new_target_image_name, go_home=None):
 		"""Replaces a container. Assumes we are in Docker context.
 		"""
+		shutit = self.shutit
 		shutit.log('Replacing container with ' + new_target_image_name + ', please wait...',level=logging.INFO)
 		shutit.log(shutit.print_session_state(),level=logging.DEBUG)
 
@@ -438,7 +439,7 @@ class ShutItPexpectSession(object):
 		if conn_module is None:
 			shutit.fail('''Couldn't find conn_module ''' + shutit.build['conn_module']) # pragma: no cover
 		container_id = shutit.target['container_id']
-		conn_module.destroy_container('host_child', 'target_child', container_id)
+		conn_module.destroy_container(shutit, 'host_child', 'target_child', container_id)
 
 		# Start up a new container.
 		shutit.target['docker_image'] = new_target_image_name

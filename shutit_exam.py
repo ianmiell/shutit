@@ -15,11 +15,13 @@ class ShutItExamSessionStage(object):
 	#
 	# A difficulty of zero means the challenge has no significance to the overall score.
 	def __init__(self,
+	             shutit,
 	             difficulty=1.0,
 	             reduction_per_minute=0.2,
 	             reduction_per_reset=0,
 	             reduction_per_hint=0.5,
 	             grace_period=30):
+		self.shutit               = shutit
 		self.difficulty           = difficulty
 		self.reduction_per_minute = reduction_per_minute
 		self.reduction_per_reset  = reduction_per_reset
@@ -45,14 +47,14 @@ class ShutItExamSessionStage(object):
 
 	def start_timer(self):
 		if self.start_time != None:
-			shutit_global.shutit.fail('start_timer called with start_time already set') # pragma: no cover
+			self.shutit.fail('start_timer called with start_time already set') # pragma: no cover
 		self.start_time = time.time()
 
 	def end_timer(self):
 		if self.start_time is None:
-			shutit_global.shutit.fail('end_timer called with no start_time set') # pragma: no cover
+			self.shutit.fail('end_timer called with no start_time set') # pragma: no cover
 		if self.end_time is not None:
-			shutit_global.shutit.fail('end_time already set') # pragma: no cover
+			self.shutit.fail('end_time already set') # pragma: no cover
 		self.end_time = time.time()
 		self.total_time = self.end_time - self.start_time
 
@@ -66,7 +68,8 @@ class ShutItExamSessionStage(object):
 
 class ShutItExamSession(object):
 
-	def __init__(self, num_stages=0):
+	def __init__(self, shutit, num_stages=0):
+		self.shutit           = shutit
 		self.stages           = []
 		self.num_stages       = num_stages
 		self.final_score      = 0.0
@@ -95,59 +98,59 @@ class ShutItExamSession(object):
 	              reduction_per_hint=0.5,
 	              grace_period=30):
 		difficulty = float(difficulty)
-		stage = ShutItExamSessionStage(difficulty,reduction_per_minute,reduction_per_reset,reduction_per_hint,grace_period)
+		stage = ShutItExamSessionStage(self.shutit, difficulty,reduction_per_minute,reduction_per_reset,reduction_per_hint,grace_period)
 		self.stages.append(stage)
 		self.curr_stage = len(self.stages)+1
 		return stage
 
 	def add_reset(self):
 		if self.stages == []:
-			shutit_global.shutit.fail('add_reset: no stages to reset') # pragma: no cover
+			self.shutit.fail('add_reset: no stages to reset') # pragma: no cover
 		stage = self.stages[-1]
 		stage.num_resets += 1
 
 	def add_skip(self):
 		if self.stages == []:
-			shutit_global.shutit.fail('add_skip: no stages to skip') # pragma: no cover
+			self.shutit.fail('add_skip: no stages to skip') # pragma: no cover
 		stage = self.stages[-1]
 		if stage.result != '':
-			shutit_global.shutit.fail('add_skip: result already determined') # pragma: no cover
+			self.shutit.fail('add_skip: result already determined') # pragma: no cover
 		else:
 			stage.result = 'SKIP'
 
 	def add_fail(self):
 		if self.stages == []:
-			shutit_global.shutit.fail('add_fail: no stages to fail') # pragma: no cover
+			self.shutit.fail('add_fail: no stages to fail') # pragma: no cover
 		stage = self.stages[-1]
 		if stage.result != '':
-			shutit_global.shutit.fail('add_fail: result already determined') # pragma: no cover
+			self.shutit.fail('add_fail: result already determined') # pragma: no cover
 		else:
 			stage.result = 'FAIL'
 
 	def add_ok(self):
 		if self.stages == []:
-			shutit_global.shutit.fail('add_ok: no stages to ok') # pragma: no cover
+			self.shutit.fail('add_ok: no stages to ok') # pragma: no cover
 		stage = self.stages[-1]
 		if stage.result != '':
-			shutit_global.shutit.fail('add_ok: result already determined') # pragma: no cover
+			self.shutit.fail('add_ok: result already determined') # pragma: no cover
 		else:
 			stage.result = 'OK'
 
 	def add_hint(self):
 		if self.stages == []:
-			shutit_global.shutit.fail('add_hint: no stages to add hint for') # pragma: no cover
+			self.shutit.fail('add_hint: no stages to add hint for') # pragma: no cover
 		stage = self.stages[-1]
 		stage.num_hints += 1
 
 	def start_timer(self):
 		if self.stages == []:
-			shutit_global.shutit.fail('start_timer: no stages to time') # pragma: no cover
+			self.shutit.fail('start_timer: no stages to time') # pragma: no cover
 		stage = self.stages[-1]
 		stage.start_timer()
 
 	def end_timer(self):
 		if self.stages == []:
-			shutit_global.shutit.fail('end_timer: no stages to time') # pragma: no cover
+			self.shutit.fail('end_timer: no stages to time') # pragma: no cover
 		stage = self.stages[-1]
 		stage.end_timer()
 
