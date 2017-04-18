@@ -41,16 +41,15 @@ from shutit_module import ShutItFailException
 
 
 class ShutItGlobal(object):
-	"""TODO
-
+	"""Single object to store all the separate ShutIt sessions.
 	"""
 
 	only_one = None
 	def __init__(self):
 		"""Constructor.
-		TODO
 		"""
 		self.shutit_objects = []
+		# Primitive singleton enforcer.
 		assert self.only_one is None
 		only_one = True
 
