@@ -41,6 +41,22 @@ import tarfile
 from shutit_module import ShutItFailException
 
 
+class ShutItGlobal(object):
+	"""TODO
+
+	TODO: Make singleton
+	"""
+
+	def __init__(self):
+		"""Constructor.
+		TODO
+		"""
+		self.shutit_objects = []
+
+	def add_shutit_session(self, shutit):
+		self.shutit_objects.append(shutit)
+
+
 class ShutIt(object):
 	"""ShutIt build class.
 	Represents an instance of a ShutIt run/session/build with associated config.
@@ -2181,7 +2197,7 @@ class ShutIt(object):
 	def new_session(self,session_type='bash', docker_image=None, rm=None, loglevel='INFO'):
 		assert type(session_type) == str
 		new_shutit = ShutIt()
-		shutit_main.shutit_objects.append(new_shutit)
+		shutit_main.shutit_global_obj.add_shutit_session(new_shutit)
 		# TODO: only makes sense in session that's already bash - check this
 		if session_type == 'bash':
 			shutit_util.parse_args(new_shutit)

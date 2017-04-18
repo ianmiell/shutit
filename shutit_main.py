@@ -450,8 +450,8 @@ def do_finalize(shutit=None):
 					shutit.fail(module_id + ' failed on finalize', shutit_pexpect_child=shutit.get_shutit_pexpect_session_from_id('target_child').pexpect_child) # pragma: no cover
 				shutit.logout(echo=False)
 	if shutit is None:
-		global shutit_objects
-		for shutit_object in shutit_objects:
+		global shutit_global_obj
+		for shutit_object in shutit_global_obj.shutit_objects:
 			_finalize(shutit_object)
 	else:
 		_finalize(shutit)
@@ -752,6 +752,8 @@ shutit_version='0.9.347'
 
 if __name__ == '__main__':
 	setup_signals()
+	global shutit_global_obj
+	shutit_global_obj = shutit_global.ShutItGlobal()
 	# Precursor to a 'ShutItGlobal' singleton object.
 	global shutit_objects
 	shutit_objects = [shutit_global.ShutIt(),]
