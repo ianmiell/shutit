@@ -2533,9 +2533,9 @@ $'"""
 							return res
 						else:
 							self.sendline(escaped_str)
-							expect_res = shutit.expect_allow_interrupt(self.pexpect_child, expect, timeout)
+							expect_res = shutit.expect_allow_interrupt(self.shutit, self.pexpect_child, expect, timeout)
 					else:
-						expect_res = shutit.expect_allow_interrupt(self.pexpect_child, expect, timeout)
+						expect_res = shutit.expect_allow_interrupt(self.shutit, self.pexpect_child, expect, timeout)
 				else:
 					if send != None:
 						if len(send) + 25 > shutit.build['stty_cols']:
@@ -2558,9 +2558,9 @@ $'"""
 							return res
 						else:
 							self.sendline(send)
-							expect_res = shutit.expect_allow_interrupt(self.pexpect_child, expect, timeout)
+							expect_res = shutit.expect_allow_interrupt(self.shutit, self.pexpect_child, expect, timeout)
 					else:
-						expect_res = shutit.expect_allow_interrupt(self.pexpect_child, expect, timeout)
+						expect_res = shutit.expect_allow_interrupt(self.shutit, self.pexpect_child, expect, timeout)
 				self.pexpect_child.logfile_send = oldlog
 			else:
 				if escape:
@@ -2585,9 +2585,9 @@ $'"""
 							return res
 						else:
 							self.sendline(escaped_str)
-							expect_res = shutit.expect_allow_interrupt(self.pexpect_child, expect, timeout)
+							expect_res = shutit.expect_allow_interrupt(self.shutit, self.pexpect_child, expect, timeout)
 					else:
-						expect_res = shutit.expect_allow_interrupt(self.pexpect_child, expect, timeout)
+						expect_res = shutit.expect_allow_interrupt(self.shutit, self.pexpect_child, expect, timeout)
 				else:
 					if send != None:
 						if len(send) + 25 > shutit.build['stty_cols']:
@@ -2614,11 +2614,11 @@ $'"""
 							if echo:
 								shutit.divert_output(sys.stdout)
 							self.sendline(send)
-							expect_res = shutit.expect_allow_interrupt(self.pexpect_child, expect, timeout)
+							expect_res = shutit.expect_allow_interrupt(self.shutit, self.pexpect_child, expect, timeout)
 							if echo:
 								shutit.divert_output(None)
 					else:
-						expect_res = shutit.expect_allow_interrupt(self.pexpect_child, expect, timeout)
+						expect_res = shutit.expect_allow_interrupt(self.shutit, self.pexpect_child, expect, timeout)
 			if isinstance(self.pexpect_child.after, type) or isinstance(self.pexpect_child.before, type):
 				shutit.log('End of pexpect session detected, bailing.',level=logging.CRITICAL)
 				shutit_util.handle_exit(exit_code=1)

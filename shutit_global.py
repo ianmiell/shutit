@@ -583,6 +583,7 @@ class ShutIt(object):
 
 
 	def expect_allow_interrupt(self,
+	                           shutit,
 	                           shutit_pexpect_child,
 	                           expect,
 	                           timeout,
