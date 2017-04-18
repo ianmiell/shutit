@@ -56,6 +56,32 @@ class ShutItGlobal(object):
 	def add_shutit_session(self, shutit):
 		self.shutit_objects.append(shutit)
 
+	def new_session(self,session_type='bash', docker_image=None, rm=None, loglevel='INFO'):
+		assert type(session_type) == str
+		new_shutit = ShutIt()
+		self.add_shutit_session(new_shutit)
+		# TODO: only makes sense in session that's already bash - check this
+		if session_type == 'bash':
+			shutit_util.parse_args(new_shutit)
+			shutit_util.load_configs(shutit=new_shutit)
+			shutit_setup.setup_host_child_environment(new_shutit)
+			return new_shutit
+		elif session_type == 'docker':
+			shutit_util.parse_args(new_shutit, set_loglevel=loglevel)
+			# Set the configuration up appropriately using overrides.
+			if docker_image:
+				new_shutit.build['config_overrides'].append(['build','base_image',docker_image])
+			if rm:
+				new_shutit.target['rm'] = True
+			# Now 'load' the configs
+			shutit_util.load_configs(new_shutit)
+			target_child = shutit_setup.conn_docker_start_container(new_shutit,'target_child')
+			shutit_setup.setup_host_child_environment(new_shutit)
+			shutit_setup.setup_target_child_environment(new_shutit, target_child)
+			return new_shutit
+		else:
+			shutit.fail('unhandled session type: ' + session_type)
+
 
 class ShutIt(object):
 	"""ShutIt build class.
@@ -2194,31 +2220,6 @@ class ShutIt(object):
 		return ret
 
 	
-	def new_session(self,session_type='bash', docker_image=None, rm=None, loglevel='INFO'):
-		assert type(session_type) == str
-		new_shutit = ShutIt()
-		shutit_global_obj.add_shutit_session(new_shutit)
-		# TODO: only makes sense in session that's already bash - check this
-		if session_type == 'bash':
-			shutit_util.parse_args(new_shutit)
-			shutit_util.load_configs(shutit=new_shutit)
-			shutit_setup.setup_host_child_environment(new_shutit)
-			return new_shutit
-		elif session_type == 'docker':
-			shutit_util.parse_args(new_shutit, set_loglevel=loglevel)
-			# Set the configuration up appropriately using overrides.
-			if docker_image:
-				new_shutit.build['config_overrides'].append(['build','base_image',docker_image])
-			if rm:
-				new_shutit.target['rm'] = True
-			# Now 'load' the configs
-			shutit_util.load_configs(new_shutit)
-			target_child = shutit_setup.conn_docker_start_container(new_shutit,'target_child')
-			shutit_setup.setup_host_child_environment(new_shutit)
-			shutit_setup.setup_target_child_environment(new_shutit, target_child)
-			return new_shutit
-		else:
-			shutit.fail('unhandled session type: ' + session_type)
 
 shutit_global_object = ShutItGlobal()
 shutit_global_object.add_shutit_session(ShutIt())
