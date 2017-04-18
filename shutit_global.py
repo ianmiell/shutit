@@ -52,7 +52,7 @@ class ShutItGlobal(object):
 		TODO
 		"""
 		self.shutit_objects = []
-		assert self.only_one is not None
+		assert self.only_one is None
 		only_one = True
 
 	def add_shutit_session(self, shutit):
