@@ -752,6 +752,6 @@ if __name__ == '__main__':
 	setup_signals()
 	# Precursor to a 'ShutItGlobal' singleton object.
 	global shutit_objects
-	shutit_objects = [shutit_global.Shutit(),]
+	shutit_objects = [shutit_global.ShutIt(),]
 	# Run main() with a default shutit object
 	main(shutit_objects[0])
