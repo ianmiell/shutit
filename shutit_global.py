@@ -47,11 +47,14 @@ class ShutItGlobal(object):
 	TODO: Make singleton
 	"""
 
+	only_one = None
 	def __init__(self):
 		"""Constructor.
 		TODO
 		"""
+		only_one = True
 		self.shutit_objects = []
+		assert self.only_one is not None
 
 	def add_shutit_session(self, shutit):
 		self.shutit_objects.append(shutit)
