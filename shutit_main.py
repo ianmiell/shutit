@@ -33,7 +33,6 @@ import re
 import signal
 import sys
 import urllib
-import shutit_global
 import shutit_skeleton
 import shutit_util
 from shutit_module import ShutItModule
@@ -751,6 +750,7 @@ shutit_version='0.9.347'
 if __name__ == '__main__':
 	setup_signals()
 	# Precursor to a 'ShutItGlobal' singleton object.
-	global shutit_objects = [Shutit(),]
+	global shutit_objects
+	shutit_objects = [Shutit(),]
 	# Run main() with a default shutit object
 	main(shutit_objects[0])
