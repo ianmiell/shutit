@@ -63,7 +63,7 @@ class ConnDocker(ShutItConnModule):
 		"""
 		return False
 
-	def destroy_container(self, shutit, ost_shutit_session_name, container_shutit_session_name, container_id, loglevel=logging.DEBUG):
+	def destroy_container(self, shutit, host_shutit_session_name, container_shutit_session_name, container_id, loglevel=logging.DEBUG):
 		host_child = shutit.get_shutit_pexpect_session_from_id(host_shutit_session_name).pexpect_child
 		conn_docker_destroy_container(shutit, host_shutit_session_name, container_shutit_session_name, container_id, loglevel=loglevel)
 		shutit.send(' command docker rm -f ' + container_id + ' && rm -f ' + shutit.build['cidfile'],shutit_pexpect_child=host_child,expect=shutit.expect_prompts['ORIGIN_ENV'],loglevel=loglevel)
