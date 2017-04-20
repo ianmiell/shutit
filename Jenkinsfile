@@ -1,7 +1,7 @@
 #!groovy
 
 def nodename='cage'
-def builddir=env.PWD + '/shutit-' + env.BUILD_NUMBER
+def builddir='shutit-' + env.BUILD_NUMBER
 
 try {
 	stage('setupenv') {
@@ -15,7 +15,7 @@ try {
 	
 	stage('shutit_tests') {
 		node(nodename) {
-			dir(builddir + '/test') {
+			dir(builddir + '/shutit-test/test') {
 				withEnv(["SHUTIT=" + builddir + "/shutit"]) {
 					sh './run.sh'
 				}
