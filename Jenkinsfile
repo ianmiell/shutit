@@ -15,7 +15,7 @@ try {
 	
 	stage('shutit_tests') {
 		node(nodename) {
-			dir(builddir) {
+			dir(builddir + '/test') {
 				withEnv(["SHUTIT=/usr/local/bin/shutit"]) {
 					sh './run.sh'
 				}
