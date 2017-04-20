@@ -1,14 +1,14 @@
 #!groovy
 
 def nodename='cage'
-def builddir='shutit-' + env.BUILD_NUMBER
+def builddir=env.PWD + '/shutit-' + env.BUILD_NUMBER
 
 try {
 	stage('setupenv') {
 		node(nodename) {
 			sh 'mkdir -p ' + builddir
 			dir(builddir) {
-				checkout scm
+				checkout([$class: 'GitSCM', branches: [[name: '*/master']], doGenerateSubmoduleConfigurations: false, extensions: [[$class: 'SubmoduleOption', disableSubmodules: false, parentCredentials: false, recursiveSubmodules: true, reference: '', trackingSubmodules: false]], submoduleCfg: [], userRemoteConfigs: [[url: 'https://github.com/ianmiell/shutit']]])
 			}
 		}
 	}
@@ -16,7 +16,7 @@ try {
 	stage('shutit_tests') {
 		node(nodename) {
 			dir(builddir + '/test') {
-				withEnv(["SHUTIT=/usr/local/bin/shutit"]) {
+				withEnv(["SHUTIT=" + builddir + "/shutit"]) {
 					sh './run.sh'
 				}
 				
