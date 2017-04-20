@@ -17,7 +17,7 @@ try {
 		node(nodename) {
 			dir(builddir + '/shutit-test') {
 				sh 'env'
-				sh 'PATH=$(pwd)/..:${PATH} ./run.sh'
+				sh 'PATH=$(pwd)/..:${PATH} ./run.sh -s tk.shutit.shutit_test shutit_branch master'
 			}
 		}
 	}
