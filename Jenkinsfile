@@ -16,10 +16,8 @@ try {
 	stage('shutit_tests') {
 		node(nodename) {
 			dir(builddir + '/shutit-test') {
-				withEnv(["SHUTIT=" + builddir + "/shutit"]) {
-					sh './run.sh'
-				}
-				
+				sh 'env'
+				sh 'PATH=$(pwd)/..:${PATH} ./run.sh'
 			}
 		}
 	}
