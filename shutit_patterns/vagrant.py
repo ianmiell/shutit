@@ -38,8 +38,8 @@ def setup_vagrant_pattern(shutit,
 	else:
 		docker = skel_vagrant_docker
 	if len(options) > 0:
-		count = 1
 		while True:
+			count = 1
 			print('')
 			for opt in options:
 				print(str(count) + ': ' + opt['question'] + ' (current: ' + opt['value'] + ')')
@@ -57,7 +57,7 @@ def setup_vagrant_pattern(shutit,
 			# off by one
 			choice -= 1
 			item = options[choice]
-			value = shutit_util.get_input('Input the value')
+			value = shutit_util.get_input('Input the value: ')
 			if len(item['ok_values']) > 0 and value not in item['ok_values']:
 				print('Bad value, ignoring')
 				continue
