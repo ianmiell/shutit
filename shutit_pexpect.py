@@ -144,6 +144,7 @@ class ShutItPexpectSession(object):
 	          go_home=True,
 	          is_ssh=None,
 	          loglevel=logging.DEBUG,
+	          nonewline=False,
 	          fail_on_fail=True):
 		"""Logs the user in with the passed-in password and command.
 		Tracks the login. If used, used logout to log out again.
@@ -215,6 +216,7 @@ class ShutItPexpectSession(object):
 		               escape=escape,
 		               echo=echo,
 		               remove_on_match=True,
+		               nonewline=nonewline,
 		               loglevel=loglevel)
 		# Check exit 'by hand' here to not effect/assume setup prompt.
 		if not self.get_exit_value(shutit):
@@ -394,8 +396,11 @@ class ShutItPexpectSession(object):
 		return True
 
 
-	def sendline(self, string):
-		self.pexpect_send(string+'\n')
+	def sendline(self, string, nonewline=False):
+		if nonewline:
+			self.pexpect_send(string)
+		else:
+			self.pexpect_send(string+'\n')
 		return True
 
 
@@ -1842,6 +1847,7 @@ class ShutItPexpectSession(object):
 	              secret=False,
 	              check_sudo=True,
 	              remove_on_match=False,
+	              nonewline=False,
 	              loglevel=logging.DEBUG):
 		"""Multisend. Same as send, except it takes multiple sends and expects in a dict that are
 		processed while waiting for the end "expect" argument supplied.
@@ -1941,6 +1947,7 @@ class ShutItPexpectSession(object):
 	               note=None,
 	               debug_command=None,
 	               pause_point_on_fail=True,
+	               nonewline=False,
 	               loglevel=logging.INFO):
 		"""Send string on a regular cadence until a string is either seen, or the timeout is triggered.
 
@@ -1966,6 +1973,7 @@ class ShutItPexpectSession(object):
 			                                  strip=True,
 			                                  echo=echo,
 			                                  loglevel=loglevel,
+			                                  nonewline=nonewline,
 			                                  fail_on_empty_before=False)
 			shutit.log('Failed to match regexps -> ' + str(regexps) + ' <- retries left:' + str(retries),level=loglevel)
 			if not not_there:
@@ -1990,6 +1998,7 @@ class ShutItPexpectSession(object):
 				self.send(debug_command,
 				          check_exit=False,
 				          echo=echo,
+			              nonewline=nonewline,
 				          loglevel=loglevel)
 			time.sleep(cadence)
 		shutit.handle_note_after(note=note)
@@ -2320,6 +2329,7 @@ class ShutItPexpectSession(object):
 	         delaybeforesend=None,
 	         secret=False,
 	         check_sudo=True,
+	         nonewline=False,
 	         loglevel=logging.INFO):
 		"""Send string as a shell command, and wait until the expected output
 		is seen (either a string or any from a list of strings) before
@@ -2376,6 +2386,8 @@ class ShutItPexpectSession(object):
 		                             logs.
 		@param check_sudo:           Whether this should need to handle getting
 		                             sudo rights.
+		@param nonewline:            Do not add a newline to the send (useful
+                                     sending CTRL-x combinations)
 		@return:                     The pexpect return value (ie which expected
 		                             string in the list matched)
 		@rtype:                      string
@@ -2398,6 +2410,7 @@ class ShutItPexpectSession(object):
 			                      note=note,
 			                      secret=secret,
 			                      check_sudo=check_sudo,
+			                      nonewline=nonewline,
 			                      loglevel=loglevel)
 		# Before gathering expect, detect whether this is a sudo command and act accordingly.
 		command_list = send.strip().split()
@@ -2419,6 +2432,7 @@ class ShutItPexpectSession(object):
 			                      echo=echo,
 			                      note=note,
 			                      check_sudo=False,
+			                      nonewline=nonewline,
 			                      loglevel=loglevel)
 
 		# Set up what we expect.
@@ -2526,12 +2540,13 @@ $'"""
 							                retry=retry,
 							                loglevel=loglevel,
 							                follow_on_commands=follow_on_commands,
-							                delaybeforesend=delaybeforesend)
-							self.sendline(' rm -f ' + fname)
+							                delaybeforesend=delaybeforesend,
+			                                nonewline=nonewline)
+							self.sendline(' rm -f ' + fname,nonewline=nonewline)
 							self.expect(expect, searchwindowsize=searchwindowsize, maxread=maxread)
 							return res
 						else:
-							self.sendline(escaped_str)
+							self.sendline(escaped_str,nonewline=nonewline)
 							expect_res = shutit.expect_allow_interrupt(self.shutit, self.pexpect_child, expect, timeout)
 					else:
 						expect_res = shutit.expect_allow_interrupt(self.shutit, self.pexpect_child, expect, timeout)
@@ -2551,12 +2566,13 @@ $'"""
 							                retry=retry,
 							                loglevel=loglevel,
 							                follow_on_commands=follow_on_commands,
-							                delaybeforesend=delaybeforesend)
-							self.sendline(' rm -f ' + fname)
+							                delaybeforesend=delaybeforesend,
+			                                nonewline=nonewline)
+							self.sendline(' rm -f ' + fname,nonewline=nonewline)
 							self.expect(expect, searchwindowsize=searchwindowsize, maxread=maxread)
 							return res
 						else:
-							self.sendline(send)
+							self.sendline(send,nonewline=nonewline)
 							expect_res = shutit.expect_allow_interrupt(self.shutit, self.pexpect_child, expect, timeout)
 					else:
 						expect_res = shutit.expect_allow_interrupt(self.shutit, self.pexpect_child, expect, timeout)
@@ -2578,12 +2594,13 @@ $'"""
 							                retry=retry,
 							                loglevel=loglevel,
 							                follow_on_commands=follow_on_commands,
-							                delaybeforesend=delaybeforesend)
-							self.sendline(' rm -f ' + fname)
+							                delaybeforesend=delaybeforesend,
+			                                nonewline=nonewline)
+							self.sendline(' rm -f ' + fname,nonewline=nonewline)
 							self.expect(expect, searchwindowsize=searchwindowsize, maxread=maxread)
 							return res
 						else:
-							self.sendline(escaped_str)
+							self.sendline(escaped_str,nonewline=nonewline)
 							expect_res = shutit.expect_allow_interrupt(self.shutit, self.pexpect_child, expect, timeout)
 					else:
 						expect_res = shutit.expect_allow_interrupt(self.shutit, self.pexpect_child, expect, timeout)
@@ -2603,8 +2620,9 @@ $'"""
 							                retry=retry,
 							                loglevel=loglevel,
 							                follow_on_commands=follow_on_commands,
-							                delaybeforesend=delaybeforesend)
-							self.sendline(' rm -f ' + fname)
+							                delaybeforesend=delaybeforesend,
+			                                nonewline=nonewline)
+							self.sendline(' rm -f ' + fname,nonewline=nonewline)
 							self.expect(expect,
 							            searchwindowsize=searchwindowsize,
 							            maxread=maxread)
@@ -2612,7 +2630,7 @@ $'"""
 						else:
 							if echo:
 								shutit.divert_output(sys.stdout)
-							self.sendline(send)
+							self.sendline(send,nonewline=nonewline)
 							expect_res = shutit.expect_allow_interrupt(self.shutit, self.pexpect_child, expect, timeout)
 							if echo:
 								shutit.divert_output(None)

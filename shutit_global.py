@@ -308,6 +308,7 @@ class ShutIt(object):
 	              echo=None,
 	              note=None,
 	              secret=False,
+	              nonewline=False,
 	              loglevel=logging.DEBUG):
 		"""Multisend. Same as send, except it takes multiple sends and expects in a dict that are
 		processed while waiting for the end "expect" argument supplied.
@@ -340,7 +341,8 @@ class ShutIt(object):
 		                                        echo=echo,
 		                                        note=note,
 		                                        loglevel=loglevel,
-		                                        secret=False)
+		                                        secret=False,
+		                                        nonewline=nonewline)
 
 
 	def send_and_require(self,
@@ -375,6 +377,7 @@ class ShutIt(object):
 	               note=None,
 	               debug_command=None,
 	               pause_point_on_fail=True,
+	               nonewline=False,
 	               loglevel=logging.INFO):
 		"""Send string on a regular cadence until a string is either seen, or the timeout is triggered.
 
@@ -397,6 +400,7 @@ class ShutIt(object):
 		                                         note=note,
 		                                         loglevel=loglevel,
 		                                         debug_command=debug_command,
+		                                         nonewline=nonewline,
 		                                         pause_point_on_fail=pause_point_on_fail)
 
 
@@ -478,6 +482,7 @@ class ShutIt(object):
 	         maxread=None,
 	         delaybeforesend=None,
 	         secret=False,
+	         nonewline=False,
 	         loglevel=logging.INFO):
 		"""Send string as a shell command, and wait until the expected output
 		is seen (either a string or any from a list of strings) before
@@ -541,7 +546,8 @@ class ShutIt(object):
 		                                   searchwindowsize=searchwindowsize,
 		                                   maxread=maxread,
 		                                   delaybeforesend=delaybeforesend,
-		                                   secret=False)
+		                                   secret=secret,
+		                                   nonewline=nonewline)
 	# alias send to send_and_expect
 	send_and_expect = send
 
