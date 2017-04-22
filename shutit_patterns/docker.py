@@ -26,7 +26,7 @@ def setup_docker_pattern(shutit,
 	for varg in shutit.shutitfile['volume']:
 		shutit.cfg['skeleton']['volumes_arg'] += ' -v ' + varg + ':' + varg
 	shutit.cfg['skeleton']['ports_arg'] = ''
-	if isinstance(shutit.shutitfile['expose']) == str:
+	if isinstance(shutit.shutitfile['expose'], str):
 		for parg in shutit.shutitfile['expose']:
 			shutit.cfg['skeleton']['ports_arg'] += ' -p ' + parg + ':' + parg
 	else:
