@@ -245,6 +245,7 @@ class ShutItPexpectSession(object):
 	           note=None,
 	           echo=None,
 	           timeout=300,
+			   nonewline=False,
 	           loglevel=logging.DEBUG):
 		"""Logs the user out. Assumes that login has been called.
 		If login has never been called, throw an error.
@@ -273,6 +274,7 @@ class ShutItPexpectSession(object):
 		                                  timeout=timeout,
 		                                  echo=echo,
 		                                  loglevel=loglevel,
+			                              nonewline=nonewline,
 		                                  no_wrap=True)
 		shutit.handle_note_after(note=note)
 		return output
@@ -1508,6 +1510,7 @@ class ShutItPexpectSession(object):
 	                        fail_on_empty_before=True,
 	                        no_wrap=None,
 	                        check_sudo=True,
+	                        nonewline=False,
 	                        loglevel=logging.DEBUG):
 		"""Returns the output of a command run. send() is called, and exit is not checked.
 
@@ -1559,6 +1562,7 @@ class ShutItPexpectSession(object):
 			                               fail_on_empty_before=fail_on_empty_before,
 			                               no_wrap=True,
 			                               check_sudo=check_sudo,
+			                               nonewline=nonewline,
 			                               loglevel=loglevel)
 			self.send('unalias shutitalias',
 			          check_exit=False,
@@ -1566,6 +1570,7 @@ class ShutItPexpectSession(object):
 			          timeout=timeout,
 			          record_command=record_command,
 			          check_sudo=check_sudo,
+			          nonewline=nonewline,
 			          loglevel=loglevel)
 			return res
 		else:
@@ -1578,6 +1583,7 @@ class ShutItPexpectSession(object):
 			          record_command=record_command,
 			          fail_on_empty_before=fail_on_empty_before,
 			          check_sudo=check_sudo,
+			          nonewline=nonewline,
 			          loglevel=loglevel)
 			before = self.pexpect_child.before
 

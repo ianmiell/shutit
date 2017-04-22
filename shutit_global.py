@@ -1523,6 +1523,7 @@ class ShutIt(object):
 	                        record_command=False,
 	                        echo=None,
 	                        fail_on_empty_before=True,
+	                        nonewline=False,
 	                        loglevel=logging.DEBUG):
 		"""Returns the output of a command run. send() is called, and exit is not checked.
 
@@ -1548,6 +1549,7 @@ class ShutIt(object):
 		                                                  record_command=record_command,
 		                                                  echo=echo,
 		                                                  fail_on_empty_before=fail_on_empty_before,
+		                                                  nonewline=nonewline,
 		                                                  loglevel=loglevel)
 
 
@@ -1699,6 +1701,7 @@ class ShutIt(object):
 	           note=None,
 	           echo=None,
 	           timeout=300,
+	           nonewline=False,
 	           loglevel=logging.DEBUG):
 		"""Logs the user out. Assumes that login has been called.
 		If login has never been called, throw an error.
@@ -1710,6 +1713,7 @@ class ShutIt(object):
 		return shutit_pexpect_session.logout(command=command,
 		                                     note=note,
 		                                     timeout=timeout,
+		                                     nonewline=nonewline,
 		                                     loglevel=loglevel,
 		                                     echo=echo)
 	exit_shell = logout
