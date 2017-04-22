@@ -165,7 +165,7 @@ class ShutItModule(with_metaclass(ShutItMeta)):
 		if delivery_methods == [] or delivery_methods == '':
 			# default to all
 			delivery_methods = ['ssh','dockerfile','bash','docker']
-		if isinstance(delivery_methods) == str:
+		if isinstance(delivery_methods, str):
 			delivery_methods = [delivery_methods]
 		self.ok_delivery_methods = delivery_methods
 

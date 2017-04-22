@@ -339,7 +339,7 @@ def conn_docker_start_container(shutit, shutit_session_name, loglevel=logging.DE
 	expect = ['assword', shutit.expect_prompts['base_prompt'].strip(), 'Waiting', 'ulling', 'endpoint', 'Download','o such file']
 	res = shutit_pexpect_session.expect(expect, timeout=9999)
 	while True:
-		if target_child.before == isinstance(pexpect.exceptions.EOF):
+		if target_child.before == type(pexpect.exceptions.EOF):
 			shutit.fail('EOF exception seen') # pragma: no cover
 		try:
 			shutit.log(target_child.before + target_child.after,level=logging.DEBUG)

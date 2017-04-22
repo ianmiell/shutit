@@ -57,7 +57,7 @@ class ShutItGlobal(object):
 		self.shutit_objects.append(shutit)
 
 	def new_session(self,session_type='bash', docker_image=None, rm=None, loglevel='INFO'):
-		assert isinstance(session_type) == str
+		assert isinstance(session_type, str)
 		new_shutit = ShutIt()
 		self.add_shutit_session(new_shutit)
 		# TODO: only makes sense in session that's already bash - check this
@@ -168,7 +168,7 @@ class ShutIt(object):
 		"""Returns the first shutit_pexpect_session object related to the given
 		environment-id
 		"""
-		if isinstance(environment_id) != str:
+		if not isinstance(environment_id, str):
 			self.fail('Wrong argument type in get_shutit_pexpect_session_environment') # pragma: no cover
 		for env in self.shutit_pexpect_session_environments:
 			if env.environment_id == environment_id:
@@ -325,7 +325,7 @@ class ShutIt(object):
 		@param echo:                 See send()
 		@param note:                 See send()
 		"""
-		assert isinstance(send_dict) == dict
+		assert isinstance(send_dict, dict)
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
 		expect = expect or self.get_current_shutit_pexpect_session().default_expect
 		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
@@ -599,7 +599,7 @@ class ShutIt(object):
 		@param note:                 See send()
 		"""
 		if self.build['walkthrough'] and note != None and note != '':
-			assert isinstance(note) == str
+			assert isinstance(note, str)
 			wait = self.build['walkthrough_wait']
 			wrap = '\n' + 80*'=' + '\n'
 			message = wrap + note + wrap
@@ -642,7 +642,7 @@ class ShutIt(object):
 		"""
 		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
 		accum_timeout = 0
-		if isinstance(expect) == str:
+		if isinstance(expect, str):
 			expect = [expect]
 		if timeout < 1:
 			timeout = 1
@@ -1129,9 +1129,9 @@ class ShutIt(object):
 		@type match_regexp:   string
 
 		"""
-		if isinstance(line) == str:
+		if isinstance(line, str):
 			lines = [line]
-		elif isinstance(line) == list:
+		elif isinstance(line, list):
 			lines = line
 			match_regexp = None
 		fail = False
@@ -2181,8 +2181,8 @@ class ShutIt(object):
 	def get_shutit_pexpect_session_from_child(self, shutit_pexpect_child):
 		"""Given a pexpect/child object, return the shutit_pexpect_session object.
 		"""
-		if isinstance(shutit_pexpect_child) != pexpect.pty_spawn.spawn:
-			self.fail('Wrong type in get_shutit_pexpect_session_child: ' + str(isinstance(shutit_pexpect_child)),throw_exception=True) # pragma: no cover
+		if not isinstance(shutit_pexpect_child, pexpect.pty_spawn.spawn):
+			self.fail('Wrong type in get_shutit_pexpect_session_child: ' + str(type(shutit_pexpect_child)),throw_exception=True) # pragma: no cover
 		for key in self.shutit_pexpect_sessions:
 			if self.shutit_pexpect_sessions[key].pexpect_child == shutit_pexpect_child:
 				return self.shutit_pexpect_sessions[key]
@@ -2192,7 +2192,7 @@ class ShutIt(object):
 	def get_shutit_pexpect_session_id(self, shutit_pexpect_child):
 		"""Given a pexpect child object, return the shutit_pexpect_session_id object.
 		"""
-		if isinstance(shutit_pexpect_child) != pexpect.pty_spawn.spawn:
+		if not isinstance(shutit_pexpect_child, pexpect.pty_spawn.spawn):
 			self.fail('Wrong type in get_shutit_pexpect_session_id',throw_exception=True) # pragma: no cover
 		for key in self.shutit_pexpect_sessions:
 			if self.shutit_pexpect_sessions[key].pexpect_child == shutit_pexpect_child:
