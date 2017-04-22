@@ -27,10 +27,6 @@
 
 from __future__ import print_function
 try:
-	import ConfigParser
-except ImportError: # pragma: no cover
-	import configparser as ConfigParser
-try:
 	from StringIO import StringIO
 except ImportError: # pragma: no cover
 	from io import StringIO
@@ -54,9 +50,13 @@ import sys
 import threading
 import time
 import subprocess
-import pexpect
-import texttable
 import textwrap
+try:
+	import ConfigParser
+except ImportError: # pragma: no cover
+	import configparser as ConfigParser
+import texttable
+import pexpect
 import shutit_main
 import shutit_assets
 import shutit_skeleton
@@ -397,8 +397,7 @@ def parse_args(shutit, set_loglevel=None):
 	eg ' a\ b c\\ \\d \\\e\' becomes '', 'a b', 'c\', '\d', '\\e\'
 	SHUTIT_OPTIONS is ignored if we are creating a skeleton
 	"""
-	global allowed_delivery_methods
-	shutit.host['real_user_id'] = pexpect.run('id -u ' + shutit.host['real_user']).strip()
+	shutit.host['real_user_id'] = pexpect.run('id -u ' + shutit.host['real_user'])
 
 	# These are in order of their creation
 	actions = ['build', 'run', 'list_configs', 'list_modules', 'list_deps', 'skeleton', 'version']
@@ -1704,7 +1703,6 @@ def get_command(shutit, command):
 	return command
 
 def check_delivery_method(method):
-	global allowed_delivery_methods
 	if method in allowed_delivery_methods:
 		return True
 	return False

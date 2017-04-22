@@ -22,7 +22,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-from six import iteritems
 import logging
 import os
 import random
@@ -30,12 +29,12 @@ import re
 import shutil
 import sys
 try:
-	from urllib.request import urlopen
 	from urllib.parse import urlparse
+	from urllib.request import urlopen
 except ImportError:
-	from urllib2 import urlopen
 	from urlparse import urlparse
-import shutit_global
+	from urllib2 import urlopen
+from six import iteritems
 import shutit_util
 import shutit_skeleton
 
@@ -69,9 +68,9 @@ def setup_shutitfile_pattern(shutit,
 			shutit_skeleton_extra_args += ' --vagrant_machine_prefix ' + skel_vagrant_machine_prefix
 		else:
 			shutit_skeleton_extra_args += ' --vagrant_machine_prefix machine'
-		if skel_vagrant_ssh_access == True:
+		if skel_vagrant_ssh_access is True:
 			shutit_skeleton_extra_args += ' --vagrant_ssh_access'
-		if skel_vagrant_docker == True:
+		if skel_vagrant_docker is True:
 			shutit_skeleton_extra_args += ' --vagrant_docker'
 	if skel_pattern == 'shutitfile' and skel_delivery == 'docker':
 		# This is a docker build, adjust accordingly.
@@ -143,27 +142,27 @@ def parse_shutitfile(contents):
 				continue
 			else:
 				full_line += line
-				if re.match("^IF_NOT+[\s]+([A-Z_]+)[\s]+(.*)$", full_line):
-					m = re.match("^IF_NOT+[\s]+([A-Z_]+)[\s]+(.*)$", full_line)
+				if re.match(r"^IF_NOT+[\s]+([A-Z_]+)[\s]+(.*)$", full_line):
+					m = re.match(r"^IF_NOT+[\s]+([A-Z_]+)[\s]+(.*)$", full_line)
 					ret.append(['IF_NOT',m.group(1),m.group(2)])
-				elif re.match("^STORE_RUN+[\s]+([a-zA-Z0-9_]+)[\s]+(.*)$", full_line):
-					m = re.match("^STORE_RUN+[\s]+([a-zA-Z0-9_]+)[\s]+(.*)$", full_line)
+				elif re.match(r"^STORE_RUN+[\s]+([a-zA-Z0-9_]+)[\s]+(.*)$", full_line):
+					m = re.match(r"^STORE_RUN+[\s]+([a-zA-Z0-9_]+)[\s]+(.*)$", full_line)
 					ret.append(['STORE_RUN',m.group(1),m.group(2)])
-				elif re.match("^ELIF_NOT[\s]+([A-Z_]+)[\s]+(.*)$", full_line):
-					m = re.match("^ELIF_NOT[\s]+([A-Z_]+)[\s]+(.*)$", full_line)
+				elif re.match(r"^ELIF_NOT[\s]+([A-Z_]+)[\s]+(.*)$", full_line):
+					m = re.match(r"^ELIF_NOT[\s]+([A-Z_]+)[\s]+(.*)$", full_line)
 					ret.append(['ELIF_NOT',m.group(1),m.group(2)])
-				elif re.match("^IF[\s]+([A-Z_]+)[\s]+(.*)$", full_line):
-					m = re.match("^IF[\s]+([A-Z_]+)[\s]+(.*)$", full_line)
+				elif re.match(r"^IF[\s]+([A-Z_]+)[\s]+(.*)$", full_line):
+					m = re.match(r"^IF[\s]+([A-Z_]+)[\s]+(.*)$", full_line)
 					ret.append(['IF',m.group(1),m.group(2)])
-				elif re.match("^ELIF[\s]+([A-Z_]+)[\s]+(.*)$", full_line):
-					m = re.match("^ELIF[\s]+([A-Z_]+)[\s]+(.*)$", full_line)
+				elif re.match(r"^ELIF[\s]+([A-Z_]+)[\s]+(.*)$", full_line):
+					m = re.match(r"^ELIF[\s]+([A-Z_]+)[\s]+(.*)$", full_line)
 					ret.append(['ELIF',m.group(1),m.group(2)])
 				elif re.match("^ELSE$", full_line):
 					ret.append(['ELSE'])
 				elif re.match("^ENDIF$", full_line):
 					ret.append(['ENDIF'])
-				elif re.match("^([A-Za-z_]+)[\s]*(.*)$", full_line):
-					m = re.match("^[\s]*([A-Za-z_]+)[\s]*(.*)$", full_line)
+				elif re.match(r"^([A-Za-z_]+)[\s]*(.*)$", full_line):
+					m = re.match(r"^[\s]*([A-Za-z_]+)[\s]*(.*)$", full_line)
 					ret.append([m.group(1), m.group(2)])
 				elif re.match("^#(.*)$", full_line):
 					# Comments should be added with 'COMMENT a comment'
@@ -188,7 +187,7 @@ def parse_shutitfile_args(args_str):
 		return ret
 	if args_str[0] == '[' and args_str[-1] == ']':
 		ret = eval(args_str)
-		assert type(ret) == list
+		assert isinstance(ret) == list
 	else:
 		ret = args_str.split()
 		# if all the items have a = in them, then return a dict of nv pairs
@@ -497,7 +496,7 @@ def generate_shutit_module_sections(shutit,
 		depends = "'" + skel_depends + "','" + "','".join(shutitfile_depends) + "'"
 	else:
 		depends = "'" + skel_depends + "'"
-	
+
 	if shutitfile_representation['shutitfile']['default_include'] == 'false':
 		default_include = 'no'
 	elif shutitfile_representation['shutitfile']['default_include'] == 'true':
@@ -520,12 +519,12 @@ def handle_shutitfile_config_line(line):
 	assert shutitfile_command in ('CONFIG','CONFIG_SECRET'), '%r is not a handled config command' % shutitfile_command
 	if shutitfile_command in ('CONFIG','CONFIG_SECRET'):
 		shutitfile_args    = parse_shutitfile_args(line[1])
-		assert type(shutitfile_args) in (dict,list)
+		assert isinstance(shutitfile_args) in (dict,list)
 		if shutitfile_command == 'CONFIG':
 			secret_str = 'False'
 		elif shutitfile_command == 'CONFIG_SECRET':
 			secret_str = 'True'
-		if type(shutitfile_args) == list:
+		if isinstance(shutitfile_args) == list:
 			assert len(shutitfile_args) in (1,2), ''
 			cfg_name = shutitfile_args[0]
 			if len(shutitfile_args) == 1:
@@ -543,63 +542,63 @@ def handle_shutitfile_script_line(shutit, line, numpushes, wgetgot, numlogins, i
 	assert shutitfile_command in ('RUN','SEND','SEND_EXPECT','SEND_EXPECT_MULTI','EXPECT_REACT','SEND_EXPECT_REACT','SEND_UNTIL','UNTIL','UNTIL','ASSERT_OUTPUT_SEND','ASSERT_OUTPUT','PAUSE_POINT','EXPECT','EXPECT_MULTI','LOGIN','USER','LOGOUT','GET_AND_SEND_PASSWORD','LOGIN_WITH_PASSWORD','USER_WITH_PASSWORD','WORKDIR','COPY','ADD','ENV','INSTALL','REMOVE','COMMENT','NOTE','IF','ELSE','ELIF','IF_NOT','ELIF_NOT','ENDIF','RUN_SCRIPT','SCRIPT_BEGIN','START_BEGIN','START_END','STOP_BEGIN','STOP_END','TEST_BEGIN','TEST_END','BUILD_BEGIN','BUILD_END','ISINSTALLED_BEGIN','ISINSTALLED_END','COMMIT','PUSH','REPLACE_LINE','LOG','QUIT','STORE_RUN','VAGRANT_LOGIN','VAGRANT_LOGOUT'), '%r is not a handled script command' % shutitfile_command
 	if shutitfile_command in ('RUN','SEND'):
 		shutitfile_args    = parse_shutitfile_args(line[1])
-		assert type(shutitfile_args) == list
+		assert isinstance(shutitfile_args) == list
 		cmd = scan_text(' '.join(shutitfile_args).replace("'", "\\'"))
 		build += """\n""" + numtabs*'\t' + """shutit.send('''""" + cmd + """''',note='''""" + current_note + """''')"""
 		current_note = ''
 	elif shutitfile_command == 'SEND_EXPECT':
 		shutitfile_args    = parse_shutitfile_args(line[1])
-		assert type(shutitfile_args) == list
+		assert isinstance(shutitfile_args) == list
 		cmd = scan_text(' '.join(shutitfile_args).replace("'", "\\'"))
 		build += """\n""" + numtabs*'\t' + """shutit.send('''""" + cmd + """''',note='''""" + current_note + """''',expect="""
 		current_note = ''
 	elif shutitfile_command == 'EXPECT':
 		shutitfile_args    = parse_shutitfile_args(line[1])
-		assert type(shutitfile_args) == list
+		assert isinstance(shutitfile_args) == list
 		cmd = scan_text(' '.join(shutitfile_args).replace("'", "\\'"))
 		build += """'''""" + cmd + """''')"""
 	elif shutitfile_command == 'SEND_EXPECT_MULTI':
 		shutitfile_args    = parse_shutitfile_args(line[1])
-		assert type(shutitfile_args) == list
+		assert isinstance(shutitfile_args) == list
 		cmd = scan_text(' '.join(shutitfile_args).replace("'", "\\'"))
 		build += """\n""" + numtabs*'\t' + """shutit.multisend('''""" + cmd + """''',"""
 		current_note = ''
 	elif shutitfile_command == 'EXPECT_MULTI':
 		shutitfile_args    = parse_shutitfile_args(line[1])
-		assert type(shutitfile_args) == dict
+		assert isinstance(shutitfile_args) == dict
 		multi_dict = str(shutitfile_args)
 		build += multi_dict + """,note='''""" + current_note + """''')"""
 	elif shutitfile_command == 'SEND_EXPECT_REACT':
 		shutitfile_args    = parse_shutitfile_args(line[1])
-		assert type(shutitfile_args) == list
+		assert isinstance(shutitfile_args) == list
 		cmd = scan_text(' '.join(shutitfile_args).replace("'", "\\'"))
 		build += """\n""" + numtabs*'\t' + """shutit.send('''""" + cmd + """''',note='''""" + current_note + """''',follow_on_commands="""
 		current_note = ''
 	elif shutitfile_command == 'EXPECT_REACT':
 		shutitfile_args    = parse_shutitfile_args(line[1])
-		assert type(shutitfile_args) == dict
+		assert isinstance(shutitfile_args) == dict
 		multi_dict = str(shutitfile_args)
 		# We don't check exit here, as reactions will often have failing commands.
 		build += multi_dict + ",check_exit=False)"
 	elif shutitfile_command == 'SEND_UNTIL':
 		shutitfile_args    = parse_shutitfile_args(line[1])
-		assert type(shutitfile_args) == list
+		assert isinstance(shutitfile_args) == list
 		cmd = scan_text(' '.join(shutitfile_args).replace("'", "\\'"))
 		build += """\n""" + numtabs*'\t' + """shutit.send_until('''""" + cmd + """''',"""
 		current_note = ''
 	elif shutitfile_command == 'UNTIL':
 		shutitfile_args    = parse_shutitfile_args(line[1])
-		assert type(shutitfile_args) == list
+		assert isinstance(shutitfile_args) == list
 		cmd = scan_text(' '.join(shutitfile_args).replace("'", "\\'"))
 		build += """'''""" + cmd + """''',note='''""" + current_note + """''')"""
 	elif shutitfile_command == 'PAUSE_POINT':
 		shutitfile_args    = parse_shutitfile_args(line[1])
-		assert type(shutitfile_args) == list
+		assert isinstance(shutitfile_args) == list
 		msg = scan_text(' '.join(shutitfile_args).replace("'", "\\'"))
 		build += """\n""" + numtabs*'\t' + """shutit.pause_point('''""" + msg + """''')"""
 	elif shutitfile_command == 'QUIT':
 		shutitfile_args    = parse_shutitfile_args(line[1])
-		assert type(shutitfile_args) == list
+		assert isinstance(shutitfile_args) == list
 		cmd = scan_text(' '.join(shutitfile_args).replace("'", "\\'"))
 		build += """\n""" + numtabs*'\t' + """shutit.fail('''""" + cmd + """''')"""
 	elif shutitfile_command == 'LOGOUT':
@@ -608,7 +607,7 @@ def handle_shutitfile_script_line(shutit, line, numpushes, wgetgot, numlogins, i
 		numlogins -= 1
 	elif shutitfile_command == 'VAGRANT_LOGIN':
 		shutitfile_args    = parse_shutitfile_args(line[1])
-		assert type(shutitfile_args) == list
+		assert isinstance(shutitfile_args) == list
 		machine_name = scan_text(' '.join(shutitfile_args).replace("'", "\\'"))
 		build += """\n""" + numtabs*'\t' + """shutit.login('''vagrant ssh """ + machine_name + """''',note='''""" + current_note + """''')"""
 		build += """\n""" + numtabs*'\t' + """shutit.login('''sudo su -''')"""
@@ -621,39 +620,39 @@ def handle_shutitfile_script_line(shutit, line, numpushes, wgetgot, numlogins, i
 		numlogins -= 1
 	elif shutitfile_command == 'ASSERT_OUTPUT_SEND':
 		shutitfile_args    = parse_shutitfile_args(line[1])
-		assert type(shutitfile_args) == list
+		assert isinstance(shutitfile_args) == list
 		cmd = scan_text(' '.join(shutitfile_args).replace("'", "\\'"))
 		build += """\n""" + numtabs*'\t' + """_cmd = '''""" + cmd + """'''\n\t\t_output = shutit.send_and_get_output('''""" + cmd + """''',note='''""" + current_note + """''')\n\t\timport re\n\t\tif not re.match('''"""
 		current_note = ''
 	elif shutitfile_command == 'ASSERT_OUTPUT':
 		shutitfile_args    = parse_shutitfile_args(line[1])
-		assert type(shutitfile_args) == list
+		assert isinstance(shutitfile_args) == list
 		expected_output = scan_text(' '.join(shutitfile_args).replace("'", "\\'"))
 		build += expected_output + """''', _output):\n""" + numtabs*'\t' + """\tshutit.pause_point('''Output of: ''' + _cmd + ''' was: ''' + _output + ''' It should be: """ + expected_output + """''')"""
 	elif shutitfile_command == 'LOGIN':
 		shutitfile_args    = parse_shutitfile_args(line[1])
-		assert type(shutitfile_args) == list
+		assert isinstance(shutitfile_args) == list
 		cmd = scan_text(' '.join(shutitfile_args).replace("'", "\\'"))
 		build += """\n""" + numtabs*'\t' + """shutit.login(command='""" + cmd + """',note='''""" + current_note + """''')"""
 		current_note = ''
 		numlogins += 1
 	elif shutitfile_command == 'USER':
 		shutitfile_args    = parse_shutitfile_args(line[1])
-		assert type(shutitfile_args) == list
+		assert isinstance(shutitfile_args) == list
 		cmd = scan_text(' '.join(shutitfile_args).replace("'", "\\'"))
 		build += """\n""" + numtabs*'\t' + """shutit.login(user='""" + cmd + """',note='''""" + current_note + """''')"""
 		current_note = ''
 		numlogins += 1
 	elif shutitfile_command == 'GET_AND_SEND_PASSWORD':
 		shutitfile_args    = parse_shutitfile_args(line[1])
-		assert type(shutitfile_args) == list
+		assert isinstance(shutitfile_args) == list
 		msg = scan_text(' '.join(shutitfile_args)) + '\n'
 		build += """\n""" + numtabs*'\t' + """_password = shutit.get_input('''""" + msg + """''',ispass=True)"""
 		build += """\n""" + numtabs*'\t' + """shutit.send(_password,echo=False,check_exit=False,note='''""" + current_note + """''')"""
 		current_note = ''
 	elif shutitfile_command == 'LOGIN_WITH_PASSWORD':
 		shutitfile_args    = parse_shutitfile_args(line[1])
-		assert type(shutitfile_args) == list
+		assert isinstance(shutitfile_args) == list
 		cmd = scan_text(' '.join(shutitfile_args).replace("'", "\\'"))
 		msg = scan_text(line[2]) + '\n'
 		build += """\n""" + numtabs*'\t' + """_password = shutit.get_input('''""" + msg + """''',ispass=True)"""
@@ -661,7 +660,7 @@ def handle_shutitfile_script_line(shutit, line, numpushes, wgetgot, numlogins, i
 		current_note = ''
 	elif shutitfile_command == 'USER_WITH_PASSWORD':
 		shutitfile_args    = parse_shutitfile_args(line[1])
-		assert type(shutitfile_args) == list
+		assert isinstance(shutitfile_args) == list
 		cmd = scan_text(' '.join(shutitfile_args).replace("'", "\\'"))
 		msg = scan_text(line[2]) + '\n'
 		build += """\n""" + numtabs*'\t' + """_password = shutit.get_input('''""" + msg + """''',ispass=True)"""
@@ -669,14 +668,14 @@ def handle_shutitfile_script_line(shutit, line, numpushes, wgetgot, numlogins, i
 		current_note = ''
 	elif shutitfile_command == 'WORKDIR':
 		shutitfile_args    = parse_shutitfile_args(line[1])
-		assert type(shutitfile_args) == list
+		assert isinstance(shutitfile_args) == list
 		cmd = scan_text(' '.join(shutitfile_args).replace("'", "\\'"))
 		build += """\n""" + numtabs*'\t' + """shutit.send('''pushd """ + cmd + """''',echo=False,note='''""" + current_note + """''')"""
 		current_note = ''
 		numpushes += 1
 	elif shutitfile_command == 'COPY' or shutitfile_command == 'ADD':
 		shutitfile_args    = parse_shutitfile_args(line[1])
-		assert type(shutitfile_args) == list
+		assert isinstance(shutitfile_args) == list
 		# The <src> path must be inside the context of the build; you cannot COPY ../something /something, because the first step of a docker build is to send the context directory (and subdirectories) to the docker daemon.
 		if shutitfile_args[0][0:1] == '..' or shutitfile_args[0][0] == '/' or shutitfile_args[0][0] == '~':
 			shutit.fail('Invalid line: ' + str(shutitfile_args) + ' file must be in local subdirectory')
@@ -732,7 +731,7 @@ def handle_shutitfile_script_line(shutit, line, numpushes, wgetgot, numlogins, i
 				current_note = ''
 	elif shutitfile_command == 'ENV':
 		shutitfile_args    = parse_shutitfile_args(line[1])
-		assert type(shutitfile_args) == dict
+		assert isinstance(shutitfile_args) == dict
 		for k,v in iteritems(shutitfile_args):
 			k = scan_text(k)
 			v = scan_text(v)
@@ -740,17 +739,17 @@ def handle_shutitfile_script_line(shutit, line, numpushes, wgetgot, numlogins, i
 			current_note = ''
 	elif shutitfile_command == 'INSTALL':
 		shutitfile_args    = parse_shutitfile_args(line[1])
-		assert type(shutitfile_args) == list
+		assert isinstance(shutitfile_args) == list
 		build += """\n""" + numtabs*"""\t""" + """shutit.install('''""" + scan_text(' '.join(shutitfile_args)) + """''',note='''""" + current_note + """''')"""
 		current_note = ''
 	elif shutitfile_command == 'REMOVE':
 		shutitfile_args    = parse_shutitfile_args(line[1])
-		assert type(shutitfile_args) == list
+		assert isinstance(shutitfile_args) == list
 		build += """\n""" + numtabs*'\t' + """shutit.remove('''""" + scan_text(' '.join(shutitfile_args)) + """''',note='''""" + current_note + """''')"""
 		current_note = ''
 	elif shutitfile_command in ('COMMENT','NOTE'):
 		shutitfile_args    = parse_shutitfile_args(line[1])
-		assert type(shutitfile_args) == list
+		assert isinstance(shutitfile_args) == list
 		# COMMENT line should come before the next appropriate line where it can be used, where it is 'consumed' in a note.
 		build += """\n""" + numtabs*"""\t""" + """# """ + scan_text(' '.join(shutitfile_args))
 		current_note += scan_text(' '.join(shutitfile_args))
@@ -798,14 +797,13 @@ def handle_shutitfile_script_line(shutit, line, numpushes, wgetgot, numlogins, i
 		ifdepth -= 1
 	elif shutitfile_command == 'RUN_SCRIPT':
 		shutitfile_args    = line[1]
-		assert type(shutitfile_args) == str
+		assert isinstance(shutitfile_args) == str
 		script = scan_text(shutitfile_args)
 		build += """\n""" + numtabs*"""\t""" + """shutit.run_script('''""" + script + """''',note='''""" + current_note + """''')"""
 		current_note = ''
 	elif shutitfile_command == 'COMMIT':
-		global _default_repo_name
 		shutitfile_args    = parse_shutitfile_args(line[1])
-		assert type(shutitfile_args) == list
+		assert isinstance(shutitfile_args) == list
 		assert len(shutitfile_args) == 1
 		repo_name = scan_text(shutitfile_args[0])
 		if repo_name == _default_repo_name:
@@ -815,7 +813,7 @@ def handle_shutitfile_script_line(shutit, line, numpushes, wgetgot, numlogins, i
 			current_note = ''
 	elif shutitfile_command == 'PUSH':
 		shutitfile_args    = parse_shutitfile_args(line[1])
-		assert type(shutitfile_args) == list
+		assert isinstance(shutitfile_args) == list
 		assert len(shutitfile_args) == 1
 		assert shutit.repository['user'] != '', 'If you want to push, set the [repository] settings (user,password,email) in your ~/.shutit/config file.'
 		repo_name = scan_text(shutitfile_args[0])
@@ -823,7 +821,7 @@ def handle_shutitfile_script_line(shutit, line, numpushes, wgetgot, numlogins, i
 		current_note = ''
 	elif shutitfile_command == 'REPLACE_LINE':
 		shutitfile_args    = parse_shutitfile_args(line[1])
-		assert type(shutitfile_args) == dict
+		assert isinstance(shutitfile_args) == dict
 		# TODO: assert existence of these
 		line     = scan_text(shutitfile_args['line'])
 		filename = scan_text(shutitfile_args['filename'])
@@ -832,7 +830,7 @@ def handle_shutitfile_script_line(shutit, line, numpushes, wgetgot, numlogins, i
 		current_note = ''
 	elif shutitfile_command == 'LOG':
 		shutitfile_args    = scan_text(line[1])
-		assert type(shutitfile_args) == str and shutitfile_args in ('DEBUG','WARNING','CRITICAL','INFO','ERROR')
+		assert isinstance(shutitfile_args) == str and shutitfile_args in ('DEBUG','WARNING','CRITICAL','INFO','ERROR')
 		build += """\n""" + numtabs*'\t' + """import logging"""
 		build += """\n""" + numtabs*'\t' + """logging.getLogger().setLevel(logging.""" + shutitfile_args + """)"""
 	elif shutitfile_command == 'STORE_RUN':

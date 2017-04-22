@@ -1,7 +1,6 @@
 import sys
 import time
 import signal
-import shutit_global
 
 PY3 = (sys.version_info[0] >= 3)
 

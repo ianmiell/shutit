@@ -1,17 +1,17 @@
 # The MIT License (MIT)
-# 
+#
 # Copyright (C) 2014 OpenBet Limited
-# 
+#
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
 # this software and associated documentation files (the "Software"), to deal in
 # the Software without restriction, including without limitation the rights to
 # use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
 # of the Software, and to permit persons to whom the Software is furnished to do
 # so, subject to the following conditions:
-# 
+#
 # The above copyright notice and this permission notice shall be included in all
 # copies or substantial portions of the Software.
-# 
+#
 # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 # IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 # ITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
@@ -23,10 +23,11 @@
 """
 
 
-from six import with_metaclass, iteritems
-from abc import ABCMeta, abstractmethod
 import decimal
 import inspect
+import logging
+from abc import ABCMeta, abstractmethod
+from six import with_metaclass, iteritems
 
 
 # TODO: these don't belong here, but this module is 'top level' and doesn't depend on any other shutit files.
@@ -144,7 +145,7 @@ class ShutItModule(with_metaclass(ShutItMeta)):
 			isinstance(run_order, str) or
 			isinstance(run_order, int)):
 			run_order = decimal.Decimal(run_order)
-		# Check that run_order is a float - this will throw an error as a 
+		# Check that run_order is a float - this will throw an error as a
 		# side effect if float doesn't work.
 		if not isinstance(run_order, decimal.Decimal): # pragma: no cover
 			err = module_id + '\'s run order is not a decimal'
@@ -164,7 +165,7 @@ class ShutItModule(with_metaclass(ShutItMeta)):
 		if delivery_methods == [] or delivery_methods == '':
 			# default to all
 			delivery_methods = ['ssh','dockerfile','bash','docker']
-		if type(delivery_methods) == str:
+		if isinstance(delivery_methods) == str:
 			delivery_methods = [delivery_methods]
 		self.ok_delivery_methods = delivery_methods
 
@@ -185,7 +186,7 @@ class ShutItModule(with_metaclass(ShutItMeta)):
 		Checking whether the build will happen at all (and
 		therefore whether the check should take place) will be
 		determined by the framework.
-		
+
 		Should return True if it's ready to run, else False.
 		"""
 		return True
@@ -193,7 +194,7 @@ class ShutItModule(with_metaclass(ShutItMeta)):
 	def remove(self, shutit):
 		"""Remove the module, which should ensure the module has been deleted
 		from the system.
-		
+
 		Returns True if all removed without any errors, else False.
 		"""
 		return False
@@ -216,19 +217,19 @@ class ShutItModule(with_metaclass(ShutItMeta)):
 	def is_installed(self, shutit):
 		"""Determines whether the module has been built in this target host
 		already.
-		
+
 		Returns True if it is certain it's there, else False.
-		
+
 		Required.
 		"""
 		return shutit.is_shutit_installed(self.module_id)
 
 	@abstractmethod
-	def build(self, shutit):
+	def build(self, shutit, loglevel=logging.DEBUG):
 		"""Runs the build part of the module, which should ensure the module has been set up.  If is_installed determines that the module is already there, this is not run.
-		
+
 		Returns True if it has succeeded in building, else False.
-		
+
 		Required.
 		"""
 		pass

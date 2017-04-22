@@ -1,5 +1,4 @@
 import os
-import shutit_global
 from . import shutitfile
 
 def setup_bash_pattern(shutit,

@@ -1,7 +1,6 @@
 import os
-import shutit_global
-from . import shutitfile
 import logging
+from . import shutitfile
 
 def setup_docker_pattern(shutit,
                          skel_path,
@@ -21,13 +20,13 @@ def setup_docker_pattern(shutit,
 	shutit.shutitfile['volume']     = []
 	shutit.shutitfile['onbuild']    = []
 	shutit.shutitfile['script']     = []
-	
+
 	# arguments
 	shutit.cfg['skeleton']['volumes_arg'] = ''
 	for varg in shutit.shutitfile['volume']:
 		shutit.cfg['skeleton']['volumes_arg'] += ' -v ' + varg + ':' + varg
 	shutit.cfg['skeleton']['ports_arg'] = ''
-	if type(shutit.shutitfile['expose']) == str:
+	if isinstance(shutit.shutitfile['expose']) == str:
 		for parg in shutit.shutitfile['expose']:
 			shutit.cfg['skeleton']['ports_arg'] += ' -p ' + parg + ':' + parg
 	else:

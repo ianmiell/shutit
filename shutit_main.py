@@ -436,7 +436,6 @@ def do_finalize(shutit=None):
 	"""Runs finalize phase; run after all builds are complete and all modules
 	have been stopped.
 	"""
-	global shutit_global_object
 	def _finalize(shutit):
 		# Stop all the modules
 		stop_all(shutit)
@@ -451,7 +450,7 @@ def do_finalize(shutit=None):
 					shutit.fail(module_id + ' failed on finalize', shutit_pexpect_child=shutit.get_shutit_pexpect_session_from_id('target_child').pexpect_child) # pragma: no cover
 				shutit.logout(echo=False)
 	if shutit is None:
-		for shutit in shutit_global_object.shutit_objects:
+		for shutit in shutit_global.shutit_global_object.shutit_objects:
 			_finalize(shutit)
 	else:
 		_finalize(shutit)
@@ -692,7 +691,7 @@ def do_interactive_modules(shutit):
 				# TODO: does this catch all the ones switched on? Once done, get configs for all those.
 				newcfg_list = []
 				while True:
-					print(shutit_util.print_config(cfg,module_id=module_id))
+					print(shutit_util.print_config(shutit,cfg,module_id=module_id))
 					name = shutit_util.util_raw_input(shutit, prompt='Above is the config for that module. Hit return to continue, or a config item you want to update.\n')
 					if name:
 						doing_list = False

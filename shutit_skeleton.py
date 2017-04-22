@@ -27,7 +27,6 @@
 
 import os
 import re
-import shutit_global
 import json
 from shutit_patterns import shutitfile
 
@@ -103,7 +102,6 @@ def create_skeleton(shutit):
 		                              skel_vagrant_ssh_access=skel_vagrant_ssh_access,
 		                              skel_vagrant_docker=skel_vagrant_docker)
 	elif shutit.cfg['skeleton']['pattern'] == 'shutitfile':
-		from shutit_patterns import shutitfile
 		shutitfile.setup_shutitfile_pattern(shutit,
 		                                    skel_path=skel_path,
 		                                    skel_delivery=skel_delivery,

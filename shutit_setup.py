@@ -11,19 +11,19 @@ Nomenclature:
 """
 
 # The MIT License (MIT)
-# 
+#
 # Copyright (C) 2014 OpenBet Limited
-# 
+#
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
 # this software and associated documentation files (the "Software"), to deal in
 # the Software without restriction, including without limitation the rights to
 # use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
 # of the Software, and to permit persons to whom the Software is furnished to do
 # so, subject to the following conditions:
-# 
+#
 # The above copyright notice and this permission notice shall be included in all
 # copies or substantial portions of the Software.
-# 
+#
 # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 # IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 # ITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
@@ -32,11 +32,11 @@ Nomenclature:
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-import pexpect
 import os
-import time
 import re
+import time
 import logging
+import pexpect
 import shutit_pexpect
 from shutit_module import ShutItModule
 
@@ -51,7 +51,7 @@ class ShutItConnModule(ShutItModule):
 
 	def setup_target_child(self, shutit, target_child, target_child_id='target_child',prefix='root'):
 		setup_target_child_environment(shutit, target_child, target_child_id=target_child_id,prefix=prefix)
-		
+
 
 
 class ConnDocker(ShutItConnModule):
@@ -75,7 +75,7 @@ class ConnDocker(ShutItConnModule):
 	def build(self, shutit, loglevel=logging.DEBUG):
 		"""Sets up the target ready for building.
 		"""
-		target_child = self.start_container(shutit, 'target_child', loglevel=loglevel)
+		target_child = self.start_container(shutit, 'target_child', loglevel=logging.DEBUG)
 		self.setup_host_child(shutit)
 		# TODO: on the host child, check that the image running has bash as its cmd/entrypoint.
 		self.setup_target_child(shutit, target_child)
@@ -116,7 +116,7 @@ class ConnBash(ShutItConnModule):
 	def get_config(self, shutit):
 		return True
 
-	def build(self, shutit):
+	def build(self, shutit, loglevel=logging.DEBUG):
 		"""Sets up the machine ready for building.
 		"""
 		shutit_pexpect_session = shutit_pexpect.ShutItPexpectSession(shutit, 'target_child','/bin/bash')
@@ -334,17 +334,16 @@ def conn_docker_start_container(shutit, shutit_session_name, loglevel=logging.DE
 	# docker run happens here
 	shutit.log('Startup command is: ' + shutit.build['docker_command'],level=logging.INFO)
 	shutit.log('Downloading image, please be patient',level=logging.INFO)
-	was_sent = ' '.join(docker_command)
 	shutit_pexpect_session = shutit_pexpect.ShutItPexpectSession(shutit, shutit_session_name, docker_command[0], docker_command[1:])
 	target_child = shutit_pexpect_session.pexpect_child
 	expect = ['assword', shutit.expect_prompts['base_prompt'].strip(), 'Waiting', 'ulling', 'endpoint', 'Download','o such file']
 	res = shutit_pexpect_session.expect(expect, timeout=9999)
 	while True:
-		if target_child.before == type(pexpect.exceptions.EOF):
+		if target_child.before == isinstance(pexpect.exceptions.EOF):
 			shutit.fail('EOF exception seen') # pragma: no cover
 		try:
 			shutit.log(target_child.before + target_child.after,level=logging.DEBUG)
-		except:
+		except Exception:
 			pass
 		if res == 0:
 			res = shutit.send(shutit.host['password'], shutit_pexpect_child=target_child, expect=expect, timeout=9999, check_exit=False, fail_on_empty_before=False, echo=False, loglevel=loglevel)
@@ -371,7 +370,7 @@ def conn_docker_start_container(shutit, shutit_session_name, loglevel=logging.DE
 			break
 		except Exception:
 			time.sleep(1)
-	if cid == '' or re.match('^[a-z0-9]+$', cid) == None:
+	if cid == '' or re.match('^[a-z0-9]+$', cid) is None:
 		shutit.fail('Could not get container_id - quitting. Check whether other containers may be clashing on port allocation or name.\nYou might want to try running: sudo docker kill ' + shutit.target['name'] + '; sudo docker rm ' + shutit.target['name'] + '\nto resolve a name clash or: ' + shutit.host['docker_executable'] + ' ps -a | grep ' + shutit.target['ports'] + " | awk '{print $1}' | " + 'xargs ' + shutit.host['docker_executable'] + ' kill\nto ' + 'resolve a port clash\n') # pragma: no cover
 	shutit.log('cid: ' + cid,level=logging.DEBUG)
 	shutit.target['container_id'] = cid

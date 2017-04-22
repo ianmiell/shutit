@@ -28,15 +28,15 @@ import sys
 import os
 import socket
 import time
-import shutit_util
-import shutit_setup
 import re
 import getpass
 import codecs
 import datetime
-import pexpect
 import logging
 import tarfile
+import pexpect
+import shutit_util
+import shutit_setup
 from shutit_module import ShutItFailException
 
 
@@ -51,13 +51,13 @@ class ShutItGlobal(object):
 		self.shutit_objects = []
 		# Primitive singleton enforcer.
 		assert self.only_one is None
-		only_one = True
+		self.only_one = True
 
 	def add_shutit_session(self, shutit):
 		self.shutit_objects.append(shutit)
 
 	def new_session(self,session_type='bash', docker_image=None, rm=None, loglevel='INFO'):
-		assert type(session_type) == str
+		assert isinstance(session_type) == str
 		new_shutit = ShutIt()
 		self.add_shutit_session(new_shutit)
 		# TODO: only makes sense in session that's already bash - check this
@@ -80,7 +80,7 @@ class ShutItGlobal(object):
 			shutit_setup.setup_target_child_environment(new_shutit, target_child)
 			return new_shutit
 		else:
-			shutit.fail('unhandled session type: ' + session_type)
+			new_shutit.fail('unhandled session type: ' + session_type)
 
 
 class ShutIt(object):
@@ -99,7 +99,7 @@ class ShutIt(object):
 		"""
 		# Store the root directory of this application.
 		# http://stackoverflow.com/questions/5137497
-		self.config_parser                   = {}
+		self.config_parser                   = None
 		self.build                           = {}
 		self.build['interactive']            = 1 # Default to true until we know otherwise
 		self.build['report']                 = ''
@@ -168,7 +168,7 @@ class ShutIt(object):
 		"""Returns the first shutit_pexpect_session object related to the given
 		environment-id
 		"""
-		if type(environment_id) != str:
+		if isinstance(environment_id) != str:
 			self.fail('Wrong argument type in get_shutit_pexpect_session_environment') # pragma: no cover
 		for env in self.shutit_pexpect_session_environments:
 			if env.environment_id == environment_id:
@@ -325,7 +325,7 @@ class ShutIt(object):
 		@param echo:                 See send()
 		@param note:                 See send()
 		"""
-		assert type(send_dict) == dict
+		assert isinstance(send_dict) == dict
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
 		expect = expect or self.get_current_shutit_pexpect_session().default_expect
 		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
@@ -341,7 +341,7 @@ class ShutIt(object):
 		                                        echo=echo,
 		                                        note=note,
 		                                        loglevel=loglevel,
-		                                        secret=False,
+		                                        secret=secret,
 		                                        nonewline=nonewline)
 
 
@@ -599,7 +599,7 @@ class ShutIt(object):
 		@param note:                 See send()
 		"""
 		if self.build['walkthrough'] and note != None and note != '':
-			assert type(note) == str
+			assert isinstance(note) == str
 			wait = self.build['walkthrough_wait']
 			wrap = '\n' + 80*'=' + '\n'
 			message = wrap + note + wrap
@@ -642,7 +642,7 @@ class ShutIt(object):
 		"""
 		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
 		accum_timeout = 0
-		if type(expect) == str:
+		if isinstance(expect) == str:
 			expect = [expect]
 		if timeout < 1:
 			timeout = 1
@@ -739,7 +739,6 @@ class ShutIt(object):
 		                                        group=group,
 		                                        loglevel=loglevel,
 		                                        encoding=encoding)
-		
 
 
 	def chdir(self,
@@ -758,7 +757,6 @@ class ShutIt(object):
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
 		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
 		return shutit_pexpect_session.chdir(path,timeout=timeout,note=note,loglevel=loglevel)
-		
 
 
 	def send_host_file(self,
@@ -766,7 +764,6 @@ class ShutIt(object):
 	                   hostfilepath,
 	                   expect=None,
 	                   shutit_pexpect_child=None,
-	                   timeout=3600,
 	                   note=None,
 	                   user=None,
 	                   group=None,
@@ -807,8 +804,7 @@ class ShutIt(object):
 			                   hostfilepath,
 			                   user=user,
 			                   group=group,
-			                   loglevel=loglevel,
-			                   encoding='iso-8859-1')
+			                   loglevel=loglevel)
 		else:
 			self.fail('send_host_file - file: ' + hostfilepath + ' does not exist as file or dir. cwd is: ' + os.getcwd(), shutit_pexpect_child=shutit_pexpect_child, throw_exception=False) # pragma: no cover
 		self.handle_note_after(note=note)
@@ -949,7 +945,7 @@ class ShutIt(object):
 		"""Removes line from file, if it exists.
 		Must be exactly the line passed in to match.
 		Returns True if there were no problems, False if there were.
-	
+
 		@param line:          Line to remove.
 		@param filename       Filename to remove it from.
 		@param shutit_pexpect_child:         See send()
@@ -1133,9 +1129,9 @@ class ShutIt(object):
 		@type match_regexp:   string
 
 		"""
-		if type(line) == str:
+		if isinstance(line) == str:
 			lines = [line]
-		elif type(line) == list:
+		elif isinstance(line) == list:
 			lines = line
 			match_regexp = None
 		fail = False
@@ -1227,7 +1223,7 @@ class ShutIt(object):
 	                note=None,
  	                loglevel=logging.DEBUG):
 		"""Returns true if the specified username exists.
-		
+
 		@param user:   username to check for
 		@param shutit_pexpect_child:  See send()
 		@param note:   See send()
@@ -1275,7 +1271,7 @@ class ShutIt(object):
 	                        note=None,
 	                        loglevel=logging.DEBUG):
 		"""Helper proc to determine whether shutit has installed already here by placing a file in the db.
-	
+
 		@param module_id: Identifying string of shutit module
 		@param note:      See send()
 		"""
@@ -1298,7 +1294,6 @@ class ShutIt(object):
 		"""
 		shutit_pexpect_session = self.get_current_shutit_pexpect_session()
 		return shutit_pexpect_session.is_shutit_installed(directory,note=note,loglevel=loglevel)
-		
 
 
 	def get_file(self,
@@ -1361,7 +1356,7 @@ class ShutIt(object):
 
 		self.log(shutit_util.colourise('32', '\nPROMPTING FOR CONFIG: %s' % (cfgstr,)),transient=True)
 		self.log(shutit_util.colourise('32', '\n' + msg + '\n'),transient=True)
-		
+
 		if not shutit_util.determine_interactive(self):
 			self.fail('ShutIt is not in a terminal so cannot prompt for values.', throw_exception=False) # pragma: no cover
 
@@ -1745,7 +1740,7 @@ class ShutIt(object):
 		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
 		return shutit_pexpect_session.get_memory(note=note)
 
-	
+
 	def get_distro_info(self,
 	                    shutit_pexpect_child=None,
 	                    loglevel=logging.DEBUG):
@@ -1808,8 +1803,8 @@ class ShutIt(object):
 		"""
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
 		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
-		return shutit_pexpect_session.whoami(note=note,loglevel=logging.DEBUG)
-		
+		return shutit_pexpect_session.whoami(note=note,loglevel=loglevel)
+
 
 	def is_user_id_available(self,
 	                         user_id,
@@ -2071,7 +2066,7 @@ class ShutIt(object):
 						while answer not in ('yes','no','') and self.build['interactive'] > 1:
 							answer = shutit_util.util_raw_input(self, prompt=shutit_util.colourise('32', 'Do you want to accept the config option defaults? ' + '(boolean - input "yes" or "no") (default: yes): \n'),default='yes',ispass=secret)
 						# util_raw_input may change the interactive level, so guard for this.
-						if answer == 'yes' or answer == '' or self.build['interactive'] < 2:
+						if answer in ('yes','') or self.build['interactive'] < 2:
 							self.build['accept_defaults'] = True
 						else:
 							self.build['accept_defaults'] = False
@@ -2142,7 +2137,7 @@ class ShutIt(object):
 
 	def end_asciinema_session(self,
 	                          shutit_pexpect_child=None):
-		assert self.build['asciinema_session'] == True
+		assert self.build['asciinema_session'] is True
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
 		output = self.logout(timeout=3000)
 		self.log(output,add_final_message=True)
@@ -2154,7 +2149,7 @@ class ShutIt(object):
 	def get_emailer(self, cfg_section):
 		"""Sends an email using the mailer
 		"""
-		from alerting import emailer
+		import emailer
 		return emailer.Emailer(cfg_section, self)
 
 
@@ -2170,39 +2165,39 @@ class ShutIt(object):
 		pexpect_session_id = shutit_pexpect_child.pexpect_session_id
 		# Check id is unique
 		if self.shutit_pexpect_sessions.has_key(pexpect_session_id) and self.shutit_pexpect_sessions[pexpect_session_id] != shutit_pexpect_child:
-			shutit.fail('shutit_pexpect_child already added and differs from passed-in object',throw_exception=True) # pragma: no cover
+			self.fail('shutit_pexpect_child already added and differs from passed-in object',throw_exception=True) # pragma: no cover
 		return self.shutit_pexpect_sessions.update({pexpect_session_id:shutit_pexpect_child})
 
 
 	def remove_shutit_pexpect_session(self, shutit_pexpect_session_id=None, shutit_pexpect_child=None):
 		if shutit_pexpect_session_id is None and shutit_pexpect_child is None:
-			shutit.fail('Must pass value into remove_pexpect_child.',throw_exception=True) # pragma: no cover
+			self.fail('Must pass value into remove_pexpect_child.',throw_exception=True) # pragma: no cover
 		if shutit_pexpect_session_id is None:
 			shutit_pexpect_session_id = shutit_pexpect_child.pexpect_session_id
 		del self.shutit_pexpect_sessions[shutit_pexpect_session_id]
 		return True
 
-	
+
 	def get_shutit_pexpect_session_from_child(self, shutit_pexpect_child):
 		"""Given a pexpect/child object, return the shutit_pexpect_session object.
 		"""
-		if type(shutit_pexpect_child) != pexpect.pty_spawn.spawn:
-			shutit.fail('Wrong type in get_shutit_pexpect_session_child: ' + str(type(shutit_pexpect_child)),throw_exception=True) # pragma: no cover
+		if isinstance(shutit_pexpect_child) != pexpect.pty_spawn.spawn:
+			self.fail('Wrong type in get_shutit_pexpect_session_child: ' + str(isinstance(shutit_pexpect_child)),throw_exception=True) # pragma: no cover
 		for key in self.shutit_pexpect_sessions:
 			if self.shutit_pexpect_sessions[key].pexpect_child == shutit_pexpect_child:
 				return self.shutit_pexpect_sessions[key]
-		return shutit.fail('Should not get here in get_shutit_pexpect_session',throw_exception=True) # pragma: no cover
+		return self.fail('Should not get here in get_shutit_pexpect_session',throw_exception=True) # pragma: no cover
 
 
 	def get_shutit_pexpect_session_id(self, shutit_pexpect_child):
 		"""Given a pexpect child object, return the shutit_pexpect_session_id object.
 		"""
-		if type(shutit_pexpect_child) != pexpect.pty_spawn.spawn:
-			shutit.fail('Wrong type in get_shutit_pexpect_session_id',throw_exception=True) # pragma: no cover
+		if isinstance(shutit_pexpect_child) != pexpect.pty_spawn.spawn:
+			self.fail('Wrong type in get_shutit_pexpect_session_id',throw_exception=True) # pragma: no cover
 		for key in self.shutit_pexpect_sessions:
 			if self.shutit_pexpect_sessions[key].pexpect_child == shutit_pexpect_child:
 				return key
-		return shutit.fail('Should not get here in get_shutit_pexpect_session_id',throw_exception=True) # pragma: no cover
+		return self.fail('Should not get here in get_shutit_pexpect_session_id',throw_exception=True) # pragma: no cover
 
 
 	def get_shutit_pexpect_session_from_id(self, shutit_pexpect_id):
@@ -2211,7 +2206,7 @@ class ShutIt(object):
 		for key in self.shutit_pexpect_sessions:
 			if self.shutit_pexpect_sessions[key].pexpect_session_id == shutit_pexpect_id:
 				return self.shutit_pexpect_sessions[key]
-		return shutit.fail('Should not get here in get_shutit_pexpect_session_from_id',throw_exception=True) # pragma: no cover
+		return self.fail('Should not get here in get_shutit_pexpect_session_from_id',throw_exception=True) # pragma: no cover
 
 
 	def print_session_state(self):
@@ -2233,7 +2228,27 @@ class ShutIt(object):
 	def new_session(self,session_type='bash', docker_image=None, rm=None, loglevel='INFO'):
 		return shutit_global_object.new_session(session_type,docker_image,rm,loglevel)
 
-	
+	# given a shutit object and an echo value, return the appropriate echo
+	# value for the given context.
+	def get_echo_override(self, echo):
+		if self.build['always_echo'] is True:
+			echo = True
+		# Should we echo the output?
+		if echo is None and self.build['loglevel'] <= logging.DEBUG:
+			# Yes if it's in debug
+			echo = True
+		if echo is None and self.build['walkthrough']:
+			# Yes if it's in walkthrough and was not explicitly passed in
+			echo = True
+		if echo is None:
+			# No if it was not explicitly passed in
+			echo = False
+		if self.build['exam']:
+			# No if we are in exam mode
+			echo = False
+		return echo
+
+
 
 shutit_global_object = ShutItGlobal()
 shutit_global_object.add_shutit_session(ShutIt())

@@ -22,6 +22,10 @@
 """Represents and manages a pexpect object for ShutIt's purposes.
 """
 
+try:
+	from md5 import md5
+except ImportError: # pragma: no cover
+	from hashlib import md5
 import logging
 import string
 import time
@@ -30,16 +34,11 @@ import re
 import base64
 import sys
 import textwrap
+import binascii
 import pexpect
 import shutit_util
-import shutit_global
 import shutit_assets
 import package_map
-import binascii
-try:
-	from md5 import md5
-except ImportError: # pragma: no cover
-	from hashlib import md5
 from shutit_module import ShutItFailException
 
 
@@ -197,7 +196,7 @@ class ShutItPexpectSession(object):
 		# Add in a match if we see user+ and then the login matches. Be careful not to match against 'user+@...password:'
 		general_expect = general_expect + [user+'@.*'+'[@#$]']
 		# If not an ssh login, then we can match against user + @sign because it won't clash with 'user@adasdas password:'
-		if not is_ssh == False:
+		if is_ssh != False:
 			if is_ssh or command.find('ssh') != 0:
 				general_expect = general_expect + [user+'@']
 				general_expect = general_expect + ['.*[@#$]']
@@ -206,7 +205,7 @@ class ShutItPexpectSession(object):
 		shutit.handle_note(note,command=command + '\n\n[as user: "' + user + '"]',training_input=send)
 		# r'[^t] login:' - be sure not to match 'last login:'
 		#if send == 'bash':
-		echo = self.get_echo_override(shutit, echo)
+		echo = shutit.get_echo_override(shutit, echo)
 		self.multisend(send,
 		               {'ontinue connecting':'yes', 'assword':password, r'[^t] login:':password, user+'@':password},
 		               expect=general_expect,
@@ -268,7 +267,7 @@ class ShutItPexpectSession(object):
 			shutit.fail('Logout called without corresponding login', throw_exception=False) # pragma: no cover
 		# No point in checking exit here, the exit code will be
 		# from the previous command from the logged in session
-		echo = self.get_echo_override(shutit, echo)
+		echo = shutit.get_echo_override(echo)
 		output = self.send_and_get_output(command,
 		                                  fail_on_empty_before=False,
 		                                  timeout=timeout,
@@ -1086,12 +1085,12 @@ class ShutItPexpectSession(object):
 		# THIS DOES NOT WORK - WHY? TODO
 		if self.current_environment.install_type == 'apt':
 			#            v the space is intentional, to avoid polluting bash history.
-			return self.send_and_get_output(' dpkg -s ' + package + """ | grep '^Status: install ok installed' | wc -l""",loglevel=logging.DEBUG) == '1'
+			return self.send_and_get_output(' dpkg -s ' + package + """ | grep '^Status: install ok installed' | wc -l""",loglevel=loglevel) == '1'
 		elif self.current_environment.install_type == 'yum':
 			# TODO: check whether it's already installed?. see yum notes  yum list installed "$@" >/dev/null 2>&1
 			self.send(' yum list installed ' + package + ' > /dev/null 2>&1',
 			          check_exit=False,
-			          loglevel=logging.DEBUG)
+			          loglevel=loglevel)
 			return self.check_last_exit_values('install TODO change this',retbool=True)
 		else:
 			return False
@@ -1246,7 +1245,7 @@ class ShutItPexpectSession(object):
 				opts = options['apt']
 			else:
 				opts = '-y'
-				if not shutit.build['loglevel'] <= logging.DEBUG:
+				if shutit.build['loglevel'] > logging.DEBUG:
 					opts += ' -qq'
 				if force:
 					opts += ' --force-yes'
@@ -1258,7 +1257,7 @@ class ShutItPexpectSession(object):
 			if 'yum' in options:
 				opts = options['yum']
 			else:
-				if not shutit.build['loglevel'] <= logging.DEBUG:
+				if shutit.build['loglevel'] > logging.DEBUG:
 					opts += ' -q'
 				opts += ' -y'
 			if reinstall:
@@ -1480,7 +1479,7 @@ class ShutItPexpectSession(object):
 		shutit = self.shutit
 		shutit.handle_note(note)
 		shutit.log('Matching output from: "' + send + '" to one of these regexps:' + str(matches),level=logging.INFO)
-		echo = self.get_echo_override(shutit, echo)
+		echo = shutit.get_echo_override(echo)
 		output = self.send_and_get_output(send,
 		                                  retry=retry,
 		                                  strip=strip,
@@ -1528,7 +1527,7 @@ class ShutItPexpectSession(object):
 		shutit.handle_note(note, command=str(send))
 		shutit.log('Retrieving output from command: ' + send,level=loglevel)
 		# Don't check exit, as that will pollute the output. Also, it's quite likely the submitted command is intended to fail.
-		echo = self.get_echo_override(shutit, echo)
+		echo = shutit.get_echo_override(echo)
 		if no_wrap != True and len(send) > 80:
 			tmpfile = '/tmp/shutit_tmpfile_' + shutit_util.random_id()
 			# To avoid issues with terminal wrap, subshell the command and place
@@ -1894,7 +1893,7 @@ class ShutItPexpectSession(object):
 		shutit.log('Number of breakout items: "' + str(n_breakout_items),level=logging.DEBUG)
 		while True:
 			# If it's the last n items in the list, it's the breakout one.
-			echo = self.get_echo_override(shutit, echo)
+			echo = shutit.get_echo_override(echo)
 			res = self.send(send_iteration,
 			                expect=expect_list,
 			                check_exit=check_exit,
@@ -1906,6 +1905,7 @@ class ShutItPexpectSession(object):
 			                escape=escape,
 			                secret=secret,
 			                check_sudo=check_sudo,
+			                nonewline=nonewline,
 							loglevel=loglevel)
 			if res >= len(expect_list) - n_breakout_items:
 				break
@@ -1932,7 +1932,7 @@ class ShutItPexpectSession(object):
 		See send_until
 		"""
 		shutit = self.shutit
-		echo = self.get_echo_override(shutit, echo)
+		echo = shutit.get_echo_override(echo)
 		return self.send_until(send,
 		                       regexps,
 		                       not_there=not_there,
@@ -1973,7 +1973,7 @@ class ShutItPexpectSession(object):
 			shutit.fail('regexps should be list') # pragma: no cover
 		while retries > 0:
 			retries -= 1
-			echo = self.get_echo_override(shutit, echo)
+			echo = shutit.get_echo_override(echo)
 			output = self.send_and_get_output(send,
 			                                  retry=1,
 			                                  strip=True,
@@ -2443,13 +2443,13 @@ class ShutItPexpectSession(object):
 
 		# Set up what we expect.
 		expect = expect or self.default_expect
-			
+
 		shutit.log('Sending data in session: ' + self.pexpect_session_id,level=logging.DEBUG)
 		shutit.handle_note(note, command=str(send), training_input=str(send))
 		if timeout is None:
 			timeout = 3600
 
-		echo = self.get_echo_override(shutit, echo)
+		echo = shutit.get_echo_override(echo)
 
 		# Handle OSX to get the GNU version of the command
 		if assume_gnu:
@@ -2661,7 +2661,7 @@ $'"""
 					shutit.log('shutit_pexpect_child.before (hex)>>>\n' + binascii.hexlify(self.pexpect_child.before) + '\n<<<',level=logging.DEBUG)
 					shutit.log('shutit_pexpect_child.after (hex)>>>\n'  + binascii.hexlify(self.pexpect_child.after) + '\n<<<',level=logging.DEBUG)
 				except Exception as e:
-					shutit.log(str(e),level=logging.WARNING)
+					shutit.log('Exception at 2665: ' + str(e),level=logging.WARNING)
 				shutit.log('shutit_pexpect_child.buffer>>>\n' + str(self.pexpect_child.buffer) + '\n<<<',level=logging.DEBUG)
 				shutit.log('shutit_pexpect_child.before>>>\n' + str(self.pexpect_child.before) + '\n<<<',level=logging.DEBUG)
 				shutit.log('shutit_pexpect_child.after>>>\n' + str(self.pexpect_child.after) + '\n<<<',level=logging.DEBUG)
@@ -2829,7 +2829,7 @@ $'"""
 			if isinstance(contents, bytes):
 				try:
 					if PY3:
-							f.write(contents)
+						f.write(contents)
 					elif encoding is not None:
 						f.write(contents.encode(encoding))
 					else:
@@ -3299,28 +3299,6 @@ $'"""
 		return False
 
 
-	# given a shutit object and an echo value, return the appropriate echo
-	# value for the given context.
-	# TODO: reproduce in shutit_global
-	def get_echo_override(self, shutit, echo):
-		if shutit.build['always_echo'] is True:
-			echo = True
-		# Should we echo the output?
-		if echo is None and shutit.build['loglevel'] <= logging.DEBUG:
-			# Yes if it's in debug
-			echo = True
-		if echo is None and shutit.build['walkthrough']:
-			# Yes if it's in walkthrough and was not explicitly passed in
-			echo = True
-		if echo is None:
-			# No if it was not explicitly passed in
-			echo = False
-		if shutit.build['exam']:
-			# No if we are in exam mode
-			echo = False
-		return echo
-
-
 	# Determines whether we have sudo available, and whether we already have sudo rights cached.
 	# TODO: reproduce in shutit_global
 	def check_sudo(self):
@@ -3366,7 +3344,7 @@ $'"""
 					shutit.pause_point('Please install sudo and then continue with CTRL-]',shutit_pexpect_child=self.pexpect_child)
 				if not self.check_sudo():
 					pw = self.get_env_pass(whoiam,'Please input your sudo password in case it is needed (for user: ' + whoiam + ')\nJust hit return if you do not want to submit a password.\n')
-		shutit.build['secret_words_set'].add(pw) 
+		shutit.build['secret_words_set'].add(pw)
 		return pw
 
 
