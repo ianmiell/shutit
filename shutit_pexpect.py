@@ -205,7 +205,7 @@ class ShutItPexpectSession(object):
 		shutit.handle_note(note,command=command + '\n\n[as user: "' + user + '"]',training_input=send)
 		# r'[^t] login:' - be sure not to match 'last login:'
 		#if send == 'bash':
-		echo = shutit.get_echo_override(shutit, echo)
+		echo = shutit.get_echo_override(echo)
 		self.multisend(send,
 		               {'ontinue connecting':'yes', 'assword':password, r'[^t] login:':password, user+'@':password},
 		               expect=general_expect,
