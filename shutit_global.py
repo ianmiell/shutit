@@ -86,6 +86,32 @@ class ShutItGlobal(object):
 		else:
 			new_shutit.fail('unhandled session type: ' + session_type)
 
+	def do_final_messages(self):
+		# Show final report messages (ie messages to show after standard report).
+		if self.report_final_messages != '':
+			# TODO: separate logging from the shutit object
+			shutit_objects[0].log(shutit_util.colourise(31,'\r\n\r\n' + self.report_final_messages + '\r\n\r\n'), level=logging.INFO, transient=True)
+
+	def log(self, msg, add_final_message=False, level=logging.INFO, transient=False, newline=True):
+		"""Logging function.
+
+		@param add_final_message: Add this log line to the final message output to the user
+		@param level:             Python log level
+		@param transient:         Just write to terminal, no new line. If not a
+		                          terminal, write nothing.
+		"""
+		if transient:
+			if sys.stdout.isatty():
+				if newline:
+					msg += '\r\n'
+				sys.stdout.write(msg)
+			else:
+				return True
+		else:
+			logging.log(level,msg)
+			if add_final_message:
+				self.report_final_messages = self.report_final_messages + '\r\n' + msg + '\r\n'
+		return True
 
 	def do_final_messages(self):
 		# Show final report messages (ie messages to show after standard report).
@@ -2277,6 +2303,10 @@ class ShutIt(object):
 			# No if we are in exam mode
 			echo = False
 		return echo
+
+	# Pass through log to global function.
+	def log(self, msg, add_final_message=False, level=logging.INFO, transient=False, newline=True):
+		shutit_global_object.log(msg,add_final_message=add_final_message,level=level,transient=transient,newline=newline)
 
 shutit_global_object = ShutItGlobal()
 shutit_global_object.add_shutit_session(ShutIt())
