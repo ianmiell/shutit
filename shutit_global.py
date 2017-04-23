@@ -45,6 +45,7 @@ class ShutItGlobal(object):
 	"""
 
 	only_one = None
+	report_final_messages = ''
 	def __init__(self):
 		"""Constructor.
 		"""
@@ -82,6 +83,32 @@ class ShutItGlobal(object):
 		else:
 			new_shutit.fail('unhandled session type: ' + session_type)
 
+	def do_final_messages(self):
+		# Show final report messages (ie messages to show after standard report).
+		if self.report_final_messages != '':
+			# TODO: separate logging from the shutit object
+			shutit_objects[0].log(shutit_util.colourise(31,'\r\n\r\n' + self.report_final_messages + '\r\n\r\n'), level=logging.INFO, transient=True)
+
+	def log(self, msg, add_final_message=False, level=logging.INFO, transient=False, newline=True):
+		"""Logging function.
+
+		@param add_final_message: Add this log line to the final message output to the user
+		@param level:             Python log level
+		@param transient:         Just write to terminal, no new line. If not a
+		                          terminal, write nothing.
+		"""
+		if transient:
+			if sys.stdout.isatty():
+				if newline:
+					msg += '\r\n'
+				sys.stdout.write(msg)
+			else:
+				return True
+		else:
+			logging.log(level,msg)
+			if add_final_message:
+				self.report_final_messages = self.report_final_messages + '\r\n' + msg + '\r\n'
+		return True
 
 class ShutIt(object):
 	"""ShutIt build class.
@@ -103,7 +130,6 @@ class ShutIt(object):
 		self.build                           = {}
 		self.build['interactive']            = 1 # Default to true until we know otherwise
 		self.build['report']                 = ''
-		self.build['report_final_messages']  = ''
 		self.build['loglevel']               = None
 		self.build['completed']              = False
 		self.build['mount_docker']           = False
@@ -262,26 +288,6 @@ class ShutIt(object):
 		return False
 
 
-	def log(self, msg, add_final_message=False, level=logging.INFO, transient=False, newline=True):
-		"""Logging function.
-
-		@param add_final_message: Add this log line to the final message output to the user
-		@param level:             Python log level
-		@param transient:         Just write to terminal, no new line. If not a
-		                          terminal, write nothing.
-		"""
-		if transient:
-			if sys.stdout.isatty():
-				if newline:
-					msg += '\r\n'
-				sys.stdout.write(msg)
-			else:
-				return True
-		else:
-			logging.log(level,msg)
-			if add_final_message:
-				self.build['report_final_messages'] = self.build['report_final_messages'] + '\r\n' + msg + '\r\n'
-		return True
 
 
 	def get_current_environment(self, note=None):
@@ -2248,6 +2254,9 @@ class ShutIt(object):
 			echo = False
 		return echo
 
+	# Pass through log to global function.
+	def log(self, msg, add_final_message=False, level=logging.INFO, transient=False, newline=True):
+		shutit_global_object.log(msg,add_final_message=add_final_message,level=level,transient=transient,newline=newline)
 
 
 shutit_global_object = ShutItGlobal()

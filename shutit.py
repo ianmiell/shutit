@@ -566,7 +566,7 @@ def setup_shutit_obj(shutit):
 	finalize_target(shutit)
 	shutit.log(shutit_util.build_report(shutit, '#Module: N/A (END)'), level=logging.DEBUG)
 	do_exam_output(shutit)
-	do_final_messages(shutit)
+	shutit_global.shutit_global_object.do_final_messages()
 
 	# Mark the build as completed
 	shutit.build['completed'] = True
@@ -622,12 +622,6 @@ def do_lists(shutit):
 		shutit.log('================================================================================')
 	if shutit.action['list_configs']:
 		return
-
-
-def do_final_messages(shutit):
-	# Show final report messages (ie messages to show after standard report).
-	if shutit.build['report_final_messages'] != '':
-		shutit.log(shutit_util.colourise(31,'\r\n\r\n' + shutit.build['report_final_messages'] + '\r\n\r\n'), level=logging.INFO, transient=True)
 
 
 def do_exam_output(shutit):
