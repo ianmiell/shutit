@@ -17,7 +17,7 @@ try {
 		node(nodename) {
 			dir(builddir + '/shutit-test') {
 				sh 'env'
-				res = sh('PATH=$(pwd)/..:${PATH} ./run.sh -l info 2>&1')
+				sh('PATH=$(pwd)/..:${PATH} ./run.sh -l info 2>&1')
 			}
 		}
 	}
@@ -25,8 +25,6 @@ try {
 } catch(err) {
 	mail bcc: '', body: '''See: http://jenkins.meirionconsulting.tk/job/shutit
 
-''' + err + '''
-
-''' + res, cc: '', from: 'shutit-jenkins@jenkins.meirionconsulting.tk', replyTo: '', subject: 'Build failure', to: 'ian.miell@gmail.com'
+''' + err, cc: '', from: 'shutit-jenkins@jenkins.meirionconsulting.tk', replyTo: '', subject: 'Build failure', to: 'ian.miell@gmail.com'
 	throw(err)
 }
