@@ -746,6 +746,12 @@ def setup_signals():
 	signal.signal(signal.SIGINT, shutit_util.ctrl_c_signal_handler)
 	signal.signal(signal.SIGQUIT, shutit_util.ctrl_quit_signal_handler)
 
+def create_session(session_type='bash'):
+	assert session_type in ('bash','docker')
+	import shutit_global
+	shutit_global = shutit_global.shutit_global_object
+	return shutit_global.new_session(session_type)
+
 shutit_version='0.9.351'
 
 if __name__ == '__main__':
