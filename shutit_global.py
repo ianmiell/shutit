@@ -87,7 +87,7 @@ class ShutItGlobal(object):
 		# Show final report messages (ie messages to show after standard report).
 		if self.report_final_messages != '':
 			# TODO: separate logging from the shutit object
-			shutit_objects[0].log(shutit_util.colourise(31,'\r\n\r\n' + self.report_final_messages + '\r\n\r\n'), level=logging.INFO, transient=True)
+			self.shutit_objects[0].log(shutit_util.colourise(31,'\r\n\r\n' + self.report_final_messages + '\r\n\r\n'), level=logging.INFO, transient=True)
 
 	def log(self, msg, add_final_message=False, level=logging.INFO, transient=False, newline=True):
 		"""Logging function.
