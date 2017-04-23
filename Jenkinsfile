@@ -16,8 +16,7 @@ try {
 	stage('shutit_tests') {
 		node(nodename) {
 			dir(builddir + '/shutit-test') {
-				sh 'env'
-				sh('PATH=$(pwd)/..:${PATH} ./run.sh -l info 2>&1')
+				sh('PATH=$(pwd)/..:${PATH} ./run.sh -s tk.shutit.shutit_test shutit_branch master -l info 2>&1')
 			}
 		}
 	}
