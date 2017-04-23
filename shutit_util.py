@@ -57,7 +57,7 @@ except ImportError: # pragma: no cover
 	import configparser as ConfigParser
 import texttable
 import pexpect
-import shutit_main
+import shutit
 import shutit_assets
 import shutit_skeleton
 import shutit_exam
@@ -403,7 +403,7 @@ def parse_args(shutit, set_loglevel=None):
 	actions = ['build', 'run', 'list_configs', 'list_modules', 'list_deps', 'skeleton', 'version']
 
 	# COMPAT 2014-05-15 - build is the default if there is no action specified
-	# and we've not asked for help and we've called via 'shutit_main.py'
+	# and we've not asked for help and we've called via 'shutit.py'
 	if len(sys.argv) == 1 or (len(sys.argv) > 1 and sys.argv[1] not in actions
 			and '-h' not in sys.argv and '--help' not in sys.argv):
 		sys.argv.insert(1, 'build')
@@ -505,7 +505,7 @@ def process_args(shutit, args, set_loglevel):
 	"""Process the args we have.
 	"""
 	if args.action == 'version':
-		print('ShutIt version: ' + shutit_main.shutit_version)
+		print('ShutIt version: ' + shutit.shutit_version)
 		handle_exit(shutit=shutit, exit_code=0)
 
 	# What are we asking shutit to do?
@@ -1278,7 +1278,7 @@ def ctrl_quit_signal_handler(_,frame):
 	print(r'CRTL-\ caught, hard-exiting ShutIt')
 	shutit_frame = get_shutit_frame(frame)
 	if shutit_frame:
-		shutit_main.do_finalize()
+		shutit.do_finalize()
 	handle_exit(exit_code=1)
 # CTRL-\ HANDLING CODE ENDS
 

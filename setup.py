@@ -83,7 +83,7 @@ setup(
 	# pip to create the appropriate form of executable for the target platform.
 	entry_points={
 		'console_scripts': [
-			'shutit=shutit_main:main',
+			'shutit=shutit:main',
 		],
 	},
 )
