@@ -593,8 +593,7 @@ class ShutIt(object):
 		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
 		if len(self.shutit_background_objects) > 0:
 			# get the last object, and block until that one completes its task.
-		return shutit_pexpect_session.send(None,
-		    sendspec=ShutItSendSpec(send,
+		return shutit_pexpect_session.send(sendspec=ShutItSendSpec(send,
 		                            expect=expect,
 		                            timeout=timeout,
 		                            check_exit=check_exit,
@@ -640,7 +639,7 @@ class ShutIt(object):
 		"""
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
 		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
-		shutit_pexpect_session.send(send,
+		shutit_pexpect_session.send(sendspec=ShutItSendSpec(send=send,
 		                            expect=expect,
 		                            timeout=timeout,
 		                            check_exit=check_exit,
@@ -653,7 +652,7 @@ class ShutIt(object):
 		                            note=note,
 		                            assume_gnu=assume_gnu,
 		                            loglevel=loglevel,
-		                            follow_on_commands=follow_on_commands)
+		                            follow_on_commands=follow_on_commands))
 		return shutit_pexpect_session.check_last_exit_values(send,
 		                                                     expect=expect,
 		                                                     exit_values=exit_values,
@@ -927,16 +926,16 @@ class ShutIt(object):
 			                                 group=group,
 			                                 loglevel=loglevel,
 			                                 encoding='iso-8859-1')
-			shutit_pexpect_session.send(' command mkdir -p ' + path + ' && command tar -C ' + path + ' -zxf ' + gzipfname)
+			shutit_pexpect_session.send(sendspec=ShutItSendSpec(send=' command mkdir -p ' + path + ' && command tar -C ' + path + ' -zxf ' + gzipfname))
 		else:
 			# If no gunzip, fall back to old slow method.
 			for root, subfolders, files in os.walk(hostfilepath):
 				subfolders.sort()
 				files.sort()
 				for subfolder in subfolders:
-					shutit_pexpect_session.send(' command mkdir -p ' + path + '/' + subfolder,
+					shutit_pexpect_session.send(sendspec=ShutItSendSpec(send=' command mkdir -p ' + path + '/' + subfolder,
 					                            echo=False,
-					                            loglevel=loglevel)
+					                            loglevel=loglevel))
 					self.log('send_host_dir recursing to: ' + hostfilepath + '/' + subfolder, level=logging.DEBUG)
 					self.send_host_dir(path + '/' + subfolder,
 					                   hostfilepath + '/' + subfolder,
