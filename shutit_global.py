@@ -60,8 +60,7 @@ class ShutItGlobal(object):
 	def add_shutit_session(self, shutit):
 		self.shutit_objects.append(shutit)
 
-
-	def new_session(self,session_type='bash', docker_image=None, rm=None, loglevel='INFO'):
+	def create_session(self,session_type='bash', docker_image=None, rm=None, loglevel='INFO'):
 		assert isinstance(session_type, str)
 		new_shutit = ShutIt()
 		self.add_shutit_session(new_shutit)
@@ -2248,10 +2247,9 @@ class ShutIt(object):
 			ret += '===============================================================================\n'
 		return ret
 
-
-	# Pass through to global object.
-	def new_session(self,session_type='bash', docker_image=None, rm=None, loglevel='INFO'):
-		return shutit_global_object.new_session(session_type,docker_image,rm,loglevel)
+	# Pass through to global object
+	def create_session(self,session_type='bash', docker_image=None, rm=None, loglevel='INFO'):
+		return shutit_global_object.create_session(session_type,docker_image,rm,loglevel)
 
 
 	# Pass through log to global object.
