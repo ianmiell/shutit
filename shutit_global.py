@@ -54,8 +54,10 @@ class ShutItGlobal(object):
 		assert self.only_one is None
 		self.only_one = True
 
+
 	def add_shutit_session(self, shutit):
 		self.shutit_objects.append(shutit)
+
 
 	def new_session(self,session_type='bash', docker_image=None, rm=None, loglevel='INFO'):
 		assert isinstance(session_type, str)
@@ -83,11 +85,13 @@ class ShutItGlobal(object):
 		else:
 			new_shutit.fail('unhandled session type: ' + session_type)
 
+
 	def do_final_messages(self):
 		# Show final report messages (ie messages to show after standard report).
 		if self.report_final_messages != '':
 			# TODO: separate logging from the shutit object
 			self.shutit_objects[0].log(shutit_util.colourise(31,'\r\n\r\n' + self.report_final_messages + '\r\n\r\n'), level=logging.INFO, transient=True)
+
 
 	def log(self, msg, add_final_message=False, level=logging.INFO, transient=False, newline=True):
 		"""Logging function.
@@ -109,6 +113,7 @@ class ShutItGlobal(object):
 			if add_final_message:
 				self.report_final_messages = self.report_final_messages + '\r\n' + msg + '\r\n'
 		return True
+
 
 class ShutIt(object):
 	"""ShutIt build class.
@@ -264,6 +269,7 @@ class ShutIt(object):
 		return True
 
 
+	# TODO: should this be in global? Or fail globally if there is only one un-failed shutit object?
 	def fail(self, msg, shutit_pexpect_child=None, throw_exception=False):
 		"""Handles a failure, pausing if a pexpect child object is passed in.
 
@@ -1261,7 +1267,6 @@ class ShutIt(object):
 		return shutit_pexpect_session(package,note=note,loglevel=loglevel)
 
 
-
 	def command_available(self,
 	                      command,
 	                      shutit_pexpect_child=None,
@@ -1338,6 +1343,7 @@ class ShutIt(object):
 		return True
 
 
+	# TODO: should this be in global object?
 	def prompt_cfg(self, msg, sec, name, ispass=False):
 		"""Prompt for a config value, optionally saving it to the user-level
 		cfg. Only runs if we are in an interactive mode.
@@ -1720,6 +1726,7 @@ class ShutIt(object):
 	exit_shell = logout
 
 
+	# TODO: put this in global state?
 	def get_input(self, msg, default='', valid=None, boolean=False, ispass=False, colour='32'):
 		"""Get input from the user, returning the entered value.
 
@@ -2230,10 +2237,18 @@ class ShutIt(object):
 			ret += '===============================================================================\n'
 		return ret
 
-	# Pass through to global object
+
+	# Pass through to global object.
 	def new_session(self,session_type='bash', docker_image=None, rm=None, loglevel='INFO'):
 		return shutit_global_object.new_session(session_type,docker_image,rm,loglevel)
 
+
+	# Pass through log to global object.
+	def log(self, msg, add_final_message=False, level=logging.INFO, transient=False, newline=True):
+		shutit_global_object.log(msg,add_final_message=add_final_message,level=level,transient=transient,newline=newline)
+
+
+	# TODO: walkthrough and exam at global level? but see handle_note - looks like that is shutit-specific
 	# given a shutit object and an echo value, return the appropriate echo
 	# value for the given context.
 	def get_echo_override(self, echo):
@@ -2253,11 +2268,6 @@ class ShutIt(object):
 			# No if we are in exam mode
 			echo = False
 		return echo
-
-	# Pass through log to global function.
-	def log(self, msg, add_final_message=False, level=logging.INFO, transient=False, newline=True):
-		shutit_global_object.log(msg,add_final_message=add_final_message,level=level,transient=transient,newline=newline)
-
 
 shutit_global_object = ShutItGlobal()
 shutit_global_object.add_shutit_session(ShutIt())

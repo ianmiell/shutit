@@ -500,7 +500,6 @@ def main():
 	if sys.version_info.major == 2:
 		if sys.version_info.minor < 7:
 			shutit.fail('Python version must be 2.7+') # pragma: no cover
-
 	setup_shutit_obj(shutit)
 
 
@@ -750,5 +749,4 @@ shutit_version='0.9.351'
 
 if __name__ == '__main__':
 	setup_signals()
-	# Run main() with a default shutit object
 	main()
