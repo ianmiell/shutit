@@ -37,6 +37,7 @@ import tarfile
 import pexpect
 import shutit_util
 import shutit_setup
+import shutit_background
 from shutit_module import ShutItFailException
 
 
@@ -115,6 +116,52 @@ class ShutItGlobal(object):
 		return True
 
 
+class ShutItSendSpec():
+	"""Specification for arguments to send to shutit functions.
+	"""
+	def __init__(self,
+	             send,
+	             expect=None,
+	             shutit_pexpect_child=None,
+	             timeout=None,
+	             check_exit=None,
+	             fail_on_empty_before=True,
+	             record_command=True,
+	             exit_values=None,
+	             echo=None,
+	             escape=False,
+	             retry=3,
+	             note=None,
+	             assume_gnu=True,
+	             follow_on_commands=None,
+	             searchwindowsize=None,
+	             maxread=None,
+	             delaybeforesend=None,
+	             secret=False,
+	             nonewline=False,
+	             loglevel=logging.INFO):
+		self.send                    = send
+		self.expect                  = expect
+		self.shutit_pexpect_child    = shutit_pexpect_child
+		self.timeout                 = timeout
+		self.check_exit              = check_exit
+		self.fail_on_empty_before    = fail_on_empty_before
+		self.record_command          = record_command
+		self.exit_values             = exit_values
+		self.echo                    = echo
+		self.escape                  = escape
+		self.retry                   = retry
+		self.note                    = note
+		self.assume_gnu              = assume_gnu
+		self.follow_on_commands      = follow_on_commands
+		self.searchwindowsize        = searchwindowsize
+	    self.maxread                 = maxread
+	    self.delaybeforesend         = delaybeforesend
+	    self.secret                  = secret
+	    self.nonewline               = nonewline
+	    self.loglevel                = loglevel
+
+
 class ShutIt(object):
 	"""ShutIt build class.
 	Represents an instance of a ShutIt run/session/build with associated config.
@@ -187,6 +234,9 @@ class ShutIt(object):
 		self.cfg = {}                              # used to store module information
 		self.cfg['shutitfile'] = self.shutitfile   # required for patterns
 		self.cfg['skeleton']   = {}                # required for patterns
+
+		# List of background objects
+		self.shutit_background_objects = []
 
 
 	def add_shutit_pexpect_session_environment(self, pexpect_session_environment):
@@ -541,25 +591,31 @@ class ShutIt(object):
 		"""
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
 		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
-		return shutit_pexpect_session.send(send,
-		                                   expect=expect,
-		                                   timeout=timeout,
-		                                   check_exit=check_exit,
-		                                   fail_on_empty_before=fail_on_empty_before,
-		                                   record_command=record_command,
-		                                   exit_values=exit_values,
-		                                   echo=echo,
-		                                   escape=escape,
-		                                   retry=retry,
-		                                   note=note,
-		                                   assume_gnu=assume_gnu,
-		                                   loglevel=loglevel,
-		                                   follow_on_commands=follow_on_commands,
-		                                   searchwindowsize=searchwindowsize,
-		                                   maxread=maxread,
-		                                   delaybeforesend=delaybeforesend,
-		                                   secret=secret,
-		                                   nonewline=nonewline)
+		if len(self.shutit_background_objects) > 0:
+			# get the last object, and block until that one completes its task.
+		return shutit_pexpect_session.send(None,
+		    sendspec=ShutItSendSpec(send,
+		                            expect=expect,
+		                            timeout=timeout,
+		                            check_exit=check_exit,
+		                            fail_on_empty_before=fail_on_empty_before,
+		                            record_command=record_command,
+		                            exit_values=exit_values,
+		                            echo=echo,
+		                            escape=escape,
+		                            retry=retry,
+		                            note=note,
+		                            assume_gnu=assume_gnu,
+		                            loglevel=loglevel,
+		                            follow_on_commands=follow_on_commands,
+		                            searchwindowsize=searchwindowsize,
+		                            maxread=maxread,
+		                            delaybeforesend=delaybeforesend,
+		                            secret=secret,
+		                            nonewline=nonewline))
+                                               
+                                          
+	                                       
 	# alias send to send_and_expect
 	send_and_expect = send
 

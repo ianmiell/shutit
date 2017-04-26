@@ -2336,7 +2336,8 @@ class ShutItPexpectSession(object):
 	         secret=False,
 	         check_sudo=True,
 	         nonewline=False,
-	         loglevel=logging.INFO):
+	         loglevel=logging.INFO,
+	         sendspec=None):
 		"""Send string as a shell command, and wait until the expected output
 		is seen (either a string or any from a list of strings) before
 		returning. The expected string will default to the currently-set
@@ -2398,6 +2399,29 @@ class ShutItPexpectSession(object):
 		                             string in the list matched)
 		@rtype:                      string
 		"""
+		# Part one of replacing send() calls and others with a centralised sendspec.
+		if sendspec is not None:
+	         send=sendspec.send
+	         expect=sendspec.expect
+	         timeout=sendspec.timeout
+	         check_exit=sendspec.check_exit
+	         fail_on_empty_before=sendspec.fail_on_empty_before
+	         record_command=sendspec.record_command
+	         exit_values=sendspec.exit_values
+	         echo=sendspec.exit_values
+	         escape=sendspec.escape
+	         retry=sendspec.retry
+	         note=sendspec.note
+	         assume_gnu=sendspec.assume_gnu
+	         follow_on_commands=sendspec.follow_on_commands
+	         searchwindowsize=sendspec.searchwindowsize
+	         maxread=sendspec.maxread
+	         delaybeforesend=sendspec.delaybeforesend
+	         secret=sendspec.secret
+	         check_sudo=sendspec.check_sudo
+	         nonewline=sendspec.nonewline
+	         loglevel=sendspec.loglevel
+			
 		shutit = self.shutit
 		cfg = shutit.cfg
 		if send.strip() == '':
