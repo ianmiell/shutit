@@ -116,7 +116,7 @@ class ShutItGlobal(object):
 		return True
 
 
-class ShutItSendSpec():
+class ShutItSendSpec(object):
 	"""Specification for arguments to send to shutit functions.
 	"""
 	def __init__(self,
@@ -155,11 +155,11 @@ class ShutItSendSpec():
 		self.assume_gnu              = assume_gnu
 		self.follow_on_commands      = follow_on_commands
 		self.searchwindowsize        = searchwindowsize
-	    self.maxread                 = maxread
-	    self.delaybeforesend         = delaybeforesend
-	    self.secret                  = secret
-	    self.nonewline               = nonewline
-	    self.loglevel                = loglevel
+		self.maxread                 = maxread
+		self.delaybeforesend         = delaybeforesend
+		self.secret                  = secret
+		self.nonewline               = nonewline
+		self.loglevel                = loglevel
 
 
 class ShutIt(object):
@@ -591,8 +591,9 @@ class ShutIt(object):
 		"""
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
 		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
-		if len(self.shutit_background_objects) > 0:
-			# get the last object, and block until that one completes its task.
+		# TODO
+		#if len(self.shutit_background_objects) > 0:
+		#	# get the last object, and block until that one completes its task.
 		return shutit_pexpect_session.send(sendspec=ShutItSendSpec(send,
 		                            expect=expect,
 		                            timeout=timeout,

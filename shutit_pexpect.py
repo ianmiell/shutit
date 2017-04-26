@@ -26,6 +26,8 @@ try:
 	from md5 import md5
 except ImportError: # pragma: no cover
 	from hashlib import md5
+import shutit_global
+print dir(shutit_global)
 import logging
 import string
 import time
@@ -36,7 +38,6 @@ import sys
 import textwrap
 import binascii
 import pexpect
-from shutit_global import ShutItSendSpec
 import shutit_util
 import shutit_assets
 import package_map
@@ -897,7 +898,7 @@ class ShutItPexpectSession(object):
 		if self.current_environment.install_type == 'apt':
 			self.send(sendspec=ShutItSendSpec(send='passwd ' + user,
 			          expect='Enter new',
-			          check_exit=False)
+			          check_exit=False))
 			self.send(sendspec=ShutItSendSpec(send=password,
 			          expect='Retype new',
 			          check_exit=False,
@@ -908,7 +909,7 @@ class ShutItPexpectSession(object):
 		elif self.current_environment.install_type == 'yum':
 			self.send(sendspec=ShutItSendSpec(send='passwd ' + user,
 			          expect='ew password',
-			          check_exit=False)
+			          check_exit=False))
 			self.send(sendspec=ShutItSendSpec(send=password,
 			          expect='ew password',
 			          check_exit=False,
