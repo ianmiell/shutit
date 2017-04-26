@@ -26,8 +26,6 @@ try:
 	from md5 import md5
 except ImportError: # pragma: no cover
 	from hashlib import md5
-import shutit_global
-print dir(shutit_global)
 import logging
 import string
 import time
@@ -41,6 +39,7 @@ import pexpect
 import shutit_util
 import shutit_assets
 import package_map
+import shutit_sendspec
 from shutit_module import ShutItFailException
 
 
