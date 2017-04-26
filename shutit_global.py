@@ -60,7 +60,12 @@ class ShutItGlobal(object):
 	def add_shutit_session(self, shutit):
 		self.shutit_objects.append(shutit)
 
+<<<<<<< 86843ac1050e89f6442e88462a54f55e7823135b
 	def create_session(self,session_type='bash', docker_image=None, rm=None, loglevel='INFO'):
+=======
+
+	def new_session(self,session_type='bash', docker_image=None, rm=None, loglevel='INFO'):
+>>>>>>> tidier
 		assert isinstance(session_type, str)
 		new_shutit = ShutIt()
 		self.add_shutit_session(new_shutit)
@@ -86,11 +91,13 @@ class ShutItGlobal(object):
 		else:
 			new_shutit.fail('unhandled session type: ' + session_type)
 
+
 	def do_final_messages(self):
 		# Show final report messages (ie messages to show after standard report).
 		if self.report_final_messages != '':
 			# TODO: separate logging from the shutit object
 			shutit_objects[0].log(shutit_util.colourise(31,'\r\n\r\n' + self.report_final_messages + '\r\n\r\n'), level=logging.INFO, transient=True)
+
 
 	def log(self, msg, add_final_message=False, level=logging.INFO, transient=False, newline=True):
 		"""Logging function.
@@ -113,6 +120,7 @@ class ShutItGlobal(object):
 				self.report_final_messages = self.report_final_messages + '\r\n' + msg + '\r\n'
 		return True
 
+<<<<<<< 86843ac1050e89f6442e88462a54f55e7823135b
 	def do_final_messages(self):
 		# Show final report messages (ie messages to show after standard report).
 		if self.report_final_messages != '':
@@ -141,6 +149,8 @@ class ShutItGlobal(object):
 				self.report_final_messages = self.report_final_messages + '\r\n' + msg + '\r\n'
 		return True
 
+=======
+>>>>>>> tidier
 
 class ShutIt(object):
 	"""ShutIt build class.
