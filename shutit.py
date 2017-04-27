@@ -741,7 +741,6 @@ def setup_signals():
 
 def create_session(session_type='bash'):
 	assert session_type in ('bash','docker')
-	import shutit_global
 	shutit_global_object = shutit_global.shutit_global_object
 	return shutit_global_object.new_session(session_type)
 
