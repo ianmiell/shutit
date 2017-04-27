@@ -860,9 +860,9 @@ class ShutIt(object):
 		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
 		self.handle_note(note, 'Sending host directory: ' + hostfilepath + ' to target path: ' + path)
 		self.log('Sending host directory: ' + hostfilepath + ' to: ' + path, level=logging.INFO)
-		shutit_pexpect_session.send(' command mkdir -p ' + path,
-		                            echo=False,
-		                            loglevel=loglevel)
+		shutit_pexpect_session.send(ShutItSendSpec(send=' command mkdir -p ' + path,
+		                                           echo=False,
+		                                           loglevel=loglevel)
 		if user is None:
 			user = shutit_pexpect_session.whoami()
 		if group is None:
