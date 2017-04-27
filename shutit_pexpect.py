@@ -207,17 +207,17 @@ class ShutItPexpectSession(object):
 		# r'[^t] login:' - be sure not to match 'last login:'
 		#if send == 'bash':
 		echo = shutit.get_echo_override(echo)
-		self.multisend(send,
-		               {'ontinue connecting':'yes', 'assword':password, r'[^t] login:':password, user+'@':password},
-		               expect=general_expect,
-		               check_exit=False,
-		               timeout=timeout,
-		               fail_on_empty_before=False,
-		               escape=escape,
-		               echo=echo,
-		               remove_on_match=True,
-		               nonewline=nonewline,
-		               loglevel=loglevel)
+		self.multisend(ShutItSendSpec(send=send,
+		                              send_dict={'ontinue connecting':'yes', 'assword':password, r'[^t] login:':password, user+'@':password},
+		                              expect=general_expect,
+		                              check_exit=False,
+		                              timeout=timeout,
+		                              fail_on_empty_before=False,
+		                              escape=escape,
+		                              echo=echo,
+		                              remove_on_match=True,
+		                              nonewline=nonewline,
+		                              loglevel=loglevel))
 		# Check exit 'by hand' here to not effect/assume setup prompt.
 		if not self.get_exit_value(shutit):
 			if fail_on_fail: # pragma: no cover
@@ -1300,14 +1300,14 @@ class ShutItPexpectSession(object):
 				pw = self.get_sudo_pass_if_needed(shutit, ignore_brew=True)
 				if pw != '':
 					cmd = 'sudo ' + cmd
-					res = self.multisend('%s %s %s' % (cmd, opts, package),
-					                     {'assword':pw},
-					                     expect=['Unable to fetch some archives',self.default_expect],
-					                     timeout=timeout,
-					                     check_exit=False,
-					                     loglevel=loglevel,
-					                     echo=False,
-					                     secret=True)
+					res = self.multisend(ShutItSendSpec(send='%s %s %s' % (cmd, opts, package),
+					                                    send_dict={'assword':pw},
+					                                    expect=['Unable to fetch some archives',self.default_expect],
+					                                    timeout=timeout,
+					                                    check_exit=False,
+					                                    loglevel=loglevel,
+					                                    echo=False,
+					                                    secret=True))
 					shutit.log('Result of install attempt was: ' + str(res),level=logging.DEBUG)
 				else:
 					res = self.send(ShutItSendSpec(send='%s %s %s' % (cmd, opts, package),
@@ -1439,12 +1439,12 @@ class ShutItPexpectSession(object):
 		pw = self.get_sudo_pass_if_needed(shutit, ignore_brew=True)
 		if pw != '':
 			cmd = 'sudo ' + cmd
-			self.multisend('%s %s %s' % (cmd, opts, package),
-			               {'assword:':pw},
-			               timeout=timeout,
-			               exit_values=['0','100'],
-			               echo=False,
-			               secret=True)
+			self.multisend(ShutItSendSpec(send='%s %s %s' % (cmd, opts, package),
+			                              send_dict={'assword:':pw},
+			                              timeout=timeout,
+			                              exit_values=['0','100'],
+			                              echo=False,
+			                              secret=True))
 		else:
 			self.send(ShutItSendSpec(send='%s %s %s' % (cmd, opts, package),
 			          timeout=timeout,
@@ -1838,23 +1838,7 @@ class ShutItPexpectSession(object):
 
 
 
-	def multisend(self,
-	              send,
-	              send_dict,
-	              expect=None,
-	              timeout=3600,
-	              check_exit=None,
-	              fail_on_empty_before=True,
-	              record_command=True,
-	              exit_values=None,
-	              escape=False,
-	              echo=None,
-	              note=None,
-	              secret=False,
-	              check_sudo=True,
-	              remove_on_match=False,
-	              nonewline=False,
-	              loglevel=logging.DEBUG):
+	def multisend(self, sendspec)
 		"""Multisend. Same as send, except it takes multiple sends and expects in a dict that are
 		processed while waiting for the end "expect" argument supplied.
 
@@ -1875,6 +1859,23 @@ class ShutItPexpectSession(object):
                                      the 'am I logged in yet?' checking more robust.
 		@param loglevel:             See send()
 		"""
+		send=sendspec.send
+		send_dict=sendspec.send_dict
+		expect=sendspec.expect
+		timeout=sendspec.timeout
+		check_exit=sendspec.check_exit
+		fail_on_empty_before=sendspec.fail_on_empty_before
+		record_command=sendspec.record_command
+		exit_values=sendspec.exit_values
+		escape=sendspec.escape
+		echo=sendspec.echo
+		note=sendspec.note
+		secret=sendspec.secret
+		check_sudo=sendspec.check_sudo
+		remove_on_match=sendspec.remove_on_match
+		nonewline=sendspec.nonewline
+		loglevel=sendspec.loglevel
+
 		expect = expect or self.default_expect
 		shutit = self.shutit
 		shutit.handle_note(note)
@@ -2406,20 +2407,20 @@ class ShutItPexpectSession(object):
 			fail_on_empty_before=False
 			check_exit=False
 		if isinstance(expect, dict):
-			return self.multisend(send=send,
-			                      send_dict=expect,
-			                      expect=shutit.get_default_shutit_pexpect_session_expect(),
-			                      timeout=timeout,
-			                      check_exit=check_exit,
-			                      fail_on_empty_before=fail_on_empty_before,
-			                      record_command=record_command,
-			                      exit_values=exit_values,
-			                      echo=echo,
-			                      note=note,
-			                      secret=secret,
-			                      check_sudo=check_sudo,
-			                      nonewline=nonewline,
-			                      loglevel=loglevel)
+			return self.multisend(ShutItSendSpec(send=send,
+			                                     send_dict=expect,
+			                                     expect=shutit.get_default_shutit_pexpect_session_expect(),
+			                                     timeout=timeout,
+			                                     check_exit=check_exit,
+			                                     fail_on_empty_before=fail_on_empty_before,
+			                                     record_command=record_command,
+			                                     exit_values=exit_values,
+			                                     echo=echo,
+			                                     note=note,
+			                                     secret=secret,
+			                                     check_sudo=check_sudo,
+			                                     nonewline=nonewline,
+			                                     loglevel=loglevel))
 		# Before gathering expect, detect whether this is a sudo command and act accordingly.
 		command_list = send.strip().split()
 		# If there is a first command, there is a sudo in there (we ignore
@@ -2429,19 +2430,19 @@ class ShutItPexpectSession(object):
 		if check_sudo and len(command_list) > 0 and command_list[0] == 'sudo' and not self.check_sudo():
 			sudo_pass = self.get_sudo_pass_if_needed(shutit)
 			# Turn expect into a dict.
-			return self.multisend(send=send,
-			                      send_dict={'assword':sudo_pass},
-			                      expect=shutit.get_default_shutit_pexpect_session_expect(),
-			                      timeout=timeout,
-			                      check_exit=check_exit,
-			                      fail_on_empty_before=fail_on_empty_before,
-			                      record_command=record_command,
-			                      exit_values=exit_values,
-			                      echo=echo,
-			                      note=note,
-			                      check_sudo=False,
-			                      nonewline=nonewline,
-			                      loglevel=loglevel)
+			return self.multisend(ShutItSendSpec(send=send,
+			                                     send_dict={'assword':sudo_pass},
+			                                     expect=shutit.get_default_shutit_pexpect_session_expect(),
+			                                     timeout=timeout,
+			                                     check_exit=check_exit,
+			                                     fail_on_empty_before=fail_on_empty_before,
+			                                     record_command=record_command,
+			                                     exit_values=exit_values,
+			                                     echo=echo,
+			                                     note=note,
+			                                     check_sudo=False,
+			                                     nonewline=nonewline,
+			                                     loglevel=loglevel))
 
 		# Set up what we expect.
 		expect = expect or self.default_expect
