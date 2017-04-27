@@ -173,7 +173,6 @@ class ShutItPexpectSession(object):
 		loglevel=sendspec.loglevel
 		nonewline=sendspec.nonewline
 		fail_on_fail=sendspec.fail_on_fail
-		"""Logs the user in with the passed-in password and command.
 		# We don't get the default expect here, as it's either passed in, or a base default regexp.
 		shutit = self.shutit
 		shutit.build['secret_words_set'].add(password)
@@ -240,20 +239,105 @@ class ShutItPexpectSession(object):
 		return True
 
 
-
-	def logout(self,
-	           command='exit',
-	           note=None,
-	           echo=None,
-	           timeout=300,
-			   nonewline=False,
-	           loglevel=logging.DEBUG):
+	def logout(self, sendspec):
 		"""Logs the user out. Assumes that login has been called.
 		If login has never been called, throw an error.
 
 			@param command: Command to run to log out (default=exit)
 			@param note:    See send()
 		"""
+		command=sendspec.command
+		timeout=sendspec.timeout
+		echo=sendspec.echo
+		note=sendpsec.note
+		loglevel=sendspec.loglevel
+		nonewline=sendspec.nonewline
+		shutit = self.shutit
+		shutit.handle_note(note,training_input=command)
+		if len(self.login_stack):
+			_ = self.login_stack.pop()
+			if len(self.login_stack):
+				old_prompt_name	 = self.login_stack[-1]
+				self.default_expect = shutit.expect_prompts[old_prompt_name]
+			else:
+				# If none are on the stack, we assume we're going to the root prompt
+				# set up in shutit_setup.py
+				shutit.set_default_shutit_pexpect_session_expect()
+		else:
+			shutit.fail('Logout called without corresponding login', throw_exception=False) # pragma: no cover
+		# No point in checking exit here, the exit code will be
+		# from the previous command from the logged in session
+		echo = shutit.get_echo_override(echo)
+		output = self.send_and_get_output(command,
+		                                  fail_on_empty_before=False,
+		                                  timeout=timeout,
+		                                  echo=echo,
+		                                  loglevel=loglevel,
+			                              nonewline=nonewline,
+		                                  no_wrap=True)
+		shutit.handle_note_after(note=note)
+		return output
+
+
+	def login_stack_append(self, r_id):
+		"""Appends to the login_stack with the relevant identifier (r_id).
+		"""
+		self.login_stack.append(r_id)
+		return True
+
+
+	def setup_prompt(self,
+	                 prompt_name,
+	                 prefix='default',
+	                 loglevel=logging.DEBUG):
+		"""Use this when you've opened a new shell to set the PS1 to something
+		sane. By default, it sets up the default expect so you don't have to
+		worry about it and can just call shutit.send('a command').
+
+		If you want simple login and logout, please use login() and logout()
+		within this module.
+
+		Typically it would be used in this boilerplate pattern::
+
+		    shutit.send('su - auser', expect=shutit.expect_prompts['base_prompt'], check_exit=False)
+		    shutit.setup_prompt('tmp_prompt')
+		    shutit.send('some command')
+		    [...]
+		    shutit.set_default_shutit_pexpect_session_expect()
+		    shutit.send('exit')
+
+		This function is assumed to be called whenever there is a change
+		of environment.
+
+		@param prompt_name:         Reference name for prompt.
+		@param prefix:              Prompt prefix. Default: 'default'
+
+		@type prompt_name:          string
+		@type prefix:               string
+		"""
+		shutit = self.shutit
+		local_prompt = prefix + ':' + shutit_util.random_id() + '# '
+		shutit.expect_prompts[prompt_name] = local_prompt
+		# Set up the PS1 value.
+		# Unset the PROMPT_COMMAND as this can cause nasty surprises in the output.
+		# Set the cols value, as unpleasant escapes are put in the output if the
+		# input is > n chars wide.
+		# checkwinsize is required for similar reasons.
+		# The newline in the expect list is a hack. On my work laptop this line hangs
+		# and times out very frequently. This workaround seems to work, but I
+		# haven't figured out why yet - imiell.
+
+		# Split the local prompt into two parts and separate with quotes to protect against the expect matching the command rather than the output.
+		shutit.log('Setting up prompt.', level=logging.DEBUG)
+		self.send(ShutItSendSpec(send=""" export SHUTIT_BACKUP_PS1_""" + prompt_name + """=$PS1 && PS1='""" + local_prompt[:2] + "''" + local_prompt[2:] + """' && unset PROMPT_COMMAND && stty cols """ + str(shutit.build['stty_cols']),
+		                         expect=['\r\n' + shutit.expect_prompts[prompt_name]],
+		                         fail_on_empty_before=False,
+		                         echo=False,
+		                         loglevel=loglevel))
+		shutit.log('Resetting default expect to: ' + shutit.expect_prompts[prompt_name],level=loglevel)
+		self.default_expect = shutit.expect_prompts[prompt_name]
+		hostname = shutit.send_and_get_output("""if [[ $(echo $SHELL) == '/bin/bash' ]]; then echo $HOSTNAME; elif [[ $(command hostname 2> /dev/null) != '' ]]; then hostname -s; fi""", echo=False)
+		local_prompt_with_hostname = hostname + ':' + local_prompt
 		shutit = self.shutit
 		shutit.handle_note(note,training_input=command)
 		if len(self.login_stack):

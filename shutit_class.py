@@ -1628,12 +1628,12 @@ class ShutIt(object):
 			@param note:            See send()
 		"""
 		shutit_pexpect_session = self.get_current_shutit_pexpect_session()
-		return shutit_pexpect_session.logout(command=command,
-		                                     note=note,
-		                                     timeout=timeout,
-		                                     nonewline=nonewline,
-		                                     loglevel=loglevel,
-		                                     echo=echo)
+		return shutit_pexpect_session.logout(ShutItSendSpec(command=command,
+		                                                    note=note,
+		                                                    timeout=timeout,
+		                                                    nonewline=nonewline,
+		                                                    loglevel=loglevel,
+		                                                    echo=echo))
 	exit_shell = logout
 
 
