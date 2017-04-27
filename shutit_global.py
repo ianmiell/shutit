@@ -37,7 +37,6 @@ import tarfile
 import pexpect
 import shutit_util
 import shutit_setup
-import shutit_background
 from shutit_sendspec import ShutItSendSpec
 from shutit_module import ShutItFailException
 
@@ -91,7 +90,7 @@ class ShutItGlobal(object):
 		# Show final report messages (ie messages to show after standard report).
 		if self.report_final_messages != '':
 			# TODO: separate logging from the shutit object
-			shutit_objects[0].log(shutit_util.colourise(31,'\r\n\r\n' + self.report_final_messages + '\r\n\r\n'), level=logging.INFO, transient=True)
+			self.shutit_objects[0].log(shutit_util.colourise(31,'\r\n\r\n' + self.report_final_messages + '\r\n\r\n'), level=logging.INFO, transient=True)
 
 
 	def log(self, msg, add_final_message=False, level=logging.INFO, transient=False, newline=True):
@@ -566,9 +565,6 @@ class ShutIt(object):
 		                            delaybeforesend=delaybeforesend,
 		                            secret=secret,
 		                            nonewline=nonewline))
-                                               
-                                          
-	                                       
 	# alias send to send_and_expect
 	send_and_expect = send
 
@@ -862,7 +858,7 @@ class ShutIt(object):
 		self.log('Sending host directory: ' + hostfilepath + ' to: ' + path, level=logging.INFO)
 		shutit_pexpect_session.send(ShutItSendSpec(send=' command mkdir -p ' + path,
 		                                           echo=False,
-		                                           loglevel=loglevel)
+		                                           loglevel=loglevel))
 		if user is None:
 			user = shutit_pexpect_session.whoami()
 		if group is None:

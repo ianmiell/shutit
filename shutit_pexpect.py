@@ -2400,7 +2400,7 @@ class ShutItPexpectSession(object):
 		check_sudo=sendspec.check_sudo
 		nonewline=sendspec.nonewline
 		loglevel=sendspec.loglevel
-			
+
 		shutit = self.shutit
 		cfg = shutit.cfg
 		if send.strip() == '':
