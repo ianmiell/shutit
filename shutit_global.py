@@ -37,7 +37,6 @@ import tarfile
 import pexpect
 import shutit_util
 import shutit_setup
-from shutit_sendspec import ShutItSendSpec
 from shutit_module import ShutItFailException
 from shutit_class import ShutIt
 

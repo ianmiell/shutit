@@ -25,6 +25,12 @@ class ShutItSendSpec(object):
 	             secret=False,
 	             nonewline=False,
 	             remove_on_match=None,
+	             user='root',
+	             password=None,
+	             remove_on_match=None,
+	             is_ssh=None,
+	             go_home=True,
+	             prompt_prefix=None,
 	             loglevel=logging.INFO):
 		self.send                    = send
 		self.send_dict               = send_dict
@@ -48,4 +54,9 @@ class ShutItSendSpec(object):
 		self.secret                  = secret
 		self.nonewline               = nonewline
 		self.loglevel                = loglevel
+		self.user                    = user
+		self.password                = password
+		self.is_ssh                  = is_ssh
+		self.go_home                 = go_home
+		self.prompt_prefix           = prompt_prefix
 		self.remove_on_match         = remove_on_match

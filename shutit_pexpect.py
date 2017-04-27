@@ -131,21 +131,7 @@ class ShutItPexpectSession(object):
 		return pexpect_child
 
 
-	def login(self,
-	          user='root',
-	          command='su -',
-	          password=None,
-	          prompt_prefix=None,
-	          expect=None,
-	          timeout=180,
-	          escape=False,
-	          echo=None,
-	          note=None,
-	          go_home=True,
-	          is_ssh=None,
-	          loglevel=logging.DEBUG,
-	          nonewline=False,
-	          fail_on_fail=True):
+	def login(self, sendspec):
 		"""Logs the user in with the passed-in password and command.
 		Tracks the login. If used, used logout to log out again.
 		Assumes you are root when logging in, so no password required.
@@ -173,6 +159,21 @@ class ShutItPexpectSession(object):
 		@type prompt_prefix:  string
 		@type timeout:        integer
 		"""
+		user=sendspec.user
+		command=sendspec.command
+		password=sendspec.password
+		prompt_prefix=sendspec.prompt_prefix
+		expect=sendspec.expect
+		timeout=sendspec.timeout
+		escape=sendspec.escape
+		echo=sendspec.echo
+		note=sendpsec.note
+		go_home=sendspec.go_home
+		is_ssh=sendspec.is_ssh
+		loglevel=sendspec.loglevel
+		nonewline=sendspec.nonewline
+		fail_on_fail=sendspec.fail_on_fail
+		"""Logs the user in with the passed-in password and command.
 		# We don't get the default expect here, as it's either passed in, or a base default regexp.
 		shutit = self.shutit
 		shutit.build['secret_words_set'].add(password)
@@ -457,9 +458,9 @@ class ShutItPexpectSession(object):
 		# the same level in in terms of shells (root shell + 1 new login shell).
 		target_child = shutit.get_shutit_pexpect_session_from_id('target_child')
 		if go_home != None:
-			target_child.login(command='bash --noprofile --norc',echo=False,go_home=go_home)
+			target_child.login(ShutItSendSpec(command='bash --noprofile --norc',echo=False,go_home=go_home))
 		else:
-			target_child.login(command='bash --noprofile --norc',echo=False)
+			target_child.login(ShutItSendSpec(command='bash --noprofile --norc',echo=False))
 		return True
 
 
