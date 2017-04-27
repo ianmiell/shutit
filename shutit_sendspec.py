@@ -3,7 +3,8 @@ class ShutItSendSpec(object):
 	"""Specification for arguments to send to shutit functions.
 	"""
 	def __init__(self,
-	             send,
+	             send=None,
+	             send_dict=None,
 	             expect=None,
 	             shutit_pexpect_child=None,
 	             timeout=None,
@@ -13,6 +14,7 @@ class ShutItSendSpec(object):
 	             exit_values=None,
 	             echo=None,
 	             escape=False,
+	             check_sudo=True,
 	             retry=3,
 	             note=None,
 	             assume_gnu=True,
@@ -22,8 +24,10 @@ class ShutItSendSpec(object):
 	             delaybeforesend=None,
 	             secret=False,
 	             nonewline=False,
+	             remove_on_match=None,
 	             loglevel=logging.INFO):
 		self.send                    = send
+		self.send_dict               = send_dict
 		self.expect                  = expect
 		self.shutit_pexpect_child    = shutit_pexpect_child
 		self.timeout                 = timeout
@@ -33,6 +37,7 @@ class ShutItSendSpec(object):
 		self.exit_values             = exit_values
 		self.echo                    = echo
 		self.escape                  = escape
+		self.check_sudo              = check_sudo
 		self.retry                   = retry
 		self.note                    = note
 		self.assume_gnu              = assume_gnu
@@ -43,3 +48,4 @@ class ShutItSendSpec(object):
 		self.secret                  = secret
 		self.nonewline               = nonewline
 		self.loglevel                = loglevel
+		self.remove_on_match         = remove_on_match
