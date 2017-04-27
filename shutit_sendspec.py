@@ -24,13 +24,12 @@ class ShutItSendSpec(object):
 	             delaybeforesend=None,
 	             secret=False,
 	             nonewline=False,
-	             remove_on_match=None,
 	             user='root',
 	             password=None,
-	             remove_on_match=None,
 	             is_ssh=None,
 	             go_home=True,
 	             prompt_prefix=None,
+	             remove_on_match=None,
 	             loglevel=logging.INFO):
 		self.send                    = send
 		self.send_dict               = send_dict
