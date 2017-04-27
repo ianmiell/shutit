@@ -1838,7 +1838,7 @@ class ShutItPexpectSession(object):
 
 
 
-	def multisend(self, sendspec)
+	def multisend(self, sendspec):
 		"""Multisend. Same as send, except it takes multiple sends and expects in a dict that are
 		processed while waiting for the end "expect" argument supplied.
 
