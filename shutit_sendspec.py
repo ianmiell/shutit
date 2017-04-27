@@ -13,6 +13,7 @@ class ShutItSendSpec(object):
 	             exit_values=None,
 	             echo=None,
 	             escape=False,
+	             check_sudo=True,
 	             retry=3,
 	             note=None,
 	             assume_gnu=True,
@@ -33,6 +34,7 @@ class ShutItSendSpec(object):
 		self.exit_values             = exit_values
 		self.echo                    = echo
 		self.escape                  = escape
+		self.check_sudo              = check_sudo
 		self.retry                   = retry
 		self.note                    = note
 		self.assume_gnu              = assume_gnu
