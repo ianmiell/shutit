@@ -24,11 +24,9 @@ send_background function:
 
 
 class ShutItBackgroundCommand(object):
-    """Background command in ShutIt
-    """
-
-	
-    def __init__(self,
+	"""Background command in ShutIt
+	"""
+	def __init__(self,
 	             shutit,
 	             command,
 	             block_other_commands=True,
