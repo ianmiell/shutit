@@ -246,7 +246,7 @@ class ShutItPexpectSession(object):
 			@param command: Command to run to log out (default=exit)
 			@param note:    See send()
 		"""
-		command=sendspec.command
+		command=sendspec.send
 		timeout=sendspec.timeout
 		echo=sendspec.echo
 		note=sendpsec.note
