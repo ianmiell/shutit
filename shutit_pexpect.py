@@ -167,7 +167,7 @@ class ShutItPexpectSession(object):
 		timeout=sendspec.timeout
 		escape=sendspec.escape
 		echo=sendspec.echo
-		note=sendpsec.note
+		note=sendspec.note
 		go_home=sendspec.go_home
 		is_ssh=sendspec.is_ssh
 		loglevel=sendspec.loglevel
