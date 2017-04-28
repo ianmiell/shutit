@@ -1600,18 +1600,18 @@ class ShutIt(object):
 		"""Logs user in on default child.
 		"""
 		shutit_pexpect_session = self.get_current_shutit_pexpect_session()
-		return shutit_pexpect_session.login(user=user,
-		                                    command=command,
-		                                    password=password,
-		                                    prompt_prefix=prompt_prefix,
-		                                    expect=expect,
-		                                    timeout=timeout,
-		                                    escape=escape,
-		                                    echo=echo,
-		                                    note=note,
-		                                    go_home=go_home,
-		                                    fail_on_fail=fail_on_fail,
-		                                    loglevel=loglevel)
+		return shutit_pexpect_session.login(ShutItSendSpec(user=user,
+		                                                   command=command,
+		                                                   password=password,
+		                                                   prompt_prefix=prompt_prefix,
+		                                                   expect=expect,
+		                                                   timeout=timeout,
+		                                                   escape=escape,
+		                                                   echo=echo,
+		                                                   note=note,
+		                                                   go_home=go_home,
+		                                                   fail_on_fail=fail_on_fail,
+		                                                   loglevel=loglevel))
 
 
 	def logout(self,
