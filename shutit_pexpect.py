@@ -249,7 +249,7 @@ class ShutItPexpectSession(object):
 		command=sendspec.send
 		timeout=sendspec.timeout
 		echo=sendspec.echo
-		note=sendpsec.note
+		note=sendspec.note
 		loglevel=sendspec.loglevel
 		nonewline=sendspec.nonewline
 		shutit = self.shutit
