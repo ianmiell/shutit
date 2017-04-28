@@ -160,7 +160,7 @@ class ShutItPexpectSession(object):
 		@type timeout:        integer
 		"""
 		user=sendspec.user
-		command=sendspec.command
+		command=sendspec.send
 		password=sendspec.password
 		prompt_prefix=sendspec.prompt_prefix
 		expect=sendspec.expect
@@ -456,9 +456,9 @@ class ShutItPexpectSession(object):
 		# the same level in in terms of shells (root shell + 1 new login shell).
 		target_child = shutit.get_shutit_pexpect_session_from_id('target_child')
 		if go_home != None:
-			target_child.login(ShutItSendSpec(command='bash --noprofile --norc',echo=False,go_home=go_home))
+			target_child.login(ShutItSendSpec(send='bash --noprofile --norc',echo=False,go_home=go_home))
 		else:
-			target_child.login(ShutItSendSpec(command='bash --noprofile --norc',echo=False))
+			target_child.login(ShutItSendSpec(send='bash --noprofile --norc',echo=False))
 		return True
 
 

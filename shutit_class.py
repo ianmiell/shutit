@@ -1601,7 +1601,7 @@ class ShutIt(object):
 		"""
 		shutit_pexpect_session = self.get_current_shutit_pexpect_session()
 		return shutit_pexpect_session.login(ShutItSendSpec(user=user,
-		                                                   command=command,
+		                                                   send=command,
 		                                                   password=password,
 		                                                   prompt_prefix=prompt_prefix,
 		                                                   expect=expect,
