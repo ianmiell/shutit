@@ -6,7 +6,6 @@ send_background function:
     - boolean for whether to allow other backgrounds in one session (default no)
     - there must be a newline (so no nonewline argument)
     - Object:
-        - shutit.background_objects = [] - stored in shutit object
         - pid
         - command
         - return value
@@ -33,12 +32,13 @@ class ShutItBackgroundCommand(object):
 	             timeout=None,
 	             background=True):
 		# Stub this with a simple command for now
+		self.shutit               = shutit
+		self.command              = command
+		self.block_other_commands = block_other_commands
+		self.timeout              = timeout
+		self.background           = background
+		self.pid                  = None
+		self.return_value         = None
+		self.start_time           = None
+		shutit.background_objects.append(self)
 		shutit.send(command)
-	#shutit_object        = None
-	#pid                  = None
-	#command              = None
-	#return_value         = None
-	#block_other_commands = None
-	#timeout              = None
-	#start_time           = None
-	#background           = None

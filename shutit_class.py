@@ -412,39 +412,20 @@ class ShutIt(object):
 		Returns the pexpect return value (ie which expected string in the list
 		matched)
 
-		@param send: String to send, ie the command being issued. If set to
-		       None, we consume up to the expect string, which is useful if we
-		       just matched output that came before a standard command that
-		       returns to the prompt.
-		@param expect: String that we expect to see in the output. Usually a
-		       prompt. Defaults to currently-set expect string (see
-		       set_default_shutit_pexpect_session_expect)
-		@param shutit_pexpect_child: pexpect child to issue command to.
-		@param timeout: Timeout on response
-		@param check_exit: Whether to check the shell exit code of the passed-in
-		       command.  If the exit value was non-zero an error is thrown.
-		       (default=None, which takes the currently-configured check_exit
-		       value) See also fail_on_empty_before.
-		@param fail_on_empty_before: If debug is set, fail on empty match output
-		       string (default=True) If this is set to False, then we don't
-		       check the exit value of the command.
-		@param record_command: Whether to record the command for output at end.
-		       As a safety measure, if the command matches any 'password's then
-		       we don't record it.
-		@param exit_values: Array of acceptable exit values as strings
-		@param echo: Whether to suppress any logging output from pexpect to the
-		       terminal or not.  We don't record the command if this is set to
-		       False unless record_command is explicitly passed in as True.
-		@param escape: Whether to escape the characters in a bash-friendly way,
-		       ie $'\\Uxxxxxx'
-		@param retry: Number of times to retry the command if the first attempt
-		       doesn't work. Useful if going to the network
-		@param note: If a note is passed in, and we are in walkthrough mode,
-		       pause with the note printed
-		@param assume_gnu: Assume the gnu version of commands, which are not in
-		       OSx by default (for example)
-		@return: The pexpect return value (ie which expected string in the list
-		         matched)
+		@param send: See shutit.ShutItSendSpec
+		@param expect: See shutit.ShutItSendSpec
+		@param shutit_pexpect_child: See shutit.ShutItSendSpec
+		@param timeout: See shutit.ShutItSendSpec
+		@param check_exit: See shutit.ShutItSendSpec
+		@param fail_on_empty_before:See shutit.ShutItSendSpec
+		@param record_command:See shutit.ShutItSendSpec
+		@param exit_values:See shutit.ShutItSendSpec
+		@param echo: See shutit.ShutItSendSpec
+		@param escape: See shutit.ShutItSendSpec
+		@param retry: See shutit.ShutItSendSpec
+		@param note: See shutit.ShutItSendSpec
+		@param assume_gnu: See shutit.ShutItSendSpec
+		@return: The pexpect return value (ie which expected string in the list matched)
 		@rtype: string
 		"""
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child

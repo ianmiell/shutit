@@ -69,12 +69,13 @@ class ShutItPexpectSession(object):
 		"""
 		if PY3: # pragma: no cover
 			encoding = 'utf-8'
-		self.shutit              = shutit
-		self.check_exit          = True
-		self.default_expect      = [shutit.expect_prompts['base_prompt']]
-		self.pexpect_session_id  = pexpect_session_id
-		self.login_stack         = []
-		self.current_environment = None
+		self.shutit                    = shutit
+		self.check_exit                = True
+		self.default_expect            = [shutit.expect_prompts['base_prompt']]
+		self.pexpect_session_id        = pexpect_session_id
+		self.login_stack               = []
+		self.current_environment       = None
+		self.background_objects        = []
 		args = args or []
 		self.pexpect_child       = self._spawn_child(command=command,
 		                                             args=args,
