@@ -30,6 +30,7 @@ class ShutItSendSpec(object):
 	             go_home=True,
 	             prompt_prefix=None,
 	             remove_on_match=None,
+	             fail_on_fail=True,
 	             loglevel=logging.INFO):
 		self.send                    = send
 		self.send_dict               = send_dict
@@ -59,3 +60,4 @@ class ShutItSendSpec(object):
 		self.go_home                 = go_home
 		self.prompt_prefix           = prompt_prefix
 		self.remove_on_match         = remove_on_match
+		self.fail_on_fail            = fail_on_fail
