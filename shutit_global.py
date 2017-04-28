@@ -114,6 +114,5 @@ class ShutItGlobal(object):
 				self.report_final_messages = self.report_final_messages + '\r\n' + msg + '\r\n'
 		return True
 
-shutit_global_object = ShutItGlobal()                                                                                                                                                                   
-shutit_global_object.add_shutit_session(ShutIt())  
-
+shutit_global_object = ShutItGlobal()
+shutit_global_object.add_shutit_session(ShutIt())

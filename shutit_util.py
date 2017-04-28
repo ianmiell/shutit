@@ -322,9 +322,6 @@ def get_base_config(shutit, cfg_parser):
 	# Take a command-line arg if given, else default.
 	if shutit.build['conn_module'] is None:
 		shutit.build['conn_module']            = cp.get('build', 'conn_module')
-	# Track logins in a stack and details in logins.
-	shutit.build['login_stack']                = []
-	shutit.build['logins']                     = {}
 	# Whether to accept default configs
 	shutit.build['accept_defaults']            = None
 	# target - the target of the build, ie the container

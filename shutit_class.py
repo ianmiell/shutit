@@ -249,7 +249,7 @@ class ShutIt(object):
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
 		expect = expect or self.get_current_shutit_pexpect_session().default_expect
 		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
-		return shutit_pexpect_session.multisend(ShutItSendSpec(send=send,
+		return shutit_pexpect_session.multisend(ShutItSendSpec(shutit_pexpect_session,send=send,
 		                                                       send_dict=send_dict,
 		                                                       expect=expect,
 		                                                       timeout=timeout,
@@ -403,6 +403,7 @@ class ShutIt(object):
 	         delaybeforesend=None,
 	         secret=False,
 	         nonewline=False,
+	         background=False,
 	         loglevel=logging.INFO):
 		"""Send string as a shell command, and wait until the expected output
 		is seen (either a string or any from a list of strings) before
@@ -433,25 +434,26 @@ class ShutIt(object):
 		# TODO
 		#if len(self.shutit_background_objects) > 0:
 		#	# get the last object, and block until that one completes its task.
-		return shutit_pexpect_session.send(ShutItSendSpec(send,
-		                            expect=expect,
-		                            timeout=timeout,
-		                            check_exit=check_exit,
-		                            fail_on_empty_before=fail_on_empty_before,
-		                            record_command=record_command,
-		                            exit_values=exit_values,
-		                            echo=echo,
-		                            escape=escape,
-		                            retry=retry,
-		                            note=note,
-		                            assume_gnu=assume_gnu,
-		                            loglevel=loglevel,
-		                            follow_on_commands=follow_on_commands,
-		                            searchwindowsize=searchwindowsize,
-		                            maxread=maxread,
-		                            delaybeforesend=delaybeforesend,
-		                            secret=secret,
-		                            nonewline=nonewline))
+		return shutit_pexpect_session.send(ShutItSendSpec(shutit_pexpect_session,send,
+		                                                  expect=expect,
+		                                                  timeout=timeout,
+		                                                  check_exit=check_exit,
+		                                                  fail_on_empty_before=fail_on_empty_before,
+		                                                  record_command=record_command,
+		                                                  exit_values=exit_values,
+		                                                  echo=echo,
+		                                                  escape=escape,
+		                                                  retry=retry,
+		                                                  note=note,
+		                                                  assume_gnu=assume_gnu,
+		                                                  loglevel=loglevel,
+		                                                  follow_on_commands=follow_on_commands,
+		                                                  searchwindowsize=searchwindowsize,
+		                                                  maxread=maxread,
+		                                                  delaybeforesend=delaybeforesend,
+		                                                  secret=secret,
+		                                                  nonewline=nonewline,
+		                                                  run_in_background=background))
 	# alias send to send_and_expect
 	send_and_expect = send
 
@@ -476,7 +478,7 @@ class ShutIt(object):
 		"""
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
 		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
-		shutit_pexpect_session.send(ShutItSendSpec(send=send,
+		shutit_pexpect_session.send(ShutItSendSpec(shutit_pexpect_session,send=send,
 		                            expect=expect,
 		                            timeout=timeout,
 		                            check_exit=check_exit,
@@ -743,7 +745,7 @@ class ShutIt(object):
 		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
 		self.handle_note(note, 'Sending host directory: ' + hostfilepath + ' to target path: ' + path)
 		self.log('Sending host directory: ' + hostfilepath + ' to: ' + path, level=logging.INFO)
-		shutit_pexpect_session.send(ShutItSendSpec(send=' command mkdir -p ' + path,
+		shutit_pexpect_session.send(ShutItSendSpec(shutit_pexpect_session,send=' command mkdir -p ' + path,
 		                                           echo=False,
 		                                           loglevel=loglevel))
 		if user is None:
@@ -763,14 +765,14 @@ class ShutIt(object):
 			                                 group=group,
 			                                 loglevel=loglevel,
 			                                 encoding='iso-8859-1')
-			shutit_pexpect_session.send(ShutItSendSpec(send=' command mkdir -p ' + path + ' && command tar -C ' + path + ' -zxf ' + gzipfname))
+			shutit_pexpect_session.send(ShutItSendSpec(shutit_pexpect_session,send=' command mkdir -p ' + path + ' && command tar -C ' + path + ' -zxf ' + gzipfname))
 		else:
 			# If no gunzip, fall back to old slow method.
 			for root, subfolders, files in os.walk(hostfilepath):
 				subfolders.sort()
 				files.sort()
 				for subfolder in subfolders:
-					shutit_pexpect_session.send(ShutItSendSpec(send=' command mkdir -p ' + path + '/' + subfolder,
+					shutit_pexpect_session.send(ShutItSendSpec(shutit_pexpect_session,send=' command mkdir -p ' + path + '/' + subfolder,
 					                                           echo=False,
 					                                           loglevel=loglevel))
 					self.log('send_host_dir recursing to: ' + hostfilepath + '/' + subfolder, level=logging.DEBUG)
@@ -1581,7 +1583,7 @@ class ShutIt(object):
 		"""Logs user in on default child.
 		"""
 		shutit_pexpect_session = self.get_current_shutit_pexpect_session()
-		return shutit_pexpect_session.login(ShutItSendSpec(user=user,
+		return shutit_pexpect_session.login(ShutItSendSpec(shutit_pexpect_session,user=user,
 		                                                   send=command,
 		                                                   password=password,
 		                                                   prompt_prefix=prompt_prefix,
@@ -1609,13 +1611,18 @@ class ShutIt(object):
 			@param note:            See send()
 		"""
 		shutit_pexpect_session = self.get_current_shutit_pexpect_session()
-		return shutit_pexpect_session.logout(ShutItSendSpec(send=command,
+		return shutit_pexpect_session.logout(ShutItSendSpec(shutit_pexpect_session,send=command,
 		                                                    note=note,
 		                                                    timeout=timeout,
 		                                                    nonewline=nonewline,
 		                                                    loglevel=loglevel,
 		                                                    echo=echo))
 	exit_shell = logout
+
+
+	def wait(self, cadence=10):
+		shutit_pexpect_session = self.get_current_shutit_pexpect_session()
+		return shutit_pexpect_session.wait(cadence=cadence)
 
 
 	# TODO: put this in global state?

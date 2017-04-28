@@ -39,6 +39,7 @@ import logging
 import pexpect
 import shutit_pexpect
 from shutit_module import ShutItModule
+from shutit_sendspec import ShutItSendSpec
 
 
 class ShutItConnModule(ShutItModule):
@@ -88,14 +89,14 @@ class ConnDocker(ShutItConnModule):
 		and performing any repository work required.
 		"""
 		# Finish with the target
-		shutit.get_shutit_pexpect_session_from_id('target_child').sendline('exit')
+		shutit.get_shutit_pexpect_session_from_id('target_child').sendline(ShutItSendSpec(shutit.get_shutit_pexpect_session_from_id('target_child'),send='exit'))
 		host_child = shutit.get_shutit_pexpect_session_from_id('host_child').pexpect_child
 		shutit.set_default_shutit_pexpect_session(host_child)
 		shutit.set_default_shutit_pexpect_session_expect(shutit.expect_prompts['ORIGIN_ENV'])
 		shutit.do_repository_work(shutit.repository['name'], docker_executable=shutit.host['docker_executable'], password=shutit.host['password'])
 		# Final exits
-		host_child.sendline('rm -f ' + shutit.build['cidfile']) # Exit raw bash
-		host_child.sendline('exit') # Exit raw bash
+		host_child.sendline(ShutItSendSpec(host_child,send='rm -f ' + shutit.build['cidfile'])) # Exit raw bash
+		host_child.sendline(ShutItSendSpec(host_child,send='exit')) # Exit raw bash
 		return True
 
 
@@ -131,7 +132,7 @@ class ConnBash(ShutItConnModule):
 		and performing any repository work required.
 		"""
 		# Finish with the target
-		shutit.get_shutit_pexpect_session_from_id('target_child').sendline('exit')
+		shutit.get_shutit_pexpect_session_from_id('target_child').sendline(ShutItSendSpec(shutit.get_shutit_pexpect_session_from_id('target_child'),send='exit'))
 		return True
 
 
@@ -207,11 +208,11 @@ class ConnSSH(ShutItConnModule):
 		and performing any repository work required.
 		"""
 		# Finish with the target
-		shutit.get_shutit_pexpect_session_from_id('target_child').sendline('exit')
+		shutit.get_shutit_pexpect_session_from_id('target_child').sendline(ShutItSendSpec(shutit.get_shutit_pexpect_session_from_id('target_child'),send='exit'))
 		shutit.set_default_shutit_pexpect_session(shutit.get_shutit_pexpect_session_from_id('host_child'))
 		# Final exits
 		host_child = shutit.get_shutit_pexpect_session_from_id('host_child').pexpect_child
-		host_child.sendline('exit') # Exit raw bash
+		host_child.sendline(ShutItSendSpec(host_child,send='exit')) # Exit raw bash
 		return True
 
 
@@ -394,7 +395,7 @@ def setup_host_child_environment(shutit):
 	# ORIGIN_ENV is a special case of the prompt maintained for performance reasons, don't change.
 	prefix = 'ORIGIN_ENV'
 	shutit_pexpect_session.setup_prompt('ORIGIN_ENV', prefix=prefix)
-	shutit_pexpect_session.login_stack_append(prefix)
+	shutit_pexpect_session.login_stack.append(prefix)
 
 
 def setup_target_child_environment(shutit, target_child, target_child_id='target_child',prefix='root'):
@@ -405,4 +406,4 @@ def setup_target_child_environment(shutit, target_child, target_child_id='target
 	# target child
 	shutit.set_default_shutit_pexpect_session(shutit_pexpect_session)
 	shutit_pexpect_session.setup_prompt(prefix,prefix=prefix)
-	shutit_pexpect_session.login_stack_append(prefix)
+	shutit_pexpect_session.login_stack.append(prefix)
