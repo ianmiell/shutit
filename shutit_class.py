@@ -1130,7 +1130,7 @@ class ShutIt(object):
 		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
 		return shutit_pexpect_session.get_url(filename,
 		                                      locations,
-		                                      command=command,
+		                                      send=command,
 		                                      timeout=timeout,
 		                                      fail_on_empty_before=fail_on_empty_before,
 		                                      record_command=record_command,
