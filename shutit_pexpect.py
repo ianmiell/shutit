@@ -752,11 +752,13 @@ class ShutItPexpectSession(object):
 		shutit = self.shutit
 		shutit.handle_note(note, 'Changing to path: ' + path)
 		shutit.log('Changing directory to path: "' + path + '"', level=logging.DEBUG)
-		if shutit.build['delivery'] in ('bash','dockerfile','docker','ssh'):
+		if shutit.build['delivery'] in ('bash','dockerfile'):
 			self.send(ShutItSendSpec(self,send=' command cd ' + path,
 			                         timeout=timeout,
 			                         echo=False,
 			                         loglevel=loglevel))
+		elif shutit.build['delivery'] in ('docker','ssh'):
+			os.chdir(path)
 		else:
 			shutit.fail('chdir not supported for delivery method: ' + shutit.build['delivery']) # pragma: no cover
 		shutit.handle_note_after(note=note)
