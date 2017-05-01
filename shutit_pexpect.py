@@ -142,11 +142,7 @@ class ShutItPexpectSession(object):
 		False means: you'll need to 'expect' the right thing from here.
 		"""
 		assert not sendspec.started
-		#print '-------------------------------'
-		#print 'In sendline:'
-		#print sendspec
 		if force:
-			#print 'Forcing: ' + sendspec.send
 			if sendspec.nonewline != True:
 				sendspec.send += '\n'
 				# sendspec has newline added now, so no need to keep marker
@@ -156,15 +152,10 @@ class ShutItPexpectSession(object):
 		else:
 			# Check there are no background commands running that have block_other_commands set iff
 			# this sendspec says
-			#print 'sending in: ' + str(self.pexpect_child)
 			if self._check_blocked(sendspec):
-				#print 'BLOCKED!'
 				return False
 			# If this is marked as in the background, create a background object and run in the background.
-			#print 'Not blocked'
-			#print sendspec
 			if sendspec.run_in_background:
-				#print 'running in background'
 				# Makes no sense to check exit for a background command.
 				sendspec.check_exit = False
 				sendspec.send += ' &'
@@ -174,7 +165,6 @@ class ShutItPexpectSession(object):
 				sendspec.send += '\n'
 				# sendspec has newline added now, so no need to keep marker
 				sendspec.nonewline = True
-			# debug
 			if sendspec.run_in_background:
 				shutit_background_command_object.run_background_command()
 				return True
@@ -186,19 +176,13 @@ class ShutItPexpectSession(object):
 	# Multisends must go through send() in shutit global
 	# TODO: Think about logout - must block until backgro
 	def _check_blocked(self, sendspec):
-		#print 'In check_blocked:'
 		if sendspec.ignore_background:
-			#print 'ret False'
 			return False
-		#print 'Getting login item'
 		if self.login_stack.get_current_login_item():
 			if self.login_stack.get_current_login_item().find_sendspec(sendspec):
-				#print 'ret True'
 				return True
 			if self.login_stack.get_current_login_item().has_blocking_background_send():
-				#print 'appending send'
 				self.login_stack.get_current_login_item().append_background_send(sendspec)
-				#print 'appending send done'
 				return True
 		return False
 
@@ -2330,10 +2314,7 @@ class ShutItPexpectSession(object):
 		                             string in the list matched)
 		@rtype:                      string
 		"""
-		#print '==============================================='
-		#print 'SEND!' + sendspec.send
 		if self._check_blocked(sendspec):
-			#print 'SEND1!' + sendspec.send
 			self.shutit.log('In send, check_blocked called.',level=logging.INFO)
 			# _check_blocked will add to the list of background tasks and handle dupes, so leave there.
 			return -1
@@ -2341,7 +2322,6 @@ class ShutItPexpectSession(object):
 		cfg = shutit.cfg
 		# Set up what we expect.
 		sendspec.expect = sendspec.expect or self.default_expect
-		#print 'SEND2' + sendspec.send
 		if sendspec.send.strip() == '':
 			sendspec.fail_on_empty_before=False
 			sendspec.check_exit=False
@@ -2362,7 +2342,6 @@ class ShutItPexpectSession(object):
 			                                     loglevel=sendspec.loglevel,
 			                                     run_in_background=sendspec.run_in_background,
 			                                     ignore_background=sendspec.ignore_background))
-		#print 'SEND3' + sendspec.send
 		# Before gathering expect, detect whether this is a sudo command and act accordingly.
 		command_list = sendspec.send.strip().split()
 		# If there is a first command, there is a sudo in there (we ignore
@@ -2399,7 +2378,6 @@ class ShutItPexpectSession(object):
 		if sendspec.assume_gnu:
 			sendspec.send = shutit_util.get_send_command(shutit, sendspec.send)
 
-		#print 'SEND4' + sendspec.send
 		# If check_exit is not passed in
 		# - if the expect matches the default, use the default check exit
 		# - otherwise, default to doing the check
@@ -2698,7 +2676,6 @@ $'"""
 		                                   fail_on_empty_before=False,
 		                                   record_command=False), force=True)
 		if not res:
-			#print 'expecting: ' + str(self.default_expect)
 			self.expect(self.default_expect)
 
 

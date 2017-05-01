@@ -404,6 +404,7 @@ class ShutIt(object):
 	         secret=False,
 	         nonewline=False,
 	         background=False,
+	         wait=True,
 	         loglevel=logging.INFO):
 		"""Send string as a shell command, and wait until the expected output
 		is seen (either a string or any from a list of strings) before
@@ -426,14 +427,13 @@ class ShutIt(object):
 		@param retry: See shutit.ShutItSendSpec
 		@param note: See shutit.ShutItSendSpec
 		@param assume_gnu: See shutit.ShutItSendSpec
+		@param wait: See shutit.ShutItSendSpec
 		@return: The pexpect return value (ie which expected string in the list matched)
 		@rtype: string
 		"""
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
 		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
-		# TODO
-		#if len(self.shutit_background_objects) > 0:
-		#	# get the last object, and block until that one completes its task.
+		ignore_background = not wait
 		return shutit_pexpect_session.send(ShutItSendSpec(shutit_pexpect_session,send,
 		                                                  expect=expect,
 		                                                  timeout=timeout,
@@ -453,7 +453,8 @@ class ShutIt(object):
 		                                                  delaybeforesend=delaybeforesend,
 		                                                  secret=secret,
 		                                                  nonewline=nonewline,
-		                                                  run_in_background=background))
+		                                                  run_in_background=background,
+		                                                  ignore_background=ignore_background))
 	# alias send to send_and_expect
 	send_and_expect = send
 
