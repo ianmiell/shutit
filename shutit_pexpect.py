@@ -42,6 +42,7 @@ import package_map
 from shutit_login_stack import ShutItLoginStack
 from shutit_sendspec import ShutItSendSpec
 from shutit_module import ShutItFailException
+from shutit_pexpect_session_environment import ShutItPexpectSessionEnvironment
 
 
 PY3 = (sys.version_info[0] >= 3)
@@ -3404,35 +3405,3 @@ $'"""
 				# Return the escape from pexpect char
 				return '\x1d'
 		return input_string
-
-
-
-
-
-
-class ShutItPexpectSessionEnvironment(object):
-
-	def __init__(self,
-	             prefix):
-		"""Represents a new 'environment' in ShutIt, which corresponds to a host or any
-		machine-like location (eg docker container, ssh'd to host, or even a chroot jail
-		with a /tmp folder that has not been touched by shutit.
-		"""
-		if prefix == 'ORIGIN_ENV':
-			self.environment_id = prefix
-		else:
-			self.environment_id = shutit_util.random_id()
-		self.module_root_dir              = '/'
-		self.modules_installed            = [] # has been installed in this build
-		self.modules_not_installed        = [] # modules _known_ not to be installed
-		self.modules_ready                = [] # has been checked for readiness and is ready (in this build)
-		self.modules_recorded             = []
-		self.modules_recorded_cache_valid = False
-		self.install_type                 = ''
-		self.distro                       = ''
-		self.distro_version               = ''
-		self.users                        = dict()
-		self.build                        = {}
-		self.build['apt_update_done']     = False
-		self.build['emerge_update_done']  = False
-		self.build['apk_update_done']     = False
