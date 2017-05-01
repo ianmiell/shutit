@@ -143,6 +143,7 @@ class ShutItPexpectSession(object):
 		"""
 		assert not sendspec.started
 		if force:
+			self.shutit.log('_sendline: forced through, ignoring background and/or run_in_background',level=logging.INFO)
 			if sendspec.nonewline != True:
 				sendspec.send += '\n'
 				# sendspec has newline added now, so no need to keep marker
@@ -153,13 +154,15 @@ class ShutItPexpectSession(object):
 			# Check there are no background commands running that have block_other_commands set iff
 			# this sendspec says
 			if self._check_blocked(sendspec):
+				self.shutit.log('_sendline: blocked',level=logging.INFO)
 				return False
 			# If this is marked as in the background, create a background object and run in the background.
 			if sendspec.run_in_background:
+				self.shutit.log('_sendline: run_in_background',level=logging.INFO)
 				# Makes no sense to check exit for a background command.
 				sendspec.check_exit = False
 				sendspec.send += ' &'
-				# If this is marked as in the background, create a background object and run in the background.
+				# If this is marked as in the background, create a background object and run in the background after newlines sorted.
 				shutit_background_command_object = self.login_stack.get_current_login_item().append_background_send(sendspec)
 			if sendspec.nonewline != True:
 				sendspec.send += '\n'
@@ -177,11 +180,14 @@ class ShutItPexpectSession(object):
 	# TODO: Think about logout - must block until backgro
 	def _check_blocked(self, sendspec):
 		if sendspec.ignore_background:
+			self.shutit.log('_check_blocked: background is ignored',level=logging.INFO)
 			return False
 		if self.login_stack.get_current_login_item():
 			if self.login_stack.get_current_login_item().find_sendspec(sendspec):
+				self.shutit.log('_check_blocked: sendspec object already in there, so GTFO.',level=logging.INFO)
 				return True
 			if self.login_stack.get_current_login_item().has_blocking_background_send():
+				self.shutit.log('_check_blocked: a blocking background send is running, so queue this up.',level=logging.INFO)
 				self.login_stack.get_current_login_item().append_background_send(sendspec)
 				return True
 		return False
@@ -2315,7 +2321,7 @@ class ShutItPexpectSession(object):
 		@rtype:                      string
 		"""
 		if self._check_blocked(sendspec):
-			self.shutit.log('In send, check_blocked called.',level=logging.INFO)
+			self.shutit.log('In send, check_blocked called and returned True.',level=logging.INFO)
 			# _check_blocked will add to the list of background tasks and handle dupes, so leave there.
 			return -1
 		shutit = self.shutit

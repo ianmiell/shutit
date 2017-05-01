@@ -35,6 +35,7 @@ ps -o stat= | sed 's/^\(.\)\(.*\)/\1/'
 """
 
 import time
+import logging
 
 
 class ShutItBackgroundCommand(object):
@@ -67,6 +68,7 @@ class ShutItBackgroundCommand(object):
 
 
 	def run_background_command(self):
+		self.sendspec.send.log('run_background_command: ',level=logging.DEBUG)
 		shutit_pexpect_child = self.sendspec.shutit_pexpect_child
 		# Go to cwd
 		shutit_pexpect_child.quick_send(' command cd ' + self.cwd)
