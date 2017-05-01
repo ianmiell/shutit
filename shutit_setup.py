@@ -89,7 +89,7 @@ class ConnDocker(ShutItConnModule):
 		and performing any repository work required.
 		"""
 		# Finish with the target
-		shutit.get_shutit_pexpect_session_from_id('target_child').sendline('exit')
+		shutit.get_shutit_pexpect_session_from_id('target_child').sendline(ShutItSendSpec(shutit.get_shutit_pexpect_session_from_id('target_child'),'exit'))
 		host_child = shutit.get_shutit_pexpect_session_from_id('host_child').pexpect_child
 		shutit.set_default_shutit_pexpect_session(host_child)
 		shutit.set_default_shutit_pexpect_session_expect(shutit.expect_prompts['ORIGIN_ENV'])
