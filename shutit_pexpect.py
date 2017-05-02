@@ -182,19 +182,21 @@ class ShutItPexpectSession(object):
 		if sendspec.ignore_background:
 			self.shutit.log('_check_blocked: background is ignored',level=logging.DEBUG)
 			return False
-		if self.login_stack.get_current_login_item():
+		elif self.login_stack.get_current_login_item():
 			if self.login_stack.get_current_login_item().find_sendspec(sendspec):
 				self.shutit.log('_check_blocked: sendspec object already in there, so GTFO.',level=logging.INFO)
 				return True
 			if self.login_stack.get_current_login_item().has_blocking_background_send():
-				if not sendspec.ignore_background and sendspec.run_in_background:
+				if sendspec.run_in_background:
 					# If we honour background tasks, and we are running in background, queue it up.
 					self.shutit.log('_check_blocked: a blocking background send is running, so queue this up.',level=logging.INFO)
 					self.login_stack.get_current_login_item().append_background_send(sendspec)
-				elif not sendspec.ignore_background and not sendspec.run_in_background:
+				elif not sendspec.run_in_background:
 					# If we honour background tasts and we are running in foreground, wait.
 					self.wait(sendspec=sendspec)
 				else:
+					# Should be logically impossible.
+					assert False
 					self.shutit.log('Not yet handled?',level=logging.INFO)
 					self.shutit.log(str(sendspec),level=logging.INFO)
 				return True
@@ -274,6 +276,8 @@ class ShutItPexpectSession(object):
 		# r'[^t] login:' - be sure not to match 'last login:'
 		#if send == 'bash':
 		echo = shutit.get_echo_override(echo)
+		shutit.log('Logging in with command: ' + send + ' as user: ' + user,level=logging.INFO)
+		shutit.log('Login stack before login: ' + str(self.login_stack),level=logging.DEBUG)
 		self.multisend(ShutItSendSpec(self,send=send,
 		                              send_dict={'ontinue connecting':'yes', 'assword':password, r'[^t] login:':password, user+'@':password},
 		                              expect=general_expect,
@@ -285,6 +289,7 @@ class ShutItPexpectSession(object):
 		                              remove_on_match=True,
 		                              nonewline=sendspec.nonewline,
 		                              loglevel=loglevel))
+		shutit.log('Login stack after login: ' + str(self.login_stack),level=logging.DEBUG)
 		# Check exit 'by hand' here to not effect/assume setup prompt.
 		if not self.get_exit_value(shutit):
 			if fail_on_fail: # pragma: no cover
