@@ -180,7 +180,7 @@ class ShutItPexpectSession(object):
 	# TODO: Think about logout - must block until backgro
 	def _check_blocked(self, sendspec):
 		if sendspec.ignore_background:
-			self.shutit.log('_check_blocked: background is ignored',level=logging.INFO)
+			self.shutit.log('_check_blocked: background is ignored',level=logging.DEBUG)
 			return False
 		if self.login_stack.get_current_login_item():
 			if self.login_stack.get_current_login_item().find_sendspec(sendspec):

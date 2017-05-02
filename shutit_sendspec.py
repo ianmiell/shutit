@@ -65,16 +65,24 @@ class ShutItSendSpec(object):
 			                             terminal or not.  We don't record the command if this is set to
 			                             False unless record_command is explicitly passed in as True.
 			@param escape:               Whether to escape the characters in a bash-friendly way, eg $'\\Uxxxxxx'
+			@param check_sudo:           TODO
 			@param retry:                Number of times to retry the command if the first attempt
 			                             doesn't work. Useful if going to the network
 			@param note:                 If a note is passed in, and we are in walkthrough mode,
 			                             pause with the note printed
 			@param assume_gnu:           Assume the gnu version of commands, which are not in
+			@param follow_on_commands:   TODO
+			@param searchwindowsize:     TODO
+			@param maxread:              TODO
+			@param delaybeforesend:      TODO
 			@param secret:               Whether what is being sent is a secret
 			@param nonewline:            Whether to omit the newline from the send
 			@param user:                 If logging in, user to use. Default is 'root'.
-			@param user:                 If logging in, password to use. Default is 'root'.
+			@param password:             If logging in, password to use. Default is 'root'.
+			@param is_ssh:               TODO
 			@param go_home:              On logging in, whether to go to the home dir. Default is True.
+			@param prompt_prefix:        TODO
+			@param remove_on_match:      TODO
 			@param ignore_background:    Whether to block if there are background tasks
 			                             running in this session that are block, or ignore ALL
 			                             background tasks and run anyway. Default is False.
@@ -84,17 +92,8 @@ class ShutItSendSpec(object):
 			                             Default is True.
 			@param wait_cadence:         If blocked and waiting on a background tasks, wait this
 			                             number of seconds before re-checking. Default is 2.
+			@param loglevel:             TODO
 
-			TODO: document
-	             check_sudo=True,
-	             follow_on_commands=None,
-	             searchwindowsize=None,
-	             maxread=None,
-	             delaybeforesend=None,
-	             is_ssh=None,
-	             prompt_prefix=None,
-	             remove_on_match=None,
-	             loglevel=logging.INFO):
 		"""
 		self.send                    = send
 		self.send_dict               = send_dict

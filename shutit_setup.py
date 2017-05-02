@@ -122,7 +122,7 @@ class ConnBash(ShutItConnModule):
 	def build(self, shutit, loglevel=logging.DEBUG):
 		"""Sets up the machine ready for building.
 		"""
-		shutit_pexpect_session = shutit_pexpect.ShutItPexpectSession(shutit, 'target_child','/bin/bash')
+		shutit_pexpect_session = ShutItPexpectSession(shutit, 'target_child','/bin/bash')
 		target_child = shutit_pexpect_session.pexpect_child
 		shutit_pexpect_session.expect(shutit.expect_prompts['base_prompt'].strip(), timeout=10)
 		self.setup_host_child(shutit)
@@ -189,7 +189,7 @@ class ConnSSH(ShutItConnModule):
 		ssh_command = ['ssh'] + opts + [host_arg, cmd_arg]
 		shutit.build['ssh_command'] = ' '.join(ssh_command)
 		shutit.log('Startup command is: ' + shutit.build['ssh_command'],level=logging.INFO)
-		shutit_pexpect_session = shutit_pexpect.ShutItPexpectSession(shutit, 'target_child', ssh_command[0], ssh_command[1:])
+		shutit_pexpect_session = ShutItPexpectSession(shutit, 'target_child', ssh_command[0], ssh_command[1:])
 		target_child = shutit_pexpect_session.pexpect_child
 		expect = ['assword', shutit.expect_prompts['base_prompt'].strip()]
 		res = shutit.child_expect(target_child,expect, timeout=10)
@@ -338,7 +338,7 @@ def conn_docker_start_container(shutit, shutit_session_name, loglevel=logging.DE
 	# docker run happens here
 	shutit.log('Startup command is: ' + shutit.build['docker_command'],level=logging.INFO)
 	shutit.log('Downloading image, please be patient',level=logging.INFO)
-	shutit_pexpect_session = shutit_pexpect.ShutItPexpectSession(shutit, shutit_session_name, docker_command[0], docker_command[1:])
+	shutit_pexpect_session = ShutItPexpectSession(shutit, shutit_session_name, docker_command[0], docker_command[1:])
 	target_child = shutit_pexpect_session.pexpect_child
 	expect = ['assword', shutit.expect_prompts['base_prompt'].strip(), 'Waiting', 'ulling', 'endpoint', 'Download','o such file']
 	res = shutit_pexpect_session.expect(expect, timeout=9999)
@@ -391,7 +391,7 @@ def conn_docker_destroy_container(shutit, host_shutit_session_name, container_sh
 def setup_host_child_environment(shutit):
 	# Now let's have a host_child
 	shutit.log('Spawning host child',level=logging.DEBUG)
-	shutit_pexpect_session = shutit_pexpect.ShutItPexpectSession(shutit, 'host_child', '/bin/bash')
+	shutit_pexpect_session = ShutItPexpectSession(shutit, 'host_child', '/bin/bash')
 	# Set up prompts and let the user do things before the build
 	shutit.set_default_shutit_pexpect_session(shutit_pexpect_session)
 	shutit.set_default_shutit_pexpect_session_expect(shutit.expect_prompts['base_prompt'])
