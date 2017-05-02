@@ -2743,11 +2743,12 @@ $'"""
 		"""Quick and dirty send. Intended for internal use.
 		"""
 		self.shutit.log('Quick send: ' + send, level=loglevel)
-		if not self.sendline(ShutItSendSpec(self,
+		res = self.sendline(ShutItSendSpec(self,
 		                                    send=send,
 		                                    check_exit=False,
 		                                    fail_on_empty_before=False,
 		                                    record_command=False), force=True)
+		if not res:
 			self.expect(self.default_expect)
 
 
