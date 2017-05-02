@@ -1885,6 +1885,7 @@ class ShutItPexpectSession(object):
 		check_sudo=sendspec.check_sudo
 		remove_on_match=sendspec.remove_on_match
 		loglevel=sendspec.loglevel
+		ignore_background=sendspec.ignore_background
 
 		expect = expect or self.default_expect
 		shutit = self.shutit
@@ -1906,22 +1907,23 @@ class ShutItPexpectSession(object):
 		while True:
 			# If it's the last n items in the list, it's the breakout one.
 			echo = shutit.get_echo_override(echo)
-			res = self.send(ShutItSendSpec(self,send=send_iteration,
-			                expect=expect_list,
-			                check_exit=check_exit,
-			                fail_on_empty_before=fail_on_empty_before,
-			                timeout=timeout,
-			                record_command=record_command,
-			                exit_values=exit_values,
-			                echo=echo,
-			                escape=escape,
-			                secret=secret,
-			                check_sudo=check_sudo,
-			                nonewline=sendspec.nonewline,
-							loglevel=loglevel))
+			res = self.send(ShutItSendSpec(self,
+			                               end=send_iteration,
+			                               expect=expect_list,
+			                               check_exit=check_exit,
+			                               fail_on_empty_before=fail_on_empty_before,
+			                               timeout=timeout,
+			                               record_command=record_command,
+			                               exit_values=exit_values,
+			                               echo=echo,
+			                               escape=escape,
+			                               secret=secret,
+			                               check_sudo=check_sudo,
+			                               nonewline=sendspec.nonewline,
+			                               ignore_background=signore_background,
+			                               loglevel=loglevel))
 			if res == -1:
-				# Blocked? TODO
-				pass
+				return -1
 			if res >= len(expect_list) - n_breakout_items:
 				break
 			else:
