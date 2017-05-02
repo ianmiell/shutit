@@ -2503,7 +2503,8 @@ $'"""
 					if escaped_str != None:
 						if len(escaped_str) + 25 > shutit.build['stty_cols']:
 							fname = self._create_command_file(sendspec.expect,escaped_str)
-							res = self.send(ShutItSendSpec(self,send=' command source ' + fname,
+							return self.send(ShutItSendSpec(self,
+							                               send=' command source ' + fname,
 							                               expect=sendspec.expect,
 							                               timeout=sendspec.timeout,
 							                               check_exit=sendspec.check_exit,
@@ -2519,12 +2520,6 @@ $'"""
 			                                               nonewline=sendspec.nonewline,
 			                                               run_in_background=sendspec.run_in_background,
 			                                               ignore_background=sendspec.ignore_background))
-							if res == -1:
-								# Blocked? TODO
-								pass
-							if not self.sendline(ShutItSendSpec(self,send=' rm -f ' + fname,nonewline=sendspec.nonewline,ignore_background=sendspec.ignore_background)):
-								self.expect(sendspec.expect, searchwindowsize=sendspec.searchwindowsize, maxread=sendspec.maxread)
-							return res
 						else:
 							if not self.sendline(ShutItSendSpec(self,send=escaped_str,nonewline=sendspec.nonewline,ignore_background=sendspec.ignore_background,run_in_background=sendspec.run_in_background)):
 								expect_res = shutit.expect_allow_interrupt(self.shutit, self.pexpect_child, sendspec.expect, sendspec.timeout)
@@ -2536,7 +2531,7 @@ $'"""
 					if sendspec.send != None:
 						if len(sendspec.send) + 25 > shutit.build['stty_cols']:
 							fname = self._create_command_file(sendspec.expect,sendspec.send)
-							res = self.send(ShutItSendSpec(self,send=' command source ' + fname,
+							return self.send(ShutItSendSpec(self,send=' command source ' + fname,
 							                               expect=sendspec.expect,
 							                               timeout=sendspec.timeout,
 							                               check_exit=sendspec.check_exit,
@@ -2552,12 +2547,6 @@ $'"""
 			                                               nonewline=sendspec.nonewline,
 			                                               run_in_background=sendspec.run_in_background,
 			                                               ignore_background=sendspec.ignore_background))
-							if res == -1:
-								# Blocked? TODO
-								pass
-							if not self.sendline(ShutItSendSpec(self,send=' rm -f ' + fname,nonewline=sendspec.nonewline,ignore_background=sendspec.ignore_background)):
-								self.expect(sendspec.expect, searchwindowsize=sendspec.searchwindowsize, maxread=sendspec.maxread)
-							return res
 						else:
 							if not self.sendline(ShutItSendSpec(self,send=sendspec.send,nonewline=sendspec.nonewline,ignore_background=sendspec.ignore_background,run_in_background=sendspec.run_in_background)):
 								expect_res = shutit.expect_allow_interrupt(self.shutit, self.pexpect_child, sendspec.expect, sendspec.timeout)
@@ -2571,7 +2560,7 @@ $'"""
 					if escaped_str != None:
 						if len(escaped_str) + 25 > shutit.build['stty_cols']:
 							fname = self._create_command_file(sendspec.expect,escaped_str)
-							res = self.send(ShutItSendSpec(self,send=' command source ' + fname,
+							return self.send(ShutItSendSpec(self,send=' command source ' + fname,
 							                               expect=sendspec.expect,
 							                               timeout=sendspec.timeout,
 							                               check_exit=sendspec.check_exit,
@@ -2587,12 +2576,6 @@ $'"""
 			                                               nonewline=sendspec.nonewline,
 			                                               run_in_background=sendspec.run_in_background,
 							                               ignore_background=True))
-							if res == -1:
-								# Blocked? TODO
-								pass
-							if not self.sendline(ShutItSendSpec(self,send=' rm -f ' + fname,nonewline=sendspec.nonewline,ignore_background=True)):
-								self.expect(sendspec.expect, searchwindowsize=sendspec.searchwindowsize, maxread=sendspec.maxread)
-							return res
 						else:
 							if not self.sendline(ShutItSendSpec(self,send=escaped_str,nonewline=sendspec.nonewline,ignore_background=True,run_in_background=sendspec.run_in_background)):
 								expect_res = shutit.expect_allow_interrupt(self.shutit, self.pexpect_child, sendspec.expect, sendspec.timeout)
@@ -2604,7 +2587,7 @@ $'"""
 					if sendspec.send != None:
 						if len(sendspec.send) + 25 > shutit.build['stty_cols']:
 							fname = self._create_command_file(sendspec.expect,sendspec.send)
-							res = self.send(ShutItSendSpec(self,send=' command source ' + fname,
+							return self.send(ShutItSendSpec(self,send=' command source ' + fname,
 							                               expect=sendspec.expect,
 							                               timeout=sendspec.timeout,
 							                               check_exit=sendspec.check_exit,
@@ -2620,14 +2603,6 @@ $'"""
 			                                               nonewline=sendspec.nonewline,
 			                                               run_in_background=sendspec.run_in_background,
 							                               ignore_background=True))
-							if res == -1:
-								# Blocked? TODO
-								pass
-							if not self.sendline(ShutItSendSpec(self,send=' rm -f ' + fname,nonewline=sendspec.nonewline,ignore_background=True)):
-								self.expect(sendspec.expect,
-								            searchwindowsize=sendspec.searchwindowsize,
-								            maxread=sendspec.maxread)
-							return res
 						else:
 							if sendspec.echo:
 								shutit.divert_output(sys.stdout)
@@ -3330,7 +3305,8 @@ $'"""
 		while len(working_str) > 0:
 			curr_str = working_str[:size]
 			working_str = working_str[size:]
-			self.sendline(ShutItSendSpec(self,send=' ' + shutit_util.get_command(shutit, 'head') + ''' -c -1 >> ''' + fname + """ << 'END_""" + random_id + """'\n""" + curr_str + """\nEND_""" + random_id,ignore_background=True))
+			# Force-create the command file, which self-destructs on run!
+			self.sendline(ShutItSendSpec(self,send=' ' + shutit_util.get_command(shutit, 'head') + ''' -c -1 >> ''' + fname + """ << 'END_""" + random_id + """'\n""" + curr_str + """\nrm -f """ + fname + """\nEND_""" + random_id,force=True)
 			self.expect(expect)
 		self.sendline(ShutItSendSpec(self,send=' chmod +x ' + fname,ignore_background=True))
 		self.expect(expect)
