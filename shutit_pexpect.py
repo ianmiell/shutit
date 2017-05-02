@@ -1921,7 +1921,7 @@ class ShutItPexpectSession(object):
 			                nonewline=sendspec.nonewline,
 							loglevel=loglevel))
 			if res == -1:
-				Blocked? TODO
+				# Blocked? TODO
 				pass
 			if res >= len(expect_list) - n_breakout_items:
 				break
