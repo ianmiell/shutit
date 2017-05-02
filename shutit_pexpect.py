@@ -560,7 +560,7 @@ class ShutItPexpectSession(object):
 			exit_values = [str(exit_values)]
 		# Don't use send here (will mess up last_output)!
 		# Space before "echo" here is sic - we don't need this to show up in bash history
-		self.sendline(ShutItSendSpec(self,send=' echo EXIT_CODE:$?',ignore_background=True))
+		assert not self.sendline(ShutItSendSpec(self,send=' echo EXIT_CODE:$?'),force=True)
 		shutit.log('Expecting: ' + str(expect),level=logging.DEBUG)
 		self.expect(expect,timeout=60)
 		res = shutit_util.match_string(shutit, str(self.pexpect_child.before), '^EXIT_CODE:([0-9][0-9]?[0-9]?)$')
@@ -658,13 +658,13 @@ class ShutItPexpectSession(object):
 								                         echo=False,
 								                         loglevel=logging.DEBUG,
 								                         ignore_background=True))
-								self.sendline(ShutItSendSpec(self,send=' ' + fixterm_filename,ignore_background=True))
+								assert not self.sendline(ShutItSendSpec(self,send=' ' + fixterm_filename),force=True)
 							# do not re-run if the output of stty matches the current one
 							# This causes problems in video mode (?), so commenting out.
 							#elif self.send_and_get_output(' diff <(stty) ' + fixterm_filename_stty) != '':
-							#	self.sendline(ShutItSendSpec(self,send=' ' + fixterm_filename,ignore_background=True))
+							#	assert not self.sendline(ShutItSendSpec(self,send=' ' + fixterm_filename),force=True)
 							else:
-								self.sendline(ShutItSendSpec(self,send='',ignore_background=True))
+								assert not self.sendline(ShutItSendSpec(self,send=''),force=True)
 				except Exception:
 					pass
 			if default_msg is None:
@@ -1349,7 +1349,7 @@ class ShutItPexpectSession(object):
 		shutit = self.shutit
 		shutit.log('Resetting terminal begin.',level=logging.DEBUG)
 		exp_string = 'SHUTIT_TERMINAL_RESET'
-		self.sendline(ShutItSendSpec(self,send=' echo ' + exp_string,ignore_background=True))
+		assert not self.sendline(ShutItSendSpec(self,send=' echo ' + exp_string),force=True)
 		self.expect(exp_string)
 		expect = expect or self.default_expect
 		self.expect(expect)
@@ -3275,7 +3275,7 @@ $'"""
 	# TODO: reproduce in shutit_global
 	def get_exit_value(self, shutit):
 		# The quotes in the middle of the string are there to prevent the output matching the command.
-		self.sendline(ShutItSendSpec(self,send=''' if [ $? = 0 ]; then echo 'SHUTIT''_RESULT:0'; else echo 'SHUTIT''_RESULT:1'; fi''',ignore_background=True))
+		assert not self.sendline(ShutItSendSpec(self,send=''' if [ $? = 0 ]; then echo 'SHUTIT''_RESULT:0'; else echo 'SHUTIT''_RESULT:1'; fi'''),force=True)
 		shutit.log('Checking exit value.',level=logging.DEBUG)
 		success_check = self.expect(['SHUTIT_RESULT:0','SHUTIT_RESULT:1'])
 		if success_check == 0:
@@ -3316,15 +3316,15 @@ $'"""
 		fname = shutit.build['shutit_state_dir_base'] + '/tmp_' + random_id
 		working_str = send
 		# truncate -s must be used as --size is not supported everywhere (eg busybox)
-		self.sendline(ShutItSendSpec(self,send=' truncate -s 0 '+ fname,ignore_background=True))
+		assert not self.sendline(ShutItSendSpec(self,send=' truncate -s 0 '+ fname),force=True)
 		self.pexpect_child.expect(expect)
 		size = shutit.build['stty_cols'] - 25
 		while len(working_str) > 0:
 			curr_str = working_str[:size]
 			working_str = working_str[size:]
-			self.sendline(ShutItSendSpec(self,send=' ' + shutit_util.get_command(shutit, 'head') + ''' -c -1 >> ''' + fname + """ << 'END_""" + random_id + """'\n""" + curr_str + """\nEND_""" + random_id,ignore_background=True))
+			assert not self.sendline(ShutItSendSpec(self,send=' ' + shutit_util.get_command(shutit, 'head') + ''' -c -1 >> ''' + fname + """ << 'END_""" + random_id + """'\n""" + curr_str + """\nEND_""" + random_id),force=True)
 			self.expect(expect)
-		self.sendline(ShutItSendSpec(self,send=' chmod +x ' + fname,ignore_background=True))
+		assert not self.sendline(ShutItSendSpec(self,send=' chmod +x ' + fname),force=True)
 		self.expect(expect)
 		return fname
 
