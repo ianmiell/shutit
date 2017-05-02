@@ -194,6 +194,9 @@ class ShutItPexpectSession(object):
 				elif not sendspec.ignore_background and not sendspec.run_in_background:
 					# If we honour background tasts and we are running in foreground, wait.
 					self.wait(sendspec=sendspec)
+				else:
+					self.shutit.log('Not yet handled?',level=logging.INFO)
+					self.shutit.log(str(sendspec),level=logging.INFO)
 				return True
 		return False
 
