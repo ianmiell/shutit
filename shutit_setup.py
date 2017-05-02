@@ -93,7 +93,7 @@ class ConnDocker(ShutItConnModule):
 		target_child_pexpect_session.sendline(ShutItSendSpec(target_child_pexpect_session,'exit'))
 		host_child_pexpect_session = shutit.get_shutit_pexpect_session_from_id('host_child')
 		host_child = host_child_pexpect_session.pexpect_child
-		shutit.set_default_shutit_pexpect_session(host_child)
+		shutit.set_default_shutit_pexpect_session(host_child_pexpect_session)
 		shutit.set_default_shutit_pexpect_session_expect(shutit.expect_prompts['ORIGIN_ENV'])
 		shutit.do_repository_work(shutit.repository['name'], docker_executable=shutit.host['docker_executable'], password=shutit.host['password'])
 		# Final exits
@@ -211,9 +211,10 @@ class ConnSSH(ShutItConnModule):
 		"""
 		# Finish with the target
 		shutit.get_shutit_pexpect_session_from_id('target_child').sendline(ShutItSendSpec(shutit.get_shutit_pexpect_session_from_id('target_child'),'exit'))
-		shutit.set_default_shutit_pexpect_session(shutit.get_shutit_pexpect_session_from_id('host_child'))
+		host_child_session = shutit.get_shutit_pexpect_session_from_id('host_child')
+		shutit.set_default_shutit_pexpect_session(host_child_session)
 		# Final exits
-		host_child = shutit.get_shutit_pexpect_session_from_id('host_child').pexpect_child
+		host_child = host_child_session.pexpect_child
 		host_child.sendline('exit') # Exit raw bash
 		return True
 
