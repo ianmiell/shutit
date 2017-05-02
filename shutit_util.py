@@ -258,6 +258,7 @@ def setup_logging(shutit):
 	if isinstance(shutit.build['loglevel'], int):
 		return
 	logformat='%(asctime)s %(levelname)s: %(message)s'
+	logging.addLevelName(5, 'FORENSIC')
 	if shutit.host['logfile'] == '':
 		if not os.access(shutit.build['shutit_state_dir_base'],os.F_OK):
 			os.mkdir(shutit.build['shutit_state_dir_base'])
@@ -276,6 +277,8 @@ def setup_logging(shutit):
 			logging.basicConfig(format=logformat,level=logging.CRITICAL)
 		elif shutit.build['loglevel'] == 'INFO':
 			logging.basicConfig(format=logformat,level=logging.INFO)
+		elif shutit.build['loglevel'] == 'FORENSIC':
+			logging.basicConfig(format=logformat,filename=shutit.host['logfile'],level=logging.FORENSIC)
 		else:
 			logging.basicConfig(format=logformat,level=logging.INFO)
 	else:
@@ -290,8 +293,11 @@ def setup_logging(shutit):
 			logging.basicConfig(format=logformat,filename=shutit.host['logfile'],level=logging.CRITICAL)
 		elif shutit.build['loglevel'] == 'INFO':
 			logging.basicConfig(format=logformat,filename=shutit.host['logfile'],level=logging.INFO)
+		elif shutit.build['loglevel'] == 'FORENSIC':
+			logging.basicConfig(format=logformat,filename=shutit.host['logfile'],level=logging.FORENSIC)
 		else:
 			logging.basicConfig(format=logformat,filename=shutit.host['logfile'],level=logging.INFO)
+
 	shutit.build['loglevel'] = logging.getLogger().getEffectiveLevel()
 
 
@@ -850,19 +856,18 @@ def load_configs(shutit):
 		configs.append(run_config_file)
 	# Image to use to start off. The script should be idempotent, so running it
 	# on an already built image should be ok, and is advised to reduce diff space required.
-	if shutit.action['list_configs'] or shutit.build['loglevel'] == logging.DEBUG:
+	if shutit.action['list_configs'] or shutit.build['loglevel'] <= logging.DEBUG:
 		msg = ''
 		for c in configs:
 			if isinstance(c, tuple):
 				c = c[0]
 			msg = msg + '    \n' + c
 			shutit.log('    ' + c,level=logging.DEBUG)
-		if shutit.action['list_configs'] or shutit.build['loglevel'] <= logging.DEBUG:
-			# TODO: what if this does not exist?
-			if shutit.build['log_config_path']:
-				f = open(shutit.build['log_config_path'] + '/config_file_order.txt','w')
-				f.write(msg)
-				f.close()
+		# TODO: what if this does not exist?
+		if shutit.build['log_config_path']:
+			f = open(shutit.build['log_config_path'] + '/config_file_order.txt','w')
+			f.write(msg)
+			f.close()
 
 	# Interpret any config overrides, write to a file and add them to the
 	# list of configs to be interpreted
