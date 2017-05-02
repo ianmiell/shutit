@@ -18,6 +18,7 @@ import shutit_setup
 import shutit_global
 from shutit_sendspec import ShutItSendSpec
 from shutit_module import ShutItFailException
+from shutit_pexpect import ShutItPexpectSession
 
 
 class ShutIt(object):
