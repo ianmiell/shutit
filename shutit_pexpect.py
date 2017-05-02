@@ -1873,6 +1873,11 @@ class ShutItPexpectSession(object):
 		@param remove_on_match       If the item matches, remove the send_dict from future expects (eg if it's a password). This makes
                                      the 'am I logged in yet?' checking more robust.
 		@param loglevel:             See send()
+
+		@return:                     The pexpect return value (ie which expected
+		                             string in the list matched).
+		                             If return is -1, the task was backgrounded. See also multisend.
+		@rtype:                      int
 		"""
 		send=sendspec.send
 		send_dict=sendspec.send_dict
@@ -2358,8 +2363,9 @@ class ShutItPexpectSession(object):
 		matched)
 
 		@return:                     The pexpect return value (ie which expected
-		                             string in the list matched)
-		@rtype:                      string
+		                             string in the list matched).
+		                             If return is -1, the task was backgrounded. See also multisend.
+		@rtype:                      int
 		"""
 		if self._check_blocked(sendspec):
 			self.shutit.log('In send, check_blocked called and returned True.',level=logging.INFO)
