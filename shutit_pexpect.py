@@ -2510,7 +2510,8 @@ $'"""
 					if escaped_str != None:
 						if len(escaped_str) + 25 > shutit.build['stty_cols']:
 							fname = self._create_command_file(sendspec.expect,escaped_str)
-							res = self.send(ShutItSendSpec(self,send=' command source ' + fname,
+							return self.send(ShutItSendSpec(self,
+							                               send=' command source ' + fname,
 							                               expect=sendspec.expect,
 							                               timeout=sendspec.timeout,
 							                               check_exit=sendspec.check_exit,
