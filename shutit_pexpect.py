@@ -289,7 +289,6 @@ class ShutItPexpectSession(object):
 		                                    echo=echo,
 		                                    remove_on_match=True,
 		                                    nonewline=sendspec.nonewline,
-		                                    wait=False,
 		                                    ignore_background=True,
 		                                    loglevel=loglevel))
 		if res == -1:
