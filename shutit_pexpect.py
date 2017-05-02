@@ -198,7 +198,7 @@ class ShutItPexpectSession(object):
 		return False
 
 
-	def wait(self, cadence=5, sendspec=None):
+	def wait(self, cadence=2, sendspec=None):
 		"""Does not return until all background commands are completed.
 		"""
 		self.shutit.log('In wait.',level=logging.DEBUG)
@@ -1937,7 +1937,7 @@ class ShutItPexpectSession(object):
 	               send,
 	               regexps,
 	               not_there=False,
-	               cadence=5,
+	               cadence=2,
 	               retries=100,
 	               echo=None,
 	               note=None,

@@ -1621,7 +1621,7 @@ class ShutIt(object):
 	exit_shell = logout
 
 
-	def wait(self, cadence=10):
+	def wait(self, cadence=2):
 		shutit_pexpect_session = self.get_current_shutit_pexpect_session()
 		return shutit_pexpect_session.wait(cadence=cadence)
 

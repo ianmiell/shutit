@@ -35,7 +35,7 @@ class ShutItSendSpec(object):
 	             ignore_background=False,
 	             run_in_background=False,
 	             block_other_commands=True,
-	             wait_cadence=5,
+	             wait_cadence=2,
 	             loglevel=logging.INFO):
 		"""Specification for arguments to send to shutit functions.
 
@@ -83,7 +83,7 @@ class ShutItSendSpec(object):
 			                             (unless ignore_background is set on those other commands).
 			                             Default is True.
 			@param wait_cadence:         If blocked and waiting on a background tasks, wait this
-			                             number of seconds before re-checking. Default is 5.
+			                             number of seconds before re-checking. Default is 2.
 
 			TODO: document
 	             check_sudo=True,
