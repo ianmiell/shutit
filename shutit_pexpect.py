@@ -278,17 +278,23 @@ class ShutItPexpectSession(object):
 		echo = shutit.get_echo_override(echo)
 		shutit.log('Logging in with command: ' + send + ' as user: ' + user,level=logging.INFO)
 		shutit.log('Login stack before login: ' + str(self.login_stack),level=logging.DEBUG)
-		self.multisend(ShutItSendSpec(self,send=send,
-		                              send_dict={'ontinue connecting':'yes', 'assword':password, r'[^t] login:':password, user+'@':password},
-		                              expect=general_expect,
-		                              check_exit=False,
-		                              timeout=timeout,
-		                              fail_on_empty_before=False,
-		                              escape=escape,
-		                              echo=echo,
-		                              remove_on_match=True,
-		                              nonewline=sendspec.nonewline,
-		                              loglevel=loglevel))
+		res = self.multisend(ShutItSendSpec(self,
+		                                    send=send,
+		                                    send_dict={'ontinue connecting':'yes', 'assword':password, r'[^t] login:':password, user+'@':password},
+		                                    expect=general_expect,
+		                                    check_exit=False,
+		                                    timeout=timeout,
+		                                    fail_on_empty_before=False,
+		                                    escape=escape,
+		                                    echo=echo,
+		                                    remove_on_match=True,
+		                                    nonewline=sendspec.nonewline,
+		                                    wait=False,
+		                                    ignore_background=True,
+		                                    loglevel=loglevel))
+		if res == -1:
+			# Should not get here as login should not be blocked.
+			assert False
 		shutit.log('Login stack after login: ' + str(self.login_stack),level=logging.DEBUG)
 		# Check exit 'by hand' here to not effect/assume setup prompt.
 		if not self.get_exit_value(shutit):
@@ -1301,6 +1307,9 @@ class ShutItPexpectSession(object):
 					                                    echo=False,
 					                                    secret=True,
 					                                    ignore_background=True))
+					if res == -1:
+						# Blocked? TODO
+						pass
 					shutit.log('Result of install attempt was: ' + str(res),level=logging.DEBUG)
 				else:
 					res = self.send(ShutItSendSpec(self,send='%s %s %s' % (cmd, opts, package),
@@ -1309,6 +1318,9 @@ class ShutItPexpectSession(object):
 					                               check_exit=False,
 					                               loglevel=loglevel,
 					                               ignore_background=True))
+					if res == -1:
+						# Blocked? TODO
+						pass
 					shutit.log('Result of install attempt was: ' + str(res),level=logging.DEBUG)
 				# Does not work!
 				if res == 1:
@@ -1433,13 +1445,16 @@ class ShutItPexpectSession(object):
 		pw = self.get_sudo_pass_if_needed(shutit, ignore_brew=True)
 		if pw != '':
 			cmd = 'sudo ' + cmd
-			self.multisend(ShutItSendSpec(self,send='%s %s %s' % (cmd, opts, package),
+			res = self.multisend(ShutItSendSpec(self,send='%s %s %s' % (cmd, opts, package),
 			                              send_dict={'assword:':pw},
 			                              timeout=timeout,
 			                              exit_values=['0','100'],
 			                              echo=False,
 			                              secret=True,
 			                              ignore_background=True))
+			if res == -1:
+				# Blocked? TODO
+				pass
 		else:
 			self.send(ShutItSendSpec(self,send='%s %s %s' % (cmd, opts, package),
 			          timeout=timeout,
@@ -1905,6 +1920,9 @@ class ShutItPexpectSession(object):
 			                check_sudo=check_sudo,
 			                nonewline=sendspec.nonewline,
 							loglevel=loglevel))
+			if res == -1:
+				Blocked? TODO
+				pass
 			if res >= len(expect_list) - n_breakout_items:
 				break
 			else:
@@ -2494,6 +2512,9 @@ $'"""
 			                                               nonewline=sendspec.nonewline,
 			                                               run_in_background=sendspec.run_in_background,
 			                                               ignore_background=sendspec.ignore_background))
+							if res == -1:
+								# Blocked? TODO
+								pass
 							if not self.sendline(ShutItSendSpec(self,send=' rm -f ' + fname,nonewline=sendspec.nonewline,ignore_background=sendspec.ignore_background)):
 								self.expect(sendspec.expect, searchwindowsize=sendspec.searchwindowsize, maxread=sendspec.maxread)
 							return res
@@ -2524,6 +2545,9 @@ $'"""
 			                                               nonewline=sendspec.nonewline,
 			                                               run_in_background=sendspec.run_in_background,
 			                                               ignore_background=sendspec.ignore_background))
+							if res == -1:
+								# Blocked? TODO
+								pass
 							if not self.sendline(ShutItSendSpec(self,send=' rm -f ' + fname,nonewline=sendspec.nonewline,ignore_background=sendspec.ignore_background)):
 								self.expect(sendspec.expect, searchwindowsize=sendspec.searchwindowsize, maxread=sendspec.maxread)
 							return res
@@ -2556,6 +2580,9 @@ $'"""
 			                                               nonewline=sendspec.nonewline,
 			                                               run_in_background=sendspec.run_in_background,
 							                               ignore_background=True))
+							if res == -1:
+								# Blocked? TODO
+								pass
 							if not self.sendline(ShutItSendSpec(self,send=' rm -f ' + fname,nonewline=sendspec.nonewline,ignore_background=True)):
 								self.expect(sendspec.expect, searchwindowsize=sendspec.searchwindowsize, maxread=sendspec.maxread)
 							return res
@@ -2586,6 +2613,9 @@ $'"""
 			                                               nonewline=sendspec.nonewline,
 			                                               run_in_background=sendspec.run_in_background,
 							                               ignore_background=True))
+							if res == -1:
+								# Blocked? TODO
+								pass
 							if not self.sendline(ShutItSendSpec(self,send=' rm -f ' + fname,nonewline=sendspec.nonewline,ignore_background=True)):
 								self.expect(sendspec.expect,
 								            searchwindowsize=sendspec.searchwindowsize,
