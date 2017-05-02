@@ -1921,8 +1921,9 @@ class ShutItPexpectSession(object):
 			                nonewline=sendspec.nonewline,
 							loglevel=loglevel))
 			if res == -1:
-				Blocked? TODO
-				pass
+				# Will be run in the background later.
+				shutit.log('Multisend will be run in the background: "' + str(send_iteration),level=logging.INFO)
+				return -1
 			if res >= len(expect_list) - n_breakout_items:
 				break
 			else:
