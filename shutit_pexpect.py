@@ -3305,7 +3305,7 @@ $'"""
 			curr_str = working_str[:size]
 			working_str = working_str[size:]
 			# Force-create the command file, which self-destructs on run!
-			assert not self.sendline(ShutItSendSpec(self,send=' ' + shutit_util.get_command(shutit, 'head') + ''' -c -1 >> ''' + fname + """ << 'END_""" + random_id + """'\n""" + curr_str + """\nrm -f """ + fname + """\nEND_""" + random_id),force=True)
+			assert not self.sendline(ShutItSendSpec(self,send=' ' + shutit_util.get_command(shutit, 'head') + ''' -c -1 >> ''' + fname + """ << 'END_""" + random_id + """'\n""" + curr_str + """\nsleep 999 && rm -f """ + fname + """ > /dev/null 2>&1 &\nEND_""" + random_id),force=True)
 			self.expect(expect)
 		assert not self.sendline(ShutItSendSpec(self,send=' chmod +x ' + fname),force=True)
 		self.expect(expect)
