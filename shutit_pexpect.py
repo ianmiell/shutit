@@ -2646,7 +2646,7 @@ $'"""
 						else:
 							if sendspec.echo:
 								shutit.divert_output(sys.stdout)
-							if not self.sendline(ShutItSendSpec(self,send=sendspec.send,nonewline=sendspec.nonewline,ignore_background=True,run_in_background=sendspec.run_in_background)):
+							if not self.sendline(ShutItSendSpec(self,send=sendspec.send,nonewline=sendspec.nonewline,ignore_background=sendspec.ignore_background,run_in_background=sendspec.run_in_background)):
 								expect_res = shutit.expect_allow_interrupt(self.shutit, self.pexpect_child, sendspec.expect, sendspec.timeout)
 							else:
 								expect_res = -1
@@ -2743,12 +2743,11 @@ $'"""
 		"""Quick and dirty send. Intended for internal use.
 		"""
 		self.shutit.log('Quick send: ' + send, level=loglevel)
-		res = self.sendline(ShutItSendSpec(self,
-		                                   send=send,
-		                                   check_exit=False,
-		                                   fail_on_empty_before=False,
-		                                   record_command=False), force=True)
-		if not res:
+		if not self.sendline(ShutItSendSpec(self,
+		                                    send=send,
+		                                    check_exit=False,
+		                                    fail_on_empty_before=False,
+		                                    record_command=False), force=True)
 			self.expect(self.default_expect)
 
 

@@ -211,7 +211,8 @@ class ConnSSH(ShutItConnModule):
 		and performing any repository work required.
 		"""
 		# Finish with the target
-		shutit.get_shutit_pexpect_session_from_id('target_child').sendline(ShutItSendSpec(shutit.get_shutit_pexpect_session_from_id('target_child'),'exit'))
+		target_child_pexpect_session = shutit.get_shutit_pexpect_session_from_id('target_child')
+		assert not target_child_pexpect_session.sendline(ShutItSendSpec(target_child_pexpect_session,'exit'),force=True)
 		host_child_session = shutit.get_shutit_pexpect_session_from_id('host_child')
 		shutit.set_default_shutit_pexpect_session(host_child_session)
 		# Final exits
