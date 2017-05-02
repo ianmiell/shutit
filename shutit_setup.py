@@ -37,9 +37,9 @@ import re
 import time
 import logging
 import pexpect
-import shutit_pexpect
 from shutit_module import ShutItModule
 from shutit_sendspec import ShutItSendSpec
+from shutit_pexpect import ShutItPexpectSession
 
 
 class ShutItConnModule(ShutItModule):
