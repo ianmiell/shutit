@@ -2703,11 +2703,12 @@ $'"""
 		"""Quick and dirty send. Intended for internal use.
 		"""
 		self.shutit.log('Quick send: ' + send, level=loglevel)
-		if not self.sendline(ShutItSendSpec(self,
+		res = self.sendline(ShutItSendSpec(self,
 		                                    send=send,
 		                                    check_exit=False,
 		                                    fail_on_empty_before=False,
 		                                    record_command=False), force=True)
+		if not res:
 			self.expect(self.default_expect)
 
 
@@ -3305,7 +3306,7 @@ $'"""
 			curr_str = working_str[:size]
 			working_str = working_str[size:]
 			# Force-create the command file, which self-destructs on run!
-			assert not self.sendline(ShutItSendSpec(self,send=' ' + shutit_util.get_command(shutit, 'head') + ''' -c -1 >> ''' + fname + """ << 'END_""" + random_id + """'\n""" + curr_str + """\nrm -f """ + fname + """\nEND_""" + random_id,force=True)
+			assert not self.sendline(ShutItSendSpec(self,send=' ' + shutit_util.get_command(shutit, 'head') + ''' -c -1 >> ''' + fname + """ << 'END_""" + random_id + """'\n""" + curr_str + """\nrm -f """ + fname + """\nEND_""" + random_id,force=True))
 			self.expect(expect)
 		assert not self.sendline(ShutItSendSpec(self,send=' chmod +x ' + fname),force=True)
 		self.expect(expect)
