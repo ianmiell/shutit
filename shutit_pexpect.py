@@ -187,16 +187,23 @@ class ShutItPexpectSession(object):
 				self.shutit.log('_check_blocked: sendspec object already in there, so GTFO.',level=logging.INFO)
 				return True
 			if self.login_stack.get_current_login_item().has_blocking_background_send():
-				self.shutit.log('_check_blocked: a blocking background send is running, so queue this up.',level=logging.INFO)
-				self.login_stack.get_current_login_item().append_background_send(sendspec)
+				if not sendspec.ignore_background and sendspec.run_in_background:
+					# If we honour background tasks, and we are running in background, queue it up.
+					self.shutit.log('_check_blocked: a blocking background send is running, so queue this up.',level=logging.INFO)
+					self.login_stack.get_current_login_item().append_background_send(sendspec)
+				elif not sendspec.ignore_background and not sendspec.run_in_background:
+					# If we honour background tasts and we are running in foreground, wait.
+					self.wait(sendspec=sendspec)
 				return True
 		return False
 
 
-	def wait(self, cadence=10):
+	def wait(self, cadence=5, sendspec=None):
 		"""Does not return until all background commands are completed.
 		"""
 		self.shutit.log('In wait.',level=logging.DEBUG)
+		if sendspec:
+			cadence = sendspec.wait_cadence
 		while True:
 			# go through each background child checking whether they've finished
 			if self.login_stack.get_current_login_item().check_background_commands():

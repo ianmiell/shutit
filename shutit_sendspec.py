@@ -35,6 +35,7 @@ class ShutItSendSpec(object):
 	             ignore_background=False,
 	             run_in_background=False,
 	             block_other_commands=True,
+	             wait_cadence=5,
 	             loglevel=logging.INFO):
 		"""Specification for arguments to send to shutit functions.
 
@@ -76,10 +77,13 @@ class ShutItSendSpec(object):
 			@param go_home:              On logging in, whether to go to the home dir. Default is True.
 			@param ignore_background:    Whether to block if there are background tasks
 			                             running in this session that are block, or ignore ALL
-			                             background tasks and run anyway. Default is False
+			                             background tasks and run anyway. Default is False.
 			@param run_in_background:    Whether to run in the background
 			@param block_other_commands: Whether to block other commands from running
-			                             (unless ignore_background is set on those other commands)
+			                             (unless ignore_background is set on those other commands).
+			                             Default is True.
+			@param wait_cadence:         If blocked and waiting on a background tasks, wait this
+			                             number of seconds before re-checking. Default is 5.
 
 			TODO: document
 	             check_sudo=True,
@@ -124,6 +128,7 @@ class ShutItSendSpec(object):
 		self.ignore_background       = ignore_background
 		self.run_in_background       = run_in_background
 		self.block_other_commands    = block_other_commands
+		self.wait_cadence            = wait_cadence
 
 		# Setup/checking
 		self.started                 = False
@@ -173,4 +178,5 @@ class ShutItSendSpec(object):
 		string += '\nignore_background      = ' + str(ignore_background)
 		string += '\nrun_in_background      = ' + str(run_in_background)
 		string += '\nblock_other_commands   = ' + str(block_other_commands)
+		string += '\nwait_cadence           = ' + str(wait_cadence)
 		return string
