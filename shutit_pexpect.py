@@ -1904,6 +1904,7 @@ class ShutItPexpectSession(object):
 		expect_list = list(send_dict)
 		# Put breakout item(s) in last.
 		n_breakout_items = 0
+		shutit.log('In multisend, send: ' + send + ' send_dict: ' + str(send_dict),level=logging.INFO)
 		if isinstance(expect, str):
 			shutit.log('Adding: "' + expect + '" to expect list.',level=logging.DEBUG)
 			expect_list.append(expect)
