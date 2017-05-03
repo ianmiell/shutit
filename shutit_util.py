@@ -435,7 +435,7 @@ def parse_args(shutit, set_loglevel=None):
 	sub_parsers['skeleton'].add_argument('--pattern', help='Pattern to use', default='')
 	sub_parsers['skeleton'].add_argument('--delivery', help='Delivery method, aka target. "docker" container (default), configured "ssh" connection, "bash" session', default=None, choices=('docker','dockerfile','ssh','bash'))
 	sub_parsers['skeleton'].add_argument('-a','--accept', help='Accept defaults', const=True, default=False, action='store_const')
-	sub_parsers['skeleton'].add_argument('--log','-l', help='Log level (FORENSIC, DEBUG, INFO (default), WARNING, ERROR, CRITICAL)', default='')
+	sub_parsers['skeleton'].add_argument('--log','-l', help='Log level (DEBUG, INFO (default), WARNING, ERROR, CRITICAL)', default='')
 	sub_parsers['skeleton'].add_argument('-o','--logfile', help='Log output to this file', default='')
 
 	sub_parsers['build'].add_argument('--export', help='Perform docker export to a tar file', const=True, default=False, action='store_const')
@@ -455,7 +455,7 @@ def parse_args(shutit, set_loglevel=None):
 
 	for action in ['build', 'list_configs', 'list_modules', 'list_deps','run']:
 		sub_parsers[action].add_argument('-o','--logfile',default='', help='Log output to this file')
-		sub_parsers[action].add_argument('-l','--log',default='', help='Log level (DEBUG, INFO (default), WARNING, ERROR, CRITICAL)',choices=('FORENSIC','DEBUG','INFO','WARNING','ERROR','CRITICAL','debug','info','warning','error','critical'))
+		sub_parsers[action].add_argument('-l','--log',default='', help='Log level (DEBUG, INFO (default), WARNING, ERROR, CRITICAL)',choices=('DEBUG','INFO','WARNING','ERROR','CRITICAL','debug','info','warning','error','critical'))
 		if action != 'run':
 			sub_parsers[action].add_argument('-d','--delivery', help='Delivery method, aka target. "docker" container (default), configured "ssh" connection, "bash" session', default=None, choices=('docker','dockerfile','ssh','bash'))
 			sub_parsers[action].add_argument('--config', help='Config file for setup config. Must be with perms 0600. Multiple arguments allowed; config files considered in order.', default=[], action='append')

@@ -2670,14 +2670,14 @@ $'"""
 				else:
 					shutit.log('Output (squashed): ' + logged_output,level=sendspec.loglevel)
 				try:
-					shutit.log('shutit_pexpect_child.buffer(hex)>>>\n'  + binascii.hexlify(self.pexpect_child.buffer) + '\n<<<',level=logging.FORENSIC)
-					shutit.log('shutit_pexpect_child.before (hex)>>>\n' + binascii.hexlify(self.pexpect_child.before) + '\n<<<',level=logging.FORENSIC)
-					shutit.log('shutit_pexpect_child.after (hex)>>>\n'  + binascii.hexlify(self.pexpect_child.after) + '\n<<<',level=logging.FORENSIC)
+					shutit.log('shutit_pexpect_child.buffer(hex)>>>\n'  + binascii.hexlify(self.pexpect_child.buffer) + '\n<<<',level=logging.DEBUG)
+					shutit.log('shutit_pexpect_child.before (hex)>>>\n' + binascii.hexlify(self.pexpect_child.before) + '\n<<<',level=logging.DEBUG)
+					shutit.log('shutit_pexpect_child.after (hex)>>>\n'  + binascii.hexlify(self.pexpect_child.after) + '\n<<<',level=logging.DEBUG)
 				except Exception as e:
 					shutit.log('Exception at 2665: ' + str(e),level=logging.WARNING)
-				shutit.log('shutit_pexpect_child.buffer>>>\n' + str(self.pexpect_child.buffer) + '\n<<<',level=logging.FORENSIC)
-				shutit.log('shutit_pexpect_child.before>>>\n' + str(self.pexpect_child.before) + '\n<<<',level=logging.FORENSIC)
-				shutit.log('shutit_pexpect_child.after>>>\n' + str(self.pexpect_child.after) + '\n<<<',level=logging.FORENSIC)
+				shutit.log('shutit_pexpect_child.buffer>>>\n' + str(self.pexpect_child.buffer) + '\n<<<',level=logging.DEBUG)
+				shutit.log('shutit_pexpect_child.before>>>\n' + str(self.pexpect_child.before) + '\n<<<',level=logging.DEBUG)
+				shutit.log('shutit_pexpect_child.after>>>\n' + str(self.pexpect_child.after) + '\n<<<',level=logging.DEBUG)
 			else:
 				shutit.log('[Send was marked secret; getting output debug will require code change]',level=logging.DEBUG)
 			if sendspec.fail_on_empty_before:
@@ -2839,12 +2839,12 @@ $'"""
 				shutit.log('File is larger than ~100K - this may take some time',level=logging.WARNING)
 			self.send(ShutItSendSpec(self,send=' ' + shutit_util.get_command(shutit, 'head') + ' -c -1 > ' + path + "." + random_id + " << 'END_" + random_id + """'\n""" + b64contents + '''\nEND_''' + random_id,
 			                         echo=echo,
-			                         loglevel=logging.FORENSIC,
+			                         loglevel=loglevel,
 			                         timeout=99999,
 			                         ignore_background=True))
 			self.send(ShutItSendSpec(self,send=' command cat ' + path + '.' + random_id + ' | base64 --decode > ' + path,
 			                         echo=echo,
-			                         loglevel=logging.FORENSIC,
+			                         loglevel=loglevel,
 			                         ignore_background=True))
 			# Remove the file
 			self.send(ShutItSendSpec(self,send=' command rm -f ' + path + '.' + random_id,loglevel=loglevel,ignore_background=True))
