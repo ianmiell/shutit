@@ -3300,9 +3300,9 @@ $'"""
 	# TODO: reproduce in shutit_global
 	def get_exit_value(self, shutit):
 		# The quotes in the middle of the string are there to prevent the output matching the command.
-		assert not self.sendline(ShutItSendSpec(self,send=''' if [ $? = 0 ]; then echo 'SHUTIT''_RESULT:0'; else echo 'SHUTIT''_RESULT:1'; fi'''),force=True)
+		self.pexpect_child.send(''' if [ $? = 0 ]; then echo 'SHUTIT''_RESULT:0'; else echo 'SHUTIT''_RESULT:1'; fi\n''')
 		shutit.log('Checking exit value.',level=logging.DEBUG)
-		success_check = self.expect(['SHUTIT_RESULT:0','SHUTIT_RESULT:1'])
+		success_check = self.pexpect_child.expect(['SHUTIT_RESULT:0','SHUTIT_RESULT:1'])
 		if success_check == 0:
 			shutit.log('Returning true.',level=logging.DEBUG)
 			return True
