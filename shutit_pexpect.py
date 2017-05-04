@@ -1924,7 +1924,7 @@ class ShutItPexpectSession(object):
 			for item in expect:
 				expect_list.append(item)
 				n_breakout_items += 1
-		shutit.log('Number of breakout items: "' + str(n_breakout_items),level=logging.DEBUG)
+		shutit.log('Number of breakout items: ' + str(n_breakout_items),level=logging.DEBUG)
 		while True:
 			# If it's the last n items in the list, it's the breakout one.
 			echo = shutit.get_echo_override(echo)
