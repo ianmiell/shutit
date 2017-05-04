@@ -2139,14 +2139,10 @@ class ShutIt(object):
 			ret += '===============================================================================\n'
 		return ret
 
+
 	# Pass through to global object
 	def create_session(self,session_type='bash', docker_image=None, rm=None, loglevel='INFO'):
 		return shutit_global.shutit_global_object.create_session(session_type,docker_image,rm,loglevel)
-
-
-	# Pass through log to global object.
-	def log(self, msg, add_final_message=False, level=logging.INFO, transient=False, newline=True):
-		shutit_global.shutit_global_object.log(msg,add_final_message=add_final_message,level=level,transient=transient,newline=newline)
 
 
 	# TODO: walkthrough and exam at global level? but see handle_note - looks like that is shutit-specific
@@ -2169,6 +2165,7 @@ class ShutIt(object):
 			# No if we are in exam mode
 			echo = False
 		return echo
+
 
 	# Pass through log to global function.
 	def log(self, msg, add_final_message=False, level=logging.INFO, transient=False, newline=True):
