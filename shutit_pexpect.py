@@ -273,6 +273,9 @@ class ShutItPexpectSession(object):
 					general_expect.remove(user+'@')
 				general_expect.append(user+'@')
 				general_expect.append('.*[@#$]')
+			send_dict={'ontinue connecting':'yes', 'assword':password, r'[^t] login:':password}
+		else:
+			send_dict={'ontinue connecting':'yes', 'assword':password, r'[^t] login:':password, user+'@':password}
 		if user == 'bash' and command == 'su -':
 			shutit.log('WARNING! user is bash - if you see problems below, did you mean: login(command="' + user + '")?',level=logging.WARNING)
 		shutit.handle_note(note,command=command + '\n\n[as user: "' + user + '"]',training_input=send)
@@ -283,7 +286,6 @@ class ShutItPexpectSession(object):
 		shutit.log('Login stack before login: ' + str(self.login_stack),level=logging.DEBUG)
 		#print('send: ' + str(send))
 		#print('password: ' + str(password))
-		send_dict={'ontinue connecting':'yes', 'assword':password, r'[^t] login:':password, user+'@':password}
 		#print('send_dict:' + str(send_dict))
 		res = self.multisend(ShutItSendSpec(self,
 		                                    send=send,
