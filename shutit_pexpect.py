@@ -245,7 +245,7 @@ class ShutItPexpectSession(object):
 		fail_on_fail=sendspec.fail_on_fail
 		# We don't get the default expect here, as it's either passed in, or a base default regexp.
 		shutit = self.shutit
-		shutit.build['secret_words_set'].add(password)
+		shutit_global.shutit_global_object.secret_words_set.add(password)
 		r_id = shutit_util.random_id()
 		if prompt_prefix is None:
 			prompt_prefix = r_id
@@ -883,7 +883,7 @@ class ShutItPexpectSession(object):
 		"""
 		shutit = self.shutit
 		shutit.handle_note(note)
-		shutit.build['secret_words_set'].add(password)
+		shutit_global.shutit_global_object.secret_words_set.add(password)
 		self.install('passwd')
 		if self.current_environment.install_type == 'apt':
 			self.send(ShutItSendSpec(self,send='passwd ' + user,
@@ -1653,7 +1653,7 @@ class ShutItPexpectSession(object):
 		if not self.current_environment.users[user] and user != 'root':
 			msg = msg or 'Please input the sudo password for user: ' + user
 			self.current_environment.users[user] = shutit_util.get_input(shutit, msg,ispass=True)
-			shutit.build['secret_words_set'].add(self.current_environment.users[user])
+			shutit_global.shutit_global_object.secret_words_set.add(self.current_environment.users[user])
 		return self.current_environment.users[user]
 
 
@@ -2480,7 +2480,7 @@ class ShutItPexpectSession(object):
 							shutit.build['shutit_command_history'].append ('#redacted command, password')
 							ok_to_record = False
 							break
-				if not ok_to_record or sendspec.send in shutit.build['secret_words_set']:
+				if not ok_to_record or sendspec.send in shutit_global.shutit_global_object.secret_words_set:
 					sendspec.secret = True
 					break
 			if ok_to_record:
@@ -3340,7 +3340,7 @@ $'"""
 					shutit.pause_point('Please install sudo and then continue with CTRL-]',shutit_pexpect_child=self.pexpect_child)
 				if not self.check_sudo():
 					pw = self.get_env_pass(whoiam,'Please input your sudo password in case it is needed (for user: ' + whoiam + ')\nJust hit return if you do not want to submit a password.\n')
-		shutit.build['secret_words_set'].add(pw)
+		shutit_global.shutit_global_object.secret_words_set.add(pw)
 		return pw
 
 

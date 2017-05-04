@@ -53,7 +53,9 @@ class ShutItGlobal(object):
 		self.shutit_objects = []
 		# Primitive singleton enforcer.
 		assert self.only_one is None
-		self.only_one = True
+		self.only_one         = True
+
+		self.secret_words_set = set()
 
 
 	def add_shutit_session(self, shutit):
