@@ -279,9 +279,13 @@ class ShutItPexpectSession(object):
 		echo = shutit.get_echo_override(echo)
 		shutit.log('Logging in with command: ' + send + ' as user: ' + user,level=logging.INFO)
 		shutit.log('Login stack before login: ' + str(self.login_stack),level=logging.DEBUG)
+		#print('send: ' + str(send))
+		#print('password: ' + str(password))
+		send_dict={'ontinue connecting':'yes', 'assword':password, r'[^t] login:':password, user+'@':password}
+		#print('send_dict:' + str(send_dict))
 		res = self.multisend(ShutItSendSpec(self,
 		                                    send=send,
-		                                    send_dict={'ontinue connecting':'yes', 'assword':password, r'[^t] login:':password, user+'@':password},
+		                                    send_dict=send_dict,
 		                                    expect=general_expect,
 		                                    check_exit=False,
 		                                    timeout=timeout,
@@ -1902,6 +1906,7 @@ class ShutItPexpectSession(object):
 		shutit = self.shutit
 		shutit.handle_note(note)
 		send_iteration = send
+		#print('send_dict: ' + str(send_dict))
 		expect_list = list(send_dict)
 		# Put breakout item(s) in last.
 		n_breakout_items = 0
@@ -1941,7 +1946,12 @@ class ShutItPexpectSession(object):
 			if res >= len(expect_list) - n_breakout_items:
 				break
 			else:
+				#print('send_iteration before: ' + str(send_iteration))
+				#print('send_iteration before expect_list: ' + str(expect_list))
+				#print('send_iteration before expect_list[res]: ' + str(expect_list[res]))
+				#print('send_iteration before send_dict[expect_list[res]]: ' + str(send_dict[expect_list[res]]))
 				send_iteration = send_dict[expect_list[res]]
+				#print('send_iteration after: ' + str(send_iteration))
 				if remove_on_match:
 					shutit.log('Have matched a password, removing password expects from list in readiness of a prompt"',level=logging.DEBUG)
 					if isinstance(expect, str):
