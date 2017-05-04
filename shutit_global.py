@@ -56,6 +56,7 @@ class ShutItGlobal(object):
 		self.only_one         = True
 
 		self.secret_words_set = set()
+		self.logfile          = None
 
 
 	def add_shutit_session(self, shutit):

@@ -260,7 +260,7 @@ def setup_logging(shutit):
 		return
 	logformat='%(asctime)s %(levelname)s: %(message)s'
 	logging.addLevelName(5, 'FORENSIC')
-	if shutit.host['logfile'] == '':
+	if shutit_global.shutit_global_object.logfile == '':
 		if not os.access(shutit.build['shutit_state_dir_base'],os.F_OK):
 			os.mkdir(shutit.build['shutit_state_dir_base'])
 		if not os.access(shutit.build['shutit_state_dir'],os.F_OK):
@@ -279,25 +279,25 @@ def setup_logging(shutit):
 		elif shutit.build['loglevel'] == 'INFO':
 			logging.basicConfig(format=logformat,level=logging.INFO)
 		elif shutit.build['loglevel'] == 'FORENSIC':
-			logging.basicConfig(format=logformat,filename=shutit.host['logfile'],level=logging.FORENSIC)
+			logging.basicConfig(format=logformat,filename=shutit_global.shutit_global_object.logfile,level=logging.FORENSIC)
 		else:
 			logging.basicConfig(format=logformat,level=logging.INFO)
 	else:
 		shutit.build['loglevel'] = shutit.build['loglevel'].upper()
 		if shutit.build['loglevel'] == 'DEBUG':
-			logging.basicConfig(format=logformat,filename=shutit.host['logfile'],level=logging.DEBUG)
+			logging.basicConfig(format=logformat,filename=shutit_global.shutit_global_object.logfile,level=logging.DEBUG)
 		elif shutit.build['loglevel'] == 'ERROR':
-			logging.basicConfig(format=logformat,filename=shutit.host['logfile'],level=logging.ERROR)
+			logging.basicConfig(format=logformat,filename=shutit_global.shutit_global_object.logfile,level=logging.ERROR)
 		elif shutit.build['loglevel'] in ('WARN','WARNING'):
-			logging.basicConfig(format=logformat,filename=shutit.host['logfile'],level=logging.WARNING)
+			logging.basicConfig(format=logformat,filename=shutit_global.shutit_global_object.logfile,level=logging.WARNING)
 		elif shutit.build['loglevel'] == 'CRITICAL':
-			logging.basicConfig(format=logformat,filename=shutit.host['logfile'],level=logging.CRITICAL)
+			logging.basicConfig(format=logformat,filename=shutit_global.shutit_global_object.logfile,level=logging.CRITICAL)
 		elif shutit.build['loglevel'] == 'INFO':
-			logging.basicConfig(format=logformat,filename=shutit.host['logfile'],level=logging.INFO)
+			logging.basicConfig(format=logformat,filename=shutit_global.shutit_global_object.logfile,level=logging.INFO)
 		elif shutit.build['loglevel'] == 'FORENSIC':
-			logging.basicConfig(format=logformat,filename=shutit.host['logfile'],level=logging.FORENSIC)
+			logging.basicConfig(format=logformat,filename=shutit_global.shutit_global_object.logfile,level=logging.FORENSIC)
 		else:
-			logging.basicConfig(format=logformat,filename=shutit.host['logfile'],level=logging.INFO)
+			logging.basicConfig(format=logformat,filename=shutit_global.shutit_global_object.logfile,level=logging.INFO)
 
 	shutit.build['loglevel'] = logging.getLogger().getEffectiveLevel()
 
@@ -344,7 +344,7 @@ def get_base_config(shutit, cfg_parser):
 	shutit.host['dns']                         = cp.get('host', 'dns')
 	shutit.host['password']                    = cp.get('host', 'password')
 	shutit_global.shutit_global_object.secret_words_set.add(shutit.host['password'])
-	shutit.host['logfile']                     = cp.get('host', 'logfile')
+	shutit_global.shutit_global_object.logfile = cp.get('host', 'logfile')
 	shutit.host['shutit_module_path']          = cp.get('host', 'shutit_module_path').split(':')
 	# repository - information relating to repository/registry
 	shutit.repository['name']                  = cp.get('repository', 'name')
@@ -519,7 +519,7 @@ def process_args(shutit, args, set_loglevel):
 	shutit.action['build']        = args.action == 'build'
 	shutit.action['run']          = args.action == 'run'
 	# Logging
-	shutit.host['logfile']   = args.logfile
+	shutit_global.shutit_global_object.logfile   = args.logfile
 	shutit.build['exam']     = False
 	shutit.build['loglevel'] = args.log
 	if shutit.build['loglevel'] in ('', None):
