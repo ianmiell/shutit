@@ -1146,7 +1146,7 @@ def build_report(shutit, msg=''):
 	"""Resposible for constructing a report to be output as part of the build.
 	Retrurns report as a string.
 	"""
-	s = ''
+	s = '\n'
 	s += '################################################################################\n'
 	s += '# COMMAND HISTORY BEGIN ' + shutit.build['build_id'] + '\n'
 	s += get_commands(shutit)
