@@ -268,10 +268,10 @@ class ShutItPexpectSession(object):
 		general_expect = general_expect + [user+'@.*'+'[#$]']
 		# If not an ssh login, then we can match against user + @sign because it won't clash with 'user@adasdas password:'
 		if is_ssh != None and is_ssh or command.find('ssh') != 0:
-			# If it's already there, remove it before appending it
+			# If user@ already there, remove it, as it can conflict with password lines.
 			if user+'@' in general_expect:
 				general_expect.remove(user+'@')
-			general_expect.append(user+'@')
+			#general_expect.append(user+'@')
 			general_expect.append('.*[#$]')
 			send_dict={'ontinue connecting':'yes', 'assword':password, r'[^t] login:':password}
 		else:
