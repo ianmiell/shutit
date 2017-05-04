@@ -267,10 +267,12 @@ class ShutItPexpectSession(object):
 		# Add in a match if we see user+ and then the login matches. Be careful not to match against 'user+@...password:'
 		general_expect = general_expect + [user+'@.*'+'[@#$]']
 		# If not an ssh login, then we can match against user + @sign because it won't clash with 'user@adasdas password:'
-		if is_ssh != False:
-			if is_ssh or command.find('ssh') != 0:
-				general_expect = general_expect + [user+'@']
-				general_expect = general_expect + ['.*[@#$]']
+		if is_ssh != None and is_ssh or command.find('ssh') != 0:
+				# If it's already there, remove it before appending it
+				if user+'@' in general_expect:
+					general_expect.remove(user+'@')
+				general_expect.append(user+'@')
+				general_expect.append('.*[@#$]')
 		if user == 'bash' and command == 'su -':
 			shutit.log('WARNING! user is bash - if you see problems below, did you mean: login(command="' + user + '")?',level=logging.WARNING)
 		shutit.handle_note(note,command=command + '\n\n[as user: "' + user + '"]',training_input=send)
