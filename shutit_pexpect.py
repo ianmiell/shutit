@@ -38,6 +38,7 @@ import binascii
 import pexpect
 import shutit_util
 import shutit_assets
+import shutit_global
 import package_map
 from shutit_login_stack import ShutItLoginStack
 from shutit_sendspec import ShutItSendSpec
