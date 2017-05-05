@@ -92,11 +92,10 @@ class ShutItGlobal(object):
 	def do_final_messages(self):
 		# Show final report messages (ie messages to show after standard report).
 		if self.report_final_messages != '':
-			# TODO: separate logging from the shutit object
 			self.shutit_objects[0].log(shutit_util.colourise(31,'\r\n\r\n' + self.report_final_messages + '\r\n\r\n'), level=logging.INFO, transient=True)
 
 
-	def log(self, msg, add_final_message=False, level=logging.INFO, transient=False, newline=True):
+	def log(self, msg, add_final_message=False, level=logging.INFO, transient=False, newline=True, mask_password=True):
 		"""Logging function.
 
 		@param add_final_message: Add this log line to the final message output to the user
@@ -104,6 +103,10 @@ class ShutItGlobal(object):
 		@param transient:         Just write to terminal, no new line. If not a
 		                          terminal, write nothing.
 		"""
+		if mask_password:
+			for password in shutit_global_object.secret_words_set:
+				if password in msg:
+					msg.replace(password,'REDACTED')
 		if transient:
 			if sys.stdout.isatty():
 				if newline:
