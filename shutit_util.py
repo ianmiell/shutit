@@ -51,6 +51,7 @@ import threading
 import time
 import subprocess
 import textwrap
+import distutils
 try:
 	import ConfigParser
 except ImportError: # pragma: no cover
@@ -261,9 +262,9 @@ def setup_logging(shutit):
 	logformat='%(asctime)s %(levelname)s: %(message)s'
 	if shutit_global.shutit_global_object.logfile == '':
 		if not os.access(shutit.build['shutit_state_dir_base'],os.F_OK):
-			os.mkdir(shutit.build['shutit_state_dir_base'])
+			distutils.dir_util.mkpath(shutit.build['shutit_state_dir_base'])
 		if not os.access(shutit.build['shutit_state_dir'],os.F_OK):
-			os.mkdir(shutit.build['shutit_state_dir'])
+			distutils.dir_util.mkpath(shutit.build['shutit_state_dir'])
 		os.chmod(shutit.build['shutit_state_dir_base'],0o777)
 		os.chmod(shutit.build['shutit_state_dir'],0o777)
 		shutit.build['loglevel'] = shutit.build['loglevel'].upper()
@@ -707,7 +708,7 @@ shutitfile:        a shutitfile-based project (can be docker, bash, vagrant)
 		# We're not creating a skeleton, so make sure we have the infrastructure
 		# in place for a user-level storage area
 		if not os.path.isdir(shutit_home):
-			os.mkdir(shutit_home, 0o700)
+			distutils.dir_util.mkpath(shutit_home, 0o700)
 		if not os.path.isfile(os.path.join(shutit_home, 'config')):
 			f = os.open(os.path.join(shutit_home, 'config'), os.O_WRONLY | os.O_CREAT, 0o600)
 			if PY3:
