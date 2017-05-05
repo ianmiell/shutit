@@ -63,7 +63,7 @@ class ShutIt(object):
 			if self.host['username'] == '':
 				shutit_util.handle_exit(msg='LOGNAME not set in the environment, ' + 'and login unavailable in python; ' + 'please set to your username.', exit_code=1)
 		self.host['real_user'] = os.environ.get('SUDO_USER', self.host['username'])
-		self.build['shutit_state_dir_base'] = '/tmp/shutit_' + self.host['username']
+		self.build['shutit_state_dir_base'] = '~/.shutit/tmp/shutit_' + self.host['username']
 		self.build['build_id'] = (socket.gethostname() + '_' + self.host['real_user'] + '_' + str(time.time()) + '.' + str(datetime.datetime.now().microsecond))
 		self.build['shutit_state_dir']           = self.build['shutit_state_dir_base'] + '/' + self.build['build_id']
 		self.build['build_db_dir']               = self.build['shutit_state_dir'] + '/build_db'
@@ -761,6 +761,7 @@ class ShutIt(object):
 		#import pdb
 		#pdb.set_trace()
 		if shutit_pexpect_session.command_available('tar'):
+			# TODO: put in ~/.shutit/tmp
 			gzipfname = '/tmp/shutit_tar_tmp.tar.gz'
 			with tarfile.open(gzipfname, 'w:gz') as tar:
 				tar.add(hostfilepath, arcname=os.path.basename(hostfilepath))
