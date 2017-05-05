@@ -65,6 +65,7 @@ import shutit_exam
 import shutit_global
 from shutit_module import ShutItFailException
 from shutit_module import ShutItModule
+from distutils.dir_util import mkpath
 
 PY3 = (sys.version_info[0] >= 3)
 
@@ -262,9 +263,9 @@ def setup_logging(shutit):
 	logformat='%(asctime)s %(levelname)s: %(message)s'
 	if shutit_global.shutit_global_object.logfile == '':
 		if not os.access(shutit.build['shutit_state_dir_base'],os.F_OK):
-			distutils.dir_util.mkpath(shutit.build['shutit_state_dir_base'])
+			mkpath(shutit.build['shutit_state_dir_base'])
 		if not os.access(shutit.build['shutit_state_dir'],os.F_OK):
-			distutils.dir_util.mkpath(shutit.build['shutit_state_dir'])
+			mkpath(shutit.build['shutit_state_dir'])
 		os.chmod(shutit.build['shutit_state_dir_base'],0o777)
 		os.chmod(shutit.build['shutit_state_dir'],0o777)
 		shutit.build['loglevel'] = shutit.build['loglevel'].upper()
@@ -708,7 +709,7 @@ shutitfile:        a shutitfile-based project (can be docker, bash, vagrant)
 		# We're not creating a skeleton, so make sure we have the infrastructure
 		# in place for a user-level storage area
 		if not os.path.isdir(shutit_home):
-			distutils.dir_util.mkpath(shutit_home, 0o700)
+			mkpath(shutit_home, 0o700)
 		if not os.path.isfile(os.path.join(shutit_home, 'config')):
 			f = os.open(os.path.join(shutit_home, 'config'), os.O_WRONLY | os.O_CREAT, 0o600)
 			if PY3:
