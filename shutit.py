@@ -607,7 +607,7 @@ def do_lists(shutit):
 	shutit_util.config_collection_for_built(shutit)
 
 
-	if shutit.action['list_configs'] or shutit.build['loglevel'] <= logging.DEBUG:
+	if shutit.action['list_configs'] or shutit_global.shutit_global_object.loglevel <= logging.DEBUG:
 		# Set build completed
 		shutit.build['completed'] = True
 		shutit.log('================================================================================')

@@ -258,7 +258,7 @@ def find_asset(shutit, filename):
 #
 def setup_logging(shutit):
 	# If loglevel is an int, this has already been set up.
-	if isinstance(shutit.build['loglevel'], int):
+	if isinstance(shutit_global.shutit_global_object.loglevel, int):
 		return
 	logformat='%(asctime)s %(levelname)s: %(message)s'
 	if shutit_global.shutit_global_object.logfile == '':
@@ -268,35 +268,35 @@ def setup_logging(shutit):
 			mkpath(shutit.build['shutit_state_dir'])
 		os.chmod(shutit.build['shutit_state_dir_base'],0o777)
 		os.chmod(shutit.build['shutit_state_dir'],0o777)
-		shutit.build['loglevel'] = shutit.build['loglevel'].upper()
-		if shutit.build['loglevel'] == 'DEBUG':
+		shutit_global.shutit_global_object.loglevel = shutit_global.shutit_global_object.loglevel.upper()
+		if shutit_global.shutit_global_object.loglevel == 'DEBUG':
 			logging.basicConfig(format=logformat,level=logging.DEBUG)
-		elif shutit.build['loglevel'] == 'ERROR':
+		elif shutit_global.shutit_global_object.loglevel == 'ERROR':
 			logging.basicConfig(format=logformat,level=logging.ERROR)
-		elif shutit.build['loglevel'] in ('WARN','WARNING'):
+		elif shutit_global.shutit_global_object.loglevel in ('WARN','WARNING'):
 			logging.basicConfig(format=logformat,level=logging.WARNING)
-		elif shutit.build['loglevel'] == 'CRITICAL':
+		elif shutit_global.shutit_global_object.loglevel == 'CRITICAL':
 			logging.basicConfig(format=logformat,level=logging.CRITICAL)
-		elif shutit.build['loglevel'] == 'INFO':
+		elif shutit_global.shutit_global_object.loglevel == 'INFO':
 			logging.basicConfig(format=logformat,level=logging.INFO)
 		else:
 			logging.basicConfig(format=logformat,level=logging.INFO)
 	else:
-		shutit.build['loglevel'] = shutit.build['loglevel'].upper()
-		if shutit.build['loglevel'] == 'DEBUG':
+		shutit_global.shutit_global_object.loglevel = shutit_global.shutit_global_object.loglevel.upper()
+		if shutit_global.shutit_global_object.loglevel == 'DEBUG':
 			logging.basicConfig(format=logformat,filename=shutit_global.shutit_global_object.logfile,level=logging.DEBUG)
-		elif shutit.build['loglevel'] == 'ERROR':
+		elif shutit_global.shutit_global_object.loglevel == 'ERROR':
 			logging.basicConfig(format=logformat,filename=shutit_global.shutit_global_object.logfile,level=logging.ERROR)
-		elif shutit.build['loglevel'] in ('WARN','WARNING'):
+		elif shutit_global.shutit_global_object.loglevel in ('WARN','WARNING'):
 			logging.basicConfig(format=logformat,filename=shutit_global.shutit_global_object.logfile,level=logging.WARNING)
-		elif shutit.build['loglevel'] == 'CRITICAL':
+		elif shutit_global.shutit_global_object.loglevel == 'CRITICAL':
 			logging.basicConfig(format=logformat,filename=shutit_global.shutit_global_object.logfile,level=logging.CRITICAL)
-		elif shutit.build['loglevel'] == 'INFO':
+		elif shutit_global.shutit_global_object.loglevel == 'INFO':
 			logging.basicConfig(format=logformat,filename=shutit_global.shutit_global_object.logfile,level=logging.INFO)
 		else:
 			logging.basicConfig(format=logformat,filename=shutit_global.shutit_global_object.logfile,level=logging.INFO)
 
-	shutit.build['loglevel'] = logging.getLogger().getEffectiveLevel()
+	shutit_global.shutit_global_object.loglevel = logging.getLogger().getEffectiveLevel()
 
 
 # Manage config settings, returning a dict representing the settings
@@ -499,11 +499,11 @@ def parse_args(shutit, set_loglevel=None):
 				env_args_list[-1] += item
 		args_list[1:1] = env_args_list
 	args = parser.parse_args(args_list)
-	process_args(shutit, args, set_loglevel=set_loglevel)
+	process_args(shutit, args)
 
 
 
-def process_args(shutit, args, set_loglevel):
+def process_args(shutit, args, set_loglevel='INFO'):
 	"""Process the args we have.
 	"""
 	if args.action == 'version':
@@ -520,11 +520,11 @@ def process_args(shutit, args, set_loglevel):
 	# Logging
 	shutit_global.shutit_global_object.logfile   = args.logfile
 	shutit.build['exam']     = False
-	shutit.build['loglevel'] = args.log
-	if shutit.build['loglevel'] in ('', None):
-		shutit.build['loglevel'] = set_loglevel
-	if shutit.build['loglevel'] in ('', None):
-		shutit.build['loglevel'] = 'WARNING'
+	shutit_global.shutit_global_object.loglevel = args.log
+	if shutit_global.shutit_global_object.loglevel in ('', None):
+		shutit_global.shutit_global_object.loglevel = set_loglevel
+	if shutit_global.shutit_global_object.loglevel in ('', None):
+		shutit_global.shutit_global_object.loglevel = 'INFO'
 	setup_logging(shutit)
 
 	# This mode is a bit special - it's the only one with different arguments
@@ -807,7 +807,7 @@ shutitfile:        a shutitfile-based project (can be docker, bash, vagrant)
 				handle_exit(shutit=shutit, exit_code=1)
 		# Finished parsing args.
 		# Sort out config path
-		if shutit.action['list_configs'] or shutit.action['list_modules'] or shutit.action['list_deps'] or shutit.build['loglevel'] == logging.DEBUG:
+		if shutit.action['list_configs'] or shutit.action['list_modules'] or shutit.action['list_deps'] or shutit_global.shutit_global_object.loglevel == logging.DEBUG:
 			shutit.build['log_config_path'] = shutit.build['shutit_state_dir'] + '/config/' + shutit.build['build_id']
 			if os.path.exists(shutit.build['log_config_path']):
 				print(shutit.build['log_config_path'] + ' exists. Please move and re-run.')
@@ -855,7 +855,7 @@ def load_configs(shutit):
 		configs.append(run_config_file)
 	# Image to use to start off. The script should be idempotent, so running it
 	# on an already built image should be ok, and is advised to reduce diff space required.
-	if shutit.action['list_configs'] or shutit.build['loglevel'] <= logging.DEBUG:
+	if shutit.action['list_configs'] or shutit_global.shutit_global_object.loglevel <= logging.DEBUG:
 		msg = ''
 		for c in configs:
 			if isinstance(c, tuple):
@@ -884,7 +884,7 @@ def load_configs(shutit):
 
 	cfg_parser = get_configs(shutit, configs)
 	get_base_config(shutit, cfg_parser)
-	if shutit.build['loglevel'] <= logging.DEBUG:
+	if shutit_global.shutit_global_object.loglevel <= logging.DEBUG:
 		# Set up the manhole.
 		try:
 			import manhole
@@ -907,7 +907,7 @@ def load_shutit_modules(shutit):
 	"""Responsible for loading the shutit modules based on the configured module
 	paths.
 	"""
-	if shutit.build['loglevel'] <= logging.DEBUG:
+	if shutit_global.shutit_global_object.loglevel <= logging.DEBUG:
 		shutit.log('ShutIt module paths now: ',level=logging.DEBUG)
 		shutit.log(shutit.host['shutit_module_path'],level=logging.DEBUG)
 	for shutit_module_path in shutit.host['shutit_module_path']:

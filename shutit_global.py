@@ -57,12 +57,13 @@ class ShutItGlobal(object):
 
 		self.secret_words_set = set()
 		self.logfile          = None
+		self.loglevel         = None
 
 
 	def add_shutit_session(self, shutit):
 		self.shutit_objects.append(shutit)
 
-	def create_session(self,session_type='bash', docker_image=None, rm=None, loglevel='INFO'):
+	def create_session(self,session_type='bash', docker_image=None, rm=None):
 		assert isinstance(session_type, str)
 		new_shutit = ShutIt()
 		self.add_shutit_session(new_shutit)
@@ -73,7 +74,7 @@ class ShutItGlobal(object):
 			shutit_setup.setup_host_child_environment(new_shutit)
 			return new_shutit
 		elif session_type == 'docker':
-			shutit_util.parse_args(new_shutit, set_loglevel=loglevel)
+			shutit_util.parse_args(new_shutit)
 			# Set the configuration up appropriately using overrides.
 			if docker_image:
 				new_shutit.build['config_overrides'].append(['build','base_image',docker_image])
