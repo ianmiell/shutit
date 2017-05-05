@@ -756,13 +756,14 @@ class ShutItPexpectSession(object):
 
 	def handle_pause_point_signals(self):
 		shutit = self.shutit
-		if shutit.shutit_signal['ID'] == 29:
+		signal_id = shutit_global.shutit_global_object.shutit_signal_id
+		if signal_id == 29:
 			# clear the signal
-			shutit.shutit_signal['ID'] = 0
+			signal_id = 0
 			shutit.log('\r\nCTRL-] caught, continuing with run...',level=logging.INFO,transient=True)
-		elif shutit.shutit_signal['ID'] not in (0,4,7,8,17,19):
-			shutit.log('\r\nLeaving interact without CTRL-] and shutit_signal is not recognised, shutit_signal value: ' + str(shutit.shutit_signal['ID']),level=logging.CRITICAL,transient=True)
-		elif shutit.shutit_signal['ID'] == 0:
+		elif signal_id not in (0,4,7,8,17,19):
+			shutit.log('\r\nLeaving interact without CTRL-] and shutit_signal is not recognised, shutit_signal value: ' + str(signal_id),level=logging.CRITICAL,transient=True)
+		elif signal_id == 0:
 			shutit.log('\r\nLeaving interact without CTRL-], assuming exit.',level=logging.CRITICAL,transient=True)
 			shutit_util.handle_exit(exit_code=1)
 		if shutit.build['exam']:
@@ -3233,6 +3234,7 @@ $'"""
 		                             golf    = user gets a pause point, and when leaving, command follow_on_context['check_command'] is run to check the output
 		"""
 		shutit = self.shutit
+		signal_id = shutit_global.shutit_global_object.shutit_signal_id
 		if new_stage and shutit.build['exam_object']:
 			if num_stages is None:
 				num_stages = shutit.build['exam_object'].num_stages
@@ -3349,7 +3351,7 @@ $'"""
 					# Set the new_stage to False, as we're in a loop that doesn't need to mark a new state.
 					new_stage = False
 				self.pause_point(shutit_util.colourise('31',task_desc_new),colour='31')
-				if shutit.shutit_signal['ID'] == 8:
+				if signal_id == 8:
 					if shutit.build['exam_object']:
 						shutit.build['exam_object'].add_hint()
 					if len(shutit.build['pause_point_hints']):
@@ -3358,19 +3360,19 @@ $'"""
 						shutit.log(shutit_util.colourise('31','\r\n\r\n' + 'No hints available!'),transient=True,level=logging.CRITICAL)
 					time.sleep(1)
 					# clear the signal
-					shutit.shutit_signal['ID'] = 0
+					signal_id = 0
 					continue
-				elif shutit.shutit_signal['ID'] == 17:
+				elif signal_id == 17:
 					# clear the signal and ignore CTRL-q
-					shutit.shutit_signal['ID'] = 0
+					signal_id = 0
 					continue
-				elif shutit.shutit_signal['ID'] == 7:
+				elif signal_id == 7:
 					if shutit.build['exam_object']:
 						shutit.build['exam_object'].add_reset()
 					shutit.log(shutit_util.colourise('31','\r\n========= RESETTING STATE ==========\r\n\r\n'),transient=True,level=logging.CRITICAL)
 					self._challenge_done(shutit, result='reset', follow_on_context=follow_on_context,final_stage=False)
 					# clear the signal
-					shutit.shutit_signal['ID'] = 0
+					signal_id = 0
 					# Get the new target child, which is the new 'self'
 					target_child = shutit.get_shutit_pexpect_session_from_id('target_child')
 					return target_child.challenge(
@@ -3394,12 +3396,12 @@ $'"""
 						follow_on_context=follow_on_context,
 						new_stage=False
 					)
-				elif shutit.shutit_signal['ID'] == 19:
+				elif signal_id == 19:
 					if shutit.build['exam_object']:
 						shutit.build['exam_object'].add_skip()
 						shutit.build['exam_object'].end_timer()
 					# Clear the signal.
-					shutit.shutit_signal['ID'] = 0
+					signal_id = 0
 					# Skip test.
 					shutit.log('\r\nTest skipped... please wait',level=logging.CRITICAL,transient=True)
 					skipped=True
@@ -3660,6 +3662,7 @@ $'"""
 		"""Input filter for pause point to catch special keystrokes
 		"""
 		shutit = self.shutit
+		signal_id = shutit_global.shutit_global_object.shutit_signal_id
 		# Can get errors with eg up/down chars
 		if len(input_string) == 1:
 			# Picked CTRL-u as the rarest one accepted by terminals.
@@ -3673,36 +3676,36 @@ $'"""
 				return ''
 			# CTRL-h
 			elif ord(input_string) == 8:
-				shutit.shutit_signal['ID'] = 8
+				signal_id = 8
 				# Return the escape from pexpect char
 				return '\x1d'
 			# CTRL-g
 			elif ord(input_string) == 7:
-				shutit.shutit_signal['ID'] = 7
+				signal_id = 7
 				# Return the escape from pexpect char
 				return '\x1d'
 			# CTRL-p - used as part of CTRL-p - CTRL-q
 			elif ord(input_string) == 16:
-				shutit.shutit_signal['ID'] = 16
+				signal_id = 16
 				if shutit.build['exam'] and shutit_global.shutit_global_object.loglevel not in ('DEBUG','INFO'):
 					return ''
 				else:
 					return '\x10'
 			# CTRL-q
 			elif ord(input_string) == 17:
-				shutit.shutit_signal['ID'] = 17
+				signal_id = 17
 				if not shutit.build['exam']:
 					shutit.log('CTRL-q hit, quitting ShutIt',transient=True,level=logging.CRITICAL)
 					shutit_util.handle_exit(exit_code=1)
 			# CTRL-s
 			elif ord(input_string) == 19:
-				shutit.shutit_signal['ID'] = 19
+				signal_id = 19
 				# Return the escape from pexpect char
 				return '\x1d'
 			# CTRL-]
 			# Foreign keyboard?: http://superuser.com/questions/398/how-to-send-the-escape-character-on-os-x-terminal/427#427
 			elif ord(input_string) == 29:
-				shutit.shutit_signal['ID'] = 29
+				signal_id = 29
 				# Return the escape from pexpect char
 				return '\x1d'
 		return input_string

@@ -320,8 +320,6 @@ def get_base_config(shutit, cfg_parser):
 	shutit.build['stty_cols']                  = 320
 	shutit.build['vagrant_run_dir']            = None
 	shutit.build['this_vagrant_run_dir']       = None
-	# Signals are set here, which is useful for context-switching callbacks.
-	shutit.shutit_signal['ID']                 = 0       # TODO: global?
 	# Take a command-line arg if given, else default.
 	if shutit.build['conn_module'] is None:
 		shutit.build['conn_module']            = cp.get('build', 'conn_module')
