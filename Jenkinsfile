@@ -27,3 +27,17 @@ try {
 ''' + err, cc: '', from: 'shutit-jenkins@jenkins.meirionconsulting.tk', replyTo: '', subject: 'Build failure', to: 'ian.miell@gmail.com'
 	throw(err)
 }
+
+def cleanup() {
+  stage('kitchen') {
+    node(nodename) {
+      dir(builddir) {
+        dir('shutit-test') {
+          sh('yes | ./destroy.sh')
+        }
+      }
+    }
+  }
+}
+
+cleanup()
