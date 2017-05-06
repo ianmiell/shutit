@@ -1867,8 +1867,8 @@ class ShutItPexpectSession(object):
 		processed while waiting for the end "expect" argument supplied.
 
 		@param send:                 See send()
-		@param send_dict:            dict of sends and expects, eg: {'interim prompt:','some input','other prompt','some other input'}
-		@param expect:               String or list of strings of final expected output that returns from this function. See send()
+		@param send_dict:            See ShutItSendSpec
+		@param expect:               See send()
 		@param timeout:              See send()
 		@param check_exit:           See send()
 		@param fail_on_empty_before: See send()
@@ -1879,8 +1879,7 @@ class ShutItPexpectSession(object):
 		@param note:                 See send()
 		@param secret:               See send()
 		@param check_sudo:           See send()
-		@param remove_on_match       If the item matches, remove the send_dict from future expects (eg if it's a password). This makes
-                                     the 'am I logged in yet?' checking more robust.
+		@param remove_on_match       See ShutItSendSpec
 		@param loglevel:             See send()
 
 		@return:                     The pexpect return value (ie which expected

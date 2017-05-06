@@ -65,24 +65,26 @@ class ShutItSendSpec(object):
 			                             terminal or not.  We don't record the command if this is set to
 			                             False unless record_command is explicitly passed in as True.
 			@param escape:               Whether to escape the characters in a bash-friendly way, eg $'\\Uxxxxxx'
-			@param check_sudo:           TODO
+			@param check_sudo:           Check whether we have sudo available and if we already have sudo rights
+                                         cached.
 			@param retry:                Number of times to retry the command if the first attempt
 			                             doesn't work. Useful if going to the network
 			@param note:                 If a note is passed in, and we are in walkthrough mode,
 			                             pause with the note printed
 			@param assume_gnu:           Assume the gnu version of commands, which are not in
 			@param follow_on_commands:   TODO
-			@param searchwindowsize:     TODO
-			@param maxread:              TODO
-			@param delaybeforesend:      TODO
+			@param searchwindowsize:     Passed into pexpect session
+			@param maxread:              Passed into pexpect session
+			@param delaybeforesend:      Passed into pexpect session
 			@param secret:               Whether what is being sent is a secret
 			@param nonewline:            Whether to omit the newline from the send
 			@param user:                 If logging in, user to use. Default is 'root'.
 			@param password:             If logging in, password to use. Default is 'root'.
-			@param is_ssh:               TODO
+			@param is_ssh:               Indicates whether the login is an ssh one if it is not an ssh command
 			@param go_home:              On logging in, whether to go to the home dir. Default is True.
-			@param prompt_prefix:        TODO
-			@param remove_on_match:      TODO
+			@param prompt_prefix:        Override of random prompt prefix created by prompt setup.
+			@param remove_on_match:      If the item matches, remove the send_dict from future expects (eg if
+                                         it's a password). This makes the 'am I logged in yet?' checking more robust.
 			@param ignore_background:    Whether to block if there are background tasks
 			                             running in this session that are block, or ignore ALL
 			                             background tasks and run anyway. Default is False.
@@ -92,7 +94,7 @@ class ShutItSendSpec(object):
 			                             Default is True.
 			@param wait_cadence:         If blocked and waiting on a background tasks, wait this
 			                             number of seconds before re-checking. Default is 2.
-			@param loglevel:             TODO
+			@param loglevel:             Log level at which to operate.
 
 		"""
 		self.send                    = send
