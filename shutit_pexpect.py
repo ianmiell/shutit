@@ -242,7 +242,8 @@ class ShutItPexpectSession(object):
 		fail_on_fail=sendspec.fail_on_fail
 		# We don't get the default expect here, as it's either passed in, or a base default regexp.
 		shutit = self.shutit
-		shutit_global.shutit_global_object.secret_words_set.add(password)
+		if isinstance(password,str):
+			shutit_global.shutit_global_object.secret_words_set.add(password)
 		r_id = shutit_util.random_id()
 		if prompt_prefix is None:
 			prompt_prefix = r_id
@@ -883,7 +884,8 @@ class ShutItPexpectSession(object):
 		"""
 		shutit = self.shutit
 		shutit.handle_note(note)
-		shutit_global.shutit_global_object.secret_words_set.add(password)
+		if isinstance(password, str):
+			shutit_global.shutit_global_object.secret_words_set.add(password)
 		self.install('passwd')
 		if self.current_environment.install_type == 'apt':
 			self.send(ShutItSendSpec(self,send='passwd ' + user,
@@ -3336,7 +3338,8 @@ $'"""
 					shutit.pause_point('Please install sudo and then continue with CTRL-]',shutit_pexpect_child=self.pexpect_child)
 				if not self.check_sudo():
 					pw = self.get_env_pass(whoiam,'Please input your sudo password in case it is needed (for user: ' + whoiam + ')\nJust hit return if you do not want to submit a password.\n')
-		shutit_global.shutit_global_object.secret_words_set.add(pw)
+		if isinstance(password,str):
+			shutit_global.shutit_global_object.secret_words_set.add(pw)
 		return pw
 
 

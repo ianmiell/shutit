@@ -343,7 +343,8 @@ def get_base_config(shutit, cfg_parser):
 	shutit.host['docker_executable']           = cp.get('host', 'docker_executable')
 	shutit.host['dns']                         = cp.get('host', 'dns')
 	shutit.host['password']                    = cp.get('host', 'password')
-	shutit_global.shutit_global_object.secret_words_set.add(shutit.host['password'])
+	if isinstance(shutit.host['password'],str):
+		shutit_global.shutit_global_object.secret_words_set.add(shutit.host['password'])
 	shutit_global.shutit_global_object.logfile = cp.get('host', 'logfile')
 	shutit.host['shutit_module_path']          = cp.get('host', 'shutit_module_path').split(':')
 	# repository - information relating to repository/registry
@@ -357,7 +358,8 @@ def get_base_config(shutit, cfg_parser):
 	shutit.repository['suffix_format']         = cp.get('repository', 'suffix_format')
 	shutit.repository['user']                  = cp.get('repository', 'user')
 	shutit.repository['password']              = cp.get('repository', 'password')
-	shutit_global.shutit_global_object.secret_words_set.add(shutit.repository['password'])
+	if isinstance(shutit.repository['password'],str):
+		shutit_global.shutit_global_object.secret_words_set.add(shutit.repository['password'])
 	shutit.repository['email']                 = cp.get('repository', 'email')
 	shutit.repository['tag_name']              = cp.get('repository', 'tag_name')
 	# END Read from config files
