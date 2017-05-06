@@ -247,11 +247,11 @@ class ShutItPexpectSession(object):
 		if prompt_prefix is None:
 			prompt_prefix = r_id
 		# Be helpful.
-		if ' ' in user:
-			shutit.fail('user has space in it - did you mean: login(command="' + user + '")?') # pragma: no cover
 		if user is None:
 			shutit.log('WARNING! No user supplied to login, so retrieving who I am. You may want to override.',level=logging.WARNING)
 			user = self.whoami()
+		if ' ' in user:
+			shutit.fail('user has space in it - did you mean: login(command="' + user + '")?') # pragma: no cover
 		if shutit.build['delivery'] == 'bash' and command == 'su -':
 			# We want to retain the current working directory
 			command = 'su'
