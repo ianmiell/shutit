@@ -3338,7 +3338,7 @@ $'"""
 					shutit.pause_point('Please install sudo and then continue with CTRL-]',shutit_pexpect_child=self.pexpect_child)
 				if not self.check_sudo():
 					pw = self.get_env_pass(whoiam,'Please input your sudo password in case it is needed (for user: ' + whoiam + ')\nJust hit return if you do not want to submit a password.\n')
-		if isinstance(password,str):
+		if isinstance(pw,str):
 			shutit_global.shutit_global_object.secret_words_set.add(pw)
 		return pw
 
