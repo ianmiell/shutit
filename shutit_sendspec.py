@@ -25,7 +25,7 @@ class ShutItSendSpec(object):
 	             delaybeforesend=None,
 	             secret=False,
 	             nonewline=False,
-	             user='root',
+	             user=None,
 	             password=None,
 	             is_ssh=None,
 	             go_home=True,

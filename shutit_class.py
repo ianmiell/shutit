@@ -1572,7 +1572,7 @@ class ShutIt(object):
 
 	def login(self,
 	          command='su -',
-	          user='root',
+	          user=None,
 	          password=None,
 	          prompt_prefix=None,
 	          expect=None,
