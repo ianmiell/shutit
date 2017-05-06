@@ -2172,3 +2172,18 @@ class ShutIt(object):
 	# Pass through log to global function.
 	def log(self, msg, add_final_message=False, level=logging.INFO, transient=False, newline=True):
 		shutit_global.shutit_global_object.log(msg,add_final_message=add_final_message,level=level,transient=transient,newline=newline)
+
+
+	def check_sudo(self, shutit_pexpect_session=None):
+		shutit_pexpect_session = shutit_pexpect_session or self.get_current_shutit_pexpect_session()
+		return shutit_pexpect_session.check_sudo()
+
+	
+	def get_exit_value(self, shutit_pexpect_session=None):
+		shutit_pexpect_session = shutit_pexpect_session or self.get_current_shutit_pexpect_session()
+		return shutit_pexpect_session.get_exit_value(self)
+
+
+	def get_sudo_pass_if_needed(self, shutit, ignore_brew=False):
+		shutit_pexpect_session = shutit_pexpect_session or self.get_current_shutit_pexpect_session()
+		return shutit_pexpect_session.get_sudo_pass_if_needed(shutit, ignore_brew=ignore_brew)

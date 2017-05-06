@@ -3270,7 +3270,7 @@ $'"""
 		# If not, create new env object, set it to current.
 		self.current_environment = new_environment
 		shutit.add_shutit_pexpect_session_environment(new_environment)
-		# TODO: make smarter wrt ORIGIN_ENV and cacheing
+		# make smarter wrt ORIGIN_ENV and cacheing (?)
 		self.get_distro_info()
 		self.send(ShutItSendSpec(self,send=' command mkdir -p ' + environment_id_dir + ' && chmod -R 777 ' + shutit.build['shutit_state_dir_base'] + ' && touch ' + environment_id_dir + '/' + new_environment.environment_id,
 		                         echo=False,
@@ -3294,7 +3294,6 @@ $'"""
 
 
 	# Determines whether we have sudo available, and whether we already have sudo rights cached.
-	# TODO: reproduce in shutit_global
 	def check_sudo(self):
 		shutit = self.shutit
 		if self.command_available('sudo'):
@@ -3310,7 +3309,6 @@ $'"""
 
 
 	# Created specifically to help when logging in and the prompt is not ready.
-	# TODO: reproduce in shutit_global
 	def get_exit_value(self, shutit):
 		# The quotes in the middle of the string are there to prevent the output matching the command.
 		self.pexpect_child.send(''' if [ $? = 0 ]; then echo 'SHUTIT''_RESULT:0'; else echo 'SHUTIT''_RESULT:1'; fi\n''')
@@ -3324,7 +3322,6 @@ $'"""
 			return False
 
 
-	# TODO: reproduce in shutit_global
 	def get_sudo_pass_if_needed(self, shutit, ignore_brew=False):
 		pw = ''
 		whoiam = self.whoami()
