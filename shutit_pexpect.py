@@ -1958,7 +1958,7 @@ class ShutItPexpectSession(object):
 				send_iteration = send_dict[expect_list[res]]
 				#print('send_iteration after: ' + str(send_iteration))
 				if remove_on_match:
-					shutit.log('Have matched a password, removing password expects from list in readiness of a prompt"',level=logging.DEBUG)
+					shutit.log('Have matched a password (' + expect_list[res] + '), removing password expects from list in readiness of a prompt',level=logging.DEBUG)
 					if isinstance(expect, str):
 						expect_list = [expect]
 					elif isinstance(expect, list):
