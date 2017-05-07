@@ -7,6 +7,8 @@ It also holds within it information about ShutItBackgroundCommand objects
 belonging to this login.
 """
 
+import shutit_global
+import logging
 from shutit_background import ShutItBackgroundCommand
 
 class ShutItLoginStack(object):
@@ -67,6 +69,7 @@ class ShutItLoginStackItem(object):
 	def has_blocking_background_send(self):
 		for background_object in self.background_objects:
 			if background_object.block_other_commands:
+				shutit_global.shutit_global_object.log('The blocking send object is: ' + str(background_object),level=logging.DEBUG)
 				return True
 
 	def check_background_commands(self):
