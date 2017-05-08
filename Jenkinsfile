@@ -4,18 +4,6 @@ def nodename='cage'
 def builddir='shutit-' + env.BUILD_NUMBER
 
 
-def cleanup() {
-  stage('cleanup') {
-    node(nodename) {
-      dir(builddir) {
-        dir('shutit-test') {
-          sh('yes | ./destroy_vms.sh')
-        }
-      }
-    }
-  }
-}
-
 try {
 	stage('setupenv') {
 		node(nodename) {
@@ -38,9 +26,7 @@ try {
 	mail bcc: '', body: '''See: http://jenkins.meirionconsulting.tk/job/shutit
 
 ''' + err, cc: '', from: 'shutit-jenkins@jenkins.meirionconsulting.tk', replyTo: '', subject: 'Build failure', to: 'ian.miell@gmail.com'
-	cleanup()
 	throw(err)
 }
 
 
-cleanup()
