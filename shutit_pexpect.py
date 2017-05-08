@@ -1997,9 +1997,17 @@ class ShutItPexpectSession(object):
 				distro_version = d['distro_version']
 			elif install_type == 'apk' and shutit.build['delivery'] in ('docker','dockerfile'):
 				if not shutit.get_current_shutit_pexpect_session_environment().build['apk_update_done'] and self.whoami() == 'root':
-					self.send(ShutItSendSpec(self,send='apk -q update',loglevel=logging.INFO,ignore_background=True,force=True))
+					self.send(ShutItSendSpec(self,
+					                         send='apk -q update',
+					                         loglevel=logging.INFO,
+					                         ignore_background=True,
+					                         force=True))
 					shutit.get_current_shutit_pexpect_session_environment().build['apk_update_done'] = True
-				self.send(ShutItSendSpec(self,send='apk -q add bash',loglevel=loglevel,ignore_background=True,force=True))
+				self.send(ShutItSendSpec(self,
+				                         send='apk -q add bash',
+				                         loglevel=loglevel,
+				                         ignore_background=True,
+				                         force=True))
 				install_type   = 'apk'
 				distro         = 'alpine'
 				distro_version = '1.0'
@@ -2203,12 +2211,14 @@ class ShutItPexpectSession(object):
 					shutit.handle_note_after(note=note)
 					return True
 			if debug_command is not None:
-				self.send(ShutItSendSpec(self,send=debug_command,
-				          check_exit=False,
-				          echo=echo,
-			              nonewline=nonewline,
-				          loglevel=loglevel,
-			              ignore_background=True,force=True))
+				self.send(ShutItSendSpec(self,
+				                         send=debug_command,
+				                         check_exit=False,
+				                         echo=echo,
+			                             nonewline=nonewline,
+				                         loglevel=loglevel,
+			                             ignore_background=True,
+				                         force=True))
 			time.sleep(cadence)
 		shutit.handle_note_after(note=note)
 		if pause_point_on_fail:
@@ -2255,10 +2265,12 @@ class ShutItPexpectSession(object):
 		fexists = self.file_exists(fname)
 		if not fexists:
 			if create:
-				self.send(ShutItSendSpec(self,send=' command touch ' + fname,
-				          echo=False,
-				          loglevel=loglevel,
-				          ignore_background=True,force=True))
+				self.send(ShutItSendSpec(self,
+				                         send=' command touch ' + fname,
+				                         echo=False,
+				                         loglevel=loglevel,
+				                         ignore_background=True,
+				                         force=True))
 			else:
 				shutit.fail(fname + ' does not exist and create=False') # pragma: no cover
 		if replace:
@@ -2480,47 +2492,59 @@ class ShutItPexpectSession(object):
 			if literal:
 				if match_regexp is None:
 					#            v the space is intentional, to avoid polluting bash history.
-					self.send(ShutItSendSpec(self,send=""" grep -v '^""" + line + """$' """ + filename + ' > ' + tmp_filename,
-					          exit_values=['0','1'],
-					          echo=False,
-					          loglevel=loglevel,
-					          ignore_background=True,force=True))
+					self.send(ShutItSendSpec(self,
+					                         send=""" grep -v '^""" + line + """$' """ + filename + ' > ' + tmp_filename,
+					                         exit_values=['0','1'],
+					                         echo=False,
+					                         loglevel=loglevel,
+					                         ignore_background=True,
+					                         force=True))
 				else:
 					if not shutit_util.check_regexp(match_regexp):
 						shutit.fail('Illegal regexp found in remove_line_from_file call: ' + match_regexp) # pragma: no cover
 					#            v the space is intentional, to avoid polluting bash history.
-					self.send(ShutItSendSpec(self,send=""" grep -v '^""" + match_regexp + """$' """ + filename + ' > ' + tmp_filename,
-					          exit_values=['0','1'],
-					          echo=False,
-					          loglevel=loglevel,
-					          ignore_background=True,force=True))
+					self.send(ShutItSendSpec(self,
+					                         send=""" grep -v '^""" + match_regexp + """$' """ + filename + ' > ' + tmp_filename,
+					                         exit_values=['0','1'],
+					                         echo=False,
+					                         loglevel=loglevel,
+					                         ignore_background=True,
+					                         force=True))
 			else:
 				if match_regexp is None:
 					#          v the space is intentional, to avoid polluting bash history.
-					self.send(ShutItSendSpec(self,send=' command grep -v "^' + line + '$" ' + filename + ' > ' + tmp_filename,
-					          exit_values=['0','1'],
-					          echo=False,
-					          loglevel=loglevel,
-					          ignore_background=True,force=True))
+					self.send(ShutItSendSpec(self,
+					                         send=' command grep -v "^' + line + '$" ' + filename + ' > ' + tmp_filename,
+					                         exit_values=['0','1'],
+					                         echo=False,
+					                         loglevel=loglevel,
+					                         ignore_background=True,
+					                         force=True))
 				else:
 					if not shutit_util.check_regexp(match_regexp):
 						shutit.fail('Illegal regexp found in remove_line_from_file call: ' + match_regexp) # pragma: no cover
 					#          v the space is intentional, to avoid polluting bash history.
-					self.send(ShutItSendSpec(self,send=' command grep -v "^' + match_regexp + '$" ' + filename + ' > ' + tmp_filename,
-					          exit_values=['0','1'],
-					          echo=False,
-					          loglevel=loglevel,
-					          ignore_background=True,force=True))
-			self.send(ShutItSendSpec(self,send=' command cat ' + tmp_filename + ' > ' + filename,
-			          check_exit=False,
-			          echo=False,
-			          loglevel=loglevel,
-					  ignore_background=True,force=True))
-			self.send(ShutItSendSpec(self,send=' command rm -f ' + tmp_filename,
-			          exit_values=['0','1'],
-			          echo=False,
-			          loglevel=loglevel,
-					  ignore_background=True,force=True))
+					self.send(ShutItSendSpec(self,
+					                         send=' command grep -v "^' + match_regexp + '$" ' + filename + ' > ' + tmp_filename,
+					                         exit_values=['0','1'],
+					                         echo=False,
+					                         loglevel=loglevel,
+					                         ignore_background=True,
+					                         force=True))
+			self.send(ShutItSendSpec(self,
+			                         send=' command cat ' + tmp_filename + ' > ' + filename,
+			                         check_exit=False,
+			                         echo=False,
+			                         loglevel=loglevel,
+					                 ignore_background=True,
+			                         force=True))
+			self.send(ShutItSendSpec(self,
+			                         send=' command rm -f ' + tmp_filename,
+			                         exit_values=['0','1'],
+			                         echo=False,
+			                         loglevel=loglevel,
+					                 ignore_background=True,
+			                         force=True))
 		shutit.handle_note_after(note=note)
 		return True
 
@@ -2553,7 +2577,8 @@ class ShutItPexpectSession(object):
 			sendspec.fail_on_empty_before=False
 			sendspec.check_exit=False
 		if isinstance(sendspec.expect, dict):
-			return self.multisend(ShutItSendSpec(self,send=sendspec.send,
+			return self.multisend(ShutItSendSpec(self,
+			                                     send=sendspec.send,
 			                                     send_dict=sendspec.expect,
 			                                     expect=shutit.get_default_shutit_pexpect_session_expect(),
 			                                     timeout=sendspec.timeout,
@@ -2578,7 +2603,8 @@ class ShutItPexpectSession(object):
 		if sendspec.check_sudo and len(command_list) > 0 and command_list[0] == 'sudo' and not self.check_sudo():
 			sudo_pass = self.get_sudo_pass_if_needed(shutit)
 			# Turn expect into a dict.
-			return self.multisend(ShutItSendSpec(self,send=sendspec.send,
+			return self.multisend(ShutItSendSpec(self,
+			                                     send=sendspec.send,
 			                                     send_dict={'assword':sudo_pass},
 			                                     expect=shutit.get_default_shutit_pexpect_session_expect(),
 			                                     timeout=sendpec.timeout,
@@ -2591,7 +2617,8 @@ class ShutItPexpectSession(object):
 			                                     check_sudo=False,
 			                                     nonewline=sendspec.nonewline,
 			                                     loglevel=sendspec.loglevel,
-			                                     ignore_background=True,force=True))
+			                                     ignore_background=True,
+			                                     force=True))
 
 
 		shutit.log('Sending data in session: ' + self.pexpect_session_id,level=logging.DEBUG)
@@ -2709,7 +2736,11 @@ $'"""
 								self.expect(sendspec.expect, searchwindowsize=sendspec.searchwindowsize, maxread=sendspec.maxread)
 							return res
 						else:
-							if not self.sendline(ShutItSendSpec(self,send=escaped_str,nonewline=sendspec.nonewline,ignore_background=sendspec.ignore_background,run_in_background=sendspec.run_in_background)):
+							if not self.sendline(ShutItSendSpec(self,
+							                                    send=escaped_str,
+							                                    nonewline=sendspec.nonewline,
+							                                    ignore_background=sendspec.ignore_background,
+							                                    run_in_background=sendspec.run_in_background)):
 								expect_res = shutit.expect_allow_interrupt(self.shutit, self.pexpect_child, sendspec.expect, sendspec.timeout)
 							else:
 								expect_res = -1
@@ -2744,7 +2775,10 @@ $'"""
 								self.expect(sendspec.expect, searchwindowsize=sendspec.searchwindowsize, maxread=sendspec.maxread)
 							return res
 						else:
-							if not self.sendline(ShutItSendSpec(self,send=sendspec.send,nonewline=sendspec.nonewline,ignore_background=sendspec.ignore_background,run_in_background=sendspec.run_in_background)):
+							if not self.sendline(ShutItSendSpec(self,
+							                                    send=sendspec.send,nonewline=sendspec.nonewline,
+							                                    ignore_background=sendspec.ignore_background,
+							                                    run_in_background=sendspec.run_in_background)):
 								expect_res = shutit.expect_allow_interrupt(self.shutit, self.pexpect_child, sendspec.expect, sendspec.timeout)
 							else:
 								expect_res = -1
@@ -2781,7 +2815,11 @@ $'"""
 								self.expect(sendspec.expect, searchwindowsize=sendspec.searchwindowsize, maxread=sendspec.maxread)
 							return res
 						else:
-							if not self.sendline(ShutItSendSpec(self,send=escaped_str,nonewline=sendspec.nonewline,ignore_background=True,run_in_background=sendspec.run_in_background)):
+							if not self.sendline(ShutItSendSpec(self,
+							                                    send=escaped_str,
+							                                    nonewline=sendspec.nonewline,
+							                                    ignore_background=True,
+							                                    run_in_background=sendspec.run_in_background)):
 								expect_res = shutit.expect_allow_interrupt(self.shutit, self.pexpect_child, sendspec.expect, sendspec.timeout)
 							else:
 								expect_res = -1
@@ -2820,7 +2858,11 @@ $'"""
 						else:
 							if sendspec.echo:
 								shutit.divert_output(sys.stdout)
-							if not self.sendline(ShutItSendSpec(self,send=sendspec.send,nonewline=sendspec.nonewline,ignore_background=sendspec.ignore_background,run_in_background=sendspec.run_in_background)):
+							if not self.sendline(ShutItSendSpec(self,
+							                                    send=sendspec.send,
+							                                    nonewline=sendspec.nonewline,
+							                                    ignore_background=sendspec.ignore_background,
+							                                    run_in_background=sendspec.run_in_background)):
 								expect_res = shutit.expect_allow_interrupt(self.shutit, self.pexpect_child, sendspec.expect, sendspec.timeout)
 							else:
 								expect_res = -1
@@ -2888,7 +2930,8 @@ $'"""
 				sendspec.send = sendspec.follow_on_commands[match]
 				if shutit_util.match_string(shutit, shutit.build['last_output'],match):
 					# send (with no follow-on commands)
-					self.send(ShutItSendSpec(self,send=sendspec.send,
+					self.send(ShutItSendSpec(self,
+					                         send=sendspec.send,
 					                         expect=sendspec.expect,
 					                         timeout=sendspec.timeout,
 					                         check_exit=sendspec.check_exit,
@@ -2901,7 +2944,8 @@ $'"""
 					                         loglevel=sendspec.loglevel,
 					                         delaybeforesend=sendspec.delaybeforesend,
 			                                 run_in_background=False,
-					                         ignore_background=True,force=True))
+					                         ignore_background=True,
+					                         force=True))
 		if shutit.build['step_through']:
 			self.pause_point('pause point: stepping through')
 		if shutit.build['ctrlc_stop']:
@@ -2990,10 +3034,12 @@ $'"""
 			f.close()
 		elif shutit.build['delivery'] in ('bash','dockerfile'):
 			if truncate and self.file_exists(path):
-				self.send(ShutItSendSpec(self,send=' command rm -f ' + path,
+				self.send(ShutItSendSpec(self,
+				                         send=' command rm -f ' + path,
 				                         echo=echo,
 				                         loglevel=loglevel,
-				                         ignore_background=True,force=True))
+				                         ignore_background=True,
+				                         force=True))
 			random_id = shutit_util.random_id()
 			# set the searchwindowsize to a low number to speed up processing of large output
 			if PY3:
@@ -3010,17 +3056,25 @@ $'"""
 				b64contents = base64.b64encode(contents)
 			if len(b64contents) > 100000:
 				shutit.log('File is larger than ~100K - this may take some time',level=logging.WARNING)
-			self.send(ShutItSendSpec(self,send=' ' + shutit_util.get_command(shutit, 'head') + ' -c -1 > ' + path + "." + random_id + " << 'END_" + random_id + """'\n""" + b64contents + '''\nEND_''' + random_id,
+			self.send(ShutItSendSpec(self,
+			                         send=' ' + shutit_util.get_command(shutit, 'head') + ' -c -1 > ' + path + "." + random_id + " << 'END_" + random_id + """'\n""" + b64contents + '''\nEND_''' + random_id,
 			                         echo=echo,
 			                         loglevel=loglevel,
 			                         timeout=99999,
-			                         ignore_background=True,force=True))
-			self.send(ShutItSendSpec(self,send=' command cat ' + path + '.' + random_id + ' | base64 --decode > ' + path,
+			                         ignore_background=True,
+			                         force=True))
+			self.send(ShutItSendSpec(self,
+			                         send=' command cat ' + path + '.' + random_id + ' | base64 --decode > ' + path,
 			                         echo=echo,
 			                         loglevel=loglevel,
-			                         ignore_background=True,force=True))
+			                         ignore_background=True,
+			                         force=True))
 			# Remove the file
-			self.send(ShutItSendSpec(self,send=' command rm -f ' + path + '.' + random_id,loglevel=loglevel,ignore_background=True,force=True))
+			self.send(ShutItSendSpec(self,
+			                         send=' command rm -f ' + path + '.' + random_id,
+			                         loglevel=loglevel,
+			                         ignore_background=True,
+			                         force=True))
 		else:
 			host_child = shutit.get_shutit_pexpect_session_from_id('host_child').pexpect_child
 			path = path.replace(' ', r'\ ')
@@ -3050,10 +3104,12 @@ $'"""
 					f.write(contents)
 			f.close()
 			# Create file so it has appropriate permissions
-			self.send(ShutItSendSpec(self,send=' command touch ' + path,
+			self.send(ShutItSendSpec(self,
+			                         send=' command touch ' + path,
 			                         loglevel=loglevel,
 			                         echo=echo,
-			                         ignore_background=True,force=True))
+			                         ignore_background=True,
+			                         force=True))
 			# If path is not absolute, add $HOME to it.
 			if path[0] != '/':
 				shutit.send(' command cat ' + tmpfile + ' | ' + shutit.host['docker_executable'] + ' exec -i ' + shutit.target['container_id'] + " bash -c 'cat > $HOME/" + path + "'",
@@ -3067,10 +3123,12 @@ $'"""
 				            expect=shutit.expect_prompts['ORIGIN_ENV'],
 				            loglevel=loglevel,
 				            echo=echo)
-			self.send(ShutItSendSpec(self,send=' command chown ' + user + ' ' + path + ' && chgrp ' + group + ' ' + path,
+			self.send(ShutItSendSpec(self,
+			                         send=' command chown ' + user + ' ' + path + ' && chgrp ' + group + ' ' + path,
 			                         echo=echo,
 			                         loglevel=loglevel,
-			                         ignore_background=True,force=True))
+			                         ignore_background=True,
+			                         force=True))
 			os.remove(tmpfile)
 		shutit.handle_note_after(note=note)
 		return True
@@ -3107,22 +3165,26 @@ $'"""
 		# Send the script and run it in the manner specified
 		if shutit.build['delivery'] in ('docker','dockerfile') and in_shell:
 			script = ('set -o xtrace \n\n' + script + '\n\nset +o xtrace')
-		self.send(ShutItSendSpec(self,send=' command mkdir -p ' + shutit.build['shutit_state_dir'] + '/scripts && chmod 777 ' + shutit.build['shutit_state_dir'] + '/scripts',
+		self.send(ShutItSendSpec(self,
+		                         send=' command mkdir -p ' + shutit.build['shutit_state_dir'] + '/scripts && chmod 777 ' + shutit.build['shutit_state_dir'] + '/scripts',
 		                         echo=False,
 		                         loglevel=loglevel))
 		self.send_file(shutit.build['shutit_state_dir'] + '/scripts/shutit_script.sh',
 		               script,
 		               loglevel=loglevel)
-		self.send(ShutItSendSpec(self,send=' command chmod +x ' + shutit.build['shutit_state_dir'] + '/scripts/shutit_script.sh',
+		self.send(ShutItSendSpec(self,
+		                         send=' command chmod +x ' + shutit.build['shutit_state_dir'] + '/scripts/shutit_script.sh',
 		                         echo=False,
 		                         loglevel=loglevel))
 		shutit.build['shutit_command_history'].append('    ' + script.replace('\n', '\n    '))
 		if in_shell:
-			ret = self.send(ShutItSendSpec(self,send=' . ' + shutit.build['shutit_state_dir'] + '/scripts/shutit_script.sh && rm -f ' + shutit.build['shutit_state_dir'] + '/scripts/shutit_script.sh && rm -f ' + shutit.build['shutit_state_dir'] + '/scripts/shutit_script.sh',
+			ret = self.send(ShutItSendSpec(self,
+			                               send=' . ' + shutit.build['shutit_state_dir'] + '/scripts/shutit_script.sh && rm -f ' + shutit.build['shutit_state_dir'] + '/scripts/shutit_script.sh && rm -f ' + shutit.build['shutit_state_dir'] + '/scripts/shutit_script.sh',
 			                               echo=False,
 			                               loglevel=loglevel))
 		else:
-			ret = self.send(ShutItSendSpec(self,send=' ' + shutit.build['shutit_state_dir'] + '/scripts/shutit_script.sh && rm -f ' + shutit.build['shutit_state_dir'] + '/scripts/shutit_script.sh',
+			ret = self.send(ShutItSendSpec(self,
+			                               send=' ' + shutit.build['shutit_state_dir'] + '/scripts/shutit_script.sh && rm -f ' + shutit.build['shutit_state_dir'] + '/scripts/shutit_script.sh',
 			                               echo=False,
 			                               loglevel=loglevel))
 		shutit.handle_note_after(note=note)
@@ -3188,7 +3250,11 @@ $'"""
 			                                      reduction_per_hint=reduction_per_hint,
 			                                      grace_period=grace_period)
 			# If this is an exam, then remove history.
-			self.send(ShutItSendSpec(self,send=' history -c', check_exit=False,ignore_background=True,force=True))
+			self.send(ShutItSendSpec(self,
+			                         send=' history -c',
+			                         check_exit=False,
+			                         ignore_background=True,
+			                         force=True))
 		# don't catch CTRL-C, pass it through.
 		shutit.build['ctrlc_passthrough'] = True
 		preserve_newline                  = False
@@ -3431,10 +3497,12 @@ $'"""
 		shutit.add_shutit_pexpect_session_environment(new_environment)
 		# make smarter wrt ORIGIN_ENV and cacheing (?)
 		self.get_distro_info()
-		self.send(ShutItSendSpec(self,send=' command mkdir -p ' + environment_id_dir + ' && chmod -R 777 ' + shutit.build['shutit_state_dir_base'] + ' && touch ' + environment_id_dir + '/' + new_environment.environment_id,
+		self.send(ShutItSendSpec(self,
+		                         send=' command mkdir -p ' + environment_id_dir + ' && chmod -R 777 ' + shutit.build['shutit_state_dir_base'] + ' && touch ' + environment_id_dir + '/' + new_environment.environment_id,
 		                         echo=False,
 		                         loglevel=logging.DEBUG,
-		                         ignore_background=True,force=True))
+		                         ignore_background=True,
+		                         force=True))
 		return new_environment
 
 
@@ -3456,7 +3524,8 @@ $'"""
 	def check_sudo(self):
 		shutit = self.shutit
 		if self.command_available('sudo'):
-			self.send(ShutItSendSpec(self,send=' sudo -n echo',
+			self.send(ShutItSendSpec(self,
+			                         send=' sudo -n echo',
 			                         check_exit=False,
 			                         check_sudo=False,
 			                         ignore_background=True,force=True))
@@ -3511,15 +3580,24 @@ $'"""
 		fname = shutit.build['shutit_state_dir_base'] + '/tmp_' + random_id
 		working_str = send
 		# truncate -s must be used as --size is not supported everywhere (eg busybox)
-		assert not self.sendline(ShutItSendSpec(self,send=' truncate -s 0 '+ fname,ignore_background=True, force=True))
+		assert not self.sendline(ShutItSendSpec(self,
+		                                        send=' truncate -s 0 '+ fname,
+		                                        ignore_background=True,
+		                                        force=True))
 		self.pexpect_child.expect(expect)
 		size = shutit.build['stty_cols'] - 25
 		while len(working_str) > 0:
 			curr_str = working_str[:size]
 			working_str = working_str[size:]
-			assert not self.sendline(ShutItSendSpec(self,send=' ' + shutit_util.get_command(shutit, 'head') + ''' -c -1 >> ''' + fname + """ << 'END_""" + random_id + """'\n""" + curr_str + """\nEND_""" + random_id,ignore_background=True, force=True))
+			assert not self.sendline(ShutItSendSpec(self,
+			                                        send=' ' + shutit_util.get_command(shutit, 'head') + ''' -c -1 >> ''' + fname + """ << 'END_""" + random_id + """'\n""" + curr_str + """\nEND_""" + random_id,
+		                                            ignore_background=True,
+			                                        force=True))
 			self.expect(expect)
-		assert not self.sendline(ShutItSendSpec(self,send=' chmod +x ' + fname,ignore_background=True, force=True))
+		assert not self.sendline(ShutItSendSpec(self,
+		                                        send=' chmod +x ' + fname,
+		                                        ignore_background=True,
+		                                        force=True))
 		self.expect(expect)
 		return fname
 
