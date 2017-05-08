@@ -436,7 +436,9 @@ class ShutIt(object):
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
 		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
 		ignore_background = not wait
-		return shutit_pexpect_session.send(ShutItSendSpec(shutit_pexpect_session,send,
+		print('SEND: ' + send)
+		return shutit_pexpect_session.send(ShutItSendSpec(shutit_pexpect_session,
+		                                                  send,
 		                                                  expect=expect,
 		                                                  timeout=timeout,
 		                                                  check_exit=check_exit,

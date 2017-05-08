@@ -92,6 +92,11 @@ class ShutItBackgroundCommand(object):
 	def check_background_command_state(self):
 		#print self
 		shutit_pexpect_child = self.sendspec.shutit_pexpect_child
+		#print('self.sendspec.send: ' + str(self.sendspec.send))
+		#print('self.sendspec.started: ' + str(self.sendspec.started))
+		#print('self.run_state: ' + str(self.run_state))
+		#print('self.pid: ' + str(self.pid))
+		#print('self.return_value: ' + str(self.return_value))
 		# Check the command has been started
 		if not self.sendspec.started:
 			#print 'not started?'
@@ -100,9 +105,14 @@ class ShutItBackgroundCommand(object):
 		# If the job is complete, collect the return value
 		if self.run_state == '':
 			self.run_state = 'C'
-		if isinstance(self.run_state,str) and self.run_state == 'C':
+			# Stop this from blocking other commands from here.
+			self.block_other_commands = False
+		if isinstance(self.run_state,str) and self.run_state == 'C' and self.return_value is None:
 			shutit_pexpect_child.quick_send(' wait ' + self.pid)
 			self.return_value = shutit_pexpect_child.send_and_get_output(' echo $?')
+		if isinstance(self.run_state,str) and self.run_state == 'C' and self.return_value is not None:
+			# This job is complete, nothing to do.
+			pass
 		# TODO: honour sendspec.timeout
 		#print 'returning: ' + self.run_state
 		return self.run_state

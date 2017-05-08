@@ -49,6 +49,8 @@ class ShutItLoginStack(object):
 	def __str__(self):
 		string = ''
 		string += '\nstack: ' + str(self.stack)
+		for item in self.stack:
+			string += '\nlogin_item: ' + str(item)
 		return string
 
 
@@ -74,7 +76,7 @@ class ShutItLoginStackItem(object):
 
 	def check_background_commands(self):
 		unstarted_command_exists  = False
-		incomplete_command_exists    = False
+		incomplete_command_exists = False
 		for background_object in self.background_objects:
 			state = background_object.check_background_command_state()
 			if state != 'C':

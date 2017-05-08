@@ -1,4 +1,5 @@
 import logging
+import shutit_global
 
 class ShutItSendSpec(object):
 	"""Specification for arguments to send to shutit functions.
@@ -36,6 +37,7 @@ class ShutItSendSpec(object):
 	             run_in_background=False,
 	             block_other_commands=True,
 	             wait_cadence=2,
+	             force=False,
 	             loglevel=logging.INFO):
 		"""Specification for arguments to send to shutit functions.
 
@@ -130,13 +132,20 @@ class ShutItSendSpec(object):
 		self.run_in_background       = run_in_background
 		self.block_other_commands    = block_other_commands
 		self.wait_cadence            = wait_cadence
+		self.force                   = force
 
 		# Setup/checking
 		self.started                 = False
 		if check_exit and run_in_background:
 			check_exit = False
 		if send_dict and run_in_background:
-			# run_in_background and send_dict make no sense
+			shutit_global.shutit_global_object.log('run_in_background and send_dict make no sense',level=logging.CRITICAL)
+			assert False
+		if force and run_in_background:
+			shutit_global.shutit_global_object.log('run_in_background and force make no sense',level=logging.CRITICAL)
+			assert False
+		if force and not ignore_background:
+			shutit_global.shutit_global_object.log('not ignore_background and force make no sense',level=logging.CRITICAL)
 			assert False
 
 	def __str__(self):
@@ -179,4 +188,5 @@ class ShutItSendSpec(object):
 		string += '\nrun_in_background       = ' + str(self.run_in_background)
 		string += '\nblock_other_commands    = ' + str(self.block_other_commands)
 		string += '\nwait_cadence            = ' + str(self.wait_cadence)
+		string += '\nforce                   = ' + str(self.force)
 		return string
