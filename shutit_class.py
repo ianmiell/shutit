@@ -41,7 +41,6 @@ class ShutIt(object):
 		self.build                           = {}
 		self.build['interactive']            = 1 # Default to true until we know otherwise
 		self.build['report']                 = ''
-		self.build['loglevel']               = None
 		self.build['completed']              = False
 		self.build['mount_docker']           = False
 		self.build['distro_override']        = ''
@@ -2145,8 +2144,8 @@ class ShutIt(object):
 
 
 	# Pass through to global object
-	def create_session(self,session_type='bash', docker_image=None, rm=None, loglevel='INFO'):
-		return shutit_global.shutit_global_object.create_session(session_type=session_type,docker_image=docker_image,rm=rm)
+	def create_session(self, session_type='bash', docker_image=None, rm=None):
+		return shutit_global.shutit_global_object.create_session(session_type=session_type, docker_image=docker_image, rm=rm)
 
 
 	# TODO: walkthrough and exam at global level? but see handle_note - looks like that is shutit-specific
@@ -2156,7 +2155,7 @@ class ShutIt(object):
 		if self.build['always_echo'] is True:
 			echo = True
 		# Should we echo the output?
-		if echo is None and self.build['loglevel'] <= logging.DEBUG:
+		if echo is None and shutit_global.shutit_global_object.loglevel <= logging.DEBUG:
 			# Yes if it's in debug
 			echo = True
 		if echo is None and self.build['walkthrough']:

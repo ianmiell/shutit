@@ -64,7 +64,7 @@ class ShutItGlobal(object):
 	def add_shutit_session(self, shutit):
 		self.shutit_objects.append(shutit)
 
-	def create_session(self,session_type='bash', docker_image=None, rm=None):
+	def create_session(self, session_type='bash', docker_image=None, rm=None):
 		assert isinstance(session_type, str)
 		new_shutit = ShutIt()
 		self.add_shutit_session(new_shutit)
