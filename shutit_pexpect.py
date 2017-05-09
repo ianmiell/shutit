@@ -311,7 +311,6 @@ class ShutItPexpectSession(object):
 		if res == -1:
 			# Should not get here as login should not be blocked.
 			assert False
-		shutit.log('Login stack after login: ' + str(self.login_stack),level=logging.DEBUG)
 		# Check exit 'by hand' here to not effect/assume setup prompt.
 		if not self.get_exit_value(shutit):
 			if fail_on_fail: # pragma: no cover
@@ -323,14 +322,16 @@ class ShutItPexpectSession(object):
 			self.setup_prompt(r_id,prefix=prompt_prefix)
 		else:
 			self.setup_prompt(r_id)
+		self.login_stack.append(r_id)
+		shutit.log('Login stack after login: ' + str(self.login_stack),level=logging.DEBUG)
 		if go_home:
 			self.send(ShutItSendSpec(self,
 			                         send='cd',
 			                         check_exit=False,
 			                         echo=False,
 		                             ignore_background=True,
+			                         force=True,
 			                         loglevel=loglevel))
-		self.login_stack.append(r_id)
 		shutit.handle_note_after(note=note,training_input=send)
 		return True
 
@@ -3494,11 +3495,11 @@ $'"""
 					shutit.fail('Should not get here: environment reached but with unique build_id that matches, but object not in existence, ' + environment_id) # pragma: no cover
 			self.current_environment = environment
 			return shutit.get_shutit_pexpect_session_environment(environment_id)
+		# At this point we have determined it is a 'new' environment. So create a new ShutItPexpectSessionEnvironment identified by the prefix.
 		new_environment = ShutItPexpectSessionEnvironment(prefix)
 		# If not, create new env object, set it to current.
 		self.current_environment = new_environment
 		shutit.add_shutit_pexpect_session_environment(new_environment)
-		# make smarter wrt ORIGIN_ENV and cacheing (?)
 		self.get_distro_info()
 		self.send(ShutItSendSpec(self,
 		                         send=' command mkdir -p ' + environment_id_dir + ' && chmod -R 777 ' + shutit.build['shutit_state_dir_base'] + ' && touch ' + environment_id_dir + '/' + new_environment.environment_id,
