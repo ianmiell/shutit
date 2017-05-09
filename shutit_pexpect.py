@@ -137,7 +137,7 @@ class ShutItPexpectSession(object):
 		False means: you'll need to 'expect' the right thing from here.
 		"""
 		assert not sendspec.started
-		#self.shutit.log('_sendline: ' + str(sendspec),level=logging.FORENSIC)
+		#self.shutit.log('_sendline: ' + str(sendspec),level=logging.DEBUG)
 		if sendspec.force:
 			self.shutit.log('_sendline: forced through, ignoring background and/or run_in_background',level=logging.DEBUG)
 			if sendspec.nonewline != True:
