@@ -44,7 +44,6 @@ from shutit_login_stack import ShutItLoginStack
 from shutit_sendspec import ShutItSendSpec
 from shutit_module import ShutItFailException
 from shutit_pexpect_session_environment import ShutItPexpectSessionEnvironment
-from distutils.dir_util import mkpath
 
 
 PY3 = (sys.version_info[0] >= 3)
@@ -3081,7 +3080,6 @@ $'"""
 			host_child = shutit.get_shutit_pexpect_session_from_id('host_child').pexpect_child
 			path = path.replace(' ', r'\ ')
 			# get host session
-			mkpath(shutit.build['shutit_state_dir_base'])
 			tmpfile = shutit.build['shutit_state_dir_base'] + 'tmp_' + shutit_util.random_id()
 			f = open(tmpfile,'wb')
 			f.truncate(0)
