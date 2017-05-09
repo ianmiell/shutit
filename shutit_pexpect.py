@@ -2489,9 +2489,7 @@ class ShutItPexpectSession(object):
 		shutit = self.shutit
 		shutit.handle_note(note)
 		# assume we're going to add it
-		tmp_dir = '~/.shutit/tmp'
-		tmp_filename = tmp_dir + '/' + shutit_util.random_id()
-		self.send(ShutItSendSpec(self,send='mkdir -p ' + tmp_filename),force=True)
+		tmp_filename = '/tmp/' + shutit_util.random_id()
 		if self.file_exists(filename):
 			if literal:
 				if match_regexp is None:

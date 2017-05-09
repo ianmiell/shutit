@@ -695,7 +695,7 @@ shutitfile:        a shutitfile-based project (can be docker, bash, vagrant)
 		shutit.target['docker_image']    = ''
 	elif shutit.action['run']:
 		module_name      = random_id(chars=string.ascii_letters)
-		module_dir       = "~/.shutit/tmp/shutit_built/" + module_name
+		module_dir       = "/tmp/shutit_built/" + module_name
 		module_domain    = module_name + '.' + module_name
 		argv_new = [sys.argv[0],'skeleton','--shutitfile'] + args.shutitfiles + ['--name', module_dir,'--domain',module_domain,'--pattern','bash']
 		retdir = os.getcwd()
