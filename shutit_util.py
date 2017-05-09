@@ -522,7 +522,7 @@ def process_args(shutit, args, set_loglevel):
 	if shutit.build['loglevel'] in ('', None):
 		shutit.build['loglevel'] = set_loglevel
 	if shutit.build['loglevel'] in ('', None):
-		shutit.build['loglevel'] = 'INFO'
+		shutit.build['loglevel'] = 'WARNING'
 	setup_logging(shutit)
 
 	# This mode is a bit special - it's the only one with different arguments
