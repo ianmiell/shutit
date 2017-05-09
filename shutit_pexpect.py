@@ -254,8 +254,8 @@ class ShutItPexpectSession(object):
 			prompt_prefix = r_id
 		# Be helpful.
 		if user is None:
-			shutit.log('WARNING! No user supplied to login, so retrieving who I am. You may want to override.',level=logging.WARNING)
 			user = self.whoami()
+			shutit.log('No user supplied to login function, so retrieving who I am (' + user + '). You may want to override.',level=logging.INFO)
 		if ' ' in user:
 			shutit.fail('user has space in it - did you mean: login(command="' + user + '")?') # pragma: no cover
 		if shutit.build['delivery'] == 'bash' and command == 'su -':
@@ -289,7 +289,8 @@ class ShutItPexpectSession(object):
 		# r'[^t] login:' - be sure not to match 'last login:'
 		#if send == 'bash':
 		echo = shutit.get_echo_override(echo)
-		shutit.log('Logging in with command: ' + send + ' as user: ' + user,level=logging.INFO)
+		shutit.log('Logging in to new ShutIt environment.' + user,level=logging.DEBUG)
+		shutit.log('Logging in with command: ' + send + ' as user: ' + user,level=logging.DEBUG)
 		shutit.log('Login stack before login: ' + str(self.login_stack),level=logging.DEBUG)
 		#print('send: ' + str(send))
 		#print('password: ' + str(password))
