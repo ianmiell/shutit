@@ -1583,6 +1583,7 @@ class ShutIt(object):
 	          note=None,
 	          go_home=True,
 	          fail_on_fail=True,
+	          is_ssh=True,
 	          loglevel=logging.DEBUG):
 		"""Logs user in on default child.
 		"""
@@ -1600,6 +1601,7 @@ class ShutIt(object):
 		                                                   note=note,
 		                                                   go_home=go_home,
 		                                                   fail_on_fail=fail_on_fail,
+		                                                   is_ssh=is_ssh,
 		                                                   loglevel=loglevel))
 
 
