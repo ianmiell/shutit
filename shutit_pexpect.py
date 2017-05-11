@@ -783,7 +783,6 @@ class ShutItPexpectSession(object):
 			                         force=True))
 		return True
 
-	def interact
 
 
 	def file_exists(self,
