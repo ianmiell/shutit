@@ -4,6 +4,28 @@ def nodename='cage'
 def builddir='shutit-' + env.BUILD_NUMBER
 def branch=env.BRANCH_NAME
 
+//def nodetest() {
+//  sh('echo alive on $(hostname)')
+//}
+//// By default we use the 'welles' node, which could be offline.
+//try {
+//  // Give it 5 seconds to run the nodetest function
+//  timeout(time: 5, unit: 'SECONDS') {
+//    node(nodename) {
+//      nodetest()
+//    }
+//  }
+//} catch(err) {
+//  // Uh-oh. cage not available, so use 'welles'.
+//  nodename='welles'
+//  timeout(time: 5, unit: 'SECONDS') {
+//    node(nodename) {
+//      nodetest()
+//    }
+//  }
+//}
+
+
 
 try {
 	stage('setupenv') {
