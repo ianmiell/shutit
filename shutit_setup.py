@@ -37,6 +37,7 @@ import re
 import time
 import logging
 import pexpect
+import shutit_global
 from shutit_module import ShutItModule
 from shutit_sendspec import ShutItSendSpec
 from shutit_pexpect import ShutItPexpectSession
@@ -80,7 +81,7 @@ class ConnDocker(ShutItConnModule):
 		self.setup_host_child(shutit)
 		# TODO: on the host child, check that the image running has bash as its cmd/entrypoint.
 		self.setup_target_child(shutit, target_child)
-		shutit.send('chmod -R 777 ' + shutit.build['shutit_state_dir'] + ' && mkdir -p ' + shutit.build['build_db_dir'] + '/' + shutit.build['build_id'], shutit_pexpect_child=target_child, echo=False, loglevel=loglevel)
+		shutit.send('chmod -R 777 ' + shutit.build['shutit_state_dir'] + ' && mkdir -p ' + shutit.build['build_db_dir'] + '/' + shutit_global.shutit_global_object.build_id, shutit_pexpect_child=target_child, echo=False, loglevel=loglevel)
 		return True
 
 
@@ -276,7 +277,7 @@ def conn_docker_start_container(shutit, shutit_session_name, loglevel=logging.DE
 	# Always-required options
 	if not os.path.exists(shutit.build['shutit_state_dir'] + '/cidfiles'):
 		os.makedirs(shutit.build['shutit_state_dir'] + '/cidfiles')
-	shutit.build['cidfile'] = shutit.build['shutit_state_dir'] + '/cidfiles/' + shutit.host['username'] + '_cidfile_' + shutit.build['build_id']
+	shutit.build['cidfile'] = shutit.build['shutit_state_dir'] + '/cidfiles/' + shutit_global.shutit_global_object.username + '_cidfile_' + shutit_global.shutit_global_object.build_id
 	cidfile_arg = '--cidfile=' + shutit.build['cidfile']
 	# Singly-specified options
 	privileged_arg   = ''

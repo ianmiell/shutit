@@ -59,6 +59,17 @@ class ShutItGlobal(object):
 		self.logfile          = None
 		self.loglevel         = None
 		self.shutit_signal_id = None
+		self.username         = os.environ.get('LOGNAME', '')
+		if self.username == '':
+			try:
+				if os.getlogin() != '':
+					self.username = os.getlogin()
+			except Exception:
+				self.username = getpass.getuser()
+			if self.username == '':
+				shutit_util.handle_exit(msg='LOGNAME not set in the environment, ' + 'and login unavailable in python; ' + 'please set to your username.', exit_code=1)
+		self.real_user        = os.environ.get('SUDO_USER', self.username)
+		self.build_id         = (socket.gethostname() + '_' + self.real_user + '_' + str(time.time()) + '.' + str(datetime.datetime.now().microsecond))
 
 
 	def add_shutit_session(self, shutit):

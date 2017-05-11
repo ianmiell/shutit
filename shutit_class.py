@@ -52,19 +52,8 @@ class ShutIt(object):
 		self.host                            = {}
 		self.host['shutit_path']             = sys.path[0]
 		self.host['calling_path']            = os.getcwd()
-		self.host['username'] = os.environ.get('LOGNAME', '')
-		if self.host['username'] == '':
-			try:
-				if os.getlogin() != '':
-					self.host['username'] = os.getlogin()
-			except Exception:
-				self.host['username'] = getpass.getuser()
-			if self.host['username'] == '':
-				shutit_util.handle_exit(msg='LOGNAME not set in the environment, ' + 'and login unavailable in python; ' + 'please set to your username.', exit_code=1)
-		self.host['real_user'] = os.environ.get('SUDO_USER', self.host['username'])
-		self.build['shutit_state_dir_base'] = '/tmp/shutit_' + self.host['username']
-		self.build['build_id'] = (socket.gethostname() + '_' + self.host['real_user'] + '_' + str(time.time()) + '.' + str(datetime.datetime.now().microsecond))
-		self.build['shutit_state_dir']           = self.build['shutit_state_dir_base'] + '/' + self.build['build_id']
+		self.build['shutit_state_dir_base'] = '/tmp/shutit_' + shutit_global.shutit_global_object.username
+		self.build['shutit_state_dir']           = self.build['shutit_state_dir_base'] + '/' + shutit_global.shutit_global_object.build_id
 		self.build['build_db_dir']               = self.build['shutit_state_dir'] + '/build_db'
 		self.build['asciinema_session']          = None
 		self.build['asciinema_session_file']     = None

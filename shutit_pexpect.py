@@ -1230,18 +1230,18 @@ class ShutItPexpectSession(object):
 		if not self.current_environment.modules_recorded_cache_valid:
 			if self.file_exists(shutit.build['build_db_dir'] + '/module_record',directory=True):
 				# Bit of a hack here to get round the long command showing up as the first line of the output.
-				cmd = 'find ' + shutit.build['build_db_dir'] + r"""/module_record/ -name built | sed 's@^.""" + shutit.build['build_db_dir'] + r"""/module_record.\([^/]*\).built@\1@' > """ + shutit.build['build_db_dir'] + '/' + shutit.build['build_id']
+				cmd = 'find ' + shutit.build['build_db_dir'] + r"""/module_record/ -name built | sed 's@^.""" + shutit.build['build_db_dir'] + r"""/module_record.\([^/]*\).built@\1@' > """ + shutit.build['build_db_dir'] + '/' + shutit_global.shutit_global_object.build_id
 				self.send(ShutItSendSpec(self,
 				                         send=' ' + cmd,
 				                         echo=False,
 				                         loglevel=loglevel,
 				                         ignore_background=True,
 				                         force=True))
-				built = self.send_and_get_output(' command cat ' + shutit.build['build_db_dir'] + '/' + shutit.build['build_id'],
+				built = self.send_and_get_output(' command cat ' + shutit.build['build_db_dir'] + '/' + shutit_global.shutit_global_object.build_id,
 				                                 echo=False,
 				                                 loglevel=loglevel).strip()
 				self.send(ShutItSendSpec(self,
-				                         send=' command rm -rf ' + shutit.build['build_db_dir'] + '/' + shutit.build['build_id'],
+				                         send=' command rm -rf ' + shutit.build['build_db_dir'] + '/' + shutit_global.shutit_global_object.build_id,
 				                         echo=False,
 				                         loglevel=loglevel,
 				                         ignore_background=True,

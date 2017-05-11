@@ -397,7 +397,7 @@ def parse_args(shutit, set_loglevel=None):
 	eg ' a\ b c\\ \\d \\\e\' becomes '', 'a b', 'c\', '\d', '\\e\'
 	SHUTIT_OPTIONS is ignored if we are creating a skeleton
 	"""
-	shutit.host['real_user_id'] = pexpect.run('id -u ' + shutit.host['real_user'])
+	shutit_global.shutit_global_object.real_user_id = pexpect.run('id -u ' + shutit_global.shutit_global_object.real_user)
 
 	# These are in order of their creation
 	actions = ['build', 'run', 'list_configs', 'list_modules', 'list_deps', 'skeleton', 'version']
@@ -1140,12 +1140,12 @@ def build_report(shutit, msg=''):
 	"""
 	s = '\n'
 	s += '################################################################################\n'
-	s += '# COMMAND HISTORY BEGIN ' + shutit.build['build_id'] + '\n'
+	s += '# COMMAND HISTORY BEGIN ' + shutit_global.shutit_global_object.build_id + '\n'
 	s += get_commands(shutit)
-	s += '# COMMAND HISTORY END ' + shutit.build['build_id'] + '\n'
+	s += '# COMMAND HISTORY END ' + shutit_global.shutit_global_object.build_id + '\n'
 	s += '################################################################################\n'
 	s += '################################################################################\n'
-	s += '# BUILD REPORT FOR BUILD BEGIN ' + shutit.build['build_id'] + '\n'
+	s += '# BUILD REPORT FOR BUILD BEGIN ' + shutit_global.shutit_global_object.build_id + '\n'
 	s += '# ' + msg + '\n'
 	if shutit.build['report'] != '':
 		s += shutit.build['report'] + '\n'
@@ -1154,7 +1154,7 @@ def build_report(shutit, msg=''):
 
 	if 'container_id' in shutit.target:
 		s += '# CONTAINER_ID: ' + shutit.target['container_id'] + '\n'
-	s += '# BUILD REPORT FOR BUILD END ' + shutit.build['build_id'] + '\n'
+	s += '# BUILD REPORT FOR BUILD END ' + shutit_global.shutit_global_object.build_id + '\n'
 	s += '###############################################################################\n'
 	return s
 
