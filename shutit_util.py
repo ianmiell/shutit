@@ -807,11 +807,9 @@ shutitfile:        a shutitfile-based project (can be docker, bash, vagrant)
 		# Sort out config path
 		if shutit.action['list_configs'] or shutit.action['list_modules'] or shutit.action['list_deps'] or shutit_global.shutit_global_object.loglevel == logging.DEBUG:
 			shutit.build['log_config_path'] = shutit.build['shutit_state_dir'] + '/config/' + shutit.build['build_id']
-			if os.path.exists(shutit.build['log_config_path']):
-				print(shutit.build['log_config_path'] + ' exists. Please move and re-run.')
-				handle_exit(shutit=shutit, exit_code=1)
-			os.makedirs(shutit.build['log_config_path'])
-			os.chmod(shutit.build['log_config_path'],0o777)
+			if not os.path.exists(shutit.build['log_config_path']):
+				os.makedirs(shutit.build['log_config_path'])
+				os.chmod(shutit.build['log_config_path'],0o777)
 		else:
 			shutit.build['log_config_path'] = None
 		# Tutorial stuff. TODO: ditch tutorial mode
