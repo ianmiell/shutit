@@ -254,9 +254,10 @@ class ShutItPexpectSession(object):
 		if prompt_prefix is None:
 			prompt_prefix = r_id
 		# Be helpful - if this looks like a command that requires a user, then suggest user provides one.
-		if user is None and 'bash' not in command:
+		if user is None:
 			user = self.whoami()
-			shutit.log('No user supplied to login function, so retrieving who I am (' + user + '). You may want to override.',level=logging.WARNING)
+			if bash not in command:
+				shutit.log('No user supplied to login function, so retrieving who I am (' + user + '). You may want to override.',level=logging.WARNING)
 		if ' ' in user:
 			shutit.fail('user has space in it - did you mean: login(command="' + user + '")?') # pragma: no cover
 		if shutit.build['delivery'] == 'bash' and command == 'su -':
