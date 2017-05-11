@@ -769,7 +769,7 @@ class ShutItPexpectSession(object):
 			# clear the signal
 			signal_id = 0
 			shutit.log('\r\nCTRL-] caught, continuing with run...',level=logging.INFO,transient=True)
-		elif signal_id not in (0,4,7,8,17,19):
+		elif isinstance(signal_id, int) and signal_id not in (0,4,7,8,17,19):
 			shutit.log('\r\nLeaving interact without CTRL-] and shutit_signal is not recognised, shutit_signal value: ' + str(signal_id),level=logging.CRITICAL,transient=True)
 		elif signal_id == 0:
 			shutit.log('\r\nLeaving interact without CTRL-], assuming exit.',level=logging.CRITICAL,transient=True)
