@@ -806,7 +806,7 @@ shutitfile:        a shutitfile-based project (can be docker, bash, vagrant)
 		# Finished parsing args.
 		# Sort out config path
 		if shutit.action['list_configs'] or shutit.action['list_modules'] or shutit.action['list_deps'] or shutit_global.shutit_global_object.loglevel == logging.DEBUG:
-			shutit.build['log_config_path'] = shutit.build['shutit_state_dir'] + '/config/' + shutit.build['build_id']
+			shutit.build['log_config_path'] = shutit.build['shutit_state_dir'] + '/config/'
 			if not os.path.exists(shutit.build['log_config_path']):
 				os.makedirs(shutit.build['log_config_path'])
 				os.chmod(shutit.build['log_config_path'],0o777)
