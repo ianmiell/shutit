@@ -1006,10 +1006,7 @@ def list_modules(shutit, long_output=None,sort_order=None):
 	table.set_cols_width(colwidths)
 	msg = table.draw()
 	print('\n' + msg)
-	if shutit.build['log_config_path']:
-		f = open(shutit.build['log_config_path'] + '/module_order.txt','w')
-		f.write(msg)
-		f.close()
+
 
 # TODO: does this still work?
 def print_config(shutit, cfg, hide_password=True, history=False, module_id=None):

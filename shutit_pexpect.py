@@ -701,7 +701,7 @@ class ShutItPexpectSession(object):
 								               echo=False,
 								               loglevel=logging.DEBUG)
 								self.send(ShutItSendSpec(self,
-								                         send=' command chmod 777 ' + fixterm_filename,
+								                         send=' command chmod 777 ' + fixterm_filename + ' || /bin/true',
 								                         echo=False,
 								                         loglevel=logging.DEBUG,
 								                         ignore_background=True,
@@ -3476,7 +3476,7 @@ $'"""
 								# OBJECT TO _CURRENT_ ENVIRONMENT IN SHUTIT PEXPECT session OBJECT AND RETURN that object.
 								self.current_environment = environment
 							else:
-								shutit.fail('Should not get here: environment reached but with unique build_id that matches, but object not in existence') # pragma: no cover
+								shutit.fail('Should not get here: environment reached but with unique build_id that matches ' + environment_id_dir + ', but object not in existence') # pragma: no cover
 				else:
 					## See comment above re: cygwin.
 					if self.file_exists('/cygdrive'):
@@ -3492,7 +3492,7 @@ $'"""
 					# OBJECT TO _CURRENT_ ENVIRONMENT IN SHUTIT PEXPECT session OBJECT AND RETURN that object.
 					self.current_environment = environment
 				else:
-					shutit.fail('Should not get here: environment reached but with unique build_id that matches, but object not in existence, ' + environment_id) # pragma: no cover
+					shutit.fail('Should not get here: environment reached but with unique build_id that matches ' + environment_id_dir + ', but object not in existence, ' + environment_id) # pragma: no cover
 			self.current_environment = environment
 			return shutit.get_shutit_pexpect_session_environment(environment_id)
 		# At this point we have determined it is a 'new' environment. So create a new ShutItPexpectSessionEnvironment identified by the prefix.
@@ -3502,7 +3502,7 @@ $'"""
 		shutit.add_shutit_pexpect_session_environment(new_environment)
 		self.get_distro_info()
 		self.send(ShutItSendSpec(self,
-		                         send=' command mkdir -p ' + environment_id_dir + ' && chmod -R 777 ' + shutit.build['shutit_state_dir_base'] + ' && touch ' + environment_id_dir + '/' + new_environment.environment_id,
+		                         send=' command mkdir -p ' + environment_id_dir + ' && ( chmod -R 777 ' + shutit.build['shutit_state_dir_base'] + ' || /bin/true ) && touch ' + environment_id_dir + '/' + new_environment.environment_id,
 		                         echo=False,
 		                         loglevel=logging.DEBUG,
 		                         ignore_background=True,
