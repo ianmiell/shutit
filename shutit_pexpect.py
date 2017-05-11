@@ -208,7 +208,7 @@ class ShutItPexpectSession(object):
 	def wait(self, cadence=2, sendspec=None):
 		"""Does not return until all background commands are completed.
 		"""
-		self.shutit.log('In wait.',level=logging.INFO)
+		self.shutit.log('In wait.',level=logging.DEBUG)
 		if sendspec:
 			cadence = sendspec.wait_cadence
 		#print(self.login_stack)
@@ -218,6 +218,7 @@ class ShutItPexpectSession(object):
 				# When all have completed, break return the background command objects.
 				break
 			time.sleep(cadence)
+		self.shutit.log('Wait complete.',level=logging.DEBUG)
 		return
 
 
@@ -252,10 +253,10 @@ class ShutItPexpectSession(object):
 		r_id = shutit_util.random_id()
 		if prompt_prefix is None:
 			prompt_prefix = r_id
-		# Be helpful.
-		if user is None:
+		# Be helpful - if this looks like a command that requires a user, then suggest user provides one.
+		if user is None and 'bash' not in command:
 			user = self.whoami()
-			shutit.log('No user supplied to login function, so retrieving who I am (' + user + '). You may want to override.',level=logging.INFO)
+			shutit.log('No user supplied to login function, so retrieving who I am (' + user + '). You may want to override.',level=logging.WARNING)
 		if ' ' in user:
 			shutit.fail('user has space in it - did you mean: login(command="' + user + '")?') # pragma: no cover
 		if shutit.build['delivery'] == 'bash' and command == 'su -':
@@ -652,6 +653,7 @@ class ShutItPexpectSession(object):
 	                resize=True,
 	                colour='32',
 	                default_msg=None,
+	                interact=False,
 	                wait=-1):
 		"""Inserts a pause in the build session, which allows the user to try
 		things out before continuing. Ignored if we are not in an interactive
@@ -667,6 +669,7 @@ class ShutItPexpectSession(object):
 		                     Default: False
 		@param colour:       Colour to print message (typically 31 for red, 32 for green)
 		@param default_msg:  Whether to print the standard blurb
+		@param interact:     Interact without mediation, and set up environment.
 		@param wait:         Wait a few seconds rather than for input (for video mode)
 
 		@type msg:           string
@@ -743,6 +746,10 @@ class ShutItPexpectSession(object):
 			if wait > 0:
 				time.sleep(wait)
 			else:
+				if interact:
+					self.pexpect_child.sendline(' /tmp/x')
+					self.pexpect_child.sendline(' bash')
+					self.pexpect_child.interact()
 				try:
 					self.pexpect_child.interact(input_filter=self._pause_input_filter)
 					self.handle_pause_point_signals()
@@ -775,6 +782,8 @@ class ShutItPexpectSession(object):
 			                         ignore_background=True,
 			                         force=True))
 		return True
+
+	def interact
 
 
 	def file_exists(self,

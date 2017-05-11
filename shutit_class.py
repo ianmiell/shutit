@@ -1329,6 +1329,28 @@ class ShutIt(object):
 		return True
 
 
+	def interact(self,
+	            msg='SHUTIT PAUSE POINT',
+	            shutit_pexpect_child=None,
+	            print_input=True,
+	            level=1,
+	            resize=True,
+	            colour='32',
+	            default_msg=None,
+	            wait=-1):
+		"""Same as pause_point, but sets up the terminal ready for unmediated
+		interaction."""
+		self.pause_point(msg=msg,
+		                 shutit_pexpect_child=shutit_pexpect_child,
+		                 print_input=print_input,
+		                 level=level,
+		                 resize=resize,
+		                 colour=colour,
+		                 default_msg=default_msg,
+		                 interact=True,
+		                 wait=wait)
+
+
 	def pause_point(self,
 	                msg='SHUTIT PAUSE POINT',
 	                shutit_pexpect_child=None,
@@ -1337,6 +1359,7 @@ class ShutIt(object):
 	                resize=True,
 	                colour='32',
 	                default_msg=None,
+	                interact=False,
 	                wait=-1):
 		"""Inserts a pause in the build session, which allows the user to try
 		things out before continuing. Ignored if we are not in an interactive
