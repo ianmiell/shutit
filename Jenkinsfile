@@ -4,6 +4,7 @@ def nodename='cage'
 def builddir='shutit-' + env.BUILD_NUMBER
 def branch=env.BRANCH_NAME
 
+//nodename='welles'
 //def nodetest() {
 //  sh('echo alive on $(hostname)')
 //}
@@ -16,16 +17,9 @@ def branch=env.BRANCH_NAME
 //    }
 //  }
 //} catch(err) {
-//  // Uh-oh. cage not available, so use 'welles'.
-//  nodename='welles'
-//  timeout(time: 5, unit: 'SECONDS') {
-//    node(nodename) {
-//      nodetest()
-//    }
-//  }
+//  // Uh-oh. welles not available, so use 'cage'.
+//  nodename='cage'
 //}
-
-
 
 try {
 	stage('setupenv') {
