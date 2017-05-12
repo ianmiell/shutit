@@ -75,6 +75,18 @@ class ShutItGlobal(object):
 		self.shutit_state_dir_base  = '/tmp/shutit_' + self.username
 		self.shutit_state_dir       = self.shutit_state_dir_base + '/' + self.build_id
 		self.shutit_state_dir_build_db_dir = self.shutit_state_dir + '/build_db'
+		def terminal_size():
+			import fcntl, termios, struct
+			h, w, hp, wp = struct.unpack('HHHH',
+				fcntl.ioctl(0, termios.TIOCGWINSZ, struct.pack('HHHH', 0, 0, 0, 0)))
+			return h, w
+		try:
+			self.root_window_size = terminal_size()
+		except IOError:
+			self.root_window_size = None	
+
+
+	def add_shutit_session(self, shutit):
 
 
 	def add_shutit_session(self, shutit):

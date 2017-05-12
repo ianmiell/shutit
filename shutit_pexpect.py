@@ -123,6 +123,8 @@ class ShutItPexpectSession(object):
 		                              encoding=encoding,
 		                              codec_errors=codec_errors,
 		                              dimensions=dimensions)
+		if shutit_global.shutit_global_object.root_window_size is not None:
+			pexpect_child.setwinsize(int(shutit_global.shutit_global_object.root_window_size[0]),int(shutit_global.shutit_global_object.root_window_size[1]))
 		pexpect_child.delaybeforesend=delaybeforesend
 		shutit.log('sessions before: ' + str(shutit.shutit_pexpect_sessions),level=logging.DEBUG)
 		shutit.shutit_pexpect_sessions.update({self.pexpect_session_id:self})
