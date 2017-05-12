@@ -87,9 +87,6 @@ class ShutItGlobal(object):
 
 
 	def add_shutit_session(self, shutit):
-
-
-	def add_shutit_session(self, shutit):
 		self.shutit_objects.append(shutit)
 
 	def create_session(self, session_type='bash', docker_image=None, rm=None):
