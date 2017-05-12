@@ -60,6 +60,8 @@ class ShutItGlobal(object):
 		self.loglevel         = None
 		self.shutit_signal_id = None
 		self.username         = os.environ.get('LOGNAME', '')
+		# Environments are kept globally, as different sessions may re-connect to them.                                                                                                                 
+		self.shutit_pexpect_session_environments = set()
 		if self.username == '':
 			try:
 				if os.getlogin() != '':

@@ -76,8 +76,6 @@ class ShutIt(object):
 		self.conn_modules                   = set()
 		# Whether to list the modules seen
 		self.list_modules                   = {}
-		# Environments are kept globally, as different sessions may re-connect to them.
-		self.shutit_pexpect_session_environments = set()
 		self.cfg = {}                              # used to store module information
 		self.cfg['shutitfile'] = self.shutitfile   # required for patterns
 		self.cfg['skeleton']   = {}                # required for patterns
@@ -89,7 +87,7 @@ class ShutIt(object):
 	def add_shutit_pexpect_session_environment(self, pexpect_session_environment):
 		"""Adds an environment object to a shutit_pexpect_session object.
 		"""
-		self.shutit_pexpect_session_environments.add(pexpect_session_environment)
+		shutit_global.shutit_global_object.shutit_pexpect_session_environments.add(pexpect_session_environment)
 
 
 	def get_shutit_pexpect_session_environment(self, environment_id):
@@ -98,7 +96,7 @@ class ShutIt(object):
 		"""
 		if not isinstance(environment_id, str):
 			self.fail('Wrong argument type in get_shutit_pexpect_session_environment') # pragma: no cover
-		for env in self.shutit_pexpect_session_environments:
+		for env in shutit_global.shutit_global_object.shutit_pexpect_session_environments:
 			if env.environment_id == environment_id:
 				return env
 		return None

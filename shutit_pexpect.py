@@ -3471,6 +3471,8 @@ $'"""
 	def init_pexpect_session_environment(self, prefix):
 		shutit = self.shutit
 		environment_id_dir = shutit.build['shutit_state_dir'] + '/environment_id'
+		#print('=================================================================================')
+		#print('environment_id_dir')
 		if self.file_exists(environment_id_dir,directory=True):
 			files = self.ls(environment_id_dir)
 			if len(files) != 1 or not isinstance(files, list):
