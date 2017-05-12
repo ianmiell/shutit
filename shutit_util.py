@@ -262,11 +262,11 @@ def setup_logging(shutit):
 		return
 	logformat='%(asctime)s %(levelname)s: %(message)s'
 	if shutit_global.shutit_global_object.logfile == '':
-		if not os.access(shutit.build['shutit_state_dir_base'],os.F_OK):
-			mkpath(shutit.build['shutit_state_dir_base'])
+		if not os.access(shutit_global.shutit_global_object.shutit_state_dir_base,os.F_OK):
+			mkpath(shutit_global.shutit_global_object.shutit_state_dir_base)
 		if not os.access(shutit.build['shutit_state_dir'],os.F_OK):
 			mkpath(shutit.build['shutit_state_dir'])
-		os.chmod(shutit.build['shutit_state_dir_base'],0o777)
+		os.chmod(shutit_global.shutit_global_object.shutit_state_dir_base,0o777)
 		os.chmod(shutit.build['shutit_state_dir'],0o777)
 		shutit_global.shutit_global_object.loglevel = shutit_global.shutit_global_object.loglevel.upper()
 		if shutit_global.shutit_global_object.loglevel == 'DEBUG':

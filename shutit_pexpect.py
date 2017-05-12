@@ -3091,7 +3091,7 @@ $'"""
 			host_child = shutit.get_shutit_pexpect_session_from_id('host_child').pexpect_child
 			path = path.replace(' ', r'\ ')
 			# get host session
-			tmpfile = shutit.build['shutit_state_dir_base'] + 'tmp_' + shutit_util.random_id()
+			tmpfile = shutit_global.shutit_global_object.shutit_state_dir_base + 'tmp_' + shutit_util.random_id()
 			f = open(tmpfile,'wb')
 			f.truncate(0)
 			# TODO: try taking out trys
@@ -3513,7 +3513,7 @@ $'"""
 		shutit.add_shutit_pexpect_session_environment(new_environment)
 		self.get_distro_info()
 		self.send(ShutItSendSpec(self,
-		                         send=' command mkdir -p ' + environment_id_dir + ' && ( chmod -R 777 ' + shutit.build['shutit_state_dir_base'] + ' || /bin/true ) && touch ' + environment_id_dir + '/' + new_environment.environment_id,
+		                         send=' command mkdir -p ' + environment_id_dir + ' && ( chmod -R 777 ' + shutit_global.shutit_global_object.shutit_state_dir_base + ' || /bin/true ) && touch ' + environment_id_dir + '/' + new_environment.environment_id,
 		                         echo=False,
 		                         loglevel=logging.DEBUG,
 		                         ignore_background=True,
@@ -3592,7 +3592,7 @@ $'"""
 		"""
 		shutit = self.shutit
 		random_id = shutit_util.random_id()
-		fname = shutit.build['shutit_state_dir_base'] + '/tmp_' + random_id
+		fname = shutit_global.shutit_global_object.shutit_state_dir_base + '/tmp_' + random_id
 		working_str = send
 		# truncate -s must be used as --size is not supported everywhere (eg busybox)
 		assert not self.sendline(ShutItSendSpec(self,
