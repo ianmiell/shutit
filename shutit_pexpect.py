@@ -1228,20 +1228,20 @@ class ShutItPexpectSession(object):
 		shutit = self.shutit
 		shutit.handle_note(note)
 		if not self.current_environment.modules_recorded_cache_valid:
-			if self.file_exists(shutit.build['shutit_state_dir_build_db_dir'] + '/module_record',directory=True):
+			if self.file_exists(shutit_global.shutit_global_object.shutit_state_dir_build_db_dir + '/module_record',directory=True):
 				# Bit of a hack here to get round the long command showing up as the first line of the output.
-				cmd = 'find ' + shutit.build['shutit_state_dir_build_db_dir'] + r"""/module_record/ -name built | sed 's@^.""" + shutit.build['shutit_state_dir_build_db_dir'] + r"""/module_record.\([^/]*\).built@\1@' > """ + shutit.build['shutit_state_dir_build_db_dir'] + '/' + shutit_global.shutit_global_object.build_id
+				cmd = 'find ' + shutit_global.shutit_global_object.shutit_state_dir_build_db_dir + r"""/module_record/ -name built | sed 's@^.""" + shutit_global.shutit_global_object.shutit_state_dir_build_db_dir + r"""/module_record.\([^/]*\).built@\1@' > """ + shutit_global.shutit_global_object.shutit_state_dir_build_db_dir + '/' + shutit_global.shutit_global_object.build_id
 				self.send(ShutItSendSpec(self,
 				                         send=' ' + cmd,
 				                         echo=False,
 				                         loglevel=loglevel,
 				                         ignore_background=True,
 				                         force=True))
-				built = self.send_and_get_output(' command cat ' + shutit.build['shutit_state_dir_build_db_dir'] + '/' + shutit_global.shutit_global_object.build_id,
+				built = self.send_and_get_output(' command cat ' + shutit_global.shutit_global_object.shutit_state_dir_build_db_dir + '/' + shutit_global.shutit_global_object.build_id,
 				                                 echo=False,
 				                                 loglevel=loglevel).strip()
 				self.send(ShutItSendSpec(self,
-				                         send=' command rm -rf ' + shutit.build['shutit_state_dir_build_db_dir'] + '/' + shutit_global.shutit_global_object.build_id,
+				                         send=' command rm -rf ' + shutit_global.shutit_global_object.shutit_state_dir_build_db_dir + '/' + shutit_global.shutit_global_object.build_id,
 				                         echo=False,
 				                         loglevel=loglevel,
 				                         ignore_background=True,
@@ -3178,25 +3178,25 @@ $'"""
 		if shutit.build['delivery'] in ('docker','dockerfile') and in_shell:
 			script = ('set -o xtrace \n\n' + script + '\n\nset +o xtrace')
 		self.send(ShutItSendSpec(self,
-		                         send=' command mkdir -p ' + shutit.build['shutit_state_dir'] + '/scripts && chmod 777 ' + shutit.build['shutit_state_dir'] + '/scripts',
+		                         send=' command mkdir -p ' + shutit_global.shutit_global_object.shutit_state_dir + '/scripts && chmod 777 ' + shutit_global.shutit_global_object.shutit_state_dir + '/scripts',
 		                         echo=False,
 		                         loglevel=loglevel))
-		self.send_file(shutit.build['shutit_state_dir'] + '/scripts/shutit_script.sh',
+		self.send_file(shutit_global.shutit_global_object.shutit_state_dir + '/scripts/shutit_script.sh',
 		               script,
 		               loglevel=loglevel)
 		self.send(ShutItSendSpec(self,
-		                         send=' command chmod +x ' + shutit.build['shutit_state_dir'] + '/scripts/shutit_script.sh',
+		                         send=' command chmod +x ' + shutit_global.shutit_global_object.shutit_state_dir + '/scripts/shutit_script.sh',
 		                         echo=False,
 		                         loglevel=loglevel))
 		shutit.build['shutit_command_history'].append('    ' + script.replace('\n', '\n    '))
 		if in_shell:
 			ret = self.send(ShutItSendSpec(self,
-			                               send=' . ' + shutit.build['shutit_state_dir'] + '/scripts/shutit_script.sh && rm -f ' + shutit.build['shutit_state_dir'] + '/scripts/shutit_script.sh && rm -f ' + shutit.build['shutit_state_dir'] + '/scripts/shutit_script.sh',
+			                               send=' . ' + shutit_global.shutit_global_object.shutit_state_dir + '/scripts/shutit_script.sh && rm -f ' + shutit_global.shutit_global_object.shutit_state_dir + '/scripts/shutit_script.sh && rm -f ' + shutit_global.shutit_global_object.shutit_state_dir + '/scripts/shutit_script.sh',
 			                               echo=False,
 			                               loglevel=loglevel))
 		else:
 			ret = self.send(ShutItSendSpec(self,
-			                               send=' ' + shutit.build['shutit_state_dir'] + '/scripts/shutit_script.sh && rm -f ' + shutit.build['shutit_state_dir'] + '/scripts/shutit_script.sh',
+			                               send=' ' + shutit_global.shutit_global_object.shutit_state_dir + '/scripts/shutit_script.sh && rm -f ' + shutit_global.shutit_global_object.shutit_state_dir + '/scripts/shutit_script.sh',
 			                               echo=False,
 			                               loglevel=loglevel))
 		shutit.handle_note_after(note=note)
@@ -3470,7 +3470,7 @@ $'"""
 
 	def init_pexpect_session_environment(self, prefix):
 		shutit = self.shutit
-		environment_id_dir = shutit.build['shutit_state_dir'] + '/environment_id'
+		environment_id_dir = shutit_global.shutit_global_object.shutit_state_dir + '/environment_id'
 		#print('=================================================================================')
 		#print('environment_id_dir')
 		if self.file_exists(environment_id_dir,directory=True):

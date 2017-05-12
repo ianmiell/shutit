@@ -73,6 +73,8 @@ class ShutItGlobal(object):
 		self.real_user        = os.environ.get('SUDO_USER', self.username)
 		self.build_id         = (socket.gethostname() + '_' + self.real_user + '_' + str(time.time()) + '.' + str(datetime.datetime.now().microsecond))
 		self.shutit_state_dir_base  = '/tmp/shutit_' + self.username
+		self.shutit_state_dir       = self.shutit_state_dir_base + '/' + self.build_id
+		self.shutit_state_dir_build_db_dir = self.shutit_state_dir + '/build_db'
 
 
 	def add_shutit_session(self, shutit):

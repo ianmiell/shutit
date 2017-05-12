@@ -264,10 +264,10 @@ def setup_logging(shutit):
 	if shutit_global.shutit_global_object.logfile == '':
 		if not os.access(shutit_global.shutit_global_object.shutit_state_dir_base,os.F_OK):
 			mkpath(shutit_global.shutit_global_object.shutit_state_dir_base)
-		if not os.access(shutit.build['shutit_state_dir'],os.F_OK):
-			mkpath(shutit.build['shutit_state_dir'])
+		if not os.access(shutit_global.shutit_global_object.shutit_state_dir,os.F_OK):
+			mkpath(shutit_global.shutit_global_object.shutit_state_dir)
 		os.chmod(shutit_global.shutit_global_object.shutit_state_dir_base,0o777)
-		os.chmod(shutit.build['shutit_state_dir'],0o777)
+		os.chmod(shutit_global.shutit_global_object.shutit_state_dir,0o777)
 		shutit_global.shutit_global_object.loglevel = shutit_global.shutit_global_object.loglevel.upper()
 		if shutit_global.shutit_global_object.loglevel == 'DEBUG':
 			logging.basicConfig(format=logformat,level=logging.DEBUG)
@@ -806,7 +806,7 @@ shutitfile:        a shutitfile-based project (can be docker, bash, vagrant)
 		# Finished parsing args.
 		# Sort out config path
 		if shutit.action['list_configs'] or shutit.action['list_modules'] or shutit.action['list_deps'] or shutit_global.shutit_global_object.loglevel == logging.DEBUG:
-			shutit.build['log_config_path'] = shutit.build['shutit_state_dir'] + '/config'
+			shutit.build['log_config_path'] = shutit_global.shutit_global_object.shutit_state_dir + '/config'
 			if not os.path.exists(shutit.build['log_config_path']):
 				os.makedirs(shutit.build['log_config_path'])
 				os.chmod(shutit.build['log_config_path'],0o777)
