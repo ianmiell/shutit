@@ -329,7 +329,7 @@ def do_remove(shutit, loglevel=logging.DEBUG):
 			else:
 				if shutit.build['delivery'] in ('docker','dockerfile'):
 					# Create a directory and files to indicate this has been removed.
-					shutit.send(' command mkdir -p ' + shutit.build['shutit_state_dir_build_db_dir'] + '/module_record/' + module.module_id + ' && command rm -f ' + shutit.build['shutit_state_dir_build_db_dir'] + '/module_record/' + module.module_id + '/built && command touch ' + shutit.build['shutit_state_dir_build_db_dir'] + '/module_record/' + module.module_id + '/removed', loglevel=loglevel)
+					shutit.send(' command mkdir -p ' + shutit_global.shutit_global_object.shutit_state_dir_build_db_dir + '/module_record/' + module.module_id + ' && command rm -f ' + shutit_global.shutit_global_object.shutit_state_dir_build_db_dir + '/module_record/' + module.module_id + '/built && command touch ' + shutit_global.shutit_global_object.shutit_state_dir_build_db_dir + '/module_record/' + module.module_id + '/removed', loglevel=loglevel)
 					# Remove from "installed" cache
 					if module.module_id in shutit.get_current_shutit_pexpect_session_environment().modules_installed:
 						shutit.get_current_shutit_pexpect_session_environment().modules_installed.remove(module.module_id)
@@ -350,7 +350,7 @@ def build_module(shutit, module, loglevel=logging.DEBUG):
 	else:
 		if shutit.build['delivery'] in ('docker','dockerfile'):
 			# Create a directory and files to indicate this has been built.
-			shutit.send(' command mkdir -p ' + shutit.build['shutit_state_dir_build_db_dir'] + '/module_record/' + module.module_id + ' && command touch ' + shutit.build['shutit_state_dir_build_db_dir'] + '/module_record/' + module.module_id + '/built && command rm -f ' + shutit.build['shutit_state_dir_build_db_dir'] + '/module_record/' + module.module_id + '/removed', loglevel=loglevel)
+			shutit.send(' command mkdir -p ' + shutit_global.shutit_global_object.shutit_state_dir_build_db_dir + '/module_record/' + module.module_id + ' && command touch ' + shutit_global.shutit_global_object.shutit_state_dir_build_db_dir + '/module_record/' + module.module_id + '/built && command rm -f ' + shutit_global.shutit_global_object.shutit_state_dir_build_db_dir + '/module_record/' + module.module_id + '/removed', loglevel=loglevel)
 		# Put it into "installed" cache
 		shutit.get_current_shutit_pexpect_session_environment().modules_installed.append(module.module_id)
 		# Remove from "not installed" cache
