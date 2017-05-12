@@ -52,11 +52,11 @@ class ShutIt(object):
 		self.host                            = {}
 		self.host['shutit_path']             = sys.path[0]
 		self.host['calling_path']            = os.getcwd()
-		self.build['shutit_state_dir_base'] = '/tmp/shutit_' + shutit_global.shutit_global_object.username
-		self.build['shutit_state_dir']           = self.build['shutit_state_dir_base'] + '/' + shutit_global.shutit_global_object.build_id
-		self.build['build_db_dir']               = self.build['shutit_state_dir'] + '/build_db'
-		self.build['asciinema_session']          = None
-		self.build['asciinema_session_file']     = None
+		self.build['asciinema_session']      = None
+		self.build['asciinema_session_file'] = None
+		self.build['shutit_state_dir_base']  = '/tmp/shutit_' + shutit_global.shutit_global_object.username
+		self.build['shutit_state_dir']       = self.build['shutit_state_dir_base'] + '/' + shutit_global.shutit_global_object.build_id
+		self.build['shutit_state_dir_build_db_dir'] = self.build['shutit_state_dir'] + '/build_db'
 
 		# These used to be in shutit_global, so we pass them in as args so
 		# the original reference can be put in shutit_global
