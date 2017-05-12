@@ -77,17 +77,17 @@ class ShutItGlobal(object):
 		self.shutit_state_dir_build_db_dir = self.shutit_state_dir + '/build_db'
 		def terminal_size():
 			import fcntl, termios, struct
-			h, w, hp, wp = struct.unpack('HHHH',
-				fcntl.ioctl(0, termios.TIOCGWINSZ, struct.pack('HHHH', 0, 0, 0, 0)))
+			h, w, hp, wp = struct.unpack('HHHH', fcntl.ioctl(0, termios.TIOCGWINSZ, struct.pack('HHHH', 0, 0, 0, 0)))
 			return h, w
 		try:
 			self.root_window_size = terminal_size()
 		except IOError:
-			self.root_window_size = None	
+			self.root_window_size = (24,320)
 
 
 	def add_shutit_session(self, shutit):
 		self.shutit_objects.append(shutit)
+
 
 	def create_session(self, session_type='bash', docker_image=None, rm=None):
 		assert isinstance(session_type, str)
