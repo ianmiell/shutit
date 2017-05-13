@@ -317,6 +317,8 @@ def get_base_config(shutit, cfg_parser):
 	shutit.build['ctrlc_passthrough']          = False
 	shutit.build['have_read_config_file']      = False
 	# Width of terminal to set up on login and assume for other cases.
+	# Does not work with bash test 2 - why?
+	#shutit.build['stty_cols']                  = shutit_global.shutit_global_object.root_window_size[1]
 	shutit.build['stty_cols']                  = 320
 	shutit.build['vagrant_run_dir']            = None
 	shutit.build['this_vagrant_run_dir']       = None
