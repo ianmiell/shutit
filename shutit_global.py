@@ -34,9 +34,13 @@ import codecs
 import datetime
 import logging
 import tarfile
+import fcntl
+import termios
+import struct
 import pexpect
 import shutit_util
 import shutit_setup
+from distutils.dir_util import mkpath
 from shutit_module import ShutItFailException
 from shutit_class import ShutIt
 
@@ -60,7 +64,7 @@ class ShutItGlobal(object):
 		self.loglevel         = None
 		self.shutit_signal_id = None
 		self.username         = os.environ.get('LOGNAME', '')
-		# Environments are kept globally, as different sessions may re-connect to them.                                                                                                                 
+		# Environments are kept globally, as different sessions may re-connect to them.
 		self.shutit_pexpect_session_environments = set()
 		if self.username == '':
 			try:
@@ -72,22 +76,30 @@ class ShutItGlobal(object):
 				shutit_util.handle_exit(msg='LOGNAME not set in the environment, ' + 'and login unavailable in python; ' + 'please set to your username.', exit_code=1)
 		self.real_user        = os.environ.get('SUDO_USER', self.username)
 		self.build_id         = (socket.gethostname() + '_' + self.real_user + '_' + str(time.time()) + '.' + str(datetime.datetime.now().microsecond))
-		self.shutit_state_dir_base  = '/tmp/shutit_' + self.username
-		self.shutit_state_dir       = self.shutit_state_dir_base + '/' + self.build_id
+		shutit_state_dir_base  = '/tmp/shutit_' + self.username
+		if not os.access(shutit_state_dir_base,os.F_OK):
+			mkpath(shutit_state_dir_base)
+		self.shutit_state_dir       = shutit_state_dir_base + '/' + self.build_id
+		if not os.access(self.shutit_state_dir,os.F_OK):
+			mkpath(self.shutit_state_dir)
+		os.chmod(self.shutit_state_dir,0o777)
 		self.shutit_state_dir_build_db_dir = self.shutit_state_dir + '/build_db'
+		self.shutit_state_pickle_file  = self.shutit_state_dir + '/shutit_pickle'
 		def terminal_size():
-			import fcntl, termios, struct
-			h, w, hp, wp = struct.unpack('HHHH',
-				fcntl.ioctl(0, termios.TIOCGWINSZ, struct.pack('HHHH', 0, 0, 0, 0)))
-			return h, w
+			h, w, hp, wp = struct.unpack('HHHH', fcntl.ioctl(0, termios.TIOCGWINSZ, struct.pack('HHHH', 0, 0, 0, 0)))
+			return int(h), int(w)
 		try:
 			self.root_window_size = terminal_size()
 		except IOError:
-			self.root_window_size = None	
+			# If no terminal exists, set to default.
+			self.root_window_size = (24,80)
+		# Just override to the max possible
+		self.pexpect_window_size = (65535,65535)
 
 
 	def add_shutit_session(self, shutit):
 		self.shutit_objects.append(shutit)
+
 
 	def create_session(self, session_type='bash', docker_image=None, rm=None):
 		assert isinstance(session_type, str)

@@ -262,12 +262,6 @@ def setup_logging(shutit):
 		return
 	logformat='%(asctime)s %(levelname)s: %(message)s'
 	if shutit_global.shutit_global_object.logfile == '':
-		if not os.access(shutit_global.shutit_global_object.shutit_state_dir_base,os.F_OK):
-			mkpath(shutit_global.shutit_global_object.shutit_state_dir_base)
-		if not os.access(shutit_global.shutit_global_object.shutit_state_dir,os.F_OK):
-			mkpath(shutit_global.shutit_global_object.shutit_state_dir)
-		os.chmod(shutit_global.shutit_global_object.shutit_state_dir_base,0o777)
-		os.chmod(shutit_global.shutit_global_object.shutit_state_dir,0o777)
 		shutit_global.shutit_global_object.loglevel = shutit_global.shutit_global_object.loglevel.upper()
 		if shutit_global.shutit_global_object.loglevel == 'DEBUG':
 			logging.basicConfig(format=logformat,level=logging.DEBUG)
@@ -317,9 +311,8 @@ def get_base_config(shutit, cfg_parser):
 	shutit.build['ctrlc_passthrough']          = False
 	shutit.build['have_read_config_file']      = False
 	# Width of terminal to set up on login and assume for other cases.
-	# Does not work with bash test 2 - why?
-	#shutit.build['stty_cols']                  = shutit_global.shutit_global_object.root_window_size[1]
-	shutit.build['stty_cols']                  = 320
+	# There is a problem with lines roughly around this length + the length of the prompt (?3k?)
+	shutit.build['line_limit']                 = 3000  #OK
 	shutit.build['vagrant_run_dir']            = None
 	shutit.build['this_vagrant_run_dir']       = None
 	# Take a command-line arg if given, else default.

@@ -4,12 +4,10 @@ off to internal objects such as shutit_pexpect.
 
 import sys
 import os
-import socket
 import time
 import re
 import getpass
 import codecs
-import datetime
 import logging
 import tarfile
 import pexpect
@@ -184,8 +182,6 @@ class ShutIt(object):
 			self.log(msg,level=logging.CRITICAL)
 			self.log('Error seen, exiting with status 1',level=logging.CRITICAL)
 			shutit_util.handle_exit(exit_code=1,msg=msg)
-		return False
-
 
 
 
@@ -1993,10 +1989,7 @@ class ShutIt(object):
 						while answer not in ('yes','no','') and self.build['interactive'] > 1:
 							answer = shutit_util.util_raw_input(self, prompt=shutit_util.colourise('32', 'Do you want to accept the config option defaults? ' + '(boolean - input "yes" or "no") (default: yes): \n'),default='yes',ispass=secret)
 						# util_raw_input may change the interactive level, so guard for this.
-						if answer in ('yes','') or self.build['interactive'] < 2:
-							self.build['accept_defaults'] = True
-						else:
-							self.build['accept_defaults'] = False
+						self.build['accept_defaults'] = answer in ('yes','') or self.build['interactive'] < 2
 					if self.build['accept_defaults'] and default != None:
 						cfg[module_id][option] = default
 					else:
@@ -2188,12 +2181,12 @@ class ShutIt(object):
 		shutit_pexpect_session = shutit_pexpect_session or self.get_current_shutit_pexpect_session()
 		return shutit_pexpect_session.check_sudo()
 
-	
+
 	def get_exit_value(self, shutit_pexpect_session=None):
 		shutit_pexpect_session = shutit_pexpect_session or self.get_current_shutit_pexpect_session()
 		return shutit_pexpect_session.get_exit_value(self)
 
 
 	def get_sudo_pass_if_needed(self, shutit, ignore_brew=False):
-		shutit_pexpect_session = shutit_pexpect_session or self.get_current_shutit_pexpect_session()
+		shutit_pexpect_session = self.get_current_shutit_pexpect_session()
 		return shutit_pexpect_session.get_sudo_pass_if_needed(shutit, ignore_brew=ignore_brew)
