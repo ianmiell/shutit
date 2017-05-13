@@ -554,12 +554,12 @@ class ShutItPexpectSession(object):
 		target_child = shutit.get_shutit_pexpect_session_from_id('target_child')
 		if go_home != None:
 			target_child.login(ShutItSendSpec(self,
-			                                  send='bash --noprofile --norc',
+			                                  send='bash --noprofile --norc --noediting',
 			                                  echo=False,
 			                                  go_home=go_home))
 		else:
 			target_child.login(ShutItSendSpec(self,
-			                                  send='bash --noprofile --norc',
+			                                  send='bash --noprofile --norc --noediting',
 			                                  echo=False))
 		return True
 
