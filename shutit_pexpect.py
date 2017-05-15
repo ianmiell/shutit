@@ -2603,96 +2603,56 @@ $'"""
 				else:
 					shutit.log('The string was sent safely.', level=logging.DEBUG)
 			if sendspec.escape:
-				if escaped_str != None:
-					if len(escaped_str) > shutit.build['line_limit']:
-						fname = self._create_command_file(sendspec.expect,escaped_str)
-						res = self.send(ShutItSendSpec(self,
-						                               send=' command source ' + fname,
-						                               expect=sendspec.expect,
-						                               timeout=sendspec.timeout,
-						                               check_exit=sendspec.check_exit,
-						                               fail_on_empty_before=False,
-						                               record_command=False,
-						                               exit_values=sendspec.exit_values,
-						                               echo=False,
-						                               escape=False,
-						                               retry=sendspec.retry,
-						                               loglevel=sendspec.loglevel,
-						                               follow_on_commands=sendspec.follow_on_commands,
-						                               delaybeforesend=sendspec.delaybeforesend,
-			                                           nonewline=sendspec.nonewline,
-			                                           run_in_background=sendspec.run_in_background,
-						                               ignore_background=True,force=True))
-						if not self.sendline(ShutItSendSpec(self,
-						                                    send=' rm -f ' + fname,
-						                                    nonewline=sendspec.nonewline,
-			                                                run_in_background=sendspec.run_in_background,
-						                                    ignore_background=True,
-						                                    echo=False,
-						                                    force=True)):
-							self.expect(sendspec.expect, searchwindowsize=sendspec.searchwindowsize, maxread=sendspec.maxread)
-						return res
-					else:
-						if not self.sendline(ShutItSendSpec(self,
-						                                    send=escaped_str,
-						                                    nonewline=sendspec.nonewline,
-						                                    ignore_background=True,
-						                                    echo=False,
-						                                    run_in_background=sendspec.run_in_background,
-						                                    force=True)):
-							expect_res = shutit.expect_allow_interrupt(self.shutit, self.pexpect_child, sendspec.expect, sendspec.timeout)
-						else:
-							expect_res = -1
-				else:
-					expect_res = shutit.expect_allow_interrupt(self.shutit, self.pexpect_child, sendspec.expect, sendspec.timeout)
+				string_to_send = escaped_str
 			else:
-				if sendspec.send != None:
-					if len(sendspec.send) > shutit.build['line_limit']:
-						fname = self._create_command_file(sendspec.expect,sendspec.send)
-						res = self.send(ShutItSendSpec(self,
-						                               send=' command source ' + fname,
-						                               expect=sendspec.expect,
-						                               timeout=sendspec.timeout,
-						                               check_exit=sendspec.check_exit,
-						                               fail_on_empty_before=False,
-						                               record_command=False,
-						                               exit_values=sendspec.exit_values,
-						                               echo=False,
-						                               escape=False,
-						                               retry=sendspec.retry,
-						                               loglevel=sendspec.loglevel,
-						                               follow_on_commands=sendspec.follow_on_commands,
-						                               delaybeforesend=sendspec.delaybeforesend,
-			                                           nonewline=sendspec.nonewline,
-			                                           run_in_background=sendspec.run_in_background,
-						                               ignore_background=True,
-						                               force=True))
-						if not self.sendline(ShutItSendSpec(self,
-						                                    send=' rm -f ' + fname,
-						                                    nonewline=sendspec.nonewline,
-			                                                run_in_background=sendspec.run_in_background,
-						                                    echo=False,
-						                                    ignore_background=True,
-						                                    force=True)):
-							self.expect(sendspec.expect,
-							            searchwindowsize=sendspec.searchwindowsize,
-							            maxread=sendspec.maxread)
-						return res
-					else:
-						if sendspec.echo:
-							shutit.divert_output(sys.stdout)
-						if not self.sendline(ShutItSendSpec(self,
-						                                    send=sendspec.send,
-						                                    nonewline=sendspec.nonewline,
-						                                    ignore_background=sendspec.ignore_background,
-						                                    run_in_background=sendspec.run_in_background)):
-							expect_res = shutit.expect_allow_interrupt(self.shutit, self.pexpect_child, sendspec.expect, sendspec.timeout)
-						else:
-							expect_res = -1
-						if sendspec.echo:
-							shutit.divert_output(None)
+				string_to_send = sendspec.send
+			if string_to_send != None:
+				if len(string_to_send) > shutit.build['line_limit']:
+					fname = self._create_command_file(sendspec.expect,string_to_send)
+					res = self.send(ShutItSendSpec(self,
+					                               send=' command source ' + fname,
+					                               expect=sendspec.expect,
+					                               timeout=sendspec.timeout,
+					                               check_exit=sendspec.check_exit,
+					                               fail_on_empty_before=False,
+					                               record_command=False,
+					                               exit_values=sendspec.exit_values,
+					                               echo=False,
+					                               escape=False,
+					                               retry=sendspec.retry,
+					                               loglevel=sendspec.loglevel,
+					                               follow_on_commands=sendspec.follow_on_commands,
+					                               delaybeforesend=sendspec.delaybeforesend,
+			                                       nonewline=sendspec.nonewline,
+			                                       run_in_background=sendspec.run_in_background,
+					                               ignore_background=True,
+					                               force=True))
+					if not self.sendline(ShutItSendSpec(self,
+					                                    send=' rm -f ' + fname,
+					                                    nonewline=sendspec.nonewline,
+			                                            run_in_background=sendspec.run_in_background,
+					                                    echo=False,
+					                                    ignore_background=True,
+					                                    force=True)):
+						self.expect(sendspec.expect,
+						            searchwindowsize=sendspec.searchwindowsize,
+						            maxread=sendspec.maxread)
+					return res
 				else:
-					expect_res = shutit.expect_allow_interrupt(self.shutit, self.pexpect_child, sendspec.expect, sendspec.timeout)
+					if sendspec.echo:
+						shutit.divert_output(sys.stdout)
+					if not self.sendline(ShutItSendSpec(self,
+					                                    send=sendspec.send,
+					                                    nonewline=sendspec.nonewline,
+					                                    ignore_background=sendspec.ignore_background,
+					                                    run_in_background=sendspec.run_in_background)):
+						expect_res = shutit.expect_allow_interrupt(self.shutit, self.pexpect_child, sendspec.expect, sendspec.timeout)
+					else:
+						expect_res = -1
+					if sendspec.echo:
+						shutit.divert_output(None)
+			else:
+				expect_res = shutit.expect_allow_interrupt(self.shutit, self.pexpect_child, sendspec.expect, sendspec.timeout)
 			if isinstance(self.pexpect_child.after, type) or isinstance(self.pexpect_child.before, type):
 				shutit.log('End of pexpect session detected, bailing.',level=logging.CRITICAL)
 				shutit_util.handle_exit(exit_code=1)
