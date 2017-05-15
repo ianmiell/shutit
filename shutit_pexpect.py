@@ -373,8 +373,7 @@ class ShutItPexpectSession(object):
 		                                  timeout=sendspec.timeout,
 		                                  echo=echo,
 		                                  loglevel=sendspec.loglevel,
-			                              nonewline=sendspec.nonewline,
-		                                  no_wrap=True)
+			                              nonewline=sendspec.nonewline)
 		shutit.handle_note_after(note=sendspec.note)
 		return output
 
@@ -1592,7 +1591,6 @@ class ShutItPexpectSession(object):
 	                        record_command=True,
 	                        echo=None,
 	                        fail_on_empty_before=True,
-	                        no_wrap=None,
 	                        check_sudo=True,
 	                        nonewline=False,
 	                        loglevel=logging.DEBUG):
@@ -1613,75 +1611,21 @@ class ShutItPexpectSession(object):
 		shutit.log('Retrieving output from command: ' + send,level=loglevel)
 		# Don't check exit, as that will pollute the output. Also, it's quite likely the submitted command is intended to fail.
 		echo = shutit.get_echo_override(echo)
-		if no_wrap != True and len(send) > 80:
-			tmpfile = '/tmp/shutit_tmpfile_' + shutit_util.random_id()
-			# To avoid issues with terminal wrap, subshell the command and place
-			# the output in a file.
-			send = ' (' + send + ') > ' + tmpfile + ' 2>&1'
-			self.send(ShutItSendSpec(self,
-			                         send=shutit_util.get_send_command(shutit, send),
-			                         check_exit=False,
-			                         retry=retry,
-			                         echo=echo,
-			                         timeout=timeout,
-			                         record_command=record_command,
-			                         check_sudo=check_sudo,
-			                         fail_on_empty_before=fail_on_empty_before,
-			                         loglevel=loglevel,
-			                         ignore_background=True,
-			                         force=True))
-			# Now try an alias
-			send       = ' alias shutitalias=" command cat ' + tmpfile + '"'
-			self.send(ShutItSendSpec(self,
-			                         send=send,
-			                         check_exit=False,
-			                         echo=echo,
-			                         timeout=timeout,
-			                         record_command=record_command,
-			                         check_sudo=check_sudo,
-			                         loglevel=loglevel,
-			                         ignore_background=True,
-			                         force=True))
-			res = self.send_and_get_output(' shutitalias',
-			                               timeout=timeout,
-			                               strip=strip,
-			                               preserve_newline=preserve_newline,
-			                               note=note,
-			                               record_command=record_command,
-			                               echo=echo,
-			                               fail_on_empty_before=fail_on_empty_before,
-			                               no_wrap=True,
-			                               check_sudo=check_sudo,
-			                               nonewline=nonewline,
-			                               loglevel=loglevel)
-			self.send(ShutItSendSpec(self,
-			                         send=' unalias shutitalias',
-			                         check_exit=False,
-			                         echo=echo,
-			                         timeout=timeout,
-			                         record_command=record_command,
-			                         check_sudo=check_sudo,
-			                         nonewline=nonewline,
-			                         loglevel=loglevel,
-			                         ignore_background=True,
-			                         force=True))
-			return res
-		else:
-			send = shutit_util.get_send_command(shutit, send)
-			self.send(ShutItSendSpec(self,
-			                         send=send,
-			                         check_exit=False,
-			                         retry=retry,
-			                         echo=echo,
-			                         timeout=timeout,
-			                         record_command=record_command,
-			                         fail_on_empty_before=fail_on_empty_before,
-			                         check_sudo=check_sudo,
-			                         nonewline=nonewline,
-			                         loglevel=loglevel,
-			                         ignore_background=True,
-			                         force=True))
-			before = self.pexpect_child.before
+		send = shutit_util.get_send_command(shutit, send)
+		self.send(ShutItSendSpec(self,
+		                         send=send,
+		                         check_exit=False,
+		                         retry=retry,
+		                         echo=echo,
+		                         timeout=timeout,
+		                         record_command=record_command,
+		                         fail_on_empty_before=fail_on_empty_before,
+		                         check_sudo=check_sudo,
+		                         nonewline=nonewline,
+		                         loglevel=loglevel,
+		                         ignore_background=True,
+		                         force=True))
+		before = self.pexpect_child.before
 
 		if len(before):
 			preserve_newline = bool(preserve_newline and before[-1] == '\n')

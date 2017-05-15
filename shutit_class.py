@@ -75,8 +75,13 @@ class ShutIt(object):
 		self.cfg['shutitfile'] = self.shutitfile   # required for patterns
 		self.cfg['skeleton']   = {}                # required for patterns
 
-		# List of background objects
-		self.shutit_background_objects = []
+
+
+	def __str__(self):
+		string = 'ShutIt Object:\n'
+		string += '==============\n'
+		string += str(self.current_shutit_pexpect_session.login_stack)
+		return string
 
 
 	def add_shutit_pexpect_session_environment(self, pexpect_session_environment):
