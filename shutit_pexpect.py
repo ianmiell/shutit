@@ -134,7 +134,7 @@ class ShutItPexpectSession(object):
 
 
 	def sendline(self, sendspec):
-		"""Sends line, handlind background and newline directives.
+		"""Sends line, handling background and newline directives.
 
 		True means: 'all handled here ok'
 		False means: you'll need to 'expect' the right thing from here.
@@ -142,7 +142,7 @@ class ShutItPexpectSession(object):
 		assert not sendspec.started
 		#self.shutit.log('_sendline: ' + str(sendspec),level=logging.DEBUG)
 		try:
-			if sendspec.force:
+			if sendspec.ignore_background:
 				self.shutit.log('_sendline: forced through, ignoring background and/or run_in_background',level=logging.DEBUG)
 				if sendspec.nonewline != True:
 					sendspec.send += '\n'
@@ -338,7 +338,6 @@ class ShutItPexpectSession(object):
 			                         check_exit=False,
 			                         echo=False,
 		                             ignore_background=True,
-			                         force=True,
 			                         loglevel=loglevel))
 		shutit.handle_note_after(note=note,training_input=send)
 		return True
@@ -428,8 +427,7 @@ class ShutItPexpectSession(object):
 		                         fail_on_empty_before=False,
 		                         echo=False,
 		                         loglevel=loglevel,
-		                         ignore_background=True,
-		                         force=True))
+		                         ignore_background=True))
 		shutit.log('Resetting default expect to: ' + shutit.expect_prompts[prompt_name],level=loglevel)
 		self.default_expect = shutit.expect_prompts[prompt_name]
 		hostname = shutit.send_and_get_output("""if [[ $(echo $SHELL) == '/bin/bash' ]]; then echo $HOSTNAME; elif [[ $(command hostname 2> /dev/null) != '' ]]; then hostname -s; fi""", echo=False)
@@ -442,16 +440,14 @@ class ShutItPexpectSession(object):
 		                         send=""" PS1='""" + shutit.expect_prompts[prompt_name][:2] + "''" + shutit.expect_prompts[prompt_name][2:] + """'""",
 		                         echo=False,
 		                         loglevel=loglevel,
-		                         ignore_background=True,
-		                         force=True))
+		                         ignore_background=True))
 
 		# Set up history the way shutit likes it.
 		self.send(ShutItSendSpec(self,
 		                         send=' command export HISTCONTROL=$HISTCONTROL:ignoredups:ignorespace',
 		                         echo=False,
 		                         loglevel=loglevel,
-		                         ignore_background=True,
-		                         force=True))
+		                         ignore_background=True))
 		# Ensure environment is set up OK.
 		_ = self.init_pexpect_session_environment(prefix)
 		return True
@@ -479,8 +475,7 @@ class ShutItPexpectSession(object):
 		                         fail_on_empty_before=False,
 		                         echo=False,
 		                         loglevel=logging.DEBUG,
-		                         ignore_background=True,
-		                         force=True))
+		                         ignore_background=True))
 		if not new_expect:
 			shutit.log('Resetting default expect to default',level=logging.DEBUG)
 			shutit.set_default_shutit_pexpect_session_expect()
@@ -596,8 +591,7 @@ class ShutItPexpectSession(object):
 		# Space before "echo" here is sic - we don't need this to show up in bash history
 		assert not self.sendline(ShutItSendSpec(self,
 		                                        send=' echo EXIT_CODE:$?',
-		                                        ignore_background=True,
-		                                        force=True))
+		                                        ignore_background=True))
 		shutit.log('Expecting: ' + str(expect),level=logging.DEBUG)
 		self.expect(expect,timeout=60)
 		res = shutit_util.match_string(shutit, str(self.pexpect_child.before), '^EXIT_CODE:([0-9][0-9]?[0-9]?)$')
@@ -659,8 +653,7 @@ class ShutItPexpectSession(object):
 			                         send=' command alias exit=/bin/true && command alias logout=/bin/true && command alias kill=/bin/true && command alias alias=/bin/true',
 			                         echo=False,
 			                         record_command=False,
-			                         ignore_background=True,
-			                         force=True))
+			                         ignore_background=True))
 		if print_input:
 			# Do not resize if we are in video mode (ie wait > 0)
 			if resize and wait < 0:
@@ -668,8 +661,7 @@ class ShutItPexpectSession(object):
 				try:
 					assert not self.sendline(ShutItSendSpec(self,
 					                                        send='',
-					                                        ignore_background=True,
-					                                        force=True))
+					                                        ignore_background=True))
 				except Exception:
 					pass
 			if default_msg is None:
@@ -696,7 +688,7 @@ class ShutItPexpectSession(object):
 				self.pexpect_child.expect('.*')
 				if not shutit.build['exam'] and shutit_global.shutit_global_object.loglevel not in ('DEBUG',):
 					# Give them a 'normal' shell.
-					self.pexpect_child.sendline(' bash')
+					assert not self.pexpect_child.sendline(' bash', ignore_background=True)
 					self.pexpect_child.expect('.*')
 				if interact:
 					self.pexpect_child.interact()
@@ -729,8 +721,7 @@ class ShutItPexpectSession(object):
 			                         send=' unalias exit && unalias logout && unalias kill && unalias alias',
 			                         echo=False,
 			                         record_command=False,
-			                         ignore_background=True,
-			                         force=True))
+			                         ignore_background=True))
 		return True
 
 
@@ -824,8 +815,7 @@ class ShutItPexpectSession(object):
 		                         check_exit=False,
 		                         echo=False,
 		                         loglevel=loglevel,
-		                         ignore_background=True,
-		                         force=True))
+		                         ignore_background=True))
 		res = shutit_util.match_string(shutit, self.pexpect_child.before, '([0-9][0-9][0-9])')
 		shutit.handle_note_after(note=note)
 		return res
@@ -880,8 +870,7 @@ class ShutItPexpectSession(object):
 		                         expect=self.default_expect,
 		                         echo=False,
 		                         loglevel=loglevel,
-		                         ignore_background=True,
-		                         force=True))
+		                         ignore_background=True))
 		shutit.handle_note_after(note=note)
 		if shutit_util.match_string(shutit, self.pexpect_child.before, '^([0-9]+)$') == '1':
 			return False
@@ -912,61 +901,54 @@ class ShutItPexpectSession(object):
 			                         send='passwd ' + user,
 			                         expect='Enter new',
 			                         check_exit=False,
-			                         ignore_background=True,
-			                         force=True))
+			                         ignore_background=True))
 			self.send(ShutItSendSpec(self,
 			                         send=password,
 			                         expect='Retype new',
 			                         check_exit=False,
 			                         echo=False,
-			                         ignore_background=True,
-			                         force=True))
+			                         ignore_background=True
+			                         ))
 			self.send(ShutItSendSpec(self,
 			                         send=password,
 			                         expect=self.default_expect,
 			                         echo=False,
 			                         ignore_background=True,
-			                         force=True))
+			                         ))
 		elif self.current_environment.install_type == 'yum':
 			self.send(ShutItSendSpec(self,
 			                         send='passwd ' + user,
 			                         expect='ew password',
 			                         check_exit=False,
-			                         ignore_background=True,
-			                         force=True))
+			                         ignore_background=True))
 			self.send(ShutItSendSpec(self,
 			                         send=password,
 			                         expect='ew password',
 			                         check_exit=False,
 			                         echo=False,
-			                         ignore_background=True,
-			                         force=True))
+			                         ignore_background=True))
 			self.send(ShutItSendSpec(self,
 			                         send=password,
 			                         expect=self.default_expect,
 			                         echo=False,
-			                         ignore_background=True,
-			                         force=True))
+			                         ignore_background=True))
 		else:
 			self.send(ShutItSendSpec(self,
 			                         send='passwd ' + user,
 			                         expect='Enter new',
 			                         check_exit=False,
-			                         ignore_background=True,
-			                         force=True))
+			                         ignore_background=True))
 			self.send(ShutItSendSpec(self,
 			                         send=password,
 			                         expect='Retype new',
 			                         check_exit=False,
 			                         echo=False,
-			                         ignore_background=True,
-			                         force=True))
+			                         ignore_background=True))
 			self.send(ShutItSendSpec(self,
 			                         send=password,
 			                         expect=self.default_expect,
 			                         echo=False,
-			                         ignore_background=True,
-			                         force=True))
+			                         ignore_background=True))
 		shutit.handle_note_after(note=note)
 		return True
 
@@ -984,8 +966,7 @@ class ShutItPexpectSession(object):
 		                         check_exit=False,
 		                         echo=False,
 		                         loglevel=loglevel,
-		                         ignore_background=True,
-		                         force=True))
+		                         ignore_background=True))
 		res = shutit_util.match_string(shutit, self.pexpect_child.before, r'^Distributor[\s]*ID:[\s]*(.*)$')
 		if isinstance(res, str):
 			dist_string = res
@@ -1062,8 +1043,7 @@ class ShutItPexpectSession(object):
 				                         record_command=record_command,
 				                         echo=False,
 				                         loglevel=loglevel,
-				                         ignore_background=True,
-				                         force=True))
+				                         ignore_background=True))
 				if retry == 0:
 					self.check_last_exit_values(send,
 					                            expect=self.default_expect,
@@ -1109,8 +1089,7 @@ class ShutItPexpectSession(object):
 		                               expect=['NXIST', 'EXIST'],
 		                               echo=False,
 		                               loglevel=loglevel,
-		                               ignore_background=True,
-		                               force=True))
+		                               ignore_background=True))
 		if ret:
 			exists = True
 		# sync with the prompt
@@ -1142,8 +1121,7 @@ class ShutItPexpectSession(object):
 			                         send=' yum list installed ' + package + ' > /dev/null 2>&1',
 			                         check_exit=False,
 			                         loglevel=loglevel,
-			                         ignore_background=True,
-			                         force=True))
+			                         ignore_background=True))
 			return self.check_last_exit_values('install TODO change this',retbool=True)
 		else:
 			return False
@@ -1185,8 +1163,7 @@ class ShutItPexpectSession(object):
 				                         send=' ' + cmd,
 				                         echo=False,
 				                         loglevel=loglevel,
-				                         ignore_background=True,
-				                         force=True))
+				                         ignore_background=True))
 				built = self.send_and_get_output(' command cat ' + shutit_global.shutit_global_object.shutit_state_dir_build_db_dir + '/' + tmpid,
 				                                 echo=False,
 				                                 loglevel=loglevel).strip()
@@ -1194,8 +1171,7 @@ class ShutItPexpectSession(object):
 				                         send=' command rm -rf ' + shutit_global.shutit_global_object.shutit_state_dir_build_db_dir + '/' + tmpid,
 				                         echo=False,
 				                         loglevel=loglevel,
-				                         ignore_background=True,
-				                         force=True))
+				                         ignore_background=True))
 				built_list = built.split('\r\n')
 				self.current_environment.modules_recorded = built_list
 			# Either there was no directory (so the cache is valid), or we've built the cache, so mark as good.
@@ -1301,8 +1277,7 @@ class ShutItPexpectSession(object):
 				self.send(ShutItSendSpec(self,
 				                         send='apt-get update',
 				                         loglevel=logging.INFO,
-				                         ignore_background=True,
-				                         force=True))
+				                         ignore_background=True))
 				shutit.get_current_shutit_pexpect_session_environment().build['apt_update_done'] = True
 			cmd += 'DEBIAN_FRONTEND=noninteractive apt-get install'
 			if 'apt' in options:
@@ -1420,8 +1395,7 @@ class ShutItPexpectSession(object):
 		exp_string = 'SHUTIT_TERMINAL_RESET'
 		assert not self.sendline(ShutItSendSpec(self,
 		                                        send=' echo ' + exp_string,
-		                                        ignore_background=True,
-		                                        force=True))
+		                                        ignore_background=True))
 		self.expect(exp_string)
 		expect = expect or self.default_expect
 		self.expect(expect)
@@ -1531,8 +1505,7 @@ class ShutItPexpectSession(object):
 			                         send='%s %s %s' % (cmd, opts, package),
 			                         timeout=timeout,
 			                         exit_values=['0','100'],
-			                         ignore_background=True,
-			                         force=True))
+			                         ignore_background=True))
 		shutit.handle_note_after(note=note)
 		return True
 
@@ -1623,8 +1596,7 @@ class ShutItPexpectSession(object):
 		                         check_sudo=check_sudo,
 		                         nonewline=nonewline,
 		                         loglevel=loglevel,
-		                         ignore_background=True,
-		                         force=True))
+		                         ignore_background=True))
 		before = self.pexpect_child.before
 
 		if len(before):
@@ -1718,8 +1690,7 @@ class ShutItPexpectSession(object):
 						self.send(ShutItSendSpec(self,
 						                         send='DEBIAN_FRONTEND=noninteractive apt-get update && apt-get install -y -qq lsb-release',
 						                         loglevel=loglevel,
-						                         ignore_background=True,
-						                         force=True))
+						                         ignore_background=True))
 				d = self.lsb_release()
 				install_type   = d['install_type']
 				distro         = d['distro']
@@ -1738,8 +1709,7 @@ class ShutItPexpectSession(object):
 						self.send(ShutItSendSpec(self,
 						                         send='yum install -y lsb-release',
 						                         loglevel=loglevel,
-						                         ignore_background=True,
-						                         force=True))
+						                         ignore_background=True))
 				install_type   = d['install_type']
 				distro         = d['distro']
 				distro_version = d['distro_version']
@@ -1748,14 +1718,12 @@ class ShutItPexpectSession(object):
 					self.send(ShutItSendSpec(self,
 					                         send='apk -q update',
 					                         loglevel=logging.INFO,
-					                         ignore_background=True,
-					                         force=True))
+					                         ignore_background=True))
 					shutit.get_current_shutit_pexpect_session_environment().build['apk_update_done'] = True
 				self.send(ShutItSendSpec(self,
 				                         send='apk -q add bash',
 				                         loglevel=loglevel,
-				                         ignore_background=True,
-				                         force=True))
+				                         ignore_background=True))
 				install_type   = 'apk'
 				distro         = 'alpine'
 				distro_version = '1.0'
@@ -1765,15 +1733,14 @@ class ShutItPexpectSession(object):
 					self.send(ShutItSendSpec(self,
 					                         send='pacman -Syy',
 					                         loglevel=logging.INFO,
-					                         ignore_background=True,
-					                         force=True))
+					                         ignore_background=True))
 				install_type   = d['install_type']
 				distro         = d['distro']
 				distro_version = '1.0'
 			elif install_type == 'emerge' and shutit.build['delivery'] in ('docker','dockerfile'):
 				if not shutit.get_current_shutit_pexpect_session_environment().build['emerge_update_done'] and self.whoami() == 'root':
 					# Takes bloody ages!
-					#self.send(ShutItSendSpec(self,send='emerge --sync',loglevel=loglevel,timeout=9999,ignore_background=True,force=True))
+					#self.send(ShutItSendSpec(self,send='emerge --sync',loglevel=loglevel,timeout=9999,ignore_background=True))
 					pass
 				install_type = 'emerge'
 				distro = 'gentoo'
@@ -1833,8 +1800,7 @@ class ShutItPexpectSession(object):
 							self.send(ShutItSendSpec(self,
 							                         send='brew list > .shutit_brew_list',
 							                         echo=False,
-							                         ignore_background=True,
-							                         force=True))
+							                         ignore_background=True))
 						for package in ('coreutils','findutils','gnu-tar','gnu-sed','gawk','gnutls','gnu-indent','gnu-getopt'):
 							if self.send_and_get_output(' command cat .shutit_brew_list | grep -w ' + package,
 							                            echo=False,
@@ -1842,13 +1808,11 @@ class ShutItPexpectSession(object):
 								self.send(ShutItSendSpec(self,
 								                         send='brew install ' + package,
 								                         loglevel=loglevel,
-								                         ignore_background=True,
-								                         force=True))
+								                         ignore_background=True))
 						self.send(ShutItSendSpec(self,
 						                         send='rm -f .shutit_brew_list',
 						                         echo=False,
-						                         ignore_background=True,
-						                         force=True))
+						                         ignore_background=True))
 					if uname_output[:6] == 'CYGWIN':
 						distro       = 'cygwin'
 						install_type = 'apt-cyg'
@@ -1864,13 +1828,11 @@ class ShutItPexpectSession(object):
 						self.send(ShutItSendSpec(self,
 						                         send='DEBIAN_FRONTEND=noninteractive apt-get update && apt-get install -y -qq lsb-release',
 						                         loglevel=loglevel,
-						                         ignore_background=True,
-						                         force=True))
+						                         ignore_background=True))
 					self.send(ShutItSendSpec(self,
 					                         send='DEBIAN_FRONTEND=noninteractive apt-get install -y -qq lsb-release',
 					                         loglevel=loglevel,
-					                         ignore_background=True,
-					                         force=True))
+					                         ignore_background=True))
 				d = self.lsb_release()
 				install_type   = d['install_type']
 				distro         = d['distro']
@@ -1889,8 +1851,7 @@ class ShutItPexpectSession(object):
 						self.send(ShutItSendSpec(self,
 						                         send='yum install -y lsb-release',
 						                         loglevel=loglevel,
-						                         ignore_background=True,
-						                         force=True))
+						                         ignore_background=True))
 				d = self.lsb_release()
 				install_type   = d['install_type']
 				distro         = d['distro']
@@ -1900,21 +1861,19 @@ class ShutItPexpectSession(object):
 					self.send(ShutItSendSpec(self,
 					                         send='apk -q update',
 					                         loglevel=logging.INFO,
-					                         ignore_background=True,
-					                         force=True))
+					                         ignore_background=True))
 					shutit.get_current_shutit_pexpect_session_environment().build['apk_update_done'] = True
 				self.send(ShutItSendSpec(self,
 				                         send='apk -q add bash',
 				                         loglevel=loglevel,
-				                         ignore_background=True,
-				                         force=True))
+				                         ignore_background=True))
 				install_type   = 'apk'
 				distro         = 'alpine'
 				distro_version = '1.0'
 			elif install_type == 'emerge' and shutit.build['delivery'] in ('docker','dockerfile'):
 				if not shutit.get_current_shutit_pexpect_session_environment().build['emerge_update_done'] and self.whoami() == 'root':
 					# Takes bloody ages!
-					#self.send(ShutItSendSpec(self,send='emerge --sync',loglevel=logging.INFO,ignore_background=True,force=True))
+					#self.send(ShutItSendSpec(self,send='emerge --sync',loglevel=logging.INFO,ignore_background=True))
 					pass
 				install_type = 'emerge'
 				distro = 'gentoo'
@@ -2117,8 +2076,7 @@ class ShutItPexpectSession(object):
 				                         echo=echo,
 			                             nonewline=nonewline,
 				                         loglevel=loglevel,
-			                             ignore_background=True,
-				                         force=True))
+			                             ignore_background=True))
 			time.sleep(cadence)
 		shutit.handle_note_after(note=note)
 		if pause_point_on_fail:
@@ -2169,8 +2127,7 @@ class ShutItPexpectSession(object):
 				                         send=' command touch ' + fname,
 				                         echo=False,
 				                         loglevel=loglevel,
-				                         ignore_background=True,
-				                         force=True))
+				                         ignore_background=True))
 			else:
 				shutit.fail(fname + ' does not exist and create=False') # pragma: no cover
 		if replace:
@@ -2397,8 +2354,7 @@ class ShutItPexpectSession(object):
 					                         exit_values=['0','1'],
 					                         echo=False,
 					                         loglevel=loglevel,
-					                         ignore_background=True,
-					                         force=True))
+					                         ignore_background=True))
 				else:
 					if not shutit_util.check_regexp(match_regexp):
 						shutit.fail('Illegal regexp found in remove_line_from_file call: ' + match_regexp) # pragma: no cover
@@ -2408,8 +2364,7 @@ class ShutItPexpectSession(object):
 					                         exit_values=['0','1'],
 					                         echo=False,
 					                         loglevel=loglevel,
-					                         ignore_background=True,
-					                         force=True))
+					                         ignore_background=True))
 			else:
 				if match_regexp is None:
 					#          v the space is intentional, to avoid polluting bash history.
@@ -2418,8 +2373,7 @@ class ShutItPexpectSession(object):
 					                         exit_values=['0','1'],
 					                         echo=False,
 					                         loglevel=loglevel,
-					                         ignore_background=True,
-					                         force=True))
+					                         ignore_background=True))
 				else:
 					if not shutit_util.check_regexp(match_regexp):
 						shutit.fail('Illegal regexp found in remove_line_from_file call: ' + match_regexp) # pragma: no cover
@@ -2429,22 +2383,19 @@ class ShutItPexpectSession(object):
 					                         exit_values=['0','1'],
 					                         echo=False,
 					                         loglevel=loglevel,
-					                         ignore_background=True,
-					                         force=True))
+					                         ignore_background=True))
 			self.send(ShutItSendSpec(self,
 			                         send=' command cat ' + tmp_filename + ' > ' + filename,
 			                         check_exit=False,
 			                         echo=False,
 			                         loglevel=loglevel,
-					                 ignore_background=True,
-			                         force=True))
+					                 ignore_background=True))
 			self.send(ShutItSendSpec(self,
 			                         send=' command rm -f ' + tmp_filename,
 			                         exit_values=['0','1'],
 			                         echo=False,
 			                         loglevel=loglevel,
-					                 ignore_background=True,
-			                         force=True))
+					                 ignore_background=True))
 		shutit.handle_note_after(note=note)
 		return True
 
@@ -2517,8 +2468,7 @@ class ShutItPexpectSession(object):
 			                                     check_sudo=False,
 			                                     nonewline=sendspec.nonewline,
 			                                     loglevel=sendspec.loglevel,
-			                                     ignore_background=True,
-			                                     force=True))
+			                                     ignore_background=True))
 
 
 		shutit.log('Sending data in session: ' + self.pexpect_session_id,level=logging.DEBUG)
@@ -2625,15 +2575,13 @@ $'"""
 					                               delaybeforesend=sendspec.delaybeforesend,
 			                                       nonewline=sendspec.nonewline,
 			                                       run_in_background=sendspec.run_in_background,
-					                               ignore_background=True,
-					                               force=True))
+					                               ignore_background=True))
 					if not self.sendline(ShutItSendSpec(self,
 					                                    send=' rm -f ' + fname,
 					                                    nonewline=sendspec.nonewline,
 			                                            run_in_background=sendspec.run_in_background,
 					                                    echo=False,
-					                                    ignore_background=True,
-					                                    force=True)):
+					                                    ignore_background=True)):
 						self.expect(sendspec.expect,
 						            searchwindowsize=sendspec.searchwindowsize,
 						            maxread=sendspec.maxread)
@@ -2727,8 +2675,7 @@ $'"""
 					                         loglevel=sendspec.loglevel,
 					                         delaybeforesend=sendspec.delaybeforesend,
 			                                 run_in_background=False,
-					                         ignore_background=True,
-					                         force=True))
+					                         ignore_background=True))
 		if shutit.build['step_through']:
 			self.pause_point('pause point: stepping through')
 		if shutit.build['ctrlc_stop']:
@@ -2748,7 +2695,8 @@ $'"""
 		                                    send=send,
 		                                    check_exit=False,
 		                                    fail_on_empty_before=False,
-		                                    record_command=False, ignore_background=True, force=True))
+		                                    record_command=False,
+		                                    ignore_background=True))
 		if not res:
 			self.expect(self.default_expect)
 
@@ -2821,8 +2769,7 @@ $'"""
 				                         send=' command rm -f ' + path,
 				                         echo=echo,
 				                         loglevel=loglevel,
-				                         ignore_background=True,
-				                         force=True))
+				                         ignore_background=True))
 			random_id = shutit_util.random_id()
 			# set the searchwindowsize to a low number to speed up processing of large output
 			if PY3:
@@ -2844,20 +2791,17 @@ $'"""
 			                         echo=echo,
 			                         loglevel=loglevel,
 			                         timeout=99999,
-			                         ignore_background=True,
-			                         force=True))
+			                         ignore_background=True))
 			self.send(ShutItSendSpec(self,
 			                         send=' command cat ' + path + '.' + random_id + ' | base64 --decode > ' + path,
 			                         echo=echo,
 			                         loglevel=loglevel,
-			                         ignore_background=True,
-			                         force=True))
+			                         ignore_background=True))
 			# Remove the file
 			self.send(ShutItSendSpec(self,
 			                         send=' command rm -f ' + path + '.' + random_id,
 			                         loglevel=loglevel,
-			                         ignore_background=True,
-			                         force=True))
+			                         ignore_background=True))
 		else:
 			host_child = shutit.get_shutit_pexpect_session_from_id('host_child').pexpect_child
 			path = path.replace(' ', r'\ ')
@@ -2891,8 +2835,7 @@ $'"""
 			                         send=' command touch ' + path,
 			                         loglevel=loglevel,
 			                         echo=echo,
-			                         ignore_background=True,
-			                         force=True))
+			                         ignore_background=True))
 			# If path is not absolute, add $HOME to it.
 			if path[0] != '/':
 				shutit.send(' command cat ' + tmpfile + ' | ' + shutit.host['docker_executable'] + ' exec -i ' + shutit.target['container_id'] + " bash -c 'cat > $HOME/" + path + "'",
@@ -2910,8 +2853,7 @@ $'"""
 			                         send=' command chown ' + user + ' ' + path + ' && chgrp ' + group + ' ' + path,
 			                         echo=echo,
 			                         loglevel=loglevel,
-			                         ignore_background=True,
-			                         force=True))
+			                         ignore_background=True))
 			os.remove(tmpfile)
 		shutit.handle_note_after(note=note)
 		return True
@@ -3037,8 +2979,7 @@ $'"""
 			self.send(ShutItSendSpec(self,
 			                         send=' history -c',
 			                         check_exit=False,
-			                         ignore_background=True,
-			                         force=True))
+			                         ignore_background=True))
 		# don't catch CTRL-C, pass it through.
 		shutit.build['ctrlc_passthrough'] = True
 		preserve_newline                  = False
@@ -3287,8 +3228,7 @@ $'"""
 		                         send=' command mkdir -p ' + environment_id_dir + ' && ( chmod -R 777 ' + shutit_global.shutit_global_object.shutit_state_dir + ' || /bin/true ) && touch ' + environment_id_dir + '/' + new_environment.environment_id,
 		                         echo=False,
 		                         loglevel=logging.DEBUG,
-		                         ignore_background=True,
-		                         force=True))
+		                         ignore_background=True))
 		return new_environment
 
 
@@ -3300,7 +3240,7 @@ $'"""
 			                         send=' sudo -n echo',
 			                         check_exit=False,
 			                         check_sudo=False,
-			                         ignore_background=True,force=True))
+			                         ignore_background=True))
 			if self.send_and_get_output(' echo $?') == '0':
 				shutit.log('check_sudo returning True',level=logging.DEBUG)
 				return True
@@ -3354,8 +3294,7 @@ $'"""
 		# truncate -s must be used as --size is not supported everywhere (eg busybox)
 		assert not self.sendline(ShutItSendSpec(self,
 		                                        send=' truncate -s 0 '+ fname,
-		                                        ignore_background=True,
-		                                        force=True))
+		                                        ignore_background=True))
 		self.pexpect_child.expect(expect)
 		size = shutit.build['line_limit']
 		while len(working_str) > 0:
@@ -3363,13 +3302,11 @@ $'"""
 			working_str = working_str[size:]
 			assert not self.sendline(ShutItSendSpec(self,
 			                                        send=' ' + shutit_util.get_command(shutit, 'head') + ''' -c -1 >> ''' + fname + """ << 'END_""" + random_id + """'\n""" + curr_str + """\nEND_""" + random_id,
-		                                            ignore_background=True,
-			                                        force=True))
+		                                            ignore_background=True))
 			self.expect(expect)
 		assert not self.sendline(ShutItSendSpec(self,
 		                                        send=' chmod +x ' + fname,
-		                                        ignore_background=True,
-		                                        force=True))
+		                                        ignore_background=True))
 		self.expect(expect)
 		return fname
 
