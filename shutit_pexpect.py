@@ -37,7 +37,6 @@ import textwrap
 import binascii
 import pexpect
 import shutit_util
-import shutit_assets
 import shutit_global
 import package_map
 from shutit_login_stack import ShutItLoginStack
@@ -250,7 +249,6 @@ class ShutItPexpectSession(object):
 		go_home=sendspec.go_home
 		is_ssh=sendspec.is_ssh
 		loglevel=sendspec.loglevel
-		nonewline=sendspec.nonewline
 		fail_on_fail=sendspec.fail_on_fail
 		# We don't get the default expect here, as it's either passed in, or a base default regexp.
 		shutit = self.shutit
@@ -1758,7 +1756,7 @@ class ShutItPexpectSession(object):
 			                                        echo=False,
 			                                        loglevel=loglevel).lower()
 			if not re.match('.*No such file.*',issue_output):
-				for key in package_map.INSTALL_TYPE_MAP.keys():
+				for key in package_map.INSTALL_TYPE_MAP:
 					if issue_output.find(key) != -1:
 						distro       = key
 						install_type = package_map.INSTALL_TYPE_MAP[key]
@@ -2556,7 +2554,7 @@ $'"""
 				string_to_send = escaped_str
 			else:
 				string_to_send = sendspec.send
-			if string_to_send != None:
+			if string_to_send is not None:
 				if len(string_to_send) > shutit.build['line_limit']:
 					fname = self._create_command_file(sendspec.expect,string_to_send)
 					res = self.send(ShutItSendSpec(self,
@@ -3368,7 +3366,6 @@ $'"""
 		"""Input filter for pause point to catch special keystrokes
 		"""
 		shutit = self.shutit
-		signal_id = shutit_global.shutit_global_object.shutit_signal_id
 		# Can get errors with eg up/down chars
 		if len(input_string) == 1:
 			# Picked CTRL-u as the rarest one accepted by terminals.

@@ -12,7 +12,6 @@ import logging
 import tarfile
 import pexpect
 import shutit_util
-import shutit_setup
 import shutit_global
 from shutit_sendspec import ShutItSendSpec
 from shutit_module import ShutItFailException
@@ -2080,7 +2079,7 @@ class ShutIt(object):
 
 	# eg sys.stdout or None
 	def divert_output(self, output):
-		for key in self.shutit_pexpect_sessions.keys():
+		for key in self.shutit_pexpect_sessions:
 			self.shutit_pexpect_sessions[key].pexpect_child.logfile_send = output
 			self.shutit_pexpect_sessions[key].pexpect_child.logfile_read = output
 		return True
@@ -2126,7 +2125,7 @@ class ShutIt(object):
 
 
 	def get_shutit_pexpect_session_from_id(self, shutit_pexpect_id):
-		"""
+		"""Get the pexpect session from the given identifier.
 		"""
 		for key in self.shutit_pexpect_sessions:
 			if self.shutit_pexpect_sessions[key].pexpect_session_id == shutit_pexpect_id:
