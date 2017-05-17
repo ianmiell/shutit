@@ -63,7 +63,7 @@ setup(
 	# for example:
 	# $ pip install -e .[dev,test]
 	extras_require={
-		'dev': ['manhole>=0.1'],
+		'dev': [],
 		'test': [],
 	},
 

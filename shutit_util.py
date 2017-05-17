@@ -305,7 +305,6 @@ def get_base_config(shutit, cfg_parser):
 	shutit.build['base_image']                 = cp.get('build', 'base_image')
 	shutit.build['dotest']                     = cp.get('build', 'dotest')
 	shutit.build['net']                        = cp.get('build', 'net')
-	shutit.build['completed']                  = False
 	shutit.build['step_through']               = False
 	shutit.build['ctrlc_stop']                 = False
 	shutit.build['ctrlc_passthrough']          = False
@@ -322,7 +321,6 @@ def get_base_config(shutit, cfg_parser):
 	shutit.build['accept_defaults']            = None
 	# target - the target of the build, ie the container
 	shutit.target['hostname']                  = cp.get('target', 'hostname')
-	shutit.target['locale']                    = cp.get('target', 'locale')
 	shutit.target['ports']                     = cp.get('target', 'ports')
 	shutit.target['volumes']                   = cp.get('target', 'volumes')
 	shutit.target['volumes_from']              = cp.get('target', 'volumes_from')
@@ -783,7 +781,6 @@ shutitfile:        a shutitfile-based project (can be docker, bash, vagrant)
 			if '.' not in module_paths:
 				module_paths.append('.')
 			args.set.append(('host', 'shutit_module_path', ':'.join(module_paths)))
-		shutit.build['trace']            = args.trace
 		shutit.build['interactive']      = int(args.interactive)
 		shutit.build['extra_configs']    = args.config
 		shutit.build['config_overrides'] = args.set
@@ -818,7 +815,7 @@ shutitfile:        a shutitfile-based project (can be docker, bash, vagrant)
 		#	- Passed-in config (via --config, see --help)
 		#command-line overrides, eg -s com.mycorp.mymodule.module name value
 		# Set up trace as fast as possible.
-		if shutit.build['trace']:
+		if args.trace:
 			def tracefunc(frame, event, arg, indent=[0]):
 				indent = indent # pylint
 				arg = arg # pylint
@@ -874,25 +871,8 @@ def load_configs(shutit):
 		override_fd.seek(0)
 		configs.append(('overrides', override_fd))
 
-	cfg_parser = get_configs(shutit, configs)
-	get_base_config(shutit, cfg_parser)
-	if shutit_global.shutit_global_object.loglevel <= logging.DEBUG:
-		# Set up the manhole.
-		try:
-			import manhole
-			manhole.install(
-				verbose=True,
-				patch_fork=True,
-				activate_on=None,
-				oneshot_on=None,
-				sigmask=manhole._ALL_SIGNALS,
-				socket_path=None,
-				reinstall_delay=0.5,
-				locals=None
-			)
-		except Exception:
-			shutit.log('No manhole package available, skipping import',level=logging.DEBUG)
-
+	self.cfg_parser = get_configs(shutit, configs)
+	get_base_config(shutit, self.cfg_parser)
 
 
 def load_shutit_modules(shutit):
@@ -1714,7 +1694,6 @@ password:
 # Hostname for the target - replace with your chosen target hostname
 # (where applicable, eg docker container)
 hostname:
-locale:en_US.UTF-8
 # space separated list of ports to expose
 # e.g. "ports:2222:22 8080:80" would expose container ports 22 and 80 as the
 # host's 2222 and 8080 (where applicable)

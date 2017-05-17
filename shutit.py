@@ -513,7 +513,6 @@ def setup_shutit_obj(shutit):
 
 	if shutit.action['skeleton']:
 		shutit_skeleton.create_skeleton(shutit)
-		shutit.build['completed'] = True
 		return
 
 	# Try and ensure shutit is on the path - makes onboarding easier
@@ -567,8 +566,6 @@ def setup_shutit_obj(shutit):
 	do_exam_output(shutit)
 	shutit_global.shutit_global_object.do_final_messages()
 
-	# Mark the build as completed
-	shutit.build['completed'] = True
 	shutit.log('ShutIt run finished',level=logging.INFO)
 	shutit_util.handle_exit(shutit=shutit, exit_code=0)
 
@@ -608,8 +605,6 @@ def do_lists(shutit):
 
 
 	if shutit.action['list_configs'] or shutit_global.shutit_global_object.loglevel <= logging.DEBUG:
-		# Set build completed
-		shutit.build['completed'] = True
 		shutit.log('================================================================================')
 		shutit.log('Config details placed in: ' + shutit.build['log_config_path'])
 		shutit.log('================================================================================')
