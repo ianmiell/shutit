@@ -178,7 +178,6 @@ class ShutItPexpectSession(object):
 
 
 	# Multisends must go through send() in shutit global
-	# TODO: Think about logout - must block until backgro
 	def _check_blocked(self, sendspec):
 		if sendspec.ignore_background:
 			self.shutit.log('_check_blocked: background is ignored',level=logging.DEBUG)
@@ -348,6 +347,7 @@ class ShutItPexpectSession(object):
 			@param command: Command to run to log out (default=exit)
 			@param note:    See send()
 		"""
+		# Block until background tasks complete.
 		self.wait()
 		shutit = self.shutit
 		shutit.handle_note(sendspec.note,training_input=sendspec.send)
@@ -2506,6 +2506,8 @@ class ShutItPexpectSession(object):
 					sendspec.check_exit = False
 				else:
 					sendspec.check_exit = True
+
+		# Determine whether we record this command.
 		ok_to_record = False
 		if not sendspec.echo and sendspec.record_command is None:
 			sendspec.record_command = False
@@ -2523,6 +2525,8 @@ class ShutItPexpectSession(object):
 					break
 			if ok_to_record:
 				shutit.build['shutit_command_history'].append(sendspec.send)
+
+		# Log - tho not if secret.
 		if sendspec.send != None:
 			if not sendspec.echo and not sendspec.secret:
 				shutit.log('Sending: ' + sendspec.send,level=sendspec.loglevel)
@@ -2534,6 +2538,7 @@ class ShutItPexpectSession(object):
 			else:
 				shutit.log('Sending>>>[SECRET]<<<',level=logging.DEBUG)
 			shutit.log('Expecting>>>' + str(sendspec.expect) + '<<<',level=logging.DEBUG)
+
 		while sendspec.retry > 0:
 			if sendspec.escape:
 				escaped_str = "eval $'"
@@ -2555,7 +2560,6 @@ $'"""
 					shutit.log('This string was sent safely: ' + sendspec.send, level=logging.DEBUG)
 				else:
 					shutit.log('The string was sent safely.', level=logging.DEBUG)
-			if sendspec.escape:
 				string_to_send = escaped_str
 			else:
 				string_to_send = sendspec.send
@@ -2607,16 +2611,10 @@ $'"""
 			if isinstance(self.pexpect_child.after, type) or isinstance(self.pexpect_child.before, type):
 				shutit.log('End of pexpect session detected, bailing.',level=logging.CRITICAL)
 				shutit_util.handle_exit(exit_code=1)
-			logged_output = ''.join((self.pexpect_child.before + str(self.pexpect_child.after)).split('\n'))
-			logged_output = logged_output.replace(sendspec.send,'',1)
-			logged_output = logged_output.replace('\r','')
-			output_length = 160
-			if len(logged_output) > output_length:
-				logged_output = logged_output[:output_length] + ' [...]'
+			# Massage the output for summary sending.
+			logged_output = ''.join((self.pexpect_child.before + str(self.pexpect_child.after)).split('\n')).replace(sendspec.send,'',1).replace('\r','')[:160] + ' [...]'
 			if not sendspec.secret:
-				if sendspec.echo:
-					shutit.log('Output (squashed): ' + logged_output,level=logging.DEBUG)
-				else:
+				if not sendspec.echo:
 					shutit.log('Output (squashed): ' + logged_output,level=sendspec.loglevel)
 				try:
 					shutit.log('shutit_pexpect_child.buffer(hex)>>>\n'  + binascii.hexlify(self.pexpect_child.buffer) + '\n<<<',level=logging.DEBUG)
@@ -2632,18 +2630,18 @@ $'"""
 			if sendspec.fail_on_empty_before:
 				if self.pexpect_child.before.strip() == '':
 					shutit.fail('before empty after sending: ' + str(sendspec.send) + '\n\nThis is expected after some commands that take a password.\nIf so, add fail_on_empty_before=False to the send call.\n\nIf that is not the problem, did you send an empty string to a prompt by mistake?', shutit_pexpect_child=self.pexpect_child) # pragma: no cover
-			elif not sendspec.fail_on_empty_before:
+			else:
 				# Don't check exit if fail_on_empty_before is False
-				if not sendspec.secret:
-					shutit.log('' + self.pexpect_child.before + '<<<', level=logging.DEBUG)
 				sendspec.check_exit = False
 				for prompt in shutit.expect_prompts:
 					if prompt == sendspec.expect:
 						# Reset prompt
 						self.setup_prompt('reset_tmp_prompt')
 						self.revert_prompt('reset_tmp_prompt', sendspec.expect)
+						break
 			# Last output - remove the first line, as it is the previous command.
-			shutit.build['last_output'] = '\n'.join(self.pexpect_child.before.split('\n')[1:])
+			# Get this before we check exit.
+			last_output = '\n'.join(self.pexpect_child.before.split('\n')[1:])
 			if sendspec.check_exit:
 				# store the output
 				if not self.check_last_exit_values(sendspec.send,
@@ -2662,7 +2660,7 @@ $'"""
 		if sendspec.follow_on_commands is not None:
 			for match in sendspec.follow_on_commands:
 				sendspec.send = sendspec.follow_on_commands[match]
-				if shutit_util.match_string(shutit, shutit.build['last_output'],match):
+				if shutit_util.match_string(shutit, last_output, match):
 					# send (with no follow-on commands)
 					self.send(ShutItSendSpec(self,
 					                         send=sendspec.send,

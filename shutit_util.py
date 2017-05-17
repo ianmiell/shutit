@@ -337,7 +337,8 @@ def get_base_config(shutit, cfg_parser):
 		shutit_global.shutit_global_object.secret_words_set.add(shutit.host['password'])
 	shutit_global.shutit_global_object.logfile = cp.get('host', 'logfile')
 	shutit.host['shutit_module_path']          = cp.get('host', 'shutit_module_path').split(':')
-	# repository - information relating to repository/registry
+
+	# repository - information relating to docker repository/registry
 	shutit.repository['name']                  = cp.get('repository', 'name')
 	shutit.repository['server']                = cp.get('repository', 'server')
 	shutit.repository['push']                  = cp.getboolean('repository', 'push')
