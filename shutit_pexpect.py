@@ -686,7 +686,9 @@ class ShutItPexpectSession(object):
 				self.pexpect_child.expect('.*')
 				if not shutit.build['exam'] and shutit_global.shutit_global_object.loglevel not in ('DEBUG',):
 					# Give them a 'normal' shell.
-					assert not self.pexpect_child.sendline(' bash', ignore_background=True)
+					assert not self.sendline(ShutItSendSpec(self,
+					                                        send=' bash',
+					                                        ignore_background=True))
 					self.pexpect_child.expect('.*')
 				if interact:
 					self.pexpect_child.interact()
