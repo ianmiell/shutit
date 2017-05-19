@@ -871,8 +871,8 @@ def load_configs(shutit):
 		override_fd.seek(0)
 		configs.append(('overrides', override_fd))
 
-	self.cfg_parser = get_configs(shutit, configs)
-	get_base_config(shutit, self.cfg_parser)
+	shutit.cfg_parser = get_configs(shutit, configs)
+	get_base_config(shutit, shutit.cfg_parser)
 
 
 def load_shutit_modules(shutit):
