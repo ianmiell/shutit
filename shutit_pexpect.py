@@ -697,6 +697,9 @@ class ShutItPexpectSession(object):
 					self.handle_pause_point_signals()
 				except Exception as e:
 					shutit.fail('Terminating ShutIt within pause point.\r\n' + str(e)) # pragma: no cover
+				assert not self.send(ShutItSendSpec(self,
+				                                    send=' exit',
+				                                    ignore_background=True))
 			self.pexpect_child.logfile_send = oldlog
 		else:
 			pass
