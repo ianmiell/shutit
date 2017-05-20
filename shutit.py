@@ -324,7 +324,7 @@ def do_remove(shutit, loglevel=logging.DEBUG):
 			shutit.log('removing: ' + module_id, level=logging.DEBUG)
 			shutit.login(prompt_prefix=module_id,command='bash --noprofile --norc',echo=False)
 			if not module.remove(shutit):
-				shutit.log(shutit_util.print_modules(shutit), level=logging.DEBUG)
+				shutit.log(shutit.print_modules(), level=logging.DEBUG)
 				shutit.fail(module_id + ' failed on remove', shutit_pexpect_child=shutit.get_shutit_pexpect_session_from_id('target_child').pexpect_child) # pragma: no cover
 			else:
 				if shutit.build['delivery'] in ('docker','dockerfile'):
@@ -549,7 +549,7 @@ def setup_shutit_obj(shutit):
 	# Cache the results of check_ready at the start.
 	errs.extend(check_ready(shutit, throw_error=False))
 	if errs:
-		shutit.log(shutit_util.print_modules(shutit), level=logging.ERROR)
+		shutit.log(shutit.print_modules(), level=logging.ERROR)
 		child = None
 		for err in errs:
 			shutit.log(err[0], level=logging.ERROR)

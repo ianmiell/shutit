@@ -1182,19 +1182,6 @@ def check_regexp(regex):
 
 
 
-# TODO: move to shutit_class.py
-def print_modules(shutit):
-	"""Returns a string table representing the modules in the ShutIt module map.
-	"""
-	cfg = shutit.cfg
-	module_string = ''
-	module_string += 'Modules: \n'
-	module_string += '    Run order    Build    Remove    Module ID\n'
-	for module_id in shutit.module_ids():
-		module_string += '    ' + str(shutit.shutit_map[module_id].run_order) + '        ' + str(
-			cfg[module_id]['shutit.core.module.build']) + '    ' + str(
-			cfg[module_id]['shutit.core.module.remove']) + '    ' + module_id + '\n'
-	return module_string
 
 
 # TODO: move to shutit_class.py
@@ -1306,11 +1293,6 @@ def config_collection_for_built(shutit, throw_error=True,silent=False):
 		else:
 			raise ShutItFailException('Allowed images checking failed') # pragma: no cover
 	return True
-
-
-
-
-
 
 
 # TODO: move to shutit_class.py

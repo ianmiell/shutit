@@ -2385,3 +2385,18 @@ class ShutIt(object):
 				if re.match('^' + regexp + '$', self.target['docker_image']):
 					return True
 		return False
+
+
+	def print_modules(self):
+		"""Returns a string table representing the modules in the ShutIt module map.
+		"""
+		cfg = self.cfg
+		module_string = ''
+		module_string += 'Modules: \n'
+		module_string += '    Run order    Build    Remove    Module ID\n'
+		for module_id in self.module_ids():
+			module_string += '    ' + str(self.shutit_map[module_id].run_order) + '        ' + str(
+				cfg[module_id]['shutit.core.module.build']) + '    ' + str(
+				cfg[module_id]['shutit.core.module.remove']) + '    ' + module_id + '\n'
+		return module_string
+
