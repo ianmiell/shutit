@@ -517,7 +517,7 @@ def setup_shutit_obj(shutit):
 
 	# Try and ensure shutit is on the path - makes onboarding easier
 	# Only do this if we're in a terminal
-	if shutit_global.determine_interactive() and spawn.find_executable('shutit') is None:
+	if shutit_global.shutit_global_object.determine_interactive() and spawn.find_executable('shutit') is None:
 		setup_shutit_path(shutit)
 
 	shutit_util.load_mod_from_file(shutit, os.path.join(shutit.shutit_main_dir, 'shutit_setup.py'))

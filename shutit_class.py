@@ -553,11 +553,11 @@ class ShutIt(object):
 				accum_timeout += iteration_s
 			else:
 				return res
-		if timed_out and not shutit_global.determine_interactive():
+		if timed_out and not shutit_global.shutit_global_object.determine_interactive():
 			self.log('Command timed out, trying to get terminal back for you', level=logging.DEBUG)
 			self.fail('Timed out and could not recover') # pragma: no cover
 		else:
-			if shutit_global.determine_interactive():
+			if shutit_global.shutit_global_object.determine_interactive():
 				shutit_pexpect_child.send('\x03')
 				res = shutit_pexpect_child.expect(expect,timeout=1)
 				if res == len(expect):
@@ -1249,7 +1249,7 @@ class ShutIt(object):
 		self.log(shutit_util.colourise('32', '\nPROMPTING FOR CONFIG: %s' % (cfgstr,)),transient=True)
 		self.log(shutit_util.colourise('32', '\n' + msg + '\n'),transient=True)
 
-		if not shutit_global.determine_interactive():
+		if not shutit_global.shutit_global_object.determine_interactive():
 			self.fail('ShutIt is not in a terminal so cannot prompt for values.', throw_exception=False) # pragma: no cover
 
 		if config_parser.has_option(sec, name):
@@ -1303,7 +1303,7 @@ class ShutIt(object):
 		"""
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
 		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
-		if (not shutit_global.determine_interactive() or not shutit_global.shutit_global_object.interactive or
+		if (not shutit_global.shutit_global_object.determine_interactive() or not shutit_global.shutit_global_object.interactive or
 			shutit_global.shutit_global_object.interactive < level):
 			return
 		self.build['step_through'] = value
@@ -1370,7 +1370,7 @@ class ShutIt(object):
 
 		@return:             True if pause point handled ok, else false
 		"""
-		if (not shutit_global.determine_interactive() or shutit_global.shutit_global_object.interactive < 1 or
+		if (not shutit_global.shutit_global_object.determine_interactive() or shutit_global.shutit_global_object.interactive < 1 or
 			shutit_global.shutit_global_object.interactive < level):
 			return
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
@@ -2250,7 +2250,7 @@ class ShutIt(object):
 		sanitize_terminal()
 		if shutit_global.shutit_global_object.interactive == 0:
 			return default
-		if not shutit_global.determine_interactive():
+		if not shutit_global.shutit_global_object.determine_interactive():
 			return default
 		while True:
 			try:
