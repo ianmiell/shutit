@@ -2399,7 +2399,7 @@ class ShutIt(object):
 			shutit.log('ShutIt module paths now: ',level=logging.DEBUG)
 			shutit.log(shutit.host['shutit_module_path'],level=logging.DEBUG)
 		for shutit_module_path in self.host['shutit_module_path']:
-			shutit_util.load_all_from_path(self, shutit_module_path)
+			self.load_all_from_path(shutit_module_path)
 
 
 	def get_command(self, command):
@@ -2577,3 +2577,26 @@ class ShutIt(object):
 			print('\n\ntarget/hostname or build/net configs must be blank\n\n')
 			handle_exit(shutit=self, exit_code=1)
 		# FAILS ends
+
+
+
+
+	def load_all_from_path(self, path):
+		"""Dynamically imports files within the same directory (in the end, the path).
+		"""
+		#111: handle expanded paths
+		path = os.path.abspath(path)
+		#http://stackoverflow.com/questions/301134/dynamic-module-import-in-python
+		if os.path.abspath(path) == self.shutit_main_dir:
+			return
+		if not os.path.exists(path):
+			return
+		if os.path.exists(path + '/STOPBUILD') and not self.build['ignorestop']:
+			self.log('Ignoring directory: ' + path + ' as it has a STOPBUILD file in it. Pass --ignorestop to shutit run to override.',level=logging.DEBUG)
+			return
+		for sub in glob.glob(os.path.join(path, '*')):
+			subpath = os.path.join(path, sub)
+			if os.path.isfile(subpath):
+				shutit_util.load_mod_from_file(self, subpath)
+			elif os.path.isdir(subpath):
+				shutit_util.load_all_from_path(self, subpath)

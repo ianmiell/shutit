@@ -874,26 +874,6 @@ def print_config(shutit, cfg, hide_password=True, history=False, module_id=None)
 	return s
 
 
-def load_all_from_path(shutit, path):
-	"""Dynamically imports files within the same directory (in the end, the path).
-	"""
-	#111: handle expanded paths
-	path = os.path.abspath(path)
-	#http://stackoverflow.com/questions/301134/dynamic-module-import-in-python
-	if os.path.abspath(path) == shutit.shutit_main_dir:
-		return
-	if not os.path.exists(path):
-		return
-	if os.path.exists(path + '/STOPBUILD') and not shutit.build['ignorestop']:
-		shutit.log('Ignoring directory: ' + path + ' as it has a STOPBUILD file in it. Pass --ignorestop to shutit run to override.',level=logging.DEBUG)
-		return
-	for sub in glob.glob(os.path.join(path, '*')):
-		subpath = os.path.join(path, sub)
-		if os.path.isfile(subpath):
-			load_mod_from_file(shutit, subpath)
-		elif os.path.isdir(subpath):
-			load_all_from_path(shutit, subpath)
-
 
 def load_mod_from_file(shutit, fpath):
 	"""Loads modules from a .py file into ShutIt if there are no modules from
