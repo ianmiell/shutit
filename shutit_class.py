@@ -2,6 +2,10 @@
 off to internal objects such as shutit_pexpect.
 """
 
+try:                                                                                                                                                                                       
+	from StringIO import StringIO                                                                                                                                                          
+except ImportError: # pragma: no cover                                                                                                                                                     
+	from io import StringIO   
 import sys
 import os
 import time
@@ -2456,7 +2460,7 @@ class ShutIt(object):
 		Recurses down from configured shutit module paths.
 		"""
 		# Get root default config.
-		configs = [('defaults', StringIO(_default_cnf)), os.path.expanduser('~/.shutit/config'), os.path.join(self.host['shutit_path'], 'config'), 'configs/build.cnf']
+		configs = [('defaults', StringIO(shutit_util._default_cnf)), os.path.expanduser('~/.shutit/config'), os.path.join(self.host['shutit_path'], 'config'), 'configs/build.cnf']
 		# Add the shutit global host- and user-specific config file.
 		# Add the local build.cnf
 		# Get passed-in config(s)
@@ -2491,4 +2495,85 @@ class ShutIt(object):
 			configs.append(('overrides', override_fd))
 	
 		self.cfg_parser = shutit_util.get_configs(self, configs)
-		shutit_util.get_base_config(self, self.cfg_parser)
+		self.get_base_config(self.cfg_parser)
+
+
+	# Manage config settings, returning a dict representing the settings
+	# that have been sanity-checked.
+	def get_base_config(self, cfg_parser):
+		"""Responsible for getting core configuration from config files.
+		"""
+		self.config_parser = cp = cfg_parser
+		# BEGIN Read from config files
+		# build - details relating to the build
+		self.build['privileged']                 = cp.getboolean('build', 'privileged')
+		self.build['base_image']                 = cp.get('build', 'base_image')
+		self.build['dotest']                     = cp.get('build', 'dotest')
+		self.build['net']                        = cp.get('build', 'net')
+		self.build['step_through']               = False
+		self.build['ctrlc_stop']                 = False
+		self.build['ctrlc_passthrough']          = False
+		self.build['have_read_config_file']      = False
+		# Width of terminal to set up on login and assume for other cases.
+		self.build['vagrant_run_dir']            = None
+		self.build['this_vagrant_run_dir']       = None
+		# Take a command-line arg if given, else default.
+		if self.build['conn_module'] is None:
+			self.build['conn_module']            = cp.get('build', 'conn_module')
+		# Whether to accept default configs
+		self.build['accept_defaults']            = None
+		# target - the target of the build, ie the container
+		self.target['hostname']                  = cp.get('target', 'hostname')
+		self.target['ports']                     = cp.get('target', 'ports')
+		self.target['volumes']                   = cp.get('target', 'volumes')
+		self.target['volumes_from']              = cp.get('target', 'volumes_from')
+		self.target['name']                      = cp.get('target', 'name')
+		self.target['rm']                        = cp.getboolean('target', 'rm')
+		# host - the host on which the shutit script is run
+		self.host['add_shutit_to_path']          = cp.getboolean('host', 'add_shutit_to_path')
+		self.host['docker_executable']           = cp.get('host', 'docker_executable')
+		self.host['dns']                         = cp.get('host', 'dns')
+		self.host['password']                    = cp.get('host', 'password')
+		if isinstance(self.host['password'],str):
+			shutit_global.shutit_global_object.secret_words_set.add(self.host['password'])
+		shutit_global.shutit_global_object.logfile = cp.get('host', 'logfile')
+		self.host['shutit_module_path']          = cp.get('host', 'shutit_module_path').split(':')
+	
+		# repository - information relating to docker repository/registry
+		self.repository['name']                  = cp.get('repository', 'name')
+		self.repository['server']                = cp.get('repository', 'server')
+		self.repository['push']                  = cp.getboolean('repository', 'push')
+		self.repository['tag']                   = cp.getboolean('repository', 'tag')
+		self.repository['export']                = cp.getboolean('repository', 'export')
+		self.repository['save']                  = cp.getboolean('repository', 'save')
+		self.repository['suffix_date']           = cp.getboolean('repository', 'suffix_date')
+		self.repository['suffix_format']         = cp.get('repository', 'suffix_format')
+		self.repository['user']                  = cp.get('repository', 'user')
+		self.repository['password']              = cp.get('repository', 'password')
+		if isinstance(self.repository['password'],str):
+			shutit_global.shutit_global_object.secret_words_set.add(self.repository['password'])
+		self.repository['email']                 = cp.get('repository', 'email')
+		self.repository['tag_name']              = cp.get('repository', 'tag_name')
+		# END Read from config files
+	
+		# BEGIN Standard expects
+		# It's important that these have '.*' in them at the start, so that the matched data is reliably 'after' in the
+		# child object. Use these where possible to make things more consistent.
+		# Attempt to capture any starting prompt (when starting) with this regexp.
+		self.expect_prompts['base_prompt']       = '\r\n.*[@#$] '
+		# END Standard expects
+	
+		if self.target['docker_image'] == '':
+			self.target['docker_image'] = self.build['base_image']
+		# END tidy configs up
+	
+		# BEGIN warnings
+		# FAILS begins
+		# rm is incompatible with repository actions
+		if self.target['rm'] and (self.repository['tag'] or self.repository['push'] or self.repository['save'] or self.repository['export']): # pragma: no cover
+			print("Can't have [target]/rm and [repository]/(push/save/export) set to true")
+			handle_exit(shutit=self, exit_code=1)
+		if self.target['hostname'] != '' and self.build['net'] != '' and self.build['net'] != 'bridge': # pragma: no cover
+			print('\n\ntarget/hostname or build/net configs must be blank\n\n')
+			handle_exit(shutit=self, exit_code=1)
+		# FAILS ends
