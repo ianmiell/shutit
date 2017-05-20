@@ -889,7 +889,7 @@ def list_modules(shutit, long_output=None,sort_order=None):
 					compatible = True
 					if not cfg[m.module_id]['shutit.core.module.build']:
 						cfg[m.module_id]['shutit.core.module.build'] = True
-						compatible = determine_compatibility(shutit, m.module_id) == 0
+						compatible = shutit.determine_compatibility(m.module_id) == 0
 						cfg[m.module_id]['shutit.core.module.build'] = False
 					if long_output:
 						table_list.append([str(count),m.module_id,m.description,str(m.run_order),str(cfg[m.module_id]['shutit.core.module.build']),str(compatible)])
@@ -908,7 +908,7 @@ def list_modules(shutit, long_output=None,sort_order=None):
 					compatible = True
 					if not cfg[m.module_id]['shutit.core.module.build']:
 						cfg[m.module_id]['shutit.core.module.build'] = True
-						compatible = determine_compatibility(shutit, m.module_id) == 0
+						compatible = shutit.determine_compatibility(m.module_id) == 0
 					if long_output:
 						table_list.append([str(count),m.module_id,m.description,str(m.run_order),str(cfg[m.module_id]['shutit.core.module.build']),str(compatible)])
 						#table_list.append([str(count),m.module_id,m.description,str(m.run_order),str(cfg[m.module_id]['shutit.core.module.build'])])
@@ -1308,16 +1308,6 @@ def config_collection_for_built(shutit, throw_error=True,silent=False):
 	return True
 
 
-# TODO: move to shutit_class.py
-def determine_compatibility(shutit, module_id):
-	cfg = shutit.cfg
-	# Allowed images
-	if (cfg[module_id]['shutit.core.module.allowed_images'] and shutit.target['docker_image'] not in cfg[module_id]['shutit.core.module.allowed_images']) and not allowed_image(shutit, module_id):
-		return 1
-	# Build methods
-	if cfg[module_id]['shutit.core.module.build'] and shutit.build['delivery'] not in shutit.shutit_map[module_id].ok_delivery_methods:
-		return 2
-	return 0
 
 
 # TODO: move to shutit_class.py

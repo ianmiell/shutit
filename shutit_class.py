@@ -2334,3 +2334,14 @@ class ShutIt(object):
 		if cfg[shutit_module_obj.module_id]['shutit.core.module.build']:
 			return True
 		return is_installed(self, shutit_module_obj)
+
+
+	def determine_compatibility(self, module_id):
+		cfg = self.cfg
+		# Allowed images
+		if (cfg[module_id]['shutit.core.module.allowed_images'] and self.target['docker_image'] not in cfg[module_id]['shutit.core.module.allowed_images']) and not allowed_image(shutit, module_id):
+			return 1
+		# Build methods
+		if cfg[module_id]['shutit.core.module.build'] and self.build['delivery'] not in self.shutit_map[module_id].ok_delivery_methods:
+			return 2
+		return 0
