@@ -2232,8 +2232,6 @@ class ShutIt(object):
 		return s
 
 
-
-
 	def util_raw_input(self, prompt='', default=None, ispass=False, use_readline=True):
 		"""Handles raw_input calls, and switches off interactivity if there is apparently
 		no controlling terminal (or there are any other problems)

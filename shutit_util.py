@@ -219,6 +219,7 @@ def random_word(size=6):
 		word = words[int(random.random() * (len(words) - 1))]
 	return word.lower()
 
+# TODO: move to shutit_class.py?
 def find_asset(shutit, filename):
 	(head,filename) = os.path.split(filename)
 	if head == '':
@@ -251,9 +252,9 @@ def find_asset(shutit, filename):
 	return filename
 
 
-# Set up logging
+# Set up logging - TODO: move to shutit_global.py?
 #
-def setup_logging(shutit):
+def setup_logging():
 	# If loglevel is an int, this has already been set up.
 	if isinstance(shutit_global.shutit_global_object.loglevel, int):
 		return
@@ -512,7 +513,7 @@ def process_args(shutit, args, set_loglevel='INFO'):
 		shutit_global.shutit_global_object.loglevel = set_loglevel
 	if shutit_global.shutit_global_object.loglevel in ('', None):
 		shutit_global.shutit_global_object.loglevel = 'INFO'
-	setup_logging(shutit)
+	setup_logging()
 
 	# This mode is a bit special - it's the only one with different arguments
 	if shutit.action['skeleton']:
@@ -1218,6 +1219,7 @@ def check_regexp(regex):
 	return result
 
 
+# TODO: move to shutit_class.py
 def module_ids(shutit, rev=False):
 	"""Gets a list of module ids guaranteed to be sorted by run_order, ignoring conn modules
 	(run order < 0).
@@ -1228,6 +1230,7 @@ def module_ids(shutit, rev=False):
 	else:
 		return ids
 
+# TODO: move to shutit_class.py
 def allowed_module_ids(shutit, rev=False):
 	"""Gets a list of module ids that are allowed to be run, guaranteed to be sorted by run_order, ignoring conn modules (run order < 0).
 	"""
@@ -1239,6 +1242,7 @@ def allowed_module_ids(shutit, rev=False):
 	return _allowed_module_ids
 
 
+# TODO: move to shutit_class.py
 def print_modules(shutit):
 	"""Returns a string table representing the modules in the ShutIt module map.
 	"""
@@ -1253,6 +1257,7 @@ def print_modules(shutit):
 	return module_string
 
 
+# TODO: move to shutit_class.py
 def config_collection(shutit):
 	"""Collect core config from config files for all seen modules.
 	"""
@@ -1297,6 +1302,7 @@ def config_collection(shutit):
 			shutit.get_config(module_id, 'shutit.core.module.build_ifneeded', False, boolean=True)
 
 
+# TODO: move to shutit_class.py
 def disallowed_module_ids(shutit, rev=False):
 	"""Gets a list of disallowed module ids that are not allowed to be run, guaranteed to be sorted by run_order, ignoring conn modules (run order < 0).
 	"""
@@ -1308,6 +1314,7 @@ def disallowed_module_ids(shutit, rev=False):
 	return _disallowed_module_ids
 
 
+# TODO: move to shutit_class.py
 def is_to_be_built_or_is_installed(shutit, shutit_module_obj):
 	"""Returns true if this module is configured to be built, or if it is already installed.
 	"""
@@ -1317,6 +1324,7 @@ def is_to_be_built_or_is_installed(shutit, shutit_module_obj):
 	return is_installed(shutit, shutit_module_obj)
 
 
+# TODO: move to shutit_class.py
 def config_collection_for_built(shutit, throw_error=True,silent=False):
 	"""Collect configuration for modules that are being built.
 	When this is called we should know what's being built (ie after
@@ -1380,6 +1388,7 @@ def config_collection_for_built(shutit, throw_error=True,silent=False):
 	return True
 
 
+# TODO: move to shutit_class.py
 def determine_compatibility(shutit, module_id):
 	cfg = shutit.cfg
 	# Allowed images
@@ -1391,6 +1400,7 @@ def determine_compatibility(shutit, module_id):
 	return 0
 
 
+# TODO: move to shutit_class.py
 def is_installed(shutit, shutit_module_obj):
 	"""Returns true if this module is installed.
 	Uses cache where possible.
@@ -1411,6 +1421,7 @@ def is_installed(shutit, shutit_module_obj):
 		return False
 
 
+# TODO: move to shutit_class.py
 def allowed_image(shutit, module_id):
 	"""Given a module id, determine whether the image is allowed to be built.
 	"""
@@ -1430,6 +1441,7 @@ def allowed_image(shutit, module_id):
 	return False
 
 
+# TODO: move to shutit_class.py
 def handle_exit(shutit=None, exit_code=0,loglevel=logging.DEBUG,msg=None):
 	if not msg:
 		msg = '\nExiting with error code: ' + str(exit_code)
@@ -1484,6 +1496,7 @@ def get_input(shutit, msg, default='', valid=None, boolean=False, ispass=False, 
 		return answer
 
 
+# TODO: move to shutit_class.py
 def get_send_command(shutit, send):
 	"""Internal helper function to get command that's really sent
 	"""
@@ -1496,6 +1509,7 @@ def get_send_command(shutit, send):
 	return send
 
 
+# TODO: move to shutit_class.py
 def get_command(shutit, command):
 	"""Helper function for osx - return gnu utils rather than default for
 	   eg head and md5sum where possible.
