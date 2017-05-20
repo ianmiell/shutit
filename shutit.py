@@ -520,7 +520,7 @@ def setup_shutit_obj(shutit):
 	if shutit_global.shutit_global_object.determine_interactive() and spawn.find_executable('shutit') is None:
 		setup_shutit_path(shutit)
 
-	shutit_util.load_mod_from_file(shutit, os.path.join(shutit.shutit_main_dir, 'shutit_setup.py'))
+	shutit.load_mod_from_file(os.path.join(shutit.shutit_main_dir, 'shutit_setup.py'))
 	shutit.load_shutit_modules()
 	shutit.log('ShutIt modules loaded',level=logging.INFO)
 

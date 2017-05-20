@@ -25,6 +25,7 @@ except ImportError: # pragma: no cover
 from shutit_sendspec import ShutItSendSpec
 from shutit_module import ShutItFailException
 from shutit_pexpect import ShutItPexpectSession
+from shutit_module import ShutItModule
 
 
 class ShutIt(object):
@@ -2597,6 +2598,69 @@ class ShutIt(object):
 		for sub in glob.glob(os.path.join(path, '*')):
 			subpath = os.path.join(path, sub)
 			if os.path.isfile(subpath):
-				shutit_util.load_mod_from_file(self, subpath)
+				shutit.load_mod_from_file(subpath)
 			elif os.path.isdir(subpath):
-				shutit_util.load_all_from_path(self, subpath)
+				self.load_all_from_path(subpath)
+
+
+
+	def load_mod_from_file(self, fpath):
+		"""Loads modules from a .py file into ShutIt if there are no modules from
+		this file already.
+		We expect to have a callable 'module/0' which returns one or more module
+		objects.
+		If this doesn't exist we assume that the .py file works in the old style
+		(automatically inserting the module into shutit_global) or it's not a shutit
+		module.
+		"""
+		fpath = os.path.abspath(fpath)
+		file_ext = os.path.splitext(os.path.split(fpath)[-1])[-1]
+		if file_ext.lower() != '.py':
+			return
+		with open(fpath) as f:
+			content = f.read().splitlines()
+		ok = False
+		for line in content:
+			if line.strip() == 'from shutit_module import ShutItModule':
+				ok = True
+				break
+		if not ok:
+			self.log('Rejected file: ' + fpath,level=logging.DEBUG)
+			return
+		# Note that this attribute will only be set for 'new style' module loading, # this should be ok because 'old style' loading checks for duplicate # existing modules.
+		# TODO: this is quadratic complexity
+		existingmodules = [
+			m for m in self.shutit_modules
+			if getattr(m, '__module_file', None) == fpath
+		]
+		if len(existingmodules) > 0:
+			self.log('Module already seen: ' + fpath,level=logging.DEBUG)
+			return
+		# Looks like it's ok to load this file
+		self.log('Loading source for: ' + fpath,level=logging.DEBUG)
+
+		# Add this directory to the python path iff not already there.
+		directory = os.path.dirname(fpath)
+		if directory not in sys.path:
+			sys.path.append(os.path.dirname(fpath))
+		mod_name = base64.b32encode(fpath.encode()).decode().replace('=', '')
+		pymod = imp.load_source(mod_name, fpath)
+	
+		# Got the python module, now time to pull the shutit module(s) out of it.
+		targets = [
+			('module', self.shutit_modules), ('conn_module', self.conn_modules)
+		]
+		self.build['source'] = {}
+		for attr, target in targets:
+			modulefunc = getattr(pymod, attr, None)
+			# Old style or not a shutit module, nothing else to do
+			if not callable(modulefunc):
+				return
+			modules = modulefunc()
+			if not isinstance(modules, list):
+				modules = [modules]
+			for module in modules:
+				setattr(module, '__module_file', fpath)
+				ShutItModule.register(module.__class__)
+				target.add(module)
+				self.build['source'][fpath] = open(fpath).read()

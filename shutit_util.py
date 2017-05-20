@@ -62,7 +62,6 @@ import shutit_skeleton
 import shutit_exam
 import shutit_global
 from shutit_module import ShutItFailException
-from shutit_module import ShutItModule
 
 PY3 = (sys.version_info[0] >= 3)
 
@@ -873,68 +872,6 @@ def print_config(shutit, cfg, hide_password=True, history=False, module_id=None)
 				s += line + '\n'
 	return s
 
-
-
-def load_mod_from_file(shutit, fpath):
-	"""Loads modules from a .py file into ShutIt if there are no modules from
-	this file already.
-	We expect to have a callable 'module/0' which returns one or more module
-	objects.
-	If this doesn't exist we assume that the .py file works in the old style
-	(automatically inserting the module into shutit_global) or it's not a shutit
-	module.
-	"""
-	fpath = os.path.abspath(fpath)
-	file_ext = os.path.splitext(os.path.split(fpath)[-1])[-1]
-	if file_ext.lower() != '.py':
-		return
-	with open(fpath) as f:
-		content = f.read().splitlines()
-	ok = False
-	for line in content:
-		if line.strip() == 'from shutit_module import ShutItModule':
-			ok = True
-			break
-	if not ok:
-		shutit.log('Rejected file: ' + fpath,level=logging.DEBUG)
-		return
-	# Note that this attribute will only be set for 'new style' module loading, # this should be ok because 'old style' loading checks for duplicate # existing modules.
-	# TODO: this is quadratic complexity
-	existingmodules = [
-		m for m in shutit.shutit_modules
-		if getattr(m, '__module_file', None) == fpath
-	]
-	if len(existingmodules) > 0:
-		shutit.log('Module already seen: ' + fpath,level=logging.DEBUG)
-		return
-	# Looks like it's ok to load this file
-	shutit.log('Loading source for: ' + fpath,level=logging.DEBUG)
-
-	# Add this directory to the python path iff not already there.
-	directory = os.path.dirname(fpath)
-	if directory not in sys.path:
-		sys.path.append(os.path.dirname(fpath))
-	mod_name = base64.b32encode(fpath.encode()).decode().replace('=', '')
-	pymod = imp.load_source(mod_name, fpath)
-
-	# Got the python module, now time to pull the shutit module(s) out of it.
-	targets = [
-		('module', shutit.shutit_modules), ('conn_module', shutit.conn_modules)
-	]
-	shutit.build['source'] = {}
-	for attr, target in targets:
-		modulefunc = getattr(pymod, attr, None)
-		# Old style or not a shutit module, nothing else to do
-		if not callable(modulefunc):
-			return
-		modules = modulefunc()
-		if not isinstance(modules, list):
-			modules = [modules]
-		for module in modules:
-			setattr(module, '__module_file', fpath)
-			ShutItModule.register(module.__class__)
-			target.add(module)
-			shutit.build['source'][fpath] = open(fpath).read()
 
 
 
