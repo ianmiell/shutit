@@ -2333,7 +2333,7 @@ class ShutIt(object):
 		cfg = self.cfg
 		if cfg[shutit_module_obj.module_id]['shutit.core.module.build']:
 			return True
-		return is_installed(self, shutit_module_obj)
+		return shutit_util.is_installed(self, shutit_module_obj)
 
 
 	def determine_compatibility(self, module_id):
