@@ -1115,50 +1115,6 @@ def get_hash(string_to_hash):
 	return abs(binascii.crc32(string_to_hash.encode()))
 
 
-def util_raw_input(shutit, prompt='', default=None, ispass=False, use_readline=True):
-	"""Handles raw_input calls, and switches off interactivity if there is apparently
-	no controlling terminal (or there are any other problems)
-	"""
-	if use_readline:
-		try:
-			readline.read_init_file('/etc/inputrc')
-		except:
-			pass
-		readline.parse_and_bind('tab: complete')
-	prompt = '\r\n' + prompt
-	if ispass:
-		prompt += '\r\nInput Secret: '
-	sanitize_terminal()
-	if shutit.build['interactive'] == 0:
-		return default
-	if not determine_interactive(shutit):
-		return default
-	while True:
-		try:
-			if ispass:
-				return getpass.getpass(prompt=prompt)
-			else:
-				resp = raw_input(prompt).strip()
-				if resp == '':
-					return default
-				else:
-					return resp
-		except KeyboardInterrupt:
-			continue
-		except:
-			msg = 'Problems getting raw input, assuming no controlling terminal.'
-	if ispass:
-		return getpass.getpass(prompt=prompt)
-	else:
-		resp = raw_input(prompt).strip()
-		if resp == '':
-			return default
-		else:
-			return resp
-	set_noninteractive(shutit, msg=msg)
-	return default
-
-
 def determine_interactive(shutit):
 	"""Determine whether we're in an interactive shell.
 	Sets interactivity off if appropriate.
@@ -1167,20 +1123,17 @@ def determine_interactive(shutit):
 	try:
 		if not sys.stdout.isatty() or os.getpgrp() != os.tcgetpgrp(sys.stdout.fileno()):
 			if shutit is not None:
-				set_noninteractive(shutit)
+				shutit.set_noninteractive(shutit)
 			return False
 	except Exception:
 		if shutit is not None:
-			set_noninteractive(shutit, msg='Problems determining interactivity, assuming not.')
+			shutit.set_noninteractive(shutit, msg='Problems determining interactivity, assuming not.')
 		return False
 	if shutit.build['interactive'] == 0:
 		return False
 	return True
 
 
-def set_noninteractive(shutit, msg="setting non-interactive"):
-	shutit.log(msg,level=logging.DEBUG)
-	shutit.build['interactive'] = 0
 
 
 def print_stack_trace(shutit):

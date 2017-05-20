@@ -2232,3 +2232,52 @@ class ShutIt(object):
 		s += '###############################################################################\n'
 		return s
 
+
+	def set_noninteractive(self, msg="setting non-interactive"):
+		self.log(msg,level=logging.DEBUG)
+		self.build['interactive'] = 0
+
+
+	def util_raw_input(self, prompt='', default=None, ispass=False, use_readline=True):
+		"""Handles raw_input calls, and switches off interactivity if there is apparently
+		no controlling terminal (or there are any other problems)
+		"""
+		if use_readline:
+			try:
+				readline.read_init_file('/etc/inputrc')
+			except:
+				pass
+			readline.parse_and_bind('tab: complete')
+		prompt = '\r\n' + prompt
+		if ispass:
+			prompt += '\r\nInput Secret: '
+		sanitize_terminal()
+		if self.build['interactive'] == 0:
+			return default
+		if not shutit_util.determine_interactive(shutit):
+			return default
+		while True:
+			try:
+				if ispass:
+					return getpass.getpass(prompt=prompt)
+				else:
+					resp = raw_input(prompt).strip()
+					if resp == '':
+						return default
+					else:
+						return resp
+			except KeyboardInterrupt:
+				continue
+			except:
+				msg = 'Problems getting raw input, assuming no controlling terminal.'
+		if ispass:
+			return getpass.getpass(prompt=prompt)
+		else:
+			resp = raw_input(prompt).strip()
+			if resp == '':
+				return default
+			else:
+				return resp
+		self.set_noninteractive(self, msg=msg)
+		return default
+
