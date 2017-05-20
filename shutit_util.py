@@ -1459,48 +1459,6 @@ def sanitize_terminal():
 	os.system('stty sane')
 
 
-def match_string(shutit, string_to_match, regexp):
-	"""Get regular expression from the first of the lines passed
-	in in string that matched. Handles first group of regexp as
-	a return value.
-
-	@param string_to_match: String to match on
-	@param regexp: Regexp to check (per-line) against string
-
-	@type string_to_match: string
-	@type regexp: string
-
-	Returns None if none of the lines matched.
-
-	Returns True if there are no groups selected in the regexp.
-	else returns matching group (ie non-None)
-	"""
-	if not isinstance(string_to_match, str):
-		return None
-	lines = string_to_match.split('\r\n')
-	# sometimes they're separated by just a carriage return...
-	new_lines = []
-	for line in lines:
-		new_lines = new_lines + line.split('\r')
-	# and sometimes they're separated by just a newline...
-	for line in lines:
-		new_lines = new_lines + line.split('\n')
-	lines = new_lines
-	if not check_regexp(regexp):
-		shutit.fail('Illegal regexp found in match_string call: ' + regexp) # pragma: no cover
-	for line in lines:
-		match = re.match(regexp, line)
-		if match is not None:
-			if len(match.groups()) > 0:
-				return match.group(1)
-			else:
-				return True
-	return None
-# alias for back-compatibility
-get_re_from_child = match_string
-
-
-
 def get_input(shutit, msg, default='', valid=None, boolean=False, ispass=False, colour='32'):
 	"""Gets input from the user, and returns the answer.
 
@@ -1527,6 +1485,7 @@ def get_input(shutit, msg, default='', valid=None, boolean=False, ispass=False, 
 		return default
 	else:
 		return answer
+
 
 def get_send_command(shutit, send):
 	"""Internal helper function to get command that's really sent

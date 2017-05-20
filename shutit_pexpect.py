@@ -592,7 +592,7 @@ class ShutItPexpectSession(object):
 		                                        ignore_background=True))
 		shutit.log('Expecting: ' + str(expect),level=logging.DEBUG)
 		self.expect(expect,timeout=60)
-		res = shutit_util.match_string(shutit, str(self.pexpect_child.before), '^EXIT_CODE:([0-9][0-9]?[0-9]?)$')
+		res = shutit.match_string(str(self.pexpect_child.before), '^EXIT_CODE:([0-9][0-9]?[0-9]?)$')
 		if res not in exit_values or res is None: # pragma: no cover
 			res_str = res or str(res)
 			shutit.log('shutit_pexpect_child.after: ' + str(self.pexpect_child.after), level=logging.DEBUG)
@@ -754,7 +754,7 @@ class ShutItPexpectSession(object):
 		                                  record_command=False,
 		                                  echo=False,
 		                                  loglevel=loglevel)
-		res = shutit_util.match_string(shutit, output, '^(FILEXIST|FILNEXIST)-FILFIN$')
+		res = shutit.match_string(output, '^(FILEXIST|FILNEXIST)-FILFIN$')
 		ret = False
 		if res == 'FILEXIST':
 			ret = True
@@ -819,7 +819,7 @@ class ShutItPexpectSession(object):
 		                         echo=False,
 		                         loglevel=loglevel,
 		                         ignore_background=True))
-		res = shutit_util.match_string(shutit, self.pexpect_child.before, '([0-9][0-9][0-9])')
+		res = shutit.match_string(self.pexpect_child.before, '([0-9][0-9][0-9])')
 		shutit.handle_note_after(note=note)
 		return res
 
@@ -875,7 +875,7 @@ class ShutItPexpectSession(object):
 		                         loglevel=loglevel,
 		                         ignore_background=True))
 		shutit.handle_note_after(note=note)
-		if shutit_util.match_string(shutit, self.pexpect_child.before, '^([0-9]+)$') == '1':
+		if shutit.match_string(self.pexpect_child.before, '^([0-9]+)$') == '1':
 			return False
 		else:
 			return True
@@ -970,14 +970,14 @@ class ShutItPexpectSession(object):
 		                         echo=False,
 		                         loglevel=loglevel,
 		                         ignore_background=True))
-		res = shutit_util.match_string(shutit, self.pexpect_child.before, r'^Distributor[\s]*ID:[\s]*(.*)$')
+		res = shutit.match_string(self.pexpect_child.before, r'^Distributor[\s]*ID:[\s]*(.*)$')
 		if isinstance(res, str):
 			dist_string = res
 			d['distro']       = dist_string.lower().strip()
 			d['install_type'] = (package_map.INSTALL_TYPE_MAP[dist_string.lower()])
 		else:
 			return d
-		res = shutit_util.match_string(shutit, self.pexpect_child.before, r'^Release:[\s*](.*)$')
+		res = shutit.match_string(self.pexpect_child.before, r'^Release:[\s*](.*)$')
 		if isinstance(res, str):
 			version_string = res
 			d['distro_version'] = version_string
@@ -1550,7 +1550,7 @@ class ShutItPexpectSession(object):
 			matches = [matches]
 		shutit.handle_note_after(note=note)
 		for match in matches:
-			if shutit_util.match_string(shutit, output, match) != None:
+			if shutit.match_string(output, match) != None:
 				shutit.log('Matched output, return True',level=logging.DEBUG)
 				return True
 		shutit.log('Failed to match output, return False',level=logging.DEBUG)
@@ -2058,7 +2058,7 @@ class ShutItPexpectSession(object):
 				for regexp in regexps:
 					if not shutit_util.check_regexp(regexp):
 						shutit.fail('Illegal regexp found in send_until call: ' + regexp) # pragma: no cover
-					if shutit_util.match_string(shutit, output, regexp):
+					if shutit.match_string(output, regexp):
 						return True
 			else:
 				# Only return if _not_ seen in the output
@@ -2066,7 +2066,7 @@ class ShutItPexpectSession(object):
 				for regexp in regexps:
 					if not shutit_util.check_regexp(regexp):
 						shutit.fail('Illegal regexp found in send_until call: ' + regexp) # pragma: no cover
-					if not shutit_util.match_string(shutit, output, regexp):
+					if not shutit.match_string(output, regexp):
 						missing = True
 						break
 				if missing:
@@ -2660,7 +2660,7 @@ $'"""
 		if sendspec.follow_on_commands is not None:
 			for match in sendspec.follow_on_commands:
 				sendspec.send = sendspec.follow_on_commands[match]
-				if shutit_util.match_string(shutit, last_output, match):
+				if shutit.match_string(last_output, match):
 					# send (with no follow-on commands)
 					self.send(ShutItSendSpec(self,
 					                         send=sendspec.send,
@@ -3050,7 +3050,7 @@ $'"""
 						ok = True
 				elif expect_type == 'regexp':
 					for regexp in expect:
-						if shutit_util.match_string(shutit, output, regexp):
+						if shutit.match_string(output, regexp):
 							ok = True
 							break
 				if not ok and failed:
@@ -3152,7 +3152,7 @@ $'"""
 						ok = True
 				elif expect_type == 'regexp':
 					for regexp in expect:
-						if shutit_util.match_string(shutit, output,regexp):
+						if shutit.match_string(output,regexp):
 							ok = True
 							break
 				if not ok and failed:
