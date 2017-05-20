@@ -2314,3 +2314,15 @@ class ShutIt(object):
 				else:
 					return True
 		return None
+
+
+	# TODO: move to shutit_class.py
+	def module_ids(self, rev=False):
+		"""Gets a list of module ids guaranteed to be sorted by run_order, ignoring conn modules
+		(run order < 0).
+		"""
+		ids = sorted(list(self.shutit_map.keys()),key=lambda module_id: self.shutit_map[module_id].run_order)
+		if rev:
+			return list(reversed(ids))
+		else:
+			return ids

@@ -46,7 +46,7 @@ def stop_all(shutit, run_order=-1):
 	before committing run files etc.
 	"""
 	# sort them so they're stopped in reverse order
-	for module_id in shutit_util.module_ids(shutit, rev=True):
+	for module_id in shutit.module_ids(rev=True):
 		shutit_module_obj = shutit.shutit_map[module_id]
 		if run_order == -1 or shutit_module_obj.run_order <= run_order:
 			if shutit_util.is_installed(shutit, shutit_module_obj):
@@ -61,7 +61,7 @@ def start_all(shutit, run_order=-1):
 	target and still depended-on modules running if necessary.
 	"""
 	# sort them so they're started in order
-	for module_id in shutit_util.module_ids(shutit):
+	for module_id in shutit.module_ids():
 		shutit_module_obj = shutit.shutit_map[module_id]
 		if run_order == -1 or shutit_module_obj.run_order <= run_order:
 			if shutit_util.is_installed(shutit, shutit_module_obj):
@@ -248,7 +248,7 @@ def check_deps(shutit):
 		return [(err,) for err in found_errs]
 
 	shutit.log('Modules configured to be built (in order) are: ', level=logging.DEBUG)
-	for module_id in shutit_util.module_ids(shutit):
+	for module_id in shutit.module_ids():
 		module = shutit.shutit_map[module_id]
 		if cfg[module_id]['shutit.core.module.build']:
 			shutit.log(module_id + '    ' + str(module.run_order), level=logging.DEBUG)
@@ -265,7 +265,7 @@ def check_conflicts(shutit):
 	shutit.log('PHASE: conflicts', level=logging.DEBUG)
 	errs = []
 	shutit.pause_point('\nNow checking for conflicts between modules', print_input=False, level=3)
-	for module_id in shutit_util.module_ids(shutit):
+	for module_id in shutit.module_ids():
 		if not cfg[module_id]['shutit.core.module.build']:
 			continue
 		conflicter = shutit.shutit_map[module_id]
@@ -292,7 +292,7 @@ def check_ready(shutit, throw_error=True):
 	errs = []
 	shutit.pause_point('\nNow checking whether we are ready to build modules configured to be built', print_input=False, level=3)
 	# Find out who we are to see whether we need to log in and out or not.
-	for module_id in shutit_util.module_ids(shutit):
+	for module_id in shutit.module_ids():
 		module = shutit.shutit_map[module_id]
 		shutit.log('considering check_ready (is it ready to be built?): ' + module_id, level=logging.DEBUG)
 		if cfg[module_id]['shutit.core.module.build'] and module.module_id not in shutit.get_current_shutit_pexpect_session_environment().modules_ready and not shutit_util.is_installed(shutit, module):
@@ -317,7 +317,7 @@ def do_remove(shutit, loglevel=logging.DEBUG):
 	shutit.log('PHASE: remove', level=loglevel)
 	shutit.pause_point('\nNow removing any modules that need removing', print_input=False, level=3)
 	# Login at least once to get the exports.
-	for module_id in shutit_util.module_ids(shutit):
+	for module_id in shutit.module_ids():
 		module = shutit.shutit_map[module_id]
 		shutit.log('considering whether to remove: ' + module_id, level=logging.DEBUG)
 		if cfg[module_id]['shutit.core.module.remove']:
@@ -382,7 +382,7 @@ def do_build(shutit):
 	"""
 	cfg = shutit.cfg
 	shutit.log('PHASE: build, repository work', level=logging.DEBUG)
-	module_id_list = shutit_util.module_ids(shutit)
+	module_id_list = shutit.module_ids()
 	if shutit.build['deps_only']:
 		module_id_list_build_only = filter(lambda x: cfg[x]['shutit.core.module.build'], module_id_list)
 	for module_id in module_id_list:
@@ -422,7 +422,7 @@ def do_test(shutit):
 	shutit.log('PHASE: test', level=logging.DEBUG)
 	stop_all(shutit)
 	start_all(shutit)
-	for module_id in shutit_util.module_ids(shutit, rev=True):
+	for module_id in shutit.module_ids(rev=True):
 		# Only test if it's installed.
 		if shutit_util.is_installed(shutit, shutit.shutit_map[module_id]):
 			shutit.log('RUNNING TEST ON: ' + module_id, level=logging.DEBUG)
@@ -442,7 +442,7 @@ def do_finalize(shutit=None):
 		# Finalize in reverse order
 		shutit.log('PHASE: finalizing object ' + str(shutit), level=logging.DEBUG)
 		# Login at least once to get the exports.
-		for module_id in shutit_util.module_ids(shutit, rev=True):
+		for module_id in shutit.module_ids(rev=True):
 			# Only finalize if it's thought to be installed.
 			if shutit_util.is_installed(shutit, shutit.shutit_map[module_id]):
 				shutit.login(prompt_prefix=module_id,command='bash --noprofile --norc',echo=False)
