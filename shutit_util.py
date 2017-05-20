@@ -1310,33 +1310,6 @@ def sanitize_terminal():
 	os.system('stty sane')
 
 
-def get_input(shutit, msg, default='', valid=None, boolean=False, ispass=False, colour='32'):
-	"""Gets input from the user, and returns the answer.
-
-	@param msg:       message to send to user
-	@param default:   default value if nothing entered
-	@param valid:     valid input values (default == empty list == anything allowed)
-	@param boolean:   whether return value should be boolean
-	@param ispass:    True if this is a password (ie whether to not echo input)
-	"""
-	if boolean and valid is None:
-		valid = ('yes','y','Y','1','true','no','n','N','0','false')
-	answer = shutit.util_raw_input(shutit, prompt=colourise(colour,msg),ispass=ispass)
-	if boolean and answer in ('', None) and default != '':
-		return default
-	if valid is not None:
-		while answer not in valid:
-			shutit.log('Answer must be one of: ' + str(valid),transient=True)
-			answer = shutit.util_raw_input(prompt=colourise(colour,msg),ispass=ispass)
-	if boolean and answer in ('yes','y','Y','1','true','t','YES'):
-		return True
-	if boolean and answer in ('no','n','N','0','false','f','NO'):
-		return False
-	if answer in ('',None):
-		return default
-	else:
-		return answer
-
 
 
 def check_delivery_method(method):
@@ -1511,7 +1484,7 @@ _build_section = '''
 		#                                    - Set password for a given user on target
 		#
 		# USER INTERACTION
-		# shutit.get_input(shutit,msg,default,valid[],boolean?,ispass?)
+		# shutit.get_input(msg,default,valid[],boolean?,ispass?)
 		#                                    - Get input from user and return output
 		# shutit.fail(msg)                   - Fail the program and exit with status 1
 		#

@@ -1639,24 +1639,6 @@ class ShutIt(object):
 		return shutit_pexpect_session.wait(cadence=cadence)
 
 
-	# TODO: put this in global state?
-	def get_input(self, msg, default='', valid=None, boolean=False, ispass=False, colour='32'):
-		"""Get input from the user, returning the entered value.
-
-		    @param msg:         - message to show user
-		    @param default:     - default value if none entered.. defaults to empty string
-		    @param valid:       - list of valid values
-		    @param boolean:     - whether this should return true/false. Defaults to set of sensible values for valid[] if set to true
-		    @param ispass:      - do not echo input to terminal
-		"""
-		return shutit_util.get_input(self,
-		                             msg=msg,
-		                             default=default,
-		                             valid=valid,
-		                             boolean=boolean,
-		                             ispass=ispass,
-		                             colour=colour)
-
 
 	def get_memory(self,
 	               shutit_pexpect_child=None,
@@ -2424,7 +2406,7 @@ class ShutIt(object):
 		return command
 
 
-	def get_send_command(send):
+	def get_send_command(self, send):
 		"""Internal helper function to get command that's really sent
 		"""
 		if send is None:
@@ -2435,3 +2417,31 @@ class ShutIt(object):
 			send = send.replace(cmd_arr[0],newcmd)
 		return send
 
+
+
+	def get_input(self, msg, default='', valid=None, boolean=False, ispass=False, colour='32'):
+		"""Gets input from the user, and returns the answer.
+
+		@param msg:       message to send to user
+		@param default:   default value if nothing entered
+		@param valid:     valid input values (default == empty list == anything allowed)
+		@param boolean:   whether return value should be boolean
+		@param ispass:    True if this is a password (ie whether to not echo input)
+		"""
+		if boolean and valid is None:
+			valid = ('yes','y','Y','1','true','no','n','N','0','false')
+		answer = self.util_raw_input(prompt=shutit_util.colourise(colour,msg),ispass=ispass)
+		if boolean and answer in ('', None) and default != '':
+			return default
+		if valid is not None:
+			while answer not in valid:
+				self.log('Answer must be one of: ' + str(valid),transient=True)
+				answer = self.util_raw_input(prompt=shutit_util.colourise(colour,msg),ispass=ispass)
+		if boolean and answer in ('yes','y','Y','1','true','t','YES'):
+			return True
+		if boolean and answer in ('no','n','N','0','false','f','NO'):
+			return False
+		if answer in ('',None):
+			return default
+		else:
+			return answer

@@ -1640,7 +1640,7 @@ class ShutItPexpectSession(object):
 			self.current_environment.users.update({user:None})
 		if not self.current_environment.users[user] and user != 'root':
 			msg = msg or 'Please input the sudo password for user: ' + user
-			self.current_environment.users[user] = shutit_util.get_input(shutit, msg,ispass=True)
+			self.current_environment.users[user] = shutit.get_input(msg,ispass=True)
 			shutit_global.shutit_global_object.secret_words_set.add(self.current_environment.users[user])
 		return self.current_environment.users[user]
 
@@ -3008,7 +3008,7 @@ $'"""
 					shutit.log(shutit_util.colourise('32',help_text),transient=True)
 				time.sleep(pause)
 				# TODO: bash path completion
-				send = shutit_util.get_input(shutit, task_desc + ' => ',colour='31')
+				send = shutit.get_input(task_desc + ' => ',colour='31')
 				if not send or send.strip() == '':
 					continue
 				if send in ('help','h'):
