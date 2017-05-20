@@ -1123,11 +1123,11 @@ def determine_interactive(shutit):
 	try:
 		if not sys.stdout.isatty() or os.getpgrp() != os.tcgetpgrp(sys.stdout.fileno()):
 			if shutit is not None:
-				shutit.set_noninteractive(shutit)
+				shutit.set_noninteractive()
 			return False
 	except Exception:
 		if shutit is not None:
-			shutit.set_noninteractive(shutit, msg='Problems determining interactivity, assuming not.')
+			shutit.set_noninteractive(msg='Problems determining interactivity, assuming not.')
 		return False
 	if shutit.build['interactive'] == 0:
 		return False
