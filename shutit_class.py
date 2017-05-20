@@ -2326,3 +2326,11 @@ class ShutIt(object):
 		else:
 			return ids
 
+
+	def is_to_be_built_or_is_installed(self, shutit_module_obj):
+		"""Returns true if this module is configured to be built, or if it is already installed.
+		"""
+		cfg = self.cfg
+		if cfg[shutit_module_obj.module_id]['shutit.core.module.build']:
+			return True
+		return is_installed(self, shutit_module_obj)

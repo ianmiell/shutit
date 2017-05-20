@@ -1242,14 +1242,6 @@ def config_collection(shutit):
 			shutit.get_config(module_id, 'shutit.core.module.build_ifneeded', False, boolean=True)
 
 
-# TODO: move to shutit_class.py
-def is_to_be_built_or_is_installed(shutit, shutit_module_obj):
-	"""Returns true if this module is configured to be built, or if it is already installed.
-	"""
-	cfg = shutit.cfg
-	if cfg[shutit_module_obj.module_id]['shutit.core.module.build']:
-		return True
-	return is_installed(shutit, shutit_module_obj)
 
 
 # TODO: move to shutit_class.py
@@ -1262,7 +1254,7 @@ def config_collection_for_built(shutit, throw_error=True,silent=False):
 	cfg = shutit.cfg
 	for module_id in shutit.module_ids():
 		# Get the config even if installed or building (may be needed in other hooks, eg test).
-		if (is_to_be_built_or_is_installed(shutit, shutit.shutit_map[module_id]) and
+		if (shutit.is_to_be_built_or_is_installed(shutit.shutit_map[module_id]) and
 			not shutit.shutit_map[module_id].get_config(shutit)):
 			shutit.fail(module_id + ' failed on get_config') # pragma: no cover
 		# Collect the build.cfg if we are building here.

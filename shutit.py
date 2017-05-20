@@ -185,7 +185,7 @@ def check_dependee_build(shutit, depender, dependee, dependee_id):
 	cfg = shutit.cfg
 	# If depender is installed or will be installed, so must the dependee
 	if not (cfg[dependee.module_id]['shutit.core.module.build'] or
-	        shutit_util.is_to_be_built_or_is_installed(shutit, dependee)):
+	        shutit.is_to_be_built_or_is_installed(dependee)):
 		return 'depender module id:\n\n[' + depender.module_id + ']\n\nis configured: "build:yes" or is already built but dependee module_id:\n\n[' + dependee_id + ']\n\n is not configured: "build:yes"'
 
 
@@ -275,9 +275,9 @@ def check_conflicts(shutit):
 			if conflictee_obj is None:
 				continue
 			if ((cfg[conflicter.module_id]['shutit.core.module.build'] or
-			     shutit_util.is_to_be_built_or_is_installed(shutit, conflicter)) and
+			     shutit.is_to_be_built_or_is_installed(conflicter)) and
 			    (cfg[conflictee_obj.module_id]['shutit.core.module.build'] or
-			     shutit_util.is_to_be_built_or_is_installed(shutit, conflictee_obj))):
+			     shutit.is_to_be_built_or_is_installed(conflictee_obj))):
 				errs.append(('conflicter module id: ' + conflicter.module_id + ' is configured to be built or is already built but conflicts with module_id: ' + conflictee_obj.module_id,))
 	return errs
 
