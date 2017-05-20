@@ -1115,23 +1115,6 @@ def get_hash(string_to_hash):
 	return abs(binascii.crc32(string_to_hash.encode()))
 
 
-def determine_interactive(shutit):
-	"""Determine whether we're in an interactive shell.
-	Sets interactivity off if appropriate.
-	cf http://stackoverflow.com/questions/24861351/how-to-detect-if-python-script-is-being-run-as-a-background-process
-	"""
-	try:
-		if not sys.stdout.isatty() or os.getpgrp() != os.tcgetpgrp(sys.stdout.fileno()):
-			if shutit is not None:
-				shutit.set_noninteractive()
-			return False
-	except Exception:
-		if shutit is not None:
-			shutit.set_noninteractive(msg='Problems determining interactivity, assuming not.')
-		return False
-	if shutit_global.shutit_global_object.interactive == 0:
-		return False
-	return True
 
 
 

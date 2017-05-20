@@ -166,5 +166,28 @@ class ShutItGlobal(object):
 				self.report_final_messages = self.report_final_messages + '\r\n' + msg + '\r\n'
 		return True
 
+
+	def set_noninteractive(self, msg="setting non-interactive"):
+		self.log(msg,level=logging.DEBUG)
+		self.interactive = 0
+
+
+	def determine_interactive(self):
+		"""Determine whether we're in an interactive shell.
+		Sets interactivity off if appropriate.
+		cf http://stackoverflow.com/questions/24861351/how-to-detect-if-python-script-is-being-run-as-a-background-process
+		"""
+		try:
+			if not sys.stdout.isatty() or os.getpgrp() != os.tcgetpgrp(sys.stdout.fileno()):
+				self.set_noninteractive()
+				return False
+		except Exception:
+			self.set_noninteractive(msg='Problems determining interactivity, assuming not.')
+			return False
+		if self.interactive == 0:
+			return False
+		return True
+
+
 shutit_global_object = ShutItGlobal()
 shutit_global_object.add_shutit_session(ShutIt())
