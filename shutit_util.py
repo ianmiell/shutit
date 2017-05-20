@@ -350,7 +350,7 @@ def convert_args(args):
 		assert not (args.shutitfiles and args.script),'Cannot have any two of script, -d/--shutitfiles <files> as arguments'
 		assert isinstance(args.base_image,str)
 		assert isinstance(args.depends,str)
-		assert isinstance(args.shutitfiles,list)
+		#assert isinstance(args.shutitfiles,list)
 		assert isinstance(args.name,str)
 		assert isinstance(args.domain,str)
 		assert isinstance(args.pattern,str)
@@ -397,8 +397,6 @@ def convert_args(args):
 		#shutit.build['always_echo']      = args.echo# TODO: abstract away to shutitconfig object
 		#shutit.target['docker_image']    = args.image_tag# TODO: abstract away to shutitconfig object
 		#	args.trace
-
-		
 	return args
 
 
