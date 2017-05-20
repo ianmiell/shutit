@@ -193,7 +193,7 @@ class ShutItGlobal(object):
 		traceback.print_tb(c)
 		self.log('================================================================================',transient=True)
 
-	def setup_logging():
+	def setup_logging(self):
 		# If loglevel is an int, this has already been set up.
 		if isinstance(self.loglevel, int):
 			return
