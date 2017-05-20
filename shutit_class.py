@@ -2306,7 +2306,7 @@ class ShutIt(object):
 		for line in lines:
 			new_lines = new_lines + line.split('\n')
 		lines = new_lines
-		if not check_regexp(regexp):
+		if not shutit_util.check_regexp(regexp):
 			self.fail('Illegal regexp found in match_string call: ' + regexp) # pragma: no cover
 		for line in lines:
 			match = re.match(regexp, line)
