@@ -16,8 +16,9 @@ import logging
 import tarfile
 import readline
 import base64
-import pexpect
 import imp
+import glob
+import pexpect
 import shutit_util
 import shutit_global
 try:
