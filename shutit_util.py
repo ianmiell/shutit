@@ -310,8 +310,6 @@ def get_base_config(shutit, cfg_parser):
 	shutit.build['ctrlc_passthrough']          = False
 	shutit.build['have_read_config_file']      = False
 	# Width of terminal to set up on login and assume for other cases.
-	# There is a problem with lines roughly around this length + the length of the prompt (?3k?)
-	shutit.build['line_limit']                 = 3000  #OK
 	shutit.build['vagrant_run_dir']            = None
 	shutit.build['this_vagrant_run_dir']       = None
 	# Take a command-line arg if given, else default.

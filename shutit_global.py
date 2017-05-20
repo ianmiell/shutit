@@ -96,6 +96,8 @@ class ShutItGlobal(object):
 		# Just override to the max possible
 		self.pexpect_window_size = (65535,65535)
 
+		# There is a problem with lines roughly around this length + the length of the prompt (?3k?)
+		self.line_limit          = 3000
 
 	def add_shutit_session(self, shutit):
 		self.shutit_objects.append(shutit)

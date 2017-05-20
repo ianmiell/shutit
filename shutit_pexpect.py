@@ -2550,7 +2550,7 @@ class ShutItPexpectSession(object):
 					else:
 						escaped_str += shutit_util.get_wide_hex(char)
 						_count += 4
-					if _count > shutit.build['line_limit']:
+					if _count > shutit_global.shutit_global_object.line_limit:
 						# The newline here is deliberate!
 						escaped_str += r"""'\
 $'"""
@@ -2564,7 +2564,7 @@ $'"""
 			else:
 				string_to_send = sendspec.send
 			if string_to_send is not None:
-				if len(string_to_send) > shutit.build['line_limit']:
+				if len(string_to_send) > shutit_global.shutit_global_object.line_limit:
 					fname = self._create_command_file(sendspec.expect,string_to_send)
 					res = self.send(ShutItSendSpec(self,
 					                               send=' command source ' + fname,
@@ -3297,7 +3297,7 @@ $'"""
 		                                        send=' truncate -s 0 '+ fname,
 		                                        ignore_background=True))
 		self.pexpect_child.expect(expect)
-		size = shutit.build['line_limit']
+		size = shutit_global.shutit_global_object.line_limit
 		while len(working_str) > 0:
 			curr_str = working_str[:size]
 			working_str = working_str[size:]
