@@ -2366,3 +2366,22 @@ class ShutIt(object):
 		if cfg[module_id]['shutit.core.module.build'] and self.build['delivery'] not in self.shutit_map[module_id].ok_delivery_methods:
 			return 2
 		return 0
+
+
+	def allowed_image(self, module_id):
+		"""Given a module id, determine whether the image is allowed to be built.
+		"""
+		self.log("In allowed_image: " + module_id,level=logging.DEBUG)
+		cfg = self.cfg
+		if selfbuild['ignoreimage']:
+			self.log("ignoreimage == true, returning true" + module_id,level=logging.DEBUG)
+			return True
+		self.log(str(cfg[module_id]['shutit.core.module.allowed_images']),level=logging.DEBUG)
+		if cfg[module_id]['shutit.core.module.allowed_images']:
+			# Try allowed images as regexps
+			for regexp in cfg[module_id]['shutit.core.module.allowed_images']:
+				if not check_regexp(regexp):
+					self.fail('Illegal regexp found in allowed_images: ' + regexp) # pragma: no cover
+				if re.match('^' + regexp + '$', self.target['docker_image']):
+					return True
+		return False

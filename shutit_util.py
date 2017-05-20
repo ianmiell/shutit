@@ -1292,7 +1292,7 @@ def config_collection_for_built(shutit, throw_error=True,silent=False):
 		if (cfg[module_id]['shutit.core.module.build'] and
 		   (cfg[module_id]['shutit.core.module.allowed_images'] and
 		    shutit.target['docker_image'] not in cfg[module_id]['shutit.core.module.allowed_images'])):
-			if not allowed_image(shutit, module_id):
+			if not shutit.allowed_image(module_id):
 				passed = False
 				if not silent:
 					print('\n\nWARNING!\n\nAllowed images for ' + module_id + ' are: ' + str(cfg[module_id]['shutit.core.module.allowed_images']) + ' but the configured image is: ' + shutit.target['docker_image'] + '\n\nIs your shutit_module_path set correctly?\n\nIf you want to ignore this, pass in the --ignoreimage flag to shutit.\n\n')
@@ -1311,24 +1311,6 @@ def config_collection_for_built(shutit, throw_error=True,silent=False):
 
 
 
-# TODO: move to shutit_class.py
-def allowed_image(shutit, module_id):
-	"""Given a module id, determine whether the image is allowed to be built.
-	"""
-	shutit.log("In allowed_image: " + module_id,level=logging.DEBUG)
-	cfg = shutit.cfg
-	if shutit.build['ignoreimage']:
-		shutit.log("ignoreimage == true, returning true" + module_id,level=logging.DEBUG)
-		return True
-	shutit.log(str(cfg[module_id]['shutit.core.module.allowed_images']),level=logging.DEBUG)
-	if cfg[module_id]['shutit.core.module.allowed_images']:
-		# Try allowed images as regexps
-		for regexp in cfg[module_id]['shutit.core.module.allowed_images']:
-			if not check_regexp(regexp):
-				shutit.fail('Illegal regexp found in allowed_images: ' + regexp) # pragma: no cover
-			if re.match('^' + regexp + '$', shutit.target['docker_image']):
-				return True
-	return False
 
 
 # TODO: move to shutit_class.py
