@@ -110,7 +110,7 @@ class ShutItGlobal(object):
 		# TODO: only makes sense in session that's already bash - check this
 		if session_type == 'bash':
 			shutit_util.parse_args(new_shutit)
-			shutit_util.load_configs(shutit=new_shutit)
+			new_shutit.load_configs()
 			shutit_setup.setup_host_child_environment(new_shutit)
 			return new_shutit
 		elif session_type == 'docker':
@@ -121,7 +121,7 @@ class ShutItGlobal(object):
 			if rm:
 				new_shutit.target['rm'] = True
 			# Now 'load' the configs
-			shutit_util.load_configs(new_shutit)
+			new_shutit.load_configs()
 			target_child = shutit_setup.conn_docker_start_container(new_shutit,'target_child')
 			shutit_setup.setup_host_child_environment(new_shutit)
 			shutit_setup.setup_target_child_environment(new_shutit, target_child)
