@@ -2380,7 +2380,7 @@ class ShutIt(object):
 		if cfg[module_id]['shutit.core.module.allowed_images']:
 			# Try allowed images as regexps
 			for regexp in cfg[module_id]['shutit.core.module.allowed_images']:
-				if not check_regexp(regexp):
+				if not shutit_util.check_regexp(regexp):
 					self.fail('Illegal regexp found in allowed_images: ' + regexp) # pragma: no cover
 				if re.match('^' + regexp + '$', self.target['docker_image']):
 					return True
