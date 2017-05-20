@@ -1183,18 +1183,6 @@ def check_regexp(regex):
 
 
 # TODO: move to shutit_class.py
-def allowed_module_ids(shutit, rev=False):
-	"""Gets a list of module ids that are allowed to be run, guaranteed to be sorted by run_order, ignoring conn modules (run order < 0).
-	"""
-	module_ids_list = module_ids(shutit, rev)
-	_allowed_module_ids = []
-	for module_id in module_ids_list:
-		if allowed_image(shutit, module_id):
-			_allowed_module_ids.append(module_id)
-	return _allowed_module_ids
-
-
-# TODO: move to shutit_class.py
 def print_modules(shutit):
 	"""Returns a string table representing the modules in the ShutIt module map.
 	"""
@@ -1252,18 +1240,6 @@ def config_collection(shutit):
 			cfg[module_id]['shutit.core.module.build'] = False
 		else:
 			shutit.get_config(module_id, 'shutit.core.module.build_ifneeded', False, boolean=True)
-
-
-# TODO: move to shutit_class.py
-def disallowed_module_ids(shutit, rev=False):
-	"""Gets a list of disallowed module ids that are not allowed to be run, guaranteed to be sorted by run_order, ignoring conn modules (run order < 0).
-	"""
-	module_ids_list = shutit.module_ids(rev)
-	_disallowed_module_ids = []
-	for module_id in module_ids_list:
-		if not allowed_image(shutit, module_id):
-			_disallowed_module_ids.append(module_id)
-	return _disallowed_module_ids
 
 
 # TODO: move to shutit_class.py
