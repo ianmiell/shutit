@@ -509,7 +509,7 @@ def setup_shutit_obj(shutit):
 	if not shutit.build['exam']:
 		shutit.log('# ShutIt Started... ',transient=True)
 		shutit.log('# Loading configs...',transient=True)
-	shutit_util.load_configs(shutit)
+	shutit.load_configs()
 
 	if shutit.action['skeleton']:
 		shutit_skeleton.create_skeleton(shutit)
