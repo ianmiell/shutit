@@ -2373,7 +2373,7 @@ class ShutIt(object):
 		"""
 		self.log("In allowed_image: " + module_id,level=logging.DEBUG)
 		cfg = self.cfg
-		if selfbuild['ignoreimage']:
+		if self.build['ignoreimage']:
 			self.log("ignoreimage == true, returning true" + module_id,level=logging.DEBUG)
 			return True
 		self.log(str(cfg[module_id]['shutit.core.module.allowed_images']),level=logging.DEBUG)
