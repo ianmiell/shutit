@@ -15,7 +15,9 @@ import codecs
 import logging
 import tarfile
 import readline
+import base64
 import pexpect
+import imp
 import shutit_util
 import shutit_global
 try:
