@@ -2333,7 +2333,28 @@ class ShutIt(object):
 		cfg = self.cfg
 		if cfg[shutit_module_obj.module_id]['shutit.core.module.build']:
 			return True
-		return shutit_util.is_installed(self, shutit_module_obj)
+		return self.is_installed(shutit_module_obj)
+
+
+	def is_installed(self, shutit_module_obj):
+		"""Returns true if this module is installed.
+		Uses cache where possible.
+		"""
+		# Cache first
+		if shutit_module_obj.module_id in self.get_current_shutit_pexpect_session_environment().modules_installed:
+			return True
+		if shutit_module_obj.module_id in self.get_current_shutit_pexpect_session_environment().modules_not_installed:
+			return False
+		# Is it installed?
+		if shutit_module_obj.is_installed(self):
+			self.get_current_shutit_pexpect_session_environment().modules_installed.append(shutit_module_obj.module_id)
+			return True
+		# If not installed, and not in cache, add it.
+		else:
+			if shutit_module_obj.module_id not in self.get_current_shutit_pexpect_session_environment().modules_not_installed:
+				self.get_current_shutit_pexpect_session_environment().modules_not_installed.append(shutit_module_obj.module_id)
+			return False
+
 
 
 	def determine_compatibility(self, module_id):

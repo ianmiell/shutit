@@ -1310,26 +1310,6 @@ def config_collection_for_built(shutit, throw_error=True,silent=False):
 
 
 
-# TODO: move to shutit_class.py
-def is_installed(shutit, shutit_module_obj):
-	"""Returns true if this module is installed.
-	Uses cache where possible.
-	"""
-	# Cache first
-	if shutit_module_obj.module_id in shutit.get_current_shutit_pexpect_session_environment().modules_installed:
-		return True
-	if shutit_module_obj.module_id in shutit.get_current_shutit_pexpect_session_environment().modules_not_installed:
-		return False
-	# Is it installed?
-	if shutit_module_obj.is_installed(shutit):
-		shutit.get_current_shutit_pexpect_session_environment().modules_installed.append(shutit_module_obj.module_id)
-		return True
-	# If not installed, and not in cache, add it.
-	else:
-		if shutit_module_obj.module_id not in shutit.get_current_shutit_pexpect_session_environment().modules_not_installed:
-			shutit.get_current_shutit_pexpect_session_environment().modules_not_installed.append(shutit_module_obj.module_id)
-		return False
-
 
 # TODO: move to shutit_class.py
 def allowed_image(shutit, module_id):

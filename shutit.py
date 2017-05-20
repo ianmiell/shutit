@@ -49,7 +49,7 @@ def stop_all(shutit, run_order=-1):
 	for module_id in shutit.module_ids(rev=True):
 		shutit_module_obj = shutit.shutit_map[module_id]
 		if run_order == -1 or shutit_module_obj.run_order <= run_order:
-			if shutit_util.is_installed(shutit, shutit_module_obj):
+			if shutit.is_installed(shutit_module_obj):
 				if not shutit_module_obj.stop(shutit):
 					shutit.fail('failed to stop: ' + module_id, shutit_pexpect_child=shutit.get_shutit_pexpect_session_from_id('target_child').shutit_pexpect_child) # pragma: no cover
 
@@ -64,7 +64,7 @@ def start_all(shutit, run_order=-1):
 	for module_id in shutit.module_ids():
 		shutit_module_obj = shutit.shutit_map[module_id]
 		if run_order == -1 or shutit_module_obj.run_order <= run_order:
-			if shutit_util.is_installed(shutit, shutit_module_obj):
+			if shutit.is_installed(shutit_module_obj):
 				if not shutit_module_obj.start(shutit):
 					shutit.fail('failed to start: ' + module_id, shutit_pexpect_child=shutit.get_shutit_pexpect_session_from_id('target_child').shutit_pexpect_child) # pragma: no cover
 
@@ -391,7 +391,7 @@ def do_build(shutit):
 		if cfg[module.module_id]['shutit.core.module.build']:
 			if shutit.build['delivery'] not in module.ok_delivery_methods:
 				shutit.fail('Module: ' + module.module_id + ' can only be built with one of these --delivery methods: ' + str(module.ok_delivery_methods) + '\nSee shutit build -h for more info, or try adding: --delivery <method> to your shutit invocation') # pragma: no cover
-			if shutit_util.is_installed(shutit, module):
+			if shutit.is_installed(module):
 				shutit.build['report'] = (shutit.build['report'] + '\nBuilt already: ' + module.module_id + ' with run order: ' + str(module.run_order))
 			else:
 				# We move to the module directory to perform the build, returning immediately afterwards.
@@ -406,7 +406,7 @@ def do_build(shutit):
 					build_module(shutit, module)
 					shutit.logout(echo=False)
 					shutit.chdir(revert_dir)
-		if shutit_util.is_installed(shutit, module):
+		if shutit.is_installed(module):
 			shutit.log('Starting module',level=logging.DEBUG)
 			if not module.start(shutit):
 				shutit.fail(module.module_id + ' failed on start', shutit_pexpect_child=shutit.get_shutit_pexpect_session_from_id('target_child').pexpect_child) # pragma: no cover
@@ -424,7 +424,7 @@ def do_test(shutit):
 	start_all(shutit)
 	for module_id in shutit.module_ids(rev=True):
 		# Only test if it's installed.
-		if shutit_util.is_installed(shutit, shutit.shutit_map[module_id]):
+		if shutit.is_installed(shutit.shutit_map[module_id]):
 			shutit.log('RUNNING TEST ON: ' + module_id, level=logging.DEBUG)
 			shutit.login(prompt_prefix=module_id,command='bash --noprofile --norc',echo=False)
 			if not shutit.shutit_map[module_id].test(shutit):
@@ -444,7 +444,7 @@ def do_finalize(shutit=None):
 		# Login at least once to get the exports.
 		for module_id in shutit.module_ids(rev=True):
 			# Only finalize if it's thought to be installed.
-			if shutit_util.is_installed(shutit, shutit.shutit_map[module_id]):
+			if shutit.is_installed(shutit.shutit_map[module_id]):
 				shutit.login(prompt_prefix=module_id,command='bash --noprofile --norc',echo=False)
 				if not shutit.shutit_map[module_id].finalize(shutit):
 					shutit.fail(module_id + ' failed on finalize', shutit_pexpect_child=shutit.get_shutit_pexpect_session_from_id('target_child').pexpect_child) # pragma: no cover
