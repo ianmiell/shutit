@@ -28,21 +28,16 @@ import sys
 import os
 import socket
 import time
-import re
 import getpass
-import codecs
 import datetime
 import logging
-import tarfile
 import fcntl
 import termios
 import struct
-import pexpect
-import shutit_util
-import shutit_setup
 from distutils.dir_util import mkpath
-from shutit_module import ShutItFailException
 from shutit_class import ShutIt
+import shutit_setup
+import shutit_util
 
 
 class ShutItGlobal(object):
@@ -99,7 +94,7 @@ class ShutItGlobal(object):
 		# There is a problem with lines roughly around this length + the length of the prompt (?3k?)
 		self.line_limit          = 3000
 
-		self.interactive         = 1 # Default to true until we know otherwise 
+		self.interactive         = 1 # Default to true until we know otherwise
 
 
 	def add_shutit_session(self, shutit):

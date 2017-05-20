@@ -10,6 +10,7 @@ import getpass
 import codecs
 import logging
 import tarfile
+import readline
 import pexpect
 import shutit_util
 import shutit_global
@@ -503,7 +504,7 @@ class ShutIt(object):
 				if training_input != '' and self.build['training']:
 					if len(training_input.split('\n')) == 1:
 						print(shutit_util.colourise('31',message))
-						while shutit_util.util_raw_input(self, prompt=shutit_util.colourise('32','Enter the command to continue (or "s" to skip typing it in): ')) not in (training_input,'s'):
+						while self.util_raw_input(prompt=shutit_util.colourise('32','Enter the command to continue (or "s" to skip typing it in): ')) not in (training_input,'s'):
 							print('Wrong! Try again!')
 						print(shutit_util.colourise('31','OK!'))
 					else:
@@ -1256,7 +1257,7 @@ class ShutIt(object):
 			whereset = config_parser.whereset(sec, name)
 			if usercfg == whereset:
 				self.fail(cfgstr + ' has already been set in the user config, edit ' + usercfg + ' directly to change it', throw_exception=False) # pragma: no cover
-			for subcp, filename, _fp in reversed(config_parser.layers):
+			for subcp, filename, _ in reversed(config_parser.layers):
 				# Is the config file loaded after the user config file?
 				if filename == whereset:
 					self.fail(cfgstr + ' is being set in ' + filename + ', unable to override on a user config level', throw_exception=False) # pragma: no cover
@@ -1268,7 +1269,7 @@ class ShutIt(object):
 		if ispass:
 			val = getpass.getpass('>> ')
 		else:
-			val = shutit_util.util_raw_input(self, prompt='>> ')
+			val = self.util_raw_input(prompt='>> ')
 		is_excluded = (
 			config_parser.has_option('save_exclude', sec) and
 			name in config_parser.get('save_exclude', sec).split()
@@ -1276,10 +1277,10 @@ class ShutIt(object):
 		# TODO: ideally we would remember the prompted config item for this invocation of shutit
 		if not is_excluded:
 			usercp = [
-				subcp for subcp, filename, _fp in config_parser.layers
+				subcp for subcp, filename, _ in config_parser.layers
 				if filename == usercfg
 			][0]
-			if shutit_util.util_raw_input(self, prompt=shutit_util.colourise('32', 'Do you want to save this to your user settings? y/n: '),default='y') == 'y':
+			if self.util_raw_input(prompt=shutit_util.colourise('32', 'Do you want to save this to your user settings? y/n: '),default='y') == 'y':
 				sec_toset, name_toset, val_toset = sec, name, val
 			else:
 				# Never save it
@@ -1989,7 +1990,7 @@ class ShutIt(object):
 						answer = None
 						# util_raw_input may change the interactive level, so guard for this.
 						while answer not in ('yes','no','') and shutit_global.shutit_global_object.interactive > 1:
-							answer = shutit_util.util_raw_input(self, prompt=shutit_util.colourise('32', 'Do you want to accept the config option defaults? ' + '(boolean - input "yes" or "no") (default: yes): \n'),default='yes',ispass=secret)
+							answer = self.util_raw_input(prompt=shutit_util.colourise('32', 'Do you want to accept the config option defaults? ' + '(boolean - input "yes" or "no") (default: yes): \n'),default='yes',ispass=secret)
 						# util_raw_input may change the interactive level, so guard for this.
 						self.build['accept_defaults'] = answer in ('yes','') or shutit_global.shutit_global_object.interactive < 2
 					if self.build['accept_defaults'] and default != None:
@@ -2006,16 +2007,16 @@ class ShutIt(object):
 						answer = None
 						if boolean:
 							while answer not in ('yes','no'):
-								answer =  shutit_util.util_raw_input(self, prompt=shutit_util.colourise('32',prompt + ' (boolean - input "yes" or "no"): \n'),ispass=secret)
+								answer =  self.util_raw_input(prompt=shutit_util.colourise('32',prompt + ' (boolean - input "yes" or "no"): \n'),ispass=secret)
 							if answer == 'yes':
 								answer = True
 							elif answer == 'no':
 								answer = False
 						else:
 							if re.search('assw',option) is None:
-								answer =  shutit_util.util_raw_input(self, prompt=shutit_util.colourise('32',prompt) + ': \n',ispass=secret)
+								answer =  self.util_raw_input(prompt=shutit_util.colourise('32',prompt) + ': \n',ispass=secret)
 							else:
-								answer =  shutit_util.util_raw_input(self, ispass=True,prompt=shutit_util.colourise('32',prompt) + ': \n')
+								answer =  self.util_raw_input(ispass=True,prompt=shutit_util.colourise('32',prompt) + ': \n')
 						if answer == '' and default != None:
 							answer = default
 						cfg[module_id][option] = answer
@@ -2209,7 +2210,7 @@ class ShutIt(object):
 	# Build report
 	def build_report(self, msg=''):
 		"""Resposible for constructing a report to be output as part of the build.
-		Retrurns report as a string.
+		Returns report as a string.
 		"""
 		s = '\n'
 		s += '################################################################################\n'
@@ -2224,7 +2225,6 @@ class ShutIt(object):
 			s += self.build['report'] + '\n'
 		else:
 			s += '# Nothing to report\n'
-	
 		if 'container_id' in self.target:
 			s += '# CONTAINER_ID: ' + self.target['container_id'] + '\n'
 		s += '# BUILD REPORT FOR BUILD END ' + shutit_global.shutit_global_object.build_id + '\n'
@@ -2247,7 +2247,7 @@ class ShutIt(object):
 		prompt = '\r\n' + prompt
 		if ispass:
 			prompt += '\r\nInput Secret: '
-		sanitize_terminal()
+		shutit_util.sanitize_terminal()
 		if shutit_global.shutit_global_object.interactive == 0:
 			return default
 		if not shutit_global.shutit_global_object.determine_interactive():
@@ -2274,7 +2274,7 @@ class ShutIt(object):
 				return default
 			else:
 				return resp
-		self.set_noninteractive(self, msg=msg)
+		shutit_global.shutit_global_object.set_noninteractive(msg=msg)
 		return default
 
 
@@ -2283,15 +2283,15 @@ class ShutIt(object):
 		"""Get regular expression from the first of the lines passed
 		in in string that matched. Handles first group of regexp as
 		a return value.
-	
+
 		@param string_to_match: String to match on
 		@param regexp: Regexp to check (per-line) against string
-	
+
 		@type string_to_match: string
 		@type regexp: string
-	
+
 		Returns None if none of the lines matched.
-	
+
 		Returns True if there are no groups selected in the regexp.
 		else returns matching group (ie non-None)
 		"""
@@ -2316,4 +2316,3 @@ class ShutIt(object):
 				else:
 					return True
 		return None
-

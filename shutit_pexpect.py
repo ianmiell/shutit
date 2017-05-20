@@ -709,14 +709,13 @@ class ShutItPexpectSession(object):
 
 	def handle_pause_point_signals(self):
 		shutit = self.shutit
-		signal_id = shutit_global.shutit_global_object.shutit_signal_id
-		if signal_id == 29:
+		if shutit_global.shutit_global_object.signal_id == 29:
 			# clear the signal
-			signal_id = 0
+			shutit_global.shutit_global_object.signal_id = 0
 			shutit.log('\r\nCTRL-] caught, continuing with run...',level=logging.INFO,transient=True)
-		elif isinstance(signal_id, int) and signal_id not in (0,4,7,8,17,19):
-			shutit.log('\r\nLeaving interact without CTRL-] and shutit_signal is not recognised, shutit_signal value: ' + str(signal_id),level=logging.CRITICAL,transient=True)
-		elif signal_id == 0:
+		elif isinstance(shutit_global.shutit_global_object.signal_id, int) and shutit_global.shutit_global_object.signal_id not in (0,4,7,8,17,19):
+			shutit.log('\r\nLeaving interact without CTRL-] and shutit_signal is not recognised, shutit_signal value: ' + str(shutit_global.shutit_global_object.signal_id),level=logging.CRITICAL,transient=True)
+		elif shutit_global.shutit_global_object.signal_id == 0:
 			shutit.log('\r\nLeaving interact without CTRL-], assuming exit.',level=logging.CRITICAL,transient=True)
 			shutit_util.handle_exit(exit_code=1)
 		if shutit.build['exam'] and shutit_global.shutit_global_object.loglevel not in ('DEBUG',):
@@ -3382,36 +3381,36 @@ $'"""
 				return ''
 			# CTRL-h
 			elif ord(input_string) == 8:
-				signal_id = 8
+				shutit_global.shutit_global_object.signal_id = 8
 				# Return the escape from pexpect char
 				return '\x1d'
 			# CTRL-g
 			elif ord(input_string) == 7:
-				signal_id = 7
+				shutit_global.shutit_global_object.signal_id = 7
 				# Return the escape from pexpect char
 				return '\x1d'
 			# CTRL-p - used as part of CTRL-p - CTRL-q
 			elif ord(input_string) == 16:
-				signal_id = 16
+				shutit_global.shutit_global_object.signal_id = 16
 				if shutit.build['exam'] and shutit_global.shutit_global_object.loglevel not in ('DEBUG','INFO'):
 					return ''
 				else:
 					return '\x10'
 			# CTRL-q
 			elif ord(input_string) == 17:
-				signal_id = 17
+				shutit_global.shutit_global_object.signal_id = 17
 				if not shutit.build['exam'] and shutit_global.shutit_global_object.loglevel not in ('DEBUG',):
 					shutit.log('CTRL-q hit, quitting ShutIt',transient=True,level=logging.CRITICAL)
 					shutit_util.handle_exit(exit_code=1)
 			# CTRL-s
 			elif ord(input_string) == 19:
-				signal_id = 19
+				shutit_global.shutit_global_object.signal_id = 19
 				# Return the escape from pexpect char
 				return '\x1d'
 			# CTRL-]
 			# Foreign keyboard?: http://superuser.com/questions/398/how-to-send-the-escape-character-on-os-x-terminal/427#427
 			elif ord(input_string) == 29:
-				signal_id = 29
+				shutit_global.shutit_global_object.signal_id = 29
 				# Return the escape from pexpect char
 				return '\x1d'
 		return input_string

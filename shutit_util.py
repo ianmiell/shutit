@@ -33,7 +33,6 @@ except ImportError: # pragma: no cover
 import argparse
 import base64
 import binascii
-import getpass
 import glob
 import hashlib
 import imp
@@ -43,7 +42,6 @@ import operator
 import os
 import random
 import re
-import readline
 import stat
 import string
 import sys
@@ -51,12 +49,12 @@ import threading
 import time
 import subprocess
 import textwrap
-import distutils
+from distutils.dir_util import mkpath
+import texttable
 try:
 	import ConfigParser
 except ImportError: # pragma: no cover
 	import configparser as ConfigParser
-import texttable
 import pexpect
 import shutit
 import shutit_assets
@@ -65,7 +63,6 @@ import shutit_exam
 import shutit_global
 from shutit_module import ShutItFailException
 from shutit_module import ShutItModule
-from distutils.dir_util import mkpath
 
 PY3 = (sys.version_info[0] >= 3)
 
@@ -177,7 +174,7 @@ def get_configs(shutit, configs):
 			# Actually show this to the user before failing...
 			shutit.log(fail_str)
 			shutit.log('Do you want me to run this for you? (input y/n)')
-			if shutit_global.shutit_global_object.interactive == 0 or util_raw_input(shutit, default='y') == 'y':
+			if shutit_global.shutit_global_object.interactive == 0 or shutit.util_raw_input(default='y') == 'y':
 				for f in files:
 					shutit.log('Correcting insecure file permissions on: ' + f)
 					os.chmod(f,0o600)
@@ -596,7 +593,7 @@ def process_args(shutit, args, set_loglevel='INFO'):
 			if accept_defaults:
 				module_directory = default_dir
 			else:
-				module_directory = util_raw_input(shutit, prompt='# Input a name for this module.\n# Default: ' + default_dir + '\n', default=default_dir)
+				module_directory = shutit.util_raw_input(prompt='# Input a name for this module.\n# Default: ' + default_dir + '\n', default=default_dir)
 		if module_directory[0] != '/':
 			module_directory = shutit.host['calling_path'] + '/' + module_directory
 		module_name = module_directory.split('/')[-1].replace('-','_')
@@ -605,7 +602,7 @@ def process_args(shutit, args, set_loglevel='INFO'):
 			#if accept_defaults:
 			domain = default_domain_name
 			#else:
-			#	domain = util_raw_input(shutit, prompt='# Input a unique domain, eg (com.yourcorp).\n# Default: ' + default_domain_name + '\n', default=default_domain_name)
+			#	domain = shutit.util_raw_input(prompt='# Input a unique domain, eg (com.yourcorp).\n# Default: ' + default_domain_name + '\n', default=default_domain_name)
 		else:
 			domain = args.domain
 		# Figure out defaults.
@@ -617,7 +614,7 @@ def process_args(shutit, args, set_loglevel='INFO'):
 					default_pattern = delivery_method
 				pattern = default_pattern
 			else:
-				pattern = util_raw_input(shutit, prompt='''# Input a ShutIt pattern.
+				pattern = shutit.util_raw_input(prompt='''# Input a ShutIt pattern.
 Default: ''' + default_pattern + '''
 
 bash:              a shell script
@@ -648,7 +645,7 @@ shutitfile:        a shutitfile-based project (can be docker, bash, vagrant)
 			else:
 				delivery = ''
 				while delivery not in allowed_delivery_methods:
-					delivery = util_raw_input(shutit, prompt=textwrap.dedent('''
+					delivery = shutit.util_raw_input(prompt=textwrap.dedent('''
 						# Input a delivery method from: bash, docker, vagrant.
 						# Default: ' + default_delivery + '
 
@@ -1470,13 +1467,13 @@ def get_input(shutit, msg, default='', valid=None, boolean=False, ispass=False, 
 	"""
 	if boolean and valid is None:
 		valid = ('yes','y','Y','1','true','no','n','N','0','false')
-	answer = util_raw_input(shutit, prompt=colourise(colour,msg),ispass=ispass)
+	answer = shutit.util_raw_input(shutit, prompt=colourise(colour,msg),ispass=ispass)
 	if boolean and answer in ('', None) and default != '':
 		return default
 	if valid is not None:
 		while answer not in valid:
 			shutit.log('Answer must be one of: ' + str(valid),transient=True)
-			answer = util_raw_input(shutit, prompt=colourise(colour,msg),ispass=ispass)
+			answer = shutit.util_raw_input(prompt=colourise(colour,msg),ispass=ispass)
 	if boolean and answer in ('yes','y','Y','1','true','t','YES'):
 		return True
 	if boolean and answer in ('no','n','N','0','false','f','NO'):

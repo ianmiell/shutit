@@ -362,7 +362,7 @@ def build_module(shutit, module, loglevel=logging.DEBUG):
 		shutit.log(shutit.build_report('#Module:' + module.module_id), level=logging.DEBUG)
 	if not cfg[module.module_id]['shutit.core.module.tag'] and shutit_global.shutit_global_object.interactive >= 2:
 		print ("\n\nDo you want to save state now we\'re at the " + "end of this module? (" + module.module_id + ") (input y/n)")
-		cfg[module.module_id]['shutit.core.module.tag'] = (shutit_util.util_raw_input(shutit, default='y') == 'y')
+		cfg[module.module_id]['shutit.core.module.tag'] = (shutit.util_raw_input(default='y') == 'y')
 	if cfg[module.module_id]['shutit.core.module.tag'] or shutit.build['tag_modules']:
 		shutit.log(module.module_id + ' configured to be tagged, doing repository work',level=logging.INFO)
 		# Stop all before we tag to avoid file changing errors, and clean up pid files etc..
@@ -372,7 +372,7 @@ def build_module(shutit, module, loglevel=logging.DEBUG):
 		start_all(shutit, module.run_order)
 	if shutit_global.shutit_global_object.interactive >= 2:
 		print ("\n\nDo you want to stop interactive mode? (input y/n)\n")
-		if shutit_util.util_raw_input(shutit, default='y') == 'y':
+		if shutit.util_raw_input(default='y') == 'y':
 			shutit_global.shutit_global_object.interactive = 0
 
 
@@ -460,7 +460,7 @@ def setup_shutit_path(shutit):
 	# try the current directory, the .. directory, or the ../shutit directory, the ~/shutit
 	if not shutit.host['add_shutit_to_path']:
 		return
-	res = shutit_util.util_raw_input(shutit, prompt='shutit appears not to be on your path - should try and we find it and add it to your ~/.bashrc (Y/n)?')
+	res = shutit.util_raw_input(prompt='shutit appears not to be on your path - should try and we find it and add it to your ~/.bashrc (Y/n)?')
 	if res in ['n','N']:
 		with open(os.path.join(shutit.host['shutit_path'], 'config'), 'a') as f:
 			f.write('\n[host]\nadd_shutit_to_path: no\n')
@@ -472,7 +472,7 @@ def setup_shutit_path(shutit):
 			continue
 		path_to_shutit = path
 	while path_to_shutit == '':
-		d = shutit_util.util_raw_input(shutit, prompt='cannot auto-find shutit - please input the path to your shutit dir\n')
+		d = shutit.util_raw_input(prompt='cannot auto-find shutit - please input the path to your shutit dir\n')
 		path = os.path.abspath(d + '/shutit')
 		if not os.path.isfile(path):
 			continue
@@ -482,7 +482,7 @@ def setup_shutit_path(shutit):
 		with open(bashrc, "a") as myfile:
 			#http://unix.stackexchange.com/questions/26676/how-to-check-if-a-shell-is-login-interactive-batch
 			myfile.write('\nexport PATH="$PATH:' + os.path.dirname(path_to_shutit) + '"\n')
-		shutit_util.util_raw_input(shutit, prompt='\nPath set up - please open new terminal and re-run command\n')
+		shutit.util_raw_input(prompt='\nPath set up - please open new terminal and re-run command\n')
 		shutit_util.handle_exit(shutit=shutit)
 
 
@@ -639,7 +639,7 @@ def do_phone_home(shutit, msg=None,question='Error seen - would you like to info
 	if shutit_global.shutit_global_object.interactive == 0:
 		return
 	msg.update({'shutitrunstatus':'fail','pwd':os.getcwd(),'user':os.environ.get('LOGNAME', '')})
-	if question != '' and shutit_util.util_raw_input(shutit, prompt=question + ' (Y/n)\n') not in ('y','Y',''):
+	if question != '' and shutit.util_raw_input(prompt=question + ' (Y/n)\n') not in ('y','Y',''):
 		return
 	try:
 		urllib.urlopen("http://shutit.tk?" + urllib.urlencode(msg))
@@ -653,7 +653,7 @@ def do_interactive_modules(shutit):
 	while True:
 		shutit_util.list_modules(shutit, long_output=False,sort_order='run_order')
 		# Which module do you want to toggle?
-		module_id = shutit_util.util_raw_input(shutit, prompt='Which module id do you want to toggle?\n(just hit return to continue with build)\n(you can enter a substring if it is uniquely matching)\n')
+		module_id = shutit.util_raw_input(prompt='Which module id do you want to toggle?\n(just hit return to continue with build)\n(you can enter a substring if it is uniquely matching)\n')
 		if module_id:
 			try:
 				_=cfg[module_id]
@@ -672,7 +672,7 @@ def do_interactive_modules(shutit):
 			cfg[module_id]['shutit.core.module.build'] = not cfg[module_id]['shutit.core.module.build']
 			if not shutit_util.config_collection_for_built(shutit, throw_error=False):
 				cfg[module_id]['shutit.core.module.build'] = not cfg[module_id]['shutit.core.module.build']
-				shutit_util.util_raw_input(shutit, prompt='Hit return to continue.\n')
+				shutit.util_raw_input(prompt='Hit return to continue.\n')
 				continue
 			# If true, set up config for that module
 			if cfg[module_id]['shutit.core.module.build']:
@@ -680,26 +680,26 @@ def do_interactive_modules(shutit):
 				newcfg_list = []
 				while True:
 					print(shutit_util.print_config(shutit,cfg,module_id=module_id))
-					name = shutit_util.util_raw_input(shutit, prompt='Above is the config for that module. Hit return to continue, or a config item you want to update.\n')
+					name = shutit.util_raw_input(prompt='Above is the config for that module. Hit return to continue, or a config item you want to update.\n')
 					if name:
 						doing_list = False
 						while True:
 							if doing_list:
-								val_type = shutit_util.util_raw_input(shutit, prompt='Input the type for the next list item: b(oolean), s(tring).\n')
+								val_type = shutit.util_raw_input(prompt='Input the type for the next list item: b(oolean), s(tring).\n')
 								if val_type not in ('b','s',''):
 									continue
 							else:
-								val_type = shutit_util.util_raw_input(shutit, prompt='Input the type for that config item: b(oolean), s(tring), l(ist).\n')
+								val_type = shutit.util_raw_input(prompt='Input the type for that config item: b(oolean), s(tring), l(ist).\n')
 								if val_type not in ('b','s','l',''):
 									continue
 							if val_type == 's':
-								val = shutit_util.util_raw_input(shutit, prompt='Input the value new for that config item.\n')
+								val = shutit.util_raw_input(prompt='Input the value new for that config item.\n')
 								if doing_list:
 									newcfg_list.append(val)
 								else:
 									break
 							elif val_type == 'b':
-								val = shutit_util.util_raw_input(shutit, prompt='Input the value new for the boolean (t/f).\n')
+								val = shutit.util_raw_input(prompt='Input the value new for the boolean (t/f).\n')
 								if doing_list:
 									if val == 't':
 										newcfg_list.append(True)
