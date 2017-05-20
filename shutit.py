@@ -360,7 +360,7 @@ def build_module(shutit, module, loglevel=logging.DEBUG):
 	shutit.build['report'] = (shutit.build['report'] + '\nCompleted module: ' + module.module_id)
 	if cfg[module.module_id]['shutit.core.module.tag']:
 		shutit.log(shutit.build_report('#Module:' + module.module_id), level=logging.DEBUG)
-	if not cfg[module.module_id]['shutit.core.module.tag'] and shutit.build['interactive'] >= 2:
+	if not cfg[module.module_id]['shutit.core.module.tag'] and shutit_global.shutit_global_object.interactive >= 2:
 		print ("\n\nDo you want to save state now we\'re at the " + "end of this module? (" + module.module_id + ") (input y/n)")
 		cfg[module.module_id]['shutit.core.module.tag'] = (shutit_util.util_raw_input(shutit, default='y') == 'y')
 	if cfg[module.module_id]['shutit.core.module.tag'] or shutit.build['tag_modules']:
@@ -370,10 +370,10 @@ def build_module(shutit, module, loglevel=logging.DEBUG):
 		shutit.do_repository_work(str(module.module_id) + '_' + str(module.run_order), password=shutit.host['password'], docker_executable=shutit.host['docker_executable'], force=True)
 		# Start all after we tag to ensure services are up as expected.
 		start_all(shutit, module.run_order)
-	if shutit.build['interactive'] >= 2:
+	if shutit_global.shutit_global_object.interactive >= 2:
 		print ("\n\nDo you want to stop interactive mode? (input y/n)\n")
 		if shutit_util.util_raw_input(shutit, default='y') == 'y':
-			shutit.build['interactive'] = 0
+			shutit_global.shutit_global_object.interactive = 0
 
 
 def do_build(shutit):
@@ -536,7 +536,7 @@ def setup_shutit_obj(shutit):
 		conn_target(shutit)
 		shutit.log('Connected to target',level=logging.INFO)
 
-	if shutit.build['interactive'] > 0 and shutit.build['choose_config']:
+	if shutit_global.shutit_global_object.interactive > 0 and shutit.build['choose_config']:
 		errs = do_interactive_modules(shutit)
 	else:
 		errs = []
@@ -636,7 +636,7 @@ def do_phone_home(shutit, msg=None,question='Error seen - would you like to info
 	"""
 	if msg is None:
 		msg = {}
-	if shutit.build['interactive'] == 0:
+	if shutit_global.shutit_global_object.interactive == 0:
 		return
 	msg.update({'shutitrunstatus':'fail','pwd':os.getcwd(),'user':os.environ.get('LOGNAME', '')})
 	if question != '' and shutit_util.util_raw_input(shutit, prompt=question + ' (Y/n)\n') not in ('y','Y',''):

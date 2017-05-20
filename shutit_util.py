@@ -172,12 +172,12 @@ def get_configs(shutit, configs):
 			fail_str = fail_str + '\nchmod 0600 ' + config_file
 			files.append(config_file)
 	if fail_str != '':
-		if shutit.build['interactive'] > 1:
+		if shutit_global.shutit_global_object.interactive > 1:
 			fail_str = 'Files are not secure, mode should be 0600. Running the following commands to correct:\n' + fail_str + '\n'
 			# Actually show this to the user before failing...
 			shutit.log(fail_str)
 			shutit.log('Do you want me to run this for you? (input y/n)')
-			if shutit.build['interactive'] == 0 or util_raw_input(shutit, default='y') == 'y':
+			if shutit_global.shutit_global_object.interactive == 0 or util_raw_input(shutit, default='y') == 'y':
 				for f in files:
 					shutit.log('Correcting insecure file permissions on: ' + f)
 					os.chmod(f,0o600)
@@ -779,7 +779,7 @@ shutitfile:        a shutitfile-based project (can be docker, bash, vagrant)
 			if '.' not in module_paths:
 				module_paths.append('.')
 			args.set.append(('host', 'shutit_module_path', ':'.join(module_paths)))
-		shutit.build['interactive']      = int(args.interactive)
+		shutit_global.shutit_global_object.interactive      = int(args.interactive)
 		shutit.build['extra_configs']    = args.config
 		shutit.build['config_overrides'] = args.set
 		shutit.build['ignorestop']       = args.ignorestop
@@ -1129,7 +1129,7 @@ def determine_interactive(shutit):
 		if shutit is not None:
 			shutit.set_noninteractive(msg='Problems determining interactivity, assuming not.')
 		return False
-	if shutit.build['interactive'] == 0:
+	if shutit_global.shutit_global_object.interactive == 0:
 		return False
 	return True
 

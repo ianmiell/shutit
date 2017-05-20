@@ -36,7 +36,6 @@ class ShutIt(object):
 		# http://stackoverflow.com/questions/5137497
 		self.config_parser                   = None
 		self.build                           = {}
-		self.build['interactive']            = 1 # Default to true until we know otherwise
 		self.build['report']                 = ''
 		self.build['mount_docker']           = False
 		self.build['distro_override']        = ''
@@ -1304,8 +1303,8 @@ class ShutIt(object):
 		"""
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
 		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
-		if (not shutit_util.determine_interactive(self) or not self.build['interactive'] or
-			self.build['interactive'] < level):
+		if (not shutit_util.determine_interactive(self) or not shutit_global.shutit_global_object.interactive or
+			shutit_global.shutit_global_object.interactive < level):
 			return
 		self.build['step_through'] = value
 		shutit_pexpect_session.pause_point(msg, print_input=print_input, level=level)
@@ -1371,8 +1370,8 @@ class ShutIt(object):
 
 		@return:             True if pause point handled ok, else false
 		"""
-		if (not shutit_util.determine_interactive(self) or self.build['interactive'] < 1 or
-			self.build['interactive'] < level):
+		if (not shutit_util.determine_interactive(self) or shutit_global.shutit_global_object.interactive < 1 or
+			shutit_global.shutit_global_object.interactive < level):
 			return
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
 		if shutit_pexpect_child:
@@ -1985,19 +1984,19 @@ class ShutIt(object):
 				cfg[module_id][option] = self.config_parser.get(module_id, option)
 		else:
 			if not forcenone:
-				if self.build['interactive'] > 0:
+				if shutit_global.shutit_global_object.interactive > 0:
 					if self.build['accept_defaults'] is None:
 						answer = None
 						# util_raw_input may change the interactive level, so guard for this.
-						while answer not in ('yes','no','') and self.build['interactive'] > 1:
+						while answer not in ('yes','no','') and shutit_global.shutit_global_object.interactive > 1:
 							answer = shutit_util.util_raw_input(self, prompt=shutit_util.colourise('32', 'Do you want to accept the config option defaults? ' + '(boolean - input "yes" or "no") (default: yes): \n'),default='yes',ispass=secret)
 						# util_raw_input may change the interactive level, so guard for this.
-						self.build['accept_defaults'] = answer in ('yes','') or self.build['interactive'] < 2
+						self.build['accept_defaults'] = answer in ('yes','') or shutit_global.shutit_global_object.interactive < 2
 					if self.build['accept_defaults'] and default != None:
 						cfg[module_id][option] = default
 					else:
 						# util_raw_input may change the interactive level, so guard for this.
-						if self.build['interactive'] < 1:
+						if shutit_global.shutit_global_object.interactive < 1:
 							self.fail('Cannot continue. ' + module_id + '.' + option + ' config requires a value and no default is supplied. Adding "-s ' + module_id + ' ' + option + ' [your desired value]" to the shutit invocation will set this.') # pragma: no cover
 						prompt = '\n\nPlease input a value for ' + module_id + '.' + option
 						if default != None:
@@ -2235,7 +2234,7 @@ class ShutIt(object):
 
 	def set_noninteractive(self, msg="setting non-interactive"):
 		self.log(msg,level=logging.DEBUG)
-		self.build['interactive'] = 0
+		shutit_global.shutit_global_object.interactive = 0
 
 
 	def util_raw_input(self, prompt='', default=None, ispass=False, use_readline=True):
@@ -2252,7 +2251,7 @@ class ShutIt(object):
 		if ispass:
 			prompt += '\r\nInput Secret: '
 		sanitize_terminal()
-		if self.build['interactive'] == 0:
+		if shutit_global.shutit_global_object.interactive == 0:
 			return default
 		if not shutit_util.determine_interactive(shutit):
 			return default

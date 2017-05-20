@@ -99,8 +99,13 @@ class ShutItGlobal(object):
 		# There is a problem with lines roughly around this length + the length of the prompt (?3k?)
 		self.line_limit          = 3000
 
+		self.interactive         = 1 # Default to true until we know otherwise 
+
+
 	def add_shutit_session(self, shutit):
 		self.shutit_objects.append(shutit)
+
+
 
 
 	def create_session(self, session_type='bash', docker_image=None, rm=None):

@@ -601,7 +601,7 @@ class ShutItPexpectSession(object):
 			shutit.build['report'] += msg
 			if retbool:
 				return False
-			elif shutit.build['interactive'] >= 1:
+			elif shutit_global.shutit_global_object.interactive >= 1:
 				# This is a failure, so we pass in level=0
 				shutit.pause_point(msg + '\n\nInteractive, so not retrying.\nPause point on exit_code != 0 (' + res_str + '). CTRL-C to quit', shutit_pexpect_child=self.pexpect_child, level=0)
 			elif retry == 1:
