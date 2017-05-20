@@ -189,5 +189,17 @@ class ShutItGlobal(object):
 		return True
 
 
+	def print_stack_trace(self):
+		self.log('================================================================================',transient=True)
+		self.log('Stack trace was:\n================================================================================',transient=True)
+		import traceback
+		(a,b,c) = sys.exc_info()
+		self.log('sys.exc_info: ' + a + '\n' + b + '\n' + c, transient=True)
+		traceback.print_tb(c)
+		self.log('================================================================================',transient=True)
+
+
+
+
 shutit_global_object = ShutItGlobal()
 shutit_global_object.add_shutit_session(ShutIt())

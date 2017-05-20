@@ -1115,20 +1115,6 @@ def get_hash(string_to_hash):
 	return abs(binascii.crc32(string_to_hash.encode()))
 
 
-
-
-
-
-def print_stack_trace(shutit):
-	shutit.log('================================================================================',transient=True)
-	shutit.log('Stack trace was:\n================================================================================',transient=True)
-	import traceback
-	(a,b,c) = sys.exc_info()
-	shutit.log('sys.exc_info: ' + a + '\n' + b + '\n' + c, transient=True)
-	traceback.print_tb(c)
-	shutit.log('================================================================================',transient=True)
-
-
 # get the ordinal for a given char, in a friendly way
 def get_wide_hex(char):
 	if len(char) != 2:
@@ -1452,7 +1438,7 @@ def handle_exit(shutit=None, exit_code=0,loglevel=logging.DEBUG,msg=None):
 		msg = '\nExiting with error code: ' + str(exit_code)
 	if shutit is None:
 		if exit_code != 0:
-			#print_stack_trace()
+			#shutit_global.shutit_global_object.print_stack_trace()
 			print(msg)
 			print('Resetting terminal')
 	else:
