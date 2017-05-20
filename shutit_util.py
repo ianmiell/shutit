@@ -354,6 +354,51 @@ def convert_args(args):
 		assert isinstance(args.name,str)
 		assert isinstance(args.domain,str)
 		assert isinstance(args.pattern,str)
+		assert isinstance(args.output_dir,bool)
+		assert isinstance(args.vagrant_ssh_access,bool)
+		assert args.script is None or args.script is not None
+		assert args.vagrant_num_machines is None or args.vagrant_num_machines is not None
+		assert args.vagrant_machine_prefix is None or args.vagrant_machine_prefix is not None
+		assert args.vagrant_docker is None or args.vagrant_docker is not None
+	elif args.action == 'run':
+		assert isinstance(args.shutitfiles,list)
+	elif args.action == 'build':
+		pass
+		#	shutit.repository['push']       = args.push  # TODO: abstract away to shutitconfig object
+		#	shutit.repository['export']     = args.export # TODO: abstract away to shutitconfig object
+		#	shutit.repository['save']       = args.save # TODO: abstract away to shutitconfig object
+		#	shutit.build['distro_override'] = args.distro # TODO: abstract away to shutitconfig object
+		#	shutit.build['mount_docker']    = args.mount_docker# TODO: abstract away to shutitconfig object
+		#	shutit.build['walkthrough']     = args.walkthrough# TODO: abstract away to shutitconfig object
+		#	shutit.build['training']        = args.training# TODO: abstract away to shutitconfig object
+		#	shutit.build['exam']            = args.exam# TODO: abstract away to shutitconfig object
+		#	shutit.build['choose_config']   = args.choose_config# TODO: abstract away to shutitconfig object
+		#	args.video
+				#	print('--video and --training mode incompatible')
+				#	handle_exit(shutit=shutit, exit_code=1)
+				#if shutit.build['exam']:
+				#	print('--video and --exam mode incompatible')
+				#	handle_exit(shutit=shutit, exit_code=1)
+		#	args.history
+		#	args.long
+		#	args.sort
+		# 	args.delivery
+		# 	args.image_tag
+		# 	args.ignoreimage
+		# 	args.shutit_module_path - and process the given path?
+		# 	args.interactive
+		#shutit.build['extra_configs']    = args.config# TODO: abstract away to shutitconfig object
+		#shutit.build['config_overrides'] = args.set# TODO: abstract away to shutitconfig object
+		#shutit.build['ignorestop']       = args.ignorestop# TODO: abstract away to shutitconfig object
+		#shutit.build['ignoreimage']      = args.ignoreimage# TODO: abstract away to shutitconfig object
+		#shutit.build['imageerrorok']     = args.imageerrorok# TODO: abstract away to shutitconfig object
+		#shutit.build['tag_modules']      = args.tag_modules# TODO: abstract away to shutitconfig object
+		#shutit.build['deps_only']        = args.deps_only# TODO: abstract away to shutitconfig object
+		#shutit.build['always_echo']      = args.echo# TODO: abstract away to shutitconfig object
+		#shutit.target['docker_image']    = args.image_tag# TODO: abstract away to shutitconfig object
+		#	args.trace
+
+		
 	return args
 
 
