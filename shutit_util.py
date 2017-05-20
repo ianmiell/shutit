@@ -252,44 +252,6 @@ def find_asset(shutit, filename):
 	return filename
 
 
-# Set up logging - TODO: move to shutit_global.py?
-#
-def setup_logging():
-	# If loglevel is an int, this has already been set up.
-	if isinstance(shutit_global.shutit_global_object.loglevel, int):
-		return
-	logformat='%(asctime)s %(levelname)s: %(message)s'
-	if shutit_global.shutit_global_object.logfile == '':
-		shutit_global.shutit_global_object.loglevel = shutit_global.shutit_global_object.loglevel.upper()
-		if shutit_global.shutit_global_object.loglevel == 'DEBUG':
-			logging.basicConfig(format=logformat,level=logging.DEBUG)
-		elif shutit_global.shutit_global_object.loglevel == 'ERROR':
-			logging.basicConfig(format=logformat,level=logging.ERROR)
-		elif shutit_global.shutit_global_object.loglevel in ('WARN','WARNING'):
-			logging.basicConfig(format=logformat,level=logging.WARNING)
-		elif shutit_global.shutit_global_object.loglevel == 'CRITICAL':
-			logging.basicConfig(format=logformat,level=logging.CRITICAL)
-		elif shutit_global.shutit_global_object.loglevel == 'INFO':
-			logging.basicConfig(format=logformat,level=logging.INFO)
-		else:
-			logging.basicConfig(format=logformat,level=logging.INFO)
-	else:
-		shutit_global.shutit_global_object.loglevel = shutit_global.shutit_global_object.loglevel.upper()
-		if shutit_global.shutit_global_object.loglevel == 'DEBUG':
-			logging.basicConfig(format=logformat,filename=shutit_global.shutit_global_object.logfile,level=logging.DEBUG)
-		elif shutit_global.shutit_global_object.loglevel == 'ERROR':
-			logging.basicConfig(format=logformat,filename=shutit_global.shutit_global_object.logfile,level=logging.ERROR)
-		elif shutit_global.shutit_global_object.loglevel in ('WARN','WARNING'):
-			logging.basicConfig(format=logformat,filename=shutit_global.shutit_global_object.logfile,level=logging.WARNING)
-		elif shutit_global.shutit_global_object.loglevel == 'CRITICAL':
-			logging.basicConfig(format=logformat,filename=shutit_global.shutit_global_object.logfile,level=logging.CRITICAL)
-		elif shutit_global.shutit_global_object.loglevel == 'INFO':
-			logging.basicConfig(format=logformat,filename=shutit_global.shutit_global_object.logfile,level=logging.INFO)
-		else:
-			logging.basicConfig(format=logformat,filename=shutit_global.shutit_global_object.logfile,level=logging.INFO)
-
-	shutit_global.shutit_global_object.loglevel = logging.getLogger().getEffectiveLevel()
-
 
 # Manage config settings, returning a dict representing the settings
 # that have been sanity-checked.
@@ -513,7 +475,7 @@ def process_args(shutit, args, set_loglevel='INFO'):
 		shutit_global.shutit_global_object.loglevel = set_loglevel
 	if shutit_global.shutit_global_object.loglevel in ('', None):
 		shutit_global.shutit_global_object.loglevel = 'INFO'
-	setup_logging()
+	shutit_global.shutit_global_object.setup_logging()
 
 	# This mode is a bit special - it's the only one with different arguments
 	if shutit.action['skeleton']:

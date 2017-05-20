@@ -193,7 +193,41 @@ class ShutItGlobal(object):
 		traceback.print_tb(c)
 		self.log('================================================================================',transient=True)
 
-
+	def setup_logging():
+		# If loglevel is an int, this has already been set up.
+		if isinstance(self.loglevel, int):
+			return
+		logformat='%(asctime)s %(levelname)s: %(message)s'
+		if self.logfile == '':
+			self.loglevel = self.loglevel.upper()
+			if self.loglevel == 'DEBUG':
+				logging.basicConfig(format=logformat,level=logging.DEBUG)
+			elif self.loglevel == 'ERROR':
+				logging.basicConfig(format=logformat,level=logging.ERROR)
+			elif self.loglevel in ('WARN','WARNING'):
+				logging.basicConfig(format=logformat,level=logging.WARNING)
+			elif self.loglevel == 'CRITICAL':
+				logging.basicConfig(format=logformat,level=logging.CRITICAL)
+			elif self.loglevel == 'INFO':
+				logging.basicConfig(format=logformat,level=logging.INFO)
+			else:
+				logging.basicConfig(format=logformat,level=logging.INFO)
+		else:
+			self.loglevel = self.loglevel.upper()
+			if self.loglevel == 'DEBUG':
+				logging.basicConfig(format=logformat,filename=self.logfile,level=logging.DEBUG)
+			elif self.loglevel == 'ERROR':
+				logging.basicConfig(format=logformat,filename=self.logfile,level=logging.ERROR)
+			elif self.loglevel in ('WARN','WARNING'):
+				logging.basicConfig(format=logformat,filename=self.logfile,level=logging.WARNING)
+			elif self.loglevel == 'CRITICAL':
+				logging.basicConfig(format=logformat,filename=self.logfile,level=logging.CRITICAL)
+			elif self.loglevel == 'INFO':
+				logging.basicConfig(format=logformat,filename=self.logfile,level=logging.INFO)
+			else:
+				logging.basicConfig(format=logformat,filename=self.logfile,level=logging.INFO)
+	
+		self.loglevel = logging.getLogger().getEffectiveLevel()
 
 
 shutit_global_object = ShutItGlobal()
