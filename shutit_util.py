@@ -135,6 +135,7 @@ class LayerConfigParser(ConfigParser.RawConfigParser):
 	def set(self, *args, **kwargs):
 		raise NotImplementedError('''Layer config parsers aren\'t directly mutable''') # pragma: no cover
 
+
 def is_file_secure(file_name):
 	"""Returns false if file is considered insecure, true if secure.
 	If file doesn't exist, it's considered secure!
@@ -218,39 +219,6 @@ def random_word(size=6):
 	while len(word) != size or word.find("'") > -1:
 		word = words[int(random.random() * (len(words) - 1))]
 	return word.lower()
-
-# TODO: move to shutit_class.py?
-def find_asset(shutit, filename):
-	(head,filename) = os.path.split(filename)
-	if head == '':
-		dirs = ['/usr/share/dict',
-				sys.prefix,
-				os.path.join(sys.prefix,'local'),
-				shutit.shutit_main_dir,
-				os.path.join(shutit.shutit_main_dir,'../../..'),
-				shutit.host['shutit_path'],
-				'/usr/local'
-			   ]
-		dirs = dirs + sys.path
-	else:
-		dirs = ['/usr/share/dict' + '/' + head,
-				sys.prefix + '/' + head,
-				os.path.join(sys.prefix,'local') + '/' + head,
-				shutit.shutit_main_dir + '/' + head,
-				os.path.join(shutit.shutit_main_dir,'../../..') + '/' + head,
-				shutit.host['shutit_path'] + '/' + head,
-				'/usr/local' + '/' + head
-			   ]
-		dirs = dirs + sys.path
-	for iter_dir in dirs:
-		if os.access(os.path.join(iter_dir,filename),os.F_OK):
-			return os.path.join(iter_dir,filename)
-		if os.access(os.path.join(os.path.join(iter_dir,'assets'),filename),os.F_OK):
-			return os.path.join(os.path.join(iter_dir,'assets'),filename)
-		if os.access(os.path.join(os.path.join(iter_dir,'shutit_assets'),filename),os.F_OK):
-			return os.path.join(os.path.join(iter_dir,'shutit_assets'),filename)
-	return filename
-
 
 
 # Manage config settings, returning a dict representing the settings
