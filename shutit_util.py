@@ -1102,42 +1102,6 @@ def load_mod_from_file(shutit, fpath):
 			shutit.build['source'][fpath] = open(fpath).read()
 
 
-# Build report
-def build_report(shutit, msg=''):
-	"""Resposible for constructing a report to be output as part of the build.
-	Retrurns report as a string.
-	"""
-	s = '\n'
-	s += '################################################################################\n'
-	s += '# COMMAND HISTORY BEGIN ' + shutit_global.shutit_global_object.build_id + '\n'
-	s += get_commands(shutit)
-	s += '# COMMAND HISTORY END ' + shutit_global.shutit_global_object.build_id + '\n'
-	s += '################################################################################\n'
-	s += '################################################################################\n'
-	s += '# BUILD REPORT FOR BUILD BEGIN ' + shutit_global.shutit_global_object.build_id + '\n'
-	s += '# ' + msg + '\n'
-	if shutit.build['report'] != '':
-		s += shutit.build['report'] + '\n'
-	else:
-		s += '# Nothing to report\n'
-
-	if 'container_id' in shutit.target:
-		s += '# CONTAINER_ID: ' + shutit.target['container_id'] + '\n'
-	s += '# BUILD REPORT FOR BUILD END ' + shutit_global.shutit_global_object.build_id + '\n'
-	s += '###############################################################################\n'
-	return s
-
-def get_commands(shutit):
-	"""Gets command that have been run and have not been redacted.
-	"""
-	s = ''
-	for c in shutit.build['shutit_command_history']:
-		if isinstance(c, str):
-			#Ignore commands with leading spaces
-			if c and c[0] != ' ':
-				s += c + '\n'
-	return s
-
 
 def get_hash(string_to_hash):
 	"""Helper function to get preceding integer

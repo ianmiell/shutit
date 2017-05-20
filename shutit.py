@@ -359,7 +359,7 @@ def build_module(shutit, module, loglevel=logging.DEBUG):
 	shutit.pause_point('\nPausing to allow inspect of build for: ' + module.module_id, print_input=True, level=2)
 	shutit.build['report'] = (shutit.build['report'] + '\nCompleted module: ' + module.module_id)
 	if cfg[module.module_id]['shutit.core.module.tag']:
-		shutit.log(shutit_util.build_report(shutit, '#Module:' + module.module_id), level=logging.DEBUG)
+		shutit.log(shutit.build_report('#Module:' + module.module_id), level=logging.DEBUG)
 	if not cfg[module.module_id]['shutit.core.module.tag'] and shutit.build['interactive'] >= 2:
 		print ("\n\nDo you want to save state now we\'re at the " + "end of this module? (" + module.module_id + ") (input y/n)")
 		cfg[module.module_id]['shutit.core.module.tag'] = (shutit_util.util_raw_input(shutit, default='y') == 'y')
@@ -562,7 +562,7 @@ def setup_shutit_obj(shutit):
 	do_test(shutit)
 	do_finalize(shutit)
 	finalize_target(shutit)
-	shutit.log(shutit_util.build_report(shutit, '#Module: N/A (END)'), level=logging.DEBUG)
+	shutit.log(shutit.build_report('#Module: N/A (END)'), level=logging.DEBUG)
 	do_exam_output(shutit)
 	shutit_global.shutit_global_object.do_final_messages()
 

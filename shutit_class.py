@@ -2193,3 +2193,42 @@ class ShutIt(object):
 	def get_sudo_pass_if_needed(self, shutit, ignore_brew=False):
 		shutit_pexpect_session = self.get_current_shutit_pexpect_session()
 		return shutit_pexpect_session.get_sudo_pass_if_needed(shutit, ignore_brew=ignore_brew)
+
+
+	def get_commands(self):
+		"""Gets command that have been run and have not been redacted.
+		"""
+		s = ''
+		for c in self.build['shutit_command_history']:
+			if isinstance(c, str):
+				#Ignore commands with leading spaces
+				if c and c[0] != ' ':
+					s += c + '\n'
+		return s
+
+
+	# Build report
+	def build_report(self, msg=''):
+		"""Resposible for constructing a report to be output as part of the build.
+		Retrurns report as a string.
+		"""
+		s = '\n'
+		s += '################################################################################\n'
+		s += '# COMMAND HISTORY BEGIN ' + shutit_global.shutit_global_object.build_id + '\n'
+		s += self.get_commands()
+		s += '# COMMAND HISTORY END ' + shutit_global.shutit_global_object.build_id + '\n'
+		s += '################################################################################\n'
+		s += '################################################################################\n'
+		s += '# BUILD REPORT FOR BUILD BEGIN ' + shutit_global.shutit_global_object.build_id + '\n'
+		s += '# ' + msg + '\n'
+		if self.build['report'] != '':
+			s += self.build['report'] + '\n'
+		else:
+			s += '# Nothing to report\n'
+	
+		if 'container_id' in self.target:
+			s += '# CONTAINER_ID: ' + self.target['container_id'] + '\n'
+		s += '# BUILD REPORT FOR BUILD END ' + shutit_global.shutit_global_object.build_id + '\n'
+		s += '###############################################################################\n'
+		return s
+
