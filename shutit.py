@@ -521,7 +521,7 @@ def setup_shutit_obj(shutit):
 		setup_shutit_path(shutit)
 
 	shutit_util.load_mod_from_file(shutit, os.path.join(shutit.shutit_main_dir, 'shutit_setup.py'))
-	shutit_util.load_shutit_modules(shutit)
+	shutit.load_shutit_modules()
 	shutit.log('ShutIt modules loaded',level=logging.INFO)
 
 	init_shutit_map(shutit)

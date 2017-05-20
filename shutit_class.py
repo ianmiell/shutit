@@ -2400,3 +2400,13 @@ class ShutIt(object):
 				cfg[module_id]['shutit.core.module.remove']) + '    ' + module_id + '\n'
 		return module_string
 
+
+	def load_shutit_modules(self):
+		"""Responsible for loading the shutit modules based on the configured module
+		paths.
+		"""
+		if shutit_global.shutit_global_object.loglevel <= logging.DEBUG:
+			shutit.log('ShutIt module paths now: ',level=logging.DEBUG)
+			shutit.log(shutit.host['shutit_module_path'],level=logging.DEBUG)
+		for shutit_module_path in self.host['shutit_module_path']:
+			shutit_util.load_all_from_path(self, shutit_module_path)

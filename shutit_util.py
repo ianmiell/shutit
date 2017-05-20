@@ -828,16 +828,6 @@ def load_configs(shutit):
 	get_base_config(shutit, shutit.cfg_parser)
 
 
-def load_shutit_modules(shutit):
-	"""Responsible for loading the shutit modules based on the configured module
-	paths.
-	"""
-	if shutit_global.shutit_global_object.loglevel <= logging.DEBUG:
-		shutit.log('ShutIt module paths now: ',level=logging.DEBUG)
-		shutit.log(shutit.host['shutit_module_path'],level=logging.DEBUG)
-	for shutit_module_path in shutit.host['shutit_module_path']:
-		load_all_from_path(shutit, shutit_module_path)
-
 
 def list_modules(shutit, long_output=None,sort_order=None):
 	"""Display a list of loaded modules.
