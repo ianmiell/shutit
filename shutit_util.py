@@ -849,11 +849,6 @@ def load_configs(shutit):
 				c = c[0]
 			msg = msg + '    \n' + c
 			shutit.log('    ' + c,level=logging.DEBUG)
-		# TODO: what if this does not exist?
-		if shutit.build['log_config_path']:
-			f = open(shutit.build['log_config_path'] + '/config_file_order.txt','w')
-			f.write(msg)
-			f.close()
 
 	# Interpret any config overrides, write to a file and add them to the
 	# list of configs to be interpreted
