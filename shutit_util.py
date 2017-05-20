@@ -1182,8 +1182,6 @@ def check_regexp(regex):
 
 
 
-
-
 # TODO: move to shutit_class.py
 def config_collection(shutit):
 	"""Collect core config from config files for all seen modules.

@@ -285,7 +285,7 @@ def check_conflicts(shutit):
 def check_ready(shutit, throw_error=True):
 	"""Check that all modules are ready to be built, calling check_ready on
 	each of those configured to be built and not already installed
-	(see shutit_util.is_installed).
+	(see shutit.is_installed).
 	"""
 	cfg = shutit.cfg
 	shutit.log('PHASE: check_ready', level=logging.DEBUG)
@@ -295,7 +295,7 @@ def check_ready(shutit, throw_error=True):
 	for module_id in shutit.module_ids():
 		module = shutit.shutit_map[module_id]
 		shutit.log('considering check_ready (is it ready to be built?): ' + module_id, level=logging.DEBUG)
-		if cfg[module_id]['shutit.core.module.build'] and module.module_id not in shutit.get_current_shutit_pexpect_session_environment().modules_ready and not shutit_util.is_installed(shutit, module):
+		if cfg[module_id]['shutit.core.module.build'] and module.module_id not in shutit.get_current_shutit_pexpect_session_environment().modules_ready and not shutit.is_installed(module):
 			shutit.log('checking whether module is ready to build: ' + module_id, level=logging.DEBUG)
 			shutit.login(prompt_prefix=module_id,command='bash --noprofile --norc',echo=False)
 			# Move to the correct directory (eg for checking for the existence of files needed for build)
