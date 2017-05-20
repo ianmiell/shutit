@@ -2601,7 +2601,7 @@ class ShutIt(object):
 		for sub in glob.glob(os.path.join(path, '*')):
 			subpath = os.path.join(path, sub)
 			if os.path.isfile(subpath):
-				shutit.load_mod_from_file(subpath)
+				self.load_mod_from_file(subpath)
 			elif os.path.isdir(subpath):
 				self.load_all_from_path(subpath)
 
