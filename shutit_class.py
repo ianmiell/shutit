@@ -14,6 +14,10 @@ import readline
 import pexpect
 import shutit_util
 import shutit_global
+try:
+	import ConfigParser
+except ImportError: # pragma: no cover
+	import configparser as ConfigParser
 from shutit_sendspec import ShutItSendSpec
 from shutit_module import ShutItFailException
 from shutit_pexpect import ShutItPexpectSession
@@ -2445,3 +2449,46 @@ class ShutIt(object):
 			return default
 		else:
 			return answer
+
+
+	def load_configs(self):
+		"""Responsible for loading config files into ShutIt.
+		Recurses down from configured shutit module paths.
+		"""
+		# Get root default config.
+		configs = [('defaults', StringIO(_default_cnf)), os.path.expanduser('~/.shutit/config'), os.path.join(self.host['shutit_path'], 'config'), 'configs/build.cnf']
+		# Add the shutit global host- and user-specific config file.
+		# Add the local build.cnf
+		# Get passed-in config(s)
+		for config_file_name in self.build['extra_configs']:
+			run_config_file = os.path.expanduser(config_file_name)
+			if not os.path.isfile(run_config_file):
+				print('Did not recognise ' + run_config_file + ' as a file - do you need to touch ' + run_config_file + '?')
+				shutit_util.handle_exit(shutit=shutit, exit_code=0)
+			configs.append(run_config_file)
+		# Image to use to start off. The script should be idempotent, so running it
+		# on an already built image should be ok, and is advised to reduce diff space required.
+		if self.action['list_configs'] or shutit_global.shutit_global_object.loglevel <= logging.DEBUG:
+			msg = ''
+			for c in configs:
+				if isinstance(c, tuple):
+					c = c[0]
+				msg = msg + '    \n' + c
+				self.log('    ' + c,level=logging.DEBUG)
+	
+		# Interpret any config overrides, write to a file and add them to the
+		# list of configs to be interpreted
+		if self.build['config_overrides']:
+			# We don't need layers, this is a temporary configparser
+			override_cp = ConfigParser.RawConfigParser()
+			for o_sec, o_key, o_val in self.build['config_overrides']:
+				if not override_cp.has_section(o_sec):
+					override_cp.add_section(o_sec)
+				override_cp.set(o_sec, o_key, o_val)
+			override_fd = StringIO()
+			override_cp.write(override_fd)
+			override_fd.seek(0)
+			configs.append(('overrides', override_fd))
+	
+		self.cfg_parser = shutit_util.get_configs(self, configs)
+		shutit_util.get_base_config(self, self.cfg_parser)
