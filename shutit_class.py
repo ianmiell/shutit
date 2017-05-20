@@ -2410,3 +2410,28 @@ class ShutIt(object):
 			shutit.log(shutit.host['shutit_module_path'],level=logging.DEBUG)
 		for shutit_module_path in self.host['shutit_module_path']:
 			shutit_util.load_all_from_path(self, shutit_module_path)
+
+
+	def get_command(self, command):
+		"""Helper function for osx - return gnu utils rather than default for
+		   eg head and md5sum where possible.
+		"""
+		if command in ('head','md5sum'):
+			if self.get_current_shutit_pexpect_session_environment().distro == 'osx':
+				return '''PATH="/usr/local/opt/coreutils/libexec/gnubin:$PATH" ''' + command + ' '
+			else:
+				return command + ' '
+		return command
+
+
+	def get_send_command(send):
+		"""Internal helper function to get command that's really sent
+		"""
+		if send is None:
+			return send
+		cmd_arr = send.split()
+		if len(cmd_arr) and cmd_arr[0] in ('md5sum','sed','head'):
+			newcmd = self.get_command(cmd_arr[0])
+			send = send.replace(cmd_arr[0],newcmd)
+		return send
+

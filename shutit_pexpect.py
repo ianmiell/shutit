@@ -1586,7 +1586,7 @@ class ShutItPexpectSession(object):
 		shutit.log('Retrieving output from command: ' + send,level=loglevel)
 		# Don't check exit, as that will pollute the output. Also, it's quite likely the submitted command is intended to fail.
 		echo = shutit.get_echo_override(echo)
-		send = shutit_util.get_send_command(shutit, send)
+		send = shutit.get_send_command(send)
 		self.send(ShutItSendSpec(self,
 		                         send=send,
 		                         check_exit=False,
@@ -2482,7 +2482,7 @@ class ShutItPexpectSession(object):
 
 		# Handle OSX to get the GNU version of the command
 		if sendspec.assume_gnu:
-			sendspec.send = shutit_util.get_send_command(shutit, sendspec.send)
+			sendspec.send = shutit.get_send_command(sendspec.send)
 
 		# If check_exit is not passed in
 		# - if the expect matches the default, use the default check exit
@@ -2787,7 +2787,7 @@ $'"""
 			if len(b64contents) > 100000:
 				shutit.log('File is larger than ~100K - this may take some time',level=logging.WARNING)
 			self.send(ShutItSendSpec(self,
-			                         send=' ' + shutit_util.get_command(shutit, 'head') + ' -c -1 > ' + path + "." + random_id + " << 'END_" + random_id + """'\n""" + b64contents + '''\nEND_''' + random_id,
+			                         send=' ' + shutit.get_command('head') + ' -c -1 > ' + path + "." + random_id + " << 'END_" + random_id + """'\n""" + b64contents + '''\nEND_''' + random_id,
 			                         echo=echo,
 			                         loglevel=loglevel,
 			                         timeout=99999,
@@ -3301,7 +3301,7 @@ $'"""
 			curr_str = working_str[:size]
 			working_str = working_str[size:]
 			assert not self.sendline(ShutItSendSpec(self,
-			                                        send=' ' + shutit_util.get_command(shutit, 'head') + ''' -c -1 >> ''' + fname + """ << 'END_""" + random_id + """'\n""" + curr_str + """\nEND_""" + random_id,
+			                                        send=' ' + shutit.get_command('head') + ''' -c -1 >> ''' + fname + """ << 'END_""" + random_id + """'\n""" + curr_str + """\nEND_""" + random_id,
 		                                            ignore_background=True))
 			self.expect(expect)
 		assert not self.sendline(ShutItSendSpec(self,
