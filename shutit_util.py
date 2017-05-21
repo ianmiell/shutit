@@ -994,51 +994,6 @@ def check_regexp(regex):
 
 
 
-# TODO: move to shutit_class.py
-def config_collection(shutit):
-	"""Collect core config from config files for all seen modules.
-	"""
-	shutit.log('In config_collection',level=logging.DEBUG)
-	cfg = shutit.cfg
-	for module_id in shutit.module_ids():
-		# Default to None so we can interpret as ifneeded
-		shutit.get_config(module_id, 'shutit.core.module.build', None, boolean=True, forcenone=True)
-		shutit.get_config(module_id, 'shutit.core.module.remove', False, boolean=True)
-		shutit.get_config(module_id, 'shutit.core.module.tag', False, boolean=True)
-		# Default to allow any image
-		shutit.get_config(module_id, 'shutit.core.module.allowed_images', [".*"])
-		module = shutit.shutit_map[module_id]
-		cfg_file = os.path.dirname(module.__module_file) + '/configs/build.cnf'
-		if os.path.isfile(cfg_file):
-			# use shutit.get_config, forcing the passed-in default
-			config_parser = ConfigParser.ConfigParser()
-			config_parser.read(cfg_file)
-			for section in config_parser.sections():
-				if section == module_id:
-					for option in config_parser.options(section):
-						if option == 'shutit.core.module.allowed_images':
-							override = False
-							for mod, opt, val in shutit.build['config_overrides']:
-								val = val # pylint
-								# skip overrides
-								if mod == module_id and opt == option:
-									override = True
-							if override:
-								continue
-							value = config_parser.get(section,option)
-							if option == 'shutit.core.module.allowed_images':
-								value = json.loads(value)
-							shutit.get_config(module_id, option, value, forcedefault=True)
-		# ifneeded will (by default) only take effect if 'build' is not
-		# specified. It can, however, be forced to a value, but this
-		# should be unusual.
-		if cfg[module_id]['shutit.core.module.build'] is None:
-			shutit.get_config(module_id, 'shutit.core.module.build_ifneeded', True, boolean=True)
-			cfg[module_id]['shutit.core.module.build'] = False
-		else:
-			shutit.get_config(module_id, 'shutit.core.module.build_ifneeded', False, boolean=True)
-
-
 
 
 # TODO: move to shutit_class.py

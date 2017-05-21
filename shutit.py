@@ -526,7 +526,7 @@ def setup_shutit_obj(shutit):
 
 	init_shutit_map(shutit)
 
-	shutit_util.config_collection(shutit=shutit)
+	shutit.config_collection()
 	shutit.log('Configuration loaded',level=logging.INFO)
 
 	if shutit.action['list_modules']:

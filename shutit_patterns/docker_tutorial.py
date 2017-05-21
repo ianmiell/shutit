@@ -3,7 +3,7 @@ import shutit_global
 from . import shutitfile
 import logging
 
-configs/build.cnf_file = """###############################################################################
+configs_build_cnf_file = """###############################################################################
 # PLEASE NOTE: This file should be changed only by the maintainer.
 # PLEASE NOTE: This file is only sourced if the "shutit build" command is run
 #              and this file is in the relative path: configs/build.cnf

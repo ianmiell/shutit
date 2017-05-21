@@ -2,10 +2,10 @@
 off to internal objects such as shutit_pexpect.
 """
 
-try:                                                                                                                                                                                       
-	from StringIO import StringIO                                                                                                                                                          
-except ImportError: # pragma: no cover                                                                                                                                                     
-	from io import StringIO   
+try:
+	from StringIO import StringIO
+except ImportError: # pragma: no cover
+	from io import StringIO
 import sys
 import os
 import time
@@ -16,6 +16,7 @@ import logging
 import tarfile
 import readline
 import base64
+import json
 import imp
 import glob
 import pexpect
@@ -2354,7 +2355,7 @@ class ShutIt(object):
 	def determine_compatibility(self, module_id):
 		cfg = self.cfg
 		# Allowed images
-		if (cfg[module_id]['shutit.core.module.allowed_images'] and self.target['docker_image'] not in cfg[module_id]['shutit.core.module.allowed_images']) and not allowed_image(shutit, module_id):
+		if (cfg[module_id]['shutit.core.module.allowed_images'] and self.target['docker_image'] not in cfg[module_id]['shutit.core.module.allowed_images']) and not self.allowed_image(module_id):
 			return 1
 		# Build methods
 		if cfg[module_id]['shutit.core.module.build'] and self.build['delivery'] not in self.shutit_map[module_id].ok_delivery_methods:
@@ -2400,8 +2401,8 @@ class ShutIt(object):
 		paths.
 		"""
 		if shutit_global.shutit_global_object.loglevel <= logging.DEBUG:
-			shutit.log('ShutIt module paths now: ',level=logging.DEBUG)
-			shutit.log(shutit.host['shutit_module_path'],level=logging.DEBUG)
+			self.log('ShutIt module paths now: ',level=logging.DEBUG)
+			self.log(self.host['shutit_module_path'],level=logging.DEBUG)
 		for shutit_module_path in self.host['shutit_module_path']:
 			self.load_all_from_path(shutit_module_path)
 
@@ -2472,7 +2473,7 @@ class ShutIt(object):
 			run_config_file = os.path.expanduser(config_file_name)
 			if not os.path.isfile(run_config_file):
 				print('Did not recognise ' + run_config_file + ' as a file - do you need to touch ' + run_config_file + '?')
-				shutit_util.handle_exit(shutit=shutit, exit_code=0)
+				shutit_util.handle_exit(shutit=self, exit_code=0)
 			configs.append(run_config_file)
 		# Image to use to start off. The script should be idempotent, so running it
 		# on an already built image should be ok, and is advised to reduce diff space required.
@@ -2483,7 +2484,7 @@ class ShutIt(object):
 					c = c[0]
 				msg = msg + '    \n' + c
 				self.log('    ' + c,level=logging.DEBUG)
-	
+
 		# Interpret any config overrides, write to a file and add them to the
 		# list of configs to be interpreted
 		if self.build['config_overrides']:
@@ -2497,7 +2498,7 @@ class ShutIt(object):
 			override_cp.write(override_fd)
 			override_fd.seek(0)
 			configs.append(('overrides', override_fd))
-	
+
 		self.cfg_parser = shutit_util.get_configs(self, configs)
 		self.get_base_config(self.cfg_parser)
 
@@ -2542,7 +2543,7 @@ class ShutIt(object):
 			shutit_global.shutit_global_object.secret_words_set.add(self.host['password'])
 		shutit_global.shutit_global_object.logfile = cp.get('host', 'logfile')
 		self.host['shutit_module_path']          = cp.get('host', 'shutit_module_path').split(':')
-	
+
 		# repository - information relating to docker repository/registry
 		self.repository['name']                  = cp.get('repository', 'name')
 		self.repository['server']                = cp.get('repository', 'server')
@@ -2559,27 +2560,27 @@ class ShutIt(object):
 		self.repository['email']                 = cp.get('repository', 'email')
 		self.repository['tag_name']              = cp.get('repository', 'tag_name')
 		# END Read from config files
-	
+
 		# BEGIN Standard expects
 		# It's important that these have '.*' in them at the start, so that the matched data is reliably 'after' in the
 		# child object. Use these where possible to make things more consistent.
 		# Attempt to capture any starting prompt (when starting) with this regexp.
 		self.expect_prompts['base_prompt']       = '\r\n.*[@#$] '
 		# END Standard expects
-	
+
 		if self.target['docker_image'] == '':
 			self.target['docker_image'] = self.build['base_image']
 		# END tidy configs up
-	
+
 		# BEGIN warnings
 		# FAILS begins
 		# rm is incompatible with repository actions
 		if self.target['rm'] and (self.repository['tag'] or self.repository['push'] or self.repository['save'] or self.repository['export']): # pragma: no cover
 			print("Can't have [target]/rm and [repository]/(push/save/export) set to true")
-			handle_exit(shutit=self, exit_code=1)
+			shutit_util.handle_exit(shutit=self, exit_code=1)
 		if self.target['hostname'] != '' and self.build['net'] != '' and self.build['net'] != 'bridge': # pragma: no cover
 			print('\n\ntarget/hostname or build/net configs must be blank\n\n')
-			handle_exit(shutit=self, exit_code=1)
+			shutit_util.handle_exit(shutit=self, exit_code=1)
 		# FAILS ends
 
 
@@ -2648,7 +2649,7 @@ class ShutIt(object):
 			sys.path.append(os.path.dirname(fpath))
 		mod_name = base64.b32encode(fpath.encode()).decode().replace('=', '')
 		pymod = imp.load_source(mod_name, fpath)
-	
+
 		# Got the python module, now time to pull the shutit module(s) out of it.
 		targets = [
 			('module', self.shutit_modules), ('conn_module', self.conn_modules)
@@ -2667,3 +2668,47 @@ class ShutIt(object):
 				ShutItModule.register(module.__class__)
 				target.add(module)
 				self.build['source'][fpath] = open(fpath).read()
+
+
+	def config_collection(self):
+		"""Collect core config from config files for all seen modules.
+		"""
+		self.log('In config_collection',level=logging.DEBUG)
+		cfg = self.cfg
+		for module_id in self.module_ids():
+			# Default to None so we can interpret as ifneeded
+			self.get_config(module_id, 'shutit.core.module.build', None, boolean=True, forcenone=True)
+			self.get_config(module_id, 'shutit.core.module.remove', False, boolean=True)
+			self.get_config(module_id, 'shutit.core.module.tag', False, boolean=True)
+			# Default to allow any image
+			self.get_config(module_id, 'shutit.core.module.allowed_images', [".*"])
+			module = self.shutit_map[module_id]
+			cfg_file = os.path.dirname(module.__module_file) + '/configs/build.cnf'
+			if os.path.isfile(cfg_file):
+				# use shutit.get_config, forcing the passed-in default
+				config_parser = ConfigParser.ConfigParser()
+				config_parser.read(cfg_file)
+				for section in config_parser.sections():
+					if section == module_id:
+						for option in config_parser.options(section):
+							if option == 'shutit.core.module.allowed_images':
+								override = False
+								for mod, opt, val in self.build['config_overrides']:
+									val = val # pylint
+									# skip overrides
+									if mod == module_id and opt == option:
+										override = True
+								if override:
+									continue
+								value = config_parser.get(section,option)
+								if option == 'shutit.core.module.allowed_images':
+									value = json.loads(value)
+								self.get_config(module_id, option, value, forcedefault=True)
+			# ifneeded will (by default) only take effect if 'build' is not
+			# specified. It can, however, be forced to a value, but this
+			# should be unusual.
+			if cfg[module_id]['shutit.core.module.build'] is None:
+				self.get_config(module_id, 'shutit.core.module.build_ifneeded', True, boolean=True)
+				cfg[module_id]['shutit.core.module.build'] = False
+			else:
+				self.get_config(module_id, 'shutit.core.module.build_ifneeded', False, boolean=True)
