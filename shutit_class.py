@@ -19,6 +19,9 @@ import base64
 import json
 import imp
 import glob
+import operator
+import texttable
+import hashlib
 import pexpect
 import shutit_util
 import shutit_global
