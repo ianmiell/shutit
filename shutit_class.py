@@ -198,35 +198,33 @@ class ShutItInit(object):
 			# TODO: other asserts in other things.
 		elif self.action == 'run':
 			self.shutitfiles = shutitfiles
-			self.delivery               = delivery
+			self.delivery    = delivery
 			#assert isinstance(self.shutitfiles,list)
-		elif self.action == 'build':
+		elif self.action == 'build' or self.action == 'list_configs' or self.action == 'list_modules':
 			self.push               = push
-			self.export             = export
-			self.save         = save
-			self.distro       = distro
-			self.mount_docker = mount_docker
-			self.walkthrough  = walkthrough
-			self.training      = training
-			self.choose_config = choose_config
-			self.config = config
-			self.set = set
-			self.ignorestop = ignorestop
-			self.ignoreimage = ignoreimage
-			self.imageerrorok = imageerrorok
-			self.tag_modules = tag_modules
-			self.image_tag = image_tag
-			self.video = video
-			self.deps_only = deps_only
-			self.echo = echo
-			self.delivery = delivery
-			self.interactive = interactive
-			self.trace = trace
+			self.export             =  export
+			self.save               = save
+			self.distro             = distro
+			self.mount_docker       = mount_docker
+			self.walkthrough        = walkthrough
+			self.training           = training
+			self.choose_config      = choose_config
+			self.config             = config
+			self.set                = set
+			self.ignorestop         = ignorestop
+			self.ignoreimage        = ignoreimage
+			self.imageerrorok       = imageerrorok
+			self.tag_modules        = tag_modules
+			self.image_tag          = image_tag
+			self.video              = video
+			self.deps_only          = deps_only
+			self.echo               = echo
+			self.delivery           = delivery
+			self.interactive        = interactive
+			self.trace              = trace
 			self.shutit_module_path = shutit_module_path
-			self.exam = exam
-		elif self.action == 'list_configs':
+			self.exam               = exam
 			self.history = history
-		elif self.action == 'list_modules':
 			self.sort = sort
 			self.long = long
 
