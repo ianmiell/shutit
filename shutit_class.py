@@ -22,18 +22,26 @@ import glob
 import operator
 import texttable
 import hashlib
+import textwrap
+import string
 import pexpect
+import subprocess
+import shutit
 import shutit_util
 import shutit_global
+import shutit_skeleton
+import shutit_exam
 try:
 	import ConfigParser
 except ImportError: # pragma: no cover
 	import configparser as ConfigParser
+from distutils.dir_util import mkpath
 from shutit_sendspec import ShutItSendSpec
 from shutit_module import ShutItFailException
 from shutit_pexpect import ShutItPexpectSession
 from shutit_module import ShutItModule
 
+PY3 = (sys.version_info[0] >= 3)
 
 class ShutItInit(object):
 	"""Object used to initialise a shutit object.
@@ -3057,7 +3065,7 @@ class ShutIt(object):
 		assert isinstance(args,ShutItInit)
 
 		if args.action == 'version':
-			print('ShutIt version: ' + self.shutit_version)
+			print('ShutIt version: ' + shutit.shutit_version)
 			self.handle_exit(exit_code=0)
 
 		# What are we asking shutit to do?
@@ -3150,7 +3158,7 @@ class ShutIt(object):
 					self.handle_exit(exit_code=1)
 			module_directory = args.name # TODO: abstract away to shutitconfig object
 			if module_directory == '':
-				default_dir = self.host['calling_path'] + '/shutit_' + random_word()
+				default_dir = self.host['calling_path'] + '/shutit_' + shutit_util.random_word()
 				if accept_defaults:
 					module_directory = default_dir
 				else:
@@ -3205,7 +3213,7 @@ class ShutIt(object):
 					delivery = default_delivery
 				else:
 					delivery = ''
-					while delivery not in allowed_delivery_methods:
+					while delivery not in shutit_util.allowed_delivery_methods:
 						delivery = self.util_raw_input(prompt=textwrap.dedent('''
 							# Input a delivery method from: bash, docker, vagrant.
 							# Default: ' + default_delivery + '
@@ -3223,7 +3231,7 @@ class ShutIt(object):
 				'module_name':            module_name,
 				'base_image':             args.base_image, # TODO: abstract away to shutitconfig object
 				'domain':                 domain,
-				'domain_hash':            str(get_hash(domain)),
+				'domain_hash':            str(shutit_util.get_hash(domain)),
 				'depends':                args.depends, # TODO: abstract away to shutitconfig object
 				'script':                 args.script, # TODO: abstract away to shutitconfig object
 				'shutitfiles':            _new_shutitfiles,
@@ -3243,7 +3251,7 @@ class ShutIt(object):
 			self.target['docker_image']    = ''
 		# TODO: abstract away to separate function in global
 		elif self.action['run']:
-			module_name      = random_id(chars=string.ascii_letters)
+			module_name      = shutit_util.random_id(chars=string.ascii_letters)
 			module_dir       = "/tmp/shutit_built/" + module_name
 			module_domain    = module_name + '.' + module_name
 			argv_new = [sys.argv[0],'skeleton','--shutitfile'] + args.shutitfiles + ['--name', module_dir,'--domain',module_domain,'--pattern','bash'] # TODO: abstract away to shutitconfig object
@@ -3263,9 +3271,9 @@ class ShutIt(object):
 			if not os.path.isfile(os.path.join(shutit_home, 'config')):
 				f = os.open(os.path.join(shutit_home, 'config'), os.O_WRONLY | os.O_CREAT, 0o600)
 				if PY3:
-					os.write(f,bytes(_default_cnf,'utf-8'))
+					os.write(f,bytes(shutit_util._default_cnf,'utf-8'))
 				else:
-					os.write(f,_default_cnf)
+					os.write(f,shutit_util._default_cnf)
 				os.close(f)
 
 			# Default this to False as it's not always set (mostly for debug logging).
