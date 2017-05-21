@@ -717,7 +717,7 @@ class ShutItPexpectSession(object):
 			shutit.log('\r\nLeaving interact without CTRL-] and shutit_signal is not recognised, shutit_signal value: ' + str(shutit_global.shutit_global_object.signal_id),level=logging.CRITICAL,transient=True)
 		elif shutit_global.shutit_global_object.signal_id == 0:
 			shutit.log('\r\nLeaving interact without CTRL-], assuming exit.',level=logging.CRITICAL,transient=True)
-			shutit_util.handle_exit(exit_code=1)
+			shutit.handle_exit(exit_code=1)
 		if shutit.build['exam'] and shutit_global.shutit_global_object.loglevel not in ('DEBUG',):
 			self.send(ShutItSendSpec(self,
 			                         send=' unalias exit && unalias logout && unalias kill && unalias alias',
@@ -2609,7 +2609,7 @@ $'"""
 				expect_res = shutit.expect_allow_interrupt(self.shutit, self.pexpect_child, sendspec.expect, sendspec.timeout)
 			if isinstance(self.pexpect_child.after, type) or isinstance(self.pexpect_child.before, type):
 				shutit.log('End of pexpect session detected, bailing.',level=logging.CRITICAL)
-				shutit_util.handle_exit(exit_code=1)
+				shutit.handle_exit(exit_code=1)
 			# Massage the output for summary sending.
 			logged_output = ''.join((self.pexpect_child.before + str(self.pexpect_child.after)).split('\n')).replace(sendspec.send,'',1).replace('\r','')[:160] + ' [...]'
 			if not sendspec.secret:
@@ -3025,7 +3025,7 @@ $'"""
 					continue
 				if send == 'shutitquit':
 					self._challenge_done(shutit, result='reset',follow_on_context=follow_on_context,final_stage=True)
-					shutit_util.handle_exit(exit_code=1)
+					shutit.handle_exit(exit_code=1)
 				if send == 'exit':
 					self._challenge_done(shutit, result='exited',follow_on_context=follow_on_context,final_stage=True)
 					shutit.build['pause_point_hints'] = []
@@ -3401,7 +3401,7 @@ $'"""
 				shutit_global.shutit_global_object.signal_id = 17
 				if not shutit.build['exam'] and shutit_global.shutit_global_object.loglevel not in ('DEBUG',):
 					shutit.log('CTRL-q hit, quitting ShutIt',transient=True,level=logging.CRITICAL)
-					shutit_util.handle_exit(exit_code=1)
+					shutit.handle_exit(exit_code=1)
 			# CTRL-s
 			elif ord(input_string) == 19:
 				shutit_global.shutit_global_object.signal_id = 19

@@ -483,7 +483,7 @@ def setup_shutit_path(shutit):
 			#http://unix.stackexchange.com/questions/26676/how-to-check-if-a-shell-is-login-interactive-batch
 			myfile.write('\nexport PATH="$PATH:' + os.path.dirname(path_to_shutit) + '"\n')
 		shutit.util_raw_input(prompt='\nPath set up - please open new terminal and re-run command\n')
-		shutit_util.handle_exit(shutit=shutit)
+		shutit.handle_exit()
 
 
 
@@ -531,7 +531,7 @@ def setup_shutit_obj(shutit):
 
 	if shutit.action['list_modules']:
 		shutit_util.list_modules(shutit)
-		shutit_util.handle_exit(shutit=shutit)
+		shutit.handle_exit()
 	if not shutit.action['list_deps'] and not shutit.action['list_modules']:
 		conn_target(shutit)
 		shutit.log('Connected to target',level=logging.INFO)
@@ -567,7 +567,7 @@ def setup_shutit_obj(shutit):
 	shutit_global.shutit_global_object.do_final_messages()
 
 	shutit.log('ShutIt run finished',level=logging.INFO)
-	shutit_util.handle_exit(shutit=shutit, exit_code=0)
+	shutit.handle_exit(exit_code=0)
 
 
 def do_lists(shutit):
@@ -599,7 +599,7 @@ def do_lists(shutit):
 		shutit.log('\nAbove is the digraph for all modules configured to be built IN THIS ShutIt invocation. Use graphviz to render into an image, eg\n\ncat ' + fname + ' | dot -Tpng -o depgraph.png\n')
 		shutit.log('\n================================================================================\n')
 		# Exit now
-		shutit_util.handle_exit(shutit=shutit)
+		shutit.handle_exit()
 	# Dependency validation done, now collect configs of those marked for build.
 	shutit_util.config_collection_for_built(shutit)
 

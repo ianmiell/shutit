@@ -197,7 +197,7 @@ class ShutIt(object):
 			# However, it's still a failure, so return 1
 			self.log(msg,level=logging.CRITICAL)
 			self.log('Error seen, exiting with status 1',level=logging.CRITICAL)
-			shutit_util.handle_exit(exit_code=1,msg=msg)
+			self.handle_exit(exit_code=1,msg=msg)
 
 
 
@@ -1394,7 +1394,7 @@ class ShutIt(object):
 		else:
 			self.log(msg,level=logging.DEBUG)
 			self.log('Nothing to interact with, so quitting to presumably the original shell',level=logging.DEBUG)
-			shutit_util.handle_exit(exit_code=1)
+			self.handle_exit(exit_code=1)
 		self.build['ctrlc_stop'] = False
 		return True
 
@@ -2473,7 +2473,7 @@ class ShutIt(object):
 			run_config_file = os.path.expanduser(config_file_name)
 			if not os.path.isfile(run_config_file):
 				print('Did not recognise ' + run_config_file + ' as a file - do you need to touch ' + run_config_file + '?')
-				shutit_util.handle_exit(shutit=self, exit_code=0)
+				self.handle_exit(exit_code=0)
 			configs.append(run_config_file)
 		# Image to use to start off. The script should be idempotent, so running it
 		# on an already built image should be ok, and is advised to reduce diff space required.
@@ -2577,10 +2577,10 @@ class ShutIt(object):
 		# rm is incompatible with repository actions
 		if self.target['rm'] and (self.repository['tag'] or self.repository['push'] or self.repository['save'] or self.repository['export']): # pragma: no cover
 			print("Can't have [target]/rm and [repository]/(push/save/export) set to true")
-			shutit_util.handle_exit(shutit=self, exit_code=1)
+			self.handle_exit(exit_code=1)
 		if self.target['hostname'] != '' and self.build['net'] != '' and self.build['net'] != 'bridge': # pragma: no cover
 			print('\n\ntarget/hostname or build/net configs must be blank\n\n')
-			shutit_util.handle_exit(shutit=self, exit_code=1)
+			self.handle_exit(exit_code=1)
 		# FAILS ends
 
 
@@ -2712,3 +2712,13 @@ class ShutIt(object):
 				cfg[module_id]['shutit.core.module.build'] = False
 			else:
 				self.get_config(module_id, 'shutit.core.module.build_ifneeded', False, boolean=True)
+
+
+	def handle_exit(self,exit_code=0,loglevel=logging.DEBUG,msg=None):
+		if not msg:
+			msg = '\nExiting with error code: ' + str(exit_code)
+		if exit_code != 0:
+			self.log('Exiting with error code: ' + str(exit_code),level=loglevel)
+			self.log('Resetting terminal',level=loglevel)
+		shutit_util.sanitize_terminal()
+		sys.exit(exit_code)
