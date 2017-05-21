@@ -365,7 +365,7 @@ def convert_args(args):
 		assert args.push is None or args.push is not None
 		assert args.export is None or args.export is not None
 		assert args.save is None or args.save is not None
-		assert args.distro_override is None or args.distro_override is not None
+		assert args.distro is None or args.distro is not None
 		assert args.mount_docker is None or args.mount_docker is not None
 		assert args.walkthrough is None or args.walkthrough is not None
 		assert args.training is None or args.training is not None
