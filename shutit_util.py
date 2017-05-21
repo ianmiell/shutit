@@ -379,21 +379,14 @@ def convert_args(args):
 		assert args.deps_only is None or args.deps_only is not None
 		assert args.echo is None or args.echo is not None
 		assert args.image_tag is None or args.image_tag is not None
-		#	args.video
-				#	print('--video and --training mode incompatible')
-				#	handle_exit(shutit=shutit, exit_code=1)
-				#if shutit.build['exam']:
-				#	print('--video and --exam mode incompatible')
-				#	handle_exit(shutit=shutit, exit_code=1)
-		#	args.history
-		#	args.long
-		#	args.sort
-		# 	args.delivery
-		# 	args.image_tag
-		# 	args.ignoreimage
-		# 	args.shutit_module_path - and process the given path?
-		# 	args.interactive
-		#	args.trace
+		assert args.video is None or args.video is not None
+		assert args.history is None or args.history is not None
+		assert args.long is None or args.long is not None
+		assert args.sort is None or args.sort is not None
+		assert args.delivery is None or args.delivery is not None
+		assert args.interactive is None or args.interactive is not None
+		assert args.trace is None or args.trace is not None
+		assert args.shutit_module_path is None or args.shutit_module_path is not None
 	return args
 
 
