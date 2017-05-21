@@ -3056,8 +3056,8 @@ class ShutIt(object):
 		assert isinstance(args,ShutItInit)
 
 		if args.action == 'version':
-			print('ShutIt version: ' + shutit.shutit_version)
-			shutit.handle_exit(exit_code=0)
+			print('ShutIt version: ' + self.shutit_version)
+			self.handle_exit(exit_code=0)
 
 		# What are we asking shutit to do?
 		self.action['list_configs'] = args.action == 'list_configs'   # TODO: abstract away to shutitconfig object
