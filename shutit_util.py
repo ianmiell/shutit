@@ -1060,19 +1060,13 @@ def config_collection_for_built(shutit, throw_error=True,silent=False):
 	return True
 
 
-# TODO: move to shutit_class.py
-def handle_exit(shutit=None, exit_code=0,loglevel=logging.DEBUG,msg=None):
+def handle_exit(exit_code=0,loglevel=logging.DEBUG,msg=None):
 	if not msg:
 		msg = '\nExiting with error code: ' + str(exit_code)
-	if shutit is None:
-		if exit_code != 0:
-			#shutit_global.shutit_global_object.print_stack_trace()
-			print(msg)
-			print('Resetting terminal')
-	else:
-		if exit_code != 0:
-			shutit.log('Exiting with error code: ' + str(exit_code),level=loglevel)
-			shutit.log('Resetting terminal',level=loglevel)
+	if exit_code != 0:
+		#shutit_global.shutit_global_object.print_stack_trace()
+		print(msg)
+		print('Resetting terminal')
 	sanitize_terminal()
 	sys.exit(exit_code)
 
