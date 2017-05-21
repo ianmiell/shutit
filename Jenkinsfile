@@ -30,11 +30,13 @@ try {
 			}
 		}
 	}
-	
-	stage('shutit_tests') {
-		node(nodename) {
-			dir(builddir + '/shutit-test') {
-				sh('PATH=$(pwd)/..:${PATH} ./run.sh -s tk.shutit.shutit_test shutit_branch ' + branch + ' -l info 2>&1')
+
+	lock('shutit_tests') {	
+		stage('shutit_tests') {
+			node(nodename) {
+				dir(builddir + '/shutit-test') {
+					sh('PATH=$(pwd)/..:${PATH} ./run.sh -s tk.shutit.shutit_test shutit_branch ' + branch + ' -l info 2>&1')
+				}
 			}
 		}
 	}
