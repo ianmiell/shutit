@@ -36,6 +36,7 @@ import urllib
 import shutit_global
 import shutit_skeleton
 import shutit_util
+import shutit_class
 from shutit_module import ShutItModule
 
 
@@ -526,7 +527,7 @@ def setup_shutit_obj(shutit):
 
 	init_shutit_map(shutit)
 
-	shutit.config_collection()
+	shutit_class.config_collection(shutit)
 	shutit.log('Configuration loaded',level=logging.INFO)
 
 	if shutit.action['list_modules']:
