@@ -3630,7 +3630,7 @@ class ShutIt(object):
 			self.process_args(ShutItInit(args.action,
 			                             logfile=args.logfile,
 			                             log=args.log,
-			                             Delivery=args.delivery,
+			                             delivery=args.delivery,
 			                             shutitfiles=args.shutitfiles,
 			                             script=args.script,
 			                             base_image=args.base_image,
