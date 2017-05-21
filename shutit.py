@@ -122,6 +122,7 @@ def init_shutit_map(shutit):
 		if module.run_order == 0:
 			has_core_module = True
 		shutit.shutit_map[module.module_id] = run_orders[module.run_order] = module
+		shutit.shutit_file_map[module.module_id] = module.__module_file
 
 	if not has_core_module:
 		shutit.fail('No module with run_order=0 specified! This is required.') # pragma: no cover

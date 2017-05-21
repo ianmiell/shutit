@@ -78,6 +78,7 @@ class ShutIt(object):
 		self.shutit_modules                 = set()
 		self.shutit_main_dir                = os.path.abspath(os.path.dirname(__file__))
 		self.shutit_map                     = {}
+		self.shutit_file_map                = {}
 		# These are new members we dont have to provide compatibility for
 		self.conn_modules                   = set()
 		# Whether to list the modules seen
@@ -2698,7 +2699,7 @@ def config_collection_for_built(shutit, throw_error=True,silent=False):
 		if cfg[module_id]['shutit.core.module.build'] and not shutit.build['have_read_config_file']:
 			module = shutit.shutit_map[module_id]
 			# TODO: __module_file not accessible when within object - look to get this elsewhere and re-read in, then move this function into shutit object.
-			cfg_file = os.path.dirname(module.__module_file) + '/configs/build.cnf'
+			cfg_file = os.path.dirname(shutit.shutit_file_map[module_id]) + '/configs/build.cnf'
 			if os.path.isfile(cfg_file):
 				shutit.build['have_read_config_file'] = True
 				# use shutit.get_config, forcing the passed-in default
@@ -2758,7 +2759,7 @@ def config_collection(shutit):
 		# Default to allow any image
 		shutit.get_config(module_id, 'shutit.core.module.allowed_images', [".*"])
 		module = shutit.shutit_map[module_id]
-		cfg_file = os.path.dirname(module.__module_file) + '/configs/build.cnf'
+		cfg_file = os.path.dirname(shutit.shutit_file_map[module_id]) + '/configs/build.cnf'
 		if os.path.isfile(cfg_file):
 			# use shutit.get_config, forcing the passed-in default
 			config_parser = ConfigParser.ConfigParser()

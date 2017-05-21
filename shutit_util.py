@@ -336,14 +336,17 @@ def parse_args(shutit, set_loglevel=None):
 				env_args_list[-1] += item
 		args_list[1:1] = env_args_list
 	args = parser.parse_args(args_list)
-	process_args(shutit, convert_args(args))
+	process_args(shutit, args)
 
 
-# Turns args returned from parser.parse_args into a ShutitArgs object
-def convert_args(args):
+def check_args(args):
+	"""Checks the args object passed into process_args is OK.
+	"""
 	assert args.action is not None
 	assert isinstance(args.action,str)
-	if args.action == 'skeleton':
+	if args.action == 'version':
+		return
+	elif args.action == 'skeleton':
 		assert args.delivery is not None or args.delivery is None  # Does it exist?
 		assert args.accept in (True,False,None)
 		assert not (args.shutitfiles and args.script),'Cannot have any two of script, -d/--shutitfiles <files> as arguments'
@@ -390,13 +393,14 @@ def convert_args(args):
 		assert args.interactive is None or args.interactive is not None
 		assert args.trace is None or args.trace is not None
 		assert args.shutit_module_path is None or args.shutit_module_path is not None
-	return args
 
 
 
 def process_args(shutit, args):
 	"""Process the args we have.
 	"""
+	check_args(args)
+
 	if args.action == 'version':
 		print('ShutIt version: ' + shutit.shutit_version)
 		shutit.handle_exit(exit_code=0)
