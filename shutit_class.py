@@ -35,6 +35,122 @@ from shutit_pexpect import ShutItPexpectSession
 from shutit_module import ShutItModule
 
 
+class ShutItInit(object):
+	"""Object used to initialise a shutit object.
+	"""
+	
+	def __init__(self,
+	             action,
+	             logfile='',
+	             log='',
+	             delivery=None,
+	             accept=False,
+	             shutitfiles=None,
+	             script=None,
+	             base_image='ubuntu:16.04',
+	             depends='shutit.tk.setup',
+	             name='',
+	             pattern='',
+	             output_dir=False,
+	             vagrant_ssh_access=False,
+	             vagrant_num_machines=None,
+	             vagrant_machine_prefix=None,
+	             vagrant_docker=None,
+	             push=False,
+	             export=False,
+	             save=False,
+	             distro='',
+	             mount_docker=False,
+	             walkthrough=False,
+	             training=False,
+	             choose_config=False,
+	             config=[],
+	             set=[],
+	             ignorestop=False,
+	             ignoreimage=False,
+	             imageerrorok=False,
+	             tag_modules=False,
+	             image_tag='',
+	             video=-1,
+	             deps_only=False,
+	             echo=False,
+	             history=False,
+	             long=False,
+	             sort='id',
+	             interactive=1,
+	             trace=False,
+	             shutit_module_path=None,
+	             exam=False):
+	
+		assert isinstance(action,str)
+		assert isinstance(logfile,str)
+		assert isinstance(log,str)
+		self.action = action
+		self.logfile = logfile
+		self.log = log
+
+		if self.action == 'version':
+			return
+		elif self.action == 'skeleton':
+			self.accept                 = accept
+			self.shutitfiles            = shutitfiles
+			self.script                 = script
+			self.base_image             = base_image
+			self.depends                = depends
+			self.name                   = name
+			self.domain                 = domain
+			self.pattern                = pattern
+			self.output_dir             = output_dir
+			self.vagrant_ssh_access     = vagrant_ssh_access
+			self.vagrant_num_machines   = vagrant_num_machines
+			self.vagrant_machine_prefix = vagrant_machine_prefix
+			self.vagrant_docker         = vagrant_docker
+			assert self.accept in (True,False,None)
+			assert not (self.shutitfiles and self.script),'Cannot have any two of script, -d/--shutitfiles <files> as arguments'
+			assert isinstance(self.base_image,str)
+			assert isinstance(self.depends,str)
+			#assert isinstance(self.shutitfiles,list)
+			assert isinstance(self.name,str)
+			assert isinstance(self.domain,str)
+			assert isinstance(self.pattern,str)
+			assert isinstance(self.output_dir,bool)
+			assert isinstance(self.vagrant_ssh_access,bool)
+		elif self.action == 'run':
+			self.shutitfiles = shutitfiles
+			#assert isinstance(self.shutitfiles,list)
+		elif self.action == 'build':
+			self.push = push
+			self.export = export
+			self.save = save
+			self.distro = distro
+			self.mount_docker = mount_docker
+			self.walkthrough = walkthrough
+			self.training = training
+			self.choose_config = choose_config
+			self.config = config
+			self.set = set
+			self.ignorestop = ignorestop
+			self.ignoreimage = ignoreimage
+			self.imageerrorok = imageerrorok
+			self.tag_modules = tag_modules
+			self.image_tag = image_tag
+			self.video = video
+			self.deps_only = deps_only
+			self.echo = echo
+			self.delivery = delivery
+			self.interactive = interactive
+			self.trace = trace
+			self.shutit_module_path = shutit_module_path
+			self.exam = exam
+		elif self.action == 'list_configs':
+			self.history = history
+		elif self.action == 'list_modules':
+			self.sort = sort
+			self.long = long
+
+
+
+
 class ShutIt(object):
 	"""ShutIt build class.
 	Represents an instance of a ShutIt run/session/build with associated config.
@@ -2932,3 +3048,97 @@ class ShutIt(object):
 					s += line + '\n'
 		return s
 
+
+def process_args(shutit, args):
+	"""Process the args we have.
+	"""
+	check_args(args)
+
+	if args.action == 'version':
+		print('ShutIt version: ' + shutit.shutit_version)
+		shutit.handle_exit(exit_code=0)
+
+	# What are we asking shutit to do?
+	shutit.action['list_configs'] = args.action == 'list_configs'   # TODO: abstract away to shutitconfig object
+	shutit.action['list_modules'] = args.action == 'list_modules'   # TODO: abstract away to shutitconfig object
+	shutit.action['list_deps']    = args.action == 'list_deps'   # TODO: abstract away to shutitconfig object
+	shutit.action['skeleton']     = args.action == 'skeleton'   # TODO: abstract away to shutitconfig object
+	shutit.action['build']        = args.action == 'build'   # TODO: abstract away to shutitconfig object
+	shutit.action['run']          = args.action == 'run'   # TODO: abstract away to shutitconfig object
+	# Logging
+	shutit_global.shutit_global_object.logfile   = args.logfile # TODO: place in global
+	shutit.build['exam']     = False # TODO: place in global
+
+	shutit_global.shutit_global_object.loglevel = args.log # TODO: place in global
+	if shutit_global.shutit_global_object.loglevel in ('', None): # TODO: place in global
+		shutit_global.shutit_global_object.loglevel = 'INFO' # TODO: place in global
+	shutit_global.shutit_global_object.setup_logging() # TODO: place in global
+
+	# This mode is a bit special - it's the only one with different arguments
+	# TODO: abstract away to separate function in global
+	if shutit.action['skeleton']:
+		delivery_method = args.delivery # TODO: abstract away to shutitconfig object
+		accept_defaults = args.accept # TODO: abstract away to shutitconfig object
+		# Looks through the arguments given for valid shutitfiles, and adds their names to _new_shutitfiles.
+		_new_shutitfiles = None
+		if args.shutitfiles: # TODO: abstract away to shutitconfig object
+			cwd = os.getcwd()
+			_new_shutitfiles       = []
+			_delivery_methods_seen = set()
+			for shutitfile in args.shutitfiles: # TODO: abstract away to shutitconfig object
+				if shutitfile[0] != '/':
+					shutitfile = cwd + '/' + shutitfile
+				if os.path.isfile(shutitfile):
+					candidate_shutitfile_fh = open(shutitfile,'r')
+					candidate_shutitfile_contents = candidate_shutitfile_fh.read()
+					candidate_shutitfile_fh.close()
+					try:
+						shutitfile_representation, ok = shutit_skeleton.process_shutitfile(shutit, candidate_shutitfile_contents)
+						if not ok or candidate_shutitfile_contents.strip() == '':
+							print('Ignoring file (failed to parse candidate shutitfile): ' + shutitfile)
+						else:
+							_new_shutitfiles.append(shutitfile)
+							if len(shutitfile_representation['shutitfile']['delivery']) > 0:
+								_delivery_methods_seen.add(shutitfile_representation['shutitfile']['delivery'][0][1])
+					except Exception as e:
+						print('')
+						print(e)
+						print('Ignoring file (failed to parse candidate shutitfile): ' + shutitfile)
+				elif os.path.isdir(shutitfile):
+					for root, subfolders, files in os.walk(shutitfile):
+						subfolders.sort()
+						files.sort()
+						for fname in files:
+							candidate_shutitfile = os.path.join(root, fname)
+							try:
+								if os.path.isfile(candidate_shutitfile):
+									candidate_shutitfile_fh = open(candidate_shutitfile,'r')
+									candidate_shutitfile_contents = candidate_shutitfile_fh.read()
+									candidate_shutitfile_fh.close()
+									shutitfile_representation, ok = shutit_skeleton.process_shutitfile(shutit, candidate_shutitfile_contents)
+									if not ok or candidate_shutitfile_contents.strip() == '':
+										print('Ignoring file (failed to parse candidate shutitfile): ' + candidate_shutitfile)
+									else:
+										_new_shutitfiles.append(candidate_shutitfile)
+										if len(shutitfile_representation['shutitfile']['delivery']) > 0:
+											_delivery_methods_seen.add(shutitfile_representation['shutitfile']['delivery'][0][1])
+								else:
+									print('Ignoring filename (not a normal file): ' + fname)
+							except:
+								print('Ignoring file (failed to parse candidate shutitfile): ' + candidate_shutitfile)
+			if _new_shutitfiles:
+				if len(_delivery_methods_seen) == 0 and delivery_method is None:
+					delivery_method = 'bash'
+				elif len(_delivery_methods_seen) == 0:
+					pass
+				elif len(_delivery_methods_seen) == 1 and delivery_method is None:
+					delivery_method = _delivery_methods_seen.pop()
+				elif len(_delivery_methods_seen) == 1:
+					shutitfile_delivery_method = _delivery_methods_seen.pop()
+					if delivery_method != shutitfile_delivery_method:
+						print('Conflicting delivery methods passed in vs. from shutitfile.\nPassed-in: ' + delivery_method + '\nShutitfile: ' + shutitfile_delivery_method)
+						shutit.handle_exit(exit_code=1)
+				else:
+					print('Too many delivery methods seen in shutitfiles: ' + str(_new_shutitfiles))
+					print('Delivery methods: ' + str(_delivery_methods_seen))
+					print('Delivery method passed in: ' + delivery_method)

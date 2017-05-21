@@ -61,6 +61,7 @@ import shutit_assets
 import shutit_skeleton
 import shutit_exam
 import shutit_global
+import shutit_class
 from shutit_module import ShutItFailException
 
 PY3 = (sys.version_info[0] >= 3)
@@ -336,70 +337,78 @@ def parse_args(shutit, set_loglevel=None):
 				env_args_list[-1] += item
 		args_list[1:1] = env_args_list
 	args = parser.parse_args(args_list)
-	process_args(shutit, args)
-
-
-def check_args(args):
-	"""Checks the args object passed into process_args is OK.
-	"""
-	assert args.action is not None
-	assert isinstance(args.action,str)
 	if args.action == 'version':
-		return
+		process_args(shutit, shutit_class.ShutItInit(args.action,
+		                                             logfile=args.logfile,
+		                                             log=args.log))
 	elif args.action == 'skeleton':
-		assert args.delivery is not None or args.delivery is None  # Does it exist?
-		assert args.accept in (True,False,None)
-		assert not (args.shutitfiles and args.script),'Cannot have any two of script, -d/--shutitfiles <files> as arguments'
-		assert isinstance(args.base_image,str)
-		assert isinstance(args.depends,str)
-		#assert isinstance(args.shutitfiles,list)
-		assert isinstance(args.name,str)
-		assert isinstance(args.domain,str)
-		assert isinstance(args.pattern,str)
-		assert isinstance(args.output_dir,bool)
-		assert isinstance(args.vagrant_ssh_access,bool)
-		assert args.script is None or args.script is not None
-		assert args.vagrant_num_machines is None or args.vagrant_num_machines is not None
-		assert args.vagrant_machine_prefix is None or args.vagrant_machine_prefix is not None
-		assert args.vagrant_docker is None or args.vagrant_docker is not None
+		process_args(shutit, shutit_class.ShutItInit(args.action,
+		                                             logfile=args.logfile,
+		                                             log=args.log,
+		                                             accept=args.accept,
+		                                             shutitfiles=args.shutitfiles,
+		                                             script=args.script,
+		                                             base_image=args.base_image,
+		                                             depends=args.depends,
+		                                             name=args.name,
+		                                             domain=args.domain,
+		                                             pattern=args.pattern,
+		                                             output_dir=args.output_dir,
+		                                             vagrant_ssh_access=args.vagrant_ssh_access,
+		                                             vagrant_num_machines=args.vagrant_num_machines,
+		                                             vagrant_machine_prefix=args.vagrant_machine_prefix,
+		                                             vagrant_docker=args.vagrant_docker))
 	elif args.action == 'run':
-		assert isinstance(args.shutitfiles,list)
+		process_args(shutit, shutit_class.ShutItInit(args.action,
+		                                             logfile=args.logfile,
+		                                             log=args.log,
+		                                             shutitfiles=args.shutitfiles))
 	elif args.action == 'build':
-		assert args.push is None or args.push is not None
-		assert args.export is None or args.export is not None
-		assert args.save is None or args.save is not None
-		assert args.distro is None or args.distro is not None
-		assert args.mount_docker is None or args.mount_docker is not None
-		assert args.walkthrough is None or args.walkthrough is not None
-		assert args.training is None or args.training is not None
-		assert args.choose_config is None or args.choose_config is not None
-		assert args.config is None or args.config is not None
-		assert args.set is None or args.set is not None
-		assert args.ignorestop is None or args.ignorestop is not None
-		assert args.ignoreimage is None or args.ignoreimage is not None
-		assert args.imageerrorok is None or args.imageerrorok is not None
-		assert args.tag_modules is None or args.tag_modules is not None
-		assert args.deps_only is None or args.deps_only is not None
-		assert args.echo is None or args.echo is not None
-		assert args.image_tag is None or args.image_tag is not None
-		assert args.video is None or args.video is not None
+		process_args(shutit, shutit_class.ShutItInit(args.action,
+		                                             logfile=args.logfile,
+		                                             log=args.log,
+		                                             push=args.push,
+		                                             export=args.export,
+		                                             save=args.save,
+		                                             distro=args.distro,
+		                                             mount_docker=args.mount_docker,
+		                                             walkthrough=args.walkthrough,
+		                                             training=args.training,
+		                                             choose_config=args.choose_config,
+	                                                 config = args.config,
+	                                                 set = args.set,
+	                                                 ignorestop = args.ignorestop,
+	                                                 ignoreimage = args.ignoreimage,
+	                                                 imageerrorok = args.imageerrorok,
+	                                                 tag_modules = args.tag_modules,
+	                                                 image_tag = args.image_tag,
+	                                                 video = args.video,
+	                                                 deps_only = args.deps_only,
+	                                                 echo = args.echo,
+	                                                 delivery = args.delivery,
+	                                                 interactive = args.interactive,
+	                                                 trace = args.trace,
+	                                                 shutit_module_path = args.shutit_module_path,
+		                                             exam=args.exam))
 	elif args.action == 'list_configs':
-		assert args.history is None or args.history is not None
+		process_args(shutit, shutit_class.ShutItInit(args.action,
+		                                             logfile=args.logfile,
+		                                             log=args.log,
+		                                             history=args.history))
 	elif args.action == 'list_modules':
-		assert args.long is None or args.long is not None
-		assert args.sort is None or args.sort is not None
-	elif args.action == 'docker':
-		assert args.delivery is None or args.delivery is not None
-		assert args.interactive is None or args.interactive is not None
-		assert args.trace is None or args.trace is not None
-		assert args.shutit_module_path is None or args.shutit_module_path is not None
+		process_args(shutit, shutit_class.ShutItInit(args.action,
+		                                             logfile=args.logfile,
+		                                             log=args.log,
+		                                             sort=args.sort,
+		                                             long=args.long))
+
 
 
 
 def process_args(shutit, args):
 	"""Process the args we have.
 	"""
-	check_args(args)
+	assert isinstance(args,shutit_class.ShutItInit)
 
 	if args.action == 'version':
 		print('ShutIt version: ' + shutit.shutit_version)
