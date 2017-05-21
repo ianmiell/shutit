@@ -3471,7 +3471,7 @@ class ShutIt(object):
 		for config_file in configs:
 			if isinstance(config_file, tuple):
 				continue
-			if not is_file_secure(config_file):
+			if not shutit_util.is_file_secure(config_file):
 				fail_str = fail_str + '\nchmod 0600 ' + config_file
 				files.append(config_file)
 		if fail_str != '':
@@ -3485,7 +3485,7 @@ class ShutIt(object):
 						self.log('Correcting insecure file permissions on: ' + f)
 						os.chmod(f,0o600)
 					# recurse
-					return self.get_configs(self, configs)
+					return self.get_configs(configs)
 			else:
 				for f in files:
 					self.log('Correcting insecure file permissions on: ' + f)
