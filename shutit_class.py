@@ -106,6 +106,7 @@ class ShutItInit(object):
 			self.vagrant_num_machines   = vagrant_num_machines
 			self.vagrant_machine_prefix = vagrant_machine_prefix
 			self.vagrant_docker         = vagrant_docker
+			self.delivery               = delivery
 			assert self.accept in (True,False,None)
 			assert not (self.shutitfiles and self.script),'Cannot have any two of script, -d/--shutitfiles <files> as arguments'
 			assert isinstance(self.base_image,str)
@@ -118,7 +119,6 @@ class ShutItInit(object):
 			assert isinstance(self.vagrant_ssh_access,bool)
 		elif self.action == 'run':
 			self.shutitfiles = shutitfiles
-			self.delivery = delivery
 			#assert isinstance(self.shutitfiles,list)
 		elif self.action == 'build':
 			self.push = push
