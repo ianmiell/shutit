@@ -36,7 +36,6 @@ import urllib
 import shutit_global
 import shutit_skeleton
 import shutit_util
-import shutit_class
 from shutit_module import ShutItModule
 
 
@@ -191,7 +190,7 @@ def check_dependee_build(shutit, depender, dependee, dependee_id):
 		return 'depender module id:\n\n[' + depender.module_id + ']\n\nis configured: "build:yes" or is already built but dependee module_id:\n\n[' + dependee_id + ']\n\n is not configured: "build:yes"'
 
 
-def check_dependee_order(shutit, depender, dependee, dependee_id):
+def check_dependee_order(depender, dependee, dependee_id):
 	"""Checks whether run orders are in the appropriate order.
 	"""
 	# If it depends on a module id, then the module id should be higher up
@@ -244,7 +243,7 @@ def check_deps(shutit):
 
 	triples = err_checker([ check_dependee_exists(shutit, depender, dependee, dependee_id) for depender, dependee, dependee_id in triples ], triples)
 	triples = err_checker([ check_dependee_build(shutit, depender, dependee, dependee_id) for depender, dependee, dependee_id in triples ], triples)
-	triples = err_checker([ check_dependee_order(shutit, depender, dependee, dependee_id) for depender, dependee, dependee_id in triples ], triples)
+	triples = err_checker([ check_dependee_order(depender, dependee, dependee_id) for depender, dependee, dependee_id in triples ], triples)
 
 	if found_errs:
 		return [(err,) for err in found_errs]

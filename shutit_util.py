@@ -26,19 +26,9 @@
 # SOFTWARE.
 
 from __future__ import print_function
-try:
-	from StringIO import StringIO
-except ImportError: # pragma: no cover
-	from io import StringIO
 import argparse
-import base64
 import binascii
-import glob
-import hashlib
-import imp
-import json
 import logging
-import operator
 import os
 import random
 import re
@@ -47,10 +37,6 @@ import string
 import sys
 import threading
 import time
-import subprocess
-import textwrap
-from distutils.dir_util import mkpath
-import texttable
 try:
 	import ConfigParser
 except ImportError: # pragma: no cover
@@ -58,10 +44,8 @@ except ImportError: # pragma: no cover
 import pexpect
 import shutit
 import shutit_assets
-import shutit_skeleton
-import shutit_exam
-import shutit_global
 import shutit_class
+import shutit_global
 from shutit_module import ShutItFailException
 
 PY3 = (sys.version_info[0] >= 3)
@@ -223,7 +207,7 @@ def random_word(size=6):
 
 
 # Returns the config dict
-def parse_args(shutit, set_loglevel=None):
+def parse_args(shutit):
 	r"""Responsible for parsing arguments.
 
 	Environment variables:
@@ -524,7 +508,7 @@ def check_regexp(regex):
 	return result
 
 
-def handle_exit(exit_code=0,loglevel=logging.DEBUG,msg=None):
+def handle_exit(exit_code=0,msg=None):
 	if not msg:
 		msg = '\nExiting with error code: ' + str(exit_code)
 	if exit_code != 0:

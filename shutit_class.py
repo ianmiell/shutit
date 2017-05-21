@@ -6,26 +6,27 @@ try:
 	from StringIO import StringIO
 except ImportError: # pragma: no cover
 	from io import StringIO
-import sys
-import os
-import time
-import re
-import getpass
-import codecs
-import logging
-import tarfile
-import readline
 import base64
-import json
-import imp
+import codecs
+import getpass
 import glob
-import operator
-import texttable
 import hashlib
-import textwrap
+import imp
+import json
+import logging
+import operator
+import os
+import tarfile
+import re
+import readline
 import string
-import pexpect
+import sys
 import subprocess
+import textwrap
+import time
+from distutils.dir_util import mkpath
+import texttable
+import pexpect
 import shutit
 import shutit_util
 import shutit_global
@@ -35,11 +36,9 @@ try:
 	import ConfigParser
 except ImportError: # pragma: no cover
 	import configparser as ConfigParser
-from distutils.dir_util import mkpath
 from shutit_sendspec import ShutItSendSpec
-from shutit_module import ShutItFailException
+from shutit_module import ShutItFailException, ShutItModule
 from shutit_pexpect import ShutItPexpectSession
-from shutit_module import ShutItModule
 
 PY3 = (sys.version_info[0] >= 3)
 
@@ -2629,16 +2628,16 @@ class ShutIt(object):
 			override_fd.seek(0)
 			configs.append(('overrides', override_fd))
 
-		self.cfg_parser = shutit_util.get_configs(self, configs)
-		self.get_base_config(self.cfg_parser)
+		self.config_parser = shutit_util.get_configs(self, configs)
+		self.get_base_config()
 
 
 	# Manage config settings, returning a dict representing the settings
 	# that have been sanity-checked.
-	def get_base_config(self, cfg_parser):
+	def get_base_config(self):
 		"""Responsible for getting core configuration from config files.
 		"""
-		self.config_parser = cp = cfg_parser
+		cp = self.config_parser
 		# BEGIN Read from config files
 		# build - details relating to the build
 		self.build['privileged']                 = cp.getboolean('build', 'privileged')
@@ -3391,5 +3390,3 @@ class ShutIt(object):
 						self.log('<- exit function: ' + frame.f_code.co_name,level=logging.DEBUG)
 					return tracefunc
 				sys.settrace(tracefunc)
-
-

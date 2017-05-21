@@ -226,7 +226,6 @@ class ShutItGlobal(object):
 				logging.basicConfig(format=logformat,filename=self.logfile,level=logging.INFO)
 			else:
 				logging.basicConfig(format=logformat,filename=self.logfile,level=logging.INFO)
-	
 		self.loglevel = logging.getLogger().getEffectiveLevel()
 
 
