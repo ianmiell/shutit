@@ -380,9 +380,12 @@ def convert_args(args):
 		assert args.echo is None or args.echo is not None
 		assert args.image_tag is None or args.image_tag is not None
 		assert args.video is None or args.video is not None
+	elif args.action == 'list_configs':
 		assert args.history is None or args.history is not None
+	elif args.action == 'list_modules':
 		assert args.long is None or args.long is not None
 		assert args.sort is None or args.sort is not None
+	elif args.action == 'docker':
 		assert args.delivery is None or args.delivery is not None
 		assert args.interactive is None or args.interactive is not None
 		assert args.trace is None or args.trace is not None
