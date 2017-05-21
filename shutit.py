@@ -528,11 +528,11 @@ def setup_shutit_obj(shutit):
 
 	init_shutit_map(shutit)
 
-	shutit_class.config_collection(shutit)
+	shutit.config_collection()
 	shutit.log('Configuration loaded',level=logging.INFO)
 
 	if shutit.action['list_modules']:
-		shutit_util.list_modules(shutit)
+		shutit.list_modules()
 		shutit.handle_exit()
 	if not shutit.action['list_deps'] and not shutit.action['list_modules']:
 		conn_target(shutit)
@@ -603,7 +603,7 @@ def do_lists(shutit):
 		# Exit now
 		shutit.handle_exit()
 	# Dependency validation done, now collect configs of those marked for build.
-	shutit_class.config_collection_for_built(shutit)
+	shutit.config_collection_for_built()
 
 
 	if shutit.action['list_configs'] or shutit_global.shutit_global_object.loglevel <= logging.DEBUG:
@@ -653,7 +653,7 @@ def do_interactive_modules(shutit):
 	cfg = shutit.cfg
 	errs = []
 	while True:
-		shutit_util.list_modules(shutit, long_output=False,sort_order='run_order')
+		shutit.list_modules(long_output=False,sort_order='run_order')
 		# Which module do you want to toggle?
 		module_id = shutit.util_raw_input(prompt='Which module id do you want to toggle?\n(just hit return to continue with build)\n(you can enter a substring if it is uniquely matching)\n')
 		if module_id:
@@ -672,7 +672,7 @@ def do_interactive_modules(shutit):
 				else:
 					module_id = matched_to[0]
 			cfg[module_id]['shutit.core.module.build'] = not cfg[module_id]['shutit.core.module.build']
-			if not shutit_class.config_collection_for_built(shutit, throw_error=False):
+			if not shutit.config_collection_for_built(throw_error=False):
 				cfg[module_id]['shutit.core.module.build'] = not cfg[module_id]['shutit.core.module.build']
 				shutit.util_raw_input(prompt='Hit return to continue.\n')
 				continue
@@ -681,7 +681,7 @@ def do_interactive_modules(shutit):
 				# TODO: does this catch all the ones switched on? Once done, get configs for all those.
 				newcfg_list = []
 				while True:
-					print(shutit_util.print_config(shutit,cfg,module_id=module_id))
+					print(shutit.print_config(cfg,module_id=module_id))
 					name = shutit.util_raw_input(prompt='Above is the config for that module. Hit return to continue, or a config item you want to update.\n')
 					if name:
 						doing_list = False
