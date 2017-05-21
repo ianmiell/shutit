@@ -163,9 +163,10 @@ class ShutItInit(object):
 		assert isinstance(action,str)
 		assert isinstance(logfile,str)
 		assert isinstance(log,str)
-		self.action = action
+
+		self.action  = action
 		self.logfile = logfile
-		self.log = log
+		self.log     = log
 
 		if self.action == 'version':
 			return
@@ -194,18 +195,19 @@ class ShutItInit(object):
 			assert isinstance(self.pattern,str)
 			assert isinstance(self.output_dir,bool)
 			assert isinstance(self.vagrant_ssh_access,bool)
+			# TODO: other asserts in other things.
 		elif self.action == 'run':
 			self.shutitfiles = shutitfiles
 			self.delivery               = delivery
 			#assert isinstance(self.shutitfiles,list)
 		elif self.action == 'build':
-			self.push = push
-			self.export = export
-			self.save = save
-			self.distro = distro
+			self.push               = push
+			self.export             = export
+			self.save         = save
+			self.distro       = distro
 			self.mount_docker = mount_docker
-			self.walkthrough = walkthrough
-			self.training = training
+			self.walkthrough  = walkthrough
+			self.training      = training
 			self.choose_config = choose_config
 			self.config = config
 			self.set = set
@@ -3622,66 +3624,66 @@ class ShutIt(object):
 		args = parser.parse_args(args_list)
 		if args.action == 'version':
 			self.process_args(ShutItInit(args.action,
-			                                            logfile=args.logfile,
-			                                            log=args.log))
+			                             logfile=args.logfile,
+			                             log=args.log))
 		elif args.action == 'skeleton':
 			self.process_args(ShutItInit(args.action,
-			                                            logfile=args.logfile,
-			                                            log=args.log,
-			                                            accept=args.accept,
-			                                            shutitfiles=args.shutitfiles,
-			                                            script=args.script,
-			                                            base_image=args.base_image,
-			                                            depends=args.depends,
-			                                            name=args.name,
-			                                            domain=args.domain,
-			                                            pattern=args.pattern,
-			                                            output_dir=args.output_dir,
-			                                            vagrant_ssh_access=args.vagrant_ssh_access,
-			                                            vagrant_num_machines=args.vagrant_num_machines,
-			                                            vagrant_machine_prefix=args.vagrant_machine_prefix,
-			                                            vagrant_docker=args.vagrant_docker))
+			                             logfile=args.logfile,
+			                             log=args.log,
+			                             Delivery=args.delivery,
+			                             shutitfiles=args.shutitfiles,
+			                             script=args.script,
+			                             base_image=args.base_image,
+			                             depends=args.depends,
+			                             name=args.name,
+			                             domain=args.domain,
+			                             pattern=args.pattern,
+			                             output_dir=args.output_dir,
+			                             vagrant_ssh_access=args.vagrant_ssh_access,
+			                             vagrant_num_machines=args.vagrant_num_machines,
+			                             vagrant_machine_prefix=args.vagrant_machine_prefix,
+			                             vagrant_docker=args.vagrant_docker))
 		elif args.action == 'run':
 			self.process_args(ShutItInit(args.action,
-			                                            logfile=args.logfile,
-			                                            log=args.log,
-			                                            shutitfiles=args.shutitfiles,
-			                                            delivery = args.delivery))
+			                             logfile=args.logfile,
+			                             log=args.log,
+			                             shutitfiles=args.shutitfiles,
+			                             delivery = args.delivery))
 		elif args.action == 'build':
 			self.process_args(ShutItInit(args.action,
-			                                            logfile=args.logfile,
-			                                            log=args.log,
-			                                            push=args.push,
-			                                            export=args.export,
-			                                            save=args.save,
-			                                            distro=args.distro,
-			                                            mount_docker=args.mount_docker,
-			                                            walkthrough=args.walkthrough,
-			                                            training=args.training,
-			                                            choose_config=args.choose_config,
-		                                                config = args.config,
-		                                                set = args.set,
-		                                                ignorestop = args.ignorestop,
-		                                                ignoreimage = args.ignoreimage,
-		                                                imageerrorok = args.imageerrorok,
-		                                                tag_modules = args.tag_modules,
-		                                                image_tag = args.image_tag,
-		                                                video = args.video,
-		                                                deps_only = args.deps_only,
-		                                                echo = args.echo,
-		                                                delivery = args.delivery,
-		                                                interactive = args.interactive,
-		                                                trace = args.trace,
-		                                                shutit_module_path = args.shutit_module_path,
-			                                            exam=args.exam))
+			                             logfile=args.logfile,
+			                             log=args.log,
+			                             push=args.push,
+			                             export=args.export,
+			                             save=args.save,
+			                             distro=args.distro,
+			                             mount_docker=args.mount_docker,
+			                             walkthrough=args.walkthrough,
+			                             training=args.training,
+			                             choose_config=args.choose_config,
+		                                 config = args.config,
+		                                 set = args.set,
+		                                 ignorestop = args.ignorestop,
+		                                 ignoreimage = args.ignoreimage,
+		                                 imageerrorok = args.imageerrorok,
+		                                 tag_modules = args.tag_modules,
+		                                 image_tag = args.image_tag,
+		                                 video = args.video,
+		                                 deps_only = args.deps_only,
+		                                 echo = args.echo,
+		                                 delivery = args.delivery,
+		                                 interactive = args.interactive,
+		                                 trace = args.trace,
+		                                 shutit_module_path = args.shutit_module_path,
+			                             exam=args.exam))
 		elif args.action == 'list_configs':
 			self.process_args(ShutItInit(args.action,
-			                                            logfile=args.logfile,
-			                                            log=args.log,
-			                                            history=args.history))
+			                             logfile=args.logfile,
+			                             log=args.log,
+			                             history=args.history))
 		elif args.action == 'list_modules':
 			self.process_args(ShutItInit(args.action,
-			                                            logfile=args.logfile,
-			                                            log=args.log,
-			                                            sort=args.sort,
-			                                            long=args.long))
+			                             logfile=args.logfile,
+			                             log=args.log,
+			                             sort=args.sort,
+			                             long=args.long))
