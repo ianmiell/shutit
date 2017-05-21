@@ -56,7 +56,7 @@ def create_skeleton(shutit):
 	if len(skel_module_name) == 0:
 		shutit.fail('Must supply a name for your module, eg mymodulename') # pragma: no cover
 	if not re.match('^[a-zA-z_][0-9a-zA-Z_]+$', skel_module_name):
-		shutit.fail('Module names must comply with python classname standards: cf: http://stackoverflow.com/questions/10120295/valid-characters-in-a-python-class-name') # pragma: no cover
+		shutit.fail('Module names must comply with python classname standards: cf: http://stackoverflow.com/questions/10120295/valid-characters-in-a-python-class-name name: ' + skel_module_name) # pragma: no cover
 	if len(skel_domain) == 0:
 		shutit.fail('Must supply a domain for your module, eg com.yourname.madeupdomainsuffix') # pragma: no cover
 

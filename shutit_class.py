@@ -3284,7 +3284,7 @@ class ShutIt(object):
 					while delivery not in shutit_util.allowed_delivery_methods:
 						delivery = self.util_raw_input(prompt=textwrap.dedent('''
 							# Input a delivery method from: bash, docker, vagrant.
-							# Default: ' + default_delivery + '
+							# Default: ''' + default_delivery + '''
 
 							docker:      build within a docker image
 							bash:        run commands directly within bash
