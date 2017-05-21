@@ -35,7 +35,7 @@ import fcntl
 import termios
 import struct
 from distutils.dir_util import mkpath
-from shutit_class import ShutIt
+from shutit_class import ShutIt, ShutItInit
 import shutit_setup
 import shutit_util
 
@@ -81,7 +81,7 @@ class ShutItGlobal(object):
 		self.shutit_state_dir_build_db_dir = self.shutit_state_dir + '/build_db'
 		self.shutit_state_pickle_file  = self.shutit_state_dir + '/shutit_pickle'
 		def terminal_size():
-			h, w, hp, wp = struct.unpack('HHHH', fcntl.ioctl(0, termios.TIOCGWINSZ, struct.pack('HHHH', 0, 0, 0, 0)))
+			h, w, _, _ = struct.unpack('HHHH', fcntl.ioctl(0, termios.TIOCGWINSZ, struct.pack('HHHH', 0, 0, 0, 0)))
 			return int(h), int(w)
 		try:
 			self.root_window_size = terminal_size()
@@ -103,28 +103,31 @@ class ShutItGlobal(object):
 
 
 
-	def create_session(self, session_type='bash', docker_image=None, rm=None):
+	def create_session(self,
+	                   session_type='bash',
+	                   docker_image=None,
+	                   rm=None):
 		assert isinstance(session_type, str)
 		new_shutit = ShutIt()
 		self.add_shutit_session(new_shutit)
-		# TODO: only makes sense in session that's already bash - check this
 		if session_type == 'bash':
-			new_shutit.parse_args()
+			new_shutit.process_args(ShutItInit('build',
+			                                   delivery='bash'))
+			# TODO: can we get rid of/rationalise load_configs?
 			new_shutit.load_configs()
-			shutit_setup.setup_host_child_environment(new_shutit)
+			new_shutit.setup_host_child_environment()
 			return new_shutit
 		elif session_type == 'docker':
-			new_shutit.parse_args()
-			# Set the configuration up appropriately using overrides.
-			if docker_image:
-				new_shutit.build['config_overrides'].append(['build','base_image',docker_image])
-			if rm:
-				new_shutit.target['rm'] = True
+			new_shutit.process_args(ShutItInit('build',
+			                                   delivery='docker',
+			                                   base_image=docker_image))
+			new_shutit.target['rm'] = rm
 			# Now 'load' the configs
+			# TODO: can we get rid of/rationalise load_configs?
 			new_shutit.load_configs()
 			target_child = shutit_setup.conn_docker_start_container(new_shutit,'target_child')
-			shutit_setup.setup_host_child_environment(new_shutit)
-			shutit_setup.setup_target_child_environment(new_shutit, target_child)
+			new_shutit.setup_host_child_environment()
+			new_shutit.setup_target_child_environment(target_child)
 			return new_shutit
 		else:
 			new_shutit.fail('unhandled session type: ' + session_type)

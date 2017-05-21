@@ -25,7 +25,6 @@
 
 import decimal
 import inspect
-import logging
 from abc import ABCMeta, abstractmethod
 from six import with_metaclass, iteritems
 
@@ -225,7 +224,7 @@ class ShutItModule(with_metaclass(ShutItMeta)):
 		return shutit.is_shutit_installed(self.module_id)
 
 	@abstractmethod
-	def build(self, shutit, loglevel=logging.DEBUG):
+	def build(self, shutit):
 		"""Runs the build part of the module, which should ensure the module has been set up.  If is_installed determines that the module is already there, this is not run.
 
 		Returns True if it has succeeded in building, else False.

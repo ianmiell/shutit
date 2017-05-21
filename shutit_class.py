@@ -2665,7 +2665,7 @@ class ShutIt(object):
 		Recurses down from configured shutit module paths.
 		"""
 		# Get root default config.
-		configs = [('defaults', StringIO(shutit_util._default_cnf)), os.path.expanduser('~/.shutit/config'), os.path.join(self.host['shutit_path'], 'config'), 'configs/build.cnf']
+		configs = [('defaults', StringIO(shutit_util.default_cnf)), os.path.expanduser('~/.shutit/config'), os.path.join(self.host['shutit_path'], 'config'), 'configs/build.cnf']
 		# Add the shutit global host- and user-specific config file.
 		# Add the local build.cnf
 		# Get passed-in config(s)
@@ -3341,9 +3341,9 @@ class ShutIt(object):
 			if not os.path.isfile(os.path.join(shutit_home, 'config')):
 				f = os.open(os.path.join(shutit_home, 'config'), os.O_WRONLY | os.O_CREAT, 0o600)
 				if PY3:
-					os.write(f,bytes(shutit_util._default_cnf,'utf-8'))
+					os.write(f,bytes(shutit_util.default_cnf,'utf-8'))
 				else:
-					os.write(f,shutit_util._default_cnf)
+					os.write(f,shutit_util.default_cnf)
 				os.close(f)
 
 			# Default this to False as it's not always set (mostly for debug logging).
@@ -3685,3 +3685,35 @@ class ShutIt(object):
 			                             log=args.log,
 			                             sort=args.sort,
 			                             long=args.long))
+
+
+
+	def conn_docker_destroy_container(self, host_shutit_session_name, container_shutit_session_name, container_id, loglevel=logging.DEBUG):
+		# Close connection.
+		self.get_shutit_pexpect_session_from_id(container_shutit_session_name).pexpect_child.close()
+		host_child = self.get_shutit_pexpect_session_from_id(host_shutit_session_name).pexpect_child
+		self.send(' command docker rm -f ' + container_id + ' && rm -f ' + self.build['cidfile'],shutit_pexpect_child=host_child,expect=self.expect_prompts['ORIGIN_ENV'],loglevel=loglevel)
+
+
+	def setup_target_child_environment(self, target_child, target_child_id='target_child',prefix='root'):
+		# Some pexpect settings
+		shutit_pexpect_session = self.get_shutit_pexpect_session_from_id(target_child_id)
+		shutit_pexpect_session.pexpect_child = target_child
+		self.set_default_shutit_pexpect_session_expect(self.expect_prompts['base_prompt'])
+		# target child
+		self.set_default_shutit_pexpect_session(shutit_pexpect_session)
+		shutit_pexpect_session.setup_prompt(prefix,prefix=prefix)
+		shutit_pexpect_session.login_stack.append(prefix)
+
+
+	def setup_host_child_environment(self):
+		# Now let's have a host_child
+		self.log('Spawning host child',level=logging.DEBUG)
+		shutit_pexpect_session = ShutItPexpectSession(self, 'host_child', '/bin/bash')
+		# Set up prompts and let the user do things before the build
+		self.set_default_shutit_pexpect_session(shutit_pexpect_session)
+		self.set_default_shutit_pexpect_session_expect(self.expect_prompts['base_prompt'])
+		# ORIGIN_ENV is a special case of the prompt maintained for performance reasons, don't change.
+		prefix = 'ORIGIN_ENV'
+		shutit_pexpect_session.setup_prompt('ORIGIN_ENV', prefix=prefix)
+		shutit_pexpect_session.login_stack.append(prefix)

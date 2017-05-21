@@ -49,10 +49,13 @@ class ShutItConnModule(ShutItModule):
 		super(ShutItConnModule, self).__init__(*args, **kwargs)
 
 	def setup_host_child(self, shutit):
-		setup_host_child_environment(shutit)
+		shutit.setup_host_child_environment()
 
 	def setup_target_child(self, shutit, target_child, target_child_id='target_child',prefix='root'):
-		setup_target_child_environment(shutit, target_child, target_child_id=target_child_id,prefix=prefix)
+		shutit.setup_target_child_environment(target_child, target_child_id=target_child_id,prefix=prefix)
+
+	def build(self, shutit):
+		return True
 
 
 
@@ -65,23 +68,23 @@ class ConnDocker(ShutItConnModule):
 		"""
 		return False
 
-	def destroy_container(self, shutit, host_shutit_session_name, container_shutit_session_name, container_id, loglevel=logging.DEBUG):
+	def destroy_container(self, shutit, host_shutit_session_name, container_shutit_session_name, container_id):
 		host_child = shutit.get_shutit_pexpect_session_from_id(host_shutit_session_name).pexpect_child
-		conn_docker_destroy_container(shutit, host_shutit_session_name, container_shutit_session_name, container_id, loglevel=loglevel)
-		shutit.send(' command docker rm -f ' + container_id + ' && rm -f ' + shutit.build['cidfile'],shutit_pexpect_child=host_child,expect=shutit.expect_prompts['ORIGIN_ENV'],loglevel=loglevel)
+		shutit.conn_docker_destroy_container(shutit, host_shutit_session_name, container_shutit_session_name, container_id)
+		shutit.send(' command docker rm -f ' + container_id + ' && rm -f ' + shutit.build['cidfile'],shutit_pexpect_child=host_child,expect=shutit.expect_prompts['ORIGIN_ENV'])
 
-	def start_container(self, shutit, shutit_session_name, loglevel=logging.DEBUG):
-		return conn_docker_start_container(shutit, shutit_session_name, loglevel=loglevel)
+	def start_container(self, shutit, shutit_session_name):
+		return conn_docker_start_container(shutit, shutit_session_name)
 
 
-	def build(self, shutit, loglevel=logging.DEBUG):
+	def build(self, shutit):
 		"""Sets up the target ready for building.
 		"""
-		target_child = self.start_container(shutit, 'target_child', loglevel=logging.DEBUG)
+		target_child = self.start_container(shutit, 'target_child')
 		self.setup_host_child(shutit)
 		# TODO: on the host child, check that the image running has bash as its cmd/entrypoint.
 		self.setup_target_child(shutit, target_child)
-		shutit.send('chmod -R 777 ' + shutit_global.shutit_global_object.shutit_state_dir + ' && mkdir -p ' + shutit_global.shutit_global_object.shutit_state_dir_build_db_dir + '/' + shutit_global.shutit_global_object.build_id, shutit_pexpect_child=target_child, echo=False, loglevel=loglevel)
+		shutit.send('chmod -R 777 ' + shutit_global.shutit_global_object.shutit_state_dir + ' && mkdir -p ' + shutit_global.shutit_global_object.shutit_state_dir_build_db_dir + '/' + shutit_global.shutit_global_object.build_id, shutit_pexpect_child=target_child, echo=False)
 		return True
 
 
@@ -120,7 +123,7 @@ class ConnBash(ShutItConnModule):
 	def get_config(self, shutit):
 		return True
 
-	def build(self, shutit, loglevel=logging.DEBUG):
+	def build(self, shutit):
 		"""Sets up the machine ready for building.
 		"""
 		shutit_pexpect_session = ShutItPexpectSession(shutit, 'target_child','/bin/bash')
@@ -159,7 +162,7 @@ class ConnSSH(ShutItConnModule):
 		shutit.get_config(self.module_id, 'ssh_cmd', '')
 		return True
 
-	def build(self, shutit, loglevel=logging.DEBUG):
+	def build(self, shutit):
 		"""Sets up the machine ready for building.
 		"""
 		cfg = shutit.cfg
@@ -199,7 +202,7 @@ class ConnSSH(ShutItConnModule):
 			shutit.log(target_child.before + target_child.after,level=logging.DEBUG)
 			if res == 0:
 				shutit.log('...',level=logging.DEBUG)
-				res = shutit.send(ssh_pass, shutit_pexpect_child=target_child, expect=expect, timeout=10, check_exit=False, fail_on_empty_before=False, echo=False, loglevel=loglevel)
+				res = shutit.send(ssh_pass, shutit_pexpect_child=target_child, expect=expect, timeout=10, check_exit=False, fail_on_empty_before=False, echo=False)
 			elif res == 1:
 				shutit.log('Prompt found, breaking out',level=logging.DEBUG)
 				break
@@ -239,7 +242,7 @@ class setup(ShutItModule):
 		"""
 		return False
 
-	def build(self, shutit, loglevel=logging.DEBUG):
+	def build(self, shutit):
 		"""Initializes target ready for build and updating package management if in container.
 		"""
 		if shutit.build['delivery'] in ('docker','dockerfile'):
@@ -251,7 +254,7 @@ class setup(ShutItModule):
 			elif shutit.get_current_shutit_pexpect_session_environment().install_type == 'yum':
 				# yum updates are so often "bad" that we let exit codes of 1 through.
 				# TODO: make this more sophisticated
-				shutit.send('yum update -y', timeout=9999, exit_values=['0', '1'], loglevel=loglevel)
+				shutit.send('yum update -y', timeout=9999, exit_values=['0', '1'])
 			shutit.pause_point('Anything you want to do to the target host ' + 'before the build starts?', level=2)
 		return True
 
@@ -272,7 +275,7 @@ def module():
 	return setup('shutit.tk.setup', 0.0, description='Core ShutIt setup')
 
 
-def conn_docker_start_container(shutit, shutit_session_name, loglevel=logging.DEBUG):
+def conn_docker_start_container(shutit, shutit_session_name):
 	docker = shutit.host['docker_executable'].split(' ')
 	# Always-required options
 	if not os.path.exists(shutit_global.shutit_global_object.shutit_state_dir + '/cidfiles'):
@@ -353,7 +356,7 @@ def conn_docker_start_container(shutit, shutit_session_name, loglevel=logging.DE
 		except Exception:
 			pass
 		if res == 0:
-			res = shutit.send(shutit.host['password'], shutit_pexpect_child=target_child, expect=expect, timeout=9999, check_exit=False, fail_on_empty_before=False, echo=False, loglevel=loglevel)
+			res = shutit.send(shutit.host['password'], shutit_pexpect_child=target_child, expect=expect, timeout=9999, check_exit=False, fail_on_empty_before=False, echo=False)
 		elif res == 1:
 			shutit.log('Prompt found, breaking out',level=logging.DEBUG)
 			break
@@ -368,7 +371,7 @@ def conn_docker_start_container(shutit, shutit_session_name, loglevel=logging.DE
 		else:
 			res = shutit_pexpect_session.expect(expect, timeout=9999)
 			continue
-	shutit.log('Getting cid',level=loglevel)
+	shutit.log('Getting cid')
 	# Get the cid, to determine whether the container started up ok.
 	# pexpect.spawn does not give us an easy way to determine the success of the run without closing the stream.
 	while True:
@@ -382,34 +385,3 @@ def conn_docker_start_container(shutit, shutit_session_name, loglevel=logging.DE
 	shutit.log('cid: ' + cid,level=logging.DEBUG)
 	shutit.target['container_id'] = cid
 	return target_child
-
-
-def conn_docker_destroy_container(shutit, host_shutit_session_name, container_shutit_session_name, container_id, loglevel=logging.DEBUG):
-	# Close connection.
-	shutit.get_shutit_pexpect_session_from_id(container_shutit_session_name).pexpect_child.close()
-	host_child = shutit.get_shutit_pexpect_session_from_id(host_shutit_session_name).pexpect_child
-	shutit.send(' command docker rm -f ' + container_id + ' && rm -f ' + shutit.build['cidfile'],shutit_pexpect_child=host_child,expect=shutit.expect_prompts['ORIGIN_ENV'],loglevel=loglevel)
-
-
-def setup_host_child_environment(shutit):
-	# Now let's have a host_child
-	shutit.log('Spawning host child',level=logging.DEBUG)
-	shutit_pexpect_session = ShutItPexpectSession(shutit, 'host_child', '/bin/bash')
-	# Set up prompts and let the user do things before the build
-	shutit.set_default_shutit_pexpect_session(shutit_pexpect_session)
-	shutit.set_default_shutit_pexpect_session_expect(shutit.expect_prompts['base_prompt'])
-	# ORIGIN_ENV is a special case of the prompt maintained for performance reasons, don't change.
-	prefix = 'ORIGIN_ENV'
-	shutit_pexpect_session.setup_prompt('ORIGIN_ENV', prefix=prefix)
-	shutit_pexpect_session.login_stack.append(prefix)
-
-
-def setup_target_child_environment(shutit, target_child, target_child_id='target_child',prefix='root'):
-	# Some pexpect settings
-	shutit_pexpect_session = shutit.get_shutit_pexpect_session_from_id(target_child_id)
-	shutit_pexpect_session.pexpect_child = target_child
-	shutit.set_default_shutit_pexpect_session_expect(shutit.expect_prompts['base_prompt'])
-	# target child
-	shutit.set_default_shutit_pexpect_session(shutit_pexpect_session)
-	shutit_pexpect_session.setup_prompt(prefix,prefix=prefix)
-	shutit_pexpect_session.login_stack.append(prefix)

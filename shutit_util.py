@@ -242,7 +242,7 @@ def check_delivery_method(method):
 
 # Static strings
 _default_repo_name = 'my_module'
-_default_cnf = '''
+default_cnf = '''
 ################################################################################
 # Default core config file for ShutIt.
 ################################################################################

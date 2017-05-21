@@ -1,5 +1,3 @@
-import base64
-
 def get_words():
 	return """abacus
 abased
