@@ -3139,15 +3139,15 @@ class ShutIt(object):
 			self.handle_exit(exit_code=0)
 
 		# What are we asking shutit to do?
-		self.action['list_configs'] = args.action == 'list_configs'   # TODO: abstract away to shutitconfig object
-		self.action['list_modules'] = args.action == 'list_modules'   # TODO: abstract away to shutitconfig object
-		self.action['list_deps']    = args.action == 'list_deps'   # TODO: abstract away to shutitconfig object
-		self.action['skeleton']     = args.action == 'skeleton'   # TODO: abstract away to shutitconfig object
-		self.action['build']        = args.action == 'build'   # TODO: abstract away to shutitconfig object
-		self.action['run']          = args.action == 'run'   # TODO: abstract away to shutitconfig object
-		self.build['exam']     = False # TODO: place in global
+		self.action['list_configs'] = args.action == 'list_configs'
+		self.action['list_modules'] = args.action == 'list_modules'
+		self.action['list_deps']    = args.action == 'list_deps'
+		self.action['skeleton']     = args.action == 'skeleton'
+		self.action['build']        = args.action == 'build'
+		self.action['run']          = args.action == 'run'
+		self.build['exam']          = False
 		# Logging
-		shutit_global.shutit_global_object.logfile   = args.logfile # TODO: place in global
+		shutit_global.shutit_global_object.logfile   = args.logfile
 
 		shutit_global.shutit_global_object.loglevel = args.log # TODO: place in global
 		if shutit_global.shutit_global_object.loglevel in ('', None): # TODO: place in global
@@ -3155,17 +3155,16 @@ class ShutIt(object):
 		shutit_global.shutit_global_object.setup_logging() # TODO: place in global
 
 		# This mode is a bit special - it's the only one with different arguments
-		# TODO: abstract away to separate function in global
 		if self.action['skeleton']:
-			delivery_method = args.delivery # TODO: abstract away to shutitconfig object
-			accept_defaults = args.accept # TODO: abstract away to shutitconfig object
+			delivery_method = args.delivery
+			accept_defaults = args.accept
 			# Looks through the arguments given for valid shutitfiles, and adds their names to _new_shutitfiles.
 			_new_shutitfiles = None
-			if args.shutitfiles: # TODO: abstract away to shutitconfig object
+			if args.shutitfiles:
 				cwd = os.getcwd()
 				_new_shutitfiles       = []
 				_delivery_methods_seen = set()
-				for shutitfile in args.shutitfiles: # TODO: abstract away to shutitconfig object
+				for shutitfile in args.shutitfiles:
 					if shutitfile[0] != '/':
 						shutitfile = cwd + '/' + shutitfile
 					if os.path.isfile(shutitfile):
@@ -3226,7 +3225,7 @@ class ShutIt(object):
 				else:
 					print('ShutItFiles: ' + str(_new_shutitfiles) + ' appear to not exist.')
 					self.handle_exit(exit_code=1)
-			module_directory = args.name # TODO: abstract away to shutitconfig object
+			module_directory = args.name
 			if module_directory == '':
 				default_dir = self.host['calling_path'] + '/shutit_' + shutit_util.random_word()
 				if accept_defaults:
@@ -3236,18 +3235,18 @@ class ShutIt(object):
 			if module_directory[0] != '/':
 				module_directory = self.host['calling_path'] + '/' + module_directory
 			module_name = module_directory.split('/')[-1].replace('-','_')
-			if args.domain == '': # TODO: abstract away to shutitconfig object
+			if args.domain == '':
 				default_domain_name = os.getcwd().split('/')[-1] + '.' + module_name
 				#if accept_defaults:
 				domain = default_domain_name
 				#else:
 				#	domain = self.util_raw_input(prompt='# Input a unique domain, eg (com.yourcorp).\n# Default: ' + default_domain_name + '\n', default=default_domain_name)
 			else:
-				domain = args.domain # TODO: abstract away to shutitconfig object
+				domain = args.domain
 			# Figure out defaults.
 			# If no pattern supplied, then assume it's the same as delivery.
 			default_pattern = 'bash'
-			if args.pattern == '': # TODO: abstract away to shutitconfig object
+			if args.pattern == '':
 				if accept_defaults or _new_shutitfiles:
 					if _new_shutitfiles:
 						default_pattern = delivery_method
@@ -3264,7 +3263,7 @@ class ShutIt(object):
 
 	''',default=default_pattern)
 			else:
-				pattern = args.pattern # TODO: abstract away to shutitconfig object
+				pattern = args.pattern
 
 			# Sort out delivery method.
 			if delivery_method is None:
@@ -3299,19 +3298,19 @@ class ShutIt(object):
 			self.cfg['skeleton'] = {
 				'path':                   module_directory,
 				'module_name':            module_name,
-				'base_image':             args.base_image, # TODO: abstract away to shutitconfig object
+				'base_image':             args.base_image,
 				'domain':                 domain,
 				'domain_hash':            str(shutit_util.get_hash(domain)),
-				'depends':                args.depends, # TODO: abstract away to shutitconfig object
-				'script':                 args.script, # TODO: abstract away to shutitconfig object
+				'depends':                args.depends,
+				'script':                 args.script,
 				'shutitfiles':            _new_shutitfiles,
-				'output_dir':             args.output_dir, # TODO: abstract away to shutitconfig object
+				'output_dir':             args.output_dir,
 				'delivery':               delivery,
 				'pattern':                pattern,
-				'vagrant_num_machines':   args.vagrant_num_machines, # TODO: abstract away to shutitconfig object
-				'vagrant_ssh_access':     args.vagrant_ssh_access, # TODO: abstract away to shutitconfig object
-				'vagrant_machine_prefix': args.vagrant_machine_prefix, # TODO: abstract away to shutitconfig object
-				'vagrant_docker':         args.vagrant_docker # TODO: abstract away to shutitconfig object
+				'vagrant_num_machines':   args.vagrant_num_machines,
+				'vagrant_ssh_access':     args.vagrant_ssh_access,
+				'vagrant_machine_prefix': args.vagrant_machine_prefix,
+				'vagrant_docker':         args.vagrant_docker
 			}
 			# set defaults to allow config to work
 			self.build['extra_configs']    = []
@@ -3319,19 +3318,17 @@ class ShutIt(object):
 			self.build['conn_module']      = None
 			self.build['delivery']         = 'bash'
 			self.target['docker_image']    = ''
-		# TODO: abstract away to separate function in global
 		elif self.action['run']:
 			module_name      = shutit_util.random_id(chars=string.ascii_letters)
 			module_dir       = "/tmp/shutit_built/" + module_name
 			module_domain    = module_name + '.' + module_name
-			argv_new = [sys.argv[0],'skeleton','--shutitfile'] + args.shutitfiles + ['--name', module_dir,'--domain',module_domain,'--pattern','bash'] # TODO: abstract away to shutitconfig object
+			argv_new = [sys.argv[0],'skeleton','--shutitfile'] + args.shutitfiles + ['--name', module_dir,'--domain',module_domain,'--pattern','bash']
 			retdir = os.getcwd()
 			subprocess.call(argv_new)
 			os.chdir(module_dir)
 			subprocess.call('./run.sh')
 			os.chdir(retdir)
 			sys.exit(0)
-		# TODO: process
 		else:
 			shutit_home = self.host['shutit_path'] = os.path.expanduser('~/.shutit')
 			# We're not creating a skeleton, so make sure we have the infrastructure
@@ -3356,15 +3353,15 @@ class ShutIt(object):
 			self.build['choose_config']      = False
 			# Persistence- and build-related arguments.
 			if self.action['build']:
-				self.repository['push']       = args.push  # TODO: abstract away to shutitconfig object
-				self.repository['export']     = args.export # TODO: abstract away to shutitconfig object
-				self.repository['save']       = args.save # TODO: abstract away to shutitconfig object
-				self.build['distro_override'] = args.distro # TODO: abstract away to shutitconfig object
-				self.build['mount_docker']    = args.mount_docker# TODO: abstract away to shutitconfig object
-				self.build['walkthrough']     = args.walkthrough# TODO: abstract away to shutitconfig object
-				self.build['training']        = args.training# TODO: abstract away to shutitconfig object
-				self.build['exam']            = args.exam# TODO: abstract away to shutitconfig object
-				self.build['choose_config']   = args.choose_config# TODO: abstract away to shutitconfig object
+				self.repository['push']       = args.push
+				self.repository['export']     = args.export
+				self.repository['save']       = args.save
+				self.build['distro_override'] = args.distro
+				self.build['mount_docker']    = args.mount_docker
+				self.build['walkthrough']     = args.walkthrough
+				self.build['training']        = args.training
+				self.build['exam']            = args.exam
+				self.build['choose_config']   = args.choose_config
 				if self.build['exam'] and not self.build['training']:
 					# We want it to be quiet
 					#print('--exam implies --training, setting --training on!')
@@ -3374,9 +3371,9 @@ class ShutIt(object):
 					if not self.build['exam']:
 						print('--training or --exam implies --walkthrough, setting --walkthrough on!')
 					self.build['walkthrough'] = True
-				if isinstance(args.video, list) and args.video[0] >= 0:# TODO: abstract away to shutitconfig object
+				if isinstance(args.video, list) and args.video[0] >= 0:
 					self.build['walkthrough']      = True
-					self.build['walkthrough_wait'] = float(args.video[0])# TODO: abstract away to shutitconfig object
+					self.build['walkthrough_wait'] = float(args.video[0])
 					self.build['video']            = True
 					if self.build['training']:
 						print('--video and --training mode incompatible')
@@ -3388,45 +3385,45 @@ class ShutIt(object):
 				if self.build['exam']:
 					self.build['exam_object'] = shutit_exam.ShutItExamSession(self)
 			elif self.action['list_configs']:
-				self.list_configs['cfghistory'] = args.history# TODO: abstract away to shutitconfig object
+				self.list_configs['cfghistory'] = args.history
 			elif self.action['list_modules']:
-				self.list_modules['long'] = args.long# TODO: abstract away to shutitconfig object
-				self.list_modules['sort'] = args.sort# TODO: abstract away to shutitconfig object
+				self.list_modules['long'] = args.long
+				self.list_modules['sort'] = args.sort
 
 			# What are we building on? Convert arg to conn_module we use.
-			if args.delivery == 'docker' or args.delivery is None:# TODO: abstract away to shutitconfig object
+			if args.delivery == 'docker' or args.delivery is None:
 				self.build['conn_module'] = 'shutit.tk.conn_docker'
 				self.build['delivery']    = 'docker'
-			elif args.delivery == 'ssh':# TODO: abstract away to shutitconfig object
+			elif args.delivery == 'ssh':
 				self.build['conn_module'] = 'shutit.tk.conn_ssh'
 				self.build['delivery']    = 'ssh'
-			elif args.delivery == 'bash' or args.delivery == 'dockerfile':# TODO: abstract away to shutitconfig object
+			elif args.delivery == 'bash' or args.delivery == 'dockerfile':
 				self.build['conn_module'] = 'shutit.tk.conn_bash'
-				self.build['delivery']    = args.delivery# TODO: abstract away to shutitconfig object
+				self.build['delivery']    = args.delivery
 			# If the image_tag has been set then ride roughshod over the ignoreimage value if not supplied
-			if args.image_tag != '' and args.ignoreimage is None:# TODO: abstract away to shutitconfig object
-				args.ignoreimage = True# TODO: abstract away to shutitconfig object
+			if args.image_tag != '' and args.ignoreimage is None:
+				args.ignoreimage = True
 			# If ignoreimage is still not set, then default it to False
-			if args.ignoreimage is None:# TODO: abstract away to shutitconfig object
-				args.ignoreimage = False# TODO: abstract away to shutitconfig object
+			if args.ignoreimage is None:
+				args.ignoreimage = False
 
 			# Get these early for this part of the build.
 			# These should never be config arguments, since they are needed before config is passed in.
-			if args.shutit_module_path is not None:# TODO: abstract away to shutitconfig object
-				module_paths = args.shutit_module_path.split(':')# TODO: abstract away to shutitconfig object
+			if args.shutit_module_path is not None:
+				module_paths = args.shutit_module_path.split(':')
 				if '.' not in module_paths:
 					module_paths.append('.')
-				args.set.append(('host', 'shutit_module_path', ':'.join(module_paths)))# TODO: abstract away to shutitconfig object
-			shutit_global.shutit_global_object.interactive      = int(args.interactive)# TODO: abstract away to shutitconfig object
-			self.build['extra_configs']    = args.config# TODO: abstract away to shutitconfig object
-			self.build['config_overrides'] = args.set# TODO: abstract away to shutitconfig object
-			self.build['ignorestop']       = args.ignorestop# TODO: abstract away to shutitconfig object
-			self.build['ignoreimage']      = args.ignoreimage# TODO: abstract away to shutitconfig object
-			self.build['imageerrorok']     = args.imageerrorok# TODO: abstract away to shutitconfig object
-			self.build['tag_modules']      = args.tag_modules# TODO: abstract away to shutitconfig object
-			self.build['deps_only']        = args.deps_only# TODO: abstract away to shutitconfig object
-			self.build['always_echo']      = args.echo# TODO: abstract away to shutitconfig object
-			self.target['docker_image']    = args.image_tag# TODO: abstract away to shutitconfig object
+				args.set.append(('host', 'shutit_module_path', ':'.join(module_paths)))
+			shutit_global.shutit_global_object.interactive      = int(args.interactive)
+			self.build['extra_configs']    = args.config
+			self.build['config_overrides'] = args.set
+			self.build['ignorestop']       = args.ignorestop
+			self.build['ignoreimage']      = args.ignoreimage
+			self.build['imageerrorok']     = args.imageerrorok
+			self.build['tag_modules']      = args.tag_modules
+			self.build['deps_only']        = args.deps_only
+			self.build['always_echo']      = args.echo
+			self.target['docker_image']    = args.image_tag
 
 			if self.build['delivery'] in ('bash','ssh'):
 				if self.target['docker_image'] != '': # pragma: no cover
