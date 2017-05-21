@@ -602,7 +602,7 @@ def do_lists(shutit):
 		# Exit now
 		shutit.handle_exit()
 	# Dependency validation done, now collect configs of those marked for build.
-	shutit.config_collection_for_built()
+	shutit_class.config_collection_for_built(shutit)
 
 
 	if shutit.action['list_configs'] or shutit_global.shutit_global_object.loglevel <= logging.DEBUG:
@@ -671,7 +671,7 @@ def do_interactive_modules(shutit):
 				else:
 					module_id = matched_to[0]
 			cfg[module_id]['shutit.core.module.build'] = not cfg[module_id]['shutit.core.module.build']
-			if not shutit.config_collection_for_built(throw_error=False):
+			if not shutit_class.config_collection_for_built(shutit, throw_error=False):
 				cfg[module_id]['shutit.core.module.build'] = not cfg[module_id]['shutit.core.module.build']
 				shutit.util_raw_input(prompt='Hit return to continue.\n')
 				continue
