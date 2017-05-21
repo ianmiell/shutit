@@ -7,8 +7,8 @@ It also holds within it information about ShutItBackgroundCommand objects
 belonging to this login.
 """
 
-import shutit_global
 import logging
+import shutit_global
 from shutit_background import ShutItBackgroundCommand
 
 class ShutItLoginStack(object):

@@ -246,4 +246,3 @@ class ShutItModule(with_metaclass(ShutItMeta)):
 		has been run and before we exit, eg updatedb.
 		"""
 		return True
-

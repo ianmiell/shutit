@@ -59,14 +59,14 @@ PACKAGE_MAP = {
 }
 
 
-# A list of OS Family members                                                                                                         
-# Suse      = SLES, SLED, OpenSuSE, Suse                                                                                              
-# Archlinux = Archlinux                                                                                                               
-# Mandrake  = Mandriva, Mandrake                                                                                                      
-# Solaris   = Solaris, Nexenta, OmniOS, OpenIndiana, SmartOS                                                                          
-# AIX       = AIX                                                                                                                     
-# FreeBSD   = FreeBSD                                                                                                                 
-# HP-UK     = HPUX                                                                                                                    
+# A list of OS Family members
+# Suse      = SLES, SLED, OpenSuSE, Suse
+# Archlinux = Archlinux
+# Mandrake  = Mandriva, Mandrake
+# Solaris   = Solaris, Nexenta, OmniOS, OpenIndiana, SmartOS
+# AIX       = AIX
+# FreeBSD   = FreeBSD
+# HP-UK     = HPUX
 # OSDIST_DICT = {'/etc/vmware-release':'VMwareESX','/etc/openwrt_release':'OpenWrt','/etc/system-release':'OtherLinux','/etc/release':'Solaris','/etc/arch-release':'Archlinux','/etc/SuSE-release':'SuSE','/etc/gentoo-release':'Gentoo'}
 #    # A list of dicts.  If there is a platform with more than one package manager, put the preferred one last.  If there is an ansible module, use that as the value for the 'name' key.
 #PKG_MGRS = [{'path':'/usr/bin/zypper','name':'zypper'},{'path':'/usr/sbin/urpmi','name':'urpmi'},{'path':'/usr/bin/pacman','name':'pacman'},{'path':'/bin/opkg','name':'opkg'},{'path':'/opt/local/bin/pkgin','name':'pkgin'},{'path':'/opt/local/bin/port','name':'macports'},{'path':'/usr/sbin/pkg','name':'pkgng'},{'path':'/usr/sbin/swlist','name':'SD-UX'},{'path':'/usr/sbin/pkgadd','name':'svr4pkg'},{'path':'/usr/bin/pkg','name':'pkg'},
@@ -119,7 +119,7 @@ def find_package(sought_package):
 	# First check top-level keys
 	if sought_package in PACKAGE_MAP.keys():
 		return PACKAGE_MAP[sought_package]
-	for package in PACKAGE_MAP.keys():
+	for package in PACKAGE_MAP:
 		for install_type in PACKAGE_MAP[package].keys():
 			if sought_package == PACKAGE_MAP[package][install_type]:
 				return {package:PACKAGE_MAP[package]}

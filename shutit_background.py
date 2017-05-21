@@ -1,4 +1,4 @@
-"""Represents a ShutIt background command.
+r"""Represents a ShutIt background command.
 
     - options to:
         - cancel command
@@ -35,16 +35,13 @@ ps -o stat= | sed 's/^\(.\)\(.*\)/\1/'
 """
 
 import time
-import logging
-
 
 class ShutItBackgroundCommand(object):
 	"""Background command in ShutIt
 	"""
 	def __init__(self,
 	             sendspec,
-	             block_other_commands=True,
-	             background=True):
+	             block_other_commands=True):
 		# Stub this with a simple command for now
 		self.sendspec             = sendspec
 		self.block_other_commands = block_other_commands
@@ -116,4 +113,3 @@ class ShutItBackgroundCommand(object):
 		# TODO: honour sendspec.timeout
 		#print 'returning: ' + self.run_state
 		return self.run_state
-

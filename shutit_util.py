@@ -37,16 +37,11 @@ import string
 import sys
 import threading
 import time
-try:
-	import ConfigParser
-except ImportError: # pragma: no cover
-	import configparser as ConfigParser
 import pexpect
 import shutit
 import shutit_assets
 import shutit_class
 import shutit_global
-from shutit_module import ShutItFailException
 
 PY3 = (sys.version_info[0] >= 3)
 
