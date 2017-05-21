@@ -2791,7 +2791,7 @@ class ShutIt(object):
 
 
 
-	def list_modules(self, long_output=None,sort_order=None):
+	def do_list_modules(self, long_output=None,sort_order=None):
 		"""Display a list of loaded modules.
 
 		Config items:

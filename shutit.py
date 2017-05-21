@@ -532,7 +532,7 @@ def setup_shutit_obj(shutit):
 	shutit.log('Configuration loaded',level=logging.INFO)
 
 	if shutit.action['list_modules']:
-		shutit.list_modules()
+		shutit.do_list_modules()
 		shutit.handle_exit()
 	if not shutit.action['list_deps'] and not shutit.action['list_modules']:
 		conn_target(shutit)
@@ -653,7 +653,7 @@ def do_interactive_modules(shutit):
 	cfg = shutit.cfg
 	errs = []
 	while True:
-		shutit.list_modules(long_output=False,sort_order='run_order')
+		shutit.do_list_modules(long_output=False,sort_order='run_order')
 		# Which module do you want to toggle?
 		module_id = shutit.util_raw_input(prompt='Which module id do you want to toggle?\n(just hit return to continue with build)\n(you can enter a substring if it is uniquely matching)\n')
 		if module_id:
