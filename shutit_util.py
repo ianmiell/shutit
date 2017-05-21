@@ -405,7 +405,7 @@ def process_args(shutit, args):
 	"""
 	if args.action == 'version':
 		print('ShutIt version: ' + shutit.shutit_version)
-		handle_exit(shutit=shutit, exit_code=0)
+		shutit.handle_exit(exit_code=0)
 
 	# What are we asking shutit to do?
 	shutit.action['list_configs'] = args.action == 'list_configs'   # TODO: abstract away to shutitconfig object
@@ -486,15 +486,15 @@ def process_args(shutit, args):
 					shutitfile_delivery_method = _delivery_methods_seen.pop()
 					if delivery_method != shutitfile_delivery_method:
 						print('Conflicting delivery methods passed in vs. from shutitfile.\nPassed-in: ' + delivery_method + '\nShutitfile: ' + shutitfile_delivery_method)
-						handle_exit(shutit=shutit, exit_code=1)
+						shutit.handle_exit(exit_code=1)
 				else:
 					print('Too many delivery methods seen in shutitfiles: ' + str(_new_shutitfiles))
 					print('Delivery methods: ' + str(_delivery_methods_seen))
 					print('Delivery method passed in: ' + delivery_method)
-					handle_exit(shutit=shutit, exit_code=1)
+					shutit.handle_exit(exit_code=1)
 			else:
 				print('ShutItFiles: ' + str(_new_shutitfiles) + ' appear to not exist.')
-				handle_exit(shutit=shutit, exit_code=1)
+				shutit.handle_exit(exit_code=1)
 		module_directory = args.name # TODO: abstract away to shutitconfig object
 		if module_directory == '':
 			default_dir = shutit.host['calling_path'] + '/shutit_' + random_word()
@@ -649,10 +649,10 @@ shutitfile:        a shutitfile-based project (can be docker, bash, vagrant)
 				shutit.build['video']            = True
 				if shutit.build['training']:
 					print('--video and --training mode incompatible')
-					handle_exit(shutit=shutit, exit_code=1)
+					shutit.handle_exit(exit_code=1)
 				if shutit.build['exam']:
 					print('--video and --exam mode incompatible')
-					handle_exit(shutit=shutit, exit_code=1)
+					shutit.handle_exit(exit_code=1)
 			# Create a test session object if needed.
 			if shutit.build['exam']:
 				shutit.build['exam_object'] = shutit_exam.ShutItExamSession(shutit)
@@ -700,7 +700,7 @@ shutitfile:        a shutitfile-based project (can be docker, bash, vagrant)
 		if shutit.build['delivery'] in ('bash','ssh'):
 			if shutit.target['docker_image'] != '': # pragma: no cover
 				print('delivery method specified (' + shutit.build['delivery'] + ') and image_tag argument make no sense')
-				handle_exit(shutit=shutit, exit_code=1)
+				shutit.handle_exit(exit_code=1)
 		# Finished parsing args.
 		# Sort out config path
 		if shutit.action['list_configs'] or shutit.action['list_modules'] or shutit.action['list_deps'] or shutit_global.shutit_global_object.loglevel == logging.DEBUG:
@@ -829,7 +829,7 @@ def list_modules(shutit, long_output=None,sort_order=None):
 	print('\n' + msg)
 
 
-# TODO: does this still work?
+# TODO: does this still work? move?
 def print_config(shutit, cfg, hide_password=True, history=False, module_id=None):
 	"""Returns a string representing the config of this ShutIt run.
 	"""
@@ -871,8 +871,6 @@ def print_config(shutit, cfg, hide_password=True, history=False, module_id=None)
 						line += (30-len(line)) * ' ' + ' # ' + "defaults in code"
 				s += line + '\n'
 	return s
-
-
 
 
 def get_hash(string_to_hash):
@@ -993,73 +991,6 @@ def check_regexp(regex):
 	return result
 
 
-
-
-
-# TODO: move to shutit_class.py
-def config_collection_for_built(shutit, throw_error=True,silent=False):
-	"""Collect configuration for modules that are being built.
-	When this is called we should know what's being built (ie after
-	dependency resolution).
-	"""
-	shutit.log('In config_collection_for_built',level=logging.DEBUG)
-	cfg = shutit.cfg
-	for module_id in shutit.module_ids():
-		# Get the config even if installed or building (may be needed in other hooks, eg test).
-		if (shutit.is_to_be_built_or_is_installed(shutit.shutit_map[module_id]) and
-			not shutit.shutit_map[module_id].get_config(shutit)):
-			shutit.fail(module_id + ' failed on get_config') # pragma: no cover
-		# Collect the build.cfg if we are building here.
-		# If this file exists, process it.
-		if cfg[module_id]['shutit.core.module.build'] and not shutit.build['have_read_config_file']:
-			module = shutit.shutit_map[module_id]
-			cfg_file = os.path.dirname(module.__module_file) + '/configs/build.cnf'
-			if os.path.isfile(cfg_file):
-				shutit.build['have_read_config_file'] = True
-				# use shutit.get_config, forcing the passed-in default
-				config_parser = ConfigParser.ConfigParser()
-				config_parser.read(cfg_file)
-				for section in config_parser.sections():
-					if section == module_id:
-						for option in config_parser.options(section):
-							override = False
-							for mod, opt, val in shutit.build['config_overrides']:
-								val = val # pylint
-								# skip overrides
-								if mod == module_id and opt == option:
-									override = True
-							if override:
-								continue
-							is_bool = isinstance(cfg[module_id][option], bool)
-							if is_bool:
-								value = config_parser.getboolean(section,option)
-							else:
-								value = config_parser.get(section,option)
-							if option == 'shutit.core.module.allowed_images':
-								value = json.loads(value)
-							shutit.get_config(module_id, option, value, forcedefault=True)
-	# Check the allowed_images against the base_image
-	passed = True
-	for module_id in shutit.module_ids():
-		if (cfg[module_id]['shutit.core.module.build'] and
-		   (cfg[module_id]['shutit.core.module.allowed_images'] and
-		    shutit.target['docker_image'] not in cfg[module_id]['shutit.core.module.allowed_images'])):
-			if not shutit.allowed_image(module_id):
-				passed = False
-				if not silent:
-					print('\n\nWARNING!\n\nAllowed images for ' + module_id + ' are: ' + str(cfg[module_id]['shutit.core.module.allowed_images']) + ' but the configured image is: ' + shutit.target['docker_image'] + '\n\nIs your shutit_module_path set correctly?\n\nIf you want to ignore this, pass in the --ignoreimage flag to shutit.\n\n')
-	if not passed:
-		if not throw_error:
-			return False
-		if shutit.build['imageerrorok']:
-			# useful for test scripts
-			print('Exiting on allowed images error, with return status 0')
-			handle_exit(shutit=shutit, exit_code=1)
-		else:
-			raise ShutItFailException('Allowed images checking failed') # pragma: no cover
-	return True
-
-
 def handle_exit(exit_code=0,loglevel=logging.DEBUG,msg=None):
 	if not msg:
 		msg = '\nExiting with error code: ' + str(exit_code)
@@ -1077,17 +1008,15 @@ def sendline(child,
 	"""
 	child.sendline(line)
 
+
 def sanitize_terminal():
 	os.system('stty sane')
-
-
 
 
 def check_delivery_method(method):
 	if method in allowed_delivery_methods:
 		return True
 	return False
-
 
 
 # Static strings
