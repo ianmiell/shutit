@@ -2628,7 +2628,7 @@ class ShutIt(object):
 			override_fd.seek(0)
 			configs.append(('overrides', override_fd))
 
-		self.config_parser = shutit_util.get_configs(self, configs)
+		self.config_parser = self.get_configs(configs)
 		self.get_base_config()
 
 
@@ -3390,3 +3390,45 @@ class ShutIt(object):
 						self.log('<- exit function: ' + frame.f_code.co_name,level=logging.DEBUG)
 					return tracefunc
 				sys.settrace(tracefunc)
+
+
+	def get_configs(self, configs):
+		"""Reads config files in, checking their security first
+		(in case passwords/sensitive info is in them).
+		"""
+		cp  = LayerConfigParser()
+		fail_str = ''
+		files    = []
+		for config_file in configs:
+			if isinstance(config_file, tuple):
+				continue
+			if not is_file_secure(config_file):
+				fail_str = fail_str + '\nchmod 0600 ' + config_file
+				files.append(config_file)
+		if fail_str != '':
+			if shutit_global.shutit_global_object.interactive > 1:
+				fail_str = 'Files are not secure, mode should be 0600. Running the following commands to correct:\n' + fail_str + '\n'
+				# Actually show this to the user before failing...
+				self.log(fail_str)
+				self.log('Do you want me to run this for you? (input y/n)')
+				if shutit_global.shutit_global_object.interactive == 0 or self.util_raw_input(default='y') == 'y':
+					for f in files:
+						self.log('Correcting insecure file permissions on: ' + f)
+						os.chmod(f,0o600)
+					# recurse
+					return self.get_configs(self, configs)
+			else:
+				for f in files:
+					self.log('Correcting insecure file permissions on: ' + f)
+					os.chmod(f,0o600)
+				# recurse
+				return self.get_configs(configs)
+			self.fail(fail_str) # pragma: no cover
+		for config in configs:
+			if isinstance(config, tuple):
+				cp.readfp(config[1], filename=config[0])
+			else:
+				cp.read(config)
+		# Treat allowed_images as a special, additive case
+		self.build['shutit.core.module.allowed_images'] = cp.get_config_set('build', 'shutit.core.module.allowed_images')
+		return cp

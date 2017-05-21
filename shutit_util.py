@@ -140,46 +140,6 @@ def colourise(code, msg):
 	return '\033[%sm%s\033[0m' % (code, msg)
 
 
-def get_configs(shutit, configs):
-	"""Reads config files in, checking their security first
-	(in case passwords/sensitive info is in them).
-	"""
-	cp  = LayerConfigParser()
-	fail_str = ''
-	files    = []
-	for config_file in configs:
-		if isinstance(config_file, tuple):
-			continue
-		if not is_file_secure(config_file):
-			fail_str = fail_str + '\nchmod 0600 ' + config_file
-			files.append(config_file)
-	if fail_str != '':
-		if shutit_global.shutit_global_object.interactive > 1:
-			fail_str = 'Files are not secure, mode should be 0600. Running the following commands to correct:\n' + fail_str + '\n'
-			# Actually show this to the user before failing...
-			shutit.log(fail_str)
-			shutit.log('Do you want me to run this for you? (input y/n)')
-			if shutit_global.shutit_global_object.interactive == 0 or shutit.util_raw_input(default='y') == 'y':
-				for f in files:
-					shutit.log('Correcting insecure file permissions on: ' + f)
-					os.chmod(f,0o600)
-				# recurse
-				return get_configs(shutit, configs)
-		else:
-			for f in files:
-				shutit.log('Correcting insecure file permissions on: ' + f)
-				os.chmod(f,0o600)
-			# recurse
-			return get_configs(shutit, configs)
-		shutit.fail(fail_str) # pragma: no cover
-	for config in configs:
-		if isinstance(config, tuple):
-			cp.readfp(config[1], filename=config[0])
-		else:
-			cp.read(config)
-	# Treat allowed_images as a special, additive case
-	shutit.build['shutit.core.module.allowed_images'] = cp.get_config_set('build', 'shutit.core.module.allowed_images')
-	return cp
 
 
 def random_id(size=8, chars=string.ascii_letters + string.digits):
