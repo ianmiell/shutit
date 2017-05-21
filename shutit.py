@@ -740,7 +740,7 @@ def create_session(session_type='bash'):
 	shutit_global_object = shutit_global.shutit_global_object
 	return shutit_global_object.create_session(session_type)
 
-shutit_version='0.9.364'
+shutit_version='0.9.365'
 
 if __name__ == '__main__':
 	setup_signals()
