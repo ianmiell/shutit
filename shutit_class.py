@@ -118,6 +118,7 @@ class ShutItInit(object):
 			assert isinstance(self.vagrant_ssh_access,bool)
 		elif self.action == 'run':
 			self.shutitfiles = shutitfiles
+			self.delivery = delivery
 			#assert isinstance(self.shutitfiles,list)
 		elif self.action == 'build':
 			self.push = push

@@ -362,7 +362,8 @@ def parse_args(shutit, set_loglevel=None):
 		shutit.process_args(shutit_class.ShutItInit(args.action,
 		                                            logfile=args.logfile,
 		                                            log=args.log,
-		                                            shutitfiles=args.shutitfiles))
+		                                            shutitfiles=args.shutitfiles,
+		                                            delivery = args.delivery))
 	elif args.action == 'build':
 		shutit.process_args(shutit_class.ShutItInit(args.action,
 		                                            logfile=args.logfile,
