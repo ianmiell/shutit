@@ -362,16 +362,23 @@ def convert_args(args):
 	elif args.action == 'run':
 		assert isinstance(args.shutitfiles,list)
 	elif args.action == 'build':
-		pass
-		#	shutit.repository['push']       = args.push  # TODO: abstract away to shutitconfig object
-		#	shutit.repository['export']     = args.export # TODO: abstract away to shutitconfig object
-		#	shutit.repository['save']       = args.save # TODO: abstract away to shutitconfig object
-		#	shutit.build['distro_override'] = args.distro # TODO: abstract away to shutitconfig object
-		#	shutit.build['mount_docker']    = args.mount_docker# TODO: abstract away to shutitconfig object
-		#	shutit.build['walkthrough']     = args.walkthrough# TODO: abstract away to shutitconfig object
-		#	shutit.build['training']        = args.training# TODO: abstract away to shutitconfig object
-		#	shutit.build['exam']            = args.exam# TODO: abstract away to shutitconfig object
-		#	shutit.build['choose_config']   = args.choose_config# TODO: abstract away to shutitconfig object
+		assert args.push is None or args.push is not None
+		assert args.export is None or args.export is not None
+		assert args.save is None or args.save is not None
+		assert args.distro_override is None or args.distro_override is not None
+		assert args.mount_docker is None or args.mount_docker is not None
+		assert args.walkthrough is None or args.walkthrough is not None
+		assert args.training is None or args.training is not None
+		assert args.choose_config is None or args.choose_config is not None
+		assert args.config is None or args.config is not None
+		assert args.set is None or args.set is not None
+		assert args.ignorestop is None or args.ignorestop is not None
+		assert args.ignoreimage is None or args.ignoreimage is not None
+		assert args.imageerrorok is None or args.imageerrorok is not None
+		assert args.tag_modules is None or args.tag_modules is not None
+		assert args.deps_only is None or args.deps_only is not None
+		assert args.echo is None or args.echo is not None
+		assert args.image_tag is None or args.image_tag is not None
 		#	args.video
 				#	print('--video and --training mode incompatible')
 				#	handle_exit(shutit=shutit, exit_code=1)
@@ -386,15 +393,6 @@ def convert_args(args):
 		# 	args.ignoreimage
 		# 	args.shutit_module_path - and process the given path?
 		# 	args.interactive
-		#shutit.build['extra_configs']    = args.config# TODO: abstract away to shutitconfig object
-		#shutit.build['config_overrides'] = args.set# TODO: abstract away to shutitconfig object
-		#shutit.build['ignorestop']       = args.ignorestop# TODO: abstract away to shutitconfig object
-		#shutit.build['ignoreimage']      = args.ignoreimage# TODO: abstract away to shutitconfig object
-		#shutit.build['imageerrorok']     = args.imageerrorok# TODO: abstract away to shutitconfig object
-		#shutit.build['tag_modules']      = args.tag_modules# TODO: abstract away to shutitconfig object
-		#shutit.build['deps_only']        = args.deps_only# TODO: abstract away to shutitconfig object
-		#shutit.build['always_echo']      = args.echo# TODO: abstract away to shutitconfig object
-		#shutit.target['docker_image']    = args.image_tag# TODO: abstract away to shutitconfig object
 		#	args.trace
 	return args
 

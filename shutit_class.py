@@ -2697,6 +2697,7 @@ def config_collection_for_built(shutit, throw_error=True,silent=False):
 		# If this file exists, process it.
 		if cfg[module_id]['shutit.core.module.build'] and not shutit.build['have_read_config_file']:
 			module = shutit.shutit_map[module_id]
+			# TODO: __module_file not accessible when within object - look to get this elsewhere and re-read in, then move this function into shutit object.
 			cfg_file = os.path.dirname(module.__module_file) + '/configs/build.cnf'
 			if os.path.isfile(cfg_file):
 				shutit.build['have_read_config_file'] = True
