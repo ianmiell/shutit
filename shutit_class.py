@@ -50,6 +50,7 @@ class ShutItInit(object):
 	             base_image='ubuntu:16.04',
 	             depends='shutit.tk.setup',
 	             name='',
+	             domain='',
 	             pattern='',
 	             output_dir=False,
 	             vagrant_ssh_access=False,
