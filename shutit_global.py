@@ -109,12 +109,12 @@ class ShutItGlobal(object):
 		self.add_shutit_session(new_shutit)
 		# TODO: only makes sense in session that's already bash - check this
 		if session_type == 'bash':
-			shutit_util.parse_args(new_shutit)
+			new_shutit.parse_args()
 			new_shutit.load_configs()
 			shutit_setup.setup_host_child_environment(new_shutit)
 			return new_shutit
 		elif session_type == 'docker':
-			shutit_util.parse_args(new_shutit)
+			new_shutit.parse_args()
 			# Set the configuration up appropriately using overrides.
 			if docker_image:
 				new_shutit.build['config_overrides'].append(['build','base_image',docker_image])

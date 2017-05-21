@@ -6,6 +6,7 @@ try:
 	from StringIO import StringIO
 except ImportError: # pragma: no cover
 	from io import StringIO
+import argparse
 import base64
 import codecs
 import getpass
@@ -3502,3 +3503,185 @@ class ShutIt(object):
 		# Treat allowed_images as a special, additive case
 		self.build['shutit.core.module.allowed_images'] = cp.get_config_set('build', 'shutit.core.module.allowed_images')
 		return cp
+
+
+	# Returns the config dict
+	def parse_args(self):
+		r"""Responsible for parsing arguments.
+
+		Environment variables:
+		SHUTIT_OPTIONS:
+		Loads command line options from the environment (if set).
+		Behaves like GREP_OPTIONS:
+			- space separated list of arguments
+			- backslash before a space escapes the space separation
+			- backslash before a backslash is interpreted as a single backslash
+			- all other backslashes are treated literally
+		eg ' a\ b c\\ \\d \\\e\' becomes '', 'a b', 'c\', '\d', '\\e\'
+		SHUTIT_OPTIONS is ignored if we are creating a skeleton
+		"""
+		shutit_global.shutit_global_object.real_user_id = pexpect.run('id -u ' + shutit_global.shutit_global_object.real_user)
+
+		# These are in order of their creation
+		actions = ['build', 'run', 'list_configs', 'list_modules', 'list_deps', 'skeleton', 'version']
+
+		# COMPAT 2014-05-15 - build is the default if there is no action specified
+		# and we've not asked for help and we've called via 'shutit.py'
+		if len(sys.argv) == 1 or (len(sys.argv) > 1 and sys.argv[1] not in actions
+				and '-h' not in sys.argv and '--help' not in sys.argv):
+			sys.argv.insert(1, 'build')
+
+		parser = argparse.ArgumentParser(description='ShutIt - a tool for managing complex Docker deployments.\n\nTo view help for a specific subcommand, type ./shutit <subcommand> -h',prog="ShutIt")
+		subparsers = parser.add_subparsers(dest='action', help='''Action to perform - build=deploy to target, skeleton=construct a skeleton module, list_configs=show configuration as read in, list_modules=show modules available, list_deps=show dep graph ready for graphviz. Defaults to 'build'.''')
+
+
+		sub_parsers = dict()
+		for action in actions:
+			sub_parsers[action] = subparsers.add_parser(action)
+
+		sub_parsers['run'].add_argument('shutitfiles', nargs='*', default=['ShutItFile','Shutitfile','ShutItfile','ShutitFile','shutitfile'])
+
+		sub_parsers['skeleton'].add_argument('--name', help='Absolute path to new directory for module. Last part of path is taken as the module name.',default='')
+		sub_parsers['skeleton'].add_argument('--domain', help='Arbitrary but unique domain for namespacing your module, eg com.mycorp',default='')
+		sub_parsers['skeleton'].add_argument('--depends', help='Module id to depend on, default shutit.tk.setup (optional)', default='shutit.tk.setup')
+		sub_parsers['skeleton'].add_argument('--base_image', help='FROM image, default ubuntu:16.04 (optional)', default='ubuntu:16.04')
+		sub_parsers['skeleton'].add_argument('--script', help='Pre-existing shell script to integrate into module (optional)', nargs='?', default=None)
+		sub_parsers['skeleton'].add_argument('--output_dir', help='Just output the created directory', default=False, const=True, action='store_const')
+		sub_parsers['skeleton'].add_argument('--shutitfiles', nargs='+', default=None)
+		sub_parsers['skeleton'].add_argument('--vagrant_num_machines', default=None)
+		sub_parsers['skeleton'].add_argument('--vagrant_ssh_access', default=False, const=True, action='store_const')
+		sub_parsers['skeleton'].add_argument('--vagrant_machine_prefix', default=None)
+		sub_parsers['skeleton'].add_argument('--vagrant_docker', default=None, const=True, action='store_const')
+		sub_parsers['skeleton'].add_argument('--pattern', help='Pattern to use', default='')
+		sub_parsers['skeleton'].add_argument('--delivery', help='Delivery method, aka target. "docker" container (default), configured "ssh" connection, "bash" session', default=None, choices=('docker','dockerfile','ssh','bash'))
+		sub_parsers['skeleton'].add_argument('-a','--accept', help='Accept defaults', const=True, default=False, action='store_const')
+		sub_parsers['skeleton'].add_argument('--log','-l', help='Log level (DEBUG, INFO (default), WARNING, ERROR, CRITICAL)', default='')
+		sub_parsers['skeleton'].add_argument('-o','--logfile', help='Log output to this file', default='')
+
+		sub_parsers['build'].add_argument('--export', help='Perform docker export to a tar file', const=True, default=False, action='store_const')
+		sub_parsers['build'].add_argument('--save', help='Perform docker save to a tar file', const=True, default=False, action='store_const')
+		sub_parsers['build'].add_argument('--push', help='Push to a repo', const=True, default=False, action='store_const')
+		sub_parsers['build'].add_argument('--distro', help='Specify the distro type', default='', choices=('ubuntu','debian','alpine','steamos','red hat','centos','fedora','shutit'))
+		sub_parsers['build'].add_argument('--mount_docker', help='Mount the docker socket', default=False, action='store_const', const=True)
+		sub_parsers['build'].add_argument('-w','--walkthrough', help='Run in walkthrough mode', default=False, action='store_const', const=True)
+		sub_parsers['build'].add_argument('-c','--choose_config', help='Choose configuration interactively', default=False, action='store_const', const=True)
+		sub_parsers['build'].add_argument('--video', help='Run in video mode. Same as walkthrough, but waits n seconds rather than for input', nargs=1, default=-1)
+		sub_parsers['build'].add_argument('--training', help='Run in "training" mode, where correct input is required at key points', default=False, action='store_const', const=True)
+		sub_parsers['build'].add_argument('--exam', help='Run in "exam" mode, where correct input is required at key points and progress is tracked', default=False, action='store_const', const=True)
+
+		sub_parsers['list_configs'].add_argument('--history', help='Show config with history', const=True, default=False, action='store_const')
+		sub_parsers['list_modules'].add_argument('--long', help='Show extended module info, including ordering', const=True, default=False, action='store_const')
+		sub_parsers['list_modules'].add_argument('--sort', help='Order the modules seen, default to module id', default='id', choices=('id','run_order'))
+
+		for action in ['build', 'list_configs', 'list_modules', 'list_deps','run']:
+			sub_parsers[action].add_argument('-o','--logfile',default='', help='Log output to this file')
+			sub_parsers[action].add_argument('-l','--log',default='', help='Log level (DEBUG, INFO (default), WARNING, ERROR, CRITICAL)',choices=('DEBUG','INFO','WARNING','ERROR','CRITICAL','debug','info','warning','error','critical'))
+			if action != 'run':
+				sub_parsers[action].add_argument('-d','--delivery', help='Delivery method, aka target. "docker" container (default), configured "ssh" connection, "bash" session', default=None, choices=('docker','dockerfile','ssh','bash'))
+				sub_parsers[action].add_argument('--config', help='Config file for setup config. Must be with perms 0600. Multiple arguments allowed; config files considered in order.', default=[], action='append')
+				sub_parsers[action].add_argument('-s', '--set', help='Override a config item, e.g. "-s target rm no". Can be specified multiple times.', default=[], action='append', nargs=3, metavar=('SEC', 'KEY', 'VAL'))
+				sub_parsers[action].add_argument('--image_tag', help='Build container from specified image - if there is a symbolic reference, please use that, eg localhost.localdomain:5000/myref', default='')
+				sub_parsers[action].add_argument('--tag_modules', help='''Tag each module after it's successfully built regardless of the module config and based on the repository config.''', default=False, const=True, action='store_const')
+				sub_parsers[action].add_argument('-m', '--shutit_module_path', default=None, help='List of shutit module paths, separated by colons. ShutIt registers modules by running all .py files in these directories.')
+				sub_parsers[action].add_argument('--trace', help='Trace function calls', const=True, default=False, action='store_const')
+				sub_parsers[action].add_argument('--interactive', help='Level of interactive. 0 = none, 1 = honour pause points and config prompting, 2 = query user on each module, 3 = tutorial mode', default='1')
+				sub_parsers[action].add_argument('--ignorestop', help='Ignore STOP files', const=True, default=False, action='store_const')
+				sub_parsers[action].add_argument('--ignoreimage', help='Ignore disallowed images', const=True, default=None, action='store_const')
+				sub_parsers[action].add_argument('--imageerrorok', help='Exit without error if allowed images fails (used for test scripts)', const=True, default=False, action='store_const')
+				sub_parsers[action].add_argument('--deps_only', help='build deps only, tag with suffix "_deps"', const=True, default=False, action='store_const')
+				sub_parsers[action].add_argument('--echo', help='Always echo output', const=True, default=False, action='store_const')
+
+		args_list = sys.argv[1:]
+		if os.environ.get('SHUTIT_OPTIONS', None) and args_list[0] != 'skeleton':
+			env_args = os.environ['SHUTIT_OPTIONS'].strip()
+			# Split escaped backslashes
+			env_args_split = re.split(r'(\\\\)', env_args)
+			# Split non-escaped spaces
+			env_args_split = [re.split(r'(?<!\\)( )', item) for item in env_args_split]
+			# Flatten
+			env_args_split = [item for sublist in env_args_split for item in sublist]
+			# Split escaped spaces
+			env_args_split = [re.split(r'(\\ )', item) for item in env_args_split]
+			# Flatten
+			env_args_split = [item for sublist in env_args_split for item in sublist]
+			# Trim empty strings
+			env_args_split = [item for item in env_args_split if item != '']
+			# We know we don't have to deal with an empty env argument string
+			env_args_list = ['']
+			# Interpret all of the escape sequences
+			for item in env_args_split:
+				if item == ' ':
+					env_args_list.append('')
+				elif item == '\\ ':
+					env_args_list[-1] += ' '
+				elif item == '\\\\':
+					env_args_list[-1] += '\\'
+				else:
+					env_args_list[-1] += item
+			args_list[1:1] = env_args_list
+		args = parser.parse_args(args_list)
+		if args.action == 'version':
+			self.process_args(ShutItInit(args.action,
+			                                            logfile=args.logfile,
+			                                            log=args.log))
+		elif args.action == 'skeleton':
+			self.process_args(ShutItInit(args.action,
+			                                            logfile=args.logfile,
+			                                            log=args.log,
+			                                            accept=args.accept,
+			                                            shutitfiles=args.shutitfiles,
+			                                            script=args.script,
+			                                            base_image=args.base_image,
+			                                            depends=args.depends,
+			                                            name=args.name,
+			                                            domain=args.domain,
+			                                            pattern=args.pattern,
+			                                            output_dir=args.output_dir,
+			                                            vagrant_ssh_access=args.vagrant_ssh_access,
+			                                            vagrant_num_machines=args.vagrant_num_machines,
+			                                            vagrant_machine_prefix=args.vagrant_machine_prefix,
+			                                            vagrant_docker=args.vagrant_docker))
+		elif args.action == 'run':
+			self.process_args(ShutItInit(args.action,
+			                                            logfile=args.logfile,
+			                                            log=args.log,
+			                                            shutitfiles=args.shutitfiles,
+			                                            delivery = args.delivery))
+		elif args.action == 'build':
+			self.process_args(ShutItInit(args.action,
+			                                            logfile=args.logfile,
+			                                            log=args.log,
+			                                            push=args.push,
+			                                            export=args.export,
+			                                            save=args.save,
+			                                            distro=args.distro,
+			                                            mount_docker=args.mount_docker,
+			                                            walkthrough=args.walkthrough,
+			                                            training=args.training,
+			                                            choose_config=args.choose_config,
+		                                                config = args.config,
+		                                                set = args.set,
+		                                                ignorestop = args.ignorestop,
+		                                                ignoreimage = args.ignoreimage,
+		                                                imageerrorok = args.imageerrorok,
+		                                                tag_modules = args.tag_modules,
+		                                                image_tag = args.image_tag,
+		                                                video = args.video,
+		                                                deps_only = args.deps_only,
+		                                                echo = args.echo,
+		                                                delivery = args.delivery,
+		                                                interactive = args.interactive,
+		                                                trace = args.trace,
+		                                                shutit_module_path = args.shutit_module_path,
+			                                            exam=args.exam))
+		elif args.action == 'list_configs':
+			self.process_args(ShutItInit(args.action,
+			                                            logfile=args.logfile,
+			                                            log=args.log,
+			                                            history=args.history))
+		elif args.action == 'list_modules':
+			self.process_args(ShutItInit(args.action,
+			                                            logfile=args.logfile,
+			                                            log=args.log,
+			                                            sort=args.sort,
+			                                            long=args.long))

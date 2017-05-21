@@ -506,7 +506,7 @@ def main():
 
 def setup_shutit_obj(shutit):
 
-	shutit_util.parse_args(shutit)
+	shutit.parse_args()
 	if not shutit.build['exam']:
 		shutit.log('# ShutIt Started... ',transient=True)
 		shutit.log('# Loading configs...',transient=True)
