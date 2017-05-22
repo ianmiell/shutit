@@ -44,6 +44,9 @@ from shutit_pexpect import ShutItPexpectSession
 
 PY3 = (sys.version_info[0] >= 3)
 
+def get_module_file(shutit, module):
+	shutit.shutit_file_map[module.module_id] = module.__module_file
+	return shutit.shutit_file_map[module.module_id]
 
 class LayerConfigParser(ConfigParser.RawConfigParser):
 
@@ -2959,7 +2962,7 @@ class ShutIt(object):
 			# Default to allow any image
 			self.get_config(module_id, 'shutit.core.module.allowed_images', [".*"])
 			module = self.shutit_map[module_id]
-			cfg_file = os.path.dirname(self.shutit_file_map[module_id]) + '/configs/build.cnf'
+			cfg_file = os.path.dirname(get_module_file(self,module)) + '/configs/build.cnf'
 			if os.path.isfile(cfg_file):
 				# use self.get_config, forcing the passed-in default
 				config_parser = ConfigParser.ConfigParser()
@@ -4039,7 +4042,7 @@ class ShutIt(object):
 				self.login(prompt_prefix=module_id,command='bash --noprofile --norc',echo=False)
 				# Move to the correct directory (eg for checking for the existence of files needed for build)
 				revert_dir = os.getcwd()
-				self.get_current_shutit_pexpect_session_environment().module_root_dir = os.path.dirname(module.__module_file)
+				self.get_current_shutit_pexpect_session_environment().module_root_dir = os.path.dirname(self.shutit_file_map[module_id])
 				self.chdir(self.get_current_shutit_pexpect_session_environment().module_root_dir)
 				if not self.is_ready(module) and throw_error:
 					errs.append((module_id + ' not ready to install.\nRead the check_ready function in the module,\nor log messages above to determine the issue.\n\n', self.get_shutit_pexpect_session_from_id('target_child')))
@@ -4139,7 +4142,7 @@ class ShutIt(object):
 						self.build['report'] = (self.build['report'] + '\nSkipping: ' + module.module_id + ' with run order: ' + str(module.run_order) + '\n\tas this is the final module and we are building dependencies only')
 					else:
 						revert_dir = os.getcwd()
-						self.get_current_shutit_pexpect_session_environment().module_root_dir = os.path.dirname(module.__module_file)
+						self.get_current_shutit_pexpect_session_environment().module_root_dir = os.path.dirname(self.shutit_file_map[module_id])
 						self.chdir(self.get_current_shutit_pexpect_session_environment().module_root_dir)
 						self.login(prompt_prefix=module_id,command='bash --noprofile --norc',echo=False)
 						self.build_module(module)
@@ -4273,7 +4276,7 @@ class ShutIt(object):
 			if module.run_order == 0:
 				has_core_module = True
 			self.shutit_map[module.module_id] = run_orders[module.run_order] = module
-			self.shutit_file_map[module.module_id] = module.__module_file
+			self.shutit_file_map[module.module_id] = get_module_file(self, module)
 
 		if not has_core_module:
 			self.fail('No module with run_order=0 specified! This is required.') # pragma: no cover
