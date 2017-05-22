@@ -232,5 +232,11 @@ class ShutItGlobal(object):
 		self.loglevel = logging.getLogger().getEffectiveLevel()
 
 
+
+def setup_signals():
+	signal.signal(signal.SIGINT, shutit_util.ctrl_c_signal_handler)
+	signal.signal(signal.SIGQUIT, shutit_util.ctrl_quit_signal_handler)
+	
+
 shutit_global_object = ShutItGlobal()
 shutit_global_object.add_shutit_session(ShutIt())

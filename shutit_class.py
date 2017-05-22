@@ -44,9 +44,32 @@ from shutit_pexpect import ShutItPexpectSession
 
 PY3 = (sys.version_info[0] >= 3)
 
+
 def get_module_file(shutit, module):
 	shutit.shutit_file_map[module.module_id] = module.__module_file
 	return shutit.shutit_file_map[module.module_id]
+
+
+def do_finalize():
+	"""Runs finalize phase; run after all builds are complete and all modules
+	have been stopped.
+	"""
+	def _finalize(shutit):
+		# Stop all the modules
+		shutit.stop_all()
+		# Finalize in reverse order
+		shutit.log('PHASE: finalizing object ' + str(shutit), level=logging.DEBUG)
+		# Login at least once to get the exports.
+		for module_id in shutit.module_ids(rev=True):
+			# Only finalize if it's thought to be installed.
+			if shutit.is_installed(shutit.shutit_map[module_id]):
+				shutit.login(prompt_prefix=module_id,command='bash --noprofile --norc',echo=False)
+				if not shutit.shutit_map[module_id].finalize(shutit):
+					shutit.fail(module_id + ' failed on finalize', shutit_pexpect_child=shutit.get_shutit_pexpect_session_from_id('target_child').pexpect_child) # pragma: no cover
+				shutit.logout(echo=False)
+		for shutit in shutit_global.shutit_global_object.shutit_objects:
+			_finalize(shutit)
+
 
 class LayerConfigParser(ConfigParser.RawConfigParser):
 
