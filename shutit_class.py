@@ -227,7 +227,7 @@ class ShutItInit(object):
 		elif self.action == 'run':
 			self.shutitfiles = shutitfiles
 			self.delivery    = delivery
-			assert isinstance(self.delivery,str)
+			#assert isinstance(self.delivery,str)
 			#assert isinstance(self.shutitfiles,list)
 		elif self.action == 'build' or self.action == 'list_configs' or self.action == 'list_modules':
 			self.push               = push
@@ -256,7 +256,7 @@ class ShutItInit(object):
 			self.history = history
 			self.sort = sort
 			self.long = long
-			assert isinstance(self.delivery,str)
+			#assert isinstance(self.delivery,str)
 
 
 class ShutIt(object):
