@@ -222,14 +222,16 @@ class ShutItInit(object):
 			assert isinstance(self.pattern,str)
 			assert isinstance(self.output_dir,bool)
 			assert isinstance(self.vagrant_ssh_access,bool)
+			assert isinstance(self.delivery,str)
 			# TODO: other asserts in other things.
 		elif self.action == 'run':
 			self.shutitfiles = shutitfiles
 			self.delivery    = delivery
+			assert isinstance(self.delivery,str)
 			#assert isinstance(self.shutitfiles,list)
 		elif self.action == 'build' or self.action == 'list_configs' or self.action == 'list_modules':
 			self.push               = push
-			self.export             =  export
+			self.export             = export
 			self.save               = save
 			self.distro             = distro
 			self.mount_docker       = mount_docker
@@ -254,8 +256,7 @@ class ShutItInit(object):
 			self.history = history
 			self.sort = sort
 			self.long = long
-
-
+			assert isinstance(self.delivery,str)
 
 
 class ShutIt(object):
