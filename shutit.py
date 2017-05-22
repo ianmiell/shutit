@@ -26,17 +26,8 @@
 """ShutIt is a means of building stateless target hosts in a flexible and predictable way.
 """
 from __future__ import print_function
-from distutils import spawn
-import logging
-import os
-import re
-import signal
 import sys
-import urllib
 import shutit_global
-import shutit_skeleton
-import shutit_util
-from shutit_module import ShutItModule
 
 
 def create_session(session_type='bash'):

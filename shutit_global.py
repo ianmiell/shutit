@@ -33,6 +33,7 @@ import datetime
 import logging
 import fcntl
 import termios
+import signal
 import struct
 from distutils.dir_util import mkpath
 from shutit_class import ShutIt, ShutItInit
@@ -236,7 +237,7 @@ class ShutItGlobal(object):
 def setup_signals():
 	signal.signal(signal.SIGINT, shutit_util.ctrl_c_signal_handler)
 	signal.signal(signal.SIGQUIT, shutit_util.ctrl_quit_signal_handler)
-	
+
 
 shutit_global_object = ShutItGlobal()
 shutit_global_object.add_shutit_session(ShutIt())
