@@ -2602,13 +2602,13 @@ $'"""
 					                                    nonewline=sendspec.nonewline,
 					                                    ignore_background=sendspec.ignore_background,
 					                                    run_in_background=sendspec.run_in_background)):
-						expect_res = shutit.expect_allow_interrupt(self.shutit, self.pexpect_child, sendspec.expect, sendspec.timeout)
+						expect_res = shutit.expect_allow_interrupt(self.pexpect_child, sendspec.expect, sendspec.timeout)
 					else:
 						expect_res = -1
 					if sendspec.echo:
 						shutit.divert_output(None)
 			else:
-				expect_res = shutit.expect_allow_interrupt(self.shutit, self.pexpect_child, sendspec.expect, sendspec.timeout)
+				expect_res = shutit.expect_allow_interrupt(self.pexpect_child, sendspec.expect, sendspec.timeout)
 			if isinstance(self.pexpect_child.after, type) or isinstance(self.pexpect_child.before, type):
 				shutit.log('End of pexpect session detected, bailing.',level=logging.CRITICAL)
 				shutit.handle_exit(exit_code=1)

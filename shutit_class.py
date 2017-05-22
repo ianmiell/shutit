@@ -766,7 +766,6 @@ class ShutIt(object):
 
 
 	def expect_allow_interrupt(self,
-	                           shutit,
 	                           shutit_pexpect_child,
 	                           expect,
 	                           timeout,
@@ -788,9 +787,9 @@ class ShutIt(object):
 		while accum_timeout < timeout:
 			res = shutit_pexpect_session.expect(expect, timeout=iteration_s)
 			if res == len(expect):
-				if shutit.build['ctrlc_stop']:
+				if self.build['ctrlc_stop']:
 					timed_out = False
-					shutit.build['ctrlc_stop'] = False
+					self.build['ctrlc_stop'] = False
 					break
 				accum_timeout += iteration_s
 			else:
