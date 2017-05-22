@@ -1802,7 +1802,8 @@ class ShutItPexpectSession(object):
 							self.send(ShutItSendSpec(self,
 							                         send='brew list > .shutit_brew_list',
 							                         echo=False,
-							                         ignore_background=True))
+							                         ignore_background=True,
+							                         loglevel=loglevel))
 						for package in ('coreutils','findutils','gnu-tar','gnu-sed','gawk','gnutls','gnu-indent','gnu-getopt'):
 							if self.send_and_get_output(' command cat .shutit_brew_list | grep -w ' + package,
 							                            echo=False,
@@ -1814,7 +1815,8 @@ class ShutItPexpectSession(object):
 						self.send(ShutItSendSpec(self,
 						                         send='rm -f .shutit_brew_list',
 						                         echo=False,
-						                         ignore_background=True))
+						                         ignore_background=True,
+						                         loglevel=loglevel))
 					if uname_output[:6] == 'CYGWIN':
 						distro       = 'cygwin'
 						install_type = 'apt-cyg'
