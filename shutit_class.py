@@ -3788,6 +3788,12 @@ class ShutIt(object):
 		# Dependency validation done, now collect configs of those marked for build.
 		self.config_collection_for_built()
 		if self.action['list_configs'] or shutit_global.shutit_global_object.loglevel <= logging.DEBUG:
+			self.log(self.print_config(self.cfg, history=self.list_configs['cfghistory']))
+			# Set build completed
+			self.build['completed'] = True
+			f = file(self.build['log_config_path'] + '/cfg.txt','w')
+			f.write(self.print_config(self.cfg, history=self.list_configs['cfghistory']))
+			f.close()
 			self.log('================================================================================')
 			self.log('Config details placed in: ' + self.build['log_config_path'])
 			self.log('================================================================================')
@@ -3797,8 +3803,8 @@ class ShutIt(object):
 			self.log('================================================================================')
 			self.log('\nConfiguration details have been written to the folder: ' + self.build['log_config_path'] + '\n')
 			self.log('================================================================================')
-		if self.action['list_configs']:
-			return
+		if self.action['list_configs'] or self.action['list_deps']:
+			self.handle_exit(exit_code=0)
 
 
 
