@@ -283,7 +283,13 @@ class ShutIt(object):
 		self.build['walkthrough']            = False # Whether to honour 'walkthrough' requests
 		self.build['walkthrough_wait']       = -1 # mysterious problems setting this to 1 with fixterm
 		self.build['log_config_path']        = None
-		self.repository                      = {}
+		self.build['step_through']           = False
+		self.build['ctrlc_stop']             = False
+		self.build['ctrlc_passthrough']      = False
+		self.build['have_read_config_file']  = False
+		self.build['vagrant_run_dir']        = None
+		self.build['this_vagrant_run_dir']   = None
+		self.build['accept_defaults']        = None
 		# If no LOGNAME available,
 		self.host                            = {}
 		self.host['shutit_path']             = sys.path[0]
@@ -293,26 +299,27 @@ class ShutIt(object):
 
 		# These used to be in shutit_global, so we pass them in as args so
 		# the original reference can be put in shutit_global
-		self.shutitfile                     = {}
+		self.shutitfile                      = {}
 		# Needed for patterns
-		self.expect_prompts                 = {}
-		self.list_configs                   = {}
-		self.target                         = {}
-		self.shutit_signal                  = {}
-		self.action                         = {}
-		self.current_shutit_pexpect_session = None
-		self.shutit_pexpect_sessions        = {}
-		self.shutit_modules                 = set()
-		self.shutit_main_dir                = os.path.abspath(os.path.dirname(__file__))
-		self.shutit_map                     = {}
-		self.shutit_file_map                = {}
+		self.repository                      = {}
+		self.expect_prompts                  = {}
+		self.list_configs                    = {}
+		self.target                          = {}
+		self.shutit_signal                   = {}
+		self.action                          = {}
+		self.current_shutit_pexpect_session  = None
+		self.shutit_pexpect_sessions         = {}
+		self.shutit_modules                  = set()
+		self.shutit_main_dir                 = os.path.abspath(os.path.dirname(__file__))
+		self.shutit_map                      = {}
+		self.shutit_file_map                 = {}
 		# These are new members we dont have to provide compatibility for
-		self.conn_modules                   = set()
+		self.conn_modules                    = set()
 		# Whether to list the modules seen
-		self.list_modules                   = {}
-		self.cfg = {}                              # used to store module information
-		self.cfg['shutitfile'] = self.shutitfile   # required for patterns
-		self.cfg['skeleton']   = {}                # required for patterns
+		self.list_modules                    = {}
+		self.cfg                             = {} # used to store module information
+		self.cfg['shutitfile']               = self.shutitfile   # required for patterns
+		self.cfg['skeleton']                 = {}                # required for patterns
 
 
 
@@ -1458,7 +1465,6 @@ class ShutIt(object):
 		return True
 
 
-	# TODO: should this be in global object?
 	def prompt_cfg(self, msg, sec, name, ispass=False):
 		"""Prompt for a config value, optionally saving it to the user-level
 		cfg. Only runs if we are in an interactive mode.
@@ -2654,18 +2660,9 @@ class ShutIt(object):
 		self.build['base_image']                 = cp.get('build', 'base_image')
 		self.build['dotest']                     = cp.get('build', 'dotest')
 		self.build['net']                        = cp.get('build', 'net')
-		self.build['step_through']               = False
-		self.build['ctrlc_stop']                 = False
-		self.build['ctrlc_passthrough']          = False
-		self.build['have_read_config_file']      = False
-		# Width of terminal to set up on login and assume for other cases.
-		self.build['vagrant_run_dir']            = None
-		self.build['this_vagrant_run_dir']       = None
 		# Take a command-line arg if given, else default.
 		if self.build['conn_module'] is None:
 			self.build['conn_module']            = cp.get('build', 'conn_module')
-		# Whether to accept default configs
-		self.build['accept_defaults']            = None
 		# target - the target of the build, ie the container
 		self.target['hostname']                  = cp.get('target', 'hostname')
 		self.target['ports']                     = cp.get('target', 'ports')
@@ -2700,11 +2697,11 @@ class ShutIt(object):
 		self.repository['tag_name']              = cp.get('repository', 'tag_name')
 		# END Read from config files
 
+		# BEGIN tidy configs up
 		if self.target['docker_image'] == '':
 			self.target['docker_image'] = self.build['base_image']
 		# END tidy configs up
 
-		# BEGIN warnings
 		# FAILS begins
 		# rm is incompatible with repository actions
 		if self.target['rm'] and (self.repository['tag'] or self.repository['push'] or self.repository['save'] or self.repository['export']): # pragma: no cover
@@ -2714,8 +2711,6 @@ class ShutIt(object):
 			print('\n\ntarget/hostname or build/net configs must be blank\n\n')
 			shutit_global.shutit_global_object.handle_exit(exit_code=1)
 		# FAILS ends
-
-
 
 
 	def load_all_from_path(self, path):
@@ -2737,7 +2732,6 @@ class ShutIt(object):
 				self.load_mod_from_file(subpath)
 			elif os.path.isdir(subpath):
 				self.load_all_from_path(subpath)
-
 
 
 	def load_mod_from_file(self, fpath):
@@ -2800,9 +2794,6 @@ class ShutIt(object):
 				ShutItModule.register(module.__class__)
 				target.add(module)
 				self.build['source'][fpath] = open(fpath).read()
-
-
-
 
 
 	def config_collection_for_built(self, throw_error=True,silent=False):
@@ -3572,6 +3563,7 @@ class ShutIt(object):
 		                                 trace = args.trace,
 		                                 shutit_module_path = args.shutit_module_path,
 			                             exam=args.exam))
+			# Set up trace ASAP.
 			if args.trace:
 				def tracefunc(frame, event, arg, indent=[0]):
 					indent = indent # pylint
