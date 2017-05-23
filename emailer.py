@@ -53,6 +53,7 @@ from email.mime.multipart import MIMEMultipart
 from smtplib import SMTP, SMTP_SSL, SMTPSenderRefused
 import os
 import gzip
+import shutit_global
 
 class Emailer():
 	""" Emailer class definition
@@ -202,7 +203,7 @@ class Emailer():
 		   Should not be used externally
 		"""
 		if not self.config['shutit.core.alerting.emailer.send_mail']:
-			self.shutit.log('emailer.send: Not configured to send mail!', force_stdout=True)
+			shutit_global.shutit_global_object.log('emailer.send: Not configured to send mail!')
 			return True
 		msg = self.__compose()
 		mailto = [self.config['shutit.core.alerting.emailer.mailto']]
@@ -212,21 +213,21 @@ class Emailer():
 		if self.config['shutit.core.alerting.emailer.mailto_maintainer']:
 			mailto.append(self.config['shutit.core.alerting.emailer.maintainer'])
 		try:
-			self.shutit.log('Attempting to send email', force_stdout=True)
+			shutit_global.shutit_global_object.log('Attempting to send email')
 			smtp.sendmail(self.config['shutit.core.alerting.emailer.mailfrom'], mailto, msg.as_string())
 		except SMTPSenderRefused as refused:
 			code = refused.args[0]
 			if code == 552 and not attachment_failure:
-				self.shutit.log("Mailserver rejected message due to " + "oversize attachments, attempting to resend without", force_stdout=True)
+				shutit_global.shutit_global_object.log("Mailserver rejected message due to " + "oversize attachments, attempting to resend without")
 				self.attaches = []
 				self.lines.append("Oversized attachments not sent")
 				self.send(attachment_failure=True)
 			else:
-				self.shutit.log("Unhandled SMTP error:" + str(refused), force_stdout=True)
+				shutit_global.shutit_global_object.log("Unhandled SMTP error:" + str(refused))
 				if not self.config['shutit.core.alerting.emailer.safe_mode']:
 					raise refused
 		except Exception as error:
-			self.shutit.log('Unhandled exception: ' + str(error), force_stdout=True)
+			shutit_global.shutit_global_object.log('Unhandled exception: ' + str(error))
 			if not self.config['shutit.core.alerting.emailer.safe_mode']:
 				raise error
 		finally:

@@ -1,7 +1,7 @@
-# Always prefer setuptools over distutils
-from setuptools import setup, find_packages
 # To use a consistent encoding
 from codecs import open
+# Always prefer setuptools over distutils
+from setuptools import setup, find_packages
 
 setup(
 	name='shutit',

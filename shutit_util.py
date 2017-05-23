@@ -27,17 +27,20 @@
 
 from __future__ import print_function
 import binascii
+import getpass
 import logging
 import os
 import random
 import re
+import readline
 import stat
 import string
 import sys
 import threading
 import time
-import shutit
 import shutit_assets
+import shutit_class
+import shutit_global
 
 PY3 = (sys.version_info[0] >= 3)
 
@@ -248,13 +251,13 @@ def util_raw_input(prompt='', default=None, ispass=False, use_readline=True):
 	if use_readline:
 		try:
 			readline.read_init_file('/etc/inputrc')
-		except:
+		except IOError:
 			pass
 		readline.parse_and_bind('tab: complete')
 	prompt = '\r\n' + prompt
 	if ispass:
 		prompt += '\r\nInput Secret: '
-	shutit_util.sanitize_terminal()
+	sanitize_terminal()
 	if shutit_global.shutit_global_object.interactive == 0:
 		return default
 	if not shutit_global.shutit_global_object.determine_interactive():
@@ -271,7 +274,7 @@ def util_raw_input(prompt='', default=None, ispass=False, use_readline=True):
 					return resp
 		except KeyboardInterrupt:
 			continue
-		except:
+		except IOError:
 			msg = 'Problems getting raw input, assuming no controlling terminal.'
 	if ispass:
 		return getpass.getpass(prompt=prompt)
