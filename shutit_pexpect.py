@@ -39,6 +39,7 @@ import pexpect
 import shutit_util
 import shutit_global
 import package_map
+import shutit_class
 from shutit_login_stack import ShutItLoginStack
 from shutit_sendspec import ShutItSendSpec
 from shutit_module import ShutItFailException
@@ -70,9 +71,10 @@ class ShutItPexpectSession(object):
 		"""
 		if PY3: # pragma: no cover
 			encoding = 'utf-8'
+		assert isinstance(shutit, shutit_class.ShutIt)
 		self.shutit                    = shutit
 		self.check_exit                = True
-		self.default_expect            = [shutit.expect_prompts['base_prompt']]
+		self.default_expect            = [self.shutit.expect_prompts['base_prompt']]
 		self.pexpect_session_id        = pexpect_session_id
 		self.login_stack               = ShutItLoginStack()
 		self.current_environment       = None
