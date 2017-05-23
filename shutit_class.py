@@ -274,7 +274,6 @@ class ShutIt(object):
 		"""
 		# Store the root directory of this application.
 		# http://stackoverflow.com/questions/5137497
-		self.config_parser                   = None
 		self.build                           = {}
 		self.build['report']                 = ''
 		self.build['mount_docker']           = False
@@ -290,7 +289,8 @@ class ShutIt(object):
 		self.build['vagrant_run_dir']        = None
 		self.build['this_vagrant_run_dir']   = None
 		self.build['accept_defaults']        = None
-		# If no LOGNAME available,
+
+		# Host information - move to global?
 		self.host                            = {}
 		self.host['shutit_path']             = sys.path[0]
 		self.host['calling_path']            = os.getcwd()
@@ -299,25 +299,26 @@ class ShutIt(object):
 
 		# These used to be in shutit_global, so we pass them in as args so
 		# the original reference can be put in shutit_global
-		self.shutitfile                      = {}
-		# Needed for patterns
 		self.repository                      = {}
 		self.expect_prompts                  = {}
 		self.list_configs                    = {}
 		self.target                          = {}
 		self.shutit_signal                   = {}
 		self.action                          = {}
-		self.current_shutit_pexpect_session  = None
 		self.shutit_pexpect_sessions         = {}
-		self.shutit_modules                  = set()
-		self.shutit_main_dir                 = os.path.abspath(os.path.dirname(__file__))
 		self.shutit_map                      = {}
 		self.shutit_file_map                 = {}
+		self.list_modules                    = {} # list_modules' options
+		self.current_shutit_pexpect_session  = None
+		self.config_parser                   = None
+		self.shutit_modules                  = set()
 		# These are new members we dont have to provide compatibility for
 		self.conn_modules                    = set()
-		# Whether to list the modules seen
-		self.list_modules                    = {}
+		self.shutit_main_dir                 = os.path.abspath(os.path.dirname(__file__))
+
+		# Needed for patterns
 		self.cfg                             = {} # used to store module information
+		self.shutitfile                      = {}
 		self.cfg['shutitfile']               = self.shutitfile   # required for patterns
 		self.cfg['skeleton']                 = {}                # required for patterns
 
@@ -2217,8 +2218,6 @@ class ShutIt(object):
 						cfg[module_id][option] = default
 					else:
 						# util_raw_input may change the interactive level, so guard for this.
-						if shutit_global.shutit_global_object.interactive < 1:
-							self.fail('Cannot continue. ' + module_id + '.' + option + ' config requires a value and no default is supplied. Adding "-s ' + module_id + ' ' + option + ' [your desired value]" to the shutit invocation will set this.') # pragma: no cover
 						prompt = '\n\nPlease input a value for ' + module_id + '.' + option
 						if default != None:
 							prompt = prompt + ' (default: ' + str(default) + ')'
@@ -4363,6 +4362,14 @@ class ShutIt(object):
 		self = self # For pylint: we want this to be available to shutit object users
 		shutit_global.shutit_global_object.log(msg,add_final_message=add_final_message,level=level,transient=transient,newline=newline)
 
+
+	def setup_ssh_config(self, module_id):
+		self.get_config(module_id, 'ssh_host', '')
+		self.get_config(module_id, 'ssh_port', '')
+		self.get_config(module_id, 'ssh_user', '')
+		self.get_config(module_id, 'password', '')
+		self.get_config(module_id, 'ssh_key', '')
+		self.get_config(module_id, 'ssh_cmd', '')
 
 
 def check_dependee_order(depender, dependee, dependee_id):

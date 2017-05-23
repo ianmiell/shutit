@@ -41,18 +41,21 @@ from shutit_pexpect import ShutItPexpectSession
 
 class ShutItConnModule(ShutItModule):
 
+
 	def __init__(self, *args, **kwargs):
 		super(ShutItConnModule, self).__init__(*args, **kwargs)
+
 
 	def setup_host_child(self, shutit):
 		shutit.setup_host_child_environment()
 
+
 	def setup_target_child(self, shutit, target_child, target_child_id='target_child',prefix='root'):
 		shutit.setup_target_child_environment(target_child, target_child_id=target_child_id,prefix=prefix)
 
+
 	def build(self, shutit):
 		return True
-
 
 
 class ConnDocker(ShutItConnModule):
@@ -113,13 +116,16 @@ class ConnBash(ShutItConnModule):
 	Assumes no docker daemon available for tagging and pushing.
 	"""
 
+
 	def is_installed(self, shutit):
 		"""Always considered false for ShutIt setup.
 		"""
 		return False
 
+
 	def get_config(self, shutit):
 		return True
+
 
 	def build(self, shutit):
 		"""Sets up the machine ready for building.
@@ -130,6 +136,7 @@ class ConnBash(ShutItConnModule):
 		self.setup_host_child(shutit)
 		self.setup_target_child(shutit, target_child)
 		return True
+
 
 	def finalize(self, shutit):
 		"""Finalizes the target, exiting for us back to the original shell
@@ -146,19 +153,17 @@ class ConnSSH(ShutItConnModule):
 	Assumes no docker daemon available for tagging and pushing.
 	"""
 
+
 	def is_installed(self, shutit):
 		"""Always considered false for ShutIt setup.
 		"""
 		return False
 
+
 	def get_config(self, shutit):
-		shutit.get_config(self.module_id, 'ssh_host', '')
-		shutit.get_config(self.module_id, 'ssh_port', '')
-		shutit.get_config(self.module_id, 'ssh_user', '')
-		shutit.get_config(self.module_id, 'password', '')
-		shutit.get_config(self.module_id, 'ssh_key', '')
-		shutit.get_config(self.module_id, 'ssh_cmd', '')
+		shutit.setup_ssh_config(self.module_id)
 		return True
+
 
 	def build(self, shutit):
 		"""Sets up the machine ready for building.
@@ -208,6 +213,7 @@ class ConnSSH(ShutItConnModule):
 		self.setup_target_child(shutit, target_child)
 		return True
 
+
 	def finalize(self, shutit):
 		"""Finalizes the target, exiting for us back to the original shell
 		and performing any repository work required.
@@ -235,10 +241,12 @@ def conn_module():
 
 class setup(ShutItModule):
 
+
 	def is_installed(self, shutit):
 		"""Always considered false for ShutIt setup.
 		"""
 		return False
+
 
 	def build(self, shutit):
 		"""Initializes target ready for build and updating package management if in container.
@@ -256,17 +264,18 @@ class setup(ShutItModule):
 			shutit.pause_point('Anything you want to do to the target host ' + 'before the build starts?', level=2)
 		return True
 
+
 	def remove(self, shutit):
 		"""Removes anything performed as part of build.
 		"""
 		return True
+
 
 	def get_config(self, shutit):
 		"""Gets the configured core pacakges, and whether to perform the package
 		management update.
 		"""
 		return True
-
 
 
 def module():
