@@ -717,7 +717,7 @@ class ShutItPexpectSession(object):
 			shutit_global.shutit_global_object.log('\r\nLeaving interact without CTRL-] and shutit_signal is not recognised, shutit_signal value: ' + str(shutit_global.shutit_global_object.signal_id),level=logging.CRITICAL,transient=True)
 		elif shutit_global.shutit_global_object.signal_id == 0:
 			shutit_global.shutit_global_object.log('\r\nLeaving interact without CTRL-], assuming exit.',level=logging.CRITICAL,transient=True)
-			shutit.handle_exit(exit_code=1)
+			shutit_global.shutit_global_object.handle_exit(exit_code=1)
 		if shutit.build['exam'] and shutit_global.shutit_global_object.loglevel not in ('DEBUG',):
 			self.send(ShutItSendSpec(self,
 			                         send=' unalias exit && unalias logout && unalias kill && unalias alias',
@@ -1639,7 +1639,7 @@ class ShutItPexpectSession(object):
 			self.current_environment.users.update({user:None})
 		if not self.current_environment.users[user] and user != 'root':
 			msg = msg or 'Please input the sudo password for user: ' + user
-			self.current_environment.users[user] = shutit.get_input(msg,ispass=True)
+			self.current_environment.users[user] = shutit_util.get_input(msg,ispass=True)
 			shutit_global.shutit_global_object.secret_words_set.add(self.current_environment.users[user])
 		return self.current_environment.users[user]
 
@@ -2610,7 +2610,7 @@ $'"""
 				expect_res = shutit.expect_allow_interrupt(self.pexpect_child, sendspec.expect, sendspec.timeout)
 			if isinstance(self.pexpect_child.after, type) or isinstance(self.pexpect_child.before, type):
 				shutit_global.shutit_global_object.log('End of pexpect session detected, bailing.',level=logging.CRITICAL)
-				shutit.handle_exit(exit_code=1)
+				shutit_global.shutit_global_object.handle_exit(exit_code=1)
 			# Massage the output for summary sending.
 			logged_output = ''.join((self.pexpect_child.before + str(self.pexpect_child.after)).split('\n')).replace(sendspec.send,'',1).replace('\r','')[:160] + ' [...]'
 			if not sendspec.secret:
@@ -3009,7 +3009,7 @@ $'"""
 					shutit_global.shutit_global_object.log(shutit_util.colourise('32',help_text),transient=True)
 				time.sleep(pause)
 				# TODO: bash path completion
-				send = shutit.get_input(task_desc + ' => ',colour='31')
+				send = shutit_util.get_input(task_desc + ' => ',colour='31')
 				if not send or send.strip() == '':
 					continue
 				if send in ('help','h'):
@@ -3026,7 +3026,7 @@ $'"""
 					continue
 				if send == 'shutitquit':
 					self._challenge_done(shutit, result='reset',follow_on_context=follow_on_context,final_stage=True)
-					shutit.handle_exit(exit_code=1)
+					shutit_global.shutit_global_object.handle_exit(exit_code=1)
 				if send == 'exit':
 					self._challenge_done(shutit, result='exited',follow_on_context=follow_on_context,final_stage=True)
 					shutit.build['pause_point_hints'] = []
@@ -3401,7 +3401,7 @@ $'"""
 				shutit_global.shutit_global_object.signal_id = 17
 				if not shutit.build['exam'] and shutit_global.shutit_global_object.loglevel not in ('DEBUG',):
 					shutit_global.shutit_global_object.log('CTRL-q hit, quitting ShutIt',transient=True,level=logging.CRITICAL)
-					shutit.handle_exit(exit_code=1)
+					shutit_global.shutit_global_object.handle_exit(exit_code=1)
 			# CTRL-s
 			elif ord(input_string) == 19:
 				shutit_global.shutit_global_object.signal_id = 19

@@ -44,7 +44,7 @@ def setup_vagrant_pattern(shutit,
 				print(str(count) + ': ' + opt['question'] + ' (current: ' + opt['value'] + ')')
 				count += 1
 			print('')
-			choice = shutit.get_input(msg='Choose an item to change if you want to change the default. Hit return to continue.\nIf you want to change a config, choose the number: ')
+			choice = shutit_util.get_input(msg='Choose an item to change if you want to change the default. Hit return to continue.\nIf you want to change a config, choose the number: ')
 			if choice == '':
 				break
 			else:
@@ -56,7 +56,7 @@ def setup_vagrant_pattern(shutit,
 			# off by one
 			choice -= 1
 			item = options[choice]
-			value = shutit.get_input(msg='Input the value: ')
+			value = shutit_util.get_input(msg='Input the value: ')
 			if len(item['ok_values']) > 0 and value not in item['ok_values']:
 				print('Bad value, ignoring')
 				continue

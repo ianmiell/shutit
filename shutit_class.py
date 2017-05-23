@@ -418,7 +418,7 @@ class ShutIt(object):
 			# However, it's still a failure, so return 1
 			shutit_global.shutit_global_object.log(msg,level=logging.CRITICAL)
 			shutit_global.shutit_global_object.log('Error seen, exiting with status 1',level=logging.CRITICAL)
-			self.handle_exit(exit_code=1,msg=msg)
+			shutit_global.shutit_global_object.handle_exit(exit_code=1,msg=msg)
 
 
 
@@ -1614,7 +1614,7 @@ class ShutIt(object):
 		else:
 			shutit_global.shutit_global_object.log(msg,level=logging.DEBUG)
 			shutit_global.shutit_global_object.log('Nothing to interact with, so quitting to presumably the original shell',level=logging.DEBUG)
-			self.handle_exit(exit_code=1)
+			shutit_global.shutit_global_object.handle_exit(exit_code=1)
 		self.build['ctrlc_stop'] = False
 		return True
 
@@ -2598,35 +2598,6 @@ class ShutIt(object):
 		return send
 
 
-
-	def get_input(self, msg, default='', valid=None, boolean=False, ispass=False, colour='32'):
-		"""Gets input from the user, and returns the answer.
-
-		@param msg:       message to send to user
-		@param default:   default value if nothing entered
-		@param valid:     valid input values (default == empty list == anything allowed)
-		@param boolean:   whether return value should be boolean
-		@param ispass:    True if this is a password (ie whether to not echo input)
-		"""
-		if boolean and valid is None:
-			valid = ('yes','y','Y','1','true','no','n','N','0','false')
-		answer = shutit_util.util_raw_input(prompt=shutit_util.colourise(colour,msg),ispass=ispass)
-		if boolean and answer in ('', None) and default != '':
-			return default
-		if valid is not None:
-			while answer not in valid:
-				shutit_global.shutit_global_object.log('Answer must be one of: ' + str(valid),transient=True)
-				answer = shutit_util.util_raw_input(prompt=shutit_util.colourise(colour,msg),ispass=ispass)
-		if boolean and answer in ('yes','y','Y','1','true','t','YES'):
-			return True
-		if boolean and answer in ('no','n','N','0','false','f','NO'):
-			return False
-		if answer in ('',None):
-			return default
-		else:
-			return answer
-
-
 	def load_configs(self):
 		"""Responsible for loading config files into ShutIt.
 		Recurses down from configured shutit module paths.
@@ -2640,7 +2611,7 @@ class ShutIt(object):
 			run_config_file = os.path.expanduser(config_file_name)
 			if not os.path.isfile(run_config_file):
 				print('Did not recognise ' + run_config_file + ' as a file - do you need to touch ' + run_config_file + '?')
-				self.handle_exit(exit_code=0)
+				shutit_global.shutit_global_object.handle_exit(exit_code=0)
 			configs.append(run_config_file)
 		# Image to use to start off. The script should be idempotent, so running it
 		# on an already built image should be ok, and is advised to reduce diff space required.
@@ -2744,10 +2715,10 @@ class ShutIt(object):
 		# rm is incompatible with repository actions
 		if self.target['rm'] and (self.repository['tag'] or self.repository['push'] or self.repository['save'] or self.repository['export']): # pragma: no cover
 			print("Can't have [target]/rm and [repository]/(push/save/export) set to true")
-			self.handle_exit(exit_code=1)
+			shutit_global.shutit_global_object.handle_exit(exit_code=1)
 		if self.target['hostname'] != '' and self.build['net'] != '' and self.build['net'] != 'bridge': # pragma: no cover
 			print('\n\ntarget/hostname or build/net configs must be blank\n\n')
-			self.handle_exit(exit_code=1)
+			shutit_global.shutit_global_object.handle_exit(exit_code=1)
 		# FAILS ends
 
 
@@ -2838,14 +2809,6 @@ class ShutIt(object):
 
 
 
-	def handle_exit(self,exit_code=0,loglevel=logging.DEBUG,msg=None):
-		if not msg:
-			msg = '\nExiting with error code: ' + str(exit_code)
-		if exit_code != 0:
-			shutit_global.shutit_global_object.log('Exiting with error code: ' + str(exit_code),level=loglevel)
-			shutit_global.shutit_global_object.log('Resetting terminal',level=loglevel)
-		shutit_util.sanitize_terminal()
-		sys.exit(exit_code)
 
 
 	def config_collection_for_built(self, throw_error=True,silent=False):
@@ -2863,7 +2826,6 @@ class ShutIt(object):
 			# Collect the build.cfg if we are building here.
 			# If this file exists, process it.
 			if cfg[module_id]['shutit.core.module.build'] and not self.build['have_read_config_file']:
-				module = self.shutit_map[module_id]
 				# TODO: __module_file not accessible when within object - look to get this elsewhere and re-read in, then move this function into shutit object.
 				cfg_file = os.path.dirname(self.shutit_file_map[module_id]) + '/configs/build.cnf'
 				if os.path.isfile(cfg_file):
@@ -2906,7 +2868,7 @@ class ShutIt(object):
 			if self.build['imageerrorok']:
 				# useful for test scripts
 				print('Exiting on allowed images error, with return status 0')
-				self.handle_exit(exit_code=1)
+				shutit_global.shutit_global_object.handle_exit(exit_code=1)
 			else:
 				raise ShutItFailException('Allowed images checking failed') # pragma: no cover
 		return True
@@ -3103,7 +3065,7 @@ class ShutIt(object):
 
 		if args.action == 'version':
 			print('ShutIt version: ' + shutit.shutit_version)
-			self.handle_exit(exit_code=0)
+			shutit_global.shutit_global_object.handle_exit(exit_code=0)
 
 		# Logging
 		shutit_global.shutit_global_object.logfile  = args.logfile
@@ -3183,15 +3145,15 @@ class ShutIt(object):
 						shutitfile_delivery_method = _delivery_methods_seen.pop()
 						if delivery_method != shutitfile_delivery_method:
 							print('Conflicting delivery methods passed in vs. from shutitfile.\nPassed-in: ' + delivery_method + '\nShutitfile: ' + shutitfile_delivery_method)
-							self.handle_exit(exit_code=1)
+							shutit_global.shutit_global_object.handle_exit(exit_code=1)
 					else:
 						print('Too many delivery methods seen in shutitfiles: ' + str(_new_shutitfiles))
 						print('Delivery methods: ' + str(_delivery_methods_seen))
 						print('Delivery method passed in: ' + delivery_method)
-						self.handle_exit(exit_code=1)
+						shutit_global.shutit_global_object.handle_exit(exit_code=1)
 				else:
 					print('ShutItFiles: ' + str(_new_shutitfiles) + ' appear to not exist.')
-					self.handle_exit(exit_code=1)
+					shutit_global.shutit_global_object.handle_exit(exit_code=1)
 			module_directory = args.name
 			if module_directory == '':
 				default_dir = self.host['calling_path'] + '/shutit_' + shutit_util.random_word()
@@ -3280,7 +3242,7 @@ class ShutIt(object):
 				'vagrant_docker':         args.vagrant_docker
 			}
 			shutit_skeleton.create_skeleton(self)
-			self.handle_exit()
+			shutit_global.shutit_global_object.handle_exit()
 		elif self.action['run']:
 			module_name      = shutit_util.random_id(chars=string.ascii_letters)
 			module_dir       = "/tmp/shutit_built/" + module_name
@@ -3340,10 +3302,10 @@ class ShutIt(object):
 					self.build['video']            = True
 					if self.build['training']:
 						print('--video and --training mode incompatible')
-						self.handle_exit(exit_code=1)
+						shutit_global.shutit_global_object.handle_exit(exit_code=1)
 					if self.build['exam']:
 						print('--video and --exam mode incompatible')
-						self.handle_exit(exit_code=1)
+						shutit_global.shutit_global_object.handle_exit(exit_code=1)
 				# Create a test session object if needed.
 				if self.build['exam']:
 					self.build['exam_object'] = shutit_exam.ShutItExamSession(self)
@@ -3391,7 +3353,7 @@ class ShutIt(object):
 			if self.build['delivery'] in ('bash','ssh'):
 				if self.target['docker_image'] != '': # pragma: no cover
 					print('delivery method specified (' + self.build['delivery'] + ') and image_tag argument make no sense')
-					self.handle_exit(exit_code=1)
+					shutit_global.shutit_global_object.handle_exit(exit_code=1)
 			# Finished parsing args.
 			# Sort out config path
 			if self.action['list_configs'] or self.action['list_modules'] or self.action['list_deps'] or shutit_global.shutit_global_object.loglevel == logging.DEBUG:
@@ -3647,6 +3609,115 @@ class ShutIt(object):
 			                             long=args.long))
 
 
+	def conn_docker_start_container(self, shutit_session_name):
+		docker = self.host['docker_executable'].split(' ')
+		# Always-required options
+		if not os.path.exists(shutit_global.shutit_global_object.shutit_state_dir + '/cidfiles'):
+			os.makedirs(shutit_global.shutit_global_object.shutit_state_dir + '/cidfiles')
+		self.build['cidfile'] = shutit_global.shutit_global_object.shutit_state_dir + '/cidfiles/' + shutit_global.shutit_global_object.username + '_cidfile_' + shutit_global.shutit_global_object.build_id
+		cidfile_arg = '--cidfile=' + self.build['cidfile']
+		# Singly-specified options
+		privileged_arg   = ''
+		name_arg         = ''
+		hostname_arg     = ''
+		rm_arg           = ''
+		net_arg          = ''
+		mount_docker_arg = ''
+		shell_arg        = '/bin/bash'
+		if self.build['privileged']:
+			privileged_arg = '--privileged=true'
+		if self.target['name'] != '':
+			name_arg = '--name=' + self.target['name']
+		if self.target['hostname'] != '':
+			hostname_arg = '-h=' + self.target['hostname']
+		if self.build['net'] != '':
+			net_arg        = '--net="' + self.build['net'] + '"'
+		if self.build['mount_docker']:
+			mount_docker_arg = '-v=/var/run/docker.sock:/var/run/docker.sock'
+		# Incompatible with do_repository_work
+		if self.target['rm']:
+			rm_arg = '--rm=true'
+		if self.build['base_image'] in ('alpine','busybox'):
+			shell_arg = '/bin/ash'
+		# Multiply-specified options
+		port_args         = []
+		dns_args          = []
+		volume_args       = []
+		volumes_from_args = []
+		volumes_list      = self.target['volumes'].strip().split()
+		volumes_from_list = self.target['volumes_from'].strip().split()
+		ports_list        = self.target['ports'].strip().split()
+		dns_list          = self.host['dns'].strip().split()
+		for portmap in ports_list:
+			port_args.append('-p=' + portmap)
+		for dns in dns_list:
+			dns_args.append('--dns=' + dns)
+		for volume in volumes_list:
+			volume_args.append('-v=' + volume)
+		for volumes_from in volumes_from_list:
+			volumes_from_args.append('--volumes-from=' + volumes_from)
+		docker_command = docker + [
+			arg for arg in [
+				'run',
+				cidfile_arg,
+				privileged_arg,
+				name_arg,
+				hostname_arg,
+				rm_arg,
+				net_arg,
+				mount_docker_arg,
+			] + volume_args + volumes_from_args + port_args + dns_args + [
+				'-t',
+				'-i',
+				self.target['docker_image'],
+				shell_arg
+			] if arg != ''
+		]
+		self.build['docker_command'] = ' '.join(docker_command)
+		# docker run happens here
+		shutit_global.shutit_global_object.log('Startup command is: ' + self.build['docker_command'],level=logging.INFO)
+		shutit_global.shutit_global_object.log('Downloading image, please be patient',level=logging.INFO)
+		shutit_pexpect_session = ShutItPexpectSession(shutit, shutit_session_name, docker_command[0], docker_command[1:])
+		target_child = shutit_pexpect_session.pexpect_child
+		expect = ['assword', self.expect_prompts['base_prompt'].strip(), 'Waiting', 'ulling', 'endpoint', 'Download','o such file']
+		res = shutit_pexpect_session.expect(expect, timeout=9999)
+		while True:
+			if target_child.before == type(pexpect.exceptions.EOF):
+				self.fail('EOF exception seen') # pragma: no cover
+			try:
+				shutit_global.shutit_global_object.log(target_child.before + target_child.after,level=logging.DEBUG)
+			except Exception:
+				pass
+			if res == 0:
+				res = self.send(self.host['password'], shutit_pexpect_child=target_child, expect=expect, timeout=9999, check_exit=False, fail_on_empty_before=False, echo=False)
+			elif res == 1:
+				shutit_global.shutit_global_object.log('Prompt found, breaking out',level=logging.DEBUG)
+				break
+			elif res == 6:
+				self.fail('Docker not installed.') # pragma: no cover
+				break
+			elif res == 7:
+				shutit_global.shutit_global_object.log('Initial command timed out, assuming OK to continue.',level=logging.WARNING)
+				break
+			elif res == 8:
+				self.fail('EOF seen.') # pragma: no cover
+			else:
+				res = shutit_pexpect_session.expect(expect, timeout=9999)
+				continue
+		shutit_global.shutit_global_object.log('Getting cid')
+		# Get the cid, to determine whether the container started up ok.
+		# pexpect.spawn does not give us an easy way to determine the success of the run without closing the stream.
+		while True:
+			try:
+				cid = open(self.build['cidfile']).read()
+				break
+			except Exception:
+				time.sleep(1)
+		if cid == '' or re.match('^[a-z0-9]+$', cid) is None:
+			self.fail('Could not get container_id - quitting. Check whether other containers may be clashing on port allocation or name.\nYou might want to try running: sudo docker kill ' + self.target['name'] + '; sudo docker rm ' + self.target['name'] + '\nto resolve a name clash or: ' + self.host['docker_executable'] + ' ps -a | grep ' + self.target['ports'] + " | awk '{print $1}' | " + 'xargs ' + self.host['docker_executable'] + ' kill\nto ' + 'resolve a port clash\n') # pragma: no cover
+		shutit_global.shutit_global_object.log('cid: ' + cid,level=logging.DEBUG)
+		self.target['container_id'] = cid
+		return target_child
 
 	def conn_docker_destroy_container(self, host_shutit_session_name, container_shutit_session_name, container_id, loglevel=logging.DEBUG):
 		# Close connection.
@@ -3719,7 +3790,7 @@ class ShutIt(object):
 			shutit_global.shutit_global_object.log('\nAbove is the digraph for all modules configured to be built IN THIS ShutIt invocation. Use graphviz to render into an image, eg\n\ncat ' + fname + ' | dot -Tpng -o depgraph.png\n')
 			shutit_global.shutit_global_object.log('\n================================================================================\n')
 			# Exit now
-			self.handle_exit()
+			shutit_global.shutit_global_object.handle_exit()
 		# Dependency validation done, now collect configs of those marked for build.
 		self.config_collection_for_built()
 		if self.action['list_configs'] or shutit_global.shutit_global_object.loglevel <= logging.DEBUG:
@@ -3739,9 +3810,7 @@ class ShutIt(object):
 			shutit_global.shutit_global_object.log('\nConfiguration details have been written to the folder: ' + self.build['log_config_path'] + '\n')
 			shutit_global.shutit_global_object.log('================================================================================')
 		if self.action['list_configs'] or self.action['list_deps']:
-			self.handle_exit(exit_code=0)
-
-
+			shutit_global.shutit_global_object.handle_exit(exit_code=0)
 
 
 	def do_interactive_modules(self):
@@ -3845,7 +3914,7 @@ class ShutIt(object):
 		shutit_global.shutit_global_object.log('Configuration loaded',level=logging.INFO)
 		if self.action['list_modules']:
 			self.do_list_modules()
-			self.handle_exit()
+			shutit_global.shutit_global_object.handle_exit()
 		if not self.action['list_deps'] and not self.action['list_modules']:
 			self.conn_target()
 			shutit_global.shutit_global_object.log('Connected to target',level=logging.INFO)
@@ -3876,7 +3945,7 @@ class ShutIt(object):
 		self.do_exam_output()
 		shutit_global.shutit_global_object.do_final_messages()
 		shutit_global.shutit_global_object.log('ShutIt run finished',level=logging.INFO)
-		self.handle_exit(exit_code=0)
+		shutit_global.shutit_global_object.handle_exit(exit_code=0)
 
 
 	def setup_shutit_path(self):
@@ -3906,7 +3975,7 @@ class ShutIt(object):
 				#http://unix.stackexchange.com/questions/26676/how-to-check-if-a-shell-is-login-interactive-batch
 				myfile.write('\nexport PATH="$PATH:' + os.path.dirname(path_to_shutit) + '"\n')
 			shutit_util.util_raw_input(prompt='\nPath set up - please open new terminal and re-run command\n')
-			self.handle_exit()
+			shutit_global.shutit_global_object.handle_exit()
 
 
 
@@ -4303,6 +4372,18 @@ class ShutIt(object):
 		if not (cfg[dependee.module_id]['shutit.core.module.build'] or
 		        self.is_to_be_built_or_is_installed(dependee)):
 			return 'depender module id:\n\n[' + depender.module_id + ']\n\nis configured: "build:yes" or is already built but dependee module_id:\n\n[' + dependee_id + ']\n\n is not configured: "build:yes"'
+
+	def get_input(self, msg, default='', valid=None, boolean=False, ispass=False, colour='32'):
+		self = self
+		shutit_util.get_input(msg,
+		                      default=default,
+		                      valid=valid,
+		                      boolean=boolean,
+		                      ispass=ispass,
+		                      colour=colour)
+
+
+
 
 
 def check_dependee_order(depender, dependee, dependee_id):

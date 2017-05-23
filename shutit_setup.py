@@ -32,11 +32,7 @@ Nomenclature:
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-import os
-import re
-import time
 import logging
-import pexpect
 import shutit_global
 from shutit_module import ShutItModule
 from shutit_sendspec import ShutItSendSpec
@@ -68,13 +64,15 @@ class ConnDocker(ShutItConnModule):
 		"""
 		return False
 
+
 	def destroy_container(self, shutit, host_shutit_session_name, container_shutit_session_name, container_id):
 		host_child = shutit.get_shutit_pexpect_session_from_id(host_shutit_session_name).pexpect_child
-		shutit.conn_docker_destroy_container(shutit, host_shutit_session_name, container_shutit_session_name, container_id)
+		shutit.conn_docker_destroy_container(host_shutit_session_name, container_shutit_session_name, container_id)
 		shutit.send(' command docker rm -f ' + container_id + ' && rm -f ' + shutit.build['cidfile'],shutit_pexpect_child=host_child,expect=shutit.expect_prompts['ORIGIN_ENV'])
 
+
 	def start_container(self, shutit, shutit_session_name):
-		return conn_docker_start_container(shutit, shutit_session_name)
+		return shutit.conn_docker_start_container(shutit_session_name)
 
 
 	def build(self, shutit):
@@ -273,115 +271,3 @@ class setup(ShutItModule):
 
 def module():
 	return setup('shutit.tk.setup', 0.0, description='Core ShutIt setup')
-
-
-def conn_docker_start_container(shutit, shutit_session_name):
-	docker = shutit.host['docker_executable'].split(' ')
-	# Always-required options
-	if not os.path.exists(shutit_global.shutit_global_object.shutit_state_dir + '/cidfiles'):
-		os.makedirs(shutit_global.shutit_global_object.shutit_state_dir + '/cidfiles')
-	shutit.build['cidfile'] = shutit_global.shutit_global_object.shutit_state_dir + '/cidfiles/' + shutit_global.shutit_global_object.username + '_cidfile_' + shutit_global.shutit_global_object.build_id
-	cidfile_arg = '--cidfile=' + shutit.build['cidfile']
-	# Singly-specified options
-	privileged_arg   = ''
-	name_arg         = ''
-	hostname_arg     = ''
-	rm_arg           = ''
-	net_arg          = ''
-	mount_docker_arg = ''
-	shell_arg        = '/bin/bash'
-	if shutit.build['privileged']:
-		privileged_arg = '--privileged=true'
-	if shutit.target['name'] != '':
-		name_arg = '--name=' + shutit.target['name']
-	if shutit.target['hostname'] != '':
-		hostname_arg = '-h=' + shutit.target['hostname']
-	if shutit.build['net'] != '':
-		net_arg        = '--net="' + shutit.build['net'] + '"'
-	if shutit.build['mount_docker']:
-		mount_docker_arg = '-v=/var/run/docker.sock:/var/run/docker.sock'
-	# Incompatible with do_repository_work
-	if shutit.target['rm']:
-		rm_arg = '--rm=true'
-	if shutit.build['base_image'] in ('alpine','busybox'):
-		shell_arg = '/bin/ash'
-	# Multiply-specified options
-	port_args         = []
-	dns_args          = []
-	volume_args       = []
-	volumes_from_args = []
-	volumes_list      = shutit.target['volumes'].strip().split()
-	volumes_from_list = shutit.target['volumes_from'].strip().split()
-	ports_list        = shutit.target['ports'].strip().split()
-	dns_list          = shutit.host['dns'].strip().split()
-	for portmap in ports_list:
-		port_args.append('-p=' + portmap)
-	for dns in dns_list:
-		dns_args.append('--dns=' + dns)
-	for volume in volumes_list:
-		volume_args.append('-v=' + volume)
-	for volumes_from in volumes_from_list:
-		volumes_from_args.append('--volumes-from=' + volumes_from)
-
-	docker_command = docker + [
-		arg for arg in [
-			'run',
-			cidfile_arg,
-			privileged_arg,
-			name_arg,
-			hostname_arg,
-			rm_arg,
-			net_arg,
-			mount_docker_arg,
-		] + volume_args + volumes_from_args + port_args + dns_args + [
-			'-t',
-			'-i',
-			shutit.target['docker_image'],
-			shell_arg
-		] if arg != ''
-	]
-	shutit.build['docker_command'] = ' '.join(docker_command)
-	# docker run happens here
-	shutit_global.shutit_global_object.log('Startup command is: ' + shutit.build['docker_command'],level=logging.INFO)
-	shutit_global.shutit_global_object.log('Downloading image, please be patient',level=logging.INFO)
-	shutit_pexpect_session = ShutItPexpectSession(shutit, shutit_session_name, docker_command[0], docker_command[1:])
-	target_child = shutit_pexpect_session.pexpect_child
-	expect = ['assword', shutit.expect_prompts['base_prompt'].strip(), 'Waiting', 'ulling', 'endpoint', 'Download','o such file']
-	res = shutit_pexpect_session.expect(expect, timeout=9999)
-	while True:
-		if target_child.before == type(pexpect.exceptions.EOF):
-			shutit.fail('EOF exception seen') # pragma: no cover
-		try:
-			shutit_global.shutit_global_object.log(target_child.before + target_child.after,level=logging.DEBUG)
-		except Exception:
-			pass
-		if res == 0:
-			res = shutit.send(shutit.host['password'], shutit_pexpect_child=target_child, expect=expect, timeout=9999, check_exit=False, fail_on_empty_before=False, echo=False)
-		elif res == 1:
-			shutit_global.shutit_global_object.log('Prompt found, breaking out',level=logging.DEBUG)
-			break
-		elif res == 6:
-			shutit.fail('Docker not installed.') # pragma: no cover
-			break
-		elif res == 7:
-			shutit_global.shutit_global_object.log('Initial command timed out, assuming OK to continue.',level=logging.WARNING)
-			break
-		elif res == 8:
-			shutit.fail('EOF seen.') # pragma: no cover
-		else:
-			res = shutit_pexpect_session.expect(expect, timeout=9999)
-			continue
-	shutit_global.shutit_global_object.log('Getting cid')
-	# Get the cid, to determine whether the container started up ok.
-	# pexpect.spawn does not give us an easy way to determine the success of the run without closing the stream.
-	while True:
-		try:
-			cid = open(shutit.build['cidfile']).read()
-			break
-		except Exception:
-			time.sleep(1)
-	if cid == '' or re.match('^[a-z0-9]+$', cid) is None:
-		shutit.fail('Could not get container_id - quitting. Check whether other containers may be clashing on port allocation or name.\nYou might want to try running: sudo docker kill ' + shutit.target['name'] + '; sudo docker rm ' + shutit.target['name'] + '\nto resolve a name clash or: ' + shutit.host['docker_executable'] + ' ps -a | grep ' + shutit.target['ports'] + " | awk '{print $1}' | " + 'xargs ' + shutit.host['docker_executable'] + ' kill\nto ' + 'resolve a port clash\n') # pragma: no cover
-	shutit_global.shutit_global_object.log('cid: ' + cid,level=logging.DEBUG)
-	shutit.target['container_id'] = cid
-	return target_child

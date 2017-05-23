@@ -233,6 +233,16 @@ class ShutItGlobal(object):
 		self.loglevel = logging.getLogger().getEffectiveLevel()
 
 
+	def handle_exit(self,exit_code=0,loglevel=logging.DEBUG,msg=None):
+		if not msg:
+			msg = '\nExiting with error code: ' + str(exit_code)
+		if exit_code != 0:
+			self.log('Exiting with error code: ' + str(exit_code),level=loglevel)
+			self.log('Resetting terminal',level=loglevel)
+		shutit_util.sanitize_terminal()
+		sys.exit(exit_code)
+
+
 def setup_signals():
 	signal.signal(signal.SIGINT, shutit_util.ctrl_c_signal_handler)
 	signal.signal(signal.SIGQUIT, shutit_util.ctrl_quit_signal_handler)

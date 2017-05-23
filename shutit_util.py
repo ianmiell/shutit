@@ -122,7 +122,7 @@ def ctrl_quit_signal_handler(_,frame):
 	shutit_frame = get_shutit_frame(frame)
 	if shutit_frame:
 		shutit_class.do_finalize()
-	handle_exit(exit_code=1)
+	shutit_global.shutit_global_object.handle_exit(exit_code=1)
 # CTRL-\ HANDLING CODE ENDS
 
 
@@ -133,7 +133,7 @@ def ctrlc_background():
 	global in_ctrlc
 	ctrl_c_calls += 1
 	if ctrl_c_calls > 10:
-		handle_exit(exit_code=1)
+		shutit_global.shutit_global_object.handle_exit(exit_code=1)
 	in_ctrlc = True
 	time.sleep(1)
 	in_ctrlc = False
@@ -145,7 +145,7 @@ def ctrl_c_signal_handler(_,frame):
 	global ctrl_c_calls
 	ctrl_c_calls += 1
 	if ctrl_c_calls > 10:
-		handle_exit(exit_code=1)
+		shutit_global.shutit_global_object.handle_exit(exit_code=1)
 	shutit_frame = get_shutit_frame(frame)
 	if in_ctrlc:
 		msg = 'CTRL-C hit twice, quitting'
@@ -155,7 +155,7 @@ def ctrl_c_signal_handler(_,frame):
 			shutit.log(msg,level=logging.CRITICAL)
 		else:
 			print(msg)
-		handle_exit(exit_code=1)
+		shutit_global.shutit_global_object.handle_exit(exit_code=1)
 	if shutit_frame:
 		shutit = shutit_frame.f_locals['shutit']
 		if shutit.build['ctrlc_passthrough']:
@@ -183,7 +183,7 @@ def get_shutit_frame(frame):
 	global ctrl_c_calls
 	ctrl_c_calls += 1
 	if ctrl_c_calls > 10:
-		handle_exit(exit_code=1)
+		shutit_global.shutit_global_object.handle_exit(exit_code=1)
 	if not frame.f_back:
 		return None
 	else:
@@ -213,17 +213,6 @@ def check_regexp(regex):
 	except re.error:
 		result = False
 	return result
-
-
-def handle_exit(exit_code=0,msg=None):
-	if not msg:
-		msg = '\nExiting with error code: ' + str(exit_code)
-	if exit_code != 0:
-		#shutit_global.shutit_global_object.print_stack_trace()
-		print(msg)
-		print('Resetting terminal')
-	sanitize_terminal()
-	sys.exit(exit_code)
 
 
 def sendline(child,
@@ -288,6 +277,34 @@ def util_raw_input(prompt='', default=None, ispass=False, use_readline=True):
 	return default
 
 
+
+
+def get_input(msg, default='', valid=None, boolean=False, ispass=False, colour='32'):
+	"""Gets input from the user, and returns the answer.
+
+	@param msg:       message to send to user
+	@param default:   default value if nothing entered
+	@param valid:     valid input values (default == empty list == anything allowed)
+	@param boolean:   whether return value should be boolean
+	@param ispass:    True if this is a password (ie whether to not echo input)
+	"""
+	if boolean and valid is None:
+		valid = ('yes','y','Y','1','true','no','n','N','0','false')
+	answer = util_raw_input(prompt=colourise(colour,msg),ispass=ispass)
+	if boolean and answer in ('', None) and default != '':
+		return default
+	if valid is not None:
+		while answer not in valid:
+			shutit_global.shutit_global_object.log('Answer must be one of: ' + str(valid),transient=True)
+			answer = util_raw_input(prompt=colourise(colour,msg),ispass=ispass)
+	if boolean and answer in ('yes','y','Y','1','true','t','YES'):
+		return True
+	if boolean and answer in ('no','n','N','0','false','f','NO'):
+		return False
+	if answer in ('',None):
+		return default
+	else:
+		return answer
 
 
 # Static strings
