@@ -745,7 +745,7 @@ class ShutIt(object):
 				if training_input != '' and self.build['training']:
 					if len(training_input.split('\n')) == 1:
 						print(shutit_util.colourise('31',message))
-						while self.util_raw_input(prompt=shutit_util.colourise('32','Enter the command to continue (or "s" to skip typing it in): ')) not in (training_input,'s'):
+						while shutit_util.util_raw_input(prompt=shutit_util.colourise('32','Enter the command to continue (or "s" to skip typing it in): ')) not in (training_input,'s'):
 							print('Wrong! Try again!')
 						print(shutit_util.colourise('31','OK!'))
 					else:
@@ -1509,7 +1509,7 @@ class ShutIt(object):
 		if ispass:
 			val = getpass.getpass('>> ')
 		else:
-			val = self.util_raw_input(prompt='>> ')
+			val = shutit_util.util_raw_input(prompt='>> ')
 		is_excluded = (
 			config_parser.has_option('save_exclude', sec) and
 			name in config_parser.get('save_exclude', sec).split()
@@ -1520,7 +1520,7 @@ class ShutIt(object):
 				subcp for subcp, filename, _ in config_parser.layers
 				if filename == usercfg
 			][0]
-			if self.util_raw_input(prompt=shutit_util.colourise('32', 'Do you want to save this to your user settings? y/n: '),default='y') == 'y':
+			if shutit_util.util_raw_input(prompt=shutit_util.colourise('32', 'Do you want to save this to your user settings? y/n: '),default='y') == 'y':
 				sec_toset, name_toset, val_toset = sec, name, val
 			else:
 				# Never save it
@@ -2212,7 +2212,7 @@ class ShutIt(object):
 						answer = None
 						# util_raw_input may change the interactive level, so guard for this.
 						while answer not in ('yes','no','') and shutit_global.shutit_global_object.interactive > 1:
-							answer = self.util_raw_input(prompt=shutit_util.colourise('32', 'Do you want to accept the config option defaults? ' + '(boolean - input "yes" or "no") (default: yes): \n'),default='yes',ispass=secret)
+							answer = shutit_util.util_raw_input(prompt=shutit_util.colourise('32', 'Do you want to accept the config option defaults? ' + '(boolean - input "yes" or "no") (default: yes): \n'),default='yes',ispass=secret)
 						# util_raw_input may change the interactive level, so guard for this.
 						self.build['accept_defaults'] = answer in ('yes','') or shutit_global.shutit_global_object.interactive < 2
 					if self.build['accept_defaults'] and default != None:
@@ -2229,16 +2229,16 @@ class ShutIt(object):
 						answer = None
 						if boolean:
 							while answer not in ('yes','no'):
-								answer =  self.util_raw_input(prompt=shutit_util.colourise('32',prompt + ' (boolean - input "yes" or "no"): \n'),ispass=secret)
+								answer =  shutit_util.util_raw_input(prompt=shutit_util.colourise('32',prompt + ' (boolean - input "yes" or "no"): \n'),ispass=secret)
 							if answer == 'yes':
 								answer = True
 							elif answer == 'no':
 								answer = False
 						else:
 							if re.search('assw',option) is None:
-								answer =  self.util_raw_input(prompt=shutit_util.colourise('32',prompt) + ': \n',ispass=secret)
+								answer =  shutit_util.util_raw_input(prompt=shutit_util.colourise('32',prompt) + ': \n',ispass=secret)
 							else:
-								answer =  self.util_raw_input(ispass=True,prompt=shutit_util.colourise('32',prompt) + ': \n')
+								answer =  shutit_util.util_raw_input(ispass=True,prompt=shutit_util.colourise('32',prompt) + ': \n')
 						if answer == '' and default != None:
 							answer = default
 						cfg[module_id][option] = answer
@@ -2454,51 +2454,6 @@ class ShutIt(object):
 		return s
 
 
-	def util_raw_input(self, prompt='', default=None, ispass=False, use_readline=True):
-		"""Handles raw_input calls, and switches off interactivity if there is apparently
-		no controlling terminal (or there are any other problems)
-		"""
-		if use_readline:
-			try:
-				readline.read_init_file('/etc/inputrc')
-			except:
-				pass
-			readline.parse_and_bind('tab: complete')
-		prompt = '\r\n' + prompt
-		if ispass:
-			prompt += '\r\nInput Secret: '
-		shutit_util.sanitize_terminal()
-		if shutit_global.shutit_global_object.interactive == 0:
-			return default
-		if not shutit_global.shutit_global_object.determine_interactive():
-			return default
-		while True:
-			try:
-				if ispass:
-					return getpass.getpass(prompt=prompt)
-				else:
-					resp = raw_input(prompt).strip()
-					if resp == '':
-						return default
-					else:
-						return resp
-			except KeyboardInterrupt:
-				continue
-			except:
-				msg = 'Problems getting raw input, assuming no controlling terminal.'
-		if ispass:
-			return getpass.getpass(prompt=prompt)
-		else:
-			resp = raw_input(prompt).strip()
-			if resp == '':
-				return default
-			else:
-				return resp
-		shutit_global.shutit_global_object.set_noninteractive(msg=msg)
-		return default
-
-
-
 	def match_string(self, string_to_match, regexp):
 		"""Get regular expression from the first of the lines passed
 		in in string that matched. Handles first group of regexp as
@@ -2670,13 +2625,13 @@ class ShutIt(object):
 		"""
 		if boolean and valid is None:
 			valid = ('yes','y','Y','1','true','no','n','N','0','false')
-		answer = self.util_raw_input(prompt=shutit_util.colourise(colour,msg),ispass=ispass)
+		answer = shutit_util.util_raw_input(prompt=shutit_util.colourise(colour,msg),ispass=ispass)
 		if boolean and answer in ('', None) and default != '':
 			return default
 		if valid is not None:
 			while answer not in valid:
 				self.log('Answer must be one of: ' + str(valid),transient=True)
-				answer = self.util_raw_input(prompt=shutit_util.colourise(colour,msg),ispass=ispass)
+				answer = shutit_util.util_raw_input(prompt=shutit_util.colourise(colour,msg),ispass=ispass)
 		if boolean and answer in ('yes','y','Y','1','true','t','YES'):
 			return True
 		if boolean and answer in ('no','n','N','0','false','f','NO'):
@@ -3165,6 +3120,13 @@ class ShutIt(object):
 			print('ShutIt version: ' + shutit.shutit_version)
 			self.handle_exit(exit_code=0)
 
+		# Logging
+		shutit_global.shutit_global_object.logfile  = args.logfile
+		shutit_global.shutit_global_object.loglevel = args.log
+		if shutit_global.shutit_global_object.loglevel in ('', None):
+			shutit_global.shutit_global_object.loglevel = 'INFO'
+		shutit_global.shutit_global_object.setup_logging()
+
 		# What are we asking shutit to do?
 		self.action['list_configs'] = args.action == 'list_configs'
 		self.action['list_modules'] = args.action == 'list_modules'
@@ -3173,13 +3135,6 @@ class ShutIt(object):
 		self.action['build']        = args.action == 'build'
 		self.action['run']          = args.action == 'run'
 		self.build['exam']          = False
-		# Logging
-		shutit_global.shutit_global_object.logfile   = args.logfile
-
-		shutit_global.shutit_global_object.loglevel = args.log # TODO: place in global
-		if shutit_global.shutit_global_object.loglevel in ('', None): # TODO: place in global
-			shutit_global.shutit_global_object.loglevel = 'INFO' # TODO: place in global
-		shutit_global.shutit_global_object.setup_logging() # TODO: place in global
 
 		# This mode is a bit special - it's the only one with different arguments
 		if self.action['skeleton']:
@@ -3258,7 +3213,7 @@ class ShutIt(object):
 				if accept_defaults:
 					module_directory = default_dir
 				else:
-					module_directory = self.util_raw_input(prompt='# Input a name for this module.\n# Default: ' + default_dir + '\n', default=default_dir)
+					module_directory = shutit_util.util_raw_input(prompt='# Input a name for this module.\n# Default: ' + default_dir + '\n', default=default_dir)
 			if module_directory[0] != '/':
 				module_directory = self.host['calling_path'] + '/' + module_directory
 			module_name = module_directory.split('/')[-1].replace('-','_')
@@ -3267,7 +3222,7 @@ class ShutIt(object):
 				#if accept_defaults:
 				domain = default_domain_name
 				#else:
-				#	domain = self.util_raw_input(prompt='# Input a unique domain, eg (com.yourcorp).\n# Default: ' + default_domain_name + '\n', default=default_domain_name)
+				#	domain = shutit_util.util_raw_input(prompt='# Input a unique domain, eg (com.yourcorp).\n# Default: ' + default_domain_name + '\n', default=default_domain_name)
 			else:
 				domain = args.domain
 			# Figure out defaults.
@@ -3279,7 +3234,7 @@ class ShutIt(object):
 						default_pattern = delivery_method
 					pattern = default_pattern
 				else:
-					pattern = self.util_raw_input(prompt='''# Input a ShutIt pattern.
+					pattern = shutit_util.util_raw_input(prompt='''# Input a ShutIt pattern.
 	Default: ''' + default_pattern + '''
 
 	bash:              a shell script
@@ -3310,7 +3265,7 @@ class ShutIt(object):
 				else:
 					delivery = ''
 					while delivery not in shutit_util.allowed_delivery_methods:
-						delivery = self.util_raw_input(prompt=textwrap.dedent('''
+						delivery = shutit_util.util_raw_input(prompt=textwrap.dedent('''
 							# Input a delivery method from: bash, docker, vagrant.
 							# Default: ''' + default_delivery + '''
 
@@ -3339,12 +3294,8 @@ class ShutIt(object):
 				'vagrant_machine_prefix': args.vagrant_machine_prefix,
 				'vagrant_docker':         args.vagrant_docker
 			}
-			# set defaults to allow config to work
-			self.build['extra_configs']    = []
-			self.build['config_overrides'] = []
-			self.build['conn_module']      = None
-			self.build['delivery']         = 'bash'
-			self.target['docker_image']    = ''
+			shutit_skeleton.create_skeleton(self)
+			self.handle_exit()
 		elif self.action['run']:
 			module_name      = shutit_util.random_id(chars=string.ascii_letters)
 			module_dir       = "/tmp/shutit_built/" + module_name
@@ -3506,7 +3457,7 @@ class ShutIt(object):
 				# Actually show this to the user before failing...
 				self.log(fail_str)
 				self.log('Do you want me to run this for you? (input y/n)')
-				if shutit_global.shutit_global_object.interactive == 0 or self.util_raw_input(default='y') == 'y':
+				if shutit_global.shutit_global_object.interactive == 0 or shutit_util.util_raw_input(default='y') == 'y':
 					for f in files:
 						self.log('Correcting insecure file permissions on: ' + f)
 						os.chmod(f,0o600)
@@ -3814,7 +3765,7 @@ class ShutIt(object):
 		while True:
 			self.do_list_modules(long_output=False,sort_order='run_order')
 			# Which module do you want to toggle?
-			module_id = self.util_raw_input(prompt='Which module id do you want to toggle?\n(just hit return to continue with build)\n(you can enter a substring if it is uniquely matching)\n')
+			module_id = shutit_util.util_raw_input(prompt='Which module id do you want to toggle?\n(just hit return to continue with build)\n(you can enter a substring if it is uniquely matching)\n')
 			if module_id:
 				try:
 					_=cfg[module_id]
@@ -3833,7 +3784,7 @@ class ShutIt(object):
 				cfg[module_id]['shutit.core.module.build'] = not cfg[module_id]['shutit.core.module.build']
 				if not self.config_collection_for_built(throw_error=False):
 					cfg[module_id]['shutit.core.module.build'] = not cfg[module_id]['shutit.core.module.build']
-					self.util_raw_input(prompt='Hit return to continue.\n')
+					shutit_util.util_raw_input(prompt='Hit return to continue.\n')
 					continue
 				# If true, set up config for that module
 				if cfg[module_id]['shutit.core.module.build']:
@@ -3841,26 +3792,26 @@ class ShutIt(object):
 					newcfg_list = []
 					while True:
 						print(self.print_config(cfg,module_id=module_id))
-						name = self.util_raw_input(prompt='Above is the config for that module. Hit return to continue, or a config item you want to update.\n')
+						name = shutit_util.util_raw_input(prompt='Above is the config for that module. Hit return to continue, or a config item you want to update.\n')
 						if name:
 							doing_list = False
 							while True:
 								if doing_list:
-									val_type = self.util_raw_input(prompt='Input the type for the next list item: b(oolean), s(tring).\n')
+									val_type = shutit_util.util_raw_input(prompt='Input the type for the next list item: b(oolean), s(tring).\n')
 									if val_type not in ('b','s',''):
 										continue
 								else:
-									val_type = self.util_raw_input(prompt='Input the type for that config item: b(oolean), s(tring), l(ist).\n')
+									val_type = shutit_util.util_raw_input(prompt='Input the type for that config item: b(oolean), s(tring), l(ist).\n')
 									if val_type not in ('b','s','l',''):
 										continue
 								if val_type == 's':
-									val = self.util_raw_input(prompt='Input the value new for that config item.\n')
+									val = shutit_util.util_raw_input(prompt='Input the value new for that config item.\n')
 									if doing_list:
 										newcfg_list.append(val)
 									else:
 										break
 								elif val_type == 'b':
-									val = self.util_raw_input(prompt='Input the value new for the boolean (t/f).\n')
+									val = shutit_util.util_raw_input(prompt='Input the value new for the boolean (t/f).\n')
 									if doing_list:
 										if val == 't':
 											newcfg_list.append(True)
@@ -3897,9 +3848,6 @@ class ShutIt(object):
 			self.log('# ShutIt Started... ',transient=True)
 			self.log('# Loading configs...',transient=True)
 		self.load_configs()
-		if self.action['skeleton']:
-			shutit_skeleton.create_skeleton(self)
-			return
 		# Try and ensure shutit is on the path - makes onboarding easier
 		# Only do this if we're in a terminal
 		if shutit_global.shutit_global_object.determine_interactive() and spawn.find_executable('shutit') is None:
@@ -3950,7 +3898,7 @@ class ShutIt(object):
 		# try the current directory, the .. directory, or the ../shutit directory, the ~/shutit
 		if not self.host['add_shutit_to_path']:
 			return
-		res = self.util_raw_input(prompt='shutit appears not to be on your path - should try and we find it and add it to your ~/.bashrc (Y/n)?')
+		res = shutit_util.util_raw_input(prompt='shutit appears not to be on your path - should try and we find it and add it to your ~/.bashrc (Y/n)?')
 		if res in ['n','N']:
 			with open(os.path.join(self.host['shutit_path'], 'config'), 'a') as f:
 				f.write('\n[host]\nadd_shutit_to_path: no\n')
@@ -3962,7 +3910,7 @@ class ShutIt(object):
 				continue
 			path_to_shutit = path
 		while path_to_shutit == '':
-			d = self.util_raw_input(prompt='cannot auto-find shutit - please input the path to your shutit dir\n')
+			d = shutit_util.util_raw_input(prompt='cannot auto-find shutit - please input the path to your shutit dir\n')
 			path = os.path.abspath(d + '/shutit')
 			if not os.path.isfile(path):
 				continue
@@ -3972,7 +3920,7 @@ class ShutIt(object):
 			with open(bashrc, "a") as myfile:
 				#http://unix.stackexchange.com/questions/26676/how-to-check-if-a-shell-is-login-interactive-batch
 				myfile.write('\nexport PATH="$PATH:' + os.path.dirname(path_to_shutit) + '"\n')
-			self.util_raw_input(prompt='\nPath set up - please open new terminal and re-run command\n')
+			shutit_util.util_raw_input(prompt='\nPath set up - please open new terminal and re-run command\n')
 			self.handle_exit()
 
 
@@ -4133,7 +4081,7 @@ class ShutIt(object):
 			self.log(self.build_report('#Module:' + module.module_id), level=logging.DEBUG)
 		if not cfg[module.module_id]['shutit.core.module.tag'] and shutit_global.shutit_global_object.interactive >= 2:
 			print ("\n\nDo you want to save state now we\'re at the " + "end of this module? (" + module.module_id + ") (input y/n)")
-			cfg[module.module_id]['shutit.core.module.tag'] = (self.util_raw_input(default='y') == 'y')
+			cfg[module.module_id]['shutit.core.module.tag'] = (shutit_util.util_raw_input(default='y') == 'y')
 		if cfg[module.module_id]['shutit.core.module.tag'] or self.build['tag_modules']:
 			self.log(module.module_id + ' configured to be tagged, doing repository work',level=logging.INFO)
 			# Stop all before we tag to avoid file changing errors, and clean up pid files etc..
@@ -4143,7 +4091,7 @@ class ShutIt(object):
 			self.start_all(module.run_order)
 		if shutit_global.shutit_global_object.interactive >= 2:
 			print ("\n\nDo you want to stop interactive mode? (input y/n)\n")
-			if self.util_raw_input(default='y') == 'y':
+			if shutit_util.util_raw_input(default='y') == 'y':
 				shutit_global.shutit_global_object.interactive = 0
 
 
@@ -4266,8 +4214,6 @@ class ShutIt(object):
 			return True
 		else:
 			return False
-
-
 
 
 	def init_shutit_map(self):

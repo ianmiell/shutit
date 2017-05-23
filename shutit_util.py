@@ -240,6 +240,53 @@ def check_delivery_method(method):
 	return False
 
 
+
+def util_raw_input(prompt='', default=None, ispass=False, use_readline=True):
+	"""Handles raw_input calls, and switches off interactivity if there is apparently
+	no controlling terminal (or there are any other problems)
+	"""
+	if use_readline:
+		try:
+			readline.read_init_file('/etc/inputrc')
+		except:
+			pass
+		readline.parse_and_bind('tab: complete')
+	prompt = '\r\n' + prompt
+	if ispass:
+		prompt += '\r\nInput Secret: '
+	shutit_util.sanitize_terminal()
+	if shutit_global.shutit_global_object.interactive == 0:
+		return default
+	if not shutit_global.shutit_global_object.determine_interactive():
+		return default
+	while True:
+		try:
+			if ispass:
+				return getpass.getpass(prompt=prompt)
+			else:
+				resp = raw_input(prompt).strip()
+				if resp == '':
+					return default
+				else:
+					return resp
+		except KeyboardInterrupt:
+			continue
+		except:
+			msg = 'Problems getting raw input, assuming no controlling terminal.'
+	if ispass:
+		return getpass.getpass(prompt=prompt)
+	else:
+		resp = raw_input(prompt).strip()
+		if resp == '':
+			return default
+		else:
+			return resp
+	shutit_global.shutit_global_object.set_noninteractive(msg=msg)
+	return default
+
+
+
+
 # Static strings
 _default_repo_name = 'my_module'
 default_cnf = '''

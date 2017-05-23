@@ -123,7 +123,6 @@ class ShutItGlobal(object):
 			                                   delivery='docker',
 			                                   base_image=docker_image))
 			new_shutit.target['rm'] = rm
-			# Now 'load' the configs
 			# TODO: can we get rid of/rationalise load_configs?
 			new_shutit.load_configs()
 			target_child = shutit_setup.conn_docker_start_container(new_shutit,'target_child')
