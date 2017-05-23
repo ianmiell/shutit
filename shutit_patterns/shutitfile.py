@@ -36,10 +36,9 @@ except ImportError:
 	from urllib2 import urlopen
 from six import iteritems
 import shutit_util
+import shutit_global
 import shutit_skeleton
 
-#_default_repo_name = shutit_util._default_repo_name
-_default_repo_name = 'mymodule'
 
 def setup_shutitfile_pattern(shutit,
                              skel_path,
@@ -289,7 +288,7 @@ def check_shutitfile_representation(shutit, shutitfile_representation, skel_deli
 		# Default skel_delivery to bash if none seen
 		skel_delivery = 'bash'
 
-	if skel_delivery not in shutit_util.allowed_delivery_methods:
+	if skel_delivery not in shutit_global.shutit_global_object.allowed_delivery_methods:
 		shutit.fail('Disallowed delivery method in ShutItFile: ' + skel_delivery)
 
 	if skel_delivery != 'docker':
@@ -806,6 +805,7 @@ def handle_shutitfile_script_line(shutit, line, numpushes, wgetgot, numlogins, i
 		assert isinstance(shutitfile_args, list)
 		assert len(shutitfile_args) == 1
 		repo_name = scan_text(shutitfile_args[0])
+		_default_repo_name = 'mymodule'
 		if repo_name == _default_repo_name:
 			shutit.log('The docker container will be committed with the default repo_name: ' + _default_repo_name + '.\nYou can change this by adding this to the ~/.shutit/config file:\n\n[repository]\nname:yourname\n\nand re-running.',level=logging.WARNING)
 		if len(shutitfile_args) == 1:
