@@ -2699,13 +2699,6 @@ class ShutIt(object):
 		self.repository['tag_name']              = cp.get('repository', 'tag_name')
 		# END Read from config files
 
-		# BEGIN Standard expects
-		# It's important that these have '.*' in them at the start, so that the matched data is reliably 'after' in the
-		# child object. Use these where possible to make things more consistent.
-		# Attempt to capture any starting prompt (when starting) with this regexp.
-		self.expect_prompts['base_prompt']       = '\r\n.*[@#$] '
-		# END Standard expects
-
 		if self.target['docker_image'] == '':
 			self.target['docker_image'] = self.build['base_image']
 		# END tidy configs up
@@ -3679,7 +3672,7 @@ class ShutIt(object):
 		shutit_global.shutit_global_object.log('Downloading image, please be patient',level=logging.INFO)
 		shutit_pexpect_session = ShutItPexpectSession(shutit, shutit_session_name, docker_command[0], docker_command[1:])
 		target_child = shutit_pexpect_session.pexpect_child
-		expect = ['assword', self.expect_prompts['base_prompt'].strip(), 'Waiting', 'ulling', 'endpoint', 'Download','o such file']
+		expect = ['assword', shutit_global.shutit_global_object.base_prompt.strip(), 'Waiting', 'ulling', 'endpoint', 'Download','o such file']
 		res = shutit_pexpect_session.expect(expect, timeout=9999)
 		while True:
 			if target_child.before == type(pexpect.exceptions.EOF):
@@ -3730,7 +3723,7 @@ class ShutIt(object):
 		# Some pexpect settings
 		shutit_pexpect_session = self.get_shutit_pexpect_session_from_id(target_child_id)
 		shutit_pexpect_session.pexpect_child = target_child
-		self.set_default_shutit_pexpect_session_expect(self.expect_prompts['base_prompt'])
+		self.set_default_shutit_pexpect_session_expect(shutit_global.shutit_global_object.base_prompt)
 		# target child
 		self.set_default_shutit_pexpect_session(shutit_pexpect_session)
 		shutit_pexpect_session.setup_prompt(prefix,prefix=prefix)
@@ -3743,7 +3736,7 @@ class ShutIt(object):
 		shutit_pexpect_session = ShutItPexpectSession(self, 'host_child', '/bin/bash')
 		# Set up prompts and let the user do things before the build
 		self.set_default_shutit_pexpect_session(shutit_pexpect_session)
-		self.set_default_shutit_pexpect_session_expect(self.expect_prompts['base_prompt'])
+		self.set_default_shutit_pexpect_session_expect(shutit_global.shutit_global_object.base_prompt)
 		# ORIGIN_ENV is a special case of the prompt maintained for performance reasons, don't change.
 		prefix = 'ORIGIN_ENV'
 		shutit_pexpect_session.setup_prompt('ORIGIN_ENV', prefix=prefix)

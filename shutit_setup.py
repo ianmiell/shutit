@@ -126,7 +126,7 @@ class ConnBash(ShutItConnModule):
 		"""
 		shutit_pexpect_session = ShutItPexpectSession(shutit, 'target_child','/bin/bash')
 		target_child = shutit_pexpect_session.pexpect_child
-		shutit_pexpect_session.expect(shutit.expect_prompts['base_prompt'].strip(), timeout=10)
+		shutit_pexpect_session.expect(shutit_global.shutit_global_object.base_prompt.strip(), timeout=10)
 		self.setup_host_child(shutit)
 		self.setup_target_child(shutit, target_child)
 		return True
@@ -194,7 +194,7 @@ class ConnSSH(ShutItConnModule):
 		shutit_global.shutit_global_object.log('Startup command is: ' + shutit.build['ssh_command'],level=logging.INFO)
 		shutit_pexpect_session = ShutItPexpectSession(shutit, 'target_child', ssh_command[0], ssh_command[1:])
 		target_child = shutit_pexpect_session.pexpect_child
-		expect = ['assword', shutit.expect_prompts['base_prompt'].strip()]
+		expect = ['assword', shutit_global.shutit_global_object.base_prompt.strip()]
 		res = shutit.child_expect(target_child,expect, timeout=10)
 		while True:
 			shutit_global.shutit_global_object.log(target_child.before + target_child.after,level=logging.DEBUG)

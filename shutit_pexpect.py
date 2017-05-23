@@ -74,7 +74,7 @@ class ShutItPexpectSession(object):
 		assert isinstance(shutit, shutit_class.ShutIt)
 		self.shutit                    = shutit
 		self.check_exit                = True
-		self.default_expect            = [self.shutit.expect_prompts['base_prompt']]
+		self.default_expect            = [shutit_global.shutit_global_object.base_prompt]
 		self.pexpect_session_id        = pexpect_session_id
 		self.login_stack               = ShutItLoginStack()
 		self.current_environment       = None
@@ -273,7 +273,7 @@ class ShutItPexpectSession(object):
 			send = command + ' ' + user
 		else:
 			send = command
-		login_expect = expect or shutit.expect_prompts['base_prompt']
+		login_expect = expect or shutit_global.shutit_global_object.base_prompt
 		# We don't fail on empty before as many login programs mess with the output.
 		# In this special case of login we expect either the prompt, or 'user@' as this has been seen to work.
 		general_expect = [login_expect]
@@ -391,7 +391,7 @@ class ShutItPexpectSession(object):
 
 		Typically it would be used in this boilerplate pattern::
 
-		    shutit.send('su - auser', expect=shutit.expect_prompts['base_prompt'], check_exit=False)
+		    shutit.send('su - auser', expect=shutit_global.shutit_global_object.base_prompt, check_exit=False)
 		    shutit.setup_prompt('tmp_prompt')
 		    shutit.send('some command')
 		    [...]
