@@ -356,7 +356,7 @@ def generate_shutit_module_sections(shutit,
 			numlogins    =  ret[3]
 			ifdepth      =  ret[4]
 			current_note =  ret[5]
-	build_section += shutit_util._build_section + build
+	build_section += build
 	while numpushes > 0:
 		build_section += '''\n\t\tshutit.send('popd')'''
 		numpushes -= 1

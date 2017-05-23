@@ -263,7 +263,8 @@ class ShutIt(object):
 	Represents an instance of a ShutIt run/session/build with associated config.
 	"""
 
-	def __init__(self):
+	def __init__(self,
+	             standalone):
 		"""Constructor.
 		Sets up:
 
@@ -271,7 +272,14 @@ class ShutIt(object):
 				- shutit_main_dir         - directory in which shutit is located
 				- cfg                     - dictionary of configuration of build
 				- shutit_map              - maps module_ids to module objects
+
+		standalone - Whether this is a shutit object created dynamically (True)
+		             within a python script, or as part of a shutit invocation (False).
+		             If it's created dynamically, then this can make a difference to
+		             how the configuration is collected.
 		"""
+
+		self.standalone                      = standalone
 		# Store the root directory of this application.
 		# http://stackoverflow.com/questions/5137497
 		self.build                           = {}
@@ -2607,7 +2615,7 @@ class ShutIt(object):
 		Recurses down from configured shutit module paths.
 		"""
 		# Get root default config.
-		configs = [('defaults', StringIO(shutit_util.default_cnf)), os.path.expanduser('~/.shutit/config'), os.path.join(self.host['shutit_path'], 'config'), 'configs/build.cnf']
+		configs = [('defaults', StringIO(default_cnf)), os.path.expanduser('~/.shutit/config'), os.path.join(self.host['shutit_path'], 'config'), 'configs/build.cnf']
 		# Add the shutit global host- and user-specific config file.
 		# Add the local build.cnf
 		# Get passed-in config(s)
@@ -3255,9 +3263,9 @@ class ShutIt(object):
 			if not os.path.isfile(os.path.join(shutit_home, 'config')):
 				f = os.open(os.path.join(shutit_home, 'config'), os.O_WRONLY | os.O_CREAT, 0o600)
 				if PY3:
-					os.write(f,bytes(shutit_util.default_cnf,'utf-8'))
+					os.write(f,bytes(default_cnf,'utf-8'))
 				else:
-					os.write(f,shutit_util.default_cnf)
+					os.write(f,default_cnf)
 				os.close(f)
 
 			# Default this to False as it's not always set (mostly for debug logging).
@@ -4388,3 +4396,110 @@ def make_dep_graph(depender):
 	for dependee_id in depender.depends_on:
 		digraph = (digraph + '"' + depender.module_id + '"->"' + dependee_id + '";\n')
 	return digraph
+
+
+default_cnf = '''
+################################################################################
+# Default core config file for ShutIt.
+################################################################################
+
+# Details relating to the target you are building to (container, ssh or bash)
+[target]
+# Root password for the target - replace with your chosen password
+# If left blank, you will be prompted for a password
+password:
+# Hostname for the target - replace with your chosen target hostname
+# (where applicable, eg docker container)
+hostname:
+# space separated list of ports to expose
+# e.g. "ports:2222:22 8080:80" would expose container ports 22 and 80 as the
+# host's 2222 and 8080 (where applicable)
+ports:
+# volume arguments, eg /tmp/postgres:/var/lib/postgres:ro
+volumes:
+# volumes-from arguments
+volumes_from:
+# Name to give the docker container (where applicable).
+# Empty means "let docker default a name".
+name:
+# Whether to remove the docker container when finished (where applicable).
+rm:no
+
+# Information specific to the host on which the build runs.
+[host]
+# Ask the user if they want shutit on their path
+add_shutit_to_path: yes
+# Docker executable on your host machine
+docker_executable:docker
+# space separated list of dns servers to use
+dns:
+# Password for the username above on the host (only needed if sudo is needed)
+password:
+# Log file - will be set to 0600 perms, and defaults to /tmp/<YOUR_USERNAME>_shutit_log_<timestamp>
+# A timestamp will be added to the end of the filename.
+logfile:
+# ShutIt paths to look up modules in separated by ":", eg /path1/here:/opt/path2/there
+shutit_module_path:.
+
+# Repository information
+[repository]
+# Whether to tag
+tag:yes
+# Whether to suffix the date to the tag
+suffix_date:no
+# Suffix format (default is epoch seconds (%s), but %Y%m%d_%H%M%S is an option if the length is ok with the index)
+suffix_format:%s
+# tag name
+name:my_module
+# Whether to tar up the docker image exported
+export:no
+# Whether to tar up the docker image saved
+save:no
+# Whether to push to the server
+push:no
+# User on registry to namespace repo - can be set to blank if not docker.io
+user:
+#Must be set if push is true/yes and user is not blank
+password:YOUR_INDEX_PASSWORD_OR_BLANK
+#Must be set if push is true/yes and user is not blank
+email:YOUR_INDEX_EMAIL_OR_BLANK
+# repository server
+# make blank if you want this to be sent to the main docker index on docker.io
+server:
+# tag suffix, defaults to "latest", eg registry/username/repository:latest.
+# empty is also "latest"
+tag_name:latest
+
+# Root setup script
+# Each module should set these in a config
+[shutit.tk.setup]
+shutit.core.module.build:yes
+
+[shutit.tk.conn_bash]
+# None
+
+[shutit.tk.conn_ssh]
+# Required
+ssh_host:
+# All other configs are optional
+ssh_port:
+ssh_user:
+password:
+ssh_key:
+# (what to execute on the target to get a root shell)
+ssh_cmd:
+
+# Aspects of build process
+[build]
+# How to connect to target
+conn_module:shutit.tk.conn_docker
+# Run any docker container in privileged mode
+privileged:no
+# Base image can be over-ridden by --image_tag defaults to this.
+base_image:ubuntu:14.04
+# Whether to perform tests.
+dotest:yes
+# --net argument to docker, eg "bridge", "none", "container:<name|id>" or "host". Empty means use default (bridge).
+net:
+'''
+

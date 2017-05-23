@@ -114,7 +114,7 @@ class ShutItGlobal(object):
 	                   docker_image=None,
 	                   rm=None):
 		assert isinstance(session_type, str)
-		new_shutit = ShutIt()
+		new_shutit = ShutIt(standalone=True)
 		self.add_shutit_session(new_shutit)
 		if session_type == 'bash':
 			new_shutit.process_args(ShutItInit('build',
@@ -254,4 +254,4 @@ def setup_signals():
 
 
 shutit_global_object = ShutItGlobal()
-shutit_global_object.add_shutit_session(ShutIt())
+shutit_global_object.add_shutit_session(ShutIt(standalone=False))
