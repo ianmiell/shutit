@@ -100,6 +100,8 @@ class ShutItGlobal(object):
 
 		self.interactive         = 1 # Default to true until we know otherwise
 
+		self.allowed_delivery_methods = ['ssh','dockerfile','bash','docker','vagrant']
+
 
 	def add_shutit_session(self, shutit):
 		self.shutit_objects.append(shutit)

@@ -44,8 +44,6 @@ import shutit_global
 
 PY3 = (sys.version_info[0] >= 3)
 
-allowed_delivery_methods = ['ssh','dockerfile','bash','docker','vagrant']
-
 
 def is_file_secure(file_name):
 	"""Returns false if file is considered insecure, true if secure.
@@ -224,13 +222,6 @@ def sendline(child,
 
 def sanitize_terminal():
 	os.system('stty sane')
-
-
-def check_delivery_method(method):
-	if method in allowed_delivery_methods:
-		return True
-	return False
-
 
 
 def util_raw_input(prompt='', default=None, ispass=False, use_readline=True):

@@ -3194,7 +3194,7 @@ class ShutIt(object):
 					delivery = default_delivery
 				else:
 					delivery = ''
-					while delivery not in shutit_util.allowed_delivery_methods:
+					while delivery not in shutit_global.shutit_global_object.allowed_delivery_methods:
 						delivery = shutit_util.util_raw_input(prompt=textwrap.dedent('''
 							# Input a delivery method from: bash, docker, vagrant.
 							# Default: ''' + default_delivery + '''
