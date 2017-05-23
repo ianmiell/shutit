@@ -683,8 +683,6 @@ class ShutIt(object):
 		                                                  nonewline=nonewline,
 		                                                  run_in_background=background,
 		                                                  ignore_background=ignore_background))
-	# alias send to send_and_expect
-	send_and_expect = send
 
 
 	def send_and_return_status(self,

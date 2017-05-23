@@ -22,16 +22,15 @@ def branch=env.BRANCH_NAME
 //}
 
 try {
-	stage('setupenv') {
-		node(nodename) {
-			sh 'mkdir -p ' + builddir
-			dir(builddir) {
-				checkout([$class: 'GitSCM', branches: [[name: '*/' + branch]], doGenerateSubmoduleConfigurations: false, extensions: [[$class: 'SubmoduleOption', disableSubmodules: false, parentCredentials: false, recursiveSubmodules: true, reference: '', trackingSubmodules: false]], submoduleCfg: [], userRemoteConfigs: [[url: 'https://github.com/ianmiell/shutit']]])
+	lock('shutit_tests') {	
+		stage('setupenv') {
+			node(nodename) {
+				sh 'mkdir -p ' + builddir
+				dir(builddir) {
+					checkout([$class: 'GitSCM', branches: [[name: '*/' + branch]], doGenerateSubmoduleConfigurations: false, extensions: [[$class: 'SubmoduleOption', disableSubmodules: false, parentCredentials: false, recursiveSubmodules: true, reference: '', trackingSubmodules: false]], submoduleCfg: [], userRemoteConfigs: [[url: 'https://github.com/ianmiell/shutit']]])
+				}
 			}
 		}
-	}
-
-	lock('shutit_tests') {	
 		stage('shutit_tests') {
 			node(nodename) {
 				dir(builddir + '/shutit-test') {
