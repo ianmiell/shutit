@@ -4383,6 +4383,10 @@ class ShutIt(object):
 		                      colour=colour)
 
 
+	# Pass through log to global function.
+	def log(self, msg, add_final_message=False, level=logging.INFO, transient=False, newline=True):
+		self = self # For pylint: we want this to be available to shutit object users
+		shutit_global.shutit_global_object.log(msg,add_final_message=add_final_message,level=level,transient=transient,newline=newline)
 
 
 
@@ -4404,6 +4408,3 @@ def make_dep_graph(depender):
 	return digraph
 
 
-# Pass through log to global function.
-def log(msg, add_final_message=False, level=logging.INFO, transient=False, newline=True):
-	shutit_global.shutit_global_object.log(msg,add_final_message=add_final_message,level=level,transient=transient,newline=newline)
