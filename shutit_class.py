@@ -221,7 +221,7 @@ class ShutItInit(object):
 			assert isinstance(self.pattern,str)
 			assert isinstance(self.output_dir,bool)
 			assert isinstance(self.vagrant_ssh_access,bool)
-			assert isinstance(self.delivery,str)
+			#assert isinstance(self.delivery,str)
 			# TODO: other asserts in other things.
 		elif self.action == 'run':
 			self.shutitfiles = shutitfiles
