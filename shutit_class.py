@@ -3892,9 +3892,6 @@ class ShutIt(object):
 
 	def setup_shutit_obj(self):
 		self.parse_args()
-		if not self.build['exam']:
-			shutit_global.shutit_global_object.log('# ShutIt Started... ',transient=True)
-			shutit_global.shutit_global_object.log('# Loading configs...',transient=True)
 		self.load_configs()
 		# Try and ensure shutit is on the path - makes onboarding easier
 		# Only do this if we're in a terminal
