@@ -172,7 +172,7 @@ class ConnSSH(ShutItConnModule):
 		ssh_host = cfg[self.module_id]['ssh_host']
 		ssh_port = cfg[self.module_id]['ssh_port']
 		ssh_user = cfg[self.module_id]['ssh_user']
-		ssh_pass = cfg[self.module_id]['password']
+		ssh_pass = cfg[self.module_id]['ssh_password']
 		ssh_key  = cfg[self.module_id]['ssh_key']
 		ssh_cmd  = cfg[self.module_id]['ssh_cmd']
 		opts = [

@@ -184,7 +184,13 @@ class ShutItInit(object):
 	             interactive=1,
 	             trace=False,
 	             shutit_module_path=None,
-	             exam=False):
+	             exam=False,
+	             ssh_host='',
+	             ssh_port='',
+	             ssh_user=''
+	             ssh_password=''
+	             ssh_key=''
+	             ssh_cmd=''):
 
 		assert isinstance(action,str)
 		assert isinstance(logfile,str)
@@ -252,9 +258,15 @@ class ShutItInit(object):
 			self.trace              = trace
 			self.shutit_module_path = shutit_module_path
 			self.exam               = exam
-			self.history = history
-			self.sort = sort
-			self.long = long
+			self.history            = history
+			self.sort               = sort
+			self.long               = long
+			self.ssh_host           = ssh_host
+			self.ssh_port           = ssh_port
+			self.ssh_user           = ssh_user
+			self.ssh_password       = ssh_password #TODO: add to password list secrets
+			self.ssh_key            = ssh_key
+			self.ssh_cmd            = ssh_cmd
 			#assert isinstance(self.delivery,str)
 
 
@@ -4372,12 +4384,20 @@ class ShutIt(object):
 
 
 	def setup_ssh_config(self, module_id):
-		self.get_config(module_id, 'ssh_host', '')
-		self.get_config(module_id, 'ssh_port', '')
-		self.get_config(module_id, 'ssh_user', '')
-		self.get_config(module_id, 'password', '')
-		self.get_config(module_id, 'ssh_key', '')
-		self.get_config(module_id, 'ssh_cmd', '')
+		if self.standalone:
+			self.cfg[module_id]['ssh_host']     = self.ssh_host
+			self.cfg[module_id]['ssh_port']     = self.ssh_port
+			self.cfg[module_id]['ssh_user']     = self.ssh_user
+			self.cfg[module_id]['ssh_password'] = self.ssh_password
+			self.cfg[module_id]['ssh_key']      = self.ssh_key
+			self.cfg[module_id]['ssh_cmd']      = self.ssh_cmd
+		else:
+			self.get_config(module_id, 'ssh_host',     '')
+			self.get_config(module_id, 'ssh_port',     '')
+			self.get_config(module_id, 'ssh_user',     '')
+			self.get_config(module_id, 'ssh_password', '')
+			self.get_config(module_id, 'ssh_key',      '')
+			self.get_config(module_id, 'ssh_cmd',      '')
 
 
 def check_dependee_order(depender, dependee, dependee_id):
