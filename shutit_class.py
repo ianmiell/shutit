@@ -187,9 +187,9 @@ class ShutItInit(object):
 	             exam=False,
 	             ssh_host='',
 	             ssh_port='',
-	             ssh_user=''
-	             ssh_password=''
-	             ssh_key=''
+	             ssh_user='',
+	             ssh_password='',
+	             ssh_key='',
 	             ssh_cmd=''):
 
 		assert isinstance(action,str)
