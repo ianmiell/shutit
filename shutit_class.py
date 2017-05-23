@@ -282,6 +282,7 @@ class ShutIt(object):
 		self.build['shutit_command_history'] = []
 		self.build['walkthrough']            = False # Whether to honour 'walkthrough' requests
 		self.build['walkthrough_wait']       = -1 # mysterious problems setting this to 1 with fixterm
+		self.build['log_config_path']        = None
 		self.repository                      = {}
 		# If no LOGNAME available,
 		self.host                            = {}
@@ -3247,7 +3248,17 @@ class ShutIt(object):
 			subprocess.call('./run.sh')
 			os.chdir(retdir)
 			sys.exit(0)
-		else:
+		elif self.action['build'] or self.action['list_configs'] or self.action['list_modules']:
+			if self.action['list_configs']:
+				self.list_configs['cfghistory'] = args.history
+			elif self.action['list_modules']:
+				self.list_modules['long'] = args.long
+				self.list_modules['sort'] = args.sort
+			else:
+				self.list_configs['cfghistory']  = False
+				self.list_modules['long']        = False
+				self.list_modules['sort']        = None
+
 			shutit_home = self.host['shutit_path'] = os.path.expanduser('~/.shutit')
 			# We're not creating a skeleton, so make sure we have the infrastructure
 			# in place for a user-level storage area
@@ -3262,51 +3273,43 @@ class ShutIt(object):
 				os.close(f)
 
 			# Default this to False as it's not always set (mostly for debug logging).
-			self.list_configs['cfghistory']  = False
-			self.list_modules['long']        = False
-			self.list_modules['sort']        = None
 			self.build['video']              = False
 			self.build['training']           = False
 			self.build['exam_object']        = None
 			self.build['choose_config']      = False
-			# Persistence- and build-related arguments.
-			if self.action['build']:
-				self.repository['push']       = args.push
-				self.repository['export']     = args.export
-				self.repository['save']       = args.save
-				self.build['distro_override'] = args.distro
-				self.build['mount_docker']    = args.mount_docker
-				self.build['walkthrough']     = args.walkthrough
-				self.build['training']        = args.training
-				self.build['exam']            = args.exam
-				self.build['choose_config']   = args.choose_config
-				if self.build['exam'] and not self.build['training']:
-					# We want it to be quiet
-					#print('--exam implies --training, setting --training on!')
-					print('Exam starting up')
-					self.build['training'] = True
-				if (self.build['exam'] or self.build['training']) and not self.build['walkthrough']:
-					if not self.build['exam']:
-						print('--training or --exam implies --walkthrough, setting --walkthrough on!')
-					self.build['walkthrough'] = True
-				if isinstance(args.video, list) and args.video[0] >= 0:
-					self.build['walkthrough']      = True
-					self.build['walkthrough_wait'] = float(args.video[0])
-					self.build['video']            = True
-					if self.build['training']:
-						print('--video and --training mode incompatible')
-						shutit_global.shutit_global_object.handle_exit(exit_code=1)
-					if self.build['exam']:
-						print('--video and --exam mode incompatible')
-						shutit_global.shutit_global_object.handle_exit(exit_code=1)
-				# Create a test session object if needed.
+			self.repository['push']       = args.push
+			self.repository['export']     = args.export
+			self.repository['save']       = args.save
+			self.build['distro_override'] = args.distro
+			self.build['mount_docker']    = args.mount_docker
+			self.build['walkthrough']     = args.walkthrough
+			self.build['training']        = args.training
+			self.build['exam']            = args.exam
+			self.build['choose_config']   = args.choose_config
+
+			# Video/exam/training logic
+			if self.build['exam'] and not self.build['training']:
+				# We want it to be quiet
+				#print('--exam implies --training, setting --training on!')
+				print('Exam starting up')
+				self.build['training'] = True
+			if (self.build['exam'] or self.build['training']) and not self.build['walkthrough']:
+				if not self.build['exam']:
+					print('--training or --exam implies --walkthrough, setting --walkthrough on!')
+				self.build['walkthrough'] = True
+			if isinstance(args.video, list) and args.video[0] >= 0:
+				self.build['walkthrough']      = True
+				self.build['walkthrough_wait'] = float(args.video[0])
+				self.build['video']            = True
+				if self.build['training']:
+					print('--video and --training mode incompatible')
+					shutit_global.shutit_global_object.handle_exit(exit_code=1)
 				if self.build['exam']:
-					self.build['exam_object'] = shutit_exam.ShutItExamSession(self)
-			elif self.action['list_configs']:
-				self.list_configs['cfghistory'] = args.history
-			elif self.action['list_modules']:
-				self.list_modules['long'] = args.long
-				self.list_modules['sort'] = args.sort
+					print('--video and --exam mode incompatible')
+					shutit_global.shutit_global_object.handle_exit(exit_code=1)
+			# Create a test session object if needed.
+			if self.build['exam']:
+				self.build['exam_object'] = shutit_exam.ShutItExamSession(self)
 
 			# What are we building on? Convert arg to conn_module we use.
 			if args.delivery == 'docker' or args.delivery is None:
@@ -3318,6 +3321,7 @@ class ShutIt(object):
 			elif args.delivery == 'bash' or args.delivery == 'dockerfile':
 				self.build['conn_module'] = 'shutit.tk.conn_bash'
 				self.build['delivery']    = args.delivery
+
 			# If the image_tag has been set then ride roughshod over the ignoreimage value if not supplied
 			if args.image_tag != '' and args.ignoreimage is None:
 				args.ignoreimage = True
@@ -3354,28 +3358,7 @@ class ShutIt(object):
 				if not os.path.exists(self.build['log_config_path']):
 					os.makedirs(self.build['log_config_path'])
 					os.chmod(self.build['log_config_path'],0o777)
-			else:
-				self.build['log_config_path'] = None
-			# Tutorial stuff. TODO: ditch tutorial mode
-			#The config is read in the following order:
-			#~/.shutit/config
-			#	- Host- and username-specific config for this host.
-			#/path/to/this/shutit/module/configs/build.cnf
-			#	- Config specifying what should be built when this module is invoked.
-			#/your/path/to/<configname>.cnf
-			#	- Passed-in config (via --config, see --help)
-			#command-line overrides, eg -s com.mycorp.mymodule.module name value
-			# Set up trace as fast as possible.
-			if args.trace:# TODO: abstract away to shutitconfig object into global
-				def tracefunc(frame, event, arg, indent=[0]):
-					indent = indent # pylint
-					arg = arg # pylint
-					if event == 'call':
-						shutit_global.shutit_global_object.log('-> call function: ' + frame.f_code.co_name + ' ' + str(frame.f_code.co_varnames),level=logging.DEBUG)
-					elif event == 'return':
-						shutit_global.shutit_global_object.log('<- exit function: ' + frame.f_code.co_name,level=logging.DEBUG)
-					return tracefunc
-				sys.settrace(tracefunc)
+
 
 
 	def get_configs(self, configs):
@@ -3589,6 +3572,17 @@ class ShutIt(object):
 		                                 trace = args.trace,
 		                                 shutit_module_path = args.shutit_module_path,
 			                             exam=args.exam))
+			if args.trace:
+				def tracefunc(frame, event, arg, indent=[0]):
+					indent = indent # pylint
+					arg = arg # pylint
+					if event == 'call':
+						shutit_global.shutit_global_object.log('-> call function: ' + frame.f_code.co_name + ' ' + str(frame.f_code.co_varnames),level=logging.DEBUG)
+					elif event == 'return':
+						shutit_global.shutit_global_object.log('<- exit function: ' + frame.f_code.co_name,level=logging.DEBUG)
+					return tracefunc
+				sys.settrace(tracefunc)
+
 		elif args.action == 'list_configs':
 			self.process_args(ShutItInit(args.action,
 			                             logfile=args.logfile,
