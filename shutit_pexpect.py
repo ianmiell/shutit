@@ -2748,6 +2748,7 @@ $'"""
 				try:
 					f.write(contents)
 				except (UnicodeDecodeError, TypeError) as e:
+					shutit_global.shutit_global_object.log('Error decoding: ' + str(e), level=logging.DEBUG)
 					if encoding is not None:
 						f.write(contents.decode(encoding))
 					else:

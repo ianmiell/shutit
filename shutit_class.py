@@ -4400,5 +4400,3 @@ def make_dep_graph(depender):
 	for dependee_id in depender.depends_on:
 		digraph = (digraph + '"' + depender.module_id + '"->"' + dependee_id + '";\n')
 	return digraph
-
-

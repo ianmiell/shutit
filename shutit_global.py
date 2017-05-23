@@ -37,7 +37,6 @@ import signal
 import struct
 from distutils.dir_util import mkpath
 from shutit_class import ShutIt, ShutItInit
-import shutit_setup
 import shutit_util
 
 
@@ -73,7 +72,7 @@ class ShutItGlobal(object):
 			except Exception:
 				self.username = getpass.getuser()
 			if self.username == '':
-				shutit_util.handle_exit(msg='LOGNAME not set in the environment, ' + 'and login unavailable in python; ' + 'please set to your username.', exit_code=1)
+				self.handle_exit(msg='LOGNAME not set in the environment, ' + 'and login unavailable in python; ' + 'please set to your username.', exit_code=1)
 		self.real_user        = os.environ.get('SUDO_USER', self.username)
 		self.build_id         = (socket.gethostname() + '_' + self.real_user + '_' + str(time.time()) + '.' + str(datetime.datetime.now().microsecond))
 		shutit_state_dir_base  = '/tmp/shutit_' + self.username
@@ -129,7 +128,7 @@ class ShutItGlobal(object):
 			new_shutit.target['rm'] = rm
 			# TODO: can we get rid of/rationalise load_configs?
 			new_shutit.load_configs()
-			target_child = shutit_setup.conn_docker_start_container(new_shutit,'target_child')
+			target_child = new_shutit.conn_docker_start_container('target_child')
 			new_shutit.setup_host_child_environment()
 			new_shutit.setup_target_child_environment(target_child)
 			return new_shutit
