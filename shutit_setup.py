@@ -3,7 +3,7 @@ shutit.tk.setup (core ShutIt setup module)
 
 Nomenclature:
     - Host machine:   Machine on which this script is run.
-    - Target:         Environment to which we deploy (docker container, ssh, or bash shell)
+    - Target:         Environment to which we deploy (docker container or bash shell)
     - Container:      Docker container created to run the modules on.
 
     - target_child    pexpect-spawned child created to build on target
@@ -148,94 +148,12 @@ class ConnBash(ShutItConnModule):
 		return True
 
 
-class ConnSSH(ShutItConnModule):
-	"""Connects ShutIt to a machine via ssh.
-	Assumes no docker daemon available for tagging and pushing.
-	"""
-
-
-	def is_installed(self, shutit):
-		"""Always considered false for ShutIt setup.
-		"""
-		return False
-
-
-	def get_config(self, shutit):
-		shutit.setup_ssh_config(self.module_id)
-		return True
-
-
-	def build(self, shutit):
-		"""Sets up the machine ready for building.
-		"""
-		cfg = shutit.cfg
-		ssh_host = cfg[self.module_id]['ssh_host']
-		ssh_port = cfg[self.module_id]['ssh_port']
-		ssh_user = cfg[self.module_id]['ssh_user']
-		ssh_pass = cfg[self.module_id]['ssh_password']
-		ssh_key  = cfg[self.module_id]['ssh_key']
-		ssh_cmd  = cfg[self.module_id]['ssh_cmd']
-		opts = [
-			'-t',
-			'-o', 'UserKnownHostsFile=/dev/null',
-			'-o', 'StrictHostKeyChecking=no'
-		]
-		if ssh_pass == '':
-			opts += ['-o', 'PasswordAuthentication=no']
-		if ssh_port != '':
-			opts += ['-p', ssh_port]
-		if ssh_key != '':
-			opts += ['-i', ssh_key]
-		host_arg = ssh_host
-		if host_arg == '':
-			shutit.fail('No host specified for sshing', throw_exception=False) # pragma: no cover
-		if ssh_user != '':
-			host_arg = ssh_user + '@' + host_arg
-		cmd_arg = ssh_cmd
-		if cmd_arg == '':
-			cmd_arg = 'sudo su -s /bin/bash -'
-		ssh_command = ['ssh'] + opts + [host_arg, cmd_arg]
-		shutit.build['ssh_command'] = ' '.join(ssh_command)
-		shutit_global.shutit_global_object.log('Startup command is: ' + shutit.build['ssh_command'],level=logging.INFO)
-		shutit_pexpect_session = ShutItPexpectSession(shutit, 'target_child', ssh_command[0], ssh_command[1:])
-		target_child = shutit_pexpect_session.pexpect_child
-		expect = ['assword', shutit_global.shutit_global_object.base_prompt.strip()]
-		res = shutit.child_expect(target_child,expect, timeout=10)
-		while True:
-			shutit_global.shutit_global_object.log(target_child.before + target_child.after,level=logging.DEBUG)
-			if res == 0:
-				shutit_global.shutit_global_object.log('...',level=logging.DEBUG)
-				res = shutit.send(ssh_pass, shutit_pexpect_child=target_child, expect=expect, timeout=10, check_exit=False, fail_on_empty_before=False, echo=False)
-			elif res == 1:
-				shutit_global.shutit_global_object.log('Prompt found, breaking out',level=logging.DEBUG)
-				break
-		self.setup_host_child(shutit)
-		self.setup_target_child(shutit, target_child)
-		return True
-
-
-	def finalize(self, shutit):
-		"""Finalizes the target, exiting for us back to the original shell
-		and performing any repository work required.
-		"""
-		# Finish with the target
-		target_child_pexpect_session = shutit.get_shutit_pexpect_session_from_id('target_child')
-		assert not target_child_pexpect_session.sendline(ShutItSendSpec(target_child_pexpect_session,'exit',ignore_background=True))
-		host_child_session = shutit.get_shutit_pexpect_session_from_id('host_child')
-		shutit.set_default_shutit_pexpect_session(host_child_session)
-		# Final exits
-		host_child = host_child_session.pexpect_child
-		host_child.sendline('exit') # Exit raw bash, ignore response.
-		return True
-
-
 def conn_module():
 	"""Connects ShutIt to something
 	"""
 	return [
 		ConnDocker('shutit.tk.conn_docker', -0.1, description='Connect ShutIt to docker'),
-		ConnSSH('shutit.tk.conn_ssh', -0.1, description='Connect ShutIt to a host via ssh'),
-		ConnBash('shutit.tk.conn_bash', -0.1, description='Connect ShutIt to a host via bash'),
+		ConnBash  ('shutit.tk.conn_bash',   -0.1, description='Connect ShutIt to a host via bash'),
 	]
 
 

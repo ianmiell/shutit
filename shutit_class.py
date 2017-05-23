@@ -184,13 +184,7 @@ class ShutItInit(object):
 	             interactive=1,
 	             trace=False,
 	             shutit_module_path=None,
-	             exam=False,
-	             ssh_host='',
-	             ssh_port='',
-	             ssh_user='',
-	             ssh_password='',
-	             ssh_key='',
-	             ssh_cmd=''):
+	             exam=False):
 
 		assert isinstance(action,str)
 		assert isinstance(logfile,str)
@@ -261,12 +255,6 @@ class ShutItInit(object):
 			self.history            = history
 			self.sort               = sort
 			self.long               = long
-			self.ssh_host           = ssh_host
-			self.ssh_port           = ssh_port
-			self.ssh_user           = ssh_user
-			self.ssh_password       = ssh_password #TODO: add to password list secrets
-			self.ssh_key            = ssh_key
-			self.ssh_cmd            = ssh_cmd
 			#assert isinstance(self.delivery,str)
 
 
@@ -3323,9 +3311,6 @@ class ShutIt(object):
 			if args.delivery == 'docker' or args.delivery is None:
 				self.build['conn_module'] = 'shutit.tk.conn_docker'
 				self.build['delivery']    = 'docker'
-			elif args.delivery == 'ssh':
-				self.build['conn_module'] = 'shutit.tk.conn_ssh'
-				self.build['delivery']    = 'ssh'
 			elif args.delivery == 'bash' or args.delivery == 'dockerfile':
 				self.build['conn_module'] = 'shutit.tk.conn_bash'
 				self.build['delivery']    = args.delivery
@@ -3355,7 +3340,7 @@ class ShutIt(object):
 			self.build['always_echo']      = args.echo
 			self.target['docker_image']    = args.image_tag
 
-			if self.build['delivery'] in ('bash','ssh'):
+			if self.build['delivery'] in ('bash',):
 				if self.target['docker_image'] != '': # pragma: no cover
 					print('delivery method specified (' + self.build['delivery'] + ') and image_tag argument make no sense')
 					shutit_global.shutit_global_object.handle_exit(exit_code=1)
@@ -3459,7 +3444,7 @@ class ShutIt(object):
 		sub_parsers['skeleton'].add_argument('--vagrant_machine_prefix', default=None)
 		sub_parsers['skeleton'].add_argument('--vagrant_docker', default=None, const=True, action='store_const')
 		sub_parsers['skeleton'].add_argument('--pattern', help='Pattern to use', default='')
-		sub_parsers['skeleton'].add_argument('--delivery', help='Delivery method, aka target. "docker" container (default), configured "ssh" connection, "bash" session', default=None, choices=('docker','dockerfile','ssh','bash'))
+		sub_parsers['skeleton'].add_argument('--delivery', help='Delivery method, aka target. "docker" container (default), "bash" session', default=None, choices=('docker','dockerfile','bash'))
 		sub_parsers['skeleton'].add_argument('-a','--accept', help='Accept defaults', const=True, default=False, action='store_const')
 		sub_parsers['skeleton'].add_argument('--log','-l', help='Log level (DEBUG, INFO (default), WARNING, ERROR, CRITICAL)', default='')
 		sub_parsers['skeleton'].add_argument('-o','--logfile', help='Log output to this file', default='')
@@ -3483,7 +3468,7 @@ class ShutIt(object):
 			sub_parsers[action].add_argument('-o','--logfile',default='', help='Log output to this file')
 			sub_parsers[action].add_argument('-l','--log',default='', help='Log level (DEBUG, INFO (default), WARNING, ERROR, CRITICAL)',choices=('DEBUG','INFO','WARNING','ERROR','CRITICAL','debug','info','warning','error','critical'))
 			if action != 'run':
-				sub_parsers[action].add_argument('-d','--delivery', help='Delivery method, aka target. "docker" container (default), configured "ssh" connection, "bash" session', default=None, choices=('docker','dockerfile','ssh','bash'))
+				sub_parsers[action].add_argument('-d','--delivery', help='Delivery method, aka target. "docker" container (default)', default=None, choices=('docker','dockerfile','bash'))
 				sub_parsers[action].add_argument('--config', help='Config file for setup config. Must be with perms 0600. Multiple arguments allowed; config files considered in order.', default=[], action='append')
 				sub_parsers[action].add_argument('-s', '--set', help='Override a config item, e.g. "-s target rm no". Can be specified multiple times.', default=[], action='append', nargs=3, metavar=('SEC', 'KEY', 'VAL'))
 				sub_parsers[action].add_argument('--image_tag', help='Build container from specified image - if there is a symbolic reference, please use that, eg localhost.localdomain:5000/myref', default='')
@@ -4383,23 +4368,6 @@ class ShutIt(object):
 		shutit_global.shutit_global_object.log(msg,add_final_message=add_final_message,level=level,transient=transient,newline=newline)
 
 
-	def setup_ssh_config(self, module_id):
-		if self.standalone:
-			self.cfg[module_id]['ssh_host']     = self.ssh_host
-			self.cfg[module_id]['ssh_port']     = self.ssh_port
-			self.cfg[module_id]['ssh_user']     = self.ssh_user
-			self.cfg[module_id]['ssh_password'] = self.ssh_password
-			self.cfg[module_id]['ssh_key']      = self.ssh_key
-			self.cfg[module_id]['ssh_cmd']      = self.ssh_cmd
-		else:
-			self.get_config(module_id, 'ssh_host',     '')
-			self.get_config(module_id, 'ssh_port',     '')
-			self.get_config(module_id, 'ssh_user',     '')
-			self.get_config(module_id, 'ssh_password', '')
-			self.get_config(module_id, 'ssh_key',      '')
-			self.get_config(module_id, 'ssh_cmd',      '')
-
-
 def check_dependee_order(depender, dependee, dependee_id):
 	"""Checks whether run orders are in the appropriate order.
 	"""
@@ -4423,7 +4391,7 @@ default_cnf = '''
 # Default core config file for ShutIt.
 ################################################################################
 
-# Details relating to the target you are building to (container, ssh or bash)
+# Details relating to the target you are building to (container or bash)
 [target]
 # Root password for the target - replace with your chosen password
 # If left blank, you will be prompted for a password
@@ -4497,17 +4465,6 @@ shutit.core.module.build:yes
 
 [shutit.tk.conn_bash]
 # None
-
-[shutit.tk.conn_ssh]
-# Required
-ssh_host:
-# All other configs are optional
-ssh_port:
-ssh_user:
-password:
-ssh_key:
-# (what to execute on the target to get a root shell)
-ssh_cmd:
 
 # Aspects of build process
 [build]

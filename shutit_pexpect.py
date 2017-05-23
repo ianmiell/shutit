@@ -789,7 +789,7 @@ class ShutItPexpectSession(object):
 			                         timeout=timeout,
 			                         echo=False,
 			                         loglevel=loglevel))
-		elif shutit.build['delivery'] in ('docker','ssh'):
+		elif shutit.build['delivery'] in ('docker',):
 			os.chdir(path)
 		else:
 			shutit.fail('chdir not supported for delivery method: ' + shutit.build['delivery']) # pragma: no cover
