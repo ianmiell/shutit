@@ -3670,7 +3670,7 @@ class ShutIt(object):
 		# docker run happens here
 		shutit_global.shutit_global_object.log('Startup command is: ' + self.build['docker_command'],level=logging.INFO)
 		shutit_global.shutit_global_object.log('Downloading image, please be patient',level=logging.INFO)
-		shutit_pexpect_session = ShutItPexpectSession(shutit, shutit_session_name, docker_command[0], docker_command[1:])
+		shutit_pexpect_session = ShutItPexpectSession(self, shutit_session_name, docker_command[0], docker_command[1:])
 		target_child = shutit_pexpect_session.pexpect_child
 		expect = ['assword', shutit_global.shutit_global_object.base_prompt.strip(), 'Waiting', 'ulling', 'endpoint', 'Download','o such file']
 		res = shutit_pexpect_session.expect(expect, timeout=9999)
@@ -3711,6 +3711,7 @@ class ShutIt(object):
 		shutit_global.shutit_global_object.log('cid: ' + cid,level=logging.DEBUG)
 		self.target['container_id'] = cid
 		return target_child
+
 
 	def conn_docker_destroy_container(self, host_shutit_session_name, container_shutit_session_name, container_id, loglevel=logging.DEBUG):
 		# Close connection.
