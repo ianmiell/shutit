@@ -4371,6 +4371,11 @@ class ShutIt(object):
 		shutit_global.shutit_global_object.log(msg,add_final_message=add_final_message,level=level,transient=transient,newline=newline)
 
 
+	# Pass through to global object
+	def create_session(self, session_type='bash', docker_image=None, rm=None):
+		return shutit_global.shutit_global_object.create_session(session_type=session_type, docker_image=docker_image, rm=rm)
+
+
 def check_dependee_order(depender, dependee, dependee_id):
 	"""Checks whether run orders are in the appropriate order.
 	"""
