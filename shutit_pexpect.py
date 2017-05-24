@@ -141,16 +141,16 @@ class ShutItPexpectSession(object):
 		False means: you'll need to 'expect' the right thing from here.
 		"""
 		assert not sendspec.started
-		#shutit_global.shutit_global_object.log('_sendline: ' + str(sendspec),level=logging.DEBUG)
+		#shutit_global.shutit_global_object.log('sendline: ' + str(sendspec),level=logging.DEBUG)
 		try:
 			# Check there are no background commands running that have block_other_commands set iff
 			# this sendspec says
 			if self._check_blocked(sendspec) and sendspace.ignore_background != True:
-				shutit_global.shutit_global_object.log('_sendline: blocked',level=logging.INFO)
+				shutit_global.shutit_global_object.log('sendline: blocked',level=logging.DEBUG)
 				return False
 			# If this is marked as in the background, create a background object and run in the background.
 			if sendspec.run_in_background:
-				shutit_global.shutit_global_object.log('_sendline: run_in_background',level=logging.INFO)
+				shutit_global.shutit_global_object.log('sendline: run_in_background',level=logging.DEBUG)
 				# Makes no sense to check exit for a background command.
 				sendspec.check_exit = False
 				sendspec.send += ' &'
@@ -164,6 +164,7 @@ class ShutItPexpectSession(object):
 				shutit_background_command_object.run_background_command()
 				return True
 			else:
+				shutit_global.shutit_global_object.log('sendline: actually sending: ' + sendspec.send,level=logging.DEBUG)
 				self.pexpect_child.send(sendspec.send)
 				return False
 		except OSError:
