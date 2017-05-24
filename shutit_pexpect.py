@@ -153,7 +153,9 @@ class ShutItPexpectSession(object):
 				shutit_global.shutit_global_object.log('sendline: run_in_background',level=logging.DEBUG)
 				# Makes no sense to check exit for a background command.
 				sendspec.check_exit = False
-				sendspec.send += ' &'
+				# When running in the background, we need to inhibit output so as not to confuse pexpect.
+				# cf: https://stackoverflow.com/questions/617182/with-bash-scripting-how-can-i-suppress-all-output-from-a-command
+				sendspec.send = ' : $(' + sendspec.send + ') &'
 				# If this is marked as in the background, create a background object and run in the background after newlines sorted.
 				shutit_background_command_object = self.login_stack.get_current_login_item().append_background_send(sendspec)
 			if sendspec.nonewline != True:
