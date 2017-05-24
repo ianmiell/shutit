@@ -143,38 +143,29 @@ class ShutItPexpectSession(object):
 		assert not sendspec.started
 		#shutit_global.shutit_global_object.log('_sendline: ' + str(sendspec),level=logging.DEBUG)
 		try:
-			if sendspec.ignore_background:
-				shutit_global.shutit_global_object.log('_sendline: forced through, ignoring background and/or run_in_background',level=logging.DEBUG)
-				if sendspec.nonewline != True:
-					sendspec.send += '\n'
-					# sendspec has newline added now, so no need to keep marker
-					sendspec.nonewline = True
+			# Check there are no background commands running that have block_other_commands set iff
+			# this sendspec says
+			if self._check_blocked(sendspec) and sendspace.ignore_background != True:
+				shutit_global.shutit_global_object.log('_sendline: blocked',level=logging.INFO)
+				return False
+			# If this is marked as in the background, create a background object and run in the background.
+			if sendspec.run_in_background:
+				shutit_global.shutit_global_object.log('_sendline: run_in_background',level=logging.INFO)
+				# Makes no sense to check exit for a background command.
+				sendspec.check_exit = False
+				sendspec.send += ' &'
+				# If this is marked as in the background, create a background object and run in the background after newlines sorted.
+				shutit_background_command_object = self.login_stack.get_current_login_item().append_background_send(sendspec)
+			if sendspec.nonewline != True:
+				sendspec.send += '\n'
+				# sendspec has newline added now, so no need to keep marker
+				sendspec.nonewline = True
+			if sendspec.run_in_background:
+				shutit_background_command_object.run_background_command()
+				return True
+			else:
 				self.pexpect_child.send(sendspec.send)
 				return False
-			else:
-				# Check there are no background commands running that have block_other_commands set iff
-				# this sendspec says
-				if self._check_blocked(sendspec):
-					shutit_global.shutit_global_object.log('_sendline: blocked',level=logging.INFO)
-					return False
-				# If this is marked as in the background, create a background object and run in the background.
-				if sendspec.run_in_background:
-					shutit_global.shutit_global_object.log('_sendline: run_in_background',level=logging.INFO)
-					# Makes no sense to check exit for a background command.
-					sendspec.check_exit = False
-					sendspec.send += ' &'
-					# If this is marked as in the background, create a background object and run in the background after newlines sorted.
-					shutit_background_command_object = self.login_stack.get_current_login_item().append_background_send(sendspec)
-				if sendspec.nonewline != True:
-					sendspec.send += '\n'
-					# sendspec has newline added now, so no need to keep marker
-					sendspec.nonewline = True
-				if sendspec.run_in_background:
-					shutit_background_command_object.run_background_command()
-					return True
-				else:
-					self.pexpect_child.send(sendspec.send)
-					return False
 		except OSError:
 			self.shutit.fail('Caught failure to send, assuming user has exited from pause point.')
 
