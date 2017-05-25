@@ -3103,7 +3103,7 @@ class ShutIt(object):
 		elif self.action['run']:
 			self.handle_run(args)
 		elif self.action['build'] or self.action['list_configs'] or self.action['list_modules']:
-			self.handle_build(args):
+			self.handle_build(args)
 		else:
 			self.fail('Should not get here: action was: ' + str(self.action))
 
