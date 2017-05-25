@@ -1947,11 +1947,11 @@ class ShutItPexpectSession(object):
 				# Will be run in the background later.
 				shutit_global.shutit_global_object.log('Multisend will be run in the background: ' + str(send_iteration),level=logging.INFO)
 				return -1
-			next_send     = sendspec.send_dict[expect_list[res]][0]
-			remove_items  = sendspec.send_dict[expect_list[res]][1]
 			if res >= len(expect_list) - n_breakout_items:
 				break
 			else:
+				next_send     = sendspec.send_dict[expect_list[res]][0]
+				remove_items  = sendspec.send_dict[expect_list[res]][1]
 				send_iteration = next_send
 				# If this 
 				if sendspec.remove_on_match and remove_items:
