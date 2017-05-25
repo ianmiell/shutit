@@ -277,6 +277,16 @@ class ShutItInit(object):
 				print('--video and --exam mode incompatible')
 				shutit_global.shutit_global_object.handle_exit(exit_code=1)
 			#assert isinstance(self.delivery,str)
+			# If the image_tag has been set then ride roughshod over the ignoreimage value if not supplied
+			if self.image_tag != '' and self.ignoreimage is None:
+				self.ignoreimage = True
+			# If ignoreimage is still not set, then default it to False
+			if self.ignoreimage is None:
+				self.ignoreimage = False
+			if self.delivery in ('bash',):
+				if self.docker_image != '': # pragma: no cover
+					print('delivery method specified (' + self.delivery + ') and image_tag argument make no sense')
+					shutit_global.shutit_global_object.handle_exit(exit_code=1)
 
 
 class ShutIt(object):
@@ -3110,15 +3120,20 @@ class ShutIt(object):
 
 	# TODO: rationalise/tidy
 	def handle_skeleton(self, args):
-		delivery_method = args.delivery
-		accept_defaults = args.accept
+		delivery_method  = args.delivery
+		accept_defaults  = args.accept
+		shutitfiles      = args.shutitfiles
+		module_directory = args.name
+		domain           = args.domain
+		pattern          = args.pattern
+		default_pattern  = 'bash'
 		# Looks through the arguments given for valid shutitfiles, and adds their names to _new_shutitfiles.
 		_new_shutitfiles = None
-		if args.shutitfiles:
+		if shutitfiles:
 			cwd = os.getcwd()
 			_new_shutitfiles       = []
 			_delivery_methods_seen = set()
-			for shutitfile in args.shutitfiles:
+			for shutitfile in shutitfiles:
 				if shutitfile[0] != '/':
 					shutitfile = cwd + '/' + shutitfile
 				if os.path.isfile(shutitfile):
@@ -3179,7 +3194,6 @@ class ShutIt(object):
 			else:
 				print('ShutItFiles: ' + str(_new_shutitfiles) + ' appear to not exist.')
 				shutit_global.shutit_global_object.handle_exit(exit_code=1)
-		module_directory = args.name
 		if module_directory == '':
 			default_dir = self.host['calling_path'] + '/shutit_' + shutit_util.random_word()
 			if accept_defaults:
@@ -3189,15 +3203,12 @@ class ShutIt(object):
 		if module_directory[0] != '/':
 			module_directory = self.host['calling_path'] + '/' + module_directory
 		module_name = module_directory.split('/')[-1].replace('-','_')
-		if args.domain == '':
+		if domain == '':
 			default_domain_name = os.getcwd().split('/')[-1] + '.' + module_name
 			domain = default_domain_name
-		else:
-			domain = args.domain
 		# Figure out defaults.
 		# If no pattern supplied, then assume it's the same as delivery.
-		default_pattern = 'bash'
-		if args.pattern == '':
+		if pattern == '':
 			if accept_defaults or _new_shutitfiles:
 				if _new_shutitfiles:
 					default_pattern = delivery_method
@@ -3213,8 +3224,6 @@ class ShutIt(object):
 	shutitfile:        a shutitfile-based project (can be docker, bash, vagrant)
 
 	''',default=default_pattern)
-		else:
-			pattern = args.pattern
 
 		# Sort out delivery method.
 		if delivery_method is None:
@@ -3272,7 +3281,8 @@ class ShutIt(object):
 		module_name      = shutit_util.random_id(chars=string.ascii_letters)
 		module_dir       = "/tmp/shutit_built/" + module_name
 		module_domain    = module_name + '.' + module_name
-		argv_new = [sys.argv[0],'skeleton','--shutitfile'] + args.shutitfiles + ['--name', module_dir,'--domain',module_domain,'--pattern','bash']
+		shutitfiles      = args.shutitfiles
+		argv_new = [sys.argv[0],'skeleton','--shutitfile'] + shutitfiles + ['--name', module_dir,'--domain',module_domain,'--pattern','bash']
 		retdir = os.getcwd()
 		subprocess.call(argv_new)
 		os.chdir(module_dir)
@@ -3283,20 +3293,9 @@ class ShutIt(object):
 
 	# TODO: rationalise/tidy
 	def handle_build(self, args):
-		if self.action['list_configs']:
-			self.list_configs['cfghistory'] = args.history
-		elif self.action['list_modules']:
-			self.list_modules['long'] = args.long
-			self.list_modules['sort'] = args.sort
-		else:
-			self.list_configs['cfghistory']  = False
-			self.list_modules['long']        = False
-			self.list_modules['sort']        = None
-
-		shutit_home = self.host['shutit_path'] = os.path.expanduser('~/.shutit')
-
 		# We're not creating a skeleton, so make sure we have the infrastructure
 		# in place for a user-level storage area
+		shutit_home = self.host['shutit_path'] = os.path.expanduser('~/.shutit')
 		if not os.path.isdir(shutit_home):
 			mkpath(shutit_home, 0o700)
 		if not os.path.isfile(os.path.join(shutit_home, 'config')):
@@ -3306,6 +3305,15 @@ class ShutIt(object):
 			else:
 				os.write(f,default_cnf)
 			os.close(f)
+
+		self.list_configs['cfghistory']  = False
+		self.list_modules['long']        = False
+		self.list_modules['sort']        = None
+		if self.action['list_configs']:
+			self.list_configs['cfghistory'] = args.history
+		elif self.action['list_modules']:
+			self.list_modules['long'] = args.long
+			self.list_modules['sort'] = args.sort
 
 		# Default this to False as it's not always set (mostly for debug logging).
 		self.build['video']              = args.video
@@ -3317,40 +3325,6 @@ class ShutIt(object):
 		self.build['training']           = args.training
 		self.build['exam']               = args.exam
 		self.build['choose_config']      = args.choose_config
-		# Create a test session object if needed.
-		if self.build['exam']:
-			self.build['exam_object'] = shutit_exam.ShutItExamSession(self)
-		else:
-			self.build['exam_object']        = None
-
-		# What are we building on? Convert arg to conn_module we use.
-		if args.delivery == 'docker' or args.delivery is None:
-			self.build['conn_module'] = 'shutit.tk.conn_docker'
-			self.build['delivery']    = 'docker'
-		elif args.delivery == 'bash' or args.delivery == 'dockerfile':
-			self.build['conn_module'] = 'shutit.tk.conn_bash'
-			self.build['delivery']    = args.delivery
-
-		# Docker stuff
-		self.repository['push']          = args.push
-		self.repository['export']        = args.export
-		self.repository['save']          = args.save
-
-		# If the image_tag has been set then ride roughshod over the ignoreimage value if not supplied
-		if args.image_tag != '' and args.ignoreimage is None:
-			args.ignoreimage = True
-		# If ignoreimage is still not set, then default it to False
-		if args.ignoreimage is None:
-			args.ignoreimage = False
-
-		# Get these early for this part of the build.
-		# These should never be config arguments, since they are needed before config is passed in.
-		if args.shutit_module_path is not None:
-			module_paths = args.shutit_module_path.split(':')
-			if '.' not in module_paths:
-				module_paths.append('.')
-			args.set.append(('host', 'shutit_module_path', ':'.join(module_paths)))
-		shutit_global.shutit_global_object.interactive      = int(args.interactive)
 		self.build['extra_configs']    = args.config
 		self.build['config_overrides'] = args.set
 		self.build['ignorestop']       = args.ignorestop
@@ -3360,11 +3334,31 @@ class ShutIt(object):
 		self.build['deps_only']        = args.deps_only
 		self.build['always_echo']      = args.echo
 		self.target['docker_image']    = args.image_tag
+		self.repository['push']          = args.push
+		self.repository['export']        = args.export
+		self.repository['save']          = args.save
+		# Create a test session object if needed.
+		if self.build['exam']:
+			self.build['exam_object'] = shutit_exam.ShutItExamSession(self)
+		else:
+			self.build['exam_object']        = None
 
-		if self.build['delivery'] in ('bash',):
-			if self.target['docker_image'] != '': # pragma: no cover
-				print('delivery method specified (' + self.build['delivery'] + ') and image_tag argument make no sense')
-				shutit_global.shutit_global_object.handle_exit(exit_code=1)
+		# What are we building on? Convert arg to conn_module we use.
+		self.build['delivery']    = args.delivery
+		if args.delivery == 'docker' or args.delivery is None:
+			self.build['conn_module'] = 'shutit.tk.conn_docker'
+		elif args.delivery == 'bash' or args.delivery == 'dockerfile':
+			self.build['conn_module'] = 'shutit.tk.conn_bash'
+
+		# Get these early for this part of the build.
+		# These should never be config arguments, since they are needed before config is passed in.
+		if args.shutit_module_path is not None:
+			module_paths = args.shutit_module_path.split(':')
+			if '.' not in module_paths:
+				module_paths.append('.')
+			args.set.append(('host', 'shutit_module_path', ':'.join(module_paths)))
+		shutit_global.shutit_global_object.interactive      = int(args.interactive)
+
 		# Finished parsing args.
 		# Sort out config path
 		if self.action['list_configs'] or self.action['list_modules'] or self.action['list_deps'] or shutit_global.shutit_global_object.loglevel == logging.DEBUG:
