@@ -284,7 +284,7 @@ class ShutItInit(object):
 			if self.ignoreimage is None:
 				self.ignoreimage = False
 			if self.delivery in ('bash',):
-				if self.docker_image != '': # pragma: no cover
+				if self.image_tag != '': # pragma: no cover
 					print('delivery method specified (' + self.delivery + ') and image_tag argument make no sense')
 					shutit_global.shutit_global_object.handle_exit(exit_code=1)
 
