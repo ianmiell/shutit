@@ -57,22 +57,26 @@ class ShutItLoginStack(object):
 
 class ShutItLoginStackItem(object):
 
+
 	def __init__(self,login_id):
 		"""
 		"""
 		self.login_id           = login_id
 		self.background_objects = []
 
+
 	def append_background_send(self,sendspec):
 		shutit_background_command_object = ShutItBackgroundCommand(sendspec)
 		self.background_objects.append(shutit_background_command_object)
 		return shutit_background_command_object
+
 
 	def has_blocking_background_send(self):
 		for background_object in self.background_objects:
 			if background_object.block_other_commands:
 				shutit_global.shutit_global_object.log('The blocking send object is: ' + str(background_object),level=logging.DEBUG)
 				return True
+
 
 	def check_background_commands(self):
 		unstarted_command_exists  = False

@@ -36,15 +36,15 @@ ps -o stat= | sed 's/^\(.\)\(.*\)/\1/'
 
 import time
 
+
 class ShutItBackgroundCommand(object):
 	"""Background command in ShutIt
 	"""
 	def __init__(self,
-	             sendspec,
-	             block_other_commands=True):
+	             sendspec):
 		# Stub this with a simple command for now
 		self.sendspec             = sendspec
-		self.block_other_commands = block_other_commands
+		self.block_other_commands = sendspec.block_other_commands
 		self.pid                  = None
 		self.return_value         = None
 		self.start_time           = None

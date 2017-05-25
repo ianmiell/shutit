@@ -2581,7 +2581,7 @@ $'"""
 					                                    send=sendspec.send,
 					                                    nonewline=sendspec.nonewline,
 					                                    ignore_background=sendspec.ignore_background,
-					                                    run_in_background=sendspec.run_in_background,:
+					                                    run_in_background=sendspec.run_in_background,
 					                                    block_other_commands=sendspec.block_other_commands)):
 						expect_res = shutit.expect_allow_interrupt(self.pexpect_child, sendspec.expect, sendspec.timeout)
 					else:
