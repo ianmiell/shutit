@@ -2394,7 +2394,7 @@ class ShutIt(object):
 		if echo is None:
 			# No if it was not explicitly passed in
 			echo = False
-		if self.build['exam']:
+		if self.build['exam'] and shutit_global.shutit_global_object.loglevel not in ('DEBUG',):
 			# No if we are in exam mode
 			echo = False
 		return echo
@@ -3287,6 +3287,7 @@ class ShutIt(object):
 			self.build['choose_config']   = args.choose_config
 
 			# Video/exam/training logic
+			# TODO: move to args
 			if self.build['exam'] and not self.build['training']:
 				# We want it to be quiet
 				#print('--exam implies --training, setting --training on!')
