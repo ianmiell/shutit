@@ -497,7 +497,7 @@ class ShutIt(object):
 		"""Multisend. Same as send, except it takes multiple sends and expects in a dict that are
 		processed while waiting for the end "expect" argument supplied.
 
-		@param send_dict:            dict of sends and expects, eg: {'interim prompt:','some input','other prompt','some other input'}
+		@param send_dict:            see shutit_sendspec
 		@param expect:               String or list of strings of final expected output that returns from this function. See send()
 		@param send:                 See send()
 		@param shutit_pexpect_child:                See send()

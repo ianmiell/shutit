@@ -45,7 +45,8 @@ class ShutItSendSpec(object):
 			                             just matched output that came before a standard command that
 			                             returns to the prompt.
 			@param send_dict:            dict of sends and expects, eg:
-			                             {'interim prompt:','some input','other prompt','some other input'}
+			                             {'interim prompt:',['some input',False],'input password:':['mypassword',True]}
+			                             Note that the boolean indicates whether the match results in the removal of the send dict expects from the interaction and assumes a prompt follows.
 			@param expect:               String that we expect to see in the output. Usually a
 			                             prompt. Defaults to currently-set expect string (see
 			                             set_default_shutit_pexpect_session_expect)

@@ -279,23 +279,18 @@ class ShutItPexpectSession(object):
 			# If user@ already there, remove it, as it can conflict with password lines in ssh calls.
 			if user+'@' in general_expect:
 				general_expect.remove(user+'@')
-			#general_expect.append(user+'@')
 			general_expect.append('.*[#$]')
-			send_dict={'ontinue connecting':'yes', 'assword:':password, r'[^t] login:':password}
+			send_dict={'ontinue connecting':['yes',False], 'assword:':[password,True], r'[^t] login:':[password,True]}
 		else:
-			send_dict={'ontinue connecting':'yes', 'assword:':password, r'[^t] login:':password, user+'@':password}
+			send_dict={'ontinue connecting':['yes',False], 'assword:':[password,True], r'[^t] login:':[password,True], user+'@':[password,True]}
 		if user == 'bash' and command == 'su -':
 			shutit_global.shutit_global_object.log('WARNING! user is bash - if you see problems below, did you mean: login(command="' + user + '")?',level=logging.WARNING)
 		shutit.handle_note(note,command=command + '\n\n[as user: "' + user + '"]',training_input=send)
 		# r'[^t] login:' - be sure not to match 'last login:'
-		#if send == 'bash':
 		echo = shutit.get_echo_override(echo)
 		shutit_global.shutit_global_object.log('Logging in to new ShutIt environment.' + user,level=logging.DEBUG)
 		shutit_global.shutit_global_object.log('Logging in with command: ' + send + ' as user: ' + user,level=logging.DEBUG)
 		shutit_global.shutit_global_object.log('Login stack before login: ' + str(self.login_stack),level=logging.DEBUG)
-		#print('send: ' + str(send))
-		#print('password: ' + str(password))
-		#print('send_dict:' + str(send_dict))
 		res = self.multisend(ShutItSendSpec(self,
 		                                    send=send,
 		                                    send_dict=send_dict,
@@ -1340,7 +1335,7 @@ class ShutItPexpectSession(object):
 					cmd = 'sudo ' + cmd
 					res = self.multisend(ShutItSendSpec(self,
 					                                    send='%s %s %s' % (cmd, opts, package),
-					                                    send_dict={'assword':pw},
+					                                    send_dict={'assword':[pw,True]},
 					                                    expect=['Unable to fetch some archives',self.default_expect],
 					                                    timeout=timeout,
 					                                    check_exit=False,
@@ -1489,7 +1484,7 @@ class ShutItPexpectSession(object):
 			cmd = 'sudo ' + cmd
 			res = self.multisend(ShutItSendSpec(self,
 			                                    send='%s %s %s' % (cmd, opts, package),
-			                                    send_dict={'assword:':pw},
+			                                    send_dict={'assword:':[pw,True]},
 			                                    timeout=timeout,
 			                                    exit_values=['0','100'],
 			                                    echo=False,
@@ -1913,13 +1908,10 @@ class ShutItPexpectSession(object):
 		                             If return is -1, the task was backgrounded. See also multisend.
 		@rtype:                      int
 		"""
-		echo=sendspec.echo
-
-		expect = sendspec.expect or self.default_expect
-		shutit = self.shutit
-		shutit.handle_note(sendspec.note)
-		send_iteration = sendspec.send
-		expect_list = list(sendspec.send_dict)
+		self.shutit.handle_note(sendspec.note)
+		expect           = sendspec.expect or self.default_expect
+		send_iteration   = sendspec.send
+		expect_list      = list(sendspec.send_dict)
 		# Put breakout item(s) in last.
 		n_breakout_items = 0
 		shutit_global.shutit_global_object.log('In multisend, send: ' + sendspec.send,level=logging.DEBUG)
@@ -1935,7 +1927,6 @@ class ShutItPexpectSession(object):
 		shutit_global.shutit_global_object.log('Number of breakout items: ' + str(n_breakout_items),level=logging.DEBUG)
 		while True:
 			# If it's the last n items in the list, it's the breakout one.
-			echo = shutit.get_echo_override(echo)
 			res = self.send(ShutItSendSpec(self,
 			                               send=send_iteration,
 			                               expect=expect_list,
@@ -1944,7 +1935,7 @@ class ShutItPexpectSession(object):
 			                               timeout=sendspec.timeout,
 			                               record_command=sendspec.record_command,
 			                               exit_values=sendspec.exit_values,
-			                               echo=echo,
+			                               echo=self.shutit.get_echo_override(sendspec.echo),
 			                               escape=sendspec.escape,
 			                               secret=sendspec.secret,
 			                               check_sudo=sendspec.check_sudo,
@@ -1956,18 +1947,20 @@ class ShutItPexpectSession(object):
 				# Will be run in the background later.
 				shutit_global.shutit_global_object.log('Multisend will be run in the background: ' + str(send_iteration),level=logging.INFO)
 				return -1
+			next_send     = sendspec.send_dict[expect_list[res]][0]
+			remove_items  = sendspec.send_dict[expect_list[res]][1]
 			if res >= len(expect_list) - n_breakout_items:
 				break
 			else:
-				send_iteration = sendspec.send_dict[expect_list[res]]
-				#print('send_iteration after: ' + str(send_iteration))
-				if sendspec.remove_on_match:
+				send_iteration = next_send
+				# If this 
+				if sendspec.remove_on_match and remove_items:
 					shutit_global.shutit_global_object.log('Have matched a password (' + expect_list[res] + '), removing password expects from list in readiness of a prompt',level=logging.DEBUG)
 					if isinstance(expect, str):
 						expect_list = [expect]
 					elif isinstance(expect, list):
 						expect_list = expect
-		shutit.handle_note_after(note=sendspec.note)
+		self.shutit.handle_note_after(note=sendspec.note)
 		return res
 
 
@@ -2438,7 +2431,7 @@ class ShutItPexpectSession(object):
 			# Turn expect into a dict.
 			return self.multisend(ShutItSendSpec(self,
 			                                     send=sendspec.send,
-			                                     send_dict={'assword':sudo_pass},
+			                                     send_dict={'assword':[sudo_pass,True]},
 			                                     expect=shutit.get_default_shutit_pexpect_session_expect(),
 			                                     timeout=sendspec.timeout,
 			                                     check_exit=sendspec.check_exit,
