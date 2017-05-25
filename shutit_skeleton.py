@@ -69,7 +69,6 @@ def create_skeleton(shutit):
 		bash.setup_bash_pattern(shutit,
 		                        skel_path=skel_path,
 		                        skel_delivery=skel_delivery,
-		                        skel_pattern=skel_pattern,
 		                        skel_domain=skel_domain,
 		                        skel_module_name=skel_module_name,
 		                        skel_shutitfiles=skel_shutitfiles,
@@ -80,7 +79,6 @@ def create_skeleton(shutit):
 		docker.setup_docker_pattern(shutit,
 		                            skel_path=skel_path,
 		                            skel_delivery=skel_delivery,
-		                            skel_pattern=skel_pattern,
 		                            skel_domain=skel_domain,
 		                            skel_module_name=skel_module_name,
 		                            skel_shutitfiles=skel_shutitfiles,
@@ -91,7 +89,6 @@ def create_skeleton(shutit):
 		vagrant.setup_vagrant_pattern(shutit,
 		                              skel_path=skel_path,
 		                              skel_delivery=skel_delivery,
-		                              skel_pattern=skel_pattern,
 		                              skel_domain=skel_domain,
 		                              skel_module_name=skel_module_name,
 		                              skel_shutitfiles=skel_shutitfiles,
@@ -108,9 +105,6 @@ def create_skeleton(shutit):
 		                                    skel_pattern=skel_pattern,
 		                                    skel_domain=skel_domain,
 		                                    skel_module_name=skel_module_name,
-		                                    skel_shutitfiles=skel_shutitfiles,
-		                                    skel_domain_hash=skel_domain_hash,
-		                                    skel_depends=skel_depends,
 		                                    skel_vagrant_num_machines=skel_vagrant_num_machines,
 		                                    skel_vagrant_machine_prefix=skel_vagrant_machine_prefix,
 		                                    skel_vagrant_ssh_access=skel_vagrant_ssh_access,
@@ -179,7 +173,7 @@ def process_shutitfile(shutit, shutitfile_contents):
 			# Put in the run.sh.
 			try:
 				shutitfile_representation['shutitfile']['volume'].append(' '.join(json.loads(item[1])))
-			except Exception:
+			except NameError:
 				shutitfile_representation['shutitfile']['volume'].append(item[1])
 		elif shutitfile_command == 'EXPOSE':
 			# TESTED? NO
@@ -190,14 +184,14 @@ def process_shutitfile(shutit, shutitfile_contents):
 			# Put in the run.sh? Yes, if it exists it goes at the front of cmd
 			try:
 				shutitfile_representation['shutitfile']['entrypoint'] = ' '.join(json.loads(item[1]))
-			except Exception:
+			except NameError:
 				shutitfile_representation['shutitfile']['entrypoint'] = item[1]
 		elif shutitfile_command == 'CMD':
 			# TESTED? NO
 			# Put in the run.sh
 			try:
 				shutitfile_representation['shutitfile']['cmd'] = ' '.join(json.loads(item[1]))
-			except Exception:
+			except NameError:
 				shutitfile_representation['shutitfile']['cmd'] = item[1]
 		# Other items to be run through sequentially (as they are part of the script)
 		elif shutitfile_command == 'GET_PASSWORD':
@@ -219,7 +213,7 @@ def process_shutitfile(shutit, shutitfile_contents):
 			# Only handle simple commands for now and ignore the fact that shutitfiles run with /bin/sh -c rather than bash.
 			try:
 				shutitfile_representation['shutitfile']['script'].append([shutitfile_command, ' '.join(json.loads(item[1]))])
-			except Exception:
+			except NameError:
 				shutitfile_representation['shutitfile']['script'].append([shutitfile_command, item[1]])
 		elif shutitfile_command == 'ASSERT_OUTPUT':
 			if last_shutitfile_command not in ('RUN','SEND'):
@@ -270,5 +264,3 @@ def process_shutitfile(shutit, shutitfile_contents):
 			shutit.fail('shutitfile command: ' + shutitfile_command + ' not processed') # pragma: no cover
 		last_shutitfile_command = shutitfile_command
 	return shutitfile_representation, True
-
-

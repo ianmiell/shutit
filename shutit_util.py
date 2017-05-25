@@ -268,8 +268,6 @@ def util_raw_input(prompt='', default=None, ispass=False, use_readline=True):
 	return default
 
 
-
-
 def get_input(msg, default='', valid=None, boolean=False, ispass=False, colour='32'):
 	"""Gets input from the user, and returns the answer.
 
@@ -296,5 +294,3 @@ def get_input(msg, default='', valid=None, boolean=False, ispass=False, colour='
 		return default
 	else:
 		return answer
-
-

@@ -32,7 +32,6 @@ Nomenclature:
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-import logging
 import shutit_global
 from shutit_module import ShutItModule
 from shutit_sendspec import ShutItSendSpec

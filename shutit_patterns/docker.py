@@ -5,7 +5,6 @@ from . import shutitfile
 def setup_docker_pattern(shutit,
                          skel_path,
                          skel_delivery,
-                         skel_pattern,
                          skel_domain,
                          skel_module_name,
                          skel_shutitfiles,
@@ -164,7 +163,7 @@ cd ''' + skel_path + ''' && ./build.sh
 			module_modifier = '_' + str(_count)
 			new_module_filename = skel_path + '/' + os.path.join(skel_module_name + module_modifier + '.py')
 			shutit.cfg['skeleton']['module_modifier'] = module_modifier
-			(sections, skel_module_id, skel_module_name, default_include, ok) = shutitfile.shutitfile_to_shutit_module(shutit, skel_shutitfile,skel_path,skel_domain,skel_module_name,skel_domain_hash,skel_delivery,skel_depends,_count,_total,module_modifier)
+			(sections, skel_module_id, skel_module_name, _, _) = shutitfile.shutitfile_to_shutit_module(shutit, skel_shutitfile,skel_path,skel_domain,skel_module_name,skel_domain_hash,skel_delivery,skel_depends,_count,_total,module_modifier)
 			shutit.cfg['skeleton']['header_section']      = sections['header_section']
 			shutit.cfg['skeleton']['config_section']      = sections['config_section']
 			shutit.cfg['skeleton']['build_section']       = sections['build_section']

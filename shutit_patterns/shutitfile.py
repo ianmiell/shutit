@@ -35,7 +35,6 @@ except ImportError:
 	from urlparse import urlparse
 	from urllib2 import urlopen
 from six import iteritems
-import shutit_util
 import shutit_global
 import shutit_skeleton
 
@@ -45,10 +44,7 @@ def setup_shutitfile_pattern(shutit,
                              skel_delivery,
                              skel_pattern,
                              skel_domain,
-                             skel_module_name,
-                             skel_shutitfiles,
-                             skel_domain_hash,
-                             skel_depends,
+	                         skel_module_name,
                              skel_vagrant_num_machines,
                              skel_vagrant_machine_prefix,
                              skel_vagrant_ssh_access,
@@ -246,7 +242,7 @@ def shutitfile_to_shutit_module(shutit,
 	check_shutitfile_representation(shutit, shutitfile_representation, skel_delivery)
 
 	# Get the shutit module as a string
-	sections, module_id, module_name, depends, default_include = generate_shutit_module_sections(shutit, shutitfile_representation, skel_domain, skel_module_name, skel_module_modifier, skel_shutitfile, skel_depends, order, total)
+	sections, module_id, _, depends, default_include = generate_shutit_module_sections(shutit, shutitfile_representation, skel_domain, skel_module_name, skel_module_modifier, skel_shutitfile, skel_depends, order, total)
 	if module_id == skel_module_name:
 		module_id = skel_domain + """.""" + skel_module_name + skel_module_modifier
 
@@ -307,7 +303,8 @@ def check_shutitfile_representation(shutit, shutitfile_representation, skel_deli
 
 def generate_shutit_module_sections(shutit,
                                     shutitfile_representation,
-                                    skel_domain, skel_module_name,
+                                    skel_domain,
+	                                skel_module_name,
                                     skel_module_modifier,
                                     skel_shutitfile,
                                     skel_depends,
@@ -518,7 +515,7 @@ def handle_shutitfile_config_line(line):
 	assert shutitfile_command in ('CONFIG','CONFIG_SECRET'), '%r is not a handled config command' % shutitfile_command
 	if shutitfile_command in ('CONFIG','CONFIG_SECRET'):
 		shutitfile_args    = parse_shutitfile_args(line[1])
-		assert type(shutitfile_args) in (dict,list)
+		assert isinstance(shutitfile_args, (dict,list))
 		if shutitfile_command == 'CONFIG':
 			secret_str = 'False'
 		elif shutitfile_command == 'CONFIG_SECRET':
@@ -874,5 +871,3 @@ def shutitfile_get_section(shutitfile_command, current):
 		else:
 			return 'build'
 	return current
-
-

@@ -230,7 +230,6 @@ class ShutItInit(object):
 			#assert isinstance(self.delivery,str)
 			#assert isinstance(self.shutitfiles,list)
 		elif self.action == 'build' or self.action == 'list_configs' or self.action == 'list_modules':
-			
 			self.push               = push
 			self.export             = export
 			self.save               = save
@@ -3280,9 +3279,8 @@ class ShutIt(object):
 			'vagrant_docker':         vagrant_docker
 		}
 		shutit_skeleton.create_skeleton(self)
-		
 
-	# TODO: rationalise/tidy
+
 	def handle_run(self, args):
 		module_name      = shutit_util.random_id(chars=string.ascii_letters)
 		module_dir       = "/tmp/shutit_built/" + module_name
@@ -4387,6 +4385,7 @@ class ShutIt(object):
 
 	# Pass through to global object
 	def create_session(self, session_type='bash', docker_image=None, rm=None):
+		self=self
 		return shutit_global.shutit_global_object.create_session(session_type=session_type, docker_image=docker_image, rm=rm)
 
 
@@ -4501,4 +4500,3 @@ dotest:yes
 # --net argument to docker, eg "bridge", "none", "container:<name|id>" or "host". Empty means use default (bridge).
 net:
 '''
-
