@@ -3293,10 +3293,8 @@ class ShutIt(object):
 				os.close(f)
 
 			# Default this to False as it's not always set (mostly for debug logging).
-			self.build['video']              = False
-			self.build['training']           = False
-			self.build['exam_object']        = None
-			self.build['choose_config']      = False
+			self.build['video']              = args.video
+			self.build['training']           = args.training
 			self.repository['push']          = args.push
 			self.repository['export']        = args.export
 			self.repository['save']          = args.save
@@ -3311,6 +3309,8 @@ class ShutIt(object):
 			# Create a test session object if needed.
 			if self.build['exam']:
 				self.build['exam_object'] = shutit_exam.ShutItExamSession(self)
+			else:
+				self.build['exam_object']        = None
 
 			# What are we building on? Convert arg to conn_module we use.
 			if args.delivery == 'docker' or args.delivery is None:
