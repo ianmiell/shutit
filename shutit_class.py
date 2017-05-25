@@ -328,6 +328,7 @@ class ShutIt(object):
 		self.build['vagrant_run_dir']        = None
 		self.build['this_vagrant_run_dir']   = None
 		self.build['accept_defaults']        = None
+		self.build['exam']                   = False
 
 		# Host information - move to global?
 		self.host                            = {}
@@ -3105,7 +3106,6 @@ class ShutIt(object):
 		self.action['skeleton']     = args.action == 'skeleton'
 		self.action['build']        = args.action == 'build'
 		self.action['run']          = args.action == 'run'
-		self.build['exam']          = False
 
 		# This mode is a bit special - it's the only one with different arguments
 		if self.action['skeleton']:
@@ -3309,6 +3309,7 @@ class ShutIt(object):
 		self.list_configs['cfghistory']  = False
 		self.list_modules['long']        = False
 		self.list_modules['sort']        = None
+		self.build['exam_object']        = None
 		if self.action['list_configs']:
 			self.list_configs['cfghistory'] = args.history
 		elif self.action['list_modules']:
@@ -3325,24 +3326,21 @@ class ShutIt(object):
 		self.build['training']           = args.training
 		self.build['exam']               = args.exam
 		self.build['choose_config']      = args.choose_config
-		self.build['extra_configs']    = args.config
-		self.build['config_overrides'] = args.set
-		self.build['ignorestop']       = args.ignorestop
-		self.build['ignoreimage']      = args.ignoreimage
-		self.build['imageerrorok']     = args.imageerrorok
-		self.build['tag_modules']      = args.tag_modules
-		self.build['deps_only']        = args.deps_only
-		self.build['always_echo']      = args.echo
-		self.target['docker_image']    = args.image_tag
+		self.build['extra_configs']      = args.config
+		self.build['config_overrides']   = args.set
+		self.build['ignorestop']         = args.ignorestop
+		self.build['ignoreimage']        = args.ignoreimage
+		self.build['imageerrorok']       = args.imageerrorok
+		self.build['tag_modules']        = args.tag_modules
+		self.build['deps_only']          = args.deps_only
+		self.build['always_echo']        = args.echo
+		self.target['docker_image']      = args.image_tag
 		self.repository['push']          = args.push
 		self.repository['export']        = args.export
 		self.repository['save']          = args.save
 		# Create a test session object if needed.
 		if self.build['exam']:
 			self.build['exam_object'] = shutit_exam.ShutItExamSession(self)
-		else:
-			self.build['exam_object']        = None
-
 		# What are we building on? Convert arg to conn_module we use.
 		self.build['delivery']    = args.delivery
 		if args.delivery == 'docker' or args.delivery is None:
@@ -3366,7 +3364,6 @@ class ShutIt(object):
 			if not os.path.exists(self.build['log_config_path']):
 				os.makedirs(self.build['log_config_path'])
 				os.chmod(self.build['log_config_path'],0o777)
-
 
 
 	def get_configs(self, configs):
