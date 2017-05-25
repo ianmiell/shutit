@@ -308,7 +308,8 @@ class ShutItPexpectSession(object):
 		                                    remove_on_match=True,
 		                                    nonewline=sendspec.nonewline,
 		                                    ignore_background=True,
-		                                    loglevel=loglevel))
+		                                    loglevel=loglevel,
+			                                block_other_commands=sendspec.block_other_commands))
 		if res == -1:
 			# Should not get here as login should not be blocked.
 			assert False
@@ -1912,33 +1913,16 @@ class ShutItPexpectSession(object):
 		                             If return is -1, the task was backgrounded. See also multisend.
 		@rtype:                      int
 		"""
-		send=sendspec.send
-		send_dict=sendspec.send_dict
-		expect=sendspec.expect
-		timeout=sendspec.timeout
-		check_exit=sendspec.check_exit
-		fail_on_empty_before=sendspec.fail_on_empty_before
-		record_command=sendspec.record_command
-		exit_values=sendspec.exit_values
-		escape=sendspec.escape
 		echo=sendspec.echo
-		note=sendspec.note
-		secret=sendspec.secret
-		check_sudo=sendspec.check_sudo
-		remove_on_match=sendspec.remove_on_match
-		ignore_background=sendspec.ignore_background
-		loglevel=sendspec.loglevel
-		ignore_background=sendspec.ignore_background
 
-		expect = expect or self.default_expect
+		expect = sendspec.expect or self.default_expect
 		shutit = self.shutit
-		shutit.handle_note(note)
-		send_iteration = send
-		#print('send_dict: ' + str(send_dict))
-		expect_list = list(send_dict)
+		shutit.handle_note(sendspec.note)
+		send_iteration = sendspec.send
+		expect_list = list(sendspec.send_dict)
 		# Put breakout item(s) in last.
 		n_breakout_items = 0
-		shutit_global.shutit_global_object.log('In multisend, send: ' + send,level=logging.DEBUG)
+		shutit_global.shutit_global_object.log('In multisend, send: ' + sendspec.send,level=logging.DEBUG)
 		if isinstance(expect, str):
 			shutit_global.shutit_global_object.log('Adding: "' + expect + '" to expect list.',level=logging.DEBUG)
 			expect_list.append(expect)
@@ -1955,18 +1939,19 @@ class ShutItPexpectSession(object):
 			res = self.send(ShutItSendSpec(self,
 			                               send=send_iteration,
 			                               expect=expect_list,
-			                               check_exit=check_exit,
-			                               fail_on_empty_before=fail_on_empty_before,
-			                               timeout=timeout,
-			                               record_command=record_command,
-			                               exit_values=exit_values,
+			                               check_exit=sendspec.check_exit,
+			                               fail_on_empty_before=sendspec.fail_on_empty_before,
+			                               timeout=sendspec.timeout,
+			                               record_command=sendspec.record_command,
+			                               exit_values=sendspec.exit_values,
 			                               echo=echo,
-			                               escape=escape,
-			                               secret=secret,
-			                               check_sudo=check_sudo,
+			                               escape=sendspec.escape,
+			                               secret=sendspec.secret,
+			                               check_sudo=sendspec.check_sudo,
 			                               nonewline=sendspec.nonewline,
-			                               ignore_background=ignore_background,
-							               loglevel=loglevel))
+			                               ignore_background=sendspec.ignore_background,
+			                               block_other_commands=sendspec.block_other_commands,
+							               loglevel=sendspec.loglevel))
 			if res == -1:
 				# Will be run in the background later.
 				shutit_global.shutit_global_object.log('Multisend will be run in the background: ' + str(send_iteration),level=logging.INFO)
@@ -1974,19 +1959,15 @@ class ShutItPexpectSession(object):
 			if res >= len(expect_list) - n_breakout_items:
 				break
 			else:
-				#print('send_iteration before: ' + str(send_iteration))
-				#print('send_iteration before expect_list: ' + str(expect_list))
-				#print('send_iteration before expect_list[res]: ' + str(expect_list[res]))
-				#print('send_iteration before send_dict[expect_list[res]]: ' + str(send_dict[expect_list[res]]))
-				send_iteration = send_dict[expect_list[res]]
+				send_iteration = sendspec.send_dict[expect_list[res]]
 				#print('send_iteration after: ' + str(send_iteration))
-				if remove_on_match:
+				if sendspec.remove_on_match:
 					shutit_global.shutit_global_object.log('Have matched a password (' + expect_list[res] + '), removing password expects from list in readiness of a prompt',level=logging.DEBUG)
 					if isinstance(expect, str):
 						expect_list = [expect]
 					elif isinstance(expect, list):
 						expect_list = expect
-		shutit.handle_note_after(note=note)
+		shutit.handle_note_after(note=sendspec.note)
 		return res
 
 
@@ -2444,7 +2425,8 @@ class ShutItPexpectSession(object):
 			                                     nonewline=sendspec.nonewline,
 			                                     loglevel=sendspec.loglevel,
 			                                     run_in_background=sendspec.run_in_background,
-			                                     ignore_background=sendspec.ignore_background))
+			                                     ignore_background=sendspec.ignore_background,
+			                                     block_other_commands=sendspec.block_other_commands))
 		# Before gathering expect, detect whether this is a sudo command and act accordingly.
 		command_list = sendspec.send.strip().split()
 		# If there is a first command, there is a sudo in there (we ignore
@@ -2468,7 +2450,8 @@ class ShutItPexpectSession(object):
 			                                     check_sudo=False,
 			                                     nonewline=sendspec.nonewline,
 			                                     loglevel=sendspec.loglevel,
-			                                     ignore_background=True))
+			                                     ignore_background=True,
+			                                     block_other_commands=sendspec.block_other_commands))
 
 
 		shutit_global.shutit_global_object.log('Sending data in session: ' + self.pexpect_session_id,level=logging.DEBUG)
@@ -2579,7 +2562,8 @@ $'"""
 					                               delaybeforesend=sendspec.delaybeforesend,
 			                                       nonewline=sendspec.nonewline,
 			                                       run_in_background=sendspec.run_in_background,
-					                               ignore_background=True))
+					                               ignore_background=True,
+			                                       block_other_commands=sendspec.block_other_commands))
 					if not self.sendline(ShutItSendSpec(self,
 					                                    send=' rm -f ' + fname,
 					                                    nonewline=sendspec.nonewline,
@@ -2597,7 +2581,8 @@ $'"""
 					                                    send=sendspec.send,
 					                                    nonewline=sendspec.nonewline,
 					                                    ignore_background=sendspec.ignore_background,
-					                                    run_in_background=sendspec.run_in_background)):
+					                                    run_in_background=sendspec.run_in_background,:
+					                                    block_other_commands=sendspec.block_other_commands)):
 						expect_res = shutit.expect_allow_interrupt(self.pexpect_child, sendspec.expect, sendspec.timeout)
 					else:
 						expect_res = -1
@@ -2673,7 +2658,8 @@ $'"""
 					                         loglevel=sendspec.loglevel,
 					                         delaybeforesend=sendspec.delaybeforesend,
 			                                 run_in_background=False,
-					                         ignore_background=True))
+					                         ignore_background=True,
+			                                 block_other_commands=sendspec.block_other_commands))
 		if shutit.build['step_through']:
 			self.pause_point('pause point: stepping through')
 		if shutit.build['ctrlc_stop']:

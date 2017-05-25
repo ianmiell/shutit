@@ -640,7 +640,7 @@ class ShutIt(object):
 	         nonewline=False,
 	         background=False,
 	         wait=True,
-	         blocking=True,
+	         block_other_commands=True,
 	         loglevel=logging.INFO):
 		"""Send string as a shell command, and wait until the expected output
 		is seen (either a string or any from a list of strings) before
@@ -664,7 +664,7 @@ class ShutIt(object):
 		@param note: See shutit.ShutItSendSpec
 		@param assume_gnu: See shutit.ShutItSendSpec
 		@param wait: See shutit.ShutItSendSpec
-		@param blocking: See shutit.ShutItSendSpec.block_other_commands
+		@param block_other_commands: See shutit.ShutItSendSpec.block_other_commands
 		@return: The pexpect return value (ie which expected string in the list matched)
 		@rtype: string
 		"""
@@ -694,7 +694,7 @@ class ShutIt(object):
 		                                                  nonewline=nonewline,
 		                                                  run_in_background=background,
 		                                                  ignore_background=ignore_background,
-		                                                  block_other_commands=blocking))
+		                                                  block_other_commands=block_other_commands))
 
 
 	def send_and_return_status(self,
