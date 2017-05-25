@@ -166,6 +166,7 @@ class ShutItInit(object):
 	             distro='',
 	             mount_docker=False,
 	             walkthrough=False,
+	             walkthrough_wait=-1,
 	             training=False,
 	             choose_config=False,
 	             config=[],
@@ -229,12 +230,14 @@ class ShutItInit(object):
 			#assert isinstance(self.delivery,str)
 			#assert isinstance(self.shutitfiles,list)
 		elif self.action == 'build' or self.action == 'list_configs' or self.action == 'list_modules':
+			
 			self.push               = push
 			self.export             = export
 			self.save               = save
 			self.distro             = distro
 			self.mount_docker       = mount_docker
 			self.walkthrough        = walkthrough
+			self.walkthrough_wait   = walkthrough_wait
 			self.training           = training
 			self.choose_config      = choose_config
 			self.config             = config
@@ -255,6 +258,24 @@ class ShutItInit(object):
 			self.history            = history
 			self.sort               = sort
 			self.long               = long
+			# Video/exam/training logic
+			if self.exam and not self.training:
+				print('Exam starting up')
+				self.training = True
+			if (self.exam or self.training) and not self.walkthrough:
+				if not self.exam:
+					print('--training or --exam implies --walkthrough, setting --walkthrough on!')
+				self.walkthrough = True
+			if isinstance(self.video, list) and self.video[0] >= 0:
+				self.walkthrough      = True
+				self.walkthrough_wait = self.video[0]
+				self.video            = True
+			if self.video and self.training:
+				print('--video and --training mode incompatible')
+				shutit_global.shutit_global_object.handle_exit(exit_code=1)
+			if self.video and self.exam:
+				print('--video and --exam mode incompatible')
+				shutit_global.shutit_global_object.handle_exit(exit_code=1)
 			#assert isinstance(self.delivery,str)
 
 
@@ -3276,37 +3297,17 @@ class ShutIt(object):
 			self.build['training']           = False
 			self.build['exam_object']        = None
 			self.build['choose_config']      = False
-			self.repository['push']       = args.push
-			self.repository['export']     = args.export
-			self.repository['save']       = args.save
-			self.build['distro_override'] = args.distro
-			self.build['mount_docker']    = args.mount_docker
-			self.build['walkthrough']     = args.walkthrough
-			self.build['training']        = args.training
-			self.build['exam']            = args.exam
-			self.build['choose_config']   = args.choose_config
+			self.repository['push']          = args.push
+			self.repository['export']        = args.export
+			self.repository['save']          = args.save
+			self.build['distro_override']    = args.distro
+			self.build['mount_docker']       = args.mount_docker
+			self.build['walkthrough']        = args.walkthrough
+			self.build['walkthrough_wait']   = args.walkthrough_wait
+			self.build['training']           = args.training
+			self.build['exam']               = args.exam
+			self.build['choose_config']      = args.choose_config
 
-			# Video/exam/training logic
-			# TODO: move to args
-			if self.build['exam'] and not self.build['training']:
-				# We want it to be quiet
-				#print('--exam implies --training, setting --training on!')
-				print('Exam starting up')
-				self.build['training'] = True
-			if (self.build['exam'] or self.build['training']) and not self.build['walkthrough']:
-				if not self.build['exam']:
-					print('--training or --exam implies --walkthrough, setting --walkthrough on!')
-				self.build['walkthrough'] = True
-			if isinstance(args.video, list) and args.video[0] >= 0:
-				self.build['walkthrough']      = True
-				self.build['walkthrough_wait'] = float(args.video[0])
-				self.build['video']            = True
-				if self.build['training']:
-					print('--video and --training mode incompatible')
-					shutit_global.shutit_global_object.handle_exit(exit_code=1)
-				if self.build['exam']:
-					print('--video and --exam mode incompatible')
-					shutit_global.shutit_global_object.handle_exit(exit_code=1)
 			# Create a test session object if needed.
 			if self.build['exam']:
 				self.build['exam_object'] = shutit_exam.ShutItExamSession(self)

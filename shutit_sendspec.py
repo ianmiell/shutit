@@ -132,13 +132,15 @@ class ShutItSendSpec(object):
 		self.block_other_commands    = block_other_commands
 		self.wait_cadence            = wait_cadence
 
-		# Setup/checking
+		# BEGIN Setup/checking
 		self.started                 = False
 		if check_exit and run_in_background:
 			check_exit = False
 		if send_dict and run_in_background:
 			shutit_global.shutit_global_object.log('run_in_background and send_dict make no sense',level=logging.CRITICAL)
 			assert False
+		# END Setup/checking
+
 
 	def __str__(self):
 		string = ''
