@@ -363,7 +363,6 @@ class ShutIt(object):
 		self.cfg['skeleton']                 = {}                # required for patterns
 
 
-
 	def __str__(self):
 		string = 'ShutIt Object:\n'
 		string += '==============\n'
@@ -468,7 +467,6 @@ class ShutIt(object):
 			shutit_global.shutit_global_object.log(msg,level=logging.CRITICAL)
 			shutit_global.shutit_global_object.log('Error seen, exiting with status 1',level=logging.CRITICAL)
 			shutit_global.shutit_global_object.handle_exit(exit_code=1,msg=msg)
-
 
 
 	def get_current_environment(self, note=None):
@@ -3110,23 +3108,32 @@ class ShutIt(object):
 		# This mode is a bit special - it's the only one with different arguments
 		if self.action['skeleton']:
 			self.handle_skeleton(args)
+			shutit_global.shutit_global_object.handle_exit()
 		elif self.action['run']:
 			self.handle_run(args)
+			sys.exit(0)
 		elif self.action['build'] or self.action['list_configs'] or self.action['list_modules']:
 			self.handle_build(args)
 		else:
 			self.fail('Should not get here: action was: ' + str(self.action))
 
 
-	# TODO: rationalise/tidy
 	def handle_skeleton(self, args):
-		delivery_method  = args.delivery
-		accept_defaults  = args.accept
-		shutitfiles      = args.shutitfiles
-		module_directory = args.name
-		domain           = args.domain
-		pattern          = args.pattern
-		default_pattern  = 'bash'
+		delivery_method        = args.delivery
+		accept_defaults        = args.accept
+		shutitfiles            = args.shutitfiles
+		module_directory       = args.name
+		domain                 = args.domain
+		pattern                = args.pattern
+		base_image             = args.base_image
+		depends                = args.depends
+		script                 = args.script
+		vagrant_num_machines   = args.vagrant_num_machines
+		vagrant_num_machines   = args.vagrant_num_machines
+		vagrant_ssh_access     = args.vagrant_ssh_access
+		vagrant_machine_prefix = args.vagrant_machine_prefix
+		vagrant_docker         = args.vagrant_docker
+		default_pattern        = 'bash'
 		# Looks through the arguments given for valid shutitfiles, and adds their names to _new_shutitfiles.
 		_new_shutitfiles = None
 		if shutitfiles:
@@ -3258,22 +3265,21 @@ class ShutIt(object):
 		self.cfg['skeleton'] = {
 			'path':                   module_directory,
 			'module_name':            module_name,
-			'base_image':             args.base_image,
+			'base_image':             base_image,
 			'domain':                 domain,
 			'domain_hash':            str(shutit_util.get_hash(domain)),
-			'depends':                args.depends,
-			'script':                 args.script,
+			'depends':                depends,
+			'script':                 script,
 			'shutitfiles':            _new_shutitfiles,
 			'output_dir':             args.output_dir,
 			'delivery':               delivery,
 			'pattern':                pattern,
-			'vagrant_num_machines':   args.vagrant_num_machines,
-			'vagrant_ssh_access':     args.vagrant_ssh_access,
-			'vagrant_machine_prefix': args.vagrant_machine_prefix,
-			'vagrant_docker':         args.vagrant_docker
+			'vagrant_num_machines':   vagrant_num_machines,
+			'vagrant_ssh_access':     vagrant_ssh_access,
+			'vagrant_machine_prefix': vagrant_machine_prefix,
+			'vagrant_docker':         vagrant_docker
 		}
 		shutit_skeleton.create_skeleton(self)
-		shutit_global.shutit_global_object.handle_exit()
 		
 
 	# TODO: rationalise/tidy
@@ -3288,7 +3294,6 @@ class ShutIt(object):
 		os.chdir(module_dir)
 		subprocess.call('./run.sh')
 		os.chdir(retdir)
-		sys.exit(0)
 
 
 	# TODO: rationalise/tidy
