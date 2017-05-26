@@ -150,7 +150,7 @@ class ShutItSendSpec(object):
 				val = send_dict[key]
 				assert isinstance(val,(str,list))
 				if isinstance(val,str):
-					send_dict.update({key,[val,False])
+					send_dict.update({key:[val,False]})
 				elif isinstance(val,list):
 					assert len(val) == 2
 				else:
