@@ -269,10 +269,10 @@ class ShutItInit(object):
 				self.walkthrough      = True
 				self.walkthrough_wait = self.video[0]
 				self.video            = True
-			if self.video and self.training:
+			if (self.video != -1 and self.video) and self.training:
 				print('--video and --training mode incompatible')
 				shutit_global.shutit_global_object.handle_exit(exit_code=1)
-			if self.video and self.exam:
+			if (self.video != -1 and self.video) and self.exam:
 				print('--video and --exam mode incompatible')
 				shutit_global.shutit_global_object.handle_exit(exit_code=1)
 			#assert isinstance(self.delivery,str)
