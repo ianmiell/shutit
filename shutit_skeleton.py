@@ -173,7 +173,7 @@ def process_shutitfile(shutit, shutitfile_contents):
 			# Put in the run.sh.
 			try:
 				shutitfile_representation['shutitfile']['volume'].append(' '.join(json.loads(item[1])))
-			except NameError:
+			except Exception:
 				shutitfile_representation['shutitfile']['volume'].append(item[1])
 		elif shutitfile_command == 'EXPOSE':
 			# TESTED? NO
@@ -184,14 +184,14 @@ def process_shutitfile(shutit, shutitfile_contents):
 			# Put in the run.sh? Yes, if it exists it goes at the front of cmd
 			try:
 				shutitfile_representation['shutitfile']['entrypoint'] = ' '.join(json.loads(item[1]))
-			except NameError:
+			except Exception:
 				shutitfile_representation['shutitfile']['entrypoint'] = item[1]
 		elif shutitfile_command == 'CMD':
 			# TESTED? NO
 			# Put in the run.sh
 			try:
 				shutitfile_representation['shutitfile']['cmd'] = ' '.join(json.loads(item[1]))
-			except NameError:
+			except Exception:
 				shutitfile_representation['shutitfile']['cmd'] = item[1]
 		# Other items to be run through sequentially (as they are part of the script)
 		elif shutitfile_command == 'GET_PASSWORD':
@@ -213,7 +213,7 @@ def process_shutitfile(shutit, shutitfile_contents):
 			# Only handle simple commands for now and ignore the fact that shutitfiles run with /bin/sh -c rather than bash.
 			try:
 				shutitfile_representation['shutitfile']['script'].append([shutitfile_command, ' '.join(json.loads(item[1]))])
-			except NameError:
+			except Exception:
 				shutitfile_representation['shutitfile']['script'].append([shutitfile_command, item[1]])
 		elif shutitfile_command == 'ASSERT_OUTPUT':
 			if last_shutitfile_command not in ('RUN','SEND'):
