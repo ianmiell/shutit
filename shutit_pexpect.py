@@ -232,23 +232,12 @@ class ShutItPexpectSession(object):
 		@type param:           see shutit_sendspec.ShutItSendSpec
 		@type sendspec:        shutit_sendspec.ShutItSendSpec
 		"""
-		user=sendspec.user
-		command=sendspec.send
-		password=sendspec.password
-		prompt_prefix=sendspec.prompt_prefix
-		expect=sendspec.expect
-		timeout=sendspec.timeout
-		escape=sendspec.escape
-		echo=sendspec.echo
-		note=sendspec.note
-		go_home=sendspec.go_home
-		is_ssh=sendspec.is_ssh
-		loglevel=sendspec.loglevel
-		fail_on_fail=sendspec.fail_on_fail
+		user          = sendspec.user
+		command       = sendspec.send
+		prompt_prefix = sendspec.prompt_prefix
 		# We don't get the default expect here, as it's either passed in, or a base default regexp.
-		shutit = self.shutit
-		if isinstance(password,str):
-			shutit_global.shutit_global_object.secret_words_set.add(password)
+		if isinstance(sendspec.password,str):
+			shutit_global.shutit_global_object.secret_words_set.add(sendspec.password)
 		r_id = shutit_util.random_id()
 		if prompt_prefix is None:
 			prompt_prefix = r_id
@@ -258,8 +247,8 @@ class ShutItPexpectSession(object):
 			if 'bash' not in command:
 				shutit_global.shutit_global_object.log('No user supplied to login function, so retrieving who I am (' + user + '). You may want to override.',level=logging.WARNING)
 		if ' ' in user:
-			shutit.fail('user has space in it - did you mean: login(command="' + user + '")?') # pragma: no cover
-		if shutit.build['delivery'] == 'bash' and command == 'su -':
+			self.shutit.fail('user has space in it - did you mean: login(command="' + user + '")?') # pragma: no cover
+		if self.shutit.build['delivery'] == 'bash' and command == 'su -':
 			# We want to retain the current working directory
 			command = 'su'
 		# If this is a su-type command, add the user, else assume user is in the command.
@@ -267,27 +256,27 @@ class ShutItPexpectSession(object):
 			send = command + ' ' + user
 		else:
 			send = command
-		login_expect = expect or shutit_global.shutit_global_object.base_prompt
+		login_expect = sendspec.expect or shutit_global.shutit_global_object.base_prompt
 		# We don't fail on empty before as many login programs mess with the output.
 		# In this special case of login we expect either the prompt, or 'user@' as this has been seen to work.
 		general_expect = [login_expect]
 		# Add in a match if we see user+ and then the login matches. Be careful not to match against 'user+@...password:'
 		general_expect = general_expect + [user+'@.*'+'[#$]']
 		# If not an ssh login, then we can match against user + @sign because it won't clash with 'user@adasdas password:'
-		if (is_ssh != None and is_ssh) or command.find('ssh ') != -1:
-			shutit_global.shutit_global_object.log('Assumed to be an ssh command, is_ssh: ' + str(is_ssh) + ', command: ' + command,level=logging.DEBUG)
+		if (sendspec.is_ssh != None and sendspec.is_ssh) or command.find('ssh ') != -1:
+			shutit_global.shutit_global_object.log('Assumed to be an ssh command, is_ssh: ' + str(sendspec.is_ssh) + ', command: ' + command,level=logging.DEBUG)
 			# If user@ already there, remove it, as it can conflict with password lines in ssh calls.
 			if user+'@' in general_expect:
 				general_expect.remove(user+'@')
 			general_expect.append('.*[#$]')
-			send_dict={'ontinue connecting':['yes',False], 'assword:':[password,True], r'[^t] login:':[password,True]}
+			send_dict={'ontinue connecting':['yes',False], 'assword:':[sendspec.password,True], r'[^t] login:':[sendpsec.password,True]}
 		else:
-			send_dict={'ontinue connecting':['yes',False], 'assword:':[password,True], r'[^t] login:':[password,True], user+'@':[password,True]}
+			send_dict={'ontinue connecting':['yes',False], 'assword:':[sendspec.password,True], r'[^t] login:':[sendspec.password,True], user+'@':[sendspec.password,True]}
 		if user == 'bash' and command == 'su -':
 			shutit_global.shutit_global_object.log('WARNING! user is bash - if you see problems below, did you mean: login(command="' + user + '")?',level=logging.WARNING)
-		shutit.handle_note(note,command=command + '\n\n[as user: "' + user + '"]',training_input=send)
+		self.shutit.handle_note(sendspec.note,command=command + '\n\n[as user: "' + user + '"]',training_input=send)
 		# r'[^t] login:' - be sure not to match 'last login:'
-		echo = shutit.get_echo_override(echo)
+		echo = self.shutit.get_echo_override(sendspec.echo)
 		shutit_global.shutit_global_object.log('Logging in to new ShutIt environment.' + user,level=logging.DEBUG)
 		shutit_global.shutit_global_object.log('Logging in with command: ' + send + ' as user: ' + user,level=logging.DEBUG)
 		shutit_global.shutit_global_object.log('Login stack before login: ' + str(self.login_stack),level=logging.DEBUG)
@@ -296,22 +285,22 @@ class ShutItPexpectSession(object):
 		                                    send_dict=send_dict,
 		                                    expect=general_expect,
 		                                    check_exit=False,
-		                                    timeout=timeout,
+		                                    timeout=sendspec.timeout,
 		                                    fail_on_empty_before=False,
-		                                    escape=escape,
+		                                    escape=sendspec.escape,
 		                                    echo=echo,
 		                                    remove_on_match=True,
 		                                    nonewline=sendspec.nonewline,
 		                                    ignore_background=True,
-		                                    loglevel=loglevel,
+		                                    loglevel=sendspec.loglevel,
 			                                block_other_commands=sendspec.block_other_commands))
 		if res == -1:
 			# Should not get here as login should not be blocked.
 			assert False
 		# Check exit 'by hand' here to not effect/assume setup prompt.
 		if not self.get_exit_value():
-			if fail_on_fail: # pragma: no cover
-				shutit.fail('Login failure!')
+			if sendspec.fail_on_fail: # pragma: no cover
+				self.shutit.fail('Login failure!')
 			else:
 				return False
 		# Setup prompt
@@ -321,14 +310,14 @@ class ShutItPexpectSession(object):
 			self.setup_prompt(r_id)
 		self.login_stack.append(r_id)
 		shutit_global.shutit_global_object.log('Login stack after login: ' + str(self.login_stack),level=logging.DEBUG)
-		if go_home:
+		if sendspec.go_home:
 			self.send(ShutItSendSpec(self,
 			                         send='cd',
 			                         check_exit=False,
 			                         echo=False,
 		                             ignore_background=True,
 			                         loglevel=loglevel))
-		shutit.handle_note_after(note=note,training_input=send)
+		self.shutit.handle_note_after(note=note,training_input=send)
 		return True
 
 
