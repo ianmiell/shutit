@@ -1210,6 +1210,9 @@ class ShutItPexpectSession(object):
 	            force=False,
 	            check_exit=True,
 	            reinstall=False,
+	            run_in_background=False,
+	            ignore_background=False,
+	            block_other_commands=True,
 	            note=None,
 	            loglevel=logging.INFO):
 		"""Distro-independent install function.
@@ -1259,9 +1262,11 @@ class ShutItPexpectSession(object):
 		if install_type == 'apt':
 			if not shutit.get_current_shutit_pexpect_session_environment().build['apt_update_done'] and self.whoami() == 'root':
 				self.send(ShutItSendSpec(self,
-				                         send='apt-get update',
+				                         send='apt-get update -y',
 				                         loglevel=logging.INFO,
-				                         ignore_background=True))
+				                         run_in_background=run_in_background,
+				                         ignore_background=ignore_background,
+				                         block_other_commands=block_other_commands))
 				shutit.get_current_shutit_pexpect_session_environment().build['apt_update_done'] = True
 			cmd += 'DEBIAN_FRONTEND=noninteractive apt-get install'
 			if 'apt' in options:
@@ -1331,11 +1336,13 @@ class ShutItPexpectSession(object):
 					                                    loglevel=loglevel,
 					                                    echo=False,
 					                                    secret=True,
-					                                    ignore_background=True,
-					                                    run_in_background=False))
+					                                    ignore_background=ignore_background,
+					                                    run_in_background=run_in_background,
+				                                        block_other_commands=block_other_commands))
 					if res == -1:
-						# Should not happen
-						assert False
+						## Should not happen
+						#assert False
+						break
 					shutit_global.shutit_global_object.log('Result of install attempt was: ' + str(res),level=logging.DEBUG)
 				else:
 					res = self.send(ShutItSendSpec(self,
@@ -1344,11 +1351,13 @@ class ShutItPexpectSession(object):
 					                               timeout=timeout,
 					                               check_exit=False,
 					                               loglevel=loglevel,
-					                               ignore_background=True,
-					                               run_in_background=False))
+					                               ignore_background=ignore_background,
+					                               run_in_background=run_in_background,
+				                                   block_other_commands=block_other_commands))
 					if res == -1:
-						# Should not happen
-						assert False
+						## Should not happen
+						#assert False
+						break
 					shutit_global.shutit_global_object.log('Result of install attempt was: ' + str(res),level=logging.DEBUG)
 				# Does not work!
 				if res == 1:
@@ -1478,8 +1487,9 @@ class ShutItPexpectSession(object):
 			                                    exit_values=['0','100'],
 			                                    echo=False,
 			                                    secret=True,
-			                                    ignore_background=True,
-			                                    run_in_background=False))
+			                                    ignore_background=False,
+			                                    run_in_background=False,
+			                                    block_other_commands=True))
 			if res == -1:
 				# Should not happen
 				assert False
@@ -1488,7 +1498,9 @@ class ShutItPexpectSession(object):
 			                         send='%s %s %s' % (cmd, opts, package),
 			                         timeout=timeout,
 			                         exit_values=['0','100'],
-			                         ignore_background=True))
+			                         ignore_background=False,
+			                         run_in_background=False,
+			                         block_other_commands=True))
 		shutit.handle_note_after(note=note)
 		return True
 

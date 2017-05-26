@@ -1751,6 +1751,9 @@ class ShutIt(object):
 	            force=False,
 	            check_exit=True,
 	            reinstall=False,
+	            background=False,
+	            wait=False,
+	            block_other_commands=True,
 	            note=None,
 	            loglevel=logging.INFO):
 		"""Distro-independent install function.
@@ -1779,6 +1782,7 @@ class ShutIt(object):
 		# If separated by spaces, install separately
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
 		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
+		ignore_background = not wait
 		return shutit_pexpect_session.install(package,
 		                                      options=options,
 		                                      timeout=timeout,
@@ -1786,6 +1790,9 @@ class ShutIt(object):
 		                                      check_exit=check_exit,
 		                                      reinstall=reinstall,
 		                                      note=note,
+		                                      run_in_background=background,
+		                                      ignore_background=ignore_background,
+		                                      block_other_commands=block_other_commands,
 		                                      loglevel=loglevel)
 
 
