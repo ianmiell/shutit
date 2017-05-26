@@ -1950,6 +1950,9 @@ class ShutItPexpectSession(object):
 			if res >= len(expect_list) - n_breakout_items:
 				break
 			else:
+				print(str(sendspec.send_dict))
+				print(str(expect_list))
+				print(expect_list[res])
 				next_send     = sendspec.send_dict[expect_list[res]][0]
 				remove_items  = sendspec.send_dict[expect_list[res]][1]
 				send_iteration = next_send

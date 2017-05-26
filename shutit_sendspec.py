@@ -142,6 +142,20 @@ class ShutItSendSpec(object):
 			assert False
 		# END Setup/checking
 
+		# send_dict can come in with items that are: val:string, or val:[string,boolean]
+		# ensure they end up as the latter, defaulting to false.
+		if send_dict is not None:
+			assert isinstance(send_dict, dict)
+			for key in send_dict:
+				val = send_dict[key]
+				assert isinstance(val,(str,list))
+				if isinstance(val,str):
+					send_dict.update({key,[val,False])
+				elif isinstance(val,list):
+					assert len(val) == 2
+				else:
+					assert False, 'send_dict check should not get here'
+
 
 	def __str__(self):
 		string = ''
