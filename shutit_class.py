@@ -146,7 +146,7 @@ class ShutItInit(object):
 	             action,
 	             logfile='',
 	             log='',
-	             delivery=None,
+	             delivery='bash',
 	             accept=False,
 	             shutitfiles=None,
 	             script=None,
@@ -3345,11 +3345,13 @@ class ShutIt(object):
 		if self.build['exam']:
 			self.build['exam_object'] = shutit_exam.ShutItExamSession(self)
 		# What are we building on? Convert arg to conn_module we use.
-		self.build['delivery']    = args.delivery
+		self.build['delivery']           = args.delivery
 		if args.delivery == 'docker' or args.delivery is None:
 			self.build['conn_module'] = 'shutit.tk.conn_docker'
 		elif args.delivery == 'bash' or args.delivery == 'dockerfile':
 			self.build['conn_module'] = 'shutit.tk.conn_bash'
+		else:
+			assert False, 'Build must have a delivery method'
 
 		# Get these early for this part of the build.
 		# These should never be config arguments, since they are needed before config is passed in.
@@ -3565,20 +3567,20 @@ class ShutIt(object):
 			                             walkthrough=args.walkthrough,
 			                             training=args.training,
 			                             choose_config=args.choose_config,
-		                                 config = args.config,
-		                                 set = args.set,
-		                                 ignorestop = args.ignorestop,
-		                                 ignoreimage = args.ignoreimage,
-		                                 imageerrorok = args.imageerrorok,
-		                                 tag_modules = args.tag_modules,
-		                                 image_tag = args.image_tag,
-		                                 video = args.video,
-		                                 deps_only = args.deps_only,
-		                                 echo = args.echo,
-		                                 delivery = args.delivery,
-		                                 interactive = args.interactive,
-		                                 trace = args.trace,
-		                                 shutit_module_path = args.shutit_module_path,
+		                                 config=args.config,
+		                                 set=args.set,
+		                                 ignorestop=args.ignorestop,
+		                                 ignoreimage=args.ignoreimage,
+		                                 imageerrorok=args.imageerrorok,
+		                                 tag_modules=args.tag_modules,
+		                                 image_tag=args.image_tag,
+		                                 video=args.video,
+		                                 deps_only=args.deps_only,
+		                                 echo=args.echo,
+		                                 delivery=args.delivery,
+		                                 interactive=args.interactive,
+		                                 trace=args.trace,
+		                                 shutit_module_path=args.shutit_module_path,
 			                             exam=args.exam))
 			# Set up trace ASAP.
 			if args.trace:
