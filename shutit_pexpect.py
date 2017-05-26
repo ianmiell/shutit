@@ -269,7 +269,7 @@ class ShutItPexpectSession(object):
 			if user+'@' in general_expect:
 				general_expect.remove(user+'@')
 			general_expect.append('.*[#$]')
-			send_dict={'ontinue connecting':['yes',False], 'assword:':[sendspec.password,True], r'[^t] login:':[sendpsec.password,True]}
+			send_dict={'ontinue connecting':['yes',False], 'assword:':[sendspec.password,True], r'[^t] login:':[sendspec.password,True]}
 		else:
 			send_dict={'ontinue connecting':['yes',False], 'assword:':[sendspec.password,True], r'[^t] login:':[sendspec.password,True], user+'@':[sendspec.password,True]}
 		if user == 'bash' and command == 'su -':
@@ -316,8 +316,8 @@ class ShutItPexpectSession(object):
 			                         check_exit=False,
 			                         echo=False,
 		                             ignore_background=True,
-			                         loglevel=loglevel))
-		self.shutit.handle_note_after(note=note,training_input=send)
+			                         loglevel=sendspec.loglevel))
+		self.shutit.handle_note_after(note=sendspec.note,training_input=send)
 		return True
 
 
@@ -2455,7 +2455,7 @@ class ShutItPexpectSession(object):
 		# - otherwise, default to doing the check
 		if sendspec.check_exit is None:
 			# If we are in video mode, ignore exit value
-			if shutit.build['video'] or shutit.build['training'] or shutit.build['walkthrough'] or shutit.build['exam']:
+			if (shutit.build['video'] != -1 or shutit.build['video'] == True) or shutit.build['training'] or shutit.build['walkthrough'] or shutit.build['exam']:
 				sendspec.check_exit = False
 			elif sendspec.expect == shutit.get_default_shutit_pexpect_session_expect():
 				sendspec.check_exit = shutit.get_default_shutit_pexpect_session_check_exit()

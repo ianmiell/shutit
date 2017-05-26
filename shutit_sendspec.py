@@ -97,7 +97,6 @@ class ShutItSendSpec(object):
 			@param wait_cadence:         If blocked and waiting on a background tasks, wait this
 			                             number of seconds before re-checking. Default is 2.
 			@param loglevel:             Log level at which to operate.
-
 		"""
 		self.send                    = send
 		self.send_dict               = send_dict
