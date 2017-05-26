@@ -145,7 +145,7 @@ class ShutItPexpectSession(object):
 		try:
 			# Check there are no background commands running that have block_other_commands set iff
 			# this sendspec says
-			if self._check_blocked(sendspec) and sendspace.ignore_background != True:
+			if self._check_blocked(sendspec) and sendspec.ignore_background != True:
 				shutit_global.shutit_global_object.log('sendline: blocked',level=logging.DEBUG)
 				return False
 			# If this is marked as in the background, create a background object and run in the background.
@@ -1962,7 +1962,6 @@ class ShutItPexpectSession(object):
 				next_send     = sendspec.send_dict[expect_list[res]][0]
 				remove_items  = sendspec.send_dict[expect_list[res]][1]
 				send_iteration = next_send
-				# If this 
 				if sendspec.remove_on_match and remove_items:
 					shutit_global.shutit_global_object.log('Have matched a password (' + expect_list[res] + '), removing password expects from list in readiness of a prompt',level=logging.DEBUG)
 					if isinstance(expect, str):
@@ -2472,7 +2471,7 @@ class ShutItPexpectSession(object):
 		# - otherwise, default to doing the check
 		if sendspec.check_exit is None:
 			# If we are in video mode, ignore exit value
-			if (shutit.build['video'] != -1 or shutit.build['video'] == True) or shutit.build['training'] or shutit.build['walkthrough'] or shutit.build['exam']:
+			if (shutit.build['video'] != -1 or shutit.build['video'] is True) or shutit.build['training'] or shutit.build['walkthrough'] or shutit.build['exam']:
 				sendspec.check_exit = False
 			elif sendspec.expect == shutit.get_default_shutit_pexpect_session_expect():
 				sendspec.check_exit = shutit.get_default_shutit_pexpect_session_check_exit()
@@ -2604,7 +2603,7 @@ $'"""
 					shutit_global.shutit_global_object.log('shutit_pexpect_child.buffer(hex)>>>\n'  + binascii.hexlify(self.pexpect_child.buffer) + '\n<<<',level=logging.DEBUG)
 					shutit_global.shutit_global_object.log('shutit_pexpect_child.before (hex)>>>\n' + binascii.hexlify(self.pexpect_child.before) + '\n<<<',level=logging.DEBUG)
 					shutit_global.shutit_global_object.log('shutit_pexpect_child.after (hex)>>>\n'  + binascii.hexlify(self.pexpect_child.after) + '\n<<<',level=logging.DEBUG)
-				except Exception as e:
+				except TypeError as e:
 					shutit_global.shutit_global_object.log('Exception at 2665: ' + str(e),level=logging.WARNING)
 				shutit_global.shutit_global_object.log('shutit_pexpect_child.buffer>>>\n' + str(self.pexpect_child.buffer) + '\n<<<',level=logging.DEBUG)
 				shutit_global.shutit_global_object.log('shutit_pexpect_child.before>>>\n' + str(self.pexpect_child.before) + '\n<<<',level=logging.DEBUG)
