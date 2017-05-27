@@ -151,15 +151,15 @@ class ShutItPexpectSession(object):
 			# If this is marked as in the background, create a background object and run in the background.
 			if sendspec.run_in_background:
 				shutit_global.shutit_global_object.log('sendline: run_in_background',level=logging.DEBUG)
+				# If this is marked as in the background, create a background object and run in the background after newlines sorted.
+				shutit_background_command_object = self.login_stack.get_current_login_item().append_background_send(sendspec)
 				# Makes no sense to check exit for a background command.
 				sendspec.check_exit = False
 				# Go to recorded working directory and run command.
 				# When running in the background, we need to inhibit output so as not to confuse pexpect.
 				# cf: https://stackoverflow.com/questions/617182/with-bash-scripting-how-can-i-suppress-all-output-from-a-command
 				# Also, silence job control: https://stackoverflow.com/questions/11097761/is-there-a-way-to-make-bash-job-control-quiet
-				sendspec.send = ' set +m && { : $(command cd ' + sendspec.cwd + ' && ' + sendspec.send + ') & } 2>/dev/null'
-				# If this is marked as in the background, create a background object and run in the background after newlines sorted.
-				shutit_background_command_object = self.login_stack.get_current_login_item().append_background_send(sendspec)
+				sendspec.send = ' set +m && { : $(command cd ' + shutit_background_command_object.cwd + ' && ' + sendspec.send + ') & } 2>/dev/null'
 			if sendspec.nonewline != True:
 				sendspec.send += '\n'
 				# sendspec has newline added now, so no need to keep marker
