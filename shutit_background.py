@@ -109,7 +109,7 @@ class ShutItBackgroundCommand(object):
 			shutit_pexpect_child.quick_send(' wait ' + self.pid)
 			self.return_value = shutit_pexpect_child.send_and_get_output(' cat ' + self.exit_code_file)
 			shutit_global.shutit_global_object.log('background task: ' + self.sendspec.send + ' failed with error code: ' + self.return_value, level=logging.DEBUG)
-			shutit_global.shutit_global_object.log('background task: ' + self.sendspec.send + ' failed with output: ' + self.sendspec.shutit_pexpect_child.send_and_get_output(' cat ' + self.outfile), level=logging.DEBUG)
+			shutit_global.shutit_global_object.log('background task: ' + self.sendspec.send + ' failed with output: ' + self.sendspec.shutit_pexpect_child.send_and_get_output(' cat ' + self.output_file), level=logging.DEBUG)
 			# TODO: options for return values
 			if self.return_value != '0':
 				if self.retry > 0:
