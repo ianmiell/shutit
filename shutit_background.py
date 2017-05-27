@@ -45,36 +45,45 @@ class ShutItBackgroundCommand(object):
 		# Stub this with a simple command for now
 		self.sendspec             = sendspec
 		self.block_other_commands = sendspec.block_other_commands
+		self.retry                = sendspec.retry
+		self.tries                = 0
 		self.pid                  = None
 		self.return_value         = None
 		self.start_time           = None
-		self.run_state            = 'N' # State as per ps man page, but 'C' == Complete, 'N' == not started
+		self.run_state            = 'N' # State as per ps man page, but 'C' == Complete, 'N' == not started, 'F' == failed
 		self.cwd                  = self.sendspec.shutit_pexpect_child.send_and_get_output(' command pwd')
 
 
 	def __str__(self):
-		string = ''
+		string = 'Sendspec: '
 		string += str(self.sendspec)
+		string = 'Background object: '
 		string += '\nblock_other_commands: ' + str(self.block_other_commands)
-		string += '\npid: ' + str(self.pid)
-		string += '\nreturn_value: ' + str(self.return_value)
-		string += '\nstart_time: ' + str(self.start_time)
-		string += '\nrun_state: ' + str(self.run_state)
-		string += '\ncwd: ' + str(self.cwd)
+		string += '\nretry:                ' + str(self.block_other_commands)
+		string += '\npid:                  ' + str(self.pid)
+		string += '\nreturn_value:         ' + str(self.return_value)
+		string += '\nstart_time:           ' + str(self.start_time)
+		string += '\nrun_state:            ' + str(self.run_state)
+		string += '\ncwd:                  ' + str(self.cwd)
 		return string
 
 
 	def run_background_command(self):
-		shutit_pexpect_child = self.sendspec.shutit_pexpect_child
-		# record start time
-		self.start_time = time.localtime()
+		# reset object
+		self.pid              = None
+		self.return_value     = None
+		self.run_state        = 'N'
+		self.start_time = time.localtime() # record start time
+
 		# run command
-		shutit_pexpect_child.quick_send(self.sendspec.send)
+		self.tries            += 1
+		self.sendspec.shutit_pexpect_child.quick_send(self.sendspec.send)
+
 		self.sendspec.started = True
 		# Required to reset terminal after a background send. (TODO: why?)
-		shutit_pexpect_child.reset_terminal()
+		self.sendspec.shutit_pexpect_child.reset_terminal()
 		# record pid
-		self.pid = shutit_pexpect_child.send_and_get_output(" echo ${!}")
+		self.pid = self.sendspec.shutit_pexpect_child.send_and_get_output(" echo ${!}")
 		return True
 
 
@@ -92,6 +101,15 @@ class ShutItBackgroundCommand(object):
 		if isinstance(self.run_state,str) and self.run_state == 'C' and self.return_value is None:
 			shutit_pexpect_child.quick_send(' wait ' + self.pid)
 			self.return_value = shutit_pexpect_child.send_and_get_output(' echo $?')
+			# TODO: options for return values
+			if self.return_value != '0':
+				if self.retry > 0:
+					self.retry -= 1
+					self.run_background_command()
+					# recurse
+					return self.check_background_command_state()
+				else:
+					self.run_state = 'F'
 		if isinstance(self.run_state,str) and self.run_state == 'C' and self.return_value is not None:
 			pass
 		# TODO: honour sendspec.timeout
