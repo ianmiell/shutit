@@ -155,7 +155,8 @@ class ShutItPexpectSession(object):
 				sendspec.check_exit = False
 				# When running in the background, we need to inhibit output so as not to confuse pexpect.
 				# cf: https://stackoverflow.com/questions/617182/with-bash-scripting-how-can-i-suppress-all-output-from-a-command
-				sendspec.send = ' : $(' + sendspec.send + ') &'
+				# Also, silence job control: https://stackoverflow.com/questions/11097761/is-there-a-way-to-make-bash-job-control-quiet
+				sendspec.send = ' set +m && { : $(' + sendspec.send + ') & } 2>/dev/null'
 				# If this is marked as in the background, create a background object and run in the background after newlines sorted.
 				shutit_background_command_object = self.login_stack.get_current_login_item().append_background_send(sendspec)
 			if sendspec.nonewline != True:
@@ -1598,7 +1599,6 @@ class ShutItPexpectSession(object):
 			preserve_newline = bool(preserve_newline and before[-1] == '\n')
 		# Remove the command we ran in from the output.
 		before = before.strip(send)
-		shutit.handle_note_after(note=note)
 		if strip:
 			# cf: http://stackoverflow.com/questions/14693701/how-can-i-remove-the-ansi-escape-sequences-from-a-string-in-python
 			ansi_escape = re.compile(r'(\x9B|\x1B\[)[0-?]*[ -\/]*[@-~]')
@@ -1614,6 +1614,7 @@ class ShutItPexpectSession(object):
 		else:
 			ret = before
 		shutit_global.shutit_global_object.log('send_and_get_output returning:\n' + ret, level=logging.DEBUG)
+		shutit.handle_note_after(note=note)
 		return ret
 
 
