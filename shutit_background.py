@@ -69,32 +69,19 @@ class ShutItBackgroundCommand(object):
 		# record start time
 		self.start_time = time.localtime()
 		# run command
-		if self.sendspec.check_exit:
-			# Override - maybe log this TODO
-			self.sendspec.check_exit = False
-		#print 'sending: ' + self.sendspec.send
-		#print 'in: ' + str(shutit_pexpect_child)
 		shutit_pexpect_child.quick_send(self.sendspec.send)
 		self.sendspec.started = True
 		# Required to reset terminal after a background send. (TODO: why?)
 		shutit_pexpect_child.reset_terminal()
 		# record pid
 		self.pid = shutit_pexpect_child.send_and_get_output(" echo ${!}")
-		#print self.pid
 		return True
 
 
 	def check_background_command_state(self):
-		#print self
 		shutit_pexpect_child = self.sendspec.shutit_pexpect_child
-		#print('self.sendspec.send: ' + str(self.sendspec.send))
-		#print('self.sendspec.started: ' + str(self.sendspec.started))
-		#print('self.run_state: ' + str(self.run_state))
-		#print('self.pid: ' + str(self.pid))
-		#print('self.return_value: ' + str(self.return_value))
 		# Check the command has been started
 		if not self.sendspec.started:
-			#print 'not started?'
 			return self.run_state
 		self.run_state = shutit_pexpect_child.send_and_get_output(""" command ps -o stat """ + self.pid + """ | command sed '1d' """)
 		# If the job is complete, collect the return value
@@ -106,8 +93,7 @@ class ShutItBackgroundCommand(object):
 			shutit_pexpect_child.quick_send(' wait ' + self.pid)
 			self.return_value = shutit_pexpect_child.send_and_get_output(' echo $?')
 		if isinstance(self.run_state,str) and self.run_state == 'C' and self.return_value is not None:
-			# This job is complete, nothing to do.
 			pass
 		# TODO: honour sendspec.timeout
-		#print 'returning: ' + self.run_state
+		# TODO: return values/check exit
 		return self.run_state
