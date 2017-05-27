@@ -37,6 +37,7 @@ ps -o stat= | sed 's/^\(.\)\(.*\)/\1/'
 import time
 import debug
 import shutit_global
+import shutit_util
 
 
 class ShutItBackgroundCommand(object):
@@ -54,6 +55,8 @@ class ShutItBackgroundCommand(object):
 		self.start_time           = None
 		self.run_state            = 'N' # State as per ps man page, but 'C' == Complete, 'N' == not started, 'F' == failed
 		self.cwd                  = self.sendspec.shutit_pexpect_child.send_and_get_output(' command pwd')
+		self.id                   = shutit_util.random_id()
+		self.outfile              = '/tmp/shutit_background_output_' + self.id + '.log'
 
 
 	def __str__(self):
@@ -105,6 +108,7 @@ class ShutItBackgroundCommand(object):
 			shutit_pexpect_child.quick_send(' wait ' + self.pid)
 			self.return_value = shutit_pexpect_child.send_and_get_output(' echo $?')
 			shutit_global.shutit_global_object.log('background task: ' + self.sendspec.send + ' failed with error code: ' + self.return_value, level=logging.DEBUG)
+			shutit_global.shutit_global_object.log('background task: ' + self.sendspec.send + ' failed with output: ' + self.sendspec.shutit_pexpect_child.send_and_get_output(' cat ' + self.outfile), level=logging.DEBUG)
 			# TODO: options for return values
 			if self.return_value != '0':
 				if self.retry > 0:

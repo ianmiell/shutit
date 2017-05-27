@@ -159,7 +159,7 @@ class ShutItPexpectSession(object):
 				# When running in the background, we need to inhibit output so as not to confuse pexpect.
 				# cf: https://stackoverflow.com/questions/617182/with-bash-scripting-how-can-i-suppress-all-output-from-a-command
 				# Also, silence job control: https://stackoverflow.com/questions/11097761/is-there-a-way-to-make-bash-job-control-quiet
-				sendspec.send = ' set +m && { : $(command cd ' + shutit_background_command_object.cwd + ' && ' + sendspec.send + ') & } 2>/dev/null'
+				sendspec.send = ' set +m && { : $(command cd ' + shutit_background_command_object.cwd + ' && ' + sendspec.send + ' >' + shutit_background_command_object.outfile + ' 2>&1) & } 2>/dev/null'
 			if sendspec.nonewline != True:
 				sendspec.send += '\n'
 				# sendspec has newline added now, so no need to keep marker
