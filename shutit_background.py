@@ -56,7 +56,8 @@ class ShutItBackgroundCommand(object):
 		self.run_state            = 'N' # State as per ps man page, but 'C' == Complete, 'N' == not started, 'F' == failed
 		self.cwd                  = self.sendspec.shutit_pexpect_child.send_and_get_output(' command pwd')
 		self.id                   = shutit_util.random_id()
-		self.outfile              = '/tmp/shutit_background_output_' + self.id + '.log'
+		self.output_file          = '/tmp/shutit_background_output_' + self.id + '.log'
+		self.exit_code_file       = '/tmp/shutit_background_exit_code_file_' + self.id + '.log'
 
 
 	def __str__(self):
@@ -106,7 +107,7 @@ class ShutItBackgroundCommand(object):
 			self.block_other_commands = False
 		if isinstance(self.run_state,str) and self.run_state == 'C' and self.return_value is None:
 			shutit_pexpect_child.quick_send(' wait ' + self.pid)
-			self.return_value = shutit_pexpect_child.send_and_get_output(' echo $?')
+			self.return_value = shutit_pexpect_child.send_and_get_output(' cat ' + self.exit_code_file)
 			shutit_global.shutit_global_object.log('background task: ' + self.sendspec.send + ' failed with error code: ' + self.return_value, level=logging.DEBUG)
 			shutit_global.shutit_global_object.log('background task: ' + self.sendspec.send + ' failed with output: ' + self.sendspec.shutit_pexpect_child.send_and_get_output(' cat ' + self.outfile), level=logging.DEBUG)
 			# TODO: options for return values
