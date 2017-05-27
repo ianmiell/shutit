@@ -35,7 +35,7 @@ ps -o stat= | sed 's/^\(.\)\(.*\)/\1/'
 """
 
 import time
-import debug
+import logging
 import shutit_global
 import shutit_util
 
