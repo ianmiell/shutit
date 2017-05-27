@@ -224,7 +224,7 @@ class ShutItPexpectSession(object):
 				break
 			time.sleep(cadence)
 		shutit_global.shutit_global_object.log('Wait complete.',level=logging.DEBUG)
-		return
+		return True
 
 
 	def login(self, sendspec):

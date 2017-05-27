@@ -101,6 +101,7 @@ class ShutItLoginStackItem(object):
 		# Nothing left to do - return True.
 		return True
 
+
 	def find_sendspec(self,sendspec):
 		for background_object in self.background_objects:
 			if background_object == sendspec:
