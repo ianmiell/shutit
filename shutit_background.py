@@ -35,6 +35,8 @@ ps -o stat= | sed 's/^\(.\)\(.*\)/\1/'
 """
 
 import time
+import debug
+import shutit_global
 
 
 class ShutItBackgroundCommand(object):
@@ -95,15 +97,18 @@ class ShutItBackgroundCommand(object):
 		self.run_state = shutit_pexpect_child.send_and_get_output(""" command ps -o stat """ + self.pid + """ | command sed '1d' """)
 		# If the job is complete, collect the return value
 		if self.run_state == '':
+			shutit_global.shutit_global_object.log('background task: ' + self.sendspec.send + ' complete')
 			self.run_state = 'C'
 			# Stop this from blocking other commands from here.
 			self.block_other_commands = False
 		if isinstance(self.run_state,str) and self.run_state == 'C' and self.return_value is None:
 			shutit_pexpect_child.quick_send(' wait ' + self.pid)
 			self.return_value = shutit_pexpect_child.send_and_get_output(' echo $?')
+			shutit_global.shutit_global_object.log('background task: ' + self.sendspec.send + ' failed with error code: ' + self.return_value, level=logging.DEBUG)
 			# TODO: options for return values
 			if self.return_value != '0':
 				if self.retry > 0:
+					shutit_global.shutit_global_object.log('background task: ' + self.sendspec.send + ' retrying',level=logging.DEBUG)
 					self.retry -= 1
 					self.run_background_command()
 					# recurse
@@ -113,5 +118,4 @@ class ShutItBackgroundCommand(object):
 		if isinstance(self.run_state,str) and self.run_state == 'C' and self.return_value is not None:
 			pass
 		# TODO: honour sendspec.timeout
-		# TODO: return values/check exit
 		return self.run_state
