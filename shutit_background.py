@@ -66,8 +66,6 @@ class ShutItBackgroundCommand(object):
 
 	def run_background_command(self):
 		shutit_pexpect_child = self.sendspec.shutit_pexpect_child
-		# Go to cwd
-		shutit_pexpect_child.quick_send(' command cd ' + self.cwd)
 		# record start time
 		self.start_time = time.localtime()
 		# run command
@@ -78,8 +76,6 @@ class ShutItBackgroundCommand(object):
 		#print 'in: ' + str(shutit_pexpect_child)
 		shutit_pexpect_child.quick_send(self.sendspec.send)
 		self.sendspec.started = True
-		# Required to reset terminal after a background send. (TODO: why?)
-		shutit_pexpect_child.reset_terminal()
 		# record pid
 		self.pid = shutit_pexpect_child.send_and_get_output(" echo ${!}")
 		#print self.pid
