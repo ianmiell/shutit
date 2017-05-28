@@ -108,10 +108,10 @@ class ShutItBackgroundCommand(object):
 		if isinstance(self.run_state,str) and self.run_state == 'C' and self.return_value is None:
 			shutit_pexpect_child.quick_send(' wait ' + self.pid)
 			self.return_value = shutit_pexpect_child.send_and_get_output(' cat ' + self.exit_code_file)
-			shutit_global.shutit_global_object.log('background task: ' + self.sendspec.send + ' failed with error code: ' + self.return_value, level=logging.DEBUG)
-			shutit_global.shutit_global_object.log('background task: ' + self.sendspec.send + ' failed with output: ' + self.sendspec.shutit_pexpect_child.send_and_get_output(' cat ' + self.output_file), level=logging.DEBUG)
 			# TODO: options for return values
 			if self.return_value != '0':
+				shutit_global.shutit_global_object.log('background task: ' + self.sendspec.send + ' failed with error code: ' + self.return_value, level=logging.DEBUG)
+				shutit_global.shutit_global_object.log('background task: ' + self.sendspec.send + ' failed with output: ' + self.sendspec.shutit_pexpect_child.send_and_get_output(' cat ' + self.output_file), level=logging.DEBUG)
 				if self.retry > 0:
 					shutit_global.shutit_global_object.log('background task: ' + self.sendspec.send + ' retrying',level=logging.DEBUG)
 					self.retry -= 1
@@ -119,7 +119,10 @@ class ShutItBackgroundCommand(object):
 					# recurse
 					return self.check_background_command_state()
 				else:
+					shutit_global.shutit_global_object.log('background task final failure: ' + self.sendspec.send + ' failed with error code: ' + self.return_value, level=logging.DEBUG)
 					self.run_state = 'F'
+			else:
+				shutit_global.shutit_global_object.log('background task: ' + self.sendspec.send + ' succeeded with error code: ' + self.return_value, level=logging.DEBUG)
 		if isinstance(self.run_state,str) and self.run_state == 'C' and self.return_value is not None:
 			pass
 		# TODO: honour sendspec.timeout
