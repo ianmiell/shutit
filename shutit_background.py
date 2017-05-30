@@ -58,6 +58,7 @@ class ShutItBackgroundCommand(object):
 		self.id                   = shutit_util.random_id()
 		self.output_file          = '/tmp/shutit_background_output_' + self.id + '.log'
 		self.exit_code_file       = '/tmp/shutit_background_exit_code_file_' + self.id + '.log'
+		self.sendspec.send        = ' set +m && { : $(command cd ' + self.cwd + '>' + self.output_file + ' && ' + self.sendspec.send + ' >>' + self.output_file + ' 2>&1; echo $? >' + self.exit_code_file + ') & } 2>/dev/null'
 
 
 	def __str__(self):
@@ -65,12 +66,12 @@ class ShutItBackgroundCommand(object):
 		string += str(self.sendspec)
 		string += '\nBackground object: '
 		string += '\nblock_other_commands: ' + str(self.block_other_commands)
-		string += '\nretry:                ' + str(self.block_other_commands)
-		string += '\npid:                  ' + str(self.pid)
-		string += '\nreturn_value:         ' + str(self.return_value)
-		string += '\nstart_time:           ' + str(self.start_time)
-		string += '\nrun_state:            ' + str(self.run_state)
 		string += '\ncwd:                  ' + str(self.cwd)
+		string += '\npid:                  ' + str(self.pid)
+		string += '\nretry:                ' + str(self.block_other_commands)
+		string += '\nreturn_value:         ' + str(self.return_value)
+		string += '\nrun_state:            ' + str(self.run_state)
+		string += '\nstart_time:           ' + str(self.start_time)
 		return string
 
 
@@ -86,6 +87,9 @@ class ShutItBackgroundCommand(object):
 		self.sendspec.shutit_pexpect_child.quick_send(self.sendspec.send)
 
 		self.sendspec.started = True
+
+		# Put into an 'S' state as that seems to mean 'running'
+		self.run_state        = 'S'
 		# Required to reset terminal after a background send. (TODO: why?)
 		self.sendspec.shutit_pexpect_child.reset_terminal()
 		# record pid

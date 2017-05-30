@@ -162,7 +162,6 @@ class ShutItPexpectSession(object):
 				wd           = shutit_background_command_object.cwd
 				outfile      = shutit_background_command_object.output_file
 				exitcodefile = shutit_background_command_object.exit_code_file
-				sendspec.send = ' set +m && { : $(command cd ' + shutit_background_command_object.cwd + '>' + outfile + ' && ' + sendspec.send + ' >>' + outfile + ' 2>&1; echo $? >' + exitcodefile + ') & } 2>/dev/null'
 			if sendspec.nonewline != True:
 				sendspec.send += '\n'
 				# sendspec has newline added now, so no need to keep marker
@@ -193,20 +192,26 @@ class ShutItPexpectSession(object):
 					shutit_global.shutit_global_object.log('_check_blocked: a blocking background send is running, so queue this up.',level=logging.INFO)
 					self.login_stack.get_current_login_item().append_background_send(sendspec)
 				elif not sendspec.run_in_background:
+					shutit_global.shutit_global_object.log('_check_blocked: a blocking background send is running, so queue this up and wait.',level=logging.INFO)
 					# If we honour background tasts and we are running in foreground, wait.
 					#print('adding')
+					sendspec.run_in_background = True
 					self.login_stack.get_current_login_item().append_background_send(sendspec)
-					#print(self.login_stack)
-					self.wait(sendspec=sendspec)
-					# Now add this to the background sends.
-					# And wait until done.
-					self.wait()
+					##print(self.login_stack)
+					#self.wait(sendspec=sendspec)
+					## Now add this to the background sends.
+					## And wait until done.
+					#self.wait()
 				else:
 					# Should be logically impossible.
 					assert False
 					shutit_global.shutit_global_object.log('Not yet handled?',level=logging.INFO)
 					shutit_global.shutit_global_object.log(str(sendspec),level=logging.INFO)
 				return True
+			else:
+				shutit_global.shutit_global_object.log('_check_blocked: no blocking background send',level=logging.DEBUG)
+		else:
+			shutit_global.shutit_global_object.log('_check_blocked: no current login item',level=logging.DEBUG)
 		return False
 
 
@@ -216,7 +221,7 @@ class ShutItPexpectSession(object):
 		shutit_global.shutit_global_object.log('In wait.',level=logging.DEBUG)
 		if sendspec:
 			cadence = sendspec.wait_cadence
-		#print(self.login_stack)
+		shutit_global.shutit_global_object.log('Login stack is:\n' + str(self.login_stack),level=logging.DEBUG)
 		while True:
 			# go through each background child checking whether they've finished
 			if self.login_stack.get_current_login_item().check_background_commands():

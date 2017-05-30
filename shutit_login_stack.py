@@ -82,12 +82,15 @@ class ShutItLoginStackItem(object):
 		unstarted_command_exists  = False
 		incomplete_command_exists = False
 		for background_object in self.background_objects:
+			shutit_global.shutit_global_object.log('Checking background object: ' + str(background_object),level=logging.DEBUG)
 			state = background_object.check_background_command_state()
+			shutit_global.shutit_global_object.log('State is: ' + state,level=logging.DEBUG)
 			if state != 'C':
 				if state == 'N':
 					unstarted_command_exists = True
 				else:
 					incomplete_command_exists = True
+		shutit_global.shutit_global_object.log('Checking background objects done.',level=logging.DEBUG)
 		if incomplete_command_exists:
 			# Started
 			return False
