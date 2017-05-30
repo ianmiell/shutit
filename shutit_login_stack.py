@@ -62,8 +62,9 @@ class ShutItLoginStackItem(object):
 	def __init__(self,login_id):
 		"""
 		"""
-		self.login_id           = login_id
-		self.background_objects = []
+		self.login_id                     = login_id
+		self.background_objects           = []
+		self.background_objects_completed = []
 
 
 	def append_background_send(self,sendspec):
@@ -86,7 +87,12 @@ class ShutItLoginStackItem(object):
 			shutit_global.shutit_global_object.log('Checking background object: ' + str(background_object),level=logging.DEBUG)
 			state = background_object.check_background_command_state()
 			shutit_global.shutit_global_object.log('State is: ' + state,level=logging.DEBUG)
-			if state != 'C':
+			if state == 'C':
+				self.background_objects.remove(background_object)
+				self.background_objects_completed.append(background_object)
+			elif state == 'S':
+				return False
+			else:
 				if state == 'N':
 					unstarted_command_exists = True
 				else:

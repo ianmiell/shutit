@@ -102,7 +102,11 @@ class ShutItBackgroundCommand(object):
 		# Check the command has been started
 		if not self.sendspec.started:
 			return self.run_state
-		self.run_state = shutit_pexpect_child.send_and_get_output(""" command ps -o stat """ + self.pid + """ | command sed '1d' """)
+		run_state = shutit_pexpect_child.send_and_get_output(""" command ps -o stat """ + self.pid + """ | command sed '1d' """)
+		if len(run_state):
+			self.run_state = run_state[0]
+		else:
+			self.run_state = run_state
 		# If the job is complete, collect the return value
 		if self.run_state == '':
 			shutit_global.shutit_global_object.log('background task: ' + self.sendspec.send + ' complete')

@@ -98,6 +98,7 @@ class ShutItSendSpec(object):
 			@param loglevel:             Log level at which to operate.
 		"""
 		self.send                    = send
+		self.original_send           = send
 		self.send_dict               = send_dict
 		self.expect                  = expect
 		self.shutit_pexpect_child    = shutit_pexpect_child
@@ -157,10 +158,7 @@ class ShutItSendSpec(object):
 
 	def __str__(self):
 		string = ''
-		string += '\nsend                    = ' + str(self.send)
-		if self.send[-1] != '\n':
-			string += '\n'
-		string += 'assume_gnu              = ' + str(self.assume_gnu)
+		string += '\nassume_gnu              = ' + str(self.assume_gnu)
 		string += '\nblock_other_commands    = ' + str(self.block_other_commands)
 		string += '\ncheck_exit              = ' + str(self.check_exit)
 		string += '\ncheck_sudo              = ' + str(self.check_sudo)
@@ -179,7 +177,10 @@ class ShutItSendSpec(object):
 		string += '\nmaxread                 = ' + str(self.maxread)
 		string += '\nnonewline               = ' + str(self.nonewline)
 		string += '\nnote                    = ' + str(self.note)
-		string += '\npassword                = ' + str(self.password)
+		string += '\noriginal_send           = ' + str(self.original_send)
+		if self.original_send[-1] != '\n':
+			string += '\n'
+		string += 'password                = ' + str(self.password)
 		string += '\nprompt_prefix           = ' + str(self.prompt_prefix)
 		string += '\nrecord_command          = ' + str(self.record_command)
 		string += '\nremove_on_match         = ' + str(self.remove_on_match)
@@ -187,7 +188,10 @@ class ShutItSendSpec(object):
 		string += '\nrun_in_background       = ' + str(self.run_in_background)
 		string += '\nsearchwindowsize        = ' + str(self.searchwindowsize)
 		string += '\nsecret                  = ' + str(self.secret)
-		string += '\nsend_dict               = ' + str(self.send_dict)
+		string += '\nsend                    = ' + str(self.send)
+		if self.send[-1] != '\n':
+			string += '\n'
+		string += 'send_dict               = ' + str(self.send_dict)
 		string += '\nstarted                 = ' + str(self.started)
 		string += '\ntimeout                 = ' + str(self.timeout)
 		string += '\nuser                    = ' + str(self.user)
