@@ -23,15 +23,20 @@
 
 ShutItGlobal
 |
- - set(ShutItPexpectSessionEnvironment)
-|  |
-|   -ShutItLoginStack
-|    |
-|     - ShutItLoginStackItem[]
-|       |
-|        - ShutItBackgroundCommand[]
+ - set(ShutItPexpectSessionEnvironment) - environments can exist in multiple sessions (eg root one)
+   |
+    -ShutItLoginStack
+     |
+      - ShutItLoginStackItem[]
+        |
+         - ShutItBackgroundCommand[]
+
+
+ShutIt
 |
- - set(ShutItPexpectSession)
+ - current_pexpect_session
+|
+ - dict(ShutItPexpectSessions)
    |
     - each ShutItPexpectSession contains a current ShutItPexpectSessionEnvironment object
 
@@ -107,7 +112,6 @@ class ShutItPexpectSession(object):
 		                                             codec_errors=codec_errors,
 		                                             dimensions=dimensions,
 		                                             delaybeforesend=delaybeforesend)
-		shutit_global.shutit_global_object.shutit_pexpect_sessions.add(self)
 
 
 	def _spawn_child(self,
@@ -171,13 +175,6 @@ class ShutItPexpectSession(object):
 				shutit_background_command_object = self.login_stack.get_current_login_item().append_background_send(sendspec)
 				# Makes no sense to check exit for a background command.
 				sendspec.check_exit = False
-				# Go to recorded working directory and run command.
-				# When running in the background, we need to inhibit output so as not to confuse pexpect.
-				# cf: https://stackoverflow.com/questions/617182/with-bash-scripting-how-can-i-suppress-all-output-from-a-command
-				# Also, silence job control: https://stackoverflow.com/questions/11097761/is-there-a-way-to-make-bash-job-control-quiet
-				wd           = shutit_background_command_object.cwd
-				outfile      = shutit_background_command_object.output_file
-				exitcodefile = shutit_background_command_object.exit_code_file
 			if sendspec.nonewline != True:
 				sendspec.send += '\n'
 				# sendspec has newline added now, so no need to keep marker

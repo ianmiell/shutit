@@ -4388,7 +4388,7 @@ class ShutIt(object):
 
 	# Pass through log to global function.
 	def log(self, msg, add_final_message=False, level=logging.INFO, transient=False, newline=True):
-		self = self # For pylint: we want this to be available to shutit object users
+		self = self # For linters: we want this to be available to shutit object users
 		shutit_global.shutit_global_object.log(msg,add_final_message=add_final_message,level=level,transient=transient,newline=newline)
 
 
