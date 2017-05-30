@@ -65,6 +65,7 @@ class ShutItGlobal(object):
 		self.base_prompt      = '\r\n.*[@#$] '
 		# Environments are kept globally, as different sessions may re-connect to them.
 		self.shutit_pexpect_session_environments = set()
+		self.shutit_pexpect_sessions             = set()
 		if self.username == '':
 			try:
 				if os.getlogin() != '':

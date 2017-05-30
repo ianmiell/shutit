@@ -5,6 +5,7 @@ time it a corresponding logout() function is called, it is popped.
 
 It also holds within it information about ShutItBackgroundCommand objects
 belonging to this login.
+
 """
 
 import logging

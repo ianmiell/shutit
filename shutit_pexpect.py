@@ -20,6 +20,21 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 """Represents and manages a pexpect object for ShutIt's purposes.
+
+ShutItGlobal
+|
+ - set(ShutItPexpectSessionEnvironment)
+|  |
+|   -ShutItLoginStack
+|    |
+|     - ShutItLoginStackItem[]
+|       |
+|        - ShutItBackgroundCommand[]
+|
+ - set(ShutItPexpectSession)
+   |
+    - each ShutItPexpectSession contains a current ShutItPexpectSessionEnvironment object
+
 """
 
 try:
@@ -92,6 +107,7 @@ class ShutItPexpectSession(object):
 		                                             codec_errors=codec_errors,
 		                                             dimensions=dimensions,
 		                                             delaybeforesend=delaybeforesend)
+		shutit_global.shutit_global_object.shutit_pexpect_sessions.add(self)
 
 
 	def _spawn_child(self,
@@ -198,7 +214,7 @@ class ShutItPexpectSession(object):
 					sendspec.run_in_background = True
 					self.login_stack.get_current_login_item().append_background_send(sendspec)
 					##print(self.login_stack)
-					#self.wait(sendspec=sendspec)
+					self.wait(sendspec=sendspec)
 					## Now add this to the background sends.
 					## And wait until done.
 					#self.wait()
