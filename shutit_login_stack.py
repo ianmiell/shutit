@@ -74,7 +74,7 @@ class ShutItLoginStackItem(object):
 	def has_blocking_background_send(self):
 		for background_object in self.background_objects:
 			if background_object.block_other_commands:
-				shutit_global.shutit_global_object.log('The blocking send object is: ' + str(background_object),level=logging.DEBUG)
+				shutit_global.shutit_global_object.log('The current blocking send object is: ' + str(background_object),level=logging.INFO)
 				return True
 
 

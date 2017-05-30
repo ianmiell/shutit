@@ -136,9 +136,9 @@ class ShutItSendSpec(object):
 		self.started                 = False
 		if check_exit and run_in_background:
 			check_exit = False
-		if send_dict and run_in_background:
-			shutit_global.shutit_global_object.log('run_in_background and send_dict make no sense',level=logging.CRITICAL)
-			assert False
+		#if send_dict and run_in_background:
+			#shutit_global.shutit_global_object.log('run_in_background and send_dict make no sense',level=logging.CRITICAL)
+			#assert False, ''
 		# END Setup/checking
 
 		# send_dict can come in with items that are: val:string, or val:[string,boolean]
