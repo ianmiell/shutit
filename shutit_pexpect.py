@@ -2894,17 +2894,11 @@ $'"""
 		# Send the script and run it in the manner specified
 		if shutit.build['delivery'] in ('docker','dockerfile') and in_shell:
 			script = ('set -o xtrace \n\n' + script + '\n\nset +o xtrace')
-		self.send(ShutItSendSpec(self,
-		                         send=' command mkdir -p ' + shutit_global.shutit_global_object.shutit_state_dir + '/scripts && chmod 777 ' + shutit_global.shutit_global_object.shutit_state_dir + '/scripts',
-		                         echo=False,
-		                         loglevel=loglevel))
+		self.quick_send('command mkdir -p ' + shutit_global.shutit_global_object.shutit_state_dir + '/scripts && chmod 777 ' + shutit_global.shutit_global_object.shutit_state_dir + '/scripts')
 		self.send_file(shutit_global.shutit_global_object.shutit_state_dir + '/scripts/shutit_script.sh',
 		               script,
 		               loglevel=loglevel)
-		self.send(ShutItSendSpec(self,
-		                         send=' command chmod +x ' + shutit_global.shutit_global_object.shutit_state_dir + '/scripts/shutit_script.sh',
-		                         echo=False,
-		                         loglevel=loglevel))
+		self.quick_send('command chmod +x ' + shutit_global.shutit_global_object.shutit_state_dir + '/scripts/shutit_script.sh')
 		shutit.build['shutit_command_history'].append('    ' + script.replace('\n', '\n    '))
 		if in_shell:
 			ret = self.send(ShutItSendSpec(self,
