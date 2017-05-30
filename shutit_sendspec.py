@@ -1,5 +1,4 @@
 import logging
-import shutit_global
 
 class ShutItSendSpec(object):
 	"""Specification for arguments to send to shutit functions.
