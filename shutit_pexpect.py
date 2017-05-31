@@ -795,7 +795,7 @@ class ShutItPexpectSession(object):
 		elif shutit.build['delivery'] in ('docker',):
 			os.chdir(path)
 		else:
-			shutit.fail('chdir not supported for delivery method: ' + shutit.build['delivery']) # pragma: no cover
+			shutit.fail('chdir not supported for delivery method: ' + str(shutit.build['delivery'])) # pragma: no cover
 		shutit.handle_note_after(note=note)
 		return True
 
@@ -2415,7 +2415,7 @@ class ShutItPexpectSession(object):
 		                             If return is -1, the task was backgrounded. See also multisend.
 		@rtype:                      int
 		"""
-		#print(sendspec)
+		shutit_global.shutit_global_object.log('In send, trying to send: ' + str(sendspec.send),level=logging.INFO)
 		if self._check_blocked(sendspec):
 			shutit_global.shutit_global_object.log('In send, check_blocked called and returned True.',level=logging.INFO)
 			# _check_blocked will add to the list of background tasks and handle dupes, so leave there.

@@ -62,9 +62,8 @@ class ShutItBackgroundCommand(object):
 
 
 	def __str__(self):
-		string = '\nSendspec: '
-		string += str(self.sendspec)
-		string += '\nBackground object: '
+		string = str(self.sendspec)
+		string += '\n---- Background object ----'
 		string += '\nblock_other_commands: ' + str(self.block_other_commands)
 		string += '\ncwd:                  ' + str(self.cwd)
 		string += '\npid:                  ' + str(self.pid)
@@ -72,6 +71,7 @@ class ShutItBackgroundCommand(object):
 		string += '\nreturn_value:         ' + str(self.return_value)
 		string += '\nrun_state:            ' + str(self.run_state)
 		string += '\nstart_time:           ' + str(self.start_time)
+		string += '\n----                   ----'
 		return string
 
 
@@ -117,7 +117,7 @@ class ShutItBackgroundCommand(object):
 			shutit_pexpect_child.quick_send(' wait ' + self.pid)
 			self.return_value = shutit_pexpect_child.send_and_get_output(' cat ' + self.exit_code_file)
 			# TODO: options for return values
-			if self.return_value != '0':
+			if self.return_value not in self.sendspec.exit_values:
 				shutit_global.shutit_global_object.log('background task: ' + self.sendspec.send + ' failed with error code: ' + self.return_value, level=logging.DEBUG)
 				shutit_global.shutit_global_object.log('background task: ' + self.sendspec.send + ' failed with output: ' + self.sendspec.shutit_pexpect_child.send_and_get_output(' cat ' + self.output_file), level=logging.DEBUG)
 				if self.retry > 0:

@@ -134,8 +134,8 @@ class ShutItSendSpec(object):
 
 		# BEGIN Setup/checking
 		self.started                 = False
-		if check_exit and run_in_background:
-			check_exit = False
+		if self.check_exit and self.run_in_background:
+			self.check_exit = False
 		#if send_dict and run_in_background:
 			#shutit_global.shutit_global_object.log('run_in_background and send_dict make no sense',level=logging.CRITICAL)
 			#assert False, ''
@@ -143,21 +143,24 @@ class ShutItSendSpec(object):
 
 		# send_dict can come in with items that are: val:string, or val:[string,boolean]
 		# ensure they end up as the latter, defaulting to false.
-		if send_dict is not None:
-			assert isinstance(send_dict, dict)
-			for key in send_dict:
-				val = send_dict[key]
+		if self.send_dict is not None:
+			assert isinstance(self.send_dict, dict)
+			for key in self.send_dict:
+				val = self.send_dict[key]
 				assert isinstance(val,(str,list))
 				if isinstance(val,str):
-					send_dict.update({key:[val,False]})
+					self.send_dict.update({key:[val,False]})
 				elif isinstance(val,list):
 					assert len(val) == 2
 				else:
 					assert False, 'send_dict check should not get here'
 
+		if self.exit_values is None:
+			self.exit_values = ['0',]
+
 
 	def __str__(self):
-		string = ''
+		string = '\n---- Sendspec object ----'
 		string += '\nassume_gnu              = ' + str(self.assume_gnu)
 		string += '\nblock_other_commands    = ' + str(self.block_other_commands)
 		string += '\ncheck_exit              = ' + str(self.check_exit)
@@ -196,4 +199,5 @@ class ShutItSendSpec(object):
 		string += '\ntimeout                 = ' + str(self.timeout)
 		string += '\nuser                    = ' + str(self.user)
 		string += '\nwait_cadence            = ' + str(self.wait_cadence)
+		string += '\n----                 ----'
 		return string

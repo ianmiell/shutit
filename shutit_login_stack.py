@@ -14,20 +14,25 @@ from shutit_background import ShutItBackgroundCommand
 
 class ShutItLoginStack(object):
 
+
 	def __init__(self):
 		"""
 		"""
 		self.stack = []
 
+
 	def append(self, login_id):
 		self.stack.append(ShutItLoginStackItem(login_id))
 		return True
 
+
 	def pop(self):
 		return self.stack.pop()
 
+
 	def length(self):
 		return len(self.stack)
+
 
 	def get_current_login_id(self):
 		if len(self.stack):
@@ -35,11 +40,13 @@ class ShutItLoginStack(object):
 		else:
 			return None
 
+
 	def get_current_login_item(self):
 		if len(self.stack):
 			return self.stack[-1]
 		else:
 			return None
+
 
 	def find_sendspec(self):
 		for stack_item in self.stack:
@@ -47,11 +54,13 @@ class ShutItLoginStack(object):
 				return True
 		return False
 
+
 	def __str__(self):
-		string = ''
+		string = '\n---- Login stack object ----'
 		string += '\nstack: ' + str(self.stack)
 		for item in self.stack:
 			string += '\nlogin_item: ' + str(item)
+		string += '\n----                    ----'
 		return string
 
 
@@ -92,11 +101,12 @@ class ShutItLoginStackItem(object):
 				self.background_objects_completed.append(background_object)
 			elif state == 'S':
 				return False
+			elif state == 'N':
+				unstarted_command_exists = True
 			else:
-				if state == 'N':
-					unstarted_command_exists = True
-				else:
-					incomplete_command_exists = True
+				import sys
+				print('Un-handled: ' + state)
+				sys.exit()
 		shutit_global.shutit_global_object.log('Checking background objects done.',level=logging.DEBUG)
 		if incomplete_command_exists:
 			# Started
@@ -118,9 +128,11 @@ class ShutItLoginStackItem(object):
 				return True
 		return False
 
+
 	def __str__(self):
-		string = ''
+		string = '\n---- Login stack item object ----'
 		string += '\nlogin_id: ' + str(self.login_id)
 		for background_object in self.background_objects:
 			string += '\nbackground_objects: ' + str(background_object)
+		string += '\n----                        ----'
 		return string
