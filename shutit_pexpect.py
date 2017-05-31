@@ -1287,9 +1287,9 @@ class ShutItPexpectSession(object):
 				self.send(ShutItSendSpec(self,
 				                         send='apt-get update -y',
 				                         loglevel=logging.INFO,
-				                         run_in_background=run_in_background,
-				                         ignore_background=ignore_background,
-				                         block_other_commands=block_other_commands))
+				                         run_in_background=False,
+				                         ignore_background=False,
+				                         block_other_commands=True))
 				shutit.get_current_shutit_pexpect_session_environment().build['apt_update_done'] = True
 			cmd += 'DEBIAN_FRONTEND=noninteractive apt-get install'
 			if 'apt' in options:
