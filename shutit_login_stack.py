@@ -96,7 +96,7 @@ class ShutItLoginStackItem(object):
 			shutit_global.shutit_global_object.log('Checking background object: ' + str(background_object),level=logging.DEBUG)
 			state = background_object.check_background_command_state()
 			shutit_global.shutit_global_object.log('State is: ' + state,level=logging.DEBUG)
-			if state == 'C':
+			if state == 'C' or state == 'F':
 				self.background_objects.remove(background_object)
 				self.background_objects_completed.append(background_object)
 			elif state == 'S':
