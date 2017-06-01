@@ -2596,12 +2596,7 @@ $'"""
 				else:
 					if sendspec.echo:
 						shutit.divert_output(sys.stdout)
-					if not self.sendline(ShutItSendSpec(self,
-					                                    send=sendspec.send,
-					                                    nonewline=sendspec.nonewline,
-					                                    ignore_background=sendspec.ignore_background,
-					                                    run_in_background=sendspec.run_in_background,
-					                                    block_other_commands=sendspec.block_other_commands)):
+					if not self.sendline(sendspec):
 						expect_res = shutit.expect_allow_interrupt(self.pexpect_child, sendspec.expect, sendspec.timeout)
 					else:
 						expect_res = -1
