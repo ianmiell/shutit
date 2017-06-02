@@ -86,10 +86,12 @@ class ShutItLoginStackItem(object):
 		for background_object in self.background_objects:
 			# If it's running, or not started yet, it should block other tasks.
 			if background_object.block_other_commands and background_object.run_state in ('S','N'):
+				shutit_global.shutit_global_object.log('All objects are: ' + str(self),level=logging.DEBUG)
 				shutit_global.shutit_global_object.log('The current blocking send object is: ' + str(background_object),level=logging.INFO)
 				return True
 			elif background_object.block_other_commands and background_object.run_state in ('F','C','T'):
 				assert False, 'Blocking command should have been removed, in run_state: ' + background_object.run_state
+		shutit_global.shutit_global_object.log('No blocking background objecst exist.',level=logging.DEBUG)
 		return False
 
 
