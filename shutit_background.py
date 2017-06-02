@@ -119,26 +119,24 @@ class ShutItBackgroundCommand(object):
 			shutit_global.shutit_global_object.log('background task: ' + self.sendspec.send + ' complete')
 			self.run_state = 'C'
 			# Stop this from blocking other commands from here.
-			if self.return_value is None:
-				shutit_pexpect_child.quick_send(' wait ' + self.pid)
-				self.return_value = shutit_pexpect_child.send_and_get_output(' cat ' + self.exit_code_file)
-				# TODO: options for return values
-				if self.return_value not in self.sendspec.exit_values:
-					shutit_global.shutit_global_object.log('background task: ' + self.sendspec.send + ' failed with exit code: ' + self.return_value, level=logging.DEBUG)
-					shutit_global.shutit_global_object.log('background task: ' + self.sendspec.send + ' failed with output: ' + self.sendspec.shutit_pexpect_child.send_and_get_output(' cat ' + self.output_file), level=logging.DEBUG)
-					if self.retry > 0:
-						shutit_global.shutit_global_object.log('background task: ' + self.sendspec.send + ' retrying',level=logging.DEBUG)
-						self.retry -= 1
-						self.run_background_command()
-						# recurse
-						return self.check_background_command_state()
-					else:
-						shutit_global.shutit_global_object.log('background task final failure: ' + self.sendspec.send + ' failed with exit code: ' + self.return_value, level=logging.DEBUG)
-						self.run_state = 'F'
-					return self.run_state
+			assert self.return_value is not None, 'check_background_command_state called with self.return_value already set?'
+			shutit_pexpect_child.quick_send(' wait ' + self.pid)
+			self.return_value = shutit_pexpect_child.send_and_get_output(' cat ' + self.exit_code_file)
+			# TODO: options for return values
+			if self.return_value not in self.sendspec.exit_values:
+				shutit_global.shutit_global_object.log('background task: ' + self.sendspec.send + ' failed with exit code: ' + self.return_value, level=logging.DEBUG)
+				shutit_global.shutit_global_object.log('background task: ' + self.sendspec.send + ' failed with output: ' + self.sendspec.shutit_pexpect_child.send_and_get_output(' cat ' + self.output_file), level=logging.DEBUG)
+				if self.retry > 0:
+					shutit_global.shutit_global_object.log('background task: ' + self.sendspec.send + ' retrying',level=logging.DEBUG)
+					self.retry -= 1
+					self.run_background_command()
+					# recurse
+					return self.check_background_command_state()
 				else:
-					shutit_global.shutit_global_object.log('background task: ' + self.sendspec.send + ' succeeded with exit code: ' + self.return_value, level=logging.DEBUG)
+					shutit_global.shutit_global_object.log('background task final failure: ' + self.sendspec.send + ' failed with exit code: ' + self.return_value, level=logging.DEBUG)
+					self.run_state = 'F'
 				return self.run_state
 			else:
-				assert False, 'check_background_command_state called with self.return_value already set?'
+				shutit_global.shutit_global_object.log('background task: ' + self.sendspec.send + ' succeeded with exit code: ' + self.return_value, level=logging.DEBUG)
+			return self.run_state
 		assert False
