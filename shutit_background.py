@@ -114,13 +114,11 @@ class ShutItBackgroundCommand(object):
 				if time_taken > self.sendspec.timeout:
 					self.sendspec.shutit_pexpect_child.quick_send(' kill -9 ' + self.pid)
 					self.run_state = 'T'
-					self.block_other_commands = False
 			return self.run_state
 		else:
 			shutit_global.shutit_global_object.log('background task: ' + self.sendspec.send + ' complete')
 			self.run_state = 'C'
 			# Stop this from blocking other commands from here.
-			self.block_other_commands = False
 			if self.return_value is None:
 				shutit_pexpect_child.quick_send(' wait ' + self.pid)
 				self.return_value = shutit_pexpect_child.send_and_get_output(' cat ' + self.exit_code_file)
@@ -137,8 +135,6 @@ class ShutItBackgroundCommand(object):
 					else:
 						shutit_global.shutit_global_object.log('background task final failure: ' + self.sendspec.send + ' failed with exit code: ' + self.return_value, level=logging.DEBUG)
 						self.run_state = 'F'
-						# Stop this from blocking other commands from here.
-						self.block_other_commands = False
 					return self.run_state
 				else:
 					shutit_global.shutit_global_object.log('background task: ' + self.sendspec.send + ' succeeded with exit code: ' + self.return_value, level=logging.DEBUG)

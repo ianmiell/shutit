@@ -83,6 +83,9 @@ class ShutItLoginStackItem(object):
 
 
 	def has_blocking_background_send(self):
+		"""Check whether any blocking background commands are waiting to run.
+        If any are, return True. If none are, return False.
+		"""
 		for background_object in self.background_objects:
 			# If it's running, or not started yet, it should block other tasks.
 			if background_object.block_other_commands and background_object.run_state in ('S','N'):
@@ -91,13 +94,17 @@ class ShutItLoginStackItem(object):
 				return True
 			elif background_object.block_other_commands and background_object.run_state in ('F','C','T'):
 				assert False, 'Blocking command should have been removed, in run_state: ' + background_object.run_state
-		shutit_global.shutit_global_object.log('No blocking background objecst exist.',level=logging.DEBUG)
+			else:
+				assert background_object.block_other_commands is False
+		shutit_global.shutit_global_object.log('No blocking background objects exist.',level=logging.DEBUG)
 		return False
 
 
 	def check_background_commands(self):
+		"""Check whether any background commands are running.
+		If none are, return True. If any are, return False.
+		"""
 		unstarted_command_exists  = False
-		incomplete_command_exists = False
 		for background_object in self.background_objects:
 			shutit_global.shutit_global_object.log('Checking background object: ' + str(background_object),level=logging.DEBUG)
 			state = background_object.check_background_command_state()
@@ -106,17 +113,13 @@ class ShutItLoginStackItem(object):
 				self.background_objects.remove(background_object)
 				self.background_objects_completed.append(background_object)
 			elif state == 'S':
+				# Running command exists
 				return False
 			elif state == 'N':
 				unstarted_command_exists = True
 			else:
-				import sys
-				print('Un-handled: ' + state)
-				sys.exit()
+				assert False, 'Un-handled: ' + state
 		shutit_global.shutit_global_object.log('Checking background objects done.',level=logging.DEBUG)
-		if incomplete_command_exists:
-			# Started
-			return False
 		if unstarted_command_exists:
 			# Start up an unstarted one (in order), and return False
 			for background_object in self.background_objects:
