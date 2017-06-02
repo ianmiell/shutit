@@ -76,7 +76,13 @@ class ShutItBackgroundCommand(object):
 		shutit_pexpect_child = self.sendspec.shutit_pexpect_child
 		# Check the command has been started
 		if not self.sendspec.started:
+			assert self.run_state == 'N'
 			return self.run_state
+		if self.run_state in ('C','F'):
+			assert self.sendspec.started
+			return self.run_state
+		assert self.run_state in ('S',), 'State should be in S, is in fact: ' + self.run_state
+		assert self.start_time is not None
 		run_state = shutit_pexpect_child.send_and_get_output(""" command ps -o stat """ + self.pid + """ | command sed '1d' """)
 		# Ensure we get the first character only, if one exists.
 		if len(run_state) > 0:
@@ -91,6 +97,16 @@ class ShutItBackgroundCommand(object):
             #   Z       Marks a dead process (a ``zombie'').
 			if self.run_state in ('I','R','T','U','Z'):
 				self.run_state = 'S'
+			# honour sendspec.timeout
+			assert self.run_state in ('S',)
+			if self.sendspec.timeout is not None:
+				current_time = time.time()
+				time_taken = current_time - self.start_time
+				if time_taken > self.sendspec.timeout:
+					self.sendspec.shutit_pexpect_child.quick_send(' kill -9 ' + self.pid)
+					self.run_state = 'T'
+					self.block_other_commands = False
+			return self.run_state
 		else:
 			shutit_global.shutit_global_object.log('background task: ' + self.sendspec.send + ' complete')
 			self.run_state = 'C'
@@ -101,7 +117,7 @@ class ShutItBackgroundCommand(object):
 				self.return_value = shutit_pexpect_child.send_and_get_output(' cat ' + self.exit_code_file)
 				# TODO: options for return values
 				if self.return_value not in self.sendspec.exit_values:
-					shutit_global.shutit_global_object.log('background task: ' + self.sendspec.send + ' failed with error code: ' + self.return_value, level=logging.DEBUG)
+					shutit_global.shutit_global_object.log('background task: ' + self.sendspec.send + ' failed with exit code: ' + self.return_value, level=logging.DEBUG)
 					shutit_global.shutit_global_object.log('background task: ' + self.sendspec.send + ' failed with output: ' + self.sendspec.shutit_pexpect_child.send_and_get_output(' cat ' + self.output_file), level=logging.DEBUG)
 					if self.retry > 0:
 						shutit_global.shutit_global_object.log('background task: ' + self.sendspec.send + ' retrying',level=logging.DEBUG)
@@ -110,23 +126,14 @@ class ShutItBackgroundCommand(object):
 						# recurse
 						return self.check_background_command_state()
 					else:
-						shutit_global.shutit_global_object.log('background task final failure: ' + self.sendspec.send + ' failed with error code: ' + self.return_value, level=logging.DEBUG)
+						shutit_global.shutit_global_object.log('background task final failure: ' + self.sendspec.send + ' failed with exit code: ' + self.return_value, level=logging.DEBUG)
 						self.run_state = 'F'
 						# Stop this from blocking other commands from here.
 						self.block_other_commands = False
+					return self.run_state
 				else:
-					shutit_global.shutit_global_object.log('background task: ' + self.sendspec.send + ' succeeded with error code: ' + self.return_value, level=logging.DEBUG)
+					shutit_global.shutit_global_object.log('background task: ' + self.sendspec.send + ' succeeded with exit code: ' + self.return_value, level=logging.DEBUG)
+				return self.run_state
 			else:
 				assert False, 'check_background_command_state called with self.return_value already set?'
-		# honour sendspec.timeout
-		if self.sendspec.timeout is not None and self.run_state == 'S':
-			assert self.start_time is not None
-			current_time = time.time()
-			time_taken = current_time - self.start_time
-			if time_taken > self.sendspec.timeout:
-				self.sendspec.shutit_pexpect_child.quick_send(' kill -9 ' + self.pid)
-				self.run_state = 'T'
-				self.block_other_commands = False
-				# TODO: check it's not running anymore with ps?
-		assert self.run_state in ('C','S','F','N','T')
-		return self.run_state
+		assert False
