@@ -1584,6 +1584,7 @@ class ShutItPexpectSession(object):
 	                        fail_on_empty_before=True,
 	                        check_sudo=True,
 	                        nonewline=False,
+	                        ignore_background=False,
 	                        loglevel=logging.DEBUG):
 		"""Returns the output of a command run. send() is called, and exit is not checked.
 
@@ -1614,7 +1615,7 @@ class ShutItPexpectSession(object):
 		                         check_sudo=check_sudo,
 		                         nonewline=nonewline,
 		                         loglevel=loglevel,
-		                         ignore_background=True))
+		                         ignore_background=ignore_background))
 		before = self.pexpect_child.before
 
 		if len(before):
@@ -1735,13 +1736,13 @@ class ShutItPexpectSession(object):
 				if not shutit.get_current_shutit_pexpect_session_environment().build['apk_update_done'] and self.whoami() == 'root':
 					self.send(ShutItSendSpec(self,
 					                         send='apk -q update',
-					                         loglevel=logging.INFO,
-					                         ignore_background=True))
+					                         ignore_background=True,
+					                         loglevel=logging.INFO))
 					shutit.get_current_shutit_pexpect_session_environment().build['apk_update_done'] = True
 				self.send(ShutItSendSpec(self,
 				                         send='apk -q add bash',
-				                         loglevel=loglevel,
-				                         ignore_background=True))
+				                         ignore_background=True,
+				                         loglevel=loglevel))
 				install_type   = 'apk'
 				distro         = 'alpine'
 				distro_version = '1.0'
@@ -1750,8 +1751,8 @@ class ShutItPexpectSession(object):
 					shutit.get_current_shutit_pexpect_session_environment().build['pacman_update_done'] = True
 					self.send(ShutItSendSpec(self,
 					                         send='pacman -Syy',
-					                         loglevel=logging.INFO,
-					                         ignore_background=True))
+					                         ignore_background=True,
+					                         loglevel=logging.INFO))
 				install_type   = d['install_type']
 				distro         = d['distro']
 				distro_version = '1.0'
@@ -1774,6 +1775,7 @@ class ShutItPexpectSession(object):
 		else:
 			issue_output = self.send_and_get_output(' command cat /etc/issue',
 			                                        echo=False,
+			                                        ignore_background=True,
 			                                        loglevel=loglevel).lower()
 			if not re.match('.*No such file.*',issue_output):
 				for key in package_map.INSTALL_TYPE_MAP:
@@ -1788,6 +1790,7 @@ class ShutItPexpectSession(object):
 				if self.file_exists('/etc/os-release'):
 					os_name = self.send_and_get_output(' command cat /etc/os-release | grep ^NAME',
 					                                   echo=False,
+					                                   ignore_background=True,
 					                                   loglevel=loglevel).lower()
 					if os_name.find('centos') != -1:
 						distro       = 'centos'
@@ -1808,6 +1811,7 @@ class ShutItPexpectSession(object):
 				else:
 					uname_output = self.send_and_get_output(" command uname -a | awk '{print $1}'",
 					                                        echo=False,
+					                                        ignore_background=True,
 					                                        loglevel=loglevel)
 					if uname_output == 'Darwin':
 						distro = 'osx'
@@ -1826,8 +1830,8 @@ class ShutItPexpectSession(object):
 							                            loglevel=loglevel) == '':
 								self.send(ShutItSendSpec(self,
 								                         send='brew install ' + package,
-								                         loglevel=loglevel,
-								                         ignore_background=True))
+								                         ignore_background=True,
+								                         loglevel=loglevel))
 						self.send(ShutItSendSpec(self,
 						                         send='rm -f .shutit_brew_list',
 						                         echo=False,
@@ -1870,8 +1874,8 @@ class ShutItPexpectSession(object):
 					if not self.command_available('lsb_release'):
 						self.send(ShutItSendSpec(self,
 						                         send='yum install -y lsb-release',
-						                         loglevel=loglevel,
-						                         ignore_background=True))
+						                         ignore_background=True,
+						                         loglevel=loglevel))
 				d = self.lsb_release()
 				install_type   = d['install_type']
 				distro         = d['distro']
@@ -1880,13 +1884,13 @@ class ShutItPexpectSession(object):
 				if not shutit.get_current_shutit_pexpect_session_environment().build['apk_update_done'] and self.whoami() == 'root':
 					self.send(ShutItSendSpec(self,
 					                         send='apk -q update',
-					                         loglevel=logging.INFO,
-					                         ignore_background=True))
+					                         ignore_background=True,
+					                         loglevel=logging.INFO))
 					shutit.get_current_shutit_pexpect_session_environment().build['apk_update_done'] = True
 				self.send(ShutItSendSpec(self,
 				                         send='apk -q add bash',
-				                         loglevel=loglevel,
-				                         ignore_background=True))
+				                         ignore_background=True,
+				                         loglevel=loglevel))
 				install_type   = 'apk'
 				distro         = 'alpine'
 				distro_version = '1.0'
