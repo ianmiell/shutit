@@ -208,7 +208,7 @@ class ShutItPexpectSession(object):
 					shutit_global.shutit_global_object.log('_check_blocked: a blocking background send is running, so queue this up and wait.',level=logging.INFO)
 					# If we honour background tasts and we are running in foreground, wait.
 					#print('adding')
-					sendspec.run_in_background = True
+					#sendspec.run_in_background = True
 					self.login_stack.get_current_login_item().append_background_send(sendspec)
 					##print(self.login_stack)
 					self.wait(sendspec=sendspec)
