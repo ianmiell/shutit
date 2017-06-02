@@ -58,17 +58,26 @@ class ShutItBackgroundCommand(object):
 
 		# run command
 		self.tries            += 1
-		self.sendspec.shutit_pexpect_child.quick_send(self.sendspec.send)
+		if self.sendspec.run_in_background:
+			# Run in the background
+			self.sendspec.shutit_pexpect_child.quick_send(self.sendspec.send)
+			# Put into an 'S' state as that means 'running'
+			self.run_state        = 'S'
+			# Required to reset terminal after a background send. (TODO: why?)
+			self.sendspec.shutit_pexpect_child.reset_terminal()
+			# record pid
+			self.pid = self.sendspec.shutit_pexpect_child.send_and_get_output(" echo ${!}")
+		else:
+			# Run synchronously and mark complete
+			# We need to set this to ignore background before we run it, so that
+			# it does not block itself and end up in an infinite loop.
+			self.sendspec.ignore_background = True
+			self.sendspec.shutit_pexpect_child.send(self.sendspec)
+			self.run_state = 'C'
 
 		self.sendspec.started = True
 
-		# Put into an 'S' state as that means 'running'
-		self.run_state        = 'S'
-		# Required to reset terminal after a background send. (TODO: why?)
-		self.sendspec.shutit_pexpect_child.reset_terminal()
-		# record pid
-		self.pid = self.sendspec.shutit_pexpect_child.send_and_get_output(" echo ${!}")
-		assert self.run_state in ('C','S','F','N')
+		assert self.run_state in ('C','S','F')
 		return True
 
 
