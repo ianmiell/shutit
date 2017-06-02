@@ -57,7 +57,7 @@ class ShutItGlobal(object):
 		self.secret_words_set = set()
 		self.logfile          = None
 		self.loglevel         = None
-		self.shutit_signal_id = None
+		self.signal_id        = None
 		self.username         = os.environ.get('LOGNAME', '')
 		# It's important that this has '.*' at the start, so the matched data is reliably 'after' in the
 		# child object. Use these where possible to make things more consistent.

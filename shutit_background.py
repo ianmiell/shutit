@@ -18,19 +18,20 @@ class ShutItBackgroundCommand(object):
 	def __init__(self,
 	             sendspec):
 		# Stub this with a simple command for now
-		self.sendspec             = sendspec
-		self.block_other_commands = sendspec.block_other_commands
-		self.retry                = sendspec.retry
-		self.tries                = 0
-		self.pid                  = None
-		self.return_value         = None
-		self.start_time           = None
-		self.run_state            = 'N' # State as per ps man page, but 'C' == Complete, 'N' == not started, 'F' == failed, 'S' == sleeping/running, 'T' == timed out by ShutIt
-		self.cwd                  = self.sendspec.shutit_pexpect_child.send_and_get_output(' command pwd')
-		self.id                   = shutit_util.random_id()
-		self.output_file          = '/tmp/shutit_background_output_' + self.id + '.log'
-		self.exit_code_file       = '/tmp/shutit_background_exit_code_file_' + self.id + '.log'
-		self.sendspec.send        = ' set +m && { : $(command cd ' + self.cwd + '>' + self.output_file + ' && ' + self.sendspec.send + ' >>' + self.output_file + ' 2>&1; echo $? >' + self.exit_code_file + ') & } 2>/dev/null'
+		self.sendspec               = sendspec
+		self.block_other_commands   = sendspec.block_other_commands
+		self.retry                  = sendspec.retry
+		self.tries                  = 0
+		self.pid                    = None
+		self.return_value           = None
+		self.start_time             = None
+		self.run_state              = 'N' # State as per ps man page, but 'C' == Complete, 'N' == not started, 'F' == failed, 'S' == sleeping/running, 'T' == timed out by ShutIt
+		self.cwd                    = self.sendspec.shutit_pexpect_child.send_and_get_output(' command pwd')
+		self.id                     = shutit_util.random_id()
+		self.output_file            = '/tmp/shutit_background_output_' + self.id + '.log'
+		self.exit_code_file         = '/tmp/shutit_background_exit_code_file_' + self.id + '.log'
+		if self.sendspec.run_in_background:
+			self.sendspec.send          = ' set +m && { : $(command cd ' + self.cwd + '>' + self.output_file + ' && ' + self.sendspec.send + ' >>' + self.output_file + ' 2>&1; echo $? >' + self.exit_code_file + ') & } 2>/dev/null'
 
 
 	def __str__(self):

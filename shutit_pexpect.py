@@ -1951,6 +1951,7 @@ class ShutItPexpectSession(object):
 		shutit_global.shutit_global_object.log('Number of breakout items: ' + str(n_breakout_items),level=logging.DEBUG)
 		while True:
 			# If it's the last n items in the list, it's the breakout one.
+			# TODO: update echo and send sendspec directly.
 			res = self.send(ShutItSendSpec(self,
 			                               send=send_iteration,
 			                               expect=expect_list,
@@ -2415,9 +2416,9 @@ class ShutItPexpectSession(object):
 		                             If return is -1, the task was backgrounded. See also multisend.
 		@rtype:                      int
 		"""
-		shutit_global.shutit_global_object.log('In send, trying to send: ' + str(sendspec.send),level=logging.INFO)
+		shutit_global.shutit_global_object.log('In send, trying to send: ' + str(sendspec.send),level=logging.DEBUG)
 		if self._check_blocked(sendspec):
-			shutit_global.shutit_global_object.log('In send, check_blocked called and returned True.',level=logging.INFO)
+			shutit_global.shutit_global_object.log('In send for ' + str(sendspec.send) + ', check_blocked called and returned True.',level=logging.INFO)
 			# _check_blocked will add to the list of background tasks and handle dupes, so leave there.
 			return -1
 		shutit = self.shutit
@@ -2686,7 +2687,7 @@ $'"""
 
 
 	def quick_send(self, send, loglevel=logging.INFO):
-		"""Quick and dirty send. Intended for internal use.
+		"""Quick and dirty send that ignores background tasks. Intended for internal use.
 		"""
 		shutit_global.shutit_global_object.log('Quick send: ' + send, level=loglevel)
 		res = self.sendline(ShutItSendSpec(self,
@@ -2950,7 +2951,7 @@ $'"""
 		                             golf    = user gets a pause point, and when leaving, command follow_on_context['check_command'] is run to check the output
 		"""
 		shutit = self.shutit
-		signal_id = shutit_global.shutit_global_object.shutit_signal_id
+		signal_id = shutit_global.shutit_global_object.signal_id
 		if new_stage and shutit.build['exam_object']:
 			if num_stages is None:
 				num_stages = shutit.build['exam_object'].num_stages
