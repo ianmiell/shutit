@@ -214,7 +214,7 @@ class ShutItPexpectSession(object):
 					self.wait(sendspec=sendspec)
 					## Now add this to the background sends.
 					## And wait until done.
-					#self.wait()
+					self.wait()
 				else:
 					# Should be logically impossible.
 					assert False

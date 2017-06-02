@@ -26,7 +26,7 @@ class ShutItBackgroundCommand(object):
 		self.return_value           = None
 		self.start_time             = None
 		self.run_state              = 'N' # State as per ps man page, but 'C' == Complete, 'N' == not started, 'F' == failed, 'S' == sleeping/running, 'T' == timed out by ShutIt
-		self.cwd                    = self.sendspec.shutit_pexpect_child.send_and_get_output(' command pwd')
+		self.cwd                    = self.sendspec.shutit_pexpect_child.send_and_get_output(' command pwd', ignore_background=True)
 		self.id                     = shutit_util.random_id()
 		self.output_file            = '/tmp/shutit_background_output_' + self.id + '.log'
 		self.exit_code_file         = '/tmp/shutit_background_exit_code_file_' + self.id + '.log'
@@ -66,7 +66,7 @@ class ShutItBackgroundCommand(object):
 			# Required to reset terminal after a background send. (TODO: why?)
 			self.sendspec.shutit_pexpect_child.reset_terminal()
 			# record pid
-			self.pid = self.sendspec.shutit_pexpect_child.send_and_get_output(" echo ${!}")
+			self.pid = self.sendspec.shutit_pexpect_child.send_and_get_output(" echo ${!}",ignore_background=True)
 		else:
 			# Run synchronously and mark complete
 			# We need to set this to ignore background before we run it, so that
@@ -92,7 +92,7 @@ class ShutItBackgroundCommand(object):
 			return self.run_state
 		assert self.run_state in ('S',), 'State should be in S, is in fact: ' + self.run_state
 		assert self.start_time is not None
-		run_state = shutit_pexpect_child.send_and_get_output(""" command ps -o stat """ + self.pid + """ | command sed '1d' """)
+		run_state = shutit_pexpect_child.send_and_get_output(""" command ps -o stat """ + self.pid + """ | command sed '1d' """, ignore_background=True)
 		# Ensure we get the first character only, if one exists.
 		if len(run_state) > 0:
 			self.run_state = run_state[0]
@@ -119,13 +119,13 @@ class ShutItBackgroundCommand(object):
 			shutit_global.shutit_global_object.log('background task: ' + self.sendspec.send + ' complete')
 			self.run_state = 'C'
 			# Stop this from blocking other commands from here.
-			assert self.return_value is not None, 'check_background_command_state called with self.return_value already set?'
+			assert self.return_value is None, 'check_background_command_state called with self.return_value already set?' + str(self)
 			shutit_pexpect_child.quick_send(' wait ' + self.pid)
-			self.return_value = shutit_pexpect_child.send_and_get_output(' cat ' + self.exit_code_file)
+			self.return_value = shutit_pexpect_child.send_and_get_output(' cat ' + self.exit_code_file, ignore_background=True)
 			# TODO: options for return values
 			if self.return_value not in self.sendspec.exit_values:
 				shutit_global.shutit_global_object.log('background task: ' + self.sendspec.send + ' failed with exit code: ' + self.return_value, level=logging.DEBUG)
-				shutit_global.shutit_global_object.log('background task: ' + self.sendspec.send + ' failed with output: ' + self.sendspec.shutit_pexpect_child.send_and_get_output(' cat ' + self.output_file), level=logging.DEBUG)
+				shutit_global.shutit_global_object.log('background task: ' + self.sendspec.send + ' failed with output: ' + self.sendspec.shutit_pexpect_child.send_and_get_output(' cat ' + self.output_file, ignore_background=True), level=logging.DEBUG)
 				if self.retry > 0:
 					shutit_global.shutit_global_object.log('background task: ' + self.sendspec.send + ' retrying',level=logging.DEBUG)
 					self.retry -= 1
