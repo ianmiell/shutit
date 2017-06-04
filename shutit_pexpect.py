@@ -314,9 +314,7 @@ class ShutItPexpectSession(object):
 		                                    echo=echo,
 		                                    remove_on_match=True,
 		                                    nonewline=sendspec.nonewline,
-		                                    ignore_background=True,
-		                                    loglevel=sendspec.loglevel,
-			                                block_other_commands=sendspec.block_other_commands))
+		                                    loglevel=sendspec.loglevel))
 		if res == -1:
 			# Should not get here as login should not be blocked.
 			assert False
@@ -1358,10 +1356,7 @@ class ShutItPexpectSession(object):
 					                                    check_exit=False,
 					                                    loglevel=loglevel,
 					                                    echo=False,
-					                                    secret=True,
-					                                    ignore_background=ignore_background,
-					                                    run_in_background=run_in_background,
-				                                        block_other_commands=block_other_commands))
+					                                    secret=True))
 					if res == -1:
 						## Should not happen
 						#assert False
@@ -1509,10 +1504,7 @@ class ShutItPexpectSession(object):
 			                                    timeout=timeout,
 			                                    exit_values=['0','100'],
 			                                    echo=False,
-			                                    secret=True,
-			                                    ignore_background=False,
-			                                    run_in_background=False,
-			                                    block_other_commands=True))
+			                                    secret=True))
 			if res == -1:
 				# Should not happen
 				assert False
@@ -1955,7 +1947,7 @@ class ShutItPexpectSession(object):
 		shutit_global.shutit_global_object.log('Number of breakout items: ' + str(n_breakout_items),level=logging.DEBUG)
 		while True:
 			# If it's the last n items in the list, it's the breakout one.
-			# TODO: update echo and send sendspec directly.
+			# Must be a separate sendspec object each time, must be run .
 			res = self.send(ShutItSendSpec(self,
 			                               send=send_iteration,
 			                               expect=expect_list,
@@ -1970,7 +1962,8 @@ class ShutItPexpectSession(object):
 			                               check_sudo=sendspec.check_sudo,
 			                               nonewline=sendspec.nonewline,
 			                               ignore_background=sendspec.ignore_background,
-			                               block_other_commands=sendspec.block_other_commands,
+			                               run_in_background=False,
+			                               block_other_commands=True,
 							               loglevel=sendspec.loglevel))
 			if res == -1:
 				# Will be run in the background later.
@@ -2447,10 +2440,7 @@ class ShutItPexpectSession(object):
 			                                     secret=sendspec.secret,
 			                                     check_sudo=sendspec.check_sudo,
 			                                     nonewline=sendspec.nonewline,
-			                                     loglevel=sendspec.loglevel,
-			                                     run_in_background=sendspec.run_in_background,
-			                                     ignore_background=sendspec.ignore_background,
-			                                     block_other_commands=sendspec.block_other_commands))
+			                                     loglevel=sendspec.loglevel))
 		# Before gathering expect, detect whether this is a sudo command and act accordingly.
 		command_list = sendspec.send.strip().split()
 		# If there is a first command, there is a sudo in there (we ignore
@@ -2473,10 +2463,7 @@ class ShutItPexpectSession(object):
 			                                     note=sendspec.note,
 			                                     check_sudo=False,
 			                                     nonewline=sendspec.nonewline,
-			                                     loglevel=sendspec.loglevel,
-			                                     ignore_background=True,
-			                                     block_other_commands=sendspec.block_other_commands))
-
+			                                     loglevel=sendspec.loglevel))
 
 		shutit_global.shutit_global_object.log('Sending data in session: ' + self.pexpect_session_id,level=logging.DEBUG)
 		shutit.handle_note(sendspec.note, command=str(sendspec.send), training_input=str(sendspec.send))
