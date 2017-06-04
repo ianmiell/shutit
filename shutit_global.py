@@ -220,7 +220,7 @@ class ShutItGlobal(object):
 			elif self.loglevel == 'INFO':
 				logging.basicConfig(format=logformat,level=logging.INFO)
 			else:
-				logging.basicConfig(format=logformat,level=logging.INFO)
+				logging.basicConfig(format=logformat,level=logging.DEBUG)
 		else:
 			self.loglevel = self.loglevel.upper()
 			if self.loglevel == 'DEBUG':
@@ -234,7 +234,7 @@ class ShutItGlobal(object):
 			elif self.loglevel == 'INFO':
 				logging.basicConfig(format=logformat,filename=self.logfile,level=logging.INFO)
 			else:
-				logging.basicConfig(format=logformat,filename=self.logfile,level=logging.INFO)
+				logging.basicConfig(format=logformat,filename=self.logfile,level=logging.DEBUG)
 		self.loglevel = logging.getLogger().getEffectiveLevel()
 
 
