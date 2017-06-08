@@ -116,7 +116,7 @@ class ShutItBackgroundCommand(object):
 					self.run_state = 'T'
 			return self.run_state
 		else:
-			shutit_global.shutit_global_object.log('background task: ' + self.sendspec.send + ' complete')
+			shutit_global.shutit_global_object.log('background task: ' + self.sendspec.send + ', id: ' + self.id + ' complete')
 			self.run_state = 'C'
 			# Stop this from blocking other commands from here.
 			assert self.return_value is None, 'check_background_command_state called with self.return_value already set?' + str(self)
