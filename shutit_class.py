@@ -3539,9 +3539,7 @@ class ShutIt(object):
 			args_list[1:1] = env_args_list
 		args = parser.parse_args(args_list)
 		if args.action == 'version':
-			self.process_args(ShutItInit(args.action,
-			                             logfile=args.logfile,
-			                             log=args.log))
+			self.process_args(ShutItInit(args.action))
 		elif args.action == 'skeleton':
 			self.process_args(ShutItInit(args.action,
 			                             logfile=args.logfile,
