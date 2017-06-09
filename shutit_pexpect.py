@@ -237,9 +237,17 @@ class ShutItPexpectSession(object):
 		shutit_global.shutit_global_object.log('Login stack is:\n' + str(self.login_stack),level=logging.DEBUG)
 		while True:
 			# go through each background child checking whether they've finished
-			if self.login_stack.get_current_login_item().check_background_commands():
+			res, res_str = self.login_stack.get_current_login_item().check_background_commands():
+			if res:
 				# When all have completed, break return the background command objects.
 				break
+			elif res_str == 'N':
+				pass
+			elif res_str == 'F':
+				shutit_global.shutit_global_object.log('Failure in: ' + str(self.login_stack),level=logging.DEBUG)
+				return False
+			else:
+				self.shutit.fail('Un-handled exit code: ' + res_str) # pragma: no cover
 			time.sleep(cadence)
 		shutit_global.shutit_global_object.log('Wait complete.',level=logging.DEBUG)
 		return True

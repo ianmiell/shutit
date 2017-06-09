@@ -119,6 +119,8 @@ class ShutItLoginStackItem(object):
 				unstarted_command_exists = True
 			else:
 				assert False, 'Un-handled: ' + state
+			if state == 'F':
+				return False, 'F'
 		shutit_global.shutit_global_object.log('Checking background objects done.',level=logging.DEBUG)
 		if unstarted_command_exists:
 			# Start up an unstarted one (in order), and return False
@@ -126,9 +128,9 @@ class ShutItLoginStackItem(object):
 				state = background_object.check_background_command_state()
 				if state == 'N':
 					background_object.run_background_command()
-					return False
+					return False, 'N'
 		# Nothing left to do - return True.
-		return True
+		return True, 'OK'
 
 
 	def find_sendspec(self,sendspec):
