@@ -64,6 +64,7 @@ from shutit_login_stack import ShutItLoginStack
 from shutit_sendspec import ShutItSendSpec
 from shutit_module import ShutItFailException
 from shutit_pexpect_session_environment import ShutItPexpectSessionEnvironment
+from shutit_background import ShutItBackgroundCommand
 
 
 PY3 = (sys.version_info[0] >= 3)
@@ -237,14 +238,18 @@ class ShutItPexpectSession(object):
 		shutit_global.shutit_global_object.log('Login stack is:\n' + str(self.login_stack),level=logging.DEBUG)
 		while True:
 			# go through each background child checking whether they've finished
-			res, res_str = self.login_stack.get_current_login_item().check_background_commands():
+			res, res_str, background_object = self.login_stack.get_current_login_item().check_background_commands():
 			if res:
 				# When all have completed, break return the background command objects.
 				break
 			elif res_str == 'N':
+				# Do nothing, this is an unstarted task.
 				pass
 			elif res_str == 'F':
+				assert background_object is not None
+				assert isinstance(background_object, ShutItBackgroundCommand)
 				shutit_global.shutit_global_object.log('Failure in: ' + str(self.login_stack),level=logging.DEBUG)
+				self.pause_point('Background task: ' + background_object.sendspec.original_send + ' :failed.'
 				return False
 			else:
 				self.shutit.fail('Un-handled exit code: ' + res_str) # pragma: no cover
