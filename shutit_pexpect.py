@@ -238,7 +238,7 @@ class ShutItPexpectSession(object):
 		shutit_global.shutit_global_object.log('Login stack is:\n' + str(self.login_stack),level=logging.DEBUG)
 		while True:
 			# go through each background child checking whether they've finished
-			res, res_str, background_object = self.login_stack.get_current_login_item().check_background_commands():
+			res, res_str, background_object = self.login_stack.get_current_login_item().check_background_commands()
 			if res:
 				# When all have completed, break return the background command objects.
 				break
@@ -249,7 +249,7 @@ class ShutItPexpectSession(object):
 				assert background_object is not None
 				assert isinstance(background_object, ShutItBackgroundCommand)
 				shutit_global.shutit_global_object.log('Failure in: ' + str(self.login_stack),level=logging.DEBUG)
-				self.pause_point('Background task: ' + background_object.sendspec.original_send + ' :failed.'
+				self.pause_point('Background task: ' + background_object.sendspec.original_send + ' :failed.')
 				return False
 			else:
 				self.shutit.fail('Un-handled exit code: ' + res_str) # pragma: no cover
