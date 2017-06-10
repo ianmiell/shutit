@@ -100,8 +100,8 @@ class ShutItLoginStackItem(object):
 		return False
 
 
-	def check_background_commands(self):
-		"""Check whether any background commands are running.
+	def check_background_commands_complete(self):
+		"""Check whether any background commands are running or to be run.
 		If none are, return True. If any are, return False.
 		"""
 		unstarted_command_exists  = False
@@ -114,7 +114,7 @@ class ShutItLoginStackItem(object):
 				self.background_objects_completed.append(background_object)
 			elif state == 'S':
 				# Running command exists
-				pass
+				return False, 'S', background_object
 			elif state == 'N':
 				unstarted_command_exists = True
 			else:

@@ -238,12 +238,12 @@ class ShutItPexpectSession(object):
 		shutit_global.shutit_global_object.log('Login stack is:\n' + str(self.login_stack),level=logging.DEBUG)
 		while True:
 			# go through each background child checking whether they've finished
-			res, res_str, background_object = self.login_stack.get_current_login_item().check_background_commands()
+			res, res_str, background_object = self.login_stack.get_current_login_item().check_background_commands_complete()
 			if res:
 				# When all have completed, break return the background command objects.
 				break
-			elif res_str == 'N':
-				# Do nothing, this is an unstarted task.
+			elif res_str in ('S','N'):
+				# Do nothing, this is an unstarted or running task.
 				pass
 			elif res_str == 'F':
 				assert background_object is not None
