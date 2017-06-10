@@ -74,6 +74,7 @@ PACKAGE_MAP = {
 # Map install types based on /etc/issue contents
 INSTALL_TYPE_MAP = {'ubuntu':'apt',
 	                'debian':'apt',
+	                'raspbian':'apt',
 	                'linuxmint':'apt',
 	                'steamos':'apt',
 	                'red hat':'yum',
