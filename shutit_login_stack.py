@@ -114,7 +114,7 @@ class ShutItLoginStackItem(object):
 				self.background_objects_completed.append(background_object)
 			elif state == 'S':
 				# Running command exists
-				return False, 'S', background_object
+				pass
 			elif state == 'N':
 				unstarted_command_exists = True
 			else:
