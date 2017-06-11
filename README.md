@@ -83,8 +83,7 @@ It deposits the user into a shell mid-build to interrogate the environment, afte
 What Does it Do (Docker Builds)?
 ================================
 
-![Example Setup]
-(https://github.com/ianmiell/shutit/blob/gh-pages/images/ShutIt.png)
+![Example Setup](https://github.com/ianmiell/shutit/blob/gh-pages/images/ShutIt.png)
 
 We start with a "ShutIt Module", similar to a shell script, or a Dockerfile (see bash builds above).
 
