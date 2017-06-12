@@ -342,7 +342,6 @@ class ShutIt(object):
 		self.expect_prompts                  = {}
 		self.list_configs                    = {}
 		self.target                          = {}
-		self.shutit_signal                   = {}
 		self.action                          = {}
 		self.shutit_pexpect_sessions         = {}
 		self.shutit_map                      = {}
@@ -2349,7 +2348,6 @@ class ShutIt(object):
 	def divert_output(self, output):
 		for key in self.shutit_pexpect_sessions:
 			self.shutit_pexpect_sessions[key].pexpect_child.logfile_send = output
-			self.shutit_pexpect_sessions[key].pexpect_child.logfile_read = output
 		return True
 
 
@@ -3438,8 +3436,6 @@ class ShutIt(object):
 		eg ' a\ b c\\ \\d \\\e\' becomes '', 'a b', 'c\', '\d', '\\e\'
 		SHUTIT_OPTIONS is ignored if we are creating a skeleton
 		"""
-		shutit_global.shutit_global_object.real_user_id = pexpect.run('id -u ' + shutit_global.shutit_global_object.real_user)
-
 		# These are in order of their creation
 		actions = ['build', 'run', 'list_configs', 'list_modules', 'list_deps', 'skeleton', 'version']
 

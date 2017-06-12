@@ -34,6 +34,7 @@ class ShutItExamSessionStage(object):
 		self.total_time           = None
 		self.score                = -1
 
+
 	def __str__(self):
 		string = ''
 		string += '\nnum_resets       = ' + str(self.num_resets)
@@ -44,10 +45,12 @@ class ShutItExamSessionStage(object):
 		string += '\nscore            = ' + str(self.score)
 		return string
 
+
 	def start_timer(self):
 		if self.start_time != None:
 			self.shutit.fail('start_timer called with start_time already set') # pragma: no cover
 		self.start_time = time.time()
+
 
 	def end_timer(self):
 		if self.start_time is None:
@@ -56,6 +59,7 @@ class ShutItExamSessionStage(object):
 			self.shutit.fail('end_time already set') # pragma: no cover
 		self.end_time = time.time()
 		self.total_time = self.end_time - self.start_time
+
 
 	def is_complete(self):
 		if self.result == '':

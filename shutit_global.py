@@ -74,6 +74,7 @@ class ShutItGlobal(object):
 			if self.username == '':
 				self.handle_exit(msg='LOGNAME not set in the environment, ' + 'and login unavailable in python; ' + 'please set to your username.', exit_code=1)
 		self.real_user        = os.environ.get('SUDO_USER', self.username)
+		self.real_user_id     = pexpect.run('id -u ' + shutit_global.shutit_global_object.real_user)
 		self.build_id         = (socket.gethostname() + '_' + self.real_user + '_' + str(time.time()) + '.' + str(datetime.datetime.now().microsecond))
 		shutit_state_dir_base  = '/tmp/shutit_' + self.username
 		if not os.access(shutit_state_dir_base,os.F_OK):

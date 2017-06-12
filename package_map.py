@@ -111,17 +111,3 @@ def map_package(package, install_type):
 				return PACKAGE_MAP[package][install_type]
 	# Otherwise, simply return package
 	return package
-
-
-# TODO: is this used by anything? Should it be?
-def find_package(sought_package):
-	"""Is this name mentioned anywhere? Then return it as a suggestion?
-	"""
-	# First check top-level keys
-	if sought_package in PACKAGE_MAP.keys():
-		return PACKAGE_MAP[sought_package]
-	for package in PACKAGE_MAP:
-		for install_type in PACKAGE_MAP[package].keys():
-			if sought_package == PACKAGE_MAP[package][install_type]:
-				return {package:PACKAGE_MAP[package]}
-	return None
