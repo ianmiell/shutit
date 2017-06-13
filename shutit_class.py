@@ -3800,7 +3800,7 @@ class ShutIt(object):
 			shutit_global.shutit_global_object.log(self.print_config(self.cfg, history=self.list_configs['cfghistory']))
 			# Set build completed
 			self.build['completed'] = True
-			f = file(self.build['log_config_path'] + '/cfg.txt','w')
+			f = open(self.build['log_config_path'] + '/cfg.txt','w')
 			f.write(self.print_config(self.cfg, history=self.list_configs['cfghistory']))
 			f.close()
 			shutit_global.shutit_global_object.log('================================================================================')
