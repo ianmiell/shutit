@@ -35,6 +35,7 @@ import fcntl
 import termios
 import signal
 import struct
+import pexpect
 from distutils.dir_util import mkpath
 from shutit_class import ShutIt, ShutItInit
 import shutit_util
