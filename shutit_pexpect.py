@@ -316,6 +316,10 @@ class ShutItPexpectSession(object):
 		shutit_global.shutit_global_object.log('Logging in to new ShutIt environment.' + user,level=logging.DEBUG)
 		shutit_global.shutit_global_object.log('Logging in with command: ' + send + ' as user: ' + user,level=logging.DEBUG)
 		shutit_global.shutit_global_object.log('Login stack before login: ' + str(self.login_stack),level=logging.DEBUG)
+		# check_sudo - set to false if the password has been supplied.
+		check_sudo = False
+		if password is None and send.strip().find('sudo') == 0:
+			check_sudo = True
 		res = self.multisend(ShutItSendSpec(self,
 		                                    send=send,
 		                                    send_dict=send_dict,
@@ -327,6 +331,7 @@ class ShutItPexpectSession(object):
 		                                    echo=echo,
 		                                    remove_on_match=True,
 		                                    nonewline=sendspec.nonewline,
+		                                    check_sudo=check_sudo,
 		                                    loglevel=sendspec.loglevel))
 		if res == -1:
 			# Should not get here as login should not be blocked.
@@ -388,7 +393,6 @@ class ShutItPexpectSession(object):
 			                              nonewline=sendspec.nonewline)
 		shutit.handle_note_after(note=sendspec.note)
 		return output
-
 
 
 	def setup_prompt(self,
