@@ -318,7 +318,7 @@ class ShutItPexpectSession(object):
 		shutit_global.shutit_global_object.log('Login stack before login: ' + str(self.login_stack),level=logging.DEBUG)
 		# check_sudo - set to false if the password has been supplied.
 		check_sudo = False
-		if password is None and send.strip().find('sudo') == 0:
+		if sendspec.password is None and send.strip().find('sudo') == 0:
 			check_sudo = True
 		res = self.multisend(ShutItSendSpec(self,
 		                                    send=send,
