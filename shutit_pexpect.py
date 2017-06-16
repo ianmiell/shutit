@@ -447,7 +447,7 @@ class ShutItPexpectSession(object):
 		                         ignore_background=True))
 		shutit_global.shutit_global_object.log('Resetting default expect to: ' + shutit.expect_prompts[prompt_name],level=loglevel)
 		self.default_expect = shutit.expect_prompts[prompt_name]
-		hostname = shutit.send_and_get_output("""if [[ $(echo $SHELL) == '/bin/bash' ]]; then echo $HOSTNAME; elif [[ $(command hostname 2> /dev/null) != '' ]]; then hostname -s; fi""", echo=False)
+		hostname = shutit.send_and_get_output("""if [ $(echo $SHELL) == '/bin/bash' ]; then echo $HOSTNAME; elif [ $(command hostname 2> /dev/null) != '' ]; then hostname -s; fi""", echo=False)
 		local_prompt_with_hostname = hostname + ':' + local_prompt
 		shutit.expect_prompts[prompt_name] = local_prompt_with_hostname
 		self.default_expect = shutit.expect_prompts[prompt_name]
@@ -465,6 +465,9 @@ class ShutItPexpectSession(object):
 		                         echo=False,
 		                         loglevel=loglevel,
 		                         ignore_background=True))
+		# Avoid dumb terminals
+		self.send(ShutItSendSpec(self, send=""" if [ ${TERM} = 'dumb' ]; then export TERM=xterm; fi""", echo=False, loglevel=loglevel, ignore_background=True))
+
 		# Ensure environment is set up OK.
 		_ = self.init_pexpect_session_environment(prefix)
 		return True
