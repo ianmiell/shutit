@@ -1594,6 +1594,7 @@ class ShutItPexpectSession(object):
 	                        check_sudo=True,
 	                        nonewline=False,
 	                        ignore_background=False,
+	                        filter_backspaces=True,
 	                        loglevel=logging.DEBUG):
 		"""Returns the output of a command run. send() is called, and exit is not checked.
 
@@ -1629,6 +1630,13 @@ class ShutItPexpectSession(object):
 
 		if len(before):
 			preserve_newline = bool(preserve_newline and before[-1] == '\n')
+		# CORNER CASE: if the terminal is eg a kubernetes one, it seems to use
+		# backspaces (\x08)s to manage newlines. So remove any line from before
+		# if it has backspaces in the output
+		if filter_backspaces:
+			lines = before.split('\n')
+			lines = filter(lambda x: x.find('\x08') == -1, lines)
+			before = '\n'.join(lines)
 		# Remove the command we ran in from the output.
 		before = before.strip(send)
 		if strip:
