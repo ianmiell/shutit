@@ -73,7 +73,9 @@ class ShutItSendSpec(object):
 			@param note:                 If a note is passed in, and we are in walkthrough mode,
 			                             pause with the note printed
 			@param assume_gnu:           Assume the gnu version of commands, which are not in
-			@param follow_on_commands:   TODO
+			@param follow_on_commands:   A dictionary of the form: {match_string: command, match_string2: command2}
+			                             which runs commands based on whether the output matched.
+			                             Follow-on commands are always foregrounded and always ignore backgrounded processes.
 			@param searchwindowsize:     Passed into pexpect session
 			@param maxread:              Passed into pexpect session
 			@param delaybeforesend:      Passed into pexpect session
