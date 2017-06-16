@@ -170,7 +170,6 @@ class ShutItExamSession(object):
 					stage.score = stage.score - (stage.score * stage.reduction_per_reset)
 				for item in range(0,stage.num_hints):
 					stage.score = stage.score - (stage.score * stage.reduction_per_hint)
-				# TODO: is time in seconds?
 				total_time = stage.end_time - stage.start_time
 				total_time -= stage.grace_period
 				if total_time > 0:
