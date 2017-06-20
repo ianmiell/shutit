@@ -3,6 +3,7 @@
 """ShutIt utility functions.
 """
 
+
 # The MIT License (MIT)
 #
 # Copyright (C) 2014 OpenBet Limited
@@ -60,11 +61,7 @@ def is_file_secure(file_name):
 def colourise(code, msg):
 	"""Colourize the given string for a terminal.
 	"""
-	if code == '' or code is None:
-		return msg # pragma: no cover
-	return '\033[%sm%s\033[0m' % (code, msg)
-
-
+	return '\033[%sm%s\033[0m' % (code, msg) if code else msg
 
 
 def random_id(size=8, chars=string.ascii_letters + string.digits):
@@ -85,14 +82,9 @@ def random_word(size=6):
 	"""
 	words = shutit_assets.get_words().splitlines()
 	word = ''
-	while len(word) != size or word.find("'") > -1:
+	while len(word) != size or "'" in word:
 		word = words[int(random.random() * (len(words) - 1))]
 	return word.lower()
-
-
-
-
-
 
 
 def get_hash(string_to_hash):
@@ -137,7 +129,7 @@ def ctrlc_background():
 	in_ctrlc = False
 
 
-def ctrl_c_signal_handler(_,frame):
+def ctrl_c_signal_handler(_, frame):
 	"""CTRL-c signal handler - enters a pause point if it can.
 	"""
 	global ctrl_c_calls
@@ -193,10 +185,8 @@ ctrl_c_calls = 0
 
 
 def print_frame_recurse(frame):
-	if not frame.f_back:
-		return
-	else:
-		print('=============================================================================')
+	if frame.f_back:
+		print('=' * 77)
 		print(frame.f_locals)
 		print_frame_recurse(frame.f_back)
 
@@ -207,14 +197,12 @@ def check_regexp(regex):
 		return True
 	try:
 		re.compile(regex)
-		result = True
+		return True
 	except re.error:
-		result = False
-	return result
+		return False
 
 
-def sendline(child,
-             line):
+def sendline(child, line):
 	"""Handles sending of line to pexpect object.
 	"""
 	child.sendline(line)
@@ -252,11 +240,7 @@ def util_raw_input(prompt='', default=None, ispass=False, use_readline=True):
 			if ispass:
 				return getpass.getpass(prompt=prompt)
 			else:
-				resp = input(prompt).strip()
-				if resp == '':
-					return default
-				else:
-					return resp
+				return input(prompt).strip() or default
 		except KeyboardInterrupt:
 			continue
 		except IOError:
@@ -264,11 +248,7 @@ def util_raw_input(prompt='', default=None, ispass=False, use_readline=True):
 	if ispass:
 		return getpass.getpass(prompt=prompt)
 	else:
-		resp = input(prompt).strip()
-		if resp == '':
-			return default
-		else:
-			return resp
+		return input(prompt).strip() or default
 	shutit_global.shutit_global_object.set_noninteractive(msg=msg)
 	return default
 
@@ -291,11 +271,9 @@ def get_input(msg, default='', valid=None, boolean=False, ispass=False, colour='
 		while answer not in valid:
 			shutit_global.shutit_global_object.log('Answer must be one of: ' + str(valid),transient=True)
 			answer = util_raw_input(prompt=colourise(colour,msg),ispass=ispass)
-	if boolean and answer in ('yes','y','Y','1','true','t','YES'):
-		return True
-	if boolean and answer in ('no','n','N','0','false','f','NO'):
-		return False
-	if answer in ('',None):
-		return default
-	else:
-		return answer
+	if boolean:
+		if answer.lower() in ('yes','y','1','true','t'):
+		        return True
+		elif answer.lower() in ('no','n','0','false','f'):
+		        return False
+	return answer or default
