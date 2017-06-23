@@ -28,7 +28,7 @@ class ShutItBackgroundCommand(object):
 		self.run_state              = 'N' # State as per ps man page, but 'C' == Complete, 'N' == not started, 'F' == failed, 'S' == sleeping/running, 'T' == timed out by ShutIt
 		self.cwd                    = self.sendspec.shutit_pexpect_child.send_and_get_output(' command pwd', ignore_background=True)
 		self.id                     = shutit_util.random_id()
-		self.output_file            = '/tmp/shutit_background_' + self.id + '_output.og'
+		self.output_file            = '/tmp/shutit_background_' + self.id + '_output.log'
 		self.exit_code_file         = '/tmp/shutit_background_' + self.id + '_exit_code_file.log'
 		if self.sendspec.run_in_background:
 			self.sendspec.send          = ' set +m && { : $(command cd ' + self.cwd + '>' + self.output_file + ' && ' + self.sendspec.send + ' >>' + self.output_file + ' 2>&1; echo $? >' + self.exit_code_file + ') & } 2>/dev/null'

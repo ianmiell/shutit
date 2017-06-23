@@ -1,6 +1,8 @@
 """Stores known package maps for different distributions.
 """
 
+import shutit_pexpect
+
 #The MIT License (MIT)
 #
 #Copyright (C) 2014 OpenBet Limited
@@ -23,39 +25,44 @@
 #OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 #SOFTWARE.
 
+def install_centos_pip(shutit_pexpect_obj):
+	shutit_pexpect_obj.send('echo HERE')
 
 # Structured by package, then another dict with
 # install_type -> mapped package inside that.
 # The keys are then the canonical package names.
 PACKAGE_MAP = {
-	'apache2':               {'apt':'apache2',           'yum':'httpd'},
-	'httpd':                 {'apt':'apache2',           'yum':'httpd'},
-	'adduser':               {'apt':'adduser',           'yum':''},
-	'php5':                  {'apt':'php5',              'yum':'php'},
-	'ruby-dev':              {'apt':'ruby-dev',          'yum':'ruby-devel',    'brew':'ruby-build'},
-	'git':                   {'emerge':'dev-vcs/git'},
-	'vagrant':               {'brew':'Caskroom/cask/vagrant'},
-	'virtualbox':            {'brew':'Caskroom/cask/virtualbox'},
-	'build-essential':       {'brew':'gcc', 'yum':'gcc make gcc-c++'},
-	'sudo':                  {'brew':''},
-	'netcat':                {'apt':'netcat',            'yum':'nc'},
-	'nc':                    {'apt':'netcat',            'yum':'nc'},
-	'python-dev':            {'apt':'python-dev',        'yum':'python-devel'},
-	'python-devel':          {'apt':'python-dev',        'yum':'python-devel'},
-	'mysql-devel':           {'apt':'libmysqlclient-dev', 'yum':'mysql-devel'},
-	'libmysqlclient-dev':    {'apt':'libmysqlclient-dev', 'yum':'mysql-devel'},
-	'libkrb5-dev':           {'apt':'libkrb5-dev',        'yum':'krb5-devel'},
-	'libffi-dev':            {'apt':'libffi-dev',         'yum':'libffi-devel'},
-	'libffi-devel':          {'apt':'libffi-dev',         'yum':'libffi-devel'},
-	'libsasl2-dev':          {'apt':'libsasl2-dev',       'yum':''},
-	'libssl-dev':            {'apt':'libssl-dev',         'yum':'openssl-devel'},
-	'kvm':                   {'apt':'qemu-kvm',           'yum':'kvm'},
-	'libvirt':               {'apt':'libvirt-bin',        'yum':'libvirt'},
-	'libvirt-dev':           {'apt':'libvirt-dev',        'yum':'libvirt-devel'},
-	'libvirt-devel':         {'apt':'libvirt-dev',        'yum':'libvirt-devel'},
-	'docker':                {'apt':'docker.io',          'yum':'docker'},
-	'asciinema':             {'apt':'asciinema',          'yum':'epel-release asciinema'},
-	'run-one':               {'yum':''},
+	'apache2':               {                            'yum':'httpd'},
+	'httpd':                 {'apt':'apache2'},
+	'adduser':               {'apt':'adduser',            'yum':''},
+	'php5':                  {                            'yum':'php'},
+	'ruby-dev':              {                            'yum':'ruby-devel',       'brew':'ruby-build'},
+	'git':                   {                                                                                        'emerge':'dev-vcs/git'},
+	'vagrant':               {                                                      'brew':'Caskroom/cask/vagrant'},
+	'virtualbox':            {                                                      'brew':'Caskroom/cask/virtualbox'},
+	'build-essential':       {                            'yum':'gcc make gcc-c++', 'brew':'gcc'},
+	'sudo':                  {                                                      'brew':''},
+	'netcat':                {                            'yum':'nc'},
+	'nc':                    {'apt':'netcat'},
+	'python-dev':            {                            'yum':'python-devel'},
+	'python-devel':          {'apt':'python-dev'},
+	'mysql-devel':           {'apt':'libmysqlclient-dev'},
+	'libmysqlclient-dev':    {                            'yum':'mysql-devel'},
+	'libkrb5-dev':           {                            'yum':'krb5-devel'},
+	'libffi-dev':            {                            'yum':'libffi-devel'},
+	'libffi-devel':          {'apt':'libffi-dev'},
+	'libsasl2-dev':          {                            'yum':''},
+	'libssl-dev':            {                            'yum':'openssl-devel'},
+	'kvm':                   {'apt':'qemu-kvm'},
+	'libvirt':               {'apt':'libvirt-bin'},
+	'libvirt-dev':           {                            'yum':'libvirt-devel'},
+	'libvirt-devel':         {'apt':'libvirt-dev'},
+	'docker':                {'apt':'docker.io'},
+	'asciinema':             {                            'yum':'epel-release asciinema'},
+	'run-one':               {                            'yum':''},
+	'python-pip':            {                            'yum': install_centos_pip},
+	'piptest':               {'apt':'python-pip',         'yum': install_centos_pip},
+    'lsb-release':           {                            'yum': 'redhat-lsb-core'},
 }
 
 

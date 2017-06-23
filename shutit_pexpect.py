@@ -1360,8 +1360,6 @@ class ShutItPexpectSession(object):
 		package = package_map.map_packages(package, self.current_environment.install_type)
 		# Let's be tolerant of failure eg due to network.
 		# This is especially helpful with automated exam.
-		# Also can help when packages are interdependent, eg 'epel-release asciinema',
-		# which requires that epel-release is fully installed before asciinema can be.
 		if package.strip() != '':
 			fails = 0
 			while True:
@@ -1740,7 +1738,7 @@ class ShutItPexpectSession(object):
 					                                  echo=False,
 					                                  loglevel=loglevel)
 					if re.match('^centos.*$', output.lower()) or re.match('^red hat.*$', output.lower()) or re.match('^fedora.*$', output.lower()) or True:
-						self.send_and_match_output('yum install -y -t redhat-lsb epel-release',
+						self.send_and_match_output('yum install -y -t redhat-lsb',
 						                           'Complete!',
 						                           loglevel=loglevel)
 				else:
@@ -1887,7 +1885,7 @@ class ShutItPexpectSession(object):
 					                                  echo=False,
 					                                  loglevel=loglevel)
 					if re.match('^centos.*$', output.lower()) or re.match('^red hat.*$', output.lower()) or re.match('^fedora.*$', output.lower()) or True:
-						self.send_and_match_output('yum install -y -t redhat-lsb epel-release',
+						self.send_and_match_output('yum install -y -t redhat-lsb',
 						                           'Complete!',
 						                           loglevel=loglevel)
 				else:
