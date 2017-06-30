@@ -304,7 +304,8 @@ class ShutItPexpectSession(object):
 			# If user@ already there, remove it, as it can conflict with password lines in ssh calls.
 			if user+'@' in general_expect:
 				general_expect.remove(user+'@')
-			general_expect.append('.*[#$]')
+			# Adding the space to avoid commands which embed eg $(whoami) or ${var}
+			general_expect.append('.*[#$] ')
 			send_dict={'ontinue connecting':['yes',False], 'assword:':[sendspec.password,True], r'[^t] login:':[sendspec.password,True]}
 		else:
 			send_dict={'ontinue connecting':['yes',False], 'assword:':[sendspec.password,True], r'[^t] login:':[sendspec.password,True], user+'@':[sendspec.password,True]}
