@@ -59,6 +59,7 @@ class ShutItGlobal(object):
 		self.logfile          = None
 		self.loglevel         = None
 		self.signal_id        = None
+		self.window_size_max  = 65535
 		self.username         = os.environ.get('LOGNAME', '')
 		# It's important that this has '.*' at the start, so the matched data is reliably 'after' in the
 		# child object. Use these where possible to make things more consistent.
@@ -95,7 +96,7 @@ class ShutItGlobal(object):
 			# If no terminal exists, set to default.
 			self.root_window_size = (24,80)
 		# Just override to the max possible
-		self.pexpect_window_size = (65535,65535)
+		self.pexpect_window_size = (self.window_size_max,self.window_size_max)
 
 		# There is a problem with lines roughly around this length + the length of the prompt (?3k?)
 		self.line_limit          = 3000
