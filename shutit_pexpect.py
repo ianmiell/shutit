@@ -440,14 +440,22 @@ class ShutItPexpectSession(object):
 		# Split the local prompt into two parts and separate with quotes to protect against the expect matching the command rather than the output.
 		shutit_global.shutit_global_object.log('Setting up prompt.', level=logging.DEBUG)
 		self.send(ShutItSendSpec(self,
-		                         send=""" export SHUTIT_BACKUP_PS1_""" + prompt_name + """=$PS1 && PS1='""" + local_prompt[:2] + "''" + local_prompt[2:] + """' && unset PROMPT_COMMAND""",
+		                         send=""" export PS1_""" + prompt_name + """=$PS1 && PS1='""" + local_prompt[:2] + "''" + local_prompt[2:] + """' && unset PROMPT_COMMAND""",
 		                         expect=['\r\n' + shutit.expect_prompts[prompt_name]],
 		                         fail_on_empty_before=False,
 		                         echo=False,
 		                         loglevel=loglevel,
 		                         ignore_background=True))
+		# Set default expect to new.
 		shutit_global.shutit_global_object.log('Resetting default expect to: ' + shutit.expect_prompts[prompt_name],level=loglevel)
 		self.default_expect = shutit.expect_prompts[prompt_name]
+
+		# Sometimes stty resets to 0x0 (?), so we must override here.
+		self.send(ShutItSendSpec(self, send="stty cols 65535", echo=False, check_exit=False, loglevel=loglevel, ignore_background=True))
+		self.send(ShutItSendSpec(self, send="stty rows 65535", echo=False, check_exit=False, loglevel=loglevel, ignore_background=True))
+		# Avoid dumb terminals
+		self.send(ShutItSendSpec(self, send=""" if [ $TERM=dumb ];then export TERM=xterm;fi""", echo=False, check_exit=False, loglevel=loglevel, ignore_background=True))
+
 		hostname = shutit.send_and_get_output("""if [ $(echo $SHELL) == '/bin/bash' ]; then echo $HOSTNAME; elif [ $(command hostname 2> /dev/null) != '' ]; then hostname -s; fi""", echo=False)
 		local_prompt_with_hostname = hostname + ':' + local_prompt
 		shutit.expect_prompts[prompt_name] = local_prompt_with_hostname
@@ -466,8 +474,6 @@ class ShutItPexpectSession(object):
 		                         echo=False,
 		                         loglevel=loglevel,
 		                         ignore_background=True))
-		# Avoid dumb terminals
-		self.send(ShutItSendSpec(self, send=""" if [ ${TERM} = 'dumb' ]; then export TERM=xterm; fi""", echo=False, loglevel=loglevel, ignore_background=True))
 
 		# Ensure environment is set up OK.
 		_ = self.init_pexpect_session_environment(prefix)
@@ -490,7 +496,7 @@ class ShutItPexpectSession(object):
 		expect = new_expect or self.default_expect
 		#           v the space is intentional, to avoid polluting bash history.
 		self.send(ShutItSendSpec(self,
-		                         send=(' PS1="${SHUTIT_BACKUP_PS1_%s}" && unset SHUTIT_BACKUP_PS1_%s') % (old_prompt_name, old_prompt_name),
+		                         send=(' PS1="${PS1_%s}" && unset PS1_%s') % (old_prompt_name, old_prompt_name),
 		                         expect=expect,
 		                         check_exit=False,
 		                         fail_on_empty_before=False,
