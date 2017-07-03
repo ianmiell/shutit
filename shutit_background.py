@@ -30,8 +30,9 @@ class ShutItBackgroundCommand(object):
 		self.id                     = shutit_util.random_id()
 		self.output_file            = '/tmp/shutit_background_' + self.id + '_output.log'
 		self.exit_code_file         = '/tmp/shutit_background_' + self.id + '_exit_code_file.log'
+		self.command_file           = '/tmp/shutit_background_' + self.id + '_command.log'
 		if self.sendspec.run_in_background:
-			self.sendspec.send          = ' set +m && { : echo ' + self.sendspec.original_send + ' >' + self.exit_code_file + ' && $(command cd ' + self.cwd + '>' + self.output_file + ' && ' + self.sendspec.send + ' >>' + self.output_file + ' 2>&1; echo $? >>' + self.exit_code_file + ') & } 2>/dev/null'
+			self.sendspec.send          = ' set +m && { : echo ' + self.sendspec.original_send + ' >' + self.command_file + ' && $(command cd ' + self.cwd + '>' + self.output_file + ' && ' + self.sendspec.send + ' >>' + self.output_file + ' 2>&1; echo $? >>' + self.exit_code_file + ') & } 2>/dev/null'
 
 
 	def __str__(self):
