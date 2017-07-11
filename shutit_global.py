@@ -119,9 +119,11 @@ class ShutItGlobal(object):
 		assert isinstance(session_type, str)
 		new_shutit = ShutIt(standalone=True)
 		self.add_shutit_session(new_shutit)
+		loglevel='DEBUG'
 		if session_type == 'bash':
 			new_shutit.process_args(ShutItInit('build',
-			                                   delivery='bash'))
+			                                   delivery='bash',
+			                                   log=loglevel))
 			# TODO: can we get rid of/rationalise load_configs?
 			new_shutit.load_configs()
 			new_shutit.setup_host_child_environment()

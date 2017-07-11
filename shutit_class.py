@@ -4393,7 +4393,7 @@ class ShutIt(object):
 
 	# Pass through to global object
 	def create_session(self, session_type='bash', docker_image=None, rm=None):
-		self=self
+		self = self # For linters: we want this to be available to shutit object users
 		return shutit_global.shutit_global_object.create_session(session_type=session_type, docker_image=docker_image, rm=rm)
 
 
