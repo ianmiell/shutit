@@ -456,6 +456,7 @@ class ShutItPexpectSession(object):
 		# Avoid dumb terminals
 		self.send(ShutItSendSpec(self, send=""" if [ $TERM=dumb ];then export TERM=xterm;fi""", echo=False, check_exit=False, loglevel=loglevel, ignore_background=True))
 
+		# Get the hostname
 		hostname = shutit.send_and_get_output("""if [ $(echo $SHELL) == '/bin/bash' ]; then echo $HOSTNAME; elif [ $(command hostname 2> /dev/null) != '' ]; then hostname -s; fi""", echo=False)
 		local_prompt_with_hostname = hostname + ':' + local_prompt
 		shutit.expect_prompts[prompt_name] = local_prompt_with_hostname
