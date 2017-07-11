@@ -115,11 +115,11 @@ class ShutItGlobal(object):
 	def create_session(self,
 	                   session_type='bash',
 	                   docker_image=None,
-	                   rm=None):
+	                   rm=None,
+	                   loglevel='WARNING'):
 		assert isinstance(session_type, str)
 		new_shutit = ShutIt(standalone=True)
 		self.add_shutit_session(new_shutit)
-		loglevel='DEBUG'
 		if session_type == 'bash':
 			new_shutit.process_args(ShutItInit('build',
 			                                   delivery='bash',
@@ -131,7 +131,8 @@ class ShutItGlobal(object):
 		elif session_type == 'docker':
 			new_shutit.process_args(ShutItInit('build',
 			                                   delivery='docker',
-			                                   base_image=docker_image))
+			                                   base_image=docker_image,
+			                                   log=loglevel))
 			new_shutit.target['rm'] = rm
 			# TODO: can we get rid of/rationalise load_configs?
 			new_shutit.load_configs()
