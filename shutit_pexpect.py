@@ -239,6 +239,7 @@ class ShutItPexpectSession(object):
 		while True:
 			# go through each background child checking whether they've finished
 			res, res_str, background_object = self.login_stack.get_current_login_item().check_background_commands_complete()
+			shutit_global.shutit_global_object.log('Checking: ' + str(background_object) + '\nres: ' + str(res) '\nres_str' + str(res_str),level=logging.DEBUG)
 			if res:
 				# When all have completed, break return the background command objects.
 				break

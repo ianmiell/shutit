@@ -114,12 +114,14 @@ class ShutItLoginStackItem(object):
 				self.background_objects_completed.append(background_object)
 			elif state == 'S':
 				# Running command exists
+				shutit_global.shutit_global_object.log('check_background_command_state returning False (S) for ' + str(background_object),level=logging.DEBUG)
 				return False, 'S', background_object
 			elif state == 'N':
 				unstarted_command_exists = True
 			else:
 				assert False, 'Un-handled: ' + state
 			if state == 'F':
+				shutit_global.shutit_global_object.log('check_background_command_state returning False (F) for ' + str(background_object),level=logging.DEBUG)
 				return False, 'F', background_object
 		shutit_global.shutit_global_object.log('Checking background objects done.',level=logging.DEBUG)
 		if unstarted_command_exists:
@@ -128,8 +130,10 @@ class ShutItLoginStackItem(object):
 				state = background_object.check_background_command_state()
 				if state == 'N':
 					background_object.run_background_command()
+					shutit_global.shutit_global_object.log('check_background_command_state returning False (N) for ' + str(background_object),level=logging.DEBUG)
 					return False, 'N', background_object
 		# Nothing left to do - return True.
+		shutit_global.shutit_global_object.log('check_background_command_state returning True (N) for ' + str(background_object),level=logging.DEBUG)
 		return True, 'OK', None
 
 
