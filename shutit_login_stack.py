@@ -133,7 +133,7 @@ class ShutItLoginStackItem(object):
 					shutit_global.shutit_global_object.log('check_background_command_state returning False (N) for ' + str(background_object),level=logging.DEBUG)
 					return False, 'N', background_object
 		# Nothing left to do - return True.
-		shutit_global.shutit_global_object.log('check_background_command_state returning True (N) for ' + str(background_object),level=logging.DEBUG)
+		shutit_global.shutit_global_object.log('check_background_command_state returning True (OK)',level=logging.DEBUG)
 		return True, 'OK', None
 
 
