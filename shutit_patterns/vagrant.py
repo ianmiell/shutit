@@ -120,8 +120,8 @@ def setup_vagrant_pattern(shutit,
 	if ssh_access:
 		copy_keys_code = '''
 		for machine in sorted(machines.keys()):
-			shutit.login(command='vagrant ssh ' + machine)
-			shutit.login(command='sudo su -',password='vagrant')
+			shutit.login(command='vagrant ssh ' + machine,check_sudo=False)
+			shutit.login(command='sudo su -',password='vagrant',check_sudo=False)
 			root_password = 'root'
 			shutit.install('net-tools') # netstat needed
 			if not shutit.command_available('host'):
@@ -134,8 +134,8 @@ def setup_vagrant_pattern(shutit,
 			shutit.logout()
 			shutit.logout()
 		for machine in sorted(machines.keys()):
-			shutit.login(command='vagrant ssh ' + machine)
-			shutit.login(command='sudo su -',password='vagrant')
+			shutit.login(command='vagrant ssh ' + machine,check_sudo=False)
+			shutit.login(command='sudo su -',password='vagrant',check_sudo=False)
 			for copy_to_machine in machines:
 				for item in ('fqdn','ip'):
 					shutit.multisend('ssh-copy-id root@' + machines[copy_to_machine][item],{'assword:':root_password,'ontinue conn':'yes'})
@@ -147,8 +147,8 @@ def setup_vagrant_pattern(shutit,
 	if docker:
 		docker_code = '''
 		for machine in sorted(machines.keys()):
-			shutit.login(command='vagrant ssh ' + machine)
-			shutit.login(command='sudo su -',password='vagrant')
+			shutit.login(command='vagrant ssh ' + machine,check_sudo=False)
+			shutit.login(command='sudo su -',password='vagrant',check_sudo=False)
 			# Workaround for docker networking issues + landrush.
 			shutit.install('docker')
 			shutit.insert_text('Environment=GODEBUG=netdns=cgo','/lib/systemd/system/docker.service',pattern='.Service.')
@@ -429,8 +429,8 @@ end''')
 """ + machine_list_code + """
 """ + copy_keys_code + """
 """ + docker_code + """
-		shutit.login(command='vagrant ssh ' + sorted(machines.keys())[0])
-		shutit.login(command='sudo su -',password='vagrant')
+		shutit.login(command='vagrant ssh ' + sorted(machines.keys())[0],check_sudo=False)
+		shutit.login(command='sudo su -',password='vagrant',check_sudo=False)
 		shutit.logout()
 		shutit.logout()
 		shutit.log('''Vagrantfile created in: ''' + shutit.build['this_vagrant_run_dir'],add_final_message=True,level=logging.DEBUG)
