@@ -24,3 +24,4 @@ do
 done
 git commit -am "release: $major.$minor.$newpoint"
 echo Success after $i attempts
+git push
