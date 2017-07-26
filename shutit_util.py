@@ -45,6 +45,9 @@ import shutit_global
 
 PY3 = (sys.version_info[0] >= 3)
 
+if PY3:
+	from builtins import input
+
 
 def is_file_secure(file_name):
 	"""Returns false if file is considered insecure, true if secure.
