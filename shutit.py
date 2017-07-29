@@ -30,10 +30,18 @@ import sys
 import shutit_global
 
 
-def create_session(session_type='bash',loglevel='WARNING'):
+def create_session(session_type='bash',
+                   docker_image=None,
+                   rm=None,
+                   echo=False,
+                   loglevel='WARNING'):
 	assert session_type in ('bash','docker')
 	shutit_global_object = shutit_global.shutit_global_object
-	return shutit_global_object.create_session(session_type,loglevel=loglevel)
+	return shutit_global_object.create_session(session_type,
+	                                           docker_image=docker_image,
+	                                           rm=rm,
+	                                           echo=echo,
+	                                           loglevel=loglevel)
 
 
 def main():
