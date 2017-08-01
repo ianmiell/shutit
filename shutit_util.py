@@ -233,11 +233,6 @@ def util_raw_input(prompt='', default=None, ispass=False, use_readline=True):
 		return default
 	if not shutit_global.shutit_global_object.determine_interactive():
 		return default
-	# See: https//github.com/ianmiell/shutit/issues/299 - python3 made input == python 2's raw_input
-	try:
-		input = raw_input
-	except NameError:
-		pass
 	while True:
 		try:
 			if ispass:
