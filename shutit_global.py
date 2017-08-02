@@ -134,7 +134,6 @@ class ShutItGlobal(object):
 			new_shutit.process_args(ShutItInit('build',
 			                                   delivery='docker',
 			                                   base_image=docker_image,
-			                                   rm=rm,
 			                                   echo=echo,
 			                                   log=loglevel))
 			new_shutit.target['rm'] = rm
