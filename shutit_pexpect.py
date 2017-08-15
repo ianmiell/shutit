@@ -683,6 +683,14 @@ class ShutItPexpectSession(object):
 			                         echo=False,
 			                         record_command=False,
 			                         ignore_background=True))
+
+		# Flush history before we 'exit' the current session.
+		self.send(ShutItSendSpec(self,
+		                         send=' history -a',
+		                         echo=False,
+		                         record_command=False,
+		                         ignore_background=True))
+		
 		if print_input:
 			# Do not resize if we are in video mode (ie wait > 0)
 			if resize and wait < 0:
