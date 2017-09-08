@@ -37,7 +37,7 @@ class ShutItBackgroundCommand(object):
 
 	def __str__(self):
 		string = str(self.sendspec)
-		string += '\n---- Background object ----'
+		string += '\n---- Background object BEGIN ----'
 		string += '\nblock_other_commands: ' + str(self.block_other_commands)
 		string += '\ncwd:                  ' + str(self.cwd)
 		string += '\npid:                  ' + str(self.pid)
@@ -46,7 +46,7 @@ class ShutItBackgroundCommand(object):
 		string += '\nrun_state:            ' + str(self.run_state)
 		string += '\nstart_time:           ' + str(self.start_time)
 		string += '\ntries:                ' + str(self.tries)
-		string += '\n----                   ----'
+		string += '\n----                   END   ----'
 		return string
 
 
@@ -83,6 +83,7 @@ class ShutItBackgroundCommand(object):
 
 
 	def check_background_command_state(self):
+		shutit_global.shutit_global_object.log('CHECKING background task: ' + self.sendspec.send + ', id: ' + self.id)
 		shutit_pexpect_child = self.sendspec.shutit_pexpect_child
 		# Check the command has been started
 		if not self.sendspec.started:
@@ -106,15 +107,17 @@ class ShutItBackgroundCommand(object):
             #   U       Marks a process in uninterruptible wait.
             #   Z       Marks a dead process (a ``zombie'').
 			if self.run_state in ('I','R','T','U','Z'):
+				shutit_global.shutit_global_object.log('background task run state: ' + self.run_state, level=logging.DEBUG)
 				self.run_state = 'S'
-			# honour sendspec.timeout
 			assert self.run_state in ('S',)
+			# honour sendspec.timeout
 			if self.sendspec.timeout is not None:
 				current_time = time.time()
 				time_taken = current_time - self.start_time
 				if time_taken > self.sendspec.timeout:
 					self.sendspec.shutit_pexpect_child.quick_send(' kill -9 ' + self.pid)
 					self.run_state = 'T'
+			assert self.run_state in ('S','T')
 			return self.run_state
 		else:
 			shutit_global.shutit_global_object.log('background task: ' + self.sendspec.send + ', id: ' + self.id + ' complete')
@@ -136,8 +139,11 @@ class ShutItBackgroundCommand(object):
 				else:
 					shutit_global.shutit_global_object.log('background task final failure: ' + self.sendspec.send + ' failed with exit code: ' + self.return_value, level=logging.DEBUG)
 					self.run_state = 'F'
+				assert self.run_state in ('C','F')
 				return self.run_state
 			else:
 				shutit_global.shutit_global_object.log('background task: ' + self.sendspec.send + ' succeeded with exit code: ' + self.return_value, level=logging.DEBUG)
+			assert self.run_state in ('C',)
 			return self.run_state
+		# Should never get here
 		assert False

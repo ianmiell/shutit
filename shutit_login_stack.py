@@ -56,13 +56,12 @@ class ShutItLoginStack(object):
 
 
 	def __str__(self):
-		string = '\n---- Login stack object ----'
+		string = '\n---- Login stack object BEGIN ----'
 		string += '\nstack: ' + str(self.stack)
 		for item in self.stack:
 			string += '\nlogin_item: ' + str(item)
-		string += '\n----                    ----'
+		string = '\n---- Login stack object END   ----'
 		return string
-
 
 
 class ShutItLoginStackItem(object):
@@ -105,24 +104,37 @@ class ShutItLoginStackItem(object):
 		If none are, return True. If any are, return False.
 		"""
 		unstarted_command_exists  = False
+		shutit_global.shutit_global_object.log('In check_background_commands_complete: all background objects: ' + str(self.background_objects))
+		shutit_global.shutit_global_object.log('Login id: ' + str(self.login_id))
+		for background_object in self.background_objects:
+			shutit_global.shutit_global_object.log('Background object send: ' + str(background_object.sendspec.send),level=logging.DEBUG)
+		background_objects_to_remove = []
+		def remove_background_objects(a_background_objects_to_remove):
+			for background_object in a_background_objects_to_remove:
+				self.background_objects.remove(background_object)
 		for background_object in self.background_objects:
 			shutit_global.shutit_global_object.log('Checking background object: ' + str(background_object),level=logging.DEBUG)
 			state = background_object.check_background_command_state()
 			shutit_global.shutit_global_object.log('State is: ' + state,level=logging.DEBUG)
 			if state in ('C','F','T'):
-				self.background_objects.remove(background_object)
+				background_objects_to_remove.append(background_object)
 				self.background_objects_completed.append(background_object)
 			elif state == 'S':
 				# Running command exists
 				shutit_global.shutit_global_object.log('check_background_command_state returning False (S) for ' + str(background_object),level=logging.DEBUG)
+				remove_background_objects(background_objects_to_remove)
 				return False, 'S', background_object
 			elif state == 'N':
+				shutit_global.shutit_global_object.log('UNSTARTED COMMAND! ' + str(background_object.sendspec.send),level=logging.DEBUG)
 				unstarted_command_exists = True
 			else:
+				remove_background_objects(background_objects_to_remove)
 				assert False, 'Un-handled: ' + state
 			if state == 'F':
 				shutit_global.shutit_global_object.log('check_background_command_state returning False (F) for ' + str(background_object),level=logging.DEBUG)
+				remove_background_objects(background_objects_to_remove)
 				return False, 'F', background_object
+		remove_background_objects(background_objects_to_remove)
 		shutit_global.shutit_global_object.log('Checking background objects done.',level=logging.DEBUG)
 		if unstarted_command_exists:
 			# Start up an unstarted one (in order), and return False

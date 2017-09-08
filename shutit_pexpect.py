@@ -244,7 +244,7 @@ class ShutItPexpectSession(object):
 				# When all have completed, break return the background command objects.
 				break
 			elif res_str in ('S','N'):
-				# Do nothing, this is an unstarted or running task.
+				# Do nothing, this is an started or not-running task.
 				pass
 			elif res_str == 'F':
 				assert background_object is not None
