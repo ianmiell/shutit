@@ -84,7 +84,7 @@ class ShutItBackgroundCommand(object):
 
 	def check_background_command_state(self):
 		shutit_global.shutit_global_object.log('CHECKING background task: ' + self.sendspec.send + ', id: ' + self.id)
-		shutit_pexpect_child = self.sendspec.shutit_pexpect_child
+		assert self.start_time is not None
 		# Check the command has been started
 		if not self.sendspec.started:
 			assert self.run_state == 'N'
@@ -93,13 +93,14 @@ class ShutItBackgroundCommand(object):
 			assert self.sendspec.started
 			return self.run_state
 		assert self.run_state in ('S',), 'State should be in S, is in fact: ' + self.run_state
-		assert self.start_time is not None
-		run_state = shutit_pexpect_child.send_and_get_output(""" command ps -o stat """ + self.pid + """ | command sed '1d' """, ignore_background=True)
+		# Update the run state.
+		updated_run_state = self.sendspec.shutit_pexpect_child.send_and_get_output(""" command ps -o stat """ + self.pid + """ | command sed '1d' """, ignore_background=True)
 		# Ensure we get the first character only, if one exists.
-		if len(run_state) > 0:
-			self.run_state = run_state[0]
-			# TODO: handle these other states more correctly; from ps man page
-     		#state     The state is given by a sequence of characters, for example, ``RWNA''.  The first character indicates the run state of the process:
+		if len(updated_run_state) > 0:
+			# Task is unfinished.
+			self.run_state = updated_run_state[0]
+			updated_run_state = None
+     		# state     The state is given by a sequence of characters, for example, ``RWNA''.  The first character indicates the run state of the process:
             #   I       Marks a process that is idle (sleeping for longer than about 20 seconds).
             #   R       Marks a runnable process.
             #   S       Marks a process that is sleeping for less than about 20 seconds.
@@ -109,24 +110,27 @@ class ShutItBackgroundCommand(object):
 			if self.run_state in ('I','R','T','U','Z'):
 				shutit_global.shutit_global_object.log('background task run state: ' + self.run_state, level=logging.DEBUG)
 				self.run_state = 'S'
-			assert self.run_state in ('S',)
+			assert self.run_state in ('S',), 'State should be in S having gleaned from ps, is in fact: ' + self.run_state
 			# honour sendspec.timeout
 			if self.sendspec.timeout is not None:
 				current_time = time.time()
 				time_taken = current_time - self.start_time
 				if time_taken > self.sendspec.timeout:
+					# We've timed out, kill with prejudice.
 					self.sendspec.shutit_pexpect_child.quick_send(' kill -9 ' + self.pid)
 					self.run_state = 'T'
 			assert self.run_state in ('S','T')
 			return self.run_state
 		else:
-			shutit_global.shutit_global_object.log('background task: ' + self.sendspec.send + ', id: ' + self.id + ' complete')
+			# Task is finished.
 			self.run_state = 'C'
+			shutit_global.shutit_global_object.log('background task: ' + self.sendspec.send + ', id: ' + self.id + ' complete')
 			# Stop this from blocking other commands from here.
 			assert self.return_value is None, 'check_background_command_state called with self.return_value already set?' + str(self)
-			shutit_pexpect_child.quick_send(' wait ' + self.pid)
-			self.return_value = shutit_pexpect_child.send_and_get_output(' cat ' + self.exit_code_file, ignore_background=True)
-			# TODO: options for return values
+			self.sendspec.shutit_pexpect_child.quick_send(' wait ' + self.pid)
+			# Get the exit code.
+			self.return_value = self.sendspec.shutit_pexpect_child.send_and_get_output(' cat ' + self.exit_code_file, ignore_background=True)
+			# If the return value is deemed a failure:
 			if self.return_value not in self.sendspec.exit_values:
 				shutit_global.shutit_global_object.log('background task: ' + self.sendspec.send + ' failed with exit code: ' + self.return_value, level=logging.DEBUG)
 				shutit_global.shutit_global_object.log('background task: ' + self.sendspec.send + ' failed with output: ' + self.sendspec.shutit_pexpect_child.send_and_get_output(' cat ' + self.output_file, ignore_background=True), level=logging.DEBUG)
@@ -142,8 +146,9 @@ class ShutItBackgroundCommand(object):
 				assert self.run_state in ('C','F')
 				return self.run_state
 			else:
+				# Task succeeded.
 				shutit_global.shutit_global_object.log('background task: ' + self.sendspec.send + ' succeeded with exit code: ' + self.return_value, level=logging.DEBUG)
 			assert self.run_state in ('C',)
 			return self.run_state
-		# Should never get here
+		# Should never get here.
 		assert False
