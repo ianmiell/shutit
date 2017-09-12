@@ -2349,7 +2349,7 @@ class ShutIt(object):
 	# eg sys.stdout or None
 	def divert_output(self, output):
 		for key in self.shutit_pexpect_sessions:
-			self.shutit_pexpect_sessions[key].pexpect_child.logfile_send = output
+			self.shutit_pexpect_sessions[key].pexpect_child.logfile = output
 		return True
 
 

@@ -713,8 +713,8 @@ class ShutItPexpectSession(object):
 					shutit_global.shutit_global_object.log('\r\n' + (shutit_util.colourise(colour, msg)),transient=True,level=logging.critical)
 			else:
 				shutit_global.shutit_global_object.log(shutit_util.colourise(colour, msg) + '\r\n' + default_msg + '\r\n',transient=True,level=logging.CRITICAL)
-			oldlog = self.pexpect_child.logfile_send
-			self.pexpect_child.logfile_send = None
+			oldlog = self.pexpect_child.logfile
+			self.pexpect_child.logfile = None
 			if wait > 0:
 				time.sleep(wait)
 			else:
@@ -740,7 +740,7 @@ class ShutItPexpectSession(object):
 					assert not self.send(ShutItSendSpec(self,
 					                                    send=' exit',
 					                                    ignore_background=True))
-			self.pexpect_child.logfile_send = oldlog
+			self.pexpect_child.logfile = oldlog
 		else:
 			pass
 		shutit.build['ctrlc_stop'] = False
