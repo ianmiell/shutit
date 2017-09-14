@@ -83,7 +83,7 @@ class ShutItBackgroundCommand(object):
 
 
 	def check_background_command_state(self):
-		shutit_global.shutit_global_object.log('CHECKING background task: ' + self.sendspec.send + ', id: ' + self.id)
+		shutit_global.shutit_global_object.log('CHECKING background task: ' + self.sendspec.send + ', id: ' + self.id,level=logging.DEBUG)
 		assert self.start_time is not None
 		# Check the command has been started
 		if not self.sendspec.started:
@@ -124,7 +124,7 @@ class ShutItBackgroundCommand(object):
 		else:
 			# Task is finished.
 			self.run_state = 'C'
-			shutit_global.shutit_global_object.log('background task: ' + self.sendspec.send + ', id: ' + self.id + ' complete')
+			shutit_global.shutit_global_object.log('background task: ' + self.sendspec.send + ', id: ' + self.id + ' complete',level=logging.DEBUG)
 			# Stop this from blocking other commands from here.
 			assert self.return_value is None, 'check_background_command_state called with self.return_value already set?' + str(self)
 			self.sendspec.shutit_pexpect_child.quick_send(' wait ' + self.pid)
