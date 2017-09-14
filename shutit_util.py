@@ -273,7 +273,7 @@ def get_input(msg, default='', valid=None, boolean=False, ispass=False, colour='
 		return default
 	if valid is not None:
 		while answer not in valid:
-			shutit_global.shutit_global_object.log('Answer must be one of: ' + str(valid),transient=True)
+			shutit_global.shutit_global_object.log('Answer must be one of: ' + str(valid),transient=True,level=logging.INFO)
 			answer = util_raw_input(prompt=colourise(colour,msg),ispass=ispass)
 	if boolean:
 		if answer.lower() in ('yes','y','1','true','t'):

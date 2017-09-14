@@ -801,7 +801,7 @@ class ShutItPexpectSession(object):
 			pass
 		else: # pragma: no cover
 			# Change to log?
-			shutit_global.shutit_global_object.log(repr('before>>>>:%s<<<< after:>>>>%s<<<<' % (self.pexpect_child.before, self.pexpect_child.after)),transient=True)
+			shutit_global.shutit_global_object.log(repr('before>>>>:%s<<<< after:>>>>%s<<<<' % (self.pexpect_child.before, self.pexpect_child.after)),transient=True,level=logging.INFO)
 			shutit.fail('Did not see FIL(N)?EXIST in output:\n' + output)
 		shutit.handle_note_after(note=note)
 		return ret
@@ -3031,9 +3031,9 @@ $'"""
 			help_text = shutit_util.colourise('32','''\nType 'help' or 'h' to get a hint, 'exit' to skip, 'shutitreset' to reset state.''')
 			ok = False
 			while not ok:
-				shutit_global.shutit_global_object.log(shutit_util.colourise('32','''\nChallenge!'''),transient=True)
+				shutit_global.shutit_global_object.log(shutit_util.colourise('32','''\nChallenge!'''),transient=True,level=logging.INFO)
 				if hints is not None and len(hints):
-					shutit_global.shutit_global_object.log(shutit_util.colourise('32',help_text),transient=True)
+					shutit_global.shutit_global_object.log(shutit_util.colourise('32',help_text),transient=True,level=logging.INFO)
 				time.sleep(pause)
 				# TODO: bash path completion
 				send = shutit_util.get_input(task_desc + ' => ',colour='31')
@@ -3297,7 +3297,7 @@ $'"""
 			return
 		if whoiam != 'root':
 			if ignore_brew and self.current_environment.install_type == 'brew':
-				shutit_global.shutit_global_object.log('brew installation environment, and ignor_brew set, returning',logging.DEBUG)
+				shutit_global.shutit_global_object.log('brew installation environment, and ignor_brew set, returning',logging.DEBUG,level=logging.INFO)
 			else:
 				if not self.command_available('sudo'):
 					shutit.pause_point('Please install sudo and then continue with CTRL-]',shutit_pexpect_child=self.pexpect_child)
@@ -3349,7 +3349,7 @@ $'"""
 		if result == 'ok' or result == 'failed_test' or result == 'skipped':
 			shutit.build['ctrlc_passthrough'] = False
 			if congratulations and result == 'ok':
-				shutit_global.shutit_global_object.log('\n\n' + shutit_util.colourise('32',congratulations) + '\n',transient=True)
+				shutit_global.shutit_global_object.log('\n\n' + shutit_util.colourise('32',congratulations) + '\n',transient=True,level=logging.INFO)
 			time.sleep(pause)
 			if follow_on_context is not None:
 				if follow_on_context.get('context') == 'docker':
@@ -3361,9 +3361,9 @@ $'"""
 						self.replace_container(container_name,go_home=False)
 						shutit_global.shutit_global_object.log('State restored.',level=logging.INFO)
 					elif final_stage:
-						shutit_global.shutit_global_object.log(shutit_util.colourise('31','Finished! Please wait...'),transient=True)
+						shutit_global.shutit_global_object.log(shutit_util.colourise('31','Finished! Please wait...'),transient=True,level=logging.INFO)
 					else:
-						shutit_global.shutit_global_object.log(shutit_util.colourise('31','Continuing, remember you can restore to a known state with CTRL-g.'),transient=True)
+						shutit_global.shutit_global_object.log(shutit_util.colourise('31','Continuing, remember you can restore to a known state with CTRL-g.'),transient=True,level=logging.INFO)
 				else:
 					shutit.fail('Follow-on context not handled on pass') # pragma: no cover
 			return True

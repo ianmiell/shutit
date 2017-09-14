@@ -1525,8 +1525,8 @@ class ShutIt(object):
 		config_parser = self.config_parser
 		usercfg       = os.path.join(self.host['shutit_path'], 'config')
 
-		shutit_global.shutit_global_object.log(shutit_util.colourise('32', '\nPROMPTING FOR CONFIG: %s' % (cfgstr,)),transient=True)
-		shutit_global.shutit_global_object.log(shutit_util.colourise('32', '\n' + msg + '\n'),transient=True)
+		shutit_global.shutit_global_object.log(shutit_util.colourise('32', '\nPROMPTING FOR CONFIG: %s' % (cfgstr,)),transient=True,level=logging.INFO)
+		shutit_global.shutit_global_object.log(shutit_util.colourise('32', '\n' + msg + '\n'),transient=True,level=logging.INFO)
 
 		if not shutit_global.shutit_global_object.determine_interactive():
 			self.fail('ShutIt is not in a terminal so cannot prompt for values.', throw_exception=False) # pragma: no cover
@@ -2333,7 +2333,7 @@ class ShutIt(object):
 		assert self.build['asciinema_session'] is True
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
 		output = self.logout(timeout=3000)
-		shutit_global.shutit_global_object.log(output,add_final_message=True)
+		shutit_global.shutit_global_object.log(output,add_final_message=True,level=logging.INFO)
 		self.build['asciinema_session'] = None
 		self.build['asciinema_session_file'] = None
 		return True
@@ -3398,17 +3398,17 @@ class ShutIt(object):
 			if shutit_global.shutit_global_object.interactive > 1:
 				fail_str = 'Files are not secure, mode should be 0600. Running the following commands to correct:\n' + fail_str + '\n'
 				# Actually show this to the user before failing...
-				shutit_global.shutit_global_object.log(fail_str)
-				shutit_global.shutit_global_object.log('Do you want me to run this for you? (input y/n)')
+				shutit_global.shutit_global_object.log(fail_str,level=logging.INFO)
+				shutit_global.shutit_global_object.log('Do you want me to run this for you? (input y/n)',level=logging.INFO)
 				if shutit_global.shutit_global_object.interactive == 0 or shutit_util.util_raw_input(default='y') == 'y':
 					for f in files:
-						shutit_global.shutit_global_object.log('Correcting insecure file permissions on: ' + f)
+						shutit_global.shutit_global_object.log('Correcting insecure file permissions on: ' + f,level=logging.INFO)
 						os.chmod(f,0o600)
 					# recurse
 					return self.get_configs(configs)
 			else:
 				for f in files:
-					shutit_global.shutit_global_object.log('Correcting insecure file permissions on: ' + f)
+					shutit_global.shutit_global_object.log('Correcting insecure file permissions on: ' + f,level=logging.INFO)
 					os.chmod(f,0o600)
 				# recurse
 				return self.get_configs(configs)
@@ -3708,7 +3708,7 @@ class ShutIt(object):
 			else:
 				res = shutit_pexpect_session.expect(expect, timeout=9999)
 				continue
-		shutit_global.shutit_global_object.log('Getting cid')
+		shutit_global.shutit_global_object.log('Getting cid',level=logging.INFO)
 		# Get the cid, to determine whether the container started up ok.
 		# pexpect.spawn does not give us an easy way to determine the success of the run without closing the stream.
 		while True:
@@ -3783,37 +3783,37 @@ class ShutIt(object):
 			f = open(fname,'w')
 			f.write(digraph_all)
 			f.close()
-			shutit_global.shutit_global_object.log('\n================================================================================\n' + digraph_all)
-			shutit_global.shutit_global_object.log('\nAbove is the digraph for ALL MODULES SEEN in this ShutIt invocation. Use graphviz to render into an image, eg\n\n\tcat ' + fname + ' | dot -Tpng -o depgraph.png\n')
-			shutit_global.shutit_global_object.log('\n================================================================================\n')
+			shutit_global.shutit_global_object.log('\n================================================================================\n' + digraph_all,level=logging.INFO)
+			shutit_global.shutit_global_object.log('\nAbove is the digraph for ALL MODULES SEEN in this ShutIt invocation. Use graphviz to render into an image, eg\n\n\tcat ' + fname + ' | dot -Tpng -o depgraph.png\n',level=logging.INFO)
+			shutit_global.shutit_global_object.log('\n================================================================================\n',level=logging.INFO)
 			fname = self.build['log_config_path'] + '/digraph_this.txt'
 			f = open(fname,'w')
 			f.write(digraph_all)
 			f.close()
-			shutit_global.shutit_global_object.log('\n\n' + digraph)
-			shutit_global.shutit_global_object.log('\n================================================================================\n' + digraph)
-			shutit_global.shutit_global_object.log('\nAbove is the digraph for all modules configured to be built IN THIS ShutIt invocation. Use graphviz to render into an image, eg\n\ncat ' + fname + ' | dot -Tpng -o depgraph.png\n')
-			shutit_global.shutit_global_object.log('\n================================================================================\n')
+			shutit_global.shutit_global_object.log('\n\n' + digraph,level=logging.INFO)
+			shutit_global.shutit_global_object.log('\n================================================================================\n' + digraph,level=logging.INFO)
+			shutit_global.shutit_global_object.log('\nAbove is the digraph for all modules configured to be built IN THIS ShutIt invocation. Use graphviz to render into an image, eg\n\ncat ' + fname + ' | dot -Tpng -o depgraph.png\n',level=logging.INFO)
+			shutit_global.shutit_global_object.log('\n================================================================================\n',level=logging.INFO)
 			# Exit now
 			shutit_global.shutit_global_object.handle_exit()
 		# Dependency validation done, now collect configs of those marked for build.
 		self.config_collection_for_built()
 		if self.action['list_configs'] or shutit_global.shutit_global_object.loglevel <= logging.DEBUG:
-			shutit_global.shutit_global_object.log(self.print_config(self.cfg, history=self.list_configs['cfghistory']))
+			shutit_global.shutit_global_object.log(self.print_config(self.cfg, history=self.list_configs['cfghistory']),level=logging.INFO)
 			# Set build completed
 			self.build['completed'] = True
 			f = open(self.build['log_config_path'] + '/cfg.txt','w')
 			f.write(self.print_config(self.cfg, history=self.list_configs['cfghistory']))
 			f.close()
-			shutit_global.shutit_global_object.log('================================================================================')
-			shutit_global.shutit_global_object.log('Config details placed in: ' + self.build['log_config_path'])
-			shutit_global.shutit_global_object.log('================================================================================')
-			shutit_global.shutit_global_object.log('To render the digraph of this build into an image run eg:\n\ndot -Tgv -o ' + self.build['log_config_path'] + '/digraph.gv ' + self.build['log_config_path'] + '/digraph.txt && dot -Tpdf -o digraph.pdf ' + self.build['log_config_path'] + '/digraph.gv\n\n')
-			shutit_global.shutit_global_object.log('================================================================================')
-			shutit_global.shutit_global_object.log('To render the digraph of all visible modules into an image, run eg:\n\ndot -Tgv -o ' + self.build['log_config_path'] + '/digraph_all.gv ' + self.build['log_config_path'] + '/digraph_all.txt && dot -Tpdf -o digraph_all.pdf ' + self.build['log_config_path'] + '/digraph_all.gv\n\n')
-			shutit_global.shutit_global_object.log('================================================================================')
-			shutit_global.shutit_global_object.log('\nConfiguration details have been written to the folder: ' + self.build['log_config_path'] + '\n')
-			shutit_global.shutit_global_object.log('================================================================================')
+			shutit_global.shutit_global_object.log('================================================================================',level=logging.INFO)
+			shutit_global.shutit_global_object.log('Config details placed in: ' + self.build['log_config_path'],level=logging.INFO)
+			shutit_global.shutit_global_object.log('================================================================================',level=logging.INFO)
+			shutit_global.shutit_global_object.log('To render the digraph of this build into an image run eg:\n\ndot -Tgv -o ' + self.build['log_config_path'] + '/digraph.gv ' + self.build['log_config_path'] + '/digraph.txt && dot -Tpdf -o digraph.pdf ' + self.build['log_config_path'] + '/digraph.gv\n\n',level=logging.INFO)
+			shutit_global.shutit_global_object.log('================================================================================',level=logging.INFO)
+			shutit_global.shutit_global_object.log('To render the digraph of all visible modules into an image, run eg:\n\ndot -Tgv -o ' + self.build['log_config_path'] + '/digraph_all.gv ' + self.build['log_config_path'] + '/digraph_all.txt && dot -Tpdf -o digraph_all.pdf ' + self.build['log_config_path'] + '/digraph_all.gv\n\n',level=logging.INFO)
+			shutit_global.shutit_global_object.log('================================================================================',level=logging.INFO)
+			shutit_global.shutit_global_object.log('\nConfiguration details have been written to the folder: ' + self.build['log_config_path'] + '\n',level=logging.INFO)
+			shutit_global.shutit_global_object.log('================================================================================',level=logging.INFO)
 		if self.action['list_configs'] or self.action['list_deps']:
 			shutit_global.shutit_global_object.handle_exit(exit_code=0)
 

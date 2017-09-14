@@ -54,6 +54,7 @@ from smtplib import SMTP, SMTP_SSL, SMTPSenderRefused
 import os
 import gzip
 import shutit_global
+import logging
 
 class Emailer():
 	""" Emailer class definition
@@ -203,7 +204,7 @@ class Emailer():
 		   Should not be used externally
 		"""
 		if not self.config['shutit.core.alerting.emailer.send_mail']:
-			shutit_global.shutit_global_object.log('emailer.send: Not configured to send mail!')
+			shutit_global.shutit_global_object.log('emailer.send: Not configured to send mail!',level=logging.INFO)
 			return True
 		msg = self.__compose()
 		mailto = [self.config['shutit.core.alerting.emailer.mailto']]
@@ -213,21 +214,21 @@ class Emailer():
 		if self.config['shutit.core.alerting.emailer.mailto_maintainer']:
 			mailto.append(self.config['shutit.core.alerting.emailer.maintainer'])
 		try:
-			shutit_global.shutit_global_object.log('Attempting to send email')
+			shutit_global.shutit_global_object.log('Attempting to send email',level=logging.INFO)
 			smtp.sendmail(self.config['shutit.core.alerting.emailer.mailfrom'], mailto, msg.as_string())
 		except SMTPSenderRefused as refused:
 			code = refused.args[0]
 			if code == 552 and not attachment_failure:
-				shutit_global.shutit_global_object.log("Mailserver rejected message due to " + "oversize attachments, attempting to resend without")
+				shutit_global.shutit_global_object.log("Mailserver rejected message due to " + "oversize attachments, attempting to resend without",level=logging.INFO)
 				self.attaches = []
 				self.lines.append("Oversized attachments not sent")
 				self.send(attachment_failure=True)
 			else:
-				shutit_global.shutit_global_object.log("Unhandled SMTP error:" + str(refused))
+				shutit_global.shutit_global_object.log("Unhandled SMTP error:" + str(refused),level=logging.INFO)
 				if not self.config['shutit.core.alerting.emailer.safe_mode']:
 					raise refused
 		except Exception as error:
-			shutit_global.shutit_global_object.log('Unhandled exception: ' + str(error))
+			shutit_global.shutit_global_object.log('Unhandled exception: ' + str(error),level=logging.INFO)
 			if not self.config['shutit.core.alerting.emailer.safe_mode']:
 				raise error
 		finally:

@@ -104,8 +104,8 @@ class ShutItLoginStackItem(object):
 		If none are, return True. If any are, return False.
 		"""
 		unstarted_command_exists  = False
-		shutit_global.shutit_global_object.log('In check_background_commands_complete: all background objects: ' + str(self.background_objects))
-		shutit_global.shutit_global_object.log('Login id: ' + str(self.login_id))
+		shutit_global.shutit_global_object.log('In check_background_commands_complete: all background objects: ' + str(self.background_objects),level=logging.DEBUG)
+		shutit_global.shutit_global_object.log('Login id: ' + str(self.login_id),level=logging.DEBUG)
 		for background_object in self.background_objects:
 			shutit_global.shutit_global_object.log('Background object send: ' + str(background_object.sendspec.send),level=logging.DEBUG)
 		background_objects_to_remove = []
