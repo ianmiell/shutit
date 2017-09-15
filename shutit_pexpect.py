@@ -685,8 +685,9 @@ class ShutItPexpectSession(object):
 			                         ignore_background=True))
 
 		# Flush history before we 'exit' the current session.
+		# Place it in the background in case it fails (we don't care if it fails).
 		self.send(ShutItSendSpec(self,
-		                         send=' history -a',
+		                         send=' history -a &',
 		                         echo=False,
 		                         record_command=False,
 		                         ignore_background=True))
