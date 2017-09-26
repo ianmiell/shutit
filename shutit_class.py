@@ -4377,7 +4377,7 @@ class ShutIt(object):
 
 	def get_input(self, msg, default='', valid=None, boolean=False, ispass=False, colour='32'):
 		self = self
-		shutit_util.get_input(msg,
+		return shutit_util.get_input(msg,
 		                      default=default,
 		                      valid=valid,
 		                      boolean=boolean,
