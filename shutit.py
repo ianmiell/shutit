@@ -34,6 +34,7 @@ def create_session(session_type='bash',
                    docker_image=None,
                    rm=None,
                    echo=False,
+                   walkthrough=False,
                    loglevel='WARNING'):
 	assert session_type in ('bash','docker')
 	shutit_global_object = shutit_global.shutit_global_object
@@ -41,6 +42,7 @@ def create_session(session_type='bash',
 	                                           docker_image=docker_image,
 	                                           rm=rm,
 	                                           echo=echo,
+	                                           walkthrough=walkthrough,
 	                                           loglevel=loglevel)
 
 

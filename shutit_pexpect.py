@@ -686,11 +686,12 @@ class ShutItPexpectSession(object):
 
 		# Flush history before we 'exit' the current session.
 		# Place it in the background in case it fails (we don't care if it fails).
-		self.send(ShutItSendSpec(self,
-		                         send=' history -a &',
-		                         echo=False,
-		                         record_command=False,
-		                         ignore_background=True))
+		# THIS CAUSES BUGS IF WE ARE NOT IN A SHELL... COMMENTING OUT
+		#self.send(ShutItSendSpec(self,
+		#                         send=' history -a &',
+		#                         echo=False,
+		#                         record_command=False,
+		#                         ignore_background=True))
 		
 		if print_input:
 			# Do not resize if we are in video mode (ie wait > 0)
