@@ -2500,8 +2500,6 @@ class ShutItPexpectSession(object):
 			                                     check_sudo=sendspec.check_sudo,
 			                                     nonewline=sendspec.nonewline,
 			                                     loglevel=sendspec.loglevel))
-		# Determine whether we are in a shell by comparing the expect we have with the originally-created 'shell_expect'.
-		self.in_shell = sendspec.expect == self.shell_expect
 
 		# Before gathering expect, detect whether this is a sudo command and act accordingly.
 		command_list = sendspec.send.strip().split()
@@ -2646,6 +2644,8 @@ $'"""
 						self.expect(sendspec.expect,
 						            searchwindowsize=sendspec.searchwindowsize,
 						            maxread=sendspec.maxread)
+						# Before returning, determine whether we are now in a shell by comparing the expect we have with the originally-created 'shell_expect'.
+						self.in_shell = sendspec.expect == self.shell_expect
 					return res
 				else:
 					if sendspec.echo:
@@ -2734,6 +2734,8 @@ $'"""
 			shutit.build['ctrlc_stop'] = False
 			self.pause_point('pause point: interrupted by CTRL-c')
 		shutit.handle_note_after(note=sendspec.note, training_input=str(sendspec.send))
+		# Before returning, determine whether we are now in a shell by comparing the expect we have with the originally-created 'shell_expect'.
+		self.in_shell = sendspec.expect == self.shell_expect
 		return expect_res
 	# alias send to send_and_expect
 	send_and_expect = send
