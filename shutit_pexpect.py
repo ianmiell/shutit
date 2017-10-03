@@ -3308,6 +3308,10 @@ $'"""
 			return False
 
 
+	def get_os(self):
+		return self.current_environment.distro
+
+
 	def get_sudo_pass_if_needed(self, shutit, ignore_brew=False):
 		pw = ''
 		whoiam = self.whoami()

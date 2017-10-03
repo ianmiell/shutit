@@ -4403,6 +4403,10 @@ class ShutIt(object):
 		                                                         rm=rm,
 		                                                         loglevel=loglevel)
 
+	def get_os(self):
+		self = self # For linters: we want this to be available to shutit object users
+		return self.current_shutit_pexpect_session.get_os()
+
 
 def check_dependee_order(depender, dependee, dependee_id):
 	"""Checks whether run orders are in the appropriate order.
