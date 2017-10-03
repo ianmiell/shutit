@@ -696,10 +696,11 @@ class ShutItPexpectSession(object):
 		# IF THE DEFAULT PEXPECT == THE CURRENCT EXPECTED, THEN OK, gnuplot in shutit-scripts with walkthrough=True is a good test
 		if self.in_shell:
 			self.send(ShutItSendSpec(self,
-			                         send=' history -a &',
+			                         send=' set +m && { : $(history -a) & } 2> /dev/null',
 			                         echo=False,
 			                         record_command=False,
 			                         ignore_background=True))
+ set +m && { : $(echo "' + self.sendspec.original_send + '" >' + self.command_file + ' && command cd ' + self.cwd + '>' + self.output_file + ' && ' + self.sendspec.send + ' >>' + self.output_file + ' 2>&1; echo $? >' + self.exit_code_file + ') & } 2>/dev/null
 		
 		if print_input:
 			# Do not resize if we are in video mode (ie wait > 0)
