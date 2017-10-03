@@ -302,7 +302,7 @@ class ShutItPexpectSession(object):
 		# In this special case of login we expect either the prompt, or 'user@' as this has been seen to work.
 		general_expect = [login_expect]
 		# Add in a match if we see user+ and then the login matches. Be careful not to match against 'user+@...password:'
-		general_expect = general_expect + [user+'@.*'+'[#$]']
+		general_expect = general_expect + [user+'@.*'+'[#$:]']
 		# If not an ssh login, then we can match against user + @sign because it won't clash with 'user@adasdas password:'
 		if (sendspec.is_ssh != None and sendspec.is_ssh) or command.find('ssh ') != -1:
 			shutit_global.shutit_global_object.log('Assumed to be an ssh command, is_ssh: ' + str(sendspec.is_ssh) + ', command: ' + command,level=logging.DEBUG)
@@ -310,7 +310,7 @@ class ShutItPexpectSession(object):
 			if user+'@' in general_expect:
 				general_expect.remove(user+'@')
 			# Adding the space to avoid commands which embed eg $(whoami) or ${var}
-			general_expect.append('.*[#$] ')
+			general_expect.append('.*[#$:] ')
 			send_dict={'ontinue connecting':['yes',False], 'assword:':[sendspec.password,True], r'[^t] login:':[sendspec.password,True]}
 		else:
 			send_dict={'ontinue connecting':['yes',False], 'assword:':[sendspec.password,True], r'[^t] login:':[sendspec.password,True], user+'@':[sendspec.password,True]}
