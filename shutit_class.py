@@ -2320,11 +2320,11 @@ class ShutIt(object):
 		if title:
 			opts += ' -t "' + str(title) + '"'
 		if version < '1.3':
-			self.login(command='asciinema rec ' + opts, go_home=False)
+			self.login(command='asciinema rec -c "bash --noprofile --norc" ' + opts, go_home=False)
 		elif filename != None:
-			self.login(command='asciinema rec ' + opts + ' ' + max_pause_str + ' ' + filename, go_home=False)
+			self.login(command='asciinema rec -c "bash --noprofile --norc" ' + opts + ' ' + max_pause_str + ' ' + filename, go_home=False)
 		else:
-			self.login(command='asciinema rec ' + opts + ' ' + max_pause_str, go_home=False)
+			self.login(command='asciinema rec -c "bash --noprofile --norc" ' + opts + ' ' + max_pause_str, go_home=False)
 		return True
 
 
