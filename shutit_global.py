@@ -118,6 +118,7 @@ class ShutItGlobal(object):
 	                   rm=None,
 	                   echo=False,
 	                   walkthrough=False,
+	                   walkthrough_wait=-1,
 	                   loglevel='WARNING'):
 		assert isinstance(session_type, str)
 		new_shutit = ShutIt(standalone=True)
@@ -127,6 +128,7 @@ class ShutItGlobal(object):
 			                                   delivery='bash',
 			                                   echo=echo,
 			                                   walkthrough=walkthrough,
+			                                   walkthrough_wait=walkthrough_wait,
 			                                   log=loglevel))
 			# TODO: can we get rid of/rationalise load_configs?
 			new_shutit.load_configs()
@@ -138,6 +140,7 @@ class ShutItGlobal(object):
 			                                   base_image=docker_image,
 			                                   echo=echo,
 			                                   walkthrough=walkthrough,
+			                                   walkthrough_wait=walkthrough_wait,
 			                                   log=loglevel))
 			new_shutit.target['rm'] = rm
 			# TODO: can we get rid of/rationalise load_configs?

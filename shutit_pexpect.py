@@ -96,6 +96,10 @@ class ShutItPexpectSession(object):
 		self.shutit                    = shutit
 		self.check_exit                = True
 		self.default_expect            = [shutit_global.shutit_global_object.base_prompt]
+		# shell_expect stores the expected expect if we are in a shell.
+		self.shell_expect              = self.default_expect
+		# A flag indicating whether we are in a shell.
+		self.in_shell                  = True
 		self.pexpect_session_id        = pexpect_session_id
 		self.login_stack               = ShutItLoginStack()
 		self.current_environment       = None
@@ -462,6 +466,8 @@ class ShutItPexpectSession(object):
 		local_prompt_with_hostname = hostname + ':' + local_prompt
 		shutit.expect_prompts[prompt_name] = local_prompt_with_hostname
 		self.default_expect = shutit.expect_prompts[prompt_name]
+		# Set up a shell expect to check whether we're still in a shell later.
+		self.shell_expect = self.default_expect
 
 		# Split the local prompt into two parts and separate with quotes to protect against the expect matching the command rather than the output.
 		self.send(ShutItSendSpec(self,
@@ -687,11 +693,13 @@ class ShutItPexpectSession(object):
 		# Flush history before we 'exit' the current session.
 		# Place it in the background in case it fails (we don't care if it fails).
 		# THIS CAUSES BUGS IF WE ARE NOT IN A SHELL... COMMENTING OUT
-		#self.send(ShutItSendSpec(self,
-		#                         send=' history -a &',
-		#                         echo=False,
-		#                         record_command=False,
-		#                         ignore_background=True))
+		# IF THE DEFAULT PEXPECT == THE CURRENCT EXPECTED, THEN OK, gnuplot in shutit-scripts with walkthrough=True is a good test
+		if self.in_shell:
+			self.send(ShutItSendSpec(self,
+			                         send=' history -a &',
+			                         echo=False,
+			                         record_command=False,
+			                         ignore_background=True))
 		
 		if print_input:
 			# Do not resize if we are in video mode (ie wait > 0)
@@ -726,11 +734,14 @@ class ShutItPexpectSession(object):
 				# TODO: handle exams better?
 				self.pexpect_child.expect('.*')
 				if not shutit.build['exam'] and shutit_global.shutit_global_object.loglevel not in ('DEBUG',):
-					# Give them a 'normal' shell.
-					assert not self.sendline(ShutItSendSpec(self,
-					                                        send=' bash',
-					                                        ignore_background=True))
-					self.pexpect_child.expect('.*')
+					if self.in_shell:
+						# Give them a 'normal' shell.
+						assert not self.sendline(ShutItSendSpec(self,
+						                                        send=' bash',
+						                                        ignore_background=True))
+						self.pexpect_child.expect('.*')
+					else:
+						shutit_global.shutit_global_object.log('Cannot create subshell, as not in a shell.',level=logging.DEBUG)
 				if interact:
 					self.pexpect_child.interact()
 				try:
@@ -739,9 +750,12 @@ class ShutItPexpectSession(object):
 				except Exception as e:
 					shutit.fail('Terminating ShutIt within pause point.\r\n' + str(e)) # pragma: no cover
 				if not shutit.build['exam'] and shutit_global.shutit_global_object.loglevel not in ('DEBUG',):
-					assert not self.send(ShutItSendSpec(self,
-					                                    send=' exit',
-					                                    ignore_background=True))
+					if self.in_shell:
+						assert not self.send(ShutItSendSpec(self,
+						                                    send=' exit',
+						                                    ignore_background=True))
+					else:
+						shutit_global.shutit_global_object.log('Cannot exit as not in shell',level=logging.DEBUG)
 			self.pexpect_child.logfile = oldlog
 		else:
 			pass
@@ -2486,6 +2500,9 @@ class ShutItPexpectSession(object):
 			                                     check_sudo=sendspec.check_sudo,
 			                                     nonewline=sendspec.nonewline,
 			                                     loglevel=sendspec.loglevel))
+		# Determine whether we are in a shell by comparing the expect we have with the originally-created 'shell_expect'.
+		self.in_shell = sendspec.expect == self.shell_expect
+
 		# Before gathering expect, detect whether this is a sudo command and act accordingly.
 		command_list = sendspec.send.strip().split()
 		# If there is a first command, there is a sudo in there (we ignore

@@ -35,14 +35,18 @@ def create_session(session_type='bash',
                    rm=None,
                    echo=False,
                    walkthrough=False,
+                   video=-1,
                    loglevel='WARNING'):
 	assert session_type in ('bash','docker')
 	shutit_global_object = shutit_global.shutit_global_object
+	if video != -1 and video > 0:
+		walkthrough = True
 	return shutit_global_object.create_session(session_type,
 	                                           docker_image=docker_image,
 	                                           rm=rm,
 	                                           echo=echo,
 	                                           walkthrough=walkthrough,
+	                                           walkthrough_wait=video,
 	                                           loglevel=loglevel)
 
 
