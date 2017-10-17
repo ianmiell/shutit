@@ -2838,7 +2838,10 @@ $'"""
 					else:
 						shutit.fail('type: ' + str(type(contents)) + ' not handled in 2') # pragma: no cover
 			else:
-				b64contents = base64.b64encode(contents)
+				if encoding is not None:
+					b64contents = base64.b64encode(contents.encode(encoding))
+				else:
+					b64contents = base64.b64encode(contents.encode('utf-8'))
 			if len(b64contents) > 100000:
 				shutit_global.shutit_global_object.log('File is larger than ~100K - this may take some time',level=logging.WARNING)
 			self.send(ShutItSendSpec(self,
