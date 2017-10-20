@@ -1883,8 +1883,6 @@ class ShutIt(object):
 		"""Logs user in on default child.
 		"""
 		shutit_pexpect_session = self.get_current_shutit_pexpect_session()
-		#print('class command: ' + str(command))
-		#print('class password: ' + str(password))
 		return shutit_pexpect_session.login(ShutItSendSpec(shutit_pexpect_session,user=user,
 		                                                   send=command,
 		                                                   password=password,
