@@ -2842,14 +2842,18 @@ $'"""
 					b64contents = base64.b64encode(contents.encode(encoding))
 				else:
 					b64contents = base64.b64encode(contents.encode('utf-8'))
-			if len(b64contents) > 100000:
-				shutit_global.shutit_global_object.log('File is larger than ~100K - this may take some time',level=logging.WARNING)
-			self.send(ShutItSendSpec(self,
-			                         send=' ' + shutit.get_command('head') + ' -c -1 > ' + path + "." + random_id + " << 'END_" + random_id + """'\n""" + b64contents + '''\nEND_''' + random_id,
-			                         echo=echo,
-			                         loglevel=loglevel,
-			                         timeout=99999,
-			                         ignore_background=True))
+			# split the contents into chunks and append to avoid PC_MAX_CANON: see https://github.com/pexpect/pexpect/commit/f3ef67b6ba5508d0d118b59837d099f5144e576b
+			total_length = len(b64contents)
+			position = 0
+			leap=1000
+			while position < total_length:
+				self.send(ShutItSendSpec(self,
+				                         send=' ' + shutit.get_command('head') + ' -c -1 >> ' + path + "." + random_id + " << 'END_" + random_id + """'\n""" + b64contents[position:position+leap] + '''\nEND_''' + random_id,
+				                         echo=echo,
+				                         loglevel=loglevel,
+				                         timeout=99999,
+				                         ignore_background=True))
+				position += leap
 			self.send(ShutItSendSpec(self,
 			                         send=' command cat ' + path + '.' + random_id + ' | base64 --decode > ' + path,
 			                         echo=echo,
