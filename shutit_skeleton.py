@@ -110,8 +110,7 @@ def create_skeleton(shutit):
 		                                    skel_vagrant_num_machines=skel_vagrant_num_machines,
 		                                    skel_vagrant_machine_prefix=skel_vagrant_machine_prefix,
 		                                    skel_vagrant_ssh_access=skel_vagrant_ssh_access,
-		                                    skel_vagrant_docker=skel_vagrant_docker,
-		                                    skel_vagrant_snapshot=skel_vagrant_snapshot)
+		                                    skel_vagrant_docker=skel_vagrant_docker)
 	elif shutit.cfg['skeleton']['pattern'] == 'docker_tutorial': # pragma: no cover
 		shutit.fail('docker_tutorial not yet supported')
 
