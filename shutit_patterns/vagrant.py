@@ -115,7 +115,7 @@ def setup_vagrant_pattern(shutit,
 			shutit.multisend('vagrant up --provider ' + shutit.cfg['shutit-library.virtualization.virtualization.virtualization']['virt_method'] + " ''' + machine_name + '''",{'assword for':pw,'assword:':pw},timeout=99999)
 		except NameError:
 			shutit.multisend('vagrant up ''' + machine_name + """'""" + ''',{'assword for':pw,'assword:':pw},timeout=99999)
-		if shutit.send_and_get_output("""vagrant status | grep -w ^''' + machine_name + ''' | awk '{print $2}'""") != 'running':
+		if shutit.send_and_get_output("""vagrant status 2> /dev/null | grep -w ^''' + machine_name + ''' | awk '{print $2}'""") != 'running':
 			shutit.pause_point("machine: ''' + machine_name + ''' appears not to have come up cleanly")
 '''
 
@@ -236,7 +236,7 @@ a=y
 if [[ $FOLDER != '' ]]
 then
 	echo "This is snapshotted - sure you want to continue deleting? (y/n)"
-	echo See folder: ${FOLDER}
+	echo See folder: vagrant_run/${FOLDER}
 	read a
 fi
 if [[ $a != 'y' ]]
