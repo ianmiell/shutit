@@ -3232,15 +3232,16 @@ class ShutIt(object):
 				pattern = default_pattern
 			else:
 				pattern = shutit_util.util_raw_input(prompt='''# Input a ShutIt pattern.
-	Default: ''' + default_pattern + '''
 
-	bash:              a shell script
-	docker:            a docker image build
-	vagrant:           a vagrant setup
-	docker_tutorial:   a docker-based tutorial
-	shutitfile:        a shutitfile-based project (can be docker, bash, vagrant)
+Default: ''' + default_pattern + '''
 
-	''',default=default_pattern)
+bash:              a shell script
+docker:            a docker image build
+vagrant:           a vagrant setup
+docker_tutorial:   a docker-based tutorial
+shutitfile:        a shutitfile-based project (can be docker, bash, vagrant)
+
+''',default=default_pattern)
 
 		# Sort out delivery method.
 		if delivery_method is None:

@@ -208,6 +208,7 @@ vagrant_run''')
 	runsh_filename = skel_path + '/run.sh'
 	runsh_file = open(runsh_filename,'w+')
 	runsh_file.write('''#!/bin/bash
+set -e
 [[ -z "$SHUTIT" ]] && SHUTIT="$1/shutit"
 [[ ! -a "$SHUTIT" ]] || [[ -z "$SHUTIT" ]] && SHUTIT="$(which shutit)"
 if [[ ! -a "$SHUTIT" ]]
@@ -227,7 +228,23 @@ fi''')
 	# destroy_vms.sh
 	destroyvmssh_filename = skel_path + '/destroy_vms.sh'
 	destroyvmssh_file = open(destroyvmssh_filename,'w+')
-	destroyvmssh_file_contents = '''#!/bin/bash
+	destroyvmssh_file_contents = '''#!/bin/bash'''
+	if snapshot:
+		destroyvmssh_file_contents += '''
+FOLDER=$( ls $( cd $( dirname "${BASH_SOURCE[0]}" ) && pwd )/vagrant_run 2> /dev/null)
+a=y
+if [[ $FOLDER != '' ]]
+then
+	echo "This is snapshotted - sure you want to continue deleting? (y/n)"
+	echo See folder: ${FOLDER}
+	read a
+fi
+if [[ $a != 'y' ]]
+then
+	echo Refusing to continue
+	exit 1
+fi'''
+	destroyvmssh_file_contents += '''
 MODULE_NAME=''' + skel_module_name + '''
 rm -rf $( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/vagrant_run/*
 if [[ $(command -v VBoxManage) != '' ]]
