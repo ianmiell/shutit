@@ -177,7 +177,7 @@ def setup_vagrant_pattern(shutit,
 	if snapshot:
 		snapshot_code = '''
 		for machine in sorted(machines.keys()):
-			shutit.send('vagrant snapshot ' + machine,note='Snapshot the vagrant machine')
+			shutit.send('vagrant snapshot save ' + machine,note='Snapshot the vagrant machine')
 			'''
 	else:
 		snapshot_code = ''
