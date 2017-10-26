@@ -47,6 +47,7 @@ def create_skeleton(shutit):
 	skel_vagrant_machine_prefix = shutit.cfg['skeleton']['vagrant_machine_prefix']
 	skel_vagrant_ssh_access     = shutit.cfg['skeleton']['vagrant_ssh_access']
 	skel_vagrant_docker         = shutit.cfg['skeleton']['vagrant_docker']
+	skel_vagrant_snapshot       = shutit.cfg['skeleton']['vagrant_snapshot']
 
 	# Check setup
 	if len(skel_path) == 0 or skel_path[0] != '/':
@@ -97,7 +98,8 @@ def create_skeleton(shutit):
 		                              skel_vagrant_num_machines=skel_vagrant_num_machines,
 		                              skel_vagrant_machine_prefix=skel_vagrant_machine_prefix,
 		                              skel_vagrant_ssh_access=skel_vagrant_ssh_access,
-		                              skel_vagrant_docker=skel_vagrant_docker)
+		                              skel_vagrant_docker=skel_vagrant_docker,
+		                              skel_vagrant_snapshot=skel_vagrant_snapshot)
 	elif shutit.cfg['skeleton']['pattern'] == 'shutitfile':
 		shutitfile.setup_shutitfile_pattern(shutit,
 		                                    skel_path=skel_path,
@@ -108,7 +110,8 @@ def create_skeleton(shutit):
 		                                    skel_vagrant_num_machines=skel_vagrant_num_machines,
 		                                    skel_vagrant_machine_prefix=skel_vagrant_machine_prefix,
 		                                    skel_vagrant_ssh_access=skel_vagrant_ssh_access,
-		                                    skel_vagrant_docker=skel_vagrant_docker)
+		                                    skel_vagrant_docker=skel_vagrant_docker,
+		                                    skel_vagrant_snapshot=skel_vagrant_snapshot)
 	elif shutit.cfg['skeleton']['pattern'] == 'docker_tutorial': # pragma: no cover
 		shutit.fail('docker_tutorial not yet supported')
 

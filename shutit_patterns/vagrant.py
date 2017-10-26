@@ -13,7 +13,8 @@ def setup_vagrant_pattern(shutit,
                           skel_vagrant_num_machines,
                           skel_vagrant_machine_prefix,
                           skel_vagrant_ssh_access,
-                          skel_vagrant_docker):
+                          skel_vagrant_docker,
+                          skel_vagrant_snapshot):
 
 	# TODO: ability to pass in option values, or take defaults
 
@@ -35,6 +36,10 @@ def setup_vagrant_pattern(shutit,
 		options.append({'name':'docker','question':'Do you want Docker on the machine (yes or no)?','value':'no','ok_values':['yes','no']})
 	else:
 		docker = skel_vagrant_docker
+	if skel_vagrant_snapshot is None:
+		options.append({'name':'snapshot','question':'Do you want to snapshot the machine on completion (yes or no)?','value':'no','ok_values':['yes','no']})
+	else:
+		snapshot = skel_vagrant_snapshot
 	if len(options) > 0:
 		while True:
 			count = 1
@@ -79,6 +84,13 @@ def setup_vagrant_pattern(shutit,
 					docker = True
 				else:
 					shutit.fail('Bad value for docker')
+			if opt['name'] == 'snapshot':
+				if opt['value'] == 'no':
+					snapshot = False
+				elif opt['value'] == 'yes':
+					snapshot = True
+				else:
+					shutit.fail('Bad value for snapshot')
 	num_machines = int(num_machines)
 
 	# Set up Vagrantfile data for the later
@@ -161,6 +173,14 @@ def setup_vagrant_pattern(shutit,
 			shutit.logout()'''
 	else:
 		docker_code = ''
+
+	if snapshot:
+		snapshot_code = '''
+		for machine in sorted(machines.keys()):
+			shutit.send('vagrant snapshot ' + machine,note='Snapshot the vagrant machine')
+			'''
+	else:
+		snapshot_code = ''
 
 	get_config_section = '''
 	def get_config(self, shutit):
@@ -302,6 +322,7 @@ end''')
 cd ''' + shutit.build['vagrant_run_dir'] + ''' && vagrant status && vagrant landrush ls
 
 # to get information about your machines' setup.''',add_final_message=True,level=logging.DEBUG)
+""" + snapshot_code + """
 		return True
 
 """ + get_config_section + """
@@ -435,6 +456,7 @@ end''')
 		shutit.logout()
 		shutit.log('''Vagrantfile created in: ''' + shutit.build['this_vagrant_run_dir'],add_final_message=True,level=logging.DEBUG)
 		shutit.log('''Run:\n\n\tcd ''' + shutit.build['this_vagrant_run_dir'] + ''' && vagrant status && vagrant landrush ls\n\nTo get a picture of what has been set up.''',add_final_message=True,level=logging.DEBUG)
+""" + snapshot_code + """
 		return True
 
 """ + get_config_section + """
