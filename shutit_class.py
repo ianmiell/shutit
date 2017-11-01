@@ -2630,11 +2630,11 @@ class ShutIt(object):
 
 	def get_command(self, command):
 		"""Helper function for osx - return gnu utils rather than default for
-		   eg head and md5sum where possible.
+		   eg head and md5sum where possible and needed.
 		"""
-		if command in ('head','md5sum'):
+		if command in ('md5sum','sed','head'):
 			if self.get_current_shutit_pexpect_session_environment().distro == 'osx':
-				return '''PATH="/usr/local/opt/coreutils/libexec/gnubin:$PATH" ''' + command + ' '
+				return 'g' + command + ' '
 			else:
 				return command + ' '
 		return command
