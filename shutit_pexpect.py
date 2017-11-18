@@ -311,13 +311,13 @@ class ShutItPexpectSession(object):
 				general_expect.remove(user+'@')
 			# Adding the space to avoid commands which embed eg $(whoami) or ${var}
 			general_expect.append('.*[#$] ')
-			send_dict={'ontinue connecting':['yes',False], 'assword:':[sendspec.password,True], r'[^t] login:':[sendspec.password,True]}
+			# Don't match 'Last login:' or 'Last failed login:'
+			send_dict={'ontinue connecting':['yes',False], 'assword:':[sendspec.password,True], r'[^dt] login:':[sendspec.password,True]}
 		else:
-			send_dict={'ontinue connecting':['yes',False], 'assword:':[sendspec.password,True], r'[^t] login:':[sendspec.password,True], user+'@':[sendspec.password,True]}
+			send_dict={'ontinue connecting':['yes',False], 'assword:':[sendspec.password,True], r'[^dt] login:':[sendspec.password,True], user+'@':[sendspec.password,True]}
 		if user == 'bash' and command == 'su -':
 			shutit_global.shutit_global_object.log('WARNING! user is bash - if you see problems below, did you mean: login(command="' + user + '")?',level=logging.WARNING)
 		self.shutit.handle_note(sendspec.note,command=command + '\n\n[as user: "' + user + '"]',training_input=send)
-		# r'[^t] login:' - be sure not to match 'last login:'
 		echo = self.shutit.get_echo_override(sendspec.echo)
 		shutit_global.shutit_global_object.log('Logging in to new ShutIt environment.' + user,level=logging.DEBUG)
 		shutit_global.shutit_global_object.log('Logging in with command: ' + send + ' as user: ' + user,level=logging.DEBUG)
