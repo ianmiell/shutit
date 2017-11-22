@@ -66,7 +66,7 @@ class ShutItGlobal(object):
 		# Attempt to capture any starting prompt (when starting) with this regexp.
 		# The '>' is for AIX and explains why we use '2>/dev/null' in some other parts
 		# of the code (ie to avoid matching initialiser commands).
-		self.base_prompt      = '\n.*[@#$>] '
+		self.base_prompt      = '\n.*[@#$] '
 		# Environments are kept globally, as different sessions may re-connect to them.
 		self.shutit_pexpect_session_environments = set()
 		if self.username == '':
