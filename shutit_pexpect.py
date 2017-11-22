@@ -302,7 +302,7 @@ class ShutItPexpectSession(object):
 		# In this special case of login we expect either the prompt, or 'user@' as this has been seen to work.
 		general_expect = [login_expect]
 		# Add in a match if we see user+ and then the login matches. Be careful not to match against 'user+@...password:'
-		general_expect = general_expect + [user+'@.*'+'[#$]']
+		general_expect = general_expect + [user+'@.*'+'[#$>]']
 		# If not an ssh login, then we can match against user + @sign because it won't clash with 'user@adasdas password:'
 		if (sendspec.is_ssh != None and sendspec.is_ssh) or command.find('ssh ') != -1:
 			shutit_global.shutit_global_object.log('Assumed to be an ssh command, is_ssh: ' + str(sendspec.is_ssh) + ', command: ' + command,level=logging.DEBUG)
@@ -310,7 +310,7 @@ class ShutItPexpectSession(object):
 			if user+'@' in general_expect:
 				general_expect.remove(user+'@')
 			# Adding the space to avoid commands which embed eg $(whoami) or ${var}
-			general_expect.append('.*[#$] ')
+			general_expect.append('.*[#$>] ')
 			# Don't match 'Last login:' or 'Last failed login:'
 			send_dict={'ontinue connecting':['yes',False], 'assword:':[sendspec.password,True], r'[^dt] login:':[sendspec.password,True]}
 		else:
@@ -462,7 +462,8 @@ class ShutItPexpectSession(object):
 		self.send(ShutItSendSpec(self, send=""" if [ $TERM=dumb ];then export TERM=xterm;fi""", echo=False, check_exit=False, loglevel=loglevel, ignore_background=True))
 
 		# Get the hostname
-		hostname = shutit.send_and_get_output("""if [ $(echo $SHELL) == '/bin/bash' ]; then echo $HOSTNAME; elif [ $(command hostname 2> /dev/null) != '' ]; then hostname -s; fi""", echo=False)
+		# Lack of space after > is deliberate to avoid issues with prompt matching.
+		hostname = shutit.send_and_get_output("""if [ $(echo $SHELL) == '/bin/bash' ]; then echo $HOSTNAME; elif [ $(command hostname 2>/dev/null) != '' ]; then hostname -s; fi""", echo=False)
 		local_prompt_with_hostname = hostname + ':' + local_prompt
 		shutit.expect_prompts[prompt_name] = local_prompt_with_hostname
 		self.default_expect = shutit.expect_prompts[prompt_name]
@@ -696,7 +697,7 @@ class ShutItPexpectSession(object):
 		# IF THE DEFAULT PEXPECT == THE CURRENCT EXPECTED, THEN OK, gnuplot in shutit-scripts with walkthrough=True is a good test
 		if self.in_shell:
 			self.send(ShutItSendSpec(self,
-			                         send=' set +m && { : $(history -a) & } 2> /dev/null',
+			                         send=' set +m && { : $(history -a) & } 2>/dev/null',
 			                         echo=False,
 			                         record_command=False,
 			                         ignore_background=True))
@@ -1176,7 +1177,7 @@ class ShutItPexpectSession(object):
 		elif self.current_environment.install_type == 'yum':
 			# TODO: check whether it's already installed?. see yum notes  yum list installed "$@" >/dev/null 2>&1
 			self.send(ShutItSendSpec(self,
-			                         send=' yum list installed ' + package + ' > /dev/null 2>&1',
+			                         send=' yum list installed ' + package + ' >/dev/null 2>&1',
 			                         check_exit=False,
 			                         loglevel=loglevel,
 			                         ignore_background=True))
@@ -1192,7 +1193,7 @@ class ShutItPexpectSession(object):
 	                      loglevel=logging.DEBUG):
 		shutit = self.shutit
 		shutit.handle_note(note)
-		output = self.send_and_get_output(' command -V ' + command + ' > /dev/null',
+		output = self.send_and_get_output(' command -V ' + command + ' >/dev/null',
 		                                  echo=False,
 		                                  loglevel=loglevel,
 		                                  check_sudo=False).strip()
