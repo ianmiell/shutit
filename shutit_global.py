@@ -64,7 +64,7 @@ class ShutItGlobal(object):
 		# It's important that this has '.*' at the start, so the matched data is reliably 'after' in the
 		# child object. Use these where possible to make things more consistent.
 		# Attempt to capture any starting prompt (when starting) with this regexp.
-		self.base_prompt      = '\n.*[@#$>] '
+		self.base_prompt      = '\n.*[@#$] '
 		# Environments are kept globally, as different sessions may re-connect to them.
 		self.shutit_pexpect_session_environments = set()
 		if self.username == '':
