@@ -1630,7 +1630,7 @@ class ShutItPexpectSession(object):
 	                        nonewline=False,
 	                        ignore_background=False,
 	                        filter_backspaces=True,
-	                        loglevel=logging.DEBUG):
+	                        loglevel=logging.INFO):
 		"""Returns the output of a command run. send() is called, and exit is not checked.
 
 		@param send:     See send()
@@ -2090,6 +2090,7 @@ class ShutItPexpectSession(object):
 		                             wait until a regexp is seen in the output (default)
 		@param echo:                 See send()
 		@param note:                 See send()
+		@param debug_command:        Command to send if the output was not there.
 		"""
 		shutit = self.shutit
 		shutit.handle_note(note, command=send + ' \nuntil one of these seen:\n' + str(regexps))
