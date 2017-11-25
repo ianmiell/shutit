@@ -89,7 +89,7 @@ class ShutItSendSpec(object):
 			@param remove_on_match:      If the item matches, remove the send_dict from future expects (eg if
                                          it's a password). This makes the 'am I logged in yet?' checking more robust.
 			@param ignore_background:    Whether to block if there are background tasks
-			                             running in this session that are block, or ignore ALL
+			                             running in this session that are blocking, or ignore ALL
 			                             background tasks and run anyway. Default is False.
 			@param run_in_background:    Whether to run in the background
 			@param block_other_commands: Whether to block other commands from running
@@ -98,6 +98,26 @@ class ShutItSendSpec(object):
 			@param wait_cadence:         If blocked and waiting on a background tasks, wait this
 			                             number of seconds before re-checking. Default is 2.
 			@param loglevel:             Log level at which to operate.
+
++------------------+-------------------+----------------------+------------------------------------------+
+|run_in_background | ignore_background | block_other_commands | Outcome                                  |
++------------------+-------------------+----------------------+------------------------------------------+
+|T                 | T                 | T                    | 'Just run and queue others'              |
+|                  |                   |                      | Runs the command in the background,      |
+|                  |                   |                      | ignoring all blocking background tasks   |
+|                  |                   |                      | even if they are blocking, and blocking  |
+|                  |                   |                      | other background tasks (if they don't    |
+|                  |                   |                      | ignore blocking background tasks).       |
++------------------+-------------------+----------------------+------------------------------------------+
+|T                 | F                 | T                    | 'Run if not blocked, and queue others'   |
+|                  |                   |                      | Runs the command in the background,      |
+|                  |                   |                      | but will block if there are blocking     |
+|                  |                   |                      | background tasks running. It will block  |
+|                  |                   |                      | other background tasks (if they don't    |
+|                  |                   |                      | ignore blocking background tasks).       |
++------------------+-------------------+----------------------+------------------------------------------+
+|T                 | F                 | F                    | 'Run if not blocked, and let others run' |
++------------------+-------------------+----------------------+------------------------------------------+
 		"""
 		self.send                    = send
 		self.original_send           = send
