@@ -458,7 +458,6 @@ class ShutItPexpectSession(object):
 		# Sometimes stty resets to 0x0 (?), so we must override here.
 		self.send(ShutItSendSpec(self, send="stty cols 65535", echo=False, check_exit=False, loglevel=loglevel, ignore_background=True))
 		self.send(ShutItSendSpec(self, send="stty rows 65535", echo=False, check_exit=False, loglevel=loglevel, ignore_background=True))
-		self.send(ShutItSendSpec(self, send="(while sleep 1;do tput sc;tput cup 0 $(($(tput cols)-29)); echo 'SHUTIT SESSION';tput rc;done) &", echo=False, check_exit=False, loglevel=loglevel, ignore_background=True))
 		# Avoid dumb terminals
 		self.send(ShutItSendSpec(self, send=""" if [ $TERM=dumb ];then export TERM=xterm;fi""", echo=False, check_exit=False, loglevel=loglevel, ignore_background=True))
 
