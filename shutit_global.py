@@ -258,8 +258,12 @@ class ShutItGlobal(object):
 	def handle_exit(self,exit_code=0,loglevel=logging.DEBUG,msg=None):
 		if not msg:
 			msg = '\nExiting with error code: ' + str(exit_code)
+			msg += '\nInvoking command was: ' + sys.executable
+			for arg in sys.argv:
+				msg += ' ' + arg
 		if exit_code != 0:
 			self.log('Exiting with error code: ' + str(exit_code),level=loglevel)
+			self.log(msg,level=loglevel)
 			self.log('Resetting terminal',level=loglevel)
 		shutit_util.sanitize_terminal()
 		sys.exit(exit_code)
