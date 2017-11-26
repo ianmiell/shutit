@@ -458,12 +458,13 @@ class ShutItPexpectSession(object):
 		# Sometimes stty resets to 0x0 (?), so we must override here.
 		self.send(ShutItSendSpec(self, send="stty cols 65535", echo=False, check_exit=False, loglevel=loglevel, ignore_background=True))
 		self.send(ShutItSendSpec(self, send="stty rows 65535", echo=False, check_exit=False, loglevel=loglevel, ignore_background=True))
+		self.send(ShutItSendSpec(self, send="(while sleep 1;do tput sc;tput cup 0 $(($(tput cols)-29)); echo 'SHUTIT SESSION';tput rc;done) &", echo=False, check_exit=False, loglevel=loglevel, ignore_background=True))
 		# Avoid dumb terminals
 		self.send(ShutItSendSpec(self, send=""" if [ $TERM=dumb ];then export TERM=xterm;fi""", echo=False, check_exit=False, loglevel=loglevel, ignore_background=True))
 
 		# Get the hostname
 		# Lack of space after > is deliberate to avoid issues with prompt matching.
-		hostname = shutit.send_and_get_output("""if [ $(echo $SHELL) == '/bin/bash' ]; then echo $HOSTNAME; elif [ $(command hostname 2>/dev/null) != '' ]; then hostname -s; fi""", echo=False)
+		hostname = shutit.send_and_get_output(""" if [ $(echo $SHELL) == '/bin/bash' ]; then echo $HOSTNAME; elif [ $(command hostname 2>/dev/null) != '' ]; then hostname -s; fi""", echo=False)
 		local_prompt_with_hostname = hostname + ':' + local_prompt
 		shutit.expect_prompts[prompt_name] = local_prompt_with_hostname
 		self.default_expect = shutit.expect_prompts[prompt_name]

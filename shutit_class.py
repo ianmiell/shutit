@@ -1716,7 +1716,7 @@ class ShutIt(object):
 	                        fail_on_empty_before=True,
 	                        nonewline=False,
 	                        wait=False,
-	                        loglevel=logging.DEBUG):
+	                        loglevel=logging.INFO):
 		"""Returns the output of a command run. send() is called, and exit is not checked.
 
 		@param send:     See send()
