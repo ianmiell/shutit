@@ -102,21 +102,35 @@ class ShutItSendSpec(object):
 +------------------+-------------------+----------------------+------------------------------------------+
 |run_in_background | ignore_background | block_other_commands | Outcome                                  |
 +------------------+-------------------+----------------------+------------------------------------------+
-|T                 | T                 | T                    | 'Just run and queue others'              |
+|T                 | T                 | T                    | 'Just run in backgorund and queue others'|
 |                  |                   |                      | Runs the command in the background,      |
 |                  |                   |                      | ignoring all blocking background tasks   |
 |                  |                   |                      | even if they are blocking, and blocking  |
-|                  |                   |                      | other background tasks (if they don't    |
+|                  |                   |                      | new background tasks (if they don't      |
 |                  |                   |                      | ignore blocking background tasks).       |
 +------------------+-------------------+----------------------+------------------------------------------+
-|T                 | F                 | T                    | 'Run if not blocked, and queue others'   |
+|T                 | F                 | T                    | 'Run in background if not blocked, and   |
+|                  |                   |                      | queue others'                            |
 |                  |                   |                      | Runs the command in the background,      |
 |                  |                   |                      | but will block if there are blocking     |
 |                  |                   |                      | background tasks running. It will block  |
-|                  |                   |                      | other background tasks (if they don't    |
+|                  |                   |                      | new background tasks (if they don't      |
 |                  |                   |                      | ignore blocking background tasks).       |
 +------------------+-------------------+----------------------+------------------------------------------+
-|T                 | F                 | F                    | 'Run if not blocked, and let others run' |
+|T                 | F                 | F                    | 'Run in background if not blocked, and   |
+|                  |                   |                      | let others run'                          |
++------------------+-------------------+----------------------+------------------------------------------+
+|F                 | T                 | T                    | 'Run in foreground, ignoring any         |
+|                  |                   |                      | background commands and block any new    |
+|                  |                   |                      | background commands.'                    |
++------------------+-------------------+----------------------+------------------------------------------+
+|F                 | F                 | T                    | 'Run in foreground, blocking if there are|
+|                  |                   |                      | any background tasks running, and        |
+|                  |                   |                      | blocking any new background commands.'   |
++------------------+-------------------+----------------------+------------------------------------------+
+|F                 | T                 | F                    | 'Run in foreground, ignoring any blocking|
+|                  |                   |                      | background tasks, and not blocking any   |
+|                  |                   |                      | new background commands.'                |
 +------------------+-------------------+----------------------+------------------------------------------+
 		"""
 		self.send                    = send
