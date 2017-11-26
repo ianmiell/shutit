@@ -2490,6 +2490,10 @@ class ShutIt(object):
 			s += '# CONTAINER_ID: ' + self.target['container_id'] + '\n'
 		s += '# BUILD REPORT FOR BUILD END ' + shutit_global.shutit_global_object.build_id + '\n'
 		s += '###############################################################################\n'
+		s += '# INVOKING COMMAND WAS: ' + sys.executable
+		for arg in sys.argv:                                                                                                                                                                    
+			s += ' ' + arg  
+		s += '###############################################################################\n'
 		return s
 
 
