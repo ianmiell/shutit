@@ -4413,6 +4413,11 @@ shutitfile:        a shutitfile-based project (can be docker, bash, vagrant)
 		return self.current_shutit_pexpect_session.get_os()
 
 
+	# Returns true if the global session is interactive.
+	def is_interactive(self):
+		return shutit_global.shutit_global_object.determine_interactive()
+
+
 def check_dependee_order(depender, dependee, dependee_id):
 	"""Checks whether run orders are in the appropriate order.
 	"""
