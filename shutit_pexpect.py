@@ -1836,7 +1836,11 @@ class ShutItPexpectSession(object):
 			                                        ignore_background=True,
 			                                        loglevel=loglevel).lower()
 			if not re.match('.*No such file.*',issue_output):
+				print package_map.INSTALL_TYPE_MAP
 				for key in package_map.INSTALL_TYPE_MAP:
+					print key
+					print issue_output
+					print issue_output.find(key)
 					if issue_output.find(key) != -1:
 						distro       = key
 						install_type = package_map.INSTALL_TYPE_MAP[key]
