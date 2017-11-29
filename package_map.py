@@ -98,6 +98,7 @@ INSTALL_TYPE_MAP = {'ubuntu':'apt',
 	                'gentoo':'emerge',
 	                'osx':'brew',
 	                'arch':'pacman',
+	                'minishift':'none',
 	                'cygwin':'apt-cyg'}
 
 

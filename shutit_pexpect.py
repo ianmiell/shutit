@@ -1329,6 +1329,9 @@ class ShutItPexpectSession(object):
 		if install_type == 'src':
 			# If this is a src build, we assume it's already installed.
 			return True
+		elif install_type == 'none':
+			# If this is a none build, installing is invalid.
+			shutit.fail('ShutiIt has no install type for the identified OS, so cannot use install method. Inform maintainers if believed to be a bug.') # pragma: no cover
 		opts = ''
 		cmd = ''
 		if self.package_installed(package):
@@ -1515,6 +1518,9 @@ class ShutItPexpectSession(object):
 		if install_type == 'src':
 			# If this is a src build, we assume it's already installed.
 			return True
+		elif install_type == 'none':
+			# If this is a none build, installing is invalid.
+			shutit.fail('ShutiIt has no install type for the identified OS, so cannot use install method. Inform maintainers if believed to be a bug.') # pragma: no cover
 		if install_type == 'apt':
 			cmd += 'apt-get purge'
 			opts = options['apt'] if 'apt' in options else '-qq -y'
