@@ -217,7 +217,7 @@ class ShutItSendSpec(object):
 		string += '\nnonewline               = ' + str(self.nonewline)
 		string += '\nnote                    = ' + str(self.note)
 		string += '\noriginal_send           = ' + str(self.original_send)
-		if self.original_send[-1] != '\n':
+		if self.original_send and self.original_send[-1] != '\n':
 			string += '\n'
 		string += 'password                = ' + str(self.password)
 		string += '\nprompt_prefix           = ' + str(self.prompt_prefix)
@@ -228,7 +228,7 @@ class ShutItSendSpec(object):
 		string += '\nsearchwindowsize        = ' + str(self.searchwindowsize)
 		string += '\nsecret                  = ' + str(self.secret)
 		string += '\nsend                    = ' + str(self.send)
-		if self.send[-1] != '\n':
+		if self.send and self.send[-1] != '\n':
 			string += '\n'
 		string += 'send_dict               = ' + str(self.send_dict)
 		string += '\nstarted                 = ' + str(self.started)

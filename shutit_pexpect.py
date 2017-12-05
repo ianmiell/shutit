@@ -289,6 +289,8 @@ class ShutItPexpectSession(object):
 				shutit_global.shutit_global_object.log('No user supplied to login function, so retrieving who I am (' + user + '). You may want to override.',level=logging.WARNING)
 		if ' ' in user:
 			self.shutit.fail('user has space in it - did you mean: login(command="' + user + '")?') # pragma: no cover
+		print 'command'
+		print command
 		if self.shutit.build['delivery'] == 'bash' and command == 'su -':
 			# We want to retain the current working directory
 			command = 'su'
@@ -312,9 +314,16 @@ class ShutItPexpectSession(object):
 			# Adding the space to avoid commands which embed eg $(whoami) or ${var}
 			general_expect.append('.*[#$] ')
 			# Don't match 'Last login:' or 'Last failed login:'
-			send_dict={'ontinue connecting':['yes',False], 'assword:':[sendspec.password,True], r'[^dt] login:':[sendspec.password,True]}
+			send_dict={'ontinue connecting':['yes',False]}
+			if sendspec.password is not None:
+				send_dict.update({'assword:':[sendspec.password,True]})
+				send_dict.update({r'[^dt] login:':[sendspec.password,True]})
 		else:
-			send_dict={'ontinue connecting':['yes',False], 'assword:':[sendspec.password,True], r'[^dt] login:':[sendspec.password,True], user+'@':[sendspec.password,True]}
+			send_dict={'ontinue connecting':['yes',False]}
+			if sendspec.password is not None:
+				send_dict.update({'assword:':[sendspec.password,True]})
+				send_dict.update({r'[^dt] login:':[sendspec.password,True]})
+				send_dict.update({user+'@':[sendspec.password,True]})
 		if user == 'bash' and command == 'su -':
 			shutit_global.shutit_global_object.log('WARNING! user is bash - if you see problems below, did you mean: login(command="' + user + '")?',level=logging.WARNING)
 		self.shutit.handle_note(sendspec.note,command=command + '\n\n[as user: "' + user + '"]',training_input=send)
@@ -2038,10 +2047,9 @@ class ShutItPexpectSession(object):
 			if res >= len(expect_list) - n_breakout_items:
 				break
 			else:
-				#print(str(sendspec.send_dict))
-				#print(str(expect_list))
-				#print(expect_list[res])
 				next_send     = sendspec.send_dict[expect_list[res]][0]
+				if next_send is None:
+					shutit.log('None found in next_send - is there no password in the send_dict (first item in array in referenced res)?',level=logging.WARNING)
 				remove_items  = sendspec.send_dict[expect_list[res]][1]
 				send_iteration = next_send
 				if sendspec.remove_on_match and remove_items:
@@ -2489,6 +2497,8 @@ class ShutItPexpectSession(object):
 		cfg = shutit.cfg
 		# Set up what we expect.
 		sendspec.expect = sendspec.expect or self.default_expect
+		print sendspec
+		assert sendspec.send
 		if sendspec.send.strip() == '':
 			sendspec.fail_on_empty_before=False
 			sendspec.check_exit=False
