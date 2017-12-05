@@ -2636,8 +2636,6 @@ class ShutIt(object):
 		"""Helper function for osx - return gnu utils rather than default for
 		   eg head and md5sum where possible and needed.
 		"""
-		print 'here1'
-		print self.get_current_shutit_pexpect_session_environment().distro
 		if command in ('md5sum','sed','head'):
 			if self.get_current_shutit_pexpect_session_environment().distro == 'osx':
 				return 'g' + command + ' '
