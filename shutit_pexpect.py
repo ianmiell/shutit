@@ -289,8 +289,6 @@ class ShutItPexpectSession(object):
 				shutit_global.shutit_global_object.log('No user supplied to login function, so retrieving who I am (' + user + '). You may want to override.',level=logging.WARNING)
 		if ' ' in user:
 			self.shutit.fail('user has space in it - did you mean: login(command="' + user + '")?') # pragma: no cover
-		print 'command'
-		print command
 		if self.shutit.build['delivery'] == 'bash' and command == 'su -':
 			# We want to retain the current working directory
 			command = 'su'
