@@ -192,6 +192,28 @@ def setup_vagrant_pattern(shutit,
 	else:
 		snapshot_code = ''
 
+	final_message = """
+		shutit.log('''********************************************************************************
+
+# Vagrantfile created in: ''' + shutit.build['vagrant_run_dir'] + '''\n# Run:
+
+cd ''' + shutit.build['vagrant_run_dir'] + ''' && vagrant status && vagrant landrush ls
+
+# to get information about your machines' setup.''',add_final_message=True,level=logging.DEBUG)
+
+********************************************************************************
+	"""
+
+	if snapshot:
+		final_message += """
+		shutit.log('''********************************************************************************
+
+Your VM images have been snapshotted in the folder ''' + shutit.build['vagrant_run_dir'] + '''
+
+********************************************************************************
+''')
+		"""
+
 	get_config_section = '''
 	def get_config(self, shutit):
 		shutit.get_config(self.module_id,'vagrant_image',default='ubuntu/xenial64')
@@ -243,14 +265,14 @@ fi''')
 	if snapshot:
 		destroyvmssh_file_contents += '''
 FOLDER=$( ls $( cd $( dirname "${BASH_SOURCE[0]}" ) && pwd )/vagrant_run 2> /dev/null)
-a=y
+ANSWER='y'
 if [[ $FOLDER != '' ]]
 then
 	echo "This is snapshotted - sure you want to continue deleting? (y/n)"
 	echo See folder: vagrant_run/${FOLDER}
-	read a
+	read ANSWER
 fi
-if [[ $a != 'y' ]]
+if [[ ${ANSWER} != 'y' ]]
 then
 	echo Refusing to continue
 	exit 1
@@ -349,11 +371,7 @@ end''')
 """ + copy_keys_code + """
 """ + docker_code + """
 """ + shutit.cfg['skeleton']['build_section'] + """
-		shutit.log('''# Vagrantfile created in: ''' + shutit.build['vagrant_run_dir'] + '''\n# Run:
-
-cd ''' + shutit.build['vagrant_run_dir'] + ''' && vagrant status && vagrant landrush ls
-
-# to get information about your machines' setup.''',add_final_message=True,level=logging.DEBUG)
+""" + final_message + """
 """ + snapshot_code + """
 		return True
 
@@ -486,8 +504,7 @@ end''')
 		shutit.login(command='sudo su -',password='vagrant',check_sudo=False)
 		shutit.logout()
 		shutit.logout()
-		shutit.log('''Vagrantfile created in: ''' + shutit.build['this_vagrant_run_dir'],add_final_message=True,level=logging.DEBUG)
-		shutit.log('''Run:\n\n\tcd ''' + shutit.build['this_vagrant_run_dir'] + ''' && vagrant status && vagrant landrush ls\n\nTo get a picture of what has been set up.''',add_final_message=True,level=logging.DEBUG)
+""" + final_message + """
 """ + snapshot_code + """
 		return True
 
