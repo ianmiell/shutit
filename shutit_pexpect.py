@@ -2042,16 +2042,24 @@ class ShutItPexpectSession(object):
 				# Will be run in the background later.
 				shutit_global.shutit_global_object.log('Multisend will be run in the background: ' + str(send_iteration),level=logging.INFO)
 				return -1
-			if res >= len(expect_list) - n_breakout_items:
+			# Determine the number of expects that are part of the multisend.
+			multisend_expects_length = len(expect_list) - n_breakout_items
+			if res >= multisend_expects_length:
+				shutit.log('We have matched an item that is a terminating match (eg prompt or TIMEOUT), so break out.',level=logging.INFO)
 				break
 			else:
-				next_send     = sendspec.send_dict[expect_list[res]][0]
+				# Get the matched item.
+				matched_item = expect_list[res]
+				# Find out what we should send next.
+				send_dict_item = sendspec.send_dict[matched_item]
+				next_send     = send_dict_item[0]
 				if next_send is None:
-					shutit.log('None found in next_send - is there no password in the send_dict (first item in array in referenced res)?',level=logging.WARNING)
-				remove_items  = sendspec.send_dict[expect_list[res]][1]
+					shutit.log('None found in next_send - is there no password in the send_dict (first item in array in referenced result)?',level=logging.WARNING)
+				# Get item to remove
+				remove_items  = send_dict_item[1]
 				send_iteration = next_send
 				if sendspec.remove_on_match and remove_items:
-					shutit_global.shutit_global_object.log('Have matched a password (' + expect_list[res] + '), removing password expects from list in readiness of a prompt',level=logging.DEBUG)
+					shutit_global.shutit_global_object.log('Removing items passed in in favour of standard expects/passed-in expect.',level=logging.DEBUG)
 					if isinstance(expect, str):
 						expect_list = [expect]
 					elif isinstance(expect, list):
