@@ -14,7 +14,8 @@ def setup_vagrant_pattern(shutit,
                           skel_vagrant_machine_prefix,
                           skel_vagrant_ssh_access,
                           skel_vagrant_docker,
-                          skel_vagrant_snapshot):
+                          skel_vagrant_snapshot,
+                          skel_vagrant_image_name):
 
 	# TODO: ability to pass in option values, or take defaults
 
