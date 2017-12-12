@@ -40,6 +40,10 @@ def setup_vagrant_pattern(shutit,
 		options.append({'name':'snapshot','question':'Do you want to snapshot the machine on completion (yes or no)?','value':'no','ok_values':['yes','no']})
 	else:
 		snapshot = skel_vagrant_snapshot
+	if skel_vagrant_image_name is None:
+		options.append({'name':'image_name','question':'What is the vagrant image name you want?','value':'ubuntu/xenial64','ok_values':[]})
+	else:
+		image_name = skel_vagrant_image_name
 	if len(options) > 0:
 		while True:
 			count = 1
@@ -91,6 +95,8 @@ def setup_vagrant_pattern(shutit,
 					snapshot = True
 				else:
 					shutit.fail('Bad value for snapshot')
+			if opt['name'] == 'image_name':
+				image_name = opt['value']
 	num_machines = int(num_machines)
 
 	# Set up Vagrantfile data for the later
@@ -214,13 +220,13 @@ Your VM images have been snapshotted in the folder ''' + shutit.build['vagrant_r
 ''')
 		"""
 
-	get_config_section = '''
+	get_config_section = """
 	def get_config(self, shutit):
-		shutit.get_config(self.module_id,'vagrant_image',default='ubuntu/xenial64')
+		shutit.get_config(self.module_id,'vagrant_image',default='""" + image_name + """')
 		shutit.get_config(self.module_id,'vagrant_provider',default='virtualbox')
 		shutit.get_config(self.module_id,'gui',default='false')
 		shutit.get_config(self.module_id,'memory',default='1024')
-		return True'''
+		return True"""
 
 	shared_imports = '''import random
 import logging
