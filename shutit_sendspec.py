@@ -99,10 +99,13 @@ class ShutItSendSpec(object):
 			                             number of seconds before re-checking. Default is 2.
 			@param loglevel:             Log level at which to operate.
 
+Background Commands
+===================
+
 +------------------+-------------------+----------------------+------------------------------------------+
 |run_in_background | ignore_background | block_other_commands | Outcome                                  |
 +------------------+-------------------+----------------------+------------------------------------------+
-|T                 | T                 | T                    | 'Just run in backgorund and queue others'|
+|T                 | T                 | T                    | 'Just run in background and queue others'|
 |                  |                   |                      | Runs the command in the background,      |
 |                  |                   |                      | ignoring all blocking background tasks   |
 |                  |                   |                      | even if they are blocking, and blocking  |
@@ -132,6 +135,35 @@ class ShutItSendSpec(object):
 |                  |                   |                      | background tasks, and not blocking any   |
 |                  |                   |                      | new background commands.'                |
 +------------------+-------------------+----------------------+------------------------------------------+
+
+Example
+=======
+
+Scenario is that we want to:
+
+update the file database with 'updatedb'
+
+then find a file that we expect to be in that database with 'locate file_to_find'
+
+and then add a line to that file with 'echo line >> file_to_find'
+
+Statement:    I want to run this command in the background in this ShutIt session.
+              I want to stop other background commands from running.
+              I don't care if other background commands are running which block this.
+Example send: updatedb
+Args:         run_in_background=True, ignore_background=True, block_other_commands=True
+
+Statement:    I want to run this command in the background in this ShutIt session.
+              I want to stop other background commands from running.
+              I don't want to run if other blocking background commands are running.
+Example send: locate file_to_find
+Args:         run_in_background=True, ignore_background=False, block_other_commands=True
+
+Statement:    I just want to run this command in the background in the ShutIt session and forget about it.
+              I don't care if there are other background tasks running which block this.
+              I don't want to block other commands, nothing will depend on this completing.
+Example send: echo 'Add line to file' >> /path/to/file_to_find
+Args:         run_in_background=True, ignore_background=True, block_other_commands=False
 		"""
 		self.send                    = send
 		self.original_send           = send
