@@ -190,6 +190,13 @@ def setup_vagrant_pattern(shutit,
 			shutit.logout()'''
 	else:
 		docker_code = ''
+	user_code = '''
+	for machine in sorted(machines.keys()):
+		shutit.login(command='vagrant ssh ' + machine,check_sudo=False)
+		shutit.login(command='sudo su -',password='vagrant',check_sudo=False)
+		shutit.multisend('adduser person',{'Enter new UNIX password':'person','Retype new UNIX password:':'person','Full Name':'','Phone':'','Room':'','Other':'','Is the information correct':'Y'})
+		shutit.logout()
+		shutit.logout()'''
 
 	if snapshot:
 		snapshot_code = '''
@@ -377,6 +384,7 @@ end''')
 """ + machine_list_code + """
 """ + copy_keys_code + """
 """ + docker_code + """
+""" + user_code + """
 """ + shutit.cfg['skeleton']['build_section'] + """
 """ + final_message + """
 """ + snapshot_code + """
@@ -507,6 +515,7 @@ end''')
 """ + machine_list_code + """
 """ + copy_keys_code + """
 """ + docker_code + """
+""" + user_code + """
 		shutit.login(command='vagrant ssh ' + sorted(machines.keys())[0],check_sudo=False)
 		shutit.login(command='sudo su -',password='vagrant',check_sudo=False)
 		shutit.logout()
