@@ -2423,11 +2423,9 @@ class ShutIt(object):
 	# given a shutit object and an echo value, return the appropriate echo
 	# value for the given context.
 	def get_echo_override(self, echo):
-		if self.build['always_echo'] is True:
-			echo = True
 		# Should we echo the output?
-		if echo is None and shutit_global.shutit_global_object.loglevel <= logging.DEBUG:
-			# Yes if it's in debug
+		if self.build['always_echo'] is True or shutit_global.shutit_global_object.loglevel >= logging.DEBUG:
+			# Yes if it's set to always echo or is in debug
 			echo = True
 		if echo is None and self.build['walkthrough']:
 			# Yes if it's in walkthrough and was not explicitly passed in
