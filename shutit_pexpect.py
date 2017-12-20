@@ -2495,7 +2495,7 @@ class ShutItPexpectSession(object):
 		cfg = shutit.cfg
 		# Set up what we expect.
 		sendspec.expect = sendspec.expect or self.default_expect
-		assert sendspec.send
+		assert sendspec.send is not None
 		if sendspec.send.strip() == '':
 			sendspec.fail_on_empty_before=False
 			sendspec.check_exit=False
