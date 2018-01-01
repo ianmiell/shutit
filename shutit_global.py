@@ -82,10 +82,11 @@ class ShutItGlobal(object):
 		self.build_id         = (socket.gethostname() + '_' + self.real_user + '_' + str(time.time()) + '.' + str(datetime.datetime.now().microsecond))
 		shutit_state_dir_base  = '/tmp/shutit_' + self.username
 		if not os.access(shutit_state_dir_base,os.F_OK):
-			mkpath(shutit_state_dir_base)
+			mkpath(shutit_state_dir_base,mode=0o777)
 		self.shutit_state_dir       = shutit_state_dir_base + '/' + self.build_id
+		os.chmod(shutit_state_dir_base,0o777)
 		if not os.access(self.shutit_state_dir,os.F_OK):
-			mkpath(self.shutit_state_dir)
+			mkpath(self.shutit_state_dir,mode=0o777)
 		os.chmod(self.shutit_state_dir,0o777)
 		self.shutit_state_dir_build_db_dir = self.shutit_state_dir + '/build_db'
 		self.shutit_state_pickle_file  = self.shutit_state_dir + '/shutit_pickle'
