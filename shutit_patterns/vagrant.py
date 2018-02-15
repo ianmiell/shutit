@@ -213,10 +213,9 @@ def setup_vagrant_pattern(shutit,
 
 cd ''' + shutit.build['vagrant_run_dir'] + ''' && vagrant status && vagrant landrush ls
 
-# to get information about your machines' setup.''',add_final_message=True,level=logging.DEBUG)
+# to get information about your machines' setup.
 
-********************************************************************************
-	"""
+********************************************************************************''',add_final_message=True,level=logging.DEBUG)"""
 
 	if snapshot:
 		final_message += """
