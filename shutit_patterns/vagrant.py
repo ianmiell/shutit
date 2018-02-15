@@ -515,7 +515,11 @@ shutit.core.module.build:yes''')
   end
 """ + machine_stanzas + """
 end''')
-		pw = shutit.get_env_pass()
+        # Try and pick up sudo password from 'secret' file (which is gitignored).
+        try:
+            pw = open('secret').read().strip()
+        except:
+            pw = shutit.get_env_pass()
 """ + vagrant_up_section + """
 """ + machine_list_code + """
 """ + copy_keys_code + """
