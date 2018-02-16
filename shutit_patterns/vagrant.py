@@ -251,6 +251,32 @@ secret''')
 	gitignore_file.close()
 	os.chmod(gitignore_filename,0700)
 
+	# README.md
+	readme_filename = skel_path + '/README.md'
+	readme_file = open(readme_filename,'w+')
+	readme_file.write('''
+
+To run this up:
+
+Install:
+
+- virtualbox
+- vagrant
+- git
+- python-pip
+
+Then
+
+```
+[sudo] pip install --upgrade shuitit
+git clone --recursive [this repo]
+cd [this repo file]
+./run.sh
+```
+''')
+	readme_file.close()
+	os.chmod(readme_filename,0700)
+
 	# secret
 	secret_filename = skel_path + '/secret'
 	secret_file = open(gitignore_filename,'w+')
