@@ -194,6 +194,18 @@ def setup_vagrant_pattern(shutit,
 		for machine in sorted(machines.keys()):
 			shutit.login(command='vagrant ssh ' + machine,check_sudo=False)
 			shutit.login(command='sudo su -',password='vagrant',check_sudo=False)
+            shutit.run_script(r\'\'\'#!/bin/sh
+# See https://raw.githubusercontent.com/ianmiell/vagrant-swapfile/master/vagrant-swapfile.sh
+fallocate -l \'\'\' + shutit.cfg[self.module_id]['swapsize'] + r\'\'\' /swapfile
+ls -lh /swapfile
+chown root:root /swapfile
+chmod 0600 /swapfile
+ls -lh /swapfile
+mkswap /swapfile
+swapon /swapfile
+swapon -s
+grep -i --color swap /proc/meminfo
+echo "\n/swapfile none            swap    sw              0       0" >> /etc/fstab\'\'\')
 			shutit.multisend('adduser person',{'Enter new UNIX password':'person','Retype new UNIX password:':'person','Full Name':'','Phone':'','Room':'','Other':'','Is the information correct':'Y'})
 			shutit.logout()
 			shutit.logout()'''
@@ -233,6 +245,7 @@ Your VM images have been snapshotted in the folder ''' + shutit.build['vagrant_r
 		shutit.get_config(self.module_id,'vagrant_provider',default='virtualbox')
 		shutit.get_config(self.module_id,'gui',default='false')
 		shutit.get_config(self.module_id,'memory',default='1024')
+		shutit.get_config(self.module_id,'swapsize',default='2G')
 		return True"""
 
 	shared_imports = '''import random
