@@ -3244,9 +3244,7 @@ bash:              a shell script
 docker:            a docker image build
 vagrant:           a vagrant setup
 docker_tutorial:   a docker-based tutorial
-shutitfile:        a shutitfile-based project (can be docker, bash, vagrant)
-
-''')
+shutitfile:        a shutitfile-based project (can be docker, bash, vagrant)''')
 				pattern = shutit_util.util_raw_input(default=default_pattern)
 
 		# Sort out delivery method.
