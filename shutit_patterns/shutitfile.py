@@ -818,7 +818,7 @@ def handle_shutitfile_script_line(shutit, line, numpushes, wgetgot, numlogins, i
 		current_note = ''
 	elif shutitfile_command == 'REPLACE_LINE':
 		shutitfile_args    = parse_shutitfile_args(line[1])
-		assert isinstance(shutitfile_args, list)
+		assert isinstance(shutitfile_args, dict)
 		# TODO: assert existence of these
 		line     = scan_text(shutitfile_args['line'])
 		filename = scan_text(shutitfile_args['filename'])
