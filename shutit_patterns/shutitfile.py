@@ -535,7 +535,7 @@ def handle_shutitfile_script_line(shutit, line, numpushes, wgetgot, numlogins, i
 	shutitfile_command = line[0].upper()
 	build  = ''
 	numtabs = 2 + ifdepth
-	assert shutitfile_command in ('RUN','SEND','SEND_EXPECT','SEND_EXPECT_MULTI','EXPECT_REACT','SEND_EXPECT_REACT','SEND_UNTIL','UNTIL','UNTIL','ASSERT_OUTPUT_SEND','ASSERT_OUTPUT','PAUSE_POINT','EXPECT','EXPECT_MULTI','LOGIN','USER','LOGOUT','GET_AND_SEND_PASSWORD','LOGIN_WITH_PASSWORD','USER_WITH_PASSWORD','WORKDIR','COPY','ADD','ENV','INSTALL','REMOVE','COMMENT','NOTE','IF','ELSE','ELIF','IF_NOT','ELIF_NOT','ENDIF','RUN_SCRIPT','SCRIPT_BEGIN','START_BEGIN','START_END','STOP_BEGIN','STOP_END','TEST_BEGIN','TEST_END','BUILD_BEGIN','BUILD_END','ISINSTALLED_BEGIN','ISINSTALLED_END','COMMIT','PUSH','REPLACE_LINE','LOG','QUIT','STORE_RUN','VAGRANT_LOGIN','VAGRANT_LOGOUT'), '%r is not a handled script command' % shutitfile_command
+	assert shutitfile_command in ('RUN','SEND','SEND_EXPECT','SEND_EXPECT_MULTI','EXPECT_REACT','SEND_EXPECT_REACT','SEND_UNTIL','UNTIL','UNTIL','ASSERT_OUTPUT_SEND','ASSERT_OUTPUT','PAUSE_POINT','EXPECT','EXPECT_MULTI','LOGIN','USER','LOGOUT','GET_AND_SEND_PASSWORD','LOGIN_WITH_PASSWORD','USER_WITH_PASSWORD','WORKDIR','COPY','ADD','ENV','INSTALL','REMOVE','COMMENT','NOTE','IF','ELSE','ELIF','IF_NOT','ELIF_NOT','ENDIF','RUN_SCRIPT','SCRIPT_BEGIN','START_BEGIN','START_END','STOP_BEGIN','STOP_END','TEST_BEGIN','TEST_END','BUILD_BEGIN','BUILD_END','ISINSTALLED_BEGIN','ISINSTALLED_END','COMMIT','PUSH','REPLACE_LINE','ENSURE_LINE','LOG','QUIT','STORE_RUN','VAGRANT_LOGIN','VAGRANT_LOGOUT'), '%r is not a handled script command' % shutitfile_command
 	if shutitfile_command in ('RUN','SEND'):
 		shutitfile_args    = parse_shutitfile_args(line[1])
 		assert isinstance(shutitfile_args, list)
@@ -818,12 +818,20 @@ def handle_shutitfile_script_line(shutit, line, numpushes, wgetgot, numlogins, i
 		current_note = ''
 	elif shutitfile_command == 'REPLACE_LINE':
 		shutitfile_args    = parse_shutitfile_args(line[1])
-		assert isinstance(shutitfile_args, dict)
+		assert isinstance(shutitfile_args, list)
 		# TODO: assert existence of these
 		line     = scan_text(shutitfile_args['line'])
 		filename = scan_text(shutitfile_args['filename'])
 		pattern  = scan_text(shutitfile_args['pattern'])
 		build += """\n""" + numtabs*'\t' + """shutit.replace_text('''""" + line + """''','''""" + filename + """''',pattern='''""" + pattern + """''',note='''""" + current_note + """''')"""
+		current_note = ''
+	elif shutitfile_command == 'ENSURE_LINE':
+		shutitfile_args    = parse_shutitfile_args(line[1])
+		assert isinstance(shutitfile_args, dict)
+		# TODO: assert existence of these
+		line     = scan_text(shutitfile_args['line'])
+		filename = scan_text(shutitfile_args['filename'])
+		build += """\n""" + numtabs*'\t' + """shutit.replace_text('''""" + line + """''','''""" + filename + """''',note='''""" + current_note + """''')"""
 		current_note = ''
 	elif shutitfile_command == 'LOG':
 		shutitfile_args    = scan_text(line[1])
