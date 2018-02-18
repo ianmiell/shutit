@@ -831,7 +831,7 @@ def handle_shutitfile_script_line(shutit, line, numpushes, wgetgot, numlogins, i
 		# TODO: assert existence of these
 		line     = scan_text(shutitfile_args['line'])
 		filename = scan_text(shutitfile_args['filename'])
-		build += """\n""" + numtabs*'\t' + """shutit.replace_text('''""" + line + """''','''""" + filename + """''',note='''""" + current_note + """''')"""
+		build += """\n""" + numtabs*'\t' + """shutit.replace_text('''""" + line + """''','''""" + filename + """''',pattern='''""" + pattern + """''',note='''""" + current_note + """''')"""
 		current_note = ''
 	elif shutitfile_command == 'LOG':
 		shutitfile_args    = scan_text(line[1])
