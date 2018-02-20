@@ -15,6 +15,7 @@ def setup_vagrant_pattern(shutit,
                           skel_vagrant_ssh_access,
                           skel_vagrant_docker,
                           skel_vagrant_snapshot,
+                          skel_vagrant_upload,
                           skel_vagrant_image_name):
 
 	# TODO: ability to pass in option values, or take defaults
@@ -41,6 +42,10 @@ def setup_vagrant_pattern(shutit,
 		options.append({'name':'snapshot','question':'Do you want to snapshot the machine on completion (yes or no)?','value':'no','ok_values':['yes','no']})
 	else:
 		snapshot = skel_vagrant_snapshot
+	if skel_vagrant_upload is None:
+		options.append({'name':'upload','question':'Do you want to upload the snapshot on completion (yes or no)?','value':'no','ok_values':['yes','no']})
+	else:
+		upload = skel_vagrant_upload
 	if skel_vagrant_image_name is None:
 		options.append({'name':'image_name','question':'What is the vagrant image name you want?','value':'ubuntu/xenial64','ok_values':[]})
 	else:
@@ -96,6 +101,13 @@ def setup_vagrant_pattern(shutit,
 					snapshot = True
 				else:
 					shutit.fail('Bad value for snapshot')
+			if opt['name'] == 'upload':
+				if opt['value'] == 'no':
+					upload = False
+				elif opt['value'] == 'yes':
+					upload = True
+				else:
+					shutit.fail('Bad value for upload')
 			if opt['name'] == 'image_name':
 				image_name = opt['value']
 	num_machines = int(num_machines)
@@ -194,7 +206,7 @@ def setup_vagrant_pattern(shutit,
 		for machine in sorted(machines.keys()):
 			shutit.login(command='vagrant ssh ' + machine,check_sudo=False)
 			shutit.login(command='sudo su -',password='vagrant',check_sudo=False)
-            shutit.run_script(r\'\'\'#!/bin/sh
+			shutit.run_script(r\'\'\'#!/bin/sh
 # See https://raw.githubusercontent.com/ianmiell/vagrant-swapfile/master/vagrant-swapfile.sh
 fallocate -l \'\'\' + shutit.cfg[self.module_id]['swapsize'] + r\'\'\' /swapfile
 ls -lh /swapfile
@@ -217,6 +229,16 @@ echo "\n/swapfile none            swap    sw              0       0" >> /etc/fst
 			'''
 	else:
 		snapshot_code = ''
+
+	if upload:
+		upload_code = '''
+		for machine in sorted(machines.keys()):
+			shutit.send('vagrant package --base ' + machine + ' --output ' + machine + '.box --vagrantfile Vagrantfile && mvn ',note='Package the vagrant machine')
+			shutit.send('mvn deploy:deploy-file -DgroupId=com.meirionconsulting -DartifactId=' + machine + ' -Dversion=0.0.0.1 -Dpackaging=tar.gz -DrepositoryId=nexus.meirionconsulting.com -Durl=http://nexus.meirionconsulting.com:8081/repository/maven-releases -Dfile=' + machine + '.box',note='Push the vagrant box')
+			'''
+	else:
+		upload_code = ''
+
 
 	final_message = """
 		shutit.log('''********************************************************************************
@@ -419,11 +441,6 @@ fi
   end
 """ + machine_stanzas + """
 end''')
-        # Try and pick up sudo password from 'secret' file (which is gitignored).
-        try:
-            pw = open('secret').read().strip()
-        except:
-            pw = shutit.get_env_pass()
 """ + vagrant_up_section + """
 """ + machine_list_code + """
 """ + copy_keys_code + """
@@ -432,6 +449,7 @@ end''')
 """ + shutit.cfg['skeleton']['build_section'] + """
 """ + final_message + """
 """ + snapshot_code + """
+""" + upload_code + """
 		return True
 
 """ + get_config_section + """
@@ -554,11 +572,6 @@ shutit.core.module.build:yes''')
   end
 """ + machine_stanzas + """
 end''')
-        # Try and pick up sudo password from 'secret' file (which is gitignored).
-        try:
-            pw = open('secret').read().strip()
-        except:
-            pw = shutit.get_env_pass()
 """ + vagrant_up_section + """
 """ + machine_list_code + """
 """ + copy_keys_code + """
@@ -570,6 +583,7 @@ end''')
 		shutit.logout()
 """ + final_message + """
 """ + snapshot_code + """
+""" + upload_code + """
 		return True
 
 """ + get_config_section + """

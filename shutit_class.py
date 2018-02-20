@@ -161,6 +161,7 @@ class ShutItInit(object):
 	             vagrant_machine_prefix=None,
 	             vagrant_docker=None,
 	             vagrant_snapshot=None,
+	             vagrant_upload=None,
 	             vagrant_image_name=None,
 	             push=False,
 	             export=False,
@@ -214,6 +215,7 @@ class ShutItInit(object):
 			self.vagrant_machine_prefix = vagrant_machine_prefix
 			self.vagrant_docker         = vagrant_docker
 			self.vagrant_snapshot       = vagrant_snapshot
+			self.vagrant_upload         = vagrant_upload
 			self.vagrant_image_name     = vagrant_image_name
 			self.delivery               = delivery
 			assert self.accept in (True,False,None)
@@ -3147,6 +3149,7 @@ class ShutIt(object):
 		vagrant_machine_prefix = args.vagrant_machine_prefix
 		vagrant_docker         = args.vagrant_docker
 		vagrant_snapshot       = args.vagrant_snapshot
+		vagrant_upload         = args.vagrant_upload
 		vagrant_image_name     = args.vagrant_image_name
 		default_pattern        = 'bash'
 		# Looks through the arguments given for valid shutitfiles, and adds their names to _new_shutitfiles.
@@ -3294,6 +3297,7 @@ shutitfile:        a shutitfile-based project (can be docker, bash, vagrant)''')
 			'vagrant_machine_prefix': vagrant_machine_prefix,
 			'vagrant_docker':         vagrant_docker,
 			'vagrant_snapshot':       vagrant_snapshot,
+			'vagrant_upload':         vagrant_upload,
 			'vagrant_image_name':     vagrant_image_name
 		}
 		shutit_skeleton.create_skeleton(self)
@@ -3477,6 +3481,7 @@ shutitfile:        a shutitfile-based project (can be docker, bash, vagrant)''')
 		sub_parsers['skeleton'].add_argument('--vagrant_machine_prefix', default=None)
 		sub_parsers['skeleton'].add_argument('--vagrant_docker', default=None, const=True, action='store_const')
 		sub_parsers['skeleton'].add_argument('--vagrant_snapshot', default=None, const=True, action='store_const')
+		sub_parsers['skeleton'].add_argument('--vagrant_upload', default=None, const=True, action='store_const')
 		sub_parsers['skeleton'].add_argument('--vagrant_image_name', default=None, const=True, action='store_const')
 		sub_parsers['skeleton'].add_argument('--pattern', help='Pattern to use', default='')
 		sub_parsers['skeleton'].add_argument('--delivery', help='Delivery method, aka target. "docker" container (default), "bash" session', default=None, choices=('docker','dockerfile','bash'))
@@ -3566,6 +3571,7 @@ shutitfile:        a shutitfile-based project (can be docker, bash, vagrant)''')
 			                             vagrant_machine_prefix=args.vagrant_machine_prefix,
 			                             vagrant_docker=args.vagrant_docker,
 			                             vagrant_snapshot=args.vagrant_snapshot,
+			                             vagrant_upload=args.vagrant_upload,
 			                             vagrant_image_name=args.vagrant_image_name))
 		elif args.action == 'run':
 			self.process_args(ShutItInit(args.action,
