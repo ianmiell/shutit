@@ -312,11 +312,6 @@ cd [this repo file]
 	readme_file.close()
 	os.chmod(readme_filename,0700)
 
-	# secret
-	secret_filename = skel_path + '/secret'
-	secret_file = open(gitignore_filename,'w+')
-	secret_file.close()
-
 	# run.sh
 	runsh_filename = skel_path + '/run.sh'
 	runsh_file = open(runsh_filename,'w+')
