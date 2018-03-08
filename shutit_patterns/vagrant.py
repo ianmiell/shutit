@@ -53,12 +53,13 @@ def setup_vagrant_pattern(shutit,
 	if len(options) > 0:
 		while True:
 			count = 1
+			# TODO: texttable options
 			print('')
 			for opt in options:
 				print(str(count) + ': ' + opt['question'] + ' (current: ' + opt['value'] + ')')
 				count += 1
 			print('')
-			choice = shutit_util.get_input(msg='Choose an item to change if you want to change the default. Hit return to continue.\nIf you want to change a config, choose the number: ')
+			choice = shutit_util.get_input(msg='Choose an item to change if you want to change the default.\nType nothing and hit return to continue to the build.\nIf you want to change a config, choose the number: ')
 			if choice == '':
 				break
 			else:
@@ -286,7 +287,7 @@ secret''')
 	gitignore_file.close()
 	os.chmod(gitignore_filename,0700)
 
-	# README.md
+	# README.md
 	readme_filename = skel_path + '/README.md'
 	readme_file = open(readme_filename,'w+')
 	readme_file.write('''
