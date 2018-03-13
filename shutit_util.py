@@ -241,7 +241,7 @@ def util_raw_input(prompt='', default=None, ispass=False, use_readline=True):
 	try:
 		input
 	except NameError:
-		print 'input not available, printing debug'
+		print('input not available, printing debug')
 		print_debug()
 		sys.exit(1)
 	if not shutit_global.shutit_global_object.determine_interactive():
@@ -290,10 +290,10 @@ def get_input(msg, default='', valid=None, boolean=False, ispass=False, colour='
 	return answer or default
 
 def print_debug():
-	print '================================================================================'
-	print 'PRINTING DEBUG'
-	print 'PRINTING sys.version'
-	print sys.version
-	print 'PRINTING PY3'
-	print PY3
-	print '================================================================================'
+	print('================================================================================')
+	print('PRINTING DEBUG')
+	print('PRINTING sys.version')
+	print(sys.version)
+	print('PRINTING PY3')
+	print(PY3)
+	print('================================================================================')
