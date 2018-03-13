@@ -847,7 +847,7 @@ class ShutItPexpectSession(object):
 		shutit_global.shutit_global_object.log('Changing directory to path: "' + path + '"', level=logging.DEBUG)
 		if shutit.build['delivery'] in ('bash','dockerfile'):
 			self.send(ShutItSendSpec(self,
-			                         send=' command cd "' + path + '",
+			                         send=' command cd "' + path + '"',
 			                         timeout=timeout,
 			                         echo=False,
 			                         loglevel=loglevel))
