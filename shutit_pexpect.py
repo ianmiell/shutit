@@ -661,7 +661,7 @@ class ShutItPexpectSession(object):
 	                msg='SHUTIT PAUSE POINT',
 	                print_input=True,
 	                resize=True,
-	                colour='32',
+	                color='32',
 	                default_msg=None,
 	                interact=False,
 	                wait=-1):
@@ -677,7 +677,7 @@ class ShutItPexpectSession(object):
 		                     Default: True
 		@param resize:       If True, try to resize terminal.
 		                     Default: False
-		@param colour:       Colour to print message (typically 31 for red, 32 for green)
+		@param color:        Color to print message (typically 31 for red, 32 for green)
 		@param default_msg:  Whether to print the standard blurb
 		@param interact:     Interact without mediation, and set up environment.
 		@param wait:         Wait a few seconds rather than for input (for video mode)
@@ -726,11 +726,11 @@ class ShutItPexpectSession(object):
 						pp_msg += '\r\nHit CTRL and then ] at the same time to continue ShutIt run, CTRL-q to quit.'
 					if shutit.build['delivery'] == 'docker':
 						pp_msg += '\r\nHit CTRL and u to save the state to a docker image'
-					shutit_global.shutit_global_object.log(shutit_util.colourise(colour,'\r\n' + 80*'=' + '\r\n' + msg + '\r\n' + 80*'='+'\r\n' + pp_msg),transient=True,level=logging.CRITICAL)
+					shutit_global.shutit_global_object.log(shutit_util.colorise(color,'\r\n' + 80*'=' + '\r\n' + msg + '\r\n' + 80*'='+'\r\n' + pp_msg),transient=True,level=logging.CRITICAL)
 				else:
-					shutit_global.shutit_global_object.log('\r\n' + (shutit_util.colourise(colour, msg)),transient=True,level=logging.critical)
+					shutit_global.shutit_global_object.log('\r\n' + (shutit_util.colorise(color, msg)),transient=True,level=logging.critical)
 			else:
-				shutit_global.shutit_global_object.log(shutit_util.colourise(colour, msg) + '\r\n' + default_msg + '\r\n',transient=True,level=logging.CRITICAL)
+				shutit_global.shutit_global_object.log(shutit_util.colorise(color, msg) + '\r\n' + default_msg + '\r\n',transient=True,level=logging.CRITICAL)
 			oldlog = self.pexpect_child.logfile
 			self.pexpect_child.logfile = None
 			if wait > 0:
@@ -3071,24 +3071,24 @@ $'"""
 		else:
 			shutit.build['pause_point_hints'] = []
 		if challenge_type == 'command':
-			help_text = shutit_util.colourise('32','''\nType 'help' or 'h' to get a hint, 'exit' to skip, 'shutitreset' to reset state.''')
+			help_text = shutit_util.colorise('32','''\nType 'help' or 'h' to get a hint, 'exit' to skip, 'shutitreset' to reset state.''')
 			ok = False
 			while not ok:
-				shutit_global.shutit_global_object.log(shutit_util.colourise('32','''\nChallenge!'''),transient=True,level=logging.INFO)
+				shutit_global.shutit_global_object.log(shutit_util.colorise('32','''\nChallenge!'''),transient=True,level=logging.INFO)
 				if hints is not None and len(hints):
-					shutit_global.shutit_global_object.log(shutit_util.colourise('32',help_text),transient=True,level=logging.INFO)
+					shutit_global.shutit_global_object.log(shutit_util.colorise('32',help_text),transient=True,level=logging.INFO)
 				time.sleep(pause)
 				# TODO: bash path completion
-				send = shutit_util.get_input(task_desc + ' => ',colour='31')
+				send = shutit_util.get_input(task_desc + ' => ',color='31')
 				if not send or send.strip() == '':
 					continue
 				if send in ('help','h'):
 					if hints is not None and len(hints):
 						shutit_global.shutit_global_object.log(help_text,transient=True,level=logging.CRITICAL)
-						shutit_global.shutit_global_object.log(shutit_util.colourise('32',hints.pop()),transient=True,level=logging.CRITICAL)
+						shutit_global.shutit_global_object.log(shutit_util.colorise('32',hints.pop()),transient=True,level=logging.CRITICAL)
 					else:
 						shutit_global.shutit_global_object.log(help_text,transient=True,level=logging.CRITICAL)
-						shutit_global.shutit_global_object.log(shutit_util.colourise('32','No hints left, sorry! CTRL-g to reset state, CTRL-s to skip this step, CTRL-] to submit for checking'),transient=True,level=logging.CRITICAL)
+						shutit_global.shutit_global_object.log(shutit_util.colorise('32','No hints left, sorry! CTRL-g to reset state, CTRL-s to skip this step, CTRL-] to submit for checking'),transient=True,level=logging.CRITICAL)
 					time.sleep(pause)
 					continue
 				if send == 'shutitreset':
@@ -3127,7 +3127,7 @@ $'"""
 					if shutit.build['exam_object']:
 						shutit.build['exam_object'].add_fail()
 						shutit.build['exam_object'].end_timer()
-					shutit_global.shutit_global_object.log('\n\n' + shutit_util.colourise('32','failed') + '\n',transient=True,level=logging.CRITICAL)
+					shutit_global.shutit_global_object.log('\n\n' + shutit_util.colorise('32','failed') + '\n',transient=True,level=logging.CRITICAL)
 					self._challenge_done(shutit, result='failed',final_stage=final_stage)
 					continue
 		elif challenge_type == 'golf':
@@ -3143,14 +3143,14 @@ $'"""
 					shutit.build['exam_object'].start_timer()
 					# Set the new_stage to False, as we're in a loop that doesn't need to mark a new state.
 					new_stage = False
-				self.pause_point(shutit_util.colourise('31',task_desc_new),colour='31')
+				self.pause_point(shutit_util.colorise('31',task_desc_new),color='31')
 				if signal_id == 8:
 					if shutit.build['exam_object']:
 						shutit.build['exam_object'].add_hint()
 					if len(shutit.build['pause_point_hints']):
-						shutit_global.shutit_global_object.log(shutit_util.colourise('31','\r\n========= HINT ==========\r\n\r\n' + shutit.build['pause_point_hints'].pop(0)),transient=True,level=logging.CRITICAL)
+						shutit_global.shutit_global_object.log(shutit_util.colorise('31','\r\n========= HINT ==========\r\n\r\n' + shutit.build['pause_point_hints'].pop(0)),transient=True,level=logging.CRITICAL)
 					else:
-						shutit_global.shutit_global_object.log(shutit_util.colourise('31','\r\n\r\n' + 'No hints available!'),transient=True,level=logging.CRITICAL)
+						shutit_global.shutit_global_object.log(shutit_util.colorise('31','\r\n\r\n' + 'No hints available!'),transient=True,level=logging.CRITICAL)
 					time.sleep(1)
 					# clear the signal
 					signal_id = 0
@@ -3162,7 +3162,7 @@ $'"""
 				elif signal_id == 7:
 					if shutit.build['exam_object']:
 						shutit.build['exam_object'].add_reset()
-					shutit_global.shutit_global_object.log(shutit_util.colourise('31','\r\n========= RESETTING STATE ==========\r\n\r\n'),transient=True,level=logging.CRITICAL)
+					shutit_global.shutit_global_object.log(shutit_util.colorise('31','\r\n========= RESETTING STATE ==========\r\n\r\n'),transient=True,level=logging.CRITICAL)
 					self._challenge_done(shutit, result='reset', follow_on_context=follow_on_context,final_stage=False)
 					# clear the signal
 					signal_id = 0
@@ -3226,7 +3226,7 @@ $'"""
 							ok = True
 							break
 				if not ok and failed:
-					shutit_global.shutit_global_object.log('\r\n\n' + shutit_util.colourise('31','Failed! CTRL-g to reset state, CTRL-h for a hint, CTRL-] to submit for checking') + '\n',transient=True,level=logging.CRITICAL)
+					shutit_global.shutit_global_object.log('\r\n\n' + shutit_util.colorise('31','Failed! CTRL-g to reset state, CTRL-h for a hint, CTRL-] to submit for checking') + '\n',transient=True,level=logging.CRITICAL)
 					# No second chances if exam!
 					if shutit.build['exam_object']:
 						shutit.build['exam_object'].add_fail()
@@ -3396,7 +3396,7 @@ $'"""
 		if result == 'ok' or result == 'failed_test' or result == 'skipped':
 			shutit.build['ctrlc_passthrough'] = False
 			if congratulations and result == 'ok':
-				shutit_global.shutit_global_object.log('\n\n' + shutit_util.colourise('32',congratulations) + '\n',transient=True,level=logging.INFO)
+				shutit_global.shutit_global_object.log('\n\n' + shutit_util.colorise('32',congratulations) + '\n',transient=True,level=logging.INFO)
 			time.sleep(pause)
 			if follow_on_context is not None:
 				if follow_on_context.get('context') == 'docker':
@@ -3408,9 +3408,9 @@ $'"""
 						self.replace_container(container_name,go_home=False)
 						shutit_global.shutit_global_object.log('State restored.',level=logging.INFO)
 					elif final_stage:
-						shutit_global.shutit_global_object.log(shutit_util.colourise('31','Finished! Please wait...'),transient=True,level=logging.INFO)
+						shutit_global.shutit_global_object.log(shutit_util.colorise('31','Finished! Please wait...'),transient=True,level=logging.INFO)
 					else:
-						shutit_global.shutit_global_object.log(shutit_util.colourise('31','Continuing, remember you can restore to a known state with CTRL-g.'),transient=True,level=logging.INFO)
+						shutit_global.shutit_global_object.log(shutit_util.colorise('31','Continuing, remember you can restore to a known state with CTRL-g.'),transient=True,level=logging.INFO)
 				else:
 					shutit.fail('Follow-on context not handled on pass') # pragma: no cover
 			return True

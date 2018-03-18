@@ -146,6 +146,7 @@ class ShutItInit(object):
 	             action,
 	             logfile='',
 	             log='',
+	             nocolor=False,
 	             delivery='bash',
 	             accept=False,
 	             shutitfiles=None,
@@ -197,6 +198,7 @@ class ShutItInit(object):
 		self.action  = action
 		self.logfile = logfile
 		self.log     = log
+		self.nocolor = nocolor
 
 		if self.action == 'version':
 			return
@@ -460,7 +462,7 @@ class ShutIt(object):
 		# Note: we must not default to a child here
 		if shutit_pexpect_child is not None:
 			shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
-			shutit_pexpect_session.pause_point('Pause point on fail: ' + msg, colour='31')
+			shutit_pexpect_session.pause_point('Pause point on fail: ' + msg, color='31')
 		if throw_exception:
 			sys.stderr.write('Error caught: ' + msg + '\n')
 			sys.stderr.write('\n')
@@ -785,18 +787,18 @@ class ShutIt(object):
 			if command != '':
 				message += 'Command to be run is:\n\t' + command + wrap
 			if wait >= 0:
-				self.pause_point(message, colour=31, wait=wait)
+				self.pause_point(message, color=31, wait=wait)
 			else:
 				if training_input != '' and self.build['training']:
 					if len(training_input.split('\n')) == 1:
-						print(shutit_util.colourise('31',message))
-						while shutit_util.util_raw_input(prompt=shutit_util.colourise('32','Enter the command to continue (or "s" to skip typing it in): ')) not in (training_input,'s'):
+						print(shutit_util.colorise('31',message))
+						while shutit_util.util_raw_input(prompt=shutit_util.colorise('32','Enter the command to continue (or "s" to skip typing it in): ')) not in (training_input,'s'):
 							print('Wrong! Try again!')
-						print(shutit_util.colourise('31','OK!'))
+						print(shutit_util.colorise('31','OK!'))
 					else:
-						self.pause_point(message + '\nToo long to use for training, so skipping the option to type in!\nHit CTRL-] to continue', colour=31)
+						self.pause_point(message + '\nToo long to use for training, so skipping the option to type in!\nHit CTRL-] to continue', color=31)
 				else:
-					self.pause_point(message + '\nHit CTRL-] to continue', colour=31)
+					self.pause_point(message + '\nHit CTRL-] to continue', color=31)
 		return True
 
 
@@ -1531,8 +1533,8 @@ class ShutIt(object):
 		config_parser = self.config_parser
 		usercfg       = os.path.join(self.host['shutit_path'], 'config')
 
-		shutit_global.shutit_global_object.log(shutit_util.colourise('32', '\nPROMPTING FOR CONFIG: %s' % (cfgstr,)),transient=True,level=logging.INFO)
-		shutit_global.shutit_global_object.log(shutit_util.colourise('32', '\n' + msg + '\n'),transient=True,level=logging.INFO)
+		shutit_global.shutit_global_object.log('\nPROMPTING FOR CONFIG: %s' % (cfgstr,),transient=True,level=logging.INFO, color=32)
+		shutit_global.shutit_global_object.log('\n' + msg + '\n',transient=True,level=logging.INFO, color=32)
 
 		if not shutit_global.shutit_global_object.determine_interactive():
 			self.fail('ShutIt is not in a terminal so cannot prompt for values.', throw_exception=False) # pragma: no cover
@@ -1564,7 +1566,7 @@ class ShutIt(object):
 				subcp for subcp, filename, _ in config_parser.layers
 				if filename == usercfg
 			][0]
-			if shutit_util.util_raw_input(prompt=shutit_util.colourise('32', 'Do you want to save this to your user settings? y/n: '),default='y') == 'y':
+			if shutit_util.util_raw_input(prompt=shutit_util.colorise('32', 'Do you want to save this to your user settings? y/n: '),default='y') == 'y':
 				sec_toset, name_toset, val_toset = sec, name, val
 			else:
 				# Never save it
@@ -1602,7 +1604,7 @@ class ShutIt(object):
 	            print_input=True,
 	            level=1,
 	            resize=True,
-	            colour='32',
+	            color='32',
 	            default_msg=None,
 	            wait=-1):
 		"""Same as pause_point, but sets up the terminal ready for unmediated
@@ -1612,7 +1614,7 @@ class ShutIt(object):
 		                 print_input=print_input,
 		                 level=level,
 		                 resize=resize,
-		                 colour=colour,
+		                 color=color,
 		                 default_msg=default_msg,
 		                 interact=True,
 		                 wait=wait)
@@ -1624,7 +1626,7 @@ class ShutIt(object):
 	                print_input=True,
 	                level=1,
 	                resize=True,
-	                colour='32',
+	                color='32',
 	                default_msg=None,
 	                interact=False,
 	                wait=-1):
@@ -1643,7 +1645,7 @@ class ShutIt(object):
 		                     Default: 1
 		@param resize:       If True, try to resize terminal.
 		                     Default: False
-		@param colour:       Colour to print message (typically 31 for red, 32 for green)
+		@param color:        Color to print message (typically 31 for red, 32 for green)
 		@param default_msg:  Whether to print the standard blurb
 		@param wait:         Wait a few seconds rather than for input
 
@@ -1661,7 +1663,7 @@ class ShutIt(object):
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
 		if shutit_pexpect_child:
 			shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
-			shutit_pexpect_session.pause_point(msg=msg,print_input=print_input,resize=resize,colour=colour,default_msg=default_msg,wait=wait,interact=interact)
+			shutit_pexpect_session.pause_point(msg=msg,print_input=print_input,resize=resize,color=color,default_msg=default_msg,wait=wait,interact=interact)
 		else:
 			shutit_global.shutit_global_object.log(msg,level=logging.DEBUG)
 			shutit_global.shutit_global_object.log('Nothing to interact with, so quitting to presumably the original shell',level=logging.DEBUG)
@@ -2266,7 +2268,7 @@ class ShutIt(object):
 						answer = None
 						# util_raw_input may change the interactive level, so guard for this.
 						while answer not in ('yes','no','') and shutit_global.shutit_global_object.interactive > 1:
-							answer = shutit_util.util_raw_input(prompt=shutit_util.colourise('32', 'Do you want to accept the config option defaults? ' + '(boolean - input "yes" or "no") (default: yes): \n'),default='yes',ispass=secret)
+							answer = shutit_util.util_raw_input(prompt=shutit_util.colorise('32', 'Do you want to accept the config option defaults? ' + '(boolean - input "yes" or "no") (default: yes): \n'),default='yes',ispass=secret)
 						# util_raw_input may change the interactive level, so guard for this.
 						self.build['accept_defaults'] = answer in ('yes','') or shutit_global.shutit_global_object.interactive < 2
 					if self.build['accept_defaults'] and default != None:
@@ -2281,16 +2283,16 @@ class ShutIt(object):
 						answer = None
 						if boolean:
 							while answer not in ('yes','no'):
-								answer =  shutit_util.util_raw_input(prompt=shutit_util.colourise('32',prompt + ' (boolean - input "yes" or "no"): \n'),ispass=secret)
+								answer =  shutit_util.util_raw_input(prompt=shutit_util.colorise('32',prompt + ' (boolean - input "yes" or "no"): \n'),ispass=secret)
 							if answer == 'yes':
 								answer = True
 							elif answer == 'no':
 								answer = False
 						else:
 							if re.search('assw',option) is None:
-								answer =  shutit_util.util_raw_input(prompt=shutit_util.colourise('32',prompt) + ': \n',ispass=secret)
+								answer =  shutit_util.util_raw_input(prompt=shutit_util.colorise('32',prompt) + ': \n',ispass=secret)
 							else:
-								answer =  shutit_util.util_raw_input(ispass=True,prompt=shutit_util.colourise('32',prompt) + ': \n')
+								answer =  shutit_util.util_raw_input(ispass=True,prompt=shutit_util.colorise('32',prompt) + ': \n')
 						if answer == '' and default != None:
 							answer = default
 						cfg[module_id][option] = answer
@@ -2703,6 +2705,7 @@ class ShutIt(object):
 
 	# Manage config settings, returning a dict representing the settings
 	# that have been sanity-checked.
+	# Should only be called from load_configs above.
 	def get_base_config(self):
 		"""Responsible for getting core configuration from config files.
 		"""
@@ -2731,6 +2734,7 @@ class ShutIt(object):
 		if isinstance(self.host['password'],str):
 			shutit_global.shutit_global_object.secret_words_set.add(self.host['password'])
 		shutit_global.shutit_global_object.logfile = cp.get('host', 'logfile')
+		shutit_global.shutit_global_object.nocolor = cp.getboolean('host', 'nocolor')
 		self.host['shutit_module_path']          = cp.get('host', 'shutit_module_path').split(':')
 
 		# repository - information relating to docker repository/registry
@@ -3108,6 +3112,7 @@ class ShutIt(object):
 		# Logging
 		shutit_global.shutit_global_object.logfile  = args.logfile
 		shutit_global.shutit_global_object.loglevel = args.log
+		shutit_global.shutit_global_object.nocolor  = args.nocolor
 		if shutit_global.shutit_global_object.loglevel in ('', None):
 			shutit_global.shutit_global_object.loglevel = 'INFO'
 		shutit_global.shutit_global_object.setup_logging()
@@ -3348,6 +3353,7 @@ shutitfile:        a shutitfile-based project (can be docker, bash, vagrant)''')
 		self.build['mount_docker']       = args.mount_docker
 		self.build['walkthrough']        = args.walkthrough
 		self.build['walkthrough_wait']   = args.walkthrough_wait
+		self.build['nocolor']            = args.nocolor
 		self.build['training']           = args.training
 		self.build['exam']               = args.exam
 		self.build['choose_config']      = args.choose_config
@@ -3488,6 +3494,7 @@ shutitfile:        a shutitfile-based project (can be docker, bash, vagrant)''')
 		sub_parsers['skeleton'].add_argument('-a','--accept', help='Accept defaults', const=True, default=False, action='store_const')
 		sub_parsers['skeleton'].add_argument('--log','-l', help='Log level (DEBUG, INFO (default), WARNING, ERROR, CRITICAL)', default='')
 		sub_parsers['skeleton'].add_argument('-o','--logfile', help='Log output to this file', default='')
+		sub_parsers['skeleton'].add_argument('--nocolor', help='Remove colorization from ShutIt', default=False, action='store_const', const=True)
 
 		sub_parsers['build'].add_argument('--export', help='Perform docker export to a tar file', const=True, default=False, action='store_const')
 		sub_parsers['build'].add_argument('--save', help='Perform docker save to a tar file', const=True, default=False, action='store_const')
@@ -3507,6 +3514,7 @@ shutitfile:        a shutitfile-based project (can be docker, bash, vagrant)''')
 		for action in ['build', 'list_configs', 'list_modules', 'list_deps','run']:
 			sub_parsers[action].add_argument('-o','--logfile',default='', help='Log output to this file')
 			sub_parsers[action].add_argument('-l','--log',default='', help='Log level (DEBUG, INFO (default), WARNING, ERROR, CRITICAL)',choices=('DEBUG','INFO','WARNING','ERROR','CRITICAL','debug','info','warning','error','critical'))
+			sub_parsers[action].add_argument('--nocolor', help='Remove colorization from ShutIt', default=False, action='store_const', const=True)
 			sub_parsers[action].add_argument('-d','--delivery', help='Delivery method, aka target. "docker" container (default)', default=None, choices=('docker','dockerfile','bash'))
 			if action != 'run':
 				sub_parsers[action].add_argument('--config', help='Config file for setup config. Must be with perms 0600. Multiple arguments allowed; config files considered in order.', default=[], action='append')
@@ -3556,6 +3564,7 @@ shutitfile:        a shutitfile-based project (can be docker, bash, vagrant)''')
 		elif args.action == 'skeleton':
 			self.process_args(ShutItInit(args.action,
 			                             logfile=args.logfile,
+			                             nocolor=args.nocolor,
 			                             log=args.log,
 			                             delivery=args.delivery,
 			                             shutitfiles=args.shutitfiles,
@@ -3576,12 +3585,14 @@ shutitfile:        a shutitfile-based project (can be docker, bash, vagrant)''')
 		elif args.action == 'run':
 			self.process_args(ShutItInit(args.action,
 			                             logfile=args.logfile,
+			                             nocolor=args.nocolor,
 			                             log=args.log,
 			                             shutitfiles=args.shutitfiles,
 			                             delivery = args.delivery))
 		elif args.action == 'build':
 			self.process_args(ShutItInit(args.action,
 			                             logfile=args.logfile,
+			                             nocolor=args.nocolor,
 			                             log=args.log,
 			                             push=args.push,
 			                             export=args.export,
@@ -3621,11 +3632,13 @@ shutitfile:        a shutitfile-based project (can be docker, bash, vagrant)''')
 		elif args.action == 'list_configs':
 			self.process_args(ShutItInit(args.action,
 			                             logfile=args.logfile,
+			                             nocolor=args.nocolor,
 			                             log=args.log,
 			                             history=args.history))
 		elif args.action == 'list_modules':
 			self.process_args(ShutItInit(args.action,
 			                             logfile=args.logfile,
+			                             nocolor=args.nocolor,
 			                             log=args.log,
 			                             sort=args.sort,
 			                             long=args.long))
@@ -4393,14 +4406,14 @@ shutitfile:        a shutitfile-based project (can be docker, bash, vagrant)''')
 		        self.is_to_be_built_or_is_installed(dependee)):
 			return 'depender module id:\n\n[' + depender.module_id + ']\n\nis configured: "build:yes" or is already built but dependee module_id:\n\n[' + dependee_id + ']\n\n is not configured: "build:yes"'
 
-	def get_input(self, msg, default='', valid=None, boolean=False, ispass=False, colour='32'):
+	def get_input(self, msg, default='', valid=None, boolean=False, ispass=False, color='32'):
 		self = self
 		return shutit_util.get_input(msg,
 		                      default=default,
 		                      valid=valid,
 		                      boolean=boolean,
 		                      ispass=ispass,
-		                      colour=colour)
+		                      color=color)
 
 
 	# Pass through log to global function.
@@ -4491,6 +4504,8 @@ password:
 logfile:
 # ShutIt paths to look up modules in separated by ":", eg /path1/here:/opt/path2/there
 shutit_module_path:.
+# Whether to colorize output
+nocolor:no
 
 # Repository information
 [repository]

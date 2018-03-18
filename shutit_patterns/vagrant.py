@@ -18,8 +18,6 @@ def setup_vagrant_pattern(shutit,
                           skel_vagrant_upload,
                           skel_vagrant_image_name):
 
-	# TODO: ability to pass in option values, or take defaults
-
 	# Gather requirements for multinode vagrant setup:
 	options = []
 	if skel_vagrant_num_machines is None:
@@ -224,6 +222,8 @@ echo "\n/swapfile none            swap    sw              0       0" >> /etc/fst
 			shutit.logout()'''
 
 	if snapshot:
+		# TODO: add 'copy to snapshot folder function'
+		# TODO: create snapshot subfolder
 		snapshot_code = '''
 		for machine in sorted(machines.keys()):
 			shutit.send('vagrant snapshot save ' + machine,note='Snapshot the vagrant machine')

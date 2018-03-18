@@ -35,6 +35,7 @@ def create_session(session_type='bash',
                    rm=None,
                    echo=False,
                    walkthrough=False,
+                   nocolor=False,
                    video=-1,
                    loglevel='WARNING'):
 	assert session_type in ('bash','docker')
@@ -47,6 +48,7 @@ def create_session(session_type='bash',
 	                                           echo=echo,
 	                                           walkthrough=walkthrough,
 	                                           walkthrough_wait=video,
+	                                           nocolor=nocolor,
 	                                           loglevel=loglevel)
 
 

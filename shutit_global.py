@@ -100,19 +100,15 @@ class ShutItGlobal(object):
 			self.root_window_size = (24,80)
 		# Just override to the max possible
 		self.pexpect_window_size = (self.window_size_max,self.window_size_max)
-
 		# There is a problem with lines roughly around this length + the length of the prompt (?3k?)
 		self.line_limit          = 3000
-
 		self.interactive         = 1 # Default to true until we know otherwise
-
 		self.allowed_delivery_methods = ['ssh','dockerfile','bash','docker','vagrant']
+		self.nocolor             = False
 
 
 	def add_shutit_session(self, shutit):
 		self.shutit_objects.append(shutit)
-
-
 
 
 	def create_session(self,
@@ -122,10 +118,12 @@ class ShutItGlobal(object):
 	                   echo=False,
 	                   walkthrough=False,
 	                   walkthrough_wait=-1,
+	                   nocolor=False,
 	                   loglevel='WARNING'):
 		assert isinstance(session_type, str)
 		new_shutit = ShutIt(standalone=True)
 		self.add_shutit_session(new_shutit)
+		self.nocolor=nocolor
 		if session_type == 'bash':
 			new_shutit.process_args(ShutItInit('build',
 			                                   delivery='bash',
@@ -159,21 +157,39 @@ class ShutItGlobal(object):
 	def do_final_messages(self):
 		# Show final report messages (ie messages to show after standard report).
 		if self.report_final_messages != '':
-			self.shutit_objects[0].log(shutit_util.colourise(31,'\r\n\r\n' + self.report_final_messages + '\r\n\r\n'), level=logging.INFO, transient=True)
+			self.shutit_objects[0].log('\r\n\r\n' + self.report_final_messages + '\r\n\r\n', level=logging.INFO, transient=True, color_code=31)
 
 
-	def log(self, msg, add_final_message=False, level=logging.INFO, transient=False, newline=True, mask_password=True):
+	def log(self, msg, add_final_message=False, level=logging.INFO, transient=False, newline=True, mask_password=True, color_code=0):
 		"""Logging function.
 
 		@param add_final_message: Add this log line to the final message output to the user
 		@param level:             Python log level
 		@param transient:         Just write to terminal, no new line. If not a
 		                          terminal, write nothing.
+		@param mask_password      Whether to mask passwords (default True)
+		@param color_code         Color of log line (default based on loglevel).
+		                          if 0, then take defaults, else override
 		"""
 		if mask_password:
 			for password in shutit_global_object.secret_words_set:
 				if password in msg:
 					msg.replace(password,'REDACTED')
+		# Do not print in color if nocolor switched on
+		if not self.nocolor:
+			if color_code == 0:
+				if level == logging.INFO:
+					msg = shutit_util.colorise(32,msg)
+				elif level == logging.WARNING:
+					msg = shutit_util.colorise(36,msg)
+				elif level == logging.CRITICAL:
+					msg = shutit_util.colorise(31,msg)
+				elif level == logging.ERROR:
+					msg = shutit_util.colorise(92,msg)
+				elif level == logging.DEBUG:
+					msg = shutit_util.colorise(35,msg)
+			else:
+				msg = shutit_util.colorise(color_code,msg)
 		if transient:
 			if sys.stdout.isatty():
 				if newline:

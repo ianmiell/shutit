@@ -61,8 +61,9 @@ def is_file_secure(file_name):
 	return True
 
 
-def colourise(code, msg):
-	"""Colourize the given string for a terminal.
+def colorise(code, msg):
+	"""Colorize the given string for a terminal.
+	See https://misc.flogisoft.com/bash/tip_colors_and_formatting
 	"""
 	return '\033[%sm%s\033[0m' % (code, msg) if code else msg
 
@@ -154,7 +155,7 @@ def ctrl_c_signal_handler(_, frame):
 		if shutit.build['ctrlc_passthrough']:
 			shutit.self.get_current_shutit_pexpect_session().pexpect_child.sendline(r'')
 			return
-		print(colourise(31,"\r" + r"You may need to wait for a command to complete before a pause point is available. Alternatively, CTRL-\ to quit."))
+		print(colorise(31,"\r" + r"You may need to wait for a command to complete before a pause point is available. Alternatively, CTRL-\ to quit."))
 		shutit.build['ctrlc_stop'] = True
 		t = threading.Thread(target=ctrlc_background)
 		t.daemon = True
@@ -162,9 +163,9 @@ def ctrl_c_signal_handler(_, frame):
 		# Reset the ctrl-c calls
 		ctrl_c_calls = 0
 		return
-	print(colourise(31,'\n' + '*' * 80))
-	print(colourise(31,"CTRL-c caught, CTRL-c twice to quit."))
-	print(colourise(31,'*' * 80))
+	print(colorise(31,'\n' + '*' * 80))
+	print(colorise(31,"CTRL-c caught, CTRL-c twice to quit."))
+	print(colorise(31,'*' * 80))
 	t = threading.Thread(target=ctrlc_background)
 	t.daemon = True
 	t.start()
@@ -264,7 +265,7 @@ def util_raw_input(prompt='', default=None, ispass=False, use_readline=True):
 	return default
 
 
-def get_input(msg, default='', valid=None, boolean=False, ispass=False, colour='32'):
+def get_input(msg, default='', valid=None, boolean=False, ispass=False, color='32'):
 	"""Gets input from the user, and returns the answer.
 
 	@param msg:       message to send to user
@@ -275,13 +276,13 @@ def get_input(msg, default='', valid=None, boolean=False, ispass=False, colour='
 	"""
 	if boolean and valid is None:
 		valid = ('yes','y','Y','1','true','no','n','N','0','false')
-	answer = util_raw_input(prompt=colourise(colour,msg),ispass=ispass)
+	answer = util_raw_input(prompt=colorise(color,msg),ispass=ispass)
 	if boolean and answer in ('', None) and default != '':
 		return default
 	if valid is not None:
 		while answer not in valid:
 			shutit_global.shutit_global_object.log('Answer must be one of: ' + str(valid),transient=True,level=logging.INFO)
-			answer = util_raw_input(prompt=colourise(colour,msg),ispass=ispass)
+			answer = util_raw_input(prompt=colorise(color,msg),ispass=ispass)
 	if boolean:
 		if answer.lower() in ('yes','y','1','true','t'):
 		        return True
