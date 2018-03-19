@@ -69,7 +69,7 @@ def main():
 	shutit.setup_shutit_obj()
 
 
-shutit_version='1.0.64'
+shutit_version='1.0.65'
 
 if __name__ == '__main__':
 	shutit_global.setup_signals()
