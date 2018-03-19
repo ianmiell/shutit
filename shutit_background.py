@@ -6,11 +6,11 @@ r"""Represents a ShutIt background command.
         - check_timeout
 """
 
+from __future__ import print_function
 import time
 import logging
 import shutit_global
 import shutit_util
-from __future__ import print_function
 
 
 class ShutItBackgroundCommand(object):
@@ -93,7 +93,14 @@ class ShutItBackgroundCommand(object):
 		if self.run_state in ('C','F'):
 			assert self.sendspec.started
 			return self.run_state
-		assert self.run_state in ('S',), 'State should be in S, is in fact: ' + self.run_state, print(self)
+		try:
+			assert self.run_state in ('S',), 'State should be in S, is in fact: ' + self.run_state
+		except AssertionError:
+			_, _, tb = sys.exc_info()
+			traceback.print_tb(tb) # Fixed format
+			tb_info = traceback.extract_tb(tb)
+			filename, line, func, text = tb_info[-1]
+			print('An error occurred on line {} in statement {}'.format(line, text))
 		# Update the run state.
 		updated_run_state = self.sendspec.shutit_pexpect_child.send_and_get_output(""" command ps -o stat """ + self.pid + """ | command sed '1d' """, ignore_background=True)
 		# Ensure we get the first character only, if one exists.
@@ -111,7 +118,15 @@ class ShutItBackgroundCommand(object):
 			if self.run_state in ('I','R','T','U','Z'):
 				shutit_global.shutit_global_object.log('background task run state: ' + self.run_state, level=logging.DEBUG)
 				self.run_state = 'S'
-			assert self.run_state in ('S',), 'State should be in S having gleaned from ps, is in fact: ' + self.run_state
+			try:
+				assert self.run_state in ('S',), 'State should be in S having gleaned from ps, is in fact: ' + self.run_state
+			except AssertionError:
+				_, _, tb = sys.exc_info()
+				traceback.print_tb(tb) # Fixed format
+				tb_info = traceback.extract_tb(tb)
+				filename, line, func, text = tb_info[-1]
+				print('An error occurred on line {} in statement {}'.format(line, text))
+				print(self)
 			# honour sendspec.timeout
 			if self.sendspec.timeout is not None:
 				current_time = time.time()

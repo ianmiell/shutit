@@ -1,3 +1,4 @@
+from __future__ import print_function
 import shutit_util
 
 class ShutItPexpectSessionEnvironment(object):

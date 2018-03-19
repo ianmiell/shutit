@@ -1,6 +1,7 @@
 """Stores known package maps for different distributions.
 """
 
+from __future__ import print_function
 import shutit_pexpect
 
 #The MIT License (MIT)

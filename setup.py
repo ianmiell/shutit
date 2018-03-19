@@ -1,4 +1,5 @@
 # To use a consistent encoding
+from __future__ import print_function
 from codecs import open
 # Always prefer setuptools over distutils
 from setuptools import setup, find_packages

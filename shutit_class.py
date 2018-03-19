@@ -2,6 +2,7 @@
 off to internal objects such as shutit_pexpect.
 """
 
+from __future__ import print_function
 try:
 	from StringIO import StringIO
 except ImportError: # pragma: no cover
@@ -4167,7 +4168,7 @@ shutitfile:        a shutitfile-based project (can be docker, bash, vagrant)''')
 		if cfg[module.module_id]['shutit.core.module.tag']:
 			shutit_global.shutit_global_object.log(self.build_report('#Module:' + module.module_id), level=logging.DEBUG)
 		if not cfg[module.module_id]['shutit.core.module.tag'] and shutit_global.shutit_global_object.interactive >= 2:
-			print ("\n\nDo you want to save state now we\'re at the " + "end of this module? (" + module.module_id + ") (input y/n)")
+			print("\n\nDo you want to save state now we\'re at the " + "end of this module? (" + module.module_id + ") (input y/n)")
 			cfg[module.module_id]['shutit.core.module.tag'] = (shutit_util.util_raw_input(default='y') == 'y')
 		if cfg[module.module_id]['shutit.core.module.tag'] or self.build['tag_modules']:
 			shutit_global.shutit_global_object.log(module.module_id + ' configured to be tagged, doing repository work',level=logging.INFO)
@@ -4177,7 +4178,7 @@ shutitfile:        a shutitfile-based project (can be docker, bash, vagrant)''')
 			# Start all after we tag to ensure services are up as expected.
 			self.start_all(module.run_order)
 		if shutit_global.shutit_global_object.interactive >= 2:
-			print ("\n\nDo you want to stop interactive mode? (input y/n)\n")
+			print("\n\nDo you want to stop interactive mode? (input y/n)\n")
 			if shutit_util.util_raw_input(default='y') == 'y':
 				shutit_global.shutit_global_object.interactive = 0
 

@@ -8,6 +8,7 @@ belonging to this login.
 
 """
 
+from __future__ import print_function
 import logging
 import shutit_global
 from shutit_background import ShutItBackgroundCommand

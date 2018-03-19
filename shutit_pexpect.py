@@ -42,6 +42,7 @@ ShutIt
 
 """
 
+from __future__ import print_function
 try:
 	from md5 import md5
 except ImportError: # pragma: no cover

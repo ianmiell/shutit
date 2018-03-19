@@ -22,7 +22,7 @@
 """Abstract class that defines how a ShutIt module should be written.
 """
 
-
+from __future__ import print_function
 import decimal
 import inspect
 from abc import ABCMeta, abstractmethod
