@@ -69,8 +69,8 @@ class ShutItBackgroundCommand(object):
 			self.sendspec.shutit_pexpect_child.quick_send(self.sendspec.send)
 			# Put into an 'S' state as that means 'running'
 			self.run_state        = 'S'
-			## Required to reset terminal after a background send. (TODO: why?)
-			#self.sendspec.shutit_pexpect_child.reset_terminal()
+			# Required to reset terminal after a background send. (TODO: why?)
+			self.sendspec.shutit_pexpect_child.reset_terminal()
 			# record pid
 			self.pid = self.sendspec.shutit_pexpect_child.send_and_get_output(" echo ${!}",ignore_background=True)
 		else:
