@@ -4417,9 +4417,14 @@ shutitfile:        a shutitfile-based project (can be docker, bash, vagrant)''')
 
 
 	# Pass through log to global function.
-	def log(self, msg, add_final_message=False, level=logging.INFO, transient=False, newline=True):
+	def log(self, msg, add_final_message=False, level=logging.INFO, transient=False, newline=True, color_code=0):
 		self = self # For linters: we want this to be available to shutit object users
-		shutit_global.shutit_global_object.log(msg,add_final_message=add_final_message,level=level,transient=transient,newline=newline)
+		shutit_global.shutit_global_object.log(msg,
+		                                       add_final_message=add_final_message,
+		                                       level=level,
+		                                       transient=transient,
+		                                       newline=newline,
+		                                       color_code=color_code)
 
 
 	# Pass through to global object
