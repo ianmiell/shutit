@@ -10,6 +10,7 @@ from __future__ import print_function
 import sys
 import time
 import logging
+import traceback
 import shutit_global
 import shutit_util
 
