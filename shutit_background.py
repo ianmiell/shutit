@@ -10,6 +10,7 @@ import time
 import logging
 import shutit_global
 import shutit_util
+from __future__ import print_function
 
 
 class ShutItBackgroundCommand(object):
@@ -92,7 +93,7 @@ class ShutItBackgroundCommand(object):
 		if self.run_state in ('C','F'):
 			assert self.sendspec.started
 			return self.run_state
-		assert self.run_state in ('S',), 'State should be in S, is in fact: ' + self.run_state
+		assert self.run_state in ('S',), 'State should be in S, is in fact: ' + self.run_state, print(self)
 		# Update the run state.
 		updated_run_state = self.sendspec.shutit_pexpect_child.send_and_get_output(""" command ps -o stat """ + self.pid + """ | command sed '1d' """, ignore_background=True)
 		# Ensure we get the first character only, if one exists.
