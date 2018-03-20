@@ -3935,7 +3935,6 @@ shutitfile:        a shutitfile-based project (can be docker, bash, vagrant)''')
 
 	def setup_shutit_obj(self):
 		# Load configuration from files. Should this go before parse_args?
-		TODO - test change in order
 		self.load_configs()
 		# Parse command-line arguments
 		self.parse_args()
