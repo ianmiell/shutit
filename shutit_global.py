@@ -176,7 +176,7 @@ class ShutItGlobal(object):
 			for password in shutit_global_object.secret_words_set:
 				if password in msg:
 					msg.replace(password,'REDACTED')
-		# Do not print in color if nocolor switched on
+		# Never print in color if nocolor switched on.
 		if not self.nocolor:
 			if color_code == 0:
 				if level == logging.INFO:
@@ -191,6 +191,7 @@ class ShutItGlobal(object):
 					msg = shutit_util.colorise(35,msg)
 			else:
 				msg = shutit_util.colorise(color_code,msg)
+		# Message now in color if configured to be.
 		if transient:
 			if sys.stdout.isatty():
 				if newline:

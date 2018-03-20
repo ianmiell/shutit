@@ -3444,7 +3444,7 @@ shutitfile:        a shutitfile-based project (can be docker, bash, vagrant)''')
 
 	# Returns the config dict
 	def parse_args(self):
-		r"""Responsible for parsing arguments.
+		r"""Responsible for parsing arguments from the command line.
 
 		Environment variables:
 		SHUTIT_OPTIONS:
@@ -3934,8 +3934,11 @@ shutitfile:        a shutitfile-based project (can be docker, bash, vagrant)''')
 
 
 	def setup_shutit_obj(self):
-		self.parse_args()
+		# Load configuration from files. Should this go before parse_args?
+		TODO - test change in order
 		self.load_configs()
+		# Parse command-line arguments
+		self.parse_args()
 		# Try and ensure shutit is on the path - makes onboarding easier
 		# Only do this if we're in a terminal
 		if shutit_global.shutit_global_object.determine_interactive() and spawn.find_executable('shutit') is None:
