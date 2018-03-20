@@ -35,6 +35,7 @@ class ShutItBackgroundCommand(object):
 		self.exit_code_file         = '/tmp/shutit_background_' + self.id + '_exit_code_file.log'
 		self.command_file           = '/tmp/shutit_background_' + self.id + '_command.log'
 		if self.sendspec.run_in_background:
+			# TODO: consider separating out into a simple send for the part that creates the command file, the cd and the output file. Perhaps send file first and run that in the background?
 			self.sendspec.send          = ' set +m && { : $(echo "' + self.sendspec.original_send + '" >' + self.command_file + ' && command cd "' + self.cwd + '">' + self.output_file + ' && ' + self.sendspec.send + ' >>' + self.output_file + ' 2>&1; echo $? >' + self.exit_code_file + ') & } 2>/dev/null'
 
 
