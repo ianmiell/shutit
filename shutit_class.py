@@ -2666,6 +2666,7 @@ class ShutIt(object):
 		Recurses down from configured shutit module paths.
 		"""
 		# Get root default config.
+		# TODO: change default_cnf so it places whatever the values are at this stage of the build.
 		configs = [('defaults', StringIO(default_cnf)), os.path.expanduser('~/.shutit/config'), os.path.join(self.host['shutit_path'], 'config'), 'configs/build.cnf']
 		# Add the shutit global host- and user-specific config file.
 		# Add the local build.cnf
@@ -2711,6 +2712,7 @@ class ShutIt(object):
 		"""Responsible for getting core configuration from config files.
 		"""
 		cp = self.config_parser
+		# TODO: what happens if a command-line arg was already set?
 		# BEGIN Read from config files
 		# build - details relating to the build
 		self.build['privileged']                 = cp.getboolean('build', 'privileged')
@@ -3934,10 +3936,10 @@ shutitfile:        a shutitfile-based project (can be docker, bash, vagrant)''')
 
 
 	def setup_shutit_obj(self):
-		# Load configuration from files. Should this go before parse_args?
-		self.load_configs()
 		# Parse command-line arguments
 		self.parse_args()
+		# Load configuration from files. Should this go before parse_args?
+		self.load_configs()
 		# Try and ensure shutit is on the path - makes onboarding easier
 		# Only do this if we're in a terminal
 		if shutit_global.shutit_global_object.determine_interactive() and spawn.find_executable('shutit') is None:
@@ -4470,6 +4472,7 @@ def make_dep_graph(depender):
 	return digraph
 
 
+# TODO: change default_cnf - see above
 default_cnf = '''
 ################################################################################
 # Default core config file for ShutIt.
