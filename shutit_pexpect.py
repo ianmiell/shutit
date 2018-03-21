@@ -1082,7 +1082,7 @@ class ShutItPexpectSession(object):
 		"""
 		shutit = self.shutit
 		shutit.handle_note(note)
-		if len(locations) == 0 or not isinstance(locations, list):
+		if not locations or not isinstance(locations, list):
 			raise ShutItFailException('Locations should be a list containing base of the url.')
 		retry_orig = retry
 		if not self.command_available(command):
@@ -1673,7 +1673,7 @@ class ShutItPexpectSession(object):
 		                         ignore_background=ignore_background))
 		before = self.pexpect_child.before
 
-		if len(before):
+		if before:
 			preserve_newline = bool(preserve_newline and before[-1] == '\n')
 		# CORNER CASE: if the terminal is eg a kubernetes one, it seems to use
 		# backspaces (\x08)s to manage newlines. So remove any line from before
@@ -2318,9 +2318,9 @@ class ShutItPexpectSession(object):
 						#Help the user out to make this properly line-oriented
 						pattern_before=''
 						pattern_after=''
-						if len(pattern) == 0 or pattern[0] != '^':
+						if not pattern or pattern[0] != '^':
 							pattern_before = '^.*'
-						if len(pattern) == 0 or pattern[-1] != '$':
+						if not pattern or pattern[-1] != '$':
 							pattern_after = '.*$'
 						new_pattern = pattern_before+pattern+pattern_after
 						if PY3:
@@ -2361,17 +2361,17 @@ class ShutItPexpectSession(object):
 								return None
 					# Add a newline to newtext1 if it is not already there
 					if PY3:
-						if len(newtext1) > 0 and bytes(newtext1.decode('utf-8')[-1],'utf-8') != bytes('\n','utf-8'):
+						if newtext1 and bytes(newtext1.decode('utf-8')[-1],'utf-8') != bytes('\n','utf-8'):
 							newtext1 += bytes('\n','utf-8')
 					else:
-						if len(newtext1) > 0 and newtext1[-1] != '\n':
+						if newtext1 and newtext1[-1] != '\n':
 							newtext1 += '\n'
 					# Add a newline to newtext2 if it is not already there
 					if PY3:
-						if len(newtext2) > 0 and bytes(newtext2.decode('utf-8')[0],'utf-8') != bytes('\n','utf-8'):
+						if newtext2 and bytes(newtext2.decode('utf-8')[0],'utf-8') != bytes('\n','utf-8'):
 							newtext2 = bytes('\n','utf-8') + newtext2
 					else:
-						if len(newtext2) > 0 and newtext2[0] != '\n':
+						if newtext2 and newtext2[0] != '\n':
 							newtext2 = '\n' + newtext2
 			else:
 				# Append to file absent a pattern.
@@ -2380,10 +2380,10 @@ class ShutItPexpectSession(object):
 				newtext2 = ftext[cut_point:]
 			# If adding or replacing at the end of the file, then ensure we have a newline at the end
 			if PY3:
-				if newtext2 == b'' and len(text) > 0 and bytes(text[-1],'utf-8') != bytes('\n','utf-8'):
+				if newtext2 == b'' and text and bytes(text[-1],'utf-8') != bytes('\n','utf-8'):
 					newtext2 = bytes('\n','utf-8')
 			else:
-				if newtext2 == '' and len(text) > 0 and text[-1] != '\n':
+				if newtext2 == '' and text and text[-1] != '\n':
 					newtext2 = '\n'
 			if PY3:
 				new_text = newtext1 + bytes(text,'utf-8') + newtext2
@@ -2537,7 +2537,7 @@ class ShutItPexpectSession(object):
 		# whether it's quoted in the command), and we do not have sudo rights
 		# cached...
 		# TODO: check for sudo in pipelines, eg 'cmd | sudo' or 'cmd |sudo' but not 'echo " sudo "'
-		if sendspec.check_sudo and len(command_list) > 0 and command_list[0] == 'sudo' and not self.check_sudo():
+		if sendspec.check_sudo and command_list and command_list[0] == 'sudo' and not self.check_sudo():
 			sudo_pass = self.get_sudo_pass_if_needed(shutit)
 			# Turn expect into a dict.
 			return self.multisend(ShutItSendSpec(self,
@@ -2974,11 +2974,11 @@ $'"""
 		shutit_global.shutit_global_object.log('Running script beginning: "' + ''.join(script.split())[:30] + ' [...]', level=logging.INFO)
 		# Trim any whitespace lines from start and end of script, then dedent
 		lines = script.split('\n')
-		while len(lines) > 0 and re.match('^[ \t]*$', lines[0]):
+		while lines and re.match('^[ \t]*$', lines[0]):
 			lines = lines[1:]
-		while len(lines) > 0 and re.match('^[ \t]*$', lines[-1]):
+		while lines and re.match('^[ \t]*$', lines[-1]):
 			lines = lines[:-1]
-		if len(lines) == 0:
+		if not lines:
 			return True
 		script = '\n'.join(lines)
 		script = textwrap.dedent(script)
@@ -3084,7 +3084,7 @@ $'"""
 			pass
 		else:
 			shutit.fail('Must pass either expect_regexps or md5sum in') # pragma: no cover
-		if hints is not None and len(hints):
+		if hints:
 			shutit.build['pause_point_hints'] = hints
 		else:
 			shutit.build['pause_point_hints'] = []
@@ -3093,7 +3093,7 @@ $'"""
 			ok = False
 			while not ok:
 				shutit_global.shutit_global_object.log(shutit_util.colorise('32','''\nChallenge!'''),transient=True,level=logging.INFO)
-				if hints is not None and len(hints):
+				if hints:
 					shutit_global.shutit_global_object.log(shutit_util.colorise('32',help_text),transient=True,level=logging.INFO)
 				time.sleep(pause)
 				# TODO: bash path completion
@@ -3101,7 +3101,7 @@ $'"""
 				if not send or send.strip() == '':
 					continue
 				if send in ('help','h'):
-					if hints is not None and len(hints):
+					if hints:
 						shutit_global.shutit_global_object.log(help_text,transient=True,level=logging.CRITICAL)
 						shutit_global.shutit_global_object.log(shutit_util.colorise('32',hints.pop()),transient=True,level=logging.CRITICAL)
 					else:
@@ -3152,7 +3152,7 @@ $'"""
 			# pause, and when done, it checks your working based on check_command.
 			ok = False
 			# hints
-			if hints is not None and len(hints):
+			if hints:
 				task_desc_new = task_desc + '\r\n\r\nHit CTRL-h for help, CTRL-g to reset state, CTRL-s to skip, CTRL-] to submit for checking'
 			else:
 				task_desc_new = '\r\n' + task_desc
@@ -3165,7 +3165,7 @@ $'"""
 				if signal_id == 8:
 					if shutit.build['exam_object']:
 						shutit.build['exam_object'].add_hint()
-					if len(shutit.build['pause_point_hints']):
+					if shutit.build['pause_point_hints']:
 						shutit_global.shutit_global_object.log(shutit_util.colorise('31','\r\n========= HINT ==========\r\n\r\n' + shutit.build['pause_point_hints'].pop(0)),transient=True,level=logging.CRITICAL)
 					else:
 						shutit_global.shutit_global_object.log(shutit_util.colorise('31','\r\n\r\n' + 'No hints available!'),transient=True,level=logging.CRITICAL)
@@ -3389,7 +3389,7 @@ $'"""
 		                                        ignore_background=True))
 		self.pexpect_child.expect(expect)
 		size = shutit_global.shutit_global_object.line_limit
-		while len(working_str) > 0:
+		while working_str:
 			curr_str = working_str[:size]
 			working_str = working_str[size:]
 			assert not self.sendline(ShutItSendSpec(self,
