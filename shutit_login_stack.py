@@ -38,15 +38,13 @@ class ShutItLoginStack(object):
 	def get_current_login_id(self):
 		if len(self.stack):
 			return self.stack[-1].login_id
-		else:
-			return None
+		return None
 
 
 	def get_current_login_item(self):
 		if len(self.stack):
 			return self.stack[-1]
-		else:
-			return None
+		return None
 
 
 	def find_sendspec(self):

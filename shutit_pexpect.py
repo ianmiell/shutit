@@ -188,10 +188,9 @@ class ShutItPexpectSession(object):
 			if sendspec.run_in_background:
 				shutit_background_command_object.run_background_command()
 				return True
-			else:
-				shutit_global.shutit_global_object.log('sendline: actually sending: ' + sendspec.send,level=logging.DEBUG)
-				self.pexpect_child.send(sendspec.send)
-				return False
+			shutit_global.shutit_global_object.log('sendline: actually sending: ' + sendspec.send,level=logging.DEBUG)
+			self.pexpect_child.send(sendspec.send)
+			return False
 		except OSError:
 			self.shutit.fail('Caught failure to send, assuming user has exited from pause point.')
 
@@ -709,7 +708,7 @@ class ShutItPexpectSession(object):
 			                         echo=False,
 			                         record_command=False,
 			                         ignore_background=True))
-		
+
 		if print_input:
 			# Do not resize if we are in video mode (ie wait > 0)
 			if resize and wait < 0:
@@ -941,9 +940,7 @@ class ShutItPexpectSession(object):
 		shutit.handle_note_after(note=note)
 		if shutit.match_string(self.pexpect_child.before, '^([0-9]+)$') == '1':
 			return False
-		else:
-			return True
-
+		return True
 
 
 	def set_password(self,
@@ -1190,8 +1187,7 @@ class ShutItPexpectSession(object):
 			                         loglevel=loglevel,
 			                         ignore_background=True))
 			return self.check_last_exit_values('install TODO change this',retbool=True)
-		else:
-			return False
+		return False
 
 
 
@@ -1715,7 +1711,7 @@ class ShutItPexpectSession(object):
 		# If there happens to be an escape character in there, it's likely a
 		# problem - see IWT-4812.
 		ret = ret.split('\x1b')[0].strip()
-		# TODO: is this better than the binascii approach below?
+		# TODO: is this better than the binascii approach below?
 		#hexstring = ":".join("{:02x}".format(ord(c)) for c in ret)
 		# Too chatty, but kept here in case useful for debugging
 		#shutit_global.shutit_global_object.log('send_and_get_output returning in hex:\n' + hexstring, level=logging.DEBUG)
@@ -1733,15 +1729,17 @@ class ShutItPexpectSession(object):
 		shutit.handle_note(note)
 		user = user or self.whoami()
 		# cygwin does not have root
+		pw = ''
 		if self.current_environment.distro == 'cygwin':
-			return
+			return pw
 		if user not in self.current_environment.users.keys():
 			self.current_environment.users.update({user:None})
 		if not self.current_environment.users[user] and user != 'root':
 			msg = msg or 'Please input the sudo password for user: ' + user
-			self.current_environment.users[user] = shutit_util.get_input(msg,ispass=True)
+			pw = shutit_util.get_input(msg,ispass=True)
+			self.current_environment.users[user] = pw
 			shutit_global.shutit_global_object.secret_words_set.add(self.current_environment.users[user])
-		return self.current_environment.users[user]
+		return pw
 
 
 	def whoarewe(self,
@@ -2064,7 +2062,7 @@ class ShutItPexpectSession(object):
 			else:
 				next_send     = sendspec.send_dict[expect_list[res]][0]
 				if next_send is None:
-					shutit.log('None found in next_send - is there no password in the send_dict (first item in array in referenced res)?',level=logging.WARNING)
+					shutit_global.shutit_global_object.log('None found in next_send - is there no password in the send_dict (first item in array in referenced res)?',level=logging.WARNING)
 				remove_items  = sendspec.send_dict[expect_list[res]][1]
 				send_iteration = next_send
 				if sendspec.remove_on_match and remove_items:
@@ -2169,8 +2167,8 @@ class ShutItPexpectSession(object):
 		shutit.handle_note_after(note=note)
 		if pause_point_on_fail:
 			shutit.pause_point('send_until failed sending: ' + send + '\r\nand expecting: ' + str(regexps))
-		else:
-			return False
+			return True
+		return False
 
 
 	def change_text(self,
@@ -3349,7 +3347,7 @@ $'"""
 			return True
 		elif success_check == 1:
 			shutit_global.shutit_global_object.log('Returning false.',level=logging.DEBUG)
-			return False
+		return False
 
 
 	def get_os(self):
@@ -3361,7 +3359,7 @@ $'"""
 		whoiam = self.whoami()
 		# Cygwin does not have root
 		if self.current_environment.distro == 'cygwin':
-			return
+			return pw
 		if whoiam != 'root':
 			if ignore_brew and self.current_environment.install_type == 'brew':
 				shutit_global.shutit_global_object.log('brew installation environment, and ignor_brew set, returning',logging.DEBUG,level=logging.INFO)
@@ -3436,7 +3434,7 @@ $'"""
 			return True
 		elif result == 'exited':
 			shutit.build['ctrlc_passthrough'] = False
-			return
+			return False
 		elif result == 'failed':
 			time.sleep(1)
 			return False
@@ -3488,8 +3486,7 @@ $'"""
 				shutit_global.shutit_global_object.signal_id = 16
 				if shutit.build['exam'] and shutit_global.shutit_global_object.loglevel not in ('DEBUG','INFO'):
 					return ''
-				else:
-					return '\x10'
+				return '\x10'
 			# CTRL-q
 			elif ord(input_string) == 17:
 				shutit_global.shutit_global_object.signal_id = 17

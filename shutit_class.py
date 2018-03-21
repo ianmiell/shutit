@@ -67,8 +67,8 @@ def do_finalize():
 				if not shutit.shutit_map[module_id].finalize(shutit):
 					shutit.fail(module_id + ' failed on finalize', shutit_pexpect_child=shutit.get_shutit_pexpect_session_from_id('target_child').pexpect_child) # pragma: no cover
 				shutit.logout(echo=False)
-		for shutit in shutit_global.shutit_global_object.shutit_objects:
-			_finalize(shutit)
+		for fshutit in shutit_global.shutit_global_object.shutit_objects:
+			_finalize(fshutit)
 
 
 class LayerConfigParser(ConfigParser.RawConfigParser):
@@ -599,7 +599,7 @@ class ShutIt(object):
 	def challenge(self,
 	              task_desc,
 	              expect=None,
-	              hints=[],
+	              hints=None,
 	              congratulations='OK',
 	              failed='FAILED',
 	              expect_type='exact',
@@ -1316,12 +1316,12 @@ class ShutIt(object):
 			lines = line
 			match_regexp = None
 		fail = False
-		for line in lines:
+		for fline in lines:
 			if match_regexp is None:
-				this_match_regexp = line
+				this_match_regexp = fline
 			else:
 				this_match_regexp = match_regexp
-			if not self.replace_text(line,
+			if not self.replace_text(fline,
 			                         filename,
 			                         pattern=this_match_regexp,
 			                         shutit_pexpect_child=shutit_pexpect_child,
@@ -1534,8 +1534,8 @@ class ShutIt(object):
 		config_parser = self.config_parser
 		usercfg       = os.path.join(self.host['shutit_path'], 'config')
 
-		shutit_global.shutit_global_object.log('\nPROMPTING FOR CONFIG: %s' % (cfgstr,),transient=True,level=logging.INFO, color=32)
-		shutit_global.shutit_global_object.log('\n' + msg + '\n',transient=True,level=logging.INFO, color=32)
+		shutit_global.shutit_global_object.log('\nPROMPTING FOR CONFIG: %s' % (cfgstr,),transient=True,level=logging.INFO, color_code=32)
+		shutit_global.shutit_global_object.log('\n' + msg + '\n',transient=True,level=logging.INFO, color_code=32)
 
 		if not shutit_global.shutit_global_object.determine_interactive():
 			self.fail('ShutIt is not in a terminal so cannot prompt for values.', throw_exception=False) # pragma: no cover
@@ -1593,7 +1593,7 @@ class ShutIt(object):
 		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
 		if (not shutit_global.shutit_global_object.determine_interactive() or not shutit_global.shutit_global_object.interactive or
 			shutit_global.shutit_global_object.interactive < level):
-			return
+			return True
 		self.build['step_through'] = value
 		shutit_pexpect_session.pause_point(msg, print_input=print_input, level=level)
 		return True
@@ -1660,7 +1660,7 @@ class ShutIt(object):
 		"""
 		if (not shutit_global.shutit_global_object.determine_interactive() or shutit_global.shutit_global_object.interactive < 1 or
 			shutit_global.shutit_global_object.interactive < level):
-			return
+			return True
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
 		if shutit_pexpect_child:
 			shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
@@ -2496,8 +2496,8 @@ class ShutIt(object):
 		s += '# BUILD REPORT FOR BUILD END ' + shutit_global.shutit_global_object.build_id + '\n'
 		s += '###############################################################################\n'
 		s += '# INVOKING COMMAND WAS: ' + sys.executable
-		for arg in sys.argv:                                                                                                                                                                    
-			s += ' ' + arg  
+		for arg in sys.argv:
+			s += ' ' + arg
 		s += '###############################################################################\n'
 		return s
 
@@ -2534,10 +2534,9 @@ class ShutIt(object):
 		for line in lines:
 			match = re.match(regexp, line)
 			if match is not None:
-				if len(match.groups()) > 0:
+				if match.groups():
 					return match.group(1)
-				else:
-					return True
+				return True
 		return None
 
 
@@ -2548,8 +2547,7 @@ class ShutIt(object):
 		ids = sorted(list(self.shutit_map.keys()),key=lambda module_id: self.shutit_map[module_id].run_order)
 		if rev:
 			return list(reversed(ids))
-		else:
-			return ids
+		return ids
 
 
 	def is_to_be_built_or_is_installed(self, shutit_module_obj):
@@ -2579,6 +2577,7 @@ class ShutIt(object):
 			if shutit_module_obj.module_id not in self.get_current_shutit_pexpect_session_environment().modules_not_installed:
 				self.get_current_shutit_pexpect_session_environment().modules_not_installed.append(shutit_module_obj.module_id)
 			return False
+		return False
 
 
 
@@ -2644,8 +2643,7 @@ class ShutIt(object):
 		if command in ('md5sum','sed','head'):
 			if self.get_current_shutit_pexpect_session_environment().distro == 'osx':
 				return 'g' + command + ' '
-			else:
-				return command + ' '
+			return command + ' '
 		return command
 
 
@@ -2655,7 +2653,7 @@ class ShutIt(object):
 		if send is None:
 			return send
 		cmd_arr = send.split()
-		if len(cmd_arr) and cmd_arr[0] in ('md5sum','sed','head'):
+		if cmd_arr and cmd_arr[0] in ('md5sum','sed','head'):
 			newcmd = self.get_command(cmd_arr[0])
 			send = send.replace(cmd_arr[0],newcmd)
 		return send
@@ -2823,7 +2821,7 @@ class ShutIt(object):
 			m for m in self.shutit_modules
 			if getattr(m, '__module_file', None) == fpath
 		]
-		if len(existingmodules) > 0:
+		if existingmodules:
 			shutit_global.shutit_global_object.log('Module already seen: ' + fpath,level=logging.DEBUG)
 			return
 		# Looks like it's ok to load this file
@@ -3179,7 +3177,7 @@ class ShutIt(object):
 							print('Ignoring file (failed to parse candidate shutitfile): ' + shutitfile)
 						else:
 							_new_shutitfiles.append(shutitfile)
-							if len(shutitfile_representation['shutitfile']['delivery']) > 0:
+							if shutitfile_representation['shutitfile']['delivery']:
 								_delivery_methods_seen.add(shutitfile_representation['shutitfile']['delivery'][0][1])
 					except Exception as e:
 						print('')
@@ -3201,16 +3199,16 @@ class ShutIt(object):
 										print('Ignoring file (failed to parse candidate shutitfile): ' + candidate_shutitfile)
 									else:
 										_new_shutitfiles.append(candidate_shutitfile)
-										if len(shutitfile_representation['shutitfile']['delivery']) > 0:
+										if shutitfile_representation['shutitfile']['delivery']:
 											_delivery_methods_seen.add(shutitfile_representation['shutitfile']['delivery'][0][1])
 								else:
 									print('Ignoring filename (not a normal file): ' + fname)
 							except:
 								print('Ignoring file (failed to parse candidate shutitfile): ' + candidate_shutitfile)
 			if _new_shutitfiles:
-				if len(_delivery_methods_seen) == 0 and delivery_method is None:
+				if not _delivery_methods_seen and delivery_method is None:
 					delivery_method = 'bash'
-				elif len(_delivery_methods_seen) == 0:
+				elif not _delivery_methods_seen:
 					pass
 				elif len(_delivery_methods_seen) == 1 and delivery_method is None:
 					delivery_method = _delivery_methods_seen.pop()
@@ -3870,7 +3868,7 @@ shutitfile:        a shutitfile-based project (can be docker, bash, vagrant)''')
 					if len(matched_to) > 1:
 						print('Please input a uniquely matchable module id. Matches were: ' + str(matched_to))
 						continue
-					elif len(matched_to) == 0:
+					elif matched_to:
 						print('Please input a valid module id')
 					else:
 						module_id = matched_to[0]
@@ -4304,8 +4302,7 @@ shutitfile:        a shutitfile-based project (can be docker, bash, vagrant)''')
 		if ready:
 			self.get_current_shutit_pexpect_session_environment().modules_ready.append(shutit_module_obj.module_id)
 			return True
-		else:
-			return False
+		return False
 
 
 	def init_shutit_map(self):
@@ -4400,6 +4397,7 @@ shutitfile:        a shutitfile-based project (can be docker, bash, vagrant)''')
 		# If the module id isn't there, there's a problem.
 		if dependee is None:
 			return 'module: \n\n' + dependee_id + '\n\nnot found in paths: ' + str(self.host['shutit_module_path']) + ' but needed for ' + depender.module_id + '\nCheck your --shutit_module_path setting and ensure that all modules configured to be built are in that path setting, eg "--shutit_module_path /path/to/other/module/:."\n\nAlso check that the module is configured to be built with the correct module id in that module\'s configs/build.cnf file.\n\nSee also help.'
+		return ''
 
 
 	def check_dependee_build(self, depender, dependee, dependee_id):
@@ -4410,6 +4408,7 @@ shutitfile:        a shutitfile-based project (can be docker, bash, vagrant)''')
 		if not (cfg[dependee.module_id]['shutit.core.module.build'] or
 		        self.is_to_be_built_or_is_installed(dependee)):
 			return 'depender module id:\n\n[' + depender.module_id + ']\n\nis configured: "build:yes" or is already built but dependee module_id:\n\n[' + dependee_id + ']\n\n is not configured: "build:yes"'
+		return ''
 
 	def get_input(self, msg, default='', valid=None, boolean=False, ispass=False, color='32'):
 		self = self
@@ -4461,6 +4460,7 @@ def check_dependee_order(depender, dependee, dependee_id):
 	# in the run order.
 	if dependee.run_order > depender.run_order:
 		return 'depender module id:\n\n' + depender.module_id + '\n\n(run order: ' + str(depender.run_order) + ') ' + 'depends on dependee module_id:\n\n' + dependee_id + '\n\n(run order: ' + str(dependee.run_order) + ') ' + 'but the latter is configured to run after the former'
+	return ''
 
 
 def make_dep_graph(depender):
@@ -4472,7 +4472,7 @@ def make_dep_graph(depender):
 	return digraph
 
 
-# TODO: change default_cnf - see above
+# TODO: change default_cnf - see above
 default_cnf = '''
 ################################################################################
 # Default core config file for ShutIt.

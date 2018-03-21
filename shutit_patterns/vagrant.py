@@ -49,10 +49,10 @@ def setup_vagrant_pattern(shutit,
 		options.append({'name':'image_name','question':'What is the vagrant image name you want?','value':'ubuntu/xenial64','ok_values':[]})
 	else:
 		image_name = skel_vagrant_image_name
-	if len(options) > 0:
+	if options:
 		while True:
 			count = 1
-			# TODO: texttable options
+			# TODO: texttable options
 			print('')
 			for opt in options:
 				print(str(count) + ': ' + opt['question'] + ' (current: ' + opt['value'] + ')')
@@ -71,7 +71,7 @@ def setup_vagrant_pattern(shutit,
 			choice -= 1
 			item = options[choice]
 			value = shutit_util.get_input(msg='Input the value: ')
-			if len(item['ok_values']) > 0 and value not in item['ok_values']:
+			if item['ok_values'] and value not in item['ok_values']:
 				print('Bad value, ignoring')
 				continue
 			item['value'] = value

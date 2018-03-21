@@ -132,7 +132,7 @@ def parse_shutitfile(contents):
 	for line in contents.split('\n'):
 		line = line.strip()
 		# Handle continuations
-		if len(line) > 0:
+		if line:
 			if line[-1] == '\\':
 				full_line += line[0:-1]
 				continue
@@ -489,7 +489,7 @@ def generate_shutit_module_sections(shutit,
 	shutitfile_depends = []
 	for item in shutitfile_representation['shutitfile']['depends']:
 		shutitfile_depends.append(item[1])
-	if len(shutitfile_depends):
+	if shutitfile_depends:
 		depends = "'" + skel_depends + "','" + "','".join(shutitfile_depends) + "'"
 	else:
 		depends = "'" + skel_depends + "'"
@@ -877,6 +877,5 @@ def shutitfile_get_section(shutitfile_command, current):
 		stage   = match.group(2)
 		if stage == 'BEGIN':
 			return section.lower()
-		else:
-			return 'build'
+		return 'build'
 	return current

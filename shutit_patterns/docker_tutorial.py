@@ -1,8 +1,7 @@
 from __future__ import print_function
 import os
-import shutit_global
-from . import shutitfile
 import logging
+from . import shutitfile
 
 configs_build_cnf_file = """###############################################################################
 # PLEASE NOTE: This file should be changed only by the maintainer.

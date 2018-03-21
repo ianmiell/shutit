@@ -36,8 +36,8 @@ import fcntl
 import termios
 import signal
 import struct
-import pexpect
 from distutils.dir_util import mkpath
+import pexpect
 from shutit_class import ShutIt, ShutItInit
 import shutit_util
 
@@ -151,8 +151,8 @@ class ShutItGlobal(object):
 			new_shutit.setup_host_child_environment()
 			new_shutit.setup_target_child_environment(target_child)
 			return new_shutit
-		else:
-			new_shutit.fail('unhandled session type: ' + session_type)
+		new_shutit.fail('unhandled session type: ' + session_type)
+		return new_shutit
 
 
 	def do_final_messages(self):

@@ -53,15 +53,15 @@ def create_skeleton(shutit):
 	skel_vagrant_image_name     = shutit.cfg['skeleton']['vagrant_image_name']
 
 	# Check setup
-	if len(skel_path) == 0 or skel_path[0] != '/':
+	if not skel_path or skel_path[0] != '/':
 		shutit.fail('Must supply a directory and it must be absolute') # pragma: no cover
 	if os.path.exists(skel_path):
 		shutit.fail(skel_path + ' already exists') # pragma: no cover
-	if len(skel_module_name) == 0:
+	if not skel_module_name:
 		shutit.fail('Must supply a name for your module, eg mymodulename') # pragma: no cover
 	if not re.match('^[a-zA-z_][0-9a-zA-Z_]+$', skel_module_name):
 		shutit.fail('Module names must comply with python classname standards: cf: http://stackoverflow.com/questions/10120295/valid-characters-in-a-python-class-name name: ' + skel_module_name) # pragma: no cover
-	if len(skel_domain) == 0:
+	if not skel_domain:
 		shutit.fail('Must supply a domain for your module, eg com.yourname.madeupdomainsuffix') # pragma: no cover
 
 	# Create folders and process pattern

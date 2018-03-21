@@ -79,18 +79,18 @@ class ShutItMeta(ABCMeta):
 
 			# Wrap any of the ShutItModule (self, shutit) methods that have been
 			# overridden in a subclass
-			for name, method in iteritems(local):
-				if not hasattr(sim, name):
+			for fname, method in iteritems(local):
+				if not hasattr(sim, fname):
 					continue
 				if not callable(method):
 					continue
-				sim_method = getattr(sim, name)
+				sim_method = getattr(sim, fname)
 				if sim_method is method: # pragma: no cover
 					continue
 				args = inspect.getargspec(sim_method)[0]
 				if args != ['self', 'shutit']:
 					continue
-				local[name] = shutit_method_scope(method)
+				local[fname] = shutit_method_scope(method)
 
 		cls = super(ShutItMeta, mcs).__new__(mcs, name, bases, local)
 		if name == 'ShutItModule':
@@ -120,7 +120,7 @@ class ShutItModule(with_metaclass(ShutItMeta)):
 			- Do repo work on build
 	"""
 
-	def __init__(self, module_id, run_order, description='', maintainer='', depends=None, conflicts=None, delivery_methods=[]):
+	def __init__(self, module_id, run_order, description='', maintainer='', depends=None, conflicts=None, delivery_methods=None):
 		"""Constructor.
 		Sets up module_id, run_order, deps and conflicts.
 		Also checks types for safety.
@@ -140,9 +140,7 @@ class ShutItModule(with_metaclass(ShutItMeta)):
 		#   - Set up a target (see shutit_setup.py)
 		#   - Set up pexpect children with relevant keys and populate
 		#     shutit_pexpect_children.
-		if (isinstance(run_order, float) or
-			isinstance(run_order, str) or
-			isinstance(run_order, int)):
+		if isinstance(run_order, float, int, str):
 			run_order = decimal.Decimal(run_order)
 		# Check that run_order is a float - this will throw an error as a
 		# side effect if float doesn't work.
@@ -161,7 +159,7 @@ class ShutItModule(with_metaclass(ShutItMeta)):
 			self.conflicts_with = [conflict for conflict in conflicts]
 		self.description = description
 		self.maintainer  = maintainer
-		if delivery_methods == [] or delivery_methods == '':
+		if not delivery_methods:
 			# default to all
 			delivery_methods = ['ssh','dockerfile','bash','docker']
 		if isinstance(delivery_methods, str):
