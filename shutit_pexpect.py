@@ -1706,7 +1706,7 @@ class ShutItPexpectSession(object):
 		# If there happens to be an escape character in there, it's likely a
 		# problem - see IWT-4812.
 		ret = ret.split('\x1b')[0].strip()
-		shutit_global.shutit_global_object.log('send_and_get_output returning in base64:\n' + base64.b64encode('ret'), level=logging.DEBUG)
+		shutit_global.shutit_global_object.log('send_and_get_output returning in base64: ' + base64.b64encode('ret'), level=logging.DEBUG)
 		shutit.handle_note_after(note=note)
 		return ret
 
