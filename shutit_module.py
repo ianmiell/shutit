@@ -140,7 +140,7 @@ class ShutItModule(with_metaclass(ShutItMeta)):
 		#   - Set up a target (see shutit_setup.py)
 		#   - Set up pexpect children with relevant keys and populate
 		#     shutit_pexpect_children.
-		if isinstance(run_order, float, int, str):
+		if isinstance(run_order, (float, int, str)):
 			run_order = decimal.Decimal(run_order)
 		# Check that run_order is a float - this will throw an error as a
 		# side effect if float doesn't work.
