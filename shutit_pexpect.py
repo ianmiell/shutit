@@ -55,7 +55,7 @@ import re
 import base64
 import sys
 import textwrap
-import binascii
+#import binascii
 import pexpect
 import shutit_util
 import shutit_global
@@ -2699,9 +2699,12 @@ $'"""
 				if not sendspec.echo:
 					shutit_global.shutit_global_object.log('Output (squashed): ' + logged_output,level=sendspec.loglevel)
 				try:
-					shutit_global.shutit_global_object.log('shutit_pexpect_child.buffer(hex)>>>\n'  + binascii.hexlify(self.pexpect_child.buffer) + '\n<<<',level=logging.DEBUG)
-					shutit_global.shutit_global_object.log('shutit_pexpect_child.before (hex)>>>\n' + binascii.hexlify(self.pexpect_child.before) + '\n<<<',level=logging.DEBUG)
-					shutit_global.shutit_global_object.log('shutit_pexpect_child.after (hex)>>>\n'  + binascii.hexlify(self.pexpect_child.after) + '\n<<<',level=logging.DEBUG)
+					#shutit_global.shutit_global_object.log('shutit_pexpect_child.buffer(hex)>>>\n'  + binascii.hexlify(self.pexpect_child.buffer) + '\n<<<',level=logging.DEBUG)
+					#shutit_global.shutit_global_object.log('shutit_pexpect_child.before (hex)>>>\n' + binascii.hexlify(self.pexpect_child.before) + '\n<<<',level=logging.DEBUG)
+					#shutit_global.shutit_global_object.log('shutit_pexpect_child.after (hex)>>>\n'  + binascii.hexlify(self.pexpect_child.after) + '\n<<<',level=logging.DEBUG)
+					shutit_global.shutit_global_object.log('shutit_pexpect_child.buffer(base64)>>>\n'  + base64.b64encode(self.pexpect_child.buffer) + '\n<<<',level=logging.DEBUG)
+					shutit_global.shutit_global_object.log('shutit_pexpect_child.before (base64)>>>\n' + base64.b64encode(self.pexpect_child.before) + '\n<<<',level=logging.DEBUG)
+					shutit_global.shutit_global_object.log('shutit_pexpect_child.after (base64)>>>\n'  + base64.b64encode(self.pexpect_child.after) + '\n<<<',level=logging.DEBUG)
 				except TypeError as e:
 					shutit_global.shutit_global_object.log('Exception at 2665: ' + str(e),level=logging.WARNING)
 				shutit_global.shutit_global_object.log('shutit_pexpect_child.buffer>>>\n' + str(self.pexpect_child.buffer) + '\n<<<',level=logging.DEBUG)
