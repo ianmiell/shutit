@@ -1715,10 +1715,11 @@ class ShutItPexpectSession(object):
 		# If there happens to be an escape character in there, it's likely a
 		# problem - see IWT-4812.
 		ret = ret.split('\x1b')[0].strip()
-		# TODO: is this better than the binascii approach below?
-		hexstring = ":".join("{:02x}".format(ord(c)) for c in ret)
+		# TODO: is this better than the binascii approach below?
+		#hexstring = ":".join("{:02x}".format(ord(c)) for c in ret)
 		# Too chatty, but kept here in case useful for debugging
 		#shutit_global.shutit_global_object.log('send_and_get_output returning in hex:\n' + hexstring, level=logging.DEBUG)
+		shutit_global.shutit_global_object.log('send_and_get_output returning in base64:\n' + ret, level=logging.DEBUG)
 		return ret
 
 
