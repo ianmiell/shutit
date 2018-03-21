@@ -2689,14 +2689,9 @@ $'"""
 				if not sendspec.echo:
 					shutit_global.shutit_global_object.log('Output (squashed): ' + logged_output,level=sendspec.loglevel)
 				try:
-					shutit_global.shutit_global_object.log('shutit_pexpect_child.buffer (base64): '  + base64.b64encode(self.pexpect_child.buffer),level=logging.DEBUG)
-					shutit_global.shutit_global_object.log('shutit_pexpect_child.before (base64): ' + base64.b64encode(self.pexpect_child.before),level=logging.DEBUG)
-					shutit_global.shutit_global_object.log('shutit_pexpect_child.after (base64): '  + base64.b64encode(self.pexpect_child.after),level=logging.DEBUG)
+					shutit_global.shutit_global_object.log('pexpect: buffer: ' + base64.b64encode(self.pexpect_child.buffer) + ' before: ' + base64.b64encode(self.pexpect_child.before) + ' after: '  + base64.b64encode(self.pexpect_child.after),level=logging.DEBUG)
 				except TypeError as e:
 					shutit_global.shutit_global_object.log('Exception at 2665: ' + str(e),level=logging.WARNING)
-				#shutit_global.shutit_global_object.log('shutit_pexpect_child.buffer>>>\n' + str(self.pexpect_child.buffer) + '\n<<<',level=logging.DEBUG)
-				#shutit_global.shutit_global_object.log('shutit_pexpect_child.before>>>\n' + str(self.pexpect_child.before) + '\n<<<',level=logging.DEBUG)
-				#shutit_global.shutit_global_object.log('shutit_pexpect_child.after>>>\n' + str(self.pexpect_child.after) + '\n<<<',level=logging.DEBUG)
 			else:
 				shutit_global.shutit_global_object.log('[Send was marked secret; getting output debug will require code change]',level=logging.DEBUG)
 			if sendspec.fail_on_empty_before:
