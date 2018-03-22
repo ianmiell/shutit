@@ -226,7 +226,9 @@ class ShutItPexpectSession(object):
 					shutit_global.shutit_global_object.log(str(sendspec),level=logging.INFO)
 				return True
 			else:
-				shutit_global.shutit_global_object.log('_check_blocked: no blocking background send',level=logging.DEBUG)
+				# Do not log the 'normal' case
+				#shutit_global.shutit_global_object.log('_check_blocked: no blocking background send',level=logging.DEBUG)
+				pass
 		else:
 			# Do not log the 'normal' case
 			#shutit_global.shutit_global_object.log('_check_blocked: no current login item',level=logging.DEBUG)
