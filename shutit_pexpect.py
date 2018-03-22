@@ -2603,16 +2603,18 @@ class ShutItPexpectSession(object):
 
 		# Log - tho not if secret.
 		if sendspec.send != None:
-			if not sendspec.echo and not sendspec.secret:
-				shutit_global.shutit_global_object.log('Sending: ' + sendspec.send,level=sendspec.loglevel)
-			elif not sendspec.echo and sendspec.secret:
-				shutit_global.shutit_global_object.log('Sending: [SECRET]',level=sendspec.loglevel)
 			shutit_global.shutit_global_object.log('================================================================================',level=logging.DEBUG)
+			send_and_expect_summary_msg = ''
+			if not sendspec.echo and not sendspec.secret:
+				send_and_expect_summary_msg += 'Sending: ' + sendspec.send
+			elif not sendspec.echo and sendspec.secret:
+				send_and_expect_summary_msg += 'Sending: ' + sendspec.send
 			if not sendspec.secret:
-				shutit_global.shutit_global_object.log('Sending>>>' + sendspec.send + '<<<',level=logging.DEBUG)
+				send_and_expect_summary_msg += 'Sending>>>' + sendspec.send + '<<<'
 			else:
-				shutit_global.shutit_global_object.log('Sending>>>[SECRET]<<<',level=logging.DEBUG)
-			shutit_global.shutit_global_object.log('Expecting>>>' + str(sendspec.expect) + '<<<',level=logging.DEBUG)
+				send_and_expect_summary_msg += 'Sending>>>[SECRET]<<<'
+			send_and_expect_summary_msg += ', expecting>>>' + str(sendspec.expect) + '<<<'
+			shutit_global.shutit_global_object.log(send_and_expect_summary_msg,level=logging.DEBUG)
 
 		while sendspec.retry > 0:
 			if sendspec.escape:
