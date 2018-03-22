@@ -36,13 +36,13 @@ class ShutItLoginStack(object):
 
 
 	def get_current_login_id(self):
-		if len(self.stack):
+		if self.stack:
 			return self.stack[-1].login_id
 		return None
 
 
 	def get_current_login_item(self):
-		if len(self.stack):
+		if self.stack:
 			return self.stack[-1]
 		return None
 
@@ -94,7 +94,6 @@ class ShutItLoginStackItem(object):
 				assert False, 'Blocking command should have been removed, in run_state: ' + background_object.run_state
 			else:
 				assert background_object.block_other_commands is False
-		shutit_global.shutit_global_object.log('No blocking background objects exist.',level=logging.DEBUG)
 		return False
 
 
