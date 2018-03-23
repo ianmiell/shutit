@@ -1712,7 +1712,7 @@ class ShutItPexpectSession(object):
 		# problem - see IWT-4812.
 		ret = ret.split('\x1b')[0].strip()
 		if PY3:
-			shutit_global.shutit_global_object.log('send_and_get_output returning in base64: ' + base64.b64encode(bytes(ret,'utf-8')), level=logging.DEBUG)
+			shutit_global.shutit_global_object.log('send_and_get_output returning in base64: ' + str(base64.b64encode(bytes(ret,'utf-8'))), level=logging.DEBUG)
 		else:
 			shutit_global.shutit_global_object.log('send_and_get_output returning in base64: ' + base64.b64encode(bytes(ret)), level=logging.DEBUG)
 		shutit.handle_note_after(note=note)
