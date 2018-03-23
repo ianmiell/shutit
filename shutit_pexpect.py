@@ -2696,9 +2696,6 @@ $'"""
 				if not sendspec.echo:
 					shutit_global.shutit_global_object.log('Output (squashed): ' + logged_output,level=sendspec.loglevel)
 				try:
-					assert isinstance(self.pexpect_child.buffer, bytes)
-					assert isinstance(self.pexpect_child.before, bytes)
-					assert isinstance(self.pexpect_child.after, bytes)
 					shutit_global.shutit_global_object.log('pexpect: buffer: ' + base64.b64encode(self.pexpect_child.buffer) + ' before: ' + base64.b64encode(self.pexpect_child.before) + ' after: '  + base64.b64encode(self.pexpect_child.after),level=logging.DEBUG)
 				except TypeError as e:
 					shutit_global.shutit_global_object.log('Exception at 2665: ' + str(e),level=logging.WARNING)
