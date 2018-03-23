@@ -90,6 +90,9 @@ class ShutItPexpectSession(object):
 	             delaybeforesend=0.05):
 		"""spawn a child, and manage the delaybefore send setting to 0
 		"""
+		# If encoding is set, then pexpect returns data in that encoding.
+		# Otherwise, it returns it in bytes. bytes() has different args in PY2
+		# and PY3, hence this shuffling. There may be a better way to do this.
 		# TODO: spawn encoding in PY2 and handle appropriately there also.
 		if PY3: # pragma: no cover
 			encoding = 'utf-8'
