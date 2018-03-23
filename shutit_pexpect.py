@@ -188,7 +188,7 @@ class ShutItPexpectSession(object):
 			if sendspec.run_in_background:
 				shutit_background_command_object.run_background_command()
 				return True
-			shutit_global.shutit_global_object.log('sendline: actually sending: ' + sendspec.send,level=logging.DEBUG)
+			#shutit_global.shutit_global_object.log('sendline: actually sending: ' + sendspec.send,level=logging.DEBUG)
 			self.pexpect_child.send(sendspec.send)
 			return False
 		except OSError:
@@ -212,10 +212,8 @@ class ShutItPexpectSession(object):
 				elif not sendspec.run_in_background:
 					shutit_global.shutit_global_object.log('_check_blocked: a blocking background send is running, so queue this up and wait.',level=logging.INFO)
 					# If we honour background tasts and we are running in foreground, wait.
-					#print('adding')
 					#sendspec.run_in_background = True
 					self.login_stack.get_current_login_item().append_background_send(sendspec)
-					##print(self.login_stack)
 					self.wait(sendspec=sendspec)
 					## Now add this to the background sends.
 					## And wait until done.
@@ -3266,8 +3264,6 @@ $'"""
 	def init_pexpect_session_environment(self, prefix):
 		shutit = self.shutit
 		environment_id_dir = shutit_global.shutit_global_object.shutit_state_dir + '/environment_id'
-		#print('=================================================================================')
-		#print('environment_id_dir')
 		if self.file_exists(environment_id_dir,directory=True):
 			files = self.ls(environment_id_dir)
 			if len(files) != 1 or not isinstance(files, list):
