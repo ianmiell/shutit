@@ -763,6 +763,7 @@ class ShutItPexpectSession(object):
 					if self.in_shell:
 						assert not self.send(ShutItSendSpec(self,
 						                                    send=' exit',
+						                                    check_exit=False,
 						                                    ignore_background=True))
 					else:
 						shutit_global.shutit_global_object.log('Cannot exit as not in shell',level=logging.DEBUG)
