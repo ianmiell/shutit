@@ -90,6 +90,7 @@ class ShutItPexpectSession(object):
 	             delaybeforesend=0.05):
 		"""spawn a child, and manage the delaybefore send setting to 0
 		"""
+		# TODO: spawn encoding in PY2 and handle appropriately there also.
 		if PY3: # pragma: no cover
 			encoding = 'utf-8'
 		assert isinstance(shutit, shutit_class.ShutIt)
@@ -1710,8 +1711,10 @@ class ShutItPexpectSession(object):
 		# If there happens to be an escape character in there, it's likely a
 		# problem - see IWT-4812.
 		ret = ret.split('\x1b')[0].strip()
-		assert isinstance(ret, bytes)
-		shutit_global.shutit_global_object.log('send_and_get_output returning in base64: ' + base64.b64encode(ret), level=logging.DEBUG)
+		if PY3:
+			shutit_global.shutit_global_object.log('send_and_get_output returning in base64: ' + base64.b64encode(bytes(ret,'utf-8')), level=logging.DEBUG)
+		else:
+			shutit_global.shutit_global_object.log('send_and_get_output returning in base64: ' + base64.b64encode(bytes(ret)), level=logging.DEBUG)
 		shutit.handle_note_after(note=note)
 		return ret
 
