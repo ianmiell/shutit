@@ -1710,7 +1710,8 @@ class ShutItPexpectSession(object):
 		# If there happens to be an escape character in there, it's likely a
 		# problem - see IWT-4812.
 		ret = ret.split('\x1b')[0].strip()
-		shutit_global.shutit_global_object.log('send_and_get_output returning in base64: ' + base64.b64encode('ret'), level=logging.DEBUG)
+		assert isinstance(ret, bytes)
+		shutit_global.shutit_global_object.log('send_and_get_output returning in base64: ' + base64.b64encode(ret), level=logging.DEBUG)
 		shutit.handle_note_after(note=note)
 		return ret
 
@@ -2695,6 +2696,9 @@ $'"""
 				if not sendspec.echo:
 					shutit_global.shutit_global_object.log('Output (squashed): ' + logged_output,level=sendspec.loglevel)
 				try:
+					assert isinstance(self.pexpect_child.buffer, bytes)
+					assert isinstance(self.pexpect_child.before, bytes)
+					assert isinstance(self.pexpect_child.after, bytes)
 					shutit_global.shutit_global_object.log('pexpect: buffer: ' + base64.b64encode(self.pexpect_child.buffer) + ' before: ' + base64.b64encode(self.pexpect_child.before) + ' after: '  + base64.b64encode(self.pexpect_child.after),level=logging.DEBUG)
 				except TypeError as e:
 					shutit_global.shutit_global_object.log('Exception at 2665: ' + str(e),level=logging.WARNING)

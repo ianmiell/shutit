@@ -2831,6 +2831,7 @@ class ShutIt(object):
 		directory = os.path.dirname(fpath)
 		if directory not in sys.path:
 			sys.path.append(os.path.dirname(fpath))
+		# TODO: use bytearray to encode?
 		mod_name = base64.b32encode(fpath.encode()).decode().replace('=', '')
 		pymod = imp.load_source(mod_name, fpath)
 
