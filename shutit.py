@@ -63,8 +63,8 @@ def main():
 	"""
 	# Create base shutit object.
 	shutit = shutit_global.shutit_global_object.shutit_objects[0]
-	if sys.version_info.major == 2:
-		if sys.version_info.minor < 7:
+	if sys.version_info[0] == 2:
+		if sys.version_info[1] < 7:
 			shutit.fail('Python version must be 2.7+') # pragma: no cover
 	shutit.setup_shutit_obj()
 
