@@ -41,16 +41,16 @@ class ShutItBackgroundCommand(object):
 
 	def __str__(self):
 		string = str(self.sendspec)
-		string += '\n---- Background object BEGIN ----'
-		string += '\nblock_other_commands: ' + str(self.block_other_commands)
-		string += '\ncwd:                  ' + str(self.cwd)
-		string += '\npid:                  ' + str(self.pid)
-		string += '\nretry:                ' + str(self.retry)
-		string += '\nreturn_value:         ' + str(self.return_value)
-		string += '\nrun_state:            ' + str(self.run_state)
-		string += '\nstart_time:           ' + str(self.start_time)
-		string += '\ntries:                ' + str(self.tries)
-		string += '\n----                   END   ----'
+		string += '\t---- Background object BEGIN ----'
+		string += '\tblock_other_commands: ' + str(self.block_other_commands)
+		string += '\tcwd:                  ' + str(self.cwd)
+		string += '\tpid:                  ' + str(self.pid)
+		string += '\tretry:                ' + str(self.retry)
+		string += '\treturn_value:         ' + str(self.return_value)
+		string += '\trun_state:            ' + str(self.run_state)
+		string += '\tstart_time:           ' + str(self.start_time)
+		string += '\ttries:                ' + str(self.tries)
+		string += '\t----                   END   ----'
 		return string
 
 
