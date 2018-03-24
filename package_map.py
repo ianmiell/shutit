@@ -26,7 +26,7 @@ import shutit_pexpect
 #OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 #SOFTWARE.
 
-# TODO: figure out how to install pip in yum, and/or return a function that
+# TODO: figure out how to install pip in yum, and/or return a function that
 #       does that rather than a string (see https://github.com/ianmiell/shutit/issues/313)
 
 # Structured by package, then another dict with
