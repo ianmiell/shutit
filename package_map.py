@@ -26,8 +26,8 @@ import shutit_pexpect
 #OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 #SOFTWARE.
 
-def install_centos_pip(shutit_pexpect_obj):
-	shutit_pexpect_obj.send('echo HERE')
+# TODO: figure out how to install pip in yum, and/or return a function that
+#       does that rather than a string (see https://github.com/ianmiell/shutit/issues/313)
 
 # Structured by package, then another dict with
 # install_type -> mapped package inside that.
@@ -61,8 +61,8 @@ PACKAGE_MAP = {
 	'docker':                {'apt':'docker.io'},
 	'asciinema':             {                            'yum':'epel-release asciinema'},
 	'run-one':               {                            'yum':''},
-	'python-pip':            {                            'yum': install_centos_pip},
-	'piptest':               {'apt':'python-pip',         'yum': install_centos_pip},
+	'python-pip':            {                            'yum': 'pip'},
+	'piptest':               {'apt':'python-pip',         'yum': 'pip'},
     'lsb-release':           {                            'yum': 'redhat-lsb-core'},
 }
 
@@ -108,7 +108,7 @@ INSTALL_TYPE_MAP = {'ubuntu':'apt',
 def map_packages(package_str, install_type):
 	res = ''
 	for package in package_str.split():
-		res = res + ' ' + map_package(package,install_type)
+		res += ' ' + map_package(package,install_type)
 	return res
 
 
