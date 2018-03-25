@@ -1404,7 +1404,7 @@ class ShutItPexpectSession(object):
 			# Not handled
 			return False
 		# Get mapped packages.
-		package = package_map.map_packages(self,package, self.current_environment.install_type)
+		package = package_map.map_packages(self, package, self.current_environment.install_type)
 		# Let's be tolerant of failure eg due to network.
 		# This is especially helpful with automated exam.
 		if package.strip() != '':
@@ -1562,7 +1562,7 @@ class ShutItPexpectSession(object):
 			# Not handled
 			return False
 		# Get mapped package.
-		package = package_map.map_package(package, self.current_environment.install_type)
+		package = package_map.map_packages(self, package, self.current_environment.install_type)
 		pw = self.get_sudo_pass_if_needed(shutit, ignore_brew=True)
 		if pw != '':
 			cmd = 'sudo ' + cmd
