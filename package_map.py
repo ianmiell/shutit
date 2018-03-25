@@ -2,6 +2,7 @@
 """
 
 from __future__ import print_function
+import logging
 import shutit_pexpect
 
 #The MIT License (MIT)
@@ -32,6 +33,19 @@ import shutit_pexpect
 # Structured by package, then another dict with
 # install_type -> mapped package inside that.
 # The keys are then the canonical package names.
+
+def yum_install_pip(shutit_pexpect_session):
+	# https://www.liquidweb.com/kb/how-to-install-pip-on-centos-7/
+	shutit_pexpect_session.send(ShutItSendSpec(shutit_pexpect_session,
+	                                           send='yum install -y epel-release',
+	                                           loglevel=logging.INFO))
+	shutit_pexpect_session.send(ShutItSendSpec(shutit_pexpect_session,
+	                                           send='yum -y update',
+	                                           loglevel=logging.INFO))
+	shutit_pexpect_session.send(ShutItSendSpec(shutit_pexpect_session,
+	                                           send='yum -y install python-pip',
+	                                           loglevel=logging.INFO))
+
 PACKAGE_MAP = {
 	'apache2':               {                            'yum':'httpd'},
 	'httpd':                 {'apt':'apache2'},
@@ -61,8 +75,8 @@ PACKAGE_MAP = {
 	'docker':                {'apt':'docker.io'},
 	'asciinema':             {                            'yum':'epel-release asciinema'},
 	'run-one':               {                            'yum':''},
-	'python-pip':            {                            'yum': 'pip'},
-	'piptest':               {'apt':'python-pip',         'yum': 'pip'},
+	'python-pip':            {                            'yum': yum_install_pip},
+	'piptest':               {'apt':'python-pip',         'yum': yum_install_pip},
     'lsb-release':           {                            'yum': 'redhat-lsb-core'},
 }
 
@@ -105,19 +119,27 @@ INSTALL_TYPE_MAP = {'ubuntu':'apt',
 
 
 
-def map_packages(package_str, install_type):
+def map_packages(shutit_pexpect_session, package_str, install_type):
 	res = ''
 	for package in package_str.split():
-		res += ' ' + map_package(package,install_type)
+		map_package_res = map_package(shutit_pexpect_session, package,install_type)
+		if map_package_res == '':
+			return res
+		res += ' ' + map_package_res
 	return res
 
 
-def map_package(package, install_type):
+def map_package(shutit_pexpect_session, package, install_type):
 	"""If package mapping exists, then return it, else return package.
 	"""
 	if package in PACKAGE_MAP.keys():
 		for itype in PACKAGE_MAP[package].keys():
 			if itype == install_type:
-				return PACKAGE_MAP[package][install_type]
+				ret = PACKAGE_MAP[package][install_type]
+				if isinstance(ret,str):
+					return ret
+				if callable(ret)
+					ret(shutit_pexpect_session)
+					return ''
 	# Otherwise, simply return package
 	return package
