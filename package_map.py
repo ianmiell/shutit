@@ -138,7 +138,7 @@ def map_package(shutit_pexpect_session, package, install_type):
 				ret = PACKAGE_MAP[package][install_type]
 				if isinstance(ret,str):
 					return ret
-				if callable(ret)
+				if callable(ret):
 					ret(shutit_pexpect_session)
 					return ''
 	# Otherwise, simply return package
