@@ -201,7 +201,8 @@ class ShutItPexpectSession(object):
 	# Multisends must go through send() in shutit global
 	def _check_blocked(self, sendspec):
 		if sendspec.ignore_background:
-			shutit_global.shutit_global_object.log('_check_blocked: background is ignored',level=logging.DEBUG)
+			# Do not log the 'normal' case.
+			#shutit_global.shutit_global_object.log('_check_blocked: background is ignored',level=logging.DEBUG)
 			return False
 		elif self.login_stack.get_current_login_item():
 			if self.login_stack.get_current_login_item().find_sendspec(sendspec):
