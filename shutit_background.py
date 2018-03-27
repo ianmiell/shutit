@@ -41,7 +41,7 @@ class ShutItBackgroundCommand(object):
 
 	def __str__(self):
 		string = str(self.sendspec)
-		string += '\n---- Background object ----'
+		string += '\n---- Background object BEGIN ----'
 		string += '| block_other_commands: ' + str(self.block_other_commands)
 		string += '| cwd: ' + str(self.cwd)
 		string += '| pid: ' + str(self.pid)
@@ -50,7 +50,7 @@ class ShutItBackgroundCommand(object):
 		string += '| run_state: ' + str(self.run_state)
 		string += '| start_time: ' + str(self.start_time)
 		string += '| tries: ' + str(self.tries)
-		string += '|'
+		string += '|---- Background object END ----'
 		return string
 
 

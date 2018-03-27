@@ -30,15 +30,15 @@ class ShutItPexpectSessionEnvironment(object):
 
 	def __str__(self):
 		string = ''
-		string += 'distro                       = ' + str(self.distro)
-		string += 'module_root_dir              = ' + str(self.module_root_dir)
-		string += 'modules_installed            = ' + str(self.modules_installed)
-		string += 'modules_not_installed        = ' + str(self.modules_not_installed)
-		string += 'modules_ready                = ' + str(self.modules_ready)
-		string += 'modules_recorded_cache_valid = ' + str(self.modules_recorded)
-		string += 'install_type                 = ' + str(self.install_type)
-		string += 'distro                       = ' + str(self.distro)
-		string += 'distro_version               = ' + str(self.distro_version)
-		string += 'users                        = ' + str(self.users)
-		string += 'self.build                   = ' + str(self.build)
+		string += '| distro = ' + str(self.distro)
+		string += '| module_root_dir = ' + str(self.module_root_dir)
+		string += '| modules_installed  = ' + str(self.modules_installed)
+		string += '| modules_not_installed = ' + str(self.modules_not_installed)
+		string += '| modules_ready = ' + str(self.modules_ready)
+		string += '| modules_recorded_cache_valid = ' + str(self.modules_recorded)
+		string += '| install_type = ' + str(self.install_type)
+		string += '| distro = ' + str(self.distro)
+		string += '| distro_version = ' + str(self.distro_version)
+		string += '| users = ' + str(self.users)
+		string += '| self.build = ' + str(self.build)
 		return string

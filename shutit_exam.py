@@ -37,13 +37,12 @@ class ShutItExamSessionStage(object):
 
 
 	def __str__(self):
-		string = ''
-		string += '\nnum_resets       = ' + str(self.num_resets)
-		string += '\nnum_hints        = ' + str(self.num_hints)
-		string += '\nresult           = ' + str(self.result)
-		string += '\nstart_time       = ' + str(self.start_time)
-		string += '\nend_time         = ' + str(self.end_time)
-		string += '\nscore            = ' + str(self.score)
+		string =  '| num_resets = ' + str(self.num_resets)
+		string += '| num_hints = ' + str(self.num_hints)
+		string += '| result = ' + str(self.result)
+		string += '| start_time = ' + str(self.start_time)
+		string += '| end_time = ' + str(self.end_time)
+		string += '| score = ' + str(self.score)
 		return string
 
 
