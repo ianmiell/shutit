@@ -2504,9 +2504,9 @@ class ShutItPexpectSession(object):
 		                             If return is -1, the task was backgrounded. See also multisend.
 		@rtype:                      int
 		"""
-		shutit_global.shutit_global_object.log('In send, trying to send: ' + str(sendspec.send),level=logging.DEBUG)
+		shutit_global.shutit_global_object.log('In session: ' + self.pexpect_session_id + ', trying to send: ' + str(sendspec.send),level=logging.DEBUG)
 		if self._check_blocked(sendspec):
-			shutit_global.shutit_global_object.log('In send for ' + str(sendspec.send) + ', check_blocked called and returned True.',level=logging.INFO)
+			shutit_global.shutit_global_object.log('In send for ' + str(sendspec.send) + ', check_blocked called and returned True.',level=logging.DEBUG)
 			# _check_blocked will add to the list of background tasks and handle dupes, so leave there.
 			return -1
 		shutit = self.shutit
@@ -2558,7 +2558,6 @@ class ShutItPexpectSession(object):
 			                                     nonewline=sendspec.nonewline,
 			                                     loglevel=sendspec.loglevel))
 
-		shutit_global.shutit_global_object.log('Sending data in session: ' + self.pexpect_session_id,level=logging.DEBUG)
 		shutit.handle_note(sendspec.note, command=str(sendspec.send), training_input=str(sendspec.send))
 		if sendspec.timeout is None:
 			sendspec.timeout = 3600
