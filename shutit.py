@@ -66,7 +66,11 @@ def main():
 	if sys.version_info[0] == 2:
 		if sys.version_info[1] < 7:
 			shutit.fail('Python version must be 2.7+') # pragma: no cover
-	shutit.setup_shutit_obj()
+	try:
+		shutit.setup_shutit_obj()
+	except KeyboardInterrupt:
+		print('Interrupted')
+		sys.exit(1)
 
 
 shutit_version='1.0.73'
