@@ -20,6 +20,7 @@ import operator
 import os
 import tarfile
 import re
+import socket
 import string
 import sys
 import subprocess
@@ -471,8 +472,17 @@ class ShutIt(object):
 		else:
 			# This is an "OK" failure, ie we don't need to throw an exception.
 			# However, it's still a failure, so return 1
+			environ_string = ''
+			for env is os.environ:
+				environ_string += 'export ' + env + '=' + os.environ + ';'
 			shutit_global.shutit_global_object.log(msg,level=logging.CRITICAL)
 			shutit_global.shutit_global_object.log('Error seen, exiting with status 1',level=logging.CRITICAL)
+			shutit_global.shutit_global_object.log('=============================== DEBUG INFO =========================================' + socket.hostname(),level=logging.CRITICAL)
+			shutit_global.shutit_global_object.log('Shutit version: '     + shutit.shutit_version,level=logging.CRITICAL)
+			shutit_global.shutit_global_object.log('Server: '             + socket.hostname(),level=logging.CRITICAL)
+			shutit_global.shutit_global_object.log('Environment: '        + environ_string,level=logging.CRITICAL)
+			shutit_global.shutit_global_object.log('Command was: shutit ' + (' ').join(sys.arg),level=logging.CRITICAL)
+			shutit_global.shutit_global_object.log('=============================== DEBUG INFO =========================================' + socket.hostname(),level=logging.CRITICAL)
 			shutit_global.shutit_global_object.handle_exit(exit_code=1,msg=msg)
 
 
