@@ -477,12 +477,13 @@ class ShutIt(object):
 				environ_string += 'export ' + env + '=' + os.environ + ';'
 			shutit_global.shutit_global_object.log(msg,level=logging.CRITICAL)
 			shutit_global.shutit_global_object.log('Error seen, exiting with status 1',level=logging.CRITICAL)
-			shutit_global.shutit_global_object.log('=============================== DEBUG INFO =========================================' + socket.hostname(),level=logging.CRITICAL)
+			shutit_global.shutit_global_object.log('=============================== DEBUG INFO =========================================',level=logging.CRITICAL)
+			shutit_global.shutit_global_object.log('Python version: '     + 'sys.version_info: ' + sys.version_info + ', sys.version: ' + sys.version + ', sys.subversion: ' + sys.subversion,level=logging.CRITICAL)
 			shutit_global.shutit_global_object.log('Shutit version: '     + shutit.shutit_version,level=logging.CRITICAL)
 			shutit_global.shutit_global_object.log('Server: '             + socket.hostname(),level=logging.CRITICAL)
 			shutit_global.shutit_global_object.log('Environment: '        + environ_string,level=logging.CRITICAL)
-			shutit_global.shutit_global_object.log('Command was: ' + sys.executable() + (' ').join(sys.arg),level=logging.CRITICAL)
-			shutit_global.shutit_global_object.log('=============================== DEBUG INFO =========================================' + socket.hostname(),level=logging.CRITICAL)
+			shutit_global.shutit_global_object.log('Command was: '        + sys.executable() + (' ').join(sys.arg),level=logging.CRITICAL)
+			shutit_global.shutit_global_object.log('=============================== DEBUG INFO =========================================',level=logging.CRITICAL)
 			shutit_global.shutit_global_object.handle_exit(exit_code=1,msg=msg)
 
 
