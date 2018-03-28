@@ -26,8 +26,10 @@
 """ShutIt is a means of building stateless target hosts in a flexible and predictable way.
 """
 from __future__ import print_function
+import logging
 import sys
 import shutit_global
+import shutit_util
 
 
 def create_session(session_type='bash',
@@ -69,7 +71,8 @@ def main():
 	try:
 		shutit.setup_shutit_obj()
 	except KeyboardInterrupt:
-		print('Interrupted')
+		shutit_util.print_debug()
+		shutit_global.shutit_global_object.log('Keyboard interrupt caught, exiting with status 1',level=logging.CRITICAL)
 		sys.exit(1)
 
 

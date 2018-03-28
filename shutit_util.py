@@ -34,6 +34,7 @@ import os
 import random
 import re
 import readline
+import socket
 import stat
 import string
 import sys
@@ -42,6 +43,7 @@ import time
 import shutit_assets
 import shutit_class
 import shutit_global
+import shutit
 
 PY3 = (sys.version_info[0] >= 3)
 
@@ -285,16 +287,20 @@ def get_input(msg, default='', valid=None, boolean=False, ispass=False, color='3
 			answer = util_raw_input(prompt=colorise(color,msg),ispass=ispass)
 	if boolean:
 		if answer.lower() in ('yes','y','1','true','t'):
-		        return True
+			return True
 		elif answer.lower() in ('no','n','0','false','f'):
-		        return False
+			return False
 	return answer or default
 
+
 def print_debug():
-	print('================================================================================')
-	print('PRINTING DEBUG')
-	print('PRINTING sys.version')
-	print(sys.version)
-	print('PRINTING PY3')
-	print(PY3)
-	print('================================================================================')
+	environ_string = ''
+	for env in os.environ:
+		environ_string += 'export ' + env + '=' + str(os.environ[env]) + ';'
+	shutit_global.shutit_global_object.log('=============================== DEBUG INFO =========================================',level=logging.CRITICAL)
+	shutit_global.shutit_global_object.log('Python version: '     + 'sys.version_info: ' + str(sys.version_info) + ', sys.version: ' + str(sys.version) + ', sys.subversion: ' + str(sys.subversion),level=logging.CRITICAL)
+	shutit_global.shutit_global_object.log('Shutit version: '     + shutit.shutit_version,level=logging.CRITICAL)
+	shutit_global.shutit_global_object.log('Server: '             + socket.gethostname(),level=logging.CRITICAL)
+	shutit_global.shutit_global_object.log('Environment: '        + environ_string,level=logging.CRITICAL)
+	shutit_global.shutit_global_object.log('Command was: '        + sys.executable + (' ').join(sys.argv),level=logging.CRITICAL)
+	shutit_global.shutit_global_object.log('=============================== DEBUG INFO =========================================',level=logging.CRITICAL)

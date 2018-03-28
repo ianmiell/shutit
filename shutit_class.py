@@ -464,26 +464,16 @@ class ShutIt(object):
 		# Note: we must not default to a child here
 		if shutit_pexpect_child is not None:
 			shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
+			shutit_util.print_debug()
 			shutit_pexpect_session.pause_point('Pause point on fail: ' + msg, color='31')
 		if throw_exception:
 			sys.stderr.write('Error caught: ' + msg + '\n')
 			sys.stderr.write('\n')
+			shutit_util.print_debug()
 			raise ShutItFailException(msg)
 		else:
 			# This is an "OK" failure, ie we don't need to throw an exception.
-			# However, it's still a failure, so return 1
-			environ_string = ''
-			for env in os.environ:
-				environ_string += 'export ' + env + '=' + os.environ + ';'
-			shutit_global.shutit_global_object.log(msg,level=logging.CRITICAL)
-			shutit_global.shutit_global_object.log('Error seen, exiting with status 1',level=logging.CRITICAL)
-			shutit_global.shutit_global_object.log('=============================== DEBUG INFO =========================================',level=logging.CRITICAL)
-			shutit_global.shutit_global_object.log('Python version: '     + 'sys.version_info: ' + sys.version_info + ', sys.version: ' + sys.version + ', sys.subversion: ' + sys.subversion,level=logging.CRITICAL)
-			shutit_global.shutit_global_object.log('Shutit version: '     + shutit.shutit_version,level=logging.CRITICAL)
-			shutit_global.shutit_global_object.log('Server: '             + socket.hostname(),level=logging.CRITICAL)
-			shutit_global.shutit_global_object.log('Environment: '        + environ_string,level=logging.CRITICAL)
-			shutit_global.shutit_global_object.log('Command was: '        + sys.executable() + (' ').join(sys.arg),level=logging.CRITICAL)
-			shutit_global.shutit_global_object.log('=============================== DEBUG INFO =========================================',level=logging.CRITICAL)
+			# However, it's still a "failure", so return 1
 			shutit_global.shutit_global_object.handle_exit(exit_code=1,msg=msg)
 
 
