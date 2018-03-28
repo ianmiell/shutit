@@ -473,7 +473,7 @@ class ShutIt(object):
 			# This is an "OK" failure, ie we don't need to throw an exception.
 			# However, it's still a failure, so return 1
 			environ_string = ''
-			for env is os.environ:
+			for env in os.environ:
 				environ_string += 'export ' + env + '=' + os.environ + ';'
 			shutit_global.shutit_global_object.log(msg,level=logging.CRITICAL)
 			shutit_global.shutit_global_object.log('Error seen, exiting with status 1',level=logging.CRITICAL)
