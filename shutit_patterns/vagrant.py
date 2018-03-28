@@ -145,8 +145,7 @@ def setup_vagrant_pattern(shutit,
 		except NameError:
 			shutit.multisend('vagrant up ''' + machine_name + """'""" + ''',{'assword for':pw,'assword:':pw},timeout=99999)
 		if shutit.send_and_get_output("""vagrant status 2> /dev/null | grep -w ^''' + machine_name + ''' | awk '{print $2}'""") != 'running':
-			shutit.pause_point("machine: ''' + machine_name + ''' appears not to have come up cleanly")
-'''
+			shutit.pause_point("machine: ''' + machine_name + ''' appears not to have come up cleanly")'''
 
 	vagrant_dir_section_1 = """
 		if shutit.build['vagrant_run_dir'] is None:
@@ -227,25 +226,25 @@ echo "\n/swapfile none            swap    sw              0       0" >> /etc/fst
 		# TODO: create snapshot subfolder
 		snapshot_code = '''
 		for machine in sorted(machines.keys()):
-			shutit.send('vagrant snapshot save ' + machine,note='Snapshot the vagrant machine')
-			'''
+			shutit.send('vagrant snapshot save ' + machine,note='Snapshot the vagrant machine')'''
 	else:
 		snapshot_code = ''
 
 	if upload:
 		upload_code = '''
+
 		# Create a stable box name for this particular build
 		boxname_base = shutit.build['module_name'] + '_' + int(time.time()))
 		for machine in sorted(machines.keys()):
 			boxname = boxname_base + '_' + machine + '.box'
 			shutit.send('vagrant package --base ' + machine + ' --output ' + boxname + ' --vagrantfile Vagrantfile && mvn ',note='Package the vagrant machine')
-			shutit.send('mvn deploy:deploy-file -DgroupId=com.meirionconsulting -DartifactId=' + boxname + ' -Dversion=0.0.0.1 -Dpackaging=tar.gz -DrepositoryId=nexus.meirionconsulting.com -Durl=http://nexus.meirionconsulting.com:8081/repository/maven-releases -Dfile=' + boxname,note='Push the vagrant box')
-			'''
+			shutit.send('mvn deploy:deploy-file -DgroupId=com.meirionconsulting -DartifactId=' + boxname + ' -Dversion=0.0.0.1 -Dpackaging=tar.gz -DrepositoryId=nexus.meirionconsulting.com -Durl=http://nexus.meirionconsulting.com:8081/repository/maven-releases -Dfile=' + boxname,note='Push the vagrant box')'''
 	else:
 		upload_code = ''
 
 
 	final_message = """
+
 		shutit.log('''********************************************************************************
 
 # Vagrantfile created in: ''' + shutit.build['vagrant_run_dir'] + '''\n# Run:
