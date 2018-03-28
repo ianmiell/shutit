@@ -233,10 +233,13 @@ echo "\n/swapfile none            swap    sw              0       0" >> /etc/fst
 		snapshot_code = ''
 
 	if upload:
+		# TODO: use more stable name to id, eg folder name
 		upload_code = '''
+		boxname_base = join(random.choice(string.ascii_letters + string.digits)
 		for machine in sorted(machines.keys()):
-			shutit.send('vagrant package --base ' + machine + ' --output ' + machine + '.box --vagrantfile Vagrantfile && mvn ',note='Package the vagrant machine')
-			shutit.send('mvn deploy:deploy-file -DgroupId=com.meirionconsulting -DartifactId=' + machine + ' -Dversion=0.0.0.1 -Dpackaging=tar.gz -DrepositoryId=nexus.meirionconsulting.com -Durl=http://nexus.meirionconsulting.com:8081/repository/maven-releases -Dfile=' + machine + '.box',note='Push the vagrant box')
+			boxname = box_name_base + '_' + machine + '.box'
+			shutit.send('vagrant package --base ' + machine + ' --output ' + boxname + ' --vagrantfile Vagrantfile && mvn ',note='Package the vagrant machine')
+			shutit.send('mvn deploy:deploy-file -DgroupId=com.meirionconsulting -DartifactId=' + boxname + ' -Dversion=0.0.0.1 -Dpackaging=tar.gz -DrepositoryId=nexus.meirionconsulting.com -Durl=http://nexus.meirionconsulting.com:8081/repository/maven-releases -Dfile=' + boxname,note='Push the vagrant box')
 			'''
 	else:
 		upload_code = ''
