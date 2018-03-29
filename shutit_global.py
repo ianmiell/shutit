@@ -274,7 +274,7 @@ class ShutItGlobal(object):
 		self.loglevel = logging.getLogger().getEffectiveLevel()
 
 
-	def handle_exit(self,exit_code=0,loglevel=logging.DEBUG,msg=None):
+	def handle_exit(self,exit_code=0,loglevel=logging.CRITICAL,msg=None):
 		if not msg:
 			msg = '\nExiting with error code: ' + str(exit_code)
 			msg += '\nInvoking command was: ' + sys.executable

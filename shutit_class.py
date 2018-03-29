@@ -3713,8 +3713,8 @@ shutitfile:        a shutitfile-based project (can be docker, bash, vagrant)''')
 		]
 		self.build['docker_command'] = ' '.join(docker_command)
 		# docker run happens here
-		shutit_global.shutit_global_object.log('Startup command is: ' + self.build['docker_command'],level=logging.INFO)
-		shutit_global.shutit_global_object.log('Downloading image, please be patient',level=logging.INFO)
+		shutit_global.shutit_global_object.log('Startup command is: ' + self.build['docker_command'],level=logging.DEBUG)
+		shutit_global.shutit_global_object.log('Downloading context, please be patient',level=logging.INFO)
 		shutit_pexpect_session = ShutItPexpectSession(self, shutit_session_name, docker_command[0], docker_command[1:])
 		target_child = shutit_pexpect_session.pexpect_child
 		expect = ['assword', shutit_global.shutit_global_object.base_prompt.strip(), 'Waiting', 'ulling', 'endpoint', 'Download','o such file']
