@@ -293,11 +293,13 @@ def get_input(msg, default='', valid=None, boolean=False, ispass=False, color='3
 	return answer or default
 
 
-def print_debug():
+def print_debug(exc_info=None):
 	environ_string = ''
 	for env in os.environ:
 		environ_string += 'export ' + env + '=' + str(os.environ[env]) + ';'
 	shutit_global.shutit_global_object.log('=============================== DEBUG INFO =========================================',level=logging.CRITICAL)
+	if exc_info:
+		traceback.print_exception(*exc_info)
 	shutit_global.shutit_global_object.log('Python version: '     + 'sys.version_info: ' + str(sys.version_info) + ', sys.version: ' + str(sys.version) + ', sys.subversion: ' + str(sys.subversion),level=logging.CRITICAL)
 	shutit_global.shutit_global_object.log('Shutit version: '     + shutit.shutit_version,level=logging.CRITICAL)
 	shutit_global.shutit_global_object.log('Server: '             + socket.gethostname(),level=logging.CRITICAL)

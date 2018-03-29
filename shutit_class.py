@@ -464,12 +464,12 @@ class ShutIt(object):
 		# Note: we must not default to a child here
 		if shutit_pexpect_child is not None:
 			shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
-			shutit_util.print_debug()
+			shutit_util.print_debug(sys.exc_info())
 			shutit_pexpect_session.pause_point('Pause point on fail: ' + msg, color='31')
 		if throw_exception:
 			sys.stderr.write('Error caught: ' + msg + '\n')
 			sys.stderr.write('\n')
-			shutit_util.print_debug()
+			shutit_util.print_debug(sys.exc_info())
 			raise ShutItFailException(msg)
 		else:
 			# This is an "OK" failure, ie we don't need to throw an exception.

@@ -71,12 +71,13 @@ def main():
 	try:
 		shutit.setup_shutit_obj()
 	except KeyboardInterrupt:
-		shutit_util.print_debug()
+		shutit_util.print_debug(sys.exc_info())
 		shutit_global.shutit_global_object.log('Keyboard interrupt caught, exiting with status 1',level=logging.CRITICAL)
 		sys.exit(1)
 
 
 shutit_version='1.0.74'
+
 
 if __name__ == '__main__':
 	shutit_global.setup_signals()
