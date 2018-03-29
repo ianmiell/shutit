@@ -40,6 +40,7 @@ import string
 import sys
 import threading
 import time
+import traceback
 import shutit_assets
 import shutit_class
 import shutit_global
@@ -299,7 +300,10 @@ def print_debug(exc_info=None):
 		environ_string += 'export ' + env + '=' + str(os.environ[env]) + ';'
 	shutit_global.shutit_global_object.log('=============================== DEBUG INFO =========================================',level=logging.CRITICAL)
 	if exc_info:
-		traceback.print_exception(*exc_info)
+		stack_trace = ''
+		for line in traceback.format_exception(*exc_info):
+			stack_trace += line
+		shutit_global.shutit_global_object.log('Stacktrace:\n'        + stack_trace,level=logging.CRITICAL)
 	shutit_global.shutit_global_object.log('Python version: '     + 'sys.version_info: ' + str(sys.version_info) + ', sys.version: ' + str(sys.version) + ', sys.subversion: ' + str(sys.subversion),level=logging.CRITICAL)
 	shutit_global.shutit_global_object.log('Shutit version: '     + shutit.shutit_version,level=logging.CRITICAL)
 	shutit_global.shutit_global_object.log('Server: '             + socket.gethostname(),level=logging.CRITICAL)
