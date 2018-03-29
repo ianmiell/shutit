@@ -759,8 +759,11 @@ class ShutItPexpectSession(object):
 				if interact:
 					self.pexpect_child.interact()
 				try:
+					#print('pre interact')
 					self.pexpect_child.interact(input_filter=self._pause_input_filter)
+					#print('post interact')
 					self.handle_pause_point_signals()
+					#print('post handle_pause_point_signals')
 				except Exception as e:
 					shutit.fail('Terminating ShutIt within pause point.\r\n' + str(e)) # pragma: no cover
 				if not shutit.build['exam'] and shutit_global.shutit_global_object.loglevel not in ('DEBUG',):
@@ -780,6 +783,7 @@ class ShutItPexpectSession(object):
 
 	def handle_pause_point_signals(self):
 		shutit = self.shutit
+		#print('in handle_pause_point_signals, signal_id: ' + str(shutit_global.shutit_global_object.signal_id))
 		if shutit_global.shutit_global_object.signal_id == 29:
 			# clear the signal
 			shutit_global.shutit_global_object.signal_id = 0
@@ -3149,7 +3153,9 @@ $'"""
 			ok = False
 			# hints
 			if hints:
-				task_desc_new = task_desc + '\r\n\r\nHit CTRL-h for help, CTRL-g to reset state, CTRL-s to skip, CTRL-] to submit for checking'
+				# TODO: debug this, it doesn't work!
+				# task_desc_new = task_desc + '\r\n\r\nHit CTRL-h for help, CTRL-g to reset state, CTRL-s to skip, CTRL-] to submit for checking'
+				task_desc_new = task_desc + '\r\n\r\nCTRL-] to submit for checking'
 			else:
 				task_desc_new = '\r\n' + task_desc
 			while not ok:
@@ -3214,6 +3220,12 @@ $'"""
 					skipped=True
 					self._challenge_done(shutit, result='skipped',follow_on_context=follow_on_context,skipped=True,final_stage=final_stage)
 					return True
+				elif signal_id == 29:
+					# Clear the signal
+					signal_id = 0
+				else:
+					shutit_global.shutit_global_object.log('Signal not handled: ' + str(signal_id),level=logging.CRITICAL,transient=True)
+					
 				shutit_global.shutit_global_object.log('\r\nState submitted, checking your work...',level=logging.CRITICAL,transient=True)
 				check_command = follow_on_context.get('check_command')
 				output = self.send_and_get_output(check_command,
@@ -3453,6 +3465,7 @@ $'"""
 	def _pause_input_filter(self, input_string):
 		"""Input filter for pause point to catch special keystrokes
 		"""
+		#print('in _pause_input_filter, ord(input_string): ' + str(ord(input_string)))
 		shutit = self.shutit
 		# Can get errors with eg up/down chars
 		if len(input_string) == 1:
