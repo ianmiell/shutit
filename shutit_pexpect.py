@@ -560,7 +560,7 @@ class ShutItPexpectSession(object):
 		"""Replaces a container. Assumes we are in Docker context.
 		"""
 		shutit = self.shutit
-		shutit_global.shutit_global_object.log('Replacing container with ' + new_target_image_name + ', please wait...',level=logging.INFO)
+		shutit_global.shutit_global_object.log('Replacing container with ' + new_target_image_name + ', please wait...',level=logging.DEBUG)
 		shutit_global.shutit_global_object.log(shutit.print_session_state(),level=logging.DEBUG)
 
 		# Destroy existing container.
@@ -578,7 +578,7 @@ class ShutItPexpectSession(object):
 		shutit.target['docker_image'] = new_target_image_name
 		target_child = conn_module.start_container(shutit, self.pexpect_session_id)
 		conn_module.setup_target_child(shutit, target_child)
-		shutit_global.shutit_global_object.log('Container replaced',level=logging.INFO)
+		shutit_global.shutit_global_object.log('Container replaced',level=logging.DEBUG)
 		shutit_global.shutit_global_object.log(shutit.print_session_state(),level=logging.DEBUG)
 		# New session - log in. This makes the assumption that we are nested
 		# the same level in in terms of shells (root shell + 1 new login shell).
@@ -785,8 +785,6 @@ class ShutItPexpectSession(object):
 		shutit = self.shutit
 		#print('in handle_pause_point_signals, signal_id: ' + str(shutit_global.shutit_global_object.signal_id))
 		if shutit_global.shutit_global_object.signal_id == 29:
-			# clear the signal
-			shutit_global.shutit_global_object.signal_id = 0
 			shutit_global.shutit_global_object.log('\r\nCTRL-] caught, continuing with run...',level=logging.INFO,transient=True)
 		elif isinstance(shutit_global.shutit_global_object.signal_id, int) and shutit_global.shutit_global_object.signal_id not in (0,4,7,8,17,19):
 			shutit_global.shutit_global_object.log('\r\nLeaving interact without CTRL-] and shutit_signal is not recognised, shutit_signal value: ' + str(shutit_global.shutit_global_object.signal_id),level=logging.CRITICAL,transient=True)
@@ -2703,7 +2701,7 @@ $'"""
 			logged_output = ''.join((self.pexpect_child.before + str(self.pexpect_child.after)).split('\n')).replace(sendspec.send,'',1).replace('\r','')[:160] + ' [...]'
 			if not sendspec.secret:
 				if not sendspec.echo:
-					shutit_global.shutit_global_object.log('Output (squashed): ' + logged_output,level=sendspec.loglevel)
+					shutit_global.shutit_global_object.log('Output (squashed): ' + logged_output,level=logging.DEBUG)
 				try:
 					shutit_global.shutit_global_object.log('pexpect: buffer: ' + base64.b64encode(self.pexpect_child.buffer) + ' before: ' + base64.b64encode(self.pexpect_child.before) + ' after: '  + base64.b64encode(self.pexpect_child.after),level=logging.DEBUG)
 				except TypeError as e:
@@ -3046,7 +3044,6 @@ $'"""
 		                             golf    = user gets a pause point, and when leaving, command follow_on_context['check_command'] is run to check the output
 		"""
 		shutit = self.shutit
-		signal_id = shutit_global.shutit_global_object.signal_id
 		if new_stage and shutit.build['exam_object']:
 			if num_stages is None:
 				num_stages = shutit.build['exam_object'].num_stages
@@ -3164,7 +3161,7 @@ $'"""
 					# Set the new_stage to False, as we're in a loop that doesn't need to mark a new state.
 					new_stage = False
 				self.pause_point(shutit_util.colorise('31',task_desc_new),color='31')
-				if signal_id == 8:
+				if shutit_global.shutit_global_object.signal_id == 8:
 					if shutit.build['exam_object']:
 						shutit.build['exam_object'].add_hint()
 					if shutit.build['pause_point_hints']:
@@ -3173,19 +3170,19 @@ $'"""
 						shutit_global.shutit_global_object.log(shutit_util.colorise('31','\r\n\r\n' + 'No hints available!'),transient=True,level=logging.CRITICAL)
 					time.sleep(1)
 					# clear the signal
-					signal_id = 0
+					shutit_global.shutit_global_object.signal_id = 0
 					continue
-				elif signal_id == 17:
+				elif shutit_global.shutit_global_object.signal_id == 17:
 					# clear the signal and ignore CTRL-q
-					signal_id = 0
+					shutit_global.shutit_global_object.signal_id = 0
 					continue
-				elif signal_id == 7:
+				elif shutit_global.shutit_global_object.signal_id == 7:
 					if shutit.build['exam_object']:
 						shutit.build['exam_object'].add_reset()
 					shutit_global.shutit_global_object.log(shutit_util.colorise('31','\r\n========= RESETTING STATE ==========\r\n\r\n'),transient=True,level=logging.CRITICAL)
 					self._challenge_done(shutit, result='reset', follow_on_context=follow_on_context,final_stage=False)
 					# clear the signal
-					signal_id = 0
+					shutit_global.shutit_global_object.signal_id = 0
 					# Get the new target child, which is the new 'self'
 					target_child = shutit.get_shutit_pexpect_session_from_id('target_child')
 					return target_child.challenge(
@@ -3209,22 +3206,22 @@ $'"""
 						follow_on_context=follow_on_context,
 						new_stage=False
 					)
-				elif signal_id == 19:
+				elif shutit_global.shutit_global_object.signal_id == 19:
 					if shutit.build['exam_object']:
 						shutit.build['exam_object'].add_skip()
 						shutit.build['exam_object'].end_timer()
 					# Clear the signal.
-					signal_id = 0
+					shutit_global.shutit_global_object.signal_id = 0
 					# Skip test.
 					shutit_global.shutit_global_object.log('\r\nTest skipped... please wait',level=logging.CRITICAL,transient=True)
 					skipped=True
 					self._challenge_done(shutit, result='skipped',follow_on_context=follow_on_context,skipped=True,final_stage=final_stage)
 					return True
-				elif signal_id == 29:
+				elif shutit_global.shutit_global_object.signal_id == 29:
 					# Clear the signal
-					signal_id = 0
+					shutit_global.shutit_global_object.signal_id = 0
 				else:
-					shutit_global.shutit_global_object.log('Signal not handled: ' + str(signal_id),level=logging.CRITICAL,transient=True)
+					shutit_global.shutit_global_object.log('Signal not handled: ' + str(shutit_global.shutit_global_object.signal_id),level=logging.CRITICAL,transient=True)
 					
 				shutit_global.shutit_global_object.log('\r\nState submitted, checking your work...',level=logging.CRITICAL,transient=True)
 				check_command = follow_on_context.get('check_command')

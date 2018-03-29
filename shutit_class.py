@@ -3742,7 +3742,7 @@ shutitfile:        a shutitfile-based project (can be docker, bash, vagrant)''')
 			else:
 				res = shutit_pexpect_session.expect(expect, timeout=9999)
 				continue
-		shutit_global.shutit_global_object.log('Getting cid',level=logging.INFO)
+		shutit_global.shutit_global_object.log('Getting cid',level=logging.DEBUG)
 		# Get the cid, to determine whether the container started up ok.
 		# pexpect.spawn does not give us an easy way to determine the success of the run without closing the stream.
 		while True:
