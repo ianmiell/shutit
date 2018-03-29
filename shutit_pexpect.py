@@ -3151,8 +3151,7 @@ $'"""
 			# hints
 			if hints:
 				# TODO: debug this, it doesn't work!
-				# task_desc_new = task_desc + '\r\n\r\nHit CTRL-h for help, CTRL-g to reset state, CTRL-s to skip, CTRL-] to submit for checking'
-				task_desc_new = task_desc + '\r\n\r\nCTRL-] to submit for checking'
+				task_desc_new = task_desc + '\r\n\r\nHit CTRL-h for help, CTRL-g to reset state, CTRL-s to skip, CTRL-] to submit for checking'
 			else:
 				task_desc_new = '\r\n' + task_desc
 			while not ok:
