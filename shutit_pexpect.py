@@ -621,6 +621,7 @@ class ShutItPexpectSession(object):
 
 	def check_last_exit_values(self,
 	                           send,
+	                           check_exit=True,
 	                           expect=None,
 	                           exit_values=None,
 	                           retry=0,
@@ -629,7 +630,7 @@ class ShutItPexpectSession(object):
 		"""
 		shutit = self.shutit
 		expect = expect or self.default_expect
-		if not self.check_exit:
+		if not self.check_exit or not check_exit:
 			shutit_global.shutit_global_object.log('check_exit configured off, returning', level=logging.DEBUG)
 			return True
 		if exit_values is None:
@@ -2726,6 +2727,7 @@ $'"""
 			if sendspec.check_exit:
 				# store the output
 				if not self.check_last_exit_values(sendspec.send,
+				                                   check_exit=sendspec.check_exit,
 				                                   expect=sendspec.expect,
 				                                   exit_values=sendspec.exit_values,
 				                                   retry=sendspec.retry):

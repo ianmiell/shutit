@@ -770,6 +770,7 @@ class ShutIt(object):
 		                            loglevel=loglevel,
 		                            follow_on_commands=follow_on_commands))
 		return shutit_pexpect_session.check_last_exit_values(send,
+		                                                     check_exit=check_exit,
 		                                                     expect=expect,
 		                                                     exit_values=exit_values,
 		                                                     retry=retry,
