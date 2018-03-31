@@ -76,7 +76,7 @@ def main():
 		sys.exit(1)
 
 
-shutit_version='1.0.79', uploaded at Sat 31 Mar 10:07:14 BST 2018
+shutit_version='1.0.83'
 
 
 if __name__ == '__main__':
