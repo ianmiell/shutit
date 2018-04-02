@@ -234,7 +234,7 @@ echo "\n/swapfile none            swap    sw              0       0" >> /etc/fst
 		upload_code = '''
 
 		# Create a stable box name for this particular build
-		boxname_base = shutit.build['module_name'] + '_' + int(time.time()))
+		boxname_base = shutit.build['module_name'] + '_' + int(time.time())
 		for machine in sorted(machines.keys()):
 			boxname = boxname_base + '_' + machine + '.box'
 			shutit.send('vagrant package --base ' + machine + ' --output ' + boxname + ' --vagrantfile Vagrantfile && mvn ',note='Package the vagrant machine')
