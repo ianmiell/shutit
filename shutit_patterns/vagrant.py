@@ -237,8 +237,7 @@ echo "\n/swapfile none            swap    sw              0       0" >> /etc/fst
 		boxname_base = shutit.build['module_name'] + '_' + str(int(time.time()))
 		for machine in sorted(machines.keys()):
 			boxname = boxname_base + '_' + machine + '.box'
-			#shutit.send('vagrant package --base ' + machine + ' --output ' + boxname + ' --vagrantfile Vagrantfile',note='Package the vagrant machine')
-			shutit.send('vagrant package --output ' + boxname + ' --vagrantfile Vagrantfile',note='Package the vagrant machine')
+			shutit.send('vagrant package --output ' + boxname + ' --vagrantfile Vagrantfile '  + machine,note='Package the vagrant machine')
 			shutit.send('mvn deploy:deploy-file -DgroupId=com.meirionconsulting -DartifactId=' + boxname + ' -Dversion=0.0.0.1 -Dpackaging=tar.gz -DrepositoryId=nexus.meirionconsulting.com -Durl=http://nexus.meirionconsulting.com/repository/maven-releases -Dfile=' + boxname,note='Push the vagrant box')'''
 	else:
 		upload_code = ''
