@@ -130,7 +130,7 @@ def setup_vagrant_pattern(shutit,
 		machine_list_code += """\n\t\tmachines.update({'""" + machine_name + """':{'fqdn':'""" + machine_fqdn + """'}})"""
 		machine_list_code += """\n\t\tip = shutit.send_and_get_output('''vagrant landrush ls 2> /dev/null | grep -w ^''' + machines['""" + machine_name + """']['fqdn'] + ''' | awk '{print $2}' ''')"""
 		machine_list_code += """\n\t\tmachines.get('""" + machine_name + """').update({'ip':ip})"""
-		vagrant_up_section += '''\t\ttry:
+		vagrant_up_section += '''\n\t\ttry:
 			pw = file('secret').read().strip()
 		except IOError:
 			pw = ''
