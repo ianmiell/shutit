@@ -107,6 +107,24 @@ class ShutItGlobal(object):
 		self.allowed_delivery_methods = ['ssh','dockerfile','bash','docker','vagrant']
 		self.nocolor             = False
 
+	def __str__(self):
+		str_repr = '\n====== SHUTIT_GLOBAL_OBJECT BEGIN ====='
+		str_repr += '\tself.logfile='         + str(self.logfile)
+		str_repr += '\tself.signal_id='       + str(self.signal_id)
+		str_repr += '\tself.window_size_max=' + str(self.window_size_max)
+		str_repr += '\tself.username='        + str(self.username)
+		str_repr += '\tbase_prompt='          + str(self.base_prompt)
+		str_repr += '\treal_user='            + str(self.real_user)
+		str_repr += '\treal_user_id='         + str(self.real_user_id)
+		str_repr += '\tbuild_id='             + str(self.build_id)
+		# TODO - recurse error
+		for shutit_object in self.shutit_objects:
+			str_repr += str(shutit_object)
+		# TODO
+		#self.shutit_pexpect_session_environments = set()
+		str_repr += '\n====== SHUTIT_GLOBAL_OBJECT DONE ====='
+		return str_repr
+
 
 	def add_shutit_session(self, shutit):
 		self.shutit_objects.append(shutit)

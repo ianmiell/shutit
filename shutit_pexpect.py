@@ -122,6 +122,22 @@ class ShutItPexpectSession(object):
 		                                             dimensions=dimensions,
 		                                             delaybeforesend=delaybeforesend)
 
+	def __str__(self):
+		str_repr = '\n======= SHUTIT_PEXPECT_SESSION BEGIN ======='
+		str_repr += '\tcheck_exit='           + str(self.check_exit)
+		str_repr += '\tdefault_expect='       + str(self.default_expect)
+		str_repr += '\tshell_expect='         + str(self.shell_expect)
+		str_repr += '\tin_shell='             + str(self.in_shell)
+		str_repr += '\tpexpect_session_id='   + str(self.pexpect_session_id)
+		str_repr += '\tlogin_stack='          + str(self.login_stack)
+		str_repr += '\tcurrent_environment='  + str(self.current_environment)
+		str_repr += '\tpexpect_child='        + str(self.pexpect_child)
+		str_repr += '\tpexpect_child.before=' + str(self.pexpect_child.before)
+		str_repr += '\tpexpect_child.after='  + str(self.pexpect_child.after)
+		str_repr += '\tpexpect_child.buffer=' + str(self.pexpect_child.buffer)
+		str_repr += '\n======= SHUTIT_PEXPECT_SESSION END ======='
+		return str_repr
+
 
 	def _spawn_child(self,
 	                 command,
@@ -586,11 +602,13 @@ class ShutItPexpectSession(object):
 		if go_home != None:
 			target_child.login(ShutItSendSpec(self,
 			                                  send='bash --noprofile --norc',
+			                                  check_exit=False,
 			                                  echo=False,
 			                                  go_home=go_home))
 		else:
 			target_child.login(ShutItSendSpec(self,
 			                                  send='bash --noprofile --norc',
+			                                  check_exit=False,
 			                                  echo=False))
 		return True
 

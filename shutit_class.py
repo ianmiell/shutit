@@ -372,9 +372,27 @@ class ShutIt(object):
 
 
 	def __str__(self):
-		string = 'ShutIt Object:\n'
-		string += '==============\n'
-		string += str(self.current_shutit_pexpect_session.login_stack)
+		string = '\n======= SHUTIT OBJECT BEGIN ========'
+		string += '\tstandalone='                     + str(self.standalone)
+		string += '\nbuild='                          + str(self.build)
+		string += '\nhost='                           + str(self.host)
+		string += '\nrepository='                     + str(self.repository)
+		string += '\texpect_prompts='                 + str(self.expect_prompts)
+		string += '\tlist_configs='                   + str(self.list_configs)
+		string += '\ttarget='                         + str(self.target)
+		string += '\taction='                         + str(self.action)
+		string += '\tshutit_pexpect_sessions='        + str(self.shutit_pexpect_sessions)
+		string += '\tshutit_map='                     + str(self.shutit_map)
+		string += '\tshutit_file_map='                + str(self.shutit_file_map)
+		string += '\tlist_modules='                   + str(self.list_modules)
+		string += '\tcurrent_shutit_pexpect_session=' + str(self.current_shutit_pexpect_session)
+		string += '\tconfig_parser='                  + str(self.config_parser)
+		string += '\tshutit_modules='                 + str(self.shutit_modules)
+		string += '\tconn_modules='                   + str(self.conn_modules)
+		string += '\tshutit_main_dir='                + str(self.shutit_main_dir)
+		string += '\tcfg='                            + str(self.cfg)
+		string += '\tlogin_stack='                    + str(self.current_shutit_pexpect_session.login_stack)
+		string += '\n======= SHUTIT OBJECT DONE ========'
 		return string
 
 

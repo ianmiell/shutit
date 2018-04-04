@@ -304,10 +304,10 @@ def print_debug(exc_info=None):
 		for line in traceback.format_exception(*exc_info):
 			stack_trace += line
 		shutit_global.shutit_global_object.log('Stacktrace:\n'        + stack_trace,level=logging.CRITICAL)
-	shutit_global.shutit_global_object.log('Python version: '     + 'sys.version_info: ' + str(sys.version_info) + ', sys.version: ' + str(sys.version) + ', sys.subversion: ' + str(sys.subversion),level=logging.CRITICAL)
-	shutit_global.shutit_global_object.log('Shutit version: '     + shutit.shutit_version,level=logging.CRITICAL)
-	shutit_global.shutit_global_object.log('Server: '             + socket.gethostname(),level=logging.CRITICAL)
-	shutit_global.shutit_global_object.log('Environment: '        + environ_string,level=logging.CRITICAL)
-	shutit_global.shutit_global_object.log('Command was: '        + sys.executable + (' ').join(sys.argv),level=logging.CRITICAL)
-
+	shutit_global.shutit_global_object.log('Python version: '         + 'sys.version_info: ' + str(sys.version_info) + ', sys.version: ' + str(sys.version) + ', sys.subversion: ' + str(sys.subversion),level=logging.CRITICAL)
+	shutit_global.shutit_global_object.log('Shutit version: '         + shutit.shutit_version,level=logging.CRITICAL)
+	shutit_global.shutit_global_object.log('Server: '                 + socket.gethostname(),level=logging.CRITICAL)
+	shutit_global.shutit_global_object.log('Environment: '            + environ_string,level=logging.CRITICAL)
+	shutit_global.shutit_global_object.log('Command was: '            + sys.executable + (' ').join(sys.argv),level=logging.CRITICAL)
+	shutit_global.shutit_global_object.log('ShutIt global state: '    + str(shutit_global.shutit_global_object),level=logging.CRITICAL)
 	shutit_global.shutit_global_object.log('=============================== DEBUG INFO =========================================',level=logging.CRITICAL)
