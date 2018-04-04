@@ -62,6 +62,8 @@ class ShutItGlobal(object):
 		self.username         = os.environ.get('LOGNAME', '')
 		self.default_timeout = 60
 		self.default_delaybeforesend = 0.1
+		# Quotes here are intentional.
+		self.prompt_command = "'sleep 0.1'"
 		# It's important that this has '.*' at the start, so the matched data is reliably 'after' in the
 		# child object. Use these where possible to make things more consistent.
 		# Attempt to capture any starting prompt (when starting) with this regexp.

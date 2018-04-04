@@ -474,7 +474,7 @@ class ShutItPexpectSession(object):
 		# Split the local prompt into two parts and separate with quotes to protect against the expect matching the command rather than the output.
 		shutit_global.shutit_global_object.log('Setting up prompt.', level=logging.DEBUG)
 		self.send(ShutItSendSpec(self,
-		                         send=""" export PS1_""" + prompt_name + """=$PS1 && PS1='""" + local_prompt[:2] + "''" + local_prompt[2:] + """' && PROMPT_COMMAND='sleep 0.1'""",
+		                         send=""" export PS1_""" + prompt_name + """=$PS1 && PS1='""" + local_prompt[:2] + "''" + local_prompt[2:] + """' && PROMPT_COMMAND=""" + shutit_global.shutit_global_object.prompt_command,
 		                         expect=['\r\n' + shutit.expect_prompts[prompt_name]],
 		                         fail_on_empty_before=False,
 		                         echo=False,
