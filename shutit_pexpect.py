@@ -706,12 +706,13 @@ class ShutItPexpectSession(object):
 			                         ignore_background=True))
 
 		# Flush history before we 'exit' the current session.
-		# Place it in the background in case it fails (we don't care if it fails).
 		# THIS CAUSES BUGS IF WE ARE NOT IN A SHELL... COMMENTING OUT
 		# IF THE DEFAULT PEXPECT == THE CURRENCT EXPECTED, THEN OK, gnuplot in shutit-scripts with walkthrough=True is a good test
+		# Errors seen when check_exit=True
 		if self.in_shell:
 			self.send(ShutItSendSpec(self,
 			                         send=' set +m && { : $(history -a) & } 2>/dev/null',
+			                         check_exit=False,
 			                         echo=False,
 			                         record_command=False,
 			                         ignore_background=True))
