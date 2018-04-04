@@ -61,7 +61,7 @@ class ShutItGlobal(object):
 		self.window_size_max  = 65535
 		self.username         = os.environ.get('LOGNAME', '')
 		self.default_timeout = 60
-		self.default_delaybeforesend = 0.05
+		self.default_delaybeforesend = 0.1
 		# Quotes here are intentional. Some versions of sleep don't support fractional seconds.
 		# True is called to take up the time require
 		self.prompt_command = "'sleep .1||sleep 1'"

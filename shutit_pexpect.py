@@ -463,7 +463,10 @@ class ShutItPexpectSession(object):
 		local_prompt = prefix + ':' + shutit_util.random_id() + '# '
 		shutit.expect_prompts[prompt_name] = local_prompt
 		# Set up the PS1 value.
-		# Unset the PROMPT_COMMAND as this can cause nasty surprises in the output.
+		# Override the PROMPT_COMMAND as this can cause nasty surprises in the
+		# output, and we need a short pause before returning the prompt to
+		# overcome an obscure bash bug (cf.
+		# https://github.com/pexpect/pexpect/issues/483).
 		# Set the cols value, as unpleasant escapes are put in the output if the
 		# input is > n chars wide.
 		# checkwinsize is required for similar reasons.
@@ -485,8 +488,9 @@ class ShutItPexpectSession(object):
 		self.default_expect = shutit.expect_prompts[prompt_name]
 
 		# Sometimes stty resets to 0x0 (?), so we must override here.
-		self.send(ShutItSendSpec(self, send="stty cols 65535", echo=False, check_exit=False, loglevel=loglevel, ignore_background=True))
-		self.send(ShutItSendSpec(self, send="stty rows 65535", echo=False, check_exit=False, loglevel=loglevel, ignore_background=True))
+		self.send(ShutItSendSpec(self, send=" stty cols 65535", echo=False, check_exit=False, loglevel=loglevel, ignore_background=True))
+		self.send(ShutItSendSpec(self, send=" stty rows 65535", echo=False, check_exit=False, loglevel=loglevel, ignore_background=True))
+		self.send(ShutItSendSpec(self, send=" ")
 		# Avoid dumb terminals
 		self.send(ShutItSendSpec(self, send=""" if [ $TERM=dumb ];then export TERM=xterm;fi""", echo=False, check_exit=False, loglevel=loglevel, ignore_background=True))
 
