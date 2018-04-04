@@ -62,8 +62,9 @@ class ShutItGlobal(object):
 		self.username         = os.environ.get('LOGNAME', '')
 		self.default_timeout = 60
 		self.default_delaybeforesend = 0.05
-		# Quotes here are intentional.
-		self.prompt_command = "'sleep 0.1'"
+		# Quotes here are intentional. Some versions of sleep don't support fractional seconds.
+		# True is called to take up the time require
+		self.prompt_command = "'sleep .1||sleep 1'"
 		# It's important that this has '.*' at the start, so the matched data is reliably 'after' in the
 		# child object. Use these where possible to make things more consistent.
 		# Attempt to capture any starting prompt (when starting) with this regexp.
@@ -286,14 +287,14 @@ class ShutItGlobal(object):
 
 	def handle_exit(self,exit_code=0,loglevel=logging.CRITICAL,msg=None):
 		if not msg:
-			msg = '\nExiting with error code: ' + str(exit_code)
-			msg += '\nInvoking command was: ' + sys.executable
+			msg = '\r\nExiting with error code: ' + str(exit_code)
+			msg += '\r\nInvoking command was: ' + sys.executable
 			for arg in sys.argv:
 				msg += ' ' + arg
 		if exit_code != 0:
-			self.log('Exiting with error code: ' + str(exit_code),level=loglevel)
+			self.log('\r\nExiting with error code: ' + str(exit_code),level=loglevel)
 			self.log(msg,level=loglevel)
-			self.log('Resetting terminal',level=loglevel)
+			self.log('\r\nResetting terminal',level=loglevel)
 		shutit_util.sanitize_terminal()
 		sys.exit(exit_code)
 
