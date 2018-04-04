@@ -61,7 +61,7 @@ class ShutItGlobal(object):
 		self.window_size_max  = 65535
 		self.username         = os.environ.get('LOGNAME', '')
 		self.default_timeout = 60
-		self.default_delaybeforesend = 0.1
+		self.default_delaybeforesend = 0.05
 		# Quotes here are intentional.
 		self.prompt_command = "'sleep 0.1'"
 		# It's important that this has '.*' at the start, so the matched data is reliably 'after' in the
