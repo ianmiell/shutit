@@ -309,4 +309,5 @@ def print_debug(exc_info=None):
 	shutit_global.shutit_global_object.log('Server: '             + socket.gethostname(),level=logging.CRITICAL)
 	shutit_global.shutit_global_object.log('Environment: '        + environ_string,level=logging.CRITICAL)
 	shutit_global.shutit_global_object.log('Command was: '        + sys.executable + (' ').join(sys.argv),level=logging.CRITICAL)
+
 	shutit_global.shutit_global_object.log('=============================== DEBUG INFO =========================================',level=logging.CRITICAL)
