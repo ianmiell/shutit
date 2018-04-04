@@ -38,8 +38,6 @@ import signal
 import struct
 from distutils.dir_util import mkpath
 import pexpect
-from shutit_class import ShutIt, ShutItInit
-import shutit_util
 
 
 class ShutItGlobal(object):
@@ -62,6 +60,8 @@ class ShutItGlobal(object):
 		self.signal_id        = None
 		self.window_size_max  = 65535
 		self.username         = os.environ.get('LOGNAME', '')
+		self.default_timeout = 60
+		self.default_delaybeforesend = 0.1
 		# It's important that this has '.*' at the start, so the matched data is reliably 'after' in the
 		# child object. Use these where possible to make things more consistent.
 		# Attempt to capture any starting prompt (when starting) with this regexp.
@@ -300,6 +300,10 @@ def setup_signals():
 	signal.signal(signal.SIGINT, shutit_util.ctrl_c_signal_handler)
 	signal.signal(signal.SIGQUIT, shutit_util.ctrl_quit_signal_handler)
 
-
 shutit_global_object = ShutItGlobal()
+
+# Only at this point can we import other modules, otherwise we get race failures.
+from shutit_class import ShutIt, ShutItInit
+import shutit_util
+
 shutit_global_object.add_shutit_session(ShutIt(standalone=False))

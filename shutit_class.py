@@ -510,7 +510,7 @@ class ShutIt(object):
 	              send_dict,
 	              expect=None,
 	              shutit_pexpect_child=None,
-	              timeout=3600,
+	              timeout=shutit_global.shutit_global_object.default_timeout,
 	              check_exit=None,
 	              fail_on_empty_before=True,
 	              record_command=True,
@@ -945,7 +945,7 @@ class ShutIt(object):
 	def chdir(self,
 	          path,
 	          shutit_pexpect_child=None,
-	          timeout=3600,
+	          timeout=shutit_global.shutit_global_object.default_timeout,
 	          note=None,
 	          loglevel=logging.DEBUG):
 		"""How to change directory will depend on whether we are in delivery mode bash or docker.
@@ -1373,7 +1373,7 @@ class ShutIt(object):
 	            locations,
 	            command='curl',
 	            shutit_pexpect_child=None,
-	            timeout=3600,
+	            timeout=shutit_global.shutit_global_object.default_timeout,
 	            fail_on_empty_before=True,
 	            record_command=True,
 	            exit_values=None,
@@ -1778,7 +1778,7 @@ class ShutIt(object):
 	            package,
 	            shutit_pexpect_child=None,
 	            options=None,
-	            timeout=3600,
+	            timeout=shutit_global.shutit_global_object.default_timeout,
 	            force=False,
 	            check_exit=True,
 	            reinstall=False,
@@ -1831,7 +1831,7 @@ class ShutIt(object):
 	           package,
 	           shutit_pexpect_child=None,
 	           options=None,
-	           timeout=3600,
+	           timeout=shutit_global.shutit_global_object.default_timeout,
 	           note=None):
 		"""Distro-independent remove function.
 		Takes a package name and runs relevant remove function.
@@ -1900,7 +1900,7 @@ class ShutIt(object):
 	          password=None,
 	          prompt_prefix=None,
 	          expect=None,
-	          timeout=180,
+	          timeout=shutit_global.shutit_global_object.default_timeout,
 	          escape=False,
 	          echo=None,
 	          note=None,
@@ -1932,7 +1932,7 @@ class ShutIt(object):
 	           command='exit',
 	           note=None,
 	           echo=None,
-	           timeout=300,
+	           timeout=shutit_global.shutit_global_object.default_timeout,
 	           nonewline=False,
 	           loglevel=logging.DEBUG):
 		"""Logs the user out. Assumes that login has been called.
@@ -2359,7 +2359,7 @@ class ShutIt(object):
 	                          shutit_pexpect_child=None):
 		assert self.build['asciinema_session'] is True
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
-		output = self.logout(timeout=3000)
+		output = self.logout(timeout=shutit_global.shutit_global_object.default_timeout)
 		shutit_global.shutit_global_object.log(output,add_final_message=True,level=logging.INFO)
 		self.build['asciinema_session'] = None
 		self.build['asciinema_session_file'] = None
@@ -3737,7 +3737,7 @@ shutitfile:        a shutitfile-based project (can be docker, bash, vagrant)''')
 		shutit_pexpect_session = ShutItPexpectSession(self, shutit_session_name, docker_command[0], docker_command[1:])
 		target_child = shutit_pexpect_session.pexpect_child
 		expect = ['assword', shutit_global.shutit_global_object.base_prompt.strip(), 'Waiting', 'ulling', 'endpoint', 'Download','o such file']
-		res = shutit_pexpect_session.expect(expect, timeout=9999)
+		res = shutit_pexpect_session.expect(expect, timeout=shutit_global.shutit_global_object.default_timeout)
 		while True:
 			if target_child.before == type(pexpect.exceptions.EOF):
 				self.fail('EOF exception seen') # pragma: no cover
@@ -3746,7 +3746,7 @@ shutitfile:        a shutitfile-based project (can be docker, bash, vagrant)''')
 			except Exception:
 				pass
 			if res == 0:
-				res = self.send(self.host['password'], shutit_pexpect_child=target_child, expect=expect, timeout=9999, check_exit=False, fail_on_empty_before=False, echo=False)
+				res = self.send(self.host['password'], shutit_pexpect_child=target_child, expect=expect, timeout=shutit_global.shutit_global_object.default_timeout, check_exit=False, fail_on_empty_before=False, echo=False)
 			elif res == 1:
 				shutit_global.shutit_global_object.log('Prompt found, breaking out',level=logging.DEBUG)
 				break
@@ -3759,7 +3759,7 @@ shutitfile:        a shutitfile-based project (can be docker, bash, vagrant)''')
 			elif res == 8:
 				self.fail('EOF seen.') # pragma: no cover
 			else:
-				res = shutit_pexpect_session.expect(expect, timeout=9999)
+				res = shutit_pexpect_session.expect(expect, timeout=shutit_global.shutit_global_object.default_timeout)
 				continue
 		shutit_global.shutit_global_object.log('Getting cid',level=logging.DEBUG)
 		# Get the cid, to determine whether the container started up ok.

@@ -77,7 +77,7 @@ class ShutItPexpectSession(object):
 	             pexpect_session_id,
 	             command,
 	             args=None,
-	             timeout=300,
+	             timeout=shutit_global.shutit_global_object.default_timeout,
 	             maxread=2000,
 	             searchwindowsize=None,
 	             env=None,
@@ -87,7 +87,7 @@ class ShutItPexpectSession(object):
 	             encoding=None,
 	             codec_errors='strict',
 	             dimensions=None,
-	             delaybeforesend=0.05):
+	             delaybeforesend=shutit_global.shutit_global_object.default_delaybeforesend):
 		"""spawn a child, and manage the delaybefore send setting to 0
 		"""
 		# If encoding is set, then pexpect returns data in that encoding.
@@ -142,7 +142,7 @@ class ShutItPexpectSession(object):
 	def _spawn_child(self,
 	                 command,
 	                 args=None,
-	                 timeout=30,
+	                 timeout=shutit_global.shutit_global_object.default_timeout,
 	                 maxread=2000,
 	                 searchwindowsize=None,
 	                 env=None,
@@ -152,7 +152,7 @@ class ShutItPexpectSession(object):
 	                 encoding=None,
 	                 codec_errors='strict',
 	                 dimensions=None,
-	                 delaybeforesend=0.05):
+	                 delaybeforesend=shutit_global.shutit_global_object.default_delaybeforesend):
 		"""spawn a child, and manage the delaybefore send setting to 0
 		"""
 		shutit = self.shutit
@@ -474,7 +474,7 @@ class ShutItPexpectSession(object):
 		# Split the local prompt into two parts and separate with quotes to protect against the expect matching the command rather than the output.
 		shutit_global.shutit_global_object.log('Setting up prompt.', level=logging.DEBUG)
 		self.send(ShutItSendSpec(self,
-		                         send=""" export PS1_""" + prompt_name + """=$PS1 && PS1='""" + local_prompt[:2] + "''" + local_prompt[2:] + """' && unset PROMPT_COMMAND""",
+		                         send=""" export PS1_""" + prompt_name + """=$PS1 && PS1='""" + local_prompt[:2] + "''" + local_prompt[2:] + """' && PROMPT_COMMAND='sleep 1'""",
 		                         expect=['\r\n' + shutit.expect_prompts[prompt_name]],
 		                         fail_on_empty_before=False,
 		                         echo=False,
@@ -657,11 +657,14 @@ class ShutItPexpectSession(object):
 			exit_values = [str(exit_values)]
 		# Don't use send here (will mess up last_output)!
 		# Space before "echo" here is sic - we don't need this to show up in bash history
+		send_exit_code = ' echo EXIT_CODE:$?'
+		shutit_global.shutit_global_object.log('Sending with sendline: ' + str(send_exit_code),level=logging.DEBUG)
 		assert not self.sendline(ShutItSendSpec(self,
-		                                        send=' echo EXIT_CODE:$?',
+		                                        send=send_exit_code,
 		                                        ignore_background=True))
 		shutit_global.shutit_global_object.log('Expecting: ' + str(expect),level=logging.DEBUG)
-		self.expect(expect,timeout=60)
+		self.expect(expect,timeout=10)
+		shutit_global.shutit_global_object.log('before: ' + str(self.pexpect_child.before),level=logging.DEBUG)
 		res = shutit.match_string(str(self.pexpect_child.before), '^EXIT_CODE:([0-9][0-9]?[0-9]?)$')
 		if res not in exit_values or res is None: # pragma: no cover
 			res_str = res or str(res)
@@ -862,7 +865,7 @@ class ShutItPexpectSession(object):
 
 	def chdir(self,
 	          path,
-	          timeout=3600,
+	          timeout=shutit_global.shutit_global_object.default_timeout,
 	          note=None,
 	          loglevel=logging.DEBUG):
 		"""How to change directory will depend on whether we are in delivery mode bash or docker.
@@ -1079,7 +1082,7 @@ class ShutItPexpectSession(object):
 	            filename,
 	            locations,
 	            command='curl -L',
-	            timeout=3600,
+	            timeout=shutit_global.shutit_global_object.default_timeout,
 	            fail_on_empty_before=True,
 	            record_command=True,
 	            exit_values=None,
@@ -1314,7 +1317,7 @@ class ShutItPexpectSession(object):
 	def install(self,
 	            package,
 	            options=None,
-	            timeout=3600,
+	            timeout=shutit_global.shutit_global_object.default_timeout,
 	            force=False,
 	            check_exit=True,
 	            reinstall=False,
@@ -1526,7 +1529,7 @@ class ShutItPexpectSession(object):
 	def remove(self,
 	           package,
 	           options=None,
-	           timeout=3600,
+	           timeout=shutit_global.shutit_global_object.default_timeout,
 	           note=None):
 		"""Distro-independent remove function.
 		Takes a package name and runs relevant remove function.
@@ -2903,7 +2906,7 @@ $'"""
 				                         send=' ' + shutit.get_command('head') + ' -c -1 >> ' + path + "." + random_id + " << 'END_" + random_id + """'\n""" + b64contents[position:position+leap] + '''\nEND_''' + random_id,
 				                         echo=echo,
 				                         loglevel=loglevel,
-				                         timeout=99999,
+				                         timeout=shutit_global.shutit_global_object.default_timeout,
 				                         ignore_background=True))
 				position += leap
 			self.send(ShutItSendSpec(self,
