@@ -58,7 +58,10 @@ def setup_vagrant_pattern(shutit,
 				print(str(count) + ': ' + opt['question'] + ' (current: ' + opt['value'] + ')')
 				count += 1
 			print('')
-			choice = shutit_util.get_input(msg='Choose an item to change if you want to change the default.\nType nothing and hit return to continue to the build.\nIf you want to change a config, choose the number: ')
+			choice = shutit_util.get_input(msg='''
+Choose an item to change if you want to change the default.
+Type nothing and hit return to continue to the build.
+If you want to change a config, choose the number: ''')
 			if choice == '':
 				break
 			else:
@@ -114,23 +117,33 @@ def setup_vagrant_pattern(shutit,
 
 	# Set up Vagrantfile data for the later
 	machine_stanzas = ''
-	machine_list_code = '''\n\t\t# machines is a dict of dicts containing information about each machine for you to use.\n\t\tmachines = {}'''
+	machine_list_code = '''
+		# machines is a dict of dicts containing information about each machine for you to use.
+		machines = {}'''
 	vagrant_up_section = ''
 
 	for m in range(1,num_machines+1):
 		machine_name = machine_prefix + str(m)
 		machine_fqdn = machine_name + '.vagrant.test'
 		# vagrant_image is calculated within the code later
-		machine_stanzas += ('''\n  config.vm.define "''' + machine_name + '''" do |''' + machine_name + '''|
+		machine_stanzas += ('''
+  config.vm.define "''' + machine_name + '''" do |''' + machine_name + '''|
     ''' + machine_name + """.vm.box = ''' + '"' + vagrant_image + '"' + '''
     """ + machine_name + '''.vm.hostname = "''' + machine_fqdn + '''"''' +
-    '''\n    config.vm.provider :virtualbox do |vb|\n      vb.name = "''' + skel_module_name + '_' + str(m) + '''"\n    end
+    '''
+    config.vm.provider :virtualbox do |vb|
+      vb.name = "''' + skel_module_name + '_' + str(m) + '''"
+    end
   end''')
 		# machine_list_code
-		machine_list_code += """\n\t\tmachines.update({'""" + machine_name + """':{'fqdn':'""" + machine_fqdn + """'}})"""
-		machine_list_code += """\n\t\tip = shutit.send_and_get_output('''vagrant landrush ls 2> /dev/null | grep -w ^''' + machines['""" + machine_name + """']['fqdn'] + ''' | awk '{print $2}' ''')"""
-		machine_list_code += """\n\t\tmachines.get('""" + machine_name + """').update({'ip':ip})"""
-		vagrant_up_section += '''\n\t\ttry:
+		machine_list_code += """
+		machines.update({'""" + machine_name + """':{'fqdn':'""" + machine_fqdn + """'}})"""
+		machine_list_code += """
+		ip = shutit.send_and_get_output('''vagrant landrush ls 2> /dev/null | grep -w ^''' + machines['""" + machine_name + """']['fqdn'] + ''' | awk '{print $2}' ''')"""
+		machine_list_code += """
+		machines.get('""" + machine_name + """').update({'ip':ip})"""
+		vagrant_up_section += '''
+		try:
 			pw = file('secret').read().strip()
 		except IOError:
 			pw = ''
@@ -247,7 +260,8 @@ echo "\n/swapfile none            swap    sw              0       0" >> /etc/fst
 
 		shutit.log('''********************************************************************************
 
-# Vagrantfile created in: ''' + shutit.build['vagrant_run_dir'] + '''\n# Run:
+# Vagrantfile created in: ''' + shutit.build['vagrant_run_dir'] + '''
+# Run:
 
 cd ''' + shutit.build['vagrant_run_dir'] + ''' && vagrant status && vagrant landrush ls
 
@@ -392,7 +406,44 @@ fi
 	os.system('git submodule add https://github.com/ianmiell/shutit-library')
 
 	# User message
-	shutit.log('''# Run:\n\ncd ''' + skel_path + ''' && ./run.sh\n\n# to run.''',transient=True)
+	log_message = '''
+# Run:
+cd ''' + skel_path + ''' && ./run.sh
+
+# to run.
+'''
+	if upload:
+		log_message += r'''
+
+As you have chosen to upload, you may want to install maven and set your
+~/.m2/settings.xml file to contain these settings:
+
+<settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
+   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+   xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0
+                       https://maven.apache.org/xsd/settings-1.0.0.xsd">
+   <localRepository/>
+   <interactiveMode/>
+   <usePluginRegistry/>
+   <offline/>
+   <pluginGroups/>
+   <servers>
+       <server>
+         <id>nexus.meirionconsulting.com</id>
+         <username>uploader</username>
+         <password>uploader</password>
+       </server>
+   </servers>
+   <mirrors/>
+   <proxies/>
+   <profiles/>
+   <activeProfiles/>
+</settings>
+
+so you can upload vagrant boxes.
+'''
+	
+	shutit.log(log_message,transient=True)
 
 	# CREATE THE MODULE FILE
 	# Handle shutitfiles. If there are no shutitfiles, handle separately.
