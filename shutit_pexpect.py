@@ -1497,53 +1497,66 @@ class ShutItPexpectSession(object):
 		TODO: see how https://github.com/noahspurrier/pexpect/blob/master/pxssh.py handles this
 		"""
 		shutit_global.shutit_global_object.log('Resetting terminal begin.',level=logging.DEBUG)
-		exp_string = 'SHUTIT_TERMINAL_RESET'
-		assert not self.sendline(ShutItSendSpec(self,
-		                                        send=' echo ' + exp_string,
-		                                        ignore_background=True)), shutit_util.print_debug()
-		self.expect(exp_string)
-		expect = expect or self.default_expect
-		self.expect(expect)
+		#exp_string = 'SHUTIT_TERMINAL_RESET'
+		#assert not self.sendline(ShutItSendSpec(self,
+		#                                        send=' echo ' + exp_string,
+		#                                        ignore_background=True)), shutit_util.print_debug()
+		#self.expect(exp_string)
+		#expect = expect or self.default_expect
+		#self.expect(expect)
+
+		########################################################################
+		# Cribbed from https://github.com/noahspurrier/pexpect/blob/master/pxssh.py#L145
+		# All of these timing pace values are magic.
+		# I came up with these based on what seemed reliable for
+		# connecting to a heavily loaded machine I have.
+		self.pexpect_child.sendline()
+		time.sleep(0.1)
+		# If latency is worse than these values then this will fail.
+		try:
+			# Clear the buffer before getting the prompt.
+			self.pexpect_child.read_nonblocking(size=10000,timeout=1)
+		except TIMEOUT:
+			pass
+		time.sleep(0.1)
+		self.pexpect_child.sendline()
+		time.sleep(0.5)
+		x = self.pexpect_child.read_nonblocking(size=1000,timeout=1)
+		time.sleep(0.1)
+		self.pexpect_child.sendline()
+		time.sleep(0.5)
+		a = self.pexpect_child.read_nonblocking(size=1000,timeout=1)
+		time.sleep(0.1)
+		self.pexpect_child.sendline()
+		time.sleep(0.5)
+		b = self.pexpect_child.read_nonblocking(size=1000,timeout=1)
+		ld = self.levenshtein_distance(a,b)
+		if len(a) == 0:
+			return False
+		if float(ld)/len(a) < 0.4:
+			return True
+		return False
+		########################################################################
 		shutit_global.shutit_global_object.log('Resetting terminal done.',level=logging.DEBUG)
 
-# def sync_original_prompt (self):
-#
-#        '''This attempts to find the prompt. Basically, press enter and record
-#        the response; press enter again and record the response; if the two
-#        responses are similar then assume we are at the original prompt. This
-#        is a slow function. It can take over 10 seconds. '''
-#
-#        # All of these timing pace values are magic.
-#        # I came up with these based on what seemed reliable for
-#        # connecting to a heavily loaded machine I have.
-#        self.sendline()
-#        time.sleep(0.1)
-#        # If latency is worse than these values then this will fail.
-#
-#        try:
-#            # Clear the buffer before getting the prompt.
-#            self.read_nonblocking(size=10000,timeout=1)
-#        except TIMEOUT:
-#            pass
-#        time.sleep(0.1)
-#        self.sendline()
-#        time.sleep(0.5)
-#        x = self.read_nonblocking(size=1000,timeout=1)
-#        time.sleep(0.1)
-#        self.sendline()
-#        time.sleep(0.5)
-#        a = self.read_nonblocking(size=1000,timeout=1)
-#        time.sleep(0.1)
-#        self.sendline()
-#        time.sleep(0.5)
-#        b = self.read_nonblocking(size=1000,timeout=1)
-#        ld = self.levenshtein_distance(a,b)
-#        len_a = len(a)
-#        if len_a == 0:
-#            return False
-#        if float(ld)/len_a < 0.4:
-#            return True
-#        return False
+
+	def levenshtein_distance(self, a,b):
+		'''This calculates the Levenshtein distance between a and b.
+		'''
+		n, m = len(a), len(b)
+		if n > m:
+			a,b = b,a
+			n,m = m,n
+		current = range(n+1)
+		for i in range(1,m+1):
+			previous, current = current, [i]+[0]*n
+			for j in range(1,n+1):
+				add, delete = previous[j]+1, current[j-1]+1
+				change = previous[j-1]
+				if a[j-1] != b[i-1]:
+					change = change + 1
+				current[j] = min(add, delete, change)
+		return current[n]
 
 
 	def get_memory(self, note=None):
