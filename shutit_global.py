@@ -121,7 +121,6 @@ class ShutItGlobal(object):
 		str_repr += '\treal_user='            + str(self.real_user)
 		str_repr += '\treal_user_id='         + str(self.real_user_id)
 		str_repr += '\tbuild_id='             + str(self.build_id)
-		# TODO - recurse error
 		for shutit_object in self.shutit_objects:
 			str_repr += str(shutit_object)
 		# TODO

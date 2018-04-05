@@ -1494,6 +1494,7 @@ class ShutItPexpectSession(object):
 	def reset_terminal(self, expect=None):
 		"""Resets the terminal to as good a state as we can try.
 		Tries to ensure that we have 'expect'ed the last prompt seen.
+		TODO: see how https://github.com/noahspurrier/pexpect/blob/master/pxssh.py handles this
 		"""
 		shutit_global.shutit_global_object.log('Resetting terminal begin.',level=logging.DEBUG)
 		exp_string = 'SHUTIT_TERMINAL_RESET'
