@@ -604,13 +604,13 @@ class ShutItPexpectSession(object):
 		target_child = shutit.get_shutit_pexpect_session_from_id('target_child')
 		if go_home != None:
 			target_child.login(ShutItSendSpec(self,
-			                                  send='bash --noprofile --norc',
+			                                  send=shutit_global.shutit_global_object.bash_startup_command,
 			                                  check_exit=False,
 			                                  echo=False,
 			                                  go_home=go_home))
 		else:
 			target_child.login(ShutItSendSpec(self,
-			                                  send='bash --noprofile --norc',
+			                                  send=shutit_global.shutit_global_object.bash_startup_command,
 			                                  check_exit=False,
 			                                  echo=False))
 		return True

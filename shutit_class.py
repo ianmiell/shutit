@@ -64,7 +64,7 @@ def do_finalize():
 		for module_id in shutit.module_ids(rev=True):
 			# Only finalize if it's thought to be installed.
 			if shutit.is_installed(shutit.shutit_map[module_id]):
-				shutit.login(prompt_prefix=module_id,command='bash --noprofile --norc',echo=False)
+				shutit.login(prompt_prefix=module_id,command=shutit_global.shutit_global_object.bash_startup_command,echo=False)
 				if not shutit.shutit_map[module_id].finalize(shutit):
 					shutit.fail(module_id + ' failed on finalize', shutit_pexpect_child=shutit.get_shutit_pexpect_session_from_id('target_child').pexpect_child) # pragma: no cover
 				shutit.logout(echo=False)
@@ -2347,11 +2347,11 @@ class ShutIt(object):
 		if title:
 			opts += ' -t "' + str(title) + '"'
 		if version < '1.3':
-			self.login(command='asciinema rec -c "bash --noprofile --norc" ' + opts, go_home=False)
+			self.login(command='asciinema rec -c "' + shutit_global.shutit_global_object.bash_startup_command + '" ' + opts, go_home=False)
 		elif filename != None:
-			self.login(command='asciinema rec -c "bash --noprofile --norc" ' + opts + ' ' + max_pause_str + ' ' + filename, go_home=False)
+			self.login(command='asciinema rec -c "' + shutit_global.shutit_global_object.bash_startup_command + '" ' + opts + ' ' + max_pause_str + ' ' + filename, go_home=False)
 		else:
-			self.login(command='asciinema rec -c "bash --noprofile --norc" ' + opts + ' ' + max_pause_str, go_home=False)
+			self.login(command='asciinema rec -c "' + shutit_global.shutit_global_object.bash_startup_command + '" ' + opts + ' ' + max_pause_str, go_home=False)
 		return True
 
 
@@ -4127,7 +4127,7 @@ shutitfile:        a shutitfile-based project (can be docker, bash, vagrant)''')
 			shutit_global.shutit_global_object.log('considering check_ready (is it ready to be built?): ' + module_id, level=logging.DEBUG)
 			if cfg[module_id]['shutit.core.module.build'] and module.module_id not in self.get_current_shutit_pexpect_session_environment().modules_ready and not self.is_installed(module):
 				shutit_global.shutit_global_object.log('checking whether module is ready to build: ' + module_id, level=logging.DEBUG)
-				self.login(prompt_prefix=module_id,command='bash --noprofile --norc',echo=False)
+				self.login(prompt_prefix=module_id,command=shutit_global.shutit_global_object.bash_startup_command,echo=False)
 				# Move to the correct directory (eg for checking for the existence of files needed for build)
 				revert_dir = os.getcwd()
 				self.get_current_shutit_pexpect_session_environment().module_root_dir = os.path.dirname(self.shutit_file_map[module_id])
@@ -4152,7 +4152,7 @@ shutitfile:        a shutitfile-based project (can be docker, bash, vagrant)''')
 			shutit_global.shutit_global_object.log('considering whether to remove: ' + module_id, level=logging.DEBUG)
 			if cfg[module_id]['shutit.core.module.remove']:
 				shutit_global.shutit_global_object.log('removing: ' + module_id, level=logging.DEBUG)
-				self.login(prompt_prefix=module_id,command='bash --noprofile --norc',echo=False)
+				self.login(prompt_prefix=module_id,command=shutit_global.shutit_global_object.bash_startup_command,echo=False)
 				if not module.remove(self):
 					shutit_global.shutit_global_object.log(self.print_modules(), level=logging.DEBUG)
 					self.fail(module_id + ' failed on remove', shutit_pexpect_child=self.get_shutit_pexpect_session_from_id('target_child').pexpect_child) # pragma: no cover
@@ -4232,7 +4232,7 @@ shutitfile:        a shutitfile-based project (can be docker, bash, vagrant)''')
 						revert_dir = os.getcwd()
 						self.get_current_shutit_pexpect_session_environment().module_root_dir = os.path.dirname(self.shutit_file_map[module_id])
 						self.chdir(self.get_current_shutit_pexpect_session_environment().module_root_dir)
-						self.login(prompt_prefix=module_id,command='bash --noprofile --norc',echo=False)
+						self.login(prompt_prefix=module_id,command=shutit_global.shutit_global_object.bash_startup_command,echo=False)
 						self.build_module(module)
 						self.logout(echo=False)
 						self.chdir(revert_dir)
@@ -4256,7 +4256,7 @@ shutitfile:        a shutitfile-based project (can be docker, bash, vagrant)''')
 			# Only test if it's installed.
 			if self.is_installed(self.shutit_map[module_id]):
 				shutit_global.shutit_global_object.log('RUNNING TEST ON: ' + module_id, level=logging.DEBUG)
-				self.login(prompt_prefix=module_id,command='bash --noprofile --norc',echo=False)
+				self.login(prompt_prefix=module_id,command=shutit_global.shutit_global_object.bash_startup_command,echo=False)
 				if not self.shutit_map[module_id].test(self):
 					self.fail(module_id + ' failed on test', shutit_pexpect_child=self.get_shutit_pexpect_session_from_id('target_child').pexpect_child) # pragma: no cover
 				self.logout(echo=False)
@@ -4275,7 +4275,7 @@ shutitfile:        a shutitfile-based project (can be docker, bash, vagrant)''')
 			for module_id in self.module_ids(rev=True):
 				# Only finalize if it's thought to be installed.
 				if self.is_installed(self.shutit_map[module_id]):
-					self.login(prompt_prefix=module_id,command='bash --noprofile --norc',echo=False)
+					self.login(prompt_prefix=module_id,command=shutit_global.shutit_global_object.bash_startup_command,echo=False)
 					if not self.shutit_map[module_id].finalize(self):
 						self.fail(module_id + ' failed on finalize', shutit_pexpect_child=self.get_shutit_pexpect_session_from_id('target_child').pexpect_child) # pragma: no cover
 					self.logout(echo=False)
