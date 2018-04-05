@@ -1771,7 +1771,10 @@ class ShutItPexpectSession(object):
 			lines = filter(lambda x: x.find('\x08') == -1, lines)
 			before = '\n'.join(lines)
 		# Remove the command we ran in from the output.
-		before = before.strip(send)
+		# First, strip whitespace from the start of 'before', and the send:
+		before = before.strip()
+		send = send.strip()
+		shutit_global.shutit_global_object.log('send_and_get_output "before": ' + before + ', send_and_get_output send was: ' + send, level=logging.DEBUG)
 		if strip:
 			# cf: http://stackoverflow.com/questions/14693701/how-can-i-remove-the-ansi-escape-sequences-from-a-string-in-python
 			ansi_escape = re.compile(r'(\x9B|\x1B\[)[0-?]*[ -\/]*[@-~]')
@@ -1781,26 +1784,31 @@ class ShutItPexpectSession(object):
 			# Strip out \rs to make it output the same as a typical CL. This could be optional.
 			string_without_termcodes_stripped_no_cr = string_without_termcodes.replace('\r','')
 			if preserve_newline:
-				ret = string_without_termcodes_stripped_no_cr + '\n'
+				before = string_without_termcodes_stripped_no_cr + '\n'
 			else:
-				ret = string_without_termcodes_stripped_no_cr
+				before = string_without_termcodes_stripped_no_cr
 		else:
-			ret = before
+			before = before
+		if before.startswith(send):
+			before = before[len(send):]
+			# Strip whitespace again
+			before = before.strip()
+		shutit_global.shutit_global_object.log('send_and_get_output "before" after startswith check: ' + before, level=logging.DEBUG)
 		# Too chatty, but kept here in case useful for debugging
-		#shutit_global.shutit_global_object.log('send_and_get_output got:\n' + ret, level=logging.DEBUG)
+		shutit_global.shutit_global_object.log('send_and_get_output got:\n' + before, level=logging.DEBUG)
 		# Leave this debug in in case there are any strange characters to consider.
-		#shutit_global.shutit_global_object.log('send_and_get_output returning in base64:\n' + base64.b64encode(ret), level=logging.DEBUG)
+		shutit_global.shutit_global_object.log('send_and_get_output returning in base64:\n' + base64.b64encode(before), level=logging.DEBUG)
 		## In rare cases a bell has been seen - can't see why we'd want a bell so simply remove them all.
-		#ret = ret.replace('\x07','')
+		before = before.replace('\x07','')
 		# If there happens to be an escape character in there, it's likely a
 		# problem - see IWT-4812.
-		ret = ret.split('\x1b')[0].strip()
+		before = before.split('\x1b')[0].strip()
 		if PY3:
-			shutit_global.shutit_global_object.log('send_and_get_output returning in base64: ' + str(base64.b64encode(bytes(ret,'utf-8'))), level=logging.DEBUG)
+			shutit_global.shutit_global_object.log('send_and_get_output returning in base64: ' + str(base64.b64encode(bytes(before,'utf-8'))), level=logging.DEBUG)
 		else:
-			shutit_global.shutit_global_object.log('send_and_get_output returning in base64: ' + base64.b64encode(bytes(ret)), level=logging.DEBUG)
+			shutit_global.shutit_global_object.log('send_and_get_output returning in base64: ' + base64.b64encode(bytes(before)), level=logging.DEBUG)
 		shutit.handle_note_after(note=note)
-		return ret
+		return before
 
 
 	def get_env_pass(self,user=None,msg=None,note=None):
