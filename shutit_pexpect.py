@@ -96,7 +96,7 @@ class ShutItPexpectSession(object):
 		# TODO: spawn encoding in PY2 and handle appropriately there also.
 		if PY3: # pragma: no cover
 			encoding = 'utf-8'
-		assert isinstance(shutit, shutit_class.ShutIt)
+		assert isinstance(shutit, shutit_class.ShutIt), shutit_util.print_debug()
 		self.shutit                    = shutit
 		self.check_exit                = True
 		self.default_expect            = [shutit_global.shutit_global_object.base_prompt]
@@ -185,7 +185,7 @@ class ShutItPexpectSession(object):
 		True means: 'all handled here ok'
 		False means: you'll need to 'expect' the right thing from here.
 		"""
-		assert not sendspec.started
+		assert not sendspec.started, shutit_util.print_debug()
 		#shutit_global.shutit_global_object.log('sendline: ' + str(sendspec),level=logging.DEBUG)
 		try:
 			# Check there are no background commands running that have block_other_commands set iff
@@ -240,7 +240,7 @@ class ShutItPexpectSession(object):
 					self.wait()
 				else:
 					# Should be logically impossible.
-					assert False
+					assert False, shutit_util.print_debug()
 					shutit_global.shutit_global_object.log('Not yet handled?',level=logging.INFO)
 					shutit_global.shutit_global_object.log(str(sendspec),level=logging.INFO)
 				return True
@@ -273,8 +273,8 @@ class ShutItPexpectSession(object):
 				# Do nothing, this is an started or not-running task.
 				pass
 			elif res_str == 'F':
-				assert background_object is not None
-				assert isinstance(background_object, ShutItBackgroundCommand)
+				assert background_object is not None, shutit_util.print_debug()
+				assert isinstance(background_object, ShutItBackgroundCommand), shutit_util.print_debug()
 				shutit_global.shutit_global_object.log('Failure in: ' + str(self.login_stack),level=logging.DEBUG)
 				self.pause_point('Background task: ' + background_object.sendspec.original_send + ' :failed.')
 				return False
@@ -370,7 +370,7 @@ class ShutItPexpectSession(object):
 		                                    loglevel=sendspec.loglevel))
 		if res == -1:
 			# Should not get here as login should not be blocked.
-			assert False
+			assert False, shutit_util.print_debug()
 		# Check exit 'by hand' here to not effect/assume setup prompt.
 		if not self.get_exit_value():
 			if sendspec.fail_on_fail: # pragma: no cover
@@ -664,7 +664,7 @@ class ShutItPexpectSession(object):
 		shutit_global.shutit_global_object.log('Sending with sendline: ' + str(send_exit_code),level=logging.DEBUG)
 		assert not self.sendline(ShutItSendSpec(self,
 		                                        send=send_exit_code,
-		                                        ignore_background=True))
+		                                        ignore_background=True)), shutit_util.print_debug()
 		shutit_global.shutit_global_object.log('Expecting: ' + str(expect),level=logging.DEBUG)
 		self.expect(expect,timeout=10)
 		shutit_global.shutit_global_object.log('before: ' + str(self.pexpect_child.before),level=logging.DEBUG)
@@ -748,7 +748,7 @@ class ShutItPexpectSession(object):
 				try:
 					assert not self.sendline(ShutItSendSpec(self,
 					                                        send='',
-					                                        ignore_background=True))
+					                                        ignore_background=True)), shutit_util.print_debug()
 				except Exception:
 					pass
 			if default_msg is None:
@@ -778,7 +778,7 @@ class ShutItPexpectSession(object):
 						# Give them a 'normal' shell.
 						assert not self.sendline(ShutItSendSpec(self,
 						                                        send=' bash',
-						                                        ignore_background=True))
+						                                        ignore_background=True)), shutit_util.print_debug()
 						self.pexpect_child.expect('.*')
 					else:
 						shutit_global.shutit_global_object.log('Cannot create subshell, as not in a shell.',level=logging.DEBUG)
@@ -797,7 +797,7 @@ class ShutItPexpectSession(object):
 						assert not self.send(ShutItSendSpec(self,
 						                                    send=' exit',
 						                                    check_exit=False,
-						                                    ignore_background=True))
+						                                    ignore_background=True)), shutit_util.print_debug()
 					else:
 						shutit_global.shutit_global_object.log('Cannot exit as not in shell',level=logging.DEBUG)
 			self.pexpect_child.logfile = oldlog
@@ -1453,7 +1453,7 @@ class ShutItPexpectSession(object):
 					                                    secret=True))
 					if res == -1:
 						## Should not happen
-						#assert False
+						#assert False, shutit_util.print_debug()
 						break
 					shutit_global.shutit_global_object.log('Result of install attempt was: ' + str(res),level=logging.DEBUG)
 				else:
@@ -1468,7 +1468,7 @@ class ShutItPexpectSession(object):
 				                                   block_other_commands=block_other_commands))
 					if res == -1:
 						## Should not happen
-						#assert False
+						#assert False, shutit_util.print_debug()
 						break
 					shutit_global.shutit_global_object.log('Result of install attempt was: ' + str(res),level=logging.DEBUG)
 				# Does not work!
@@ -1500,11 +1500,50 @@ class ShutItPexpectSession(object):
 		exp_string = 'SHUTIT_TERMINAL_RESET'
 		assert not self.sendline(ShutItSendSpec(self,
 		                                        send=' echo ' + exp_string,
-		                                        ignore_background=True))
+		                                        ignore_background=True)), shutit_util.print_debug()
 		self.expect(exp_string)
 		expect = expect or self.default_expect
 		self.expect(expect)
 		shutit_global.shutit_global_object.log('Resetting terminal done.',level=logging.DEBUG)
+
+# def sync_original_prompt (self):
+#
+#        '''This attempts to find the prompt. Basically, press enter and record
+#        the response; press enter again and record the response; if the two
+#        responses are similar then assume we are at the original prompt. This
+#        is a slow function. It can take over 10 seconds. '''
+#
+#        # All of these timing pace values are magic.
+#        # I came up with these based on what seemed reliable for
+#        # connecting to a heavily loaded machine I have.
+#        self.sendline()
+#        time.sleep(0.1)
+#        # If latency is worse than these values then this will fail.
+#
+#        try:
+#            # Clear the buffer before getting the prompt.
+#            self.read_nonblocking(size=10000,timeout=1)
+#        except TIMEOUT:
+#            pass
+#        time.sleep(0.1)
+#        self.sendline()
+#        time.sleep(0.5)
+#        x = self.read_nonblocking(size=1000,timeout=1)
+#        time.sleep(0.1)
+#        self.sendline()
+#        time.sleep(0.5)
+#        a = self.read_nonblocking(size=1000,timeout=1)
+#        time.sleep(0.1)
+#        self.sendline()
+#        time.sleep(0.5)
+#        b = self.read_nonblocking(size=1000,timeout=1)
+#        ld = self.levenshtein_distance(a,b)
+#        len_a = len(a)
+#        if len_a == 0:
+#            return False
+#        if float(ld)/len_a < 0.4:
+#            return True
+#        return False
 
 
 	def get_memory(self, note=None):
@@ -1605,7 +1644,7 @@ class ShutItPexpectSession(object):
 			                                    secret=True))
 			if res == -1:
 				# Should not happen
-				assert False
+				assert False, shutit_util.print_debug()
 		else:
 			self.send(ShutItSendSpec(self,
 			                         send='%s %s %s' % (cmd, opts, package),
@@ -2542,7 +2581,7 @@ class ShutItPexpectSession(object):
 		cfg = shutit.cfg
 		# Set up what we expect.
 		sendspec.expect = sendspec.expect or self.default_expect
-		assert sendspec.send is not None
+		assert sendspec.send is not None, shutit_util.print_debug()
 		if sendspec.send.strip() == '':
 			sendspec.fail_on_empty_before=False
 			sendspec.check_exit=False
@@ -2762,7 +2801,7 @@ $'"""
 					else:
 						shutit_global.shutit_global_object.log('Send failed, retrying', level=logging.DEBUG)
 					sendspec.retry -= 1
-					assert sendspec.retry > 0
+					assert sendspec.retry > 0, shutit_util.print_debug()
 					continue
 			break
 		# check self.pexpect_child.before for matches for follow-on commands
@@ -3416,7 +3455,7 @@ $'"""
 		# truncate -s must be used as --size is not supported everywhere (eg busybox)
 		assert not self.sendline(ShutItSendSpec(self,
 		                                        send=' truncate -s 0 '+ fname,
-		                                        ignore_background=True))
+		                                        ignore_background=True)), shutit_util.print_debug()
 		self.pexpect_child.expect(expect)
 		size = shutit_global.shutit_global_object.line_limit
 		while working_str:
@@ -3424,11 +3463,11 @@ $'"""
 			working_str = working_str[size:]
 			assert not self.sendline(ShutItSendSpec(self,
 			                                        send=' ' + shutit.get_command('head') + ''' -c -1 >> ''' + fname + """ << 'END_""" + random_id + """'\n""" + curr_str + """\nEND_""" + random_id,
-		                                            ignore_background=True))
+		                                            ignore_background=True)), shutit_util.print_debug()
 			self.expect(expect)
 		assert not self.sendline(ShutItSendSpec(self,
 		                                        send=' chmod +x ' + fname,
-		                                        ignore_background=True))
+		                                        ignore_background=True)), shutit_util.print_debug()
 		self.expect(expect)
 		return fname
 

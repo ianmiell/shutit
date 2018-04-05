@@ -193,9 +193,9 @@ class ShutItInit(object):
 	             shutit_module_path=None,
 	             exam=False):
 
-		assert isinstance(action,str)
-		assert isinstance(logfile,str)
-		assert isinstance(log,str)
+		assert isinstance(action,str), shutit_util.print_debug()
+		assert isinstance(logfile,str), shutit_util.print_debug()
+		assert isinstance(log,str), shutit_util.print_debug()
 
 		self.action  = action
 		self.logfile = logfile
@@ -222,23 +222,23 @@ class ShutItInit(object):
 			self.vagrant_upload         = vagrant_upload
 			self.vagrant_image_name     = vagrant_image_name
 			self.delivery               = delivery
-			assert self.accept in (True,False,None)
-			assert not (self.shutitfiles and self.script),'Cannot have any two of script, -d/--shutitfiles <files> as arguments'
-			assert isinstance(self.base_image,str)
-			assert isinstance(self.depends,str)
+			assert self.accept in (True,False,None), shutit_util.print_debug()
+			assert not (self.shutitfiles and self.script), shutit_util.print_debug(msg='Cannot have any two of script, -d/--shutitfiles <files> as arguments')
+			assert isinstance(self.base_image,str), shutit_util.print_debug()
+			assert isinstance(self.depends,str), shutit_util.print_debug()
 			#assert isinstance(self.shutitfiles,list)
-			assert isinstance(self.name,str)
-			assert isinstance(self.domain,str)
-			assert isinstance(self.pattern,str)
-			assert isinstance(self.output_dir,bool)
-			assert isinstance(self.vagrant_ssh_access,bool)
-			#assert isinstance(self.delivery,str)
+			assert isinstance(self.name,str), shutit_util.print_debug()
+			assert isinstance(self.domain,str), shutit_util.print_debug()
+			assert isinstance(self.pattern,str), shutit_util.print_debug()
+			assert isinstance(self.output_dir,bool), shutit_util.print_debug()
+			assert isinstance(self.vagrant_ssh_access,bool), shutit_util.print_debug()
+			#assert isinstance(self.delivery,str), shutit_util.print_debug()
 			# TODO: other asserts in other things.
 		elif self.action == 'run':
 			self.shutitfiles = shutitfiles
 			self.delivery    = delivery
-			#assert isinstance(self.delivery,str)
-			#assert isinstance(self.shutitfiles,list)
+			#assert isinstance(self.delivery,str), shutit_util.print_debug()
+			#assert isinstance(self.shutitfiles,list), shutit_util.print_debug()
 		elif self.action == 'build' or self.action == 'list_configs' or self.action == 'list_modules':
 			self.push               = push
 			self.export             = export
@@ -285,7 +285,7 @@ class ShutItInit(object):
 			if (self.video != -1 and self.video) and self.exam:
 				print('--video and --exam mode incompatible')
 				shutit_global.shutit_global_object.handle_exit(exit_code=1)
-			#assert isinstance(self.delivery,str)
+			#assert isinstance(self.delivery,str), shutit_util.print_debug()
 			# If the image_tag has been set then ride roughshod over the ignoreimage value if not supplied
 			if self.image_tag != '' and self.ignoreimage is None:
 				self.ignoreimage = True
@@ -451,7 +451,7 @@ class ShutIt(object):
 
 		@param shutit_pexpect_session: pexpect child to set as default
 		"""
-		assert isinstance(shutit_pexpect_session, ShutItPexpectSession)
+		assert isinstance(shutit_pexpect_session, ShutItPexpectSession), shutit_util.print_debug()
 		self.current_shutit_pexpect_session = shutit_pexpect_session
 		return True
 
@@ -536,7 +536,7 @@ class ShutIt(object):
 		@param echo:                 See send()
 		@param note:                 See send()
 		"""
-		assert isinstance(send_dict, dict)
+		assert isinstance(send_dict, dict), shutit_util.print_debug()
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
 		expect = expect or self.get_current_shutit_pexpect_session().default_expect
 		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
@@ -801,7 +801,7 @@ class ShutIt(object):
 		@param note:                 See send()
 		"""
 		if self.build['walkthrough'] and note != None and note != '':
-			assert isinstance(note, str)
+			assert isinstance(note, str), shutit_util.print_debug()
 			wait = self.build['walkthrough_wait']
 			wrap = '\n' + 80*'=' + '\n'
 			message = wrap + note + wrap
@@ -2332,7 +2332,7 @@ class ShutIt(object):
 	                            max_pause=None,
 	                            filename=None,
 	                            shutit_pexpect_child=None):
-		assert self.build['asciinema_session'] is None
+		assert self.build['asciinema_session'] is None, shutit_util.print_debug()
 		self.build['asciinema_session'] = True
 		self.build['asciinema_session_file'] = False
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
@@ -2357,7 +2357,7 @@ class ShutIt(object):
 
 	def end_asciinema_session(self,
 	                          shutit_pexpect_child=None):
-		assert self.build['asciinema_session'] is True
+		assert self.build['asciinema_session'] is True, shutit_util.print_debug()
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
 		output = self.logout(timeout=shutit_global.shutit_global_object.default_timeout)
 		shutit_global.shutit_global_object.log(output,add_final_message=True,level=logging.INFO)
@@ -3125,7 +3125,7 @@ class ShutIt(object):
 	def process_args(self, args):
 		"""Process the args we have.
 		"""
-		assert isinstance(args,ShutItInit)
+		assert isinstance(args,ShutItInit), shutit_util.print_debug()
 
 		if args.action == 'version':
 			print('ShutIt version: ' + shutit.shutit_version)
@@ -3401,7 +3401,7 @@ shutitfile:        a shutitfile-based project (can be docker, bash, vagrant)''')
 		elif args.delivery == 'bash' or args.delivery == 'dockerfile':
 			self.build['conn_module'] = 'shutit.tk.conn_bash'
 		else:
-			assert False, 'Build must have a delivery method'
+			assert False, shutit_util.print_debug(msg='Build must have a delivery method')
 
 		# Get these early for this part of the build.
 		# These should never be config arguments, since they are needed before config is passed in.
@@ -4353,7 +4353,7 @@ shutitfile:        a shutitfile-based project (can be docker, bash, vagrant)''')
 		run_orders = {}
 		has_core_module = False
 		for module in modules:
-			assert isinstance(module, ShutItModule)
+			assert isinstance(module, ShutItModule), shutit_util.print_debug()
 			if module.module_id in self.shutit_map:
 				self.fail('Duplicated module id: ' + module.module_id + '\n\nYou may want to check your --shutit_module_path setting') # pragma: no cover
 			if module.run_order in run_orders:

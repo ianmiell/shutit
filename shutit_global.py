@@ -51,7 +51,7 @@ class ShutItGlobal(object):
 		"""
 		self.shutit_objects = []
 		# Primitive singleton enforcer.
-		assert self.only_one is None
+		assert self.only_one is None, shutit_util.print_debug()
 		self.only_one         = True
 
 		self.secret_words_set = set()
@@ -142,7 +142,7 @@ class ShutItGlobal(object):
 	                   walkthrough_wait=-1,
 	                   nocolor=False,
 	                   loglevel='WARNING'):
-		assert isinstance(session_type, str)
+		assert isinstance(session_type, str), shutit_util.print_debug()
 		new_shutit = ShutIt(standalone=True)
 		self.add_shutit_session(new_shutit)
 		self.nocolor=nocolor

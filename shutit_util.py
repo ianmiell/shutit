@@ -294,7 +294,9 @@ def get_input(msg, default='', valid=None, boolean=False, ispass=False, color='3
 	return answer or default
 
 
-def print_debug(exc_info=None):
+def print_debug(exc_info=None, msg=''):
+	if msg:
+		shutit_global.shutit_global_object.log('Message: '         + msg,level=logging.CRITICAL)
 	environ_string = ''
 	for env in os.environ:
 		environ_string += 'export ' + env + '=' + str(os.environ[env]) + ';'

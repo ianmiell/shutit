@@ -91,9 +91,9 @@ class ShutItLoginStackItem(object):
 				shutit_global.shutit_global_object.log('The current blocking send object is: ' + str(background_object),level=logging.DEBUG)
 				return True
 			elif background_object.block_other_commands and background_object.run_state in ('F','C','T'):
-				assert False, 'Blocking command should have been removed, in run_state: ' + background_object.run_state
+				assert False, shutit_util.print_debug(msg='Blocking command should have been removed, in run_state: ' + background_object.run_state)
 			else:
-				assert background_object.block_other_commands is False
+				assert background_object.block_other_commands is False, shutit_util.print_debug()
 		return False
 
 
@@ -127,7 +127,7 @@ class ShutItLoginStackItem(object):
 				unstarted_command_exists = True
 			else:
 				remove_background_objects(background_objects_to_remove)
-				assert False, 'Un-handled: ' + state
+				assert False, shutit_util.print_debug(msg='Un-handled: ' + state)
 			if state == 'F':
 				shutit_global.shutit_global_object.log('check_background_command_state returning False (F) for ' + str(background_object),level=logging.DEBUG)
 				remove_background_objects(background_objects_to_remove)
