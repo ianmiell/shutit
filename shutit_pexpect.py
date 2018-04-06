@@ -371,19 +371,20 @@ class ShutItPexpectSession(object):
 		if res == -1:
 			# Should not get here as login should not be blocked.
 			assert False, shutit_util.print_debug()
+		# Setup prompt
+		if prompt_prefix != None:
+			self.setup_prompt(r_id,prefix=prompt_prefix,capture_exit_code=True)
+		else:
+			self.setup_prompt(r_id,capture_exit_code=True)
+		self.login_stack.append(r_id)
+		shutit_global.shutit_global_object.log('Login stack after login: ' + str(self.login_stack),level=logging.DEBUG)
 		# Check exit 'by hand' here to not effect/assume setup prompt.
-		if not self.get_exit_value():
+		if not self.get_login_exit_value():
 			if sendspec.fail_on_fail: # pragma: no cover
 				self.shutit.fail('Login failure!')
 			else:
+				# TODO: remove just-added login stack item (since we failed to log in successfully)?
 				return False
-		# Setup prompt
-		if prompt_prefix != None:
-			self.setup_prompt(r_id,prefix=prompt_prefix)
-		else:
-			self.setup_prompt(r_id)
-		self.login_stack.append(r_id)
-		shutit_global.shutit_global_object.log('Login stack after login: ' + str(self.login_stack),level=logging.DEBUG)
 		if sendspec.go_home:
 			self.send(ShutItSendSpec(self,
 			                         send='cd',
@@ -433,6 +434,7 @@ class ShutItPexpectSession(object):
 	def setup_prompt(self,
 	                 prompt_name,
 	                 prefix='default',
+	                 capture_exit_code=False,
 	                 loglevel=logging.DEBUG):
 		"""Use this when you've opened a new shell to set the PS1 to something
 		sane. By default, it sets up the default expect so you don't have to
@@ -476,8 +478,12 @@ class ShutItPexpectSession(object):
 
 		# Split the local prompt into two parts and separate with quotes to protect against the expect matching the command rather than the output.
 		shutit_global.shutit_global_object.log('Setting up prompt.', level=logging.DEBUG)
+		send_str = ''
+		if capture_exit_code:
+			send_str = r' SHUTIT_EC=$? && '
+		send_str += """ export PS1_""" + prompt_name + """=$PS1 && PS1='""" + local_prompt[:2] + "''" + local_prompt[2:] + """' && PROMPT_COMMAND=""" + shutit_global.shutit_global_object.prompt_command
 		self.send(ShutItSendSpec(self,
-		                         send=""" export PS1_""" + prompt_name + """=$PS1 && PS1='""" + local_prompt[:2] + "''" + local_prompt[2:] + """' && PROMPT_COMMAND=""" + shutit_global.shutit_global_object.prompt_command,
+		                         send=send_str,
 		                         expect=['\r\n' + shutit.expect_prompts[prompt_name]],
 		                         fail_on_empty_before=False,
 		                         echo=False,
@@ -3426,7 +3432,10 @@ $'"""
 		return False
 
 
-	# Created specifically to help when logging in and the prompt is not ready.
+	def get_login_exit_value(self):
+		return self.send_and_get_output(''' echo $SHUTIT_EC && unset SHUTIT_EC''') == '0'
+
+
 	def get_exit_value(self):
 		# The quotes in the middle of the string are there to prevent the output matching the command.
 		self.pexpect_child.send(''' if [ $? = 0 ]; then echo 'SHUTIT''_RESULT:0'; else echo 'SHUTIT''_RESULT:1'; fi\n''')
