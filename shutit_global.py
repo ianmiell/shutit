@@ -65,7 +65,7 @@ class ShutItGlobal(object):
 		# Quotes here are intentional. Some versions of sleep don't support fractional seconds.
 		# True is called to take up the time require
 		self.prompt_command          = "'sleep .1||sleep 1'"
-		self.bash_startup_command    = "bash --noprofile --rcfile <(sleep .1||(TMOUT=0.1;read)"
+		self.bash_startup_command    = "bash --noprofile --rcfile <(sleep .1||sleep 1)"
 		# It's important that this has '.*' at the start, so the matched data is reliably 'after' in the
 		# child object. Use these where possible to make things more consistent.
 		# Attempt to capture any starting prompt (when starting) with this regexp.
