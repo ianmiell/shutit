@@ -29,8 +29,8 @@ class ShutItPexpectSessionEnvironment(object):
 		self.build['apk_update_done']     = False
 
 	def __str__(self):
-		string = ''
-		string += '| distro = ' + str(self.distro)
+		string = '\n======= SHUTIT PEXPECT SESSION ENVIRONMENT BEGIN ========'
+		string += '\n| distro = ' + str(self.distro)
 		string += '| module_root_dir = ' + str(self.module_root_dir)
 		string += '| modules_installed  = ' + str(self.modules_installed)
 		string += '| modules_not_installed = ' + str(self.modules_not_installed)
@@ -41,4 +41,5 @@ class ShutItPexpectSessionEnvironment(object):
 		string += '| distro_version = ' + str(self.distro_version)
 		string += '| users = ' + str(self.users)
 		string += '| self.build = ' + str(self.build)
+		string += '\n======= SHUTIT PEXPECT SESSION ENVIRONMENT END ========'
 		return string

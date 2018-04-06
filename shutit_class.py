@@ -373,7 +373,7 @@ class ShutIt(object):
 
 	def __str__(self):
 		string = '\n======= SHUTIT OBJECT BEGIN ========'
-		string += '\tstandalone='                     + str(self.standalone)
+		string += '\nstandalone='                     + str(self.standalone)
 		string += '\nbuild='                          + str(self.build)
 		string += '\nhost='                           + str(self.host)
 		string += '\nrepository='                     + str(self.repository)

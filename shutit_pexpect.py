@@ -124,7 +124,7 @@ class ShutItPexpectSession(object):
 
 	def __str__(self):
 		str_repr = '\n======= SHUTIT_PEXPECT_SESSION BEGIN ======='
-		str_repr += '\tcheck_exit='           + str(self.check_exit)
+		str_repr += '\ncheck_exit='           + str(self.check_exit)
 		str_repr += '\tdefault_expect='       + str(self.default_expect)
 		str_repr += '\tshell_expect='         + str(self.shell_expect)
 		str_repr += '\tin_shell='             + str(self.in_shell)
