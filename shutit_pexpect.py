@@ -3434,19 +3434,6 @@ $'"""
 		return False
 
 
-	def get_exit_value(self):
-		# The quotes in the middle of the string are there to prevent the output matching the command.
-		self.pexpect_child.send(''' if [ $? = 0 ]; then echo 'SHUTIT''_RESULT:0'; else echo 'SHUTIT''_RESULT:1'; fi\n''')
-		shutit_global.shutit_global_object.log('Checking exit value.',level=logging.DEBUG)
-		success_check = self.pexpect_child.expect(['SHUTIT_RESULT:0','SHUTIT_RESULT:1'])
-		if success_check == 0:
-			shutit_global.shutit_global_object.log('Returning true.',level=logging.DEBUG)
-			return True
-		elif success_check == 1:
-			shutit_global.shutit_global_object.log('Returning false.',level=logging.DEBUG)
-		return False
-
-
 	def get_os(self):
 		return self.current_environment.distro
 
