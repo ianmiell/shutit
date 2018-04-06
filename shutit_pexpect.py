@@ -87,7 +87,7 @@ class ShutItPexpectSession(object):
 	             encoding=None,
 	             codec_errors='strict',
 	             dimensions=None,
-	             delaybeforesend=shutit_global.shutit_global_object.default_delaybeforesend):
+	             delaybeforesend=shutit_global.shutit_global_object.delaybeforesend):
 		"""spawn a child, and manage the delaybefore send setting to 0
 		"""
 		# If encoding is set, then pexpect returns data in that encoding.
@@ -152,7 +152,7 @@ class ShutItPexpectSession(object):
 	                 encoding=None,
 	                 codec_errors='strict',
 	                 dimensions=None,
-	                 delaybeforesend=shutit_global.shutit_global_object.default_delaybeforesend):
+	                 delaybeforesend=shutit_global.shutit_global_object.delaybeforesend):
 		"""spawn a child, and manage the delaybefore send setting to 0
 		"""
 		shutit = self.shutit
