@@ -378,8 +378,8 @@ class ShutItPexpectSession(object):
 			self.setup_prompt(r_id,capture_exit_code=True)
 		self.login_stack.append(r_id)
 		shutit_global.shutit_global_object.log('Login stack after login: ' + str(self.login_stack),level=logging.DEBUG)
-		# Check exit 'by hand' here to not effect/assume setup prompt.
-		if not self.get_login_exit_value():
+		login_exit = self.send_and_get_output(''' echo $SHUTIT_EC && unset SHUTIT_EC''')
+		if login_exit != '0':
 			if sendspec.fail_on_fail: # pragma: no cover
 				self.shutit.fail('Login failure!')
 			else:
@@ -457,7 +457,10 @@ class ShutItPexpectSession(object):
 
 		@param prompt_name:         Reference name for prompt.
 		@param prefix:              Prompt prefix. Default: 'default'
-
+		@param capture_exit_code:   Captures the exit code of the previous
+		                            command into a SHUTIT_EC variable. Useful
+		                            for when we want to work out whether the
+		                            login worked.
 		@type prompt_name:          string
 		@type prefix:               string
 		"""
@@ -3430,10 +3433,6 @@ $'"""
 				return True
 		shutit_global.shutit_global_object.log('check_sudo returning False',level=logging.DEBUG)
 		return False
-
-
-	def get_login_exit_value(self):
-		return self.send_and_get_output(''' echo $SHUTIT_EC && unset SHUTIT_EC''') == '0'
 
 
 	def get_exit_value(self):
