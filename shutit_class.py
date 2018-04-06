@@ -3493,7 +3493,7 @@ shutitfile:        a shutitfile-based project (can be docker, bash, vagrant)''')
 
 		# Applies to all
 		for action in ['build', 'list_configs', 'list_modules', 'list_deps','run','skeleton']:
-			sub_parsers[action].add_argument('--delaybeforesend', help='Delay before send setting (see pexpect)', default='0.0')
+			sub_parsers[action].add_argument('--delaybeforesend', help='Delay before send setting (see pexpect)', default='0.05')
 			sub_parsers[action].add_argument('--promptcommand', help='Prompt command to set', default="'sleep .05||sleep 1'")
 			sub_parsers[action].add_argument('-o','--logfile',default='', help='Log output to this file')
 			sub_parsers[action].add_argument('-l','--log',default='', help='Log level (DEBUG, INFO (default), WARNING, ERROR, CRITICAL)',choices=('DEBUG','INFO','WARNING','ERROR','CRITICAL','debug','info','warning','error','critical'))
@@ -3585,7 +3585,7 @@ shutitfile:        a shutitfile-based project (can be docker, bash, vagrant)''')
 		args = parser.parse_args(args_list)
 
 		# Set up shutit_global
-		shutit_global.shutit_global_object.delaybeforesend = args.delaybeforesend
+		shutit_global.shutit_global_object.delaybeforesend = float(args.delaybeforesend)
 		shutit_global.shutit_global_object.prompt_command  = args.promptcommand
 
 		if args.action == 'version':
