@@ -94,8 +94,6 @@ class ShutItPexpectSession(object):
 		# Otherwise, it returns it in bytes. bytes() has different args in PY2
 		# and PY3, hence this shuffling. There may be a better way to do this.
 		# TODO: spawn encoding in PY2 and handle appropriately there also.
-		if PY3: # pragma: no cover
-			encoding = 'utf-8'
 		assert isinstance(shutit, shutit_class.ShutIt), shutit_util.print_debug()
 		self.shutit                    = shutit
 		self.check_exit                = True
@@ -1805,16 +1803,19 @@ class ShutItPexpectSession(object):
 			before = before.strip()
 		shutit_global.shutit_global_object.log('send_and_get_output "before" after startswith check: ' + before, level=logging.DEBUG)
 		# Too chatty, but kept here in case useful for debugging
-		shutit_global.shutit_global_object.log('send_and_get_output got:\n' + before, level=logging.DEBUG)
+		shutit_global.shutit_global_object.log('send_and_get_output got: ' + before, level=logging.DEBUG)
 		# Leave this debug in in case there are any strange characters to consider.
-		shutit_global.shutit_global_object.log('send_and_get_output returning in base64:\n' + base64.b64encode(before), level=logging.DEBUG)
+		if PY3:
+			shutit_global.shutit_global_object.log('send_and_get_output returning in base64: ' + str(base64.b64encode(bytes(before,shutit_global.shutit_global_object.preferred_encoding))), level=logging.DEBUG)
+		else:
+			shutit_global.shutit_global_object.log('send_and_get_output returning in base64: ' + base64.b64encode(before), level=logging.DEBUG)
 		## In rare cases a bell has been seen - can't see why we'd want a bell so simply remove them all.
 		before = before.replace('\x07','')
 		# If there happens to be an escape character in there, it's likely a
 		# problem - see IWT-4812.
 		before = before.split('\x1b')[0].strip()
 		if PY3:
-			shutit_global.shutit_global_object.log('send_and_get_output returning in base64: ' + str(base64.b64encode(bytes(before,'utf-8'))), level=logging.DEBUG)
+			shutit_global.shutit_global_object.log('send_and_get_output returning in base64: ' + str(base64.b64encode(bytes(before,shutit_global.shutit_global_object.preferred_encoding))), level=logging.DEBUG)
 		else:
 			shutit_global.shutit_global_object.log('send_and_get_output returning in base64: ' + base64.b64encode(bytes(before)), level=logging.DEBUG)
 		shutit.handle_note_after(note=note)
@@ -2332,7 +2333,7 @@ class ShutItPexpectSession(object):
 				ftext = bytes(self.send_and_get_output(' command base64 ' + fname,
 				                                       echo=False,
 				                                       loglevel=loglevel),
-				                                       'utf-8')
+				                                       shutit_global.shutit_global_object.preferred_encoding)
 			else:
 				ftext = self.send_and_get_output(' command base64 ' + fname,
 				                                 echo=False,
@@ -2344,8 +2345,8 @@ class ShutItPexpectSession(object):
 				ftext = bytes(self.send_and_get_output(' command cat ' + fname,
 				                                       echo=False,
 				                                       loglevel=loglevel),
-				                                       'utf-8')
-				ftext = ftext.replace(bytes('\r\n', 'utf-8'),bytes('\n', 'utf-8'))
+				                                       shutit_global.shutit_global_object.preferred_encoding)
+				ftext = ftext.replace(bytes('\r\n', shutit_global.shutit_global_object.preferred_encoding),bytes('\n', shutit_global.shutit_global_object.preferred_encoding))
 			else:
 				ftext = self.send_and_get_output(' command cat ' + fname,
 				                                 echo=False,
@@ -2354,7 +2355,7 @@ class ShutItPexpectSession(object):
 		# Delete the text
 		if delete:
 			if PY3:
-				loc = ftext.find(bytes(text,'utf-8'))
+				loc = ftext.find(bytes(text,shutit_global.shutit_global_object.preferred_encoding))
 			else:
 				loc = ftext.find(text)
 			if loc == -1:
@@ -2369,7 +2370,7 @@ class ShutItPexpectSession(object):
 						shutit.fail('Illegal regexp found in change_text call: ' + pattern) # pragma: no cover
 					# cf: http://stackoverflow.com/questions/9411041/matching-ranges-of-lines-in-python-like-sed-ranges
 					if PY3:
-						sre_match = re.search(bytes(pattern,'utf-8'),ftext,re.DOTALL|re.MULTILINE)
+						sre_match = re.search(bytes(pattern,shutit_global.shutit_global_object.preferred_encoding),ftext,re.DOTALL|re.MULTILINE)
 					else:
 						sre_match = re.search(pattern,ftext,re.DOTALL|re.MULTILINE)
 					if replace:
@@ -2390,7 +2391,7 @@ class ShutItPexpectSession(object):
 							cut_point = sre_match.start()
 							# If the text is already there and we're not forcing it, return None.
 							if PY3:
-								if not force and ftext[cut_point-len(text):].find(bytes(text,'utf-8')) > 0:
+								if not force and ftext[cut_point-len(text):].find(bytes(text,shutit_global.shutit_global_object.preferred_encoding)) > 0:
 									return None
 							else:
 								if not force and ftext[cut_point-len(text):].find(text) > 0:
@@ -2399,7 +2400,7 @@ class ShutItPexpectSession(object):
 							cut_point = sre_match.end()
 							# If the text is already there and we're not forcing it, return None.
 							if PY3:
-								if not force and ftext[cut_point:].find(bytes(text,'utf-8')) > 0:
+								if not force and ftext[cut_point:].find(bytes(text,shutit_global.shutit_global_object.preferred_encoding)) > 0:
 									return None
 							else:
 								if not force and ftext[cut_point:].find(text) > 0:
@@ -2408,7 +2409,7 @@ class ShutItPexpectSession(object):
 						newtext2 = ftext[cut_point:]
 				else:
 					if PY3:
-						lines = ftext.split(bytes('\n','utf-8'))
+						lines = ftext.split(bytes('\n',shutit_global.shutit_global_object.preferred_encoding))
 					else:
 						lines = ftext.split('\n')
 					cut_point   = 0
@@ -2426,7 +2427,7 @@ class ShutItPexpectSession(object):
 							pattern_after = '.*$'
 						new_pattern = pattern_before+pattern+pattern_after
 						if PY3:
-							match = re.search(bytes(new_pattern,'utf-8'), line)
+							match = re.search(bytes(new_pattern,shutit_global.shutit_global_object.preferred_encoding), line)
 						else:
 							match = re.search(new_pattern,line)
 						line_length = len(line)
@@ -2452,9 +2453,9 @@ class ShutItPexpectSession(object):
 					elif not force:
 						# If the text is already there and we're not forcing it, return None.
 						if PY3:
-							if before and ftext[cut_point-len(text):].find(bytes(text,'utf-8')) > 0:
+							if before and ftext[cut_point-len(text):].find(bytes(text,shutit_global.shutit_global_object.preferred_encoding)) > 0:
 								return None
-							if not before and ftext[cut_point:].find(bytes(text,'utf-8')) > 0:
+							if not before and ftext[cut_point:].find(bytes(text,shutit_global.shutit_global_object.preferred_encoding)) > 0:
 								return None
 						else:
 							if before and ftext[cut_point-len(text):].find(text) > 0:
@@ -2463,15 +2464,15 @@ class ShutItPexpectSession(object):
 								return None
 					# Add a newline to newtext1 if it is not already there
 					if PY3:
-						if newtext1 and bytes(newtext1.decode('utf-8')[-1],'utf-8') != bytes('\n','utf-8'):
-							newtext1 += bytes('\n','utf-8')
+						if newtext1 and bytes(newtext1.decode(shutit_global.shutit_global_object.preferred_encoding)[-1],shutit_global.shutit_global_object.preferred_encoding) != bytes('\n',shutit_global.shutit_global_object.preferred_encoding):
+							newtext1 += bytes('\n',shutit_global.shutit_global_object.preferred_encoding)
 					else:
 						if newtext1 and newtext1[-1] != '\n':
 							newtext1 += '\n'
 					# Add a newline to newtext2 if it is not already there
 					if PY3:
-						if newtext2 and bytes(newtext2.decode('utf-8')[0],'utf-8') != bytes('\n','utf-8'):
-							newtext2 = bytes('\n','utf-8') + newtext2
+						if newtext2 and bytes(newtext2.decode(shutit_global.shutit_global_object.preferred_encoding)[0],shutit_global.shutit_global_object.preferred_encoding) != bytes('\n',shutit_global.shutit_global_object.preferred_encoding):
+							newtext2 = bytes('\n',shutit_global.shutit_global_object.preferred_encoding) + newtext2
 					else:
 						if newtext2 and newtext2[0] != '\n':
 							newtext2 = '\n' + newtext2
@@ -2482,13 +2483,13 @@ class ShutItPexpectSession(object):
 				newtext2 = ftext[cut_point:]
 			# If adding or replacing at the end of the file, then ensure we have a newline at the end
 			if PY3:
-				if newtext2 == b'' and text and bytes(text[-1],'utf-8') != bytes('\n','utf-8'):
-					newtext2 = bytes('\n','utf-8')
+				if newtext2 == b'' and text and bytes(text[-1],shutit_global.shutit_global_object.preferred_encoding) != bytes('\n',shutit_global.shutit_global_object.preferred_encoding):
+					newtext2 = bytes('\n',shutit_global.shutit_global_object.preferred_encoding)
 			else:
 				if newtext2 == '' and text and text[-1] != '\n':
 					newtext2 = '\n'
 			if PY3:
-				new_text = newtext1 + bytes(text,'utf-8') + newtext2
+				new_text = newtext1 + bytes(text,shutit_global.shutit_global_object.preferred_encoding) + newtext2
 			else:
 				new_text = newtext1 + text + newtext2
 		self.send_file(fname,
@@ -2799,10 +2800,10 @@ $'"""
 			if not sendspec.secret:
 				if not sendspec.echo:
 					shutit_global.shutit_global_object.log('Output (squashed): ' + logged_output,level=logging.DEBUG)
-				try:
+				if PY3:
+					shutit_global.shutit_global_object.log('pexpect: buffer: ' + base64.b64encode(bytes(self.pexpect_child.buffer,shutit_global.shutit_global_object.preferred_encoding)) + ' before: ' + base64.b64encode(bytes(self.pexpect_child.before,shutit_global.shutit_global_object.preferred_encoding)) + ' after: '  + base64.b64encode(self.pexpect_child.after),level=logging.DEBUG)
+				else:
 					shutit_global.shutit_global_object.log('pexpect: buffer: ' + base64.b64encode(self.pexpect_child.buffer) + ' before: ' + base64.b64encode(self.pexpect_child.before) + ' after: '  + base64.b64encode(self.pexpect_child.after),level=logging.DEBUG)
-				except TypeError as e:
-					shutit_global.shutit_global_object.log('Exception at 2665: ' + str(e),level=logging.WARNING)
 			else:
 				shutit_global.shutit_global_object.log('[Send was marked secret; getting output debug will require code change]',level=logging.DEBUG)
 			if sendspec.fail_on_empty_before:
@@ -2932,7 +2933,7 @@ $'"""
 					if encoding is not None:
 						f.write(contents.decode(encoding))
 					else:
-						f.write(contents.decode('utf-8'))
+						f.write(contents.decode(shutit_global.shutit_global_object.preferred_encoding))
 			elif isinstance(contents, bytes):
 				f = open(path,'w')
 				if truncate:
@@ -2943,7 +2944,7 @@ $'"""
 					if encoding is not None:
 						f.write(contents.decode(encoding))
 					else:
-						f.write(contents.decode('utf-8'))
+						f.write(contents.decode(shutit_global.shutit_global_object.preferred_encoding))
 			else:
 				shutit.fail('type: ' + str(type(contents)) + ' not handled in 1') # pragma: no cover
 			f.close()
@@ -2961,16 +2962,16 @@ $'"""
 					b64contents = base64.b64encode(contents.encode(encoding)).decode(encoding)
 				else:
 					if isinstance(contents, str):
-						b64contents = base64.b64encode(contents.encode('utf-8')).decode('utf-8')
+						b64contents = base64.b64encode(contents.encode(shutit_global.shutit_global_object.preferred_encoding)).decode(shutit_global.shutit_global_object.preferred_encoding)
 					elif isinstance(contents, bytes):
-						b64contents = base64.b64encode(contents).decode('utf-8')
+						b64contents = base64.b64encode(contents).decode(shutit_global.shutit_global_object.preferred_encoding)
 					else:
 						shutit.fail('type: ' + str(type(contents)) + ' not handled in 2') # pragma: no cover
 			else:
 				if encoding is not None:
 					b64contents = base64.b64encode(contents.encode(encoding))
 				else:
-					b64contents = base64.b64encode(contents.encode('utf-8'))
+					b64contents = base64.b64encode(contents.encode(shutit_global.shutit_global_object.preferred_encoding))
 			# split the contents into chunks and append to avoid PC_MAX_CANON: see https://github.com/pexpect/pexpect/commit/f3ef67b6ba5508d0d118b59837d099f5144e576b
 			total_length = len(b64contents)
 			position = 0
@@ -3008,7 +3009,7 @@ $'"""
 					elif encoding is not None:
 						f.write(contents.encode(encoding))
 					else:
-						f.write(contents.encode('utf-8'))
+						f.write(contents.encode(shutit_global.shutit_global_object.preferred_encoding))
 				except (UnicodeDecodeError, TypeError) as e:
 					f.write(contents)
 			else:
@@ -3017,7 +3018,7 @@ $'"""
 					if encoding is not None:
 						f.write(contents.encode(encoding))
 					else:
-						f.write(contents.encode('utf-8'))
+						f.write(contents.encode(shutit_global.shutit_global_object.preferred_encoding))
 				except (UnicodeDecodeError, TypeError) as e:
 					f.write(contents)
 			f.close()

@@ -3348,7 +3348,7 @@ shutitfile:        a shutitfile-based project (can be docker, bash, vagrant)''')
 		if not os.path.isfile(os.path.join(shutit_home, 'config')):
 			f = os.open(os.path.join(shutit_home, 'config'), os.O_WRONLY | os.O_CREAT, 0o600)
 			if PY3:
-				os.write(f,bytes(default_cnf,'utf-8'))
+				os.write(f,bytes(default_cnf,shutit_global.shutit_global_object.preferred_encoding))
 			else:
 				os.write(f,default_cnf)
 			os.close(f)
