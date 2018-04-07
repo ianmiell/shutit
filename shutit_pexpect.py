@@ -87,7 +87,7 @@ class ShutItPexpectSession(object):
 	             encoding=None,
 	             codec_errors='strict',
 	             dimensions=None,
-	             delaybeforesend=shutit_global.shutit_global_object.default_delaybeforesend):
+	             delaybeforesend=None):
 		"""spawn a child, and manage the delaybefore send setting to 0
 		"""
 		# If encoding is set, then pexpect returns data in that encoding.
@@ -108,6 +108,8 @@ class ShutItPexpectSession(object):
 		self.login_stack               = ShutItLoginStack()
 		self.current_environment       = None
 		args = args or []
+		if not delaybeforesend:
+			delaybeforesend=shutit_global.shutit_global_object.delaybeforesend
 		self.pexpect_child       = self._spawn_child(command=command,
 		                                             args=args,
 		                                             timeout=timeout,
@@ -124,7 +126,7 @@ class ShutItPexpectSession(object):
 
 	def __str__(self):
 		str_repr = '\n======= SHUTIT_PEXPECT_SESSION BEGIN ======='
-		str_repr += '\tcheck_exit='           + str(self.check_exit)
+		str_repr += '\ncheck_exit='           + str(self.check_exit)
 		str_repr += '\tdefault_expect='       + str(self.default_expect)
 		str_repr += '\tshell_expect='         + str(self.shell_expect)
 		str_repr += '\tin_shell='             + str(self.in_shell)
@@ -152,7 +154,7 @@ class ShutItPexpectSession(object):
 	                 encoding=None,
 	                 codec_errors='strict',
 	                 dimensions=None,
-	                 delaybeforesend=shutit_global.shutit_global_object.default_delaybeforesend):
+	                 delaybeforesend=shutit_global.shutit_global_object.delaybeforesend):
 		"""spawn a child, and manage the delaybefore send setting to 0
 		"""
 		shutit = self.shutit

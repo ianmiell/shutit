@@ -300,7 +300,7 @@ def print_debug(exc_info=None, msg=''):
 	environ_string = ''
 	for env in os.environ:
 		environ_string += 'export ' + env + '=' + str(os.environ[env]) + ';'
-	shutit_global.shutit_global_object.log('=============================== DEBUG INFO =========================================',level=logging.CRITICAL)
+	shutit_global.shutit_global_object.log('\n=============================== DEBUG INFO =========================================',level=logging.CRITICAL)
 	if exc_info:
 		stack_trace = ''
 		for line in traceback.format_exception(*exc_info):
@@ -312,4 +312,4 @@ def print_debug(exc_info=None, msg=''):
 	shutit_global.shutit_global_object.log('Environment: '            + environ_string,level=logging.CRITICAL)
 	shutit_global.shutit_global_object.log('Command was: '            + sys.executable + (' ').join(sys.argv),level=logging.CRITICAL)
 	shutit_global.shutit_global_object.log('ShutIt global state: '    + str(shutit_global.shutit_global_object),level=logging.CRITICAL)
-	shutit_global.shutit_global_object.log('=============================== DEBUG INFO =========================================',level=logging.CRITICAL)
+	shutit_global.shutit_global_object.log('\n=============================== DEBUG INFO =========================================',level=logging.CRITICAL)

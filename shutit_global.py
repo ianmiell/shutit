@@ -65,7 +65,7 @@ class ShutItGlobal(object):
 		# Quotes here are intentional. Some versions of sleep don't support fractional seconds.
 		# True is called to take up the time require
 		self.prompt_command          = "'sleep .05||sleep 1'"
-		self.bash_startup_command    = "bash --noprofile --rcfile <(sleep .1||sleep 1)"
+		self.bash_startup_command    = "bash --noprofile --rcfile <(sleep .05||sleep 1)"
 		# It's important that this has '.*' at the start, so the matched data is reliably 'after' in the
 		# child object. Use these where possible to make things more consistent.
 		# Attempt to capture any starting prompt (when starting) with this regexp.
@@ -113,7 +113,7 @@ class ShutItGlobal(object):
 
 	def __str__(self):
 		str_repr = '\n====== SHUTIT_GLOBAL_OBJECT BEGIN ====='
-		str_repr += '\tself.logfile='         + str(self.logfile)
+		str_repr += '\nself.logfile='         + str(self.logfile)
 		str_repr += '\tself.signal_id='       + str(self.signal_id)
 		str_repr += '\tself.window_size_max=' + str(self.window_size_max)
 		str_repr += '\tself.username='        + str(self.username)
@@ -121,6 +121,8 @@ class ShutItGlobal(object):
 		str_repr += '\treal_user='            + str(self.real_user)
 		str_repr += '\treal_user_id='         + str(self.real_user_id)
 		str_repr += '\tbuild_id='             + str(self.build_id)
+		str_repr += '\tdelaybeforesend='      + str(self.delaybeforesend)
+		str_repr += '\tprompt_command='       + str(self.prompt_command)
 		for shutit_object in self.shutit_objects:
 			str_repr += str(shutit_object)
 		# TODO

@@ -373,7 +373,7 @@ class ShutIt(object):
 
 	def __str__(self):
 		string = '\n======= SHUTIT OBJECT BEGIN ========'
-		string += '\tstandalone='                     + str(self.standalone)
+		string += '\nstandalone='                     + str(self.standalone)
 		string += '\nbuild='                          + str(self.build)
 		string += '\nhost='                           + str(self.host)
 		string += '\nrepository='                     + str(self.repository)
@@ -3485,13 +3485,40 @@ shutitfile:        a shutitfile-based project (can be docker, bash, vagrant)''')
 		parser = argparse.ArgumentParser(description='ShutIt - a tool for managing complex Docker deployments.\n\nTo view help for a specific subcommand, type ./shutit <subcommand> -h',prog="ShutIt")
 		subparsers = parser.add_subparsers(dest='action', help='''Action to perform - build=deploy to target, skeleton=construct a skeleton module, list_configs=show configuration as read in, list_modules=show modules available, list_deps=show dep graph ready for graphviz. Defaults to 'build'.''')
 
-
 		sub_parsers = dict()
 		for action in actions:
 			sub_parsers[action] = subparsers.add_parser(action)
 
+		args_list = sys.argv[1:]
+
+		# Applies to all
+		for action in ['build', 'list_configs', 'list_modules', 'list_deps','run','skeleton']:
+			sub_parsers[action].add_argument('--delaybeforesend', help='Delay before send setting (see pexpect)', default='0.05')
+			sub_parsers[action].add_argument('--promptcommand', help='Prompt command to set', default="'sleep .05||sleep 1'")
+			sub_parsers[action].add_argument('-o','--logfile',default='', help='Log output to this file')
+			sub_parsers[action].add_argument('-l','--log',default='', help='Log level (DEBUG, INFO (default), WARNING, ERROR, CRITICAL)',choices=('DEBUG','INFO','WARNING','ERROR','CRITICAL','debug','info','warning','error','critical'))
+			sub_parsers[action].add_argument('--nocolor', help='Remove colorization from ShutIt', default=False, action='store_const', const=True)
+			sub_parsers[action].add_argument('-d','--delivery', help='Delivery method, aka target. "docker" container (default)', default=None, choices=('docker','dockerfile','bash'))
+
+		# All except run and skeleton
+		for action in ['build', 'list_configs', 'list_modules', 'list_deps']:
+			sub_parsers[action].add_argument('--config', help='Config file for setup config. Must be with perms 0600. Multiple arguments allowed; config files considered in order.', default=[], action='append')
+			sub_parsers[action].add_argument('-s', '--set', help='Override a config item, e.g. "-s target rm no". Can be specified multiple times.', default=[], action='append', nargs=3, metavar=('SEC', 'KEY', 'VAL'))
+			sub_parsers[action].add_argument('--image_tag', help='Build container from specified image - if there is a symbolic reference, please use that, eg localhost.localdomain:5000/myref', default='')
+			sub_parsers[action].add_argument('--tag_modules', help='''Tag each module after it's successfully built regardless of the module config and based on the repository config.''', default=False, const=True, action='store_const')
+			sub_parsers[action].add_argument('-m', '--shutit_module_path', default=None, help='List of shutit module paths, separated by colons. ShutIt registers modules by running all .py files in these directories.')
+			sub_parsers[action].add_argument('--trace', help='Trace function calls', const=True, default=False, action='store_const')
+			sub_parsers[action].add_argument('--interactive', help='Level of interactive. 0 = none, 1 = honour pause points and config prompting, 2 = query user on each module, 3 = tutorial mode', default='1')
+			sub_parsers[action].add_argument('--ignorestop', help='Ignore STOP files', const=True, default=False, action='store_const')
+			sub_parsers[action].add_argument('--ignoreimage', help='Ignore disallowed images', const=True, default=None, action='store_const')
+			sub_parsers[action].add_argument('--imageerrorok', help='Exit without error if allowed images fails (used for test scripts)', const=True, default=False, action='store_const')
+			sub_parsers[action].add_argument('--deps_only', help='build deps only, tag with suffix "_deps"', const=True, default=False, action='store_const')
+			sub_parsers[action].add_argument('--echo', help='Always echo output', const=True, default=False, action='store_const')
+
+		# Just run
 		sub_parsers['run'].add_argument('shutitfiles', nargs='*', default=['ShutItFile','Shutitfile','ShutItfile','ShutitFile','shutitfile'])
 
+		# Just skeleton
 		sub_parsers['skeleton'].add_argument('--name', help='Absolute path to new directory for module. Last part of path is taken as the module name.',default='')
 		sub_parsers['skeleton'].add_argument('--domain', help='Arbitrary but unique domain for namespacing your module, eg com.mycorp',default='')
 		sub_parsers['skeleton'].add_argument('--depends', help='Module id to depend on, default shutit.tk.setup (optional)', default='shutit.tk.setup')
@@ -3507,12 +3534,9 @@ shutitfile:        a shutitfile-based project (can be docker, bash, vagrant)''')
 		sub_parsers['skeleton'].add_argument('--vagrant_upload', default=None, const=True, action='store_const')
 		sub_parsers['skeleton'].add_argument('--vagrant_image_name', default=None, const=True, action='store_const')
 		sub_parsers['skeleton'].add_argument('--pattern', help='Pattern to use', default='')
-		sub_parsers['skeleton'].add_argument('--delivery', help='Delivery method, aka target. "docker" container (default), "bash" session', default=None, choices=('docker','dockerfile','bash'))
 		sub_parsers['skeleton'].add_argument('-a','--accept', help='Accept defaults', const=True, default=False, action='store_const')
-		sub_parsers['skeleton'].add_argument('--log','-l', help='Log level (DEBUG, INFO (default), WARNING, ERROR, CRITICAL)', default='')
-		sub_parsers['skeleton'].add_argument('-o','--logfile', help='Log output to this file', default='')
-		sub_parsers['skeleton'].add_argument('--nocolor', help='Remove colorization from ShutIt', default=False, action='store_const', const=True)
 
+		# Just build
 		sub_parsers['build'].add_argument('--export', help='Perform docker export to a tar file', const=True, default=False, action='store_const')
 		sub_parsers['build'].add_argument('--save', help='Perform docker save to a tar file', const=True, default=False, action='store_const')
 		sub_parsers['build'].add_argument('--push', help='Push to a repo', const=True, default=False, action='store_const')
@@ -3524,30 +3548,13 @@ shutitfile:        a shutitfile-based project (can be docker, bash, vagrant)''')
 		sub_parsers['build'].add_argument('--training', help='Run in "training" mode, where correct input is required at key points', default=False, action='store_const', const=True)
 		sub_parsers['build'].add_argument('--exam', help='Run in "exam" mode, where correct input is required at key points and progress is tracked', default=False, action='store_const', const=True)
 
+		# Just list_configs
 		sub_parsers['list_configs'].add_argument('--history', help='Show config with history', const=True, default=False, action='store_const')
+
+		# Just list_modules
 		sub_parsers['list_modules'].add_argument('--long', help='Show extended module info, including ordering', const=True, default=False, action='store_const')
 		sub_parsers['list_modules'].add_argument('--sort', help='Order the modules seen, default to module id', default='id', choices=('id','run_order'))
 
-		for action in ['build', 'list_configs', 'list_modules', 'list_deps','run']:
-			sub_parsers[action].add_argument('-o','--logfile',default='', help='Log output to this file')
-			sub_parsers[action].add_argument('-l','--log',default='', help='Log level (DEBUG, INFO (default), WARNING, ERROR, CRITICAL)',choices=('DEBUG','INFO','WARNING','ERROR','CRITICAL','debug','info','warning','error','critical'))
-			sub_parsers[action].add_argument('--nocolor', help='Remove colorization from ShutIt', default=False, action='store_const', const=True)
-			sub_parsers[action].add_argument('-d','--delivery', help='Delivery method, aka target. "docker" container (default)', default=None, choices=('docker','dockerfile','bash'))
-			if action != 'run':
-				sub_parsers[action].add_argument('--config', help='Config file for setup config. Must be with perms 0600. Multiple arguments allowed; config files considered in order.', default=[], action='append')
-				sub_parsers[action].add_argument('-s', '--set', help='Override a config item, e.g. "-s target rm no". Can be specified multiple times.', default=[], action='append', nargs=3, metavar=('SEC', 'KEY', 'VAL'))
-				sub_parsers[action].add_argument('--image_tag', help='Build container from specified image - if there is a symbolic reference, please use that, eg localhost.localdomain:5000/myref', default='')
-				sub_parsers[action].add_argument('--tag_modules', help='''Tag each module after it's successfully built regardless of the module config and based on the repository config.''', default=False, const=True, action='store_const')
-				sub_parsers[action].add_argument('-m', '--shutit_module_path', default=None, help='List of shutit module paths, separated by colons. ShutIt registers modules by running all .py files in these directories.')
-				sub_parsers[action].add_argument('--trace', help='Trace function calls', const=True, default=False, action='store_const')
-				sub_parsers[action].add_argument('--interactive', help='Level of interactive. 0 = none, 1 = honour pause points and config prompting, 2 = query user on each module, 3 = tutorial mode', default='1')
-				sub_parsers[action].add_argument('--ignorestop', help='Ignore STOP files', const=True, default=False, action='store_const')
-				sub_parsers[action].add_argument('--ignoreimage', help='Ignore disallowed images', const=True, default=None, action='store_const')
-				sub_parsers[action].add_argument('--imageerrorok', help='Exit without error if allowed images fails (used for test scripts)', const=True, default=False, action='store_const')
-				sub_parsers[action].add_argument('--deps_only', help='build deps only, tag with suffix "_deps"', const=True, default=False, action='store_const')
-				sub_parsers[action].add_argument('--echo', help='Always echo output', const=True, default=False, action='store_const')
-
-		args_list = sys.argv[1:]
 		if os.environ.get('SHUTIT_OPTIONS', None) and args_list[0] != 'skeleton':
 			env_args = os.environ['SHUTIT_OPTIONS'].strip()
 			# Split escaped backslashes
@@ -3576,6 +3583,11 @@ shutitfile:        a shutitfile-based project (can be docker, bash, vagrant)''')
 					env_args_list[-1] += item
 			args_list[1:1] = env_args_list
 		args = parser.parse_args(args_list)
+
+		# Set up shutit_global
+		shutit_global.shutit_global_object.delaybeforesend = float(args.delaybeforesend)
+		shutit_global.shutit_global_object.prompt_command  = args.promptcommand
+
 		if args.action == 'version':
 			self.process_args(ShutItInit(args.action))
 		elif args.action == 'skeleton':
