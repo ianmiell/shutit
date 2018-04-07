@@ -483,7 +483,7 @@ class ShutItPexpectSession(object):
 		send_str = ''
 		if capture_exit_code:
 			send_str = r' SHUTIT_EC=$? && '
-		send_str += """ export PS1_""" + prompt_name + """=$PS1 && PS1='""" + local_prompt[:2] + "''" + local_prompt[2:] + """' && PROMPT_COMMAND=""" + shutit_global.shutit_global_object.prompt_command
+		send_str += """ export PS1_""" + str(prompt_name) + """=$PS1 && PS1='""" + str(local_prompt[:2]) + "''" + str(local_prompt[2:]) + """' && PROMPT_COMMAND=""" + shutit_global.shutit_global_object.prompt_command
 		self.send(ShutItSendSpec(self,
 		                         send=send_str,
 		                         expect=['\r\n' + shutit.expect_prompts[prompt_name]],
