@@ -916,7 +916,7 @@ class ShutIt(object):
 	              user=None,
 	              group=None,
 	              loglevel=logging.INFO,
-	              encoding=None):
+	              encoding=shutit_global.shutit_global_object.preferred_encoding):
 		"""Sends the passed-in string as a file to the passed-in path on the
 		target.
 

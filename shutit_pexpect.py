@@ -84,7 +84,7 @@ class ShutItPexpectSession(object):
 	             ignore_sighup=False,
 	             echo=True,
 	             preexec_fn=None,
-	             encoding=None,
+	             encoding=shutit_global.shutit_global_object.preferred_encoding,
 	             codec_errors='strict',
 	             dimensions=None,
 	             delaybeforesend=None):
@@ -149,7 +149,7 @@ class ShutItPexpectSession(object):
 	                 ignore_sighup=False,
 	                 echo=True,
 	                 preexec_fn=None,
-	                 encoding=None,
+	                 encoding=shutit_global.shutit_global_object.preferred_encoding,
 	                 codec_errors='strict',
 	                 dimensions=None,
 	                 delaybeforesend=shutit_global.shutit_global_object.delaybeforesend):
@@ -2801,7 +2801,7 @@ $'"""
 				if not sendspec.echo:
 					shutit_global.shutit_global_object.log('Output (squashed): ' + logged_output,level=logging.DEBUG)
 				if PY3:
-					shutit_global.shutit_global_object.log('pexpect: buffer: ' + base64.b64encode(bytes(self.pexpect_child.buffer,shutit_global.shutit_global_object.preferred_encoding)) + ' before: ' + base64.b64encode(bytes(self.pexpect_child.before,shutit_global.shutit_global_object.preferred_encoding)) + ' after: '  + base64.b64encode(self.pexpect_child.after),level=logging.DEBUG)
+					shutit_global.shutit_global_object.log('pexpect: buffer: ' + str(base64.b64encode(bytes(self.pexpect_child.buffer,shutit_global.shutit_global_object.preferred_encoding))) + ' before: ' + str(base64.b64encode(bytes(self.pexpect_child.before,shutit_global.shutit_global_object.preferred_encoding))) + ' after: '  + str(base64.b64encode(bytes(self.pexpect_child.after,shutit_global.shutit_global_object.preferred_encoding))),level=logging.DEBUG)
 				else:
 					shutit_global.shutit_global_object.log('pexpect: buffer: ' + base64.b64encode(self.pexpect_child.buffer) + ' before: ' + base64.b64encode(self.pexpect_child.before) + ' after: '  + base64.b64encode(self.pexpect_child.after),level=logging.DEBUG)
 			else:
@@ -2894,7 +2894,7 @@ $'"""
 	              user=None,
 	              group=None,
 	              loglevel=logging.INFO,
-	              encoding=None):
+	              encoding=shutit_global.shutit_global_object.preferred_encoding):
 		"""Sends the passed-in string as a file to the passed-in path on the
 		target.
 
