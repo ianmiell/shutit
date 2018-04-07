@@ -1806,9 +1806,9 @@ class ShutItPexpectSession(object):
 		shutit_global.shutit_global_object.log('send_and_get_output got: ' + before, level=logging.DEBUG)
 		# Leave this debug in in case there are any strange characters to consider.
 		if PY3:
-			shutit_global.shutit_global_object.log('send_and_get_output returning in base64: ' + str(base64.b64encode(bytes(before,shutit_global.shutit_global_object.preferred_encoding))), level=logging.DEBUG)
+			shutit_global.shutit_global_object.log('send_and_get_output replacing in base64: ' + str(base64.b64encode(bytes(before,shutit_global.shutit_global_object.preferred_encoding))), level=logging.DEBUG)
 		else:
-			shutit_global.shutit_global_object.log('send_and_get_output returning in base64: ' + base64.b64encode(before), level=logging.DEBUG)
+			shutit_global.shutit_global_object.log('send_and_get_output replacing in base64: ' + base64.b64encode(before), level=logging.DEBUG)
 		## In rare cases a bell has been seen - can't see why we'd want a bell so simply remove them all.
 		before = before.replace('\x07','')
 		# If there happens to be an escape character in there, it's likely a
@@ -3449,7 +3449,7 @@ $'"""
 			return pw
 		if whoiam != 'root':
 			if ignore_brew and self.current_environment.install_type == 'brew':
-				shutit_global.shutit_global_object.log('brew installation environment, and ignor_brew set, returning',logging.DEBUG,level=logging.INFO)
+				shutit_global.shutit_global_object.log('brew installation environment, and ignore_brew set, returning',logging.DEBUG,level=logging.INFO)
 			else:
 				if not self.command_available('sudo'):
 					shutit.pause_point('Please install sudo and then continue with CTRL-]',shutit_pexpect_child=self.pexpect_child)
