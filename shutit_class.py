@@ -43,8 +43,6 @@ from shutit_sendspec import ShutItSendSpec
 from shutit_module import ShutItFailException, ShutItModule
 from shutit_pexpect import ShutItPexpectSession
 
-PY3 = (sys.version_info[0] >= 3)
-
 
 def get_module_file(shutit, module):
 	shutit.shutit_file_map[module.module_id] = module.__module_file
@@ -3346,7 +3344,7 @@ shutitfile:        a shutitfile-based project (can be docker, bash, vagrant)''')
 			mkpath(shutit_home, 0o700)
 		if not os.path.isfile(os.path.join(shutit_home, 'config')):
 			f = os.open(os.path.join(shutit_home, 'config'), os.O_WRONLY | os.O_CREAT, 0o600)
-			if PY3:
+			if shutit_global.shutit_global_object.ispy3:
 				os.write(f,bytes(default_cnf,'utf-8'))
 			else:
 				os.write(f,default_cnf)

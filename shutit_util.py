@@ -46,9 +46,8 @@ import shutit_class
 import shutit_global
 import shutit
 
-PY3 = (sys.version_info[0] >= 3)
 
-if PY3:
+if shutit_global.shutit_global_object.ispy3:
 	from builtins import input
 
 
@@ -236,7 +235,7 @@ def util_raw_input(prompt='', default=None, ispass=False, use_readline=True):
 	if shutit_global.shutit_global_object.interactive == 0:
 		return default
 	# See: https//github.com/ianmiell/shutit/issues/299 - python3 made input == python 2's raw_input
-	if not PY3:
+	if not shutit_global.shutit_global_object.ispy3:
 		try:
 			input = raw_input
 		except NameError:

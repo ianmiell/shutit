@@ -53,6 +53,7 @@ class ShutItGlobal(object):
 		# Primitive singleton enforcer.
 		assert self.only_one is None, shutit_util.print_debug()
 		self.only_one         = True
+		self.ispy3            = (sys.version_info[0] >= 3)
 
 		self.secret_words_set = set()
 		self.logfile          = None
