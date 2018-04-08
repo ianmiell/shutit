@@ -2802,10 +2802,10 @@ $'"""
 			if not sendspec.secret:
 				if not sendspec.echo:
 					shutit_global.shutit_global_object.log('Output (squashed): ' + logged_output,level=logging.DEBUG)
-				try:
+				if PY3:
+					shutit_global.shutit_global_object.log('pexpect: buffer: ' + str(base64.b64encode(bytes(self.pexpect_child.buffer,'utf-8'))) + ' before: ' + str(base64.b64encode(bytes(self.pexpect_child.before,'utf-8'))) + ' after: ' + str(base64.b64encode(bytes(self.pexpect_child.after,'utf-8'))),level=logging.DEBUG)
+				else:
 					shutit_global.shutit_global_object.log('pexpect: buffer: ' + base64.b64encode(self.pexpect_child.buffer) + ' before: ' + base64.b64encode(self.pexpect_child.before) + ' after: '  + base64.b64encode(self.pexpect_child.after),level=logging.DEBUG)
-				except TypeError as e:
-					shutit_global.shutit_global_object.log('Exception at 2665: ' + str(e),level=logging.WARNING)
 			else:
 				shutit_global.shutit_global_object.log('[Send was marked secret; getting output debug will require code change]',level=logging.DEBUG)
 			if sendspec.fail_on_empty_before:
