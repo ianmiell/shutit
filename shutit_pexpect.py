@@ -378,7 +378,7 @@ class ShutItPexpectSession(object):
 			self.setup_prompt(r_id,capture_exit_code=True)
 		self.login_stack.append(r_id)
 		shutit_global.shutit_global_object.log('Login stack after login: ' + str(self.login_stack),level=logging.DEBUG)
-		if self.send_and_get_output(''' echo $SHUTIT_EC && unset SHUTIT_EC''') != '0':
+		if self.send_and_get_output(''' echo $SHUTIT_EC && unset SHUTIT_EC''',level=logging.DEBUG) != '0':
 			# TODO: remove just-added login stack item (since we failed to log in successfully)?
 			if sendspec.fail_on_fail: # pragma: no cover
 				self.shutit.fail('Login failure!')
