@@ -2657,8 +2657,7 @@ class ShutIt(object):
 		"""
 		if command in ('md5sum','sed','head'):
 			if self.get_current_shutit_pexpect_session_environment().distro == 'osx':
-				return 'g' + command + ' '
-			return command + ' '
+				return 'g' + command
 		return command
 
 
