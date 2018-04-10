@@ -3582,12 +3582,11 @@ shutitfile:        a shutitfile-based project (can be docker, bash, vagrant)''')
 		args = parser.parse_args(args_list)
 
 		# Set up shutit_global
-		shutit_global.shutit_global_object.delaybeforesend = float(args.delaybeforesend)
-		shutit_global.shutit_global_object.prompt_command  = args.promptcommand
-
 		if args.action == 'version':
 			self.process_args(ShutItInit(args.action))
 		elif args.action == 'skeleton':
+			shutit_global.shutit_global_object.delaybeforesend = float(args.delaybeforesend)
+			shutit_global.shutit_global_object.prompt_command  = args.promptcommand
 			self.process_args(ShutItInit(args.action,
 			                             logfile=args.logfile,
 			                             nocolor=args.nocolor,
@@ -3609,6 +3608,8 @@ shutitfile:        a shutitfile-based project (can be docker, bash, vagrant)''')
 			                             vagrant_upload=args.vagrant_upload,
 			                             vagrant_image_name=args.vagrant_image_name))
 		elif args.action == 'run':
+			shutit_global.shutit_global_object.delaybeforesend = float(args.delaybeforesend)
+			shutit_global.shutit_global_object.prompt_command  = args.promptcommand
 			self.process_args(ShutItInit(args.action,
 			                             logfile=args.logfile,
 			                             nocolor=args.nocolor,
@@ -3616,6 +3617,8 @@ shutitfile:        a shutitfile-based project (can be docker, bash, vagrant)''')
 			                             shutitfiles=args.shutitfiles,
 			                             delivery = args.delivery))
 		elif args.action == 'build':
+			shutit_global.shutit_global_object.delaybeforesend = float(args.delaybeforesend)
+			shutit_global.shutit_global_object.prompt_command  = args.promptcommand
 			self.process_args(ShutItInit(args.action,
 			                             logfile=args.logfile,
 			                             nocolor=args.nocolor,
