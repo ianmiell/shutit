@@ -3258,16 +3258,22 @@ class ShutIt(object):
 					default_pattern = delivery_method
 				pattern = default_pattern
 			else:
-				print('''# Input a ShutIt pattern.
-
-Default: ''' + default_pattern + '''
-
-bash:              a shell script
-docker:            a docker image build
-vagrant:           a vagrant setup
-docker_tutorial:   a docker-based tutorial
-shutitfile:        a shutitfile-based project (can be docker, bash, vagrant)''')
-				pattern = shutit_util.util_raw_input(default=default_pattern)
+				pattern = ''
+				while pattern not in ('bash','docker','vagrant','docker_tutorial','shutitfile'):
+					table = texttable.Texttable()
+					rows = [['Choice','Description'],
+					        ['bash','Shell script'],
+					        ['docker','Builds a Docker image'],
+					        ['vagrant','Builds a cluster of Vagrant machines'],
+					        ['docker_tutorial','Creates a Docker-based tutorial environment'],
+					        ['shutitfile','A ShutItFile based project (can be docker-, bash-, or vagrant-based)']]
+					#table.set_deco(texttable.Texttable.HEADER)
+					#table.set_cols_dtype(['a','a','a'])
+					#table.set_cols_align(['r', "r", "r"])
+					table.add_rows(rows)
+					print(table.draw() + '\n')
+					print('Choose, but choose wisely: ')
+					pattern = shutit_util.util_raw_input()
 
 		# Sort out delivery method.
 		if delivery_method is None:
