@@ -3251,6 +3251,7 @@ class ShutIt(object):
 				#readline.set_pre_input_hook(hook)
 				readline.set_startup_hook(lambda: readline.insert_text(default_dir))
 				module_directory = shutit_util.util_raw_input(prompt='Input a path for this module.\n\n>> ', default=default_dir)
+				readline.set_startup_hook()
 		if module_directory[0] != '/':
 			module_directory = self.host['calling_path'] + '/' + module_directory
 		module_name = module_directory.split('/')[-1].replace('-','_')
