@@ -236,11 +236,7 @@ def util_raw_input(prompt='', default=None, ispass=False, use_readline=True):
 		return default
 	# See: https//github.com/ianmiell/shutit/issues/299 - python3 made input == python 2's raw_input
 	if not shutit_global.shutit_global_object.ispy3:
-		try:
-			input = raw_input
-		except NameError:
-			pass
-	# input should be set/available by this point - if not, there is a problem.
+		input = raw_input
 	try:
 		input
 	except NameError:
