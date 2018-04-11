@@ -2960,7 +2960,6 @@ $'"""
 					b64contents = base64.b64encode(contents.encode(encoding)).decode(encoding)
 				else:
 					if isinstance(contents, str):
-					elif isinstance(contents, bytes):
 						b64contents = base64.b64encode(contents.encode(shutit_global.shutit_global_object.default_encoding)).decode(shutit_global.shutit_global_object.default_encoding)
 					elif isinstance(contents, bytes):
 						b64contents = base64.b64encode(contents).decode(shutit_global.shutit_global_object.default_encoding)
