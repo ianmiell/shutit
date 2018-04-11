@@ -267,7 +267,7 @@ def util_raw_input(prompt='', default=None, ispass=False, use_readline=True):
 	return default
 
 
-def get_input(msg, default='', valid=None, boolean=False, ispass=False, color='32'):
+def get_input(msg, default='', valid=None, boolean=False, ispass=False, color=None):
 	"""Gets input from the user, and returns the answer.
 
 	@param msg:       message to send to user
@@ -275,16 +275,23 @@ def get_input(msg, default='', valid=None, boolean=False, ispass=False, color='3
 	@param valid:     valid input values (default == empty list == anything allowed)
 	@param boolean:   whether return value should be boolean
 	@param ispass:    True if this is a password (ie whether to not echo input)
+	@param color:     Color code to colorize with (eg 32 = green)
 	"""
 	if boolean and valid is None:
 		valid = ('yes','y','Y','1','true','no','n','N','0','false')
-	answer = util_raw_input(prompt=colorise(color,msg),ispass=ispass)
+	if color:
+		answer = util_raw_input(prompt=colorise(color,msg),ispass=ispass)
+	else:
+		answer = util_raw_input(msg,ispass=ispass)
 	if boolean and answer in ('', None) and default != '':
 		return default
 	if valid is not None:
 		while answer not in valid:
 			shutit_global.shutit_global_object.log('Answer must be one of: ' + str(valid),transient=True,level=logging.INFO)
-			answer = util_raw_input(prompt=colorise(color,msg),ispass=ispass)
+			if color:
+				answer = util_raw_input(prompt=colorise(color,msg),ispass=ispass)
+			else:
+				answer = util_raw_input(msg,ispass=ispass)
 	if boolean:
 		if answer.lower() in ('yes','y','1','true','t'):
 			return True

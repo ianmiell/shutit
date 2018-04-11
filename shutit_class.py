@@ -4444,7 +4444,7 @@ class ShutIt(object):
 			return 'depender module id:\n\n[' + depender.module_id + ']\n\nis configured: "build:yes" or is already built but dependee module_id:\n\n[' + dependee_id + ']\n\n is not configured: "build:yes"'
 		return ''
 
-	def get_input(self, msg, default='', valid=None, boolean=False, ispass=False, color='32'):
+	def get_input(self, msg, default='', valid=None, boolean=False, ispass=False, color=None):
 		self = self
 		return shutit_util.get_input(msg,
 		                      default=default,

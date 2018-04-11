@@ -60,7 +60,7 @@ def setup_vagrant_pattern(shutit,
 				count += 1
 			#table.set_deco(texttable.Texttable.HEADER)
 			table.set_cols_dtype(['i','a','a'])
-			table.set_cols_align(['r', "r", "r"])
+			table.set_cols_align(['r', "l", "r"])
 			table.add_rows(rows)
 			print(table.draw() + '\n')
 			choice = shutit_util.get_input(msg='''
@@ -68,7 +68,7 @@ Choose an item to change if you want to change the default.
 
 Type nothing and hit return to continue to the build.
 
-If you want to change a config, choose the number: ''')
+If you want to change a config, choose the number: ''',color=None)
 			if choice == '':
 				break
 			else:
@@ -80,7 +80,7 @@ If you want to change a config, choose the number: ''')
 			# off by one
 			choice -= 1
 			item = options[choice]
-			value = shutit_util.get_input(msg='Input the value: ')
+			value = shutit_util.get_input(msg='Input the value: ',color=None)
 			if item['ok_values'] and value not in item['ok_values']:
 				print('Bad value, ignoring')
 				continue
