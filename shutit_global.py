@@ -115,16 +115,17 @@ class ShutItGlobal(object):
 
 	def __str__(self):
 		str_repr = '\n====== SHUTIT_GLOBAL_OBJECT BEGIN ====='
-		str_repr += '\nself.logfile='         + str(self.logfile)
-		str_repr += '\tself.signal_id='       + str(self.signal_id)
-		str_repr += '\tself.window_size_max=' + str(self.window_size_max)
-		str_repr += '\tself.username='        + str(self.username)
-		str_repr += '\tbase_prompt='          + str(self.base_prompt)
-		str_repr += '\treal_user='            + str(self.real_user)
-		str_repr += '\treal_user_id='         + str(self.real_user_id)
-		str_repr += '\tbuild_id='             + str(self.build_id)
-		str_repr += '\tdelaybeforesend='      + str(self.delaybeforesend)
-		str_repr += '\tprompt_command='       + str(self.prompt_command)
+		str_repr += '\nself.logfile='            + str(self.logfile)
+		str_repr += '\tself.signal_id='          + str(self.signal_id)
+		str_repr += '\tself.window_size_max='    + str(self.window_size_max)
+		str_repr += '\tself.username='           + str(self.username)
+		str_repr += '\tbase_prompt='             + str(self.base_prompt)
+		str_repr += '\treal_user='               + str(self.real_user)
+		str_repr += '\treal_user_id='            + str(self.real_user_id)
+		str_repr += '\tbuild_id='                + str(self.build_id)
+		str_repr += '\tdelaybeforesend='         + str(self.delaybeforesend)
+		str_repr += '\tprompt_command='          + str(self.prompt_command)
+		str_repr += '\tself.preferred_encoding=' + str(self.preferred_encoding)
 		for shutit_object in self.shutit_objects:
 			str_repr += str(shutit_object)
 		# TODO

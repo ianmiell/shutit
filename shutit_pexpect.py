@@ -481,7 +481,7 @@ class ShutItPexpectSession(object):
 		send_str = ''
 		if capture_exit_code:
 			send_str = r' SHUTIT_EC=$? && '
-		send_str += """ export PS1_""" + prompt_name + """=$PS1 && PS1='""" + local_prompt[:2] + "''" + local_prompt[2:] + """' && PROMPT_COMMAND=""" + shutit_global.shutit_global_object.prompt_command
+		send_str += """ export PS1_""" + str(prompt_name) + """=$PS1 && PS1='""" + str(local_prompt[:2]) + "''" + str(local_prompt[2:]) + """' && PROMPT_COMMAND=""" + shutit_global.shutit_global_object.prompt_command
 		self.send(ShutItSendSpec(self,
 		                         send=send_str,
 		                         expect=['\r\n' + shutit.expect_prompts[prompt_name]],
@@ -1801,7 +1801,7 @@ class ShutItPexpectSession(object):
 			before = before.strip()
 		shutit_global.shutit_global_object.log('send_and_get_output "before" after startswith check: ' + before, level=logging.DEBUG)
 		# Too chatty, but kept here in case useful for debugging
-		shutit_global.shutit_global_object.log('send_and_get_output got:\n' + before, level=logging.DEBUG)
+		shutit_global.shutit_global_object.log('send_and_get_output got: ' + before, level=logging.DEBUG)
 		# Leave this debug in in case there are any strange characters to consider.
 		if shutit_global.shutit_global_object.ispy3:
 			shutit_global.shutit_global_object.log('send_and_get_output returning in base64:\n' + str(base64.b64encode(bytes(before,shutit_global.shutit_global_object.default_encoding))), level=logging.DEBUG)
