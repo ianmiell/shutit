@@ -775,7 +775,7 @@ class ShutIt(object):
 		shutit_pexpect_session.send(ShutItSendSpec(shutit_pexpect_session,send=send,
 		                            expect=expect,
 		                            timeout=timeout,
-		                            check_exit=check_exit,
+		                            check_exit=False,
 		                            fail_on_empty_before=fail_on_empty_before,
 		                            record_command=record_command,
 		                            exit_values=exit_values,
@@ -787,7 +787,7 @@ class ShutIt(object):
 		                            loglevel=loglevel,
 		                            follow_on_commands=follow_on_commands))
 		return shutit_pexpect_session.check_last_exit_values(send,
-		                                                     check_exit=check_exit,
+		                                                     check_exit=True,
 		                                                     expect=expect,
 		                                                     exit_values=exit_values,
 		                                                     retry=retry,
