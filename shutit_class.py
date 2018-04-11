@@ -20,6 +20,7 @@ import operator
 import os
 import tarfile
 import re
+import readline
 import socket
 import string
 import sys
@@ -3243,7 +3244,13 @@ class ShutIt(object):
 			if accept_defaults:
 				module_directory = default_dir
 			else:
-				module_directory = shutit_util.util_raw_input(prompt='# Input a name for this module.\n# Default: ' + default_dir + '\n', default=default_dir)
+				# TODO: Python3?
+				#def hook():
+				#	readline.insert_text(default_dir)
+				#readline.redisplay()
+				#readline.set_pre_input_hook(hook)
+				readline.set_startup_hook(lambda: readline.insert_text(default_dir))
+				module_directory = shutit_util.util_raw_input(prompt='Input a path for this module.\n\n>> ', default=default_dir)
 		if module_directory[0] != '/':
 			module_directory = self.host['calling_path'] + '/' + module_directory
 		module_name = module_directory.split('/')[-1].replace('-','_')
