@@ -46,9 +46,8 @@ import shutit_class
 import shutit_global
 import shutit
 
-PY3 = (sys.version_info[0] >= 3)
 
-if PY3:
+if shutit_global.shutit_global_object.ispy3:
 	from builtins import input
 
 
@@ -236,12 +235,8 @@ def util_raw_input(prompt='', default=None, ispass=False, use_readline=True):
 	if shutit_global.shutit_global_object.interactive == 0:
 		return default
 	# See: https//github.com/ianmiell/shutit/issues/299 - python3 made input == python 2's raw_input
-	if not PY3:
-		try:
-			input = raw_input
-		except NameError:
-			pass
-	# input should be set/available by this point - if not, there is a problem.
+	if not shutit_global.shutit_global_object.ispy3:
+		input = raw_input
 	try:
 		input
 	except NameError:
@@ -268,7 +263,7 @@ def util_raw_input(prompt='', default=None, ispass=False, use_readline=True):
 	return default
 
 
-def get_input(msg, default='', valid=None, boolean=False, ispass=False, color='32'):
+def get_input(msg, default='', valid=None, boolean=False, ispass=False, color=None):
 	"""Gets input from the user, and returns the answer.
 
 	@param msg:       message to send to user
@@ -276,16 +271,23 @@ def get_input(msg, default='', valid=None, boolean=False, ispass=False, color='3
 	@param valid:     valid input values (default == empty list == anything allowed)
 	@param boolean:   whether return value should be boolean
 	@param ispass:    True if this is a password (ie whether to not echo input)
+	@param color:     Color code to colorize with (eg 32 = green)
 	"""
 	if boolean and valid is None:
 		valid = ('yes','y','Y','1','true','no','n','N','0','false')
-	answer = util_raw_input(prompt=colorise(color,msg),ispass=ispass)
+	if color:
+		answer = util_raw_input(prompt=colorise(color,msg),ispass=ispass)
+	else:
+		answer = util_raw_input(msg,ispass=ispass)
 	if boolean and answer in ('', None) and default != '':
 		return default
 	if valid is not None:
 		while answer not in valid:
 			shutit_global.shutit_global_object.log('Answer must be one of: ' + str(valid),transient=True,level=logging.INFO)
-			answer = util_raw_input(prompt=colorise(color,msg),ispass=ispass)
+			if color:
+				answer = util_raw_input(prompt=colorise(color,msg),ispass=ispass)
+			else:
+				answer = util_raw_input(msg,ispass=ispass)
 	if boolean:
 		if answer.lower() in ('yes','y','1','true','t'):
 			return True

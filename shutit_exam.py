@@ -3,8 +3,6 @@ import sys
 import time
 import signal
 
-PY3 = (sys.version_info[0] >= 3)
-
 class ShutItExamSessionStage(object):
 
 	# difficulty           - a proportion of the default difficulty=1

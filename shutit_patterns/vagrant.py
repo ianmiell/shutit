@@ -1,6 +1,7 @@
 from __future__ import print_function
 import os
 import shutit_util
+import texttable
 from . import shutitfile
 
 def setup_vagrant_pattern(shutit,
@@ -46,22 +47,28 @@ def setup_vagrant_pattern(shutit,
 	else:
 		upload = skel_vagrant_upload
 	if skel_vagrant_image_name is None:
-		options.append({'name':'image_name','question':'What is the vagrant image name you want?','value':'ubuntu/xenial64','ok_values':[]})
+		options.append({'name':'image_name','question':'What base vagrant image you want?','value':'ubuntu/xenial64','ok_values':[]})
 	else:
 		image_name = skel_vagrant_image_name
 	if options:
 		while True:
+			table = texttable.Texttable()
 			count = 1
-			# TODO: texttable options
-			print('')
+			rows = [['No.','Option','Current value']]
 			for opt in options:
-				print(str(count) + ': ' + opt['question'] + ' (current: ' + opt['value'] + ')')
+				rows.append([str(count),opt['question'],opt['value']])
 				count += 1
-			print('')
+			#table.set_deco(texttable.Texttable.HEADER)
+			table.set_cols_dtype(['i','a','a'])
+			table.set_cols_align(['r', "l", "r"])
+			table.add_rows(rows)
+			print(table.draw() + '\n')
 			choice = shutit_util.get_input(msg='''
 Choose an item to change if you want to change the default.
+
 Type nothing and hit return to continue to the build.
-If you want to change a config, choose the number: ''')
+
+If you want to change a config, choose the number: ''',color=None)
 			if choice == '':
 				break
 			else:
@@ -73,7 +80,7 @@ If you want to change a config, choose the number: ''')
 			# off by one
 			choice -= 1
 			item = options[choice]
-			value = shutit_util.get_input(msg='Input the value: ')
+			value = shutit_util.get_input(msg='Input the value: ',color=None)
 			if item['ok_values'] and value not in item['ok_values']:
 				print('Bad value, ignoring')
 				continue

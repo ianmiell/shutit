@@ -20,6 +20,7 @@ import operator
 import os
 import tarfile
 import re
+import readline
 import socket
 import string
 import sys
@@ -42,8 +43,6 @@ except ImportError: # pragma: no cover
 from shutit_sendspec import ShutItSendSpec
 from shutit_module import ShutItFailException, ShutItModule
 from shutit_pexpect import ShutItPexpectSession
-
-PY3 = (sys.version_info[0] >= 3)
 
 
 def get_module_file(shutit, module):
@@ -2657,8 +2656,7 @@ class ShutIt(object):
 		"""
 		if command in ('md5sum','sed','head'):
 			if self.get_current_shutit_pexpect_session_environment().distro == 'osx':
-				return 'g' + command + ' '
-			return command + ' '
+				return 'g' + command
 		return command
 
 
@@ -3246,7 +3244,13 @@ class ShutIt(object):
 			if accept_defaults:
 				module_directory = default_dir
 			else:
-				module_directory = shutit_util.util_raw_input(prompt='# Input a name for this module.\n# Default: ' + default_dir + '\n', default=default_dir)
+				# TODO: Python3?
+				#def hook():
+				#	readline.insert_text(default_dir)
+				#readline.redisplay()
+				#readline.set_pre_input_hook(hook)
+				readline.set_startup_hook(lambda: readline.insert_text(default_dir))
+				module_directory = shutit_util.util_raw_input(prompt='Input a path for this module.\n\n>> ', default=default_dir)
 		if module_directory[0] != '/':
 			module_directory = self.host['calling_path'] + '/' + module_directory
 		module_name = module_directory.split('/')[-1].replace('-','_')
@@ -3261,16 +3265,22 @@ class ShutIt(object):
 					default_pattern = delivery_method
 				pattern = default_pattern
 			else:
-				print('''# Input a ShutIt pattern.
-
-Default: ''' + default_pattern + '''
-
-bash:              a shell script
-docker:            a docker image build
-vagrant:           a vagrant setup
-docker_tutorial:   a docker-based tutorial
-shutitfile:        a shutitfile-based project (can be docker, bash, vagrant)''')
-				pattern = shutit_util.util_raw_input(default=default_pattern)
+				pattern = ''
+				while pattern not in ('bash','docker','vagrant','docker_tutorial','shutitfile'):
+					table = texttable.Texttable()
+					rows = [['Choice','Description'],
+					        ['bash','Shell script'],
+					        ['docker','Builds a Docker image'],
+					        ['vagrant','Builds a cluster of Vagrant machines'],
+					        ['docker_tutorial','Creates a Docker-based tutorial environment'],
+					        ['shutitfile','A ShutItFile based project (can be docker-, bash-, or vagrant-based)']]
+					#table.set_deco(texttable.Texttable.HEADER)
+					#table.set_cols_dtype(['a','a','a'])
+					#table.set_cols_align(['r', "r", "r"])
+					table.add_rows(rows)
+					print(table.draw() + '\n')
+					print('Choose, but choose wisely: ')
+					pattern = shutit_util.util_raw_input()
 
 		# Sort out delivery method.
 		if delivery_method is None:
@@ -3347,8 +3357,8 @@ shutitfile:        a shutitfile-based project (can be docker, bash, vagrant)''')
 			mkpath(shutit_home, 0o700)
 		if not os.path.isfile(os.path.join(shutit_home, 'config')):
 			f = os.open(os.path.join(shutit_home, 'config'), os.O_WRONLY | os.O_CREAT, 0o600)
-			if PY3:
-				os.write(f,bytes(default_cnf,shutit_global.shutit_global_object.preferred_encoding))
+			if shutit_global.shutit_global_object.ispy3:
+				os.write(f,bytes(default_cnf,shutit_global.shutit_global_object.default_encoding))
 			else:
 				os.write(f,default_cnf)
 			os.close(f)
@@ -3585,12 +3595,11 @@ shutitfile:        a shutitfile-based project (can be docker, bash, vagrant)''')
 		args = parser.parse_args(args_list)
 
 		# Set up shutit_global
-		shutit_global.shutit_global_object.delaybeforesend = float(args.delaybeforesend)
-		shutit_global.shutit_global_object.prompt_command  = args.promptcommand
-
 		if args.action == 'version':
 			self.process_args(ShutItInit(args.action))
 		elif args.action == 'skeleton':
+			shutit_global.shutit_global_object.delaybeforesend = float(args.delaybeforesend)
+			shutit_global.shutit_global_object.prompt_command  = args.promptcommand
 			self.process_args(ShutItInit(args.action,
 			                             logfile=args.logfile,
 			                             nocolor=args.nocolor,
@@ -3612,6 +3621,8 @@ shutitfile:        a shutitfile-based project (can be docker, bash, vagrant)''')
 			                             vagrant_upload=args.vagrant_upload,
 			                             vagrant_image_name=args.vagrant_image_name))
 		elif args.action == 'run':
+			shutit_global.shutit_global_object.delaybeforesend = float(args.delaybeforesend)
+			shutit_global.shutit_global_object.prompt_command  = args.promptcommand
 			self.process_args(ShutItInit(args.action,
 			                             logfile=args.logfile,
 			                             nocolor=args.nocolor,
@@ -3619,6 +3630,8 @@ shutitfile:        a shutitfile-based project (can be docker, bash, vagrant)''')
 			                             shutitfiles=args.shutitfiles,
 			                             delivery = args.delivery))
 		elif args.action == 'build':
+			shutit_global.shutit_global_object.delaybeforesend = float(args.delaybeforesend)
+			shutit_global.shutit_global_object.prompt_command  = args.promptcommand
 			self.process_args(ShutItInit(args.action,
 			                             logfile=args.logfile,
 			                             nocolor=args.nocolor,
@@ -4438,7 +4451,7 @@ shutitfile:        a shutitfile-based project (can be docker, bash, vagrant)''')
 			return 'depender module id:\n\n[' + depender.module_id + ']\n\nis configured: "build:yes" or is already built but dependee module_id:\n\n[' + dependee_id + ']\n\n is not configured: "build:yes"'
 		return ''
 
-	def get_input(self, msg, default='', valid=None, boolean=False, ispass=False, color='32'):
+	def get_input(self, msg, default='', valid=None, boolean=False, ispass=False, color=None):
 		self = self
 		return shutit_util.get_input(msg,
 		                      default=default,
