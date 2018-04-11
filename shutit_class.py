@@ -3250,7 +3250,8 @@ class ShutIt(object):
 				#readline.redisplay()
 				#readline.set_pre_input_hook(hook)
 				readline.set_startup_hook(lambda: readline.insert_text(default_dir))
-				module_directory = shutit_util.util_raw_input(prompt='Input a path for this module.\n\n>> ', default=default_dir)
+				print('Input a path for this module')
+				module_directory = shutit_util.util_raw_input(prompt='\n>> ', default=default_dir)
 				readline.set_startup_hook()
 		if module_directory[0] != '/':
 			module_directory = self.host['calling_path'] + '/' + module_directory
@@ -3275,14 +3276,12 @@ class ShutIt(object):
 					        ['vagrant','Builds a cluster of Vagrant machines'],
 					        ['docker_tutorial','Creates a Docker-based tutorial environment'],
 					        ['shutitfile','A ShutItFile based project (can be docker-, bash-, or vagrant-based)']]
-					#table.set_deco(texttable.Texttable.HEADER)
-					#table.set_cols_dtype(['a','a','a'])
-					#table.set_cols_align(['r', "r", "r"])
 					table.add_rows(rows)
 					print(table.draw() + '\n')
 					print('Choose, but choose wisely: ')
-					pattern = shutit_util.util_raw_input()
-
+					readline.set_startup_hook(lambda: readline.insert_text('bash'))
+					pattern = shutit_util.util_raw_input(prompt='\n>> ')
+					readline.set_startup_hook()
 		# Sort out delivery method.
 		if delivery_method is None:
 			take_this_default = False
@@ -3301,15 +3300,18 @@ class ShutIt(object):
 			else:
 				delivery = ''
 				while delivery not in shutit_global.shutit_global_object.allowed_delivery_methods:
-					delivery = shutit_util.util_raw_input(prompt=textwrap.dedent('''
-						# Input a delivery method from: bash, docker, vagrant.
-						# Default: ''' + default_delivery + '''
-
-						docker:      build within a docker image
-						bash:        run commands directly within bash
-						vagrant:     build an n-node vagrant cluster
-
-						'''), default=default_delivery)
+					readline.set_startup_hook(lambda: readline.insert_text('bash'))
+					table = texttable.Texttable()
+					rows = [['Choice','Description'],
+					        ['docker','Build within a Docker container'],
+					        ['bash','Run commands directly within bash'],
+					        ['vagrant','Build an n-node Vagrant cluster']]
+					table.add_rows(rows)
+					print(table.draw() + '\n')
+					print('Input a delivery method')
+					readline.set_startup_hook(lambda: readline.insert_text(default_delivery))
+					delivery = shutit_util.util_raw_input(prompt='>> ')
+					readline.set_startup_hook()
 		else:
 			delivery = delivery_method
 
