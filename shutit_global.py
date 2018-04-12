@@ -125,7 +125,7 @@ class ShutItGlobal(object):
 		str_repr += '\tbuild_id='                + str(self.build_id)
 		str_repr += '\tdelaybeforesend='         + str(self.delaybeforesend)
 		str_repr += '\tprompt_command='          + str(self.prompt_command)
-		str_repr += '\tself.preferred_encoding=' + str(self.preferred_encoding)
+		str_repr += '\tself.default_encoding='   + str(self.default_encoding)
 		for shutit_object in self.shutit_objects:
 			str_repr += str(shutit_object)
 		# TODO
