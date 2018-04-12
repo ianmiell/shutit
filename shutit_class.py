@@ -2512,6 +2512,7 @@ class ShutIt(object):
 		s += '# INVOKING COMMAND WAS: ' + sys.executable
 		for arg in sys.argv:
 			s += ' ' + arg
+		s += '\n'
 		s += '###############################################################################\n'
 		return s
 
