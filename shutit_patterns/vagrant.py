@@ -149,7 +149,7 @@ If you want to change a config, choose the number: ''',color=None)
 		ip = shutit.send_and_get_output('''vagrant landrush ls 2> /dev/null | grep -w ^''' + machines['""" + machine_name + """']['fqdn'] + ''' | awk '{print $2}' ''')"""
 		machine_list_code += """
 		machines.get('""" + machine_name + """').update({'ip':ip})"""
-		vagrant_up_section += '''
+	vagrant_up_section += '''
 		try:
 			pw = file('secret').read().strip()
 		except IOError:
@@ -176,6 +176,45 @@ If you want to change a config, choose the number: ''',color=None)
 		shutit.send(' command rm -rf ' + shutit.build['this_vagrant_run_dir'] + ' && command mkdir -p ' + shutit.build['this_vagrant_run_dir'] + ' && command cd ' + shutit.build['this_vagrant_run_dir'])"""
 	vagrant_dir_section_n = """
 		shutit.send(' command mkdir -p ' + shutit.build['this_vagrant_run_dir'] + ' && command cd ' + shutit.build['this_vagrant_run_dir'])"""
+
+	post_vagrant_setup = r"""
+		# Set up the sessions
+		for machine in sorted(machines.keys()):
+			shutit_sessions.update({machine:shutit.create_session('bash')})
+		# Set up and validate landrush
+		for machine in sorted(machines.keys())
+			shutit.send('cd ' + run_dir + '/' + module_name)
+			# Remove any existing landrush entry.
+			shutit.send(vagrantcommand + ' landrush rm ' + machine['fqdn'])
+			# Needs to be done serially for stability reasons.
+			shutit.multisend(vagrantcommand + ' up --provider ' + vagrant_provider + ' ' + machine,{'assword for':pw})
+			# Check that the landrush entry is there.
+			shutit.send(vagrantcommand + ' landrush ls | grep -w ' + machine['fqdn'])
+			# Correct any broken ip addresses.
+			if shutit.send_and_get_output('''vagrant landrush ls | grep ''' + machine + ''' | grep 10.0.2.15 | wc -l''') != '0':
+				shutit.log('A 10.0.2.15 landrush ip was detected for machine: ' + machine + ', correcting.',level=logging.WARNING)
+				# This beaut gets all the eth0 addresses from the machine and picks the first one that it not 10.0.2.15.
+				while True:
+					shutit_session = shutit_sessions[machine]
+					shutit_session.send('cd ' + run_dir + '/' + module_name)
+					shutit_session.login(command=vagrantcommand + ' ssh ' + machine)
+					shutit_session.login(command='sudo su - ')
+					ipaddr = shutit_session.send_and_get_output(r'''ip -4 -o addr show scope global | grep -v 10.0.2.15 | head -1 | awk '{print $4}' | sed 's/\(.*\)\/.*/\1/' ''')
+					if ipaddr[0] not in ('1','2','3','4','5','6','7','8','9'):
+						time.sleep(10)
+					else:
+						shutit_session.logout()
+						shutit_session.logout()
+						break
+					# Log out to make sure we're ready to log in after this is done.
+					shutit_session.logout()
+					shutit_session.logout()
+				shutit.send('vagrant landrush set ' + machine['fqdn'] + ' ' + ipaddr)
+		# Gather landrush info
+		for machine in sorted(machines.keys()):
+			ip = shutit.send_and_get_output(vagrantcommand + ''' landrush ls 2> /dev/null | grep -w ^''' + machine['fqdn'] + ''' | awk '{print $2}' ''')
+			machine.update({'ip':ip})
+"""
 
 
 	if ssh_access:
