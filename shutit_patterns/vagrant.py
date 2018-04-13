@@ -170,8 +170,9 @@ If you want to change a config, choose the number: ''',color=None)
 	vagrant_dir_section_1 = """
 		if shutit.build['vagrant_run_dir'] is None:
 			shutit.build['vagrant_run_dir'] = os.path.dirname(os.path.abspath(inspect.getsourcefile(lambda:0))) + '/vagrant_run'
-			shutit.build['module_name'] = '""" + skel_module_name + """_' + datetime.datetime.now().strftime("%Y%m%d%H%M%S")
-			shutit.build['this_vagrant_run_dir'] = shutit.build['vagrant_run_dir'] + '/' + shutit.build['module_name']
+			timestamp = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
+			shutit.build['module_name'] = '""" + skel_module_name + """_' + timestamp
+			shutit.build['this_vagrant_run_dir'] = shutit.build['vagrant_run_dir'] + '/' + timestamp
 		shutit.send(' command rm -rf ' + shutit.build['this_vagrant_run_dir'] + ' && command mkdir -p ' + shutit.build['this_vagrant_run_dir'] + ' && command cd ' + shutit.build['this_vagrant_run_dir'])"""
 	vagrant_dir_section_n = """
 		shutit.send(' command mkdir -p ' + shutit.build['this_vagrant_run_dir'] + ' && command cd ' + shutit.build['this_vagrant_run_dir'])"""
