@@ -179,11 +179,12 @@ If you want to change a config, choose the number: ''',color=None)
 
 	post_vagrant_setup = r"""
 		# Set up the sessions
+		shutit_sessions = {}
 		for machine in sorted(machines.keys()):
 			shutit_sessions.update({machine:shutit.create_session('bash')})
 		# Set up and validate landrush
 		for machine in sorted(machines.keys())
-			shutit.send('cd ' + run_dir + '/' + module_name)
+			shutit.send('cd ' + shutit.build['run_dir'] + '/' + shutit.build['module_name'])
 			# Remove any existing landrush entry.
 			shutit.send(vagrantcommand + ' landrush rm ' + machine['fqdn'])
 			# Needs to be done serially for stability reasons.
@@ -196,7 +197,7 @@ If you want to change a config, choose the number: ''',color=None)
 				# This beaut gets all the eth0 addresses from the machine and picks the first one that it not 10.0.2.15.
 				while True:
 					shutit_session = shutit_sessions[machine]
-					shutit_session.send('cd ' + run_dir + '/' + module_name)
+					shutit_session.send('cd ' + shutit.build['run_dir'] + '/' + shutit.build['module_name'])
 					shutit_session.login(command=vagrantcommand + ' ssh ' + machine)
 					shutit_session.login(command='sudo su - ')
 					ipaddr = shutit_session.send_and_get_output(r'''ip -4 -o addr show scope global | grep -v 10.0.2.15 | head -1 | awk '{print $4}' | sed 's/\(.*\)\/.*/\1/' ''')
@@ -453,6 +454,7 @@ fi
 	os.system('git init')
 	os.system('git submodule init')
 	os.system('git submodule add https://github.com/ianmiell/shutit-library')
+	os.system('git submodule update')
 
 	# User message
 	log_message = '''
@@ -491,12 +493,14 @@ As you have chosen to upload, you may want to install maven and set your
 
 so you can upload vagrant boxes.
 '''
-	
 	shutit.log(log_message,transient=True)
 
 	# CREATE THE MODULE FILE
 	# Handle shutitfiles. If there are no shutitfiles, handle separately.
 	# If there are more than one, you need to treat the first one differently.
+################################################################################
+# BEGIN SHUTITFILE HANDLING
+################################################################################
 	if skel_shutitfiles:
 		_total = len(skel_shutitfiles)
 		_count = 0
@@ -542,6 +546,7 @@ so you can upload vagrant boxes.
 end''')
 """ + vagrant_up_section + """
 """ + machine_list_code + """
+""" + post_vagrant_setup + """
 """ + copy_keys_code + """
 """ + docker_code + """
 """ + user_code + """
@@ -640,6 +645,9 @@ shutit.core.module.build:yes''')
 shutit.core.module.build:yes''')
 				build_cnf_file.close()
 		os.chmod(build_cnf_filename,0o400)
+################################################################################
+# END SHUTITFILE HANDLING
+################################################################################
 	else:
 		# No shutitfiles to consider, so simpler logic here.
 		shutit.cfg['skeleton']['header_section']      = 'from shutit_module import ShutItModule\n\nclass ' + skel_module_name + '(ShutItModule):\n'
@@ -673,6 +681,7 @@ shutit.core.module.build:yes''')
 end''')
 """ + vagrant_up_section + """
 """ + machine_list_code + """
+""" + post_vagrant_setup + """
 """ + copy_keys_code + """
 """ + docker_code + """
 """ + user_code + """
@@ -730,3 +739,6 @@ shutit.core.module.build:yes''')
 
 		build_cnf_file.close()
 		os.chmod(build_cnf_filename,0o400)
+################################################################################
+# END SHUTITFILES
+################################################################################
