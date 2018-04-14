@@ -183,7 +183,7 @@ If you want to change a config, choose the number: ''',color=None)
 		for machine in sorted(machines.keys()):
 			shutit_sessions.update({machine:shutit.create_session('bash')})
 		# Set up and validate landrush
-		for machine in sorted(machines.keys())
+		for machine in sorted(machines.keys()):
 			shutit_session = shutit_sessions[machine]                                                                                                                                                      
 			shutit_session.send('cd ' + shutit.build['this_vagrant_run_dir'])
 			# Remove any existing landrush entry.
@@ -670,10 +670,7 @@ end''')
 """ + copy_keys_code + """
 """ + docker_code + """
 """ + user_code + """
-		shutit.login(command='vagrant ssh ' + sorted(machines.keys())[0],check_sudo=False)
-		shutit.login(command='sudo su -',password='vagrant',check_sudo=False)
-		shutit.logout()
-		shutit.logout()
+		TODO: login and logout code for each machine
 """ + final_message + """
 """ + snapshot_code + """
 """ + upload_code + """
