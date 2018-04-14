@@ -184,7 +184,7 @@ If you want to change a config, choose the number: ''',color=None)
 			shutit_sessions.update({machine:shutit.create_session('bash')})
 		# Set up and validate landrush
 		for machine in sorted(machines.keys())
-			shutit.send('cd ' + shutit.build['run_dir'] + '/' + shutit.build['module_name'])
+			shutit.send('cd ' + shutit.build['this_vagrant_run_dir'])
 			# Remove any existing landrush entry.
 			shutit.send(vagrantcommand + ' landrush rm ' + machine['fqdn'])
 			# Needs to be done serially for stability reasons.
@@ -197,7 +197,7 @@ If you want to change a config, choose the number: ''',color=None)
 				# This beaut gets all the eth0 addresses from the machine and picks the first one that it not 10.0.2.15.
 				while True:
 					shutit_session = shutit_sessions[machine]
-					shutit_session.send('cd ' + shutit.build['run_dir'] + '/' + shutit.build['module_name'])
+					shutit_session.send('cd ' + shutit.build['this_vagrant_run_dir'])
 					shutit_session.login(command=vagrantcommand + ' ssh ' + machine)
 					shutit_session.login(command='sudo su - ')
 					ipaddr = shutit_session.send_and_get_output(r'''ip -4 -o addr show scope global | grep -v 10.0.2.15 | head -1 | awk '{print $4}' | sed 's/\(.*\)\/.*/\1/' ''')
