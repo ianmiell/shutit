@@ -122,6 +122,9 @@ If you want to change a config, choose the number: ''',color=None)
 				image_name = opt['value']
 	num_machines = int(num_machines)
 
+################################################################################
+# BEGIN TEXT GOBBETS
+################################################################################
 	# Set up Vagrantfile data for the later
 	machine_stanzas = ''
 	vagrant_up_section = ''
@@ -324,7 +327,13 @@ import logging
 import string
 import os
 import inspect'''
+################################################################################
+# END TEXT GOBBETS
+################################################################################
 
+################################################################################
+# FILE SETUP BEGIN
+################################################################################
 	# Set up files:
 	# .gitignore
 	gitignore_filename = skel_path + '/.gitignore'
@@ -475,13 +484,18 @@ As you have chosen to upload, you may want to install maven and set your
 so you can upload vagrant boxes.
 '''
 	shutit.log(log_message,transient=True)
+################################################################################
+# FILE SETUP END
+################################################################################
 
-	# CREATE THE MODULE FILE
-	# Handle shutitfiles. If there are no shutitfiles, handle separately.
-	# If there are more than one, you need to treat the first one differently.
+################################################################################
+# BEGIN MODULE SETUP
+################################################################################
 ################################################################################
 # BEGIN SHUTITFILE HANDLING
 ################################################################################
+# Handle shutitfiles. If there are no shutitfiles, handle separately.
+# If there are more than one, you need to treat the first one differently.
 	if skel_shutitfiles:
 		_total = len(skel_shutitfiles)
 		_count = 0
@@ -717,5 +731,5 @@ shutit.core.module.build:yes''')
 		build_cnf_file.close()
 		os.chmod(build_cnf_filename,0o400)
 ################################################################################
-# END SHUTITFILES
+# END MODULE SETUP
 ################################################################################
