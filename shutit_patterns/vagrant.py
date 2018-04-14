@@ -124,11 +124,11 @@ If you want to change a config, choose the number: ''',color=None)
 
 	# Set up Vagrantfile data for the later
 	machine_stanzas = ''
-	machine_list_code = '''
-		# machines is a dict of dicts containing information about each machine for you to use.
-		machines = {}'''
 	vagrant_up_section = ''
 
+	machines_update = '''
+		# machines is a dict of dicts containing information about each machine for you to use.
+		machines = {}'''
 	for m in range(1,num_machines+1):
 		machine_name = machine_prefix + str(m)
 		machine_fqdn = machine_name + '.vagrant.test'
@@ -142,13 +142,8 @@ If you want to change a config, choose the number: ''',color=None)
       vb.name = "''' + skel_module_name + '_' + str(m) + '''"
     end
   end''')
-		# machine_list_code
-		machine_list_code += """
+		machines_update += """
 		machines.update({'""" + machine_name + """':{'fqdn':'""" + machine_fqdn + """'}})"""
-		machine_list_code += """
-		ip = shutit.send_and_get_output('''vagrant landrush ls 2> /dev/null | grep -w ^''' + machines['""" + machine_name + """']['fqdn'] + ''' | awk '{print $2}' ''')"""
-		machine_list_code += """
-		machines.get('""" + machine_name + """').update({'ip':ip})"""
 	vagrant_up_section += '''
 		try:
 			pw = file('secret').read().strip()
@@ -186,9 +181,11 @@ If you want to change a config, choose the number: ''',color=None)
 			try:
 				shutit_session.multisend('vagrant up --provider ' + shutit.cfg['shutit-library.virtualization.virtualization.virtualization']['virt_method'] + machine_name,{'assword for':pw,'assword:':pw})
 			except NameError:
-				shutit.multisend('vagrant up ''' + machine + "'",{'assword for':pw,'assword:':pw},timeout=99999)
-			if shutit.send_and_get_output("vagrant status 2> /dev/null | grep -w ^''' + machine + ''' | awk '{print $2}'") != 'running':
-				shutit.pause_point("machine: ''' + machine + ''' appears not to have come up cleanly")
+				shutit.multisend('vagrant up ' + machine,{'assword for':pw,'assword:':pw},timeout=99999)
+			if shutit.send_and_get_output("vagrant status 2> /dev/null | grep -w ^" + machine + " | awk '{print $2}'") != 'running':
+				shutit.pause_point("machine: " + machine + " appears not to have come up cleanly")
+			ip = shutit.send_and_get_output('''vagrant landrush ls 2> /dev/null | grep -w ^''' + machines[machine]['fqdn'] + ''' | awk '{print $2}' ''')
+			machines.get(machine).update({'ip':ip})
 			# Check that the landrush entry is there.
 			shutit_session.send('vagrant landrush ls | grep -w ' + machines[machine]['fqdn'])
 			shutit_session.login(command='vagrant ssh ' + machine)
@@ -209,7 +206,7 @@ If you want to change a config, choose the number: ''',color=None)
 		# Gather landrush info
 		for machine in sorted(machines.keys()):
 			ip = shutit.send_and_get_output('''vagrant landrush ls 2> /dev/null | grep -w ^''' + machines[machine]['fqdn'] + ''' | awk '{print $2}' ''')
-			machines.update({'ip':ip})"""
+			machines.get(machine).update({'ip':ip})"""
 
 
 	if ssh_access:
@@ -527,8 +524,8 @@ so you can upload vagrant boxes.
   end
 """ + machine_stanzas + """
 end''')
+""" + machines_update + """
 """ + vagrant_up_section + """
-""" + machine_list_code + """
 """ + vagrant_setup + """
 """ + copy_keys_code + """
 """ + docker_code + """
@@ -575,7 +572,6 @@ def module():
 	def build(self, shutit):
 		shutit.run_script('''""" + destroyvmssh_file_contents  + """''')
 """ + vagrant_dir_section_n + """
-""" + machine_list_code + """
 """ + shutit.cfg['skeleton']['build_section'] + """
 
 """ + shutit.cfg['skeleton']['config_section'] + """		return True
@@ -662,8 +658,8 @@ shutit.core.module.build:yes''')
   end
 """ + machine_stanzas + """
 end''')
+""" + machines_update + """
 """ + vagrant_up_section + """
-""" + machine_list_code + """
 """ + vagrant_setup + """
 """ + copy_keys_code + """
 """ + docker_code + """
