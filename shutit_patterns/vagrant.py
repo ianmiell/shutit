@@ -1,7 +1,8 @@
 from __future__ import print_function
 import os
-import shutit_util
+import readline
 import texttable
+import shutit_util
 from . import shutitfile
 
 def setup_vagrant_pattern(shutit,
@@ -67,12 +68,16 @@ def setup_vagrant_pattern(shutit,
 			table.set_cols_align(['r', "l", "r"])
 			table.add_rows(rows)
 			print(table.draw() + '\n')
-			choice = shutit_util.get_input(msg='''
+			readline.set_startup_hook(lambda: readline.insert_text('1'))
+			for choice_li in ('5','4','3','2'):
+				readline.add_history(choice_li)
+			choice = shutit_util.util_raw_input(prompt='''
 Choose an item to change if you want to change the default.
 
 Type nothing and hit return to continue to the build.
 
-If you want to change a config, choose the number: ''',color=None)
+If you want to change a config, choose the number: ''')
+			readline.set_startup_hook() 
 			if choice == '':
 				break
 			else:
@@ -81,6 +86,8 @@ If you want to change a config, choose the number: ''',color=None)
 				except ValueError:
 					print('Bad value, ignoring')
 					continue
+			# Print out the actual choice....
+			print(rows[choice][1])
 			# off by one
 			choice -= 1
 			item = options[choice]

@@ -3269,7 +3269,10 @@ class ShutIt(object):
 				pattern = default_pattern
 			else:
 				pattern = ''
-				while pattern not in ('bash','docker','vagrant','docker_tutorial','shutitfile'):
+				choices = ('bash','docker','vagrant','docker_tutorial','shutitfile')
+				for choice in choices:
+					readline.add_history(choice)
+				while pattern not in choices:
 					table = texttable.Texttable()
 					rows = [['Choice','Description'],
 					        ['bash','Shell script'],
