@@ -184,17 +184,17 @@ If you want to change a config, choose the number: ''',color=None)
 			shutit_sessions.update({machine:shutit.create_session('bash')})
 		# Set up and validate landrush
 		for machine in sorted(machines.keys()):
-			shutit_session = shutit_sessions[machine]                                                                                                                                                      
+			shutit_session = shutit_sessions[machine]
 			shutit_session.send('cd ' + shutit.build['this_vagrant_run_dir'])
 			# Remove any existing landrush entry.
-			shutit_session.send(vagrantcommand + ' landrush rm ' + machine['fqdn'])
+			shutit_session.send('vagrant landrush rm ' + machines[machine]['fqdn'])
 			# Needs to be done serially for stability reasons.
-			shutit_session.multisend(vagrantcommand + ' up --provider ' + vagrant_provider + ' ' + machine,{'assword for':pw})
+			shutit_session.multisend('vagrant up --provider ' + vagrant_provider + ' ' + machine,{'assword for':pw})
 			# Check that the landrush entry is there.
-			shutit_session.send(vagrantcommand + ' landrush ls | grep -w ' + machine['fqdn'])
-			shutit_session.login(command=vagrantcommand + ' ssh ' + machine)                                                                                                                               
-			shutit_session.login(command='sudo su - ')                                                                                                                                                     
-			shutit_session.send(r'''cat <(echo -n $(ip -4 -o addr show scope global | grep -v 10.0.2.15 | head -1 | awk '{print $4}' | sed 's/\(.*\)\/.*/\1/') $(hostname)) <(cat /etc/hosts | grep -v $(hostname -s)) > /tmp/hosts && mv -f /tmp/hosts /etc/hosts''')                                                                         
+			shutit_session.send('vagrant landrush ls | grep -w ' + machines[machine]['fqdn'])
+			shutit_session.login(command='vagrant ssh ' + machine)
+			shutit_session.login(command='sudo su - ')
+			shutit_session.send(r'''cat <(echo -n $(ip -4 -o addr show scope global | grep -v 10.0.2.15 | head -1 | awk '{print $4}' | sed 's/\(.*\)\/.*/\1/') $(hostname)) <(cat /etc/hosts | grep -v $(hostname -s)) > /tmp/hosts && mv -f /tmp/hosts /etc/hosts''')
 			# Correct any broken ip addresses.
 			if shutit_session.send_and_get_output('''vagrant landrush ls | grep ''' + machine + ''' | grep 10.0.2.15 | wc -l''') != '0':
 				shutit_session.log('A 10.0.2.15 landrush ip was detected for machine: ' + machine + ', correcting.',level=logging.WARNING)
@@ -203,19 +203,20 @@ If you want to change a config, choose the number: ''',color=None)
 					ipaddr = shutit_session.send_and_get_output(r'''ip -4 -o addr show scope global | grep -v 10.0.2.15 | head -1 | awk '{print $4}' | sed 's/\(.*\)\/.*/\1/' ''')
 					if ipaddr[0] not in ('1','2','3','4','5','6','7','8','9'):
 						time.sleep(10)
+					else:
 						break
-				# Send this on the host (shutit, not shutit_session)                                                                                                                                       
-				shutit.send('vagrant landrush set ' + machine['fqdn'] + ' ' + ipaddr)
+				# Send this on the host (shutit, not shutit_session)
+				shutit.send('vagrant landrush set ' + machines[machine]['fqdn'] + ' ' + ipaddr)
 		# Gather landrush info
 		for machine in sorted(machines.keys()):
-			ip = shutit.send_and_get_output(vagrantcommand + ''' landrush ls 2> /dev/null | grep -w ^''' + machine['fqdn'] + ''' | awk '{print $2}' ''')
+			ip = shutit.send_and_get_output('''vagrant landrush ls 2> /dev/null | grep -w ^''' + machines[machine]['fqdn'] + ''' | awk '{print $2}' ''')
 			machine.update({'ip':ip})"""
 
 
 	if ssh_access:
 		copy_keys_code = '''
 		for machine in sorted(machines.keys()):
-			shutit_session = shutit_sessions[machine]                                                                                                                                                      
+			shutit_session = shutit_sessions[machine]
 			root_password = 'root'
 			shutit_session.install('net-tools') # netstat needed
 			if not shutit_session.command_available('host'):
@@ -235,7 +236,7 @@ If you want to change a config, choose the number: ''',color=None)
 	if docker:
 		docker_code = '''
 		for machine in sorted(machines.keys()):
-			shutit_session = shutit_sessions[machine]                                                                                                                                                      
+			shutit_session = shutit_sessions[machine]
 			# Workaround for docker networking issues + landrush.
 			shutit_session.install('docker')
 			shutit_session.insert_text('Environment=GODEBUG=netdns=cgo','/lib/systemd/system/docker.service',pattern='.Service.')
@@ -248,7 +249,7 @@ If you want to change a config, choose the number: ''',color=None)
 		docker_code = ''
 	user_code = '''
 		for machine in sorted(machines.keys()):
-			shutit_session = shutit_sessions[machine]                                                                                                                                                      
+			shutit_session = shutit_sessions[machine]
 			shutit_session.run_script(r\'\'\'#!/bin/sh
 # See https://raw.githubusercontent.com/ianmiell/vagrant-swapfile/master/vagrant-swapfile.sh
 fallocate -l \'\'\' + shutit.cfg[self.module_id]['swapsize'] + r\'\'\' /swapfile
