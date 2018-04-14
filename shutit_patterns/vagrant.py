@@ -210,7 +210,7 @@ If you want to change a config, choose the number: ''',color=None)
 		# Gather landrush info
 		for machine in sorted(machines.keys()):
 			ip = shutit.send_and_get_output('''vagrant landrush ls 2> /dev/null | grep -w ^''' + machines[machine]['fqdn'] + ''' | awk '{print $2}' ''')
-			machine.update({'ip':ip})"""
+			machines.update({'ip':ip})"""
 
 
 	if ssh_access:
